@@ -1,0 +1,20 @@
+{
+  "Optimus.r1_fastq": [
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L001_R1_001.filtered.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L002_R1_001.filtered.filtered.fastq.gz"
+  ],
+  "Optimus.r2_fastq": [
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L001_R2_001.filtered.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L002_R2_001.filtered.filtered.fastq.gz"
+  ],
+  "Optimus.i1_fastq": [
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L001_I1_001.filtered.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L002_I1_001.filtered.filtered.fastq.gz"
+  ],
+  "Optimus.whitelist": "gs://hca-dcp-sc-pipelines-test-data/whitelists/737K-august-2016.txt",
+  "Optimus.tar_star_reference": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/buildReference/output_bucket/star_primary_gencode_v27.tar",
+  "Optimus.sample_id": "pbmc4k_human",
+  "Optimus.chemistry": "tenX_v2",
+  "Optimus.annotations_gtf": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/gencode.v27.primary_assembly.annotation.gtf.gz",
+  "Optimus.ref_genome_fasta": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/GRCh38.primary_assembly.genome.fa"
+}
