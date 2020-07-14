@@ -10,9 +10,9 @@ TEST_TYPE_UC=$(printf $TEST_TYPE | awk '{ print toupper($0) }')
 WD=$(pwd)
 
 
-INPUTS_JSON="/working/test/${PIPELINE_FOLDER_NAME}/${TEST_TYPE}/test_inputs.json"
-WDL_FILE="/working/test/${PIPELINE_FOLDER_NAME}/${TEST_TYPE}/test_${PIPELINE_FOLDER_NAME}_${TEST_TYPE_UC}.wdl"
-DEPENDENCIES_JSON="/working/test/${PIPELINE_FOLDER_NAME}/${TEST_TYPE}/dependencies.json"
+INPUTS_JSON="/working/tests/skylab/${PIPELINE_FOLDER_NAME}/${TEST_TYPE}/test_inputs.json"
+WDL_FILE="/working/tests/skylab/${PIPELINE_FOLDER_NAME}/${TEST_TYPE}/test_${PIPELINE_FOLDER_NAME}_${TEST_TYPE_UC}.wdl"
+DEPENDENCIES_JSON="/working/tests/skylab/${PIPELINE_FOLDER_NAME}/${TEST_TYPE}/dependencies.json"
 
 echo "Setting Cromwell environmental variables"
 
@@ -24,7 +24,7 @@ fi
 echo ${BROAD_CROMWELL_KEY} > caas-prod.json
 CROMWELL_KEY_FILE="caas-prod.json"
 
-OPTIONS_FILE="/working/test/options.json"
+OPTIONS_FILE="/working/tests/skylab/options.json"
 CROMWELL_URL="https://cromwell.caas-prod.broadinstitute.org"
 COLLECTION="pipeline-surge"
 
