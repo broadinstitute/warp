@@ -34,7 +34,7 @@ docker run --rm \
   -w /working \
   --privileged \
   quay.io/broadinstitute/cromwell-tools:v2.1.0 \
-  /working/test/test_cromwell_workflow.sh \
+  /working/tests/skylab/test_cromwell_workflow.sh \
     "${CROMWELL_KEY_FILE}" \
     "${CROMWELL_URL}" \
     "${INPUTS_JSON}" \
