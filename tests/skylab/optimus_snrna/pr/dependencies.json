@@ -1,0 +1,21 @@
+{
+  "Optimus.wdl": "pipelines/optimus/Optimus.wdl",
+  "ValidateOptimus.wdl": "test/optimus/pr/ValidateOptimus.wdl",
+  "StarAlignBamSingleEnd.wdl": "library/tasks/StarAlignBamSingleEnd.wdl",
+  "FastqToUBam.wdl": "library/tasks/FastqToUBam.wdl",
+  "Attach10xBarcodes.wdl": "library/tasks/Attach10xBarcodes.wdl",
+  "SplitBamByCellBarcode.wdl": "library/tasks/SplitBamByCellBarcode.wdl",
+  "TagGeneExon.wdl": "library/tasks/TagGeneExon.wdl",
+  "CorrectUmiMarkDuplicates.wdl": "library/tasks/CorrectUmiMarkDuplicates.wdl",
+  "MergeSortBam.wdl": "library/tasks/MergeSortBam.wdl",
+  "CreateCountMatrix.wdl": "library/tasks/CreateCountMatrix.wdl",
+  "SequenceDataWithMoleculeTagMetrics.wdl": "library/tasks/SequenceDataWithMoleculeTagMetrics.wdl",
+  "TagSortBam.wdl": "library/tasks/TagSortBam.wdl",
+  "RunEmptyDrops.wdl": "library/tasks/RunEmptyDrops.wdl",
+  "LoomUtils.wdl": "library/tasks/LoomUtils.wdl",
+  "Picard.wdl": "library/tasks/Picard.wdl",
+  "UmiCorrection.wdl": "library/tasks/UmiCorrection.wdl",
+  "ScatterBam.wdl": "library/tasks/ScatterBam.wdl",
+  "ModifyGtf.wdl": "library/tasks/ModifyGtf.wdl",
+  "OptimusInputChecks.wdl": "library/tasks/OptimusInputChecks.wdl"  
+}
