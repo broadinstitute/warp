@@ -1,0 +1,6 @@
+{
+  "monitoring_script": "gs://broad-dsde-mint-dev-teststorage/10x/benchmark/scripts/monitor.sh",
+  "workflow_failure_mode": "ContinueWhilePossible",
+  "read_from_cache":true,
+  "write_to_cache":true
+}
