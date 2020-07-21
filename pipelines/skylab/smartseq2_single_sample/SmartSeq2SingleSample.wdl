@@ -34,7 +34,7 @@ workflow SmartSeq2SingleCell {
     Boolean force_no_check = false
   }
   # version of this pipeline
-  String pipeline_version = "smartseq2_v4.0.1"
+  String pipeline_version = "4.0.1"
 
   parameter_meta {
     genome_ref_fasta: "Genome reference in fasta format"
