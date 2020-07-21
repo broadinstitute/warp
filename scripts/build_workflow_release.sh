@@ -4,7 +4,7 @@ set -e -o pipefail
 declare -r SCRIPT_DIR=$(cd $(dirname $0) && pwd)
 declare -r DSDE_PIPELINES_ROOT=$(cd $(dirname ${SCRIPT_DIR}) && pwd)
 
-declare -r -a ZIP_DIRS=(pipelines structs tasks verification)
+declare -r -a ZIP_DIRS=(pipelines structs tasks verification tests)
 declare -r ZIP_PREFIX=workflow_dependencies
 
 
@@ -27,7 +27,6 @@ function deploy_dependencies() {
     done
     rm -rf ${working_dir}
   fi
-
   cd ${target_dir}
   ln -sfv ${versioned_dependencies_zip} ${dependencies_zip_link}
   cd ${DSDE_PIPELINES_ROOT}
@@ -95,7 +94,7 @@ function main() {
     mkdir -p ${pipeline_dir}
 
     deploy_dependencies ${ZIP_PREFIX} ${pipeline_hash} ${deps_dir} ${preserve_dir_structure}
-    deploy_options ${wdl_prefix} ${pipeline_hash} ${wdl_dir} ${pipeline_dir} ${env}
+    #deploy_options ${wdl_prefix} ${pipeline_hash} ${wdl_dir} ${pipeline_dir} ${env}
     deploy_wdl ${wdl_prefix} ${pipeline_hash} ${wdl_dir} ${pipeline_dir} ${preserve_dir_structure}
 }
 
