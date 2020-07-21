@@ -1,21 +1,21 @@
 version 1.0
 
-import "tasks/skylab/FastqToUBam.wdl" as FastqToUBam
-import "tasks/skylab/Attach10xBarcodes.wdl" as Attach
-import "tasks/skylab/SplitBamByCellBarcode.wdl" as Split
-import "tasks/skylab/MergeSortBam.wdl" as Merge
-import "tasks/skylab/CreateCountMatrix.wdl" as Count
-import "tasks/skylab/StarAlignBamSingleEnd.wdl" as StarAlignBam
-import "tasks/skylab/TagGeneExon.wdl" as TagGeneExon
-import "tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
-import "tasks/skylab/TagSortBam.wdl" as TagSortBam
-import "tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
-import "tasks/skylab/LoomUtils.wdl" as LoomUtils
-import "tasks/skylab/Picard.wdl" as Picard
-import "tasks/skylab/UmiCorrection.wdl" as UmiCorrection
-import "tasks/skylab/ScatterBam.wdl" as ScatterBam
-import "tasks/skylab/ModifyGtf.wdl" as ModifyGtf
-import "tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
+import "../../../tasks/skylab/FastqToUBam.wdl" as FastqToUBam
+import "../../../tasks/skylab/Attach10xBarcodes.wdl" as Attach
+import "../../../tasks/skylab/SplitBamByCellBarcode.wdl" as Split
+import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
+import "../../../tasks/skylab/CreateCountMatrix.wdl" as Count
+import "../../../tasks/skylab/StarAlignBamSingleEnd.wdl" as StarAlignBam
+import "../../../tasks/skylab/TagGeneExon.wdl" as TagGeneExon
+import "../../../tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
+import "../../../tasks/skylab/TagSortBam.wdl" as TagSortBam
+import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
+import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/skylab/Picard.wdl" as Picard
+import "../../../tasks/skylab/UmiCorrection.wdl" as UmiCorrection
+import "../../../tasks/skylab/ScatterBam.wdl" as ScatterBam
+import "../../../tasks/skylab/ModifyGtf.wdl" as ModifyGtf
+import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
 
 workflow Optimus {
   meta {
@@ -59,7 +59,7 @@ workflow Optimus {
   }
 
   # version of this pipeline
-  String pipeline_version = "optimus_v3.0.1"
+  String pipeline_version = "3.0.1"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
