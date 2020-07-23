@@ -1,0 +1,13 @@
+{
+  "GenotypeConcordanceWorkflow.test_sample_alias": "NA12878",
+  "GenotypeConcordanceWorkflow.truth_sample_alias": "HG001",
+  "GenotypeConcordanceWorkflow.basename": "G96830.NA12878",
+  "GenotypeConcordanceWorkflow.truth_vcf": "{TRUTH_VCF}",
+  "GenotypeConcordanceWorkflow.truth_vcf_index": "{TRUTH_VCF_INDEX}",
+  "GenotypeConcordanceWorkflow.gvcf": "{GVCF}",
+  "GenotypeConcordanceWorkflow.gvcf_index": "{GVCF_INDEX}",
+  "GenotypeConcordanceWorkflow.reference_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "GenotypeConcordanceWorkflow.reference_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+  "GenotypeConcordanceWorkflow.reference_fasta_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+  "GenotypeConcordanceWorkflow.interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_calling_regions.hg38.interval_list"
+}

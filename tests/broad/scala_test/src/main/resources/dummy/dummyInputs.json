@@ -1,0 +1,7 @@
+{
+  "DummyWorkflow.message": "This is a dummy workflow!",
+  "DummyWorkflow.dummy_int" : 42,
+  "DummyWorkflow.dummy_string" : "This is a string",
+  "DummyWorkflow.dummy_boolean" : true,
+  "DummyWorkflow.dummy_option" : "Defined"
+}

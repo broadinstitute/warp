@@ -1,0 +1,23 @@
+<!--suppress ALL -->
+<configuration>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/logs/clio.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- roll over daily, inferred by logback from the filename pattern -->
+            <fileNamePattern>/logs/clio-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+
+            <!-- keep 30 days' worth of logs, up to 30GB (3/5 of the disk size for our deployed Clios) -->
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>30GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%-5marker %date{"yyyy-MM-dd'T'HH:mm:ss,SSSXXX", UTC} [%level] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="DEBUG">
+        <appender-ref ref="FILE" />
+    </root>
+</configuration>

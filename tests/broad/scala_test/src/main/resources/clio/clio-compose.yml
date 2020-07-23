@@ -1,0 +1,12 @@
+version: '2'
+
+# Common docker-compose configuration for spinning up a clio-server instance.
+services:
+  clio-server:
+    image: broadinstitute/clio-server:${CLIO_DOCKER_TAG}
+    environment:
+      JAVA_OPTS: -Xmx128m -Xms128m -Dclio.server.elasticsearch.http-hosts.0.hostname=${ELASTICSEARCH_HOST} -Dlogback.configurationFile=/app/clio-logback.xml -Dclio.server.persistence.root-dir=/persistence
+    volumes:
+      - ${CONF_DIR}/clio-logback.xml:/app/clio-logback.xml
+      - ${CLIO_LOG_FILE}:/logs/clio.log
+      - ${LOCAL_PERSISTENCE_DIR}:/persistence

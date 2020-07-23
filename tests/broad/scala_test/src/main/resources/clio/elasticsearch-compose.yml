@@ -1,0 +1,23 @@
+version: '2'
+
+services:
+  elasticsearch:
+    image: broadinstitute/elasticsearch:${ELASTICSEARCH_DOCKER_TAG}
+    environment:
+      cluster.name: docker-cluster
+      bootstrap.memory_lock: 'true'
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      xpack.security.enabled: 'false'
+      path.logs: /usr/share/elasticsearch/logs
+    volumes:
+      - ${CONF_DIR}/elasticsearch-log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    mem_limit: 1g
+    cap_add:
+      - IPC_LOCK
