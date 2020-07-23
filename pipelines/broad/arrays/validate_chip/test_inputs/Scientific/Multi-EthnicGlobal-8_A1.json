@@ -1,0 +1,35 @@
+{
+  "ValidateChip.sample_alias": "NA12878",
+  "ValidateChip.analysis_version_number": 1,
+  "ValidateChip.call_rate_threshold": 0.98,
+  "ValidateChip.indel_genotype_concordance_threshold": 0.99,
+  "ValidateChip.reported_gender": "Female",
+  "ValidateChip.chip_well_barcode": "201004840016_R01C01",
+
+  "ValidateChip.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/Multi-EthnicGlobal_A1/idats/201004840016_R01C01/201004840016_R01C01_Grn.idat",
+  "ValidateChip.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/Multi-EthnicGlobal_A1/idats/201004840016_R01C01/201004840016_R01C01_Red.idat",
+
+  "ValidateChip.chip_manifest_csv_file" : "gs://broad-gotc-test-storage/arrays/metadata/Multi-EthnicGlobal-8_A1/Multi-EthnicGlobal-8_A1.csv",
+  "ValidateChip.bead_pool_manifest_file" : "gs://broad-gotc-test-storage/arrays/metadata/Multi-EthnicGlobal-8_A1/Multi-EthnicGlobal_A1.bpm",
+  "ValidateChip.cluster_file" : "gs://broad-gotc-test-storage/arrays/metadata/Multi-EthnicGlobal-8_A1/Multi-EthnicGlobal_ClusterFile.egt",
+
+  "ValidateChip.control_sample_vcf_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf",
+  "ValidateChip.control_sample_vcf_index_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf.idx",
+  "ValidateChip.control_sample_intervals_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.interval_list",
+  "ValidateChip.control_sample_name" : "NA12878",
+
+  "ValidateChip.ref_fasta": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",
+  "ValidateChip.ref_fasta_index": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai",
+  "ValidateChip.ref_dict": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict",
+
+  "ValidateChip.supported_ref_fasta": "gs://broad-gotc-test-storage/reference/human_b36_both.fasta",
+  "ValidateChip.supported_ref_fasta_index": "gs://broad-gotc-test-storage/reference/human_b36_both.fasta.fai",
+  "ValidateChip.supported_ref_dict": "gs://broad-gotc-test-storage/reference/human_b36_both.dict",
+  "ValidateChip.chain_file": "gs://broad-gotc-test-storage/reference/b36ToHg19.broad.over.chain",
+
+  "ValidateChip.dbSNP_vcf": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz",
+  "ValidateChip.dbSNP_vcf_index": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz.tbi",
+
+  "ValidateChip.disk_size": 100,
+  "ValidateChip.preemptible_tries": 0
+}
