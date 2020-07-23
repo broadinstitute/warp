@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 set -e -o pipefail
 
-declare -r SCRIPT_DIR=$(dirname $(pwd))
+declare -r SCRIPT_DIR=$(cd $(dirname $0) && pwd)
 declare -r DSDE_PIPELINES_ROOT=$(cd $(dirname ${SCRIPT_DIR}) && pwd)
 
-declare -r -a ZIP_DIRS=(pipelines structs tasks methods_pipelines delivery verification)
+#declare -r SCRIPT_DIR=$(pwd)
+#declare -r DSDE_PIPELINES_ROOT=$(dirname $(pwd))
+#declare -r DSDE_PIPELINES_ROOT=$(cd $(dirname ${SCRIPT_DIR}) && pwd)
+
+declare -r -a ZIP_DIRS=(pipelines structs tasks verification)
 declare -r ZIP_PREFIX=workflow_dependencies
 
 
@@ -83,6 +87,8 @@ function main() {
       echo >&2 Error: ${wdl} does not exist!
       exit 1
     fi
+    echo ">> ${SCRIPT_DIR}"
+    echo ">> ${DSDE_PIPELINES_ROOT}"
 
     local -r wdl_basename=${wdl##*/}
     local -r wdl_prefix=${wdl_basename%.*}

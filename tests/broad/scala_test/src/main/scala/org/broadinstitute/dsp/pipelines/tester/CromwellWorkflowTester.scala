@@ -95,7 +95,7 @@ object CromwellWorkflowTester {
   }
 
   private lazy val pipelinesReleaseScript: File =
-    DsdePipelinesRoot / "scripts" / "broad" / "build_workflow_release.sh"
+    DsdePipelinesRoot / "scripts" / "build_workflow_release.sh"
 
   def runReleaseWorkflow(wdlPath: File, env: CromwellEnvironment): File = {
     val tmp = File.newTemporaryDirectory().deleteOnExit()
