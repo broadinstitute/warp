@@ -183,7 +183,8 @@ workflow SmartSeq2SingleCell {
 
   output {
     # version of this pipeline
-    String pipeline_version = version
+    String pipeline_version_out = pipeline_version
+
     # quality control outputs
     File aligned_bam = HISAT2_output_bam
     File bam_index = HISAT2_bam_index
@@ -193,6 +194,7 @@ workflow SmartSeq2SingleCell {
     File bait_bias_summary_metrics = CollectMultipleMetrics.bait_bias_summary_metrics
     File rna_metrics = CollectRnaMetrics.rna_metrics
     Array[File] group_results = GroupQCOutputs.group_files
+    
     # data outputs
     File aligned_transcriptome_bam = HISAT2RSEM_output_bam
     File rsem_gene_results = RSEMExpression.rsem_gene
