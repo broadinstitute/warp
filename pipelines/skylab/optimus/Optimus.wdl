@@ -267,7 +267,7 @@ workflow Optimus {
 
   output {
     # version of this pipeline
-    String pipeline_version = version
+    String pipeline_version_out = pipeline_version
 
     File bam = MergeSorted.output_bam
     File matrix = MergeCountFiles.sparse_count_matrix
