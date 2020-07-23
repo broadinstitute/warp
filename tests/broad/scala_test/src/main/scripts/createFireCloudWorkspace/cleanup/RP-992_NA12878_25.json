@@ -1,0 +1,4 @@
+{
+  "cram_path": "gs://broad-exomes-dev-storage/pipeline/RP-992/NA12878/v25/NA12878.cram",
+  "crai_path": "gs://broad-exomes-dev-storage/pipeline/RP-992/NA12878/v25/NA12878.cram.crai"
+}

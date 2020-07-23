@@ -1,0 +1,45 @@
+version: '2'
+
+# Compose configuration for running both Clio and Elasticsearch locally for integration-testing.
+services:
+  # NOTE: The integration test code relies upon this service being named `clio-server`
+  # If you change this name, you need to update the `DockerIntegrationSpec` to match
+  clio-server:
+    extends:
+      file: clio-compose.yml
+      service: clio-server
+    networks:
+      - clio-network
+
+  # NOTE: The integration test code relies upon this service being named `elasticsearch1`
+  # If you change this name, you also need to update the `FullDockerIntegrationSpec`
+  elasticsearch1:
+    extends:
+      file: elasticsearch-compose.yml
+      service: elasticsearch
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+      - ${LOG_DIR}/elasticsearch1:/usr/share/elasticsearch/logs
+    networks:
+      - clio-network
+
+  elasticsearch2:
+    extends:
+      file: elasticsearch-compose.yml
+      service: elasticsearch
+    volumes:
+      - esdata2:/usr/share/elasticsearch/data
+      - ${LOG_DIR}/elasticsearch2:/usr/share/elasticsearch/logs
+    networks:
+      - clio-network
+    environment:
+      discovery.zen.ping.unicast.hosts: elasticsearch1
+
+volumes:
+  esdata1:
+    driver: local
+  esdata2:
+    driver: local
+
+networks:
+  clio-network:

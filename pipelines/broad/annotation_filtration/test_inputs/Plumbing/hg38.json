@@ -1,0 +1,15 @@
+{
+  "AnnotationFiltration.vcfs": [
+    "gs://broad-gotc-test-storage/annotation_filtration/inputs/hg38/negative/G96830.NA12878.vcf.gz",
+    "gs://broad-gotc-test-storage/annotation_filtration/inputs/hg38/positive/LMM_Path_LP_VUS5-variants-6-12-18.sorted_liftover_b38.corrected.updated.vcf",
+    "gs://broad-gotc-test-storage/annotation_filtration/inputs/hg38/positive/ExAC.r1.sites.liftover.b38.corrected.acmg-subset.vcf.gz"
+  ],
+
+  "AnnotationFiltration.ref_version": "hg38",
+  "AnnotationFiltration.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "AnnotationFiltration.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+  "AnnotationFiltration.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+
+  "AnnotationFiltration.gatk_docker": "us.gcr.io/broad-gotc-prod/gatk:5da51e169f007cb97c3bd23229e0a31c2973ef27",
+  "AnnotationFiltration.custom_data_source_tar_gz": "gs://broad-public-datasets/funcotator/funcotator_dataSources.v1.6.20190124g.tar.gz"
+}
