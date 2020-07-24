@@ -20,7 +20,7 @@ class ValidateChipTester(testerConfig: ValidateChipConfig)(
   override val workflowName: String = "ValidateChip"
 
   val workflowDir
-    : File = CromwellWorkflowTester.PipelineRoot / "arrays" / "chip"
+    : File = CromwellWorkflowTester.PipelineRoot / "broad" / "arrays" / "validate_chip"
 
   protected val resultsPrefix: URI = URI.create(
     s"gs://broad-gotc-test-results/$envString/validate_chip/$testTypeString/$timestamp/"
