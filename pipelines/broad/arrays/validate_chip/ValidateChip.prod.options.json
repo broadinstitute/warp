@@ -1,9 +1,0 @@
-{
-  "read_from_cache": true,
-  "write_to_cache": true,
-  "google_project": "broad-arrays-prod",
-  "default_runtime_attributes": {
-    "zones": "us-central1-a us-central1-b us-central1-c us-central1-f"
-  },
-  "monitoring_script": "gs://broad-references-private/monitoring_script.sh"
-}
