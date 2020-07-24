@@ -1,0 +1,39 @@
+{
+    "CEMBA.output_base_sample_name": "CEMBA",
+    "CEMBA.barcode_white_list": "gs://broad-biccn-dev-test-data/whitelist",
+    "CEMBA.barcode_start_pos": 0,
+    "CEMBA.barcode_length": 6,
+    "CEMBA.fastq_r1_gzipped_input": "gs://broad-biccn-dev-test-data/cemba2/CEMBA_test_sample/fastq/171213_CEMBA_mm_P56-P63_3C_MOp_CEMBA171206_3C_1_CEMBA171206_3C_3_A10_AD007_indexed_R1.fastq.gz",
+    "CEMBA.fastq_r2_gzipped_input": "gs://broad-biccn-dev-test-data/cemba2/CEMBA_test_sample/fastq/171213_CEMBA_mm_P56-P63_3C_MOp_CEMBA171206_3C_1_CEMBA171206_3C_3_A10_AD007_indexed_R2.fastq.gz",
+    "CEMBA.reference_fasta": "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/GRCm38.primary_assembly.genome.fa",
+    "CEMBA.reference_fasta_index": "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/GRCm38.primary_assembly.genome.fa.fai",
+    "CEMBA.fwd_converted_reference_fasta": "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/Bisulfite_Genome/CT_conversion/genome_mfa.CT_conversion.fa",
+    "CEMBA.rev_converted_reference_fasta": "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa",
+    "CEMBA.reference_dictionary": "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/GRCm38.primary_assembly.genome.dict",
+    "CEMBA.fwd_bowtie2_index_files": [
+        "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/Bisulfite_Genome/CT_conversion/BS_CT.1.bt2",
+        "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/Bisulfite_Genome/CT_conversion/BS_CT.2.bt2",
+        "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/Bisulfite_Genome/CT_conversion/BS_CT.3.bt2",
+        "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/Bisulfite_Genome/CT_conversion/BS_CT.4.bt2",
+        "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/Bisulfite_Genome/CT_conversion/BS_CT.rev.1.bt2",
+        "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/Bisulfite_Genome/CT_conversion/BS_CT.rev.2.bt2"
+    ],
+    "CEMBA.rev_bowtie2_index_files": [
+        "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/Bisulfite_Genome/GA_conversion/BS_GA.1.bt2",
+        "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/Bisulfite_Genome/GA_conversion/BS_GA.2.bt2",
+        "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/Bisulfite_Genome/GA_conversion/BS_GA.3.bt2",
+        "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/Bisulfite_Genome/GA_conversion/BS_GA.4.bt2",
+        "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/Bisulfite_Genome/GA_conversion/BS_GA.rev.1.bt2",
+        "gs://broad-biccn-dev-test-data/GRCm38_primary_assembly_bismark_bowtie2_genome/Bisulfite_Genome/GA_conversion/BS_GA.rev.2.bt2"
+    ],
+    "CEMBA.quality_cutoff": 20,
+    "CEMBA.min_length_paired_end_trim": 62,
+    "CEMBA.min_length_single_end_trim": 30,
+    "CEMBA.read1_adapter_seq": "AGATCGGAAGAGCACACGTCTGAAC",
+    "CEMBA.read2_adapter_seq": "AGATCGGAAGAGCGTCGTGTAGGGA",
+    "CEMBA.cut_length": 16,
+    "CEMBA.paired_end_run": "false",
+    "CEMBA.remove_duplicates": "true",
+    "CEMBA.extract_and_attach_barcodes_in_single_end_run": "false",
+    "CEMBA.min_map_quality": 10
+}
