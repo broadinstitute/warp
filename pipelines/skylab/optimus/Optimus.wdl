@@ -32,6 +32,7 @@ workflow Optimus {
     Array[File]? i1_fastq
     String sample_id
     String? output_bam_basename = sample_id
+    String? biomaterial_id = biomaterial_id
 
     # organism reference parameters
     File tar_star_reference
@@ -255,6 +256,7 @@ workflow Optimus {
   call LoomUtils.OptimusLoomGeneration{
     input:
       sample_id = sample_id,
+      biomaterial_id = biomaterial_id
       annotation_file = annotations_gtf,
       cell_metrics = MergeCellMetrics.cell_metrics,
       gene_metrics = MergeGeneMetrics.gene_metrics,

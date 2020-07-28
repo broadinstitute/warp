@@ -50,9 +50,11 @@ task OptimusLoomGeneration {
 
   input {
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.2" 
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-alpha" 
     # name of the sample
     String sample_id
+    # user provided id
+    String biomaterial_id
     # gene annotation file in GTF format
     File annotation_file
     # the file "merged-cell-metrics.csv.gz" that contains the cellwise metrics
@@ -103,6 +105,10 @@ task OptimusLoomGeneration {
        --sample_id ${sample_id} \
        --count_matrix ${sparse_count_matrix} \
        --expression_data_type $EXPRESSION_DATA_TYPE_PARAM
+
+    python3 /tools/modify_loom_optimus.py \
+       --input_path_for_loom "${sample_id}.loom" \
+       --biomaterial_id ${biomaterial_id}
   }
 
   runtime {
