@@ -11,7 +11,7 @@ WD=$(pwd)
 
 TEST_WDL_FILE="${WD}/tests/skylab/${PIPELINE_FOLDER_NAME}/${TEST_TYPE}/test_${PIPELINE_FOLDER_NAME}_${TEST_TYPE_UC}.wdl"
 
-echo "calling release script to flatten dependencies and imports"
+# Calling release script to flatten dependencies and imports
 
 TMP_DIR=$(mktemp -d -t release-XXXX)
 GIT_HASH=$(git rev-parse --short HEAD)
