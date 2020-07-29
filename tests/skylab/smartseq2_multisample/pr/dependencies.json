@@ -1,0 +1,11 @@
+{
+  "SmartSeq2SingleSample.wdl": "pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl",
+  "MultiSampleSmartSeq2.wdl": "pipelines/skylab/smartseq2_multisample/MultiSampleSmartSeq2.wdl",
+  "ValidateMultiSampleSmartSeq2.wdl": "tests/skylab/smartseq2_multisample/pr/ValidateMultiSampleSmartSeq2.wdl",
+  "HISAT2.wdl": "tasks/skylab/HISAT2.wdl",
+  "Picard.wdl": "tasks/skylab/Picard.wdl",
+  "RSEM.wdl": "tasks/skylab/RSEM.wdl",
+  "LoomUtils.wdl": "tasks/skylab/LoomUtils.wdl",
+  "SS2InputChecks.wdl": "tasks/skylab/SS2InputChecks.wdl",
+  "GroupMetricsOutputs.wdl": "tasks/skylab/GroupMetricsOutputs.wdl"
+}

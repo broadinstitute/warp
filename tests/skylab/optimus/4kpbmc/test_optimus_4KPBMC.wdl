@@ -1,6 +1,5 @@
 version 1.0
 
-
 import "Optimus.wdl" as target
 import "ValidateOptimus.wdl" as checker
 

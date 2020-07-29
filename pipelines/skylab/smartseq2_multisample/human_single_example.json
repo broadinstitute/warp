@@ -1,0 +1,15 @@
+{
+    "MultiSampleSmartSeq2.genome_ref_fasta": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/GRCh38.primary_assembly.genome.fa",
+    "MultiSampleSmartSeq2.rrna_intervals": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/gencode.v27.rRNA.interval_list",
+    "MultiSampleSmartSeq2.gene_ref_flat": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/GRCh38_gencode.v27.refFlat.txt",
+    "MultiSampleSmartSeq2.hisat2_ref_name": "genome_snp_tran",
+    "MultiSampleSmartSeq2.hisat2_ref_trans_name": "gencode_v27_trans_rsem",
+    "MultiSampleSmartSeq2.hisat2_ref_index": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/HISAT2/genome_snp_tran.tar.gz",
+    "MultiSampleSmartSeq2.hisat2_ref_trans_index": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/HISAT2/gencode_v27_trans_rsem.tar.gz",
+    "MultiSampleSmartSeq2.rsem_ref_index": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/gencode_v27_primary.tar",
+    "MultiSampleSmartSeq2.stranded": "NONE",
+    "MultiSampleSmartSeq2.paired_end": false,
+    "MultiSampleSmartSeq2.file_prefix": "gs://hca-dcp-mint-test-data/ss2/human/single-read/CD4_cytotoxic_renamed",
+    "MultiSampleSmartSeq2.input_file_names": ["SRR6258249", "SRR6259788"],
+    "MultiSampleSmartSeq2.batch_id": "human_test"
+}

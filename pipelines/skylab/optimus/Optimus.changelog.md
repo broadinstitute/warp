@@ -1,3 +1,9 @@
+# optimus_v3.0.1
+
+2020-07-21 (Date of Last Commit)
+
+* Changed the imports to relative imports to support Dockstore->Terra release
+
 # optimus_v3.0.0
 2020-06-10 (Date of Last Commit)
 
