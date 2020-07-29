@@ -44,8 +44,7 @@ function deploy_options() {
   elif [ -f ${wdl_dir}/${prefix}.${env}.options.json ]; then
     base_options=${prefix}.${env}.options.json
   else
-    echo >&2 Error: Options JSON not found at either ${prefix}.options.json or ${prefix}.${env}.options.json
-    exit 1
+    echo Options JSON not found at either ${prefix}.options.json or ${prefix}.${env}.options.json
   fi
 
   cp ${wdl_dir}/${base_options} ${target_dir}/${versioned_options}
@@ -94,7 +93,7 @@ function main() {
     mkdir -p ${pipeline_dir}
 
     deploy_dependencies ${ZIP_PREFIX} ${pipeline_hash} ${deps_dir} ${preserve_dir_structure}
-    #deploy_options ${wdl_prefix} ${pipeline_hash} ${wdl_dir} ${pipeline_dir} ${env}
+    deploy_options ${wdl_prefix} ${pipeline_hash} ${wdl_dir} ${pipeline_dir} ${env}
     deploy_wdl ${wdl_prefix} ${pipeline_hash} ${wdl_dir} ${pipeline_dir} ${preserve_dir_structure}
 }
 
