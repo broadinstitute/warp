@@ -1,0 +1,7 @@
+{
+  "BuildIndices.gtf_version": "27",
+  "BuildIndices.organism": "human",
+  "BuildIndices.organism_prefix": "h",
+  "BuildIndices.genome_short_string": "hg38",
+  "BuildIndices.dbsnp_version": "150"
+}

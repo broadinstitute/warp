@@ -4,7 +4,7 @@ set -e -o pipefail
 declare -r SCRIPT_DIR=$(cd $(dirname $0) && pwd)
 declare -r DSDE_PIPELINES_ROOT=$(cd $(dirname ${SCRIPT_DIR}) && pwd)
 
-declare -r -a ZIP_DIRS=(pipelines structs tasks verification)
+declare -r -a ZIP_DIRS=(pipelines structs tasks verification tests)
 declare -r ZIP_PREFIX=workflow_dependencies
 
 
@@ -27,7 +27,6 @@ function deploy_dependencies() {
     done
     rm -rf ${working_dir}
   fi
-
   cd ${target_dir}
   ln -sfv ${versioned_dependencies_zip} ${dependencies_zip_link}
   cd ${DSDE_PIPELINES_ROOT}
@@ -41,15 +40,17 @@ function deploy_options() {
   # Some workflows have per-environment options, and others share options across all environments.
   local base_options
   if [ -f ${wdl_dir}/${prefix}.options.json ]; then
-    base_options=${prefix}.options.json
+    base_options=${wdl_dir}/${prefix}.options.json
   elif [ -f ${wdl_dir}/${prefix}.${env}.options.json ]; then
-    base_options=${prefix}.${env}.options.json
+    base_options=${wdl_dir}/${prefix}.${env}.options.json
+  elif [[ "${wdl_dir}" =~ .*"skylab".* ]] && [[ -f ${DSDE_PIPELINES_ROOT}/tests/skylab/test.options.json ]]; then
+    base_options=${DSDE_PIPELINES_ROOT}/tests/skylab/test.options.json
   else
     echo >&2 Error: Options JSON not found at either ${prefix}.options.json or ${prefix}.${env}.options.json
     exit 1
   fi
 
-  cp ${wdl_dir}/${base_options} ${target_dir}/${versioned_options}
+  cp ${base_options} ${target_dir}/${versioned_options}
   cd ${target_dir}
   ln -sfv ${versioned_options} ${prefix}.options.json
   cd ${DSDE_PIPELINES_ROOT}
