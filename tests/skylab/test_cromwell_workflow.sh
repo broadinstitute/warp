@@ -9,9 +9,6 @@ WDL_FILE=$4
 OPTIONS_FILE=$5
 DEPENDENCIES_ZIP=$6
 COLLECTION=$7
-# Read list of dependency files into an array to pass to cromwell-tools
-#DEPENDENCIES_LIST=($(cat ${DEPENDENCIES_ZIP} | python3 -c "import json,sys;obj=json.load(sys.stdin);print(' '.join(obj.values()));"))
-#echo DEPENDENCIES_LIST=${DEPENDENCIES_LIST[@]}
 
 echo "Starting workflow."
 
