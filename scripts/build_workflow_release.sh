@@ -43,7 +43,7 @@ function deploy_options() {
     base_options=${wdl_dir}/${prefix}.options.json
   elif [ -f ${wdl_dir}/${prefix}.${env}.options.json ]; then
     base_options=${wdl_dir}/${prefix}.${env}.options.json
-  elif [["${wdl_dir}" == *"skylab"*]] && [-f ${DSDE_PIPELINES_ROOT}/tests/skylab/test.options.json ]; then
+  elif [[ "${wdl_dir}" =~ .*"skylab".* ]]; then
     base_options=${DSDE_PIPELINES_ROOT}/tests/skylab/test.options.json
   else
     echo >&2 Error: Options JSON not found at either ${prefix}.options.json or ${prefix}.${env}.options.json
