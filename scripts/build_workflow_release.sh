@@ -46,8 +46,7 @@ function deploy_options() {
     base_options=${prefix}.${env}.options.json
     cp ${wdl_dir}/${base_options} ${target_dir}/${versioned_options}
   elif [ -f ${DSDE_PIPELINES_ROOT}/tests/skylab/test.options.json ]; then
-    base_options=test.options.json
-    cp ${DSDE_PIPELINES_ROOT}/${base_options} ${target_dir}/${versioned_options}
+    cp ${DSDE_PIPELINES_ROOT}/tests/skylab/test.options.json ${target_dir}/${versioned_options}
   else
     echo >&2 Error: Options JSON not found at either ${prefix}.options.json or ${prefix}.${env}.options.json
     exit 1
