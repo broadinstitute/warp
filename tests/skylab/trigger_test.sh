@@ -26,8 +26,8 @@ DEPENDENCIES_ZIP="dependencies/workflow_dependencies.zip"
 FLATTENED_TEST_WDL="test_${PIPELINE_FOLDER_NAME}_${TEST_TYPE_UC}/test_${PIPELINE_FOLDER_NAME}_${TEST_TYPE_UC}.wdl"
 
 # Moving all files into temp dir
-cp "${WD}/tests/skylab/options.json" "${TMP_DIR}/options.json"
-OPTIONS_FILE="options.json"
+cp "${WD}/tests/skylab/options.json" "${TMP_DIR}/test.options.json"
+OPTIONS_FILE="test.options.json"
 
 cp "${WD}/tests/skylab/${PIPELINE_FOLDER_NAME}/${TEST_TYPE}/test_inputs.json" "${TMP_DIR}/test_inputs.json"
 INPUTS_JSON="test_inputs.json"
