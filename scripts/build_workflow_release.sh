@@ -95,7 +95,7 @@ function main() {
 
     deploy_dependencies ${ZIP_PREFIX} ${pipeline_hash} ${deps_dir} ${preserve_dir_structure}
 
-    if [options]; then
+    if [${options}]; then
         deploy_options ${wdl_prefix} ${pipeline_hash} ${wdl_dir} ${pipeline_dir} ${env}
     fi
 
