@@ -43,6 +43,8 @@ function deploy_options() {
     base_options=${prefix}.options.json
   elif [ -f ${wdl_dir}/${prefix}.${env}.options.json ]; then
     base_options=${prefix}.${env}.options.json
+  elif [ -f ${DSDE_PIPELINES_ROOT}/tests/skylab/test.options.json ]; then
+    base_options=test.options.json
   else
     echo >&2 Error: Options JSON not found at either ${prefix}.options.json or ${prefix}.${env}.options.json
     exit 1
@@ -74,7 +76,7 @@ function deploy_wdl() {
 }
 
 function main() {
-    local -r wdl="$1" cloud_workflows_target="$2" pipeline_hash="$3" env="$4" options="$5" preserve_dir_structure="$6"
+    local -r wdl="$1" cloud_workflows_target="$2" pipeline_hash="$3" env="$4" preserve_dir_structure="$5"
     local -r pwd=$(pwd)
     trap "cd ${pwd}" ERR EXIT HUP INT TERM
 
@@ -94,11 +96,7 @@ function main() {
     mkdir -p ${pipeline_dir}
 
     deploy_dependencies ${ZIP_PREFIX} ${pipeline_hash} ${deps_dir} ${preserve_dir_structure}
-
-    if [${options}]; then
-        deploy_options ${wdl_prefix} ${pipeline_hash} ${wdl_dir} ${pipeline_dir} ${env}
-    fi
-
+    deploy_options ${wdl_prefix} ${pipeline_hash} ${wdl_dir} ${pipeline_dir} ${env}
     deploy_wdl ${wdl_prefix} ${pipeline_hash} ${wdl_dir} ${pipeline_dir} ${preserve_dir_structure}
 }
 
