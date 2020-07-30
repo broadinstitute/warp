@@ -4,7 +4,7 @@ set -e -o pipefail
 declare -r SCRIPT_DIR=$(cd $(dirname $0) && pwd)
 declare -r DSDE_PIPELINES_ROOT=$(cd $(dirname ${SCRIPT_DIR}) && pwd)
 
-declare -r -a ZIP_DIRS=(pipelines structs tasks verification tests)
+declare -r -a ZIP_DIRS=(pipelines structs tasks verification tests/skylab)
 declare -r ZIP_PREFIX=workflow_dependencies
 
 
