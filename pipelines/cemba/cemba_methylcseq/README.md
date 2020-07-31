@@ -46,7 +46,7 @@ CEMBA is a pipeline developed by the Data Coordination Platform (DCP) of the [Hu
 # Set-up
 
 ## CEMBA Installation and Requirements
-The CEMBA pipeline code is written in the [Workflow Description Lanugage (WDL)](https://github.com/broadinstitute/warp) abd can be downloaded by cloning the GitHub repository [WARP](https://github.com/broadinstitute/warp). For the latest release of CEMBA, please see the release tags prefixed with "CEMBA" [here](https://github.com/broadinstitute/warp/tags). CEMBA can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. 
+The CEMBA pipeline code is written in the [Workflow Description Language (WDL)](https://github.com/broadinstitute/warp) and can be downloaded by cloning the GitHub repository [WARP](https://github.com/broadinstitute/warp). For the latest release of CEMBA, please see the release tags prefixed with "CEMBA" [here](https://github.com/broadinstitute/warp/tags). CEMBA can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. 
 
 ## Inputs
 
@@ -170,6 +170,7 @@ All CEMBA pipeline releases are documented in the [CEMBA changelog](CEMBA.change
 # Have Suggestions? 
 
 Coming soon, we will have a GitHub document dedicated to open issues! In the meantime, please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+
 
 
 
