@@ -94,9 +94,7 @@ The pipeline accepts paired-end reads in the form of two compressed FASTQ files 
 
 ## CEMBA Task Summary
 
-Here we describe the tasks and tools of the CEMBA pipeline; [the code](CEMBA.wdl)) is available through GitHub.
-
-The tools each Optimus task employs are detailed in the table below. Each task can be found in the [CEMBA WDL](CEMBA.wdl) If you are looking for the parameters for each task/tool, please see the  `command {}` section of the WDL script. Read the sections below for details of each task.
+The table and summary sections below detail the tasks and tools of the CEMBA pipeline; [the code](CEMBA.wdl) is available through GitHub. Each task can be found in the [CEMBA WDL](CEMBA.wdl) If you are looking for the specific parameters of each task/tool, please see the  `command {}` section of the WDL script. 
 
 | Task | Tool(s) | Purpose | Docker |
 | :-- | :-- | :-- | :-- |
@@ -119,7 +117,7 @@ The tools each Optimus task employs are detailed in the table below. Each task c
 | MethylationTypeCaller | [GATK v4.1.2.0](https://gatk.broadinstitute.org/hc/en-us)  | Produce a  VCF with locus-specific methylation information | broadinstitute/gatk:4.1.2.0 |
 | ComputeCoverageDepth | [Samtools v1.9](http://www.htslib.org/)  | Compute number of sites with coverage greater than 1 | quay.io/broadinstitute/samtools:1.9 |
 
-### Prior to running
+### Prior to running: set paired-end or single-end mode
 While the pipeline accepts paired-end reads, it can only perform multiplexing when running in single-end mode. You can specify single-end mode or paired-end mode using the paired_end_run boolean in the configuration file.
 
 ### 1. Trim adaptors
@@ -151,7 +149,7 @@ Methylated bases are identified using the MethylationTypeCaller task which calls
 The ComputeCoverageDepth task uses Samtools to calculate any region in the filtered, sorted BAM with a coverage depth greater than 1. This interval is read in the stdout of the workflow.
 
 # Outputs
-| Output Name | Description | Filetype (when applicable) |
+| Workflow output Name | Description | Filetype (when applicable) |
 | --- | --- | --- |
 | bam_sort_output | Final aligned, filtered, (barcoded), and sorted BAM | BAM |
 | bam_index_output | Index file for the final BAM  | INDEX | 
