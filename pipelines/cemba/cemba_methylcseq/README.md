@@ -129,23 +129,23 @@ CEMBA can extract cell barcodes from multiplexed samples  if the extract_and_att
 ### 3. Trim degenerate bases, random primer indexes, and Adaptase C/T tail
 After barcode extraction, the Trim task is used a second time to remove additional bases resulting from R1 random primer indexes (often used as barcodes) and the R2 C/T tail introduced by the Adaptase enzyme. Reads are trimmed using the cut_length input. The read length threshold is set by the min_length_single_end input. 
 
-### 4. Alignment 
+### 4. Align to a reference genome 
 The resulting trimmed FASTQ files can be aligned to a reference either in single-end mode for multiplexed samples or paired-end mode. For all modes, the workflow aligns with Bismark with --bowtie2 option. For paired-end or the single-end mode for R1, the workflow uses a directional option with --pbat parameter. For R2, the directional option is turned off. 
 
-### 5. Sorting, duplicate removal and filtering 
+### 5. Sort, remove duplicates and filter 
 
 The aligned BAM(s) are scattered and sorted in coordinate order using Picard. Duplicate reads are then removed from the sorted BAM. If a min_map_quality is provided in the input, reads will be filtered accordingly and a BAM produced for all reads above the min_map_quality and a BAM for reads below the min_map_quality.
 
-### 6. Methylation reports
+### 6. Generate methylation reports
 Methylation reports are generated using the Bismark at two steps in the workflow: after the removal of duplicates and again after filtering on min_map_quality. The bismark_methylation_extraction function with the -- comprehensive --merge_non_CpG --report options outputs multiple reports which are detailed in the [Bismark documentation](https://www.bioinformatics.babraham.ac.uk/projects/bismark/Bismark_User_Guide.pdf). These outputs include mbias, splitting, CpG context, and non-CpG context reports. 
 
-### 7. Attaching barcodes, merging BAMs, adding read groups, sorting and indexing BAMs 
+### 7. Attach barcodes, merge BAMs, add read groups, sort and index BAMs 
 In the AttachBarcodes task, Picard attaches the barcodes in the R1 uBAM to the aligned, duplicate-removed, and if applicable, filtered, R1 BAM. This produces a tagged_mapped.bam file. Once the barcodes are attached, the MergeBams task uses Samtools to merge the (barcoded if applicable) R1 BAM with the aligned and filtered R2 BAM. Read groups are then attached to the merged BAM file with GATK4 and the BAM is sorted with Picard. The BAM is indexed with Samtools.
 
-### 8. Variant calling
+### 8. Call methylated variants
 Methylated bases are identified using the MethylationTypeCaller task which calls the GATK4 function MethylationTypeCaller. This produces a VCF with methylation calls. 
 
-### 9. Computing coverage depth 
+### 9. Compute coverage depth 
 The ComputeCoverageDepth task uses Samtools to calculate any region in the filtered, sorted BAM with a coverage depth greater than 1. This interval is read in the stdout of the workflow.
 
 # Outputs
