@@ -1,3 +1,8 @@
+# 1.8.1
+2020-07-31
+
+* Have md5sum task stop using phusion/baseimage:latest docker image (it has been removed).  Start using a Google-hosted base image in it's stead.
+
 # 1.8
 2020-06-23
 
