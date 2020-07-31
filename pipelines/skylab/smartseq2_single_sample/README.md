@@ -82,7 +82,7 @@ The Smart-seq2 Single Sample workflow requires multiple reference indexes. Infor
 
 | Workflow Step | Reference name | Reference Description | Tool |
 | --- | --- | --- | --- |
-| All | sample_name | Sample name or Cell ID | NA |
+| All | cell_suspension_id | Sample name or Cell ID | NA |
 | All | output_name | Output name, can include path | NA |
 | All | paired_end | A boolean describing if sample is paired-end | NA |
 | **Genomic alignment with HISAT2** | hisat2_ref_index | HISAT2 reference index file in tarball | HISAT2 |

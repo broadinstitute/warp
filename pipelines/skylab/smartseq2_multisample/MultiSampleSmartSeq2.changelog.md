@@ -1,3 +1,9 @@
+# MultiSampleSmartSeq2_v2.1.1
+
+2020-07-31 (Date of Last Commit)
+
+* Added batch_name as an optional input for user provided biomaterial id. 
+
 # MultiSampleSmartSeq2_v2.0.1
 
 2020-07-20 (Date of Last Commit)

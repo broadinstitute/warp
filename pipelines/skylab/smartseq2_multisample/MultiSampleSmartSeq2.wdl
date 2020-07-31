@@ -26,6 +26,7 @@ workflow MultiSampleSmartSeq2 {
       String file_prefix
       Array[String] input_file_names
       String batch_id
+      String? batch_name
       Boolean paired_end
   }
   # Version of this pipeline
@@ -64,7 +65,7 @@ workflow MultiSampleSmartSeq2 {
             hisat2_ref_trans_index = hisat2_ref_trans_index,
             hisat2_ref_trans_name = hisat2_ref_trans_name,
             rsem_ref_index = rsem_ref_index,
-            sample_name = input_file_names[idx],
+            cell_suspension_id = input_file_names[idx],
             output_name = input_file_names[idx],
             paired_end = paired_end,
         }
@@ -84,7 +85,7 @@ workflow MultiSampleSmartSeq2 {
               hisat2_ref_trans_index = hisat2_ref_trans_index,
               hisat2_ref_trans_name = hisat2_ref_trans_name,
               rsem_ref_index = rsem_ref_index,
-              sample_name = input_file_names[idx],
+              cell_suspension_id = input_file_names[idx],
               output_name = input_file_names[idx],
               paired_end = paired_end,
           }
@@ -99,7 +100,8 @@ workflow MultiSampleSmartSeq2 {
   call LoomUtils.AggregateSmartSeq2Loom as AggregateLoom {
     input:
       loom_input = loom_output_files,
-      plateid = batch_id
+      batch_id = batch_id,
+      batch_name = batch_name
   }
 
 

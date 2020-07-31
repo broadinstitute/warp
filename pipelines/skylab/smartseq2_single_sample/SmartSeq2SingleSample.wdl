@@ -26,7 +26,8 @@ workflow SmartSeq2SingleCell {
     String hisat2_ref_trans_name
     # samples
     String stranded
-    String sample_name
+    String cell_suspension_id
+    String? cell_suspension_name
     String output_name
     File fastq1
     File? fastq2
@@ -46,7 +47,8 @@ workflow SmartSeq2SingleCell {
     hisat2_ref_name: "HISAT2 reference index name"
     hisat2_ref_trans_name: "HISAT2 transcriptome index file name"
     stranded: "Library strand information example values: FR RF NONE"
-    sample_name: "Sample name or Cell ID"
+    cell_suspension_id: "Sample name or Cell ID"
+    cell_suspension_name: "User provided sample name or Cell ID"
     output_name: "Output name, can include path"
     fastq1: "R1 in paired end reads"
     fastq2: "R2 in paired end reads"
@@ -70,7 +72,7 @@ workflow SmartSeq2SingleCell {
          fastq1 = fastq1,
          fastq2 = select_first([fastq2]),
          ref_name = hisat2_ref_name,
-         sample_name = sample_name,
+         cell_suspension_id = cell_suspension_id,
          output_basename = quality_control_output_basename,
      }
   }
@@ -80,7 +82,7 @@ workflow SmartSeq2SingleCell {
          hisat2_ref = hisat2_ref_index,
          fastq = fastq1,
          ref_name = hisat2_ref_name,
-         sample_name = sample_name,
+         cell_suspension_id = cell_suspension_id,
          output_basename = quality_control_output_basename,
      }
   }
@@ -120,7 +122,7 @@ workflow SmartSeq2SingleCell {
           fastq1 = fastq1,
           fastq2 = fastq2,
           ref_name = hisat2_ref_trans_name,
-          sample_name = sample_name,
+          cell_suspension_id = cell_suspension_id,
           output_basename = data_output_basename,
       }
   }
@@ -131,7 +133,7 @@ workflow SmartSeq2SingleCell {
           hisat2_ref = hisat2_ref_trans_index,
           fastq = fastq1,
           ref_name = hisat2_ref_trans_name,
-          sample_name = sample_name,
+          cell_suspension_id = cell_suspension_id,
           output_basename = data_output_basename,
       }
   }
@@ -178,7 +180,8 @@ workflow SmartSeq2SingleCell {
     input:
       rsem_gene_results = RSEMExpression.rsem_gene,
       smartseq_qc_files = GroupQCOutputs.group_files,
-      sample_name=sample_name
+      cell_suspension_id=cell_suspension_id
+      cell_suspension_name = cell_suspension_name
   }
 
   output {
