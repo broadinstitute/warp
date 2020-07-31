@@ -90,7 +90,7 @@ The pipeline accepts paired-end reads in the form of two compressed FASTQ files 
 
 # CEMBA Tasks and Tools
 
-The [CEMBA.wdl](CEMBA.wdl) implements the workflow by importing individual "tasks" written in the [WDL script](https://github.com/broadinstitute/warp)).
+The [CEMBA.wdl](CEMBA.wdl) implements the workflow by importing individual "tasks" written in the [WDL script](https://github.com/broadinstitute/warp).
 
 ## CEMBA Task Summary
 
