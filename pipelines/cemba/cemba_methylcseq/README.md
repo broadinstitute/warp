@@ -21,7 +21,7 @@
 
 
 # CEMBA Pipeline Overview
-![Diagram]()
+
 
 ## Introduction to the CEMBA Workflow
 
@@ -46,13 +46,11 @@ CEMBA is a pipeline developed by the Data Coordination Platform (DCP) of the [Hu
 # Set-up
 
 ## CEMBA Installation and Requirements
-The CEMBA pipeline code is written in the [Workflow Description Lanugage (WDL)](https://github.com/broadinstitute/warp) abd can be downloaded by cloning the GitHub repository [WARP](https://github.com/broadinstitute/warp). For the latest release of CEMBA, please see the release tags prefixed with "CEMBA" [here](https://github.com/broadinstitute/warp/tags). 
-
-CEMBA can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. 
+The CEMBA pipeline code is written in the [Workflow Description Lanugage (WDL)](https://github.com/broadinstitute/warp) abd can be downloaded by cloning the GitHub repository [WARP](https://github.com/broadinstitute/warp). For the latest release of CEMBA, please see the release tags prefixed with "CEMBA" [here](https://github.com/broadinstitute/warp/tags). CEMBA can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. 
 
 ## Inputs
 
-CEMBA pipeline inputs are detailed in the human_example configuration file. 
+CEMBA pipeline inputs are detailed in the example human configuration file ([CEMBA.inputs.json](/example_inputs/CEMBA.inputs.json)). 
 
 ### Sample data input
 The pipeline accepts paired-end reads in the form of two compressed FASTQ files (fastq.gz).
