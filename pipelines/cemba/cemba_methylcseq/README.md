@@ -50,14 +50,17 @@ The CEMBA pipeline code is written in the [Workflow Description Lanugage (WDL)](
 
 ## Inputs
 
-CEMBA pipeline inputs are detailed in the example human configuration file ([CEMBA.inputs.json](/example_inputs/CEMBA.inputs.json)). 
+CEMBA pipeline inputs are detailed in the example human configuration file ([CEMBA.inputs.json](/pipelines/cemba/cemba_methylcseq/example_inputs/CEMBA.inputs.json)). Genomic reference files were built using the [BuildCembaReferencesWDL script]( https://github.com/BICCN/CEMBA/blob/master/pipelines/build_cemba_references/BuildCembaReferences.wdl). See descriptions of all inputs in the tables below.
 
 ### Sample data input
 The pipeline accepts paired-end reads in the form of two compressed FASTQ files (fastq.gz).
- 
+ | Parameter Name | Description | 
+| --- | --- | 
+| fastq_r1_gzipped_input | Compressed FASTQ (.gz) for R1 | 
+| fastq_r2_gzipped_input | Compressed FASTQ (.gz) for R2 | 
+
 ### Additional Inputs
 
-The JSON file also contains metadata for the reference information in the table below. Genomic reference files were built using the [BuildCembaReferencesWDL script]( https://github.com/BICCN/CEMBA/blob/master/pipelines/build_cemba_references/BuildCembaReferences.wdl).
 
 | Parameter Name | Description | 
 | --- | --- | 
@@ -65,8 +68,6 @@ The JSON file also contains metadata for the reference information in the table 
 | output_base_sample_name | Prefix for all pipeline output files (final and intermediate)  |
 | barcode_start_pos | Base location of barcode start  | 
 | barcode_length | Length of cell barcode (bp)  | NA  |
-| fastq_r1_gzipped_input | Compressed FASTQ (.gz) for R1 | 
-| fastq_r2_gzipped_input | Compressed FASTQ (.gz) for R2 | 
 | reference_fasta | Reference FASTA  |   
 | reference_fasta_index | Reference FASTA index  |
 | fwd_converted_reference_fasta | Bisulfite-converted forward reference genome reads for Bismark alignment  | 
