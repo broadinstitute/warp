@@ -1,6 +1,6 @@
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Version 1.4](IlluminaGenotypingArray.wdl) | January 28, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in dsde-pipelines or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [Version 1.8](IlluminaGenotypingArray.wdl) | July 31, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 # Table of Contents
 - [Illumina Genotyping Array Pipeline Overview](#illumina-genotyping-array-pipeline-overview)
@@ -35,7 +35,7 @@ The Illumina Genotyping Array Pipeline was developed by the Broad DSDE Pipelines
 
 ## Workflow Installation and Requirements
 
-The Illumina Genotyping Arrays workflow is written in the Workflow Description Language [WDL](https://openwdl.org/) and can be downloaded by cloning the GitHub repository [dsde-pipelines](https://github.com/broadinstitute/dsde-pipelines/tree/develop/pipelines/genotyping/illumina). The workflow can be deployed using [Cromwell](https://software.broadinstitute.org/wdl/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the Illumina Genotyping Arrays changelog [IlluminaGenotypingArray.changelog.md](IlluminaGenotypingArray.changelog.md). For beta updates, you can also view release notes tagged with "IlluminaGenotypingArray_develop" [here](https://github.com/broadinstitute/dsde-pipelines/releases). 
+The Illumina Genotyping Arrays workflow is written in the Workflow Description Language [WDL](https://openwdl.org/) and can be downloaded by cloning the GitHub repository [warp](https://github.com/broadinstitute/warp/tree/develop/pipelines/broad/genotyping/illumina). The workflow can be deployed using [Cromwell](https://software.broadinstitute.org/wdl/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the Illumina Genotyping Arrays changelog [IlluminaGenotypingArray.changelog.md](IlluminaGenotypingArray.changelog.md). For beta updates, you can also view release notes tagged with "IlluminaGenotypingArray_develop" [here](https://github.com/broadinstitute/warp/releases). 
 
 ## Inputs
 
@@ -104,11 +104,11 @@ The workflow requires that each input is specified in a JSON file. All sample an
 
 
 # Workflow Tools and Tasks
-The Illumina Genotyping Arrays workflow imports a series of tasks from the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/dsde-pipelines/blob/develop/tasks/IlluminaGenotypingArrayTasks.wdl). The following sections summarize the tasks and software tools the workflow uses, as well as the relevant inputs and outputs.  
+The Illumina Genotyping Arrays workflow imports a series of tasks from the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/broad/IlluminaGenotypingArrayTasks.wdl). The following sections summarize the tasks and software tools the workflow uses, as well as the relevant inputs and outputs.  
 
 ## Tools
 
-The following table provides a summary of the tasks and tools called by the Illumina Arrays Genotyping workflow. Note that sometimes a task and tool have the same name. The task refers to the task listed in the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/dsde-pipelines/blob/develop/tasks/IlluminaGenotypingArrayTasks.wdl).
+The following table provides a summary of the tasks and tools called by the Illumina Arrays Genotyping workflow. Note that sometimes a task and tool have the same name. The task refers to the task listed in the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/master/blob/develop/tasks/broad/IlluminaGenotypingArrayTasks.wdl).
 
 | Task | Tool | Source |
 | --- | --- | --- |
@@ -130,7 +130,7 @@ The following table provides a summary of the tasks and tools called by the Illu
 
 ## Task Summary
 
-Overall, the workflow imports the ["IlluminaGenotypingArrayTasks.wdl"](https://github.com/broadinstitute/dsde-pipelines/blob/develop/tasks/IlluminaGenotypingArrayTasks.wdl) task to:
+Overall, the workflow imports the ["IlluminaGenotypingArrayTasks.wdl"](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/IlluminaGenotypingArrayTasks.wdl) task to:
 1. Perform genotype calling
 2. Detect contamination
 3. Call rare variants (optional)
