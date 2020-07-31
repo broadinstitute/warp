@@ -100,7 +100,7 @@ The table and summary sections below detail the tasks and tools of the CEMBA pip
 | :-- | :-- | :-- | :-- |
 | Trim | [Cutadapt v1.18](https://cutadapt.readthedocs.io/en/stable/)   | Trim adaptors | quay.io/broadinstitute/cutadapt:1.18 | 
 | CreateUnmappedBam | [Picard v2.18.23](https://broadinstitute.github.io/picard/)  | Create uBAM for attaching barcodes | quay.io/broadinstitute/picard:2.18.23 |
-| ExtractCellBarcodes | [sctools v0.3.4](https://sctools.readthedocs.io/en/latest/sctools.html)  | Use whitelist to extract barcodes and tag to uBMA | quay.io/humancellatlas/secondary-analysis-sctools:v0.3.4 |
+| ExtractCellBarcodes | [sctools v0.3.4](https://sctools.readthedocs.io/en/latest/sctools.html)  | Use whitelist to extract barcodes and tag to uBAM | quay.io/humancellatlas/secondary-analysis-sctools:v0.3.4 |
 | Trim | [Cutadapt v1.18](https://cutadapt.readthedocs.io/en/stable/)    | Trim primer degenerate bases, primer index, C/T Adaptase tail of R1 | quay.io/broadinstitute/cutadapt:1.18 |
 | Trim | [Cutadapt v1.18](https://cutadapt.readthedocs.io/en/stable/)   | Trim bases, primer index, C/T Adaptase tail of R2 | quay.io/broadinstitute/cutadapt:1.18 |
 | Align | [Bismark v0.21.0](https://www.bioinformatics.babraham.ac.uk/projects/bismark/)  | Map multiplexed samples as single-end with --bowtie2 | quay.io/broadinstitute/bismark:0.21.0 |
