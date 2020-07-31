@@ -1,3 +1,10 @@
+# optimus_v3.1.1
+
+2020-07-31 (Date of Last Commit)
+
+* Changed sample_id to cell_suspension_id
+* Added cell_suspension_name as an optional input for user provided sample_id 
+
 # optimus_v3.0.1
 
 2020-07-21 (Date of Last Commit)
@@ -5,13 +12,14 @@
 * Changed the imports to relative imports to support Dockstore->Terra release
 
 # optimus_v3.0.0
+
 2020-06-10 (Date of Last Commit)
 
 * Removed the Zarr formatted matrix and metrics outputs and replaced with Loom
 * Removed EmptyDrops for sn_rna mode
 * Updated the Loom file attribute names: CellID to cell_names, Gene to gene_names, and Accession to ensembl_ids
 * Added metrics for mitochondrial reads
-* Added an optional input for the BAM basename; this input is listed as ‘bam_output_basename’and the default is 'sample_id'
+* Added an optional input for the BAM basename; this input is listed as ‘bam_output_basename’and the default is 'cell_suspension_id'
 
 # optimus_v2.0.0
 2020-02-08 (Date of Last Commit)

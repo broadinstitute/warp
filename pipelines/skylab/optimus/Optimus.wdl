@@ -30,9 +30,9 @@ workflow Optimus {
     Array[File] r1_fastq
     Array[File] r2_fastq
     Array[File]? i1_fastq
-    String sample_id
-    String? output_bam_basename = sample_id
-    String? biomaterial_id = biomaterial_id
+    String cell_suspension_id
+    String? output_bam_basename = cell_suspension_id
+    String? cell_suspension_name = cell_suspension_id
 
     # organism reference parameters
     File tar_star_reference
@@ -69,7 +69,7 @@ workflow Optimus {
     r1_fastq: "forward read, contains cell barcodes and molecule barcodes"
     r2_fastq: "reverse read, contains cDNA fragment generated from captured mRNA"
     i1_fastq: "(optional) index read, for demultiplexing of multiple samples on one flow cell."
-    sample_id: "name of sample matching this file, inserted into read group header"
+    cell_suspension_id: "name of sample matching this file, inserted into read group header"
     tar_star_reference: "star genome reference"
     annotations_gtf: "gtf containing annotations for gene tagging (must match star reference)"
     ref_genome_fasta: "genome fasta file (must match star reference)"
@@ -91,7 +91,7 @@ workflow Optimus {
     call FastqToUBam.FastqToUBam {
       input:
         fastq_file = r2_fastq[index],
-        sample_id = sample_id,
+        cell_suspension_id = cell_suspension_id,
         fastq_suffix = fastq_suffix
     }
 
@@ -255,8 +255,8 @@ workflow Optimus {
 
   call LoomUtils.OptimusLoomGeneration{
     input:
-      sample_id = sample_id,
-      biomaterial_id = biomaterial_id
+      cell_suspension_id = cell_suspension_id,
+      cell_suspension_name = cell_suspension_name
       annotation_file = annotations_gtf,
       cell_metrics = MergeCellMetrics.cell_metrics,
       gene_metrics = MergeGeneMetrics.gene_metrics,

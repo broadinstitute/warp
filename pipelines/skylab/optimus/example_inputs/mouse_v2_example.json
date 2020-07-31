@@ -25,7 +25,7 @@
   ],
   "Optimus.whitelist": "gs://hca-dcp-sc-pipelines-test-data/whitelists/737K-august-2016.txt",
   "Optimus.tar_star_reference": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM21.tar",
-  "Optimus.sample_id": "neurons2k_mouse",
+  "Optimus.cell_suspension_id": "neurons2k_mouse",
   "Optimus.chemistry": "tenX_v2",
   "Optimus.annotations_gtf": "gs://hca-dcp-mint-test-data/yanc-test/gencode.vM21.annotation.gtf.gz",
   "Optimus.ref_genome_fasta": "gs://hca-dcp-mint-test-data/yanc-test/GRCm38.primary_assembly.genome.fa"
