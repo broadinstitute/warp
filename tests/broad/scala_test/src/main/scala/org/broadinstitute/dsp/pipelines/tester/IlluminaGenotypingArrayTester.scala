@@ -20,7 +20,7 @@ class IlluminaGenotypingArrayTester(testerConfig: IlluminaGenotypingArrayConfig)
   override val workflowName: String = "IlluminaGenotypingArray"
 
   val workflowDir
-    : File = CromwellWorkflowTester.PipelineRoot / "genotyping" / "illumina"
+    : File = CromwellWorkflowTester.PipelineRoot / "broad" / "genotyping" / "illumina"
 
   lazy val localValidationWdlPath: File =
     CromwellWorkflowTester.DsdePipelinesRoot / "verification" / s"VerifyArrays.wdl"
