@@ -25,7 +25,7 @@
 
 ## Introduction to the CEMBA Workflow
 
-CEMBA is a pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/) that supports processing of multiplexed single-nuclei bisulfite sequencing data. It is an alignment and methylated variant calling pipeline that trims adaptors, attaches cell barcodes, aligns reads to the genome, filters reads based on quality and creates a methylated VCF. 
+CEMBA is a pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/) that supports processing of multiplexed single-nuclei bisulfite sequencing data. It is an alignment and methylated base calling pipeline that trims adaptors, attaches cell barcodes, aligns reads to the genome, filters reads based on quality and creates a methylated VCF. 
 
 **Interested in using the pipeline for your publication? See the [“CEMBA publication methods”](CEMBA.methods.md) for a generic "methods" style description of the pipeline.**
 
@@ -35,7 +35,7 @@ CEMBA is a pipeline developed by the Data Coordination Platform (DCP) of the [Hu
 | Pipeline Features | Description | Source |
 |-------------------|---------------------------------------------------------------|-----------------------|
 | Assay Type | Single-nucleus methylcytosine bisulfite sequencing | [Luo et al. 2017](https://science.sciencemag.org/content/357/6351/600/tab-pdf)
-| Overall Workflow  | Aligns reads and calls methylated variants | Code available from [Github](CEMBA.wdl) |
+| Overall Workflow  | Aligns reads and calls methylated bases | Code available from [Github](CEMBA.wdl) |
 | Workflow Language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence| GRCH38 and GRCM38  |  [GENCODE](https://www.gencodegenes.org/)  |
 | Aligner  | BISMARK v0.21.0 with  --bowtie2 | [Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/) |
@@ -142,7 +142,7 @@ Methylation reports are generated using the Bismark at two steps in the workflow
 ### 7. Attach barcodes, merge BAMs, add read groups, sort and index BAMs 
 In the AttachBarcodes task, Picard attaches the barcodes in the R1 uBAM to the aligned, duplicate-removed, and if applicable, filtered, R1 BAM. This produces a tagged_mapped.bam file. Once the barcodes are attached, the MergeBams task uses Samtools to merge the (barcoded if applicable) R1 BAM with the aligned and filtered R2 BAM. Read groups are then attached to the merged BAM file with GATK4 and the BAM is sorted with Picard. The BAM is indexed with Samtools.
 
-### 8. Call methylated variants
+### 8. Call methylated bases
 Methylated bases are identified using the MethylationTypeCaller task which calls the GATK4 function MethylationTypeCaller. This produces a VCF with methylation calls. 
 
 ### 9. Compute coverage depth 
