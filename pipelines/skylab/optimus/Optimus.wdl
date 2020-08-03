@@ -31,8 +31,8 @@ workflow Optimus {
     Array[File] r2_fastq
     Array[File]? i1_fastq
     String cell_suspension_id
-    String? output_bam_basename = cell_suspension_id
-    String? cell_suspension_name = cell_suspension_id
+    String output_bam_basename = cell_suspension_id
+    String? cell_suspension_name
 
     # organism reference parameters
     File tar_star_reference
@@ -60,7 +60,7 @@ workflow Optimus {
   }
 
   # version of this pipeline
-  String pipeline_version = "3.0.1"
+  String pipeline_version = "3.1.0"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -256,7 +256,7 @@ workflow Optimus {
   call LoomUtils.OptimusLoomGeneration{
     input:
       cell_suspension_id = cell_suspension_id,
-      cell_suspension_name = cell_suspension_name
+      cell_suspension_name = cell_suspension_name,
       annotation_file = annotations_gtf,
       cell_metrics = MergeCellMetrics.cell_metrics,
       gene_metrics = MergeGeneMetrics.gene_metrics,
