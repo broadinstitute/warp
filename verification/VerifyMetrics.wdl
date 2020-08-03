@@ -46,7 +46,7 @@ task CompareTwoNumbers {
   }
 
   runtime {
-    docker: "phusion/baseimage"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
     preemptible: 3
