@@ -30,7 +30,7 @@ workflow MultiSampleSmartSeq2 {
       Boolean paired_end
   }
   # Version of this pipeline
-  String pipeline_version = "2.0.1"
+  String pipeline_version = "2.1.1"
 
   # Parameter metadata information
   parameter_meta {
