@@ -11,7 +11,7 @@ The global attributes in the Loom apply to the whole file, not any specific part
 | :-- | :-- |
 | LOOM_SPEC_VERSION | String with the loom file spec version |
 | CreationDate | Date Loom file was generated |
-| sample_id | The plateid listed in the pipeline configuration file; by default it is set to the batch_id. |
+| sample_id | The plateid listed in the pipeline configuration file; by default it is set to the batch_id |
  
 
 ## Table 2. Column Attributes (Cell Metrics) 
