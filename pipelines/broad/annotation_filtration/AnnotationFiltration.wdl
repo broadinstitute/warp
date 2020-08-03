@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../tasks/Funcotator.wdl" as Funcotator
+import "../../../tasks/broad/Funcotator.wdl" as Funcotator
 
 workflow AnnotationFiltration {
 
