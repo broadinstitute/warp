@@ -23,6 +23,10 @@ def main():
     parser.add_argument('--batch_name',
                         dest='batch_name',
                         help="User provided plate id for output loom")
+    parser.add_argument('--pipeline_version',
+                        dest='pipeline_version',
+                        required=True,
+                        help="Multisample SS2 version")
     args = parser.parse_args()
 
     # The list of Loom files that we need to merge
@@ -31,6 +35,7 @@ def main():
     
     attrDict = dict()
     attrDict['batch_id'] = args.batch_id
+    attrDict['pipeline_version'] = args.pipeline_version
     if args.batch_name is not None:
         attrDict['batch_name'] = args.batch_name
 

@@ -1,9 +1,10 @@
 # optimus_v3.1.0
 
-2020-07-31 (Date of Last Commit)
+2020-08-03 (Date of Last Commit)
 
 * Changed sample_id to cell_suspension_id
-* Added cell_suspension_name as an optional input for user provided sample_id 
+* Added cell_suspension_name as an optional input for user provided sample_id
+* Passed pipeline_version to output loom file  
 
 # optimus_v3.0.1
 

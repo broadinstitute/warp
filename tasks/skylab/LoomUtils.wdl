@@ -3,7 +3,7 @@ version 1.0
 task SmartSeq2LoomOutput {
   input {
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-beta"
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-test"
     # the gene count file "<cell_suspension_id>_rsem.genes.results" in the task results folder call-RSEMExpression
     File rsem_gene_results
     # file named "<cell_suspension_id>_QCs.csv" in the folder  "call-GroupQCOutputs/glob-*" of the the SS2  output
@@ -52,7 +52,7 @@ task OptimusLoomGeneration {
 
   input {
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-beta"
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-test"
     # name of the sample
     String cell_suspension_id
     # user provided id
@@ -132,7 +132,7 @@ task AggregateSmartSeq2Loom {
         Array[File] loom_input
         String batch_id
         String? batch_name
-        String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-beta"
+        String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-test"
         Int disk = 100
     }
 

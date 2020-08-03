@@ -181,7 +181,8 @@ workflow SmartSeq2SingleCell {
       rsem_gene_results = RSEMExpression.rsem_gene,
       smartseq_qc_files = GroupQCOutputs.group_files,
       cell_suspension_id=cell_suspension_id,
-      cell_suspension_name = cell_suspension_name
+      cell_suspension_name = cell_suspension_name,
+      pipeline_version = "SmartSeq2SingleSample_v~{pipeline_version}"
   }
 
   output {

@@ -1,9 +1,10 @@
 # smartseq2_v4.1.0
 
-2020-07-31 (Date of Last Commit)
+2020-08-03 (Date of Last Commit)
 
 * Changed sample_name to cell_suspension_id
-* Added cell_suspension_name as an optional input for user provided biomaterial id. 
+* Added cell_suspension_name as an optional input for user provided biomaterial id.
+* Passed pipeline_version to output loom file
 
 
 # smartseq2_v4.0.1
