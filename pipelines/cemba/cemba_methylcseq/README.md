@@ -36,12 +36,7 @@ CEMBA is a pipeline developed by the Data Coordination Platform (DCP) of the [Hu
 | Pipeline Features | Description | Source |
 |-------------------|---------------------------------------------------------------|-----------------------|
 | Assay Type | Single-nucleus methylcytosine bisulfite sequencing | [Luo et al. 2017](https://science.sciencemag.org/content/357/6351/600/tab-pdf)
-| Overall Workflow  | Aligns reads and calls 
-
-
-
-
-bases | Code available from [Github](CEMBA.wdl) |
+| Overall Workflow  | Aligns reads and calls bases | Code available from [Github](CEMBA.wdl) |
 | Workflow Language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence| GRCH38 and GRCM38  |  [GENCODE](https://www.gencodegenes.org/)  |
 | Aligner  | BISMARK v0.21.0 with  --bowtie2 | [Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/) |
