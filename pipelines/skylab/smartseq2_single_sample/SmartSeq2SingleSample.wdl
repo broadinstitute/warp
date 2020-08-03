@@ -180,7 +180,7 @@ workflow SmartSeq2SingleCell {
     input:
       rsem_gene_results = RSEMExpression.rsem_gene,
       smartseq_qc_files = GroupQCOutputs.group_files,
-      cell_suspension_id=cell_suspension_id
+      cell_suspension_id=cell_suspension_id,
       cell_suspension_name = cell_suspension_name
   }
 

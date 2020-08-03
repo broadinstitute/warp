@@ -256,7 +256,7 @@ workflow Optimus {
   call LoomUtils.OptimusLoomGeneration{
     input:
       cell_suspension_id = cell_suspension_id,
-      cell_suspension_name = cell_suspension_name
+      cell_suspension_name = cell_suspension_name,
       annotation_file = annotations_gtf,
       cell_metrics = MergeCellMetrics.cell_metrics,
       gene_metrics = MergeGeneMetrics.gene_metrics,
@@ -270,7 +270,6 @@ workflow Optimus {
   output {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
-
     File bam = MergeSorted.output_bam
     File matrix = MergeCountFiles.sparse_count_matrix
     File matrix_row_index = MergeCountFiles.row_index
