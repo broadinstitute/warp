@@ -49,6 +49,8 @@ CEMBA is a pipeline developed by the Data Coordination Platform (DCP) of the [BR
 ## CEMBA Installation and Requirements
 The CEMBA pipeline code is written in the [Workflow Description Language (WDL)](https://github.com/broadinstitute/warp) and can be downloaded by cloning the GitHub repository [WARP](https://github.com/broadinstitute/warp). For the latest release of CEMBA, please see the release tags prefixed with "CEMBA" [here](https://github.com/broadinstitute/warp/tags). CEMBA can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. 
 
+The workflow can also be run on Terra using the [Methyl-c-seq_Pipeline workspace](https://app.terra.bio/#workspaces/brain-initiative-bcdc/Methyl-c-seq_Pipeline). This workspace contains the CEMBA workflow, workflow configurations, required reference data and other inputs, and demultiplexed example testing data.
+
 ## Inputs
 
 CEMBA pipeline inputs are detailed in the example human configuration file ([CEMBA.inputs.json](/pipelines/cemba/cemba_methylcseq/example_inputs/CEMBA.inputs.json)). Genomic reference files were built using the [BuildCembaReferencesWDL script]( https://github.com/BICCN/CEMBA/blob/master/pipelines/build_cemba_references/BuildCembaReferences.wdl). See descriptions of all inputs in the tables below.
