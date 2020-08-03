@@ -353,6 +353,7 @@ def create_loom_files(args):
     attrDict['cell_suspension_id'] = args.cell_suspension_id
     if args["cell_suspension_name"] is not None:
         attrDict['cell_suspension_name'] = args.cell_suspension_name
+    attrDict['pipeline_version'] = args.pipeline_version
     #generate loom file 
     loompy.create(args.output_loom_path, expr_sp_t, row_attrs, col_attrs, file_attrs=attrDict)
 
@@ -456,6 +457,13 @@ def main():
         default="exonic",
         choices=["exonic", "whole_transcript"],
         help="The expression data type",
+    )
+
+    parser.add_argument(
+        "--pipeline_version",
+        dest="pipeline_version",
+        required=True,
+        help="The version of Optimus that generated data",
     )
 
     args = parser.parse_args()

@@ -108,7 +108,7 @@ def generate_row_attr_and_matrix(rsem_gene_results_path):
 
 
 def create_loom_files(cell_suspension_id, qc_files, rsem_genes_results_file,
-                      output_loom_path, cell_suspension_name):
+                      output_loom_path, cell_suspension_name, pipeline_version):
     """This function creates the loom file or folder structure in output_loom_path in
        format file_format, with cell_suspension_id from the input folder analysis_output_path
     Args:
@@ -129,6 +129,7 @@ def create_loom_files(cell_suspension_id, qc_files, rsem_genes_results_file,
     attrDict['cell_suspension_id'] = cell_suspension_id
     if cell_suspension_name is not None:
         attrDict['cell_suspension_name'] = cell_suspension_name
+    attrDict['pipeline_version'] = pipeline_version
 
     #generate loom file
     loompy.create(output_loom_path, expr_tpms, row_attrs, col_attrs, file_attrs=attrDict)
@@ -165,9 +166,13 @@ def main():
         help= "cell_suspension.biomaterial_id defined by the user",
     )
 
+    parser.add_argument('--pipeline_version',
+                        default="Unknown sample",
+                        help='the version of SS2 used to generate data')
+
     args = parser.parse_args()
 
-    create_loom_files(args.cell_suspension_id, args.qc_files, args.rsem_genes_results, args.output_loom_path,args.cell_suspension_name)
+    create_loom_files(args.cell_suspension_id, args.qc_files, args.rsem_genes_results, args.output_loom_path,args.cell_suspension_name, args.pipeline_version)
 
 
 if __name__ == '__main__':

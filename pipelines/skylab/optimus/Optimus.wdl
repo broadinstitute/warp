@@ -264,7 +264,8 @@ workflow Optimus {
       cell_id = MergeCountFiles.row_index,
       gene_id = MergeCountFiles.col_index,
       empty_drops_result = RunEmptyDrops.empty_drops_result,
-      counting_mode = counting_mode
+      counting_mode = counting_mode,
+      pipeline_version = pipeline_version
   }
 
   output {

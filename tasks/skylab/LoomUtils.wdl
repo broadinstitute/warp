@@ -73,6 +73,8 @@ task OptimusLoomGeneration {
     File empty_drops_result
     String counting_mode = "sc_rna"
 
+    String pipeline_version
+
     Int preemptible = 3
   }
   
@@ -107,7 +109,8 @@ task OptimusLoomGeneration {
        --cell_suspension_id ~{cell_suspension_id} \
        --cell_suspension_name ~{cell_suspension_name}
        --count_matrix ~{sparse_count_matrix} \
-       --expression_data_type $EXPRESSION_DATA_TYPE_PARAM
+       --expression_data_type $EXPRESSION_DATA_TYPE_PARAM \
+       --pipeline_version ~{pipeline_version}
   }
 
   runtime {
