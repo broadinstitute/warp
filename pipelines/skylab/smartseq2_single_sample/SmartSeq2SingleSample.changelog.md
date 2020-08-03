@@ -3,7 +3,7 @@
 2020-07-31 (Date of Last Commit)
 
 * Changed sample_name to cell_suspension_id
-* Added cell_suspension_name as an optional input for user provided biomaterial id. 
+* Added cell_suspension_name as an optional input for user provided biomaterial id 
 
 
 # smartseq2_v4.0.1
