@@ -11,7 +11,8 @@ The global attributes in the Loom apply to the whole file, not any specific part
 | :-- | :-- |
 | LOOM_SPEC_VERSION | String with the loom file spec version |
 | CreationDate | Date Loom file was generated |
-| sample_id | The sample_id listed in the pipeline configuration file |
+| cell_suspension_id | The cell_suspension_id listed in the pipeline configuration file |
+| cell_suspension_name | The optional string provided in the pipeline configuration to further identify samples |
  
 
 ## Table 2. Column Attributes (Cell Metrics) 
@@ -95,7 +96,7 @@ The global attributes in the Loom apply to the whole file, not any specific part
 | `UTR_BASES` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
 | `WINDOW_SIZE` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
 | `alignable reads` | [RSEM cnt file](https://github.com/deweylab/RSEM/blob/master/cnt_file_description.txt) | The number of alignable reads |
-| `cell_names` | ---| The unique identifier for each cell; read from the sample_id |
+| `cell_names` | ---| The unique identifier for each cell; read from the cell_suspension_id |
 | `filtered reads` |  [RSEM cnt file](https://github.com/deweylab/RSEM/blob/master/cnt_file_description.txt) | The number of filtered reads due to too many alignments |
 | `multiple mapped` |  [RSEM cnt file](https://github.com/deweylab/RSEM/blob/master/cnt_file_description.txt) | The number of reads aligned to multiple genes |
 | `strand` |  [RSEM cnt file](https://github.com/deweylab/RSEM/blob/master/cnt_file_description.txt) | The RSEM read_type; describes if data is single- or paired-end |
