@@ -90,7 +90,8 @@ The JSON file also contains metadata for the reference information in the follow
 | --- | --- | --- |
 | Whitelist | Cloud path to list of known cell barcodes from [10x genomics](https://www.10xgenomics.com/) that corresponds to the v2 or v3 chemistry | NA |
 | Tar_star_reference | Cloud path to TAR file containing a species-specific reference genome and gtf; it is generated using the [StarMkRef.wdl](https://github.com/broadinstitute/warp/master/tasks/skylab/StarMkref.wdl) | NA |
-| cell_suspension_id | a unique name describing the biological sample or replicate that corresponds with the original FASTQ files. This can be any string, but if possible, we recommend it matches the sample metadata | NA | 
+| cell_suspension_id | Unique name describing the biological sample or replicate that corresponds with the original FASTQ files. This can be any string, but if possible, we recommend it matches the sample metadata | NA | 
+| cell_suspension_name | Optional string that can be used to further identify the original biological sample | NA |
 | Annotations_gtf | Cloud path to GTF containing gene annotations used for gene tagging (must match GTF in STAR reference) | NA | 
 | Chemistry | Optional string description of whether data was generated with 10x v2 or v3 chemistry. Optimus validates this string. If the string does not match one of the optional strings, the pipeline will fail. You can remove the checks by setting "force_no_check = true" in the input JSON | "tenX_v2" (default) or "tenX_v3" |
 | Counting_mode | String description of whether data is single-cell or single-nuclei | "sc_rna" or "sn_rna" |
