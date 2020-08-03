@@ -1,0 +1,9 @@
+{
+  "write_to_cache": true,
+  "read_from_cache": true,
+  "monitoring_script": "gs://broad-biccn-dev-test-data/monitoring.sh",
+  "user_service_account_json": "{service-account-json-file}",
+  "jes_gcs_root": "gs://{example-bucket}/{execution-instance}",
+  "workflow_failure_mode": "ContinueWhilePossible",
+  "google_project": "{your-project}"
+}
