@@ -1,0 +1,7 @@
+{
+  "CheckCembaOutputs.cemba_bam_output_file_read1": "File",
+  "CheckCembaOutputs.cemba_truth_file_read1": "File",
+  "CheckCembaOutputs.cemba_bam_output_file_read2": "File",
+  "CheckCembaOutputs.cemba_truth_file_read2": "File"
+}
+
