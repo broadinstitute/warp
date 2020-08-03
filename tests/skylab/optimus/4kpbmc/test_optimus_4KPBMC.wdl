@@ -23,7 +23,7 @@ workflow TestOptimusPR {
     File tar_star_reference  # star reference
     File annotations_gtf  # gtf containing annotations for gene tagging
     File ref_genome_fasta  # genome fasta file
-    String sample_id  # name of sample matching this file, inserted into read group header
+    String cell_suspension_id  # name of sample matching this file, inserted into read group header
     String chemistry # chemistry identifier
 
     Boolean force_no_check
@@ -38,7 +38,7 @@ workflow TestOptimusPR {
       tar_star_reference = tar_star_reference,
       annotations_gtf = annotations_gtf,
       ref_genome_fasta = ref_genome_fasta,
-      sample_id = sample_id,
+      cell_suspension_id = cell_suspension_id,
       chemistry = chemistry,
       force_no_check = force_no_check
   }

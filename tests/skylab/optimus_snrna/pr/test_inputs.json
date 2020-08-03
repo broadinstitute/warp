@@ -16,7 +16,7 @@
   "TestOptimusPR.force_no_check": "false",
   "TestOptimusPR.whitelist": "gs://hca-dcp-mint-test-data/10x/whitelist/737K-august-2016.txt",
   "TestOptimusPR.tar_star_reference": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM21.tar",
-  "TestOptimusPR.sample_id": "pr_test_dataset",
+  "TestOptimusPR.cell_suspension_id": "pr_test_dataset",
   "TestOptimusPR.annotations_gtf": "gs://broad-dsde-mint-dev-teststorage/ajc-test/gencode.vM21.annotation.gtf.gz",
   "TestOptimusPR.ref_genome_fasta": "gs://broad-dsde-mint-dev-teststorage/ajc-test/GRCm38.primary_assembly.genome.fa",
   "TestOptimusPR.counting_mode": "sn_rna"

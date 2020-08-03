@@ -20,7 +20,7 @@ workflow TestSmartSeq2SingleCellPR {
       String hisat2_ref_name
       String hisat2_ref_trans_name
       String stranded
-      String sample_name
+      String cell_suspension_id
       String output_name
       File fastq1
   }
@@ -36,7 +36,7 @@ workflow TestSmartSeq2SingleCellPR {
       hisat2_ref_name = hisat2_ref_name,
       hisat2_ref_trans_name = hisat2_ref_trans_name,
       stranded = stranded,
-      sample_name = sample_name,
+      cell_suspension_id = cell_suspension_id,
       output_name = output_name,
       fastq1 = fastq1,
       paired_end = false,
