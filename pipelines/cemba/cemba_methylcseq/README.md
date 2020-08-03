@@ -22,7 +22,7 @@
 
 # CEMBA Pipeline Overview
 
-
+<img src="CEMBA.png" width="750">
 ## Introduction to the CEMBA Workflow
 
 CEMBA is a pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/) that supports processing of multiplexed single-nuclei bisulfite sequencing data. It is an alignment and methylated base calling pipeline that trims adaptors, attaches cell barcodes, aligns reads to the genome, filters reads based on quality and creates a VCF with methylation-site coverage. 
