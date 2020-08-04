@@ -35,7 +35,7 @@ CEMBA is a pipeline developed by the Data Coordination Platform (DCP) of the [BR
 
 | Pipeline Features | Description | Source |
 |-------------------|---------------------------------------------------------------|-----------------------|
-| Assay Type | Single-nucleus methylcytosine bisulfite sequencing | [Luo et al. 2017](https://science.sciencemag.org/content/357/6351/600/tab-pdf)
+| Assay Type | Single-nucleus methylcytosine sequencing (snmC-seq) | [Luo et al. 2017](https://science.sciencemag.org/content/357/6351/600/tab-pdf)
 | Overall Workflow  | Aligns reads and calls bases | Code available from [Github](CEMBA.wdl) |
 | Workflow Language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence| GRCH38 and GRCM38  |  [GENCODE](https://www.gencodegenes.org/)  |
@@ -68,7 +68,7 @@ The pipeline accepts paired-end reads in the form of two compressed FASTQ files 
 
 | Parameter Name | Description | 
 | --- | --- | 
-| barcode_white_list | Cloud path to list of known cell barcodes from | 
+| barcode_white_list | List of known cell barcodes from | 
 | output_base_sample_name | Prefix for all pipeline output files (final and intermediate)  |
 | barcode_start_pos | Base location of barcode start  | 
 | barcode_length | Length of cell barcode (bp)  | NA  |
