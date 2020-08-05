@@ -1,7 +1,7 @@
 version 1.0
 
-import "../../../../tasks/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
-import "../../../../tasks/InternalArraysTasks.wdl" as InternalTasks
+import "../../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
+import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 ## Copyright Broad Institute, 2019
 ##
