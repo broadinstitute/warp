@@ -15,7 +15,7 @@
   "TestOptimusPR.chemistry": "tenX_v2",
   "TestOptimusPR.force_no_check": "false",
   "TestOptimusPR.whitelist": "gs://hca-dcp-mint-test-data/10x/whitelist/737K-august-2016.txt",
-  "TestOptimusPR.cell_suspension_id": "4k_pbmc_snrna_pipeline",
+  "TestOptimusPR.sequencing_input_id": "4k_pbmc_snrna_pipeline",
   "TestOptimusPR.tar_star_reference": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/buildReference/output_bucket/star_primary_gencode_v27.tar",
   "TestOptimusPR.annotations_gtf": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/gencode.v27.primary_assembly.annotation.gtf.gz",
   "TestOptimusPR.ref_genome_fasta": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/GRCh38.primary_assembly.genome.fa",

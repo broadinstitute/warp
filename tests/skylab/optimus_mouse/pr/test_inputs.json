@@ -14,7 +14,7 @@
   ],
   "TestOptimusPR.whitelist": "gs://hca-dcp-mint-test-data/10x/whitelist/737K-august-2016.txt",
   "TestOptimusPR.tar_star_reference": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM21.tar",
-  "TestOptimusPR.cell_suspension_id": "heart_1k_test_v2_S1",
+  "TestOptimusPR.sequencing_input_id": "heart_1k_test_v2_S1",
   "TestOptimusPR.chemistry": "tenX_v2",
   "TestOptimusPR.annotations_gtf": "gs://broad-dsde-mint-dev-teststorage/ajc-test/gencode.vM21.annotation.gtf.gz",
   "TestOptimusPR.ref_genome_fasta": "gs://broad-dsde-mint-dev-teststorage/ajc-test/GRCm38.primary_assembly.genome.fa"

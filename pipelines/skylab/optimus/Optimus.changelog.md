@@ -2,7 +2,7 @@
 
 2020-08-03 (Date of Last Commit)
 
-* Changed sample_id to cell_suspension_id
+* Changed sample_id to sequencing_input_id
 * Added cell_suspension_name as an optional input for user provided sample_id
 * Passed pipeline_version to output loom file  
 

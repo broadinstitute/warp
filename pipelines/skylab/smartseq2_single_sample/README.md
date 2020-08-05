@@ -82,7 +82,7 @@ The Smart-seq2 Single Sample workflow requires multiple reference indexes. Infor
 
 | Workflow Step | Reference name | Reference Description | Tool |
 | --- | --- | --- | --- |
-| All | cell_suspension_id | Sample name or Cell ID | NA |
+| All | sequencing_input_id | Sample name or Cell ID | NA |
 | All | cell_suspension_name | Optional string that can be used as a sample identifier | NA |
 | All | output_name | Output name, can include path | NA |
 | All | paired_end | A boolean describing if sample is paired-end | NA |

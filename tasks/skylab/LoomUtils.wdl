@@ -3,13 +3,13 @@ version 1.0
 task SmartSeq2LoomOutput {
   input {
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-test"
-    # the gene count file "<cell_suspension_id>_rsem.genes.results" in the task results folder call-RSEMExpression
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-nameChange"
+    # the gene count file "<sequencing_input_id>_rsem.genes.results" in the task results folder call-RSEMExpression
     File rsem_gene_results
-    # file named "<cell_suspension_id>_QCs.csv" in the folder  "call-GroupQCOutputs/glob-*" of the the SS2  output
+    # file named "<sequencing_input_id>_QCs.csv" in the folder  "call-GroupQCOutputs/glob-*" of the the SS2  output
     Array[File] smartseq_qc_files
     # name of the sample
-    String cell_suspension_id
+    String sequencing_input_id
     String? cell_suspension_name
 
     Int preemptible = 3
@@ -29,8 +29,8 @@ task SmartSeq2LoomOutput {
     python3 /tools/create_loom_ss2.py \
        --qc_files ~{sep=' ' smartseq_qc_files} \
        --rsem_genes_results  ~{rsem_gene_results} \
-       --output_loom_path  "~{cell_suspension_id}.loom" \
-       --cell_suspension_id ~{cell_suspension_id} \
+       --output_loom_path  "~{sequencing_input_id}.loom" \
+       --sequencing_input_id ~{sequencing_input_id} \
        --cell_suspension_name ~{cell_suspension_name}
   }
 
@@ -43,7 +43,7 @@ task SmartSeq2LoomOutput {
   }
 
   output {
-    File loom_output = "~{cell_suspension_id}.loom"
+    File loom_output = "~{sequencing_input_id}.loom"
   }
 }
 
@@ -52,9 +52,9 @@ task OptimusLoomGeneration {
 
   input {
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-test"
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-nameChange"
     # name of the sample
-    String cell_suspension_id
+    String sequencing_input_id
     # user provided id
     String? cell_suspension_name
     # gene annotation file in GTF format
@@ -105,8 +105,8 @@ task OptimusLoomGeneration {
        --gene_metrics ~{gene_metrics}\
        --cell_id ~{cell_id}\
        --gene_id  ~{gene_id} \
-       --output_path_for_loom "~{cell_suspension_id}.loom" \
-       --cell_suspension_id ~{cell_suspension_id} \
+       --output_path_for_loom "~{sequencing_input_id}.loom" \
+       --sequencing_input_id ~{sequencing_input_id} \
        --cell_suspension_name ~{cell_suspension_name}
        --count_matrix ~{sparse_count_matrix} \
        --expression_data_type $EXPRESSION_DATA_TYPE_PARAM \
@@ -122,7 +122,7 @@ task OptimusLoomGeneration {
   }
 
   output {
-    File loom_output = "~{cell_suspension_id}.loom"
+    File loom_output = "~{sequencing_input_id}.loom"
   }
 }
 
@@ -132,7 +132,7 @@ task AggregateSmartSeq2Loom {
         Array[File] loom_input
         String batch_id
         String? batch_name
-        String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-test"
+        String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-nameChange"
         Int disk = 100
     }
 

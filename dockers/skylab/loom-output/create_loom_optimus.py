@@ -329,7 +329,7 @@ def generate_matrix(args):
 
 def create_loom_files(args):
     """This function creates the loom file or folder structure in output_loom_path in format file_format,
-       with cell_suspension_id from the input folder analysis_output_path
+       with sequencing_input_id from the input folder analysis_output_path
     
     Args:
         args (argparse.Namespace): input arguments for the run
@@ -350,8 +350,8 @@ def create_loom_files(args):
     attrDict = dict()
     attrDict['expression_data_type'] = args.expression_data_type
     attrDict['optimus_output_schema_version'] = version
-    attrDict['cell_suspension_id'] = args.cell_suspension_id
-    if args["cell_suspension_name"] is not None:
+    attrDict['sequencing_input_id'] = args.sequencing_input_id
+    if args.cell_suspension_name is not None:
         attrDict['cell_suspension_name'] = args.cell_suspension_name
     attrDict['pipeline_version'] = args.pipeline_version
     #generate loom file 
@@ -430,8 +430,8 @@ def main():
     )
 
     parser.add_argument(
-        "--cell_suspension_id",
-        dest="cell_suspension_id",
+        "--sequencing_input_id",
+        dest="sequencing_input_id",
         required=True,
         default="Unknown sample",
         help="the sample name in the bundle",

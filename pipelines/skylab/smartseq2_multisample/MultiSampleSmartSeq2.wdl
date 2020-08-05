@@ -65,7 +65,7 @@ workflow MultiSampleSmartSeq2 {
             hisat2_ref_trans_index = hisat2_ref_trans_index,
             hisat2_ref_trans_name = hisat2_ref_trans_name,
             rsem_ref_index = rsem_ref_index,
-            cell_suspension_id = input_file_names[idx],
+            sequencing_input_id = input_file_names[idx],
             output_name = input_file_names[idx],
             paired_end = paired_end,
         }
@@ -85,7 +85,7 @@ workflow MultiSampleSmartSeq2 {
               hisat2_ref_trans_index = hisat2_ref_trans_index,
               hisat2_ref_trans_name = hisat2_ref_trans_name,
               rsem_ref_index = rsem_ref_index,
-              cell_suspension_id = input_file_names[idx],
+              sequencing_input_id = input_file_names[idx],
               output_name = input_file_names[idx],
               paired_end = paired_end,
           }

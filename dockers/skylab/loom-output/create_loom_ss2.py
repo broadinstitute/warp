@@ -107,12 +107,12 @@ def generate_row_attr_and_matrix(rsem_gene_results_path):
     return row_attrs, expression_tpms,expected_counts
 
 
-def create_loom_files(cell_suspension_id, qc_files, rsem_genes_results_file,
+def create_loom_files(sequencing_input_id, qc_files, rsem_genes_results_file,
                       output_loom_path, cell_suspension_name, pipeline_version):
     """This function creates the loom file or folder structure in output_loom_path in
-       format file_format, with cell_suspension_id from the input folder analysis_output_path
+       format file_format, with sequencing_input_id from the input folder analysis_output_path
     Args:
-        cell_suspension_id (str): sample or cell id
+        sequencing_input_id (str): sample or cell id
         qc_analysis_output_files_string (str): a string with the file names in the QCGroup of SS2
             pipeline output, separated by commas
         rsem_genes_results_file (str): the file for the expression count
@@ -126,7 +126,7 @@ def create_loom_files(cell_suspension_id, qc_files, rsem_genes_results_file,
     row_attrs, expr_tpms, expr_counts = generate_row_attr_and_matrix(rsem_genes_results_file)
     
     attrDict = dict()
-    attrDict['cell_suspension_id'] = cell_suspension_id
+    attrDict['sequencing_input_id'] = sequencing_input_id
     if cell_suspension_name is not None:
         attrDict['cell_suspension_name'] = cell_suspension_name
     attrDict['pipeline_version'] = pipeline_version
@@ -155,7 +155,7 @@ def main():
     parser.add_argument('--output_loom_path',
                         help='path where the loom file is to be created')
 
-    parser.add_argument('--cell_suspension_id',
+    parser.add_argument('--sequencing_input_id',
                         default="Unknown sample",
                         help='the sample name in the bundle')
 
@@ -172,7 +172,7 @@ def main():
 
     args = parser.parse_args()
 
-    create_loom_files(args.cell_suspension_id, args.qc_files, args.rsem_genes_results, args.output_loom_path,args.cell_suspension_name, args.pipeline_version)
+    create_loom_files(args.sequencing_input_id, args.qc_files, args.rsem_genes_results, args.output_loom_path,args.cell_suspension_name, args.pipeline_version)
 
 
 if __name__ == '__main__':

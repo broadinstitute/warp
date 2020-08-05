@@ -10,7 +10,7 @@
   "SmartSeq2SingleCell.stranded":"NONE",
   "SmartSeq2SingleCell.fastq1":"gs://hca-dcp-mint-test-data/datasets/sloan_sa_astrocytes/SRR5676728_1.fastq.gz",
   "SmartSeq2SingleCell.fastq2":"gs://hca-dcp-mint-test-data/datasets/sloan_sa_astrocytes/SRR5676728_2.fastq.gz",
-  "SmartSeq2SingleCell.cell_suspension_id":"SRR5676728",
+  "SmartSeq2SingleCell.sequencing_input_id":"SRR5676728",
   "SmartSeq2SingleCell.output_name":"SRR5676728",
   "SmartSeq2SingleCell.paired_end":true
 }

@@ -20,7 +20,7 @@
   "TestOptimusPR.force_no_check": "false",
   "TestOptimusPR.whitelist": "gs://hca-dcp-mint-test-data/10x/whitelist/737K-august-2016.txt",
   "TestOptimusPR.tar_star_reference": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/buildReference/output_bucket/star_primary_gencode_v27.tar",
-  "TestOptimusPR.cell_suspension_id": "pr_test_dataset",
+  "TestOptimusPR.sequencing_input_id": "pr_test_dataset",
   "TestOptimusPR.annotations_gtf": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/gencode.v27.primary_assembly.annotation.gtf.gz",
   "TestOptimusPR.ref_genome_fasta": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/GRCh38.primary_assembly.genome.fa"
 }
