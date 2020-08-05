@@ -35,7 +35,7 @@ workflow SmartSeq2SingleCell {
     Boolean force_no_check = false
   }
   # version of this pipeline
-  String pipeline_version = "4.1.1"
+  String pipeline_version = "4.1.0"
 
   parameter_meta {
     genome_ref_fasta: "Genome reference in fasta format"
@@ -181,7 +181,8 @@ workflow SmartSeq2SingleCell {
       rsem_gene_results = RSEMExpression.rsem_gene,
       smartseq_qc_files = GroupQCOutputs.group_files,
       cell_suspension_id=cell_suspension_id,
-      cell_suspension_name = cell_suspension_name
+      cell_suspension_name = cell_suspension_name,
+      pipeline_version = "SmartSeq2SingleSample_v~{pipeline_version}"
   }
 
   output {

@@ -1,8 +1,9 @@
 # MultiSampleSmartSeq2_v2.1.1
 
-2020-07-31 (Date of Last Commit)
+2020-08-03 (Date of Last Commit)
 
-* Added batch_name as an optional input for user provided biomaterial id 
+* Added batch_name as an optional input for user provided biomaterial id.
+* Passed pipeline_version to output loom file  
 
 # MultiSampleSmartSeq2_v2.0.1
 

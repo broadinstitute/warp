@@ -31,8 +31,8 @@ workflow Optimus {
     Array[File] r2_fastq
     Array[File]? i1_fastq
     String cell_suspension_id
-    String? output_bam_basename = cell_suspension_id
-    String? cell_suspension_name = cell_suspension_id
+    String output_bam_basename = cell_suspension_id
+    String? cell_suspension_name
 
     # organism reference parameters
     File tar_star_reference
@@ -60,7 +60,7 @@ workflow Optimus {
   }
 
   # version of this pipeline
-  String pipeline_version = "3.1.1"
+  String pipeline_version = "3.1.0"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -264,12 +264,14 @@ workflow Optimus {
       cell_id = MergeCountFiles.row_index,
       gene_id = MergeCountFiles.col_index,
       empty_drops_result = RunEmptyDrops.empty_drops_result,
-      counting_mode = counting_mode
+      counting_mode = counting_mode,
+      pipeline_version = "Optimus_v~{pipeline_version}"
   }
 
   output {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
+
     File bam = MergeSorted.output_bam
     File matrix = MergeCountFiles.sparse_count_matrix
     File matrix_row_index = MergeCountFiles.row_index

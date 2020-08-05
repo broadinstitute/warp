@@ -101,7 +101,8 @@ workflow MultiSampleSmartSeq2 {
     input:
       loom_input = loom_output_files,
       batch_id = batch_id,
-      batch_name = batch_name
+      batch_name = batch_name,
+      pipeline_version = "MultiSampleSmartSeq2_v~{pipeline_version}"
   }
 
 

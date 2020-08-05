@@ -7,7 +7,7 @@ task HISAT2PairedEnd {
     File? fastq2
     String ref_name
     String output_basename
-    String sample_name
+    String cell_suspension_id
 
   # runtime values
   String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
@@ -28,7 +28,7 @@ task HISAT2PairedEnd {
     fastq2: "gz reverse fastq file"
     ref_name: "the basename of the index for the reference genome"
     output_basename: "basename used for output files"
-    sample_name: "sample name of input"
+    cell_suspension_id: "sample name of input"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
@@ -67,8 +67,8 @@ task HISAT2PairedEnd {
       -x ${ref_name}/${ref_name} \
       -1 $FQ1 \
       -2 $FQ2 \
-      --rg-id=${sample_name} --rg SM:${sample_name} --rg LB:${sample_name} \
-      --rg PL:ILLUMINA --rg PU:${sample_name} \
+      --rg-id=${cell_suspension_id} --rg SM:${cell_suspension_id} --rg LB:${cell_suspension_id} \
+      --rg PL:ILLUMINA --rg PU:${cell_suspension_id} \
       --new-summary --summary-file ${output_basename}.log \
       --met-file ${output_basename}.hisat2.met.txt --met 5 \
       --seed 12345 \
@@ -102,7 +102,7 @@ task HISAT2RSEM {
     File? fastq2
     String ref_name
     String output_basename
-    String sample_name
+    String cell_suspension_id
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
@@ -124,7 +124,7 @@ task HISAT2RSEM {
     fastq2: "gz reverse fastq file"
     ref_name: "the basename of the index for the reference genome"
     output_basename: "basename used for output files"
-    sample_name: "sample name of input"
+    cell_suspension_id: "sample name of input"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
@@ -162,8 +162,8 @@ task HISAT2RSEM {
       -x ${ref_name}/${ref_name} \
       -1 $FQ1 \
       -2 $FQ2 \
-      --rg-id=${sample_name} --rg SM:${sample_name} --rg LB:${sample_name} \
-      --rg PL:ILLUMINA --rg PU:${sample_name} \
+      --rg-id=${cell_suspension_id} --rg SM:${cell_suspension_id} --rg LB:${cell_suspension_id} \
+      --rg PL:ILLUMINA --rg PU:${cell_suspension_id} \
       --new-summary --summary-file ${output_basename}.log \
       --met-file ${output_basename}.hisat2.met.txt --met 5 \
       -k 10 \
@@ -202,7 +202,7 @@ input {
   File fastq
   String ref_name
   String output_basename
-  String sample_name
+  String cell_suspension_id
 
   # runtime values
   String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
@@ -222,7 +222,7 @@ input {
     fastq: "input fastq from single ended data"
     ref_name: "the basename of the index for the reference genome"
     output_basename: "basename used for output files"
-    sample_name: "sample name of input"
+    cell_suspension_id: "sample name of input"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
@@ -246,8 +246,8 @@ input {
     hisat2 -t \
       -x ~{ref_name}/~{ref_name} \
       -U $FQ \
-      --rg-id=~{sample_name} --rg SM:~{sample_name} --rg LB:~{sample_name} \
-      --rg PL:ILLUMINA --rg PU:~{sample_name} \
+      --rg-id=~{cell_suspension_id} --rg SM:~{cell_suspension_id} --rg LB:~{cell_suspension_id} \
+      --rg PL:ILLUMINA --rg PU:~{cell_suspension_id} \
       --new-summary --summary-file "~{output_basename}.log" \
       --met-file ~{output_basename}.hisat2.met.txt --met 5 \
       --seed 12345 \
@@ -328,7 +328,7 @@ task HISAT2RSEMSingleEnd {
     File fastq
     String ref_name
     String output_basename
-    String sample_name
+    String cell_suspension_id
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
@@ -347,7 +347,7 @@ task HISAT2RSEMSingleEnd {
     fastq: "gz fastq file"
     ref_name: "the basename of the index for the reference genome"
     output_basename: "basename used for output files"
-    sample_name: "sample name of input"
+    cell_suspension_id: "sample name of input"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
@@ -378,8 +378,8 @@ task HISAT2RSEMSingleEnd {
     hisat2 -t \
       -x ${ref_name}/${ref_name} \
       -U $FQ \
-      --rg-id=${sample_name} --rg SM:${sample_name} --rg LB:${sample_name} \
-      --rg PL:ILLUMINA --rg PU:${sample_name} \
+      --rg-id=${cell_suspension_id} --rg SM:${cell_suspension_id} --rg LB:${cell_suspension_id} \
+      --rg PL:ILLUMINA --rg PU:${cell_suspension_id} \
       --new-summary --summary-file ${output_basename}.log \
       --met-file ${output_basename}.hisat2.met.txt --met 5 \
       -k 10 \
