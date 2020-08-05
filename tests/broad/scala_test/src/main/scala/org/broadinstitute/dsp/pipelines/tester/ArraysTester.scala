@@ -23,7 +23,7 @@ class ArraysTester(testerConfig: ArraysConfig)(
   override val workflowName: String = testerConfig.arrayType.workflowBaseName
 
   val workflowDir
-    : File = CromwellWorkflowTester.PipelineRoot / "arrays" / testerConfig.arrayType.pathName
+    : File = CromwellWorkflowTester.PipelineRoot / "broad" / "arrays" / testerConfig.arrayType.pathName
 
   protected val vaultTokenPath: String =
     s"gs://broad-dsp-gotc-arrays-$envString-tokens/arrayswdl.token"

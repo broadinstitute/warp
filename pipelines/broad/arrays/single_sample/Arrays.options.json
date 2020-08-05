@@ -1,0 +1,5 @@
+{
+  "read_from_cache": true,
+  "write_to_cache": true,
+  "monitoring_script": "gs://broad-references-private/monitoring_script.sh"
+}
