@@ -9,6 +9,8 @@ The Smart-seq2 Multi Sample pipeline is a wrapper around the [Smart-seq2 Single 
 Full details about the Smart-seq2 pipeline can be read in the [Smart-seq2 Single Sample documentation](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample) in GitHub. 
 
 The Multi Sample Smart-seq2 workflow can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. The Terra [Smart-seq2 public workspace](https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA%20Smart-seq2%20Multi%20Sample%20Pipeline) contains the Smart-seq2 workflow, workflow configurations, required reference data and other inputs, and example testing data.
+
+*Want to use the Smart-seq2 Multi Sample pipeline for your publication? Check out the [Smart-seq2 Publication Methods](Smart-seq2.methods.md) to get started!*
  
 ## Inputs 
 
