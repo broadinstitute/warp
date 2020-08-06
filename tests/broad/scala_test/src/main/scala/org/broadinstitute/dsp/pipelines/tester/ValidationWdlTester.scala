@@ -294,7 +294,7 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
     val defaultOptions = Array(
       "read_from_cache" -> testerConfig.useCallCaching.asJson,
       "backend" -> testerConfig.papiVersion.entryName.asJson,
-      "monitoring_script" -> "https://github.com/broadinstitute/warp/blob/master/scripts/cromwell_monitoring_script.sh".asJson,
+      "monitoring_script" -> "https://raw.githubusercontent.com/broadinstitute/warp/master/scripts/cromwell_monitoring_script.sh".asJson,
       "google_project" -> googleProject.asJson
     )
 
