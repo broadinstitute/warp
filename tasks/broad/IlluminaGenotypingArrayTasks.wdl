@@ -273,17 +273,24 @@ task CollectArraysVariantCallingMetrics {
       --CALL_RATE_PF_THRESHOLD ~{call_rate_threshold} \
       --OUTPUT ~{output_metrics_basename}
 
-    # Strip out comments and blank lines and get the AUTOCALL_PF flag
+    # Need to determine the disposition from the metrics.
+    # Remove all the comments and blank lines from the file
+    # Find the column number of AUTOCALL_PF and retrieve the value in the second line of the AUTOCALL_PF column
+    # AUTOCALL_PF set to empty if file has more than 2 lines (should only have column headers and one data line)
     AUTOCALL_PF=$(sed '/#/d' ~{output_metrics_basename}.arrays_variant_calling_detail_metrics |
       sed '/^\s*$/d' |
-      awk -v col=AUTOCALL_PF \
-      'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}}} NR==2{print $c}')
+      awk -v col=AUTOCALL_PF -F '\t' \
+      'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}}} NR==2{print $c} NR>2{exit 1}')
 
     if [[ "$AUTOCALL_PF" == "Y" ]]
     then
       echo true > pass.txt
-    else
+    elif [[ "$AUTOCALL_PF" == "N" ]]
+    then
       echo false > pass.txt
+    else
+      echo "AUTOCALL_PF should only be Y or N and there should only be one line of data"
+      exit 1;
     fi
   >>>
 
@@ -618,18 +625,27 @@ task GenotypeConcordance {
       --OUTPUT ~{output_metrics_basename}
 
     # Strip out comments and blank lines and get the genotype concordance
+    # Find the column number of GENOTYPE_CONCORDANCE and retrieve the value in the second line of the column
+    # CONCORDANCE set to empty if file has more than 3 lines (should only have column headers and two data lines)
+    # Samples that have few indel cause genotype concordance to be reported as ‘?’ in the metrics file
     CONCORDANCE=$(sed '/#/d' ~{output_metrics_basename}.genotype_concordance_summary_metrics |
       sed '/^\s*$/d' |
-      awk -v col=GENOTYPE_CONCORDANCE \
-      'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}}} NR==2{print $c}')
+      awk -v col=GENOTYPE_CONCORDANCE -F '\t' \
+      'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}}} NR==2{print $c} NR>3{exit 1}')
 
-    if awk 'BEGIN{exit ARGV[1]>=ARGV[2]}' "$CONCORDANCE" "~{genotype_concordance_threshold}"
+    if [[ "$CONCORDANCE" =~ ^[+-]?[0-9]+\.?[0-9]*$ || "$CONCORDANCE" =~ "?" ]]
     then
-      # Less than threshold. Need to blacklist
-      echo true > fails_concordance.txt
+        if awk 'BEGIN{exit ARGV[1]>=ARGV[2]}' "$CONCORDANCE" "~{genotype_concordance_threshold}"
+        then
+          # Less than threshold. Need to blacklist
+          echo true > fails_concordance.txt
+        else
+          # Passes Genotype Concordance. No need to blacklist
+          echo false > fails_concordance.txt
+        fi
     else
-      # Passes Genotype Concordance. No need to blacklist
-      echo false > fails_concordance.txt
+        echo "GENOTYPE_CONCORDANCE must be a number and the file should only have 2 lines of data"
+        exit 1;
     fi
   >>>
 
