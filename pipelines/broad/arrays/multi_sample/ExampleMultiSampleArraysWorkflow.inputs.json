@@ -1,0 +1,11 @@
+{
+  "MultiSampleArrays.callset_name": "callset_name",
+  "MultiSampleArrays.samples_fofn": "gs://broad-gotc-test-storage/arrays/multisample/psych-chip-validation/vcf/101342370027/multisample_vcf_fofn",
+  "MultiSampleArrays.sample_indices_fofn":"gs://broad-gotc-test-storage/arrays/multisample/psych-chip-validation/vcf/101342370027/multisample_vcf_index_fofn" ,
+  "MultiSampleArrays.disk_size": 100,
+  "MultiSampleArrays.preemptible_tries": 3,
+
+  "MultiSampleArrays.ref_fasta": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",
+  "MultiSampleArrays.ref_fasta_index": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai",
+  "MultiSampleArrays.ref_dict": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict"
+}
