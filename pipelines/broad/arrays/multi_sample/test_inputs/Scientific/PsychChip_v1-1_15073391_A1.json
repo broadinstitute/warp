@@ -1,0 +1,10 @@
+{
+  "MultiSampleArrays.callset_name": "PsychChip_v1-1_15073391_A1",
+  "MultiSampleArrays.samples_fofn": "gs://broad-gotc-test-storage/multi_sample_arrays/PsychChip_v1-1_15073391_A1/inputs/PsychChip_v1-1_15073391_A1_vcf_fofn.txt",
+  "MultiSampleArrays.sample_indices_fofn":"gs://broad-gotc-test-storage/multi_sample_arrays/PsychChip_v1-1_15073391_A1/inputs/PsychChip_v1-1_15073391_A1_vcf_idx_fofn.txt" ,
+  "MultiSampleArrays.preemptible_tries": 3,
+
+  "MultiSampleArrays.ref_fasta": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",
+  "MultiSampleArrays.ref_fasta_index": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai",
+  "MultiSampleArrays.ref_dict": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict"
+}
