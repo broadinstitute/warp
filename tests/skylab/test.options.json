@@ -1,5 +1,5 @@
 {
-  "monitoring_script": "https://raw.githubusercontent.com/broadinstitute/warp/master/scripts/cromwell_monitoring_script.sh",
+  "monitoring_script": "gs://broad-gotc-test-storage/cromwell_monitoring_script.sh",
   "read_from_cache": true,
   "write_to_cache": true
 }
