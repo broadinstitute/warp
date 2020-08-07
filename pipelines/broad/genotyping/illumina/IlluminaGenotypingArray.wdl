@@ -20,7 +20,7 @@ import "../../../../tasks/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
 
 workflow IlluminaGenotypingArray {
 
-  String pipeline_version = "1.8.1"
+  String pipeline_version = "1.9"
 
   input {
 
