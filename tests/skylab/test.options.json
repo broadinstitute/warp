@@ -1,4 +1,5 @@
 {
+  "monitoring_script": "gs://broad-dsde-mint-dev-teststorage/10x/benchmark/scripts/monitor.sh",
   "read_from_cache": true,
   "write_to_cache": true
 }
