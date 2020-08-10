@@ -27,10 +27,12 @@ workflow MultiSampleSmartSeq2 {
       Array[String] input_file_names
       String batch_id
       String? batch_name
+      String? input_name_metadata_field
+      String? input_id_metadata_field
       Boolean paired_end
   }
   # Version of this pipeline
-  String pipeline_version = "2.1.1"
+  String pipeline_version = "2.1.0"
 
   # Parameter metadata information
   parameter_meta {
@@ -68,6 +70,9 @@ workflow MultiSampleSmartSeq2 {
             input_id = input_file_names[idx],
             output_name = input_file_names[idx],
             paired_end = paired_end,
+            input_name_metadata_field = input_name_metadata_field[idx],
+            input_id_metadata_field = input_id_metadata_field[idx]
+
         }
       }
   }
@@ -88,6 +93,8 @@ workflow MultiSampleSmartSeq2 {
               input_id = input_file_names[idx],
               output_name = input_file_names[idx],
               paired_end = paired_end,
+              input_name_metadata_field = input_name_metadata_field[idx],
+              input_id_metadata_field = input_id_metadata_field[idx]
           }
         }
   }

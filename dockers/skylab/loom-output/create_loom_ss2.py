@@ -5,7 +5,7 @@ import numpy as np
 import scipy as sc
 import loompy
 
-def generate_col_attr(qc_paths):
+def generate_col_attr(qc_paths, args):
     """Converts the QC of Smart Seq2 gene file pipeline outputs to loom file
     Args:
         qc_path (str): path to the QCs csv
@@ -49,7 +49,12 @@ def generate_col_attr(qc_paths):
     # Column attributes
     col_attrs = dict()
     col_attrs["cell_names"] = [cell_id]
-    
+
+    if args.input_id_metadata_field:
+        col_attrs["input_id_metadata_field"] = args.input_id_metadata_field
+    if args.input_name_metadata_field:
+            col_attrs["input_name_metadata_field"] = args.input_name_metadata_field
+
     numeric_field_names = np.array(sorted_numeric_labels[:])
     for i in range(0, numeric_field_names.shape[0]):
         name = numeric_field_names[i]
@@ -118,8 +123,8 @@ def create_loom_files(input_id, qc_files, rsem_genes_results_file,
         rsem_genes_results_file (str): the file for the expression count
         output_loom_path (str): location of the output loom
     """
-    # generate a dictionarty of column attributes
-    col_attrs =  generate_col_attr(qc_files) 
+    # generate a dictionary of column attributes
+    col_attrs =  generate_col_attr(args.qc_files, args)
     
     # add the expression count matrix data
     # generate a dictionary of row attributes
@@ -156,27 +161,23 @@ def main():
                         help='path where the loom file is to be created')
 
     parser.add_argument('--input_id',
-                        default="Unknown sample",
                         help='the sample name in the bundle')
 
     parser.add_argument(
         "--input_name",
         dest="input_name",
-        default="Unknown sample",
         help= "sequencing_input.biomaterial_core.biomaterial_id in HCA metadata, defined by the user",
     )
 
     parser.add_argument(
         "--input_id_metadata_field",
         dest="input_id_metadata_field",
-        default="Unknown sample",
         help= "sequencing_process.provenance.document_id: [UUID] defined by the user",
     )
 
     parser.add_argument(
         "--input_name_metadata_field",
         dest="input_name_metadata_field",
-        default="Unknown sample",
         help= "sequencing_input.biomaterial_core.biomaterial_id defined by the user",
     )
 

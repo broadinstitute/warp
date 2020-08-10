@@ -28,6 +28,8 @@ workflow SmartSeq2SingleCell {
     String stranded
     String input_id
     String? input_name
+    String? input_id_metadata_field
+    String? input_name_metadata_field
     String output_name
     File fastq1
     File? fastq2
@@ -35,7 +37,7 @@ workflow SmartSeq2SingleCell {
     Boolean force_no_check = false
   }
   # version of this pipeline
-  String pipeline_version = "4.1.0"
+  String pipeline_version = "5.0.0"
 
   parameter_meta {
     genome_ref_fasta: "Genome reference in fasta format"
@@ -182,7 +184,9 @@ workflow SmartSeq2SingleCell {
       smartseq_qc_files = GroupQCOutputs.group_files,
       input_id=input_id,
       input_name = input_name,
-      pipeline_version = "SmartSeq2SingleSample_v~{pipeline_version}"
+      pipeline_version = "SmartSeq2SingleSample_v~{pipeline_version}",
+      input_id_metadata_field = input_id_metadata_field,
+      input_name_metadata_field = input_name_metadata_field
   }
 
   output {
