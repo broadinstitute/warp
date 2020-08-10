@@ -30,10 +30,11 @@ workflow Optimus {
     Array[File] r1_fastq
     Array[File] r2_fastq
     Array[File]? i1_fastq
-    String sequencing_input_id
-    String output_bam_basename = sequencing_input_id
-    String? cell_suspension_name
-
+    String input_id
+    String output_bam_basename = input_id
+    String? input_name
+    String? input_id_metadata_field
+    String? input_name_metadata_field
     # organism reference parameters
     File tar_star_reference
     File annotations_gtf
@@ -69,7 +70,7 @@ workflow Optimus {
     r1_fastq: "forward read, contains cell barcodes and molecule barcodes"
     r2_fastq: "reverse read, contains cDNA fragment generated from captured mRNA"
     i1_fastq: "(optional) index read, for demultiplexing of multiple samples on one flow cell."
-    sequencing_input_id: "name of sample matching this file, inserted into read group header"
+    input_id: "name of sample matching this file, inserted into read group header"
     tar_star_reference: "star genome reference"
     annotations_gtf: "gtf containing annotations for gene tagging (must match star reference)"
     ref_genome_fasta: "genome fasta file (must match star reference)"
@@ -91,7 +92,7 @@ workflow Optimus {
     call FastqToUBam.FastqToUBam {
       input:
         fastq_file = r2_fastq[index],
-        sequencing_input_id = sequencing_input_id,
+        input_id = input_id,
         fastq_suffix = fastq_suffix
     }
 
@@ -255,8 +256,10 @@ workflow Optimus {
 
   call LoomUtils.OptimusLoomGeneration{
     input:
-      sequencing_input_id = sequencing_input_id,
-      cell_suspension_name = cell_suspension_name,
+      input_id = input_id,
+      input_name = input_name,
+      input_id_metadata_field = input_id_metadata_field,
+      input_name_metadata_field = input_name_metadata_field,
       annotation_file = annotations_gtf,
       cell_metrics = MergeCellMetrics.cell_metrics,
       gene_metrics = MergeGeneMetrics.gene_metrics,

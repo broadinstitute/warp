@@ -4,13 +4,13 @@ task SmartSeq2LoomOutput {
   input {
     #runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-nameChange"
-    # the gene count file "<sequencing_input_id>_rsem.genes.results" in the task results folder call-RSEMExpression
+    # the gene count file "<input_id>_rsem.genes.results" in the task results folder call-RSEMExpression
     File rsem_gene_results
-    # file named "<sequencing_input_id>_QCs.csv" in the folder  "call-GroupQCOutputs/glob-*" of the the SS2  output
+    # file named "<input_id>_QCs.csv" in the folder  "call-GroupQCOutputs/glob-*" of the the SS2  output
     Array[File] smartseq_qc_files
     # name of the sample
-    String sequencing_input_id
-    String? cell_suspension_name
+    String input_id
+    String? input_name
 
     Int preemptible = 3
   }
@@ -29,9 +29,9 @@ task SmartSeq2LoomOutput {
     python3 /tools/create_loom_ss2.py \
        --qc_files ~{sep=' ' smartseq_qc_files} \
        --rsem_genes_results  ~{rsem_gene_results} \
-       --output_loom_path  "~{sequencing_input_id}.loom" \
-       --sequencing_input_id ~{sequencing_input_id} \
-       --cell_suspension_name ~{cell_suspension_name}
+       --output_loom_path  "~{input_id}.loom" \
+       --input_id ~{input_id} \
+       --input_name ~{input_name}
   }
 
   runtime {
@@ -43,7 +43,7 @@ task SmartSeq2LoomOutput {
   }
 
   output {
-    File loom_output = "~{sequencing_input_id}.loom"
+    File loom_output = "~{input_id}.loom"
   }
 }
 
@@ -54,9 +54,9 @@ task OptimusLoomGeneration {
     #runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-nameChange"
     # name of the sample
-    String sequencing_input_id
+    String input_id
     # user provided id
-    String? cell_suspension_name
+    String? input_name
     # gene annotation file in GTF format
     File annotation_file
     # the file "merged-cell-metrics.csv.gz" that contains the cellwise metrics
@@ -105,9 +105,9 @@ task OptimusLoomGeneration {
        --gene_metrics ~{gene_metrics}\
        --cell_id ~{cell_id}\
        --gene_id  ~{gene_id} \
-       --output_path_for_loom "~{sequencing_input_id}.loom" \
-       --sequencing_input_id ~{sequencing_input_id} \
-       --cell_suspension_name ~{cell_suspension_name}
+       --output_path_for_loom "~{input_id}.loom" \
+       --input_id ~{input_id} \
+       --input_name ~{input_name}
        --count_matrix ~{sparse_count_matrix} \
        --expression_data_type $EXPRESSION_DATA_TYPE_PARAM \
        --pipeline_version ~{pipeline_version}
@@ -122,7 +122,7 @@ task OptimusLoomGeneration {
   }
 
   output {
-    File loom_output = "~{sequencing_input_id}.loom"
+    File loom_output = "~{input_id}.loom"
   }
 }
 

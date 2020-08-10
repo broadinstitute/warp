@@ -3,7 +3,7 @@ version 1.0
 task FastqToUBam {
   input {
     File fastq_file
-    String sequencing_input_id
+    String input_id
     String fastq_suffix = ""
 
     # runtime values
@@ -24,7 +24,7 @@ task FastqToUBam {
 
   parameter_meta {
     fastq_file: "input fastq file"
-    sequencing_input_id: "name of sample matching this file, inserted into read group header"
+    input_id: "name of sample matching this file, inserted into read group header"
     fastq_suffix: "a suffix to add to the fastq file; useful with mangled file IDs, since picard requires that the file end in .gz or it will not detect the gzipping."
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
@@ -46,7 +46,7 @@ task FastqToUBam {
       FASTQ="~{fastq_file}""~{fastq_suffix}" \
       SORT_ORDER=unsorted \
       OUTPUT=bamfile.bam \
-      SAMPLE_NAME="~{sequencing_input_id}"
+      SAMPLE_NAME="~{input_id}"
   }
   
   runtime {

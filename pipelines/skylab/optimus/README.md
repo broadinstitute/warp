@@ -90,12 +90,12 @@ The JSON file also contains metadata for the reference information in the follow
 | --- | --- | --- |
 | Whitelist | Cloud path to list of known cell barcodes from [10x genomics](https://www.10xgenomics.com/) that corresponds to the v2 or v3 chemistry | NA |
 | Tar_star_reference | Cloud path to TAR file containing a species-specific reference genome and gtf; it is generated using the [StarMkRef.wdl](https://github.com/broadinstitute/warp/master/tasks/skylab/StarMkref.wdl) | NA |
-| sequencing_input_id | Unique name describing the biological sample or replicate that corresponds with the original FASTQ files. This can be any string, but if possible, we recommend it matches the sample metadata | NA | 
-| cell_suspension_name | Optional string that can be used to further identify the original biological sample | NA |
+| input_id | Unique name describing the biological sample or replicate that corresponds with the original FASTQ files. This can be any string, but if possible, we recommend it matches the sample metadata | NA | 
+| input_name | Optional string that can be used to further identify the original biological sample | NA |
 | Annotations_gtf | Cloud path to GTF containing gene annotations used for gene tagging (must match GTF in STAR reference) | NA | 
 | Chemistry | Optional string description of whether data was generated with 10x v2 or v3 chemistry. Optimus validates this string. If the string does not match one of the optional strings, the pipeline will fail. You can remove the checks by setting "force_no_check = true" in the input JSON | "tenX_v2" (default) or "tenX_v3" |
 | Counting_mode | String description of whether data is single-cell or single-nuclei | "sc_rna" or "sn_rna" |
-| Output_bam_basename | Optional string used for the output BAM file basename; the default is sequencing_input_id | NA |
+| Output_bam_basename | Optional string used for the output BAM file basename; the default is input_id | NA |
 
 
 ### Sample Inputs for Analyses in a Terra Workspace
@@ -204,7 +204,7 @@ The following table lists the output files produced from the pipeline. For sampl
 | Output Name | Filename, if applicable | Output Type |Output Format |
 | ------ |------ | ------ | ------ | 
 | pipeline_version | | Version of the processing pipeline run on this data | String | 
-| bam | <sequencing_input_id>.bam | Aligned BAM | BAM |
+| bam | <input_id>.bam | Aligned BAM | BAM |
 | matrix_row_index | sparse_counts_row_index.npy | Index of cells in expression matrix | Numpy array index |
 | matrix_col_index | sparse_counts_col_index.npy | Index of genes in expression matrix | Numpy array index | 
 | cell_metrics | merged-cell-metrics.csv.gz | cell metrics | compressed csv | Matrix of metrics by cells | 

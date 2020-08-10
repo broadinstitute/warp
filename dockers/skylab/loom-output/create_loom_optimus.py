@@ -329,7 +329,7 @@ def generate_matrix(args):
 
 def create_loom_files(args):
     """This function creates the loom file or folder structure in output_loom_path in format file_format,
-       with sequencing_input_id from the input folder analysis_output_path
+       with input_id from the input folder analysis_output_path
     
     Args:
         args (argparse.Namespace): input arguments for the run
@@ -350,9 +350,13 @@ def create_loom_files(args):
     attrDict = dict()
     attrDict['expression_data_type'] = args.expression_data_type
     attrDict['optimus_output_schema_version'] = version
-    attrDict['sequencing_input_id'] = args.sequencing_input_id
-    if args.cell_suspension_name is not None:
-        attrDict['cell_suspension_name'] = args.cell_suspension_name
+    attrDict['input_id'] = args.input_id
+    if args.input_name is not None:
+        attrDict['input_name'] = args.input_name
+    if args.input_id_metadata_field is not None:
+        attrDict['input_id_metadata_field'] = args.input_id_metadata_field
+    if args.input_name_metadata_field is not None:
+        attrDict['input_name_metadata_field'] = args.input_name_metadata_field
     attrDict['pipeline_version'] = args.pipeline_version
     #generate loom file 
     loompy.create(args.output_loom_path, expr_sp_t, row_attrs, col_attrs, file_attrs=attrDict)
@@ -430,18 +434,32 @@ def main():
     )
 
     parser.add_argument(
-        "--sequencing_input_id",
-        dest="sequencing_input_id",
+        "--input_id",
+        dest="input_id",
         required=True,
         default="Unknown sample",
         help="the sample name in the bundle",
     )
 
     parser.add_argument(
-        "--cell_suspension_name",
-        dest="cell_suspension_name",
+        "--input_name",
+        dest="input_name",
         default="Unknown sample",
-        help= "cell_suspension.biomaterial_id defined by the user",
+        help= "sequencing_input.biomaterial_core.biomaterial_id in HCA metadata, defined by the user",
+    )
+
+    parser.add_argument(
+        "--input_id_metadata_field",
+        dest="input_id_metadata_field",
+        default="Unknown sample",
+        help= "sequencing_process.provenance.document_id: [UUID] defined by the user",
+    )
+
+    parser.add_argument(
+        "--input_name_metadata_field",
+        dest="input_name_metadata_field",
+        default="Unknown sample",
+        help= "sequencing_input.biomaterial_core.biomaterial_id defined by the user",
     )
 
     parser.add_argument(

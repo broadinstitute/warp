@@ -10,6 +10,6 @@
   "SmartSeq2SingleCell.hisat2_ref_name": "genome_snp_tran",
   "SmartSeq2SingleCell.stranded":"NONE",
   "SmartSeq2SingleCell.fastq1":"gs://hca-dcp-mint-test-data/ss2/human/single-read/CD4_cytotoxic_renamed/SRR6258249_1.fastq.gz",
-  "SmartSeq2SingleCell.sequencing_input_id":"SRR6258249",
+  "SmartSeq2SingleCell.input_id":"SRR6258249",
   "SmartSeq2SingleCell.output_name":"SRR6258249"
 }

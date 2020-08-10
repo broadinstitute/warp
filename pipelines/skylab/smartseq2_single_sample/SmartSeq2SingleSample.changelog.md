@@ -2,8 +2,8 @@
 
 2020-08-03 (Date of Last Commit)
 
-* Changed sample_name to sequencing_input_id
-* Added cell_suspension_name as an optional input for user provided biomaterial id.
+* Changed sample_name to input_id
+* Added input_name as an optional input for user provided biomaterial id.
 * Passed pipeline_version to output loom file
 
 
