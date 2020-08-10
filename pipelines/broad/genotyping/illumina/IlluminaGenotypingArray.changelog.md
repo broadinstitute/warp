@@ -1,3 +1,14 @@
+# 1.9
+2020-07-31
+
+* Fix bug in CollectArraysVariantCallingMetrics and GenotypeConcordance where the metrics file is 
+  being parsed incorrectly if there is a space in the sample name value 
+  
+# 1.8.1
+2020-07-31
+
+* Have md5sum task stop using phusion/baseimage:latest docker image (it has been removed).  Start using a Google-hosted base image in it's stead.
+
 # 1.8
 2020-06-23
 

@@ -1,0 +1,33 @@
+{
+  "Arrays.sample_alias": "S8 N4B3GY",
+  "Arrays.sample_lsid": "broadinstitute.org:bsp.dev.sample:NOTREAL.S8N4B3GY",
+  "Arrays.analysis_version_number": 1,
+  "Arrays.call_rate_threshold": 0.98,
+  "Arrays.genotype_concordance_threshold": 0.98,
+  "Arrays.reported_gender": "Unknown",
+  "Arrays.chip_well_barcode": "201651080129_R05C01",
+
+  "Arrays.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/InfiniumOmniExpressExome-8v1-4_A1/idats/201651080129_R05C01/201651080129_R05C01_Grn.idat",
+  "Arrays.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/InfiniumOmniExpressExome-8v1-4_A1/idats/201651080129_R05C01/201651080129_R05C01_Red.idat",
+  "Arrays.params_file": "gs://broad-gotc-test-storage/arrays/InfiniumOmniExpressExome-8v1-4_A1/inputs/201651080129_R05C01/params.txt",
+
+  "Arrays.fingerprint_genotypes_vcf_file": "gs://broad-gotc-test-storage/arrays/InfiniumOmniExpressExome-8v1-4_A1/inputs/201651080129_R05C01/201651080129_R05C01.S8_N4B3GY.reference.fingerprint.vcf.gz",
+  "Arrays.fingerprint_genotypes_vcf_index_file": "gs://broad-gotc-test-storage/arrays/InfiniumOmniExpressExome-8v1-4_A1/inputs/201651080129_R05C01/201651080129_R05C01.S8_N4B3GY.reference.fingerprint.vcf.gz.tbi",
+
+  "Arrays.bead_pool_manifest_file" : "gs://broad-gotc-test-storage/arrays/metadata/InfiniumOmniExpressExome-8v1-4_A1/InfiniumOmniExpressExome-8v1-4_A1.bpm",
+  "Arrays.extended_chip_manifest_file" : "gs://broad-gotc-test-storage/arrays/metadata/InfiniumOmniExpressExome-8v1-4_A1/InfiniumOmniExpressExome-8v1-4_A1.1.3.extended.csv",
+  "Arrays.cluster_file" : "gs://broad-gotc-test-storage/arrays/metadata/InfiniumOmniExpressExome-8v1-4_A1/InfiniumOmniExpressExome-8v1-4_A1_ClusterFile.egt",
+
+  "Arrays.disk_size": 100,
+
+  "Arrays.ref_fasta": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",
+  "Arrays.ref_fasta_index": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai",
+  "Arrays.ref_dict": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict",
+  "Arrays.dbSNP_vcf": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz",
+  "Arrays.dbSNP_vcf_index": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz.tbi",
+  "Arrays.haplotype_database_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt",
+  "Arrays.variant_rsids_file": "gs://broad-references-private/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
+  "Arrays.preemptible_tries": 3,
+  "Arrays.vault_token_path": "{VAULT_TOKEN_PATH}",
+  "Arrays.environment": "{ENV}"
+}

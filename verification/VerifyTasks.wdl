@@ -11,7 +11,7 @@ task CompareVcfs {
   }
 
   runtime {
-    docker: "phusion/baseimage"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 50 HDD"
     memory: "3 GiB"
     preemptible: 3
@@ -71,7 +71,7 @@ task CompareTextFiles {
   }
 
   runtime {
-    docker: "phusion/baseimage"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 10 HDD"
     memory: "2 GiB"
     preemptible: 3
@@ -96,7 +96,7 @@ task CompareCrams {
     cmp -i "$test_offset:$truth_offset" ~{test_cram} ~{truth_cram}
   }
   runtime {
-    docker: "phusion/baseimage"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 150 HDD"
     memory: "2 GiB"
     preemptible: 3
@@ -116,7 +116,7 @@ task CompareCrais {
     cmp <(zcat ~{test_crai} | cut -f1,2,3,5,6) <(zcat ~{truth_crai} | cut -f1,2,3,5,6)
   }
   runtime {
-    docker: "phusion/baseimage"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 10 HDD"
     memory: "2 GiB"
     preemptible: 3

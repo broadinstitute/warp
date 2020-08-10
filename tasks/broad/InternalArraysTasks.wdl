@@ -138,17 +138,24 @@ task VcfToMercuryFingerprintJson {
   command <<<
     set -eo pipefail
 
-    # Need to determine the disposition from the metrics.
-    # Strip out comments and blank lines and AUTOCALL_PF
+    # Need to determine the disposition from the metrics
+    # Remove all the comments and blank lines from the file
+    # Find the column number of AUTOCALL_PF and retrieve the value in the second line of the AUTOCALL_PF column
+    # AUTOCALL_PF set to empty if file has more than 2 lines (should only have column headers and one data line)
     AUTOCALL_PF=$(sed '/#/d' ~{variant_calling_detail_metrics_file} |
       sed /'^\s*$/d' |
-      awk -v col=AUTOCALL_PF \
-      'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}}} NR==2{print $c}')
+      awk -v col=AUTOCALL_PF -F '\t' \
+      'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}}} NR==2{print $c} NR>2{exit 1}'')
 
-    if [ $AUTOCALL_PF == Y ]; then
+    if [[ "$AUTOCALL_PF" == "Y" ]]
+    then
        DISPOSITION=P
-    else
+    elif [[ "$AUTOCALL_PF" == "N" ]]
+    then
        DISPOSITION=F
+    else
+       echo "AUTOCALL_PF should only be Y or N and there should only be one line of data"
+       exit 1;
     fi
 
     java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \

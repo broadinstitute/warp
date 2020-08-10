@@ -33,6 +33,6 @@ task PrintMessageToStdout {
     }
 
     runtime {
-        docker: "phusion/baseimage"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     }
 }

@@ -12,6 +12,13 @@
 * Updated the Loom file attribute names: CellID to cell_names, Gene to gene_names, and Accession to ensembl_ids
 * Added metrics for mitochondrial reads
 * Added an optional input for the BAM basename; this input is listed as ‘bam_output_basename’and the default is 'sample_id'
+* Added a new counting_mode parameter to Optimus workflow which enables processing of single-nuclei datasets
+* Updated Drop-seq tools to v2.3.0; this update is only used when the workflow is set to the single-nuclei mode (counting_mode = sn_rna) 
+* Updated sctools to support the single-nuclei parameter (counting_mode = sn_rna) 
+* Added tests for running the workflow when counting_mode = sn_rna 
+* Updated the Loom output to include a global attribute describing the counting mode
+* Added new example datasets that can be used with the Optimus workflow
+* Updated the README documentation to detail the new counting_mode parameter, describe example datasets, and to include a new FAQ section
 
 # optimus_v2.0.0
 2020-02-08 (Date of Last Commit)

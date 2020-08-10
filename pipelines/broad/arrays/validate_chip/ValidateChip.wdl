@@ -1,7 +1,7 @@
 version 1.0
 
-import "../../../../tasks/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
-import "../../../../tasks/InternalArraysTasks.wdl" as InternalTasks
+import "../../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
+import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 ## Copyright Broad Institute, 2019
 ##
@@ -21,7 +21,7 @@ import "../../../../tasks/InternalArraysTasks.wdl" as InternalTasks
 
 workflow ValidateChip {
 
-  String pipeline_version = "1.8"
+  String pipeline_version = "1.9"
 
   input {
     String sample_alias
@@ -298,17 +298,26 @@ task GenotypeConcordance {
       done
 
       # Strip out comments and blank lines and get the genotype concordance
+      # Find the column number of GENOTYPE_CONCORDANCE and retrieve the value in the second line of the column
+      # CONCORDANCE set to empty if file has more than 3 lines (should only have column headers and two data lines)
+      # Samples that have few indel cause genotype concordance to be reported as ‘?’ in the metrics file
       CONCORDANCE=$(grep -e ~{variant_type} -e VARIANT  ~{output_metrics_basename}.genotype_concordance_summary_metrics |
         sed '/#/d' |
         sed '/^\s*$/d' |
-        awk -v col=GENOTYPE_CONCORDANCE \
-        'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}}} NR==2{print $c}')
+        awk -v col=GENOTYPE_CONCORDANCE -F '\t' \
+        'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}}} NR==2{print $c} NR>3{exit 1}')
 
-      if awk 'BEGIN{exit ARGV[1]>=ARGV[2]}' "$CONCORDANCE" ~{concordance_threshold}
+      if [[ "$CONCORDANCE" =~ ^[+-]?[0-9]+\.?[0-9]*$ || "$CONCORDANCE" =~ "?" ]]
       then
-        # Less than threshold, fail.
-        echo "Genotype Concordance Failure"
-        exit 1
+          if awk 'BEGIN{exit ARGV[1]>=ARGV[2]}' "$CONCORDANCE" ~{concordance_threshold}
+          then
+            # Less than threshold, fail.
+            echo "Genotype Concordance Failure"
+            exit 1
+          fi
+      else
+          echo "GENOTYPE_CONCORDANCE must be a number and the file should only have 2 lines of data"
+          exit 1;
       fi
   >>>
 
