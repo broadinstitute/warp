@@ -57,6 +57,8 @@ task OptimusLoomGeneration {
     String input_id
     # user provided id
     String? input_name
+    String? input_id_metadata_field
+    String? input_name_metadata_field
     # gene annotation file in GTF format
     File annotation_file
     # the file "merged-cell-metrics.csv.gz" that contains the cellwise metrics
@@ -107,7 +109,9 @@ task OptimusLoomGeneration {
        --gene_id  ~{gene_id} \
        --output_path_for_loom "~{input_id}.loom" \
        --input_id ~{input_id} \
-       --input_name ~{input_name}
+       --input_name ~{input_name}\
+       --input_id_metadata_field ~{input_id_metadata_field}\
+       --input_name_metadata_field ~{input_name_metadata_field}\
        --count_matrix ~{sparse_count_matrix} \
        --expression_data_type $EXPRESSION_DATA_TYPE_PARAM \
        --pipeline_version ~{pipeline_version}
