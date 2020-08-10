@@ -35,11 +35,11 @@
 
 Optimus is a pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/) that supports processing of any 3' single-cell and single-nuclei expression data generated with the [10x Genomic v2 or v3 assay](https://www.10xgenomics.com/solutions/single-cell/). It is an alignment and transcriptome quantification pipeline that corrects cell barcodes, aligns reads to the genome, corrects Unique Molecular Identifiers (UMIs), generates an expression matrix in a UMI-aware manner, calculates summary metrics for genes and cells, detects empty droplets, returns read outputs in BAM format, and returns cell gene expression in numpy matrix and Loom file formats. Special care is taken to keep all reads that may be useful to the downstream user, such as unaligned reads or reads with uncorrectable barcodes. This design provides flexibility to the downstream user and allows for alternative filtering or leveraging the data for novel methodological development.
 
-Optimus has been validated for analyzing both [human](https://github.com/broadinstitute/warp/blob/master/benchmarking/v1_Apr2019/optimus_report.rst) and [mouse](https://docs.google.com/document/d/1_3oO0ZQSrwEoe6D3GgKdSmAQ9qkzH_7wrE7x6_deL10/edit) data sets. More details about the human validation can be found in the [in the original file](https://docs.google.com/document/d/158ba_xQM9AYyu8VcLWsIvSoEYps6PQhgddTr9H0BFmY/edit).
+Optimus has been validated for analyzing both [human](https://github.com/broadinstitute/warp/blob/master/benchmarking/v1_Apr2019/optimus_report.rst) and [mouse](https://docs.google.com/document/d/1_3oO0ZQSrwEoe6D3GgKdSmAQ9qkzH_7wrE7x6_deL10/edit) single-cell or single-nuclei data sets. See the [human single-cell validation](https://docs.google.com/document/d/158ba_xQM9AYyu8VcLWsIvSoEYps6PQhgddTr9H0BFmY/edit) or the [single-nuclei](https://docs.google.com/document/d/1rv2M7vfpOzIOsMnMfNyKB4HV18lQ9dnOGHK2tPikiH0/edit) validation reports. 
 
-| **Update on Single Nuclei RNAseq (sn_rna) Pipeline** |
-| --- |
-| We are in the process of validating Optimus for snRNAseq using the `sn_rna` parameter. These changes are detailed in the documentation. Once the pipeline is validated for snRNAseq, we will provide the validation report link in the above section. | 
+| Want to use the Optimus Pipeline for your publication? |
+|---|
+| *Check out the [Optimus Publication Methods](optimus.methods.md) to get started!* |
 
 ## Quick Start Table
 
