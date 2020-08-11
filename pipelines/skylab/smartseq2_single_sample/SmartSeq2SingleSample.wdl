@@ -34,6 +34,7 @@ workflow SmartSeq2SingleCell {
     Boolean paired_end
     Boolean force_no_check = false
   }
+  
   # version of this pipeline
   String pipeline_version = "4.1.0"
 

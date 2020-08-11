@@ -11,6 +11,7 @@ task SmartSeq2LoomOutput {
     # name of the sample
     String input_id
     String? input_name
+    String pipeline_version
 
     Int preemptible = 3
   }
@@ -31,7 +32,8 @@ task SmartSeq2LoomOutput {
        --rsem_genes_results  ~{rsem_gene_results} \
        --output_loom_path  "~{input_id}.loom" \
        --input_id ~{input_id} \
-       --input_name ~{input_name}
+       --input_name ~{input_name}\
+       --pipeline_version ~{pipeline_version}
   }
 
   runtime {
@@ -136,6 +138,7 @@ task AggregateSmartSeq2Loom {
         Array[File] loom_input
         String batch_id
         String? batch_name
+        String pipeline_version
         String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-nameChange"
         Int disk = 100
     }
@@ -149,7 +152,8 @@ task AggregateSmartSeq2Loom {
       
       # Merge the loom files
       python3 /tools/ss2_loom_merge.py --input-loom-files ~{sep=' ' loom_input} \
-      --output-loom-file "~{batch_id}.loom" --batch_id ~{batch_id} --batch_name ~{batch_name}
+      --output-loom-file "~{batch_id}.loom" --batch_id ~{batch_id} --batch_name ~{batch_name} \
+      --pipeline_version ~{pipeline_version}
 
 
     }
