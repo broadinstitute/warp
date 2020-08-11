@@ -11,13 +11,10 @@ task SmartSeq2LoomOutput {
     # name of the sample
     String input_id
     String? input_name
-<<<<<<< HEAD
-    String pipeline_version
-=======
     String? input_id_metadata_field
     String? input_name_metadata_field
->>>>>>> e775b734cdce9bfadc57678a63936b14451e46a7
 
+    String pipeline_version
     Int preemptible = 3
   }
 
@@ -37,14 +34,10 @@ task SmartSeq2LoomOutput {
        --rsem_genes_results  ~{rsem_gene_results} \
        --output_loom_path  "~{input_id}.loom" \
        --input_id ~{input_id} \
-<<<<<<< HEAD
        --input_name ~{input_name}\
-       --pipeline_version ~{pipeline_version}
-=======
-       --input_name ~{input_name} \
        --input_id_metadata_field ~{input_id_metadata_field} \
-       --input_name_metadata_field ~{input_name_metadata_field}
->>>>>>> e775b734cdce9bfadc57678a63936b14451e46a7
+       --input_name_metadata_field ~{input_name_metadata_field} \
+       --pipeline_version ~{pipeline_version}
   }
 
   runtime {
@@ -149,12 +142,8 @@ task AggregateSmartSeq2Loom {
         Array[File] loom_input
         String batch_id
         String? batch_name
-<<<<<<< HEAD
         String pipeline_version
-        String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-nameChange"
-=======
         String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-np_test"
->>>>>>> e775b734cdce9bfadc57678a63936b14451e46a7
         Int disk = 100
     }
 
