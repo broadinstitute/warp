@@ -437,28 +437,24 @@ def main():
         "--input_id",
         dest="input_id",
         required=True,
-        default="Unknown sample",
         help="the sample name in the bundle",
     )
 
     parser.add_argument(
         "--input_name",
         dest="input_name",
-        default="Unknown sample",
         help= "sequencing_input.biomaterial_core.biomaterial_id in HCA metadata, defined by the user",
     )
 
     parser.add_argument(
         "--input_id_metadata_field",
         dest="input_id_metadata_field",
-        default="Unknown sample",
         help= "sequencing_process.provenance.document_id: [UUID] defined by the user",
     )
 
     parser.add_argument(
         "--input_name_metadata_field",
         dest="input_name_metadata_field",
-        default="Unknown sample",
         help= "sequencing_input.biomaterial_core.biomaterial_id defined by the user",
     )
 

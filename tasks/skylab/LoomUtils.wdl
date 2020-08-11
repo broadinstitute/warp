@@ -3,7 +3,7 @@ version 1.0
 task SmartSeq2LoomOutput {
   input {
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-nameChange"
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-np_test"
     # the gene count file "<input_id>_rsem.genes.results" in the task results folder call-RSEMExpression
     File rsem_gene_results
     # file named "<input_id>_QCs.csv" in the folder  "call-GroupQCOutputs/glob-*" of the the SS2  output
@@ -11,7 +11,12 @@ task SmartSeq2LoomOutput {
     # name of the sample
     String input_id
     String? input_name
+<<<<<<< HEAD
     String pipeline_version
+=======
+    String? input_id_metadata_field
+    String? input_name_metadata_field
+>>>>>>> e775b734cdce9bfadc57678a63936b14451e46a7
 
     Int preemptible = 3
   }
@@ -32,8 +37,14 @@ task SmartSeq2LoomOutput {
        --rsem_genes_results  ~{rsem_gene_results} \
        --output_loom_path  "~{input_id}.loom" \
        --input_id ~{input_id} \
+<<<<<<< HEAD
        --input_name ~{input_name}\
        --pipeline_version ~{pipeline_version}
+=======
+       --input_name ~{input_name} \
+       --input_id_metadata_field ~{input_id_metadata_field} \
+       --input_name_metadata_field ~{input_name_metadata_field}
+>>>>>>> e775b734cdce9bfadc57678a63936b14451e46a7
   }
 
   runtime {
@@ -54,7 +65,7 @@ task OptimusLoomGeneration {
 
   input {
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-nameChange"
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-np_test"
     # name of the sample
     String input_id
     # user provided id
@@ -138,8 +149,12 @@ task AggregateSmartSeq2Loom {
         Array[File] loom_input
         String batch_id
         String? batch_name
+<<<<<<< HEAD
         String pipeline_version
         String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-nameChange"
+=======
+        String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-np_test"
+>>>>>>> e775b734cdce9bfadc57678a63936b14451e46a7
         Int disk = 100
     }
 

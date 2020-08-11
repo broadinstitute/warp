@@ -22,11 +22,11 @@ def main():
                         help="Batch id for output loom")
     parser.add_argument('--batch_name',
                         dest='batch_name',
-                        help="User provided plate id for output loom")
+                        help='User provided plate id for output loom')
     parser.add_argument('--pipeline_version',
                         dest='pipeline_version',
                         required=True,
-                        help="Multisample SS2 version")
+                        help='Multisample SS2 version')
     args = parser.parse_args()
 
     # The list of Loom files that we need to merge

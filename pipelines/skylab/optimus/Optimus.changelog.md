@@ -1,10 +1,13 @@
-# optimus_v3.1.0
+# optimus_v4.0.0
 
-2020-08-03 (Date of Last Commit)
-
+2020-08-10 (Date of Last Commit)
+### Breaking changes to the pipeline inputs. 
 * Changed sample_id to input_id
+### Additional changes. 
 * Added input_name as an optional input for user provided sample_id
 * Passed pipeline_version to output loom file  
+* Added input_id_metadata_field and input_name_metadata_field as optional input
+
 
 # optimus_v3.0.1
 

@@ -14,5 +14,4 @@ WORKDIR /tools
 
 COPY create_loom_optimus.py .
 COPY create_loom_ss2.py .
-COPY ss2_loom_merge.py .
 COPY loomCompare.py .
