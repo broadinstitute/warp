@@ -2,6 +2,7 @@
 
 2020-08-10 (Date of Last Commit)
 
+### Non-breaking changes
 * Added batch_name as an optional input for user provided biomaterial id
 * Passed pipeline_version to output loom file  
 * Added input_id_metadata_field and input_name_metadata_field as optional input
