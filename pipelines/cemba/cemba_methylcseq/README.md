@@ -121,14 +121,14 @@ The table and summary sections below detail the tasks and tools of the CEMBA pip
 | MethylationTypeCaller | [GATK v4.1.2.0](https://gatk.broadinstitute.org/hc/en-us)  | Produce a  VCF with locus-specific methylation information | broadinstitute/gatk:4.1.2.0 |
 | ComputeCoverageDepth | [Samtools v1.9](http://www.htslib.org/)  | Compute number of sites with coverage greater than 1 | quay.io/broadinstitute/samtools:1.9 |
 
-### Prior to running: set paired-end or single-end mode
-While the pipeline accepts paired-end reads, it can only perform multiplexing when running in single-end mode. You can specify single-end mode or paired-end mode using the paired_end_run boolean in the configuration file.
+### Prior to running: Set-up the workflow for using multiplexed samples  
+The pipeline uses paired-end reads, but it can only perform multiplexing when running in single-end mode. If you have multiplexed samples and want to attach cell barcodes, you must run the pipeline in single-end mode. If you do not wish to attach cell barcodes, you may run in paired-end mode (even if your samples are multiplexed). You can specify single-end mode or paired-end mode using the paired_end_run boolean in the configuration file. You will also need to adjust the extract_and_attach_barcodes_in_single_end_run boolean to true if you want to attach bardcodes.
 
 ### 1. Trim adaptors
 The CEMBA workflow Trim task uses Cutadapt software to remove the Read1 (R1) and Read2 (R2) adaptor sequences specified in the input configuration from the zipped R1 and R2 FASTQ files. Low quality reads are trimmed from the 5’ and 3’ ends using the interval specified in the quality_cutoff input parameter.  To avoid empty reads, a threshold for read length is set using the min_length_paired_end_trim option. 
 
 ### 2. Extract cell barcodes
-CEMBA can extract cell barcodes from multiplexed samples  if the extract_and_attach_barcodes_in_single_end_run boolean is true and the samples are run in single-end mode. To do this, the workflow uses the CreateUnmappedBam and ExtractCellBarcodes tasks to first make an unaligned BAM (uBAM) for the trimmed R1 FASTQ and then tag barcodes identified with the barcode_white_list input to the uBAM. 
+CEMBA can extract cell barcodes from multiplexed samples if the extract_and_attach_barcodes_in_single_end_run boolean is true and the samples are run in single-end mode. To do this, the workflow uses the CreateUnmappedBam and ExtractCellBarcodes tasks to first make an unaligned BAM (uBAM) for the trimmed R1 FASTQ and then tag barcodes identified with the barcode_white_list input to the uBAM. 
 
 ### 3. Trim degenerate bases, random primer indexes, and Adaptase C/T tail
 After barcode extraction, the Trim task is used a second time to remove additional bases resulting from R1 random primer indexes (often used as barcodes) and the R2 C/T tail introduced by the Adaptase enzyme. Reads are trimmed using the cut_length input. The read length threshold is set by the min_length_single_end input. 
