@@ -265,7 +265,7 @@ task GenerateReport {
     fail=false
 
     echo Bam Validation: ~{bam_validation_result}
-    if [ "~{bam_validation_result}" == "FAIL"]; then
+    if [ "~{bam_validation_result}" == "FAIL" ]; then
         fail=true
     fi
 
