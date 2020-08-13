@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-declare -r DSDE_PIPELINES_ROOT=$(git rev-parse --show-toplevel)
+declare -r WARP_ROOT=$(git rev-parse --show-toplevel)
 declare -r -a ENVIRONMENTS=(dev rc prod)
 declare -r ENV_DEV=${ENVIRONMENTS[0]}
 declare -r ENV_RC=${ENVIRONMENTS[1]}
@@ -38,7 +38,7 @@ function get_pipeline_dependencies() {
 }
 
 function get_versioned_pipelines() {
-  local -r -a pipelines=($(find ${DSDE_PIPELINES_ROOT}/pipelines -type f -name '*.wdl'))
+  local -r -a pipelines=($(find ${WARP_ROOT}/pipelines -type f -name '*.wdl'))
   echo ${pipelines[@]}
 }
 
@@ -80,7 +80,7 @@ function get_pipelines_to_test() {
         pipelinesToTest+=(${pipeline})
       else
         pipelineDirectory=$(dirname ${pipeline})
-        pipelineHomeDir=${pipelineDirectory/${DSDE_PIPELINES_ROOT}\//}
+        pipelineHomeDir=${pipelineDirectory/${WARP_ROOT}\//}
         for changedFile in ${changedFiles[@]}; do
           if [[ "$(dirname ${changedFile})" == "${pipelineHomeDir}"* ]]; then
             pipelinesToTest+=(${pipeline})
