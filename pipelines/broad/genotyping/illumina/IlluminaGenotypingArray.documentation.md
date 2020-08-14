@@ -1,6 +1,6 @@
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Version 1.8](IlluminaGenotypingArray.wdl) | July 31, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [Version 1.9](IlluminaGenotypingArray.wdl) | August 07, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 # Table of Contents
 - [Illumina Genotyping Array Pipeline Overview](#illumina-genotyping-array-pipeline-overview)
@@ -29,7 +29,7 @@
 
 # Introduction to the Illumina Genotyping Arrays Pipeline
 
-The Illumina Genotyping Array Pipeline was developed by the Broad DSDE Pipelines team to process Illumina genotyping array data in the form of IDAT files. Overall, the pipeline performs gender-specific genotyping, sample contamination detection, and summary metric collection. It optionally performs rare variant calling and genotype concordance, creates a fingerprint VCF which can be used for sample verification in parallel processes, and evaluates an existing sample fingerprint to confirm sample identity. Overall, the pipeline outputs annotated VCFs, index files, and summary metrics. 
+The Illumina Genotyping Array Pipeline was developed by the Broad DSDE Pipelines team to process Illumina genotyping array data in the form of IDAT files. Overall, the pipeline performs gender-specific genotyping, sample contamination detection, and summary metric collection. It optionally performs rare variant calling and genotype concordance, creates a fingerprint VCF which can be used for sample verification in parallel processes, and evaluates an existing sample fingerprint to confirm sample identity. The pipeline outputs annotated VCFs, index files, and summary metrics. 
 
 # Set-up
 
