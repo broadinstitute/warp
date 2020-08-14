@@ -1,5 +1,5 @@
 # 1.9
-2020-07-31
+2020-08-07
 
 * Fix bug in CollectArraysVariantCallingMetrics and GenotypeConcordance where the metrics file is 
   being parsed incorrectly if there is a space in the sample name value 
