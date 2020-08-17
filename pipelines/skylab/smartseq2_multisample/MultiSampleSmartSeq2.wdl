@@ -23,12 +23,14 @@ workflow MultiSampleSmartSeq2 {
 
       # Sample information
       String stranded
-      String file_prefix
-      Array[String] input_file_names
+      Array[String] input_id
+      Array[String?]? input_name
+      Array[String] fastq1_input_files
+      Array[String] fastq2_input_files = []
       String batch_id
       String? batch_name
-      Array[String]? input_name_metadata_field
-      Array[String]? input_id_metadata_field
+      String? input_name_metadata_field
+      String? input_id_metadata_field
       Boolean paired_end
   }
   # Version of this pipeline
@@ -45,19 +47,35 @@ workflow MultiSampleSmartSeq2 {
     hisat2_ref_trans_index: "HISAT2 transcriptome index file in tarball"
     rsem_ref_index: "RSEM reference index file in tarball"
     stranded: "Library strand information example values: FR RF NONE"
-    file_prefix: "Prefix for the fastq files"
-    input_file_names: "Array of filename prefixes, will be appended with _1.fastq.gz and _2.fastq.gz"
+    input_id: "Array of sample names"
+    fastq1_input_files: "Array of fastq1 files; order must match the order in input_id."
+    fastq2_input_files: "Array of fastq2 files for paired end runs; order must match fastq1_input_files and input_id."
     batch_id: " Identifier for the batch"
     paired_end: "Is the sample paired end or not"
   }
 
+  # Check that all input arrays are the same length
+  call checkInputArrays as checkArrays{
+      input:
+         paired_end = paired_end,
+         input_id = input_id,
+         fastq1_input_files = fastq1_input_files,
+         fastq2_input_files = fastq2_input_files
+  }
+
   ### Execution starts here ###
   if (paired_end) {
-      scatter(idx in range(length(input_file_names))) {
+      scatter(idx in range(length(input_id))) {
+        String? input_name
+        if (defined(input_name)) {
+              Array[String?] input_name_array = select_first([input_name])
+              input_name = input_name_array[idx]
+        }
+
         call single_cell_run.SmartSeq2SingleCell as sc_pe {
           input:
-            fastq1 = file_prefix + '/' + input_file_names[idx] + "_1.fastq.gz",
-            fastq2 = file_prefix + '/' + input_file_names[idx] + "_2.fastq.gz",
+            fastq1 = fastq1_input_files[idx],
+            fastq2 = fastq2_input_files[idx],
             stranded = stranded,
             genome_ref_fasta = genome_ref_fasta,
             rrna_intervals = rrna_intervals,
@@ -67,20 +85,24 @@ workflow MultiSampleSmartSeq2 {
             hisat2_ref_trans_index = hisat2_ref_trans_index,
             hisat2_ref_trans_name = hisat2_ref_trans_name,
             rsem_ref_index = rsem_ref_index,
-            input_id = input_file_names[idx],
-            output_name = input_file_names[idx],
+            input_id = input_id[idx],
+            output_name = input_id[idx],
             paired_end = paired_end,
             input_name_metadata_field = input_name_metadata_field[idx],
-            input_id_metadata_field = input_id_metadata_field[idx]
-
-        }
+            input_id_metadata_field = input_id_metadata_field[idx],
+            input_name = input_name
       }
   }
   if (!paired_end) {
-        scatter(idx in range(length(input_file_names))) {
+        scatter(idx in range(length(input_id))) {
+           String? input_name
+           if (defined(input_name)) {
+                                      Array[String?] input_name_array = select_first([input_name])
+                                                                                     input_name = input_name_array[idx]
+          }
           call single_cell_run.SmartSeq2SingleCell as sc_se {
             input:
-              fastq1 = file_prefix + '/' + input_file_names[idx] + "_1.fastq.gz",
+              fastq1 = fastq1_input_files[idx],
               stranded = stranded,
               genome_ref_fasta = genome_ref_fasta,
               rrna_intervals = rrna_intervals,
@@ -90,8 +112,8 @@ workflow MultiSampleSmartSeq2 {
               hisat2_ref_trans_index = hisat2_ref_trans_index,
               hisat2_ref_trans_name = hisat2_ref_trans_name,
               rsem_ref_index = rsem_ref_index,
-              input_id = input_file_names[idx],
-              output_name = input_file_names[idx],
+              sample_name = input_id[idx],
+              output_name = input_id[idx],
               paired_end = paired_end,
               input_name_metadata_field = input_name_metadata_field[idx],
               input_id_metadata_field = input_id_metadata_field[idx]
@@ -120,4 +142,57 @@ workflow MultiSampleSmartSeq2 {
     Array[File] bam_index_files = bam_index_files_intermediate
     File loom_output = AggregateLoom.loom_output_file
   }
+}
+
+task checkInputArrays {
+  input {
+    Boolean paired_end
+    Array[String] input_id
+    Array[String?]? input_name
+    Array[String] fastq1_input_files
+    Array[String] fastq2_input_files
+  }
+  Int len_input_id = length(input_id)
+  Int len_fastq1_input_files = length(fastq1_input_files)
+  Int len_fastq2_input_files = length(fastq2_input_files)
+  Int len_input_name = 0
+
+  if (defined(input_name)) {
+       len_input_name = length(select_first([input_name]))
+  }
+
+  meta {
+    description: "checks input arrays to ensure that all arrays are the same length"
+  }
+
+  command {
+    set -e
+
+    if [[ ~{len_input_id} !=  ~{len_fastq1_input_files} ]]
+      then
+      echo "ERROR: Different number of arguments for input_id and fastq1 files"
+      exit 1;
+    fi
+
+    if [[ ~{len_input_name} != 0  && ~{len_input_id} !=  ~{len_input_name} ]]
+        then
+        echo "ERROR: Different number of arguments for input_name and input_id"
+        exit 1;
+    fi
+
+    if [[ ~{paired_end} && ~{len_fastq2_input_files} != ~{len_input_id} ]]
+      then
+      echo "ERROR: Different number of arguments for sample names and fastq1 files"
+      exit 1;
+    fi
+    exit 0;
+  }
+
+  runtime {
+    docker: "ubuntu:18.04"
+    cpu: 1
+    memory: "1 GiB"
+    disks: "local-disk 1 HDD"
+  }
+
 }
