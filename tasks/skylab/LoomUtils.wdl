@@ -34,9 +34,9 @@ task SmartSeq2LoomOutput {
        --rsem_genes_results  ~{rsem_gene_results} \
        --output_loom_path  "~{input_id}.loom" \
        --input_id ~{input_id} \
-       --input_name ~{input_name}\
-       --input_id_metadata_field ~{input_id_metadata_field} \
-       --input_name_metadata_field ~{input_name_metadata_field} \
+       ~{true="--input_name ~{input_name}" false="" defined(input_name)} \
+       ~{true="--input_id_metadata_field ~{input_id_metadata_field}" false="" defined(input_id_metadata_field)} \
+       ~{true="--input_name_metadata_field ~{input_name_metadata_field}" false="" defined(input_name_metadata_field)} \
        --pipeline_version ~{pipeline_version}
   }
 
@@ -85,7 +85,7 @@ task OptimusLoomGeneration {
 
     Int preemptible = 3
   }
-  
+
   meta {
     description: "This task will converts some of the outputs of Optimus pipeline into a loom file"
   }
@@ -108,16 +108,16 @@ task OptimusLoomGeneration {
     python3 /tools/create_loom_optimus.py \
        --empty_drops_file ~{empty_drops_result} \
        --add_emptydrops_data $ADD_EMPTYDROPS_DATA \
-       --annotation_file ~{annotation_file}\
-       --cell_metrics ~{cell_metrics}\
-       --gene_metrics ~{gene_metrics}\
-       --cell_id ~{cell_id}\
+       --annotation_file ~{annotation_file} \
+       --cell_metrics ~{cell_metrics} \
+       --gene_metrics ~{gene_metrics} \
+       --cell_id ~{cell_id} \
        --gene_id  ~{gene_id} \
        --output_path_for_loom "~{input_id}.loom" \
        --input_id ~{input_id} \
-       --input_name ~{input_name}\
-       --input_id_metadata_field ~{input_id_metadata_field}\
-       --input_name_metadata_field ~{input_name_metadata_field}\
+       ~{true="--input_name ~{input_name}" false="" defined(input_name)} \
+       ~{true="--input_id_metadata_field ~{input_id_metadata_field}" false="" defined(input_id_metadata_field)} \
+       ~{true="--input_name_metadata_field ~{input_name_metadata_field}" false="" defined(input_name_metadata_field)} \
        --count_matrix ~{sparse_count_matrix} \
        --expression_data_type $EXPRESSION_DATA_TYPE_PARAM \
        --pipeline_version ~{pipeline_version}
@@ -155,8 +155,11 @@ task AggregateSmartSeq2Loom {
       set -e
       
       # Merge the loom files
-      python3 /tools/ss2_loom_merge.py --input-loom-files ~{sep=' ' loom_input} \
-      --output-loom-file "~{batch_id}.loom" --batch_id ~{batch_id} --batch_name ~{batch_name} \
+      python3 /tools/ss2_loom_merge.py \
+      --input-loom-files ~{sep=' ' loom_input} \
+      --output-loom-file "~{batch_id}.loom" \
+      --batch_id ~{batch_id} \
+      ~{true="--batch_name ~{batch_name}" false="" defined(batch_name)} \
       --pipeline_version ~{pipeline_version}
 
 
