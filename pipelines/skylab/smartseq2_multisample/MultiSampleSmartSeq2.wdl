@@ -27,8 +27,8 @@ workflow MultiSampleSmartSeq2 {
       Array[String] input_file_names
       String batch_id
       String? batch_name
-      String? input_name_metadata_field
-      String? input_id_metadata_field
+      Array[String]? input_name_metadata_field
+      Array[String]? input_id_metadata_field
       Boolean paired_end
   }
   # Version of this pipeline
