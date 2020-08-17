@@ -1,18 +1,18 @@
 # 1.9
 2020-07-31
 
-* Fix bug in CollectArraysVariantCallingMetrics and GenotypeConcordance where the metrics file is 
+* Fixed a bug in CollectArraysVariantCallingMetrics and GenotypeConcordance where the metrics file is 
   being parsed incorrectly if there is a space in the sample name value 
   
 # 1.8.1
 2020-07-31
 
-* Have md5sum task stop using phusion/baseimage:latest docker image (it has been removed).  Start using a Google-hosted base image in it's stead.
+* Removed the phusion/baseimage:latest docker image from the md5sum task and updated to a Google-hosted base image
 
 # 1.8
 2020-06-23
 
-* Updated to use new version of GtcToVcf that uses bpm, rather than bpm.csv file.
+* Updated to use new version of GtcToVcf that uses bpm, rather than bpm.csv file
 
 # 1.7
 2020-06-10
@@ -22,7 +22,7 @@
 # 1.6
 2020-05-15
 
-* Added  md5sums for red idat, green idat, and vcf input/outputs of the arrays pipeline.
+* Added md5sums for red idat, green idat, and vcf input/outputs of the arrays pipeline
  
 # 1.5
 2020-03-05
