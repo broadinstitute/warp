@@ -2,7 +2,7 @@
 set -e -o pipefail
 
 declare -r SCRIPT_DIR=$(cd $(dirname $0) && pwd)
-declare -r WARP_ROOT=$(cd $(dirname ${SCRIPT_DIR}) && pwd)
+declare -r REPO_ROOT=$(cd $(dirname ${SCRIPT_DIR}) && pwd)
 
 declare -r -a ZIP_DIRS=(pipelines structs tasks verification tests/skylab)
 declare -r ZIP_PREFIX=workflow_dependencies
@@ -15,11 +15,11 @@ function deploy_dependencies() {
   local -r dependencies_zip_link=${prefix}.zip
 
   if [[ ${preserve_dir_structure} == 'preserve_dir_structure' ]]; then
-    cd ${WARP_ROOT}
+    cd ${REPO_ROOT}
     zip -r ${target_dir}/${versioned_dependencies_zip} ${ZIP_DIRS[@]}
   else
     local -r working_dir=$(mktemp -d)
-    cd ${WARP_ROOT}
+    cd ${REPO_ROOT}
     for file in $(find ${ZIP_DIRS[@]} -type f -name '*.wdl'); do
       flattened_name=$(basename ${file})
       sed -E 's/import "(.*)\/(.*\.wdl)"/import "\2"/g' ${file} > ${working_dir}/${flattened_name}
@@ -29,7 +29,7 @@ function deploy_dependencies() {
   fi
   cd ${target_dir}
   ln -sfv ${versioned_dependencies_zip} ${dependencies_zip_link}
-  cd ${WARP_ROOT}
+  cd ${REPO_ROOT}
 }
 
 function deploy_options() {
@@ -43,8 +43,8 @@ function deploy_options() {
     base_options=${wdl_dir}/${prefix}.options.json
   elif [ -f ${wdl_dir}/${prefix}.${env}.options.json ]; then
     base_options=${wdl_dir}/${prefix}.${env}.options.json
-  elif [[ "${wdl_dir}" =~ .*"skylab".* ]] && [[ -f ${WARP_ROOT}/tests/skylab/test.options.json ]]; then
-    base_options=${WARP_ROOT}/tests/skylab/test.options.json
+  elif [[ "${wdl_dir}" =~ .*"skylab".* ]] && [[ -f ${REPO_ROOT}/tests/skylab/test.options.json ]]; then
+    base_options=${REPO_ROOT}/tests/skylab/test.options.json
   else
     echo >&2 Error: Options JSON not found at either ${prefix}.options.json or ${prefix}.${env}.options.json
     exit 1
@@ -53,7 +53,7 @@ function deploy_options() {
   cp ${base_options} ${target_dir}/${versioned_options}
   cd ${target_dir}
   ln -sfv ${versioned_options} ${prefix}.options.json
-  cd ${WARP_ROOT}
+  cd ${REPO_ROOT}
 }
 
 function deploy_wdl() {
@@ -72,7 +72,7 @@ function deploy_wdl() {
     sed -i.unedited -E "${sed_command}" ${target_dir}/${versioned_wdl} && rm ${target_dir}/${versioned_wdl}.unedited
   cd ${target_dir}
   ln -sfv ${versioned_wdl} ${base_wdl}
-  cd ${WARP_ROOT}
+  cd ${REPO_ROOT}
 }
 
 function main() {
