@@ -75,7 +75,7 @@ if(!all(matrix@Dimnames[[2]] == referenceMatrix@Dimnames[[2]])){
   different <- TRUE
 }
 
-# x can have 0.1% differences
+## x can have 0.1% differences
 if(sum((matrix@x-referenceMatrix@x)!=0)/length(matrix@x) * 100 > 0.1) {
   cat('FAIL: There are too many differences in x between the two matrices\n')
   different <- TRUE
