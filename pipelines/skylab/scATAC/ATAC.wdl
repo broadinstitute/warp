@@ -32,6 +32,8 @@ workflow ATAC {
 
     # Output prefix/base name for all intermediate files and pipeline outputs
     String output_base_name
+
+    String bin_size_list = "10000"
   }
 
   parameter_meta {
@@ -50,6 +52,7 @@ workflow ATAC {
     min_map_quality: "the minimum mapping quality to be filtered by samtools view and snap-pre (snaptools task)"
     max_fragment_length: "the maximum fragment length for filtering out reads by gatk and snap-pre (snaptools task)"
     output_base_name: "base name to be used for the pipelines output and intermediate files"
+    bin_size_list: "list of bin sizes to generate"
   }
 
   call TrimAdapters {
@@ -136,8 +139,8 @@ workflow ATAC {
 
   call SnapCellByBin {
     input:
-      snap_input=SnapPre.snap_file_output,
-      bin_size_list = "10000"
+      snap_input = SnapPre.snap_file_output,
+      bin_size_list = bin_size_list
   }
 
   call BreakoutSnap {
@@ -635,7 +638,7 @@ task SnapCellByBin {
 
   parameter_meta {
     snap_input: "the bam to passed into snaptools tools"
-    bin_size_list: "space separated list of bins to generate"
+    bin_size_list: "list of bins to generate"
     snap_output_name: "output.snap"
     docker_image: "the docker image to be used (default: quay.io/humancellatlas/snaptools:0.0.1)"
   }

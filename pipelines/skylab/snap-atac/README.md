@@ -1,6 +1,6 @@
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [scATAC 1.1.0 ](scATAC.wdl) | May 18th 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in skylab or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [scATAC 1.1.0 ](scATAC.wdl) | August 18th 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in skylab or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 - [Overview](#overview)
 - [Introduction](#introduction)
@@ -31,7 +31,7 @@
 
 # Introduction
 
-The scATAC Pipeline was developed by the Broad DSP Pipelines team to process single nucleus ATAC-seq datasets. The pipeline is based on the [SnapATAC pipeline](https://github.com/r3fang/SnapATAC) described by [Fang et al. (2019)](https://www.biorxiv.org/content/10.1101/615179v2.full). Overall, the pipeline uses the python module [SnapTools](https://github.com/r3fang/SnapTools) to align and process paired reads in the form of FASTQ files. It produces an hdf5-structured Snap file that includes a cell-by-bin count matrix at 10 kb resolution. In addition to the Snap file, the final outputs include a GA4GH compliant aligned BAM and QC metrics.
+The scATAC Pipeline was developed by the Broad DSP Pipelines team to process single nucleus ATAC-seq datasets. The pipeline is based on the [SnapATAC pipeline](https://github.com/r3fang/SnapATAC) described by [Fang et al. (2019)](https://www.biorxiv.org/content/10.1101/615179v2.full). Overall, the pipeline uses the python module [SnapTools](https://github.com/r3fang/SnapTools) to align and process paired reads in the form of FASTQ files. It produces an hdf5-structured Snap file that includes a cell-by-bin count matrix. In addition to the Snap file, the final outputs include a GA4GH compliant aligned BAM and QC metrics.
 
 | Want to use the scATAC Pipeline for your publication? |
 |---|
@@ -42,7 +42,7 @@ The scATAC Pipeline was developed by the Broad DSP Pipelines team to process sin
 | Pipeline Features | Description | Source |
 | ---  |--- | --- |
 | Assay Type | Single nucleus ATAC-seq | [Preprint here ](https://www.biorxiv.org/content/biorxiv/early/2019/05/13/615179.full.pdf)
-| Overall Workflow  | Generates Snap file with cell x bin matrix at 10 kb resolution | Code available from [GitHub](scATAC.wdl) |
+| Overall Workflow  | Generates Snap file with cell x bin matrix | Code available from [GitHub](scATAC.wdl) |
 | Workflow Language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Aligner  | BWA | [Li H. and Durbin R., 2009](https://pubmed.ncbi.nlm.nih.gov/19451168/) |                     
 | Data Input File Format | File format in which sequencing data is provided | Paired-end FASTQs with cell barcodes appended to read names (read barcode demultiplexing section [here](https://github.com/r3fang/SnapATAC/wiki/FAQs#whatissnap)) |                     
@@ -62,6 +62,7 @@ The pipeline inputs are detailed in the table below. You can test the workflow b
 | input_reference | File | Reference bundle that is generated with bwa-mk-index-wdl found [here](https://github.com/HumanCellAtlas/skylab/blob/master/library/accessory_workflows/build_bwa_reference/bwa-mk-index.wdl)|
 | genome_name | String | Name of the genomic reference (name that precedes the “.tar” in the input_reference) |
 | output_bam  | String  | Name for the output BAM |
+| bin_size_list  | String  | List of bin sizes to generate |
 
 ## Input File Preparation
 
@@ -115,7 +116,7 @@ The SnapPre task uses SnapTools to perform preprocessing and filtering on the al
 
 ### SnapCellByBin
 
-The SnapCellByBin task uses the Snap file to create cell-by-bin count matrices in which a “1” represents a bin with an accessible region of the genome and a “0” represents an inaccessible region. The bin_size_list is set to 10,000 bp. 
+The SnapCellByBin task uses the Snap file to create cell-by-bin count matrices in which a “1” represents a bin with an accessible region of the genome and a “0” represents an inaccessible region. The bin_size_list is set to 10,000 bp but can be changed by specifying the value in the inputs to the workflow. 
 
 ### MakeCompliantBAM
 

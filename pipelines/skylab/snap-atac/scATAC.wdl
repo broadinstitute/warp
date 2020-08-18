@@ -11,6 +11,7 @@ workflow scATAC {
         String genome_name
         File input_reference
         String output_bam = "aligned.bam"
+        String bin_size_list = "10000"
     }
 
     parameter_meta {
@@ -19,6 +20,7 @@ workflow scATAC {
         input_reference: "tar file with BWA reference, generated with the build_bwa_reference pipeline"
         output_bam: "output BAM file name"
         genome_name: "name of the genome for snap atac"
+        bin_size_list: "list of bin sizes to generate"
     }
 
     call AlignPairedEnd {
@@ -40,7 +42,7 @@ workflow scATAC {
     call SnapCellByBin {
         input:
             snap_input = SnapPre.output_snap,
-            bin_size_list = "10000"
+            bin_size_list = bin_size_list
     }
 
     call MakeCompliantBAM {
