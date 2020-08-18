@@ -24,7 +24,7 @@ workflow MultiSampleSmartSeq2 {
       # Sample information
       String stranded
       Array[String] input_ids
-      Array[String?]? input_names
+      Array[String]? input_names
       Array[String] fastq1_input_files
       Array[String] fastq2_input_files = []
       String batch_id
@@ -65,15 +65,13 @@ workflow MultiSampleSmartSeq2 {
          fastq2_input_files = fastq2_input_files
   }
 
+  if (defined(input_names)) {
+          Array[String] input_names_array = select_first([input_names])
+  }
+
   ### Execution starts here ###
   if (paired_end) {
     scatter(idx in range(length(input_ids))) {
-      String? input_name
-      if (defined(input_names)) {
-        Array[String?] input_name_array = select_first([input_names])
-        input_name = input_name_array[idx]
-      }
-
       call single_cell_run.SmartSeq2SingleCell as sc_pe {
         input:
           fastq1 = fastq1_input_files[idx],
@@ -92,17 +90,12 @@ workflow MultiSampleSmartSeq2 {
           paired_end = paired_end,
           input_name_metadata_field = input_name_metadata_field[idx],
           input_id_metadata_field = input_id_metadata_field[idx],
-          input_name = input_name
+          input_name = if defined(input_names_array) then input_names_array[idx] else ""
       }
     }
   }
   if (!paired_end) {
     scatter(idx in range(length(input_ids))) {
-      String? input_name
-      if (defined(input_names)) {
-        Array[String?] input_name_array = select_first([input_names])
-        input_names = input_name_array[idx]
-      }
       call single_cell_run.SmartSeq2SingleCell as sc_se {
         input:
           fastq1 = fastq1_input_files[idx],
@@ -119,7 +112,9 @@ workflow MultiSampleSmartSeq2 {
           output_name = input_ids[idx],
           paired_end = paired_end,
           input_name_metadata_field = input_name_metadata_field[idx],
-          input_id_metadata_field = input_id_metadata_field[idx]
+          input_id_metadata_field = input_id_metadata_field[idx],
+          input_name = if defined(input_names_array) then input_names_array[idx] else ""
+
       }
     }
   }
@@ -151,18 +146,14 @@ task checkInputArrays {
   input {
     Boolean paired_end
     Array[String] input_ids
-    Array[String?]? input_names
+    Array[String]? input_names
     Array[String] fastq1_input_files
     Array[String] fastq2_input_files
   }
   Int len_input_ids = length(input_ids)
   Int len_fastq1_input_files = length(fastq1_input_files)
   Int len_fastq2_input_files = length(fastq2_input_files)
-  Int len_input_names = 0
-
-  if (defined(input_names)) {
-       len_input_names = length(select_first([input_names]))
-  }
+  Int len_input_names = if defined(input_names) then length(select_first([input_names])) else 0
 
   meta {
     description: "checks input arrays to ensure that all arrays are the same length"

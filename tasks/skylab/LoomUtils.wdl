@@ -34,9 +34,9 @@ task SmartSeq2LoomOutput {
        --rsem_genes_results  ~{rsem_gene_results} \
        --output_loom_path  "~{input_id}.loom" \
        --input_id ~{input_id} \
-       ~{true="--input_name ~{input_name}" false="" defined(input_name)} \
-       ~{true="--input_id_metadata_field ~{input_id_metadata_field}" false="" defined(input_id_metadata_field)} \
-       ~{true="--input_name_metadata_field ~{input_name_metadata_field}" false="" defined(input_name_metadata_field)} \
+       ~{"--input_name " + input_name} \
+       ~{"--input_id_metadata_field " + input_id_metadata_field} \
+       ~{"--input_name_metadata_field " + input_name_metadata_field} \
        --pipeline_version ~{pipeline_version}
   }
 
@@ -115,9 +115,9 @@ task OptimusLoomGeneration {
        --gene_id  ~{gene_id} \
        --output_path_for_loom "~{input_id}.loom" \
        --input_id ~{input_id} \
-       ~{true="--input_name ~{input_name}" false="" defined(input_name)} \
-       ~{true="--input_id_metadata_field ~{input_id_metadata_field}" false="" defined(input_id_metadata_field)} \
-       ~{true="--input_name_metadata_field ~{input_name_metadata_field}" false="" defined(input_name_metadata_field)} \
+       ~{"--input_name " + input_name} \
+       ~{"--input_id_metadata_field " + input_id_metadata_field} \
+       ~{"--input_name_metadata_field " + input_name_metadata_field} \
        --count_matrix ~{sparse_count_matrix} \
        --expression_data_type $EXPRESSION_DATA_TYPE_PARAM \
        --pipeline_version ~{pipeline_version}
@@ -159,7 +159,7 @@ task AggregateSmartSeq2Loom {
       --input-loom-files ~{sep=' ' loom_input} \
       --output-loom-file "~{batch_id}.loom" \
       --batch_id ~{batch_id} \
-      ~{true="--batch_name ~{batch_name}" false="" defined(batch_name)} \
+      ~{"--batch_name " + batch_name} \
       --pipeline_version ~{pipeline_version}
 
 
