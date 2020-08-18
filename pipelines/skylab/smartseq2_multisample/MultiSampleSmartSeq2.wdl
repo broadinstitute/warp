@@ -88,8 +88,8 @@ workflow MultiSampleSmartSeq2 {
           input_id = input_ids[idx],
           output_name = input_ids[idx],
           paired_end = paired_end,
-          input_name_metadata_field = input_name_metadata_field[idx],
-          input_id_metadata_field = input_id_metadata_field[idx],
+          input_name_metadata_field = input_name_metadata_field,
+          input_id_metadata_field = input_id_metadata_field,
           input_name = if defined(input_names_array) then input_names_array[idx] else ""
       }
     }
@@ -111,8 +111,8 @@ workflow MultiSampleSmartSeq2 {
           input_id = input_ids[idx],
           output_name = input_ids[idx],
           paired_end = paired_end,
-          input_name_metadata_field = input_name_metadata_field[idx],
-          input_id_metadata_field = input_id_metadata_field[idx],
+          input_name_metadata_field = input_name_metadata_field,
+          input_id_metadata_field = input_id_metadata_field,
           input_name = if defined(input_names_array) then input_names_array[idx] else ""
 
       }
