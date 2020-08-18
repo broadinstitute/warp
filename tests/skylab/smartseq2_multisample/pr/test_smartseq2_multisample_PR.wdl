@@ -20,7 +20,7 @@ workflow TestMultiSampleSmartSeq2 {
 
       # Plate information and input files
       String file_prefix
-      Array[String] input_file_names
+      Array[String] input_ids
       String batch_id
   }
 
@@ -36,7 +36,7 @@ workflow TestMultiSampleSmartSeq2 {
       rsem_ref_index = rsem_ref_index,
       stranded = stranded,
       file_prefix = file_prefix,
-      input_file_names = input_file_names,
+      input_ids = input_ids,
       batch_id = batch_id,
       paired_end = paired_end
   }

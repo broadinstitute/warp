@@ -11,7 +11,7 @@
     "TestMultiSampleSmartSeq2.stranded": "NONE",
     "TestMultiSampleSmartSeq2.paired_end": false,
     "TestMultiSampleSmartSeq2.file_prefix": "gs://hca-dcp-mint-test-data/datasets/sloan_sa_astrocytes",
-    "TestMultiSampleSmartSeq2.input_file_names": ["SRR5676728", "SRR5676730", "SRR5676731", "SRR5676732", "SRR5676733",
+    "TestMultiSampleSmartSeq2.input_ids": ["SRR5676728", "SRR5676730", "SRR5676731", "SRR5676732", "SRR5676733",
             "SRR5676734", "SRR5676735", "SRR5676736", "SRR5676738", "SRR5676739", "SRR5676740",  "SRR5676741", "SRR5676742",
             "SRR5676743", "SRR5676744", "SRR5676745", "SRR5676746", "SRR5676747", "SRR5676737", "SRR5676748", "SRR5676749",
             "SRR5676750"],
