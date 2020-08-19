@@ -8,7 +8,7 @@
 # as an environment variable
 set -e
 
-declare -r REPO="broadinstitute/warp"
+declare -r REPO=$(git remote -v | grep fetch | sed -E 's/.*git@github.com:(.*).git.*/\1/')
 declare SCRIPT_DIR
 SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
 source ${SCRIPT_DIR}/common.sh
