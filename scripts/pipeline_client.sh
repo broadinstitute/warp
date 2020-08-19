@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-WARP_DIR=$(git rev-parse --show-toplevel)
+ROOT_DIR=$(git rev-parse --show-toplevel)
 
 CROMWELL_ENV="dev"
 EXPAND_SUB_WORKFLOWS="false"
@@ -11,7 +11,7 @@ function do_release() {
   local -r wdl=${1}
   RELEASE_DIR=$(mktemp -d)
 
-  ${WARP_DIR}/scripts/build_workflow_release.sh \
+  ${ROOT_DIR}/scripts/build_workflow_release.sh \
     ${wdl} \
     ${RELEASE_DIR} \
     $(git rev-parse --short HEAD) \
