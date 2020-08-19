@@ -8,6 +8,7 @@
 # as an environment variable
 set -e
 
+declare -r REPO=$(git remote -v | grep fetch | sed -E 's/.*git@github.com:(.*).git.*/\1/')
 declare SCRIPT_DIR
 SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
 source ${SCRIPT_DIR}/common.sh
@@ -38,7 +39,7 @@ function dev_release_to_github() {
        --silent \
        -X GET \
        -H "Authorization: token ${GITHUB_TOKEN}" \
-       "https://api.github.com/repos/broadinstitute/dsde-pipelines/releases/tags/${releaseName}" | jq -r .id )
+       "https://api.github.com/repos/${REPO}/releases/tags/${releaseName}" | jq -r .id )
 
   if [[ ${previousReleaseID} != null ]]; then
       stderr "Deleting tag for ${releaseName}"
@@ -46,7 +47,7 @@ function dev_release_to_github() {
         --silent \
         -X DELETE \
         -H "Authorization: token ${GITHUB_TOKEN}" \
-        "https://api.github.com/repos/broadinstitute/dsde-pipelines/git/refs/tags/${releaseName}")
+        "https://api.github.com/repos/${REPO}/git/refs/tags/${releaseName}")
       if [[ -n "${deleteTagResponse}" ]]; then
         stderr "Failed to delete the ${releaseName} tag on Github. Printing the response below:"
         stderr $(cat "${deleteTagResponse}")
@@ -58,7 +59,7 @@ function dev_release_to_github() {
         --silent \
         -X DELETE \
         -H "Authorization: token ${GITHUB_TOKEN}" \
-        "https://api.github.com/repos/broadinstitute/dsde-pipelines/releases/${previousReleaseID}")
+        "https://api.github.com/repos/${REPO}/releases/${previousReleaseID}")
       if [[ -n "${deleteReleaseResponse}" ]]; then
         stderr "Failed to delete the ${releaseName} release on Github. The tag was deleted, but the release and artifacts remain.
          To proceed, manually delete the release with the id ${previousReleaseID} on github. Then re-run the release script from the
@@ -85,7 +86,7 @@ function prod_release_to_github() {
       --silent \
       -X GET \
       -H "Authorization: token ${GITHUB_TOKEN}" \
-      "https://api.github.com/repos/broadinstitute/dsde-pipelines/releases/tags/${releaseName}" | jq -r .id )
+      "https://api.github.com/repos/${REPO}/releases/tags/${releaseName}" | jq -r .id )
   if [[ ${previousReleaseID} != null ]]; then
       stderr "There is a previous release of ${releaseName} on Github with the release id ${previousReleaseID}."
       exit 0
@@ -148,7 +149,7 @@ function publish_to_github() {
     -X PATCH \
     -H "Authorization: token ${GITHUB_TOKEN}" \
     -d '{"draft":false}' \
-    "https://api.github.com/repos/broadinstitute/dsde-pipelines/releases/${releaseId}")
+    "https://api.github.com/repos/${REPO}/releases/${releaseId}")
 
   if [[ ${publishResponseCode} -ne 200 ]]; then
     stderr "Failed to publish the release on GitHub (${publishResponseCode}). Printing the response below:"
@@ -171,7 +172,7 @@ function upload_to_github_as_draft() {
     -X POST \
     -H "Authorization: token ${GITHUB_TOKEN}" \
     -d "$(echo "${payload}" | jq '. + {"draft":true}')" \
-    "https://api.github.com/repos/broadinstitute/dsde-pipelines/releases")
+    "https://api.github.com/repos/${REPO}/releases")
 
   if [[ ${releaseResponseCode} -ne 201 ]]; then
     stderr "Failed to create the draft release on Github. Printing the response below:"
@@ -233,7 +234,7 @@ function upload_artifact_to_github() {
       -H "Authorization: token ${GITHUB_TOKEN}" \
       -H "Content-Type: ${contentType}" \
       --data-binary @"${localReleaseDir}/${pipelineName}/${pipelineName}_${version}.${artifact}" \
-      "https://uploads.github.com/repos/broadinstitute/dsde-pipelines/releases/${releaseId}/assets?name=${releaseName}.${artifact}")
+      "https://uploads.github.com/repos/${REPO}/releases/${releaseId}/assets?name=${releaseName}.${artifact}")
 
   if [[ ${responseCode} -ne 201 ]]; then
     stderr "Failed to upload ${artifact} to Github. Printing the response below:"
@@ -251,7 +252,7 @@ function cleanup_failed_release() {
         --silent \
         -X DELETE \
         -H "Authorization: token ${GITHUB_TOKEN}" \
-        "https://api.github.com/repos/broadinstitute/dsde-pipelines/releases/${releaseId}" >&2
+        "https://api.github.com/repos/${REPO}/releases/${releaseId}" >&2
 
       local -r tagName=$(jq -r .tag_name ${localReleaseDir}/releaseResponse)
       stderr "Cleaning up the tag for failed release on Github"
@@ -259,7 +260,7 @@ function cleanup_failed_release() {
         --silent \
         -X DELETE \
         -H "Authorization: token ${GITHUB_TOKEN}" \
-        "https://api.github.com/repos/broadinstitute/dsde-pipelines/git/refs/tags/${tagName}" >&2
+        "https://api.github.com/repos/${REPO}/git/refs/tags/${tagName}" >&2
     else
       stderr "Releasing failed before anything could be uploaded."
     fi

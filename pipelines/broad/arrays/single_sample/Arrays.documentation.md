@@ -67,7 +67,7 @@ The pipeline executes a number of tasks, these are described here.
 *   BlacklistFailedFingerprint.  This task will be run if the IlluminaGenotypingArray task returns a non-empty GTC file and if the sample had an associated fingerprint and it failed fingerprint check.  It creates a record in the blacklist table in the cloud SQL database, indicating that the chip_well_barcode failed fingerprinting.
 
 
-![The Arrays Pipeline](https://github.com/broadinstitute/dsde-pipelines/blob/master/pipelines/arrays/single_sample/Arrays.workflow.png "Arrays Pipeline")
+![The Arrays Pipeline](https://github.com/broadinstitute/warp/blob/master/pipelines/arrays/single_sample/Arrays.workflow.png "Arrays Pipeline")
 
 
 ## Pipeline Outputs
