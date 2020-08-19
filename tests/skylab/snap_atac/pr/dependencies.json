@@ -1,0 +1,4 @@
+{
+  "scATAC.wdl": "pipelines/skylab/snap-atac/scATAC.wdl",
+  "ValidateSnapATAC.wdl": "tests/skylab/snap_atac/pr/ValidateSnapATAC.wdl"
+}

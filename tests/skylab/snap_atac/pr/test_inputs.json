@@ -1,0 +1,10 @@
+{
+  "TestSnapAtacPR.expected_snap_hash": "9fa8e55aeb11aa2e4846e30b7fa50e8f",
+  "TestSnapAtacPR.expected_snapqc_hash": "d6e8348db815612797d3792edcb3a81b",
+  "TestSnapAtacPR.expected_bam_hash": "146415cac889920361f6fae7a48ba4ca",
+  "TestSnapAtacPR.input_fastq1": "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/snap-atac/readnames_preattached/test_500k.R1.fastq.gz",
+  "TestSnapAtacPR.input_fastq2": "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/snap-atac/readnames_preattached/test_500k.R2.fastq.gz",
+  "TestSnapAtacPR.input_reference": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/snapATAC_BWA/hg38/hg38.tar",
+  "TestSnapAtacPR.output_bam": "output.bam",
+  "TestSnapAtacPR.genome_name": "hg38"
+}
