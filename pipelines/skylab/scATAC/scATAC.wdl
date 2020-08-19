@@ -2,7 +2,7 @@ version 1.0
 
 workflow scATAC {
     meta {
-      description: "Processing of single-cell ATAC-seq data with the snap-atac pipeline."
+      description: "Processing of single-cell ATAC-seq data with the scATAC pipeline."
     }
 
     input {
@@ -18,7 +18,7 @@ workflow scATAC {
         input_fastq2: "read 2 input fastq, the read names must be tagged with the cellular barcodes"
         input_reference: "tar file with BWA reference, generated with the build_bwa_reference pipeline"
         output_bam: "output BAM file name"
-        genome_name: "name of the genome for snap atac"
+        genome_name: "name of the genome for scATAC"
     }
 
     call AlignPairedEnd {

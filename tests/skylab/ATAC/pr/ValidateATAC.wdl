@@ -1,6 +1,6 @@
 version 1.0
 
-task ValidateSnapATAC {
+task ValidateATAC {
   input {
       File snap
       File snapqc
@@ -33,6 +33,10 @@ task ValidateSnapATAC {
       >&2 echo "bam_hash ($bam_hash) did not match expected hash (~{expected_bam_hash})"
       fail=true
     fi
+
+    ## This is disabled because we need to use the breakout step results instead
+    ## The snap file contains a time stamp in the header and therefore direct chksum 
+    ## comparisons are not possible
 
     #if [ "$snap_hash" != "~{expected_snap_hash}" ]; then
     #  >&2 echo "snap_hash ($snap_hash) did not match expected hash (~{expected_snap_hash})"
