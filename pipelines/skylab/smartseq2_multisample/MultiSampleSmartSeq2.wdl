@@ -24,7 +24,7 @@ workflow MultiSampleSmartSeq2 {
       # Sample information
       String stranded
       Array[String] input_ids
-      Array[String] input_names = []
+      Array[String]? input_names
       Array[String] fastq1_input_files
       Array[String] fastq2_input_files = []
       String batch_id
@@ -37,7 +37,7 @@ workflow MultiSampleSmartSeq2 {
   String pipeline_version = "2.1.0"
 
   if (false) {
-     String? undefined_input_name = "None"
+     String? none = "None"
   }
 
   # Parameter metadata information
@@ -90,7 +90,7 @@ workflow MultiSampleSmartSeq2 {
           paired_end = paired_end,
           input_name_metadata_field = input_name_metadata_field,
           input_id_metadata_field = input_id_metadata_field,
-          input_name = if length(input_names) != 0 then input_names[idx] else undefined_input_name
+          input_name = if defined(input_names) then select_first([input_names])[idx] else none
       }
     }
   }
@@ -113,7 +113,7 @@ workflow MultiSampleSmartSeq2 {
           paired_end = paired_end,
           input_name_metadata_field = input_name_metadata_field,
           input_id_metadata_field = input_id_metadata_field,
-          input_name = if length(input_names) != 0 then input_names[idx] else undefined_input_name
+          input_name = if defined(input_names) then select_first([input_names])[idx] else none
 
       }
     }
@@ -146,14 +146,14 @@ task checkInputArrays {
   input {
     Boolean paired_end
     Array[String] input_ids
-    Array[String] input_names
+    Array[String]? input_names
     Array[String] fastq1_input_files
     Array[String] fastq2_input_files
   }
   Int len_input_ids = length(input_ids)
   Int len_fastq1_input_files = length(fastq1_input_files)
   Int len_fastq2_input_files = length(fastq2_input_files)
-  Int len_input_names = length(input_names)
+  Int len_input_names = if defined(input_names) then length(select_first([input_names])) else 0
 
   meta {
     description: "checks input arrays to ensure that all arrays are the same length"
