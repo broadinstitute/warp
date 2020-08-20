@@ -11,7 +11,7 @@ workflow scATAC {
         String genome_name
         File input_reference
         String output_bam = "aligned.bam"
-        String bin_size_value = "10000"
+        String bin_size_list = "10000"
     }
 
     parameter_meta {
@@ -20,7 +20,7 @@ workflow scATAC {
         input_reference: "tar file with BWA reference, generated with the build_bwa_reference pipeline"
         output_bam: "output BAM file name"
         genome_name: "name of the genome for snap atac"
-        bin_size_value: "bin size to generate"
+        bin_size_list: "space separated list of bins to generate"
     }
 
     call AlignPairedEnd {
@@ -42,7 +42,7 @@ workflow scATAC {
     call SnapCellByBin {
         input:
             snap_input = SnapPre.output_snap,
-            bin_size_value = bin_size_value
+            bin_size_list = bin_size_list
     }
 
     call MakeCompliantBAM {
@@ -188,14 +188,14 @@ task SnapPre {
 task SnapCellByBin {
     input {
         File snap_input
-        String bin_size_value
+        String bin_size_list
         String snap_output_name = "output.snap"
         String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
     }
 
     parameter_meta {
        snap_input: "input snap file to generate bins for"
-       bin_size_value: "bin size to generate"
+       bin_size_value: "space separated list of bins to generate"
        snap_output_name: "name of the output snap file"
        docker_image: "docker image to use"
     }
@@ -210,7 +210,7 @@ task SnapCellByBin {
         # This is mutating the file in-place
         snaptools snap-add-bmat  \
             --snap-file ~{snap_output_name}  \
-            --bin-size-list ~{bin_size_value}  \
+            --bin-size-list ~{bin_size_list}  \
             --verbose=True
     }
 
