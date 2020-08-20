@@ -638,7 +638,7 @@ task SnapCellByBin {
 
   parameter_meta {
     snap_input: "the bam to passed into snaptools tools"
-    bin_size_value: "space separated list of bins to generate"
+    bin_size_list: "space separated list of bins to generate"
     snap_output_name: "output.snap"
     docker_image: "the docker image to be used (default: quay.io/humancellatlas/snaptools:0.0.1)"
   }

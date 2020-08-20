@@ -195,7 +195,7 @@ task SnapCellByBin {
 
     parameter_meta {
        snap_input: "input snap file to generate bins for"
-       bin_size_value: "space separated list of bins to generate"
+       bin_size_list: "space separated list of bins to generate"
        snap_output_name: "name of the output snap file"
        docker_image: "docker image to use"
     }
