@@ -51,17 +51,39 @@ cat('done\n')
 ref.matrix.dims <- dim(referenceMatrix)
 cat(paste0('Input matrix dimensions: ', ref.matrix.dims[1] , ' x ', ref.matrix.dims[2],'\n'))
 
+## Check if the matrices are identical by looking at the element contents
+## Give specific error messages for all the differences before quitting
+different <- FALSE
 
-## Here we are checking the matrices for equality by looking at the
-## element contents which will be identical after drop0() has been run for
-## identical matrices
-if(all(matrix@i == referenceMatrix@i) && all(matrix@p == referenceMatrix@p) &&
-  all(matrix@Dimnames[[1]] == referenceMatrix@Dimnames[[1]]) &&
-  all(matrix@Dimnames[[2]] == referenceMatrix@Dimnames[[2]]) &&
-  all(matrix@x == referenceMatrix@x)) {
-  print('PASS: Matrices are identical')
-  quit(status=0)
-} else {
-  print('FAIL: Matrices differ')
+if(!all(matrix@i == referenceMatrix@i)){
+  cat('FAIL: i differs between the two matrices\n')
+  different <- TRUE
+}
+
+if(!all(matrix@p == referenceMatrix@p)){
+  cat('FAIL: p differs between the two matrices\n')
+  different <- TRUE
+}
+
+if(!all(matrix@Dimnames[[1]] == referenceMatrix@Dimnames[[1]])){
+  cat('FAIL: Dimnames[[1]] differs between the two matrices\n')
+  different <- TRUE
+}
+
+if(!all(matrix@Dimnames[[2]] == referenceMatrix@Dimnames[[2]])){
+  cat('FAIL: Dimnames[[2]] differs between the two matrices\n')
+  different <- TRUE
+}
+
+## x can have 0.1% differences
+if(sum((matrix@x-referenceMatrix@x)!=0)/length(matrix@x) * 100 > 0.1) {
+  cat('FAIL: There are too many differences in x between the two matrices\n')
+  different <- TRUE
+}
+
+if(different) {
   quit(status=1)
+} else {
+  cat('PASS: Matrices are identical')
+  quit(status=0)
 }
