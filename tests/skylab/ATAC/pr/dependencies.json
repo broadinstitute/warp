@@ -1,4 +1,4 @@
 {
-  "ATAC.wdl": "pipelines/skylab/ATAC/ATAC.wdl",
-  "ValidateSCATAC.wdl": "tests/skylab/ATAC/pr/ValidateSCATAC.wdl"
+  "ATAC.wdl": "beta-pipelines/skylab/ATAC/ATAC.wdl",
+  "ValidateATAC.wdl": "tests/skylab/ATAC/pr/ValidateATAC.wdl"
 }
