@@ -33,7 +33,7 @@ workflow ATAC {
     # Output prefix/base name for all intermediate files and pipeline outputs
     String output_base_name
 
-    String bin_size_list = "10000"
+    String bin_size_value = "10000"
   }
 
   parameter_meta {
@@ -52,7 +52,7 @@ workflow ATAC {
     min_map_quality: "the minimum mapping quality to be filtered by samtools view and snap-pre (snaptools task)"
     max_fragment_length: "the maximum fragment length for filtering out reads by gatk and snap-pre (snaptools task)"
     output_base_name: "base name to be used for the pipelines output and intermediate files"
-    bin_size_list: "list of bin sizes to generate"
+    bin_size_value: "bin size to generate"
   }
 
   call TrimAdapters {
@@ -140,7 +140,7 @@ workflow ATAC {
   call SnapCellByBin {
     input:
       snap_input = SnapPre.snap_file_output,
-      bin_size_list = bin_size_list
+      bin_size_value = bin_size_value
   }
 
   call BreakoutSnap {
@@ -631,14 +631,14 @@ task SnapPre {
 task SnapCellByBin {
   input {
     File snap_input
-    String bin_size_list
+    String bin_size_value
     String snap_output_name = "output.snap"
     String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
   }
 
   parameter_meta {
     snap_input: "the bam to passed into snaptools tools"
-    bin_size_list: "list of bins to generate"
+    bin_size_value: "bin size to generate"
     snap_output_name: "output.snap"
     docker_image: "the docker image to be used (default: quay.io/humancellatlas/snaptools:0.0.1)"
   }
@@ -653,7 +653,7 @@ task SnapCellByBin {
     # This is mutating the file in-place
     snaptools snap-add-bmat  \
       --snap-file=~{snap_output_name}  \
-      --bin-size-list ~{bin_size_list}  \
+      --bin-size-list ~{bin_size_value}  \
       --verbose=True
   }
   output {
@@ -718,8 +718,8 @@ task BreakoutSnap {
     output {
         File barcodes = 'output/barcodes.csv'
         File fragments = 'output/fragments.csv'
-        File binCoordinates = 'output/binCoordinates_10000.csv'
-        File binCounts = 'output/binCounts_10000.csv'
+        File binCoordinates = 'output/binCoordinates.csv'
+        File binCounts = 'output/binCounts.csv'
 	File barcodesSection = 'output/barcodesSection.csv'
     }
     runtime {

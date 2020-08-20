@@ -62,7 +62,7 @@ The pipeline inputs are detailed in the table below. You can test the workflow b
 | input_reference | File | Reference bundle that is generated with bwa-mk-index-wdl found [here](https://github.com/HumanCellAtlas/skylab/blob/master/library/accessory_workflows/build_bwa_reference/bwa-mk-index.wdl)|
 | genome_name | String | Name of the genomic reference (name that precedes the “.tar” in the input_reference) |
 | output_bam  | String  | Name for the output BAM |
-| bin_size_list  | String  | List of bin sizes to generate |
+| bin_size_value  | String  | Bin size to generate |
 
 ## Input File Preparation
 
@@ -116,7 +116,7 @@ The SnapPre task uses SnapTools to perform preprocessing and filtering on the al
 
 ### SnapCellByBin
 
-The SnapCellByBin task uses the Snap file to create cell-by-bin count matrices in which a “1” represents a bin with an accessible region of the genome and a “0” represents an inaccessible region. The bin_size_list is set to 10,000 bp but can be changed by specifying the value in the inputs to the workflow. 
+The SnapCellByBin task uses the Snap file to create cell-by-bin count matrices in which a “1” represents a bin with an accessible region of the genome and a “0” represents an inaccessible region. The bin_size_value is set to 10,000 bp but can be changed by specifying the value in the inputs to the workflow. 
 
 ### MakeCompliantBAM
 
