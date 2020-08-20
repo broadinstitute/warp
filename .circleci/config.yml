@@ -133,8 +133,8 @@ workflows:
 #          - test_smartseq2
 #          - test_smartseq2_single_end
 #          - test_npz2rds
-#          - test_snap_atac
-#          - test_sc_atac
+          - test_snap_atac
+          - test_sc_atac
 #          - test_bulk_rna
 #          - test_optimus_v3
 #          - test_smartseq2_multisample
