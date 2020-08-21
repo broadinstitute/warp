@@ -718,8 +718,8 @@ task BreakoutSnap {
     output {
         File barcodes = 'output/barcodes.csv'
         File fragments = 'output/fragments.csv'
-        File binCoordinates = 'output/binCoordinates_10000.csv'
-        File binCounts = 'output/binCounts_10000.csv'
+        File binCoordinates = 'output/binCoordinates.csv'
+        File binCounts = 'output/binCounts.csv'
 	File barcodesSection = 'output/barcodesSection.csv'
     }
     runtime {
