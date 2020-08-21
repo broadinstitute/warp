@@ -19,17 +19,21 @@ task ValidateSmartSeq2SingleCell {
     # makes later columns non-deterministic.
     counts_hash=$(cut -f 1-7 "~{counts}" | md5sum | awk '{print $1}')
 
-    # this parses the picard metrics file with awk to remove all the run-specific comment lines (#)
-    target_metrics_hash=$(cat "~{target_metrics}" | awk 'NF && $1!~/^#/' | md5sum | awk '{print $1}')
-
     if [ "$counts_hash" != "~{expected_counts_hash}" ]; then
       >&2 echo "counts_hash ($counts_hash) did not match expected hash (${expected_counts_hash})"
       fail=true
     fi
 
-    if [ "$target_metrics_hash" != "~{expected_metrics_hash}" ]; then
-      >&2 echo "target_metrics_hash ($target_metrics_hash) did not match expected hash (${expected_metrics_hash})"
-      fail=true
+    if [ -f ~{target_metrics} ]; then
+      # this parses the picard metrics file with awk to remove all the run-specific comment lines (#)
+      target_metrics_hash=$(cat "~{target_metrics}" | awk 'NF && $1!~/^#/' | md5sum | awk '{print $1}')
+
+      if [ "$target_metrics_hash" != "~{expected_metrics_hash}" ]; then
+        >&2 echo "target_metrics_hash ($target_metrics_hash) did not match expected hash (${expected_metrics_hash})"
+        fail=true
+      fi
+    else
+      >&2 echo "target_metrics_hash is not available"
     fi
 
     if [ $fail == "true" ]; then exit 1; fi

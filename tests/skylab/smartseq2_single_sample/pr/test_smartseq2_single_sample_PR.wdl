@@ -8,7 +8,7 @@ workflow TestSmartSeq2SingleCellPR {
   input { 
     # expected hashes of target_workflow outputs
     String expected_counts_hash
-    String expected_metrics_hash
+    String expected_metrics_hash = ""
 
     # SS2 inputs
     File genome_ref_fasta
