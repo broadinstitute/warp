@@ -174,7 +174,7 @@ task checkInputArrays {
         exit 1;
     fi
 
-    if [[ ~{paired_end} && ~{len_fastq2_input_files} != ~{len_input_ids} ]]
+    if  ~{paired_end} && [[ ~{len_fastq2_input_files} != ~{len_input_ids} ]]
       then
       echo "ERROR: Different number of arguments for sample names and fastq1 files"
       exit 1;
