@@ -8,6 +8,7 @@ task ValidateSmartSeq2SingleCell {
       File? target_metrics
       String expected_metrics_hash
     }
+    Boolean target_matrics_defined = if defined(target_metrics) then true else false
     
   command <<<
 
@@ -24,7 +25,7 @@ task ValidateSmartSeq2SingleCell {
       fail=true
     fi
 
-    if [ -f ~{target_metrics} ]; then
+    if ~{target_matrics_defined}; then
       # this parses the picard metrics file with awk to remove all the run-specific comment lines (#)
       target_metrics_hash=$(cat "~{target_metrics}" | awk 'NF && $1!~/^#/' | md5sum | awk '{print $1}')
 

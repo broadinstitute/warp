@@ -201,8 +201,8 @@ workflow SmartSeq2SingleCell {
     File quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
     File quality_by_cycle_metrics = CollectMultipleMetrics.quality_by_cycle_metrics
     File bait_bias_summary_metrics = CollectMultipleMetrics.bait_bias_summary_metrics
-    File rna_metrics = CollectRnaMetrics.rna_metrics
-    Array[File] group_results = GroupQCOutputs.group_files
+    File rna_metrics = CollectRnaMetrics.rna_metrics # check this
+    Array[File] group_results = GroupQCOutputs.group_files # check this
 
     # data outputs
     File aligned_transcriptome_bam = HISAT2RSEM_output_bam
