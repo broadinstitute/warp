@@ -3,6 +3,7 @@
 2020-07-21 (Date of Last Commit)
 
 * Changed the imports to relative imports to support Dockstore->Terra release
+* This version and all future versions have been scientifically validated on 10X 3' snRNAseq data for all supported references
 
 # optimus_v3.0.0
 2020-06-10 (Date of Last Commit)
