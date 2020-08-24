@@ -14,7 +14,8 @@ workflow TestAtacPR {
       # scATAC inputs
       File input_fastq1
       File input_fastq2
-      
+      String bin_size_list
+
       # Reference related variables
       File input_reference
       String genome_size_file
@@ -29,6 +30,7 @@ workflow TestAtacPR {
     input:
        fastq_gzipped_input_read1 = input_fastq1,
        fastq_gzipped_input_read2 = input_fastq2,
+       bin_size_list = bin_size_list,
        tar_bwa_reference = input_reference,
        min_map_quality = 30,
        quality_cutoff = 0,

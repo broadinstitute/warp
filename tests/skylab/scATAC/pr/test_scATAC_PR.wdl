@@ -17,6 +17,7 @@ workflow TestScAtacPR {
       File input_reference
       String output_bam
       String genome_name
+      String bin_size_list
   }
 
   call target.scATAC as target {
@@ -25,7 +26,8 @@ workflow TestScAtacPR {
        input_fastq2 = input_fastq2,
        input_reference = input_reference,
        output_bam = output_bam,
-       genome_name = genome_name
+       genome_name = genome_name,
+       bin_size_list = bin_size_list
   }
 
   call checker.ValidateSCATAC as checker {

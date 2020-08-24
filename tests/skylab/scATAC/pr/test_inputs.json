@@ -6,5 +6,6 @@
   "TestScAtacPR.input_fastq2": "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/snap-atac/readnames_preattached/test_500k.R2.fastq.gz",
   "TestScAtacPR.input_reference": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/snapATAC_BWA/hg38/hg38.tar",
   "TestScAtacPR.output_bam": "output.bam",
-  "TestScAtacPR.genome_name": "hg38"
+  "TestScAtacPR.genome_name": "hg38",
+  "TestScAtacPR.bin_size_list": "5000"
 }
