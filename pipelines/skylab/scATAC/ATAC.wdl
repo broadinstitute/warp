@@ -145,7 +145,8 @@ workflow ATAC {
 
   call BreakoutSnap {
     input:
-      snap_input = SnapCellByBin.snap_output
+      snap_input = SnapCellByBin.snap_output,
+      bin_size_list = bin_size_list
   }
 
   output {
@@ -706,6 +707,7 @@ task BreakoutSnap {
     input {
         File snap_input
         String docker_image = "quay.io/humancellatlas/snap-breakout:0.0.1"
+        String bin_size_list
     }
     Int num_threads = 1
     Float input_size = size(snap_input, "GiB")
@@ -720,7 +722,7 @@ task BreakoutSnap {
         File fragments = 'output/fragments.csv'
         File binCoordinates = 'output/binCoordinates_~{bin_size_list}.csv'
         File binCounts = 'output/binCounts_~{bin_size_list}.csv'
-	File barcodesSection = 'output/barcodesSection.csv'
+        File barcodesSection = 'output/barcodesSection.csv'
     }
     runtime {
         docker: docker_image

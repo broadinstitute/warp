@@ -52,7 +52,8 @@ workflow scATAC {
 
     call BreakoutSnap {
         input:
-            snap_input = SnapCellByBin.output_snap
+            snap_input = SnapCellByBin.output_snap,
+            bin_size_list = bin_size_list
     }
 
     output {
@@ -264,11 +265,13 @@ task BreakoutSnap {
     input {
         File snap_input
         String docker_image = "quay.io/humancellatlas/snap-breakout:0.0.1"
+        String bin_size_list
     }
 
     parameter_meta {
-      snap_input: "input snap file to use"
-      docker_image: "docker image to use"
+        snap_input: "input snap file to use"
+        docker_image: "docker image to use"
+        bin_size_list: "space separated list of bins to generate"
     }
 
     Int num_threads = 1
