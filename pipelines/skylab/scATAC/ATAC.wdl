@@ -33,7 +33,7 @@ workflow ATAC {
     # Output prefix/base name for all intermediate files and pipeline outputs
     String output_base_name
 
-    String bin_size_list = "5000"
+    String bin_size_list = "10000"
   }
 
   parameter_meta {
@@ -718,8 +718,8 @@ task BreakoutSnap {
     output {
         File barcodes = 'output/barcodes.csv'
         File fragments = 'output/fragments.csv'
-        File binCoordinates = 'output/binCoordinates_10000.csv'
-        File binCounts = 'output/binCounts_10000.csv'
+        File binCoordinates = 'output/binCoordinates_~{bin_size_list}.csv'
+        File binCounts = 'output/binCounts_~{bin_size_list}.csv'
 	File barcodesSection = 'output/barcodesSection.csv'
     }
     runtime {
