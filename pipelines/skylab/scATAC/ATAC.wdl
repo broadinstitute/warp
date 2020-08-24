@@ -33,7 +33,7 @@ workflow ATAC {
     # Output prefix/base name for all intermediate files and pipeline outputs
     String output_base_name
 
-    String bin_size_list = "10000"
+    String bin_size_list = "5000"
   }
 
   parameter_meta {

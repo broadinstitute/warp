@@ -11,7 +11,7 @@ workflow scATAC {
         String genome_name
         File input_reference
         String output_bam = "aligned.bam"
-        String bin_size_list = "10000"
+        String bin_size_list = "5000"
     }
 
     parameter_meta {
