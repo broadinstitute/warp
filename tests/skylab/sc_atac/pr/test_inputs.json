@@ -5,6 +5,7 @@
 
   "TestSnapAtacPR.input_fastq1": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/snaptools_test/demo.R1.fastq.gz",
   "TestSnapAtacPR.input_fastq2": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/snaptools_test/demo.R2.fastq.gz",
+  "TestSnapAtacPR.bin_size_list": "5000",
 
   "TestSnapAtacPR.input_reference": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/snapATAC_BWA/mm10/mm10.tar",
   "TestSnapAtacPR.genome_size_file": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/scATAC-seq/bwa_mm10/mm10.chrom.sizes",
