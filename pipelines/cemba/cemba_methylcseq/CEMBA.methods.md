@@ -1,6 +1,6 @@
 # CEMBA_v1.0 Publication Methods
 
-Below we provide a sample methods sections for a publication. For the complete pipeline documentation, see the [CEMBA README](README.md).
+Below we provide a sample methods section for a publication. For the complete pipeline documentation, see the [CEMBA README](README.md).
 
 ### Methods
 
