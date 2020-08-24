@@ -26,7 +26,7 @@
 
 ## Introduction to the CEMBA Workflow
 
-CEMBA is a pipeline developed by the Data Coordination Platform (DCP) of the [BRAIN Initiative](https://braininitiative.nih.gov/) that supports processing of multiplexed single-nuclei bisulfite sequencing data. It is an alignment and methylated base calling pipeline that trims adaptors, attaches cell barcodes, aligns reads to the genome, filters reads based on quality and creates a VCF with methylation-site coverage. 
+CEMBA is a pipeline developed by the [BRAIN Initiative](https://braininitiative.nih.gov/) that supports processing of multiplexed single-nuclei bisulfite sequencing data. It is an alignment and methylated base calling pipeline that trims adaptors, attaches cell barcodes, aligns reads to the genome, filters reads based on quality and creates a VCF with methylation-site coverage. 
 
 *Interested in using the pipeline for your publication? See the [“CEMBA publication methods”](CEMBA.methods.md) for a generic "methods" style description of the pipeline.*
 
@@ -47,7 +47,7 @@ CEMBA is a pipeline developed by the Data Coordination Platform (DCP) of the [BR
 # Set-up
 
 ## CEMBA Installation and Requirements
-The CEMBA pipeline code is written in the [Workflow Description Language (WDL)](https://github.com/broadinstitute/warp) and can be downloaded by cloning the GitHub repository [WARP](https://github.com/broadinstitute/warp). For the latest release of CEMBA, please see the release tags prefixed with "CEMBA" [here](https://github.com/broadinstitute/warp/tags). CEMBA can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. 
+The CEMBA pipeline code is written in the [Workflow Description Language (WDL)](https://openwdl.org/) and can be downloaded by cloning the GitHub repository [WARP](https://github.com/broadinstitute/warp). For the latest release of CEMBA, please see the release tags prefixed with "CEMBA" [here](https://github.com/broadinstitute/warp/tags). CEMBA can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. 
 
 The workflow can also be run on Terra using the [Methyl-c-seq_Pipeline workspace](https://app.terra.bio/#workspaces/brain-initiative-bcdc/Methyl-c-seq_Pipeline). This workspace contains the CEMBA workflow, workflow configurations, required reference data and other inputs, and demultiplexed example testing data.
 
