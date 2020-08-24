@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../../tasks/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
+import "../../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
 
 ## Copyright Broad Institute, 2019
 ##
@@ -20,7 +20,7 @@ import "../../../../tasks/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
 
 workflow IlluminaGenotypingArray {
 
-  String pipeline_version = "1.8"
+  String pipeline_version = "1.9"
 
   input {
 
