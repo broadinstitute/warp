@@ -1,6 +1,6 @@
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [scATAC 1.1.0 ](scATAC.wdl) | August 18th 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in skylab or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [scATAC 1.1.0 ](scATAC.wdl) | August 24th 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in skylab or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 - [Overview](#overview)
 - [Introduction](#introduction)
@@ -53,7 +53,7 @@ The scATAC Pipeline was developed by the Broad DSP Pipelines team to process sin
 The [scATAC workflow](scATAC.wdl) is written in the Workflow Description Language WDL and can be downloaded by cloning the GitHub [Skylab repository](https://github.com/HumanCellAtlas/skylab). The workflow can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the scATAC [changelog](scATAC.changelog.md). 
 
 ## Pipeline Inputs
-The pipeline inputs are detailed in the table below. You can test the workflow by using the [https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/snap-atac/example_inputs/human_example.json](human_example.json) example configuration file. 
+The pipeline inputs are detailed in the table below. You can test the workflow by using the [https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/scATAC/example_inputs/human_example.json](human_example.json) example configuration file. 
 
 | Input name | Input type | Description |
 | --- | --- | --- |

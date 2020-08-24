@@ -1,10 +1,10 @@
 version 1.0
 
 import "ATAC.wdl" as target
-import "ValidateSCATAC.wdl" as checker
+import "ValidateATAC.wdl" as checker
 
 # this workflow will be run by the jenkins script that gets executed by PRs.
-workflow TestSnapAtacPR {
+workflow TestAtacPR {
   input {
       # output hashes
       String expected_snap_hash
@@ -44,7 +44,7 @@ workflow TestSnapAtacPR {
        max_fragment_length = 2000
   }
 
-  call checker.ValidateSnapATAC as checker {
+  call checker.ValidateATAC as checker {
     input:
         snap = target.snap_output,
         snapqc = target.snap_qc_output,

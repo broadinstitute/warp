@@ -2,7 +2,7 @@ version 1.0
 
 workflow scATAC {
     meta {
-      description: "Processing of single-cell ATAC-seq data with the snap-atac pipeline."
+      description: "Processing of single-cell ATAC-seq data with the scATAC pipeline."
     }
 
     input {
@@ -19,7 +19,7 @@ workflow scATAC {
         input_fastq2: "read 2 input fastq, the read names must be tagged with the cellular barcodes"
         input_reference: "tar file with BWA reference, generated with the build_bwa_reference pipeline"
         output_bam: "output BAM file name"
-        genome_name: "name of the genome for snap atac"
+        genome_name: "name of the genome for scATAC"
         bin_size_list: "space separated list of bins to generate"
     }
 
@@ -196,7 +196,7 @@ task SnapCellByBin {
 
     parameter_meta {
        snap_input: "input snap file to generate bins for"
-       bin_size_list: "space separated list of bins to generate"
+       bin_size_list: "list of bin sizes to generate"
        snap_output_name: "name of the output snap file"
        docker_image: "docker image to use"
     }

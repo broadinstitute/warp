@@ -104,22 +104,22 @@ jobs:
                     ./tests/skylab/trigger_test.sh bulk_rna_pipeline
                 no_output_timeout: 1.5h
 
-    test_snap_atac:
+    test_sc_atac:
         machine: true
         steps:
             - checkout
             - run:
                 command: |
-                    ./tests/skylab/trigger_test.sh snap_atac
+                    ./tests/skylab/trigger_test.sh scATAC
                 no_output_timeout: 1.5h
 
-    test_sc_atac:
+    test_atac:
        machine: true
        steps:
            - checkout
            - run:
                command: |
-                   ./tests/skylab/trigger_test.sh sc_atac
+                   ./tests/skylab/trigger_test.sh ATAC
                no_output_timeout: 3.0h
                
 workflows:
@@ -133,8 +133,8 @@ workflows:
 #          - test_smartseq2
 #          - test_smartseq2_single_end
 #          - test_npz2rds
-          - test_snap_atac
           - test_sc_atac
+          - test_atac
 #          - test_bulk_rna
 #          - test_optimus_v3
 #          - test_smartseq2_multisample

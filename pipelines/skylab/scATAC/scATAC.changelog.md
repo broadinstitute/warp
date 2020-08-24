@@ -1,6 +1,6 @@
 # scATAC_v1.1.0
 
-2020-08-20 (Date of Last Commit)
+2020-08-24 (Date of Last Commit)
 
 * Added bin_size_list as an optional input to the scATAC workflow with a default of 10,000 bp.
 
