@@ -32,6 +32,8 @@ workflow ATAC {
 
     # Output prefix/base name for all intermediate files and pipeline outputs
     String output_base_name
+
+    String bin_size_list = "10000"
   }
 
   parameter_meta {
@@ -50,6 +52,7 @@ workflow ATAC {
     min_map_quality: "the minimum mapping quality to be filtered by samtools view and snap-pre (snaptools task)"
     max_fragment_length: "the maximum fragment length for filtering out reads by gatk and snap-pre (snaptools task)"
     output_base_name: "base name to be used for the pipelines output and intermediate files"
+    bin_size_list: "space separated list of bins to generate"
   }
 
   call TrimAdapters {
@@ -136,13 +139,14 @@ workflow ATAC {
 
   call SnapCellByBin {
     input:
-      snap_input=SnapPre.snap_file_output,
-      bin_size_list = "10000"
+      snap_input = SnapPre.snap_file_output,
+      bin_size_list = bin_size_list
   }
 
   call BreakoutSnap {
     input:
-      snap_input = SnapCellByBin.snap_output
+      snap_input = SnapCellByBin.snap_output,
+      bin_size_list = bin_size_list
   }
 
   output {
@@ -703,6 +707,7 @@ task BreakoutSnap {
     input {
         File snap_input
         String docker_image = "quay.io/humancellatlas/snap-breakout:0.0.1"
+        String bin_size_list
     }
     Int num_threads = 1
     Float input_size = size(snap_input, "GiB")
@@ -715,9 +720,9 @@ task BreakoutSnap {
     output {
         File barcodes = 'output/barcodes.csv'
         File fragments = 'output/fragments.csv'
-        File binCoordinates = 'output/binCoordinates_10000.csv'
-        File binCounts = 'output/binCounts_10000.csv'
-	File barcodesSection = 'output/barcodesSection.csv'
+        File binCoordinates = 'output/binCoordinates_~{bin_size_list}.csv'
+        File binCounts = 'output/binCounts_~{bin_size_list}.csv'
+        File barcodesSection = 'output/barcodesSection.csv'
     }
     runtime {
         docker: docker_image
