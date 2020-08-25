@@ -10,6 +10,6 @@
     "MultiSampleSmartSeq2.stranded": "NONE",
     "MultiSampleSmartSeq2.paired_end": false,
     "MultiSampleSmartSeq2.file_prefix": "gs://hca-dcp-mint-test-data/ss2/human/single-read/CD4_cytotoxic_renamed",
-    "MultiSampleSmartSeq2.input_file_names": ["SRR6258249", "SRR6259788"],
+    "MultiSampleSmartSeq2.input_ids": ["SRR6258249", "SRR6259788"],
     "MultiSampleSmartSeq2.batch_id": "human_test"
 }

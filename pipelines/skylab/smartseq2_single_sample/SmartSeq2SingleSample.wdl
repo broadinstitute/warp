@@ -26,15 +26,19 @@ workflow SmartSeq2SingleCell {
     String hisat2_ref_trans_name
     # samples
     String stranded
-    String sample_name
+    String input_id
+    String? input_name
+    String? input_id_metadata_field
+    String? input_name_metadata_field
     String output_name
     File fastq1
     File? fastq2
     Boolean paired_end
     Boolean force_no_check = false
   }
+  
   # version of this pipeline
-  String pipeline_version = "4.0.1"
+  String pipeline_version = "5.0.0"
 
   parameter_meta {
     genome_ref_fasta: "Genome reference in fasta format"
@@ -46,7 +50,8 @@ workflow SmartSeq2SingleCell {
     hisat2_ref_name: "HISAT2 reference index name"
     hisat2_ref_trans_name: "HISAT2 transcriptome index file name"
     stranded: "Library strand information example values: FR RF NONE"
-    sample_name: "Sample name or Cell ID"
+    input_id: "Sample name or Cell ID"
+    input_name: "User provided sample name or Cell ID"
     output_name: "Output name, can include path"
     fastq1: "R1 in paired end reads"
     fastq2: "R2 in paired end reads"
@@ -70,7 +75,7 @@ workflow SmartSeq2SingleCell {
          fastq1 = fastq1,
          fastq2 = select_first([fastq2]),
          ref_name = hisat2_ref_name,
-         sample_name = sample_name,
+         input_id = input_id,
          output_basename = quality_control_output_basename,
      }
   }
@@ -80,7 +85,7 @@ workflow SmartSeq2SingleCell {
          hisat2_ref = hisat2_ref_index,
          fastq = fastq1,
          ref_name = hisat2_ref_name,
-         sample_name = sample_name,
+         input_id = input_id,
          output_basename = quality_control_output_basename,
      }
   }
@@ -120,7 +125,7 @@ workflow SmartSeq2SingleCell {
           fastq1 = fastq1,
           fastq2 = fastq2,
           ref_name = hisat2_ref_trans_name,
-          sample_name = sample_name,
+          input_id = input_id,
           output_basename = data_output_basename,
       }
   }
@@ -131,7 +136,7 @@ workflow SmartSeq2SingleCell {
           hisat2_ref = hisat2_ref_trans_index,
           fastq = fastq1,
           ref_name = hisat2_ref_trans_name,
-          sample_name = sample_name,
+          input_id = input_id,
           output_basename = data_output_basename,
       }
   }
@@ -178,7 +183,11 @@ workflow SmartSeq2SingleCell {
     input:
       rsem_gene_results = RSEMExpression.rsem_gene,
       smartseq_qc_files = GroupQCOutputs.group_files,
-      sample_name=sample_name
+      input_id=input_id,
+      input_name = input_name,
+      pipeline_version = "SmartSeq2SingleSample_v~{pipeline_version}",
+      input_id_metadata_field = input_id_metadata_field,
+      input_name_metadata_field = input_name_metadata_field
   }
 
   output {
@@ -192,8 +201,8 @@ workflow SmartSeq2SingleCell {
     File quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
     File quality_by_cycle_metrics = CollectMultipleMetrics.quality_by_cycle_metrics
     File bait_bias_summary_metrics = CollectMultipleMetrics.bait_bias_summary_metrics
-    File rna_metrics = CollectRnaMetrics.rna_metrics
-    Array[File] group_results = GroupQCOutputs.group_files
+    File rna_metrics = CollectRnaMetrics.rna_metrics # check this
+    Array[File] group_results = GroupQCOutputs.group_files # check this
 
     # data outputs
     File aligned_transcriptome_bam = HISAT2RSEM_output_bam

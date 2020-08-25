@@ -1,3 +1,14 @@
+# smartseq2_v5.0.0
+
+2020-08-10 (Date of Last Commit)
+### Breaking changes 
+* Changed sample_name to input_id
+### Non-breaking changes
+* Added input_name as an optional input for user provided biomaterial id.
+* Passed pipeline_version to output loom file
+* Added input_id_metadata_field and input_name_metadata_field as optional input
+
+
 # smartseq2_v4.0.1
 
 2020-07-20 (Date of Last Commit)

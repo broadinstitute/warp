@@ -1,3 +1,14 @@
+# optimus_v4.0.0
+
+2020-08-10 (Date of Last Commit)
+### Breaking changes
+* Changed sample_id to input_id
+### Non-breaking changes 
+* Added input_name as an optional input for user provided sample_id
+* Passed pipeline_version to output loom file  
+* Added input_id_metadata_field and input_name_metadata_field as optional input
+
+
 # optimus_v3.0.1
 
 2020-07-21 (Date of Last Commit)
@@ -6,6 +17,7 @@
 * This version and all future versions have been scientifically validated on 10X 3' snRNAseq data for all supported references
 
 # optimus_v3.0.0
+
 2020-06-10 (Date of Last Commit)
 
 * Removed the Zarr formatted matrix and metrics outputs and replaced with Loom

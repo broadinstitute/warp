@@ -18,7 +18,7 @@ task ValidateSmartSeq2Plate {
   >>>
   
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.2"
+    docker: "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-fk-2"
     cpu: 1
     memory: "8 GiB"
     disks: "local-disk 1${disk_size} HDD"

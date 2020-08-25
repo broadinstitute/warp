@@ -16,10 +16,17 @@ def main():
                         dest='output_loom_file',
                         required=True,
                         help="Path to output loom file")
-    parser.add_argument('--plate-sample-id',
-                        dest='plate_sample_id',
+    parser.add_argument('--batch_id',
+                        dest='batch_id',
                         required=True,
-                        help="Plate sample id for output loom")
+                        help="Batch id for output loom")
+    parser.add_argument('--batch_name',
+                        dest='batch_name',
+                        help='User provided plate id for output loom')
+    parser.add_argument('--pipeline_version',
+                        dest='pipeline_version',
+                        required=True,
+                        help='Multisample SS2 version')
     args = parser.parse_args()
 
     # The list of Loom files that we need to merge
@@ -27,7 +34,11 @@ def main():
     loom_file_list = args.input_loom_files
     
     attrDict = dict()
-    attrDict['sample_id'] = args.plate_sample_id
+    attrDict['batch_id'] = args.batch_id
+    attrDict['pipeline_version'] = args.pipeline_version
+    if args.batch_name is not None:
+        attrDict['batch_name'] = args.batch_name
+
     loompy.combine(loom_file_list,output_file=args.output_loom_file,file_attrs = attrDict)
 
 if __name__ == '__main__':

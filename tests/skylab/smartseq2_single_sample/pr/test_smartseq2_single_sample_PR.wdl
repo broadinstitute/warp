@@ -8,7 +8,7 @@ workflow TestSmartSeq2SingleCellPR {
   input { 
     # expected hashes of target_workflow outputs
     String expected_counts_hash
-    String expected_metrics_hash
+    String expected_metrics_hash = ""
 
     # SS2 inputs
     File genome_ref_fasta
@@ -20,7 +20,7 @@ workflow TestSmartSeq2SingleCellPR {
     String hisat2_ref_name
     String hisat2_ref_trans_name
     String stranded
-    String sample_name
+    String input_id
     String output_name
     File fastq1
     File fastq2
@@ -37,7 +37,7 @@ workflow TestSmartSeq2SingleCellPR {
       hisat2_ref_name = hisat2_ref_name,
       hisat2_ref_trans_name = hisat2_ref_trans_name,
       stranded = stranded,
-      sample_name = sample_name,
+      input_id = input_id,
       output_name = output_name,
       fastq1 = fastq1,
       fastq2 = fastq2,
