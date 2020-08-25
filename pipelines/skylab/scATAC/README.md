@@ -50,7 +50,7 @@ The scATAC Pipeline was developed by the Broad DSP Pipelines team to process sin
 
 # Set-up
 ## Workflow Installation and Requirements
-The [scATAC workflow](scATAC.wdl) is written in the Workflow Description Language WDL and can be downloaded by cloning the GitHub [Skylab repository](https://github.com/HumanCellAtlas/skylab). The workflow can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the scATAC [changelog](scATAC.changelog.md). 
+The [scATAC workflow](scATAC.wdl) is written in the Workflow Description Language WDL and can be downloaded by cloning the GitHub [WARP repository](https://github.com/broadinstitute/warp/). The workflow can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the scATAC [changelog](scATAC.changelog.md). 
 
 ## Pipeline Inputs
 The pipeline inputs are detailed in the table below. You can test the workflow by using the [https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/scATAC/example_inputs/human_example.json](human_example.json) example configuration file. 
@@ -86,11 +86,11 @@ The [scATAC workflow](scATAC.wdl) is divided into multiple tasks which are descr
 
 | Task | Task Description | Tool Docker Image | Parameter Descriptions or Code |
 |--- | --- | --- | --- |
-| AlignPairedEnd | Align the modified FASTQ files to the genome | [snaptools:0.0.1](https://github.com/HumanCellAtlas/skylab/blob/master/docker/snaptools/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
-| SnapPre | Initial generation of snap file | [snaptools:0.0.1](https://github.com/HumanCellAtlas/skylab/blob/master/docker/snaptools/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
-| SnapCellByBin | Binning of data by genomic bins | [snaptools:0.0.1](https://github.com/HumanCellAtlas/skylab/blob/master/docker/snaptools/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
-| MakeCompliantBAM | Generation of a GA4GH compliant BAM | [snaptools:0.0.1](https://github.com/HumanCellAtlas/skylab/blob/master/docker/snaptools/Dockerfile) | [Code](https://github.com/HumanCellAtlas/skylab/blob/master/docker/snaptools/makeCompliantBAM.py) |
-| BreakoutSnap | Extraction of tables from snap file into text format (for testing and user availability) | [snap-breakout:0.0.1](https://github.com/HumanCellAtlas/skylab/tree/master/docker/snap-breakout) | [Code](https://github.com/HumanCellAtlas/skylab/blob/master/docker/snap-breakout/breakoutSnap.py) |
+| AlignPairedEnd | Align the modified FASTQ files to the genome | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
+| SnapPre | Initial generation of snap file | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
+| SnapCellByBin | Binning of data by genomic bins | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
+| MakeCompliantBAM | Generation of a GA4GH compliant BAM | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [Code](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/makeCompliantBAM.py) |
+| BreakoutSnap | Extraction of tables from snap file into text format (for testing and user availability) | [snap-breakout:0.0.1](https://github.com/HumanCellAtlas/skylab/tree/master/docker/snap-breakout) | [Code](https://github.com/broadinstitute/warp/tree/master/dockers/skylab/snap-breakout/breakoutSnap.py) |
 
 ## Task Summary 
 
@@ -116,14 +116,14 @@ The SnapPre task uses SnapTools to perform preprocessing and filtering on the al
 
 ### SnapCellByBin
 
-The SnapCellByBin task uses the Snap file to create cell-by-bin count matrices in which a “1” represents a bin with an accessible region of the genome and a “0” represents an inaccessible region. The bin_size_list is set to 10,000 bp but can be changed by specifying the value in the inputs to the workflow. 
+The SnapCellByBin task uses the Snap file to create cell-by-bin count matrices in which a “1” represents a bin with an accessible region of the genome and a “0” represents an inaccessible region. The bin_size_list sets the bin size to 10,000 bp by default but can be changed by specifying the value in the inputs to the workflow. 
 
 ### MakeCompliantBAM
 
-The MakeCompliantBAM task uses a [custom python script (here)](https://github.com/HumanCellAtlas/skylab/tree/master/docker/snaptools) to make a GA4GH compliant BAM by moving the cellular barcodes in the read names to the CB tag. 
+The MakeCompliantBAM task uses a [custom python script (here)](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/makeCompliantBAM.py) to make a GA4GH compliant BAM by moving the cellular barcodes in the read names to the CB tag. 
 
 ### BreakoutSnap
-The BreakoutSnap task extracts data from the Snap file and exports it to individual CSVs. These CSV outputs are listed in the table in the Outputs section below. The code is available [here](https://github.com/HumanCellAtlas/skylab/blob/master/docker/snap-breakout/breakoutSnap.py). 
+The BreakoutSnap task extracts data from the Snap file and exports it to individual CSVs. These CSV outputs are listed in the table in the Outputs section below. The code is available [here](https://github.com/broadinstitute/warp/tree/master/dockers/skylab/snap-breakout/breakoutSnap.py). 
 
 # Outputs 
 
