@@ -34,13 +34,14 @@ The Multi Sample workflow does not require a list of all FASTQ files; instead, i
 ### Additional Input
 The reference inputs are identical to those specified in the "Additional Reference Inputs" section of the [Smart-seq2 Single Sample README](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/README.md). 
 
-In addition to the Smart-seq2 Single Sample inputs, the Multi Sample workflow requires the inputs listed in the following table:
+In addition to the Smart-seq2 Single Sample inputs, the Multi Sample workflow has the following inputs:
 
 | Input name | Input Description | Input Type |
 | --- | --- | --- |
 | file_prefix | The URL path to the FASTQ file folder | String | 
-| input_file_names | Array of filename prefixes; workflow will append with \_1.fastq.gz and \_2.fastq.gz | Array of Strings |
+| input_ids | Array of filename prefixes; workflow will append with \_1.fastq.gz and \_2.fastq.gz | Array of Strings |
 | bacth_id | Identifier for the batch of multiple samples | String |
+| batch_name | Optional string to describe the batch or biological sample | String |
 
  
  ## Smart-seq2 Multi Sample Task Summary

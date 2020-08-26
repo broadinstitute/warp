@@ -5,13 +5,13 @@ import numpy as np
 import scipy as sc
 import loompy
 
-def generate_col_attr(qc_paths):
+def generate_col_attr(args):
     """Converts the QC of Smart Seq2 gene file pipeline outputs to loom file
     Args:
         qc_path (str): path to the QCs csv
     """
     # read the QC values
-    qc_path = [p for p in qc_paths if p.endswith("_QCs.csv")][0]    
+    qc_path = [p for p in args.qc_files if p.endswith("_QCs.csv")][0]    
     with open(qc_path, 'r') as f:
         qc_values = [row for row in csv.reader(f)]
 
@@ -49,7 +49,12 @@ def generate_col_attr(qc_paths):
     # Column attributes
     col_attrs = dict()
     col_attrs["cell_names"] = [cell_id]
-    
+
+    if args.input_id_metadata_field:
+        col_attrs["input_id_metadata_field"] = args.input_id_metadata_field
+    if args.input_name_metadata_field:
+            col_attrs["input_name_metadata_field"] = args.input_name_metadata_field
+
     numeric_field_names = np.array(sorted_numeric_labels[:])
     for i in range(0, numeric_field_names.shape[0]):
         name = numeric_field_names[i]
@@ -107,30 +112,32 @@ def generate_row_attr_and_matrix(rsem_gene_results_path):
     return row_attrs, expression_tpms,expected_counts
 
 
-def create_loom_files(sample_id, qc_files, rsem_genes_results_file,
-                      output_loom_path):
+def create_loom_files(args):
     """This function creates the loom file or folder structure in output_loom_path in
-       format file_format, with sample_id from the input folder analysis_output_path
+       format file_format, with input_id from the input folder analysis_output_path
     Args:
-        sample_id (str): sample or cell id
+        input_id (str): sample or cell id
         qc_analysis_output_files_string (str): a string with the file names in the QCGroup of SS2
             pipeline output, separated by commas
         rsem_genes_results_file (str): the file for the expression count
         output_loom_path (str): location of the output loom
     """
-    # generate a dictionarty of column attributes
-    col_attrs =  generate_col_attr(qc_files) 
+    # generate a dictionary of column attributes
+    col_attrs =  generate_col_attr(args)
     
     # add the expression count matrix data
     # generate a dictionary of row attributes
-    row_attrs, expr_tpms, expr_counts = generate_row_attr_and_matrix(rsem_genes_results_file)
+    row_attrs, expr_tpms, expr_counts = generate_row_attr_and_matrix(args.rsem_genes_results_file)
     
     attrDict = dict()
-    attrDict['sample_id'] = sample_id
+    attrDict['input_id'] = args.input_id
+    if args.input_name is not None:
+        attrDict['input_name'] = args.input_name
+    attrDict['pipeline_version'] = args.pipeline_version
 
     #generate loom file
-    loompy.create(output_loom_path, expr_tpms, row_attrs, col_attrs, file_attrs=attrDict)
-    ds = loompy.connect(output_loom_path)
+    loompy.create(args.output_loom_path, expr_tpms, row_attrs, col_attrs, file_attrs=attrDict)
+    ds = loompy.connect(args.output_loom_path)
     ds.layers['estimated_counts'] = expr_counts
     ds.close()
 
@@ -142,23 +149,48 @@ def main():
 
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('--qc_files',
+                        dest="qc_files",
                         nargs = "+",
                         help=('the grouped QC files from the GroupQCOutputs task of SS2 '
                               'Single Sample workflow'))
 
     parser.add_argument('--rsem_genes_results',
+                        dest="rsem_genes_results_file",
                         help='path to the folder containing the files to be added to the loom')
 
     parser.add_argument('--output_loom_path',
+                        dest="output_loom_path", 
                         help='path where the loom file is to be created')
 
-    parser.add_argument('--sample_id',
-                        default="Unknown sample",
+    parser.add_argument('--input_id',
+                        dest="input_id",
                         help='the sample name in the bundle')
+
+    parser.add_argument(
+        "--input_name",
+        dest="input_name",
+        help= "sequencing_input.biomaterial_core.biomaterial_id in HCA metadata, defined by the user",
+    )
+
+    parser.add_argument(
+        "--input_id_metadata_field",
+        dest="input_id_metadata_field",
+        help= "sequencing_process.provenance.document_id: [UUID] defined by the user",
+    )
+
+    parser.add_argument(
+        "--input_name_metadata_field",
+        dest="input_name_metadata_field",
+        help= "sequencing_input.biomaterial_core.biomaterial_id defined by the user",
+    )
+
+    parser.add_argument('--pipeline_version',
+                        default="Unknown sample",
+                        help='the version of SS2 used to generate data')
 
     args = parser.parse_args()
 
-    create_loom_files(args.sample_id, args.qc_files, args.rsem_genes_results, args.output_loom_path)
+    create_loom_files(args)
 
 
 if __name__ == '__main__':

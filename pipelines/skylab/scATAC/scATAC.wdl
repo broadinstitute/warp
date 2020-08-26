@@ -2,7 +2,7 @@ version 1.0
 
 workflow scATAC {
     meta {
-      description: "Processing of single-cell ATAC-seq data with the snap-atac pipeline."
+      description: "Processing of single-cell ATAC-seq data with the scATAC pipeline."
     }
 
     input {
@@ -11,14 +11,18 @@ workflow scATAC {
         String genome_name
         File input_reference
         String output_bam = "aligned.bam"
+        String bin_size_list = "10000"
     }
+
+    String pipeline_version = "1.1.0"
 
     parameter_meta {
         input_fastq1: "read 1 input fastq, the read names must be tagged with the cellular barcodes"
         input_fastq2: "read 2 input fastq, the read names must be tagged with the cellular barcodes"
         input_reference: "tar file with BWA reference, generated with the build_bwa_reference pipeline"
         output_bam: "output BAM file name"
-        genome_name: "name of the genome for snap atac"
+        genome_name: "name of the genome for scATAC"
+        bin_size_list: "space separated list of bins to generate"
     }
 
     call AlignPairedEnd {
@@ -40,7 +44,7 @@ workflow scATAC {
     call SnapCellByBin {
         input:
             snap_input = SnapPre.output_snap,
-            bin_size_list = "10000"
+            bin_size_list = bin_size_list
     }
 
     call MakeCompliantBAM {
@@ -50,7 +54,8 @@ workflow scATAC {
 
     call BreakoutSnap {
         input:
-            snap_input = SnapCellByBin.output_snap
+            snap_input = SnapCellByBin.output_snap,
+            bin_size_list = bin_size_list
     }
 
     output {
@@ -262,11 +267,13 @@ task BreakoutSnap {
     input {
         File snap_input
         String docker_image = "quay.io/humancellatlas/snap-breakout:0.0.1"
+        String bin_size_list
     }
 
     parameter_meta {
-      snap_input: "input snap file to use"
-      docker_image: "docker image to use"
+        snap_input: "input snap file to use"
+        docker_image: "docker image to use"
+        bin_size_list: "space separated list of bins to generate"
     }
 
     Int num_threads = 1
@@ -282,8 +289,8 @@ task BreakoutSnap {
     output {
         File barcodes = 'output/barcodes.csv'
         File fragments = 'output/fragments.csv'
-        File binCoordinates = 'output/binCoordinates_10000.csv'
-        File binCounts = 'output/binCounts_10000.csv'
+        File binCoordinates = 'output/binCoordinates_~{bin_size_list}.csv'
+        File binCounts = 'output/binCounts_~{bin_size_list}.csv'
         File barcodesSection = 'output/barcodesSection.csv'
     }
 

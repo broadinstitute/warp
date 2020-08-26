@@ -67,7 +67,6 @@ function write_dependencies_zip() {
   local -r rootWdl=${1} versioned_dependencies_zip=${2}${ZIP_SUFFIX} working_dir=$(mktemp -d)
   local -r -a dependencies=($(get_dependencies_for_wdl ${rootWdl} | xargs -n1 | sort -u | xargs))
 
-  # cd ${DSDE_PIPELINES_ROOT}
   for file in ${dependencies[@]}; do
     flattened_name=$(basename ${file})
     sed -E 's/import "(.*)\/(.*\'${WDL_SUFFIX}')"/import "\2"/g' ${file} > ${working_dir}/${flattened_name}
