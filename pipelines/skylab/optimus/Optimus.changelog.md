@@ -1,4 +1,4 @@
-# optimus_v4.0.0
+# 4.0.0
 
 2020-08-10 (Date of Last Commit)
 ### Breaking changes
@@ -9,14 +9,14 @@
 * Added input_id_metadata_field and input_name_metadata_field as optional input
 
 
-# optimus_v3.0.1
+# 3.0.1
 
 2020-07-21 (Date of Last Commit)
 
 * Changed the imports to relative imports to support Dockstore->Terra release
 * This version and all future versions have been scientifically validated on 10X 3' snRNAseq data for all supported references
 
-# optimus_v3.0.0
+# 3.0.0
 
 2020-06-10 (Date of Last Commit)
 
@@ -33,13 +33,13 @@
 * Added new example datasets that can be used with the Optimus workflow
 * Updated the README documentation to detail the new counting_mode parameter, describe example datasets, and to include a new FAQ section
 
-# optimus_v2.0.0
+# 2.0.0
 2020-02-08 (Date of Last Commit)
 
 * Fixed a bug that resulted in emptyDrops output being incorrect
 * Updated the workflow to WDL 1.0
 
-# optimus_v1.4.0
+# 1.4.0
 
 2019-11-08 (Date of Last Commit)
 
@@ -48,7 +48,7 @@
 * Greatly improved documentation
 * Improvements to ZARR output
 
-# optimus_v1.3.6
+# 1.3.6
 
 2019-09-23 (Date of Last Commit)
 
@@ -60,56 +60,56 @@
 Documentation has been updated
 
 
-# optimus_v1.3.5
+# 1.3.5
 
 2019-09-09 (Date of Last Commit)
 
 * Increase memory for CalculateCellMetrics
 
-# optimus_v1.3.4
+# 1.3.4
 
 2019-09-04 (Date of Last Commit)
 
 * Increase memory
 
-# optimus_v1.3.3
+# 1.3.3
 
 2019-08-08 (Date of Last Commit)
 
 * Release a new patch version of Optimus with an ambitious memory allocation for CalculateCellMetrics task.
 * This version and all future versions have been scientifically validated on Mouse reference version mm10 (GRCm39, Gencode M21)
 
-# optimus_v1.3.2
+# 1.3.2
 
 2019-08-06 (Date of Last Commit)
 
 * Update Optimus patch version (#241)
 
-# optimus_v1.3.1
+# 1.3.1
 
 2019-07-18 (Date of Last Commit)
 
 * This release includes fixes to the Optimus gene id outputs
 
-# optimus_v1.3.0
+# 1.3.0
 
 2019-06-19 (Date of Last Commit)
 
 * This release is a backwards incompatible change for the Optimus pipeline. The output matrices now contain gencode v27 gene ids in addition to gene names to comply with outputs from other pipelines and expectations of downstream services
 
-# optimus_v1.2.0
+# 1.2.0
 
 2019-06-04 (Date of Last Commit)
 
 * No change note
 
-# optimus_v1.1.0
+# 1.1.0
 
 2019-05-07 (Date of Last Commit)
 
 * No change note
 
-# optimus_v1.0.0
+# 1.0.0
 
 2019-03-27 (Date of Last Commit)
 
