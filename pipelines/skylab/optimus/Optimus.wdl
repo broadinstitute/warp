@@ -1,5 +1,4 @@
 version 1.0
-
 import "../../../tasks/skylab/FastqToUBam.wdl" as FastqToUBam
 import "../../../tasks/skylab/Attach10xBarcodes.wdl" as Attach
 import "../../../tasks/skylab/SplitBamByCellBarcode.wdl" as Split
