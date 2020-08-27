@@ -22,6 +22,8 @@ workflow Optimus {
     description: "The optimus 3' pipeline processes 10x genomics sequencing data based on the v2 chemistry. It corrects cell barcodes and UMIs, aligns reads, marks duplicates, and returns data as alignments in BAM format and as counts in sparse matrix exchange format."
   }
 
+  # testing
+
   input {
     # Mode for counting either "sc_rna" or "sn_rna"
     String counting_mode = "sc_rna"

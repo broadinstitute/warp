@@ -18,6 +18,8 @@ version 1.0
 
 workflow MultiSampleArrays {
 
+  # testing
+
   String pipeline_version = "1.4"
 
   input {

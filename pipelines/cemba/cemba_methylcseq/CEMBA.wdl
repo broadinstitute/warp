@@ -6,6 +6,8 @@ workflow CEMBA {
       # name of outputs and intermediate files of pipeline
       String output_base_sample_name
 
+      # testing
+
       # compressed read 1 and read 2 paired inputs
       File fastq_r1_gzipped_input
       File fastq_r2_gzipped_input
