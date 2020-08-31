@@ -1,3 +1,8 @@
+# 2.0.1
+2020-08-31
+
+* Fixed regression in the fix for VcfToMercuryFingerprintJson task
+
 # 2.0
 2020-07-31
 
