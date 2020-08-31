@@ -12,8 +12,6 @@
   "IlluminaGenotypingArray.bead_pool_manifest_file": "gs://broad-public-datasets/IlluminaGenotypingArrays/metadata/HumanExome-12v1-1_A/HumanExome-12v1-1_A.bpm",
   "IlluminaGenotypingArray.extended_chip_manifest_file": "gs://broad-public-datasets/IlluminaGenotypingArrays/metadata/HumanExome-12v1-1_A/HumanExome-12v1-1_A.1.3.extended.csv",
   "IlluminaGenotypingArray.cluster_file": "gs://broad-public-datasets/IlluminaGenotypingArrays/metadata/HumanExome-12v1-1_A/HumanExomev1_1_CEPH_A.egt",
-  "IlluminaGenotypingArray.gender_cluster_file": "gs://broad-public-datasets/IlluminaGenotypingArrays/metadata/HumanExome-12v1-1_A/HumanExomev1_1_gender.egt",
-  "IlluminaGenotypingArray.zcall_thresholds_file": "gs://broad-public-datasets/IlluminaGenotypingArrays/metadata/HumanExome-12v1-1_A/IBDPRISM_EX.egt.thresholds.txt",
 
   "IlluminaGenotypingArray.control_sample_vcf_file" : "gs://broad-public-datasets/IlluminaGenotypingArrays/controldata/NA12878.vcf.gz",
   "IlluminaGenotypingArray.control_sample_vcf_index_file" : "gs://broad-public-datasets/IlluminaGenotypingArrays/controldata/NA12878.vcf.gz.tbi",
