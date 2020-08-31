@@ -10,7 +10,7 @@ task GroupQCOutputs {
     File rsem_stats
     String output_name
     # Runtime
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.4"
+    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:np_gl-1148_update_dependencies"
     Int mem = 3
     Int cpu = 1
     Int disk_space = 20
