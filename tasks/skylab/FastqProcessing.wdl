@@ -6,6 +6,8 @@ task FastqProcessing {
     Array[File] r2_fastq
     Array[File]? i1_fastq
     File whitelist
+    String chemistry
+    String sample_id
 
     # runtime values
     String docker = "quay.io/humancellatlas/fastq-process"
@@ -13,8 +15,7 @@ task FastqProcessing {
     Int cpu = 16   
     #TODO decided cpu
     # estimate that bam is approximately equal in size to fastq, add 20% buffer
-    Int disk = 1200
-    #TODO fix ceil(size(fastq_file, "GiB") * 2.2)
+    Int disk = ceil(size(r1_fastq, "GiB")*3 + size(r2_fastq, "GiB")*3) + 500
 
     Int preemptible = 3
   }
@@ -31,6 +32,8 @@ task FastqProcessing {
     r2_fastq: "input fastq file"
     i1_fastq: "input fastq file"
     whitelist: "10x genomics cell barcode whitelist"
+    chemistry: "chemistry employed, currently can be tenX_v2 or tenX_v3, the latter implies NO feature barcodes"
+    sample_id: "name of sample matching this file, inserted into read group header"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
@@ -41,12 +44,38 @@ task FastqProcessing {
   command {
     set -e
 
-    fastqprocess \
-       --bam-size 1.0 \
-       --I1 ${sep=' --I1 ' i1_fastq} \
-       --R1 ${sep=' --R1 ' r1_fastq} \
-       --R2 ${sep=' --R2 ' r2_fastq} \
-       --white-list "${whitelist}"
+    echo "Disk: " "${disk}"
+
+    if [ "${chemistry}" == "tenX_v2" ]
+    then
+        ## V2
+        fastqprocess \
+           --bam-size 1.0 \
+           --barcode-length 16 \
+           --umi-length 10 \
+           --sample-id "${sample_id}" \
+           --I1 ${sep=' --I1 ' i1_fastq} \
+           --R1 ${sep=' --R1 ' r1_fastq} \
+           --R2 ${sep=' --R2 ' r2_fastq} \
+           --white-list "${whitelist}"
+
+
+    elif [ "${chemistry}" == "tenX_v3" ]
+    then
+        ## V3
+        fastqprocess \
+           --bam-size 1.0 \
+           --barcode-length 16 \
+           --umi-length 12 \
+           --sample-id "${sample_id}" \
+           --I1 ${sep=' --I1 ' i1_fastq} \
+           --R1 ${sep=' --R1 ' r1_fastq} \
+           --R2 ${sep=' --R2 ' r2_fastq} \
+           --white-list "${whitelist}"
+    else
+        echo Error: unknown chemistry value: "$chemistry"
+        exit 1;
+    fi
   }
   
   runtime {
