@@ -22,8 +22,8 @@ function pipeline_to_args() {
       echo Arrays -a Single ${common_args};;
     MultiSampleArrays)
       echo Arrays -a Multi ${common_args};;
-    #ExomeGermlineSingleSample)
-    #  echo GermlineSingleSample -d Exome ${common_args};;
+    ExomeGermlineSingleSample)
+      echo GermlineSingleSample -d Exome ${common_args};;
     #ExomeReprocessing)
     #  echo Reprocessing -d Exome ${common_args};;
     #JointGenotyping)
@@ -35,8 +35,8 @@ function pipeline_to_args() {
     #  echo ExternalReprocessing -d Exome --env ${env} -t Plumbing -b develop ${uncached};;
     #ExternalWholeGenomeReprocessing)
     #  echo ExternalReprocessing -d WGS --env ${env} -t Plumbing -b develop ${uncached};;
-    #WholeGenomeGermlineSingleSample)
-    #  echo GermlineSingleSample -d WGS ${common_args};;
+    WholeGenomeGermlineSingleSample)
+      echo GermlineSingleSample -d WGS ${common_args};;
     #WholeGenomeReprocessing)
     #  echo Reprocessing -d WGS ${common_args};;
     ValidateChip)
