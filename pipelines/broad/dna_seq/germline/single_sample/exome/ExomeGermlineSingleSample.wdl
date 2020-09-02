@@ -28,13 +28,13 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../../../../../tasks/UnmappedBamToAlignedBam.wdl" as ToBam
-import "../../../../../tasks/AggregatedBamQC.wdl" as AggregatedQC
-import "../../../../../tasks/Qc.wdl" as QC
-import "../../../../../tasks/BamProcessing.wdl" as Processing
-import "../../../../../tasks/BamToCram.wdl" as ToCram
-import "../../../../../tasks/VariantCalling.wdl" as ToGvcf
-import "../../../../../structs/dna_seq/DNASeqStructs.wdl"
+import "../../../../../../tasks/UnmappedBamToAlignedBam.wdl" as ToBam
+import "../../../../../../tasks/AggregatedBamQC.wdl" as AggregatedQC
+import "../../../../../../tasks/Qc.wdl" as QC
+import "../../../../../../tasks/BamProcessing.wdl" as Processing
+import "../../../../../../tasks/BamToCram.wdl" as ToCram
+import "../../../../../../tasks/VariantCalling.wdl" as ToGvcf
+import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 # WORKFLOW DEFINITION
 workflow ExomeGermlineSingleSample {
