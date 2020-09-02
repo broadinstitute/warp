@@ -2,20 +2,6 @@ package org.broadinstitute.dsp.pipelines.tester
 
 import java.net.URI
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import better.files.File
-import io.circe.{Json, JsonObject}
-import org.broadinstitute.dsp.pipelines.batch.{
-  WorkflowRunParameters,
-  WorkflowTest
-}
-import org.broadinstitute.dsp.pipelines.config._
-import org.broadinstitute.dsp.pipelines.inputs.{
-  GermlineSingleSampleValidationInputs,
-  ReprocessingInputs
-}
-
 class ReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
     implicit am: ActorMaterializer,
     as: ActorSystem
@@ -24,7 +10,7 @@ class ReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
   override val workflowName: String = s"${dataTypePrefix}Reprocessing"
 
   override lazy val workflowDir: File =
-    CromwellWorkflowTester.PipelineRoot / "reprocessing" / dataTypeString
+    CromwellWorkflowTester.PipelineRoot / "broad" / reprocessing" / dataTypeString
 
   override lazy val localValidationWdlPath: File =
     CromwellWorkflowTester.DsdePipelinesRoot / "verification" / "VerifyReprocessing.wdl"
