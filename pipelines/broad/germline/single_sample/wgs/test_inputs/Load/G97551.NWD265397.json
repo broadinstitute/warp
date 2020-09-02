@@ -1,0 +1,73 @@
+{
+  "WholeGenomeGermlineSingleSample.papi_settings": {
+    "preemptible_tries": 3,
+    "agg_preemptible_tries": 3
+  },
+  "WholeGenomeGermlineSingleSample.wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list",
+  "WholeGenomeGermlineSingleSample.sample_and_unmapped_bams": {
+    "final_gvcf_base_name": "NWD265397",
+    "sample_name": "NWD265397",
+    "unmapped_bam_suffix": ".unmapped.bam",
+    "base_file_name": "NWD265397",
+    "flowcell_unmapped_bams": [
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMCGGCCXX.1.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMCGGCCXX.2.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMCGGCCXX.3.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMCGGCCXX.4.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMCGGCCXX.5.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMCGGCCXX.6.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMCGGCCXX.7.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMCGGCCXX.8.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMCJHCCXX.6.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMCJHCCXX.7.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMCJHCCXX.8.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMGCLCCXX.1.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMGCLCCXX.2.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMGCLCCXX.3.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMGCLCCXX.4.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMGCLCCXX.5.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMGCLCCXX.6.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMGCLCCXX.7.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMGCLCCXX.8.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMGLCCCXX.5.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMGLCCCXX.6.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMGLCCCXX.7.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HMGLCCCXX.8.Pond-522788.unmapped.bam",
+      "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/unmapped/HT3JYCCXX.8.Pond-522788.unmapped.bam"
+    ]
+  },
+  "WholeGenomeGermlineSingleSample.references": {
+    "haplotype_database_file": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt",
+    "contamination_sites_mu": "gs://gcp-public-data--broad-references/hg38/v0/contamination-resources/1000g/1000g.phase3.100k.b38.vcf.gz.dat.mu",
+    "ref_alt": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.alt",
+    "ref_pac": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.pac",
+    "ref_sa": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.sa",
+    "ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+    "ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+    "ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+    "contamination_sites_ud": "gs://gcp-public-data--broad-references/hg38/v0/contamination-resources/1000g/1000g.phase3.100k.b38.vcf.gz.dat.UD",
+    "ref_bwt": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.bwt",
+    "ref_amb": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.amb",
+    "evaluation_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_evaluation_regions.hg38.interval_list",
+    "dbsnp_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx",
+    "known_indels_sites_vcfs": [
+      "gs://gcp-public-data--broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz",
+      "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.known_indels.vcf.gz"
+    ],
+    "contamination_sites_bed": "gs://gcp-public-data--broad-references/hg38/v0/contamination-resources/1000g/1000g.phase3.100k.b38.vcf.gz.dat.bed",
+    "ref_ann": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.ann",
+    "calling_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_calling_regions.hg38.interval_list",
+    "dbsnp_vcf": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf",
+    "known_indels_sites_indices": [
+      "gs://gcp-public-data--broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi",
+      "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.known_indels.vcf.gz.tbi"
+    ]
+  },
+
+  "WholeGenomeGermlineSingleSample.scatter_settings": {
+    "haplotype_scatter_count": 50,
+    "break_bands_at_multiples_of": 1000000
+  },
+
+  "WholeGenomeGermlineSingleSample.fingerprint_genotypes_file": "gs://broad-gotc-test-storage/germline_single_sample/wgs/load/bams/G97551/NWD265397/v1/G97551.NWD265397.reference.fingerprint.vcf"
+}
