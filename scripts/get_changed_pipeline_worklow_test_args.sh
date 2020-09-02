@@ -26,9 +26,9 @@ function pipeline_to_args() {
     #  echo GermlineSingleSample -d Exome ${common_args};;
     #ExomeReprocessing)
     #  echo Reprocessing -d Exome ${common_args};;
-    #JointGenotyping)
-    #  echo JointGenotyping -d Exome ${common_args};
-    #  echo JointGenotyping -d WGS --env ${env} -t Plumbing -b develop ${uncached};;
+    JointGenotyping)
+      echo JointGenotyping -d Exome ${common_args};
+      echo JointGenotyping -d WGS --env ${env} -t Plumbing -b develop ${uncached};;
     IlluminaGenotypingArray)
       echo IlluminaGenotypingArray ${common_args};;
     #ExternalExomeReprocessing)
@@ -41,15 +41,15 @@ function pipeline_to_args() {
     #  echo Reprocessing -d WGS ${common_args};;
     ValidateChip)
       echo ValidateChip ${common_args};;
-    #ReblockGVCF)
-    #  echo ReblockGvcf -d Exome ${common_args};
-    #  echo ReblockGvcf -d WGS ${common_args};;
+    ReblockGVCF)
+      echo ReblockGvcf -d Exome ${common_args};
+      echo ReblockGvcf -d WGS ${common_args};;
     #TargetedSomaticSingleSample)
     #  echo SomaticSingleSample -d Targeted ${common_args};;
-    #JointGenotypingByChromosomePartOne)
-    #  continue;;
-    #JointGenotypingByChromosomePartTwo)
-    #  continue;;
+    JointGenotypingByChromosomePartOne)
+      continue;;
+    JointGenotypingByChromosomePartTwo)
+      continue;;
   esac
 }
 
