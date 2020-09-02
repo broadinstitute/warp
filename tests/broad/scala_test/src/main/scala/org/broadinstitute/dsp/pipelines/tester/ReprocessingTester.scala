@@ -10,7 +10,7 @@ class ReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
   override val workflowName: String = s"${dataTypePrefix}Reprocessing"
 
   override lazy val workflowDir: File =
-    CromwellWorkflowTester.PipelineRoot / "broad" / reprocessing" / dataTypeString
+    CromwellWorkflowTester.PipelineRoot / "broad" / "reprocessing" / dataTypeString
 
   override lazy val localValidationWdlPath: File =
     CromwellWorkflowTester.DsdePipelinesRoot / "verification" / "VerifyReprocessing.wdl"

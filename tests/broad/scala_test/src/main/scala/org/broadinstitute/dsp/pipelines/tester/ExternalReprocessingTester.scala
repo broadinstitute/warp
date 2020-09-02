@@ -12,7 +12,7 @@ class ExternalReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
   override val workflowName: String = s"External${dataTypePrefix}Reprocessing"
 
   override lazy val workflowDir: File =
-    CromwellWorkflowTester.PipelineRoot / "broad" / reprocessing" / "external" / dataTypeString
+    CromwellWorkflowTester.PipelineRoot / "broad" / "reprocessing" / "external" / dataTypeString
 
   override protected lazy val resultsPrefix: URI =
     URI.create(
