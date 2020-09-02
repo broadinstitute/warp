@@ -1,7 +1,7 @@
 version 1.0
 
-import "../../../../pipelines/reprocessing/exome/ExomeReprocessing.wdl" as ExomeReprocessing
-import "../../../../tasks/CopyFilesFromCloudToCloud.wdl" as Copy
+import "../../../../../pipelines/broad/reprocessing/exome/ExomeReprocessing.wdl" as ExomeReprocessing
+import "../../../../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow ExternalExomeReprocessing {
 

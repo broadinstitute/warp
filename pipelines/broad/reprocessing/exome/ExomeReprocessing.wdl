@@ -1,8 +1,8 @@
 version 1.0
 
-import "../../../pipelines/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl" as ExomeGermlineSingleSample
-import "../../../tasks/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
-import "../../../structs/dna_seq/DNASeqStructs.wdl"
+import "../../../../pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl" as ExomeGermlineSingleSample
+import "../../../../tasks/broad/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
+import "../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 workflow ExomeReprocessing {
 

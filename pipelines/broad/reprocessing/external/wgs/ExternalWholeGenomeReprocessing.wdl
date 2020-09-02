@@ -1,7 +1,7 @@
 version 1.0
 
-import "../../../../pipelines/reprocessing/wgs/WholeGenomeReprocessing.wdl" as WholeGenomeReprocessing
-import "../../../../tasks/CopyFilesFromCloudToCloud.wdl" as Copy
+import "../../../../../pipelines/broad/reprocessing/wgs/WholeGenomeReprocessing.wdl" as WholeGenomeReprocessing
+import "../../../../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow ExternalWholeGenomeReprocessing {
 
