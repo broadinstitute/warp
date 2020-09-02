@@ -39,7 +39,7 @@ The Exome Germline Single Sample workflow is written in the Workflow Description
 
 # Workflow Tasks and Tools
 
-The Exome Germline Single Sample [workflow](ExomeGermlineSingleSample.wdl) imports a series of tasks from the dsde-pipelines [tasks library](../../../../../tasks/) and a DNASeq struct ([DNASeqStructs.wdl](../../../../../structs/dna_seq/DNASeqStructs.wdl)) containing reference files from the [structs library](../../../../../structs/).
+The Exome Germline Single Sample [workflow](ExomeGermlineSingleSample.wdl) imports a series of tasks from the dsde-pipelines [tasks library](../../../../../../tasks/) and a DNASeq struct ([DNASeqStructs.wdl](../../../../../../structs/dna_seq/DNASeqStructs.wdl)) containing reference files from the [structs library](../../../../../../structs/).
 
 You can read more about the software tools implemented in these tasks by reading the GATK [data pre-processing](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912) and [germline short variant discovery](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932) documentation.
 
