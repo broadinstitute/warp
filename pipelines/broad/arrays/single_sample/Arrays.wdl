@@ -21,7 +21,7 @@ import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 workflow Arrays {
 
-  String pipeline_version = "2.0"
+  String pipeline_version = "2.0.1"
 
   input {
 
