@@ -1,5 +1,5 @@
 # Start with an ubuntu system and update it
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 # Image label
 LABEL maintainer="Lantern Team <lantern@broadinstititute.org>" \
