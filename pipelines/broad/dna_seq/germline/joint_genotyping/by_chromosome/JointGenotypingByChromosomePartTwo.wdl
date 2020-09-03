@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../../../../tasks/JointGenotypingTasks.wdl" as Tasks
+import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 
 # Joint Genotyping for hg38 Exomes and Whole Genomes (has not been tested on hg19)
 workflow JointGenotypingByChromosomePartTwo {
@@ -224,5 +224,4 @@ workflow JointGenotypingByChromosomePartTwo {
     File crosscheck_metrics = GatherFingerprintingMetrics.gathered_metrics
   }
 }
-
 
