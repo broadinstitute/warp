@@ -2,16 +2,6 @@ package org.broadinstitute.dsp.pipelines.tester
 
 import java.net.URI
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import better.files.File
-import org.broadinstitute.dsp.pipelines.batch.WorkflowTest
-import org.broadinstitute.dsp.pipelines.config._
-import org.broadinstitute.dsp.pipelines.inputs.{
-  SomaticSingleSampleInputs,
-  SomaticSingleSampleValidationInputs
-}
-
 class SomaticSingleSampleTester(testerConfig: SomaticCloudWorkflowConfig)(
     implicit am: ActorMaterializer,
     as: ActorSystem
@@ -23,7 +13,7 @@ class SomaticSingleSampleTester(testerConfig: SomaticCloudWorkflowConfig)(
   override val workflowName: String = s"${dataTypePrefix}SomaticSingleSample"
 
   val workflowDir
-    : File = CromwellWorkflowTester.DsdePipelinesRoot / "beta_pipelines" / "somatic" / "single_sample" / dataTypeString
+    : File = CromwellWorkflowTester.DsdePipelinesRoot / "beta_pipelines" / "broad" / "somatic" / "single_sample" / dataTypeString
 
   lazy val localValidationWdlPath: File =
     CromwellWorkflowTester.DsdePipelinesRoot / "verification" / "VerifySomaticSingleSample.wdl"
