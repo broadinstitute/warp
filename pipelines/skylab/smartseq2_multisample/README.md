@@ -12,7 +12,7 @@ The Multi Sample Smart-seq2 workflow can also be run in [Terra](https://app.terr
 
 | Want to use the Smart-seq2 Multi Sample pipeline for your publication?|
 |---|
-| *Check out the [Smart-seq2 Publication Methods](Smart-seq2.methods.md) to get started!* |
+| *Check out the [Smart-seq2 Publication Methods](smart-seq2.methods.md) to get started!* |
  
 ## Inputs 
 
