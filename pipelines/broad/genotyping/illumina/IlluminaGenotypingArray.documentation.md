@@ -66,7 +66,7 @@ The workflow requires that each input is specified in a JSON file. All sample an
 | --- | --- | --- | --- |
 | ref_fasta | Cloud path to the reference FASTA (only validated for [Hg19](https://storage.cloud.google.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta)) | Required | String |
 | ref_fasta_index | Cloud path to the reference FASTA index file | Required | String |
-| ref_fasta_dict | Cloud path to the reference FASTA dictionary file | Required | String |
+| ref_dict | Cloud path to the reference FASTA dictionary file | Required | String |
 | dbSNP_vcf | Cloud path to the dbSNP VCF, used for metrics collection | Required | String |
 | dbSNP_vcf_index | Cloud path of the dbSNP VCF index file | Required | String |
 
@@ -100,7 +100,7 @@ The workflow requires that each input is specified in a JSON file. All sample an
 | subsampled_metrics_interval_list | Cloud path to a file containing a subset sites for which the workflow generate metrics and outputs a VCF | Optional | String | 
 | disk_size | Default disk (in GiB) for this workflow's cloud VMs | Required | Value | 
 | premptible_tries | Number of times a task may be preempted by GCE before it is submitted to a non-preemptible VM | Required | Value | 
-| analysis_version | Numeric value used track number of pipeline runs on chip_well_barcode | Required | Value | 
+| analysis_version_number | Numeric value used track number of pipeline runs on chip_well_barcode | Required | Value | 
 
 
 # Workflow Tools and Tasks
@@ -211,6 +211,8 @@ The tables below summarize all of the workflow's output according to task. Outpu
 
 # Versioning
 All Illumina Genotyping Arrays workflow releases are documented in the [workflow changelog](IlluminaGenotypingArray.changelog.md).
+
+# Try the pipeline in Terra
 
 # Feedback and Questions
 Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
