@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../../../tasks/JointGenotypingTasks.wdl" as Tasks
+import "../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 
 
 # Joint Genotyping for hg38 Whole Genomes and Exomes (has not been tested on hg19)
