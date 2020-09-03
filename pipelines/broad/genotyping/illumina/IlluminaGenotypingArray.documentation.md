@@ -20,7 +20,7 @@
     + [7. Genotype Concordance (Optional)](#7-genotype-concordance-optional)
   * [Workflow Outputs](#workflow-outputs)
 - [Versioning](#versioning)
-- [Try the pipeline in Terra](#try-the-pipeline-in-terra)
+- [Try the Pipeline in Terra](#try-the-pipeline-in-terra)
 - [Feedback and Questions](#feedback-and-questions)
 
 
@@ -213,7 +213,7 @@ The tables below summarize all of the workflow's output according to task. Outpu
 # Versioning
 All Illumina Genotyping Array workflow releases are documented in the [workflow changelog](IlluminaGenotypingArray.changelog.md).
 
-# Try the pipeline in Terra
+# Try the Pipeline in Terra
 The Illumina Genotyping Array Pipeline is available on the cloud-based platform [Terra](https://app.terra.bio). If you have a Terra account, you can access the Featured Workspace using this address: https://app.terra.bio/#workspaces/warp-pipelines/Illumina-Genotyping-Array. The workspace is preloaded with instructions and sample data. For more information on using the Terra platform, please view the [Support Center](https://support.terra.bio/hc/en-us).
 
 # Feedback and Questions
