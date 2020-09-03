@@ -46,7 +46,7 @@ Optimus has been validated for analyzing both [human](https://github.com/broadin
 | Pipeline Features | Description | Source |
 |-------------------|---------------------------------------------------------------|-----------------------|
 | Assay Type | 10x Single Cell or Single Nuclei Expression (v2 and v3) | [10x Genomics](https://www.10xgenomics.com)
-| Overall Workflow  | Quality control module and transcriptome quantification module | Code available from [Github](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.wdl) |
+| Overall Workflow  | Quality control module and transcriptome quantification module | Code available from [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.wdl) |
 | Workflow Language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence| GRCh38 human genome primary sequence and M21 (GRCm38.p6) mouse genome primary sequence | GENCODE [Human](https://www.gencodegenes.org/human/release_27.html) and [Mouse](https://www.gencodegenes.org/mouse/release_M21.html) 
 | Transcriptomic Reference Annotation | V27 GENCODE human transcriptome and M21 mouse transcriptome | GENCODE [Human](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_27/gencode.v27.annotation.gtf.gz) and [Mouse](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M21/gencode.vM21.annotation.gff3.gz) |
@@ -58,19 +58,19 @@ Optimus has been validated for analyzing both [human](https://github.com/broadin
 # Set-up
 
 ## Optimus Installation and Requirements
-The Optimus pipeline code can be downloaded by cloning the GitHub repository [warp](https://github.com/broadinstitute/warp/). For the latest release of Optimus, please see the release tags prefixed with "optimus" [here](https://github.com/HumanCellAtlas/skylab/releases). 
+The Optimus pipeline code can be downloaded by cloning the GitHub repository [warp](https://github.com/broadinstitute/warp/). For the latest release of Optimus, please see the release tags prefixed with "Optimus" [here](https://github.com/broadinstitute/warp/releases). 
 
 Optimus can be deployed using [Cromwell](https://software.broadinstitute.org/wdl/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. Optimus can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. The Terra [Optimus Featured Workspace](https://app.terra.bio/#workspaces/help-gatk/HCA_Optimus_Pipeline) contains the Optimus workflow, workflow configurations, required reference data and other inputs, and example testing data.
 
 ## Inputs
 
 Optimus pipeline inputs are detailed in JSON format configuration files. There are four example configuration files available if you are interested in running the pipeline: 
-*  [human_v2_example](human_v2_example.json): An example human 10x v2 single-cell dataset
-*  [human_v3_example](human_v3_example.json): An example human 10x v3 single-cell dataset
-*  [mouse_v2_example](mouse_v2_example.json): An example mouse 10x v2 single-cell dataset
-*  [mouse_v2_snRNA_example](mouse_v2_snRNA_example.json): An example mouse v2 single-nuclei dataset
+*  [human_v2_example](./example_inputs/human_v2_example.json): An example human 10x v2 single-cell dataset
+*  [human_v3_example](./example_inputs/human_v3_example.json): An example human 10x v3 single-cell dataset
+*  [mouse_v2_example](./example_inputs/mouse_v2_example.json): An example mouse 10x v2 single-cell dataset
+*  [mouse_v2_snRNA_example](./example_inputs/mouse_v2_snRNA_example.json): An example mouse v2 single-nuclei dataset
 
-Additionally, there are multiple sample datasets available in the [test_optimus_full_datasets](test_optimus_full_datasets/) folder. Please note that unlike the example configuration files above, the configuration files in this folder may not reflect updated Optimus parameters. However, you can still access the FASTQ files for each dataset at the Google bucket locations listed in the dataset configuration files. 
+Additionally, there are multiple sample datasets available in the [test_optimus_full_datasets](./example_inputs/test_optimus_full_datasets) folder. Please note that unlike the example configuration files above, the configuration files in this folder may not reflect updated Optimus parameters. However, you can still access the FASTQ files for each dataset at the Google bucket locations listed in the dataset configuration files. 
 
 ### Sample Data Input
 
@@ -89,7 +89,7 @@ The JSON file also contains metadata for the reference information in the follow
 | Parameter Name | Description | Optional Strings (when applicable) |
 | --- | --- | --- |
 | Whitelist | Cloud path to list of known cell barcodes from [10x genomics](https://www.10xgenomics.com/) that corresponds to the v2 or v3 chemistry | NA |
-| Tar_star_reference | Cloud path to TAR file containing a species-specific reference genome and gtf; it is generated using the [StarMkRef.wdl](https://github.com/broadinstitute/warp/master/tasks/skylab/StarMkref.wdl) | NA |
+| Tar_star_reference | Cloud path to TAR file containing a species-specific reference genome and gtf; it is generated using the [BuildIndices.wdl](./build_indices/BuildIndices.wdl) | NA |
 | input_id | Unique name describing the biological sample or replicate that corresponds with the original FASTQ files. This can be any string, but if possible, we recommend it matches the sample metadata | NA | 
 | input_name | Optional string that can be used to further identify the original biological sample | NA |
 | Annotations_gtf | Cloud path to GTF containing gene annotations used for gene tagging (must match GTF in STAR reference) | NA | 
@@ -250,13 +250,13 @@ Also note that although the RunEmptyDrops task is unaffected by the sn_rna param
 <details>
 <summary>Where can I find example Optimus datasets and parameters to test the pipeline? </summary>
 <br>
-There are four example configuration JSON files available for you to test the pipeline- the <a href="human_v2_example.json">human_v2_example.json </a>, the <a href="human_v3_example.json">human_v3_example.json </a>, the <a href="mouse_v2_example.json">mouse_v2_example.json </a>, and the <a href="mouse_v2_snRNA_example.json">mouse_v2_snRNA_example.json </a>(see the Inputs section). Each of these configuration files can be run in the Optimus Featured Workspace in Terra at https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline, but you should note that the workspace comes preloaded with the same data and configurations. We also have multiple example datasets available in the <a href="test_optimus_full_datasets/">test_optimus_full_datasets </a> folder. These datasets contain configuration files listing the cloud location of the dataset FASTQ files; however, the configuration files may not be updated with all the workflow parameters. For the most up-to-date configuration examples, see the four example files listed above. 
+There are four example configuration JSON files available for you to test the pipeline- the <a href="./example_inputs/human_v2_example.json">human_v2_example.json </a>, the <a href="./example_inputs/human_v3_example.json">human_v3_example.json </a>, the <a href="./example_inputs/mouse_v2_example.json">mouse_v2_example.json </a>, and the <a href="./example_inputs/mouse_v2_snRNA_example.json">mouse_v2_snRNA_example.json </a>(see the Inputs section). Each of these configuration files can be run in the Optimus Featured Workspace in Terra at https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline, but you should note that the workspace comes preloaded with the same data and configurations. We also have multiple example datasets available in the <a href="./example_inputs/test_optimus_full_datasets/">test_optimus_full_datasets </a> folder. These datasets contain configuration files listing the cloud location of the dataset FASTQ files; however, the configuration files may not be updated with all the workflow parameters. For the most up-to-date configuration examples, see the four example files listed above. 
  </details>
  
  <details>
 <summary>What outputs are expected if my sample has been sequenced over multiple lanes? </summary>
 <br>
-The Optimus pipeline is a single sample pipeline, but it can accept multiple FASTQ files if a sample is sequenced across lanes. In this case, the pipeline will merge the results from each lane into single output files. There will only be one merged file for each output type (i.e one Loom, etc.). If you would like to view an example configuration file for a multi-lane dataset, please see the <a href="mouse_v2_example.json">mouse_v2_example.json </a>.  Additionally, you can view sample outputs in the Optimus featured workspace on Terra: https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline. 
+The Optimus pipeline is a single sample pipeline, but it can accept multiple FASTQ files if a sample is sequenced across lanes. In this case, the pipeline will merge the results from each lane into single output files. There will only be one merged file for each output type (i.e one Loom, etc.). If you would like to view an example configuration file for a multi-lane dataset, please see the <a href="./example_inputs/mouse_v2_example.json">mouse_v2_example.json </a>.  Additionally, you can view sample outputs in the Optimus featured workspace on Terra: https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline. 
  </details>
 
  <details>
