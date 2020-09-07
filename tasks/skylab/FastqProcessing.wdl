@@ -50,7 +50,7 @@ task FastqProcessing {
     then
         ## V2
         fastqprocess \
-           --bam-size 1.0 \
+           --bam-size 3.0 \
            --barcode-length 16 \
            --umi-length 10 \
            --sample-id "${sample_id}" \
@@ -64,7 +64,7 @@ task FastqProcessing {
     then
         ## V3
         fastqprocess \
-           --bam-size 1.0 \
+           --bam-size 3.0 \
            --barcode-length 16 \
            --umi-length 12 \
            --sample-id "${sample_id}" \
