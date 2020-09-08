@@ -6,7 +6,7 @@ task CalculateGeneMetrics {
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.7"
-    Int machine_mem_mb = 8000
+    Int machine_mem_mb = 16000
     Int cpu = 1
     Int disk = ceil(size(bam_input, "Gi") * 4)
     Int preemptible = 3
