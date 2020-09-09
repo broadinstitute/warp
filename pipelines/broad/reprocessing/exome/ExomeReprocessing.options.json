@@ -1,0 +1,7 @@
+{
+  "write_to_cache": true,
+  "default_runtime_attributes": {
+    "zones": "us-central1-a us-central1-b us-east1-d us-central1-c us-central1-f us-east1-c",
+    "docker": "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.3-1564508330"
+  }
+}
