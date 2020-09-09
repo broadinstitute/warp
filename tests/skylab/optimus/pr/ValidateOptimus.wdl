@@ -155,7 +155,7 @@ task ValidateMatrix {
         cacheInvalidationRandomString=4
        
        ## Convert matrix to format that can be read by R
-       chmod +x npz2rds.sh -c ~{matrix_col_index} -r ~{matrix_row_index} \
+       npz2rds.sh -c ~{matrix_col_index} -r ~{matrix_row_index} \
            -d ~{matrix} -o matrix.rds
 
        cp ~{reference_matrix} referenceMatrix.rds
