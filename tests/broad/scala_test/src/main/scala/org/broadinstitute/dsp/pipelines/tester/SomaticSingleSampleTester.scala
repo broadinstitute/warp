@@ -2,6 +2,16 @@ package org.broadinstitute.dsp.pipelines.tester
 
 import java.net.URI
 
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
+import better.files.File
+import org.broadinstitute.dsp.pipelines.batch.WorkflowTest
+import org.broadinstitute.dsp.pipelines.config._
+import org.broadinstitute.dsp.pipelines.inputs.{
+  SomaticSingleSampleInputs,
+  SomaticSingleSampleValidationInputs
+}
+
 class SomaticSingleSampleTester(testerConfig: SomaticCloudWorkflowConfig)(
     implicit am: ActorMaterializer,
     as: ActorSystem
