@@ -44,15 +44,14 @@ task FastqProcessing {
   command {
     set -e
 
-    echo "Disk: " "${disk}"
-
+    # I1 file are optional,  and sometimes they are left out
     if [ -n '${sep=',' i1_fastq}' ]; then
       FLAG=--I1 ${sep=' --I1 ' i1_fastq}
     else
       FLAG=''
     fi
 
-
+    # use the right UMI length depending on the chemistry
     if [ "${chemistry}" == "tenX_v2" ]
     then
         ## V2
