@@ -46,18 +46,16 @@ task FastqProcessing {
 
     # I1 file are optional,  and sometimes they are left out
     if [ -n '${sep=',' i1_fastq}' ]; then
-      FLAG=--I1 ${sep=' --I1 ' i1_fastq}
+      FLAG="--I1 ${sep=' --I1 ' i1_fastq}"
     else
       FLAG=''
     fi
 
     # use the right UMI length depending on the chemistry
-    if [ "${chemistry}" == "tenX_v2" ]
-    then
+    if [ "${chemistry}" == "tenX_v2" ]; then
         ## V2
         UMILENGTH=10
-    elif [ "${chemistry}" == "tenX_v3" ]
-    then
+    elif [ "${chemistry}" == "tenX_v3" ]; then
         ## V3
         UMILENGTH=12
     else
