@@ -62,7 +62,7 @@ task FastqProcessing {
            --barcode-length 16 \
            --umi-length 10 \
            --sample-id "${sample_id}" \
-           "${FLAG}" \
+           $FLAG \
            --R1 ${sep=' --R1 ' r1_fastq} \
            --R2 ${sep=' --R2 ' r2_fastq} \
            --white-list "${whitelist}"
