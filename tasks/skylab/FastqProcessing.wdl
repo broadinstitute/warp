@@ -52,37 +52,30 @@ task FastqProcessing {
       FLAG=''
     fi
 
-    echo $FLAG
+    BARCODE_LENGTHecho $FLAG
 
     if [ "${chemistry}" == "tenX_v2" ]
     then
         ## V2
-        fastqprocess \
-           --bam-size 3.0 \
-           --barcode-length 16 \
-           --umi-length 10 \
-           --sample-id "${sample_id}" $FLAG \
-           --R1 ${sep=' --R1 ' r1_fastq} \
-           --R2 ${sep=' --R2 ' r2_fastq} \
-           --white-list "${whitelist}"
-
-
+        UMI_LENGTH=10
     elif [ "${chemistry}" == "tenX_v3" ]
     then
         ## V3
-        fastqprocess \
-           --bam-size 3.0 \
-           --barcode-length 16 \
-           --umi-length 12 \
-           --sample-id "${sample_id}" \
-           --I1 ${sep=' --I1 ' i1_fastq} \
-           --R1 ${sep=' --R1 ' r1_fastq} \
-           --R2 ${sep=' --R2 ' r2_fastq} \
-           --white-list "${whitelist}"
+        UMI_LENGTH=12
     else
         echo Error: unknown chemistry value: "$chemistry"
         exit 1;
     fi
+
+    fastqprocess \
+        --bam-size 3.0 \
+        --barcode-length 16 \
+        --umi-length $UMI_LENGTH \
+        --sample-id "${sample_id}" \
+        $FLAG \
+        --R1 ${sep=' --R1 ' r1_fastq} \
+        --R2 ${sep=' --R2 ' r2_fastq} \
+        --white-list "${whitelist}"
   }
   
   runtime {
