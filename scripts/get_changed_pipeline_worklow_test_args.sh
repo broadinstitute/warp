@@ -44,8 +44,8 @@ function pipeline_to_args() {
     ReblockGVCF)
       echo ReblockGvcf -d Exome ${common_args};
       echo ReblockGvcf -d WGS ${common_args};;
-    #TargetedSomaticSingleSample)
-    #  echo SomaticSingleSample -d Targeted ${common_args};;
+    TargetedSomaticSingleSample)
+      echo SomaticSingleSample -d Targeted ${common_args};;
     JointGenotypingByChromosomePartOne)
       continue;;
     JointGenotypingByChromosomePartTwo)
