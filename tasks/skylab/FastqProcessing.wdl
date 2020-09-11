@@ -52,7 +52,6 @@ task FastqProcessing {
       FLAG=''
     fi
 
-    BARCODE_LENGTHecho $FLAG
 
     if [ "${chemistry}" == "tenX_v2" ]
     then
