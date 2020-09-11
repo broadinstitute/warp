@@ -46,6 +46,14 @@ task FastqProcessing {
 
     echo "Disk: " "${disk}"
 
+    if [ -n '${sep=',' i1_fastq}' ]; then
+      FLAG=--I1 ${sep=' --I1 ' i1_fastq}
+    else
+      FLAG=''
+    fi
+
+    echo $FLAG
+
     if [ "${chemistry}" == "tenX_v2" ]
     then
         ## V2
@@ -54,7 +62,7 @@ task FastqProcessing {
            --barcode-length 16 \
            --umi-length 10 \
            --sample-id "${sample_id}" \
-           ${prefix="--I1" sep=' --I1 ' i1_fastq} \
+           ${FLAG} \
            --R1 ${sep=' --R1 ' r1_fastq} \
            --R2 ${sep=' --R2 ' r2_fastq} \
            --white-list "${whitelist}"
