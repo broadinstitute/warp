@@ -55,11 +55,11 @@ task FastqProcessing {
     if [ "${chemistry}" == "tenX_v2" ]
     then
         ## V2
-        UMI_LENGTH=10
+        UMILENGTH=10
     elif [ "${chemistry}" == "tenX_v3" ]
     then
         ## V3
-        UMI_LENGTH=12
+        UMILENGTH=12
     else
         echo Error: unknown chemistry value: "$chemistry"
         exit 1;
@@ -68,7 +68,7 @@ task FastqProcessing {
     fastqprocess \
         --bam-size 3.0 \
         --barcode-length 16 \
-        --umi-length $UMI_LENGTH \
+        --umi-length $UMILENGTH \
         --sample-id "${sample_id}" \
         $FLAG \
         --R1 ${sep=' --R1 ' r1_fastq} \
