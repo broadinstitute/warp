@@ -95,7 +95,7 @@ workflow Optimus {
       r2_fastq = r2_fastq,
       whitelist = whitelist,
       chemistry = chemistry,
-      sample_id = sample_id
+      sample_id = input_id
   }
 
   call ModifyGtf.ReplaceGeneNameWithGeneID as ModifyGtf {
