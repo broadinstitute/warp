@@ -12,3 +12,6 @@ workflows:
   - name: IlluminaGenotypingArray
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl
+  - name: scATAC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/scATAC/scATAC.wdl

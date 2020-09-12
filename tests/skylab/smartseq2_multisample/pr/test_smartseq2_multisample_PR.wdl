@@ -5,23 +5,32 @@ import "ValidateMultiSampleSmartSeq2.wdl" as checker_wdl
 
 workflow TestMultiSampleSmartSeq2 {
   input {
-      # SS2 inputs
-      File genome_ref_fasta
-      File rrna_intervals
-      File gene_ref_flat
-      String hisat2_ref_name
-      String hisat2_ref_trans_name
-      File hisat2_ref_index
-      File hisat2_ref_trans_index
-      File rsem_ref_index
-      String stranded
-      Boolean paired_end
-      File truth_loom
+        # Gene Annotation
+        File genome_ref_fasta
+        File rrna_intervals
+        File gene_ref_flat
 
-      # Plate information and input files
-      String file_prefix
-      Array[String] input_file_names
-      String batch_id
+        # Reference index information
+        File hisat2_ref_name
+        File hisat2_ref_trans_name
+        File hisat2_ref_index
+        File hisat2_ref_trans_index
+        File rsem_ref_index
+
+        # Sample information
+        String stranded
+        Array[String] input_ids
+        Array[String]? input_names
+        Array[String] fastq1_input_files
+        Array[String] fastq2_input_files = []
+        String batch_id
+        String? batch_name
+        String? input_name_metadata_field
+        String? input_id_metadata_field
+        Boolean paired_end
+
+        # Validation input
+        File truth_loom
   }
 
   call target_wdl.MultiSampleSmartSeq2 as target_workflow {
@@ -35,9 +44,14 @@ workflow TestMultiSampleSmartSeq2 {
       hisat2_ref_trans_index = hisat2_ref_trans_index,
       rsem_ref_index = rsem_ref_index,
       stranded = stranded,
-      file_prefix = file_prefix,
-      input_file_names = input_file_names,
+      input_ids = input_ids,
+      input_names = input_names,
+      fastq1_input_files = fastq1_input_files,
+      fastq2_input_files = fastq2_input_files,
       batch_id = batch_id,
+      batch_name = batch_name,
+      input_name_metadata_field = input_name_metadata_field,
+      input_id_metadata_field = input_id_metadata_field,
       paired_end = paired_end
   }
 

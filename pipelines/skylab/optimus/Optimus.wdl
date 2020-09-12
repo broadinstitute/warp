@@ -30,9 +30,11 @@ workflow Optimus {
     Array[File] r1_fastq
     Array[File] r2_fastq
     Array[File]? i1_fastq
-    String sample_id
-    String? output_bam_basename = sample_id
-
+    String input_id
+    String output_bam_basename = input_id
+    String? input_name
+    String? input_id_metadata_field
+    String? input_name_metadata_field
     # organism reference parameters
     File tar_star_reference
     File annotations_gtf
@@ -59,7 +61,7 @@ workflow Optimus {
   }
 
   # version of this pipeline
-  String pipeline_version = "3.0.1"
+  String pipeline_version = "4.0.0"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -68,7 +70,7 @@ workflow Optimus {
     r1_fastq: "forward read, contains cell barcodes and molecule barcodes"
     r2_fastq: "reverse read, contains cDNA fragment generated from captured mRNA"
     i1_fastq: "(optional) index read, for demultiplexing of multiple samples on one flow cell."
-    sample_id: "name of sample matching this file, inserted into read group header"
+    input_id: "name of sample matching this file, inserted into read group header"
     tar_star_reference: "star genome reference"
     annotations_gtf: "gtf containing annotations for gene tagging (must match star reference)"
     ref_genome_fasta: "genome fasta file (must match star reference)"
@@ -85,7 +87,6 @@ workflow Optimus {
       chemistry = chemistry,
       counting_mode = counting_mode
   }
-
 
   call FastqProcessing.FastqProcessing {
     input:
@@ -212,7 +213,10 @@ workflow Optimus {
 
   call LoomUtils.OptimusLoomGeneration{
     input:
-      sample_id = sample_id,
+      input_id = input_id,
+      input_name = input_name,
+      input_id_metadata_field = input_id_metadata_field,
+      input_name_metadata_field = input_name_metadata_field,
       annotation_file = annotations_gtf,
       cell_metrics = MergeCellMetrics.cell_metrics,
       gene_metrics = MergeGeneMetrics.gene_metrics,
@@ -220,7 +224,8 @@ workflow Optimus {
       cell_id = MergeCountFiles.row_index,
       gene_id = MergeCountFiles.col_index,
       empty_drops_result = RunEmptyDrops.empty_drops_result,
-      counting_mode = counting_mode
+      counting_mode = counting_mode,
+      pipeline_version = "Optimus_v~{pipeline_version}"
   }
 
   output {
