@@ -1,0 +1,4 @@
+{
+  "ReblockGVCF.gvcf": "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/truth/{TRUTH_BRANCH}/G94982.NA12892/NA12892.f175671b-f657-4077-9856-732c96b586ad.g.vcf.gz",
+  "ReblockGVCF.gvcf_index": "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/truth/{TRUTH_BRANCH}/G94982.NA12892/NA12892.f175671b-f657-4077-9856-732c96b586ad.g.vcf.gz.tbi"
+}
