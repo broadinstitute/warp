@@ -30,7 +30,7 @@
 
 
 # Optimus Pipeline Overview
-![Diagram](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Optimus_diagram.png)
+![Diagram](documentation/Optimus_diagram.png)
 
 ## Introduction to the Optimus Workflow
 
