@@ -1,0 +1,4 @@
+{
+  "ReblockGVCF.gvcf": "gs://broad-gotc-test-storage/germline_single_sample/exome/plumbing/truth/develop/RP-929.NA12878/NA12878_PLUMBING.g.vcf.gz",
+  "ReblockGVCF.gvcf_index": "gs://broad-gotc-test-storage/germline_single_sample/exome/plumbing/truth/develop/RP-929.NA12878/NA12878_PLUMBING.g.vcf.gz.tbi"
+}

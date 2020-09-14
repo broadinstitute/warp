@@ -1,0 +1,40 @@
+{
+  "JointGenotyping.eval_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/exome_evaluation_regions.v1.interval_list",
+  "JointGenotyping.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "JointGenotyping.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+  "JointGenotyping.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+  "JointGenotyping.dbsnp_vcf": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf",
+  "JointGenotyping.dbsnp_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx",
+  "JointGenotyping.snp_recalibration_tranche_values": ["100.0", "99.95", "99.9", "99.8", "99.7", "99.6", "99.5", "99.4", "99.3", "99.0", "98.0", "97.0", "90.0" ],
+  "JointGenotyping.snp_recalibration_annotation_values": ["AS_QD", "AS_MQRankSum", "AS_ReadPosRankSum", "AS_FS", "AS_MQ", "AS_SOR"],
+  "JointGenotyping.indel_recalibration_tranche_values": ["100.0", "99.95", "99.9", "99.5", "99.0", "97.0", "96.0", "95.0", "94.0", "93.5", "93.0", "92.0", "91.0", "90.0"],
+  "JointGenotyping.indel_recalibration_annotation_values": ["AS_FS", "AS_ReadPosRankSum", "AS_MQRankSum", "AS_QD", "AS_SOR"],
+  "JointGenotyping.snp_filter_level": 99.7,
+  "JointGenotyping.indel_filter_level": 95.0,
+  "JointGenotyping.SNP_VQSR_downsampleFactor": 1,
+  "JointGenotyping.hapmap_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/hapmap_3.3.hg38.vcf.gz",
+  "JointGenotyping.omni_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/1000G_omni2.5.hg38.vcf.gz",
+  "JointGenotyping.one_thousand_genomes_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/1000G_phase1.snps.high_confidence.hg38.vcf.gz",
+  "JointGenotyping.mills_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz",
+  "JointGenotyping.axiomPoly_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz",
+  "JointGenotyping.hapmap_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/hapmap_3.3.hg38.vcf.gz.tbi",
+  "JointGenotyping.omni_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/1000G_omni2.5.hg38.vcf.gz.tbi",
+  "JointGenotyping.one_thousand_genomes_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/1000G_phase1.snps.high_confidence.hg38.vcf.gz.tbi",
+  "JointGenotyping.mills_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi",
+  "JointGenotyping.axiomPoly_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi",
+
+  "JointGenotyping.unpadded_intervals_file": "gs://gcp-public-data--broad-references/hg38/v0/exome_calling_regions.v1.interval_list",
+
+  "JointGenotyping.haplotype_database": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt",
+
+  "JointGenotyping.callset_name": "large_callset_low_threshold",
+  "JointGenotyping.sample_name_map" : "gs://broad-gotc-test-storage/joint_genotyping/exome/scientific/callset/scientific_sample_map",
+
+  "JointGenotyping.small_disk" : 100,
+  "JointGenotyping.medium_disk" : 200,
+  "JointGenotyping.large_disk" : 500,
+  "JointGenotyping.huge_disk" : 2000,
+
+  "JointGenotyping.gather_vcfs": false,
+  "JointGenotyping.snps_variant_recalibration_threshold": 50
+}

@@ -20,7 +20,7 @@ class JointGenotypingTester(testerConfig: GermlineCloudWorkflowConfig)(
 ) extends GermlineCloudWorkflowTester(testerConfig) {
 
   override def workflowDir: File =
-    CromwellWorkflowTester.PipelineRoot / "dna_seq" / "germline" / "joint_genotyping"
+    CromwellWorkflowTester.PipelineRoot / "broad" / "dna_seq" / "germline" / "joint_genotyping"
 
   override def workflowName: String = "JointGenotyping"
 
