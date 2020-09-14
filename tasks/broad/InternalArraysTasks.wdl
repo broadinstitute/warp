@@ -143,9 +143,9 @@ task VcfToMercuryFingerprintJson {
     # Find the column number of AUTOCALL_PF and retrieve the value in the second line of the AUTOCALL_PF column
     # AUTOCALL_PF set to empty if file has more than 2 lines (should only have column headers and one data line)
     AUTOCALL_PF=$(sed '/#/d' ~{variant_calling_detail_metrics_file} |
-      sed /'^\s*$/d' |
+      sed '/^\s*$/d' |
       awk -v col=AUTOCALL_PF -F '\t' \
-      'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}}} NR==2{print $c} NR>2{exit 1}'')
+      'NR==1{for(i=1;i<=NF;i++){if($i==col){c=i;break}}} NR==2{print $c} NR>2{exit 1}')
 
     if [[ "$AUTOCALL_PF" == "Y" ]]
     then

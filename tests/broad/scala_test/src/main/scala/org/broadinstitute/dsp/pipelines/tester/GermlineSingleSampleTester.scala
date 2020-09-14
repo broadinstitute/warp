@@ -25,7 +25,7 @@ class GermlineSingleSampleTester(testerConfig: GermlineCloudWorkflowConfig)(
   override val workflowName: String = s"${dataTypePrefix}GermlineSingleSample"
 
   override lazy val workflowDir: File =
-    CromwellWorkflowTester.PipelineRoot / "dna_seq" / "germline" / "single_sample" / dataTypeString
+    CromwellWorkflowTester.PipelineRoot / "broad" / "dna_seq" / "germline" / "single_sample" / dataTypeString
 
   override lazy val localValidationWdlPath: File =
     CromwellWorkflowTester.DsdePipelinesRoot / "verification" / "VerifyGermlineSingleSample.wdl"

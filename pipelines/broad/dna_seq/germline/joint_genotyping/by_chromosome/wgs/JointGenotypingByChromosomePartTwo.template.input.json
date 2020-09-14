@@ -1,0 +1,47 @@
+{
+  "JointGenotypingByChromosomePartTwo.eval_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_evaluation_regions.hg38.interval_list",
+  "JointGenotypingByChromosomePartTwo.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "JointGenotypingByChromosomePartTwo.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+  "JointGenotypingByChromosomePartTwo.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+  "JointGenotypingByChromosomePartTwo.dbsnp_vcf": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf",
+  "JointGenotypingByChromosomePartTwo.dbsnp_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx",
+  "JointGenotypingByChromosomePartTwo.snp_recalibration_tranche_values": ["100.0", "99.95", "99.9", "99.8", "99.6", "99.5", "99.4", "99.3", "99.0", "98.0", "97.0", "90.0" ],
+  "JointGenotypingByChromosomePartTwo.snp_recalibration_annotation_values": ["QD", "MQRankSum", "ReadPosRankSum", "FS", "MQ", "SOR", "DP"],
+  "JointGenotypingByChromosomePartTwo.indel_recalibration_tranche_values": ["100.0", "99.95", "99.9", "99.5", "99.0", "97.0", "96.0", "95.0", "94.0", "93.5", "93.0", "92.0", "91.0", "90.0"],
+  "JointGenotypingByChromosomePartTwo.indel_recalibration_annotation_values": ["FS", "ReadPosRankSum", "MQRankSum", "QD", "SOR", "DP"],
+  "JointGenotypingByChromosomePartTwo.snp_filter_level": 99.7,
+  "JointGenotypingByChromosomePartTwo.indel_filter_level": 99.7,
+  "JointGenotypingByChromosomePartTwo.SNP_VQSR_downsampleFactor": 10,
+  "JointGenotypingByChromosomePartTwo.hapmap_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/hapmap_3.3.hg38.vcf.gz",
+  "JointGenotypingByChromosomePartTwo.omni_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/1000G_omni2.5.hg38.vcf.gz",
+  "JointGenotypingByChromosomePartTwo.one_thousand_genomes_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/1000G_phase1.snps.high_confidence.hg38.vcf.gz",
+  "JointGenotypingByChromosomePartTwo.mills_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz",
+  "JointGenotypingByChromosomePartTwo.axiomPoly_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz",
+  "JointGenotypingByChromosomePartTwo.hapmap_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/hapmap_3.3.hg38.vcf.gz.tbi",
+  "JointGenotypingByChromosomePartTwo.omni_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/1000G_omni2.5.hg38.vcf.gz.tbi",
+  "JointGenotypingByChromosomePartTwo.one_thousand_genomes_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/1000G_phase1.snps.high_confidence.hg38.vcf.gz.tbi",
+  "JointGenotypingByChromosomePartTwo.mills_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi",
+  "JointGenotypingByChromosomePartTwo.axiomPoly_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi",
+
+  "JointGenotypingByChromosomePartTwo.haplotype_database": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt",
+
+  "JointGenotypingByChromosomePartTwo.callset_name": "{CALLSET_NAME}",
+  "JointGenotypingByChromosomePartTwo.sample_name_map": "{SAMPLE_NAME_MAP}",
+
+  "JointGenotypingByChromosomePartTwo.sites_only_vcfs_fofn": "{PART_ONE_FOFN_DIR}/sites_only_vcfs_fofn",
+  "JointGenotypingByChromosomePartTwo.sites_only_vcf_indices_fofn":  "{PART_ONE_FOFN_DIR}/sites_only_vcf_indices_fofn",
+  "JointGenotypingByChromosomePartTwo.hard_filtered_with_genotypes_vcfs_fofn": "{PART_ONE_FOFN_DIR}/hard_filtered_with_genotypes_vcfs_fofn",
+  "JointGenotypingByChromosomePartTwo.hard_filtered_with_genotypes_vcf_indices_fofn": "{PART_ONE_FOFN_DIR}/hard_filtered_with_genotypes_vcf_indices_fofn",
+  "JointGenotypingByChromosomePartTwo.annotation_db_vcfs_fofn": "{PART_ONE_FOFN_DIR}/annotation_vcfs_fofn",
+  "JointGenotypingByChromosomePartTwo.annotation_db_vcf_indices_fofn": "{PART_ONE_FOFN_DIR}/annotation_vcf_indices_fofn",
+  "JointGenotypingByChromosomePartTwo.fingerprinting_vcfs_fofn": "{PART_ONE_FOFN_DIR}/fingerprinting_vcfs_fofn",
+  "JointGenotypingByChromosomePartTwo.fingerprinting_vcf_indices_fofn": "{PART_ONE_FOFN_DIR}/fingerprinting_vcf_indices_fofn",
+
+  "JointGenotypingByChromosomePartTwo.small_disk": 400,
+  "JointGenotypingByChromosomePartTwo.medium_disk": 600,
+  "JointGenotypingByChromosomePartTwo.large_disk": 1000,
+  "JointGenotypingByChromosomePartTwo.huge_disk": 2000,
+
+  "JointGenotypingByChromosomePartTwo.use_gnarly_genotyper": false,
+  "JointGenotypingByChromosomePartTwo.use_allele_specific_annotations": false
+}
