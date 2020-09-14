@@ -1,6 +1,6 @@
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v3.0.1](https://github.com/broadinstitute/warp/releases/tag/optimus_v3.0.1) | July 21, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [optimus_v4.5.0](https://github.com/broadinstitute/warp/releases/tag/Optimus_v4.5.0) | September 14, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 # Table of Contents
 - [Optimus Pipeline Overview](#optimus-pipeline-overview)
@@ -46,7 +46,7 @@ Optimus has been validated for analyzing both [human](https://github.com/broadin
 | Pipeline Features | Description | Source |
 |-------------------|---------------------------------------------------------------|-----------------------|
 | Assay Type | 10x Single Cell or Single Nuclei Expression (v2 and v3) | [10x Genomics](https://www.10xgenomics.com)
-| Overall Workflow  | Quality control module and transcriptome quantification module | Code available from [Github](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.wdl) |
+| Overall Workflow  | Quality control module and transcriptome quantification module | Code available from [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.wdl) |
 | Workflow Language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence| GRCh38 human genome primary sequence and M21 (GRCm38.p6) mouse genome primary sequence | GENCODE [Human](https://www.gencodegenes.org/human/release_27.html) and [Mouse](https://www.gencodegenes.org/mouse/release_M21.html) 
 | Transcriptomic Reference Annotation | V27 GENCODE human transcriptome and M21 mouse transcriptome | GENCODE [Human](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_27/gencode.v27.annotation.gtf.gz) and [Mouse](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M21/gencode.vM21.annotation.gff3.gz) |
@@ -58,19 +58,19 @@ Optimus has been validated for analyzing both [human](https://github.com/broadin
 # Set-up
 
 ## Optimus Installation and Requirements
-The Optimus pipeline code can be downloaded by cloning the GitHub repository [warp](https://github.com/broadinstitute/warp/). For the latest release of Optimus, please see the release tags prefixed with "optimus" [here](https://github.com/HumanCellAtlas/skylab/releases). 
+The Optimus pipeline code can be downloaded by cloning the GitHub repository [warp](https://github.com/broadinstitute/warp/). For the latest release of Optimus, please see the release tags prefixed with "Optimus" [here](https://github.com/broadinstitute/warp/releases). 
 
-Optimus can be deployed using [Cromwell](https://software.broadinstitute.org/wdl/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. Optimus can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. The Terra [Optimus Featured Workspace](https://app.terra.bio/#workspaces/help-gatk/HCA_Optimus_Pipeline) contains the Optimus workflow, workflow configurations, required reference data and other inputs, and example testing data.
+Optimus can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. Optimus can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. The Terra [Optimus Featured Workspace](https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline) contains the Optimus workflow, workflow configurations, required reference data and other inputs, and example testing data.
 
 ## Inputs
 
 Optimus pipeline inputs are detailed in JSON format configuration files. There are four example configuration files available if you are interested in running the pipeline: 
-*  [human_v2_example](human_v2_example.json): An example human 10x v2 single-cell dataset
-*  [human_v3_example](human_v3_example.json): An example human 10x v3 single-cell dataset
-*  [mouse_v2_example](mouse_v2_example.json): An example mouse 10x v2 single-cell dataset
-*  [mouse_v2_snRNA_example](mouse_v2_snRNA_example.json): An example mouse v2 single-nuclei dataset
+*  [human_v2_example](./example_inputs/human_v2_example.json): An example human 10x v2 single-cell dataset
+*  [human_v3_example](./example_inputs/human_v3_example.json): An example human 10x v3 single-cell dataset
+*  [mouse_v2_example](./example_inputs/mouse_v2_example.json): An example mouse 10x v2 single-cell dataset
+*  [mouse_v2_snRNA_example](./example_inputs/mouse_v2_snRNA_example.json): An example mouse v2 single-nuclei dataset
 
-Additionally, there are multiple sample datasets available in the [test_optimus_full_datasets](test_optimus_full_datasets/) folder. Please note that unlike the example configuration files above, the configuration files in this folder may not reflect updated Optimus parameters. However, you can still access the FASTQ files for each dataset at the Google bucket locations listed in the dataset configuration files. 
+Additionally, there are multiple sample datasets available in the [test_optimus_full_datasets](./example_inputs/test_optimus_full_datasets) folder. Please note that unlike the example configuration files above, the configuration files in this folder may not reflect updated Optimus parameters. However, you can still access the FASTQ files for each dataset at the Google bucket locations listed in the dataset configuration files. 
 
 ### Sample Data Input
 
@@ -89,7 +89,7 @@ The JSON file also contains metadata for the reference information in the follow
 | Parameter Name | Description | Optional Strings (when applicable) |
 | --- | --- | --- |
 | Whitelist | Cloud path to list of known cell barcodes from [10x genomics](https://www.10xgenomics.com/) that corresponds to the v2 or v3 chemistry | NA |
-| Tar_star_reference | Cloud path to TAR file containing a species-specific reference genome and gtf; it is generated using the [StarMkRef.wdl](https://github.com/broadinstitute/warp/master/tasks/skylab/StarMkref.wdl) | NA |
+| Tar_star_reference | Cloud path to TAR file containing a species-specific reference genome and gtf; it is generated using the [BuildIndices.wdl](../build_indices/BuildIndices.wdl) | NA |
 | input_id | Unique name describing the biological sample or replicate that corresponds with the original FASTQ files. This can be any string, but if possible, we recommend it matches the sample metadata | NA | 
 | input_name | Optional string that can be used to further identify the original biological sample | NA |
 | Annotations_gtf | Cloud path to GTF containing gene annotations used for gene tagging (must match GTF in STAR reference) | NA | 
@@ -104,7 +104,7 @@ The Optimus pipeline is currently available on the cloud-based platform Terra. I
 
 # Optimus Tasks and Tools
 
-* The [Optimus.wdl](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.wdl) in the pipelines/optimus folder of the WARP repository implements the workflow by importing individual modules ("tasks" written in  WDL script) from the warp [tasks](https://github.com/broadinstitute/warp/blob/master/tasks/skylab) folder.
+The [Optimus.wdl](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.wdl) in the pipelines/optimus folder of the WARP repository implements the workflow by importing individual modules ("tasks" written in  WDL script) from the WARP [tasks](https://github.com/broadinstitute/warp/blob/master/tasks/skylab) folder.
 
 ## Optimus Task Summary
 
@@ -125,7 +125,7 @@ The tools each Optimus task employs are detailed in the table below. If you are 
 
 | Task | Tool | 
 | --- | --- |
-| [Attach10xBarcodes](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Attach10xBarcodes.wdl) |	[sctools](https://sctools.readthedocs.io/en/latest/sctools.html) |
+| [FastqProcessing](/tasks/skylab/FastqProcessing.wdl) | [sctools](https://sctools.readthedocs.io/en/latest/sctools.html) | 
 | [StarAlignBamSingleEnd](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlignBamSingleEnd.wdl) |	[STAR](https://github.com/alexdobin/STAR) |
 | [TagGeneExon](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/TagGeneExon.wdl) |	[Drop-seq](https://github.com/broadinstitute/Drop-seq) |
 | [UmiCorrection](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/UmiCorrection.wdl) |	[Umi-tools](https://github.com/CGATOxford/UMI-tools) |
@@ -133,7 +133,6 @@ The tools each Optimus task employs are detailed in the table below. If you are 
 | [RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) |	[dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) |
 | [CreateCountMatrix](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CreateCountMatrix.wdl) |	[Drop-seq](https://github.com/broadinstitute/Drop-seq) and [sctools](https://sctools.readthedocs.io/en/latest/sctools.html)|
 | [FastqToUBAM](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqToUBam.wdl)	| [picard](https://github.com/broadinstitute/picard) |
-| [SplitBamByCellBarcode](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/SplitBamByCellBarcode.wdl) |	[sctools](https://sctools.readthedocs.io/en/latest/sctools.html) |
 | [TagSortBam](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/TagSortBam.wdl) |	[sctools](https://sctools.readthedocs.io/en/latest/sctools.html) |
 | [Picard](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Picard.wdl)	| [picard](https://github.com/broadinstitute/picard) |
 
@@ -141,15 +140,14 @@ The Optimus pipeline takes special care to flag but avoid the removal of reads t
 
 ### 1. Converting R2 FASTQ File to UBAM
 
-Unlike FASTQ files, BAM files enable researchers to keep track of important metadata throughout all data processing steps. The first step of Optimus is to [convert](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqToUBam.wdl) the R2 FASTQ file, containing the alignable genomic information, to an unaligned BAM (UBAM) file.
+Unlike FASTQ files, BAM files enable researchers to keep track of important metadata throughout all data processing steps. The first step of Optimus is to [convert](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) the R2 FASTQ file, containing the alignable genomic information, to an unaligned BAM (UBAM) file.
 
 ### 2. Correcting and Attaching Cell Barcodes
 
-Although the function of the cell barcodes is to identify unique cells, barcode errors can arise during sequencing (such as incorporation of the barcode into contaminating DNA or sequencing and PCR errors), making it difficult to distinguish unique cells from artifactual appearances of the barcode. The [Attach10xBarcodes](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Attach10xBarcodes.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to evaluate barcode errors by comparing the R1 FASTQ sequences against a whitelist of known barcode sequences. The task then appends the UMI and cell barcode sequences from the R1 FASTQ to the UBAM sequence as tags [(see the Bam_tags documentation for details](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Bam_tags.md)). 
+Although the function of the cell barcodes is to identify unique cells, barcode errors can arise during sequencing (such as incorporation of the barcode into contaminating DNA or sequencing and PCR errors), making it difficult to distinguish unique cells from artifactual appearances of the barcode. The [FastqProcessing](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to evaluate barcode errors by comparing the R1 FASTQ sequences against a whitelist of known barcode sequences. The task then appends the UMI and cell barcode sequences from the R1 FASTQ to the UBAM sequence as tags [(see the Bam_tags documentation for details](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Bam_tags.md)). 
 
 The output is a UBAM file containing the reads with corrected barcodes, including barcodes that came within one edit distance ([Levenshtein distance](http://www.levenshtein.net/)) of matching the whitelist of barcode sequences and were corrected by this tool. Correct barcodes are assigned a “CB” tag. Uncorrectable barcodes (with more than one error) are preserved and given a “CR” (Cell barcode Raw) tag. Cell barcode quality scores are also preserved in the file under the “CY” tag.
 
-To enable parallelization, the pipeline then [scatters](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/ScatterBam.wdl) and [splits](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/SplitBamByCellBarcode.wdl) the corrected UBAM files into groups according to cell barcode. 
 
 ### 3. Alignment
 
@@ -209,7 +207,7 @@ The following table lists the output files produced from the pipeline. For sampl
 | matrix_col_index | sparse_counts_col_index.npy | Index of genes in expression matrix | Numpy array index | 
 | cell_metrics | merged-cell-metrics.csv.gz | cell metrics | compressed csv | Matrix of metrics by cells | 
 | gene_metrics | merged-gene-metrics.csv.gz | gene metrics | compressed csv | Matrix of metrics by genes | 
-| loom_output_file | output.loom | Loom | Loom | Loom file with expression data and metadata | N/A |
+| loom_output_file | <input_id>.loom | Loom | Loom | Loom file with expression data and metadata | N/A |
 
 
 The Loom is the default output. See the [create_loom_optimus.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) for the detailed code. The final Loom output contains the unnormalized (unfiltered), UMI-corrected expression matrices, as well as the gene and cell metrics detailed in the [Loom_schema documentation](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Loom_schema.md). 
@@ -250,13 +248,13 @@ Also note that although the RunEmptyDrops task is unaffected by the sn_rna param
 <details>
 <summary>Where can I find example Optimus datasets and parameters to test the pipeline? </summary>
 <br>
-There are four example configuration JSON files available for you to test the pipeline- the <a href="human_v2_example.json">human_v2_example.json </a>, the <a href="human_v3_example.json">human_v3_example.json </a>, the <a href="mouse_v2_example.json">mouse_v2_example.json </a>, and the <a href="mouse_v2_snRNA_example.json">mouse_v2_snRNA_example.json </a>(see the Inputs section). Each of these configuration files can be run in the Optimus Featured Workspace in Terra at https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline, but you should note that the workspace comes preloaded with the same data and configurations. We also have multiple example datasets available in the <a href="test_optimus_full_datasets/">test_optimus_full_datasets </a> folder. These datasets contain configuration files listing the cloud location of the dataset FASTQ files; however, the configuration files may not be updated with all the workflow parameters. For the most up-to-date configuration examples, see the four example files listed above. 
+There are four example configuration JSON files available for you to test the pipeline- the <a href="./example_inputs/human_v2_example.json">human_v2_example.json </a>, the <a href="./example_inputs/human_v3_example.json">human_v3_example.json </a>, the <a href="./example_inputs/mouse_v2_example.json">mouse_v2_example.json </a>, and the <a href="./example_inputs/mouse_v2_snRNA_example.json">mouse_v2_snRNA_example.json </a>(see the Inputs section). Each of these configuration files can be run in the Optimus Featured Workspace in Terra at https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline, but you should note that the workspace comes preloaded with the same data and configurations. We also have multiple example datasets available in the <a href="./example_inputs/test_optimus_full_datasets/">test_optimus_full_datasets </a> folder. These datasets contain configuration files listing the cloud location of the dataset FASTQ files; however, the configuration files may not be updated with all the workflow parameters. For the most up-to-date configuration examples, see the four example files listed above. 
  </details>
  
  <details>
 <summary>What outputs are expected if my sample has been sequenced over multiple lanes? </summary>
 <br>
-The Optimus pipeline is a single sample pipeline, but it can accept multiple FASTQ files if a sample is sequenced across lanes. In this case, the pipeline will merge the results from each lane into single output files. There will only be one merged file for each output type (i.e one Loom, etc.). If you would like to view an example configuration file for a multi-lane dataset, please see the <a href="mouse_v2_example.json">mouse_v2_example.json </a>.  Additionally, you can view sample outputs in the Optimus featured workspace on Terra: https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline. 
+The Optimus pipeline is a single sample pipeline, but it can accept multiple FASTQ files if a sample is sequenced across lanes. In this case, the pipeline will merge the results from each lane into single output files. There will only be one merged file for each output type (i.e one Loom, etc.). If you would like to view an example configuration file for a multi-lane dataset, please see the <a href="./example_inputs/mouse_v2_example.json">mouse_v2_example.json </a>.  Additionally, you can view sample outputs in the Optimus featured workspace on Terra: https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline. 
  </details>
 
  <details>
@@ -264,6 +262,7 @@ The Optimus pipeline is a single sample pipeline, but it can accept multiple FAS
 <br>
 Parameters are listed in each task WDL. For a list of the tasks, see the table in the <a href="README.md/#optimus-task-summary">Task Summary Section </a>. Select the link for the task of interest and then view the parameters in the task WDL "command {}" section. For the task Docker image, see task WDL "# runtime values" section; the Docker is listed as "String docker =  ". If you want to learn more about all the different parameters available for a software tool, please select the relevant link in the table's "Tool" column. 
  </details>
+
 
 
 
