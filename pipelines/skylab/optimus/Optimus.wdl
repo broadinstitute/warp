@@ -1,4 +1,4 @@
-version 4.5.0
+version 1.0
 
 import "../../../FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/FastqToUBam.wdl" as FastqToUBam
