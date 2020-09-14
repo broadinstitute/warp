@@ -20,7 +20,7 @@ import "../../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingT
 
 workflow IlluminaGenotypingArray {
 
-  String pipeline_version = "1.9"
+  String pipeline_version = "1.10.0"
 
   input {
 
@@ -342,5 +342,8 @@ workflow IlluminaGenotypingArray {
     File? genotype_concordance_detail_metrics = GenotypeConcordance.detail_metrics
     File? genotype_concordance_contingency_metrics = GenotypeConcordance.contingency_metrics
     Boolean? genotype_concordance_failed = GenotypeConcordance.fails_concordance
+  }
+  meta {
+    allowNestedInputs: true
   }
 }

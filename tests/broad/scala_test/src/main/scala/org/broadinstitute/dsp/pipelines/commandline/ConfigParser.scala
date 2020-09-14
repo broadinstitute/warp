@@ -175,6 +175,16 @@ class ConfigParser
             annotationFiltrationConfig =
               config.annotationFiltrationConfig.copy(category = test)
           )
+        },
+      opt[CromwellEnvironment]('e', "env")
+        .text(
+          s"The environment that this should run in ${CromwellEnvironment.optionsString}"
+        )
+        .required()
+        .action { (env, config) =>
+          config.copy(
+            annotationFiltrationConfig = config.annotationFiltrationConfig.copy(env = env)
+          )
         }
     )
 

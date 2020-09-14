@@ -5,7 +5,7 @@ import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 # Joint Genotyping for hg38 Exomes and Whole Genomes (has not been tested on hg19)
 workflow JointGenotypingByChromosomePartOne {
 
-  String pipeline_version = "1.2"
+  String pipeline_version = "1.2.1"
 
   input {
     File unpadded_intervals_file
@@ -265,5 +265,8 @@ workflow JointGenotypingByChromosomePartOne {
 
     # Output the interval list generated/used by this run workflow.
     Array[File] output_intervals = SplitIntervalList.output_intervals
+  }
+  meta {
+    allowNestedInputs: true
   }
 }

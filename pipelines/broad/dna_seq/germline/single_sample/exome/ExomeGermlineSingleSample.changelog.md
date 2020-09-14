@@ -1,3 +1,8 @@
+# 2.1.0
+2020-08-18
+
+* Added 'allowNestedInputs: true' metadata parameter to wdl to support Cromwell version 52
+
 # 2.0.1
 2020-07-15
 

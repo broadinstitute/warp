@@ -5,7 +5,7 @@ import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 # Joint Genotyping for hg38 Exomes and Whole Genomes (has not been tested on hg19)
 workflow JointGenotypingByChromosomePartTwo {
 
-  String pipeline_version = "1.2"
+  String pipeline_version = "1.2.1"
 
   input {
     String callset_name
@@ -222,6 +222,9 @@ workflow JointGenotypingByChromosomePartTwo {
     Array[File] output_vcf_indices = ApplyRecalibration.recalibrated_vcf_index
 
     File crosscheck_metrics = GatherFingerprintingMetrics.gathered_metrics
+  }
+  meta {
+    allowNestedInputs: true
   }
 }
 

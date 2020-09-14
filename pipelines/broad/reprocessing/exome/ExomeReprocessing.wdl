@@ -6,7 +6,7 @@ import "../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 workflow ExomeReprocessing {
 
-  String pipeline_version = "2.0.2"
+  String pipeline_version = "2.1.0"
 
   input {
     File? input_cram
@@ -118,5 +118,8 @@ workflow ExomeReprocessing {
 
     File output_vcf = ExomeGermlineSingleSample.output_vcf
     File output_vcf_index = ExomeGermlineSingleSample.output_vcf_index
+  }
+  meta {
+    allowNestedInputs: true
   }
 }

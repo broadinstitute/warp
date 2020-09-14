@@ -94,6 +94,9 @@ workflow VerifyArrays {
       file1 = test_red_idat_md5,
       file2 = truth_red_idat_md5
   }
+  meta {
+    allowNestedInputs: true
+  }
 }
 
 task CompareGtcs {

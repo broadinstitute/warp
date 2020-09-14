@@ -153,6 +153,9 @@ workflow VariantCalling {
     File? bamout = MergeBamouts.output_bam
     File? bamout_index = MergeBamouts.output_bam_index
   }
+  meta {
+    allowNestedInputs: true
+  }
 }
 
 # This task is here because merging bamout files using Picard produces an error.

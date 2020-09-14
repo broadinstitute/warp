@@ -82,4 +82,7 @@ workflow SplitLargeReadGroup {
   output {
     File aligned_bam = GatherMonolithicBamFile.output_bam
   }
+  meta {
+    allowNestedInputs: true
+  }
 }
