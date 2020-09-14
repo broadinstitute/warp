@@ -28,13 +28,13 @@ function pipeline_to_args() {
       echo Reprocessing -d Exome ${common_args};;
     JointGenotyping)
       echo JointGenotyping -d Exome ${common_args};
-      echo JointGenotyping -d WGS --env ${env} -t Plumbing -b develop ${uncached};;
+      echo JointGenotyping -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached};;
     IlluminaGenotypingArray)
       echo IlluminaGenotypingArray ${common_args};;
     ExternalExomeReprocessing)
-      echo ExternalReprocessing -d Exome --env ${env} -t Plumbing -b develop ${uncached};;
+      echo ExternalReprocessing -d Exome --env ${env} -t Plumbing -b ${truth} ${uncached};;
     ExternalWholeGenomeReprocessing)
-      echo ExternalReprocessing -d WGS --env ${env} -t Plumbing -b develop ${uncached};;
+      echo ExternalReprocessing -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached};;
     WholeGenomeGermlineSingleSample)
       echo GermlineSingleSample -d WGS ${common_args};;
     WholeGenomeReprocessing)
