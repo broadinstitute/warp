@@ -1,4 +1,5 @@
-version 1.0
+version 4.5.0
+
 import "../../../FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/FastqToUBam.wdl" as FastqToUBam
 import "../../../tasks/skylab/Attach10xBarcodes.wdl" as Attach
