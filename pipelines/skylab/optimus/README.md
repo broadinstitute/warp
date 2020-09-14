@@ -209,7 +209,7 @@ The following table lists the output files produced from the pipeline. For sampl
 | matrix_col_index | sparse_counts_col_index.npy | Index of genes in expression matrix | Numpy array index | 
 | cell_metrics | merged-cell-metrics.csv.gz | cell metrics | compressed csv | Matrix of metrics by cells | 
 | gene_metrics | merged-gene-metrics.csv.gz | gene metrics | compressed csv | Matrix of metrics by genes | 
-| loom_output_file | <inoyt_id>.loom | Loom | Loom | Loom file with expression data and metadata | N/A |
+| loom_output_file | <input_id>.loom | Loom | Loom | Loom file with expression data and metadata | N/A |
 
 
 The Loom is the default output. See the [create_loom_optimus.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) for the detailed code. The final Loom output contains the unnormalized (unfiltered), UMI-corrected expression matrices, as well as the gene and cell metrics detailed in the [Loom_schema documentation](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Loom_schema.md). 
