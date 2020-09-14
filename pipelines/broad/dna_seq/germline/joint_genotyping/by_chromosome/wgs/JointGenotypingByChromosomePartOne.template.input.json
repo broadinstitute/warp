@@ -1,0 +1,23 @@
+{
+  "JointGenotypingByChromosomePartOne.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "JointGenotypingByChromosomePartOne.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+  "JointGenotypingByChromosomePartOne.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+  "JointGenotypingByChromosomePartOne.dbsnp_vcf": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf",
+  "JointGenotypingByChromosomePartOne.dbsnp_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx",
+  "JointGenotypingByChromosomePartOne.haplotype_database": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt",
+
+  "JointGenotypingByChromosomePartOne.unpadded_intervals_file": "gs://broad-gotc-prod-storage/joint_genotyping/intervals/hg38.even.handcurated.20k.{CHROMOSOME}.intervals",
+
+  "JointGenotypingByChromosomePartOne.SplitIntervalList.scatter_mode": "INTERVAL_SUBDIVISION",
+
+  "JointGenotypingByChromosomePartOne.callset_name": "{CALLSET_NAME}_{CHROMOSOME}",
+  "JointGenotypingByChromosomePartOne.sample_name_map" : "{SAMPLE_NAME_MAP}",
+
+  "JointGenotypingByChromosomePartOne.small_disk" : 400,
+  "JointGenotypingByChromosomePartOne.medium_disk" : 600,
+  "JointGenotypingByChromosomePartOne.large_disk" : 1000,
+
+  "JointGenotypingByChromosomePartOne.top_level_scatter_count": {CHROMOSOME_SCATTER},
+  "JointGenotypingByChromosomePartOne.use_gnarly_genotyper": false,
+  "JointGenotypingByChromosomePartOne.GenotypeGVCFs.allow_old_rms_mapping_quality_annotation_data": true
+}

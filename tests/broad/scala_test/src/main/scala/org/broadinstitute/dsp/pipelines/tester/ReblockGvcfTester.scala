@@ -21,7 +21,7 @@ class ReblockGvcfTester(testerConfig: GermlineCloudWorkflowConfig)(
 ) extends GermlineCloudWorkflowTester(testerConfig) {
 
   override def workflowDir: File =
-    CromwellWorkflowTester.PipelineRoot / "dna_seq" / "germline" / "joint_genotyping" / "reblocking"
+    CromwellWorkflowTester.PipelineRoot / "broad" / "dna_seq" / "germline" / "joint_genotyping" / "reblocking"
 
   override def workflowName: String = "ReblockGVCF"
 

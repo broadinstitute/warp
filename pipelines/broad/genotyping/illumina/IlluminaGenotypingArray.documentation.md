@@ -4,7 +4,7 @@
 
 # Table of Contents
 - [Illumina Genotyping Array Pipeline Overview](#illumina-genotyping-array-pipeline-overview)
-- [Introduction to the Illumina Genotyping Arrays Pipeline](#introduction-to-the-illumina-genotyping-arrays-pipeline)
+- [Introduction to the Illumina Genotyping Array] Pipeline](#introduction-to-the-illumina-genotyping-array-pipeline)
 - [Set-up](#set-up)
   * [Workflow Installation and Requirements](#workflow-installation-and-requirements)
   * [Inputs](#inputs)
@@ -20,6 +20,7 @@
     + [7. Genotype Concordance (Optional)](#7-genotype-concordance-optional)
   * [Workflow Outputs](#workflow-outputs)
 - [Versioning](#versioning)
+- [Try the Pipeline in Terra](#try-the-pipeline-in-terra)
 - [Feedback and Questions](#feedback-and-questions)
 
 
@@ -27,7 +28,7 @@
 # Illumina Genotyping Array Pipeline Overview
 ![The Illumina Genotyping Array Pipeline](IlluminaGenotyping.png "Illumina Genotyping Array Pipeline")
 
-# Introduction to the Illumina Genotyping Arrays Pipeline
+# Introduction to the Illumina Genotyping Array Pipeline
 
 The Illumina Genotyping Array Pipeline was developed by the Broad DSDE Pipelines team to process Illumina genotyping array data in the form of IDAT files. Overall, the pipeline performs gender-specific genotyping, sample contamination detection, and summary metric collection. It optionally performs rare variant calling and genotype concordance, creates a fingerprint VCF which can be used for sample verification in parallel processes, and evaluates an existing sample fingerprint to confirm sample identity. The pipeline outputs annotated VCFs, index files, and summary metrics. 
 
@@ -35,7 +36,7 @@ The Illumina Genotyping Array Pipeline was developed by the Broad DSDE Pipelines
 
 ## Workflow Installation and Requirements
 
-The Illumina Genotyping Arrays workflow is written in the Workflow Description Language [WDL](https://openwdl.org/) and can be downloaded by cloning the GitHub repository [warp](https://github.com/broadinstitute/warp/tree/develop/pipelines/broad/genotyping/illumina). The workflow can be deployed using [Cromwell](https://software.broadinstitute.org/wdl/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the Illumina Genotyping Arrays changelog [IlluminaGenotypingArray.changelog.md](IlluminaGenotypingArray.changelog.md). For beta updates, you can also view release notes tagged with "IlluminaGenotypingArray_develop" [here](https://github.com/broadinstitute/warp/releases). 
+The Illumina Genotyping Array workflow is written in the Workflow Description Language [WDL](https://openwdl.org/) and can be downloaded by cloning the GitHub repository [warp](https://github.com/broadinstitute/warp/tree/develop/pipelines/broad/genotyping/illumina). The workflow can be deployed using [Cromwell](https://software.broadinstitute.org/wdl/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the Illumina Genotyping Array changelog [IlluminaGenotypingArray.changelog.md](IlluminaGenotypingArray.changelog.md). For beta updates, you can also view release notes tagged with "IlluminaGenotypingArray_develop" [here](https://github.com/broadinstitute/warp/releases). 
 
 ## Inputs
 
@@ -66,7 +67,7 @@ The workflow requires that each input is specified in a JSON file. All sample an
 | --- | --- | --- | --- |
 | ref_fasta | Cloud path to the reference FASTA (only validated for [Hg19](https://storage.cloud.google.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta)) | Required | String |
 | ref_fasta_index | Cloud path to the reference FASTA index file | Required | String |
-| ref_fasta_dict | Cloud path to the reference FASTA dictionary file | Required | String |
+| ref_dict | Cloud path to the reference FASTA dictionary file | Required | String |
 | dbSNP_vcf | Cloud path to the dbSNP VCF, used for metrics collection | Required | String |
 | dbSNP_vcf_index | Cloud path of the dbSNP VCF index file | Required | String |
 
@@ -100,15 +101,15 @@ The workflow requires that each input is specified in a JSON file. All sample an
 | subsampled_metrics_interval_list | Cloud path to a file containing a subset sites for which the workflow generate metrics and outputs a VCF | Optional | String | 
 | disk_size | Default disk (in GiB) for this workflow's cloud VMs | Required | Value | 
 | premptible_tries | Number of times a task may be preempted by GCE before it is submitted to a non-preemptible VM | Required | Value | 
-| analysis_version | Numeric value used track number of pipeline runs on chip_well_barcode | Required | Value | 
+| analysis_version_number | Numeric value used track number of pipeline runs on chip_well_barcode | Required | Value | 
 
 
 # Workflow Tools and Tasks
-The Illumina Genotyping Arrays workflow imports a series of tasks from the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/broad/IlluminaGenotypingArrayTasks.wdl). The following sections summarize the tasks and software tools the workflow uses, as well as the relevant inputs and outputs.  
+The Illumina Genotyping Array workflow imports a series of tasks from the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/broad/IlluminaGenotypingArrayTasks.wdl). The following sections summarize the tasks and software tools the workflow uses, as well as the relevant inputs and outputs.  
 
 ## Tools
 
-The following table provides a summary of the tasks and tools called by the Illumina Arrays Genotyping workflow. Note that sometimes a task and tool have the same name. The task refers to the task listed in the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/master/blob/develop/tasks/broad/IlluminaGenotypingArrayTasks.wdl).
+The following table provides a summary of the tasks and tools called by the Illumina Array Genotyping workflow. Note that sometimes a task and tool have the same name. The task refers to the task listed in the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/master/blob/develop/tasks/broad/IlluminaGenotypingArrayTasks.wdl).
 
 | Task | Tool | Source |
 | --- | --- | --- |
@@ -149,20 +150,20 @@ Illumina BeadChip Genotyping technology demarcates small-nucleotide variants (an
 After genoytping, the workflow calls the GtcToVcf task, which runs the Picard tool [GtcToVcf](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_arrays_GtcToVcf.php) to convert the GTC into a VCF. 
 
 ### 2. Contamination Detection
-Intra-species DNA contamination is a common problem for genotyping samples. To detect contamination, the Illumina Arrays workflow uses the software [VerifyIDIntensity](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3487130/), which requires an 'adpc.bin' file (a binary file containing array intensity data that can be used with Illumina software) as input. The workflow first calls the [VcfToAdpc](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_arrays_VcfToAdpc.php) task to convert the VCF output from  genotype calling into an 'adpc.bin' file.  Next, the [VerifyIDIntensity](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3487130/) task uses this input file to measure contamination. The [CreateVerifyIDIntensityContaminationMetricsFile](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_arrays_CreateVerifyIDIntensityContaminationMetricsFile.php) task then converts the VerifyIDIntensity output into a Picard-standard metrics file (chip_well_barcode.verifyidintensity_metrics), suitable for uploading to a metrics database.
+Intra-species DNA contamination is a common problem for genotyping samples. To detect contamination, the Illumina Array workflow uses the software [VerifyIDIntensity](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3487130/), which requires an 'adpc.bin' file (a binary file containing array intensity data that can be used with Illumina software) as input. The workflow first calls the [VcfToAdpc](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_arrays_VcfToAdpc.php) task to convert the VCF output from  genotype calling into an 'adpc.bin' file.  Next, the [VerifyIDIntensity](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3487130/) task uses this input file to measure contamination. The [CreateVerifyIDIntensityContaminationMetricsFile](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_arrays_CreateVerifyIDIntensityContaminationMetricsFile.php) task then converts the VerifyIDIntensity output into a Picard-standard metrics file (chip_well_barcode.verifyidintensity_metrics), suitable for uploading to a metrics database.
 
 ### 3. Rare Variant Calling (Optional)
-After running default genotype processing with Autocall, the Illumina Genotyping Arrays workflow optionally uses the [zCall](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3463112/) task to improve calls on rare variants. To run this task, the workflow requires a zCall threshold file. If the workflow identifies the file, it will output a PLINK .ped and .map file. The [MergePedIntoVcf](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_arrays_MergePedIntoVcf.php) task then merges these outputs into the VCF generated during genotype calling. 
+After running default genotype processing with Autocall, the Illumina Genotyping Array workflow optionally uses the [zCall](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3463112/) task to improve calls on rare variants. To run this task, the workflow requires a zCall threshold file. If the workflow identifies the file, it will output a PLINK .ped and .map file. The [MergePedIntoVcf](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_arrays_MergePedIntoVcf.php) task then merges these outputs into the VCF generated during genotype calling. 
 
 ### 4. Metric Collection
 Quality metrics can be assessed using the genotyping output VCF (from the GtctoVcf task) or alternatively, a subset of the VCF. The CollectArraysVariantCallingMetrics task calls the Picard tool [CollectArraysVariantCallingMetrics](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_arrays_CollectArraysVariantCallingMetrics.php) to generate these metrics. 
 
 | Metric collection on a VCF subset (optional) |
 | :-- |
-| If an input interval list is provided (the subsampled_interval_list file in the sample JSON), the workflow will run the optional task SubsetArrayVCF which uses the GATK tool [SelectVariants](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/org_broadinstitute_hellbender_tools_walkers_variantutils_SelectVariants.php) to select variants within the specified interval. The overall workflow will then run the CollectArraysVariantCallingMetrics to generate metrics. |
+| If an input interval list is provided (the subsampled_metrics_interval_list file in the sample JSON), the workflow will run the optional task SubsetArrayVCF which uses the GATK tool [SelectVariants](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/org_broadinstitute_hellbender_tools_walkers_variantutils_SelectVariants.php) to select variants within the specified interval. The overall workflow will then run the CollectArraysVariantCallingMetrics to generate metrics. |
 
 ### 5. Creating a New Fingerprint Output (Optional)
-DNA fingerprinting helps maintain sample identity and avoid sample-swaps. The Illumina Genotyping Arrays workflow can optionally create a new fingerprint VCF output that can be used to verify sample identity if the sample is used for additional applications (downstream sequencing, etc.). To do this, the SelectFingerprintVariants task uses a reference SNP identifier file (rsid) to run the GATK tool [SelectVariants](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/org_broadinstitute_hellbender_tools_walkers_variantutils_SelectVariants.php). This tool selects variants in the genotyping output VCF based on the variants present in the rsids file. The task then outputs a new subseted fingerprint VCF and index file. 
+DNA fingerprinting helps maintain sample identity and avoid sample-swaps. The Illumina Genotyping Array workflow can optionally create a new fingerprint VCF output that can be used to verify sample identity if the sample is used for additional applications (downstream sequencing, etc.). To do this, the SelectFingerprintVariants task uses a reference SNP identifier file (rsid) to run the GATK tool [SelectVariants](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/org_broadinstitute_hellbender_tools_walkers_variantutils_SelectVariants.php). This tool selects variants in the genotyping output VCF based on the variants present in the rsids file. The task then outputs a new subseted fingerprint VCF and index file. 
  
 ### 6. Evaluating an Existing Fingerprint (Optional)
 If the genotyping sample already has a corresponding fingerprint VCF file, the workflow can also optionally check the existing fingerprint to confirm sample identity. It uses the CheckFingerPrints task to calculate genotype concordance between the workflow’s genotyping output VCF (final_output_vcf) and the known genotype specified in a fingerprint_genotypes_vcf_file. The workflow returns a boolean for if the sample genotype failed concordance, as well as a Logarithm of Odds (LOD) score for concordance. 
@@ -210,9 +211,13 @@ The tables below summarize all of the workflow's output according to task. Outpu
 | chip_well_barcode.genotype_concordance_contingency_metrics | Contingency metrics as calculated by GenotypeConcordance between the pipeline output VCF and the optionally specified control VCF | Optional | txt |
 
 # Versioning
-All Illumina Genotyping Arrays workflow releases are documented in the [workflow changelog](IlluminaGenotypingArray.changelog.md).
+All Illumina Genotyping Array workflow releases are documented in the [workflow changelog](IlluminaGenotypingArray.changelog.md).
+
+# Try the Pipeline in Terra
+The Illumina Genotyping Array Pipeline is available on the cloud-based platform [Terra](https://app.terra.bio). If you have a Terra account, you can access the Featured Workspace using this address: https://app.terra.bio/#workspaces/warp-pipelines/Illumina-Genotyping-Array. The workspace is preloaded with instructions and sample data. For more information on using the Terra platform, please view the [Support Center](https://support.terra.bio/hc/en-us).
 
 # Feedback and Questions
 Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+
 
 
