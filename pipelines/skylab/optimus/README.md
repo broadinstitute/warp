@@ -60,7 +60,7 @@ Optimus has been validated for analyzing both [human](https://github.com/broadin
 ## Optimus Installation and Requirements
 The Optimus pipeline code can be downloaded by cloning the GitHub repository [warp](https://github.com/broadinstitute/warp/). For the latest release of Optimus, please see the release tags prefixed with "Optimus" [here](https://github.com/broadinstitute/warp/releases). 
 
-Optimus can be deployed using [Cromwell](https://software.broadinstitute.org/wdl/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. Optimus can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. The Terra [Optimus Featured Workspace](https://app.terra.bio/#workspaces/help-gatk/HCA_Optimus_Pipeline) contains the Optimus workflow, workflow configurations, required reference data and other inputs, and example testing data.
+Optimus can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. Optimus can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. The Terra [Optimus Featured Workspace](https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline) contains the Optimus workflow, workflow configurations, required reference data and other inputs, and example testing data.
 
 ## Inputs
 
