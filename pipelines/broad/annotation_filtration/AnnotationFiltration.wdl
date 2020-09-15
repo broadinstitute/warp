@@ -4,7 +4,7 @@ import "../../../tasks/broad/Funcotator.wdl" as Funcotator
 
 workflow AnnotationFiltration {
 
-  String pipeline_version = "1.0"
+  String pipeline_version = "1.1.0"
 
   input {
     Array[File] vcfs
@@ -85,6 +85,9 @@ workflow AnnotationFiltration {
   output {
     Array[File] significant_variant_vcfs = FilterFuncotations.significant_variants_vcf
     File filtration_report = GatherFiltrationReport.filtration_report
+  }
+  meta {
+    allowNestedInputs: true
   }
 }
 

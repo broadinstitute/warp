@@ -38,7 +38,7 @@ import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 # WORKFLOW DEFINITION
 workflow WholeGenomeGermlineSingleSample {
 
-  String pipeline_version = "2.0.1"
+  String pipeline_version = "2.1.0"
 
   input {
     SampleAndUnmappedBams sample_and_unmapped_bams
@@ -217,5 +217,8 @@ workflow WholeGenomeGermlineSingleSample {
 
     File output_vcf = BamToGvcf.output_vcf
     File output_vcf_index = BamToGvcf.output_vcf_index
+  }
+  meta {
+    allowNestedInputs: true
   }
 }

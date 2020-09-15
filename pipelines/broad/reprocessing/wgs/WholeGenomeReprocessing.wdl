@@ -6,7 +6,7 @@ import "../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 workflow WholeGenomeReprocessing {
 
-  String pipeline_version = "2.0.2"
+  String pipeline_version = "2.1.0"
 
   input {
     File? input_cram
@@ -119,5 +119,8 @@ workflow WholeGenomeReprocessing {
 
     File output_vcf = WholeGenomeGermlineSingleSample.output_vcf
     File output_vcf_index = WholeGenomeGermlineSingleSample.output_vcf_index
+  }
+  meta {
+    allowNestedInputs: true
   }
 }

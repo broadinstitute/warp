@@ -38,5 +38,8 @@ workflow VerifySomaticSingleSample {
   output {
     Array[File] metric_comparison_report_files = CompareMetrics.metric_comparison_report_files
   }
+  meta {
+    allowNestedInputes: true
+  }
 }
 

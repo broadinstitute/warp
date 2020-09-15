@@ -18,7 +18,7 @@ version 1.0
 
 workflow MultiSampleArrays {
 
-  String pipeline_version = "1.4"
+  String pipeline_version = "1.5.0"
 
   input {
     File samples_fofn
@@ -62,6 +62,9 @@ workflow MultiSampleArrays {
   output {
     File combined_vcf = FinalCombine.combined_vcf
     File combined_vcf_index = FinalCombine.combined_vcf_index
+  }
+  meta {
+    allowNestedInputs: true
   }
 }
 

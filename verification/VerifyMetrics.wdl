@@ -28,6 +28,9 @@ workflow VerifyMetrics {
   output {
     Array[File] metric_comparison_report_files = CompareMetricFiles.report_file
   }
+  meta {
+    allowNestedInputs: true
+  }
 }
 
 task CompareTwoNumbers {

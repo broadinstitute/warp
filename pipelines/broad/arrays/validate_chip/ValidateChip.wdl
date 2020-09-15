@@ -21,7 +21,7 @@ import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 workflow ValidateChip {
 
-  String pipeline_version = "1.9.1"
+  String pipeline_version = "1.10.0"
 
   input {
     String sample_alias
@@ -243,6 +243,9 @@ workflow ValidateChip {
     File IndelGenotypeConcordanceContingencyMetricsFile = IndelGenotypeConcordance.contingency_metrics
     File IndelGenotypeConcordanceVcfFile = IndelGenotypeConcordance.output_vcf
     File IndelGenotypeConcordanceTxtFile = IndelGenotypeConcordance.output_txt
+  }
+  meta {
+    allowNestedInputs: true
   }
 }
 

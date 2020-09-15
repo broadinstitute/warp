@@ -44,21 +44,24 @@ workflow VerifyValidateChip {
       bead_pool_manifest_file=bead_pool_manifest_file
   }
 
-    call Tasks.CompareVcfs as CompareOutputVcfs {
-      input:
-        file1=truth_vcf,
-        file2=test_vcf
-    }
+  call Tasks.CompareVcfs as CompareOutputVcfs {
+    input:
+      file1=truth_vcf,
+      file2=test_vcf
+  }
 
-    call Tasks.CompareVcfs as CompareGenotypeConcordanceVcfs {
-      input:
-        file1=truth_genotype_concordance_vcf,
-        file2=test_genotype_concordance_vcf
-    }
+  call Tasks.CompareVcfs as CompareGenotypeConcordanceVcfs {
+    input:
+      file1=truth_genotype_concordance_vcf,
+      file2=test_genotype_concordance_vcf
+  }
 
-    call Tasks.CompareVcfs as CompareIndelGenotypeConcordanceVcfs {
-      input:
-        file1=truth_indel_genotype_concordance_vcf,
-        file2=test_indel_genotype_concordance_vcf
-    }
+  call Tasks.CompareVcfs as CompareIndelGenotypeConcordanceVcfs {
+    input:
+      file1=truth_indel_genotype_concordance_vcf,
+      file2=test_indel_genotype_concordance_vcf
+  }
+  meta {
+    allowNestedInputs: true
+  }
 }

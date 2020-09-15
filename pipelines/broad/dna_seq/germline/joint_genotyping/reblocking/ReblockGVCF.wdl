@@ -2,7 +2,7 @@ version 1.0
 
 workflow ReblockGVCF {
 
-  String pipeline_version = "1.0"
+  String pipeline_version = "1.0.1"
 
   input {
     File gvcf
@@ -23,6 +23,9 @@ workflow ReblockGVCF {
   output {
     File output_vcf = Reblock.output_vcf
     File output_vcf_index = Reblock.output_vcf_index
+  }
+  meta {
+    allowNestedInputs: true
   }
 }
 

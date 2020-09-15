@@ -17,7 +17,7 @@ function pipeline_to_args() {
 
   case ${pipeline} in
     AnnotationFiltration)
-      echo AnnotationFiltration -t ${test};;
+      echo AnnotationFiltration -t ${test} --env ${env};;
     Arrays)
       echo Arrays -a Single ${common_args};;
     MultiSampleArrays)

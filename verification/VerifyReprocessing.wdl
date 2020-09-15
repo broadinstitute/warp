@@ -38,6 +38,9 @@ workflow VerifyReprocessing {
       truth_gvcf = truth_gvcf,
       test_gvcf = test_gvcf
   }
+  meta {
+    allowNestedInputs: true
+  }
 }
 
 struct BamPair {
