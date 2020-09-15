@@ -88,6 +88,9 @@ workflow CramToUnmappedBams {
     Array[File] validation_report = ValidateSamFile.report
     Array[File] unmapped_bams = SortSam.output_bam
   }
+  meta {
+    allowNestedInputs: true
+  }
 }
 
 task RevertSam {
