@@ -5,7 +5,7 @@ task CalculateGeneMetrics {
     File bam_input
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:np_gl-1148_update_dependencies"
+    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.7"
     Int machine_mem_mb = 22000
     Int cpu = 1
     Int disk = ceil(size(bam_input, "Gi") * 4)
@@ -50,7 +50,7 @@ task CalculateCellMetrics {
     File original_gtf
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:np_gl-1148_update_dependencies"
+    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.8"
     Int machine_mem_mb = 45000
     Int cpu = 1
     Int disk = ceil(size(bam_input, "Gi") * 2)
@@ -95,7 +95,7 @@ task MergeGeneMetrics {
     Array[File] metric_files
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:np_gl-1148_update_dependencies"
+    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.7"
     Int machine_mem_mb = 3850
     Int cpu = 1
     Int disk = 20
@@ -139,7 +139,7 @@ task MergeCellMetrics {
     Array[File] metric_files
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:np_gl-1148_update_dependencies"
+    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.7"
     Int machine_mem_mb = 3850
     Int cpu = 1
     Int disk = 20
