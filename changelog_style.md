@@ -56,7 +56,7 @@ The following is the markdown format required for all changelog version updates:
 
 ## Sample Changelog Entry
 
-# optimus_v1.4.0
+# 1.4.0
 
 2019-11-08 (Date of Last Commit)
 
