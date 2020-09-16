@@ -1,6 +1,6 @@
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [WholeGenomeGermlineSingleSample_v2.0](WholeGenomeGermlineSingleSample.wdl) | June 22, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in dsde-pipelines or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [WholeGenomeGermlineSingleSample_v2.0](WholeGenomeGermlineSingleSample.wdl) | June 22, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 # Introduction to the Whole Genome Germline Single Sample Pipeline
 
@@ -10,7 +10,7 @@ The Whole Genome Germline Single Sample pipeline implements data pre-processing 
 
 ## Workflow Installation and Requirements
 
-The [Whole Genome Germline Single Sample workflow](WholeGenomeGermlineSingleSample.wdl) is written in the Workflow Description Language [WDL](https://openwdl.org/) and can be downloaded by cloning the GitHub repository [dsde-pipelines](https://github.com/broadinstitute/dsde-pipelines/). The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the Whole Genome Germline Single Sample [changelog](WholeGenomeGermlineSingleSample.changelog.md).
+The [Whole Genome Germline Single Sample workflow](WholeGenomeGermlineSingleSample.wdl) is written in the Workflow Description Language [WDL](https://openwdl.org/) and can be downloaded by cloning the GitHub repository [WARP](https://github.com/broadinstitute/warp/). The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the Whole Genome Germline Single Sample [changelog](WholeGenomeGermlineSingleSample.changelog.md).
 
 ## Software Version Requirements
 * GATK 3.5 and GATK 4.beta.5
