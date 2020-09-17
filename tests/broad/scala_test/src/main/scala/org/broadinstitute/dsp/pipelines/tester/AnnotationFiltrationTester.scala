@@ -23,7 +23,7 @@ class AnnotationFiltrationTester(testConfig: AnnotationFiltrationConfig)(
     as: ActorSystem
 ) extends CromwellWorkflowTester {
 
-  override val env = CromwellEnvironment.Dev
+  override val env: CromwellEnvironment = testConfig.env
 
   override val workflowName = "AnnotationFiltration"
 

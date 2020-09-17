@@ -159,7 +159,7 @@ The following table details the metrics available in the output_snap_qc file.
 
 # Running on Terra
 
-[Terra](https://app.terra.bio/) is a public, cloud-based platform for biomedical research. If you would like to try the scATAC workflow (previously named "snap-atac") in Terra, you can import the most recent version from the [Broad Methods Repository](https://portal.firecloud.org/?return=terra#methods/snap-atac-v1_0/snap-atac-v1_0/2) (Google login required). Additionally, there is a public [SnapATAC_Pipeline workspace](https://app.terra.bio/#workspaces/brain-initiative-bcdc/SnapATAC_Pipeline) preloaded with the scATAC workflow and downsampled data.  
+[Terra](https://app.terra.bio/) is a public, cloud-based platform for biomedical research. If you would like to try the scATAC workflow (previously named "snap-atac") in Terra, you can import the most recent version from [Dockstore](https://dockstore.org/workflows/github.com/broadinstitute/warp/scATAC:scATAC_v1.1.0?tab=info). Additionally, there is a public [scATAC workspace](https://app.terra.bio/#workspaces/brain-initiative-bcdc/scATAC) preloaded with the scATAC workflow and downsampled data.  
 
 # Versioning
 All scATAC workflow releases are documented in the [scATAC changelog](scATAC.changelog.md).

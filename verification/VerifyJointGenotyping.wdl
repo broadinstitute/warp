@@ -45,6 +45,9 @@ workflow VerifyJointGenotyping {
       test_fingerprint = test_fingerprint,
       truth_fingerprint = truth_fingerprint
   }
+  meta {
+    allowNestedInputs: true
+  }
 }
 
 task CompareFingerprints {

@@ -1,3 +1,13 @@
+# 2.1.0
+2020-08-18
+
+* Added a meta section with 'allowNestedInputs' set to 'true' to allow the workflow to use with nested inputs with Cromwell 52
+
+# 2.0.1
+2020-08-31
+
+* Fixed regression in the fix for VcfToMercuryFingerprintJson task
+
 # 2.0
 2020-07-31
 
