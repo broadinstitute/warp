@@ -13,7 +13,7 @@ The file name is not included in the actual changelog- it is just the file name.
 #### 2) The pipeline release version name 
   *  Ex: [Illumina Genotyping Array pipeline](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.changelog.md) version name is a number (i.e. "1.0.0")
 
-The version name is listed at the top of each changelog entry section. It should follow [semver](https://semver.org/) (major.minor.patch). 
+The version name is listed at the top of each changelog entry section. It should follow [Semantic versioning (SemVer)](https://semver.org/) which uses the major.minor.patch version number. 
 
 #### 3) The date of last commit (YYYY-MM-DD)
 
@@ -23,6 +23,7 @@ The purpose of the date of last commit is to inform users of the relative timing
 
 This section describes (in bullet point format) every type of change made to the pipeline for the current pipeline version. Types of changes include: additions, updates, changes, deprecations, removals, fixes, and security updates. The type of change should be used as the first word of the bullet point (see examples below). These changes should be updated as pipeline changes are made even if the updated pipeline version has not been released. This will enable end-users to see what changes are coming when the new release is published.
 
+If changes are breaking changes to the pipleine, this section will be divided into two subsections: "Breaking changes" and "Additional changes". An example of these headers is hown in the 
 
 ## Language Usage
 
@@ -45,7 +46,22 @@ You can find more examples of active voice from the [University of Wisconsin-Mad
 
 
 ## Changelog Format
-The following is the markdown format required for all changelog version updates:
+The following is the markdown format required for all major changelog version updates which have breaking changes:
+
+\# "insert Release Version Name here"
+
+"insert date of last commit in YYYY-MM-DD here" (Date of Last Commit)
+
+\### Breaking changes
+
+* "insert description of first breaking pipeline change here" 
+* "insert description of additional breaking changes here- add more bullets as necessary for additional changes"
+
+\### Additional changes
+
+* "insert description of first non-breaking pipeline change here" 
+* "insert description of additional change here- add more bullets as necessary for additional changes"
+The following is the markdown format required for non-major changelog version updates with non-breaking changes:
 
 \# "insert Release Version Name here"
 
@@ -54,8 +70,21 @@ The following is the markdown format required for all changelog version updates:
 * "insert description of first pipeline change here" 
 * "insert description of additional change here- add more bullets as necessary for additional changes"
 
-## Sample Changelog Entry
+## Sample Changelog Entry for a Major Version Update (Breaking Change)
+# 4.0.0
 
+2020-08-10 (Date of Last Commit)
+
+### Breaking changes
+* Changed sample_id to input_id
+
+### Additional changes 
+* Added input_name as an optional input for user provided sample_id
+* Passed pipeline_version to output loom file  
+* Added input_id_metadata_field and input_name_metadata_field as optional input
+
+
+## Sample Changelog Entry for a Non-major Version Update (Non-breaking Change)
 # 1.4.0
 
 2019-11-08 (Date of Last Commit)
