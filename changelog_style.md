@@ -61,6 +61,8 @@ The following is the markdown format required for all major changelog version up
 
 * "insert description of first non-breaking pipeline change here" 
 * "insert description of additional change here- add more bullets as necessary for additional changes"
+
+
 The following is the markdown format required for non-major changelog version updates with non-breaking changes:
 
 \# "insert Release Version Name here"
