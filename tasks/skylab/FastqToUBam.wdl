@@ -32,15 +32,16 @@ task FastqToUBam {
   }
 
   command {
-    set -e
-    FQ=${fastq_file}
+    FQ=~{fastq_file}
     # Adds fastq_suffix if it is passed
-    if (file "${fastq_file}" | grep -q compressed); then
-        if [[ "${fastq_file}" != *.fastq.gz ]]; then
-            FQ=${fastq_file}.fastq.gz
-            mv ${fastq_file} ${fastq_file}.fastq.gz
+    if [[ "~{fastq_file}" != *.fastq.gz ]]; then
+        if (file "~{fastq_file}" | grep -q compressed); then
+            FQ=~{fastq_file}.fastq.gz
+            mv ~{fastq_file} ~{fastq_file}.fastq.gz
+        fi 
     fi
 
+    set -e
     java -Xmx~{command_mem_mb}m -jar /usr/picard/picard.jar FastqToSam \
       FASTQ=$FQ \
       SORT_ORDER=unsorted \
