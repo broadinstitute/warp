@@ -60,7 +60,7 @@ Optimus has been validated for analyzing both [human](https://github.com/broadin
 ## Optimus Installation and Requirements
 The Optimus pipeline code can be downloaded by cloning the GitHub repository [warp](https://github.com/broadinstitute/warp/). For the latest release of Optimus, please see the release tags prefixed with "Optimus" [here](https://github.com/broadinstitute/warp/releases). 
 
-Optimus can be deployed using [Cromwell](https://software.broadinstitute.org/wdl/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. Optimus can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. The Terra [Optimus Featured Workspace](https://app.terra.bio/#workspaces/help-gatk/HCA_Optimus_Pipeline) contains the Optimus workflow, workflow configurations, required reference data and other inputs, and example testing data.
+Optimus can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. Optimus can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. The Terra [Optimus Featured Workspace](https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline) contains the Optimus workflow, workflow configurations, required reference data and other inputs, and example testing data.
 
 ## Inputs
 
@@ -209,7 +209,7 @@ The following table lists the output files produced from the pipeline. For sampl
 | matrix_col_index | sparse_counts_col_index.npy | Index of genes in expression matrix | Numpy array index | 
 | cell_metrics | merged-cell-metrics.csv.gz | cell metrics | compressed csv | Matrix of metrics by cells | 
 | gene_metrics | merged-gene-metrics.csv.gz | gene metrics | compressed csv | Matrix of metrics by genes | 
-| loom_output_file | output.loom | Loom | Loom | Loom file with expression data and metadata | N/A |
+| loom_output_file | <input_id>.loom | Loom | Loom | Loom file with expression data and metadata | N/A |
 
 
 The Loom is the default output. See the [create_loom_optimus.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) for the detailed code. The final Loom output contains the unnormalized (unfiltered), UMI-corrected expression matrices, as well as the gene and cell metrics detailed in the [Loom_schema documentation](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Loom_schema.md). 
