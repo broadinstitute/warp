@@ -67,7 +67,7 @@ workflow MultiSampleSmartSeq2 {
 
   ### Execution starts here ###
   if (paired_end) {
-    scatter(idx in range(length(input_ids))) {
+    scatter(idx in range(length(input_fields))) {
       call single_cell_run.SmartSeq2SingleCell as sc_pe {
         input:
           fastq1 = fastq1_input_files[idx],
@@ -87,7 +87,7 @@ workflow MultiSampleSmartSeq2 {
     }
   }
   if (!paired_end) {
-    scatter(idx in range(length(input_ids))) {
+    scatter(idx in range(length(input_fields))) {
       call single_cell_run.SmartSeq2SingleCell as sc_se {
         input:
           fastq1 = fastq1_input_files[idx],
