@@ -96,7 +96,6 @@ The following is the markdown format required for non-major changelog version up
 2019-11-08 (Date of Last Commit)
 
 * Added support for V3 chemistry
-* Added an input parameter validation step
 * Updated the documentation with additional information for the README and additional files for Loom schema and BAM tags
 * Updated the Zarr output
 
