@@ -6,6 +6,7 @@ import "../../../tasks/skylab/RSEM.wdl" as RSEM
 import "../../../tasks/skylab/GroupMetricsOutputs.wdl" as GroupQCs
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 import "../../../tasks/skylab/SS2InputChecks.wdl" as SS2InputChecks
+import "../../../structs/single_cell/SingleCellStructs.wdl"
 
 workflow SmartSeq2SingleCell {
   meta {
@@ -26,10 +27,7 @@ workflow SmartSeq2SingleCell {
     String hisat2_ref_trans_name
     # samples
     String stranded
-    String input_id
-    String? input_name
-    String? input_id_metadata_field
-    String? input_name_metadata_field
+    LoomMetadata input_fields
     String output_name
     File fastq1
     File? fastq2
@@ -75,7 +73,7 @@ workflow SmartSeq2SingleCell {
          fastq1 = fastq1,
          fastq2 = select_first([fastq2]),
          ref_name = hisat2_ref_name,
-         input_id = input_id,
+         input_id = input_fields.input_id,
          output_basename = quality_control_output_basename,
      }
   }
@@ -85,7 +83,7 @@ workflow SmartSeq2SingleCell {
          hisat2_ref = hisat2_ref_index,
          fastq = fastq1,
          ref_name = hisat2_ref_name,
-         input_id = input_id,
+         input_id = input_fields.input_id,
          output_basename = quality_control_output_basename,
      }
   }
@@ -125,7 +123,7 @@ workflow SmartSeq2SingleCell {
           fastq1 = fastq1,
           fastq2 = fastq2,
           ref_name = hisat2_ref_trans_name,
-          input_id = input_id,
+          input_id = input_fields.input_id,
           output_basename = data_output_basename,
       }
   }
@@ -136,7 +134,7 @@ workflow SmartSeq2SingleCell {
           hisat2_ref = hisat2_ref_trans_index,
           fastq = fastq1,
           ref_name = hisat2_ref_trans_name,
-          input_id = input_id,
+          input_id = input_fields.input_id,
           output_basename = data_output_basename,
       }
   }
@@ -183,11 +181,11 @@ workflow SmartSeq2SingleCell {
     input:
       rsem_gene_results = RSEMExpression.rsem_gene,
       smartseq_qc_files = GroupQCOutputs.group_files,
-      input_id=input_id,
-      input_name = input_name,
+      input_id=input_fields.input_id,
+      input_name = input_fields.input_name,
       pipeline_version = "SmartSeq2SingleSample_v~{pipeline_version}",
-      input_id_metadata_field = input_id_metadata_field,
-      input_name_metadata_field = input_name_metadata_field
+      input_id_metadata_field = input_fields.input_id_metadata_field,
+      input_name_metadata_field = input_fields.input_name_metadata_field
   }
 
   output {

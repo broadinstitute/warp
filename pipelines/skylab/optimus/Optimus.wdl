@@ -16,6 +16,7 @@ import "../../../tasks/skylab/UmiCorrection.wdl" as UmiCorrection
 import "../../../tasks/skylab/ScatterBam.wdl" as ScatterBam
 import "../../../tasks/skylab/ModifyGtf.wdl" as ModifyGtf
 import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
+import "../../../structs/single_cell/SingleCellStructs.wdl"
 
 workflow Optimus {
   meta {
@@ -30,11 +31,8 @@ workflow Optimus {
     Array[File] r1_fastq
     Array[File] r2_fastq
     Array[File]? i1_fastq
-    String input_id
-    String output_bam_basename = input_id
-    String? input_name
-    String? input_id_metadata_field
-    String? input_name_metadata_field
+    LoomMetadata input_fields
+    String output_bam_basename = input_fields.input_id
     # organism reference parameters
     File tar_star_reference
     File annotations_gtf
@@ -92,7 +90,7 @@ workflow Optimus {
     call FastqToUBam.FastqToUBam {
       input:
         fastq_file = r2_fastq[index],
-        input_id = input_id,
+        input_id = input_fields.input_id,
         fastq_suffix = fastq_suffix
     }
 
@@ -256,10 +254,10 @@ workflow Optimus {
 
   call LoomUtils.OptimusLoomGeneration{
     input:
-      input_id = input_id,
-      input_name = input_name,
-      input_id_metadata_field = input_id_metadata_field,
-      input_name_metadata_field = input_name_metadata_field,
+      input_id = input_fields.input_id,
+      input_name = input_fields.input_name,
+      input_id_metadata_field = input_fields.input_id_metadata_field,
+      input_name_metadata_field = input_fields.input_name_metadata_field,
       annotation_file = annotations_gtf,
       cell_metrics = MergeCellMetrics.cell_metrics,
       gene_metrics = MergeGeneMetrics.gene_metrics,

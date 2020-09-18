@@ -23,14 +23,11 @@ workflow MultiSampleSmartSeq2 {
 
       # Sample information
       String stranded
-      Array[String] input_ids
-      Array[String]? input_names
+      Array[LoomMetadata] input_fields
       Array[String] fastq1_input_files
       Array[String] fastq2_input_files = []
       String batch_id
       String? batch_name
-      String? input_name_metadata_field
-      String? input_id_metadata_field
       Boolean paired_end
   }
   # Version of this pipeline
@@ -63,8 +60,7 @@ workflow MultiSampleSmartSeq2 {
   call checkInputArrays as checkArrays{
       input:
          paired_end = paired_end,
-         input_ids = input_ids,
-         input_names = input_names,
+         input_fields = input_fields,
          fastq1_input_files = fastq1_input_files,
          fastq2_input_files = fastq2_input_files
   }
@@ -85,12 +81,8 @@ workflow MultiSampleSmartSeq2 {
           hisat2_ref_trans_index = hisat2_ref_trans_index,
           hisat2_ref_trans_name = hisat2_ref_trans_name,
           rsem_ref_index = rsem_ref_index,
-          input_id = input_ids[idx],
-          output_name = input_ids[idx],
-          paired_end = paired_end,
-          input_name_metadata_field = input_name_metadata_field,
-          input_id_metadata_field = input_id_metadata_field,
-          input_name = if defined(input_names) then select_first([input_names])[idx] else none
+          input_fields = input_fields[idx],
+          paired_end = paired_end
       }
     }
   }
@@ -108,12 +100,8 @@ workflow MultiSampleSmartSeq2 {
           hisat2_ref_trans_index = hisat2_ref_trans_index,
           hisat2_ref_trans_name = hisat2_ref_trans_name,
           rsem_ref_index = rsem_ref_index,
-          input_id = input_ids[idx],
-          output_name = input_ids[idx],
-          paired_end = paired_end,
-          input_name_metadata_field = input_name_metadata_field,
-          input_id_metadata_field = input_id_metadata_field,
-          input_name = if defined(input_names) then select_first([input_names])[idx] else none
+          input_fields = input_fields[idx],
+          paired_end = paired_end
 
       }
     }
@@ -145,15 +133,13 @@ workflow MultiSampleSmartSeq2 {
 task checkInputArrays {
   input {
     Boolean paired_end
-    Array[String] input_ids
-    Array[String]? input_names
+    Array[LoomMetadata] input_fields
     Array[String] fastq1_input_files
     Array[String] fastq2_input_files
   }
-  Int len_input_ids = length(input_ids)
+  Int len_input_ids = length(input_fields)
   Int len_fastq1_input_files = length(fastq1_input_files)
   Int len_fastq2_input_files = length(fastq2_input_files)
-  Int len_input_names = if defined(input_names) then length(select_first([input_names])) else 0
 
   meta {
     description: "checks input arrays to ensure that all arrays are the same length"
@@ -166,12 +152,6 @@ task checkInputArrays {
       then
       echo "ERROR: Different number of arguments for input_id and fastq1 files"
       exit 1;
-    fi
-
-    if [[ ~{len_input_names} != 0  && ~{len_input_ids} !=  ~{len_input_names} ]]
-        then
-        echo "ERROR: Different number of arguments for input_name and input_id"
-        exit 1;
     fi
 
     if  ~{paired_end} && [[ ~{len_fastq2_input_files} != ~{len_input_ids} ]]
