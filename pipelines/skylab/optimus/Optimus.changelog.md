@@ -1,5 +1,11 @@
 # 4.0.0
 
+2020-09-18 (Date of Last Commit)
+
+* Removed fastq_suffix optional input
+
+# 4.0.0
+
 2020-08-10 (Date of Last Commit)
 ### Breaking changes
 * Changed sample_id to input_id

@@ -1,3 +1,9 @@
+# 5.0.1
+
+2020-09-18 (Date of Last Commit)
+
+* Chack if input fastq files are compressed in HISAT2.wdl task
+
 # 5.0.0
 
 2020-08-10 (Date of Last Commit)
