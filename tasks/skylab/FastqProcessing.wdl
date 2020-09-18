@@ -24,7 +24,7 @@ task FastqProcessing {
   Int command_mem_mb = machine_mem_mb - 500
 
   meta {
-    description: "Converts a fastq file into an unaligned bam file."
+    description: "Converts a set of fastq files to unaligned bam file, also corrects barcodes and partitions the alignments by barcodes."
   }
 
   parameter_meta {
