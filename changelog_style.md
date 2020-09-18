@@ -1,5 +1,5 @@
 # Changelog Style Guide Overview
-The style guide provides formatting guidelines and language suggestions for pipeline changelogs. It is divided into four sections: 1) Changelog Information, which details the types of changes listed in a changelog, 2) Language Usage, which describes language style and syntax for changelog information, 3) Changelog Format, which provides sample formatting for changelog information, and 4) Sample Changelog Entry, which displays an example of a changelog entry taken from the [Optimus.changelog.md file](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.changelog.md). 
+The style guide provides formatting guidelines and language suggestions for pipeline changelogs. It is divided into four sections: 1) Changelog Information, which details the types of changes listed in a changelog, 2) Language Usage, which describes language style and syntax for changelog information, 3) Changelog Format, which provides sample formatting for changelog information, and 4) Sample Changelog Entries, which displays two examples of changelog entries taken from the [Optimus.changelog.md file](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.changelog.md). 
 
 ## Changelog Information
 Pipeline changelogs have four informational parts:
@@ -23,11 +23,11 @@ The purpose of the date of last commit is to inform users of the relative timing
 
 This section describes (in bullet point format) every type of change made to the pipeline for the current pipeline version. Types of changes include: additions, updates, changes, deprecations, removals, fixes, and security updates. The type of change should be used as the first word of the bullet point (see examples below). These changes should be updated as pipeline changes are made even if the updated pipeline version has not been released. This will enable end-users to see what changes are coming when the new release is published.
 
-If changes are breaking changes to the pipleine, this section will be divided into two subsections: "Breaking changes" and "Additional changes". An example of these headers is hown in the 
+If changes are breaking changes to the pipeline (a major version update), this changelog section will be divided into two subsections: "Breaking changes" and "Additional changes". An example of these headers is shown in the [Sample Changelog Entries](#sample-changelog-entries) section.
 
 ## Language Usage
 
-All changelog notes should be bulleted (no period at the end of the final sentence of any one bullet point). Each bullet should include one type of change, but more than one sentence can be used to descibe the individual change. Bullets should be written in complete sentences, but with the caveat that personal pronouns (“I”, “We”, “They”) are omitted. The first word of each bullet should be capitalized and describe the type of change made (in past tense). 
+All changelog notes should be bulleted (no period at the end of the final sentence of any one bullet point). Each bullet should include one type of change, but more than one sentence can be used to describe the individual change. Bullets should be written in complete sentences, but with the caveat that personal pronouns (“I”, “We”, “They”) are omitted. The first word of each bullet should be capitalized and describe the type of change made (in past tense). 
 
 Examples of bullet points:
 
@@ -72,7 +72,10 @@ The following is the markdown format required for non-major changelog version up
 * "insert description of first pipeline change here" 
 * "insert description of additional change here- add more bullets as necessary for additional changes"
 
-## Sample Changelog Entry for a Major Version Update (Breaking Change)
+## Sample Changelog Entries 
+
+### Major Version Update (Breaking Change)
+
 # 4.0.0
 
 2020-08-10 (Date of Last Commit)
@@ -86,7 +89,8 @@ The following is the markdown format required for non-major changelog version up
 * Added input_id_metadata_field and input_name_metadata_field as optional input
 
 
-## Sample Changelog Entry for a Non-major Version Update (Non-breaking Change)
+### Non-major Version Update (Non-breaking Change)
+
 # 1.4.0
 
 2019-11-08 (Date of Last Commit)
@@ -95,4 +99,5 @@ The following is the markdown format required for non-major changelog version up
 * Added an input parameter validation step
 * Updated the documentation with additional information for the README and additional files for Loom schema and BAM tags
 * Updated the Zarr output
+
 
