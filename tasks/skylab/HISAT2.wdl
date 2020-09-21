@@ -138,7 +138,6 @@ task HISAT2RSEM {
   }
 
   command {
-    set -e
 
     # fix names if necessary.
     if [[ "${fastq1}" != *.fastq.gz ]]; then
@@ -155,6 +154,7 @@ task HISAT2RSEM {
         FQ2=${fastq2}
     fi
 
+    set -e
     tar --no-same-owner -xvf "${hisat2_ref}"
 
     # increase gap alignment penalty to avoid gap alignment

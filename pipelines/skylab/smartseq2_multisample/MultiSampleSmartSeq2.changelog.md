@@ -1,5 +1,11 @@
 # 2.1.0
 
+2020-09-21 (Date of Last Commit)
+
+* Added checks for compressed fastq input files
+
+# 2.1.0
+
 2020-08-10 (Date of Last Commit)
 
 ### Non-breaking changes
