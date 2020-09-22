@@ -63,6 +63,7 @@ workflow VerifyJointGenotyping {
   output {
     Array[File]? tables = VerifyNA12878.concordance_tables
   }
+  
   meta {
     allowNestedInputs: true
   }
