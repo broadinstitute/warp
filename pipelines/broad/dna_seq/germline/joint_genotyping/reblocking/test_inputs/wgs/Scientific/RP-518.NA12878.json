@@ -1,0 +1,4 @@
+{
+  "ReblockGVCF.gvcf": "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/truth/{TRUTH_BRANCH}/RP-518.NA12878/NA12878.huge-ubam.g.vcf.gz",
+  "ReblockGVCF.gvcf_index": "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/truth/{TRUTH_BRANCH}/RP-518.NA12878/NA12878.huge-ubam.g.vcf.gz.tbi"
+}

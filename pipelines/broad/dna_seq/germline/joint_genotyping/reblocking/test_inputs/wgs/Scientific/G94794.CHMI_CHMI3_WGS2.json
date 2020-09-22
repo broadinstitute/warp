@@ -1,0 +1,4 @@
+{
+  "ReblockGVCF.gvcf": "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/truth/{TRUTH_BRANCH}/G94794.CHMI_CHMI3_WGS2/CHMI_CHMI3_WGS2.f6c39eb5-0716-4f02-9be8-47b343c5830e.g.vcf.gz",
+  "ReblockGVCF.gvcf_index": "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/truth/{TRUTH_BRANCH}/G94794.CHMI_CHMI3_WGS2/CHMI_CHMI3_WGS2.f6c39eb5-0716-4f02-9be8-47b343c5830e.g.vcf.gz.tbi"
+}

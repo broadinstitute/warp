@@ -14,4 +14,7 @@ workflow VerifyReblockGVCF {
       file1 = test_gvcf,
       file2 = truth_gvcf
   }
+  meta {
+    allowNestedInputs: true
+  }
 }

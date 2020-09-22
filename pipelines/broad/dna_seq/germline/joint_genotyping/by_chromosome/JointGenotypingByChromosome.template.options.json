@@ -1,0 +1,14 @@
+{
+  "read_from_cache": true,
+  "write_to_cache": true,
+  "workflow_failure_mode" : "ContinueWhilePossible",
+  "jes_gcs_root": "{GCS_EXECUTION_BUCKET}{RANDOM_PROJECT}/",
+  "google_project": "{COMPUTE_PROJECT_PREFIX}{RANDOM_PROJECT}",
+  "default_runtime_attributes": {
+    "zones": "us-central1-a us-central1-b us-central1-c us-central1-f us-east1-b us-east1-c us-east1-d us-east4-a us-east4-b us-east4-c us-west1-a us-west1-b us-west1-c",
+    "bootDiskSizeGb": 50,
+    "maxRetries": 1
+  },
+  "backend": "PAPIv2",
+  "monitoring_script": "gs://broad-gotc-prod-storage/cromwell_monitoring_script.sh"
+}

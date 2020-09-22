@@ -1,0 +1,4 @@
+{
+  "ReblockGVCF.gvcf": "gs://broad-gotc-test-storage/germline_single_sample/exome/scientific/truth/{TRUTH_BRANCH}/RP-1535.NA17-308/NA17-308.g.vcf.gz",
+  "ReblockGVCF.gvcf_index": "gs://broad-gotc-test-storage/germline_single_sample/exome/scientific/truth/{TRUTH_BRANCH}/RP-1535.NA17-308/NA17-308.g.vcf.gz.tbi"
+}

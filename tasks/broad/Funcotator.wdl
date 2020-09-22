@@ -77,6 +77,9 @@ workflow Funcotator {
     File funcotated_vcf_out = Funcotate.funcotated_vcf
     File funcotated_vcf_out_idx = Funcotate.funcotated_vcf_index
   }
+  meta {
+    allowNestedInputs: true
+  }
 }
 
 
