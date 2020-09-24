@@ -1,6 +1,6 @@
 # Best Practices for Building Data Processing Pipelines
 
-Each of our pipelines are developed using the best practices detailed below and are approved by the [Human Cell Atlas Analysis Working Group](https://www.humancellatlas.org/learn-more/working-groups/). We describe each of these best practices to give insight as to why they are important and we provide examples to give you a sense of how to apply them.
+Each of our pipelines are developed using the best practices detailed below. We describe each of these best practices to give insight as to why they are important and we provide examples to give you a sense of how to apply them.
 
 Overall, the best pipelines should be:
 - automated
@@ -53,7 +53,7 @@ _Impact._ Pipelines will have greatest impact when they can be leveraged in mult
   
 _Maintainability._ Over the long term, it is easier to maintain pipelines that can be run in multiple environments. Portability avoids being tied to specific infrastructure and enables ease of deployment to development environments.
 
-Within the scope of the HCA, to ensure that others will be able to use your pipeline, avoid building in assumptions about environments and infrastructures in which it will run. 
+To ensure that others will be able to use your pipeline, avoid building in assumptions about environments and infrastructures in which it will run. 
 
 ### Configurability for running on different technical infrastructures.
 Code should not change to enable a pipeline to run on a different technical architecture; this change in execution environment should be configurable outside of the pipeline code.
