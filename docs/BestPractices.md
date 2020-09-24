@@ -1,6 +1,6 @@
 # Best Practices for Building Data Processing Pipelines
 
-Each of our pipelines are developed using the best practices detailed below. We describe each of these best practices to give insight as to why they are important and we provide examples to give you a sense of how to apply them.
+WARP pipeline development is guided by the best practices detailed below. We describe each of these best practices to give insight as to why they are important and we provide examples to give you a sense of how to apply them.
 
 Overall, the best pipelines should be:
 - automated
