@@ -28,9 +28,9 @@ Pipeline version numbers are updated based the following  guidelines:
 * Addition of optional inputs
 
 When pipelines are promoted to the master branch, a script packages the pipeline for release on GitHub. A release contains three components:
-A release name comprising the pipeline name and version number listed in the changelog (i.e. SmartSeq2SingleSample_v5.0.0)
-Release notes comprising the corresponding version changelog entry
-Artifacts including the main workflow WDL and a zip of all workflow dependencies 
+1. A release name comprising the pipeline name and version number listed in the changelog (i.e. SmartSeq2SingleSample_v5.0.0)
+2. Release notes comprising the corresponding version changelog entry
+3. Artifacts including the main workflow WDL and a zip of all workflow dependencies 
 
 Upon release, the pipeline is automatically pushed to Dockstore based on the WARP [Dockstore configuration](https://github.com/broadinstitute/warp/blob/develop/.dockstore.yml).
 
