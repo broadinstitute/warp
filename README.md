@@ -29,6 +29,8 @@ Our pipelines are written as “workflows” using the [Workflow Description Lan
 \
 *Ready to try the pipelines? You can get hands-on right away by testing our pipelines in [Terra](https://app.terra.bio/#workspaces?tagsFilter%5B0%5D=warp-pipelines&tab=public), a platform for collaborative cloud analysis! Learn how to get started in the [Using WARP](#2-run-the-pipeline-in-terra) section.*
 
+
+
 ## Navigating WARP
 All versioned and released pipelines are in one of the three [pipelines](https://github.com/broadinstitute/warp/tree/master/pipelines) subdirectories: broad (pipelines for the Broad institute’s Genomics Platform), cemba (pipelines for the Brain Initiative) or skylab (pipelines for the Human Cell Atlas Project). 
 
@@ -42,7 +44,7 @@ Pipelines that are in progress or have not yet been validated are in the [beta-p
 There are three ways to use WARP pipelines:
 ### 1. Download the workflow and run on a WDL-compatible execution engine 
 
-WDL workflows run on multiple systems, including [Cromwell](https://cromwell.readthedocs.io/en/stable/), [miniWDL](https://github.com/chanzuckerberg/miniwdl), and [dxWDL](https://github.com/dnanexus/dxWDL) (see the [openwdl documentation](https://github.com/openwdl/wdl#execution-engines)). To run a pipeline’s latest release, first navigate the WARP Releases, search for your pipeline’s tag, and download the pipeline’s assets (the WDL workflow, the JSON, and the ZIP with accompanying dependencies; see Optimus example below). 
+WDL workflows run on multiple systems, including [Cromwell](https://cromwell.readthedocs.io/en/stable/), [miniWDL](https://github.com/chanzuckerberg/miniwdl), and [dxWDL](https://github.com/dnanexus/dxWDL) (see the [openwdl documentation](https://github.com/openwdl/wdl#execution-engines)). To run a pipeline’s latest release, first navigate to WARP [Releases](https://github.com/broadinstitute/warp/releases), search for your pipeline’s tag, and download the pipeline’s assets (the WDL workflow, the JSON, and the ZIP with accompanying dependencies; see Optimus example below). 
 
 <img src="images/optimus_release.png" width="350">
 
@@ -71,12 +73,13 @@ To view all available pipelines, just search “warp” in the Dockstore search 
 <img src="images/Dockstore.png" width="600">
 
 ## WARP Versioning and Releasing
-Pipelines in WARP are versioned [semantically](https://semver.org/) to support reproducibility in scientific analysis and provide clearer analysis provenance. Version numbers allow researchers to confirm their data has all been processed in a compatible way. Semantic versioning gives immediate insight into the compatibility of pipeline outputs. Read more about versioning and releasing in WARP here [Link to VersionAndReleasePipelines.md].
+Pipelines in WARP are versioned [semantically](https://semver.org/) to support reproducibility in scientific analysis and provide clearer analysis provenance. Version numbers allow researchers to confirm their data has all been processed in a compatible way. Semantic versioning gives immediate insight into the compatibility of pipeline outputs. Read more about [versioning and releasing](VersionAndReleasePipelines.md) in WARP.
 
 ## Testing in WARP
-Each pipeline in WARP has accompanying continuous integration tests that run on each Pull Request (PR). These tests help ensure that no unexpected changes are made to each pipeline and confirm that each affected pipeline is tested with any changes to shared code. To support rapid development iteration, only the pipelines affected by a PR are tested and PRs to develop run “plumbing” tests using small or downsampled inputs. When the staging branch is promoted to master, the updated pipelines will be tested more rigorously on a larger selection of data that covers more scientific test cases. Read more about our [testing process](Link to TestingPipelines.md).
+Each pipeline in WARP has accompanying continuous integration tests that run on each Pull Request (PR). These tests help ensure that no unexpected changes are made to each pipeline and confirm that each affected pipeline is tested with any changes to shared code. To support rapid development iteration, only the pipelines affected by a PR are tested and PRs to the `develop` branch run “plumbing” tests using small or downsampled inputs. When the `staging` branch is promoted to `master`, the updated pipelines will be tested more rigorously on a larger selection of data that covers more scientific test cases. Read more about our [testing process](TestingPipelines.md).
+
 ## Feedback
-WARP is always evolving! Please file any issues in GitHub or reach out to [Kylee Degatano](mailto:kdegatano@broadinstitute.org) with suggestions, feedback, or questions. We are always excited to discuss cloud data processing, provenance and reproducibility in scientific analysis, new pipeline features, or potential collaborations. Don’t hesitate to reach out!
+WARP is always evolving! Please file any issues in GitHub or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) with suggestions, feedback, or questions. We are always excited to discuss cloud data processing, provenance and reproducibility in scientific analysis, new pipeline features, or potential collaborations. Don’t hesitate to reach out!
 
 Our planned upcoming improvements include:
 
