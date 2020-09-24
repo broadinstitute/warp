@@ -26,7 +26,10 @@ Our pipelines are written as “workflows” using the [Workflow Description Lan
 | Joint Genotyping | Genomes, Exomes | 
 | Somatic Alignment (beta) | Exomes |
 
+\
 *Ready to try the pipelines? You can get hands-on right away by testing our pipelines in [Terra](https://app.terra.bio/#workspaces?tagsFilter%5B0%5D=warp-pipelines&tab=public), a platform for collaborative cloud analysis! Learn how to get started in the [Using WARP](#2-run-the-pipeline-in-terra) section.*
+
+
 
 ## Navigating WARP
 All versioned and released pipelines are in one of the three [pipelines](https://github.com/broadinstitute/warp/tree/master/pipelines) subdirectories: broad (pipelines for the Broad institute’s Genomics Platform), cemba (pipelines for the Brain Initiative) or skylab (pipelines for the Human Cell Atlas Project). 
