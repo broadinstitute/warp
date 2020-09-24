@@ -57,7 +57,7 @@ Several WARP pipelines are available in public workspaces on the Terra cloud pla
 
 If you are new to Terra, you can get started by registering with your Google account and visiting [Terra Support](https://support.terra.bio/hc/en-us). After registration, search for WARP-related workspaces with the “warp-pipelines” tag. 
 
-<img src="images/Terra_warp.png" width="350">
+<img src="images/Terra_warp.png" width="600">
 
 To test the pipeline, clone (make a copy of) the workspace following the instructions in this Terra Support [guide](https://support.terra.bio/hc/en-us/articles/360026130851).
 
@@ -67,7 +67,7 @@ To test the pipeline, clone (make a copy of) the workspace following the instruc
 
 To view all available pipelines, just search “warp” in the Dockstore search and browse the workflow list. See [Dockstore documentation](https://docs.dockstore.org/en/develop/index.html) for details on launching the workflow.
 
-<img src="images/Dockstore.png" width="350">
+<img src="images/Dockstore.png" width="600">
 
 ## WARP Versioning and Releasing
 Pipelines in WARP are versioned [semantically](https://semver.org/) to support reproducibility in scientific analysis and provide clearer analysis provenance. Version numbers allow researchers to confirm their data has all been processed in a compatible way. Semantic versioning gives immediate insight into the compatibility of pipeline outputs. Read more about versioning and releasing in WARP here [Link to VersionAndReleasePipelines.md].
