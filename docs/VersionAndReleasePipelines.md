@@ -20,12 +20,12 @@ Pipeline version numbers are updated based the following  guidelines:
 * Any breaking changes to the pipeline, including input/output refactors, renaming of the pipeline, and changes to input/output formats.
 
 #### Minor changes
-* Addition of new outputs that don’t impact previous outputs; for example, adding a new md5 checksum output or outputting new QC metrics
+* Addition of new outputs that don’t impact previous outputs; for example, adding a new md5 checksum output or outputting new QC metrics.
 * Changes to the pipeline that do not qualitatively impact the scientific outputs, but may produce slightly different outputs (no data reprocessing needed). 
 
 #### Patch (micro) changes
-* Memory changes, internal refactor or variable name changes, speed or cost optimizations, comments, metadata
-* Addition of optional inputs
+* Memory changes, internal refactor or variable name changes, speed or cost optimizations, comments, metadata.
+* Addition of optional inputs.
 
 When pipelines are promoted to the master branch, a script packages the pipeline for release on GitHub. A release contains three components:
 1. A release name comprising the pipeline name and version number listed in the changelog (i.e. SmartSeq2SingleSample_v5.0.0)
