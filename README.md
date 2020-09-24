@@ -37,14 +37,17 @@ Workflows may call additional WDLs, referred to as tasks, that are located in th
 
 Pipelines that are in progress or have not yet been validated are in the [beta-pipelines](https://github.com/broadinstitute/warp/tree/master/beta-pipelines) folder.
 
-# Using WARP
+## Using WARP
 There are three ways to use WARP pipelines:
 ### 1. Download the workflow and run on a WDL-compatible execution engine 
 
 WDL workflows run on multiple systems, including [Cromwell](https://cromwell.readthedocs.io/en/stable/), [miniWDL](https://github.com/chanzuckerberg/miniwdl), and [dxWDL](https://github.com/dnanexus/dxWDL) (see the [openwdl documentation](https://github.com/openwdl/wdl#execution-engines)). To run a pipeline’s latest release, first navigate the WARP Releases, search for your pipeline’s tag, and download the pipeline’s assets (the WDL workflow, the JSON, and the ZIP with accompanying dependencies; see Optimus example below). 
 
+<img src="images/optimus_release.png" width="350">
 
 You can also acccess a pipeline’s release page by selecting the pipeline version number at the top of the pipeline’s README. 
+
+<img src="images/optimus_readme_tag.png" width="500">
 
 
 After downloading the pipeline’s assets, launch the workflow following your execution engine’s instructions.
@@ -54,7 +57,7 @@ Several WARP pipelines are available in public workspaces on the Terra cloud pla
 
 If you are new to Terra, you can get started by registering with your Google account and visiting [Terra Support](https://support.terra.bio/hc/en-us). After registration, search for WARP-related workspaces with the “warp-pipelines” tag. 
 
-
+<img src="images/Terra_warp.png" width="350">
 
 To test the pipeline, clone (make a copy of) the workspace following the instructions in this Terra Support [guide](https://support.terra.bio/hc/en-us/articles/360026130851).
 
@@ -64,7 +67,7 @@ To test the pipeline, clone (make a copy of) the workspace following the instruc
 
 To view all available pipelines, just search “warp” in the Dockstore search and browse the workflow list. See [Dockstore documentation](https://docs.dockstore.org/en/develop/index.html) for details on launching the workflow.
 
-
+<img src="images/Dockstore.png" width="350">
 
 ## WARP Versioning and Releasing
 Pipelines in WARP are versioned [semantically](https://semver.org/) to support reproducibility in scientific analysis and provide clearer analysis provenance. Version numbers allow researchers to confirm their data has all been processed in a compatible way. Semantic versioning gives immediate insight into the compatibility of pipeline outputs. Read more about versioning and releasing in WARP here [Link to VersionAndReleasePipelines.md].
