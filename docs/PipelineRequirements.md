@@ -10,4 +10,4 @@ All released WARP pipelines should meet the following criteria:
 8. Pipelines are developed in a collaboration between software engineers and a scientific owner of each pipeline who must approve all changes to the code and verify that any resulting changes in outputs are scientifically valid. 
 9. Pipelines have a pre-prepared methods section to enable easy citation
 
-Read more about our pipeline development [Best Practices](Link to a WARP version of https://github.com/HumanCellAtlas/data-portal/blob/ux-dev/content/pipelines/pipeline-development/processing-pipelines/pipeline-best-practices.md).
+Read more about our pipeline development [Best Practices](BestPractices.md).
