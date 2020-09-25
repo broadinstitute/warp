@@ -32,18 +32,10 @@ task FastqToUBam {
   }
 
   command {
-    FQ=~{fastq_file}
-    # Adds fastq_suffix if it is passed
-    if [[ "~{fastq_file}" != *.fastq.gz ]]; then
-        if (file "~{fastq_file}" | grep -q compressed); then
-            FQ=~{fastq_file}.fastq.gz
-            mv ~{fastq_file} ~{fastq_file}.fastq.gz
-        fi 
-    fi
 
     set -e
     java -Xmx~{command_mem_mb}m -jar /usr/picard/picard.jar FastqToSam \
-      FASTQ=$FQ \
+      FASTQ=${fastq_file} \
       SORT_ORDER=unsorted \
       OUTPUT=bamfile.bam \
       SAMPLE_NAME="~{input_id}"

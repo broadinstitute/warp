@@ -6,6 +6,7 @@ import "../../../tasks/skylab/RSEM.wdl" as RSEM
 import "../../../tasks/skylab/GroupMetricsOutputs.wdl" as GroupQCs
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 import "../../../tasks/skylab/SS2InputChecks.wdl" as SS2InputChecks
+import "../../../tasks/skylab/CheckFastqCompression.wdl" as CheckFastqCompression
 
 workflow SmartSeq2SingleCell {
   meta {
@@ -64,6 +65,12 @@ workflow SmartSeq2SingleCell {
         fastq2 = fastq2,
         paired_end = paired_end,
         force_no_check = force_no_check,
+  }
+
+  call CheckFastqCompression.CheckCompression {
+    input:
+        fastq1 = fastq1,
+        fastq2 = fastq2
   }
 
   String quality_control_output_basename = output_name + "_qc"

@@ -16,6 +16,7 @@ import "../../../tasks/skylab/UmiCorrection.wdl" as UmiCorrection
 import "../../../tasks/skylab/ScatterBam.wdl" as ScatterBam
 import "../../../tasks/skylab/ModifyGtf.wdl" as ModifyGtf
 import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
+import "../../../tasks/skylab/CheckFastqCompression.wdl" as CheckFastqCompression
 
 workflow Optimus {
   meta {
@@ -81,6 +82,12 @@ workflow Optimus {
       force_no_check = force_no_check,
       chemistry = chemistry,
       counting_mode = counting_mode
+  }
+
+  call CheckFastqCompression.CheckCompression {
+    input:
+        r1_fastq = r1_fastq,
+        r2_fastq = r2_fastq
   }
 
   scatter (index in indices) {

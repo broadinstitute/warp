@@ -43,35 +43,6 @@ task HISAT2PairedEnd {
 
     set -e
 
-    # fix names if necessary.
-    if (file "${fastq1}" | grep -q compressed); then
-        if [[ "${fastq1}" != *.gz ]]; then
-            if [[ "${fastq1}" != *.fastq ]]; then
-                FQ1=${fastq1}.fastq.gz
-                mv ${fastq1} ${fastq1}.fastq.gz
-            else
-                FQ1=${fastq1}.gz
-                mv ${fastq1} ${fastq1}.gz
-            fi
-        else
-            FQ1=${fastq1}
-        fi
-    fi
-
-    if (file "${fastq2}" | grep -q compressed); then
-        if [[ "${fastq2}" != *.gz ]]; then
-            if [[ "${fastq2}" != *.fastq ]]; then
-                FQ2=${fastq2}.fastq.gz
-                mv ${fastq2} ${fastq2}.fastq.gz
-            else
-                FQ2=${fastq2}.gz
-                mv ${fastq2} ${fastq2}.gz
-            fi
-        else
-            FQ2=${fastq2}
-        fi
-    fi
-
     tar --no-same-owner -xvf "${hisat2_ref}"
 
     # run HISAT2 to genome reference with dedault parameters
@@ -80,8 +51,8 @@ task HISAT2PairedEnd {
     # searches for up to 10 primary alignments for each read
     hisat2 -t \
       -x ${ref_name}/${ref_name} \
-      -1 $FQ1 \
-      -2 $FQ2 \
+      -1 ${fastq1} \
+      -2 ${fastq2} \
       --rg-id=${input_id} --rg SM:${input_id} --rg LB:${input_id} \
       --rg PL:ILLUMINA --rg PU:${input_id} \
       --new-summary --summary-file ${output_basename}.log \
@@ -149,21 +120,6 @@ task HISAT2RSEM {
 
   command {
 
-    # fix names if necessary.
-    if [[ "${fastq1}" != *.fastq.gz ]]; then
-        FQ1=${fastq1}.fastq.gz
-        mv ${fastq1} ${fastq1}.fastq.gz
-    else
-        FQ1=${fastq1}
-    fi
-
-    if [[ "${fastq2}" != *.fastq.gz ]]; then
-        FQ2=${fastq2}.fastq.gz
-        mv ${fastq2} ${fastq2}.fastq.gz
-    else
-        FQ2=${fastq2}
-    fi
-
     set -e
     tar --no-same-owner -xvf "${hisat2_ref}"
 
@@ -175,8 +131,8 @@ task HISAT2RSEM {
     # As a result, alignments with gaps or deletions are excluded.
     hisat2 -t \
       -x ${ref_name}/${ref_name} \
-      -1 $FQ1 \
-      -2 $FQ2 \
+      -1 ${fastq1} \
+      -2 ${fastq2} \
       --rg-id=${input_id} --rg SM:${input_id} --rg LB:${input_id} \
       --rg PL:ILLUMINA --rg PU:${input_id} \
       --new-summary --summary-file ${output_basename}.log \
@@ -249,18 +205,10 @@ input {
     set -e
     tar --no-same-owner -xvf "~{hisat2_ref}"
 
-    # fix file names if necessary.
-    if [[ "~{fastq}" != *.fastq.gz ]]; then
-        FQ=~{fastq}.fastq.gz
-        mv ~{fastq} ~{fastq}.fastq.gz
-    else
-        FQ=~{fastq}
-    fi
-
     # The parameters for this task are copied from the HISAT2PairedEnd task.
     hisat2 -t \
       -x ~{ref_name}/~{ref_name} \
-      -U $FQ \
+      -U ${fastq} \
       --rg-id=~{input_id} --rg SM:~{input_id} --rg LB:~{input_id} \
       --rg PL:ILLUMINA --rg PU:~{input_id} \
       --new-summary --summary-file "~{output_basename}.log" \
@@ -373,15 +321,6 @@ task HISAT2RSEMSingleEnd {
   command {
     set -e
 
-    # fix names if necessary.
-    if [[ "${fastq}" != *.fastq.gz ]]; then
-        FQ=${fastq}.fastq.gz
-        mv ${fastq} ${fastq}.fastq.gz
-    else
-        FQ=${fastq}
-    fi
-
-
     tar --no-same-owner -xvf "${hisat2_ref}"
 
     # increase gap alignment penalty to avoid gap alignment
@@ -392,7 +331,7 @@ task HISAT2RSEMSingleEnd {
     # As a result, alignments with gaps or deletions are excluded.
     hisat2 -t \
       -x ${ref_name}/${ref_name} \
-      -U $FQ \
+      -U ${fastq} \
       --rg-id=${input_id} --rg SM:${input_id} --rg LB:${input_id} \
       --rg PL:ILLUMINA --rg PU:${input_id} \
       --new-summary --summary-file ${output_basename}.log \
