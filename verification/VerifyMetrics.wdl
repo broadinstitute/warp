@@ -78,7 +78,7 @@ task CompareMetricFiles {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.2"
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
     preemptible: 3

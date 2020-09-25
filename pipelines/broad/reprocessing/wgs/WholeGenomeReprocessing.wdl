@@ -6,7 +6,7 @@ import "../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 workflow WholeGenomeReprocessing {
 
-  String pipeline_version = "2.1.0"
+  String pipeline_version = "2.2.0"
 
   input {
     File? input_cram

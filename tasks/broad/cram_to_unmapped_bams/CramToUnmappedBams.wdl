@@ -116,9 +116,9 @@ task RevertSam {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.22.3"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.2"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "3.75 GiB"
+    memory: "3.5 GiB"
     preemptible: 3
   }
 
@@ -140,18 +140,18 @@ task CramToBam {
 
   command <<<
 
-  set -e
-  set -o pipefail
+    set -e
+    set -o pipefail
 
-  samtools view -h -T ~{ref_fasta} ~{cram_file} |
-  samtools view -b -o ~{output_basename}.bam -
-  samtools index -b ~{output_basename}.bam
-  mv ~{output_basename}.bam.bai ~{output_basename}.bai
+    samtools view -h -T ~{ref_fasta} ~{cram_file} |
+    samtools view -b -o ~{output_basename}.bam -
+    samtools index -b ~{output_basename}.bam
+    mv ~{output_basename}.bam.bai ~{output_basename}.bai
 
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.3-1564508330"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.5-1594393690"
     cpu: 3
     memory: "7.5 GiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -186,7 +186,7 @@ task GenerateOutputMap {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.3-1564508330"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.5-1594393690"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.75 GiB"
     preemptible: 3
@@ -216,7 +216,7 @@ task SplitUpOutputMapFile {
   }
 
   output {
-      Array[File] rg_to_ubam_file = glob("rgtemp/rg_to_ubam_*")
+    Array[File] rg_to_ubam_file = glob("rgtemp/rg_to_ubam_*")
   }
 }
 
@@ -240,7 +240,7 @@ task SplitOutUbamByReadGroup {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.3-1564508330"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.5-1594393690"
     cpu: 2
     disks: "local-disk " + disk_size + " HDD"
     memory: "30 GiB"
@@ -267,7 +267,7 @@ task ValidateSamFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.22.3"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.2"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.75 GiB"
     preemptible: 3
@@ -289,7 +289,6 @@ task SortSam {
   Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
 
   command <<<
-
     java -Xms7g -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
     SortSam \
     --INPUT ~{input_bam} \
@@ -300,7 +299,7 @@ task SortSam {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.22.3"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.2"
     disks: "local-disk " + disk_size + " HDD"
     memory: "7.5 GiB"
     preemptible: 3
