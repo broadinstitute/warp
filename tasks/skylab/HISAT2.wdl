@@ -45,18 +45,28 @@ task HISAT2PairedEnd {
 
     # fix names if necessary.
     if (file "${fastq1}" | grep -q compressed); then
-        if [[ "${fastq1}" != *.fastq.gz ]]; then
-            FQ1=${fastq1}.fastq.gz
-            mv ${fastq1} ${fastq1}.fastq.gz
+        if [[ "${fastq1}" != *.gz ]]; then
+            if [[ "${fastq1}" != *.fastq ]]; then
+                FQ1=${fastq1}.fastq.gz
+                mv ${fastq1} ${fastq1}.fastq.gz
+            else
+                FQ1=${fastq1}.gz
+                mv ${fastq1} ${fastq1}.gz
+            fi
         else
             FQ1=${fastq1}
         fi
     fi
 
     if (file "${fastq2}" | grep -q compressed); then
-        if [[ "${fastq2}" != *.fastq.gz ]]; then
-            FQ2=${fastq2}.fastq.gz
-            mv ${fastq2} ${fastq2}.fastq.gz
+        if [[ "${fastq2}" != *.gz ]]; then
+            if [[ "${fastq2}" != *.fastq ]]; then
+                FQ2=${fastq2}.fastq.gz
+                mv ${fastq2} ${fastq2}.fastq.gz
+            else
+                FQ2=${fastq2}.gz
+                mv ${fastq2} ${fastq2}.gz
+            fi
         else
             FQ2=${fastq2}
         fi
