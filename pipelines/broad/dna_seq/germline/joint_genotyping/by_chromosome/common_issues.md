@@ -144,7 +144,6 @@ docker run -d \
   --output-database-name /workingDir/${OUTPUT_VCF_BASE_NAME}.annotations.vcf.gz \
   -D gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf \
   --only-output-calls-starting-in-intervals \
-  --use-new-qual-calculator \
   -V gendb:///workingDir/genomicsdb \
   -L ${CLOUD_INTERVALS_PATH} \
   -stand-call-conf 10 \
