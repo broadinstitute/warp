@@ -1,8 +1,8 @@
-# 4.0.0
+# 4.1.0
 
 2020-09-18 (Date of Last Commit)
 
-* Removed fastq_suffix optional input
+* Removed fastq_suffix optional input - the pipeline now dynamically determines if a file is zipped
 
 # 4.0.0
 
