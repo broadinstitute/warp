@@ -32,7 +32,7 @@ Our pipelines are written as “workflows” using the [Workflow Description Lan
 
 
 ## Navigating WARP
-All versioned and released pipelines are in one of the three [pipelines](https://github.com/broadinstitute/warp/tree/master/pipelines) subdirectories: broad (pipelines for the Broad institute’s Genomics Platform), cemba (pipelines for the BRAIN Initiative) or skylab (pipelines for the Human Cell Atlas Project). 
+All versioned and released pipelines are in one of the three [pipelines](https://github.com/broadinstitute/warp/tree/master/pipelines) subdirectories: broad (pipelines for the Broad Institute’s Genomics Platform), cemba (pipelines for the BRAIN Initiative) or skylab (pipelines for the Human Cell Atlas Project). 
 
 Each pipeline directory hosts a main workflow WDL that includes a version number and a corresponding changelog file. 
 
@@ -93,4 +93,3 @@ Our planned upcoming improvements include:
 
 ## Acknowledgements
 WARP is maintained by the Broad Institute Data Sciences Platform (DSP) in collaboration with partner organizations. The Lantern Pipelines team maintains the repository with invaluable scientific oversight and pipeline contributions from the DSP Methods group as well as the HCA and BRAIN Initiative Analysis Working Groups. We thank the DSP Customer Delivery team for their help with user-, documentation-, and Terra- support. WARP pipelines have been made in collaboration with or informed by scientists across many institutions, including: labs at the Broad Institute, the European Bioinformatics Institute, Chan Zuckerburg Initiative, NY Genome Center, University of California Santa Cruz, Berkeley, and San Diego, the Allen Institute, Johns Hopkins Medical Institute, and the Baylor College of Medicine.
-
