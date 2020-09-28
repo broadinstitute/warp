@@ -48,7 +48,7 @@ WDL workflows run on multiple systems, including [Cromwell](https://cromwell.rea
 
 <img src="images/optimus_release.png" width="350">
 
-You can also acccess a pipeline’s release page by selecting the pipeline version number at the top of the pipeline’s README. 
+You can also access a pipeline’s release page by selecting the pipeline version number at the top of the pipeline’s README. 
 
 <img src="images/optimus_readme_tag.png" width="500">
 
