@@ -27,7 +27,7 @@ Pipelines cannot scale to large amounts of data, or many runs, if manual steps m
   
 ## Testability
 ### What is a testable pipeline?
-A testable pipeline is one in which isolated sections or the full pipeline can checked for specified characteristics without modifying the pipeline’s code. Testability requires the existence of appropriate data with which to run the test and a testing checklist that reflects a clear understanding of how the data will be used to evaluate the pipeline.
+A testable pipeline is one in which isolated sections or the full pipeline can be checked for specified characteristics without modifying the pipeline’s code. Testability requires the existence of appropriate data with which to run the test and a testing checklist that reflects a clear understanding of how the data will be used to evaluate the pipeline.
   
 ### Why do we care about testabilty?
 The availability of test data enables validation that the pipeline can produce the desired outcome. Formulation of a testing checklist allows the developer to clearly define the capabilities of the pipeline and the parameters of its use.
@@ -120,4 +120,3 @@ Licenses sometimes legally bind you as to how you use tools, and sometimes the t
 
 - *Do*: Select tools that are openly licensed to run in your pipelines to avoid the possibility that legal requirements will  restrict execution where technical requirements do not.
 - *Don’t*: Create software tools or libraries without licenses, clear guidance on your intent for use is important.
-
