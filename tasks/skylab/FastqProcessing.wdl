@@ -10,7 +10,7 @@ task FastqProcessing {
     String sample_id
 
     # runtime values
-    String docker = "quay.io/humancellatlas/fastq-process"
+    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.10"
     Int machine_mem_mb = 3850
     Int cpu = 16   
     #TODO decided cpu
@@ -30,7 +30,7 @@ task FastqProcessing {
   parameter_meta {
     r1_fastq: "input fastq file"
     r2_fastq: "input fastq file"
-    i1_fastq: "input fastq file"
+    i1_fastq: "(optional) input fastq file"
     whitelist: "10x genomics cell barcode whitelist"
     chemistry: "chemistry employed, currently can be tenX_v2 or tenX_v3, the latter implies NO feature barcodes"
     sample_id: "name of sample matching this file, inserted into read group header"
