@@ -5,11 +5,11 @@ WARP pipelines have accompanying automated tests that run on each Pull Request (
 
 WARP has three main branches that are used for different stages of pipeline testing: **develop**, **staging**, and **master**: 
 
-| Branch | Purpose | Additional Details |
-| --- | --- | --- |
-| develop |  Code that has passed plumbing tests; pre-releases for testing | Commenting “Test Science Please” on a PR to develop will start the appropriate scientific tests for early scientific validation |
-| staging | Release candidate code that is frozen for longer scientific testing |   |
-| master | Code that has passed scientific testings; published release artifacts |   |
+| Branch | Purpose |
+| --- | --- |
+| develop |  Code that has passed plumbing tests; pre-releases for testing | 
+| staging | Release candidate code that is frozen for longer scientific testing | 
+| master | Code that has passed scientific testings; published release artifacts | 
 
 ## Initiating pipeline tests
 
