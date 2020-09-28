@@ -34,7 +34,7 @@ Our pipelines are written as “workflows” using the [Workflow Description Lan
 ## Navigating WARP
 All versioned and released pipelines are in one of the three [pipelines](https://github.com/broadinstitute/warp/tree/master/pipelines) subdirectories: broad (pipelines for the Broad Institute’s Genomics Platform), cemba (pipelines for the BRAIN Initiative) or skylab (pipelines for the Human Cell Atlas Project). 
 
-Each pipeline directory hosts a main workflow WDL that includes a version number and a corresponding changelog file. 
+Each pipeline directory hosts a main workflow WDL that includes a pipeline version number and a corresponding changelog file. 
 
 Workflows may call additional WDLs, referred to as tasks, that are located in the [tasks](https://github.com/broadinstitute/warp/tree/master/tasks) directory. 
 
