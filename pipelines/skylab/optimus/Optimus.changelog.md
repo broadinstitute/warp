@@ -1,8 +1,8 @@
 # 4.0.1
 
 2020-09-14 (Date of Last Commit)
-### Non-breaking changes 
-* Removed the task steps FastqToUBam, AttachBarcodes, SplitBamByCellBarcode, ScatterBam by FastqProcessing
+
+* Replaced the tasks FastqToUBam, AttachBarcodes, SplitBamByCellBarcode, ScatterBam with a new task FastqProcessing
 
 
 # 4.0.0
