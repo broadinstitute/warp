@@ -12,10 +12,10 @@ module.exports = {
     defaultMode: 'light',
     navbar: {
       title: 'WARP',
-      logo: {
-        alt: 'Logo',
-        src: 'img/logo.svg',
-      },
+      // logo: {
+      //   alt: 'Logo',
+      //   src: 'img/logo.svg',
+      // },
       items: [
         {
           to: 'docs/',
@@ -57,7 +57,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `BSD-3-Clause Licensed | Copyright © ${new Date().getFullYear()} Data Sciences Platform, Broad Institute. Built with Docusaurus.`,
+      copyright: `BSD-3-Clause Licensed | Copyright © ${new Date().getFullYear()} Data Sciences Platform, Broad Institute.`,
     },
   },
   presets: [
