@@ -27,14 +27,14 @@ Our pipelines are written as “workflows” using the [Workflow Description Lan
 | Somatic Alignment (beta) | Exomes |
 
 \
-*Ready to try the pipelines? You can get hands-on right away by testing our pipelines in [Terra](https://app.terra.bio/#workspaces?tagsFilter%5B0%5D=warp-pipelines&tab=public), a platform for collaborative cloud analysis! Learn how to get started in the [Using WARP](#2-run-the-pipeline-in-terra) section.*
+*Try our pipelines in [Terra](https://app.terra.bio/#workspaces?tagsFilter%5B0%5D=warp-pipelines&tab=public), a platform for collaborative cloud analysis! Learn how  in the [Using WARP](#2-run-the-pipeline-in-terra) section.*
 
 
 
 ## Navigating WARP
-All versioned and released pipelines are in one of the three [pipelines](https://github.com/broadinstitute/warp/tree/master/pipelines) subdirectories: broad (pipelines for the Broad institute’s Genomics Platform), cemba (pipelines for the Brain Initiative) or skylab (pipelines for the Human Cell Atlas Project). 
+All versioned and released pipelines are in one of the three [pipelines](https://github.com/broadinstitute/warp/tree/master/pipelines) subdirectories: broad (pipelines for the Broad Institute’s Genomics Platform), cemba (pipelines for the BRAIN Initiative) or skylab (pipelines for the Human Cell Atlas Project). 
 
-Each pipeline directory hosts a main workflow WDL that includes a version number and a corresponding changelog file. 
+Each pipeline directory hosts a main workflow WDL that includes a pipeline version number and a corresponding changelog file. 
 
 Workflows may call additional WDLs, referred to as tasks, that are located in the [tasks](https://github.com/broadinstitute/warp/tree/master/tasks) directory. 
 
@@ -48,7 +48,7 @@ WDL workflows run on multiple systems, including [Cromwell](https://cromwell.rea
 
 <img src="images/optimus_release.png" width="350">
 
-You can also acccess a pipeline’s release page by selecting the pipeline version number at the top of the pipeline’s README. 
+You can also access a pipeline’s release page by selecting the pipeline version number at the top of the pipeline’s README. 
 
 <img src="images/optimus_readme_tag.png" width="500">
 
@@ -76,7 +76,7 @@ To view all available pipelines, just search “warp” in the Dockstore search 
 Pipelines in WARP are versioned [semantically](https://semver.org/) to support reproducibility in scientific analysis and provide clearer analysis provenance. Version numbers allow researchers to confirm their data has all been processed in a compatible way. Semantic versioning gives immediate insight into the compatibility of pipeline outputs. Read more about [versioning and releasing](VersionAndReleasePipelines.md) in WARP.
 
 ## Testing in WARP
-Each pipeline in WARP has accompanying continuous integration tests that run on each Pull Request (PR). These tests help ensure that no unexpected changes are made to each pipeline and confirm that each affected pipeline is tested with any changes to shared code. To support rapid development iteration, only the pipelines affected by a PR are tested and PRs to the `develop` branch run “plumbing” tests using small or downsampled inputs. When the `staging` branch is promoted to `master`, the updated pipelines will be tested more rigorously on a larger selection of data that covers more scientific test cases. Read more about our [testing process](TestingPipelines.md).
+Each pipeline in WARP has accompanying continuous integration tests that run on each pull request (PR). These tests help ensure that no unexpected changes are made to each pipeline and confirm that each affected pipeline is tested with any changes to shared code. To support rapid development iteration, only the pipelines affected by a PR are tested and PRs to the `develop` branch run “plumbing” tests using small or downsampled inputs. When the `staging` branch is promoted to `master`, the updated pipelines will be tested more rigorously on a larger selection of data that covers more scientific test cases. Read more about our [testing process](TestingPipelines.md).
 
 ## Feedback
 WARP is always evolving! Please file any issues in GitHub or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) with suggestions, feedback, or questions. We are always excited to discuss cloud data processing, provenance and reproducibility in scientific analysis, new pipeline features, or potential collaborations. Don’t hesitate to reach out!
@@ -93,5 +93,3 @@ Our planned upcoming improvements include:
 
 ## Acknowledgements
 WARP is maintained by the Broad Institute Data Sciences Platform (DSP) in collaboration with partner organizations. The Lantern Pipelines team maintains the repository with invaluable scientific oversight and pipeline contributions from the DSP Methods group as well as the HCA and BRAIN Initiative Analysis Working Groups. We thank the DSP Customer Delivery team for their help with user-, documentation-, and Terra- support. WARP pipelines have been made in collaboration with or informed by scientists across many institutions, including: labs at the Broad Institute, the European Bioinformatics Institute, Chan Zuckerburg Initiative, NY Genome Center, University of California Santa Cruz, Berkeley, and San Diego, the Allen Institute, Johns Hopkins Medical Institute, and the Baylor College of Medicine.
-
-
