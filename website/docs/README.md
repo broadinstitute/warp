@@ -60,3 +60,7 @@ To format with default code styles, run:
 yarn format
 ```
 (this will only format files under `.vuepress`, you could change the `"format": "prettier --write"` in `[package.json](./package.json)` to also format markdown file if needed)
+
+### Deploy
+
+This website currently hosted on Github Pages at https://broadinstitute.github.io/warp. The `gh-pages` branch is hosting the static files. Push the static files to that branch in order to deploy.
