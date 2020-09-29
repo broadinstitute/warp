@@ -9,9 +9,9 @@
   },
   "repository": "https://github.com/broadinstitute/warp/warp",
   "scripts": {
-    "dev": "vuepress dev src",
-    "build": "vuepress build src",
-    "format": "prettier --write src"
+    "dev": "vuepress dev",
+    "build": "vuepress build",
+    "format": "prettier --write"
   },
   "license": "MIT",
   "devDependencies": {

@@ -32,15 +32,15 @@ yarn dev
 
 ### Routing
 
-The routing table of the entire site can be found at [src/.vuepress/config.js](./src/.vuepress/config.js). See [VuePress Docs](https://vuepress.vuejs.org/guide/directory-structure.html#directory-structure) for more details.
+The routing table of the entire site can be found at [.vuepress/config.js](./.vuepress/config.js). See [VuePress Docs](https://vuepress.vuejs.org/guide/directory-structure.html#directory-structure) for more details.
 
 ### Custom Styles
 
 Most of the customization is done in 3 places:
 
-- The plugin section of `src/.vuepress/config.js`.
-- `src/.vuepress/style/index.styl`.
-- `src/.vuepress/style/palette.styl`.
+- The plugin section of `.vuepress/config.js`.
+- `.vuepress/style/index.styl`.
+- `.vuepress/style/palette.styl`.
 
 ### Build
 
@@ -50,7 +50,7 @@ To build the static site, from the root, run:
 yarn build
 ```
 
-this will generate a `dist` folder in `src/.vuepress`.
+this will generate a `dist` folder in `.vuepress`.
 
 ### Formatting
 
@@ -59,4 +59,4 @@ To format with default code styles, run:
 ```bash
 yarn format
 ```
-(this will only format files under `.vuepress`, you could change the `"format": "prettier --write src"` in `[package.json](./package.json)` to also format markdown file if needed)
+(this will only format files under `.vuepress`, you could change the `"format": "prettier --write"` in `[package.json](./package.json)` to also format markdown file if needed)
