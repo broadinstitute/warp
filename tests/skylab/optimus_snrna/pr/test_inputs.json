@@ -1,8 +1,8 @@
 {
   "TestOptimusPR.expected_bam_hash": "77bb8a250b56d913a0d75c63f67c17da",
   "TestOptimusPR.reference_matrix": "gs://hca-dcp-sc-pipelines-test-data/optimus-test-data/1/referenceMatrix_snrna.rds",
-  "TestOptimusPR.expected_cell_metric_hash": "fb900e9508d6524479c54b55bacea844",
-  "TestOptimusPR.expected_gene_metric_hash": "4c7c222cc63c3f783672e3d575bdcc02", 
+  "TestOptimusPR.expected_cell_metric_hash": "8df13b6298f1baccf95d18b4f50b7089", 
+  "TestOptimusPR.expected_gene_metric_hash": "71fd4a40176b4e3728d6a3ac4317764b", 
   "TestOptimusPR.expected_loom_file_checksum": "a4ff3dae20fb7505b856c215d4bd9974",  
   "TestOptimusPR.r1_fastq": [
       "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/nuclei_900/nuclei_900_S1_L001_R1_001.filtered.fastq.gz",
