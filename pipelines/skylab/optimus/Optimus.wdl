@@ -1,9 +1,6 @@
 version 1.0
 
 import "../../../FastqProcessing.wdl" as FastqProcessing
-import "../../../tasks/skylab/FastqToUBam.wdl" as FastqToUBam
-import "../../../tasks/skylab/Attach10xBarcodes.wdl" as Attach
-import "../../../tasks/skylab/SplitBamByCellBarcode.wdl" as Split
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/CreateCountMatrix.wdl" as Count
 import "../../../tasks/skylab/StarAlignBamSingleEnd.wdl" as StarAlignBam
@@ -14,7 +11,6 @@ import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 import "../../../tasks/skylab/Picard.wdl" as Picard
 import "../../../tasks/skylab/UmiCorrection.wdl" as UmiCorrection
-import "../../../tasks/skylab/ScatterBam.wdl" as ScatterBam
 import "../../../tasks/skylab/ModifyGtf.wdl" as ModifyGtf
 import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
 
