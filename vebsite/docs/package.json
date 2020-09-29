@@ -10,11 +10,15 @@
   "repository": "https://github.com/broadinstitute/warp/warp",
   "scripts": {
     "dev": "vuepress dev src",
-    "build": "vuepress build src"
+    "build": "vuepress build src",
+    "format": "prettier --write src"
   },
   "license": "MIT",
   "devDependencies": {
-    "vuepress": "^1.5.3",
+    "@vuepress/plugin-back-to-top": "^1.6.0",
+    "@vuepress/plugin-medium-zoom": "^1.6.0",
+    "prettier": "^2.1.2",
+    "vuepress": "^1.6.0",
     "vuepress-plugin-mathjax": "^1.2.8"
   }
 }
