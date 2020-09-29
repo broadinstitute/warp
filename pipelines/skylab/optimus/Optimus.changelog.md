@@ -1,6 +1,6 @@
 # 4.0.1
 
-2020-09-14 (Date of Last Commit)
+2020-09-28 (Date of Last Commit)
 
 * Refactored the pipeline to preprocess fastqs using the task `FastqProcessing`. Outputs are identical and the pipeline should be significantly faster
 
@@ -121,4 +121,3 @@ Documentation has been updated
 2019-03-27 (Date of Last Commit)
 
 * The first major version release for the Optimus pipeline.
-
