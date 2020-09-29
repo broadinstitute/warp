@@ -1,3 +1,8 @@
+# 1.11.0
+2020-10-01
+
+* Added use of BafRegress to the pipeline.  BafRegress detects and estimates sample contamination using B allele frequency data from Illumina genotyping arrays using a regression model.
+
 # 1.10.0
 2020-08-18
 
