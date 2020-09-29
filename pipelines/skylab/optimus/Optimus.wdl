@@ -1,8 +1,6 @@
 version 1.0
 
-import "../../../tasks/skylab/FastqToUBam.wdl" as FastqToUBam
-import "../../../tasks/skylab/Attach10xBarcodes.wdl" as Attach
-import "../../../tasks/skylab/SplitBamByCellBarcode.wdl" as Split
+import "../../../FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/CreateCountMatrix.wdl" as Count
 import "../../../tasks/skylab/StarAlignBamSingleEnd.wdl" as StarAlignBam
@@ -13,7 +11,6 @@ import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 import "../../../tasks/skylab/Picard.wdl" as Picard
 import "../../../tasks/skylab/UmiCorrection.wdl" as UmiCorrection
-import "../../../tasks/skylab/ScatterBam.wdl" as ScatterBam
 import "../../../tasks/skylab/ModifyGtf.wdl" as ModifyGtf
 import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
 
@@ -61,7 +58,7 @@ workflow Optimus {
   }
 
   # version of this pipeline
-  String pipeline_version = "4.0.0"
+  String pipeline_version = "4.0.1"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -88,50 +85,14 @@ workflow Optimus {
       counting_mode = counting_mode
   }
 
-  scatter (index in indices) {
-    call FastqToUBam.FastqToUBam {
-      input:
-        fastq_file = r2_fastq[index],
-        input_id = input_id,
-        fastq_suffix = fastq_suffix
-    }
-
-    # if the index is passed, attach it to the bam file
-    if (defined(i1_fastq)) {
-      Array[File] non_optional_i1_fastq = select_first([i1_fastq])
-      call Attach.Attach10xBarcodes as AttachBarcodes {
-        input:
-          r1_fastq = r1_fastq[index],
-          i1_fastq = non_optional_i1_fastq[index],
-          r2_unmapped_bam = FastqToUBam.bam_output,
-          whitelist = whitelist,
-          chemistry = chemistry
-      }
-    }
-
-    # if the index is not passed, proceed without it.
-    if (!defined(i1_fastq)) {
-      call Attach.Attach10xBarcodes as AttachBarcodesNoIndex {
-        input:
-          r1_fastq = r1_fastq[index],
-          r2_unmapped_bam = FastqToUBam.bam_output,
-          whitelist = whitelist,
-          chemistry = chemistry
-      }
-    }
-
-    # This gets collected into an array outside of the scatter
-    File barcoded_bam = select_first([AttachBarcodes.bam_output, AttachBarcodesNoIndex.bam_output])
-  }
-
-  scatter (bam in barcoded_bam) {
-    call ScatterBam.ScatterBam as ScatterBamFiles {
-      input:
-        bam_to_scatter = bam,
-        scatter_width = 32
-    }
-
-    Array[File] scattered_bams = ScatterBamFiles.scattered_bams
+  call FastqProcessing.FastqProcessing {
+    input:
+      i1_fastq = i1_fastq,
+      r1_fastq = r1_fastq,
+      r2_fastq = r2_fastq,
+      whitelist = whitelist,
+      chemistry = chemistry,
+      sample_id = input_id
   }
 
   call ModifyGtf.ReplaceGeneNameWithGeneID as ModifyGtf {
@@ -139,14 +100,7 @@ workflow Optimus {
       original_gtf = annotations_gtf
   }
 
-  Array[File] flattened_scattered_bams = flatten(scattered_bams)
-
-  call Split.SplitBamByCellBarcode {
-    input:
-      bams_to_split = flattened_scattered_bams
-  }
-
-  scatter (bam in SplitBamByCellBarcode.bam_output_array) {
+  scatter (bam in FastqProcessing.bam_output_array) {
     call StarAlignBam.StarAlignBamSingleEnd as StarAlign {
       input:
         bam_input = bam,
