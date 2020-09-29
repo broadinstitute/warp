@@ -58,7 +58,7 @@ task SplitIntervalList {
   command <<<
     gatk --java-options -Xms3g SplitIntervals \
       -L ~{interval_list} -O  scatterDir -scatter ~{scatter_count} -R ~{ref_fasta} \
-      -mode ~{scatter_mode}
+      -mode ~{scatter_mode} --interval-merging-rule OVERLAPPING_ONLY
    >>>
 
   runtime {
