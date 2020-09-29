@@ -1,3 +1,0 @@
-{
-  "BuildCembaReferences.reference_fasta": "gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38.primary_assembly.genome.fa"
-}

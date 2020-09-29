@@ -1,4 +1,0 @@
-{
-  "ReblockGVCF.gvcf": "gs://broad-gotc-test-storage/single_sample/plumbing/truth/develop/20k/NA12878_PLUMBING.g.vcf.gz",
-  "ReblockGVCF.gvcf_index": "gs://broad-gotc-test-storage/single_sample/plumbing/truth/develop/20k/NA12878_PLUMBING.g.vcf.gz.tbi"
-}
