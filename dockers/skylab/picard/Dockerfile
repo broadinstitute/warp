@@ -21,3 +21,6 @@ RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; 
 RUN Rscript -e "install.packages('reshape')"
 RUN Rscript -e "install.packages('gplots')"
 RUN Rscript -e "install.packages('ggplot2')"
+RUN mkdir /tools
+WORKDIR /tools
+COPY CheckFastqCompression.sh . 

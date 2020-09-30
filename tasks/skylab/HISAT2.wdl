@@ -10,7 +10,7 @@ task HISAT2PairedEnd {
     String input_id
 
   # runtime values
-  String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
+  String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.4.0-fk"
   Int machine_mem_mb = 16500
   Int cpu = 4
   # Using (fastq1 + fastq2) x 100 gives factor of a few buffer. BAM can be up to ~5 x (fastq1 + fastq2).
@@ -40,7 +40,8 @@ task HISAT2PairedEnd {
     # Note that files MUST be gzipped or the module will not function properly
     # This will be addressed in the future either by a change in how Hisat2 functions or a more
     # robust test for compression type.
-
+    /tools/CheckFastQCompression.sh ${fastq1} 
+    /tools/CheckFastQCompression.sh ${fastq2} 
     set -e
 
     tar --no-same-owner -xvf "${hisat2_ref}"
@@ -91,7 +92,7 @@ task HISAT2RSEM {
     String input_id
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
+    String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.4.0-fk"
     Int machine_mem_mb = 16500
     Int cpu = 4
     # Using (fastq1 + fastq2) x 100 gives factor of a few buffer. BAM can be up to ~5 x (fastq1 + fastq2).
@@ -119,7 +120,9 @@ task HISAT2RSEM {
   }
 
   command {
-
+    
+    /tools/CheckFastQCompression.sh ${fastq1} 
+    /tools/CheckFastQCompression.sh ${fastq2} 
     set -e
     tar --no-same-owner -xvf "${hisat2_ref}"
 
@@ -176,7 +179,7 @@ input {
   String input_id
 
   # runtime values
-  String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
+  String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.4.0-fk"
   Int machine_mem_mb = 16500
   Int cpu = 4
   # Using fastq x 100 gives factor of a few buffer. BAM can be up to ~5 x fastq.
@@ -203,6 +206,7 @@ input {
 
   command {
     set -e
+    /tools/CheckFastQCompression.sh ${fastq} 
     tar --no-same-owner -xvf "~{hisat2_ref}"
 
     # The parameters for this task are copied from the HISAT2PairedEnd task.
@@ -243,7 +247,7 @@ task HISAT2InspectIndex {
     String ref_name
 
     # runtime values
-    String docker =  "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
+    String docker =  "quay.io/humancellatlas/secondary-analysis-hisat2:v0.4.0-fk"
     Int machine_mem_mb = 3850
     Int cpu = 1
     # use provided disk number or dynamically size on our own, with 10GiB of additional disk
@@ -294,7 +298,7 @@ task HISAT2RSEMSingleEnd {
     String input_id
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
+    String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.4.0-fk"
     Int machine_mem_mb = 15000
     Int cpu = 4
     Int disk = ceil((size(fastq, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 10)

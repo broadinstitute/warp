@@ -84,13 +84,24 @@ workflow Optimus {
       counting_mode = counting_mode
   }
 
-  call CheckFastqCompression.CheckCompression {
-    input:
-        r1_fastq = r1_fastq,
-        r2_fastq = r2_fastq
+  scatter (index in indices) {
+      call CheckFastqCompression.CheckCompression as fastq1Check {
+        input:
+            fastq = r1_fastq[index]
+      }
+      
+      call CheckFastqCompression.CheckCompression as fastq2Check {
+        input:
+            fastq = r2_fastq[index]
+      }
   }
 
+  Array[File] fastq_r1_name = fastq1Check.fastq_name
+  Array[File] fastq_r2_name = fastq2Check.fastq_name
+  
+
   scatter (index in indices) {
+
     call FastqToUBam.FastqToUBam {
       input:
         fastq_file = r2_fastq[index],
