@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../FastqProcessing.wdl" as FastqProcessing
+import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/CreateCountMatrix.wdl" as Count
 import "../../../tasks/skylab/StarAlignBamSingleEnd.wdl" as StarAlignBam
@@ -58,7 +58,7 @@ workflow Optimus {
   }
 
   # version of this pipeline
-  String pipeline_version = "4.0.1"
+  String pipeline_version = "4.0.2"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
