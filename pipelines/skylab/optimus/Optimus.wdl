@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../FastqProcessing.wdl" as FastqProcessing
+import "../../../tasks/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/CreateCountMatrix.wdl" as Count
 import "../../../tasks/skylab/StarAlignBamSingleEnd.wdl" as StarAlignBam
