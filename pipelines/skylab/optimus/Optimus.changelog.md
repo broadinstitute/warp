@@ -1,3 +1,10 @@
+# 4.0.2
+
+2020-09-30 (Date of Last Commit)
+
+* Removed extra trailing slash in ouput directory from cloud to cloud copy job
+
+
 # 4.0.1
 
 2020-09-28 (Date of Last Commit)
