@@ -1,9 +1,9 @@
 # Testing overview
 WARP pipelines have accompanying automated tests that run on each Pull Request (PR). These tests compare validated outputs to the new PR outputs. For any changes in code shared between pipelines, the tests also confirm which pipelines could be affected and ensure that the PR makes no unexpected changes to the affected pipelines. 
 
-| Notice | 
+| Notice 9/29/2020 | 
 | --- |
-| As of 9/20/2020, all testing input files are formatted for Cromwell 52 or higher |
+| We have formatted all testing input files for Cromwell 52 or higher. If you are using WARP test input files either directily or as a model of how to configure inputs, these changes may impact you. |
 
 ## WARP branches and how they relate to testing
 
