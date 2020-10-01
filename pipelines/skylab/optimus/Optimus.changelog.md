@@ -1,8 +1,16 @@
+# 4.0.3
+
+2020-10-01 (Date of Last Commit)
+
+* Removed extra trailing slash in ouput directory from cloud to cloud copy job
+
+
 # 4.0.2
 
 2020-09-30 (Date of Last Commit)
 
 * Corrected the path to the FastqProcessing WDL
+
 
 # 4.0.1
 
