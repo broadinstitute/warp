@@ -1,5 +1,5 @@
 # 2.1.1
-2020-09-29
+2020-10-01
 
 * Removed extra trailing slash in ouput directory from cloud to cloud copy job
 
