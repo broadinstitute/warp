@@ -9,8 +9,11 @@ task HISAT2PairedEnd {
     String output_basename
     String input_id
 
+    String FQ1
+    String? FQ2
+
   # runtime values
-  String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.4.0-fk"
+  String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
   Int machine_mem_mb = 16500
   Int cpu = 4
   # Using (fastq1 + fastq2) x 100 gives factor of a few buffer. BAM can be up to ~5 x (fastq1 + fastq2).
@@ -40,9 +43,37 @@ task HISAT2PairedEnd {
     # Note that files MUST be gzipped or the module will not function properly
     # This will be addressed in the future either by a change in how Hisat2 functions or a more
     # robust test for compression type.
-    /tools/CheckFastQCompression.sh ${fastq1} 
-    /tools/CheckFastQCompression.sh ${fastq2} 
+
     set -e
+
+   # fix names if necessary
+    if (file ~{fastq1} | grep -q compressed); then
+        if [[ ~{fastq1} != *.gz ]]; then
+            if [[ ~{fastq1} != *.fastq ]]; then
+                FQ1="~{fastq1}".fastq.gz
+                mv  "~{fastq1}" "~{fastq1}".fastq.gz
+            else
+                FQ1="~{fastq1}".gz
+                 "~{fastq1}" "~{fastq1}".gz
+            fi
+        else
+            FQ1=~{fastq1}
+        fi
+    fi
+
+    if (file ~{fastq2} | grep -q compressed); then
+        if [[ ~{fastq2} != *.gz ]]; then
+            if [[ ~{fastq2} != *.fastq ]]; then
+                FQ2="~{fastq2}".fastq.gz
+                mv  "~{fastq2}" "~{fastq2}".fastq.gz
+            else
+                FQ2="~{fastq2}".gz
+                 "~{fastq2}" "~{fastq2}".gz
+            fi
+        else
+            FQ2=~{fastq2}
+        fi
+    fi
 
     tar --no-same-owner -xvf "${hisat2_ref}"
 
@@ -52,8 +83,8 @@ task HISAT2PairedEnd {
     # searches for up to 10 primary alignments for each read
     hisat2 -t \
       -x ${ref_name}/${ref_name} \
-      -1 ${fastq1} \
-      -2 ${fastq2} \
+      -1 ~{FQ1} \
+      -2 ~{FQ2} \
       --rg-id=${input_id} --rg SM:${input_id} --rg LB:${input_id} \
       --rg PL:ILLUMINA --rg PU:${input_id} \
       --new-summary --summary-file ${output_basename}.log \
@@ -90,9 +121,11 @@ task HISAT2RSEM {
     String ref_name
     String output_basename
     String input_id
+    String FQ1
+    String? FQ2
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.4.0-fk"
+    String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
     Int machine_mem_mb = 16500
     Int cpu = 4
     # Using (fastq1 + fastq2) x 100 gives factor of a few buffer. BAM can be up to ~5 x (fastq1 + fastq2).
@@ -120,10 +153,38 @@ task HISAT2RSEM {
   }
 
   command {
-    
-    /tools/CheckFastQCompression.sh ${fastq1} 
-    /tools/CheckFastQCompression.sh ${fastq2} 
+
     set -e
+
+   # fix names if necessary
+    if (file ~{fastq1} | grep -q compressed); then
+        if [[ ~{fastq1} != *.gz ]]; then
+            if [[ ~{fastq1} != *.fastq ]]; then
+                FQ1="~{fastq1}".fastq.gz
+                mv  "~{fastq1}" "~{fastq1}".fastq.gz
+            else
+                FQ1="~{fastq1}".gz
+                 "~{fastq1}" "~{fastq1}".gz
+            fi
+        else
+            FQ1=~{fastq1}
+        fi
+    fi
+
+    if (file ~{fastq2} | grep -q compressed); then
+        if [[ ~{fastq2} != *.gz ]]; then
+            if [[ ~{fastq2} != *.fastq ]]; then
+                FQ2="~{fastq2}".fastq.gz
+                mv  "~{fastq2}" "~{fastq2}".fastq.gz
+            else
+                FQ2="~{fastq2}".gz
+                 "~{fastq2}" "~{fastq2}".gz
+            fi
+        else
+            FQ2=~{fastq2}
+        fi
+    fi
+
     tar --no-same-owner -xvf "${hisat2_ref}"
 
     # increase gap alignment penalty to avoid gap alignment
@@ -134,8 +195,8 @@ task HISAT2RSEM {
     # As a result, alignments with gaps or deletions are excluded.
     hisat2 -t \
       -x ${ref_name}/${ref_name} \
-      -1 ${fastq1} \
-      -2 ${fastq2} \
+      -1 ${FQ1} \
+      -2 ${FQ2} \
       --rg-id=${input_id} --rg SM:${input_id} --rg LB:${input_id} \
       --rg PL:ILLUMINA --rg PU:${input_id} \
       --new-summary --summary-file ${output_basename}.log \
@@ -177,9 +238,10 @@ input {
   String ref_name
   String output_basename
   String input_id
+  String FQ
 
   # runtime values
-  String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.4.0-fk"
+  String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
   Int machine_mem_mb = 16500
   Int cpu = 4
   # Using fastq x 100 gives factor of a few buffer. BAM can be up to ~5 x fastq.
@@ -206,13 +268,25 @@ input {
 
   command {
     set -e
-    /tools/CheckFastQCompression.sh ${fastq} 
+    if (file ~{fastq} | grep -q compressed); then
+        if [[ ~{fastq} != *.gz ]]; then
+            if [[ "~{fastq}" != *.fastq ]]; then
+                FQ="~{fastq}".fastq.gz
+                mv ~{fastq} "~{fastq}".fastq.gz
+            else
+                FQ="~{fastq}".gz
+                mv ~{fastq} "~{fastq}".gz
+            fi
+        else
+            FQ="~{fastq}"
+        fi
+    fi
     tar --no-same-owner -xvf "~{hisat2_ref}"
 
     # The parameters for this task are copied from the HISAT2PairedEnd task.
     hisat2 -t \
       -x ~{ref_name}/~{ref_name} \
-      -U ${fastq} \
+      -U ~{FQ} \
       --rg-id=~{input_id} --rg SM:~{input_id} --rg LB:~{input_id} \
       --rg PL:ILLUMINA --rg PU:~{input_id} \
       --new-summary --summary-file "~{output_basename}.log" \
@@ -247,7 +321,7 @@ task HISAT2InspectIndex {
     String ref_name
 
     # runtime values
-    String docker =  "quay.io/humancellatlas/secondary-analysis-hisat2:v0.4.0-fk"
+    String docker =  "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
     Int machine_mem_mb = 3850
     Int cpu = 1
     # use provided disk number or dynamically size on our own, with 10GiB of additional disk
@@ -296,9 +370,10 @@ task HISAT2RSEMSingleEnd {
     String ref_name
     String output_basename
     String input_id
+    String FQ
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.4.0-fk"
+    String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
     Int machine_mem_mb = 15000
     Int cpu = 4
     Int disk = ceil((size(fastq, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 10)
@@ -325,6 +400,20 @@ task HISAT2RSEMSingleEnd {
   command {
     set -e
 
+    if (file ~{fastq} | grep -q compressed); then
+        if [[ ~{fastq} != *.gz ]]; then
+            if [[ "~{fastq}" != *.fastq ]]; then
+                FQ="~{fastq}".fastq.gz
+                mv ~{fastq} "~{fastq}".fastq.gz
+            else
+                FQ="~{fastq}".gz
+                mv ~{fastq} "~{fastq}".gz
+            fi
+        else
+            FQ="~{fastq}"
+        fi
+    fi
+
     tar --no-same-owner -xvf "${hisat2_ref}"
 
     # increase gap alignment penalty to avoid gap alignment
@@ -335,7 +424,7 @@ task HISAT2RSEMSingleEnd {
     # As a result, alignments with gaps or deletions are excluded.
     hisat2 -t \
       -x ${ref_name}/${ref_name} \
-      -U ${fastq} \
+      -U ~{FQ} \
       --rg-id=${input_id} --rg SM:${input_id} --rg LB:${input_id} \
       --rg PL:ILLUMINA --rg PU:${input_id} \
       --new-summary --summary-file ${output_basename}.log \

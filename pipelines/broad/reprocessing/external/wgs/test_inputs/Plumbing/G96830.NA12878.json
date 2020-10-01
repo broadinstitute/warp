@@ -46,7 +46,6 @@
   },
 
   "ExternalWholeGenomeReprocessing.wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list",
-  "ExternalWholeGenomeReprocessing.WholeGenomeReprocessing.WholeGenomeReprocessing.WholeGenomeGermlineSingleSample.WholeGenomeGermlineSingleSample.UnmappedBamToAlignedBam.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true,
   "ExternalWholeGenomeReprocessing.WholeGenomeReprocessing.WholeGenomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true,
 
   "ExternalWholeGenomeReprocessing.papi_settings": {

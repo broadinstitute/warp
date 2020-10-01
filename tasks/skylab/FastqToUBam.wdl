@@ -5,6 +5,7 @@ task FastqToUBam {
     File fastq_file
     String input_id
 
+    String FQ
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"
     Int machine_mem_mb = 3850
@@ -34,8 +35,23 @@ task FastqToUBam {
   command {
 
     set -e
+
+    if (file ~{fastq_file} | grep -q compressed); then
+        if [[ ~{fastq_file} != *.gz ]]; then
+            if [[ ~{fastq_file} != *.fastq ]]; then
+                FQ="~{fastq_file}".fastq.gz
+                mv  "~{fastq_file}" "~{fastq_file}".fastq.gz
+            else
+                FQ="~{fastq_file}".gz
+                 "~{fastq_file}" "~{fastq_file}".gz
+            fi
+        else
+            FQ=~{fastq_file}
+        fi
+    fi
+
     java -Xmx~{command_mem_mb}m -jar /usr/picard/picard.jar FastqToSam \
-      FASTQ=${fastq_file} \
+      FASTQ=~{FQ} \
       SORT_ORDER=unsorted \
       OUTPUT=bamfile.bam \
       SAMPLE_NAME="~{input_id}"

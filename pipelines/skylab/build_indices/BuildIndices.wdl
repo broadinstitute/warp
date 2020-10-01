@@ -137,7 +137,7 @@ task BuildHisat2FromRsem {
   }
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-hisat2:v0.4.0-fk"
+    docker: "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
     memory: "8 GiB"
     disks: "local-disk 100 HDD"
     cpu: "8"
@@ -172,7 +172,7 @@ task BuildHisat2 {
   }
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-hisat2:v0.4.0-fk"
+    docker: "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
     memory: "64 GiB"
     disks: "local-disk 100 HDD"
     cpu: "8"

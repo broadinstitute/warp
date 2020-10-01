@@ -1,3 +1,8 @@
+# 1.3.0
+2020-09-16
+
+Fix SplitIntervals task so that it works for abutting WGS intervals. Increase by chromosome scatter count appropriately for WGS as fallback.
+
 # 1.2.1
 2020-08-28
 

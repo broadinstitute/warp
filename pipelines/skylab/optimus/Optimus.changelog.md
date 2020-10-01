@@ -1,8 +1,22 @@
 # 4.1.0
 
-2020-09-18 (Date of Last Commit)
+2020-10-01 (Date of Last Commit)
 
 * Removed fastq_suffix optional input - the pipeline now dynamically determines if a file is zipped
+
+# 4.0.2
+
+2020-09-30 (Date of Last Commit)
+
+* Corrected the path to the FastqProcessing WDL
+
+# 4.0.1
+
+2020-09-28 (Date of Last Commit)
+
+* Refactored the pipeline to preprocess fastqs using the task `FastqProcessing`. Outputs are identical and the pipeline should be significantly faster
+
+>>>>>>> develop
 
 # 4.0.0
 
@@ -120,5 +134,3 @@ Documentation has been updated
 2019-03-27 (Date of Last Commit)
 
 * The first major version release for the Optimus pipeline.
-
-
