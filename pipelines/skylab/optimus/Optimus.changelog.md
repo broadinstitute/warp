@@ -4,19 +4,24 @@
 
 * Removed fastq_suffix optional input - the pipeline now dynamically determines if a file is zipped
 
+# 4.0.3
+
+2020-10-01 (Date of Last Commit)
+
+* Removed extra trailing slash in ouput directory from cloud to cloud copy job
+
 # 4.0.2
 
 2020-09-30 (Date of Last Commit)
 
 * Corrected the path to the FastqProcessing WDL
 
+
 # 4.0.1
 
 2020-09-28 (Date of Last Commit)
 
 * Refactored the pipeline to preprocess fastqs using the task `FastqProcessing`. Outputs are identical and the pipeline should be significantly faster
-
->>>>>>> develop
 
 # 4.0.0
 
