@@ -9,8 +9,8 @@ task HISAT2PairedEnd {
     String output_basename
     String input_id
 
-    String FQ1
-    String? FQ2
+    String? FQ1=""
+    String? FQ2=""
 
   # runtime values
   String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
@@ -121,8 +121,8 @@ task HISAT2RSEM {
     String ref_name
     String output_basename
     String input_id
-    String FQ1
-    String? FQ2
+    String? FQ1=""
+    String? FQ2=""
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
@@ -238,7 +238,7 @@ input {
   String ref_name
   String output_basename
   String input_id
-  String FQ
+  String? FQ=""
 
   # runtime values
   String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
@@ -370,7 +370,7 @@ task HISAT2RSEMSingleEnd {
     String ref_name
     String output_basename
     String input_id
-    String FQ
+    String? FQ=""
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
