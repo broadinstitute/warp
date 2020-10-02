@@ -1,4 +1,4 @@
-# Smart-seq2 v2.0.1 Publication Methods
+# Smart-seq2 v2.1.0 Publication Methods
 Below we provide a sample methods sections for a publication. For the complete pipeline documentation, see the [Smart-seq2 Multi Sample README](README.md).
 
 # Methods
