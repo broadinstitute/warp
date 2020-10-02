@@ -50,7 +50,7 @@ task CopyFilesFromCloudToCloud {
         ((count++)) && ((count >= $RETRY_LIMIT)) && break
     done
     if ! grep -q no_contamination contamination; then
-      /usr/local/google-cloud-sdk/bin/gsutil -m cp -L cp.log contamination ~{destination_cloud_path}/~{base_file_name}.contamination
+      /usr/local/google-cloud-sdk/bin/gsutil -m cp -L cp.log contamination ~{destination_cloud_path}~{base_file_name}.contamination
     fi
     if [ "$count" -ge "$RETRY_LIMIT" ]; then
         echo 'Could not copy all the files to the cloud destination' && exit 1

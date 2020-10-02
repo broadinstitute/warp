@@ -54,8 +54,7 @@
     "preemptible_tries": 3,
     "agg_preemptible_tries": 3
   },
+
   "ExomeReprocessing.ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics": false,
-  "ExomeReprocessing.ExomeGermlineSingleSample.AggregatedBamQC.CollectAggregationMetrics.collect_gc_bias_metrics": false,
-  "ExomeReprocessing.ExomeGermlineSingleSample.ExomeGermlineSingleSample.AggregatedBamQC.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics": false,
-  "ExomeReprocessing.ExomeGermlineSingleSample.ExomeGermlineSingleSample.AggregatedBamQC.AggregatedBamQC.CollectAggregationMetrics.collect_gc_bias_metrics": false
+  "ExomeReprocessing.ExomeGermlineSingleSample.AggregatedBamQC.CollectAggregationMetrics.collect_gc_bias_metrics": false
 }

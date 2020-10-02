@@ -1,0 +1,13 @@
+All released WARP pipelines should meet the following criteria:
+
+1. Pipelines are written in WDL, modular, and optimized for Google cloud. The pipelines are often portable to other environments.
+2. Pipelines have plumbing (fast) tests and scientific tests for catching any unintended changes in data processing.
+3. Pipelines are semantically versioned, have a changelog, and are packaged into a release with all dependencies.
+4. Pipelines are released to Dockstore automatically upon release and are available in the cloud-based [Terra platform](https://app.terra.bio/).
+5. Pipelines have example inputs alongside the pipeline.
+6. Pipelines have a Readme.md describing the pipeline.
+7. Pipelines use public docker containers and only open source tools.
+8. Pipelines are developed in a collaboration between software engineers and a scientific owner of each pipeline who must approve all changes to the code and verify that any resulting changes in outputs are scientifically valid. 
+9. Pipelines have a publication-style methods section to enable easy citation.
+
+Read more about our pipeline development in our [Best Practices](BestPractices.md) documentation.

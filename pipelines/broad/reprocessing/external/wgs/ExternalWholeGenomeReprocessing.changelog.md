@@ -1,9 +1,14 @@
 # 1.2.0
-2020-09-25
+2020-10-02
 
 * Updated GATK docker image for all tasks to [GATK 4.1.8.0](https://github.com/broadinstitute/gatk/releases/tag/4.1.8.0).
     * Numerous bug fixes and improvements
 * Updated Picard docker image for all tasks to [2.23.2](https://github.com/broadinstitute/picard/releases/tag/2.23.2).
+
+# 1.1.1
+2020-10-01
+
+* Removed extra trailing slash in ouput directory from cloud to cloud copy job
 
 # 1.1.0
 2020-08-18

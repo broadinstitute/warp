@@ -56,6 +56,9 @@ workflow CEMBA {
       String read_group_platform_unit_name = "snmC-Seq"
     }
 
+    # version of this pipeline
+    String pipeline_version = "1.0.0"
+
   # trim off hardcoded sequence adapters
   call Trim as TrimAdapters {
     input:

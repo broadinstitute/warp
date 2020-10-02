@@ -1,6 +1,7 @@
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v4.0.0](https://github.com/broadinstitute/warp/releases/tag/Optimus_v4.0.0) | August 10, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [optimus_v4.0.1](https://github.com/broadinstitute/warp/releases/tag/Optimus_v4.0.1) | September 14, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+
 
 # Table of Contents
 - [Optimus Pipeline Overview](#optimus-pipeline-overview)
@@ -29,7 +30,7 @@
 
 
 # Optimus Pipeline Overview
-![Diagram](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Optimus_diagram.png)
+![Diagram](documentation/Optimus_diagram.png)
 
 ## Introduction to the Optimus Workflow
 
@@ -104,7 +105,7 @@ The Optimus pipeline is currently available on the cloud-based platform Terra. I
 
 # Optimus Tasks and Tools
 
-* The [Optimus.wdl](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.wdl) in the pipelines/optimus folder of the WARP repository implements the workflow by importing individual modules ("tasks" written in  WDL script) from the warp [tasks](https://github.com/broadinstitute/warp/blob/master/tasks/skylab) folder.
+The [Optimus.wdl](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.wdl) in the pipelines/optimus folder of the WARP repository implements the workflow by importing individual modules ("tasks" written in  WDL script) from the WARP [tasks](https://github.com/broadinstitute/warp/blob/master/tasks/skylab) folder.
 
 ## Optimus Task Summary
 
@@ -125,7 +126,7 @@ The tools each Optimus task employs are detailed in the table below. If you are 
 
 | Task | Tool | 
 | --- | --- |
-| [Attach10xBarcodes](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Attach10xBarcodes.wdl) |	[sctools](https://sctools.readthedocs.io/en/latest/sctools.html) |
+| [FastqProcessing](/tasks/skylab/FastqProcessing.wdl) | [sctools](https://sctools.readthedocs.io/en/latest/sctools.html) | 
 | [StarAlignBamSingleEnd](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlignBamSingleEnd.wdl) |	[STAR](https://github.com/alexdobin/STAR) |
 | [TagGeneExon](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/TagGeneExon.wdl) |	[Drop-seq](https://github.com/broadinstitute/Drop-seq) |
 | [UmiCorrection](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/UmiCorrection.wdl) |	[Umi-tools](https://github.com/CGATOxford/UMI-tools) |
@@ -133,7 +134,6 @@ The tools each Optimus task employs are detailed in the table below. If you are 
 | [RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) |	[dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) |
 | [CreateCountMatrix](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CreateCountMatrix.wdl) |	[Drop-seq](https://github.com/broadinstitute/Drop-seq) and [sctools](https://sctools.readthedocs.io/en/latest/sctools.html)|
 | [FastqToUBAM](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqToUBam.wdl)	| [picard](https://github.com/broadinstitute/picard) |
-| [SplitBamByCellBarcode](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/SplitBamByCellBarcode.wdl) |	[sctools](https://sctools.readthedocs.io/en/latest/sctools.html) |
 | [TagSortBam](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/TagSortBam.wdl) |	[sctools](https://sctools.readthedocs.io/en/latest/sctools.html) |
 | [Picard](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Picard.wdl)	| [picard](https://github.com/broadinstitute/picard) |
 
@@ -141,15 +141,14 @@ The Optimus pipeline takes special care to flag but avoid the removal of reads t
 
 ### 1. Converting R2 FASTQ File to UBAM
 
-Unlike FASTQ files, BAM files enable researchers to keep track of important metadata throughout all data processing steps. The first step of Optimus is to [convert](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqToUBam.wdl) the R2 FASTQ file, containing the alignable genomic information, to an unaligned BAM (UBAM) file.
+Unlike FASTQ files, BAM files enable researchers to keep track of important metadata throughout all data processing steps. The first step of Optimus is to [convert](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) the R2 FASTQ file, containing the alignable genomic information, to an unaligned BAM (UBAM) file.
 
 ### 2. Correcting and Attaching Cell Barcodes
 
-Although the function of the cell barcodes is to identify unique cells, barcode errors can arise during sequencing (such as incorporation of the barcode into contaminating DNA or sequencing and PCR errors), making it difficult to distinguish unique cells from artifactual appearances of the barcode. The [Attach10xBarcodes](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Attach10xBarcodes.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to evaluate barcode errors by comparing the R1 FASTQ sequences against a whitelist of known barcode sequences. The task then appends the UMI and cell barcode sequences from the R1 FASTQ to the UBAM sequence as tags [(see the Bam_tags documentation for details](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Bam_tags.md)). 
+Although the function of the cell barcodes is to identify unique cells, barcode errors can arise during sequencing (such as incorporation of the barcode into contaminating DNA or sequencing and PCR errors), making it difficult to distinguish unique cells from artifactual appearances of the barcode. The [FastqProcessing](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to evaluate barcode errors by comparing the R1 FASTQ sequences against a whitelist of known barcode sequences. The task then appends the UMI and cell barcode sequences from the R1 FASTQ to the UBAM sequence as tags [(see the Bam_tags documentation for details](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Bam_tags.md)). 
 
 The output is a UBAM file containing the reads with corrected barcodes, including barcodes that came within one edit distance ([Levenshtein distance](http://www.levenshtein.net/)) of matching the whitelist of barcode sequences and were corrected by this tool. Correct barcodes are assigned a “CB” tag. Uncorrectable barcodes (with more than one error) are preserved and given a “CR” (Cell barcode Raw) tag. Cell barcode quality scores are also preserved in the file under the “CY” tag.
 
-To enable parallelization, the pipeline then [scatters](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/ScatterBam.wdl) and [splits](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/SplitBamByCellBarcode.wdl) the corrected UBAM files into groups according to cell barcode. 
 
 ### 3. Alignment
 
@@ -264,6 +263,7 @@ The Optimus pipeline is a single sample pipeline, but it can accept multiple FAS
 <br>
 Parameters are listed in each task WDL. For a list of the tasks, see the table in the <a href="README.md/#optimus-task-summary">Task Summary Section </a>. Select the link for the task of interest and then view the parameters in the task WDL "command {}" section. For the task Docker image, see task WDL "# runtime values" section; the Docker is listed as "String docker =  ". If you want to learn more about all the different parameters available for a software tool, please select the relevant link in the table's "Tool" column. 
  </details>
+
 
 
 
