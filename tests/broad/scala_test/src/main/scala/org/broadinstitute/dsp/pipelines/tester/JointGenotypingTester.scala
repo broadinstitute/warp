@@ -79,6 +79,7 @@ class JointGenotypingTester(testerConfig: GermlineCloudWorkflowConfig)(
 
     val interval_lists = getMatchingFiles("interval_list")
     val vcfs = getMatchingFiles("vcf.gz")
+    val indexes = getMatchingFiles("vcf.gz.tbi")
 
     val validationInputs = JointGenotypingValidationInputs(
       testMetrics = metricsFileNames.map(resultsCloudPath.resolve),
@@ -89,8 +90,11 @@ class JointGenotypingTester(testerConfig: GermlineCloudWorkflowConfig)(
         truthCloudPath.resolve(s"$callsetName.fingerprintcheck"),
       testVcfs = vcfs.map(resultsCloudPath.resolve),
       truthVcfs = vcfs.map(truthCloudPath.resolve),
+      testVcfIndexes = indexes.map(resultsCloudPath.resolve),
+      truthVcfIndexes = indexes.map(truthCloudPath.resolve),
       testIntervals = interval_lists.map(resultsCloudPath.resolve),
-      truthIntervals = interval_lists.map(truthCloudPath.resolve)
+      truthIntervals = interval_lists.map(truthCloudPath.resolve),
+      isExome = (dataTypeString == "exome")
     )
     JointGenotypingValidationInputs
       .marshall(validationInputs)

@@ -1,3 +1,8 @@
+# 1.1.1
+2020-10-01
+
+* Removed extra trailing slash in ouput directory from cloud to cloud copy job
+
 # 1.1.0
 2020-08-18
 
