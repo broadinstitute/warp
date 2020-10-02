@@ -7,11 +7,11 @@ set -e
 
 TMPDIR=$(mktemp -t gotc-dockerXXXXXX -d)
 
-DOCKER_VERSION="2.4.5"
+DOCKER_VERSION="2.4.7"
 DOCKER_IMAGE_TAG="$DOCKER_VERSION-$TIMESTAMP"
 
-PICARD_VERSION="1.1418"
-PICARD_PUBLIC_VERSION="2.23.2"
+PICARD_PRIVATE_VERSION="1.1448"
+PICARD_PUBLIC_VERSION="2.23.6"
 GATK35_VERSION="3.5-0-g36282e4"
 GATK36_VERSION="3.6-44-ge7d1cd2"
 GATK4_VERSION="4.1.8.0"
@@ -28,11 +28,11 @@ PICARD="/seq/software/picard-public/${PICARD_PUBLIC_VERSION}/picard.jar"
 GATK35="/seq/software/gotc/gatk/GenomeAnalysisTK-${GATK35_VERSION}/GenomeAnalysisTK-${GATK35_VERSION}.jar"
 GATK36="/seq/software/gotc/gatk/GenomeAnalysisTK-${GATK36_VERSION}/GenomeAnalysisTK-${GATK36_VERSION}.jar"
 GATK4="/seq/software/gotc/gatk/gatk4/gatk-${GATK4_VERSION}/"
-TABIX="/seq/software/picard/${PICARD_VERSION}/3rd_party/tabix/tabix"
+TABIX="/seq/software/picard/${PICARD_PRIVATE_VERSION}/3rd_party/tabix/tabix"
 BGZIP="/seq/software/gotc/3rd_party/bgzip/bgzip"
 SVTOOLKIT="/seq/software/gotc/svtoolkit/svtoolkit2.00/"
 
-scp vpicard05:"$PICARD $GATK35 $GATK36 $TABIX $BGZIP" ${TMPDIR}/
+scp -T vpicard05:"$PICARD $GATK35 $GATK36 $TABIX $BGZIP" "${TMPDIR}"/
 scp -r vpicard05:"$SVTOOLKIT" ${TMPDIR}/
 scp -r vpicard05:"$GATK4" ${TMPDIR}/gatk4/
 
@@ -97,6 +97,6 @@ echo -e "$DOCKER_IMAGE_TAG\t$PICARD_PUBLIC_VERSION\tn/a\t$GATK35_VERSION\t$GATK3
 
 # Tagged with the picard release version the jars and binaries were taken from.
 docker build -t us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:${DOCKER_IMAGE_TAG} .
-gcloud docker -- push us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:${DOCKER_IMAGE_TAG}
+docker push us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:${DOCKER_IMAGE_TAG}
 
 rm -rf ${TMPDIR}

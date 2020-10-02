@@ -3,7 +3,7 @@
 
 * Updated GATK docker image for all tasks to [GATK 4.1.8.0](https://github.com/broadinstitute/gatk/releases/tag/4.1.8.0).
     * Numerous bug fixes and improvements
-* Updated Picard docker image for all tasks to [2.23.2](https://github.com/broadinstitute/picard/releases/tag/2.23.2).
+* Updated Picard docker image for all tasks to [2.23.6](https://github.com/broadinstitute/picard/releases/tag/2.23.6).
 
 # 2.1.0
 2020-08-18
