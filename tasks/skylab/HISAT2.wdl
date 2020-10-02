@@ -50,28 +50,28 @@ task HISAT2PairedEnd {
     if (file ~{fastq1} | grep -q compressed); then
         if [[ ~{fastq1} != *.gz ]]; then
             if [[ ~{fastq1} != *.fastq ]]; then
-                FQ1="~{fastq1}".fastq.gz
-                mv  "~{fastq1}" "~{fastq1}".fastq.gz
+                FQ1=~{fastq1}.fastq.gz
+                mv  ~{fastq1}  ~{fastq1}.fastq.gz
             else
-                FQ1="~{fastq1}".gz
-                 "~{fastq1}" "~{fastq1}".gz
+                FQ1=~{fastq1}.gz
+                mv ~{fastq1} ~{fastq1}.gz
             fi
         else
-            FQ1="~{fastq1}"
+            FQ1=~{fastq1}
         fi
     fi
 
     if (file ~{fastq2} | grep -q compressed); then
         if [[ ~{fastq2} != *.gz ]]; then
             if [[ ~{fastq2} != *.fastq ]]; then
-                FQ2="~{fastq2}".fastq.gz
-                mv  "~{fastq2}" "~{fastq2}".fastq.gz
+                FQ2=~{fastq2}.fastq.gz
+                mv  ~{fastq2} ~{fastq2}.fastq.gz
             else
-                FQ2="~{fastq2}".gz
-                 "~{fastq2}" "~{fastq2}".gz
+                FQ2=~{fastq2}.gz
+                mv ~{fastq2} ~{fastq2}.gz
             fi
         else
-            FQ2="~{fastq2}"
+            FQ2=~{fastq2}
         fi
     fi
 
@@ -160,11 +160,11 @@ task HISAT2RSEM {
     if (file ~{fastq1} | grep -q compressed); then
         if [[ ~{fastq1} != *.gz ]]; then
             if [[ ~{fastq1} != *.fastq ]]; then
-                FQ1="~{fastq1}".fastq.gz
-                mv  "~{fastq1}" "~{fastq1}".fastq.gz
+                FQ1=~{fastq1}.fastq.gz
+                mv ~{fastq1} ~{fastq1}.fastq.gz
             else
-                FQ1="~{fastq1}".gz
-                 "~{fastq1}" "~{fastq1}".gz
+                FQ1=~{fastq1}.gz
+                mv ~{fastq1} ~{fastq1}.gz
             fi
         else
             FQ1="~{fastq1}"
@@ -174,11 +174,11 @@ task HISAT2RSEM {
     if (file ~{fastq2} | grep -q compressed); then
         if [[ ~{fastq2} != *.gz ]]; then
             if [[ ~{fastq2} != *.fastq ]]; then
-                FQ2="~{fastq2}".fastq.gz
-                mv  "~{fastq2}" "~{fastq2}".fastq.gz
+                FQ2=~{fastq2}.fastq.gz
+                mv  ~{fastq2} ~{fastq2}.fastq.gz
             else
-                FQ2="~{fastq2}".gz
-                 "~{fastq2}" "~{fastq2}".gz
+                FQ2=~{fastq2}.gz
+                mv ~{fastq2} ~{fastq2}.gz
             fi
         else
             FQ2="~{fastq2}"
@@ -271,11 +271,11 @@ input {
     if (file ~{fastq} | grep -q compressed); then
         if [[ ~{fastq} != *.gz ]]; then
             if [[ "~{fastq}" != *.fastq ]]; then
-                FQ="~{fastq}".fastq.gz
-                mv ~{fastq} "~{fastq}".fastq.gz
+                FQ=~{fastq}.fastq.gz
+                mv ~{fastq} ~{fastq}.fastq.gz
             else
-                FQ="~{fastq}".gz
-                mv ~{fastq} "~{fastq}".gz
+                FQ=~{fastq}.gz
+                mv ~{fastq} ~{fastq}.gz
             fi
         else
             FQ="~{fastq}"
@@ -403,11 +403,11 @@ task HISAT2RSEMSingleEnd {
     if (file ~{fastq} | grep -q compressed); then
         if [[ ~{fastq} != *.gz ]]; then
             if [[ "~{fastq}" != *.fastq ]]; then
-                FQ="~{fastq}".fastq.gz
-                mv ~{fastq} "~{fastq}".fastq.gz
+                FQ=~{fastq}.fastq.gz
+                mv ~{fastq} ~{fastq}.fastq.gz
             else
-                FQ="~{fastq}".gz
-                mv ~{fastq} "~{fastq}".gz
+                FQ=~{fastq}.gz
+                mv ~{fastq} ~{fastq}.gz
             fi
         else
             FQ="~{fastq}"
