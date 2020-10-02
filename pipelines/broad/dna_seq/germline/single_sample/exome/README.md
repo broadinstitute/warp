@@ -1,6 +1,6 @@
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [ExomeGermlineSingleSample_v2.0](ExomeGermlineSingleSample.wdl) | June 10, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in dsde-pipelines or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) | 
+| [ExomeGermlineSingleSample_v2.0](https://github.com/broadinstitute/warp/releases) | June 10, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in dsde-pipelines or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) | 
 
 # Table of Contents
 - [Introduction to the Exome Germline Single Sample Pipeline](#introduction-to-the-exome-germline-single-sample-pipeline)
