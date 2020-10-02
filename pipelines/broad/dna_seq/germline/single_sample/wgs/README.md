@@ -1,6 +1,6 @@
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [WholeGenomeGermlineSingleSample_v2.0](WholeGenomeGermlineSingleSample.wdl) | June 22, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [WholeGenomeGermlineSingleSample_v2.0](WholeGenomeGermlineSingleSample.wdl) | October 02, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 # Introduction to the Whole Genome Germline Single Sample Pipeline
 
@@ -18,7 +18,7 @@ The [Whole Genome Germline Single Sample workflow](WholeGenomeGermlineSingleSamp
 * Samtools 1.3.1
 * Python 2.7 and 3.0
 * Cromwell version support 
-    * Successfully tested on v47
+    * Tested on Cromwell 52
     * Does not work on versions < v23 due to output syntax
 
 
