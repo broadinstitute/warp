@@ -4,7 +4,7 @@
 
 # Table of Contents
 - [Illumina Genotyping Array Pipeline Overview](#illumina-genotyping-array-pipeline-overview)
-- [Introduction to the Illumina Genotyping Array] Pipeline](#introduction-to-the-illumina-genotyping-array-pipeline)
+- [Introduction to the Illumina Genotyping Array Pipeline](#introduction-to-the-illumina-genotyping-array-pipeline)
 - [Set-up](#set-up)
   * [Workflow Installation and Requirements](#workflow-installation-and-requirements)
   * [Inputs](#inputs)
