@@ -11,15 +11,15 @@ task CheckSamplesUnique {
     set -euo pipefail
     if [[ $(cut -f 1 ~{sample_name_map} | wc -l) -ne $(cut -f 1 ~{sample_name_map} | sort | uniq | wc -l) ]]
     then
-    echo "Samples in the sample_name_map are not unique" 1>&2
-    exit 1
+      echo "Samples in the sample_name_map are not unique" 1>&2
+      exit 1
     elif [[ $(cut -f 1 ~{sample_name_map} | wc -l) -lt ~{sample_num_threshold} ]]
     then
-    echo "There are fewer than ~{sample_num_threshold} samples in the sample_name_map" 1>&2
-    echo "Having fewer than ~{sample_num_threshold} samples means there likely isn't enough data to complete joint calling" 1>&2
-    exit 1
+      echo "There are fewer than ~{sample_num_threshold} samples in the sample_name_map" 1>&2
+      echo "Having fewer than ~{sample_num_threshold} samples means there likely isn't enough data to complete joint calling" 1>&2
+      exit 1
     else
-    echo true
+      echo true
     fi
   }
 
@@ -51,15 +51,15 @@ task SplitIntervalList {
 
   parameter_meta {
     interval_list: {
-                     localization_optional: true
-                   }
+      localization_optional: true
+    }
   }
 
   command <<<
     gatk --java-options -Xms3g SplitIntervals \
-    -L ~{interval_list} -O  scatterDir -scatter ~{scatter_count} -R ~{ref_fasta} \
-    -mode ~{scatter_mode} --interval-merging-rule OVERLAPPING_ONLY
-  >>>
+      -L ~{interval_list} -O  scatterDir -scatter ~{scatter_count} -R ~{ref_fasta} \
+      -mode ~{scatter_mode} --interval-merging-rule OVERLAPPING_ONLY
+    >>>
 
   runtime {
     memory: "3.75 GiB"
@@ -106,14 +106,14 @@ task ImportGVCFs {
     # Also, testing has shown that the multithreaded reader initialization
     # does not scale well beyond 5 threads, so don't increase beyond that.
     gatk --java-options -Xms8g \
-    GenomicsDBImport \
-    --genomicsdb-workspace-path ~{workspace_dir_name} \
-    --batch-size ~{batch_size} \
-    -L ~{interval} \
-    --sample-name-map ~{sample_name_map} \
-    --reader-threads 5 \
-    --merge-input-intervals \
-    --consolidate
+      GenomicsDBImport \
+      --genomicsdb-workspace-path ~{workspace_dir_name} \
+      --batch-size ~{batch_size} \
+      -L ~{interval} \
+      --sample-name-map ~{sample_name_map} \
+      --reader-threads 5 \
+      --merge-input-intervals \
+      --consolidate
 
     tar -cf ~{workspace_dir_name}.tar ~{workspace_dir_name}
   >>>
@@ -154,8 +154,8 @@ task GenotypeGVCFs {
 
   parameter_meta {
     interval: {
-                localization_optional: true
-              }
+      localization_optional: true
+    }
   }
 
   command <<<
@@ -165,16 +165,16 @@ task GenotypeGVCFs {
     WORKSPACE=$(basename ~{workspace_tar} .tar)
 
     gatk --java-options -Xms8g \
-    GenotypeGVCFs \
-    -R ~{ref_fasta} \
-    -O ~{output_vcf_filename} \
-    -D ~{dbsnp_vcf} \
-    -G StandardAnnotation -G AS_StandardAnnotation \
-    --only-output-calls-starting-in-intervals \
-    -V gendb://$WORKSPACE \
-    -L ~{interval} \
-    ~{true='--allow-old-rms-mapping-quality-annotation-data' false='' allow_old_rms_mapping_quality_annotation_data} \
-    --merge-input-intervals
+      GenotypeGVCFs \
+      -R ~{ref_fasta} \
+      -O ~{output_vcf_filename} \
+      -D ~{dbsnp_vcf} \
+      -G StandardAnnotation -G AS_StandardAnnotation \
+      --only-output-calls-starting-in-intervals \
+      -V gendb://$WORKSPACE \
+      -L ~{interval} \
+      ~{true='--allow-old-rms-mapping-quality-annotation-data' false='' allow_old_rms_mapping_quality_annotation_data} \
+      --merge-input-intervals
   >>>
 
   runtime {
@@ -208,8 +208,8 @@ task GnarlyGenotyper {
 
   parameter_meta {
     interval: {
-                localization_optional: true
-              }
+      localization_optional: true
+    }
   }
 
   Int disk_size = ceil(size(workspace_tar, "GiB") + size(ref_fasta, "GiB") + size(dbsnp_vcf, "GiB") * 3)
@@ -221,16 +221,16 @@ task GnarlyGenotyper {
     WORKSPACE=$( basename ~{workspace_tar} .tar)
 
     gatk --java-options -Xms8g \
-    GnarlyGenotyper \
-    -R ~{ref_fasta} \
-    -O ~{output_vcf_filename} \
-    --output-database-name annotationDB.vcf.gz \
-    -D ~{dbsnp_vcf} \
-    --only-output-calls-starting-in-intervals \
-    -V gendb://$WORKSPACE \
-    -L ~{interval} \
-    -stand-call-conf 10 \
-    --merge-input-intervals
+      GnarlyGenotyper \
+      -R ~{ref_fasta} \
+      -O ~{output_vcf_filename} \
+      --output-database-name annotationDB.vcf.gz \
+      -D ~{dbsnp_vcf} \
+      --only-output-calls-starting-in-intervals \
+      -V gendb://$WORKSPACE \
+      -L ~{interval} \
+      -stand-call-conf 10 \
+      --merge-input-intervals
   >>>
 
   runtime {
@@ -268,16 +268,16 @@ task HardFilterAndMakeSitesOnlyVcf {
     set -euo pipefail
 
     gatk --java-options -Xms3g \
-    VariantFiltration \
-    --filter-expression "ExcessHet > ~{excess_het_threshold}" \
-    --filter-name ExcessHet \
-    -O ~{variant_filtered_vcf_filename} \
-    -V ~{vcf}
+      VariantFiltration \
+      --filter-expression "ExcessHet > ~{excess_het_threshold}" \
+      --filter-name ExcessHet \
+      -O ~{variant_filtered_vcf_filename} \
+      -V ~{vcf}
 
     gatk --java-options -Xms3g \
-    MakeSitesOnlyVcf \
-    -I ~{variant_filtered_vcf_filename} \
-    -O ~{sites_only_vcf_filename}
+      MakeSitesOnlyVcf \
+      -I ~{variant_filtered_vcf_filename} \
+      -O ~{sites_only_vcf_filename}
   >>>
 
   runtime {
@@ -326,19 +326,19 @@ task IndelsVariantRecalibrator {
     set -euo pipefail
 
     gatk --java-options -Xms24g \
-    VariantRecalibrator \
-    -V ~{sites_only_variant_filtered_vcf} \
-    -O ~{recalibration_filename} \
-    --tranches-file ~{tranches_filename} \
-    --trust-all-polymorphic \
-    -tranche ~{sep=' -tranche ' recalibration_tranche_values} \
-    -an ~{sep=' -an ' recalibration_annotation_values} \
-    ~{true='--use-allele-specific-annotations' false='' use_allele_specific_annotations} \
-    -mode INDEL \
-    --max-gaussians ~{max_gaussians} \
-    -resource:mills,known=false,training=true,truth=true,prior=12 ~{mills_resource_vcf} \
-    -resource:axiomPoly,known=false,training=true,truth=false,prior=10 ~{axiomPoly_resource_vcf} \
-    -resource:dbsnp,known=true,training=false,truth=false,prior=2 ~{dbsnp_resource_vcf}
+      VariantRecalibrator \
+      -V ~{sites_only_variant_filtered_vcf} \
+      -O ~{recalibration_filename} \
+      --tranches-file ~{tranches_filename} \
+      --trust-all-polymorphic \
+      -tranche ~{sep=' -tranche ' recalibration_tranche_values} \
+      -an ~{sep=' -an ' recalibration_annotation_values} \
+      ~{true='--use-allele-specific-annotations' false='' use_allele_specific_annotations} \
+      -mode INDEL \
+      --max-gaussians ~{max_gaussians} \
+      -resource:mills,known=false,training=true,truth=true,prior=12 ~{mills_resource_vcf} \
+      -resource:axiomPoly,known=false,training=true,truth=false,prior=10 ~{axiomPoly_resource_vcf} \
+      -resource:dbsnp,known=true,training=false,truth=false,prior=2 ~{dbsnp_resource_vcf}
   >>>
 
   runtime {
@@ -390,22 +390,22 @@ task SNPsVariantRecalibratorCreateModel {
     set -euo pipefail
 
     gatk --java-options -Xms100g \
-    VariantRecalibrator \
-    -V ~{sites_only_variant_filtered_vcf} \
-    -O ~{recalibration_filename} \
-    --tranches-file ~{tranches_filename} \
-    --trust-all-polymorphic \
-    -tranche ~{sep=' -tranche ' recalibration_tranche_values} \
-    -an ~{sep=' -an ' recalibration_annotation_values} \
-    ~{true='--use-allele-specific-annotations' false='' use_allele_specific_annotations} \
-    -mode SNP \
-    --sample-every-Nth-variant ~{downsampleFactor} \
-    --output-model ~{model_report_filename} \
-    --max-gaussians ~{max_gaussians} \
-    -resource:hapmap,known=false,training=true,truth=true,prior=15 ~{hapmap_resource_vcf} \
-    -resource:omni,known=false,training=true,truth=true,prior=12 ~{omni_resource_vcf} \
-    -resource:1000G,known=false,training=true,truth=false,prior=10 ~{one_thousand_genomes_resource_vcf} \
-    -resource:dbsnp,known=true,training=false,truth=false,prior=7 ~{dbsnp_resource_vcf}
+      VariantRecalibrator \
+      -V ~{sites_only_variant_filtered_vcf} \
+      -O ~{recalibration_filename} \
+      --tranches-file ~{tranches_filename} \
+      --trust-all-polymorphic \
+      -tranche ~{sep=' -tranche ' recalibration_tranche_values} \
+      -an ~{sep=' -an ' recalibration_annotation_values} \
+      ~{true='--use-allele-specific-annotations' false='' use_allele_specific_annotations} \
+      -mode SNP \
+      --sample-every-Nth-variant ~{downsampleFactor} \
+      --output-model ~{model_report_filename} \
+      --max-gaussians ~{max_gaussians} \
+      -resource:hapmap,known=false,training=true,truth=true,prior=15 ~{hapmap_resource_vcf} \
+      -resource:omni,known=false,training=true,truth=true,prior=12 ~{omni_resource_vcf} \
+      -resource:1000G,known=false,training=true,truth=false,prior=10 ~{one_thousand_genomes_resource_vcf} \
+      -resource:dbsnp,known=true,training=false,truth=false,prior=7 ~{dbsnp_resource_vcf}
   >>>
 
   runtime {
@@ -453,11 +453,11 @@ task SNPsVariantRecalibrator {
   }
 
   Int auto_mem = ceil(2 * size([sites_only_variant_filtered_vcf,
-                               hapmap_resource_vcf,
-                               omni_resource_vcf,
-                               one_thousand_genomes_resource_vcf,
-                               dbsnp_resource_vcf],
-                          "GiB"))
+                              hapmap_resource_vcf,
+                              omni_resource_vcf,
+                              one_thousand_genomes_resource_vcf,
+                              dbsnp_resource_vcf],
+                      "GiB"))
   Int machine_mem = select_first([machine_mem_gb, if auto_mem < 7 then 7 else auto_mem])
   Int java_mem = machine_mem - 1
 
@@ -470,21 +470,21 @@ task SNPsVariantRecalibrator {
     MODEL_REPORT=~{model_report}
 
     gatk --java-options -Xms~{java_mem}g \
-    VariantRecalibrator \
-    -V ~{sites_only_variant_filtered_vcf} \
-    -O ~{recalibration_filename} \
-    --tranches-file ~{tranches_filename} \
-    --trust-all-polymorphic \
-    -tranche ~{sep=' -tranche ' recalibration_tranche_values} \
-    -an ~{sep=' -an ' recalibration_annotation_values} \
-    ~{true='--use-allele-specific-annotations' false='' use_allele_specific_annotations} \
-    -mode SNP \
-    ~{model_report_arg} \
-    --max-gaussians ~{max_gaussians} \
-    -resource:hapmap,known=false,training=true,truth=true,prior=15 ~{hapmap_resource_vcf} \
-    -resource:omni,known=false,training=true,truth=true,prior=12 ~{omni_resource_vcf} \
-    -resource:1000G,known=false,training=true,truth=false,prior=10 ~{one_thousand_genomes_resource_vcf} \
-    -resource:dbsnp,known=true,training=false,truth=false,prior=7 ~{dbsnp_resource_vcf}
+      VariantRecalibrator \
+      -V ~{sites_only_variant_filtered_vcf} \
+      -O ~{recalibration_filename} \
+      --tranches-file ~{tranches_filename} \
+      --trust-all-polymorphic \
+      -tranche ~{sep=' -tranche ' recalibration_tranche_values} \
+      -an ~{sep=' -an ' recalibration_annotation_values} \
+      ~{true='--use-allele-specific-annotations' false='' use_allele_specific_annotations} \
+      -mode SNP \
+      ~{model_report_arg} \
+      --max-gaussians ~{max_gaussians} \
+      -resource:hapmap,known=false,training=true,truth=true,prior=15 ~{hapmap_resource_vcf} \
+      -resource:omni,known=false,training=true,truth=true,prior=12 ~{omni_resource_vcf} \
+      -resource:1000G,known=false,training=true,truth=false,prior=10 ~{one_thousand_genomes_resource_vcf} \
+      -resource:dbsnp,known=true,training=false,truth=false,prior=7 ~{dbsnp_resource_vcf}
   >>>
 
   runtime {
@@ -515,8 +515,8 @@ task GatherTranches {
 
   parameter_meta {
     tranches: {
-                localization_optional: true
-              }
+      localization_optional: true
+    }
   }
 
   command <<<
@@ -537,20 +537,20 @@ task GatherTranches {
 
     count=0
     until cat $tranches_fofn | gsutil -m cp -L cp.log -c -I tranches/; do
-    sleep 1
-    ((count++)) && ((count >= $RETRY_LIMIT)) && break
+      sleep 1
+      ((count++)) && ((count >= $RETRY_LIMIT)) && break
     done
     if [ "$count" -ge "$RETRY_LIMIT" ]; then
-    echo 'Could not copy all the tranches from the cloud' && exit 1
+      echo 'Could not copy all the tranches from the cloud' && exit 1
     fi
 
     cat $tranches_fofn | rev | cut -d '/' -f 1 | rev | awk '{print "tranches/" $1}' > inputs.list
 
     gatk --java-options -Xms6g \
-    GatherTranches \
-    --input inputs.list \
-    --mode ~{mode} \
-    --output ~{output_filename}
+      GatherTranches \
+      --input inputs.list \
+      --mode ~{mode} \
+      --output ~{output_filename}
   >>>
 
   runtime {
@@ -590,26 +590,26 @@ task ApplyRecalibration {
     set -euo pipefail
 
     gatk --java-options -Xms5g \
-    ApplyVQSR \
-    -O tmp.indel.recalibrated.vcf \
-    -V ~{input_vcf} \
-    --recal-file ~{indels_recalibration} \
-    ~{true='--use-allele-specific-annotations' false='' use_allele_specific_annotations} \
-    --tranches-file ~{indels_tranches} \
-    --truth-sensitivity-filter-level ~{indel_filter_level} \
-    --create-output-variant-index true \
-    -mode INDEL
+      ApplyVQSR \
+      -O tmp.indel.recalibrated.vcf \
+      -V ~{input_vcf} \
+      --recal-file ~{indels_recalibration} \
+      ~{true='--use-allele-specific-annotations' false='' use_allele_specific_annotations} \
+      --tranches-file ~{indels_tranches} \
+      --truth-sensitivity-filter-level ~{indel_filter_level} \
+      --create-output-variant-index true \
+      -mode INDEL
 
     gatk --java-options -Xms5g \
-    ApplyVQSR \
-    -O ~{recalibrated_vcf_filename} \
-    -V tmp.indel.recalibrated.vcf \
-    --recal-file ~{snps_recalibration} \
-    ~{true='--use-allele-specific-annotations' false='' use_allele_specific_annotations} \
-    --tranches-file ~{snps_tranches} \
-    --truth-sensitivity-filter-level ~{snp_filter_level} \
-    --create-output-variant-index true \
-    -mode SNP
+      ApplyVQSR \
+      -O ~{recalibrated_vcf_filename} \
+      -V tmp.indel.recalibrated.vcf \
+      --recal-file ~{snps_recalibration} \
+      ~{true='--use-allele-specific-annotations' false='' use_allele_specific_annotations} \
+      --tranches-file ~{snps_tranches} \
+      --truth-sensitivity-filter-level ~{snp_filter_level} \
+      --create-output-variant-index true \
+      -mode SNP
   >>>
 
   runtime {
@@ -638,8 +638,8 @@ task GatherVcfs {
 
   parameter_meta {
     input_vcfs: {
-                  localization_optional: true
-                }
+      localization_optional: true
+    }
   }
 
   command <<<
@@ -649,11 +649,11 @@ task GatherVcfs {
     # This argument disables expensive checks that the file headers contain the same set of
     # genotyped samples and that files are in order by position of first record.
     gatk --java-options -Xms6g \
-    GatherVcfsCloud \
-    --ignore-safety-checks \
-    --gather-type BLOCK \
-    --input ~{sep=" --input " input_vcfs} \
-    --output ~{output_vcf_name}
+      GatherVcfsCloud \
+      --ignore-safety-checks \
+      --gather-type BLOCK \
+      --input ~{sep=" --input " input_vcfs} \
+      --output ~{output_vcf_name}
 
     tabix ~{output_vcf_name}
   >>>
@@ -685,25 +685,25 @@ task SelectFingerprintSiteVariants {
 
   parameter_meta {
     input_vcf: {
-                 localization_optional: true
-               }
+      localization_optional: true
+    }
   }
 
   command <<<
     set -euo pipefail
 
     function hdb_to_interval_list() {
-    input=$1
-    awk 'BEGIN{IFS="\t";OFS="\t";} $0~"^@"{print;next;} $0~"#CHROM"{next;} {print $1,$2,$2,"+","interval-"NR}' $1
+      input=$1
+      awk 'BEGIN{IFS="\t";OFS="\t";} $0~"^@"{print;next;} $0~"#CHROM"{next;} {print $1,$2,$2,"+","interval-"NR}' $1
     }
 
     hdb_to_interval_list ~{haplotype_database} > hdb.interval_list
 
     gatk --java-options -Xms6g \
-    SelectVariants \
-    --variant ~{input_vcf} \
-    --intervals hdb.interval_list \
-    --output ~{base_output_name}.vcf.gz
+      SelectVariants \
+      --variant ~{input_vcf} \
+      --intervals hdb.interval_list \
+      --output ~{base_output_name}.vcf.gz
   >>>
 
   runtime {
@@ -739,13 +739,13 @@ task CollectVariantCallingMetrics {
     set -euo pipefail
 
     gatk --java-options -Xms6g \
-    CollectVariantCallingMetrics \
-    --INPUT ~{input_vcf} \
-    --DBSNP ~{dbsnp_vcf} \
-    --SEQUENCE_DICTIONARY ~{ref_dict} \
-    --OUTPUT ~{metrics_filename_prefix} \
-    --THREAD_COUNT 8 \
-    --TARGET_INTERVALS ~{interval_list}
+      CollectVariantCallingMetrics \
+      --INPUT ~{input_vcf} \
+      --DBSNP ~{dbsnp_vcf} \
+      --SEQUENCE_DICTIONARY ~{ref_dict} \
+      --OUTPUT ~{metrics_filename_prefix} \
+      --THREAD_COUNT 8 \
+      --TARGET_INTERVALS ~{interval_list}
   >>>
 
   output {
@@ -775,11 +775,11 @@ task GatherVariantCallingMetrics {
 
   parameter_meta {
     input_details: {
-                     localization_optional: true
-                   }
+      localization_optional: true
+    }
     input_summaries: {
-                       localization_optional: true
-                     }
+      localization_optional: true
+    }
   }
 
   command <<<
@@ -802,28 +802,28 @@ task GatherVariantCallingMetrics {
 
     count=0
     until cat $input_details_fofn | gsutil -m cp -L cp.log -c -I metrics/; do
-    sleep 1
-    ((count++)) && ((count >= $RETRY_LIMIT)) && break
+      sleep 1
+      ((count++)) && ((count >= $RETRY_LIMIT)) && break
     done
     if [ "$count" -ge "$RETRY_LIMIT" ]; then
-    echo 'Could not copy all the metrics from the cloud' && exit 1
+      echo 'Could not copy all the metrics from the cloud' && exit 1
     fi
 
     count=0
     until cat $input_summaries_fofn | gsutil -m cp -L cp.log -c -I metrics/; do
-    sleep 1
-    ((count++)) && ((count >= $RETRY_LIMIT)) && break
+      sleep 1
+      ((count++)) && ((count >= $RETRY_LIMIT)) && break
     done
     if [ "$count" -ge "$RETRY_LIMIT" ]; then
-    echo 'Could not copy all the metrics from the cloud' && exit 1
+      echo 'Could not copy all the metrics from the cloud' && exit 1
     fi
 
     INPUT=$(cat $input_details_fofn | rev | cut -d '/' -f 1 | rev | sed s/.variant_calling_detail_metrics//g | awk '{printf("--INPUT metrics/%s ", $1)}')
 
     gatk --java-options -Xms2g \
-    AccumulateVariantCallingMetrics \
-    $INPUT \
-    --OUTPUT ~{output_prefix}
+      AccumulateVariantCallingMetrics \
+      $INPUT \
+      --OUTPUT ~{output_prefix}
   >>>
 
   runtime {
@@ -851,16 +851,16 @@ task CrossCheckFingerprint {
     String output_base_name
     Boolean scattered = false
     Array[String] expected_inconclusive_samples = []
-    String picard_docker = "us.gcr.io/broad-gotc-prod/gatk4-joint-genotyping:yf_fire_crosscheck_picard_with_nio_fast_fail_fast_sample_map"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
   }
 
   parameter_meta {
     gvcf_paths: {
-                  localization_optional: true
-                }
+      localization_optional: true
+    }
     vcf_paths: {
-                 localization_optional: true
-               }
+      localization_optional: true
+    }
   }
 
   Int num_gvcfs = length(gvcf_paths)
@@ -881,41 +881,39 @@ task CrossCheckFingerprint {
     cp $gvcfInputsList gvcf_inputs.list
     cp $vcfInputsList vcf_inputs.list
 
-    java -Dpicard.useLegacyParser=false -Xms~{memMb - 512}m \
-    -jar /usr/gitc/PicardPublicWithCrosscheckNIOandSampleMapping.jar \
-    CrosscheckFingerprints \
-    --INPUT gvcf_inputs.list \
-    --SECOND_INPUT vcf_inputs.list \
-    --HAPLOTYPE_MAP ~{haplotype_database} \
-    --INPUT_SAMPLE_FILE_MAP ~{sample_name_map} \
-    --CROSSCHECK_BY SAMPLE \
-    --CROSSCHECK_MODE CHECK_SAME_SAMPLE \
-    --NUM_THREADS ~{cpu} \
-    --SKIP_INPUT_READABLITY_TEST \
-    ~{true='--EXIT_CODE_WHEN_MISMATCH 0' false='' scattered} \
-    --OUTPUT ~{output_name}
+    gatk --java-options -Xms~{memMb - 512}m \
+      CrosscheckFingerprints \
+      --INPUT gvcf_inputs.list \
+      --SECOND_INPUT vcf_inputs.list \
+      --HAPLOTYPE_MAP ~{haplotype_database} \
+      --INPUT_SAMPLE_FILE_MAP ~{sample_name_map} \
+      --CROSSCHECK_BY SAMPLE \
+      --CROSSCHECK_MODE CHECK_SAME_SAMPLE \
+      --NUM_THREADS ~{cpu} \
+      ~{true='--EXIT_CODE_WHEN_MISMATCH 0' false='' scattered} \
+      --OUTPUT ~{output_name}
 
     if ~{scattered}; then
-    # UNEXPECTED_MATCH is not possible with CHECK_SAME_SAMPLE
-    matches=$(grep "EXPECTED_MATCH" ~{output_name} | wc -l)
+      # UNEXPECTED_MATCH is not possible with CHECK_SAME_SAMPLE
+      matches=$(grep "EXPECTED_MATCH" ~{output_name} | wc -l)
 
-    # check inconclusive samples
-    expectedInconclusiveSamples=("~{sep='" "' expected_inconclusive_samples}")
-    inconclusiveSamplesCount=0
-    inconclusiveSamples=($(grep 'INCONCLUSIVE' ~{output_name} | cut -f 1))
-    for sample in ${inconclusiveSamples[@]}; do
-    if printf '%s\n' ${expectedInconclusiveSamples[@]} | grep -P '^'${sample}'$'; then
-    inconclusiveSamplesCount=$((inconclusiveSamplesCount+1))
-    fi
-    done
+      # check inconclusive samples
+      expectedInconclusiveSamples=("~{sep='" "' expected_inconclusive_samples}")
+      inconclusiveSamplesCount=0
+      inconclusiveSamples=($(grep 'INCONCLUSIVE' ~{output_name} | cut -f 1))
+      for sample in ${inconclusiveSamples[@]}; do
+      if printf '%s\n' ${expectedInconclusiveSamples[@]} | grep -P '^'${sample}'$'; then
+        inconclusiveSamplesCount=$((inconclusiveSamplesCount+1))
+      fi
+      done
 
-    total_matches=$((inconclusiveSamplesCount + matches))
-    if [[ ${total_matches} -eq ~{num_gvcfs} ]]; then
-    >&2 echo "Found the correct number of matches (~{num_gvcfs}) for this shard"
-    else
-    >&2 echo "ERROR: Found $total_matches 'EXPECTED_MATCH' records, but expected ~{num_gvcfs}"
-    exit 1
-    fi
+      total_matches=$((inconclusiveSamplesCount + matches))
+      if [[ ${total_matches} -eq ~{num_gvcfs} ]]; then
+        >&2 echo "Found the correct number of matches (~{num_gvcfs}) for this shard"
+      else
+        >&2 echo "ERROR: Found $total_matches 'EXPECTED_MATCH' records, but expected ~{num_gvcfs}"
+      exit 1
+      fi
     fi
   >>>
 
@@ -923,7 +921,7 @@ task CrossCheckFingerprint {
     memory: memMb + " MiB"
     disks: "local-disk " + disk + " HDD"
     preemptible: 0
-    docker: picard_docker
+    docker: gatk_docker
   }
 
   output {
@@ -948,7 +946,7 @@ task GatherPicardMetrics {
     head -n 7 ~{metrics_files[0]} > ~{output_file_name}
 
     for metrics_file in ~{sep=' ' metrics_files}; do
-    sed -n '1,7d;p' $metrics_file | grep -v '^$' >> ~{output_file_name}
+      sed -n '1,7d;p' $metrics_file | grep -v '^$' >> ~{output_file_name}
     done
   }
 
@@ -977,23 +975,23 @@ task GetFingerprintingIntervalIndices {
     set -xeo pipefail
 
     function rename_intervals(){
-    interval_list=$1
-    name=$2
+      interval_list=$1
+      name=$2
 
-    awk 'BEGIN{FS=IFS="\t";OFS="\t";} $0~"^@"{print;next;} $0~"#CHROM"{next;} {$5="'$name'"; print}' $interval_list
+      awk 'BEGIN{FS=IFS="\t";OFS="\t";} $0~"^@"{print;next;} $0~"#CHROM"{next;} {$5="'$name'"; print}' $interval_list
     }
     export -f rename_intervals
 
     function hdb_to_interval_list(){
-    input=$1
+      input=$1
 
-    awk 'BEGIN{IFS="\t";OFS="\t";} $0~"^@"{print;next;} $0~"#CHROM"{next;} {print $1,$2,$2,"+","interval-"NR}' $1
+      awk 'BEGIN{IFS="\t";OFS="\t";} $0~"^@"{print;next;} $0~"#CHROM"{next;} {print $1,$2,$2,"+","interval-"NR}' $1
     }
 
     function rename_scatter(){
-    file=$1
-    number=$(echo $file | sed -E 's|([0-9]+)-scattered\.interval.*|\1|')
-    rename_intervals $file $number > scattered.renamed.$number.interval_list
+      file=$1
+      number=$(echo $file | sed -E 's|([0-9]+)-scattered\.interval.*|\1|')
+      rename_intervals $file $number > scattered.renamed.$number.interval_list
     }
     export -f rename_scatter
 
@@ -1014,15 +1012,15 @@ task GetFingerprintingIntervalIndices {
 
     # find the intervals that overlap the haplotype_database
     gatk IntervalListTools \
-    -ACTION OVERLAPS \
-    -O all.sorted.interval_list \
-    -I all.interval_list \
-    -SI hdb.interval_list
+      -ACTION OVERLAPS \
+      -O all.sorted.interval_list \
+      -I all.interval_list \
+      -SI hdb.interval_list
 
     if grep -v '^@' all.sorted.interval_list; then
-    grep -v '^@' all.sorted.interval_list | awk '{FS="\t"; print $5}' | uniq > indices.out
+      grep -v '^@' all.sorted.interval_list | awk '{FS="\t"; print $5}' | uniq > indices.out
     else
-    touch indices.out
+      touch indices.out
     fi
   >>>
 

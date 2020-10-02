@@ -3,7 +3,6 @@
 
 * Updated GATK docker image for all tasks from [GATK 4.1.1.0](https://github.com/broadinstitute/gatk/releases/tag/4.1.1.0) to [GATK 4.1.8.0](https://github.com/broadinstitute/gatk/releases/tag/4.1.8.0).
     * Numerous bug fixes and improvements, including better VQSR reliability for allele-specific filtering.
-* Updated picard-cloud docker image from a custom branch to [Picard 2.23.0](https://github.com/broadinstitute/picard/releases/tag/2.23.0)
 
 # 1.0.1
 2020-08-28
