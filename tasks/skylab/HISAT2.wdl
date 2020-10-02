@@ -83,8 +83,8 @@ task HISAT2PairedEnd {
     # searches for up to 10 primary alignments for each read
     hisat2 -t \
       -x ${ref_name}/${ref_name} \
-      -1 "~{FQ1}" \
-      -2 "~{FQ2}" \
+      -1 "${FQ1}" \
+      -2 "${FQ2}" \
       --rg-id=${input_id} --rg SM:${input_id} --rg LB:${input_id} \
       --rg PL:ILLUMINA --rg PU:${input_id} \
       --new-summary --summary-file ${output_basename}.log \
@@ -195,8 +195,8 @@ task HISAT2RSEM {
     # As a result, alignments with gaps or deletions are excluded.
     hisat2 -t \
       -x ${ref_name}/${ref_name} \
-      -1 "~{FQ1}" \
-      -2 "~{FQ2}" \
+      -1 "${FQ1}" \
+      -2 "${FQ2}" \
       --rg-id=${input_id} --rg SM:${input_id} --rg LB:${input_id} \
       --rg PL:ILLUMINA --rg PU:${input_id} \
       --new-summary --summary-file ${output_basename}.log \
@@ -286,7 +286,7 @@ input {
     # The parameters for this task are copied from the HISAT2PairedEnd task.
     hisat2 -t \
       -x ~{ref_name}/~{ref_name} \
-      -U "~{FQ}" \
+      -U "${FQ}" \
       --rg-id=~{input_id} --rg SM:~{input_id} --rg LB:~{input_id} \
       --rg PL:ILLUMINA --rg PU:~{input_id} \
       --new-summary --summary-file "~{output_basename}.log" \
@@ -424,7 +424,7 @@ task HISAT2RSEMSingleEnd {
     # As a result, alignments with gaps or deletions are excluded.
     hisat2 -t \
       -x ${ref_name}/${ref_name} \
-      -U "~{FQ}" \
+      -U "${FQ}" \
       --rg-id=${input_id} --rg SM:${input_id} --rg LB:${input_id} \
       --rg PL:ILLUMINA --rg PU:${input_id} \
       --new-summary --summary-file ${output_basename}.log \
