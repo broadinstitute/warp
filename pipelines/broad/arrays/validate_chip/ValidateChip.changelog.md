@@ -1,3 +1,8 @@
+# 1.11.0
+2020-10-01
+
+* Updated task definitions to include a new tool not currently used in ValidateChip wdl
+
 # 1.10.0
 2020-08-18
 
