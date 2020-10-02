@@ -48,6 +48,7 @@ You can read more about the software tools implemented in these tasks by reading
 
 # Important Notes
 * The accompanying JSON is a generic, ready to use, example template for the workflow. It is the user’s responsibility to correctly set the reference and resource variables for their own particular test case using the [GATK Tool and Tutorial Documentations](https://gatk.broadinstitute.org/hc/en-us/categories/360002310591).
+* By default, Haplotype Caller will perform variant calling using GATK 3.5, which is what is used in Broad Production. One can use GATK4 by setting `use_gatk3_haplotype_caller=false` in the inputs.json.
 * Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
 * For help running workflows on the Google Cloud Platform or locally please
 view the following tutorial [(How to) Execute Workflows from the gatk-workflows Git Organization](https://gatk.broadinstitute.org/hc/en-us/articles/360035530952).
