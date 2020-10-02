@@ -1,3 +1,8 @@
+# 2.2.0
+2020-10-01
+
+* Updated task definitions to include a new tool not currently used in Arrays wdl
+
 # 2.1.0
 2020-08-18
 
