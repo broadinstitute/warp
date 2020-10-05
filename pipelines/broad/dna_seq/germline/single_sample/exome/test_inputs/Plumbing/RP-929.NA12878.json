@@ -57,5 +57,8 @@
 
   "ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics": false,
   "ExomeGermlineSingleSample.AggregatedBamQC.CollectAggregationMetrics.collect_gc_bias_metrics": false,
-  "ExomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true
+  "ExomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true,
+  "ExomeGermlineSingleSample.AggregatedBamQC.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics": false,
+  "ExomeGermlineSingleSample.AggregatedBamQC.AggregatedBamQC.CollectAggregationMetrics.collect_gc_bias_metrics": false,
+  "ExomeGermlineSingleSample.UnmappedBamToAlignedBam.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true
 }
