@@ -21,7 +21,7 @@ import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 workflow ValidateChip {
 
-  String pipeline_version = "1.9"
+  String pipeline_version = "1.11.0"
 
   input {
     String sample_alias
@@ -65,7 +65,7 @@ workflow ValidateChip {
   call InternalTasks.CreateExtendedIlluminaManifest {
     input:
       input_csv = chip_manifest_csv_file,
-      output_base_name = chip_type + ".1.4",
+      output_base_name = chip_type + ".1.5",
       cluster_file = cluster_file,
       dbSNP_vcf_file = dbSNP_vcf,
       dbSNP_vcf_index_file = dbSNP_vcf_index,
@@ -243,6 +243,9 @@ workflow ValidateChip {
     File IndelGenotypeConcordanceContingencyMetricsFile = IndelGenotypeConcordance.contingency_metrics
     File IndelGenotypeConcordanceVcfFile = IndelGenotypeConcordance.output_vcf
     File IndelGenotypeConcordanceTxtFile = IndelGenotypeConcordance.output_txt
+  }
+  meta {
+    allowNestedInputs: true
   }
 }
 

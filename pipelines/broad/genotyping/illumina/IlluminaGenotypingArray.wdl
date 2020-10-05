@@ -20,7 +20,7 @@ import "../../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingT
 
 workflow IlluminaGenotypingArray {
 
-  String pipeline_version = "1.9"
+  String pipeline_version = "1.11.0"
 
   input {
 
@@ -63,6 +63,9 @@ workflow IlluminaGenotypingArray {
 
     # For Contamination Checking
     File? contamination_controls_vcf
+
+    # For BAFRegress
+    File? minor_allele_frequency_file
 
     # For HapMap GenotypeConcordance Check:
     File? control_sample_vcf_file
@@ -132,6 +135,18 @@ workflow IlluminaGenotypingArray {
         disk_size = disk_size,
         preemptible_tries = preemptible_tries,
         pipeline_version = "IlluminaGenotypingArray_v" + pipeline_version
+    }
+
+    if (defined(minor_allele_frequency_file)) {
+      call GenotypingTasks.BafRegress {
+        input:
+          input_vcf = GtcToVcf.output_vcf,
+          input_vcf_index = GtcToVcf.output_vcf_index,
+          maf_file = minor_allele_frequency_file,
+          output_results_filename = chip_well_barcode + ".results.txt",
+          disk_size = disk_size,
+          preemptible_tries = preemptible_tries,
+      }
     }
 
     call GenotypingTasks.VcfToAdpc {
@@ -326,6 +341,7 @@ workflow IlluminaGenotypingArray {
     File? output_vcf_md5_cloud_path = VcfMd5Sum.md5_cloud_path
     File? output_vcf = final_output_vcf
     File? output_vcf_index = final_output_vcf_index
+    File? bafregress_results_file = BafRegress.results_file
     File? contamination_metrics = CreateVerifyIDIntensityContaminationMetricsFile.output_metrics_file
     File? output_fingerprint_vcf = SelectFingerprintVariants.output_vcf
     File? output_fingerprint_vcf_index = SelectFingerprintVariants.output_vcf_index
@@ -342,5 +358,8 @@ workflow IlluminaGenotypingArray {
     File? genotype_concordance_detail_metrics = GenotypeConcordance.detail_metrics
     File? genotype_concordance_contingency_metrics = GenotypeConcordance.contingency_metrics
     Boolean? genotype_concordance_failed = GenotypeConcordance.fails_concordance
+  }
+  meta {
+    allowNestedInputs: true
   }
 }

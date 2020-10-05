@@ -3,12 +3,15 @@ version 1.0
 import "../verification/VerifyTasks.wdl" as VerifyTasks
 import "../verification/VerifyMetrics.wdl" as MetricsVerification
 import "../verification/VerifyGermlineSingleSample.wdl" as GermlineVerification
+import "../verification/VerifyNA12878.wdl" as VerifyNA12878
 
 workflow VerifyJointGenotyping {
 
   input {
     Array[File] test_vcfs
+    Array[File] test_vcf_indexes
     Array[File] truth_vcfs
+    Array[File] truth_vcf_indexes
 
     Array[File] test_intervals
     Array[File] truth_intervals
@@ -18,6 +21,8 @@ workflow VerifyJointGenotyping {
 
     File test_fingerprint
     File truth_fingerprint
+
+    Boolean is_exome
   }
 
   scatter (idx in range(length(truth_vcfs))) {
@@ -44,6 +49,23 @@ workflow VerifyJointGenotyping {
     input:
       test_fingerprint = test_fingerprint,
       truth_fingerprint = truth_fingerprint
+  }
+
+  if (is_exome) {
+    call VerifyNA12878.VerifyNA12878 {
+      input:
+        vcf_files = flatten([test_vcfs, truth_vcfs]),
+        vcf_file_indexes = flatten([test_vcf_indexes, truth_vcf_indexes]),
+        vcf_names = ["test","truth"]
+    }
+  }
+
+  output {
+    Array[File]? tables = VerifyNA12878.concordance_tables
+  }
+  
+  meta {
+    allowNestedInputs: true
   }
 }
 

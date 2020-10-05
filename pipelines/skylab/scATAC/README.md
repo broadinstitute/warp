@@ -31,7 +31,7 @@
 
 # Introduction
 
-The scATAC Pipeline was developed by the Broad DSP Pipelines team to process single nucleus ATAC-seq datasets. The pipeline is based on the [SnapATAC pipeline](https://github.com/r3fang/SnapATAC) described by [Fang et al. (2019)](https://www.biorxiv.org/content/10.1101/615179v2.full). Overall, the pipeline uses the python module [SnapTools](https://github.com/r3fang/SnapTools) to align and process paired reads in the form of FASTQ files. It produces an hdf5-structured Snap file that includes a cell-by-bin count matrix. In addition to the Snap file, the final outputs include a GA4GH compliant aligned BAM and QC metrics.
+The scATAC Pipeline was developed by the Broad DSP Pipelines team to process single cell/nucleus ATAC-seq datasets. The pipeline is based on the [SnapATAC pipeline](https://github.com/r3fang/SnapATAC) described by [Fang et al. (2019)](https://www.biorxiv.org/content/10.1101/615179v2.full). Overall, the pipeline uses the python module [SnapTools](https://github.com/r3fang/SnapTools) to align and process paired reads in the form of FASTQ files. It produces an hdf5-structured Snap file that includes a cell-by-bin count matrix. In addition to the Snap file, the final outputs include a GA4GH compliant aligned BAM and QC metrics.
 
 | Want to use the scATAC Pipeline for your publication? |
 |---|
@@ -159,7 +159,7 @@ The following table details the metrics available in the output_snap_qc file.
 
 # Running on Terra
 
-[Terra](https://app.terra.bio/) is a public, cloud-based platform for biomedical research. If you would like to try the scATAC workflow (previously named "snap-atac") in Terra, you can import the most recent version from the [Broad Methods Repository](https://portal.firecloud.org/?return=terra#methods/snap-atac-v1_0/snap-atac-v1_0/2) (Google login required). Additionally, there is a public [SnapATAC_Pipeline workspace](https://app.terra.bio/#workspaces/brain-initiative-bcdc/SnapATAC_Pipeline) preloaded with the scATAC workflow and downsampled data.  
+[Terra](https://app.terra.bio/) is a public, cloud-based platform for biomedical research. If you would like to try the scATAC workflow (previously named "snap-atac") in Terra, you can import the most recent version from [Dockstore](https://dockstore.org/workflows/github.com/broadinstitute/warp/scATAC:scATAC_v1.1.0?tab=info). Additionally, there is a public [scATAC workspace](https://app.terra.bio/#workspaces/brain-initiative-bcdc/scATAC) preloaded with the scATAC workflow and downsampled data.  
 
 # Versioning
 All scATAC workflow releases are documented in the [scATAC changelog](scATAC.changelog.md).

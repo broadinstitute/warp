@@ -29,4 +29,7 @@ workflow VerifyMultiSampleArrays {
       file1 = truth_vcf,
       file2 = test_vcf
   }
+  meta {
+    allowNestedInputs: true
+  }
 }

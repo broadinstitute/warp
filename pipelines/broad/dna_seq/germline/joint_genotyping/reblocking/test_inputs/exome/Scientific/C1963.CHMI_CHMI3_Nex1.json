@@ -1,0 +1,4 @@
+{
+  "ReblockGVCF.gvcf": "gs://broad-gotc-test-storage/germline_single_sample/exome/scientific/truth/{TRUTH_BRANCH}/C1963.CHMI_CHMI3_Nex1/CHMI_CHMI3_Nex1.g.vcf.gz",
+  "ReblockGVCF.gvcf_index": "gs://broad-gotc-test-storage/germline_single_sample/exome/scientific/truth/{TRUTH_BRANCH}/C1963.CHMI_CHMI3_Nex1/CHMI_CHMI3_Nex1.g.vcf.gz.tbi"
+}

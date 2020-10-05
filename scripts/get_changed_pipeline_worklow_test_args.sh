@@ -17,39 +17,39 @@ function pipeline_to_args() {
 
   case ${pipeline} in
     AnnotationFiltration)
-      echo AnnotationFiltration -t ${test};;
+      echo AnnotationFiltration -t ${test} --env ${env};;
     Arrays)
       echo Arrays -a Single ${common_args};;
     MultiSampleArrays)
       echo Arrays -a Multi ${common_args};;
-    #ExomeGermlineSingleSample)
-    #  echo GermlineSingleSample -d Exome ${common_args};;
-    #ExomeReprocessing)
-    #  echo Reprocessing -d Exome ${common_args};;
-    #JointGenotyping)
-    #  echo JointGenotyping -d Exome ${common_args};
-    #  echo JointGenotyping -d WGS --env ${env} -t Plumbing -b develop ${uncached};;
+    ExomeGermlineSingleSample)
+      echo GermlineSingleSample -d Exome ${common_args};;
+    ExomeReprocessing)
+      echo Reprocessing -d Exome ${common_args};;
+    JointGenotyping)
+      echo JointGenotyping -d Exome ${common_args};
+      echo JointGenotyping -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached};;
     IlluminaGenotypingArray)
       echo IlluminaGenotypingArray ${common_args};;
-    #ExternalExomeReprocessing)
-    #  echo ExternalReprocessing -d Exome --env ${env} -t Plumbing -b develop ${uncached};;
-    #ExternalWholeGenomeReprocessing)
-    #  echo ExternalReprocessing -d WGS --env ${env} -t Plumbing -b develop ${uncached};;
-    #WholeGenomeGermlineSingleSample)
-    #  echo GermlineSingleSample -d WGS ${common_args};;
-    #WholeGenomeReprocessing)
-    #  echo Reprocessing -d WGS ${common_args};;
+    ExternalExomeReprocessing)
+      echo ExternalReprocessing -d Exome --env ${env} -t Plumbing -b ${truth} ${uncached};;
+    ExternalWholeGenomeReprocessing)
+      echo ExternalReprocessing -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached};;
+    WholeGenomeGermlineSingleSample)
+      echo GermlineSingleSample -d WGS ${common_args};;
+    WholeGenomeReprocessing)
+      echo Reprocessing -d WGS ${common_args};;
     ValidateChip)
       echo ValidateChip ${common_args};;
-    #ReblockGVCF)
-    #  echo ReblockGvcf -d Exome ${common_args};
-    #  echo ReblockGvcf -d WGS ${common_args};;
-    #TargetedSomaticSingleSample)
-    #  echo SomaticSingleSample -d Targeted ${common_args};;
-    #JointGenotypingByChromosomePartOne)
-    #  continue;;
-    #JointGenotypingByChromosomePartTwo)
-    #  continue;;
+    ReblockGVCF)
+      echo ReblockGvcf -d Exome ${common_args};
+      echo ReblockGvcf -d WGS ${common_args};;
+    TargetedSomaticSingleSample)
+      echo SomaticSingleSample -d Targeted ${common_args};;
+    JointGenotypingByChromosomePartOne)
+      continue;;
+    JointGenotypingByChromosomePartTwo)
+      continue;;
   esac
 }
 

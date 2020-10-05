@@ -1,3 +1,13 @@
+# 1.11.0
+2020-10-01
+
+* Added use of BafRegress to the pipeline.  BafRegress detects and estimates sample contamination using B allele frequency data from Illumina genotyping arrays using a regression model.
+
+# 1.10.0
+2020-08-18
+
+* Added a meta section with 'allowNestedInputs' set to 'true' to allow the workflow to use with nested inputs with Cromwell 52
+
 # 1.9
 2020-07-31
 

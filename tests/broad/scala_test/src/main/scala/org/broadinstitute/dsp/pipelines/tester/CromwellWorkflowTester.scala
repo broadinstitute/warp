@@ -105,7 +105,7 @@ object CromwellWorkflowTester {
         wdlPath.pathAsString,
         tmp.pathAsString,
         DsdePipelinesGitHash,
-        env.entryName.toLowerCase
+        env.picardEnv
       )
     ).!!
     tmp
@@ -128,7 +128,7 @@ abstract class CromwellWorkflowTester(
 
   protected def env: CromwellEnvironment
 
-  protected lazy val envString: String = env.entryName.toLowerCase
+  protected lazy val envString: String = env.picardEnv
 
   def workflowName: String
 

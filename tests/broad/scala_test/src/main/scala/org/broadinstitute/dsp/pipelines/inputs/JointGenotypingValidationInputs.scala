@@ -26,7 +26,10 @@ case class JointGenotypingValidationInputs(
     testFingerprint: URI,
     truthFingerprint: URI,
     testVcfs: Seq[URI],
+    testVcfIndexes: Seq[URI],
     truthVcfs: Seq[URI],
+    truthVcfIndexes: Seq[URI],
     testIntervals: Seq[URI],
-    truthIntervals: Seq[URI]
+    truthIntervals: Seq[URI],
+    isExome: Boolean
 )

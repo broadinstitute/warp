@@ -38,6 +38,17 @@ object CromwellEnvironment extends Enum[CromwellEnvironment] {
     override val picardEnv: String = "prod"
   }
 
+  case object Test extends CromwellEnvironment {
+    override val cromwellUrl = new URL(
+      "https://cromwell-test.gotc-dev.broadinstitute.org"
+    )
+    override val picardEnv: String = "dev"
+    override val environmentOptions: Seq[(String, Json)] = Seq(
+      "jes_gcs_root" -> "gs://broad-gotc-dev-execution1".asJson,
+      "google_project" -> "broad-exomes-dev1".asJson,
+    )
+  }
+
   case object Pharma5 extends CromwellEnvironment {
     override val cromwellUrl = new URL(
       "https://cromwell-pharma5.gotc-prod.broadinstitute.org"
