@@ -1,3 +1,10 @@
+# 4.1.0
+
+2020-10-05 (Date of Last Commit)
+
+* Updated sctools dockers and made them consistent across the Optimus pipeline
+
+
 # 4.0.2
 
 2020-09-30 (Date of Last Commit)
