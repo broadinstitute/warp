@@ -1,0 +1,24 @@
+{
+  "name": "warp",
+  "version": "0.0.1",
+  "description": "WDL Analysis Research Pipelines",
+  "main": "index.js",
+  "authors": {
+    "name": "Lantern Team",
+    "email": "lantern@broadinstitute.org"
+  },
+  "repository": "https://github.com/broadinstitute/warp/warp",
+  "scripts": {
+    "dev": "vuepress dev",
+    "build": "vuepress build",
+    "format": "prettier --write"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@vuepress/plugin-back-to-top": "^1.6.0",
+    "@vuepress/plugin-medium-zoom": "^1.6.0",
+    "prettier": "^2.1.2",
+    "vuepress": "^1.6.0",
+    "vuepress-plugin-mathjax": "^1.2.8"
+  }
+}

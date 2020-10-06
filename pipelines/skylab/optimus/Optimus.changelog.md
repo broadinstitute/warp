@@ -1,8 +1,8 @@
-# 4.0.3
+# 4.1.0
 
-2020-10-01 (Date of Last Commit)
+2020-10-05 (Date of Last Commit)
 
-* Removed extra trailing slash in ouput directory from cloud to cloud copy job
+* Updated sctools dockers and made them consistent across the Optimus pipeline
 
 
 # 4.0.2
