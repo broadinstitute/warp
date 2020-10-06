@@ -9,9 +9,6 @@ task HISAT2PairedEnd {
     String output_basename
     String input_id
 
-    String? FQ1=""
-    String? FQ2=""
-
   # runtime values
   String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
   Int machine_mem_mb = 16500
@@ -59,10 +56,15 @@ task HISAT2PairedEnd {
         else
             FQ1=~{fastq1}
         fi
+    elif [[ ~{fastq1} != *.fastq ]]; then
+      FQ1=~{fastq1}.fastq
+      mv  ~{fastq1}  ~{fastq1}.fastq
+    else
+      FQ1=~{fastq1}
     fi
 
     if (file ~{fastq2} | grep -q compressed); then
-        if [[ ~{fastq2} != *.gz ]]; then
+      if [[ ~{fastq2} != *.gz ]]; then
             if [[ ~{fastq2} != *.fastq ]]; then
                 FQ2=~{fastq2}.fastq.gz
                 mv  ~{fastq2} ~{fastq2}.fastq.gz
@@ -70,9 +72,14 @@ task HISAT2PairedEnd {
                 FQ2=~{fastq2}.gz
                 mv ~{fastq2} ~{fastq2}.gz
             fi
-        else
-            FQ2=~{fastq2}
-        fi
+      else
+        FQ2=~{fastq2}
+      fi
+    elif [[ ~{fastq2} != *.fastq ]]; then
+      FQ1=~{fastq2}.fastq
+      mv  ~{fastq2}  ~{fastq2}.fastq
+    else
+      FQ1=~{fastq2}
     fi
 
     tar --no-same-owner -xvf "${hisat2_ref}"
@@ -121,8 +128,6 @@ task HISAT2RSEM {
     String ref_name
     String output_basename
     String input_id
-    String? FQ1=""
-    String? FQ2=""
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
@@ -169,6 +174,11 @@ task HISAT2RSEM {
         else
             FQ1="~{fastq1}"
         fi
+    elif [[ ~{fastq1} != *.fastq ]]; then
+      FQ1=~{fastq1}.fastq
+      mv ~{fastq1} ~{fastq1}.fastq
+    else
+      FQ1="~{fastq1}"
     fi
 
     if (file ~{fastq2} | grep -q compressed); then
@@ -183,6 +193,11 @@ task HISAT2RSEM {
         else
             FQ2="~{fastq2}"
         fi
+    elif [[ ~{fastq2} != *.fastq ]]; then
+      FQ2=~{fastq2}.fastq
+      mv  ~{fastq2} ~{fastq2}.fastq
+    else
+      FQ2="~{fastq2}"
     fi
 
     tar --no-same-owner -xvf "${hisat2_ref}"
@@ -238,7 +253,6 @@ input {
   String ref_name
   String output_basename
   String input_id
-  String? FQ=""
 
   # runtime values
   String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
@@ -278,8 +292,13 @@ input {
                 mv ~{fastq} ~{fastq}.gz
             fi
         else
-            FQ="~{fastq}"
+          FQ="~{fastq}"
         fi
+    elif [[ "~{fastq}" != *.fastq ]]; then
+      FQ=~{fastq}.fastq
+      mv ~{fastq} ~{fastq}.fastq
+    else
+      FQ="~{fastq}"
     fi
     tar --no-same-owner -xvf "~{hisat2_ref}"
 
@@ -370,7 +389,6 @@ task HISAT2RSEMSingleEnd {
     String ref_name
     String output_basename
     String input_id
-    String? FQ=""
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
@@ -412,6 +430,12 @@ task HISAT2RSEMSingleEnd {
         else
             FQ="~{fastq}"
         fi
+    elif [[ "~{fastq}" != *.fastq ]]; then
+      FQ=~{fastq}.fastq
+      mv ~{fastq} ~{fastq}.fastq
+
+    else
+      FQ="~{fastq}"
     fi
 
     tar --no-same-owner -xvf "${hisat2_ref}"
