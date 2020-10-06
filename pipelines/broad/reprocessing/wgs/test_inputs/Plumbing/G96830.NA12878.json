@@ -46,7 +46,6 @@
   "WholeGenomeReprocessing.fingerprint_genotypes_index": "gs://broad-gotc-test-storage/single_sample/plumbing/bams/G96830.NA12878/G96830.NA12878.hg38.reference.fingerprint.vcf.gz.tbi",
 
   "WholeGenomeReprocessing.wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list",
-  "WholeGenomeReprocessing.WholeGenomeGermlineSingleSample.WholeGenomeGermlineSingleSample.UnmappedBamToAlignedBam.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true,
   "WholeGenomeReprocessing.WholeGenomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true,
 
   "WholeGenomeReprocessing.papi_settings": {
