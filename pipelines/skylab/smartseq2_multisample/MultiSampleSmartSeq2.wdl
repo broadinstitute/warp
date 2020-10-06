@@ -1,7 +1,7 @@
 version 1.0
 
-import "../../../pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl" as single_cell_run
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "https://raw.githubusercontent.com/broadinstitute/warp/SS2-terra-memory-increase/pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl" as single_cell_run
+import "https://raw.githubusercontent.com/broadinstitute/warp/SS2-terra-memory-increase/tasks/skylab/LoomUtils.wdl" as LoomUtils
        
 workflow MultiSampleSmartSeq2 {
   meta {

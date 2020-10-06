@@ -1,11 +1,11 @@
 version 1.0
 
-import "../../../tasks/skylab/HISAT2.wdl" as HISAT2
-import "../../../tasks/skylab/Picard.wdl" as Picard
-import "../../../tasks/skylab/RSEM.wdl" as RSEM
-import "../../../tasks/skylab/GroupMetricsOutputs.wdl" as GroupQCs
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
-import "../../../tasks/skylab/SS2InputChecks.wdl" as SS2InputChecks
+import "https://raw.githubusercontent.com/broadinstitute/warp/SS2-terra-memory-increase/tasks/skylab/HISAT2.wdl" as HISAT2
+import "https://raw.githubusercontent.com/broadinstitute/warp/SS2-terra-memory-increase/tasks/skylab/Picard.wdl" as Picard
+import "https://raw.githubusercontent.com/broadinstitute/warp/SS2-terra-memory-increase/tasks/skylab/RSEM.wdl" as RSEM
+import "https://raw.githubusercontent.com/broadinstitute/warp/SS2-terra-memory-increase/tasks/skylab/GroupMetricsOutputs.wdl" as GroupQCs
+import "https://raw.githubusercontent.com/broadinstitute/warp/SS2-terra-memory-increase/tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "https://raw.githubusercontent.com/broadinstitute/warp/SS2-terra-memory-increase/tasks/skylab/SS2InputChecks.wdl" as SS2InputChecks
 
 workflow SmartSeq2SingleCell {
   meta {
