@@ -173,7 +173,7 @@ task ValidateMatrix {
     >>>
 
     runtime {
-        docker: "quay.io/humancellatlas/optimus-matrix-test:0.0.4"
+        docker: "quay.io/humancellatlas/optimus-matrix-test:0.0.7"
         cpu: 1
         memory: "16 GB"
         disks: "local-disk ${required_disk} HDD"

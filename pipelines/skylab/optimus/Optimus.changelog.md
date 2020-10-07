@@ -1,10 +1,16 @@
-# 4.0.3
+# 4.1.1
 
-2020-10-01 (Date of Last Commit)
+2020-10-07 (Date of Last Commit)
 
 * Removed extra trailing slash in ouput directory from cloud to cloud copy job
 
 * Removed fastq_suffix optional input - the pipeline now dynamically determines if a file is zipped
+
+# 4.1.0
+
+2020-10-05 (Date of Last Commit)
+
+* Updated sctools dockers and made them consistent across the Optimus pipeline
 
 # 4.0.2
 
