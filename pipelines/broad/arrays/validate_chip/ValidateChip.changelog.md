@@ -1,3 +1,9 @@
+# 1.12.0
+2020-10-07
+
+* Updated task definitions to include a new tool not currently used in ValidateChip wdl
+* Updated all internal tasks to use the latest version of picard-private as best practice.
+
 # 1.11.0
 2020-10-01
 
