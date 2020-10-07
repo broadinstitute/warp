@@ -143,6 +143,36 @@ task GtcToVcf {
   }
 }
 
+task BafRegress {
+  input {
+    File input_vcf
+    File input_vcf_index
+    File? maf_file
+    String output_results_filename
+
+    Int disk_size
+    Int preemptible_tries
+  }
+
+  command {
+    set -eo pipefail
+
+    /root/tools/bcftools/bin/bcftools view -f 'PASS,.' ~{input_vcf} 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22 | python /root/tools/parseVcfToBAFRegress.py > temp.final_report.txt
+
+    python /root/tools/bafRegress.py estimate --freqfile ~{maf_file} temp.final_report.txt > ~{output_results_filename}
+  }
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/bafregress:1.0"
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "3.5 GiB"
+    preemptible: preemptible_tries
+  }
+
+  output {
+    File results_file = output_results_filename
+  }
+}
+
 task VcfToAdpc {
   input {
     File input_vcf
