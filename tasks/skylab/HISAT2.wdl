@@ -15,7 +15,8 @@ task HISAT2PairedEnd {
   Int cpu = 4
   # Using (fastq1 + fastq2) x 100 gives factor of a few buffer. BAM can be up to ~5 x (fastq1 + fastq2).
   # Need room for unsorted + sorted bam + temp sorting space + zipped and unzipped ref. Add 10 GiB buffer.
-  Int disk = ceil((size(fastq1, "GiB") + size(fastq2, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 10)
+  Int disk = 200
+  #ceil((size(fastq1, "GiB") + size(fastq2, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 10)
   Int preemptible = 5
 }
   meta {
@@ -110,7 +111,8 @@ task HISAT2RSEM {
     Int cpu = 4
     # Using (fastq1 + fastq2) x 100 gives factor of a few buffer. BAM can be up to ~5 x (fastq1 + fastq2).
     # Need room for unsorted + sorted bam + temp sorting space + zipped and unzipped ref. Add 10 GiB buffer.
-    Int disk = ceil((size(fastq1, "GiB") + size(fastq2, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 10)
+    Int disk = 200
+    #ceil((size(fastq1, "GiB") + size(fastq2, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 10)
     Int preemptible = 5
   }
 
@@ -210,7 +212,8 @@ input {
   Int cpu = 4
   # Using fastq x 100 gives factor of a few buffer. BAM can be up to ~5 x fastq.
   # Need room for unsorted + sorted bam + temp sorting space + zipped and unzipped ref. Add 10 GiB buffer.
-  Int disk = ceil((size(fastq, "GiB") * 100) + size(hisat2_ref, "GiB") * 2 + 10)
+  Int disk = 200
+  #ceil((size(fastq, "GiB") * 100) + size(hisat2_ref, "GiB") * 2 + 10)
   Int preemptible = 5
 }
   meta {
@@ -284,7 +287,8 @@ task HISAT2InspectIndex {
     Int machine_mem_mb = 3850
     Int cpu = 1
     # use provided disk number or dynamically size on our own, with 10GiB of additional disk
-    Int disk = ceil(size(hisat2_ref, "GiB") + 10)
+    Int disk = 200
+    #ceil(size(hisat2_ref, "GiB") + 10)
     Int preemptible = 5
   }
 
@@ -334,7 +338,7 @@ task HISAT2RSEMSingleEnd {
     String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
     Int machine_mem_mb = 15000
     Int cpu = 4
-    Int disk = ceil((size(fastq, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 10)
+    Int disk = 200#ceil((size(fastq, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 10)
     Int preemptible = 5
   }
 
