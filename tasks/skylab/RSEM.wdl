@@ -12,7 +12,8 @@ task RSEMExpression {
     Int machine_mem_mb = 32768
     Int cpu = 4
     # use provided disk number or dynamically size on our own, with 20GiB of additional disk
-    Int disk = ceil(size(trans_aligned_bam, "GiB") + size(rsem_genome, "GiB") + 20)
+    Int disk = 200 
+    #ceil(size(trans_aligned_bam, "GiB") + size(rsem_genome, "GiB") + 20)
     Int preemptible = 5
   }
   
