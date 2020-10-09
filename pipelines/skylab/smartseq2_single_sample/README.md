@@ -1,6 +1,6 @@
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [smartseq2_v5.0.0](https://github.com/broadinstitute/warp/releases/tag/SmartSeq2SingleSample_v5.0.0) | August, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in skylab or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [smartseq2_v5.0.0](https://github.com/broadinstitute/warp/releases) | August, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in skylab or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 # Table of Contents
 - [Smart-seq2 Single Sample Pipeline Overview](#smart-seq2-single-sample-pipeline-overview)

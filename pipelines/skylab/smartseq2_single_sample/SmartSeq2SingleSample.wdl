@@ -38,7 +38,7 @@ workflow SmartSeq2SingleCell {
   }
   
   # version of this pipeline
-  String pipeline_version = "5.0.0"
+  String pipeline_version = "5.0.1"
 
   parameter_meta {
     genome_ref_fasta: "Genome reference in fasta format"
