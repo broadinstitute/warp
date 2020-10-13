@@ -43,18 +43,43 @@ task HISAT2PairedEnd {
 
     set -e
 
-    # fix names if necessary.
-    if [[ "${fastq1}" != *.fastq.gz ]]; then
-        FQ1=${fastq1}.fastq.gz
-        mv ${fastq1} ${fastq1}.fastq.gz
+   # fix names if necessary
+    if (file ~{fastq1} | grep -q compressed); then
+        if [[ ~{fastq1} != *.gz ]]; then
+            if [[ ~{fastq1} != *.fastq ]]; then
+                FQ1=~{fastq1}.fastq.gz
+                mv  ~{fastq1}  ~{fastq1}.fastq.gz
+            else
+                FQ1=~{fastq1}.gz
+                mv ~{fastq1} ~{fastq1}.gz
+            fi
+        else
+            FQ1=~{fastq1}
+        fi
+    elif [[ ~{fastq1} != *.fastq ]]; then
+      FQ1=~{fastq1}.fastq
+      mv  ~{fastq1}  ~{fastq1}.fastq
     else
-        FQ1=${fastq1}
+      FQ1=~{fastq1}
     fi
-    if [[ "${fastq2}" != *.fastq.gz ]]; then
-        FQ2=${fastq2}.fastq.gz
-        mv ${fastq2} ${fastq2}.fastq.gz
+
+    if (file ~{fastq2} | grep -q compressed); then
+      if [[ ~{fastq2} != *.gz ]]; then
+            if [[ ~{fastq2} != *.fastq ]]; then
+                FQ2=~{fastq2}.fastq.gz
+                mv  ~{fastq2} ~{fastq2}.fastq.gz
+            else
+                FQ2=~{fastq2}.gz
+                mv ~{fastq2} ~{fastq2}.gz
+            fi
+      else
+        FQ2=~{fastq2}
+      fi
+    elif [[ ~{fastq2} != *.fastq ]]; then
+      FQ1=~{fastq2}.fastq
+      mv  ~{fastq2}  ~{fastq2}.fastq
     else
-        FQ2=${fastq2}
+      FQ1=~{fastq2}
     fi
 
     tar --no-same-owner -xvf "${hisat2_ref}"
@@ -133,21 +158,46 @@ task HISAT2RSEM {
   }
 
   command {
+
     set -e
 
-    # fix names if necessary.
-    if [[ "${fastq1}" != *.fastq.gz ]]; then
-        FQ1=${fastq1}.fastq.gz
-        mv ${fastq1} ${fastq1}.fastq.gz
+   # fix names if necessary
+    if (file ~{fastq1} | grep -q compressed); then
+        if [[ ~{fastq1} != *.gz ]]; then
+            if [[ ~{fastq1} != *.fastq ]]; then
+                FQ1=~{fastq1}.fastq.gz
+                mv ~{fastq1} ~{fastq1}.fastq.gz
+            else
+                FQ1=~{fastq1}.gz
+                mv ~{fastq1} ~{fastq1}.gz
+            fi
+        else
+            FQ1="~{fastq1}"
+        fi
+    elif [[ ~{fastq1} != *.fastq ]]; then
+      FQ1=~{fastq1}.fastq
+      mv ~{fastq1} ~{fastq1}.fastq
     else
-        FQ1=${fastq1}
+      FQ1="~{fastq1}"
     fi
 
-    if [[ "${fastq2}" != *.fastq.gz ]]; then
-        FQ2=${fastq2}.fastq.gz
-        mv ${fastq2} ${fastq2}.fastq.gz
+    if (file ~{fastq2} | grep -q compressed); then
+        if [[ ~{fastq2} != *.gz ]]; then
+            if [[ ~{fastq2} != *.fastq ]]; then
+                FQ2=~{fastq2}.fastq.gz
+                mv  ~{fastq2} ~{fastq2}.fastq.gz
+            else
+                FQ2=~{fastq2}.gz
+                mv ~{fastq2} ~{fastq2}.gz
+            fi
+        else
+            FQ2="~{fastq2}"
+        fi
+    elif [[ ~{fastq2} != *.fastq ]]; then
+      FQ2=~{fastq2}.fastq
+      mv  ~{fastq2} ~{fastq2}.fastq
     else
-        FQ2=${fastq2}
+      FQ2="~{fastq2}"
     fi
 
     tar --no-same-owner -xvf "${hisat2_ref}"
@@ -232,15 +282,25 @@ input {
 
   command {
     set -e
-    tar --no-same-owner -xvf "~{hisat2_ref}"
-
-    # fix file names if necessary.
-    if [[ "~{fastq}" != *.fastq.gz ]]; then
-        FQ=~{fastq}.fastq.gz
-        mv ~{fastq} ~{fastq}.fastq.gz
+    if (file ~{fastq} | grep -q compressed); then
+        if [[ ~{fastq} != *.gz ]]; then
+            if [[ "~{fastq}" != *.fastq ]]; then
+                FQ=~{fastq}.fastq.gz
+                mv ~{fastq} ~{fastq}.fastq.gz
+            else
+                FQ=~{fastq}.gz
+                mv ~{fastq} ~{fastq}.gz
+            fi
+        else
+          FQ="~{fastq}"
+        fi
+    elif [[ "~{fastq}" != *.fastq ]]; then
+      FQ=~{fastq}.fastq
+      mv ~{fastq} ~{fastq}.fastq
     else
-        FQ=~{fastq}
+      FQ="~{fastq}"
     fi
+    tar --no-same-owner -xvf "~{hisat2_ref}"
 
     # The parameters for this task are copied from the HISAT2PairedEnd task.
     hisat2 -t \
@@ -358,14 +418,25 @@ task HISAT2RSEMSingleEnd {
   command {
     set -e
 
-    # fix names if necessary.
-    if [[ "${fastq}" != *.fastq.gz ]]; then
-        FQ=${fastq}.fastq.gz
-        mv ${fastq} ${fastq}.fastq.gz
-    else
-        FQ=${fastq}
-    fi
+    if (file ~{fastq} | grep -q compressed); then
+        if [[ ~{fastq} != *.gz ]]; then
+            if [[ "~{fastq}" != *.fastq ]]; then
+                FQ=~{fastq}.fastq.gz
+                mv ~{fastq} ~{fastq}.fastq.gz
+            else
+                FQ=~{fastq}.gz
+                mv ~{fastq} ~{fastq}.gz
+            fi
+        else
+            FQ="~{fastq}"
+        fi
+    elif [[ "~{fastq}" != *.fastq ]]; then
+      FQ=~{fastq}.fastq
+      mv ~{fastq} ~{fastq}.fastq
 
+    else
+      FQ="~{fastq}"
+    fi
 
     tar --no-same-owner -xvf "${hisat2_ref}"
 

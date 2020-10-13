@@ -9,7 +9,7 @@ task Attach10xBarcodes {
     String chemistry
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.4"
+    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11"
     Int machine_mem_mb = 48000
     Int cpu = 2
     # estimate that bam is approximately the size of all inputs plus 50%

@@ -60,4 +60,3 @@ RUN \
   cd gffread && \
   make && \ 
   cp gffread /usr/local/bin/
-WORKDIR /opt/tools
