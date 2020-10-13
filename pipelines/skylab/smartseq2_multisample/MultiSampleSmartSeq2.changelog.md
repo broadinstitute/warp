@@ -1,3 +1,9 @@
+# 2.1.2
+
+2020-10-13 (Date of Last Commit)
+
+* Fixed a bug in loom file generation script and updated the docker in LoomUtils.wdl task 
+
 # 2.1.1
 
 2020-10-01 (Date of Last Commit)
