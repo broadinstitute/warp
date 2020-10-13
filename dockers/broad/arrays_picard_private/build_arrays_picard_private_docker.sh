@@ -4,12 +4,12 @@ set -e
 # Update DOCKER_IMAGE_VERSION after any substantial changes to the
 # image this builds.
 #
-declare -r DOCKER_IMAGE_VERSION=4.0.9
+declare -r DOCKER_IMAGE_VERSION=4.0.10
 
 # Update this when there is a new release of picard-private to use as the
 # default jar.
 #
-declare -r PICARD_PRIVATE_VERSION=bca9362254e7cca14c79c1fd8833042a07f133d5
+declare -r PICARD_PRIVATE_VERSION=61af9bff4587783e5981a496f422ea36102482b5
 
 declare -r ARTIFACTORY=https://broadinstitute.jfrog.io/broadinstitute
 declare -r LIBS_SNAPSHOT_LOCAL=$ARTIFACTORY/libs-snapshot-local
@@ -109,7 +109,7 @@ function runDocker () {
     local -r gcr=us.gcr.io/$project/arrays-picard-private
     echo -e "$gcr:$tag\t$PICARD_PRIVATE_VERSION" >> ../build_arrays_picard_private_docker_version.tsv
     docker build $cache -t $gcr:$tag .
-    gcloud docker -- push $gcr:$tag
+    docker push $gcr:$tag
 }
 
 # Run docker login if cannot pull broadinstitute/dsde-toolbox.

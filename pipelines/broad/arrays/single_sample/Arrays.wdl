@@ -21,7 +21,7 @@ import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 workflow Arrays {
 
-  String pipeline_version = "2.2.0"
+  String pipeline_version = "2.3.0"
 
   input {
 
@@ -68,6 +68,9 @@ workflow Arrays {
 
     # For Contamination Checking
     File? contamination_controls_vcf
+
+    # For BAFRegress
+    File? minor_allele_frequency_file
 
     # For HapMap GenotypeConcordance Check:
     File? control_sample_vcf_file
@@ -146,6 +149,7 @@ workflow Arrays {
       variant_rsids_file = variant_rsids_file,
       subsampled_metrics_interval_list = subsampled_metrics_interval_list,
       contamination_controls_vcf = contamination_controls_vcf,
+      minor_allele_frequency_file = minor_allele_frequency_file,
       control_sample_vcf_file = control_sample_vcf_file,
       control_sample_vcf_index_file = control_sample_vcf_index_file,
       control_sample_intervals_file = control_sample_intervals_file,
@@ -202,6 +206,17 @@ workflow Arrays {
         disk_size = disk_size,
         preemptible_tries = preemptible_tries
     }
+
+    if (defined(IlluminaGenotypingArray.bafregress_results_file)) {
+      call InternalTasks.CreateBafRegressMetricsFile {
+        input:
+          input_file = select_first([IlluminaGenotypingArray.bafregress_results_file]),
+          output_metrics_basefilename = chip_well_barcode,
+          disk_size = disk_size,
+          preemptible_tries = preemptible_tries
+      }
+    }
+
     call InternalTasks.UploadArraysMetrics {
       input:
         arrays_variant_calling_detail_metrics = select_first([IlluminaGenotypingArray.arrays_variant_calling_detail_metrics]),
@@ -213,6 +228,7 @@ workflow Arrays {
         genotype_concordance_detail_metrics  = IlluminaGenotypingArray.genotype_concordance_detail_metrics,
         genotype_concordance_contingency_metrics = IlluminaGenotypingArray.genotype_concordance_contingency_metrics,
         verify_id_metrics = IlluminaGenotypingArray.contamination_metrics,
+        bafregress_metrics = CreateBafRegressMetricsFile.output_metrics_file,
         disk_size = disk_size,
         preemptible_tries = preemptible_tries,
         authentication = authentication_block,
@@ -256,6 +272,7 @@ workflow Arrays {
     File? OutputVcfMd5CloudPath = IlluminaGenotypingArray.output_vcf_md5_cloud_path
     File? OutputVcfFile = IlluminaGenotypingArray.output_vcf
     File? OutputVcfIndexFile = IlluminaGenotypingArray.output_vcf_index
+    File? BafRegressMetricsFile = CreateBafRegressMetricsFile.output_metrics_file
     File? ContaminationMetricsFile = IlluminaGenotypingArray.contamination_metrics
     File? OutputFingerprintVcfFile = IlluminaGenotypingArray.output_fingerprint_vcf
     File? OutputFingerprintVcfIndexFile = IlluminaGenotypingArray.output_fingerprint_vcf_index
