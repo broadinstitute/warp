@@ -1,3 +1,10 @@
+# 5.0.2
+
+2020-10-13 (Date of Last Commit)
+
+* Fixed a bug in the loom file generation script that appeared when using optional input `input_id_metadata_field`
+* Updated the docker in LoomUtils.wdl task to v0.0.3
+
 # 5.0.1
 
 2020-10-01 (Date of Last Commit)
@@ -88,6 +95,5 @@
 2018-06-14 (Date of Last Commit)
 
 * No release note available
-
 
 
