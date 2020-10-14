@@ -51,9 +51,9 @@ def generate_col_attr(args):
     col_attrs["cell_names"] = [cell_id]
 
     if args.input_id_metadata_field:
-        col_attrs["input_id_metadata_field"] = args.input_id_metadata_field
+        col_attrs["input_id_metadata_field"] = [args.input_id_metadata_field]
     if args.input_name_metadata_field:
-            col_attrs["input_name_metadata_field"] = args.input_name_metadata_field
+            col_attrs["input_name_metadata_field"] = [args.input_name_metadata_field]
 
     numeric_field_names = np.array(sorted_numeric_labels[:])
     for i in range(0, numeric_field_names.shape[0]):
