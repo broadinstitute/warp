@@ -6,7 +6,7 @@ task SplitBamByCellBarcode {
     Float size_in_mb = 1024.0
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.5"
+    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11"
 
     Int machine_mem_mb = 15258
     Int cpu = 16
