@@ -1,4 +1,4 @@
-# Testing overview
+# Testing Pipelines
 WARP pipelines have accompanying automated tests that run on each Pull Request (PR). These tests compare validated outputs to the new PR outputs. For any changes in code shared between pipelines, the tests also confirm which pipelines could be affected and ensure that the PR makes no unexpected changes to the affected pipelines. 
 
 | Notice 9/29/2020 | 
