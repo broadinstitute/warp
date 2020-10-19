@@ -48,7 +48,7 @@ task FastqProcessing {
     R2_FASTQS=()
     I1_FASTQS=()
 
-    for f in (~{sep=' ' r1_fastq}); do
+    for f in ~{sep=' ' r1_fastq}; do
       if [[ $f != *.fastq* ]]; then
         mv  "$f" "$f".fastq
         FQ="$f".fastq
@@ -64,7 +64,7 @@ task FastqProcessing {
       R1_FASTQS+=( --R1 $FQ )
     done
 
-    for f in (~{sep=' ' r2_fastq}); do
+    for f in ~{sep=' ' r2_fastq}; do
       if [[ $f != *.fastq* ]]; then
         mv  "$f" "$f".fastq
         FQ="$f".fastq
@@ -82,7 +82,7 @@ task FastqProcessing {
 
     # I1 file are optional,  and sometimes they are left out
     if [ -n '~{sep=',' i1_fastq}' ]; then
-      for f in (~{sep=' ' i1_fastq}); do
+      for f in ~{sep=' ' i1_fastq}; do
         if [[ $f != *.fastq* ]]; then
           mv  "$f" "$f".fastq
           FQ="$f".fastq

@@ -1,5 +1,11 @@
 # 4.1.2
 
+2020-10-19
+
+* Added a check for file naming to FastqProcessing task
+
+# 4.1.2
+
 2020-10-13 (Date of Last Commit)
 
 * Added a new docker in LoomUtils.wdl
