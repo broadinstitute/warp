@@ -11,7 +11,7 @@ task FastqProcessing {
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11"
-    Int machine_mem_mb = 3850
+    Int machine_mem_mb = 40000
     Int cpu = 16   
     #TODO decided cpu
     # estimate that bam is approximately equal in size to fastq, add 20% buffer
@@ -19,9 +19,6 @@ task FastqProcessing {
 
     Int preemptible = 3
   }
-
-  # give the command 500MB of overhead
-  Int command_mem_mb = machine_mem_mb - 500
 
   meta {
     description: "Converts a set of fastq files to unaligned bam file, also corrects barcodes and partitions the alignments by barcodes."
@@ -44,15 +41,11 @@ task FastqProcessing {
   command {
     set -e
 
-    R1_FASTQS=()
-    R2_FASTQS=()
-    I1_FASTQS=()
-
     for f in ~{sep=' ' r1_fastq}; do
       if [[ $f != *.fastq* ]]; then
         mv  "$f" "$f".fastq
         FQ="$f".fastq
-      else;
+      else
         FQ="$f"
       fi
       if [[ $FQ != *.gz ]]; then
@@ -61,14 +54,14 @@ task FastqProcessing {
           FQ="$FQ".gz
         fi
       fi
-      R1_FASTQS+=( --R1 $FQ )
+      R1_FASTQS+=" --R1 $FQ "
     done
 
     for f in ~{sep=' ' r2_fastq}; do
       if [[ $f != *.fastq* ]]; then
         mv  "$f" "$f".fastq
         FQ="$f".fastq
-      else;
+      else
         FQ="$f"
       fi
       if [[ $FQ != *.gz ]]; then
@@ -77,7 +70,7 @@ task FastqProcessing {
           FQ="$FQ".gz
         fi
       fi
-      R2_FASTQS+=( --R2 $FQ )
+      R2_FASTQS+=" --R2 $FQ "
     done
 
     # I1 file are optional,  and sometimes they are left out
@@ -86,7 +79,7 @@ task FastqProcessing {
         if [[ $f != *.fastq* ]]; then
           mv  "$f" "$f".fastq
           FQ="$f".fastq
-        else;
+        else
           FQ="$f"
         fi
         if [[ $FQ != *.gz ]]; then
@@ -95,8 +88,9 @@ task FastqProcessing {
             FQ="$FQ".gz
           fi
         fi
-        I1_FASTQS+=( --I1 $FQ )
+        I1_FASTQS+=" --I1 $FQ "
       done
+    fi
 
     # use the right UMI length depending on the chemistry
     if [ "~{chemistry}" == "tenX_v2" ]; then
@@ -106,18 +100,18 @@ task FastqProcessing {
         ## V3
         UMILENGTH=12
     else
-        echo Error: unknown chemistry value: "$chemistry"
+        echo Error: unknown chemistry value: "~{chemistry}"
         exit 1;
     fi
 
     fastqprocess \
-        --bam-size 3.0 \
+        --bam-size 1.0 \
         --barcode-length 16 \
         --umi-length $UMILENGTH \
         --sample-id "~{sample_id}" \
-        $I1_FASTQS[*] \
-        $R1_FASTQS[*] \
-        $R2_FASTQS[*] \
+        "$I1_FASTQS" \
+        "$R1_FASTQS" \
+        "$R2_FASTQS" \
         --white-list "~{whitelist}"
   }
   
