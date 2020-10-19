@@ -44,7 +44,7 @@ module.exports = {
     nav: [
       {
         text: "Documentation",
-        link: "/documentation/",
+        link: "/documentation/Intro",
       },
       {
         text: "Blog",
@@ -73,14 +73,84 @@ module.exports = {
     sidebar: {
       "/documentation/": [
         {
-          title: "BestPractices",
-          collapsable: true,
-          children: ["BestPractices"],
+          title: "About_WARP",
+          collapsable: false,
+          children: [
+            "About_WARP/BestPractices",
+            "About_WARP/PipelineRequirements",
+            "About_WARP/TestingPipelines",
+            "About_WARP/VersionAndReleasePipelines"
+          ],
         },
         {
-          title: "Optimus",
+          title: "Pipelines",
           collapsable: false,
-          children: ["optimus/", "optimus/optimus.methods"],
+          children: [
+            {
+              title: "CEMBA MethylC Seq Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/CEMBA MethylC Seq Pipeline/CEMBA.methods",
+                "Pipelines/CEMBA MethylC Seq Pipeline/"
+              ],
+            },
+            {
+              title: "Single Cell ATAC Seq Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Single Cell ATAC Seq Pipeline/",
+                "Pipelines/Single Cell ATAC Seq Pipeline/scatac.methods"
+              ],
+             },
+            {
+              title: "Exome Germline Single Sample Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Exome Germline Single Sample Pipeline/"
+              ],
+            },
+            {
+              title: "Illumina Genotyping Arrays Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Illumina Genotyping Arrays Pipeline/IlluminaGenotypingArray.documentation"
+              ],
+            },
+            {
+              title: "Optimus Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Optimus Pipeline/",
+                "Pipelines/Optimus Pipeline/Bam_tags",
+                "Pipelines/Optimus Pipeline/Loom_schema",
+                "Pipelines/Optimus Pipeline/optimus.methods"
+              ],
+            },
+            {
+              title: "Smart-seq2 Multi Sample Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Smart-seq2 Multi Sample Pipeline/",
+                "Pipelines/Smart-seq2 Multi Sample Pipeline/Loom_schema",
+                "Pipelines/Smart-seq2 Multi Sample Pipeline/smart-seq2.methods"
+              ],
+            },
+            {
+              title: "Smart-seq2 Single Sample Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Smart-seq2 Single Sample Pipeline/",
+                "Pipelines/Smart-seq2 Single Sample Pipeline/Loom_schema"
+              ],
+            },
+            {
+              title: "Whole Genome Germline Single Sample Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Whole Genome Germline Single Sample Pipeline/"
+              ],
+            },
+          ],
         },
       ],
     },

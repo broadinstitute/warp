@@ -1,4 +1,4 @@
-# Overview
+# Version and Release Pipelines
 
 WARP Pipelines are versioned semantically, allowing you to determine how and when your data was created (provenance). This promotes compatibility across datasets and ensures that analyses can be reproduced by the global scientific community. Semantic version numbers (written as major.minor.patch) are human readable and give immediate insight into the compatibility of pipeline outputs (see the [Guidelines](#versioning-guidelines) below). 
 
