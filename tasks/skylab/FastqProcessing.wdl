@@ -54,7 +54,9 @@ task FastqProcessing {
           FQ="$FQ".gz
         fi
       fi
-      R1_FASTQS+=" --R1 $FQ "
+      echo "r1 fastq: $FQ"
+      ls -lh $FQ
+      R1_FASTQS+="--R1 $FQ "
     done
 
     for f in ~{sep=' ' r2_fastq}; do
@@ -70,7 +72,9 @@ task FastqProcessing {
           FQ="$FQ".gz
         fi
       fi
-      R2_FASTQS+=" --R2 $FQ "
+      echo "r2 fastq: $FQ"
+      ls -lh $FQ
+      R2_FASTQS+="--R2 $FQ "
     done
 
     # I1 file are optional,  and sometimes they are left out
@@ -88,7 +92,9 @@ task FastqProcessing {
             FQ="$FQ".gz
           fi
         fi
-        I1_FASTQS+=" --I1 $FQ "
+        echo "i1 fastq: $FQ"
+        ls -lh $FQ
+        I1_FASTQS+="--I1 $FQ "
       done
     fi
 
@@ -103,6 +109,15 @@ task FastqProcessing {
         echo Error: unknown chemistry value: "~{chemistry}"
         exit 1;
     fi
+
+    echo "R1_FASTQS:"
+    echo "$R1_FASTQS"
+
+    echo "R2_FASTQS:"
+    echo "$R2_FASTQS"
+
+    echo "I1_FASTQS:"
+    echo "$I1_FASTQS"
 
     fastqprocess \
         --bam-size 1.0 \
