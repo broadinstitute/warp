@@ -44,18 +44,65 @@ task FastqProcessing {
   command {
     set -e
 
+    R1_FASTQS=()
+    R2_FASTQS=()
+    I1_FASTQS=()
+
+    for f in (~{sep=' ' r1_fastq}); do
+      if [[ $f != *.fastq* ]]; then
+        mv  "$f" "$f".fastq
+        FQ="$f".fastq
+      else;
+        FQ="$f"
+      fi
+      if [[ $FQ != *.gz ]]; then
+        if (file $FQ | grep -q compressed); then
+          mv  "$FQ" "$FQ".gz
+          FQ="$FQ".gz
+        fi
+      fi
+      R1_FASTQS+=( --R1 $FQ )
+    done
+
+    for f in (~{sep=' ' r2_fastq}); do
+      if [[ $f != *.fastq* ]]; then
+        mv  "$f" "$f".fastq
+        FQ="$f".fastq
+      else;
+        FQ="$f"
+      fi
+      if [[ $FQ != *.gz ]]; then
+        if (file $FQ | grep -q compressed); then
+          mv  "$FQ" "$FQ".gz
+          FQ="$FQ".gz
+        fi
+      fi
+      R2_FASTQS+=( --R2 $FQ )
+    done
+
     # I1 file are optional,  and sometimes they are left out
-    if [ -n '${sep=',' i1_fastq}' ]; then
-      FLAG="--I1 ${sep=' --I1 ' i1_fastq}"
-    else
-      FLAG=''
-    fi
+    if [ -n '~{sep=',' i1_fastq}' ]; then
+      for f in (~{sep=' ' i1_fastq}); do
+        if [[ $f != *.fastq* ]]; then
+          mv  "$f" "$f".fastq
+          FQ="$f".fastq
+        else;
+          FQ="$f"
+        fi
+        if [[ $FQ != *.gz ]]; then
+          if (file $FQ | grep -q compressed); then
+            mv  "$FQ" "$FQ".gz
+            FQ="$FQ".gz
+          fi
+        fi
+        I1_FASTQS+=( --I1 $FQ )
+      done
 
     # use the right UMI length depending on the chemistry
-    if [ "${chemistry}" == "tenX_v2" ]; then
+    if [ "~{chemistry}" == "tenX_v2" ]; then
         ## V2
         UMILENGTH=10
-    elif [ "${chemistry}" == "tenX_v3" ]; then
+    elif [ "~{chemistry}" == "tenX_v3" ]; then
         ## V3
         UMILENGTH=12
     else
@@ -67,11 +114,11 @@ task FastqProcessing {
         --bam-size 3.0 \
         --barcode-length 16 \
         --umi-length $UMILENGTH \
-        --sample-id "${sample_id}" \
-        $FLAG \
-        --R1 ${sep=' --R1 ' r1_fastq} \
-        --R2 ${sep=' --R2 ' r2_fastq} \
-        --white-list "${whitelist}"
+        --sample-id "~{sample_id}" \
+        $I1_FASTQS[*] \
+        $R1_FASTQS[*] \
+        $R2_FASTQS[*] \
+        --white-list "~{whitelist}"
   }
   
   runtime {

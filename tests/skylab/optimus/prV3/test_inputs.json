@@ -6,14 +6,14 @@
   "TestOptimusPR.expected_loom_file_checksum": "225e8888adb1da98661a8ca9eddd56a9",
   "TestOptimusPR.r1_fastq": [
       "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_10X_V3/pbmc_10k_v3_chr21_genic/pbmc_10k_v3_S1_L001_R1_001.filtered.fastq.gz",
-      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_10X_V3/pbmc_10k_v3_chr21_genic/pbmc_10k_v3_S1_L002_R1_001.filtered.fastq.gz"
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_10X_V3/pbmc_10k_v3_chr21_genic/pbmc_10k_v3_S1_L002_R1_001.filtered"
   ],
   "TestOptimusPR.r2_fastq": [
       "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_10X_V3/pbmc_10k_v3_chr21_genic/pbmc_10k_v3_S1_L001_R2_001.filtered.fastq.gz",
-      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_10X_V3/pbmc_10k_v3_chr21_genic/pbmc_10k_v3_S1_L002_R2_001.filtered.fastq.gz"
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_10X_V3/pbmc_10k_v3_chr21_genic/pbmc_10k_v3_S1_L002_R2_001.filtered.fastq"
   ],
   "TestOptimusPR.i1_fastq": [
-      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_10X_V3/pbmc_10k_v3_chr21_genic/pbmc_10k_v3_S1_L001_I1_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_10X_V3/pbmc_10k_v3_chr21_genic/pbmc_10k_v3_S1_L001_I1_001.filtered.fastq",
       "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_10X_V3/pbmc_10k_v3_chr21_genic/pbmc_10k_v3_S1_L002_I1_001.filtered.fastq.gz"
   ],
   "TestOptimusPR.chemistry": "tenX_v3",
