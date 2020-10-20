@@ -116,7 +116,7 @@ task RevertSam {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.6"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: 3
@@ -151,7 +151,7 @@ task CramToBam {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1601669676"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603216889"
     cpu: 3
     memory: "7.5 GiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -186,7 +186,7 @@ task GenerateOutputMap {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1601669676"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603216889"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.75 GiB"
     preemptible: 3
@@ -240,7 +240,7 @@ task SplitOutUbamByReadGroup {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1601669676"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603216889"
     cpu: 2
     disks: "local-disk " + disk_size + " HDD"
     memory: "30 GiB"
@@ -267,7 +267,7 @@ task ValidateSamFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.6"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.75 GiB"
     preemptible: 3
@@ -299,7 +299,7 @@ task SortSam {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.6"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk " + disk_size + " HDD"
     memory: "7.5 GiB"
     preemptible: 3

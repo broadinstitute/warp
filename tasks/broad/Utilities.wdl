@@ -110,7 +110,7 @@ task ScatterIntervalList {
     Int interval_count = read_int(stdout())
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1601669676"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603216889"
     memory: "2 GiB"
   }
 }
@@ -145,7 +145,7 @@ task ConvertToCram {
     samtools index ~{output_basename}.cram
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1601669676"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603216889"
     preemptible: preemptible_tries
     memory: "3 GiB"
     cpu: "1"
@@ -176,7 +176,7 @@ task ConvertToBam {
     samtools index ~{output_basename}.bam
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1601669676"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603216889"
     preemptible: 3
     memory: "3 GiB"
     cpu: "1"

@@ -65,7 +65,7 @@ task HaplotypeCaller_GATK35_GVCF {
       --read_filter OverclippedRead
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1601669676"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603216889"
     preemptible: preemptible_tries
     memory: "10 GiB"
     cpu: "1"
@@ -161,7 +161,7 @@ task MergeVCFs {
       OUTPUT=~{output_vcf_name}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.6"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     preemptible: preemptible_tries
     memory: "3 GiB"
     disks: "local-disk ~{disk_size} HDD"
