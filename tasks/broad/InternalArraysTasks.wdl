@@ -38,7 +38,7 @@ task CreateExtendedIlluminaManifest {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.9-1593023734"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
     disks: "local-disk " + disk_size + " HDD"
     memory: "14 GiB"
     preemptible: preemptible_tries
@@ -78,7 +78,7 @@ task GenerateEmptyVariantCallingMetricsFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.9-1593023734"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }
@@ -118,7 +118,7 @@ task BlacklistBarcode {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.9-1593023734"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }
@@ -169,7 +169,7 @@ task VcfToMercuryFingerprintJson {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.9-1593023734"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -177,6 +177,34 @@ task VcfToMercuryFingerprintJson {
 
   output {
     File output_json_file = output_json_filename
+  }
+}
+
+
+task CreateBafRegressMetricsFile {
+  input {
+    File input_file
+    String output_metrics_basefilename
+
+    Int disk_size
+    Int preemptible_tries
+  }
+
+  command {
+    java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+      CreateBafRegressMetricsFile \
+      --INPUT ~{input_file} \
+      --OUTPUT ~{output_metrics_basefilename}
+  }
+  runtime {
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "3.5 GiB"
+    preemptible: preemptible_tries
+  }
+
+  output {
+    File output_metrics_file = "~{output_metrics_basefilename}.bafregress_metrics"
   }
 }
 
@@ -191,6 +219,7 @@ task UploadArraysMetrics {
     File? genotype_concordance_detail_metrics
     File? genotype_concordance_contingency_metrics
     File? verify_id_metrics
+    File? bafregress_metrics
 
     Array[String] authentication
     String service_account_filename
@@ -217,6 +246,8 @@ task UploadArraysMetrics {
     cp ~{genotype_concordance_contingency_metrics} metrics_upload_dir
     ! [ -z ~{verify_id_metrics} ] &&
     cp ~{verify_id_metrics} metrics_upload_dir
+    ! [ -z ~{bafregress_metrics} ] &&
+    cp ~{bafregress_metrics} metrics_upload_dir
 
     ! [ -z ~{fingerprinting_detail_metrics} ] &&
     cp ~{fingerprinting_detail_metrics} metrics_upload_dir
@@ -239,7 +270,7 @@ task UploadArraysMetrics {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.9-1593023734"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -274,7 +305,7 @@ task UpdateChipWellBarcodeIndex {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.9-1593023734"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries

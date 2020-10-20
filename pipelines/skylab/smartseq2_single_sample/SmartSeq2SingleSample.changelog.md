@@ -1,3 +1,16 @@
+# 5.0.2
+
+2020-10-13 (Date of Last Commit)
+
+* Fixed a bug in the loom file generation script that appeared when using optional input `input_id_metadata_field`
+* Updated the docker in LoomUtils.wdl task to v0.0.3
+
+# 5.0.1
+
+2020-10-01 (Date of Last Commit)
+
+* Added check to see if input fastq files are compressed in HISAT2.wdl task
+
 # 5.0.0
 
 2020-08-10 (Date of Last Commit)
@@ -82,6 +95,5 @@
 2018-06-14 (Date of Last Commit)
 
 * No release note available
-
 
 

@@ -4,7 +4,6 @@ task FastqToUBam {
   input {
     File fastq_file
     String input_id
-    String fastq_suffix = ""
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"
@@ -25,7 +24,6 @@ task FastqToUBam {
   parameter_meta {
     fastq_file: "input fastq file"
     input_id: "name of sample matching this file, inserted into read group header"
-    fastq_suffix: "a suffix to add to the fastq file; useful with mangled file IDs, since picard requires that the file end in .gz or it will not detect the gzipping."
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
@@ -34,16 +32,30 @@ task FastqToUBam {
   }
 
   command {
+
     set -e
 
-    # Adds fastq_suffix if it is passed
-    if [ ! -z "~{fastq_suffix}" ];
-    then
-        mv "~{fastq_file}" "~{fastq_file}""~{fastq_suffix}"
+    if (file ~{fastq_file} | grep -q compressed); then
+        if [[ ~{fastq_file} != *.gz ]]; then
+            if [[ ~{fastq_file} != *.fastq ]]; then
+                FQ="~{fastq_file}".fastq.gz
+                mv  "~{fastq_file}" "~{fastq_file}".fastq.gz
+            else
+                FQ="~{fastq_file}".gz
+                mv "~{fastq_file}" "~{fastq_file}".gz
+            fi
+        else
+            FQ=~{fastq_file}
+        fi
+    elif [[ ~{fastq_file} != *.fastq ]]; then
+      FQ="~{fastq_file}".fastq
+      mv  "~{fastq_file}" "~{fastq_file}".fastq
+    else
+      FQ="~{fastq_file}"
     fi
 
     java -Xmx~{command_mem_mb}m -jar /usr/picard/picard.jar FastqToSam \
-      FASTQ="~{fastq_file}""~{fastq_suffix}" \
+      FASTQ=$FQ \
       SORT_ORDER=unsorted \
       OUTPUT=bamfile.bam \
       SAMPLE_NAME="~{input_id}"

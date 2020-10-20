@@ -1,6 +1,6 @@
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [WholeGenomeGermlineSingleSample_v2.0](WholeGenomeGermlineSingleSample.wdl) | June 22, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [WholeGenomeGermlineSingleSample_v2.0](https://github.com/broadinstitute/warp/releases) | October 02, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 # Introduction to the Whole Genome Germline Single Sample Pipeline
 
@@ -18,7 +18,7 @@ The [Whole Genome Germline Single Sample workflow](WholeGenomeGermlineSingleSamp
 * Samtools 1.3.1
 * Python 2.7 and 3.0
 * Cromwell version support 
-    * Successfully tested on v47
+    * Tested on Cromwell 52
     * Does not work on versions < v23 due to output syntax
 
 
@@ -48,6 +48,7 @@ You can read more about the software tools implemented in these tasks by reading
 
 # Important Notes
 * The accompanying JSON is a generic, ready to use, example template for the workflow. It is the user’s responsibility to correctly set the reference and resource variables for their own particular test case using the [GATK Tool and Tutorial Documentations](https://gatk.broadinstitute.org/hc/en-us/categories/360002310591).
+* By default, HaplotypeCaller will perform variant calling using GATK 3.5, which is what is used in Broad Production. To use GATK4, specify `use_gatk3_haplotype_caller=false` in the inputs.json.
 * Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
 * For help running workflows on the Google Cloud Platform or locally please
 view the following tutorial [(How to) Execute Workflows from the gatk-workflows Git Organization](https://gatk.broadinstitute.org/hc/en-us/articles/360035530952).

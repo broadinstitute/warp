@@ -1,3 +1,9 @@
+# 2.3.0
+2020-10-07
+
+* Added use of BafRegress to the pipeline.  BafRegress detects and estimates sample contamination using B allele frequency data from Illumina genotyping arrays using a regression model.
+* Updated all internal tasks to use the latest version of picard-private as best practice.
+
 # 2.2.0
 2020-10-01
 

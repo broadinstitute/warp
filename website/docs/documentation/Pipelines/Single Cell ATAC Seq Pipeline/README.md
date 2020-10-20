@@ -1,6 +1,6 @@
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [scATAC 1.1.0 ](scATAC.wdl) | August 24th 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in skylab or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [scATAC 1.1.0 ](https://github.com/broadinstitute/warp/releases) | August 24th 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in skylab or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 - [Overview](#overview)
 - [Introduction](#introduction)
