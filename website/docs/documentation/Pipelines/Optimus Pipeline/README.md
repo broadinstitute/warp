@@ -1,6 +1,6 @@
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v4.0.1](https://github.com/broadinstitute/warp/releases/tag/Optimus_v4.0.1) | September 14, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [optimus_v4.0.2](https://github.com/broadinstitute/warp/releases) | September 14, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 
 # Table of Contents

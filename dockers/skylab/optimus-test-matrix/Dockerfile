@@ -1,9 +1,11 @@
 # Start with an ubuntu system and update it
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 # Image label
 LABEL maintainer="Lantern Team <lantern@broadinstititute.org>" \
   software="Optimus Matrix Tester" 
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Enable source repositories to install deps for R and update the apt-get list
 RUN sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list && apt-get update
