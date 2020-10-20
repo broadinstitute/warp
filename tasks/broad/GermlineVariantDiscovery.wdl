@@ -65,7 +65,7 @@ task HaplotypeCaller_GATK35_GVCF {
       --read_filter OverclippedRead
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603216889"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603228384"
     preemptible: preemptible_tries
     memory: "10 GiB"
     cpu: "1"

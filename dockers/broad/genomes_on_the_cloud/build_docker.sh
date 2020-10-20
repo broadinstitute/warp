@@ -15,7 +15,7 @@ PICARD_PUBLIC_VERSION="2.23.8"
 GATK35_VERSION="3.5-0-g36282e4"
 GATK36_VERSION="3.6-44-ge7d1cd2"
 GATK4_VERSION="4.1.8.0"
-SAMTOOLS_VER="1.3.1"
+SAMTOOLS_VER="1.11"
 BWA_VER="0.7.15.r1140"
 SHORT_BWA_VER="${BWA_VER:0:6}"
 K8_VER="null"
@@ -74,10 +74,11 @@ RUN echo 'install.packages(c(\"ggplot2\"), repos=\"http://cran.us.r-project.org\
     Rscript /tmp/packages.R
 
 # Install samtools
-RUN wget 'https://github.com/samtools/samtools/releases/download/${SAMTOOLS_VER}/samtools-${SAMTOOLS_VER}.tar.bz2' -O samtools-${SAMTOOLS_VER}.tar.bz && \
-  tar xf samtools-${SAMTOOLS_VER}.tar.bz && \
-  rm samtools-${SAMTOOLS_VER}.tar.bz && \
+RUN wget 'https://github.com/samtools/samtools/releases/download/${SAMTOOLS_VER}/samtools-${SAMTOOLS_VER}.tar.bz2' && \
+  tar xf samtools-${SAMTOOLS_VER}.tar.bz2 && \
+  rm samtools-${SAMTOOLS_VER}.tar.bz2 && \
   cd samtools-${SAMTOOLS_VER} && \
+  ./configure && \
   make && \
   make install && \
   cd ../ && \

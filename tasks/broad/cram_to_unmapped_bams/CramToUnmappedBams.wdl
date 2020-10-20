@@ -151,7 +151,7 @@ task CramToBam {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603216889"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603228384"
     cpu: 3
     memory: "7.5 GiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -186,7 +186,7 @@ task GenerateOutputMap {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603216889"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603228384"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.75 GiB"
     preemptible: 3
@@ -240,7 +240,7 @@ task SplitOutUbamByReadGroup {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603216889"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603228384"
     cpu: 2
     disks: "local-disk " + disk_size + " HDD"
     memory: "30 GiB"
