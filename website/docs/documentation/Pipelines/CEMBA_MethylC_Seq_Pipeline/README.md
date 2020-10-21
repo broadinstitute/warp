@@ -4,22 +4,6 @@
 | :----: | :---: | :----: | :--------------: |
 | [CEMBA_v1.0.0](https://github.com/broadinstitute/warp/releases) | July 28, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
-## Table of Contents
-
-- [CEMBA Pipeline Overview](#cemba-pipeline-overview)
-  * [Introduction to the CEMBA Workflow](#introduction-to-the-cemba-workflow)
-  * [Quick Start Table](#quick-start-table)
-- [Set-up](#set-up)
-  * [CEMBA Installation and Requirements](#cemba-installation-and-requirements)
-  * [Inputs](#inputs)
-    + [Sample data input](#sample-data-input)
-    + [Additional Inputs](#additional-inputs)
-- [CEMBA Tasks and Tools](#cemba-tasks-and-tools)
-  * [CEMBA Task Summary](#cemba-task-summary)
-- [Outputs](#outputs)
-- [Versioning](#versioning)
-- [Have Suggestions?](#have-suggestions)
-
 ![CEMBA](./CEMBA.png)
 
 ## Introduction to the CEMBA Workflow
@@ -92,7 +76,7 @@ The pipeline accepts paired-end reads in the form of two compressed FASTQ files 
 
 # CEMBA Tasks and Tools
 
-The [CEMBA.wdl](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.wdl) implements the workflow by importing individual "tasks" written in the [WDL script](https://github.com/broadinstitute/warp).
+The [CEMBA.wdl](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.wdl) implements the workflow by importing individual "tasks" written in the [WDL script](https://openwdl.org/).
 
 ## CEMBA Task Summary
 

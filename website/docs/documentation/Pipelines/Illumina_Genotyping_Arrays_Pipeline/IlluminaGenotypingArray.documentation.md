@@ -6,27 +6,6 @@
 
 ![The Illumina Genotyping Array Pipeline](./IlluminaGenotyping.png)
 
-## Table of Contents
-
-- [Illumina Genotyping Array Pipeline Overview](#illumina-genotyping-array-pipeline-overview)
-- [Introduction to the Illumina Genotyping Array Pipeline](#introduction-to-the-illumina-genotyping-array-pipeline)
-- [Set-up](#set-up)
-  * [Workflow Installation and Requirements](#workflow-installation-and-requirements)
-  * [Inputs](#inputs)
-- [Workflow Tools and Tasks](#workflow-tools-and-tasks)
-  * [Tools](#tools)
-  * [Task Summary](#task-summary)
-    + [1. Genotype Calling](#1-genotype-calling)
-    + [2. Contamination Detection](#2-contamination-detection)
-    + [3. Rare Variant Calling (Optional)](#3-rare-variant-calling-optional)
-    + [4. Metric Collection](#4-metric-collection)
-    + [5. Creating a New Fingerprint Output (Optional)](#5-creating-a-new-fingerprint-output-optional)
-    + [6. Evaluating an Existing Fingerprint (Optional)](#6-evaluating-an-existing-fingerprint-optional)
-    + [7. Genotype Concordance (Optional)](#7-genotype-concordance-optional)
-  * [Workflow Outputs](#workflow-outputs)
-- [Versioning](#versioning)
-- [Try the Pipeline in Terra](#try-the-pipeline-in-terra)
-- [Feedback and Questions](#feedback-and-questions)
 
 ## Introduction to the Illumina Genotyping Array Pipeline
 

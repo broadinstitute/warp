@@ -4,24 +4,16 @@
 | :----: | :---: | :----: | :--------------: |
 | [ExomeGermlineSingleSample_v2.0](https://github.com/broadinstitute/warp/releases) | June 10, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in dsde-pipelines or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
-## Table of Contents
-- [Introduction to the Exome Germline Single Sample Pipeline](#introduction-to-the-exome-germline-single-sample-pipeline)
-- [Set-up](#set-up)
-  * [Workflow Installation and Requirements](#workflow-installation-and-requirements)
-  * [Input Requirements and Expectations](#input-requirements-and-expectations)
-- [Workflow Tasks and Tools](#workflow-tasks-and-tools)
-- [Workflow Outputs](#workflow-outputs)
-- [Important Notes](#important-notes)
-- [Contact Us](#contact-us)
-- [Licensing](#licensing)
 
-The Exome Germline Single Sample pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices for germline SNP and Indel discovery in human exome sequencing data. For a broad overview of the pipeline processes, read the GATK Best Practices documentation for [data pre-processing](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912) and for [germline short variant discovery](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932).
+The Exome Germline Single Sample pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices for germline SNP and Indel discovery in human exome sequencing data. 
+
+For a broad overview of the pipeline processes, read the GATK Best Practices documentation for [data pre-processing](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912) and for [germline short variant discovery](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932).
 
 ## Set-up
 
 ### Workflow Installation and Requirements
 
-The Exome Germline Single Sample workflow is written in the Workflow Description Language WDL and can be downloaded by cloning the GitHub repository dsde-pipelines. The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the Exome Germline Single Sample [changelog](ExomeGermlineSingleSample.changelog.md).
+The Exome Germline Single Sample workflow is written in the Workflow Description Language WDL and can be downloaded by cloning the GitHub repository dsde-pipelines. The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the Exome Germline Single Sample [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.changelog.md).
 
 ### Input Requirements and Expectations
 
@@ -39,7 +31,7 @@ The Exome Germline Single Sample workflow is written in the Workflow Description
 
 ## Workflow Tasks and Tools
 
-The Exome Germline Single Sample [workflow](ExomeGermlineSingleSample.wdl) imports a series of tasks from the dsde-pipelines [tasks library](../../../../../../tasks/broad/) and a DNASeq struct ([DNASeqStructs.wdl](../../../../../../structs/dna_seq/DNASeqStructs.wdl)) containing reference files from the [structs library](../../../../../../structs/).
+The Exome Germline Single Sample [workflow](ExomeGermlineSingleSample.wdl) imports a series of tasks from the WARP [tasks library](https://github.com/broadinstitute/warp/tree/develop/tasks/broad) and a DNASeq struct ([DNASeqStructs.wdl](https://github.com/broadinstitute/warp/blob/develop/structs/dna_seq/DNASeqStructs.wdl)) containing reference files from the [structs library](https://github.com/broadinstitute/warp/tree/develop/structs/dna_seq).
 
 You can read more about the software tools implemented in these tasks by reading the GATK [data pre-processing](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912) and [germline short variant discovery](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932) documentation.
 
@@ -65,6 +57,6 @@ This material is provided by the Data Science Platform group at the Broad Instit
 
 Copyright Broad Institute, 2020 | BSD-3
 
-The workflow script is released under the **WDL open source code license (BSD-3)** (full license text at https://github.com/openwdl/wdl/blob/master/LICENSE). However, please note that the programs it calls may be subject to different licenses. Users are responsible for checking that they are authorized to run all programs before running this script.
+The workflow script is released under the **WDL open source code license (BSD-3)** (full license text at https://github.com/broadinstitute/warp/blob/develop/LICENSE). However, please note that the programs it calls may be subject to different licenses. Users are responsible for checking that they are authorized to run all programs before running this script.
 
 
