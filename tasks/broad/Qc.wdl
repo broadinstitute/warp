@@ -219,7 +219,7 @@ task ConvertSequencingArtifactToOxoG {
 
   command {
     input_base=$(dirname ~{pre_adapter_detail_metrics})/~{base_name}
-    java -Xms~{java_memory_size}m -Dpicard.useLegacyParser=false \
+    java -Xms~{java_memory_size}m \
       -jar /usr/picard/picard.jar \
       ConvertSequencingArtifactToOxoG \
       --INPUT_BASE $input_base \
@@ -357,7 +357,7 @@ task CheckPreValidation {
 
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603228384"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
     preemptible: preemptible_tries
     docker: "us.gcr.io/broad-gotc-prod/python:2.7"
     memory: "2 GiB"

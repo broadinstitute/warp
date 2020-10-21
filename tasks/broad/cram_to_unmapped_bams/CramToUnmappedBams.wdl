@@ -101,7 +101,7 @@ task RevertSam {
   }
 
   command <<<
-    java -Xms3500m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+    java -Xms3500m -jar /usr/picard/picard.jar \
     RevertSam \
     --INPUT ~{input_bam} \
     --OUTPUT ~{output_bam_filename} \
@@ -151,7 +151,7 @@ task CramToBam {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603228384"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
     cpu: 3
     memory: "7.5 GiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -186,7 +186,7 @@ task GenerateOutputMap {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603228384"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.75 GiB"
     preemptible: 3
@@ -240,7 +240,7 @@ task SplitOutUbamByReadGroup {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603228384"
+    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
     cpu: 2
     disks: "local-disk " + disk_size + " HDD"
     memory: "30 GiB"
@@ -257,7 +257,7 @@ task ValidateSamFile {
 
   command <<<
 
-    java -Xms3500m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+    java -Xms3500m -jar /usr/picard/picard.jar \
       ValidateSamFile \
       --INPUT ~{input_bam} \
       --OUTPUT ~{report_filename} \
@@ -289,7 +289,7 @@ task SortSam {
   Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
 
   command <<<
-    java -Xms7g -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+    java -Xms7g -jar /usr/picard/picard.jar \
     SortSam \
     --INPUT ~{input_bam} \
     --OUTPUT ~{output_bam_filename} \
