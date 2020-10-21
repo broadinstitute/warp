@@ -1,7 +1,4 @@
----
-id: best-practices
-title: Best Practices for Building Data Processing Pipelines
----
+# Best Practices for Building Data Processing Pipelines
 
 WARP pipeline development is guided by the best practices detailed below. We describe each of these best practices to give insight as to why they are important and we provide examples to give you a sense of how to apply them.
 
@@ -139,7 +136,9 @@ According to Wikipedia "A software license is a legal instrument (usually by way
 
 ### Why do we care about licensing?
 
-Note: this section is opinion and is NOT legal advice.
+:::warning NOTE
+this section is opinion and is NOT legal advice.
+:::
 
 Licenses sometimes legally bind you as to how you use tools, and sometimes the terms of the license transfer to the software and data that is produced. This can restrict the potential for leveraging the pipeline and may require additional work.
 

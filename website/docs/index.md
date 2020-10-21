@@ -16,6 +16,5 @@ footer: BSD-3-Clause Licensed | Copyright © Data Sciences Platform, Broad Insti
 ---
 
 ::: danger REMINDER <Badge text="beta" type="warning"/>
-Work In Progress 🚧 
+Work In Progress 🚧
 :::
-more
