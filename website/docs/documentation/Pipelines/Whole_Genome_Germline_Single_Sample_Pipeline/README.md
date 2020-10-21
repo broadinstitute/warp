@@ -1,4 +1,4 @@
-# Introduction to the Whole Genome Germline Single Sample Pipeline
+# Whole Genome Germline Single Sample Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |

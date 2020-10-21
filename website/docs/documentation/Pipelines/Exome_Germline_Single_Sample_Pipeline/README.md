@@ -1,4 +1,4 @@
-# Introduction to the Exome Germline Single Sample Pipeline
+# Exome Germline Single Sample Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |

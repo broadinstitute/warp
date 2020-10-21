@@ -1,4 +1,4 @@
-# Smart-seq2 Multi Sample Pipeline
+# Smart-seq2 Multi Sample Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |

@@ -1,4 +1,4 @@
-# Smart-seq2 Single Sample Pipeline Overview
+# Smart-seq2 Single Sample Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |

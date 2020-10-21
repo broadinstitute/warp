@@ -1,4 +1,4 @@
-# CEMBA Pipeline Overview
+# CEMBA Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |

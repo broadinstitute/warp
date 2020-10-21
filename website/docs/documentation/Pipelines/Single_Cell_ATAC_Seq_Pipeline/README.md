@@ -1,4 +1,4 @@
-# Overview
+# scATAC Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |

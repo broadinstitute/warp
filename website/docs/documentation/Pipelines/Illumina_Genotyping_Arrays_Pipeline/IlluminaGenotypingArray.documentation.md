@@ -1,4 +1,4 @@
-# Illumina Genotyping Array Pipeline Overview
+# Illumina Genotyping Array Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
