@@ -15,10 +15,17 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@vuepress/plugin-back-to-top": "^1.6.0",
-    "@vuepress/plugin-medium-zoom": "^1.6.0",
-    "prettier": "^2.1.2",
-    "vuepress": "^1.6.0",
-    "vuepress-plugin-mathjax": "^1.2.8"
+    "prettier": "^2.1.2"
+  },
+  "dependencies": {
+    "vuepress": "^1.7.1",
+    "vuepress-plugin-mathjax": "^1.2.8",
+    "@vuepress/plugin-back-to-top": "^1.7.1",
+    "@vuepress/plugin-medium-zoom": "^1.7.1",
+    "@vuepress/plugin-active-header-links": "^1.7.1",
+    "markdown-it-footnote": "^3.0.2",
+    "markdown-it-imsize": "^2.0.1",
+    "markdown-it-mark": "^3.0.0",
+    "vuepress-plugin-container": "^2.1.5"
   }
 }
