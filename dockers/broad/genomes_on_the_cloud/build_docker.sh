@@ -42,7 +42,7 @@ mv GenomeAnalysisTK-${GATK35_VERSION}.jar GATK35.jar
 mv GenomeAnalysisTK-${GATK36_VERSION}.jar GATK36.jar
 
 echo "FROM marketplace.gcr.io/google/debian9
-MAINTAINER DSDE <dsde@broadinstitute.org>
+MAINTAINER DSDE <lantern@broadinstitute.org>
 
 ENV TERM=xterm-256color
 ENV DOCKER_FIX='                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        '
