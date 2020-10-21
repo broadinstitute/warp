@@ -3,3 +3,6 @@
 
 # OS
 .DS_Store
+
+# R
+.Rhistory

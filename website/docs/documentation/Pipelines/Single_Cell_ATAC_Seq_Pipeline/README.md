@@ -1,6 +1,10 @@
+# Overview
+
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
 | [scATAC 1.1.0 ](https://github.com/broadinstitute/warp/releases) | August 24th 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in skylab or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+
+## Table of Contents
 
 - [Overview](#overview)
 - [Introduction](#introduction)
@@ -25,35 +29,35 @@
 - [Versioning](#versioning)
 - [Pipeline Improvements](#pipeline-improvements)
 
-# Overview
+![scATAC_diagram](./scATAC_diagram.png)
 
-<img src="documentation/scATAC_diagram.png" width="500">
-
-# Introduction
+## Introduction
 
 The scATAC Pipeline was developed by the Broad DSP Pipelines team to process single cell/nucleus ATAC-seq datasets. The pipeline is based on the [SnapATAC pipeline](https://github.com/r3fang/SnapATAC) described by [Fang et al. (2019)](https://www.biorxiv.org/content/10.1101/615179v2.full). Overall, the pipeline uses the python module [SnapTools](https://github.com/r3fang/SnapTools) to align and process paired reads in the form of FASTQ files. It produces an hdf5-structured Snap file that includes a cell-by-bin count matrix. In addition to the Snap file, the final outputs include a GA4GH compliant aligned BAM and QC metrics.
 
-| Want to use the scATAC Pipeline for your publication? |
-|---|
-| *Check out the [scATAC Publication Methods](scatac.methods.md) to get started!* |
+:::tip Want to use the scATAC Pipeline for your publication?
+Check out the [scATAC Publication Methods](scatac.methods.md) to get started!
+:::
 
-## Quick Start Table
+### Quick Start Table
 
 | Pipeline Features | Description | Source |
 | ---  |--- | --- |
 | Assay Type | Single nucleus ATAC-seq | [Preprint here ](https://www.biorxiv.org/content/biorxiv/early/2019/05/13/615179.full.pdf)
 | Overall Workflow  | Generates Snap file with cell x bin matrix | Code available from [GitHub](scATAC.wdl) |
 | Workflow Language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
-| Aligner  | BWA | [Li H. and Durbin R., 2009](https://pubmed.ncbi.nlm.nih.gov/19451168/) |                     
-| Data Input File Format | File format in which sequencing data is provided | Paired-end FASTQs with cell barcodes appended to read names (read barcode demultiplexing section [here](https://github.com/r3fang/SnapATAC/wiki/FAQs#whatissnap)) |                     
+| Aligner  | BWA | [Li H. and Durbin R., 2009](https://pubmed.ncbi.nlm.nih.gov/19451168/) |
+| Data Input File Format | File format in which sequencing data is provided | Paired-end FASTQs with cell barcodes appended to read names (read barcode demultiplexing section [here](https://github.com/r3fang/SnapATAC/wiki/FAQs#whatissnap)) |
 | Data Output File Format | File formats in which scATAC output is provided | [BAM](http://samtools.github.io/hts-specs/), [Snap](https://github.com/r3fang/SnapATAC/wiki/FAQs#whatissnap) |
 
-# Set-up
-## Workflow Installation and Requirements
-The [scATAC workflow](scATAC.wdl) is written in the Workflow Description Language WDL and can be downloaded by cloning the GitHub [WARP repository](https://github.com/broadinstitute/warp/). The workflow can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the scATAC [changelog](scATAC.changelog.md). 
+## Set-up
+### Workflow Installation and Requirements
 
-## Pipeline Inputs
-The pipeline inputs are detailed in the table below. You can test the workflow by using the [https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/scATAC/example_inputs/human_example.json](human_example.json) example configuration file. 
+The [scATAC workflow](scATAC.wdl) is written in the Workflow Description Language WDL and can be downloaded by cloning the GitHub [WARP repository](https://github.com/broadinstitute/warp/). The workflow can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the scATAC [changelog](scATAC.changelog.md).
+
+### Pipeline Inputs
+
+The pipeline inputs are detailed in the table below. You can test the workflow by using the [human_example.json](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/scATAC/example_inputs/human_example.json) example configuration file.
 
 | Input name | Input type | Description |
 | --- | --- | --- |
@@ -64,10 +68,11 @@ The pipeline inputs are detailed in the table below. You can test the workflow b
 | output_bam  | String  | Name for the output BAM |
 | bin_size_list  | String  | List of bin sizes used to generate cell-by-bin matrices; default is 10000 bp |
 
-## Input File Preparation
+### Input File Preparation
 
-### R1 and R2 FASTQ Preparation
-The scATAC workflow requires paired reads in the form FASTQ files with the cell barcodes appended to the readnames. A description of the barcode demultiplexing can be found on the SnapATAC documentation (see barcode demultiplexing section [here](https://github.com/r3fang/SnapATAC/wiki/FAQs#CEMBA_snap)). The full cell barcode must form the first part of the read name (for both R1 and R2 files) and be separated from the rest of the line by a colon. You can find an example python code to perform demultiplexing in the [SnapTools documentation here](https://github.com/r3fang/SnapTools/blob/master/snaptools/dex_fastq.py). The codeblock below demonstrates the correct format. 
+#### R1 and R2 FASTQ Preparation
+
+The scATAC workflow requires paired reads in the form FASTQ files with the cell barcodes appended to the readnames. A description of the barcode demultiplexing can be found on the SnapATAC documentation (see barcode demultiplexing section [here](https://github.com/r3fang/SnapATAC/wiki/FAQs#CEMBA_snap)). The full cell barcode must form the first part of the read name (for both R1 and R2 files) and be separated from the rest of the line by a colon. You can find an example python code to perform demultiplexing in the [SnapTools documentation here](https://github.com/r3fang/SnapTools/blob/master/snaptools/dex_fastq.py). The codeblock below demonstrates the correct format.
 
 ```
 @CAGTTGCACGTATAGAACAAGGATAGGATAAC:7001113:915:HJ535BCX2:1:1106:1139:1926 1:N:0:0
@@ -76,13 +81,14 @@ ACCCTCCGTGTGCCAGGAGATACCATGAATATGCCATAGAACCTGTCTCT
 DDDDDIIIIIIIIIIIIIIHHIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 ```
 
-### Input_reference Preparation
+#### Input_reference Preparation
+
 The input_reference is a BWA compatible reference bundle in TAR file format. You can create this BWA reference using the accessory workflow  [here](https://github.com/HumanCellAtlas/skylab/blob/master/library/accessory_workflows/build_bwa_reference/bwa-mk-index.wdl).
 
 
 # Workflow Tasks and Tools
 
-The [scATAC workflow](scATAC.wdl) is divided into multiple tasks which are described in the table below. The table also links to the Docker Image for each task and to the documentation or code for the relevant software tool parameters.
+The [scATAC workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/scATAC/scATAC.wdl) is divided into multiple tasks which are described in the table below. The table also links to the Docker Image for each task and to the documentation or code for the relevant software tool parameters.
 
 | Task | Task Description | Tool Docker Image | Parameter Descriptions or Code |
 |--- | --- | --- | --- |
@@ -92,16 +98,18 @@ The [scATAC workflow](scATAC.wdl) is divided into multiple tasks which are descr
 | MakeCompliantBAM | Generation of a GA4GH compliant BAM | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [Code](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/makeCompliantBAM.py) |
 | BreakoutSnap | Extraction of tables from snap file into text format (for testing and user availability) | [snap-breakout:0.0.1](https://github.com/HumanCellAtlas/skylab/tree/master/docker/snap-breakout) | [Code](https://github.com/broadinstitute/warp/tree/master/dockers/skylab/snap-breakout/breakoutSnap.py) |
 
-## Task Summary 
+### Task Summary
 
-### AlignPairedEnd
-The AlignPairedEnd task takes the barcode demultiplexed FASTQ files and aligns reads to the genome using the BWA aligner. It uses the SnapTools min_cov parameter to set the minimum number of barcodes a fragment requires to be included in the final output. This parameter is set to 0. The final task output is an aligned BAM file. 
+#### AlignPairedEnd
 
-### SnapPre
+The AlignPairedEnd task takes the barcode demultiplexed FASTQ files and aligns reads to the genome using the BWA aligner. It uses the SnapTools min_cov parameter to set the minimum number of barcodes a fragment requires to be included in the final output. This parameter is set to 0. The final task output is an aligned BAM file.
+
+#### SnapPre
 
 The SnapPre task uses SnapTools to perform preprocessing and filtering on the aligned BAM. The task outputs are a Snap file and QC metrics. The table below details the filtering parameters for the task.
 
-#### Filtering Parameters
+##### Filtering Parameters
+
 | Parameter | Description | Value |
 | --- | --- | --- |
 | --min-mapq | Fragments with mappability less than value will be filtered | 30 |
@@ -114,18 +122,19 @@ The SnapPre task uses SnapTools to perform preprocessing and filtering on the al
 | --min-cov | Fragments with less than min-cov number of barcodes will be filtered | 100 |
 
 
-### SnapCellByBin
+#### SnapCellByBin
 
-The SnapCellByBin task uses the Snap file to create cell-by-bin count matrices in which a “1” represents a bin with an accessible region of the genome and a “0” represents an inaccessible region. The bin_size_list sets the bin size to 10,000 bp by default but can be changed by specifying the value in the inputs to the workflow. 
+The SnapCellByBin task uses the Snap file to create cell-by-bin count matrices in which a “1” represents a bin with an accessible region of the genome and a “0” represents an inaccessible region. The bin_size_list sets the bin size to 10,000 bp by default but can be changed by specifying the value in the inputs to the workflow.
 
-### MakeCompliantBAM
+#### MakeCompliantBAM
 
-The MakeCompliantBAM task uses a [custom python script (here)](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/makeCompliantBAM.py) to make a GA4GH compliant BAM by moving the cellular barcodes in the read names to the CB tag. 
+The MakeCompliantBAM task uses a [custom python script (here)](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/makeCompliantBAM.py) to make a GA4GH compliant BAM by moving the cellular barcodes in the read names to the CB tag.
 
-### BreakoutSnap
-The BreakoutSnap task extracts data from the Snap file and exports it to individual CSVs. These CSV outputs are listed in the table in the Outputs section below. The code is available [here](https://github.com/broadinstitute/warp/tree/master/dockers/skylab/snap-breakout/breakoutSnap.py). 
+#### BreakoutSnap
 
-# Outputs 
+The BreakoutSnap task extracts data from the Snap file and exports it to individual CSVs. These CSV outputs are listed in the table in the Outputs section below. The code is available [here](https://github.com/broadinstitute/warp/tree/master/dockers/skylab/snap-breakout/breakoutSnap.py).
+
+## Outputs
 
 The main outputs of the scATAC workflow are the Snap file, Snap QC metrics, and the GA4GH compliant BAM file. All files with the prefix “breakout” are CSV files containing individual pieces of data from the Snap. The sessions for the Snap file are described in the [SnapTools documentation](https://github.com/r3fang/SnapTools). Additionally, you can read detailed information on the [Snap file fields for each session](https://github.com/r3fang/SnapTools/blob/master/docs/snap_format.docx) (select "View Raw").
 
@@ -140,14 +149,15 @@ The main outputs of the scATAC workflow are the Snap file, Snap QC metrics, and 
 | breakout_binCounts  | Text file with the AM session ('Cell x bin accessibility' matrix) idx, idy, and count fields |
 | breakout_barcodesSection  | Text file with the data from the BD session ('Barcode session' table) |
 
-#### Snap QC Metrics
+##### Snap QC Metrics
+
 The following table details the metrics available in the output_snap_qc file.
 
 | QC Metric | Abbreviation |
 | --- | --- |
 | Total number of unique barcodes | No abbreviation |
 | Total number of fragments | TN |
-| Total number of uniquely mapped | UM | 
+| Total number of uniquely mapped | UM |
 | Total number of single ends | SE |
 | Total number of secondary alignments | SA |
 | Total number of paired ends | PE |
@@ -157,12 +167,14 @@ The following table details the metrics available in the output_snap_qc file.
 | Total number of unique fragments | UQ |
 | Total number of chrM fragments | CM |
 
-# Running on Terra
+## Running on Terra
 
-[Terra](https://app.terra.bio/) is a public, cloud-based platform for biomedical research. If you would like to try the scATAC workflow (previously named "snap-atac") in Terra, you can import the most recent version from [Dockstore](https://dockstore.org/workflows/github.com/broadinstitute/warp/scATAC:scATAC_v1.1.0?tab=info). Additionally, there is a public [scATAC workspace](https://app.terra.bio/#workspaces/brain-initiative-bcdc/scATAC) preloaded with the scATAC workflow and downsampled data.  
+[Terra](https://app.terra.bio/) is a public, cloud-based platform for biomedical research. If you would like to try the scATAC workflow (previously named "snap-atac") in Terra, you can import the most recent version from [Dockstore](https://dockstore.org/workflows/github.com/broadinstitute/warp/scATAC:scATAC_v1.1.0?tab=info). Additionally, there is a public [scATAC workspace](https://app.terra.bio/#workspaces/brain-initiative-bcdc/scATAC) preloaded with the scATAC workflow and downsampled data.
 
-# Versioning
-All scATAC workflow releases are documented in the [scATAC changelog](scATAC.changelog.md).
+## Versioning
 
-# Pipeline Improvements
+All scATAC workflow releases are documented in the [scATAC changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/scATAC/scATAC.changelog.md).
+
+## Pipeline Improvements
+
 Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
