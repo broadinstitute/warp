@@ -27,6 +27,15 @@ module.exports = {
     ["meta", { name: "og:locale", content: "en_US" }],
   ],
 
+  markdown: {
+    lineNumbers: false,
+    extendMarkdown: (md) => {
+      md.use(require("markdown-it-imsize"));
+      md.use(require("markdown-it-footnote"));
+      md.use(require("markdown-it-mark"));
+    },
+  },
+
   /**
    * Theme configuration, here is the default theme configuration for VuePress.
    *
@@ -73,7 +82,14 @@ module.exports = {
     sidebar: {
       "/documentation/": [
         {
-          title: "About_WARP",
+          title: "Welcome to WARP",
+          collapsable: false,
+          children: [
+            "Intro"
+          ],
+        },
+        {
+          title: "About WARP",
           collapsable: false,
           children: [
             "About_WARP/BestPractices",
@@ -153,6 +169,16 @@ module.exports = {
           ],
         },
       ],
+      "/contribution/": [
+        {
+          title: "Contribution Guide",
+          collapsable: false,
+          children: [
+            "",
+            "changelog_style",
+          ],
+        },
+      ]
     },
   },
 
@@ -160,9 +186,17 @@ module.exports = {
    * Apply plugins，ref：https://v1.vuepress.vuejs.org/zh/plugin/
    */
   plugins: [
-    // "@vuepress/active-header-links",
+    "@vuepress/active-header-links",
     "@vuepress/plugin-back-to-top",
     "@vuepress/plugin-medium-zoom",
     ["vuepress-plugin-mathjax", { target: "svg", macros: { "*": "\\times" } }],
+    [
+      "vuepress-plugin-code-copy",
+      {
+        color: "#3eaf7c",
+        backgroundTransition: false,
+        staticIcon: false,
+      },
+    ],
   ],
 };
