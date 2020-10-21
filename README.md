@@ -1,5 +1,8 @@
 # Welcome to WARP
-WARP (WDL Analysis Research Pipelines) repository is a collection of cloud-optimized pipelines for processing biological data from the Broad Institute Data Sciences Platform and collaborators. 
+
+[![Build Status](https://img.shields.io/github/workflow/status/broadinstitute/warp/Deploy%20WARP%20Website?label=Website&logo=github&style=flat-square)](https://github.com/broadinstitute/warp/actions?query=workflow%3A%22Deploy+WARP+Website%22)
+
+WARP (WDL Analysis Research Pipelines) repository is a collection of cloud-optimized pipelines for processing biological data from the Broad Institute Data Sciences Platform and collaborators.
 
 The contents of this repository are open source and released under the [BSD 3-Clause license](https://github.com/broadinstitute/warp/blob/master/LICENSE).
 
@@ -13,7 +16,7 @@ The contents of this repository are open source and released under the [BSD 3-Cl
 - [Acknowledgements](#acknowledgements)
 
 ## WARP Overview
-WARP pipelines provide robust, standardized data analysis for the Broad Institute Genomics Platform and large consortia like the Human Cell Atlas and the BRAIN Initiative. You can count on WARP for rigorously scientifically validated, high scale, reproducible and open source pipelines. 
+WARP pipelines provide robust, standardized data analysis for the Broad Institute Genomics Platform and large consortia like the Human Cell Atlas and the BRAIN Initiative. You can count on WARP for rigorously scientifically validated, high scale, reproducible and open source pipelines.
 
 Our pipelines are written as “workflows” using the [Workflow Description Language (WDL)](https://openwdl.org/) and they process a broad spectrum of “omic” and array-related datasets (see the overview table below).
 
@@ -23,7 +26,7 @@ Our pipelines are written as “workflows” using the [Workflow Description Lan
 | Genotyping Arrays | Variant discovery, Chip validation, Joint array analysis |
 | Single-cell/nuclei Transcriptomics | Droplet based (10x Genomics), Smartseq2 |
 | Single-cell Epigenomics | Single nuclei ATAC-seq, Single nuclei MethylC-seq |
-| Joint Genotyping | Genomes, Exomes | 
+| Joint Genotyping | Genomes, Exomes |
 | Somatic Alignment (beta) | Exomes |
 
 \
@@ -32,23 +35,23 @@ Our pipelines are written as “workflows” using the [Workflow Description Lan
 
 
 ## Navigating WARP
-All versioned and released pipelines are in one of the three [pipelines](https://github.com/broadinstitute/warp/tree/master/pipelines) subdirectories: broad (pipelines for the Broad Institute’s Genomics Platform), cemba (pipelines for the BRAIN Initiative) or skylab (pipelines for the Human Cell Atlas Project). 
+All versioned and released pipelines are in one of the three [pipelines](https://github.com/broadinstitute/warp/tree/master/pipelines) subdirectories: broad (pipelines for the Broad Institute’s Genomics Platform), cemba (pipelines for the BRAIN Initiative) or skylab (pipelines for the Human Cell Atlas Project).
 
-Each pipeline directory hosts a main workflow WDL that includes a pipeline version number and a corresponding changelog file. 
+Each pipeline directory hosts a main workflow WDL that includes a pipeline version number and a corresponding changelog file.
 
-Workflows may call additional WDLs, referred to as tasks, that are located in the [tasks](https://github.com/broadinstitute/warp/tree/master/tasks) directory. 
+Workflows may call additional WDLs, referred to as tasks, that are located in the [tasks](https://github.com/broadinstitute/warp/tree/master/tasks) directory.
 
 Pipelines that are in progress or have not yet been validated are in the [beta-pipelines](https://github.com/broadinstitute/warp/tree/master/beta-pipelines) folder.
 
 ## Using WARP
 There are three ways to use WARP pipelines:
-### 1. Download the workflow and run on a WDL-compatible execution engine 
+### 1. Download the workflow and run on a WDL-compatible execution engine
 
-WDL workflows run on multiple systems, including [Cromwell](https://cromwell.readthedocs.io/en/stable/), [miniWDL](https://github.com/chanzuckerberg/miniwdl), and [dxWDL](https://github.com/dnanexus/dxWDL) (see the [openwdl documentation](https://github.com/openwdl/wdl#execution-engines)). To run a pipeline’s latest release, first navigate to WARP [Releases](https://github.com/broadinstitute/warp/releases), search for your pipeline’s tag, and download the pipeline’s assets (the WDL workflow, the JSON, and the ZIP with accompanying dependencies; see Optimus example below). 
+WDL workflows run on multiple systems, including [Cromwell](https://cromwell.readthedocs.io/en/stable/), [miniWDL](https://github.com/chanzuckerberg/miniwdl), and [dxWDL](https://github.com/dnanexus/dxWDL) (see the [openwdl documentation](https://github.com/openwdl/wdl#execution-engines)). To run a pipeline’s latest release, first navigate to WARP [Releases](https://github.com/broadinstitute/warp/releases), search for your pipeline’s tag, and download the pipeline’s assets (the WDL workflow, the JSON, and the ZIP with accompanying dependencies; see Optimus example below).
 
 <img src="images/optimus_release.png" width="350">
 
-You can also access a pipeline’s release page by selecting the pipeline version number at the top of the pipeline’s README. 
+You can also access a pipeline’s release page by selecting the pipeline version number at the top of the pipeline’s README.
 
 <img src="images/optimus_readme_tag.png" width="500">
 
@@ -56,9 +59,9 @@ You can also access a pipeline’s release page by selecting the pipeline versio
 After downloading the pipeline’s assets, launch the workflow following your execution engine’s instructions.
 ### 2. Run the pipeline in [Terra](https://app.terra.bio/#workspaces?tagsFilter%5B0%5D=warp-pipelines&tab=public)
 
-Several WARP pipelines are available in public workspaces on the Terra cloud platform. These workspaces include both the WDL workflow and downsampled data so that you can test the pipeline at low-cost. 
+Several WARP pipelines are available in public workspaces on the Terra cloud platform. These workspaces include both the WDL workflow and downsampled data so that you can test the pipeline at low-cost.
 
-If you are new to Terra, you can get started by registering with your Google account and visiting [Terra Support](https://support.terra.bio/hc/en-us). After registration, search for WARP-related workspaces with the “warp-pipelines” tag. 
+If you are new to Terra, you can get started by registering with your Google account and visiting [Terra Support](https://support.terra.bio/hc/en-us). After registration, search for WARP-related workspaces with the “warp-pipelines” tag.
 
 <img src="images/Terra_warp.png" width="600">
 
