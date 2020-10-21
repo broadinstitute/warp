@@ -179,7 +179,7 @@ The table below details the pipeline outputs. **If using multiplexed samples, th
 
 ## Versioning
 
-All CEMBA pipeline releases are documented in the [CEMBA changelog](CEMBA.changelog.md).
+All CEMBA pipeline releases are documented in the [CEMBA changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.changelog.md).
 
 ## Have Suggestions?
 

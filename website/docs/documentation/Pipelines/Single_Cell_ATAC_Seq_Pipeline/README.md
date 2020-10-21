@@ -173,7 +173,7 @@ The following table details the metrics available in the output_snap_qc file.
 
 ## Versioning
 
-All scATAC workflow releases are documented in the [scATAC changelog](./scATAC.changelog.md).
+All scATAC workflow releases are documented in the [scATAC changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/scATAC/scATAC.changelog.md).
 
 ## Pipeline Improvements
 
