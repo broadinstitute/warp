@@ -1,0 +1,31 @@
+name: PR Docs Test
+
+on:
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - website/**
+
+jobs:
+  pr-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-modules-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: 12.x
+
+      - name: Install and Build
+        run: yarn --cwd=website/docs install && yarn --cwd=website/docs build
