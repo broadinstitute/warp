@@ -1,4 +1,10 @@
-# Table of Contents
+# CEMBA Pipeline Overview
+
+| Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
+| :----: | :---: | :----: | :--------------: |
+| [CEMBA_v1.0.0](https://github.com/broadinstitute/warp/releases) | July 28, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+
+## Table of Contents
 
 - [CEMBA Pipeline Overview](#cemba-pipeline-overview)
   * [Introduction to the CEMBA Workflow](#introduction-to-the-cemba-workflow)
@@ -14,23 +20,15 @@
 - [Versioning](#versioning)
 - [Have Suggestions?](#have-suggestions)
 
-
-
-# CEMBA Pipeline Overview
-
-| Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
-| :----: | :---: | :----: | :--------------: |
-| [CEMBA_v1.0.0](https://github.com/broadinstitute/warp/releases) | July 28, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
-
-
-<img src="CEMBA.png" width="750">
+![CEMBA](./CEMBA.png)
 
 ## Introduction to the CEMBA Workflow
 
 CEMBA is a pipeline developed by the [BRAIN Initiative](https://braininitiative.nih.gov/) that supports processing of multiplexed single-nuclei bisulfite sequencing data. It is an alignment and methylated base calling pipeline that trims adaptors, attaches cell barcodes, aligns reads to the genome, filters reads based on quality and creates a VCF with methylation-site coverage.
 
-*Interested in using the pipeline for your publication? See the [“CEMBA publication methods”](CEMBA.methods.md) for a generic "methods" style description of the pipeline.*
-
+:::tip
+Interested in using the pipeline for your publication? See the [“CEMBA publication methods”](./CEMBA.methods.md) for a generic "methods" style description of the pipeline.
+:::
 
 ## Quick Start Table
 
@@ -54,7 +52,7 @@ The workflow can also be run on Terra using the [Methyl-c-seq_Pipeline workspace
 
 ## Inputs
 
-CEMBA pipeline inputs are detailed in the example human configuration file ([CEMBA.inputs.json](/pipelines/cemba/cemba_methylcseq/example_inputs/CEMBA.inputs.json)). Genomic reference files were built using the [BuildCembaReferencesWDL script]( https://github.com/BICCN/CEMBA/blob/master/pipelines/build_cemba_references/BuildCembaReferences.wdl). See descriptions of all inputs in the tables below.
+CEMBA pipeline inputs are detailed in the example human configuration file ([CEMBA.inputs.json](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/example_inputs/CEMBA.inputs.json)). Genomic reference files were built using the [BuildCembaReferencesWDL script](https://github.com/BICCN/CEMBA/blob/master/pipelines/build_cemba_references/BuildCembaReferences.wdl). See descriptions of all inputs in the tables below.
 
 ### Sample data input
 The pipeline accepts paired-end reads in the form of two compressed FASTQ files (fastq.gz). FASTQ files may represent a single cell sample or in the case of multiplexed samples, multiple cells.
@@ -65,7 +63,6 @@ The pipeline accepts paired-end reads in the form of two compressed FASTQ files 
 | fastq_r2_gzipped_input | Compressed FASTQ (.gz) for R2 |
 
 ### Additional Inputs
-
 
 | Parameter Name | Description |
 | --- | --- |
@@ -95,11 +92,11 @@ The pipeline accepts paired-end reads in the form of two compressed FASTQ files 
 
 # CEMBA Tasks and Tools
 
-The [CEMBA.wdl](CEMBA.wdl) implements the workflow by importing individual "tasks" written in the [WDL script](https://github.com/broadinstitute/warp).
+The [CEMBA.wdl](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.wdl) implements the workflow by importing individual "tasks" written in the [WDL script](https://github.com/broadinstitute/warp).
 
 ## CEMBA Task Summary
 
-The table and summary sections below detail the tasks and tools of the CEMBA pipeline; [the code](CEMBA.wdl) is available through GitHub. Each task can be found in the [CEMBA WDL](CEMBA.wdl) If you are looking for the specific parameters of each task/tool, please see the  `command {}` section of the WDL script.
+The table and summary sections below detail the tasks and tools of the CEMBA pipeline; [the code](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.wdl) is available through GitHub. Each task can be found in the [CEMBA WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.wdl) If you are looking for the specific parameters of each task/tool, please see the  `command {}` section of the WDL script.
 
 | Task | Tool(s) | Purpose | Docker |
 | :-- | :-- | :-- | :-- |
@@ -123,18 +120,23 @@ The table and summary sections below detail the tasks and tools of the CEMBA pip
 | ComputeCoverageDepth | [Samtools v1.9](http://www.htslib.org/)  | Compute number of sites with coverage greater than 1 | quay.io/broadinstitute/samtools:1.9 |
 
 ### Prior to running: Set-up the workflow for using multiplexed samples
+
 The pipeline uses paired-end reads, but it can only perform multiplexing when running in single-end mode. If you have multiplexed samples and want to attach cell barcodes, you must run the pipeline in single-end mode. If you do not wish to attach cell barcodes, you may run in paired-end mode (even if your samples are multiplexed). You can specify single-end mode or paired-end mode using the paired_end_run boolean in the configuration file. You will also need to adjust the extract_and_attach_barcodes_in_single_end_run boolean to true if you want to attach bardcodes.
 
 ### 1. Trim adaptors
+
 The CEMBA workflow Trim task uses Cutadapt software to remove the Read1 (R1) and Read2 (R2) adaptor sequences specified in the input configuration from the zipped R1 and R2 FASTQ files. Low quality reads are trimmed from the 5’ and 3’ ends using the interval specified in the quality_cutoff input parameter.  To avoid empty reads, a threshold for read length is set using the min_length_paired_end_trim option.
 
 ### 2. Extract cell barcodes
+
 CEMBA can extract cell barcodes from multiplexed samples if the extract_and_attach_barcodes_in_single_end_run boolean is true and the samples are run in single-end mode. To do this, the workflow uses the CreateUnmappedBam and ExtractCellBarcodes tasks to first make an unaligned BAM (uBAM) for the trimmed R1 FASTQ and then tag barcodes identified with the barcode_white_list input to the uBAM.
 
 ### 3. Trim degenerate bases, random primer indexes, and Adaptase C/T tail
+
 After barcode extraction, the Trim task is used a second time to remove additional bases resulting from R1 random primer indexes (often used as barcodes) and the R2 C/T tail introduced by the Adaptase enzyme. Reads are trimmed using the cut_length input. The read length threshold is set by the min_length_single_end input.
 
 ### 4. Align to a reference genome
+
 The resulting trimmed FASTQ files can be aligned to a reference either in single-end mode for multiplexed samples or paired-end mode. For all modes, the workflow aligns with Bismark with --bowtie2 option. For paired-end or the single-end mode for R1, the workflow uses a directional option with --pbat parameter. For R2, the directional option is turned off.
 
 ### 5. Sort, remove duplicates and filter
@@ -142,18 +144,23 @@ The resulting trimmed FASTQ files can be aligned to a reference either in single
 The aligned BAM(s) are scattered and sorted in coordinate order using Picard. Duplicate reads are then removed from the sorted BAM. If a min_map_quality is provided in the input, reads will be filtered accordingly and a BAM produced for all reads above the min_map_quality and a BAM for reads below the min_map_quality.
 
 ### 6. Generate methylation reports
+
 Methylation reports are generated using the Bismark at two steps in the workflow: after the removal of duplicates and again after filtering on min_map_quality. The bismark_methylation_extraction function with the -- comprehensive --merge_non_CpG --report options outputs multiple reports which are detailed in the [Bismark documentation](https://www.bioinformatics.babraham.ac.uk/projects/bismark/Bismark_User_Guide.pdf). These outputs include mbias, splitting, CpG context, and non-CpG context reports.
 
 ### 7. Attach barcodes, merge BAMs, add read groups, sort and index BAMs
+
 In the AttachBarcodes task, Picard attaches the barcodes in the R1 uBAM to the aligned, duplicate-removed, and if applicable, filtered, R1 BAM. This produces a tagged_mapped.bam file. Once the barcodes are attached, the MergeBams task uses Samtools to merge the (barcoded if applicable) R1 BAM with the aligned and filtered R2 BAM. Read groups are then attached to the merged BAM file with GATK4 and the BAM is sorted with Picard. The BAM is indexed with Samtools.
 
 ### 8. Call methylated bases
+
 Methylated bases are identified using the MethylationTypeCaller task which calls the GATK4 function MethylationTypeCaller. This produces a VCF with methylation calls.
 
 ### 9. Compute coverage depth
+
 The ComputeCoverageDepth task uses Samtools to calculate any region in the filtered, sorted BAM with a coverage depth greater than 1. This interval is read in the stdout of the workflow.
 
 # Outputs
+
 The table below details the pipeline outputs. **If using multiplexed samples, the final files will represent reads from multiple cells and the output is not yet split by cell barcode.**
 
 | Workflow output Name | Description | Filetype (when applicable) |
@@ -170,18 +177,10 @@ The table below details the pipeline outputs. **If using multiplexed samples, th
 | methylation_CpG_context_report_output | CpG context reports generated by Bismark for the sorted duplicate-removed BAM and the two map quality-filtered BAMs (reads above map quality and reads below map quality) | TXT |
 | methylation_non_CpG_context_report_output | Non-CpG context reports generated by Bismark for the sorted duplicate-removed BAM and the two map quality-filtered BAMs (reads above map quality and reads below map quality) | TXT |
 
-
-
-# Versioning
+## Versioning
 
 All CEMBA pipeline releases are documented in the [CEMBA changelog](CEMBA.changelog.md).
 
-# Have Suggestions?
+## Have Suggestions?
 
 Coming soon, we will have a GitHub document dedicated to open issues! In the meantime, please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
-
-
-
-
-
-
