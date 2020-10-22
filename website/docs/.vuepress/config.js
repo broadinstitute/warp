@@ -197,5 +197,11 @@ module.exports = {
         staticIcon: false,
       },
     ],
+    [
+      '@vuepress/google-analytics',
+      {
+        'ga': 'UA-181048107-1' // the Google Analytics Tracking ID
+      }
+    ]
   ],
 };
