@@ -83,9 +83,6 @@ task FastqProcessing {
     print(optstring)
     CODE)
 
-
-
-    echo $FASTQS
     # use the right UMI length depending on the chemistry
     if [ "~{chemistry}" == "tenX_v2" ]; then
         ## V2
@@ -97,14 +94,6 @@ task FastqProcessing {
         echo Error: unknown chemistry value: "~{chemistry}"
         exit 1;
     fi
-
-    echo fastqprocess \
-        --bam-size 1.0 \
-        --barcode-length 16 \
-        --umi-length $UMILENGTH \
-        --sample-id "~{sample_id}" \
-        $FASTQS \
-        --white-list "~{whitelist}"
 
     fastqprocess \
         --bam-size 1.0 \
