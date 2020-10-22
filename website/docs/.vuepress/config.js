@@ -73,6 +73,7 @@ module.exports = {
                 text: "Changelog",
                 link: "https://github.com/broadinstitute/warp/releases",
               },
+              { text: "Privacy", link: "/privacy/" },
             ],
           },
         ],
