@@ -75,11 +75,14 @@ task FastqProcessing {
     r2_fastqs = [ "${sep='", "' r2_fastq}" ]
     i1_fastqs = [ "${sep='", "' i1_fastq}" ]
     for fastq in r1_fastqs:
-        optstring += " --R1 " + rename_file(fastq)
+        if fastq.strip(): 
+            optstring += " --R1 " + rename_file(fastq)
     for fastq in r2_fastqs:
-        optstring += " --R2 " + rename_file(fastq)
+        if fastq.strip(): 
+            optstring += " --R2 " + rename_file(fastq)
     for fastq in i1_fastqs:
-        optstring += " --I1 " + rename_file(fastq)
+        if fastq.strip(): 
+            optstring += " --I1 " + rename_file(fastq)
     print(optstring)
     CODE)
 
