@@ -9,6 +9,7 @@
       "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_10X_V3/pbmc_10k_v3_chr21_genic/pbmc_10k_v3_S1_L002_R1_001.filtered"
   ],
   "TestOptimusPR.r2_fastq": [
+
       "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_10X_V3/pbmc_10k_v3_chr21_genic/pbmc_10k_v3_S1_L001_R2_001.filtered.fastq.gz",
       "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_10X_V3/pbmc_10k_v3_chr21_genic/pbmc_10k_v3_S1_L002_R2_001.filtered.fastq.in_gzip_format"
   ],
