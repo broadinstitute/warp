@@ -1,4 +1,4 @@
-# Introduction to the Whole Genome Germline Single Sample Pipeline
+# Whole Genome Germline Single Sample Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
@@ -64,7 +64,7 @@ This material is provided by the Data Sciences Platform group at the Broad Insti
 
 Copyright Broad Institute, 2020 | BSD-3
 
-This workflow is released under the WDL open source code license (BSD-3) (full license text at https://github.com/openwdl/wdl/blob/master/LICENSE). However, please note that the programs it calls may be subject to different licenses. Users are responsible for checking that they are authorized to run all programs before running this script.
+This workflow is released under the WDL open source code license (BSD-3) (full license text at https://github.com/broadinstitute/warp/blob/master/LICENSE). However, please note that the programs it calls may be subject to different licenses. Users are responsible for checking that they are authorized to run all programs before running this script.
 
 Programs include:
 

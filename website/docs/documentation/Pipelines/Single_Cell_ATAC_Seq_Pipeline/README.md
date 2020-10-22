@@ -1,33 +1,8 @@
-# Overview
+# scATAC Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
 | [scATAC 1.1.0 ](https://github.com/broadinstitute/warp/releases) | August 24th 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in skylab or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Introduction](#introduction)
-  * [Quick Start Table](#quick-start-table)
-- [Set-up](#set-up)
-  * [Workflow Installation and Requirements](#workflow-installation-and-requirements)
-  * [Pipeline Inputs](#pipeline-inputs)
-  * [Input File Preparation](#input-file-preparation)
-    + [R1 and R2 FASTQ Preparation](#r1-and-r2-fastq-preparation)
-    + [Input_reference Preparation](#input_reference-preparation)
-- [Workflow Tasks and Tools](#workflow-tasks-and-tools)
-  * [Task Summary](#task-summary)
-    + [AlignPairedEnd](#alignpairedend)
-    + [SnapPre](#snappre)
-      - [Filtering Parameters](#filtering-parameters)
-      - [Snap QC Metrics](#snap-qc-metrics)
-    + [SnapCellByBin](#snapcellbybin)
-    + [MakeCompliantBAM](#makecompliantbam)
-    + [BreakoutSnap](#breakoutsnap)
-- [Outputs](#outputs)
-- [Running on Terra](#running-on-terra)
-- [Versioning](#versioning)
-- [Pipeline Improvements](#pipeline-improvements)
 
 ![scATAC_diagram](./scATAC_diagram.png)
 
@@ -36,7 +11,7 @@
 The scATAC Pipeline was developed by the Broad DSP Pipelines team to process single cell/nucleus ATAC-seq datasets. The pipeline is based on the [SnapATAC pipeline](https://github.com/r3fang/SnapATAC) described by [Fang et al. (2019)](https://www.biorxiv.org/content/10.1101/615179v2.full). Overall, the pipeline uses the python module [SnapTools](https://github.com/r3fang/SnapTools) to align and process paired reads in the form of FASTQ files. It produces an hdf5-structured Snap file that includes a cell-by-bin count matrix. In addition to the Snap file, the final outputs include a GA4GH compliant aligned BAM and QC metrics.
 
 :::tip Want to use the scATAC Pipeline for your publication?
-Check out the [scATAC Publication Methods](scatac.methods.md) to get started!
+Check out the [scATAC Publication Methods](./scatac.methods.md) to get started!
 :::
 
 ### Quick Start Table
@@ -53,7 +28,7 @@ Check out the [scATAC Publication Methods](scatac.methods.md) to get started!
 ## Set-up
 ### Workflow Installation and Requirements
 
-The [scATAC workflow](scATAC.wdl) is written in the Workflow Description Language WDL and can be downloaded by cloning the GitHub [WARP repository](https://github.com/broadinstitute/warp/). The workflow can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the scATAC [changelog](scATAC.changelog.md).
+The [scATAC workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.wdl) is written in the Workflow Description Language WDL and can be downloaded by cloning the GitHub [WARP repository](https://github.com/broadinstitute/warp/). The workflow can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the scATAC [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.changelog.md).
 
 ### Pipeline Inputs
 
