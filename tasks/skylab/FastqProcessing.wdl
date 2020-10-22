@@ -10,7 +10,7 @@ task FastqProcessing {
     String sample_id
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11"
+    String docker = "quay.io/humancellatlas/fastq-process:latest"
     Int machine_mem_mb = 40000
     Int cpu = 16   
     #TODO decided cpu
@@ -41,63 +41,51 @@ task FastqProcessing {
   command {
     set -e
 
-    for f in ~{sep=' ' r1_fastq}; do
-      if [[ $f != *.fastq* ]]; then
-        mv  "$f" "$f".fastq
-        FQ="$f".fastq
-      else
-        FQ="$f"
-      fi
-      if [[ $FQ != *.gz ]]; then
-        if (file $FQ | grep -q compressed); then
-          mv  "$FQ" "$FQ".gz
-          FQ="$FQ".gz
-        fi
-      fi
-      echo "r1 fastq: $FQ"
-      ls -lh $FQ
-      R1_FASTQS+="--R1 $FQ "
-    done
+    FASTQS=$(python <<CODE
+    def rename_file(filename):
+        import shutil
+        import gzip
+        import re
+         
+        iscompressed = True
+        with gzip.open(filename, 'rt') as fin:
+           try:
+               _ = fin.readline()
+           except:
+               iscompressed = False
 
-    for f in ~{sep=' ' r2_fastq}; do
-      if [[ $f != *.fastq* ]]; then
-        mv  "$f" "$f".fastq
-        FQ="$f".fastq
-      else
-        FQ="$f"
-      fi
-      if [[ $FQ != *.gz ]]; then
-        if (file $FQ | grep -q compressed); then
-          mv  "$FQ" "$FQ".gz
-          FQ="$FQ".gz
-        fi
-      fi
-      echo "r2 fastq: $FQ"
-      ls -lh $FQ
-      R2_FASTQS+="--R2 $FQ "
-    done
+        basename = re.sub(r'.gz$', '', filename)
+        basename = re.sub(r'.fastq$', '', basename)
+ 
+        if iscompressed:
+            # if it is already compressed then add an extension .fastq.gz
+            newname = basename + ".fastq.gz" 
+        else: 
+            # otherwis, add just the .fastq extension
+            newname = basename + ".fastq"
 
-    # I1 file are optional,  and sometimes they are left out
-    if [ -n '~{sep=',' i1_fastq}' ]; then
-      for f in ~{sep=' ' i1_fastq}; do
-        if [[ $f != *.fastq* ]]; then
-          mv  "$f" "$f".fastq
-          FQ="$f".fastq
-        else
-          FQ="$f"
-        fi
-        if [[ $FQ != *.gz ]]; then
-          if (file $FQ | grep -q compressed); then
-            mv  "$FQ" "$FQ".gz
-            FQ="$FQ".gz
-          fi
-        fi
-        echo "i1 fastq: $FQ"
-        ls -lh $FQ
-        I1_FASTQS+="--I1 $FQ "
-      done
-    fi
+        if filename != newname:
+            # safe to rename since the old and the new names are different
+            shutil.move(filename, newname)
 
+        return newname
+    optstring = ""
+     
+    r1_fastqs = [ "${sep='", "' r1_fastq}" ]
+    r2_fastqs = [ "${sep='", "' r2_fastq}" ]
+    i1_fastqs = [ "${sep='", "' i1_fastq}" ]
+    for fastq in r1_fastqs:
+        optstring += " --R1 " + rename_file(fastq)
+    for fastq in r2_fastqs:
+        optstring += " --R2 " + rename_file(fastq)
+    for fastq in i1_fastqs:
+        optstring += " --I1 " + rename_file(fastq)
+    print(optstring)
+    CODE)
+
+
+
+    echo $FASTQS
     # use the right UMI length depending on the chemistry
     if [ "~{chemistry}" == "tenX_v2" ]; then
         ## V2
@@ -110,24 +98,21 @@ task FastqProcessing {
         exit 1;
     fi
 
-    echo "R1_FASTQS:"
-    echo "$R1_FASTQS"
-
-    echo "R2_FASTQS:"
-    echo "$R2_FASTQS"
-
-    echo "I1_FASTQS:"
-    echo "$I1_FASTQS"
+    echo fastqprocess \
+        --bam-size 1.0 \
+        --barcode-length 16 \
+        --umi-length $UMILENGTH \
+        --sample-id "~{sample_id}" \
+        $FASTQS \
+        --white-list "~{whitelist}"
 
     fastqprocess \
         --bam-size 1.0 \
         --barcode-length 16 \
         --umi-length $UMILENGTH \
         --sample-id "~{sample_id}" \
-        "$I1_FASTQS" \
-        "$R1_FASTQS" \
-        "$R2_FASTQS" \
-        --white-list "~{whitelist}"
+        $FASTQS \
+        --white-list "~{whitelist}" 
   }
   
   runtime {
