@@ -1,31 +1,10 @@
-# Smart-seq2 Single Sample Pipeline Overview
+# Smart-seq2 Single Sample Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
 | [smartseq2_v5.0.0](https://github.com/broadinstitute/warp/releases) | August, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in skylab or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![](./smartseq_image.png)
-
-## Table of Contents
-- [Smart-seq2 Single Sample Pipeline Overview](#smart-seq2-single-sample-pipeline-overview)
-  * [Introduction to the Smart-seq2 Pipeline](#introduction-to-the-smart-seq2-pipeline)
-  * [Quick Start Table](#quick-start-table)
-- [Set-Up](#set-up)
-  * [Smart-seq2 Installation and Requirements](#smart-seq2-installation-and-requirements)
-  * [Inputs](#inputs)
-    + [Sample Data Input](#sample-data-input)
-    + [Additional Reference Inputs](#additional-reference-inputs)
-- [Running Smart-seq2](#running-smart-seq2)
-  * [Smart-seq2 Workflow Summary](#smart-seq2-workflow-summary)
-    + [Part 1: Quality Control Tasks](#part-1-quality-control-tasks)
-      - [1.1 Align reads to the genome using HISAT2](#11-align-reads-to-the-genome-using-hisat2)
-      - [1.2 Calculate summary metrics using Picard](#12-calculate-summary-metrics-using-picard)
-    + [Part 2: Transcriptome Quantification Tasks](#part-2-transcriptome-quantification-tasks)
-      - [2.1 Align reads to the transcriptome using HISAT2](#21-align-reads-to-the-transcriptome-using-hisat2)
-      - [2.2 Quantify gene expression using RSEM](#22-quantify-gene-expression-using-rsem)
-  * [Outputs](#outputs)
-- [Versioning](#versioning)
-- [Improvements](#have-suggestions)
 
 ## Introduction to the Smart-seq2 Pipeline
 
@@ -36,7 +15,7 @@ The Smart-seq2 Single Sample workflow is divided into two parts which run in par
 This pipeline has been validated to support both [human](https://docs.google.com/document/d/1MonsTG8UnROHZ_XpulrSZNTxO988KEH6T6h45plFYQg/edit#heading=h.ixoqmhbabdvh) and [mouse](https://docs.google.com/document/d/12zGTFROrcXEByt9z0h06qjSqb9vWutn28Tx6YiND1Ds/edit) datasets.
 
 :::tip Want to use the Smart-seq2 pipeline for your publication?
-Check out the [Smart-seq2 Publication Methods](/pipelines/skylab/smartseq2_multisample/smart-seq2.methods.md) to get started!
+Check out the [Smart-seq2 Publication Methods](../Smart-seq2_Multi_Sample_Pipeline/smart-seq2.methods.md) to get started!
 :::
 
 ## Quick Start Table
@@ -58,7 +37,7 @@ Check out the [Smart-seq2 Publication Methods](/pipelines/skylab/smartseq2_multi
 
 ### Smart-seq2 Installation and Requirements
 
-The Smart-seq2 workflow code can be downloaded by cloning the GitHub [warp repository](https://github.com/broadinstitute/warp). For the latest release of Smart-seq2, please see the [Smart-seq2 Single Sample changelog](SmartSeq2SingleSample.changelog.md).
+The Smart-seq2 workflow code can be downloaded by cloning the GitHub [warp repository](https://github.com/broadinstitute/warp). For the latest release of Smart-seq2, please see the [Smart-seq2 Single Sample changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.changelog.md).
 
 The workflow is deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms.
 
@@ -68,8 +47,8 @@ The [Multi Sample Smart-seq2 workflow](https://github.com/broadinstitute/warp/bl
 
 There are two example configuration (JSON) files available to test the Smart-seq2 Single Sample workflow.
 
-* [human_single_example.json](human_single_example.json): Configurations for an example single-end human dataset
-* [mouse_paired_example.json](mouse_paired_example.json): Configurations for an example mouse paired-end dataset
+* [human_single_example.json](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/human_single_example.json): Configurations for an example single-end human dataset
+* [mouse_paired_example.json](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/mouse_paired_example.json): Configurations for an example mouse paired-end dataset
 
 
 #### Sample Data Input
@@ -138,7 +117,7 @@ If you are looking for the parameters used for each task/tool, click on the task
 
 #### Part 1: Quality Control Tasks
 ##### 1.1 Align reads to the genome using HISAT2
-HISAT2 is a fast, cost-efficient alignment tool that can determine the presence of non-transcript sequences and true transcript sequences, taking into account the presence of single-nucleotide polymorphisms ([Kim et al.,2019](https://www.nature.com/articles/s41587-019-0201-4)). The Smart-seq2 Single Sample workflow uses the [HISAT2 task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/HISAT2.wdl) to call HISAT2 and perform graph-based alignment of paired- or single-end reads (in the form of FASTQ files) to a reference genome. This task requires a reference index which can be built using the [BuildIndices.wdl](../build_indices/BuildIndices.wdl) documentation. The outputs of the task include a genome-aligned BAM file, a BAM index, and an alignment log file.
+HISAT2 is a fast, cost-efficient alignment tool that can determine the presence of non-transcript sequences and true transcript sequences, taking into account the presence of single-nucleotide polymorphisms ([Kim et al.,2019](https://www.nature.com/articles/s41587-019-0201-4)). The Smart-seq2 Single Sample workflow uses the [HISAT2 task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/HISAT2.wdl) to call HISAT2 and perform graph-based alignment of paired- or single-end reads (in the form of FASTQ files) to a reference genome. This task requires a reference index which can be built using the [BuildIndices.wdl](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices) documentation. The outputs of the task include a genome-aligned BAM file, a BAM index, and an alignment log file.
 
 ##### 1.2 Calculate summary metrics using Picard
 [Picard](https://broadinstitute.github.io/picard/) is a suite of command line tools used for manipulating high-throughput sequencing data. The [Picard task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Picard.wdl) uses Picard tools to calculate quality control measurements on the HISAT2 genome-aligned BAM file. The task requires a reference genome fasta, a RefFlat gene annotation file, and an RNA intervals file (see the [Creating_Smartseq2_References](./Creating_Smartseq2_References.md) documentation). The outputs of the task are text and PDF files for each metric.
