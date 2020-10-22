@@ -1,35 +1,10 @@
-# Optimus Pipeline Overview
+# Optimus Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
 | [optimus_v4.0.2](https://github.com/broadinstitute/warp/releases) | September 14, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![Optimus_diagram](./Optimus_diagram.png)
-
-## Table of Contents
-- [Optimus Pipeline Overview](#optimus-pipeline-overview)
-  * [Introduction to the Optimus Workflow](#introduction-to-the-optimus-workflow)
-  * [Quick Start Table](#quick-start-table)
-- [Set-up](#set-up)
-  * [Optimus Installation and Requirements](#optimus-installation-and-requirements)
-  * [Inputs](#inputs)
-    + [Sample Data Input](#sample-data-input)
-    + [Additional Reference Inputs](#additional-reference-inputs)
-    + [Sample Inputs for Analyses in a Terra Workspace](#sample-inputs-for-analyses-in-a-terra-workspace)
-- [Optimus Tasks and Tools](#optimus-tasks-and-tools)
-  * [Optimus Task Summary](#optimus-task-summary)
-    + [1. Converting R2 FASTQ File to UBAM](#1-converting-r2-fastq-file-to-ubam)
-    + [2. Correcting and Attaching Cell Barcodes](#2-correcting-and-attaching-cell-barcodes)
-    + [3. Alignment](#3-alignment)
-    + [4. Gene Annotation](#4-gene-annotation)
-    + [5. UMI Correction](#5-umi-correction)
-    + [6. Summary Metric Calculation](#6-summary-metric-calculation)
-    + [7. Expression Matrix Construction](#7-expression-matrix-construction)
-    + [8. Identification of Empty Droplets](#8-identification-of-empty-droplets)
-    + [9. Outputs](#9-outputs)
-- [Versioning](#versioning)
-- [Pipeline Improvements](#have-suggestions)
-- [FAQs](#faqs)
 
 ## Introduction to the Optimus Workflow
 
@@ -38,7 +13,7 @@ Optimus is a pipeline developed by the Data Coordination Platform (DCP) of the [
 Optimus has been validated for analyzing both [human](https://github.com/broadinstitute/warp/blob/master/benchmarking/v1_Apr2019/optimus_report.rst) and [mouse](https://docs.google.com/document/d/1_3oO0ZQSrwEoe6D3GgKdSmAQ9qkzH_7wrE7x6_deL10/edit) single-cell or single-nuclei data sets. See the [human single-cell validation](https://docs.google.com/document/d/158ba_xQM9AYyu8VcLWsIvSoEYps6PQhgddTr9H0BFmY/edit) or the [single-nuclei](https://docs.google.com/document/d/1rv2M7vfpOzIOsMnMfNyKB4HV18lQ9dnOGHK2tPikiH0/edit) validation reports.
 
 :::tip Want to use the Optimus Pipeline for your publication?
-Check out the [Optimus Publication Methods](optimus.methods.md) to get started!
+Check out the [Optimus Publication Methods](./optimus.methods.md) to get started!
 :::
 
 ## Quick Start Table
@@ -71,7 +46,7 @@ Optimus pipeline inputs are detailed in JSON format configuration files. There a
 *  [mouse_v2_example](./example_inputs/mouse_v2_example.json): An example mouse 10x v2 single-cell dataset
 *  [mouse_v2_snRNA_example](./example_inputs/mouse_v2_snRNA_example.json): An example mouse v2 single-nuclei dataset
 
-Additionally, there are multiple sample datasets available in the [test_optimus_full_datasets](./example_inputs/test_optimus_full_datasets) folder. Please note that unlike the example configuration files above, the configuration files in this folder may not reflect updated Optimus parameters. However, you can still access the FASTQ files for each dataset at the Google bucket locations listed in the dataset configuration files.
+Additionally, there are multiple sample datasets available in the [test_optimus_full_datasets](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/optimus/example_inputs/test_optimus_full_datasets) folder. Please note that unlike the example configuration files above, the configuration files in this folder may not reflect updated Optimus parameters. However, you can still access the FASTQ files for each dataset at the Google bucket locations listed in the dataset configuration files.
 
 #### Sample Data Input
 
@@ -81,7 +56,7 @@ Each 10x v2 and v3 3’ sequencing experiment generates triplets of FASTQ files 
 2. Reverse reads (r2_fastq) containing the alignable genomic information from the mRNA transcript
 3. Index FASTQ (i1_fastq) containing the sample barcodes, when provided by the sequencing facility
 
-Note: Optimus is currently a single sample pipeline, but can take in multiple sets of FASTQs for a sample that has been split over multiple lanes of sequencing. For an example configuration file with multiple lanes, please see the [mouse_v2_example.json](mouse_v2_example.json). Additionally, Optimus does not support demultiplexing even though it accepts index FASTQ files.
+Note: Optimus is currently a single sample pipeline, but can take in multiple sets of FASTQs for a sample that has been split over multiple lanes of sequencing. For an example configuration file with multiple lanes, please see the [mouse_v2_example.json](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/example_inputs/mouse_v2_example.json). Additionally, Optimus does not support demultiplexing even though it accepts index FASTQ files.
 
 #### Additional Reference Inputs
 
@@ -90,7 +65,7 @@ The JSON file also contains metadata for the reference information in the follow
 | Parameter Name | Description | Optional Strings (when applicable) |
 | --- | --- | --- |
 | Whitelist | Cloud path to list of known cell barcodes from [10x genomics](https://www.10xgenomics.com/) that corresponds to the v2 or v3 chemistry | NA |
-| Tar_star_reference | Cloud path to TAR file containing a species-specific reference genome and gtf; it is generated using the [BuildIndices.wdl](../build_indices/BuildIndices.wdl) | NA |
+| Tar_star_reference | Cloud path to TAR file containing a species-specific reference genome and gtf; it is generated using the [BuildIndices.wdl](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_indices/BuildIndices.wdl) | NA |
 | input_id | Unique name describing the biological sample or replicate that corresponds with the original FASTQ files. This can be any string, but if possible, we recommend it matches the sample metadata | NA |
 | input_name | Optional string that can be used to further identify the original biological sample | NA |
 | Annotations_gtf | Cloud path to GTF containing gene annotations used for gene tagging (must match GTF in STAR reference) | NA |
@@ -138,7 +113,7 @@ The tools each Optimus task employs are detailed in the table below. If you are 
 | [TagSortBam](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/TagSortBam.wdl)                                                 | [sctools](https://sctools.readthedocs.io/en/latest/sctools.html)                                                            |
 | [Picard](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Picard.wdl)                                                         | [picard](https://github.com/broadinstitute/picard)                                                                          |
 
-The Optimus pipeline takes special care to flag but avoid the removal of reads that are not aligned or that do not contain recognizable barcodes. This design (which differs from many pipelines currently available) allows the use of the entire dataset by those who may want to use alternative filtering or leverage the data for methodological development associated with the data processing. More information about the different tags used to flag the data can be found in the [Bam_tags documentation](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Bam_tags.md).
+The Optimus pipeline takes special care to flag but avoid the removal of reads that are not aligned or that do not contain recognizable barcodes. This design (which differs from many pipelines currently available) allows the use of the entire dataset by those who may want to use alternative filtering or leverage the data for methodological development associated with the data processing. More information about the different tags used to flag the data can be found in the [Bam_tags documentation](./Bam_tags.md).
 
 #### 1. Converting R2 FASTQ File to UBAM
 
@@ -146,7 +121,7 @@ Unlike FASTQ files, BAM files enable researchers to keep track of important meta
 
 #### 2. Correcting and Attaching Cell Barcodes
 
-Although the function of the cell barcodes is to identify unique cells, barcode errors can arise during sequencing (such as incorporation of the barcode into contaminating DNA or sequencing and PCR errors), making it difficult to distinguish unique cells from artifactual appearances of the barcode. The [FastqProcessing](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to evaluate barcode errors by comparing the R1 FASTQ sequences against a whitelist of known barcode sequences. The task then appends the UMI and cell barcode sequences from the R1 FASTQ to the UBAM sequence as tags [(see the Bam_tags documentation for details](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Bam_tags.md)).
+Although the function of the cell barcodes is to identify unique cells, barcode errors can arise during sequencing (such as incorporation of the barcode into contaminating DNA or sequencing and PCR errors), making it difficult to distinguish unique cells from artifactual appearances of the barcode. The [FastqProcessing](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to evaluate barcode errors by comparing the R1 FASTQ sequences against a whitelist of known barcode sequences. The task then appends the UMI and cell barcode sequences from the R1 FASTQ to the UBAM sequence as tags [(see the Bam_tags documentation for details](./Bam_tags.md)).
 
 The output is a UBAM file containing the reads with corrected barcodes, including barcodes that came within one edit distance ([Levenshtein distance](http://www.levenshtein.net/)) of matching the whitelist of barcode sequences and were corrected by this tool. Correct barcodes are assigned a “CB” tag. Uncorrectable barcodes (with more than one error) are preserved and given a “CR” (Cell barcode Raw) tag. Cell barcode quality scores are also preserved in the file under the “CY” tag.
 
@@ -158,7 +133,7 @@ Optimus uses the [STAR alignment](https://github.com/broadinstitute/warp/blob/ma
 
 #### 4. Gene Annotation
 
-The [TagGeneExon](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/TagGeneExon.wdl) task uses [Drop-seq tools](https://github.com/broadinstitute/Drop-seq) to [annotate each read](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Bam_tags.md) with the type of sequence to which it aligns. These annotations vary depending on the counting_mode ("sc_rna" or "sn_rna") specified in the workflow.
+The [TagGeneExon](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/TagGeneExon.wdl) task uses [Drop-seq tools](https://github.com/broadinstitute/Drop-seq) to [annotate each read](./Bam_tags.md) with the type of sequence to which it aligns. These annotations vary depending on the counting_mode ("sc_rna" or "sn_rna") specified in the workflow.
 
 **Single-cell RNA-seq:**
 
@@ -166,9 +141,9 @@ The TagGeneExon task calls Drop-seq tools v1.12 to make annotations. These annot
 
 **Single-nuclei RNA-seq:**
 
-The TagGeneExon task calls Drop-seq tools v2.3.0 to make annotations. These annotations include INTERGENIC, INTRONIC, UTR and CODING (EXONIC), and are stored using the 'XF' BAM tag (see the [Bam_tags documentation](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Bam_tags.md)). In cases where the gene corresponds to an exon, UTR, or intron, the name of the gene that overlaps the alignment is associated with the read and stored using the 'GE' BAM tag.
+The TagGeneExon task calls Drop-seq tools v2.3.0 to make annotations. These annotations include INTERGENIC, INTRONIC, UTR and CODING (EXONIC), and are stored using the 'XF' BAM tag (see the [Bam_tags documentation](./Bam_tags.md)). In cases where the gene corresponds to an exon, UTR, or intron, the name of the gene that overlaps the alignment is associated with the read and stored using the 'GE' BAM tag.
 
-All tags are detailed in the pipeline's [BAM_tag documentation](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Bam_tags.md).
+All tags are detailed in the pipeline's [BAM_tag documentation](./Bam_tags.md).
 
 #### 5. UMI Correction
 
@@ -176,7 +151,7 @@ UMIs are designed to distinguish unique transcripts present in the cell at lysis
 
 #### 6. Summary Metric Calculation
 
-The [Metrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to calculate summary metrics which help assess the quality of the data output each time this pipeline is run. These metrics are included in the Loom output file. A detailed list of these metrics is found in the [Loom_schema documentation](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Loom_schema.md).
+The [Metrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to calculate summary metrics which help assess the quality of the data output each time this pipeline is run. These metrics are included in the Loom output file. A detailed list of these metrics is found in the [Loom_schema documentation](./Loom_schema.md).
 
 #### 7. Expression Matrix Construction
 
@@ -184,7 +159,7 @@ The Optimus [CreateCountMatrix](https://github.com/broadinstitute/warp/blob/mast
 
 #### 8. Identification of Empty Droplets
 
-Empty droplets are lipid droplets that did not encapsulate a cell during 10x sequencing, but instead acquired cell-free RNA (secreted RNA or RNA released during cell lysis) from the solution in which the cells resided ([Lun, et al., 2018](https://www.ncbi.nlm.nih.gov/pubmed/?term=30902100). This ambient RNA can serve as a substrate for reverse transcription, leading to a small number of background reads. The Optimus pipeline calls the [RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) task which uses the [dropletUtils v.0.1.1](http://bioconductor.org/packages/release/bioc/html/DropletUtils.html) R package to flag cell barcodes that represent empty droplets rather than cells. A cell will be flagged if it contains fewer than 100 molecules. These metrics are stored in the output Loom file. Details of all the metrics included in the final output files can be found in the [Loom_schema documentation](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Loom_schema.md).
+Empty droplets are lipid droplets that did not encapsulate a cell during 10x sequencing, but instead acquired cell-free RNA (secreted RNA or RNA released during cell lysis) from the solution in which the cells resided ([Lun, et al., 2018](https://www.ncbi.nlm.nih.gov/pubmed/?term=30902100). This ambient RNA can serve as a substrate for reverse transcription, leading to a small number of background reads. The Optimus pipeline calls the [RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) task which uses the [dropletUtils v.0.1.1](http://bioconductor.org/packages/release/bioc/html/DropletUtils.html) R package to flag cell barcodes that represent empty droplets rather than cells. A cell will be flagged if it contains fewer than 100 molecules. These metrics are stored in the output Loom file. Details of all the metrics included in the final output files can be found in the [Loom_schema documentation](./Loom_schema.md).
 
 | Warning: RunEmptyDrops output not included for single-nuclei data |
 | --- |
@@ -195,7 +170,7 @@ Empty droplets are lipid droplets that did not encapsulate a cell during 10x seq
 Output files of the pipeline include:
 
 1. Cell x Gene unnormalized, but UMI-corrected, expression matrices
-2. Unfiltered, sorted BAM file with barcode and downstream analysis [tags](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Bam_tags.md)
+2. Unfiltered, sorted BAM file with barcode and downstream analysis [tags](./Bam_tags.md)
 3. Cell metadata, including cell metrics
 4. Gene metadata, including gene metrics
 
@@ -211,7 +186,7 @@ The following table lists the output files produced from the pipeline. For sampl
 | gene_metrics | merged-gene-metrics.csv.gz | gene metrics | compressed csv | Matrix of metrics by genes |
 | loom_output_file | `<input_id>.loom` | Loom | Loom | Loom file with expression data and metadata | N/A |
 
-The Loom is the default output. See the [create_loom_optimus.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) for the detailed code. The final Loom output contains the unnormalized (unfiltered), UMI-corrected expression matrices, as well as the gene and cell metrics detailed in the [Loom_schema documentation](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/documentation/Loom_schema.md).
+The Loom is the default output. See the [create_loom_optimus.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) for the detailed code. The final Loom output contains the unnormalized (unfiltered), UMI-corrected expression matrices, as well as the gene and cell metrics detailed in the [Loom_schema documentation](./Loom_schema.md).
 
 :::warning Zarr Array Deprecation Notice June 2020
 Please note that we have deprecated the previously used Zarr array output. The pipeline now uses the Loom file format as the default output.
