@@ -43,10 +43,9 @@ module.exports = {
    */
   themeConfig: {
     repo: "https://github.com/broadinstitute/warp",
-    editLinks: false,
-    docsDir: "",
+    docsDir: "website/docs",
     sidebarDepth: 3,
-    editLinkText: "",
+    editLinkText: "Edit this page on GitHub",
     smoothScroll: true,
     editLinks: true,
     lastUpdated: true,

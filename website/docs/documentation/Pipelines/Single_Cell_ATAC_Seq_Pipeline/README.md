@@ -61,7 +61,7 @@ DDDDDIIIIIIIIIIIIIIHHIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 The input_reference is a BWA compatible reference bundle in TAR file format. You can create this BWA reference using the accessory workflow  [here](https://github.com/HumanCellAtlas/skylab/blob/master/library/accessory_workflows/build_bwa_reference/bwa-mk-index.wdl).
 
 
-# Workflow Tasks and Tools
+## Workflow Tasks and Tools
 
 The [scATAC workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/scATAC/scATAC.wdl) is divided into multiple tasks which are described in the table below. The table also links to the Docker Image for each task and to the documentation or code for the relevant software tool parameters.
 
