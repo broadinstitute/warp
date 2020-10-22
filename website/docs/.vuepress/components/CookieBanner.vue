@@ -15,17 +15,24 @@ export default {
     },
   },
   data() {
-      return { isHiddenState: false };
-    },
+    return { isHiddenState: false };
+  },
   methods: {
     close() {
-      if (this.remember) {
+      // to prevent the node build from failing since
+      // localStorage is not available in node
+      if (this.remember && typeof localStorage !== `undefined`) {
         localStorage.setItem("cookie-banner", JSON.stringify(true));
       }
       return (this.isHiddenState = true);
     },
     getState() {
-      const savedState = localStorage.getItem("cookie-banner");
+      // to prevent the node build from failing since
+      // localStorage is not available in node
+      const savedState =
+        typeof localStorage !== `undefined`
+          ? localStorage.getItem("cookie-banner")
+          : this.remember;
       return savedState && this.remember
         ? JSON.parse(savedState)
         : this.isHiddenState;
