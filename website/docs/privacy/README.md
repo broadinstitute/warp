@@ -10,6 +10,6 @@ Above this page is not a legal notice, please refer to [Google Analystics](https
 
 **Who will have access to this traffic data?**
 
-- Authorized staff on the warp development team.
+- Authorized staff on the WARP development team.
 
 - Google Analytics, which WARP docsite relies on to [analyze service usage](https://www.google.com/analytics/terms/us.html). To learn more about how to opt out of Google’s use of cookies as part of its Analytics services, you may visit Google’s Ads Settings. You will be able to prevent your browsing data from being used by Google Analytics by installing Google’s opt-out browser add-on from the Google Analytics Opt-out Page.
