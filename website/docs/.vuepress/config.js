@@ -27,6 +27,15 @@ module.exports = {
     ["meta", { name: "og:locale", content: "en_US" }],
   ],
 
+  markdown: {
+    lineNumbers: false,
+    extendMarkdown: (md) => {
+      md.use(require("markdown-it-imsize"));
+      md.use(require("markdown-it-footnote"));
+      md.use(require("markdown-it-mark"));
+    },
+  },
+
   /**
    * Theme configuration, here is the default theme configuration for VuePress.
    *
@@ -34,17 +43,16 @@ module.exports = {
    */
   themeConfig: {
     repo: "https://github.com/broadinstitute/warp",
-    editLinks: false,
-    docsDir: "",
+    docsDir: "website/docs",
     sidebarDepth: 3,
-    editLinkText: "",
+    editLinkText: "Edit this page on GitHub",
     smoothScroll: true,
     editLinks: true,
     lastUpdated: true,
     nav: [
       {
         text: "Documentation",
-        link: "/documentation/",
+        link: "/documentation/Intro",
       },
       {
         text: "Blog",
@@ -73,16 +81,103 @@ module.exports = {
     sidebar: {
       "/documentation/": [
         {
-          title: "BestPractices",
-          collapsable: true,
-          children: ["BestPractices"],
+          title: "Welcome to WARP",
+          collapsable: false,
+          children: [
+            "Intro"
+          ],
         },
         {
-          title: "Optimus",
+          title: "About WARP",
           collapsable: false,
-          children: ["optimus/", "optimus/optimus.methods"],
+          children: [
+            "About_WARP/BestPractices",
+            "About_WARP/PipelineRequirements",
+            "About_WARP/TestingPipelines",
+            "About_WARP/VersionAndReleasePipelines"
+          ],
+        },
+        {
+          title: "Pipelines",
+          collapsable: false,
+          children: [
+            {
+              title: "CEMBA MethylC Seq Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/CEMBA_MethylC_Seq_Pipeline/",
+                "Pipelines/CEMBA_MethylC_Seq_Pipeline/CEMBA.methods"
+              ],
+            },
+            {
+              title: "Exome Germline Single Sample Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Exome_Germline_Single_Sample_Pipeline/"
+              ],
+            },
+            {
+              title: "Illumina Genotyping Arrays Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Illumina_Genotyping_Arrays_Pipeline/IlluminaGenotypingArray.documentation"
+              ],
+            },
+            {
+              title: "Optimus Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Optimus_Pipeline/",
+                "Pipelines/Optimus_Pipeline/optimus.methods",
+                "Pipelines/Optimus_Pipeline/Bam_tags",
+                "Pipelines/Optimus_Pipeline/Loom_schema"
+              ],
+            },
+            {
+              title: "Single Cell ATAC Seq Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Single_Cell_ATAC_Seq_Pipeline/",
+                "Pipelines/Single_Cell_ATAC_Seq_Pipeline/scatac.methods"
+              ],
+             },
+            {
+              title: "Smart-seq2 Multi Sample Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Smart-seq2_Multi_Sample_Pipeline/",
+                "Pipelines/Smart-seq2_Multi_Sample_Pipeline/smart-seq2.methods",
+                "Pipelines/Smart-seq2_Multi_Sample_Pipeline/Loom_schema"
+              ],
+            },
+            {
+              title: "Smart-seq2 Single Sample Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Smart-seq2_Single_Sample_Pipeline/",
+                "Pipelines/Smart-seq2_Single_Sample_Pipeline/Loom_schema"
+              ],
+            },
+            {
+              title: "Whole Genome Germline Single Sample Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/"
+              ],
+            },
+          ],
         },
       ],
+      "/contribution/": [
+        {
+          title: "Contribution Guide",
+          collapsable: false,
+          children: [
+            "",
+            "changelog_style",
+          ],
+        },
+      ]
     },
   },
 
@@ -90,9 +185,17 @@ module.exports = {
    * Apply plugins，ref：https://v1.vuepress.vuejs.org/zh/plugin/
    */
   plugins: [
-    // "@vuepress/active-header-links",
+    "@vuepress/active-header-links",
     "@vuepress/plugin-back-to-top",
     "@vuepress/plugin-medium-zoom",
     ["vuepress-plugin-mathjax", { target: "svg", macros: { "*": "\\times" } }],
+    [
+      "vuepress-plugin-code-copy",
+      {
+        color: "#3eaf7c",
+        backgroundTransition: false,
+        staticIcon: false,
+      },
+    ],
   ],
 };

@@ -4,7 +4,7 @@ heroText: WARP
 heroImage: /pipeline.jpg
 tagline: WDL Analysis Research Pipeline
 actionText: Get Started →
-actionLink: /documentation/
+actionLink: /documentation/Intro
 features:
   - title: Feature 1 Title
     details: Feature 1 Description
