@@ -5,15 +5,6 @@ WARP (WDL Analysis Research Pipelines) repository is a collection of cloud-optim
 
 The contents of this repository are open source and released under the [BSD 3-Clause license](https://github.com/broadinstitute/warp/blob/master/LICENSE).
 
-### Table of Contents
-
-- [WARP Overview](#warp-overview)
-- [Navigating WARP](#navigating-warp)
-- [Using WARP](#using-warp)
-- [WARP Versioning and Releasing](#warp-versioning-and-releasing)
-- [Testing in WARP](#testing-in-warp)
-- [Feedback](#feedback)
-- [Acknowledgements](#acknowledgements)
 
 ## WARP Overview
 
