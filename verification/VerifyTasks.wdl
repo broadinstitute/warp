@@ -7,7 +7,19 @@ task CompareVcfs {
   }
 
   command {
-    cmp <(gunzip -c -f ~{file1} | grep -v '^#') <(gunzip -c -f ~{file2} | grep -v '^#')
+    exit_code=0
+
+    cmp <(gunzip -c -f ~{file1} | grep -v '^##') <(gunzip -c -f ~{file2} | grep -v '^##')
+    if [ $? -ne 0 ]; then
+      exit_code=1
+      echo "Error: VCF ~{file1} differs in content from ~{file2}" >&2
+      cmp <(gunzip -c -f ~{file1} | grep -v '^##' | cut -f 1-5,7-) <(gunzip -c -f ~{file2} | grep -v '^##' | cut -f 1-5,7-)
+      if [ $? -eq 0 ]; then
+        echo "However they ONLY differ in the quality column" >&2
+      fi
+    fi
+
+    exit $exit_code
   }
 
   runtime {
@@ -34,7 +46,7 @@ task CompareGtcs {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
     preemptible: 3
@@ -53,18 +65,18 @@ task CompareTextFiles {
     test_files_length=~{length(test_text_files)}
     truth_files_length=~{length(truth_text_files)}
     if [ $test_files_length -ne $truth_files_length ]; then
-        exit_code=1
-        echo "Error: Different number of input files ($test_files_length vs. $truth_files_length).  This is really not OK"
+      exit_code=1
+      echo "Error: Different number of input files ($test_files_length vs. $truth_files_length).  This is really not OK"
     fi
 
     while read -r a && read -r b <&3;
     do
-        echo "Comparing File $a with $b"
-        diff $a $b
-        if [ $? -ne 0 ]; then
-            exit_code=1
-            echo "Error: Files $a and $b differ" >&2
-        fi
+      echo "Comparing File $a with $b"
+      diff $a $b
+      if [ $? -ne 0 ]; then
+        exit_code=1
+        echo "Error: Files $a and $b differ" >&2
+      fi
     done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
 
     exit $exit_code
