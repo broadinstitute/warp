@@ -27,8 +27,8 @@ function pipeline_to_args() {
     ExomeReprocessing)
       echo Reprocessing -d Exome ${common_args};;
     JointGenotyping)
-      echo JointGenotyping -d Exome ${common_args};
-      echo JointGenotyping -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached};;
+      echo JointGenotyping -d Exome ${common_args} --papi-version PAPIv2;
+      echo JointGenotyping -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached} --papi-version PAPIv2;;
     IlluminaGenotypingArray)
       echo IlluminaGenotypingArray ${common_args};;
     ExternalExomeReprocessing)

@@ -11,7 +11,7 @@ task FastqProcessing {
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11"
-    Int machine_mem_mb = 3850
+    Int machine_mem_mb = 40000
     Int cpu = 16   
     #TODO decided cpu
     # estimate that bam is approximately equal in size to fastq, add 20% buffer
@@ -64,7 +64,7 @@ task FastqProcessing {
     fi
 
     fastqprocess \
-        --bam-size 3.0 \
+        --bam-size 1.0 \
         --barcode-length 16 \
         --umi-length $UMILENGTH \
         --sample-id "${sample_id}" \
