@@ -18,7 +18,7 @@ def main():
                         help="Path to output loom file")
     args = parser.parse_args()
     # The list of Loom files that we need to merge
-    
+
     df = pd.read_table(args.input_file)
     loom_file_list = df['loom_file_name'].values
 
@@ -32,7 +32,7 @@ def main():
         ds = loompy.connect(f)
 
         for col_num in range(len(keys)):
-            ds.attrs[keys[col_num]] = df.iloc[row_num][col_num + 1]
+            ds.ca[keys[col_num]] = [df.iloc[row_num][col_num + 1]]
         ds.close()
 
 #    for i in range(df.shape[0]):
