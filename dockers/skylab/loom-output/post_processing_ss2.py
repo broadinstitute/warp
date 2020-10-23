@@ -21,20 +21,30 @@ def main():
     
     df = pd.read_table(args.input_file)
     loom_file_list = df['loom_file_name'].values
-    
-    attrDict = dict()
-    for k in df.columns:
-        attrDict[k]=",".join(df[k].tolist())
 
-    for i in range(df.shape[0]):
+    keys = df.columns[1:]
+    print(keys)
+
+    for row_num in range(df.shape[0]):
+        print(row_num)
+        f = loom_file_list[row_num]
+        print(f)
+        ds = loompy.connect(f)
+
+        for col_num in range(len(keys)):
+            ds.attrs[keys[col_num]] = df.iloc[row_num][col_num + 1]
+        ds.close()
+
+#    for i in range(df.shape[0]):
         jsonDict = dict()
         for j in range(df.shape[1]):
-            jsonDict[str(df.columns[j])] = df[df.columns[j]][i]
+            column_name = df.columns[j]
+            jsonDict[str(column_name)] = str(df[column_name][row_num])
         print(jsonDict)
-        output_name = str(df['loom_file_name'][i]).replace('.loom', '') + ".json"
+        output_name = str(df['loom_file_name'][row_num]).replace('.loom', '') + ".json"
         with open(output_name, "w") as f:
             json.dump(jsonDict, f)
-    loompy.combine(loom_file_list,output_file=args.output_loom_file, file_attrs=attrDict)
+    loompy.combine(loom_file_list, output_file=args.output_loom_file)
 
 if __name__ == '__main__':
     main()

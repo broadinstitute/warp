@@ -1,0 +1,3 @@
+loom_file_name	species	organ	age
+"post_processing_ss2_examples/ss2_shard_1.loom"	"Homo Sapiens"	"liver"	"23"
+"post_processing_ss2_examples/ss2_shard_2.loom"	"Homo Sapiens"	"brain"	"1"
