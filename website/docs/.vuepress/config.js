@@ -73,6 +73,7 @@ module.exports = {
                 text: "Changelog",
                 link: "https://github.com/broadinstitute/warp/releases",
               },
+              { text: "Privacy", link: "/privacy/" },
             ],
           },
         ],
@@ -197,5 +198,11 @@ module.exports = {
         staticIcon: false,
       },
     ],
+    [
+      '@vuepress/google-analytics',
+      {
+        'ga': 'UA-181048107-1' // the Google Analytics Tracking ID
+      }
+    ]
   ],
 };
