@@ -1,8 +1,10 @@
-| Notice | 
-| --- |
-| Our documentation has moved to a new site! See [https://broadinstitute.github.io/warp/](https://broadinstitute.github.io/warp/) |
 
 # Read about [Optimus](https://broadinstitute.github.io/warp/documentation/Pipelines/Optimus_Pipeline/#introduction-to-the-optimus-workflow) on the [WARP documentation site](https://broadinstitute.github.io/warp/).
+
+
+| Notice 10/23/2020 | 
+| --- |
+| WARP documentation has moved to a new site! See [https://broadinstitute.github.io/warp/](https://broadinstitute.github.io/warp/) |
 
 ## Optimus summary
 
