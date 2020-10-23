@@ -1,3 +1,9 @@
+# 4.1.4
+
+2020-10-22
+
+* Added a check for file naming to FastqProcessing task
+
 # 4.1.3
 
 2020-10-19 (Date of Last Commit)
