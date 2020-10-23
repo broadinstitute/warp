@@ -43,10 +43,9 @@ module.exports = {
    */
   themeConfig: {
     repo: "https://github.com/broadinstitute/warp",
-    editLinks: false,
-    docsDir: "",
+    docsDir: "website/docs",
     sidebarDepth: 3,
-    editLinkText: "",
+    editLinkText: "Edit this page on GitHub",
     smoothScroll: true,
     editLinks: true,
     lastUpdated: true,
@@ -74,6 +73,7 @@ module.exports = {
                 text: "Changelog",
                 link: "https://github.com/broadinstitute/warp/releases",
               },
+              { text: "Privacy", link: "/privacy/" },
             ],
           },
         ],
@@ -106,18 +106,10 @@ module.exports = {
               title: "CEMBA MethylC Seq Pipeline",
               collapsable: true,
               children: [
-                "Pipelines/CEMBA_MethylC_Seq_Pipeline/CEMBA.methods",
-                "Pipelines/CEMBA_MethylC_Seq_Pipeline/"
+                "Pipelines/CEMBA_MethylC_Seq_Pipeline/",
+                "Pipelines/CEMBA_MethylC_Seq_Pipeline/CEMBA.methods"
               ],
             },
-            {
-              title: "Single Cell ATAC Seq Pipeline",
-              collapsable: true,
-              children: [
-                "Pipelines/Single_Cell_ATAC_Seq_Pipeline/",
-                "Pipelines/Single_Cell_ATAC_Seq_Pipeline/scatac.methods"
-              ],
-             },
             {
               title: "Exome Germline Single Sample Pipeline",
               collapsable: true,
@@ -137,18 +129,26 @@ module.exports = {
               collapsable: true,
               children: [
                 "Pipelines/Optimus_Pipeline/",
+                "Pipelines/Optimus_Pipeline/optimus.methods",
                 "Pipelines/Optimus_Pipeline/Bam_tags",
-                "Pipelines/Optimus_Pipeline/Loom_schema",
-                "Pipelines/Optimus_Pipeline/optimus.methods"
+                "Pipelines/Optimus_Pipeline/Loom_schema"
               ],
             },
+            {
+              title: "Single Cell ATAC Seq Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Single_Cell_ATAC_Seq_Pipeline/",
+                "Pipelines/Single_Cell_ATAC_Seq_Pipeline/scatac.methods"
+              ],
+             },
             {
               title: "Smart-seq2 Multi Sample Pipeline",
               collapsable: true,
               children: [
                 "Pipelines/Smart-seq2_Multi_Sample_Pipeline/",
-                "Pipelines/Smart-seq2_Multi_Sample_Pipeline/Loom_schema",
-                "Pipelines/Smart-seq2_Multi_Sample_Pipeline/smart-seq2.methods"
+                "Pipelines/Smart-seq2_Multi_Sample_Pipeline/smart-seq2.methods",
+                "Pipelines/Smart-seq2_Multi_Sample_Pipeline/Loom_schema"
               ],
             },
             {
@@ -198,5 +198,11 @@ module.exports = {
         staticIcon: false,
       },
     ],
+    [
+      '@vuepress/google-analytics',
+      {
+        'ga': 'UA-181048107-1' // the Google Analytics Tracking ID
+      }
+    ]
   ],
 };
