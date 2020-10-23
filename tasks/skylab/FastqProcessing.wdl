@@ -11,6 +11,7 @@ task FastqProcessing {
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11"
+
     Int machine_mem_mb = 40000
     Int cpu = 16   
     #TODO decided cpu
@@ -19,9 +20,6 @@ task FastqProcessing {
 
     Int preemptible = 3
   }
-
-  # give the command 500MB of overhead
-  Int command_mem_mb = machine_mem_mb - 500
 
   meta {
     description: "Converts a set of fastq files to unaligned bam file, also corrects barcodes and partitions the alignments by barcodes."
@@ -44,22 +42,60 @@ task FastqProcessing {
   command {
     set -e
 
-    # I1 file are optional,  and sometimes they are left out
-    if [ -n '${sep=',' i1_fastq}' ]; then
-      FLAG="--I1 ${sep=' --I1 ' i1_fastq}"
-    else
-      FLAG=''
-    fi
+    FASTQS=$(python <<CODE
+    def rename_file(filename):
+        import shutil
+        import gzip
+        import re
+         
+        iscompressed = True
+        with gzip.open(filename, 'rt') as fin:
+           try:
+               _ = fin.readline()
+           except:
+               iscompressed = False
+
+        basename = re.sub(r'.gz$', '', filename)
+        basename = re.sub(r'.fastq$', '', basename)
+ 
+        if iscompressed:
+            # if it is already compressed then add an extension .fastq.gz
+            newname = basename + ".fastq.gz" 
+        else: 
+            # otherwis, add just the .fastq extension
+            newname = basename + ".fastq"
+
+        if filename != newname:
+            # safe to rename since the old and the new names are different
+            shutil.move(filename, newname)
+
+        return newname
+    optstring = ""
+     
+    r1_fastqs = [ "${sep='", "' r1_fastq}" ]
+    r2_fastqs = [ "${sep='", "' r2_fastq}" ]
+    i1_fastqs = [ "${sep='", "' i1_fastq}" ]
+    for fastq in r1_fastqs:
+        if fastq.strip(): 
+            optstring += " --R1 " + rename_file(fastq)
+    for fastq in r2_fastqs:
+        if fastq.strip(): 
+            optstring += " --R2 " + rename_file(fastq)
+    for fastq in i1_fastqs:
+        if fastq.strip(): 
+            optstring += " --I1 " + rename_file(fastq)
+    print(optstring)
+    CODE)
 
     # use the right UMI length depending on the chemistry
-    if [ "${chemistry}" == "tenX_v2" ]; then
+    if [ "~{chemistry}" == "tenX_v2" ]; then
         ## V2
         UMILENGTH=10
-    elif [ "${chemistry}" == "tenX_v3" ]; then
+    elif [ "~{chemistry}" == "tenX_v3" ]; then
         ## V3
         UMILENGTH=12
     else
-        echo Error: unknown chemistry value: "$chemistry"
+        echo Error: unknown chemistry value: "~{chemistry}"
         exit 1;
     fi
 
@@ -67,11 +103,9 @@ task FastqProcessing {
         --bam-size 1.0 \
         --barcode-length 16 \
         --umi-length $UMILENGTH \
-        --sample-id "${sample_id}" \
-        $FLAG \
-        --R1 ${sep=' --R1 ' r1_fastq} \
-        --R2 ${sep=' --R2 ' r2_fastq} \
-        --white-list "${whitelist}"
+        --sample-id "~{sample_id}" \
+        $FASTQS \
+        --white-list "~{whitelist}" 
   }
   
   runtime {
