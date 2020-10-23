@@ -14,7 +14,6 @@ TEST_WDL_FILE="${WD}/tests/skylab/${PIPELINE_FOLDER_NAME}/${TEST_TYPE}/test_${PI
 # Calling release script to flatten dependencies and imports
 
 TMP_DIR=$(mktemp -d -t release-XXXX)
-TMP_DIR=/private/$TMP_DIR
 GIT_HASH=$(git rev-parse --short HEAD)
 
 "${WD}/scripts/build_workflow_release.sh" \
