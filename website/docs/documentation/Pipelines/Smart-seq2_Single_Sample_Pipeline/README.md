@@ -72,8 +72,8 @@ The Smart-seq2 Single Sample workflow requires multiple reference indexes. Infor
 | All | input_name | Optional string that can be used as a sample identifier | NA |
 | All | output_name | Output name, can include path | NA |
 | All | paired_end | A boolean describing if sample is paired-end | NA |
-| All | input_id_metadata_field | Optional string; when applicable, describes the metadata field used for input_id. For example, when using Human Cell Atlas data, this string would match the metadata field (see the HCA [Medatadata Dictionary](https://data.humancellatlas.org/metadata)) containing the UUIDs used for the `input_id`. | NA | 
-| All | input_name_metadata_field | Optional string describing the metadata field used for the input_name. For example, when using Human Cell Atlas data, this string would match the metadata field (see the HCA [Medatadata Dictionary](https://data.humancellatlas.org/metadata)) containing the identifiers used for the `input_name`. | NA |
+| All | input_id_metadata_field | Optional string that describes, when applicable, the metadata field used for `input_id`| NA | 
+| All | input_name_metadata_field | Optional string that describes, when applicable, the metadata field used for the `input_name`| NA |
 | **Genomic alignment with HISAT2** | hisat2_ref_index | HISAT2 reference index file in tarball | HISAT2 |
 |     | hisat2_ref_name | HISAT2 reference index name | HISAT2 |
 | **Picard-generated quality control metrics** | genome_ref_fasta | Genome reference in fasta format | Picard |
