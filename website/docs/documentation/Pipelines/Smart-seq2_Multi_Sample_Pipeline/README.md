@@ -33,8 +33,13 @@ For the Multi Sample workflow, FASTQ files must be located in a cloud-accessible
 | Input name | Input Description | Input Type |
 | --- | --- | --- |
 | fastq1_input_files | Cloud locations for each read1 file | Array of strings | 
-| fastq2_input_files (optional) | Cloud locations for each read2 file if running paired-end samples |Array of strings |
-| input_ids | Unique identifiers for each sample | Array of strings |
+| fastq2_input_files | Optional cloud locations for each read2 file if running paired-end samples |Array of strings |
+| input_ids | Unique identifiers for each sample; can be a UUID or human-readable name | Array of strings |
+| input_names | Optional unique identifiers to further describe each input. If `input_id` is a UUID, the `input_name` could be used as a human-readable identifier | String |
+| batch_id | Identifier for the batch of multiple samples | String |
+| batch_name | Optional string to describe the batch or biological sample | String |
+| input_name_metadata_field | Optional input describing, when applicable, the metadata field containing the `input_names` | String |
+| input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the `input_ids` | String |
 
 
 
@@ -42,12 +47,6 @@ For the Multi Sample workflow, FASTQ files must be located in a cloud-accessible
 
 The reference inputs are identical to those specified in the "Additional Reference Inputs" section of the [Smart-seq2 Single Sample README](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/README.md).
 
-In addition to the Smart-seq2 Single Sample inputs, the Multi Sample workflow has the following inputs:
-
-| Input name | Input Description | Input Type |
-| --- | --- | --- |
-| bacth_id | Identifier for the batch of multiple samples | String |
-| batch_name | Optional string to describe the batch or biological sample | String |
 
 ### Smart-seq2 Multi Sample Task Summary
 
