@@ -51,7 +51,7 @@ workflow SmartSeq2SingleCell {
     hisat2_ref_trans_name: "HISAT2 transcriptome index file name"
     stranded: "Library strand information example values: FR RF NONE"
     input_id: "Sample name or cell_names"
-    input_id_metadata_field: "String that describes the metadata field used for input_id"
+    input_id_metadata_field: "String that describes the metadata field used for the input_id"
     input_name: "User provided sample name or cell_names"
     input_name_metadata_field: "String that describes the metadata field used for input_name"
     output_name: "Output name, can include path"
