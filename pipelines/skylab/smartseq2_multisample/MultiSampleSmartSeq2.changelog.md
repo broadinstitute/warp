@@ -2,7 +2,7 @@
 
 2020-10-26 (Date of Last Commit)
 
-* Moving SS2 single sample global attribute (input_id and input_name) as column attributes
+* Changed the SS2 single sample global attributes "input_id" and "input_name" to column attributes
 * Updated the docker in LoomUtils.wdl task to 0.0.4-ss2-loom-fix-1
 
 # 2.1.2
