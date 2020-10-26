@@ -68,7 +68,7 @@ workflow Optimus {
     input_id: "name of sample matching this file, inserted into read group header"
     input_id_metadata_field: "String that describes the metadata field containing the input_id"
     input_name: "User provided sample name or cell_names"
-    input_name_metadata_field: "String that describes the metadata field containing input_name"
+    input_name_metadata_field: "String that describes the metadata field containing the input_name"
     tar_star_reference: "star genome reference"
     annotations_gtf: "gtf containing annotations for gene tagging (must match star reference)"
     ref_genome_fasta: "genome fasta file (must match star reference)"
