@@ -2,7 +2,7 @@
 
 2020-10-26 (Date of Last Commit)
 
-* Updated the docker in LoomUtils.wdl task to 0.0.4-ss2-loom-fix
+* Updated the docker in LoomUtils.wdl task to 0.0.4-ss2-loom-fix-1
 
 # 4.1.4
 

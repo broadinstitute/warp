@@ -50,8 +50,8 @@ def generate_col_attr(args):
     col_attrs = dict()
     col_attrs["cell_names"] = [cell_id]
     col_attrs['input_id'] = [args.input_id]
-        if args.input_name is not None:
-            col_attrs['input_name'] = [args.input_name]
+    if args.input_name is not None:
+        col_attrs['input_name'] = [args.input_name]
 
     if args.input_id_metadata_field:
         col_attrs["input_id_metadata_field"] = [args.input_id_metadata_field]
