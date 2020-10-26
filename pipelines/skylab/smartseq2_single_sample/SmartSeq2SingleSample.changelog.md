@@ -1,3 +1,10 @@
+# 5.0.3
+
+2020-10-26 (Date of Last Commit)
+
+* Moving SS2 single sample global attribute (input_id and input_name) as column attributes
+* Updated the docker in LoomUtils.wdl task to 0.0.4-ss2-loom-fix
+
 # 5.0.2
 
 2020-10-13 (Date of Last Commit)

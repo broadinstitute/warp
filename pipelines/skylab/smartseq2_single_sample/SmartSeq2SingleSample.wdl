@@ -38,7 +38,7 @@ workflow SmartSeq2SingleCell {
   }
   
   # version of this pipeline
-  String pipeline_version = "5.0.2"
+  String pipeline_version = "5.0.3"
 
   parameter_meta {
     genome_ref_fasta: "Genome reference in fasta format"
@@ -50,8 +50,10 @@ workflow SmartSeq2SingleCell {
     hisat2_ref_name: "HISAT2 reference index name"
     hisat2_ref_trans_name: "HISAT2 transcriptome index file name"
     stranded: "Library strand information example values: FR RF NONE"
-    input_id: "Sample name or Cell ID"
-    input_name: "User provided sample name or Cell ID"
+    input_id: "Sample name or cell_names"
+    input_id_metadata_field: "String that describes what was passed as input_id"
+    input_name: "User provided sample name or cell_names"
+    input_name_metadata_field: "String that describes what was passed as input_name"
     output_name: "Output name, can include path"
     fastq1: "R1 in paired end reads"
     fastq2: "R2 in paired end reads"
