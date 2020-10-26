@@ -43,10 +43,9 @@ module.exports = {
    */
   themeConfig: {
     repo: "https://github.com/broadinstitute/warp",
-    editLinks: false,
-    docsDir: "",
+    docsDir: "website/docs",
     sidebarDepth: 3,
-    editLinkText: "",
+    editLinkText: "Edit this page on GitHub",
     smoothScroll: true,
     editLinks: true,
     lastUpdated: true,
@@ -74,6 +73,7 @@ module.exports = {
                 text: "Changelog",
                 link: "https://github.com/broadinstitute/warp/releases",
               },
+              { text: "Privacy", link: "/privacy/" },
             ],
           },
         ],
@@ -198,5 +198,11 @@ module.exports = {
         staticIcon: false,
       },
     ],
+    [
+      '@vuepress/google-analytics',
+      {
+        'ga': 'UA-181048107-1' // the Google Analytics Tracking ID
+      }
+    ]
   ],
 };
