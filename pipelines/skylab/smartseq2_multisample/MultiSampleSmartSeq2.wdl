@@ -34,7 +34,7 @@ workflow MultiSampleSmartSeq2 {
       Boolean paired_end
   }
   # Version of this pipeline
-  String pipeline_version = "2.1.2"
+  String pipeline_version = "2.1.3"
 
   if (false) {
      String? none = "None"
@@ -53,6 +53,8 @@ workflow MultiSampleSmartSeq2 {
     stranded: "Library strand information example values: FR RF NONE"
     input_ids: "Array of input ids"
     input_names: "Array of input names"
+    input_id_metadata_field: "String that describes the metadata field containing the input_ids"
+    input_name_metadata_field: "String that describes the metadata field containing the input_names"
     fastq1_input_files: "Array of fastq1 files; order must match the order in input_id."
     fastq2_input_files: "Array of fastq2 files for paired end runs; order must match fastq1_input_files and input_id."
     batch_id: " Identifier for the batch"
