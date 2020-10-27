@@ -1,3 +1,10 @@
+# 4.1.3
+
+2020-10-19 (Date of Last Commit)
+
+* Updated memory on fastqprocessing and CalculateGeneMetrics tasks
+* Reduced --bam-size to 1 GB on fastqprocessing task
+
 # 4.1.2
 
 2020-10-13 (Date of Last Commit)

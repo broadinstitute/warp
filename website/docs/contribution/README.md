@@ -1,8 +1,3 @@
----
-sidebar: auto
----
+# Welcome
 
-# Contribution Guide
-
-Welcome to our research page! We will post research-related articles on this page in the
-future!
+Welcome to WARP! We really appreciate your contribution! Please take some time on the contribution guide and documentation before making changes.
