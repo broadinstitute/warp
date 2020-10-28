@@ -56,7 +56,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "4.1.4"
+  String pipeline_version = "4.1.5"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -66,6 +66,9 @@ workflow Optimus {
     r2_fastq: "reverse read, contains cDNA fragment generated from captured mRNA"
     i1_fastq: "(optional) index read, for demultiplexing of multiple samples on one flow cell."
     input_id: "name of sample matching this file, inserted into read group header"
+    input_id_metadata_field: "String that describes the metadata field containing the input_id"
+    input_name: "User provided sample name or cell_names"
+    input_name_metadata_field: "String that describes the metadata field containing the input_name"
     tar_star_reference: "star genome reference"
     annotations_gtf: "gtf containing annotations for gene tagging (must match star reference)"
     ref_genome_fasta: "genome fasta file (must match star reference)"
