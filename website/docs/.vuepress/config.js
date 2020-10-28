@@ -176,6 +176,7 @@ module.exports = {
           children: [
             "",
             "changelog_style",
+            "doc_style"
           ],
         },
       ]
