@@ -2,12 +2,12 @@ version 1.0
 
 workflow ReblockGVCF {
 
-  String pipeline_version = "1.0.1"
+  String pipeline_version = "1.1.0"
 
   input {
     File gvcf
     File gvcf_index
-    String docker_image = "us.gcr.io/broad-gatk/gatk:4.1.4.1"
+    String docker_image = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
   }
 
   String gvcf_basename = basename(gvcf, ".g.vcf.gz")
@@ -52,6 +52,7 @@ task Reblock {
 
   runtime {
     memory: "3.75 GB"
+    bootDiskSizeGb: "15"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: 3
     docker: docker_image
