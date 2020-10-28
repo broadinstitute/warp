@@ -1,3 +1,10 @@
+# 1.4.0
+2020-09-25
+
+* Updated GATK docker image for all tasks from [GATK 4.1.1.0](https://github.com/broadinstitute/gatk/releases/tag/4.1.1.0) to [GATK 4.1.8.0](https://github.com/broadinstitute/gatk/releases/tag/4.1.8.0).
+    * Numerous bug fixes and improvements, including better VQSR reliability for allele-specific filtering.
+    * Addition of new Scattered CrosscheckFingerprints to pipeline
+
 # 1.3.0
 2020-09-16
 

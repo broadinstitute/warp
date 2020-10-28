@@ -11,7 +11,7 @@ def generate_col_attr(args):
         qc_path (str): path to the QCs csv
     """
     # read the QC values
-    qc_path = [p for p in args.qc_files if p.endswith("_QCs.csv")][0]    
+    qc_path = [p for p in args.qc_files if p.endswith("_QCs.csv")][0]
     with open(qc_path, 'r') as f:
         qc_values = [row for row in csv.reader(f)]
 
@@ -49,6 +49,9 @@ def generate_col_attr(args):
     # Column attributes
     col_attrs = dict()
     col_attrs["cell_names"] = [cell_id]
+    col_attrs['input_id'] = [args.input_id]
+    if args.input_name is not None:
+        col_attrs['input_name'] = [args.input_name]
 
     if args.input_id_metadata_field:
         col_attrs["input_id_metadata_field"] = [args.input_id_metadata_field]
@@ -124,15 +127,12 @@ def create_loom_files(args):
     """
     # generate a dictionary of column attributes
     col_attrs =  generate_col_attr(args)
-    
+
     # add the expression count matrix data
     # generate a dictionary of row attributes
     row_attrs, expr_tpms, expr_counts = generate_row_attr_and_matrix(args.rsem_genes_results_file)
-    
+
     attrDict = dict()
-    attrDict['input_id'] = args.input_id
-    if args.input_name is not None:
-        attrDict['input_name'] = args.input_name
     attrDict['pipeline_version'] = args.pipeline_version
 
     #generate loom file
@@ -144,7 +144,7 @@ def create_loom_files(args):
 
 def main():
     description = """This script converts the some of the SmartSeq2 pipeline outputs in to
-                   loom format (https://linnarssonlab.org/loompy/format/index.html) relevant output. 
+                   loom format (https://linnarssonlab.org/loompy/format/index.html) relevant output.
                    This script can be used as a module or run as a command line script."""
 
     parser = argparse.ArgumentParser(description=description)
@@ -159,7 +159,7 @@ def main():
                         help='path to the folder containing the files to be added to the loom')
 
     parser.add_argument('--output_loom_path',
-                        dest="output_loom_path", 
+                        dest="output_loom_path",
                         help='path where the loom file is to be created')
 
     parser.add_argument('--input_id',

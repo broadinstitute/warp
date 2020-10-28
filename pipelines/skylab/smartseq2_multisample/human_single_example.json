@@ -9,7 +9,10 @@
     "MultiSampleSmartSeq2.rsem_ref_index": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/gencode_v27_primary.tar",
     "MultiSampleSmartSeq2.stranded": "NONE",
     "MultiSampleSmartSeq2.paired_end": false,
-    "MultiSampleSmartSeq2.file_prefix": "gs://hca-dcp-mint-test-data/ss2/human/single-read/CD4_cytotoxic_renamed",
     "MultiSampleSmartSeq2.input_ids": ["SRR6258249", "SRR6259788"],
+    "MultiSampleSmartSeq2.fastq1_input_files": [
+        "gs://hca-dcp-mint-test-data/ss2/human/single-read/CD4_cytotoxic_renamed/SRR6258249_1.fastq.gz",
+        "gs://hca-dcp-mint-test-data/ss2/human/single-read/CD4_cytotoxic_renamed/SRR6259788_1.fastq.gz"
+    ],
     "MultiSampleSmartSeq2.batch_id": "human_test"
 }
