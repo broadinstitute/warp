@@ -2,7 +2,7 @@ version 1.0
 
 task create_metadata_tsv {
     input {
-        Array[File] sample_loom
+        Array[String] sample_loom
         Array[String] library
         Array[String] species
         Array[String] stage
@@ -11,30 +11,27 @@ task create_metadata_tsv {
         String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.4-metadata-processing"
     }
     command <<<
-    ~{sep='\n' sample_loom} >> sample_loom_file
-    ~{sep='\n' library} >> library_file
-    ~{sep='\n' species} >> species_file
-    ~{sep='\n' stage} >> stage_file
-    ~{sep='\n' organ} >> organ_file
-    paste -d '\t' sample_loom_file library_file species_file stage_file organ_file > ~{output_tsv}
+        echo "output_loom_file\tlibrary\tspecies\tstage\torgan" > ~{output_tsv}
+        paste -d '\t' ~{write_lines(sample_loom)} ~{write_lines(library)} ~{write_lines(species)}  ~{write_lines(stage)} \
+          ~{write_lines(organ)} >> ~{output_tsv}
     >>>
 
     runtime {
         docker: docker
-        cpu: 4  # note that only 1 thread is supported by pseudobam
+        cpu: 1  # note that only 1 thread is supported by pseudobam
         memory: "3 GiB"
-        disks: "local-disk 100 HDD"
+        disks: "local-disk 20 HDD"
       }
 
     output {
-    File metadata_tsv = "~{output_tsv}.tsv"
+      File metadata_tsv = output_tsv
     }
 }
 
 workflow PostProcessingLoom {
   input {
     #runtime values
-    Array[File] sample_loom
+    Array[String] sample_loom
     Array[String] library
     Array[String] species
     Array[String] stage
