@@ -143,12 +143,15 @@ workflow Optimus {
 
     call TagSortBam.GeneSortBam {
       input:
-        bam_input = CorrectUMItools.bam_output
+        bam_input = CorrectUMItools.bam_output,
+        bam_index = CorrectUMItools.bam_output_index
     }
 
     call TagSortBam.CellSortBam {
       input:
-        bam_input = CorrectUMItools.bam_output
+        bam_input = CorrectUMItools.bam_output,
+        bam_index = CorrectUMItools.bam_output_index
+
     }
 
     call Metrics.CalculateGeneMetrics {

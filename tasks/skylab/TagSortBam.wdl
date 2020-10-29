@@ -3,12 +3,13 @@ version 1.0
 task CellSortBam {
   input {
     File bam_input
+    File bam_index
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11"
     Int machine_mem_mb = 100000
     Int cpu = 2
-    Int disk = ceil(size(bam_input, "Gi") * 8)
+    Int disk = ceil(size(bam_input, "GiB") * 8) + 100
     Int preemptible = 3
   }
 
@@ -47,12 +48,13 @@ task CellSortBam {
 task GeneSortBam {
   input {
     File bam_input
+    File bam_index
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11"
     Int machine_mem_mb = 100000
     Int cpu = 2
-    Int disk = ceil(size(bam_input, "Gi") * 4)
+    Int disk = ceil(size(bam_input, "Gi") * 4) + 100
     Int preemptible = 3
   }
   

@@ -9,12 +9,13 @@ task CorrectUMItools {
         String docker = "quay.io/humancellatlas/secondary-analysis-umitools:0.0.1"
 
         String output_bam_filename = "output.bam"
+        String output_bam_indexfile = "output.bam.bai"
         String groupout_filename = "groupout.tsv"
 
         ## TODO: Optimize these values
         Int machine_mem_mb = 16000
         Int cpu = 1
-        Int disk = ceil(size(bam_input, "Gi") * 6) + 50
+        Int disk = ceil(size(bam_input, "Gi") * 6) + 150
         Int preemptible = 3
     }
 
@@ -61,6 +62,7 @@ task CorrectUMItools {
 
        rm input.bam input.bam.bai
        samtools cat -o ${output_bam_filename} duplicate_marked.bam untagged.bam
+       samtools index -b ~{output_bam_filename} ~{output_bam_indexfile}
 
     }
 
@@ -74,6 +76,7 @@ task CorrectUMItools {
 
     output {
         File bam_output = "${output_bam_filename}"
+        File bam_output_index = "~{output_bam_indexfile}"
         File group_output = "${groupout_filename}"
     }
 

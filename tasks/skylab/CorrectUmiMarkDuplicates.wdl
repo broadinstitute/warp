@@ -8,7 +8,7 @@ task SortAndCorrectUmiMarkDuplicates {
   Int command_mem_mb = machine_mem_mb - 500
   Int cpu = 1
   # mark duplicates swaps a large amount of data to disk, has high disk requirements.
-  Int disk = ceil(size(bam_input, "G") * 6) + 50
+  Int disk = ceil(size(bam_input, "G") * 6) + 150
   Int preemptible = 3
 
   meta {
