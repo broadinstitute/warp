@@ -83,14 +83,14 @@ module.exports = {
       "/documentation/": [
         {
           title: "Welcome to WARP",
-          collapsable: false,
+          collapsable: true,
           children: [
             "Intro"
           ],
         },
         {
           title: "About WARP",
-          collapsable: false,
+          collapsable: true,
           children: [
             "About_WARP/BestPractices",
             "About_WARP/PipelineRequirements",
