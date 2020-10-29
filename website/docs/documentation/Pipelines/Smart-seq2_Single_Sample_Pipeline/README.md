@@ -69,7 +69,7 @@ The Smart-seq2 Single Sample workflow requires multiple reference indexes. Infor
 | Workflow Step | Reference name | Reference Description | Tool |
 | --- | --- | --- | --- |
 | All | input_id | String containing unique identifier or name for the cell. It can be a human-readable descriptor (i.e. "cell1") or a UUID | NA |
-| All | input_name | Optional string that can be used as an identifier for the cell | NA |
+| All | input_name | Optional string that can be used as a name/identifier for the cell | NA |
 | All | output_name | Output name, can include path | NA |
 | All | paired_end | A boolean describing if sample is paired-end | NA |
 | All | input_id_metadata_field | Optional string that describes, when applicable, the metadata field used for `input_id`| NA | 
