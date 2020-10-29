@@ -11,7 +11,7 @@ task create_metadata_tsv {
         String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.4-metadata-processing"
     }
     command <<<
-        echo "output_loom_file\tlibrary\tspecies\tstage\torgan" > ~{output_tsv}
+        echo "output_loom_file  library species stage   organ" > ~{output_tsv}
         paste -d '\t' ~{write_lines(sample_loom)} ~{write_lines(library)} ~{write_lines(species)}  ~{write_lines(stage)} \
           ~{write_lines(organ)} >> ~{output_tsv}
     >>>
