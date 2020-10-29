@@ -34,8 +34,8 @@ For the Multi Sample workflow, FASTQ files must be located in a cloud-accessible
 | --- | --- | --- |
 | fastq1_input_files | Cloud locations for each read1 file | Array of strings | 
 | fastq2_input_files | Optional cloud locations for each read2 file if running paired-end samples |Array of strings |
-| input_ids | Unique identifiers for each sample; can be a UUID or human-readable name | Array of strings |
-| input_names | Optional unique identifiers to further describe each input. If `input_id` is a UUID, the `input_name` could be used as a human-readable identifier | String |
+| input_ids | Unique identifiers or names for each cell; can be a UUID or human-readable name | Array of strings |
+| input_names | Optional unique identifiers/names to further describe each cell. If `input_id` is a UUID, the `input_name` could be used as a human-readable identifier | String |
 | batch_id | Identifier for the batch of multiple samples | String |
 | batch_name | Optional string to describe the batch or biological sample | String |
 | input_name_metadata_field | Optional input describing, when applicable, the metadata field containing the `input_names` | String |
