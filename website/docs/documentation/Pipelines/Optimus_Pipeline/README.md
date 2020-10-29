@@ -66,7 +66,7 @@ The JSON file also contains metadata for the reference information in the follow
 | --- | --- | --- |
 | whitelist | Cloud path to list of known cell barcodes from [10x genomics](https://www.10xgenomics.com/) that corresponds to the v2 or v3 chemistry | NA |
 | tar_star_reference | Cloud path to TAR file containing a species-specific reference genome and gtf; it is generated using the [BuildIndices.wdl](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_indices/BuildIndices.wdl) | NA |
-| input_id | Unique name describing the biological sample or replicate that corresponds with the original FASTQ files. This can be any string, but if possible, we recommend it matches the sample metadata | NA |
+| input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID | NA |
 | input_name | Optional string that can be used to further identify the original biological sample | NA |
 | input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the input_id | NA |
 | input_name_metadata_field | Optional string describing, when applicable, the metadata field containing the input_name | NA |
