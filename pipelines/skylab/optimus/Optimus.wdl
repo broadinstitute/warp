@@ -1,18 +1,18 @@
 version 1.0
 
-import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
-import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
-import "../../../tasks/skylab/CreateCountMatrix.wdl" as Count
-import "../../../tasks/skylab/StarAlignBamSingleEnd.wdl" as StarAlignBam
-import "../../../tasks/skylab/TagGeneExon.wdl" as TagGeneExon
-import "../../../tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
-import "../../../tasks/skylab/TagSortBam.wdl" as TagSortBam
-import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
-import "../../../tasks/skylab/Picard.wdl" as Picard
-import "../../../tasks/skylab/UmiCorrection.wdl" as UmiCorrection
-import "../../../tasks/skylab/ModifyGtf.wdl" as ModifyGtf
-import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/FastqProcessing.wdl" as FastqProcessing
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/MergeSortBam.wdl" as Merge
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/CreateCountMatrix.wdl" as Count
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/StarAlignBamSingleEnd.wdl" as StarAlignBam
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/TagGeneExon.wdl" as TagGeneExon
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/TagSortBam.wdl" as TagSortBam
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/LoomUtils.wdl" as LoomUtils
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/Picard.wdl" as Picard
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/UmiCorrection.wdl" as UmiCorrection
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/ModifyGtf.wdl" as ModifyGtf
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
 
 workflow Optimus {
   meta {
@@ -132,8 +132,8 @@ workflow Optimus {
 
     call UmiCorrection.CorrectUMItools as CorrectUMItools {
       input:
-        bam_input = PreUMISort.bam_output,
-        bam_index = PreUMISort.bam_index
+        bam_input = PreUMISort.bam_output
+        #bam_index = PreUMISort.bam_index
     }
 
     call Picard.SortBamAndIndex as PreMergeSort {
