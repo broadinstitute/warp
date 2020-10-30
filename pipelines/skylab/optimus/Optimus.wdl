@@ -1,18 +1,18 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/FastqProcessing.wdl" as FastqProcessing
-import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/MergeSortBam.wdl" as Merge
-import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/CreateCountMatrix.wdl" as Count
-import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/StarAlignBamSingleEnd.wdl" as StarAlignBam
-import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/TagGeneExon.wdl" as TagGeneExon
-import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
-import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/TagSortBam.wdl" as TagSortBam
-import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
-import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/LoomUtils.wdl" as LoomUtils
-import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/Picard.wdl" as Picard
-import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/UmiCorrection.wdl" as UmiCorrection
-import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/ModifyGtf.wdl" as ModifyGtf
-import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/pipelines/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/tasks/skylab/FastqProcessing.wdl" as FastqProcessing
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/tasks/skylab/MergeSortBam.wdl" as Merge
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/tasks/skylab/CreateCountMatrix.wdl" as Count
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/tasks/skylab/StarAlignBamSingleEnd.wdl" as StarAlignBam
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/tasks/skylab/TagGeneExon.wdl" as TagGeneExon
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/tasks/skylab/TagSortBam.wdl" as TagSortBam
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/tasks/skylab/Picard.wdl" as Picard
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/tasks/skylab/UmiCorrection.wdl" as UmiCorrection
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/tasks/skylab/ModifyGtf.wdl" as ModifyGtf
+import "https://raw.githubusercontent.com/broadinstitute/warp/dev_terra_disk_increase/tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
 
 workflow Optimus {
   meta {
@@ -132,8 +132,8 @@ workflow Optimus {
 
     call UmiCorrection.CorrectUMItools as CorrectUMItools {
       input:
-        bam_input = PreUMISort.bam_output
-        #bam_index = PreUMISort.bam_index
+        bam_input = PreUMISort.bam_output,
+        bam_index = PreUMISort.bam_index
     }
 
     call Picard.SortBamAndIndex as PreMergeSort {
@@ -143,14 +143,14 @@ workflow Optimus {
 
     call TagSortBam.GeneSortBam {
       input:
-        bam_input = CorrectUMItools.bam_output,
-        bam_index = CorrectUMItools.bam_output_index
+        bam_input = CorrectUMItools.bam_output
+        #bam_index = CorrectUMItools.bam_output_index
     }
 
     call TagSortBam.CellSortBam {
       input:
-        bam_input = CorrectUMItools.bam_output,
-        bam_index = CorrectUMItools.bam_output_index
+        bam_input = CorrectUMItools.bam_output
+        #bam_index = CorrectUMItools.bam_output_index
 
     }
 
