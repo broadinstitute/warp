@@ -14,7 +14,7 @@ task CorrectUMItools {
 
         ## TODO: Optimize these values
         Int machine_mem_mb = 16000
-        Int cpu = 1
+        Int cpu = 2
         Int disk = ceil(size(bam_input, "Gi") * 6) + 200
         Int preemptible = 3
     }
@@ -77,6 +77,8 @@ task CorrectUMItools {
     output {
         File bam_output = "${output_bam_filename}"
         #File bam_output_index = "~{output_bam_indexfile}"
+        File umi_tools_output_log_file = "outlog.txt"
+        File umi_tools_error_log_file = "outerr.txt"
         File group_output = "${groupout_filename}"
     }
 
