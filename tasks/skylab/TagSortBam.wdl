@@ -3,7 +3,6 @@ version 1.0
 task CellSortBam {
   input {
     File bam_input
-    #File bam_index
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11"
@@ -48,7 +47,6 @@ task CellSortBam {
 task GeneSortBam {
   input {
     File bam_input
-    #File bam_index
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11"
