@@ -1,3 +1,10 @@
+# 4.1.6
+
+2020-11-02 (Date of Last Commit)
+
+* Increased memory for UMI Correction task
+* Increaesed default disk for CellSortBam and GeneSortBam tasks
+
 # 4.1.5
 
 2020-10-26 (Date of Last Commit)
