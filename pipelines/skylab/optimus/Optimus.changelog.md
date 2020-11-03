@@ -1,3 +1,9 @@
+# 4.1.6
+
+2020-11-03 (Date of Last Commit)
+
+* Updated the docker for FastqProcessing task to version v0.3.12
+
 # 4.1.5
 
 2020-10-26 (Date of Last Commit)
