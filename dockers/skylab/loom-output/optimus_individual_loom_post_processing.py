@@ -7,19 +7,30 @@ import json
 
 
 def main():
-    description = """Merge the outputs of multiple optimus pipeline runs into a single Loom file"""
+    description = """Add metadata into a Loom file as column attributes"""
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument('--input-file',
-                        dest='input_file',
+    parser.add_argument('--input-loom',
+                        dest='input_loom',
                         required=True,
-                        help="Path to input metadata tsv")
-    parser.add_argument('--output-loom-file',
-                        dest='output_loom_file',
+                        help="Path to input loom file")
+    parser.add_argument('--library',
+                        dest='library',
                         required=True,
-                        help="Path to output loom file")
+                        help="Library metadata information string")
+    parser.add_argument('--species',
+                        dest='species',
+                        required=True,
+                        help="Species metadata information string")
+    parser.add_argument('--stage',
+                        dest='stage',
+                        required=True,
+                        help="Stage metadata information string")
+    parser.add_argument('--organ',
+                        dest='organ',
+                        required=True,
+                        help="Organ metadata information string")
     args = parser.parse_args()
-    # The list of Loom files that we need to merge
-    
+
     df = pd.read_table(args.input_file)
     loom_file_list = df['loom_file_name'].values
     metadata_df = df.copy()
