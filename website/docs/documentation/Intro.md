@@ -5,15 +5,6 @@ WARP (WDL Analysis Research Pipelines) repository is a collection of cloud-optim
 
 The contents of this repository are open source and released under the [BSD 3-Clause license](https://github.com/broadinstitute/warp/blob/master/LICENSE).
 
-### Table of Contents
-
-- [WARP Overview](#warp-overview)
-- [Navigating WARP](#navigating-warp)
-- [Using WARP](#using-warp)
-- [WARP Versioning and Releasing](#warp-versioning-and-releasing)
-- [Testing in WARP](#testing-in-warp)
-- [Feedback](#feedback)
-- [Acknowledgements](#acknowledgements)
 
 ## WARP Overview
 
@@ -31,7 +22,7 @@ Our pipelines are written as “workflows” using the [Workflow Description Lan
 | Somatic Alignment (beta) | Exomes |
 
 :::tip
-Try our pipelines in [Terra](https://app.terra.bio/#workspaces?tagsFilter%5B0%5D=warp-pipelines&tab=public), a platform for collaborative cloud analysis! Learn how  in the [Using WARP](#2-run-the-pipeline-in-terra) section.
+Try our pipelines in [Terra](https://app.terra.bio/#workspaces?tagsFilter%5B0%5D=warp-pipelines&tab=public), a platform for collaborative cloud analysis! Learn how  in the [Using WARP](#_2-run-the-pipeline-in-terra) section.
 :::
 
 

@@ -2,7 +2,7 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v4.0.2](https://github.com/broadinstitute/warp/releases) | September 14, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [optimus_v4.1.5](https://github.com/broadinstitute/warp/releases) | October, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![Optimus_diagram](./Optimus_diagram.png)
 
@@ -52,9 +52,9 @@ Additionally, there are multiple sample datasets available in the [test_optimus_
 
 Each 10x v2 and v3 3’ sequencing experiment generates triplets of FASTQ files for any given sample:
 
-1. Forward reads (r1_fastq) containing the unique molecular identifier (UMI) and cell barcode sequences
-2. Reverse reads (r2_fastq) containing the alignable genomic information from the mRNA transcript
-3. Index FASTQ (i1_fastq) containing the sample barcodes, when provided by the sequencing facility
+1. Forward reads (`r1_fastq`) containing the unique molecular identifier (UMI) and cell barcode sequences
+2. Reverse reads (`r2_fastq`) containing the alignable genomic information from the mRNA transcript
+3. Index FASTQ (`i1_fastq`) containing the sample barcodes, when provided by the sequencing facility
 
 Note: Optimus is currently a single sample pipeline, but can take in multiple sets of FASTQs for a sample that has been split over multiple lanes of sequencing. For an example configuration file with multiple lanes, please see the [mouse_v2_example.json](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/example_inputs/mouse_v2_example.json). Additionally, Optimus does not support demultiplexing even though it accepts index FASTQ files.
 
@@ -64,14 +64,16 @@ The JSON file also contains metadata for the reference information in the follow
 
 | Parameter Name | Description | Optional Strings (when applicable) |
 | --- | --- | --- |
-| Whitelist | Cloud path to list of known cell barcodes from [10x genomics](https://www.10xgenomics.com/) that corresponds to the v2 or v3 chemistry | NA |
-| Tar_star_reference | Cloud path to TAR file containing a species-specific reference genome and gtf; it is generated using the [BuildIndices.wdl](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_indices/BuildIndices.wdl) | NA |
-| input_id | Unique name describing the biological sample or replicate that corresponds with the original FASTQ files. This can be any string, but if possible, we recommend it matches the sample metadata | NA |
+| whitelist | Cloud path to list of known cell barcodes from [10x genomics](https://www.10xgenomics.com/) that corresponds to the v2 or v3 chemistry | NA |
+| tar_star_reference | Cloud path to TAR file containing a species-specific reference genome and gtf; it is generated using the [BuildIndices.wdl](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_indices/BuildIndices.wdl) | NA |
+| input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID | NA |
 | input_name | Optional string that can be used to further identify the original biological sample | NA |
-| Annotations_gtf | Cloud path to GTF containing gene annotations used for gene tagging (must match GTF in STAR reference) | NA |
-| Chemistry | Optional string description of whether data was generated with 10x v2 or v3 chemistry. Optimus validates this string. If the string does not match one of the optional strings, the pipeline will fail. You can remove the checks by setting "force_no_check = true" in the input JSON | "tenX_v2" (default) or "tenX_v3" |
-| Counting_mode | String description of whether data is single-cell or single-nuclei | "sc_rna" or "sn_rna" |
-| Output_bam_basename | Optional string used for the output BAM file basename; the default is input_id | NA |
+| input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the input_id | NA |
+| input_name_metadata_field | Optional string describing, when applicable, the metadata field containing the input_name | NA |
+| annotations_gtf | Cloud path to GTF containing gene annotations used for gene tagging (must match GTF in STAR reference) | NA |
+| chemistry | Optional string description of whether data was generated with 10x v2 or v3 chemistry. Optimus validates this string. If the string does not match one of the optional strings, the pipeline will fail. You can remove the checks by setting "force_no_check = true" in the input JSON | "tenX_v2" (default) or "tenX_v3" |
+| counting_mode | String description of whether data is single-cell or single-nuclei | "sc_rna" or "sn_rna" |
+| output_bam_basename | Optional string used for the output BAM file basename; the default is input_id | NA |
 
 
 #### Sample Inputs for Analyses in a Terra Workspace
