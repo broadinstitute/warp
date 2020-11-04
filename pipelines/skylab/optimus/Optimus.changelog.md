@@ -2,7 +2,7 @@
 
 2020-11-03 (Date of Last Commit)
 
-* Updated the docker for FastqProcessing task to version v0.3.12
+* Updated the docker for FastqProcessing task to version v0.3.12. This version of FastqProcessing solves 32 bit unsigned integer overflow error for large files and also disables checking of EOF magic string in BGZF files to accomodate large fastq.gz files.
 
 # 4.1.5
 
