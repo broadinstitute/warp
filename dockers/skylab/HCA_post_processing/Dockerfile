@@ -12,7 +12,7 @@ RUN pip3 install -r requirements.txt
 RUN mkdir /tools
 WORKDIR /tools
 
-COPY create_loom_optimus.py .
-COPY create_loom_ss2.py .
-COPY loomCompare.py .
-COPY ss2_loom_merge.py .
+COPY HCA_create_adapter_json.py .
+COPY optimus_HCA_loom_merge.py .
+COPY post_processing_ss2.py .
+

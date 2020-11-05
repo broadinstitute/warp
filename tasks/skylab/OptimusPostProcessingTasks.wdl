@@ -93,6 +93,11 @@ task MergeLooms {
 task CreateAdapterJson {
   input {
     File project_loom
+    String document_id
+    String submission_date
+    String file_id
+    String file_version
+    String entity_id
     String output_basename
 
     Int memory = 3
@@ -100,7 +105,14 @@ task CreateAdapterJson {
   }
 
   command {
-    # TODO
+    python3 HCA_create_adapter_json.py \
+      --input-loom-file ~{project_loom} \
+      --document_id ~{document_id} \
+      --submission_date ~{submission_date} \
+      --file_id ~{file_id} \
+      --file_version ~{file_version} \
+      --entity_id ~{entity_id} \
+      --output-basename ~{output_basename}
   }
 
   runtime {

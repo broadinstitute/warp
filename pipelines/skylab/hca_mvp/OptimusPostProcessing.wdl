@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../tasks/skylab/PostProcessingOptimus.wdl" as PostProcessing
+import "../../../tasks/skylab/OptimusPostProcessingTasks.wdl" as PostProcessing
 
 workflow OptimusPostProcessing {
   meta {
