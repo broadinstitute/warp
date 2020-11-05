@@ -43,7 +43,13 @@ task HISAT2PairedEnd {
 
     set -e
 
-   # fix names if necessary
+    if [[ ! -f "${fastq1}" || ! -f "${fastq2}" ]]
+    then
+      echo "ERROR: either fastq1 (${fastq1}) or fastq2 (${fastq2}) not provided"
+      exit 1;
+    fi
+
+    # fix names if necessary
     if (file ~{fastq1} | grep -q compressed); then
         if [[ ~{fastq1} != *.gz ]]; then
             if [[ ~{fastq1} != *.fastq ]]; then
@@ -161,7 +167,13 @@ task HISAT2RSEM {
 
     set -e
 
-   # fix names if necessary
+    if [[ ! -f "${fastq1}" || ! -f "${fastq2}" ]]
+    then
+      echo "ERROR: either fastq1 (${fastq1}) or fastq2 (${fastq2}) not provided"
+      exit 1;
+    fi
+
+    # fix names if necessary
     if (file ~{fastq1} | grep -q compressed); then
         if [[ ~{fastq1} != *.gz ]]; then
             if [[ ~{fastq1} != *.fastq ]]; then
@@ -282,6 +294,13 @@ input {
 
   command {
     set -e
+
+    if [[ ! -f "${fastq}" ]]
+    then
+      echo "ERROR: fastq (${fastq}) not provided"
+      exit 1;
+    fi
+
     if (file ~{fastq} | grep -q compressed); then
         if [[ ~{fastq} != *.gz ]]; then
             if [[ "~{fastq}" != *.fastq ]]; then
@@ -417,6 +436,12 @@ task HISAT2RSEMSingleEnd {
 
   command {
     set -e
+
+    if [[ ! -f "${fastq}" ]]
+    then
+      echo "ERROR: fastq (${fastq}) not provided"
+      exit 1;
+    fi
 
     if (file ~{fastq} | grep -q compressed); then
         if [[ ~{fastq} != *.gz ]]; then
