@@ -17,13 +17,8 @@ workflow OptimusPostProcessing {
   }
 
   # version of this pipeline
-
   String pipeline_version = "1.0.0"
 
-
-
-  parameter_meta {
-  }
   call PostProcessing.CheckMetadata {
       input:
         library = library,
@@ -32,47 +27,25 @@ workflow OptimusPostProcessing {
         organ = organ
   }
 
-  #call PostProcessing.CreateMetadataTsv {
-  #  input:
-  #    original_looms = original_looms,
-  #    library = library,
-  #    species = species,
-  #    stage = stage,
-  #    organ = organ,
-  #    output_basename = output_basename
-  #}
-  #scatter (loom in original_looms) {
-  #  call PostProcessing.IndividualLoomProcessing {
-  #      input:
-  #        original_library_loom = loom,
-  #        library = CheckMetadata.library,
-  #        species = CheckMetadata.species,
-  #        stage = CheckMetadata.stage,
-  #        organ = CheckMetadata.organ
-  #    }
-  #}
-
-  #Array[File] library_looms = IndividualLoomProcessing.library_loom
-  #Array[File] library_jsons = IndividualLoomProcessing.library_json
-
   call PostProcessing.MergeLooms {
     input:
       library_looms = library_looms,
-      library = CheckMetadata.library,
-      species = CheckMetadata.species,
-      stage = CheckMetadata.stage,
-      organ = CheckMetadata.organ,
+      library = library[0],
+      species = species[0],
+      stage = stage[0],
+      organ = organ[0],
+      output_basename = output_basename
+  }
+
+  call PostProcessing.CreateAdapterJson {
+    input:
+      project_loom = MergeLooms.project_loom,
       output_basename = output_basename
   }
 
   output {
-    #Array[File] library_looms = library_looms
-    #Array[File] library_jsons = library_jsons
-
-    #File project_tsv = CreateMetadataTsv.metadata_tsv
-
-    File project_loom = MergeLooms.merged_loom
-    File project_json = MergeLooms.merged_json
+    File project_loom = MergeLooms.project_loom
+    File project_json = CreateAdapterJson.project_json
   }
 
   meta {
