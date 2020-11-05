@@ -41,6 +41,8 @@ def main():
 
     loompy.combine(loom_file_list,output_file=args.output_loom_file,file_attrs = attrDict)
 
+    #TODO: check global attributes and make sure that they are correct and make sense (i.e. no input_id)
+
 
 if __name__ == '__main__':
     main()

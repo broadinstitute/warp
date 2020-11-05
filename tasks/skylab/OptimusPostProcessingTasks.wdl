@@ -103,16 +103,18 @@ task CreateAdapterJson {
     Int memory = 3
     Int disk = 20
   }
+  export sha=$(sha256sum ~{input_file} | cut -f1 -d ' ')
+    export crc=$(gsutil hash -h ~{input_file_path} | awk '/crc32c/ { print $3 }')
+    export size=$(gsutil stat ~{input_file_path} | awk '/Content-Length/ { print $2 }')
 
   command {
+    export sha=$(sha256sum ~{input_file} | cut -f1 -d ' ')
+    export crc=$(gsutil hash -h ~{input_file_path} | awk '/crc32c/ { print $3 }')
+    export size=$(gsutil stat ~{input_file_path} | awk '/Content-Length/ { print $2 }')
+
     python3 HCA_create_adapter_json.py \
       --input-loom-file ~{project_loom} \
-      --document_id ~{document_id} \
-      --submission_date ~{submission_date} \
-      --file_id ~{file_id} \
-      --file_version ~{file_version} \
-      --entity_id ~{entity_id} \
-      --output-basename ~{output_basename}
+
   }
 
   runtime {
