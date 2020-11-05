@@ -14,7 +14,7 @@ task SortBam {
     }
 
     Int command_mem_mb = machine_mem_mb - machine_overhead_mb
-    Int disk = ceil(size(bam_input, "Gi") * 6) + 50
+    Int disk = ceil(size(bam_input, "Gi") * 6) + 200
 
     meta {
         description: "Sorts bam"
@@ -53,7 +53,7 @@ task SortBamAndIndex {
         Int machine_overhead_mb = 500
         Int command_mem_mb = machine_mem_mb - machine_overhead_mb
         Int cpu = 1
-        Int disk = ceil(size(bam_input, "Gi") * 6) + 50
+        Int disk = ceil(size(bam_input, "Gi") * 6) + 200
         Int preemptible = 3
     }
 
@@ -98,9 +98,9 @@ task CollectMultipleMetrics {
     # give the command 1 GiB of overhead
     Int command_mem_mb = machine_mem_mb - 1000
     Int cpu = 1
-    # use provided disk number or dynamically size on our own, with 10GiB of additional disk
-    Int disk = ceil(size(aligned_bam, "GiB") + size(genome_ref_fasta, "GiB") + 10)
-    Int preemptible = 5
+    # use provided disk number or dynamically size on our own, with 200GiB of additional disk
+    Int disk = ceil(size(aligned_bam, "GiB") + size(genome_ref_fasta, "GiB") + 200)
+    Int preemptible = 3
   }
 
   meta {
@@ -181,9 +181,9 @@ task CollectRnaMetrics {
     # give the command 500 MiB of overhead
     Int command_mem_mb = machine_mem_mb - 500
     Int cpu = 1
-    # use provided disk number or dynamically size on our own, with 10GiB of additional disk
-    Int disk = ceil(size(aligned_bam, "GiB") + size(ref_flat, "GiB") + size(rrna_intervals, "GiB") + 10)
-    Int preemptible = 5
+    # use provided disk number or dynamically size on our own, with 200GiB of additional disk
+    Int disk = ceil(size(aligned_bam, "GiB") + size(ref_flat, "GiB") + size(rrna_intervals, "GiB") + 200)
+    Int preemptible = 3
   }
   
 
@@ -240,13 +240,13 @@ task CollectDuplicationMetrics {
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"
-    Int machine_mem_mb = 8250
+    Int machine_mem_mb = 32768
     # give the command 1 GiB of overhead
     Int command_mem_mb = machine_mem_mb - 1000
     Int cpu = 2
-    # use provided disk number or dynamically size on our own, with 10GiB of additional disk
-    Int disk = ceil(size(aligned_bam, "GiB") + 10)
-    Int preemptible = 5
+    # use provided disk number or dynamically size on our own, with 200GiB of additional disk
+    Int disk = ceil(size(aligned_bam, "GiB") + 200)
+    Int preemptible = 3
   }
   
 

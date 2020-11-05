@@ -6,6 +6,7 @@ import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 workflow MultiSampleSmartSeq2 {
   meta {
     description: "The MultiSampleSmartSeq2 pipeline runs multiple SS2 samples in a single pipeline invocation"
+    allowNestedInputs: true
   }
 
   input {
