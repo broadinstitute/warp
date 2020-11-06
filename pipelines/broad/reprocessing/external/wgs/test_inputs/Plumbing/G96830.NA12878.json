@@ -4,7 +4,7 @@
 
   "ExternalWholeGenomeReprocessing.sample_name": "NA12878 PLUMBING",
   "ExternalWholeGenomeReprocessing.base_file_name": "G96830.NA12878",
-  "ExternalWholeGenomeReprocessing.final_gvcf_base_name": "G96830.NA12878",
+  "ExternalWholeGenomeReprocessing.final_gvcf_base_name": "NA12878_PLUMBING",
   "ExternalWholeGenomeReprocessing.unmapped_bam_suffix": ".unmapped.bam",
 
   "ExternalWholeGenomeReprocessing.cram_ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",

@@ -42,6 +42,12 @@
 * Removed duplicate MarkDuplicatesSpark task from BamProcessing
 * Removed duplicate Docker image from CheckPreValidation task in QC
 
+# 2.4.4
+2021-06-17 
+
+* Added an optional step to reblock gVCFs, this step is included by default
+    * The WholeGenomeGermlineSingleSample pipeline now outputs reblocked gVCFs by default. To skip reblocking, add '"WholeGenomeGermlineSingleSample.BamToGvcf.skip_reblocking": true' to the inputs
+
 # 2.3.4
 2021-06-01 
 
