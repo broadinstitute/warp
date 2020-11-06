@@ -9,10 +9,10 @@ task RSEMExpression {
   
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-rsem:v0.2.2-1.3.0"
-    Int machine_mem_mb = 3850
+    Int machine_mem_mb = 32768
     Int cpu = 4
-    # use provided disk number or dynamically size on our own, with 20GiB of additional disk
-    Int disk = ceil(size(trans_aligned_bam, "GiB") + size(rsem_genome, "GiB") + 20)
+    # use provided disk number or dynamically size on our own, with 200GiB of additional disk
+    Int disk = ceil(size(trans_aligned_bam, "GiB") + size(rsem_genome, "GiB") + 200)
     Int preemptible = 5
   }
   

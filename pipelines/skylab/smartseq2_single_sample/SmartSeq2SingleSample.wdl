@@ -5,7 +5,6 @@ import "../../../tasks/skylab/Picard.wdl" as Picard
 import "../../../tasks/skylab/RSEM.wdl" as RSEM
 import "../../../tasks/skylab/GroupMetricsOutputs.wdl" as GroupQCs
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
-import "../../../tasks/skylab/SS2InputChecks.wdl" as SS2InputChecks
 
 workflow SmartSeq2SingleCell {
   meta {
@@ -34,11 +33,10 @@ workflow SmartSeq2SingleCell {
     File fastq1
     File? fastq2
     Boolean paired_end
-    Boolean force_no_check = false
   }
   
   # version of this pipeline
-  String pipeline_version = "5.0.3"
+  String pipeline_version = "5.0.4"
 
   parameter_meta {
     genome_ref_fasta: "Genome reference in fasta format"
@@ -58,14 +56,6 @@ workflow SmartSeq2SingleCell {
     fastq1: "R1 in paired end reads"
     fastq2: "R2 in paired end reads"
     paired_end: "Boolean flag denoting if the sample is paired end or not"
-  }
-
-  call  SS2InputChecks.checkSS2Input {
-    input:
-        fastq1 = fastq1,
-        fastq2 = fastq2,
-        paired_end = paired_end,
-        force_no_check = force_no_check,
   }
 
   String quality_control_output_basename = output_name + "_qc"
