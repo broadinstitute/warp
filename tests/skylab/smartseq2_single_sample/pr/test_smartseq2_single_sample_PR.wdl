@@ -41,8 +41,7 @@ workflow TestSmartSeq2SingleCellPR {
       output_name = output_name,
       fastq1 = fastq1,
       fastq2 = fastq2,
-      paired_end = true,
-      force_no_check = false
+      paired_end = true
   }
 
   call checker_wdl.ValidateSmartSeq2SingleCell as checker_workflow {

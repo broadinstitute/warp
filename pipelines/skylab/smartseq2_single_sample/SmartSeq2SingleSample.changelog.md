@@ -1,3 +1,9 @@
+# 5.0.4
+
+2020-11-05 (Date of Last Commit)
+
+* Pushed input checking code down into HISAT tasks in order to reduce number of DRS lookups
+
 # 5.0.3
 
 2020-10-26 (Date of Last Commit)

@@ -14,9 +14,9 @@ task HISAT2PairedEnd {
   Int machine_mem_mb = 16500
   Int cpu = 4
   # Using (fastq1 + fastq2) x 100 gives factor of a few buffer. BAM can be up to ~5 x (fastq1 + fastq2).
-  # Need room for unsorted + sorted bam + temp sorting space + zipped and unzipped ref. Add 10 GiB buffer.
-  Int disk = ceil((size(fastq1, "GiB") + size(fastq2, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 10)
-  Int preemptible = 5
+  # Need room for unsorted + sorted bam + temp sorting space + zipped and unzipped ref. Add 200 GiB buffer.
+  Int disk = ceil((size(fastq1, "GiB") + size(fastq2, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 200)
+  Int preemptible = 3
 }
   meta {
     description: "HISAT2 alignment task will align paired-end fastq reads to reference genome."
@@ -43,7 +43,13 @@ task HISAT2PairedEnd {
 
     set -e
 
-   # fix names if necessary
+    if [[ ! -f "${fastq1}" || ! -f "${fastq2}" ]]
+    then
+      echo "ERROR: either fastq1 (${fastq1}) or fastq2 (${fastq2}) not provided"
+      exit 1;
+    fi
+
+    # fix names if necessary
     if (file ~{fastq1} | grep -q compressed); then
         if [[ ~{fastq1} != *.gz ]]; then
             if [[ ~{fastq1} != *.fastq ]]; then
@@ -134,9 +140,9 @@ task HISAT2RSEM {
     Int machine_mem_mb = 16500
     Int cpu = 4
     # Using (fastq1 + fastq2) x 100 gives factor of a few buffer. BAM can be up to ~5 x (fastq1 + fastq2).
-    # Need room for unsorted + sorted bam + temp sorting space + zipped and unzipped ref. Add 10 GiB buffer.
-    Int disk = ceil((size(fastq1, "GiB") + size(fastq2, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 10)
-    Int preemptible = 5
+    # Need room for unsorted + sorted bam + temp sorting space + zipped and unzipped ref. Add 200 GiB buffer.
+    Int disk = ceil((size(fastq1, "GiB") + size(fastq2, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 200)
+    Int preemptible = 3
   }
 
   meta {
@@ -161,7 +167,13 @@ task HISAT2RSEM {
 
     set -e
 
-   # fix names if necessary
+    if [[ ! -f "${fastq1}" || ! -f "${fastq2}" ]]
+    then
+      echo "ERROR: either fastq1 (${fastq1}) or fastq2 (${fastq2}) not provided"
+      exit 1;
+    fi
+
+    # fix names if necessary
     if (file ~{fastq1} | grep -q compressed); then
         if [[ ~{fastq1} != *.gz ]]; then
             if [[ ~{fastq1} != *.fastq ]]; then
@@ -259,9 +271,9 @@ input {
   Int machine_mem_mb = 16500
   Int cpu = 4
   # Using fastq x 100 gives factor of a few buffer. BAM can be up to ~5 x fastq.
-  # Need room for unsorted + sorted bam + temp sorting space + zipped and unzipped ref. Add 10 GiB buffer.
-  Int disk = ceil((size(fastq, "GiB") * 100) + size(hisat2_ref, "GiB") * 2 + 10)
-  Int preemptible = 5
+  # Need room for unsorted + sorted bam + temp sorting space + zipped and unzipped ref. Add 200 GiB buffer.
+  Int disk = ceil((size(fastq, "GiB") * 100) + size(hisat2_ref, "GiB") * 2 + 200)
+  Int preemptible = 3
 }
   meta {
     description: "This HISAT2 alignment task will align single-end fastq reads to reference genome."
@@ -282,6 +294,13 @@ input {
 
   command {
     set -e
+
+    if [[ ! -f "${fastq}" ]]
+    then
+      echo "ERROR: fastq (${fastq}) not provided"
+      exit 1;
+    fi
+
     if (file ~{fastq} | grep -q compressed); then
         if [[ ~{fastq} != *.gz ]]; then
             if [[ "~{fastq}" != *.fastq ]]; then
@@ -343,9 +362,9 @@ task HISAT2InspectIndex {
     String docker =  "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
     Int machine_mem_mb = 3850
     Int cpu = 1
-    # use provided disk number or dynamically size on our own, with 10GiB of additional disk
-    Int disk = ceil(size(hisat2_ref, "GiB") + 10)
-    Int preemptible = 5
+    # use provided disk number or dynamically size on our own, with 200GiB of additional disk
+    Int disk = ceil(size(hisat2_ref, "GiB") + 200)
+    Int preemptible = 3
   }
 
   meta {
@@ -394,8 +413,8 @@ task HISAT2RSEMSingleEnd {
     String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
     Int machine_mem_mb = 15000
     Int cpu = 4
-    Int disk = ceil((size(fastq, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 10)
-    Int preemptible = 5
+    Int disk = ceil((size(fastq, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 200)
+    Int preemptible = 3
   }
 
   meta {
@@ -417,6 +436,12 @@ task HISAT2RSEMSingleEnd {
 
   command {
     set -e
+
+    if [[ ! -f "${fastq}" ]]
+    then
+      echo "ERROR: fastq (${fastq}) not provided"
+      exit 1;
+    fi
 
     if (file ~{fastq} | grep -q compressed); then
         if [[ ~{fastq} != *.gz ]]; then
