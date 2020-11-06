@@ -75,7 +75,7 @@ def main():
     file_descriptor_dict = {"describedBy": "https://schema.humancellatlas.org/system/2.0.0/file_descriptor",
                             "schema_type": "file_descriptor",
                             "content_type": content_type,
-                            "size": size, #
+                            "size": size,
                             "sha256": sha256,
                             "crc32c": crc32c,
                             "file_id": file_uuid,

@@ -22,11 +22,6 @@ def main():
                         nargs="+",
                         required=True,
                         help="Species metadata string")
-    parser.add_argument('--stage',
-                        dest='stage',
-                        nargs="+",
-                        required=True,
-                        help="Stage metadata string")
     parser.add_argument('--organ',
                         dest='organ',
                         nargs="+",
@@ -41,12 +36,10 @@ def main():
     loom_file_list = args.input_loom_files
     library = " ".join(args.library)
     species = " ".join(args.species)
-    stage = " ".join(args.stage)
     organ = " ".join(args.organ)
 
     attr_dict = {"library_costruction_method": library,
                  "species": species,
-                 "devleopmental_stage": stage,
                  "organ": organ
                  }
 

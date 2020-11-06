@@ -11,7 +11,6 @@ workflow OptimusPostProcessing {
     Array[File] library_looms
     Array[String] library
     Array[String] species
-    Array[String] stage
     Array[String] organ
     String output_basename
   }
@@ -23,7 +22,6 @@ workflow OptimusPostProcessing {
       input:
         library = library,
         species = species,
-        stage = stage,
         organ = organ
   }
 
@@ -32,7 +30,6 @@ workflow OptimusPostProcessing {
       library_looms = library_looms,
       library = library[0],
       species = species[0],
-      stage = stage[0],
       organ = organ[0],
       output_basename = output_basename
   }

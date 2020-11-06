@@ -4,7 +4,6 @@ task CheckMetadata {
   input {
     Array[String] library
     Array[String] species
-    Array[String] stage
     Array[String] organ
   }
 
@@ -13,7 +12,6 @@ task CheckMetadata {
 
   library_set = set([ "~{sep='", "' library}" ])
   species_set = set([ "~{sep='", "' species}" ])
-  stage_set = set([ "~{sep='", "' stage}" ])
   organ_set = set([ "~{sep='", "' organ}" ])
 
   errors=0
@@ -23,9 +21,6 @@ task CheckMetadata {
       errors += 1
   if len(species_set) != 1:
       print("ERROR: Species metadata is not consistent within the project.")
-      errors += 1
-  if len(stage_set) != 1:
-      print("ERROR: Stage metadata is not consistent within the project.")
       errors += 1
   if len(organ_set) != 1:
       print("ERROR: Organ metadata is not consistent within the project.")
@@ -42,14 +37,6 @@ task CheckMetadata {
       memory: "3 GiB"
       disks: "local-disk 20 HDD"
   }
-
-  output {
-    String library = "$LIBRARY"
-    String species = "$SPECIES"
-    String stage = "$STAGE"
-    String organ = "$ORGAN"
-  }
-
 }
 
 
@@ -58,7 +45,6 @@ task MergeLooms {
     Array[File] library_looms
     String library
     String species
-    String stage
     String organ
     String output_basename
 
@@ -72,7 +58,6 @@ task MergeLooms {
       --input-loom-files ~{sep=" " library_looms} \
       --library ~{library} \
       --species ~{species} \
-      --stage ~{stage} \
       --organ ~{organ} \
       --output-loom-file ~{output_basename}.loom
   }
