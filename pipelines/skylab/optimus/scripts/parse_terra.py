@@ -17,9 +17,9 @@ def create_output_files(input_file, output_prefix):
 	index: the read index if they are multiple
     """
     df = pd.read_table(input_file)
-    r1_fastq = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_read1') & pd.Series(df.columns).str.endswith('drs_url')]]
-    r2_fastq = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_read2') & pd.Series(df.columns).str.endswith('drs_url')]]
-    i1_fastq = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_index') & pd.Series(df.columns).str.endswith('drs_url')]]
+    r1_fastq = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_read1') & pd.Series(df.columns).str.endswith('drs_uri')]]
+    r2_fastq = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_read2') & pd.Series(df.columns).str.endswith('drs_uri')]]
+    i1_fastq = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_index') & pd.Series(df.columns).str.endswith('drs_uri')]]
     r1_fastq_uuid = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_read1') & pd.Series(df.columns).str.endswith('__file_uuid')]]
     r2_fastq_uuid = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_read2') & pd.Series(df.columns).str.endswith('__file_uuid')]]
     i1_fastq_uuid = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_index') & pd.Series(df.columns).str.endswith('__file_uuid')]]
@@ -54,8 +54,8 @@ def create_output_files(input_file, output_prefix):
         
         input_id = pd.DataFrame({"input_id":np.repeat(df.sequencing_process__provenance__document_id[j],n_lanes[j])})
         input_id_metadata_field = pd.DataFrame({"input_id_metadata_field":np.repeat("sequencing_process.provenance.document_id",n_lanes[j])})
-        input_name = pd.DataFrame({"input_name":np.repeat(df.cell_suspension__biomaterial_core__biomaterial_id[j],n_lanes[j])})
-        input_name_metadata_field = pd.DataFrame({"input_name_metadata_field":np.repeat("cell_suspension.biomaterial_core.biomaterial_id",n_lanes[j])})
+        input_name = pd.DataFrame({"input_name":np.repeat(df.sequencing_input__biomaterial_core__biomaterial_id[j],n_lanes[j])})
+        input_name_metadata_field = pd.DataFrame({"input_name_metadata_field":np.repeat("sequencing_input.biomaterial_core.biomaterial_id",n_lanes[j])})
     
         column_names = ['entity:participant_lane_id', 'input_id', 'input_name','input_id_metadata_field','input_name_metadata_field', 
                         'r1_fastq','r2_fastq', 'i1_fastq','r1_fastq_uuid','r2_fastq_uuid', 'i1_fastq_uuid',
@@ -90,7 +90,7 @@ def create_output_files(input_file, output_prefix):
 
     particpant_set_df.to_csv(output_prefix + "_membership.tsv" ,sep="\t",index=None)
 
-    temp = df[['sequencing_process__provenance__document_id','cell_suspension__biomaterial_core__biomaterial_id','project__provenance__document_id']]
+    temp = df[['sequencing_process__provenance__document_id','sequencing_input__biomaterial_core__biomaterial_id','project__provenance__document_id']]
     temp.columns = ['entity:participant_lane_set_id','input_name','project__provenance__document_id']
 
     temp.to_csv(output_prefix + "_entity.tsv",  sep="\t",index=None)
