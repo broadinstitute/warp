@@ -32,10 +32,10 @@ task CheckMetadata {
   }
 
   runtime {
-      docker: "python:3.7.2"
-      cpu: 1
-      memory: "3 GiB"
-      disks: "local-disk 20 HDD"
+    docker: "python:3.7.2"
+    cpu: 1
+    memory: "3 GiB"
+    disks: "local-disk 20 HDD"
   }
 }
 
@@ -74,42 +74,85 @@ task MergeLooms {
   }
 }
 
+task GetProtocolMetadata {
+  input {
+    Array[File] links_jsons
+    String output_basename
+  }
+  command {
+    python3 create_input_metadata_json.py \
+      --input-files ~{sep=" " links_jsons} \
+      --output ~{output_basename}.int_metadata.json
+  }
+  runtime {
+    docker: "python:3.7.2"
+    cpu: 1
+    memory: "3 GiB"
+    disks: "local-disk 20 HDD"
+  }
+  output {
+    File protocol_metadata_json = "~{output_basename}.protocol_metadata.json"
+  }
+}
+
+task GetInputMetadata {
+  input {
+    Array[File] analysis_file_jsons
+    String output_basename
+  }
+  command {
+    python3 create_input_metadata_json.py \
+      --input-files ~{sep=" " analysis_file_jsons} \
+      --output ~{output_basename}.input_metadata.json
+  }
+  runtime {
+    docker: "python:3.7.2"
+    cpu: 1
+    memory: "3 GiB"
+    disks: "local-disk 20 HDD"
+  }
+  output {
+    File input_metadata_json = "~{output_basename}.input_metadata.json"
+  }
+}
+
 
 task CreateAdapterJson {
   input {
     File project_loom
-    String document_id
-    String submission_date
-    String file_id
-    String file_version
-    String entity_id
-    String output_basename
+    File input_metadata_json
+    String project_id
 
     Int memory = 3
     Int disk = 20
   }
-  export sha=$(sha256sum ~{input_file} | cut -f1 -d ' ')
-    export crc=$(gsutil hash -h ~{input_file_path} | awk '/crc32c/ { print $3 }')
-    export size=$(gsutil stat ~{input_file_path} | awk '/Content-Length/ { print $2 }')
 
   command {
-    export sha=$(sha256sum ~{input_file} | cut -f1 -d ' ')
-    export crc=$(gsutil hash -h ~{input_file_path} | awk '/crc32c/ { print $3 }')
-    export size=$(gsutil stat ~{input_file_path} | awk '/Content-Length/ { print $2 }')
+    source file_utils.sh
+
+    CRC=$(get_crc ~{project_loom})
+    SHA=$(get_sha ~{project_loom})
+    SIZE=$(get_size ~{project_loom})
+    VERSION=$(get_timestamp ~{project_loom})
 
     python3 HCA_create_adapter_json.py \
       --input-loom-file ~{project_loom} \
-
+      --inputs-json ~{input_metadata_json} \
+      --project-id ~{project_id} \
+      --crc32c $CRC \
+      --size $SIZE \
+      --sha256 $SHA \
+      --version $VERSION \
   }
 
   runtime {
-    docker: "python:3.7.2" # TODO
+    docker: "python:3.7.2" # TODO make sure docker has gsutil
     cpu: 1
     memory: "~{memory} GiB"
     disks: "local-disk ~{disk} HDD"
   }
 
   output {
-    File project_loom = "~{output_basename}.loom"
+    Array[File] json_adapter_files = glob("*$VERSION*.json")
   }
 }

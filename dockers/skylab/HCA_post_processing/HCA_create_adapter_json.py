@@ -3,11 +3,30 @@
 import argparse
 import json
 import uuid
+import re
+import os
 
 NAMESPACE = uuid.UUID('c6591d1d-27bc-4c94-bd54-1b51f8a2456c')
 
 def get_uuid5(sha256):
     return str(uuid.uuid5(NAMESPACE, sha256))
+
+def get_analysis_workflow_id(analysis_output_path):
+    """Parse the analysis workflow id from one of its output paths, and write the id to a file so that it is available
+    outside of the get_analysis task.
+    Args:
+        analysis_output_path (str): path to workflow output file.
+    Returns:
+        workflow_id (str): string giving Cromwell UUID of the workflow.
+    """
+    # Get the last match for UUID prior to the file name (in case the file is
+    # named with a UUID) to ensure it is the subworkflow id
+    url = analysis_output_path.rsplit('/', 1)[0]
+    uuid_regex = r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})"
+    workflow_id = re.findall(uuid_regex, url)[-1]
+    print('Got analysis workflow UUID: {0}'.format(workflow_id))
+    return workflow_id
+
 
 def main():
     description = """Add metadata into a Loom file as column attributes"""
@@ -16,6 +35,18 @@ def main():
                         dest='input_loom_file',
                         required=True,
                         help="Path to project loom file")
+    parser.add_argument('--inputs-json',
+                        dest='inputs_json',
+                        required=True,
+                        help="Json file with inputs metadata")
+    parser.add_argument('--protocols-json',
+                        dest='protocols_json',
+                        required=True,
+                        help="Json file with protocols metadata")
+    parser.add_argument('--project-id',
+                        dest='project_id',
+                        required=True,
+                        help="project id of the loom file")
     parser.add_argument('--size',
                         dest='size',
                         required=True,
@@ -29,31 +60,27 @@ def main():
                         required=True,
                         help="crc32c of the loom file")
     parser.add_argument('--version',
-                        dest='version',
+                        dest='file_version',
                         required=True,
-                        help="version of the loom file")
+                        help="timepstamp of the loom file")
+    parser.add_argument('--staging-bucket',
+                        dest='staging_bucket',
+                        help="Path to staging bucket")
 
     args = parser.parse_args()
 
-
+    input_loom_file = args.input_loom_file
     size = args.size
     sha256 = args.sha256
     crc32c = args.crc32c
-    version = args.version
+    file_version = args.version
+    project_id = args.project_id
+    inputs = json.loads(args.inputs_json)  # this should be a list of dictionaries
+    protocols = json.loads(args.protocols_json)  # this should be a list of dictionaries
+    staging_bucket = args.staging_bucket
 
-    file_version # The version of the file given in date time format
-    file_name # The object name of the data file relative to the staging area's `data/` directory
-    submission_date # When project was first submitted to database. date-time format # TODO ??????
-    content_type = input_type = output_type = format ???
-    process_id # UUID of the process described by this link # cromwell id of the process that generated the combined matrix TODO how?
-    process_type # The concrete type of the process described by this link - "example": "analysis" TODO ask in channel if there are expected values
-    protocols # An array of protocols for this link
-
-    # TODO need a function to generate this for each matrix used as input
-    inputs # need to create a list of inputs each with input_type and input_id defined
-
-    # is format the same as input_type and output_type (and content_type ?)
-
+    file_name = os.path.basename(input_loom_file)
+    process_id = get_analysis_workflow_id(input_loom_file)
 
     matrix_file_uuid = get_uuid5(sha256)
     file_uuid = get_uuid5(matrix_file_uuid)
@@ -62,54 +89,44 @@ def main():
     analysis_file_dict = {
                           "provenance": {
                                          "document_id": matrix_file_uuid,
-                                         "submission_date": submission_date
+                                         "submission_date": file_version
                                         },
                           "describedBy": "https://schema.humancellatlas.org/type/file/6.2.0/analysis_file",
                           "schema_type": "file",
                           "file_core": {
-                                        "file_name": file_name, # "The name of the file. Include the file extension in the file name."
-                                        "format": "loom" # Indicate the full file extension including compression extensions.
+                                        "file_name": file_name,  # "The name of the file. Include the file extension in the file name."
+                                        "format": "loom"  # Indicate the full file extension including compression extensions.
                                        }
                          }
 
     file_descriptor_dict = {"describedBy": "https://schema.humancellatlas.org/system/2.0.0/file_descriptor",
                             "schema_type": "file_descriptor",
-                            "content_type": content_type,
+                            "content_type": "application/vnd.loom",
                             "size": size,
                             "sha256": sha256,
                             "crc32c": crc32c,
                             "file_id": file_uuid,
                             "file_version": file_version,
-                            "file_name": file_name
+                            "file_name": file_name # same as above should be fine
                             }
 
     links_dict = {"describedBy": "https://schema.humancellatlas.org/system/2.1.1/links",
                   "schema_type": "links",
-                  "links": [ { "process_type": process_type,
-                               "process_id": process_id,
-                               "inputs": [ {
-                                            "input_type": "loom",
-                                            "input_id": "UUID"
-                                            }
-                                         ],
-                               "outputs": [ {
-                                            "output_type": "loom",
-                                            "output_id": matrix_file_uuid
-                                            }
-                                         ],
-                               "protocols": protocols,
-                               "link_type": "process_link"
-                              }
-                            ]
+                  "links": [{"process_type": "analysis",
+                             "process_id": process_id,
+                             "inputs": inputs,
+                             "outputs": [{
+                                         "output_id": matrix_file_uuid,
+                                         "output_type": "analysis_file"
+                                         }],
+                             "protocols": protocols,
+                             "link_type": "process_link"
+                             }]
                   }
-
-    # file_version is a timestamp and will be the same for all instances below
-
-    analysis_file_json_file_name = "metadata/{}/{}_{}.json".format(entity_type, matrix_file_uuid, file_version)
-    file_descriptor_json_file_name = "descriptors/{}/{}_{}.json".format(entity_type, matrix_file_uuid, file_version)
-    links_json_file_name = "links/{}_{}_{}.json".format(matrix_file_uuid, file_version, project_id)
-
-    # TODO move the matrix file to data/{file_name}
+    file_basename = "{}_{}.json".format(matrix_file_uuid, file_version)
+    analysis_file_json_file_name = "analysis_file_{}.josn".format(file_basename)
+    file_descriptor_json_file_name = "file_descriptor_{}.json".format(file_basename)
+    links_json_file_name = "{}_{}_{}.json".format(matrix_file_uuid, file_version, project_id)
 
     with open(analysis_file_json_file_name, "w") as f:
         json.dump(analysis_file_dict, f)
@@ -119,6 +136,16 @@ def main():
 
     with open(links_json_file_name, "w") as f:
         json.dump(links_dict, f)
+
+    os.system('gsutil cp {0} {1}/data/{0}'.format(input_loom_file, staging_bucket))
+    os.system('gsutil cp {0} {1}/metadata/analysis_file/{2}'.format(analysis_file_json_file_name,
+                                                                    staging_bucket,
+                                                                    file_basename))
+    os.system('gsutil cp {0} {1}/descriptors/file_descriptor/{2}'.format(file_descriptor_json_file_name,
+                                                                         staging_bucket,
+                                                                         file_basename))
+    os.system('gsutil cp {0} {1}/links/{0}'.format(links_json_file_name, staging_bucket))
+
 
 if __name__ == '__main__':
     main()

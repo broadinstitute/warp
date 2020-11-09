@@ -9,6 +9,7 @@ workflow OptimusPostProcessing {
 
   input {
     Array[File] library_looms
+    Array[File] analysis_file_jsons
     Array[String] library
     Array[String] species
     Array[String] organ
@@ -31,6 +32,12 @@ workflow OptimusPostProcessing {
       library = library[0],
       species = species[0],
       organ = organ[0],
+      output_basename = output_basename
+  }
+
+  call PostProcessing.GetInputMetadata {
+    input:
+      analysis_file_jsons = analysis_file_jsons,
       output_basename = output_basename
   }
 

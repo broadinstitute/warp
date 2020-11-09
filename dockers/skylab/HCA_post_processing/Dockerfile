@@ -1,4 +1,4 @@
-FROM python:3.7.2
+FROM gcr.io/google.com/cloudsdktool/cloud-sdk
 
 LABEL maintainer="Lantern Team <lantern@broadinstitute.org>"
 
@@ -15,4 +15,5 @@ WORKDIR /tools
 COPY HCA_create_adapter_json.py .
 COPY optimus_HCA_loom_merge.py .
 COPY post_processing_ss2.py .
+COPY file_utils.sh .
 
