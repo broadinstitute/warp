@@ -130,6 +130,7 @@ task CreateAdapterJson {
     String project_id
     File input_metadata_json
     File protocol_metadata_json
+    String staging_bucket
 
     Int memory = 3
     Int disk = 20
@@ -151,7 +152,7 @@ task CreateAdapterJson {
       --project-id ~{project_id} \
       --sha256 $SHA \
       --size $SIZE \
-      --staging-bucket
+      --staging-bucket ~{staging_bucket} \
       --input-metadata-json ~{input_metadata_json} \
       --protocol-metadata-json ~{protocol_metadata_json}
   }

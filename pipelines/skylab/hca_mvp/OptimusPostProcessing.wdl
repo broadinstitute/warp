@@ -16,6 +16,7 @@ workflow OptimusPostProcessing {
     Array[String] species
     Array[String] organ
     String project_id
+    String staging_bucket
   }
 
   # version of this pipeline
@@ -54,7 +55,8 @@ workflow OptimusPostProcessing {
       project_loom = MergeLooms.project_loom,
       project_id = project_id,
       input_metadata_json = GetInputMetadata.input_metadata_json,
-      protocol_metadata_json = GetProtocolMetadata.protocol_metadata_json
+      protocol_metadata_json = GetProtocolMetadata.protocol_metadata_json,
+      staging_bucket = staging_bucket
   }
 
   output {
