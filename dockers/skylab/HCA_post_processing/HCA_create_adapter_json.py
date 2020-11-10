@@ -124,11 +124,15 @@ def main():
                              "link_type": "process_link"
                              }]
                   }
+
+    # filenames for staging dierctories
     file_basename = "{}_{}.json".format(matrix_file_uuid, file_version)
-    links_json_file_name = "{}_{}_{}.json".format(matrix_file_uuid, file_version, project_id)
-    # temporarily providing unique names to avoid overwriting before moving to staging bucket
-    analysis_file_json_file_name = "analysis_file_{}.josn".format(file_basename)
-    file_descriptor_json_file_name = "file_descriptor_{}.json".format(file_basename)
+    links_basename = "{}_{}_{}.json".format(matrix_file_uuid, file_version, project_id)
+
+    # files created in output directory for output
+    analysis_file_json_file_name = "ouputs/analysis_file_{}.josn".format(file_basename)
+    file_descriptor_json_file_name = "outputs/file_descriptor_{}.json".format(file_basename)
+    links_json_file_name = "ouputs/links_{}.json".format(links_basename)
 
     with open(analysis_file_json_file_name, "w") as f:
         json.dump(analysis_file_dict, f)
@@ -147,7 +151,9 @@ def main():
     subprocess.run('gsutil cp {0} {1}/descriptors/file_descriptor/{2}'.format(file_descriptor_json_file_name,
                                                                               staging_bucket,
                                                                               file_basename), shell=True)
-    subprocess.run('gsutil cp {0} {1}/links/{0}'.format(links_json_file_name, staging_bucket), shell=True)
+    subprocess.run('gsutil cp {0} {1}/links/{2}'.format(links_json_file_name,
+                                                        staging_bucket,
+                                                        links_basename), shell=True)
 
 
 if __name__ == '__main__':

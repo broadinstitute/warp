@@ -145,6 +145,8 @@ task CreateAdapterJson {
     SIZE=$(get_size ~{project_loom})
     VERSION=$(get_timestamp ~{project_loom})
 
+    mkdir ouputs
+
     python3 tools/HCA_create_adapter_json.py \
       --project-loom-file ~{project_loom} \
       --crc32c $CRC \
@@ -165,6 +167,6 @@ task CreateAdapterJson {
   }
 
   output {
-    Array[File] json_adapter_files = glob("*$VERSION*.json")
+    Array[File] json_adapter_files = glob("outputs/*")
   }
 }
