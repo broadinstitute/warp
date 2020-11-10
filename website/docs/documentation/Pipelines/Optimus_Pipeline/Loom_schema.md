@@ -12,10 +12,13 @@ The global attributes in the Loom apply to the whole file, not any specific part
 
 | Attribute | Details |
 | :-- | :-- |
-| LOOM_SPEC_VERSION | String with the loom file spec version |
+| optimus_output_schema_version | String with the loom file spec version |
 | expression_data_type | String describing if the pipeline counts exonic or whole transcript (exonic and intronic) reads. For the single-cell mode (counting_mode = sc_rna), the value will be "exonic"; for the single-nuclei mode (counting_mode = sn_rna), the value will be "whole_transcript" |
 | input_id | The sample or cell id listed in the pipeline configuration file. This can be any string, but we recommend it be consistent with any sample metadata. |
-
+| input_name | Optional string that can be used to further describe the input |  
+| input_id_metadata_field | Optional string that describes, when applicable, the metadata field containing the `input_id` |
+| input_name_metadata_field | Optional string that describes, when applicable, the metadata field containing the `input_name` |
+| pipeline_version | String describing the Optimus version |
 
 ## Table 2. Column Attributes (Cell Metrics)
 

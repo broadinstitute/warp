@@ -1,3 +1,9 @@
+# 2.1.4
+
+2020-11-05 (Date of Last Commit)
+
+* Added input checking code into HISAT tasks (called by the single sample workflow) in order to reduce number of DRS lookups
+
 # 2.1.3
 
 2020-10-26 (Date of Last Commit)
