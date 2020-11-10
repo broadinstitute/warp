@@ -88,8 +88,10 @@ def create_output_files(input_file,output_file,output_set,output_entity):
     particpant_set_df = participant_df[['input_id','entity:participant_lane_id']]
     particpant_set_df.columns = ['membership:participant_lane_set_id', 'participant_lane']
     particpant_set_df.to_csv(output_set,sep="\t",index=None)
-    temp = df[['sequencing_process__provenance__document_id','sequencing_input__biomaterial_core__biomaterial_id','project__provenance__document_id']]
-    temp.columns = ['entity:participant_lane_set_id','input_name','project__provenance__document_id']
+    temp = df[['sequencing_process__provenance__document_id','sequencing_input__biomaterial_core__biomaterial_id','project__provenance__document_id',
+	       'donor_organism__genus_species', 'library_preparation_protocol__library_construction_approach', 'specimen_from_organism__organ']]
+    temp.columns = ['entity:participant_lane_set_id','input_name','project__provenance__document_id',
+		    'species', 'library', 'organ']
     temp.to_csv(output_entity,sep="\t",index=None)
 def main():
     description = """This script converts the tsv file from HCA to data table to be used in terra.
