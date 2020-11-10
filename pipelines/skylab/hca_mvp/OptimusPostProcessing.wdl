@@ -4,7 +4,8 @@ import "../../../tasks/skylab/OptimusPostProcessingTasks.wdl" as PostProcessing
 
 workflow OptimusPostProcessing {
   meta {
-    description: "Adds additional metadata to each looom ouptut and create json file anf a project level matrix"
+    description: "Creates a combined matrix and the json files corresponding to the combined matrix for the HCA MVP"
+    allowNestedInputs: true
   }
 
   input {
@@ -59,10 +60,6 @@ workflow OptimusPostProcessing {
   output {
     File project_loom = MergeLooms.project_loom
     Array[File] json_adapter_files = CreateAdapterJson.json_adapter_files
-  }
-
-  meta {
-      allowNestedInputs: true
   }
 }
 
