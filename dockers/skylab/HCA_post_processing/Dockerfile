@@ -14,7 +14,6 @@ WORKDIR /tools
 
 COPY HCA_create_adapter_json.py .
 COPY optimus_HCA_loom_merge.py .
-COPY post_processing_ss2.py .
 COPY file_utils.sh .
 COPY create_input_metadata_json.py .
 COPY create_protocol_metadata_json.py .
