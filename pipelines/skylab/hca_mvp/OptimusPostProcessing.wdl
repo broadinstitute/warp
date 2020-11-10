@@ -1,6 +1,7 @@
 version 1.0
 
-import "../../../tasks/skylab/OptimusPostProcessingTasks.wdl" as PostProcessing
+#import "../../../tasks/skylab/OptimusPostProcessingTasks.wdl" as PostProcessing
+import "https://raw.githubusercontent.com/broadinstitute/warp/jw_Optimus_post_processing/tasks/skylab//OptimusPostProcessingTasks.wdl" as PostProcessing
 
 workflow OptimusPostProcessing {
   meta {
@@ -10,7 +11,7 @@ workflow OptimusPostProcessing {
 
   input {
     Array[File] library_looms
-    Array[File] analysis_file_jsons
+    Array[Array[File]] analysis_file_json_array
     Array[File] links_jsons
     Array[String] library
     Array[String] species
@@ -18,6 +19,9 @@ workflow OptimusPostProcessing {
     String project_id
     String staging_bucket
   }
+
+  Array[File] analysis_file_jsons = flattten(analysis_file_json_array)
+
 
   # version of this pipeline
   String pipeline_version = "1.0.0"
