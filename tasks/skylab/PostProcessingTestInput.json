@@ -1,8 +1,0 @@
-{
-  "PostProcessingLoom.library": [10X 3' v2 sequencing, 10X 3' v2 sequencing],
-  "PostProcessingLoom.organ": [ heart, heart],
-  "PostProcessingLoom.output_tsv": my_tsv,
-  "PostProcessingLoom.sample_loom": [ gs://fc-299d55fe-e355-45ea-8f59-c1eb111b4681/f0d200c6-e9c4-4437-8274-f33e162f7109/Optimus/4f05c81f-720e-4ce6-8fea-30507a513602/call-OptimusLoomGeneration/06d5f99b-2419-4544-9272-0f4704c62ef9.loom, gs://fc-299d55fe-e355-45ea-8f59-c1eb111b4681/f0d200c6-e9c4-4437-8274-f33e162f7109/Optimus/ff73def5-b8e8-4f93-98df-1bad832fe31e/call-OptimusLoomGeneration/07a65e75-b1a4-4b03-990b-5631a64b71ef.loom],
-  "PostProcessingLoom.species": [ Homo sapiens, Homo sapiens],
-  "PostProcessingLoom.stage": [ Homo sapiens, Homo sapiens]
-}
