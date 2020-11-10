@@ -10,10 +10,11 @@ workflow OptimusPostProcessing {
   input {
     Array[File] library_looms
     Array[File] analysis_file_jsons
+    Array[File] links_jsons
     Array[String] library
     Array[String] species
     Array[String] organ
-    String output_basename
+    String project_id
   }
 
   # version of this pipeline
@@ -32,24 +33,32 @@ workflow OptimusPostProcessing {
       library = library[0],
       species = species[0],
       organ = organ[0],
-      output_basename = output_basename
+      project_id = project_id
   }
 
   call PostProcessing.GetInputMetadata {
     input:
       analysis_file_jsons = analysis_file_jsons,
-      output_basename = output_basename
+      project_id = project_id
+  }
+
+  call PostProcessing.GetProtocolMetadata {
+    input:
+      links_jsons = links_jsons,
+      project_id = project_id
   }
 
   call PostProcessing.CreateAdapterJson {
     input:
       project_loom = MergeLooms.project_loom,
-      output_basename = output_basename
+      project_id = project_id,
+      input_metadata_json = GetInputMetadata.input_metadata_json,
+      protocol_metadata_json = GetProtocolMetadata.protocol_metadata_json
   }
 
   output {
     File project_loom = MergeLooms.project_loom
-    File project_json = CreateAdapterJson.project_json
+    Array[File] json_adapter_files = CreateAdapterJson.json_adapter_files
   }
 
   meta {

@@ -2,7 +2,7 @@ FROM gcr.io/google.com/cloudsdktool/cloud-sdk
 
 LABEL maintainer="Lantern Team <lantern@broadinstitute.org>"
 
-RUN pip install --upgrade pip
+RUN pip3 install --upgrade pip
 
 COPY requirements.txt .
 RUN pip3 install numpy==1.17.0
@@ -16,4 +16,6 @@ COPY HCA_create_adapter_json.py .
 COPY optimus_HCA_loom_merge.py .
 COPY post_processing_ss2.py .
 COPY file_utils.sh .
+COPY create_input_metadata_json.py .
+COPY create_protocol_metadata_json.py .
 
