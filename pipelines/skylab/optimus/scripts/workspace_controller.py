@@ -10,9 +10,10 @@ import json
 import json_templates
 import parse_terra
 
-billing_project= os.environ['WORKSPACE_NAMESPACE']
-template_workspace_name="DCP2_Optimus_template_FK"
+if "WORKSPACE_NAMESPACE" in os.environ:
+    billing_project= os.environ['WORKSPACE_NAMESPACE']
 
+template_workspace_name="DCP2_Optimus_template_FK"
 
 def create_newworkspace(billing_project, template_workspace_name, new_workspace_name):
 
@@ -24,7 +25,19 @@ def create_newworkspace(billing_project, template_workspace_name, new_workspace_
                                    new_workspace_name
                                   )
 
-   print(res.text)
+   return(res)
+
+def get_data_from_workspace(billing_project,workspace_name,participant_table_name,output_table_name):
+    r = fapi.get_entities_tsv(billing_project, workspace_name, participant_table_name)
+    with open(output_table_name, 'w') as fout: 
+        fout.write(r.content.decode())
+
+    if r.status_code != 200:
+        print("ERROR :" + updated_workflow.content)
+        sys.exit(1)
+    else: 
+        print("Downloaded the table successfully")
+    
 
 def upload_tables(input_file, billing_project, workspace_name):
       with open(input_file) as tsvf:
@@ -34,6 +47,21 @@ def upload_tables(input_file, billing_project, workspace_name):
       model = 'flexible'
 
       batch_load(billing_project, workspace_name, headerline, entity_data, 500, model)
+def upload_workflow_json(billing_project,workspace_name,workflow_name,json_templates):
+    work_space_config = fapi.get_workspace_config(billing_project, workspace_name, workspace_name, workflow_name)
+    work_space_json = work_space_config.json()
+    work_space_json['inputs'] =  json_templates.optimus_inputs 
+    work_space_json['outputs'] = json_templates.optimus_outputs 
+
+    updated_workflow = fapi.update_workspace_config(billing_project, workspace_name, workspace_name, workflow_name, work_space_json)
+
+    if updated_workflow.status_code != 200:
+        print("ERROR :" + updated_workflow.content)
+        sys.exit(1)
+    else: 
+        print("updated successfully")
+
+
 
 def valid_headerline(l, model='firecloud'):
     """return true if the given string is a valid loadfile header"""
@@ -95,6 +123,9 @@ def batch_load(project, workspace, headerline, entity_data, chunk_size=500,
 
 
 def main():
+   if len(sys.argv) < 2:
+       return
+
    global billing_project
    global template_workspace_name
 
