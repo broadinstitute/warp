@@ -47,13 +47,14 @@ def upload_tables(input_file, billing_project, workspace_name):
       model = 'flexible'
 
       batch_load(billing_project, workspace_name, headerline, entity_data, 500, model)
-def upload_workflow_json(billing_project,workspace_name,workflow_name,json_templates):
-    work_space_config = fapi.get_workspace_config(billing_project, workspace_name, workspace_name, workflow_name)
+
+def upload_workflow_json(billing_project,workspace_name,namespace,workflow_name,json_templates):
+    work_space_config = fapi.get_workspace_config(billing_project, workspace_name, namespace, workflow_name)
     work_space_json = work_space_config.json()
     work_space_json['inputs'] =  json_templates.optimus_inputs 
     work_space_json['outputs'] = json_templates.optimus_outputs 
 
-    updated_workflow = fapi.update_workspace_config(billing_project, workspace_name, workspace_name, workflow_name, work_space_json)
+    updated_workflow = fapi.update_workspace_config(billing_project, workspace_name, namespace, workflow_name, work_space_json)
 
     if updated_workflow.status_code != 200:
         print("ERROR :" + updated_workflow.content)
@@ -61,7 +62,27 @@ def upload_workflow_json(billing_project,workspace_name,workflow_name,json_templ
     else: 
         print("updated successfully")
 
+def create_job_submission(billing_project,workspace_name,workflow_name,workflow_repo): 
+     response = fapi.get_entities_with_type(billing_project, workspace_name)
+     entities = response.json()
 
+    for ent in entities:
+      ent_name = ent['name']
+      ent_type = ent['entityType']
+      ent_attrs = ent['attributes']
+
+    submisson_response = fapi.create_submission(billing_project, workspace_name,
+                                               workflow_repo, workflow_name,
+                                               entity= args.entity_id, etype="participant_lane_set",
+                                               expression=None, use_callcache=True)
+
+    if submisson_response.status_code != 201:
+        print(submisson_response.content)
+        sys.exit(1)
+    else:
+        print("Successfully Created Submisson")
+        with open('response.txt', 'w') as fout:
+            fout.write(submisson_response.json()['submissionId'] + '\n')
 
 def valid_headerline(l, model='firecloud'):
     """return true if the given string is a valid loadfile header"""
