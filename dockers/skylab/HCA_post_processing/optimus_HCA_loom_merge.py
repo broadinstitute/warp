@@ -27,6 +27,14 @@ def main():
                         nargs="+",
                         required=True,
                         help="Organ metadata string")
+    parser.add_argument('--project-id',
+                        dest='project_id',
+                        required=True,
+                        help="Project ID")
+    parser.add_argument('--project-name',
+                        dest='project_name',
+                        required=True,
+                        help="Project Name")
     parser.add_argument('--output-loom-file',
                         dest='output_loom_file',
                         required=True,
@@ -37,10 +45,14 @@ def main():
     library = " ".join(args.library)
     species = " ".join(args.species)
     organ = " ".join(args.organ)
+    project_id = args.project_id
+    project_name = args.project_name
 
     attr_dict = {"library_costruction_method": library,
                  "species": species,
-                 "organ": organ
+                 "organ": organ,
+                 "project_id": project_id,
+                 "project_name": project_name
                  }
 
     expression_data_type_list = []

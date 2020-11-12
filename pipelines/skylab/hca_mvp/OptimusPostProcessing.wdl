@@ -11,16 +11,16 @@ workflow OptimusPostProcessing {
 
   input {
     Array[File] library_looms
-    Array[Array[File]] analysis_file_json_array
+    Array[Array[File]] analysis_file_jsons
     Array[File] links_jsons
     Array[String] library
     Array[String] species
     Array[String] organ
     String project_id
+    String project_name
+    String output_basename
     String staging_bucket
   }
-
-  Array[File] analysis_file_jsons = flattten(analysis_file_json_array)
 
 
   # version of this pipeline
@@ -39,19 +39,21 @@ workflow OptimusPostProcessing {
       library = library[0],
       species = species[0],
       organ = organ[0],
-      project_id = project_id
+      project_id = project_id,
+      project_name = project_name,
+      output_basename = output_basename
   }
 
   call PostProcessing.GetInputMetadata {
     input:
       analysis_file_jsons = analysis_file_jsons,
-      project_id = project_id
+      output_basename = output_basename
   }
 
   call PostProcessing.GetProtocolMetadata {
     input:
       links_jsons = links_jsons,
-      project_id = project_id
+      output_basename = output_basename
   }
 
   call PostProcessing.CreateAdapterJson {

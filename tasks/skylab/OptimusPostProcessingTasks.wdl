@@ -48,19 +48,23 @@ task MergeLooms {
     String species
     String organ
     String project_id
+    String project_name
+    String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:0.0"
+    String docker = "quay.io/humancellatlas/hca_post_processing:0.1"
     Int memory = 3
     Int disk = 20
   }
 
   command {
-    python3 tools/optimus_HCA_loom_merge.py \
+    python3 optimus_HCA_loom_merge.py \
       --input-loom-files ~{sep=" " library_looms} \
       --library ~{library} \
       --species ~{species} \
       --organ ~{organ} \
-      --output-loom-file ~{project_id}.loom
+      --project-id ~{project_id} \
+      --project-name ~{project_name} \
+      --output-loom-file ~{output_basename}.loom
   }
 
   runtime {
@@ -71,7 +75,7 @@ task MergeLooms {
   }
 
   output {
-    File project_loom = "~{project_id}.loom"
+    File project_loom = "~{output_basename}.loom"
   }
 }
 
@@ -79,14 +83,14 @@ task MergeLooms {
 task GetInputMetadata {
   input {
     Array[File] analysis_file_jsons
-    String project_id
+    String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:0.0"
+    String docker = "quay.io/humancellatlas/hca_post_processing:0.1"
   }
   command {
-    python3 tools/create_input_metadata_json.py \
+    python3 create_input_metadata_json.py \
       --input-files ~{sep=" " analysis_file_jsons} \
-      --output ~{project_id}.input_metadata.json
+      --output ~{output_basename}.input_metadata.json
   }
   runtime {
     docker: docker
@@ -95,7 +99,7 @@ task GetInputMetadata {
     disks: "local-disk 20 HDD"
   }
   output {
-    File input_metadata_json = "~{project_id}.input_metadata.json"
+    File input_metadata_json = "~{output_basename}.input_metadata.json"
   }
 }
 
@@ -103,14 +107,14 @@ task GetInputMetadata {
 task GetProtocolMetadata {
   input {
     Array[File] links_jsons
-    String project_id
+    String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:0.0"
+    String docker = "quay.io/humancellatlas/hca_post_processing:0.1"
   }
   command {
-    python3 tools/create_input_metadata_json.py \
+    python3 create_input_metadata_json.py \
       --input-files ~{sep=" " links_jsons} \
-      --output ~{project_id}.protocol_metadata.json
+      --output ~{output_basename}.protocol_metadata.json
   }
   runtime {
     docker: docker
@@ -119,7 +123,7 @@ task GetProtocolMetadata {
     disks: "local-disk 20 HDD"
   }
   output {
-    File protocol_metadata_json = "~{project_id}.protocol_metadata.json"
+    File protocol_metadata_json = "~{output_basename}.protocol_metadata.json"
   }
 }
 
@@ -134,11 +138,11 @@ task CreateAdapterJson {
 
     Int memory = 3
     Int disk = 20
-    String docker ="quay.io/humancellatlas/hca_post_processing:0.0"
+    String docker ="quay.io/humancellatlas/hca_post_processing:0.1"
   }
 
   command {
-    source tools/file_utils.sh
+    source file_utils.sh
 
     CRC=$(get_crc ~{project_loom})
     SHA=$(get_sha ~{project_loom})
