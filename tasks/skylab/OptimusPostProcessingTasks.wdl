@@ -89,7 +89,7 @@ task GetInputMetadata {
   }
   command {
     python3 /tools/create_input_metadata_json.py \
-      --input-files ~{sep=" " analysis_file_jsons} \
+      --input-json-files ~{sep=" " analysis_file_jsons} \
       --output ~{output_basename}.input_metadata.json
   }
   runtime {
@@ -113,7 +113,7 @@ task GetProtocolMetadata {
   }
   command {
     python3 /tools/create_protocol_metadata_json.py \
-      --input-files ~{sep=" " links_jsons} \
+      --input-json-files ~{sep=" " links_jsons} \
       --output ~{output_basename}.protocol_metadata.json
   }
   runtime {
