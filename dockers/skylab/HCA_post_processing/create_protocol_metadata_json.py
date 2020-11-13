@@ -26,7 +26,7 @@ def main():
     for links_file in links_json_files:
         with open(links_file, "r") as f:
             links_metadata = json.load(f)
-        protocols = links_metadata["links"]["protocols"]
+        protocols = links_metadata["links"][0]["protocols"]
         for protocol in protocols:
             if protocol["protocol_id"] not in ids:
                 ids.add(protocol["protocol_id"])
