@@ -11,7 +11,7 @@ workflow OptimusPostProcessing {
 
   input {
     Array[File] library_looms
-    Array[Array[File]] analysis_file_jsons
+    Array[File] analysis_file_jsons
     Array[File] links_jsons
     Array[String] library
     Array[String] species
