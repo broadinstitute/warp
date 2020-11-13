@@ -57,7 +57,7 @@ task MergeLooms {
   }
 
   command {
-    python3 optimus_HCA_loom_merge.py \
+    python3 /tools/optimus_HCA_loom_merge.py \
       --input-loom-files ~{sep=" " library_looms} \
       --library ~{library} \
       --species ~{species} \
@@ -88,7 +88,7 @@ task GetInputMetadata {
     String docker = "quay.io/humancellatlas/hca_post_processing:0.1"
   }
   command {
-    python3 create_input_metadata_json.py \
+    python3 /tools/create_input_metadata_json.py \
       --input-files ~{sep=" " analysis_file_jsons} \
       --output ~{output_basename}.input_metadata.json
   }
@@ -112,7 +112,7 @@ task GetProtocolMetadata {
     String docker = "quay.io/humancellatlas/hca_post_processing:0.1"
   }
   command {
-    python3 create_input_metadata_json.py \
+    python3 /tools/create_input_metadata_json.py \
       --input-files ~{sep=" " links_jsons} \
       --output ~{output_basename}.protocol_metadata.json
   }
@@ -151,7 +151,7 @@ task CreateAdapterJson {
 
     mkdir ouputs
 
-    python3 tools/HCA_create_adapter_json.py \
+    python3 /tools/HCA_create_adapter_json.py \
       --project-loom-file ~{project_loom} \
       --crc32c $CRC \
       --file_version $VERSION \
