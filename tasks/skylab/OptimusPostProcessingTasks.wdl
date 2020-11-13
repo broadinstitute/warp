@@ -59,11 +59,11 @@ task MergeLooms {
   command {
     python3 /tools/optimus_HCA_loom_merge.py \
       --input-loom-files ~{sep=" " library_looms} \
-      --library ~{library} \
-      --species ~{species} \
-      --organ ~{organ} \
-      --project-id ~{project_id} \
-      --project-name ~{project_name} \
+      --library "~{library}" \
+      --species "~{species}" \
+      --organ "~{organ}" \
+      --project-id "~{project_id}" \
+      --project-name "~{project_name}" \
       --output-loom-file ~{output_basename}.loom
   }
 
