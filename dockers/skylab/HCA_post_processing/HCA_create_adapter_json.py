@@ -78,9 +78,11 @@ def main():
     size = args.size
     staging_bucket = args.staging_bucket
     with open(args.inputs_json, "r") as i:
-        inputs = json.load(i)  # this should be a list of dictionaries
+        inputs_dict = json.load(i)  # this should be a list of dictionaries
+        inputs = inputs_dict['inputs']
     with open(args.protocols_json, "r") as p:
-        protocols = json.load(p)  # this should be a list of dictionaries
+        protocols_dict = json.load(p)  # this should be a list of dictionaries
+        protocols = protocols_dict['protocols']
 
     # Generate additional data from agrs
     file_name = os.path.basename(project_loom_file)
