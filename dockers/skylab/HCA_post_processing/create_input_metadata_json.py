@@ -26,7 +26,7 @@ def main():
     for analysis_file in analysis_files:
         with open(analysis_file, "r") as f:
             analysis_metadata = json.load(f)
-        if analysis_metadata["file_core"]["file_name"].endswith("*.loom"):
+        if analysis_metadata["file_core"]["file_name"].endswith(".loom"):
             input_uuid = analysis_metadata["provenance"]["document_id"]
             inputs["inputs"].append({"input_id": input_uuid, "input_type": "analysis_file"})
 
