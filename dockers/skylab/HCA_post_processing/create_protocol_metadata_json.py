@@ -18,12 +18,14 @@ def main():
                         help="Name of output file")
 
     args = parser.parse_args()
+    links_json_files = args.input_files
 
     all_protocols = {"protocols": []}
     ids = set([])
 
-    for input_file in args.input_files:
-        links_metadata = json.loads(input_file)
+    for links_file in links_json_files:
+        with open(links_file, "r") as f:
+            links_metadata = json.load(f)
         protocols = links_metadata["links"]["protocols"]
         for protocol in protocols:
             if protocol["protocol_id"] not in ids:

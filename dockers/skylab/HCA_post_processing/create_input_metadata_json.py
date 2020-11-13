@@ -19,14 +19,16 @@ def main():
 
     args = parser.parse_args()
 
+    analysis_files = args.input_files
+
     inputs = {"inputs": []}
 
-    for input_file in args.input_files:
-        analysis_metadata = json.loads(input_file)
+    for analysis_file in analysis_files:
+        with open(analysis_file, "r") as f:
+            analysis_metadata = json.load(f)
         if analysis_metadata["file_core"]["file_name"].endswith("*.loom"):
             input_uuid = analysis_metadata["provenance"]["document_id"]
-
-        inputs["inputs"].append({"input_id": input_uuid, "input_type": "analysis_file"})
+            inputs["inputs"].append({"input_id": input_uuid, "input_type": "analysis_file"})
 
     with open(args.output, "w") as f:
         json.dump(inputs, f)
