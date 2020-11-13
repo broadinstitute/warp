@@ -48,7 +48,7 @@ def main():
     project_id = args.project_id
     project_name = args.project_name
 
-    attr_dict = {"library_costruction_method": library,
+    attr_dict = {"library_construction_method": library,
                  "species": species,
                  "organ": organ,
                  "project_id": project_id,

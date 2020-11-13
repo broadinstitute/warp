@@ -112,7 +112,7 @@ task GetProtocolMetadata {
     String docker = "quay.io/humancellatlas/hca_post_processing:0.1"
   }
   command {
-    python3 /tools/create_input_metadata_json.py \
+    python3 /tools/create_protocol_metadata_json.py \
       --input-files ~{sep=" " links_jsons} \
       --output ~{output_basename}.protocol_metadata.json
   }
