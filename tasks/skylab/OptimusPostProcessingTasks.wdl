@@ -149,7 +149,7 @@ task CreateAdapterJson {
     SIZE=$(get_size ~{project_loom})
     VERSION=$(get_timestamp ~{project_loom})
 
-    mkdir ouputs
+    mkdir outputs
 
     python3 /tools/HCA_create_adapter_json.py \
       --project-loom-file ~{project_loom} \
