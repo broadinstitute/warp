@@ -2,6 +2,7 @@
 
 import argparse
 import loompy
+import numpy as np
 
 
 def main():
@@ -48,51 +49,61 @@ def main():
     project_id = args.project_id
     project_name = args.project_name
 
-    attr_dict = {"library_construction_method": library,
-                 "species": species,
-                 "organ": organ,
-                 "project_id": project_id,
-                 "project_name": project_name
+    attr_dict = {"library_preparation_protocol.library_construction_method": library,
+                 "donor_organism.genus_species": species,
+                 "specimen_from_organism.organ": organ,
+                 "project.provenance.document_id": project_id,
+                 "project.project_core.project_name": project_name
                  }
 
     expression_data_type_list = []
     optimus_output_schema_version_list = []
     pipeline_versions_list = []
 
-    # To avoid collisions, the barcoodes for each loom file will have a numerical extension added
-    for i in range(len(loom_file_list)):
-        loom_file = loom_file_list[i]
+    temp_merged_loom = 'temp.loom'
+
+    with loompy.new(temp_merged_loom) as dsout:
+        for i in range(len(loom_file_list)):
+            loom_file = loom_file_list[i]
+            with loompy.connect(loom_file) as ds:
+                # filter out cells with low counts n_molecules > 1
+                UMIs =ds.ca['n_molecules']
+                cells = np.where(UMIs >= 100)[0]
+                for (ix, selection, view) in ds.scan(items=cells, axis=1, key="gene_names"):
+                    dsout.add_columns(view.layers, col_attrs=view.ca, row_attrs=view.ra)
+
         ds = loompy.connect(loom_file)
 
         # add the file index as an extension to the barcode to ensure ther are no collisions
         ds.ca['cell_names'] = ds.ca['cell_names'] + "-" + str(i)
 
+
         # add input_id and input_name as column attributes
-        num_rows, num_cols = ds.shape
-        input_id = ds.attrs['input_id']
-        ds.ca.input_id = [input_id for x in range(num_cols)]
-        try:
-            input_name = ds.attrs['input_name']
-            ds.ca.input_name = [input_name for x in range(num_cols)]
-        except AttributeError:
-            pass
+        #num_rows, num_cols = ds.shape
+        #input_id = ds.attrs['input_id']
+        #ds.ca.input_id = [input_id for x in range(num_cols)]
+        #try:
+            #input_name = ds.attrs['input_name']
+            #ds.ca.input_name = [input_name for x in range(num_cols)]
+        #except AttributeError:
+            #pass
 
         # add global attributes for this file to the running list of global attributes
-        expression_data_type_list.append(ds.attrs['expression_data_type'])
-        optimus_output_schema_version_list.append(ds.attrs['optimus_output_schema_version'])
-        pipeline_versions_list.append(ds.attrs['pipeline_version'])
+        expression_data_type_list.append(ds.attrs["expression_data_type"])
+        optimus_output_schema_version_list.append(ds.attrs["optimus_output_schema_version"])
+        pipeline_versions_list.append(ds.attrs["pipeline_version"])
 
         ds.close()
 
-    attr_dict['expression_data_type'] = ", ".join(set(expression_data_type_list))
-    attr_dict['optimus_output_schema_version'] = ", ".join(set(optimus_output_schema_version_list))
-    attr_dict['pipeline_version'] = ", ".join(set(pipeline_versions_list))
+    attr_dict["expression_data_type"] = ", ".join(set(expression_data_type_list))
+    attr_dict["optimus_output_schema_version"] = ", ".join(set(optimus_output_schema_version_list))
+    attr_dict["pipeline_version"] = ", ".join(set(pipeline_versions_list))
 
     # comobine the loom files
-    loompy.combine(loom_file_list, output_file=args.output_loom_file, file_attrs=attr_dict)
+    loompy.combine(loom_file_list, key="gene_names", output_file='temp.loom', file_attrs=attr_dict)
 
     # alter the global attributes of the combired loom file
-    ds = loompy.connect(args.output_loom_file)
+    ds = loompy.connect('temp.loom')
 
     # delete the input_id and input_name (which are now column attributes)
     del ds.attrs.input_id
@@ -100,6 +111,8 @@ def main():
         del ds.attrs.input_name
     except KeyError:
         pass
+
+    loompy.create(args.output_loom_file, ds.sparse(), ds.ra, ds.ca, file_attrs=ds.attrs)
 
     ds.close()
 
