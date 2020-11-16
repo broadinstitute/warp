@@ -107,7 +107,7 @@ workflow WholeGenomeReprocessing {
     File raw_wgs_metrics = WholeGenomeGermlineSingleSample.raw_wgs_metrics
 
     File duplicate_metrics = WholeGenomeGermlineSingleSample.duplicate_metrics
-    File output_bqsr_reports = WholeGenomeGermlineSingleSample.output_bqsr_reports
+    File? output_bqsr_reports = WholeGenomeGermlineSingleSample.output_bqsr_reports
 
     File gvcf_summary_metrics = WholeGenomeGermlineSingleSample.gvcf_summary_metrics
     File gvcf_detail_metrics = WholeGenomeGermlineSingleSample.gvcf_detail_metrics

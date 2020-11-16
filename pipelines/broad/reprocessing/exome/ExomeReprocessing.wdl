@@ -104,7 +104,7 @@ workflow ExomeReprocessing {
     File? fingerprint_detail_metrics = ExomeGermlineSingleSample.fingerprint_detail_metrics
 
     File duplicate_metrics = ExomeGermlineSingleSample.duplicate_metrics
-    File output_bqsr_reports = ExomeGermlineSingleSample.output_bqsr_reports
+    File? output_bqsr_reports = ExomeGermlineSingleSample.output_bqsr_reports
 
     File gvcf_summary_metrics = ExomeGermlineSingleSample.gvcf_summary_metrics
     File gvcf_detail_metrics = ExomeGermlineSingleSample.gvcf_detail_metrics

@@ -130,6 +130,7 @@ workflow ExomeGermlineSingleSample {
       ref_fasta = references.reference_fasta.ref_fasta,
       ref_fasta_index = references.reference_fasta.ref_fasta_index,
       ref_dict = references.reference_fasta.ref_dict,
+      ref_str = references.reference_fasta.ref_str,
       dbsnp_vcf = references.dbsnp_vcf,
       dbsnp_vcf_index = references.dbsnp_vcf_index,
       base_file_name = sample_and_unmapped_bams.base_file_name,
@@ -191,7 +192,7 @@ workflow ExomeGermlineSingleSample {
     File? fingerprint_detail_metrics = AggregatedBamQC.fingerprint_detail_metrics
 
     File duplicate_metrics = UnmappedBamToAlignedBam.duplicate_metrics
-    File output_bqsr_reports = UnmappedBamToAlignedBam.output_bqsr_reports
+    File? output_bqsr_reports = UnmappedBamToAlignedBam.output_bqsr_reports
 
     File gvcf_summary_metrics = BamToGvcf.vcf_summary_metrics
     File gvcf_detail_metrics = BamToGvcf.vcf_detail_metrics

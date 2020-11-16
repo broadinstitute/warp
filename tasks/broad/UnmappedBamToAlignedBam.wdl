@@ -17,6 +17,7 @@ version 1.0
 ## licensing information pertaining to the included programs.
 
 import "../../tasks/broad/Alignment.wdl" as Alignment
+import "../../tasks/broad/DragmapAlignment.wdl" as DragmapAlignment
 import "../../tasks/broad/SplitLargeReadGroup.wdl" as SplitRG
 import "../../tasks/broad/Qc.wdl" as QC
 import "../../tasks/broad/BamProcessing.wdl" as Processing
@@ -29,11 +30,14 @@ workflow UnmappedBamToAlignedBam {
   input {
     SampleAndUnmappedBams sample_and_unmapped_bams
     DNASeqSingleSampleReferences references
+    DragmapReference? dragmap_reference
     PapiSettings papi_settings
 
     File contamination_sites_ud
     File contamination_sites_bed
     File contamination_sites_mu
+
+    File? dragmap_binary
 
     String cross_check_fingerprints_by
     File haplotype_database_file
@@ -42,6 +46,8 @@ workflow UnmappedBamToAlignedBam {
     Boolean hard_clip_reads = false
     Boolean bin_base_qualities = true
     Boolean somatic = false
+    Boolean perform_bqsr = true
+    Boolean use_bwa_mem = true
   }
 
   Float cutoff_for_large_rg_in_gb = 20.0
@@ -74,29 +80,47 @@ workflow UnmappedBamToAlignedBam {
         input:
           input_bam = unmapped_bam,
           bwa_commandline = bwa_commandline,
+          dragmap_binary = select_first([dragmap_binary]),
           output_bam_basename = unmapped_bam_basename + ".aligned.unsorted",
           reference_fasta = references.reference_fasta,
+          dragmap_reference = select_first([dragmap_reference]),
           compression_level = compression_level,
           preemptible_tries = papi_settings.preemptible_tries,
-          hard_clip_reads = hard_clip_reads
+          hard_clip_reads = hard_clip_reads,
+          use_bwa_mem = use_bwa_mem
       }
     }
 
     if (unmapped_bam_size <= cutoff_for_large_rg_in_gb) {
       # Map reads to reference
-      call Alignment.SamToFastqAndBwaMemAndMba as SamToFastqAndBwaMemAndMba {
-        input:
-          input_bam = unmapped_bam,
-          bwa_commandline = bwa_commandline,
-          output_bam_basename = unmapped_bam_basename + ".aligned.unsorted",
-          reference_fasta = references.reference_fasta,
-          compression_level = compression_level,
-          preemptible_tries = papi_settings.preemptible_tries,
-          hard_clip_reads = hard_clip_reads
+      if (use_bwa_mem) {
+        call Alignment.SamToFastqAndBwaMemAndMba as SamToFastqAndBwaMemAndMba {
+          input:
+            input_bam = unmapped_bam,
+            bwa_commandline = bwa_commandline,
+            output_bam_basename = unmapped_bam_basename + ".aligned.unsorted",
+            reference_fasta = references.reference_fasta,
+            compression_level = compression_level,
+            preemptible_tries = papi_settings.preemptible_tries,
+            hard_clip_reads = hard_clip_reads
+        }
+      }
+      if (!use_bwa_mem) {
+        call DragmapAlignment.SamToFastqAndDragmapAndMba as SamToFastqAndDragmapAndMba {
+          input:
+            input_bam = unmapped_bam,
+            dragmap_binary = select_first([dragmap_binary]),
+            output_bam_basename = unmapped_bam_basename + ".aligned.unsorted",
+            reference_fasta = references.reference_fasta,
+            dragmap_reference = select_first([dragmap_reference]),
+            compression_level = compression_level,
+            preemptible_tries = papi_settings.preemptible_tries,
+            hard_clip_reads = hard_clip_reads
+        }
       }
     }
 
-    File output_aligned_bam = select_first([SamToFastqAndBwaMemAndMba.output_bam, SplitRG.aligned_bam])
+    File output_aligned_bam = select_first([SamToFastqAndBwaMemAndMba.output_bam, SamToFastqAndDragmapAndMba.output_bam, SplitRG.aligned_bam])
 
     Float mapped_bam_size = size(output_aligned_bam, "GiB")
 
@@ -190,59 +214,62 @@ workflow UnmappedBamToAlignedBam {
   Int bqsr_divisor = if potential_bqsr_divisor > 1 then potential_bqsr_divisor else 1
 
   # Perform Base Quality Score Recalibration (BQSR) on the sorted BAM in parallel
-  scatter (subgroup in CreateSequenceGroupingTSV.sequence_grouping) {
-    # Generate the recalibration model by interval
-    call Processing.BaseRecalibrator as BaseRecalibrator {
-      input:
-        input_bam = SortSampleBam.output_bam,
-        input_bam_index = SortSampleBam.output_bam_index,
-        recalibration_report_filename = sample_and_unmapped_bams.base_file_name + ".recal_data.csv",
-        sequence_group_interval = subgroup,
-        dbsnp_vcf = references.dbsnp_vcf,
-        dbsnp_vcf_index = references.dbsnp_vcf_index,
-        known_indels_sites_vcfs = references.known_indels_sites_vcfs,
-        known_indels_sites_indices = references.known_indels_sites_indices,
-        ref_dict = references.reference_fasta.ref_dict,
-        ref_fasta = references.reference_fasta.ref_fasta,
-        ref_fasta_index = references.reference_fasta.ref_fasta_index,
-        bqsr_scatter = bqsr_divisor,
-        preemptible_tries = papi_settings.agg_preemptible_tries
+
+  if (perform_bqsr) {
+    scatter (subgroup in CreateSequenceGroupingTSV.sequence_grouping) {
+      # Generate the recalibration model by interval
+      call Processing.BaseRecalibrator as BaseRecalibrator {
+        input:
+          input_bam = SortSampleBam.output_bam,
+          input_bam_index = SortSampleBam.output_bam_index,
+          recalibration_report_filename = sample_and_unmapped_bams.base_file_name + ".recal_data.csv",
+          sequence_group_interval = subgroup,
+          dbsnp_vcf = references.dbsnp_vcf,
+          dbsnp_vcf_index = references.dbsnp_vcf_index,
+          known_indels_sites_vcfs = references.known_indels_sites_vcfs,
+          known_indels_sites_indices = references.known_indels_sites_indices,
+          ref_dict = references.reference_fasta.ref_dict,
+          ref_fasta = references.reference_fasta.ref_fasta,
+          ref_fasta_index = references.reference_fasta.ref_fasta_index,
+          bqsr_scatter = bqsr_divisor,
+          preemptible_tries = papi_settings.agg_preemptible_tries
+      }
     }
-  }
 
-  # Merge the recalibration reports resulting from by-interval recalibration
-  # The reports are always the same size
-  call Processing.GatherBqsrReports as GatherBqsrReports {
-    input:
-      input_bqsr_reports = BaseRecalibrator.recalibration_report,
-      output_report_filename = sample_and_unmapped_bams.base_file_name + ".recal_data.csv",
-      preemptible_tries = papi_settings.preemptible_tries
-  }
-
-  scatter (subgroup in CreateSequenceGroupingTSV.sequence_grouping_with_unmapped) {
-    # Apply the recalibration model by interval
-    call Processing.ApplyBQSR as ApplyBQSR {
+    # Merge the recalibration reports resulting from by-interval recalibration
+    # The reports are always the same size
+    call Processing.GatherBqsrReports as GatherBqsrReports {
       input:
-        input_bam = SortSampleBam.output_bam,
-        input_bam_index = SortSampleBam.output_bam_index,
-        output_bam_basename = recalibrated_bam_basename,
-        recalibration_report = GatherBqsrReports.output_bqsr_report,
-        sequence_group_interval = subgroup,
-        ref_dict = references.reference_fasta.ref_dict,
-        ref_fasta = references.reference_fasta.ref_fasta,
-        ref_fasta_index = references.reference_fasta.ref_fasta_index,
-        bqsr_scatter = bqsr_divisor,
-        compression_level = compression_level,
-        preemptible_tries = papi_settings.agg_preemptible_tries,
-        bin_base_qualities = bin_base_qualities,
-        somatic = somatic
+        input_bqsr_reports = BaseRecalibrator.recalibration_report,
+        output_report_filename = sample_and_unmapped_bams.base_file_name + ".recal_data.csv",
+        preemptible_tries = papi_settings.preemptible_tries
+    }
+
+    scatter (subgroup in CreateSequenceGroupingTSV.sequence_grouping_with_unmapped) {
+      # Apply the recalibration model by interval
+      call Processing.ApplyBQSR as ApplyBQSR {
+        input:
+          input_bam = SortSampleBam.output_bam,
+          input_bam_index = SortSampleBam.output_bam_index,
+          output_bam_basename = recalibrated_bam_basename,
+          recalibration_report = GatherBqsrReports.output_bqsr_report,
+          sequence_group_interval = subgroup,
+          ref_dict = references.reference_fasta.ref_dict,
+          ref_fasta = references.reference_fasta.ref_fasta,
+          ref_fasta_index = references.reference_fasta.ref_fasta_index,
+          bqsr_scatter = bqsr_divisor,
+          compression_level = compression_level,
+          preemptible_tries = papi_settings.agg_preemptible_tries,
+          bin_base_qualities = bin_base_qualities,
+          somatic = somatic
+      }
     }
   }
 
   # Merge the recalibrated BAM files resulting from by-interval recalibration
   call Processing.GatherSortedBamFiles as GatherBamFiles {
     input:
-      input_bams = ApplyBQSR.recalibrated_bam,
+      input_bams = select_first([ApplyBQSR.recalibrated_bam, [SortSampleBam.output_bam]]),
       output_bam_basename = sample_and_unmapped_bams.base_file_name,
       total_input_size = agg_bam_size,
       compression_level = compression_level,
@@ -268,7 +295,7 @@ workflow UnmappedBamToAlignedBam {
     Float contamination = CheckContamination.contamination
 
     File duplicate_metrics = MarkDuplicates.duplicate_metrics
-    File output_bqsr_reports = GatherBqsrReports.output_bqsr_report
+    File? output_bqsr_reports = GatherBqsrReports.output_bqsr_report
 
     File output_bam = GatherBamFiles.output_bam
     File output_bam_index = GatherBamFiles.output_bam_index
