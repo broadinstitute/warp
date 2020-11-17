@@ -13,7 +13,7 @@ import parse_terra
 if "WORKSPACE_NAMESPACE" in os.environ:
     billing_project= os.environ['WORKSPACE_NAMESPACE']
 
-template_workspace_name="DCP2_Optimus_template_FK"
+template_workspace_name="HCA_Smart-seq2_template"
 
 def create_newworkspace(billing_project, template_workspace_name, new_workspace_name):
 
@@ -215,7 +215,7 @@ def main():
       delete_status =  fapi.delete_workspace(billing_project, args.workspace_name)
 
    elif args.cmd == 'clone_workspace':
-      print("Cloning a new workspace from template", args.dest_work_space)
+      print("Cloning a new workspace from template", args.src_work_space)
       status = create_newworkspace(billing_project, args.src_work_space, args.dest_work_space)
 
    elif args.cmd == 'get_participant_table':
@@ -228,9 +228,9 @@ def main():
        parse_terra.create_output_files(args.input_participant_table_name, args.output_prefix)
 
    elif args.cmd == 'upload_participant':
-      #upload_tables(args.input_prefix + ".tsv", billing_project, args.workspace_name)
+      upload_tables(args.input_prefix + ".tsv", billing_project, args.workspace_name)
       upload_tables(args.input_prefix + "_membership.tsv", billing_project, args.workspace_name)
-      #upload_tables(args.input_prefix + "_entity.tsv", billing_project, args.workspace_name)
+      upload_tables(args.input_prefix + "_entity.tsv", billing_project, args.workspace_name)
    elif args.cmd == 'upload_workflow':
        r = fapi.update_repository_method(args.workspace_name, args.method,
                                       "args.synopsis", args.wdl, "comment.txt",
