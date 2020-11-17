@@ -66,16 +66,22 @@ def main():
         for i in range(len(loom_file_list)):
             loom_file = loom_file_list[i]
             with loompy.connect(loom_file) as ds:
+                # add the file index as an extension to the barcode to ensure ther are no collisions
+                ds.ca['cell_names'] = ds.ca['cell_names'] + "-" + str(i)
+                expression_data_type_list.append(ds.attrs["expression_data_type"])
+                optimus_output_schema_version_list.append(ds.attrs["optimus_output_schema_version"])
+                pipeline_versions_list.append(ds.attrs["pipeline_version"])
+
                 # filter out cells with low counts n_molecules > 1
                 UMIs =ds.ca['n_molecules']
                 cells = np.where(UMIs >= 100)[0]
                 for (ix, selection, view) in ds.scan(items=cells, axis=1, key="gene_names"):
                     dsout.add_columns(view.layers, col_attrs=view.ca, row_attrs=view.ra)
+            ds.close()
 
-        ds = loompy.connect(loom_file)
+    dsout.close()
 
-        # add the file index as an extension to the barcode to ensure ther are no collisions
-        ds.ca['cell_names'] = ds.ca['cell_names'] + "-" + str(i)
+
 
 
         # add input_id and input_name as column attributes
@@ -89,21 +95,17 @@ def main():
             #pass
 
         # add global attributes for this file to the running list of global attributes
-        expression_data_type_list.append(ds.attrs["expression_data_type"])
-        optimus_output_schema_version_list.append(ds.attrs["optimus_output_schema_version"])
-        pipeline_versions_list.append(ds.attrs["pipeline_version"])
+    ds = loompy.connect('temp.loom')
 
-        ds.close()
 
     attr_dict["expression_data_type"] = ", ".join(set(expression_data_type_list))
     attr_dict["optimus_output_schema_version"] = ", ".join(set(optimus_output_schema_version_list))
     attr_dict["pipeline_version"] = ", ".join(set(pipeline_versions_list))
 
     # comobine the loom files
-    loompy.combine(loom_file_list, key="gene_names", output_file='temp.loom', file_attrs=attr_dict)
+#    loompy.combine(loom_file_list, key="gene_names", output_file='temp.loom', file_attrs=attr_dict)
 
     # alter the global attributes of the combired loom file
-    ds = loompy.connect('temp.loom')
 
     # delete the input_id and input_name (which are now column attributes)
     del ds.attrs.input_id
