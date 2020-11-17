@@ -67,7 +67,6 @@ def main():
             loom_file = loom_file_list[i]
             with loompy.connect(loom_file) as ds:
                 ds.ca['cell_names'] = ds.ca['cell_names'] + "-" + str(i)
-                ds.ca['cell_names'] = ds.ca['cell_names'] + "-" + str(i)
 
                 # add global attributes for this file to the running list of global attributes
                 expression_data_type_list.append(ds.attrs["expression_data_type"])
@@ -100,7 +99,7 @@ def main():
 
     # alter the global attributes of the combired loom file
 
-    loompy.create(args.output_loom_file, ds.sparse(), ds.ra, ds.ca, file_attrs=attr_dict)
+    loompy.create(args.output_loom_file, ds.layers, ds.ra, ds.ca, file_attrs=attr_dict)
 
     ds.close()
 

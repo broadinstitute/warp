@@ -35,7 +35,7 @@ task CheckMetadata {
   runtime {
     docker: "python:3.7.2"
     cpu: 1
-    memory: "3 GiB"
+    memory: "16 GiB"
     disks: "local-disk 20 HDD"
   }
 }
