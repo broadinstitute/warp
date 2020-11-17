@@ -102,14 +102,8 @@ def main():
 
     # alter the global attributes of the combired loom file
 
-    # delete the input_id and input_name (which are now column attributes)
-    del ds.attrs.input_id
-    try:
-        del ds.attrs.input_name
-    except KeyError:
-        pass
-
-    loompy.create(args.output_loom_file, ds.sparse(), ds.ra, ds.ca, file_attrs=ds.attrs)
+    ds.attrs = attr_dict
+    #loompy.create(args.output_loom_file, ds.sparse(), ds.ra, ds.ca, file_attrs=attr_dict)
 
     ds.close()
 
