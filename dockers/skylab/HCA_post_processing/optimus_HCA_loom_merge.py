@@ -66,8 +66,10 @@ def main():
         for i in range(len(loom_file_list)):
             loom_file = loom_file_list[i]
             with loompy.connect(loom_file) as ds:
-                # add the file index as an extension to the barcode to ensure ther are no collisions
                 ds.ca['cell_names'] = ds.ca['cell_names'] + "-" + str(i)
+                ds.ca['cell_names'] = ds.ca['cell_names'] + "-" + str(i)
+
+                # add global attributes for this file to the running list of global attributes
                 expression_data_type_list.append(ds.attrs["expression_data_type"])
                 optimus_output_schema_version_list.append(ds.attrs["optimus_output_schema_version"])
                 pipeline_versions_list.append(ds.attrs["pipeline_version"])
@@ -80,9 +82,6 @@ def main():
             ds.close()
 
     dsout.close()
-
-
-
 
         # add input_id and input_name as column attributes
         #num_rows, num_cols = ds.shape
@@ -97,13 +96,9 @@ def main():
         # add global attributes for this file to the running list of global attributes
     ds = loompy.connect('temp.loom')
 
-
     attr_dict["expression_data_type"] = ", ".join(set(expression_data_type_list))
     attr_dict["optimus_output_schema_version"] = ", ".join(set(optimus_output_schema_version_list))
     attr_dict["pipeline_version"] = ", ".join(set(pipeline_versions_list))
-
-    # comobine the loom files
-#    loompy.combine(loom_file_list, key="gene_names", output_file='temp.loom', file_attrs=attr_dict)
 
     # alter the global attributes of the combired loom file
 
