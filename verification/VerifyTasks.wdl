@@ -38,7 +38,7 @@ task CompareGtcs {
   }
 
   command {
-    java -Xms3g -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+    java -Xms4500m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
       CompareGtcFiles \
       --INPUT ~{file1} \
       --INPUT ~{file2} \
@@ -48,7 +48,7 @@ task CompareGtcs {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk 10 HDD"
-    memory: "3.5 GiB"
+    memory: "5 GiB"
     preemptible: 3
   }
 }
