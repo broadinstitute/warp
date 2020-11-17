@@ -79,9 +79,7 @@ def main():
                 cells = np.where(UMIs >= 100)[0]
                 for (ix, selection, view) in ds.scan(items=cells, axis=1, key="gene_names"):
                     dsout.add_columns(view.layers, col_attrs=view.ca, row_attrs=view.ra)
-            ds.close()
 
-    dsout.close()
 
         # add input_id and input_name as column attributes
         #num_rows, num_cols = ds.shape
@@ -102,8 +100,7 @@ def main():
 
     # alter the global attributes of the combired loom file
 
-    ds.attrs = attr_dict
-    #loompy.create(args.output_loom_file, ds.sparse(), ds.ra, ds.ca, file_attrs=attr_dict)
+    loompy.create(args.output_loom_file, ds.sparse(), ds.ra, ds.ca, file_attrs=attr_dict)
 
     ds.close()
 
