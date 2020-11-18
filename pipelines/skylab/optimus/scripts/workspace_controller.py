@@ -191,6 +191,10 @@ def main():
 
    upload_config = subparser.add_parser('upload_config', help = 'upload config information')
    upload_config.add_argument('--workspace-name', dest="workspace_name",  help = "name of the workspace")
+   upload_config.add_argument('--chemistry', dest="chemistry", choices = ["V2", "V3"],   help = "chemistry")
+   upload_config.add_argument('--counting-mode', dest="counting_mode", choices = ["sc_rna", "sn_rna"],   
+                              help = "counting mode: whether to count intronic alignments")
+   upload_config.add_argument('--species', dest="species",  choices = ["human", "mouse"],  help = "species")
 
    submit_workflow = subparser.add_parser('submit_workflow', help = 'submit a workflow run')
    submit_workflow.add_argument('--workspace-name', dest="workspace_name",  help = "name of the workspace")
@@ -239,13 +243,32 @@ def main():
               fout.write(r.content.decode())
 
    elif args.cmd == 'upload_config':
+
        work_space_config = fapi.get_workspace_config(billing_project, args.workspace_name, args.workspace_name, "Optimus")
        work_space_json = work_space_config.json()
-       #r_json = r.json()
-
        work_space_json['inputs'] =  json_templates.optimus_inputs 
        work_space_json['outputs'] = json_templates.optimus_outputs 
-       work_space_json['inputs']['Optimus.counting_mode'] = "\"" + "sn_rna" + "\""
+
+       if args.chemistry == "V2":
+          work_space_json['inputs']['Optimus.chemistry'] = '\"tenX_v2\"'
+          work_space_json['inputs']['Optimus.whitelist'] = 'workspace.whitelist_v2'
+       if args.chemistry == "V3":
+          work_space_json['inputs']['Optimus.chemistry'] = '\"tenX_v3\"'
+          work_space_json['inputs']['Optimus.whitelist'] = 'workspace.whitelist_v3'
+          
+       if args.chemistry == "sn_rna":
+          work_space_json['inputs']['Optimus.counting_mode'] = "\"sn_rna\""
+       if args.chemistry == "sc_rna":
+          work_space_json['inputs']['Optimus.counting_mode'] = "\"sc_rna\""
+
+       if args.species == "human":
+           work_space_json['inputs']['Optimus.annotations_gtf'] = 'workspace.human_annotations_gtf'
+           work_space_json['inputs']['Optimus.ref_genome_fasta'] = 'workspace.human_ref_genome_fasta'
+           work_space_json['inputs']['Optimus.tar_star_reference'] = 'workspace.human_tar_star_reference'
+       if args.species == "mouse":
+           work_space_json['inputs']['Optimus.annotations_gtf'] = 'workspace.mouse_annotations_gtf'
+           work_space_json['inputs']['Optimus.ref_genome_fasta'] = 'workspace.mouse_ref_genome_fasta'
+           work_space_json['inputs']['Optimus.tar_star_reference'] = 'workspace.mouse_tar_star_reference'
 
        updated_workflow = fapi.update_workspace_config(billing_project, args.workspace_name, args.workspace_name, "Optimus", work_space_json)
 
