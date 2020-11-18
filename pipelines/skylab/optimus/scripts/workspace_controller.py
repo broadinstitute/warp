@@ -184,7 +184,7 @@ def main():
 
 
    upload_workflow = subparser.add_parser('upload_workflow', 
-                                          help = 'uploads the participant_lane_set, _lane_membership and _lane_entity files')
+                                          help = 'uploads wdl to --workspace-name')
    upload_workflow.add_argument('--workspace-name', dest="workspace_name",  help = "name of the workspace")
    upload_workflow.add_argument('--method', dest="method",  help = "name of the input prefix")
    upload_workflow.add_argument('--wdl', dest="wdl",  help = "name of the input prefix")
@@ -235,6 +235,9 @@ def main():
        r = fapi.update_repository_method(args.workspace_name, args.method,
                                       "args.synopsis", args.wdl, "comment.txt",
                                       "args.comment")
+       with open("response.txt", 'w') as fout:
+              fout.write(r.content.decode())
+
    elif args.cmd == 'upload_config':
        work_space_config = fapi.get_workspace_config(billing_project, args.workspace_name, args.workspace_name, "Optimus")
        work_space_json = work_space_config.json()
