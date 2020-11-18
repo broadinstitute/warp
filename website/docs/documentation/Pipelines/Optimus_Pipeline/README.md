@@ -262,7 +262,7 @@ Cell Ranger is a commonly used set of analysis pipelines developed by [10x Genom
 *So why develop an independent pipeline for 10x data analyses?* 
 
 For three reasons:
-1) Need for an open source, cloud-optimized pipeline. When Optimus was developed, Cell Ranger software was not yet open source, nor was it optimized for the cloud. We did not want to limit software usage to what was available by 10x, but rather wanted  to harness the breadth of tools available in the scientific community. 
+1) Need for an open source, cloud-optimized pipeline. When Optimus was developed, Cell Ranger software was not yet open source, nor was it optimized for the cloud. To date, the Cell Ranger open source code is still not regularly updated with Cell Ranger releases. In consequence, using the latest Cell Ranger (which is not open source yet) limits our ability to harness the breadth of tools available in the scientific community. 
 
 2) Flexibility to process data similar, but not identical, to 10x. We wanted the ability to evolve our pipeline to process non-10x data types that might use similar features such as combinatorial indexing.
 
