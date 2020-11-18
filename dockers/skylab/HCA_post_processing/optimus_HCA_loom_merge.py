@@ -43,9 +43,9 @@ def main():
     args = parser.parse_args()
 
     loom_file_list = args.input_loom_files
-    library = " ".join(args.library)
-    species = " ".join(args.species)
-    organ = " ".join(args.organ)
+    library = ", ".join(set(args.library))
+    species = ", ".join(set(args.species))
+    organ = ", ".join(set(args.organ))
     project_id = args.project_id
     project_name = args.project_name
 
@@ -60,9 +60,8 @@ def main():
     optimus_output_schema_version_list = []
     pipeline_versions_list = []
 
-    temp_merged_loom = 'temp.loom'
 
-    with loompy.new(temp_merged_loom) as dsout:
+    with loompy.new(args.output_loom_file) as dsout:
         for i in range(len(loom_file_list)):
             loom_file = loom_file_list[i]
             with loompy.connect(loom_file) as ds:
@@ -91,15 +90,15 @@ def main():
             #pass
 
         # add global attributes for this file to the running list of global attributes
-    ds = loompy.connect('temp.loom')
+    ds = loompy.connect(args.output_loom_file)
 
     attr_dict["expression_data_type"] = ", ".join(set(expression_data_type_list))
     attr_dict["optimus_output_schema_version"] = ", ".join(set(optimus_output_schema_version_list))
     attr_dict["pipeline_version"] = ", ".join(set(pipeline_versions_list))
 
     # alter the global attributes of the combired loom file
-
-    loompy.create(args.output_loom_file, ds.layers, ds.ra, ds.ca, file_attrs=attr_dict)
+    ds.attrs = attr_dict
+    #loompy.create(args.output_loom_file, ds.layers, ds.ra, ds.ca, file_attrs=attr_dict)
 
     ds.close()
 
