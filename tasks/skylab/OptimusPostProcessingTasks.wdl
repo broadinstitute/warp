@@ -5,6 +5,10 @@ task CheckMetadata {
     Array[String] library
     Array[String] species
     Array[String] organ
+
+    String docker = "python:3.7.2"
+    Int memory = 3
+    Int disk = 20
   }
 
   command {
@@ -33,10 +37,10 @@ task CheckMetadata {
   }
 
   runtime {
-    docker: "python:3.7.2"
+    docker: docker
     cpu: 1
-    memory: "16 GiB"
-    disks: "local-disk 20 HDD"
+    memory: "~{memory} GiB"
+    disks: "local-disk ~{disk} HDD"
   }
 }
 
@@ -51,7 +55,7 @@ task MergeLooms {
     String project_name
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:0.8"
+    String docker = "quay.io/humancellatlas/hca_post_processing:1.0"
     Int memory = 3
     Int disk = 20
   }
@@ -85,7 +89,9 @@ task GetInputMetadata {
     Array[File] analysis_file_jsons
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:0.8"
+    String docker = "quay.io/humancellatlas/hca_post_processing:1.0"
+    Int memory = 3
+    Int disk = 20
   }
   command {
     python3 /tools/create_input_metadata_json.py \
@@ -95,8 +101,8 @@ task GetInputMetadata {
   runtime {
     docker: docker
     cpu: 1
-    memory: "3 GiB"
-    disks: "local-disk 20 HDD"
+    memory: "~{memory} GiB"
+    disks: "local-disk ~{disk} HDD"
   }
   output {
     File input_metadata_json = "~{output_basename}.input_metadata.json"
@@ -109,7 +115,9 @@ task GetProtocolMetadata {
     Array[File] links_jsons
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:0.8"
+    String docker = "quay.io/humancellatlas/hca_post_processing:1.0"
+    Int memory = 3
+    Int disk = 20
   }
   command {
     python3 /tools/create_protocol_metadata_json.py \
@@ -119,8 +127,8 @@ task GetProtocolMetadata {
   runtime {
     docker: docker
     cpu: 1
-    memory: "3 GiB"
-    disks: "local-disk 20 HDD"
+    memory: "~{memory} GiB"
+    disks: "local-disk ~{disk} HDD"
   }
   output {
     File protocol_metadata_json = "~{output_basename}.protocol_metadata.json"
@@ -138,7 +146,7 @@ task CreateAdapterJson {
 
     Int memory = 3
     Int disk = 20
-    String docker ="quay.io/humancellatlas/hca_post_processing:0.8"
+    String docker ="quay.io/humancellatlas/hca_post_processing:1.0"
   }
 
   command {
