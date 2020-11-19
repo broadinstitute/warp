@@ -134,9 +134,9 @@ def main():
     links_basename = "{}_{}_{}.json".format(matrix_file_uuid, file_version, project_id)
 
     # files created in output directory for output
-    analysis_file_json_file_name = "ouputs/analysis_file_{}.josn".format(file_basename)
-    file_descriptor_json_file_name = "outputs/file_descriptor_{}.json".format(file_basename)
-    links_json_file_name = "ouputs/links_{}.json".format(links_basename)
+    analysis_file_json_file_name = "ouputs/analysis_file_{}".format(file_basename)
+    file_descriptor_json_file_name = "outputs/file_descriptor_{}".format(file_basename)
+    links_json_file_name = "ouputs/links_{}".format(links_basename)
 
     with open(analysis_file_json_file_name, "w") as f:
         json.dump(analysis_file_dict, f)
@@ -148,7 +148,7 @@ def main():
         json.dump(links_dict, f)
 
     # Copy json files into the staging bucket
-    subprocess.run('gsutil cp {0} {1}/data/{0}'.format(project_loom_file, staging_bucket), shell=True)
+    subprocess.run('gsutil cp {0} {1}/data/{2}'.format(project_loom_file, staging_bucket, file_name), shell=True)
     subprocess.run('gsutil cp {0} {1}/metadata/analysis_file/{2}'.format(analysis_file_json_file_name,
                                                                          staging_bucket,
                                                                          file_basename), shell=True)
