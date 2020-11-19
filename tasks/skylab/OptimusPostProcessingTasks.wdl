@@ -147,7 +147,7 @@ task CreateAdapterJson {
     LOOM_PATH=$(sed "s|/cromwell_root/|gs://|" <<< ~{project_loom})
 
     CRC=$(get_crc $LOOM_PATH)
-    SHA=$(get_sha $LOOM_PATH)
+    SHA=$(get_sha ~{project_loom})
     SIZE=$(get_size $LOOM_PATH)
     VERSION=$(get_timestamp $LOOM_PATH)
 
