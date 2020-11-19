@@ -142,7 +142,7 @@ task CreateAdapterJson {
   }
 
   command {
-    source file_utils.sh
+    source /tools/file_utils.sh
 
     CRC=$(get_crc ~{project_loom})
     SHA=$(get_sha ~{project_loom})
