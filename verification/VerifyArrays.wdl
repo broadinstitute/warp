@@ -45,7 +45,7 @@ workflow VerifyArrays {
     input:
       num1 = length(test_metrics),
       num2 = length(truth_metrics),
-      error_msg = "Different number of metric files"
+      comparison_type_msg = "Different number of metric files"
   }
 
   String avcdm_ext = "arrays_variant_calling_detail_metrics"
@@ -96,29 +96,6 @@ workflow VerifyArrays {
   }
   meta {
     allowNestedInputs: true
-  }
-}
-
-task CompareGtcs {
-  input {
-    File file1
-    File file2
-    File illumina_normalization_manifest
-  }
-
-  command {
-    java -Xmx3g -Dpicard.useLegacyParser=false  -jar /usr/picard/picard.jar \
-      CompareGtcFiles \
-      --INPUT ~{file1} \
-      --INPUT ~{file2} \
-      --ILLUMINA_NORMALIZATION_MANIFEST ~{illumina_normalization_manifest}
-  }
-
-  runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
-    disks: "local-disk 10 HDD"
-    memory: "3.5 GiB"
-    preemptible: 3
   }
 }
 

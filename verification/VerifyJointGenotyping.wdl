@@ -2,7 +2,6 @@ version 1.0
 
 import "../verification/VerifyTasks.wdl" as VerifyTasks
 import "../verification/VerifyMetrics.wdl" as MetricsVerification
-import "../verification/VerifyGermlineSingleSample.wdl" as GermlineVerification
 import "../verification/VerifyNA12878.wdl" as VerifyNA12878
 
 workflow VerifyJointGenotyping {
@@ -24,7 +23,7 @@ workflow VerifyJointGenotyping {
   }
 
   scatter (idx in range(length(truth_vcfs))) {
-    call GermlineVerification.CompareGvcfs {
+    call VerifyTasks.CompareGvcfs {
       input:
         test_gvcf = test_vcfs[idx],
         truth_gvcf = truth_vcfs[idx]
