@@ -144,10 +144,12 @@ task CreateAdapterJson {
   command {
     source /tools/file_utils.sh
 
-    CRC=$(get_crc ~{project_loom})
-    SHA=$(get_sha ~{project_loom})
-    SIZE=$(get_size ~{project_loom})
-    VERSION=$(get_timestamp ~{project_loom})
+    LOOM_PATH=$(sed "s|/cromwell_root/|gs://|" <<< ~{project_loom})
+
+    CRC=$(get_crc $LOOM_PATH)
+    SHA=$(get_sha $LOOM_PATH)
+    SIZE=$(get_size $LOOM_PATH)
+    VERSION=$(get_timestamp $LOOM_PATH)
 
     mkdir outputs
 
