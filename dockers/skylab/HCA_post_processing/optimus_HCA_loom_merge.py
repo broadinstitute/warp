@@ -100,8 +100,8 @@ def main():
     ds.attrs["pipeline_version"] = ", ".join(set(pipeline_versions_list))
     ds.attrs["input_id_metadata_field"] = ", ".join(set(input_id_metadata_field_list))
     ds.attrs["input_name_metadata_field"] = ", ".join(set(input_name_metadata_field_list))
-    ds.attrs["input_id"] = ", ".join(set(input_id_list))
-    ds.attrs["input_name"] = ", ".join(set(input_name_list))
+    ds.attrs["input_id"] = ", ".join(input_id_list)
+    ds.attrs["input_name"] = ", ".join(input_name_list)
 
     ds.close()
 
