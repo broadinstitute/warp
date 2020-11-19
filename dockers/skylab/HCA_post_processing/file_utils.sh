@@ -6,12 +6,6 @@ function get_timestamp() {
   echo ${timestamp}
 }
 
-function get_sha() {
-  local -r input_file=${1}
-  sha=$(sha256sum ${input_file} | cut -f1 -d ' ')
-  echo ${timestamp}
-}
-
 function get_crc() {
   local -r input_file=${1}
   crc=$(gsutil hash -h ${input_file} | awk '/crc32c/ { print $3 }')
