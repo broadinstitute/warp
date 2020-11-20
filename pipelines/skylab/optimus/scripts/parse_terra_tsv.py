@@ -85,9 +85,9 @@ def create_output_files(input_file,output_prefix):
     particpant_set_df.columns = ['membership:participant_lane_set_id', 'participant_lane']
     particpant_set_df.to_csv(output_prefix + "_membership.tsv",sep="\t",index=None)
     temp = df[['sequencing_process__provenance__document_id','sequencing_input__biomaterial_core__biomaterial_id','project__provenance__document_id',
-               'donor_organism__genus_species', 'library_preparation_protocol__library_construction_approach', 'specimen_from_organism__organ']]
-    temp.columns = ['entity:participant_lane_set_id','input_name','project__provenance__document_id',
-                    'species', 'library', 'organ']
+               'donor_organism__genus_species', 'library_preparation_protocol__library_construction_approach', 'specimen_from_organism__organ', 'project__project_core__project_short_name']]
+    temp.columns = ['entity:participant_lane_set_id','input_name','project_id',
+                    'species', 'library', 'organ', 'project_name']
     temp.to_csv(output_prefix + "_entity.tsv",sep="\t",index=None)
 
 

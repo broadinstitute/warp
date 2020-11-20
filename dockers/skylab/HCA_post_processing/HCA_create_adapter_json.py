@@ -148,14 +148,14 @@ def main():
         json.dump(links_dict, f)
 
     # Copy json files into the staging bucket
-    subprocess.run('gsutil cp {0} {1}/data/{2}'.format(project_loom_file, staging_bucket, file_name), shell=True)
-    subprocess.run('gsutil cp {0} {1}/metadata/analysis_file/{2}'.format(analysis_file_json_file_name,
+    subprocess.run('gsutil cp {0} {1}data/{2}'.format(project_loom_file, staging_bucket, file_name), shell=True)
+    subprocess.run('gsutil cp {0} {1}metadata/analysis_file/{2}'.format(analysis_file_json_file_name,
                                                                          staging_bucket,
                                                                          file_basename), shell=True)
-    subprocess.run('gsutil cp {0} {1}/descriptors/file_descriptor/{2}'.format(file_descriptor_json_file_name,
+    subprocess.run('gsutil cp {0} {1}descriptors/file_descriptor/{2}'.format(file_descriptor_json_file_name,
                                                                               staging_bucket,
                                                                               file_basename), shell=True)
-    subprocess.run('gsutil cp {0} {1}/links/{2}'.format(links_json_file_name,
+    subprocess.run('gsutil cp {0} {1}links/{2}'.format(links_json_file_name,
                                                         staging_bucket,
                                                         links_basename), shell=True)
 
