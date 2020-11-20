@@ -134,9 +134,9 @@ def main():
     links_basename = "{}_{}_{}.json".format(matrix_file_uuid, file_version, project_id)
 
     # files created in output directory for output
-    analysis_file_json_file_name = "ouputs/analysis_file_{}".format(file_basename)
+    analysis_file_json_file_name = "outputs/analysis_file_{}".format(file_basename)
     file_descriptor_json_file_name = "outputs/file_descriptor_{}".format(file_basename)
-    links_json_file_name = "ouputs/links_{}".format(links_basename)
+    links_json_file_name = "outputs/links_{}".format(links_basename)
 
     with open(analysis_file_json_file_name, "w") as f:
         json.dump(analysis_file_dict, f)
