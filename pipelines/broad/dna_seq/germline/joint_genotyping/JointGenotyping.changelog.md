@@ -1,3 +1,8 @@
+# 1.5.0
+2020-10-20
+
+Updated the sample map in the WGS JointGenotyping input files to one with new samples. Turned on validation of NA12878 for both Exome and WGS JointGenotyping.
+
 # 1.4.0
 2020-09-25
 
