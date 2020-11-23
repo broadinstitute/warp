@@ -7,9 +7,9 @@ workflow VerifyNA12878 {
         Array[File] vcf_file_indexes
         Array[String] vcf_names
 
-        File truth_vcf = "gs://broad-dsde-methods-sam/cnn-variant/vcfs/nist_na12878_giab_hg38_sd_fix.vcf.gz"
-        File truth_vcf_index = "gs://broad-dsde-methods-sam/cnn-variant/vcfs/nist_na12878_giab_hg38_sd_fix.vcf.gz.tbi"
-        File truth_intervals = "gs://broad-dsde-methods-sam/cnn-variant/beds/HG001_NA12878_GRCh38_GIAB_highconf.exome.interval_list"
+        File truth_vcf = "gs://broad-gotc-test-storage/VerifyNA12878/nist_na12878_giab_hg38_sd_fix.vcf.gz"
+        File truth_vcf_index = "gs://broad-gotc-test-storage/VerifyNA12878/nist_na12878_giab_hg38_sd_fix.vcf.gz.tbi"
+        File truth_intervals = "gs://broad-gotc-test-storage/VerifyNA12878/HG001_NA12878_GRCh38_GIAB_highconf.exome.interval_list"
 
         Int? preemptible_attempts
         Int? disk_space
