@@ -53,9 +53,9 @@
     "break_bands_at_multiples_of": 0
   },
 
-  "ExternalExomeReprocessing.ExomeReprocessing.ExomeGermlineSingleSample.UnmappedBamToAlignedBam.ApplyBQSR.gatk_docker": "us.gcr.io/broad-gatk/gatk:4.0.10.1",
-  "ExternalExomeReprocessing.ExomeReprocessing.ExomeGermlineSingleSample.UnmappedBamToAlignedBam.BaseRecalibrator.gatk_docker": "us.gcr.io/broad-gatk/gatk:4.0.10.1",
-  "ExternalExomeReprocessing.ExomeReprocessing.ExomeGermlineSingleSample.UnmappedBamToAlignedBam.GatherBqsrReports.gatk_docker": "us.gcr.io/broad-gatk/gatk:4.0.10.1",
+  "ExternalExomeReprocessing.ExomeReprocessing.ExomeGermlineSingleSample.UnmappedBamToAlignedBam.ApplyBQSR.gatk_docker": "us.gcr.io/broad-gatk/gatk:4.1.8.0",
+  "ExternalExomeReprocessing.ExomeReprocessing.ExomeGermlineSingleSample.UnmappedBamToAlignedBam.BaseRecalibrator.gatk_docker": "us.gcr.io/broad-gatk/gatk:4.1.8.0",
+  "ExternalExomeReprocessing.ExomeReprocessing.ExomeGermlineSingleSample.UnmappedBamToAlignedBam.GatherBqsrReports.gatk_docker": "us.gcr.io/broad-gatk/gatk:4.1.8.0",
   "ExternalExomeReprocessing.ExomeReprocessing.ExomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true,
   "ExternalExomeReprocessing.ExomeReprocessing.ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics": false,
   "ExternalExomeReprocessing.ExomeReprocessing.ExomeGermlineSingleSample.AggregatedBamQC.CollectAggregationMetrics.collect_gc_bias_metrics": false,
