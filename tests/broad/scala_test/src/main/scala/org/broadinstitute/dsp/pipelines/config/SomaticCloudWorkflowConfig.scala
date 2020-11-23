@@ -1,7 +1,7 @@
 package org.broadinstitute.dsp.pipelines.config
 
 import org.broadinstitute.dsp.pipelines.util.DataType
-import org.broadinstitute.dsp.pipelines.commandline.PapiVersion.PAPI
+import org.broadinstitute.dsp.pipelines.commandline.PapiVersion.PAPIv2
 import org.broadinstitute.dsp.pipelines.commandline.{
   CromwellEnvironment,
   PapiVersion,
@@ -15,6 +15,6 @@ case class SomaticCloudWorkflowConfig(
     useTimestamp: Option[String] = None,
     useCallCaching: Boolean = true,
     updateTruth: Boolean = false,
-    papiVersion: PapiVersion = PAPI,
+    papiVersion: PapiVersion = PAPIv2,
     env: CromwellEnvironment = CromwellEnvironment.Dev
 ) extends BaseConfig

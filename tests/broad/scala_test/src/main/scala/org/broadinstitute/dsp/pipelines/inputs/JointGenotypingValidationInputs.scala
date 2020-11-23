@@ -30,6 +30,5 @@ case class JointGenotypingValidationInputs(
     truthVcfs: Seq[URI],
     truthVcfIndexes: Seq[URI],
     testIntervals: Seq[URI],
-    truthIntervals: Seq[URI],
-    isExome: Boolean
+    truthIntervals: Seq[URI]
 )
