@@ -6,7 +6,8 @@ import numpy as np
 
 
 def main():
-    description = """Add metadata into a Loom file as column attributes"""
+    description = """Combine library level loom files into a single project level loom and add global metadata. 
+    Cell barcodes from separate libraries are suffixed with a number to avoid collisions."""
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('--input-loom-files',
                         dest='input_loom_files',

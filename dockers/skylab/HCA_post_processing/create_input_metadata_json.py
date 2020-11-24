@@ -5,7 +5,7 @@ import argparse
 
 
 def main():
-    description = """Add metadata into a Loom file as column attributes"""
+    description = """Collects input metadata from individual analysis file jsons """
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('--input-json-files',
                         dest='input_files',

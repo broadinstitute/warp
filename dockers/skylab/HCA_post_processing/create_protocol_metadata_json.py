@@ -5,13 +5,13 @@ import argparse
 
 
 def main():
-    description = """Add metadata into a Loom file as column attributes"""
+    description = """Collects protocol information from individual links joson files"""
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('--input-json-files',
                         dest='input_files',
                         nargs="+",
                         required=True,
-                        help="List of son files")
+                        help="List of json files")
     parser.add_argument('--output',
                         dest='output',
                         required=True,

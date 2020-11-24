@@ -30,7 +30,7 @@ def get_analysis_workflow_id(analysis_output_path):
 
 
 def main():
-    description = """Add metadata into a Loom file as column attributes"""
+    description = """Creates json files needed for HCA DCP2 MVP"""
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('--project-loom-file',
                         dest='project_loom_file',
@@ -84,7 +84,7 @@ def main():
         protocols_dict = json.load(p)  # this should be a list of dictionaries
         protocols = protocols_dict['protocols']
 
-    # Generate additional data from agrs
+    # Generate additional data from args
     file_name = os.path.basename(project_loom_file)
     process_id = get_analysis_workflow_id(project_loom_file)
 
@@ -129,7 +129,7 @@ def main():
                              }]
                   }
 
-    # filenames for staging dierctories
+    # filenames for staging directories
     file_basename = "{}_{}.json".format(matrix_file_uuid, file_version)
     links_basename = "{}_{}_{}.json".format(matrix_file_uuid, file_version, project_id)
 
