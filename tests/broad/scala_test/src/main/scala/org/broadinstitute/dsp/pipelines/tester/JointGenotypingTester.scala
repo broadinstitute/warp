@@ -93,8 +93,7 @@ class JointGenotypingTester(testerConfig: GermlineCloudWorkflowConfig)(
       testVcfIndexes = indexes.map(resultsCloudPath.resolve),
       truthVcfIndexes = indexes.map(truthCloudPath.resolve),
       testIntervals = interval_lists.map(resultsCloudPath.resolve),
-      truthIntervals = interval_lists.map(truthCloudPath.resolve),
-      isExome = (dataTypeString == "exome")
+      truthIntervals = interval_lists.map(truthCloudPath.resolve)
     )
     JointGenotypingValidationInputs
       .marshall(validationInputs)

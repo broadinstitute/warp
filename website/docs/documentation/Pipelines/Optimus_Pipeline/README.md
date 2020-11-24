@@ -2,15 +2,19 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v4.1.5](https://github.com/broadinstitute/warp/releases) | October, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [optimus_v4.1.7](https://github.com/broadinstitute/warp/releases) | November, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![Optimus_diagram](./Optimus_diagram.png)
 
 ## Introduction to the Optimus Workflow
 
-Optimus is a pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/) that supports processing of any 3' single-cell and single-nuclei expression data generated with the [10x Genomic v2 or v3 assay](https://www.10xgenomics.com/solutions/single-cell/). It is an alignment and transcriptome quantification pipeline that corrects cell barcodes, aligns reads to the genome, corrects Unique Molecular Identifiers (UMIs), generates an expression matrix in a UMI-aware manner, calculates summary metrics for genes and cells, detects empty droplets, returns read outputs in BAM format, and returns cell gene expression in numpy matrix and Loom file formats. Special care is taken to keep all reads that may be useful to the downstream user, such as unaligned reads or reads with uncorrectable barcodes. This design provides flexibility to the downstream user and allows for alternative filtering or leveraging the data for novel methodological development.
+Optimus is an open-source, cloud-optimized pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/). It supports processing of any 3' single-cell and single-nuclei expression data generated with the [10x Genomic v2 or v3 assay](https://www.10xgenomics.com/solutions/single-cell/). 
 
-Optimus has been validated for analyzing both [human](https://github.com/broadinstitute/warp/blob/master/benchmarking/v1_Apr2019/optimus_report.rst) and [mouse](https://docs.google.com/document/d/1_3oO0ZQSrwEoe6D3GgKdSmAQ9qkzH_7wrE7x6_deL10/edit) single-cell or single-nuclei data sets. See the [human single-cell validation](https://docs.google.com/document/d/158ba_xQM9AYyu8VcLWsIvSoEYps6PQhgddTr9H0BFmY/edit) or the [single-nuclei](https://docs.google.com/document/d/1rv2M7vfpOzIOsMnMfNyKB4HV18lQ9dnOGHK2tPikiH0/edit) validation reports.
+It is an alignment and transcriptome quantification pipeline that corrects cell barcodes, aligns reads to the genome, corrects Unique Molecular Identifiers (UMIs), generates a count matrix in a UMI-aware manner, calculates summary metrics for genes and cells, detects empty droplets, returns read outputs in BAM format, and returns cell gene counts in numpy matrix and Loom file formats. 
+
+**In addition to providing commonly used metrics such as empty drop detection and mitochondrial reads, Optimus takes special care to keep all reads that may be useful to the downstream user**, such as unaligned reads or reads with uncorrectable barcodes. This design provides flexibility to the downstream user and allows for alternative filtering or leveraging the data for novel methodological development.
+
+Optimus has been validated for analyzing both human and mouse single-cell or single-nuclei data sets. Learn more in the [validation section](#validation-against-cell-ranger). 
 
 :::tip Want to use the Optimus Pipeline for your publication?
 Check out the [Optimus Publication Methods](./optimus.methods.md) to get started!
@@ -41,12 +45,12 @@ Optimus can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stab
 ### Inputs
 
 Optimus pipeline inputs are detailed in JSON format configuration files. There are four example configuration files available if you are interested in running the pipeline:
-*  [human_v2_example](./example_inputs/human_v2_example.json): An example human 10x v2 single-cell dataset
-*  [human_v3_example](./example_inputs/human_v3_example.json): An example human 10x v3 single-cell dataset
-*  [mouse_v2_example](./example_inputs/mouse_v2_example.json): An example mouse 10x v2 single-cell dataset
-*  [mouse_v2_snRNA_example](./example_inputs/mouse_v2_snRNA_example.json): An example mouse v2 single-nuclei dataset
+*  [human_v2_example](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/human_v2_example.json): An example human 10x v2 single-cell dataset
+*  [human_v3_example](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/human_v3_example.json): An example human 10x v3 single-cell dataset
+*  [mouse_v2_example](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/mouse_v2_example.json): An example mouse 10x v2 single-cell dataset
+*  [mouse_v2_snRNA_example](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/mouse_v2_snRNA_example.json): An example mouse v2 single-nuclei dataset
 
-Additionally, there are multiple sample datasets available in the [test_optimus_full_datasets](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/optimus/example_inputs/test_optimus_full_datasets) folder. Please note that unlike the example configuration files above, the configuration files in this folder may not reflect updated Optimus parameters. However, you can still access the FASTQ files for each dataset at the Google bucket locations listed in the dataset configuration files.
+Additionally, there are multiple sample datasets available in the [test_optimus_full_datasets](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/optimus/example_inputs/test_optimus_full_datasets) folder. Please note that unlike the example configuration files above, the configuration files in this folder may not reflect updated Optimus parameters. However, you can still access the FASTQ files for each dataset at the Google bucket locations listed in the dataset configuration files.
 
 #### Sample Data Input
 
@@ -56,7 +60,10 @@ Each 10x v2 and v3 3’ sequencing experiment generates triplets of FASTQ files 
 2. Reverse reads (`r2_fastq`) containing the alignable genomic information from the mRNA transcript
 3. Index FASTQ (`i1_fastq`) containing the sample barcodes, when provided by the sequencing facility
 
-Note: Optimus is currently a single sample pipeline, but can take in multiple sets of FASTQs for a sample that has been split over multiple lanes of sequencing. For an example configuration file with multiple lanes, please see the [mouse_v2_example.json](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/example_inputs/mouse_v2_example.json). Additionally, Optimus does not support demultiplexing even though it accepts index FASTQ files.
+:::tip Optimus is currently a single sample pipeline
+ However, it can take in multiple sets of FASTQs for a sample that has been split over multiple lanes of sequencing. For an example configuration file with multiple lanes, please see the [mouse_v2_example.json](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/mouse_v2_example.json). Additionally, Optimus does not support demultiplexing even though it accepts index FASTQ files.
+ :::
+
 
 #### Additional Reference Inputs
 
@@ -103,7 +110,7 @@ The tools each Optimus task employs are detailed in the table below. If you are 
 
 | Task                                                                                                                                         | Tool                                                                                                                        |
 | -------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| [Attach10xBarcodes](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Attach10xBarcodes.wdl)                                   | [sctools](https://sctools.readthedocs.io/en/latest/sctools.html)                                                            |
+| [FastqProcessing](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl)                                   | [sctools](https://sctools.readthedocs.io/en/latest/sctools.html)                                                            |
 | [StarAlignBamSingleEnd](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlignBamSingleEnd.wdl)                           | [STAR](https://github.com/alexdobin/STAR)                                                                                   |
 | [TagGeneExon](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/TagGeneExon.wdl)                                               | [Drop-seq](https://github.com/broadinstitute/Drop-seq)                                                                      |
 | [UmiCorrection](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/UmiCorrection.wdl)                                           | [Umi-tools](https://github.com/CGATOxford/UMI-tools)                                                                        |
@@ -161,11 +168,11 @@ The Optimus [CreateCountMatrix](https://github.com/broadinstitute/warp/blob/mast
 
 #### 8. Identification of Empty Droplets
 
-Empty droplets are lipid droplets that did not encapsulate a cell during 10x sequencing, but instead acquired cell-free RNA (secreted RNA or RNA released during cell lysis) from the solution in which the cells resided ([Lun, et al., 2018](https://www.ncbi.nlm.nih.gov/pubmed/?term=30902100). This ambient RNA can serve as a substrate for reverse transcription, leading to a small number of background reads. The Optimus pipeline calls the [RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) task which uses the [dropletUtils v.0.1.1](http://bioconductor.org/packages/release/bioc/html/DropletUtils.html) R package to flag cell barcodes that represent empty droplets rather than cells. A cell will be flagged if it contains fewer than 100 molecules. These metrics are stored in the output Loom file. Details of all the metrics included in the final output files can be found in the [Loom_schema documentation](./Loom_schema.md).
+Empty droplets are lipid droplets that did not encapsulate a cell during 10x sequencing, but instead acquired cell-free RNA (secreted RNA or RNA released during cell lysis) from the solution in which the cells resided ([Lun, et al., 2018](https://www.ncbi.nlm.nih.gov/pubmed/?term=30902100). This ambient RNA can serve as a substrate for reverse transcription, leading to a small number of background reads. The Optimus pipeline calls the [RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) task which uses the [DropletUtils v1.2.1](http://bioconductor.org/packages/release/bioc/html/DropletUtils.html) R package to flag cell barcodes that represent empty droplets rather than cells. A cell will be flagged if it contains fewer than 100 molecules. These metrics are stored in the output Loom file. Details of all the metrics included in the final output files can be found in the [Loom_schema documentation](./Loom_schema.md).
 
-| Warning: RunEmptyDrops output not included for single-nuclei data |
-| --- |
-| EmptyDrops relies on a visual knee point inflection (described in [Lun et al. (2019)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y)) to differentiate ambient-like cells from empty droplets. If snRNAseq data does not produce a visual knee point inflection, EmptyDrops drops may not accurately distinguish ambient-like cells. When the Optimus workflow counting_mode = sn_rna, it does not include the RunEmptyDrops output in the final Zarr or Loom |
+:::warning RunEmptyDrops output not included for single-nuclei data
+EmptyDrops relies on a visual knee point inflection (described in [Lun et al. (2019)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y)) to differentiate ambient-like cells from empty droplets. If snRNAseq data does not produce a visual knee point inflection, EmptyDrops drops may not accurately distinguish ambient-like cells. If Optimus counting_mode is set to `sn_rna`, the workflow does not include the RunEmptyDrops output in the final Loom.
+:::
 
 #### 9. Outputs
 
@@ -193,6 +200,18 @@ The Loom is the default output. See the [create_loom_optimus.py](https://github.
 :::warning Zarr Array Deprecation Notice June 2020
 Please note that we have deprecated the previously used Zarr array output. The pipeline now uses the Loom file format as the default output.
 :::
+
+## Validation against Cell Ranger
+Optimus has been validated for processing both human and mouse single-cell and single-nuclei data (see links to validation reports in the table below). For each validation, Optimus results are compared to those of Cell Ranger (see the [FAQ](#faqs) for more on Cell Ranger comparisons). 
+
+| Workflow configuration | Link to Report |
+| --- | --- |
+| Human 10x v2 single-cell | [Report](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/benchmarking/v1_Apr2019/optimus_report.rst)|
+| Mouse 10x v2 single-cell | [Report](https://docs.google.com/document/d/1_3oO0ZQSrwEoe6D3GgKdSmAQ9qkzH_7wrE7x6_deL10/edit) |
+| Human and mouse 10x v3 single-cell | [Report](https://docs.google.com/document/d/1-hwfXkqtL8MblgDWFzk-HsVRYiy4PS8ZhJqAGlHBWYE/edit#heading=h.4uokn64v1s5m)
+|Human and Mouse 10x v2/v3 single-nuclei | [Report](https://docs.google.com/document/d/1rv2M7vfpOzIOsMnMfNyKB4HV18lQ9dnOGHK2tPikiH0/edit) |
+
+ 
 
 ## Versioning
 
@@ -234,4 +253,18 @@ The Optimus pipeline is a single sample pipeline, but it can accept multiple FAS
 ::: details How do I find which parameters and Docker images were used for the different tasks (i.e. STAR alignment, emptyDrops, etc.)
 
 Parameters are listed in each task WDL. For a list of the tasks, see the table in the [Task Summary Section](#optimus-task-summary). Select the link for the task of interest and then view the parameters in the task WDL "command {}" section. For the task Docker image, see task WDL "# runtime values" section; the Docker is listed as "String docker =  ". If you want to learn more about all the different parameters available for a software tool, please select the relevant link in the table's "Tool" column.
+:::
+
+::: details How does Optimus compare to Cell Ranger? 
+
+Cell Ranger is a commonly used set of analysis pipelines developed by [10x Genomics](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger). Optimus and Cell Ranger share many features and additionally, Optimus results are validated against Cell Ranger results (see our [human validation report](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/benchmarking/v1_Apr2019/optimus_report.rst)). 
+
+*So why develop an independent pipeline for 10x data analyses?* 
+
+For three reasons:
+1) Need for an open source, cloud-optimized pipeline. When Optimus was developed, Cell Ranger software was not yet open source, nor was it optimized for the cloud. To date, the Cell Ranger open source code is still not regularly updated with Cell Ranger releases. In consequence, using the latest Cell Ranger (which is not open source yet) limits our ability to harness the breadth of tools available in the scientific community. 
+
+2) Flexibility to process data similar, but not identical, to 10x. We wanted the ability to evolve our pipeline to process non-10x data types that might use similar features such as combinatorial indexing.
+
+3) Addition of metrics. We wanted the pipeline to calculate key metrics that would be useful to the scientific community, such as emptyDrops calculations, mitochondrial read metrics, etc.   
 :::
