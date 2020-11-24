@@ -1,7 +1,6 @@
 version 1.0
 
-#import "../../../tasks/skylab/OptimusPostProcessingTasks.wdl" as PostProcessing
-import "https://raw.githubusercontent.com/broadinstitute/warp/jw_Optimus_post_processing/tasks/skylab//OptimusPostProcessingTasks.wdl" as PostProcessing
+import "../../projects/tasks/OptimusPostProcessingTasks.wdl" as PostProcessing
 
 workflow OptimusPostProcessing {
   meta {
