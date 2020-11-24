@@ -6,7 +6,7 @@ import firecloud.api as fapi
 from firecloud import fiss
 
 import json_templates
-import parse_terra
+import parse_terra_tsv as parse_terra
 
 if "WORKSPACE_NAMESPACE" in os.environ:
     billing_project = os.environ['WORKSPACE_NAMESPACE']
