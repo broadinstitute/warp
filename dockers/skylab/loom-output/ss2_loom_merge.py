@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-import os
 import argparse
 import loompy
+
 
 def main():
     description = """Merge the outputs of multiple SS2 pipeline runs into a single Loom file"""
@@ -30,9 +30,9 @@ def main():
     args = parser.parse_args()
 
     # The list of Loom files that we need to merge
-    
+
     loom_file_list = args.input_loom_files
-    
+
     attrDict = dict()
     attrDict['batch_id'] = args.batch_id
     attrDict['pipeline_version'] = args.pipeline_version
@@ -40,6 +40,9 @@ def main():
         attrDict['batch_name'] = args.batch_name
 
     loompy.combine(loom_file_list,output_file=args.output_loom_file,file_attrs = attrDict)
+
+    #TODO: check global attributes and make sure that they are correct and make sense (i.e. no input_id)
+
 
 if __name__ == '__main__':
     main()
