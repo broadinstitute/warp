@@ -21,8 +21,6 @@ workflow VerifyJointGenotyping {
 
     File test_fingerprint
     File truth_fingerprint
-
-    Boolean is_exome
   }
 
   scatter (idx in range(length(truth_vcfs))) {
@@ -51,13 +49,11 @@ workflow VerifyJointGenotyping {
       truth_fingerprint = truth_fingerprint
   }
 
-  if (is_exome) {
-    call VerifyNA12878.VerifyNA12878 {
-      input:
-        vcf_files = flatten([test_vcfs, truth_vcfs]),
-        vcf_file_indexes = flatten([test_vcf_indexes, truth_vcf_indexes]),
-        vcf_names = ["test","truth"]
-    }
+  call VerifyNA12878.VerifyNA12878 {
+    input:
+      vcf_files = flatten([test_vcfs, truth_vcfs]),
+      vcf_file_indexes = flatten([test_vcf_indexes, truth_vcf_indexes]),
+      vcf_names = ["test","truth"]
   }
 
   output {

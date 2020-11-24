@@ -1,6 +1,6 @@
 package org.broadinstitute.dsp.pipelines.config
 
-import org.broadinstitute.dsp.pipelines.commandline.PapiVersion.PAPI
+import org.broadinstitute.dsp.pipelines.commandline.PapiVersion.PAPIv2
 import org.broadinstitute.dsp.pipelines.commandline.{
   CromwellEnvironment,
   PapiVersion,
@@ -15,6 +15,6 @@ case class ArraysConfig(
     useCallCaching: Boolean = true,
     updateTruth: Boolean = false,
     truthBranch: String = "develop",
-    papiVersion: PapiVersion = PAPI,
+    papiVersion: PapiVersion = PAPIv2,
     useTimestamp: Option[String] = None
 ) extends BaseConfig
