@@ -5,7 +5,7 @@ import argparse
 
 
 def main():
-    description = """Collects protocol information from individual links joson files"""
+    description = """Collects protocol information from individual links json files"""
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('--input-json-files',
                         dest='input_files',
