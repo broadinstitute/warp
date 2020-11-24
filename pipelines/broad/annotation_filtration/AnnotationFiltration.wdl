@@ -4,7 +4,7 @@ import "../../../tasks/broad/Funcotator.wdl" as Funcotator
 
 workflow AnnotationFiltration {
 
-  String pipeline_version = "1.1.0"
+  String pipeline_version = "1.2.0"
 
   input {
     Array[File] vcfs
@@ -15,7 +15,7 @@ workflow AnnotationFiltration {
     File ref_dict
     File? funcotator_interval_list
 
-    String gatk_docker = "us.gcr.io/broad-gotc-prod/gatk:5da51e169f007cb97c3bd23229e0a31c2973ef27"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
     File? custom_data_source_tar_gz
   }
 
@@ -160,6 +160,7 @@ task FilterFuncotations {
   runtime {
     docker: gatk_docker
     memory: machine_memory + " GiB"
+    bootDiskSizeGb: 15
     disks: "local-disk ~{disk_size} ~{disk_type}"
     preemptible: preemptible_attempts
     cpu: cpu_threads

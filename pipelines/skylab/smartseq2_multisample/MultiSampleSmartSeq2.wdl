@@ -6,6 +6,7 @@ import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 workflow MultiSampleSmartSeq2 {
   meta {
     description: "The MultiSampleSmartSeq2 pipeline runs multiple SS2 samples in a single pipeline invocation"
+    allowNestedInputs: true
   }
 
   input {
@@ -34,7 +35,7 @@ workflow MultiSampleSmartSeq2 {
       Boolean paired_end
   }
   # Version of this pipeline
-  String pipeline_version = "2.1.3"
+  String pipeline_version = "2.1.4"
 
   if (false) {
      String? none = "None"
