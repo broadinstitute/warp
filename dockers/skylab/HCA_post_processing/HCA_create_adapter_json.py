@@ -152,7 +152,7 @@ def main():
     subprocess.run('gsutil cp {0} {1}metadata/analysis_file/{2}'.format(analysis_file_json_file_name,
                                                                          staging_bucket,
                                                                          file_basename), shell=True)
-    subprocess.run('gsutil cp {0} {1}descriptors/file_descriptor/{2}'.format(file_descriptor_json_file_name,
+    subprocess.run('gsutil cp {0} {1}descriptors/analysis_file/{2}'.format(file_descriptor_json_file_name,
                                                                               staging_bucket,
                                                                               file_basename), shell=True)
     subprocess.run('gsutil cp {0} {1}links/{2}'.format(links_json_file_name,
