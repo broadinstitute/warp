@@ -157,14 +157,14 @@ task CreateAdapterJson {
     CRC=$(get_crc $LOOM_PATH)
     SHA=$(sha256sum ~{project_loom} | cut -f1 -d ' ')
     SIZE=$(get_size $LOOM_PATH)
-    VERSION=$(get_timestamp $LOOM_PATH)
+    TIMESTAMP=$(get_timestamp $LOOM_PATH)
 
     mkdir outputs
 
     python3 /tools/HCA_create_adapter_json.py \
       --project-loom-file ~{project_loom} \
       --crc32c $CRC \
-      --file_version $VERSION \
+      --file-timestamp $TIMESTAMP \
       --project-id ~{project_id} \
       --sha256 $SHA \
       --size $SIZE \

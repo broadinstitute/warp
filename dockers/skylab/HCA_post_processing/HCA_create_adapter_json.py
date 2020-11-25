@@ -40,8 +40,8 @@ def main():
                         dest='crc32c',
                         required=True,
                         help="crc32c of the loom file")
-    parser.add_argument('--file_version',
-                        dest='file_version',
+    parser.add_argument('--file-timestamp',
+                        dest='file_timestamp',
                         required=True,
                         help="timepstamp of the loom file")
     parser.add_argument('--project-id',
@@ -72,10 +72,11 @@ def main():
 
     project_loom_file = args.project_loom_file
     crc32c = args.crc32c
-    file_version = args.file_version
+    file_timestamp = args.file_timestamp
+    file_version = file_timestamp.replace('Z', '.000000Z')
     project_id = args.project_id
     sha256 = args.sha256
-    size = args.size
+    size = int(args.size)
     staging_bucket = args.staging_bucket
     with open(args.inputs_json, "r") as i:
         inputs_dict = json.load(i)  # this should be a list of dictionaries
@@ -92,42 +93,51 @@ def main():
     file_uuid = get_uuid5(matrix_file_uuid)
 
     analysis_file_dict = {
-                          "provenance": {
-                                         "document_id": matrix_file_uuid,
-                                         "submission_date": file_version
-                                        },
-                          "describedBy": "https://schema.humancellatlas.org/type/file/6.2.0/analysis_file",
-                          "schema_type": "file",
-                          "file_core": {
-                                        "file_name": file_name,
-                                        "format": "loom"
-                                       }
+                           "describedBy": "https://schema.humancellatlas.org/type/file/6.2.0/analysis_file",
+                           "file_core": {
+                             "file_name": file_name,
+                             "format": "loom"
+                           },
+                           "provenance": {
+                             "document_id": matrix_file_uuid,
+                             "submission_date": file_version
+                           },
+                           "schema_type": "file"
                          }
 
-    file_descriptor_dict = {"describedBy": "https://schema.humancellatlas.org/system/2.0.0/file_descriptor",
-                            "schema_type": "file_descriptor",
-                            "content_type": "application/vnd.loom",
-                            "size": size,
-                            "sha256": sha256,
-                            "crc32c": crc32c,
-                            "file_id": file_uuid,
-                            "file_version": file_version,
-                            "file_name": file_name
-                            }
+    file_descriptor_dict = {
+                             "crc32c": crc32c,
+                             "content_type": "application/vnd.loom",
+                             "describedBy": "https://schema.humancellatlas.org/system/2.0.0/file_descriptor",
+                             "file_id": file_uuid,
+                             "file_name": file_name,
+                             "file_version": file_version,
+                             "schema_type": "file_descriptor",
+                             "schema_version": "2.0.0",
+                             "sha256": sha256,
+                             "size": size,
+                           }
 
-    links_dict = {"describedBy": "https://schema.humancellatlas.org/system/2.1.1/links",
-                  "schema_type": "links",
-                  "links": [{"process_type": "analysis",
-                             "process_id": process_id,
-                             "inputs": inputs,
-                             "outputs": [{
-                                         "output_id": matrix_file_uuid,
-                                         "output_type": "analysis_file"
-                                         }],
-                             "protocols": protocols,
-                             "link_type": "process_link"
-                             }]
-                  }
+    links_dict = {
+                   "describedBy": "https://schema.humancellatlas.org/system/2.1.1/links",
+                   "links": [
+                     {
+                       "inputs": inputs,
+                       "link_type": "process_link",
+                       "outputs": [
+                         {
+                           "output_id": matrix_file_uuid,
+                           "output_type": "analysis_file"
+                         }
+                       ],
+                       "process_id": process_id,
+                       "process_type": "analysis_process",
+                       "protocols": protocols,
+                     }
+                   ],
+                   "schema_type": "links",
+                   "schema_version": "2.1.1"
+                 }
 
     # filenames for staging directories
     file_basename = "{}_{}.json".format(matrix_file_uuid, file_version)
@@ -139,25 +149,25 @@ def main():
     links_json_file_name = "outputs/links_{}".format(links_basename)
 
     with open(analysis_file_json_file_name, "w") as f:
-        json.dump(analysis_file_dict, f)
+        json.dump(analysis_file_dict, f, sort_keys=True, indent=4)
 
     with open(file_descriptor_json_file_name, "w") as f:
-        json.dump(file_descriptor_dict, f)
+        json.dump(file_descriptor_dict, f, sort_keys=True, indent=4)
 
     with open(links_json_file_name, "w") as f:
-        json.dump(links_dict, f)
+        json.dump(links_dict, f, sort_keys=True, indent=4)
 
     # Copy json files into the staging bucket
     subprocess.run('gsutil cp {0} {1}data/{2}'.format(project_loom_file, staging_bucket, file_name), shell=True)
     subprocess.run('gsutil cp {0} {1}metadata/analysis_file/{2}'.format(analysis_file_json_file_name,
-                                                                         staging_bucket,
-                                                                         file_basename), shell=True)
+                                                                        staging_bucket,
+                                                                        file_basename), shell=True)
     subprocess.run('gsutil cp {0} {1}descriptors/analysis_file/{2}'.format(file_descriptor_json_file_name,
-                                                                              staging_bucket,
-                                                                              file_basename), shell=True)
+                                                                           staging_bucket,
+                                                                           file_basename), shell=True)
     subprocess.run('gsutil cp {0} {1}links/{2}'.format(links_json_file_name,
-                                                        staging_bucket,
-                                                        links_basename), shell=True)
+                                                       staging_bucket,
+                                                       links_basename), shell=True)
 
 
 if __name__ == '__main__':
