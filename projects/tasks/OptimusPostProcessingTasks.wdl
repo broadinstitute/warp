@@ -55,7 +55,7 @@ task MergeLooms {
     String project_name
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:1.2"
+    String docker = "quay.io/humancellatlas/hca_post_processing:1.4"
     Int memory = 3
     Int disk = 20
   }
@@ -89,7 +89,7 @@ task GetInputMetadata {
     Array[File] analysis_file_jsons
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:1.2"
+    String docker = "quay.io/humancellatlas/hca_post_processing:1.4"
     Int memory = 3
     Int disk = 20
   }
@@ -115,7 +115,7 @@ task GetProtocolMetadata {
     Array[File] links_jsons
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:1.2"
+    String docker = "quay.io/humancellatlas/hca_post_processing:1.4"
     Int memory = 3
     Int disk = 20
   }
@@ -146,7 +146,7 @@ task CreateAdapterJson {
 
     Int memory = 3
     Int disk = 20
-    String docker ="quay.io/humancellatlas/hca_post_processing:1.2"
+    String docker ="quay.io/humancellatlas/hca_post_processing:1.4"
   }
 
   command {
@@ -157,14 +157,14 @@ task CreateAdapterJson {
     CRC=$(get_crc $LOOM_PATH)
     SHA=$(sha256sum ~{project_loom} | cut -f1 -d ' ')
     SIZE=$(get_size $LOOM_PATH)
-    VERSION=$(get_timestamp $LOOM_PATH)
+    TIMESTAMP=$(get_timestamp $LOOM_PATH)
 
     mkdir outputs
 
     python3 /tools/HCA_create_adapter_json.py \
       --project-loom-file ~{project_loom} \
       --crc32c $CRC \
-      --file_version $VERSION \
+      --file-timestamp $TIMESTAMP \
       --project-id ~{project_id} \
       --sha256 $SHA \
       --size $SIZE \
