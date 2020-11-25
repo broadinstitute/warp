@@ -1,3 +1,9 @@
+# 5.0.5
+
+2020-11-24 (Date of Last Commit)
+
+* Made CPU, memory, and disk optional parameters for all tasks
+
 # 5.0.4
 
 2020-11-05 (Date of Last Commit)

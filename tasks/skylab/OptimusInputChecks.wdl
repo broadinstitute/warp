@@ -5,6 +5,9 @@ task checkOptimusInput {
     String chemistry
     String counting_mode
     Boolean force_no_check
+    Int disk = 1
+    Int machine_mem_mb = 1
+    Int cpu = 1
   }  
 
   meta {
@@ -47,9 +50,9 @@ task checkOptimusInput {
 
   runtime {
     docker: "ubuntu:18.04"
-    cpu: 1
-    memory: "1 GiB"
-    disks: "local-disk 1 HDD"
+    cpu: cpu
+    memory: "~{machine_mem_mb} GiB"
+    disks: "local-disk ~{disk} HDD"
   }
   
 }
