@@ -6,6 +6,7 @@ import sys
 import urllib.error
 import urllib.parse
 import urllib.request
+import re
 from io import BytesIO
 
 # pip install python-dateutil
@@ -60,9 +61,18 @@ def get_gce_pricing():
     return data
 
 
-def extract_machine_type(t):
-    if 'jes' in t and 'machineType' in t['jes']:
-        full_machine = t['jes']['machineType']
+def extract_machine_type(call_info):
+    # First, look in the executionEvents for the type of machine allocated:
+    if 'executionEvents' in call_info:
+        for event in call_info['executionEvents']:
+            description = event['description']
+            match = re.search("^Worker.*assigned in \"(\S+)\" on a \"(\S+)\" machine", description)
+            if match:
+                return match.groups()[1]
+
+    # If here, the machine type was not found in the executionEvents, look in jes
+    if 'jes' in call_info and 'machineType' in call_info['jes']:
+        full_machine = call_info['jes']['machineType']
         if full_machine.startswith("custom"):
             return "custom"
         else:
