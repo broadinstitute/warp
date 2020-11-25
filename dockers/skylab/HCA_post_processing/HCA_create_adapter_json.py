@@ -149,13 +149,13 @@ def main():
     links_json_file_name = "outputs/links_{}".format(links_basename)
 
     with open(analysis_file_json_file_name, "w") as f:
-        json.dump(analysis_file_dict, f, sort_keys=True, indent=4)
+        json.dump(analysis_file_dict, f, sort_keys=True, indent=2)
 
     with open(file_descriptor_json_file_name, "w") as f:
-        json.dump(file_descriptor_dict, f, sort_keys=True, indent=4)
+        json.dump(file_descriptor_dict, f, sort_keys=True, indent=2)
 
     with open(links_json_file_name, "w") as f:
-        json.dump(links_dict, f, sort_keys=True, indent=4)
+        json.dump(links_dict, f, sort_keys=True, indent=2)
 
     # Copy json files into the staging bucket
     subprocess.run('gsutil cp {0} {1}data/{2}'.format(project_loom_file, staging_bucket, file_name), shell=True)
