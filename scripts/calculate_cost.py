@@ -75,6 +75,8 @@ def extract_machine_type(call_info):
         full_machine = call_info['jes']['machineType']
         if full_machine.startswith("custom"):
             return "custom"
+        elif full_machine.startswith("predefined"):
+            return "custom"
         else:
             return full_machine.split("/")[1]
     else:
