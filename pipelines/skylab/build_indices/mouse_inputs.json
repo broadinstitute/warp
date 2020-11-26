@@ -3,5 +3,5 @@
   "BuildIndices.organism": "mouse",
   "BuildIndices.organism_prefix": "m",
   "BuildIndices.genome_short_string": "mm10",
-  "BuildIndices.dbsnp_version": "150"
+  "BuildIndices.dbsnp_version": "142"
 }
