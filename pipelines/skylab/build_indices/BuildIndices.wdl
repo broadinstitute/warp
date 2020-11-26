@@ -42,6 +42,7 @@ task GetReferences {
   runtime {
     docker: "quay.io/humancellatlas/secondary-analysis-star:v0.2.2-2.5.3a-1.0.0"
     disks: "local-disk 10 HDD"
+        memory: "50 GiB"
   }
 }
 
@@ -96,7 +97,7 @@ task BuildRsem {
     description: "build reference index files for RSEM"
   }
 
-  String ref_name = "star_primary_gencode_~{organism}_v~{gtf_version}"
+  String ref_name = "rsem_star_primary_gencode_~{organism}_v~{gtf_version}"
   String rsem_index_name = "~{ref_name}.tar"
 
   command {
@@ -210,14 +211,44 @@ task BuildHisat2SnpHaplotypeSplicing {
     gunzip ~{snp_file}.gz
 
     # extract snps, splice sites, and exon information
-    $HISAT2_DIR/hisat2_extract_snps_UCSC.py ~{references.genome_fa}.gz ~{snp_file} genome
-    $HISAT2_DIR/hisat2_extract_splice_sites.py ~{references.annotation_gtf} > genome.ss
-    $HISAT2_DIR/hisat2_extract_exons.py ~{references.annotation_gtf} > genome.exon
+    HISAT2_SNP_SCRIPT=$HISAT2_DIR/hisat2_extract_snps_haplotypes_UCSC.py
+    if [ ! -x "$HISAT2_SNP_SCRIPT" ] ; then
+    if ! which hisat2_extract_snps_haplotypes_UCSC.py ; then
+    echo "Could not find hisat2_extract_snps_haplotypes_UCSC.py in current directory or in PATH"
+    exit 1
+    else
+    HISAT2_SNP_SCRIPT=`which hisat2_extract_snps_haplotypes_UCSC.py`
+    fi
+    fi
+
+    HISAT2_SS_SCRIPT=$HISAT2_DIR/hisat2_extract_splice_sites.py
+    if [  ! -x "$HISAT2_SS_SCRIPT" ] ; then
+    if ! which hisat2_extract_splice_sites.py ; then
+    echo "Could not find hisat2_extract_splice_sites.py in current directory or in PATH"
+    exit 1
+    else
+    HISAT2_SS_SCRIPT=`which hisat2_extract_splice_sites.py`
+    fi
+    fi
+
+    HISAT2_EXON_SCRIPT=$HISAT2_DIR/hisat2_extract_exons.py
+    if [ ! -x "$HISAT2_EXON_SCRIPT" ] ; then
+    if ! which hisat2_extract_exons.py ; then
+    echo "Could not find hisat2_extract_exons.py in current directory or in PATH"
+    exit 1
+    else
+    HISAT2_EXON_SCRIPT=`which hisat2_extract_exons.py`
+    fi
+    fi
+
+    $HISAT2_SNP_SCRIPT ~{references.genome_fa} ~{snp_file} genome
+    $HISAT2_SS_SCRIPT ~{references.annotation_gtf} > genome.ss
+    $HISAT2_EXON_SCRIPT ~{references.annotation_gtf} > genome.exon
 
     # build the hisat2 reference
     $HISAT2_DIR/hisat2-build \
       -p 8 \
-      genome.fa \
+      ~{references.genome_fa} \
       --snp genome.snp \
       --haplotype genome.haplotype \
       --ss genome.ss \
