@@ -100,13 +100,17 @@ The global attributes in the Loom apply to the whole file, not any specific part
 |`number_cells_expressing`|[SC Tools](https://github.com/HumanCellAtlas/sctools/tree/master/src/sctools/metrics)| The number of cells that detect this gene. [Metrics Definitions](https://sctools.readthedocs.io/en/latest/sctools.metrics.html#sctools.metrics.aggregator.GeneMetrics.number_cells_expressing)|
 
 ## HCA Data Coordination Platform Matrix Processing
-Optimus was designed for processing data from the Human Cell Atlas (HCA) Data Coordination platform (DCP; see the DCP [Data Portal here](https://data.humancellatlas.org/). All DCP Projects processed with Optimus have matrices containing the standard Optimus metrics and counts detailed above, but also have additional post-processing to incorporate HCA metadata. These matrices are minimally filtered so that only cells with 100 molecules or more are retained.
+Optimus was designed for processing data from the Human Cell Atlas (HCA) Data Coordination Platform (DCP; see the DCP [Data Portal here](https://data.humancellatlas.org/)). 
+
+All DCP Projects processed with Optimus have matrices containing the standard metrics and counts detailed above, but also have additional post-processing to incorporate HCA metadata.
+
+**These matrices are minimally filtered so that only cells with 100 molecules or more are retained.**
 
 :::warning
 This section details matrices produced for the Human Cell Atlas (HCA) [Data Coordination Platform (DCP)2.0](https://data.humancellatlas.org/), which includes matrices processed with Optimus v4.1.7 and later. The DCP is currently reprocessing data generated with earlier Optimus versions and will deprecate previous matrices once reprocessing is complete. 
 :::
 
-HCA DCP matrices have HCA metadata added the Loom global attributes (see table below). This metadata may be useful when exploring the data and linking it back to any additional Project metadata. Read more about each metadata field in the HCA DCP [Metadata Dictionary](https://data.humancellatlas.org/metadata). 
+HCA DCP matrices contain HCA metadata in the Loom global attributes (see table below) which may be useful when exploring the data and linking it back to the Project metadata. Read more about each metadata field in the HCA DCP [Metadata Dictionary](https://data.humancellatlas.org/metadata). 
 
 | Metadata Attribute Name in Count Matrix | Metadata Description | 
 | --- | --- |
