@@ -100,7 +100,8 @@ def main():
                            },
                            "provenance": {
                              "document_id": matrix_file_uuid,
-                             "submission_date": file_version
+                             "submission_date": file_version,
+                             "submitter_id": "e67aaabe-93ea-564a-aa66-31bc0857b707"
                            },
                            "schema_type": "file"
                          }
