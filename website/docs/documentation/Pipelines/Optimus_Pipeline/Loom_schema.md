@@ -100,17 +100,13 @@ The global attributes in the Loom apply to the whole file, not any specific part
 |`number_cells_expressing`|[SC Tools](https://github.com/HumanCellAtlas/sctools/tree/master/src/sctools/metrics)| The number of cells that detect this gene. [Metrics Definitions](https://sctools.readthedocs.io/en/latest/sctools.metrics.html#sctools.metrics.aggregator.GeneMetrics.number_cells_expressing)|
 
 ## HCA Data Coordination Platform Matrix Processing
+Optimus was designed for processing data from the Human Cell Atlas (HCA) Data Coordination platform (DCP; see the DCP [Data Portal here](https://data.humancellatlas.org/). All DCP Projects processed with Optimus have matrices containing the standard Optimus metrics and counts detailed above, but also have additional post-processing to incorporate HCA metadata. These matrices are minimally filtered so that only cells with 100 molecules or more are retained.
+
 :::warning
-This section details matrices produced for the Human Cell Atlas (HCA) [Data Coordination Platform (DCP)2.0](https://data.humancellatlas.org/), which includes matrices processed with Optimus v4.1.7 and later. 
+This section details matrices produced for the Human Cell Atlas (HCA) [Data Coordination Platform (DCP)2.0](https://data.humancellatlas.org/), which includes matrices processed with Optimus v4.1.7 and later. The DCP is currently reprocessing data generated with earlier Optimus versions and will deprecate previous matrices once reprocessing is complete. 
 :::
 
-All HCA DCP datasets processed with the Optimus pipeline (v4.1.7 or later) have project-level matrices (in Loom file format) that are divided by **species**, **organ**, and **sequencing method**. 
-
-Additionally, these matrices are minimally filtered so that only cells with 100 molecules or more are retained.
-
-DCP project matrices contain all the standard Optimus metrics and counts detailed above, but additionally have HCA metadata included in the Loom global attributes (see table below).
-
- This metadata may be useful when exploring the data and linking it back to any additional Project metadata. Read more about each metadata field in the HCA DCP [Metadata Dictionary](https://data.humancellatlas.org/metadata). 
+HCA DCP matrices have HCA metadata added the Loom global attributes (see table below). This metadata may be useful when exploring the data and linking it back to any additional Project metadata. Read more about each metadata field in the HCA DCP [Metadata Dictionary](https://data.humancellatlas.org/metadata). 
 
 | Metadata Attribute Name in Count Matrix | Metadata Description | 
 | --- | --- |
@@ -122,6 +118,8 @@ DCP project matrices contain all the standard Optimus metrics and counts detaile
 | `input_id` | metadata values for  `sequencing_process.provenance.document_id`; unique ID to demarcate the library prep |
 | `input_name` | metadata values for `sequencing_input.biomaterial_core.biomaterial_id`; unique ID for the biomaterial |
 
-:::tip Search and explore HCA DCP data 
-Visit the [Explore](https://data.humancellatlas.org/explore/projects?filter=%5B%7B%22facetName%22:%22genusSpecies%22,%22terms%22:%5B%22Homo%20sapiens%22%5D%7D%5D) page of the DCP Data Portal to find and download Project matrices.
-:::
+The `input_id` is a comma-separated string containing the IDs for the library prep from which a cell came and can be mapped back to the unique barcodes that are listed in the Loom `cell_names` column attribute. 
+
+Each barcode in the `cell_names` attribute has a numerical suffix (i.e. "-1", "-2", etc.); this suffix is an index for the input_ids. For example, barcodes with "-1" belong to the first ID listed in the `input_id` string, whereas barcodes with a "-2" belong to the second ID listed in the `input_id` string.
+
+The `input_id` may be used to map the data back to the DCP metadata manifest which contains all of a project's metadata, including donor and disease state information. 
