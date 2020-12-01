@@ -17,6 +17,8 @@ task SmartSeq2LoomOutput {
     String pipeline_version
     Int preemptible = 3
     Int disk = 200
+    Int machine_mem_mb = 18
+    Int cpu = 4
   }
 
   meta {
@@ -43,8 +45,8 @@ task SmartSeq2LoomOutput {
 
   runtime {
     docker: docker
-    cpu: 4  # note that only 1 thread is supported by pseudobam
-    memory: "18 GiB"
+    cpu: cpu  # note that only 1 thread is supported by pseudobam
+    memory: "~{machine_mem_mb} GiB"
     disks: "local-disk ~{disk} HDD"
     preemptible: preemptible
   }
@@ -86,6 +88,8 @@ task OptimusLoomGeneration {
 
     Int preemptible = 3
     Int disk = 200
+    Int machine_mem_mb = 18
+    Int cpu = 4
   }
 
   meta {
@@ -127,8 +131,8 @@ task OptimusLoomGeneration {
 
   runtime {
     docker: docker
-    cpu: 4  # note that only 1 thread is supported by pseudobam
-    memory: "18 GiB"
+    cpu: cpu  # note that only 1 thread is supported by pseudobam
+    memory: "~{machine_mem_mb} GiB"
     disks: "local-disk ~{disk} HDD"
     preemptible: preemptible
   }
@@ -147,6 +151,8 @@ task AggregateSmartSeq2Loom {
         String pipeline_version
         String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.4-ss2-loom-fix-1"
         Int disk = 200
+        Int machine_mem_mb = 4
+        Int cpu = 1
     }
 
     meta {
@@ -173,9 +179,9 @@ task AggregateSmartSeq2Loom {
 
     runtime {
       docker: docker
-      memory: "3.5 GiB"
+      cpu: cpu
+      memory: "~{machine_mem_mb} GiB"
       disks: "local-disk ~{disk} HDD"
-      cpu: 1
       preemptible: 3
       maxRetries: 1
     }
