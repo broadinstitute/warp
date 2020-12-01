@@ -115,7 +115,7 @@ HCA DCP matrices contain HCA metadata in the Loom global attributes (see table b
 | Metadata Attribute Name in Count Matrix | Metadata Description | 
 | --- | --- |
 | `donor_organism.genus_species` | species information; human or mouse |
-| `library_preparation_protocol.library_construction_method` | technology used for library preprataion, i.e 10x or SS2 |
+| `library_preparation_protocol.library_construction_method` | technology used for library preparation, i.e 10x or SS2 |
 | `specimen_from_organism.organ` | organ |	
 | `project.project_core.project_name` | project name |
 | `project.provenance.document_id` | project id |
@@ -127,3 +127,5 @@ The `input_id` is a comma-separated string containing the IDs for the library pr
 Each barcode in the `cell_names` attribute has a numerical suffix (i.e. "-1", "-2", etc.); this suffix is an index for the input_ids. For example, barcodes with "-1" belong to the first ID listed in the `input_id` string, whereas barcodes with a "-2" belong to the second ID listed in the `input_id` string.
 
 The `input_id` may additionally be used to map the data back to the DCP metadata manifest, a TSV file containing all of a project's metadata, including donor and disease state information. Read more about the metadata manifest in the DCP [Exploring Projects guide](https://data.humancellatlas.org/guides). 
+
+
