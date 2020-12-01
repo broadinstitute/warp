@@ -100,7 +100,7 @@ The global attributes in the Loom apply to the whole file, not any specific part
 |`number_cells_expressing`|[SC Tools](https://github.com/HumanCellAtlas/sctools/tree/master/src/sctools/metrics)| The number of cells that detect this gene. [Metrics Definitions](https://sctools.readthedocs.io/en/latest/sctools.metrics.html#sctools.metrics.aggregator.GeneMetrics.number_cells_expressing)|
 
 ## HCA Data Coordination Platform Matrix Processing
-Optimus was designed for processing data from the Human Cell Atlas (HCA) Data Coordination Platform (DCP; see the DCP [Data Portal here](https://data.humancellatlas.org/)). 
+Optimus supports data processing for the Human Cell Atlas (HCA) Data Coordination Platform (DCP; see the DCP [Data Portal here](https://data.humancellatlas.org/)). 
 
 All DCP Projects processed with Optimus have matrices containing the standard metrics and counts detailed above, but also have additional post-processing to incorporate HCA metadata.
 
