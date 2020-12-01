@@ -124,7 +124,7 @@ HCA DCP matrices contain HCA metadata in the Loom global attributes (see table b
 
 The `input_id` is a comma-separated string containing the IDs for the library prep from which a cell came and can be mapped back to the unique cell barcodes that are listed in the Loom `cell_names` column attribute. 
 
-Each barcode in the `cell_names` attribute has a numerical suffix (i.e. "-1", "-2", etc.); this suffix is an index for the input_ids. For example, barcodes with "-1" belong to the first ID listed in the `input_id` string, whereas barcodes with a "-2" belong to the second ID listed in the `input_id` string.
+Each barcode in the `cell_names` attribute has a numerical suffix (i.e. "-1", "-2", etc.); this suffix is an index for the input IDs. For example, barcodes with "-1" comprise the first ID listed in the `input_id` string, whereas barcodes with a "-2" comprise the second ID listed in the `input_id` string.
 
 The `input_id` may additionally be used to map the data back to the DCP metadata manifest, a TSV file containing all of a project's metadata, including donor and disease state information. Read more about the metadata manifest in the DCP [Exploring Projects guide](https://data.humancellatlas.org/guides). 
 
