@@ -154,6 +154,7 @@ task CreateAdapterJson {
     File protocol_metadata_json
     String project_stratum_string
     String staging_bucket
+    String version_timestamp
 
     Int memory = 3
     Int disk = 20
@@ -168,14 +169,13 @@ task CreateAdapterJson {
     CRC=$(get_crc $LOOM_PATH)
     SHA=$(sha256sum ~{project_loom} | cut -f1 -d ' ')
     SIZE=$(get_size $LOOM_PATH)
-    TIMESTAMP=$(get_timestamp $LOOM_PATH)
 
     mkdir outputs
 
     python3 /tools/HCA_create_adapter_json.py \
       --project-loom-file ~{project_loom} \
       --crc32c $CRC \
-      --file-timestamp $TIMESTAMP \
+      --version-timestamp ~{version_timestamp} \
       --project-id ~{project_id} \
       --project-stratum-string ~{project_stratum_string} \
       --sha256 $SHA \

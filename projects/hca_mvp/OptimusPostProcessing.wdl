@@ -19,6 +19,7 @@ workflow OptimusPostProcessing {
     String project_name
     String output_basename
     String staging_bucket
+    String version_timestamp
   }
 
 
@@ -63,7 +64,8 @@ workflow OptimusPostProcessing {
       input_metadata_json = GetInputMetadata.input_metadata_json,
       protocol_metadata_json = GetProtocolMetadata.protocol_metadata_json,
       project_stratum_string = project_stratum_string,
-      staging_bucket = staging_bucket
+      staging_bucket = staging_bucket,
+      version_timestamp = version_timestamp
   }
 
   output {

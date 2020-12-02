@@ -42,10 +42,10 @@ def main():
                         dest='crc32c',
                         required=True,
                         help="crc32c of the loom file")
-    parser.add_argument('--file-timestamp',
-                        dest='file_timestamp',
+    parser.add_argument('--version-timestamp',
+                        dest='version_timestamp',
                         required=True,
-                        help="timepstamp of the loom file")
+                        help="A version for the ooutput files in the form of a timestamp")
     parser.add_argument('--project-id',
                         dest='project_id',
                         required=True,
@@ -78,8 +78,7 @@ def main():
 
     project_loom_file = args.project_loom_file
     crc32c = args.crc32c
-    file_timestamp = args.file_timestamp
-    file_version = file_timestamp.replace('Z', '.000000Z')
+    file_version = args.version_timestamp
     project_id = args.project_id
     project_stratum_string = args.project_stratum_string
     sha256 = args.sha256
