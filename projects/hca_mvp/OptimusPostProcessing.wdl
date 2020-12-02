@@ -24,6 +24,7 @@ workflow OptimusPostProcessing {
 
   # version of this pipeline
   String pipeline_version = "1.0.0"
+  String project_stratum_string = "project=" + project_id + ";library=" + library + ";species=" + species + ";organ=" + organ
 
   call PostProcessing.CheckMetadata {
       input:
@@ -61,6 +62,7 @@ workflow OptimusPostProcessing {
       project_id = project_id,
       input_metadata_json = GetInputMetadata.input_metadata_json,
       protocol_metadata_json = GetProtocolMetadata.protocol_metadata_json,
+      project_stratum_string = project_stratum_string,
       staging_bucket = staging_bucket
   }
 

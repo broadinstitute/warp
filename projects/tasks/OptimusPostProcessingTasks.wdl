@@ -31,6 +31,16 @@ task CheckMetadata {
       print("ERROR: Organ metadata is not consistent within the project.")
       errors += 1
 
+  if ';' in list(library_set)[0] or '=' in list(library_set)[0]:
+      print('ERROR: Library metadata contains an illegal character (";" or "=")')
+      errors += 1
+  if ';' in list(species_set)[0] or '=' in list(species_set)[0]:
+      print('ERROR: Species metadata contains an illegal character (";" or "=")')
+      errors += 1
+  if ';' in list(organ_set)[0] or '=' in list(organ_set)[0]:
+      print('ERROR: Organ metadata contains an illegal character (";" or "=")')
+      errors += 1
+
   if errors > 0:
       raise ValueError("Files must have matching metadata in order to combine.")
   CODE
@@ -142,6 +152,7 @@ task CreateAdapterJson {
     String project_id
     File input_metadata_json
     File protocol_metadata_json
+    String project_stratum_string
     String staging_bucket
 
     Int memory = 3
@@ -166,6 +177,7 @@ task CreateAdapterJson {
       --crc32c $CRC \
       --file-timestamp $TIMESTAMP \
       --project-id ~{project_id} \
+      --project-stratum-string ~{project_stratum_string} \
       --sha256 $SHA \
       --size $SIZE \
       --staging-bucket ~{staging_bucket} \
