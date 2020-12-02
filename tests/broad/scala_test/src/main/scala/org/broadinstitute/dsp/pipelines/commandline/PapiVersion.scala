@@ -9,6 +9,5 @@ object PapiVersion extends Enum[PapiVersion] {
 
   override val values: immutable.IndexedSeq[PapiVersion] = findValues
 
-  case object PAPI extends PapiVersion
   case object PAPIv2 extends PapiVersion
 }

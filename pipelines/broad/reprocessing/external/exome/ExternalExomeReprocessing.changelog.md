@@ -1,3 +1,11 @@
+# 2.2.0
+2020-10-20
+
+* Updated GATK docker image for all tasks to [GATK 4.1.8.0](https://github.com/broadinstitute/gatk/releases/tag/4.1.8.0).
+    * Numerous bug fixes and improvements
+* Updated Picard docker image for all tasks to [2.23.8](https://github.com/broadinstitute/picard/releases/tag/2.23.8).
+* Updated samtools to version [1.11](https://github.com/samtools/samtools/releases/tag/1.11).  Primarily for improved compression of cram files.
+
 # 2.1.1
 2020-10-01
 
@@ -32,7 +40,6 @@
 * Updated CramToUnmappedBams to properly use the output_map file to support testing.
 * Renamed GermlineSingleSampleReferences to DNASeqSingleSampleReferences
 * Updated shared tasks to support the new TargetedSomaticSingleSample pipeline
-
 
 # 1.4
 2020-03-05

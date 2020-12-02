@@ -2,7 +2,7 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [smartseq2_v5.0.2](https://github.com/broadinstitute/warp/releases) | October, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [smartseq2_v5.0.4](https://github.com/broadinstitute/warp/releases) | October, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![](./smartseq_image.png)
 
@@ -116,7 +116,7 @@ If you are looking for the parameters used for each task/tool, click on the task
 | [RSEM.RSEMExpression](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RSEM.wdl) | [RSEM software](https://deweylab.github.io/RSEM/README.html#de) |
 | [GroupMetricsOutputs.GroupQCOutputs](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/GroupMetricsOutputs.wdl) | [sctools software](https://sctools.readthedocs.io/en/latest/readme.html) |
 | [LoomUtils.SmartSeq2LoomOutput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | [python3 software](https://www.python.org/download/releases/3.0/) |
-| [SS2InputChecks](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/SS2InputChecks.wdl) | NA |
+
 
 
 #### Part 1: Quality Control Tasks
