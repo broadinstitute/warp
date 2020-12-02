@@ -121,10 +121,12 @@ HCA DCP matrices contain HCA metadata in the Loom global attributes (see table b
 | `project.provenance.document_id` | project id |
 | `input_id` | metadata values for  `sequencing_process.provenance.document_id`; unique ID to demarcate the library prep |
 | `input_name` | metadata values for `sequencing_input.biomaterial_core.biomaterial_id`; unique ID for the biomaterial |
+| `input_id_metadata_field` | string describing the HCA metadata field used for input_id: `sequencing_process.provenance.document_id` |
+| `input_name_metadata_field` | string describing the HCA metadata field used for input_name: `sequencing_input.biomaterial_core.biomaterial_id` |
 
 The `input_id` is a comma-separated string containing the IDs for the library prep from which a cell came and can be mapped back to the unique cell barcodes that are listed in the Loom `cell_names` column attribute. 
 
-Each barcode in the `cell_names` attribute has a numerical suffix (i.e. "-1", "-2", etc.); this suffix is an index for the input IDs. For example, barcodes with "-1" comprise the first ID listed in the `input_id` string, whereas barcodes with a "-2" comprise the second ID listed in the `input_id` string.
+Each barcode in the `cell_names` attribute has a numerical suffix (i.e. "-0", "-1", etc.); this suffix is an index (starting at 0) for the input IDs. For example, barcodes with "-0" comprise the first ID listed in the `input_id` string, whereas barcodes with a "-1" comprise the second ID listed in the `input_id` string.
 
 The `input_id` may additionally be used to map the data back to the DCP metadata manifest, a TSV file containing all of a project's metadata, including donor and disease state information. Read more about the metadata manifest in the DCP [Exploring Projects guide](https://data.humancellatlas.org/guides). 
 
