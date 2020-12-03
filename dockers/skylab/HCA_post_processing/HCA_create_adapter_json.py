@@ -101,6 +101,10 @@ def main():
         protocols_dict = json.load(p)  # this should be a list of dictionaries
         protocols = protocols_dict['protocols']
 
+    analysis_type = "run"
+    if "cacheCopy" in str(project_loom_file):
+        analysis_type = "copy-forward"
+
     # Generate additional data from args
     file_name = os.path.basename(project_loom_file)
     process_id = get_analysis_workflow_id(project_loom_file)
@@ -155,7 +159,7 @@ def main():
 #                                  "parameter_value": ""  # string; Path to file for or value of parameter. example: NONE; gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/gencode_v27_primary.tar"
 #                                }  # Input parameters used in the pipeline run.
                               ],  # array of objeects
-                              "analysis_run_type": "run"  # string; If this was cached, "copy-forward", otherwise "run"
+                              "analysis_run_type": analysis_type
                             }
 
     analysis_protocol_dict = {
