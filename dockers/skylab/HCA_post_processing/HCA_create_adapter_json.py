@@ -112,7 +112,7 @@ def main():
     # Create UUIDs
     links_id = get_uuid5(project_stratum_string)  # v5 UUID of project id and the values the data are stratified by
     matrix_entity_id = get_uuid5(links_id)   # v5 UUID of the links_id
-    matrix_file_id =  get_uuid5(matrix_entity_id)  # v5 UUID of the matrix_entity_id
+    matrix_file_id = get_uuid5(matrix_entity_id)  # v5 UUID of the matrix_entity_id
 
     analysis_file_dict = {
                            "describedBy": "https://schema.humancellatlas.org/type/file/6.2.0/analysis_file",
@@ -126,7 +126,7 @@ def main():
                              }
                            },
                            "provenance": {
-                             "document_id": matrix_entity_id,  # matrix_entity_id (v5 of the links_id)
+                             "document_id": matrix_entity_id,
                              "submission_date": file_version,
                              "submitter_id": "e67aaabe-93ea-564a-aa66-31bc0857b707"
                            },
@@ -140,29 +140,42 @@ def main():
                                 "process_id": process_id
                               },
                               "type": {
-                                "text": "analysis; merge matrices"  # string; The name of a process type being used; example: enzymatic dissociation; blood draw - free form text
+                                "text": "analysis; merge matrices"
                               },
                               "reference_files": [],
-                              "timestamp_start_utc": loom_version,  # string; Initial start time of the full pipeline in UTC.  format: yyyy-mm-ddThh:mm:ssZ
-                              "timestamp_stop_utc": loom_version,  # string; Terminal stop time of the full pipeline in UTC. format: yyyy-mm-ddThh:mm:ssZ
-                              "tasks": [  # only include task for the merge matrix (and data check) - can be an empty array if necessary
-#                               {
-#                                 "task_name": "",  # string; Name of the task. example: CollectDuplicationMetrics; RSEMExpression
-#                                 "start_time": "",  # string; Date and time when the task started. Enter the time in date-time format: yyyy-mm-ddThh:mm:ssZ
-#                                 "stop_time": "",  # string; Date and time when the task finished. Enter the time in date-time format: yyyy-mm-ddThh:mm:ssZ
-#                                 "disk_size": "",  # string; Name of the disk volume mounted to the VM for the task. Indicate both disk type and disk size. example: local-disk 11 HDD
-#                                 "docker_image": "",  # string; Name of docker image where the task is stored and executed. example: quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10
-#                                 "cpus": 0,  # integer; Number of CPUs used to run this task.
-#                                 "memory": "",  # string; Amount of memory allocated for this task. example: 7.5 GB
-#                                 "zone": "" # string Name of the Google Cloud zone where the task was run. example: us-central1-b; europe-north1-a
-#                               }
-                              ],  # array of objects
-                              "inputs": [ # can be blank if absolutely necessary
-#                                {
-#                                  "parameter_name": "",  # string; Name of parameter. example: stranded; rsem_ref_index
-#                                  "parameter_value": ""  # string; Path to file for or value of parameter. example: NONE; gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/gencode_v27_primary.tar"
-#                                }  # Input parameters used in the pipeline run.
-                              ],  # array of objeects
+                              "timestamp_start_utc": loom_version,  # string;
+                                                                    # Initial start time of the full pipeline in UTC.
+                                                                    # format: yyyy-mm-ddThh:mm:ssZ
+                              "timestamp_stop_utc": loom_version,   # string;
+                                                                    # Terminal stop time of the full pipeline in UTC.
+                                                                    # format: yyyy-mm-ddThh:mm:ssZ
+                              "tasks": [
+                               # {
+                               #  "task_name": "",   # string; Name of the task.
+                               #                     # example: CollectDuplicationMetrics; RSEMExpression
+                               #  "start_time": "",  # string; Date and time when the task started.
+                               #                     # Enter the time in date-time format: yyyy-mm-ddThh:mm:ssZ
+                               #  "stop_time": "",   # string; Date and time when the task finished.
+                               #                     # Enter the time in date-time format: yyyy-mm-ddThh:mm:ssZ
+                               #  "disk_size": "",   # string; Name of the disk volume mounted to the VM for the task.
+                               #                     # Indicate both disk type and disk size. example: local-disk 11 HDD
+                               #  "docker_image": "",# string;
+                               #                     # Name of docker image where the task is stored and executed.
+                               #                     # quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10
+                               #  "cpus": 0,         # integer; Number of CPUs used to run this task.
+                               #  "memory": "",      # string; Amount of memory allocated for this task. example: 7.5 GB
+                               #  "zone": ""         # string Name of the Google Cloud zone where the task was run.
+                               #                     #example: us-central1-b; europe-north1-a
+                               # }
+                              ],
+                              "inputs": [
+                               # {
+                               #   "parameter_name": "",  # string; Name of parameter. example: stranded; rsem_ref_index
+                               #   "parameter_value": ""  # string; Path to file for or value of parameter.
+                               #                          # example: NONE;
+                               #                          # gs://hca-dcp-mint-test-data/../gencode_v27_primary.tar"
+                               # }  # Input parameters used in the pipeline run.
+                             ],
                               "analysis_run_type": analysis_type
                             }
 
@@ -170,11 +183,14 @@ def main():
                                "describedBy": "https://schema.humancellatlas.org/type/protocol/analysis/9.1.0/analysis_protocol",
                                "schema_type": "protocol",
                                "protocol_core": {
-                                 "protocol_id": pipeline_version  # * needs to be correct * string; A unique ID for the protocol. Protocol ID should have no spaces. pipeline and version for this pipeline
+                                 "protocol_id": pipeline_version
                                },
-                               "computational_method": pipeline_version,  # use version tag in warp (worst case scenario use protocol_id) A URI to a versioned workflow and versioned execution environment in a GA4GH-compliant repository. example: SmartSeq2SingleCell; 10x
+                               "computational_method": pipeline_version,  # string; A URI to a versioned workflow and
+                                                                          # versioned execution environment in a
+                                                                          # GA4GH-compliant repository.
+                                                                          # example: SmartSeq2SingleCell; 10x
                                "type": {
-                                 "text": "analysis; merge matrices"  # string; The name of a process type being used; example: enzymatic dissociation; blood draw Make sure this matches above
+                                 "text": "analysis; merge matrices"
                                }
                              }
 
@@ -182,7 +198,7 @@ def main():
                              "crc32c": crc32c,
                              "content_type": "application/vnd.loom",
                              "describedBy": "https://schema.humancellatlas.org/system/2.0.0/file_descriptor",
-                             "file_id": matrix_file_id,  # matrix_file_id (v5 of matrix_entity_id (v5 of the links_id))
+                             "file_id": matrix_file_id,
                              "file_name": file_name,
                              "file_version": file_version,
                              "schema_type": "file_descriptor",
@@ -199,7 +215,7 @@ def main():
                        "link_type": "process_link",
                        "outputs": [
                          {
-                           "output_id": matrix_entity_id,  # matrix_entity_id (v5 of the links uuid)
+                           "output_id": matrix_entity_id,
                            "output_type": "analysis_file"
                          }
                        ],
@@ -214,7 +230,7 @@ def main():
 
     # filenames for staging directories
     file_basename = "{}_{}.json".format(matrix_entity_id, file_version)
-    links_basename = "{}_{}_{}.json".format(links_id, file_version, project_id)  # v5 of the stratum string and project id
+    links_basename = "{}_{}_{}.json".format(links_id, file_version, project_id)
 
     # files created in output directory for output
     analysis_file_json_file_name = "outputs/analysis_file_{}".format(file_basename)
