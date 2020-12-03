@@ -73,17 +73,27 @@ def main():
                         dest='protocols_json',
                         required=True,
                         help="Json file with protocols metadata")
+    parser.add_argument('--loom-timestamp',
+                        dest='loom_timestamp',
+                        required=True,
+                        help="The timestamp for the stratified project matrix loom file")
+    parser.add_argument('--pipeline-version',
+                        dest='pipeline_version',
+                        required=True,
+                        help="The version of the pipeline used to create the stratified project matrix")
 
     args = parser.parse_args()
 
     project_loom_file = args.project_loom_file
     crc32c = args.crc32c
     file_version = args.version_timestamp
+    loom_version = args.loom_timestamp
     project_id = args.project_id
     project_stratum_string = args.project_stratum_string
     sha256 = args.sha256
     size = int(args.size)
     staging_bucket = args.staging_bucket
+    pipeline_version = args.pipeline_version
     with open(args.inputs_json, "r") as i:
         inputs_dict = json.load(i)  # this should be a list of dictionaries
         inputs = inputs_dict['inputs']
@@ -119,44 +129,44 @@ def main():
                               "describedBy": "https://schema.humancellatlas.org/type/process/analysis/12.0.0/analysis_process",
                               "schema_type": "process",
                               "process_core": {
-                                "process_id": ""  # string; A unique ID for the process. (workflow-id of workflow that produced matrix)
-                              },  # object; Core process-level information
+                                "process_id": process_id
+                              },
                               "type": {
-                                "text": ""  # string; The name of a process type being used; example: enzymatic dissociation; blood draw - free form text analysis; merge matrices
-                              },  # object;
+                                "text": "analysis; merge matrices"  # string; The name of a process type being used; example: enzymatic dissociation; blood draw - free form text
+                              },
                               "reference_files": [],
-                              "timestamp_start_utc": "",  # string; Initial start time of the full pipeline in UTC. Enter the time in date-time format: yyyy-mm-ddThh:mm:ssZ start and stop of merge processs
-                              "timestamp_stop_utc": "",  # string; Terminal stop time of the full pipeline in UTC. Enter the time in date-time format: yyyy-mm-ddThh:mm:ssZ
+                              "timestamp_start_utc": loom_version,  # string; Initial start time of the full pipeline in UTC.  format: yyyy-mm-ddThh:mm:ssZ
+                              "timestamp_stop_utc": loom_version,  # string; Terminal stop time of the full pipeline in UTC. format: yyyy-mm-ddThh:mm:ssZ
                               "tasks": [  # only include task for the merge matrix (and data check) - can be an empty array if necessary
-                                {
-                                  "task_name": "",  # string; Name of the task. example: CollectDuplicationMetrics; RSEMExpression
-                                  "start_time": "",  # string; Date and time when the task started. Enter the time in date-time format: yyyy-mm-ddThh:mm:ssZ
-                                  "stop_time": "",  # string; Date and time when the task finished. Enter the time in date-time format: yyyy-mm-ddThh:mm:ssZ
-                                  "disk_size": "",  # string; Name of the disk volume mounted to the VM for the task. Indicate both disk type and disk size. example: local-disk 11 HDD
-                                  "docker_image": "",  # string; Name of docker image where the task is stored and executed. example: quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10
-                                  "cpus": 0,  # integer; Number of CPUs used to run this task.
-                                  "memory": "",  # string; Amount of memory allocated for this task. example: 7.5 GB
-                                  "zone": "" # string Name of the Google Cloud zone where the task was run. example: us-central1-b; europe-north1-a
-                                }
+#                               {
+#                                 "task_name": "",  # string; Name of the task. example: CollectDuplicationMetrics; RSEMExpression
+#                                 "start_time": "",  # string; Date and time when the task started. Enter the time in date-time format: yyyy-mm-ddThh:mm:ssZ
+#                                 "stop_time": "",  # string; Date and time when the task finished. Enter the time in date-time format: yyyy-mm-ddThh:mm:ssZ
+#                                 "disk_size": "",  # string; Name of the disk volume mounted to the VM for the task. Indicate both disk type and disk size. example: local-disk 11 HDD
+#                                 "docker_image": "",  # string; Name of docker image where the task is stored and executed. example: quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10
+#                                 "cpus": 0,  # integer; Number of CPUs used to run this task.
+#                                 "memory": "",  # string; Amount of memory allocated for this task. example: 7.5 GB
+#                                 "zone": "" # string Name of the Google Cloud zone where the task was run. example: us-central1-b; europe-north1-a
+#                               }
                               ],  # array of objects
                               "inputs": [ # can be blank if absolutely necessary
-                                {
-                                  "parameter_name": "",  # string; Name of parameter. example: stranded; rsem_ref_index
-                                  "parameter_value": ""  # string; Path to file for or value of parameter. example: NONE; gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/gencode_v27_primary.tar"
-                                }  # Input parameters used in the pipeline run.
+#                                {
+#                                  "parameter_name": "",  # string; Name of parameter. example: stranded; rsem_ref_index
+#                                  "parameter_value": ""  # string; Path to file for or value of parameter. example: NONE; gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/gencode_v27_primary.tar"
+#                                }  # Input parameters used in the pipeline run.
                               ],  # array of objeects
-                              "analysis_run_type": ""  # string; Whether the analysis was run or was copied forward as an optimization. The valus is either "run" or "copy-forward" - was this cached?
+                              "analysis_run_type": "run"  # string; If this was cached, "copy-forward", otherwise "run"
                             }
 
     analysis_protocol_dict = {
                                "describedBy": "https://schema.humancellatlas.org/type/protocol/analysis/9.1.0/analysis_protocol",
                                "schema_type": "protocol",
                                "protocol_core": {
-                                 "protocol_id": ""  # * needs to be correct * string; A unique ID for the protocol. Protocol ID should have no spaces. pipeline and version for this pipeline
+                                 "protocol_id": pipeline_version  # * needs to be correct * string; A unique ID for the protocol. Protocol ID should have no spaces. pipeline and version for this pipeline
                                },  # object
                                "computational_method": "",  # use version tag in warp (worst case scenario use protocol_id) A URI to a versioned workflow and versioned execution environment in a GA4GH-compliant repository. example: SmartSeq2SingleCell; 10x
                                "type": {
-                                 "text": ""  # string; The name of a process type being used; example: enzymatic dissociation; blood draw Make sure this matches above
+                                 "text": "analysis; merge matrices"  # string; The name of a process type being used; example: enzymatic dissociation; blood draw Make sure this matches above
                                }  # object;
                              }
 
@@ -200,11 +210,19 @@ def main():
 
     # files created in output directory for output
     analysis_file_json_file_name = "outputs/analysis_file_{}".format(file_basename)
+    analysis_process_json_file_name = "outputs/analysis_proocess_{}".format(file_basename)
+    analysis_protocol_json_file_name = "outputs/analysis_protocol_{}".format(file_basename)
     file_descriptor_json_file_name = "outputs/file_descriptor_{}".format(file_basename)
     links_json_file_name = "outputs/links_{}".format(links_basename)
 
     with open(analysis_file_json_file_name, "w") as f:
         json.dump(analysis_file_dict, f, sort_keys=True, indent=2)
+
+    with open(analysis_process_json_file_name, "w") as f:
+        json.dump(analysis_process_dict, f, sort_keys=True, indent=2)
+
+    with open(analysis_protocol_json_file_name, "w") as f:
+        json.dump(analysis_protocol_dict, f, sort_keys=True, indent=2)
 
     with open(file_descriptor_json_file_name, "w") as f:
         json.dump(file_descriptor_dict, f, sort_keys=True, indent=2)
@@ -215,6 +233,12 @@ def main():
     # Copy json files into the staging bucket
     subprocess.run('gsutil cp {0} {1}data/{2}'.format(project_loom_file, staging_bucket, file_name), shell=True)
     subprocess.run('gsutil cp {0} {1}metadata/analysis_file/{2}'.format(analysis_file_json_file_name,
+                                                                        staging_bucket,
+                                                                        file_basename), shell=True)
+    subprocess.run('gsutil cp {0} {1}metadata/analysis_process/{2}'.format(analysis_process_json_file_name,
+                                                                        staging_bucket,
+                                                                        file_basename), shell=True)
+    subprocess.run('gsutil cp {0} {1}metadata/analysis_protocol/{2}'.format(analysis_protocol_json_file_name,
                                                                         staging_bucket,
                                                                         file_basename), shell=True)
     subprocess.run('gsutil cp {0} {1}descriptors/analysis_file/{2}'.format(file_descriptor_json_file_name,

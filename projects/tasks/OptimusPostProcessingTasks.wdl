@@ -155,6 +155,7 @@ task CreateAdapterJson {
     String project_stratum_string
     String staging_bucket
     String version_timestamp
+    String pipeline_version
 
     Int memory = 3
     Int disk = 20
@@ -169,6 +170,7 @@ task CreateAdapterJson {
     CRC=$(get_crc $LOOM_PATH)
     SHA=$(sha256sum ~{project_loom} | cut -f1 -d ' ')
     SIZE=$(get_size $LOOM_PATH)
+    TIMESTAMP=$(get_timestamp $LOOM_PATH)
 
     mkdir outputs
 
@@ -182,7 +184,9 @@ task CreateAdapterJson {
       --size $SIZE \
       --staging-bucket ~{staging_bucket} \
       --input-metadata-json ~{input_metadata_json} \
-      --protocol-metadata-json ~{protocol_metadata_json}
+      --protocol-metadata-json ~{protocol_metadata_json} \
+      --loom-timestamp $TIMESTAMP \
+      --pipeline-version ~{pipeline_version}
   }
 
   runtime {
