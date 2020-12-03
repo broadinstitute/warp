@@ -114,12 +114,16 @@ def main():
     matrix_entity_id = get_uuid5(links_id)   # v5 UUID of the links_id
     matrix_file_id =  get_uuid5(matrix_entity_id)  # v5 UUID of the matrix_entity_id
 
-
     analysis_file_dict = {
                            "describedBy": "https://schema.humancellatlas.org/type/file/6.2.0/analysis_file",
                            "file_core": {
                              "file_name": file_name,
-                             "format": "loom"
+                             "format": "loom",
+                             "content_description": {
+                               "text": "DCP/2-generated matrix",
+                               "ontology": "data:39172082",
+                               "ontology_label": "Count Matrix"
+                             }
                            },
                            "provenance": {
                              "document_id": matrix_entity_id,  # matrix_entity_id (v5 of the links_id)
@@ -167,11 +171,11 @@ def main():
                                "schema_type": "protocol",
                                "protocol_core": {
                                  "protocol_id": pipeline_version  # * needs to be correct * string; A unique ID for the protocol. Protocol ID should have no spaces. pipeline and version for this pipeline
-                               },  # object
-                               "computational_method": "",  # use version tag in warp (worst case scenario use protocol_id) A URI to a versioned workflow and versioned execution environment in a GA4GH-compliant repository. example: SmartSeq2SingleCell; 10x
+                               },
+                               "computational_method": pipeline_version,  # use version tag in warp (worst case scenario use protocol_id) A URI to a versioned workflow and versioned execution environment in a GA4GH-compliant repository. example: SmartSeq2SingleCell; 10x
                                "type": {
                                  "text": "analysis; merge matrices"  # string; The name of a process type being used; example: enzymatic dissociation; blood draw Make sure this matches above
-                               }  # object;
+                               }
                              }
 
     file_descriptor_dict = {
@@ -214,7 +218,7 @@ def main():
 
     # files created in output directory for output
     analysis_file_json_file_name = "outputs/analysis_file_{}".format(file_basename)
-    analysis_process_json_file_name = "outputs/analysis_proocess_{}".format(file_basename)
+    analysis_process_json_file_name = "outputs/analysis_process_{}".format(file_basename)
     analysis_protocol_json_file_name = "outputs/analysis_protocol_{}".format(file_basename)
     file_descriptor_json_file_name = "outputs/file_descriptor_{}".format(file_basename)
     links_json_file_name = "outputs/links_{}".format(links_basename)
