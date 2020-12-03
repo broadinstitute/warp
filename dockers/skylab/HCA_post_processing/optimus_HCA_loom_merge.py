@@ -131,11 +131,19 @@ def run_tests():
                                    'gene_104', 'gene_105', 'gene_106', 'gene_97', 
                                   'gene_98', 'gene_99']
 
+            # test the expected number of barcodes after filtering
             assert(sorted(list(dsin.ca['cell_names'])) == sorted(expected_cell_names))
+
+            # check the number of gene-names are as expected
             assert(sorted(list(dsin.ra['gene_names'])) == sorted(expected_gene_names))
         
+            # the expected input_id in the merged loom must be concatenated
             assert(dsin.attrs["input_id"]  == ", ".join(input_ids))
+
+            # the expected input_names in the merged loom must be concatenated
             assert(dsin.attrs["input_name"] == ", ".join(input_names))
+
+            # the expression data type should be the same
             assert(dsin.attrs["expression_data_type"] == 'exonic')
 
 
