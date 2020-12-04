@@ -8,6 +8,7 @@ COPY requirements.txt .
 RUN pip3 install numpy==1.17.0
 RUN pip3 install cython==0.29.15
 RUN pip3 install -r requirements.txt
+RUN pip3 install -U  pytest
 
 RUN mkdir /tools
 WORKDIR /tools
@@ -17,4 +18,5 @@ COPY optimus_HCA_loom_merge.py .
 COPY file_utils.sh .
 COPY create_input_metadata_json.py .
 COPY create_protocol_metadata_json.py .
-
+COPY test_optimus_HCA_loom_merge.py .
+ADD testdata/ ./testdata/
