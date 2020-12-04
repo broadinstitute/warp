@@ -348,7 +348,7 @@ def create_loom_files(args):
     expr_sp_t = generate_matrix(args)
     
     # add input_id to col_attrs
-    col_attr['input_id'] = np.repeat(args.input_id, expr_sp_t.shape[1])
+    col_attrs['input_id'] = np.repeat(args.input_id, expr_sp_t.shape[1])
 
     # generate global attributes
     attrDict = dict()
