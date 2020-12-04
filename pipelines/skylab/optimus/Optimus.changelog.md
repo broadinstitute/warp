@@ -1,3 +1,11 @@
+# 4.2.0
+
+2020-12-04 (Date of Last Commit)
+
+* Added Gene as row attribute of the loom file
+* Added CellID and input_id as column attributes of the loom file
+* Updated the docker in LoomUtils.wdl task to 0.0.5
+
 # 4.1.8
 
 2020-11-24 (Date of Last Commit)
