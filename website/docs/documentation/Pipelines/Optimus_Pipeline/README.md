@@ -255,6 +255,12 @@ The Optimus pipeline is a single sample pipeline, but it can accept multiple FAS
 Parameters are listed in each task WDL. For a list of the tasks, see the table in the [Task Summary Section](#optimus-task-summary). Select the link for the task of interest and then view the parameters in the task WDL "command {}" section. For the task Docker image, see task WDL "# runtime values" section; the Docker is listed as "String docker =  ". If you want to learn more about all the different parameters available for a software tool, please select the relevant link in the table's "Tool" column.
 :::
 
+::: details Does Optimus have any read length requirements?
+For Read 1 sequences, the only minimum requirement is that reads are the combined lengths of the cell barcode and UMIs (which will vary between 10x V1, V2, and V3 chemistry). 
+
+For Read 2 sequences, there is no read length requirement and read lengths will vary.
+:::
+
 ::: details How does Optimus compare to Cell Ranger? 
 
 Cell Ranger is a commonly used set of analysis pipelines developed by [10x Genomics](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger). Optimus and Cell Ranger share many features and additionally, Optimus results are validated against Cell Ranger results (see our [human validation report](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/benchmarking/v1_Apr2019/optimus_report.rst)). 
