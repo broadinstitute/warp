@@ -103,8 +103,8 @@ def  generate_row_attr(args):
 
     nrows = len(gene_ids)
 
-    #Generate row attribute dictionary
-    row_attrs = { "gene_names":gene_names, "ensembl_ids": gene_ids}
+    # Generate row attribute dictionary
+    row_attrs = { "gene_names":gene_names, "ensembl_ids": gene_ids, "Gene": gene_names}
 
     gene_metrics_data =np.array(gene_metric_values)
     numeric_field_names = gene_metrics[0][1:]
@@ -252,6 +252,7 @@ def generate_col_attr(args):
     # COLUMN/CELL Metadata
     col_attrs = dict()
     col_attrs["cell_names"] = cell_ids
+    col_attrs["CellID"] = cell_ids
     bool_field_names = final_df_bool_column_names
 
     # Create metadata tables and their headers for bool
@@ -342,10 +343,13 @@ def create_loom_files(args):
     
     # generate a dictionarty of column attributes
     col_attrs =  generate_col_attr(args) 
-    
+
     # add the expression count matrix data
     expr_sp_t = generate_matrix(args)
     
+    # add input_id to col_attrs
+    col_attrs['input_id'] = np.repeat(args.input_id, expr_sp_t.shape[1])
+
     # generate global attributes
     attrDict = dict()
     attrDict['expression_data_type'] = args.expression_data_type

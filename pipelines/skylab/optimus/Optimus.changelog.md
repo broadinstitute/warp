@@ -1,3 +1,11 @@
+# 4.2.0
+
+2020-12-04 (Date of Last Commit)
+
+* Added "Gene" as row attribute in the loom file duplicating "gene_names" to make the output loom compatible with scanpy 
+* Added "CellID" (duplicate of ""cell_names") and "input_id" as column attributes in the loom file to make the output loom compatible with scanpy and Cumulus
+* Updated the docker in LoomUtils.wdl task to 0.0.5 to incorporate the above changes
+
 # 4.1.8
 
 2020-11-24 (Date of Last Commit)
