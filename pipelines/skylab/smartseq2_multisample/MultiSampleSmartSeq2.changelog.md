@@ -4,7 +4,7 @@
 
 * Added Gene as row attribute of the loom file
 * Added CellID as column attributes of the loom file
-* Updated the docker in LoomUtils.wdl task to 0.0.5
+* Updated the docker in LoomUtils.wdl task to 0.0.5. Updated create_loom_ss2.py in the docker.
 
 # 2.1.5
 

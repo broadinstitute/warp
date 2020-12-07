@@ -4,7 +4,7 @@
 
 * Added Gene as row attribute of the loom file
 * Added CellID and input_id as column attributes of the loom file
-* Updated the docker in LoomUtils.wdl task to 0.0.5
+* Updated the docker in LoomUtils.wdl task to 0.0.5. Updated create_loom_optimus.py script in the docker.
 
 # 4.1.8
 
