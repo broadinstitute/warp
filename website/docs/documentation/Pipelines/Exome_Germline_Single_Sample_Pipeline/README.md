@@ -2,18 +2,33 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [ExomeGermlineSingleSample_v2.0](https://github.com/broadinstitute/warp/releases) | June 10, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in dsde-pipelines or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [ExomeGermlineSingleSample_v2.2.0](https://github.com/broadinstitute/warp/releases) | December 07, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in dsde-pipelines or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 
 The Exome Germline Single Sample pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices for germline SNP and Indel discovery in human exome sequencing data. 
 
 For a broad overview of the pipeline processes, read the GATK Best Practices documentation for [data pre-processing](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912) and for [germline short variant discovery](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932).
 
+:::tip Want to try the Exome Germline Single Sample pipeline?
+You can test the pipeline in Terra! Go the [Exome-Analysis-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/Exome-Analysis-Pipeline) which includes sample data and workflows for preprocessing and initial variant calling, sample map generation, and joint genotyping.
+:::
+
+
 ## Set-up
 
 ### Workflow Installation and Requirements
 
 The Exome Germline Single Sample workflow is written in the Workflow Description Language WDL and can be downloaded by cloning the GitHub repository dsde-pipelines. The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the Exome Germline Single Sample [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.changelog.md).
+
+### Software Version Requirements
+
+* GATK 
+* Picard 
+* Samtools 
+* Python 
+* Cromwell version support
+    * Successfully tested on v52
+    * Does not work on versions < v23 due to output syntax
 
 ### Input Requirements and Expectations
 
