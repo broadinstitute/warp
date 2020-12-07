@@ -2,7 +2,8 @@
 
 2020-12-7 (Date of Last Commit)
 
-* Fixed scan function usage bug, added pytest
+* Pytest change and fixed bug for loom file merge
+
 
 # 4.1.8
 
