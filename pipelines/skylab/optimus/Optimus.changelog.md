@@ -4,7 +4,7 @@
 
 * Added "Gene" as row attribute in the loom file duplicating "gene_names" to make the output loom compatible with scanpy 
 * Added "CellID" (duplicate of ""cell_names") and "input_id" as column attributes in the loom file to make the output loom compatible with scanpy and Cumulus
-* Updated the docker in LoomUtils.wdl task to 0.0.5. Updated create_loom_optimus.py script in the docker.
+* Updated the docker in LoomUtils.wdl task to 0.0.5 to incorporate the above changes
 
 # 4.1.8
 
