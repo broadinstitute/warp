@@ -22,10 +22,10 @@ The Exome Germline Single Sample workflow is written in the Workflow Description
 
 ### Software Version Requirements
 
-* GATK 
-* Picard 
-* Samtools 
-* Python 
+* GATK 4.1.8
+* Picard 2.23.8
+* Samtools 1.11
+* Python 3.0
 * Cromwell version support
     * Successfully tested on v52
     * Does not work on versions < v23 due to output syntax
