@@ -1,7 +1,6 @@
 import argparse
 import loompy
 import numpy as np
-import tempfile
 import os
 
 def main():

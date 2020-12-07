@@ -8,7 +8,6 @@ COPY requirements.txt .
 RUN pip3 install numpy==1.17.0
 RUN pip3 install cython==0.29.15
 RUN pip3 install -r requirements.txt
-RUN pip3 install -U  pytest
 
 RUN mkdir /tools
 WORKDIR /tools
