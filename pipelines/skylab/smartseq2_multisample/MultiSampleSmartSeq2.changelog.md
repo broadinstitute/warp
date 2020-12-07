@@ -1,8 +1,10 @@
-# 2.1.6
+# 2.2.0
 
-2020-12-7 (Date of Last Commit)
+2020-12-04 (Date of Last Commit)
 
-* Pytest change and fixed bug for loom file merge
+* Added Gene as row attribute of the loom file
+* Added CellID as column attributes of the loom file
+* Updated the docker in LoomUtils.wdl task to 0.0.5. Updated create_loom_ss2.py in the docker.
 
 # 2.1.5
 
