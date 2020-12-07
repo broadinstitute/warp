@@ -1,3 +1,9 @@
+# 2.1.6
+
+2020-12-7 (Date of Last Commit)
+
+* Pytest change and fixed bug for loom file merge
+
 # 2.1.5
 
 2020-11-24 (Date of Last Commit)
