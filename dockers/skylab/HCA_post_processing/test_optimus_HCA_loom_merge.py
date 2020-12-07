@@ -15,17 +15,7 @@ def test_combine_loom_files(tmpdir):
     loomb = os.path.join(_test_data_dir, "b.loom")
     loomc = os.path.join(_test_data_dir, "c.loom")
     
-    # make a copy of these in the tmp file to avoid being overwritten
-    # during reapeated pytest runs on pytest
-    tmplooma = tmpdir.join("a.loom")
-    tmploomb = tmpdir.join("b.loom")
-    tmploomc = tmpdir.join("c.loom")
-
-    copyfile(looma, tmplooma)
-    copyfile(loomb, tmploomb)
-    copyfile(loomc, tmploomc)
-
-    input_loom_files = [tmplooma, tmploomb, tmploomc]
+    input_loom_files = [looma, loomb, loomc]
     input_libraries = ['V2', 'V2', 'V2']
     input_species = ['human', 'human', 'human']
     input_organs = ['liver', 'lung', 'brain']
