@@ -73,8 +73,8 @@ The global attributes in the Loom apply to the whole file, not any specific part
 | Gene Metrics                  | Program            |Details                 |
 |-------------------------------|--------------------|------------------------|
 |`ensembl_ids` | [GENCODE GTF](https://www.gencodegenes.org/) | The gene_id listed in the GENCODE GTF. |
-| `Gene` | [GENCODE GTF](https://www.gencodegenes.org/) | The unique gene_name provided in the GENCODE GTF; identical to `gene_names` attribute. |
-|`gene_names` | [GENCODE GTF](https://www.gencodegenes.org/) | The unique gene_name provided in the GENCODE GTF; identical to `Gene` attribute. |
+| `Gene` | [GENCODE GTF](https://www.gencodegenes.org/) | The unique gene_name provided in the GENCODE GTF; identical to the `gene_names` attribute. |
+|`gene_names` | [GENCODE GTF](https://www.gencodegenes.org/) | The unique gene_name provided in the GENCODE GTF; identical to the `Gene` attribute. |
 |`n_reads`|[SC Tools](https://github.com/HumanCellAtlas/sctools/tree/master/src/sctools/metrics)| The number of reads associated with this entity. [Metrics Definitions](https://sctools.readthedocs.io/en/latest/sctools.metrics.html#sctools.metrics.aggregator.CellMetrics.n_reads)|
 |`noise_reads`|[SC Tools](https://github.com/HumanCellAtlas/sctools/tree/master/src/sctools/metrics)| The number of reads that are categorized by 10x Genomics Cell Ranger as "noise". Refers to long polymers, or reads with high numbers of N (ambiguous) nucleotides. [Metrics Definitions](https://sctools.readthedocs.io/en/latest/sctools.metrics.html#sctools.metrics.aggregator.CellMetrics.noise_reads)|
 |`perfect_molecule_barcodes`|[SC Tools](https://github.com/HumanCellAtlas/sctools/tree/master/src/sctools/metrics)| The number of reads with molecule barcodes that have no errors. [Metrics Definitions](https://sctools.readthedocs.io/en/latest/sctools.metrics.html#sctools.metrics.aggregator.CellMetrics.perfect_molecule_barcodes)|
@@ -127,10 +127,20 @@ HCA DCP matrices contain HCA metadata in the Loom global attributes (see table b
 | `input_id_metadata_field` | string describing the HCA metadata field used for input_id: `sequencing_process.provenance.document_id` |
 | `input_name_metadata_field` | string describing the HCA metadata field used for input_name: `sequencing_input.biomaterial_core.biomaterial_id` |
 
-The `input_id` is a comma-separated string containing the IDs for the library prep from which a cell came and can be mapped back to the unique cell barcodes that are listed in the Loom `cell_names` column attribute. 
+To create the HCA project matrices, Loom outputs from individual 10x library preparations, each with their own `input_id`, are combined into a single Loom file. 
 
-Each barcode in the `cell_names` attribute has a numerical suffix (i.e. "-0", "-1", etc.); this suffix is an index (starting at 0) for the input IDs. For example, barcodes with "-0" comprise the first ID listed in the `input_id` string, whereas barcodes with a "-1" comprise the second ID listed in the `input_id` string.
+Cell barcodes, listed in the `CellID` and the `cell_names` columns, might require a unique ID for downstream processing. 
+To ensure unique IDs, a numerical suffix is added to all the barcodes belonging to an individual library prep (i.e. the sample belonging to a given `input_id`).   
 
-The `input_id` may additionally be used to map the data back to the DCP metadata manifest, a TSV file containing all of a project's metadata, including donor and disease state information. Read more about the metadata manifest in the DCP [Exploring Projects guide](https://data.humancellatlas.org/guides). 
+To map cell barcodes back to the individual library prep, you can use the project matrix `input_id` column, which lists the input to which the barcode belongs.
+
+Alternatively, you can map cell barcodes using the global attribute `input_id`, which lists all input IDs as a comma-separated string. 
+
+If using the `input_id` global attribute, barcode suffixes serve as an index for the `input_id` string. For example, barcodes with "-0" suffix comprise the first ID listed in the `input_id` string, whereas barcodes with a "-1" comprise the second ID listed.
+
+The `input_id` may be used to map the data back to the DCP metadata manifest, a TSV file containing all of a project's metadata, including donor and disease state information. 
+
+Read more about the metadata manifest in the DCP [Exploring Projects guide](https://data.humancellatlas.org/guides). 
+
 
 
