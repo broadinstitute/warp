@@ -1,3 +1,9 @@
+# 4.1.9
+
+2020-12-7 (Date of Last Commit)
+
+* Fixed scan function usage bug, added pytest
+
 # 4.1.8
 
 2020-11-24 (Date of Last Commit)
