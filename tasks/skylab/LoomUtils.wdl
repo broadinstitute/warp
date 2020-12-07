@@ -4,7 +4,6 @@ task SmartSeq2LoomOutput {
   input {
     #runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.5-fk-1"
-
     # the gene count file "<input_id>_rsem.genes.results" in the task results folder call-RSEMExpression
     File rsem_gene_results
     # file named "<input_id>_QCs.csv" in the folder  "call-GroupQCOutputs/glob-*" of the the SS2  output
