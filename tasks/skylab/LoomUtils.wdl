@@ -150,7 +150,6 @@ task AggregateSmartSeq2Loom {
         String batch_id
         String? batch_name
         String pipeline_version
-
         String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.5-fk-1"
         Int disk = 200
         Int machine_mem_mb = 4
