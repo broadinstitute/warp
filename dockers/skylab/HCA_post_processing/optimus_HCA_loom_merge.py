@@ -1,7 +1,6 @@
 import argparse
 import loompy
 import numpy as np
-import os
 
 def main():
     description = """Combine library level loom files into a single project level loom and add global metadata. 
