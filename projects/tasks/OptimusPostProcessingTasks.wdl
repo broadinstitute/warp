@@ -183,7 +183,7 @@ task CreateAdapterJson {
       --crc32c $CRC \
       --version-timestamp ~{version_timestamp} \
       --project-id ~{project_id} \
-      --project-stratum-string ~{project_stratum_string} \
+      --project-stratum-string "~{project_stratum_string}" \
       --sha256 $SHA \
       --size $SIZE \
       --staging-bucket ~{staging_bucket} \
