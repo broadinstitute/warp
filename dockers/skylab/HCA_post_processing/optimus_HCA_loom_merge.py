@@ -2,6 +2,7 @@ import argparse
 import loompy
 import numpy as np
 
+
 def main():
     description = """Combine library level loom files into a single project level loom and add global metadata. 
     Cell barcodes from separate libraries are suffixed with a number to avoid collisions."""
@@ -63,15 +64,6 @@ def combine_loom_files(loom_file_list, library, species, organ, project_id, proj
         for i in range(len(loom_file_list)):
             loom_file = loom_file_list[i]
             with loompy.connect(loom_file) as ds:
-                # add input_id and input_name as column attributes
-                # num_rows, num_cols = ds.shape
-                # input_id = ds.attrs['input_id']
-                # ds.ca.input_id = [input_id for x in range(num_cols)]
-                # try:
-                    # input_name = ds.attrs['input_name']
-                    # ds.ca.input_name = [input_name for x in range(num_cols)]
-                # except AttributeError:
-                    # pass
 
                 # add global attributes for this file to the running list of global attributes
                 expression_data_type_list.append(ds.attrs["expression_data_type"])
@@ -85,14 +77,14 @@ def combine_loom_files(loom_file_list, library, species, organ, project_id, proj
                 # filter out cells with low counts n_molecules > 1
                 UMIs = ds.ca['n_molecules']
                 cells = np.where(UMIs >= 100)[0]
-                for (ix, selection, view) in ds.scan(items=cells, axis=1): 
+                for (ix, selection, view) in ds.scan(items=cells, axis=1):
                     view.ca['cell_names'] = view.ca['cell_names'] + "-" + str(i)
                     dsout.add_columns(view.layers, col_attrs=view.ca, row_attrs=view.ra)
 
     # add global attributes for this file to the running list of global attributes
     ds = loompy.connect(output_loom_file)
 
-    ds.attrs["library_preparation_protocol.library_construction_method"] = library
+    ds.attrs["library_preparation_protocol.library_construction_approach"] = library
     ds.attrs["donor_organism.genus_species"] = species
     ds.attrs["specimen_from_organism.organ"] = organ
     ds.attrs["project.provenance.document_id"] = project_id
