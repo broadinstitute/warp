@@ -63,15 +63,6 @@ def main():
             loom_file = loom_file_list[i]
             with loompy.connect(loom_file) as ds:
                 ds.ca['cell_names'] = ds.ca['cell_names'] + "-" + str(i)
-                # add input_id and input_name as column attributes
-                # num_rows, num_cols = ds.shape
-                # input_id = ds.attrs['input_id']
-                # ds.ca.input_id = [input_id for x in range(num_cols)]
-                # try:
-                    # input_name = ds.attrs['input_name']
-                    # ds.ca.input_name = [input_name for x in range(num_cols)]
-                # except AttributeError:
-                    # pass
 
                 # add global attributes for this file to the running list of global attributes
                 expression_data_type_list.append(ds.attrs["expression_data_type"])
@@ -91,7 +82,7 @@ def main():
     # add global attributes for this file to the running list of global attributes
     ds = loompy.connect(args.output_loom_file)
 
-    ds.attrs["library_preparation_protocol.library_construction_method"] = library
+    ds.attrs["library_preparation_protocol.library_construction_approach"] = library
     ds.attrs["donor_organism.genus_species"] = species
     ds.attrs["specimen_from_organism.organ"] = organ
     ds.attrs["project.provenance.document_id"] = project_id
