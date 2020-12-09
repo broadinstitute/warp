@@ -118,7 +118,7 @@ HCA DCP matrices contain HCA metadata in the Loom global attributes (see table b
 | Metadata Attribute Name in Count Matrix | Metadata Description | 
 | --- | --- |
 | `donor_organism.genus_species` | species information; human or mouse |
-| `library_preparation_protocol.library_construction_method` | technology used for library preparation, i.e 10x or SS2 |
+| `library_preparation_protocol.library_construction_approach` | technology used for library preparation, i.e 10x or SS2 |
 | `specimen_from_organism.organ` | organ |	
 | `project.project_core.project_name` | project name |
 | `project.provenance.document_id` | project id |
