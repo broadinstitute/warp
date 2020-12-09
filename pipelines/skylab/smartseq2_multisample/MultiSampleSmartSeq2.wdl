@@ -136,9 +136,9 @@ workflow MultiSampleSmartSeq2 {
     input:
       loom_input = loom_output_files,
       batch_id = batch_id,
-      batch_name = batch_name
+      batch_name = batch_name,
       project_id = if defined(project_id) then select_first([project_id])[0] else none,
-      project_name = if defined(batch_name) then select_first([batch_name])[0] else none,
+      project_name = if defined(project_name) then select_first([project_name])[0] else none,
       library = if defined(library) then select_first([library])[0] else none,
       species = if defined(species) then select_first([species])[0] else none,
       organ = if defined(organ) then select_first([organ])[0] else none,
