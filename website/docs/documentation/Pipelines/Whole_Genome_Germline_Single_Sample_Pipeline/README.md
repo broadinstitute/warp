@@ -2,7 +2,7 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [WholeGenomeGermlineSingleSample_v2.0](https://github.com/broadinstitute/warp/releases) | June 22, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [WholeGenomeGermlineSingleSample_v2.2.0](https://github.com/broadinstitute/warp/releases) | December 9, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 The Whole Genome Germline Single Sample pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices (June 2016) for germline SNP and Indel discovery in human whole-genome sequencing data. For a broad overview of the pipeline processes, read the GATK Best Practices documentation for [data pre-processing](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912) and for [germline short variant discovery](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932).
 
@@ -14,13 +14,15 @@ The [Whole Genome Germline Single Sample workflow](https://github.com/broadinsti
 
 ### Software Version Requirements
 
-* GATK 3.5 and GATK 4.beta.5
-* Picard 2.20.0-SNAPSHOT
-* Samtools 1.3.1
-* Python 2.7 and 3.0
+* [GATK 4.1.8.0](https://github.com/broadinstitute/gatk/releases/tag/4.1.8.0) and GATK 3.5 for Whole Genome Variant Calling
+* Picard 2.23.8
+* Samtools 1.11
+* Python 3.0
 * Cromwell version support
-    * Successfully tested on v47
+    * Successfully tested on v52
     * Does not work on versions < v23 due to output syntax
+* Papi version support
+	* Successfully tested on Papi v2
 
 ### Input Requirements and Expectations
 

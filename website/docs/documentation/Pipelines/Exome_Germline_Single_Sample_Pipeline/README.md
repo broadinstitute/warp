@@ -22,13 +22,15 @@ The Exome Germline Single Sample workflow is written in the Workflow Description
 
 ### Software Version Requirements
 
-* GATK 4.1.8
+* [GATK 4.1.8.0](https://github.com/broadinstitute/gatk/releases/tag/4.1.8.0)
 * Picard 2.23.8
 * Samtools 1.11
 * Python 3.0
 * Cromwell version support
     * Successfully tested on v52
     * Does not work on versions < v23 due to output syntax
+* Papi version support
+	* Successfully tested on Papi v2
 
 ### Input Requirements and Expectations
 
@@ -63,6 +65,7 @@ You can read more about the software tools implemented in these tasks by reading
 - For help running workflows on the Google Cloud Platform or locally please
 view the following tutorial [(How to) Execute Workflows from the gatk-workflows Git Organization](https://gatk.broadinstitute.org/hc/en-us/articles/360035530952).
 - Please visit the [GATK Technical Documentation](https://gatk.broadinstitute.org/hc/en-us/categories/360002310591) site for further documentation on our workflows and tools.
+- You can access relevant reference and resource bundles in the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811).
 
 ## Contact Us
 
@@ -74,4 +77,8 @@ Copyright Broad Institute, 2020 | BSD-3
 
 The workflow script is released under the **WDL open source code license (BSD-3)** (full license text at https://github.com/broadinstitute/warp/blob/develop/LICENSE). However, please note that the programs it calls may be subject to different licenses. Users are responsible for checking that they are authorized to run all programs before running this script.
 
+- [GATK](https://software.broadinstitute.org/gatk/download/licensing.php)
+- [BWA](http://bio-bwa.sourceforge.net/bwa.shtml#13)
+- [Picard](https://broadinstitute.github.io/picard/)
+- [Samtools](http://www.htslib.org/terms/)
 
