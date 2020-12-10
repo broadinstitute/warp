@@ -65,7 +65,7 @@ task MergeLooms {
     String project_name
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:1.7"
+    String docker = "quay.io/humancellatlas/hca_post_processing:1.8"
 
     Int memory = 3
     Int disk = 20
@@ -100,7 +100,7 @@ task GetInputMetadata {
     Array[File] analysis_file_jsons
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:1.7"
+    String docker = "quay.io/humancellatlas/hca_post_processing:1.8"
 
     Int memory = 3
     Int disk = 20
@@ -127,7 +127,7 @@ task GetProtocolMetadata {
     Array[File] links_jsons
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:1.7"
+    String docker = "quay.io/humancellatlas/hca_post_processing:1.8"
 
     Int memory = 3
     Int disk = 20
@@ -162,7 +162,7 @@ task CreateAdapterJson {
 
     Int memory = 3
     Int disk = 20
-    String docker ="quay.io/humancellatlas/hca_post_processing:1.7"
+    String docker ="quay.io/humancellatlas/hca_post_processing:1.8"
 
   }
 
@@ -183,7 +183,7 @@ task CreateAdapterJson {
       --crc32c $CRC \
       --version-timestamp ~{version_timestamp} \
       --project-id ~{project_id} \
-      --project-stratum-string ~{project_stratum_string} \
+      --project-stratum-string "~{project_stratum_string}" \
       --sha256 $SHA \
       --size $SIZE \
       --staging-bucket ~{staging_bucket} \

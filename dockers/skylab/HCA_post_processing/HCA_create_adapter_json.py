@@ -119,11 +119,11 @@ def main():
                            "file_core": {
                              "file_name": file_name,
                              "format": "loom",
-                             "content_description": {
+                             "content_description": [{
                                "text": "DCP/2-generated matrix",
                                "ontology": "data:39172082",
                                "ontology_label": "Count Matrix"
-                             }
+                             }]
                            },
                            "provenance": {
                              "document_id": matrix_entity_id,
