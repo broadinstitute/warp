@@ -1,3 +1,9 @@
+# 5.1.1
+
+2020-12-07 (Date of Last Commit)
+
+* Updated the docker in LoomUtils.wdl task to 0.0.6. Updated merge_loom.py in the docker
+
 # 5.1.0
 
 2020-12-04 (Date of Last Commit)
