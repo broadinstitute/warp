@@ -30,12 +30,17 @@ workflow MultiSampleSmartSeq2 {
       Array[String] fastq2_input_files = []
       String batch_id
       String? batch_name
+      Array[String]? project_id
+      Array[String]? project_name
+      Array[String]? library
+      Array[String]? species
+      Array[String]? organ
       String? input_name_metadata_field
       String? input_id_metadata_field
       Boolean paired_end
   }
   # Version of this pipeline
-  String pipeline_version = "2.1.5"
+  String pipeline_version = "2.2.1"
 
   if (false) {
      String? none = "None"
@@ -132,6 +137,11 @@ workflow MultiSampleSmartSeq2 {
       loom_input = loom_output_files,
       batch_id = batch_id,
       batch_name = batch_name,
+      project_id = if defined(project_id) then select_first([project_id])[0] else none,
+      project_name = if defined(project_name) then select_first([project_name])[0] else none,
+      library = if defined(library) then select_first([library])[0] else none,
+      species = if defined(species) then select_first([species])[0] else none,
+      organ = if defined(organ) then select_first([organ])[0] else none,
       pipeline_version = "MultiSampleSmartSeq2_v~{pipeline_version}"
   }
 

@@ -17,4 +17,3 @@ COPY optimus_HCA_loom_merge.py .
 COPY file_utils.sh .
 COPY create_input_metadata_json.py .
 COPY create_protocol_metadata_json.py .
-

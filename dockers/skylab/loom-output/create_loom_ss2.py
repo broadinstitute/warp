@@ -49,6 +49,7 @@ def generate_col_attr(args):
     # Column attributes
     col_attrs = dict()
     col_attrs["cell_names"] = [cell_id]
+    col_attrs["CellID"] = [cell_id]
     col_attrs['input_id'] = [args.input_id]
     if args.input_name is not None:
         col_attrs['input_name'] = [args.input_name]
@@ -110,7 +111,7 @@ def generate_row_attr_and_matrix(rsem_gene_results_path):
     sorted_counts = [count_values[g] for g in sorted_gene_ids]
     expression_tpms = generate_csr_spase_coo( [sorted_tpms])
     expected_counts = generate_csr_spase_coo([sorted_counts])
-    row_attrs = {"ensembl_ids":np.array(sorted_gene_ids),"gene_names":np.array(sorted_gene_ids)}
+    row_attrs = {"ensembl_ids":np.array(sorted_gene_ids),"gene_names":np.array(sorted_gene_ids),"Gene":np.array(sorted_gene_ids)}
 
     return row_attrs, expression_tpms,expected_counts
 
