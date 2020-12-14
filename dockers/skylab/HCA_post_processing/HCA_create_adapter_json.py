@@ -230,11 +230,12 @@ def main():
 
     # filenames for staging directories
     file_basename = "{}_{}.json".format(matrix_entity_id, file_version)
+    analysis_process_basename = "{}_{}.json".format(process_id, file_version)
     links_basename = "{}_{}_{}.json".format(links_id, file_version, project_id)
 
     # files created in output directory for output
     analysis_file_json_file_name = "outputs/analysis_file_{}".format(file_basename)
-    analysis_process_json_file_name = "outputs/analysis_process_{}".format(file_basename)
+    analysis_process_json_file_name = "outputs/analysis_process_{}".format(analysis_process_basename)
     analysis_protocol_json_file_name = "outputs/analysis_protocol_{}".format(file_basename)
     file_descriptor_json_file_name = "outputs/file_descriptor_{}".format(file_basename)
     links_json_file_name = "outputs/links_{}".format(links_basename)
@@ -260,11 +261,11 @@ def main():
                                                                         staging_bucket,
                                                                         file_basename), shell=True)
     subprocess.run('gsutil cp {0} {1}metadata/analysis_process/{2}'.format(analysis_process_json_file_name,
-                                                                        staging_bucket,
-                                                                        file_basename), shell=True)
+                                                                           staging_bucket,
+                                                                           analysis_process_basename), shell=True)
     subprocess.run('gsutil cp {0} {1}metadata/analysis_protocol/{2}'.format(analysis_protocol_json_file_name,
-                                                                        staging_bucket,
-                                                                        file_basename), shell=True)
+                                                                            staging_bucket,
+                                                                            file_basename), shell=True)
     subprocess.run('gsutil cp {0} {1}descriptors/analysis_file/{2}'.format(file_descriptor_json_file_name,
                                                                            staging_bucket,
                                                                            file_basename), shell=True)
