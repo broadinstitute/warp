@@ -122,39 +122,11 @@ task GetInputMetadata {
 }
 
 
-task GetProtocolMetadata {
-  input {
-    Array[File] links_jsons
-    String output_basename
-
-    String docker = "quay.io/humancellatlas/hca_post_processing:1.9"
-
-    Int memory = 3
-    Int disk = 20
-  }
-  command {
-    python3 /tools/create_protocol_metadata_json.py \
-      --input-json-files ~{sep=" " links_jsons} \
-      --output ~{output_basename}.protocol_metadata.json
-  }
-  runtime {
-    docker: docker
-    cpu: 1
-    memory: "~{memory} GiB"
-    disks: "local-disk ~{disk} HDD"
-  }
-  output {
-    File protocol_metadata_json = "~{output_basename}.protocol_metadata.json"
-  }
-}
-
-
 task CreateAdapterJson {
   input {
     File project_loom
     String project_id
     File input_metadata_json
-    File protocol_metadata_json
     String project_stratum_string
     String staging_bucket
     String version_timestamp
@@ -188,7 +160,6 @@ task CreateAdapterJson {
       --size $SIZE \
       --staging-bucket ~{staging_bucket} \
       --input-metadata-json ~{input_metadata_json} \
-      --protocol-metadata-json ~{protocol_metadata_json} \
       --loom-timestamp $TIMESTAMP \
       --pipeline-version ~{pipeline_version}
   }

@@ -69,10 +69,6 @@ def main():
                         dest='inputs_json',
                         required=True,
                         help="Json file with inputs metadata")
-    parser.add_argument('--protocol-metadata-json',
-                        dest='protocols_json',
-                        required=True,
-                        help="Json file with protocols metadata")
     parser.add_argument('--loom-timestamp',
                         dest='loom_timestamp',
                         required=True,
@@ -97,9 +93,6 @@ def main():
     with open(args.inputs_json, "r") as i:
         inputs_dict = json.load(i)  # this should be a list of dictionaries
         inputs = inputs_dict['inputs']
-    with open(args.protocols_json, "r") as p:
-        protocols_dict = json.load(p)  # this should be a list of dictionaries
-        protocols = protocols_dict['protocols']
 
     analysis_type = "run"
     if "cacheCopy" in str(project_loom_file):
@@ -121,7 +114,7 @@ def main():
                              "format": "loom",
                              "content_description": [{
                                "text": "DCP/2-generated matrix",
-                               "ontology": "data:39172082",
+                               "ontology": "data:3917",
                                "ontology_label": "Count Matrix"
                              }]
                            },
@@ -193,6 +186,13 @@ def main():
                                  "text": "analysis; merge matrices"
                                }
                              }
+    analysis_protocol_string = json.dumps(analysis_protocol_dict, sort_keys=True)
+    analysis_protocol_entity_id = get_uuid5(analysis_protocol_string)
+    analysis_protocol_dict['provenance'] = {
+                                             'document_id': analysis_protocol_entity_id,
+                                             'submission_date': file_version,
+                                             'update_date': file_version
+                                           }
 
     file_descriptor_dict = {
                              "crc32c": crc32c,
@@ -221,7 +221,12 @@ def main():
                        ],
                        "process_id": process_id,
                        "process_type": "analysis_process",
-                       "protocols": protocols,
+                       "protocols": [
+                         {
+                           "protocol_id": analysis_protocol_entity_id,
+                           "protocol_type": "analysis_protocol"
+                         }
+                       ]
                      }
                    ],
                    "schema_type": "links",
@@ -229,15 +234,16 @@ def main():
                  }
 
     # filenames for staging directories
-    file_basename = "{}_{}.json".format(matrix_entity_id, file_version)
+    analysis_file_basename = "{}_{}.json".format(matrix_entity_id, file_version)
+    analysis_protocol_basename = "{}_{}.json".format(analysis_protocol_entity_id, file_version)
     analysis_process_basename = "{}_{}.json".format(process_id, file_version)
     links_basename = "{}_{}_{}.json".format(links_id, file_version, project_id)
 
     # files created in output directory for output
-    analysis_file_json_file_name = "outputs/analysis_file_{}".format(file_basename)
+    analysis_file_json_file_name = "outputs/analysis_file_{}".format(analysis_file_basename)
     analysis_process_json_file_name = "outputs/analysis_process_{}".format(analysis_process_basename)
-    analysis_protocol_json_file_name = "outputs/analysis_protocol_{}".format(file_basename)
-    file_descriptor_json_file_name = "outputs/file_descriptor_{}".format(file_basename)
+    analysis_protocol_json_file_name = "outputs/analysis_protocol_{}".format(analysis_protocol_basename)
+    file_descriptor_json_file_name = "outputs/file_descriptor_{}".format(analysis_file_basename)
     links_json_file_name = "outputs/links_{}".format(links_basename)
 
     with open(analysis_file_json_file_name, "w") as f:
@@ -259,16 +265,16 @@ def main():
     subprocess.run('gsutil cp {0} {1}data/{2}'.format(project_loom_file, staging_bucket, file_name), shell=True)
     subprocess.run('gsutil cp {0} {1}metadata/analysis_file/{2}'.format(analysis_file_json_file_name,
                                                                         staging_bucket,
-                                                                        file_basename), shell=True)
+                                                                        analysis_file_basename), shell=True)
     subprocess.run('gsutil cp {0} {1}metadata/analysis_process/{2}'.format(analysis_process_json_file_name,
                                                                            staging_bucket,
                                                                            analysis_process_basename), shell=True)
     subprocess.run('gsutil cp {0} {1}metadata/analysis_protocol/{2}'.format(analysis_protocol_json_file_name,
                                                                             staging_bucket,
-                                                                            file_basename), shell=True)
+                                                                            analysis_protocol_basename), shell=True)
     subprocess.run('gsutil cp {0} {1}descriptors/analysis_file/{2}'.format(file_descriptor_json_file_name,
                                                                            staging_bucket,
-                                                                           file_basename), shell=True)
+                                                                           analysis_file_basename), shell=True)
     subprocess.run('gsutil cp {0} {1}links/{2}'.format(links_json_file_name,
                                                        staging_bucket,
                                                        links_basename), shell=True)
