@@ -23,6 +23,21 @@ def main():
     parser.add_argument('--batch_name',
                         dest='batch_name',
                         help='User provided plate id for output loom')
+    parser.add_argument('--project_id',
+                        dest='project_id',
+                        help='User provided plate id for output loom')
+    parser.add_argument('--project_name',
+                        dest='project_name',
+                        help='User provided plate name for output loom')
+    parser.add_argument('--library',
+                        dest='library',
+                        help='User provided library for output loom')
+    parser.add_argument('--species',
+                        dest='species',
+                        help='User provided species for output loom')
+    parser.add_argument('--organ',
+                        dest='organ',
+                        help='User provided organ for output loom')
     parser.add_argument('--pipeline_version',
                         dest='pipeline_version',
                         required=True,
@@ -38,6 +53,21 @@ def main():
     attrDict['pipeline_version'] = args.pipeline_version
     if args.batch_name is not None:
         attrDict['batch_name'] = args.batch_name
+
+    if args.library is not None:
+        attrDict['library_preparation_protocol.library_construction_approach'] = args.library
+
+    if args.species is not None:
+        attrDict['donor_organism.genus_species'] = args.species
+
+    if args.organ is not None:
+        attrDict['specimen_from_organism.organ'] = args.organ
+
+    if args.project_id is not None:
+        attrDict['project.provenance.document_id'] = args.project_id
+
+    if args.project_name is not None:
+        attrDict['project.project_core.project_short_name'] = args.project_name
 
     loompy.combine(loom_file_list,output_file=args.output_loom_file,file_attrs = attrDict)
 

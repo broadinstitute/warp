@@ -31,6 +31,16 @@ task CheckMetadata {
       print("ERROR: Organ metadata is not consistent within the project.")
       errors += 1
 
+  if ';' in list(library_set)[0] or '=' in list(library_set)[0]:
+      print('ERROR: Library metadata contains an illegal character (";" or "=")')
+      errors += 1
+  if ';' in list(species_set)[0] or '=' in list(species_set)[0]:
+      print('ERROR: Species metadata contains an illegal character (";" or "=")')
+      errors += 1
+  if ';' in list(organ_set)[0] or '=' in list(organ_set)[0]:
+      print('ERROR: Organ metadata contains an illegal character (";" or "=")')
+      errors += 1
+
   if errors > 0:
       raise ValueError("Files must have matching metadata in order to combine.")
   CODE
@@ -55,7 +65,8 @@ task MergeLooms {
     String project_name
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:1.4"
+    String docker = "quay.io/humancellatlas/hca_post_processing:1.8"
+
     Int memory = 3
     Int disk = 20
   }
@@ -89,7 +100,8 @@ task GetInputMetadata {
     Array[File] analysis_file_jsons
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:1.4"
+    String docker = "quay.io/humancellatlas/hca_post_processing:1.8"
+
     Int memory = 3
     Int disk = 20
   }
@@ -115,7 +127,8 @@ task GetProtocolMetadata {
     Array[File] links_jsons
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:1.4"
+    String docker = "quay.io/humancellatlas/hca_post_processing:1.8"
+
     Int memory = 3
     Int disk = 20
   }
@@ -142,11 +155,15 @@ task CreateAdapterJson {
     String project_id
     File input_metadata_json
     File protocol_metadata_json
+    String project_stratum_string
     String staging_bucket
+    String version_timestamp
+    String pipeline_version
 
     Int memory = 3
     Int disk = 20
-    String docker ="quay.io/humancellatlas/hca_post_processing:1.4"
+    String docker ="quay.io/humancellatlas/hca_post_processing:1.8"
+
   }
 
   command {
@@ -164,13 +181,16 @@ task CreateAdapterJson {
     python3 /tools/HCA_create_adapter_json.py \
       --project-loom-file ~{project_loom} \
       --crc32c $CRC \
-      --file-timestamp $TIMESTAMP \
+      --version-timestamp ~{version_timestamp} \
       --project-id ~{project_id} \
+      --project-stratum-string "~{project_stratum_string}" \
       --sha256 $SHA \
       --size $SIZE \
       --staging-bucket ~{staging_bucket} \
       --input-metadata-json ~{input_metadata_json} \
-      --protocol-metadata-json ~{protocol_metadata_json}
+      --protocol-metadata-json ~{protocol_metadata_json} \
+      --loom-timestamp $TIMESTAMP \
+      --pipeline-version ~{pipeline_version}
   }
 
   runtime {
