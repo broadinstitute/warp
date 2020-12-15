@@ -104,7 +104,7 @@ def main():
 
     # Create UUIDs
     links_id = get_uuid5(project_stratum_string)  # v5 UUID of project id and the values the data are stratified by
-    matrix_entity_id = get_uuid5(links_id)   # v5 UUID of the links_id
+    matrix_entity_id = get_uuid5(str(links_id + "analysis_file" + "loom"))   # v5 UUID of the links_id
     matrix_file_id = get_uuid5(matrix_entity_id)  # v5 UUID of the matrix_entity_id
 
     analysis_file_dict = {
