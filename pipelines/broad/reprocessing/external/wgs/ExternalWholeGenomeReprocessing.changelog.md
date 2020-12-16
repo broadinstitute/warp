@@ -1,3 +1,8 @@
+# 1.3.0
+2020-12-16
+
+* Fixed error in relative import statement in Alignment subworkflow.
+
 # 1.2.0
 2020-10-20
 
