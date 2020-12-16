@@ -6,7 +6,7 @@ on:
   push:
     branches: [ develop ]
   pull_request:
-    branches: [ devolop ]
+    branches: [ develop ]
 
 jobs:
   validate_wdl_job:
