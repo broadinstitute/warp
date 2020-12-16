@@ -1,13 +1,13 @@
 {
-  "GDCWholeGenomeSomaticSingleSample.gatk_baserecalibrator.dbsnp_vcf":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf",
-  "GDCWholeGenomeSomaticSingleSample.gatk_baserecalibrator.dbsnp_vcf_index":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx",
-  "GDCWholeGenomeSomaticSingleSample.ref_amb":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.amb",
-  "GDCWholeGenomeSomaticSingleSample.ref_ann":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.ann",
-  "GDCWholeGenomeSomaticSingleSample.ref_bwt":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.bwt",
-  "GDCWholeGenomeSomaticSingleSample.ref_dict":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
-  "GDCWholeGenomeSomaticSingleSample.ref_fai":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
-  "GDCWholeGenomeSomaticSingleSample.ref_fasta":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
-  "GDCWholeGenomeSomaticSingleSample.ref_pac":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.pac"
-  "GDCWholeGenomeSomaticSingleSample.ref_sa":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.sa",
+  "GDCWholeGenomeSomaticSingleSample.gatk_baserecalibrator.dbsnp_vcf":"gs://pgdac-gdc/dbsnp_144.hg38.vcf.gz",
+  "GDCWholeGenomeSomaticSingleSample.gatk_baserecalibrator.dbsnp_vcf_index":"gs://pgdac-gdc/dbsnp_144.hg38.vcf.gz.tbi",
+  "GDCWholeGenomeSomaticSingleSample.ref_amb":"gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.fa.amb",
+  "GDCWholeGenomeSomaticSingleSample.ref_ann":"gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.fa.ann",
+  "GDCWholeGenomeSomaticSingleSample.ref_bwt":"gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.fa.bwt",
+  "GDCWholeGenomeSomaticSingleSample.ref_dict":"gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.dict",
+  "GDCWholeGenomeSomaticSingleSample.ref_fai":"gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.fa.fai",
+  "GDCWholeGenomeSomaticSingleSample.ref_fasta":"gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.fa",
+  "GDCWholeGenomeSomaticSingleSample.ref_pac":"gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.fa.pac",
+  "GDCWholeGenomeSomaticSingleSample.ref_sa":"gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.fa.sa",
   "GDCWholeGenomeSomaticSingleSample.ubam":"gs://pgdac-gdc/test_data/NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211.bam"
 }
