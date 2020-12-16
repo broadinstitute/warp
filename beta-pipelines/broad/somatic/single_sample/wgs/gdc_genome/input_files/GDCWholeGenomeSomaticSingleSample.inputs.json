@@ -1,1 +1,13 @@
-{"gdc_wgs_pipeline.gatk_baserecalibrator.dbsnp_vcf":"${workspace.referenceData_GRCh38_dbsnp_vcf}","gdc_wgs_pipeline.gatk_baserecalibrator.dbsnp_vcf_index":"${workspace.referenceData_GRCh38_dbsnp_vcf_index}","gdc_wgs_pipeline.ref_amb":"${workspace.referenceData_GRCh38_ref_amb}","gdc_wgs_pipeline.ref_ann":"${workspace.referenceData_GRCh38_ref_ann}","gdc_wgs_pipeline.ref_bwt":"${workspace.referenceData_GRCh38_ref_bwt}","gdc_wgs_pipeline.ref_dict":"${workspace.referenceData_GRCh38_ref_dict}","gdc_wgs_pipeline.ref_fai":"${workspace.referenceData_GRCh38_ref_fai}","gdc_wgs_pipeline.ref_fasta":"${workspace.referenceData_GRCh38_ref_fasta}","gdc_wgs_pipeline.ref_pac":"${workspace.referenceData_GRCh38_ref_pac}","gdc_wgs_pipeline.ref_sa":"${workspace.referenceData_GRCh38_ref_sa}","gdc_wgs_pipeline.ubam":"gs://pgdac-gdc/test_data/NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211.bam"}
+{
+  "GDCWholeGenomeSomaticSingleSample.gatk_baserecalibrator.dbsnp_vcf":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf",
+  "GDCWholeGenomeSomaticSingleSample.gatk_baserecalibrator.dbsnp_vcf_index":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx",
+  "GDCWholeGenomeSomaticSingleSample.ref_amb":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.amb",
+  "GDCWholeGenomeSomaticSingleSample.ref_ann":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.ann",
+  "GDCWholeGenomeSomaticSingleSample.ref_bwt":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.bwt",
+  "GDCWholeGenomeSomaticSingleSample.ref_dict":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+  "GDCWholeGenomeSomaticSingleSample.ref_fai":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+  "GDCWholeGenomeSomaticSingleSample.ref_fasta":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "GDCWholeGenomeSomaticSingleSample.ref_pac":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.pac"
+  "GDCWholeGenomeSomaticSingleSample.ref_sa":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.sa",
+  "GDCWholeGenomeSomaticSingleSample.ubam":"gs://pgdac-gdc/test_data/NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211.bam"
+}
