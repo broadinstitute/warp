@@ -1,3 +1,9 @@
+# 4.2.1
+
+2020-12-04 (Date of Last Commit)
+
+* Updated the docker in LoomUtils.wdl task to 0.0.6
+
 # 4.2.0
 
 2020-12-04 (Date of Last Commit)
