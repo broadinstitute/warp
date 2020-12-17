@@ -2,7 +2,7 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [MultiSampleSmartSeq2_v2.1.4](https://github.com/broadinstitute/warp/releases) | November, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [MultiSampleSmartSeq2_v2.2.1](https://github.com/broadinstitute/warp/releases) | December, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ## Introduction
 
@@ -40,7 +40,12 @@ For the Multi Sample workflow, FASTQ files must be located in a cloud-accessible
 | batch_name | Optional string to describe the batch or biological sample | String |
 | input_name_metadata_field | Optional input describing, when applicable, the metadata field containing the `input_names` | String |
 | input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the `input_ids` | String |
-
+| `project_id` | Optional project identifier; usually a number | String |
+| `project_name` | Optional project identifier; usually a human-readable name | String |
+| `library` | Optional description of the sequencing method or approach | String |
+| `organ` | Optional description of the organ from which the cells were derived | String |
+| `species` | Optional description of the species from which the cells were derived | String |
+| `paired-end` | Boolean for whether samples are paired-end or not | Boolean | 
 
 
 ### Additional Input
