@@ -563,7 +563,7 @@ task GatherTranches {
   }
 
   output {
-    File tranches = "~{output_filename}"
+    File tranches_file = "~{output_filename}"
   }
 }
 
