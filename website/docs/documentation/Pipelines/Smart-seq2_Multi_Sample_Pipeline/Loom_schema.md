@@ -1,10 +1,12 @@
 # What's in the Smart-seq2 Multi Sample Pipeline Loom File?
 
-The Loom file is an HDF5 file generated using [Loompy v.3.0.6](http://loompy.org/). The Multi Sample Loom is an aggregate of the output Loom files from the [Smart-seq2 Single Sample pipeline](../smartseq2_single_sample/). It contains global attributes detailing information about the Loom file, workflow and batch ([Table 1](#table-1-global-attributes)), column attributes detailing metrics for individual cells ([Table 2](#table-2-column-attributes-cell-metrics)), and row metrics detailing metrics for individual genes ([Table 3](#table-3-row-attributes-gene-metrics)). 
+The Loom is the Smart-seq2 Multi Sample pipeline's default cell-by-gene matrix. It is an HDF5 file generated using [Loompy v.3.0.6](http://loompy.org/) that is an aggregate of the individual output Loom files from the [Smart-seq2 Single Sample pipeline](../smartseq2_single_sample/). 
 
-The main matrix contains the calculated TPMs from the [RSEM software](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-323) and there is an additional layer containing RSEM expected_counts (named "estimated_counts" in the Loom). 
+Overall, the Loom contains global attributes detailing information about the Loom and workflow used to generate it ([Table 1](#table-1-global-attributes)), column attributes detailing metrics for individual cells ([Table 2](#table-2-column-attributes-cell-metrics)), and row metrics detailing metrics for individual genes ([Table 3](#table-3-row-attributes-gene-metrics)). 
 
-The tables below document these metrics, list which tools generate them, and define them. This Loom file is the default matrix output of the Smart-seq2 Multi Sample pipeline.
+The matrix contains the calculated gene TPMs from the [RSEM software](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-323) and there is an additional layer containing RSEM expected_counts (named "estimated_counts" in the Loom). 
+
+The tables below document the Loom metrics, list which tools generate them, and define them. 
 
 
 ## Table 1. Global Attributes
