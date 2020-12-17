@@ -82,6 +82,15 @@ Both the individual sample Loom files and individual BAM files are described in 
 Please note that we have deprecated the previously used Zarr array output. The pipeline now uses the Loom file format as the default output.
 :::
 
+## Validation
+The Smart-seq2 Multi Sample pipeline has been validated for processing human and mouse, stranded or unstranded, paired- or single-end, and plate- or fluidigm-based Smart-seq2 datasets (see links to validation reports in the table below).
+
+| Workflow Configuration | Link to Report |
+| --- | --- |
+| Mouse paired-end | [Report](https://docs.google.com/document/d/12zGTFROrcXEByt9z0h06qjSqb9vWutn28Tx6YiND1Ds/edit)
+| Human and mouse single-end | [Report](https://docs.google.com/document/d/1MonsTG8UnROHZ_XpulrSZNTxO988KEH6T6h45plFYQg/edit#heading=h.ixoqmhbabdvh) |
+| Human stranded fluidigm | [Report](https://docs.google.com/document/d/1FEg86Tlu657j9Kjw_v3keFQRXcBIs8gOqCwLbPSP-C0/edit#heading=h.wjr8otl7zg14) | 
+
 ## Versioning
 
 Release information for the Smart-seq2 Multi Sample Pipeline can be found in the [changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_multisample/MultiSampleSmartSeq2.changelog.md). Please note that any major changes to the Smart-seq2 pipeline will be documented in the [Smart-seq2 Single Sample changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.changelog.md).

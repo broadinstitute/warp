@@ -1,6 +1,8 @@
 # What's in the Smart-seq2 Single Sample Pipeline Loom File?
 
-The Loom file is an HDF5 file generated using [Loompy v.3.0.6](http://loompy.org/). It contains global attributes containing the sample_id ([Table 1](#table-1-global-attributes)). The main matrix contains the RSEM TPMs and there is an additional layer that contains RSEM expected_counts (the named "estimated_counts"). The file additionally contains multiple metrics for both the individual cell (the columns of the matrix; [Table 2](#table-2-column-attributes-cell-metrics)) and individual genes (the rows of the matrix; [Table 3](#table-3-row-attributes-gene-metrics)). The tables below document these metrics, list which tools generate them, and define them. This Loom file is the default matrix output of the Smart-seq2 Single Sample pipeline.
+The Loom file is an HDF5 file generated using [Loompy v.3.0.6](http://loompy.org/). It contains global attributes describing the Loom file and workflow that generated it ([Table 1](#table-1-global-attributes)), column attributes detailing metrics for the individual cells ([Table 2](#table-2-column-attributes-cell-metrics)) and row attributes detailing metrics for individual genes ([Table 3](#table-3-row-attributes-gene-metrics)). The main matrix contains the RSEM TPMs and there is an additional layer that contains RSEM expected_counts (the named "estimated_counts").
+
+The tables below document these metrics, list which tools generate them, and define them. This Loom file is the default matrix output of the Smart-seq2 Single Sample pipeline.
 
 
 ## Table 1. Global Attributes
