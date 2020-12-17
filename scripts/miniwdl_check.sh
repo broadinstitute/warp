@@ -3,7 +3,7 @@
 # Do not exit on the first failure.
 
 mainExitCode=0
-for file in $(find pipelines/ projects/ beta-pipelines/ -name '*.wdl' -type f -print)
+for file in $(find pipelines/ projects/ -name '*.wdl' -type f -print)
 do
   miniwdl check ${file}
   exitCode=$?
