@@ -400,8 +400,12 @@ task picard_markduplicates {
         File bam = "~{outbam}"
     }
 
+# We are using a non-standard docker image here because we currently run this WDL on Cromwell v52 which cannot support
+# the custom entrypoint in the picard-cloud:2.18.11 docker image. Cromwell v53 and newer can support the
+# us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11 docker image
+
     runtime {
-        docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11"
+        docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11_NoCustomEntryPoint"
         memory: mem + " GB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
