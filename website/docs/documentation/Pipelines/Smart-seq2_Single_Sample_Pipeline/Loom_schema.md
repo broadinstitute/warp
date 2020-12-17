@@ -12,8 +12,7 @@ The global attributes in the Loom apply to the whole file, not any specific part
 | pipeline_version | String with the pipeline version |
 | LOOM_SPEC_VERSION | String with the loom file spec version |
 | CreationDate | Date Loom file was generated |
-| input_id | The input_id listed in the pipeline configuration file |
-| input_name | The optional string provided in the pipeline configuration to further identify samples |
+
 
 
 

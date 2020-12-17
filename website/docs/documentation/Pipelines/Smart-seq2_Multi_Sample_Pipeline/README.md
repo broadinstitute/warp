@@ -72,7 +72,9 @@ The following table lists the outputs of the Smart-seq2 Multi Sample workflow.
 | bam_index_files |  An array of BAM index files generated with HISAT2 | Array |
 | loom_output | A single Loom file  | File |
 
-The Loom file is an aggregate of all the individual Loom files generated using the [Smart-seq2 Single Sample workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl). The aggregated Loom filename contains the `plateid` prefix, which is set by default to the `batch_id` string specified in the input. The `plateid` is also set as a global attribute in the Loom.
+The Loom file is an aggregate of all the individual Loom files generated using the [Smart-seq2 Single Sample workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl). 
+
+The aggregated Loom filename contains the `batch_id` prefix, which is the string specified in the input configuration. The `batch_id` is also set as a global attribute in the Loom.
 
 Both the individual sample Loom files and individual BAM files are described in the [Smart-seq2 Single Sample README](../Smart-seq2_Single_Sample_Pipeline/).
 
