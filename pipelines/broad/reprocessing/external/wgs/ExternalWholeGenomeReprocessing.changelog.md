@@ -1,4 +1,4 @@
-# 2.3.1
+# 1.3.1
 2020-12-21
 
 * Added an input bam index to several workflows so it passes on singularity for sharded BQSR
