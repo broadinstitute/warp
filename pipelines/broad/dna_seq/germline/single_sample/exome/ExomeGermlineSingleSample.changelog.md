@@ -1,3 +1,7 @@
+# 2.4.0
+
+* Change bait_set_name to type String so its type is consistent with its subworkflow and plumbing inputs json 
+
 # 2.3.0
 2020-12-16
 
