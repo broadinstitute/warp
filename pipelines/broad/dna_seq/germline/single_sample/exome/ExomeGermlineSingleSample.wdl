@@ -52,7 +52,7 @@ workflow ExomeGermlineSingleSample {
 
     File target_interval_list
     File bait_interval_list
-    File bait_set_name
+    String bait_set_name
 
     Boolean provide_bam_output = false
   }
