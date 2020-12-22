@@ -1,3 +1,8 @@
+# 1.3.1
+2020-12-21
+
+* Passed an input bam index to several subworkflows, so the pipeline passes on singularity for sharded BQSR
+
 # 1.3.0
 2020-12-16
 
