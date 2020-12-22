@@ -48,6 +48,9 @@ workflow Optimus {
     # Set to true to override input checks and allow pipeline to proceed with invalid input
     Boolean force_no_check = false
 
+    # Set to true to counts reads in stranded mode
+    String use_strand_info = "false"
+
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
     # for example: `"Optimus.StarAlign.preemptible": 3` will let the StarAlign task, which by default disables the
@@ -121,7 +124,7 @@ workflow Optimus {
           gene_name_tag = "GE",
           gene_strand_tag = "GS",
           gene_function_tag = "XF",
-          use_strand_info = "false"
+          use_strand_info = use_strand_info
       }
     }
 
