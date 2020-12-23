@@ -48,7 +48,7 @@ workflow Optimus {
     # Set to true to override input checks and allow pipeline to proceed with invalid input
     Boolean force_no_check = false
 
-    # Set to true to counts reads in stranded mode
+    # Set to true to count reads in stranded mode
     String use_strand_info = "false"
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
@@ -78,7 +78,7 @@ workflow Optimus {
     whitelist: "10x genomics cell barcode whitelist"
     tenX_v3_chemistry: "assume 10X Genomics v3 chemistry with 12bp UMI (in contrast to default v2 with 10bp UMI)"
     force_no_check: "Set to true to override input checks and allow pipeline to proceed with invalid input"
-    use_strand_info: "Set to true to counts reads in stranded mode"
+    use_strand_info: "Set to true to count reads in stranded mode"
   }
 
   call OptimusInputChecks.checkOptimusInput {
