@@ -10,7 +10,7 @@ workflow scATAC {
         File input_fastq2
         String genome_name
         File input_reference
-        String output_bam = "aligned.bam"
+        String output_bam = genome_name + "_aligned.bam"
         String bin_size_list = "10000"
     }
 
@@ -36,7 +36,7 @@ workflow scATAC {
     call SnapPre {
         input:
             input_bam = AlignPairedEnd.aligned_bam,
-            output_snap_basename = 'output.snap',
+            output_snap_basename = genome_name + '.snap',
             genome_name = genome_name,
             input_reference = input_reference,
     }
@@ -44,12 +44,14 @@ workflow scATAC {
     call SnapCellByBin {
         input:
             snap_input = SnapPre.output_snap,
-            bin_size_list = bin_size_list
+            bin_size_list = bin_size_list,
+            snap_output_name = genome_name + '.snap'
     }
 
     call MakeCompliantBAM {
         input:
-            input_bam = AlignPairedEnd.aligned_bam
+            input_bam = AlignPairedEnd.aligned_bam,
+            output_bam_filename = genome_name + '.bam'
     }
 
     call BreakoutSnap {
@@ -192,7 +194,7 @@ task SnapCellByBin {
     input {
         File snap_input
         String bin_size_list
-        String snap_output_name = "output.snap"
+        String snap_output_name
         String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
     }
 
@@ -232,7 +234,7 @@ task SnapCellByBin {
 task MakeCompliantBAM {
     input {
         File input_bam
-        String output_bam_filename = "output.bam"
+        String output_bam_filename
         String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
     }
 
