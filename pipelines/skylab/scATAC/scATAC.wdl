@@ -20,6 +20,7 @@ workflow scATAC {
     parameter_meta {
         input_fastq1: "read 1 input fastq, the read names must be tagged with the cellular barcodes"
         input_fastq2: "read 2 input fastq, the read names must be tagged with the cellular barcodes"
+        input_id: "name of the sample, used to name the outputs"
         input_reference: "tar file with BWA reference, generated with the build_bwa_reference pipeline"
         output_bam: "output BAM file name"
         genome_name: "name of the genome for scATAC"
@@ -279,6 +280,7 @@ task BreakoutSnap {
         snap_input: "input snap file to use"
         docker_image: "docker image to use"
         bin_size_list: "space separated list of bins to generate"
+        input_id : "name of the sample, used to name the outputs"
     }
 
     Int num_threads = 1
@@ -288,7 +290,7 @@ task BreakoutSnap {
         set -euo pipefail
         mkdir output
         breakoutSnap.py --input ~{snap_input} \
-            --output-prefix output/ 
+            --output-prefix output/~{input_id}_
     }
 
     output {
