@@ -78,6 +78,7 @@ workflow Optimus {
     whitelist: "10x genomics cell barcode whitelist"
     tenX_v3_chemistry: "assume 10X Genomics v3 chemistry with 12bp UMI (in contrast to default v2 with 10bp UMI)"
     force_no_check: "Set to true to override input checks and allow pipeline to proceed with invalid input"
+    use_strand_info: "Set to true to counts reads in stranded mode"
   }
 
   call OptimusInputChecks.checkOptimusInput {
