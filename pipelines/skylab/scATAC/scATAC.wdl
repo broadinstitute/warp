@@ -8,9 +8,10 @@ workflow scATAC {
     input {
         File input_fastq1
         File input_fastq2
+        String input_id
         String genome_name
         File input_reference
-        String output_bam = genome_name + "_aligned.bam"
+        String output_bam = input_id + "_aligned.bam"
         String bin_size_list = "10000"
     }
 
@@ -36,7 +37,7 @@ workflow scATAC {
     call SnapPre {
         input:
             input_bam = AlignPairedEnd.aligned_bam,
-            output_snap_basename = genome_name + '.snap',
+            output_snap_basename = input_id + '.snap',
             genome_name = genome_name,
             input_reference = input_reference,
     }
@@ -45,19 +46,20 @@ workflow scATAC {
         input:
             snap_input = SnapPre.output_snap,
             bin_size_list = bin_size_list,
-            snap_output_name = genome_name + '.snap'
+            snap_output_name = input_id + '.snap'
     }
 
     call MakeCompliantBAM {
         input:
             input_bam = AlignPairedEnd.aligned_bam,
-            output_bam_filename = genome_name + '.bam'
+            output_bam_filename = input_id + '.bam'
     }
 
     call BreakoutSnap {
         input:
             snap_input = SnapCellByBin.output_snap,
-            bin_size_list = bin_size_list
+            bin_size_list = bin_size_list,
+            input_id = input_id
     }
 
     output {
@@ -270,6 +272,7 @@ task BreakoutSnap {
         File snap_input
         String docker_image = "quay.io/humancellatlas/snap-breakout:0.0.1"
         String bin_size_list
+        String input_id
     }
 
     parameter_meta {
@@ -289,11 +292,11 @@ task BreakoutSnap {
     }
 
     output {
-        File barcodes = 'output/barcodes.csv'
-        File fragments = 'output/fragments.csv'
-        File binCoordinates = 'output/binCoordinates_~{bin_size_list}.csv'
-        File binCounts = 'output/binCounts_~{bin_size_list}.csv'
-        File barcodesSection = 'output/barcodesSection.csv'
+        File barcodes = 'output/~{input_id}_barcodes.csv'
+        File fragments = 'output/~{input_id}_fragments.csv'
+        File binCoordinates = 'output/~{input_id}_binCoordinates_~{bin_size_list}.csv'
+        File binCounts = 'output/~{input_id}_binCounts_~{bin_size_list}.csv'
+        File barcodesSection = 'output/~{input_id}_barcodesSection.csv'
     }
 
     runtime {
