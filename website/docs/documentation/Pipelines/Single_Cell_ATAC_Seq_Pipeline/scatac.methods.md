@@ -1,10 +1,10 @@
-# scATAC v1.1.0 Methods
+# scATAC v1.2.0 Methods
 
-Below we provide a sample methods section for a publication. For the complete pipeline documentation, see the [scATAC README](./README.md).
+Below we provide a sample methods section for a publication. For the complete pipeline documentation, see the [scATAC Overview](./README.md).
 
 ## Methods
 
-Preprocessing and cell by bin matrix construction were performed using the scATAC v1.1.0 Pipeline.
+Preprocessing and cell by bin matrix construction were performed using the scATAC v1.2.0 Pipeline.
 
 Prior to processing, paired-end FASTQ files were modified with a custom python script (available at https://github.com/r3fang/SnapTools/blob/master/snaptools/dex_fastq.py) so that readnames were appended with cell barcodes.
 
