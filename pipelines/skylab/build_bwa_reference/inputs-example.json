@@ -1,0 +1,6 @@
+{
+  "BuildBWARef.reference_fasta": "File",
+  "BuildBWARef.chrom_sizes_file": "File",
+  "BuildBWARef.ref_name": "String"
+}
+
