@@ -45,7 +45,7 @@ workflow ATAC {
     adapter_seq_read2: "cutadapt option for the sequence adapter for read 2 fastq"
     tar_bwa_reference: "the pre built tar file containing the reference fasta and corresponding reference files for the BWA aligner"
     read_group_id: "the read group id to be added upon alignment"
-    read_group_id: "the read group sample to be added upon alignment"
+    read_group_sample_name: "the read group sample to be added upon alignment"
     bwa_cpu: "the number of cpu cores to use during alignment"
     genome_name: "the name of the genome being analyzed, input to snap tools, curently mm10 and hg19 supported"
     genome_size_file: "name of the file with chromosome sizes for the genome in the input tar file"
