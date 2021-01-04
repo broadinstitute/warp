@@ -1,6 +1,6 @@
-# 4.3.0
+# 4.2.2
 
-* Added an optional input for the pipeline to read in stranded mode
+* Added an optional input for the pipeline to read in stranded mode which has a default of false
 
 # 4.2.1
 
