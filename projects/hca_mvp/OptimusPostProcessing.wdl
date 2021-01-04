@@ -52,18 +52,11 @@ workflow OptimusPostProcessing {
       output_basename = output_basename
   }
 
-  call PostProcessing.GetProtocolMetadata {
-    input:
-      links_jsons = links_jsons,
-      output_basename = output_basename
-  }
-
   call PostProcessing.CreateAdapterJson {
     input:
       project_loom = MergeLooms.project_loom,
       project_id = project_id,
       input_metadata_json = GetInputMetadata.input_metadata_json,
-      protocol_metadata_json = GetProtocolMetadata.protocol_metadata_json,
       project_stratum_string = project_stratum_string,
       staging_bucket = staging_bucket,
       version_timestamp = version_timestamp,
