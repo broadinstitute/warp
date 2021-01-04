@@ -59,7 +59,7 @@ DDDDDIIIIIIIIIIIIIIHHIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 
 #### Input_reference Preparation
 
-The input_reference is a BWA compatible reference bundle in TAR file format. You can create this BWA reference using the accessory workflow  [here](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_bwa_reference/bwa-mk-index.wdl).
+The input_reference is a BWA compatible reference bundle in TAR file format. You can create this BWA reference using the accessory workflow  [here](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_bwa_reference/bwa-mk-index.wdl).
 
 
 ## Workflow Tasks and Tools
