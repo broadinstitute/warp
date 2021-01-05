@@ -1,3 +1,9 @@
+# 1.2.0
+
+2020-12-23 (Date of Last Commit)
+
+* Added input_id as an input to the scATAC workflow and used that to create unique output names
+
 # 1.1.0
 
 2020-08-24 (Date of Last Commit)
