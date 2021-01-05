@@ -2,7 +2,7 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [MultiSampleSmartSeq2_v2.1.4](https://github.com/broadinstitute/warp/releases) | November, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [MultiSampleSmartSeq2_v2.2.1](https://github.com/broadinstitute/warp/releases) | December, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ## Introduction
 
@@ -40,7 +40,12 @@ For the Multi Sample workflow, FASTQ files must be located in a cloud-accessible
 | batch_name | Optional string to describe the batch or biological sample | String |
 | input_name_metadata_field | Optional input describing, when applicable, the metadata field containing the `input_names` | String |
 | input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the `input_ids` | String |
-
+| `project_id` | Optional project identifier; usually a number | String |
+| `project_name` | Optional project identifier; usually a human-readable name | String |
+| `library` | Optional description of the sequencing method or approach | String |
+| `organ` | Optional description of the organ from which the cells were derived | String |
+| `species` | Optional description of the species from which the cells were derived | String |
+| `paired-end` | Boolean for whether samples are paired-end or not | Boolean | 
 
 
 ### Additional Input
@@ -67,13 +72,24 @@ The following table lists the outputs of the Smart-seq2 Multi Sample workflow.
 | bam_index_files |  An array of BAM index files generated with HISAT2 | Array |
 | loom_output | A single Loom file  | File |
 
-The Loom file is an aggregate of all the individual Loom files generated using the [Smart-seq2 Single Sample workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl). The aggregated Loom filename contains the `plateid` prefix, which is set by default to the `batch_id` string specified in the input. The `plateid` is also set as a global attribute in the Loom.
+The Loom file is an aggregate of all the individual Loom files generated using the [Smart-seq2 Single Sample workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl). 
+
+The aggregated Loom filename contains the `batch_id` prefix, which is the string specified in the input configuration. The `batch_id` is also set as a global attribute in the Loom.
 
 Both the individual sample Loom files and individual BAM files are described in the [Smart-seq2 Single Sample README](../Smart-seq2_Single_Sample_Pipeline/).
 
 :::warning Zarr Array Deprecation Notice June 2020
 Please note that we have deprecated the previously used Zarr array output. The pipeline now uses the Loom file format as the default output.
 :::
+
+## Validation
+The Smart-seq2 Multi Sample pipeline has been validated for processing human and mouse, stranded or unstranded, paired- or single-end, and plate- or fluidigm-based Smart-seq2 datasets (see links to validation reports in the table below).
+
+| Workflow Configuration | Link to Report |
+| --- | --- |
+| Mouse paired-end | [Report](https://docs.google.com/document/d/12zGTFROrcXEByt9z0h06qjSqb9vWutn28Tx6YiND1Ds/edit)
+| Human and mouse single-end | [Report](https://docs.google.com/document/d/1MonsTG8UnROHZ_XpulrSZNTxO988KEH6T6h45plFYQg/edit#heading=h.ixoqmhbabdvh) |
+| Human stranded fluidigm | [Report](https://docs.google.com/document/d/1FEg86Tlu657j9Kjw_v3keFQRXcBIs8gOqCwLbPSP-C0/edit#heading=h.wjr8otl7zg14) | 
 
 ## Versioning
 
