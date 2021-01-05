@@ -39,7 +39,7 @@ The pipeline inputs are detailed in the table below. You can test the workflow b
 | input_fastq1 | File | FASTQ file of the first reads (R1) |
 | input_fastq2 | File | FASTQ file of the second reads (R2) |
 | input_id | String | Unique identifier for the sample; will also be used to name the output files  | 
-| input_reference | File | Reference bundle that is generated with bwa-mk-index-wdl found [here](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_bwa_reference/bwa-mk-index.wdl)|
+| input_reference | File | Reference bundle that is generated with bwa-mk-index-wdl found [here](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/accessory_workflows/build_bwa_reference/bwa-mk-index.wdl)|
 | genome_name | String | Name of the genomic reference (name that precedes the “.tar” in the input_reference) |
 | output_bam  | String  | Name for the output BAM; default is set to the `input_id` + "\_aligned_bam" |
 | bin_size_list  | String  | List of bin sizes used to generate cell-by-bin matrices; default is 10000 bp |
@@ -59,7 +59,7 @@ DDDDDIIIIIIIIIIIIIIHHIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 
 #### Input_reference Preparation
 
-The input_reference is a BWA compatible reference bundle in TAR file format. You can create this BWA reference using the accessory workflow  [here](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_bwa_reference/bwa-mk-index.wdl).
+The input_reference is a BWA compatible reference bundle in TAR file format. You can create this BWA reference using the accessory workflow  [here](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/accessory_workflows/build_bwa_reference/bwa-mk-index.wdl).
 
 
 ## Workflow Tasks and Tools
