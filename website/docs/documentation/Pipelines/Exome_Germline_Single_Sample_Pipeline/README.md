@@ -2,18 +2,35 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [ExomeGermlineSingleSample_v2.0](https://github.com/broadinstitute/warp/releases) | June 10, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in dsde-pipelines or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [ExomeGermlineSingleSample_v2.2.0](https://github.com/broadinstitute/warp/releases) | December 07, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in dsde-pipelines or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 
 The Exome Germline Single Sample pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices for germline SNP and Indel discovery in human exome sequencing data. 
 
 For a broad overview of the pipeline processes, read the GATK Best Practices documentation for [data pre-processing](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912) and for [germline short variant discovery](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932).
 
+:::tip Want to try the Exome Germline Single Sample pipeline?
+You can test the pipeline in Terra! Go the [Exome-Analysis-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/Exome-Analysis-Pipeline) which includes sample data and workflows for preprocessing and initial variant calling, sample map generation, and joint genotyping.
+:::
+
+
 ## Set-up
 
 ### Workflow Installation and Requirements
 
-The Exome Germline Single Sample workflow is written in the Workflow Description Language WDL and can be downloaded by cloning the GitHub repository dsde-pipelines. The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the Exome Germline Single Sample [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.changelog.md).
+The Exome Germline Single Sample workflow is written in the Workflow Description Language WDL and can be downloaded by cloning the [warp repository](https://github.com/broadinstitute/warp/tree/master) in GitHub. The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the Exome Germline Single Sample [changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.changelog.md).
+
+### Software Version Requirements
+
+* [GATK 4.1.8.0](https://github.com/broadinstitute/gatk/releases/tag/4.1.8.0)
+* Picard 2.23.8
+* Samtools 1.11
+* Python 3.0
+* Cromwell version support
+    * Successfully tested on v52
+    * Does not work on versions < v23 due to output syntax
+* Papi version support
+	* Successfully tested on Papi v2
 
 ### Input Requirements and Expectations
 
@@ -31,7 +48,7 @@ The Exome Germline Single Sample workflow is written in the Workflow Description
 
 ## Workflow Tasks and Tools
 
-The Exome Germline Single Sample [workflow](ExomeGermlineSingleSample.wdl) imports a series of tasks from the WARP [tasks library](https://github.com/broadinstitute/warp/tree/develop/tasks/broad) and a DNASeq struct ([DNASeqStructs.wdl](https://github.com/broadinstitute/warp/blob/develop/structs/dna_seq/DNASeqStructs.wdl)) containing reference files from the [structs library](https://github.com/broadinstitute/warp/tree/develop/structs/dna_seq).
+The Exome Germline Single Sample [workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl) imports a series of tasks from the WARP [tasks library](https://github.com/broadinstitute/warp/tree/master/tasks/broad) and a DNASeq struct ([DNASeqStructs.wdl](https://github.com/broadinstitute/warp/blob/master/structs/dna_seq/DNASeqStructs.wdl)) containing reference files from the [structs library](https://github.com/broadinstitute/warp/tree/master/structs/dna_seq).
 
 You can read more about the software tools implemented in these tasks by reading the GATK [data pre-processing](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912) and [germline short variant discovery](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932) documentation.
 
@@ -48,6 +65,7 @@ You can read more about the software tools implemented in these tasks by reading
 - For help running workflows on the Google Cloud Platform or locally please
 view the following tutorial [(How to) Execute Workflows from the gatk-workflows Git Organization](https://gatk.broadinstitute.org/hc/en-us/articles/360035530952).
 - Please visit the [GATK Technical Documentation](https://gatk.broadinstitute.org/hc/en-us/categories/360002310591) site for further documentation on our workflows and tools.
+- You can access relevant reference and resource bundles in the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811).
 
 ## Contact Us
 
@@ -57,6 +75,10 @@ This material is provided by the Data Science Platform group at the Broad Instit
 
 Copyright Broad Institute, 2020 | BSD-3
 
-The workflow script is released under the **WDL open source code license (BSD-3)** (full license text at https://github.com/broadinstitute/warp/blob/develop/LICENSE). However, please note that the programs it calls may be subject to different licenses. Users are responsible for checking that they are authorized to run all programs before running this script.
+The workflow script is released under the **WDL open source code license (BSD-3)** (full license text at https://github.com/broadinstitute/warp/blob/master/LICENSE). However, please note that the programs it calls may be subject to different licenses. Users are responsible for checking that they are authorized to run all programs before running this script.
 
+- [GATK](https://software.broadinstitute.org/gatk/download/licensing.php)
+- [BWA](http://bio-bwa.sourceforge.net/bwa.shtml#13)
+- [Picard](https://broadinstitute.github.io/picard/)
+- [Samtools](http://www.htslib.org/terms/)
 

@@ -1,3 +1,18 @@
+# 2.2.1
+
+2020-12-07 (Date of Last Commit)
+
+* Added library, species and organ metadata to SmartSeq2 pipeline merged loom file
+* Updated the docker in LoomUtils.wdl task to 0.0.6. Updated merge_loom.py in the docker
+
+# 2.2.0
+
+2020-12-04 (Date of Last Commit)
+
+* Added Gene as row attribute of the loom file
+* Added CellID as column attributes of the loom file
+* Updated the docker in LoomUtils.wdl task to 0.0.5. Updated create_loom_ss2.py in the docker.
+
 # 2.1.5
 
 2020-11-24 (Date of Last Commit)

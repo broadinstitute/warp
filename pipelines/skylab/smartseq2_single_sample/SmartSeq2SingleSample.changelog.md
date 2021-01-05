@@ -1,3 +1,17 @@
+# 5.1.1
+
+2020-12-07 (Date of Last Commit)
+
+* Updated the docker in LoomUtils.wdl task to 0.0.6. Updated merge_loom.py in the docker
+
+# 5.1.0
+
+2020-12-04 (Date of Last Commit)
+
+* Added Gene as row attribute of the loom file
+* Added CellID as column attributes of the loom file
+* Updated the docker in LoomUtils.wdl task to 0.0.5. Updated create_loom_ss2.py script in the docker.
+
 # 5.0.5
 
 2020-11-24 (Date of Last Commit)

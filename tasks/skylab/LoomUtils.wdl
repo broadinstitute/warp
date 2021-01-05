@@ -3,7 +3,7 @@ version 1.0
 task SmartSeq2LoomOutput {
   input {
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.4-ss2-loom-fix-1"
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.6-1"
     # the gene count file "<input_id>_rsem.genes.results" in the task results folder call-RSEMExpression
     File rsem_gene_results
     # file named "<input_id>_QCs.csv" in the folder  "call-GroupQCOutputs/glob-*" of the the SS2  output
@@ -61,7 +61,7 @@ task OptimusLoomGeneration {
 
   input {
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.4-ss2-loom-fix-1"
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.6-1"
     # name of the sample
     String input_id
     # user provided id
@@ -148,8 +148,13 @@ task AggregateSmartSeq2Loom {
         Array[File] loom_input
         String batch_id
         String? batch_name
+        String? project_id
+        String? project_name
+        String? library
+        String? species
+        String? organ
         String pipeline_version
-        String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.4-ss2-loom-fix-1"
+        String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.6-1"
         Int disk = 200
         Int machine_mem_mb = 4
         Int cpu = 1
@@ -168,6 +173,11 @@ task AggregateSmartSeq2Loom {
       --output-loom-file "~{batch_id}.loom" \
       --batch_id ~{batch_id} \
       ~{"--batch_name " + batch_name} \
+      ~{"--project_id " + project_id} \
+      ~{"--project_name " + project_name} \
+      ~{"--library " + library} \
+      ~{"--species " + species} \
+      ~{"--organ " + organ} \
       --pipeline_version ~{pipeline_version}
 
 

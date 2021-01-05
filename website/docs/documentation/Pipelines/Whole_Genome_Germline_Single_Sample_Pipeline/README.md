@@ -2,7 +2,7 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [WholeGenomeGermlineSingleSample_v2.0](https://github.com/broadinstitute/warp/releases) | June 22, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [WholeGenomeGermlineSingleSample_v2.2.0](https://github.com/broadinstitute/warp/releases) | December 9, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 The Whole Genome Germline Single Sample pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices (June 2016) for germline SNP and Indel discovery in human whole-genome sequencing data. For a broad overview of the pipeline processes, read the GATK Best Practices documentation for [data pre-processing](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912) and for [germline short variant discovery](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932).
 
@@ -10,17 +10,19 @@ The Whole Genome Germline Single Sample pipeline implements data pre-processing 
 
 ### Workflow Installation and Requirements
 
-The [Whole Genome Germline Single Sample workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl) is written in the Workflow Description Language [WDL](https://openwdl.org/) and can be downloaded by cloning the GitHub repository [WARP](https://github.com/broadinstitute/warp/). The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the Whole Genome Germline Single Sample [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.changelog.md).
+The [Whole Genome Germline Single Sample workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl) is written in the Workflow Description Language [WDL](https://openwdl.org/) and can be downloaded by cloning the [warp repository](https://github.com/broadinstitute/warp/tree/master) in GitHub. The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the Whole Genome Germline Single Sample [changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.changelog.md).
 
 ### Software Version Requirements
 
-* GATK 3.5 and GATK 4.beta.5
-* Picard 2.20.0-SNAPSHOT
-* Samtools 1.3.1
-* Python 2.7 and 3.0
+* [GATK 4.1.8.0](https://github.com/broadinstitute/gatk/releases/tag/4.1.8.0) and GATK 3.5 for Whole Genome Variant Calling
+* Picard 2.23.8
+* Samtools 1.11
+* Python 3.0
 * Cromwell version support
-    * Successfully tested on v47
+    * Successfully tested on v52
     * Does not work on versions < v23 due to output syntax
+* Papi version support
+	* Successfully tested on Papi v2
 
 ### Input Requirements and Expectations
 
@@ -35,7 +37,7 @@ The [Whole Genome Germline Single Sample workflow](https://github.com/broadinsti
 
 ## Workflow Tasks and Tools
 
-The Whole Genome Germline Single Sample [workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl) imports a series of tasks from the [tasks library](https://github.com/broadinstitute/warp/tree/develop/tasks/broad) and a DNASeq struct ([DNASeqStructs.wdl](https://github.com/broadinstitute/warp/blob/develop/structs/dna_seq/DNASeqStructs.wdl)) containing reference files from the [structs library](https://github.com/broadinstitute/warp/tree/develop/structs).
+The Whole Genome Germline Single Sample [workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl) imports a series of tasks from the [tasks library](https://github.com/broadinstitute/warp/tree/master/tasks/broad) and a DNASeq struct ([DNASeqStructs.wdl](https://github.com/broadinstitute/warp/blob/master/structs/dna_seq/DNASeqStructs.wdl)) containing reference files from the [structs library](https://github.com/broadinstitute/warp/tree/master/structs).
 
 You can read more about the software tools implemented in these tasks by reading the GATK [data pre-processing](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912) and [germline short variant discovery](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932) documentation.
 
@@ -49,7 +51,6 @@ You can read more about the software tools implemented in these tasks by reading
 
 ## Important Notes
 
-* The accompanying JSON is a generic, ready to use, example template for the workflow. It is the user’s responsibility to correctly set the reference and resource variables for their own particular test case using the [GATK Tool and Tutorial Documentations](https://gatk.broadinstitute.org/hc/en-us/categories/360002310591).
 * Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
 * For help running workflows on the Google Cloud Platform or locally please
 view the following tutorial [(How to) Execute Workflows from the gatk-workflows Git Organization](https://gatk.broadinstitute.org/hc/en-us/articles/360035530952).
