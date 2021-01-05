@@ -2,7 +2,7 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v4.1.7](https://github.com/broadinstitute/warp/releases) | November, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [optimus_v4.2.2](https://github.com/broadinstitute/warp/releases) | January, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![Optimus_diagram](./Optimus_diagram.png)
 
@@ -81,6 +81,7 @@ The JSON file also contains metadata for the reference information in the follow
 | chemistry | Optional string description of whether data was generated with 10x v2 or v3 chemistry. Optimus validates this string. If the string does not match one of the optional strings, the pipeline will fail. You can remove the checks by setting "force_no_check = true" in the input JSON | "tenX_v2" (default) or "tenX_v3" |
 | counting_mode | String description of whether data is single-cell or single-nuclei | "sc_rna" or "sn_rna" |
 | output_bam_basename | Optional string used for the output BAM file basename; the default is input_id | NA |
+| use_strand_info | Optional string for reading stranded data. Default is "false"; set to "true" to count reads in stranded mode | "true" or "false" (default) |
 
 
 #### Sample Inputs for Analyses in a Terra Workspace
