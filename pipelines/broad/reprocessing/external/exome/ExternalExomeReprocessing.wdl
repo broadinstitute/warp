@@ -19,7 +19,7 @@ workflow ExternalExomeReprocessing {
     File cram_ref_fasta
     File cram_ref_fasta_index
 
-    File bait_set_name
+    String bait_set_name
     File bait_interval_list
     File target_interval_list
 

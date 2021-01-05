@@ -30,7 +30,7 @@ workflow ExomeReprocessing {
 
     File target_interval_list
     File bait_interval_list
-    File bait_set_name
+    String bait_set_name
   }
 
   call ToUbams.CramToUnmappedBams {

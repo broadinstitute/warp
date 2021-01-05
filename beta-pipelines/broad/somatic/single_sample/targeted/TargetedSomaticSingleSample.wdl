@@ -20,14 +20,14 @@ import "../../../../../structs/dna_seq/DNASeqStructs.wdl"
 # WORKFLOW DEFINITION
 workflow TargetedSomaticSingleSample {
 
-  String pipeline_version = "0.1.Beta"
+  String pipeline_version = "0.2.Beta"
 
   input {
     SampleAndUnmappedBams sample_and_unmapped_bams
     DNASeqSingleSampleReferences references
     File target_interval_list
     File bait_interval_list
-    File bait_set_name
+    String bait_set_name
 
     PapiSettings papi_settings  = {"preemptible_tries": 3, "agg_preemptible_tries": 3}
 
