@@ -11,6 +11,7 @@
 2020-12-16
 
 * Fixed error in relative import statement in Alignment subworkflow.
+* Fixed syntax bug in Alignment task SamToFastqAndBwaMemAndMba
 
 # 2.2.0
 2020-10-20
