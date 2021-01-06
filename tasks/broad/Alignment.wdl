@@ -54,7 +54,7 @@ task SamToFastqAndBwaMemAndMba {
     set -o pipefail
     set -e
 
-    if [-z ${BWA_VERSION}]; then
+    if [ -z ${BWA_VERSION} ]; then
         exit 1;
     fi
 

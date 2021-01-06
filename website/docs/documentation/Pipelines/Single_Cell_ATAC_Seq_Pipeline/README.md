@@ -2,7 +2,7 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [scATAC 1.1.0 ](https://github.com/broadinstitute/warp/releases) | August 24th 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in skylab or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [scATAC 1.2.0 ](https://github.com/broadinstitute/warp/releases) | January 04 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![scATAC_diagram](./scATAC_diagram.png)
 
@@ -19,7 +19,7 @@ Check out the [scATAC Publication Methods](./scatac.methods.md) to get started!
 | Pipeline Features | Description | Source |
 | ---  |--- | --- |
 | Assay Type | Single nucleus ATAC-seq | [Preprint here ](https://www.biorxiv.org/content/biorxiv/early/2019/05/13/615179.full.pdf)
-| Overall Workflow  | Generates Snap file with cell x bin matrix | Code available from [GitHub](scATAC.wdl) |
+| Overall Workflow  | Generates Snap file with cell-by-bin matrix | Code available from [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/scATAC/scATAC.wdl) |
 | Workflow Language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Aligner  | BWA | [Li H. and Durbin R., 2009](https://pubmed.ncbi.nlm.nih.gov/19451168/) |
 | Data Input File Format | File format in which sequencing data is provided | Paired-end FASTQs with cell barcodes appended to read names (read barcode demultiplexing section [here](https://github.com/r3fang/SnapATAC/wiki/FAQs#whatissnap)) |
@@ -28,7 +28,7 @@ Check out the [scATAC Publication Methods](./scatac.methods.md) to get started!
 ## Set-up
 ### Workflow Installation and Requirements
 
-The [scATAC workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.wdl) is written in the Workflow Description Language WDL and can be downloaded by cloning the GitHub [WARP repository](https://github.com/broadinstitute/warp/). The workflow can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the scATAC [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.changelog.md).
+The [scATAC workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/scATAC/scATAC.wdl) is written in the Workflow Description Language WDL and can be downloaded by cloning the GitHub [WARP repository](https://github.com/broadinstitute/warp/). The workflow can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the scATAC [changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/scATAC/scATAC.changelog.md).
 
 ### Pipeline Inputs
 
@@ -38,9 +38,10 @@ The pipeline inputs are detailed in the table below. You can test the workflow b
 | --- | --- | --- |
 | input_fastq1 | File | FASTQ file of the first reads (R1) |
 | input_fastq2 | File | FASTQ file of the second reads (R2) |
-| input_reference | File | Reference bundle that is generated with bwa-mk-index-wdl found [here](https://github.com/HumanCellAtlas/skylab/blob/master/library/accessory_workflows/build_bwa_reference/bwa-mk-index.wdl)|
+| input_id | String | Unique identifier for the sample; will also be used to name the output files  | 
+| input_reference | File | Reference bundle that is generated with bwa-mk-index-wdl found [here](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/accessory_workflows/build_bwa_reference/bwa-mk-index.wdl)|
 | genome_name | String | Name of the genomic reference (name that precedes the “.tar” in the input_reference) |
-| output_bam  | String  | Name for the output BAM |
+| output_bam  | String  | Name for the output BAM; default is set to the `input_id` + "\_aligned_bam" |
 | bin_size_list  | String  | List of bin sizes used to generate cell-by-bin matrices; default is 10000 bp |
 
 ### Input File Preparation
@@ -58,12 +59,12 @@ DDDDDIIIIIIIIIIIIIIHHIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 
 #### Input_reference Preparation
 
-The input_reference is a BWA compatible reference bundle in TAR file format. You can create this BWA reference using the accessory workflow  [here](https://github.com/HumanCellAtlas/skylab/blob/master/library/accessory_workflows/build_bwa_reference/bwa-mk-index.wdl).
+The input_reference is a BWA compatible reference bundle in TAR file format. You can create this BWA reference using the accessory workflow  [here](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/accessory_workflows/build_bwa_reference/bwa-mk-index.wdl).
 
 
 ## Workflow Tasks and Tools
 
-The [scATAC workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/scATAC/scATAC.wdl) is divided into multiple tasks which are described in the table below. The table also links to the Docker Image for each task and to the documentation or code for the relevant software tool parameters.
+The [scATAC workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/scATAC/scATAC.wdl) is divided into multiple tasks which are described in the table below. The table also links to the Docker Image for each task and to the documentation or code for the relevant software tool parameters.
 
 | Task | Task Description | Tool Docker Image | Parameter Descriptions or Code |
 |--- | --- | --- | --- |
@@ -71,7 +72,7 @@ The [scATAC workflow](https://github.com/broadinstitute/warp/blob/develop/pipeli
 | SnapPre | Initial generation of snap file | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
 | SnapCellByBin | Binning of data by genomic bins | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
 | MakeCompliantBAM | Generation of a GA4GH compliant BAM | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [Code](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/makeCompliantBAM.py) |
-| BreakoutSnap | Extraction of tables from snap file into text format (for testing and user availability) | [snap-breakout:0.0.1](https://github.com/HumanCellAtlas/skylab/tree/master/docker/snap-breakout) | [Code](https://github.com/broadinstitute/warp/tree/master/dockers/skylab/snap-breakout/breakoutSnap.py) |
+| BreakoutSnap | Extraction of tables from snap file into text format (for testing and user availability) | [snap-breakout:0.0.1](https://github.com/broadinstitute/warp/tree/master/dockers/skylab/snap-breakout) | [Code](https://github.com/broadinstitute/warp/tree/master/dockers/skylab/snap-breakout/breakoutSnap.py) |
 
 ### Task Summary
 
