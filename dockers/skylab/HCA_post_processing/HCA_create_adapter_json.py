@@ -168,8 +168,12 @@ def main():
                                #                          # example: NONE;
                                #                          # gs://hca-dcp-mint-test-data/../gencode_v27_primary.tar"
                                # }  # Input parameters used in the pipeline run.
-                             ],
-                              "analysis_run_type": analysis_type
+                              ],
+                              "analysis_run_type": analysis_type,
+                              "provenance": {
+                                "document_id": process_id,
+                                "submission_date": file_version,
+                              },
                             }
 
     analysis_protocol_dict = {
