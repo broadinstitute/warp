@@ -74,6 +74,10 @@ def combine_loom_files(loom_file_list, library, species, organ, project_id, proj
                 input_id_list.append(ds.attrs["input_id"])
                 input_name_list.append(ds.attrs["input_name"])
 
+                # check that the ordering is the same for the matrices being combined
+                if dsout.shape[0] != 0:
+                    assert(np.array_equal(dsout.ra["ensembl_ids"], ds.ra["ensembl_ids"]))
+
                 # filter out cells with low counts n_molecules > 1
                 UMIs = ds.ca['n_molecules']
                 cells = np.where(UMIs >= 100)[0]

@@ -6,7 +6,7 @@ import "../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 workflow ExomeReprocessing {
 
-  String pipeline_version = "2.4.0"
+  String pipeline_version = "2.4.1"
 
   input {
     File? input_cram
@@ -30,7 +30,7 @@ workflow ExomeReprocessing {
 
     File target_interval_list
     File bait_interval_list
-    File bait_set_name
+    String bait_set_name
   }
 
   call ToUbams.CramToUnmappedBams {
