@@ -4,9 +4,11 @@ import loompy
 import numpy as np
 import os
 import re
-from shutil import copyfile
+import pytest
 
 _test_data_dir = os.path.join(os.path.split(__file__)[0], "testdata/")
+
+
 def test_combine_loom_files(tmpdir):
     import os
     print('Test to merge three loom files')
@@ -14,6 +16,7 @@ def test_combine_loom_files(tmpdir):
     looma = os.path.join(_test_data_dir, "a.loom")
     loomb = os.path.join(_test_data_dir, "b.loom")
     loomc = os.path.join(_test_data_dir, "c.loom")
+    loomd = os.path.join(_test_data_dir, "d.loom")
     
     input_loom_files = [looma, loomb, loomc]
     input_libraries = ['V2', 'V2', 'V2']
@@ -50,7 +53,7 @@ def test_combine_loom_files(tmpdir):
     # the expression data type should be the same
     assert(dsin.attrs["expression_data_type"] == 'exonic')
 
-    assert(dsin.attrs["library_preparation_protocol.library_construction_method"] 
+    assert(dsin.attrs["library_preparation_protocol.library_construction_approach"]
            == ", ".join(set(input_libraries)))
     assert(dsin.attrs["donor_organism.genus_species"] == ", ".join(set(input_species)))
     assert(dsin.attrs["specimen_from_organism.organ"] == ", ".join(set(input_organs)))
@@ -91,10 +94,10 @@ def test_combine_loom_files(tmpdir):
             dsin_o = dsinc
         else:
             # no barcode should fail all the preceeding predicates
-            assert(False)
+            assert False
 
         mismatched_indices = np.where(dsin[:, np.where(dsin.ca['cell_names'] == barcode)[0]] !=
-                             dsin_o[:, np.where(dsin_o.ca['cell_names'] == original_barcode)[0]])
+                                      dsin_o[:, np.where(dsin_o.ca['cell_names'] == original_barcode)[0]])
 
         assert(len(mismatched_indices[0]) == 0)
 
@@ -109,6 +112,15 @@ def test_combine_loom_files(tmpdir):
             print(dsin_o.ra['gene_names'][mismatched_indices[0]])
             print(vals)
             print(vals_o)
+
+        with pytest.raises(AssertionError):
+            combine_loom_files(loom_file_list=[looma, loomd],
+                               library="10X 3' v2 sequencing",
+                               species="Homo sapiens",
+                               organ="brain",
+                               project_id=input_project_id,
+                               project_name=input_project_name,
+                               output_loom_file="invalid_matrix.loom")
 
     dsin.close()
     dsina.close()
