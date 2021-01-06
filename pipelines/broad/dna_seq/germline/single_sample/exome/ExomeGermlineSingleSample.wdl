@@ -39,7 +39,8 @@ import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 # WORKFLOW DEFINITION
 workflow ExomeGermlineSingleSample {
 
-  String pipeline_version = "2.4.0"
+
+  String pipeline_version = "2.4.1"
 
   input {
     PapiSettings papi_settings
@@ -125,6 +126,7 @@ workflow ExomeGermlineSingleSample {
       break_bands_at_multiples_of = scatter_settings.break_bands_at_multiples_of,
       contamination = UnmappedBamToAlignedBam.contamination,
       input_bam = UnmappedBamToAlignedBam.output_bam,
+      input_bam_index = UnmappedBamToAlignedBam.output_bam_index,
       ref_fasta = references.reference_fasta.ref_fasta,
       ref_fasta_index = references.reference_fasta.ref_fasta_index,
       ref_dict = references.reference_fasta.ref_dict,
