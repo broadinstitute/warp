@@ -17,7 +17,7 @@ jobs:
         with:
           repository: broadinstitute/warp
       - name: Install womtools
-        run |
+        run: |
           apt-get install wget
           apt-get install openjdk-8-jdk
 
