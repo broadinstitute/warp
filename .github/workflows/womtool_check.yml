@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: broadinstitute/warp
-      - name: Install womtools
+      #- name: Install womtools
        # run: |
        #  apt-get install wget
        #   apt-get install openjdk-8-jdk
