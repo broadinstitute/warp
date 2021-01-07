@@ -59,6 +59,16 @@ You can read more about the software tools implemented in these tasks by reading
 - BQSR report
 - Summary metrics; to read more about any particular metric, you can search the metric using the [GATK documentation search](https://gatk.broadinstitute.org/hc/en-us/categories/360002302312)
 
+### Base quality scores
+The final CRAM files have base quality scores binned according to the [Functional Equivalence specification](https://github.com/CCDG/Pipeline-Standardization/blob/master/PipelineStandard.md#base-quality-score-binning-scheme) ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)).
+
+| Original Score | Score after BQSR recalibration |
+| --- | --- |
+| 1-6 | unchanged |
+| 7-12 | 10 | 
+| 13-22 | 20 |
+| 22-infinity | 30 |
+
 ## Important Notes
 
 - Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
