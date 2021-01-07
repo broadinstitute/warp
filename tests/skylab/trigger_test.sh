@@ -24,7 +24,6 @@ GIT_HASH=$(git rev-parse --short HEAD)
 
 DEPENDENCIES_ZIP="dependencies/workflow_dependencies.zip"
 FLATTENED_TEST_WDL="test_${PIPELINE_FOLDER_NAME}_${TEST_TYPE_UC}/test_${PIPELINE_FOLDER_NAME}_${TEST_TYPE_UC}.wdl"
-sed -E 's/import "(.*)\/(.*\'${WDL_SUFFIX}')"/import "\2"/g' ${FLATTENED_TEST_WDL} > "FLAT_${FLATTENED_TEST_WDL}"
 
 # Moving all files into temp dir
 cp "${WD}/tests/skylab/test.options.json" "${TMP_DIR}/test.options.json"
@@ -58,7 +57,7 @@ docker run --rm \
     "${CROMWELL_KEY_FILE}" \
     "${CROMWELL_URL}" \
     "${INPUTS_JSON}" \
-    "FLAT_${FLATTENED_TEST_WDL}" \
+    "${FLATTENED_TEST_WDL}" \
     "${OPTIONS_FILE}" \
     "${DEPENDENCIES_ZIP}" \
     "${COLLECTION}"
