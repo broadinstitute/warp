@@ -3,7 +3,6 @@ version 1.0
 import "../../../../pipelines/skylab/optimus/Optimus.wdl" as target
 import "../../../../tests/skylab/optimus/pr/ValidateOptimus.wdl" as checker
 
-
 # this workflow will be run by the jenkins script that gets executed by PRs.
 workflow TestOptimusPR {
   input {
