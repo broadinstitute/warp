@@ -1,7 +1,7 @@
 version 1.0
 
-import "SmartSeq2SingleSample.wdl" as target_wdl
-import "ValidateSmartSeq2SingleCell.wdl" as checker_wdl
+import "../../../../pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl" as target_wdl
+import "../../../../tests/skylab/smartseq2_single_sample/pr/ValidateSmartSeq2SingleCell.wdl" as checker_wdl
 
 # this task will be run by the jenkins script that gets executed on our PRs.
 workflow TestSmartSeq2SingleCellPR {
