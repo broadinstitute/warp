@@ -1,5 +1,7 @@
 version 1.0
 
+import "../../../../../../tasks/broad/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
+
 struct FastqPairRecord {
     File forward_fastq
     File reverse_fastq
@@ -559,7 +561,19 @@ workflow GDCWholeGenomeSomaticSingleSample {
     String pipeline_version = "1.0.0"
 
     input {
-        File ubam
+        File? input_cram
+        File? input_bam
+        File? output_map
+
+        String? sample_name
+        String? base_file_name
+        String? unmapped_bam_suffix
+
+        File? cram_ref_fasta
+        File? cram_ref_fasta_index
+
+        File? ubam
+
         File ref_fasta
         File ref_fai
         File ref_dict
@@ -569,27 +583,52 @@ workflow GDCWholeGenomeSomaticSingleSample {
         File ref_pac
         File ref_sa
     }
-    String outbam = basename(ubam, ".bam") + ".aln.mrkdp.bam"
 
-    call bam_readgroup_to_contents {
-        input: bam = ubam
+    String outbam = basename(select_first([ubam, base_file_name]), ".bam") + ".aln.mrkdp.bam"
+
+    if (!defined(ubam)) {
+        call ToUbams.CramToUnmappedBams {
+             input:
+                 input_cram = input_cram,
+                 input_bam = input_bam,
+                 ref_fasta = select_first([cram_ref_fasta, ref_fasta]),
+                 ref_fasta_index = select_first([cram_ref_fasta_index, ref_fai]),
+                 output_map = output_map,
+                 unmapped_bam_suffix = unmapped_bam_suffix
+        }
     }
 
-    call biobambam_bamtofastq {
-        input: filename = ubam
+    Array[File] ubams = select_all([ubam, CramToUnmappedBams.unmapped_bams])
+
+    scatter (ubam in ubams) {
+        call bam_readgroup_to_contents {
+            input: bam = ubam
+        }
+
+        call biobambam_bamtofastq {
+             input: filename = ubam
+        }
     }
 
-    Int pe_count = length(biobambam_bamtofastq.output_fastq1)
-    Int o1_count = length(biobambam_bamtofastq.output_fastq_o1)
-    Int o2_count = length(biobambam_bamtofastq.output_fastq_o2)
-    Int s_count = length(biobambam_bamtofastq.output_fastq_s)
+    Array[Object] readgroups = flatten(bam_readgroup_to_contents.readgroups)
+
+    Array[File] fastq1 = flatten(biobambam_bamtofastq.output_fastq1)
+    Array[File] fastq2 = flatten(biobambam_bamtofastq.output_fastq2)
+    Array[File] fastq_o1 = flatten(biobambam_bamtofastq.output_fastq_o1)
+    Array[File] fastq_o2 = flatten(biobambam_bamtofastq.output_fastq_o2)
+    Array[File] fastq_s = flatten(biobambam_bamtofastq.output_fastq_s)
+
+    Int pe_count = length(fastq1)
+    Int o1_count = length(fastq_o1)
+    Int o2_count = length(fastq_o2)
+    Int s_count = length(fastq_s)
 
     if (pe_count > 0) {
         call emit_pe_records {
             input:
-                fastq1_files = biobambam_bamtofastq.output_fastq1,
-                fastq2_files = biobambam_bamtofastq.output_fastq2,
-                readgroups = bam_readgroup_to_contents.readgroups
+                fastq1_files = fastq1,
+                fastq2_files = fastq2,
+                readgroups = readgroups
         }
         scatter (pe_record in emit_pe_records.fastq_pair_records) {
             call bwa_pe {
@@ -610,10 +649,10 @@ workflow GDCWholeGenomeSomaticSingleSample {
     if (o1_count + o2_count + s_count > 0) {
         call emit_se_records {
             input:
-                fastq_o1_files = biobambam_bamtofastq.output_fastq_o1,
-                fastq_o2_files = biobambam_bamtofastq.output_fastq_o2,
-                fastq_s_files = biobambam_bamtofastq.output_fastq_s,
-                readgroups = bam_readgroup_to_contents.readgroups
+                fastq_o1_files = fastq_o1,
+                fastq_o2_files = fastq_o2,
+                fastq_s_files = fastq_s,
+                readgroups = readgroups
         }
         scatter (se_record in emit_se_records.fastq_single_records) {
             call bwa_se {
