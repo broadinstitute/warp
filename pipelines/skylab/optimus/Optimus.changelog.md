@@ -1,3 +1,9 @@
+# 4.2.2
+
+2021-01-04 (Date of Last Commit)
+
+* Added an optional input for the pipeline to read in stranded mode which has a default of false
+
 # 4.2.1
 
 2020-12-04 (Date of Last Commit)

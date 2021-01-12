@@ -1,3 +1,8 @@
+# 1.5.1
+2020-12-16
+
+Modified JointGenotyping 'GatherTranches' task to fix validation error reported by miniwdl (duplicately named input and output)
+
 # 1.5.0
 2020-10-20
 

@@ -14,6 +14,7 @@ workflow VariantCalling {
     Int break_bands_at_multiples_of
     Float? contamination
     File input_bam
+    File input_bam_index
     File ref_fasta
     File ref_fasta_index
     File ref_dict
@@ -52,15 +53,16 @@ workflow VariantCalling {
     if (use_gatk3_haplotype_caller) {
       call Calling.HaplotypeCaller_GATK35_GVCF as HaplotypeCallerGATK3 {
         input:
-        input_bam = input_bam,
-        interval_list = scattered_interval_list,
-        gvcf_basename = base_file_name,
-        ref_dict = ref_dict,
-        ref_fasta = ref_fasta,
-        ref_fasta_index = ref_fasta_index,
-        contamination = contamination,
-        preemptible_tries = agg_preemptible_tries,
-        hc_scatter = hc_divisor
+          input_bam = input_bam,
+          input_bam_index = input_bam_index,
+          interval_list = scattered_interval_list,
+          gvcf_basename = base_file_name,
+          ref_dict = ref_dict,
+          ref_fasta = ref_fasta,
+          ref_fasta_index = ref_fasta_index,
+          contamination = contamination,
+          preemptible_tries = agg_preemptible_tries,
+          hc_scatter = hc_divisor
       }
     }
 
@@ -71,6 +73,7 @@ workflow VariantCalling {
         input:
           contamination = contamination,
           input_bam = input_bam,
+          input_bam_index = input_bam_index,
           interval_list = scattered_interval_list,
           vcf_basename = base_file_name,
           ref_dict = ref_dict,

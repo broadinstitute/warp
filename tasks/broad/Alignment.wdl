@@ -15,7 +15,7 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../structs/dna_seq/DNASeqStructs.wdl"
+import "../../structs/dna_seq/DNASeqStructs.wdl"
 
 # Read unmapped BAM, convert on-the-fly to FASTQ and stream to BWA MEM for alignment, then stream to MergeBamAlignment
 task SamToFastqAndBwaMemAndMba {
@@ -54,7 +54,7 @@ task SamToFastqAndBwaMemAndMba {
     set -o pipefail
     set -e
 
-    if [-z ${BWA_VERSION}]; then
+    if [ -z ${BWA_VERSION} ]; then
         exit 1;
     fi
 

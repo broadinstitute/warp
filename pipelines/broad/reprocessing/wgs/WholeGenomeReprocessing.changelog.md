@@ -1,3 +1,14 @@
+# 2.3.1
+2020-12-21
+
+* Passed an input bam index to several subworkflows, so the pipeline passes on singularity for sharded BQSR
+
+# 2.3.0
+2020-12-16
+
+* Fixed error in relative import statement in Alignment subworkflow.
+* Fixed syntax bug in Alignment task SamToFastqAndBwaMemAndMba
+
 # 2.2.0
 2020-10-20
 
