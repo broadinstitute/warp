@@ -563,14 +563,10 @@ workflow GDCWholeGenomeSomaticSingleSample {
     input {
         File? input_cram
         File? input_bam
-        File? output_map
-
-        String? sample_name
-        String? base_file_name
-        String? unmapped_bam_suffix
-
         File? cram_ref_fasta
         File? cram_ref_fasta_index
+        File? output_map
+        String? unmapped_bam_suffix
 
         File? ubam
 
@@ -584,7 +580,8 @@ workflow GDCWholeGenomeSomaticSingleSample {
         File ref_sa
     }
 
-    String outbam = basename(select_first([ubam, base_file_name]), ".bam") + ".aln.mrkdp.bam"
+    String outbam = if (defined(ubam) || defined(input_bam)) then basename(select_first([ubam, input_bam]), ".bam") + ".aln.mrkdp.bam"
+                    else basename(select_first([input_cram]), ".cram") + ".aln.mrkdp.bam"
 
     if (!defined(ubam)) {
         call ToUbams.CramToUnmappedBams {
@@ -697,6 +694,8 @@ workflow GDCWholeGenomeSomaticSingleSample {
     }
 
     output {
+        Array[File]? validation_report = CramToUnmappedBams.validation_report
+        Array[File]? unmapped_bams = CramToUnmappedBams.unmapped_bams
         File bam = gatk_applybqsr.bam
         File bai = gatk_applybqsr.bai
         File md_metrics = picard_markduplicates.metrics

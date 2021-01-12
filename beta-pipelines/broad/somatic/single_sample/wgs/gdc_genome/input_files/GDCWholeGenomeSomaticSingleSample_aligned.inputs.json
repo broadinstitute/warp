@@ -1,0 +1,13 @@
+{
+  "GDCWholeGenomeSomaticSingleSample.gatk_baserecalibrator.dbsnp_vcf": "gs://pgdac-gdc/dbsnp_144.hg38.vcf.gz",
+  "GDCWholeGenomeSomaticSingleSample.gatk_baserecalibrator.dbsnp_vcf_index": "gs://pgdac-gdc/dbsnp_144.hg38.vcf.gz.tbi",
+  "GDCWholeGenomeSomaticSingleSample.ref_amb": "gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.fa.amb",
+  "GDCWholeGenomeSomaticSingleSample.ref_ann": "gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.fa.ann",
+  "GDCWholeGenomeSomaticSingleSample.ref_bwt": "gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.fa.bwt",
+  "GDCWholeGenomeSomaticSingleSample.ref_dict": "gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.dict",
+  "GDCWholeGenomeSomaticSingleSample.ref_fai": "gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.fa.fai",
+  "GDCWholeGenomeSomaticSingleSample.ref_fasta": "gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.fa",
+  "GDCWholeGenomeSomaticSingleSample.ref_pac": "gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.fa.pac",
+  "GDCWholeGenomeSomaticSingleSample.ref_sa": "gs://getzlab-workflows-reference_files-oa/hg38/gdc/GRCh38.d1.vd1.fa.sa",
+  "GDCWholeGenomeSomaticSingleSample.input_bam": "gs://broad-gotc-test-storage/somatic_single_sample/wgs/plumbing/bams/NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211.bam"
+}
