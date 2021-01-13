@@ -64,7 +64,7 @@ workflow SmartSeq2SingleCell {
      call HISAT2.HISAT2PairedEnd {
        input:
          hisat2_ref = hisat2_ref_index,
-         fastq1 = fastq1,
+         fastq1 = fastq1
          fastq2 = select_first([fastq2]),
          ref_name = hisat2_ref_name,
          input_id = input_id,
