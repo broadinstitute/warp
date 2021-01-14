@@ -595,7 +595,7 @@ workflow GDCWholeGenomeSomaticSingleSample {
         }
     }
 
-    Array[File] ubams = select_all([ubam, CramToUnmappedBams.unmapped_bams])
+    Array[File] ubams = if defined(ubam) then [select_first([ubam])] else select_first([CramToUnmappedBams.unmapped_bams])
 
     scatter (ubam in ubams) {
         call bam_readgroup_to_contents {
