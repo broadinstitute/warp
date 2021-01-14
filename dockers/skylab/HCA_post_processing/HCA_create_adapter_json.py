@@ -45,7 +45,7 @@ def main():
     parser.add_argument('--version-timestamp',
                         dest='version_timestamp',
                         required=True,
-                        help="A version for the ooutput files in the form of a timestamp")
+                        help="A version for the output files in the form of a timestamp")
     parser.add_argument('--project-id',
                         dest='project_id',
                         required=True,
@@ -83,7 +83,8 @@ def main():
     project_loom_file = args.project_loom_file
     crc32c = args.crc32c
     file_version = args.version_timestamp
-    loom_version = args.loom_timestamp
+    loom_timestamp = args.loom_timestamp
+    loom_version = loom_timestamp.replace('Z', '.000000Z')
     project_id = args.project_id
     project_stratum_string = args.project_stratum_string
     sha256 = args.sha256
@@ -204,7 +205,7 @@ def main():
                              "describedBy": "https://schema.humancellatlas.org/system/2.0.0/file_descriptor",
                              "file_id": matrix_file_id,
                              "file_name": file_name,
-                             "file_version": file_version,
+                             "file_version": loom_version,
                              "schema_type": "file_descriptor",
                              "schema_version": "2.0.0",
                              "sha256": sha256,
