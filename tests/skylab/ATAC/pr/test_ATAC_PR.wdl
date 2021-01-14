@@ -1,7 +1,7 @@
 version 1.0
 
-import "ATAC.wdl" as target
-import "ValidateATAC.wdl" as checker
+import "../../../../beta-pipelines/skylab/ATAC/ATAC.wdl" as target
+import "../../../../tests/skylab/ATAC/pr/ValidateATAC.wdl" as checker
 
 # this workflow will be run by the jenkins script that gets executed by PRs.
 workflow TestAtacPR {

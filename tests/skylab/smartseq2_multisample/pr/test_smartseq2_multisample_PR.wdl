@@ -1,7 +1,7 @@
 version 1.0
 
-import "MultiSampleSmartSeq2.wdl" as target_wdl
-import "ValidateMultiSampleSmartSeq2.wdl" as checker_wdl
+import "../../../../pipelines/skylab/smartseq2_multisample/MultiSampleSmartSeq2.wdl" as target_wdl
+import "../../../../tests/skylab/smartseq2_multisample/pr/ValidateMultiSampleSmartSeq2.wdl" as checker_wdl
 
 workflow TestMultiSampleSmartSeq2 {
   input {
