@@ -7,9 +7,6 @@ case class Config(
     annotationFiltrationConfig: AnnotationFiltrationConfig =
       AnnotationFiltrationConfig(),
     arraysConfig: ArraysConfig = ArraysConfig(),
-    arraysDataDeliveryConfig: ArraysDataDeliveryConfig =
-      ArraysDataDeliveryConfig(),
-    cramDataDeliveryConfig: CramDataDeliveryConfig = CramDataDeliveryConfig(),
     genotypeConcordanceConfig: GenotypeConcordanceConfig =
       GenotypeConcordanceConfig(),
     germlineCloudConfig: GermlineCloudWorkflowConfig =
