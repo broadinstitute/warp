@@ -8,6 +8,10 @@ The Whole Genome Germline Single Sample pipeline implements data pre-processing 
 
 The pipeline adheres to the Functional Equivalence pipeline specification ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)), a standard set of pipeline parameters to promote data interoperability across a multitude of global research projects and consortia. Read the [specification](https://github.com/CCDG/Pipeline-Standardization/blob/master/PipelineStandard.md) for full details or learn more about functionally equivalent pipelines in [this GATK blog](https://github.com/broadinstitute/gatk-docs/blob/master/blog-2012-to-2019/2018-02-09-Batch_effects_begone:_Introducing_the_Functional_Equivalence_data_processing_pipeline_spec.md).   
 
+:::tip Want to try the Whole Genome Germline Single Sample pipeline?
+You can test the pipeline in Terra! Go the [Whole-Genome-Analysis-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/Whole-Genome-Analysis-Pipeline) which includes sample data and workflows for preprocessing and initial variant calling, sample map generation, and joint genotyping.
+:::
+
 ## Set-up
 
 ### Workflow Installation and Requirements
