@@ -1,7 +1,7 @@
 version 1.0
 
-import "scATAC.wdl" as target
-import "ValidateSCATAC.wdl" as checker
+import "../../../../pipelines/skylab/scATAC/scATAC.wdl" as target
+import "../../../../tests/skylab/scATAC/pr/ValidateSCATAC.wdl" as checker
 
 # this workflow will be run by the jenkins script that gets executed by PRs.
 workflow TestScAtacPR {
