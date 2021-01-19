@@ -690,8 +690,7 @@ workflow GDCWholeGenomeSomaticSingleSample {
     call collect_insert_size_metrics {
         input:
             input_bam = gatk_applybqsr.bam,
-            output_bam_prefix = "~{output_bam_prefix}.insert_size_histogram.pdf"
-
+            output_bam_prefix = output_bam_prefix
     }
     output {
         File bam = gatk_applybqsr.bam
