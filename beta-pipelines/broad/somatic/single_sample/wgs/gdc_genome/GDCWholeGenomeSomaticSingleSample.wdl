@@ -692,6 +692,7 @@ workflow GDCWholeGenomeSomaticSingleSample {
             input_bam = gatk_applybqsr.bam,
             output_bam_prefix = output_bam_prefix
     }
+
     output {
         File bam = gatk_applybqsr.bam
         File bai = gatk_applybqsr.bai
