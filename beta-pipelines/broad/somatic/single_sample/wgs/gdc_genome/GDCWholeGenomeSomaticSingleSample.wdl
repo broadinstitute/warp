@@ -556,6 +556,34 @@ task gatk_applybqsr {
     }
 }
 
+# Collect quality metrics from the aggregated bam
+task collect_insert_size_metrics {
+  input {
+    File input_bam
+    String output_bam_prefix
+  }
+
+  Int disk_size = ceil(size(input_bam, "GiB")) + 20
+
+  command {
+    java -Xms5000m -jar /usr/picard/picard.jar \
+      CollectInsertSizeMetrics \
+      INPUT=~{input_bam} \
+      OUTPUT=~{output_bam_prefix}.insert_size_metrics \
+      HISTOGRAM_FILE=~{output_bam_prefix}.insert_size_histogram.pdf
+  }
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    memory: "7 GiB"
+    disks: "local-disk " + disk_size + " HDD"
+  }
+  output {
+    File insert_size_histogram_pdf = "~{output_bam_prefix}.insert_size_histogram.pdf"
+    File insert_size_metrics = "~{output_bam_prefix}.insert_size_metrics"
+  }
+}
+
+
 workflow GDCWholeGenomeSomaticSingleSample {
 
     String pipeline_version = "1.0.0"
@@ -693,11 +721,21 @@ workflow GDCWholeGenomeSomaticSingleSample {
             bqsr_recal_file = gatk_baserecalibrator.bqsr_recal_file
     }
 
+    String output_bam_prefix = basename(gatk_applybqsr.bam, ".bam")
+
+    call collect_insert_size_metrics {
+        input:
+            input_bam = gatk_applybqsr.bam,
+            output_bam_prefix = output_bam_prefix
+    }
+
     output {
         Array[File]? validation_report = CramToUnmappedBams.validation_report
         Array[File]? unmapped_bams = CramToUnmappedBams.unmapped_bams
         File bam = gatk_applybqsr.bam
         File bai = gatk_applybqsr.bai
         File md_metrics = picard_markduplicates.metrics
+        File insert_size_metrics = collect_insert_size_metrics.insert_size_metrics
+        File insert_size_histogram_pdf = collect_insert_size_metrics.insert_size_histogram_pdf
     }
 }
