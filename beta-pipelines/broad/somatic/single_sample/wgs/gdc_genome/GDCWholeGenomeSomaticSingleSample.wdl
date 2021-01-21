@@ -1,6 +1,7 @@
 version 1.0
 
 import "../../../../../../tasks/broad/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
+import "../../../../../../tasks/broad/CheckContaminationSomatic.wdl" as CheckContamination
 
 struct FastqPairRecord {
     File forward_fastq
@@ -598,6 +599,11 @@ workflow GDCWholeGenomeSomaticSingleSample {
 
         File? ubam
 
+        File contamination_vcf
+        File contamination_vcf_index
+        File dbsnp_vcf
+        File dbsnp_vcf_index
+
         File ref_fasta
         File ref_fai
         File ref_dict
@@ -707,12 +713,25 @@ workflow GDCWholeGenomeSomaticSingleSample {
         input: input_bam = picard_markduplicates.bam
     }
 
+    call CheckContamination.CalculateSomaticContamination as check_contamination {
+        input:
+            reference = ref_fasta,
+            reference_dict = ref_dict,
+            reference_index = ref_fai,
+            tumor_cram_or_bam = sort_and_index_markdup_bam.bam,
+            tumor_crai_or_bai = sort_and_index_markdup_bam.bai,
+            contamination_vcf = contamination_vcf,
+            contamination_vcf_index = contamination_vcf_index
+    }
+
     call gatk_baserecalibrator {
         input:
             bam = sort_and_index_markdup_bam.bam,
             ref_fasta = ref_fasta,
             ref_fai = ref_fai,
-            ref_dict = ref_dict
+            ref_dict = ref_dict,
+            dbsnp_vcf = dbsnp_vcf,
+            dbsnp_vcf_index = dbsnp_vcf_index
     }
 
     call gatk_applybqsr {
@@ -737,5 +756,6 @@ workflow GDCWholeGenomeSomaticSingleSample {
         File md_metrics = picard_markduplicates.metrics
         File insert_size_metrics = collect_insert_size_metrics.insert_size_metrics
         File insert_size_histogram_pdf = collect_insert_size_metrics.insert_size_histogram_pdf
+        Float contamination = check_contamination.contamination
     }
 }
