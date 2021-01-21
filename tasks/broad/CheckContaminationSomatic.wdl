@@ -14,7 +14,7 @@ task CalculateSomaticContamination {
         File contamination_vcf_index
 
         # runtime
-        String? gatk_docker
+        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
         File? gatk_override
         Int? additional_disk
         Int? mem
@@ -22,7 +22,6 @@ task CalculateSomaticContamination {
         Int? max_retries
     }
 
-    File gatk_docker = select_first([gatk_docker, "us.gcr.io/broad-gatk/gatk:4.1.8.0"])
     Int disk_size = ceil(size(tumor_cram_or_bam,"GB") + size(normal_cram_or_bam,"GB")) + select_first([additional_disk, 10])
 
     # Mem is in units of GB but our command and memory runtime values are in MB
