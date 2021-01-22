@@ -12,9 +12,9 @@ import org.broadinstitute.dsp.pipelines.inputs.{
   SomaticSingleSampleValidationInputs
 }
 
-class GDCWholeGenomeSomaticSingleSample(testerConfig: GDCWholeGenomeSomaticSingleSampleConfig)(
-    implicit am: ActorMaterializer,
-    as: ActorSystem
+class SomaticSingleSampleTester(testerConfig: SomaticCloudWorkflowConfig)(
+  implicit am: ActorMaterializer,
+  as: ActorSystem
 ) extends ValidationWdlTester(testerConfig) {
 
   val dataTypePrefix: String = dataTypePrefix(testerConfig.dataType)
@@ -23,7 +23,7 @@ class GDCWholeGenomeSomaticSingleSample(testerConfig: GDCWholeGenomeSomaticSingl
   override val workflowName: String = s"${dataTypePrefix}SomaticSingleSample"
 
   val workflowDir
-    : File = CromwellWorkflowTester.DsdePipelinesRoot / "beta_pipelines" / "broad" / "somatic" / "single_sample" / dataTypeString
+  : File = CromwellWorkflowTester.DsdePipelinesRoot / "beta_pipelines" / "broad" / "somatic" / "single_sample" / dataTypeString / "gdc_genome"
 
   lazy val localValidationWdlPath: File =
     CromwellWorkflowTester.DsdePipelinesRoot / "verification" / "VerifySomaticSingleSample.wdl"
@@ -40,8 +40,8 @@ class GDCWholeGenomeSomaticSingleSample(testerConfig: GDCWholeGenomeSomaticSingl
     )
 
   override protected def buildValidationWdlInputs(
-      workflowTest: WorkflowTest
-  ): String = {
+                                                   workflowTest: WorkflowTest
+                                                 ): String = {
     val somaticSingleSampleInputs = new SomaticSingleSampleInputs(
       workflowTest.runParameters.workflowInputs
     )

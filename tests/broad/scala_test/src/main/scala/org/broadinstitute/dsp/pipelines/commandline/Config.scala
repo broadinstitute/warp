@@ -12,6 +12,8 @@ case class Config(
     cramDataDeliveryConfig: CramDataDeliveryConfig = CramDataDeliveryConfig(),
     genotypeConcordanceConfig: GenotypeConcordanceConfig =
       GenotypeConcordanceConfig(),
+    gdcWholeGenomeSomaticSingleSampleConfig: GDCWholeGenomeSomaticSingleSampleConfig =
+    GDCWholeGenomeSomaticSingleSampleConfig(),
     germlineCloudConfig: GermlineCloudWorkflowConfig =
       GermlineCloudWorkflowConfig(),
     illuminaGenotypingArrayConfig: IlluminaGenotypingArrayConfig =
