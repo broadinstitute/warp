@@ -31,24 +31,37 @@ task CalculateSomaticContamination {
     command <<<
         set -e
 
-        export GATK_LOCAL_JAR=${default="/root/gatk.jar" gatk_override}
+        export GATK_LOCAL_JAR=~{default="/root/gatk.jar" gatk_override}
 
-        gatk --java-options "-Xmx${command_mem}m" GetPileupSummaries \
-             -R ${reference} -I ${tumor_cram_or_bam} ${"--interval-set-rule INTERSECTION -L " + intervals} \
-             -V ${contamination_vcf} -L ${contamination_vcf} -O pileups.table
+        gatk --java-options "-Xmx~{command_mem}m" GetPileupSummaries \
+             -R ~{reference} \
+             -I ~{tumor_cram_or_bam} \
+             ~{"--interval-set-rule INTERSECTION -L " + intervals} \
+             -V ~{contamination_vcf} \
+             -L ~{contamination_vcf} \
+             -O pileups.table
 
-        if [[ -f "${normal_cram_or_bam}" ]];
+        if [[ -f "~{normal_cram_or_bam}" ]];
         then
-            gatk --java-options "-Xmx${command_mem}m" GetPileupSummaries \
-                 -R ${reference} -I ${normal_cram_or_bam} ${"--interval-set-rule INTERSECTION -L " + intervals} \
-                 -V ${contamination_vcf} -L ${contamination_vcf} -O normal_pileups.table
+            gatk --java-options "-Xmx~{command_mem}m" GetPileupSummaries \
+                 -R ~{reference} \
+                 -I ~{normal_cram_or_bam} \
+                 ~{"--interval-set-rule INTERSECTION -L " + intervals} \
+                 -V ~{contamination_vcf} \
+                 -L ~{contamination_vcf} \
+                 -O normal_pileups.table
 
-            gatk --java-options "-Xmx${command_mem}m" CalculateContamination \
-                 -I pileups.table -O contamination.table --tumor-segmentation segments.table -matched normal_pileups.table
+            gatk --java-options "-Xmx~{command_mem}m" CalculateContamination \
+                 -I pileups.table \
+                 -O contamination.table \
+                 --tumor-segmentation segments.table \
+                 -matched normal_pileups.table
         else
             touch normal_pileups.table
-            gatk --java-options "-Xmx${command_mem}m" CalculateContamination \
-                 -I pileups.table -O contamination.table --tumor-segmentation segments.table
+            gatk --java-options "-Xmx~{command_mem}m" CalculateContamination \
+                 -I pileups.table \
+                 -O contamination.table \
+                 --tumor-segmentation segments.table
         fi
 
         grep -v ^sample contamination.table | awk '{print($2)}' > contam.txt
