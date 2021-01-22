@@ -183,7 +183,8 @@ class ConfigParser
         .required()
         .action { (env, config) =>
           config.copy(
-            annotationFiltrationConfig = config.annotationFiltrationConfig.copy(env = env)
+            annotationFiltrationConfig =
+              config.annotationFiltrationConfig.copy(env = env)
           )
         }
     )
@@ -350,77 +351,6 @@ class ConfigParser
           config.copy(
             illuminaGenotypingArrayConfig = config.illuminaGenotypingArrayConfig
               .copy(papiVersion = papiVersion)
-          )
-        }
-    )
-
-  note("")
-  cmd(ArraysDataDelivery.entryName)
-    .text("Test the Arrays Data Delivery workflow")
-    .action(
-      (_, config) =>
-        config.copy(
-          test = ArraysDataDelivery
-      )
-    )
-    .children(
-      opt[Unit]("leave-workspace")
-        .text("Leave the workspace in firecloud for manual verification")
-        .optional()
-        .action { (_, config) =>
-          config.copy(
-            arraysDataDeliveryConfig =
-              config.arraysDataDeliveryConfig.copy(leaveWorkspace = true)
-          )
-        }
-    )
-
-  note("")
-  cmd(CramDataDelivery.entryName)
-    .text("Test the Cram data-delivery workflow")
-    .action(
-      (_, config) => config.copy(test = CramDataDelivery)
-    )
-    .children(
-      opt[DataType]('d', "data-type")
-        .text(
-          s"Data type to test delivery of ${DataType.values.mkString("[", ", ", "]")}"
-        )
-        .optional()
-        .action { (dataType, config) =>
-          config.copy(
-            cramDataDeliveryConfig =
-              config.cramDataDeliveryConfig.copy(dataType = dataType)
-          )
-        },
-      opt[String]('r', "requester")
-        .text(
-          "Email address of the requester so that they can access a workspace created with the --leave-workspace option"
-        )
-        .optional()
-        .action { (requester, config) =>
-          config.copy(
-            cramDataDeliveryConfig =
-              config.cramDataDeliveryConfig.copy(requester = requester)
-          )
-        },
-      opt[CromwellEnvironment]('e', "env")
-        .text(
-          s"The environment that this should run in ${CromwellEnvironment.optionsString}"
-        )
-        .required()
-        .action { (env, config) =>
-          config.copy(
-            validateChipConfig = config.validateChipConfig.copy(env = env)
-          )
-        },
-      opt[Unit]("leave-workspace")
-        .text("Leave the workspace in firecloud for manual verification")
-        .optional()
-        .action { (_, config) =>
-          config.copy(
-            cramDataDeliveryConfig =
-              config.cramDataDeliveryConfig.copy(leaveWorkspace = true)
           )
         }
     )
