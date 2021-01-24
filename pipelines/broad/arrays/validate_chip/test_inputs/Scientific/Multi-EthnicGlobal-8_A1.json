@@ -9,9 +9,9 @@
   "ValidateChip.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/Multi-EthnicGlobal_A1/idats/201004840016_R01C01/201004840016_R01C01_Grn.idat",
   "ValidateChip.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/Multi-EthnicGlobal_A1/idats/201004840016_R01C01/201004840016_R01C01_Red.idat",
 
-  "ValidateChip.chip_manifest_csv_file" : "gs://broad-gotc-test-storage/arrays/metadata/Multi-EthnicGlobal-8_A1/Multi-EthnicGlobal-8_A1.csv",
-  "ValidateChip.bead_pool_manifest_file" : "gs://broad-gotc-test-storage/arrays/metadata/Multi-EthnicGlobal-8_A1/Multi-EthnicGlobal_A1.bpm",
-  "ValidateChip.cluster_file" : "gs://broad-gotc-test-storage/arrays/metadata/Multi-EthnicGlobal-8_A1/Multi-EthnicGlobal_ClusterFile.egt",
+  "ValidateChip.chip_manifest_csv_file" : "gs://gcp-public-data--broad-references/arrays/Multi-EthnicGlobal-8_A1/Multi-EthnicGlobal-8_A1.csv",
+  "ValidateChip.bead_pool_manifest_file" : "gs://gcp-public-data--broad-references/arrays/Multi-EthnicGlobal-8_A1/Multi-EthnicGlobal_A1.bpm",
+  "ValidateChip.cluster_file" : "gs://gcp-public-data--broad-references/arrays/Multi-EthnicGlobal-8_A1/Multi-EthnicGlobal_ClusterFile.egt",
 
   "ValidateChip.control_sample_vcf_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf",
   "ValidateChip.control_sample_vcf_index_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf.idx",
