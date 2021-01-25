@@ -8,7 +8,10 @@ import better.files.File
 import io.circe.{Json, JsonObject}
 import org.broadinstitute.dsp.pipelines.batch.WorkflowTest
 import org.broadinstitute.dsp.pipelines.config._
-import org.broadinstitute.dsp.pipelines.inputs.{CramToUnmappedBamsInputs, CramToUnmappedBamsValidationInputs, GermlineSingleSampleValidationInputs, ReprocessingInputs}
+import org.broadinstitute.dsp.pipelines.inputs.{
+  CramToUnmappedBamsInputs,
+  CramToUnmappedBamsValidationInputs
+}
 
 class CramToUnmappedBamsTester(testerConfig: CramToUnmappedBamsConfig)(
     implicit am: ActorMaterializer,
@@ -48,11 +51,10 @@ class CramToUnmappedBamsTester(testerConfig: CramToUnmappedBamsConfig)(
     val outputBaseName = cramToUnmappedBamsInputs.getBaseFileName(workflowName)
     val resultsCloudPath =
       workflowTest.runParameters.resultsCloudPath
-    val validationInputs = CramToUnmappedBamsValidationInputs(
+    val validationInputs = CramToUnmappedBamsValidationInputs.marshall(
+      CramToUnmappedBamsValidationInputs(),
+      verifyWorkflowName
     )
-    CramToUnmappedBamsValidationInputs
-      .marshall(validationInputs)
-      .printWith(implicitly)
 
     val revertedBams = ioUtil
       .listGoogleObjects(resultsCloudPath)

@@ -1,7 +1,11 @@
 package org.broadinstitute.dsp.pipelines.config
 
 import org.broadinstitute.dsp.pipelines.commandline.PapiVersion.PAPIv2
-import org.broadinstitute.dsp.pipelines.commandline.{CromwellEnvironment, PapiVersion, WorkflowTestCategory}
+import org.broadinstitute.dsp.pipelines.commandline.{
+  CromwellEnvironment,
+  PapiVersion,
+  WorkflowTestCategory
+}
 import org.broadinstitute.dsp.pipelines.util.DataType
 
 case class CramToUnmappedBamsConfig(

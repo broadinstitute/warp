@@ -40,6 +40,7 @@ workflow ExomeReprocessing {
       ref_fasta = select_first([cram_ref_fasta, references.reference_fasta.ref_fasta]),
       ref_fasta_index = select_first([cram_ref_fasta_index, references.reference_fasta.ref_fasta_index]),
       output_map = output_map,
+      base_file_name = base_file_name,
       unmapped_bam_suffix = unmapped_bam_suffix
   }
 

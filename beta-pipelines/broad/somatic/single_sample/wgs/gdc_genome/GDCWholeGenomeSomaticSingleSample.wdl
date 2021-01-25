@@ -595,6 +595,7 @@ workflow GDCWholeGenomeSomaticSingleSample {
         File? cram_ref_fasta_index
         File? output_map
         String? unmapped_bam_suffix
+        String base_file_name
 
         File? ubam
 
@@ -619,6 +620,7 @@ workflow GDCWholeGenomeSomaticSingleSample {
                  ref_fasta = select_first([cram_ref_fasta, ref_fasta]),
                  ref_fasta_index = select_first([cram_ref_fasta_index, ref_fai]),
                  output_map = output_map,
+                 base_file_name = base_file_name,
                  unmapped_bam_suffix = unmapped_bam_suffix
         }
     }

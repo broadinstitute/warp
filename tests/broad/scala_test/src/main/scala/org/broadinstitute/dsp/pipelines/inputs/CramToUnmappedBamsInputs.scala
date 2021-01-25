@@ -1,6 +1,5 @@
 package org.broadinstitute.dsp.pipelines.inputs
 
-import better.files.File
 import cats.syntax.either._
 import io.circe.parser._
 
@@ -11,14 +10,7 @@ class CramToUnmappedBamsInputs(inputs: String) {
     throw new RuntimeException("Could not get JSON object from inputs", e)
   }
 
-  def getBaseFileName(workflowName: String): String =
-    File(
-      parsed.unsafeGet[String](
-        s"$workflowName.gvcf"
-      )
-    ).name.replace(".g.vcf.gz", "")
+  def getBaseFileName(workflowName: String): String = parsed.unsafeGet[String](
+    s"$workflowName.base_file_name"
+  )
 }
-
-//  def getBaseFileName(workflowName: String): String =
-//    sampleAndUnmappedBams(workflowName).unsafeGet[String]("base_file_name")
-//}

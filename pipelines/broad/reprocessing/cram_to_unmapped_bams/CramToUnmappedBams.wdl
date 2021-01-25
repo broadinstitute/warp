@@ -17,6 +17,7 @@ workflow CramToUnmappedBams {
     File? ref_fasta
     File? ref_fasta_index
     File? output_map
+    String base_file_name
     String unmapped_bam_suffix = ".unmapped.bam"
     Int additional_disk = 20
   }
