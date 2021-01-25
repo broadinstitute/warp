@@ -9,9 +9,9 @@
   "ValidateChip.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/Broad_GWAS_supplemental_15061359_A1/idats/200557070005_R06C01/200557070005_R06C01_Grn.idat",
   "ValidateChip.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/Broad_GWAS_supplemental_15061359_A1/idats/200557070005_R06C01/200557070005_R06C01_Red.idat",
 
-  "ValidateChip.chip_manifest_csv_file": "gs://broad-gotc-test-storage/arrays/metadata/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.csv",
-  "ValidateChip.bead_pool_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.bpm",
-  "ValidateChip.cluster_file": "gs://broad-gotc-test-storage/arrays/metadata/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.egt",
+  "ValidateChip.chip_manifest_csv_file": "gs://gcp-public-data--broad-references/arrays/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.csv",
+  "ValidateChip.bead_pool_manifest_file": "gs://gcp-public-data--broad-references/arrays/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.bpm",
+  "ValidateChip.cluster_file": "gs://gcp-public-data--broad-references/arrays/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.egt",
 
   "ValidateChip.control_sample_vcf_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf",
   "ValidateChip.control_sample_vcf_index_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf.idx",
