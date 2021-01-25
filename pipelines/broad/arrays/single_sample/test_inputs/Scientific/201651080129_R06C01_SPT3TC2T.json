@@ -14,9 +14,9 @@
   "Arrays.fingerprint_genotypes_vcf_file": "gs://broad-gotc-test-storage/arrays/InfiniumOmniExpressExome-8v1-4_A1/inputs/201651080129_R06C01/201651080129_R06C01.SPT3TC2T.reference.fingerprint.vcf.gz",
   "Arrays.fingerprint_genotypes_vcf_index_file": "gs://broad-gotc-test-storage/arrays/InfiniumOmniExpressExome-8v1-4_A1/inputs/201651080129_R06C01/201651080129_R06C01.SPT3TC2T.reference.fingerprint.vcf.gz.tbi",
 
-  "Arrays.bead_pool_manifest_file" : "gs://broad-gotc-test-storage/arrays/metadata/InfiniumOmniExpressExome-8v1-4_A1/InfiniumOmniExpressExome-8v1-4_A1.bpm",
-  "Arrays.extended_chip_manifest_file" : "gs://broad-gotc-test-storage/arrays/metadata/InfiniumOmniExpressExome-8v1-4_A1/InfiniumOmniExpressExome-8v1-4_A1.1.3.extended.csv",
-  "Arrays.cluster_file" : "gs://broad-gotc-test-storage/arrays/metadata/InfiniumOmniExpressExome-8v1-4_A1/InfiniumOmniExpressExome-8v1-4_A1_ClusterFile.egt",
+  "Arrays.bead_pool_manifest_file" : "gs://gcp-public-data--broad-references/arrays/InfiniumOmniExpressExome-8v1-4_A1/InfiniumOmniExpressExome-8v1-4_A1.bpm",
+  "Arrays.extended_chip_manifest_file" : "gs://gcp-public-data--broad-references/arrays/InfiniumOmniExpressExome-8v1-4_A1/InfiniumOmniExpressExome-8v1-4_A1.1.3.extended.csv",
+  "Arrays.cluster_file" : "gs://gcp-public-data--broad-references/arrays/InfiniumOmniExpressExome-8v1-4_A1/InfiniumOmniExpressExome-8v1-4_A1_ClusterFile.egt",
 
   "Arrays.disk_size": 100,
 
