@@ -11,9 +11,9 @@
   "Arrays.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/Broad_GWAS_supplemental_15061359_A1/idats/200557070035_R06C01/200557070035_R06C01_Red.idat",
   "Arrays.params_file": "gs://broad-gotc-test-storage/arrays/Broad_GWAS_supplemental_15061359_A1/inputs/200557070035_R06C01/params.txt",
 
-  "Arrays.bead_pool_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.bpm",
-  "Arrays.extended_chip_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.1.3.extended.csv",
-  "Arrays.cluster_file": "gs://broad-gotc-test-storage/arrays/metadata/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.egt",
+  "Arrays.bead_pool_manifest_file": "gs://gcp-public-data--broad-references/arrays/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.bpm",
+  "Arrays.extended_chip_manifest_file": "gs://gcp-public-data--broad-references/arrays/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.1.3.extended.csv",
+  "Arrays.cluster_file": "gs://gcp-public-data--broad-references/arrays/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.egt",
   "Arrays.zcall_thresholds_file": "gs://broad-gotc-test-storage/arrays/metadata/Broad_GWAS_supplemental_15061359_A1/thresholds.7.txt",
 
   "Arrays.disk_size": 100,
