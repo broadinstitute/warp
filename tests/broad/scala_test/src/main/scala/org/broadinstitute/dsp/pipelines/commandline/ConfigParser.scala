@@ -651,17 +651,6 @@ class ConfigParser
               config.cramToUnmappedBamsConfig.copy(category = test)
           )
         },
-      opt[DataType]('d', "data-type")
-        .text(
-          s"The data type to test ${DataType.values.mkString("[", ",", "]")}")
-        .required()
-        .action { (dataType, config) =>
-          config.copy(
-            cramToUnmappedBamsConfig = config.cramToUnmappedBamsConfig.copy(
-              dataType = dataType
-            )
-          )
-        },
       opt[String]('b', "branch")
         .text("The branch of truth data to test against (Defaults to develop)")
         .optional()

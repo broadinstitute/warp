@@ -11,7 +11,6 @@ import org.broadinstitute.dsp.pipelines.util.DataType
 case class CramToUnmappedBamsConfig(
     category: WorkflowTestCategory = WorkflowTestCategory.Plumbing,
     truthBranch: String = "develop",
-    dataType: DataType = DataType.WGS,
     useTimestamp: Option[String] = None,
     useCallCaching: Boolean = true,
     updateTruth: Boolean = false,

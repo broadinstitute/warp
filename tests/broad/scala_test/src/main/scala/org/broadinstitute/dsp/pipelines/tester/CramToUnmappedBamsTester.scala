@@ -18,9 +18,6 @@ class CramToUnmappedBamsTester(testerConfig: CramToUnmappedBamsConfig)(
     as: ActorSystem
 ) extends ValidationWdlTester(testerConfig) {
 
-  val dataTypePrefix: String = dataTypePrefix(testerConfig.dataType)
-  val dataTypeString: String = testerConfig.dataType.entryName.toLowerCase
-
   override val workflowName: String = s"CramToUnmappedBams"
 
   val workflowDir
@@ -33,13 +30,13 @@ class CramToUnmappedBamsTester(testerConfig: CramToUnmappedBamsConfig)(
 
   protected lazy val resultsPrefix: URI = {
     URI.create(
-      s"gs://broad-gotc-test-results/$envString/cram_to_unmapped_bams/$dataTypeString/$testTypeString/$timestamp/"
+      s"gs://broad-gotc-test-results/$envString/cram_to_unmapped_bams/$testTypeString/$timestamp/"
     )
   }
 
   protected lazy val truthPrefix: URI =
     URI.create(
-      s"gs://broad-gotc-test-storage/cram_to_unmapped_bams/$dataTypeString/$testTypeString/truth/${testerConfig.truthBranch}/"
+      s"gs://broad-gotc-test-storage/cram_to_unmapped_bams/$testTypeString/truth/${testerConfig.truthBranch}/"
     )
 
   override protected def buildValidationWdlInputs(
@@ -90,7 +87,7 @@ class CramToUnmappedBamsTester(testerConfig: CramToUnmappedBamsConfig)(
                                   fileName: String): URI =
     URI
       .create(
-        s"gs://broad-gotc-test-storage/cram_to_unmapped_bams/$dataTypeString/$testTypeString/truth/${testerConfig.truthBranch}/$projectSampleAlias/"
+        s"gs://broad-gotc-test-storage/cram_to_unmapped_bams/$testTypeString/truth/${testerConfig.truthBranch}/$projectSampleAlias/"
       )
       .resolve(fileName)
 
