@@ -9,7 +9,7 @@ import io.circe.{Decoder, Encoder}
 
 object GDCWholeGenomeSomaticSingleSampleValidationInputs
   extends EncodableInputs[GDCWholeGenomeSomaticSingleSampleValidationInputs] {
-  override def workflowNames: Seq[String] = Seq("VerifySomaticSingleSample")
+  override def workflowNames: Seq[String] = Seq("VerifyGDCSomaticSingleSample")
   override implicit val decoder: Decoder[GDCWholeGenomeSomaticSingleSampleValidationInputs] =
     deriveConfiguredDecoder
   override implicit val encoder: Encoder[GDCWholeGenomeSomaticSingleSampleValidationInputs] =
@@ -19,8 +19,8 @@ object GDCWholeGenomeSomaticSingleSampleValidationInputs
 case class GDCWholeGenomeSomaticSingleSampleValidationInputs(
                                                 testMetrics: Seq[URI],
                                                 truthMetrics: Seq[URI],
-                                                testCram: URI,
-                                                testCrai: URI,
-                                                truthCram: URI,
-                                                truthCrai: URI,
+                                                testBam: URI,
+                                                testBai: URI,
+                                                truthBam: URI,
+                                                truthBai: URI,
                                               )

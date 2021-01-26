@@ -595,6 +595,7 @@ workflow GDCWholeGenomeSomaticSingleSample {
         File? cram_ref_fasta_index
         File? output_map
         String? unmapped_bam_suffix
+        String base_file_name
 
         File? ubam
 

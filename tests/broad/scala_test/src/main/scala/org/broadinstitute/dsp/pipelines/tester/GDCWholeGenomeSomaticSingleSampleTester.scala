@@ -8,11 +8,11 @@ import better.files.File
 import org.broadinstitute.dsp.pipelines.batch.WorkflowTest
 import org.broadinstitute.dsp.pipelines.config._
 import org.broadinstitute.dsp.pipelines.inputs.{
-  SomaticSingleSampleInputs,
-  SomaticSingleSampleValidationInputs
+  GDCWholeGenomeSomaticSingleSampleInputs,
+  GDCWholeGenomeSomaticSingleSampleValidationInputs
 }
 
-class SomaticSingleSampleTester(testerConfig: SomaticCloudWorkflowConfig)(
+class GDCWholeGenomeSomaticSingleSampleTester(testerConfig: GDCWholeGenomeSomaticSingleSampleConfig)(
   implicit am: ActorMaterializer,
   as: ActorSystem
 ) extends ValidationWdlTester(testerConfig) {
@@ -20,32 +20,32 @@ class SomaticSingleSampleTester(testerConfig: SomaticCloudWorkflowConfig)(
   val dataTypePrefix: String = dataTypePrefix(testerConfig.dataType)
   val dataTypeString: String = testerConfig.dataType.entryName.toLowerCase
 
-  override val workflowName: String = s"${dataTypePrefix}SomaticSingleSample"
+  override val workflowName: String = s"GDC${dataTypePrefix}SomaticSingleSample"
 
   val workflowDir
   : File = CromwellWorkflowTester.DsdePipelinesRoot / "beta_pipelines" / "broad" / "somatic" / "single_sample" / dataTypeString / "gdc_genome"
 
   lazy val localValidationWdlPath: File =
-    CromwellWorkflowTester.DsdePipelinesRoot / "verification" / "VerifySomaticSingleSample.wdl"
+    CromwellWorkflowTester.DsdePipelinesRoot / "verification" / "VerifyGDCSomaticSingleSample.wdl"
 
   protected lazy val resultsPrefix: URI = {
     URI.create(
-      s"gs://broad-gotc-test-results/$envString/somatic_single_sample/$dataTypeString/$testTypeString/$timestamp/"
+      s"gs://broad-gotc-test-results/$envString/somatic_single_sample/gdc/$dataTypeString/$testTypeString/$timestamp/"
     )
   }
 
   protected lazy val truthPrefix: URI =
     URI.create(
-      s"gs://broad-gotc-test-storage/somatic_single_sample/$dataTypeString/$testTypeString/truth/${testerConfig.truthBranch}/"
+      s"gs://broad-gotc-test-storage/somatic_single_sample/gdc/$dataTypeString/$testTypeString/truth/${testerConfig.truthBranch}/"
     )
 
   override protected def buildValidationWdlInputs(
                                                    workflowTest: WorkflowTest
                                                  ): String = {
-    val somaticSingleSampleInputs = new SomaticSingleSampleInputs(
+    val gdcWholeGenomeSomaticSingleSampleInputs = new GDCWholeGenomeSomaticSingleSampleInputs(
       workflowTest.runParameters.workflowInputs
     )
-    val outputBaseName = somaticSingleSampleInputs.getBaseFileName(workflowName)
+    val outputBaseName = gdcWholeGenomeSomaticSingleSampleInputs.getBaseFileName(workflowName)
     val resultsCloudPath =
       workflowTest.runParameters.resultsCloudPath
     val truthCloudPath = workflowTest.runParameters.truthCloudPath
@@ -53,15 +53,15 @@ class SomaticSingleSampleTester(testerConfig: SomaticCloudWorkflowConfig)(
       .listGoogleObjects(truthCloudPath)
       .filter(_.getPath.endsWith("metrics"))
       .map(uriToFilename)
-    val validationInputs = SomaticSingleSampleValidationInputs(
+    val validationInputs = GDCWholeGenomeSomaticSingleSampleValidationInputs(
       testMetrics = metricsFileNames.map(resultsCloudPath.resolve),
       truthMetrics = metricsFileNames.map(truthCloudPath.resolve),
-      testCram = resultsCloudPath.resolve(s"$outputBaseName.cram"),
-      testCrai = resultsCloudPath.resolve(s"$outputBaseName.cram.crai"),
-      truthCram = truthCloudPath.resolve(s"$outputBaseName.cram"),
-      truthCrai = truthCloudPath.resolve(s"$outputBaseName.cram.crai")
+      testBam = resultsCloudPath.resolve(s"$outputBaseName.aln.mrkdp.bam"),
+      testBai = resultsCloudPath.resolve(s"$outputBaseName.aln.mrkdp.bai"),
+      truthBam = truthCloudPath.resolve(s"$outputBaseName.aln.mrkdp.bam"),
+      truthBai = truthCloudPath.resolve(s"$outputBaseName.aln.mrkdp.bai")
     )
-    SomaticSingleSampleValidationInputs
+    GDCWholeGenomeSomaticSingleSampleValidationInputs
       .marshall(validationInputs)
       .printWith(implicitly)
   }

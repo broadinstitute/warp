@@ -69,6 +69,8 @@ object CromwellWorkflowTester {
       case Dummy => new DummyTester()
       case ExternalReprocessing =>
         new ExternalReprocessingTester(config.germlineCloudConfig)
+      case GDCWholeGenomeSomaticSingleSample =>
+        new GDCWholeGenomeSomaticSingleSampleTester(config.gdcWholeGenomeSomaticSingleSampleConfig)
       case GenotypeConcordance =>
         new GenotypeConcordanceTester(config.genotypeConcordanceConfig)
       case GermlineSingleSample =>

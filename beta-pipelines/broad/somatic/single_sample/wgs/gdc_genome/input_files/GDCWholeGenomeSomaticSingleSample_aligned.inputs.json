@@ -1,4 +1,5 @@
 {
+  "GDCWholeGenomeSomaticSingleSample.base_file_name":"NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211",
   "GDCWholeGenomeSomaticSingleSample.gatk_baserecalibrator.dbsnp_vcf":"gs://broad-gotc-dev-storage/temp_references/gdc/dbsnp_144.hg38.vcf.gz",
   "GDCWholeGenomeSomaticSingleSample.gatk_baserecalibrator.dbsnp_vcf_index":"gs://broad-gotc-dev-storage/temp_references/gdc/dbsnp_144.hg38.vcf.gz.tbi",
   "GDCWholeGenomeSomaticSingleSample.ref_amb":"gs://broad-gotc-dev-storage/temp_references/gdc/GRCh38.d1.vd1.fa.amb",
