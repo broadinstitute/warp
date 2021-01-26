@@ -6,7 +6,6 @@ import org.broadinstitute.dsp.pipelines.commandline.{
   PapiVersion,
   WorkflowTestCategory
 }
-import org.broadinstitute.dsp.pipelines.util.DataType
 
 case class CramToUnmappedBamsConfig(
     category: WorkflowTestCategory = WorkflowTestCategory.Plumbing,

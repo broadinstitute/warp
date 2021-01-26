@@ -6,12 +6,9 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import better.files.File
 import io.circe.{Json, JsonObject}
-import org.broadinstitute.dsp.pipelines.batch.WorkflowTest
+import org.broadinstitute.dsp.pipelines.batch.{WorkflowRunParameters, WorkflowTest}
 import org.broadinstitute.dsp.pipelines.config._
-import org.broadinstitute.dsp.pipelines.inputs.{
-  CramToUnmappedBamsInputs,
-  CramToUnmappedBamsValidationInputs
-}
+import org.broadinstitute.dsp.pipelines.inputs.{CramToUnmappedBamsInputs, CramToUnmappedBamsValidationInputs}
 
 class CramToUnmappedBamsTester(testerConfig: CramToUnmappedBamsConfig)(
     implicit am: ActorMaterializer,
@@ -38,6 +35,16 @@ class CramToUnmappedBamsTester(testerConfig: CramToUnmappedBamsConfig)(
     URI.create(
       s"gs://broad-gotc-test-storage/cram_to_unmapped_bams/$testTypeString/truth/${testerConfig.truthBranch}/"
     )
+
+  override def generateRunParameters: Seq[WorkflowRunParameters] = {
+    super.generateRunParameters.map(
+      rp =>
+        rp.copy(
+          workflowInputs = rp.workflowInputs.replace("{TRUTH_BRANCH}",
+                                                     testerConfig.truthBranch)
+      )
+    )
+  }
 
   override protected def buildValidationWdlInputs(
       workflowTest: WorkflowTest
