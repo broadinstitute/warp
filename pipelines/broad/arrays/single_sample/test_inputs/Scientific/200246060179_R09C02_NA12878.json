@@ -11,9 +11,9 @@
   "Arrays.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/InfiniumImmunoArray-24v2-0_A/idats/200246060179_R09C02/200246060179_R09C02_Red.idat",
   "Arrays.params_file": "gs://broad-gotc-test-storage/arrays/InfiniumImmunoArray-24v2-0_A/inputs/200246060179_R09C02/params.txt",
 
-  "Arrays.bead_pool_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/InfiniumImmunoArray-24v2-0_A/InfiniumImmunoArray-24v2-0_A.bpm",
-  "Arrays.extended_chip_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/InfiniumImmunoArray-24v2-0_A/InfiniumImmunoArray-24v2-0_A.1.3.extended.csv",
-  "Arrays.cluster_file": "gs://broad-gotc-test-storage/arrays/metadata/InfiniumImmunoArray-24v2-0_A/InfiniumImmunoArray-24v2-0_A_ClusterFile.egt",
+  "Arrays.bead_pool_manifest_file": "gs://gcp-public-data--broad-references/arrays/InfiniumImmunoArray-24v2-0_A/InfiniumImmunoArray-24v2-0_A.bpm",
+  "Arrays.extended_chip_manifest_file": "gs://gcp-public-data--broad-references/arrays/InfiniumImmunoArray-24v2-0_A/InfiniumImmunoArray-24v2-0_A.1.3.extended.csv",
+  "Arrays.cluster_file": "gs://gcp-public-data--broad-references/arrays/InfiniumImmunoArray-24v2-0_A/InfiniumImmunoArray-24v2-0_A_ClusterFile.egt",
 
   "Arrays.control_sample_vcf_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878.vcf.gz",
   "Arrays.control_sample_vcf_index_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878.vcf.gz.tbi",
