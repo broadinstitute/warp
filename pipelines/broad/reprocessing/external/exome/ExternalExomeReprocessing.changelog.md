@@ -1,3 +1,10 @@
+# 2.4.2
+2021-01-26
+
+* Minor changes to support CramToUnmappedBams as an indeependeent versioned pipeline
+    * Changed toee path of the reelative import
+    * Added 'base_file_name' as an input to CramToUnmappedBams
+
 # 2.4.1
 2020-12-21
 
