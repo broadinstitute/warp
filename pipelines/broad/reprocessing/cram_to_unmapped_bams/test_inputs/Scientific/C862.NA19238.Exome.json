@@ -1,0 +1,7 @@
+{
+  "CramToUnmappedBams.input_cram": "gs://broad-gotc-test-storage/germline_single_sample/exome/scientific/truth/{TRUTH_BRANCH}/C862.NA19238/NA19238.cram",
+  "CramToUnmappedBams.base_file_name": "C862.NA19238",
+  "CramToUnmappedBams.unmapped_bam_suffix": ".unmapped.bam",
+  "CramToUnmappedBams.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "CramToUnmappedBams.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai"
+}
