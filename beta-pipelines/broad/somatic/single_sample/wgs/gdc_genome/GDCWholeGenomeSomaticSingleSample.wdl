@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../../../../tasks/broad/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
+import "../../../../../../pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
 
 struct FastqPairRecord {
     File forward_fastq
