@@ -31,8 +31,9 @@ jobs:
       fail-fast: false
       matrix:
         image:
+        # TODO please keep these images and tags updated with WDL
         - us.gcr.io/broad-gotc-prod/dsde-toolbox:dev
-        - us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8 # TODO please keep this updated with WDL
+        - us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8
     steps:
       - uses: broadinstitute/dsp-appsec-trivy-action@v1
         with:
