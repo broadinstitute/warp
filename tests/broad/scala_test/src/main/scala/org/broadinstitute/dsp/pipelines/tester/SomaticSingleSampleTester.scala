@@ -12,7 +12,7 @@ import org.broadinstitute.dsp.pipelines.inputs.{
   SomaticSingleSampleValidationInputs
 }
 
-class GDCWholeGenomeSomaticSingleSample(testerConfig: GDCWholeGenomeSomaticSingleSampleConfig)(
+class SomaticSingleSampleTester(testerConfig: SomaticCloudWorkflowConfig)(
     implicit am: ActorMaterializer,
     as: ActorSystem
 ) extends ValidationWdlTester(testerConfig) {
