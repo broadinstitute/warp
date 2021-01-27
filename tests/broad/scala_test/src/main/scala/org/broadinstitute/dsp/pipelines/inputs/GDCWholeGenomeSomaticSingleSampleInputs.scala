@@ -12,5 +12,6 @@ class GDCWholeGenomeSomaticSingleSampleInputs(inputs: String) {
 
   def getBaseFileName(workflowName: String): String =
     parsed.unsafeGet[String](
-      s"$workflowName.base_file_name")
+      s"$workflowName.base_file_name"
+    )
 }

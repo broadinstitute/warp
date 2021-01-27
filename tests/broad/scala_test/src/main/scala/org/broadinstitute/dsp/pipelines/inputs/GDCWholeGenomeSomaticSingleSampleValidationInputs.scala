@@ -8,19 +8,21 @@ import io.circe.generic.extras.semiauto.{
 import io.circe.{Decoder, Encoder}
 
 object GDCWholeGenomeSomaticSingleSampleValidationInputs
-  extends EncodableInputs[GDCWholeGenomeSomaticSingleSampleValidationInputs] {
+    extends EncodableInputs[GDCWholeGenomeSomaticSingleSampleValidationInputs] {
   override def workflowNames: Seq[String] = Seq("VerifyGDCSomaticSingleSample")
-  override implicit val decoder: Decoder[GDCWholeGenomeSomaticSingleSampleValidationInputs] =
+  override implicit val decoder
+    : Decoder[GDCWholeGenomeSomaticSingleSampleValidationInputs] =
     deriveConfiguredDecoder
-  override implicit val encoder: Encoder[GDCWholeGenomeSomaticSingleSampleValidationInputs] =
+  override implicit val encoder
+    : Encoder[GDCWholeGenomeSomaticSingleSampleValidationInputs] =
     deriveConfiguredEncoder
 }
 
 case class GDCWholeGenomeSomaticSingleSampleValidationInputs(
-                                                testMetrics: Seq[URI],
-                                                truthMetrics: Seq[URI],
-                                                testBam: URI,
-                                                testBai: URI,
-                                                truthBam: URI,
-                                                truthBai: URI,
-                                              )
+    testMetrics: Seq[URI],
+    truthMetrics: Seq[URI],
+    testBam: URI,
+    testBai: URI,
+    truthBam: URI,
+    truthBai: URI,
+)

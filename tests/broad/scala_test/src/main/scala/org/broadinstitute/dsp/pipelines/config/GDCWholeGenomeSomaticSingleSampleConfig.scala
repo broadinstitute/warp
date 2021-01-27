@@ -9,12 +9,12 @@ import org.broadinstitute.dsp.pipelines.commandline.{
 }
 
 case class GDCWholeGenomeSomaticSingleSampleConfig(
-                                       category: WorkflowTestCategory = WorkflowTestCategory.Plumbing,
-                                       truthBranch: String = "develop",
-                                       dataType: DataType = DataType.WGS,
-                                       useTimestamp: Option[String] = None,
-                                       useCallCaching: Boolean = true,
-                                       updateTruth: Boolean = false,
-                                       papiVersion: PapiVersion = PAPIv2,
-                                       env: CromwellEnvironment = CromwellEnvironment.Dev
-                                     ) extends BaseConfig
+    category: WorkflowTestCategory = WorkflowTestCategory.Plumbing,
+    truthBranch: String = "develop",
+    dataType: DataType = DataType.WGS,
+    useTimestamp: Option[String] = None,
+    useCallCaching: Boolean = true,
+    updateTruth: Boolean = false,
+    papiVersion: PapiVersion = PAPIv2,
+    env: CromwellEnvironment = CromwellEnvironment.Dev
+) extends BaseConfig

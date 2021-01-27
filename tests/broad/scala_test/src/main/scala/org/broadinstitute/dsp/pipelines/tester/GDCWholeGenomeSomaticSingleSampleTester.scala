@@ -12,9 +12,10 @@ import org.broadinstitute.dsp.pipelines.inputs.{
   GDCWholeGenomeSomaticSingleSampleValidationInputs
 }
 
-class GDCWholeGenomeSomaticSingleSampleTester(testerConfig: GDCWholeGenomeSomaticSingleSampleConfig)(
-  implicit am: ActorMaterializer,
-  as: ActorSystem
+class GDCWholeGenomeSomaticSingleSampleTester(
+    testerConfig: GDCWholeGenomeSomaticSingleSampleConfig)(
+    implicit am: ActorMaterializer,
+    as: ActorSystem
 ) extends ValidationWdlTester(testerConfig) {
 
   val dataTypePrefix: String = dataTypePrefix(testerConfig.dataType)
@@ -23,7 +24,7 @@ class GDCWholeGenomeSomaticSingleSampleTester(testerConfig: GDCWholeGenomeSomati
   override val workflowName: String = s"GDC${dataTypePrefix}SomaticSingleSample"
 
   val workflowDir
-  : File = CromwellWorkflowTester.DsdePipelinesRoot / "beta_pipelines" / "broad" / "somatic" / "single_sample" / dataTypeString / "gdc_genome"
+    : File = CromwellWorkflowTester.DsdePipelinesRoot / "beta_pipelines" / "broad" / "somatic" / "single_sample" / dataTypeString / "gdc_genome"
 
   lazy val localValidationWdlPath: File =
     CromwellWorkflowTester.DsdePipelinesRoot / "verification" / "VerifyGDCSomaticSingleSample.wdl"
@@ -40,12 +41,14 @@ class GDCWholeGenomeSomaticSingleSampleTester(testerConfig: GDCWholeGenomeSomati
     )
 
   override protected def buildValidationWdlInputs(
-                                                   workflowTest: WorkflowTest
-                                                 ): String = {
-    val gdcWholeGenomeSomaticSingleSampleInputs = new GDCWholeGenomeSomaticSingleSampleInputs(
-      workflowTest.runParameters.workflowInputs
-    )
-    val outputBaseName = gdcWholeGenomeSomaticSingleSampleInputs.getBaseFileName(workflowName)
+      workflowTest: WorkflowTest
+  ): String = {
+    val gdcWholeGenomeSomaticSingleSampleInputs =
+      new GDCWholeGenomeSomaticSingleSampleInputs(
+        workflowTest.runParameters.workflowInputs
+      )
+    val outputBaseName =
+      gdcWholeGenomeSomaticSingleSampleInputs.getBaseFileName(workflowName)
     val resultsCloudPath =
       workflowTest.runParameters.resultsCloudPath
     val truthCloudPath = workflowTest.runParameters.truthCloudPath

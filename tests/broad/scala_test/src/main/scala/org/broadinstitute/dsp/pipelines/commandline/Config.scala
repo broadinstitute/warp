@@ -10,7 +10,7 @@ case class Config(
     genotypeConcordanceConfig: GenotypeConcordanceConfig =
       GenotypeConcordanceConfig(),
     gdcWholeGenomeSomaticSingleSampleConfig: GDCWholeGenomeSomaticSingleSampleConfig =
-    GDCWholeGenomeSomaticSingleSampleConfig(),
+      GDCWholeGenomeSomaticSingleSampleConfig(),
     germlineCloudConfig: GermlineCloudWorkflowConfig =
       GermlineCloudWorkflowConfig(),
     illuminaGenotypingArrayConfig: IlluminaGenotypingArrayConfig =

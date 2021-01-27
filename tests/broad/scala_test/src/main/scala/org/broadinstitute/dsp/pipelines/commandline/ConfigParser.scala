@@ -546,7 +546,7 @@ class ConfigParser
       (_, config) =>
         config.copy(
           test = SomaticSingleSample
-        )
+      )
     )
     .children(
       opt[WorkflowTestCategory]('t', "test")
@@ -638,7 +638,7 @@ class ConfigParser
       (_, config) =>
         config.copy(
           test = GDCWholeGenomeSomaticSingleSample
-        )
+      )
     )
     .children(
       opt[WorkflowTestCategory]('t', "test")
@@ -647,7 +647,8 @@ class ConfigParser
         .action { (test, config) =>
           config.copy(
             gdcWholeGenomeSomaticSingleSampleConfig =
-              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(category = test)
+              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(
+                category = test)
           )
         },
       opt[DataType]('d', "data-type")
@@ -656,9 +657,10 @@ class ConfigParser
         .required()
         .action { (dataType, config) =>
           config.copy(
-            gdcWholeGenomeSomaticSingleSampleConfig = config.gdcWholeGenomeSomaticSingleSampleConfig.copy(
-              dataType = dataType
-            )
+            gdcWholeGenomeSomaticSingleSampleConfig =
+              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(
+                dataType = dataType
+              )
           )
         },
       opt[String]('b', "branch")
@@ -667,7 +669,8 @@ class ConfigParser
         .action { (branch, config) =>
           config.copy(
             gdcWholeGenomeSomaticSingleSampleConfig =
-              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(truthBranch = branch)
+              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(
+                truthBranch = branch)
           )
         },
       opt[CromwellEnvironment]('e', "env")
@@ -689,7 +692,8 @@ class ConfigParser
         .action { (_, config) =>
           config.copy(
             gdcWholeGenomeSomaticSingleSampleConfig =
-              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(updateTruth = true)
+              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(
+                updateTruth = true)
           )
         },
       opt[String]("use-timestamp")
@@ -699,8 +703,9 @@ class ConfigParser
         .optional()
         .action { (timestamp, config) =>
           config.copy(
-            gdcWholeGenomeSomaticSingleSampleConfig = config.gdcWholeGenomeSomaticSingleSampleConfig
-              .copy(useTimestamp = Option(timestamp))
+            gdcWholeGenomeSomaticSingleSampleConfig =
+              config.gdcWholeGenomeSomaticSingleSampleConfig
+                .copy(useTimestamp = Option(timestamp))
           )
         },
       opt[Unit]('u', "uncached")
@@ -709,7 +714,8 @@ class ConfigParser
         .action { (_, config) =>
           config.copy(
             gdcWholeGenomeSomaticSingleSampleConfig =
-              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(useCallCaching = false)
+              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(
+                useCallCaching = false)
           )
         },
       opt[PapiVersion]("papi-version")
@@ -718,7 +724,8 @@ class ConfigParser
         .action { (papiVersion, config) =>
           config.copy(
             gdcWholeGenomeSomaticSingleSampleConfig =
-              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(papiVersion = papiVersion)
+              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(
+                papiVersion = papiVersion)
           )
         }
     )
