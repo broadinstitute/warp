@@ -1,3 +1,8 @@
+# 1.5.2
+2021-01-27
+
+Modified JointGenotyping 'GetFingerprintingIntervalIndices' task to simplify bash failures and make task more robust.
+
 # 1.5.1
 2020-12-16
 
