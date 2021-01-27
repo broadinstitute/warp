@@ -63,34 +63,6 @@ function copyPicardPrivateToLocalDockerDirectory () {
     fi
 }
 
-# Make the Dockerfile.
-#
-function makeDockerfile () {
-    # This base docker image is in turn based on a docker image from Alpine, with glibc added (needed for snappy)
-cat << EOF > ./Dockerfile
-FROM frolvlad/alpine-glibc
-
-ENV TERM=xterm-256color
-
-WORKDIR /usr/gitc
-
-# Install dependencies.
-RUN apk --update add bash curl findutils jq wget openjdk8-jre python2 unzip
-
-# download the gsutil install script
-RUN wget https://dl.google.com/dl/cloudsdk/channels/rapid/install_google_cloud_sdk.bash -O - | bash
-
-# Set up Vault
-ENV NO_VAULT=true
-RUN curl https://releases.hashicorp.com/vault/1.0.2/vault_1.0.2_linux_amd64.zip > temp.zip \
-    && unzip temp.zip \
-    && rm temp.zip \
-    && mv vault /usr/local/bin/
-
-COPY . .
-EOF
-}
-
 # Run docker build, then tag and push the image to the GCR.
 #
 # By default, set `--no-cache=true` here so we will always build our
@@ -132,8 +104,8 @@ function main () {
     help "$scriptName" "$@"
     echo "Retrieving picard private jar"
     copyPicardPrivateToLocalDockerDirectory "$jar" "$tmpdir"
+    cp Dockerfile "$tmpdir"
     cd "$tmpdir"
-    makeDockerfile
     ensureLoggedInToDocker "$scriptName"
     runDocker "$jar"
     cd - >/dev/null

@@ -43,23 +43,6 @@ function getZcallFromGitHub () {
     rmdir GTC
 }
 
-# Make the Dockerfile.
-#
-function makeDockerfile () {
-cat << EOF > ./Dockerfile
-FROM alpine:3.8
-
-ENV TERM=xterm-256color
-
-WORKDIR /usr/gitc
-
-# Install dependencies.
-RUN apk --update add bash python2
-
-COPY . .
-EOF
-}
-
 # Run docker build, then tag and push the image to the GCR.
 #
 # By default, set `--no-cache=true` here so we will always build our
@@ -95,9 +78,9 @@ function main () {
     echo $scriptName: Running: "$0" "$@" 1>&2
     help "$scriptName" "$@"
     mkdir "$tmpdir/zcall"
+    cp Dockerfile "$tmpdir"
     cd "$tmpdir"
     getZcallFromGitHub
-    makeDockerfile
     ensureLoggedInToDocker "$scriptName"
     runDocker
     cd - >/dev/null

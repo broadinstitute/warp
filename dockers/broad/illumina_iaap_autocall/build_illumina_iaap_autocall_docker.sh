@@ -47,20 +47,6 @@ function copyIaapAutocallToLocalDockerDirectory () {
     let "${#files[*]} > 40" || rsync -a --progress "$DEFAULT_IAAP_BINS" "$dir"/iaap
 }
 
-# Make the Dockerfile.
-#
-function makeDockerfile () {
-cat << EOF > ./Dockerfile
-FROM mono:5.20
-
-ENV TERM=xterm-256color
-
-WORKDIR /usr/gitc
-
-COPY . .
-EOF
-}
-
 # Run docker build, then tag and push the image to the GCR.
 #
 # By default, set `--no-cache=true` here so we will always build our
@@ -101,8 +87,8 @@ function main () {
     help "$scriptName" "$@"
     mkdir "$tmpdir/iaap"
     copyIaapAutocallToLocalDockerDirectory "$tmpdir"
+    cp Dockerfile "$tmpdir"
     cd "$tmpdir"
-    makeDockerfile
     ensureLoggedInToDocker "$scriptName"
     runDocker
     cd - >/dev/null
