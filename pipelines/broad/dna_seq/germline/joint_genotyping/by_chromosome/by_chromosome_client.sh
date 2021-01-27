@@ -403,6 +403,7 @@ function do_outputs() {
 # Copy the outputs of part one to a safe location that doesn't have a TTL
 function copy_part_one_outputs_to_safe_location() {
   local -r chr_arg=${1:-"chr*"}
+  local -r batchSize=100
 
   while IFS=, read chromosome workflowId projectNum failedIds; do
     if [[ ${chromosome} == ${chr_arg} ]]; then
@@ -428,44 +429,59 @@ function copy_part_one_outputs_to_safe_location() {
       fingerprintingVcf=$(echo ${outputs} | jq -r 'select(.["JointGenotypingByChromosomePartOne.output_fingerprinting_vcf"]!=null) | .["JointGenotypingByChromosomePartOne.output_fingerprinting_vcf"]')
       fingerprintingVcfIndex=$(echo ${outputs} | jq -r 'select(.["JointGenotypingByChromosomePartOne.output_fingerprinting_vcf_index"]!=null) | .["JointGenotypingByChromosomePartOne.output_fingerprinting_vcf_index"]')
 
-      for gdb in ${genomicsDatabases[@]}; do
-        (
-        fileName=$(basename ${gdb})
-        dirName=$(basename $(dirname ${gdb}))
-        if [[ ${dirName} == chr2 ]]; then
-          dirName="shard-1"
-        fi
-        paddedName="shard-$(printf "%04d" $(echo ${dirName} | sed -E 's/.*-([0-9]+)/\1/g'))"
-        copyName="${paddedName}.${fileName}"
+      gdbCount=0
+      >&2 echo "Copying gdb files in batches of ${batchSize}"
+      while read line; do
+          gdbCount=$((gdbCount + 1))
+          for gdb in ${line[@]}; do
+            (
+              fileName=$(basename ${gdb})
+              dirName=$(basename $(dirname ${gdb}))
 
-        if grep -q "${copyName}$" ${existingFilesFile}; then
-          >&2 echo "Skipping copying of ${gdb} as it already exists in the destination directory"
-          continue
-        else
-          gsutil cp ${gdb} ${outputDir}${copyName}
-        fi
-        ) &
-      done
-      wait
+              if [[ ${dirName} == "cacheCopy" ]]; then
+                dirName=$(basename $(dirname $(dirname ${gdb})))
+              fi
 
-      for hardFilteredVcf in ${outputHardFilteredVcfs[@]}; do
-        (
-        fileName=$(basename ${hardFilteredVcf})
-        dirName=$(basename $(dirname ${hardFilteredVcf}))
-        shardIndex=$(echo ${fileName} | sed -E 's|.*\.([0-9]+)\.variant_filtered.*|\1|g')
-        paddedShardIndex=$(printf "%04d" ${shardIndex})
-        paddedName=$(echo ${fileName} | sed -E 's|(.*\.)([0-9]+)(\.variant_filtered.*)|\1'${paddedShardIndex}'\3|g')
-        copyName=$(echo ${paddedName} | sed 's|variant_filtered|hard_filtered_with_genotypes|g')
+              paddedName="shard-$(printf "%04d" $(echo ${dirName} | sed -E 's/.*-([0-9]+)/\1/g'))"
+              copyName="${paddedName}.${fileName}"
 
-        if grep -q "${copyName}$" ${existingFilesFile}; then
-          >&2 echo "Skipping copying of ${hardFilteredVcf} as it already exists in the destination directory"
-          continue
-        else
-          gsutil cp ${hardFilteredVcf} ${outputDir}${copyName}
-          gsutil cp ${hardFilteredVcf}.tbi ${outputDir}${copyName}.tbi
-        fi
-        ) &
-      done
+              if grep -q "${copyName}$" ${existingFilesFile}; then
+                >&2 echo "Skipping copying of ${gdb} as it already exists in the destination directory"
+                continue
+              else
+                gsutil cp ${gdb} ${outputDir}${copyName}
+              fi
+            ) &
+          done
+          wait
+          >&2 echo "Finished ${gdbCount} of $((${#genomicsDatabases[@]}/batchSize))"
+      done < <(echo ${genomicsDatabases[@]} | xargs -n ${batchSize})
+
+      vcfCount=0
+      >&2 echo "Copying hard-filtered VCF files in batches of ${batchSize}"
+      while read line; do
+        vcfCount=$((vcfCount + 1))
+        for hardFilteredVcf in ${line[@]}; do
+          (
+            fileName=$(basename ${hardFilteredVcf})
+            dirName=$(basename $(dirname ${hardFilteredVcf}))
+            shardIndex=$(echo ${fileName} | sed -E 's|.*\.([0-9]+)\.variant_filtered.*|\1|g')
+            paddedShardIndex=$(printf "%04d" ${shardIndex})
+            paddedName=$(echo ${fileName} | sed -E 's|(.*\.)([0-9]+)(\.variant_filtered.*)|\1'${paddedShardIndex}'\3|g')
+            copyName=$(echo ${paddedName} | sed 's|variant_filtered|hard_filtered_with_genotypes|g')
+
+            if grep -q "${copyName}$" ${existingFilesFile}; then
+              >&2 echo "Skipping copying of ${hardFilteredVcf} as it already exists in the destination directory"
+              continue
+            else
+              gsutil cp ${hardFilteredVcf} ${outputDir}${copyName}
+              gsutil cp ${hardFilteredVcf}.tbi ${outputDir}${copyName}.tbi
+            fi
+          ) &
+        done
+        wait
+        >&2 echo "Finished ${vcfCount} of $((${#outputHardFilteredVcfs[@]}/batchSize))"
+      done < <(echo ${outputHardFilteredVcfs[@]} | xargs -n ${batchSize})
       wait
 
       allFilesFile=$(mktemp)
