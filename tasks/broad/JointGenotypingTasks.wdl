@@ -999,13 +999,19 @@ task GetFingerprintingIntervalIndices {
 
     cp ~{sep=' ' unpadded_intervals} ./
 
-    cat ~{write_lines(unpadded_intervals)} | xargs -n1 basename | xargs -I{} bash -c 'rename_scatter $@' _ {}
+    while read line; do
+      name=$(basename $line)
+      rename_scatter $name
+    done < ~{write_lines(unpadded_intervals)}
 
     #find the first header
-    find . -name "scattered.renamed.*.interval_list" | head -n1 | xargs cat | grep '^@' > all.interval_list
+    first_header_file=$(find . -name 'scattered.renamed.*.interval_list' -print -quit)
+    grep '^@' $first_header_file > all.interval_list
 
     # concatenate the resulting intervals (with no header)
-    find . -name "scattered.renamed.*.interval_list"  | xargs cat | grep -v '^@' >> all.interval_list
+    for file in $(find . -name "scattered.renamed.*.interval_list"); do
+      grep -v '^@' $file >> all.interval_list
+    done
 
     # convert the Haplotype_database to an interval_list
     hdb_to_interval_list ~{haplotype_database} > hdb.interval_list
