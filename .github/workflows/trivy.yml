@@ -16,7 +16,6 @@ jobs:
         - dockers/broad/multi_sample
         - dockers/broad/VerifyBamId
         - dockers/broad/zcall
-
     steps:
       - uses: actions/checkout@v2
 
@@ -34,10 +33,7 @@ jobs:
         image:
         - us.gcr.io/broad-gotc-prod/dsde-toolbox:dev
         - us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8 # TODO please keep this updated with WDL
-
     steps:
-      - uses: actions/checkout@v2
-
       - uses: broadinstitute/dsp-appsec-trivy-action@v1
         with:
           image: ${{ matrix.image }}
