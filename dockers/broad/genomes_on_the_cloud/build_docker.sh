@@ -16,7 +16,6 @@ GATK35_VERSION="3.5-0-g36282e4"
 GATK4_VERSION="4.1.8.0"
 SAMTOOLS_VER="1.11"
 BWA_VER="0.7.15.r1140"
-SHORT_BWA_VER="${BWA_VER:0:6}"
 K8_VER="null"
 BWA_POSTALT_SCRIPT_VER="null"
 TABIX_VER="0.2.5_r1005"
@@ -50,8 +49,7 @@ docker build -t us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:${DOCKER_IMAGE_TA
   --build-arg BWA_VER \
   --build-arg TABIX_VER \
   --build-arg BGZIP_VER \
-  --build-arg SVTOOLKIT_VER \
-  --build-arg SHORT_BWA_VER .
+  --build-arg SVTOOLKIT_VER .
 docker push us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:${DOCKER_IMAGE_TAG}
 
 rm -rf ${TMPDIR}

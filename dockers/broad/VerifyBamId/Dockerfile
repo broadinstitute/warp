@@ -3,7 +3,7 @@ MAINTAINER Broad Institute DSDE <dsde-engineering@broadinstitute.org>
 
 WORKDIR /usr/gitc
 
-ARG GIT_HASH
+ARG GIT_HASH=c1cba76e979904eb69c31520a0d7f5be63c72253
 
 RUN apt-get update && \
     apt-get upgrade -y && \
