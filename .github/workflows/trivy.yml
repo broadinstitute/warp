@@ -2,7 +2,7 @@ name: dsp-appsec-trivy
 on: [pull_request]
 
 jobs:
-  appsec-trivy:
+  build-and-scan:
     # Parse Dockerfile and build, scan image if a "blessed" base image is not used
     name: DSP AppSec Trivy check
     runs-on: ubuntu-latest
@@ -23,3 +23,21 @@ jobs:
       - uses: broadinstitute/dsp-appsec-trivy-action@v1
         with:
           context: ${{ matrix.context }}
+
+  prebuilt-scan:
+    # scan pre-built images
+    name: DSP AppSec Trivy check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+        - us.gcr.io/broad-gotc-prod/dsde-toolbox:dev
+        - us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8 # TODO please keep this updated with WDL
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: broadinstitute/dsp-appsec-trivy-action@v1
+        with:
+          image: ${{ matrix.image }}
