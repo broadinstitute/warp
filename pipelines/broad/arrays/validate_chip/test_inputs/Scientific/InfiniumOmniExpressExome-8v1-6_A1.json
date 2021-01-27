@@ -9,9 +9,9 @@
   "ValidateChip.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/InfiniumOmniExpressExome-8v1-6_A1/idats/202871110118_R01C01/202871110118_R01C01_Grn.idat",
   "ValidateChip.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/InfiniumOmniExpressExome-8v1-6_A1/idats/202871110118_R01C01/202871110118_R01C01_Red.idat",
 
-  "ValidateChip.chip_manifest_csv_file": "gs://broad-gotc-test-storage/arrays/metadata/InfiniumOmniExpressExome-8v1-6_A1/InfiniumOmniExpressExome-8v1-6_A1.csv",
-  "ValidateChip.bead_pool_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/InfiniumOmniExpressExome-8v1-6_A1/InfiniumOmniExpressExome-8v1-6_A1.bpm",
-  "ValidateChip.cluster_file": "gs://broad-gotc-test-storage/arrays/metadata/InfiniumOmniExpressExome-8v1-6_A1/InfiniumOmniExpressExome-8v1-6_A1_ClusterFile.egt",
+  "ValidateChip.chip_manifest_csv_file": "gs://gcp-public-data--broad-references/arrays/InfiniumOmniExpressExome-8v1-6_A1/InfiniumOmniExpressExome-8v1-6_A1.csv",
+  "ValidateChip.bead_pool_manifest_file": "gs://gcp-public-data--broad-references/arrays/InfiniumOmniExpressExome-8v1-6_A1/InfiniumOmniExpressExome-8v1-6_A1.bpm",
+  "ValidateChip.cluster_file": "gs://gcp-public-data--broad-references/arrays/InfiniumOmniExpressExome-8v1-6_A1/InfiniumOmniExpressExome-8v1-6_A1_ClusterFile.egt",
 
   "ValidateChip.control_sample_vcf_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf",
   "ValidateChip.control_sample_vcf_index_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf.idx",
