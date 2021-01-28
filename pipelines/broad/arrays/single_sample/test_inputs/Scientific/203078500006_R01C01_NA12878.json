@@ -11,9 +11,9 @@
   "Arrays.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/MEG_AllofUs_20002558X351448_A2/idats/203078500006_R01C01/203078500006_R01C01_Red.idat",
   "Arrays.params_file": "gs://broad-gotc-test-storage/arrays/MEG_AllofUs_20002558X351448_A2/inputs/203078500006_R01C01/params.txt",
 
-  "Arrays.bead_pool_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/MEG_AllofUs_20002558X351448_A2/MEG_AllofUs_20002558X351448_A2.bpm",
-  "Arrays.extended_chip_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/MEG_AllofUs_20002558X351448_A2/MEG_AllofUs_20002558X351448_A2.1.4.extended.csv",
-  "Arrays.cluster_file": "gs://broad-gotc-test-storage/arrays/metadata/MEG_AllofUs_20002558X351448_A2/MEG_AllofUs_A1_Gentrain_1299_edited_prevalidation_081419update.egt",
+  "Arrays.bead_pool_manifest_file": "gs://gcp-public-data--broad-references/arrays/MEG_AllofUs_20002558X351448_A2/MEG_AllofUs_20002558X351448_A2.bpm",
+  "Arrays.extended_chip_manifest_file": "gs://gcp-public-data--broad-references/arrays/MEG_AllofUs_20002558X351448_A2/MEG_AllofUs_20002558X351448_A2.1.4.extended.csv",
+  "Arrays.cluster_file": "gs://gcp-public-data--broad-references/arrays/MEG_AllofUs_20002558X351448_A2/MEG_AllofUs_A1_Gentrain_1299_edited_prevalidation_081419update.egt",
 
   "Arrays.control_sample_vcf_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878.vcf.gz",
   "Arrays.control_sample_vcf_index_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878.vcf.gz.tbi",
