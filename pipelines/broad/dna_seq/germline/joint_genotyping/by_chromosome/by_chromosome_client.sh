@@ -403,7 +403,7 @@ function do_outputs() {
 # Copy the outputs of part one to a safe location that doesn't have a TTL
 function copy_part_one_outputs_to_safe_location() {
   local -r chr_arg=${1:-"chr*"}
-  local -r batchSize=100
+  local -r batchSize=250
 
   while IFS=, read chromosome workflowId projectNum failedIds; do
     if [[ ${chromosome} == ${chr_arg} ]]; then
@@ -482,10 +482,14 @@ function copy_part_one_outputs_to_safe_location() {
         wait
         >&2 echo "Finished ${vcfCount} of $((${#outputHardFilteredVcfs[@]}/batchSize))"
       done < <(echo ${outputHardFilteredVcfs[@]} | xargs -n ${batchSize})
-      wait
 
       allFilesFile=$(mktemp)
-      allFiles=(${siteOnlyVcf} ${sitesOnlyVcfIndex} ${annotationVcf} ${annotationVcfIndex} ${scatteredIntervals[@]})
+      allFiles=(${siteOnlyVcf} ${sitesOnlyVcfIndex} ${scatteredIntervals[@]})
+
+      if [[ "${annotationVcf}" != "null" ]]; then
+        allFiles+=(${annotationVcf} ${annotationVcfIndex})
+      fi
+
       if [[ ! -z "${fingerprintingVcf}" ]]; then
         allFiles+=(${fingerprintingVcf} ${fingerprintingVcfIndex})
       fi
@@ -505,6 +509,8 @@ function copy_part_one_outputs_to_safe_location() {
       if [[ ${#filesToCopy[@]} -gt 0 ]]; then
         >&2 echo "copying ${#filesToCopy[@]} files for ${chromosome}"
         gsutil -m cp ${filesToCopy[@]} ${outputDir}
+      else
+        >&2 echo "0 files left to copy for ${chromosome}"
       fi
 
       rm ${allFilesFile}
