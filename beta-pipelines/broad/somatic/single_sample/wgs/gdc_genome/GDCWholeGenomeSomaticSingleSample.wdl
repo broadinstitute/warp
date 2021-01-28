@@ -1,6 +1,7 @@
 version 1.0
 
 import "../../../../../../tasks/broad/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
+import "../../../../../../tasks/broad/CheckContaminationSomatic.wdl" as CheckContamination
 
 struct FastqPairRecord {
     File forward_fastq
@@ -378,10 +379,11 @@ task picard_markduplicates {
         Int mem = 16
         Int preemptible = 2
         Int max_retries = 0
+        Int additional_disk = 0
     }
     String metrics_file = outbam + ".metrics"
     Int jvm_mem = if mem > 1 then mem - 1  else 1
-    Int disk_space = ceil(size(bams, "G") * 2.2)
+    Int disk_space = ceil(size(bams, "G") * 2.2) + additional_disk
 
     command {
         set -euo pipefail
@@ -424,8 +426,9 @@ task sort_and_index_markdup_bam {
         Int mem = 16
         Int preemptible = 2
         Int max_retries = 0
+        Int additional_disk = 0
     }
-    Int disk_space = ceil(size(input_bam, "G") * 3.25) + 20
+    Int disk_space = ceil(size(input_bam, "G") * 3.25) + 20 + additional_disk
     Int mem_per_thread = floor(mem * 1024 / cpu * 0.85)
     Int index_threads = cpu - 1
     String output_bam = basename(input_bam)
@@ -473,12 +476,13 @@ task gatk_baserecalibrator {
         Int mem = 6
         Int preemptible = 2
         Int max_retries = 0
+        Int additional_disk = 0
     }
     String output_grp = basename(bam, ".bam") + "_bqsr.grp"
     Float ref_size = size([ref_fasta, ref_fai, ref_dict], "G")
     Float dbsnp_size = size([dbsnp_vcf, dbsnp_vcf_index], "G")
     Int jvm_mem = if mem > 1 then mem - 1 else 1
-    Int disk_space = ceil(size(bam, "G") + ref_size + dbsnp_size) + 20
+    Int disk_space = ceil(size(bam, "G") + ref_size + dbsnp_size) + 20 + additional_disk
 
     parameter_meta {
         bam: {localization_optional: true}
@@ -519,11 +523,12 @@ task gatk_applybqsr {
         Int mem = 4
         Int preemptible = 2
         Int max_retries = 0
+        Int additional_disk = 0
     }
     String output_bam = basename(input_bam)
     String output_bai = basename(input_bam, ".bam") + ".bai"
     Int jvm_mem = if mem > 1 then mem - 1 else 1
-    Int disk_space = ceil((size(input_bam, "G") * 3)) + 20
+    Int disk_space = ceil((size(input_bam, "G") * 3)) + 20 + additional_disk
 
     parameter_meta {
         input_bam: {localization_optional: true}
@@ -597,6 +602,11 @@ workflow GDCWholeGenomeSomaticSingleSample {
         String? unmapped_bam_suffix
 
         File? ubam
+
+        File contamination_vcf
+        File contamination_vcf_index
+        File dbsnp_vcf
+        File dbsnp_vcf_index
 
         File ref_fasta
         File ref_fai
@@ -707,12 +717,25 @@ workflow GDCWholeGenomeSomaticSingleSample {
         input: input_bam = picard_markduplicates.bam
     }
 
+    call CheckContamination.CalculateSomaticContamination as check_contamination {
+        input:
+            reference = ref_fasta,
+            reference_dict = ref_dict,
+            reference_index = ref_fai,
+            tumor_cram_or_bam = sort_and_index_markdup_bam.bam,
+            tumor_crai_or_bai = sort_and_index_markdup_bam.bai,
+            contamination_vcf = contamination_vcf,
+            contamination_vcf_index = contamination_vcf_index
+    }
+
     call gatk_baserecalibrator {
         input:
             bam = sort_and_index_markdup_bam.bam,
             ref_fasta = ref_fasta,
             ref_fai = ref_fai,
-            ref_dict = ref_dict
+            ref_dict = ref_dict,
+            dbsnp_vcf = dbsnp_vcf,
+            dbsnp_vcf_index = dbsnp_vcf_index
     }
 
     call gatk_applybqsr {
@@ -737,5 +760,9 @@ workflow GDCWholeGenomeSomaticSingleSample {
         File md_metrics = picard_markduplicates.metrics
         File insert_size_metrics = collect_insert_size_metrics.insert_size_metrics
         File insert_size_histogram_pdf = collect_insert_size_metrics.insert_size_histogram_pdf
+        Float contamination = check_contamination.contamination
+    }
+    meta {
+        allowNestedInputs: true
     }
 }
