@@ -8,7 +8,7 @@
 
 ## Introduction to the Optimus Workflow
 
-Optimus is an open-source, cloud-optimized pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/). It supports processing of any 3' single-cell and single-nuclei expression data generated with the [10x Genomic v2 or v3 assay](https://www.10xgenomics.com/solutions/single-cell/). 
+Optimus is an open-source, cloud-optimized pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/). It supports processing of any 3' single-cell and single-nuclei count data generated with the [10x Genomic v2 or v3 assay](https://www.10xgenomics.com/solutions/single-cell/). 
 
 It is an alignment and transcriptome quantification pipeline that corrects cell barcodes, aligns reads to the genome, corrects Unique Molecular Identifiers (UMIs), generates a count matrix in a UMI-aware manner, calculates summary metrics for genes and cells, detects empty droplets, returns read outputs in BAM format, and returns cell gene counts in numpy matrix and Loom file formats. 
 
@@ -103,13 +103,13 @@ Overall, the workflow:
 4. Annotates genes with aligned reads
 5. Corrects UMIs
 6. Calculates summary metrics
-7. Produces a UMI-aware expression matrix
+7. Produces a UMI-aware count matrix
 8. Detects empty droplets
-9. Returns a GA4GH compliant BAM and an expression matrix in Loom formats
+9. Returns a GA4GH compliant BAM and a count matrix in Loom formats
 
 The tools each Optimus task employs are detailed in the table below. If you are looking for the parameters for each task/tool, please click on the task link and see the `command {}` section of the task WDL script. The task's Docker image is specified in the task WDL `# runtime values` section as `String docker =`.
 
-| Task                                                                                                                                         | Tool                                                                                                                        |
+| Task and WDL Link                                                                                                                                      | Tool                                                                                                                        |
 | -------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | [FastqProcessing](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl)                                   | [sctools](https://sctools.readthedocs.io/en/latest/sctools.html)                                                            |
 | [StarAlignBamSingleEnd](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlignBamSingleEnd.wdl)                           | [STAR](https://github.com/alexdobin/STAR)                                                                                   |
@@ -155,6 +155,10 @@ The TagGeneExon task calls Drop-seq tools v2.3.0 to make annotations. These anno
 
 All tags are detailed in the pipeline's [BAM_tag documentation](./Bam_tags.md).
 
+:::warning Single-nuclei count matrices do not account for strand
+While Optimus can use the stranded mode to flag strand info in the BAM file, this information is not currently used in the downstream matrix. This results in potentially higher counts than expected for single-nuclei data. Work is in-progress to account for strand information in the final matrix.  
+:::
+
 #### 5. UMI Correction
 
 UMIs are designed to distinguish unique transcripts present in the cell at lysis from those arising from PCR amplification of these same transcripts. But, like cell barcodes, UMIs can also be incorrectly sequenced or amplified. The [UmiCorrection](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/UmiCorrection.wdl) task uses [Umi-tools v.0.0.1](https://pypi.org/project/umi-tools/0.0.1/) to apply a network-based, "directional" correction method ([Smith, et al., 2017](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5340976/)) to account for such errors. This task makes UMI corrections to alignments made with the 'GE' tag. This step will add a 'UB' tag for UMI-corrected barcodes.
@@ -163,9 +167,9 @@ UMIs are designed to distinguish unique transcripts present in the cell at lysis
 
 The [Metrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to calculate summary metrics which help assess the quality of the data output each time this pipeline is run. These metrics are included in the Loom output file. A detailed list of these metrics is found in the [Loom_schema documentation](./Loom_schema.md).
 
-#### 7. Expression Matrix Construction
+#### 7. Count Matrix Construction
 
-The Optimus [CreateCountMatrix](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CreateCountMatrix.wdl) task (imported as "Count") evaluates every read in the BAM file and creates a UMI-aware expression matrix using [sctools](https://github.com/HumanCellAtlas/sctools). This matrix contains the number of molecules that were observed for each cell barcode and for each gene. The task discards any read that maps to more than one gene, and counts any remaining reads provided the triplet of cell barcode, molecule barcode, and gene name is unique, indicating the read originates from a single transcript present at the time of cell lysis. To correctly specific the gene name tag, this task will look for the 'GE' tag.
+The Optimus [CreateCountMatrix](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CreateCountMatrix.wdl) task (imported as "Count") evaluates every read in the BAM file and creates a UMI-aware count matrix using [sctools](https://github.com/HumanCellAtlas/sctools). This matrix contains the number of molecules that were observed for each cell barcode and for each gene. The task discards any read that maps to more than one gene, and counts any remaining reads provided the triplet of cell barcode, molecule barcode, and gene name is unique, indicating the read originates from a single transcript present at the time of cell lysis. To correctly specific the gene name tag, this task will look for the 'GE' tag.
 
 #### 8. Identification of Empty Droplets
 
@@ -179,7 +183,7 @@ EmptyDrops relies on a visual knee point inflection (described in [Lun et al. (2
 
 Output files of the pipeline include:
 
-1. Cell x Gene unnormalized, but UMI-corrected, expression matrices
+1. Cell x Gene unnormalized, but UMI-corrected, count matrices
 2. Unfiltered, sorted BAM file with barcode and downstream analysis [tags](./Bam_tags.md)
 3. Cell metadata, including cell metrics
 4. Gene metadata, including gene metrics
@@ -190,13 +194,13 @@ The following table lists the output files produced from the pipeline. For sampl
 | ------ |------ | ------ | ------ |
 | pipeline_version | | Version of the processing pipeline run on this data | String |
 | bam | `<input_id>.bam` | Aligned BAM | BAM |
-| matrix_row_index | sparse_counts_row_index.npy | Index of cells in expression matrix | Numpy array index |
-| matrix_col_index | sparse_counts_col_index.npy | Index of genes in expression matrix | Numpy array index |
+| matrix_row_index | sparse_counts_row_index.npy | Index of cells in count matrix | Numpy array index |
+| matrix_col_index | sparse_counts_col_index.npy | Index of genes in count matrix | Numpy array index |
 | cell_metrics | merged-cell-metrics.csv.gz | cell metrics | compressed csv | Matrix of metrics by cells |
 | gene_metrics | merged-gene-metrics.csv.gz | gene metrics | compressed csv | Matrix of metrics by genes |
-| loom_output_file | `<input_id>.loom` | Loom | Loom | Loom file with expression data and metadata | N/A |
+| loom_output_file | `<input_id>.loom` | Loom | Loom | Loom file with count data and metadata | N/A |
 
-The Loom is the default output. See the [create_loom_optimus.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) for the detailed code. The final Loom output contains the unnormalized (unfiltered), UMI-corrected expression matrices, as well as the gene and cell metrics detailed in the [Loom_schema documentation](./Loom_schema.md).
+The Loom is the default output. See the [create_loom_optimus.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) for the detailed code. The final Loom output contains the unnormalized (unfiltered), UMI-corrected count matrices, as well as the gene and cell metrics detailed in the [Loom_schema documentation](./Loom_schema.md).
 
 :::warning Zarr Array Deprecation Notice June 2020
 Please note that we have deprecated the previously used Zarr array output. The pipeline now uses the Loom file format as the default output.
