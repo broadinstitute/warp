@@ -10,9 +10,9 @@
   "Arrays.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/HumanOmni2.5-8v1_A/idats/8942377043_R01C01_Red.idat",
   "Arrays.params_file": "gs://broad-gotc-test-storage/arrays/HumanOmni2.5-8v1_A/inputs/8942377043_R01C01/params.txt",
 
-  "Arrays.bead_pool_manifest_file" : "gs://broad-gotc-test-storage/arrays/metadata/HumanOmni2.5-8v1_A/HumanOmni2.5-8v1_A.bpm",
-  "Arrays.extended_chip_manifest_file" : "gs://broad-gotc-test-storage/arrays/metadata/HumanOmni2.5-8v1_A/HumanOmni2.5-8v1_A.1.3.extended.csv",
-  "Arrays.cluster_file" : "gs://broad-gotc-test-storage/arrays/metadata/HumanOmni2.5-8v1_A/HumanOmni2.5-8v1_A.egt",
+  "Arrays.bead_pool_manifest_file" : "gs://gcp-public-data--broad-references/arrays/HumanOmni2.5-8v1_A/HumanOmni2.5-8v1_A.bpm",
+  "Arrays.extended_chip_manifest_file" : "gs://gcp-public-data--broad-references/arrays/HumanOmni2.5-8v1_A/HumanOmni2.5-8v1_A.1.3.extended.csv",
+  "Arrays.cluster_file" : "gs://gcp-public-data--broad-references/arrays/HumanOmni2.5-8v1_A/HumanOmni2.5-8v1_A.egt",
 
   "Arrays.disk_size": 100,
 

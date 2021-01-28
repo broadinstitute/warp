@@ -5,10 +5,10 @@ These is a test suite designed to make testing cromwell workflows easier. It con
 Predefined environments, implemented by exetending the trait `CromwellEnvironment`, allow the workflow tests to be run in multiple environments
 
 ### Dev
-The dev environment tells the test suite to run tests on the gotc dev cromwell instance. It will make use of dev clio and firecloud-alpha if they're needed. This is the environment that will most likely be used.
+The dev environment tells the test suite to run tests on the gotc dev cromwell instance. This is the environment that will most likely be used.
 
 ### Prod
-The prod environment tells the test suite to run tests on the gotc production cromwell instance. It will make use of dev clio and firecloud-alpha if they're needed.
+The prod environment tells the test suite to run tests on the gotc production cromwell instance.
 
 ## Tests
 
@@ -24,25 +24,6 @@ There is a dummy test that can be run to verify that the test suite is working o
 ```$bash
 $ java -jar workflow_tests.jar
 ```
-
-### Cram Data Delivery
-```
-Command: CramDataDelivery [options]
-Test the Cram data-delivery workflow
-  -d <value> | --data-type <value>
-        Data type to test delivery of [WGS, Exome]
-  -r <value> | --requester <value>
-        Email address of the requester so that they can access a workspace created with the --leave-workspace option
-  -e <value> | --env <value>
-        The environment that this should run in [staging|jgdev|pharma5|jgprod|dev|prod]
-  --leave-workspace
-        Leave the workspace in firecloud for manual verification
-```
-
-The cramDataDelivery test will launch a workflow that creates a FireCloud workspace and test that the workspace attributes, participants, sample sets, samples, and tags are correct. It will then clean up after itself, deleting the workspace and moving files back to their original location. If the revert fails, there is a script in `src/main/scripts/cramDataDelivery/cleanup` that can help.
-```$bash
-$ java -jar workflow_tests.jar CramDataDelivery -e Dev
-````
 
 ### Germline Single Sample
 ```

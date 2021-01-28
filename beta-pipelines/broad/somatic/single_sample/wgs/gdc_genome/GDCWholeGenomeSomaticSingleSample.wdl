@@ -1,5 +1,8 @@
 version 1.0
 
+import "../../../../../../tasks/broad/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
+import "../../../../../../tasks/broad/CheckContaminationSomatic.wdl" as CheckContamination
+
 struct FastqPairRecord {
     File forward_fastq
     File reverse_fastq
@@ -376,10 +379,11 @@ task picard_markduplicates {
         Int mem = 16
         Int preemptible = 2
         Int max_retries = 0
+        Int additional_disk = 0
     }
     String metrics_file = outbam + ".metrics"
     Int jvm_mem = if mem > 1 then mem - 1  else 1
-    Int disk_space = ceil(size(bams, "G") * 2.2)
+    Int disk_space = ceil(size(bams, "G") * 2.2) + additional_disk
 
     command {
         set -euo pipefail
@@ -422,8 +426,9 @@ task sort_and_index_markdup_bam {
         Int mem = 16
         Int preemptible = 2
         Int max_retries = 0
+        Int additional_disk = 0
     }
-    Int disk_space = ceil(size(input_bam, "G") * 3.25) + 20
+    Int disk_space = ceil(size(input_bam, "G") * 3.25) + 20 + additional_disk
     Int mem_per_thread = floor(mem * 1024 / cpu * 0.85)
     Int index_threads = cpu - 1
     String output_bam = basename(input_bam)
@@ -471,12 +476,13 @@ task gatk_baserecalibrator {
         Int mem = 6
         Int preemptible = 2
         Int max_retries = 0
+        Int additional_disk = 0
     }
     String output_grp = basename(bam, ".bam") + "_bqsr.grp"
     Float ref_size = size([ref_fasta, ref_fai, ref_dict], "G")
     Float dbsnp_size = size([dbsnp_vcf, dbsnp_vcf_index], "G")
     Int jvm_mem = if mem > 1 then mem - 1 else 1
-    Int disk_space = ceil(size(bam, "G") + ref_size + dbsnp_size) + 20
+    Int disk_space = ceil(size(bam, "G") + ref_size + dbsnp_size) + 20 + additional_disk
 
     parameter_meta {
         bam: {localization_optional: true}
@@ -517,11 +523,12 @@ task gatk_applybqsr {
         Int mem = 4
         Int preemptible = 2
         Int max_retries = 0
+        Int additional_disk = 0
     }
     String output_bam = basename(input_bam)
     String output_bai = basename(input_bam, ".bam") + ".bai"
     Int jvm_mem = if mem > 1 then mem - 1 else 1
-    Int disk_space = ceil((size(input_bam, "G") * 3)) + 20
+    Int disk_space = ceil((size(input_bam, "G") * 3)) + 20 + additional_disk
 
     parameter_meta {
         input_bam: {localization_optional: true}
@@ -554,12 +561,53 @@ task gatk_applybqsr {
     }
 }
 
+# Collect quality metrics from the aggregated bam
+task collect_insert_size_metrics {
+  input {
+    File input_bam
+    String output_bam_prefix
+  }
+
+  Int disk_size = ceil(size(input_bam, "GiB")) + 20
+
+  command {
+    java -Xms5000m -jar /usr/picard/picard.jar \
+      CollectInsertSizeMetrics \
+      INPUT=~{input_bam} \
+      OUTPUT=~{output_bam_prefix}.insert_size_metrics \
+      HISTOGRAM_FILE=~{output_bam_prefix}.insert_size_histogram.pdf
+  }
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    memory: "7 GiB"
+    disks: "local-disk " + disk_size + " HDD"
+  }
+  output {
+    File insert_size_histogram_pdf = "~{output_bam_prefix}.insert_size_histogram.pdf"
+    File insert_size_metrics = "~{output_bam_prefix}.insert_size_metrics"
+  }
+}
+
+
 workflow GDCWholeGenomeSomaticSingleSample {
 
     String pipeline_version = "1.0.0"
 
     input {
-        File ubam
+        File? input_cram
+        File? input_bam
+        File? cram_ref_fasta
+        File? cram_ref_fasta_index
+        File? output_map
+        String? unmapped_bam_suffix
+
+        File? ubam
+
+        File contamination_vcf
+        File contamination_vcf_index
+        File dbsnp_vcf
+        File dbsnp_vcf_index
+
         File ref_fasta
         File ref_fai
         File ref_dict
@@ -569,27 +617,53 @@ workflow GDCWholeGenomeSomaticSingleSample {
         File ref_pac
         File ref_sa
     }
-    String outbam = basename(ubam, ".bam") + ".aln.mrkdp.bam"
 
-    call bam_readgroup_to_contents {
-        input: bam = ubam
+    String outbam = if (defined(ubam) || defined(input_bam)) then basename(select_first([ubam, input_bam]), ".bam") + ".aln.mrkdp.bam"
+                    else basename(select_first([input_cram]), ".cram") + ".aln.mrkdp.bam"
+
+    if (!defined(ubam)) {
+        call ToUbams.CramToUnmappedBams {
+             input:
+                 input_cram = input_cram,
+                 input_bam = input_bam,
+                 ref_fasta = select_first([cram_ref_fasta, ref_fasta]),
+                 ref_fasta_index = select_first([cram_ref_fasta_index, ref_fai]),
+                 output_map = output_map,
+                 unmapped_bam_suffix = unmapped_bam_suffix
+        }
     }
 
-    call biobambam_bamtofastq {
-        input: filename = ubam
+    Array[File] ubams = if defined(ubam) then [select_first([ubam])] else select_first([CramToUnmappedBams.unmapped_bams])
+
+    scatter (ubam in ubams) {
+        call bam_readgroup_to_contents {
+            input: bam = ubam
+        }
+
+        call biobambam_bamtofastq {
+             input: filename = ubam
+        }
     }
 
-    Int pe_count = length(biobambam_bamtofastq.output_fastq1)
-    Int o1_count = length(biobambam_bamtofastq.output_fastq_o1)
-    Int o2_count = length(biobambam_bamtofastq.output_fastq_o2)
-    Int s_count = length(biobambam_bamtofastq.output_fastq_s)
+    Array[Object] readgroups = flatten(bam_readgroup_to_contents.readgroups)
+
+    Array[File] fastq1 = flatten(biobambam_bamtofastq.output_fastq1)
+    Array[File] fastq2 = flatten(biobambam_bamtofastq.output_fastq2)
+    Array[File] fastq_o1 = flatten(biobambam_bamtofastq.output_fastq_o1)
+    Array[File] fastq_o2 = flatten(biobambam_bamtofastq.output_fastq_o2)
+    Array[File] fastq_s = flatten(biobambam_bamtofastq.output_fastq_s)
+
+    Int pe_count = length(fastq1)
+    Int o1_count = length(fastq_o1)
+    Int o2_count = length(fastq_o2)
+    Int s_count = length(fastq_s)
 
     if (pe_count > 0) {
         call emit_pe_records {
             input:
-                fastq1_files = biobambam_bamtofastq.output_fastq1,
-                fastq2_files = biobambam_bamtofastq.output_fastq2,
-                readgroups = bam_readgroup_to_contents.readgroups
+                fastq1_files = fastq1,
+                fastq2_files = fastq2,
+                readgroups = readgroups
         }
         scatter (pe_record in emit_pe_records.fastq_pair_records) {
             call bwa_pe {
@@ -610,10 +684,10 @@ workflow GDCWholeGenomeSomaticSingleSample {
     if (o1_count + o2_count + s_count > 0) {
         call emit_se_records {
             input:
-                fastq_o1_files = biobambam_bamtofastq.output_fastq_o1,
-                fastq_o2_files = biobambam_bamtofastq.output_fastq_o2,
-                fastq_s_files = biobambam_bamtofastq.output_fastq_s,
-                readgroups = bam_readgroup_to_contents.readgroups
+                fastq_o1_files = fastq_o1,
+                fastq_o2_files = fastq_o2,
+                fastq_s_files = fastq_s,
+                readgroups = readgroups
         }
         scatter (se_record in emit_se_records.fastq_single_records) {
             call bwa_se {
@@ -643,12 +717,25 @@ workflow GDCWholeGenomeSomaticSingleSample {
         input: input_bam = picard_markduplicates.bam
     }
 
+    call CheckContamination.CalculateSomaticContamination as check_contamination {
+        input:
+            reference = ref_fasta,
+            reference_dict = ref_dict,
+            reference_index = ref_fai,
+            tumor_cram_or_bam = sort_and_index_markdup_bam.bam,
+            tumor_crai_or_bai = sort_and_index_markdup_bam.bai,
+            contamination_vcf = contamination_vcf,
+            contamination_vcf_index = contamination_vcf_index
+    }
+
     call gatk_baserecalibrator {
         input:
             bam = sort_and_index_markdup_bam.bam,
             ref_fasta = ref_fasta,
             ref_fai = ref_fai,
-            ref_dict = ref_dict
+            ref_dict = ref_dict,
+            dbsnp_vcf = dbsnp_vcf,
+            dbsnp_vcf_index = dbsnp_vcf_index
     }
 
     call gatk_applybqsr {
@@ -657,9 +744,25 @@ workflow GDCWholeGenomeSomaticSingleSample {
             bqsr_recal_file = gatk_baserecalibrator.bqsr_recal_file
     }
 
+    String output_bam_prefix = basename(gatk_applybqsr.bam, ".bam")
+
+    call collect_insert_size_metrics {
+        input:
+            input_bam = gatk_applybqsr.bam,
+            output_bam_prefix = output_bam_prefix
+    }
+
     output {
+        Array[File]? validation_report = CramToUnmappedBams.validation_report
+        Array[File]? unmapped_bams = CramToUnmappedBams.unmapped_bams
         File bam = gatk_applybqsr.bam
         File bai = gatk_applybqsr.bai
         File md_metrics = picard_markduplicates.metrics
+        File insert_size_metrics = collect_insert_size_metrics.insert_size_metrics
+        File insert_size_histogram_pdf = collect_insert_size_metrics.insert_size_histogram_pdf
+        Float contamination = check_contamination.contamination
+    }
+    meta {
+        allowNestedInputs: true
     }
 }

@@ -9,9 +9,9 @@
   "ValidateChip.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/HumanOmni2.5-8v1_A/idats/9216473070_R01C01/9216473070_R01C01_Grn.idat",
   "ValidateChip.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/HumanOmni2.5-8v1_A/idats/9216473070_R01C01/9216473070_R01C01_Red.idat",
 
-  "ValidateChip.chip_manifest_csv_file" : "gs://broad-gotc-test-storage/arrays/metadata/HumanOmni2.5-8v1_A/HumanOmni2.5-8v1_A.csv",
-  "ValidateChip.bead_pool_manifest_file" : "gs://broad-gotc-test-storage/arrays/metadata/HumanOmni2.5-8v1_A/HumanOmni2.5-8v1_A.bpm",
-  "ValidateChip.cluster_file" : "gs://broad-gotc-test-storage/arrays/metadata/HumanOmni2.5-8v1_A/HumanOmni2.5-8v1_A.egt",
+  "ValidateChip.chip_manifest_csv_file" : "gs://gcp-public-data--broad-references/arrays/HumanOmni2.5-8v1_A/HumanOmni2.5-8v1_A.csv",
+  "ValidateChip.bead_pool_manifest_file" : "gs://gcp-public-data--broad-references/arrays/HumanOmni2.5-8v1_A/HumanOmni2.5-8v1_A.bpm",
+  "ValidateChip.cluster_file" : "gs://gcp-public-data--broad-references/arrays/HumanOmni2.5-8v1_A/HumanOmni2.5-8v1_A.egt",
 
   "ValidateChip.control_sample_vcf_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf",
   "ValidateChip.control_sample_vcf_index_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf.idx",

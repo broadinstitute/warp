@@ -66,10 +66,6 @@ object CromwellWorkflowTester {
         new AllOfUsTester(config.germlineCloudConfig)
       case AnnotationFiltration =>
         new AnnotationFiltrationTester(config.annotationFiltrationConfig)
-      case ArraysDataDelivery =>
-        new ArraysDataDeliveryTester(config.arraysDataDeliveryConfig)
-      case CramDataDelivery =>
-        new CramDataDeliveryTester(config.cramDataDeliveryConfig)
       case Dummy => new DummyTester()
       case ExternalReprocessing =>
         new ExternalReprocessingTester(config.germlineCloudConfig)
