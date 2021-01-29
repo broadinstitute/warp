@@ -151,7 +151,8 @@ task CompareBams {
           ~{test_bam} \
           ~{truth_bam} \
           O=comparison.tsv \
-          LENIENT_HEADER=true
+          LENIENT_HEADER=true \
+          echo $?
   }
 
   runtime {
