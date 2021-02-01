@@ -5,18 +5,25 @@
 | [GDCWholeGenomeSomaticSingleSample_v1.0.0](https://github.com/broadinstitute/warp/releases) | January, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ## Introduction to the GDC Whole Genome Somatic Single Sample Pipeline
-Details of the references used and data harmonization process are found on the main page.
+The GDC Whole Genome Somatic Single Sample (abbreviated GDC here) pipeline is the alignment and preprocessing workflow for genomic data designed for the National Cancer Institute's [Genomic Data Commons](https://gdc.cancer.gov/about-gdc). 
+
+A high-level overview of the pipeline in addition to tool parameters are available on the [GDC Documentation site](https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/DNA_Seq_Variant_Calling_Pipeline/). 
+
+Overall, the pipeline converts reads (CRAM or BAM) to FASTQ and (re)aligns them to the latest human reference genome. Each read group is aligned separately. Read group alignments that belong to a single sample are then merged and duplicate reads are flagged for downstream variant calling. 
+
 
 ## Set-up
 
 ### Workflow Installation and Requirements
 
-The workflow is written in the Workflow Description Language WDL and can be downloaded by cloning the [warp repository](https://github.com/broadinstitute/warp/tree/master) in GitHub. The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. For the latest workflow version and release notes, please see the [changelog]().
+The workflow is written in the Workflow Description Language WDL and can be downloaded by cloning the [warp repository](https://github.com/broadinstitute/warp/tree/master) in GitHub. The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. 
+
+For the latest workflow version and release notes, please see the [changelog](https://github.com/broadinstitute/warp/blob/master/beta-pipelines/broad/somatic/single_sample/wgs/gdc_genome/GDCWholeGenomeSomaticSingleSample.changelog.md).
 
 ### Software Version Requirements
 
-* [GATK 4.1.8.0](https://github.com/broadinstitute/gatk/releases/tag/4.1.8.0)
-* Picard 2.23.8
+* GATK 4.0.7
+* Picard 2.18.11 (Custom Docker is used to run software on Cromwell 52)
 * Samtools 1.11
 * Python 3.0
 * Cromwell version support
@@ -25,49 +32,65 @@ The workflow is written in the Workflow Description Language WDL and can be down
 * Papi version support
 	* Successfully tested on Papi v2
 
-### Input Requirements and Expectations
+### Input Descriptions
 
-- Human whole genome sequencing data in unmapped BAM (uBAM) or CRAM format
-- One or more read groups, one per uBAM/CRAM file, all belonging to a single sample (SM)
-- Input uBAM/CRAM files must additionally comply with the following requirements:
-    * Filenames all have the same suffix (we use ".unmapped.bam")
-    * Files must pass validation by ValidateSamFile
-    * Reads are provided in query-sorted order
-    * All reads must have an RG tag
-- Reference genome must be Hg38 with ALT contigs
+The table below describes each of the GDC pipeline inputs. The workflow requires a **single** aligned CRAM or BAM file, or a **single** unmapped BAM (uBAM) as input.
 
+| Input name | Description | Type | 
+| --- | --- | --- |
+| input_cram | A single mapped CRAM file; alternatively input can be a mapped BAM (`input_bam`) or unmapped BAM (uBAM; `ubam`) | File |
+| input_bam | A single mapped BAM file; alternatively input can be a CRAM (`input_cram`) or uBAM (`ubam`) | File |
+| cram_ref_fasta | The reference file that was used to align the CRAM input (if used); if unspecified, the workflow will use the `ref_fasta` input file by default | File |
+| cram_ref_fasta_index | CRAM reference FASTA index if CRAM is used as workflow input | File |
+| output_map | Tab-separated file containing two columns: a list of all the read group IDs found in the input_cram (or input_bam) and a list of the desired name of the uBAMs generated for read group | File |
+| unmapped_bam_suffix | Optional string used to name the output uBAM file | String |
+| ubam | A single uBAM file; alternatively, input can be a mapped BAM (`input_bam`) or CRAM (`input_cram`) | File |
+| ref_fasta | Reference FASTA used to convert an input CRAM to BAM; if CRAM is not used, this file does not need to be specified | File | 
+| ref_fai | Reference FASTA index for the `ref_fasta` input | File |
+| ref_dict | BWA reference dictionary used for alignment| File |
+| ref_amb | BWA reference file used for alignment | File |
+| ref_ann | BWA reference file used for alignment | File |
+| ref_bwt | BWA reference file used for alignment | File |
+| ref_pac | BWA reference file used for alignment | File |
+| ref_sa | BWA reference file used for alignment | File |
 
 
 ## Workflow Tasks and Tools
 
-The [workflow](https://github.com/broadinstitute/warp/blob/develop/beta-pipelines/broad/somatic/single_sample/wgs/gdc_genome/GDCWholeGenomeSomaticSingleSample.wdl) imports a series of tasks either from the Workflow script or the Broad tasks library.
+The [workflow](https://github.com/broadinstitute/warp/blob/develop/beta-pipelines/broad/somatic/single_sample/wgs/gdc_genome/GDCWholeGenomeSomaticSingleSample.wdl) imports a series of tasks either from the Workflow script or the Broad [tasks library](https://github.com/broadinstitute/warp/tree/master/tasks/broad).
 
-| Task Name  in WDL | Tool | Software and Version | Description | 
+| Task Name in WDL | Tool | Software | Description | 
 | --- | --- | --- | --- |
-| [CramToUnmappedBams](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/cram_to_unmapped_bams/CramToUnmappedBams.wdl) | --- | SamTools and Picard | If a CRAM file is used as input, the task converts to UBAM, generates an output map that is then used to split the uBAM by readgroup. The resulting BAM is sorted by query name using Picard |
-| bam_readgroup_to_contents | --- | Samtools | Extracts all the readgroups from the BAM header and returns a WDL Array[Object] where each row is a readgroup. |
-| biobambam_bamtofastq | --- | --- | Converts the uBAMs to FASTQ|
-| emit_pe_records/emit_se_records | --- | --- | Associates the fasta file(s) generated by biobambam_bamtofastq with their respective readgroup; creates an Array of Structs to be used as input for alignment |
-| bwa_pe/ bwa_se | --- | BWA mem and Samtools | Aligns FASTQ reads to the reference genome, generating an aligned BAM file |
-| picard_markduplicates | [MarkDuplicates](https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard-) | Picard | Runs MarkDuplicates in silent mode to locate and tag duplicate reads. Outputs a tagged BAM and metrics file. | 
-| sort_and_index_markdup_bam | --- | Samtools | Sorts and indexes the BAM file; outputs the sorted BAM and index file | 
-| gatk_baserecalibrator | [BaseRecalibrator](https://gatk.broadinstitute.org/hc/en-us/articles/360036898312) | GATK | Generates recalibration table for Base Quality Score Recalibration (BQSR) | 
-| gatk_applybqsr | [ApplyBQSR](https://gatk.broadinstitute.org/hc/en-us/articles/360037055712) | GATK | Recalibrates the base qualities of the input reads based on the recalibration table produced by the BaseRecalibrator tool and outputs a recalibrated BAM file; uses the emit_original_quals parameter to write the original base qualities under the BAM OQ tag |
-| collect_insert_size_metrics | [CollectInsertSizeMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037055772) | Picard | Generates useful metrics about insert size distribution in the form of both a histogram and table (txt file) | 
+| [CramToUnmappedBams](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/cram_to_unmapped_bams/CramToUnmappedBams.wdl) | view, index, RevertSam, ValidateSamFile, SortSam | [SamTools](http://www.htslib.org/terms/) and [Picard](https://broadinstitute.github.io/picard/) | If a CRAM file is used as input, the task converts to uBAM and generates an output map that is then used to split the uBAM by readgroup. The resulting BAM is sorted by query name using Picard |
+| bam_readgroup_to_contents | view | [Samtools](http://www.htslib.org/terms/) | Extracts all the readgroups from the BAM header and returns a WDL array where each row is a readgroup. |
+| biobambam_bamtofastq | bamtofastq | [biobambam2](https://gitlab.com/german.tischler/biobambam2) | Converts the uBAMs to FASTQ |
+| emit_pe_records/emit_se_records | --- | --- | Associates the fasta file(s) generated by biobambam_bamtofastq with their respective readgroup; creates an array of structs to be used as input for alignment |
+| bwa_pe/ bwa_se | BWA mem, view | [BWA](http://bio-bwa.sourceforge.net/) and [Samtools](http://www.htslib.org/terms/) | Aligns FASTQ reads to the reference genome, generating an aligned BAM file |
+| picard_markduplicates | [MarkDuplicates](https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard-) | [Picard](https://broadinstitute.github.io/picard/) | Runs MarkDuplicates in silent mode to locate and tag duplicate reads. Outputs a tagged BAM and metrics file. | 
+| sort_and_index_markdup_bam | sort | [Samtools](http://www.htslib.org/terms/) | Sorts and indexes the BAM file; outputs the sorted BAM and index file | 
+| gatk_baserecalibrator | [BaseRecalibrator](https://gatk.broadinstitute.org/hc/en-us/articles/360036898312) | [GATK](https://software.broadinstitute.org/gatk/download/licensing.php) | Generates recalibration table for Base Quality Score Recalibration (BQSR) | 
+| gatk_applybqsr | [ApplyBQSR](https://gatk.broadinstitute.org/hc/en-us/articles/360037055712) | [GATK](https://software.broadinstitute.org/gatk/download/licensing.php) | Recalibrates the base qualities of the input reads based on the recalibration table produced by the BaseRecalibrator tool and outputs a recalibrated BAM file; uses the emit_original_quals parameter to write the original base qualities under the BAM OQ tag |
+| collect_insert_size_metrics | [CollectInsertSizeMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037055772) | [Picard](https://broadinstitute.github.io/picard/) | Generates metrics about insert size distribution in the form of both a histogram and table (txt file) | 
 
 ## Workflow Outputs
 
+| Output Name | Description | Type |
+| --- | --- | --- |
+| validation_report | Samtools validation report(s) | txt |
+| bai | Base recalibrated BAM file | BAM |
+| bai | Index file for the BAM | BAI |
+| metrics | Picard MarkDuplicates metrics | txt |
+| insert_size_metrics | Picard insert size metrics | txt |
+| insert_size_histogram_pdf | Histogram representation of insert size metrics | PDF |
 
+  
 ## Important Notes
 
 - Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
-- For help running workflows on the Google Cloud Platform or locally please
-view the following tutorial [(How to) Execute Workflows from the gatk-workflows Git Organization](https://gatk.broadinstitute.org/hc/en-us/articles/360035530952).
-- Please visit the [GATK Technical Documentation](https://gatk.broadinstitute.org/hc/en-us/categories/360002310591) site for further documentation on our workflows and tools.
-- You can access relevant reference and resource bundles in the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811).
+- Please visit the [GATK Technical Documentation](https://gatk.broadinstitute.org/hc/en-us/categories/360002310591) site for further documentation on GATK-related workflows and tools.
 
 ## Contact Us
-
+Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
 
 ## Licensing
 
