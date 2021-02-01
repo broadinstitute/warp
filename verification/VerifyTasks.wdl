@@ -146,13 +146,22 @@ task CompareBams {
   Int disk_size = ceil(bam_size * 4) + 20
 
   command {
+    set -e
+    set -o pipefail
+
     java -Xms3500m -jar /usr/picard/picard.jar \
     CompareSAMs \
           ~{test_bam} \
           ~{truth_bam} \
           O=comparison.tsv
 
-    echo $?
+    if [ $? -eq 0 ]
+    then
+       exit 0;
+    else
+       exit 1;
+    fi
+
   }
 
   runtime {
