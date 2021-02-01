@@ -9,9 +9,9 @@
   "ValidateChip.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GSA-24v1-0_A1/idats/201179310001_R01C01/201179310001_R01C01_Grn.idat",
   "ValidateChip.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GSA-24v1-0_A1/idats/201179310001_R01C01/201179310001_R01C01_Red.idat",
 
-  "ValidateChip.chip_manifest_csv_file": "gs://broad-gotc-test-storage/arrays/metadata/GSA-24v1-0_A1/GSA-24v1-0_A1.csv",
-  "ValidateChip.bead_pool_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/GSA-24v1-0_A1/GSA-24v1-0_A1.bpm",
-  "ValidateChip.cluster_file": "gs://broad-gotc-test-storage/arrays/metadata/GSA-24v1-0_A1/GSA-24v1-0_A1_ClusterFile.egt",
+  "ValidateChip.chip_manifest_csv_file": "gs://gcp-public-data--broad-references/arrays/GSA-24v1-0_A1/GSA-24v1-0_A1.csv",
+  "ValidateChip.bead_pool_manifest_file": "gs://gcp-public-data--broad-references/arrays/GSA-24v1-0_A1/GSA-24v1-0_A1.bpm",
+  "ValidateChip.cluster_file": "gs://gcp-public-data--broad-references/arrays/GSA-24v1-0_A1/GSA-24v1-0_A1_ClusterFile.egt",
 
   "ValidateChip.control_sample_vcf_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf",
   "ValidateChip.control_sample_vcf_index_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf.idx",

@@ -11,5 +11,7 @@
   "GDCWholeGenomeSomaticSingleSample.ref_fasta":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa",
   "GDCWholeGenomeSomaticSingleSample.ref_pac":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa.pac",
   "GDCWholeGenomeSomaticSingleSample.ref_sa":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa.sa",
-  "GDCWholeGenomeSomaticSingleSample.input_bam": "gs://broad-gotc-test-storage/somatic_single_sample/wgs/plumbing/bams/NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211.bam"
+  "GDCWholeGenomeSomaticSingleSample.ubam":"gs://broad-gotc-test-storage/somatic_single_sample/wgs/scientific/bams/CPT0183250007/e34fc8d9-c7d2-4546-a98a-b789b4789e3c_wgs_gdc_realn.bam",
+  "GDCWholeGenomeSomaticSingleSample.picard_markduplicates.mem": "32",
+  "GDCWholeGenomeSomaticSingleSample.picard_markduplicates.additional_disk": "20"
 }

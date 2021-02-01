@@ -9,9 +9,9 @@
   "ValidateChip.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/MEG_AllofUs_20002558X351448_A2/idats/203078500006_R01C01/203078500006_R01C01_Grn.idat",
   "ValidateChip.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/MEG_AllofUs_20002558X351448_A2/idats/203078500006_R01C01/203078500006_R01C01_Red.idat",
 
-  "ValidateChip.chip_manifest_csv_file": "gs://broad-gotc-test-storage/arrays/metadata/MEG_AllofUs_20002558X351448_A2/MEG_AllofUs_20002558X351448_A2.csv",
-  "ValidateChip.bead_pool_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/MEG_AllofUs_20002558X351448_A2/MEG_AllofUs_20002558X351448_A2.bpm",
-  "ValidateChip.cluster_file": "gs://broad-gotc-test-storage/arrays/metadata/MEG_AllofUs_20002558X351448_A2/MEG_AllofUs_A1_Gentrain_1299_edited_prevalidation_081419update.egt",
+  "ValidateChip.chip_manifest_csv_file": "gs://gcp-public-data--broad-references/arrays/MEG_AllofUs_20002558X351448_A2/MEG_AllofUs_20002558X351448_A2.csv",
+  "ValidateChip.bead_pool_manifest_file": "gs://gcp-public-data--broad-references/arrays/MEG_AllofUs_20002558X351448_A2/MEG_AllofUs_20002558X351448_A2.bpm",
+  "ValidateChip.cluster_file": "gs://gcp-public-data--broad-references/arrays/MEG_AllofUs_20002558X351448_A2/MEG_AllofUs_A1_Gentrain_1299_edited_prevalidation_081419update.egt",
 
   "ValidateChip.control_sample_vcf_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf",
   "ValidateChip.control_sample_vcf_index_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf.idx",

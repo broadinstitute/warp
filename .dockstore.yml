@@ -24,3 +24,6 @@ workflows:
   - name: WholeGenomeGermlineSingleSample
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl
+  - name: OptimusPostProcessing
+    subclass: WDL
+    primaryDescriptorPath: /projects/hca_mvp/OptimusPostProcessing.wdl
