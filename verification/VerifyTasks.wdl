@@ -150,8 +150,8 @@ task CompareBams {
     CompareSAMs \
           ~{test_bam} \
           ~{truth_bam} \
-          O=comparison.tsv \
-          LENIENT_HEADER=true
+          O=comparison.tsv
+
     echo $?
   }
 
