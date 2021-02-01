@@ -303,6 +303,12 @@ workflow CEMBA {
       monitoring_script = monitoring_script
   }
 
+  # convert VCF to ALL
+  call VCFtoALLC {
+    input:
+      vcf_input = GetMethylationSiteVC.methylation_vcf_output_name
+  }
+
   # get number of sites that have a coverage greater than 1
   call ComputeCoverageDepth {
     input:
@@ -319,6 +325,8 @@ workflow CEMBA {
 
     File methylation_site_vcf = GetMethylationSiteVCF.methylation_vcf
     File methylation_site_vcf_index = GetMethylationSiteVCF.methylation_vcf_index
+
+    File methylation_site_allc = VCFtoALLC.methylation_allc
 
     Int coverage_depth = ComputeCoverageDepth.total_depth_count
 
@@ -1049,6 +1057,9 @@ task MethylationTypeCaller {
       --input ~{bam_input} \
       --reference ~{reference_fasta} \
       --output ~{methylation_vcf_output_name}
+
+
+    python -i ~{methylation_vcf_output_name} -o ~{methylation_allc_output_name}
   >>>
 
   runtime {
@@ -1065,6 +1076,39 @@ task MethylationTypeCaller {
     File monitoring_log = "monitoring.log"
   }
 }
+
+# create a ALLC from VCF 
+task VCFtoALLC {
+    input {
+      File methylation_vcf_output_name
+      String output_base_name
+    }
+
+  # input file size
+  Float input_size = 2*size(methylation_vcf_output_name, "GB") 
+
+  # output name for VCF and its index
+  String methylation_allc_output_name = output_base_name + ".allc"
+
+  command <<<
+    set -euo pipefail
+
+    python -i ~{methylation_vcf_output_name} -o ~{methylation_allc_output_name}
+  >>>
+
+  runtime {
+    docker: "quay.io/cemba/vcftoallc:v0.0.1"
+    # if the input size is less than 1 GB adjust to min input size of 1 GB
+    disks: "local-disk " + ceil(4.5 * (if input_size < 1 then 1 else input_size)) + " HDD"
+    cpu: 1
+    memory: "3.5 GB"
+  }
+
+  output {
+    File methylation_allc = methylation_allc_output_name
+  }
+}
+
 
 # get the number of sites the have coverage of 1 or more
 task ComputeCoverageDepth {
