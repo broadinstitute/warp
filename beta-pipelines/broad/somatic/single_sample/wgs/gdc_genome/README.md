@@ -77,7 +77,7 @@ The [workflow](https://github.com/broadinstitute/warp/blob/develop/beta-pipeline
 | Output Name | Description | Type |
 | --- | --- | --- |
 | validation_report | Samtools validation report(s) | txt |
-| bai | Base recalibrated BAM file | BAM |
+| bam | Base recalibrated BAM file | BAM |
 | bai | Index file for the BAM | BAI |
 | metrics | Picard MarkDuplicates metrics | txt |
 | insert_size_metrics | Picard insert size metrics | txt |
@@ -102,5 +102,4 @@ The workflow script is released under the **WDL open source code license (BSD-3)
 - [BWA](http://bio-bwa.sourceforge.net/bwa.shtml#13)
 - [Picard](https://broadinstitute.github.io/picard/)
 - [Samtools](http://www.htslib.org/terms/)
-
 
