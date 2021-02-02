@@ -9,7 +9,7 @@ The GDC Whole Genome Somatic Single Sample (abbreviated GDC here) pipeline is th
 
 A high-level overview of the pipeline in addition to tool parameters are available on the [GDC Documentation site](https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/DNA_Seq_Variant_Calling_Pipeline/). 
 
-Overall, the pipeline converts reads (CRAM or BAM) to FASTQ and (re)aligns them to the latest human reference genome. Each read group is aligned separately. Read group alignments that belong to a single sample are then merged and duplicate reads are flagged for downstream variant calling. 
+Overall, the pipeline converts reads (CRAM or BAM) to FASTQ and (re)aligns them to the latest human reference genome (see [Reference Genome](#reference-genome) section below). Each read group is aligned separately. Read group alignments that belong to a single sample are then merged and duplicate reads are flagged for downstream variant calling. 
 
 
 ## Set-up
@@ -58,6 +58,12 @@ The table below describes each of the GDC pipeline inputs. The workflow requires
 | ref_pac | BWA reference file used for alignment | File |
 | ref_sa | BWA reference file used for alignment | File |
 
+### GDC Reference Genome
+The GDC uses the human reference genome GRCh38.d1.vd1 for all data processing. Unlike the GRCh38 reference used for the majority WARP pipelines, the GDC reference includes decoy viral sequences for ten types of human viral genomes. You can learn more about the reference from the [GDC documentation](https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/DNA_Seq_Variant_Calling_Pipeline/#reference-genome). 
+
+The reference files required for the GDC workflow are hosted in a [GDC public Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0/gdc). 
+
+ 
 
 ## Workflow Tasks and Tools
 
@@ -81,11 +87,11 @@ The [workflow](https://github.com/broadinstitute/warp/blob/develop/beta-pipeline
 
 | Output Name | Description | Type |
 | --- | --- | --- |
-| validation_report | Samtools validation report(s) | txt |
+| validation_report | Samtools validation report(s) | TXT |
 | bam | Base recalibrated BAM file | BAM |
 | bai | Index file for the BAM | BAI |
-| md_metrics | Picard MarkDuplicates metrics | txt |
-| insert_size_metrics | Picard insert size metrics | txt |
+| md_metrics | Picard MarkDuplicates metrics | TXT |
+| insert_size_metrics | Picard insert size metrics | TXT |
 | insert_size_histogram_pdf | Histogram representation of insert size metrics | PDF |
 | contamination | Value indicating the fraction contamination | float |
 
