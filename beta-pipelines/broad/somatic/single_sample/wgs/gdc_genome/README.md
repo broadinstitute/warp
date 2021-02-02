@@ -87,7 +87,8 @@ The [workflow](https://github.com/broadinstitute/warp/blob/develop/beta-pipeline
 
 | Output Name | Description | Type |
 | --- | --- | --- |
-| validation_report | Samtools validation report(s) | TXT |
+| validation_report (optional)| Samtools validation report(s); returned if an aligned CRAM or BAM file is used as workflow input  | TXT |
+| unmapped_bams (optional) | uBAM file only returned if an aligned CRAM or BAM is used as workflow input | BAM |
 | bam | Base recalibrated BAM file | BAM |
 | bai | Index file for the BAM | BAI |
 | md_metrics | Picard MarkDuplicates metrics | TXT |
