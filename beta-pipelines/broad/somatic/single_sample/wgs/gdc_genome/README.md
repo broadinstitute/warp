@@ -59,7 +59,7 @@ The table below describes each of the GDC pipeline inputs. The workflow requires
 | ref_sa | BWA reference file used for alignment | File |
 
 ### GDC Reference Genome
-The GDC uses the human reference genome GRCh38.d1.vd1 for all data processing. Unlike the GRCh38 reference used for the majority WARP pipelines, the GDC reference includes decoy viral sequences for ten types of human viral genomes. You can learn more about the reference from the [GDC documentation](https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/DNA_Seq_Variant_Calling_Pipeline/#reference-genome). 
+The GDC uses the human reference genome GRCh38.d1.vd1 for all data processing. Unlike the GRCh38 reference used by WARP pipelines for production, the GDC reference includes decoy viral sequences for ten types of human viral genomes. You can learn more about the reference from the [GDC documentation](https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/DNA_Seq_Variant_Calling_Pipeline/#reference-genome). 
 
 The reference files required for the GDC workflow are hosted in a [GDC public Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0/gdc). 
 
