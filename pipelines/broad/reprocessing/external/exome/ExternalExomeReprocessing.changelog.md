@@ -1,5 +1,5 @@
 # 2.4.2
-2021-01-26
+2021-02-02
 
 * Minor changes to support CramToUnmappedBams as an independent versioned pipeline
     * Changed path of the relative import
