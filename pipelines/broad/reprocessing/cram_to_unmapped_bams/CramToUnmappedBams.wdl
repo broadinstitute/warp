@@ -206,6 +206,7 @@ task GenerateOutputMap {
 task SplitUpOutputMapFile {
   input {
     File read_group_map_file
+    Int disk_size = 10
     Int memory = 4
   }
 
@@ -219,6 +220,7 @@ task SplitUpOutputMapFile {
 
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory} GiB"
   }
 
@@ -292,10 +294,10 @@ task SortSam {
     File input_bam
     String output_bam_filename
     Int memory = 8
+    Float sort_sam_disk_multiplier = 6
   }
   # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
   # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
-  Float sort_sam_disk_multiplier = 6
   Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
 
   command <<<
