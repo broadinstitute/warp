@@ -9,7 +9,7 @@ The GDC Whole Genome Somatic Single Sample (abbreviated GDC here) pipeline is th
 
 A high-level overview of the pipeline in addition to tool parameters are available on the [GDC Documentation site](https://docs.gdc.cancer.gov/Data/Bioinformatics_Pipelines/DNA_Seq_Variant_Calling_Pipeline/). 
 
-Overall, the pipeline converts reads (CRAM or BAM) to FASTQ and (re)aligns them to the latest human reference genome (see [Reference Genome](#reference-genome) section below). Each read group is aligned separately. Read group alignments that belong to a single sample are then merged and duplicate reads are flagged for downstream variant calling. 
+Overall, the pipeline converts reads (CRAM or BAM) to FASTQ and (re)aligns them to the latest human reference genome (see the [GDC Reference Genome](#gdc-reference-genome) section below). Each read group is aligned separately. Read group alignments that belong to a single sample are then merged and duplicate reads are flagged for downstream variant calling. 
 
 
 ## Set-up
