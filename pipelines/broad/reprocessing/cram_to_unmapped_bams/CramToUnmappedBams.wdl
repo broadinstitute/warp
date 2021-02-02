@@ -101,7 +101,7 @@ task RevertSam {
     File input_bam
     String output_bam_filename
     Int disk_size
-    Int memory = 4
+    Int memory = 3
   }
 
   command <<<
@@ -140,7 +140,7 @@ task CramToBam {
     File cram_file
     String output_basename
     Int disk_size
-    Int memory = 8
+    Int memory = 7
   }
 
   command <<<
@@ -174,7 +174,7 @@ task GenerateOutputMap {
     File input_bam
     String unmapped_bam_suffix
     Int disk_size
-    Int memory = 4
+    Int memory = 3
   }
 
   command <<<
@@ -207,7 +207,7 @@ task SplitUpOutputMapFile {
   input {
     File read_group_map_file
     Int disk_size = 10
-    Int memory = 4
+    Int memory = 3
   }
 
   command <<<
@@ -263,7 +263,7 @@ task ValidateSamFile {
     File input_bam
     String report_filename
     Int disk_size
-    Int memory = 4
+    Int memory = 3
   }
 
   command <<<
@@ -293,7 +293,7 @@ task SortSam {
   input {
     File input_bam
     String output_bam_filename
-    Int memory = 8
+    Int memory = 7
     Float sort_sam_disk_multiplier = 6
   }
   # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
