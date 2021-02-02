@@ -101,6 +101,7 @@ task RevertSam {
     File input_bam
     String output_bam_filename
     Int disk_size
+    Int memory = 4
   }
 
   command <<<
@@ -121,7 +122,7 @@ task RevertSam {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "3.5 GiB"
+    memory: "~{memory} GiB"
     preemptible: 3
   }
 
@@ -139,6 +140,7 @@ task CramToBam {
     File cram_file
     String output_basename
     Int disk_size
+    Int memory = 8
   }
 
   command <<<
@@ -156,7 +158,7 @@ task CramToBam {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
     cpu: 3
-    memory: "7.5 GiB"
+    memory: "~{memory} GiB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: 3
   }
@@ -172,6 +174,7 @@ task GenerateOutputMap {
     File input_bam
     String unmapped_bam_suffix
     Int disk_size
+    Int memory = 4
   }
 
   command <<<
@@ -191,7 +194,7 @@ task GenerateOutputMap {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "3.75 GiB"
+    memory: "~{memory} GiB"
     preemptible: 3
   }
 
@@ -203,6 +206,7 @@ task GenerateOutputMap {
 task SplitUpOutputMapFile {
   input {
     File read_group_map_file
+    Int memory = 4
   }
 
   command <<<
@@ -215,7 +219,7 @@ task SplitUpOutputMapFile {
 
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    memory: "3.75 GiB"
+    memory: "~{memory} GiB"
   }
 
   output {
@@ -229,6 +233,7 @@ task SplitOutUbamByReadGroup {
     File input_bam
     File rg_to_ubam_file
     Int disk_size
+    Int memory = 30
   }
 
   Array[Array[String]] tmp = read_tsv(rg_to_ubam_file)
@@ -246,7 +251,7 @@ task SplitOutUbamByReadGroup {
     docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
     cpu: 2
     disks: "local-disk " + disk_size + " HDD"
-    memory: "30 GiB"
+    memory: "~{memory} GiB"
     preemptible: 3
   }
 }
@@ -256,6 +261,7 @@ task ValidateSamFile {
     File input_bam
     String report_filename
     Int disk_size
+    Int memory = 4
   }
 
   command <<<
@@ -272,7 +278,7 @@ task ValidateSamFile {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "3.75 GiB"
+    memory: "~{memory} GiB"
     preemptible: 3
   }
 
@@ -285,6 +291,7 @@ task SortSam {
   input {
     File input_bam
     String output_bam_filename
+    Int memory = 8
   }
   # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
   # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
@@ -304,7 +311,7 @@ task SortSam {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "7.5 GiB"
+    memory: "~{memory} GiB"
     preemptible: 3
   }
 
