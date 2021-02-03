@@ -1,0 +1,8 @@
+{
+  "CramToUnmappedBams.input_cram": "gs://broad-gotc-test-storage/germline_single_sample/exome/scientific/truth/{TRUTH_BRANCH}/C1963.CHMI_CHMI3_Nex1/CHMI_CHMI3_Nex1.cram",
+  "CramToUnmappedBams.output_map": "gs://broad-gotc-test-storage/germline_single_sample/exome/scientific/bams/C1963.CHMI_CHMI3_Nex1/readgroupid_to_bamfilename_map.txt",
+  "CramToUnmappedBams.base_file_name": "C1963.CHMI_CHMI3_Nex1.Exome",
+  "CramToUnmappedBams.unmapped_bam_suffix": ".unmapped.bam",
+  "CramToUnmappedBams.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "CramToUnmappedBams.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai"
+}

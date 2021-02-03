@@ -1,12 +1,12 @@
 version 1.0
 
 import "../../../../pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl" as ExomeGermlineSingleSample
-import "../../../../tasks/broad/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
+import "../../../../pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
 import "../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 workflow ExomeReprocessing {
 
-  String pipeline_version = "2.4.1"
+  String pipeline_version = "2.4.2"
 
   input {
     File? input_cram
@@ -40,6 +40,7 @@ workflow ExomeReprocessing {
       ref_fasta = select_first([cram_ref_fasta, references.reference_fasta.ref_fasta]),
       ref_fasta_index = select_first([cram_ref_fasta_index, references.reference_fasta.ref_fasta_index]),
       output_map = output_map,
+      base_file_name = base_file_name,
       unmapped_bam_suffix = unmapped_bam_suffix
   }
 
