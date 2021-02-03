@@ -34,17 +34,19 @@ For the latest workflow version and release notes, please see the [changelog](ht
 
 ### Input Descriptions
 
-The table below describes each of the GDC pipeline inputs. The workflow requires a **single** aligned CRAM or BAM file, or a **single** unmapped BAM (uBAM) as input.
+The table below describes each of the GDC pipeline inputs. The workflow requires a **single** aligned CRAM or BAM file, or a **single** unmapped BAM (uBAM) as input. 
+
+For examples of how to specify each input as well as cloud locations for different example input files, see the [input configuration file (JSON)](https://github.com/broadinstitute/warp/blob/master/beta-pipelines/broad/somatic/single_sample/wgs/gdc_genome/input_files/GDCWholeGenomeSomaticSingleSample.inputs.json).
 
 | Input name | Description | Type | 
 | --- | --- | --- |
-| input_cram (optional)| A single mapped CRAM file; alternatively input can be a mapped BAM (`input_bam`) or unmapped BAM (uBAM; `ubam`) | File |
+| input_cram (optional)| A single mapped CRAM file; alternatively input can be a mapped BAM (`input_bam`) or unmapped BAM (uBAM; `ubam`). If using a CRAM file aligned to a reference different than the reference chosen for the GDC workflow (the `ref_fasta` input), than you must specify both the `cram_ref_fasta` and the `cram_ref_fasta_index` inputs | File |
 | input_bam (optional)| A single mapped BAM file; alternatively input can be a CRAM (`input_cram`) or uBAM (`ubam`) | File |
 | cram_ref_fasta (optional)| The reference file that was used to align the CRAM input (if used); if unspecified, the workflow will use the `ref_fasta` input file by default | File |
 | cram_ref_fasta_index (optional) | CRAM reference FASTA index for the `cram_ref_fata` if CRAM is used as workflow input | File |
 | output_map (optional)| Tab-separated file containing two columns: a list of all the read group IDs found in the input_cram (or input_bam) and a list of the desired name of the uBAMs generated for read group | File |
 | unmapped_bam_suffix (optional) | Optional string used to name the output uBAM file | String |
-| ubam | A single uBAM file; alternatively, input can be a mapped BAM (`input_bam`) or CRAM (`input_cram`) | File |
+| ubam (optional)| A single uBAM file; alternatively, input can be a mapped BAM (`input_bam`) or CRAM (`input_cram`) | File |
 | contamination_vcf | VCF file of common variant sites that is used for the check_contamination task | File |
 | contamination_vcf_index | Index file for the `contamination_vcf` input | File |
 | dbsnp_vcf | VCF file of known variation sites that can be used to exclude these sites from the analysis; used for the gatk_baserecalibrator task | File |
@@ -87,7 +89,7 @@ The [workflow](https://github.com/broadinstitute/warp/blob/develop/beta-pipeline
 
 | Output Name | Description | Type |
 | --- | --- | --- |
-| validation_report (optional)| Samtools validation report(s); returned if an aligned CRAM or BAM file is used as workflow input  | TXT |
+| validation_report (optional)| Samtools validation report(s); only returned if an aligned CRAM or BAM file is used as workflow input  | TXT |
 | unmapped_bams (optional) | uBAM file only returned if an aligned CRAM or BAM is used as workflow input | BAM |
 | bam | Base recalibrated BAM file | BAM |
 | bai | Index file for the BAM | BAI |
