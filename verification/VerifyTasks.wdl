@@ -153,7 +153,8 @@ task CompareBams {
     CompareSAMs \
           ~{test_bam} \
           ~{truth_bam} \
-          O=comparison.tsv
+          O=comparison.tsv \
+          LENIENT_HEADER=true
 
   }
 
