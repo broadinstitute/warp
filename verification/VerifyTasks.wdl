@@ -153,15 +153,7 @@ task CompareBams {
     CompareSAMs \
           ~{test_bam} \
           ~{truth_bam} \
-          O=comparison.tsv \
-          LENIENT_HEADER=true
-
-    if [ $? -eq 0 ]
-    then
-       exit 0;
-    else
-       exit 1;
-    fi
+          O=comparison.tsv
 
   }
 
