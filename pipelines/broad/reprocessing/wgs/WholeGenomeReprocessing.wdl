@@ -1,12 +1,12 @@
 version 1.0
 
 import "../../../../pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl" as WholeGenomeGermlineSingleSample
-import "../../../../tasks/broad/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
+import "../../../../pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
 import "../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 workflow WholeGenomeReprocessing {
 
-  String pipeline_version = "2.3.1"
+  String pipeline_version = "2.3.2"
 
   input {
     File? input_cram
@@ -37,6 +37,7 @@ workflow WholeGenomeReprocessing {
       input_bam = input_bam,
       ref_fasta = select_first([cram_ref_fasta, references.reference_fasta.ref_fasta]),
       ref_fasta_index = select_first([cram_ref_fasta_index, references.reference_fasta.ref_fasta_index]),
+      base_file_name = base_file_name,
       output_map = output_map
   }
 

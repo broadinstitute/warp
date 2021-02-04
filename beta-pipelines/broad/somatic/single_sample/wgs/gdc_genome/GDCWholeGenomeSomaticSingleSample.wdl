@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../../../../tasks/broad/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
+import "../../../../../../pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
 import "../../../../../../tasks/broad/CheckContaminationSomatic.wdl" as CheckContamination
 
 struct FastqPairRecord {
@@ -600,6 +600,7 @@ workflow GDCWholeGenomeSomaticSingleSample {
         File? cram_ref_fasta_index
         File? output_map
         String? unmapped_bam_suffix
+        String base_file_name
 
         File? ubam
 
@@ -629,6 +630,7 @@ workflow GDCWholeGenomeSomaticSingleSample {
                  ref_fasta = select_first([cram_ref_fasta, ref_fasta]),
                  ref_fasta_index = select_first([cram_ref_fasta_index, ref_fai]),
                  output_map = output_map,
+                 base_file_name = base_file_name,
                  unmapped_bam_suffix = unmapped_bam_suffix
         }
     }
