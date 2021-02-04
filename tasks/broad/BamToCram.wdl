@@ -32,15 +32,15 @@ workflow BamToCram {
       preemptible_tries = agg_preemptible_tries
   }
 
-#  # Check whether the data has massively high duplication or chimerism rates
-#  call QC.CheckPreValidation as CheckPreValidation {
-#    input:
-#      duplication_metrics = duplication_metrics,
-#      chimerism_metrics = chimerism_metrics,
-#      max_duplication_in_reasonable_sample = max_duplication_in_reasonable_sample,
-#      max_chimerism_in_reasonable_sample = max_chimerism_in_reasonable_sample,
-#      preemptible_tries = agg_preemptible_tries
-# }
+  # Check whether the data has massively high duplication or chimerism rates
+  call QC.CheckPreValidation as CheckPreValidation {
+    input:
+      duplication_metrics = duplication_metrics,
+      chimerism_metrics = chimerism_metrics,
+      max_duplication_in_reasonable_sample = max_duplication_in_reasonable_sample,
+      max_chimerism_in_reasonable_sample = max_chimerism_in_reasonable_sample,
+      preemptible_tries = agg_preemptible_tries
+ }
 
   # Validate the CRAM file
   call QC.ValidateSamFile as ValidateCram {
@@ -53,7 +53,7 @@ workflow BamToCram {
       ref_fasta_index = ref_fasta_index,
       ignore = ["MISSING_TAG_NM"],
       max_output = 1000000000,
-      #is_outlier_data = CheckPreValidation.is_outlier_data,
+      is_outlier_data = CheckPreValidation.is_outlier_data,
       preemptible_tries = agg_preemptible_tries
   }
 
