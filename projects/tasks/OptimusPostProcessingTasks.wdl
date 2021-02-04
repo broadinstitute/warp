@@ -102,8 +102,8 @@ task GetInputMetadata {
 
     String docker = "quay.io/humancellatlas/hca_post_processing:1.12"
 
-    Int memory = 7
-    Int disk = 30
+    Int memory = ceil((size(analysis_file_jsons, "G") * 1.5)) + 5
+    Int disk = ceil((size(analysis_file_jsons, "G") * 2)) + 20
   }
   command {
     python3 /tools/create_input_metadata_json.py \
