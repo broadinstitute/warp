@@ -2,7 +2,10 @@ version 1.0
 
 import "../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 
-workflow CallsetWithWdl {
+workflow JointGenotyping {
+
+  String pipeline_version = "2.0.0"
+
   input {
     String sample_name_map
     String? override_vcf_header_file
