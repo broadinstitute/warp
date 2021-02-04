@@ -1,3 +1,8 @@
+# 2.0.0
+2020-02-04
+
+Using Hail to instead of GenomicsDB 
+
 # 1.5.1
 2020-12-16
 
