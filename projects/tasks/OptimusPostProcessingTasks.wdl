@@ -65,10 +65,10 @@ task MergeLooms {
     String project_name
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:1.12"
+    String docker = "quay.io/humancellatlas/hca_post_processing:2.0"
 
-    Int memory = ceil((size(library_looms, "G") * 1.5)) + 10
-    Int disk = ceil((size(library_looms, "G") * 2)) + 20
+    Int memory = ceil(size(library_looms, "G"))+ 10
+    Int disk = ceil((size(library_looms, "G") * 4)) + 50
   }
 
   command {
@@ -100,9 +100,9 @@ task GetInputMetadata {
     Array[File] analysis_file_jsons
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:1.12"
+    String docker = "quay.io/humancellatlas/hca_post_processing:2.0"
 
-    Int memory = ceil((size(analysis_file_jsons, "G") * 1.5)) + 3
+    Int memory = ceil(size(analysis_file_jsons, "G")) + 3
     Int disk = ceil((size(analysis_file_jsons, "G") * 3)) + 20
   }
   command {
@@ -134,7 +134,7 @@ task CreateAdapterJson {
 
     Int memory = ceil((size(project_loom, "G") * 1.5)) + 5
     Int disk = ceil((size(project_loom, "G") * 3)) + 20
-    String docker ="quay.io/humancellatlas/hca_post_processing:1.12"
+    String docker ="quay.io/humancellatlas/hca_post_processing:2.0"
 
   }
 
