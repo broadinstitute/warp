@@ -16,6 +16,7 @@ object WorkflowTestType extends Enum[WorkflowTestType] {
   case object CramToUnmappedBams extends WorkflowTestType
   case object Dummy extends WorkflowTestType
   case object ExternalReprocessing extends WorkflowTestType
+  case object GDCWholeGenomeSomaticSingleSample extends WorkflowTestType
   case object JointGenotyping extends WorkflowTestType
   case object GenotypeConcordance extends WorkflowTestType
   case object GermlineSingleSample extends WorkflowTestType
