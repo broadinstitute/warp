@@ -1,6 +1,52 @@
 import argparse
 import loompy
 import numpy as np
+import scipy as sc
+
+
+def convert_to_sparse_matrix(count_matrix, nrows, ncols):
+    # read loom file expression counts and add it to the expression_counts dataset
+    exp_counts = np.load(count_matrix)
+    # now convert it back to a csr_matrix object
+    csr_exp_counts = sc.sparse.csr_matrix(
+        (exp_counts["data"], exp_counts["indices"], exp_counts["indptr"]),
+        shape=exp_counts["shape"],
+    )
+
+    expr_sp = sc.sparse.coo_matrix((nrows, ncols), np.float32)
+
+    xcoord = []
+    ycoord = []
+    value = []
+
+    chunk_row_size = 10000
+    chunk_col_size = 10000
+
+    for i in range(0, nrows, chunk_row_size):
+        for j in range(0, ncols, chunk_col_size):
+            p = chunk_row_size
+            if i + chunk_row_size > nrows:
+                p = nrows - 1
+            q = chunk_col_size
+            if j + chunk_col_size > ncols:
+                q = ncols - j
+            expr_sub_row_coo = sc.sparse.coo_matrix(csr_exp_counts[i:i + p, j:j + q].toarray())
+            for k in range(0, expr_sub_row_coo.data.shape[0]):
+                xcoord.append(expr_sub_row_coo.row[k] + i)
+                ycoord.append(expr_sub_row_coo.col[k] + j)
+                value.append(expr_sub_row_coo.data[k])
+
+    xcoord = np.asarray(xcoord)
+    ycoord = np.asarray(ycoord)
+    value = np.asarray(value)
+
+    expr_sp_t = sc.sparse.coo_matrix((value, (ycoord, xcoord)), shape=(expr_sp.shape[1], expr_sp.shape[0]))
+
+    del xcoord
+    del ycoord
+    del value
+
+    return expr_sp_t
 
 
 def main():
@@ -60,7 +106,7 @@ def combine_loom_files(loom_file_list, library, species, organ, project_id, proj
     input_id_list = []
     input_name_list = []
 
-    with loompy.new(output_loom_file) as dsout:
+    with loompy.new("intermediate.loom") as dsout:
         for i in range(len(loom_file_list)):
             loom_file = loom_file_list[i]
             with loompy.connect(loom_file) as ds:
@@ -86,6 +132,24 @@ def combine_loom_files(loom_file_list, library, species, organ, project_id, proj
                     dsout.add_columns(view.layers, col_attrs=view.ca, row_attrs=view.ra)
 
     # add global attributes for this file to the running list of global attributes
+    ds = loompy.connect("intermediate.loom")
+
+    # Grab col attributes and row attributes from the merged matrix
+    row_attrs = ds.ra[:]
+    col_attrs = ds.ca[:]
+
+    # Grab count matrix from merged matirx
+    count_matrix = ds[:, :]
+    nrows, ncols = ds.shape
+    ds.close()
+
+    # Convert the count matirx to a sparse matrix
+    sparse_matrix = convert_to_sparse_matrix(count_matrix, nrows, ncols)
+
+    # Write out a new loom file with the sparse matrix
+    loompy.create(output_loom_file, sparse_matrix, row_attrs, col_attrs)
+
+    # add the global atributes to the loom file
     ds = loompy.connect(output_loom_file)
 
     ds.attrs["library_preparation_protocol.library_construction_approach"] = library
