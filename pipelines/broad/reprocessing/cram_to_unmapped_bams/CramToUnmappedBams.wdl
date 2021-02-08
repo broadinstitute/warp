@@ -101,10 +101,10 @@ task RevertSam {
     File input_bam
     String output_bam_filename
     Int disk_size
-    Int memory = 3
+    Int memory_in_MiB = 3000
   }
 
-  Int java_mem = (memory - 1) * 1000
+  Int java_mem = memory_in_MiB - 1000
 
   command <<<
     java -Xms~{java_mem}m -jar /usr/picard/picard.jar \
@@ -124,7 +124,7 @@ task RevertSam {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "~{memory} GiB"
+    memory: "~{memory_in_MiB} MiB"
     preemptible: 3
   }
 
@@ -142,7 +142,7 @@ task CramToBam {
     File cram_file
     String output_basename
     Int disk_size
-    Int memory = 7
+    Int memory_in_MiB = 7000
   }
 
   command <<<
@@ -160,7 +160,7 @@ task CramToBam {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
     cpu: 3
-    memory: "~{memory} GiB"
+    memory: "~{memory_in_MiB} MiB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: 3
   }
@@ -176,7 +176,7 @@ task GenerateOutputMap {
     File input_bam
     String unmapped_bam_suffix
     Int disk_size
-    Int memory = 3
+    Int memory_in_MiB = 3000
   }
 
   command <<<
@@ -196,7 +196,7 @@ task GenerateOutputMap {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "~{memory} GiB"
+    memory: "~{memory_in_MiB} MiB"
     preemptible: 3
   }
 
@@ -209,7 +209,7 @@ task SplitUpOutputMapFile {
   input {
     File read_group_map_file
     Int disk_size = 10
-    Int memory = 3
+    Int memory_in_MiB = 3000
   }
 
   command <<<
@@ -223,7 +223,7 @@ task SplitUpOutputMapFile {
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "~{memory} GiB"
+    memory: "~{memory_in_MiB} MiB"
   }
 
   output {
@@ -237,7 +237,7 @@ task SplitOutUbamByReadGroup {
     File input_bam
     File rg_to_ubam_file
     Int disk_size
-    Int memory = 30
+    Int memory_in_MiB = 30000
   }
 
   Array[Array[String]] tmp = read_tsv(rg_to_ubam_file)
@@ -255,7 +255,7 @@ task SplitOutUbamByReadGroup {
     docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
     cpu: 2
     disks: "local-disk " + disk_size + " HDD"
-    memory: "~{memory} GiB"
+    memory: "~{memory_in_MiB} MiB"
     preemptible: 3
   }
 }
@@ -265,10 +265,10 @@ task ValidateSamFile {
     File input_bam
     String report_filename
     Int disk_size
-    Int memory = 3
+    Int memory_in_MiB = 3000
   }
 
-  Int java_mem = (memory - 1) * 1000
+  Int java_mem = memory_in_MiB - 1000
 
   command <<<
 
@@ -284,7 +284,7 @@ task ValidateSamFile {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "~{memory} GiB"
+    memory: "~{memory_in_MiB} MiB"
     preemptible: 3
   }
 
@@ -297,13 +297,13 @@ task SortSam {
   input {
     File input_bam
     String output_bam_filename
-    Int memory = 7
+    Int memory_in_MiB = 7000
     Float sort_sam_disk_multiplier = 6
   }
   # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
   # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
   Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
-  Int java_mem = (memory - 1) * 1000
+  Int java_mem = memory_in_MiB - 1000
 
   command <<<
     java -Xms~{java_mem}m -jar /usr/picard/picard.jar \
@@ -318,7 +318,7 @@ task SortSam {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "~{memory} GiB"
+    memory: "~{memory_in_MiB} MiB"
     preemptible: 3
   }
 
