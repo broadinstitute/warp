@@ -42,14 +42,15 @@ def main():
 
     args = parser.parse_args()
 
-    combine_loom_files(loom_file_list = args.input_loom_files,
-                             library = ", ".join(set(args.library)),
-                             species = ", ".join(set(args.species)),
-                             organ = ", ".join(set(args.organ)),
-                             project_id = args.project_id,
-                             project_name = args.project_name,
-                             output_loom_file = args.output_loom_file
-                            )
+    combine_loom_files(loom_file_list=args.input_loom_files,
+                       library=", ".join(set(args.library)),
+                       species=", ".join(set(args.species)),
+                       organ=", ".join(set(args.organ)),
+                       project_id=args.project_id,
+                       project_name=args.project_name,
+                       output_loom_file=args.output_loom_file
+                       )
+
 
 def combine_loom_files(loom_file_list, library, species, organ, project_id, project_name, output_loom_file):
     expression_data_type_list = []
@@ -60,7 +61,7 @@ def combine_loom_files(loom_file_list, library, species, organ, project_id, proj
     input_id_list = []
     input_name_list = []
 
-    with loompy.new(output_loom_file) as dsout:
+    with loompy.new("intermediate.loom") as dsout:
         for i in range(len(loom_file_list)):
             loom_file = loom_file_list[i]
             with loompy.connect(loom_file) as ds:
@@ -86,6 +87,18 @@ def combine_loom_files(loom_file_list, library, species, organ, project_id, proj
                     dsout.add_columns(view.layers, col_attrs=view.ca, row_attrs=view.ra)
 
     # add global attributes for this file to the running list of global attributes
+    ds = loompy.connect("intermediate.loom")
+
+    row_attrs = ds.ra[:]
+    col_attrs = ds.ca[:]
+    sp = ds.sparse()
+
+    # Write out a new loom file with the sparse matrix
+    loompy.create(output_loom_file, sp, row_attrs, col_attrs)
+
+    ds.close()
+
+    # add the global atributes to the loom file
     ds = loompy.connect(output_loom_file)
 
     ds.attrs["library_preparation_protocol.library_construction_approach"] = library
