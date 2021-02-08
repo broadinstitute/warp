@@ -9,7 +9,7 @@ version 1.0
 # If the file is not provided, the output names of the unmapped bams will be the read_group_id<unmapped_bam_suffix>
 workflow CramToUnmappedBams {
 
-  String pipeline_version = "1.0.0"
+  String pipeline_version = "1.0.1"
 
   input {
     File? input_cram
