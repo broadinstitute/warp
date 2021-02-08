@@ -1,43 +1,20 @@
 version 1.0
 
-import "../verification/VerifyGermlineSingleSample.wdl" as VerifyGermlineSingleSample
 
-workflow VerifyReprocessing {
+workflow VerifyCramToUnmappedBams {
 
   input {
     Array[BamPair] bam_pairs
-
-    Array[File] truth_metrics
-    Array[File] test_metrics
-
-    File truth_cram
-    File truth_crai
-    File test_cram
-    File test_crai
-
-    File truth_gvcf
-    File test_gvcf
   }
 
   scatter(pair in bam_pairs) {
-    call CompareReprocessedBams {
+    call CompareBams {
       input:
         test_bam = pair.test_bam,
         truth_bam = pair.truth_bam
     }
   }
 
-  call VerifyGermlineSingleSample.VerifyGermlineSingleSample {
-    input:
-      truth_metrics = truth_metrics,
-      test_metrics = test_metrics,
-      truth_cram = truth_cram,
-      truth_crai = truth_crai,
-      test_cram = test_cram,
-      test_crai = test_crai,
-      truth_gvcf = truth_gvcf,
-      test_gvcf = test_gvcf
-  }
   meta {
     allowNestedInputs: true
   }
@@ -48,7 +25,7 @@ struct BamPair {
   File truth_bam
 }
 
-task CompareReprocessedBams {
+task CompareBams {
 
   input {
     File test_bam
