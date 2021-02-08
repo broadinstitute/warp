@@ -104,8 +104,10 @@ task RevertSam {
     Int memory = 3
   }
 
+  Int java_mem = (memory - 1) * 1000
+
   command <<<
-    java -Xms3500m -jar /usr/picard/picard.jar \
+    java -Xms~{java_mem}m -jar /usr/picard/picard.jar \
     RevertSam \
     --INPUT ~{input_bam} \
     --OUTPUT ~{output_bam_filename} \
@@ -266,9 +268,11 @@ task ValidateSamFile {
     Int memory = 3
   }
 
+  Int java_mem = (memory - 1) * 1000
+
   command <<<
 
-    java -Xms3500m -jar /usr/picard/picard.jar \
+    java -Xms~{java_mem}m -jar /usr/picard/picard.jar \
       ValidateSamFile \
       --INPUT ~{input_bam} \
       --OUTPUT ~{report_filename} \
@@ -299,9 +303,10 @@ task SortSam {
   # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
   # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
   Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
+  Int java_mem = (memory - 1) * 1000
 
   command <<<
-    java -Xms7g -jar /usr/picard/picard.jar \
+    java -Xms~{java_mem}m -jar /usr/picard/picard.jar \
     SortSam \
     --INPUT ~{input_bam} \
     --OUTPUT ~{output_bam_filename} \
