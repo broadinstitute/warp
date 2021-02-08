@@ -15,6 +15,7 @@ import org.broadinstitute.dsp.pipelines.batch.{
 import org.broadinstitute.dsp.pipelines.commandline.CromwellEnvironment
 import org.broadinstitute.dsp.pipelines.config._
 import org.broadinstitute.dsp.pipelines.inputs.ReprocessingInputs
+import org.broadinstitute.dsp.pipelines.tester.CromwellWorkflowTester.WarpGitHash
 
 import scala.concurrent.Future
 
@@ -71,7 +72,7 @@ class ExternalReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
     val optionsJson = defaultOptions ++ environment.environmentOptions
 
     parse(
-      (releaseDir / workflowName / s"$workflowName.options.json").contentAsString)
+      (releaseDir / workflowName / s"${workflowName}_${WarpGitHash}.options.json").contentAsString)
       .fold(
         e => throw new RuntimeException("Could not create options json", e),
         _.deepMerge(Json.obj(optionsJson: _*)).noSpaces

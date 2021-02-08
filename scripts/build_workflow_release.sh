@@ -23,7 +23,7 @@ function deploy_dependencies() {
     for file in $(find ${ZIP_DIRS[@]} -type f -name '*.wdl'); do
       flattened_name=$(basename ${file})
       sed -E 's/import "(.*)\/(.*\.wdl)"/import "\2"/g' ${file} > ${working_dir}/${flattened_name}
-      zip -u -j ${target_dir}/${versioned_dependencies_zip} ${working_dir}/${flattened_name}
+      zip -u -j -v ${target_dir}/${versioned_dependencies_zip} ${working_dir}/${flattened_name}
     done
     rm -rf ${working_dir}
   fi
