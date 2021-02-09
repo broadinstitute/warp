@@ -306,7 +306,7 @@ workflow CEMBA {
   # convert VCF to ALL
   call VCFtoALLC {
     input:
-      vcf_input = GetMethylationSiteVCF.methylation_vcf_output_name
+      methylation_vcf_output_name = GetMethylationSiteVCF.methylation_vcf
   }
 
   # get number of sites that have a coverage greater than 1
@@ -1078,14 +1078,13 @@ task MethylationTypeCaller {
 task VCFtoALLC {
     input {
       File methylation_vcf_output_name
-      String output_base_name
     }
 
   # input file size
   Float input_size = 2*size(methylation_vcf_output_name, "GB") 
 
   # output name for VCF and its index
-  String methylation_allc_output_name = output_base_name + ".allc"
+  String methylation_allc_output_name = sub(methylation_vcf_output_name, ".vcf$", ".allc")
 
   command <<<
     set -euo pipefail
