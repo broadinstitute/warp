@@ -306,7 +306,7 @@ workflow CEMBA {
   # convert VCF to ALL
   call VCFtoALLC {
     input:
-      vcf_input = GetMethylationSiteVC.methylation_vcf_output_name
+      vcf_input = GetMethylationSiteVCF.methylation_vcf_output_name
   }
 
   # get number of sites that have a coverage greater than 1
