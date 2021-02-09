@@ -1057,9 +1057,6 @@ task MethylationTypeCaller {
       --input ~{bam_input} \
       --reference ~{reference_fasta} \
       --output ~{methylation_vcf_output_name}
-
-
-    python -i ~{methylation_vcf_output_name} -o ~{methylation_allc_output_name}
   >>>
 
   runtime {
