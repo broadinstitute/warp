@@ -762,7 +762,7 @@ workflow GDCWholeGenomeSomaticSingleSample {
         File md_metrics = picard_markduplicates.metrics
         File insert_size_metrics = collect_insert_size_metrics.insert_size_metrics
         File insert_size_histogram_pdf = collect_insert_size_metrics.insert_size_histogram_pdf
-        Float contamination = check_contamination.contamination
+        File contamination = check_contamination.contamination
     }
     meta {
         allowNestedInputs: true
