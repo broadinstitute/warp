@@ -1,3 +1,8 @@
+# 2.4.3
+2021-02-08
+
+* Calculate java memory value from the optional memory input value for CramToUnmappedBams java tasks
+
 # 2.4.2
 2021-02-02
 
