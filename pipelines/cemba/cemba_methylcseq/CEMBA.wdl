@@ -1040,7 +1040,7 @@ task MethylationTypeCaller {
 
   # output name for VCF and its index
   String methylation_vcf_output_name = output_base_name + ".vcf"
-  String methylation_vcf_index_output_name = methylation_vcf_output_name + ".idx"
+  String methylation_vcf_index_output_name = output_base_name + ".idx"
 
   command <<<
     set -euo pipefail
