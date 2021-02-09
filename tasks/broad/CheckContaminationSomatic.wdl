@@ -81,6 +81,6 @@ task CalculateSomaticContamination {
         File normal_pileups = "normal_pileups.table"
         File contamination_table = "contamination.table"
         File maf_segments = "segments.table"
-        Float contamination = read_float("contam.txt")
+        File contamination = "contam.txt"
     }
 }
