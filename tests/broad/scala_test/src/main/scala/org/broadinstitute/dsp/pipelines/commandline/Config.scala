@@ -11,6 +11,8 @@ case class Config(
       CramToUnmappedBamsConfig(),
     genotypeConcordanceConfig: GenotypeConcordanceConfig =
       GenotypeConcordanceConfig(),
+    gdcWholeGenomeSomaticSingleSampleConfig: GDCWholeGenomeSomaticSingleSampleConfig =
+      GDCWholeGenomeSomaticSingleSampleConfig(),
     germlineCloudConfig: GermlineCloudWorkflowConfig =
       GermlineCloudWorkflowConfig(),
     illuminaGenotypingArrayConfig: IlluminaGenotypingArrayConfig =
