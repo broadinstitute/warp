@@ -27,3 +27,6 @@ workflows:
   - name: OptimusPostProcessing
     subclass: WDL
     primaryDescriptorPath: /projects/hca_mvp/OptimusPostProcessing.wdl
+  - name: CEMBA
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/cemba/cemba_methylcseq/CEMBA.wdl
