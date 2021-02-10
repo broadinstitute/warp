@@ -66,9 +66,14 @@ object CromwellWorkflowTester {
         new AllOfUsTester(config.germlineCloudConfig)
       case AnnotationFiltration =>
         new AnnotationFiltrationTester(config.annotationFiltrationConfig)
+      case CramToUnmappedBams =>
+        new CramToUnmappedBamsTester(config.cramToUnmappedBamsConfig)
       case Dummy => new DummyTester()
       case ExternalReprocessing =>
         new ExternalReprocessingTester(config.germlineCloudConfig)
+      case GDCWholeGenomeSomaticSingleSample =>
+        new GDCWholeGenomeSomaticSingleSampleTester(
+          config.gdcWholeGenomeSomaticSingleSampleConfig)
       case GenotypeConcordance =>
         new GenotypeConcordanceTester(config.genotypeConcordanceConfig)
       case GermlineSingleSample =>

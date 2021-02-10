@@ -1,3 +1,10 @@
+# 1.3.2
+2021-02-02
+
+* Minor changes to support CramToUnmappedBams as an independent versioned pipeline
+    * Changed path of the relative import
+    * Added 'base_file_name' as an input to CramToUnmappedBams
+
 # 1.3.1
 2020-12-21
 
