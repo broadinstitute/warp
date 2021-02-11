@@ -1078,6 +1078,8 @@ task MethylationTypeCaller {
 task VCFtoALLC {
     input {
       File methylation_vcf_output_name
+      Int disk_size_gib = if size(methylation_vcf_output_name, "GiB") < 1 then 5 else ceil(9 * size(methylation_vcf_output_name, "GiB"))
+      Float mem_size_gib = 3.5
     }
 
   # input file size
