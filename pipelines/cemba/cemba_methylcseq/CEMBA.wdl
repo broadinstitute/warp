@@ -1095,7 +1095,7 @@ task VCFtoALLC {
   runtime {
     docker: "quay.io/cemba/vcftoallc:v0.0.1"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
-    disks: "local-disk " + ceil(4.5 * (if input_size < 1 then 1 else input_size)) + " HDD"
+    disks: "local-disk ~{disk_size_gib} HDD"
     cpu: 1
     memory: "~{mem_size_gib} GiB"
   }
