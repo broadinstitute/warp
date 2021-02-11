@@ -96,7 +96,7 @@ The [workflow](https://github.com/broadinstitute/warp/blob/develop/beta-pipeline
 | md_metrics | Picard MarkDuplicates metrics | TXT |
 | insert_size_metrics | Picard insert size metrics | TXT |
 | insert_size_histogram_pdf | Histogram representation of insert size metrics | PDF |
-| contamination | Value indicating the fraction contamination | float |
+| contamination | File containing a value indicating the fraction contamination | TXT |
 
   
 ## Important Notes
