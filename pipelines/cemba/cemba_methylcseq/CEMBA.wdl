@@ -1083,7 +1083,6 @@ task VCFtoALLC {
     }
 
   # input file size
-  Float input_size = 2*size(methylation_vcf_output_name, "GB") 
 
   # output name for VCF and its index
   String methylation_allc_output_name = sub(methylation_vcf_output_name, ".vcf$", ".allc")
