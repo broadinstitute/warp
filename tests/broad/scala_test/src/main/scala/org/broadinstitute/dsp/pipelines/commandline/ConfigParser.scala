@@ -711,7 +711,7 @@ class ConfigParser
           )
         }
     )
-      
+
   note("")
   cmd(GDCWholeGenomeSomaticSingleSample.entryName)
     .text("Test the GDCWholeGenomeSomaticSingleSample workflow")
@@ -809,5 +809,5 @@ class ConfigParser
                 papiVersion = papiVersion)
           )
         }
-    )    
+    )
 }
