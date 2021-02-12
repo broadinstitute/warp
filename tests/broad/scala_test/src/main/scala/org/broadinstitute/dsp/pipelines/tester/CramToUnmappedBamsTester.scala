@@ -24,12 +24,10 @@ class CramToUnmappedBamsTester(testerConfig: CramToUnmappedBamsConfig)(
   override val workflowName: String = s"CramToUnmappedBams"
 
   val workflowDir
-    : File = CromwellWorkflowTester.DsdePipelinesRoot / "pipelines" / "broad" / "reprocessing" / "cram_to_unmapped_bams"
+    : File = CromwellWorkflowTester.WarpRoot / "pipelines" / "broad" / "reprocessing" / "cram_to_unmapped_bams"
 
-  lazy val localValidationWdlPath: File =
-    CromwellWorkflowTester.DsdePipelinesRoot / "verification" / "VerifyCramToUnmappedBams.wdl"
-
-  private val verifyWorkflowName = "VerifyCramToUnmappedBams"
+  override protected val validationWorkflowName: String =
+    "VerifyCramToUnmappedBams"
 
   protected lazy val resultsPrefix: URI = {
     URI.create(
@@ -63,7 +61,7 @@ class CramToUnmappedBamsTester(testerConfig: CramToUnmappedBamsConfig)(
       workflowTest.runParameters.resultsCloudPath
     val validationInputs = CramToUnmappedBamsValidationInputs.marshall(
       CramToUnmappedBamsValidationInputs(),
-      verifyWorkflowName
+      validationWorkflowName
     )
 
     val revertedBams = ioUtil
@@ -79,7 +77,7 @@ class CramToUnmappedBamsTester(testerConfig: CramToUnmappedBamsConfig)(
 
     val added = validationInputs.asObject.fold(JsonObject.empty)(
       _.add(
-        s"$verifyWorkflowName.bam_pairs",
+        s"$validationWorkflowName.bam_pairs",
         Json.arr(
           revertedBams
             .zip(truthBams)
