@@ -84,8 +84,18 @@ workflow UnmappedBamToAlignedBam {
 
     if (unmapped_bam_size <= cutoff_for_large_rg_in_gb) {
       # Map reads to reference
-      call Alignment.SamToFastqAndBwaMemAndMba as SamToFastqAndBwaMemAndMba {
+      call Alignment.SamToFastqAndBwaMem as SamToFastqAndBwaMem {
         input:
+           input_bam = unmapped_bam,
+           bwa_commandline = bwa_commandline,
+           output_bam_basename = unmapped_bam_basename,
+           reference_fasta = references.reference_fasta,
+           preemptible_tries = papi_settings.preemptible_tries,
+      }
+
+      call Alignment.Mba as Mba {
+        input:
+          input_bwa_bam = SamToFastqAndBwaMem.output_bwa_bam,
           input_bam = unmapped_bam,
           bwa_commandline = bwa_commandline,
           output_bam_basename = unmapped_bam_basename + ".aligned.unsorted",
@@ -96,7 +106,7 @@ workflow UnmappedBamToAlignedBam {
       }
     }
 
-    File output_aligned_bam = select_first([SamToFastqAndBwaMemAndMba.output_bam, SplitRG.aligned_bam])
+    File output_aligned_bam = select_first([Mba.output_bam, SplitRG.aligned_bam])
 
     Float mapped_bam_size = size(output_aligned_bam, "GiB")
 

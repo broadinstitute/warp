@@ -51,8 +51,18 @@ workflow SplitLargeReadGroup {
     Float current_unmapped_bam_size = size(unmapped_bam, "GiB")
     String current_name = basename(unmapped_bam, ".bam")
 
-    call Alignment.SamToFastqAndBwaMemAndMba as SamToFastqAndBwaMemAndMba {
+    call Alignment.SamToFastqAndBwaMem as SamToFastqAndBwaMem {
       input:
+         input_bam = unmapped_bam,
+         bwa_commandline = bwa_commandline,
+         output_bam_basename = current_name,
+         reference_fasta = reference_fasta,
+         preemptible_tries = preemptible_tries,
+    }
+
+    call Alignment.Mba as Mba {
+      input:
+        input_bwa_bam = SamToFastqAndBwaMem.output_bwa_bam,
         input_bam = unmapped_bam,
         bwa_commandline = bwa_commandline,
         output_bam_basename = current_name,
@@ -61,8 +71,7 @@ workflow SplitLargeReadGroup {
         preemptible_tries = preemptible_tries,
         hard_clip_reads = hard_clip_reads
     }
-
-    Float current_mapped_size = size(SamToFastqAndBwaMemAndMba.output_bam, "GiB")
+    Float current_mapped_size = size(Mba.output_bam, "GiB")
   }
 
   call Utils.SumFloats as SumSplitAlignedSizes {
@@ -73,7 +82,7 @@ workflow SplitLargeReadGroup {
 
   call Processing.GatherUnsortedBamFiles as GatherMonolithicBamFile {
     input:
-      input_bams = SamToFastqAndBwaMemAndMba.output_bam,
+      input_bams = Mba.output_bam,
       total_input_size = SumSplitAlignedSizes.total_size,
       output_bam_basename = output_bam_basename,
       preemptible_tries = preemptible_tries,
