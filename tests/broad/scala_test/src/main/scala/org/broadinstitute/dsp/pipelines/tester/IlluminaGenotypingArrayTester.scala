@@ -22,8 +22,7 @@ class IlluminaGenotypingArrayTester(testerConfig: IlluminaGenotypingArrayConfig)
   val workflowDir
     : File = CromwellWorkflowTester.PipelineRoot / "broad" / "genotyping" / "illumina"
 
-  lazy val localValidationWdlPath: File =
-    CromwellWorkflowTester.DsdePipelinesRoot / "verification" / s"VerifyArrays.wdl"
+  override protected val validationWorkflowName: String = "VerifyArrays"
 
   override protected lazy val googleProject: String = {
     if (env.picardEnv.equals("dev")) {
