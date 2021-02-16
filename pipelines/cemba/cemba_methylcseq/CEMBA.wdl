@@ -1078,10 +1078,11 @@ task MethylationTypeCaller {
 task VCFtoALLC {
     input {
       File methylation_vcf_output_name
+      Int disk_size_gib = if size(methylation_vcf_output_name, "GiB") < 1 then 5 else ceil(9 * size(methylation_vcf_output_name, "GiB"))
+      Float mem_size_gib = 3.5
     }
 
   # input file size
-  Float input_size = 2*size(methylation_vcf_output_name, "GB") 
 
   # output name for VCF and its index
   String methylation_allc_output_name = sub(methylation_vcf_output_name, ".vcf$", ".allc")
@@ -1095,9 +1096,9 @@ task VCFtoALLC {
   runtime {
     docker: "quay.io/cemba/vcftoallc:v0.0.1"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
-    disks: "local-disk " + ceil(4.5 * (if input_size < 1 then 1 else input_size)) + " HDD"
+    disks: "local-disk ~{disk_size_gib} HDD"
     cpu: 1
-    memory: "3.5 GB"
+    memory: "~{mem_size_gib} GiB"
   }
 
   output {
