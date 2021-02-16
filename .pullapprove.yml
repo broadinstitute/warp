@@ -40,22 +40,21 @@ groups:
       - "base.ref != 'master'"
       - "base.ref != 'RC'"
       - >
-        'pipelines/arrays/chip/ValidateChip.wdl' in files or
-        'pipelines/arrays/multi_sample/MultiSampleArrays.wdl' in files or
-        'pipelines/arrays/single_sample/Arrays.wdl' in files or
-        'pipelines/genotyping/illumina/IlluminaGenotypingArray.wdl' in files or
-        'tasks/IlluminaGenotypingArrayTasks.wdl' in files or
-        'tasks/InternalArraysTasks.wdl' in files or
+        'pipelines/broad/arrays/multi_sample/MultiSampleArrays.wdl' in files or
+        'pipelines/broad/arrays/single_sample/Arrays.wdl' in files or
+        'pipelines/broad/arrays/validate_chip/ValidateChip.wdl' in files or
+        'pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl' in files or
+        'tasks/broad/IlluminaGenotypingArrayTasks.wdl' in files or
+        'tasks/broad/InternalArraysTasks.wdl' in files or
         'verification/VerifyArrays.wdl' in files or
         'verification/VerifyMetrics.wdl' in files or
         'verification/VerifyMultiSampleArrays.wdl' in files or
         'verification/VerifyTasks.wdl' in files or
         'verification/VerifyValidateChip.wdl' in files or
-        'pipelines/arrays/README.md' in files or
-        'pipelines/arrays/chip' in files or
-        'pipelines/arrays/multi_sample' in files or
-        'pipelines/arrays/single_sample' in files
-
+        'pipelines/broad/arrays/multi_sample' in files or
+        'pipelines/broad/arrays/single_sample' in files or
+        'pipelines/broad/arrays/validate_chip' in files
+        
     reviews:
       required: 1
       author_value: 1
@@ -71,34 +70,35 @@ groups:
       - "base.ref != 'master'"
       - "base.ref != 'RC'"
       - >
-        'pipelines/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl' in files or
-        'pipelines/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl' in files or
-        'pipelines/reprocessing/exome/ExomeReprocessing.wdl' in files or
-        'pipelines/reprocessing/external/exome/ExternalExomeReprocessing.wdl' in files or
-        'pipelines/reprocessing/wgs/WholeGenomeReprocessing.wdl' in files or
+        'pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl' in files or
+        'pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl' in files or
+        'pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl' in files or
+        'pipelines/broad/reprocessing/exome/ExomeReprocessing.wdl' in files or
+        'pipelines/broad/reprocessing/external/exome/ExternalExomeReprocessing.wdl' in files or
+        'pipelines/broad/reprocessing/wgs/WholeGenomeReprocessing.wdl' in files or
         'structs/dna_seq/DNASeqStructs.wdl' in files or
-        'tasks/AggregatedBamQC.wdl' in files or
-        'tasks/Alignment.wdl' in files or
-        'tasks/BamProcessing.wdl' in files or
-        'tasks/BamToCram.wdl' in files or
-        'tasks/CopyFilesFromCloudToCloud.wdl' in files or
-        'tasks/GermlineVariantDiscovery.wdl' in files or
-        'tasks/Qc.wdl' in files or
-        'tasks/SplitLargeReadGroup.wdl' in files or
-        'tasks/UnmappedBamToAlignedBam.wdl' in files or
-        'tasks/Utilities.wdl' in files or
-        'tasks/VariantCalling.wdl' in files or
-        'tasks/cram_to_unmapped_bams/CramToUnmappedBams.wdl' in files or
+        'tasks/broad/AggregatedBamQC.wdl' in files or
+        'tasks/broad/Alignment.wdl' in files or
+        'tasks/broad/BamProcessing.wdl' in files or
+        'tasks/broad/BamToCram.wdl' in files or
+        'tasks/broad/CopyFilesFromCloudToCloud.wdl' in files or
+        'tasks/broad/GermlineVariantDiscovery.wdl' in files or
+        'tasks/broad/Qc.wdl' in files or
+        'tasks/broad/SplitLargeReadGroup.wdl' in files or
+        'tasks/broad/UnmappedBamToAlignedBam.wdl' in files or
+        'tasks/broad/Utilities.wdl' in files or
+        'tasks/broad/VariantCalling.wdl' in files or
         'verification/VerifyGermlineSingleSample.wdl' in files or
         'verification/VerifyMetrics.wdl' in files or
         'verification/VerifyReprocessing.wdl' in files or
         'verification/VerifyTasks.wdl' in files or
-        'pipelines/dna_seq/germline/single_sample/exome' in files or
-        'pipelines/dna_seq/germline/single_sample/wgs' in files or
-        'pipelines/reprocessing/exome' in files or
-        'pipelines/reprocessing/external' in files or
-        'pipelines/reprocessing/wgs' in files
-
+        'pipelines/broad/dna_seq/germline/single_sample/exome' in files or
+        'pipelines/broad/dna_seq/germline/single_sample/wgs' in files or
+        'pipelines/broad/reprocessing/cram_to_unmapped_bams' in files or
+        'pipelines/broad/reprocessing/exome' in files or
+        'pipelines/broad/reprocessing/external' in files or
+        'pipelines/broad/reprocessing/wgs' in files
+        
     reviews:
       required: 1
       author_value: 1
@@ -114,20 +114,19 @@ groups:
       - "base.ref != 'master'"
       - "base.ref != 'RC'"
       - >
-        'genomes_in_the_cloud/joint_genotyping_workflow/JointGenotypingWf.wdl' in files or
-        'pipelines/dna_seq/germline/joint_genotyping/JointGenotyping.wdl' in files or
-        'pipelines/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartOne.wdl' in files or
-        'pipelines/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartTwo.wdl' in files or
-        'pipelines/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl' in files or
-        'tasks/JointGenotypingTasks.wdl' in files or
-        'pipelines/dna_seq/germline/joint_genotyping/JointGenotyping.changelog.md' in files or
-        'pipelines/dna_seq/germline/joint_genotyping/JointGenotyping.options.json' in files or
-        'pipelines/dna_seq/germline/joint_genotyping/JointGenotyping.wdl' in files or
-        'pipelines/dna_seq/germline/joint_genotyping/by_chromosome' in files or
-        'pipelines/dna_seq/germline/joint_genotyping/exome' in files or
-        'pipelines/dna_seq/germline/joint_genotyping/reblocking' in files or
-        'pipelines/dna_seq/germline/joint_genotyping/wgs' in files
-
+        'pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.wdl' in files or
+        'pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartOne.wdl' in files or
+        'pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartTwo.wdl' in files or
+        'pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl' in files or
+        'tasks/broad/JointGenotypingTasks.wdl' in files or
+        'pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.changelog.md' in files or
+        'pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.options.json' in files or
+        'pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.wdl' in files or
+        'pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome' in files or
+        'pipelines/broad/dna_seq/germline/joint_genotyping/exome' in files or
+        'pipelines/broad/dna_seq/germline/joint_genotyping/reblocking' in files or
+        'pipelines/broad/dna_seq/germline/joint_genotyping/wgs' in files
+        
     reviews:
       required: 1
       author_value: 1
@@ -143,22 +142,22 @@ groups:
       - "base.ref != 'master'"
       - "base.ref != 'RC'"
       - >
-        'beta_pipelines/somatic/single_sample/targeted/TargetedSomaticSingleSample.wdl' in files or
+        'beta-pipelines/broad/somatic/single_sample/targeted/TargetedSomaticSingleSample.wdl' in files or
         'structs/dna_seq/DNASeqStructs.wdl' in files or
-        'tasks/AggregatedBamQC.wdl' in files or
-        'tasks/Alignment.wdl' in files or
-        'tasks/BamProcessing.wdl' in files or
-        'tasks/BamToCram.wdl' in files or
-        'tasks/Qc.wdl' in files or
-        'tasks/SplitLargeReadGroup.wdl' in files or
-        'tasks/UnmappedBamToAlignedBam.wdl' in files or
-        'tasks/Utilities.wdl' in files or
-        'beta_pipelines/somatic/single_sample/targeted/README.md' in files or
-        'beta_pipelines/somatic/single_sample/targeted/TargetedSomaticSingleSample.changelog.md' in files or
-        'beta_pipelines/somatic/single_sample/targeted/TargetedSomaticSingleSample.options.json' in files or
-        'beta_pipelines/somatic/single_sample/targeted/TargetedSomaticSingleSample.wdl' in files or
-        'beta_pipelines/somatic/single_sample/targeted/test_inputs' in files
-
+        'tasks/broad/AggregatedBamQC.wdl' in files or
+        'tasks/broad/Alignment.wdl' in files or
+        'tasks/broad/BamProcessing.wdl' in files or
+        'tasks/broad/BamToCram.wdl' in files or
+        'tasks/broad/Qc.wdl' in files or
+        'tasks/broad/SplitLargeReadGroup.wdl' in files or
+        'tasks/broad/UnmappedBamToAlignedBam.wdl' in files or
+        'tasks/broad/Utilities.wdl' in files or
+        'beta-pipelines/broad/somatic/single_sample/targeted/README.md' in files or
+        'beta-pipelines/broad/somatic/single_sample/targeted/TargetedSomaticSingleSample.changelog.md' in files or
+        'beta-pipelines/broad/somatic/single_sample/targeted/TargetedSomaticSingleSample.options.json' in files or
+        'beta-pipelines/broad/somatic/single_sample/targeted/TargetedSomaticSingleSample.wdl' in files or
+        'beta-pipelines/broad/somatic/single_sample/targeted/test_inputs' in files
+        
     reviews:
       required: 1
       author_value: 1
@@ -177,19 +176,19 @@ groups:
       - "base.ref != 'master'"
       - "base.ref != 'RC'"
       - >
-        'pipelines/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl' in files or
+        'pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl' in files or
         'structs/dna_seq/DNASeqStructs.wdl' in files or
-        'tasks/AggregatedBamQC.wdl' in files or
-        'tasks/Alignment.wdl' in files or
-        'tasks/BamProcessing.wdl' in files or
-        'tasks/BamToCram.wdl' in files or
-        'tasks/GermlineVariantDiscovery.wdl' in files or
-        'tasks/Qc.wdl' in files or
-        'tasks/SplitLargeReadGroup.wdl' in files or
-        'tasks/UnmappedBamToAlignedBam.wdl' in files or
-        'tasks/Utilities.wdl' in files or
-        'tasks/VariantCalling.wdl' in files
-
+        'tasks/broad/AggregatedBamQC.wdl' in files or
+        'tasks/broad/Alignment.wdl' in files or
+        'tasks/broad/BamProcessing.wdl' in files or
+        'tasks/broad/BamToCram.wdl' in files or
+        'tasks/broad/GermlineVariantDiscovery.wdl' in files or
+        'tasks/broad/Qc.wdl' in files or
+        'tasks/broad/SplitLargeReadGroup.wdl' in files or
+        'tasks/broad/UnmappedBamToAlignedBam.wdl' in files or
+        'tasks/broad/Utilities.wdl' in files or
+        'tasks/broad/VariantCalling.wdl' in files
+        
     reviews:
       required: 0
       request: 1

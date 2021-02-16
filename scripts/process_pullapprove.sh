@@ -8,6 +8,11 @@
 #   (and dependencies of those dependencies and ...) 
 #   will be automatically added by this script
 ###########################################################
+# scientific_owners_gdc_pipeline
+gdc_wgs_wdls=("beta-pipelines/broad/somatic/single_sample/wgs/gdc_genome/GDCWholeGenomeSomaticSingleSample.wdl")
+gdc_wgs_files=("beta-pipelines/broad/somatic/single_sample/wgs/gdc_genome/**")
+
+
 # scientific_owners_annotation_filtration:
 annotation_filtration_wdls=("pipelines/broad/annotation_filtration/AnnotationFiltration.wdl")
 annotation_filtration_files=("pipelines/broad/annotation_filtration/**")
