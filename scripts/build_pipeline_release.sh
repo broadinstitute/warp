@@ -14,6 +14,9 @@ function make_release() {
   local -r rootWdl=${ROOT_WDL}
   local -r wdlBasename=$(basename ${rootWdl} ${WDL_SUFFIX})
 
+  # Store the current working directory
+  CWD=$(pwd)
+
   outputDir=${OUTPUT_DIR:-${PWD}}/${wdlBasename}
   
   local version=${VERSION}
@@ -24,8 +27,8 @@ function make_release() {
   if [[ ! -d ${outputDir} ]]; then
     mkdir -p ${outputDir}
   fi
-
-  local outputPrefix=${outputDir}/${wdlBasename}
+  # make the outputPrefix use the absolute path of outputDir
+  local outputPrefix=$(cd $( dirname $outputDir) && pwd)/$(basename $outputDir)/${wdlBasename}
 
   local -r outputVersionedPrefix=${outputPrefix}${version}
   
@@ -33,7 +36,12 @@ function make_release() {
   sed -E 's/import "(.*)\/(.*\'${WDL_SUFFIX}')"/import "\2"/g' ${rootWdl} > ${outputVersionedPrefix}${WDL_SUFFIX}
 
   write_options ${rootWdl} ${outputVersionedPrefix}
-  write_dependencies_zip ${rootWdl} ${outputVersionedPrefix}
+
+  versioned_dependencies_zip=${outputVersionedPrefix}${ZIP_SUFFIX}
+
+  cd ${REPO_ROOT}
+  write_dependencies_zip ${rootWdl} ${versioned_dependencies_zip}
+  cd ${CWD}
 
 }
 
@@ -64,7 +72,7 @@ function write_options() {
 }
 
 function write_dependencies_zip() {
-  local -r rootWdl=${1} versioned_dependencies_zip=${2}${ZIP_SUFFIX} working_dir=$(mktemp -d)
+  local -r rootWdl=${1} versioned_dependencies_zip=${2} working_dir=$(mktemp -d)
   local -r -a dependencies=($(get_dependencies_for_wdl ${rootWdl} | xargs -n1 | sort -u | xargs))
 
   for file in ${dependencies[@]}; do
@@ -75,8 +83,25 @@ function write_dependencies_zip() {
   rm -rf ${working_dir}
 }
 
-while getopts "w:v:o:e:" opt; do
-    case ${opt} in 
+function show_help() {
+    echo "Usage: $0 [arguments]"
+    echo "This program writes the wdl, dependencies zip and options file for a specified workflow"
+    echo ""
+    echo "Arguments:"
+    echo "  -w             The path to the workflow (.wdl) file"
+    echo "  -v             The version of the workflow (used in building the release name)"
+    echo "  -o             The directory into which the outputs will be written"
+    echo "  -e             The environment (dev, staging, or prod)"
+    echo "  -h             print this helpful message"
+    echo ""
+}
+
+while getopts "hw:v:o:e:" opt; do
+    case ${opt} in
+	    h)
+	      show_help
+	      exit 0
+	      ;;
       w)
         if [[ ! -f ${OPTARG} ]]; then
           echo >&2 Error: ${OPTARG} does not exist!

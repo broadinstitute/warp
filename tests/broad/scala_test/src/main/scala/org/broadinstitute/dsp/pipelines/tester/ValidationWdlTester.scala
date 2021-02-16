@@ -25,6 +25,7 @@ import org.broadinstitute.dsp.pipelines.commandline.{
   WorkflowTestCategory
 }
 import org.broadinstitute.dsp.pipelines.config.BaseConfig
+import org.broadinstitute.dsp.pipelines.tester.CromwellWorkflowTester.WarpGitHash
 
 import scala.collection.immutable.Iterable
 import scala.concurrent.Future
@@ -34,7 +35,7 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
     as: ActorSystem
 ) extends CromwellWorkflowTester {
 
-  protected def localValidationWdlPath: File
+  protected def validationWorkflowName: String
 
   protected def buildValidationWdlInputs(
       cloudWorkflowTest: WorkflowTest): String
@@ -50,12 +51,22 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
   protected val timestamp: String =
     testerConfig.useTimestamp.getOrElse(CromwellWorkflowTester.getTimestamp)
 
-  override lazy val wdlContents: String = readWdlFromReleaseDir(releaseDir)
+  override lazy val wdlContents: String =
+    readWdlFromReleaseDir(releaseDir, workflowName)
 
   protected def env: CromwellEnvironment = testerConfig.env
 
   protected lazy val releaseDir: File =
     CromwellWorkflowTester.runReleaseWorkflow(localWdlPath, env)
+
+  protected def localValidationWdlPath: File =
+    CromwellWorkflowTester.WarpRoot / "verification" / s"$validationWorkflowName.wdl"
+
+  lazy val validationWdlContents: String =
+    readWdlFromReleaseDir(validationReleaseDir, validationWorkflowName)
+
+  protected lazy val validationReleaseDir: File =
+    CromwellWorkflowTester.runReleaseWorkflow(localValidationWdlPath, env)
 
   protected def localWdlPath: File = workflowDir / s"$workflowName.wdl"
 
@@ -89,7 +100,8 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
           validationWdlContents,
           Option(validationWdlOptions),
           buildValidationWdlInputs,
-          zippedImports = Some(dependenciesZipFromReleaseDir(releaseDir))
+          zippedImports = dependenciesZipFromReleaseDir(validationReleaseDir,
+                                                        validationWorkflowName)
         )
         _ <- awaitBatchCromwellWorkflowCompletion(submittedValidationRuns)
       } yield ()
@@ -101,24 +113,13 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
     Future.successful(())
   }
 
-  private def validationWdlContents: String = {
-    val validationWdlName = localValidationWdlPath.nameWithoutExtension
-    val options
-      : File = localValidationWdlPath.parent / s"$validationWdlName.options.json"
-    options.overwrite(validationWdlOptions)
-    options.deleteOnExit()
-    val fakeValidationReleaseDir =
-      CromwellWorkflowTester.runReleaseWorkflow(localValidationWdlPath, env)
-    (fakeValidationReleaseDir / validationWdlName / s"$validationWdlName.wdl").contentAsString
-  }
-
   protected lazy val googleProject: String = {
     s"broad-gotc-${env.picardEnv}"
   }
 
   protected lazy val validationWdlOptions: String = Json
     .obj(
-      Seq("read_from_cache" -> false.asJson, "write_to_cache" -> false.asJson)
+      Seq("read_from_cache" -> true.asJson, "write_to_cache" -> true.asJson)
         ++ parse(
           readTestOptions(
             releaseDir,
@@ -238,7 +239,7 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
       submittedSamples <- submitBatchWorkflows(
         samples,
         Some(readTestOptions(releaseDir, env)),
-        Some(dependenciesZipFromReleaseDir(releaseDir))
+        dependenciesZipFromReleaseDir(releaseDir, workflowName)
       )
       finishedSamples <- awaitBatchCromwellWorkflowCompletion(submittedSamples)
       _ <- copyBatchCromwellWorkflowResults(finishedSamples)
@@ -301,7 +302,7 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
     val optionsJson = defaultOptions ++ environment.environmentOptions
 
     parse(
-      (releaseDir / workflowName / s"$workflowName.options.json").contentAsString)
+      (releaseDir / workflowName / s"${workflowName}_${WarpGitHash}.options.json").contentAsString)
       .fold(
         e => throw new RuntimeException("Could not create options json", e),
         _.deepMerge(Json.obj(optionsJson: _*)).noSpaces
