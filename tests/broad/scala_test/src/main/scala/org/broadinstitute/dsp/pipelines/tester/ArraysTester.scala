@@ -28,8 +28,7 @@ class ArraysTester(testerConfig: ArraysConfig)(
   protected val vaultTokenPath: String =
     s"gs://broad-dsp-gotc-arrays-$envString-tokens/arrayswdl.token"
 
-  lazy val localValidationWdlPath: File =
-    CromwellWorkflowTester.DsdePipelinesRoot / "verification" / s"Verify$workflowName.wdl"
+  override protected val validationWorkflowName: String = s"Verify$workflowName"
 
   override protected lazy val googleProject: String = {
     if (env.picardEnv.equals("dev")) {
@@ -37,11 +36,6 @@ class ArraysTester(testerConfig: ArraysConfig)(
     } else {
       s"broad-arrays-${env.picardEnv}"
     }
-  }
-
-  // Validation uses the same options as the arrays workflow
-  override protected lazy val validationWdlOptions: String = {
-    readTestOptions(releaseDir, env)
   }
 
   protected lazy val resultsPrefix: URI = {
