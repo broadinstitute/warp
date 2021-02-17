@@ -60,7 +60,7 @@ groups:
         request_order: given
       reviewers:
         users:
-          - chip # Chip
+          - chips2art # Chip Stewart
 
   scientific_owners_cram_to_unmapped_bam:
     conditions:
