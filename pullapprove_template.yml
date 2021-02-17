@@ -46,6 +46,38 @@ groups:
       users:
         - gbggrant # George Grant
 
+  scientific_owners_gdc_pipeline:
+    conditions:
+      - "'eng-only' not in labels"
+      - "base.ref != 'master'"
+      - "base.ref != 'RC'"
+      - >
+        ${GDC_WGS_FILES}
+      reviews:
+        required: 1
+        author_value: 1
+        request: 1
+        request_order: given
+      reviewers:
+        users:
+          - chip # Chip
+
+  scientific_owners_cram_to_unmapped_bam:
+    conditions:
+      - "'eng-only' not in labels"
+      - "base.ref != 'master'"
+      - "base.ref != 'RC'"
+      - >
+        ${CRAM_TO_UNMAPPED_BAMS}
+      reviews:
+        required: 1
+        author_value: 1
+        request: 1
+        request_order: given
+      reviewers:
+        users:
+          - kachulis # Chris Kachulis
+
   scientific_owners_germline_single_sample:
     conditions:
       - "'eng-only' not in labels"
@@ -60,7 +92,7 @@ groups:
     reviewers:
       users:
         - ldgauthier # Laura Gauthier
-        - yfarjoun # Yossi Farjoun
+        - kachulis # Chris Kachulis
 
   scientific_owners_joint_genotyping:
     conditions:
