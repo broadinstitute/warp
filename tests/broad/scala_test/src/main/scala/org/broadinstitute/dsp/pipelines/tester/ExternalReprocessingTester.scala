@@ -60,13 +60,17 @@ class ExternalReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
     )
   }
 
+  // Note - we are explicitly setting the google_project here so that when running in a non-dev environment,
+  // The workflow can still access the test data AND can then read from the vault
   override def readTestOptions(
       releaseDir: File,
       environment: CromwellEnvironment
   ): String = {
     val defaultOptions = Array(
       "read_from_cache" -> testerConfig.useCallCaching.asJson,
-      "backend" -> testerConfig.papiVersion.entryName.asJson
+      "backend" -> testerConfig.papiVersion.entryName.asJson,
+      "monitoring_script" -> "gs://broad-gotc-test-storage/cromwell_monitoring_script.sh".asJson,
+      "google_project" -> "broad-exomes-dev1".asJson
     )
 
     val optionsJson = defaultOptions ++ environment.environmentOptions
