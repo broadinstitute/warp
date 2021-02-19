@@ -2,13 +2,13 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [CEMBA_v1.0.0](https://github.com/broadinstitute/warp/releases) | July 28, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [CEMBA_v1.1.0](https://github.com/broadinstitute/warp/releases) | February, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![CEMBA](./CEMBA.png)
 
 ## Introduction to the CEMBA Workflow
 
-CEMBA is a pipeline developed by the [BRAIN Initiative](https://braininitiative.nih.gov/) that supports processing of multiplexed single-nuclei bisulfite sequencing data. It is an alignment and methylated base calling pipeline that trims adaptors, attaches cell barcodes, aligns reads to the genome, filters reads based on quality and creates a VCF with methylation-site coverage.
+CEMBA is a pipeline developed by the [BRAIN Initiative](https://braininitiative.nih.gov/) that supports processing of multiplexed single-nuclei bisulfite sequencing data. It is an alignment and methylated base calling pipeline that trims adaptors, attaches cell barcodes, aligns reads to the genome, filters reads based on quality and creates both a VCF and ALLC file with methylation-site coverage.
 
 :::tip
 Interested in using the pipeline for your publication? See the [“CEMBA publication methods”](./CEMBA.methods.md) for a generic "methods" style description of the pipeline.
@@ -25,7 +25,7 @@ Interested in using the pipeline for your publication? See the [“CEMBA publica
 | Aligner  | BISMARK v0.21.0 with  --bowtie2 | [Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/) |
 | Varariant Caller | GATK 4.1.2.0 | [GATK 4.1.2.0](https://gatk.broadinstitute.org/hc/en-us)
 | Data Input File Format | File format in which sequencing data is provided | [Zipped FASTQs (.fastq.gz)](https://support.illumina.com/bulletins/2016/04/fastq-files-explained.html) |
-| Data Output File Format | File formats in which CEMBA output is provided | [BAM](http://samtools.github.io/hts-specs/), [VCF](https://samtools.github.io/hts-specs/VCFv4.2.pdf) |
+| Data Output File Format | File formats in which CEMBA output is provided | [BAM](http://samtools.github.io/hts-specs/), [VCF](https://samtools.github.io/hts-specs/VCFv4.2.pdf), [ALLC](https://github.com/yupenghe/methylpy#output-format) |
 
 # Set-up
 
@@ -71,6 +71,9 @@ The pipeline accepts paired-end reads in the form of two compressed FASTQ files 
 | remove_duplicates | Boolean; if true Picard will remove duplicates and report duplication removal metrics  |
 | extract_and_attach_barcodes_in_single_end_run | Boolean; if true, workflow will create an unaligned BAM and extract barcodes   |
 | min_map_quality | Numerical value that represents minimum map quality; if provided Samtools will filter reads and produce a BAM for reads above value and reads below value   |
+| read_group_library_name | Library preparation type used for read group; default is "Methylation" |
+| read_group_platform_name | Sequencing platform used for read group; default is "Illumina" |
+| read_group_platform_unit_name | Platform unit for the read group (i.e. run barcode); default is "smmC-Seq" |
 
 
 
@@ -101,6 +104,7 @@ The table and summary sections below detail the tasks and tools of the CEMBA pip
 | Sort | [Picard v2.18.23](https://broadinstitute.github.io/picard/) | Sort in coordinate order after adding read group | quay.io/broadinstitute/picard:2.18.23 |
 | IndexBam |  [Samtools v1.9](http://www.htslib.org/)  | Index the output BAM | quay.io/broadinstitute/samtools:1.9 |
 | MethylationTypeCaller | [GATK v4.1.2.0](https://gatk.broadinstitute.org/hc/en-us)  | Produce a  VCF with locus-specific methylation information | broadinstitute/gatk:4.1.2.0 |
+| VCFtoALLC | Python | Creates an [ALLC](https://github.com/yupenghe/methylpy#output-format) file from the VCF produced with MethylationTypeCaller | quay.io/cemba/vcftoallc:v0.0.1 |
 | ComputeCoverageDepth | [Samtools v1.9](http://www.htslib.org/)  | Compute number of sites with coverage greater than 1 | quay.io/broadinstitute/samtools:1.9 |
 
 ### Prior to running: Set-up the workflow for using multiplexed samples
@@ -139,7 +143,10 @@ In the AttachBarcodes task, Picard attaches the barcodes in the R1 uBAM to the a
 
 Methylated bases are identified using the MethylationTypeCaller task which calls the GATK4 function MethylationTypeCaller. This produces a VCF with methylation calls.
 
-### 9. Compute coverage depth
+### 9. Create ALLC file
+The VCF containing methylation calls is used to create an additional [ALLC ("all-cytosine") file](https://github.com/yupenghe/methylpy#output-format) which can be used for downstream differential methylated regions in downstream analyses. 
+
+### 10. Compute coverage depth
 
 The ComputeCoverageDepth task uses Samtools to calculate any region in the filtered, sorted BAM with a coverage depth greater than 1. This interval is read in the stdout of the workflow.
 

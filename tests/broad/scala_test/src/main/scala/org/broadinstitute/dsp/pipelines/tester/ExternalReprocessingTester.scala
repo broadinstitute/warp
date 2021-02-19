@@ -15,6 +15,7 @@ import org.broadinstitute.dsp.pipelines.batch.{
 import org.broadinstitute.dsp.pipelines.commandline.CromwellEnvironment
 import org.broadinstitute.dsp.pipelines.config._
 import org.broadinstitute.dsp.pipelines.inputs.ReprocessingInputs
+import org.broadinstitute.dsp.pipelines.tester.CromwellWorkflowTester.WarpGitHash
 
 import scala.concurrent.Future
 
@@ -59,19 +60,23 @@ class ExternalReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
     )
   }
 
+  // Note - we are explicitly setting the google_project here so that when running in a non-dev environment,
+  // The workflow can still access the test data AND can then read from the vault
   override def readTestOptions(
       releaseDir: File,
       environment: CromwellEnvironment
   ): String = {
     val defaultOptions = Array(
       "read_from_cache" -> testerConfig.useCallCaching.asJson,
-      "backend" -> testerConfig.papiVersion.entryName.asJson
+      "backend" -> testerConfig.papiVersion.entryName.asJson,
+      "monitoring_script" -> "gs://broad-gotc-test-storage/cromwell_monitoring_script.sh".asJson,
+      "google_project" -> "broad-exomes-dev1".asJson
     )
 
     val optionsJson = defaultOptions ++ environment.environmentOptions
 
     parse(
-      (releaseDir / workflowName / s"$workflowName.options.json").contentAsString)
+      (releaseDir / workflowName / s"${workflowName}_${WarpGitHash}.options.json").contentAsString)
       .fold(
         e => throw new RuntimeException("Could not create options json", e),
         _.deepMerge(Json.obj(optionsJson: _*)).noSpaces

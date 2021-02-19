@@ -21,11 +21,10 @@ class AllOfUsTester(testerConfig: GermlineCloudWorkflowConfig)(
 
   override val workflowName: String = "AllOfUsWholeGenome"
 
-  override lazy val workflowDir: File =
-    CromwellWorkflowTester.DsdePipelinesRoot / "projects" / "all_of_us"
+  override protected val validationWorkflowName: String = "VerifyAllOfUs"
 
-  override lazy val localValidationWdlPath: File =
-    CromwellWorkflowTester.DsdePipelinesRoot / "verification" / "VerifyAllOfUs.wdl"
+  override lazy val workflowDir: File =
+    CromwellWorkflowTester.WarpRoot / "projects" / "all_of_us"
 
   override lazy val resultsPrefix: URI =
     URI.create(

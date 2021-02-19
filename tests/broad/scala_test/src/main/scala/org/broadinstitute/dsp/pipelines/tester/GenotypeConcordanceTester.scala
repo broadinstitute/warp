@@ -236,7 +236,7 @@ class GenotypeConcordanceTester(testerConfig: GenotypeConcordanceConfig)(
           singleSampleTest.readTestOptions(tmpReleaseDir, env)
         ),
         None,
-        Some(dependenciesZipFromReleaseDir(tmpReleaseDir)),
+        dependenciesZipFromReleaseDir(tmpReleaseDir, workflowName),
         singleSampleTest.workflowName
       )
       _ <- awaitCromwellWorkflowCompletion(submission)
