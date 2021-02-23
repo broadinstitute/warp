@@ -1,3 +1,9 @@
+# 5.1.2
+
+2021-02-23 (Date of Last Commit)
+
+* Updated the docker in LoomUtils.wdl task to 0.0.7 Updated create_loom_optimus.py in the docker
+
 # 5.1.1
 
 2020-12-07 (Date of Last Commit)
