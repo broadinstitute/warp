@@ -247,7 +247,7 @@ def generate_col_attr(args):
             else:
                 final_df_bool[index, 1] = np.nan
 
-    final_df_non_boolean = final_df_non_boolean.apply(pd.to_numeric,  errors='coerce')
+    final_df_non_boolean = final_df_non_boolean.apply(pd.to_numeric)
 
     # COLUMN/CELL Metadata
     col_attrs = dict()

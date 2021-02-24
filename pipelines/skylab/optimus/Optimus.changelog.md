@@ -3,7 +3,6 @@
 2021-02-23 (Date of Last Commit)
 
 * Made changes to emptydrops tool wrappper script to not fail in cases with small number of cells, instead, create empty drop result files with NAs.
-* Updated the docker in LoomUtils.wdl task to 0.0.7 Updated create_loom_optimus.py in the docker
 * Updated the docker in RunEmptyDrops.wdl task to 0.1.3 Updated emptyDropsWrapper.R in the docker
 
 # 4.2.2
