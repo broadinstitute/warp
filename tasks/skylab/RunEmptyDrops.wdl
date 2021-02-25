@@ -47,7 +47,7 @@ task RunEmptyDrops {
         disks: "local-disk ${disk} HDD"
         cpu: cpu
         preemptible: preemptible
-        bootDiskSizeGb: "15"
+        bootDiskSizeGb: "20"
     }
 
     output {
