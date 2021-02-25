@@ -424,14 +424,15 @@ task sort_and_index_markdup_bam {
     input {
         File input_bam
         String tmp_prefix = "tmp_srt"
+
+        Int mem_in_mb = ceil(size(input_bam, "M"))+ 10000
         Int cpu = 8
-        Int mem = 16
         Int preemptible = 2
         Int max_retries = 0
         Int additional_disk = 0
     }
     Int disk_space = ceil(size(input_bam, "G") * 3.25) + 20 + additional_disk
-    Int mem_per_thread = floor(mem * 1024 / cpu * 0.85)
+    Int mem_per_thread = floor(mem_in_mb / cpu * 0.85)
     Int index_threads = cpu - 1
     String output_bam = basename(input_bam)
     String output_bai = basename(input_bam, ".bam") + ".bai"
@@ -457,8 +458,8 @@ task sort_and_index_markdup_bam {
     }
     
     runtime {
-        docker: "broadgdac/samtools:1.10"
-        memory: mem + " GB"
+        docker: "us.gcr.io/broad-gotc-prod/samtools:1.10"
+        memory: mem_in_mb + " MB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
         maxRetries: max_retries
