@@ -114,14 +114,7 @@ workflow Arrays {
   "fi",
   "vault read --format=json $key | jq .data > ~{service_account_filename}"]
 
-  call InternalTasks.UpdateChipWellBarcodeIndex {
-    input:
-      params_file = params_file,
-      disk_size = disk_size,
-      preemptible_tries = preemptible_tries,
-      authentication = authentication_block,
-      service_account_filename = service_account_filename
-  }
+
 
   call IlluminaGenotyping.IlluminaGenotypingArray as IlluminaGenotypingArray {
     input:
