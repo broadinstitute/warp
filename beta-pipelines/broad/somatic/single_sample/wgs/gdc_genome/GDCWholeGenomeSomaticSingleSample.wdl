@@ -380,6 +380,7 @@ task picard_markduplicates {
         Int preemptible = 2
         Int max_retries = 0
         Int additional_disk = 0
+        Float? sorting_collection_size_ratio
     }
     String metrics_file = outbam + ".metrics"
     Int jvm_mem = if mem > 1 then mem - 1  else 1
@@ -396,7 +397,8 @@ task picard_markduplicates {
                 VALIDATION_STRINGENCY=~{validation_stringency} \
                 ASSUME_SORT_ORDER=~{assume_sort_order} \
                 OUTPUT=~{outbam} \
-                METRICS_FILE=~{metrics_file}
+                METRICS_FILE=~{metrics_file} \
+                ~{"SORTING_COLLECTION_SIZE_RATIO=" + sorting_collection_size_ratio}
     }
 
     output {
