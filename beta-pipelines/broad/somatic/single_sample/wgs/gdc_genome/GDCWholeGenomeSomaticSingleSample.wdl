@@ -151,8 +151,8 @@ task emit_pe_records {
         Int additioinal_memory_mb = 0
         Int additional_disk_gb = 0
     }
-    Int mem = ceil(size([fastq1_files, fastq2_files], "MiB")) + 2000 + additioinal_memory_mb
-    Int disk_space = ceil(size([fastq1_files, fastq2_files], "GiB")) + 10 + additional_disk_gb
+    Int mem = ceil(size(fastq1_files, "MiB") + size(fastq2_files, "MiB")) + 2000 + additioinal_memory_mb
+    Int disk_space = ceil(size(fastq1_files, "GiB") + size(fastq2_files, "GiB")) + 10 + additional_disk_gb
 
     File readgroups_tsv = write_objects(readgroups)
 
@@ -216,8 +216,8 @@ task emit_se_records {
         Int additioinal_memory_mb = 0
         Int additional_disk_gb = 0
     }
-    Int mem = ceil(size([fastq_o1_files, fastq_o2_files, fastq_s_files], "MiB")) + 2000 + additioinal_memory_mb
-    Int disk_space = ceil(size([fastq_o1_files, fastq_o2_files, fastq_s_files], "GiB")) + 10 + additional_disk_gb
+    Int mem = ceil(size(fastq_o1_files, "MiB") + size(fastq_o2_files, "MiB") + size(fastq_s_files, "MiB")) + 2000 + additioinal_memory_mb
+    Int disk_space = ceil(size(fastq_o1_files, "GiB") + size(fastq_o2_files, "GiB") + size(fastq_s_files, "GiB")) + 10 + additional_disk_gb
 
     File readgroups_tsv = write_objects(readgroups)
 
