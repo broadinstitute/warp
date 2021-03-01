@@ -22,10 +22,10 @@ task bam_readgroup_to_contents {
         Int preemptible = 10
         Int max_retries = 0
         Int cpu = 1
-        Int additioinal_memory_mb = 0
+        Int additional_memory_mb = 0
         Int additional_disk_gb = 0
     }
-    Int mem = ceil(size(bam, "MiB")) + 2000 + additioinal_memory_mb
+    Int mem = ceil(size(bam, "MiB")) + 2000 + additional_memory_mb
     Int disk_space = ceil(size(bam, "GiB")) + 10 + additional_disk_gb
 
     parameter_meta {
@@ -95,10 +95,10 @@ task biobambam_bamtofastq {
         Int cpu = 1
         Int preemptible = 2
         Int max_retries = 0
-        Int additioinal_memory_mb = 0
+        Int additional_memory_mb = 0
         Int additional_disk_gb = 0
     }
-    Int mem = ceil(size(filename, "MiB")) + 2000 + additioinal_memory_mb
+    Int mem = ceil(size(filename, "MiB")) + 2000 + additional_memory_mb
     Int disk_space = ceil(size(filename, "GiB") * 2) + 10 + additional_disk_gb
 
     command {
@@ -148,10 +148,10 @@ task emit_pe_records {
         Int preemptible = 10
         Int max_retries = 0
         Int cpu = 1
-        Int additioinal_memory_mb = 0
+        Int additional_memory_mb = 0
         Int additional_disk_gb = 0
     }
-    Int mem = ceil(size(fastq1_files, "MiB") + size(fastq2_files, "MiB")) + 2000 + additioinal_memory_mb
+    Int mem = ceil(size(fastq1_files, "MiB") + size(fastq2_files, "MiB")) + 2000 + additional_memory_mb
     Int disk_space = ceil(size(fastq1_files, "GiB") + size(fastq2_files, "GiB")) + 10 + additional_disk_gb
 
     File readgroups_tsv = write_objects(readgroups)
@@ -213,10 +213,10 @@ task emit_se_records {
         Int preemptible = 10
         Int max_retries = 0
         Int cpu = 1
-        Int additioinal_memory_mb = 0
+        Int additional_memory_mb = 0
         Int additional_disk_gb = 0
     }
-    Int mem = ceil(size(fastq_o1_files, "MiB") + size(fastq_o2_files, "MiB") + size(fastq_s_files, "MiB")) + 2000 + additioinal_memory_mb
+    Int mem = ceil(size(fastq_o1_files, "MiB") + size(fastq_o2_files, "MiB") + size(fastq_s_files, "MiB")) + 2000 + additional_memory_mb
     Int disk_space = ceil(size(fastq_o1_files, "GiB") + size(fastq_o2_files, "GiB") + size(fastq_s_files, "GiB")) + 10 + additional_disk_gb
 
     File readgroups_tsv = write_objects(readgroups)
@@ -289,7 +289,7 @@ task bwa_pe {
         Int cpu = 16
         Int preemptible = 1
         Int max_retries = 0
-        Int additioinal_memory_mb = 0
+        Int additional_memory_mb = 0
         Int additional_disk_gb = 0
     }
     File fastq1 = fastq_record.forward_fastq
@@ -297,7 +297,7 @@ task bwa_pe {
     String readgroup = fastq_record.readgroup
     String outbam = fastq_record.readgroup_id + ".bam"
     Float ref_size =size([ref_fasta, ref_dict, ref_amb, ref_ann, ref_bwt, ref_pac, ref_sa, ref_fai], "GiB")
-    Int mem = ceil(size([fastq1, fastq2], "MiB")) + 10000 + additioinal_memory_mb
+    Int mem = ceil(size([fastq1, fastq2], "MiB")) + 10000 + additional_memory_mb
     Int disk_space = ceil((size([fastq1, fastq2], "GiB") * 2) + ref_size) + 10 + additional_disk_gb
 
     command {
@@ -343,14 +343,14 @@ task bwa_se {
         Int cpu = 16
         Int preemptible = 1
         Int max_retries = 0
-        Int additioinal_memory_mb = 0
+        Int additional_memory_mb = 0
         Int additional_disk_gb = 0
     }
     File fastq = fastq_record.fastq
     String readgroup = fastq_record.readgroup
     String outbam = fastq_record.readgroup_id + ".bam"
     Float ref_size = size([ref_fasta, ref_dict, ref_amb, ref_ann, ref_bwt, ref_pac, ref_sa, ref_fai], "GiB")
-    Int mem = ceil(size(fastq, "MiB")) + 10000 + additioinal_memory_mb
+    Int mem = ceil(size(fastq, "MiB")) + 10000 + additional_memory_mb
     Int disk_space = ceil((size(fastq, "GiB") * 2) + ref_size) + 10 + additional_disk_gb
 
     command {
@@ -391,11 +391,11 @@ task picard_markduplicates {
         Int preemptible = 2
         Int max_retries = 0
         Float? sorting_collection_size_ratio
-        Int additioinal_memory_mb = 0
+        Int additional_memory_mb = 0
         Int additional_disk_gb = 0
     }
     String metrics_file = outbam + ".metrics"
-    Int mem = ceil(size(bams, "M") * 2) + additioinal_memory_mb
+    Int mem = ceil(size(bams, "M") * 2) + additional_memory_mb
     Int jvm_mem = if mem > 1000 then mem - 1000  else 1000
     Int disk_space = ceil(size(bams, "GiB") * 2.2) + additional_disk_gb
 
@@ -440,10 +440,10 @@ task sort_and_index_markdup_bam {
         Int cpu = 8
         Int preemptible = 2
         Int max_retries = 0
-        Int additioinal_memory_mb = 0
+        Int additional_memory_mb = 0
         Int additional_disk_gb = 0
     }
-    Int mem = ceil(size(input_bam, "MiB"))+ 10000 + additioinal_memory_mb
+    Int mem = ceil(size(input_bam, "MiB")) + 10000 + additional_memory_mb
     Int disk_space = ceil(size(input_bam, "GiB") * 3.25) + 20 + additional_disk_gb
     Int mem_per_thread = floor(mem / cpu * 0.85)
     Int index_threads = cpu - 1
@@ -491,13 +491,13 @@ task gatk_baserecalibrator {
         Int cpu = 2
         Int preemptible = 2
         Int max_retries = 0
-        Int additioinal_memory_mb = 0
+        Int additional_memory_mb = 0
         Int additional_disk_gb = 0
     }
     String output_grp = basename(bam, ".bam") + "_bqsr.grp"
     Float ref_size = size([ref_fasta, ref_fai, ref_dict], "GiB")
     Float dbsnp_size = size([dbsnp_vcf, dbsnp_vcf_index], "GiB")
-    Int mem = ceil(size(bam, "MiB"))+ 6000 + additioinal_memory_mb
+    Int mem = ceil(size(bam, "MiB")) + 6000 + additional_memory_mb
     Int jvm_mem = if mem > 1000 then mem - 1000 else 1000
     Int disk_space = ceil(size(bam, "GiB") + ref_size + dbsnp_size) + 20 + additional_disk_gb
 
@@ -544,12 +544,12 @@ task gatk_applybqsr {
         Int cpu = 2
         Int preemptible = 2
         Int max_retries = 0
-        Int additioinal_memory_mb = 0
+        Int additional_memory_mb = 0
         Int additional_disk_gb = 0
     }
     String output_bam = basename(input_bam)
     String output_bai = basename(input_bam, ".bam") + ".bai"
-    Int mem = ceil(size(input_bam, "MiB"))+ 4000 + additioinal_memory_mb
+    Int mem = ceil(size(input_bam, "MiB")) + 4000 + additional_memory_mb
     Int jvm_mem = if mem > 1000 then mem - 1000 else 1000
     Int disk_space = ceil((size(input_bam, "GiB") * 3)) + 20 + additional_disk_gb
 
@@ -590,14 +590,15 @@ task collect_insert_size_metrics {
   input {
     File input_bam
     String output_bam_prefix
-    Int additioinal_memory_mb = 0
+    Int additional_memory_mb = 0
     Int additional_disk_gb = 0
   }
-  Int mem = 7500 + additioinal_memory_mb
+  Int mem = ceil(size(input_bam, "GiB")) + additional_memory_mb
+  Int jvm_mem = if mem > 1000 then mem - 1000 else 1000
   Int disk_size = ceil(size(input_bam, "GiB")) + 20 + additional_disk_gb
 
   command {
-    java -Xms5000m -jar /usr/picard/picard.jar \
+    java -Xms~{jvm_mem}m -jar /usr/picard/picard.jar \
       CollectInsertSizeMetrics \
       INPUT=~{input_bam} \
       OUTPUT=~{output_bam_prefix}.insert_size_metrics \
