@@ -9,8 +9,8 @@
 #   will be automatically added by this script
 ###########################################################
 # scientific_owners_gdc_pipeline
-gdc_wgs_wdls=("beta-pipelines/broad/somatic/single_sample/wgs/gdc_genome/GDCWholeGenomeSomaticSingleSample.wdl")
-gdc_wgs_files=("beta-pipelines/broad/somatic/single_sample/wgs/gdc_genome/**")
+gdc_wgs_wdls=("pipelines/broad/somatic/single_sample/wgs/gdc_genome/GDCWholeGenomeSomaticSingleSample.wdl")
+gdc_wgs_files=("pipelines/broad/somatic/single_sample/wgs/gdc_genome/**")
 
 # scientific_owners_cram_to_unmapped_bam
 cram_to_unmapped_bams_wdls=("pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl")
