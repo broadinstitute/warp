@@ -553,7 +553,6 @@ task gatk_applybqsr {
 
     parameter_meta {
         input_bam: {localization_optional: true}
-        bqsr_recal_file: {localization_optional: true}
     }
 
     command {
