@@ -403,7 +403,7 @@ task picard_markduplicates {
         set -euo pipefail
         java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
              -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-             -Xloggc:gc_log.log -Xms~{jvm_mem}g -jar /usr/picard/picard.jar \
+             -Xloggc:gc_log.log -Xms~{jvm_mem}m -jar /usr/picard/picard.jar \
             MarkDuplicates \
                 INPUT=~{sep=" INPUT=" bams} \
                 TMP_DIR=. \
