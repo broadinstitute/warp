@@ -395,9 +395,9 @@ task picard_markduplicates {
         Int additional_disk_gb = 0
     }
     String metrics_file = outbam + ".metrics"
-    Int mem = ceil(size(bams, "M") * 2) + additional_memory_mb
-    Int jvm_mem = if mem > 1000 then mem - 1000  else 1000
-    Int disk_space = ceil(size(bams, "GiB") * 2.2) + additional_disk_gb
+    Int mem = ceil(size(bams, "M") * 2) + 3500 + additional_memory_mb
+    Int jvm_mem = mem - 1000
+    Int disk_space = ceil(size(bams, "GiB") * 2.2) + 20 + additional_disk_gb
 
     command {
         set -euo pipefail
@@ -498,7 +498,7 @@ task gatk_baserecalibrator {
     Float ref_size = size([ref_fasta, ref_fai, ref_dict], "GiB")
     Float dbsnp_size = size([dbsnp_vcf, dbsnp_vcf_index], "GiB")
     Int mem = ceil(size(bam, "MiB")) + 6000 + additional_memory_mb
-    Int jvm_mem = if mem > 1000 then mem - 1000 else 1000
+    Int jvm_mem = mem - 1000
     Int disk_space = ceil(size(bam, "GiB") + ref_size + dbsnp_size) + 20 + additional_disk_gb
 
     parameter_meta {
@@ -550,7 +550,7 @@ task gatk_applybqsr {
     String output_bam = basename(input_bam)
     String output_bai = basename(input_bam, ".bam") + ".bai"
     Int mem = ceil(size(input_bam, "MiB")) + 4000 + additional_memory_mb
-    Int jvm_mem = if mem > 1000 then mem - 1000 else 1000
+    Int jvm_mem = mem - 1000
     Int disk_space = ceil((size(input_bam, "GiB") * 3)) + 20 + additional_disk_gb
 
     parameter_meta {
