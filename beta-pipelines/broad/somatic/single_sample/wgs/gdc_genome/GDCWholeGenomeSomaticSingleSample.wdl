@@ -397,7 +397,7 @@ task picard_markduplicates {
     String metrics_file = outbam + ".metrics"
     Int mem = ceil(size(bams, "M") * 2) + 16000 + additional_memory_mb
     Int jvm_mem = mem - 1000
-    Int disk_space = ceil(size(bams, "GiB") * 2.2) + 20 + additional_disk_gb
+    Int disk_space = ceil(size(bams, "GiB") * 2.2) + 32 + additional_disk_gb
 
     command {
         set -euo pipefail
