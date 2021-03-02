@@ -200,9 +200,9 @@ tryCatch({
 },error=function(e) {
     if(grepl("need at least four unique 'x' values",e$message,fixed=TRUE))
     {
+        cat('Error: an error occured while running emptyDrops!\n',file=stderr())
+        cat('Error: ', e$message,'\n',file=stderr())
         # Write an empty_drops_results.csv file that has only NAs
-        print(dim(inputMatrix))
-        print(colnames(inputMatrix)[1])
         n_rows = dim(inputMatrix)[2] # Get number of rows
         emptyDrops_result <- matrix(data=NA,nrow=n_rows,ncol=7)
         ## Convert output from DataFrame to data.frame
@@ -210,10 +210,10 @@ tryCatch({
         colnames(emptyDrops_result) <-  c("CellId","Total", "LogProb", "PValue", "Limited", "FDR", "IsCell")
         emptyDrops_result[,"CellId"] = colnames(inputMatrix)
         ## Write the output file
-        catv('Writing output CSV...')
+        catv('Writing output CSV with NA\'s instead of emptydrops metrics ...')
         write.csv(x=emptyDrops_result, file=output_csv,row.names=FALSE)
         catv('done\n')
-        quit(save="no",status=17)
+        quit(save="no",status=0)
     }
     else
     {
