@@ -590,8 +590,8 @@ task collect_insert_size_metrics {
     Int additional_memory_mb = 0
     Int additional_disk_gb = 0
   }
-  Int mem = ceil(size(input_bam, "GiB")) + additional_memory_mb
-  Int jvm_mem = if mem > 1000 then mem - 1000 else 1000
+  Int mem = ceil(size(input_bam, "GiB")) + 7000 + additional_memory_mb
+  Int jvm_mem = mem - 1000
   Int disk_size = ceil(size(input_bam, "GiB")) + 20 + additional_disk_gb
 
   command {
