@@ -22,6 +22,8 @@ workflow IlluminaGenotypingArray {
 
   String pipeline_version = "1.11.0"
 
+
+
   input {
 
     # This is the autocall_version, needed for the case where autocall fails (likely due to normalization errors)
