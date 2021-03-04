@@ -47,6 +47,11 @@ The Whole Genome Germline Single Sample [workflow](https://github.com/broadinsti
 
 Learn more about the software tools implemented in these tasks by reading the GATK [data pre-processing](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912) and [germline short variant discovery](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932) documentation.
 
+:::tip Want to use the Whole Genome Germline Single Sample workflow in your publication?
+Check out the workflow [Methods](./wgs.methods.md) to get started!
+:::  
+
+
 ## Workflow Outputs
 
 * CRAM, CRAM index, and CRAM MD5
