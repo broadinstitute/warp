@@ -12,8 +12,8 @@ library('optparse')
 #' Prints a message to stderr and exits R with error code 1
 #' @param msg message to standard error
 errorExit <- function(msg) {
-    cat(msg,file=stderr());
-    quit(save='no',status=1);
+    cat(msg,file=stderr())
+    quit(save='no',status=1)
 }
 
 #' Prints a message with cat only if verbose is TRUE
@@ -93,15 +93,15 @@ option_list <- list(
 )
 
 ## Parse the arguments
-opt_parser <- OptionParser(option_list=option_list);
-opt <- parse_args(opt_parser);
+opt_parser <- OptionParser(option_list=option_list)
+opt <- parse_args(opt_parser)
 
 ## Check the parsed arguments
-if(is.null(opt$input_rds))  errorExit("Input RDS is not specified\n");
-if(is.null(opt$output_csv)) errorExit("Output CSV is not specified\n");
-if(!file.exists(opt$input_rds)) errorExit("Input RDS doesn't exist!\n");
-if(file.exists(opt$output_csv)) errorExit("Output CSV file exists!\n");
-if(is.null(opt$min_molecules)) errorExit("Minimum number of molecules is not specified\n");
+if(is.null(opt$input_rds))  errorExit("Input RDS is not specified\n")
+if(is.null(opt$output_csv)) errorExit("Output CSV is not specified\n")
+if(!file.exists(opt$input_rds)) errorExit("Input RDS doesn't exist!\n")
+if(file.exists(opt$output_csv)) errorExit("Output CSV file exists!\n")
+if(is.null(opt$min_molecules)) errorExit("Minimum number of molecules is not specified\n")
 
 ## Load the required libraries here
 ## NOTE: We do this after parsing arguments so that --help returns immediatedly
@@ -146,7 +146,7 @@ if(!class(inputMatrix) %in% c( 'dgCMatrix','dgRMatrix' )) {
 if(any(dim(inputMatrix) == 0)) {
     ## If the matrix is empty we can't run emptyDrops, write a empty table header
     cat('Warning: one or more dimensions of the input matrix are empty. Generating empty result table.',file=stderr())
-    outputFile <- file(output_csv);
+    outputFile <- file(output_csv)
     writeLines('"CellId","Total","LogProb","PValue","Limited","FDR","IsCell"',outputFile)
     close(outputFile)
     q(save="no",status=0)
@@ -182,7 +182,7 @@ if(is.null(colnames(inputMatrix))) {
 ## can be done in a single step by re-interpreting the indexes
 if (opt$transpose) {
    catv('Transposing input matrix...')
-   inputMatrix <- Matrix::t(inputMatrix);
+   inputMatrix <- Matrix::t(inputMatrix)
    catv('done\n')
 }
 
@@ -198,9 +198,29 @@ tryCatch({
                                     alpha=ed_param_alpha,
                                     BPPARAM=ed_param_BPPARAM)
 },error=function(e) {
-    cat('Error: an error occured while running emptyDrops!\n',file=stderr())
-    cat('Error: ', e$message,'\n',file=stderr())
-    quit(save="no",status=1)
+    if(grepl("need at least four unique 'x' values",e$message,fixed=TRUE))
+    {
+        cat('Error: an error occured while running emptyDrops!\n',file=stderr())
+        cat('Error: ', e$message,'\n',file=stderr())
+        # Write an empty_drops_results.csv file that has only NAs
+        n_rows = dim(inputMatrix)[2] # Get number of rows
+        emptyDrops_result <- matrix(data=NA,nrow=n_rows,ncol=7)
+        ## Convert output from DataFrame to data.frame
+        emptyDrops_result <- as.data.frame(emptyDrops_result)
+        colnames(emptyDrops_result) <-  c("CellId","Total", "LogProb", "PValue", "Limited", "FDR", "IsCell")
+        emptyDrops_result[,"CellId"] = colnames(inputMatrix)
+        ## Write the output file
+        catv('Writing output CSV with NA\'s instead of emptydrops metrics ...')
+        write.csv(x=emptyDrops_result, file=output_csv,row.names=FALSE)
+        catv('done\n')
+        quit(save="no",status=0)
+    }
+    else
+    {
+        cat('Error: an error occured while running emptyDrops!\n',file=stderr())
+        cat('Error: ', e$message,'\n',file=stderr())
+        quit(save="no",status=1)
+    }
 })
 t1 <- Sys.time()
 emptyDrop_runtime <- t1 - t0
@@ -223,6 +243,6 @@ emptyDrops_result <- emptyDrops_result[,colOrder]
 catv('done\n') # Preparing output matrix
 
 ## Write the output file
-catv('Writing output CSV...');
+catv('Writing output CSV...')
 write.csv(x=emptyDrops_result, file=output_csv,row.names=FALSE)
 catv('done\n')
