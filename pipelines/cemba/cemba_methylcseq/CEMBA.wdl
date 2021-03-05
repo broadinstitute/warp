@@ -57,7 +57,7 @@ workflow CEMBA {
     }
 
     # version of this pipeline
-    String pipeline_version = "1.1.0"
+    String pipeline_version = "1.1.1"
 
   # trim off hardcoded sequence adapters
   call Trim as TrimAdapters {
@@ -1040,7 +1040,7 @@ task MethylationTypeCaller {
 
   # output name for VCF and its index
   String methylation_vcf_output_name = output_base_name + ".vcf"
-  String methylation_vcf_index_output_name = output_base_name + ".idx"
+  String methylation_vcf_index_output_name = methylation_vcf_output_name + ".idx"
 
   command <<<
     set -euo pipefail
@@ -1056,7 +1056,8 @@ task MethylationTypeCaller {
     gatk MethylationTypeCaller \
       --input ~{bam_input} \
       --reference ~{reference_fasta} \
-      --output ~{methylation_vcf_output_name}
+      --output ~{methylation_vcf_output_name} \
+      --create-output-variant-index 
   >>>
 
   runtime {
@@ -1085,16 +1086,16 @@ task VCFtoALLC {
   # input file size
 
   # output name for VCF and its index
-  String methylation_allc_output_name = sub(methylation_vcf_output_name, ".vcf$", ".allc")
+  String methylation_allc_output_name = sub(basename(methylation_vcf_output_name), ".vcf$", ".allc")
 
   command <<<
     set -euo pipefail
 
-    python -i ~{methylation_vcf_output_name} -o ~{methylation_allc_output_name}
+    python /tools/convert-vcf-to-allc.py -i ~{methylation_vcf_output_name} -o ~{methylation_allc_output_name}
   >>>
 
   runtime {
-    docker: "quay.io/cemba/vcftoallc:v0.0.1"
+    docker: "quay.io/humancellatlas/vcftoallc:v0.0.1"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     disks: "local-disk ~{disk_size_gib} HDD"
     cpu: 1
