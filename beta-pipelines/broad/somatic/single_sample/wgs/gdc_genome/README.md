@@ -36,7 +36,7 @@ For the latest workflow version and release notes, please see the [changelog](ht
 
 ### Input Descriptions
 
-The table below describes each of the GDC pipeline inputs. The workflow requires a **single** aligned CRAM or BAM file, or a **single** unmapped BAM (uBAM) as input, and is configured for reads greater than 75 bp.
+The table below describes each of the GDC pipeline inputs. The workflow requires a **single** aligned CRAM or BAM file, or a **single** unmapped BAM (uBAM) as input, and is set up to run on samples with reads greater than 75 bp.
 
 For examples of how to specify each input as well as cloud locations for different example input files, see the [input configuration file (JSON)](https://github.com/broadinstitute/warp/blob/master/beta-pipelines/broad/somatic/single_sample/wgs/gdc_genome/input_files/GDCWholeGenomeSomaticSingleSample.inputs.json).
 
