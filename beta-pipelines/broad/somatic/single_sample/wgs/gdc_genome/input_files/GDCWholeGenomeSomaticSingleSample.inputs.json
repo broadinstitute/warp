@@ -1,5 +1,4 @@
 {
-  "GDCWholeGenomeSomaticSingleSample.base_file_name":"NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211",
   "GDCWholeGenomeSomaticSingleSample.contamination_vcf":"gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz",
   "GDCWholeGenomeSomaticSingleSample.contamination_vcf_index":"gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz.tbi",
   "GDCWholeGenomeSomaticSingleSample.dbsnp_vcf":"gs://gcp-public-data--broad-references/hg38/v0/gdc/dbsnp_144.hg38.vcf.gz",
