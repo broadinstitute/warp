@@ -16,7 +16,7 @@ task RunEmptyDrops {
         Int emptydrops_lower = 100
 
         # runtime values
-        String docker = "quay.io/humancellatlas/secondary-analysis-dropletutils:0.1.2"
+        String docker = "quay.io/humancellatlas/secondary-analysis-dropletutils:0.1.4"
         Int machine_mem_mb = 16000
         Int cpu = 1
         Int disk = 20
@@ -47,6 +47,7 @@ task RunEmptyDrops {
         disks: "local-disk ${disk} HDD"
         cpu: cpu
         preemptible: preemptible
+        bootDiskSizeGb: "20"
     }
 
     output {

@@ -1,0 +1,144 @@
+cat <<EOF >.pullapprove.yml
+---
+version: 3
+
+  ${EDIT_INSTRUCTIONS}
+
+
+pullapprove_conditions:
+  - condition: "'WIP' not in title"
+    unmet_status: pending
+    explanation: "Work in progress"
+  - condition: "'WIP' not in labels"
+    unmet_status: pending
+    explanation: "Work in progress"
+  - condition: "'do not merge' not in labels"
+    unmet_status: failure
+    explanation: "Do Not Merge"
+
+
+groups:
+  # Reviews from 2 developers are required for any PR
+  developers:
+    reviews:
+      required: 2
+      request: 0  # number of review requests sent at a time
+    reviewers:
+      teams:
+        - dsde-pipelines-developers
+
+  # Reviews from scientific owners:
+  # - will not be required if the 'eng-only' label is applied
+
+  scientific_owners_arrays:
+    conditions:
+      - "'eng-only' not in labels"
+      - "base.ref != 'master'"
+      - "base.ref != 'RC'"
+      - >
+        ${ARRAYS_FILES}
+    reviews:
+      required: 1
+      author_value: 1
+      request: 1
+      request_order: given
+    reviewers:
+      users:
+        - gbggrant # George Grant
+
+  scientific_owners_gdc_pipeline:
+    conditions:
+      - "'eng-only' not in labels"
+      - "base.ref != 'master'"
+      - "base.ref != 'RC'"
+      - >
+        ${GDC_WGS_FILES}
+      reviews:
+        required: 1
+        author_value: 1
+        request: 1
+        request_order: given
+      reviewers:
+        users:
+          - chips2art # Chip Stewart
+
+  scientific_owners_cram_to_unmapped_bam:
+    conditions:
+      - "'eng-only' not in labels"
+      - "base.ref != 'master'"
+      - "base.ref != 'RC'"
+      - >
+        ${CRAM_TO_UNMAPPED_BAMS}
+      reviews:
+        required: 1
+        author_value: 1
+        request: 1
+        request_order: given
+      reviewers:
+        users:
+          - kachulis # Chris Kachulis
+
+  scientific_owners_germline_single_sample:
+    conditions:
+      - "'eng-only' not in labels"
+      - "base.ref != 'master'"
+      - "base.ref != 'RC'"
+      - >
+        ${GERMLINE_SINGLE_SAMPLE_FILES}
+    reviews:
+      required: 1
+      author_value: 1
+      request: 2
+    reviewers:
+      users:
+        - ldgauthier # Laura Gauthier
+        - kachulis # Chris Kachulis
+
+  scientific_owners_joint_genotyping:
+    conditions:
+      - "'eng-only' not in labels"
+      - "base.ref != 'master'"
+      - "base.ref != 'RC'"
+      - >
+        ${JOINT_GENOTYPING_FILES}
+    reviews:
+      required: 1
+      author_value: 1
+      request: 1
+      request_order: given
+    reviewers:
+      users:
+        - ldgauthier # Laura Gauthier
+
+  scientific_owners_somatic_single_sample:
+    conditions:
+      - "'eng-only' not in labels"
+      - "base.ref != 'master'"
+      - "base.ref != 'RC'"
+      - >
+        ${SOMATIC_SINGLE_SAMPLE_FILES}
+    reviews:
+      required: 1
+      author_value: 1
+      request: 1
+      request_order: given
+    reviewers:
+      users:
+        - fleharty # Mark Fleharty
+
+
+  # Clinical reviews:
+  # - Approval is not required, this is just to send an email to Betty
+  #   to make sure that she is aware of changes to the clinical pipelines
+  clinical_owners:
+    conditions:
+      - "base.ref != 'master'"
+      - "base.ref != 'RC'"
+      - >
+        ${CLINICAL_FILES}
+    reviews:
+      required: 0
+      request: 1
+    reviewers:
+      users:
+        - bwoolf2 # Betty Woolf
