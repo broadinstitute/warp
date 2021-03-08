@@ -4,6 +4,7 @@
 | :----: | :---: | :----: | :--------------: |
 | [GDCWholeGenomeSomaticSingleSample_v1.0.0](https://github.com/broadinstitute/warp/releases) | January, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
+
 ## Introduction to the GDC Whole Genome Somatic Single Sample Pipeline
 The GDC Whole Genome Somatic Single Sample (abbreviated GDC here) pipeline is the alignment and preprocessing workflow for genomic data designed for the National Cancer Institute's [Genomic Data Commons](https://gdc.cancer.gov/about-gdc). 
 
@@ -11,6 +12,7 @@ A high-level overview of the pipeline in addition to tool parameters are availab
 
 Overall, the pipeline converts reads (CRAM or BAM) to FASTQ and (re)aligns them to the latest human reference genome (see the [GDC Reference Genome](#gdc-reference-genome) section below). Each read group is aligned separately. Read group alignments that belong to a single sample are then merged and duplicate reads are flagged for downstream variant calling. 
 
+![](GDC.png)
 
 ## Set-up
 
@@ -34,7 +36,7 @@ For the latest workflow version and release notes, please see the [changelog](ht
 
 ### Input Descriptions
 
-The table below describes each of the GDC pipeline inputs. The workflow requires a **single** aligned CRAM or BAM file, or a **single** unmapped BAM (uBAM) as input. 
+The table below describes each of the GDC pipeline inputs. The workflow requires a **single** aligned CRAM or BAM file, or a **single** unmapped BAM (uBAM) as input, and is configured for reads greater than 75 bp.
 
 For examples of how to specify each input as well as cloud locations for different example input files, see the [input configuration file (JSON)](https://github.com/broadinstitute/warp/blob/master/beta-pipelines/broad/somatic/single_sample/wgs/gdc_genome/input_files/GDCWholeGenomeSomaticSingleSample.inputs.json).
 
