@@ -18,7 +18,7 @@ workflow JointGenotyping {
     String callset_name
     String google_project
     String autoscaling_policy_name
-    String partitions
+    String? mt_to_vcf_parallel_arg
     String data_type
     Boolean overwrite_mt
     Boolean? gather_vcfs
@@ -74,7 +74,7 @@ workflow JointGenotyping {
     Int vcf_count
   }
 
-  String hail_docker = select_first([override_hail_docker, "ruchim/hail-testing:a9dd1f2"])
+  String hail_docker = select_first([override_hail_docker, "ruchim/hail-testing:57f5df4"])
   String region = select_first([override_region, "us-central1"])
   String gvcf_header = select_first([override_vcf_header_file, "gs://jg-dev-hail-testing/withWdl/header.g.vcf.gz"])
 
@@ -105,13 +105,14 @@ workflow JointGenotyping {
       gvcf_header_file = gvcf_header
   }
 
+  String parallel = select_first([mt_to_vcf_parallel_arg, ""])
   call ConvertMatrixTableToVcf {
     input:
       matrix_table = CreateMatrixTable.matrix_table,
       hail_docker = hail_docker,
       output_dir = output_dir,
       callset_name = callset_name,
-      partitions = partitions,
+      parallel = parallel,
       cluster_name = cluster_name,
       region = region,
       google_project = google_project,
@@ -531,7 +532,7 @@ task ConvertMatrixTableToVcf {
     String hail_docker
     String output_dir
     String callset_name
-    String partitions
+    String parallel
     String google_project
     String cluster_name
     String region
@@ -545,7 +546,7 @@ task ConvertMatrixTableToVcf {
     gcloud config set dataproc/region ~{region}
 
     /submit_mt_to_vcf_to_cluster.sh ~{google_project} ~{cluster_name} ~{matrix_table} \
-    ~{output_dir} ~{data_type} ~{callset_name} ~{partitions}
+    ~{output_dir} ~{data_type} ~{callset_name} ~{parallel}
   }
 
   runtime {

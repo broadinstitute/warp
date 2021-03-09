@@ -6,7 +6,6 @@
     "JointGenotyping.callset_name": "test_call_set2",
     "JointGenotyping.google_project": "broad-jg-dev",
     "JointGenotyping.autoscaling_policy_name": "test_policy",
-    "JointGenotyping.partitions": "1",
     "JointGenotyping.data_type": "Exome",
     "JointGenotyping.overwrite_mt": true,
     "JointGenotyping.snps_variant_recalibration_threshold": 500000,
@@ -45,7 +44,7 @@
     "JointGenotyping.mills_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi",
     "JointGenotyping.axiomPoly_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz",
     "JointGenotyping.axiomPoly_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi",
-    "JointGenotyping.haplotype_database": "gs://broad-references-private/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt",
+    "JointGenotyping.haplotype_database": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt",
 
     "JointGenotyping.snp_filter_level": 99.7,
     "JointGenotyping.indel_filter_level": 95.0,

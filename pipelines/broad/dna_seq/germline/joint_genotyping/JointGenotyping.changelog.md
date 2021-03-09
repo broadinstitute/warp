@@ -1,7 +1,7 @@
 # 2.0.0
 2020-02-04
 
-Using Hail to instead of GenomicsDB 
+Using Hail to gather gvcfs instead of GenomicsDB in Joint Calling workflow 
 
 # 1.5.1
 2020-12-16

@@ -6,7 +6,6 @@
     "JointGenotyping.callset_name": "wgs_test_call_set",
     "JointGenotyping.google_project": "broad-jg-dev",
     "JointGenotyping.autoscaling_policy_name": "test_policy",
-    "JointGenotyping.partitions": "1",
     "JointGenotyping.data_type": "WGS",
     "JointGenotyping.overwrite_mt": true,
     "JointGenotyping.snps_variant_recalibration_threshold": 20000,
