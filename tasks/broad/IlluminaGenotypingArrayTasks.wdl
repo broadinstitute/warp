@@ -71,7 +71,7 @@ task BpmToNormalizationManifestCsv {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:gg_TestUpdateBaseImage"
     disks: "local-disk 10 HDD"
     memory: "7.5 GiB"
     cpu: 2
@@ -130,7 +130,7 @@ task GtcToVcf {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:gg_TestUpdateBaseImage"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory} GiB"
     cpu: 2
@@ -195,7 +195,7 @@ task VcfToAdpc {
              --OUTPUT ~{output_adpc_filename}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:gg_TestUpdateBaseImage"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -269,7 +269,7 @@ task CreateVerifyIDIntensityContaminationMetricsFile {
              --OUTPUT ~{output_metrics_basefilename}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:gg_TestUpdateBaseImage"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -325,7 +325,7 @@ task CollectArraysVariantCallingMetrics {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:gg_TestUpdateBaseImage"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -356,7 +356,7 @@ task VcfToIntervalList {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:gg_TestUpdateBaseImage"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -410,7 +410,7 @@ task CheckFingerprint {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:gg_TestUpdateBaseImage"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -581,7 +581,7 @@ task MergePedIntoVcf {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:gg_TestUpdateBaseImage"
     memory: "3.5 GiB"
     cpu: "1"
     disks: "local-disk " + disk_size + " HDD"
@@ -680,7 +680,7 @@ task GenotypeConcordance {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:gg_TestUpdateBaseImage"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries

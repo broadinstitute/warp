@@ -83,7 +83,7 @@ task SplitFoFnToListFoFn {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:gg_TestUpdateBaseImage"
     memory: "1 GiB"
   }
 
@@ -112,7 +112,7 @@ task CombineVCFs {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:gg_TestUpdateBaseImage"
     disks: "local-disk " + disk_size + " HDD"
     memory: "26 GiB"
     preemptible: preemptible_tries
