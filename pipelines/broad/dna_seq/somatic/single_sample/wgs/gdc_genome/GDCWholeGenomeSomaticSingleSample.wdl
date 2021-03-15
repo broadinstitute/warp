@@ -1,7 +1,7 @@
 version 1.0
 
-import "../../../../../../pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
-import "../../../../../../tasks/broad/CheckContaminationSomatic.wdl" as CheckContamination
+import "../../../../../../../pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
+import "../../../../../../../tasks/broad/CheckContaminationSomatic.wdl" as CheckContamination
 
 struct FastqPairRecord {
     File forward_fastq
