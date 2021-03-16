@@ -17,7 +17,7 @@ task CalculateSomaticContamination {
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
         File? gatk_override
         Int? additional_disk
-        Int? mem
+        Int mem = 3
         Int? preemptible_attempts
         Int? max_retries
     }
@@ -25,7 +25,7 @@ task CalculateSomaticContamination {
     Int disk_size = ceil(size(tumor_cram_or_bam,"GB") + size(normal_cram_or_bam,"GB")) + select_first([additional_disk, 10])
 
     # Mem is in units of GB but our command and memory runtime values are in MB
-    Int machine_mem = if defined(mem) then mem * 1000 else 3000
+    Int machine_mem = mem * 1000
     Int command_mem = machine_mem - 500
 
     command <<<
