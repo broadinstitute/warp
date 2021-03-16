@@ -1,3 +1,8 @@
+# 2.3.2
+2021-02-22
+
+* Added SORTING_COLLECTION_SIZE_RATIO as an optional task input to MarkDuplicates
+
 # 2.3.1
 2020-12-21
 

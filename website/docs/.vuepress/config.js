@@ -163,7 +163,8 @@ module.exports = {
               title: "Whole Genome Germline Single Sample Pipeline",
               collapsable: true,
               children: [
-                "Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/"
+                "Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/",
+                "Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/wgs.methods"                
               ],
             },
           ],
