@@ -1,5 +1,5 @@
 # 1.0.1
-2020-03-02
+2021-03-02
 
 * GDCWholeGenomeSomaticSingleSample pipeline has been moved out of the beta-pipelines folder and into the pipelines folder
 
