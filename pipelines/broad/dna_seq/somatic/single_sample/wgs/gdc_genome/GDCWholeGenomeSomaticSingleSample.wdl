@@ -1,7 +1,7 @@
 version 1.0
 
-import "../../../../../../pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
-import "../../../../../../tasks/broad/CheckContaminationSomatic.wdl" as CheckContamination
+import "../../../../../../../pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
+import "../../../../../../../tasks/broad/CheckContaminationSomatic.wdl" as CheckContamination
 
 struct FastqPairRecord {
     File forward_fastq
@@ -615,7 +615,7 @@ task collect_insert_size_metrics {
 
 workflow GDCWholeGenomeSomaticSingleSample {
 
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.1"
 
     input {
         File? input_cram

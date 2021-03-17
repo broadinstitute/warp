@@ -24,7 +24,7 @@ class GDCWholeGenomeSomaticSingleSampleTester(
   override val workflowName: String = s"GDC${dataTypePrefix}SomaticSingleSample"
 
   val workflowDir
-    : File = CromwellWorkflowTester.WarpRoot / "beta-pipelines" / "broad" / "somatic" / "single_sample" / dataTypeString / "gdc_genome"
+    : File = CromwellWorkflowTester.WarpRoot / "pipelines" / "broad" / "dna_seq" / "somatic" / "single_sample" / dataTypeString / "gdc_genome"
 
   override protected val validationWorkflowName: String =
     "VerifyGDCSomaticSingleSample"
