@@ -7,7 +7,7 @@
     "TestMultiSampleSmartSeq2.hisat2_ref_trans_name": "hisat2_from_rsem_star_primary_gencode_mouse_vM21",
     "TestMultiSampleSmartSeq2.hisat2_ref_index": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/20210309/mm10/hisat2_primary_gencode_mouse_vM21.tar.gz",
     "TestMultiSampleSmartSeq2.hisat2_ref_trans_index": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/20210309/mm10/hisat2_from_rsem_star_primary_gencode_mouse_vM21.tar.gz",
-    "TestMultiSampleSmartSeq2.rsem_ref_index": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/20210309/mm10/star_primary_gencode_mouse_vM21.tar",
+    "TestMultiSampleSmartSeq2.rsem_ref_index": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/20210309/mm10/rsem_primary_gencode_mouse_vM21.tar",
     "TestMultiSampleSmartSeq2.stranded": "NONE",
     "TestMultiSampleSmartSeq2.paired_end": true,
     "TestMultiSampleSmartSeq2.input_ids": ["SRR5676728", "SRR5676730", "SRR5676731", "SRR5676732", "SRR5676733",

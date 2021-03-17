@@ -6,7 +6,7 @@
     "MultiSampleSmartSeq2.hisat2_ref_trans_name": "hisat2_from_rsem_star_primary_gencode_human_v27",
     "MultiSampleSmartSeq2.hisat2_ref_index": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/20210309/hg38/hisat2_primary_gencode_human_v27.tar.gz",
     "MultiSampleSmartSeq2.hisat2_ref_trans_index": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/20210309/hg38/hisat2_from_rsem_star_primary_gencode_human_v27.tar.gz",
-    "MultiSampleSmartSeq2.rsem_ref_index": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/20210309/hg38/star_primary_gencode_human_v27.tar",
+    "MultiSampleSmartSeq2.rsem_ref_index": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/20210309/hg38/rsem_primary_gencode_human_v27.tar",
     "MultiSampleSmartSeq2.stranded": "NONE",
     "MultiSampleSmartSeq2.paired_end": false,
     "MultiSampleSmartSeq2.input_ids": ["SRR6258249", "SRR6259788"],

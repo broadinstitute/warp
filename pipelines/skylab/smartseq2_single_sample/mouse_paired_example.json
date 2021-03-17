@@ -4,7 +4,7 @@
   "SmartSeq2SingleCell.hisat2_ref_index": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/20210309/mm10/hisat2_primary_gencode_mouse_vM21.tar.gz",
   "SmartSeq2SingleCell.genome_ref_fasta": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/20210309/mm10/GRCm38.primary_assembly.genome.fa",
   "SmartSeq2SingleCell.hisat2_ref_trans_index": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/20210309/mm10/hisat2_from_rsem_star_primary_gencode_mouse_vM21.tar.gz",
-  "SmartSeq2SingleCell.rsem_ref_index": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/20210309/mm10/star_primary_gencode_mouse_vM21.tar",
+  "SmartSeq2SingleCell.rsem_ref_index": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/20210309/mm10/rsem_primary_gencode_mouse_vM21.tar",
   "SmartSeq2SingleCell.gene_ref_flat": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/20210309/mm10/gencode.vM21.primary_assembly.annotation.refflat.txt",
   "SmartSeq2SingleCell.hisat2_ref_name": "hisat2_primary_gencode_mouse_vM21",
   "SmartSeq2SingleCell.stranded":"NONE",
