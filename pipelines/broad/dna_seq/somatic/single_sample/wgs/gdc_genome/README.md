@@ -1,6 +1,6 @@
 ## Announcing a new site for WARP documentation!
 
-GDC Whole Genome Somatic Single Sample documentation has moved! Read more about the [Illumina Genotyping Array Pipeline](https://broadinstitute.github.io/warp/documentation/Pipelines/Genomic_Data_Commons_Whole_Genome_Somatic/) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
+GDC Whole Genome Somatic Single Sample documentation has moved! Read more about the [GDC Whole Genome Somatic Single Sample Pipeline](https://broadinstitute.github.io/warp/documentation/Pipelines/Genomic_Data_Commons_Whole_Genome_Somatic/) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
 
 ## Introduction to the GDC Whole Genome Somatic Single Sample Pipeline
 The GDC Whole Genome Somatic Single Sample (abbreviated GDC here) pipeline is the alignment and preprocessing workflow for genomic data designed for the National Cancer Institute's [Genomic Data Commons](https://gdc.cancer.gov/about-gdc). 
