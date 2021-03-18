@@ -12,7 +12,7 @@
   "VariantCalling.calling_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/exome_calling_regions.v1.interval_list",
   "VariantCalling.evaluation_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/exome_evaluation_regions.v1.interval_list",
 
-  "VariantCalling.contamination": 0.29096933333333336,
+  "VariantCalling.contamination": 0.283372,
 
   "VariantCalling.haplotype_scatter_count": 10,
   "VariantCalling.break_bands_at_multiples_of": 0,
