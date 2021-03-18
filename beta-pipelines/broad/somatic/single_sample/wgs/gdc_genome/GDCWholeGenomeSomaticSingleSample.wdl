@@ -298,7 +298,7 @@ task bwa_pe {
     String outbam = fastq_record.readgroup_id + ".bam"
     Float ref_size =size([ref_fasta, ref_dict, ref_amb, ref_ann, ref_bwt, ref_pac, ref_sa, ref_fai], "GiB")
     Int mem = ceil(size([fastq1, fastq2], "MiB")) + 10000 + additional_memory_mb
-    Int disk_space = ceil((size([fastq1, fastq2], "GiB") * 2) + ref_size) + 10 + additional_disk_gb
+    Int disk_space = ceil((size([fastq1, fastq2], "GiB") * 4) + ref_size) + 10 + additional_disk_gb
 
     command {
         set -euo pipefail
@@ -351,7 +351,7 @@ task bwa_se {
     String outbam = fastq_record.readgroup_id + ".bam"
     Float ref_size = size([ref_fasta, ref_dict, ref_amb, ref_ann, ref_bwt, ref_pac, ref_sa, ref_fai], "GiB")
     Int mem = ceil(size(fastq, "MiB")) + 10000 + additional_memory_mb
-    Int disk_space = ceil((size(fastq, "GiB") * 2) + ref_size) + 10 + additional_disk_gb
+    Int disk_space = ceil((size(fastq, "GiB") * 4) + ref_size) + 10 + additional_disk_gb
 
     command {
         set -euo pipefail
@@ -390,14 +390,14 @@ task picard_markduplicates {
         Int cpu = 1
         Int preemptible = 2
         Int max_retries = 0
-        Float? sorting_collection_size_ratio
-        Int additional_memory_mb = 0
+        Float sorting_collection_size_ratio = 0.125
+        Int memory_multiplier = 1
         Int additional_disk_gb = 0
     }
     String metrics_file = outbam + ".metrics"
-    Int mem = ceil(size(bams, "M") * 2) + 16000 + additional_memory_mb
+    Int mem = 16000 * memory_multiplier
     Int jvm_mem = mem - 1000
-    Int disk_space = ceil(size(bams, "GiB") * 2.2) + 32 + additional_disk_gb
+    Int disk_space = ceil(size(bams, "GiB") * 5) + 32 + additional_disk_gb
 
     command {
         set -euo pipefail
@@ -409,7 +409,7 @@ task picard_markduplicates {
                 ASSUME_SORT_ORDER=~{assume_sort_order} \
                 OUTPUT=~{outbam} \
                 METRICS_FILE=~{metrics_file} \
-                ~{"SORTING_COLLECTION_SIZE_RATIO=" + sorting_collection_size_ratio}
+                SORTING_COLLECTION_SIZE_RATIO=~{sorting_collection_size_ratio}
     }
 
     output {
