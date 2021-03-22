@@ -1,7 +1,7 @@
 version 1.0
 
-import "../../../../../../pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
-import "../../../../../../tasks/broad/CheckContaminationSomatic.wdl" as CheckContamination
+import "../../../../../../../pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
+import "../../../../../../../tasks/broad/CheckContaminationSomatic.wdl" as CheckContamination
 
 struct FastqPairRecord {
     File forward_fastq
@@ -19,12 +19,14 @@ struct FastqSingleRecord {
 task bam_readgroup_to_contents {
     input {
         File bam
-        Int mem = 2
-        Int disk_space = 10
         Int preemptible = 10
         Int max_retries = 0
         Int cpu = 1
+        Int additional_memory_mb = 0
+        Int additional_disk_gb = 0
     }
+    Int mem = ceil(size(bam, "MiB")) + 2000 + additional_memory_mb
+    Int disk_space = ceil(size(bam, "GiB")) + 10 + additional_disk_gb
 
     parameter_meta {
         bam: {localization_optional: true}
@@ -65,7 +67,7 @@ task bam_readgroup_to_contents {
     
     runtime {
         docker: "broadgdac/samtools:1.10"
-        memory: mem + " GB"
+        memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
         maxRetries: max_retries
@@ -91,11 +93,13 @@ task biobambam_bamtofastq {
         Int tryoq = 1
         String T = "tempfq"
         Int cpu = 1
-        Int mem = 2
         Int preemptible = 2
         Int max_retries = 0
+        Int additional_memory_mb = 0
+        Int additional_disk_gb = 0
     }
-    Int disk_space = ceil(size(filename, "G") * 2) + 10
+    Int mem = ceil(size(filename, "MiB")) + 2000 + additional_memory_mb
+    Int disk_space = ceil(size(filename, "GiB") * 2) + 10 + additional_disk_gb
 
     command {
         set -euo pipefail
@@ -127,7 +131,7 @@ task biobambam_bamtofastq {
     
     runtime {
         docker: "broadgdac/biobambam2:2.0.87-release-20180301132713"
-        memory: mem + " GB"
+        memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
         maxRetries: max_retries
@@ -141,12 +145,14 @@ task emit_pe_records {
         Array[File]+ fastq2_files
         Array[Object]+ readgroups
         String fastq1_suffix = "_1.fq.gz"
-        Int mem = 2
-        Int disk_space = 10
         Int preemptible = 10
         Int max_retries = 0
         Int cpu = 1
+        Int additional_memory_mb = 0
+        Int additional_disk_gb = 0
     }
+    Int mem = ceil(size(fastq1_files, "MiB") + size(fastq2_files, "MiB")) + 2000 + additional_memory_mb
+    Int disk_space = ceil(size(fastq1_files, "GiB") + size(fastq2_files, "GiB")) + 10 + additional_disk_gb
 
     File readgroups_tsv = write_objects(readgroups)
 
@@ -187,7 +193,7 @@ CODE
     
     runtime {
         docker: "python:3.8-slim"
-        memory: mem + " GB"
+        memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
         maxRetries: max_retries
@@ -204,12 +210,14 @@ task emit_se_records {
         String fastq_o1_suffix = "_o1.fq.gz"
         String fastq_o2_suffix = "_o2.fq.gz"
         String fastq_s_suffix = "_s.fq.gz"
-        Int mem = 2
-        Int disk_space = 10
         Int preemptible = 10
         Int max_retries = 0
         Int cpu = 1
+        Int additional_memory_mb = 0
+        Int additional_disk_gb = 0
     }
+    Int mem = ceil(size(fastq_o1_files, "MiB") + size(fastq_o2_files, "MiB") + size(fastq_s_files, "MiB")) + 2000 + additional_memory_mb
+    Int disk_space = ceil(size(fastq_o1_files, "GiB") + size(fastq_o2_files, "GiB") + size(fastq_s_files, "GiB")) + 10 + additional_disk_gb
 
     File readgroups_tsv = write_objects(readgroups)
 
@@ -259,7 +267,7 @@ CODE
     
     runtime {
         docker: "python:3.8-slim"
-        memory: mem + " GB"
+        memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
         maxRetries: max_retries
@@ -279,16 +287,18 @@ task bwa_pe {
         File ref_pac
         File ref_sa
         Int cpu = 16
-        Int mem = 10
         Int preemptible = 1
         Int max_retries = 0
+        Int additional_memory_mb = 0
+        Int additional_disk_gb = 0
     }
     File fastq1 = fastq_record.forward_fastq
     File fastq2 = fastq_record.reverse_fastq
     String readgroup = fastq_record.readgroup
     String outbam = fastq_record.readgroup_id + ".bam"
-    Float ref_size =size([ref_fasta, ref_dict, ref_amb, ref_ann, ref_bwt, ref_pac, ref_sa, ref_fai], "G")
-    Int disk_space = ceil((size([fastq1, fastq2], "G") * 2) + ref_size) + 10
+    Float ref_size =size([ref_fasta, ref_dict, ref_amb, ref_ann, ref_bwt, ref_pac, ref_sa, ref_fai], "GiB")
+    Int mem = ceil(size([fastq1, fastq2], "MiB")) + 10000 + additional_memory_mb
+    Int disk_space = ceil((size([fastq1, fastq2], "GiB") * 2) + ref_size) + 10 + additional_disk_gb
 
     command {
         set -euo pipefail
@@ -311,7 +321,7 @@ task bwa_pe {
     
     runtime {
         docker: "broadgdac/bwa:0.7.15-r1142-dirty"
-        memory: mem + " GB"
+        memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
         maxRetries: max_retries
@@ -331,15 +341,17 @@ task bwa_se {
         File ref_sa
         File ref_fai
         Int cpu = 16
-        Int mem = 10
         Int preemptible = 1
         Int max_retries = 0
+        Int additional_memory_mb = 0
+        Int additional_disk_gb = 0
     }
     File fastq = fastq_record.fastq
     String readgroup = fastq_record.readgroup
     String outbam = fastq_record.readgroup_id + ".bam"
-    Float ref_size = size([ref_fasta, ref_dict, ref_amb, ref_ann, ref_bwt, ref_pac, ref_sa, ref_fai], "G")
-    Int disk_space = ceil((size(fastq, "G") * 2) + ref_size) + 10
+    Float ref_size = size([ref_fasta, ref_dict, ref_amb, ref_ann, ref_bwt, ref_pac, ref_sa, ref_fai], "GiB")
+    Int mem = ceil(size(fastq, "MiB")) + 10000 + additional_memory_mb
+    Int disk_space = ceil((size(fastq, "GiB") * 2) + ref_size) + 10 + additional_disk_gb
 
     command {
         set -euo pipefail
@@ -361,7 +373,7 @@ task bwa_se {
     
     runtime {
         docker: "broadgdac/bwa:0.7.15-r1142-dirty"
-        memory: mem + " GB"
+        memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
         maxRetries: max_retries
@@ -376,21 +388,20 @@ task picard_markduplicates {
         String validation_stringency = "SILENT"
         String assume_sort_order = "queryname"
         Int cpu = 1
-        Int mem = 16
         Int preemptible = 2
         Int max_retries = 0
-        Int additional_disk = 0
         Float? sorting_collection_size_ratio
+        Int additional_memory_mb = 0
+        Int additional_disk_gb = 0
     }
     String metrics_file = outbam + ".metrics"
-    Int jvm_mem = if mem > 1 then mem - 1  else 1
-    Int disk_space = ceil(size(bams, "G") * 2.2) + additional_disk
+    Int mem = ceil(size(bams, "M") * 2) + 16000 + additional_memory_mb
+    Int jvm_mem = mem - 1000
+    Int disk_space = ceil(size(bams, "GiB") * 2.2) + 32 + additional_disk_gb
 
     command {
         set -euo pipefail
-        java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
-             -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-             -Xloggc:gc_log.log -Xmx~{jvm_mem}g -jar /usr/picard/picard.jar \
+        java -Xms~{jvm_mem}m -jar /usr/picard/picard.jar \
             MarkDuplicates \
                 INPUT=~{sep=" INPUT=" bams} \
                 TMP_DIR=. \
@@ -412,7 +423,7 @@ task picard_markduplicates {
 
     runtime {
         docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11_NoCustomEntryPoint"
-        memory: mem + " GB"
+        memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
         maxRetries: max_retries
@@ -425,13 +436,14 @@ task sort_and_index_markdup_bam {
         File input_bam
         String tmp_prefix = "tmp_srt"
         Int cpu = 8
-        Int mem = 16
         Int preemptible = 2
         Int max_retries = 0
-        Int additional_disk = 0
+        Int additional_memory_mb = 0
+        Int additional_disk_gb = 0
     }
-    Int disk_space = ceil(size(input_bam, "G") * 3.25) + 20 + additional_disk
-    Int mem_per_thread = floor(mem * 1024 / cpu * 0.85)
+    Int mem = ceil(size(input_bam, "MiB")) + 10000 + additional_memory_mb
+    Int disk_space = ceil(size(input_bam, "GiB") * 3.25) + 20 + additional_disk_gb
+    Int mem_per_thread = floor(mem / cpu * 0.85)
     Int index_threads = cpu - 1
     String output_bam = basename(input_bam)
     String output_bai = basename(input_bam, ".bam") + ".bai"
@@ -457,8 +469,8 @@ task sort_and_index_markdup_bam {
     }
     
     runtime {
-        docker: "broadgdac/samtools:1.10"
-        memory: mem + " GB"
+        docker: "us.gcr.io/broad-gotc-prod/samtools:1.10"
+        memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
         maxRetries: max_retries
@@ -475,25 +487,31 @@ task gatk_baserecalibrator {
         File ref_fasta
         File ref_fai
         Int cpu = 2
-        Int mem = 6
         Int preemptible = 2
         Int max_retries = 0
-        Int additional_disk = 0
+        Int additional_memory_mb = 0
+        Int additional_disk_gb = 0
     }
     String output_grp = basename(bam, ".bam") + "_bqsr.grp"
-    Float ref_size = size([ref_fasta, ref_fai, ref_dict], "G")
-    Float dbsnp_size = size([dbsnp_vcf, dbsnp_vcf_index], "G")
-    Int jvm_mem = if mem > 1 then mem - 1 else 1
-    Int disk_space = ceil(size(bam, "G") + ref_size + dbsnp_size) + 20 + additional_disk
+    Float ref_size = size([ref_fasta, ref_fai, ref_dict], "GiB")
+    Float dbsnp_size = size([dbsnp_vcf, dbsnp_vcf_index], "GiB")
+    Int mem = ceil(size(bam, "MiB")) + 6000 + additional_memory_mb
+    Int jvm_mem = mem - 1000
+    Int disk_space = ceil(size(bam, "GiB") + ref_size + dbsnp_size) + 20 + additional_disk_gb
 
     parameter_meta {
         bam: {localization_optional: true}
+        dbsnp_vcf: {localization_optional: true}
+        dbsnp_vcf_index: {localization_optional: true}
+        ref_dict: {localization_optional: true}
+        ref_fasta: {localization_optional: true}
+        ref_fai: {localization_optional: true}
     }
 
     command {
         gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
             -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-            -Xloggc:gc_log.log -Xms~{jvm_mem}g" \
+            -Xloggc:gc_log.log -Xms~{jvm_mem}m" \
             BaseRecalibrator \
                 --input ~{bam} \
                 --known-sites ~{dbsnp_vcf} \
@@ -508,7 +526,7 @@ task gatk_baserecalibrator {
 
     runtime {
         docker: "us.gcr.io/broad-gatk/gatk:4.0.7.0"
-        memory: mem + " GB"
+        memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
         maxRetries: max_retries
@@ -522,15 +540,16 @@ task gatk_applybqsr {
         File bqsr_recal_file
         Boolean emit_original_quals = true
         Int cpu = 2
-        Int mem = 4
         Int preemptible = 2
         Int max_retries = 0
-        Int additional_disk = 0
+        Int additional_memory_mb = 0
+        Int additional_disk_gb = 0
     }
     String output_bam = basename(input_bam)
     String output_bai = basename(input_bam, ".bam") + ".bai"
-    Int jvm_mem = if mem > 1 then mem - 1 else 1
-    Int disk_space = ceil((size(input_bam, "G") * 3)) + 20 + additional_disk
+    Int mem = ceil(size(input_bam, "MiB")) + 4000 + additional_memory_mb
+    Int jvm_mem = mem - 1000
+    Int disk_space = ceil((size(input_bam, "GiB") * 3)) + 20 + additional_disk_gb
 
     parameter_meta {
         input_bam: {localization_optional: true}
@@ -539,7 +558,7 @@ task gatk_applybqsr {
     command {
         gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
             -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-            -Xloggc:gc_log.log -Xms~{jvm_mem}g" \
+            -Xloggc:gc_log.log -Xms~{jvm_mem}m" \
             ApplyBQSR \
                 --input ~{input_bam} \
                 --bqsr-recal-file ~{bqsr_recal_file} \
@@ -555,7 +574,7 @@ task gatk_applybqsr {
     
     runtime {
         docker: "us.gcr.io/broad-gatk/gatk:4.0.7.0"
-        memory: mem + " GB"
+        memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
         maxRetries: max_retries
@@ -568,12 +587,15 @@ task collect_insert_size_metrics {
   input {
     File input_bam
     String output_bam_prefix
+    Int additional_memory_mb = 0
+    Int additional_disk_gb = 0
   }
-
-  Int disk_size = ceil(size(input_bam, "GiB")) + 20
+  Int mem = ceil(size(input_bam, "GiB")) + 7000 + additional_memory_mb
+  Int jvm_mem = mem - 1000
+  Int disk_size = ceil(size(input_bam, "GiB")) + 20 + additional_disk_gb
 
   command {
-    java -Xms5000m -jar /usr/picard/picard.jar \
+    java -Xms~{jvm_mem}m -jar /usr/picard/picard.jar \
       CollectInsertSizeMetrics \
       INPUT=~{input_bam} \
       OUTPUT=~{output_bam_prefix}.insert_size_metrics \
@@ -581,7 +603,7 @@ task collect_insert_size_metrics {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
-    memory: "7 GiB"
+    memory: mem + " MiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
@@ -593,7 +615,7 @@ task collect_insert_size_metrics {
 
 workflow GDCWholeGenomeSomaticSingleSample {
 
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.1"
 
     input {
         File? input_cram

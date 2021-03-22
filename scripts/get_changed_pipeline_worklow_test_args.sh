@@ -52,6 +52,8 @@ function pipeline_to_args() {
       continue;;
     JointGenotypingByChromosomePartTwo)
       continue;;
+    GDCWholeGenomeSomaticSingleSample)
+      echo GDCWholeGenomeSomaticSingleSample -d WGS ${common_args};;
   esac
 }
 

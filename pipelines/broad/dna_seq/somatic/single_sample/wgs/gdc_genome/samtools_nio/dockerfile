@@ -6,6 +6,7 @@ RUN set -ex \
         automake \
         gcc \
         perl \
+        procps \
         bzip2 \
         zlib1g-dev \
         libbz2-dev \
