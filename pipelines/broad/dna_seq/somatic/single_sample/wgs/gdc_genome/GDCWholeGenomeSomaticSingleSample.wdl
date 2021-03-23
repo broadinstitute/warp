@@ -427,7 +427,10 @@ task picard_markduplicates {
       ~{"SORTING_COLLECTION_SIZE_RATIO=" + sorting_collection_size_ratio} \
       ~{"READ_NAME_REGEX=" + read_name_regex}
   }
-  # docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+
+  # We are using a non-standard docker image here because we currently run this WDL on Cromwell v52 which cannot support
+  # the custom entrypoint in the picard-cloud:2.18.11 docker image. Cromwell v53 and newer can support the
+  # us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11 docker image
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11_NoCustomEntryPoint"
     preemptible: preemptible_tries
