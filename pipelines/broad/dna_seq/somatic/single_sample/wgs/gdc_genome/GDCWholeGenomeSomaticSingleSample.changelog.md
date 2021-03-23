@@ -1,3 +1,8 @@
+# 1.1.0
+2021-03-23
+
+* Added a compression level argument to mark duplicates task and changed default disk and memory values
+
 # 1.0.1
 2021-03-02
 
