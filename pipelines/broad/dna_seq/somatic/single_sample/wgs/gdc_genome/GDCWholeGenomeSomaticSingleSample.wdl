@@ -438,7 +438,7 @@ task picard_markduplicates {
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
-    File bam = "~{outbam}.bam"
+    File bam = "~{outbam}"
     File metrics = "~{metrics_filename}"
   }
 }
