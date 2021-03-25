@@ -420,7 +420,7 @@ task picard_markduplicates {
     java -Dsamjdk.compression_level=~{compression_level} -Xms~{java_memory_size}g -jar /usr/picard/picard.jar \
       MarkDuplicates \
       INPUT=~{sep=' INPUT=' bams} \
-      OUTPUT=~{outbam}.bam \
+      OUTPUT=~{outbam} \
       METRICS_FILE=~{metrics_filename} \
       VALIDATION_STRINGENCY=~{validation_stringency} \
       ASSUME_SORT_ORDER=~{assume_sort_order} \
