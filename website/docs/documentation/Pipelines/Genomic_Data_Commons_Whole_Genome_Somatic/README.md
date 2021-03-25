@@ -2,7 +2,7 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [GDCWholeGenomeSomaticSingleSample_v1.0.0](https://github.com/broadinstitute/warp/releases) | January, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [GDCWholeGenomeSomaticSingleSample_v1.0.1](https://github.com/broadinstitute/warp/releases) | January, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 
 ## Introduction to the GDC Whole Genome Somatic Single Sample Pipeline
@@ -12,7 +12,7 @@ A high-level overview of the pipeline in addition to tool parameters are availab
 
 Overall, the pipeline converts reads (CRAM or BAM) to FASTQ and (re)aligns them to the latest human reference genome (see the [GDC Reference Genome](#gdc-reference-genome) section below). Each read group is aligned separately. Read group alignments that belong to a single sample are then merged and duplicate reads are flagged for downstream variant calling. 
 
-![](GDC.png)
+![](./GDC.png)
 
 ## Set-up
 

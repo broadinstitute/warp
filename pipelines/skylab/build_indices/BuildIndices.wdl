@@ -96,7 +96,7 @@ task BuildRsem {
     description: "build reference index files for RSEM"
   }
 
-  String ref_name = "star_primary_gencode_~{organism}_v~{gtf_version}"
+  String ref_name = "rsem_primary_gencode_~{organism}_v~{gtf_version}"
   String rsem_index_name = "~{ref_name}.tar"
 
   command {
