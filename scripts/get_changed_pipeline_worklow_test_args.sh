@@ -55,8 +55,8 @@ function pipeline_to_args() {
     GDCWholeGenomeSomaticSingleSample)
       echo GDCWholeGenomeSomaticSingleSample -d WGS ${common_args};;
     VariantCalling)
-      echo VariantCalling -d Exome -t Plumbing -b ${truth} ${uncached};
-      echo VariantCalling -d WGS -t Plumbing -b ${truth} ${uncached};;
+      echo VariantCalling -d Exome -t Plumbing --env ${env} -b ${truth} ${uncached};
+      echo VariantCalling -d WGS -t Plumbing --env ${env}-b ${truth} ${uncached};;
   esac
 }
 
