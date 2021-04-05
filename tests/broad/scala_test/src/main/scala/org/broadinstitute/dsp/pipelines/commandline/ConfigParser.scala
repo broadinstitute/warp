@@ -810,4 +810,22 @@ class ConfigParser
           )
         }
     )
+
+  note("")
+  germlineCloudPipelineCommandLineConfig(
+    VariantCalling, { config =>
+      (config.test, config.germlineCloudConfig.category) match {
+        case (VariantCalling, WorkflowTestCategory.Scientific) =>
+          failure(
+            "The VariantCalling test is not configured to run scientific. This case is covered by the GermlineSingleSample tests"
+          )
+        case (VariantCalling, WorkflowTestCategory.Load) =>
+          failure(
+            "The VariantCalling test is not configured to run load."
+          )
+        case _ => success
+      }
+    },
+    Some(GermlineCloudWorkflowConfig(papiVersion = PAPIv2))
+  )
 }

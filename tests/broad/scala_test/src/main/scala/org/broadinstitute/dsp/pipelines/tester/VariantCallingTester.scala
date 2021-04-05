@@ -11,32 +11,32 @@ import org.broadinstitute.dsp.pipelines.batch.{
 }
 import org.broadinstitute.dsp.pipelines.config.GermlineCloudWorkflowConfig
 import org.broadinstitute.dsp.pipelines.inputs.{
-  ReblockGvcfInputs,
-  ReblockGvcfValidationInputs
+  VariantCallingInputs,
+  VariantCallingValidationInputs
 }
 
-class ReblockGvcfTester(testerConfig: GermlineCloudWorkflowConfig)(
+class VariantCallingTester(testerConfig: GermlineCloudWorkflowConfig)(
     implicit am: ActorMaterializer,
     as: ActorSystem
 ) extends GermlineCloudWorkflowTester(testerConfig) {
 
   override def workflowDir: File =
-    CromwellWorkflowTester.PipelineRoot / "broad" / "dna_seq" / "germline" / "joint_genotyping" / "reblocking"
+    CromwellWorkflowTester.PipelineRoot / "broad" / "dna_seq" / "germline" / "variant_calling"
 
-  override def workflowName: String = "ReblockGVCF"
+  override def workflowName: String = "VariantCalling"
 
   override protected val validationWorkflowName: String = s"VerifyGvcf"
 
   override protected def workflowInputRoot: File =
-    workflowDir / "test_inputs" / dataTypeString / testerConfig.category.entryName
+    workflowDir / "test_inputs" / testerConfig.category.entryName / dataTypeString
 
   protected val resultsPrefix: URI =
     URI.create(
-      s"gs://broad-gotc-test-results/$envString/reblock_gvcf/$dataTypeString/$testTypeString/$timestamp/"
+      s"gs://broad-gotc-test-results/$envString/variant_calling/$dataTypeString/$testTypeString/$timestamp/"
     )
   protected val truthPrefix: URI =
     URI.create(
-      s"gs://broad-gotc-test-storage/reblock_gvcf/$dataTypeString/$testTypeString/truth/${testerConfig.truthBranch}/"
+      s"gs://broad-gotc-test-storage/germline_single_sample/$dataTypeString/$testTypeString/truth/${testerConfig.truthBranch}/"
     )
 
   override def generateRunParameters: Seq[WorkflowRunParameters] = {
@@ -45,9 +45,7 @@ class ReblockGvcfTester(testerConfig: GermlineCloudWorkflowConfig)(
       val resultsPath =
         resultsPrefix.resolve(s"$inputsName/")
       val truthPath = truthPrefix.resolve(s"$inputsName/")
-      val inputs =
-        getInputContents(fileName).replace("{TRUTH_BRANCH}",
-                                           testerConfig.truthBranch)
+      val inputs = getInputContents(fileName)
 
       WorkflowRunParameters(
         id = s"${envString}_$inputsName",
@@ -66,13 +64,15 @@ class ReblockGvcfTester(testerConfig: GermlineCloudWorkflowConfig)(
     val truthCloudPath = workflowTest.runParameters.truthCloudPath
 
     val gvcfBasename =
-      new ReblockGvcfInputs(workflowTest.runParameters.workflowInputs)
+      new VariantCallingInputs(workflowTest.runParameters.workflowInputs)
         .getGvcfBasename(workflowName)
 
-    val validationInputs = ReblockGvcfValidationInputs(
-      testGvcf = resultsCloudPath.resolve(s"$gvcfBasename.reblocked.g.vcf.gz"),
-      truthGvcf = truthCloudPath.resolve(s"$gvcfBasename.reblocked.g.vcf.gz"),
+    val validationInputs = VariantCallingValidationInputs(
+      testGvcf = resultsCloudPath.resolve(s"$gvcfBasename.g.vcf.gz"),
+      truthGvcf = truthCloudPath.resolve(s"$gvcfBasename.g.vcf.gz"),
     )
-    ReblockGvcfValidationInputs.marshall(validationInputs).printWith(implicitly)
+    VariantCallingValidationInputs
+      .marshall(validationInputs)
+      .printWith(implicitly)
   }
 }
