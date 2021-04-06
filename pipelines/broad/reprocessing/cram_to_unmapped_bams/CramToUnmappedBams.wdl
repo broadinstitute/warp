@@ -10,7 +10,6 @@ version 1.0
 workflow CramToUnmappedBams {
 
   String pipeline_version = "1.0.1"
-  # testing thee newe test trigger (will rool back beforee merging)
 
   input {
     File? input_cram
