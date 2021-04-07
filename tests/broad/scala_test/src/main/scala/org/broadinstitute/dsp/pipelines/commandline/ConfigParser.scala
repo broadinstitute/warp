@@ -457,6 +457,10 @@ class ConfigParser
           failure(
             "The reprocessing test is not configured to run load."
           )
+        case (Reprocessing, WorkflowTestCategory.Scientific) =>
+          failure(
+            "The reprocessing test is not configured to run scientific."
+          )
         case _ => success
       }
     }
@@ -465,9 +469,9 @@ class ConfigParser
   germlineCloudPipelineCommandLineConfig(
     ReblockGvcf, { config =>
       (config.test, config.germlineCloudConfig.category) match {
-        case (Reprocessing, WorkflowTestCategory.Load) =>
+        case (ReblockGvcf, WorkflowTestCategory.Load) =>
           failure(
-            "The reprocessing test is not configured to run load."
+            "The ReblockGvcf test is not configured to run load."
           )
         case _ => success
       }
