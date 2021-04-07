@@ -320,6 +320,10 @@ workflow BuildIndices {
     String dbsnp_version
   }
 
+  # version of this pipeline
+
+  String pipeline_version = "0.0.1"
+
   parameter_meta {
     gtf_version: "the actual number of gencode, ex.  27"
     organism: "Either 'human' or 'mouse'"
