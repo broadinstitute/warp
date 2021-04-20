@@ -25,20 +25,36 @@ function pipeline_to_args() {
     ExomeGermlineSingleSample)
       echo GermlineSingleSample -d Exome ${common_args};;
     ExomeReprocessing)
-      echo Reprocessing -d Exome ${common_args};;
+      if [[ "${test}" == "Scientific" ]]; then
+        echo Reprocessing -d Exome --env ${env} -t Plumbing -b ${truth} ${uncached}
+      else
+        continue
+      fi;;
     JointGenotyping)
       echo JointGenotyping -d Exome ${common_args} --papi-version PAPIv2;
       echo JointGenotyping -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached} --papi-version PAPIv2;;
     IlluminaGenotypingArray)
       echo IlluminaGenotypingArray ${common_args};;
     ExternalExomeReprocessing)
-      echo ExternalReprocessing -d Exome --env ${env} -t Plumbing -b ${truth} ${uncached};;
+      if [[ "${test}" == "Scientific" ]]; then
+        echo ExternalReprocessing -d Exome --env ${env} -t Plumbing -b ${truth} ${uncached}
+      else
+        continue
+      fi;;
     ExternalWholeGenomeReprocessing)
-      echo ExternalReprocessing -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached};;
+      if [[ "${test}" == "Scientific" ]]; then
+        echo ExternalReprocessing -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached}
+      else
+        continue
+      fi;;
     WholeGenomeGermlineSingleSample)
       echo GermlineSingleSample -d WGS ${common_args};;
     WholeGenomeReprocessing)
-      echo Reprocessing -d WGS ${common_args};;
+      if [[ "${test}" == "Scientific" ]]; then
+        echo Reprocessing -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached}
+      else
+        continue
+      fi;;
     ValidateChip)
       echo ValidateChip ${common_args};;
     ReblockGVCF)
@@ -54,6 +70,9 @@ function pipeline_to_args() {
       continue;;
     GDCWholeGenomeSomaticSingleSample)
       echo GDCWholeGenomeSomaticSingleSample -d WGS ${common_args};;
+    VariantCalling)
+      echo VariantCalling -d Exome -t Plumbing --env ${env} -b ${truth} ${uncached};
+      echo VariantCalling -d WGS -t Plumbing --env ${env} -b ${truth} ${uncached};;
   esac
 }
 
