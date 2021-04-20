@@ -11,7 +11,7 @@ import io.circe.generic.extras.semiauto.{
 object ReblockGvcfValidationInputs
     extends EncodableInputs[ReblockGvcfValidationInputs] {
 
-  override def workflowNames: Seq[String] = Seq("VerifyGvcf")
+  override def workflowNames: Seq[String] = Seq("VerifyReblockGVCF")
 
   override implicit val decoder: Decoder[ReblockGvcfValidationInputs] =
     deriveConfiguredDecoder

@@ -40,7 +40,7 @@ task GetReferences {
   }
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.8a"
+    docker: "quay.io/humancellatlas/secondary-analysis-star:v0.2.2-2.5.3a-1.0.0"
     disks: "local-disk 10 HDD"
   }
 }
@@ -78,7 +78,7 @@ task BuildStar {
   }
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.8a"
+    docker: "quay.io/humancellatlas/secondary-analysis-star:v0.2.2-2.5.3a-1.0.0"
     memory: "50 GiB"
     disks :"local-disk 100 HDD"
     cpu:"16"
@@ -96,7 +96,7 @@ task BuildRsem {
     description: "build reference index files for RSEM"
   }
 
-  String ref_name = "rsem_primary_gencode_~{organism}_v~{gtf_version}"
+  String ref_name = "star_primary_gencode_~{organism}_v~{gtf_version}"
   String rsem_index_name = "~{ref_name}.tar"
 
   command {
@@ -319,10 +319,6 @@ workflow BuildIndices {
     String genome_short_string
     String dbsnp_version
   }
-
-  # version of this pipeline
-
-  String pipeline_version = "0.0.1"
 
   parameter_meta {
     gtf_version: "the actual number of gencode, ex.  27"

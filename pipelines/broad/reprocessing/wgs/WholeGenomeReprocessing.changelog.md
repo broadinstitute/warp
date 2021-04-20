@@ -1,8 +1,3 @@
-# 2.3.5
-2021-03-17
-
-* Promoted VariantCalling to be a top-level workflow
-
 # 2.3.4
 2021-02-22
 

@@ -1,17 +1,13 @@
 {
-  "WholeGenomeGermlineSingleSample.sample_and_unmapped_bams": {
-    "sample_name": "NA12878 PLUMBING",
-    "base_file_name": "NA12878_PLUMBING",
-    "flowcell_unmapped_bams": [
-      "gs://broad-gotc-test-storage/germline_single_sample/wgs/plumbing/bams/G96830.NA12878/H06HDADXX130110.1.ATCACGAT.20k_reads.unmapped.bam",
-      "gs://broad-gotc-test-storage/germline_single_sample/wgs/plumbing/bams/G96830.NA12878/H06HDADXX130110.2.ATCACGAT.20k_reads.unmapped.bam",
-      "gs://broad-gotc-test-storage/germline_single_sample/wgs/plumbing/bams/G96830.NA12878/H06JUADXX130110.1.ATCACGAT.20k_reads.unmapped.bam"
-    ],
-    "final_gvcf_base_name": "NA12878_PLUMBING",
-    "unmapped_bam_suffix": ".unmapped.bam"
-  },
+  "WholeGenomeReprocessing.input_cram": "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/truth/{TRUTH_BRANCH}/G94794.CHMI_CHMI3_WGS2/CHMI_CHMI3_WGS2.cram",
+  "WholeGenomeReprocessing.output_map": "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94794.CHMI_CHMI3_WGS2/readgroupid_to_bamfilename_map.txt",
 
-  "WholeGenomeGermlineSingleSample.references": {
+  "WholeGenomeReprocessing.sample_name": "CHMI_CHMI3_WGS2",
+  "WholeGenomeReprocessing.base_file_name": "G94794.CHMI_CHMI3_WGS2",
+  "WholeGenomeReprocessing.final_gvcf_base_name": "G94794.CHMI_CHMI3_WGS2",
+  "WholeGenomeReprocessing.unmapped_bam_suffix": ".unmapped.bam",
+
+  "WholeGenomeReprocessing.references": {
     "contamination_sites_ud": "gs://gcp-public-data--broad-references/hg38/v0/contamination-resources/1000g/1000g.phase3.100k.b38.vcf.gz.dat.UD",
     "contamination_sites_bed": "gs://gcp-public-data--broad-references/hg38/v0/contamination-resources/1000g/1000g.phase3.100k.b38.vcf.gz.dat.bed",
     "contamination_sites_mu": "gs://gcp-public-data--broad-references/hg38/v0/contamination-resources/1000g/1000g.phase3.100k.b38.vcf.gz.dat.mu",
@@ -41,20 +37,17 @@
     "haplotype_database_file": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt"
   },
 
-  "WholeGenomeGermlineSingleSample.scatter_settings": {
-    "haplotype_scatter_count": 10,
-    "break_bands_at_multiples_of": 100000
+  "WholeGenomeReprocessing.scatter_settings": {
+    "haplotype_scatter_count": 50,
+    "break_bands_at_multiples_of": 1000000
   },
 
-  "WholeGenomeGermlineSingleSample.fingerprint_genotypes_file": "gs://broad-gotc-test-storage/germline_single_sample/wgs/plumbing/bams/NA12878_PLUMBING.hg38.reference.fingerprint.vcf.gz",
-  "WholeGenomeGermlineSingleSample.fingerprint_genotypes_index": "gs://broad-gotc-test-storage/germline_single_sample/wgs/plumbing/bams/NA12878_PLUMBING.hg38.reference.fingerprint.vcf.gz.tbi",
+  "WholeGenomeReprocessing.fingerprint_genotypes_file": "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/fingerprint_vcfs/G94794.CHMI_CHMI3_WGS2.reference.fingerprint.vcf",
 
-  "WholeGenomeGermlineSingleSample.wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list",
+  "WholeGenomeReprocessing.wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list",
 
-  "WholeGenomeGermlineSingleSample.papi_settings": {
+  "WholeGenomeReprocessing.papi_settings": {
     "preemptible_tries": 3,
     "agg_preemptible_tries": 3
-  },
-
-  "WholeGenomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true
+  }
 }

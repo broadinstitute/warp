@@ -25,7 +25,7 @@ class ReblockGvcfTester(testerConfig: GermlineCloudWorkflowConfig)(
 
   override def workflowName: String = "ReblockGVCF"
 
-  override protected val validationWorkflowName: String = s"VerifyGvcf"
+  override protected val validationWorkflowName: String = s"Verify$workflowName"
 
   override protected def workflowInputRoot: File =
     workflowDir / "test_inputs" / dataTypeString / testerConfig.category.entryName

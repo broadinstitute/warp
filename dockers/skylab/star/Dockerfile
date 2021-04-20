@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
-LABEL maintainer="Kylee Degatano<kdegatano@broadinstitute.org> "\
+LABEL maintainer=" Jishu Xu <jishuxu@broadinstitute.org> "\
       software="STAR" \
-      version="2.7.8a" \
+      version="2.5.3a" \
       description="RNA-seq aligner" \
       website="https://github.com/alexdobin/STAR"
 RUN mkdir build 
@@ -24,9 +24,9 @@ RUN apt update && apt install -y \
   r-base-core \
   r-base-dev 
 
-RUN wget https://github.com/alexdobin/STAR/archive/2.7.8a.tar.gz && \
-  tar -xf 2.7.8a.tar.gz
-WORKDIR STAR-2.7.8a/bin/Linux_x86_64_static
+RUN wget https://github.com/alexdobin/STAR/archive/2.5.3a.tar.gz && \
+  tar -xf 2.5.3a.tar.gz
+WORKDIR STAR-2.5.3a/bin/Linux_x86_64_static
 RUN cp STAR /usr/local/bin
 
 WORKDIR /
