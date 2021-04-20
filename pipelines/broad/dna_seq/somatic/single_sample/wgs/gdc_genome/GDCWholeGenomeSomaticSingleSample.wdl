@@ -298,7 +298,7 @@ task bwa_pe {
     String outbam = fastq_record.readgroup_id + ".bam"
     Float ref_size =size([ref_fasta, ref_dict, ref_amb, ref_ann, ref_bwt, ref_pac, ref_sa, ref_fai], "GiB")
     Int mem = ceil(size([fastq1, fastq2], "MiB")) + 10000 + additional_memory_mb
-    Int disk_space = ceil((size([fastq1, fastq2], "GiB") * 2) + ref_size) + 10 + additional_disk_gb
+    Int disk_space = ceil((size([fastq1, fastq2], "GiB") * 4) + ref_size) + 10 + additional_disk_gb
 
     command {
         set -euo pipefail
@@ -351,7 +351,7 @@ task bwa_se {
     String outbam = fastq_record.readgroup_id + ".bam"
     Float ref_size = size([ref_fasta, ref_dict, ref_amb, ref_ann, ref_bwt, ref_pac, ref_sa, ref_fai], "GiB")
     Int mem = ceil(size(fastq, "MiB")) + 10000 + additional_memory_mb
-    Int disk_space = ceil((size(fastq, "GiB") * 2) + ref_size) + 10 + additional_disk_gb
+    Int disk_space = ceil((size(fastq, "GiB") * 4) + ref_size) + 10 + additional_disk_gb
 
     command {
         set -euo pipefail
@@ -382,53 +382,65 @@ task bwa_se {
 }
 
 task picard_markduplicates {
-    input {
-        Array[File]+ bams
-        String outbam
-        String validation_stringency = "SILENT"
-        String assume_sort_order = "queryname"
-        Int cpu = 1
-        Int preemptible = 2
-        Int max_retries = 0
-        Float? sorting_collection_size_ratio
-        Int additional_memory_mb = 0
-        Int additional_disk_gb = 0
-    }
-    String metrics_file = outbam + ".metrics"
-    Int mem = ceil(size(bams, "M") * 2) + 16000 + additional_memory_mb
-    Int jvm_mem = mem - 1000
-    Int disk_space = ceil(size(bams, "GiB") * 2.2) + 32 + additional_disk_gb
+  input {
+    Array[File]+ bams
+    String outbam
 
-    command {
-        set -euo pipefail
-        java -Xms~{jvm_mem}m -jar /usr/picard/picard.jar \
-            MarkDuplicates \
-                INPUT=~{sep=" INPUT=" bams} \
-                TMP_DIR=. \
-                VALIDATION_STRINGENCY=~{validation_stringency} \
-                ASSUME_SORT_ORDER=~{assume_sort_order} \
-                OUTPUT=~{outbam} \
-                METRICS_FILE=~{metrics_file} \
-                ~{"SORTING_COLLECTION_SIZE_RATIO=" + sorting_collection_size_ratio}
-    }
+    Int compression_level = 2
+    Int preemptible_tries = 1
+    Int max_retries = 0
+    String validation_stringency = "SILENT"
+    String assume_sort_order = "queryname"
 
-    output {
-        File metrics = "~{metrics_file}"
-        File bam = "~{outbam}"
-    }
+    # The program default for READ_NAME_REGEX is appropriate in nearly every case.
+    # Sometimes we wish to supply "null" in order to turn off optical duplicate detection
+    # This can be desirable if you don't mind the estimated library size being wrong and optical duplicate detection is taking >7 days and failing
+    String? read_name_regex
+    Int memory_multiplier = 1
+    Int additional_disk_gb = 20
 
-# We are using a non-standard docker image here because we currently run this WDL on Cromwell v52 which cannot support
-# the custom entrypoint in the picard-cloud:2.18.11 docker image. Cromwell v53 and newer can support the
-# us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11 docker image
+    Float? sorting_collection_size_ratio
+  }
+  Float total_input_size = size(bams, "GiB")
+  String metrics_filename = outbam + ".metrics"
 
-    runtime {
-        docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11_NoCustomEntryPoint"
-        memory: mem + " MiB"
-        disks: "local-disk " + disk_space + " HDD"
-        preemptible: preemptible
-        maxRetries: max_retries
-        cpu: cpu
-    }
+  # The merged bam will be smaller than the sum of the parts so we need to account for the unmerged inputs and the merged output.
+  # Mark Duplicates takes in as input readgroup bams and outputs a slightly smaller aggregated bam. Giving .25 as wiggleroom
+  Float md_disk_multiplier = 3
+  Int disk_size = ceil(md_disk_multiplier * total_input_size) + additional_disk_gb
+
+  Float memory_size = 7.5 * memory_multiplier
+  Int java_memory_size = (ceil(memory_size) - 2)
+
+  # Task is assuming query-sorted input so that the Secondary and Supplementary reads get marked correctly
+  # This works because the output of BWA is query-grouped and therefore, so is the output of MergeBamAlignment.
+  # While query-grouped isn't actually query-sorted, it's good enough for MarkDuplicates with ASSUME_SORT_ORDER="queryname"
+
+  command {
+    java -Dsamjdk.compression_level=~{compression_level} -Xms~{java_memory_size}g -jar /usr/picard/picard.jar \
+      MarkDuplicates \
+      INPUT=~{sep=' INPUT=' bams} \
+      OUTPUT=~{outbam} \
+      METRICS_FILE=~{metrics_filename} \
+      VALIDATION_STRINGENCY=~{validation_stringency} \
+      ASSUME_SORT_ORDER=~{assume_sort_order} \
+      ~{"SORTING_COLLECTION_SIZE_RATIO=" + sorting_collection_size_ratio} \
+      ~{"READ_NAME_REGEX=" + read_name_regex}
+  }
+
+  # We are using a non-standard docker image here because we currently run this WDL on Cromwell v52 which cannot support
+  # the custom entrypoint in the picard-cloud:2.18.11 docker image. Cromwell v53 and newer can support the
+  # us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11 docker image
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11_NoCustomEntryPoint"
+    preemptible: preemptible_tries
+    memory: "~{memory_size} GiB"
+    disks: "local-disk " + disk_size + " HDD"
+  }
+  output {
+    File bam = "~{outbam}"
+    File metrics = "~{metrics_filename}"
+  }
 }
 
 task sort_and_index_markdup_bam {
@@ -615,7 +627,7 @@ task collect_insert_size_metrics {
 
 workflow GDCWholeGenomeSomaticSingleSample {
 
-    String pipeline_version = "1.0.1"
+    String pipeline_version = "1.1.0"
 
     input {
         File? input_cram

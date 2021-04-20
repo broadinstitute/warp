@@ -1,0 +1,21 @@
+{
+  "VariantCalling.input_bam": "gs://broad-gotc-test-storage/variant_calling/wgs/plumbing/bams/G96830.NA12878/NA12878_PLUMBING.bam",
+  "VariantCalling.input_bam_index": "gs://broad-gotc-test-storage/variant_calling/wgs/plumbing/bams/G96830.NA12878/NA12878_PLUMBING.bai",
+  "VariantCalling.base_file_name": "NA12878_PLUMBING",
+  "VariantCalling.final_vcf_base_name": "NA12878_PLUMBING",
+
+  "VariantCalling.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "VariantCalling.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+  "VariantCalling.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+  "VariantCalling.dbsnp_vcf": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf",
+  "VariantCalling.dbsnp_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx",
+  "VariantCalling.calling_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_calling_regions.hg38.interval_list",
+  "VariantCalling.evaluation_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_evaluation_regions.hg38.interval_list",
+
+  "VariantCalling.contamination": 0.0383312,
+
+  "VariantCalling.haplotype_scatter_count": 10,
+  "VariantCalling.break_bands_at_multiples_of": 100000,
+  "VariantCalling.agg_preemptible_tries": 3,
+  "VariantCalling.use_gatk3_haplotype_caller": true
+}

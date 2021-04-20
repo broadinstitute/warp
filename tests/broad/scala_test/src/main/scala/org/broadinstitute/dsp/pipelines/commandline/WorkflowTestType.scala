@@ -25,4 +25,5 @@ object WorkflowTestType extends Enum[WorkflowTestType] {
   case object SomaticSingleSample extends WorkflowTestType
   case object ValidateChip extends WorkflowTestType
   case object IlluminaGenotypingArray extends WorkflowTestType
+  case object VariantCalling extends WorkflowTestType
 }
