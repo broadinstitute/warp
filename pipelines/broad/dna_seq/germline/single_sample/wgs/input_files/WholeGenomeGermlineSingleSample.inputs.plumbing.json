@@ -3,9 +3,9 @@
     "sample_name": "NA12878 PLUMBING",
     "base_file_name": "NA12878_PLUMBING",
     "flowcell_unmapped_bams": [
-      "gs://broad-gotc-test-storage/single_sample/plumbing/bams/G96830.NA12878/H06HDADXX130110.1.ATCACGAT.20k_reads.bam",
-      "gs://broad-gotc-test-storage/single_sample/plumbing/bams/G96830.NA12878/H06HDADXX130110.2.ATCACGAT.20k_reads.bam",
-      "gs://broad-gotc-test-storage/single_sample/plumbing/bams/G96830.NA12878/H06JUADXX130110.1.ATCACGAT.20k_reads.bam"
+      "gs://broad-public-datasets/NA12878_downsampled_for_testing/unmapped/H06HDADXX130110.1.ATCACGAT.20k_reads.bam",
+      "gs://broad-public-datasets/NA12878_downsampled_for_testing/unmapped/H06HDADXX130110.2.ATCACGAT.20k_reads.bam",
+      "gs://broad-public-datasets/NA12878_downsampled_for_testing/unmapped/H06JUADXX130110.1.ATCACGAT.20k_reads.bam"
     ],
     "final_gvcf_base_name": "NA12878_PLUMBING",
     "unmapped_bam_suffix": ".bam"

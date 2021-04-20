@@ -2,7 +2,7 @@ version 1.0
 
 import "../verification/VerifyTasks.wdl" as VerifyTasks
 
-workflow VerifyReblockGVCF {
+workflow VerifyGvcf {
 
   input {
     File test_gvcf
