@@ -1,0 +1,25 @@
+
+FROM ubuntu:16.04
+LABEL maintainer=" Farzaneh Khajouei <fkhajoue@broadinstitute.org>" \
+      software="subread package" \
+      version="2.0.2" \
+      description="RNA-seq high-performance read alignment, quantification and mutation discovery" \
+      website="http://subread.sourceforge.net/"
+
+# Install compiler 
+RUN apt-get update --fix-missing && apt-get install -y \
+  wget \
+  r-base \
+  r-base-core \
+  r-base-dev
+      
+# Install subread 
+WORKDIR /usr/local/ 
+ENV VERSION="2.0.2"
+RUN wget "https://downloads.sourceforge.net/project/subread/subread-${VERSION}/subread-${VERSION}-source.tar.gz"
+RUN tar -xzvf subread-${VERSION}-source.tar.gz
+WORKDIR /usr/local/subread-${VERSION}-source/src 
+RUN make -f Makefile.Linux 
+ENV PATH /usr/local/subread-${VERSION}-source/bin/:$PATH
+# Cleanup
+RUN apt-get clean
