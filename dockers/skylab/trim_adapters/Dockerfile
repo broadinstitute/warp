@@ -6,6 +6,7 @@ LABEL software="ea-utils package" \
 
 # Install compiler 
 RUN apt update && apt install -y \
+   zlib1g-dev \
    cmake \
    automake \
    wget \
@@ -18,7 +19,7 @@ RUN wget "https://github.com/ExpressionAnalysis/ea-utils/archive/refs/tags/1.04.
 RUN tar -xzvf 1.04.807.tar.gz
 WORKDIR /usr/local/ea-utils-1.04.807/clipper 
 RUN make
-RUN make test
+RUN make install
 ENV PATH /usr/local/ea-utils-1.04.807/clipper/:$PATH
 # Cleanup
 RUN apt-get clean

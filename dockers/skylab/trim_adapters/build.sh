@@ -8,6 +8,6 @@ if [ -z $tag ]; then
     exit 1
 fi
 
-docker build -t quay.io/humancellatlas/secondary-analysis-ea-utils:$tag .
+docker build -t quay.io/humancellatlas/snss2-trim-adapters:$tag .
 
-echo "You can now push with docker push quay.io/humancellatlas/secondary-analysis-ea-utils:$tag"
+echo "You can now push with docker push quay.io/humancellatlas/snss2-trim-adapters:$tag"
