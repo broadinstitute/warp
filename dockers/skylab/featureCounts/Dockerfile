@@ -1,5 +1,5 @@
+FROM python:3.6.2
 
-FROM ubuntu:16.04
 LABEL maintainer=" Farzaneh Khajouei <fkhajoue@broadinstitute.org>" \
       software="subread package" \
       version="2.0.2" \
@@ -8,11 +8,11 @@ LABEL maintainer=" Farzaneh Khajouei <fkhajoue@broadinstitute.org>" \
 
 # Install compiler 
 RUN apt-get update --fix-missing && apt-get install -y \
-  wget \
-  r-base \
-  r-base-core \
-  r-base-dev
-      
+  wget 
+
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt    
+
 # Install subread 
 WORKDIR /usr/local/ 
 ENV VERSION="2.0.2"
@@ -23,3 +23,8 @@ RUN make -f Makefile.Linux
 ENV PATH /usr/local/subread-${VERSION}-source/bin/:$PATH
 # Cleanup
 RUN apt-get clean
+
+# copy the script that removes alignments spanning intron-exon junctions
+RUN mkdir /tools
+WORKDIR /tools
+COPY remove-reads-on-junctions.py .

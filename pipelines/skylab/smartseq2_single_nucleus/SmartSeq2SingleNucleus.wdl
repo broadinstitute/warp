@@ -1,14 +1,12 @@
 version 1.0
 
-import "../../../tasks/skylab/StarAlign.wdl" as StarAlignBam
-import "../../../tasks/skylab/Picard.wdl" as Picard
-import "../../../tasks/skylab/TrimAdapters.wdl" as TrimAdapters
+import "TrimAdapters.wdl" as TrimAdapters
+import "StarAlign.wdl" as StarAlignFastq
+import "Picard.wdl" as Picard
+import "FeatureCounts.wdl" as CountAlignments
 
 
-#import "../../../tasks/skylab/GroupMetricsOutputs.wdl" as GroupQCs
-#import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
-
-workflow SmartSeq2SingleNuclei {
+workflow SmartSeq2SingleNucleus {
   meta {
     description: "Process SmartSeq2 snRNA-Seq data, include reads alignment, QC metrics collection, and gene expression quantitication"
   }
@@ -39,7 +37,6 @@ workflow SmartSeq2SingleNuclei {
   String pipeline_version = "1.0.0"
 
   parameter_meta {
-    genome_ref_fasta: "Genome reference in fasta format"
     stranded: "Library strand information example values: FR RF NONE"
     input_id: "Sample name or cell_names"
     output_name: "Output name, can include path"
@@ -50,23 +47,39 @@ workflow SmartSeq2SingleNuclei {
     annotations_gtf: "gtf containing annotations for gene tagging (must match star reference)"
   }
 
+  String quality_control_output_basename = output_name + "_qc"
 
-     call TrimApapters.TrimAdapters {
+  call TrimAdapters.TrimAdapters as TrimAdapters {
        input:
          fastq1 = fastq1,
          fastq2 = select_first([fastq2]),
          adapter_list = adapter_list
-     }
+   }
 
+   call StarAlignFastq.StarAlignFastqPairedEnd as StarAlign {
+      input:
+        fastq1 = TrimAdapters.trimmed_fastq1,
+        fastq2 = TrimAdapters.trimmed_fastq2,
+        tar_star_reference = tar_star_reference
+   }
 
+  call Picard.RemoveDuplicatesFromBam as RemoveDuplicatesFromBam {
+    input:
+      aligned_bam = StarAlign.bam_output,
+      output_basename = quality_control_output_basename,
+  }
+
+  call CountAlignments.CountAlignments as CountAlignments {
+       input:
+         input_bam = RemoveDuplicatesFromBam.output_bam,
+         annotation_gtf = annotations_gtf
+   }
 
   output {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
 
     # quality control outputs
-    File aligned_bam = HISAT2_output_bam
-
     # data outputs
     # loom
   }

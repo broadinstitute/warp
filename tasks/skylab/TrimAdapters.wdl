@@ -1,6 +1,7 @@
 version 1.0
 
 task TrimAdapters {
+
   input {
     File fastq1
     File? fastq2
@@ -10,7 +11,7 @@ task TrimAdapters {
     String docker = "quay.io/humancellatlas/snss2-trim-adapters:0.1.0"
     Int machine_mem_mb = 8250
     Int cpu = 1
-    Int disk = ceil(size(original_gtf, "Gi") * 2) + 10
+    Int disk = ceil(size(fastq1, "Gi") * 2) + 10
     Int preemptible = 3
   }
 
@@ -20,7 +21,6 @@ task TrimAdapters {
 
   parameter_meta {
     docker: "(optional) the docker image containing the runtime environment for this task"
-    modified_gtf_location: "(optional) the name to save the modified gtf file under"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -35,7 +35,7 @@ task TrimAdapters {
        ~{fastq1} \
        ~{fastq2} \
        -o fastq_R1.trimmed.fastq.gz \
-       -o fastq_R2.trimmed.fastq.gz 
+       -o fastq_R2.trimmed.fastq.gz
   }
 
   runtime {
@@ -48,6 +48,6 @@ task TrimAdapters {
 
   output {
     File trimmed_fastq1 = "fastq_R1.trimmed.fastq.gz"
-    File? trimmed_fastq2 = "fastq_R2.trimmed.fastq.gz"
+    File trimmed_fastq2 = "fastq_R2.trimmed.fastq.gz"
   }
 }
