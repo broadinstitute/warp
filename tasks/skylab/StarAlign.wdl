@@ -114,7 +114,8 @@ task StarAlignFastqPairedEnd {
       --outReadsUnmapped Fastx \
       --runRNGseed 777 \
       --limitBAMsortRAM 10000000000 \
-      --quantMode GeneCounts
+      --quantMode GeneCounts \
+      --outFileNamePrefix "output_bam_" 
   }
 
   runtime {
@@ -126,7 +127,7 @@ task StarAlignFastqPairedEnd {
   }
 
   output {
-    File bam_output = "Aligned.out.bam"
+    File bam_output = "out_bam_Aligned.sortedByCoord.out.bam"
     File alignment_log = "Log.final.out"
   }
 
