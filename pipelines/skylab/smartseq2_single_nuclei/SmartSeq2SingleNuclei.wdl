@@ -2,7 +2,7 @@ version 1.0
 
 import "../../../tasks/skylab/StarAlign.wdl" as StarAlignBam
 import "../../../tasks/skylab/Picard.wdl" as Picard
-import "../../../tasks/skylab/TrimAdapters.wdl" as Picard
+import "../../../tasks/skylab/TrimAdapters.wdl" as TrimAdapters
 
 
 #import "../../../tasks/skylab/GroupMetricsOutputs.wdl" as GroupQCs
@@ -16,7 +16,7 @@ workflow SmartSeq2SingleNuclei {
   input {
     # load annotation
     #File genome_ref_fasta
-    #File gene_ref_flat
+    File gene_ref_flat
     # load index
     # ref index name
 
@@ -50,32 +50,15 @@ workflow SmartSeq2SingleNuclei {
     annotations_gtf: "gtf containing annotations for gene tagging (must match star reference)"
   }
 
-  String quality_control_output_basename = output_name + "_qc"
 
-   if( paired_end ) {
-     call HISAT2.HISAT2PairedEnd {
+     call TrimApapters.TrimAdapters {
        input:
-         hisat2_ref = hisat2_ref_index,
          fastq1 = fastq1,
          fastq2 = select_first([fastq2]),
-         ref_name = hisat2_ref_name,
-         input_id = input_id,
-         output_basename = quality_control_output_basename,
+         adapter_list = adapter_list
      }
-  }
-  if( !paired_end ) {
-     call HISAT2.HISAT2SingleEnd {
-       input:
-         hisat2_ref = hisat2_ref_index,
-         fastq = fastq1,
-         ref_name = hisat2_ref_name,
-         input_id = input_id,
-         output_basename = quality_control_output_basename,
-     }
-  }
 
 
-  }
 
   output {
     # version of this pipeline
