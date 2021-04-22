@@ -1,4 +1,5 @@
 {
+  "SmartSeq2SingleNucleus.genome_ref_fasta": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/GRCm38.p6.genome.fa",
   "SmartSeq2SingleNucleus.tar_star_reference": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM23.tar",
   "SmartSeq2SingleNucleus.annotations_gtf": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM23.annotation.introns-added.gtf",
   "SmartSeq2SingleNucleus.gene_ref_flat": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.refflat.txt",

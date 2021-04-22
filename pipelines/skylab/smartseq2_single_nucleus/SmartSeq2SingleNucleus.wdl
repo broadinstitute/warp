@@ -13,8 +13,7 @@ workflow SmartSeq2SingleNucleus {
 
   input {
     # load annotation
-    #File genome_ref_fasta
-    File gene_ref_flat
+    File genome_ref_fasta
     # load index
     # ref index name
 
@@ -63,9 +62,16 @@ workflow SmartSeq2SingleNucleus {
         tar_star_reference = tar_star_reference
    }
 
+  call Picard.CollectMultipleMetrics {
+    input:
+      aligned_bam = StarAlign.output_bam,
+      genome_ref_fasta = genome_ref_fasta,
+      output_basename = quality_control_output_basename,
+  }
+
   call Picard.RemoveDuplicatesFromBam as RemoveDuplicatesFromBam {
     input:
-      aligned_bam = StarAlign.bam_output,
+      aligned_bam = StarAlign.output_bam,
       output_basename = quality_control_output_basename,
   }
 
