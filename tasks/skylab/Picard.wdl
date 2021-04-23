@@ -320,13 +320,22 @@ task RemoveDuplicatesFromBam {
   }
   
   command {
-    java -Xmx${command_mem_mb}m -XX:ParallelGCThreads=${cpu}  -jar /usr/picard/picard.jar  MarkDuplicates \
+    java -Xmx${command_mem_mb}m -XX:ParallelGCThreads=${cpu} -jar /usr/picard/picard.jar  MarkDuplicates \
        VALIDATION_STRINGENCY=SILENT  \
        INPUT=${aligned_bam} \
        OUTPUT=aligned_bam.DuplicatesRemoved.bam \
        ASSUME_SORTED=true \
        METRICS_FILE=aligned_bam.duplicate_metrics.txt \
        REMOVE_DUPLICATES=true
+
+    java -Xmx${command_mem_mb}m -XX:ParallelGCThreads=${cpu} -jar /usr/picard/picard.jar AddOrReplaceReadGroups \
+       I=aligned_bam.DuplicatesRemoved.bam \
+       O=aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam \
+       RGID=4 \
+       RGLB=lib1 \
+       RGPL=ILLUMINA \
+       RGPU=unit1 \
+       RGSM=20
   }
   
   runtime {
@@ -339,7 +348,7 @@ task RemoveDuplicatesFromBam {
   
   output {
     File dedup_metrics = "aligned_bam.duplicate_metrics.txt"
-    File output_bam = "aligned_bam.DuplicatesRemoved.bam"
+    File output_bam = "aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam"
   }
 }
 
