@@ -1,6 +1,6 @@
 # VCF Overview: Illumina Genotyping Array 
 
-The [Illumina Genotyping Array Pipeline](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl) v1.11.0 pipeline produces a VCF (variant calling format) output with data processing and sample-specific genotype information. The VCF follows the format listed in the VCF 4.2 specification, but additionally contains fields and attributes that are unique to the Arrays pipeline.
+The [Illumina Genotyping Array Pipeline](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl) v1.11.0 pipeline produces a VCF (Variant Call Format) output with data processing and sample-specific genotype information. The VCF follows the format listed in the VCF 4.2 specification, but additionally contains fields and attributes that are unique to the Arrays pipeline.
 
 This document describes the Array pipeline’s unique VCF fields and attributes that are not listed in the standard VCF specification. To learn more about the pipeline, see the [Illumina Genotyping Array Pipeline Overview](./IlluminaGenotypingArray.documentation.md).
 
