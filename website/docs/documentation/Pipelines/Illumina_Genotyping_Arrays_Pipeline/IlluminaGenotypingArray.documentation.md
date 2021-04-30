@@ -2,7 +2,7 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Version 1.11.0](https://github.com/broadinstitute/warp/releases) | April 1, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [Version 1.11.0](https://github.com/broadinstitute/warp/releases) | May 1, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![The Illumina Genotyping Array Pipeline](./IlluminaGenotyping.png)
 
