@@ -1,7 +1,7 @@
 version 1.0
 
-import https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl as target_wdl
-import "../../../../tests/skylab/smartseq2_single_nucleus/pr/ValidateSmartSeq2SingleNucleus.wdl" as checker_wdl
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_snss2_pr_test/pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl" as target_wdl
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_snss2_pr_test/tests/skylab/smartseq2_single_nucleus/pr/ValidateSmartSeq2SingleNucleus.wdl" as checker_wdl
 
 
 # this task will be run by the jenkins script that gets executed on our PRs.

@@ -1,9 +1,9 @@
 version 1.0
 
-import "TrimAdapters.wdl" as TrimAdapters
-import "StarAlign.wdl" as StarAlignFastq
-import "Picard.wdl" as Picard
-import "FeatureCounts.wdl" as CountAlignments
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_snss2_pr_test/tasks/skylab/TrimAdapters.wdl" as TrimAdapters
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_snss2_pr_test/tasks/skylab/StarAlign.wdl" as StarAlignFastq
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_snss2_pr_test/tasks/skylab/Picard.wdl" as Picard
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_snss2_pr_test/tasks/skylab/FeatureCounts.wdl" as CountAlignments
 
 
 workflow SmartSeq2SingleNucleus {
