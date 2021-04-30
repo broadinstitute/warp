@@ -129,7 +129,7 @@ module.exports = {
               collapsable: true,
               children: [
                 "Pipelines/Illumina_Genotyping_Arrays_Pipeline/IlluminaGenotypingArray.documentation",
-                "Pipelines/Illumina_Genotyping_Arrays_Pipeline/Illumina_array_spec"
+                "Pipelines/Illumina_Genotyping_Arrays_Pipeline/Illumina_genotyping_array_spec"
               ],
             },
             {
