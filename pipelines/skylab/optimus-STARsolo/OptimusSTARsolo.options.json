@@ -1,0 +1,5 @@
+{
+  "read_from_cache": true,
+  "write_to_cache": true,
+  "monitoring_script": "gs://hca-dcp-mint-test-data/accessories/monitoring/cellranger/monitoring.sh"
+}

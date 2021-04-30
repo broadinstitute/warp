@@ -1,0 +1,32 @@
+{
+  "OptimusSTARsolo.r1_fastq": [
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L001_R1_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L002_R1_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L003_R1_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L004_R1_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L005_R1_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L006_R1_001.filtered.fastq.gz"
+  ],
+  "OptimusSTARsolo.r2_fastq": [
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L001_R2_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L002_R2_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L003_R2_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L004_R2_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L005_R2_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L006_R2_001.filtered.fastq.gz"
+  ],
+  "OptimusSTARsolo.i1_fastq": [
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L001_I1_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L002_I1_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L003_I1_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L004_I1_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L005_I1_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L006_I1_001.filtered.fastq.gz"
+  ],
+  "OptimusSTARsolo.whitelist": "gs://hca-dcp-sc-pipelines-test-data/whitelists/737K-august-2016.txt",
+  "OptimusSTARsolo.tar_star_reference": "gs://broad-dsde-mint-dev-cromwell-execution/caas-cromwell-executions/BuildIndices/b490511f-9c6e-401f-b9d1-9f1242313132/call-BuildStar/star_primary_gencode_mouse_vM21.tar",
+  "OptimusSTARsolo.input_id": "neurons2k_mouse",
+  "OptimusSTARsolo.chemistry": "tenX_v2",
+  "OptimusSTARsolo.annotations_gtf": "gs://broad-dsde-mint-dev-cromwell-execution/caas-cromwell-executions/BuildIndices/b490511f-9c6e-401f-b9d1-9f1242313132/call-GetReferences/gencode.vM21.primary_assembly.annotation.gtf",
+  "OptimusSTARsolo.ref_genome_fasta": "gs://broad-dsde-mint-dev-cromwell-execution/caas-cromwell-executions/BuildIndices/b490511f-9c6e-401f-b9d1-9f1242313132/call-GetReferences/GRCm38.primary_assembly.genome.fa"
+}
