@@ -99,7 +99,7 @@ task BuildStarSingleNucleus {
   String star_index_name = "modified_~{ref_name}.tar"
   String genome_fa_modified = "modified_~{references.genome_fa}"
   String annotation_gtf_modified = "modified_~{references.annotation_gtf}"
-  String annotation_gtf_modified_introns = "introns_~{references.annotation_gtf}"
+  String annotation_gtf_introns = "introns_~{references.annotation_gtf}"
   command <<<
     set -eo pipefail
     if ~{organism} == "mouse"
@@ -121,12 +121,12 @@ task BuildStarSingleNucleus {
 
     tar -cvf ~{star_index_name} star
 
-    python  add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_modified_introns}
+    python  add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_introns}
   >>>
 
   output {
     File star_index = star_index_name
-    File annotation_gtf_modified_introns = annotation_gtf_modified_introns
+    File annotation_gtf_modified_introns = annotation_gtf_introns
     References modified_references = object {
              genome_fa: genome_fa_modified,
            annotation_gtf: annotation_gtf_modified
@@ -416,9 +416,8 @@ workflow BuildIndices {
     input:
       gtf_version = gtf_version,
       organism = organism,
-      references = GetReferences.references,
-      organism_prefix = organism_prefix
-    }
+      references = GetReferences.references
+  }
 
   call BuildRsem {
     input:
