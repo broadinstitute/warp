@@ -9,7 +9,7 @@ workflow JointGenotyping {
   input {
     String sample_name_map
     String? override_vcf_header_file
-    File? yaml_file
+    File yaml_file
     String? override_hail_docker
     String? override_region
 
@@ -89,7 +89,9 @@ workflow JointGenotyping {
       region = region,
       hail_docker = hail_docker,
       yaml_file = yaml_file,
-      autoscaling_policy_name = autoscaling_policy_name
+      autoscaling_policy_name = autoscaling_policy_name,
+      data_type = data_type,
+      sample_name_map = sample_name_map
   }
 
   call CreateMatrixTable {
@@ -458,9 +460,18 @@ task StartCluster {
     String cluster_name
     String region
     String hail_docker
-    File? yaml_file
+    File yaml_file
     String autoscaling_policy_name
+    String data_type
+    String sample_name_map
   }
+
+  Array[Array[String]] sample_name_map_lines = read_tsv(sample_name_map)
+  Int num_samples = length(sample_name_map_lines)
+  Boolean large_exome_callset = if (num_samples >= 10,000 && data_type == 'Exome')
+  Boolean large_wgs_callset = if (num_samples >= 10,000 && data_type == 'WGS')
+  String size_based_yaml = (if (large_exome_callset || large_wgs_callset ) then "largeCallSet.yaml" else "smallCallSet.yaml")
+  File yaml_file = yaml_file + size_based_yaml
 
   meta {
     volatile: true
