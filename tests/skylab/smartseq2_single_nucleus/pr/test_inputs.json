@@ -1,12 +1,13 @@
 {
-  "SmartSeq2SingleNucleus.genome_ref_fasta": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/Mus_musculus.GRCm38.dna.primary_assembly.fa",
-  "SmartSeq2SingleNucleus.tar_star_reference": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM23.tar",
-  "SmartSeq2SingleNucleus.annotations_gtf": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM23.annotation.introns-added.gtf.gz",
-  "SmartSeq2SingleNucleus.adapter_list": "gs://hca-dcp-sc-pipelines-test-data/adapters/Illumina_adapters_list.fa",
-  "SmartSeq2SingleNucleus.stranded":"NONE",
-  "SmartSeq2SingleNucleus.fastq1":"gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R1.fastq.gz",
-  "SmartSeq2SingleNucleus.fastq2":"gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R2.fastq.gz",
-  "SmartSeq2SingleNucleus.input_id":"SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT",
-  "SmartSeq2SingleNucleus.output_name":"SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT",
-  "SmartSeq2SingleNucleus.paired_end":true
+  "TestSmartSeq2SingleNucleusPR.genome_ref_fasta": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/Mus_musculus.GRCm38.dna.primary_assembly.fa",
+  "TestSmartSeq2SingleNucleusPR.tar_star_reference": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM23.tar",
+  "TestSmartSeq2SingleNucleusPR.annotations_gtf": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM23.annotation.introns-added.gtf.gz",
+  "TestSmartSeq2SingleNucleusPR.adapter_list": "gs://hca-dcp-sc-pipelines-test-data/adapters/Illumina_adapters_list.fa",
+  "TestSmartSeq2SingleNucleusPR.stranded":"NONE",
+  "TestSmartSeq2SingleNucleusPR.fastq1":"gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R1.fastq.gz",
+  "TestSmartSeq2SingleNucleusPR.fastq2":"gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R2.fastq.gz",
+  "TestSmartSeq2SingleNucleusPR.input_id":"SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT",
+  "TestSmartSeq2SingleNucleusPR.output_name":"SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT",
+  "TestSmartSeq2SingleNucleusPR.paired_end":true,
+  "TestSmartSeq2SingleNucleusPR.expected_counts_hash": "05b5e25b308256845a1d711fe85dcca8"
 }
