@@ -1,30 +1,7 @@
 #!/bin/bash
-# Genome metadata
-genome="mm10"
-version="2020-A"
 
-
-# Set up source and build directories
-build="cellranger-5-mm10-2020-A_build"
-mkdir -p "$build"
-# Download source files if they do not exist in reference_sources/ folder
-source="cellranger_reference_sources"
-mkdir -p "$source"
-
-
-fasta_url="http://ftp.ensembl.org/pub/release-98/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz"
-fasta_in="${source}/Mus_musculus.GRCm38.dna.primary_assembly.fa"
-gtf_url="http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M23/gencode.vM23.primary_assembly.annotation.gtf.gz"
-gtf_in="${source}/gencode.vM23.primary_assembly.annotation.gtf"
-
-
-if [ ! -f "$fasta_in" ]; then
-    curl -sS "$fasta_url" | zcat > "$fasta_in"
-fi
-if [ ! -f "$gtf_in" ]; then
-    curl -sS "$gtf_url" | zcat > "$gtf_in"
-fi
-
+fasta_in=$1
+fasta_modified=$2
 
 # Modify sequence headers in the Ensembl FASTA to match the file
 # "GRCm38.primary_assembly.genome.fa" from GENCODE. Unplaced and unlocalized
@@ -35,7 +12,6 @@ fi
 #
 # Output FASTA:
 #   >chr1 1
-fasta_modified="$build/$(basename "$fasta_in").modified"
 # sed commands:
 # 1. Replace metadata after space with original contig name, as in GENCODE
 # 2. Add "chr" to names of autosomes and sex chromosomes
@@ -54,7 +30,10 @@ cat "$fasta_in" \
 #     ... gene_id "ENSMUSG00000102693.1"; ...
 # Output GTF:
 #     ... gene_id "ENSMUSG00000102693"; gene_version "1"; ...
-gtf_modified="$build/$(basename "$gtf_in").modified"
+
+gtf_in=$3
+gtf_modified="$(basename "$gtf_in").modified"
+
 # Pattern matches Ensembl gene, transcript, and exon IDs for human or mouse:
 ID="(ENS(MUS)?[GTE][0-9]+)\.([0-9]+)"
 cat "$gtf_in" \
@@ -100,18 +79,15 @@ cat "$gtf_modified" \
     | sed -E 's/.*(gene_id "[^"]+").*/\1/' \
     | sort \
     | uniq \
-    > "${build}/gene_allowlist"
+    > gene_allowlist
 
 
 # Filter the GTF file based on the gene allowlist
-gtf_filtered="${build}/$(basename "$gtf_in").filtered"
+gtf_filtered=$4
 # Copy header lines beginning with "#"
 grep -E "^#" "$gtf_modified" > "$gtf_filtered"
 # Filter to the gene allowlist
-grep -Ff "${build}/gene_allowlist" "$gtf_modified" \
+grep -Ff gene_allowlist "$gtf_modified" \
     >> "$gtf_filtered"
 
-# Create reference package
-#/mnt/data2/allen_snSS2/cellranger-5.0.1/bin/cellranger mkref --ref-version="$version" \
-#    --genome="$genome" --fasta="$fasta_modified" --genes="$gtf_filtered"
 

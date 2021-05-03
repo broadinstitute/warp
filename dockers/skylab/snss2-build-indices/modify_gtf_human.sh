@@ -1,32 +1,6 @@
-# Genome metadata
-genome="GRCh38"
-version="2020-A"
+#!/bin/bash
 
-
-# Set up source and build directories
-build="GRCh38-2020-A_build"
-mkdir -p "$build"
-
-
-# Download source files if they do not exist in reference_sources/ folder
-source="reference_sources"
-mkdir -p "$source"
-
-
-fasta_url="http://ftp.ensembl.org/pub/release-98/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
-fasta_in="${source}/Homo_sapiens.GRCh38.dna.primary_assembly.fa"
-gtf_url="http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_32/gencode.v32.primary_assembly.annotation.gtf.gz"
-gtf_in="${source}/gencode.v32.primary_assembly.annotation.gtf"
-
-
-if [ ! -f "$fasta_in" ]; then
-    curl -sS "$fasta_url" | zcat > "$fasta_in"
-fi
-if [ ! -f "$gtf_in" ]; then
-    curl -sS "$gtf_url" | zcat > "$gtf_in"
-fi
-
-
+fasta_in=$1
 # Modify sequence headers in the Ensembl FASTA to match the file
 # "GRCh38.primary_assembly.genome.fa" from GENCODE. Unplaced and unlocalized
 # sequences such as "KI270728.1" have the same names in both versions.
@@ -36,7 +10,7 @@ fi
 #
 # Output FASTA:
 #   >chr1 1
-fasta_modified="$build/$(basename "$fasta_in").modified"
+fasta_modified=$2
 # sed commands:
 # 1. Replace metadata after space with original contig name, as in GENCODE
 # 2. Add "chr" to names of autosomes and sex chromosomes
@@ -55,7 +29,8 @@ cat "$fasta_in" \
 #     ... gene_id "ENSG00000223972.5"; ...
 # Output GTF:
 #     ... gene_id "ENSG00000223972"; gene_version "5"; ...
-gtf_modified="$build/$(basename "$gtf_in").modified"
+gtf_in=$3
+gtf_modified="$(basename "$gtf_in").modified"
 # Pattern matches Ensembl gene, transcript, and exon IDs for human or mouse:
 ID="(ENS(MUS)?[GTE][0-9]+)\.([0-9]+)"
 cat "$gtf_in" \
@@ -106,15 +81,15 @@ cat "$gtf_modified" \
     | sed -E 's/.*(gene_id "[^"]+").*/\1/' \
     | sort \
     | uniq \
-    > "${build}/gene_allowlist"
+    > gene_allowlist
 
 
 # Filter the GTF file based on the gene allowlist
-gtf_filtered="${build}/$(basename "$gtf_in").filtered"
+gtf_filtered=$4
 # Copy header lines beginning with "#"
 grep -E "^#" "$gtf_modified" > "$gtf_filtered"
 # Filter to the gene allowlist
-grep -Ff "${build}/gene_allowlist" "$gtf_modified" \
+grep -Ff gene_allowlist "$gtf_modified" \
     >> "$gtf_filtered"
 
 
