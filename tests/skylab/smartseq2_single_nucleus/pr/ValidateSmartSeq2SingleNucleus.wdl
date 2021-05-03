@@ -61,7 +61,7 @@ task CompareMetrics {
 
 task CompareCounts {
     input {
-      File counts
+      String counts
       String expected_counts_hash
     }
 
@@ -73,8 +73,8 @@ task CompareCounts {
     # calculate hashes; awk is used to extract the hash from the md5sum output that contains both
     # a hash and the filename that was passed. We parse the first 7 columns because a bug in RSEM
     # makes later columns non-deterministic.
-    counts_hash=$(awk 'NR>2' "~{counts}" | md5sum | awk '{print $1}')
-
+    #counts_hash=$(awk 'NR>2' "~{counts}" | md5sum | awk '{print $1}')
+    counts_hash = counts
     if [ "$counts_hash" != "$expected_counts_hash" ]; then
         echo "Strings are not equal"
         fail=true

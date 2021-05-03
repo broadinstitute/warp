@@ -10,6 +10,6 @@
   "TestSmartSeq2SingleNucleusPR.output_name":"SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT",
   "TestSmartSeq2SingleNucleusPR.paired_end":true,
   "TestSmartSeq2SingleNucleusPR.expected_counts_hash": "05b5e25b308256845a1d711fe85dcca8",
-  "TestSmartSeq2SingleNucleusPR.counts": "gs://broad-dsde-mint-dev-cromwell-execution/caas-cromwell-executions/SmartSeq2SingleNucleus/5a327956-fdf3-4fd2-a273-2cf68abb258f/call-CountAlignments/introns.counts"
+  "TestSmartSeq2SingleNucleusPR.counts": "05b5e25b308256845a1d711fe85dcca8"
 
 }

@@ -9,7 +9,7 @@ workflow TestSmartSeq2SingleNucleusPR {
   input {
     # Validation input
     #String loom_output
-    File counts
+    String counts
     String expected_counts_hash
    # File? target_metrics
    # String expected_metrics_hash
