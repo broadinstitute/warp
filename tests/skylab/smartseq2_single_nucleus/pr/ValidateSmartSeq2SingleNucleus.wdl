@@ -61,8 +61,7 @@ task CompareMetrics {
 
 task CompareCounts {
     input {
-      #needs to be a file eventually?
-      String counts
+      File counts
       String expected_counts_hash
     }
 

@@ -9,7 +9,7 @@ workflow TestSmartSeq2SingleNucleusPR {
   input {
     # Validation input
     #String loom_output
-    #File counts
+    File counts
     String expected_counts_hash
    # File? target_metrics
    # String expected_metrics_hash
@@ -52,7 +52,7 @@ workflow TestSmartSeq2SingleNucleusPR {
    call checker_wdl.CompareCounts as checker_workflow {
      input:
       #counts needs to come from wdl, but that isnt done yet
-      counts = expected_counts_hash,
+      counts = counts,
       expected_counts_hash = expected_counts_hash,
       # target_metrics = target_workflow.insert_size_metrics,
       # expected_metrics_hash = expected_metrics_hash
