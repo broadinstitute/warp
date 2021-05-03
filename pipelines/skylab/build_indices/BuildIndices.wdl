@@ -89,13 +89,15 @@ task BuildStarSingleNucleus {
   input {
     String gtf_version
     String organism
-    References references
+    String organism_prefix
+
+                    References references
   }
 
   meta {
     description: "Modify gtf files and build reference index files for STAR aligner"
   }
-
+  String ref_name = "star_primary_gencode_~{organism}_v~{gtf_version}"
   String star_index_name = "~{ref_name}_modified.tar"
   String genome_fa_modified = "modified_GRC~{organism_prefix}38.primary_assembly.genome.fa"
   String annotation_gtf_modified = "modified_gencode.v~{gtf_version}.primary_assembly.annotation.gtf"
@@ -123,8 +125,7 @@ task BuildStarSingleNucleus {
 
   output {
     File star_index = star_index_name
-    File genome_fa_modfied = genome_fa_modfied_file
-    References references = object {
+    References modified_references = object {
              genome_fa: genome_fa_modified,
            annotation_gtf: annotation_gtf_modified
            }
@@ -409,6 +410,14 @@ workflow BuildIndices {
       references = GetReferences.references
   }
 
+  call BuildStarSingleNucleus {
+    input:
+      gtf_version = gtf_version,
+      organism = organism,
+      references = GetReferences.references,
+      organism_prefix = organism_prefix
+    }
+
   call BuildRsem {
     input:
       gtf_version = gtf_version,
@@ -439,6 +448,7 @@ workflow BuildIndices {
 
   output {
     File star_index = BuildStar.star_index
+    File snSS2_star_index = BuildStarSingleNucleus.star_index
     File rsem_index = BuildRsem.rsem_index
     File hisat2_from_rsem_index = BuildHisat2FromRsem.hisat2_index
     File hisat2_index = BuildHisat2.hisat2_index
@@ -448,5 +458,8 @@ workflow BuildIndices {
 
     File genome_fa = GetReferences.references.genome_fa
     File annotation_gtf = GetReferences.references.annotation_gtf
+
+    File snSS2_genome_fa = BuildStarSingleNucleus.modified_references.genome_fa
+    File snSS2_annotation_gtf = BuildStarSingleNucleus.modified_references.annotation_gtf
   }
 }
