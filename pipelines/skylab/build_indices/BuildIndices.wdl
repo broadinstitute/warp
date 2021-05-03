@@ -101,6 +101,7 @@ task BuildStarSingleNucleus {
   String star_index_name = "~{ref_name}_modified.tar"
   String genome_fa_modified = "modified_GRC~{organism_prefix}38.primary_assembly.genome.fa"
   String annotation_gtf_modified = "modified_gencode.v~{gtf_version}.primary_assembly.annotation.gtf"
+  String annotation_gtf_modified_introns = "modified_introns_gencode.v~{gtf_version}.primary_assembly.annotation.gtf"
   command <<<
     set -eo pipefail
     if ~{organism} == "mouse"
@@ -121,10 +122,13 @@ task BuildStarSingleNucleus {
     --runThreadN 16
 
     tar -cvf ~{star_index_name} star
+
+    python  add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_modified_introns}
   >>>
 
   output {
     File star_index = star_index_name
+    File annotation_gtf_modified_introns = annotation_gtf_modified_introns
     References modified_references = object {
              genome_fa: genome_fa_modified,
            annotation_gtf: annotation_gtf_modified
@@ -461,5 +465,6 @@ workflow BuildIndices {
 
     File snSS2_genome_fa = BuildStarSingleNucleus.modified_references.genome_fa
     File snSS2_annotation_gtf = BuildStarSingleNucleus.modified_references.annotation_gtf
+    File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
   }
 }
