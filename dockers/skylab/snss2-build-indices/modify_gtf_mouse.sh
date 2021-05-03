@@ -1,7 +1,7 @@
 #!/bin/bash
 
 fasta_in=$1
-fasta_modified=$2
+fasta_modified="modified_$(basename "$fasta_in")"
 
 # Modify sequence headers in the Ensembl FASTA to match the file
 # "GRCm38.primary_assembly.genome.fa" from GENCODE. Unplaced and unlocalized
@@ -20,7 +20,7 @@ cat "$fasta_in" \
     | sed -E 's/^>(\S+).*/>\1 \1/' \
     | sed -E 's/^>([0-9]+|[XY]) />chr\1 /' \
     | sed -E 's/^>MT />chrM /' \
-    > "$fasta_modified"
+    > $fasta_modified
 
 
 # Remove version suffix from transcript, gene, and exon IDs in order to match
@@ -31,7 +31,7 @@ cat "$fasta_in" \
 # Output GTF:
 #     ... gene_id "ENSMUSG00000102693"; gene_version "1"; ...
 
-gtf_in=$3
+gtf_in=$2
 gtf_modified="$(basename "$gtf_in").modified"
 
 # Pattern matches Ensembl gene, transcript, and exon IDs for human or mouse:
@@ -83,7 +83,7 @@ cat "$gtf_modified" \
 
 
 # Filter the GTF file based on the gene allowlist
-gtf_filtered=$4
+gtf_filtered="modified_$(basename "$gtf_in")"
 # Copy header lines beginning with "#"
 grep -E "^#" "$gtf_modified" > "$gtf_filtered"
 # Filter to the gene allowlist

@@ -1,6 +1,8 @@
 #!/bin/bash
 
 fasta_in=$1
+fasta_modified="modified_$(basename "$fasta_in")"
+
 # Modify sequence headers in the Ensembl FASTA to match the file
 # "GRCh38.primary_assembly.genome.fa" from GENCODE. Unplaced and unlocalized
 # sequences such as "KI270728.1" have the same names in both versions.
@@ -10,7 +12,6 @@ fasta_in=$1
 #
 # Output FASTA:
 #   >chr1 1
-fasta_modified=$2
 # sed commands:
 # 1. Replace metadata after space with original contig name, as in GENCODE
 # 2. Add "chr" to names of autosomes and sex chromosomes
@@ -29,7 +30,7 @@ cat "$fasta_in" \
 #     ... gene_id "ENSG00000223972.5"; ...
 # Output GTF:
 #     ... gene_id "ENSG00000223972"; gene_version "5"; ...
-gtf_in=$3
+gtf_in=$2
 gtf_modified="$(basename "$gtf_in").modified"
 # Pattern matches Ensembl gene, transcript, and exon IDs for human or mouse:
 ID="(ENS(MUS)?[GTE][0-9]+)\.([0-9]+)"
@@ -85,7 +86,8 @@ cat "$gtf_modified" \
 
 
 # Filter the GTF file based on the gene allowlist
-gtf_filtered=$4
+gtf_filtered=="modified_$(basename "$gtf_in")"
+
 # Copy header lines beginning with "#"
 grep -E "^#" "$gtf_modified" > "$gtf_filtered"
 # Filter to the gene allowlist

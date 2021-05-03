@@ -89,28 +89,26 @@ task BuildStarSingleNucleus {
   input {
     String gtf_version
     String organism
-    String organism_prefix
-
-                    References references
+    References references
   }
 
   meta {
     description: "Modify gtf files and build reference index files for STAR aligner"
   }
   String ref_name = "star_primary_gencode_~{organism}_v~{gtf_version}"
-  String star_index_name = "~{ref_name}_modified.tar"
-  String genome_fa_modified = "modified_GRC~{organism_prefix}38.primary_assembly.genome.fa"
-  String annotation_gtf_modified = "modified_gencode.v~{gtf_version}.primary_assembly.annotation.gtf"
-  String annotation_gtf_modified_introns = "modified_introns_gencode.v~{gtf_version}.primary_assembly.annotation.gtf"
+  String star_index_name = "modified_~{ref_name}.tar"
+  String genome_fa_modified = "modified_~{references.genome_fa}"
+  String annotation_gtf_modified = "modified_~{references.annotation_gtf}"
+  String annotation_gtf_modified_introns = "introns_~{references.annotation_gtf}"
   command <<<
     set -eo pipefail
     if ~{organism} == "mouse"
       then
-        ./modify_gtf_mouse.sh ~{references.genome_fa} ~{genome_fa_modified} ~{references.annotation_gtf}  ~{annotation_gtf_modified}
+        ./modify_gtf_mouse.sh ~{references.genome_fa}  ~{references.annotation_gtf}
     fi
     if ~{organism} == "human"
       then
-        ./modify_gtf_human.sh ~{references.genome_fa} ~{genome_fa_modified} ~{references.annotation_gtf}  ~{annotation_gtf_modified}
+        ./modify_gtf_human.sh ~{references.genome_fa} ~{references.annotation_gtf}
     fi
 
     mkdir star
@@ -136,7 +134,7 @@ task BuildStarSingleNucleus {
   }
 
   runtime {
-    docker: "quay.io/humancellatlas/sn-ss2-indices:1.0.0"
+    docker: "quay.io/humancellatlas/snss2-indices:1.0.0 "
     memory: "50 GiB"
     disks :"local-disk 100 HDD"
     cpu:"16"
