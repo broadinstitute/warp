@@ -104,14 +104,8 @@ task BuildStarSingleNucleus {
 
   command <<<
     set -eo pipefail
-    if ~{organism} == "mouse"
-      then
-        ./modify_gtf_mouse.sh ~{references.genome_fa}  ~{references.annotation_gtf}
-    fi
-    if ~{organism} == "human"
-      then
-        ./modify_gtf_human.sh ~{references.genome_fa} ~{references.annotation_gtf}
-    fi
+
+    ./modify_gtf_~{organism}.sh ~{references.genome_fa} ~{references.annotation_gtf}
 
     mkdir star
     STAR --runMode genomeGenerate \
