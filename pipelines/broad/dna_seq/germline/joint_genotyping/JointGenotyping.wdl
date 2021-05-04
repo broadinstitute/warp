@@ -9,7 +9,7 @@ workflow JointGenotyping {
   input {
     String sample_name_map
     String? override_vcf_header_file
-    File yaml_file
+    File? yaml_file
     String? override_hail_docker
     String? override_region
 
@@ -78,6 +78,9 @@ workflow JointGenotyping {
   String region = select_first([override_region, "us-central1"])
   String gvcf_header = select_first([override_vcf_header_file, "gs://jg-dev-hail-testing/withWdl/header.g.vcf.gz"])
 
+  Array[Array[String]] sample_name_map_lines = read_tsv(sample_name_map)
+  Int num_gvcfs = length(sample_name_map_lines)
+
 #  if (!endsWith(output_dir, "/")) {
 #    output_dir = output_dir + "/"
 #  }
@@ -91,7 +94,8 @@ workflow JointGenotyping {
       yaml_file = yaml_file,
       autoscaling_policy_name = autoscaling_policy_name,
       data_type = data_type,
-      sample_name_map = sample_name_map
+      sample_name_map = sample_name_map,
+      num_gvcfs = num_gvcfs
   }
 
   call CreateMatrixTable {
@@ -326,9 +330,6 @@ workflow JointGenotyping {
 
 
 
- #TODO: sample_name_map is a String. How can we read this and get line count?
- Array[Array[String]] sample_name_map_lines = read_tsv(sample_name_map)
- Int num_gvcfs = length(sample_name_map_lines)
  Boolean is_small_callset = select_first([gather_vcfs, num_gvcfs <= 1000])
 
  # for small callsets we can gather the VCF shards and then collect metrics on it
@@ -460,18 +461,18 @@ task StartCluster {
     String cluster_name
     String region
     String hail_docker
-    File yaml_file
+    File? yaml_file
     String autoscaling_policy_name
     String data_type
     String sample_name_map
+    Int num_gvcfs
   }
 
-  Array[Array[String]] sample_name_map_lines = read_tsv(sample_name_map)
-  Int num_samples = length(sample_name_map_lines)
-  Boolean large_exome_callset = if (num_samples >= 10,000 && data_type == 'Exome')
-  Boolean large_wgs_callset = if (num_samples >= 10,000 && data_type == 'WGS')
-  String size_based_yaml = (if (large_exome_callset || large_wgs_callset ) then "largeCallSet.yaml" else "smallCallSet.yaml")
-  File yaml_file = yaml_file + size_based_yaml
+  Boolean large_exome_callset = (num_gvcfs >= 10,000 && data_type == 'Exome')
+  Boolean large_wgs_callset = (num_gvcfs >= 2,000 && data_type == 'WGS')
+  # TODO: Locations of yaml files should get moved to a production location or added to the docker image
+  String default_yaml_file = (if (large_exome_callset || large_wgs_callset ) then "gs://jg-dev-hail-testing/ClusterSizeYaml/largeCallSet.yaml" else "gs://jg-dev-hail-testing/ClusterSizeYaml/smallCallSet.yaml")
+  File final_yaml_file = select_first(yaml_file, default_yaml_file)
 
   meta {
     volatile: true
@@ -489,7 +490,7 @@ task StartCluster {
 
       # import yaml
       gcloud --project=~{google_project} --quiet beta dataproc autoscaling-policies import \
-      ~{autoscaling_policy_name} --region=~{region} --source=~{default="/test_cluster.yaml" yaml_file}
+      ~{autoscaling_policy_name} --region=~{region} --source=~{final_yaml_file}
 
       # start cluster
       hailctl dataproc --beta start ~{cluster_name} --project=~{google_project} --quiet --region=~{region} \

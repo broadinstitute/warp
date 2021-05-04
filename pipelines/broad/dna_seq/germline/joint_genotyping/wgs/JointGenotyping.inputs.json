@@ -1,7 +1,6 @@
 {
     "JointGenotyping.sample_name_map": "gs://jg-dev-hail-testing/withWdl/wgs_sample_map",
 
-    "JointGenotyping.yaml_file": "gs://jg-dev-hail-testing/ClusterSizeYaml/",
     "JointGenotyping.cluster_name": "testcluster",
     "JointGenotyping.output_dir": "gs://jg-dev-hail-testing/withWdl/",
     "JointGenotyping.callset_name": "wgs_test_call_set",
