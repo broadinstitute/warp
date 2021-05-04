@@ -89,6 +89,7 @@ task BuildStarSingleNucleus {
   input {
     String gtf_version
     String organism
+    String organism_prefix
     References references
   }
 
@@ -97,9 +98,10 @@ task BuildStarSingleNucleus {
   }
   String ref_name = "star_primary_gencode_~{organism}_v~{gtf_version}"
   String star_index_name = "modified_~{ref_name}.tar"
-  String genome_fa_modified = "modified_~{references.genome_fa}"
-  String annotation_gtf_modified = "modified_~{references.annotation_gtf}"
-  String annotation_gtf_introns = "introns_~{references.annotation_gtf}"
+  String genome_fa_modified = "modified_GRC~{organism_prefix}38.primary_assembly.genome.fa"
+  String annotation_gtf_modified = "modified_gencode.v~{gtf_version}.primary_assembly.annotation.gtf"
+  String annotation_gtf_introns = "introns_modified_gencode.v~{gtf_version}.primary_assembly.annotation.gtf"
+
   command <<<
     set -eo pipefail
     if ~{organism} == "mouse"
@@ -416,6 +418,7 @@ workflow BuildIndices {
     input:
       gtf_version = gtf_version,
       organism = organism,
+      organism_prefix = organism_prefix,
       references = GetReferences.references
   }
 
