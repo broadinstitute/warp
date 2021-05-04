@@ -105,7 +105,7 @@ task BuildStarSingleNucleus {
   command <<<
     set -eo pipefail
 
-    ./modify_gtf_~{organism}.sh ~{references.genome_fa} ~{references.annotation_gtf}
+    /script/modify_gtf_~{organism}.sh ~{references.genome_fa} ~{references.annotation_gtf}
 
     mkdir star
     STAR --runMode genomeGenerate \
@@ -125,7 +125,7 @@ task BuildStarSingleNucleus {
     File annotation_gtf_modified_introns = annotation_gtf_introns
     References modified_references = object {
              genome_fa: genome_fa_modified,
-           annotation_gtf: annotation_gtf_modified
+             annotation_gtf: annotation_gtf_modified
            }
   }
 

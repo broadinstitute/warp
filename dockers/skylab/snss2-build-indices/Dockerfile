@@ -21,10 +21,13 @@ RUN wget https://github.com/alexdobin/STAR/archive/2.7.8a.tar.gz && \
   tar -xf 2.7.8a.tar.gz
 RUN chmod +x /usr/local/STAR-2.7.8a/bin/Linux_x86_64_static/STAR
 ENV PATH /usr/local/STAR-2.7.8a/bin/Linux_x86_64_static/:$PATH
-RUN mkdir /tools
-WORKDIR /tools
+RUN mkdir /script
+WORKDIR /script
 
 
 COPY add-introns-to-gtf.py .
 COPY modify_gtf_human.sh .
+RUN chmod +x modify_gtf_human.sh
 COPY modify_gtf_mouse.sh .
+RUN chmod +x modify_gtf_mouse.sh
+ENV PATH /script/:$PATH
