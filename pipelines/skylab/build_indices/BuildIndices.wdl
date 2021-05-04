@@ -374,7 +374,7 @@ workflow BuildIndices {
 
   # version of this pipeline
 
-  String pipeline_version = "0.0.1"
+  String pipeline_version = "0.1.0"
 
   parameter_meta {
     gtf_version: "the actual number of gencode, ex.  27"

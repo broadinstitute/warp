@@ -86,7 +86,7 @@ cat "$gtf_modified" \
 
 
 # Filter the GTF file based on the gene allowlist
-gtf_filtered=="modified_$(basename "$gtf_in")"
+gtf_filtered="modified_$(basename "$gtf_in")"
 
 # Copy header lines beginning with "#"
 grep -E "^#" "$gtf_modified" > "$gtf_filtered"
