@@ -103,8 +103,8 @@ task STARsoloFastq {
   command {
     set -e
 
-    export UMILen=10
-    export CBLen=16
+    UMILen=10
+    CBLen=16
 
     if [ "${chemistry}" == "tenX_v2" ]
     then
@@ -127,13 +127,14 @@ task STARsoloFastq {
     tar -xf "${tar_star_reference}" -C genome_reference --strip-components 1
     rm "${tar_star_reference}"
 
+    echo "UMI LEN " $UMILen 
     STAR \
       --soloType Droplet \
       --soloUMIdedup Exact --soloStrand Unstranded \
       --runThreadN ${cpu} \
       --outSAMtype BAM Unsorted \
       --genomeDir genome_reference \
-      --readFilesIn "${sep='" "' r2_fastq}" "${sep='" "' r1_fastq}" \
+      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
       --readFilesCommand "gunzip -c" \
       --soloCBwhitelist ~{white_list} \
       --soloUMIlen $UMILen --soloCBlen $CBLen
