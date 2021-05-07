@@ -74,7 +74,7 @@ task CompareCounts {
     # a hash and the filename that was passed. We parse the first 7 columns because a bug in RSEM
     # makes later columns non-deterministic.
     #counts_hash=$(awk 'NR>2' "~{counts}" | md5sum | awk '{print $1}')
-    counts_hash = counts
+    counts_hash=$counts
     if [ "$counts_hash" != "$expected_counts_hash" ]; then
         echo "Strings are not equal"
         fail=true
