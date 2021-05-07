@@ -489,6 +489,7 @@ task sort_and_index_markdup_bam {
         cpu: cpu
     }
 }
+
         
 task gatk_baserecalibrator {
     input {
