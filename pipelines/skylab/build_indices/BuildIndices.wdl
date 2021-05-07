@@ -40,7 +40,7 @@ task GetReferences {
   }
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.8a"
+    docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
     disks: "local-disk 10 HDD"
   }
 }
@@ -78,7 +78,7 @@ task BuildStar {
   }
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.8a"
+    docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
     memory: "50 GiB"
     disks :"local-disk 100 HDD"
     cpu:"16"
@@ -130,7 +130,7 @@ task BuildStarSingleNucleus {
   }
 
   runtime {
-    docker: "quay.io/humancellatlas/snss2-indices:1.0.0 "
+    docker: "quay.io/humancellatlas/snss2-indices:1.1.0 "
     memory: "50 GiB"
     disks :"local-disk 100 HDD"
     cpu:"16"
