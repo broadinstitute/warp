@@ -45,7 +45,7 @@ task SplitIntervalList {
     File ref_dict
     Boolean sample_names_unique_done
     Int disk_size
-    String scatter_mode = "BALANCING_WITHOUT_INTERVAL_SUBDIVISION_WITH_OVERFLOW"
+    String scatter_mode = "INTERVAL_SUBDIVISION"
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
   }
 
