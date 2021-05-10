@@ -73,8 +73,11 @@ task CompareCounts {
     # calculate hashes; awk is used to extract the hash from the md5sum output that contains both
     # a hash and the filename that was passed. We parse the first 7 columns because a bug in RSEM
     # makes later columns non-deterministic.
-    #counts_hash=$(awk 'NR>2' "~{counts}" | md5sum | awk '{print $1}')
-    if [ "$counts" != "~{expected_counts_hash}" ]; then
+
+    #commenting this line out until we can pull a file from the snSS2 outputs
+    #counts=$(awk 'NR>2' "~{counts}" | md5sum | awk '{print $1}')
+
+    if [ "~{counts}" != "~{expected_counts_hash}" ]; then
         echo "Strings are not equal"
         fail=true
     fi
