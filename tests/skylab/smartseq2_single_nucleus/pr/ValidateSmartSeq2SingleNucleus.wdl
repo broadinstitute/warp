@@ -81,12 +81,12 @@ task CompareCounts {
     #exons_counts_hash=$(awk 'NR>2' "~{exons_counts_hash}" | md5sum | awk '{print $1}')
 
     if [ "~{introns_counts_hash}" != "~{expected_introns_counts_hash}" ]; then
-        echo "introns_counts_hash "~{introns_counts_hash}" did not match expected hash (${expected_introns_counts_hash})"
+        echo "introns_counts_hash "~{introns_counts_hash}" did not match expected hash "~{expected_introns_counts_hash}""
         fail=true
     fi
 
     if [ "~{exons_counts_hash}" != "~{expected_exons_counts_hash}" ]; then
-        echo "exons_counts_hash "~{exons_counts_hash}" did not match expected hash (${expected_exons_counts_hash})"
+        echo "exons_counts_hash "~{exons_counts_hash}" did not match expected hash "~{expected_exons_counts_hash}""
         fail=true
     fi
 
