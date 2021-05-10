@@ -61,8 +61,10 @@ task CompareMetrics {
 
 task CompareCounts {
     input {
-      String counts
-      String expected_counts_hash
+      String introns_counts_hash
+      String expected_introns_counts_hash
+      String exons_counts_hash
+      String expected_exons_counts_hash
     }
 
   command <<<
@@ -75,10 +77,16 @@ task CompareCounts {
     # makes later columns non-deterministic.
 
     #commenting this line out until we can pull a file from the snSS2 outputs
-    #counts=$(awk 'NR>2' "~{counts}" | md5sum | awk '{print $1}')
+    #introns_counts_hash=$(awk 'NR>2' "~{introns_counts_hash}" | md5sum | awk '{print $1}')
+    #exons_counts_hash=$(awk 'NR>2' "~{exons_counts_hash}" | md5sum | awk '{print $1}')
 
-    if [ "~{counts}" != "~{expected_counts_hash}" ]; then
-        echo "Strings are not equal"
+    if [ "~{introns_counts_hash}" != "~{expected_introns_counts_hash}" ]; then
+        echo "introns_counts_hash ($introns_counts_hash) did not match expected hash (${expected_introns_counts_hash})"
+        fail=true
+    fi
+
+    if [ "~{exons_counts_hash}" != "~{expected_exons_counts_hash}" ]; then
+        echo "exons_counts_hash ($exons_counts_hash) did not match expected hash (${expected_exons_counts_hash})"
         fail=true
     fi
 
