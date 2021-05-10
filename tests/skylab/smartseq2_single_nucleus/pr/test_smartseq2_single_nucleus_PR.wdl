@@ -2,7 +2,7 @@ version 1.0
 
 import "https://raw.githubusercontent.com/broadinstitute/warp/np_snss2_pr_test/pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl" as target_wdl
 import "https://raw.githubusercontent.com/broadinstitute/warp/np_snss2_pr_test/tests/skylab/smartseq2_single_nucleus/pr/ValidateSmartSeq2SingleNucleus.wdl" as checker_wdl
-
+import "https://raw.githubusercontent.com/broadinstitute/warp/develop/verification/VerifyTasks.wdl" as verify_tasks
 
 # this task will be run by the jenkins script that gets executed on our PRs.
 workflow TestSmartSeq2SingleNucleusPR {
@@ -13,6 +13,8 @@ workflow TestSmartSeq2SingleNucleusPR {
     String expected_introns_counts_hash
     String exons_counts_hash
     String expected_exons_counts_hash
+    File test_bam
+    File truth_bam
    # File? target_metrics
    # String expected_metrics_hash
 
@@ -61,5 +63,12 @@ workflow TestSmartSeq2SingleNucleusPR {
 
       # target_metrics = target_workflow.insert_size_metrics,
       # expected_metrics_hash = expected_metrics_hash
-    }
+   }
+
+   call verify_tasks.CompareBams as CompareBams {
+     input:
+       test_bam=test_bam,
+       truth_bam=truth_bam
+     }
+
 }

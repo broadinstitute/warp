@@ -100,5 +100,3 @@ task CompareCounts {
     disks: "local-disk 10 HDD"
   }
 }
-
-

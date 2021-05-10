@@ -9,9 +9,10 @@
   "TestSmartSeq2SingleNucleusPR.input_id":"SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT",
   "TestSmartSeq2SingleNucleusPR.output_name":"SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT",
   "TestSmartSeq2SingleNucleusPR.paired_end":true,
-  "TestSmartSeq2SingleNucleusPR.introns_counts_hash": "05b5e25b308256845a1d711fe85dcca8test",
+  "TestSmartSeq2SingleNucleusPR.introns_counts_hash": "05b5e25b308256845a1d711fe85dcca8",
   "TestSmartSeq2SingleNucleusPR.expected_introns_counts_hash": "05b5e25b308256845a1d711fe85dcca8",
-  "TestSmartSeq2SingleNucleusPR.exons_counts_hash": "d4cd77b79b51f384d3f07fdca4d431edtest",
-  "TestSmartSeq2SingleNucleusPR.expected_exons_counts_hash": "d4cd77b79b51f384d3f07fdca4d431ed"
-
+  "TestSmartSeq2SingleNucleusPR.exons_counts_hash": "d4cd77b79b51f384d3f07fdca4d431ed",
+  "TestSmartSeq2SingleNucleusPR.expected_exons_counts_hash": "d4cd77b79b51f384d3f07fdca4d431ed",
+  "TestSmartSeq2SingleNucleusPR.test_bam": "gs://broad-dsde-mint-dev-cromwell-execution/caas-cromwell-executions/SmartSeq2SingleNucleus/5a327956-fdf3-4fd2-a273-2cf68abb258f/call-RemoveDuplicatesFromBam/cacheCopy/aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam",
+  "TestSmartSeq2SingleNucleusPR.truth_bam":"gs://broad-dsde-mint-dev-cromwell-execution/caas-cromwell-executions/SmartSeq2SingleNucleus/5a327956-fdf3-4fd2-a273-2cf68abb258f/call-RemoveDuplicatesFromBam/cacheCopy/aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam"
 }
