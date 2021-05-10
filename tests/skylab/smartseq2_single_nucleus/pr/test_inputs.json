@@ -9,7 +9,7 @@
   "TestSmartSeq2SingleNucleusPR.input_id":"SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT",
   "TestSmartSeq2SingleNucleusPR.output_name":"SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT",
   "TestSmartSeq2SingleNucleusPR.paired_end":true,
-  "TestSmartSeq2SingleNucleusPR.expected_counts_hash": "05b5e25b308256845a1d711fe85dcca8",
+  "TestSmartSeq2SingleNucleusPR.expected_counts_hash": "05b5e25b308256845a1d711fe85dcca8test",
   "TestSmartSeq2SingleNucleusPR.counts": "05b5e25b308256845a1d711fe85dcca8"
 
 }
