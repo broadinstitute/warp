@@ -75,8 +75,8 @@ task CompareCounts {
     # makes later columns non-deterministic.
     #counts_hash=$(awk 'NR>2' "~{counts}" | md5sum | awk '{print $1}')
     counts_hash=$counts
-   ~{counts_hash}
-    if [ "$counts_hash" != "$expected_counts_hash" ]; then
+   ~{counts}
+    if [ "$counts" != "$expected_counts_hash" ]; then
         echo "Strings are not equal"
         fail=true
     fi
