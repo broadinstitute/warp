@@ -30,21 +30,33 @@ def main():
     gene_ids = list(gene_id_to_gene_name.keys())
 
     with open(args.output, 'w') as fout:
-        fout.write("#{}\t{}\t{}\t{}\n".format("gene_id", "gene_name", "introns", "exons"))
+        fout.write("#{}\n".format('\t'.join(["gene_id", "gene_name", "introns", "intron_FPKM",  "exons", "exon_FPKM"])))
         for gene_id in gene_ids:
             # intron count else 0
             if gene_id in gene_count_introns: 
-                intron_count = gene_count_introns[gene_id]
+                length_of_feature = gene_count_introns[gene_id][0]
+                intron_count = gene_count_introns[gene_id][1]
+                try:
+                   intron_fpkm = intron_count/length_of_feature
+                except:
+                   intron_fpkm = 0
             else:
                 intron_count = 0 
+                intron_fpkm = 0
     
             # exon count else 0
             if gene_id in gene_count_exons: 
-                exon_count = gene_count_exons[gene_id]
+                length_of_feature = gene_count_exons[gene_id][0]
+                exon_count = gene_count_exons[gene_id][1]
+                try:
+                   exon_fpkm = exon_count/length_of_feature
+                except:
+                   exon_fpkm = 0
             else:
                 exon_count = 0 
+                exon_fpkm = 0
                  
-            fout.write("{}\t{}\t{}\t{}\n".format(gene_id, gene_id_to_gene_name[gene_id], intron_count, exon_count))
+            fout.write("{}\t{}\t{}\t{:.2f}\t{}\t{:.2f}\n".format(gene_id, gene_id_to_gene_name[gene_id], intron_count, intron_fpkm, exon_count, exon_fpkm))
 
 def read_gene_id_count(count_file):
     gene_id_to_count = {}
@@ -53,7 +65,7 @@ def read_gene_id_count(count_file):
             fields = [x.strip() for x in _line.strip().split('\t')]
             if len(fields)==7:
                try:
-                  gene_id_to_count[fields[0]] = int(fields[6])
+                  gene_id_to_count[fields[0]] = [int(fields[5]), int(fields[6])]
                except:
                   pass
 
