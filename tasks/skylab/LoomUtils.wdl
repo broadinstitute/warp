@@ -251,7 +251,6 @@ task SingleNucleiSmartSeq2LoomOutput {
     # groups the QC file into one file 
     GroupQCs -f \
       ~{sep=' ' smartseq_qc_files} \
-      gc_bias.summary_metrics.txt  \
       -t Picard -o Picard_group
 
     if [ $? -eq 0 ]; then
