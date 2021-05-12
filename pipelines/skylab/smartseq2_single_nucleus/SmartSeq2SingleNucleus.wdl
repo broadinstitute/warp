@@ -4,6 +4,7 @@ import "TrimAdapters.wdl" as TrimAdapters
 import "StarAlign.wdl" as StarAlignFastq
 import "Picard.wdl" as Picard
 import "FeatureCounts.wdl" as CountAlignments
+import "LoomUtils.wdl" as LoomUtils
 
 
 workflow SmartSeq2SingleNucleus {
@@ -21,9 +22,12 @@ workflow SmartSeq2SingleNucleus {
     File annotations_gtf
 
     # samples
-
-    String stranded
     String input_id
+
+    String? input_name
+    String? input_id_metadata_field
+    String? input_name_metadata_field
+
     String output_name
 
     File adapter_list
@@ -36,7 +40,6 @@ workflow SmartSeq2SingleNucleus {
   String pipeline_version = "1.0.0"
 
   parameter_meta {
-    stranded: "Library strand information example values: FR RF NONE"
     input_id: "Sample name or cell_names"
     output_name: "Output name, can include path"
     fastq1: "R1 in paired end reads"
@@ -81,12 +84,33 @@ workflow SmartSeq2SingleNucleus {
          annotation_gtf = annotations_gtf
    }
 
+  Array[File] picard_row_outputs = [
+     CollectMultipleMetrics.alignment_summary_metrics,
+     RemoveDuplicatesFromBam.dedup_metrics,
+     CollectMultipleMetrics.gc_bias_summary_metrics
+  ]
+
+  call LoomUtils.SingleNucleiSmartSeq2LoomOutput as SingleNucleiSmartSeq2LoomOutput {
+       input:
+         input_id=input_id,
+         input_name = input_name,
+         pipeline_version = "SmartSeq2SingleNucleus_v~{pipeline_version}",
+         input_id_metadata_field = input_id_metadata_field,
+         input_name_metadata_field = input_name_metadata_field,
+         smartseq_qc_files = picard_row_outputs, 
+         introns_counts = CountAlignments.intron_counts_out,
+         exons_counts = CountAlignments.exon_counts_out,
+         annotation_introns_added_gtf = annotations_gtf
+   }
+
   output {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
-
-    # quality control outputs
+    # duplicate removed BAM
+    File aligned_bam = RemoveDuplicatesFromBam.output_bam
     # data outputs
+    File exon_intron_counts=SingleNucleiSmartSeq2LoomOutput.exon_intron_counts
     # loom
+    File loom_output_files = SingleNucleiSmartSeq2LoomOutput.loom_output
   }
 }

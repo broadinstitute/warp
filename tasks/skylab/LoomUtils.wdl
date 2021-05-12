@@ -196,3 +196,101 @@ task AggregateSmartSeq2Loom {
       maxRetries: 1
     }
 }
+
+
+task SingleNucleiSmartSeq2LoomOutput {
+  input {
+    #runtime values
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.7"
+    # the gene count file "<input_id>_rsem.genes.results" in the task results folder call-RSEMExpression
+    # file named "<input_id>_QCs.csv" in the folder  "call-GroupQCOutputs/glob-*" of the the SS2  output
+    Array[File] smartseq_qc_files
+    # introns counts
+    File introns_counts
+    # exons counts
+    File exons_counts
+    # annotation file 
+    File annotation_introns_added_gtf
+    # name of the sample
+    String input_id
+    String? input_name
+    String? input_id_metadata_field
+    String? input_name_metadata_field
+
+    String pipeline_version
+    Int preemptible = 3
+    Int disk = 200
+    Int machine_mem_mb = 18
+    Int cpu = 4
+  }
+
+  meta {
+    description: "This  task will converts some of the outputs of Smart Seq 2 pipeline into a loom file"
+  }
+
+  parameter_meta {
+    preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
+  }
+
+  command {
+    set -euo pipefail
+
+    # creates a table with gene_id, gene_name, intron and exon counts
+    python /tools/create_snss2_counts_csv.py \
+    --in-gtf ~{annotation_introns_added_gtf} \
+    --intron-counts ~{introns_counts} \
+    --exon-counts ~{exons_counts}  \
+    -o exon_intron_counts.txt
+
+    if [ $? -eq 0 ]; then
+       echo "Success create_snss2_counts_csv"
+    else
+       echo "Failed  create_snss2_counts_csv"
+    fi
+
+    # groups the QC file into one file 
+    GroupQCs -f \
+      ~{sep=' ' smartseq_qc_files} \
+      gc_bias.summary_metrics.txt  \
+      -t Picard -o Picard_group
+
+    if [ $? -eq 0 ]; then
+        echo "Success GroupQCs"
+    else
+        echo "Failed  GroupQCs"
+    fi
+
+    # create the loom file
+    python3 /tools/create_loom_snss2.py \
+     --qc_files Picard_group.csv \
+     --count_results  exon_intron_counts.txt  \
+     --output_loom_path ~{input_id}.loom \
+     --input_id ~{input_id} \
+       ~{"--input_name " + input_name} \
+      ~{"--input_id_metadata_field " + input_id_metadata_field} \
+      ~{"--input_name_metadata_field " + input_name_metadata_field} \
+     --pipeline_version ~{pipeline_version} 
+
+    if [ $? -eq 0 ]; then
+       echo "Success create_loom_snss2"
+    else
+       echo "Failed  create_snss2_counts_csv"
+    fi
+
+  }
+
+  runtime {
+    docker: docker
+    cpu: cpu  # note that only 1 thread is supported by pseudobam
+    memory: "~{machine_mem_mb} GiB"
+    disks: "local-disk ~{disk} HDD"
+    preemptible: preemptible
+  }
+
+  output {
+    File loom_output = "~{input_id}.loom"
+    File exon_intron_counts = "exon_intron_counts.txt"
+  }
+}
+
+

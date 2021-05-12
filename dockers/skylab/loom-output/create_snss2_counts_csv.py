@@ -9,7 +9,7 @@ def main():
     """
         This script take the intronic and exonic counts produced by featureCounts and the reference gtf file to produce a
         four column csv file as follows
-        #gene_id,gene_name,intron_counts,exon_counts
+        gene_id,gene_name,intron_counts,exon_counts
         ......
         .....
     """
@@ -30,7 +30,7 @@ def main():
     gene_ids = list(gene_id_to_gene_name.keys())
 
     with open(args.output, 'w') as fout:
-        fout.write("#{}\n".format('\t'.join(["gene_id", "gene_name", "introns", "intron_FPKM",  "exons", "exon_FPKM"])))
+        fout.write("{}\n".format('\t'.join(["gene_id", "gene_name", "introns", "intron_FPKM",  "exons", "exon_FPKM"])))
         for gene_id in gene_ids:
             # intron count else 0
             if gene_id in gene_count_introns: 
