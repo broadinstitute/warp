@@ -4,6 +4,7 @@ import "https://raw.githubusercontent.com/broadinstitute/warp/np_snss2_pr_test/t
 import "https://raw.githubusercontent.com/broadinstitute/warp/np_snss2_pr_test/tasks/skylab/StarAlign.wdl" as StarAlignFastq
 import "https://raw.githubusercontent.com/broadinstitute/warp/np_snss2_pr_test/tasks/skylab/Picard.wdl" as Picard
 import "https://raw.githubusercontent.com/broadinstitute/warp/np_snss2_pr_test/tasks/skylab/FeatureCounts.wdl" as CountAlignments
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_snss2_pr_test/tasks/skylab/LoomUtils.wdl" as LoomUtils
 
 
 workflow SmartSeq2SingleNucleus {
