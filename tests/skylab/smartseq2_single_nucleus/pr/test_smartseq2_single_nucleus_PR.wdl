@@ -22,7 +22,6 @@ workflow TestSmartSeq2SingleNucleusPR {
     File genome_ref_fasta
     File tar_star_reference
     File annotations_gtf
-    String stranded
     String input_id
     String output_name
     File adapter_list
@@ -34,7 +33,6 @@ workflow TestSmartSeq2SingleNucleusPR {
   call target_wdl.SmartSeq2SingleNucleus as target_workflow {
     input:
       genome_ref_fasta = genome_ref_fasta,
-      stranded = stranded,
       input_id = input_id,
       output_name = output_name,
       fastq1 = fastq1,
@@ -65,7 +63,7 @@ workflow TestSmartSeq2SingleNucleusPR {
       # expected_metrics_hash = expected_metrics_hash
    }
 
-   call verify_tasks.CompareBams as CompareBams {
+   call verify_tasks.CompareBams as checker_workflow {
      input:
        test_bam=test_bam,
        truth_bam=truth_bam
