@@ -96,7 +96,10 @@ workflow SmartSeq2SingleNucleus {
          pipeline_version = "SmartSeq2SingleNucleus_v~{pipeline_version}",
          input_id_metadata_field = input_id_metadata_field,
          input_name_metadata_field = input_name_metadata_field,
-         smartseq_qc_files = picard_row_outputs
+         smartseq_qc_files = picard_row_outputs,
+         introns_counts = CountAlignments.intron_counts_out,
+         exons_counts = CountAlignments.exon_counts_out,
+         annotation_introns_added_gtf = annotations_gtf
   }
 
   output {
