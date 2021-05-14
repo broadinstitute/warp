@@ -9,7 +9,7 @@ workflow TestSmartSeq2SingleNucleusPR {
   input {
 
     #checksums
-    String exon_intron_counts_hash
+    String truth_exon_intron_counts_hash
 
     File truth_bam
     File truth_loom
@@ -43,8 +43,8 @@ workflow TestSmartSeq2SingleNucleusPR {
 
    call checker_wdl.ValidateSnSmartSeq2 as checker_workflow {
      input:
-      truth_exon_intron_counts_hash = target_workflow.exon_intron_counts,
-      exon_intron_counts_hash = exon_intron_counts_hash,
+      exon_intron_counts_hash = target_workflow.exon_intron_counts,
+      truth_exon_intron_counts_hash = truth_exon_intron_counts_hash,
       loom_output = target_workflow.loom_output_files,
       truth_loom = truth_loom
    }

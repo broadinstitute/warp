@@ -2,8 +2,8 @@ version 1.0
 
 task ValidateSnSmartSeq2 {
     input {
-      String exon_intron_counts_hash
-      File truth_exon_intron_counts_hash
+      File exon_intron_counts_hash
+      String truth_exon_intron_counts_hash
       File loom_output
       File truth_loom
 
@@ -23,7 +23,7 @@ task ValidateSnSmartSeq2 {
     # makes later columns non-deterministic.
 
     #commenting this line out until we can pull a file from the snSS2 outputs
-    #exon_intron_counts_hash=$(awk 'NR>2' "~{exon_intron_counts_hash}" | md5sum | awk '{print $1}')
+    exon_intron_counts_hash=$(awk 'NR>2' "~{exon_intron_counts_hash}" | md5sum | awk '{print $1}')
 
     if [ "~{exon_intron_counts_hash}" != "~{truth_exon_intron_counts_hash}" ]; then
         echo "introns_counts_hash "~{exon_intron_counts_hash}" did not match expected hash "~{truth_exon_intron_counts_hash}""
