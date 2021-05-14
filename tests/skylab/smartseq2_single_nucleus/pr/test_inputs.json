@@ -12,5 +12,6 @@
   "TestSmartSeq2SingleNucleusPR.expected_introns_counts_hash": "05b5e25b308256845a1d711fe85dcca8",
   "TestSmartSeq2SingleNucleusPR.exons_counts_hash": "d4cd77b79b51f384d3f07fdca4d431ed",
   "TestSmartSeq2SingleNucleusPR.expected_exons_counts_hash": "d4cd77b79b51f384d3f07fdca4d431ed",
-  "TestSmartSeq2SingleNucleusPR.truth_bam":"gs://hca-dcp-sc-pipelines-test-data/referenceData/references/nikelle_test/truth_aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam"
+  "TestSmartSeq2SingleNucleusPR.truth_bam":"gs://hca-dcp-sc-pipelines-test-data/referenceData/references/nikelle_test/truth_aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam",
+  "TestSmartSeq2SingleNucleusPR.truth_loom":"gs://broad-gotc-dev-cromwell-execution/TestSmartSeq2SingleNucleusPR/6bf6f355-765c-4310-8422-b2809e8c2e3f/call-target_workflow/SmartSeq2SingleNucleus/20223b77-74ba-4213-a947-31fd6e0425d5/call-SingleNucleiSmartSeq2LoomOutput/cacheCopy/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT.loom"
 }
