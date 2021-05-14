@@ -7,14 +7,18 @@ import "https://raw.githubusercontent.com/broadinstitute/warp/develop/verificati
 # this task will be run by the jenkins script that gets executed on our PRs.
 workflow TestSmartSeq2SingleNucleusPR {
   input {
-    # Validation input
-    #String loom_output
+    #snSS2 outputs to be checked
+    File aligned_bam
+
+    #checksums
     String introns_counts_hash
     String expected_introns_counts_hash
     String exons_counts_hash
     String expected_exons_counts_hash
-    File test_bam
+
+    #File test_bam
     File truth_bam
+    #File aligned_bam
    # File? target_metrics
    # String expected_metrics_hash
 
@@ -58,14 +62,13 @@ workflow TestSmartSeq2SingleNucleusPR {
       expected_introns_counts_hash = expected_introns_counts_hash,
       exons_counts_hash = exons_counts_hash,
       expected_exons_counts_hash = expected_exons_counts_hash
-
       # target_metrics = target_workflow.insert_size_metrics,
       # expected_metrics_hash = expected_metrics_hash
    }
 
-   call verify_tasks.CompareBams as checker_workflow {
+   call verify_tasks.CompareBams as CompareBams {
      input:
-       test_bam=test_bam,
+       test_bam=target_workflow.aligned_bam,
        truth_bam=truth_bam
      }
 
