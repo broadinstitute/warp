@@ -34,7 +34,7 @@ task ValidateSnSmartSeq2 {
   >>>
 
   runtime {
-    docker: "ubuntu:16.04"
+    docker: "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-fk-2"
     cpu: 1
     memory: "8 GB"
     disks: "local-disk 1${disk_size} HDD"
