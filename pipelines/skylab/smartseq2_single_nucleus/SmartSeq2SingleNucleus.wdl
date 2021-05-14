@@ -1,10 +1,10 @@
 version 1.0
 
-import "TrimAdapters.wdl" as TrimAdapters
-import "StarAlign.wdl" as StarAlignFastq
-import "Picard.wdl" as Picard
-import "FeatureCounts.wdl" as CountAlignments
-import "LoomUtils.wdl" as LoomUtils
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/TrimAdapters.wdl" as TrimAdapters
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/StarAlign.wdl" as StarAlignFastq
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/Picard.wdl" as Picard
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/FeatureCounts.wdl" as CountAlignments
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/LoomUtils.wdl" as LoomUtils
 
 
 workflow SmartSeq2SingleNucleus {
@@ -35,7 +35,6 @@ workflow SmartSeq2SingleNucleus {
     File? fastq2
     Boolean paired_end
   }
-  
   # version of this pipeline
   String pipeline_version = "1.0.0"
 
@@ -97,11 +96,8 @@ workflow SmartSeq2SingleNucleus {
          pipeline_version = "SmartSeq2SingleNucleus_v~{pipeline_version}",
          input_id_metadata_field = input_id_metadata_field,
          input_name_metadata_field = input_name_metadata_field,
-         smartseq_qc_files = picard_row_outputs, 
-         introns_counts = CountAlignments.intron_counts_out,
-         exons_counts = CountAlignments.exon_counts_out,
-         annotation_introns_added_gtf = annotations_gtf
-   }
+         smartseq_qc_files = picard_row_outputs
+  }
 
   output {
     # version of this pipeline
