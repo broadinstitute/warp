@@ -25,8 +25,8 @@ task ValidateSnSmartSeq2 {
     #commenting this line out until we can pull a file from the snSS2 outputs
     exon_intron_counts_hash=$(awk 'NR>2' "~{exon_intron_counts_hash}" | md5sum | awk '{print $1}')
 
-    if [ "~{exon_intron_counts_hash}" != "~{truth_exon_intron_counts_hash}" ]; then
-        echo "introns_counts_hash "~{exon_intron_counts_hash}" did not match expected hash "~{truth_exon_intron_counts_hash}""
+    if [ "$exon_intron_counts_hash" != "~{truth_exon_intron_counts_hash}" ]; then
+        echo "exon_intron_counts_hash "$exon_intron_counts_hash" did not match expected hash "~{truth_exon_intron_counts_hash}""
         fail=true
     fi
 
