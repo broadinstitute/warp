@@ -10,10 +10,7 @@ workflow TestSmartSeq2SingleNucleusPR {
   input {
 
     #checksums
-    String introns_counts_hash
-    String expected_introns_counts_hash
-    String exons_counts_hash
-    String expected_exons_counts_hash
+    String exon_intron_counts_hash
 
     File truth_bam
     File truth_loom
@@ -45,22 +42,12 @@ workflow TestSmartSeq2SingleNucleusPR {
 
   }
 
-  call validate.ValidateSmartSeq2Plate as compareLooms {
-    input:
-      loom_output = target_workflow.loom_output_files,
-      truth_loom = truth_loom
-  }
-
-   call checker_wdl.CompareCounts as checker_workflow {
+   call checker_wdl.ValidateSnSmartSeq2 as checker_workflow {
      input:
-      introns_counts_hash = introns_counts_hash,
-      expected_introns_counts_hash = expected_introns_counts_hash,
-      exons_counts_hash = exons_counts_hash,
-      expected_exons_counts_hash = expected_exons_counts_hash,
+      truth_exon_intron_counts_hash = target_workflow.exon_intron_counts,
+      exon_intron_counts_hash = exon_intron_counts_hash,
       loom_output = target_workflow.loom_output_files,
       truth_loom = truth_loom
-      # target_metrics = target_workflow.insert_size_metrics,
-      # expected_metrics_hash = expected_metrics_hash
    }
 
    call verify_tasks.CompareBams as CompareBams {
