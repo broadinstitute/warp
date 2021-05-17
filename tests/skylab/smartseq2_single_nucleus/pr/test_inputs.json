@@ -1,0 +1,14 @@
+{
+  "TestSmartSeq2SingleNucleusPR.genome_ref_fasta": "gs://hca-dcp-sc-pipelines-test-data/referenceData/references/modified_GRCm38.primary_assembly.genome.fa",
+  "TestSmartSeq2SingleNucleusPR.tar_star_reference": "gs://hca-dcp-sc-pipelines-test-data/referenceData/references/modified_star_primary_gencode_mouse_vM23.tar",
+  "TestSmartSeq2SingleNucleusPR.annotations_gtf": "gs://hca-dcp-sc-pipelines-test-data/referenceData/references/introns_modified_gencode.vM23.primary_assembly.annotation.gtf",
+  "TestSmartSeq2SingleNucleusPR.adapter_list": "gs://hca-dcp-sc-pipelines-test-data/adapters/Illumina_adapters_list.fa",
+  "TestSmartSeq2SingleNucleusPR.fastq1":"gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R1.fastq.gz",
+  "TestSmartSeq2SingleNucleusPR.fastq2":"gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R2.fastq.gz",
+  "TestSmartSeq2SingleNucleusPR.input_id":"SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT",
+  "TestSmartSeq2SingleNucleusPR.output_name":"SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT",
+  "TestSmartSeq2SingleNucleusPR.paired_end":true,
+  "TestSmartSeq2SingleNucleusPR.truth_exon_intron_counts_hash": "05b5e25b308256845a1d711fe85dcca8",
+  "TestSmartSeq2SingleNucleusPR.truth_bam":"gs://hca-dcp-sc-pipelines-test-data/referenceData/references/nikelle_test/truth_aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam",
+  "TestSmartSeq2SingleNucleusPR.truth_loom":"gs://broad-gotc-dev-cromwell-execution/TestSmartSeq2SingleNucleusPR/6bf6f355-765c-4310-8422-b2809e8c2e3f/call-target_workflow/SmartSeq2SingleNucleus/20223b77-74ba-4213-a947-31fd6e0425d5/call-SingleNucleiSmartSeq2LoomOutput/cacheCopy/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT.loom"
+}
