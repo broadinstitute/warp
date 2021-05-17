@@ -291,6 +291,7 @@ task CollectDuplicationMetrics {
 task RemoveDuplicatesFromBam {
   input {
     File aligned_bam
+    String input_id
     String output_basename
 
     # runtime values
@@ -330,7 +331,7 @@ task RemoveDuplicatesFromBam {
 
     java -Xmx${command_mem_mb}m -XX:ParallelGCThreads=${cpu} -jar /usr/picard/picard.jar AddOrReplaceReadGroups \
        I=aligned_bam.DuplicatesRemoved.bam \
-       O=aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam \
+       O="~{input_id}.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam" \
        RGID=4 \
        RGLB=lib1 \
        RGPL=ILLUMINA \
@@ -348,7 +349,7 @@ task RemoveDuplicatesFromBam {
   
   output {
     File dedup_metrics = "aligned_bam.duplicate_metrics.txt"
-    File output_bam = "aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam"
+    File output_bam = "~{input_id}.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam"
   }
 }
 

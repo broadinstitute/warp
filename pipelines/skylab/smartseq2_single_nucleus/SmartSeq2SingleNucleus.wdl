@@ -67,6 +67,7 @@ workflow SmartSeq2SingleNucleus {
 
   call Picard.RemoveDuplicatesFromBam as RemoveDuplicatesFromBam {
     input:
+      input_id = input_id,
       aligned_bam = StarAlign.output_bam,
       output_basename = quality_control_output_basename,
   }

@@ -240,7 +240,7 @@ task SingleNucleiSmartSeq2LoomOutput {
     --in-gtf ~{annotation_introns_added_gtf} \
     --intron-counts ~{introns_counts} \
     --exon-counts ~{exons_counts}  \
-    -o exon_intron_counts.txt
+    -o "~{input_id}.exon_intron_counts.tsv"
 
     if [ $? -eq 0 ]; then
        echo "Success create_snss2_counts_csv"
@@ -288,7 +288,7 @@ task SingleNucleiSmartSeq2LoomOutput {
 
   output {
     File loom_output = "~{input_id}.loom"
-    File exon_intron_counts = "exon_intron_counts.txt"
+    File exon_intron_counts = "~{input_id}.exon_intron_counts.tsv"
   }
 }
 

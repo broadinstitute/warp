@@ -1,0 +1,22 @@
+{
+  "MultiSampleSmartSeq2SingleNuclei.genome_ref_fasta": "gs://hca-dcp-sc-pipelines-test-data/referenceData/references/modified_GRCm38.primary_assembly.genome.fa",
+  "MultiSampleSmartSeq2SingleNuclei.tar_star_reference": "gs://hca-dcp-sc-pipelines-test-data/referenceData/references/modified_star_v2.7.8a_primary_gencode_mouse_vM23.tar",
+  "MultiSampleSmartSeq2SingleNuclei.annotations_gtf": "gs://hca-dcp-sc-pipelines-test-data/referenceData/references/introns_modified_gencode.vM23.primary_assembly.annotation.gtf",
+  "MultiSampleSmartSeq2SingleNuclei.adapter_list": "gs://hca-dcp-sc-pipelines-test-data/adapters/Illumina_adapters_list.fa",
+  "MultiSampleSmartSeq2SingleNuclei.fastq1_input_files": [
+      "gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R1.fastq.gz",
+      "gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S117_E1-50_GCGTAGTA-AAGGAGTA_R1.fastq.gz",
+      "gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S118_E1-50_GCGTAGTA-CTAAGCCT_R1.fastq.gz"
+   ],
+  "MultiSampleSmartSeq2SingleNuclei.fastq2_input_files": [
+      "gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R2.fastq.gz",
+      "gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S117_E1-50_GCGTAGTA-AAGGAGTA_R2.fastq.gz",
+      "gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S118_E1-50_GCGTAGTA-CTAAGCCT_R2.fastq.gz"
+  ],
+  "MultiSampleSmartSeq2SingleNuclei.input_ids": [  
+      "SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT",
+      "SM-GE644_S117_E1-50_GCGTAGTA-AAGGAGTA",
+      "SM-GE644_S118_E1-50_GCGTAGTA-CTAAGCCT"
+  ],
+  "MultiSampleSmartSeq2SingleNuclei.batch_id": "SM-GE644"
+}
