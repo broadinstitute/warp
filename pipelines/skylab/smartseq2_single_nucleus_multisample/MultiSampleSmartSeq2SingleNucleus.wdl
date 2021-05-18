@@ -1,10 +1,10 @@
 version 1.0
 
-import "SmartSeq2SingleNucleus.wdl" as single_nucleus_run
-import "LoomUtils.wdl" as LoomUtils
-import "CheckInputs.wdl" as CheckInputs 
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/pipeline/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl" as single_nucleus_run
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/CheckInputs.wdl" as CheckInputs 
        
-workflow MultiSampleSmartSeq2SingleNuclei {
+workflow MultiSampleSmartSeq2SingleNucleus {
   meta {
     description: "The MultiSampleSmartSeq2 pipeline runs multiple SS2 samples in a single pipeline invocation"
     allowNestedInputs: true
@@ -99,7 +99,7 @@ workflow MultiSampleSmartSeq2SingleNuclei {
       library = if defined(library) then select_first([library])[0] else none,
       species = if defined(species) then select_first([species])[0] else none,
       organ = if defined(organ) then select_first([organ])[0] else none,
-      pipeline_version = "MultiSampleSmartSeq2SingleNuclei_v~{pipeline_version}"
+      pipeline_version = "MultiSampleSmartSeq2SingleNucleus_v~{pipeline_version}"
   }
 
 
