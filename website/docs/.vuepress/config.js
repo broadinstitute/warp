@@ -159,6 +159,13 @@ module.exports = {
               ],
             },
             {
+              title: "Smart-seq2 Single Nucleus Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Smart-seq2_Single_Nucleus_Pipeline/"
+              ],
+            },            
+            {
               title: "Smart-seq2 Single Sample Pipeline",
               collapsable: true,
               children: [
