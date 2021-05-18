@@ -98,7 +98,7 @@ The StarAlignFastq task runs the STAR aligner on the trimmed FASTQ files. The ST
 ### Removing Duplicate Reads 
 The RemoveDuplicatesFromBam task removes multi-mapped reads, optical duplicates, and PCR duplicates from the aligned BAM. It then adds readgroup information and creates a new, coordinate-sorted aligned BAM output.
 
-### Collect Metrics
+### Collecting Metrics
 The CollectMultipleMetrics task uses the Picard tool CollectMultipleMetrics to perform QC on the deduplicated BAM file. These metrics are copied to the final cell-by-gene matrix output (Loom file).
 
 ### Counting Genes
