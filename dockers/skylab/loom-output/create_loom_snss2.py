@@ -106,6 +106,8 @@ def generate_row_attr_and_matrix(count_results_path):
 
     intron_expression_values = {}
     exon_expression_values = {}
+    intron_lengths = {}
+    exon_lengths = {}
 
     gene_ids = []
     gene_names = []
@@ -113,16 +115,25 @@ def generate_row_attr_and_matrix(count_results_path):
     for row in reader:
         intron_expression_values[row["gene_id"]] = int(row["introns"])
         exon_expression_values[row["gene_id"]] = int(row["exons"])
+        intron_lengths[row["gene_id"]] = int(row["intron_length"])
+        exon_lengths[row["gene_id"]] = int(row["exon_length"])
         gene_ids.append(row['gene_id'])
         gene_names.append(row['gene_name'])
 
     intron_counts = [intron_expression_values[g] for g in gene_ids]
-    exon_counts = [exon_expression_values[g] for g in gene_ids]
+    exon_counts  = [exon_expression_values[g] for g in gene_ids]
+    intron_lengths = [intron_lengths[g] for g in gene_ids]
+    exon_lengths = [exon_lengths[g] for g in gene_ids]
 
     intron_expression_csr_coo = generate_csr_sparse_coo([intron_counts])
     exon_expression_csr_coo = generate_csr_sparse_coo([exon_counts])
 
-    row_attrs = {"ensembl_ids":np.array(gene_ids),"gene_names":np.array(gene_names),"Gene":np.array(gene_ids)}
+    row_attrs = { "ensembl_ids"  : np.array(gene_ids),
+                 "gene_names"    : np.array(gene_names),
+                 "Gene"          : np.array(gene_ids), 
+                 "intron_lengths": np.array(intron_lengths), 
+                 "exon_lengths"  : np.array(exon_lengths)
+                }
 
     return row_attrs, intron_expression_csr_coo, exon_expression_csr_coo
 

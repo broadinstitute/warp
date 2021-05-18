@@ -30,7 +30,10 @@ def main():
     gene_ids = list(gene_id_to_gene_name.keys())
 
     with open(args.output, 'w') as fout:
-        fout.write("{}\n".format('\t'.join(["gene_id", "gene_name", "introns", "intron_FPKM",  "exons", "exon_FPKM"])))
+        fout.write("{}\n".format('\t'.join(["gene_id", "gene_name", "introns",
+                                            "intron_FPKM",  "exons", "exon_FPKM", 
+                                            "intron_length", "exon_length"])))
+        
         for gene_id in gene_ids:
             # intron count else 0
             if gene_id in gene_count_introns: 
@@ -43,6 +46,8 @@ def main():
             else:
                 intron_count = 0 
                 intron_fpkm = 0
+                length_of_feature = 0
+            intron_length = length_of_feature
     
             # exon count else 0
             if gene_id in gene_count_exons: 
@@ -55,8 +60,12 @@ def main():
             else:
                 exon_count = 0 
                 exon_fpkm = 0
+                length_of_feature = 0
+            exon_length = length_of_feature
                  
-            fout.write("{}\t{}\t{}\t{:.2f}\t{}\t{:.2f}\n".format(gene_id, gene_id_to_gene_name[gene_id], intron_count, intron_fpkm, exon_count, exon_fpkm))
+            fout.write("{}\t{}\t{}\t{:.2f}\t{}\t{:.2f}\t{}\t{}\n".format(gene_id, gene_id_to_gene_name[gene_id], 
+                                                                 intron_count, intron_fpkm, 
+                                                                 exon_count, exon_fpkm, intron_length, exon_length))
 
 def read_gene_id_count(count_file):
     gene_id_to_count = {}
