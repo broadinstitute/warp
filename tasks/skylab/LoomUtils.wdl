@@ -262,7 +262,7 @@ task SingleNucleiSmartSeq2LoomOutput {
     # create the loom file
     python3 /tools/create_loom_snss2.py \
      --qc_files Picard_group.csv \
-     --count_results  exon_intron_counts.txt  \
+     --count_results  ~{input_id}.exon_intron_counts.tsv \
      --output_loom_path ~{input_id}.loom \
      --input_id ~{input_id} \
        ~{"--input_name " + input_name} \
