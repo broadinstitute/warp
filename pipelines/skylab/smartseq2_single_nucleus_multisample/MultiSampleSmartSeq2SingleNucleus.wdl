@@ -1,6 +1,6 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/pipeline/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl" as single_nucleus_run
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl" as single_nucleus_run
 import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/LoomUtils.wdl" as LoomUtils
 import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/CheckInputs.wdl" as CheckInputs 
        
