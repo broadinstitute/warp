@@ -18,7 +18,7 @@ workflow OptimusPostProcessing {
     String project_id
     String project_name
     String output_basename
-    String staging_area
+    String staging_area = "gs://broad-dsp-monster-hca-dev-lantern"
     String version_timestamp
   }
 
