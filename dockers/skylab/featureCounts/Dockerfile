@@ -2,7 +2,7 @@ FROM python:3.6.2
 
 LABEL maintainer=" Farzaneh Khajouei <fkhajoue@broadinstitute.org>" \
       software="subread package" \
-      version="2.0.2" \
+      version="2.0.1" \
       description="RNA-seq high-performance read alignment, quantification and mutation discovery" \
       website="http://subread.sourceforge.net/"
 
@@ -15,7 +15,7 @@ RUN pip3 install -r requirements.txt
 
 # Install subread 
 WORKDIR /usr/local/ 
-ENV VERSION="2.0.2"
+ENV VERSION="2.0.1"
 RUN wget "https://downloads.sourceforge.net/project/subread/subread-${VERSION}/subread-${VERSION}-source.tar.gz"
 RUN tar -xzvf subread-${VERSION}-source.tar.gz
 WORKDIR /usr/local/subread-${VERSION}-source/src 
