@@ -46,15 +46,13 @@ workflow TestSmartSeq2SingleNucleusPR {
       exon_intron_counts_hash = target_workflow.exon_intron_counts,
       truth_exon_intron_counts_hash = truth_exon_intron_counts_hash,
       loom_output = target_workflow.loom_output_files,
-      truth_loom = truth_loom,
-      test_bam = target_workflow.aligned_bam,
-      truth_bam = truth_bam
+      truth_loom = truth_loom
    }
 
-  # call verify_tasks.CompareBams as CompareBams {
-  #   input:
-  #     test_bam = target_workflow.aligned_bam,
-  #     truth_bam = truth_bam
-  #   }
+   call verify_tasks.CompareBams as CompareBams {
+     input:
+       test_bam = target_workflow.aligned_bam,
+       truth_bam = truth_bam
+     }
 
 }
