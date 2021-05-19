@@ -83,7 +83,7 @@ The [snSS2 workflow ](https://github.com/broadinstitute/warp/tree/develop/pipeli
 | Task name and task’s WDL link | Description | Software | Tool |
 | --- | --- | --- | --- |
 | [TrimAdapters.TrimAdapters](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/TrimAdapters.wdl) | Trims adaptor sequences from the FASTQ inputs | [ea-utils](https://github.com/ExpressionAnalysis/ea-utils) | [fastq-mcf](https://github.com/ExpressionAnalysis/ea-utils/tree/master/clipper) |
-| [StarAlignFastq.StarAlignFastqPairedEnd](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/StarAlign.wdl) | Aligns reads to the genome | STAR | 
+| [StarAlignFastq.StarAlignFastqPairedEnd](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/StarAlign.wdl) | Aligns reads to the genome | STAR | STAR |
 | [Picard.RemoveDuplicatesFromBam](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/Picard.wdl) | Removes duplicate reads, producing a new BAM output; adds regroups to deduplicated BAM | Picard | MarkDuplicates, AddOrReplaceReadGroups |
 | [Picard.CollectMultipleMetrics](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/Picard.wdl) | Collects QC metrics on the deduplicated BAM file | Picard | CollectMultipleMetrics |
 | [CountAlignments.CountAlignments](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/FeatureCounts.wdl) | Uses a custom GTF with featureCounts and Python to mark introns, create a BAM that has alignments spanning intron-exon junctions removed, and counts exons using the custom BAM and by excluding intron tags | [Subread](http://subread.sourceforge.net/) | [FeatureCounts](http://bioinf.wehi.edu.au/featureCounts/), Python 3 | 
