@@ -6,6 +6,8 @@ task ValidateSnSmartSeq2 {
       String truth_exon_intron_counts_hash
       File loom_output
       File truth_loom
+      File test_bam
+      File truth_bam
 
       Int disk_size = ceil(size(loom_output,"GiB") + size(truth_loom, "GiB") + 10)
     }
@@ -17,6 +19,17 @@ task ValidateSnSmartSeq2 {
 
     #compare looms
     python3 /tools/loomCompare.py --truth-loom ~{truth_loom} --check-loom ~{loom_output} --delta-cutoff 10
+
+
+    #compare bams
+
+    java -Xms3500m -jar /usr/picard/picard.jar \
+        CompareSAMs \
+              ~{test_bam} \
+              ~{truth_bam} \
+              O=comparison.tsv \
+              LENIENT_HEADER=true
+
 
     # calculate hashes; awk is used to extract the hash from the md5sum output that contains both
     # a hash and the filename that was passed. We parse the first 7 columns because a bug in RSEM
@@ -34,7 +47,7 @@ task ValidateSnSmartSeq2 {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-fk-2"
+    docker: "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"
     cpu: 1
     memory: "8 GB"
     disks: "local-disk 1${disk_size} HDD"
