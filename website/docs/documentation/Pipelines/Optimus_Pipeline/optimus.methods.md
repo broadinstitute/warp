@@ -1,11 +1,11 @@
-# Optimus v4.1.7 Methods
+# Optimus v4.2.4 Methods
 
-Below we provide a sample methods sections for a publication, separated into single-cell or single-nuclei use cases. For the complete pipeline documentation, see the [Optimus](./README.md).
+Below we provide a sample methods sections for a publication, separated into single-cell or single-nucleus use cases. For the complete pipeline documentation, see the [Optimus Overview](./README.md).
 
 # Methods
 
 ## Single-cell (sc_rna mode)
-Data preprocessing and count matrix construction were performed using the Optimus v4.1.7 Pipeline. Briefly, FASTQ files were converted to unaligned BAM (uBMA) using Picard v2.10.10 and reads were appended with raw UMI and corrected cell barcode sequences using Single Cell Tools (sctools) v0.3.12 and the 10x Genomics barcodes whitelist, allowing for up to one edit distance (Levenshtein distance).
+Data preprocessing and count matrix construction were performed using the Optimus v4.2.4 Pipeline (RRID:SCR_018908). Briefly, FASTQ files were converted to unaligned BAM (uBMA) using Picard v2.10.10 and reads were appended with raw UMI and corrected cell barcode sequences using Single Cell Tools (sctools) v0.3.12 and the 10x Genomics barcodes whitelist, allowing for up to one edit distance (Levenshtein distance).
 
 uBAMs were then aligned to GENCODE mouse (M21) or human (V27) references using STAR v2.5.3a with default parameters in addition to
 
@@ -34,9 +34,9 @@ All cell and gene metrics (alignment, mitochondrial, and other QC metrics), coun
 
 An example of the pipeline and outputs is available on the Terra HCA Optimus Pipeline Featured Workspace (https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline), and additional documentation is available on GitHub (https://github.com/HumanCellAtlas/skylab/blob/master/pipelines/optimus/README.md). Examples of genomic references, whitelists, and other inputs are available in the Skylab repository (see example JSONs).
 
-## Single-nuclei (sn_rna mode)
+## Single-nucleus (sn_rna mode)
 
-Data preprocessing and count matrix construction were performed using the Optimus v4.1.7 Pipeline. Briefly, FASTQ files were converted to unaligned BAM (uBMA) using Picard v2.10.10 and reads were appended with raw UMI and corrected cell barcode sequences using Single Cell Tools (sctools) v0.3.11 and the 10x Genomics barcodes whitelist, allowing for up to one edit distance (Levenshtein distance).
+Data preprocessing and count matrix construction were performed using the Optimus v4.1.7 Pipeline (RRID:SCR_018908). Briefly, FASTQ files were converted to unaligned BAM (uBMA) using Picard v2.10.10 and reads were appended with raw UMI and corrected cell barcode sequences using Single Cell Tools (sctools) v0.3.11 and the 10x Genomics barcodes whitelist, allowing for up to one edit distance (Levenshtein distance).
 
 uBAMs were aligned to GENCODE mouse (M21) or human (V27) references using STAR v2.5.3a with default parameters in addition to
 
