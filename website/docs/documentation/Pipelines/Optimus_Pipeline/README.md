@@ -227,7 +227,7 @@ All Optimus pipeline releases are documented in the [Optimus changelog](https://
 
 
 ## Citing the Optimus Pipeline
-Please identity the pipeline in your methods section using the Optimus Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_018908/resolver?q=SCR_018908&l=SCR_018908).
+Please identify the pipeline in your methods section using the Optimus Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_018908/resolver?q=SCR_018908&l=SCR_018908).
 * Ex: *Optimus Pipeline (RRID:SCR_018908)*
 
 ## Have Suggestions?
