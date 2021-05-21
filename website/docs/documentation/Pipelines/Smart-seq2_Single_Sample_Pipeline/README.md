@@ -206,7 +206,7 @@ The SS2 pipeline has been validated for processing human and mouse, stranded or 
 All SS2 release notes are documented in the [Smartseq2 Single Sample changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.changelog.md).
 
 ## ## Citing the Smart-seq2 Single Sample Pipeline
-Please identity the SS2 pipeline in your methods section using the Smart-seq2 Single Sample Pipeline's [SciCrunch resource identifier](https://scicrunch.org/browse/resourcedashboard).
+Please identify the SS2 pipeline in your methods section using the Smart-seq2 Single Sample Pipeline's [SciCrunch resource identifier](https://scicrunch.org/browse/resourcedashboard).
 * Ex: *Smart-seq2 Single Sample Pipeline (RRID:SCR_021228)*
 
 
