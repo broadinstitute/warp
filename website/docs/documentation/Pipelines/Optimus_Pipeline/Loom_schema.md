@@ -130,7 +130,8 @@ HCA DCP matrices contain HCA metadata in the Loom global attributes (see table b
 To create the HCA project matrices, Loom outputs from individual 10x library preparations, each with their own `input_id`, are combined into a single Loom file. 
 
 Cell barcodes, listed in the `CellID` and the `cell_names` columns, might require a unique ID for downstream processing. 
-To ensure unique IDs, a numerical suffix is added to all the barcodes belonging to an individual library prep (i.e. the sample belonging to a given `input_id`).   
+
+To ensure unique IDs, a numerical suffix is added to all the barcodes in the `cell_names` column that belong to an individual library prep (i.e. the sample belonging to a given `input_id`).   
 
 To map cell barcodes back to the individual library prep, you can use the project matrix `input_id` column, which lists the input to which the barcode belongs.
 
