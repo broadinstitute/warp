@@ -1,5 +1,11 @@
 # 5.1.1
 
+2020-05-24 (Date of Last Commit)
+
+* Updated the LoomUtils.wdl and Picard.wdl
+
+# 5.1.1
+
 2020-12-07 (Date of Last Commit)
 
 * Updated the docker in LoomUtils.wdl task to 0.0.6. Updated merge_loom.py in the docker
