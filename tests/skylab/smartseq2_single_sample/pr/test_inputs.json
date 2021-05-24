@@ -11,6 +11,5 @@
   "TestSmartSeq2SingleCellPR.fastq1":"gs://hca-dcp-mint-test-data/smartseq2_single_sample/patel_ap/SRR1294925_1",
   "TestSmartSeq2SingleCellPR.fastq2":"gs://hca-dcp-mint-test-data/smartseq2_single_sample/patel_ap/SRR1294925_2",
   "TestSmartSeq2SingleCellPR.input_id":"SRR1294925",
-  "TestSmartSeq2SingleCellPR.output_name":"SRR1294925",
-  "TestSmartSeq2SingleCellPR.expected_exon_intron_counts_hash": "135a3fbb959583db17713dc8b9d7fe33"
+  "TestSmartSeq2SingleCellPR.output_name":"SRR1294925"
 }
