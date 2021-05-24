@@ -71,7 +71,7 @@ task BpmToNormalizationManifestCsv {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
     disks: "local-disk 10 HDD"
     memory: "7.5 GiB"
     cpu: 2
@@ -130,7 +130,7 @@ task GtcToVcf {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory} GiB"
     cpu: 2
@@ -195,7 +195,7 @@ task VcfToAdpc {
              --OUTPUT ~{output_adpc_filename}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -269,7 +269,7 @@ task CreateVerifyIDIntensityContaminationMetricsFile {
              --OUTPUT ~{output_metrics_basefilename}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -325,7 +325,7 @@ task CollectArraysVariantCallingMetrics {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -356,7 +356,7 @@ task VcfToIntervalList {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -410,7 +410,7 @@ task CheckFingerprint {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -581,7 +581,7 @@ task MergePedIntoVcf {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
     memory: "3.5 GiB"
     cpu: "1"
     disks: "local-disk " + disk_size + " HDD"
@@ -680,7 +680,7 @@ task GenotypeConcordance {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -719,5 +719,62 @@ task ValidateVariants {
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
+  }
+}
+
+task CreateExtendedIlluminaManifest {
+  input {
+    File input_csv
+    String output_base_name
+    File cluster_file
+
+    File ref_fasta
+    File ref_fasta_index
+    File ref_dict
+
+    File dbSNP_vcf_file
+    File dbSNP_vcf_index_file
+
+    File supported_ref_fasta
+    File supported_ref_fasta_index
+    File supported_ref_dict
+
+    File chain_file
+
+    Int disk_size
+    Int preemptible_tries
+  }
+
+  String extended_illumina_manifest_filename = output_base_name + ".extended.csv"
+  String bad_assays_filename = output_base_name + ".bad_assays.csv"
+  String report_filename = output_base_name + ".report.txt"
+
+  command <<<
+    java -Xms13g -jar /usr/picard/picard.jar \
+    CreateExtendedIlluminaManifest \
+    --INPUT ~{input_csv} \
+    --OUTPUT ~{extended_illumina_manifest_filename} \
+    --BAD_ASSAYS_FILE ~{bad_assays_filename} \
+    --REPORT_FILE ~{report_filename} \
+    --CLUSTER_FILE ~{cluster_file} \
+    --DBSNP_FILE ~{dbSNP_vcf_file} \
+    --TARGET_BUILD 37 \
+    --REFERENCE_SEQUENCE ~{ref_fasta} \
+    --SUPPORTED_BUILD 36 \
+    --SUPPORTED_REFERENCE_FILE ~{supported_ref_fasta} \
+    --SUPPORTED_CHAIN_FILE ~{chain_file}
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "14 GiB"
+    preemptible: preemptible_tries
+  }
+
+  output {
+    File output_csv = extended_illumina_manifest_filename
+    File output_bad_assays_file = bad_assays_filename
+    File report_file = report_filename
   }
 }

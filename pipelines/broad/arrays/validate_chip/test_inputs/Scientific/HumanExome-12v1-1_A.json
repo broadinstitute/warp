@@ -2,7 +2,7 @@
   "ValidateChip.sample_alias": "NA12878",
   "ValidateChip.analysis_version_number": 1,
   "ValidateChip.call_rate_threshold": 0.98,
-  "ValidateChip.indel_genotype_concordance_threshold": 0.99,
+  "ValidateChip.indel_genotype_concordance_threshold": 0.97,
   "ValidateChip.reported_gender": "Female",
   "ValidateChip.chip_well_barcode": "7991775143_R01C01",
 
