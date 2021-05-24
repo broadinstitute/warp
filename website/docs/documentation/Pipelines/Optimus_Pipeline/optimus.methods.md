@@ -5,7 +5,7 @@ Below we provide a sample methods sections for a publication, separated into sin
 # Methods
 
 ## Single-cell (sc_rna mode)
-Data preprocessing and count matrix construction were performed using the Optimus v4.2.4 Pipeline (RRID:SCR_018908). Briefly, FASTQ files were converted to unaligned BAM (uBMA) using Picard v2.10.10 and reads were appended with raw UMI and corrected cell barcode sequences using Single Cell Tools (sctools) v0.3.12 and the 10x Genomics barcodes whitelist, allowing for up to one edit distance (Levenshtein distance).
+Data preprocessing and count matrix construction were performed using the Optimus v4.2.4 Pipeline (RRID:SCR_018908). Briefly, FASTQ files were converted to unaligned BAM (uBAM) using Picard v2.10.10 and reads were appended with raw UMI and corrected cell barcode sequences using Single Cell Tools (sctools) v0.3.12 and the 10x Genomics barcodes whitelist, allowing for up to one edit distance (Levenshtein distance).
 
 uBAMs were then aligned to GENCODE mouse (M21) or human (V27) references using STAR v2.5.3a with default parameters in addition to
 
@@ -36,7 +36,7 @@ An example of the pipeline and outputs is available on the Terra HCA Optimus Pip
 
 ## Single-nucleus (sn_rna mode)
 
-Data preprocessing and count matrix construction were performed using the Optimus v4.1.7 Pipeline (RRID:SCR_018908). Briefly, FASTQ files were converted to unaligned BAM (uBMA) using Picard v2.10.10 and reads were appended with raw UMI and corrected cell barcode sequences using Single Cell Tools (sctools) v0.3.11 and the 10x Genomics barcodes whitelist, allowing for up to one edit distance (Levenshtein distance).
+Data preprocessing and count matrix construction were performed using the Optimus v4.1.7 Pipeline (RRID:SCR_018908). Briefly, FASTQ files were converted to unaligned BAM (uBAM) using Picard v2.10.10 and reads were appended with raw UMI and corrected cell barcode sequences using Single Cell Tools (sctools) v0.3.11 and the 10x Genomics barcodes whitelist, allowing for up to one edit distance (Levenshtein distance).
 
 uBAMs were aligned to GENCODE mouse (M21) or human (V27) references using STAR v2.5.3a with default parameters in addition to
 
