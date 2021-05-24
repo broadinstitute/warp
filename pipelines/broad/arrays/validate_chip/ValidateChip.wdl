@@ -21,7 +21,7 @@ import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 workflow ValidateChip {
 
-  String pipeline_version = "1.12.0"
+  String pipeline_version = "1.13.0"
 
   input {
     String sample_alias
@@ -62,10 +62,10 @@ workflow ValidateChip {
     Int preemptible_tries
   }
 
-  call InternalTasks.CreateExtendedIlluminaManifest {
+  call GenotypingTasks.CreateExtendedIlluminaManifest {
     input:
       input_csv = chip_manifest_csv_file,
-      output_base_name = chip_type + ".1.5",
+      output_base_name = chip_type + ".2.0",
       cluster_file = cluster_file,
       dbSNP_vcf_file = dbSNP_vcf,
       dbSNP_vcf_index_file = dbSNP_vcf_index,
