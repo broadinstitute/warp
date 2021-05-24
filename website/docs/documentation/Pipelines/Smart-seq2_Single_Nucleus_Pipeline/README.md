@@ -46,18 +46,17 @@ There is an [example configuration (JSON) file](https://github.com/broadinstitut
 
 #### Sample Data Input
 
-The pipeline is designed for both single- and paired-end reads in the form of FASTQ files. The workflow accepts two FASTQ files for paired-end experiments and one FASTQ file for single-end experiments. It processes one sample (cell) at a time.
+The pipeline is designed for paired-end reads in the form of two FASTQ files. It processes one sample (cell) at a time.
 
-*  `fastq1`: forward reads for a sample with paired-end sequencing (or reads for sample with single-end sequencing)
-*  `fastq2`: reverse reads for a sample with paired-end sequencing (not applicable for samples with single-end sequencing)
+*  `fastq1`: forward reads for a sample with paired-end sequencing 
+*  `fastq2`: reverse reads for a sample with paired-end sequencing 
 
-The workflow uses modified tasks depending if a sample is paired-end or single-end. This is designated with a boolean, as detailed in the following Reference and Additional Inputs section.
 
 #### Reference and Additional Inputs
 
 The snSS2 workflow requires multiple references detailed in the table below. 
 * Reference inputs are created using the [BuildIndices Pipeline](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices).
-* The workflow uses a modified version of the 10x Genomics code for building the human reference package [GRCh38-2020-A](https://support.10xgenomics.com/single-cell-gene-expression/software/release-notes/build#GRCh38_2020A). 
+* The workflow uses a modified version of the 10x Genomic's code for building mouse ([GRCm38-2020-A](https://support.10xgenomics.com/single-cell-gene-expression/software/release-notes/build#mm10_2020A)) and human ([GRCh38-2020-A](https://support.10xgenomics.com/single-cell-gene-expression/software/release-notes/build#GRCh38_2020A)) reference packages. 
 * To enable intron counting, the workflow calls a [shell script](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/snss2-build-indices/add-introns-to-gtf.py) to create a custom GTF with intron annotations (any part of a contig that is not exonic) 
 
 | Reference name | Reference Description | Type |
@@ -83,7 +82,7 @@ The [snSS2 workflow ](https://github.com/broadinstitute/warp/tree/develop/pipeli
 | Task name and task’s WDL link | Description | Software | Tool |
 | --- | --- | --- | --- |
 | [TrimAdapters.TrimAdapters](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/TrimAdapters.wdl) | Trims adaptor sequences from the FASTQ inputs | [ea-utils](https://github.com/ExpressionAnalysis/ea-utils) | [fastq-mcf](https://github.com/ExpressionAnalysis/ea-utils/tree/master/clipper) |
-| [StarAlignFastq.StarAlignFastqPairedEnd](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/StarAlign.wdl) | Aligns reads to the genome | STAR | 
+| [StarAlignFastq.StarAlignFastqPairedEnd](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/StarAlign.wdl) | Aligns reads to the genome | STAR | STAR |
 | [Picard.RemoveDuplicatesFromBam](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/Picard.wdl) | Removes duplicate reads, producing a new BAM output; adds regroups to deduplicated BAM | Picard | MarkDuplicates, AddOrReplaceReadGroups |
 | [Picard.CollectMultipleMetrics](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/Picard.wdl) | Collects QC metrics on the deduplicated BAM file | Picard | CollectMultipleMetrics |
 | [CountAlignments.CountAlignments](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/FeatureCounts.wdl) | Uses a custom GTF with featureCounts and Python to mark introns, create a BAM that has alignments spanning intron-exon junctions removed, and counts exons using the custom BAM and by excluding intron tags | [Subread](http://subread.sourceforge.net/) | [FeatureCounts](http://bioinf.wehi.edu.au/featureCounts/), Python 3 | 
