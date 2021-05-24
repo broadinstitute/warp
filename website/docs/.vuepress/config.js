@@ -128,7 +128,8 @@ module.exports = {
               title: "Illumina Genotyping Arrays Pipeline",
               collapsable: true,
               children: [
-                "Pipelines/Illumina_Genotyping_Arrays_Pipeline/IlluminaGenotypingArray.documentation"
+                "Pipelines/Illumina_Genotyping_Arrays_Pipeline/IlluminaGenotypingArray.documentation",
+                "Pipelines/Illumina_Genotyping_Arrays_Pipeline/Illumina_genotyping_array_spec"
               ],
             },
             {
