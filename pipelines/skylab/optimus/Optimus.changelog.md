@@ -1,3 +1,9 @@
+# 4.2.5
+
+2021-05-24 (Date of Last Commit)
+
+* Changed Picard.wdl but does not impact output
+
 # 4.2.4
 
 2021-04-07 (Date of Last Commit)
