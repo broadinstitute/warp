@@ -1,0 +1,38 @@
+# A description of (some of) the test files here.
+- 200557060038_R10C02_PRISM_7032
+    - Non-control sample
+    - Not pulling fingerprint from Mercury
+        - Using pre-existing fingerprint file (uploaded previously to GCS)
+    - Not pushing fingerprint to Mercury
+- 200557060038_R10C02_PRISM_7032_PullFPFromMercury
+    - Non-control sample
+    - Pulling fingerprint from Mercury
+    - Not pushing fingerprint to Mercury
+- 200557060038_R10C02_PRISM_7032_PullNoFPFromMercury
+    - Non-control sample
+    - Pulling fingerprint from Mercury
+        - BUT it's an invalid (not found) lsid in Mercury, so no Fingerprint returned
+    - Not pushing fingerprint to Mercury
+- 200557060038_R10C02_PRISM_7032_PushFPToMercury
+    - Non-control sample
+    - NOT Pulling fingerprint from Mercury
+        - Using pre-existing fingerprint file (uploaded previously to GCS)
+    - Pushing fingerprint to Mercury    
+- 201651080129_R05C01_S8_N4B3GY
+    - Non-control sample
+    - Sample has a space in its name
+    - Not pulling fingerprint from Mercury
+        - Using pre-existing fingerprint file (uploaded previously to GCS)
+    - Not pushing fingerprint to Mercury
+- 201651080129_R05C01_S8_N4B3GY_PullFPFromMercury
+    - Non-control sample
+    - Sample has a space in its name
+    - Pulling fingerprint from Mercury
+        - NOT a clinical sample, so will pull both array and fluidigm fingerprints
+    - Not pushing fingerprint to Mercury
+- 201651080129_R05C01_S8_N4B3GY_PullFPFromMercuryClinical
+    - Non-control sample
+    - Sample has a space in its name
+    - Pulling fingerprint from Mercury
+        - IS a clinical sample, so only pulling fluidigm fingerprint
+    - Not pushing fingerprint to Mercury
