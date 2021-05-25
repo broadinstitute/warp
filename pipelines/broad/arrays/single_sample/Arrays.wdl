@@ -88,6 +88,9 @@ workflow Arrays {
 
   String service_account_filename = "service-account.json"
 
+  Array[String] vault_source_block = ["export VAULT_ADDR=https://clotho.broadinstitute.org:8200",
+                                      "export VAULT_TOKEN=~{read_lines(vault_token_path)[0]}"]
+
   # An array of strings to be run by VMs that need authentication
   Array[String] authentication_block = ["export VAULT_ADDR=https://clotho.broadinstitute.org:8200",
   "export VAULT_TOKEN=~{read_lines(vault_token_path)[0]}",
@@ -113,6 +116,19 @@ workflow Arrays {
   "  key=secret/dsde/gotc/dev/service-accounts/metrics-cloudsql-non-prod-service-account.json",
   "fi",
   "vault read --format=json $key | jq .data > ~{service_account_filename}"]
+
+  call DownloadGenotypes {
+    input:
+      sample_alias = sample_alias,
+      sample_lsid = sample_lsid,
+      output_vcf_name = chip_well_barcode + "." + sample_alias + ".reference.fingerprint.gz",
+      haplotype_database_file = haplotype_database_file,
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
+      ref_dict = ref_dict,
+      preemptible_tries = preemptible_tries,
+      source_block = vault_source_block
+  }
 
   call InternalTasks.UpdateChipWellBarcodeIndex {
     input:
@@ -143,8 +159,8 @@ workflow Arrays {
       cluster_file = cluster_file,
       gender_cluster_file = gender_cluster_file,
       zcall_thresholds_file = zcall_thresholds_file,
-      fingerprint_genotypes_vcf_file = fingerprint_genotypes_vcf_file,
-      fingerprint_genotypes_vcf_index_file = fingerprint_genotypes_vcf_index_file,
+      fingerprint_genotypes_vcf_file = DownloadGenotypes.output_vcf,
+      fingerprint_genotypes_vcf_index_file = DownloadGenotypes.output_vcf_index,
       haplotype_database_file = haplotype_database_file,
       variant_rsids_file = variant_rsids_file,
       subsampled_metrics_interval_list = subsampled_metrics_interval_list,
@@ -274,6 +290,8 @@ workflow Arrays {
     File? OutputVcfIndexFile = IlluminaGenotypingArray.output_vcf_index
     File? BafRegressMetricsFile = CreateBafRegressMetricsFile.output_metrics_file
     File? ContaminationMetricsFile = IlluminaGenotypingArray.contamination_metrics
+    File? ReferenceFingerprintVcf = DownloadGenotypes.output_vcf
+    File? ReferenceFingerprintVcfIndex = DownloadGenotypes.output_vcf_index
     File? OutputFingerprintVcfFile = IlluminaGenotypingArray.output_fingerprint_vcf
     File? OutputFingerprintVcfIndexFile = IlluminaGenotypingArray.output_fingerprint_vcf_index
     File? OutputFingerprintJsonFile = VcfToMercuryFingerprintJson.output_json_file
@@ -291,5 +309,75 @@ workflow Arrays {
   }
   meta {
     allowNestedInputs: true
+  }
+}
+
+task DownloadGenotypes {
+  input {
+    String sample_alias
+    String sample_lsid
+    String output_vcf_name
+
+    File haplotype_database_file
+
+    File ref_fasta
+    File ref_fasta_index
+    File ref_dict
+
+    Array[String] source_block
+
+    Int preemptible_tries
+  }
+
+  String base_vcf = basename(output_vcf_name)
+  Boolean is_compressed = basename(base_vcf, "gz") != base_vcf
+  String vcf_suffix = if is_compressed then ".vcf.gz" else ".vcf"
+  String vcf_index_suffix = if is_compressed then ".tbi" else ".idx"
+  String output_vcf = base_vcf + vcf_suffix
+  String output_vcf_index = output_vcf + vcf_index_suffix
+
+
+  command <<<
+    set -eo pipefail
+
+    # TODO - using this won't work until we give the appropriate permissions to this user.
+    AUTH=~{write_lines(source_block)} && source $AUTH
+
+    # TODO - need to pull the credentials from the VAULT - but the permissions aren't working!
+    #    --CREDENTIALS_VAULT_PATH secret/dsde/gotc/dev/wdl/secrets \
+
+    java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+    DownloadGenotypes \
+    --SAMPLE_ALIAS "~{sample_alias}" \
+    --SAMPLE_LSID ~{sample_lsid} \
+    --OUTPUT ~{output_vcf} \
+    --CREATE_INDEX true \
+    --REFERENCE_SEQUENCE ~{ref_fasta} \
+    --HAPLOTYPE_MAP ~{haplotype_database_file} \
+    # TODO - this should only be set to FLUIDIGM if it's 'clinical'
+    # I think the tool may be broken if you are supplying nothing.  Need to test.
+    --EXPECTED_GENOTYPING_PLATFORMS FLUIDIGM \
+    --IGNORE_SPECIFIC_GENOTYPES_PLATFORM GENERAL_ARRAY \
+    --IGNORE_SPECIFIC_GENOTYPES_LSID ~{sample_lsid} \
+    --MERCURY_FP_STORE_URI https://portals.broadinstitute.org/portal-test/mercury-ws/fingerprint \
+    --USERNAME dsp-fp-dev \
+    --PASSWORD 'peph#datHe!2'
+
+    # TODO - if it doesn't find any fingerprints, it generates no output (I think there's a different return code).
+    # Need to then?? make an empty VCF and index and pass them along through subsequent steps - or have another flag
+    # that is, no fingerprint, don't do VCFToFingerprintJson and don't do upload fingerprint.
+    # so, really optional outputs I guess?
+    # and you should add a test case for that.
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    memory: "3.5 GiB"
+    preemptible: preemptible_tries
+  }
+
+  output {
+    File output_vcf = "~{output_vcf}"
+    File output_vcf_index = "~{output_vcf_index}"
   }
 }

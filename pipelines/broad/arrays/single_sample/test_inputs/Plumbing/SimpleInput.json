@@ -1,6 +1,6 @@
 {
   "Arrays.sample_alias": "NA12878",
-  "Arrays.sample_lsid": "broadinstitute.org:bsp.dev.sample:NOTREAL.NA12878",
+  "Arrays.sample_lsid": "broadinstitute.org:bsp.prod.sample:3S2IV",
   "Arrays.analysis_version_number": 1,
   "Arrays.call_rate_threshold": 0.98,
   "Arrays.genotype_concordance_threshold": 0.98,
