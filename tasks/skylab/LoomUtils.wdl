@@ -225,7 +225,7 @@ task SingleNucleiSmartSeq2LoomOutput {
   }
 
   meta {
-    description: "This  task will converts some of the outputs of Smart Seq 2 pipeline into a loom file"
+    description: "This task will convert output from the SmartSeq2SingleNucleus pipeline into a loom file. Contrary to the SmartSeq2 single cell where there is only RSEM counts, here we have intronic and exonic counts per gene name"
   }
 
   parameter_meta {

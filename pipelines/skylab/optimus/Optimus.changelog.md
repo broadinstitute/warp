@@ -2,7 +2,8 @@
 
 2021-05-24 (Date of Last Commit)
 
-* Changed Picard.wdl but does not impact output
+* Updated Picard task to support single nucleus SS2. Changes do not affect Optimus
+* We also updated STAR to 2.7.9a
 
 # 4.2.4
 

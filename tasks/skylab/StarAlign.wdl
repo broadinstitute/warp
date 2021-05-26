@@ -73,7 +73,7 @@ task StarAlignFastqPairedEnd {
     File tar_star_reference
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.8a"
+    String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
     Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.

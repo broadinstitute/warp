@@ -1,22 +1,24 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl" as single_nucleus_run
-import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/LoomUtils.wdl" as LoomUtils
-import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/CheckInputs.wdl" as CheckInputs 
+import "../smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl" as single_nucleus_run
+import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/skylab/CheckInputs.wdl" as CheckInputs 
        
 workflow MultiSampleSmartSeq2SingleNucleus {
   meta {
-    description: "The MultiSampleSmartSeq2 pipeline runs multiple SS2 samples in a single pipeline invocation"
+    description: "The MultiSampleSmartSeq2SingleNucleus pipeline runs multiple snSS2 samples in a single pipeline invocation"
     allowNestedInputs: true
   }
 
   input {
-      # Gene Annotation
+      # reference genome fasta
       File genome_ref_fasta
 
       # Reference index information
       File tar_star_reference
+      # annotation file
       File annotations_gtf
+      # adapter list file
       File adapter_list
 
       # Sample information
@@ -84,14 +86,11 @@ workflow MultiSampleSmartSeq2SingleNucleus {
       }
   }
 
-  Array[File] loom_output_files = sn_pe.loom_output_files
-  Array[File] exon_intron_counts = sn_pe.exon_intron_counts 
-  Array[File] aligned_bam_files = sn_pe.aligned_bam
 
   ### Aggregate the Loom Files Directly ###
   call LoomUtils.AggregateSmartSeq2Loom as AggregateLoom {
     input:
-      loom_input = loom_output_files,
+      loom_input = sn_pe.loom_output_files,
       batch_id = batch_id,
       batch_name = batch_name,
       project_id = if defined(project_id) then select_first([project_id])[0] else none,
@@ -107,7 +106,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   output {
     # Bam files and their indexes
     File loom_output = AggregateLoom.loom_output_file
-    Array[File] exon_intron_count_files = exon_intron_counts 
-    Array[File] bam_files = aligned_bam_files
+    Array[File] exon_intron_count_files = sn_pe.exon_intron_counts 
+    Array[File] bam_files = sn_pe.aligned_bam
   }
 }
