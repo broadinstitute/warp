@@ -40,7 +40,7 @@ task GetReferences {
   }
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.8a"
+    docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
     disks: "local-disk 10 HDD"
   }
 }
@@ -78,7 +78,59 @@ task BuildStar {
   }
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.8a"
+    docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
+    memory: "50 GiB"
+    disks :"local-disk 100 HDD"
+    cpu:"16"
+  }
+}
+
+task BuildStarSingleNucleus {
+  input {
+    String gtf_version
+    String organism
+    String organism_prefix
+    References references
+  }
+
+  meta {
+    description: "Modify gtf files and build reference index files for STAR aligner"
+  }
+  String ref_name = "star_primary_gencode_~{organism}_v~{gtf_version}"
+  String star_index_name = "modified_~{ref_name}.tar"
+  String genome_fa_modified = "modified_GRC~{organism_prefix}38.primary_assembly.genome.fa"
+  String annotation_gtf_modified = "modified_gencode.v~{gtf_version}.primary_assembly.annotation.gtf"
+  String annotation_gtf_introns = "introns_modified_gencode.v~{gtf_version}.primary_assembly.annotation.gtf"
+
+  command <<<
+    set -eo pipefail
+
+    /script/modify_gtf_~{organism}.sh ~{references.genome_fa} ~{references.annotation_gtf}
+
+    mkdir star
+    STAR --runMode genomeGenerate \
+    --genomeDir star \
+    --genomeFastaFiles ~{genome_fa_modified} \
+    --sjdbGTFfile ~{annotation_gtf_modified} \
+    --sjdbOverhang 100 \
+    --runThreadN 16
+
+    tar -cvf ~{star_index_name} star
+
+    python  /script/add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_introns}
+  >>>
+
+  output {
+    File star_index = star_index_name
+    File annotation_gtf_modified_introns = annotation_gtf_introns
+    References modified_references = object {
+             genome_fa: genome_fa_modified,
+             annotation_gtf: annotation_gtf_modified
+           }
+  }
+
+  runtime {
+    docker: "quay.io/humancellatlas/snss2-indices:1.1.0 "
     memory: "50 GiB"
     disks :"local-disk 100 HDD"
     cpu:"16"
@@ -322,7 +374,7 @@ workflow BuildIndices {
 
   # version of this pipeline
 
-  String pipeline_version = "0.0.1"
+  String pipeline_version = "0.1.0"
 
   parameter_meta {
     gtf_version: "the actual number of gencode, ex.  27"
@@ -356,6 +408,14 @@ workflow BuildIndices {
       references = GetReferences.references
   }
 
+  call BuildStarSingleNucleus {
+    input:
+      gtf_version = gtf_version,
+      organism = organism,
+      organism_prefix = organism_prefix,
+      references = GetReferences.references
+  }
+
   call BuildRsem {
     input:
       gtf_version = gtf_version,
@@ -386,6 +446,7 @@ workflow BuildIndices {
 
   output {
     File star_index = BuildStar.star_index
+    File snSS2_star_index = BuildStarSingleNucleus.star_index
     File rsem_index = BuildRsem.rsem_index
     File hisat2_from_rsem_index = BuildHisat2FromRsem.hisat2_index
     File hisat2_index = BuildHisat2.hisat2_index
@@ -395,5 +456,9 @@ workflow BuildIndices {
 
     File genome_fa = GetReferences.references.genome_fa
     File annotation_gtf = GetReferences.references.annotation_gtf
+
+    File snSS2_genome_fa = BuildStarSingleNucleus.modified_references.genome_fa
+    File snSS2_annotation_gtf = BuildStarSingleNucleus.modified_references.annotation_gtf
+    File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
   }
 }

@@ -1,3 +1,9 @@
+# 1.13.0
+2021-05-19
+
+* Update to use publicly released version of CreateExtendedIlluminaManifest (in Picard 2.25.5)
+* Update version of Picard to 2.25.5 in order to allow GtcToVcf to support new enums in that buid (updated all picard tools to use this version)
+
 # 1.12.0
 2020-10-07
 
