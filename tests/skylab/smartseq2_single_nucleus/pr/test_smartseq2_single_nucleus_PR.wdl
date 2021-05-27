@@ -17,7 +17,7 @@ workflow TestSmartSeq2SingleNucleusPR {
 
     # snSS2 inputs
     File genome_ref_fasta
-    File tar_star_reference
+    File star_reference
     File annotations_gtf
     String input_id
     String output_name
@@ -35,7 +35,7 @@ workflow TestSmartSeq2SingleNucleusPR {
       fastq2 = fastq2,
       adapter_list = adapter_list,
       annotations_gtf = annotations_gtf,
-      tar_star_reference = tar_star_reference
+      star_reference = star_reference
 
   }
 
