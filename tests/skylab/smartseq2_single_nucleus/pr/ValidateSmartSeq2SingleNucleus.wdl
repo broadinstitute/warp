@@ -22,15 +22,13 @@ task ValidateSnSmartSeq2 {
     # a hash and the filename that was passed. We parse the first 7 columns because a bug in RSEM
     # makes later columns non-deterministic.
 
-    #commenting this line out until we can pull a file from the snSS2 outputs
     exon_intron_counts_hash=$(awk 'NR>2' "~{exon_intron_counts_hash}" | md5sum | awk '{print $1}')
 
     if [ "$exon_intron_counts_hash" != "~{truth_exon_intron_counts_hash}" ]; then
         echo "exon_intron_counts_hash "$exon_intron_counts_hash" did not match expected hash "~{truth_exon_intron_counts_hash}""
-        fail=true
+        exit 1;
     fi
 
-    if [ "$fail" == "true" ]; then exit 1; fi
   >>>
 
   runtime {
