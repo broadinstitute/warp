@@ -17,7 +17,7 @@ workflow SmartSeq2SingleNucleus {
     File genome_ref_fasta
 
     # STAR ref index name
-    File tar_star_reference
+    File star_reference
     # annotation file 
     File annotations_gtf
 
@@ -43,7 +43,7 @@ workflow SmartSeq2SingleNucleus {
     output_name: "Output name, can include path"
     fastq1: "R1 in paired end reads"
     fastq2: "R2 in paired end reads"
-    tar_star_reference: "star genome reference"
+    star_reference: "star genome reference in the form of a tar file"
     annotations_gtf: "gtf containing annotations for gene tagging (must match star reference)"
   }
 
@@ -60,7 +60,7 @@ workflow SmartSeq2SingleNucleus {
       input:
         fastq1 = TrimAdapters.trimmed_fastq1,
         fastq2 = TrimAdapters.trimmed_fastq2,
-        tar_star_reference = tar_star_reference
+        tar_star_reference = star_reference
    }
 
   call Picard.RemoveDuplicatesFromBam as RemoveDuplicatesFromBam {

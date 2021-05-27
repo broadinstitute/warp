@@ -202,8 +202,7 @@ task SingleNucleiSmartSeq2LoomOutput {
   input {
     #runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.7"
-    # the gene count file "<input_id>_rsem.genes.results" in the task results folder call-RSEMExpression
-    # file named "<input_id>_QCs.csv" in the folder  "call-GroupQCOutputs/glob-*" of the the SS2  output
+
     Array[File] smartseq_qc_files
     # introns counts
     File introns_counts
@@ -280,7 +279,7 @@ task SingleNucleiSmartSeq2LoomOutput {
 
   runtime {
     docker: docker
-    cpu: cpu  # note that only 1 thread is supported by pseudobam
+    cpu: cpu 
     memory: "~{machine_mem_mb} GiB"
     disks: "local-disk ~{disk} HDD"
     preemptible: preemptible

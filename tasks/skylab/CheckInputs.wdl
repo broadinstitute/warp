@@ -20,13 +20,13 @@ task checkInputArrays {
   command {
     set -e
 
-    if [[ ~{len_input_ids} !=  ~{len_fastq1_input_files} ]]
+    if [[ ~{len_input_ids} != ~{len_fastq1_input_files} ]]
       then
       echo "ERROR: Different number of arguments for input_id and fastq1 files"
       exit 1;
     fi
 
-    if [[ ~{len_input_names} != 0  && ~{len_input_ids} !=  ~{len_input_names} ]]
+    if [[ ~{len_input_names} != 0 && ~{len_input_ids} != ~{len_input_names} ]]
         then
         echo "ERROR: Different number of arguments for input_name and input_id"
         exit 1;

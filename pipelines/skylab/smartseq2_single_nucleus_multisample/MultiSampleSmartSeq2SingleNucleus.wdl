@@ -104,7 +104,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
 
   ### Pipeline output ###
   output {
-    # Bam files and their indexes
+    # loom output, exon/intron count tsv files and the aligned bam files
     File loom_output = AggregateLoom.loom_output_file
     Array[File] exon_intron_count_files = sn_pe.exon_intron_counts 
     Array[File] bam_files = sn_pe.aligned_bam
