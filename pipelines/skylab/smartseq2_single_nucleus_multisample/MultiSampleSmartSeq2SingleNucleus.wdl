@@ -60,7 +60,6 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   # Check that all input arrays are the same length
   call CheckInputs.checkInputArrays as checkArrays{
       input:
-         paired_end = true,
          input_ids = input_ids,
          input_names = input_names,
          fastq1_input_files = fastq1_input_files,
@@ -77,7 +76,6 @@ workflow MultiSampleSmartSeq2SingleNucleus {
            adapter_list = adapter_list,
            fastq1 = fastq1_input_files[idx],
            fastq2 = fastq2_input_files[idx],
-           paired_end = true,
            input_id = input_ids[idx],
            output_name = input_ids[idx],
            input_name_metadata_field = input_name_metadata_field,

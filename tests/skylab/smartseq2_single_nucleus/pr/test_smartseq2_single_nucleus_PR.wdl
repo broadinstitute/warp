@@ -1,8 +1,8 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl" as target_wdl
-import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tests/skylab/smartseq2_single_nucleus/pr/ValidateSmartSeq2SingleNucleus.wdl" as checker_wdl
-import "https://raw.githubusercontent.com/broadinstitute/warp/develop/verification/VerifyTasks.wdl" as verify_tasks
+import "../../../../pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl" as target_wdl
+import "../../../../tests/skylab/smartseq2_single_nucleus/pr/ValidateSmartSeq2SingleNucleus.wdl" as checker_wdl
+import "../../../../verification/VerifyTasks.wdl" as verify_tasks
 
 # this task will be run by the jenkins script that gets executed on our PRs.
 workflow TestSmartSeq2SingleNucleusPR {
@@ -23,8 +23,7 @@ workflow TestSmartSeq2SingleNucleusPR {
     String output_name
     File adapter_list
     File fastq1
-    File? fastq2
-    Boolean paired_end
+    File fastq2
   }
 
   call target_wdl.SmartSeq2SingleNucleus as target_workflow {
@@ -34,7 +33,6 @@ workflow TestSmartSeq2SingleNucleusPR {
       output_name = output_name,
       fastq1 = fastq1,
       fastq2 = fastq2,
-      paired_end = true,
       adapter_list = adapter_list,
       annotations_gtf = annotations_gtf,
       tar_star_reference = tar_star_reference
