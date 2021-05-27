@@ -23,7 +23,7 @@ workflow TestSmartSeq2SingleNucleusPR {
     String output_name
     File adapter_list
     File fastq1
-    File? fastq2
+    File fastq2
   }
 
   call target_wdl.SmartSeq2SingleNucleus as target_workflow {
