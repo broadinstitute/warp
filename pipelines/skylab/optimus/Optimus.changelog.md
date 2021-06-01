@@ -1,3 +1,10 @@
+# 4.2.4
+
+2021-04-07 (Date of Last Commit)
+
+* Changed the name of the wdl StarAlignSingleEnd.wdl to StarAlign.wdl
+* Added a star dockerfile to STAR version 2.7.8a
+
 # 4.2.3
 
 2021-02-23 (Date of Last Commit)

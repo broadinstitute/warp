@@ -1,56 +1,5 @@
 version 1.0
 
-task CreateExtendedIlluminaManifest {
-  input {
-    File input_csv
-    String output_base_name
-    File cluster_file
-
-    File ref_fasta
-    File ref_fasta_index
-    File ref_dict
-
-    File dbSNP_vcf_file
-    File dbSNP_vcf_index_file
-
-    File supported_ref_fasta
-    File supported_ref_fasta_index
-    File supported_ref_dict
-
-    File chain_file
-
-    Int disk_size
-    Int preemptible_tries
-  }
-
-  command <<<
-    java -Xms13g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
-            CreateExtendedIlluminaManifest \
-            --INPUT ~{input_csv} \
-            --OUTPUT_BASE_FILE ~{output_base_name} \
-            --CLUSTER_FILE ~{cluster_file} \
-            --DBSNP_FILE ~{dbSNP_vcf_file} \
-            --TARGET_BUILD 37 \
-            --TARGET_REFERENCE_FILE ~{ref_fasta} \
-            --SUPPORTED_BUILD 36 \
-            --SUPPORTED_REFERENCE_FILE ~{supported_ref_fasta} \
-            --SUPPORTED_CHAIN_FILE ~{chain_file}
-  >>>
-
-  runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "14 GiB"
-    preemptible: preemptible_tries
-  }
-
-  output {
-    File output_csv = "~{output_base_name}.extended.csv"
-    File output_bad_assays_file = "~{output_base_name}.bad_assays.csv"
-    File report_file = "~{output_base_name}.report.txt"
-  }
-}
-
 task GenerateEmptyVariantCallingMetricsFile {
   input {
     String chip_well_barcode

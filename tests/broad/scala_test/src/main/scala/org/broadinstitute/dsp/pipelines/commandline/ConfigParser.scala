@@ -457,6 +457,10 @@ class ConfigParser
           failure(
             "The reprocessing test is not configured to run load."
           )
+        case (Reprocessing, WorkflowTestCategory.Scientific) =>
+          failure(
+            "The reprocessing test is not configured to run scientific."
+          )
         case _ => success
       }
     }
@@ -465,9 +469,9 @@ class ConfigParser
   germlineCloudPipelineCommandLineConfig(
     ReblockGvcf, { config =>
       (config.test, config.germlineCloudConfig.category) match {
-        case (Reprocessing, WorkflowTestCategory.Load) =>
+        case (ReblockGvcf, WorkflowTestCategory.Load) =>
           failure(
-            "The reprocessing test is not configured to run load."
+            "The ReblockGvcf test is not configured to run load."
           )
         case _ => success
       }
@@ -810,4 +814,22 @@ class ConfigParser
           )
         }
     )
+
+  note("")
+  germlineCloudPipelineCommandLineConfig(
+    VariantCalling, { config =>
+      (config.test, config.germlineCloudConfig.category) match {
+        case (VariantCalling, WorkflowTestCategory.Scientific) =>
+          failure(
+            "The VariantCalling test is not configured to run scientific. This case is covered by the GermlineSingleSample tests"
+          )
+        case (VariantCalling, WorkflowTestCategory.Load) =>
+          failure(
+            "The VariantCalling test is not configured to run load."
+          )
+        case _ => success
+      }
+    },
+    Some(GermlineCloudWorkflowConfig(papiVersion = PAPIv2))
+  )
 }
