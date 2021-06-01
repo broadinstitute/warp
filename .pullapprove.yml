@@ -84,14 +84,14 @@ groups:
         'pipelines/broad/dna_seq/somatic/single_sample/wgs/gdc_genome/samtools_nio' in files or
         'pipelines/broad/dna_seq/somatic/single_sample/wgs/gdc_genome/test_inputs' in files
         
-      reviews:
-        required: 1
-        author_value: 1
-        request: 1
-        request_order: given
-      reviewers:
-        users:
-          - chips2art # Chip Stewart
+    reviews:
+      required: 1
+      author_value: 1
+      request: 1
+      request_order: given
+    reviewers:
+      users:
+        - chips2art # Chip Stewart
 
   scientific_owners_cram_to_unmapped_bam:
     conditions:
@@ -106,14 +106,14 @@ groups:
         'pipelines/broad/reprocessing/cram_to_unmapped_bams/input_files' in files or
         'pipelines/broad/reprocessing/cram_to_unmapped_bams/test_inputs' in files
         
-      reviews:
-        required: 1
-        author_value: 1
-        request: 1
-        request_order: given
-      reviewers:
-        users:
-          - kachulis # Chris Kachulis
+    reviews:
+      required: 1
+      author_value: 1
+      request: 1
+      request_order: given
+    reviewers:
+      users:
+        - kachulis # Chris Kachulis
 
   scientific_owners_germline_single_sample:
     conditions:

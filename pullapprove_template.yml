@@ -53,14 +53,14 @@ groups:
       - "base.ref != 'RC'"
       - >
         ${GDC_WGS_FILES}
-      reviews:
-        required: 1
-        author_value: 1
-        request: 1
-        request_order: given
-      reviewers:
-        users:
-          - chips2art # Chip Stewart
+    reviews:
+      required: 1
+      author_value: 1
+      request: 1
+      request_order: given
+    reviewers:
+      users:
+        - chips2art # Chip Stewart
 
   scientific_owners_cram_to_unmapped_bam:
     conditions:
@@ -69,14 +69,14 @@ groups:
       - "base.ref != 'RC'"
       - >
         ${CRAM_TO_UNMAPPED_BAMS}
-      reviews:
-        required: 1
-        author_value: 1
-        request: 1
-        request_order: given
-      reviewers:
-        users:
-          - kachulis # Chris Kachulis
+    reviews:
+      required: 1
+      author_value: 1
+      request: 1
+      request_order: given
+    reviewers:
+      users:
+        - kachulis # Chris Kachulis
 
   scientific_owners_germline_single_sample:
     conditions:
