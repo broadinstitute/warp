@@ -204,7 +204,11 @@ The following table lists the output files produced from the pipeline. For sampl
 | gene_metrics | merged-gene-metrics.csv.gz | gene metrics | compressed csv | Matrix of metrics by genes |
 | loom_output_file | `<input_id>.loom` | Loom | Loom | Loom file with count data and metadata | N/A |
 
-The Loom is the default output. See the [create_loom_optimus.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) for the detailed code. The final Loom output contains the unnormalized (unfiltered), UMI-corrected count matrices, as well as the gene and cell metrics detailed in the [Loom_schema documentation](./Loom_schema.md).
+The Loom matrix is the default output. See the [create_loom_optimus.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) for the detailed code. This matrix contains the unnormalized (unfiltered), UMI-corrected count matrices, as well as the gene and cell metrics detailed in the [Optimus Count Matrix Overview documentation](./Loom_schema.md).
+
+The matrix is compatible with multiple downstream community analysis tools. For a tutorial on using the Optimus matrix with [Seurat](https://satijalab.org/seurat/index.html), [Scanpy](https://scanpy.readthedocs.io/en/stable/), [Cumulus](https://cumulus.readthedocs.io/en/latest/index.html), or [Pegasus](https://pegasus.readthedocs.io/en/stable/#), see the public [Intro-to-HCA-data-on-Terra workspace](https://app.terra.bio/#workspaces/featured-workspaces-hca/Intro-to-HCA-data-on-Terra) (login required) and its accompanying [step-by-step guide](https://support.terra.bio/hc/en-us/articles/360060041772). 
+
+
 
 :::warning Zarr Array Deprecation Notice June 2020
 Please note that we have deprecated the previously used Zarr array output. The pipeline now uses the Loom file format as the default output.

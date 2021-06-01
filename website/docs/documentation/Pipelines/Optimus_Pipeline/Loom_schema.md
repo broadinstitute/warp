@@ -143,5 +143,7 @@ The `input_id` may be used to map the data back to the DCP metadata manifest, a 
 
 Read more about the metadata manifest in the DCP [Exploring Projects guide](https://data.humancellatlas.org/guides). 
 
-
+:::tip Explore HCA Project matrices in Terra
+HCA matrices produced with Optimus are compatible with multiple downstream community analysis tools. For a tutorial on using the Optimus matrix with [Seurat](https://satijalab.org/seurat/index.html), [Scanpy](https://scanpy.readthedocs.io/en/stable/), [Cumulus](https://cumulus.readthedocs.io/en/latest/index.html), or [Pegasus](https://pegasus.readthedocs.io/en/stable/#), see the public [Intro-to-HCA-data-on-Terra workspace](https://app.terra.bio/#workspaces/featured-workspaces-hca/Intro-to-HCA-data-on-Terra) (login required) and its accompanying [step-by-step guide](https://support.terra.bio/hc/en-us/articles/360060041772). 
+:::
 
