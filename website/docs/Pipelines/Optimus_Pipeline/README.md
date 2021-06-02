@@ -65,8 +65,9 @@ Each 10x v2 and v3 3’ sequencing experiment generates triplets of FASTQ files 
 3. Index FASTQ (`i1_fastq`) containing the sample barcodes, when provided by the sequencing facility
 
 :::tip Optimus is currently a single sample pipeline
- However, it can take in multiple sets of FASTQs for a sample that has been split over multiple lanes of sequencing. For an example configuration file with multiple lanes, please see the [mouse_v2_example.json](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/mouse_v2_example.json). Additionally, Optimus does not support demultiplexing even though it accepts index FASTQ files.
- :::
+
+However, it can take in multiple sets of FASTQs for a sample that has been split over multiple lanes of sequencing. For an example configuration file with multiple lanes, please see the [mouse_v2_example.json](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/mouse_v2_example.json). Additionally, Optimus does not support demultiplexing even though it accepts index FASTQ files.
+:::
 
 
 #### Additional Reference Inputs
