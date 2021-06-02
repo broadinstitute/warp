@@ -1,3 +1,30 @@
+# 1.3.6
+2021-06-01 
+
+* Removed deprecated parameter PAIRED_RUN from MergeBamAlignment
+
+# 1.3.5
+2021-03-17
+
+* Promoted VariantCalling to be a top-level workflow
+
+# 1.3.4
+2021-02-22
+
+* Added SORTING_COLLECTION_SIZE_RATIO as an optional task input to MarkDuplicates
+
+# 1.3.3
+2021-02-08
+
+* Calculate java memory value from the optional memory input value for CramToUnmappedBams java tasks
+
+# 1.3.2
+2021-02-02
+
+* Minor changes to support CramToUnmappedBams as an independent versioned pipeline
+    * Changed path of the relative import
+    * Added 'base_file_name' as an input to CramToUnmappedBams
+
 # 1.3.1
 2020-12-21
 

@@ -1,3 +1,17 @@
+# 4.2.4
+
+2021-04-07 (Date of Last Commit)
+
+* Changed the name of the wdl StarAlignSingleEnd.wdl to StarAlign.wdl
+* Added a star dockerfile to STAR version 2.7.8a
+
+# 4.2.3
+
+2021-02-23 (Date of Last Commit)
+
+* Made changes to emptydrops tool wrappper script to not fail in cases with small number of cells, instead, create empty drop result files with NAs.
+* Updated the docker in RunEmptyDrops.wdl task to 0.1.4 Updated emptyDropsWrapper.R in the docker
+
 # 4.2.2
 
 2021-01-04 (Date of Last Commit)

@@ -1,9 +1,0 @@
-{
-  "CramToUnmappedBams.input_cram": "File",
-  "CramToUnmappedBams.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
-  "CramToUnmappedBams.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
-
-  "CramToUnmappedBams.input_bam": "File",
-
-  "CramToUnmappedBams.output_map": "File"
-}

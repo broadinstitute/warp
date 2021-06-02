@@ -8,44 +8,51 @@
 #   (and dependencies of those dependencies and ...) 
 #   will be automatically added by this script
 ###########################################################
-# sscientific_owners_annotation_filtration:
-annotation_filtration_wdls=("pipelines/annotation_filtration/AnnotationFiltration.wdl")
-annotation_filtration_files=("pipelines/annotation_filtration/**")
+# scientific_owners_gdc_pipeline
+gdc_wgs_wdls=("pipelines/broad/dna_seq/somatic/single_sample/wgs/gdc_genome/GDCWholeGenomeSomaticSingleSample.wdl")
+gdc_wgs_files=("pipelines/broad/dna_seq/somatic/single_sample/wgs/gdc_genome/**")
+
+# scientific_owners_cram_to_unmapped_bam
+cram_to_unmapped_bams_wdls=("pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl")
+cram_to_unmapped_bams_files=("pipelines/broad/reprocessing/cram_to_unmapped_bams/**")
+
+# scientific_owners_annotation_filtration:
+annotation_filtration_wdls=("pipelines/broad/annotation_filtration/AnnotationFiltration.wdl")
+annotation_filtration_files=("pipelines/broad/annotation_filtration/**")
 
 # scientific_owners_arrays:
-arrays_wdls=("pipelines/arrays/chip/ValidateChip.wdl"
-             "pipelines/arrays/multi_sample/MultiSampleArrays.wdl"
-             "pipelines/arrays/single_sample/Arrays.wdl"
+arrays_wdls=("pipelines/broad/arrays/validate_chip/ValidateChip.wdl"
+             "pipelines/broad/arrays/multi_sample/MultiSampleArrays.wdl"
+             "pipelines/broad/arrays/single_sample/Arrays.wdl"
              "verification/VerifyArrays.wdl"
              "verification/VerifyMultiSampleArrays.wdl"
              "verification/VerifyValidateChip.wdl")
-arrays_files=("pipelines/arrays/**")
+arrays_files=("pipelines/broad/arrays/**")
 
 # scientific_owners_germline_single_sample:
-germline_single_sample_wdls=("pipelines/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl"
-                             "pipelines/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl"
-                             "pipelines/reprocessing/exome/ExomeReprocessing.wdl"
-                             "pipelines/reprocessing/external/exome/ExternalExomeReprocessing.wdl"
-                             "pipelines/reprocessing/wgs/WholeGenomeReprocessing.wdl"
+germline_single_sample_wdls=("pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl"
+                             "pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl"
+                             "pipelines/broad/reprocessing/exome/ExomeReprocessing.wdl"
+                             "pipelines/broad/reprocessing/external/exome/ExternalExomeReprocessing.wdl"
+                             "pipelines/broad/reprocessing/wgs/WholeGenomeReprocessing.wdl"
                              "verification/VerifyGermlineSingleSample.wdl"
                              "verification/VerifyReprocessing.wdl")
-germline_single_sample_files=("pipelines/dna_seq/germline/single_sample/**"
-                              "pipelines/reprocessing/**")
+germline_single_sample_files=("pipelines/broad/dna_seq/germline/single_sample/**"
+                              "pipelines/broad/reprocessing/**")
 
 # scientific_owners_joint_genotyping:
-joint_genotyping_wdls=("genomes_in_the_cloud/joint_genotyping_workflow/JointGenotypingWf.wdl"
-                       "pipelines/dna_seq/germline/joint_genotyping/JointGenotyping.wdl"
-                       "pipelines/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartOne.wdl"
-                       "pipelines/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartTwo.wdl"
-                       "pipelines/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl")
-joint_genotyping_files=("pipelines/dna_seq/germline/joint_genotyping/**")
+joint_genotyping_wdls=("pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.wdl"
+                       "pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartOne.wdl"
+                       "pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartTwo.wdl"
+                       "pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl")
+joint_genotyping_files=("pipelines/broad/dna_seq/germline/joint_genotyping/**")
 
 # scientific_owners_somatic_single_sample:
-somatic_single_sample_wdls=("beta_pipelines/somatic/single_sample/targeted/TargetedSomaticSingleSample.wdl")
-somatic_single_sample_files=("beta_pipelines/somatic/single_sample/targeted/**")
+somatic_single_sample_wdls=("beta-pipelines/broad/somatic/single_sample/targeted/TargetedSomaticSingleSample.wdl")
+somatic_single_sample_files=("beta-pipelines/broad/somatic/single_sample/targeted/**")
 
 # clinical_owners:
-clinical_wdls=("pipelines/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl")
+clinical_wdls=("pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl")
 
 
 # Gets all dependencies for a list of wdls and creates a string specific to a pullapprove config condition
@@ -96,6 +103,8 @@ edit_instructions='# DO NOT EDIT THIS FILE DIRECTLY!!!
 
 export EDIT_INSTRUCTIONS="${edit_instructions}"
 
+gdc_wgs_all_wdls=$(get_dependencies_for_wdls ${gdc_wgs_wdls[@]})
+cram_to_unmapped_bams_all_wdls=$(get_dependencies_for_wdls ${cram_to_unmapped_bams_wdls[@]})
 annotation_filtration_all_wdls=$(get_dependencies_for_wdls ${annotation_filtration_wdls[@]})
 arrays_all_wdls=$(get_dependencies_for_wdls ${arrays_wdls[@]})
 germline_single_sample_all_wdls=$(get_dependencies_for_wdls ${germline_single_sample_wdls[@]})
@@ -103,6 +112,8 @@ joint_genotyping_all_wdls=$(get_dependencies_for_wdls ${joint_genotyping_wdls[@]
 somatic_single_sample_all_wdls=$(get_dependencies_for_wdls ${somatic_single_sample_wdls[@]})
 clinical_all_wdls=$(get_dependencies_for_wdls ${clinical_wdls[@]})
 
+export GDC_WGS_FILES="$(get_string ${gdc_wgs_all_wdls[@]} ${gdc_wgs_files[@]})"
+export CRAM_TO_UNMAPPED_BAMS="$(get_string ${cram_to_unmapped_bams_all_wdls[@]} ${cram_to_unmapped_bams_files[@]})"
 export ANNOTATION_FILTRATION_FILES="$(get_string ${annotation_filtration_all_wdls[@]} ${annotation_filtration_files[@]})"
 export ARRAYS_FILES="$(get_string ${arrays_all_wdls[@]} ${arrays_files[@]})"
 export GERMLINE_SINGLE_SAMPLE_FILES="$(get_string ${germline_single_sample_all_wdls[@]} ${germline_single_sample_files[@]})"

@@ -25,6 +25,8 @@ class ReblockGvcfTester(testerConfig: GermlineCloudWorkflowConfig)(
 
   override def workflowName: String = "ReblockGVCF"
 
+  override protected val validationWorkflowName: String = s"VerifyGvcf"
+
   override protected def workflowInputRoot: File =
     workflowDir / "test_inputs" / dataTypeString / testerConfig.category.entryName
 
@@ -55,9 +57,6 @@ class ReblockGvcfTester(testerConfig: GermlineCloudWorkflowConfig)(
       )
     }
   }
-
-  override protected def localValidationWdlPath: File =
-    CromwellWorkflowTester.DsdePipelinesRoot / "verification" / "VerifyReblockGVCF.wdl"
 
   override protected def buildValidationWdlInputs(
       workflowTest: WorkflowTest

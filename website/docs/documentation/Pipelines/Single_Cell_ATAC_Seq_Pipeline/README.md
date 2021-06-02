@@ -151,6 +151,10 @@ The following table details the metrics available in the output_snap_qc file.
 
 All scATAC workflow releases are documented in the [scATAC changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/scATAC/scATAC.changelog.md).
 
+## Citing the scATAC Pipeline
+Please identify the pipeline in your methods section using the scATAC Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_018919/resolver?q=SCR_018919&l=SCR_018919).
+* Ex: *scATAC Pipeline (RRID:SCR_018919)*
+
 ## Pipeline Improvements
 
 Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.

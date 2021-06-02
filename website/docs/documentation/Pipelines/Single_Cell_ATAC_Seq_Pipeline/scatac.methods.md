@@ -4,7 +4,7 @@ Below we provide a sample methods section for a publication. For the complete pi
 
 ## Methods
 
-Preprocessing and cell by bin matrix construction were performed using the scATAC v1.2.0 Pipeline.
+Preprocessing and cell by bin matrix construction were performed using the scATAC v1.2.0 Pipeline (RRID:SCR_018919).
 
 Prior to processing, paired-end FASTQ files were modified with a custom python script (available at https://github.com/r3fang/SnapTools/blob/master/snaptools/dex_fastq.py) so that readnames were appended with cell barcodes.
 

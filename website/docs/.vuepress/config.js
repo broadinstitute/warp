@@ -117,11 +117,19 @@ module.exports = {
                 "Pipelines/Exome_Germline_Single_Sample_Pipeline/"
               ],
             },
+             {
+              title: "Genomic Data Commons Whole Genome Somatic Pipeline",
+              collapsable: true,
+              children: [
+                "Pipelines/Genomic_Data_Commons_Whole_Genome_Somatic/"
+              ],
+            },           
             {
               title: "Illumina Genotyping Arrays Pipeline",
               collapsable: true,
               children: [
-                "Pipelines/Illumina_Genotyping_Arrays_Pipeline/IlluminaGenotypingArray.documentation"
+                "Pipelines/Illumina_Genotyping_Arrays_Pipeline/IlluminaGenotypingArray.documentation",
+                "Pipelines/Illumina_Genotyping_Arrays_Pipeline/Illumina_genotyping_array_spec"
               ],
             },
             {
@@ -163,7 +171,8 @@ module.exports = {
               title: "Whole Genome Germline Single Sample Pipeline",
               collapsable: true,
               children: [
-                "Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/"
+                "Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/",
+                "Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/wgs.methods"                
               ],
             },
           ],

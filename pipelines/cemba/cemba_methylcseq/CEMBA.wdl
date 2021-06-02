@@ -57,7 +57,7 @@ workflow CEMBA {
     }
 
     # version of this pipeline
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "1.1.1"
 
   # trim off hardcoded sequence adapters
   call Trim as TrimAdapters {
@@ -303,6 +303,12 @@ workflow CEMBA {
       monitoring_script = monitoring_script
   }
 
+  # convert VCF to ALL
+  call VCFtoALLC {
+    input:
+      methylation_vcf_output_name = GetMethylationSiteVCF.methylation_vcf
+  }
+
   # get number of sites that have a coverage greater than 1
   call ComputeCoverageDepth {
     input:
@@ -319,6 +325,8 @@ workflow CEMBA {
 
     File methylation_site_vcf = GetMethylationSiteVCF.methylation_vcf
     File methylation_site_vcf_index = GetMethylationSiteVCF.methylation_vcf_index
+
+    File methylation_site_allc = VCFtoALLC.methylation_allc
 
     Int coverage_depth = ComputeCoverageDepth.total_depth_count
 
@@ -1048,7 +1056,8 @@ task MethylationTypeCaller {
     gatk MethylationTypeCaller \
       --input ~{bam_input} \
       --reference ~{reference_fasta} \
-      --output ~{methylation_vcf_output_name}
+      --output ~{methylation_vcf_output_name} \
+      --create-output-variant-index 
   >>>
 
   runtime {
@@ -1065,6 +1074,39 @@ task MethylationTypeCaller {
     File monitoring_log = "monitoring.log"
   }
 }
+
+# create a ALLC from VCF 
+task VCFtoALLC {
+    input {
+      File methylation_vcf_output_name
+      Int disk_size_gib = if size(methylation_vcf_output_name, "GiB") < 1 then 5 else ceil(9 * size(methylation_vcf_output_name, "GiB"))
+      Float mem_size_gib = 3.5
+    }
+
+  # input file size
+
+  # output name for VCF and its index
+  String methylation_allc_output_name = sub(basename(methylation_vcf_output_name), ".vcf$", ".allc")
+
+  command <<<
+    set -euo pipefail
+
+    python /tools/convert-vcf-to-allc.py -i ~{methylation_vcf_output_name} -o ~{methylation_allc_output_name}
+  >>>
+
+  runtime {
+    docker: "quay.io/humancellatlas/vcftoallc:v0.0.1"
+    # if the input size is less than 1 GB adjust to min input size of 1 GB
+    disks: "local-disk ~{disk_size_gib} HDD"
+    cpu: 1
+    memory: "~{mem_size_gib} GiB"
+  }
+
+  output {
+    File methylation_allc = methylation_allc_output_name
+  }
+}
+
 
 # get the number of sites the have coverage of 1 or more
 task ComputeCoverageDepth {

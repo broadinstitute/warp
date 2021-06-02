@@ -1,3 +1,18 @@
+# 2.3.4
+2021-06-01 
+
+* Removed deprecated parameter PAIRED_RUN from MergeBamAlignment
+
+# 2.3.3
+2021-03-17
+
+* Promoted VariantCalling to be a top-level workflow
+
+# 2.3.2
+2021-02-22
+
+* Added SORTING_COLLECTION_SIZE_RATIO as an optional task input to MarkDuplicates
+
 # 2.3.1
 2020-12-21
 

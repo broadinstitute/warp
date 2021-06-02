@@ -2,19 +2,19 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v4.2.2](https://github.com/broadinstitute/warp/releases) | January, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [optimus_v4.2.3](https://github.com/broadinstitute/warp/releases) | January, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![Optimus_diagram](./Optimus_diagram.png)
 
 ## Introduction to the Optimus Workflow
 
-Optimus is an open-source, cloud-optimized pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/). It supports processing of any 3' single-cell and single-nuclei expression data generated with the [10x Genomic v2 or v3 assay](https://www.10xgenomics.com/solutions/single-cell/). 
+Optimus is an open-source, cloud-optimized pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/). It supports processing of any 3' single-cell and single-nucleus count data generated with the [10x Genomic v2 or v3 assay](https://www.10xgenomics.com/solutions/single-cell/). 
 
 It is an alignment and transcriptome quantification pipeline that corrects cell barcodes, aligns reads to the genome, corrects Unique Molecular Identifiers (UMIs), generates a count matrix in a UMI-aware manner, calculates summary metrics for genes and cells, detects empty droplets, returns read outputs in BAM format, and returns cell gene counts in numpy matrix and Loom file formats. 
 
 **In addition to providing commonly used metrics such as empty drop detection and mitochondrial reads, Optimus takes special care to keep all reads that may be useful to the downstream user**, such as unaligned reads or reads with uncorrectable barcodes. This design provides flexibility to the downstream user and allows for alternative filtering or leveraging the data for novel methodological development.
 
-Optimus has been validated for analyzing both human and mouse single-cell or single-nuclei data sets. Learn more in the [validation section](#validation-against-cell-ranger). 
+Optimus has been validated for analyzing both human and mouse single-cell or single-nucleus data sets. Learn more in the [validation section](#validation-against-cell-ranger). 
 
 :::tip Want to use the Optimus Pipeline for your publication?
 Check out the [Optimus Publication Methods](./optimus.methods.md) to get started!
@@ -24,7 +24,7 @@ Check out the [Optimus Publication Methods](./optimus.methods.md) to get started
 
 | Pipeline Features | Description | Source |
 |-------------------|---------------------------------------------------------------|-----------------------|
-| Assay Type | 10x Single Cell or Single Nuclei Expression (v2 and v3) | [10x Genomics](https://www.10xgenomics.com)
+| Assay Type | 10x Single Cell or Single Nucleus Expression (v2 and v3) | [10x Genomics](https://www.10xgenomics.com)
 | Overall Workflow  | Quality control module and transcriptome quantification module | Code available from [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.wdl) |
 | Workflow Language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence| GRCh38 human genome primary sequence and M21 (GRCm38.p6) mouse genome primary sequence | GENCODE [Human](https://www.gencodegenes.org/human/release_27.html) and [Mouse](https://www.gencodegenes.org/mouse/release_M21.html)
@@ -48,7 +48,7 @@ Optimus pipeline inputs are detailed in JSON format configuration files. There a
 *  [human_v2_example](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/human_v2_example.json): An example human 10x v2 single-cell dataset
 *  [human_v3_example](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/human_v3_example.json): An example human 10x v3 single-cell dataset
 *  [mouse_v2_example](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/mouse_v2_example.json): An example mouse 10x v2 single-cell dataset
-*  [mouse_v2_snRNA_example](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/mouse_v2_snRNA_example.json): An example mouse v2 single-nuclei dataset
+*  [mouse_v2_snRNA_example](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/mouse_v2_snRNA_example.json): An example mouse v2 single-nucleus dataset
 
 Additionally, there are multiple sample datasets available in the [test_optimus_full_datasets](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/optimus/example_inputs/test_optimus_full_datasets) folder. Please note that unlike the example configuration files above, the configuration files in this folder may not reflect updated Optimus parameters. However, you can still access the FASTQ files for each dataset at the Google bucket locations listed in the dataset configuration files.
 
@@ -79,7 +79,7 @@ The JSON file also contains metadata for the reference information in the follow
 | input_name_metadata_field | Optional string describing, when applicable, the metadata field containing the input_name | NA |
 | annotations_gtf | Cloud path to GTF containing gene annotations used for gene tagging (must match GTF in STAR reference) | NA |
 | chemistry | Optional string description of whether data was generated with 10x v2 or v3 chemistry. Optimus validates this string. If the string does not match one of the optional strings, the pipeline will fail. You can remove the checks by setting "force_no_check = true" in the input JSON | "tenX_v2" (default) or "tenX_v3" |
-| counting_mode | String description of whether data is single-cell or single-nuclei | "sc_rna" or "sn_rna" |
+| counting_mode | String description of whether data is single-cell or single-nucleus | "sc_rna" or "sn_rna" |
 | output_bam_basename | Optional string used for the output BAM file basename; the default is input_id | NA |
 | use_strand_info | Optional string for reading stranded data. Default is "false"; set to "true" to count reads in stranded mode | "true" or "false" (default) |
 
@@ -103,13 +103,13 @@ Overall, the workflow:
 4. Annotates genes with aligned reads
 5. Corrects UMIs
 6. Calculates summary metrics
-7. Produces a UMI-aware expression matrix
+7. Produces a UMI-aware count matrix
 8. Detects empty droplets
-9. Returns a GA4GH compliant BAM and an expression matrix in Loom formats
+9. Returns a GA4GH compliant BAM and a count matrix in Loom formats
 
 The tools each Optimus task employs are detailed in the table below. If you are looking for the parameters for each task/tool, please click on the task link and see the `command {}` section of the task WDL script. The task's Docker image is specified in the task WDL `# runtime values` section as `String docker =`.
 
-| Task                                                                                                                                         | Tool                                                                                                                        |
+| Task and WDL Link                                                                                                                                      | Tool                                                                                                                        |
 | -------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | [FastqProcessing](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl)                                   | [sctools](https://sctools.readthedocs.io/en/latest/sctools.html)                                                            |
 | [StarAlignBamSingleEnd](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlignBamSingleEnd.wdl)                           | [STAR](https://github.com/alexdobin/STAR)                                                                                   |
@@ -149,11 +149,15 @@ The [TagGeneExon](https://github.com/broadinstitute/warp/blob/master/tasks/skyla
 
 The TagGeneExon task calls Drop-seq tools v1.12 to make annotations. These annotations include INTERGENIC, INTRONIC, UTR and CODING (EXONIC), and are stored using the 'XF' BAM tag. In cases where the gene corresponds to an exon or UTR, the name of the gene that overlaps the alignment is associated with the read and stored using the GE BAM tag.
 
-**Single-nuclei RNA-seq:**
+**Single-nucleus RNA-seq:**
 
 The TagGeneExon task calls Drop-seq tools v2.3.0 to make annotations. These annotations include INTERGENIC, INTRONIC, UTR and CODING (EXONIC), and are stored using the 'XF' BAM tag (see the [Bam_tags documentation](./Bam_tags.md)). In cases where the gene corresponds to an exon, UTR, or intron, the name of the gene that overlaps the alignment is associated with the read and stored using the 'GE' BAM tag.
 
 All tags are detailed in the pipeline's [BAM_tag documentation](./Bam_tags.md).
+
+:::warning Single-nucleus count matrices do not account for strand
+While Optimus can use the stranded mode to flag strand info in the BAM file, this information is not currently used in the downstream matrix. This results in potentially higher counts than expected for single-nucleus data. Work is in-progress to account for strand information in the final matrix.  
+:::
 
 #### 5. UMI Correction
 
@@ -163,23 +167,27 @@ UMIs are designed to distinguish unique transcripts present in the cell at lysis
 
 The [Metrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to calculate summary metrics which help assess the quality of the data output each time this pipeline is run. These metrics are included in the Loom output file. A detailed list of these metrics is found in the [Loom_schema documentation](./Loom_schema.md).
 
-#### 7. Expression Matrix Construction
+#### 7. Count Matrix Construction
 
-The Optimus [CreateCountMatrix](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CreateCountMatrix.wdl) task (imported as "Count") evaluates every read in the BAM file and creates a UMI-aware expression matrix using [sctools](https://github.com/HumanCellAtlas/sctools). This matrix contains the number of molecules that were observed for each cell barcode and for each gene. The task discards any read that maps to more than one gene, and counts any remaining reads provided the triplet of cell barcode, molecule barcode, and gene name is unique, indicating the read originates from a single transcript present at the time of cell lysis. To correctly specific the gene name tag, this task will look for the 'GE' tag.
+The Optimus [CreateCountMatrix](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CreateCountMatrix.wdl) task (imported as "Count") evaluates every read in the BAM file and creates a UMI-aware count matrix using [sctools](https://github.com/HumanCellAtlas/sctools). This matrix contains the number of molecules that were observed for each cell barcode and for each gene. The task discards any read that maps to more than one gene, and counts any remaining reads provided the triplet of cell barcode, molecule barcode, and gene name is unique, indicating the read originates from a single transcript present at the time of cell lysis. To correctly specific the gene name tag, this task will look for the 'GE' tag.
 
 #### 8. Identification of Empty Droplets
 
-Empty droplets are lipid droplets that did not encapsulate a cell during 10x sequencing, but instead acquired cell-free RNA (secreted RNA or RNA released during cell lysis) from the solution in which the cells resided ([Lun, et al., 2018](https://www.ncbi.nlm.nih.gov/pubmed/?term=30902100). This ambient RNA can serve as a substrate for reverse transcription, leading to a small number of background reads. The Optimus pipeline calls the [RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) task which uses the [DropletUtils v1.2.1](http://bioconductor.org/packages/release/bioc/html/DropletUtils.html) R package to flag cell barcodes that represent empty droplets rather than cells. A cell will be flagged if it contains fewer than 100 molecules. These metrics are stored in the output Loom file. Details of all the metrics included in the final output files can be found in the [Loom_schema documentation](./Loom_schema.md).
+Empty droplets are lipid droplets that did not encapsulate a cell during 10x sequencing, but instead acquired cell-free RNA (secreted RNA or RNA released during cell lysis) from the solution in which the cells resided ([Lun, et al., 2018](https://www.ncbi.nlm.nih.gov/pubmed/?term=30902100). This ambient RNA can serve as a substrate for reverse transcription, leading to a small number of background reads. The Optimus pipeline calls the [RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) task which uses the [DropletUtils v1.2.1](http://bioconductor.org/packages/release/bioc/html/DropletUtils.html) R package to flag cell barcodes that represent empty droplets rather than cells. A cell will be flagged if it contains fewer than 100 molecules. 
 
-:::warning RunEmptyDrops output not included for single-nuclei data
-EmptyDrops relies on a visual knee point inflection (described in [Lun et al. (2019)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y)) to differentiate ambient-like cells from empty droplets. If snRNAseq data does not produce a visual knee point inflection, EmptyDrops drops may not accurately distinguish ambient-like cells. If Optimus counting_mode is set to `sn_rna`, the workflow does not include the RunEmptyDrops output in the final Loom.
+EmptyDrops relies on a visual knee point inflection (described in [Lun et al. (2019)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y)) to differentiate ambient-like cells from empty droplets. **If the single-cell data (counting mode set to `sc_rna`) does not produce a knee point inflection when running EmptyDrops, the Loom columns for EmptyDrops data will contain "NA"s.**
+
+EmptyDrops metrics for single-cell data (not single-nucleus; see note below) are stored in the columns of the output Loom matrix.  Read full details for all the metrics in the [Loom_schema documentation](./Loom_schema.md).
+
+:::warning RunEmptyDrops output not included for single-nucleus data
+Often snRNAseq data does not produce a visual knee point inflection when running EmptyDrops and the tool can not accurately distinguish ambient-like cells from empty droplets. For this reason, EmptyDrops is not used if Optimus counting_mode is set to `sn_rna`, and the output Loom matrix will not contain EmptyDrops metrics. 
 :::
 
 #### 9. Outputs
 
 Output files of the pipeline include:
 
-1. Cell x Gene unnormalized, but UMI-corrected, expression matrices
+1. Cell x Gene unnormalized, but UMI-corrected, count matrices
 2. Unfiltered, sorted BAM file with barcode and downstream analysis [tags](./Bam_tags.md)
 3. Cell metadata, including cell metrics
 4. Gene metadata, including gene metrics
@@ -190,33 +198,37 @@ The following table lists the output files produced from the pipeline. For sampl
 | ------ |------ | ------ | ------ |
 | pipeline_version | | Version of the processing pipeline run on this data | String |
 | bam | `<input_id>.bam` | Aligned BAM | BAM |
-| matrix_row_index | sparse_counts_row_index.npy | Index of cells in expression matrix | Numpy array index |
-| matrix_col_index | sparse_counts_col_index.npy | Index of genes in expression matrix | Numpy array index |
+| matrix_row_index | sparse_counts_row_index.npy | Index of cells in count matrix | Numpy array index |
+| matrix_col_index | sparse_counts_col_index.npy | Index of genes in count matrix | Numpy array index |
 | cell_metrics | merged-cell-metrics.csv.gz | cell metrics | compressed csv | Matrix of metrics by cells |
 | gene_metrics | merged-gene-metrics.csv.gz | gene metrics | compressed csv | Matrix of metrics by genes |
-| loom_output_file | `<input_id>.loom` | Loom | Loom | Loom file with expression data and metadata | N/A |
+| loom_output_file | `<input_id>.loom` | Loom | Loom | Loom file with count data and metadata | N/A |
 
-The Loom is the default output. See the [create_loom_optimus.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) for the detailed code. The final Loom output contains the unnormalized (unfiltered), UMI-corrected expression matrices, as well as the gene and cell metrics detailed in the [Loom_schema documentation](./Loom_schema.md).
+The Loom is the default output. See the [create_loom_optimus.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) for the detailed code. The final Loom output contains the unnormalized (unfiltered), UMI-corrected count matrices, as well as the gene and cell metrics detailed in the [Loom_schema documentation](./Loom_schema.md).
 
 :::warning Zarr Array Deprecation Notice June 2020
 Please note that we have deprecated the previously used Zarr array output. The pipeline now uses the Loom file format as the default output.
 :::
 
 ## Validation against Cell Ranger
-Optimus has been validated for processing both human and mouse single-cell and single-nuclei data (see links to validation reports in the table below). For each validation, Optimus results are compared to those of Cell Ranger (see the [FAQ](#faqs) for more on Cell Ranger comparisons). 
+Optimus has been validated for processing both human and mouse single-cell and single-nucleus data (see links to validation reports in the table below). For each validation, Optimus results are compared to those of Cell Ranger (see the [FAQ](#faqs) for more on Cell Ranger comparisons). 
 
 | Workflow configuration | Link to Report |
 | --- | --- |
 | Human 10x v2 single-cell | [Report](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/benchmarking/v1_Apr2019/optimus_report.rst)|
 | Mouse 10x v2 single-cell | [Report](https://docs.google.com/document/d/1_3oO0ZQSrwEoe6D3GgKdSmAQ9qkzH_7wrE7x6_deL10/edit) |
 | Human and mouse 10x v3 single-cell | [Report](https://docs.google.com/document/d/1-hwfXkqtL8MblgDWFzk-HsVRYiy4PS8ZhJqAGlHBWYE/edit#heading=h.4uokn64v1s5m)
-|Human and Mouse 10x v2/v3 single-nuclei | [Report](https://docs.google.com/document/d/1rv2M7vfpOzIOsMnMfNyKB4HV18lQ9dnOGHK2tPikiH0/edit) |
+|Human and Mouse 10x v2/v3 single-nucleus | [Report](https://docs.google.com/document/d/1rv2M7vfpOzIOsMnMfNyKB4HV18lQ9dnOGHK2tPikiH0/edit) |
 
- 
 
 ## Versioning
 
 All Optimus pipeline releases are documented in the [Optimus changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.changelog.md).
+
+
+## Citing the Optimus Pipeline
+Please identify the pipeline in your methods section using the Optimus Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_018908/resolver?q=SCR_018908&l=SCR_018908).
+* Ex: *Optimus Pipeline (RRID:SCR_018908)*
 
 ## Have Suggestions?
 
@@ -235,7 +247,7 @@ Yes! We have a Terra workspace that is preconfigured with the latest Optimus wor
 No, we do not filter. We keep as much data as possible so that the researcher can make their own filtering and normalization choices. We do, however, output some information that may be helpful for filtering, like UMI counts per cell and calls on whether or not a cell is empty from EmptyDrops software. For the EmptyDrops call, a cell will be flagged as possibly empty if it contains fewer than 100 molecules.
 :::
 
-::: details How does the workflow change when using the single-cell RNA-seq (counting_mode = 'sc_rna') vs. the single-nuclei (counting_mode = 'sn_rna') parameters?
+::: details How does the workflow change when using the single-cell RNA-seq (counting_mode = 'sc_rna') vs. the single-nucleus (counting_mode = 'sn_rna') parameters?
 
 Three Optimus tasks are affected by the counting_mode parameter: TagGeneExon, UMICorrection and CreateCountMatrix. The TagGeneExon task uses different versions of Drop-seq tools depending on the counting_mode parameter. The sc_rna parameter uses v1.12 whereas the sn_rna uses v2.3.0. For the sn_rna parameter, a GE tag is added to intronic reads. For the UMICorrection and CreateCountMatrix tasks, the only difference related to the counting_mode parameters is that the sn_RNA parameter will have a GE tag on intronic reads, which the UMICorrection and CreateCountMatrix will recognize.
 Also note that although the RunEmptyDrops task is unaffected by the sn_rna parameter, the final Zarr and Loom outputs will not include EmptyDrops data for the sn_rna mode.

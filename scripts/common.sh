@@ -70,7 +70,7 @@ function get_pipelines_to_test() {
   local -a pipelinesToTest=()
 
   if [[ "${changedFiles[@]}" == *"verification/"*  || \
-        "${changedFiles[@]}" == *"genomes_in_the_cloud/workflow_tests/src/main/scala/org/broadinstitute/dsp/pipelines/"* ]]; then
+        "${changedFiles[@]}" == *"tests/broad"* ]]; then
     pipelinesToTest+=(${pipelines[@]})
   else
     local -a modifiedPipelines=($(get_modified_pipelines ${commitToCompare}))

@@ -48,19 +48,32 @@ workflow VerifyArrays {
       error_msg = "Different number of metric files"
   }
 
+  String bafm_ext = ".bafregress_metrics"
   String avcdm_ext = "arrays_variant_calling_detail_metrics"
 
   scatter (idx in range(length(truth_metrics))) {
     String metrics_basename = basename(truth_metrics[idx])
-    Boolean is_avcdm_file = basename(metrics_basename, avcdm_ext) != metrics_basename
-    Array[String] metrics_to_ignore = if (is_avcdm_file) then ["AUTOCALL_DATE", "ANALYSIS_VERSION", "PIPELINE_VERSION"] else []
-    call MetricsVerification.CompareMetricFiles {
-      input:
-        dependency_input = CompareTwoNumbers.output_file,
-        file1 = test_metrics[idx],
-        file2 = truth_metrics[idx],
-        output_file = "metric_~{idx}.txt",
-        metrics_to_ignore = metrics_to_ignore
+    Boolean is_bafm_file = basename(metrics_basename, bafm_ext) != metrics_basename
+    if (!is_bafm_file) {
+      Boolean is_avcdm_file = basename(metrics_basename, avcdm_ext) != metrics_basename
+      Array[String] metrics_to_ignore = if (is_avcdm_file) then ["AUTOCALL_DATE", "ANALYSIS_VERSION", "PIPELINE_VERSION"] else []
+      call MetricsVerification.CompareMetricFiles {
+        input:
+          dependency_input = CompareTwoNumbers.output_file,
+          file1 = test_metrics[idx],
+          file2 = truth_metrics[idx],
+          output_file = "metric_~{idx}.txt",
+          metrics_to_ignore = metrics_to_ignore
+      }
+    }
+    if (is_bafm_file) {
+      # BAF metrics files are defined in picard-private.  The tool used by CompareMetricFiles (above) cannot
+      # instantiate them and so fails.  This is a hopefully short-term fix for that problem - just compare the metrics files as text files.
+      call CompareMetricFilesAsText {
+        input:
+          file1 = test_metrics[idx],
+          file2 = truth_metrics[idx]
+      }
     }
   }
 
@@ -134,6 +147,26 @@ task CompareFiles {
        echo "Error: Files ~{file1} and ~{file2} differ" >&2
        exit 1
     fi
+  }
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    preemptible: 3
+  }
+}
+
+task CompareMetricFilesAsText {
+
+  input {
+    File file1
+    File file2
+  }
+
+  command {
+    # Compares two text files, ignoring lines that begin with a '#'
+    diff <(grep -v '# ' ~{file1}) <(grep -v '# ' ~{file2})
   }
 
   runtime {

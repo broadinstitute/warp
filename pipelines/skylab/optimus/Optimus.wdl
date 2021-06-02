@@ -3,7 +3,7 @@ version 1.0
 import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/CreateCountMatrix.wdl" as Count
-import "../../../tasks/skylab/StarAlignBamSingleEnd.wdl" as StarAlignBam
+import "../../../tasks/skylab/StarAlign.wdl" as StarAlignBam
 import "../../../tasks/skylab/TagGeneExon.wdl" as TagGeneExon
 import "../../../tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
 import "../../../tasks/skylab/TagSortBam.wdl" as TagSortBam
@@ -59,7 +59,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "4.2.2"
+  String pipeline_version = "4.2.4"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
