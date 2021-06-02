@@ -15,7 +15,12 @@ The former one requires more human engagement and you should follow the official
 
 The latter one in most cases will be identified by `dependabot` and only requires a human review + approval, before commentting `@dependabot merge` on the PR. In rare cases, the PR opened by `dependabot` will have merge conflicts against the `develop` branch. Developers will need to `cherry-pick` the commit made by `dependabot`, resolve the conflicts and open a separate PR for it.
 
-When you want to test your changes to the docs, you want to use:
+When you want to test your changes to the docs, you can deploy the site locally.
+If doing this for the first time, install the dev version of the site using the root of the repo:
+```
+yarn --cwd=website install
+````
+Then deploy the dev version using: 
 
 ```
 yarn --cwd=website start
