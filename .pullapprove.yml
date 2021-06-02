@@ -91,7 +91,7 @@ groups:
       request_order: given
     reviewers:
       users:
-        - chips2art # Chip Stewart
+        - chipstewart # Chip Stewart
 
   scientific_owners_cram_to_unmapped_bam:
     conditions:
