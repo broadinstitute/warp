@@ -36,7 +36,7 @@ The pipeline has been scientifically validated by the BRAIN Institute. Read more
 
 ### Smart-seq2 Installation and Requirements
 
-The snSS2 workflow code can be downloaded by cloning the GitHub [WARP repository](https://github.com/broadinstitute/warp). For the latest release of snSS2, please see the [Smart-seq2 Single Nucleus changelog](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.changelog.md).
+The snSS2 workflow code can be downloaded by cloning the GitHub [WARP repository](https://github.com/broadinstitute/warp). For the latest release of snSS2, please see release tags prefixed with SmartSeq2SingleNucleus on the [WARP release page](https://github.com/broadinstitute/warp/releases).
 
 The workflow is deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms.
 
