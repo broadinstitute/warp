@@ -12,7 +12,7 @@ Versions of each pipeline are packaged into releases and published on GitHub (se
 
 All versioned pipelines must have:
 * A release version number in the main workflow WDL. The version number is in the form `major.minor.patch` and is included as a field in the standardized format `String pipeline_version = "1.0.0"`.
-* A cumulative changelog file containing the changes introduced in the PR and all previous changes in reverse chronological order. Changelog entries are to be formatted according to the [changelog style guide](../contribution/changelog_style.md) and will include the version number, date of last commit, and a bulleted list of changes since the last release.
+* A cumulative changelog file containing the changes introduced in the PR and all previous changes in reverse chronological order. Changelog entries are to be formatted according to the [changelog style guide](../contribution/contribute_to_warp/changelog_style.md) and will include the version number, date of last commit, and a bulleted list of changes since the last release.
 
 ## Versioning Guidelines
 
