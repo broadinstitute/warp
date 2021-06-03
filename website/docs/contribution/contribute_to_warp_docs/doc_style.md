@@ -128,8 +128,8 @@ To link to another section within the same article, you would use `[Return to ##
 
 To link to sections in other articles, use the following syntax (note the relative paths):
 
-- `[Return to Changelog Style Guide](./changelog_style)`: [Return to Changelog Style Guide](./changelog_style)
-- `[Return to The Documentation](../About_WARP/BestPractices.md#Best-Practices-for-Building-Data-Processing Pipelines)`: [Return to The Documentation](../About_WARP/BestPractices.md#Best-Practices-for-Building-Data-Processing-Pipelines)
+- `[Return to Changelog Style Guide](../contribute_to_warp/changelog_style)`: [Return to Changelog Style Guide](../contribute_to_warp/changelog_style)
+- `[Return to The Documentation](../../About_WARP/BestPractices.md#Best-Practices-for-Building-Data-Processing Pipelines)`: [Return to The Documentation](../../About_WARP/BestPractices.md#Best-Practices-for-Building-Data-Processing-Pipelines)
 
 ## 4. Centered text block
 

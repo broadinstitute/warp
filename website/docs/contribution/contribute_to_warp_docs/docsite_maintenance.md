@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 1
 ---
 
 # Maintenance guide of this documentation site
@@ -20,7 +20,7 @@ If doing this for the first time, install the dev version of the site using the 
 ```
 yarn --cwd=website install
 ````
-Then deploy the dev version using: 
+Then deploy the dev version using:
 
 ```
 yarn --cwd=website start
