@@ -1,8 +1,8 @@
 version 1.0
 
-import "../smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl" as single_nucleus_run
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
-import "../../../tasks/skylab/CheckInputs.wdl" as CheckInputs 
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl" as single_nucleus_run
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/CheckInputs.wdl" as CheckInputs 
        
 workflow MultiSampleSmartSeq2SingleNucleus {
   meta {
@@ -71,7 +71,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
       call single_nucleus_run.SmartSeq2SingleNucleus as sn_pe {
         input:
            genome_ref_fasta = genome_ref_fasta,
-           tar_star_reference = tar_star_reference,
+           star_reference = tar_star_reference,
            annotations_gtf =  annotations_gtf,
            adapter_list = adapter_list,
            fastq1 = fastq1_input_files[idx],
