@@ -24,7 +24,7 @@ The workflow sample and reference inputs are identical to those specified in the
 | Input name | Input Description | Input Type |
 | --- | --- | --- |
 | fastq1_input_files | Cloud locations for each read1 file | Array of strings | 
-| fastq2_input_files | Optional cloud locations for each read2 file if running paired-end samples |Array of strings |
+| fastq2_input_files | Optional cloud locations for each read2 file  |Array of strings |
 | input_ids | Unique identifiers or names for each cell; can be a UUID or human-readable name | Array of strings |
 | input_names | Optional unique identifiers/names to further describe each cell. If `input_id` is a UUID, the `input_name` could be used as a human-readable identifier | String |
 | batch_id | Identifier for the batch of multiple samples | String |
