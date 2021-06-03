@@ -1,38 +1,31 @@
-FROM marketplace.gcr.io/google/debian9
-MAINTAINER DSDE <lantern@broadinstitute.org>
-
-ARG PICARD_PUBLIC_VERSION=2.23.8
-ARG GATK35_VERSION=3.5-0-g36282e4
-ARG GATK4_VERSION=4.1.8.0
-ARG SAMTOOLS_VER=1.11
-ARG BWA_VER=0.7.15.r1140
-ARG TABIX_VER=0.2.5_r1005
-ARG BGZIP_VER=1.3
-ARG SVTOOLKIT_VER=2.00-1650
+FROM us.gcr.io/broad-dsp-gcr-public/base/jre:8-debian
 
 ENV TERM=xterm-256color
-ENV DOCKER_FIX='                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        '
 
-LABEL GOTC_PICARD_VER=$PICARD_PUBLIC_VERSION
-LABEL GOTC_GATK35_VER=$GATK35_VERSION
-LABEL GOTC_GATK4_VER=$GATK4_VERSION
-LABEL GOTC_SAMTOOLS_VER=$SAMTOOLS_VER
-LABEL GOTC_BWA_VER=$BWA_VER
-LABEL GOTC_TABIX_VER=$TABIX_VER
-LABEL GOTC_BGZIP_VER=$BGZIP_VER
-LABEL GOTC_SVTOOLKIT_VER=$SVTOOLKIT_VER
+LABEL MAINTAINER="DSDE <lantern@broadinstitute.org>" \
+  GOTC_PICARD_VER=$PICARD_PUBLIC_VERSION \
+  GOTC_GATK35_VER=$GATK35_VERSION \
+  GOTC_GATK4_VER=$GATK4_VERSION \
+  GOTC_SAMTOOLS_VER=$SAMTOOLS_VER \
+  GOTC_BWA_VER=$BWA_VER \
+  GOTC_TABIX_VER=$TABIX_VER \
+  GOTC_BGZIP_VER=$BGZIP_VER \
+  GOTC_SVTOOLKIT_VER=$SVTOOLKIT_VER
+
+ARG PICARD_PUBLIC_VERSION=2.23.8 \
+  GATK35_VERSION=3.5-0-g36282e4 \
+  GATK4_VERSION=4.1.8.0 \
+  SAMTOOLS_VER=1.11 \
+  BWA_VER=0.7.15.r1140 \
+  TABIX_VER=0.2.5_r1005 \
+  BGZIP_VER=1.3 \
+  SVTOOLKIT_VER=2.00-1650 
 
 # Change working directory to /usr/gitc/
 WORKDIR /usr/gitc
 
 # Install java8, python2, python3, and R
-RUN apt-get update && \
-	apt-get upgrade -y && \
-	apt-get install -y openjdk-8-jdk && \
-	apt-get install -y python && \
-	apt-get install -y python3-pip && \
-	apt-get install -y r-base && \
-	apt-get install wget
+RUN apt-get update && apt-get install python python3-pip r-base wget -y
 
 # Install ggplot2
 RUN echo 'install.packages(c(\"ggplot2\"), repos=\"http://cran.us.r-project.org\", dependencies=TRUE)' > /tmp/packages.R && \
