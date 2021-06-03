@@ -332,28 +332,3 @@ to insert in-line ToC:
 import TOCInline from '@theme/TOCInline';
 
 <TOCInline toc={toc} />
-
-## 11. Insert badges
-
-You could add a variety of badges along with the text:
-
-```md
-<Badge text="hello!" type="tip"/>
-<Badge text="hello!" type="tip" vertical="middle"/>
-```
-<Badge text="hello!" type="tip"/>
-<Badge text="hello!" type="tip" vertical="middle"/>
-
-```md
-<Badge text="hello!" type="warning"/>
-<Badge text="hello!" type="warning" vertical="middle"/>
-```
-<Badge text="hello!" type="warning"/>
-<Badge text="hello!" type="warning" vertical="middle"/>
-
-```md
-<Badge text="hello!" type="error"/>
-<Badge text="hello!" type="error" vertical="middle"/>
-```
-<Badge text="hello!" type="error"/>
-<Badge text="hello!" type="error" vertical="middle"/>
