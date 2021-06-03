@@ -55,7 +55,7 @@ The following table lists the outputs of the Multi-snSS2 workflow.
 
 | Output file name | Output Description | Output Type |
 | --- | --- | --- |
-| bam_files | Array of genome-aligned BAM files (one for each sample) generated with Star  | Array [BAM]|
+| bam_files | Array of genome-aligned BAM files (one for each cell) generated with Star  | Array [BAM]|
 | loom_output | Cell-by-gene matrix in Loom format containing intronic and exonic counts for every cell | File |
 | exon_intron_count_files | Array of TXT files (one per cell) that contain intronic and exonic counts | Array [TXT]| 
 
