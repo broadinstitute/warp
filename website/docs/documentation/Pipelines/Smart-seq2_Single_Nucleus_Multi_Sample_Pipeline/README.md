@@ -14,9 +14,7 @@ Full details about the Smart-seq2 pipeline can be read in the [Smart-seq2 Single
 
 ## Inputs
 
-Two example configuration files (JSON) are available to test the pipeline:
-1.  [Paired-end mouse](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/smartseq2_single_nucleus_multisample/mouse_paired_example.json)
-2. [Single-end human](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_nucleus_multisample/human_single_example.json)
+An [example configuration file (JSON)](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_nucleus_multisample/human_single_example.json) is available to test the pipeline.
 
 
 ### Sample and Reference Inputs
