@@ -12,7 +12,7 @@ The Smart-seq2 Single Nucleus (snSS2) pipeline was developed in collaboration wi
 
 The pipeline is designed to process snRNA-seq data from an individual cell (to process multiple cells, see the [Smart-seq2_Multi Sample](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/smartseq2_multisample/MultiSampleSmartSeq2.wdl) pipeline).
 
-Overall, the snSS2 workflow trims single- or paired-end FASTQ files, aligns reads to the genome using a modified GTF, counts intronic and exonic reads, and calculates quality control metrics.
+Overall, the snSS2 workflow trims paired-end FASTQ files, aligns reads to the genome using a modified GTF, counts intronic and exonic reads, and calculates quality control metrics.
 
 The pipeline has been scientifically validated by the BRAIN Institute. Read more in the [validation section](#validation).
 
