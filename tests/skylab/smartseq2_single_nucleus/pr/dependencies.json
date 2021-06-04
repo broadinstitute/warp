@@ -1,8 +1,0 @@
-{
-  "SmartSeq2SingleNucleus.wdl": "pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl",
-  "ValidateSmartSeq2SingleNucleus.wdl": "tests/skylab/smartseq2_single_nucleus/pr/ValidateSmartSeq2SingleNucleus.wdl",
-  "TrimAdapters.wdl": "tasks/skylab/TrimAdapters.wdl",
-  "Picard.wdl": "tasks/skylab/Picard.wdl",
-  "StarAlign.wdl": "tasks/skylab/StarAlign.wdl",
-  "FeatureCounts.wdl": "tasks/skylab/StarAlign.wdl"
-}
