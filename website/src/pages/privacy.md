@@ -14,4 +14,4 @@ Above this page is not a legal notice, please refer to [Google Analystics](https
 
 - Google Analytics, which WARP docsite relies on to [analyze service usage](https://www.google.com/analytics/terms/us.html). To learn more about how to opt out of Google’s use of cookies as part of its Analytics services, you may visit Google’s Ads Settings. You will be able to prevent your browsing data from being used by Google Analytics by installing Google’s opt-out browser add-on from the Google Analytics Opt-out Page.
 
-- Hotjar, which WARP docsute uses to collect your feedback. You may visit [Hotjar compliance page](https://help.hotjar.com/hc/en-us/categories/360003405813) to learn more about how they operate.
+Hotjar, which the WARP doc site uses to collect your feedback. You may visit [Hotjar compliance page](https://help.hotjar.com/hc/en-us/categories/360003405813) to learn more about how they operate.
