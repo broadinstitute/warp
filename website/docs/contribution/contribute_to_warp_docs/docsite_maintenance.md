@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Maintenance guide of this documentation site
+# WARP Documentation Maintenance Guide
 
 This documentation site is built on top of the `React`-based  framework [Docusaurus](https://docusaurus.io), so most of the recommended configuration can be found in the frameworks documentation.
 
