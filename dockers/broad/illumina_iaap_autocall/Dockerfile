@@ -1,3 +1,4 @@
+# Using JRE approved image, .NET doesn't exist 
 FROM us.gcr.io/broad-dsp-gcr-public/base/jre:15-debian
 
 ENV TERM=xterm-256color

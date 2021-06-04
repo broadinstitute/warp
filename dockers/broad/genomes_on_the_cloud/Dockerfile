@@ -25,7 +25,7 @@ ARG PICARD_PUBLIC_VERSION=2.23.8 \
 WORKDIR /usr/gitc
 
 # Install java8, python2, python3, and R
-RUN apt-get update && apt-get install python python3-pip r-base wget -y
+RUN apt-get update && apt-get install -y python python3-pip r-base wget 
 
 # Install ggplot2
 RUN echo 'install.packages(c(\"ggplot2\"), repos=\"http://cran.us.r-project.org\", dependencies=TRUE)' > /tmp/packages.R && \
