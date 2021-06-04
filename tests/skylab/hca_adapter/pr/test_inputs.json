@@ -1,23 +1,23 @@
 {
-  "TestOptimusPR.expected_bam_hash": "b8df763cedf2207fddd124b03edd6847",
-  "TestOptimusPR.expected_matrix_hash": "79d0e000e9e707e16fce1ecc1559cd5d",
-  "TestOptimusPR.expected_cell_metric_hash": "627baa8511cea26b33f12e4f8021fc5d",
-  "TestOptimusPR.expected_gene_metric_hash": "30ad387acf91764a937c1adf3bc8bb66",
-  "TestOptimusPR.r1_fastq": [
+  "TestHcaAdapter.expected_bam_hash": "b8df763cedf2207fddd124b03edd6847",
+  "TestHcaAdapter.expected_matrix_hash": "79d0e000e9e707e16fce1ecc1559cd5d",
+  "TestHcaAdapter.expected_cell_metric_hash": "627baa8511cea26b33f12e4f8021fc5d",
+  "TestHcaAdapter.expected_gene_metric_hash": "30ad387acf91764a937c1adf3bc8bb66",
+  "TestHcaAdapter.r1_fastq": [
     "gs://broad-dsde-mint-dev-teststorage/ajc-test/heart_1k_v2_test_fastqs/heart_1k_test_v2_S1_L001_R1_001.fastq.gz"
   ],
-  "TestOptimusPR.r2_fastq": [
+  "TestHcaAdapter.r2_fastq": [
     "gs://broad-dsde-mint-dev-teststorage/ajc-test/heart_1k_v2_test_fastqs/heart_1k_test_v2_S1_L001_R2_001.fastq.gz"
   ],
-  "TestOptimusPR.i1_fastq": [
+  "TestHcaAdapter.i1_fastq": [
     "gs://broad-dsde-mint-dev-teststorage/ajc-test/heart_1k_v2_test_fastqs/heart_1k_test_v2_S1_L001_I1_001.fastq.gz"
   ],
-  "TestOptimusPR.whitelist": "gs://hca-dcp-mint-test-data/10x/whitelist/737K-august-2016.txt",
-  "TestOptimusPR.tar_star_reference": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM21.tar",
-  "TestOptimusPR.input_id": "heart_1k_test_v2_S1",
-  "TestOptimusPR.chemistry": "tenX_v2",
-  "TestOptimusPR.annotations_gtf": "gs://broad-dsde-mint-dev-teststorage/ajc-test/gencode.vM21.annotation.gtf.gz",
-  "TestOptimusPR.ref_genome_fasta": "gs://broad-dsde-mint-dev-teststorage/ajc-test/GRCm38.primary_assembly.genome.fa",
+  "TestHcaAdapter.whitelist": "gs://hca-dcp-mint-test-data/10x/whitelist/737K-august-2016.txt",
+  "TestHcaAdapter.tar_star_reference": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM21.tar",
+  "TestHcaAdapter.input_id": "heart_1k_test_v2_S1",
+  "TestHcaAdapter.chemistry": "tenX_v2",
+  "TestHcaAdapter.annotations_gtf": "gs://broad-dsde-mint-dev-teststorage/ajc-test/gencode.vM21.annotation.gtf.gz",
+  "TestHcaAdapter.ref_genome_fasta": "gs://broad-dsde-mint-dev-teststorage/ajc-test/GRCm38.primary_assembly.genome.fa",
   "TestHcaAdapter.add_md5s": "false",
   "TestHcaAdapter.analysis_file_version": "6.2.0",
   "TestHcaAdapter.analysis_process_schema_version": "12.0.0",

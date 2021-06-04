@@ -1,8 +1,8 @@
 version 1.0
 
-import "../../../../pipelines/skylab/optimus/Optimus.wdl" as target_optimus
-import "../../../../beta-pipelines/skylab/hca_adapter/getTerraMetadata.wdl" as target_adapter
-import "../../../../tests/skylab/hca_adapter/pr/ValidateHcaAdapter.wdl" as checker_adapter
+import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/pipelines/skylab/optimus/Optimus.wdl" as target_optimus
+import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/beta-pipelines/skylab/hca_adapter/getTerraMetadata.wdl" as target_adapter
+import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/tests/skylab/hca_adapter/pr/ValidateHcaAdapter.wdl" as checker_adapter
 
 # this workflow will be run by the jenkins script that gets executed by PRs.
 workflow TestHcaAdapter {
@@ -27,7 +27,7 @@ workflow TestHcaAdapter {
     String analysis_protocol_schema_version
     String assembly_type
     String cromwell_url
-    Array[String] fastq_1_uuids
+    String fastq_1_uuids
     Array[String] fastq_2_uuids
     String file_descriptor_schema_version
     File genome_ref_fasta
