@@ -12,7 +12,7 @@ sidebar_position: 1
 
 ## Introduction to the CEMBA Workflow
 
-CEMBA is a pipeline developed by the [BRAIN Initiative](https://braininitiative.nih.gov/) that supports processing of multiplexed single-nuclei bisulfite sequencing data. It is an alignment and methylated base calling pipeline that trims adaptors, attaches cell barcodes, aligns reads to the genome, filters reads based on quality and creates both a VCF and ALLC file with methylation-site coverage.
+CEMBA is a pipeline developed by the [BRAIN Initiative](https://braininitiative.nih.gov/) that supports the processing of multiplexed single-nuclei bisulfite sequencing data. It is an alignment and methylated base calling pipeline that trims adaptors, attaches cell barcodes, aligns reads to the genome, filters reads based on quality, and creates both a VCF and ALLC file with methylation-site coverage.
 
 :::tip
 Interested in using the pipeline for your publication? See the [“CEMBA publication methods”](./CEMBA.methods.md) for a generic "methods" style description of the pipeline.
@@ -27,7 +27,7 @@ Interested in using the pipeline for your publication? See the [“CEMBA publica
 | Workflow Language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence| GRCH38 and GRCM38  |  [GENCODE](https://www.gencodegenes.org/)  |
 | Aligner  | BISMARK v0.21.0 with  --bowtie2 | [Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/) |
-| Varariant Caller | GATK 4.1.2.0 | [GATK 4.1.2.0](https://gatk.broadinstitute.org/hc/en-us)
+| Variant Caller | GATK 4.1.2.0 | [GATK 4.1.2.0](https://gatk.broadinstitute.org/hc/en-us)
 | Data Input File Format | File format in which sequencing data is provided | [Zipped FASTQs (.fastq.gz)](https://support.illumina.com/bulletins/2016/04/fastq-files-explained.html) |
 | Data Output File Format | File formats in which CEMBA output is provided | [BAM](http://samtools.github.io/hts-specs/), [VCF](https://samtools.github.io/hts-specs/VCFv4.2.pdf), [ALLC](https://github.com/yupenghe/methylpy#output-format) |
 
@@ -50,11 +50,11 @@ The pipeline accepts paired-end reads in the form of two compressed FASTQ files 
 | fastq_r1_gzipped_input | Compressed FASTQ (.gz) for R1 |
 | fastq_r2_gzipped_input | Compressed FASTQ (.gz) for R2 |
 
-### Additional Inputs
+### Additional inputs
 
 | Parameter Name | Description |
 | --- | --- |
-| barcode_white_list | List of known cell barcodes from |
+| barcode_white_list | List of known cell barcodes |
 | output_base_sample_name | Prefix for all pipeline output files (final and intermediate)  |
 | barcode_start_pos | Base location of barcode start  |
 | barcode_length | Length of cell barcode (bp)  | NA  |
@@ -70,7 +70,7 @@ The pipeline accepts paired-end reads in the form of two compressed FASTQ files 
 | min_length_single_end_trim | An interval to specify a minimum read length to avoid empty reads in single-end mode  |
 | read1_adapter_seq | The R1 adaptor sequence  |
 | read2_adapter_seq | The R2 adaptor sequence  |
-| cut_length | Interval provided to trim degenerate bases, random primer indexes and Adaptase C/T tail  |
+| cut_length | Interval provided to trim degenerate bases, random primer indexes, and Adaptase C/T tail  |
 | paired_end_run | Boolean; if true, workflow will run in paired-end mode   |
 | remove_duplicates | Boolean; if true Picard will remove duplicates and report duplication removal metrics  |
 | extract_and_attach_barcodes_in_single_end_run | Boolean; if true, workflow will create an unaligned BAM and extract barcodes   |
@@ -111,13 +111,13 @@ The table and summary sections below detail the tasks and tools of the CEMBA pip
 | VCFtoALLC | Python | Creates an [ALLC](https://github.com/yupenghe/methylpy#output-format) file from the VCF produced with MethylationTypeCaller | quay.io/cemba/vcftoallc:v0.0.1 |
 | ComputeCoverageDepth | [Samtools v1.9](http://www.htslib.org/)  | Compute number of sites with coverage greater than 1 | quay.io/broadinstitute/samtools:1.9 |
 
-### Prior to running: Set-up the workflow for using multiplexed samples
+### Prior to running: set-up the workflow for using multiplexed samples
 
-The pipeline uses paired-end reads, but it can only perform multiplexing when running in single-end mode. If you have multiplexed samples and want to attach cell barcodes, you must run the pipeline in single-end mode. If you do not wish to attach cell barcodes, you may run in paired-end mode (even if your samples are multiplexed). You can specify single-end mode or paired-end mode using the paired_end_run boolean in the configuration file. You will also need to adjust the extract_and_attach_barcodes_in_single_end_run boolean to true if you want to attach bardcodes.
+The pipeline uses paired-end reads, but it can only perform multiplexing when running in single-end mode. If you have multiplexed samples and want to attach cell barcodes, you must run the pipeline in single-end mode. If you do not wish to attach cell barcodes, you may run in paired-end mode (even if your samples are multiplexed). You can specify single-end mode or paired-end mode using the paired_end_run boolean in the configuration file. You will also need to adjust the extract_and_attach_barcodes_in_single_end_run boolean to true if you want to attach barcodes.
 
 ### 1. Trim adaptors
 
-The CEMBA workflow Trim task uses Cutadapt software to remove the Read1 (R1) and Read2 (R2) adaptor sequences specified in the input configuration from the zipped R1 and R2 FASTQ files. Low quality reads are trimmed from the 5’ and 3’ ends using the interval specified in the quality_cutoff input parameter.  To avoid empty reads, a threshold for read length is set using the min_length_paired_end_trim option.
+The CEMBA workflow Trim task uses Cutadapt software to remove the Read1 (R1) and Read2 (R2) adaptor sequences specified in the input configuration from the zipped R1 and R2 FASTQ files. Low-quality reads are trimmed from the 5’ and 3’ ends using the interval specified in the quality_cutoff input parameter.  To avoid empty reads, a threshold for read length is set using the min_length_paired_end_trim option.
 
 ### 2. Extract cell barcodes
 
@@ -131,7 +131,7 @@ After barcode extraction, the Trim task is used a second time to remove addition
 
 The resulting trimmed FASTQ files can be aligned to a reference either in single-end mode for multiplexed samples or paired-end mode. For all modes, the workflow aligns with Bismark with --bowtie2 option. For paired-end or the single-end mode for R1, the workflow uses a directional option with --pbat parameter. For R2, the directional option is turned off.
 
-### 5. Sort, remove duplicates and filter
+### 5. Sort, remove duplicates, and filter
 
 The aligned BAM(s) are scattered and sorted in coordinate order using Picard. Duplicate reads are then removed from the sorted BAM. If a min_map_quality is provided in the input, reads will be filtered accordingly and a BAM produced for all reads above the min_map_quality and a BAM for reads below the min_map_quality.
 
@@ -158,7 +158,7 @@ The ComputeCoverageDepth task uses Samtools to calculate any region in the filte
 
 The table below details the pipeline outputs. **If using multiplexed samples, the final files will represent reads from multiple cells and the output is not yet split by cell barcode.**
 
-| Workflow output Name | Description | Filetype (when applicable) |
+| Workflow Output Name | Description | File Type (when applicable) |
 | --- | --- | --- |
 | bam_sort_output | Final aligned, filtered, (barcoded), and sorted BAM | BAM |
 | bam_index_output | Index file for the final BAM  | INDEX |
@@ -178,4 +178,6 @@ All CEMBA pipeline releases are documented in the [CEMBA changelog](https://gith
 
 ## Have Suggestions?
 
-Coming soon, we will have a GitHub document dedicated to open issues! In the meantime, please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+
+
