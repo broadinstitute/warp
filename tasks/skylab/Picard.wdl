@@ -295,7 +295,7 @@ task RemoveDuplicatesFromBam {
     String output_basename
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
     Int machine_mem_mb = 32768
     # give the command 1 GiB of overhead
     Int command_mem_mb = machine_mem_mb - 1000

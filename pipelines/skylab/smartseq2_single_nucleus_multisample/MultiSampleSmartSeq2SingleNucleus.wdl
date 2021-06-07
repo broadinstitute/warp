@@ -71,7 +71,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
       call single_nucleus_run.SmartSeq2SingleNucleus as sn_pe {
         input:
            genome_ref_fasta = genome_ref_fasta,
-           tar_star_reference = tar_star_reference,
+           star_reference = tar_star_reference,
            annotations_gtf =  annotations_gtf,
            adapter_list = adapter_list,
            fastq1 = fastq1_input_files[idx],
@@ -88,7 +88,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   ### Aggregate the Loom Files Directly ###
   call LoomUtils.AggregateSmartSeq2Loom as AggregateLoom {
     input:
-      loom_input = sn_pe.loom_output_files,
+      loom_input = sn_pe.loom_output_file,
       batch_id = batch_id,
       batch_name = batch_name,
       project_id = if defined(project_id) then select_first([project_id])[0] else none,

@@ -79,7 +79,7 @@ task StarAlignFastqPairedEnd {
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
     Int disk = ceil((size(tar_star_reference, "Gi") * 2.5) + (size(fastq1, "Gi") * 5.0))
     # by default request non preemptible machine to make sure the slow star alignment step completes
-    Int preemptible = 0
+    Int preemptible = 3
   }
 
   meta {

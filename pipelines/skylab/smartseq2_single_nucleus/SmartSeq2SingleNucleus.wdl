@@ -110,6 +110,6 @@ workflow SmartSeq2SingleNucleus {
     # data outputs
     File exon_intron_counts=SingleNucleiSmartSeq2LoomOutput.exon_intron_counts
     # this loom contains the exonic and intronic counts for a sample corresponding to individual genes, and metadata
-    File loom_output_files = SingleNucleiSmartSeq2LoomOutput.loom_output
+    File loom_output_file = SingleNucleiSmartSeq2LoomOutput.loom_output
   }
 }
