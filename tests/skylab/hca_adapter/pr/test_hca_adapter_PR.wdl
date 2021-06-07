@@ -27,7 +27,7 @@ workflow TestHcaAdapter {
     String analysis_protocol_schema_version
     String assembly_type
     String cromwell_url
-    String fastq_1_uuids
+    Array[String] fastq_1_uuids
     Array[String] fastq_2_uuids
     String file_descriptor_schema_version
     File genome_ref_fasta
@@ -61,7 +61,7 @@ workflow TestHcaAdapter {
       annotations_gtf = annotations_gtf,
       ref_genome_fasta = ref_genome_fasta,
       input_id = input_id,
-      emptydrops_lower =1,
+      emptydrops_lower = 1,
       chemistry = chemistry
   }
 
@@ -84,7 +84,7 @@ workflow TestHcaAdapter {
     method=method,
     ncbi_taxon_id=ncbi_taxon_id,
     organ=organ,
-    outputs=outputs,
+    outputs=[target_optimus.loom_output_file, target_optimus.bam],
     pipeline_tools_version=pipeline_tools_version,
     pipeline_version=pipeline_version,
     projects=projects,
