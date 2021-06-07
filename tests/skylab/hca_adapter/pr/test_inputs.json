@@ -19,7 +19,7 @@
   "TestHcaAdapter.analysis_process_schema_version": "12.0.0",
   "TestHcaAdapter.analysis_protocol_schema_version": "9.1.0",
   "TestHcaAdapter.assembly_type": "primary assembly",
-  "TestHcaAdapter.cromwell_url": "https://api.firecloud.org/",
+  "TestHcaAdapter.cromwell_url": "https://cromwell.gotc-dev.broadinstitute.org",
   "TestHcaAdapter.fastq_1_uuids": ["3f29dae2-3368-4569-afb8-b8516f7a5a80"],
   "TestHcaAdapter.fastq_2_uuids": ["ca6960d3-f1ba-4119-838c-25b20eeb6fd3"],
   "TestHcaAdapter.file_descriptor_schema_version": "2.0.0",
