@@ -43,7 +43,7 @@ workflow TestSmartSeq2SingleNucleusPR {
      input:
       exon_intron_counts_hash = target_workflow.exon_intron_counts,
       truth_exon_intron_counts_hash = truth_exon_intron_counts_hash,
-      loom_output = target_workflow.loom_output_files,
+      loom_output = target_workflow.loom_output_file,
       truth_loom = truth_loom
    }
 
