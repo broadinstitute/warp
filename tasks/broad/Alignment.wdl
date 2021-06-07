@@ -80,7 +80,6 @@ task SamToFastqAndBwaMemAndMba {
         UNMAPPED_BAM=~{input_bam} \
         OUTPUT=~{output_bam_basename}.bam \
         REFERENCE_SEQUENCE=~{reference_fasta.ref_fasta} \
-        PAIRED_RUN=true \
         SORT_ORDER="unsorted" \
         IS_BISULFITE_SEQUENCE=false \
         ALIGNED_READS_ONLY=false \

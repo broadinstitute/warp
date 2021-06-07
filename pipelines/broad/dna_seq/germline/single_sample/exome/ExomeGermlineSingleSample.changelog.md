@@ -1,3 +1,8 @@
+# 2.4.4
+2021-06-01 
+
+* Removed deprecated parameter PAIRED_RUN from MergeBamAlignment
+
 # 2.4.3
 2021-03-17
 
