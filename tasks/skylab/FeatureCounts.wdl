@@ -31,7 +31,12 @@ task CountAlignments {
 
    # counting the introns
    featureCounts -M -p ~{input_bam} \
-   -a ~{annotation_gtf} -F GTF -o  introns.counts --minOverlap 3  -t intron  -g gene_id
+      -a ~{annotation_gtf} \
+      -F GTF \
+      -o introns.counts \
+      --minOverlap 3  \
+      -t intron  \
+      -g gene_id
 
    # create a new input bam where the alignemnts crossing intron-exon junctions are removed
    python /tools/remove-reads-on-junctions.py --input-gtf  ~{annotation_gtf} \

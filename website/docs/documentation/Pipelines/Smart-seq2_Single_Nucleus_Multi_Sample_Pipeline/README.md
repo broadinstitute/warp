@@ -14,9 +14,7 @@ Full details about the Smart-seq2 pipeline can be read in the [Smart-seq2 Single
 
 ## Inputs
 
-Two example configuration files (JSON) are available to test the pipeline:
-1.  [Paired-end mouse](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/smartseq2_single_nucleus_multisample/mouse_paired_example.json)
-2. [Single-end human](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_nucleus_multisample/human_single_example.json)
+An [example configuration file (JSON)](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_nucleus_multisample/human_single_example.json) is available to test the pipeline.
 
 
 ### Sample and Reference Inputs
@@ -26,7 +24,7 @@ The workflow sample and reference inputs are identical to those specified in the
 | Input name | Input Description | Input Type |
 | --- | --- | --- |
 | fastq1_input_files | Cloud locations for each read1 file | Array of strings | 
-| fastq2_input_files | Optional cloud locations for each read2 file if running paired-end samples |Array of strings |
+| fastq2_input_files | Optional cloud locations for each read2 file  |Array of strings |
 | input_ids | Unique identifiers or names for each cell; can be a UUID or human-readable name | Array of strings |
 | input_names | Optional unique identifiers/names to further describe each cell. If `input_id` is a UUID, the `input_name` could be used as a human-readable identifier | String |
 | batch_id | Identifier for the batch of multiple samples | String |
@@ -55,7 +53,7 @@ The following table lists the outputs of the Multi-snSS2 workflow.
 
 | Output file name | Output Description | Output Type |
 | --- | --- | --- |
-| bam_files | Array of genome-aligned BAM files (one for each sample) generated with Star  | Array [BAM]|
+| bam_files | Array of genome-aligned BAM files (one for each cell) generated with Star  | Array [BAM]|
 | loom_output | Cell-by-gene matrix in Loom format containing intronic and exonic counts for every cell | File |
 | exon_intron_count_files | Array of TXT files (one per cell) that contain intronic and exonic counts | Array [TXT]| 
 

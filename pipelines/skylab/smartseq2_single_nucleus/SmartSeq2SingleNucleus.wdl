@@ -1,10 +1,10 @@
 version 1.0
 
-import "../../../tasks/skylab/TrimAdapters.wdl" as TrimAdapters
-import "../../../tasks/skylab/StarAlign.wdl" as StarAlignFastq
-import "../../../tasks/skylab/Picard.wdl" as Picard
-import "../../../tasks/skylab/FeatureCounts.wdl" as CountAlignments
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/TrimAdapters.wdl" as TrimAdapters
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/StarAlign.wdl" as StarAlignFastq
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/Picard.wdl" as Picard
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/FeatureCounts.wdl" as CountAlignments
+import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/LoomUtils.wdl" as LoomUtils
 
 
 workflow SmartSeq2SingleNucleus {
@@ -91,7 +91,7 @@ workflow SmartSeq2SingleNucleus {
 
   call LoomUtils.SingleNucleiSmartSeq2LoomOutput as SingleNucleiSmartSeq2LoomOutput {
        input:
-         input_id=input_id,
+         input_id = input_id,
          input_name = input_name,
          pipeline_version = "SmartSeq2SingleNucleus_v~{pipeline_version}",
          input_id_metadata_field = input_id_metadata_field,
