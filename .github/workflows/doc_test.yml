@@ -23,9 +23,9 @@ jobs:
           key: ${{ runner.os }}-modules-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
 
       - name: Setup NodeJS
-        uses: actions/setup-node@v2-beta
+        uses: actions/checkout@v2
         with:
-          node-version: 12.x
+          node-version: '14'
 
       - name: Install and Build
-        run: yarn --cwd=website/docs install && yarn --cwd=website/docs build
+        run: yarn --cwd=website install && yarn --cwd=website build
