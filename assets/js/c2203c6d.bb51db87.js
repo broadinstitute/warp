@@ -1,0 +1,1 @@
+(self.webpackChunkwebsite_2=self.webpackChunkwebsite_2||[]).push([[7799],{6985:function(e){"use strict";e.exports=JSON.parse('{"permalink":"/warp/blog","page":1,"postsPerPage":10,"totalPages":1,"totalCount":1,"previousPage":null,"nextPage":null,"blogDescription":"Blog","blogTitle":"Blog"}')}}]);

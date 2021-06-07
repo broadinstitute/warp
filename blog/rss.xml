@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+    <channel>
+        <title>WARP Blog</title>
+        <link>https://broadinstitute.github.io/blog</link>
+        <description>WARP Blog</description>
+        <lastBuildDate>Sat, 29 May 2021 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[Hello World!]]></title>
+            <link>https://broadinstitute.github.io/warp/blog/blog1</link>
+            <guid>blog1</guid>
+            <pubDate>Sat, 29 May 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[We are planning to add more blogs in the future, talking about the research and engineering at our group!]]></description>
+        </item>
+    </channel>
+</rss>

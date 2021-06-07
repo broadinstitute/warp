@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://broadinstitute.github.io/blog</id>
+    <title>WARP Blog</title>
+    <updated>2021-05-29T00:00:00.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://broadinstitute.github.io/blog"/>
+    <subtitle>WARP Blog</subtitle>
+    <icon>https://broadinstitute.github.io/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Hello World!]]></title>
+        <id>blog1</id>
+        <link href="https://broadinstitute.github.io/warp/blog/blog1"/>
+        <updated>2021-05-29T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[We are planning to add more blogs in the future, talking about the research and engineering at our group!]]></summary>
+    </entry>
+</feed>
