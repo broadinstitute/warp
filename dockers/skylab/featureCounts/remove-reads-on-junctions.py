@@ -94,7 +94,11 @@ def main():
         pair = (last_exon_end, 30000000000)
         intron_cands[contig_id].append(pair)
 
-    # global ordered (ascending) arry of intronic start or end points
+    # Given a list of intervals that are potentially intronic regions, the following block finds intronic regions for each gene.
+    # For each chromosome (contig_id), for each gene_id within the chromosome, find the regions that exclude any exon intervals.
+    # The potential intron intervals start and end points are in a global ordered (ascending) array
+    # The odd indices are start points and the even indices are end points. If an interval crosses the gene start or end, it gets restricted to the gene body.
+
     introns = {}
     for contig_id in gene_locs:
         introns[contig_id] = []
@@ -127,7 +131,10 @@ def main():
             for a in input_alignments:
                 if a.reference_name in introns:
                     i = bisect_left(introns[a.reference_name], a.reference_start) 
-                    j = bisect_left(introns[a.reference_name], a.reference_end) 
+                    j = bisect_left(introns[a.reference_name], a.reference_end)
+                    # If a read crosses only one junction, it is counted towards the introns otherwise, it is counted towards the exons.
+                    # The reads could be from a premature mRNA inside the nucleus or it could be from a splices mRNA. If it is splices, the read could align to the junction crossing from one exon to another.
+                    # Since we align reads to the entire genome (introns included) these reads have a gap in them that crosses two or more junction points.
                     if j-i!= 1: 
                        outbam.write(a)
               
