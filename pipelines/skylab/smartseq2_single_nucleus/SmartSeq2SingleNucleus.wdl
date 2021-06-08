@@ -1,10 +1,9 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/TrimAdapters.wdl" as TrimAdapters
-import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/StarAlign.wdl" as StarAlignFastq
-import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/Picard.wdl" as Picard
-import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/FeatureCounts.wdl" as CountAlignments
-import "https://raw.githubusercontent.com/broadinstitute/warp/snSS2_first_wdls/tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/skylab/TrimAdapters.wdl" as TrimAdapters
+import "../../../tasks/skylab/StarAlign.wdl" as StarAlignFastq
+import "../../../tasks/skylab/skylab/FeatureCounts.wdl" as CountAlignments
+import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 
 
 workflow SmartSeq2SingleNucleus {
