@@ -2,7 +2,7 @@ version 1.0
 
 import "../../../tasks/skylab/TrimAdapters.wdl" as TrimAdapters
 import "../../../tasks/skylab/StarAlign.wdl" as StarAlignFastq
-import "../../../tasks/skylab/skylab/FeatureCounts.wdl" as CountAlignments
+import "../../../tasks/skylab/FeatureCounts.wdl" as CountAlignments
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 
 
