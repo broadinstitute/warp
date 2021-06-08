@@ -57,7 +57,7 @@ The pipeline is designed for paired-end reads in the form of two FASTQ files. It
 The snSS2 workflow requires multiple references detailed in the table below. 
 * Reference inputs are created using the [BuildIndices Pipeline](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices).
 * The workflow uses a modified version of the 10x Genomic's code for building mouse ([GRCm38-2020-A](https://support.10xgenomics.com/single-cell-gene-expression/software/release-notes/build#mm10_2020A)) and human ([GRCh38-2020-A](https://support.10xgenomics.com/single-cell-gene-expression/software/release-notes/build#GRCh38_2020A)) reference packages. 
-* To enable intron counting, the workflow calls a [shell script](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/snss2-build-indices/add-introns-to-gtf.py) to create a custom GTF with intron annotations (any part of a contig that is not exonic) 
+* To enable intron counting, the workflow calls a [shell script](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/snss2-build-indices/add-introns-to-gtf.py) to create a custom GTF with intron annotations. Introns are considered any part of a contig that is not exonic nor intergenic. 
 
 | Reference name | Reference Description | Type |
 | --- | --- | --- |
