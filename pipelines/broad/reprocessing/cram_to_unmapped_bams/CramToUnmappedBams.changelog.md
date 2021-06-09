@@ -1,3 +1,8 @@
+# 1.1.1
+2021-06-09
+
+* Updated GoTC base image and BWA version
+
 # 1.0.1
 2021-02-08
 
