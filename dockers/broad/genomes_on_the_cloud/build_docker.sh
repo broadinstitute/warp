@@ -1,13 +1,13 @@
 #!/bin/bash
 
-TIMESTAMP=$(date +"%s")
+TIMESTAMP=$(date -u +"%Y-%m-%d_%H-%M-%SZ")
 DIR=$(cd $(dirname $0) && pwd)
 
 set -e
 
 TMPDIR=$(mktemp -t gotc-dockerXXXXXX -d)
 
-DOCKER_VERSION="2.4.7"
+DOCKER_VERSION="2.5.7"
 DOCKER_IMAGE_TAG="$DOCKER_VERSION-$TIMESTAMP"
 
 PICARD_PRIVATE_VERSION="1.1448"
@@ -38,18 +38,20 @@ cd ${TMPDIR}
 
 mv GenomeAnalysisTK-${GATK35_VERSION}.jar GATK35.jar
 
-echo -e "$DOCKER_IMAGE_TAG\t$PICARD_PUBLIC_VERSION\tn/a\t$GATK35_VERSION\tn/a\t$GATK4_VERSION\t$SAMTOOLS_VER\t$BWA_VER\t$K8_VER\t$BWA_POSTALT_SCRIPT_VER\t$TABIX_VER\t$BGZIP_VER\t$SVTOOLKIT_VER" >> ${DIR}/build_docker_version.tsv
 
 # Tagged with the picard release version the jars and binaries were taken from.
 docker build -t us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:${DOCKER_IMAGE_TAG} \
-  --build-arg PICARD_PUBLIC_VERSION \
-  --build-arg GATK35_VERSION \
-  --build-arg GATK4_VERSION \
-  --build-arg SAMTOOLS_VER \
-  --build-arg BWA_VER \
-  --build-arg TABIX_VER \
-  --build-arg BGZIP_VER \
-  --build-arg SVTOOLKIT_VER .
+    --build-arg PICARD_PUBLIC_VERSION \
+    --build-arg GATK35_VERSION \
+    --build-arg GATK4_VERSION \
+    --build-arg SAMTOOLS_VER \
+    --build-arg BWA_VER \
+    --build-arg TABIX_VER \
+    --build-arg BGZIP_VER \
+    --build-arg SVTOOLKIT_VER .
 docker push us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:${DOCKER_IMAGE_TAG}
+
+# Save current version info to local file
+echo -e "$DOCKER_IMAGE_TAG\t$PICARD_PUBLIC_VERSION\tn/a\t$GATK35_VERSION\tn/a\t$GATK4_VERSION\t$SAMTOOLS_VER\t$BWA_VER\t$K8_VER\t$BWA_POSTALT_SCRIPT_VER\t$TABIX_VER\t$BGZIP_VER\t$SVTOOLKIT_VER" >> ${DIR}/build_docker_version.tsv
 
 rm -rf ${TMPDIR}

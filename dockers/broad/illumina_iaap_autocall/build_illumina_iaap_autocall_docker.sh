@@ -4,7 +4,7 @@ set -e
 # Update DOCKER_IMAGE_VERSION after any substantial changes to the
 # image this builds.
 #
-declare -r DOCKER_IMAGE_VERSION=1.0.1
+declare -r DOCKER_IMAGE_VERSION=1.0.2
 
 # rsync iaap autocall dlls
 #
@@ -58,26 +58,13 @@ function copyIaapAutocallToLocalDockerDirectory () {
 # the default jar exists.
 #
 function runDocker () {
-    local -r  timestamp=$(date +"%s")
+    local -r  timestamp=$(date -u +"%Y-%m-%d_%H-%M-%SZ")
     local -r tag=$DOCKER_IMAGE_VERSION-$timestamp
     local project=broad-gotc-prod cache=--no-cache=true
     local -r gcr=us.gcr.io/$project/illumina-iaap-autocall
-    echo -e "$gcr:$tag" >> ../build_illumina_iaap_autocall_docker_version.tsv
     docker build $cache -t $gcr:$tag .
-    gcloud docker -- push $gcr:$tag
-}
-
-# Run docker login if cannot pull broadinstitute/dsde-toolbox.
-#
-function ensureLoggedInToDocker () {
-    local -r scriptName="$1"
-    if docker pull broadinstitute/dsde-toolbox >/dev/null
-    then
-        : OK
-    else
-        echo "$scriptName: Are you logged in to Docker?" 1>&2
-        docker login
-    fi
+    docker push $gcr:$tag
+    echo -e "$gcr:$tag" >> ../build_illumina_iaap_autocall_docker_version.tsv
 }
 
 function main () {
@@ -89,7 +76,7 @@ function main () {
     copyIaapAutocallToLocalDockerDirectory "$tmpdir"
     cp Dockerfile "$tmpdir"
     cd "$tmpdir"
-    ensureLoggedInToDocker "$scriptName"
+    # ensureLoggedInToDocker "$scriptName"
     runDocker
     cd - >/dev/null
     rm -rf "$tmpdir"
