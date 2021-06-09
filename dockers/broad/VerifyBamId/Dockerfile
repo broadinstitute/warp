@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM us.gcr.io/broad-dsp-gcr-public/base/python:debian
 MAINTAINER Broad Institute DSDE <dsde-engineering@broadinstitute.org>
 
 WORKDIR /usr/gitc
