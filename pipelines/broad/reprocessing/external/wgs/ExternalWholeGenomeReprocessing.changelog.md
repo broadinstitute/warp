@@ -1,3 +1,9 @@
+# 1.4.6
+2021-06-09
+
+* Updated GoTC base image to AppSec approved 
+* Updated BWA version for GoTC image
+
 # 1.3.6
 2021-06-01 
 
