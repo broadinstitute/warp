@@ -10,6 +10,6 @@ GCR=us.gcr.io/broad-gotc-prod/verify-bam-id
 docker build -t ${GCR}:${TAG} \
 		--build-arg GIT_HASH="$VERIFY_BAM_ID_COMMIT" .
 
-docker -- push ${GCR}:${TAG}
+docker push ${GCR}:${TAG}
 
 echo - e "$GCR:$TAG" >> ./build_docker_version.tsv
