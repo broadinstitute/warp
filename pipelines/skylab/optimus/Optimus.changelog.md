@@ -1,3 +1,10 @@
+# 4.3.4
+
+2021-06-09 (Date of Last Commit)
+
+* Updated GoTC base image to AppSec approved 
+* Updated BWA version for GoTC image
+
 # 4.2.4
 
 2021-04-07 (Date of Last Commit)
