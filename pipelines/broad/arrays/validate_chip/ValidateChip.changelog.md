@@ -1,3 +1,8 @@
+# 1.13.1
+2021-06-10
+
+* Updated Illumina IAAP Autocall base image to AppSec approved image
+
 # 1.13.0
 2021-05-19
 

@@ -542,7 +542,7 @@ task AutoCall {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/illumina-iaap-autocall:1.0.1-1572616845"
+    docker: "us.gcr.io/broad-gotc-prod/illumina-iaap-autocall:1.0.2-2021-06-09_17-22-15Z"
     disks: "local-disk " + disk_size + " HDD"
     memory: "7 GiB"
     preemptible: preemptible_tries

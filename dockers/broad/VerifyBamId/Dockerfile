@@ -1,5 +1,6 @@
-FROM python:3.7
-MAINTAINER Broad Institute DSDE <dsde-engineering@broadinstitute.org>
+FROM us.gcr.io/broad-dsp-gcr-public/base/python:debian
+
+LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>"
 
 WORKDIR /usr/gitc
 

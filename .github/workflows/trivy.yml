@@ -13,7 +13,6 @@ jobs:
         - dockers/broad/arrays_picard_private
         - dockers/broad/genomes_on_the_cloud
         - dockers/broad/illumina_iaap_autocall
-        - dockers/broad/multi_sample
         - dockers/broad/VerifyBamId
         - dockers/broad/zcall
     steps:
