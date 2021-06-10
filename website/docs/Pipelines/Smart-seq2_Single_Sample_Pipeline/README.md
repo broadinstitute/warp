@@ -46,7 +46,7 @@ The SS2 workflow code can be downloaded by cloning the GitHub [WARP repository](
 The workflow is deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms.
 
 :::tip Try the SS2 workflow in Terra
-You can run the Smart-seq2 Multi-Sample workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_multisample/MultiSampleSmartSeq2.wdl) (a wrapper for the Single Sample workflow described in this document) in [Terra](https://app.terra.bio), a cloud-based analysis platform. The Terra [Smart-seq2 public workspace](https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA%20Smart-seq2%20Multi%20Sample%20Pipeline) is preloaded with the Smart-seq2 workflow, example testing data, and all the required reference data.
+You can run the [Smart-seq2 Multi-Sample workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_multisample/MultiSampleSmartSeq2.wdl) (a wrapper for the Single Sample workflow described in this document) in [Terra](https://app.terra.bio), a cloud-based analysis platform. The Terra [Smart-seq2 public workspace](https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA%20Smart-seq2%20Multi%20Sample%20Pipeline) is preloaded with the Smart-seq2 workflow, example testing data, and all the required reference data.
 :::
 
 ### Inputs
@@ -68,7 +68,7 @@ The workflow will use modified tasks depending if a sample is paired-end or sing
 
 #### Additional Reference Inputs
 
-The Smart-seq2 Single Sample workflow requires multiple reference indexes. Information on how these indexes are created is found in the [Creating_Smartseq2_References](./Creating_Smartseq2_References.md) documentation. The table below describes the references and each tool that uses the reference as input, when applicable.
+The Smart-seq2 Single Sample workflow requires multiple reference indexes. Information on how these indexes are created is found in the [BuildIndices workflow overview](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/build_indices/README.md) documentation. The table below describes the references and each tool that uses the reference as input, when applicable.
 
 | Workflow Step | Reference name | Reference Description | Tool |
 | --- | --- | --- | --- |
