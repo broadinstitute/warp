@@ -127,7 +127,6 @@ task StarAlignFastqPairedEnd {
 
   output {
     File output_bam = "Aligned.sortedByCoord.out.bam"
-    #File alignment_log = "Log.final.out"
   }
 
 }
