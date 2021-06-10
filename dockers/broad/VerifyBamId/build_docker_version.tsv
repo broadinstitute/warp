@@ -1,2 +1,3 @@
 DOCKER_VERSION
+us.gcr.io/broad-gotc-prod/verify-bam-id:c1cba76e979904eb69c31520a0d7f5be63c72253-1553018888
 us.gcr.io/broad-gotc-prod/verify-bam-id:c1cba76e979904eb69c31520a0d7f5be63c72253-2021-06-09_17-33-55Z

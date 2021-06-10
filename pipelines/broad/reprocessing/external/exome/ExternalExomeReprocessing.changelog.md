@@ -1,4 +1,9 @@
 # 2.5.6
+2021-06-10
+
+* Updated VerifyBamID to use AppSec base image
+
+# 2.5.6
 2021-06-09
 
 * Updated GoTC base image to AppSec approved 

@@ -1,3 +1,8 @@
+# 1.4.7
+2021-06-10
+
+* Updated VerifyBamID to use AppSec base image
+
 # 1.4.6
 2021-06-09
 
