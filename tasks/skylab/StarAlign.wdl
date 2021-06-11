@@ -74,13 +74,14 @@ task STARsoloFastq {
     File white_list
     String chemistry
     String input_id
+    String counting_mode
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.8a"
+    String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
     Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
-    Int disk = ceil(size(tar_star_reference, "Gi") * 2.5) + ceil(size(r1_fastq, "GiB")*3 + size(r2_fastq, "GiB")*3) + 500
+    Int disk = ceil(size(tar_star_reference, "Gi") * 2.5) + 500
     # by default request non preemptible machine to make sure the slow star alignment step completes
     Int preemptible = 0
   }
@@ -105,7 +106,6 @@ task STARsoloFastq {
 
     UMILen=10
     CBLen=16
-
     if [ "${chemistry}" == "tenX_v2" ]
     then
         ## V2
@@ -122,6 +122,20 @@ task STARsoloFastq {
     fi
 
 
+    COUNTING_MODE=""
+    if [ "${counting_mode}" == "sc_rna" ]
+    then
+        ## single cell or whole cell
+        COUNTING_MODE="Gene"
+    elif [ "${counting_mode}" == "sn_rna" ]
+    then
+        ## single nuclei
+        COUNTING_MODE="GeneFull"
+    else
+        echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
+        exit 1;
+    fi
+
     # prepare reference
     mkdir genome_reference
     tar -xf "${tar_star_reference}" -C genome_reference --strip-components 1
@@ -130,14 +144,24 @@ task STARsoloFastq {
     echo "UMI LEN " $UMILen 
     STAR \
       --soloType Droplet \
-      --soloUMIdedup Exact --soloStrand Unstranded \
+      --soloStrand Unstranded \
       --runThreadN ${cpu} \
-      --outSAMtype BAM Unsorted \
       --genomeDir genome_reference \
       --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
       --readFilesCommand "gunzip -c" \
       --soloCBwhitelist ~{white_list} \
-      --soloUMIlen $UMILen --soloCBlen $CBLen
+      --soloUMIlen $UMILen --soloCBlen $CBLen \
+      --soloFeatures $COUNTING_MODE \
+      --clipAdapterType CellRanger4 \
+      --outFilterScoreMin 30  \
+      --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
+      --soloUMIdedup 1MM_Directional_UMItools \
+      --outSAMtype BAM SortedByCoordinate \
+      --outSAMattributes UB UR UY CR CB CY NH GX GN
+    
+    # zip the raw count matrix with the counts, gene names and the barcodes
+    zip -j raw_count_matrix.zip  Solo.out/Gene/raw/*
+
   }
 
   runtime {
@@ -151,5 +175,6 @@ task STARsoloFastq {
   output {
     File bam_output = "Aligned.out.bam"
     File alignment_log = "Log.final.out"
+    File raw_count_matrix = "raw_count_matrix.zip"
   }
 }
