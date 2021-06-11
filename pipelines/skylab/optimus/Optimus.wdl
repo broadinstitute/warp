@@ -1,18 +1,18 @@
 version 1.0
 
-import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
-import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
-import "../../../tasks/skylab/CreateCountMatrix.wdl" as Count
-import "../../../tasks/skylab/StarAlign.wdl" as StarAlignBam
-import "../../../tasks/skylab/TagGeneExon.wdl" as TagGeneExon
-import "../../../tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
-import "../../../tasks/skylab/TagSortBam.wdl" as TagSortBam
-import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
-import "../../../tasks/skylab/Picard.wdl" as Picard
-import "../../../tasks/skylab/UmiCorrection.wdl" as UmiCorrection
-import "../../../tasks/skylab/ModifyGtf.wdl" as ModifyGtf
-import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
+import "FastqProcessing.wdl" as FastqProcessing
+import "MergeSortBam.wdl" as Merge
+import "CreateCountMatrix.wdl" as Count
+import "StarAlign.wdl" as StarAlignBam
+import "TagGeneExon.wdl" as TagGeneExon
+import "SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
+import "TagSortBam.wdl" as TagSortBam
+import "RunEmptyDrops.wdl" as RunEmptyDrops
+import "LoomUtils.wdl" as LoomUtils
+import "Picard.wdl" as Picard
+import "UmiCorrection.wdl" as UmiCorrection
+import "ModifyGtf.wdl" as ModifyGtf
+import "OptimusInputChecks.wdl" as OptimusInputChecks
 
 workflow Optimus {
   meta {
