@@ -19,7 +19,7 @@ TOOLS=(docker gcloud vault jq)
 HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|--tools] -- script to build the picard private image and push to GCR
 
 where:
-    -h Show help text
+    -h|--help Show help text
     -v|--version Git hash of the picard private version to use (default: $PICARD_PRIVATE_VERSION)
     -t|--tools Show tools needed to run script
     "
@@ -44,7 +44,7 @@ case $key in
     ;;
     -h|--help)
     echo "$HELP"
-    exit 1
+    exit 0
     ;;
     -t|--tools)
     for t in "${TOOLS[@]}"; do echo $t; done
@@ -67,4 +67,4 @@ echo "Removing picard private jar"
 rm $DIR/picard-private.jar
 
 echo "$GCR_URL:$IMAGE_TAG\t$PICARD_PRIVATE_VERSION" >> $DIR/docker_versions.tsv
-echo "Done"
+echo "done"
