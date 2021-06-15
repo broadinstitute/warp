@@ -4,7 +4,7 @@ ENV TERM=xterm-256color
 
 WORKDIR /usr/gitc
 
-# Install dependencies.
-RUN apk --update add bash python2
+# Install bash, python3
+RUN apk add --update --no-cache bash python3
 
 COPY . .

@@ -19,13 +19,13 @@ ARG PICARD_PUBLIC_VERSION=2.23.8 \
   BWA_VER=0.7.15 \
   TABIX_VER=0.2.5_r1005 \
   BGZIP_VER=1.3 \
-  SVTOOLKIT_VER=2.00-1650 
+  SVTOOLKIT_VER=2.00-1650
 
 # Change working directory to /usr/gitc/
 WORKDIR /usr/gitc
 
-# Install java8, python2, python3, and R
-RUN apt-get update && apt-get install -y python python3-pip r-base wget 
+# Install java8, python3, and R
+RUN apt-get update && apt-get install -y python3 python3-pip r-base wget
 
 # Install ggplot2
 RUN echo 'install.packages("ggplot2", repos="http://cran.us.r-project.org", dependencies=TRUE)' > /tmp/packages.R && \
@@ -40,7 +40,7 @@ RUN wget https://github.com/samtools/samtools/releases/download/${SAMTOOLS_VER}/
   make && \
   make install && \
   cd ../ && \
-  rm -r samtools-${SAMTOOLS_VER} 
+  rm -r samtools-${SAMTOOLS_VER}
 
 RUN wget https://github.com/lh3/bwa/releases/download/v${BWA_VER}/bwakit-${BWA_VER}_x64-linux.tar.bz2 -O bwakit-${BWA_VER}.tar.bz2 && \
   tar xf bwakit-${BWA_VER}.tar.bz2 && \
