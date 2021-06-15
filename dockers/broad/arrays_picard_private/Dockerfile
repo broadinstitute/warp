@@ -17,4 +17,4 @@ RUN curl https://releases.hashicorp.com/vault/1.0.2/vault_1.0.2_linux_amd64.zip 
     && rm temp.zip \
     && mv vault /usr/local/bin/
 
-COPY . .
+COPY picard-private.jar .
