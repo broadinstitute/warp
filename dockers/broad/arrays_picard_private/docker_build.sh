@@ -16,7 +16,7 @@ ARTIFACTORY_URL=https://broadinstitute.jfrog.io/artifactory/libs-release-local/o
 
 # Necessary tools and help text
 TOOLS=(docker gcloud vault jq)
-HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|--tools] -- script to build the picard-private image and push to GCR & Dockerhub
+HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|--tools] -- script to build the picard private image and push to GCR
 
 where:
     -h Show help text
