@@ -94,7 +94,7 @@ module.exports = {
     algolia: {
       apiKey: '57c6f6f64593f4fbec4c87a98d80f7e8',
       indexName: 'broadinstitute',
-      contextualSearch: true,
+      contextualSearch: false,
     },
   },
   presets: [
