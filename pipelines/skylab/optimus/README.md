@@ -1,6 +1,6 @@
 ## Announcing a new site for WARP documentation!
 
-Optimus documentation has moved! Read more about the [Optimus Pipeline](https://broadinstitute.github.io/warp/documentation/Pipelines/Optimus_Pipeline/) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
+Optimus documentation has moved! Read more about the [Optimus Pipeline](https://broadinstitute.github.io/warp/docs/Pipelines/Optimus_Pipeline/README) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
 
 ### Optimus summary
 
