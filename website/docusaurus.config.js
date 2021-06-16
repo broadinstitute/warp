@@ -91,6 +91,11 @@ module.exports = {
       // the Google Analytics Tracking ID
       anonymizeIP: true, // Should IPs be anonymized?
     },
+    algolia: {
+      apiKey: '57c6f6f64593f4fbec4c87a98d80f7e8',
+      indexName: 'broadinstitute',
+      contextualSearch: true,
+    },
   },
   presets: [
     [
@@ -100,13 +105,15 @@ module.exports = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           editUrl:
-            'https://github.com/facebook/docusaurus/edit/master/website/',
+            'https://github.com/broadinstitute/warp/edit/develop/website/',
+          showLastUpdateAuthor: true,
+          showLastUpdateTime: true,
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
-            'https://github.com/facebook/docusaurus/edit/master/website/blog/',
+            'https://github.com/broadinstitute/warp/edit/develop/website/blog/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
