@@ -2,6 +2,9 @@ FROM us.gcr.io/broad-dsp-gcr-public/base/python:debian
 
 LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>"
 
+ENV TERM=xterm-256color \
+    BAMID_URL=https://github.com/Griffan/VerifyBamID/archive
+
 WORKDIR /usr/gitc
 
 ARG GIT_HASH=c1cba76e979904eb69c31520a0d7f5be63c72253
@@ -10,7 +13,7 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y zlib1g-dev libcurl4-openssl-dev libssl-dev libbz2-dev libhts-dev gcc g++ cmake autoconf wget unzip git
 
-RUN wget https://github.com/Griffan/VerifyBamID/archive/$GIT_HASH.zip && \
+RUN wget $BAMID_URL/$GIT_HASH.zip && \
     unzip $GIT_HASH.zip && \
     cd VerifyBamID-$GIT_HASH && \
     mkdir build && \

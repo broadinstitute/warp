@@ -1,23 +1,26 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -e
 
-# VerifyBamID is based off a specific githash and unlikely
-VERIFY_BAM_ID_VERSION="c1cba76e979904eb69c31520a0d7f5be63c72253"
+# Update version when changes to Dockerfile are made
+DOCKER_IMAGE_VERSION=4.0.1
 TIMESTAMP=$(date -u +"%Y-%m-%d")
 DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
-GCR_URL=us.gcr.io/broad-gotc-prod/verify-bam-id
+GCR_URL=us.gcr.io/broad-gotc-prod/zcall
 DOCKERHUB_URL=""
-IMAGE_TAG=""
+IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
+
+# ZCall Version
+ZCALL_VERSION="zCall_Version1.3_AutoCall.zip"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|tools] -- script to build the VerifyBamID image and push to GCR & Dockerhub
+HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|tools] -- script to build the ZCall image and push to GCR & Dockerhub
 
 where:
     -h|--help Show help text
-    -v|--version Git hash of the VerifyBamID version to use (default: $VERIFY_BAM_ID_VERSION)
+    -v|--version Zip version of Zcall to use (default: $ZCALL_VERSION)
     -t|--tools Show tools needed to run script
     "
 
@@ -34,7 +37,7 @@ function main(){
     key="$1"
     case $key in
         -v|--version)
-        VERIFY_BAM_ID_VERSION="$2"
+        ZCALL_VERSION="$2"
         shift
         shift
         ;;
@@ -50,14 +53,12 @@ function main(){
         shift
         ;;
     esac
-    done	
-
-    IMAGE_TAG="$VERIFY_BAM_ID_VERSION-$TIMESTAMP"
+    done
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \
-        --build-arg GIT_HASH="$VERIFY_BAM_ID_VERSION" . 
-    docker push "$GCR_URL:$IMAGE_TAG"
+        --build-arg ZCALL_VERSION="$ZCALL_VERSION" . 
+    #docker push "$GCR_URL:$IMAGE_TAG"
 
     #echo "tagging and pushing Dockerhub image - $DOCKERHUB_URL:$IMAGE_TAG"
     #docker tag "$GCR_URL:$IMAGE_TAG" "$DOCKERHUB_URL:$IMAGE_TAG"
