@@ -1,6 +1,8 @@
 # Using JRE approved image, .NET doesn't exist 
 FROM us.gcr.io/broad-dsp-gcr-public/base/jre:15-debian
 
+LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>"
+
 ENV TERM=xterm-256color
 
 # Change working directory to /usr/gitc/

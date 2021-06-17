@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e
 
-# Update DOCKER_IMAGE_VERSION after any substantial changes to the
-# image this builds.
-#
 declare -r DOCKER_IMAGE_VERSION=1.0.2
 
 # rsync iaap autocall dlls

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-# VerifyBamID is based off a specific githash and unlikely
+# VerifyBamID is based off a specific githash and unlikely to change
 VERIFY_BAM_ID_VERSION="c1cba76e979904eb69c31520a0d7f5be63c72253"
 TIMESTAMP=$(date -u +"%Y-%m-%d")
 DIR=$(cd $(dirname $0) && pwd)

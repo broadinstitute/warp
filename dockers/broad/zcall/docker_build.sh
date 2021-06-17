@@ -12,7 +12,7 @@ DOCKERHUB_URL=""
 IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
 
 # ZCall Version
-ZCALL_VERSION="zCall_Version1.3_AutoCall.zip"
+ZCALL_VERSION="zCall_Version1.3_AutoCall"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
