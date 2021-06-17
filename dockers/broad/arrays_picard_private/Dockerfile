@@ -5,7 +5,7 @@ ENV TERM=xterm-256color
 WORKDIR /usr/gitc
 
 # Install dependencies.
-RUN apk --update add bash curl findutils jq wget openjdk8-jre python3 unzip
+RUN apk --no-cache add bash curl findutils jq wget openjdk8-jre python3 unzip
 
 # download the gsutil install script
 RUN wget https://dl.google.com/dl/cloudsdk/channels/rapid/install_google_cloud_sdk.bash -O - | bash

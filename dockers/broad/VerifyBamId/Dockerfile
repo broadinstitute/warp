@@ -8,7 +8,9 @@ ARG GIT_HASH=c1cba76e979904eb69c31520a0d7f5be63c72253
 
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y zlib1g-dev libcurl4-openssl-dev libssl-dev libbz2-dev libhts-dev gcc g++ cmake autoconf wget unzip git
+    apt-get install -y zlib1g-dev libcurl4-openssl-dev libssl-dev libbz2-dev libhts-dev gcc g++ cmake autoconf wget unzip git  && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN wget https://github.com/Griffan/VerifyBamID/archive/$GIT_HASH.zip && \
     unzip $GIT_HASH.zip && \
