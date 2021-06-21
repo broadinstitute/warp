@@ -1,26 +1,26 @@
 #!/bin/bash
 set -e
 
-# Update version when changes to Dockerfile are made
-DOCKER_IMAGE_VERSION=4.0.1
+# Update verson when changes to Dockerfile are made
+DOCKER_IMAGE_VERSION=1.0.2
 TIMESTAMP=$(date -u +"%Y-%m-%d")
 DIR=$(cd $(dirname $0) && pwd)
 
-# Registries and tags
-GCR_URL="us.gcr.io/broad-gotc-prod/zcall"
+# Registries and tags"
+GCR_URL="us.gcr.io/broad-gotc-prod/illumina-iaap-autocall"
 DOCKERHUB_URL=""
 IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
 
-# ZCall Version
-ZCALL_VERSION="zCall_Version1.3_AutoCall"
+# Iaap cli version
+IAAP_CLI_VERSION="iaap-cli-linux-x64-1.1.0-sha.80d7e5b3d9c1fdfc2e99b472a90652fd3848bbc7"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|tools] -- script to build the ZCall image and push to GCR & Dockerhub
+HELP="$(basename "$0") [-h|--help] [-t|tools] -- script to build the Illumina IAAP image and push to GCR & Dockerhub
 
 where:
     -h|--help Show help text
-    -v|--version Zip version of Zcall to use (default: $ZCALL_VERSION)
+    -v|--version Zip version of Zcall to use (default: $IAAP_CLI_VERSION)
     -t|--tools Show tools needed to run script
     "
 
@@ -37,7 +37,7 @@ function main(){
     key="$1"
     case $key in
         -v|--version)
-        ZCALL_VERSION="$2"
+        IAAP_CLI_VERSION="$2"
         shift
         shift
         ;;
@@ -57,7 +57,7 @@ function main(){
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \
-        --build-arg ZCALL_VERSION="$ZCALL_VERSION" $DIR 
+        --build-arg IAAP_CLI_VERSION="$IAAP_CLI_VERSION" $DIR
     docker push "$GCR_URL:$IMAGE_TAG"
 
     # echo "tagging and pushing Dockerhub image - $DOCKERHUB_URL:$IMAGE_TAG"

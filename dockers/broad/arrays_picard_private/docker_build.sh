@@ -7,11 +7,11 @@ TIMESTAMP=$(date -u +"%Y-%m-%d")
 DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
-GCR_URL=us.gcr.io/broad-arrays-prod/arrays-picard-private
+GCR_URL="us.gcr.io/broad-arrays-prod/arrays-picard-private"
 IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
 
 # Picard private artifact
-PICARD_PRIVATE_VERSION=61af9bff4587783e5981a496f422ea36102482b5
+PICARD_PRIVATE_VERSION="61af9bff4587783e5981a496f422ea36102482b5"
 ARTIFACTORY_URL="https://broadinstitute.jfrog.io/artifactory/libs-release-local/org/broadinstitute/picard-private"
 
 # Necessary tools and help text
@@ -47,7 +47,7 @@ function main(){
         ;;
         -t|--tools)
         for t in "${TOOLS[@]}"; do echo $t; done
-        shift
+        exit 0
         ;;
         *)
         shift
@@ -58,16 +58,15 @@ function main(){
     echo "downloading picard private jar -  $ARTIFACTORY_URL/$PICARD_PRIVATE_VERSION/picard-private-$PICARD_PRIVATE_VERSION.jar"
     curl "$ARTIFACTORY_URL/$PICARD_PRIVATE_VERSION/picard-private-$PICARD_PRIVATE_VERSION.jar" > "$DIR/picard-private.jar"
 
-    #echo "building & pushing GCR Image - $GCR_URL:$IMAGE_TAG"
-    #docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" .
-    #docker push $GCR_URL:$IMAGE_TAG
-    #
-    #echo "removing picard private jar - $DIR/picard-private.jar"
-    #rm "$DIR/picard-private.jar"
-    #
-    #echo "$GCR_URL:$IMAGE_TAG $PICARD_PRIVATE_VERSION" >> "$DIR/docker_versions.tsv"
-    #
-    #echo "done"
+    echo "building & pushing GCR Image - $GCR_URL:$IMAGE_TAG"
+    docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" $DIR   
+    docker push $GCR_URL:$IMAGE_TAG
+    
+    echo "removing picard private jar - $DIR/picard-private.jar"
+    rm "$DIR/picard-private.jar"
+    
+    echo "$GCR_URL:$IMAGE_TAG $PICARD_PRIVATE_VERSION" >> "$DIR/docker_versions.tsv"
+    echo "done"
 }
 
 main "$@"

@@ -7,7 +7,7 @@ TIMESTAMP=$(date -u +"%Y-%m-%d")
 DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
-GCR_URL=us.gcr.io/broad-gotc-prod/verify-bam-id
+GCR_URL="us.gcr.io/broad-gotc-prod/verify-bam-id"
 DOCKERHUB_URL=""
 IMAGE_TAG=""
 
@@ -44,7 +44,7 @@ function main(){
         ;;
         -t|--tools)
         for t in "${TOOLS[@]}"; do echo $t; done
-        shift
+        exit 0
         ;;
         *)
         shift
@@ -56,12 +56,12 @@ function main(){
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \
-        --build-arg GIT_HASH="$VERIFY_BAM_ID_VERSION" . 
+        --build-arg GIT_HASH="$VERIFY_BAM_ID_VERSION" $DIR 
     docker push "$GCR_URL:$IMAGE_TAG"
 
-    #echo "tagging and pushing Dockerhub image - $DOCKERHUB_URL:$IMAGE_TAG"
-    #docker tag "$GCR_URL:$IMAGE_TAG" "$DOCKERHUB_URL:$IMAGE_TAG"
-    #docker push "$DOCKERHUB_URL:$IMAGE_TAG"
+    # echo "tagging and pushing Dockerhub image - $DOCKERHUB_URL:$IMAGE_TAG"
+    # docker tag "$GCR_URL:$IMAGE_TAG" "$DOCKERHUB_URL:$IMAGE_TAG"
+    # docker push "$DOCKERHUB_URL:$IMAGE_TAG"
 
     echo "$GCR_URL:$IMAGE_TAG" >> "$DIR/docker_versions.tsv"
     echo "done"

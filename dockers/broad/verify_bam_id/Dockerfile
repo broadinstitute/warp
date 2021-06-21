@@ -10,10 +10,10 @@ WORKDIR /usr/gitc
 ARG GIT_HASH=c1cba76e979904eb69c31520a0d7f5be63c72253
 
 RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y zlib1g-dev libcurl4-openssl-dev libssl-dev libbz2-dev libhts-dev gcc g++ cmake autoconf wget unzip git
-
-RUN wget $BAMID_URL/$GIT_HASH.zip && \
+    apt-get install -y zlib1g-dev libcurl4-openssl-dev libssl-dev libbz2-dev libhts-dev gcc g++ cmake autoconf wget unzip git && \
+    \
+    # Install BamID
+    wget $BAMID_URL/$GIT_HASH.zip && \
     unzip $GIT_HASH.zip && \
     cd VerifyBamID-$GIT_HASH && \
     mkdir build && \
@@ -24,4 +24,7 @@ RUN wget $BAMID_URL/$GIT_HASH.zip && \
     make test && \
     cd ../../ && \
     mv VerifyBamID-$GIT_HASH/bin/VerifyBamID . && \
-    rm -rf $GIT_HASH.zip VerifyBamID-$GIT_HASH
+    rm -rf $GIT_HASH.zip VerifyBamID-$GIT_HASH && \
+    \
+    # Clean up cached files
+    apt-get clean && rm -rf /var/lib/apt/lists/*

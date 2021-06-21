@@ -19,4 +19,5 @@ RUN apk add --no-cache bash curl findutils jq wget openjdk8-jre python2 unzip &&
     rm temp.zip  && \ 
     mv vault /usr/local/bin/
 
+
 COPY picard-private.jar .
