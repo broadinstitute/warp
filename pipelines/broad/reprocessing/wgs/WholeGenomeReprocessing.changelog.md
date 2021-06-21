@@ -1,3 +1,8 @@
+# 2.3.7
+2021-06-01
+
+* Removed duplicate MarkDuplicatesSpark task from BamProcessing
+
 # 2.3.6
 2021-06-01 
 
