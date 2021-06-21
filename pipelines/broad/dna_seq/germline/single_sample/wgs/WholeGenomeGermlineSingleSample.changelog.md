@@ -1,4 +1,4 @@
-#2.4.1
+# 2.4.1
 2021-06-21
 
 * Removed duplicate Docker image from CheckPreValidation task in QC
