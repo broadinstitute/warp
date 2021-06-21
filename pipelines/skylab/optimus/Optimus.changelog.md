@@ -1,3 +1,10 @@
+# 4.2.5
+
+2021-05-24 (Date of Last Commit)
+
+* Updated Picard task to support single nucleus SS2. Changes do not affect Optimus
+* We also updated STAR to 2.7.9a
+
 # 4.2.4
 
 2021-04-07 (Date of Last Commit)

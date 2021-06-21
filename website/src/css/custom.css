@@ -15,6 +15,12 @@
   --ifm-color-primary-lighter: #50c18e;
   --ifm-color-primary-lightest: #6aca9f;
   --ifm-code-font-size: 95%;
+
+  /* Custom admonitions colors */
+  --ifm-color-info: #1D4ED8;
+  --ifm-color-success: #047857;
+  --ifm-color-warning: #B45309;
+  --ifm-color-danger: #B91C1C;
 }
 
 /* Dark Mode */
@@ -45,6 +51,7 @@ html[data-theme='dark'] {
     no-repeat;
 }
 
+/* Highlight text */
 #inline-blue {
   background-color: #2780e3;
   color: #fff;
