@@ -3,7 +3,7 @@ set -e
 
 # Update verson when changes to Dockerfile are made
 DOCKER_IMAGE_VERSION=1.0.2
-TIMESTAMP=$(date -u +"%Y-%m-%d")
+TIMESTAMP=$(date +"%s")
 DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags"
