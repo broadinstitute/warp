@@ -9,7 +9,7 @@ ARG ZCALL_VERSION=zCall_Version1.3_AutoCall
 
 WORKDIR /usr/gitc
 
-# Install dependencies.
+# Install dependencies
 RUN apk add --no-cache bash python2 unzip curl && \
     \
     # Download zip file and extract contents to working directory

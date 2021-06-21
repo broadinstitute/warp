@@ -11,7 +11,7 @@ ARG IAAP_CLI_VERSION=iaap-cli-linux-x64-1.1.0-sha.80d7e5b3d9c1fdfc2e99b472a90652
 
 WORKDIR /usr/gitc
 
-# Install mono
+# Install dependencies
 RUN apt-get update && apt-get install -y mono-complete curl && \
     \ 
     # Install Illumina Iaap Cli

@@ -7,7 +7,7 @@ ENV TERM=xterm-256color \
 
 WORKDIR /usr/gitc
 
-# Install dependencies.
+# Install dependencies
 RUN apk add --no-cache bash curl findutils jq wget openjdk8-jre python2 unzip && \
     \
     # Download the gsutil install script
