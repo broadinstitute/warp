@@ -1,6 +1,6 @@
 ## Announcing a new site for WARP documentation!
 
-Smart-seq2 Multi-Sample documentation has moved! Read more about the [Smart-seq2 Multi-Sample Pipeline](https://broadinstitute.github.io/warp/documentation/Pipelines/Smart-seq2_Multi_Sample_Pipeline/) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
+Smart-seq2 Multi-Sample documentation has moved! Read more about the [Smart-seq2 Multi-Sample Pipeline](https://broadinstitute.github.io/warp/docs/Pipelines/Smart-seq2_Multi_Sample_Pipeline/README) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
 
 
 ### Smart-seq2 Multi-Sample summary

@@ -8,7 +8,7 @@ Below we provide a sample methods section for a publication. For the complete pi
 
 ## Methods
 
-Data processing was performed with the CEMBA v1.1.0 Pipeline. Sequencing reads were first trimmed to remove adaptors using Cutadapt 1.18 with the following parameters in paired-end mode: `-f fastq -quality-cutoff 20 -minimum-length 62 -a AGATCGGAAGAGCACACGTCTGAAC -A AGATCGGAAGAGCGTCGTGTAGGGA`.
+Data processing was performed with the CEMBA v1.1.0 Pipeline (RRID:SCR_021219). Sequencing reads were first trimmed to remove adaptors using Cutadapt 1.18 with the following parameters in paired-end mode: `-f fastq -quality-cutoff 20 -minimum-length 62 -a AGATCGGAAGAGCACACGTCTGAAC -A AGATCGGAAGAGCGTCGTGTAGGGA`.
 
 After trimming the adapters, an unaligned BAM (uBAM) for the trimmed R1 FASTQ was created using Picard v2.18.23.
 

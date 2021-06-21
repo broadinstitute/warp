@@ -1,7 +1,7 @@
 
 ## Announcing a new site for WARP documentation!
 
-Illumina Genotyping Array documentation has moved! Read more about the [Illumina Genotyping Array Pipeline](https://broadinstitute.github.io/warp/documentation/Pipelines/Illumina_Genotyping_Arrays_Pipeline/IlluminaGenotypingArray.documentation.html) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
+Illumina Genotyping Array documentation has moved! Read more about the [Illumina Genotyping Array Pipeline](https://broadinstitute.github.io/warp/docs/Pipelines/Illumina_Genotyping_Arrays_Pipeline/IlluminaGenotypingArray.documentation) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
 
 ### Illumina Genotyping Array summary
 
