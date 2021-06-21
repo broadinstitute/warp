@@ -52,7 +52,7 @@ workflow SmartSeq2SingleNucleus {
   call TrimAdapters.TrimAdapters as TrimAdapters {
        input:
          fastq1 = fastq1,
-         fastq2 = select_first([fastq2]),
+         fastq2 = fastq2,
          adapter_list = adapter_list
    }
 
