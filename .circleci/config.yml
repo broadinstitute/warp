@@ -122,6 +122,15 @@ jobs:
                       ./tests/skylab/trigger_test.sh ATAC
                   no_output_timeout: 3.0h
 
+    test_smartseq2_single_nucleus:
+      machine: true
+      steps:
+        - checkout
+        - run:
+            command: |
+              ./tests/skylab/trigger_test.sh smartseq2_single_nucleus
+            no_output_timeout: 3.0h
+
 workflows:
     version: 2
     test_all:
@@ -132,6 +141,7 @@ workflows:
             - test_optimus_mouse
             - test_smartseq2
             - test_smartseq2_single_end
+            - test_smartseq2_single_nucleus
             #         - test_npz2rds
             - test_sc_atac
             - test_atac
