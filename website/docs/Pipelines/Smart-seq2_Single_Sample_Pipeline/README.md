@@ -213,6 +213,10 @@ All SS2 release notes are documented in the [Smartseq2 Single Sample changelog](
 Please identify the SS2 pipeline in your methods section using the Smart-seq2 Single Sample Pipeline's [SciCrunch resource identifier](https://scicrunch.org/browse/resourcedashboard).
 * Ex: *Smart-seq2 Single Sample Pipeline (RRID:SCR_021228)*
 
+## Consortia Support 
+This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project. 
+
+If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org).
 
 ## Have Suggestions?
 Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
