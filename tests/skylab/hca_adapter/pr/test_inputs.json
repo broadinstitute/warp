@@ -44,6 +44,6 @@
   "TestHcaAdapter.run_type": "run",
   "TestHcaAdapter.schema_url": "https://schema.humancellatlas.org/",
   "TestHcaAdapter.species": ["Mus musculus"],
-  "TestHcaAdapter.staging_area": "gs://hca-dcp-mint-test-data/hca_adapter_test/"
+  "TestHcaAdapter.staging_area": "dev/null"
 }
 
