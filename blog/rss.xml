@@ -2,7 +2,7 @@
 <rss version="2.0">
     <channel>
         <title>WARP Blog</title>
-        <link>https://broadinstitute.github.io/blog</link>
+        <link>https://broadinstitute.github.io/warp/blog</link>
         <description>WARP Blog</description>
         <lastBuildDate>Sat, 29 May 2021 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
