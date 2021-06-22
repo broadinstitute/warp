@@ -56,7 +56,7 @@ function main(){
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \
-        --build-arg GIT_HASH="$VERIFY_BAM_ID_VERSION" $DIR 
+        --build-arg GIT_HASH="$VERIFY_BAM_ID_VERSION" "$DIR"
     docker push "$GCR_URL:$IMAGE_TAG"
 
     # echo "tagging and pushing Dockerhub image - $DOCKERHUB_URL:$IMAGE_TAG"

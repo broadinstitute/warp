@@ -57,7 +57,7 @@ function main(){
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \
-        --build-arg IAAP_CLI_VERSION="$IAAP_CLI_VERSION" $DIR
+        --build-arg IAAP_CLI_VERSION="$IAAP_CLI_VERSION" "$DIR"
     docker push "$GCR_URL:$IMAGE_TAG"
 
     # echo "tagging and pushing Dockerhub image - $DOCKERHUB_URL:$IMAGE_TAG"
