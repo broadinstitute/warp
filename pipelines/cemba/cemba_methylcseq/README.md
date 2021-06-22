@@ -1,6 +1,6 @@
 ## Announcing a new site for WARP documentation!
 
-CEMBA documentation has moved! Read more about the [CEMBA Pipeline](https://broadinstitute.github.io/warp/documentation/Pipelines/CEMBA_MethylC_Seq_Pipeline/) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
+CEMBA documentation has moved! Read more about the [CEMBA Pipeline](https://broadinstitute.github.io/warp/docs/Pipelines/CEMBA_MethylC_Seq_Pipeline/README) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
 
 ### CEMBA summary
 

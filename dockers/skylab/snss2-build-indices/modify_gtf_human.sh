@@ -3,6 +3,9 @@
 fasta_in=$1
 fasta_modified="modified_$(basename "$fasta_in")"
 
+# This script is from Cell Ranger version 5.0.1 by 10X Genomics: 
+# https://support.10xgenomics.com/single-cell-gene-expression/software/release-notes/build#GRCh38_2020A
+
 # Modify sequence headers in the Ensembl FASTA to match the file
 # "GRCh38.primary_assembly.genome.fa" from GENCODE. Unplaced and unlocalized
 # sequences such as "KI270728.1" have the same names in both versions.

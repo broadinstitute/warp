@@ -1,6 +1,6 @@
 ## Announcing a new site for WARP documentation!
 
-Whole Genome Germline Single Sample documentation has moved! Read more about the [Whole Genome Germline Single Sample Pipeline](https://broadinstitute.github.io/warp/documentation/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
+Whole Genome Germline Single Sample documentation has moved! Read more about the [Whole Genome Germline Single Sample Pipeline](https://broadinstitute.github.io/warp/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/README) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
 
 ### Whole Genome Germline Single Sample summary
 
