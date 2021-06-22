@@ -12,7 +12,6 @@ IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
 
 # Picard private artifact
 PICARD_PRIVATE_VERSION="61af9bff4587783e5981a496f422ea36102482b5"
-ARTIFACTORY_URL="https://broadinstitute.jfrog.io/artifactory/libs-release-local/org/broadinstitute/picard-private"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud vault jq)
