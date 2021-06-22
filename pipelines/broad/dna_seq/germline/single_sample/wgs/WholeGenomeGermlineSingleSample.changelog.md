@@ -1,14 +1,10 @@
-# 2.4.1
-2021-06-21
-
-* Removed duplicate Docker image from CheckPreValidation task in QC
-
 # 2.4.0
-2021-06-10
+2021-06-21
 
 * Updated GoTC base image to AppSec approved 
 * Updated BWA version for GoTC image from 0.7.15.r1140 to 0.7.15
 * Updated VerifyBamID to use AppSec base image
+* Removed duplicate Docker image from CheckPreValidation task in QC
 
 # 2.3.5
 2021-06-01
