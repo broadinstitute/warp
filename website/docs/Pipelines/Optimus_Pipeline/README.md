@@ -174,7 +174,7 @@ The [Metrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Se
 
 #### 7. Count Matrix Construction
 
-The Optimus [CreateCountMatrix](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CreateCountMatrix.wdl) task (imported as "Count") evaluates every read in the BAM file and creates a UMI-aware count matrix using [sctools](https://github.com/HumanCellAtlas/sctools). This matrix contains the number of molecules that were observed for each cell barcode and for each gene. The task discards any read that maps to more than one gene, and counts any remaining reads provided the triplet of cell barcode, molecule barcode, and gene name is unique, indicating the read originates from a single transcript present at the time of cell lysis. To correctly specific the gene name tag, this task will look for the 'GE' tag.
+The Optimus [CreateCountMatrix](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CreateCountMatrix.wdl) task (imported as "Count") evaluates every read in the BAM file and creates a UMI-aware count matrix using [sctools](https://github.com/HumanCellAtlas/sctools). This matrix contains the number of molecules that were observed for each cell barcode and for each gene. The task discards any read that maps to more than one gene, and counts any remaining reads provided the triplet of cell barcode, molecule barcode, and gene name is unique, indicating the read originates from a single transcript present at the time of cell lysis. To correctly specify the gene name tag, this task will look for the 'GE' tag.
 
 #### 8. Identification of Empty Droplets
 
