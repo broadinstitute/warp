@@ -55,16 +55,12 @@ function main(){
     esac
     done
 
-    echo "downloading picard private jar -  $ARTIFACTORY_URL/$PICARD_PRIVATE_VERSION/picard-private-$PICARD_PRIVATE_VERSION.jar"
-    curl "$ARTIFACTORY_URL/$PICARD_PRIVATE_VERSION/picard-private-$PICARD_PRIVATE_VERSION.jar" > "$DIR/picard-private.jar"
-
     echo "building & pushing GCR Image - $GCR_URL:$IMAGE_TAG"
-    docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" $DIR   
-    docker push $GCR_URL:$IMAGE_TAG
+    docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \
+        --build-arg PICARD_PRIVATE_VERSION="$PICARD_PRIVATE_VERSION" $DIR  
+    #docker push $GCR_URL:$IMAGE_TAG
     
-    echo "removing picard private jar - $DIR/picard-private.jar"
-    rm "$DIR/picard-private.jar"
-    
+
     echo "$GCR_URL:$IMAGE_TAG $PICARD_PRIVATE_VERSION" >> "$DIR/docker_versions.tsv"
     echo "done"
 }
