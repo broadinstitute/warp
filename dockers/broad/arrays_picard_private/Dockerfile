@@ -1,4 +1,4 @@
-FROM frolvlad/alpine-glibc
+FROM frolvlad/alpine-glibc:glibc-2.33
 
 LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>"
 
@@ -10,9 +10,8 @@ WORKDIR /usr/gitc
 
 ARG PICARD_PRIVATE_VERSION=61af9bff4587783e5981a496f422ea36102482b5
 
-
 # Install dependencies
-RUN apk add --no-cache bash curl findutils jq wget openjdk8-jre python2 unzip && \
+RUN apk add --no-cache bash curl findutils jq wget tini openjdk8-jre python2 unzip && \
     \
     # Download picard private jar
     curl -L $ARTIFACTORY_URL/$PICARD_PRIVATE_VERSION/picard-private-$PICARD_PRIVATE_VERSION.jar > picard-private.jar && \
@@ -25,3 +24,6 @@ RUN apk add --no-cache bash curl findutils jq wget openjdk8-jre python2 unzip &&
     unzip temp.zip && \
     rm temp.zip  && \ 
     mv vault /usr/local/bin/
+
+# Set tini as default entry point
+ENTRYPOINT ["/sbin/tini", "--"]
