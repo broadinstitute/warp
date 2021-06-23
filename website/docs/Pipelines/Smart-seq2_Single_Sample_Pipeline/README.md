@@ -128,7 +128,7 @@ If you are looking for the parameters used for each task/tool, click on the task
 HISAT2 is a fast, cost-efficient alignment tool that can determine the presence of non-transcript sequences and true transcript sequences, taking into account the presence of single-nucleotide polymorphisms ([Kim et al.,2019](https://www.nature.com/articles/s41587-019-0201-4)). The Smart-seq2 Single Sample workflow uses the [HISAT2 task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/HISAT2.wdl) to call HISAT2 and perform graph-based alignment of paired- or single-end reads (in the form of FASTQ files) to a reference genome. This task requires a reference index which can be built using the [BuildIndices.wdl](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices) documentation. The outputs of the task include a genome-aligned BAM file, a BAM index, and an alignment log file.
 
 ##### 1.2 Calculate summary metrics using Picard
-[Picard](https://broadinstitute.github.io/picard/) is a suite of command line tools used for manipulating high-throughput sequencing data. The [Picard task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Picard.wdl) uses Picard tools to calculate quality control measurements on the HISAT2 genome-aligned BAM file. The task requires a reference genome fasta, a RefFlat gene annotation file, and an RNA intervals file (see the [Creating_Smartseq2_References](./Creating_Smartseq2_References.md) documentation). The outputs of the task are text and PDF files for each metric.
+[Picard](https://broadinstitute.github.io/picard/) is a suite of command line tools used for manipulating high-throughput sequencing data. The [Picard task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Picard.wdl) uses Picard tools to calculate quality control measurements on the HISAT2 genome-aligned BAM file. The task requires a reference genome fasta, a RefFlat gene annotation file, and an RNA intervals file (see the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices) for creating references). The outputs of the task are text and PDF files for each metric.
 
 The [Picard task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Picard.wdl) generates QC metrics by using three sub-tasks:
 
@@ -213,6 +213,10 @@ All SS2 release notes are documented in the [Smartseq2 Single Sample changelog](
 Please identify the SS2 pipeline in your methods section using the Smart-seq2 Single Sample Pipeline's [SciCrunch resource identifier](https://scicrunch.org/browse/resourcedashboard).
 * Ex: *Smart-seq2 Single Sample Pipeline (RRID:SCR_021228)*
 
+## Consortia Support 
+This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project. 
+
+If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org).
 
 ## Have Suggestions?
 Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
