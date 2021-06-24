@@ -7,9 +7,9 @@ ENV TERM=xterm-256color \
     BAMID_URL=https://github.com/Griffan/VerifyBamID/archive \
     TINI_VERSION=v0.19.0
 
-WORKDIR /usr/gitc
-
 ARG GIT_HASH=c1cba76e979904eb69c31520a0d7f5be63c72253
+
+WORKDIR /usr/gitc
 
 # Install dependencies
 RUN apt-get update && \
