@@ -1,15 +1,13 @@
-# Have to use debian based image, many of the installed packages here are not available in Alpine
 FROM us.gcr.io/broad-dsp-gcr-public/base/python:debian
 
 LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>"
 
 ENV TERM=xterm-256color \
-    BAMID_URL=https://github.com/Griffan/VerifyBamID/archive \
-    TINI_VERSION=v0.19.0
-
-ARG GIT_HASH=c1cba76e979904eb69c31520a0d7f5be63c72253
+    BAMID_URL=https://github.com/Griffan/VerifyBamID/archive
 
 WORKDIR /usr/gitc
+
+ARG GIT_HASH=c1cba76e979904eb69c31520a0d7f5be63c72253
 
 # Install dependencies
 RUN apt-get update && \
@@ -29,11 +27,5 @@ RUN apt-get update && \
     mv VerifyBamID-$GIT_HASH/bin/VerifyBamID . && \
     rm -rf $GIT_HASH.zip VerifyBamID-$GIT_HASH && \
     \
-    # Install tini
-    wget https://github.com/krallin/tini/releases/download/$TINI_VERSION/tini -O /sbin/tini && \
-    chmod +x /sbin/tini && \
     # Clean up cached files
     apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Set tini as default entrypoint
-ENTRYPOINT [ "/sbin/tini", "--" ]
