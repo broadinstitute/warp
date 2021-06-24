@@ -1,7 +1,8 @@
 # 2.4.5
-2021-06-01
+2021-06-22
 
 * Removed duplicate MarkDuplicatesSpark task from BamProcessing
+* Removed duplicate Docker image from CheckPreValidation task in QC
 
 # 2.4.4
 2021-06-01 
