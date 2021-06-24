@@ -101,6 +101,11 @@ Release information for the Multi-SS2 Pipeline can be found in the [changelog](h
 Please identify the pipeline in your methods section using the Smart-seq2 Multi-Sample Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_018920/resolver?q=Smart-seq2&l=Smart-seq2).
 * Ex: *Smart-seq2 Multi-Sample Pipeline (RRID:SCR_018920)*
 
+## Consortia Support 
+This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project. 
+
+If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org).
+
 ## Have Suggestions?
 Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
 
