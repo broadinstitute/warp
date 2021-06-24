@@ -8,7 +8,6 @@ DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
 GCR_URL="us.gcr.io/broad-gotc-prod/zcall"
-DOCKERHUB_URL=""
 IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
 
 # ZCall Version
@@ -59,10 +58,6 @@ function main(){
     docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \
         --build-arg ZCALL_VERSION="$ZCALL_VERSION" $DIR 
     docker push "$GCR_URL:$IMAGE_TAG"
-
-    # echo "tagging and pushing Dockerhub image - $DOCKERHUB_URL:$IMAGE_TAG"
-    # docker tag "$GCR_URL:$IMAGE_TAG" "$DOCKERHUB_URL:$IMAGE_TAG"
-    # docker push "$DOCKERHUB_URL:$IMAGE_TAG"
 
     echo "$GCR_URL:$IMAGE_TAG" >> "$DIR/docker_versions.tsv"
     echo "done"
