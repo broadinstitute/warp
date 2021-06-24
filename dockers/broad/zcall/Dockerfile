@@ -1,4 +1,4 @@
-FROM frolvlad/alpine-python3:latest
+FROM python:3.9-alpine
 
 LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>"
 
