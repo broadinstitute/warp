@@ -12,7 +12,7 @@ sidebar_position: 1
 
 ## Introduction to the Optimus Workflow
 
-Optimus is an open-source, cloud-optimized pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/). It supports processing of any 3' single-cell and single-nucleus count data generated with the [10x Genomic v2 or v3 assay](https://www.10xgenomics.com/solutions/single-cell/).
+Optimus is an open-source, cloud-optimized pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/) as well as the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). It supports processing of any 3' single-cell and single-nucleus count data generated with the [10x Genomic v2 or v3 assay](https://www.10xgenomics.com/solutions/single-cell/).
 
 It is an alignment and transcriptome quantification pipeline that corrects cell barcodes, aligns reads to the genome, corrects Unique Molecular Identifiers (UMIs), generates a count matrix in a UMI-aware manner, calculates summary metrics for genes and cells, detects empty droplets, returns read outputs in BAM format, and returns cell gene counts in numpy matrix and Loom file formats.
 
@@ -174,7 +174,7 @@ The [Metrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Se
 
 #### 7. Count Matrix Construction
 
-The Optimus [CreateCountMatrix](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CreateCountMatrix.wdl) task (imported as "Count") evaluates every read in the BAM file and creates a UMI-aware count matrix using [sctools](https://github.com/HumanCellAtlas/sctools). This matrix contains the number of molecules that were observed for each cell barcode and for each gene. The task discards any read that maps to more than one gene, and counts any remaining reads provided the triplet of cell barcode, molecule barcode, and gene name is unique, indicating the read originates from a single transcript present at the time of cell lysis. To correctly specific the gene name tag, this task will look for the 'GE' tag.
+The Optimus [CreateCountMatrix](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CreateCountMatrix.wdl) task (imported as "Count") evaluates every read in the BAM file and creates a UMI-aware count matrix using [sctools](https://github.com/HumanCellAtlas/sctools). This matrix contains the number of molecules that were observed for each cell barcode and for each gene. The task discards any read that maps to more than one gene, and counts any remaining reads provided the triplet of cell barcode, molecule barcode, and gene name is unique, indicating the read originates from a single transcript present at the time of cell lysis. To correctly specify the gene name tag, this task will look for the 'GE' tag.
 
 #### 8. Identification of Empty Droplets
 
@@ -236,6 +236,11 @@ All Optimus pipeline releases are documented in the [Optimus changelog](https://
 ## Citing the Optimus Pipeline
 Please identify the pipeline in your methods section using the Optimus Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_018908/resolver?q=SCR_018908&l=SCR_018908).
 * Ex: *Optimus Pipeline (RRID:SCR_018908)*
+
+## Consortia Support 
+This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project and the[BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
+
+If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org).
 
 ## Have Suggestions?
 
