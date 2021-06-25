@@ -19,7 +19,7 @@ HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|tools] -- script to build 
 
 where:
     -h|--help Show help text
-    -v|--version Zip version of Zcall to use (default: $ZCALL_VERSION)
+    -v|--version Version of Samtools to use (default: $ZCALL_VERSION)
     -t|--tools Show tools needed to run script
     "
 
