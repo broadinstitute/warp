@@ -10,7 +10,7 @@ DIR=$(cd $(dirname $0) && pwd)
 GCR_URL="us.gcr.io/broad-gotc-prod/samtools"
 IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
 
-# ZCall Version
+# Samtools version
 SAMTOOLS_VERSION="1.11"
 
 # Necessary tools and help text

@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 FROM alpine:3.8
+=======
+# Samtools requires lots of Debian specific packages
+# This also acts as a base image for many other images that require the JDK
+FROM us.gcr.io/broad-dsp-gcr-public/base/jre:8-debian
+>>>>>>> c757d709e2a554a605b606eb896c23b1c63691ca
 
 LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>"
 
