@@ -7,15 +7,10 @@ ENV TERM=xterm-256color \
 
 ARG ZCALL_VERSION=zCall_Version1.3_AutoCall
 
-<<<<<<< HEAD
-# Install bash, python3
-RUN apk add --no-cache bash python3
-=======
 WORKDIR /usr/gitc
->>>>>>> trivy-action
 
-# Install dependencies
-RUN apk add --no-cache bash python2 unzip curl && \
+# Install bash, python3
+RUN apk add --no-cache bash python3 unzip curl && \
     \
     # Download zip file and extract contents to working directory
     mkdir temp zcall && cd temp && \

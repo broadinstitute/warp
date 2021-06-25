@@ -6,18 +6,12 @@ ENV TERM=xterm-256color \
     NO_VAULT=true \
     ARTIFACTORY_URL=https://broadinstitute.jfrog.io/artifactory/libs-release-local/org/broadinstitute/picard-private
 
-<<<<<<< HEAD
-# Install dependencies.
-RUN apk --no-cache add bash curl findutils jq wget openjdk8-jre python3 unzip
-=======
 WORKDIR /usr/gitc
->>>>>>> trivy-action
 
 ARG PICARD_PRIVATE_VERSION=61af9bff4587783e5981a496f422ea36102482b5
 
-
 # Install dependencies
-RUN apk add --no-cache bash curl findutils jq wget openjdk8-jre python2 unzip && \
+RUN apk --no-cache add bash curl findutils jq wget openjdk8-jre python3 unzip && \
     \
     # Download picard private jar
     curl -L $ARTIFACTORY_URL/$PICARD_PRIVATE_VERSION/picard-private-$PICARD_PRIVATE_VERSION.jar > picard-private.jar && \

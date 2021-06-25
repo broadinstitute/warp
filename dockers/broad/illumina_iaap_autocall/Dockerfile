@@ -8,12 +8,6 @@ ENV TERM=xterm-256color \
 
 ARG IAAP_CLI_VERSION=iaap-cli-linux-x64-1.1.0-sha.80d7e5b3d9c1fdfc2e99b472a90652fd3848bbc7
 
-<<<<<<< HEAD
-# Install mono, clean up cache
-RUN apt-get update && apt-get install -y mono-complete && apt-get clean && rm -rf /var/lib/apt/lists/*
-=======
->>>>>>> trivy-action
-
 WORKDIR /usr/gitc
 
 # Install dependencies
