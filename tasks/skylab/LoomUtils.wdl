@@ -196,3 +196,87 @@ task AggregateSmartSeq2Loom {
       maxRetries: 1
     }
 }
+
+
+task SingleNucleiSmartSeq2LoomOutput {
+  input {
+    #runtime values
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.7"
+
+    Array[File] smartseq_qc_files
+    # introns counts
+    File introns_counts
+    # exons counts
+    File exons_counts
+    # annotation file 
+    File annotation_introns_added_gtf
+    # name of the sample
+    String input_id
+    String? input_name
+    String? input_id_metadata_field
+    String? input_name_metadata_field
+
+    String pipeline_version
+    Int preemptible = 3
+    Int disk = 200
+    Int machine_mem_mb = 18
+    Int cpu = 4
+  }
+
+  meta {
+    description: "This task will convert output from the SmartSeq2SingleNucleus pipeline into a loom file. Contrary to the SmartSeq2 single cell where there is only RSEM counts, here we have intronic and exonic counts per gene name"
+  }
+
+  parameter_meta {
+    preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
+  }
+
+  command {
+    set -euo pipefail
+
+    # creates a table with gene_id, gene_name, intron and exon counts
+    echo "Running create_snss2_counts_csv."
+    python /tools/create_snss2_counts_csv.py \
+    --in-gtf ~{annotation_introns_added_gtf} \
+    --intron-counts ~{introns_counts} \
+    --exon-counts ~{exons_counts}  \
+    -o "~{input_id}.exon_intron_counts.tsv"
+    echo "Success create_snss2_counts_csv."
+
+    # groups the QC file into one file 
+    echo "Running GroupQCs"
+    GroupQCs -f \
+      ~{sep=' ' smartseq_qc_files} \
+      -t Picard -o Picard_group
+    echo "Success GroupQCs"
+
+    # create the loom file
+    echo "Running create_loom_snss2."
+    python3 /tools/create_loom_snss2.py \
+     --qc_files Picard_group.csv \
+     --count_results  ~{input_id}.exon_intron_counts.tsv \
+     --output_loom_path ~{input_id}.loom \
+     --input_id ~{input_id} \
+       ~{"--input_name " + input_name} \
+      ~{"--input_id_metadata_field " + input_id_metadata_field} \
+      ~{"--input_name_metadata_field " + input_name_metadata_field} \
+     --pipeline_version ~{pipeline_version} 
+    echo "Success create_loom_snss2"
+
+  }
+
+  runtime {
+    docker: docker
+    cpu: cpu 
+    memory: "~{machine_mem_mb} GiB"
+    disks: "local-disk ~{disk} HDD"
+    preemptible: preemptible
+  }
+
+  output {
+    File loom_output = "~{input_id}.loom"
+    File exon_intron_counts = "~{input_id}.exon_intron_counts.tsv"
+  }
+}
+
+

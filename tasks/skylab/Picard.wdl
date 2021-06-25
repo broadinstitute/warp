@@ -287,3 +287,69 @@ task CollectDuplicationMetrics {
   }
 }
 
+# Here we use "-XX:ParallelGCThreads=2" to run MarkDuplication on multiple threads 
+task RemoveDuplicatesFromBam {
+  input {
+    File aligned_bam
+    String input_id
+    String output_basename
+
+    # runtime values
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
+    Int machine_mem_mb = 32768
+    # give the command 1 GiB of overhead
+    Int command_mem_mb = machine_mem_mb - 1000
+    Int cpu = 2
+    # use provided disk number or dynamically size on our own, with 200GiB of additional disk
+    Int disk = ceil(size(aligned_bam, "GiB") + 200)
+    Int preemptible = 3
+  }
+  
+
+  meta {
+    description: "This Picard task will collect alignment DuplicationMetrics."
+  }
+
+  parameter_meta {
+    aligned_bam: "input aligned bam"
+    output_basename: "basename used for output files"
+    docker: "(optional) the docker image containing the runtime environment for this task"
+    machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
+    cpu: "(optional) the number of cpus to provision for this task"
+    disk: "(optional) the amount of disk space (GiB) to provision for this task"
+    preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
+  }
+  
+  command {
+    java -Xmx${command_mem_mb}m -XX:ParallelGCThreads=${cpu} -jar /usr/picard/picard.jar  MarkDuplicates \
+       VALIDATION_STRINGENCY=SILENT  \
+       INPUT=${aligned_bam} \
+       OUTPUT=aligned_bam.DuplicatesRemoved.bam \
+       ASSUME_SORTED=true \
+       METRICS_FILE=aligned_bam.duplicate_metrics.txt \
+       REMOVE_DUPLICATES=true
+
+    java -Xmx${command_mem_mb}m -XX:ParallelGCThreads=${cpu} -jar /usr/picard/picard.jar AddOrReplaceReadGroups \
+       I=aligned_bam.DuplicatesRemoved.bam \
+       O="~{input_id}.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam" \
+       RGID=4 \
+       RGLB=lib1 \
+       RGPL=ILLUMINA \
+       RGPU=unit1 \
+       RGSM=20
+  }
+  
+  runtime {
+    docker: docker
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ${disk} HDD"
+    cpu: cpu
+    preemptible: preemptible
+  }
+  
+  output {
+    File dedup_metrics = "aligned_bam.duplicate_metrics.txt"
+    File output_bam = "~{input_id}.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam"
+  }
+}
+

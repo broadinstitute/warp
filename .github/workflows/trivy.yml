@@ -12,7 +12,7 @@ jobs:
         - dockers/broad/arrays_picard_private
         - dockers/broad/genomes_on_the_cloud
         - dockers/broad/illumina_iaap_autocall
-        - dockers/broad/VerifyBamId
+        - dockers/broad/verify_bam_id
         - dockers/broad/zcall
     steps:
       - uses: actions/checkout@v2

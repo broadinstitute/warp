@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TIMESTAMP=$(date -u +"%Y-%m-%d_%H-%M-%SZ")
+TIMESTAMP=$(date +"%s")
 DIR=$(cd $(dirname $0) && pwd)
 
 set -e
