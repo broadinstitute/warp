@@ -1,7 +1,7 @@
 # 1.1.0
 2021-06-28
 
-* Change GoTC image to Samtools specific image in CramToUnmappedBams
+* Change GoTC image to Samtools specific image in CramToUnmappedBams and Utilities
 
 # 1.0.1
 2021-02-08
