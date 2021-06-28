@@ -11,7 +11,7 @@ ARG PICARD_PRIVATE_VERSION=61af9bff4587783e5981a496f422ea36102482b5
 WORKDIR /usr/gitc
 
 # Install dependencies
-RUN apk add --no-cache bash curl findutils jq wget tini openjdk8-jre python2 unzip && \
+RUN apk add --no-cache bash curl findutils jq wget tini openjdk8-jre python3 unzip && \
     \
     # Download picard private jar
     curl -L $ARTIFACTORY_URL/$PICARD_PRIVATE_VERSION/picard-private-$PICARD_PRIVATE_VERSION.jar > picard-private.jar && \
