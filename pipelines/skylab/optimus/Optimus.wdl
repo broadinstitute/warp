@@ -59,7 +59,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "4.2.5"
+  String pipeline_version = "4.2.6"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -68,7 +68,7 @@ workflow Optimus {
     r1_fastq: "forward read, contains cell barcodes and molecule barcodes"
     r2_fastq: "reverse read, contains cDNA fragment generated from captured mRNA"
     i1_fastq: "(optional) index read, for demultiplexing of multiple samples on one flow cell."
-    input_id: "name of sample matching this file, inserted into read group header"
+    input_id: "name of sample matching this file, inserted into read group header; can be a UUID or human-readble ID"
     input_id_metadata_field: "String that describes the metadata field containing the input_id"
     input_name: "User provided sample name or cell_names"
     input_name_metadata_field: "String that describes the metadata field containing the input_name"
