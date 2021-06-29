@@ -82,7 +82,7 @@ Comments will be likely be made within **3 business days** of the PR submission.
 If a PR is abandoned after starting the review process, the WARP team will either take ownership of it or close the PR.
 
 ### Troubleshooting WARP testing
-The WARP team will help troubleshoot testing for new contributions. 
+All pipelines must pass syntax, scientific and Smart-tests, as described in the [testing overview](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines). The WARP team will help troubleshoot testing for new contributions. 
 
 ## Example Contribution Process
 
