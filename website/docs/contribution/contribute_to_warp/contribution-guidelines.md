@@ -3,7 +3,7 @@ We encourage the community to make contributions to our existing pipelines, such
 
 Guidelines for contributing differ slightly depending on the size of the update and whether the contributor has WARP repository permissions. 
 
-To get started, read the following [Contribution Guidelines](#contribution-guidelines) and the [Example Contribution](#example-contribution-process). 
+To get started, read the following [Contribution Guidelines](#contribution-guidelines) and the [Contribution Tutorial](#contribution-tutorial). 
 
 If you have remaining questions about your contribution, reach out to the WARP team by [filing a new issue](https://github.com/broadinstitute/warp/issues/new).
 
@@ -84,7 +84,7 @@ If a PR is abandoned after starting the review process, the WARP team will eithe
 ### Troubleshooting WARP testing
 All pipelines must pass syntax, scientific and Smart-tests, as described in the [testing overview](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines). The WARP team will help troubleshoot testing for new contributions. 
 
-## Example Contribution Process
+## Contribution Tutorial
 
 ### Step-by-step instructions for a small update
 
