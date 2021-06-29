@@ -8,8 +8,12 @@ To get started, read the following [Contribution Guidelines](#contribution-guide
 If you have remaining questions about your contribution, reach out to the WARP team by [filing a new issue](https://github.com/broadinstitute/warp/issues/new).
 
 :::tip What if I want to contribute a new pipeline?
-Contribution guidelines for new pipelines are in development, but to contribute a new pipeline, reach out the WARP team first by [filing an issue](https://github.com/broadinstitute/warp/issues/new).
+Contribution guidelines for new pipelines are in development, but to contribute a new pipeline, reach out the WARP team first by [filing an issue](https://github.com/broadinstitute/warp/issues/new). Additionally, read our [Best Practices](https://broadinstitute.github.io/warp/docs/About_WARP/BestPractices) for pipeline development.
 :::
+
+## Contributor Agreement
+All user contributions will fall under a [BSD-3 license](https://github.com/broadinstitute/warp/blob/master/LICENSE), will not be copyright, and will be open source.
+
 
 ## Contribution Guidelines
 #### 1. Scope the work.
