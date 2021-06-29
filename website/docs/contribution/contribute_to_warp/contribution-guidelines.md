@@ -12,7 +12,7 @@ Contribution guidelines for new pipelines are in development, but to contribute 
 :::
 
 ### Contributor agreement
-All user contributions will fall under a [BSD-3 license](https://github.com/broadinstitute/warp/blob/master/LICENSE), will not be copyright, and will be open source.
+All user contributions will fall under a [BSD 3-Clause license](https://github.com/broadinstitute/warp/blob/master/LICENSE), will not be copyright, and will be open source.
 
 
 ## Contribution Guidelines
