@@ -3,7 +3,7 @@ We encourage the community to make contributions to our existing pipelines, such
 
 Guidelines for contributing differ slightly depending on the size of the update and whether the contributor has WARP repository permissions. 
 
-To get started, read the following [Contribution Guidelines](#contribution-guidelines) and the [Example Contribution](#example-contribution-process) below. 
+To get started, read the following [Contribution Guidelines](#contribution-guidelines) and the [Example Contribution](#example-contribution-process). 
 
 If you have remaining questions about your contribution, reach out to the WARP team by [filing a new issue](https://github.com/broadinstitute/warp/issues/new).
 
@@ -11,7 +11,7 @@ If you have remaining questions about your contribution, reach out to the WARP t
 Contribution guidelines for new pipelines are in development, but to contribute a new pipeline, reach out the WARP team first by [filing an issue](https://github.com/broadinstitute/warp/issues/new). Additionally, read our [Best Practices](https://broadinstitute.github.io/warp/docs/About_WARP/BestPractices) for pipeline development.
 :::
 
-## Contributor Agreement
+### Contributor agreement
 All user contributions will fall under a [BSD-3 license](https://github.com/broadinstitute/warp/blob/master/LICENSE), will not be copyright, and will be open source.
 
 
@@ -25,7 +25,7 @@ If an update is large, or if you're unsure how a change affects multiple workflo
 
 Filing an issue allows our team to provide valuable feedback before starting a large effort, and to appropriately prioritize the work for review. 
 
-Additionally, there are multiple requirements for our testing infrastructure. By filing an issue for large updates, we can work with you right away to flag any potential testing-related issues. 
+Additionally, there are multiple requirements for our [testing](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines) infrastructure. By filing an issue for large updates, we can work with you right away to flag any potential testing-related issues. 
 
 #### 2. Read guidelines for versioning, changelog syntax, and WARP Documentation style.
 
@@ -60,7 +60,7 @@ Updates to pipeline code, Dockers, or reference files might require coordinating
 
 #### 6. Make a Pull Request (PR) to the WARP **develop** branch. 
 
-When updates are ready, make a PR using WARP's **develop** branch as a base. In the comments section of the PR, notify the WARP team to review the PR and start the necessary repository tests. You can do this by typing `test and review @broadinstitute/warp-admins`.
+When updates are ready, make a PR using WARP's **develop** branch as a base. In the comments section of the PR, notify the WARP team to review the PR and start the necessary repository [tests](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines). You can do this by typing `test and review @broadinstitute/warp-admins`.
 
 #### 7. Revise the PR as necessary for the [review process](#review-process). 
 
@@ -143,7 +143,7 @@ After the PR is created, we can tag the WARP team by making a comment in the PR:
 
 ![](warp-admins-tag.png)
 
-The team will work then with us to kick off any necessary tests.
+The team will work then with us to kick off any necessary [tests](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
 When the tests are successful, we'll see a green check left of the test name in the GitHub UI.
 
 ![](tests.png)
