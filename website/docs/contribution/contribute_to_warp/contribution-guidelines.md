@@ -104,25 +104,25 @@ Any update to a workflow WDL, a task called by a  WDL, or a workflow’s accompa
 
 For this update, we’ll also assume that we don’t have permissions to the WARP repository, meaning that we'll need to make a fork of the repository.
 
-#### Step 1. Scope the work.
+#### 1. Scope the work.
 This example is a very small PR, so we don’t need to file an issue first unless we want to confirm with the WARP team that our update is accurate before making the change.
 
-#### Step 2. Read the guidelines for changelog updates.
+#### 2. Read the guidelines for changelog updates.
 Since we’re making an update to the workflow WDL and need to update the changelog, we need to read the [changelog style guide](https://broadinstitute.github.io/warp/docs/contribution/contribute_to_warp/changelog_style) and [versioning guide](https://broadinstitute.github.io/warp/docs/About_WARP/VersionAndReleasePipelines) to identify the new version number.
 
 In this example case, the existing pipeline version is `4.2.5`. Since our change does not break the pipeline, affect inputs/outputs or cause scientific changes, the guides tell us that this is a patch. The new pipeline version will be `4.2.6`. 
 
-#### Step 3. Make a fork of the WARP repository.
+#### 3. Make a fork of the WARP repository.
 Since we don't have permissions to make a branch in WARP, we’ll need to make a fork instead. To do this, we navigate to [WARP](https://github.com/broadinstitute/warp) and click the fork icon in the GitHub UI.
 
 ![](fork.png)
 
-#### Step 4. Make the updates on the fork.
+#### 4. Make the updates on the fork.
 Either locally or the in UI, we’ll edit the existing parameter description in the Optimus workflow and commit the changes to our fork.
 
 ![](optimus_wdl_update.png)
 
-#### Step 5. Assess and make any additional pipeline file changes.
+#### 5. Assess and make any additional pipeline file changes.
 Since our update requires a new version number and changelog entry, we need to update the WDL version and the accompanying changelog. The pipeline version number is indicated in the workflow WDL by the string variable `pipeline_version`. We'll make a patch and change this `4.2.6`.
 
 ![](optimus_pipeline_version.png)
@@ -131,7 +131,7 @@ We’ll also update the Optimus changelog according to the syntax guide to refle
 
 ![](optimus_changelog.png)
 
-#### Step 6. Make a PR to the **develop** branch of WARP
+#### 6. Make a PR to the **develop** branch of WARP
 To merge our updates to the WARP repository, we'll need to create a PR. Since we're making a PR from a fork, we can follow the instructions outlined in the GitHub Docs [guide for making a PR from a fork](https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork).   
 
 When we create the PR, we need to specify a WARP branch to use as the base. All updates should be merged into the WARP **develop** branch, which we can specify in the UI when we open the PR.
@@ -151,10 +151,10 @@ When the tests are successful, we'll see a green check left of the test name in 
 Even if the tests pass, merging will be blocked until the review is complete and at least two reviewers have approved the PR.
 
 
-#### Step 7. Make revisions based on feedback.
+#### 7. Make revisions based on feedback.
 If the WARP team has comments or requires changes, they'll note these directly in the PR. 
 
-#### Step 8. Merge the PR.
+#### 8. Merge the PR.
 Since we don't have permission for the repository, we don't need to take any action for this step. The WARP team will merge our changes when the PR is ready, reviewed, and all tests have passed.
 
 
