@@ -1,3 +1,10 @@
+# 4.2.6
+
+2021-06-28 (Date of Last Commit)
+
+* Updated the parameter_meta data in workflow WDL to include additional description of the input_id
+
+
 # 4.2.5
 
 2021-05-24 (Date of Last Commit)
