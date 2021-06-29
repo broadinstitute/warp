@@ -8,7 +8,7 @@ To get started, read the following [Contribution Guidelines](#contribution-guide
 If you have remaining questions about your contribution, reach out to the WARP team by [filing a new issue](https://github.com/broadinstitute/warp/issues/new).
 
 :::tip What if I want to contribute a new pipeline?
-Contribution guidelines for new pipelines are in development, but to contribute a new pipeline, reach out the WARP team first by [filing an issue](https://github.com/broadinstitute/warp/issues/new). Additionally, read our [Best Practices](https://broadinstitute.github.io/warp/docs/About_WARP/BestPractices) for pipeline development.
+Contribution guidelines for new pipelines are in development, but to contribute a new pipeline, reach out to the WARP team first by [filing an issue](https://github.com/broadinstitute/warp/issues/new). Additionally, read our [Best Practices](https://broadinstitute.github.io/warp/docs/About_WARP/BestPractices) for pipeline development.
 :::
 
 ### Contributor agreement
@@ -17,13 +17,13 @@ All user contributions will fall under a [BSD 3-Clause license](https://github.c
 
 ## Contribution Guidelines
 #### 1. Scope the work.
-Contributions can range from tiny syntax changes to large task, workflow, or Docker code updates. Often changes to a single task WDL or Docker file can affect multiple  workflows that import those same task WDLs or Dockers. This is why it's important to scope updates before proceeding.
+Contributions can range from tiny syntax changes to large task, workflow, or Docker code updates. Often changes to a single task WDL or Docker file can affect multiple workflows that import those same task WDLs or Dockers. This is why it's important to scope updates before proceeding.
 
 :::tip File an issue for large changes
 If an update is large, or if you're unsure how a change affects multiple workflows, **[file an issue](https://github.com/broadinstitute/warp/issues/new) in WARP first**. 
 :::
 
-Filing an issue allows our team to provide valuable feedback before starting a large effort, and to appropriately prioritize the work for review. 
+Filing an issue allows our team to provide valuable feedback before starting a large effort and appropriately prioritize the review work. 
 
 Additionally, there are multiple requirements for our [testing](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines) infrastructure. By filing an issue for large updates, we can work with you right away to flag any potential testing-related issues. 
 
@@ -66,7 +66,7 @@ When updates are ready, make a PR using WARP's **develop** branch as a base. In 
 
 #### 8. Merge updates to the WARP **develop** branch. 
 
-If you have permissions to merge to the WARP repository, you can merge the PR once it's approved. You’ll receive a reminder to perform a [“squash merge”](https://docs.github.com/en/github/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-pull-request-commits). Please delete individual commit names and make one summary name for all commits. 
+If you have permission to merge to the WARP repository, you can merge the PR once it's approved. You’ll receive a reminder to perform a [“squash merge”](https://docs.github.com/en/github/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-pull-request-commits). Please delete individual commit names and make one summary name for all commits. 
 
 If you don’t have WARP permissions, the WARP team will merge the PR for you when it’s ready.
 
@@ -113,7 +113,7 @@ Since we’re making an update to the workflow WDL and need to update the change
 In this example case, the existing pipeline version is `4.2.5`. Since our change does not break the pipeline, affect inputs/outputs or cause scientific changes, the guides tell us that this is a patch. The new pipeline version will be `4.2.6`. 
 
 #### 3. Make a fork of the WARP repository.
-Since we don't have permissions to make a branch in WARP, we’ll need to make a fork instead. To do this, we navigate to [WARP](https://github.com/broadinstitute/warp) and click the fork icon in the GitHub UI.
+Since we don't have permission to make a branch in WARP, we’ll need to make a fork instead. To do this, we navigate to [WARP](https://github.com/broadinstitute/warp) and click the fork icon in the GitHub UI.
 
 ![](fork.png)
 
@@ -160,6 +160,7 @@ Since we don't have permission for the repository, we don't need to take any act
 
 ## Still have questions?
 Contact us by [filing an issue](https://github.com/broadinstitute/warp/issues/new) or email [Kylee Degatano](mailto:kdegatano@broadinstitute.org). 
+
 
 
 
