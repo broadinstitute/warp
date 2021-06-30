@@ -1,6 +1,6 @@
 version 1.0
 
-task ValidateOptimusDescriptorAnalysisFiles {
+task ValidateDescriptorAnalysisFiles {
   input {
     File descriptors_analysis_file_intermediate_bam_json
     String expected_descriptors_analysis_file_intermediate_bam_json_hash
@@ -9,23 +9,21 @@ task ValidateOptimusDescriptorAnalysisFiles {
   }
 
   command <<<
+      # catch intermittent failures
+      set -eo pipefail
+      # calculate hashes; awk is used to extract the hash from the md5sum output that contains both
+      # a hash and the filename that was passed. gzipped files are unzipped to avoid hashing malleable
+      # metadata
 
-    # catch intermittent failures
-    set -eo pipefail
+      descriptors_analysis_file_intermediate_bam_json_hash=$(zcat "~{descriptors_analysis_file_intermediate_bam_json}" | md5sum | awk '{print $1}')
 
-    # calculate hashes; awk is used to extract the hash from the md5sum output that contains both
-    # a hash and the filename that was passed. gzipped files are unzipped to avoid hashing malleable
-    # metadata
+      # test each output for equivalence, echoing any failure states to stdout
+      fail=false
 
-    optimus_descriptors_analysis_file_intermediate_bam_json_hash=$(zcat "~{descriptors_analysis_file_intermediate_bam_json}" | md5sum | awk '{print $1}')
-
-    # test each output for equivalence, echoing any failure states to stdout
-    fail=false
-
-    if [ "$optimus_descriptors_analysis_file_intermediate_bam_json_hash" != "~{expected_descriptors_analysis_file_intermediate_bam_json_hash}" ]; then
-      >&2 echo "optimus_descriptors_analysis_file_intermediate_bam_json_hash ($optimus_descriptors_analysis_file_intermediate_bam_json_hash) did not match expected hash (~{expected_descriptors_analysis_file_intermediate_bam_json_hash})"
-      fail=true
-    fi
+      if [ "$descriptors_analysis_file_intermediate_bam_json_hash" != "~{expected_descriptors_analysis_file_intermediate_bam_json_hash}" ]; then
+        >&2 echo "descriptors_analysis_file_intermediate_bam_json_hash ($descriptors_analysis_file_intermediate_bam_json_hash) did not match expected hash (~{expected_descriptors_analysis_file_intermediate_bam_json_hash})"
+        fail=true
+      fi
 
     if [ $fail == "true" ]; then exit 1; fi
 
