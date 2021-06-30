@@ -3,7 +3,7 @@ We encourage the community to make contributions to our existing pipelines, such
 
 Guidelines for contributing differ slightly depending on the size of the update and whether the contributor has WARP repository permissions. 
 
-To get started, read the following [Contribution Guidelines](#contribution-guidelines) and the [Contribution Tutorial](./contribution-tutorial.md). 
+To get started, read the following [Contribution Guidelines](#contribution-guidelines) and the [Example Contribution](./contribution-tutorial.md). 
 
 If you have remaining questions about your contribution, reach out to the WARP team by [filing a new issue](https://github.com/broadinstitute/warp/issues/new).
 
@@ -12,7 +12,7 @@ Contribution guidelines for new pipelines are in development, but to contribute 
 :::
 
 ### Contributor agreement
-All user contributions will fall under a [BSD 3-Clause license](https://github.com/broadinstitute/warp/blob/master/LICENSE), will not be copyright, and will be open source.
+All user contributions fall under a [BSD 3-Clause License](https://github.com/broadinstitute/warp/blob/master/LICENSE), are not copyright, and are open source. When you make a contribution, you attest that all contributions are your own and not copyrighted by another party.
 
 
 ## Contribution Guidelines
@@ -50,7 +50,7 @@ Updates to pipeline code, Dockers, or reference files might require coordinating
 
 * All changes that affect pipeline workflows must be recorded in the pipeline(s) changelog(s) using semantic versioning. An explanation of this can be found in the [changelog style guide](https://broadinstitute.github.io/warp/docs/contribution/contribute_to_warp/changelog_style). 
 
-* When you update the changelog, the pipeline’s WDL workflow version number must also match the changelog entry to ensure the updates pass the WARP testing process (this is shown in the [Example Contribution](#example-contribution-process) section below).
+* When you update the changelog, the pipeline’s WDL workflow version number must also match the changelog entry to ensure the updates pass the WARP testing process (this is shown in the [Example Contribution](#example-contribution-process)).
 
 * If you make any changes to files hosted in cloud repositories, like pipeline Docker images or reference files, coordinate with the WARP team during or before the review process to push the updated files to cloud storage. 
 
@@ -58,9 +58,9 @@ Updates to pipeline code, Dockers, or reference files might require coordinating
 
     * If you’re updating WARP documentation, read the [documentation style guide](https://broadinstitute.github.io/warp/docs/contribution/contribute_to_warp_docs/doc_style) for helpful formatting tips.
 
-#### 6. Make a Pull Request (PR) to the WARP **develop** branch. 
+#### 6. Make a pull request to the WARP **develop** branch. 
 
-When updates are ready, make a PR using WARP's **develop** branch as a base. In the comments section of the PR, notify the WARP team to review the PR and start the necessary repository [tests](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines). You can do this by typing `test and review @broadinstitute/warp-admins`.
+When updates are ready, [make a pull request (PR)](https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) using WARP's **develop** branch as a base. In the comments section of the PR, notify the WARP team to review the PR and start the necessary repository [tests](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines). You can do this by typing `test and review @broadinstitute/warp-admins`.
 
 #### 7. Revise the PR as necessary for the [review process](#review-process). 
 
@@ -84,8 +84,8 @@ If a PR is abandoned after starting the review process, the WARP team will eithe
 ### Troubleshooting WARP testing
 All pipelines must pass syntax, scientific and Smart-tests, as described in the [testing overview](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines). The WARP team will help troubleshoot testing for new contributions. 
 
-### Next steps
-To learn more about how to apply these contribution guidelines to an example small contribution, read the [Contribution Tutorial](./contribution-tutorial.md).
+## Next steps
+To learn more about how to apply these contribution guidelines to an example small pipeline update, see the [Example Contribution](./contribution-tutorial.md).
 
 ## Still have questions?
 Contact us by [filing an issue](https://github.com/broadinstitute/warp/issues/new) or email [Kylee Degatano](mailto:kdegatano@broadinstitute.org). 
