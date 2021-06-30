@@ -1,8 +1,9 @@
 # 1.1.1
-2021-06-09
+2021-06-30
 
 * Updated GoTC base image to AppSec approved 
 * Updated BWA version for GoTC image from 0.7.15.r1140 to 0.7.15
+* Changed GoTC image to GATK specific image in GermlineVariantDiscovery
 
 # 1.0.1
 2021-02-08
