@@ -3,7 +3,7 @@ We encourage the community to make contributions to our existing pipelines, such
 
 Guidelines for contributing differ slightly depending on the size of the update and whether the contributor has WARP repository permissions. 
 
-To get started, read the following [Contribution Guidelines](#contribution-guidelines) and the [Contribution Tutorial](#contribution-tutorial). 
+To get started, read the following [Contribution Guidelines](#contribution-guidelines) and the [Contribution Tutorial](./contribution-tutorial.md). 
 
 If you have remaining questions about your contribution, reach out to the WARP team by [filing a new issue](https://github.com/broadinstitute/warp/issues/new).
 
@@ -84,79 +84,8 @@ If a PR is abandoned after starting the review process, the WARP team will eithe
 ### Troubleshooting WARP testing
 All pipelines must pass syntax, scientific and Smart-tests, as described in the [testing overview](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines). The WARP team will help troubleshoot testing for new contributions. 
 
-## Contribution Tutorial
-
-### Step-by-step instructions for a small update
-
-#### Background
-In this example use case, we'll make a simple change to the [Optimus Pipeline workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.wdl), specifically an update to the metadata description for the pipeline's `input_id` parameter. 
-
-This parameter description is currently listed in the pipeline's WDL workflow as: 
-
-```WDL
- `input_id: "name of sample matching this file, inserted into read group header"
- ```
-
-Our update will add clarification that this can string can be a UUID or a human-readable identifier. 
-
-#### Before starting- what to consider
-Any update to a workflow WDL, a task called by a  WDL, or a workflow’s accompanying Docker image or script will require an update to the workflow version number and the changelog for testing purposes. Since our example update will be added to the Optimus WDL, we should be aware that our change will require these changelog and version updates.
-
-For this update, we’ll also assume that we don’t have permissions to the WARP repository, meaning that we'll need to make a fork of the repository.
-
-#### 1. Scope the work.
-This example is a very small PR, so we don’t need to file an issue first unless we want to confirm with the WARP team that our update is accurate before making the change.
-
-#### 2. Read the guidelines for changelog updates.
-Since we’re making an update to the workflow WDL and need to update the changelog, we need to read the [changelog style guide](https://broadinstitute.github.io/warp/docs/contribution/contribute_to_warp/changelog_style) and [versioning guide](https://broadinstitute.github.io/warp/docs/About_WARP/VersionAndReleasePipelines) to identify the new version number.
-
-In this example case, the existing pipeline version is `4.2.5`. Since our change does not break the pipeline, affect inputs/outputs or cause scientific changes, the guides tell us that this is a patch. The new pipeline version will be `4.2.6`. 
-
-#### 3. Make a fork of the WARP repository.
-Since we don't have permission to make a branch in WARP, we’ll need to make a fork instead. To do this, we navigate to [WARP](https://github.com/broadinstitute/warp) and click the fork icon in the GitHub UI.
-
-![](fork.png)
-
-#### 4. Make the updates on the fork.
-Either locally or the in UI, we’ll edit the existing parameter description in the Optimus workflow and commit the changes to our fork.
-
-![](optimus_wdl_update.png)
-
-#### 5. Assess and make any additional pipeline file changes.
-Since our update requires a new version number and changelog entry, we need to update the WDL version and the accompanying changelog. The pipeline version number is indicated in the workflow WDL by the string variable `pipeline_version`. We'll make a patch and change this `4.2.6`.
-
-![](optimus_pipeline_version.png)
-
-We’ll also update the Optimus changelog according to the syntax guide to reflect the version change.
-
-![](optimus_changelog.png)
-
-#### 6. Make a PR to the **develop** branch of WARP
-To merge our updates to the WARP repository, we'll need to create a PR. Since we're making a PR from a fork, we can follow the instructions outlined in the GitHub Docs [guide for making a PR from a fork](https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork).   
-
-When we create the PR, we need to specify a WARP branch to use as the base. All updates should be merged into the WARP **develop** branch, which we can specify in the UI when we open the PR.
-
-![](PR_base.png) 
-
-
-After the PR is created, we can tag the WARP team by making a comment in the PR: `test and review @broadinstitute/warp-admins`.
-
-![](warp-admins-tag.png)
-
-The team will work then with us to kick off any necessary [tests](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
-When the tests are successful, we'll see a green check left of the test name in the GitHub UI.
-
-![](tests.png)
-
-Even if the tests pass, merging will be blocked until the review is complete and at least two reviewers have approved the PR.
-
-
-#### 7. Make revisions based on feedback.
-If the WARP team has comments or requires changes, they'll note these directly in the PR. 
-
-#### 8. Merge the PR.
-Since we don't have permission for the repository, we don't need to take any action for this step. The WARP team will merge our changes when the PR is ready, reviewed, and all tests have passed.
-
+### Next steps
+To learn more about how to apply these contribution guidelines to an example small contribution, read the [Contribution Tutorial](./contribution-tutorial.md).
 
 ## Still have questions?
 Contact us by [filing an issue](https://github.com/broadinstitute/warp/issues/new) or email [Kylee Degatano](mailto:kdegatano@broadinstitute.org). 
