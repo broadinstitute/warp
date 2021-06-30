@@ -1,9 +1,9 @@
 version 1.0
 
-task ValidateDescriptorAnalysisFiles {
+task ValidateOptimusDescriptorAnalysisFiles {
   input {
-    File descriptors_analysis_file_intermediate_bam_json
-    String expected_descriptors_analysis_file_intermediate_bam_json_hash
+    File optimus_descriptors_analysis_file_intermediate_bam_json
+    String optimus_expected_descriptors_analysis_file_intermediate_bam_json_hash
     #File descriptors_analysis_file_intermediate_loom_json
     #File descriptors_analysis_file_project_loom_json
   }
@@ -17,13 +17,13 @@ task ValidateDescriptorAnalysisFiles {
     # a hash and the filename that was passed. gzipped files are unzipped to avoid hashing malleable
     # metadata
 
-    descriptors_analysis_file_intermediate_bam_json_hash=$(zcat "~{descriptors_analysis_file_intermediate_bam_json}" | md5sum | awk '{print $1}')
+    optimus_descriptors_analysis_file_intermediate_bam_json_hash=$(zcat "~{optimus_descriptors_analysis_file_intermediate_bam_json}" | md5sum | awk '{print $1}')
 
     # test each output for equivalence, echoing any failure states to stdout
     fail=false
 
-    if [ "$descriptors_analysis_file_intermediate_bam_json_hash" != "~{expected_descriptors_analysis_file_intermediate_bam_json_hash}" ]; then
-      >&2 echo "descriptors_analysis_file_intermediate_bam_json_hash ($descriptors_analysis_file_intermediate_bam_json_hash) did not match expected hash (~{expected_descriptors_analysis_file_intermediate_bam_json_hash})"
+    if [ "$optimus_descriptors_analysis_file_intermediate_bam_json_hash" != "~{optimus_expected_descriptors_analysis_file_intermediate_bam_json_hash}" ]; then
+      >&2 echo "optimus_descriptors_analysis_file_intermediate_bam_json_hash ($optimus_descriptors_analysis_file_intermediate_bam_json_hash) did not match expected hash (~{optimus_expected_descriptors_analysis_file_intermediate_bam_json_hash})"
       fail=true
     fi
 
