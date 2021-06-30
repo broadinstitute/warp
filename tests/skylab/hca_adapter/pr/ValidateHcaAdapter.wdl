@@ -15,7 +15,7 @@ task ValidateDescriptorAnalysisFiles {
       # a hash and the filename that was passed. gzipped files are unzipped to avoid hashing malleable
       # metadata
 
-      descriptors_analysis_file_intermediate_bam_json_hash=$(zcat "~{descriptors_analysis_file_intermediate_bam_json}" | md5sum | awk '{print $1}')
+      descriptors_analysis_file_intermediate_bam_json_hash=$(cat "~{descriptors_analysis_file_intermediate_bam_json}" | md5sum | awk '{print $1}')
 
       # test each output for equivalence, echoing any failure states to stdout
       fail=false
