@@ -17,7 +17,7 @@ All user contributions fall under a [BSD 3-Clause License](https://github.com/br
 
 ## Contribution Guidelines
 #### 1. Scope the work.
-Contributions can range from tiny syntax changes to large task, workflow, or Docker code updates. Often changes to a single task WDL or Docker file can affect multiple workflows that import those same task WDLs or Dockers. This is why it's important to scope updates before proceeding.
+Contributions can range from tiny syntax changes to large task, workflow, or Docker updates. Often changes to a single task WDL or Dockerfile can affect multiple workflows that import those same task WDLs or Docker images. This is why it's important to scope updates before proceeding.
 
 :::tip File an issue for large changes
 If an update is large, or if you're unsure how a change affects multiple workflows, **[file an issue](https://github.com/broadinstitute/warp/issues/new) in WARP first**. 
@@ -89,7 +89,6 @@ To learn more about how to apply these contribution guidelines to an example sma
 
 ## Still have questions?
 Contact us by [filing an issue](https://github.com/broadinstitute/warp/issues/new) or email [Kylee Degatano](mailto:kdegatano@broadinstitute.org). 
-
 
 
 
