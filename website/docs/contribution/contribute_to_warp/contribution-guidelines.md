@@ -46,7 +46,7 @@ As your work progresses, make commits to your WARP branch or fork.
 
 #### 5. Assess and make updates to accompanying pipeline files.
 
-Updates to pipeline code, Dockers, or reference files might require coordinating additional updates both in WARP, such as modifying accompanying changelogs and pipeline overviews, or outside of WARP, such as uploading Dockers or reference files to public cloud repositories.  
+Updates to pipeline code, Docker images, or reference files might require coordinating additional updates both in WARP, such as modifying accompanying changelogs and pipeline overviews, or outside of WARP, such as uploading Docker images or reference files to public cloud repositories.  
 
 * All changes that affect pipeline workflows must be recorded in the pipeline(s) changelog(s) using semantic versioning. An explanation of this can be found in the [changelog style guide](https://broadinstitute.github.io/warp/docs/contribution/contribute_to_warp/changelog_style). 
 
@@ -89,6 +89,5 @@ To learn more about how to apply these contribution guidelines to an example sma
 
 ## Still have questions?
 Contact us by [filing an issue](https://github.com/broadinstitute/warp/issues/new) or email [Kylee Degatano](mailto:kdegatano@broadinstitute.org). 
-
 
 
