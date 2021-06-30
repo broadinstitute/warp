@@ -7,19 +7,23 @@ TIMESTAMP=$(date +"%s")
 DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
-GCR_URL="us.gcr.io/broad-gotc-prod/samtools"
+GCR_URL="us.gcr.io/broad-gotc-prod/gatk"
 IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
 
-# Samtools version
-SAMTOOLS_VERSION="1.11"
+# GATK4 version
+GATK4_VERSION="4.1.8.0"
+
+# GATK35 version
+GATK35_VERSION="3.5"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|tools] -- script to build the samtools image and push to GCR & Dockerhub
+HELP="$(basename "$0") [-h|--help] [-v4|--version4] [-v35|--version35] [-t|tools] -- script to build the GATK image and push to GCR & Dockerhub
 
 where:
     -h|--help Show help text
-    -v|--version Version of Samtools to use (default: $SAMTOOLS_VERSION)
+    -v4|--version4 Version of GATK4 to use (default: GATK4=$GATK4_VERSION)
+    -v35|--version35 Version of GATK35 to use (default: GATK35=$GATK35_VERSION)
     -t|--tools Show tools needed to run script
     "
 
@@ -35,8 +39,13 @@ function main(){
     do 
     key="$1"
     case $key in
-        -v|--version)
-        SAMTOOLS_VERSION="$2"
+        -v4|--version4)
+        GATK4_VERSION="$2"
+        shift
+        shift
+        ;;
+        -v35|--version35)
+        GATK35_VERSION="$2"
         shift
         shift
         ;;
@@ -55,8 +64,11 @@ function main(){
     done
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
-    docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \
-        --build-arg SAMTOOLS_VERSION="$SAMTOOLS_VERSION" $DIR 
+    docker build -t "$GCR_URL:$IMAGE_TAG" \
+        --build-arg GATK4_VERSION="$GATK4_VERSION" \
+        --build-arg GATK35_VERSION="$GATK35_VERSION" \
+        --no-cache $DIR
+        
     docker push "$GCR_URL:$IMAGE_TAG"
 
     echo -e "$GCR_URL:$IMAGE_TAG" >> "$DIR/docker_versions.tsv"

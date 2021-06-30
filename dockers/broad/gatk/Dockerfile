@@ -1,47 +1,35 @@
-FROM alpine:3.8
+FROM openjdk:8-jdk-alpine
 
-ARG SAMTOOLS_VERSION=1.11
+ARG GATK4_VERSION=4.1.8.0 \
+        GATK35_VERSION=3.5
 
 ENV TERM=xterm-256color \
-    SAMTOOLS_URL=https://github.com/samtools/samtools/releases/download/${SAMTOOLS_VERSION}/samtools-${SAMTOOLS_VERSION}.tar.bz2
+    GATK4_URL=https://github.com/broadinstitute/gatk/archive/refs/tags/${GATK4_VERSION}.tar.gz \
+    GATK35_URL=https://broadinstitute.jfrog.io/artifactory/libs-release-local/org/broadinstitute/gatk/gatk-utils/${GATK35_VERSION}/gatk-utils-${GATK35_VERSION}.jar
 
 LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>" \
-        SAMTOOLS_VERSION=${SAMTOOLS_VERSION}
+        GATK4_VERSION=${GATK4_VERSION} \
+        GATK35_VERSION=${GATK35_VERSION}
 
 WORKDIR /usr/gitc
 
 # Install dependencies
 RUN set -eux; \
         apk add --no-cache \
-            autoconf \
-            automake \ 
-            bash \
-            bzip2-dev \
-            curl-dev \
-            gcc \
-            libressl-dev \
-            make \ 
-            musl-dev \
-            ncurses-dev \
-            perl \
             tini \ 
-            wget \ 
-            xz-dev \
-            zlib-dev \
+            wget \
         ; \
-# Install samtools
-        mkdir temp; \
-        cd temp; \
+# Install GATK
         \
-        wget ${SAMTOOLS_URL}; \
-        tar xf samtools-${SAMTOOLS_VERSION}.tar.bz2; \
-        cd samtools-${SAMTOOLS_VERSION}; \
+        # gatk35
+        wget ${GATK35_URL}; \
+        mv gatk-utils-${GATK35_VERSION}.jar GATK35.jar; \
         \
-        ./configure; \
-        make; \
-        make install; \
-        \
-        rm -r /usr/gitc/temp;
+        # gatk4
+        wget ${GATK4_URL}; \
+        tar xf ${GATK4_VERSION}.tar.gz; \
+        mv gatk-${GATK4_VERSION} gatk4;
+
 
 # Set tini as default entrypoint
 ENTRYPOINT [ "/sbin/tini", "--" ]
