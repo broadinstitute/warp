@@ -2,8 +2,8 @@ version 1.0
 
 task ValidateOptimusDescriptorAnalysisFiles {
   input {
-    File optimus_descriptors_analysis_file_intermediate_bam_json
-    String optimus_expected_descriptors_analysis_file_intermediate_bam_json_hash
+    File descriptors_analysis_file_intermediate_bam_json
+    String expected_descriptors_analysis_file_intermediate_bam_json_hash
     #File descriptors_analysis_file_intermediate_loom_json
     #File descriptors_analysis_file_project_loom_json
   }
