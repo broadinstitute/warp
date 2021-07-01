@@ -1,8 +1,7 @@
 # 1.2.0
 2021-06-30
 
-* Updated GoTC base image to AppSec approved 
-* Updated BWA version for GoTC image from 0.7.15.r1140 to 0.7.15
+* Changed GoTC image to Samtools specific image in CramToUnmappedBams and Utilities
 * Changed GoTC image to GATK specific image in GermlineVariantDiscovery
 
 # 1.1.0
