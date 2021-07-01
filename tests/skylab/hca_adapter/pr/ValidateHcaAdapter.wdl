@@ -1,32 +1,25 @@
 version 1.0
 
-task ValidateDescriptorAnalysisFiles {
+task ValidateOptimusDescriptorAnalysisFiles {
   input {
-    File descriptors_analysis_file_intermediate_bam_json
-    String expected_descriptors_analysis_file_intermediate_bam_json_hash
-    #File descriptors_analysis_file_intermediate_loom_json
-    #File descriptors_analysis_file_project_loom_json
+    File optimus_descriptors_analysis_file_intermediate_bam_json
+    String expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash
   }
 
   command <<<
       # catch intermittent failures
       set -eo pipefail
-      # calculate hashes; awk is used to extract the hash from the md5sum output that contains both
-      # a hash and the filename that was passed. gzipped files are unzipped to avoid hashing malleable
-      # metadata
+      # calculate hashes; awk is used to extract the hash from the md5sum output
 
-      descriptors_analysis_file_intermediate_bam_json_hash=$(cat "~{descriptors_analysis_file_intermediate_bam_json}" | md5sum | awk '{print $1}')
+      optimus_descriptors_analysis_file_intermediate_bam_json_hash=$(cat "~{optimus_descriptors_analysis_file_intermediate_bam_json}" | md5sum | awk '{print $1}')
 
       # test each output for equivalence, echoing any failure states to stdout
       fail=false
 
-      if [ "$descriptors_analysis_file_intermediate_bam_json_hash" != "~{expected_descriptors_analysis_file_intermediate_bam_json_hash}" ]; then
-        >&2 echo "descriptors_analysis_file_intermediate_bam_json_hash ($descriptors_analysis_file_intermediate_bam_json_hash) did not match expected hash (~{expected_descriptors_analysis_file_intermediate_bam_json_hash})"
-        fail=true
+      if [ "$optimus_descriptors_analysis_file_intermediate_bam_json_hash" != "~{expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash}" ]; then
+        echo "optimus_descriptors_analysis_file_intermediate_bam_json_hash ($optimus_descriptors_analysis_file_intermediate_bam_json_hash) did not match expected hash (~{expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash})"
+        exit 1;
       fi
-
-    if [ $fail == "true" ]; then exit 1; fi
-
   >>>
 
   runtime {
