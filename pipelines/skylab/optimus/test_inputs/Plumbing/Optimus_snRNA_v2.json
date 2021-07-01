@@ -1,0 +1,18 @@
+{
+  "Optimus.r1_fastq": [
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/nuclei_900/nuclei_900_S1_L001_R1_001.filtered.fastq.gz",
+      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/nuclei_900/nuclei_900_S1_L002_R1_001.filtered.fastq.gz"
+  ],
+  "Optimus.r2_fastq": [
+    "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/nuclei_900/nuclei_900_S1_L001_R2_001.filtered.fastq.gz",
+    "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/nuclei_900/nuclei_900_S1_L002_R2_001.filtered.fastq.gz"
+  ],
+  "Optimus.chemistry": "tenX_v2",
+  "Optimus.force_no_check": "false",
+  "Optimus.whitelist": "gs://hca-dcp-mint-test-data/10x/whitelist/737K-august-2016.txt",
+  "Optimus.tar_star_reference": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM21.tar",
+  "Optimus.input_id": "pr_test_dataset",
+  "Optimus.annotations_gtf": "gs://broad-dsde-mint-dev-teststorage/ajc-test/gencode.vM21.annotation.gtf.gz",
+  "Optimus.ref_genome_fasta": "gs://broad-dsde-mint-dev-teststorage/ajc-test/GRCm38.primary_assembly.genome.fa",
+  "Optimus.counting_mode": "sn_rna"
+}
