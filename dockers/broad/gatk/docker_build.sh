@@ -13,17 +13,17 @@ IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
 # GATK4 version
 GATK4_VERSION="4.1.8.0"
 
-# GATK35 version
-GATK35_VERSION="3.5"
+# GATK3 version
+GATK3_VERSION="3.5"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-v4|--version4] [-v35|--version35] [-t|tools] -- script to build the GATK image and push to GCR & Dockerhub
+HELP="$(basename "$0") [-h|--help] [-v4|--version4] [-v3|--version3] [-t|tools] -- script to build the GATK image and push to GCR & Dockerhub
 
 where:
     -h|--help Show help text
     -v4|--version4 Version of GATK4 to use (default: GATK4=$GATK4_VERSION)
-    -v35|--version35 Version of GATK35 to use (default: GATK35=$GATK35_VERSION)
+    -v3|--version3 Version of GATK3 to use (default: GATK3=$GATK3_VERSION)
     -t|--tools Show tools needed to run script
     "
 
@@ -44,8 +44,8 @@ function main(){
         shift
         shift
         ;;
-        -v35|--version35)
-        GATK35_VERSION="$2"
+        -v3|--version3)
+        GATK3_VERSION="$2"
         shift
         shift
         ;;
@@ -66,7 +66,7 @@ function main(){
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build -t "$GCR_URL:$IMAGE_TAG" \
         --build-arg GATK4_VERSION="$GATK4_VERSION" \
-        --build-arg GATK35_VERSION="$GATK35_VERSION" \
+        --build-arg GATK3_VERSION="$GATK3_VERSION" \
         --no-cache $DIR
         
     docker push "$GCR_URL:$IMAGE_TAG"
