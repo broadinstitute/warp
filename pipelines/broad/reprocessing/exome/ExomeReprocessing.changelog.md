@@ -1,8 +1,7 @@
 # 2.5.0
 2021-06-10
 
-* Updated GoTC base image to AppSec approved 
-* Updated BWA version for GoTC image from 0.7.15.r1140 to 0.7.15
+* Change GoTC image to Samtools specific image in CramToUnmappedBams and Utilities
 * Updated VerifyBamID to use AppSec base image
 
 # 2.4.7
