@@ -73,6 +73,8 @@ function pipeline_to_args() {
     VariantCalling)
       echo VariantCalling -d Exome -t Plumbing --env ${env} -b ${truth} ${uncached};
       echo VariantCalling -d WGS -t Plumbing --env ${env} -b ${truth} ${uncached};;
+    Optimus)
+      echo Optimus ${common_args};;
   esac
 }
 
