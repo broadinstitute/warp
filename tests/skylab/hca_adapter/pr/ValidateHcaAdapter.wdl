@@ -1,6 +1,6 @@
 version 1.0
 
-task ValidateDescriptorAnalysisFiles {
+task ValidateOptimusDescriptorAnalysisFiles {
   input {
     File descriptors_analysis_file_intermediate_bam_json
     String expected_descriptors_analysis_file_intermediate_bam_json_hash
