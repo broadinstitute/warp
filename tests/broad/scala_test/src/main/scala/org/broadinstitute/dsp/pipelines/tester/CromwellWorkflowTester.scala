@@ -79,6 +79,8 @@ object CromwellWorkflowTester {
         new GenotypeConcordanceTester(config.genotypeConcordanceConfig)
       case GermlineSingleSample =>
         new GermlineSingleSampleTester(config.germlineCloudConfig)
+      case Optimus =>
+        new OptimusTester(config.optimusConfig)
       case ReblockGvcf =>
         new ReblockGvcfTester(config.germlineCloudConfig)
       case Reprocessing =>

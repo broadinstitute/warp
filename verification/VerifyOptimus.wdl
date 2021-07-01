@@ -1,64 +1,68 @@
 version 1.0
 
-workflow ValidateOptimus {
+import "../verification/VerifyTasks.wdl" as Tasks
+
+workflow VerifyOptimus {
      meta {
          description: "Validate Optimus Outputs"
      }
 
      input {
          # Optimus output files to be checked
-         File bam
-         File matrix
-         File matrix_row_index
-         File matrix_col_index
-         File cell_metrics
-         File gene_metrics
-         File? loom_file
-
-         # Reference data and checksums
-         File reference_matrix
-         String expected_bam_hash
-         String expected_cell_metric_hash
-         String expected_gene_metric_hash
-         String expected_loom_file_checksum
+         File test_bam
+         File truth_bam
+        # File matrix
+        # File matrix_row_index
+        # File matrix_col_index
+        # File cell_metrics
+        # File gene_metrics
+        # File? loom_file
+#
+        # # Reference data and checksums
+        # File reference_matrix
+        # String expected_bam_hash
+        # String expected_cell_metric_hash
+        # String expected_gene_metric_hash
+        # String expected_loom_file_checksum
      }
 
-     call ValidateBam as ValidateBam {
+     call Tasks.CompareBams as CompareBams {
          input:
-            bam = bam,
-            expected_checksum = expected_bam_hash
+            test_bam = test_bam,
+            truth_bam =truth_bam
+            # expected_checksum = expected_bam_hash
      }
 
-     call ValidateMatrix as ValidateMatrix {
-         input:
-             matrix = matrix,
-             matrix_row_index = matrix_row_index,
-             matrix_col_index = matrix_col_index,
-             reference_matrix = reference_matrix
-     }
-
-     call ValidateLoom as ValidateLoom {
-         input:
-             loom_file = loom_file,
-             expected_loom_file_checksum = expected_loom_file_checksum
-     }
-
-     call ValidateMetrics {
-         input:
-             cell_metrics = cell_metrics,
-             gene_metrics = gene_metrics,
-             expected_cell_metric_hash = expected_cell_metric_hash,
-             expected_gene_metric_hash = expected_gene_metric_hash
-     }
-
-     call GenerateReport as GenerateReport {
-         input:
-             bam_validation_result = ValidateBam.result,
-             matrix_validation_result = ValidateMatrix.result,
-             metric_and_index_validation_result = ValidateMetrics.result,
-             loom_validation_result = ValidateLoom.result
-    }
-
+#     call ValidateMatrix as ValidateMatrix {
+#         input:
+#             matrix = matrix,
+#             matrix_row_index = matrix_row_index,
+#             matrix_col_index = matrix_col_index,
+#             reference_matrix = reference_matrix
+#     }
+#
+#     call ValidateLoom as ValidateLoom {
+#         input:
+#             loom_file = loom_file,
+#             expected_loom_file_checksum = expected_loom_file_checksum
+#     }
+#
+#     call ValidateMetrics {
+#         input:
+#             cell_metrics = cell_metrics,
+#             gene_metrics = gene_metrics,
+#             expected_cell_metric_hash = expected_cell_metric_hash,
+#             expected_gene_metric_hash = expected_gene_metric_hash
+#     }
+#
+#     call GenerateReport as GenerateReport {
+#         input:
+#             bam_validation_result = ValidateBam.result,
+#             matrix_validation_result = ValidateMatrix.result,
+#             metric_and_index_validation_result = ValidateMetrics.result,
+#             loom_validation_result = ValidateLoom.result
+#    }
+#
     output {
 
     }
