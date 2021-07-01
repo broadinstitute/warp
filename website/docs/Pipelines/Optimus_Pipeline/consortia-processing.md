@@ -27,6 +27,7 @@ DCP matrices contain DCP-curated metadata in the Loom global attributes (see tab
 
 To create the DCP project matrices, Loom outputs from individual 10x library preparations, each with their own `input_id`, are combined into a single Loom file.
 
+![](./post_processing.png)
 
 ### Making matrix cell barcodes unique for DCP project matrices
 Since DCP project matrices often contain combined data from multiple library preparations, the project matrix cell bardcodes are modified so that they are unique for each library preparation, allowing the barcodes to be used by downstream community tools like Cumulus and Seurat.
@@ -37,7 +38,11 @@ For DCP projects, however, **the cell barcodes in the  `cell_names` column are m
 
 The `input_ids` are listed in the matrix global attributes. The order of the input_ids serves as index for the cell barcode suffix.
 
-For example, let's look at the global attribute `input_id` for a DCP project matrix:
+![](unique_barcodes.png)
+
+#### Example cell barcodes from a DCP project matrix
+
+Let's use loompy to look at the global attribute `input_id` for a DCP project matrix (loom format):
 
 ```python
 >>> ds.attrs.input_id
