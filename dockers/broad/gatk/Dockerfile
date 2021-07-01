@@ -20,7 +20,11 @@ RUN set -eux; \
             tini \ 
             wget \
             python3 \
+            py3-pip \
         ; \
+        echo 'alias python="/usr/bin/python3"' >> ~/.bashrc; \
+            source ~/.bashrc; \
+        \
 # Install GATK
         mkdir gatk4; \
         mkdir temp; \
