@@ -16,6 +16,7 @@ WORKDIR /usr/gitc
 # Install dependencies
 RUN set -eux; \
         apk add --no-cache \
+            bash \
             tini \ 
             wget \
             python3 \
