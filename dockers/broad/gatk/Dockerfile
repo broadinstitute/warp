@@ -4,7 +4,7 @@ ARG GATK4_VERSION=4.1.8.0 \
         GATK3_VERSION=3.5
 
 ENV TERM=xterm-256color \
-    GATK4_URL=https://github.com/broadinstitute/gatk/archive/refs/tags/${GATK4_VERSION}.tar.gz \
+    GATK4_URL=https://github.com/broadinstitute/gatk/releases/download/${GATK4_VERSION}/gatk-${GATK4_VERSION}.zip \
     GATK3_URL=https://broadinstitute.jfrog.io/artifactory/libs-release-local/org/broadinstitute/gatk/gatk-utils/${GATK3_VERSION}/gatk-utils-${GATK3_VERSION}.jar
 
 LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>" \
@@ -17,13 +17,12 @@ WORKDIR /usr/gitc
 RUN set -eux; \
         apk add --no-cache \
             bash \
+            unzip \
             tini \ 
             wget \
             python3 \
             py3-pip \
         ; \
-        echo 'alias python="/usr/bin/python3"' >> /root/.bashrc; \
-            source /root/.bashrc; \
         \
 # Install GATK
         mkdir gatk4; \
@@ -37,10 +36,14 @@ RUN set -eux; \
         \
         # gatk4
         wget ${GATK4_URL}; \
-        tar xf ${GATK4_VERSION}.tar.gz; \
-        mv gatk-${GATK4_VERSION}/gatk /usr/gitc/gatk4/; \
+        unzip gatk-${GATK4_VERSION}.zip; \
+        cp -r gatk-${GATK4_VERSION}/* /usr/gitc/gatk4/; \
+        chmod +x /usr/gitc/gatk4/gatk; \
         \
-        rm -r /usr/gitc/temp;
+        rm -r /usr/gitc/temp; \
+        \
+        # symlink python to python3
+        ln -s python3 /usr/bin/python;
 
 # Set tini as default entrypoint
 ENTRYPOINT [ "/sbin/tini", "--" ]
