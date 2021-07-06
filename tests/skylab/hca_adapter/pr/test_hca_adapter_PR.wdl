@@ -99,10 +99,12 @@ workflow TestHcaAdapter {
 
   call checker_adapter.ValidateOptimusDescriptorAnalysisFiles as checker_adapter {
      input:
-       optimus_descriptors_analysis_file_intermediate_bam_json=target_adapter.analysis_file[0],
-       expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash='a259e8a60e823689550e9dc8e6e0ce04',
-       optimus_descriptors_analysis_file_intermediate_loom_json=target_adapter.analysis_file[1],
-       expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash='fakehash'
+       optimus_descriptors_analysis_file_intermediate_bam_json=target_adapter.analysis_file_descriptor[0],
+       expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash='5972eae07adddd62112ac75e9657d2c4',
+       optimus_descriptors_analysis_file_intermediate_loom_json=target_adapter.analysis_file_descriptor[1],
+       expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash='4e05d5aa8ce1735e5504f5c6d1ce4113',
+       optimus_descriptors_analysis_file_intermediate_reference_json=target_adapter.reference_genome_descriptor,
+       expected_optimus_descriptors_analysis_file_intermediate_reference_json_hash='37041798cf2bb4ea4242572cbc7cda96'
    }
 
 }

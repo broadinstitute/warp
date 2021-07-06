@@ -6,6 +6,8 @@ task ValidateOptimusDescriptorAnalysisFiles {
     String expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash
     File optimus_descriptors_analysis_file_intermediate_loom_json
     String expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash
+    File optimus_descriptors_analysis_file_intermediate_reference_json
+    String expected_optimus_descriptors_analysis_file_intermediate_reference_json_hash
     }
 
  command <<<
@@ -35,6 +37,18 @@ task ValidateOptimusDescriptorAnalysisFiles {
 
        if [ "$optimus_descriptors_analysis_file_intermediate_loom_json_hash" != "~{expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash}" ]; then
         >&2 echo "optimus_descriptors_analysis_file_intermediate_loom_json_hash ($optimus_descriptors_analysis_file_intermediate_loom_json_hash) did not match expected hash (~{expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash})"
+        fail=true
+       fi
+
+     if [ $fail == "true" ]; then exit 1; fi
+
+       #testing descriptors/analsysis_file/.fasta
+       optimus_descriptors_analysis_file_intermediate_reference_json_hash=$(cat "~{optimus_descriptors_analysis_file_intermediate_reference_json}" | md5sum | awk '{print $1}')
+
+       fail=false
+
+       if [ "$optimus_descriptors_analysis_file_intermediate_reference_json_hash" != "~{expected_optimus_descriptors_analysis_file_intermediate_reference_json_hash}" ]; then
+        >&2 echo "optimus_descriptors_analysis_file_intermediate_reference_json_hash ($optimus_descriptors_analysis_file_intermediate_reference_json_hash) did not match expected hash (~{expected_optimus_descriptors_analysis_file_intermediate_reference_json_hash})"
         fail=true
        fi
 
