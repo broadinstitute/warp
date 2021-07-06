@@ -99,10 +99,10 @@ workflow TestHcaAdapter {
 
   call checker_adapter.ValidateOptimusDescriptorAnalysisFiles as checker_adapter_descriptors {
      input:
-       optimus_descriptors_analysis_file_intermediate_bam_json=target_adapter.analysis_file_descriptor[0],
-       expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash='54ef70da401d20dbec94687eb49ecd61',
        optimus_descriptors_analysis_file_intermediate_loom_json=target_adapter.analysis_file_descriptor[1],
-       expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash='fb82cb599899ffe747c95f36ac3020e5',
+       expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash='007e56d8bf4f785ee37e9be2325a534c',
+       optimus_descriptors_analysis_file_intermediate_bam_json=target_adapter.analysis_file_descriptor[0],
+       expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash='8132649e8263f7d59d466291761d9ff0',
        optimus_descriptors_analysis_file_intermediate_reference_json=target_adapter.reference_genome_descriptor,
        expected_optimus_descriptors_analysis_file_intermediate_reference_json_hash='37041798cf2bb4ea4242572cbc7cda96'
    }
@@ -110,7 +110,7 @@ workflow TestHcaAdapter {
   call checker_adapter.ValidateOptimusLinksFiles as checker_adapter_links {
     input:
      optimus_links_intermediate_loom_json=target_adapter.links,
-     expected_optimus_links_intermediate_loom_json='6fc2f7983b0d494c4202c6ea8747c131'
+     expected_optimus_links_intermediate_loom_json='eebddd1aa0877ff67d446de352409dc6'
   }
 
   call checker_adapter.ValidateOptimusMetadataAnalysisFiles as checker_adapter_metadata_analysis_files {
@@ -124,13 +124,13 @@ workflow TestHcaAdapter {
   call checker_adapter.ValidateOptimusMetadataAnalysisProcessFiles as checker_adapter_metadata_analysis_process {
     input:
       optimus_metadata_analysis_process_file_intermediate_json=target_adapter.analysis_process,
-      expected_optimus_metadata_analysis_process_file_intermediate_json_hash='fakehash'
+      expected_optimus_metadata_analysis_process_file_intermediate_json_hash='650ae50f5f1cf886f275ada3c69ce4c2'
   }
 
   call checker_adapter.ValidateOptimusMetadataAnalysisProtocolFiles as checker_adapter_metadata_analysis_protocol {
     input:
       optimus_metadata_analysis_protocol_file_intermediate_json=target_adapter.analysis_protocol,
-      expected_optimus_metadata_analysis_protocol_file_intermediate_json_hash='fakehash'
+      expected_optimus_metadata_analysis_protocol_file_intermediate_json_hash='ea95eb817c461594412b56db970917a2'
   }
 
   call checker_adapter.ValidateOptimusMetadataReferenceFiles as checker_adapter_metadata_reference_file {
