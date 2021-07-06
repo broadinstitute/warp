@@ -54,7 +54,7 @@ Updates to pipeline code, Docker images, or reference files might require coordi
 
 * If you make any changes to files hosted in cloud repositories, like pipeline Docker images or reference files, coordinate with the WARP team during or before the review process to push the updated files to cloud storage. 
 
-* Flag or make necessary updates to the accompanying pipeline documentation such as the pipeline [overviews in WARP Documentation](https://broadinstitute.github.io/warp/). 
+* Remember to make necessary updates to the accompanying pipeline documentation such as the pipeline [overviews in WARP Documentation](https://broadinstitute.github.io/warp/).  
 
     * If you’re updating WARP documentation, read the [documentation style guide](https://broadinstitute.github.io/warp/docs/contribution/contribute_to_warp_docs/doc_style) for helpful formatting tips.
 
