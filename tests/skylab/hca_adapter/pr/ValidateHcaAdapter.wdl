@@ -4,6 +4,8 @@ task ValidateOptimusDescriptorAnalysisFiles {
   input {
     File optimus_descriptors_analysis_file_intermediate_bam_json
     String expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash
+    File optimus_descriptors_analysis_file_intermediate_loom_json
+    String expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash
     }
 
  command <<<
@@ -13,17 +15,31 @@ task ValidateOptimusDescriptorAnalysisFiles {
        # a hash and the filename that was passed. gzipped files are unzipped to avoid hashing malleable
        # metadata
 
-       descriptors_analysis_file_intermediate_bam_json_hash=$(zcat "~{optimus_descriptors_analysis_file_intermediate_bam_json}" | md5sum | awk '{print $1}')
+       #testing descriptors/analsysis_file/.bam
+       optimus_descriptors_analysis_file_intermediate_bam_json_hash=$(cat "~{optimus_descriptors_analysis_file_intermediate_bam_json}" | md5sum | awk '{print $1}')
 
        # test each output for equivalence, echoing any failure states to stdout
        fail=false
 
-       if [ "$descriptors_analysis_file_intermediate_bam_json_hash" != "~{expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash}" ]; then
-         >&2 echo "descriptors_analysis_file_intermediate_bam_json_hash ($descriptors_analysis_file_intermediate_bam_json_hash) did not match expected hash (~{expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash})"
+       if [ "$optimus_descriptors_analysis_file_intermediate_bam_json_hash" != "~{expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash}" ]; then
+         >&2 echo "optimus_descriptors_analysis_file_intermediate_bam_json_hash ($optimus_descriptors_analysis_file_intermediate_bam_json_hash) did not match expected hash (~{expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash})"
          fail=true
        fi
 
      if [ $fail == "true" ]; then exit 1; fi
+
+       #testing descriptors/analsysis_file/.loom
+       optimus_descriptors_analysis_file_intermediate_loom_json_hash=$(cat "~{optimus_descriptors_analysis_file_intermediate_loom_json}" | md5sum | awk '{print $1}')
+
+       fail=false
+
+       if [ "$optimus_descriptors_analysis_file_intermediate_loom_json_hash" != "~{expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash}" ]; then
+        >&2 echo "optimus_descriptors_analysis_file_intermediate_loom_json_hash ($optimus_descriptors_analysis_file_intermediate_loom_json_hash) did not match expected hash (~{expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash})"
+        fail=true
+       fi
+
+     if [ $fail == "true" ]; then exit 1; fi
+
   >>>
 
   runtime {
