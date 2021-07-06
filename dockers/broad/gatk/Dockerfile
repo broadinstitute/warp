@@ -17,11 +17,11 @@ WORKDIR /usr/gitc
 RUN set -eux; \
         apk add --no-cache \
             bash \
-            unzip \
-            tini \ 
-            wget \
             python3 \
             py3-pip \
+            tini \
+            unzip \
+            wget \
         ; \
         \
 # Install GATK
@@ -40,9 +40,9 @@ RUN set -eux; \
         cp -r gatk-${GATK4_VERSION}/* /usr/gitc/gatk4/; \
         chmod +x /usr/gitc/gatk4/gatk; \
         \
-        rm -r /usr/gitc/temp; \
-        \
-        # symlink python to python3
+        rm -r /usr/gitc/temp \
+        ; \
+# Symlink python to python3
         ln -s python3 /usr/bin/python;
 
 # Set tini as default entrypoint
