@@ -68,7 +68,7 @@ When the tests are successful, we'll see a green check left of the test name on 
 
 ![](tests.png)
 
-Even if the tests pass, merging will be blocked until the review is complete and at least two reviewers have approved the PR, as outline in the [Contribution Guidelines](contribution-guidelines.md/#review-process).
+Even if the tests pass, merging will be blocked until the review is complete and at least two reviewers have approved the PR, as outlined in the [Contribution Guidelines](contribution-guidelines.md/#review-process).
 
 
 ### 7. Make revisions based on feedback.
