@@ -97,20 +97,28 @@ workflow TestHcaAdapter {
     staging_area=staging_area
   }
 
-  call checker_adapter.ValidateOptimusDescriptorAnalysisFiles as checker_adapter {
+  call checker_adapter.ValidateOptimusDescriptorAnalysisFiles as checker_adapter_descriptors {
      input:
        optimus_descriptors_analysis_file_intermediate_bam_json=target_adapter.analysis_file_descriptor[0],
-       expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash='4159d6202db7d58e41386abf8ab03f57',
+       expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash='568a0711897132818982d4f275395b39',
        optimus_descriptors_analysis_file_intermediate_loom_json=target_adapter.analysis_file_descriptor[1],
        expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash='fb82cb599899ffe747c95f36ac3020e5',
        optimus_descriptors_analysis_file_intermediate_reference_json=target_adapter.reference_genome_descriptor,
        expected_optimus_descriptors_analysis_file_intermediate_reference_json_hash='37041798cf2bb4ea4242572cbc7cda96'
    }
 
-  call checker_adapter.ValidateOptimusLinksFiles as checker_adapter {
+  call checker_adapter.ValidateOptimusLinksFiles as checker_adapter_links {
     input:
      optimus_links_intermediate_loom_json=target_adapter.links,
-     expected_optimus_links_intermediate_loom_json='faskehash'
+     expected_optimus_links_intermediate_loom_json='82a8d71aa9d4ebc9632b913ece492c97'
+  }
+
+  call checker_adapter.ValidateOptimusMetadataAnalysisFiles as checker_adapter_metadata {
+    input:
+     optimus_metadata_analysis_file_intermediate_bam_json=target_adapter.analysis_file[0],
+     expected_optimus_metadata_analysis_file_intermediate_bam_json_hash='a259e8a60e823689550e9dc8e6e0ce04',
+     optimus_metadata_analysis_file_intermediate_loom_json=target_adapter.analysis_file[1],
+     expected_optimus_metadata_analysis_file_intermediate_loom_json_hash='4361d3bd65023b0dd42f35b549c0b087'
   }
 
 }
