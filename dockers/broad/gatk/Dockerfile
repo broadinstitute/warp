@@ -22,8 +22,8 @@ RUN set -eux; \
             python3 \
             py3-pip \
         ; \
-        echo 'alias python="/usr/bin/python3"' >> ~/.bashrc; \
-            source ~/.bashrc; \
+        echo 'alias python="/usr/bin/python3"' >> /root/.bashrc; \
+            source /root/.bashrc; \
         \
 # Install GATK
         mkdir gatk4; \
