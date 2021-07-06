@@ -66,7 +66,7 @@ When updates are ready, [make a pull request (PR)](https://docs.github.com/en/gi
 
 #### 8. Merge updates to the WARP **develop** branch. 
 
-If you have permission to merge to the WARP repository, you can merge the PR once it's approved. You’ll receive a reminder to perform a [“squash merge”](https://docs.github.com/en/github/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-pull-request-commits). Please delete individual commit names and make one summary name for all commits. 
+If you have permission to merge to the WARP repository, you can merge the PR once it's approved. You’ll receive a reminder to perform a [“squash merge”](https://docs.github.com/en/github/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-pull-request-commits). Please delete individual commit comments and make one summary comment for all commits. 
 
 If you don’t have WARP permissions, the WARP team will merge the PR for you when it’s ready.
 
@@ -89,4 +89,3 @@ To learn more about how to apply these contribution guidelines to an example sma
 
 ## Still have questions?
 Contact us by [filing an issue](https://github.com/broadinstitute/warp/issues/new) or email [Kylee Degatano](mailto:kdegatano@broadinstitute.org). 
-
