@@ -64,7 +64,7 @@ After the PR is created, we can tag the WARP team by making a comment in the PR:
 ![](warp-admins-tag.png)
 
 The team will then work with us to kick off any necessary [tests](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
-When the tests are successful, we'll see a green check left of the test name on the PR's Conversation tab in the GitHub UI.
+When the tests are successful, we'll see a green check to the left of the test name on the PR's Conversation tab in the GitHub UI.
 
 ![](tests.png)
 
