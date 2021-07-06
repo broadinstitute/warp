@@ -107,4 +107,10 @@ workflow TestHcaAdapter {
        expected_optimus_descriptors_analysis_file_intermediate_reference_json_hash='37041798cf2bb4ea4242572cbc7cda96'
    }
 
+  call checker_adapter.ValidateOptimusLinksFiles as checker_adapter {
+    input:
+     optimus_links_intermediate_loom_json=target_adapter.links,
+     expected_optimus_links_intermediate_loom_json='faskehash'
+  }
+
 }
