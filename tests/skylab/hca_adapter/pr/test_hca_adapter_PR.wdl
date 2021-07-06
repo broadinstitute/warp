@@ -99,8 +99,8 @@ workflow TestHcaAdapter {
 
   call checker_adapter.ValidateOptimusDescriptorAnalysisFiles as checker_adapter {
      input:
-       descriptors_analysis_file_intermediate_bam_json=target_adapter.analysis_file_ss2[0],
-       expected_descriptors_analysis_file_intermediate_bam_json_hash='fakehash'
+       optimus_descriptors_analysis_file_intermediate_bam_json=target_adapter.analysis_file[0],
+       expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash='a259e8a60e823689550e9dc8e6e0ce04'
    }
 
 }
