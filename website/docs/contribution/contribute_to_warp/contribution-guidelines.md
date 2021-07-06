@@ -75,7 +75,7 @@ If you don’t have WARP permissions, the WARP team will merge the PR for you wh
 ### WARP review process and requirements
 After contributing a PR, a WARP team member will start a series of [tests](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines), usually by making an “ok to test” comment.
 
-For each PR, WARP requires approval from a minimum of two reviewers, often an engineer, a scientific owner, and sometimes a clinical owner. All comments and requests for changes are made directly in the GitHub PR. 
+For each PR, WARP requires approval from a minimum of two developer reviewers. Additionally, depending on the changes, a review from a scientific owner or a clinical owner is also required, unless the developer is already the scientific or clinical owner. All comments and requests for changes are made directly in the GitHub PR. 
 
 Comments will be likely be made within **3 business days** of the PR submission. If no review is started by that time, tag @Kylee Degatano in the PR. 
 
