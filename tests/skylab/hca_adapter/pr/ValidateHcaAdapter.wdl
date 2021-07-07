@@ -67,29 +67,18 @@ task ValidateOptimusDescriptorAnalysisFiles {
 task ValidateOptimusLinksFiles {
   input {
     File optimus_links_intermediate_loom_json
-    String expected_optimus_links_intermediate_loom_json
+    File optimus_links_intermediate_loom_json_actual
+    #String expected_optimus_links_intermediate_loom_json
     }
 
  command <<<
-       # catch intermittent failures
-       set -eo pipefail
-       # calculate hashes; awk is used to extract the hash from the md5sum output that contains both
-       # a hash and the filename that was passed. gzipped files are unzipped to avoid hashing malleable
-       # metadata
+  set -eo pipefail
+  diff optimus_links_intermediate_loom_json optimus_links_intermediate_loom_json_actual
 
-       #testing links/loom.json
-       optimus_links_intermediate_loom_json_hash=$(cat "~{optimus_links_intermediate_loom_json}" | md5sum | awk '{print $1}')
-
-       # test each output for equivalence, echoing any failure states to stdout
-       fail=false
-
-       if [ "$optimus_links_intermediate_loom_json_hash" != "~{expected_optimus_links_intermediate_loom_json}" ]; then
-         >&2 echo "optimus_links_intermediate_loom_json_hash ($optimus_links_intermediate_loom_json_hash) did not match expected hash (~{expected_optimus_links_intermediate_loom_json})"
-         fail=true
-       fi
-
-     if [ $fail == "true" ]; then exit 1; fi
-
+  if [ $? -ne 0 ];
+  then
+   echo "error"
+  fi
   >>>
 
   runtime {

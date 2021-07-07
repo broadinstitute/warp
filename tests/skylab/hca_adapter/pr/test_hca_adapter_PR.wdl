@@ -49,6 +49,8 @@ workflow TestHcaAdapter {
     String schema_url
     Array[String] species
     String staging_area
+    File links_json
+
   }
 
   call target_optimus.Optimus as target_optimus {
@@ -94,7 +96,8 @@ workflow TestHcaAdapter {
     run_type=run_type,
     schema_url=schema_url,
     species=species,
-    staging_area=staging_area
+    staging_area=staging_area,
+    links_json=links_json
   }
 
   call checker_adapter.ValidateOptimusDescriptorAnalysisFiles as checker_adapter_descriptors {
@@ -110,7 +113,8 @@ workflow TestHcaAdapter {
   call checker_adapter.ValidateOptimusLinksFiles as checker_adapter_links {
     input:
      optimus_links_intermediate_loom_json=target_adapter.links,
-     expected_optimus_links_intermediate_loom_json='555f96c22242c5ceeafb5462090b149a'
+     optimus_links_intermediate_loom_json_actual=links_json,
+     #expected_optimus_links_intermediate_loom_json='555f96c22242c5ceeafb5462090b149a'
   }
 
   call checker_adapter.ValidateOptimusMetadataAnalysisFiles as checker_adapter_metadata_analysis_files {
