@@ -110,7 +110,7 @@ workflow TestHcaAdapter {
   call checker_adapter.ValidateOptimusLinksFiles as checker_adapter_links {
     input:
      optimus_links_intermediate_loom_json=target_adapter.links,
-     expected_optimus_links_intermediate_loom_json='eebddd1aa0877ff67d446de352409dc6'
+     expected_optimus_links_intermediate_loom_json='555f96c22242c5ceeafb5462090b149a'
   }
 
   call checker_adapter.ValidateOptimusMetadataAnalysisFiles as checker_adapter_metadata_analysis_files {
