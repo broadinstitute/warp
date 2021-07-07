@@ -15,6 +15,7 @@ jobs:
         - dockers/broad/illumina_iaap_autocall
         - dockers/broad/verify_bam_id
         - dockers/broad/samtools
+        - dockers/broad/samtools_picard_bwa
         - dockers/broad/zcall
     steps:
       - uses: actions/checkout@v2
