@@ -96,8 +96,7 @@ workflow TestHcaAdapter {
     run_type=run_type,
     schema_url=schema_url,
     species=species,
-    staging_area=staging_area,
-    links_json=links_json
+    staging_area=staging_area
   }
 
   call checker_adapter.ValidateOptimusDescriptorAnalysisFiles as checker_adapter_descriptors {

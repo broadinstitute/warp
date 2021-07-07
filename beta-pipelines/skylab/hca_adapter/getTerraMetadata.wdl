@@ -558,9 +558,6 @@ workflow submit {
 
     # Build staging bucket
     String staging_bucket = staging_area + project_id + "/staging/"
-
-    File llinksinks_json
-
   }
 
   call CheckMetadata {
