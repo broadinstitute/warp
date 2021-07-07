@@ -73,7 +73,7 @@ task ValidateOptimusLinksFiles {
 
  command <<<
   set -eo pipefail
-  diff ${optimus_links_intermediate_loom_json} ${optimus_links_intermediate_loom_json_actual}
+  diff "~{optimus_links_intermediate_loom_json}" "~{optimus_links_intermediate_loom_json_actual}"
 
   if [ $? -ne 0 ];
   then
