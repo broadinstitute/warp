@@ -20,17 +20,18 @@ RUN set -eux; \
         libc6-compat \
         openjdk8 \
         ; \
+# Install BWA
+        mkdir temp; \
+        cd temp; \
         \
-# Install BWA and PICARD
-        \
-        # BWA
         wget ${BWA_URL} -O bwakit-${BWA_VERSION}.tar.bz2; \
         tar xf bwakit-${BWA_VERSION}.tar.bz2;  \
-        rm bwakit-${BWA_VERSION}.tar.bz2; \
-        mv bwa.kit/bwa bwa; \
-        rm -rf bwa.kit; \
+        mv bwa.kit/bwa ../bwa; \
         \
-        # PICARD
+        cd ../; \
+        rm -r temp \
+        ; \
+# Install picard
         wget ${PICARD_URL};
 
 # Set tini as default entrypoint
