@@ -1,24 +1,11 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/pipelines/skylab/optimus/Optimus.wdl" as target_optimus
 import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/beta-pipelines/skylab/hca_adapter/getTerraMetadata.wdl" as target_adapter
 import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/tests/skylab/hca_adapter/pr/ValidateHcaAdapter.wdl" as checker_adapter
 
 # this workflow will be run by the jenkins script that gets executed by PRs.
 workflow TestHcaAdapter {
   input {
-
-    # Optimus inputs
-    Array[File] r1_fastq
-    Array[File] r2_fastq
-    Array[File]? i1_fastq
-
-    File whitelist  # 10x genomics cell barcode whitelist for 10x V2
-    File tar_star_reference  # star reference
-    File annotations_gtf  # gtf containing annotations for gene tagging
-    File ref_genome_fasta  # genome fasta file
-    String input_id  # name of sample matching this file, inserted into read group header
-    String chemistry
 
     # hca adapter inputs
     Boolean add_md5s
@@ -53,20 +40,6 @@ workflow TestHcaAdapter {
 
   }
 
-  call target_optimus.Optimus as target_optimus {
-    input:
-      r1_fastq = r1_fastq,
-      r2_fastq = r2_fastq,
-      i1_fastq = i1_fastq,
-      whitelist = whitelist,
-      tar_star_reference = tar_star_reference,
-      annotations_gtf = annotations_gtf,
-      ref_genome_fasta = ref_genome_fasta,
-      input_id = input_id,
-      emptydrops_lower = 1,
-      chemistry = chemistry
-  }
-
   call target_adapter.submit as target_adapter {
     input:
     add_md5s=add_md5s,
@@ -86,7 +59,7 @@ workflow TestHcaAdapter {
     method=method,
     ncbi_taxon_id=ncbi_taxon_id,
     organ=organ,
-    outputs=[target_optimus.loom_output_file, target_optimus.bam],
+    outputs=["gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/d55a4108-336f-48ea-8d6e-93107a59e32e/Optimus/546af77e-3469-4a03-bd32-6045e27a8d95/call-OptimusLoomGeneration/heart_1k_test_v2_S1_L001.loom", "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/d55a4108-336f-48ea-8d6e-93107a59e32e/Optimus/ 546af77e-3469-4a03-bd32-6045e27a8d95/call-MergeSorted/heart_1k_test_v2_S1_L001.bam"],
     pipeline_tools_version=pipeline_tools_version,
     pipeline_version=pipeline_version,
     projects=projects,
