@@ -1,8 +1,9 @@
 # 2.5.0
-2021-06-10
+2021-07-06
 
-* Change GoTC image to Samtools specific image in CramToUnmappedBams and Utilities
 * Updated VerifyBamID to use AppSec base image
+* Changed GoTC image to Samtools specific image in CramToUnmappedBams and Utilities
+* Changed GoTC image to GATK specific image in GermlineVariantDiscovery
 
 # 2.4.7
 2021-06-01

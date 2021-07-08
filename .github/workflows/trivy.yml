@@ -10,6 +10,7 @@ jobs:
       matrix:
         context:
         - dockers/broad/arrays_picard_private
+        - dockers/broad/gatk
         - dockers/broad/genomes_on_the_cloud
         - dockers/broad/illumina_iaap_autocall
         - dockers/broad/verify_bam_id
