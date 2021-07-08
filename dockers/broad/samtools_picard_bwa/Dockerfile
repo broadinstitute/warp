@@ -15,6 +15,11 @@ WORKDIR /usr/gitc
 
 # Install dependencies
 RUN set -eux; \
+        apk add --no-cache \
+        gcompat \
+        libc6-compat \
+        ; \
+        \
 # Install BWA and PICARD
         \
         # BWA
