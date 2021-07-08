@@ -69,6 +69,8 @@ object CromwellWorkflowTester {
         new AnnotationFiltrationTester(config.annotationFiltrationConfig)
       case CramToUnmappedBams =>
         new CramToUnmappedBamsTester(config.cramToUnmappedBamsConfig)
+      case CloudWorkflow =>
+        new CloudWorkflowTester(config.cloudWorkflowConfig)
       case Dummy => new DummyTester()
       case ExternalReprocessing =>
         new ExternalReprocessingTester(config.germlineCloudConfig)
