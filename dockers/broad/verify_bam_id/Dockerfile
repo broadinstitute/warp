@@ -41,7 +41,7 @@ RUN set eux; \
     make; \
     make test; \
     \
-    cd ../../;\
+    cd ../../; \
     mv VerifyBamID-${GIT_HASH}/bin/VerifyBamID .; \
     rm -rf ${GIT_HASH}.zip VerifyBamID-${GIT_HASH} \
     ; \

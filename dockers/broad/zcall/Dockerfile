@@ -14,10 +14,10 @@ WORKDIR /usr/gitc
 # Install dependencies
 RUN set eux; \
         apk add --no-cache \
-        bash \
-        curl  \
-        tini \
-        unzip \
+            bash \
+            curl  \
+            tini \
+            unzip \
     ; \
 # Install Zcall
     mkdir temp zcall; \
