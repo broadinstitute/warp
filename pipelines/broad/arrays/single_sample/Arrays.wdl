@@ -121,7 +121,7 @@ workflow Arrays {
     input:
       sample_alias = sample_alias,
       sample_lsid = sample_lsid,
-      output_vcf_name = chip_well_barcode + "." + sample_alias + ".reference.fingerprint.gz",
+      output_vcf_base_name = chip_well_barcode + "." + sample_alias + ".reference.fingerprint",
       haplotype_database_file = haplotype_database_file,
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,
@@ -159,8 +159,8 @@ workflow Arrays {
       cluster_file = cluster_file,
       gender_cluster_file = gender_cluster_file,
       zcall_thresholds_file = zcall_thresholds_file,
-      fingerprint_genotypes_vcf_file = DownloadGenotypes.output_vcf,
-      fingerprint_genotypes_vcf_index_file = DownloadGenotypes.output_vcf_index,
+      fingerprint_genotypes_vcf_file = DownloadGenotypes.reference_fingerprint_vcf,
+      fingerprint_genotypes_vcf_index_file = DownloadGenotypes.reference_fingerprint_vcf_index,
       haplotype_database_file = haplotype_database_file,
       variant_rsids_file = variant_rsids_file,
       subsampled_metrics_interval_list = subsampled_metrics_interval_list,
@@ -221,6 +221,14 @@ workflow Arrays {
         output_json_filename = chip_well_barcode + ".fingerprint.json",
         disk_size = disk_size,
         preemptible_tries = preemptible_tries
+    }
+
+    call UploadFingerprintToMercury {
+      input:
+        fingerprint_json_file = VcfToMercuryFingerprintJson.output_json_file,
+        gtc_file = IlluminaGenotypingArray.gtc,
+        preemptible_tries = preemptible_tries,
+        source_block = vault_source_block
     }
 
     if (defined(IlluminaGenotypingArray.bafregress_results_file)) {
@@ -290,8 +298,8 @@ workflow Arrays {
     File? OutputVcfIndexFile = IlluminaGenotypingArray.output_vcf_index
     File? BafRegressMetricsFile = CreateBafRegressMetricsFile.output_metrics_file
     File? ContaminationMetricsFile = IlluminaGenotypingArray.contamination_metrics
-    File? ReferenceFingerprintVcf = DownloadGenotypes.output_vcf
-    File? ReferenceFingerprintVcfIndex = DownloadGenotypes.output_vcf_index
+    File? ReferenceFingerprintVcf = DownloadGenotypes.reference_fingerprint_vcf
+    File? ReferenceFingerprintVcfIndex = DownloadGenotypes.reference_fingerprint_vcf_index
     File? OutputFingerprintVcfFile = IlluminaGenotypingArray.output_fingerprint_vcf
     File? OutputFingerprintVcfIndexFile = IlluminaGenotypingArray.output_fingerprint_vcf_index
     File? OutputFingerprintJsonFile = VcfToMercuryFingerprintJson.output_json_file
@@ -316,7 +324,8 @@ task DownloadGenotypes {
   input {
     String sample_alias
     String sample_lsid
-    String output_vcf_name
+    String output_vcf_base_name
+    Boolean compress = true
 
     File haplotype_database_file
 
@@ -329,19 +338,11 @@ task DownloadGenotypes {
     Int preemptible_tries
   }
 
-  String base_vcf = basename(output_vcf_name)
-  Boolean is_compressed = basename(base_vcf, "gz") != base_vcf
-  String vcf_suffix = if is_compressed then ".vcf.gz" else ".vcf"
-  String vcf_index_suffix = if is_compressed then ".tbi" else ".idx"
-  String output_vcf = base_vcf + vcf_suffix
-  String output_vcf_index = output_vcf + vcf_index_suffix
-
+  String output_vcf = output_vcf_base_name + if compress then ".vcf.gz" else".vcf"
+  String output_vcf_index = output_vcf + if compress then ".tbi" else ".idx"
 
   command <<<
     set -eo pipefail
-
-    # TODO - using this won't work until we give the appropriate permissions to this user.
-    AUTH=~{write_lines(source_block)} && source $AUTH
 
     # TODO - need to pull the credentials from the VAULT - but the permissions aren't working!
     #    --CREDENTIALS_VAULT_PATH secret/dsde/gotc/dev/wdl/secrets \
@@ -354,14 +355,15 @@ task DownloadGenotypes {
     --CREATE_INDEX true \
     --REFERENCE_SEQUENCE ~{ref_fasta} \
     --HAPLOTYPE_MAP ~{haplotype_database_file} \
-    # TODO - this should only be set to FLUIDIGM if it's 'clinical'
-    # I think the tool may be broken if you are supplying nothing.  Need to test.
     --EXPECTED_GENOTYPING_PLATFORMS FLUIDIGM \
     --IGNORE_SPECIFIC_GENOTYPES_PLATFORM GENERAL_ARRAY \
     --IGNORE_SPECIFIC_GENOTYPES_LSID ~{sample_lsid} \
     --MERCURY_FP_STORE_URI https://portals.broadinstitute.org/portal-test/mercury-ws/fingerprint \
     --USERNAME dsp-fp-dev \
     --PASSWORD 'peph#datHe!2'
+
+    # TODO - this should only be set to FLUIDIGM if it's 'clinical'
+    # I think the tool may be broken if you are supplying nothing.  Need to test.
 
     # TODO - if it doesn't find any fingerprints, it generates no output (I think there's a different return code).
     # Need to then?? make an empty VCF and index and pass them along through subsequent steps - or have another flag
@@ -377,7 +379,42 @@ task DownloadGenotypes {
   }
 
   output {
-    File output_vcf = "~{output_vcf}"
-    File output_vcf_index = "~{output_vcf_index}"
+    File reference_fingerprint_vcf = output_vcf
+    File reference_fingerprint_vcf_index = output_vcf_index
+  }
+}
+
+
+task UploadFingerprintToMercury {
+  input {
+    File fingerprint_json_file
+    File gtc_file
+
+    Array[String] source_block
+
+    Int preemptible_tries
+  }
+
+  command <<<
+    set -eo pipefail
+
+    du -k ~{gtc_file} | cut -f 1 > size.txt
+
+    # TODO - need to pull the credentials from the VAULT - but the permissions aren't working!
+    #    --CREDENTIALS_VAULT_PATH secret/dsde/gotc/dev/wdl/secrets \
+
+    java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+    UploadFingerprintToMercury \
+      --INPUT "~{fingerprint_json_file}" \
+      --GTC_FILE_SIZE size.txt \
+      --MERCURY_FP_STORE_URI https://portals.broadinstitute.org/portal-test/mercury-ws/fingerprint \
+      --USERNAME dsp-fp-dev \
+      --PASSWORD 'peph#datHe!2'
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    memory: "3.5 GiB"
+    preemptible: preemptible_tries
   }
 }
