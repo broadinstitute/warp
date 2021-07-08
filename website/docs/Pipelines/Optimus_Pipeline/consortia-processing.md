@@ -94,4 +94,26 @@ Read more about the metadata manifest in the DCP [Exploring Projects guide](http
 
 :::tip Explore HCA Project matrices in Terra
 HCA matrices produced with Optimus are compatible with multiple downstream community analysis tools. For a tutorial on using the Optimus matrix with [Seurat](https://satijalab.org/seurat/index.html), [Scanpy](https://scanpy.readthedocs.io/en/stable/), [Cumulus](https://cumulus.readthedocs.io/en/latest/index.html), or [Pegasus](https://pegasus.readthedocs.io/en/stable/#), see the public [Intro-to-HCA-data-on-Terra workspace](https://app.terra.bio/#workspaces/featured-workspaces-hca/Intro-to-HCA-data-on-Terra) (login required) and its accompanying [step-by-step guide](https://support.terra.bio/hc/en-us/articles/360060041772).
+:::
+
+### Mapping DCP project matrix data to the contributor matrices
+
+Contributor matrices contain data analyzed and provided by the original project contributors. While they vary in format and content from project to project, they often include cell type annotations and additional metadata such as donor information and cell barcodes. 
+
+*If the contributor matrix contains donor metadata that matches a field in the project metadata manifest*, the matrix can be linked to the DCP-generated project matrix in a two-step process.
+
+- First, map the DCP matrix to the metadata manifest using the Loom's `input_id` **column**; this column contains the same library preparation/donor IDs as the project metadata manifest's `sequencing_process.provenance.document_id` column. 
+
+- Second, map the contributor matrix to the metadata manifest using the contributor matrix column that matches the metadata manifest. 
+
+Contributor matrices might contain a column for cell barcodes for each library/preparation donor. These barcodes should match the non-unique barcodes listed in the DCP project matrix, with the exception of cells that might have been filtered out of the Loom matrix due to low UMIs. The Loom's non-unique barcodes are listed in the `CellID` column. 
+
+![](mapping_matrices.png)
+
+
+For example code showing how to link a contributor matrix to a DCP project matrix, see the [Matrix_matching Jupyter Notebook](./Matrix_matching.ipynb).
+
+If you have any questions related to the contributor matrix and content, reach out to the individual project contributors listed on the Project page.
+
+
 
