@@ -59,7 +59,7 @@ workflow TestHcaAdapter {
     method=method,
     ncbi_taxon_id=ncbi_taxon_id,
     organ=organ,
-    outputs=["gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/d55a4108-336f-48ea-8d6e-93107a59e32e/Optimus/546af77e-3469-4a03-bd32-6045e27a8d95/call-OptimusLoomGeneration/heart_1k_test_v2_S1_L001.loom", "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/d55a4108-336f-48ea-8d6e-93107a59e32e/Optimus/ 546af77e-3469-4a03-bd32-6045e27a8d95/call-MergeSorted/heart_1k_test_v2_S1_L001.bam"],
+    outputs=["gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-OptimusLoomGeneration/heart_1k_test_v2_S1_L001.loom", "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeSorted/heart_1k_test_v2_S1_L001.bam"],
     pipeline_tools_version=pipeline_tools_version,
     pipeline_version=pipeline_version,
     projects=projects,
