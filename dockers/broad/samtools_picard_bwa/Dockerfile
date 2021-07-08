@@ -16,9 +16,9 @@ WORKDIR /usr/gitc
 # Install dependencies
 RUN set -eux; \
         apk add --no-cache \
-        gcompat \
-        libc6-compat \
-        openjdk8 \
+            gcompat \
+            libc6-compat \
+            openjdk8 \
         ; \
 # Install BWA
         mkdir temp; \
