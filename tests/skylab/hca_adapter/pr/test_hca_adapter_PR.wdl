@@ -75,7 +75,7 @@ workflow TestHcaAdapter {
   call checker_adapter.ValidateOptimusDescriptorAnalysisFiles as checker_adapter_descriptors {
      input:
        optimus_descriptors_analysis_file_intermediate_loom_json=target_adapter.analysis_file_descriptor[1],
-       expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash='007e56d8bf4f785ee37e9be2325a534c',
+       expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash='625f836da99fb9e12ec9c08fa4e2d882',
        optimus_descriptors_analysis_file_intermediate_bam_json=target_adapter.analysis_file_descriptor[0],
        expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash='4d97024dd0f3d81382b876975818ad87',
        optimus_descriptors_analysis_file_intermediate_reference_json=target_adapter.reference_genome_descriptor,
@@ -94,7 +94,7 @@ workflow TestHcaAdapter {
      optimus_metadata_analysis_file_intermediate_bam_json=target_adapter.analysis_file[0],
      expected_optimus_metadata_analysis_file_intermediate_bam_json_hash='61c21ef6054c671006ebd0592ec36870',
      optimus_metadata_analysis_file_intermediate_loom_json=target_adapter.analysis_file[1],
-     expected_optimus_metadata_analysis_file_intermediate_loom_json_hash='4361d3bd65023b0dd42f35b549c0b087'
+     expected_optimus_metadata_analysis_file_intermediate_loom_json_hash='da64a2470c700689524ed640062e7290'
   }
 
   call checker_adapter.ValidateOptimusMetadataAnalysisProcessFiles as checker_adapter_metadata_analysis_process {
