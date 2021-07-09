@@ -2,58 +2,41 @@ version 1.0
 
 task ValidateOptimusDescriptorAnalysisFiles {
   input {
-    File optimus_descriptors_analysis_file_intermediate_bam_json
-    String expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash
     File optimus_descriptors_analysis_file_intermediate_loom_json
-    String expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash
+    File optimus_descriptors_analysis_file_intermediate_loom_json_truth
+    File optimus_descriptors_analysis_file_intermediate_bam_json
+    File optimus_descriptors_analysis_file_intermediate_bam_json_truth
     File optimus_descriptors_analysis_file_intermediate_reference_json
-    String expected_optimus_descriptors_analysis_file_intermediate_reference_json_hash
+    File optimus_descriptors_analysis_file_intermediate_reference_json_truth
     }
 
  command <<<
        # catch intermittent failures
        set -eo pipefail
-       # calculate hashes; awk is used to extract the hash from the md5sum output that contains both
-       # a hash and the filename that was passed. gzipped files are unzipped to avoid hashing malleable
-       # metadata
-
-       #testing descriptors/analsysis_file/.bam
-       optimus_descriptors_analysis_file_intermediate_bam_json_hash=$(cat "~{optimus_descriptors_analysis_file_intermediate_bam_json}" | md5sum | awk '{print $1}')
-
-       # test each output for equivalence, echoing any failure states to stdout
-       fail=false
-
-       if [ "$optimus_descriptors_analysis_file_intermediate_bam_json_hash" != "~{expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash}" ]; then
-         >&2 echo "optimus_descriptors_analysis_file_intermediate_bam_json_hash ($optimus_descriptors_analysis_file_intermediate_bam_json_hash) did not match expected hash (~{expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash})"
-         fail=true
-       fi
-
-     if [ $fail == "true" ]; then exit 1; fi
 
        #testing descriptors/analsysis_file/.loom
-       optimus_descriptors_analysis_file_intermediate_loom_json_hash=$(cat "~{optimus_descriptors_analysis_file_intermediate_loom_json}" | md5sum | awk '{print $1}')
+       diff "~{optimus_descriptors_analysis_file_intermediate_loom_json}" "~{optimus_descriptors_analysis_file_intermediate_loom_json_truth}"
 
-       fail=false
+         if [ $? -ne 0 ];
+         then
+          echo "error"
+         fi
 
-       if [ "$optimus_descriptors_analysis_file_intermediate_loom_json_hash" != "~{expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash}" ]; then
-         >&2 echo "optimus_descriptors_analysis_file_intermediate_loom_json_hash ($optimus_descriptors_analysis_file_intermediate_loom_json_hash) did not match expected hash (~{expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash})"
-         fail=true
-       fi
+       #testing descriptors/analsysis_file/.bam
+       diff "~{optimus_descriptors_analysis_file_intermediate_bam_json}" "~{optimus_descriptors_analysis_file_intermediate_bam_json_truth}"
 
-     if [ $fail == "true" ]; then exit 1; fi
+                if [ $? -ne 0 ];
+                then
+                 echo "error"
+                fi
 
-       #testing descriptors/analsysis_file/.fasta
-       optimus_descriptors_analysis_file_intermediate_reference_json_hash=$(cat "~{optimus_descriptors_analysis_file_intermediate_reference_json}" | md5sum | awk '{print $1}')
+       #testing descriptors/reference_file/.fasta
+       diff "~{optimus_descriptors_analysis_file_intermediate_reference_json}" "~{optimus_descriptors_analysis_file_intermediate_reference_json_truth}"
 
-       fail=false
-
-       if [ "$optimus_descriptors_analysis_file_intermediate_reference_json_hash" != "~{expected_optimus_descriptors_analysis_file_intermediate_reference_json_hash}" ]; then
-         >&2 echo "optimus_descriptors_analysis_file_intermediate_reference_json_hash ($optimus_descriptors_analysis_file_intermediate_reference_json_hash) did not match expected hash (~{expected_optimus_descriptors_analysis_file_intermediate_reference_json_hash})"
-         fail=true
-       fi
-
-     if [ $fail == "true" ]; then exit 1; fi
-
+                if [ $? -ne 0 ];
+                then
+                 echo "error"
+                fi
   >>>
 
   runtime {
@@ -67,13 +50,12 @@ task ValidateOptimusDescriptorAnalysisFiles {
 task ValidateOptimusLinksFiles {
   input {
     File optimus_links_intermediate_loom_json
-    File optimus_links_intermediate_loom_json_actual
-    #String expected_optimus_links_intermediate_loom_json
+    File optimus_links_intermediate_loom_json_truth
     }
 
  command <<<
   set -eo pipefail
-  diff "~{optimus_links_intermediate_loom_json}" "~{optimus_links_intermediate_loom_json_actual}"
+  diff "~{optimus_links_intermediate_loom_json}" "~{optimus_links_intermediate_loom_json_truth}"
 
   if [ $? -ne 0 ];
   then
@@ -92,43 +74,30 @@ task ValidateOptimusLinksFiles {
 task ValidateOptimusMetadataAnalysisFiles {
   input {
     File optimus_metadata_analysis_file_intermediate_bam_json
-    String expected_optimus_metadata_analysis_file_intermediate_bam_json_hash
+    File optimus_metadata_analysis_file_intermediate_bam_json_truth
     File optimus_metadata_analysis_file_intermediate_loom_json
-    String expected_optimus_metadata_analysis_file_intermediate_loom_json_hash
+    File optimus_metadata_analysis_file_intermediate_loom_json_truth
     }
 
  command <<<
        # catch intermittent failures
        set -eo pipefail
-       # calculate hashes; awk is used to extract the hash from the md5sum output that contains both
-       # a hash and the filename that was passed. gzipped files are unzipped to avoid hashing malleable
-       # metadata
 
-       #testing metadata/analsysis_file/.bam
-       optimus_metadata_analysis_file_intermediate_bam_json_hash=$(cat "~{optimus_metadata_analysis_file_intermediate_bam_json}" | md5sum | awk '{print $1}')
+       #testing metadata/analysis_file/.bam
+       diff "~{optimus_metadata_analysis_file_intermediate_bam_json}" "~{optimus_metadata_analysis_file_intermediate_bam_json_truth}"
 
-       # test each output for equivalence, echoing any failure states to stdout
-       fail=false
+                if [ $? -ne 0 ];
+                then
+                 echo "error"
+                fi
 
-       if [ "$optimus_metadata_analysis_file_intermediate_bam_json_hash" != "~{expected_optimus_metadata_analysis_file_intermediate_bam_json_hash}" ]; then
-         >&2 echo "optimus_metadata_analysis_file_intermediate_bam_json_hash ($optimus_metadata_analysis_file_intermediate_bam_json_hash) did not match expected hash (~{expected_optimus_metadata_analysis_file_intermediate_bam_json_hash})"
-         fail=true
-       fi
+       #testing metadata/analysis_file/.loom
+       diff "~{optimus_metadata_analysis_file_intermediate_loom_json}" "~{optimus_metadata_analysis_file_intermediate_loom_json_truth}"
 
-     if [ $fail == "true" ]; then exit 1; fi
-
-       #testing metadata/analsysis_file/.loom
-       optimus_metadata_analysis_file_intermediate_loom_json_hash=$(cat "~{optimus_metadata_analysis_file_intermediate_loom_json}" | md5sum | awk '{print $1}')
-
-       fail=false
-
-       if [ "$optimus_metadata_analysis_file_intermediate_loom_json_hash" != "~{expected_optimus_metadata_analysis_file_intermediate_loom_json_hash}" ]; then
-         >&2 echo "optimus_metadata_analysis_file_intermediate_loom_json_hash ($optimus_metadata_analysis_file_intermediate_loom_json_hash) did not match expected hash (~{expected_optimus_metadata_analysis_file_intermediate_loom_json_hash})"
-         fail=true
-       fi
-
-     if [ $fail == "true" ]; then exit 1; fi
-
+                if [ $? -ne 0 ];
+                then
+                 echo "error"
+                fi
   >>>
 
   runtime {
@@ -142,28 +111,20 @@ task ValidateOptimusMetadataAnalysisFiles {
 task ValidateOptimusMetadataAnalysisProcessFiles {
   input {
     File optimus_metadata_analysis_process_file_intermediate_json
-    String expected_optimus_metadata_analysis_process_file_intermediate_json_hash
+    File optimus_metadata_analysis_process_file_intermediate_json_truth
     }
 
  command <<<
        # catch intermittent failures
        set -eo pipefail
-       # calculate hashes; awk is used to extract the hash from the md5sum output that contains both
-       # a hash and the filename that was passed. gzipped files are unzipped to avoid hashing malleable
-       # metadata
 
-       #testing metadata/analsysis_process/.json
-      optimus_metadata_analysis_process_file_intermediate_json_hash=$(cat "~{optimus_metadata_analysis_process_file_intermediate_json}" | md5sum | awk '{print $1}')
+       #testing metadata/analysis_process/.json
+       diff "~{optimus_metadata_analysis_process_file_intermediate_json}" "~{optimus_metadata_analysis_process_file_intermediate_json_truth}"
 
-       # test each output for equivalence, echoing any failure states to stdout
-       fail=false
-
-       if [ "$optimus_metadata_analysis_process_file_intermediate_json_hash" != "~{expected_optimus_metadata_analysis_process_file_intermediate_json_hash}" ]; then
-         >&2 echo "optimus_metadata_analysis_process_file_intermediate_json_hash ($optimus_metadata_analysis_process_file_intermediate_json_hash) did not match expected hash (~{expected_optimus_metadata_analysis_process_file_intermediate_json_hash})"
-         fail=true
-       fi
-
-     if [ $fail == "true" ]; then exit 1; fi
+                if [ $? -ne 0 ];
+                then
+                 echo "error"
+                fi
 
   >>>
 
@@ -178,29 +139,20 @@ task ValidateOptimusMetadataAnalysisProcessFiles {
 task ValidateOptimusMetadataAnalysisProtocolFiles {
   input {
     File optimus_metadata_analysis_protocol_file_intermediate_json
-    String expected_optimus_metadata_analysis_protocol_file_intermediate_json_hash
+    File optimus_metadata_analysis_protocol_file_intermediate_json_truth
     }
 
  command <<<
        # catch intermittent failures
        set -eo pipefail
-       # calculate hashes; awk is used to extract the hash from the md5sum output that contains both
-       # a hash and the filename that was passed. gzipped files are unzipped to avoid hashing malleable
-       # metadata
 
-       #testing metadata/analsysis_protocol/.json
-      optimus_metadata_analysis_protocol_file_intermediate_json_hash=$(cat "~{optimus_metadata_analysis_protocol_file_intermediate_json}" | md5sum | awk '{print $1}')
+       #testing metadata/analysis_protocol/.json
+       diff "~{optimus_metadata_analysis_protocol_file_intermediate_json}" "~{optimus_metadata_analysis_protocol_file_intermediate_json_truth}"
 
-       # test each output for equivalence, echoing any failure states to stdout
-       fail=false
-
-       if [ "$optimus_metadata_analysis_protocol_file_intermediate_json_hash" != "~{expected_optimus_metadata_analysis_protocol_file_intermediate_json_hash}" ]; then
-         >&2 echo "optimus_metadata_analysis_protocol_file_intermediate_json_hash ($optimus_metadata_analysis_protocol_file_intermediate_json_hash) did not match expected hash (~{expected_optimus_metadata_analysis_protocol_file_intermediate_json_hash})"
-         fail=true
-       fi
-
-     if [ $fail == "true" ]; then exit 1; fi
-
+                if [ $? -ne 0 ];
+                then
+                 echo "error"
+                fi
   >>>
 
   runtime {
@@ -214,28 +166,20 @@ task ValidateOptimusMetadataAnalysisProtocolFiles {
 task ValidateOptimusMetadataReferenceFiles {
   input {
     File optimus_metadata_reference_file_intermediate_json
-    String expected_optimus_metadata_reference_file_intermediate_json_hash
+    String optimus_metadata_reference_file_intermediate_json_truth
     }
 
  command <<<
        # catch intermittent failures
        set -eo pipefail
-       # calculate hashes; awk is used to extract the hash from the md5sum output that contains both
-       # a hash and the filename that was passed. gzipped files are unzipped to avoid hashing malleable
-       # metadata
 
-       #testing metadata/reference_file/.json
-      optimus_metadata_reference_file_intermediate_json_hash=$(cat "~{optimus_metadata_reference_file_intermediate_json}" | md5sum | awk '{print $1}')
+       #testing metadata/reference_file/.fasta
+       diff "~{optimus_metadata_reference_file_intermediate_json}" "~{optimus_metadata_reference_file_intermediate_json_truth}"
 
-       # test each output for equivalence, echoing any failure states to stdout
-       fail=false
-
-       if [ "$optimus_metadata_reference_file_intermediate_json_hash" != "~{expected_optimus_metadata_reference_file_intermediate_json_hash}" ]; then
-         >&2 echo "optimus_metadata_reference_file_intermediate_json_hash ($optimus_metadata_reference_file_intermediate_json_hash) did not match expected hash (~{expected_optimus_metadata_reference_file_intermediate_json_hash})"
-         fail=true
-       fi
-
-     if [ $fail == "true" ]; then exit 1; fi
+                if [ $? -ne 0 ];
+                then
+                 echo "error"
+                fi
 
   >>>
 

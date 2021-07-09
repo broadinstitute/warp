@@ -36,9 +36,20 @@ workflow TestHcaAdapter {
     String schema_url
     Array[String] species
     String staging_area
-    File links_json
+
+    #optimus truth inputs
+    File optimus_descriptors_analysis_file_intermediate_loom_json
+    File optimus_metadata_analysis_file_intermediate_bam_json
+    File optimus_metadata_reference_file_intermediate_json
+    File optimus_metadata_analysis_protocol_file_intermediate_json
+    File optimus_links_intermediate_loom_json
+    File optimus_metadata_analysis_process_file_intermediate_json
+    File optimus_descriptors_analysis_file_intermediate_bam_json
+    File optimus_metadata_analysis_file_intermediate_loom_json
+    File optimus_descriptors_analysis_file_intermediate_reference_json
 
   }
+
 
   call target_adapter.submit as target_adapter {
     input:
@@ -75,44 +86,43 @@ workflow TestHcaAdapter {
   call checker_adapter.ValidateOptimusDescriptorAnalysisFiles as checker_adapter_descriptors {
      input:
        optimus_descriptors_analysis_file_intermediate_loom_json=target_adapter.analysis_file_descriptor[1],
-       expected_optimus_descriptors_analysis_file_intermediate_loom_json_hash='625f836da99fb9e12ec9c08fa4e2d882',
+       optimus_descriptors_analysis_file_intermediate_loom_json_truth=optimus_descriptors_analysis_file_intermediate_loom_json,
        optimus_descriptors_analysis_file_intermediate_bam_json=target_adapter.analysis_file_descriptor[0],
-       expected_optimus_descriptors_analysis_file_intermediate_bam_json_hash='4d97024dd0f3d81382b876975818ad87',
+       optimus_descriptors_analysis_file_intermediate_bam_json_truth=optimus_descriptors_analysis_file_intermediate_bam_json,
        optimus_descriptors_analysis_file_intermediate_reference_json=target_adapter.reference_genome_descriptor,
-       expected_optimus_descriptors_analysis_file_intermediate_reference_json_hash='37041798cf2bb4ea4242572cbc7cda96'
+       optimus_descriptors_analysis_file_intermediate_reference_json_truth=optimus_descriptors_analysis_file_intermediate_reference_json
    }
 
   call checker_adapter.ValidateOptimusLinksFiles as checker_adapter_links {
     input:
      optimus_links_intermediate_loom_json=target_adapter.links,
-     optimus_links_intermediate_loom_json_actual=links_json,
-     #expected_optimus_links_intermediate_loom_json='555f96c22242c5ceeafb5462090b149a'
+     optimus_links_intermediate_loom_json_truth=optimus_links_intermediate_loom_json,
   }
 
   call checker_adapter.ValidateOptimusMetadataAnalysisFiles as checker_adapter_metadata_analysis_files {
     input:
      optimus_metadata_analysis_file_intermediate_bam_json=target_adapter.analysis_file[0],
-     expected_optimus_metadata_analysis_file_intermediate_bam_json_hash='61c21ef6054c671006ebd0592ec36870',
+     optimus_metadata_analysis_file_intermediate_bam_json_truth=optimus_metadata_analysis_file_intermediate_bam_json,
      optimus_metadata_analysis_file_intermediate_loom_json=target_adapter.analysis_file[1],
-     expected_optimus_metadata_analysis_file_intermediate_loom_json_hash='da64a2470c700689524ed640062e7290'
+     optimus_metadata_analysis_file_intermediate_loom_json_truth=optimus_metadata_analysis_file_intermediate_loom_json
   }
 
   call checker_adapter.ValidateOptimusMetadataAnalysisProcessFiles as checker_adapter_metadata_analysis_process {
     input:
       optimus_metadata_analysis_process_file_intermediate_json=target_adapter.analysis_process,
-      expected_optimus_metadata_analysis_process_file_intermediate_json_hash='e1ab05dc8d4dfb19beeb68bcf309766a'
+      optimus_metadata_analysis_process_file_intermediate_json_truth=optimus_metadata_analysis_process_file_intermediate_json
   }
 
   call checker_adapter.ValidateOptimusMetadataAnalysisProtocolFiles as checker_adapter_metadata_analysis_protocol {
     input:
       optimus_metadata_analysis_protocol_file_intermediate_json=target_adapter.analysis_protocol,
-      expected_optimus_metadata_analysis_protocol_file_intermediate_json_hash='ea95eb817c461594412b56db970917a2'
+      optimus_metadata_analysis_protocol_file_intermediate_json_truth=optimus_metadata_analysis_protocol_file_intermediate_json
   }
 
   call checker_adapter.ValidateOptimusMetadataReferenceFiles as checker_adapter_metadata_reference_file {
       input:
         optimus_metadata_reference_file_intermediate_json=target_adapter.reference_genome_reference_file,
-        expected_optimus_metadata_reference_file_intermediate_json_hash='3d2830b0f6fffb7961f3b2d840a0e164'
-    }
+        optimus_metadata_reference_file_intermediate_json_truth=optimus_metadata_reference_file_intermediate_json
+  }
 
 }
