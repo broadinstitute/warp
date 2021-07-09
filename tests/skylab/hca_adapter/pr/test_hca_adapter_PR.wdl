@@ -85,9 +85,9 @@ workflow TestHcaAdapter {
 
   call checker_adapter.ValidateOptimusDescriptorAnalysisFiles as checker_adapter_descriptors {
      input:
-       optimus_descriptors_analysis_file_intermediate_loom_json=target_adapter.analysis_file_descriptor[1],
+       optimus_descriptors_analysis_file_intermediate_loom_json=target_adapter.analysis_file_descriptor[0],
        optimus_descriptors_analysis_file_intermediate_loom_json_truth=optimus_descriptors_analysis_file_intermediate_loom_json,
-       optimus_descriptors_analysis_file_intermediate_bam_json=target_adapter.analysis_file_descriptor[0],
+       optimus_descriptors_analysis_file_intermediate_bam_json=target_adapter.analysis_file_descriptor[1],
        optimus_descriptors_analysis_file_intermediate_bam_json_truth=optimus_descriptors_analysis_file_intermediate_bam_json,
        optimus_descriptors_analysis_file_intermediate_reference_json=target_adapter.reference_genome_descriptor,
        optimus_descriptors_analysis_file_intermediate_reference_json_truth=optimus_descriptors_analysis_file_intermediate_reference_json
