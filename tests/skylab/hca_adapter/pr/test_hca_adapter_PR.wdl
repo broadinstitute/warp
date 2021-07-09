@@ -101,10 +101,10 @@ workflow TestHcaAdapter {
 
   call checker_adapter.ValidateOptimusMetadataAnalysisFiles as checker_adapter_metadata_analysis_files {
     input:
-     optimus_metadata_analysis_file_intermediate_bam_json=target_adapter.analysis_file[0],
+     optimus_metadata_analysis_file_intermediate_loom_json=target_adapter.analysis_file[0],
+     optimus_metadata_analysis_file_intermediate_loom_json_truth=optimus_metadata_analysis_file_intermediate_loom_json,
+     optimus_metadata_analysis_file_intermediate_bam_json=target_adapter.analysis_file[1],
      optimus_metadata_analysis_file_intermediate_bam_json_truth=optimus_metadata_analysis_file_intermediate_bam_json,
-     optimus_metadata_analysis_file_intermediate_loom_json=target_adapter.analysis_file[1],
-     optimus_metadata_analysis_file_intermediate_loom_json_truth=optimus_metadata_analysis_file_intermediate_loom_json
   }
 
   call checker_adapter.ValidateOptimusMetadataAnalysisProcessFiles as checker_adapter_metadata_analysis_process {
