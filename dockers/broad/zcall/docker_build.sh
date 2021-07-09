@@ -8,7 +8,6 @@ DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
 GCR_URL="us.gcr.io/broad-gotc-prod/zcall"
-IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
 
 # ZCall Version
 ZCALL_VERSION="zCall_Version1.3_AutoCall"
@@ -53,6 +52,11 @@ function main(){
         ;;
     esac
     done
+
+    # Get version number 
+    VERSION_NUMBER=$(echo "$ZCALL_VERSION" | grep -Eo '[0-9]+([.][0-9]+)?')
+
+    IMAGE_TAG="$DOCKER_IMAGE_VERSION-$VERSION_NUMBER-$TIMESTAMP"
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \

@@ -42,7 +42,7 @@ task zCall {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/zcall:4.0.1-1572616568"
+    docker: "us.gcr.io/broad-gotc-prod/zcall:4.0.1-1.3-1625831535"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
