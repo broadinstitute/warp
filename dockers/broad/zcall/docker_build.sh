@@ -53,9 +53,7 @@ function main(){
     esac
     done
 
-    # Get version number 
-    VERSION_NUMBER=$(echo "$ZCALL_VERSION" | grep -Eo '[0-9]+([.][0-9]+)?')
-
+    VERSION_NUMBER=$(echo "$ZCALL_VERSION" | grep -Eo '[0-9]+([.][0-9]+)')
     IMAGE_TAG="$DOCKER_IMAGE_VERSION-$VERSION_NUMBER-$TIMESTAMP"
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"

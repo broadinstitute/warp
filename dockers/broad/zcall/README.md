@@ -4,7 +4,7 @@
 
 Copy and paste to pull this image
 
-### `docker pull **us.gcr.io/broad-gotc-prod/zcall:4.0.1-1.3-1625831535`
+#### `docker pull us.gcr.io/broad-gotc-prod/zcall:4.0.1-1.3-1625831535`
 
 - __What is this image:__ This image is a lightweight alpine-based image for running Zcall.
 - __What is zCall:__ zCall is a variant caller specifically designed for calling rare single nucleotide polymorphisms (SNPs) from array-based technology. See [here](https://github.com/jigold/zCall) more information.
@@ -14,7 +14,7 @@ Copy and paste to pull this image
 
 The zCall image uses the following convention for versioning:
 
-### `us.gcr.io/broad-gotc-prod/zcall:<image-version>-<samtools-version>-<unix-timestamp>` 
+#### `us.gcr.io/broad-gotc-prod/zcall:<image-version>-<zcall-version>-<unix-timestamp>` 
 
 We keep track of all past versions in [docker_versions](docker_versions.tsv) with the last image listed being the currently used version in WARP.
 
@@ -29,7 +29,7 @@ $ docker inspect us.gcr.io/broad-gotc-prod/zcall:4.0.1-1.3-1625831535
 
 ```bash
 $ docker run --rm -it \
-    -v /zcall-files:/zcall-files
-    us.gcr.io/broad-gotc-prod/zcall:4.0.1-1.3-1625831535 /usr/gitc/zcall/zCall.py \
+    -v /zcall-files:/zcall-files \
+    us.gcr.io/broad-gotc-prod/zcall:4.0.1-1.3-1625831535 python /usr/gitc/zcall/zCall.py \
     -B /zcall-files/my.bpm.csv -G /zcall-files/my.gtc -T /zcall-files/my.thresholds.txt > /my.new.ped
 ```

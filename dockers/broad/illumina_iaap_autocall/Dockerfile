@@ -1,4 +1,4 @@
-FROM frolvlad/alpine-mono:5.4-glibc
+FROM alpine:3.8
 
 LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>"
 
@@ -10,7 +10,7 @@ ARG IAAP_CLI_VERSION=iaap-cli-linux-x64-1.1.0-sha.80d7e5b3d9c1fdfc2e99b472a90652
 WORKDIR /usr/gitc
 
 # Install dependencies
-RUN apk add --no-cache curl tini && \
+RUN apk add --no-cache curl tini mono-complete && \
     \ 
     # Install Illumina Iaap Cli
     mkdir temp iaap && \
