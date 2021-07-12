@@ -14,8 +14,6 @@ var (
 	cacheDir string
 )
 
-const DefaultCacheDir = "~/.wreleaser/cache.json"
-
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "wreleaser",
@@ -46,7 +44,7 @@ func init() {
 	pflags := rootCmd.PersistentFlags()
 
 	pflags.StringVar(&cfgFile, "config", "", "config file (default is $HOME/.wreleaser/config.yaml)")
-	pflags.StringVar(&cacheDir, "cachedir", DefaultCacheDir, "Directory to cache release information")
+	pflags.StringVar(&cacheDir, "cachedir", DefaultCacheDir(), "Directory to cache release information")
 
 	// Bind global flags
 	viper.BindPFlag("cachedir", pflags.Lookup("cachedir"))
@@ -74,4 +72,13 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+func DefaultCacheDir() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		panic("Error locating user's $HOME")
+	}
+	return home + "/.wreleaser/cache.json"
+
 }
