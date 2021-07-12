@@ -173,14 +173,13 @@ task ValidateOptimusMetadataReferenceFiles {
        # catch intermittent failures
        set -eo pipefail
 
-       #testing metadata/reference_file/.fasta
+       #testing metadata/analysis_protocol/.json
        diff "~{optimus_metadata_reference_file_intermediate_json}" "~{optimus_metadata_reference_file_intermediate_json_truth}"
 
                 if [ $? -ne 0 ];
                 then
                  echo "error"
                 fi
-
   >>>
 
   runtime {
