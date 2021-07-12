@@ -173,7 +173,7 @@ task ValidateOptimusMetadataReferenceFiles {
        # catch intermittent failures
        set -eo pipefail
 
-       #testing metadata/analysis_protocol/.json
+       #testing metadata/reference_file/.json
        diff "~{optimus_metadata_reference_file_intermediate_json}" "~{optimus_metadata_reference_file_intermediate_json_truth}"
 
                 if [ $? -ne 0 ];
