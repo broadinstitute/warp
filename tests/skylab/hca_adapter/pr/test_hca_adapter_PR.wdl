@@ -113,16 +113,17 @@ workflow TestHcaAdapter {
       optimus_metadata_analysis_process_file_intermediate_json_truth=optimus_metadata_analysis_process_file_intermediate_json
   }
 
+  call checker_adapter.ValidateOptimusMetadataReferenceFiles as checker_adapter_metadata_reference_file {
+      input:
+        optimus_metadata_reference_file_intermediate_json=target_adapter.reference_genome_reference_file,
+        optimus_metadata_reference_file_intermediate_json_truth=optimus_metadata_reference_file_intermediate_json
+  }
+
   call checker_adapter.ValidateOptimusMetadataAnalysisProtocolFiles as checker_adapter_metadata_analysis_protocol {
     input:
       optimus_metadata_analysis_protocol_file_intermediate_json=target_adapter.analysis_protocol,
       optimus_metadata_analysis_protocol_file_intermediate_json_truth=optimus_metadata_analysis_protocol_file_intermediate_json
   }
 
-  call checker_adapter.ValidateOptimusMetadataReferenceFiles as checker_adapter_metadata_reference_file {
-      input:
-        optimus_metadata_reference_file_intermediate_json=target_adapter.reference_genome_reference_file,
-        optimus_metadata_reference_file_intermediate_json_truth=optimus_metadata_reference_file_intermediate_json
-  }
 
 }
