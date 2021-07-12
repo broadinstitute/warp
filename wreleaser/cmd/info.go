@@ -31,7 +31,7 @@ Usage examples:
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		releases.Do()
+		releases.NewReleaseList()
 	},
 }
 
