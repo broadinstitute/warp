@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/go-resty/resty/v2"
 
@@ -43,6 +44,25 @@ func NewReleaseList() (*ReleaseList, error) {
 		return makeNewList()
 	}
 	return listFromCache()
+}
+
+// FormatList formats a ReleaseList to a map[string]ReleaseList and removes prereleases
+func (r *ReleaseList) FormatList() (*map[string]ReleaseList, error) {
+	returnList := make(map[string]ReleaseList)
+
+	for _, release := range *r {
+		pipelineName := strings.Split(release.Name, "_")[0]
+
+		if !release.PreRelease {
+			if _, ok := returnList[pipelineName]; ok {
+				returnList[pipelineName] = append(returnList[pipelineName], release)
+			} else {
+				returnList[pipelineName] = make(ReleaseList, 0)
+				returnList[pipelineName] = append(returnList[pipelineName], release)
+			}
+		}
+	}
+	return &returnList, nil
 }
 
 // makeNewList creates the cache file and returns its values in a *ReleaseList

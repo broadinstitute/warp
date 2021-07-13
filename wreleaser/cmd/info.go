@@ -22,7 +22,7 @@ Default information (non-verbose) provided for the pipeline:
 	- Release Id
 	- Release Date
 	- Release Notes
-	- Various URLs (Tarball, Zip, Assests, Raw Html)
+	- Various URLs (Tarball, Zip, Assets, Raw Html)
 
 Usage examples:
 
@@ -39,8 +39,13 @@ Usage examples:
 			fmt.Print(err)
 		}
 
+		formatted, err := resp.FormatList()
+		if err != nil {
+			fmt.Print(err)
+		}
+
 		// Format and marshal full release list
-		prettyJSON, err := json.MarshalIndent((*resp)[1], "", "  ")
+		prettyJSON, err := json.MarshalIndent(*formatted, "", "  ")
 		if err != nil {
 			fmt.Print(err)
 		}

@@ -21,17 +21,30 @@ var rootCmd = &cobra.Command{
 	Long: `wreleaser is a lightweight CLI to list, query and download various WARP releases
 
 Currently available pipelines:
+	- AnnotationFiltration
+	- Arrays
 	- CEMBA
-	- Exome Germline Sample
-	- GDC Whole Genome Somatic Single Sample Array
-	- Illumina Genotyping Array
-	- Optimus
-	- Single cell ATAC
-	- Smart-seq2 Multi-Sample
-	- Smart-seq2 Single Nucleus Multi-Sample
-	- Smart seq2 Single Nucleus
-	- Smart seq2 Single Sample
-	- Whole Genome Germline Single Sample`,
+	- CramToUnmappedBams
+	- ExomeGermlineSingleSample
+	- ExomeReprocessing
+	- ExternalExomeReprocessing
+	- ExternalWholeGenomeReprocessing
+	- GDCWholeGenomeSomaticSingleSample
+	- IlluminaGenotypingArray
+	- JointGenotyping
+        - JointGenotypingByChromosomePartOne,
+        - JointGenotypingByChromosomePartTwo
+        - MultiSampleArrays
+        - MultiSampleSmartSeq2
+        - MultiSampleSmartSeq2SingleNucleus
+        - Optimus
+        - ReblockGVCF
+        - SmartSeq2SingleNucleus
+        - SmartSeq2SingleSample
+        - ValidateChip
+        - VariantCalling
+        - WholeGenomeGermlineSingleSample
+        - WholeGenomeReprocessing`,
 }
 
 // Execute is the main function
