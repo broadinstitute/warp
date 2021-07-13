@@ -3,99 +3,123 @@ package releases
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
+	"io"
+	"io/ioutil"
+	"os"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/spf13/viper"
+
+	e "github.com/broadinstitute/warp/wreleaser/pkg/error"
 )
 
 var (
-	client       http.Client
 	pageNumber   = 1
-	responseSize = "100"
+	responseSize = 100
 	URL          = "https://api.github.com/repos/broadinstitute/warp/releases"
 )
 
 // Release describes a Github release for a WARP pipeline
 type Release struct {
-	Url        string        `json:"url"`
-	Id         int           `json:"id"`
-	TagName    string        `json:"tag_name"`
-	AssetsUrl  string        `json:"assets_url"`
-	HtmlUrl    string        `json:"html_url"`
-	PreRelease bool          `json:"prerelease"`
-	Assets     []interface{} `json:"assets"`
-	TarballUrl string        `json:"tarball_url"`
-	ZipballUrl string        `json:"zipball_url"`
-	Body       string        `json:"body"`
+	Name        string `json:"name"`
+	Id          int    `json:"id"`
+	PreRelease  bool   `json:"prerelease"`
+	PublishedAt string `json:"published_at"`
+	Url         string `json:"url"`
+	HtmlUrl     string `json:"html_url"`
+	AssetsUrl   string `json:"assets_url"`
+	TarballUrl  string `json:"tarball_url"`
+	ZipballUrl  string `json:"zipball_url"`
+	Body        string `json:"body"`
 }
 
 type ReleaseList []Release
 
 // NewReleaseList returns the full list of releases for all WARP pipelines
-func NewReleaseList() {
-	cachedir := viper.GetString("cacheDir")
-	// Check if the releases are cached, if not then fetch them
-	if !cacheExists(cachedir) {
-		cache, err := makeCache(cachedir)
-		if err != nil {
-			log.Println(err)
-		}
-		defer cache.Close()
+func NewReleaseList() (*ReleaseList, error) {
 
-		var list ReleaseList
-		client := resty.New()
+	// Check if the releases are cached
+	// If not then we must fetch from Github
+	if !cacheExists() {
+		return makeNewList()
+	} else {
+		return listFromCache()
+	}
 
-		// Releases API sends 100 releases per page, loop through until responseSize is < 100
+}
+
+// makeNewList creates the cache file and returns its values in a *ReleaseList
+func makeNewList() (*ReleaseList, error) {
+	var fullList ReleaseList
+	cache, err := makeCache()
+	if err != nil {
+		e.HandleError(err)
+	}
+	defer cache.Close()
+
+	client := resty.New()
+
+	// Releases API chunks pages by 100
+	// If responseSize is < 100 then we know we have hit the last page
+	for responseSize == 100 {
+		var temp ReleaseList
+
 		resp, err := client.R().
 			SetQueryParams(map[string]string{
-				"per_page": responseSize,
+				"per_page": fmt.Sprint(responseSize),
 				"page":     fmt.Sprint(pageNumber),
 			}).
 			SetHeader("Accept", "application/vnd.github.v3+json").
 			Get(URL)
 		if err != nil {
-			log.Println(err)
-		}
-		log.Println(len(resp.Body()))
-		if err := json.Unmarshal(resp.Body(), &list); err != nil {
-			log.Println(err)
+			return nil, err
 		}
 
-		pretty, err := json.MarshalIndent(list[1], "", "  ")
-		if err != nil {
-			log.Println(err)
+		if err := json.Unmarshal(resp.Body(), &temp); err != nil {
+			return nil, err
 		}
-		fmt.Printf("%s\n", pretty)
 
-		//fmt.Printf("%+v", list[1])
-		//log.Println(len(list))
+		fullList = append(fullList, temp...)
 
+		responseSize = len(temp)
+
+		pageNumber++
 	}
 
+	// Format and marshal full release list
+	prettyJson, err := json.MarshalIndent(fullList, "", "  ")
+	if err != nil {
+		return nil, err
+	}
+
+	// Write full formatted list to cache
+	_, err = io.WriteString(cache, string(prettyJson))
+	if err != nil {
+		return nil, err
+	}
+
+	// After creating the cachefile we can unmarshal from there and return
+	return listFromCache()
 }
 
-//func Foo() {
-//	req, err := http.NewRequest("GET", URL, nil)
-//	if err != nil {
-//		log.Println(err)
-//	}
-//
-//	req.Header = http.Header{
-//		"Accept": []string{"application/vnd.github.v3+json"},
-//	}
-//
-//	res, err := client.Do(req)
-//	if err != nil {
-//		fmt.Print(err)
-//	}
-//	defer res.Body.Close()
-//
-//	list := &[]Release{}
-//
-//	json.NewDecoder(res.Body).Decode(list)
-//	fmt.Print(len((*list)))
-//
-//	//fmt.Printf("%+v\n", (*list)[1])
-//}
+// listFromCache returns a *ReleaseList based on the info in the cache file
+func listFromCache() (*ReleaseList, error) {
+	var (
+		returnList ReleaseList
+		cache      = getCacheDir()
+	)
+
+	cacheFile, err := os.Open(cache)
+	if err != nil {
+		return nil, err
+	}
+	defer cacheFile.Close()
+
+	bytes, _ := ioutil.ReadAll(cacheFile)
+
+	if err := json.Unmarshal(bytes, &returnList); err != nil {
+		return nil, err
+	}
+
+	return &returnList, nil
+
+}

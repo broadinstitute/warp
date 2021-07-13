@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
+	"encoding/json"
+	"fmt"
 
-	"github.com/spf13/viper"
+	"github.com/spf13/cobra"
 
 	"github.com/broadinstitute/warp/wreleaser/pkg/releases"
 )
 
-var verbosity bool
+var latest bool
 
 // infoCmd represents the info command
 var infoCmd = &cobra.Command{
@@ -17,21 +18,33 @@ var infoCmd = &cobra.Command{
 	Long: `This command will display information for specified pipeline(s)
 
 Default information (non-verbose) provided for the pipeline:
-	- Release version
-	- Release notes
-	- Release URL
+	- Release Name
+	- Release Id
+	- Release Date
+	- Release Notes
+	- Various URLs (Tarball, Zip, Assests, Raw Html)
 
 Usage examples:
 
-'wreleaser info' (display default information for all available pipelines)
+'wreleaser info' (display release information for all available pipelines)
 
-'wreleaser info -v' (display versbose information for all available pipelines)
+'wreleaser info -l' (display only latest (most recent) release information for all available pipelines)
 
 'wreleaser info CEMBA ExomeGermlineSample Optimus' (display info for the CEMBA, ExomeGermline and Optimus pipelines)
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		releases.NewReleaseList()
+		resp, err := releases.NewReleaseList()
+		if err != nil {
+			fmt.Print(err)
+		}
+
+		//Format and marshal full release list
+		prettyJson, err := json.MarshalIndent((*resp)[1], "", "  ")
+		if err != nil {
+			fmt.Print(err)
+		}
+		fmt.Print(string(prettyJson))
 	},
 }
 
@@ -40,9 +53,7 @@ func init() {
 
 	pflags := infoCmd.PersistentFlags()
 
-	pflags.BoolVarP(&verbosity, "verbosity", "v", false, "Logging verbosity (default false)")
-
-	viper.BindPFlag("verbosity", pflags.Lookup("verbosity"))
+	pflags.BoolVarP(&latest, "latest", "l", false, "Retrieve only the latest releases for each pipeline")
 
 	// Here you will define your flags and configuration settings.
 
