@@ -36,6 +36,9 @@ type Release struct {
 // ReleaseList contains an array of Releases
 type ReleaseList []Release
 
+// ReleaseListFormatted
+type ReleaseListFormatted map[string]ReleaseList
+
 // NewReleaseList returns the full list of releases for all WARP pipelines
 func NewReleaseList() (*ReleaseList, error) {
 	// Check if the releases are cached
@@ -47,8 +50,8 @@ func NewReleaseList() (*ReleaseList, error) {
 }
 
 // FormatList formats a ReleaseList to a map[string]ReleaseList and removes prereleases
-func (r *ReleaseList) FormatList() (*map[string]ReleaseList, error) {
-	returnList := make(map[string]ReleaseList)
+func (r *ReleaseList) FormatList() (*ReleaseListFormatted, error) {
+	returnList := make(ReleaseListFormatted)
 
 	for _, release := range *r {
 		pipelineName := strings.Split(release.Name, "_")[0]
