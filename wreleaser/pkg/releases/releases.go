@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 
@@ -16,6 +17,7 @@ import (
 var (
 	pageNumber   = 1
 	responseSize = 100
+	versionFound = false
 	url          = "https://api.github.com/repos/broadinstitute/warp/releases"
 )
 
@@ -49,8 +51,8 @@ func NewReleaseList() (*ReleaseList, error) {
 	return listFromCache()
 }
 
-// FormatList formats a ReleaseList to a map[string]ReleaseList and removes prereleases
-func (r *ReleaseList) FormatList() (*ReleaseListFormatted, error) {
+// FormatList formats a ReleaseList to a map[string]ReleaseList, removes prereleases and
+func (r *ReleaseList) FormatList(args []string) (*ReleaseListFormatted, error) {
 	returnList := make(ReleaseListFormatted)
 
 	for _, release := range *r {
@@ -60,12 +62,49 @@ func (r *ReleaseList) FormatList() (*ReleaseListFormatted, error) {
 			if _, ok := returnList[pipelineName]; ok {
 				returnList[pipelineName] = append(returnList[pipelineName], release)
 			} else {
-				returnList[pipelineName] = make(ReleaseList, 0)
-				returnList[pipelineName] = append(returnList[pipelineName], release)
+				// If no arguments then get all pipelines, otherwise only get requested pipelines
+				if len(args) == 0 || hasValue(args, pipelineName) {
+					returnList[pipelineName] = make(ReleaseList, 0)
+					returnList[pipelineName] = append(returnList[pipelineName], release)
+				}
 			}
 		}
 	}
 	return &returnList, nil
+}
+
+// GetLatest modifies a ReleaseListFormatted to only include the latest releases
+func (r *ReleaseListFormatted) GetLatest() {
+	for key, element := range *r {
+		(*r)[key] = []Release{element[0]}
+	}
+}
+
+// GetVersion modifies a ReleaseListFormmated to only include the requested version
+func (r *ReleaseListFormatted) GetVersion(version string, pipeline string) {
+	for key, element := range *r {
+		for _, release := range element {
+			releaseVersion := strings.Split(release.Name, "_")[1]
+			if version == releaseVersion {
+				(*r)[key] = []Release{release}
+				versionFound = true
+			}
+		}
+	}
+	if versionFound == false {
+		log.Printf("ERROR - Unable to find' 'version'=%s for 'pipeline'=%s", version, pipeline)
+		log.Printf("Run 'wreleaser info %s' to see all release versions for the %s pipeline", pipeline, pipeline)
+		os.Exit(1)
+	}
+}
+
+// Print prints the ReleaseListFormmated to stdout
+func (r *ReleaseListFormatted) Print() {
+	prettyJSON, err := json.MarshalIndent(*r, "", "  ")
+	if err != nil {
+		e.HandleError(err)
+	}
+	fmt.Print(string(prettyJSON))
 }
 
 // makeNewList creates the cache file and returns its values in a *ReleaseList

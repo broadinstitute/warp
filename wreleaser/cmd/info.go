@@ -1,15 +1,20 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/broadinstitute/warp/wreleaser/pkg/releases"
 )
 
-var latest bool
+var (
+	latest  bool
+	version string
+)
 
 // infoCmd represents the info command
 var infoCmd = &cobra.Command{
@@ -34,22 +39,48 @@ Usage examples:
 
 `,
 	Run: func(cmd *cobra.Command, args []string) {
+		releases.ValidateArgs(args)
+
 		resp, err := releases.NewReleaseList()
 		if err != nil {
 			fmt.Print(err)
 		}
 
-		formatted, err := resp.FormatList()
+		// Reduce the list to only requested pipelines
+		formatted, err := resp.FormatList(args)
 		if err != nil {
 			fmt.Print(err)
 		}
 
-		// Format and marshal full release list
-		prettyJSON, err := json.MarshalIndent(*formatted, "", "  ")
-		if err != nil {
-			fmt.Print(err)
+		// Reduce the list to latest if requested
+		if latest {
+			// Verify user hasn't specified a version along with latest
+			if version == "" {
+				formatted.GetLatest()
+				formatted.Print()
+				os.Exit(0)
+			} else {
+				log.Printf("ERROR! Incompatible arguments - 'latest'=%t   'version'=%s - Can't query unique VERSION and LATEST  -     \n", latest, version)
+				log.Printf("Run 'wreleaser info --help' to see example commands")
+				os.Exit(1)
+			}
 		}
-		fmt.Print(string(prettyJSON))
+
+		// Reduce the list to a specific version if requested
+		if version != "" {
+			// Verify user specified only one pipeline
+			if len(args) == 1 {
+				formatted.GetVersion(version, args[0])
+				formatted.Print()
+				os.Exit(0)
+			} else {
+				log.Printf("ERROR! Incompatible arguments - 'version'=%s    'pipeline args'=%v -  Can't query unique VERSION for multiple pipelines, please choose one pipeline    \n", version, args)
+				log.Printf("Run 'wreleaser info --help' to see example commands")
+				os.Exit(1)
+			}
+		}
+
+		formatted.Print()
 	},
 }
 
@@ -59,14 +90,8 @@ func init() {
 	pflags := infoCmd.PersistentFlags()
 
 	pflags.BoolVarP(&latest, "latest", "l", false, "Retrieve only the latest releases for each pipeline")
+	pflags.StringVar(&version, "version", "", "Version of the pipeline to query for")
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// infoCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// infoCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	viper.BindPFlag("latest", pflags.Lookup("latest"))
+	viper.BindPFlag("version", pflags.Lookup("version"))
 }
