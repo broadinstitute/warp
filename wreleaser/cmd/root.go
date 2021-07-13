@@ -19,7 +19,7 @@ var rootCmd = &cobra.Command{
 	Use:   "wreleaser",
 	Short: "A tool to interact with WARP releases",
 	Long: `wreleaser is a lightweight CLI to list, query and download various WARP releases
-	
+
 Currently available pipelines:
 	- CEMBA
 	- Exome Germline Sample
@@ -34,6 +34,7 @@ Currently available pipelines:
 	- Whole Genome Germline Single Sample`,
 }
 
+// Execute is the main function
 func Execute() {
 	cobra.CheckErr(rootCmd.Execute())
 }
@@ -44,7 +45,7 @@ func init() {
 	pflags := rootCmd.PersistentFlags()
 
 	pflags.StringVar(&cfgFile, "config", "", "config file (default is $HOME/.wreleaser/config.yaml)")
-	pflags.StringVar(&cacheDir, "cachedir", DefaultCacheDir(), "Directory to cache release information")
+	pflags.StringVar(&cacheDir, "cachedir", defaultCacheDir(), "Directory to cache release information")
 
 	// Bind global flags
 	viper.BindPFlag("cachedir", pflags.Lookup("cachedir"))
@@ -74,11 +75,10 @@ func initConfig() {
 	}
 }
 
-func DefaultCacheDir() string {
+func defaultCacheDir() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		panic("Error locating user's $HOME")
 	}
 	return home + "/.wreleaser/cache.json"
-
 }

@@ -39,12 +39,12 @@ Usage examples:
 			fmt.Print(err)
 		}
 
-		//Format and marshal full release list
-		prettyJson, err := json.MarshalIndent((*resp)[1], "", "  ")
+		// Format and marshal full release list
+		prettyJSON, err := json.MarshalIndent((*resp)[1], "", "  ")
 		if err != nil {
 			fmt.Print(err)
 		}
-		fmt.Print(string(prettyJson))
+		fmt.Print(string(prettyJSON))
 	},
 }
 

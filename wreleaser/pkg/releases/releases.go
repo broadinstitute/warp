@@ -15,36 +15,34 @@ import (
 var (
 	pageNumber   = 1
 	responseSize = 100
-	URL          = "https://api.github.com/repos/broadinstitute/warp/releases"
+	url          = "https://api.github.com/repos/broadinstitute/warp/releases"
 )
 
 // Release describes a Github release for a WARP pipeline
 type Release struct {
 	Name        string `json:"name"`
-	Id          int    `json:"id"`
+	ID          int    `json:"id"`
 	PreRelease  bool   `json:"prerelease"`
 	PublishedAt string `json:"published_at"`
-	Url         string `json:"url"`
-	HtmlUrl     string `json:"html_url"`
-	AssetsUrl   string `json:"assets_url"`
-	TarballUrl  string `json:"tarball_url"`
-	ZipballUrl  string `json:"zipball_url"`
+	URL         string `json:"url"`
+	HTMLURL     string `json:"html_url"`
+	AssetsURL   string `json:"assets_url"`
+	TarballURL  string `json:"tarball_url"`
+	ZipballURL  string `json:"zipball_url"`
 	Body        string `json:"body"`
 }
 
+// ReleaseList contains an array of Releases
 type ReleaseList []Release
 
 // NewReleaseList returns the full list of releases for all WARP pipelines
 func NewReleaseList() (*ReleaseList, error) {
-
 	// Check if the releases are cached
 	// If not then we must fetch from Github
 	if !cacheExists() {
 		return makeNewList()
-	} else {
-		return listFromCache()
 	}
-
+	return listFromCache()
 }
 
 // makeNewList creates the cache file and returns its values in a *ReleaseList
@@ -69,7 +67,7 @@ func makeNewList() (*ReleaseList, error) {
 				"page":     fmt.Sprint(pageNumber),
 			}).
 			SetHeader("Accept", "application/vnd.github.v3+json").
-			Get(URL)
+			Get(url)
 		if err != nil {
 			return nil, err
 		}
@@ -86,13 +84,13 @@ func makeNewList() (*ReleaseList, error) {
 	}
 
 	// Format and marshal full release list
-	prettyJson, err := json.MarshalIndent(fullList, "", "  ")
+	prettyJSON, err := json.MarshalIndent(fullList, "", "  ")
 	if err != nil {
 		return nil, err
 	}
 
 	// Write full formatted list to cache
-	_, err = io.WriteString(cache, string(prettyJson))
+	_, err = io.WriteString(cache, string(prettyJSON))
 	if err != nil {
 		return nil, err
 	}
@@ -121,5 +119,4 @@ func listFromCache() (*ReleaseList, error) {
 	}
 
 	return &returnList, nil
-
 }
