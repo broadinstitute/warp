@@ -61,8 +61,8 @@ func getCacheDir() string {
 }
 
 // hasValue checks to see if the current pipeline exists in requested arguments
-func hasValue(args []string, pipeline string) bool {
-	for _, element := range args {
+func hasValue(requested []string, pipeline string) bool {
+	for _, element := range requested {
 		if element == pipeline {
 			return true
 		}

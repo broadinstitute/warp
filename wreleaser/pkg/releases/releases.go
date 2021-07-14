@@ -38,7 +38,7 @@ type Release struct {
 // ReleaseList contains an array of Releases
 type ReleaseList []Release
 
-// ReleaseListFormatted
+// ReleaseListFormatted maps each pipeline name to all of its releases
 type ReleaseListFormatted map[string]ReleaseList
 
 // NewReleaseList returns the full list of releases for all WARP pipelines
@@ -51,8 +51,8 @@ func NewReleaseList() (*ReleaseList, error) {
 	return listFromCache()
 }
 
-// FormatList formats a ReleaseList to a map[string]ReleaseList, removes prereleases and
-func (r *ReleaseList) FormatList(args []string) (*ReleaseListFormatted, error) {
+// FormatList formats a ReleaseList to a map[string]ReleaseList, removes prereleases and filters to requested pipelines
+func (r *ReleaseList) FormatList(requestedPipelines []string) (*ReleaseListFormatted, error) {
 	returnList := make(ReleaseListFormatted)
 
 	for _, release := range *r {
@@ -62,8 +62,8 @@ func (r *ReleaseList) FormatList(args []string) (*ReleaseListFormatted, error) {
 			if _, ok := returnList[pipelineName]; ok {
 				returnList[pipelineName] = append(returnList[pipelineName], release)
 			} else {
-				// If no arguments then get all pipelines, otherwise only get requested pipelines
-				if len(args) == 0 || hasValue(args, pipelineName) {
+				// If no arguments then add all pipelines, otherwise only add requested pipelines from args
+				if len(requestedPipelines) == 0 || hasValue(requestedPipelines, pipelineName) {
 					returnList[pipelineName] = make(ReleaseList, 0)
 					returnList[pipelineName] = append(returnList[pipelineName], release)
 				}
@@ -133,7 +133,6 @@ func makeNewList() (*ReleaseList, error) {
 		if err != nil {
 			return nil, err
 		}
-
 		if err := json.Unmarshal(resp.Body(), &temp); err != nil {
 			return nil, err
 		}

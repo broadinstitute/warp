@@ -90,8 +90,6 @@ func init() {
 	pflags := infoCmd.PersistentFlags()
 
 	pflags.BoolVarP(&latest, "latest", "l", false, "Retrieve only the latest releases for each pipeline")
-	pflags.StringVar(&version, "version", "", "Version of the pipeline to query for")
 
 	viper.BindPFlag("latest", pflags.Lookup("latest"))
-	viper.BindPFlag("version", pflags.Lookup("version"))
 }
