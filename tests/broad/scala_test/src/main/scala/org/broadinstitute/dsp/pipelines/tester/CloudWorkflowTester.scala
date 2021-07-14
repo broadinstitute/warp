@@ -19,7 +19,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     File(
       CromwellWorkflowTester.PipelineRoot + testerConfig.pipeline.workflowDir)
 
-  protected val pipeline: String = testerConfig.pipeline.entryName
+  protected val pipeline: String = testerConfig.pipeline.getClass.getName
 
   override protected lazy val resultsPrefix: URI =
     URI.create(

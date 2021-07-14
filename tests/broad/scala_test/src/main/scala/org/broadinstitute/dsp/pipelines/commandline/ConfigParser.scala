@@ -824,7 +824,7 @@ class ConfigParser
       )
     )
     .children(
-      opt[WorkflowTestType]('p', "pipeline")
+      opt[PipelineTestType]('p', "pipeline")
         .text("The pipeline to test")
         .required()
         .action { (test, config) =>
@@ -847,9 +847,8 @@ class ConfigParser
         .optional()
         .action { (branch, config) =>
           config.copy(
-            gdcWholeGenomeSomaticSingleSampleConfig =
-              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(
-                truthBranch = branch)
+            cloudWorkflowConfig =
+              config.cloudWorkflowConfig.copy(truthBranch = branch)
           )
         },
       opt[CromwellEnvironment]('e', "env")
@@ -859,8 +858,7 @@ class ConfigParser
         .required()
         .action { (env, config) =>
           config.copy(
-            gdcWholeGenomeSomaticSingleSampleConfig =
-              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(env = env)
+            cloudWorkflowConfig = config.cloudWorkflowConfig.copy(env = env)
           )
         },
       opt[Unit]("update-truth")
@@ -870,9 +868,8 @@ class ConfigParser
         .optional()
         .action { (_, config) =>
           config.copy(
-            gdcWholeGenomeSomaticSingleSampleConfig =
-              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(
-                updateTruth = true)
+            cloudWorkflowConfig =
+              config.cloudWorkflowConfig.copy(updateTruth = true)
           )
         },
       opt[String]("use-timestamp")
@@ -882,9 +879,8 @@ class ConfigParser
         .optional()
         .action { (timestamp, config) =>
           config.copy(
-            gdcWholeGenomeSomaticSingleSampleConfig =
-              config.gdcWholeGenomeSomaticSingleSampleConfig
-                .copy(useTimestamp = Option(timestamp))
+            cloudWorkflowConfig = config.cloudWorkflowConfig
+              .copy(useTimestamp = Option(timestamp))
           )
         },
       opt[Unit]('u', "uncached")
@@ -892,9 +888,8 @@ class ConfigParser
         .optional()
         .action { (_, config) =>
           config.copy(
-            gdcWholeGenomeSomaticSingleSampleConfig =
-              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(
-                useCallCaching = false)
+            cloudWorkflowConfig =
+              config.cloudWorkflowConfig.copy(useCallCaching = false)
           )
         }
     )
