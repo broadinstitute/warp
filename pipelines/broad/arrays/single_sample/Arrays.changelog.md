@@ -1,3 +1,8 @@
+# 2.3.2
+2021-07-13
+
+* Make chip_well_barcode and analysis_version_number available as outputs of the WDL.
+
 # 2.3.1
 2021-05-19
 
