@@ -1,11 +1,12 @@
 package org.broadinstitute.dsp.pipelines.commandline
 
-import enumeratum.Enum
+import enumeratum.{Enum, EnumEntry}
+
 import scala.collection.immutable
 
-sealed abstract class PipelineTestType(val value: String,
-                                       val workflowName: String,
+sealed abstract class PipelineTestType(val workflowName: String,
                                        val workflowDir: String)
+    extends EnumEntry
 
 object PipelineTestType extends Enum[PipelineTestType] {
   override val values: immutable.IndexedSeq[PipelineTestType] = findValues
@@ -32,7 +33,6 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //    )
   case object ExomeGermlineSingleSample
       extends PipelineTestType(
-        "ExomeGermlineSingleSample",
         "TestExomeGermlineSingleSample",
         "/broad/dna_seq/germline/single_sample/exome/"
       )
@@ -93,7 +93,6 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //    )
   case object scATAC
       extends PipelineTestType(
-        "scATAC",
         "TestscATAC",
         "/skylab/scATAC/"
       )
