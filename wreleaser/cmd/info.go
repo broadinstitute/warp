@@ -21,7 +21,7 @@ See subcommands:
 
         - list
 
-        Example 'wreleaser info list --hep'
+        Example 'wreleaser info list --help'
 
 Default information (non-verbose) provided for the pipeline:
 	- Release Name

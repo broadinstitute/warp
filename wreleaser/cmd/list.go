@@ -29,7 +29,7 @@ Usage examples:
 
         'wreleaser info list Arrays --version=v2.3.1' (display release information for Arrays pipeline v2.3.1)
 
-        'wreleaser info list Arrays ExomeGermline' (display all releases for Arrays and ExomeGermline pipelines)
+        'wreleaser info list Arrays ExomeGermlineSingleSample' (display all releases for Arrays and ExomeGermlineSingleSample pipelines)
 
         'wreleaser info list CEMBA Optimus --latest' (display only the latest release for CEMBA and Optimus pipelines)`,
 
