@@ -12,7 +12,7 @@ There are two options for installing wreleaser:
 This will add _wrealeaser_ to your $GOPATH/bin
 
 ```bash
-$ go get -u -v github.com/broadinstitute.org/warp/wreleaser
+$ go get -u -v github.com/broadinstitute.org/warp/wreleaser@wd_GL-1606-warp-releases
 $ wreleaser --help
 ```
 
