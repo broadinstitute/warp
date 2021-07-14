@@ -62,7 +62,7 @@ task FastqProcessing {
             # if it is already compressed then add an extension .fastq.gz
             newname = basename + ".fastq.gz" 
         else: 
-            # otherwis, add just the .fastq extension
+            # otherwise, add just the .fastq extension
             newname = basename + ".fastq"
 
         if filename != newname:
