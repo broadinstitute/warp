@@ -1,8 +1,11 @@
 package error
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 // HandleError prints errors
 func HandleError(err error) {
-	fmt.Printf("ERROR - %s", err.Error())
+	fmt.Fprintf(os.Stderr, "ERROR - %s \n", err.Error())
 }

@@ -1,7 +1,7 @@
 package releases
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -79,8 +79,8 @@ func ValidateArgs(requested []string) {
 			}
 		}
 		if !isValidPipeline {
-			log.Printf("Requested pipeline %s does not exist in WARP releases", r)
-			log.Printf("Run 'wreleaser --help' for a list of valid pipelines")
+			fmt.Fprintf(os.Stderr, "Requested pipeline %s does not exist in WARP releases \n", r)
+			fmt.Fprintf(os.Stderr, "Run 'wreleaser --help' for a list of valid pipelines \n")
 			os.Exit(1)
 		}
 		isValidPipeline = false

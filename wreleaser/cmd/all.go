@@ -1,23 +1,11 @@
-/*
-Copyright © 2021 NAME HERE <EMAIL ADDRESS>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package cmd
 
 import (
 	"fmt"
+	"os"
 
+	e "github.com/broadinstitute/warp/wreleaser/pkg/error"
+	"github.com/broadinstitute/warp/wreleaser/pkg/releases"
 	"github.com/spf13/cobra"
 )
 
@@ -25,27 +13,44 @@ import (
 var allCmd = &cobra.Command{
 	Use:   "all",
 	Short: "Display release information for all pipelines",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Long: `'all' command takes no arguments in the form:
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+        'wreleaser info all [flags]...'
+
+Usage examples:
+
+        'wreleaser info all' (display all releases for all pipelines)
+
+        'wrleaser info all --latest (display latest releases for all pipelines)`,
+
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("all called")
+		if len(args) != 0 {
+			fmt.Fprintf(os.Stderr, "ERROR! Incompatible arguments - %v - 'all' command takes no arguments \n", args)
+			fmt.Fprintf(os.Stderr, "Run 'wreleaser info all -- help to see example commands \n")
+			os.Exit(1)
+		}
+
+		// Get raw list
+		resp, err := releases.NewReleaseList()
+		if err != nil {
+			e.HandleError(err)
+		}
+
+		// Format the list and reduce to requested pipelines (in this case all pipelines)
+		formatted, err := resp.FormatList(args)
+		if err != nil {
+			e.HandleError(err)
+		}
+
+		// Reduce the list to latest release if requested
+		if latest {
+			formatted.GetLatest()
+		}
+
+		formatted.Print()
 	},
 }
 
 func init() {
 	infoCmd.AddCommand(allCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// allCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// allCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

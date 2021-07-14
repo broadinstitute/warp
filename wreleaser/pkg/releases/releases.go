@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/spf13/viper"
 
 	e "github.com/broadinstitute/warp/wreleaser/pkg/error"
 )
@@ -92,8 +92,8 @@ func (r *ReleaseListFormatted) GetVersion(version string, pipeline string) {
 		}
 	}
 	if versionFound == false {
-		log.Printf("ERROR - Unable to find' 'version'=%s for 'pipeline'=%s", version, pipeline)
-		log.Printf("Run 'wreleaser info %s' to see all release versions for the %s pipeline", pipeline, pipeline)
+		fmt.Fprintf(os.Stderr, "ERROR - Unable to find' 'version'=%s for 'pipeline'=%s \n", version, pipeline)
+		fmt.Fprintf(os.Stderr, "Run 'wreleaser info list %s' to see all release versions for the %s pipeline \n", pipeline, pipeline)
 		os.Exit(1)
 	}
 }
@@ -104,7 +104,23 @@ func (r *ReleaseListFormatted) Print() {
 	if err != nil {
 		e.HandleError(err)
 	}
-	fmt.Print(string(prettyJSON))
+
+	output := viper.GetString("output")
+
+	if output != "" {
+		f, err := os.Create(output)
+		if err != nil {
+			e.HandleError(err)
+		}
+
+		// Write full formatted list to cache
+		_, err = io.WriteString(f, string(prettyJSON))
+		if err != nil {
+			e.HandleError(err)
+		}
+	} else {
+		fmt.Print(string(prettyJSON))
+	}
 }
 
 // makeNewList creates the cache file and returns its values in a *ReleaseList
