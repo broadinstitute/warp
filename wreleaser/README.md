@@ -21,7 +21,7 @@ go get -u github.com/broadinstitute/warp/wreleaser@wd_GL-1606-warp-releases
 
 We have binaries available [here](./scripts) for `linux/amd64` and `darwin/amd64`.
 
-If you have a different OS/Architecture please clone this repo and run `[go build](https://pkg.go.dev/go/build)` to compile the binary for your system.
+If you have a different OS/Architecture please clone this repo and run [`go build`](https://pkg.go.dev/go/build) to compile the binary for your system.
 
 Once the binary is on your machine please add it your `$PATH`.
 ## :star: Quickstart
