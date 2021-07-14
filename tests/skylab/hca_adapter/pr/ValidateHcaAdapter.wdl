@@ -166,7 +166,7 @@ task ValidateOptimusMetadataAnalysisProtocolFiles {
 task ValidateOptimusMetadataReferenceFiles {
   input {
     File optimus_metadata_reference_file_intermediate_json
-    String optimus_metadata_reference_file_intermediate_json_truth
+    File optimus_metadata_reference_file_intermediate_json_truth
     }
 
  command <<<

@@ -48,6 +48,15 @@ workflow TestHcaAdapter {
     File optimus_metadata_analysis_file_intermediate_loom_json
     File optimus_descriptors_analysis_file_intermediate_reference_json
 
+    #ss2 truth inputs
+    File ss2_descriptors_analysis_file_intermediate_bai_json
+    File ss2_descriptors_analysis_file_intermediate_bai_json
+    File ss2_links_intermediate_loom_json
+    File ss2_metadata_analysis_file_intermediate_bam_json
+    File ss2_metadata_analysis_file_intermediate_bai_json
+    File ss2_metadata_analysis_process_file_intermediate_json
+    File ss2_metadata_analysis_protocol_file_intermediate_json
+
   }
 
 
@@ -124,6 +133,4 @@ workflow TestHcaAdapter {
       optimus_metadata_analysis_protocol_file_intermediate_json=target_adapter.analysis_protocol,
       optimus_metadata_analysis_protocol_file_intermediate_json_truth=optimus_metadata_analysis_protocol_file_intermediate_json
   }
-
-
 }
