@@ -20,7 +20,7 @@ import "../../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingT
 
 workflow IlluminaGenotypingArray {
 
-  String pipeline_version = "1.11.1"
+  String pipeline_version = "1.11.2"
 
   input {
 
@@ -335,6 +335,8 @@ workflow IlluminaGenotypingArray {
   }
 
   output {
+    String chip_well_barcode_output = chip_well_barcode
+    Int analysis_version_number_output = analysis_version_number
     File gtc = AutoCall.gtc_file
     File red_idat_md5_cloud_path = RedIdatMd5Sum.md5_cloud_path
     File green_idat_md5_cloud_path = GreenIdatMd5Sum.md5_cloud_path

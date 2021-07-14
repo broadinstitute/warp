@@ -21,7 +21,7 @@ import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 workflow Arrays {
 
-  String pipeline_version = "2.3.1"
+  String pipeline_version = "2.3.2"
 
   input {
 
@@ -266,6 +266,8 @@ workflow Arrays {
   }
 
   output {
+    String chip_well_barcode_output = IlluminaGenotypingArray.chip_well_barcode_output
+    Int analysis_version_number_output = IlluminaGenotypingArray.analysis_version_number_output
     File GtcFile = IlluminaGenotypingArray.gtc
     File RedIdatMd5CloudPath = IlluminaGenotypingArray.red_idat_md5_cloud_path
     File GreenIdatMd5CloudPath = IlluminaGenotypingArray.green_idat_md5_cloud_path
