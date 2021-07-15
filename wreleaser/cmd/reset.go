@@ -21,6 +21,7 @@ Usage example:
         'wreleaser reset' (clear the default cache located at $HOME/.wreleaser/cache.json)
 
         'wreleaser reset --cachedir=/path/to/custom' (clear the custom cache located at /path/to/custom)`,
+
 	Run: func(cmd *cobra.Command, args []string) {
 		cache := viper.GetString("cachedir")
 

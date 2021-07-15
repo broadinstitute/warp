@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/go-resty/resty/v2"
@@ -24,14 +25,9 @@ var (
 // Release describes a Github release for a WARP pipeline
 type Release struct {
 	Name        string `json:"name"`
-	ID          int    `json:"id"`
-	PreRelease  bool   `json:"prerelease"`
+	PreRelease  *bool  `json:"prerelease,omitempty"`
 	PublishedAt string `json:"published_at"`
-	URL         string `json:"url"`
 	HTMLURL     string `json:"html_url"`
-	AssetsURL   string `json:"assets_url"`
-	TarballURL  string `json:"tarball_url"`
-	ZipballURL  string `json:"zipball_url"`
 	Body        string `json:"body"`
 }
 
@@ -58,7 +54,9 @@ func (r *ReleaseList) FormatList(requestedPipelines []string) (*ReleaseListForma
 	for _, release := range *r {
 		pipelineName := strings.Split(release.Name, "_")[0]
 
-		if !release.PreRelease {
+		if !*release.PreRelease {
+			// remove PreRelease field from struct
+			release.PreRelease = nil
 			if _, ok := returnList[pipelineName]; ok {
 				returnList[pipelineName] = append(returnList[pipelineName], release)
 			} else {
@@ -82,8 +80,8 @@ func (r *ReleaseListFormatted) GetLatest() {
 
 // GetVersion modifies a ReleaseListFormmated to only include the requested version
 func (r *ReleaseListFormatted) GetVersion(version string, pipeline string) {
-	for key, element := range *r {
-		for _, release := range element {
+	for key, list := range *r {
+		for _, release := range list {
 			releaseVersion := strings.Split(release.Name, "_")[1]
 			if version == releaseVersion {
 				(*r)[key] = []Release{release}
@@ -151,6 +149,14 @@ func makeNewList() (*ReleaseList, error) {
 		}
 		if err := json.Unmarshal(resp.Body(), &temp); err != nil {
 			return nil, err
+		}
+
+		// replace all escape characters in response body with single space
+		// replace all additional whitespace
+		for i, release := range temp {
+			tempReplace := strings.ReplaceAll(release.Body, "\r\n", " ")
+			space := regexp.MustCompile(`\s+`)
+			temp[i].Body = space.ReplaceAllString(tempReplace, " ")
 		}
 
 		fullList = append(fullList, temp...)
