@@ -8,9 +8,11 @@ workflow VerifyOptimus {
      }
 
      input {
-         # Optimus output files to be checked
-         File test_bam
-         File truth_bam
+       # Optimus output files to be checked
+       File test_bam
+       File truth_bam
+       File test_loom_file
+       File truth_loom_file
         # File matrix
         # File matrix_row_index
         # File matrix_col_index
@@ -41,12 +43,12 @@ workflow VerifyOptimus {
 #             reference_matrix = reference_matrix
 #     }
 #
-#     call ValidateLoom as ValidateLoom {
-#         input:
-#             loom_file = loom_file,
-#             expected_loom_file_checksum = expected_loom_file_checksum
-#     }
-#
+     call CompareLooms {
+         input:
+             test_loom = test_loom_file,
+             truth_loom = truth_loom_file
+     }
+
 #     call ValidateMetrics {
 #         input:
 #             cell_metrics = cell_metrics,
@@ -66,6 +68,23 @@ workflow VerifyOptimus {
     output {
 
     }
+}
+
+task CompareLooms {
+  input {
+    File test_loom
+    File truth_loom
+  }
+
+  command {
+    cmp ~{test_loom} ~{truth_loom}
+  }
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    preemptible: 3
+  }
 }
 
 task ValidateBam {
