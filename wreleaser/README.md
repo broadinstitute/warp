@@ -6,11 +6,11 @@
 
 WARP maintains and releases over two dozen cloud-optimized pipelines for biological data processing. Finding information for various pipeline releases via the repo's web interface is clunky and tedious.
 
-_wreleaser_ serves as a wrapper around the [GitHub Release API](https://docs.github.com/en/rest/reference/repos#releases) specifically for WARP releases.
+_wreleaser_ serves as a wrapper around the [GitHub Releases API](https://docs.github.com/en/rest/reference/repos#releases) specifically for WARP releases.
 
 ### How does it work?
 
-On initial invocation _wreleaser_ will hit the GitHb Release API for WARP and cache all of the releases in `$HOME/.wreleaser/cache.json`.
+On initial invocation _wreleaser_ will hit the GitHub Releases API for WARP and cache all of the releases in `$HOME/.wreleaser/cache.json`.
 
 WARP doesn't release frequently so to avoid having to hit the API regularly _wrealeaser_ will return results from the cache.
 
