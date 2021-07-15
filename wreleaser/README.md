@@ -73,14 +73,14 @@ Usage:
 
 ### Commands
 
-All commands have the following global flags
 #### `wreleaser info all`
 Displays release information for all pipelines
 
 Flags:
-        * -l, --latest  Retrieve only the latest releases for each pipeline
-        * -h, --help    Display help text
-        * --output      Pipe stdout to file
+
+* -l, --latest  Retrieve only the latest releases for each pipeline
+* -h, --help    Display help text
+* --output      Pipe stdout to file
 
 ```bash
 $ wreleaser info all # Gets all the releases for every pipeline
@@ -92,10 +92,11 @@ $ wrleaser info all --latest # Gets only the latest relases for every pipeline
 Display release information for one or more pipelines
 
 Flags:
-        * -l, --latest  Retrieve only the latest releases for each pipeline
-        * -v, --version Specific version number of pipeline to retrieve (can only use for single pipeline arguments)
-        * -h, --help    Display help text
-        * --output      Pipe stdout to file
+
+* -l, --latest  Retrieve only the latest releases for each pipeline
+* -v, --version Specific version number of pipeline to retrieve (can only use for single pipeline arguments)
+* -h, --help    Display help text
+* --output      Pipe stdout to file
 
 ```bash
 $ wreleaser info list Arrays # Gets all the releases for the Arrays pipeline
@@ -113,8 +114,9 @@ Clear the directory that caches WARP releases
 Default directory is `$HOME/.wreleaser/cache.json` but you can choose to write/clear cache with the `--cachedir` flag for any command
 
 Flags:
-      * h, --help Display help text
-      * --cachedir Directory to cache release information
+
+* h, --help Display help text
+* --cachedir Directory to cache release information
 
 ```bash
 $ wreleaser reset # Clears the cache at $HOME/.wreleaser/cache.json
