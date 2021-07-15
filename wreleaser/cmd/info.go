@@ -25,10 +25,9 @@ See subcommands:
 
 Default information (non-verbose) provided for the pipeline:
 	- Release Name
-	- Release Id
 	- Release Date
 	- Release Notes
-	- Various URLs (Tarball, Zip, Assets, Raw Html)`,
+	- Release URL`,
 }
 
 func init() {

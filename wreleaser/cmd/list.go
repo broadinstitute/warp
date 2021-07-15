@@ -91,7 +91,7 @@ func init() {
 
 	pflags := listCmd.PersistentFlags()
 
-	pflags.StringVar(&version, "version", "", "Specific version number of pipeline to retrieve")
+	pflags.StringVar(&version, "version", "", "Specific version number of pipeline to retrieve (can only use for single pipeline arguments)")
 
 	viper.BindPFlag("version", pflags.Lookup("version"))
 }
