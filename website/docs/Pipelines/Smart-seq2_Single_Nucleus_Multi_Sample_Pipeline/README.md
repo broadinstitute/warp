@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # Smart-seq2 Single Nucleus Multi-Sample Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |

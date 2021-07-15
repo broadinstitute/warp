@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Optimus v4.2.4 Methods
 
-Below we provide a sample methods sections for a publication, separated into single-cell or single-nucleus use cases. For the complete pipeline documentation, see the [Optimus Overview](./README.md).
+Below we provide an example methods section for a publication, separated into single-cell or single-nucleus use cases. For the complete pipeline documentation, see the [Optimus Overview](./README.md).
 
 # Methods
 
