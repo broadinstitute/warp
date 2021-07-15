@@ -34,7 +34,7 @@ RUN set -eux; \
         cd temp; \
         \
         wget ${SAMTOOLS_URL}; \
-        tar xf samtools-${SAMTOOLS_VERSION}.tar.bz2; \
+        tar -xf samtools-${SAMTOOLS_VERSION}.tar.bz2; \
         cd samtools-${SAMTOOLS_VERSION}; \
         \
         ./configure; \
