@@ -85,7 +85,9 @@ Flags:
 ```bash
 $ wreleaser info all # Gets all the releases for every pipeline
 
-$ wrleaser info all --latest # Gets only the latest relases for every pipeline
+$ wreleaser info all --latest # Gets only the latest releases for every pipeline
+
+$ wreleaser info all --latest --output=foo.json # Gets the latest releases for every pipeline and write it to foo.json
 ```
 
 #### `wreleaser info list`
@@ -106,6 +108,8 @@ $ wreleaser info list Arrays --version=v2.3.1 # Gets the release for Arrays pipe
 $ wreleaser info list Arrays ExomeGermlineSingleSample # Gets all releases for Arrays and ExomeGermlineSingleSample pipelines
 
 $ wreleaser info list CEMBA Optimus --latest # Gets the latest releases for CEMBA and Optimus pipelines
+
+$ wreleaser info list CEMBA Optimus --latest --output=foo.json # Gets the latest releases for CEMBA and Optimus pipelines and write it to foo.json
 ```
 
 #### `wreleaser reset`
