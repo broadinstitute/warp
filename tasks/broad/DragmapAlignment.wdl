@@ -27,7 +27,6 @@ task SamToFastqAndDragmapAndMba {
     DragmapReference dragmap_reference
 
     File picard_jar = "gs://broad-dsde-methods-mgatzen/dragen_evaluation/alignment/picard-2.23.7-SNAPSHOT-all.jar"
-    File dragmap_binary
 
     Int compression_level
     Int preemptible_tries
@@ -44,14 +43,9 @@ task SamToFastqAndDragmapAndMba {
   String dragmap_commandline = "-1 reads1.fastq.gz -2 reads2.fastq.gz -r dragen_reference"
 
   command <<<
-
-
     set -euxo pipefail
 
-
-    chmod +x ~{dragmap_binary}
-
-    DRAGMAP_VERSION=$(~{dragmap_binary} --version)
+    DRAGMAP_VERSION=$(dragen-os --version)
 
     if [ -z ${DRAGMAP_VERSION} ]; then
         exit 1;
@@ -62,7 +56,7 @@ task SamToFastqAndDragmapAndMba {
 
     samtools fastq -1 reads1.fastq.gz -2 reads2.fastq.gz -0 /dev/null -s /dev/null -n ~{input_bam}
 
-    ~{dragmap_binary} ~{dragmap_commandline} 2> >(tee ~{output_bam_basename}.dragmap.stderr.log >&2) | samtools view -h -O BAM - > aligned.bam
+    dragen-os ~{dragmap_commandline} 2> >(tee ~{output_bam_basename}.dragmap.stderr.log >&2) | samtools view -h -O BAM - > aligned.bam
     java -Dsamjdk.compression_level=~{compression_level} -Xms1000m -Xmx1000m -jar ~{picard_jar} \
       MergeBamAlignment \
       VALIDATION_STRINGENCY=SILENT \
@@ -96,7 +90,7 @@ task SamToFastqAndDragmapAndMba {
       ADD_PG_TAG_TO_READS=false
   >>>
   runtime {
-    docker: "michaelgatzen/dragen_os"
+    docker: "us.gcr.io/broad-dsde-methods/dragmap:1.2.0"
     preemptible: preemptible_tries
     memory: "40 GiB"
     cpu: "16"
@@ -104,6 +98,6 @@ task SamToFastqAndDragmapAndMba {
   }
   output {
     File output_bam = "~{output_bam_basename}.bam"
-    File bwa_stderr_log = "~{output_bam_basename}.dragmap.stderr.log"
+    File dragmap_stderr_log = "~{output_bam_basename}.dragmap.stderr.log"
   }
 }
