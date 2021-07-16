@@ -3,6 +3,7 @@ set -e
 
 # VerifyBamID is based off a specific githash and unlikely to change
 VERIFY_BAM_ID_VERSION="c1cba76e979904eb69c31520a0d7f5be63c72253"
+DOCKER_IMAGE_VERSION="1.0.0"
 TIMESTAMP=$(date +"%s")
 DIR=$(cd $(dirname $0) && pwd)
 
@@ -51,7 +52,7 @@ function main(){
     esac
     done	
 
-    IMAGE_TAG="$VERIFY_BAM_ID_VERSION-$TIMESTAMP"
+    IMAGE_TAG="$DOCKER_IMAGE_VERSION-$VERIFY_BAM_ID_VERSION-$TIMESTAMP"
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \

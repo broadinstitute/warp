@@ -63,6 +63,8 @@ function main(){
     esac
     done
 
+    IMAGE_TAG="$DOCKER_IMAGE_VERSION-$GATK4_VERSION-$TIMESTAMP"
+
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build -t "$GCR_URL:$IMAGE_TAG" \
         --build-arg GATK4_VERSION="$GATK4_VERSION" \

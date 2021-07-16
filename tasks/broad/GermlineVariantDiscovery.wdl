@@ -66,7 +66,7 @@ task HaplotypeCaller_GATK35_GVCF {
       --read_filter OverclippedRead
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/gatk:1.0.0-1625076597"
+    docker: "us.gcr.io/broad-gotc-prod/gatk:1.0.0-4.1.8.0-1626439571"
     preemptible: preemptible_tries
     memory: "10 GiB"
     cpu: "1"
