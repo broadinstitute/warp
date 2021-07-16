@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 
@@ -31,7 +32,7 @@ Currently available pipelines:
 	- GDCWholeGenomeSomaticSingleSample
 	- IlluminaGenotypingArray
 	- JointGenotyping
-        - JointGenotypingByChromosomePartOne,
+        - JointGenotypingByChromosomePartOne
         - JointGenotypingByChromosomePartTwo
         - MultiSampleArrays
         - MultiSampleSmartSeq2
@@ -67,5 +68,5 @@ func defaultCacheDir() string {
 	if err != nil {
 		panic("Error locating user's $HOME")
 	}
-	return home + "/.wreleaser/cache.json"
+	return filepath.Join(home, "/.wreleaser/cache.json")
 }
