@@ -37,7 +37,7 @@ task SmartSeq2LoomOutput {
        --rsem_genes_results  ~{rsem_gene_results} \
        --output_loom_path  "~{input_id}.loom" \
        --input_id ~{input_id} \
-       ~{"--input_name " + input_name} \
+       ~{"--input_name '" + input_name + "'"} \
        ~{"--input_id_metadata_field " + input_id_metadata_field} \
        ~{"--input_name_metadata_field " + input_name_metadata_field} \
        --pipeline_version ~{pipeline_version}
