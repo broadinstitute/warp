@@ -1,7 +1,7 @@
 # 2.3.2
-2021-06-10
+2021-7-19
 
-* Update Illumina IAAP Autocall base image to AppSec approved image
+* Updated Illumina IAAP Autocall to alpine base image
 
 # 2.3.1
 2021-05-19
