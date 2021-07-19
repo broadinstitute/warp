@@ -1,10 +1,14 @@
+# 4.2.6
+2021-07-19 (Date of Last Commit)
+
+* Updated LoomUtils SmartSeq2LoomOutput task to wrap input_name in quotes
+
 # 4.2.5
 
-2021-07-19 (Date of Last Commit)
+2021-05-24 (Date of Last Commit)
 
 * Updated Picard task to support single nucleus SS2. Changes do not affect Optimus
 * We also updated STAR to 2.7.9a
-* Updated LoomUtils SmartSeq2LoomOutput task to wrap input_name in quotes
 
 # 4.2.4
 

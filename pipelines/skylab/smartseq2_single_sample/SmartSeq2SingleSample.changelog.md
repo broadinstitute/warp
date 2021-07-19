@@ -1,9 +1,13 @@
+# 5.1.3
+2021-07-19 (Date of Last Commit)
+
+* Updated LoomUtils SmartSeq2LoomOutput task to wrap input_name in quotes
+
 # 5.1.2
 
-2020-07-19 (Date of Last Commit)
+2020-05-24 (Date of Last Commit)
 
 * Updated the LoomUtils.wdl and Picard.wdl. The changes are made for smartseq2 single nuclei and  multisample smartseq2 single nuclie pipelines, but does not impact SmartSeq2 single sample pipeline
-* Updated LoomUtils SmartSeq2LoomOutput task to wrap input_name in quotes
 
 # 5.1.1
 

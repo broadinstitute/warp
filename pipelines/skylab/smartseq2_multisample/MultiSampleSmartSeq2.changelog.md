@@ -1,10 +1,14 @@
+# 2.2.3
+2021-07-19 (Date of Last Commit)
+
+* Updated LoomUtils SmartSeq2LoomOutput task to wrap input_name in quotes
+
 # 2.2.2
 
-2020-07-19 (Date of Last Commit)
+2020-05-24 (Date of Last Commit)
 
 * Added a task to Picard.wdl
 * Updated the docker in LoomUtils.wdl task to 0.0.7. 
-* Updated LoomUtils SmartSeq2LoomOutput task to wrap input_name in quotes
 
 # 2.2.1
 

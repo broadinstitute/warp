@@ -36,7 +36,7 @@ workflow SmartSeq2SingleNucleus {
     File fastq2
   }
   # version of this pipeline
-  String pipeline_version = "1.0.0"
+  String pipeline_version = "1.0.1"
 
   parameter_meta {
     input_id: "Sample name or cell_names"
