@@ -14,6 +14,7 @@ WORKDIR /usr/gitc
 RUN set eux; \
         apk add --no-cache \ 
             curl \
+            bash \
             icu \
             libstdc++ \
             tini \
