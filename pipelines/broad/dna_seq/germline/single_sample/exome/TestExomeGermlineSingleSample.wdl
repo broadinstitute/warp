@@ -61,4 +61,4 @@ workflow TestExomeGermlineSingleSample {
     }
   }
 }
-  # Outputs are intentionally left unddefined to automatically propagate all outputs from all tasks (wihout needing to individually define the outputs)
+  # Outputs are intentionally left undefined to automatically propagate all outputs from all tasks (without needing to individually define the outputs)
