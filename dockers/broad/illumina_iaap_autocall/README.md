@@ -7,7 +7,7 @@ Copy and paste to pull this image
 #### `us.gcr.io/broad-gotc-prod/illumina-iaap-autocall:1.0.2-1.1.0-1625852425`
 
 - __What is this image:__ This image is a lightweight alpine-based image for running the Illumina Iaap CLI.
-- __What is the Illumina IAAP CLI:__ TODO See [here](https://emea.support.illumina.com/downloads/iaap-genotyping-cli.html) more information.
+- __What is the Illumina IAAP CLI:__ Illumina Iaap CLI is a tool for reporting genotype calls and sample-level quality metrics in various formats (Illumina GTC and PED files). See [here](https://emea.support.illumina.com/downloads/iaap-genotyping-cli.html) more information.
 - __How to see Illumina CLI version used in image:__ Please see below.
 
 ## Versioning

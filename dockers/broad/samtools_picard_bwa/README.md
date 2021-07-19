@@ -1,4 +1,4 @@
-# Samtools_BWA_Picard
+# Samtools_Picard_BWA
 
 ## Quick reference
 
@@ -13,7 +13,7 @@ Copy and paste to pull this image
 
 ## Versioning
 
-Samtools_BWA_Picard
+Samtools_Picard_BWA uses the following convention for verisoning:
 
 #### `us.gcr.io/broad-gotc-prod/gatk:<image-version>-<bwa-version>-<picard-version>-<unix-timestamp>` 
 
