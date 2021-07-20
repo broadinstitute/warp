@@ -257,7 +257,7 @@ task ValidateSS2MetadataAnalysisFiles {
     File ss2_metadata_analysis_file_intermediate_bam_json
     File ss2_metadata_analysis_file_intermediate_bam_json_truth
     File ss2_metadata_analysis_file_intermediate_bai_json
-    File ss2_metadata_analysis_file_intermediate_bai_json
+    File ss2_metadata_analysis_file_intermediate_bai_json_truth
 
     }
 
@@ -274,7 +274,7 @@ task ValidateSS2MetadataAnalysisFiles {
                 fi
 
        #testing metadata/analysis_file/.bai
-       diff "~{ss2_metadata_analysis_file_intermediate_bai_json}" "~{ss2_metadata_analysis_file_intermediate_bai_json}"
+       diff "~{ss2_metadata_analysis_file_intermediate_bai_json}" "~{ss2_metadata_analysis_file_intermediate_bai_json_truth}"
 
                 if [ $? -ne 0 ];
                 then
@@ -310,7 +310,7 @@ task ValidateSS2MetadataAnalysisProcessFiles {
                 fi
 
   >>>
-  
+
   runtime {
     docker: "quay.io/humancellatlas/secondary-analysis-samtools:v0.2.2-1.6"
     cpu: 1
