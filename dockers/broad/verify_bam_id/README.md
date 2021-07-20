@@ -14,7 +14,7 @@ Copy and paste to pull this image
 
 The VerifyBamID image uses the following convention for versioning:
 
-#### `us.gcr.io/broad-gotc-prod/samtools:<image-version>-<VerifyBamID-git-hash>-<unix-timestamp>` 
+#### `us.gcr.io/broad-gotc-prod/verify-bam-id:<image-version>-<VerifyBamID-git-hash>-<unix-timestamp>` 
 
 We keep track of all past versions in [docker_versions](docker_versions.tsv) with the last image listed being the currently used version in WARP.
 

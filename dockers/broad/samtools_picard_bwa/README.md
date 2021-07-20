@@ -15,7 +15,7 @@ Copy and paste to pull this image
 
 Samtools_Picard_BWA uses the following convention for verisoning:
 
-#### `us.gcr.io/broad-gotc-prod/gatk:<image-version>-<bwa-version>-<picard-version>-<unix-timestamp>` 
+#### `us.gcr.io/broad-gotc-prod/samtools_picard_bwa:<image-version>-<bwa-version>-<picard-version>-<unix-timestamp>` 
 
 To see the Samtools version being used please reference the base image [here](..samtools/README.md)
 
