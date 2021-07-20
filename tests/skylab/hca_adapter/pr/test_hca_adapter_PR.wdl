@@ -52,9 +52,12 @@ workflow TestHcaAdapter {
     File ss2_descriptors_analysis_file_intermediate_bai_json
     File ss2_descriptors_analysis_file_intermediate_bai_json
     File ss2_links_intermediate_loom_json
+    File ss2_links_project_loom_json
     File ss2_metadata_analysis_file_intermediate_bam_json
     File ss2_metadata_analysis_file_intermediate_bai_json
+    File ss2_metadata_analysis_file_project_loom_json
     File ss2_metadata_analysis_process_file_intermediate_json
+    File ss2_metadata_analysis_process_file_project_json
     File ss2_metadata_analysis_protocol_file_intermediate_json
 
   }
@@ -79,7 +82,7 @@ workflow TestHcaAdapter {
     method=method,
     ncbi_taxon_id=ncbi_taxon_id,
     organ=organ,
-    outputs=["gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-OptimusLoomGeneration/heart_1k_test_v2_S1_L001.loom", "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeSorted/heart_1k_test_v2_S1_L001.bam"],
+    outputs=outputs,
     pipeline_tools_version=pipeline_tools_version,
     pipeline_version=pipeline_version,
     projects=projects,
@@ -133,4 +136,45 @@ workflow TestHcaAdapter {
       optimus_metadata_analysis_protocol_file_intermediate_json=target_adapter.analysis_protocol,
       optimus_metadata_analysis_protocol_file_intermediate_json_truth=optimus_metadata_analysis_protocol_file_intermediate_json
   }
+
+#  call checker_adapter.ValidateSS2DescriptorAnalysisFiles as checker_adapter_ss2_descriptors {
+#    input:
+#     ss2_descriptors_analysis_file_intermediate_bam_json=target_adapter[],
+#     ss2_descriptors_analysis_file_intermediate_bam_json_truth=ss2_descriptors_analysis_file_intermediate_bam_json,
+#     ss2_descriptors_analysis_file_intermediate_bai_json=taret_adapter[],
+#     ss2_descriptors_analysis_file_intermediate_bai_json_truth=ss2_descriptors_analysis_file_intermediate_bai_json
+#  }
+
+  call checker_adapter.ValidateSS2LinksFiles as checker_adapter_ss2_links {
+    input:
+     ss2_links_intermediate_loom_json=target_adapter.links_ss2[0],
+     ss2_links_intermediate_loom_json_truth=ss2_links_intermediate_loom_json,
+     ss2_links_project_loom_json=[1],
+     ss2_links_project_loom_json=ss2_links_project_loom_json
+
+  }
+
+  call checker_adapter.ValidateSS2MetadataAnalysisFiles as checker_adapter_ss2_metadata_analysis_files {
+    input:
+     ss2_metadata_analysis_file_intermediate_bam_json=target_adapter.analysis_file_ss2[0],
+     ss2_metadata_analysis_file_intermediate_bam_json_truth=ss2_metadata_analysis_file_intermediate_bam_json,
+     ss2_metadata_analysis_file_intermediate_bai_json=target_adapter.analysis_file_ss2[1],
+     ss2_metadata_analysis_file_intermediate_bai_json_truth=ss2_metadata_analysis_file_intermediate_bai_json,
+     ss2_metadata_analysis_file_project_loom_json=target_adapter.analysis_file_ss2[2],
+     ss2_metadata_analysis_file_project_loom_json=ss2_metadata_analysis_file_project_loom_json
+  }
+
+  call checker_adapter.ValidateSS2MetadataAnalysisProcessFiles as checker_adapter_ss2_metadata_analysis_process {
+    input:
+     ss2_metadata_analysis_process_file_intermediate_json=target_adapter.target_adapter.analysis_process_ss2[0],
+     ss2_metadata_analysis_process_file_intermediate_json_truth=ss2_metadata_analysis_process_file_intermediate_json,
+     ss2_metadata_analysis_process_file_project_json=target_adapter.analysis_process_ss2[1],
+     ss2_metadata_analysis_process_file_project_json=ss2_metadata_analysis_process_file_project_json
+    }
+
+  call checker_adapter.ValidateSS2MetadataAnalysisProtocolFiles as checker_adapter_ss2_metadata_analysis_protocol {
+    input:
+     ss2_metadata_analysis_protocol_file_intermediate_json=target_adapter.analysis_protocol_ss2[0],
+     ss2_metadata_analysis_protocol_file_intermediate_json_truth=ss2_metadata_analysis_protocol_file_intermediate_json
+    }
 }
