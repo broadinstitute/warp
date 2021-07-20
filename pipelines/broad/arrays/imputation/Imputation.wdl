@@ -268,7 +268,7 @@ workflow ImputationPipeline {
 	}
 
 	if (MergeImputationQCMetrics.frac_well_imputed < frac_well_imputed_threshold) {
-		call tasks.FailQCThreshold {
+		call tasks.FailQCThreshold as FailQCWellImputedFrac {
 			input:
 				msg = "Well imputed fraction was " + MergeImputationQCMetrics.frac_well_imputed + ", QC failure threshold was set at " + frac_well_imputed_threshold
 		}
@@ -287,7 +287,7 @@ workflow ImputationPipeline {
 	}
 
 	if (StoreChunksInfo.n_failed_chunks >= chunks_fail_threshold) {
-		call tasks.FailQCThreshold {
+		call tasks.FailQCThreshold as FailQCNChunks {
 			input:
 				msg = StoreChunksInfo.n_failed_chunks + " chunks failed imputation, QC threshold was set to " + chunks_fail_threshold
 		}
