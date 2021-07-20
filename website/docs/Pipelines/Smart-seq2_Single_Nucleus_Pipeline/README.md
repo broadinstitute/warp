@@ -2,7 +2,7 @@
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-|  [SmartSeq2SingleNucleus_v1.0.0](https://github.com/broadinstitute/warp/releases)  | May, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+|  [SmartSeq2SingleNucleus_v1.0.0](https://github.com/broadinstitute/warp/releases)  | July, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![](./snSS2.png)
 
@@ -26,7 +26,7 @@ The pipeline has been scientifically validated by the BRAIN Institute. Read more
 | Workflow Language | WDL | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence (for validation)| GRCm38 mouse genome primary sequence | GENCODE GRCm38 [Mouse](http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M23/GRCm38.primary_assembly.genome.fa.gz) |
 | Transcriptomic Reference Annotation (for validation) | Modified [M23](https://www.gencodegenes.org/mouse/release_M23.html) GTF built with the  [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl)| GENCODE |
-| Aligner  | STAR (v.2.7.8a) | [STAR](https://github.com/alexdobin/STAR) |
+| Aligner  | STAR (v.2.7.9a) | [STAR](https://github.com/alexdobin/STAR) |
 | QC Metrics | Picard (v.2.20.4) | [Broad Institute](https://broadinstitute.github.io/picard/)   |
 | Transcript Quantification | featureCounts (utilities for counting reads to genomic features) | [featureCounts(v2.0.2)](http://subread.sourceforge.net/)
 | Data Input File Format | File format in which sequencing data is provided | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) |
