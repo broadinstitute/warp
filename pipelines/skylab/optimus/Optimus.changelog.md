@@ -1,3 +1,8 @@
+# 4.2.6
+2021-07-19 (Date of Last Commit)
+
+* Updated LoomUtils SmartSeq2LoomOutput task to wrap input_name in quotes
+
 # 4.2.5
 
 2021-05-24 (Date of Last Commit)
