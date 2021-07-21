@@ -1,5 +1,5 @@
 <p align="center">
-        <img src="assets/wreleaser-logo.png>
+        <img src="assets/wreleaser-logo.png">
 </p>
 
 <p align="center">
