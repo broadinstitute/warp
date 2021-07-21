@@ -1,6 +1,8 @@
-# wreleaser
+![wreleaser](./assets/wreleaser-logo.png)
 
+<p align="center">
 **_wreleaser_** (_WARP releaser_) is a simple CLI tool for querying WARP [releases](https://github.com/broadinstitute/warp/releases)
+</p>
 
 ## :dna: Overview
 
