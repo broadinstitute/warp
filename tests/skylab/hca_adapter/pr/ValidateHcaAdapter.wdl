@@ -232,6 +232,8 @@ task ValidateSS2LinksFiles {
   input {
     File ss2_links_intermediate_loom_json
     File ss2_links_intermediate_loom_json_truth
+    File ss2_links_project_loom_json
+    File ss2_links_project_loom_json_truth
     }
 
  command <<<
@@ -242,6 +244,13 @@ task ValidateSS2LinksFiles {
   then
    echo "error"
   fi
+
+  diff "~{ss2_links_project_loom_json}" "~{ss2_links_project_loom_json_truth}"
+
+    if [ $? -ne 0 ];
+    then
+     echo "error"
+    fi
   >>>
 
   runtime {
@@ -258,6 +267,8 @@ task ValidateSS2MetadataAnalysisFiles {
     File ss2_metadata_analysis_file_intermediate_bam_json_truth
     File ss2_metadata_analysis_file_intermediate_bai_json
     File ss2_metadata_analysis_file_intermediate_bai_json_truth
+    File ss2_metadata_analysis_file_project_loom_json
+    File ss2_metadata_analysis_file_project_loom_json_truth
 
     }
 
@@ -280,6 +291,14 @@ task ValidateSS2MetadataAnalysisFiles {
                 then
                  echo "error"
                 fi
+
+       #testing metadata/analysis_file/.loom
+        diff "~{ss2_metadata_analysis_file_project_loom_json}" "~{ss2_metadata_analysis_file_project_loom_json_truth}"
+
+                 if [ $? -ne 0 ];
+                 then
+                  echo "error"
+                 fi
   >>>
 
   runtime {
@@ -295,6 +314,8 @@ task ValidateSS2MetadataAnalysisProcessFiles {
   input {
     File ss2_metadata_analysis_process_file_intermediate_json
     File ss2_metadata_analysis_process_file_intermediate_json_truth
+    File ss2_metadata_analysis_process_file_project_json
+    File ss2_metadata_analysis_process_file_project_json_truth
     }
 
  command <<<
@@ -303,6 +324,14 @@ task ValidateSS2MetadataAnalysisProcessFiles {
 
        #testing metadata/analysis_process/.json
        diff "~{ss2_metadata_analysis_process_file_intermediate_json}" "~{ss2_metadata_analysis_process_file_intermediate_json_truth}"
+
+                if [ $? -ne 0 ];
+                then
+                 echo "error"
+                fi
+
+       #testing metadata/analysis_process/projectloom.json
+       diff "~{ss2_metadata_analysis_process_file_project_json}" "~{ss2_metadata_analysis_process_file_project_json_truth}"
 
                 if [ $? -ne 0 ];
                 then

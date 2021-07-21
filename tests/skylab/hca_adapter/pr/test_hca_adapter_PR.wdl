@@ -49,7 +49,7 @@ workflow TestHcaAdapter {
     File optimus_descriptors_analysis_file_intermediate_reference_json
 
     #ss2 truth inputs
-    File ss2_descriptors_analysis_file_intermediate_bai_json
+    File ss2_descriptors_analysis_file_intermediate_bam_json
     File ss2_descriptors_analysis_file_intermediate_bai_json
     File ss2_links_intermediate_loom_json
     File ss2_links_project_loom_json
@@ -137,20 +137,21 @@ workflow TestHcaAdapter {
       optimus_metadata_analysis_protocol_file_intermediate_json_truth=optimus_metadata_analysis_protocol_file_intermediate_json
   }
 
-#  call checker_adapter.ValidateSS2DescriptorAnalysisFiles as checker_adapter_ss2_descriptors {
-#    input:
-#     ss2_descriptors_analysis_file_intermediate_bam_json=target_adapter[],
-#     ss2_descriptors_analysis_file_intermediate_bam_json_truth=ss2_descriptors_analysis_file_intermediate_bam_json,
-#     ss2_descriptors_analysis_file_intermediate_bai_json=taret_adapter[],
-#     ss2_descriptors_analysis_file_intermediate_bai_json_truth=ss2_descriptors_analysis_file_intermediate_bai_json
-#  }
+
+  call checker_adapter.ValidateSS2DescriptorAnalysisFiles as checker_adapter_ss2_descriptors {
+    input:
+     ss2_descriptors_analysis_file_intermediate_bam_json=target_adapter.descriptor_analysis_bam_ss2[0],
+     ss2_descriptors_analysis_file_intermediate_bam_json_truth=ss2_descriptors_analysis_file_intermediate_bam_json,
+     ss2_descriptors_analysis_file_intermediate_bai_json=target_adapter.descriptor_analysis_bai_ss2[0],
+     ss2_descriptors_analysis_file_intermediate_bai_json_truth=ss2_descriptors_analysis_file_intermediate_bai_json
+  }
 
   call checker_adapter.ValidateSS2LinksFiles as checker_adapter_ss2_links {
     input:
      ss2_links_intermediate_loom_json=target_adapter.links_ss2[0],
      ss2_links_intermediate_loom_json_truth=ss2_links_intermediate_loom_json,
-     ss2_links_project_loom_json=[1],
-     ss2_links_project_loom_json=ss2_links_project_loom_json
+     ss2_links_project_loom_json=target_adapter.links_ss2[1],
+     ss2_links_project_loom_json_truth=ss2_links_project_loom_json
 
   }
 

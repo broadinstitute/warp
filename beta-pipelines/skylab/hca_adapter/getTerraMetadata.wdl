@@ -904,6 +904,9 @@ workflow submit {
     File links = copy_file_links.copied_file
 
     # SS2 scatter outputs
+    Array[File] descriptor_analysis_bam_ss2 = copy_file_analysis_file_descriptor_ss2_bam.copied_file
+    Array[File] descriptor_analysis_bai_ss2 = copy_file_analysis_file_descriptor_ss2_bai.copied_file
+    File descriptor_analysis_reference_ss2 = copy_file_reference_genome_descriptor.copied_file
     Array[File] analysis_file_ss2 = flatten(copy_file_analysis_file_ss2.copied_file)
     Array[File] analysis_process_ss2 = copy_file_analysis_process_ss2.copied_file
     Array[File] analysis_protocol_ss2 = copy_file_analysis_protocol_ss2.copied_file
