@@ -4,10 +4,7 @@
 
 <p align="center">
         <i><b>wreleaser</b> (WARP releaser)</i> is  a simple CLI tool for querying WARP <a href="https://github.com/broadinstitute/warp/releases">releases<a>.
-
-
-
-**_wreleaser_** (_WARP releaser_) is a simple CLI tool for querying WARP [releases](https://github.com/broadinstitute/warp/releases)
+</p>
 
 ## :dna: Overview
 
