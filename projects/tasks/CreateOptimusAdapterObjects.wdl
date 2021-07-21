@@ -9,16 +9,43 @@ workflow CreateOptimusAdapterObjects {
   }
 
   input {
+    Array[File] bams
+    Array[File] looms
+    String library
+    String species
+    String
+
+    String cromwell_url = "https://api.firecloud.org/"
 
   }
 
-  call GetMetadata {
-    input:
-  }
-
-  call GetAnalysisFileMetadata{
+  # Crerate  the project level loom
+  call MergeLooms {
       input:
+        # Fill in input for subworkflow
+    }
+
+  # Create the adapter json objects for each intermediate output
+  scatter(idx in range(length(looms))) {
+    File loom = looms[idx]
+    File bam = bams[idx]
+
+    call GetMetadata {
+      input:
+        output_path = loom
+        cromwell_url = cromwell_url
+        include_subworkflows = false # TODO: do we need subworkflows???
+        include_keys =
+    }
+
+    call GetAnalysisFileMetadata{
+      input:
+    }
   }
+
+  # Create the adapter json objects for the project matrtix
+
+
 
 
   output {
