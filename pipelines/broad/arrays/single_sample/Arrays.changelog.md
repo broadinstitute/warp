@@ -1,3 +1,10 @@
+# 2.3.3
+2021-07-22
+
+* Have pipeline take the values supplied in 'params.txt' input file as optional top-level inputs. First step towards removal
+* Provide params.txt file as output of pipeline.
+* Set default call rate threshold of pipeline to 0.98
+
 # 2.3.2
 2021-07-13
 

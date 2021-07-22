@@ -230,6 +230,64 @@ task UploadArraysMetrics {
     }
 }
 
+task CreateChipWellBarcodeParamsFile {
+  input {
+    String chip_type_name
+    String chip_well_barcode
+    String collaborator_participant_id
+    String lab_batch
+    String participant_id
+    String product_family
+    String product_name
+    String product_order_id
+    String product_part_number
+    String product_type
+    String regulatory_designation
+    String research_project_id
+    String sample_alias
+    String gender
+    String sample_id
+    String sample_lsid
+    Int preemptible_tries
+  }
+
+  String params_filename = "params.txt"
+
+  command <<<
+    set -eo pipefail
+
+    echo "CHIP_TYPE_NAME=~{chip_type_name}" > ~{params_filename}
+    echo "CHIP_WELL_BARCODE=~{chip_well_barcode}" >> ~{params_filename}
+    echo "INDIVIDUAL_ALIAS=~{collaborator_participant_id}" >> ~{params_filename}
+    echo "LAB_BATCH=~{lab_batch}" >> ~{params_filename}
+    echo "PARTICIPANT_ID=~{participant_id}" >> ~{params_filename}
+    echo "PRODUCT_FAMILY=~{product_family}" >> ~{params_filename}
+    echo "PRODUCT_NAME=~{product_name}" >> ~{params_filename}
+    echo "PRODUCT_ORDER_ID=~{product_order_id}" >> ~{params_filename}
+    echo "PRODUCT_PART_NUMBER=~{product_part_number}" >> ~{params_filename}
+    echo "PRODUCT_TYPE=~{product_type}" >> ~{params_filename}
+    echo "REGULATORY_DESIGNATION=~{regulatory_designation}" >> ~{params_filename}
+    echo "RESEARCH_PROJECT_ID=~{research_project_id}" >> ~{params_filename}
+    echo "SAMPLE_ALIAS=~{sample_alias}" >> ~{params_filename}
+    echo "SAMPLE_GENDER=~{gender}" >> ~{params_filename}
+    echo "SAMPLE_ID=~{sample_id}" >> ~{params_filename}
+    echo "SAMPLE_LSID=~{sample_lsid}" >> ~{params_filename}
+
+  >>>
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    preemptible: preemptible_tries
+  }
+  output {
+    File params_file = params_filename
+  }
+}
+
+
+
 task UpdateChipWellBarcodeIndex {
   input {
     File params_file
