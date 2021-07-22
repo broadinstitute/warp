@@ -1,3 +1,9 @@
+# 1.2.0
+2021-07-19
+
+* Changed GoTC image to Samtools specific image in CramToUnmappedBams and Utilities
+* Changed GoTC image to GATK specific image in GermlineVariantDiscovery
+
 # 1.1.0
 2021-03-23
 

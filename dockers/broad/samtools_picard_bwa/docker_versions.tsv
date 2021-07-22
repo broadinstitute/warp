@@ -1,0 +1,5 @@
+DOCKER_VERSION
+
+us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.0-1625681654
+us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.0-0.7.15-1626448636
+us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.0-0.7.15-2.23.8-1626449438

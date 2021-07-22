@@ -355,7 +355,7 @@ task CheckPreValidation {
 
     CODE
 
-  >>>
+>>>
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/python:2.7"
     preemptible: preemptible_tries

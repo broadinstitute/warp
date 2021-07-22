@@ -9,7 +9,7 @@ task MergeSortBamFiles {
     Int compression_level = 5
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.3.3-1513176735"
+    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.5.7-2021-06-09_16-47-48Z"
     Int machine_mem_mb = 18150
     Int cpu = 1
     # default to 500GiB of space

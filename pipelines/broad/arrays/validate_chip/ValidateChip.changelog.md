@@ -1,3 +1,8 @@
+# 1.13.1
+2021-7-19
+
+* Updated Illumina IAAP Autocall to alpine base image
+
 # 1.13.0
 2021-05-19
 
