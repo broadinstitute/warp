@@ -61,7 +61,7 @@ task GetMetadata {
   input {
     String output_path
     String cromwell_url
-    String include_subworkflows
+    Boolean include_subworkflows
     Array[String] include_keys
 
     String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:gw_cromwell_includekeys"
@@ -78,7 +78,7 @@ task GetMetadata {
     get-analysis-workflow-metadata \
       --analysis_output_path ~{output_path} \
       --cromwell_url ~{cromwell_url} \
-      --include_subworkflows ~{include_subworkflows} \
+      ~{true="--include_subworkflows True" false="--include_subworkflows False" include_subworkflows} \
       ~{"--include_keys " + include_keys}
   }
   runtime {
