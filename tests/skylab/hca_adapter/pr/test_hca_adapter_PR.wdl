@@ -162,15 +162,15 @@ workflow TestHcaAdapter {
      ss2_metadata_analysis_file_intermediate_bai_json=target_adapter.analysis_file_ss2[1],
      ss2_metadata_analysis_file_intermediate_bai_json_truth=ss2_metadata_analysis_file_intermediate_bai_json,
      ss2_metadata_analysis_file_project_loom_json=target_adapter.analysis_file_ss2[2],
-     ss2_metadata_analysis_file_project_loom_json=ss2_metadata_analysis_file_project_loom_json
+     ss2_metadata_analysis_file_project_loom_json_truth=ss2_metadata_analysis_file_project_loom_json
   }
 
   call checker_adapter.ValidateSS2MetadataAnalysisProcessFiles as checker_adapter_ss2_metadata_analysis_process {
     input:
-     ss2_metadata_analysis_process_file_intermediate_json=target_adapter.target_adapter.analysis_process_ss2[0],
+     ss2_metadata_analysis_process_file_intermediate_json=target_adapter.analysis_process_ss2[0],
      ss2_metadata_analysis_process_file_intermediate_json_truth=ss2_metadata_analysis_process_file_intermediate_json,
      ss2_metadata_analysis_process_file_project_json=target_adapter.analysis_process_ss2[1],
-     ss2_metadata_analysis_process_file_project_json=ss2_metadata_analysis_process_file_project_json
+     ss2_metadata_analysis_process_file_project_json_truth=ss2_metadata_analysis_process_file_project_json
     }
 
   call checker_adapter.ValidateSS2MetadataAnalysisProtocolFiles as checker_adapter_ss2_metadata_analysis_protocol {
