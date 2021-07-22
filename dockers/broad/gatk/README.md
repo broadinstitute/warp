@@ -8,7 +8,7 @@ Copy and paste to pull this image
 `
 
 - __What is this image:__ This image is a lightweight alpine-based image for running GATK (it includes both GATK4 & GATK3 -- 3.5 is included for backwards compatibility with HaplotypeCalling).
-- __What is GATK:__ GATK (Genome Analysis Toolkit) is the industry standard for identifying SNPs and indels in germline DNA and RNAseq data. See [here](https://gatk.broadinstitute.org/hc/en-us) more information.
+- __What is GATK:__ GATK (Genome Analysis Toolkit) is the industry standard for identifying SNPs and indels in germline DNA and RNAseq data. See [here](https://gatk.broadinstitute.org/hc/en-us) for more information.
 - __How to see GATK version used in image:__ Please see below.
 
 ## Versioning
