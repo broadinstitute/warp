@@ -7,7 +7,7 @@ The Arrays Pipeline is designed to process Illumina genotyping data (in the form
 
 ## Pipeline Inputs
 
-The Illumina Genotyping Array Pipeline takes the inputs described below. Inputs are grouped by functional section. Optional inputs are noted.
+The Arrays Pipeline takes the inputs described below. Inputs are grouped by functional section. Optional inputs are noted.
 
 
 *   Sample-specific

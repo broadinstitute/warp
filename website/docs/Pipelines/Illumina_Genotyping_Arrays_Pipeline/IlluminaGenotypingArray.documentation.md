@@ -13,7 +13,7 @@ sidebar_position: 1
 
 ## Introduction to the Illumina Genotyping Array Pipeline
 
-The Illumina Genotyping Array Pipeline was developed by the Broad DSDE Pipelines team to process Illumina genotyping array data in the form of IDAT files. Overall, the pipeline performs gender-specific genotyping, sample contamination detection, and summary metric collection. It optionally performs rare variant calling and genotype concordance, creates a fingerprint VCF which can be used for sample verification in parallel processes, and evaluates an existing sample fingerprint to confirm sample identity. The pipeline outputs annotated [VCFs](./Illumina_genotyping_array_spec), index files, and summary metrics.
+The Illumina Genotyping Array Pipeline was developed by the Broad DSDE Pipelines team to process Illumina genotyping array data in the form of IDAT files. Overall, the pipeline performs gender-specific genotyping, sample contamination detection, and summary metric collection. It optionally performs rare variant calling and genotype concordance, creates a fingerprint VCF that can be used for sample verification in parallel processes, and evaluates an existing sample fingerprint to confirm sample identity. The pipeline outputs annotated [VCFs](./Illumina_genotyping_array_spec), index files, and summary metrics.
 
 ## Set-up
 
@@ -29,7 +29,7 @@ The workflow requires that each input is specified in a JSON file. All sample an
 
 | Input name | Description | Input format |
 | --- | --- | --- |
-| chip_well_barcode | Unique identifier of the array chip section on which sample was run. Can be concatenation of chip barcode and sample coordinates (Ex: 7991775143_R01C01). This is a prefix for output files | String |
+| chip_well_barcode | Unique identifier of the array chip section on which sample was run. Can be a concatenation of chip barcode and sample coordinates (Ex: 7991775143_R01C01). This is a prefix for output files | String |
 | sample_alias | Name of sample run on barcode-specific chip segment | String |
 | red_idat_cloud_path | Cloud path to the red IDAT file | String |
 | green_idat_cloud_path | Cloud path to the green IDAT file | String |
@@ -82,10 +82,10 @@ The workflow requires that each input is specified in a JSON file. All sample an
 | call_rate_threshold | Minimal numeric value for a sample to have a passing call rate | Required | Value |
 | minor_allele_frequency_file | Cloud path to a chip-specific text file containing locus-id to minor allele frequency | Optional | String |
 | contamination_controls_vcf | Cloud path to a VCF of samples run on this chip type to be used to supplement contamination calling | Optional | String |
-| subsampled_metrics_interval_list | Cloud path to a file containing a subset sites for which the workflow generate metrics and outputs a VCF | Optional | String |
+| subsampled_metrics_interval_list | Cloud path to a file containing a subset of sites for which the workflow generate metrics and outputs a VCF | Optional | String |
 | disk_size | Default disk (in GiB) for this workflow's cloud VMs | Required | Value |
 | premptible_tries | Number of times a task may be preempted by GCE before it is submitted to a non-preemptible VM | Required | Value |
-| analysis_version_number | Numeric value used track number of pipeline runs on chip_well_barcode | Required | Value |
+| analysis_version_number | Numeric value used to track number of pipeline runs on chip_well_barcode | Required | Value |
 
 
 ## Workflow Tools and Tasks
@@ -125,17 +125,17 @@ Overall, the workflow imports the ["IlluminaGenotypingArrayTasks.wdl"](https://g
 4. Collect metrics
 5. Create a new fingerprint output (optional)
 6. Evaluate an existing fingerprint (optional)
-7. Evaluate genotype concordance with control sample (optional)
+7. Evaluate genotype concordance with a control sample (optional)
 
 #### 1. Genotype Calling
 
-Illumina BeadChip Genotyping technology demarcates small-nucleotide variants (and polymorphisms- SNPs) present on an individual's alleles by labeling them with red and green fluorescent signals. These signals are quantified and stored in red and green IDAT files, which the Illumina Genotyping Array workflow can use to call genotypes. To do this, the workflow requires the Illumina array-specific chip well barcode, an Illumina bead pool manifest file containing a list of all SNPs on the BeadChip, and an Illumina cluster file containing the fluorescent signal intensity cut-offs for a given genotype. These are used as inputs for the workflow's Autocall task, which excutes the [iaap- gencall tool](https://support.illumina.com/downloads/iaap-genotyping-cli.html), a command line implementation of the Illumina genotyping software GenCall. This tool normalizes each SNP's red and green fluorescent signals and then clusters each SNP into one of the three genotype possibilities (i.e. homozygous A, homozygous B, or heterozygous- A/B). The overall task generates a genotype call file (GTC) as output. If the GTC file is empty, the workflow will end.
+Illumina BeadChip Genotyping technology demarcates small-nucleotide variants (and polymorphisms- SNPs) present on an individual's alleles by labeling them with red and green fluorescent signals. These signals are quantified and stored in red and green IDAT files, which the Illumina Genotyping Array workflow can use to call genotypes. To do this, the workflow requires the Illumina array-specific chip well barcode, an Illumina bead pool manifest file containing a list of all SNPs on the BeadChip, and an Illumina cluster file containing the fluorescent signal intensity cut-offs for a given genotype. These are used as inputs for the workflow's Autocall task, which executes the [iaap- gencall tool](https://support.illumina.com/downloads/iaap-genotyping-cli.html), a command-line implementation of the Illumina genotyping software GenCall. This tool normalizes each SNP's red and green fluorescent signals and then clusters each SNP into one of the three genotype possibilities (i.e. homozygous A, homozygous B, or heterozygous- A/B). The overall task generates a genotype call file (GTC) as output. If the GTC file is empty, the workflow will end.
 
-| Gender-specific genotype calling (optional) |
-| :-- |
-| If a gender_cluster_file is listed in the input JSON, the Illumina Genotyping workflow will repeat the Autocall task to get a more accurate gender call. It produces an additional GTC file that is only used to call gender and is not included in the final output VCF. |
+:::tip Gender-specific genotype calling (optional)
+If a gender_cluster_file is listed in the input JSON, the Illumina Genotyping workflow will repeat the Autocall task to get a more accurate gender call. It produces an additional GTC file that is only used to call gender and is not included in the final output VCF.
+:::
 
-After genoytping, the workflow calls the GtcToVcf task, which runs the Picard tool [GtcToVcf](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_arrays_GtcToVcf.php) to convert the GTC into a VCF.
+After genotyping, the workflow calls the GtcToVcf task, which runs the Picard tool [GtcToVcf](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/picard_arrays_GtcToVcf.php) to convert the GTC into a VCF.
 
 #### 2. Contamination Detection
 
@@ -155,13 +155,13 @@ After running default genotype processing with Autocall, the Illumina Genotyping
 
 Quality metrics can be assessed using the genotyping output VCF (from the GtctoVcf task) or alternatively, a subset of the VCF. The CollectArraysVariantCallingMetrics task calls the Picard tool [CollectArraysVariantCallingMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037593871) to generate these metrics.
 
-| Metric collection on a VCF subset (optional) |
-| :-- |
-| If an input interval list is provided (the subsampled_metrics_interval_list file in the sample JSON), the workflow will run the optional task SubsetArrayVCF which uses the GATK tool [SelectVariants](https://gatk.broadinstitute.org/hc/en-us/articles/360036362532) to select variants within the specified interval. The overall workflow will then run the CollectArraysVariantCallingMetrics to generate metrics. |
+:::tip Metric collection on a VCF subset (optional)
+If an input interval list is provided (the subsampled_metrics_interval_list file in the sample JSON), the workflow will run the optional task SubsetArrayVCF which uses the GATK tool [SelectVariants](https://gatk.broadinstitute.org/hc/en-us/articles/360036362532) to select variants within the specified interval. The overall workflow will then run the CollectArraysVariantCallingMetrics to generate metrics.
+:::
 
 #### 5. Creating a New Fingerprint Output (Optional)
 
-DNA fingerprinting helps maintain sample identity and avoid sample-swaps. The Illumina Genotyping Array workflow can optionally create a new fingerprint VCF output that can be used to verify sample identity if the sample is used for additional applications (downstream sequencing, etc.). To do this, the SelectFingerprintVariants task uses a reference SNP identifier file (rsid) to run the GATK tool [SelectVariants](https://gatk.broadinstitute.org/hc/en-us/articles/360036362532). This tool selects variants in the genotyping output VCF based on the variants present in the rsids file. The task then outputs a new subseted fingerprint VCF and index file.
+DNA fingerprinting helps maintain sample identity and avoid sample swaps. The Illumina Genotyping Array workflow can optionally create a new fingerprint VCF output that can be used to verify sample identity if the sample is used for additional applications (downstream sequencing, etc.). To do this, the SelectFingerprintVariants task uses a reference SNP identifier file (rsid) to run the GATK tool [SelectVariants](https://gatk.broadinstitute.org/hc/en-us/articles/360036362532). This tool selects variants in the genotyping output VCF based on the variants present in the rsids file. The task then outputs a new subsetted fingerprint VCF and index file.
 
 #### 6. Evaluating an Existing Fingerprint (Optional)
 
@@ -169,12 +169,12 @@ If the genotyping sample already has a corresponding fingerprint VCF file, the w
 
 #### 7. Genotype Concordance (Optional)
 
-If control inputs (VCF, index, and sample_name string) are provided, the workflow can examine genotype concordance. First, the VcfToIntervalList task uses the Picard tool [VcfToIntervalList](https://gatk.broadinstitute.org/hc/en-us/articles/360036897672) to prepare an interval list from the genotype calling output VCF (produced with the [above GtcToVCF task](#1-genotype-calling). Next, the SelectVariantsForGenotypeConcordance task runs the the GATK tool [SelectVariants](https://gatk.broadinstitute.org/hc/en-us/articles/360036362532) to exclude filtered sites from the VCF that will be used for GenotypeConcordance. Lastly, the GenotypeConcordance task uses the Picard tool [GenotypeConcordance](https://gatk.broadinstitute.org/hc/en-us/articles/360036348932) to calculate genotype concordance between the workflow’s output VCF and the control VCF.
+If control inputs (VCF, index, and sample_name string) are provided, the workflow can examine genotype concordance. First, the VcfToIntervalList task uses the Picard tool [VcfToIntervalList](https://gatk.broadinstitute.org/hc/en-us/articles/360036897672) to prepare an interval list from the genotype calling output VCF (produced with the [above GtcToVCF task](#1-genotype-calling). Next, the SelectVariantsForGenotypeConcordance task runs the GATK tool [SelectVariants](https://gatk.broadinstitute.org/hc/en-us/articles/360036362532) to exclude filtered sites from the VCF that will be used for GenotypeConcordance. Lastly, the GenotypeConcordance task uses the Picard tool [GenotypeConcordance](https://gatk.broadinstitute.org/hc/en-us/articles/360036348932) to calculate genotype concordance between the workflow’s output VCF and the control VCF.
 
 
 ### Workflow Outputs
 
-The tables below summarize all of the workflow's output according to task. Outputs from optional tasks are marked as optional. If the workflow output is written to a file, the file format is listed. Otherwise, the file format is listed as N/A. Note that file outputs are named with the chip_well_barcode prefix.
+The tables below summarize all of the workflow's output according to the task. Outputs from optional tasks are marked as optional. If the workflow output is written to a file, the file format is listed. Otherwise, the file format is listed as N/A. Note that file outputs are named with the chip_well_barcode prefix.
 
 For more information on the VCF output, see the pipeline's [VCF Overview](./Illumina_genotyping_array_spec).
 
@@ -225,3 +225,5 @@ The Illumina Genotyping Array Pipeline is available on the cloud-based platform 
 ## Feedback and Questions
 
 Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+
+
