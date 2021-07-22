@@ -1,7 +1,7 @@
 # 1.11.2
-2021-07-13
+2021-07-19
 
-* Updated Illumina IAAP Autocall base image to AppSec approved image
+* Updated Illumina IAAP Autocall to alpine base image
 * Make chip_well_barcode and analysis_version_number available as outputs of the WDL.
 
 # 1.11.1

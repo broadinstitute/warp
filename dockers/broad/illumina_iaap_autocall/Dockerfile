@@ -13,7 +13,10 @@ WORKDIR /usr/gitc
 # Install dependencies
 RUN set eux; \
         apk add --no-cache \ 
-            curl \ 
+            curl \
+            bash \
+            icu \
+            libstdc++ \
             tini \
         ; \ 
 # Install Illumina Iaap Cli

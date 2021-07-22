@@ -8,7 +8,6 @@ DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
 GCR_URL="us.gcr.io/broad-gotc-prod/samtools"
-IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
 
 # Samtools version
 SAMTOOLS_VERSION="1.11"
@@ -53,6 +52,8 @@ function main(){
         ;;
     esac
     done
+    
+    IMAGE_TAG="$DOCKER_IMAGE_VERSION-$SAMTOOLS_VERSION-$TIMESTAMP"
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \

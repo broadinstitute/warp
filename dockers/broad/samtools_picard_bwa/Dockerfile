@@ -1,4 +1,4 @@
-FROM us.gcr.io/broad-gotc-prod/samtools:1.0.0-1624651616
+FROM us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616
 
 ARG BWA_VERSION=0.7.15 \
         PICARD_PUBLIC_VERSION=2.23.8
@@ -16,7 +16,7 @@ WORKDIR /usr/gitc
 # Install dependencies
 RUN set -eux; \
         apk add --no-cache \
-            gcompat \
+        gcompat \
             libc6-compat \
             openjdk8 \
         ; \

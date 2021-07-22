@@ -1,4 +1,5 @@
-FROM python:3.9-alpine
+# Zcall needs python2
+FROM python:2.7.18-alpine3.11
 
 ARG ZCALL_VERSION=zCall_Version1.3_AutoCall
 

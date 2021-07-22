@@ -8,7 +8,7 @@ DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
 GCR_URL="us.gcr.io/broad-gotc-prod/samtools-picard-bwa"
-IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
+
 
 # BWA version
 BWA_VERSION="0.7.15"
@@ -62,6 +62,8 @@ function main(){
         ;;
     esac
     done
+
+    IMAGE_TAG="$DOCKER_IMAGE_VERSION-$BWA_VERSION-$PICARD_PUBLIC_VERSION-$TIMESTAMP"
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build -t "$GCR_URL:$IMAGE_TAG" \
