@@ -1,8 +1,15 @@
+# 1.4.0
+2021-07-22 
+
+* Added an optional step to reblock gVCFs, this step is included by default
+    * The ExternalWholeGenomeReprocessing pipeline now outputs reblocked gVCFs by default. To skip reblocking, add '"ExternalWholeGenomeReprocessing.WholeGenomeReprocessing.WholeGenomeGermlineSingleSample.BamToGvcf.make_gvcf": false' to the inputs
+
 # 1.3.7
 2021-06-22
 
 * Removed duplicate MarkDuplicatesSpark task from BamProcessing
 * Removed duplicate Docker image from CheckPreValidation task in QC
+
 
 # 1.3.6
 2021-06-01 

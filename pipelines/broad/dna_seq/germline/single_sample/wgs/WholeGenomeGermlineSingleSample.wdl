@@ -38,7 +38,9 @@ import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 # WORKFLOW DEFINITION
 workflow WholeGenomeGermlineSingleSample {
 
-  String pipeline_version = "2.3.5"
+
+  String pipeline_version = "2.4.0"
+
 
   input {
     SampleAndUnmappedBams sample_and_unmapped_bams

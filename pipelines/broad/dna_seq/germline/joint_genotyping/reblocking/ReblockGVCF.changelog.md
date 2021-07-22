@@ -1,3 +1,10 @@
+# 1.1.1
+2021-06-17
+
+* Updated ReblockGVCF to support reblocking as the default for germline sequencing pipelines
+    * Added ref_dict, ref_fasta, and ref_fasta_index as pipeline inputs
+    * Moved the task definition for Reblock to GermlineVariantDiscovery.wdl
+
 # 1.1.0
 2020-09-25
 

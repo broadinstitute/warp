@@ -7,7 +7,9 @@ import "../../../../../tasks/broad/BamProcessing.wdl" as BamProcessing
 
 workflow VariantCalling {
 
-  String pipeline_version = "1.0.1"
+
+  String pipeline_version = "1.1.0"
+
 
   input {
     File calling_interval_list
@@ -113,6 +115,18 @@ workflow VariantCalling {
       preemptible_tries = agg_preemptible_tries
   }
 
+  if (make_gvcf) {
+    call Calling.Reblock as Reblock {
+      input:
+        gvcf = MergeVCFs.output_vcf,
+        gvcf_index = MergeVCFs.output_vcf_index,
+        ref_fasta = ref_fasta,
+        ref_fasta_index = ref_fasta_index,
+        ref_dict = ref_dict,
+        output_vcf_filename = basename(MergeVCFs.output_vcf, ".g.vcf.gz") + ".reblocked.g.vcf.gz"
+    }
+  }
+
   if (make_bamout) {
     call MergeBamouts {
       input:
@@ -124,8 +138,8 @@ workflow VariantCalling {
   # Validate the (g)VCF output of HaplotypeCaller
   call QC.ValidateVCF as ValidateVCF {
     input:
-      input_vcf = MergeVCFs.output_vcf,
-      input_vcf_index = MergeVCFs.output_vcf_index,
+      input_vcf = select_first([Reblock.output_vcf, MergeVCFs.output_vcf]),
+      input_vcf_index = select_first([Reblock.output_vcf_index, MergeVCFs.output_vcf_index]),
       dbsnp_vcf = dbsnp_vcf,
       dbsnp_vcf_index = dbsnp_vcf_index,
       ref_fasta = ref_fasta,
@@ -133,14 +147,16 @@ workflow VariantCalling {
       ref_dict = ref_dict,
       calling_interval_list = calling_interval_list,
       is_gvcf = make_gvcf,
+      extra_args = "--no-overlaps",
+      gatk_docker = "us.gcr.io/broad-dsde-methods/validate_reblocking@sha256:ede2cae0d345c6ad2690db99d1d6485adc2b52f98deb5e821bd64baf3df63602",
       preemptible_tries = agg_preemptible_tries
   }
 
   # QC the (g)VCF
   call QC.CollectVariantCallingMetrics as CollectVariantCallingMetrics {
     input:
-      input_vcf = MergeVCFs.output_vcf,
-      input_vcf_index = MergeVCFs.output_vcf_index,
+      input_vcf = select_first([Reblock.output_vcf, MergeVCFs.output_vcf]),
+      input_vcf_index = select_first([Reblock.output_vcf_index, MergeVCFs.output_vcf_index]),
       metrics_basename = final_vcf_base_name,
       dbsnp_vcf = dbsnp_vcf,
       dbsnp_vcf_index = dbsnp_vcf_index,
@@ -153,8 +169,8 @@ workflow VariantCalling {
   output {
     File vcf_summary_metrics = CollectVariantCallingMetrics.summary_metrics
     File vcf_detail_metrics = CollectVariantCallingMetrics.detail_metrics
-    File output_vcf = MergeVCFs.output_vcf
-    File output_vcf_index = MergeVCFs.output_vcf_index
+    File output_vcf = select_first([Reblock.output_vcf, MergeVCFs.output_vcf])
+    File output_vcf_index = select_first([Reblock.output_vcf_index, MergeVCFs.output_vcf_index])
     File? bamout = MergeBamouts.output_bam
     File? bamout_index = MergeBamouts.output_bam_index
   }

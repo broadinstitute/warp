@@ -1,3 +1,10 @@
+
+# 2.5.0
+2021-07-22 
+
+* Added an optional step to reblock gVCFs, this step is included by default
+    * The ExomeReprocessing pipeline now outputs reblocked gVCFs by default. To skip reblocking, add '"ExomeReprocessing.ExomeGermlineSingleSample.BamToGvcf.make_gvcf": false' to the inputs
+
 # 2.4.7
 2021-06-22
 

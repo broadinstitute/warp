@@ -71,7 +71,7 @@ class ReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
         testCrai = resultsCloudPath.resolve(s"$outputBaseName.cram.crai"),
         truthCram = truthCloudPath.resolve(s"$outputBaseName.cram"),
         truthCrai = truthCloudPath.resolve(s"$outputBaseName.cram.crai"),
-        testGvcf = resultsCloudPath.resolve(s"$gvcfBaseName.g.vcf.gz"),
+        testGvcf = resultsCloudPath.resolve(s"$gvcfBaseName.reblocked.g.vcf.gz"),
         truthGvcf = truthCloudPath.resolve(s"$gvcfBaseName.g.vcf.gz")
       ),
       validationWorkflowName
