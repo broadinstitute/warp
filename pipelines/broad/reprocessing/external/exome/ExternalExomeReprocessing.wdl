@@ -72,7 +72,6 @@ workflow ExternalExomeReprocessing {
                           ExomeReprocessing.agg_quality_distribution_pdf,
                           ExomeReprocessing.agg_quality_distribution_metrics,
                           ExomeReprocessing.duplicate_metrics,
-                          ExomeReprocessing.output_bqsr_reports,
                           ExomeReprocessing.gvcf_summary_metrics,
                           ExomeReprocessing.gvcf_detail_metrics,
                           ExomeReprocessing.hybrid_selection_metrics,
@@ -96,7 +95,8 @@ workflow ExternalExomeReprocessing {
                         # The File? outputs
                         select_all([ExomeReprocessing.cross_check_fingerprints_metrics]),
                         select_all([ExomeReprocessing.fingerprint_summary_metrics]),
-                        select_all([ExomeReprocessing.fingerprint_detail_metrics])]),
+                        select_all([ExomeReprocessing.fingerprint_detail_metrics]),
+                        select_all([ExomeReprocessing.output_bqsr_reports])]),
         vault_token_path = vault_token_path,
         destination_cloud_path = destination_cloud_path,
         google_account_vault_path = google_account_vault_path,
@@ -141,7 +141,7 @@ workflow ExternalExomeReprocessing {
     File? fingerprint_detail_metrics = ExomeReprocessing.fingerprint_detail_metrics
 
     File duplicate_metrics = ExomeReprocessing.duplicate_metrics
-    File output_bqsr_reports = ExomeReprocessing.output_bqsr_reports
+    File? output_bqsr_reports = ExomeReprocessing.output_bqsr_reports
 
     File gvcf_summary_metrics = ExomeReprocessing.gvcf_summary_metrics
     File gvcf_detail_metrics = ExomeReprocessing.gvcf_detail_metrics

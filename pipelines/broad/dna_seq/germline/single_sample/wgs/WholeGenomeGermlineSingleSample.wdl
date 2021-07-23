@@ -38,11 +38,12 @@ import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 # WORKFLOW DEFINITION
 workflow WholeGenomeGermlineSingleSample {
 
-  String pipeline_version = "2.3.5"
+  String pipeline_version = "2.3.6"
 
   input {
     SampleAndUnmappedBams sample_and_unmapped_bams
     DNASeqSingleSampleReferences references
+    DragmapReference? dragmap_reference
     VariantCallingScatterSettings scatter_settings
     PapiSettings papi_settings
 
@@ -53,6 +54,10 @@ workflow WholeGenomeGermlineSingleSample {
 
     Boolean provide_bam_output = false
     Boolean use_gatk3_haplotype_caller = true
+    Boolean run_dragen_mode = false
+    Boolean use_spanning_event_genotyping = true
+    Boolean perform_bqsr = true
+    Boolean use_bwa_mem = true
   }
 
   # Not overridable:
@@ -67,6 +72,7 @@ workflow WholeGenomeGermlineSingleSample {
     input:
       sample_and_unmapped_bams    = sample_and_unmapped_bams,
       references                  = references,
+      dragmap_reference           = dragmap_reference,
       papi_settings               = papi_settings,
 
       contamination_sites_ud = references.contamination_sites_ud,
@@ -76,7 +82,9 @@ workflow WholeGenomeGermlineSingleSample {
       cross_check_fingerprints_by = cross_check_fingerprints_by,
       haplotype_database_file     = references.haplotype_database_file,
       lod_threshold               = lod_threshold,
-      recalibrated_bam_basename   = recalibrated_bam_basename
+      recalibrated_bam_basename   = recalibrated_bam_basename,
+      perform_bqsr                = perform_bqsr,
+      use_bwa_mem                 = use_bwa_mem
   }
 
   call AggregatedQC.AggregatedBamQC {
@@ -133,6 +141,8 @@ workflow WholeGenomeGermlineSingleSample {
 
   call ToGvcf.VariantCalling as BamToGvcf {
     input:
+      run_dragen_mode = run_dragen_mode,
+      use_spanning_event_genotyping = use_spanning_event_genotyping,
       calling_interval_list = references.calling_interval_list,
       evaluation_interval_list = references.evaluation_interval_list,
       haplotype_scatter_count = scatter_settings.haplotype_scatter_count,
@@ -143,6 +153,7 @@ workflow WholeGenomeGermlineSingleSample {
       ref_fasta = references.reference_fasta.ref_fasta,
       ref_fasta_index = references.reference_fasta.ref_fasta_index,
       ref_dict = references.reference_fasta.ref_dict,
+      ref_str = references.reference_fasta.ref_str,
       dbsnp_vcf = references.dbsnp_vcf,
       dbsnp_vcf_index = references.dbsnp_vcf_index,
       base_file_name = sample_and_unmapped_bams.base_file_name,
@@ -202,7 +213,7 @@ workflow WholeGenomeGermlineSingleSample {
     File raw_wgs_metrics = CollectRawWgsMetrics.metrics
 
     File duplicate_metrics = UnmappedBamToAlignedBam.duplicate_metrics
-    File output_bqsr_reports = UnmappedBamToAlignedBam.output_bqsr_reports
+    File? output_bqsr_reports = UnmappedBamToAlignedBam.output_bqsr_reports
 
     File gvcf_summary_metrics = BamToGvcf.vcf_summary_metrics
     File gvcf_detail_metrics = BamToGvcf.vcf_detail_metrics

@@ -18,6 +18,13 @@ struct ReferenceFasta {
   File ref_bwt
   File ref_ann
   File ref_pac
+  File? ref_str
+}
+
+struct DragmapReference {
+  File reference_bin
+  File reference_index_bin
+  File hash_table_cmp
 }
 
 struct DNASeqSingleSampleReferences {

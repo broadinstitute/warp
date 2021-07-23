@@ -173,7 +173,7 @@ workflow TargetedSomaticSingleSample {
     File? fingerprint_detail_metrics = AggregatedBamQC.fingerprint_detail_metrics
 
     File duplicate_metrics = UnmappedBamToAlignedBam.duplicate_metrics
-    File output_bqsr_reports = UnmappedBamToAlignedBam.output_bqsr_reports
+    File? output_bqsr_reports = UnmappedBamToAlignedBam.output_bqsr_reports
 
     File hybrid_selection_metrics = CollectHsMetrics.metrics
 
