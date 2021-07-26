@@ -18,7 +18,7 @@ workflow OptimusPostProcessing {
     String project_id
     String project_name
     String output_basename
-    String staging_area = "gs://broad-dsp-monster-hca-prod-lantern/"
+    String post_processing_staging_area = "gs://broad-dsp-monster-hca-prod-lantern/"
     String version_timestamp = "2021-05-24T12:00:00.000000Z"
   }
 
@@ -29,7 +29,7 @@ workflow OptimusPostProcessing {
   String project_stratum_string = "project=" + project_id + ";library=" + library[0] + ";species=" + species[0] + ";organ=" + organ[0]
 
   # Build staging bucket
-  String staging_bucket = staging_area + project_id + "/staging/"
+  String staging_bucket = post_processing_staging_area + project_id + "/staging/"
 
   call PostProcessing.CheckMetadata {
       input:
