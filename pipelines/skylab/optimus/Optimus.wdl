@@ -116,12 +116,7 @@ workflow Optimus {
     input:
       tsv_input = CellSort.tsv_output
   }
-  call Count.MergeCountFiles {
-    input:
-      sparse_count_matrices = CreateSparseCountMatrix.sparse_count_matrix,
-      row_indices = CreateSparseCountMatrix.row_index,
-      col_indices = CreateSparseCountMatrix.col_index
-  }
+
 
   call RunEmptyDrops.RunEmptyDrops {
     input:
@@ -130,6 +125,25 @@ workflow Optimus {
       col_index = MergeCountFiles.col_index,
       emptydrops_lower = emptydrops_lower
   }
+
+  call LoomUtils.OptimusLoomGeneration{
+    input:
+      input_id = input_id,
+      input_name = input_name,
+      input_id_metadata_field = input_id_metadata_field,
+      input_name_metadata_field = input_name_metadata_field,
+      annotation_file = annotations_gtf,
+      cell_metrics = MergeCellMetrics.cell_metrics,
+      gene_metrics = MergeGeneMetrics.gene_metrics,
+      sparse_count_matrix = MergeCountFiles.sparse_count_matrix,
+      cell_id = MergeCountFiles.row_index,
+      gene_id = MergeCountFiles.col_index,
+      empty_drops_result = RunEmptyDrops.empty_drops_result,
+      counting_mode = counting_mode,
+      pipeline_version = "Optimus_v~{pipeline_version}"
+  }
+
+
 
 
   output {

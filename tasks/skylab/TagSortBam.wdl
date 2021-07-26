@@ -33,7 +33,7 @@ task CellSortBam {
             --barcode-tag CB \
             --umi-tag UB \
             --gene-tag GE \
-            --temp-folder temp \
+            --temp-folder /tmp \
             --inmemory-chunk-size 20
   }
   
@@ -84,7 +84,7 @@ task GeneSortBam {
     --gene-tag GE \
     --barcode-tag CB \
     --umi-tag UB \
-    --temp-folder temp
+    --temp-folder /tmp
   }
 
   runtime {
