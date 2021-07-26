@@ -2,7 +2,7 @@ version 1.0
 
 task CheckMetadata {
   input {
-    Array[String] post_processing_library
+    Array[String] library
     Array[String] species
     Array[String] organ
 
@@ -15,7 +15,7 @@ task CheckMetadata {
   set -e pipefail
   python3 <<CODE
 
-  library_set = set([ "~{sep='", "' post_processing_library}" ])
+  library_set = set([ "~{sep='", "' library}" ])
   species_set = set([ "~{sep='", "' species}" ])
   organ_set = set([ "~{sep='", "' organ}" ])
 
@@ -58,7 +58,7 @@ task CheckMetadata {
 task MergeLooms {
   input {
     Array[File] library_looms
-    String post_processing_library
+    String library
     String species
     String organ
     String project_id
@@ -74,7 +74,7 @@ task MergeLooms {
   command {
     python3 /tools/optimus_HCA_loom_merge.py \
       --input-loom-files ~{sep=" " library_looms} \
-      --library "~{post_processing_library}" \
+      --library "~{library}" \
       --species "~{species}" \
       --organ "~{organ}" \
       --project-id "~{project_id}" \
