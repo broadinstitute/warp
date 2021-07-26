@@ -244,3 +244,30 @@ task ValidateOptimusLinksProjectLevel {
     disks: "local-disk 10 HDD"
   }
 }
+
+task ValidateOptimusMetadataProjectLevelAnalysisFiles {
+  input {
+    File optimus_metadata_analysis_file_project_loom_json
+    File optimus_metadata_analysis_file_project_loom_json_truth
+    }
+
+ command <<<
+       # catch intermittent failures
+       set -eo pipefail
+
+       #testing links/project.loom.json
+       diff "~{optimus_metadata_analysis_file_project_loom_json}" "~{optimus_metadata_analysis_file_project_loom_json_truth}"
+
+                if [ $? -ne 0 ];
+                then
+                 echo "error"
+                fi
+  >>>
+
+  runtime {
+    docker: "quay.io/humancellatlas/secondary-analysis-samtools:v0.2.2-1.6"
+    cpu: 1
+    memory: "3.75 GiB"
+    disks: "local-disk 10 HDD"
+  }
+}
