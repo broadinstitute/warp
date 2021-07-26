@@ -41,8 +41,8 @@ export default function Home() {
         location="bottom"
         buttonText="I understand"
         cookieName="warp-cookie"
-        style={{ background: "#3eaf7c", opacity: "90%" }}
-        buttonStyle={{ background: "#ffffff", color: "#3eaf7c", fontSize: "12px" }}
+        style={{ background: "#359448", opacity: "95%" }}
+        buttonStyle={{ background: "#ffffff", color: "#359448", fontSize: "12px" }}
         expires={30}
       >
         This website uses cookies for security and analytics purposes. By using this site, you agree to these uses.{" "}
