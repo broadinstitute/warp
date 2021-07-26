@@ -12,7 +12,7 @@ workflow OptimusPostProcessing {
     Array[File] library_looms
     Array[File] analysis_file_jsons
     Array[File] links_jsons
-    Array[String] post_processing_library
+    Array[String] library
     Array[String] species
     Array[String] organ
     String project_id
@@ -26,14 +26,14 @@ workflow OptimusPostProcessing {
   # version of this pipeline
   String pipeline_version = "1.0.0"
 
-  String project_stratum_string = "project=" + project_id + ";library=" + post_processing_library[0] + ";species=" + species[0] + ";organ=" + organ[0]
+  String project_stratum_string = "project=" + project_id + ";library=" + library[0] + ";species=" + species[0] + ";organ=" + organ[0]
 
   # Build staging bucket
   String staging_bucket = post_processing_staging_area + project_id + "/staging/"
 
   call PostProcessing.CheckMetadata {
       input:
-        library = post_processing_library,
+        library = library,
         species = species,
         organ = organ
   }
@@ -41,7 +41,7 @@ workflow OptimusPostProcessing {
   call PostProcessing.MergeLooms {
     input:
       library_looms = library_looms,
-      library = post_processing_library[0],
+      library = library[0],
       species = species[0],
       organ = organ[0],
       project_id = project_id,
