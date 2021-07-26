@@ -255,7 +255,7 @@ task ValidateOptimusMetadataProjectLevelAnalysisFiles {
        # catch intermittent failures
        set -eo pipefail
 
-       #testing links/project.loom.json
+       #testing metadata/analysis_file/project.loom.json
        diff "~{optimus_metadata_analysis_file_project_loom_json}" "~{optimus_metadata_analysis_file_project_loom_json_truth}"
 
                 if [ $? -ne 0 ];
@@ -283,7 +283,7 @@ task ValidateOptimusMetadataProjectLevelAnalysisProcess {
        # catch intermittent failures
        set -eo pipefail
 
-       #testing links/project.loom.json
+       #testing metadata/analysis_file/project.analyis_process.json
        diff "~{optimus_metadata_analysis_process_project_loom_json}" "~{optimus_metadata_analysis_process_project_loom_json_truth}"
 
                 if [ $? -ne 0 ];
@@ -310,7 +310,7 @@ task ValidateOptimusMetadataProjectLevelAnalysisProtocol {
        # catch intermittent failures
        set -eo pipefail
 
-       #testing links/project.loom.json
+       #testing metadata/analysis_file/project.analyis_protocol.json
        diff "~{optimus_metadata_analysis_protocol_project_loom_json}" "~{optimus_metadata_analysis_protocol_project_loom_json_truth}"
 
                 if [ $? -ne 0 ];
