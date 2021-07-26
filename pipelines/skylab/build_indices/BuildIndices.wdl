@@ -78,6 +78,7 @@ task BuildStar {
   }
 
   runtime {
+<<<<<<< HEAD
     docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
     memory: "50 GiB"
     disks :"local-disk 100 HDD"
@@ -131,6 +132,9 @@ task BuildStarSingleNucleus {
 
   runtime {
     docker: "quay.io/humancellatlas/snss2-indices:1.1.0 "
+=======
+    docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.8a"
+>>>>>>> 25ff0707f852e2a2959660598b5bfa8d0a857a68
     memory: "50 GiB"
     disks :"local-disk 100 HDD"
     cpu:"16"
@@ -374,7 +378,11 @@ workflow BuildIndices {
 
   # version of this pipeline
 
+<<<<<<< HEAD
   String pipeline_version = "0.1.0"
+=======
+  String pipeline_version = "0.0.1"
+>>>>>>> 25ff0707f852e2a2959660598b5bfa8d0a857a68
 
   parameter_meta {
     gtf_version: "the actual number of gencode, ex.  27"

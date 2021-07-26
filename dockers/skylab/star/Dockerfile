@@ -23,6 +23,7 @@ RUN apt update && apt install -y \
   r-base \
   r-base-core \
   r-base-dev 
+<<<<<<< HEAD
 WORKDIR /usr/local/
 RUN wget https://github.com/alexdobin/STAR/archive/refs/tags/2.7.9a.tar.gz && \
   tar -xf 2.7.9a.tar.gz
