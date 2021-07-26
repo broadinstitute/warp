@@ -66,29 +66,33 @@ task StarAlignBamSingleEnd {
 
 }
 
-task StarAlignFastqPairedEnd {
+task STARsoloFastq {
   input {
-    File fastq1
-    File fastq2
+    Array[File] r1_fastq
+    Array[File] r2_fastq
     File tar_star_reference
+    File white_list
+    String chemistry
+    String input_id
+    String counting_mode
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
     Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
-    Int disk = ceil((size(tar_star_reference, "Gi") * 2.5) + (size(fastq1, "Gi") * 5.0))
+    Int disk = ceil(size(r2_fastq, "Gi") * 2.5) + 500
     # by default request non preemptible machine to make sure the slow star alignment step completes
-    Int preemptible = 3
+    Int preemptible = 0
   }
 
   meta {
-    description: "Aligns reads in fastq1 and fastq2 to the reference genome in tar_star_reference"
+    description: "Aligns reads in bam_input to the reference genome in tar_star_reference"
   }
 
   parameter_meta {
-    fastq1: "trimmed R1 FASTQ file containing genomic sequence"
-    fastq2: "trimmed R2 FASTQ file containing genomic sequence"
+    r1_fastq: "input fastq file array"
+    r2_fastq: "input fastq file array"
     tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
@@ -100,21 +104,64 @@ task StarAlignFastqPairedEnd {
   command {
     set -e
 
+    UMILen=10
+    CBLen=16
+    if [ "${chemistry}" == "tenX_v2" ]
+    then
+        ## V2
+        UMILen=10
+        CBLen=16
+    elif [ "${chemistry}" == "tenX_v3" ]
+    then
+        ## V3
+        UMILen=12
+        CBLen=16
+    else
+        echo Error: unknown chemistry value: "$chemistry"
+        exit 1;
+    fi
+
+
+    COUNTING_MODE=""
+    if [ "${counting_mode}" == "sc_rna" ]
+    then
+        ## single cell or whole cell
+        COUNTING_MODE="Gene"
+    elif [ "${counting_mode}" == "sn_rna" ]
+    then
+        ## single nuclei
+        COUNTING_MODE="GeneFull"
+    else
+        echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
+        exit 1;
+    fi
+
     # prepare reference
     mkdir genome_reference
     tar -xf "${tar_star_reference}" -C genome_reference --strip-components 1
     rm "${tar_star_reference}"
 
+    echo "UMI LEN " $UMILen 
     STAR \
-      --genomeDir genome_reference \
+      --soloType Droplet \
+      --soloStrand Unstranded \
       --runThreadN ${cpu} \
-      --readFilesIn ~{fastq1} ~{fastq2} \
+      --genomeDir genome_reference \
+      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
       --readFilesCommand "gunzip -c" \
+      --soloCBwhitelist ~{white_list} \
+      --soloUMIlen $UMILen --soloCBlen $CBLen \
+      --soloFeatures $COUNTING_MODE \
+      --clipAdapterType CellRanger4 \
+      --outFilterScoreMin 30  \
+      --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
+      --soloUMIdedup 1MM_Directional_UMItools \
       --outSAMtype BAM SortedByCoordinate \
-      --outReadsUnmapped Fastx \
-      --runRNGseed 777 \
-      --limitBAMsortRAM 10000000000 \
-      --quantMode GeneCounts 
+      --outSAMattributes UB UR UY CR CB CY NH GX GN
+    
+    # zip the raw count matrix with the counts, gene names and the barcodes
+    zip -j raw_count_matrix.zip  Solo.out/Gene/raw/*
+
   }
 
   runtime {
@@ -126,7 +173,8 @@ task StarAlignFastqPairedEnd {
   }
 
   output {
-    File output_bam = "Aligned.sortedByCoord.out.bam"
+    File bam_output = "Aligned.out.bam"
+    File alignment_log = "Log.final.out"
+    File raw_count_matrix = "raw_count_matrix.zip"
   }
-
 }

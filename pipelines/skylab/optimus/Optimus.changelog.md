@@ -1,3 +1,8 @@
+# 5.0.0
+2021-07-26 
+
+* Replaced STAR alignment with STARsolo and modified the structure of the wdl to utilize the umi and barcode correction from STARsolo.
+
 # 4.2.6
 2021-07-19 (Date of Last Commit)
 
