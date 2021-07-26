@@ -2,22 +2,22 @@ version 1.0
 
 task CalculateGeneMetrics {
   input {
-    File bam_input
+    File tsv_input
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11"
+    String docker = "quay.io/humancellatlas/secondary-analysis-python3-scientific:sctools-optimized"
     Int machine_mem_mb = 30000
     Int cpu = 1
-    Int disk = ceil(size(bam_input, "Gi") * 4)
+    Int disk = ceil(size(tsv_input, "Gi") * 4)
     Int preemptible = 3
   }
 
   meta {
-    description: "Calculate gene metrics from the reads in bam_input."
+    description: "Calculate gene metrics from data in tsv_input."
   }
 
   parameter_meta {
-    bam_input: "an aligned bam file augmented with CB, UB, GE, CY, UY, and XF tags."
+    tsv_input: "a tsv files with sorted tags according to the order of GE, CB and UB."
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
@@ -28,7 +28,7 @@ task CalculateGeneMetrics {
   command {
     set -e
 
-    CalculateGeneMetrics -i "${bam_input}" -o gene-metrics.csv.gz
+    CalculateGeneMetricsFast -i "${tsv_input}" -o gene-metrics.csv.gz
   }
 
   runtime {
@@ -46,23 +46,22 @@ task CalculateGeneMetrics {
 
 task CalculateCellMetrics {
   input {
-    File bam_input
-    File original_gtf
+    File tsv_input
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11"
+    String docker = "quay.io/humancellatlas/secondary-analysis-python3-scientific:sctools-optimized"
     Int machine_mem_mb = 45000
     Int cpu = 1
-    Int disk = ceil(size(bam_input, "Gi") * 2)
+    Int disk = ceil(size(tsv_input, "Gi") * 2)
     Int preemptible = 3
   }
 
   meta {
-    description: "Calculate cell metrics from the reads in bam_input."
+    description: "Calculate cell metrics from data in tsv_input."
   }
 
   parameter_meta {
-    bam_input: "An aligned bam file augmented with CB, UB, GE, CY, UY, and XF tags."
+    tsv_input: "A tsv file augmented with CB, UB and GE tags."
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
@@ -73,7 +72,7 @@ task CalculateCellMetrics {
   command {
     set -e
 
-    CalculateCellMetrics -i "${bam_input}" -o cell-metrics.csv.gz --gtf-annotation-file "${original_gtf}"
+    CalculateCellMetricsFast -i "~{tsv_input}" -a t -o cell-metrics.csv.gz
   }
 
   runtime {

@@ -1,17 +1,17 @@
 version 1.0
 
-import "MergeSortBam.wdl" as Merge
-import "CreateCountMatrix.wdl" as Count
-import "StarAlign.wdl" as StarAlign
-import "TagGeneExon.wdl" as TagGeneExon
-import "SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
-import "TagSortBam.wdl" as TagSortBam
-import "RunEmptyDrops.wdl" as RunEmptyDrops
-import "LoomUtils.wdl" as LoomUtils
-import "Picard.wdl" as Picard
-import "UmiCorrection.wdl" as UmiCorrection
-import "ModifyGtf.wdl" as ModifyGtf
-import "OptimusInputChecks.wdl" as OptimusInputChecks
+import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
+import "../../../tasks/skylab/CreateCountMatrix.wdl" as Count
+import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
+import "../../../tasks/skylab/TagGeneExon.wdl" as TagGeneExon
+import "../../../tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
+import "../../../tasks/skylab/TagSortBam.wdl" as TagSortBam
+import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
+import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/skylab/Picard.wdl" as Picard
+import "../../../tasks/skylab/UmiCorrection.wdl" as UmiCorrection
+import "../../../tasks/skylab/ModifyGtf.wdl" as ModifyGtf
+import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
 
 workflow Optimus {
   meta {
@@ -97,11 +97,40 @@ workflow Optimus {
       input_id = input_id,
       counting_mode = counting_mode
   }
-
-  call ModifyGtf.ReplaceGeneNameWithGeneID as ModifyGtf {
+  call TagSortBam.GeneSortBam as GeneSort {
     input:
-      original_gtf = annotations_gtf
+      bam_input = STARsoloFastq.bam_output
   }
+
+  call Metrics.CalculateGeneMetrics {
+    input:
+      tsv_input = GeneSort.tsv_output
+  }
+
+  call TagSortBam.CellSortBam as CellSort {
+    input:
+      bam_input = STARsoloFastq.bam_output
+  }
+
+  call Metrics.CalculateCellMetrics {
+    input:
+      tsv_input = CellSort.tsv_output
+  }
+  call Count.MergeCountFiles {
+    input:
+      sparse_count_matrices = CreateSparseCountMatrix.sparse_count_matrix,
+      row_indices = CreateSparseCountMatrix.row_index,
+      col_indices = CreateSparseCountMatrix.col_index
+  }
+
+  call RunEmptyDrops.RunEmptyDrops {
+    input:
+      sparse_count_matrix = MergeCountFiles.sparse_count_matrix,
+      row_index = MergeCountFiles.row_index,
+      col_index = MergeCountFiles.col_index,
+      emptydrops_lower = emptydrops_lower
+  }
+
 
   output {
     # version of this pipeline
