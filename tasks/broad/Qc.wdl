@@ -15,8 +15,6 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-# Non-functional change for testing purposes
-
 # Collect sequencing yield quality metrics
 task CollectQualityYieldMetrics {
   input {
@@ -583,11 +581,12 @@ task ValidateVCF {
     File ref_fasta
     File ref_fasta_index
     File ref_dict
-    File dbsnp_vcf
-    File dbsnp_vcf_index
+    File? dbsnp_vcf
+    File? dbsnp_vcf_index
     File calling_interval_list
-    Int preemptible_tries
+    Int preemptible_tries = 3
     Boolean is_gvcf = true
+    String? extra_args
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
   }
 
@@ -602,7 +601,8 @@ task ValidateVCF {
       -L ~{calling_interval_list} \
       ~{true="-gvcf" false="" is_gvcf} \
       --validation-type-to-exclude ALLELES \
-      --dbsnp ~{dbsnp_vcf}
+      ~{"--dbsnp " + dbsnp_vcf} \
+      ~{extra_args}
   }
   runtime {
     docker: gatk_docker
