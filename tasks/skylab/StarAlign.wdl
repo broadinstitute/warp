@@ -159,9 +159,11 @@ task STARsoloFastq {
       --outSAMtype BAM SortedByCoordinate \
       --outSAMattributes UB UR UY CR CB CY NH GX GN
     
-    # zip the raw count matrix with the counts, gene names and the barcodes
-    zip -j raw_count_matrix.zip  Solo.out/Gene/raw/*
-
+    # create the  compresed raw count matrix with the counts, gene names and the barcodes
+    python create-npz-output.py \
+        --barcodes Solo.out/Gene/raw/barcodes.tsv \
+        --features Solo.out/Gene/raw/features.tsv \
+        --matrix Solo.out/Gene/raw/matrix.mtx 
   }
 
   runtime {
@@ -175,6 +177,8 @@ task STARsoloFastq {
   output {
     File bam_output = "Aligned.out.bam"
     File alignment_log = "Log.final.out"
-    File raw_count_matrix = "raw_count_matrix.zip"
+    File sparse_counts_row_index = "sparse_counts_row_index.npy"
+    File sparse_counts_col_index = "sparse_counts_col_index.npy"
+    File sparse_counts = "sparse_counts.npz"
   }
 }

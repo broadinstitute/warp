@@ -24,11 +24,15 @@ RUN apt update && apt install -y \
   r-base-core \
   r-base-dev 
 WORKDIR /usr/local/
+
 RUN wget https://github.com/alexdobin/STAR/archive/refs/tags/2.7.9a.tar.gz && \
   tar -xf 2.7.9a.tar.gz
 RUN chmod +x /usr/local/STAR-2.7.9a/bin/Linux_x86_64_static/STAR
 ENV PATH /usr/local/STAR-2.7.9a/bin/Linux_x86_64_static/:$PATH
 RUN cp /usr/local/STAR-2.7.9a/bin/Linux_x86_64_static/STAR /usr/local/bin
 
+
 WORKDIR /
 RUN rm -rf /build
+COPY create-npz-output.py .
+
