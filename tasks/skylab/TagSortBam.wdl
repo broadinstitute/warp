@@ -90,7 +90,7 @@ task GeneSortBam {
   runtime {
     docker: docker
     memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ${disk} HDD"
+    disks: "local-disk ${disk} HDD" #TODO: make it an input
     cpu: cpu
     preemptible: preemptible
   }

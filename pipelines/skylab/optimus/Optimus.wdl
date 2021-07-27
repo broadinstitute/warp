@@ -1,16 +1,11 @@
 version 1.0
 
-import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
-import "../../../tasks/skylab/CreateCountMatrix.wdl" as Count
 import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
-import "../../../tasks/skylab/TagGeneExon.wdl" as TagGeneExon
 import "../../../tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
 import "../../../tasks/skylab/TagSortBam.wdl" as TagSortBam
 import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
-import "../../../tasks/skylab/Picard.wdl" as Picard
-import "../../../tasks/skylab/UmiCorrection.wdl" as UmiCorrection
-import "../../../tasks/skylab/ModifyGtf.wdl" as ModifyGtf
+import "../../../tasks/skylab/ConvertStarOutput.wdl" as ConvertStarOutput
 import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
 
 workflow Optimus {
@@ -116,13 +111,18 @@ workflow Optimus {
     input:
       tsv_input = CellSort.tsv_output
   }
-
+  call ConvertStarOutput.ConvertStarOutput as ConvertOutputs{
+    input:
+      barcodes = STARsoloFastq.barcodes,
+      features = STARsoloFastq.features,
+      matrix = STARsoloFastq.matrix
+  }
 
   call RunEmptyDrops.RunEmptyDrops {
     input:
-      sparse_count_matrix = MergeCountFiles.sparse_count_matrix,
-      row_index = MergeCountFiles.row_index,
-      col_index = MergeCountFiles.col_index,
+      sparse_count_matrix = ConvertOutputs.sparse_count_matrix,
+      row_index = ConvertOutputs.row_index,
+      col_index = ConvertOutputs.col_index,
       emptydrops_lower = emptydrops_lower
   }
 

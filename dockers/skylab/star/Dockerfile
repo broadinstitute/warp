@@ -22,7 +22,7 @@ RUN apt update && apt install -y \
   libncurses5-dev \
   r-base \
   r-base-core \
-  r-base-dev 
+  r-base-dev
 WORKDIR /usr/local/
 
 RUN wget https://github.com/alexdobin/STAR/archive/refs/tags/2.7.9a.tar.gz && \
