@@ -18,14 +18,15 @@ This style guide provides formatting guidelines and best practices for writing D
 
 ## <a name="overview"></a> Overview
 
-WARP maintains a collection of docker images which are used as execution environements for various cloud-optimized data processing pipelines. Many of these image require specific sets of tools and dependencies to run and can be thought of as _custom_ images rather than traditional application images. 
-Building and maintaining these images can be challenging; this document provides a set of guidelines to assist in developing docker iamges for WARP.
+WARP maintains a collection of docker images which are used as execution environments for various cloud-optimized data processing pipelines. Many of these image require specific sets of tools and dependencies to run and can be thought of as _custom_ images rather than traditional application images. 
+Building and maintaining these images can be challenging; this document provides a set of guidelines to assist in developing docker images for WARP.
 
 ## <a name="goals"></a> Goals
 
 The following are some goals/guidelines we want to strive for when writing our Dockerfiles.
 
 ### <a name="small"></a> Small images
+---
 
 Building a smaller image offers advantages such as faster upload and download times along with reduced storage costs and minimized attack vector. Two of the easiest ways to minimize the size of your image is to use a small base image and to reduce the number of layers in your image.
 
@@ -61,3 +62,5 @@ RUN set eux; \
 # Must clean up cache manually with Debian
     apt-get clean && rm -rf /var/lib/apt/list/*
 ```
+
+#### <a name="minimal-run"></a> Minimal RUN steps
