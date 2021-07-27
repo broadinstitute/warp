@@ -201,6 +201,7 @@ task Reblock {
   runtime {
     memory: "3.75 GB"
     disks: "local-disk " + disk_size + " HDD"
+    bootDiskSizeGb: 15
     preemptible: 3
     docker: docker_image
   }
