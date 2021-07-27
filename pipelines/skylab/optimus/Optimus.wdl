@@ -97,7 +97,7 @@ workflow Optimus {
       bam_input = STARsoloFastq.bam_output
   }
 
-  call Metrics.CalculateGeneMetrics {
+  call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
       tsv_input = GeneSort.tsv_output
   }
@@ -107,11 +107,11 @@ workflow Optimus {
       bam_input = STARsoloFastq.bam_output
   }
 
-  call Metrics.CalculateCellMetrics {
+  call Metrics.CalculateCellMetrics as CellMetrics{
     input:
       tsv_input = CellSort.tsv_output
   }
-  call ConvertStarOutput.ConvertStarOutput as ConvertOutputs{
+  call ConvertStarOutput.ConvertStarOutput as ConvertOutputs {
     input:
       barcodes = STARsoloFastq.barcodes,
       features = STARsoloFastq.features,
@@ -120,7 +120,7 @@ workflow Optimus {
 
   call RunEmptyDrops.RunEmptyDrops {
     input:
-      sparse_count_matrix = ConvertOutputs.sparse_count_matrix,
+      sparse_count_matrix = ConvertOutputs.sparse_counts,
       row_index = ConvertOutputs.row_index,
       col_index = ConvertOutputs.col_index,
       emptydrops_lower = emptydrops_lower
@@ -133,11 +133,11 @@ workflow Optimus {
       input_id_metadata_field = input_id_metadata_field,
       input_name_metadata_field = input_name_metadata_field,
       annotation_file = annotations_gtf,
-      cell_metrics = MergeCellMetrics.cell_metrics,
-      gene_metrics = MergeGeneMetrics.gene_metrics,
-      sparse_count_matrix = MergeCountFiles.sparse_count_matrix,
-      cell_id = MergeCountFiles.row_index,
-      gene_id = MergeCountFiles.col_index,
+      cell_metrics = CellMetrics.cell_metrics,
+      gene_metrics = GeneMetrics.gene_metrics,
+      sparse_count_matrix = ConvertOutputs.sparse_counts,
+      cell_id = ConvertOutputs.row_index,
+      gene_id = ConvertOutputs.col_index,
       empty_drops_result = RunEmptyDrops.empty_drops_result,
       counting_mode = counting_mode,
       pipeline_version = "Optimus_v~{pipeline_version}"

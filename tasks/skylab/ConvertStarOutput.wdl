@@ -47,8 +47,8 @@ task ConvertStarOutput {
   }
 
   output {
-    File sparse_counts_row_index = "sparse_counts_row_index.npy"
-    File sparse_counts_col_index = "sparse_counts_col_index.npy"
+    File row_index = "sparse_counts_row_index.npy"
+    File col_index = "sparse_counts_col_index.npy"
     File sparse_counts = "sparse_counts.npz"
   }
 }
