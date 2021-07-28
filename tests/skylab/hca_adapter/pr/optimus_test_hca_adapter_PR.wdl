@@ -2,7 +2,7 @@ version 1.0
 
 import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/beta-pipelines/skylab/hca_adapter/getTerraMetadata.wdl" as target_adapter
 import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/tests/skylab/hca_adapter/pr/ValidateHcaAdapter.wdl" as checker_adapter
-import "https://raw.githubusercontent.com/broadinstitute/warp/master/projects/hca_mvp/OptimusPostProcessing.wdl" as target_OptimusPostProcessing
+import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/projects/hca_mvp/OptimusPostProcessing.wdl" as target_OptimusPostProcessing
 
 # this workflow will be run by the jenkins script that gets executed by PRs.
 workflow TestHcaAdapter {
@@ -38,19 +38,6 @@ workflow TestHcaAdapter {
     Array[String] species
     String staging_area
 
-    #optimus post processing inputs
-    Array[File] library_looms
-    Array[File] analysis_file_jsons
-    Array[File] links_jsons
-    Array[String] post_processing_library
-    Array[String] species
-    Array[String] organ
-    String project_id
-    String project_name
-    String output_basename
-    String staging_area = "gs://fc-c307d7b3-8386-40a1-b32c-73b9e16e0103/"
-    String version_timestamp = "2021-05-24T12:00:00.000000Z"
-
     #optimus truth inputs
     File optimus_descriptors_analysis_file_intermediate_loom_json
     File optimus_metadata_analysis_file_intermediate_bam_json
@@ -61,13 +48,25 @@ workflow TestHcaAdapter {
     File optimus_descriptors_analysis_file_intermediate_bam_json
     File optimus_metadata_analysis_file_intermediate_loom_json
     File optimus_descriptors_analysis_file_intermediate_reference_json
-
-    #optimus project level truth
     File optimus_descriptors_analysis_file_project_loom_json
     File optimus_links_project_loom_json
     File optimus_metadata_analysis_file_project_loom_json
     File optimus_metadata_analysis_process_project_loom_json
     File optimus_metadata_analysis_protocol_project_loom_json
+
+    #optimus post processing inputs
+    Array[File] library_looms
+    Array[File] analysis_file_jsons
+    Array[File] links_jsons
+    Array[String] post_processing_library
+    Array[String] species
+    Array[String] organ
+    String project_id
+    String project_name
+    String output_basename
+    String post_processing_staging_area = "gs://fc-c307d7b3-8386-40a1-b32c-73b9e16e0103/"
+    String version_timestamp = "2021-05-24T12:00:00.000000Z"
+
 
   }
 
@@ -144,49 +143,62 @@ workflow TestHcaAdapter {
     input:
       optimus_metadata_analysis_protocol_file_intermediate_json=target_adapter.analysis_protocol,
       optimus_metadata_analysis_protocol_file_intermediate_json_truth=optimus_metadata_analysis_protocol_file_intermediate_json
-  }
 
+  }
   call target_OptimusPostProcessing.OptimusPostProcessing as target_OptimusPostProcessing {
     input:
       library_looms=library_looms,
       analysis_file_jsons=analysis_file_jsons,
       links_jsons=links_jsons,
-      library=post_processing_library,
+      post_processing_library=post_processing_library,
       species=species,
       organ=organ,
       project_id=project_id,
       project_name=project_name,
       output_basename=output_basename,
-      staging_area=staging_area,
-      version_timestamp=version_timestamp
+      post_processing_staging_area=post_processing_staging_area,
+	  version_timestamp=version_timestamp
      }
 
-    call checker_adapter.ValidateOptimusDescriptorProjectLevelAnalysisFiles as checker_adapter_optimus_project_descriptors {
+  call checker_adapter.ValidateOptimusDescriptorProjectLevelAnalysisFiles as checker_adapter_optimus_project_descriptors {
        input:
          optimus_descriptors_analysis_file_project_loom_json=target_OptimusPostProcessing.json_adapter_files[3],
-         optimus_descriptors_analysis_file_project_loom_json_truth=optimus_descriptors_analysis_file_project_loom_json,
+         optimus_descriptors_analysis_file_project_loom_json_truth=optimus_descriptors_analysis_file_project_loom_json
      }
 
-    call checker_adapter.ValidateOptimusLinksProjectLevel as checker_adapter_optimus_project_links {
+  call checker_adapter.ValidateOptimusLinksProjectLevel as checker_adapter_optimus_project_links {
        input:
          optimus_links_project_loom_json=target_OptimusPostProcessing.json_adapter_files[4],
-         optimus_links_project_loom_json_truth=optimus_links_project_loom_json,
+         optimus_links_project_loom_json_truth=optimus_links_project_loom_json
      }
 
-    call checker_adapter.ValidateOptimusMetadataProjectLevelAnalysisFiles as checker_adapter_optimus_project_metadata {
+ call checker_adapter.ValidateOptimusMetadataProjectLevelAnalysisFiles as checker_adapter_optimus_project_metadata {
       input:
         optimus_metadata_analysis_file_project_loom_json=target_OptimusPostProcessing.json_adapter_files[0],
-        optimus_metadata_analysis_file_project_loom_json_truth=optimus_metadata_analysis_file_project_loom_json,
+        optimus_metadata_analysis_file_project_loom_json_truth=optimus_metadata_analysis_file_project_loom_json
     }
 
-    call checker_adapter.ValidateOptimusMetadataProjectLevelAnalysisProcess as checker_adapter_optimus_project_metadata_analysis_process {
+ call checker_adapter.ValidateOptimusMetadataProjectLevelAnalysisProcess as checker_adapter_optimus_project_metadata_analysis_process {
       input:
         optimus_metadata_analysis_process_project_loom_json=target_OptimusPostProcessing.json_adapter_files[1],
-        optimus_metadata_analysis_process_project_loom_json_truth=optimus_metadata_analysis_process_project_loom_json,
+        optimus_metadata_analysis_process_project_loom_json_truth=optimus_metadata_analysis_process_project_loom_json
     }
-    call checker_adapter.ValidateOptimusMetadataProjectLevelAnalysisProtocol as checker_adapter_optimus_project_metadata_analysis_protocol {
-      input:
-        optimus_metadata_analysis_protocol_project_loom_json=target_OptimusPostProcessing.json_adapter_files[2],
-        optimus_metadata_analysis_protocol_project_loom_json_truth=optimus_metadata_analysis_protocol_project_loom_json,
-    }
+
+ call checker_adapter.ValidateOptimusMetadataProjectLevelAnalysisProtocol as checker_adapter_optimus_project_metadata_analysis_protocol {
+       input:
+         optimus_metadata_analysis_protocol_project_loom_json=target_OptimusPostProcessing.json_adapter_files[2],
+         optimus_metadata_analysis_protocol_project_loom_json_truth=optimus_metadata_analysis_protocol_project_loom_json
+   }
+
+   output {
+    Array[File] analysis_file = target_adapter.analysis_file
+    File analysis_process = target_adapter.analysis_process
+    File analysis_protocol = target_adapter.analysis_protocol
+    Array[File] analysis_output = target_adapter.analysis_output
+    File reference_genome = target_adapter.reference_genome
+    File reference_genome_reference_file = target_adapter.reference_genome_reference_file
+    File reference_genome_descriptor = target_adapter.reference_genome_descriptor
+    Array[File] analysis_file_descriptor = target_adapter.analysis_file_descriptor
+    File links = target_adapter.links
+   }
 }
