@@ -101,7 +101,7 @@ For anybody to be able to pull our images they must be hosted on a public contai
 * GCR - `us.gcr.io/broad-gotc-prod`
 * Quay - `quay.io/broadinstitute/broad-gotc-prod`
 
-For anybody to be able to build our images all of the functionality should be encapsulated in the Dockerfile. Any custom software packages, dependencies etc. have to be downloaed from public links within the Dockerfile, this obviously means that we should not be copying files from within the Broad network infrastucture into our images.
+For anybody to be able to build our images all of the functionality should be encapsulated in the Dockerfile. Any custom software packages, dependencies etc. have to be downloaded from public links within the Dockerfile, this obviously means that we should not be copying files from within the Broad network infrastucture into our images.
 
 ### <a name="scanning"></a> Image scanning
 
@@ -131,7 +131,7 @@ FROM alpine:3.9
 
 RUN set eux; 
         apk add --no-cache \
-        tini
+            tini
 
 ENTRYPOINT ["/sbin/tini" , "--"]
 ```
