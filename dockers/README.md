@@ -138,7 +138,7 @@ ENTRYPOINT ["/sbin/tini" , "--"]
 
 ## <a name="build"></a> Build Scripts and README
 
-To make life easier when building and pushing our images we like to have an easy to use `docker_build.sh` that sits next to each Dockerfile. These scripts should have configurable inputs for the version of tools(samtools, picard, zcall etc.) being used in the image. Additionally we like to keep a record of the versions built and being used by writing the images to the accompanying `docker_versions.tsv`. 
+To make life easier when building and pushing our images we like to have an easy-to-use `docker_build.sh` that sits next to each Dockerfile. These scripts should have configurable inputs for the version of tools (samtools, picard, zcall, etc.) being used in the image. Additionally, we like to keep a record of the versions built and being used by writing the images to the accompanying `docker_versions.tsv`.
 
 For first time users of these images it is helpful to have a README which gives a high-level overview of the image.
 
