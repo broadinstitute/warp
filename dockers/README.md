@@ -9,11 +9,11 @@ This style guide provides formatting guidelines and best practices for writing D
   * [Small images](#small) 
     * [Alpine base](#alpine)
     * [Minimal RUN steps](#minimal-run)
-  * [Publicly accesible](#publicly)
+  * [Publicly accessible](#publicly)
   * [Image scanning](#scanning)
   * [Semantic tagging](#semantic)
-  * [Proper signal handling](#signal)
-* [Build Scripts](#build)
+  * [Proper process reaping](#process)
+* [Build Scripts and README](#build)
 * [Formatting](#formatting)
 
 ## <a name="overview"></a> Overview
@@ -42,15 +42,7 @@ There are some instances where a Debian base image is unavoidable, specifically 
 ##### :eyes: Example
 ```dockerfile
 
-# GOOD
-FROM alpine:3.9
-
-RUN set eux; \
-        apk add --no-cache \
-            curl \
-            bash \
-
-# OKAY, NOT GREAT
+#OKAY, NOT GREAT
 FROM python:debian
 
 RUN set eux; \
@@ -61,6 +53,173 @@ RUN set eux; \
     ; \
 # Must clean up cache manually with Debian
     apt-get clean && rm -rf /var/lib/apt/list/*
+
+# GOOD
+FROM alpine:3.9
+
+RUN set eux; \
+        apk add --no-cache \
+            curl \
+            bash \
+
+#
 ```
 
 #### <a name="minimal-run"></a> Minimal RUN steps
+
+Having minimal `RUN`steps (ideally one) is another highly effective way to reduce the size of your image. Each instruction in a Dockerfile creates a [layer](https://docs.docker.com/storage/storagedriver/) and these layers are what add up to build the final image.
+When you use multple `RUN` steps it creates additional unnecessary layers and bloats your image.
+
+An alternative to having a single `RUN` step is to use [multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/) which are effective when the application your are containerizing is just a statically linked binary. 
+Just to note, many of the images maintained in WARP require a handful of system-level dependencies and custom packages so multi-stages builds are typically not used.
+
+##### :eyes: Example
+```dockerfile
+
+# BAD
+RUN set eux
+RUN apk add --no-cache curl bash wget
+RUN wget https://www.somezipfile.com/zip
+RUN unzip zip
+
+# GOOD
+RUN set eux; \
+        apk add --no-cache \
+            curl \
+            bash \
+    ; \ 
+    wget https://www.somezipfile.com/zip; \
+    unzip zip
+```
+
+### <a name="publicly"></a> Publicly accessible
+---
+The pipelines that we maintain in WARP are designed for public use, ideally we would like our docker images to be publicly available as well. This would mean the following conditions must be true.
+
+* Anybody can pull our images
+* Anybody can build our images
+
+For anybody to be able to pull our images they must be hosted on a public container registry, we host all of our images in publics repos on GCR (our 'official' location) and Quay (for discoverability).
+
+* GCR - `us.gcr.io/broad-gotc-prod`
+* Quay - `quay.io/broadinstitute/broad-gotc-prod`
+
+For anybody to be able to build our images all of the functionality should be encapsulated in the Dockerfile. Any custom software packages, dependencies etc. have to be downloaed from public links within the Dockerfile, this obviously means that we should not be copying files from within the Broad network infrastucture into our images.
+
+### <a name="scanning"></a> Image scanning
+---
+
+All of the images that we build are scanned for critical vulnerabilities on every pull request. For this we use a github-action that leverages [trivy](https://github.com/aquasecurity/trivy) for scanning. If you build a new image please add it to the action [here](../.github/workflows/trivy.yml).
+
+### <a name="semantic"></a> Semantic tagging
+---
+
+We recommend against using rolling tags like `master` or `latest` when building images. Rolling tags make it hard to track down versions of images since the underlying image hash and content could be different across the same tags. Instead we ask that you use a semantic tag that follows the convention below:
+
+##### `us.gcr.io/broad-gotc-prod/samtools:<image-version>-<samtools-version>-<unix-timestamp>` 
+
+This example is for an image we use containing `samtools`. The 'image-version' in this case is the traditional `major.minor.patch` version of the image being built, which is updated when changes to the image (underlying OS, system level packages, etc.) unrelated to `samtools` are made. The 'samtools-version' here correlates with the specific version of `samtools` being used, having this information in the tag makes it easy for users to identify and not have to track down.
+
+### <a name="process"></a> Proper process reaping
+---
+
+Classic init systems like systemd are used to reap orphaned, zombie processes. Typically these orphaned processes are reattached to the process at PID 1 which will reap them when they die. In a container this responsibility falls to process at PID 1 which is by default `/bin/sh`...this obviously will not handle process reaping. Because of this you run the risk of expending excess memory or resources within your container. A simple solution to this is to use `tini` in all of our images, a lengthy explanation of what this package does can be found [here](https://github.com/krallin/tini/issues/8).
+
+Luckily `tini` is available natively through APK so all you have to do is install it and set it as the default entrypoint!
+
+##### :eyes: Example
+```dockerfile
+
+FROM alpine:3.9
+
+RUN set eux; 
+        apk add --no-cache \
+        tini
+
+ENTRYPOINT ["/sbin/tini" , "--"]
+```
+
+## <a name="build"></a> Build Scripts and ReadME
+
+To make life easier when building and pushing our images we like to have an easy to use `docker_build.sh` that sits next to each Dockerfile. These scripts should have configurable inputs for the version of tools(samtools, picard, zcall etc.) being used in the image. Additionally we like to keep a record of the versions built and being used by writing the images to the accompanying `docker_versions.tsv`. 
+
+For first time users of these images it is helpful to have a README which gives a high-level overview of the image.
+
+See the examples for samtools([docker_build](./broad/samtools/docker_build.sh), [docker_versions](./broad/samtools/docker_versions.tsv), [README](./broad/samtools/README.md))
+
+## Formatting
+
+Formatting our Dockerfiles consistenty helps improve readability and eases maintenance headaches down the road. The following are a couple of tenants that we follow when writing our Dockerfiles:
+
+* ARGS, ENV, LABEL in that order
+* Always add versions of tools in the LABEL
+* Single RUN steps
+* Alphabetize package install
+* Clean up package index cache
+* Use ; instead of && for line continuation
+* Logically seperate steps within RUN
+* Four spaces per tab indent
+* Short comments to describe each step
+* tini is always default entrypoint
+
+The following is a good example for our `verify_bam_id` image. This Dockerfile shows how to install packages, install tini and clean up cached index files for a debian base image.
+
+##### :eyes: Example
+```dockerfile
+# Have to use debian based image, many of the installed packages here are not available in Alpine
+FROM us.gcr.io/broad-dsp-gcr-public/base/python:debian
+
+ARG GIT_HASH=c1cba76e979904eb69c31520a0d7f5be63c72253
+
+ENV TERM=xterm-256color \
+    BAMID_URL=https://github.com/Griffan/VerifyBamID/archive \
+    TINI_VERSION=v0.19.0
+
+LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>" \
+        GIT_HASH=${GIT_HASH}
+
+WORKDIR /usr/gitc
+
+# Install dependencies
+RUN set eux; \
+        apt-get update; \
+        apt-get install -y \ 
+            autoconf \
+            cmake \
+            g++ \
+            gcc \
+            git \        
+            zlib1g-dev \
+            libcurl4-openssl-dev \
+            libssl-dev libbz2-dev \
+            libhts-dev \
+            unzip \
+            wget \
+    ; \
+# Install BamID
+    wget ${BAMID_URL}/${GIT_HASH}.zip; \
+    unzip ${GIT_HASH}.zip; \
+    \
+    cd VerifyBamID-${GIT_HASH}; \
+    mkdir build;  \
+    cd build; \
+    CC=$(which gcc) CXX=$(which g++) cmake ..; \
+    \
+    cmake; \
+    make; \
+    make test; \
+    \
+    cd ../../; \
+    mv VerifyBamID-${GIT_HASH}/bin/VerifyBamID .; \
+    rm -rf ${GIT_HASH}.zip VerifyBamID-${GIT_HASH} \
+    ; \
+# Install tini
+    wget https://github.com/krallin/tini/releases/download/$TINI_VERSION/tini -O /sbin/tini; \
+    chmod +x /sbin/tini \
+    ; \
+# Clean up cached files
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Set tini as default entrypoint
+ENTRYPOINT [ "/sbin/tini", "--" ]
+```
