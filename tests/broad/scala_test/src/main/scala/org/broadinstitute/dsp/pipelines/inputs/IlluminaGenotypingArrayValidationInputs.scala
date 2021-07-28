@@ -8,15 +8,17 @@ import io.circe.generic.extras.semiauto.{
   deriveConfiguredEncoder
 }
 
-object SingleSampleArraysValidationInputs
-    extends EncodableInputs[SingleSampleArraysValidationInputs] {
-  override def workflowNames: Seq[String] = Seq("VerifyArrays")
-  override implicit val decoder: Decoder[SingleSampleArraysValidationInputs] =
+object IlluminaGenotypingArrayValidationInputs
+    extends EncodableInputs[IlluminaGenotypingArrayValidationInputs] {
+  override def workflowNames: Seq[String] = Seq("VerifyIlluminaGenotypingArray")
+  override implicit val decoder
+    : Decoder[IlluminaGenotypingArrayValidationInputs] =
     deriveConfiguredDecoder
-  override implicit val encoder: Encoder[SingleSampleArraysValidationInputs] =
+  override implicit val encoder
+    : Encoder[IlluminaGenotypingArrayValidationInputs] =
     deriveConfiguredEncoder
 }
-case class SingleSampleArraysValidationInputs(
+case class IlluminaGenotypingArrayValidationInputs(
     truth_metrics: Seq[URI],
     test_metrics: Seq[URI],
     test_gtc: URI,
@@ -29,7 +31,5 @@ case class SingleSampleArraysValidationInputs(
     truth_green_idat_md5: URI,
     test_green_idat_md5: URI,
     truth_red_idat_md5: URI,
-    test_red_idat_md5: URI,
-    truth_params_file: URI,
-    test_params_file: URI
+    test_red_idat_md5: URI
 )
