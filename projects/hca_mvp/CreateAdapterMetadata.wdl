@@ -1,6 +1,8 @@
 version 1.0
 
-import "../../projects/tasks/OptimusPostProcessingTasks.wdl" as PostProcessing
+import "../../projects/tasks/CreateOptimusAdapterObjects.wdl" as CreateOptimusObjects
+import "../../projects/tasks/AdapterTasks.wdl" as Tasks
+
 
 workflow CreateAdapterMetadata {
   meta {
@@ -22,8 +24,9 @@ workflow CreateAdapterMetadata {
     Array[String] all_project_names
 
     String output_basename
+    String cromwell_url = "https://api.firecloud.org/"
     String staging_area = "gs://broad-dsp-monster-hca-prod-lantern/"
-    String version_timestamp = "2021-05-24T12:00:00.000000Z"
+    String version_timestamp = "2021-05-24T12:00:00.000000Z" # TODO should we hard code this?
   }
 
   # version of this pipeline
@@ -53,17 +56,29 @@ workflow CreateAdapterMetadata {
 
   # Split out subworkflows based on datatype
   if (is_Optimus) {
-
-      call CreateOptimusAdapterObjects as GetAdapterObjects{
+    scatter (idx in range(length(looms))) {
+      File loom = looms[idx]
+      File bam = bams[idx]
+      call Tasks.GetMetadata as GetMetadata {
         input:
-          bam = output_bams[idx],
-          loom = output_looms[idx],
+          output_path = loom,
+          cromwell_url = cromwell_url,
+          include_subworkflows = false # TODO: do we need subworkflows???
+      }
+      call CreateOptimusObjects as GetAdapterObjects{
+        input:
+          bam = bam,
+          loom = loom,
+          metadata = GetMetadata.metadata_json
           input_id = input_ids
+      }
     }
+    # merge
+    # get adapters for merged matrix
   }
 
   if (is_SS2) {
-    call CreateSS2AdapterObjects as GetAdapterObjects{
+    call CreateSS2Objects as GetAdapterObjects{
       input:
         # Fill in input for subworkflow
     }
@@ -76,6 +91,7 @@ workflow CreateAdapterMetadata {
       Array[File] desscriptor_objects = ,
       Array[File]
       Array[File] data = data
+      String? cache_invalidate
 
   }
 

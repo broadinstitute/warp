@@ -6,7 +6,8 @@ task CheckStratumMetadata {
     Array[String] library
     Array[String] species
     Array[String] organ
-
+    Array[String] project_id
+    Array[String] project_name
     String docker = "python:3.7.2"
     Int memory = 3
     Int disk = 20
@@ -46,6 +47,7 @@ task CheckStratumMetadata {
       raise ValueError("Files must have matching metadata in order to combine.")
   CODE
   }
+  # TODO add checks for project_id and project_name
 
   runtime {
     docker: docker
