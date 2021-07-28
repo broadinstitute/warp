@@ -221,10 +221,7 @@ RUN set eux; \
 # Set tini as default entrypoint
 ENTRYPOINT [ "/sbin/tini", "--" ]
 ```
-<<<<<<< HEAD
 
 ## <a link="trouble"></a> Troubleshooting
 
 If you have any questions or would like some more guidance on writing Dockerfiles please reach out at [dsde-engineering@broadinstitute.org](dsde-engineering@broadinstitute.org).
-=======
->>>>>>> ebfd1128becc32b6492e7f6f7828a6528a2a2279
