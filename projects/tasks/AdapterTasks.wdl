@@ -20,6 +20,8 @@ task CheckStratumMetadata {
   library_set = set([ "~{sep='", "' library}" ])
   species_set = set([ "~{sep='", "' species}" ])
   organ_set = set([ "~{sep='", "' organ}" ])
+  project_id_set = set([ "~{sep='", "' project_id}" ])
+  project_name_set = set([ "~{sep='", "' project_name}" ])
 
   errors=0
 
@@ -32,6 +34,12 @@ task CheckStratumMetadata {
   if len(organ_set) != 1:
       print("ERROR: Organ metadata is not consistent within the project.")
       errors += 1
+  if len(project_id_set) != 1:
+        print("ERROR: Project_id metadata is not consistent within the project.")
+        errors += 1
+  if len(project_name_set) != 1:
+      print("ERROR: Project_name metadata is not consistent within the project.")
+      errors += 1
 
   if ';' in list(library_set)[0] or '=' in list(library_set)[0]:
       print('ERROR: Library metadata contains an illegal character (";" or "=")')
@@ -42,12 +50,17 @@ task CheckStratumMetadata {
   if ';' in list(organ_set)[0] or '=' in list(organ_set)[0]:
       print('ERROR: Organ metadata contains an illegal character (";" or "=")')
       errors += 1
+  if ';' in list(project_id_set)[0] or '=' in list(project_id_set)[0]:
+      print('ERROR: Project_id metadata contains an illegal character (";" or "=")')
+      errors += 1
+  if ';' in list(project_name_set)[0] or '=' in list(project_name_set)[0]:
+      print('ERROR: Project_name metadata contains an illegal character (";" or "=")')
+      errors += 1
 
   if errors > 0:
       raise ValueError("Files must have matching metadata in order to combine.")
   CODE
   }
-  # TODO add checks for project_id and project_name
 
   runtime {
     docker: docker
