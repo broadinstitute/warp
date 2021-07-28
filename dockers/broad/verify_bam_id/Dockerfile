@@ -20,13 +20,14 @@ RUN set eux; \
             cmake \
             g++ \
             gcc \
-            git \        
-            zlib1g-dev \
+            git \
+            libbz2-dev \        
             libcurl4-openssl-dev \
-            libssl-dev libbz2-dev \
             libhts-dev \
+            libssl-dev  \
             unzip \
             wget \
+            zlib1g-dev \
     ; \
 # Install BamID
     wget ${BAMID_URL}/${GIT_HASH}.zip; \

@@ -26,7 +26,6 @@ Building and maintaining these images can be challenging; this document provides
 The following are some goals/guidelines we want to strive for when writing our Dockerfiles.
 
 ### <a name="small"></a> Small images
----
 
 Building a smaller image offers advantages such as faster upload and download times along with reduced storage costs and minimized attack vector. Two of the easiest ways to minimize the size of your image is to use a small base image and to reduce the number of layers in your image.
 
@@ -61,8 +60,6 @@ RUN set eux; \
         apk add --no-cache \
             curl \
             bash \
-
-#
 ```
 
 #### <a name="minimal-run"></a> Minimal RUN steps
@@ -93,7 +90,7 @@ RUN set eux; \
 ```
 
 ### <a name="publicly"></a> Publicly accessible
----
+
 The pipelines that we maintain in WARP are designed for public use, ideally we would like our docker images to be publicly available as well. This would mean the following conditions must be true.
 
 * Anybody can pull our images
@@ -107,12 +104,12 @@ For anybody to be able to pull our images they must be hosted on a public contai
 For anybody to be able to build our images all of the functionality should be encapsulated in the Dockerfile. Any custom software packages, dependencies etc. have to be downloaed from public links within the Dockerfile, this obviously means that we should not be copying files from within the Broad network infrastucture into our images.
 
 ### <a name="scanning"></a> Image scanning
----
+
 
 All of the images that we build are scanned for critical vulnerabilities on every pull request. For this we use a github-action that leverages [trivy](https://github.com/aquasecurity/trivy) for scanning. If you build a new image please add it to the action [here](../.github/workflows/trivy.yml).
 
 ### <a name="semantic"></a> Semantic tagging
----
+
 
 We recommend against using rolling tags like `master` or `latest` when building images. Rolling tags make it hard to track down versions of images since the underlying image hash and content could be different across the same tags. Instead we ask that you use a semantic tag that follows the convention below:
 
@@ -121,7 +118,7 @@ We recommend against using rolling tags like `master` or `latest` when building 
 This example is for an image we use containing `samtools`. The 'image-version' in this case is the traditional `major.minor.patch` version of the image being built, which is updated when changes to the image (underlying OS, system level packages, etc.) unrelated to `samtools` are made. The 'samtools-version' here correlates with the specific version of `samtools` being used, having this information in the tag makes it easy for users to identify and not have to track down.
 
 ### <a name="process"></a> Proper process reaping
----
+
 
 Classic init systems like systemd are used to reap orphaned, zombie processes. Typically these orphaned processes are reattached to the process at PID 1 which will reap them when they die. In a container this responsibility falls to process at PID 1 which is by default `/bin/sh`...this obviously will not handle process reaping. Because of this you run the risk of expending excess memory or resources within your container. A simple solution to this is to use `tini` in all of our images, a lengthy explanation of what this package does can be found [here](https://github.com/krallin/tini/issues/8).
 
@@ -139,7 +136,7 @@ RUN set eux;
 ENTRYPOINT ["/sbin/tini" , "--"]
 ```
 
-## <a name="build"></a> Build Scripts and ReadME
+## <a name="build"></a> Build Scripts and README
 
 To make life easier when building and pushing our images we like to have an easy to use `docker_build.sh` that sits next to each Dockerfile. These scripts should have configurable inputs for the version of tools(samtools, picard, zcall etc.) being used in the image. Additionally we like to keep a record of the versions built and being used by writing the images to the accompanying `docker_versions.tsv`. 
 
@@ -188,13 +185,14 @@ RUN set eux; \
             cmake \
             g++ \
             gcc \
-            git \        
-            zlib1g-dev \
+            git \
+            libbz2-dev \        
             libcurl4-openssl-dev \
-            libssl-dev libbz2-dev \
             libhts-dev \
+            libssl-dev  \
             unzip \
             wget \
+            zlib1g-dev \
     ; \
 # Install BamID
     wget ${BAMID_URL}/${GIT_HASH}.zip; \
