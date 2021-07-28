@@ -41,7 +41,7 @@ There are some instances where a Debian base image is unavoidable, specifically 
 ##### :eyes: Example
 ```dockerfile
 
-#OKAY, NOT GREAT
+#OKAY, NOT GREAT - uses debian
 FROM python:debian
 
 RUN set eux; \
@@ -53,7 +53,7 @@ RUN set eux; \
 # Must clean up cache manually with Debian
     apt-get clean && rm -rf /var/lib/apt/list/*
 
-# GOOD
+# GOOD - uses alpine
 FROM alpine:3.9
 
 RUN set eux; \
@@ -73,13 +73,13 @@ Just to note, many of the images maintained in WARP require a handful of system-
 ##### :eyes: Example
 ```dockerfile
 
-# BAD
+# BAD - uses multiple RUN steps
 RUN set eux
 RUN apk add --no-cache curl bash wget
 RUN wget https://www.somezipfile.com/zip
 RUN unzip zip
 
-# GOOD
+# GOOD - uses single RUN step
 RUN set eux; \
         apk add --no-cache \
             curl \
