@@ -1,3 +1,8 @@
+# 2.3.4
+2021-07-28
+
+* Set a default value for product_type so that it can be safely omitted from input file
+
 # 2.3.3
 2021-07-22
 
