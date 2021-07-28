@@ -15,7 +15,7 @@ This style guide provides formatting guidelines and best practices for writing D
   * [Proper process reaping](#process)
 * [Build Scripts and README](#build)
 * [Formatting](#formatting)
-
+* [Troubleshooting](#trouble)
 ## <a name="overview"></a> Overview
 
 WARP maintains a collection of docker images which are used as execution environments for various cloud-optimized data processing pipelines. Many of these image require specific sets of tools and dependencies to run and can be thought of as _custom_ images rather than traditional application images. 
@@ -221,3 +221,7 @@ RUN set eux; \
 # Set tini as default entrypoint
 ENTRYPOINT [ "/sbin/tini", "--" ]
 ```
+
+## <a link="trouble"></a> Troubleshooting
+
+If you have any questions or would like some more guidance on writing Dockerfiles please reach out at [dsde-engineering@broadinstitute.org](dsde-engineering@broadinstitute.org).
