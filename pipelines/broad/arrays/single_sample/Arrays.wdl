@@ -21,7 +21,7 @@ import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 workflow Arrays {
 
-  String pipeline_version = "2.3.3"
+  String pipeline_version = "2.3.4"
 
   input {
 
@@ -57,7 +57,7 @@ workflow Arrays {
     String? product_name
     String? product_order_id
     String? product_part_number
-    String? product_type  # careful!
+    String product_type = ""
     String? regulatory_designation
     String? research_project_id
 
@@ -142,7 +142,7 @@ workflow Arrays {
         product_name = select_first([product_name]),
         product_order_id = select_first([product_order_id]),
         product_part_number = select_first([product_part_number]),
-        product_type = select_first([product_type]),
+        product_type = product_type,
         regulatory_designation = select_first([regulatory_designation]),
         research_project_id = select_first([research_project_id]),
         sample_alias = sample_alias,
