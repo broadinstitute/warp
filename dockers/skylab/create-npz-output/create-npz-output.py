@@ -28,6 +28,13 @@ def main():
 
     args = parser.parse_args()
 
+    # covert the mtx file to the matrix
+    matrix = scipy.io.mmread(args.matrix).transpose().tocsr()
+    nonzero_row_indices, _ = matrix.nonzero()
+    unique_nonzero_row_indices = np.sort(np.unique(nonzero_row_indices))
+    # we need to keep only those rows that have non-zero reads/counts
+    scipy.sparse.save_npz("sparse_counts.npz", matrix[unique_nonzero_row_indices, :], compressed=True)
+
     # read the barcodes file and create the barcode to index index
     barcodes = []
     with gzip.open(args.barcodes, 'rt') if args.barcodes.endswith('.gz') else  \
@@ -39,7 +46,8 @@ def main():
            barcodes.append(fields[0])
 
     row_index = np.asarray(barcodes)
-    np.save("sparse_counts_row_index.npy", row_index)
+    # we need to keep only those barcodes that have non-zero reads/counts
+    np.save("sparse_counts_row_index.npy", row_index[unique_nonzero_row_indices])
       
     # read the features file and create the feature to index map
     features = []
@@ -53,12 +61,6 @@ def main():
 
     row_index = np.asarray(features)
     np.save("sparse_counts_col_index.npy", row_index)
-
-
-    # covert the mtx file to the matrix
-    matrix = scipy.io.mmread(args.matrix).tocsr()
-    scipy.sparse.save_npz("sparse_counts.npz", matrix, compressed=True)
-
 
 if __name__ == '__main__':
     main()

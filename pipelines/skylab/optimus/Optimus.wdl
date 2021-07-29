@@ -1,12 +1,20 @@
 version 1.0
 
-import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
-import "../../../tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
-import "../../../tasks/skylab/TagSortBam.wdl" as TagSortBam
-import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
-import "../../../tasks/skylab/ConvertStarOutput.wdl" as ConvertStarOutput
-import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
+#import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
+#import "../../../tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
+#import "../../../tasks/skylab/TagSortBam.wdl" as TagSortBam
+#import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
+#import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+#import "../../../tasks/skylab/ConvertStarOutput.wdl" as ConvertStarOutput
+#import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
+
+import "StarAlign.wdl" as StarAlign
+import "SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
+import "TagSortBam.wdl" as TagSortBam
+import "RunEmptyDrops.wdl" as RunEmptyDrops
+import "LoomUtils.wdl" as LoomUtils
+import "ConvertStarOutput.wdl" as ConvertStarOutput
+import "OptimusInputChecks.wdl" as OptimusInputChecks
 
 workflow Optimus {
   meta {
@@ -92,6 +100,7 @@ workflow Optimus {
       input_id = input_id,
       counting_mode = counting_mode
   }
+
   call TagSortBam.GeneSortBam as GeneSort {
     input:
       bam_input = STARsoloFastq.bam_output
@@ -111,6 +120,7 @@ workflow Optimus {
     input:
       tsv_input = CellSort.tsv_output
   }
+
   call ConvertStarOutput.ConvertStarOutput as ConvertOutputs {
     input:
       barcodes = STARsoloFastq.barcodes,
@@ -143,22 +153,19 @@ workflow Optimus {
       pipeline_version = "Optimus_v~{pipeline_version}"
   }
 
-
-
-
   output {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
 
     File bam = STARsoloFastq.bam_output
-    #File matrix = MergeCountFiles.sparse_count_matrix
-    #File matrix_row_index = MergeCountFiles.row_index
-    #File matrix_col_index = MergeCountFiles.col_index
-    #File cell_metrics = MergeCellMetrics.cell_metrics
-    #File gene_metrics = MergeGeneMetrics.gene_metrics
-    #File cell_calls = RunEmptyDrops.empty_drops_result
+    File matrix = ConvertOutputs.sparse_counts
+    File matrix_row_index = ConvertOutputs.row_index
+    File matrix_col_index = ConvertOutputs.col_index
+    File cell_metrics = CellMetrics.cell_metrics
+    File gene_metrics = GeneMetrics.gene_metrics
+    File cell_calls = RunEmptyDrops.empty_drops_result
 
     # loom
-    #File loom_output_file = OptimusLoomGeneration.loom_output
+    File loom_output_file = OptimusLoomGeneration.loom_output
   }
 }

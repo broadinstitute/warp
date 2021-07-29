@@ -5,7 +5,7 @@ task CellSortBam {
     File bam_input
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-python3-scientific:sctools-optimized"
+    String docker = "quay.io/kishorikonwar/secondary-analysis-python3-scientific:sctools-optimized"
     Int machine_mem_mb = 100000
     Int cpu = 2
     Int disk = ceil(size(bam_input, "Gi") * 8)
@@ -32,9 +32,9 @@ task CellSortBam {
             --output cell-sorted-bam.tsv \
             --barcode-tag CB \
             --umi-tag UB \
-            --gene-tag GE \
+            --gene-tag GX \
             --temp-folder /tmp \
-            --inmemory-chunk-size 20
+            --inmemory-chunk-size 5
   }
   
   runtime {
@@ -55,7 +55,7 @@ task GeneSortBam {
     File bam_input
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-python3-scientific:sctools-optimized"
+    String docker = "quay.io/kishorikonwar/secondary-analysis-python3-scientific:sctools-optimized"
     Int machine_mem_mb = 100000
     Int cpu = 2
     Int disk = ceil(size(bam_input, "Gi") * 4)
@@ -80,8 +80,8 @@ task GeneSortBam {
     set -e
     TagSort --bam-input ~{bam_input} \
     --output gene-sorted-bam.tsv \
-    --inmemory-chunk-size 20 \
-    --gene-tag GE \
+    --inmemory-chunk-size 5 \
+    --gene-tag GX \
     --barcode-tag CB \
     --umi-tag UB \
     --temp-folder /tmp

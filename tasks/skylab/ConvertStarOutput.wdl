@@ -8,7 +8,7 @@ task ConvertStarOutput {
     File matrix
 
     #runtime values
-    String docker = "quay.io/humancellatlas/snss2-featurecount:0.1.0"
+    String docker = " quay.io/kishorikonwar/secondary-analysis-python3-scientific:utils2"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
@@ -31,7 +31,7 @@ task ConvertStarOutput {
     set -e
 
    # create the  compresed raw count matrix with the counts, gene names and the barcodes
-    python create-npz-output.py \
+    python3 /tools/create-npz-output.py \
         --barcodes ~{barcodes} \
         --features ~{features} \
         --matrix ~{matrix}

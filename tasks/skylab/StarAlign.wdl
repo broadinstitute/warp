@@ -169,7 +169,7 @@ task STARsoloFastq {
   }
 
   output {
-    File bam_output = "Aligned.out.bam"
+    File bam_output = "Aligned.sortedByCoord.out.bam"
     File alignment_log = "Log.final.out"
     File barcodes = "Solo.out/Gene/raw/barcodes.tsv"
     File features = "Solo.out/Gene/raw/features.tsv"
