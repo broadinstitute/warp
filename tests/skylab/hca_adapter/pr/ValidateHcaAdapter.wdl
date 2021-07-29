@@ -11,7 +11,7 @@ task CompareAdapterFiles {
 
   if [ $? -ne 0 ];
   then
-   echo "Error: ${test_json} and ${truth_json} differ"
+   echo "Error: ${test_json} and ${truth_json}  differ"
   fi
   >>>
 
