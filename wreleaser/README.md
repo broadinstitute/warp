@@ -55,7 +55,7 @@ Currently available pipelines:
         - GDCWholeGenomeSomaticSingleSample
         - IlluminaGenotypingArray
         - JointGenotyping
-        - JointGenotypingByChromosomePartOne,
+        - JointGenotypingByChromosomePartOne
         - JointGenotypingByChromosomePartTwo
         - MultiSampleArrays
         - MultiSampleSmartSeq2
