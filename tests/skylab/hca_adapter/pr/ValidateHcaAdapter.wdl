@@ -3,7 +3,7 @@ version 1.0
 task CompareAdapterFiles {
   input {
     File test_json
-    FIle truth_json
+    File truth_json
   }
   command <<<
   set -eo pipefail
