@@ -9,7 +9,7 @@ DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
 GCR_URL="us.gcr.io/broad-gotc-prod/verify-bam-id"
-IMAGE_TAG=""
+QUAY_URL="quay.io/broadinstitute/gotc-prod-verify_bam_id"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
@@ -58,6 +58,10 @@ function main(){
     docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \
         --build-arg GIT_HASH="$VERIFY_BAM_ID_VERSION" "$DIR"
     docker push "$GCR_URL:$IMAGE_TAG"
+
+    echo "tagging and pushing Quay Image"
+    docker tag "$GCR_URL:$IMAGE_TAG" "$QUAY_URL:$IMAGE_TAG"
+    docker push "$QUAY_URL:$IMAGE_TAG"
 
     echo "$GCR_URL:$IMAGE_TAG" >> "$DIR/docker_versions.tsv"
     echo "done"

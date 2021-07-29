@@ -8,7 +8,7 @@ DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
 GCR_URL="us.gcr.io/broad-gotc-prod/gatk"
-IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
+QUAY_URL="quay.io/broadinstitute/gotc-prod-gatk"
 
 # GATK4 version
 GATK4_VERSION="4.1.8.0"
@@ -69,9 +69,12 @@ function main(){
     docker build -t "$GCR_URL:$IMAGE_TAG" \
         --build-arg GATK4_VERSION="$GATK4_VERSION" \
         --build-arg GATK3_VERSION="$GATK3_VERSION" \
-        --no-cache $DIR
-        
+        --no-cache $DIR   
     docker push "$GCR_URL:$IMAGE_TAG"
+
+    echo "tagging and pushing Quay Image"
+    docker tag "$GCR_URL:$IMAGE_TAG" "$QUAY_URL:$IMAGE_TAG"
+    docker push "$QUAY_URL:$IMAGE_TAG"
 
     echo -e "$GCR_URL:$IMAGE_TAG" >> "$DIR/docker_versions.tsv"
     echo "done"

@@ -8,6 +8,7 @@ DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
 GCR_URL="us.gcr.io/broad-gotc-prod/samtools"
+QUAY_URL="quay.io/broadinstitute/gotc-prod-samtools"
 
 # Samtools version
 SAMTOOLS_VERSION="1.11"
@@ -59,6 +60,10 @@ function main(){
     docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \
         --build-arg SAMTOOLS_VERSION="$SAMTOOLS_VERSION" $DIR 
     docker push "$GCR_URL:$IMAGE_TAG"
+
+    echo "tagging and pushing Quay Image"
+    docker tag "$GCR_URL:$IMAGE_TAG" "$QUAY_URL:$IMAGE_TAG"
+    docker push "$QUAY_URL:$IMAGE_TAG"
 
     echo -e "$GCR_URL:$IMAGE_TAG" >> "$DIR/docker_versions.tsv"
     echo "done"

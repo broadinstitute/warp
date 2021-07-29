@@ -8,7 +8,7 @@ DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
 GCR_URL="us.gcr.io/broad-gotc-prod/samtools-picard-bwa"
-
+QUAY_URL="quay.io/broadinstitute/gotc-prod-samtools_picard_bwa"
 
 # BWA version
 BWA_VERSION="0.7.15"
@@ -70,8 +70,11 @@ function main(){
         --build-arg BWA_VERSION="$BWA_VERSION" \
         --build-arg PICARD_PUBLIC_VERSION="$PICARD_PUBLIC_VERSION" \
         --no-cache $DIR
-        
     docker push "$GCR_URL:$IMAGE_TAG"
+
+    echo "tagging and pushing Quay Image"
+    docker tag "$GCR_URL:$IMAGE_TAG" "$QUAY_URL:$IMAGE_TAG"
+    docker push "$QUAY_URL:$IMAGE_TAG"
 
     echo -e "$GCR_URL:$IMAGE_TAG" >> "$DIR/docker_versions.tsv"
     echo "done"
