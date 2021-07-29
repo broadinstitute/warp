@@ -16,7 +16,7 @@ workflow CreateAdapterMetadata {
     Array[File]? output_bais
     Array[String] input_ids
 
-    # These values come in as arrays froom Terra, but should be populated with a single value (which may be repeated)
+    # These values come in as arrays from Terra, but should be populated with a single value (which may be repeated)
     Array[String] all_libraries
     Array[String] all_species
     Array[String] all_organs
@@ -69,11 +69,20 @@ workflow CreateAdapterMetadata {
         input:
           bam = bam,
           loom = loom,
-          metadata = GetMetadata.metadata_json
+          metadata = GetMetadata.metadata_json,
           input_id = input_ids
       }
     }
-    # merge
+    call Tasks.MergeLooms as MergeLooms {
+      input:
+        #where do we want to grab this from? library_looms = ,
+        library = library,
+        species = spcecies,
+        organ = organ,
+        project_id = project_id,
+        project_name = project_name,
+        output_basename =output_basename
+    }
     # get adapters for merged matrix
   }
 

@@ -109,4 +109,43 @@ task GetMetadata {
   }
 }
 
+task MergeLooms {
+  input {
+    Array[File] library_looms
+    String library
+    String species
+    String organ
+    String project_id
+    String project_name
+    String output_basename
+
+    String docker = "quay.io/humancellatlas/hca_post_processing:2.0"
+
+    Int memory = ceil(size(library_looms, "G"))+ 10
+    Int disk = ceil((size(library_looms, "G") * 4)) + 50
+  }
+
+  command {
+    python3 /tools/optimus_HCA_loom_merge.py \
+      --input-loom-files ~{sep=" " library_looms} \
+      --library "~{library}" \
+      --species "~{species}" \
+      --organ "~{organ}" \
+      --project-id "~{project_id}" \
+      --project-name "~{project_name}" \
+      --output-loom-file ~{output_basename}.loom
+  }
+
+  runtime {
+    docker: docker
+    cpu: 1
+    memory: "~{memory} GiB"
+    disks: "local-disk ~{disk} HDD"
+  }
+
+  output {
+    File project_loom = "~{output_basename}.loom"
+  }
+}
+
 
