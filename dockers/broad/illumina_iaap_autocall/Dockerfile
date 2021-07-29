@@ -18,7 +18,7 @@ RUN set eux; \
             icu \
             libstdc++ \
             tini \
-        ; \ 
+    ; \ 
 # Install Illumina Iaap Cli
     mkdir temp iaap; \
     cd temp; \

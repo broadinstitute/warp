@@ -16,23 +16,23 @@ WORKDIR /usr/gitc
 # Install dependencies
 RUN set -eux; \
         apk add --no-cache \
-        gcompat \
+            gcompat \
             libc6-compat \
             openjdk8 \
-        ; \
+    ; \
 # Install BWA
-        mkdir temp; \
-        cd temp; \
-        \
-        wget ${BWA_URL} -O bwakit-${BWA_VERSION}.tar.bz2; \
-        tar xf bwakit-${BWA_VERSION}.tar.bz2;  \
-        mv bwa.kit/bwa ../bwa; \
-        \
-        cd ../; \
-        rm -r temp \
-        ; \
+    mkdir temp; \
+    cd temp; \
+    \
+    wget ${BWA_URL} -O bwakit-${BWA_VERSION}.tar.bz2; \
+    tar xf bwakit-${BWA_VERSION}.tar.bz2;  \
+    mv bwa.kit/bwa ../bwa; \
+    \
+    cd ../; \
+    rm -r temp \
+    ; \
 # Install picard
-        wget ${PICARD_URL};
+    wget ${PICARD_URL};
 
 # Set tini as default entrypoint
 ENTRYPOINT [ "/sbin/tini", "--" ]
