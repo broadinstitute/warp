@@ -26,7 +26,7 @@ To reset your cache you can run `wreleaser reset`.
 Make sure you have Go installed ([download](https://jimkang.medium.com/install-go-on-mac-with-homebrew-5fa421fc55f5)). Then install _wreleaser_ with the `go get` command:
 
 ```bash
-go get -u github.com/broadinstitute/warp/wreleaser@wd_GL-1606-wreleaser
+go get -u github.com/broadinstitute/warp/wreleaser
 ```
 
 #### Option 2
