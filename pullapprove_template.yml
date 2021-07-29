@@ -34,7 +34,7 @@ groups:
     conditions:
       - "'eng-only' not in labels"
       - "base.ref != 'master'"
-      - "base.ref != 'RC'"
+      - "base.ref != 'staging'"
       - >
         ${ARRAYS_FILES}
     reviews:
@@ -50,7 +50,7 @@ groups:
     conditions:
       - "'eng-only' not in labels"
       - "base.ref != 'master'"
-      - "base.ref != 'RC'"
+      - "base.ref != 'staging'"
       - >
         ${GDC_WGS_FILES}
     reviews:
@@ -66,7 +66,7 @@ groups:
     conditions:
       - "'eng-only' not in labels"
       - "base.ref != 'master'"
-      - "base.ref != 'RC'"
+      - "base.ref != 'staging'"
       - >
         ${CRAM_TO_UNMAPPED_BAMS}
     reviews:
@@ -82,7 +82,7 @@ groups:
     conditions:
       - "'eng-only' not in labels"
       - "base.ref != 'master'"
-      - "base.ref != 'RC'"
+      - "base.ref != 'staging'"
       - >
         ${GERMLINE_SINGLE_SAMPLE_FILES}
     reviews:
@@ -98,7 +98,7 @@ groups:
     conditions:
       - "'eng-only' not in labels"
       - "base.ref != 'master'"
-      - "base.ref != 'RC'"
+      - "base.ref != 'staging'"
       - >
         ${JOINT_GENOTYPING_FILES}
     reviews:
@@ -114,7 +114,7 @@ groups:
     conditions:
       - "'eng-only' not in labels"
       - "base.ref != 'master'"
-      - "base.ref != 'RC'"
+      - "base.ref != 'staging'"
       - >
         ${SOMATIC_SINGLE_SAMPLE_FILES}
     reviews:
@@ -133,7 +133,7 @@ groups:
   clinical_owners:
     conditions:
       - "base.ref != 'master'"
-      - "base.ref != 'RC'"
+      - "base.ref != 'staging'"
       - >
         ${CLINICAL_FILES}
     reviews:
