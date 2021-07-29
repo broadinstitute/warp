@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Smart-seq2 Multi-Sample v2.2.1 Publication Methods
 
-Below we provide a sample methods sections for a publication. For the complete pipeline documentation, see the [Smart-seq2 Multi-Sample Overview](./README.md).
+Below we provide an example methods section for a publication. For the complete pipeline documentation, see the [Smart-seq2 Multi-Sample Overview](./README.md).
 
 ## Methods
 

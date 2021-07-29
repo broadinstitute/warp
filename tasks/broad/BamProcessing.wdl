@@ -150,64 +150,6 @@ task MarkDuplicates {
   }
 }
 
-task MarkDuplicatesSpark {
-  input {
-    Array[File] input_bams
-    String output_bam_basename
-    String metrics_filename
-    Float total_input_size
-    Int compression_level
-    Int preemptible_tries
-
-    String? read_name_regex
-    Int memory_multiplier = 3
-    Int cpu_size = 6
-  }
-
-  # The merged bam will be smaller than the sum of the parts so we need to account for the unmerged inputs and the merged output.
-  # Mark Duplicates takes in as input readgroup bams and outputs a slightly smaller aggregated bam. Giving 2.5 as wiggleroom
-  Float md_disk_multiplier = 2.5
-  Int disk_size = ceil(md_disk_multiplier * total_input_size) + 20
-
-  Int memory_size = ceil(16 * memory_multiplier)
-  Int java_memory_size = (memory_size - 6)
-
-  String output_bam_location = "~{output_bam_basename}.bam"
-
-  # Removed options ASSUME_SORT_ORDER, CLEAR_DT, and ADD_PG_TAG_TO_READS as it seems like they are a) not implemented
-  #   in MarkDuplicatesSpark, and/or b) are set to "false" aka "don't do" anyhow.
-  # MarkDuplicatesSpark requires PAPIv2
-  command <<<
-    set -e
-    export GATK_LOCAL_JAR=/root/gatk.jar
-    gatk --java-options "-Dsamjdk.compression_level=~{compression_level} -Xmx~{java_memory_size}g" \
-      MarkDuplicatesSpark \
-      --input ~{sep=' --input ' input_bams} \
-      --output ~{output_bam_location} \
-      --metrics-file ~{metrics_filename} \
-      --read-validation-stringency SILENT \
-      ~{"--read-name-regex " + read_name_regex} \
-      --optical-duplicate-pixel-distance 2500 \
-      --treat-unsorted-as-querygroup-ordered \
-      --create-output-bam-index false \
-      -- --conf spark.local.dir=/mnt/tmp --spark-master 'local[16]' --conf 'spark.kryo.referenceTracking=false'
-  >>>
-
-  runtime {
-    docker: "jamesemery/gatknightly:gatkMasterSnapshot44ca2e9e84a"
-    disks: "/mnt/tmp " + ceil(2.1 * total_input_size) + " LOCAL, local-disk " + disk_size + " HDD"
-    bootDiskSizeGb: "50"
-    cpu: cpu_size
-    memory: "~{memory_size} GiB"
-    preemptible: preemptible_tries
-  }
-
-  output {
-    File output_bam = output_bam_location
-    File duplicate_metrics = metrics_filename
-  }
-}
-
 # Generate Base Quality Score Recalibration (BQSR) model
 task BaseRecalibrator {
   input {

@@ -159,6 +159,11 @@ All scATAC workflow releases are documented in the [scATAC changelog](https://gi
 Please identify the pipeline in your methods section using the scATAC Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_018919/resolver?q=SCR_018919&l=SCR_018919).
 * Ex: *scATAC Pipeline (RRID:SCR_018919)*
 
+## Consortia Support 
+This pipeline is supported and used by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
+
+If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org).
+
 ## Pipeline Improvements
 
 Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.

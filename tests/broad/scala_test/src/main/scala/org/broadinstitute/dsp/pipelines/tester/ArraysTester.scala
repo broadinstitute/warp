@@ -105,7 +105,9 @@ class ArraysTester(testerConfig: ArraysConfig)(
       truth_red_idat_md5 =
         truthCloudPath.resolve(s"${outputBaseName}_Red.idat.md5sum"),
       test_red_idat_md5 =
-        resultsCloudPath.resolve(s"${outputBaseName}_Red.idat.md5sum")
+        resultsCloudPath.resolve(s"${outputBaseName}_Red.idat.md5sum"),
+      truth_params_file = truthCloudPath.resolve("params.txt"),
+      test_params_file = resultsCloudPath.resolve("params.txt")
     )
     SingleSampleArraysValidationInputs
       .marshall(validationInputs)
