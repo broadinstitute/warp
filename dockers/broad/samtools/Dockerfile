@@ -28,20 +28,20 @@ RUN set -eux; \
             wget \ 
             xz-dev \
             zlib-dev \
-        ; \
+    ; \
 # Install samtools
-        mkdir temp; \
-        cd temp; \
-        \
-        wget ${SAMTOOLS_URL}; \
-        tar -xf samtools-${SAMTOOLS_VERSION}.tar.bz2; \
-        cd samtools-${SAMTOOLS_VERSION}; \
-        \
-        ./configure; \
-        make; \
-        make install; \
-        \
-        rm -r /usr/gitc/temp;
+    mkdir temp; \
+    cd temp; \
+    \
+    wget ${SAMTOOLS_URL}; \
+    tar -xf samtools-${SAMTOOLS_VERSION}.tar.bz2; \
+    cd samtools-${SAMTOOLS_VERSION}; \
+    \
+    ./configure; \
+    make; \
+    make install; \
+    \
+    rm -r /usr/gitc/temp;
 
 # Set tini as default entrypoint
 ENTRYPOINT [ "/sbin/tini", "--" ]

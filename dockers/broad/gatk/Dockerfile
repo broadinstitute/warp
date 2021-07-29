@@ -22,28 +22,27 @@ RUN set -eux; \
             tini \
             unzip \
             wget \
-        ; \
-        \
+    ; \
 # Install GATK
-        mkdir gatk4; \
-        mkdir temp; \
-        cd temp; \
-        \
-        # gatk3
-        wget ${GATK3_URL}; \
-        cp gatk-utils-${GATK3_VERSION}.jar GATK35.jar; \
-        mv GATK35.jar /usr/gitc; \
-        \
-        # gatk4
-        wget ${GATK4_URL}; \
-        unzip gatk-${GATK4_VERSION}.zip; \
-        cp -r gatk-${GATK4_VERSION}/* /usr/gitc/gatk4/; \
-        chmod +x /usr/gitc/gatk4/gatk; \
-        \
-        rm -r /usr/gitc/temp \
-        ; \
+    mkdir gatk4; \
+    mkdir temp; \
+    cd temp; \
+    \
+    # gatk3
+    wget ${GATK3_URL}; \
+    cp gatk-utils-${GATK3_VERSION}.jar GATK35.jar; \
+    mv GATK35.jar /usr/gitc; \
+    \
+    # gatk4
+    wget ${GATK4_URL}; \
+    unzip gatk-${GATK4_VERSION}.zip; \
+    cp -r gatk-${GATK4_VERSION}/* /usr/gitc/gatk4/; \
+    chmod +x /usr/gitc/gatk4/gatk; \
+    \
+    rm -r /usr/gitc/temp \
+    ; \
 # Symlink python to python3
-        ln -s python3 /usr/bin/python;
+    ln -s python3 /usr/bin/python;
 
 # Set tini as default entrypoint
 ENTRYPOINT [ "/sbin/tini", "--" ]

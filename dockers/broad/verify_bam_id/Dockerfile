@@ -21,7 +21,7 @@ RUN set eux; \
             g++ \
             gcc \
             git \
-            libbz2-dev \        
+            libbz2-dev \
             libcurl4-openssl-dev \
             libhts-dev \
             libssl-dev  \
