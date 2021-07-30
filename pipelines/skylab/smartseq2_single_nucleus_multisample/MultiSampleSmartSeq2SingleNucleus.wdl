@@ -65,17 +65,28 @@ workflow MultiSampleSmartSeq2SingleNucleus {
          fastq1_input_files = fastq1_input_files,
          fastq2_input_files = fastq2_input_files
   }
+  call TrimAdapters.TrimAdapters as TrimAdapters {
+       input:
+         fastq2_input_files = fastq1_input_files,
+         fastq2_input_files = fastq2_input_files,
+         adapter_list = adapter_list
+   }
+
+   call StarAlignFastq.StarAlignFastqPairedEnd as StarAlign {
+      input:
+        fastq1_input_files = TrimAdapters.trimmed_fastq1_files,
+        fastq2_input_files = TrimAdapters.trimmed_fastq2_files,
+        tar_star_reference = star_reference
+   }
 
   ### Execution starts here ###
   scatter(idx in range(length(input_ids))) {
       call single_nucleus_run.SmartSeq2SingleNucleus as sn_pe {
         input:
            genome_ref_fasta = genome_ref_fasta,
-           star_reference = tar_star_reference,
            annotations_gtf =  annotations_gtf,
            adapter_list = adapter_list,
-           fastq1 = fastq1_input_files[idx],
-           fastq2 = fastq2_input_files[idx],
+           aligned_bam = StarAlign.aligned_bam[idx],
            input_id = input_ids[idx],
            output_name = input_ids[idx],
            input_name_metadata_field = input_name_metadata_field,

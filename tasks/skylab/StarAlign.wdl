@@ -68,8 +68,9 @@ task StarAlignBamSingleEnd {
 
 task StarAlignFastqPairedEnd {
   input {
-    File fastq1
-    File fastq2
+    Array[File] fastq1_input_files
+    Array[File] fastq2_input_files
+    Array[String] input_ids
     File tar_star_reference
 
     # runtime values
@@ -87,8 +88,9 @@ task StarAlignFastqPairedEnd {
   }
 
   parameter_meta {
-    fastq1: "trimmed R1 FASTQ file containing genomic sequence"
-    fastq2: "trimmed R2 FASTQ file containing genomic sequence"
+    fastq1_input_files: "Array of trimmed R1 fastq files containing genomic sequence."
+    fastq2_input_files: "Array of trimmed R2 fastq files containing genomic sequence."
+    input_ids: "Array of input ids"
     tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
@@ -99,22 +101,32 @@ task StarAlignFastqPairedEnd {
 
   command {
     set -e
+    set -exo pipefail
 
     # prepare reference
     mkdir genome_reference
     tar -xf "${tar_star_reference}" -C genome_reference --strip-components 1
     rm "${tar_star_reference}"
 
-    STAR \
-      --genomeDir genome_reference \
-      --runThreadN ${cpu} \
-      --readFilesIn ~{fastq1} ~{fastq2} \
-      --readFilesCommand "gunzip -c" \
-      --outSAMtype BAM SortedByCoordinate \
-      --outReadsUnmapped Fastx \
-      --runRNGseed 777 \
-      --limitBAMsortRAM 10000000000 \
-      --quantMode GeneCounts 
+    fastq1_files=~{sep=' ' fastq1_input_files}
+    fastq2_files=~{sep=' ' fastq2_input_files}
+    output_prefix=~{sep=' ' input_ids}
+
+    for (( i=0; i<${#output_prefix[@]}; ++i));
+      do
+        STAR \
+          --genomeDir genome_reference \
+          --runThreadN ${cpu} \
+          --readFilesIn ${fastq1_files[$i]} ${fastq2_files[$i]} \
+          --readFilesCommand "gunzip -c" \
+          --outSAMtype BAM SortedByCoordinate \
+          --outReadsUnmapped Fastx \
+          --runRNGseed 777 \
+          --limitBAMsortRAM 10000000000 \
+          --quantMode GeneCounts \
+          --genomeLoad LoadAndExit \
+          --outFileNamePrefix ${output_prefix[$i]}
+      done;
   }
 
   runtime {
@@ -126,7 +138,7 @@ task StarAlignFastqPairedEnd {
   }
 
   output {
-    File output_bam = "Aligned.sortedByCoord.out.bam"
+    Array[File] output_bam = "~{input_ids}Aligned.sortedByCoord.out.bam"
   }
 
 }

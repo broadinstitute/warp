@@ -1,7 +1,5 @@
 version 1.0
 
-import "../../../tasks/skylab/TrimAdapters.wdl" as TrimAdapters
-import "../../../tasks/skylab/StarAlign.wdl" as StarAlignFastq
 import "../../../tasks/skylab/FeatureCounts.wdl" as CountAlignments
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 import "../../../tasks/skylab/Picard.wdl" as Picard
@@ -17,8 +15,7 @@ workflow SmartSeq2SingleNucleus {
     File genome_ref_fasta
 
     # STAR ref index name
-    File star_reference
-    # annotation file 
+    # annotation file
     File annotations_gtf
 
     # sample id
@@ -32,8 +29,7 @@ workflow SmartSeq2SingleNucleus {
 
     File adapter_list
     # at this point only paired_end reads are supported
-    File fastq1
-    File fastq2
+    File aligned_bam
   }
   # version of this pipeline
   String pipeline_version = "1.0.1"
@@ -49,24 +45,10 @@ workflow SmartSeq2SingleNucleus {
 
   String quality_control_output_basename = output_name + "_qc"
 
-  call TrimAdapters.TrimAdapters as TrimAdapters {
-       input:
-         fastq1 = fastq1,
-         fastq2 = fastq2,
-         adapter_list = adapter_list
-   }
-
-   call StarAlignFastq.StarAlignFastqPairedEnd as StarAlign {
-      input:
-        fastq1 = TrimAdapters.trimmed_fastq1,
-        fastq2 = TrimAdapters.trimmed_fastq2,
-        tar_star_reference = star_reference
-   }
-
   call Picard.RemoveDuplicatesFromBam as RemoveDuplicatesFromBam {
     input:
       input_id = input_id,
-      aligned_bam = StarAlign.output_bam,
+      aligned_bam = aligned_bam,
       output_basename = quality_control_output_basename,
   }
 

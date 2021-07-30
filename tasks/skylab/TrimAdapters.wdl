@@ -3,15 +3,16 @@ version 1.0
 task TrimAdapters {
 
   input {
-    File fastq1
-    File? fastq2
+    Array[String] fastq1_input_files
+    Array[String] fastq2_input_files
     File adapter_list
 
     #runtime values
     String docker = "quay.io/humancellatlas/snss2-trim-adapters:0.1.0"
     Int machine_mem_mb = 8250
     Int cpu = 1
-    Int disk = ceil(size(fastq1, "Gi") * 2) + 10
+    Int disk = 100
+    #ceil(size(fastq1, "Gi") * 2) + 10
     Int preemptible = 3
   }
 
@@ -30,12 +31,21 @@ task TrimAdapters {
   command {
     set -e
 
-    fastq-mcf \
-       -C 200000 ~{adapter_list} \
-       ~{fastq1} \
-       ~{fastq2} \
-       -o fastq_R1.trimmed.fastq.gz \
-       -o fastq_R2.trimmed.fastq.gz
+    fastq1_files=~{sep=' ' fastq1_input_files}
+    fastq2_files=~{sep=' ' fastq2_input_files}
+
+    for (( i=0; i<${#fastq1_input_files[@]}; ++i));
+      do
+        fastq1=${fastq1_files[$i]}
+        fastq2=${fastq2_files[$i]}
+
+        fastq-mcf \
+           -C 200000 ~{adapter_list} \
+           ~{fastq1} \
+           ~{fastq2} \
+           -o "${fastq1_files[$i]}.trimmed.fastq.gz" \
+           -o "${fastq2_files[$i]}.trimmed.fastq.gz"
+      done;
   }
 
   runtime {
@@ -47,7 +57,7 @@ task TrimAdapters {
   }
 
   output {
-    File trimmed_fastq1 = "fastq_R1.trimmed.fastq.gz"
-    File trimmed_fastq2 = "fastq_R2.trimmed.fastq.gz"
+    Array[File] trimmed_fastq1_files = "~{fastq1_input_files}.trimmed.fastq.gz"
+    Array[File] trimmed_fastq2_files = "~{fastq2_input_files}.trimmed.fastq.gz"
   }
 }
