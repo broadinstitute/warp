@@ -9,54 +9,62 @@ workflow CreateOptimusAdapterObjects {
   }
 
   input {
-    File input_file
-    File metadata
+    File? bam
+    File loom
     String library
     String species
+    String input_id
     String organ
     String project_id
     String project_name
-    String project_stratum_string
+    String? project_stratum_string
+    String version_timestamp
 
     String cromwell_url = "https://api.firecloud.org/"
+  }
+
+  call Tasks.GetCromwellMetadata as GetMetadata {
+    input:
+      output_path = loom,
+      cromwell_url = cromwell_url,
+      include_subworkflows = false # TODO: do we need subworkflows???
+  }
+
+  call Tasks.GetAnalysisFileMetadata {
+    input:
+      input_uuid = input_id,
+      pipeline_type = "Optimus",
+      workspace_version = version_timestamp,
+      metadata_json = GetMetadata.metadata
+  }
+
+  call Tasks.GetAnalysisProcessMetadata {
+    input:
 
   }
 
+  call Tasks.GetAnalysisProtocolMetadata {
+    input:
 
+  }
 
-
-  call GetAnalysisFileMetadata {
+  call Tsaks.GetLinksFileMetadata {
     input:
   }
 
-  call GetAnalysisProcessMetadata {
-    input:
-
-  }
-
-  call GetAnalysisProtocolMetadata {
-    input:
-
-  }
-
-  call GetLinksFileMetadata {
+  call Tsaks.GetDescriptorsAnalysisFileMetadata {
     input:
   }
-
-  call GetDescriptorsAnalysisFileMetadata {
-    input:
-  }
-
-  call GetDescriptorsReferenceFileMetadata {
-    input:
-  }
-  # Create the adapter json objects for the project matrtix
-
 
 
 
   output {
-    Array[File] metadata_json = GetMetadata.metadata
+    File metadata_json = GetMetadata.metadata
+    Array[File] analysis_file_metadata = GetAnalysisFileMetadata.outputs
+    Array[File] analysis_file_descriptor = GetDescriptorsAnalysisFileMetadata.ouptuts
+    File analysis_process_metadata = GetAnalysisProcessMetadata.outputs
+    File analysis_protocol_metdata = GetAnalysisProtocolMetadata.outputs
+    File links = GetLinksFileMetadata.outtputs
   }
 }
 

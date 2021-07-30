@@ -72,7 +72,7 @@ task CheckStratumMetadata {
 
 # Get Cromwell metadata for a workflow
 # Uses a workflow output to parse the cromwell id and fetch the metadata
-task GetMetadata {
+task GetCromwellMetadata {
   input {
     String output_path
     String cromwell_url

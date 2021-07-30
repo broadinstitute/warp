@@ -1,6 +1,7 @@
 version 1.0
 
 import "../../projects/tasks/CreateOptimusAdapterObjects.wdl" as CreateOptimusObjects
+import "../../projects/tasks/MergeOptimusLooms.wdl" as MergeLooms
 import "../../projects/tasks/AdapterTasks.wdl" as Tasks
 
 
@@ -29,6 +30,7 @@ workflow CreateAdapterMetadata {
     String version_timestamp = "2021-05-24T12:00:00.000000Z" # TODO should we hard code this?
   }
 
+  ########################## Set up Inputs ##########################
   # version of this pipeline
   String pipeline_version = "1.0.0"
 
@@ -54,26 +56,24 @@ workflow CreateAdapterMetadata {
   String staging_bucket = staging_area + project_id + "/staging/"
   String project_stratum_string = "project=" + project_id + ";library=" + library + ";species=" + species + ";organ=" + organ
 
-  # Split out subworkflows based on datatype
+  ########################## Get Optimus Metadata Files ##########################
   if (is_Optimus) {
     scatter (idx in range(length(looms))) {
-      File loom = looms[idx]
-      File bam = bams[idx]
-      call Tasks.GetMetadata as GetMetadata {
+      call CreateOptimusObjects as GetIntermediateOpitmusAdapters {
         input:
-          output_path = loom,
-          cromwell_url = cromwell_url,
-          include_subworkflows = false # TODO: do we need subworkflows???
-      }
-      call CreateOptimusObjects as GetAdapterObjects {
-        input:
-          bam = bam,
-          loom = loom,
-          metadata = GetMetadata.metadata_json,
-          input_id = input_ids
+          bam = bams[idx],
+          loom = looms[idx],
+          input_id = input_ids[idx],
+          library = library,
+          species = species,
+          organ = organ,
+          project_id = project_id,
+          project_name = project_name,
+          version_timestamp = version_timestamp
       }
     }
-    call Tasks.MergeLooms as MergeLooms {
+    call
+    call MergeLooms.MergeOptimusLooms as MergeLooms {
       input:
         output_looms = output_looms,
         library = library,
@@ -84,11 +84,22 @@ workflow CreateAdapterMetadata {
         output_basename = output_basename
     }
     # get adapters for merged matrix
-    call CreateOptimusObjects as GetAdapterObjects {
+    call CreateOptimusObjects as GetProjectOpitmusAdapters {
+      input:
+        loom = MergeLooms.project_loom,
+        input_id = ,
+        library = library,
+        species = species,
+        organ = organ,
+        project_id = project_id,
+        project_name = project_name,
+        project_stratum_string = project_stratum_string
+      }
 
     }
   }
 
+  ########################## Get SS2 Metadata Files ##########################
   if (is_SS2) {
     call CreateSS2Objects as GetAdapterObjects{
       input:
@@ -96,7 +107,7 @@ workflow CreateAdapterMetadata {
     }
   }
 
-
+  ########################## Copy Files to Staging Bucket ##########################
   call CopyToStagingBucket {
     input:
       Array[File] links_objects = GetAdapterObjects.json_adapters,
