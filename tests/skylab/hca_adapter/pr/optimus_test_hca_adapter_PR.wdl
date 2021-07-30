@@ -1,6 +1,6 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/beta-pipelines/skylab/hca_adapter/getTerraMetadata.wdl" as target_adapter
+import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/projects/hca_mvp/getTerraMetadata.wdl" as target_adapter
 import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/tests/skylab/hca_adapter/pr/ValidateHcaAdapter.wdl" as checker_adapter
 import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/projects/hca_mvp/OptimusPostProcessing.wdl" as target_OptimusPostProcessing
 
