@@ -180,7 +180,6 @@ All CEMBA pipeline releases are documented in the [CEMBA changelog](https://gith
 Please identify the pipeline in your methods section using the CEMBA Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_021219/resolver?q=CEMBA&l=CEMBA).
 * Ex: *CEMBA MethylC Seq Pipeline (RRID:SCR_021219)*
 
-
 ## Consortia Support 
 This pipeline is supported and used by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
 
