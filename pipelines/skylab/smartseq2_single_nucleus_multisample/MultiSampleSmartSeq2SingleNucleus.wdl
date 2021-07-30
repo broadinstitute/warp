@@ -3,7 +3,9 @@ version 1.0
 import "../../../pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl" as single_nucleus_run
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 import "../../../tasks/skylab/CheckInputs.wdl" as CheckInputs
-       
+import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
+import "../../../tasks/skylab/TrimAdapters.wdl" as TrimAdapters
+
 workflow MultiSampleSmartSeq2SingleNucleus {
   meta {
     description: "The MultiSampleSmartSeq2SingleNucleus pipeline runs multiple snSS2 samples in a single pipeline invocation"
@@ -67,7 +69,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   }
   call TrimAdapters.TrimAdapters as TrimAdapters {
        input:
-         fastq2_input_files = fastq1_input_files,
+         fastq1_input_files = fastq1_input_files,
          fastq2_input_files = fastq2_input_files,
          adapter_list = adapter_list
    }
@@ -116,6 +118,6 @@ workflow MultiSampleSmartSeq2SingleNucleus {
     # loom output, exon/intron count tsv files and the aligned bam files
     File loom_output = AggregateLoom.loom_output_file
     Array[File] exon_intron_count_files = sn_pe.exon_intron_counts 
-    Array[File] bam_files = sn_pe.aligned_bam
+    Array[File] bam_files = sn_pe.duplicates_removed_aligned_bam
   }
 }
