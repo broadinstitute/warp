@@ -1,8 +1,8 @@
 version 1.0
 
-import "../../../pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl" as single_nucleus_run
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
-import "../../../tasks/skylab/CheckInputs.wdl" as CheckInputs
+import "SmartSeq2SingleNucleus.wdl" as single_nucleus_run
+import "LoomUtils.wdl" as LoomUtils
+import "CheckInputs.wdl" as CheckInputs
        
 workflow MultiSampleSmartSeq2SingleNucleus {
   meta {

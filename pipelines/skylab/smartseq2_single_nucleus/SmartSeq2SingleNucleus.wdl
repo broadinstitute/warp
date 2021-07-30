@@ -1,8 +1,8 @@
 version 1.0
 
-import "../../../tasks/skylab/FeatureCounts.wdl" as CountAlignments
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
-import "../../../tasks/skylab/Picard.wdl" as Picard
+import "FeatureCounts.wdl" as CountAlignments
+import "LoomUtils.wdl" as LoomUtils
+import "Picard.wdl" as Picard
 
 
 workflow SmartSeq2SingleNucleus {
