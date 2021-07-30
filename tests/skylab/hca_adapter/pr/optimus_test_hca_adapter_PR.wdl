@@ -103,48 +103,61 @@ workflow TestHcaAdapter {
     staging_area=staging_area
   }
 
-  call checker_adapter.ValidateOptimusDescriptorAnalysisFiles as checker_adapter_descriptors {
-     input:
-       optimus_descriptors_analysis_file_intermediate_loom_json=target_adapter.analysis_file_descriptor[0],
-       optimus_descriptors_analysis_file_intermediate_loom_json_truth=optimus_descriptors_analysis_file_intermediate_loom_json,
-       optimus_descriptors_analysis_file_intermediate_bam_json=target_adapter.analysis_file_descriptor[1],
-       optimus_descriptors_analysis_file_intermediate_bam_json_truth=optimus_descriptors_analysis_file_intermediate_bam_json,
-       optimus_descriptors_analysis_file_intermediate_reference_json=target_adapter.reference_genome_descriptor,
-       optimus_descriptors_analysis_file_intermediate_reference_json_truth=optimus_descriptors_analysis_file_intermediate_reference_json
+  call checker_adapter.CompareAdapterFiles as checker_adapter_descriptors_loom {
+   input:
+     test_json=target_adapter.analysis_file_descriptor[0],
+     truth_json=optimus_descriptors_analysis_file_intermediate_loom_json
    }
 
-  call checker_adapter.ValidateOptimusLinksFiles as checker_adapter_links {
+  call checker_adapter.CompareAdapterFiles as checker_adapter_descriptors_bam {
+   input:
+     test_json=target_adapter.analysis_file_descriptor[1],
+     truth_json=optimus_descriptors_analysis_file_intermediate_bam_json
+   }
+
+  call checker_adapter.CompareAdapterFiles as checker_adapter_descriptors_reference{
     input:
-     optimus_links_intermediate_loom_json=target_adapter.links,
-     optimus_links_intermediate_loom_json_truth=optimus_links_intermediate_loom_json,
+      test_json=target_adapter.reference_genome_descriptor,
+      truth_json=optimus_descriptors_analysis_file_intermediate_reference_json
   }
 
-  call checker_adapter.ValidateOptimusMetadataAnalysisFiles as checker_adapter_metadata_analysis_files {
+  call checker_adapter.CompareAdapterFiles as checker_adapter_links {
     input:
-     optimus_metadata_analysis_file_intermediate_loom_json=target_adapter.analysis_file[0],
-     optimus_metadata_analysis_file_intermediate_loom_json_truth=optimus_metadata_analysis_file_intermediate_loom_json,
-     optimus_metadata_analysis_file_intermediate_bam_json=target_adapter.analysis_file[1],
-     optimus_metadata_analysis_file_intermediate_bam_json_truth=optimus_metadata_analysis_file_intermediate_bam_json,
+     test_json=target_adapter.links,
+     truth_json=optimus_links_intermediate_loom_json,
   }
 
-  call checker_adapter.ValidateOptimusMetadataAnalysisProcessFiles as checker_adapter_metadata_analysis_process {
+  call checker_adapter.CompareAdapterFiles as checker_adapter_metadata_analysis_files_loom {
     input:
-      optimus_metadata_analysis_process_file_intermediate_json=target_adapter.analysis_process,
-      optimus_metadata_analysis_process_file_intermediate_json_truth=optimus_metadata_analysis_process_file_intermediate_json
+     test_json=target_adapter.analysis_file[0],
+     truth_json=optimus_metadata_analysis_file_intermediate_loom_json
   }
 
-  call checker_adapter.ValidateOptimusMetadataReferenceFiles as checker_adapter_metadata_reference_file {
+  call checker_adapter.CompareAdapterFiles as checker_adapter_metadata_analysis_files_bam {
+    input:
+      test_json=target_adapter.analysis_file[1],
+      truth_json=optimus_metadata_analysis_file_intermediate_bam_json
+  }
+
+  call checker_adapter.CompareAdapterFiles as checker_adapter_metadata_analysis_process {
+    input:
+      test_json=target_adapter.analysis_process,
+      truth_json=optimus_metadata_analysis_process_file_intermediate_json
+  }
+
+  call checker_adapter.CompareAdapterFiles as checker_adapter_metadata_reference_file {
       input:
-        optimus_metadata_reference_file_intermediate_json=target_adapter.reference_genome_reference_file,
-        optimus_metadata_reference_file_intermediate_json_truth=optimus_metadata_reference_file_intermediate_json
+        test_json=target_adapter.reference_genome_reference_file,
+        truth_json=optimus_metadata_reference_file_intermediate_json
   }
 
-  call checker_adapter.ValidateOptimusMetadataAnalysisProtocolFiles as checker_adapter_metadata_analysis_protocol {
+  call checker_adapter.CompareAdapterFiles as checker_adapter_metadata_analysis_protocol {
     input:
-      optimus_metadata_analysis_protocol_file_intermediate_json=target_adapter.analysis_protocol,
-      optimus_metadata_analysis_protocol_file_intermediate_json_truth=optimus_metadata_analysis_protocol_file_intermediate_json
+      test_json=target_adapter.analysis_protocol,
+      truth_json=optimus_metadata_analysis_protocol_file_intermediate_json
 
   }
+
   call target_OptimusPostProcessing.OptimusPostProcessing as target_OptimusPostProcessing {
     input:
       library_looms=library_looms,
@@ -158,37 +171,37 @@ workflow TestHcaAdapter {
       output_basename=output_basename,
       post_processing_staging_area=post_processing_staging_area,
 	  version_timestamp=version_timestamp
-     }
+  }
 
-  call checker_adapter.ValidateOptimusDescriptorProjectLevelAnalysisFiles as checker_adapter_optimus_project_descriptors {
+  call checker_adapter.CompareAdapterFiles as checker_adapter_optimus_project_descriptors {
        input:
-         optimus_descriptors_analysis_file_project_loom_json=target_OptimusPostProcessing.json_adapter_files[3],
-         optimus_descriptors_analysis_file_project_loom_json_truth=optimus_descriptors_analysis_file_project_loom_json
-     }
+         test_json=target_OptimusPostProcessing.json_adapter_files[3],
+         truth_json=optimus_descriptors_analysis_file_project_loom_json
+  }
 
-  call checker_adapter.ValidateOptimusLinksProjectLevel as checker_adapter_optimus_project_links {
+  call checker_adapter.CompareAdapterFiles as checker_adapter_optimus_project_links {
        input:
-         optimus_links_project_loom_json=target_OptimusPostProcessing.json_adapter_files[4],
-         optimus_links_project_loom_json_truth=optimus_links_project_loom_json
-     }
+         test_json=target_OptimusPostProcessing.json_adapter_files[4],
+         truth_json=optimus_links_project_loom_json
+  }
 
- call checker_adapter.ValidateOptimusMetadataProjectLevelAnalysisFiles as checker_adapter_optimus_project_metadata {
+ call checker_adapter.CompareAdapterFiles as checker_adapter_optimus_project_metadata {
       input:
-        optimus_metadata_analysis_file_project_loom_json=target_OptimusPostProcessing.json_adapter_files[0],
-        optimus_metadata_analysis_file_project_loom_json_truth=optimus_metadata_analysis_file_project_loom_json
-    }
+        test_json=target_OptimusPostProcessing.json_adapter_files[0],
+        truth_json=optimus_metadata_analysis_file_project_loom_json
+ }
 
- call checker_adapter.ValidateOptimusMetadataProjectLevelAnalysisProcess as checker_adapter_optimus_project_metadata_analysis_process {
+ call checker_adapter.CompareAdapterFiles as checker_adapter_optimus_project_metadata_analysis_process {
       input:
-        optimus_metadata_analysis_process_project_loom_json=target_OptimusPostProcessing.json_adapter_files[1],
-        optimus_metadata_analysis_process_project_loom_json_truth=optimus_metadata_analysis_process_project_loom_json
-    }
+        test_json=target_OptimusPostProcessing.json_adapter_files[1],
+        truth_json=optimus_metadata_analysis_process_project_loom_json
+ }
 
- call checker_adapter.ValidateOptimusMetadataProjectLevelAnalysisProtocol as checker_adapter_optimus_project_metadata_analysis_protocol {
+ call checker_adapter.CompareAdapterFiles as checker_adapter_optimus_project_metadata_analysis_protocol {
        input:
-         optimus_metadata_analysis_protocol_project_loom_json=target_OptimusPostProcessing.json_adapter_files[2],
-         optimus_metadata_analysis_protocol_project_loom_json_truth=optimus_metadata_analysis_protocol_project_loom_json
-   }
+         test_json=target_OptimusPostProcessing.json_adapter_files[2],
+         truth_json=optimus_metadata_analysis_protocol_project_loom_json
+ }
 
    output {
     Array[File] analysis_file = target_adapter.analysis_file
