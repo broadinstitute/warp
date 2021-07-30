@@ -111,7 +111,7 @@ task GetMetadata {
 
 task MergeLooms {
   input {
-    Array[File] library_looms
+    Array[File] output_looms
     String library
     String species
     String organ
@@ -121,13 +121,13 @@ task MergeLooms {
 
     String docker = "quay.io/humancellatlas/hca_post_processing:2.0"
 
-    Int memory = ceil(size(library_looms, "G"))+ 10
-    Int disk = ceil((size(library_looms, "G") * 4)) + 50
+    Int memory = ceil(size(output_looms, "G"))+ 10
+    Int disk = ceil((size(output_looms, "G") * 4)) + 50
   }
 
   command {
     python3 /tools/optimus_HCA_loom_merge.py \
-      --input-loom-files ~{sep=" " library_looms} \
+      --input-loom-files ~{sep=" " output_looms} \
       --library "~{library}" \
       --species "~{species}" \
       --organ "~{organ}" \
@@ -148,4 +148,91 @@ task MergeLooms {
   }
 }
 
+task GetAnalysisFileMetadata {
+  input {
+    String input_uuid
+    String pipeline_type
+    String workspace_version
+    String metadata_json
+    #String docker = ""
+    #Int cpu = 1
+    #Int machine_mem_mb = 2000
+    #Int disk = 10
+  }
 
+  command {
+    create-analysis-file \
+      --input_uuid = "~{input_uuid}" \
+      --pipeline_type = "~{pipeline_type}" \
+      --workspace_version = "~{workspace_version}" \
+      --metadata_json = "~{metadata_json}"
+
+  }
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
+  }
+}
+
+task GetAnalysisProcessMetadata {
+  input {
+    String input_uuid
+    String pipeline_type
+    String workspace_version
+    String references
+    String metadata_json
+
+    #String docker = ""
+    #Int cpu = 1
+    #Int machine_mem_mb = 2000
+    #Int disk = 10
+  }
+
+  command {
+    create-analysis-process \
+      --input_uuid = "~{input_uuid}" \
+      --pipeline_type = "~{pipeline_type}" \
+      --workspace_version = "~{workspace_version}" \
+      --references ="~{references}" \
+      --metadata_json ="~{metadata_json}"
+  }
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
+  }
+}
+
+task GetAnalysisProtocolMetadata {
+   input {
+     String input_uuid
+     String pipeline_type
+     String workspace_version
+     String pipeline_version
+
+     #String docker = ""
+     #Int cpu = 1
+     #Int machine_mem_mb = 2000
+     #Int disk = 10
+   }
+
+   command {
+     create-analysis-protocol \
+       --input_uuid = "~{input_uuid}" \
+       --pipeline_type = "~{pipeline_type}" \
+       --workspace_version = "~{workspace_version}" \
+       --pipeline_version ="~{pipeline_version}"
+   }
+
+   runtime {
+     docker: docker
+     cpu: cpu
+     memory: "${machine_mem_mb} MiB"
+     disks: "local-disk ~{disk} HDD"
+   }
+ }

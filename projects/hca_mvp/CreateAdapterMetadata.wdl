@@ -65,7 +65,7 @@ workflow CreateAdapterMetadata {
           cromwell_url = cromwell_url,
           include_subworkflows = false # TODO: do we need subworkflows???
       }
-      call CreateOptimusObjects as GetAdapterObjects{
+      call CreateOptimusObjects as GetAdapterObjects {
         input:
           bam = bam,
           loom = loom,
@@ -75,15 +75,18 @@ workflow CreateAdapterMetadata {
     }
     call Tasks.MergeLooms as MergeLooms {
       input:
-        #where do we want to grab this from? library_looms = ,
+        output_looms = output_looms,
         library = library,
         species = spcecies,
         organ = organ,
         project_id = project_id,
         project_name = project_name,
-        output_basename =output_basename
+        output_basename = output_basename
     }
     # get adapters for merged matrix
+    call CreateOptimusObjects as GetAdapterObjects {
+
+    }
   }
 
   if (is_SS2) {

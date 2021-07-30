@@ -25,10 +25,31 @@ workflow CreateOptimusAdapterObjects {
 
 
 
-  call GetAnalysisFileMetadata{
+  call GetAnalysisFileMetadata {
     input:
   }
 
+  call GetAnalysisProcessMetadata {
+    input:
+
+  }
+
+  call GetAnalysisProtocolMetadata {
+    input:
+
+  }
+
+  call GetLinksFileMetadata {
+    input:
+  }
+
+  call GetDescriptorsAnalysisFileMetadata {
+    input:
+  }
+
+  call GetDescriptorsReferenceFileMetadata {
+    input:
+  }
   # Create the adapter json objects for the project matrtix
 
 
