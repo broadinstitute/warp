@@ -114,7 +114,7 @@ task StarAlignFastqPairedEnd {
 
     for (( i=0; i<${#output_prefix[@]}; ++i));
       do
-        STAR \
+        ./STAR \
           --genomeDir genome_reference \
           --runThreadN ${cpu} \
           --readFilesIn ${fastq1_files[$i]} ${fastq2_files[$i]} \

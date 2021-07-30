@@ -88,7 +88,7 @@ workflow SmartSeq2SingleNucleus {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
     # deduplicated BAM
-    File aligned_bam = RemoveDuplicatesFromBam.output_bam
+    File duplicates_removed_aligned_bam = RemoveDuplicatesFromBam.output_bam
     # data outputs
     File exon_intron_counts=SingleNucleiSmartSeq2LoomOutput.exon_intron_counts
     # this loom contains the exonic and intronic counts for a sample corresponding to individual genes, and metadata
