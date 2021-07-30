@@ -1,3 +1,8 @@
+# 2.3.5
+2021-07-29
+
+* Updated documentation to describe changes to inputs and outputs
+
 # 2.3.4
 2021-07-28
 
