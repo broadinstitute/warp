@@ -2,6 +2,9 @@
 
 WARP documentation has moved! Read more about our pipelines and repository on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
 
+To contribute to WARP, please read our [contributions guidelines](https://broadinstitute.github.io/warp/docs/contribution/README).
+
+
 ### WARP summary
 
 WARP (WDL Analysis Research Pipelines) repository is a collection of cloud-optimized pipelines for processing biological data from the Broad Institute Data Sciences Platform and collaborators.
