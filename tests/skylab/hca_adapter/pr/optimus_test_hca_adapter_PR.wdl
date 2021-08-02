@@ -1,8 +1,8 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/projects/hca_mvp/getTerraMetadata.wdl" as target_adapter
-import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/tests/skylab/hca_adapter/pr/ValidateHcaAdapter.wdl" as checker_adapter
-import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/projects/hca_mvp/OptimusPostProcessing.wdl" as target_OptimusPostProcessing
+import "../../../../projects/hca_mvp/getTerraMetadata.wdl" as target_adapter
+import "../../../../tests/skylab/hca_adapter/pr/ValidateHcaAdapter.wdl" as checker_adapter
+import "../../../../projects/hca_mvp/OptimusPostProcessing.wdl" as target_OptimusPostProcessing
 
 # this workflow will be run by the jenkins script that gets executed by PRs.
 workflow TestHcaAdapter {

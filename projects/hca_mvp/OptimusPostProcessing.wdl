@@ -1,6 +1,6 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/broadinstitute/warp/np-hca-adapter-test/projects/tasks/OptimusPostProcessingTasks.wdl" as PostProcessing
+import "../../projects/tasks/OptimusPostProcessingTasks.wdl" as PostProcessing
 
 workflow OptimusPostProcessing {
   meta {
