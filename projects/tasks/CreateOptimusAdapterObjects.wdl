@@ -53,19 +53,18 @@ workflow CreateOptimusAdapterObjects {
       input_uuid = input_id,
       pipeline_type = "Optimus",
       workspace_version = version_timestamp,
-      #pipeline_version = "optimus_v4.2.3" can we grab this from somehwere?
+      pipeline_version = GetMetadata.pipeline_version
   }
 
   call Tasks.GetLinksFileMetadata {
     input:
-      input_id = input_id,
       project_id = project_id,
-      input_uuids = ,
-      output_file_path =
+      process_input_ids = fastq_uuids,
+      output_file_path = GetAnalysisFileMetadata.outputs_json,
       workspace_version = version_timestamp,
-      analysis_process_path = ,
-      analysis_protocol_path = ,
-      project_stratum_string = project_stratum_string
+      analysis_process_path = GetAnalysisProcessMetadata.outputs_json,
+      analysis_protocol_path = GetAnalysisProtocolMetadata.outputs_json,
+      file_name_string = input_id
   }
 
   call Tasks.GetDescriptorsAnalysisFileMetadata {
