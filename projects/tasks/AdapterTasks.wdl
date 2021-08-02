@@ -308,3 +308,40 @@ task GetDescriptorsAnalysisFileMetadata {
     disks: "local-disk ~{disk} HDD"
   }
 }
+
+task GetReferenceFileMetadata {
+  input {
+    String file_path
+    String input_uuid
+    String genus_species
+    String assembly_type
+    String pipeline_type
+    String ncbi_taxon_id
+    String reference_type
+    String workspace_version
+    String reference_version
+
+    #String docker = ""
+    #Int cpu = 1
+    #Int machine_mem_mb = 2000
+    #Int disk = 10
+  }
+  command {
+  create-reference-file \
+  --genus_species = "~{genus_species}" \
+  --file_path = "~{file_path}" \
+  --workspace_version = "~{workspace_version}" \
+  --input_uuid = "~{input_uuid}" \
+  --reference_version = "~{reference_type}" \
+  --ncbi_taxon_id = "~{ncbi_taxon_id}" \
+  --pipeline_type = "~{pipeline_type}" \
+  --assembly_type = "~{assembly_type}" \
+  --reference_type = "~{reference_type}"
+  }
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
+  }
+}

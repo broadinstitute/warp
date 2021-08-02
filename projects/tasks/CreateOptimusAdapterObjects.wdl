@@ -80,6 +80,18 @@ workflow CreateOptimusAdapterObjects {
       workspace_version = version_timestamp
   }
 
+  call Tasks.GetReferenceFileMetadata {
+    input:
+      genus_species = ,
+      file_path = ,
+      workspace_version = version_timestamp ,
+      input_uuid = ,
+      reference_version = ,
+      ncbi_taxon_id = ,
+      pipeline_type = "Optimus",
+      assembly_type = ,
+      reference_type =
+  }
 
 
   output {
