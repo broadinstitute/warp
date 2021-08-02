@@ -26,8 +26,6 @@ task SamToFastqAndDragmapAndMba {
     ReferenceFasta reference_fasta
     DragmapReference dragmap_reference
 
-    File picard_jar = "gs://broad-dsde-methods-mgatzen/dragen_evaluation/alignment/picard-2.23.7-SNAPSHOT-all.jar"
-
     Int compression_level
     Int preemptible_tries
     Boolean hard_clip_reads = false
@@ -57,7 +55,7 @@ task SamToFastqAndDragmapAndMba {
     samtools fastq -1 reads1.fastq.gz -2 reads2.fastq.gz -0 /dev/null -s /dev/null -n ~{input_bam}
 
     dragen-os ~{dragmap_commandline} 2> >(tee ~{output_bam_basename}.dragmap.stderr.log >&2) | samtools view -h -O BAM - > aligned.bam
-    java -Dsamjdk.compression_level=~{compression_level} -Xms1000m -Xmx1000m -jar ~{picard_jar} \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms1000m -Xmx1000m -jar /picard/picard.jar \
       MergeBamAlignment \
       VALIDATION_STRINGENCY=SILENT \
       EXPECTED_ORIENTATIONS=FR \
