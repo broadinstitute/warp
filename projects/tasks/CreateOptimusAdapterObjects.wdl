@@ -40,16 +40,32 @@ workflow CreateOptimusAdapterObjects {
 
   call Tasks.GetAnalysisProcessMetadata {
     input:
+      input_uuid = input_id,
+      pipeline_type = "Optimus",
+      workspace_version = version_timestamp,
+      references =,
+      metadata_json = GetMetadata.metadata
 
   }
 
   call Tasks.GetAnalysisProtocolMetadata {
     input:
-
+      input_uuid = input_id,
+      pipeline_type = "Optimus",
+      workspace_version = version_timestamp,
+      #pipeline_version = "optimus_v4.2.3" can we grab this from somehwere?
   }
 
   call Tsaks.GetLinksFileMetadata {
     input:
+      input_id = input_id,
+      project_id = project_id,
+      input_uuids = ,
+      output_file_path =
+      workspace_version = version_timestamp,
+      analysis_process_path = ,
+      analysis_protocol_path = ,
+      project_stratum_string = project_stratum_string
   }
 
   call Tsaks.GetDescriptorsAnalysisFileMetadata {

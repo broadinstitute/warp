@@ -236,3 +236,40 @@ task GetAnalysisProtocolMetadata {
      disks: "local-disk ~{disk} HDD"
    }
  }
+
+task GetLinksFileMetadata {
+  input {
+    String input_id
+    String project_id
+    String input_uuids
+    String output_file_path
+    String workspace_version
+    String analysis_process_path
+    String analysis_protocol_path
+    String project_stratum_string
+
+    #String docker = ""
+    #Int cpu = 1
+    #Int machine_mem_mb = 2000
+    #Int disk = 10
+  }
+
+  command {
+    create-links \
+    --input_id = "~{input_uuid}" \
+    --project_id = "~{project_id}" \
+    --input_uuids = "~{input_uuids}" \
+    --output_file_path = "~{output_file_path}" \
+    --workspace_version = "~{workspace_version}" \
+    --analysis_process_path = "~{analysis_process_path}" \
+    --analysis_protocol_path = "~{analysis_protocol_path}" \
+    --project_stratum_string = "~{project_stratum_string}"
+  }
+
+  runtime {
+       docker: docker
+       cpu: cpu
+       memory: "${machine_mem_mb} MiB"
+       disks: "local-disk ~{disk} HDD"
+  }
+}
