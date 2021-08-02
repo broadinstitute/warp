@@ -56,7 +56,7 @@ workflow CreateOptimusAdapterObjects {
       #pipeline_version = "optimus_v4.2.3" can we grab this from somehwere?
   }
 
-  call Tsaks.GetLinksFileMetadata {
+  call Tasks.GetLinksFileMetadata {
     input:
       input_id = input_id,
       project_id = project_id,
@@ -68,8 +68,16 @@ workflow CreateOptimusAdapterObjects {
       project_stratum_string = project_stratum_string
   }
 
-  call Tsaks.GetDescriptorsAnalysisFileMetadata {
+  call Tasks.GetDescriptorsAnalysisFileMetadata {
     input:
+      size = ,
+      sha256 = ,
+      crc32c = ,
+      pipeline_type = "Optimus",
+      file_path = ,
+      input_uuid = ,
+      creation_time = ,
+      workspace_version = version_timestamp
   }
 
 

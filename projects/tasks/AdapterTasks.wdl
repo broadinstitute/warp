@@ -256,7 +256,7 @@ task GetLinksFileMetadata {
 
   command {
     create-links \
-    --input_id = "~{input_uuid}" \
+    --input_id = "~{input_id}" \
     --project_id = "~{project_id}" \
     --input_uuids = "~{input_uuids}" \
     --output_file_path = "~{output_file_path}" \
@@ -267,9 +267,44 @@ task GetLinksFileMetadata {
   }
 
   runtime {
-       docker: docker
-       cpu: cpu
-       memory: "${machine_mem_mb} MiB"
-       disks: "local-disk ~{disk} HDD"
+    docker: docker
+    cpu: cpu
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
+  }
+}
+
+task GetDescriptorsAnalysisFileMetadata {
+  input {
+    String size
+    String sha256
+    String crc32c
+    String input_uuid
+    String file_path
+    String pipeline_type
+    String creation_time
+    String workspace_version
+
+    #String docker = ""
+    #Int cpu = 1
+    #Int machine_mem_mb = 2000
+    #Int disk = 10
+   }
+  command {
+    create-file-descriptor \
+    --size = "~{size}" \
+    --sha256 = "~{sha256}" \
+    --crc32c = "~{crc32c}" \
+    --pipeline_type = "~{pipeline_type}" \
+    --file_path = "~{file_path}" \
+    --input_uuid = "~{input_uuid}" \
+    --creation_time = "~{creation_time}" \
+    --workspace_version = "~{workspace_version}"
+  }
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
   }
 }
