@@ -1,7 +1,12 @@
+# 1.11.3
+2021-08-02
+
+* Increased the version number to make new release tag for Dockstore 
+
 # 1.11.2
 2021-07-13
 
-* Make chip_well_barcode and analysis_version_number available as outputs of the WDL.
+* Make chip_well_barcode and analysis_version_number available as outputs of the WDL
 
 # 1.11.1
 2021-05-19
@@ -11,7 +16,7 @@
 # 1.11.0
 2020-10-01
 
-* Added use of BafRegress to the pipeline.  BafRegress detects and estimates sample contamination using B allele frequency data from Illumina genotyping arrays using a regression model.
+* Added use of BafRegress to the pipeline.  BafRegress detects and estimates sample contamination using B allele frequency data from Illumina genotyping arrays using a regression model
 
 # 1.10.0
 2020-08-18
@@ -21,8 +26,7 @@
 # 1.9
 2020-07-31
 
-* Fixed a bug in CollectArraysVariantCallingMetrics and GenotypeConcordance where the metrics file is 
-  being parsed incorrectly if there is a space in the sample name value 
+* Fixed a bug in CollectArraysVariantCallingMetrics and GenotypeConcordance where the metrics file is being parsed incorrectly if there is a space in the sample name value 
   
 # 1.8.1
 2020-07-31
