@@ -167,7 +167,6 @@ task GetAnalysisFileMetadata {
       --pipeline_type = "~{pipeline_type}" \
       --workspace_version = "~{version_timestamp}" \
       --metadata_json = "~{metadata_json}"
-
   }
 
   runtime {
@@ -175,6 +174,10 @@ task GetAnalysisFileMetadata {
     cpu: cpu
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
+  }
+
+  output {
+      File outputs_json = "" #unsure what this would be
   }
 }
 
@@ -207,6 +210,9 @@ task GetAnalysisProcessMetadata {
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
   }
+  output {
+    File outputs_json = "" #unsure what this would be
+  }
 }
 
 task GetAnalysisProtocolMetadata {
@@ -236,6 +242,10 @@ task GetAnalysisProtocolMetadata {
      memory: "${machine_mem_mb} MiB"
      disks: "local-disk ~{disk} HDD"
    }
+
+    output {
+      File outputs_json = "" #unsure what this would be
+    }
  }
 
 task GetLinksFileMetadata {
@@ -276,11 +286,11 @@ task GetLinksFileMetadata {
 task GetDescriptorsAnalysisFileMetadata {
   input {
     String input_uuid
-    String file_path_string
     String pipeline_type
     String creation_time
     String version_timestamp
     File file_path
+    String file_path_string #does this need to be set to file_path ?
 
     String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
     Int cpu = 1

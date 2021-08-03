@@ -19,7 +19,12 @@ workflow CreateOptimusAdapterObjects {
     String project_name
     String? project_stratum_string
     String version_timestamp
-
+    String creation_time
+    String genus_species #hoping to grab from metadata
+    String reference_version #hoping to grab from metadata, either GencodeV27 or GencodeM21
+    String ncbi_taxon_id #hoping to grab from metadata, either 9606 or 10090
+    String assembly_type = "primary assembly" #looks like we always use primary_assmebly, should this be hardcoded?
+    String reference_type = "genome sequence" #looks like we always use primary_assmebly, should this be hardcoded?
     String cromwell_url = "https://api.firecloud.org/"
   }
 
@@ -70,23 +75,23 @@ workflow CreateOptimusAdapterObjects {
   call Tasks.GetDescriptorsAnalysisFileMetadata {
     input:
       pipeline_type = "Optimus",
-      file_path = ,
+      file_path = , #unsure what this should be... should be "Path to the loom/bam file to describe"
       input_uuid = input_id,
-      creation_time = ,
+      creation_time = , #unsure what this should be, are we hard coding it? Should it be a manual input? look at task get_cloud_file_creation_date in old wdl
       workspace_version = version_timestamp
   }
 
   call Tasks.GetReferenceFileMetadata {
     input:
-      genus_species = ,
-      file_path = ,
+      genus_species = genus_species,
+      file_path = , #not sure where to grab this, should be "Path to the reference file"
       workspace_version = version_timestamp,
-      input_uuid = ,
-      reference_version = ,
-      ncbi_taxon_id = ,
+      input_uuid = input_id,
+      reference_version = , #hoping to grab from metadata, either GencodeV27 or GencodeM21
+      ncbi_taxon_id = , #hoping to grab from metadata, either GencodeV27 or GencodeM21
       pipeline_type = "Optimus",
-      assembly_type = ,
-      reference_type =
+      assembly_type = assembly_type,
+      reference_type = reference_type
   }
 
 
