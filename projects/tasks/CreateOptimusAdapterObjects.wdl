@@ -69,12 +69,9 @@ workflow CreateOptimusAdapterObjects {
 
   call Tasks.GetDescriptorsAnalysisFileMetadata {
     input:
-      size = ,
-      sha256 = ,
-      crc32c = ,
       pipeline_type = "Optimus",
       file_path = ,
-      input_uuid = ,
+      input_uuid = input_id,
       creation_time = ,
       workspace_version = version_timestamp
   }
@@ -83,7 +80,7 @@ workflow CreateOptimusAdapterObjects {
     input:
       genus_species = ,
       file_path = ,
-      workspace_version = version_timestamp ,
+      workspace_version = version_timestamp,
       input_uuid = ,
       reference_version = ,
       ncbi_taxon_id = ,

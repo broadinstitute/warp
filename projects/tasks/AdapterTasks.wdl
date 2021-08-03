@@ -8,6 +8,7 @@ task CheckStratumMetadata {
     Array[String] organ
     Array[String] project_id
     Array[String] project_name
+
     String docker = "python:3.7.2"
     Int memory = 3
     Int disk = 20
@@ -120,7 +121,6 @@ task MergeLooms {
     String output_basename
 
     String docker = "quay.io/humancellatlas/hca_post_processing:2.0"
-
     Int memory = ceil(size(output_looms, "G"))+ 10
     Int disk = ceil((size(output_looms, "G") * 4)) + 50
   }
@@ -154,6 +154,7 @@ task GetAnalysisFileMetadata {
     String pipeline_type
     String version_timestamp
     String metadata_json
+
     String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
     Int cpu = 1
     Int machine_mem_mb = 2000
