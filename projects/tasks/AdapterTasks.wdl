@@ -154,10 +154,10 @@ task GetAnalysisFileMetadata {
     String pipeline_type
     String version_timestamp
     String metadata_json
-    #String docker = ""
-    #Int cpu = 1
-    #Int machine_mem_mb = 2000
-    #Int disk = 10
+    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    Int cpu = 1
+    Int machine_mem_mb = 2000
+    Int disk = 10
   }
 
   command {
@@ -185,10 +185,10 @@ task GetAnalysisProcessMetadata {
     String references
     String metadata_json
 
-    #String docker = ""
-    #Int cpu = 1
-    #Int machine_mem_mb = 2000
-    #Int disk = 10
+    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    Int cpu = 1
+    Int machine_mem_mb = 2000
+    Int disk = 10
   }
 
   command {
@@ -215,10 +215,10 @@ task GetAnalysisProtocolMetadata {
      String version_timestamp
      String pipeline_version
 
-     #String docker = ""
-     #Int cpu = 1
-     #Int machine_mem_mb = 2000
-     #Int disk = 10
+     String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+     Int cpu = 1
+     Int machine_mem_mb = 2000
+     Int disk = 10
    }
 
    command {
@@ -247,10 +247,10 @@ task GetLinksFileMetadata {
     String analysis_protocol_path
     String file_name_string
 
-    #String docker = ""
-    #Int cpu = 1
-    #Int machine_mem_mb = 2000
-    #Int disk = 10
+    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    Int cpu = 1
+    Int machine_mem_mb = 2000
+    Int disk = 10
   }
 
   command {
@@ -281,10 +281,10 @@ task GetDescriptorsAnalysisFileMetadata {
     String version_timestamp
     File file_path
 
-    #String docker = ""
-    #Int cpu = 1
-    #Int machine_mem_mb = 2000
-    #Int disk = 10
+    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    Int cpu = 1
+    Int machine_mem_mb = 2000
+    Int disk = 30
    }
   command
   <<<
@@ -322,10 +322,10 @@ task GetReferenceFileMetadata {
     String version_timestamp
     String reference_version
 
-    #String docker = ""
-    #Int cpu = 1
-    #Int machine_mem_mb = 2000
-    #Int disk = 10
+    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    Int cpu = 1
+    Int machine_mem_mb = 2000
+    Int disk = 10
   }
   command {
   create-reference-file \
