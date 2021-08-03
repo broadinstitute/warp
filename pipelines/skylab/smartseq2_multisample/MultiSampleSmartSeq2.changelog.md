@@ -1,3 +1,15 @@
+# 2.2.3
+2021-07-19 (Date of Last Commit)
+
+* Updated SmartSeq2 to accommodate spaces in input_name
+
+# 2.2.2
+
+2020-05-24 (Date of Last Commit)
+
+* Added a task to Picard.wdl
+* Updated the docker in LoomUtils.wdl task to 0.0.7. 
+
 # 2.2.1
 
 2020-12-07 (Date of Last Commit)
