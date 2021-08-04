@@ -1,3 +1,9 @@
+
+# 2.3.6
+2021-08-02
+
+* Increased the version number to make new release tag for Dockstore 
+
 # 2.3.5
 2021-06-22
 
