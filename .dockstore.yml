@@ -48,6 +48,7 @@ workflows:
   - name: CEMBA
     subclass: WDL
     primaryDescriptorPath: /pipelines/cemba/cemba_methylcseq/CEMBA.wdl
+
   - name: OptimusTestHcaAdapter
     subclass: WDL
     primaryDescriptorPath: /tests/skylab/hca_adapter/pr/optimus_test_hca_adapter_PR.wdl

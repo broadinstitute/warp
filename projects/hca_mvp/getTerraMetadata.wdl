@@ -188,7 +188,7 @@ task create_submission {
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
-	File? fastq1_input_files_tsv
+    File? fastq1_input_files_tsv
     File? fastq2_input_files_tsv
     File? input_ids_tsv
   }
