@@ -15,7 +15,10 @@ workflow CreateAdapterMetadata {
     Array[File] output_bams
     Array[File] output_looms
     Array[File]? output_bais
-    Array[String] input_ids
+    Array[String] input_ids #sequencing_process_provenance_document_id
+    Array[String] fastq_1_uuids
+    Array[String] fastq_2_uuids
+    Array[String] fastq_i1_uuids = []
 
     # These values come in as arrays from Terra, but should be populated with a single value (which may be repeated)
     Array[String] all_libraries
@@ -55,6 +58,8 @@ workflow CreateAdapterMetadata {
   # Build staging bucket
   String staging_bucket = staging_area + project_id + "/staging/"
   String project_stratum_string = "project=" + project_id + ";library=" + library + ";species=" + species + ";organ=" + organ
+
+  Array[String] fastq_uuids = flatten([fastq_1_uuids, fastq_2_uuids, fastq_i1_uuids])
 
   ########################## Get Optimus Metadata Files ##########################
   if (is_Optimus) {
