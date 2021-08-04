@@ -6,7 +6,7 @@ import "../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 workflow ExomeReprocessing {
 
-  String pipeline_version = "2.4.7"
+  String pipeline_version = "2.4.8"
 
   input {
     File? input_cram
