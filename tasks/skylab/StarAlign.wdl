@@ -99,7 +99,7 @@ task StarAlignFastqPairedEnd {
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
-  command {
+  command <<<
     set -e
     set -exo pipefail
 
@@ -127,6 +127,7 @@ task StarAlignFastqPairedEnd {
           --genomeLoad LoadAndExit \
           --outFileNamePrefix ${output_prefix[$i]}
       done;
+  >>>
   }
 
   runtime {
@@ -138,7 +139,7 @@ task StarAlignFastqPairedEnd {
   }
 
   output {
-    Array[File] output_bam = "~{input_ids}Aligned.sortedByCoord.out.bam"
+    Array[File] output_bam = "~{input_ids}_Aligned.sortedByCoord.out.bam"
   }
 
 }

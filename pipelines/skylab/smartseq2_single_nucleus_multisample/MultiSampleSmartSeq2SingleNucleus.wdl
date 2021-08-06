@@ -5,8 +5,8 @@ import "LoomUtils.wdl" as LoomUtils
 import "CheckInputs.wdl" as CheckInputs
 import "StarAlign.wdl" as StarAlign
 import "TrimAdapters.wdl" as TrimAdapters
+import "Picard.wdl" as Picard
 
->>>>>>> b55a7135e914ada215bba667e60c35d3003c3642
 workflow MultiSampleSmartSeq2SingleNucleus {
   meta {
     description: "The MultiSampleSmartSeq2SingleNucleus pipeline runs multiple snSS2 samples in a single pipeline invocation"
@@ -81,6 +81,46 @@ workflow MultiSampleSmartSeq2SingleNucleus {
         fastq2_input_files = TrimAdapters.trimmed_fastq2_files,
         tar_star_reference = star_reference
    }
+    String quality_control_output_basename = output_name + "_qc"
+
+    call Picard.RemoveDuplicatesFromBam as RemoveDuplicatesFromBam {
+        input:
+            input_id = input_id,
+            aligned_bam = aligned_bam,
+            output_basename = quality_control_output_basename,
+    }
+
+    call Picard.CollectMultipleMetrics {
+        input:
+            aligned_bam = RemoveDuplicatesFromBam.output_bam,
+            genome_ref_fasta = genome_ref_fasta,
+            output_basename = quality_control_output_basename,
+    }
+
+    call CountAlignments.CountAlignments as CountAlignments {
+        input:
+            input_bam = RemoveDuplicatesFromBam.output_bam,
+            annotation_gtf = annotations_gtf
+    }
+
+    Array[File] smartseq_qc_files = [
+                                    CollectMultipleMetrics.alignment_summary_metrics,
+                                    RemoveDuplicatesFromBam.dedup_metrics,
+                                    CollectMultipleMetrics.gc_bias_summary_metrics
+                                    ]
+
+    call LoomUtils.SingleNucleiSmartSeq2LoomOutput as SingleNucleiSmartSeq2LoomOutput {
+        input:
+            input_id = input_id,
+            input_name = input_name,
+            pipeline_version = "SmartSeq2SingleNucleus_v~{pipeline_version}",
+            input_id_metadata_field = input_id_metadata_field,
+            input_name_metadata_field = input_name_metadata_field,
+            smartseq_qc_files = smartseq_qc_files,
+            introns_counts = CountAlignments.intron_counts_out,
+            exons_counts = CountAlignments.exon_counts_out,
+            annotation_introns_added_gtf = annotations_gtf
+    }
 
   ### Execution starts here ###
   scatter(idx in range(length(input_ids))) {

@@ -28,25 +28,27 @@ task TrimAdapters {
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
-  command {
+  command <<<
     set -e
 
     fastq1_files=~{sep=' ' fastq1_input_files}
     fastq2_files=~{sep=' ' fastq2_input_files}
-
-    for (( i=0; i<${#fastq1_input_files[@]}; ++i));
+    n_files=${#fastq1_input_files[@]}
+    for (( i=0; i<$n_files; ++i));
       do
         fastq1=${fastq1_files[$i]}
         fastq2=${fastq2_files[$i]}
 
         fastq-mcf \
            -C 200000 ~{adapter_list} \
-           ~{fastq1} \
-           ~{fastq2} \
-           -o "${fastq1_files[$i]}.trimmed.fastq.gz" \
-           -o "${fastq2_files[$i]}.trimmed.fastq.gz"
+           $fastq1 \
+           $fastq2 \
+           -o "$fastq1.trimmed.fastq.gz" \
+           -o "$fastq2.trimmed.fastq.gz"
       done;
-  }
+  >>>
+
+}
 
   runtime {
     docker: docker
