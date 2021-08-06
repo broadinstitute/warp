@@ -3,6 +3,7 @@ version 1.0
 import "../../projects/tasks/CreateOptimusAdapterObjects.wdl" as CreateOptimusObjects
 import "../../projects/tasks/MergeOptimusLooms.wdl" as MergeLooms
 import "../../projects/tasks/AdapterTasks.wdl" as Tasks
+import "../../projects/tasks/CreateReferenceMetadata.wdl" as CreateReferenceMetadata
 
 
 workflow CreateAdapterMetadata {
@@ -64,7 +65,7 @@ workflow CreateAdapterMetadata {
   ########################## Get Optimus Metadata Files ##########################
   if (is_Optimus) {
     scatter (idx in range(length(looms))) {
-      call CreateOptimusObjects as GetIntermediateOpitmusAdapters {
+      call CreateOptimusObjects as GetIntermediateOptimusAdapters {
         input:
           bam = bams[idx],
           loom = looms[idx],
@@ -77,12 +78,18 @@ workflow CreateAdapterMetadata {
           version_timestamp = version_timestamp
       }
     }
-    call
+    call CreateReferenceMetadata as CreateReferenceMetadata {
+      input:
+        reference_fastas = reference_fastas,
+        species = species,
+        pipeline_type = pipeline_type,
+        workflow_version = workflow_version
+    }
     call MergeLooms.MergeOptimusLooms as MergeLooms {
       input:
         output_looms = output_looms,
         library = library,
-        species = spcecies,
+        species = species,
         organ = organ,
         project_id = project_id,
         project_name = project_name,
@@ -100,7 +107,6 @@ workflow CreateAdapterMetadata {
         project_name = project_name,
         project_stratum_string = project_stratum_string
       }
-
     }
   }
 

@@ -357,3 +357,27 @@ task GetReferenceFileMetadata {
     disks: "local-disk ~{disk} HDD"
   }
 }
+
+task GetCloudFileCreationDate {
+  input {
+    String file_path
+    Int cpu = 1
+    Int machine_mem_mb = 2000
+    Int disk = 10
+  }
+
+  command <<<
+    gsutil ls -l ~{file_path} | egrep -o "([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)" > creation_date.txt
+  >>>
+
+  runtime {
+    docker: "gcr.io/google.com/cloudsdktool/cloud-sdk:latest"
+    cpu: cpu
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
+  }
+
+  output {
+    String creation_date = read_string("creation_date.txt")
+  }
+}
