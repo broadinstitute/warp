@@ -32,6 +32,7 @@ workflow VariantCalling {
     Boolean make_gvcf = true
     Boolean make_bamout = false
     Boolean use_gatk3_haplotype_caller = false
+    Boolean dragen_mode_hard_filter = false
   }
 
   parameter_meta {
@@ -102,10 +103,22 @@ workflow VariantCalling {
           make_gvcf = make_gvcf,
           make_bamout = make_bamout,
           run_dragen_mode = run_dragen_mode,
+          dragen_mode_hard_filter = dragen_mode_hard_filter,
           use_spanning_event_genotyping = use_spanning_event_genotyping,
           dragstr_model = DragstrAutoCalibration.dragstr_model,
           preemptible_tries = agg_preemptible_tries
        }
+      
+      if (dragen_mode_hard_filter) {
+        call Calling.DragenHardFilterVcf as DragenHardFilterVcf {
+          input:
+            input_vcf = HaplotypeCallerGATK4.output_vcf,
+            input_vcf_index = HaplotypeCallerGATK4.output_vcf_index,
+            make_gvcf = make_gvcf,
+            vcf_basename = base_file_name,
+            preemptible_tries = agg_preemptible_tries
+        }
+      }
 
       # If bamout files were created, we need to sort and gather them into one bamout
       if (make_bamout) {
@@ -119,17 +132,18 @@ workflow VariantCalling {
       }
     }
 
-    File vcfs_to_merge = select_first([HaplotypeCallerGATK3.output_gvcf, HaplotypeCallerGATK4.output_vcf])
-    File vcf_indices_to_merge = select_first([HaplotypeCallerGATK3.output_gvcf_index, HaplotypeCallerGATK4.output_vcf_index])
+    File vcfs_to_merge = select_first([HaplotypeCallerGATK3.output_gvcf, DragenHardFilterVcf.output_vcf, HaplotypeCallerGATK4.output_vcf])
+    File vcf_indices_to_merge = select_first([HaplotypeCallerGATK3.output_gvcf_index, DragenHardFilterVcf.output_vcf_index, HaplotypeCallerGATK4.output_vcf_index])
   }
 
   # Combine by-interval (g)VCFs into a single sample (g)VCF file
+  String hard_filter_suffix = if dragen_mode_hard_filter then ".hard-filtered" else ""
   String merge_suffix = if make_gvcf then ".g.vcf.gz" else ".vcf.gz"
   call Calling.MergeVCFs as MergeVCFs {
     input:
       input_vcfs = vcfs_to_merge,
       input_vcfs_indexes = vcf_indices_to_merge,
-      output_vcf_name = final_vcf_base_name + merge_suffix,
+      output_vcf_name = final_vcf_base_name + hard_filter_suffix + merge_suffix,
       preemptible_tries = agg_preemptible_tries
   }
 

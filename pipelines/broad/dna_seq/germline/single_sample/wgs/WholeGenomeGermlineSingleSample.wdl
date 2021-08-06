@@ -58,6 +58,7 @@ workflow WholeGenomeGermlineSingleSample {
     Boolean use_spanning_event_genotyping = true
     Boolean perform_bqsr = true
     Boolean use_bwa_mem = true
+    Boolean dragen_mode_hard_filter = false
   }
 
   # Not overridable:
@@ -159,7 +160,8 @@ workflow WholeGenomeGermlineSingleSample {
       base_file_name = sample_and_unmapped_bams.base_file_name,
       final_vcf_base_name = final_gvcf_base_name,
       agg_preemptible_tries = papi_settings.agg_preemptible_tries,
-      use_gatk3_haplotype_caller = use_gatk3_haplotype_caller
+      use_gatk3_haplotype_caller = use_gatk3_haplotype_caller,
+      dragen_mode_hard_filter = dragen_mode_hard_filter
   }
 
   if (provide_bam_output) {

@@ -93,6 +93,7 @@ task HaplotypeCaller_GATK4_VCF {
     Int preemptible_tries
     Int hc_scatter
     Boolean run_dragen_mode = false
+    Boolean dragen_mode_hard_filter = false
     Boolean use_spanning_event_genotyping = true
     File? dragstr_model
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.0.0"
@@ -203,6 +204,43 @@ task HardFilterVcf {
       -L ~{interval_list} \
       --filter-expression "QD < 2.0 || FS > 30.0 || SOR > 3.0 || MQ < 40.0 || MQRankSum < -3.0 || ReadPosRankSum < -3.0" \
       --filter-name "HardFiltered" \
+      -O ~{output_vcf_name}
+  }
+  output {
+    File output_vcf = "~{output_vcf_name}"
+    File output_vcf_index = "~{output_vcf_name}.tbi"
+  }
+  runtime {
+    docker: gatk_docker
+    preemptible: preemptible_tries
+    memory: "3 GiB"
+    bootDiskSizeGb: 15
+    disks: "local-disk " + disk_size + " HDD"
+  }
+}
+
+# This hard filtering matches DRAGEN 3.4.12. For later DRAGEN versions, this needs to be updated.
+task DragenHardFilterVcf {
+  input {
+    File input_vcf
+    File input_vcf_index
+    Boolean make_gvcf
+    String vcf_basename
+    Int preemptible_tries
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
+  }
+
+  Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
+
+  String output_suffix = if make_gvcf then ".g.vcf.gz" else ".vcf.gz"
+  String output_vcf_name = vcf_basename + ".hard-filtered" + output_suffix
+
+  command {
+     gatk --java-options "-Xms3000m" \
+      VariantFiltration \
+      -V ~{input_vcf} \
+      --filter-expression "QUAL < 10.4139" \
+      --filter-name "DRAGENHardQUAL" \
       -O ~{output_vcf_name}
   }
   output {
