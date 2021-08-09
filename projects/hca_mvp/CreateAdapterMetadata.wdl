@@ -75,7 +75,9 @@ workflow CreateAdapterMetadata {
           organ = organ,
           project_id = project_id,
           project_name = project_name,
-          version_timestamp = version_timestamp
+          version_timestamp = version_timestamp,
+          cromwell_url = cromwell_url,
+          project_level = false
 
       }
     }
@@ -100,7 +102,7 @@ workflow CreateAdapterMetadata {
     call CreateOptimusObjects as GetProjectOpitmusAdapters {
       input:
         loom = MergeLooms.project_loom,
-        input_id = ,
+        input_id = project_stratum_string,
         library = library,
         species = species,
         organ = organ,

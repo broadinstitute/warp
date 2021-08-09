@@ -62,12 +62,63 @@ task CheckStratumMetadata {
       raise ValueError("Files must have matching metadata in order to combine.")
   CODE
   }
-
   runtime {
     docker: docker
     cpu: 1
     memory: "~{memory} GiB"
     disks: "local-disk ~{disk} HDD"
+  }
+}
+
+
+# Due to the nature of running some things for intermediate steps and some for project steps, we have several place
+# where we process arrays of input which we expect to contain a single value duplicated many times.
+# This simple function confirms that the er is a sigle value in a given input array and that that value does not
+# contain any disallowed characters
+task CheckInput {
+  input {
+    Array[String] input_array
+    String input_type
+    String illegal_characters = ""
+
+    String docker = "python:3.7.2"
+    Int memory = 3
+    Int disk = 20
+  }
+
+  command <<<
+  set -e pipefail
+  python3 <<CODE
+
+  input_set = set([ "~{sep='", "' input_array}" ])
+
+  errors=0
+
+  if len(input_set) != 1:
+      print("ERROR: Expected one value for {}, but found multiple: {}".format(input_type, input_set))
+      errors += 1
+
+  for c in list(~{illegal_characters}):
+      for i in input_set:
+          if c in i:
+              print("ERROR: {} string, {}, contains an illegal character {}".format(input_type, i, c))
+              errors += 1
+
+  if errors > 0:
+      raise ValueError("Failed input check due to mulitple values and/or illegal characters")
+
+  with open('output.txt', 'w') as f:
+        f.write(list(input_set)[0])
+  CODE
+  >>>
+  runtime {
+    docker: docker
+    cpu: 1
+    memory: "~{memory} GiB"
+    disks: "local-disk ~{disk} HDD"
+  }
+  output {
+    String output_string = read_string("output.txt")
   }
 }
 
@@ -103,12 +154,12 @@ task GetCromwellMetadata {
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
   }
-
   output {
     File metadata = "metadata.json"
     String workflow_id = read_string("workflow_id.txt")
   }
 }
+
 
 task MergeLooms {
   input {
@@ -135,18 +186,17 @@ task MergeLooms {
       --project-name "~{project_name}" \
       --output-loom-file ~{output_basename}.loom
   }
-
   runtime {
     docker: docker
     cpu: 1
     memory: "~{memory} GiB"
     disks: "local-disk ~{disk} HDD"
   }
-
   output {
     File project_loom = "~{output_basename}.loom"
   }
 }
+
 
 task GetAnalysisFileMetadata {
   input {
@@ -170,18 +220,17 @@ task GetAnalysisFileMetadata {
       --input_file = "~{input_file}" \
       ~{"--project_level " + project_level}
   }
-
   runtime {
     docker: docker
     cpu: cpu
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
   }
-
   output {
       File outputs_json = "" #unsure what this would be
   }
 }
+
 
 task GetAnalysisProcessMetadata {
   input {
@@ -210,7 +259,6 @@ task GetAnalysisProcessMetadata {
       ~{"--loom_timestamp " + loom_timestamp}
 
   }
-
   runtime {
     docker: docker
     cpu: cpu
@@ -244,18 +292,17 @@ task GetAnalysisProtocolMetadata {
        --pipeline_version = "~{pipeline_version}" \
        ~{"--project_level " + project_level}
    }
-
    runtime {
      docker: docker
      cpu: cpu
      memory: "${machine_mem_mb} MiB"
      disks: "local-disk ~{disk} HDD"
-   }
-
+    }
     output {
       File outputs_json = "" #unsure what this would be
     }
  }
+
 
 task GetLinksFileMetadata {
   input {
@@ -285,16 +332,19 @@ task GetLinksFileMetadata {
     --file_name_string = "~{file_name_string}" \
     ~{"--project_level " + project_level}
   }
-
   runtime {
     docker: docker
     cpu: cpu
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
   }
+  output {
+    File outputs_json = "" #unsure what this would be
+  }
 }
 
-task GetDescriptorsAnalysisFileMetadata {
+
+task GetFileDescriptor {
   input {
     String input_uuid
     String pipeline_type
@@ -308,6 +358,7 @@ task GetDescriptorsAnalysisFileMetadata {
     Int machine_mem_mb = 2000
     Int disk = 30
    }
+
   command
   <<<
       export sha=$(sha256sum ~{file_path} | cut -f1 -d ' ')
@@ -331,7 +382,11 @@ task GetDescriptorsAnalysisFileMetadata {
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
   }
+  output {
+    File outputs_json = "" #unsure what this would be
+  }
 }
+
 
 task GetReferenceFileMetadata {
   input {
@@ -350,6 +405,7 @@ task GetReferenceFileMetadata {
     Int machine_mem_mb = 2000
     Int disk = 10
   }
+
   command {
   create-reference-file \
   --genus_species = "~{genus_species}" \
@@ -368,7 +424,11 @@ task GetReferenceFileMetadata {
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
   }
+  output {
+    File outputs_json = "" #unsure what this would be
+  }
 }
+
 
 task GetCloudFileCreationDate {
   input {
@@ -388,8 +448,66 @@ task GetCloudFileCreationDate {
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
   }
-
   output {
     String creation_date = read_string("creation_date.txt")
+  }
+}
+
+
+task ParseCromwellMetadata {
+  input {
+    File cromwell_metadata
+    String pipeline_type
+
+    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    Int cpu = 1
+    Int machine_mem_mb = 2000
+    Int disk = 10
+  }
+
+  command {
+    parse-metadata \
+    --cromwell-metadata-json ~{cromwell_metadata} \
+    --pipeline-type ~{pipeline_type}
+  }
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
+  }
+  output {
+    String ref_fasta = read_string("ref_fasta.txt")
+    String pipeline_version = read_string("pipeline_version.txt")
+  }
+}
+
+
+task GetReferenceDetails {
+  input {
+    File ref_fasta
+    String species
+
+    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    Int cpu = 1
+    Int machine_mem_mb = 2000
+    Int disk = 10
+  }
+
+  command {
+    get-reference-file-details \
+    --reference-file ~{ref_fasta} \
+    --species ~{species}
+  }
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
+  }
+  output {
+    String ncbi_taxon_id = read_string("ncbi_taxon_id.txt")
+    String assembly_type = read_string("assembly_type.txt")
+    String reference_type = read_string("reference_type.txt")
   }
 }
