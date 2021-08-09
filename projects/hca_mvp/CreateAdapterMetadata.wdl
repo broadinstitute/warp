@@ -76,6 +76,7 @@ workflow CreateAdapterMetadata {
           project_id = project_id,
           project_name = project_name,
           version_timestamp = version_timestamp
+
       }
     }
     call CreateReferenceMetadata as CreateReferenceMetadata {

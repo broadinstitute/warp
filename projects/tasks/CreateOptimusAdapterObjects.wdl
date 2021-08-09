@@ -1,6 +1,7 @@
 version 1.0
 
 import "../../projects/tasks/OptimusPostProcessingTasks.wdl" as PostProcessing
+import "../../projects/tasks/AdapterTasks.wdl" as Tasks
 
 workflow CreateOptimusAdapterObjects {
   meta {
@@ -35,12 +36,12 @@ workflow CreateOptimusAdapterObjects {
       include_subworkflows = false # TODO: do we need subworkflows???
   }
 
-  call Tasks.GetAnalysisFileMetadata {
+  call Tasks.GetAnalysisFileMetadata as GetAnalysisFileMetadataIntermediateLevel {
     input:
       input_uuid = input_id,
       pipeline_type = "Optimus",
       workspace_version = version_timestamp,
-      metadata_json = GetMetadata.metadata
+      input_file = GetMetadata.metadata
   }
 #need to parse metadata ahead of this step, make it available and we will pass it out and take it in here as references
   call Tasks.GetAnalysisProcessMetadata {
@@ -48,12 +49,12 @@ workflow CreateOptimusAdapterObjects {
       input_uuid = input_id,
       pipeline_type = "Optimus",
       workspace_version = version_timestamp,
-      references = ,
-      metadata_json = GetMetadata.metadata
+      references = [],
+      input_file = GetMetadata.metadata
 
   }
 
-  call Tasks.GetAnalysisProtocolMetadata {
+  call Tasks.GetAnalysisProtocolMetadata as GetAnalysisProtocolMetadataIntermediateLevel {
     input:
       input_uuid = input_id,
       pipeline_type = "Optimus",
@@ -81,6 +82,46 @@ workflow CreateOptimusAdapterObjects {
       workspace_version = version_timestamp
   }
 
+  call Tasks.GetAnalysisFileMetadata as GetAnalysisFileMetadataProjectLevel {
+    input:
+      input_uuid = input_id,
+      pipeline_type = "Optimus",
+      workspace_version = version_timestamp,
+      input_file = MergeLooms.project_loom, #where does this come from, how do we get it
+      project_level = true
+  }
+
+  call Tasks.GetAnalysisProcessMetadata as GetAnalysisProcessMetadataProjectLevel {
+    input:
+      input_uuid = input_id,
+      pipeline_type = "Optimus",
+      workspace_version = version_timestamp,
+      references = [],
+      input_file = GetMetadata.metadata,
+      project_level=true,
+      loom_timestamp = #add this variable in TIMESTAMP=$(get_timestamp $LOOM_PATH)
+  }
+
+  call Tasks.GetAnalysisProtocolMetadata as GetAnalysisProtocolMetadataProjectLevel {
+    input:
+      input_uuid = input_id,
+      pipeline_type = "Optimus",
+      workspace_version = version_timestamp,
+      pipeline_version = GetMetadata.pipeline_version,
+      project_level = true
+  }
+
+  call Tasks.GetLinksFileMetadata as GetLinksFileMetadataProjectLevel {
+    input:
+      project_id = project_id,
+      process_input_ids = fastq_uuids, #come back to this, we want input_metadata.json for project level https://console.cloud.google.com/storage/browser/_details/fc-c307d7b3-8386-40a1-b32c-73b9e16e0103/b22deff9-924d-4aaa-a813-7a4d9d880915/TestHcaAdapter/215b754a-0657-45b8-a380-62db662b79a8/call-target_OptimusPostProcessing/OptimusPostProcessing/59d61014-c81f-4b05-b78e-395c62054a85/call-CreateAdapterJson/cacheCopy/script?authuser=0
+      output_file_path = GetAnalysisFileMetadataProjectLevel.outputs_json,
+      workspace_version = version_timestamp,
+      analysis_process_path = GetAnalysisProcessMetadata.outputs_json, #fix
+      analysis_protocol_path = GetAnalysisProtocolMetadata.outputs_json, #fix
+      file_name_string = project_stratum_string,
+      project_level=true
+  }
 
   output {
     File metadata_json = GetMetadata.metadata

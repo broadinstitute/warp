@@ -153,7 +153,8 @@ task GetAnalysisFileMetadata {
     String input_uuid
     String pipeline_type
     String version_timestamp
-    String metadata_json
+    String input_file
+    Boolean? project_level
 
     String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
     Int cpu = 1
@@ -166,7 +167,7 @@ task GetAnalysisFileMetadata {
       --input_uuid = "~{input_uuid}" \
       --pipeline_type = "~{pipeline_type}" \
       --workspace_version = "~{version_timestamp}" \
-      --metadata_json = "~{metadata_json}"
+      --input_file = "~{input_file}"
   }
 
   runtime {
@@ -187,7 +188,9 @@ task GetAnalysisProcessMetadata {
     String pipeline_type
     String version_timestamp
     String references
-    String metadata_json
+    String input_file
+    Boolean? project_level
+    String? loom_timestamp
 
     String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
     Int cpu = 1
@@ -201,7 +204,10 @@ task GetAnalysisProcessMetadata {
       --pipeline_type = "~{pipeline_type}" \
       --workspace_version = "~{version_timestamp}" \
       --references ="~{references}" \
-      --metadata_json ="~{metadata_json}"
+      --input_file ="~{input_file}" \
+      ~{"--project_level " + project_level} \
+      ~{"--loom_timestamp " + loom_timestamp}
+
   }
 
   runtime {
@@ -221,6 +227,7 @@ task GetAnalysisProtocolMetadata {
      String pipeline_type
      String version_timestamp
      String pipeline_version
+     Boolean? project_level
 
      String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
      Int cpu = 1
@@ -257,6 +264,7 @@ task GetLinksFileMetadata {
     String analysis_process_path
     String analysis_protocol_path
     String file_name_string
+    Boolean? project_level
 
     String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
     Int cpu = 1
