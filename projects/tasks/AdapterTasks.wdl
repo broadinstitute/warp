@@ -167,7 +167,8 @@ task GetAnalysisFileMetadata {
       --input_uuid = "~{input_uuid}" \
       --pipeline_type = "~{pipeline_type}" \
       --workspace_version = "~{version_timestamp}" \
-      --input_file = "~{input_file}"
+      --input_file = "~{input_file}" \
+      ~{"--project_level " + project_level}
   }
 
   runtime {
@@ -240,7 +241,8 @@ task GetAnalysisProtocolMetadata {
        --input_uuid = "~{input_uuid}" \
        --pipeline_type = "~{pipeline_type}" \
        --workspace_version = "~{version_timestamp}" \
-       --pipeline_version = "~{pipeline_version}"
+       --pipeline_version = "~{pipeline_version}" \
+       ~{"--project_level " + project_level}
    }
 
    runtime {
@@ -280,7 +282,8 @@ task GetLinksFileMetadata {
     --workspace_version = "~{version_timestamp}" \
     --analysis_process_path = "~{analysis_process_path}" \
     --analysis_protocol_path = "~{analysis_protocol_path}" \
-    --file_name_string = "~{file_name_string}"
+    --file_name_string = "~{file_name_string}" \
+    ~{"--project_level " + project_level}
   }
 
   runtime {
@@ -320,6 +323,7 @@ task GetDescriptorsAnalysisFileMetadata {
     --input_uuid = "~{input_uuid}" \
     --creation_time = "~{creation_time}" \
     --workspace_version = "~{version_timestamp}"
+
   >>>
   runtime {
     docker: docker
