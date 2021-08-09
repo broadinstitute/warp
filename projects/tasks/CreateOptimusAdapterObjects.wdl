@@ -44,7 +44,7 @@ workflow CreateOptimusAdapterObjects {
       input_file = GetMetadata.metadata
   }
 #need to parse metadata ahead of this step, make it available and we will pass it out and take it in here as references
-  call Tasks.GetAnalysisProcessMetadata {
+  call Tasks.GetAnalysisProcessMetadata as GetAnalysisProcessMetadataIntermediateLevel {
     input:
       input_uuid = input_id,
       pipeline_type = "Optimus",
@@ -62,7 +62,7 @@ workflow CreateOptimusAdapterObjects {
       pipeline_version = GetMetadata.pipeline_version
   }
 
-  call Tasks.GetLinksFileMetadata {
+  call Tasks.GetLinksFileMetadata as GetLinksFileMetadataIntermediateLevel {
     input:
       project_id = project_id,
       process_input_ids = fastq_uuids,
@@ -73,10 +73,19 @@ workflow CreateOptimusAdapterObjects {
       file_name_string = input_id
   }
 
-  call Tasks.GetDescriptorsAnalysisFileMetadata {
+  call Tasks.GetDescriptorsAnalysisFileMetadata as GetDescriptorsAnalysisFileMetadataIntermediateLevelLoom {
     input:
       pipeline_type = "Optimus",
-      file_path = loom, #check to see if this runs for both loom or bam. if it just runs for bam then we would have to call it again
+      file_path = loom,
+      input_uuid = input_id,
+      creation_time = GetCloudFileCreationDate.creation_date, #look at task get_cloud_file_creation_date in old wdl
+      workspace_version = version_timestamp
+  }
+
+  call Tasks.GetDescriptorsAnalysisFileMetadata as GetDescriptorsAnalysisFileMetadataIntermediateLevelBam {
+    input:
+      pipeline_type = "Optimus",
+      file_path = bam,
       input_uuid = input_id,
       creation_time = GetCloudFileCreationDate.creation_date, #look at task get_cloud_file_creation_date in old wdl
       workspace_version = version_timestamp
