@@ -39,6 +39,7 @@ workflow SplitLargeReadGroup {
     Int preemptible_tries
     Int reads_per_file = 48000000
     Boolean hard_clip_reads = false
+    Boolean unmap_contaminant_reads = true
     Boolean use_bwa_mem = true
   }
 
@@ -63,7 +64,8 @@ workflow SplitLargeReadGroup {
           reference_fasta = reference_fasta,
           compression_level = compression_level,
           preemptible_tries = preemptible_tries,
-          hard_clip_reads = hard_clip_reads
+          hard_clip_reads = hard_clip_reads,
+          unmap_contaminant_reads = unmap_contaminant_reads
       }
     }
     if (!use_bwa_mem) {
@@ -75,7 +77,8 @@ workflow SplitLargeReadGroup {
           dragmap_reference = select_first([dragmap_reference]),
           compression_level = compression_level,
           preemptible_tries = preemptible_tries,
-          hard_clip_reads = hard_clip_reads
+          hard_clip_reads = hard_clip_reads,
+          unmap_contaminant_reads = unmap_contaminant_reads
       }
     }
 

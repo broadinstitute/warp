@@ -42,6 +42,7 @@ workflow UnmappedBamToAlignedBam {
     Float lod_threshold
     String recalibrated_bam_basename
     Boolean hard_clip_reads = false
+    Boolean unmap_contaminant_reads = true
     Boolean bin_base_qualities = true
     Boolean somatic = false
     Boolean perform_bqsr = true
@@ -84,6 +85,7 @@ workflow UnmappedBamToAlignedBam {
           compression_level = compression_level,
           preemptible_tries = papi_settings.preemptible_tries,
           hard_clip_reads = hard_clip_reads,
+          unmap_contaminant_reads = unmap_contaminant_reads,
           use_bwa_mem = use_bwa_mem
       }
     }
@@ -99,7 +101,8 @@ workflow UnmappedBamToAlignedBam {
             reference_fasta = references.reference_fasta,
             compression_level = compression_level,
             preemptible_tries = papi_settings.preemptible_tries,
-            hard_clip_reads = hard_clip_reads
+            hard_clip_reads = hard_clip_reads,
+            unmap_contaminant_reads = unmap_contaminant_reads
         }
       }
       if (!use_bwa_mem) {
@@ -111,7 +114,8 @@ workflow UnmappedBamToAlignedBam {
             dragmap_reference = select_first([dragmap_reference]),
             compression_level = compression_level,
             preemptible_tries = papi_settings.preemptible_tries,
-            hard_clip_reads = hard_clip_reads
+            hard_clip_reads = hard_clip_reads,
+            unmap_contaminant_reads = unmap_contaminant_reads
         }
       }
     }

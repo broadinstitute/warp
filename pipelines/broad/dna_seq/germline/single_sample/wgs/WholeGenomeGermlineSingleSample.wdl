@@ -56,6 +56,7 @@ workflow WholeGenomeGermlineSingleSample {
     Boolean use_gatk3_haplotype_caller = true
     Boolean run_dragen_mode = false
     Boolean use_spanning_event_genotyping = true
+    Boolean unmap_contaminant_reads = true
     Boolean perform_bqsr = true
     Boolean use_bwa_mem = true
     Boolean dragen_mode_hard_filter = false
@@ -85,7 +86,8 @@ workflow WholeGenomeGermlineSingleSample {
       lod_threshold               = lod_threshold,
       recalibrated_bam_basename   = recalibrated_bam_basename,
       perform_bqsr                = perform_bqsr,
-      use_bwa_mem                 = use_bwa_mem
+      use_bwa_mem                 = use_bwa_mem,
+      unmap_contaminant_reads     = unmap_contaminant_reads
   }
 
   call AggregatedQC.AggregatedBamQC {

@@ -29,6 +29,7 @@ task SamToFastqAndDragmapAndMba {
     Int compression_level
     Int preemptible_tries
     Boolean hard_clip_reads = false
+    Boolean unmap_contaminant_reads = true
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
@@ -84,7 +85,7 @@ task SamToFastqAndDragmapAndMba {
       PROGRAM_GROUP_NAME="dragen-os" \
       UNMAPPED_READ_STRATEGY=COPY_TO_TAG \
       ALIGNER_PROPER_PAIR_FLAGS=true \
-      UNMAP_CONTAMINANT_READS=true \
+      UNMAP_CONTAMINANT_READS=~{unmap_contaminant_reads} \
       ADD_PG_TAG_TO_READS=false
   >>>
   runtime {
