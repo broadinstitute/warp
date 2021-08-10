@@ -12,6 +12,7 @@ workflow CreateOptimusAdapterObjects {
   input {
     File? bam
     File loom
+    Array[String] process_input_ids # TODO: create array of strings for project level inputs (intermediate outputs)
     String library
     String species
     String input_id
@@ -63,26 +64,42 @@ workflow CreateOptimusAdapterObjects {
       pipeline_version = ParseCromwellMetadata.pipeline_version
   }
 
-#  scatter (output_file in outputs) {
-#    call Tasks.GetCloudFileCreationDate {
-#      input:
-#        file_path = output_files
-#      }
-#  }
 
-  call Tasks.GetFileDescriptor { # TODO call for the loom, then call for the bam if bam is defined (same with the creation time)
+  call Tasks.GetCloudFileCreationDate  as GetLoomFileCreationDate{
+    input:
+      file_path = loom
+  }
+
+  call Tasks.GetFileDescriptor as GetLoomFileDescriptor{
     input:
       pipeline_type = pipeline_type,
       file_path = loom,
       input_uuid = input_id,
-      creation_time = GetCloudFileCreationDate.creation_date, #look at task get_cloud_file_creation_date in old wdl
+      creation_time = GetLoomFileCreationDate.creation_date,
       workspace_version = version_timestamp
   }
+
+  if (defined(bam)){
+    call Tasks.GetCloudFileCreationDate  as GetBamFileCreationDate{
+      input:
+        file_path = select_first([bam])
+    }
+
+    call Tasks.GetFileDescriptor as GetBamFileDescriptor {
+      input:
+        pipeline_type = pipeline_type,
+        file_path = lselect_first([bam]),
+        input_uuid = input_id,
+        creation_time = GetBamFileCreationDate.creation_date,
+        workspace_version = version_timestamp
+    }
+  }
+
 
   call Tasks.GetLinksFileMetadata {
     input:
       project_id = project_id,
-      process_input_ids = fastq_uuids,
+      process_input_ids = process_input_ids, # for intermediate level use fastq_uuids from Terra, for project level use output_ids from intermediate files
       output_file_path = GetAnalysisFileMetadata.outputs_json,
       workspace_version = version_timestamp,
       analysis_process_path = GetAnalysisProcessMetadata.outputs_json,
@@ -149,12 +166,12 @@ workflow CreateOptimusAdapterObjects {
   output {
     File metadata_json = GetCromwellMetadata.metadata
     String reference_fasta = ParseCromwellMetadata.ref_fasta
-
-    Array[File] analysis_file_metadata = GetAnalysisFileMetadata.outputs
-    Array[File] analysis_file_descriptor = GetDescriptorsAnalysisFileMetadata.ouptuts
-    File analysis_process_metadata = GetAnalysisProcessMetadata.outputs
-    File analysis_protocol_metdata = GetAnalysisProtocolMetadata.outputs
-    File links = GetLinksFileMetadata.outputs
+    Array[File] analysis_file_outputs = GetAnalysisFileMetadata.analysis_file_outputs
+    Array[File] analysis_process_outputs = GetAnalysisProcessMetadata.analysis_process_outputs
+    Array[File] analysis_protocol_outputs = GetAnalysisProtocolMetadata.analysis_protocol_outputs
+    Array[File] links_outputs = GetLinksFileMetadata.links_outputs
+    Array[File] loom_file_descriptor_outputs = GetLoomFileDescriptor.file_descriptor_outputs
+    Array[File]? bam_file_descriptor_outputs = GetBamFileDescriptor.file_descriptor_outputs
   }
 }
 

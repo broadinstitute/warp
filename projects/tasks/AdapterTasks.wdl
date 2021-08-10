@@ -227,7 +227,7 @@ task GetAnalysisFileMetadata {
     disks: "local-disk ~{disk} HDD"
   }
   output {
-      File outputs_json = "" #unsure what this would be
+      Array[File] analysis_file_outputs = glob("*${version_timestamp}.json")
   }
 }
 
@@ -266,7 +266,7 @@ task GetAnalysisProcessMetadata {
     disks: "local-disk ~{disk} HDD"
   }
   output {
-    File outputs_json = "" #unsure what this would be
+    Array[File] analysis_process_outputs = glob("*${version_timestamp}.json")
   }
 }
 
@@ -299,7 +299,7 @@ task GetAnalysisProtocolMetadata {
      disks: "local-disk ~{disk} HDD"
     }
     output {
-      File outputs_json = "" #unsure what this would be
+      Array[File] analysis_protocol_outputs = glob("*${version_timestamp}.json")
     }
  }
 
@@ -339,7 +339,7 @@ task GetLinksFileMetadata {
     disks: "local-disk ~{disk} HDD"
   }
   output {
-    File outputs_json = "" #unsure what this would be
+    Array[File] links_outputs = glob("*${version_timestamp}*.json")
   }
 }
 
@@ -383,7 +383,7 @@ task GetFileDescriptor {
     disks: "local-disk ~{disk} HDD"
   }
   output {
-    File outputs_json = "" #unsure what this would be
+    Array[File] file_descriptor_outputs = glob("*${version_timestamp}.json")
   }
 }
 
@@ -425,7 +425,8 @@ task GetReferenceFileMetadata {
     disks: "local-disk ~{disk} HDD"
   }
   output {
-    File outputs_json = "" #unsure what this would be
+    String reference_file_uuid = read_string("reference_uuid.txt")
+    Array[File] reference_metadata_outputs = glob("*${version_timestamp}.json")
   }
 }
 
