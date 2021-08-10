@@ -64,7 +64,6 @@ workflow CreateOptimusAdapterObjects {
       pipeline_version = ParseCromwellMetadata.pipeline_version
   }
 
-
   call Tasks.GetCloudFileCreationDate  as GetLoomFileCreationDate{
     input:
       file_path = loom
@@ -94,7 +93,6 @@ workflow CreateOptimusAdapterObjects {
         workspace_version = version_timestamp
     }
   }
-
 
   call Tasks.GetLinksFileMetadata {
     input:
