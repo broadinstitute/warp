@@ -45,14 +45,14 @@ workflow ImputationPipeline {
   String rtidyverse_docker_tag = "rocker/tidyverse:4.1.0"
 
   if (defined(single_sample_vcfs) && defined(multi_sample_vcf)) {
-    call utils.ErrorWithMessage {
+    call utils.ErrorWithMessage as ErrorMessageNoInput {
       input:
         message = "single_sample_vcfs and multi_sample_vcf cannot both be defined as input"
     }
   }
 
   if (!defined(single_sample_vcfs) && !defined(multi_sample_vcf)) {
-    call utils.ErrorWithMessage {
+    call utils.ErrorWithMessage as ErrorMessageDoubleInput {
       input:
         message = "One (and only one) of single_sample_vcfs and multi_sample_vcf must be defined as input"
     }
