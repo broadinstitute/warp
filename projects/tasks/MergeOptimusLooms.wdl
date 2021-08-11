@@ -20,6 +20,8 @@ workflow MergeOptimusLooms {
     String output_basename
   }
 
+  String pipeline_version = "1.0.0"
+
   call Tasks.MergeLooms as MergeLooms {
     input:
       output_looms = output_looms,
@@ -33,6 +35,7 @@ workflow MergeOptimusLooms {
 
   output {
     File project_loom = MergeLooms.project_loom
+    String pipeline_version = pipeline_version # TODO I think this doesn't work
   }
 }
 

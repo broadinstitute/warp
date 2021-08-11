@@ -21,9 +21,11 @@ workflow CreateOptimusAdapterObjects {
     String project_name
     String? project_stratum_string
     String version_timestamp
-    String creation_time
     String pipeline_type = "Optimus"
     String cromwell_url
+    Boolean is_project_level
+    String? pipeline_version # parsed from metadata for intermediate, passed in for project level
+    String? reference_fasta # parsed from metadata for intermediate, passed in for project level
   }
 
   call Tasks.GetCromwellMetadata {
@@ -33,11 +35,12 @@ workflow CreateOptimusAdapterObjects {
       include_subworkflows = false # TODO: do we need subworkflows???
   }
 
-  # TODO: this will almost certainly fail for the projcet level run
-  call Tasks.ParseCromwellMetadata {
-    input:
-      cromwell_metadata = GetCromwellMetadata.metadata,
-      pipeline_type = pipeline_type
+  if (!is_project_level) {
+    call Tasks.ParseCromwellMetadata {
+      input:
+        cromwell_metadata = GetCromwellMetadata.metadata,
+        pipeline_type = pipeline_type
+    }
   }
 
   call Tasks.GetAnalysisFileMetadata {
@@ -53,7 +56,7 @@ workflow CreateOptimusAdapterObjects {
       input_uuid = input_id,
       pipeline_type = pipeline_type,
       workspace_version = version_timestamp,
-      references = [],
+      references = select_first([ParseCromwellMetadata.ref_fasta,reference_fasta]),
       input_file = GetCromwellMetadata.metadata
   }
 
@@ -62,7 +65,7 @@ workflow CreateOptimusAdapterObjects {
       input_uuid = input_id,
       pipeline_type = pipeline_type,
       workspace_version = version_timestamp,
-      pipeline_version = ParseCromwellMetadata.pipeline_version
+      pipeline_version = select_first([ParseCromwellMetadata.pipeline_version,pipeline_version])
   }
 
   call Tasks.GetCloudFileCreationDate  as GetLoomFileCreationDate{
@@ -107,64 +110,9 @@ workflow CreateOptimusAdapterObjects {
   }
 
 
-
-
-
-
-
-#  call Tasks.GetDescriptorsAnalysisFileMetadata as GetDescriptorsAnalysisFileMetadataIntermediateLevelBam {
-#    input:
-#      pipeline_type = "Optimus",
-#      file_path = bam,
-#      input_uuid = input_id,
-#      creation_time = GetCloudFileCreationDate.creation_date, #look at task get_cloud_file_creation_date in old wdl
-#      workspace_version = version_timestamp
-#  }
-#
-#  call Tasks.GetAnalysisFileMetadata as GetAnalysisFileMetadataProjectLevel {
-#    input:
-#      input_uuid = input_id,
-#      pipeline_type = "Optimus",
-#      workspace_version = version_timestamp,
-#      input_file = MergeLooms.project_loom, #how do we get this
-#      project_level = true
-#  }
-#
-#  call Tasks.GetAnalysisProcessMetadata as GetAnalysisProcessMetadataProjectLevel {
-#    input:
-#      input_uuid = input_id,
-#      pipeline_type = "Optimus",
-#      workspace_version = version_timestamp,
-#      references = [],
-#      input_file = GetMetadata.metadata,
-#      project_level=true,
-#      loom_timestamp = #add this variable in TIMESTAMP=$(get_timestamp $LOOM_PATH)
-#  }
-#
-#  call Tasks.GetAnalysisProtocolMetadata as GetAnalysisProtocolMetadataProjectLevel {
-#    input:
-#      input_uuid = input_id,
-#      pipeline_type = "Optimus",
-#      workspace_version = version_timestamp,
-#      pipeline_version = GetMetadata.pipeline_version,
-#      project_level = true
-#  }
-#
-#  call Tasks.GetLinksFileMetadata as GetLinksFileMetadataProjectLevel {
-#    input:
-#      project_id = project_id,
-#      process_input_ids = fastq_uuids, #come back to this, we want input_metadata.json for project level https://console.cloud.google.com/storage/browser/_details/fc-c307d7b3-8386-40a1-b32c-73b9e16e0103/b22deff9-924d-4aaa-a813-7a4d9d880915/TestHcaAdapter/215b754a-0657-45b8-a380-62db662b79a8/call-target_OptimusPostProcessing/OptimusPostProcessing/59d61014-c81f-4b05-b78e-395c62054a85/call-CreateAdapterJson/cacheCopy/script?authuser=0
-#      output_file_path = GetAnalysisFileMetadataProjectLevel.outputs_json,
-#      workspace_version = version_timestamp,
-#      analysis_process_path = GetAnalysisProcessMetadataProjectLevel.outputs_json,
-#      analysis_protocol_path = GetAnalysisProtocolMetadataProjectLevel.outputs_json,
-#      file_name_string = project_stratum_string,
-#      project_level=true
-#  }
-
   output {
     File metadata_json = GetCromwellMetadata.metadata
-    String reference_fasta = ParseCromwellMetadata.ref_fasta
+    String? reference_fasta = ParseCromwellMetadata.ref_fasta
     Array[File] analysis_file_outputs = GetAnalysisFileMetadata.analysis_file_outputs
     Array[File] analysis_process_outputs = GetAnalysisProcessMetadata.analysis_process_outputs
     Array[File] analysis_protocol_outputs = GetAnalysisProtocolMetadata.analysis_protocol_outputs

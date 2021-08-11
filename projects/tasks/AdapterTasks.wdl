@@ -512,3 +512,28 @@ task GetReferenceDetails {
     String reference_type = read_string("reference_type.txt")
   }
 }
+
+task GetProjectLevelInputIds {
+  input {
+    Array[File] intermediate_analysis_files
+
+    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    Int cpu = 1
+    Int machine_mem_mb = 2000
+    Int disk = 10
+  }
+
+  command {
+    python3 get_process_input_ids.py \
+    --input-json-files ~{sep=' ' intermediate_analysis_files}
+  }
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
+  }
+  output {
+    String process_input_uuids = read_string("output.txt")
+  }
+}

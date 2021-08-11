@@ -19,7 +19,7 @@ workflow CreateAdapterMetadata {
     Array[String] input_ids #sequencing_process_provenance_document_id
     Array[String] fastq_1_uuids
     Array[String] fastq_2_uuids
-    Array[String] fastq_i1_uuids = []
+    Array[String]? fastq_i1_uuids
 
     # These values come in as arrays from Terra, but should be populated with a single value (which may be repeated)
     Array[String] all_libraries
@@ -61,16 +61,19 @@ workflow CreateAdapterMetadata {
   String staging_bucket = staging_area + project_id + "/staging/"
   String project_stratum_string = "project=" + project_id + ";library=" + library + ";species=" + species + ";organ=" + organ
 
-  Array[String] fastq_uuids = flatten([fastq_1_uuids, fastq_2_uuids, fastq_i1_uuids])
-
+  if (false) {
+     String none = "None"
+  }
   ########################## Get Optimus Metadata Files ##########################
   if (is_Optimus) {
     scatter (idx in range(length(output_looms))) {
+      String fastq_i1_uuid = if defined(fastq_i1_uuids) then fastq_i1_uuids[idx] else none
       call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateIntermediateOptimusAdapters {
         input:
           bam = output_bams[idx],
           loom = output_looms[idx],
           input_id = input_ids[idx],
+          process_input_ids = [fastq_1_uuids[idx],fastq_2_uuids[idx], fastq_i1_uuid],
           library = library,
           species = species,
           organ = organ,
@@ -78,7 +81,7 @@ workflow CreateAdapterMetadata {
           project_name = project_name,
           version_timestamp = version_timestamp,
           cromwell_url = cromwell_url,
-          project_level = false
+          is_project_level = false
 
       }
     }
@@ -99,17 +102,29 @@ workflow CreateAdapterMetadata {
         project_name = project_name,
         output_basename = output_basename
     }
-    # get adapters for merged matrix
+
+
+    call Tasks.GetProjectLevelInputIds {
+      input:
+        intermediate_analysis_files = flatten([CreateIntermediateOptimusAdapters.analysis_file_outputs])
+    }
+
+    # TODO: change the way the links file uses the project level input ids (need to accept strings instead of jsons)
+
     call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateProjectOpitmusAdapters {
       input:
         loom = MergeLooms.project_loom,
+        process_input_ids = GetProjectLevelInputIds.process_input_uuids,
         input_id = project_stratum_string,
         library = library,
         species = species,
         organ = organ,
         project_id = project_id,
         project_name = project_name,
-        project_stratum_string = project_stratum_string
+        project_stratum_string = project_stratum_string,
+        version_timestamp = version_timestamp,
+        cromwell_url = cromwell_url,
+        is_project_level = true
       }
     }
   }
@@ -122,6 +137,8 @@ workflow CreateAdapterMetadata {
     }
   }
 
+  # TODO: copy to staging bucket
+
   ########################## Copy Files to Staging Bucket ##########################
   call CopyToStagingBucket {
     input:
@@ -130,11 +147,10 @@ workflow CreateAdapterMetadata {
       Array[File]
       Array[File] data = data
       String? cache_invalidate
-
   }
 
 
-
+  # TODO: update ouputs
   output {
     Array[File] json_adapters = GetAdapterObjects.json_adapters
   }
