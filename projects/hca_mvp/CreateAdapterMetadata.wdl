@@ -134,6 +134,7 @@ workflow CreateAdapterMetadata {
   }
 
 
+
   output {
     Array[File] json_adapters = GetAdapterObjects.json_adapters
   }
