@@ -114,7 +114,7 @@ workflow CreateAdapterMetadata {
     }
   }
 
-  ########################## Get SS2 Metadata Files ##########################
+  ########################## Get SS2 Metadata Files ###########################
   if (is_SS2) {
     call CreateSS2Objects as GetAdapterObjects{
       input:
