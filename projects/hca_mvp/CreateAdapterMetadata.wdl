@@ -41,7 +41,8 @@ workflow CreateAdapterMetadata {
   Boolean is_SS2 = false # TODO: check an input value to determine if this is SS2
   Boolean is_Optimus = true # TODO: check an input value to determine if this is Optimus (leaving this flexible for additional data types if needed
 
-  call CheckStratumMetadata {
+  # TODO: clean this up
+  call Tasks.CheckStratumMetadata {
     input:
       library = all_libraries,
       species = all_species,
@@ -64,11 +65,11 @@ workflow CreateAdapterMetadata {
 
   ########################## Get Optimus Metadata Files ##########################
   if (is_Optimus) {
-    scatter (idx in range(length(looms))) {
-      call CreateOptimusObjects as GetIntermediateOptimusAdapters {
+    scatter (idx in range(length(output_looms))) {
+      call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateIntermediateOptimusAdapters {
         input:
-          bam = bams[idx],
-          loom = looms[idx],
+          bam = output_bams[idx],
+          loom = output_looms[idx],
           input_id = input_ids[idx],
           library = library,
           species = species,
@@ -81,12 +82,12 @@ workflow CreateAdapterMetadata {
 
       }
     }
-    call CreateReferenceMetadata as CreateReferenceMetadata {
+    call CreateReferenceMetadata.CreateReferenceMetadata as CreateReferenceMetadata {
       input:
-        reference_fastas = reference_fastas,
+        reference_fastas = CreateIntermediateOptimusAdapters.reference_fastas,
         species = species,
-        pipeline_type = pipeline_type,
-        workflow_version = workflow_version
+        pipeline_type = 'Optimus',
+        version_timestamp = version_timestamp
     }
     call MergeLooms.MergeOptimusLooms as MergeLooms {
       input:
@@ -99,7 +100,7 @@ workflow CreateAdapterMetadata {
         output_basename = output_basename
     }
     # get adapters for merged matrix
-    call CreateOptimusObjects as GetProjectOpitmusAdapters {
+    call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateProjectOpitmusAdapters {
       input:
         loom = MergeLooms.project_loom,
         input_id = project_stratum_string,

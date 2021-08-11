@@ -33,6 +33,7 @@ workflow CreateOptimusAdapterObjects {
       include_subworkflows = false # TODO: do we need subworkflows???
   }
 
+  # TODO: this will almost certainly fail for the projcet level run
   call Tasks.ParseCromwellMetadata {
     input:
       cromwell_metadata = GetCromwellMetadata.metadata,

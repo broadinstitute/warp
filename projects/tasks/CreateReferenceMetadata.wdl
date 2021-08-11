@@ -15,7 +15,7 @@ workflow CreateReferenceMetadata {
 
     String species
     String pipeline_type
-    String workflow_version
+    String version_timestamp
 
   }
 
