@@ -52,3 +52,7 @@ workflows:
   - name: OptimusTestHcaAdapter
     subclass: WDL
     primaryDescriptorPath: /tests/skylab/hca_adapter/pr/optimus_test_hca_adapter_PR.wdl
+
+  - name: ReblockGVCF
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl
