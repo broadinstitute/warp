@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [MultiSampleSmartSeq2SingleNuclei_v1.0.0.](https://github.com/broadinstitute/warp/releases) | June, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [MultiSampleSmartSeq2SingleNuclei_v1.0.0.](https://github.com/broadinstitute/warp/releases) | July, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ## Introduction
 
@@ -46,7 +46,7 @@ The workflow sample and reference inputs are identical to those specified in the
 | species | Optional description of the species from which the cells were derived | String |
 
 
-### Smart-seq2 Multi-Sample Task Summary
+### Smart-seq2 Single Nucleus Multi-Sample Task Summary
 
 | Task name and link to WDL | Description | Software | Tools |
 | --- | --- | --- | --- |
@@ -77,6 +77,10 @@ The Multi-snSS2 pipeline was scientifically validated by the BRAIN Initiatives C
 ## Versioning
 
 Release information for the Smart-seq2 Single Nucleus Multi-Sample Pipeline can be found in the [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.changelog.md). Please note that any major changes to the Smart-seq2 Single Nucleus workflow will be documented in the [Smart-seq2 Single Nucleus changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.changelog.md).
+
+## Citing the Multi-snSS2 Pipeline
+Please identify the pipeline in your methods section using the Multi-snSS2 Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_021312/resolver).
+* Ex: *Smart-seq2 Single Nucleus Multi-Sample Pipeline (RRID:SCR_021312)*
 
 ## Consortia Support 
 This pipeline is supported and used by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 

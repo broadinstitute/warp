@@ -21,20 +21,27 @@ import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 workflow Arrays {
 
-  String pipeline_version = "2.3.2"
+  String pipeline_version = "2.3.6"
 
   input {
 
     # This is the autocall_version, needed for the case where autocall fails (likely due to normalization errors)
     # In this case it no longer emits the version in its output, so we store it here.
     String autocall_version = "3.0.0"
-    String sample_alias
-    String sample_lsid
-    Int analysis_version_number
-    Float call_rate_threshold
-    String reported_gender
 
     String chip_well_barcode
+    Int analysis_version_number
+
+    String sample_alias
+    String? sample_id
+    String sample_lsid
+    String reported_gender
+    String? collaborator_participant_id
+    String? participant_id
+
+    Float call_rate_threshold = 0.98
+    Float genotype_concordance_threshold = 0.98
+
     File red_idat_cloud_path
     File green_idat_cloud_path
     File ref_fasta
@@ -44,7 +51,15 @@ workflow Arrays {
     File dbSNP_vcf
     File dbSNP_vcf_index
 
-    File params_file
+    File? params_file
+    String? lab_batch
+    String? product_family
+    String? product_name
+    String? product_order_id
+    String? product_part_number
+    String product_type = ""
+    String? regulatory_designation
+    String? research_project_id
 
     File bead_pool_manifest_file
     String chip_type = basename(bead_pool_manifest_file, ".bpm")
@@ -82,8 +97,6 @@ workflow Arrays {
     Int preemptible_tries
     String environment
     File vault_token_path
-
-    Float genotype_concordance_threshold = 0.98
   }
 
   String service_account_filename = "service-account.json"
@@ -114,9 +127,34 @@ workflow Arrays {
   "fi",
   "vault read --format=json $key | jq .data > ~{service_account_filename}"]
 
+  if (!defined(params_file)) {
+    # If the params_file is not provided, we will generate it from the (currently optional) bunch of parameters.
+    # This is to allow for backwards-compatibility.  When we remove params_file as an (optional) input, this will be
+    # made a required step and all the inputs will become non-optional
+    call InternalTasks.CreateChipWellBarcodeParamsFile {
+      input:
+        chip_type_name = chip_type,
+        chip_well_barcode = chip_well_barcode,
+        collaborator_participant_id = select_first([collaborator_participant_id]),
+        lab_batch = select_first([lab_batch]),
+        participant_id = select_first([participant_id]),
+        product_family = select_first([product_family]),
+        product_name = select_first([product_name]),
+        product_order_id = select_first([product_order_id]),
+        product_part_number = select_first([product_part_number]),
+        product_type = product_type,
+        regulatory_designation = select_first([regulatory_designation]),
+        research_project_id = select_first([research_project_id]),
+        sample_alias = sample_alias,
+        gender = reported_gender,
+        sample_id = select_first([sample_id]),
+        sample_lsid = sample_lsid,
+        preemptible_tries = preemptible_tries
+    }
+  }
   call InternalTasks.UpdateChipWellBarcodeIndex {
     input:
-      params_file = params_file,
+      params_file = select_first([CreateChipWellBarcodeParamsFile.params_file, params_file]),
       disk_size = disk_size,
       preemptible_tries = preemptible_tries,
       authentication = authentication_block,
@@ -266,8 +304,8 @@ workflow Arrays {
   }
 
   output {
-    String chip_well_barcode_output = IlluminaGenotypingArray.chip_well_barcode_output
-    Int analysis_version_number_output = IlluminaGenotypingArray.analysis_version_number_output
+    String ChipWellBarcodeOutput = IlluminaGenotypingArray.chip_well_barcode_output
+    Int AnalysisVersionNumberOutput = IlluminaGenotypingArray.analysis_version_number_output
     File GtcFile = IlluminaGenotypingArray.gtc
     File RedIdatMd5CloudPath = IlluminaGenotypingArray.red_idat_md5_cloud_path
     File GreenIdatMd5CloudPath = IlluminaGenotypingArray.green_idat_md5_cloud_path
@@ -290,6 +328,7 @@ workflow Arrays {
     File? GenotypeConcordanceSummaryMetricsFile = IlluminaGenotypingArray.genotype_concordance_summary_metrics
     File? GenotypeConcordanceDetailMetricsFile  = IlluminaGenotypingArray.genotype_concordance_detail_metrics
     File? GenotypeConcordanceContingencyMetricsFile = IlluminaGenotypingArray.genotype_concordance_contingency_metrics
+    File ChipWellBarcodeParamsFile = select_first([CreateChipWellBarcodeParamsFile.params_file, params_file])
   }
   meta {
     allowNestedInputs: true

@@ -1,3 +1,14 @@
+
+# 2.2.4
+2021-08-02 (Date of Last Commit)
+
+* Increased the version number to make new release tag for Dockstore 
+
+# 2.2.3
+2021-07-19 (Date of Last Commit)
+
+* Updated SmartSeq2 to accommodate spaces in input_name
+
 # 2.2.2
 
 2020-05-24 (Date of Last Commit)

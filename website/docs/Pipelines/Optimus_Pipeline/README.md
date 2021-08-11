@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v4.2.3](https://github.com/broadinstitute/warp/releases) | January, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [optimus_v4.2.5](https://github.com/broadinstitute/warp/releases) | July, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![Optimus_diagram](./Optimus_diagram.png)
 
@@ -117,7 +117,7 @@ The tools each Optimus task employs are detailed in the table below. If you are 
 | Task and WDL Link                                                                                                                                      | Tool                                                                                                                        |
 | -------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | [FastqProcessing](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl)                                   | [sctools](https://sctools.readthedocs.io/en/latest/sctools.html)                                                            |
-| [StarAlignBamSingleEnd](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlignBamSingleEnd.wdl)                           | [STAR](https://github.com/alexdobin/STAR)                                                                                   |
+| [StarAlignBamSingleEnd](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl)                           | [STAR](https://github.com/alexdobin/STAR)                                                                                   |
 | [TagGeneExon](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/TagGeneExon.wdl)                                               | [Drop-seq](https://github.com/broadinstitute/Drop-seq)                                                                      |
 | [UmiCorrection](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/UmiCorrection.wdl)                                           | [Umi-tools](https://github.com/CGATOxford/UMI-tools)                                                                        |
 | [SequenceDataWithMoleculeTagMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl) | [sctools](https://sctools.readthedocs.io/en/latest/sctools.html)                                                            |
