@@ -41,7 +41,7 @@ workflow CreateAdapterMetadata {
   Boolean is_SS2 = false # TODO: check an input value to determine if this is SS2
   Boolean is_Optimus = true # TODO: check an input value to determine if this is Optimus (leaving this flexible for additional data types if needed
 
-  call CheckStratumMetadata {
+  call Tasks.CheckStratumMetadata {
     input:
       library = all_libraries,
       species = all_species,
@@ -65,7 +65,7 @@ workflow CreateAdapterMetadata {
   ########################## Get Optimus Metadata Files ##########################
   if (is_Optimus) {
     scatter (idx in range(length(looms))) {
-      call CreateOptimusObjects as GetIntermediateOptimusAdapters {
+      call CreateOptimusObjects.CreateOptimusAdapterObjects as GetIntermediateOptimusAdapters {
         input:
           bam = bams[idx],
           loom = looms[idx],
@@ -81,7 +81,7 @@ workflow CreateAdapterMetadata {
 
       }
     }
-    call CreateReferenceMetadata as CreateReferenceMetadata {
+    call CreateReferenceMetadata.CreateReferenceMetadata as CreateReferenceMetadata {
       input:
         reference_fastas = reference_fastas,
         species = species,
@@ -99,7 +99,7 @@ workflow CreateAdapterMetadata {
         output_basename = output_basename
     }
     # get adapters for merged matrix
-    call CreateOptimusObjects as GetProjectOpitmusAdapters {
+    call CreateOptimusObjects.CreateOptimusAdapterObjects as GetProjectOpitmusAdapters {
       input:
         loom = MergeLooms.project_loom,
         input_id = project_stratum_string,
@@ -113,7 +113,7 @@ workflow CreateAdapterMetadata {
     }
   }
 
-  ########################## Get SS2 Metadata Files ##########################
+  ########################## Get SS2 Metadata Files ###########################
   if (is_SS2) {
     call CreateSS2Objects as GetAdapterObjects{
       input:
