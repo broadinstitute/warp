@@ -142,10 +142,15 @@ workflow CreateAdapterMetadata {
   ########################## Copy Files to Staging Bucket ##########################
   call CopyToStagingBucket {
     input:
-      Array[File] links_objects = GetAdapterObjects.json_adapters,
-      Array[File] desscriptor_objects = ,
-      Array[File]
-      Array[File] data = data
+      String staging_bucket = staging_bucket,
+      Array[File] links_objects = ,
+      Array[File] analysis_file_descriptor_objects = ,
+      Array[File] analysis_file_metadata_objects = ,
+      Array[File] analysis_process_objects = ,
+      Array[File] analysis_protocol_objects = ,
+      Array[File] reference_metadata_objects = ,
+      Array[File] reference_file_descriptor_objects = ,
+      Array[File] data = ,
       String? cache_invalidate
   }
 
