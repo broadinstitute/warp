@@ -1,20 +1,20 @@
 version 1.0
 
-#import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
-#import "../../../tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
-#import "../../../tasks/skylab/TagSortBam.wdl" as TagSortBam
-#import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
-#import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
-#import "../../../tasks/skylab/ConvertStarOutput.wdl" as ConvertStarOutput
-#import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
+import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
+import "../../../tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
+import "../../../tasks/skylab/TagSortBam.wdl" as TagSortBam
+import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
+import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/skylab/ConvertStarOutput.wdl" as ConvertStarOutput
+import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
 
-import "StarAlign.wdl" as StarAlign
-import "SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
-import "TagSortBam.wdl" as TagSortBam
-import "RunEmptyDrops.wdl" as RunEmptyDrops
-import "LoomUtils.wdl" as LoomUtils
-import "ConvertStarOutput.wdl" as ConvertStarOutput
-import "OptimusInputChecks.wdl" as OptimusInputChecks
+#import "StarAlign.wdl" as StarAlign
+#import "SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
+#import "TagSortBam.wdl" as TagSortBam
+#import "RunEmptyDrops.wdl" as RunEmptyDrops
+#import "LoomUtils.wdl" as LoomUtils
+#import "ConvertStarOutput.wdl" as ConvertStarOutput
+#import "OptimusInputChecks.wdl" as OptimusInputChecks
 
 workflow Optimus {
   meta {
@@ -101,24 +101,15 @@ workflow Optimus {
       counting_mode = counting_mode
   }
 
-  call TagSortBam.GeneSortBam as GeneSort {
+  call TagSortBam.GeneSortBam as GeneMetrics {
     input:
       bam_input = STARsoloFastq.bam_output
   }
 
-  call Metrics.CalculateGeneMetrics as GeneMetrics {
+  call TagSortBam.CellSortBam as CellMetrics {
     input:
-      tsv_input = GeneSort.tsv_output
-  }
-
-  call TagSortBam.CellSortBam as CellSort {
-    input:
-      bam_input = STARsoloFastq.bam_output
-  }
-
-  call Metrics.CalculateCellMetrics as CellMetrics{
-    input:
-      tsv_input = CellSort.tsv_output
+      bam_input = STARsoloFastq.bam_output,
+      original_gtf = annotations_gtf
   }
 
   call ConvertStarOutput.ConvertStarOutput as ConvertOutputs {

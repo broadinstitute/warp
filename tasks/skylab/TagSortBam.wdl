@@ -3,13 +3,14 @@ version 1.0
 task CellSortBam {
   input {
     File bam_input
+    File original_gtf
 
     # runtime values
-    String docker = "quay.io/kishorikonwar/secondary-analysis-python3-scientific:sctools-optimized"
-    Int machine_mem_mb = 100000
-    Int cpu = 2
-    Int disk = ceil(size(bam_input, "Gi") * 8)
-    Int preemptible = 3
+    String docker = "quay.io/kishorikonwar/secondary-analysis-python3-scientific:sctools-optimized8"
+    Int machine_mem_mb = 8000
+    Int cpu = 8
+    Int disk = ceil(size(bam_input, "Gi") * 4)
+    Int preemptible = 0
   }
 
   meta {
@@ -27,16 +28,24 @@ task CellSortBam {
   
   command {
     set -e
+    mkdir temp
+    gunzip -c ~{original_gtf} > annotation.gtf
 
     TagSort --bam-input ~{bam_input} \
-            --output cell-sorted-bam.tsv \
-            --barcode-tag CB \
-            --umi-tag UB \
-            --gene-tag GX \
-            --temp-folder /tmp \
-            --inmemory-chunk-size 5
+    --gtf-file annotation.gtf \
+    --metric-output cell-metrics.csv  --compute-metric \
+    --metric-type cell \
+    --barcode-tag CB \
+    --umi-tag UB \
+    --gene-tag GX \
+    --temp-folder temp \
+    --alignments-per-thread 1000000 \
+    --nthreads 6
+
+    gzip cell-metrics.csv
   }
-  
+
+
   runtime {
     docker: docker
     memory: "${machine_mem_mb} MiB"
@@ -46,7 +55,7 @@ task CellSortBam {
   }
   
   output {
-    File tsv_output = "cell-sorted-bam.tsv"
+    File cell_metrics = "cell-metrics.csv.gz"
   }
 }
 
@@ -55,11 +64,11 @@ task GeneSortBam {
     File bam_input
 
     # runtime values
-    String docker = "quay.io/kishorikonwar/secondary-analysis-python3-scientific:sctools-optimized"
-    Int machine_mem_mb = 100000
-    Int cpu = 2
-    Int disk = ceil(size(bam_input, "Gi") * 4)
-    Int preemptible = 3
+    String docker = "quay.io/kishorikonwar/secondary-analysis-python3-scientific:sctools-optimized8"
+    Int machine_mem_mb = 8000
+    Int cpu = 8
+    Int disk = ceil(size(bam_input, "Gi") * 4) 
+    Int preemptible = 0
   }
   
 
@@ -78,13 +87,20 @@ task GeneSortBam {
 
   command {
     set -e
+    mkdir temp
+
     TagSort --bam-input ~{bam_input} \
-    --output gene-sorted-bam.tsv \
-    --inmemory-chunk-size 5 \
+    --metric-output gene-metrics.csv  --compute-metric \
+    --metric-type gene \
     --gene-tag GX \
     --barcode-tag CB \
     --umi-tag UB \
-    --temp-folder /tmp
+    --temp-folder temp \
+    --alignments-per-thread 1000000 \
+    --nthreads 6
+
+    gzip gene-metrics.csv
+
   }
 
   runtime {
@@ -96,6 +112,6 @@ task GeneSortBam {
   }
 
   output {
-    File tsv_output = "gene-sorted-bam.tsv"
+    File gene_metrics = "gene-metrics.csv.gz"
   }
 }

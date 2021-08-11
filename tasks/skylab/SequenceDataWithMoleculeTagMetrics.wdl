@@ -5,7 +5,7 @@ task CalculateGeneMetrics {
     File tsv_input
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-python3-scientific:sctools-optimized"
+    String docker = "quay.io/kishorikonwar/secondary-analysis-python3-scientific:sctools-optimized4"
     Int machine_mem_mb = 30000
     Int cpu = 1
     Int disk = ceil(size(tsv_input, "Gi") * 4)
@@ -27,8 +27,7 @@ task CalculateGeneMetrics {
 
   command {
     set -e
-
-    CalculateGeneMetricsFast -i "${tsv_input}" -o gene-metrics.csv.gz
+    CalculateGeneMetricsFast -i "~{tsv_input}" -o gene-metrics.csv.gz
   }
 
   runtime {
@@ -47,9 +46,10 @@ task CalculateGeneMetrics {
 task CalculateCellMetrics {
   input {
     File tsv_input
+    File original_gtf
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-python3-scientific:sctools-optimized"
+    String docker = "quay.io/kishorikonwar/secondary-analysis-python3-scientific:sctools-optimized4"
     Int machine_mem_mb = 45000
     Int cpu = 1
     Int disk = ceil(size(tsv_input, "Gi") * 2)
@@ -72,7 +72,7 @@ task CalculateCellMetrics {
   command {
     set -e
 
-    CalculateCellMetricsFast -i "~{tsv_input}" -a t -o cell-metrics.csv.gz
+    CalculateCellMetricsFast -i "~{tsv_input}" -o cell-metrics.csv.gz -a "~{original_gtf}"
   }
 
   runtime {
