@@ -33,13 +33,13 @@ workflow ImputationPipeline {
     Int merge_ssvcf_mem = 3 # the memory allocation for MergeSingleSampleVcfs (in GiB)
 
     Float frac_well_imputed_threshold = 0.9 # require fraction of sites well imputed to be greater than this to pass
-    Float chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
+    Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
   }
   # Docker images here
-  String bcftools_docker_tag = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0" #"us.gcr.io/broad-dsde-methods/bcftools:v1.9-1-deb_cv1"
-  String bcftools_vcftools_docker_tag = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0" #"us.gcr.io/broad-dsde-methods/skwalker-imputation:with_vcftools" # TODO: use a public one (not suse bcftools biocontainers also has vcftools )
+  String bcftools_docker_tag = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+  String bcftools_vcftools_docker_tag = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
   String gatk_docker_tag = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
-  String minimac4_docker_tag = "us.gcr.io/broad-dsde-methods/imputation-minimac-docker:v1.0.0" #"us.gcr.io/broad-dsde-methods/skwalker-imputation:test" # this has the exact version of minimac and eagle we want to perfectly match Michigan Server
+  String minimac4_docker_tag = "us.gcr.io/broad-dsde-methods/imputation-minimac-docker:v1.0.0"
   String eagle_docker_tag = "us.gcr.io/broad-dsde-methods/imputation_eagle_docker:v1.0.0"
   String ubuntu_docker_tag = "ubuntu:20.04"
   String rtidyverse_docker_tag = "rocker/tidyverse:4.1.0"
@@ -61,8 +61,8 @@ workflow ImputationPipeline {
   if (defined(single_sample_vcfs)) {
     call tasks.MergeSingleSampleVcfs {
       input:
-        input_vcfs = select_first([single_sample_vcfs, []]),
-        input_vcf_indices = select_first([single_sample_vcf_indices, []]),
+        input_vcfs = select_first([single_sample_vcfs]),
+        input_vcf_indices = select_first([single_sample_vcf_indices]),
         output_vcf_basename = "merged_input_samples",
         bcftools_docker = bcftools_docker_tag,
         mem = merge_ssvcf_mem
@@ -101,7 +101,7 @@ workflow ImputationPipeline {
   }
 
   scatter (referencePanelContig in referencePanelContigs) {
-    call tasks.CalculateChromsomeLength {
+    call tasks.CalculateChromosomeLength {
       input:
         ref_dict = ref_dict,
         chrom = referencePanelContig.contig,
@@ -109,14 +109,14 @@ workflow ImputationPipeline {
     }
 
     Float chunkLengthFloat = chunkLength
-    Int num_chunks = ceil(CalculateChromsomeLength.chrom_length / chunkLengthFloat)
+    Int num_chunks = ceil(CalculateChromosomeLength.chrom_length / chunkLengthFloat)
 
     scatter (i in range(num_chunks)) {
       String chunk_contig = referencePanelContig.contig
       Int start = (i * chunkLength) + 1
       Int startWithOverlaps = if (start - chunkOverlaps < 1) then 1 else start - chunkOverlaps
-      Int end = if (CalculateChromsomeLength.chrom_length < ((i + 1) * chunkLength)) then CalculateChromsomeLength.chrom_length else ((i + 1) * chunkLength)
-      Int endWithOverlaps = if (CalculateChromsomeLength.chrom_length < end + chunkOverlaps) then CalculateChromsomeLength.chrom_length else end + chunkOverlaps
+      Int end = if (CalculateChromosomeLength.chrom_length < ((i + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i + 1) * chunkLength)
+      Int endWithOverlaps = if (CalculateChromosomeLength.chrom_length < end + chunkOverlaps) then CalculateChromosomeLength.chrom_length else end + chunkOverlaps
 
       call tasks.GenerateChunk {
         input:
@@ -173,11 +173,11 @@ workflow ImputationPipeline {
             end = endWithOverlaps
         }
 
-        call tasks.minimac4 {
+        call tasks.Minimac4 {
           input:
             ref_panel = referencePanelContig.m3vcf,
             phased_vcf = PrePhaseVariantsEagle.dataset_prephased_vcf,
-            prefix = "chrom" + "_chunk_" + i +"_imputed",
+            prefix = "chrom_" + referencePanelContig.contig + "_chunk_" + i +"_imputed",
             chrom = referencePanelContig.contig,
             minimac4_docker = minimac4_docker_tag,
             start = start,
@@ -187,7 +187,7 @@ workflow ImputationPipeline {
 
         call tasks.AggregateImputationQCMetrics {
           input:
-            infoFile = minimac4.info,
+            infoFile = Minimac4.info,
             nSamples = CountSamples.nSamples,
             basename = output_callset_name + "chrom_" + referencePanelContig.contig + "_chunk_" + i,
             rtidyverse_docker = rtidyverse_docker_tag
@@ -195,10 +195,10 @@ workflow ImputationPipeline {
 
         call tasks.UpdateHeader {
           input:
-            vcf = minimac4.vcf,
-            vcf_index = minimac4.vcf_index,
+            vcf = Minimac4.vcf,
+            vcf_index = Minimac4.vcf_index,
             ref_dict = ref_dict,
-            basename = "chrom" + "_chunk_" + i +"_imputed",
+            basename = "chrom_" + referencePanelContig.contig + "_chunk_" + i +"_imputed",
             gatk_docker = gatk_docker_tag
         }
 
@@ -249,7 +249,7 @@ workflow ImputationPipeline {
       bcftools_docker = bcftools_docker_tag
   }
 
-  call tasks.FindSitesFileTwoOnly {
+  call tasks.FindSitesUniqueToFileTwoOnly {
     input:
       file1 = ExtractIDs.ids,
       file2 = ExtractIdsVcfToImpute.ids,
@@ -259,7 +259,7 @@ workflow ImputationPipeline {
   call tasks.SelectVariantsByIds {
     input:
       vcf = SortIdsVcfToImpute.output_vcf,
-      ids = FindSitesFileTwoOnly.missing_sites,
+      ids = FindSitesUniqueToFileTwoOnly.missing_sites,
       basename = "imputed_sites_to_recover",
       gatk_docker = gatk_docker_tag
   }
@@ -286,9 +286,9 @@ workflow ImputationPipeline {
   }
 
   if (MergeImputationQCMetrics.frac_well_imputed < frac_well_imputed_threshold) {
-    call tasks.FailQCThreshold as FailQCWellImputedFrac {
+    call utils.ErrorWithMessage as FailQCWellImputedFrac {
       input:
-        msg = "Well imputed fraction was " + MergeImputationQCMetrics.frac_well_imputed + ", QC failure threshold was set at " + frac_well_imputed_threshold
+        message = "Well imputed fraction was " + MergeImputationQCMetrics.frac_well_imputed + ", QC failure threshold was set at " + frac_well_imputed_threshold
     }
   }
 
@@ -305,9 +305,9 @@ workflow ImputationPipeline {
   }
 
   if (StoreChunksInfo.n_failed_chunks >= chunks_fail_threshold) {
-    call tasks.FailQCThreshold as FailQCNChunks {
+    call utils.ErrorWithMessage as FailQCNChunks {
       input:
-        msg = StoreChunksInfo.n_failed_chunks + " chunks failed imputation, QC threshold was set to " + chunks_fail_threshold
+        message = StoreChunksInfo.n_failed_chunks + " chunks failed imputation, QC threshold was set to " + chunks_fail_threshold
     }
   }
 

@@ -1,6 +1,6 @@
 version 1.0
 
-task CalculateChromsomeLength {
+task CalculateChromosomeLength {
   input {
     File ref_dict
     Int chrom
@@ -34,8 +34,16 @@ task GenerateChunk {
     String gatk_docker
   }
   command {
-    gatk SelectVariants -V ~{vcf} --select-type-to-include SNP --max-nocall-fraction 0.1 -xl-select-type SYMBOLIC \
-    --select-type-to-exclude MIXED --restrict-alleles-to BIALLELIC -L ~{chrom}:~{start}-~{end} -O ~{basename}.vcf.gz --exclude-filtered true
+    gatk SelectVariants \
+    -V ~{vcf} \
+    --select-type-to-include SNP \
+    --max-nocall-fraction 0.1 \
+    -xl-select-type SYMBOLIC \
+    --select-type-to-exclude MIXED \
+    --restrict-alleles-to BIALLELIC \
+    -L ~{chrom}:~{start}-~{end} \
+    -O ~{basename}.vcf.gz \
+    --exclude-filtered true
   }
   runtime {
     docker: gatk_docker
@@ -70,7 +78,6 @@ task CountChunks {
   command <<<
     echo $(gatk CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
     echo $(gatk  CountVariants -V ~{vcf} -L ~{panel_vcf}  | sed 's/Tool returned://') > var_in_reference
-    echo ${var_in_reference} " * 2 - " ${var_in_original} " should be greater than 0 AND " ${var_in_reference} " should be greater than 3"
   >>>
   output {
     Int var_in_original = read_int("var_in_original")
@@ -151,7 +158,7 @@ task PrePhaseVariantsEagle {
   }
 }
 
-task minimac4 {
+task Minimac4 {
   input {
     File ref_panel
     File phased_vcf
@@ -195,8 +202,8 @@ task minimac4 {
 
 task GatherVcfs {
   input {
-    Array[File] input_vcfs # these are all valid
-    Array[File] input_vcf_indices # these are all valid
+    Array[File] input_vcfs
+    Array[File] input_vcf_indices
     String output_vcf_basename
     String gatk_docker
   }
@@ -206,7 +213,7 @@ task GatherVcfs {
   command <<<
     gatk GatherVcfs \
     -I ~{sep=' -I ' input_vcfs} \
-    -O ~{output_vcf_basename}.vcf.gz # I don't think this creates an output index file
+    -O ~{output_vcf_basename}.vcf.gz
 
     if [ ! -f ~{output_vcf_basename}.vcf.gz.tbi ]; then
       gatk IndexFeatureFile -I ~{output_vcf_basename}.vcf.gz
@@ -332,7 +339,6 @@ task SortIds {
   }
 
   command <<<
-    # what better way is there to do this I really don't know
     zcat ~{vcf} | awk -v OFS='\t' '{split($3, n, ":"); if ( !($1 ~ /^"#"/) && n[4] < n[3])  $3=n[1]":"n[2]":"n[4]":"n[3]; print $0}' | bgzip -c > ~{basename}.vcf.gz
     bcftools index -t ~{basename}.vcf.gz
 
@@ -387,7 +393,7 @@ task CountSamples {
   Int disk_size = 100 + ceil(size(vcf, "GiB"))
 
   command <<<
-    bcftools query -l ~{vcf} | wc -l >> nSamples.txt
+    bcftools query -l ~{vcf} | wc -l
   >>>
 
   runtime {
@@ -397,7 +403,7 @@ task CountSamples {
   }
 
   output {
-    Int nSamples = read_int("nSamples.txt")
+    Int nSamples = read_int(stdout())
   }
 }
 
@@ -516,21 +522,6 @@ task MergeImputationQCMetrics {
   }
 }
 
-task FailQCThreshold {
-  input {
-    String msg
-  }
-
-  command <<<
-    >&2 echo "QC Failure: ~{msg}"
-    exit 1
-  >>>
-
-  runtime {
-    docker: "ubuntu:18.04"
-  }
-}
-
 task SetIDs {
   input {
     File vcf
@@ -567,10 +558,10 @@ task ExtractIDs {
   }
 
   command <<<
-    bcftools query -f "%ID\n" ~{vcf} -o ~{output_basename}.ids
+    bcftools query -f "%ID\n" ~{vcf} -o ~{output_basename}.ids.txt
   >>>
   output {
-    File ids = "~{output_basename}.ids"
+    File ids = "~{output_basename}.ids.txt"
   }
   runtime {
     docker: bcftools_docker
@@ -665,7 +656,7 @@ task InterleaveVariants {
   }
 }
 
-task FindSitesFileTwoOnly {
+task FindSitesUniqueToFileTwoOnly {
   input {
     File file1
     File file2
@@ -680,8 +671,8 @@ task FindSitesFileTwoOnly {
 
   runtime {
     docker: ubuntu_docker
-    disks: "local-disk " + disk_size + " SSD"
-    memory: "16 GiB"
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "4 GiB"
   }
 
   output {
@@ -702,7 +693,7 @@ task SplitMultiSampleVcf {
     mkdir out_dir
     bcftools +split ~{multiSampleVcf} -Oz -o out_dir
     for vcf in out_dir/*.vcf.gz; do
-    bcftools index -t $vcf
+      bcftools index -t $vcf
     done
   >>>
 
@@ -737,13 +728,13 @@ task CrosscheckFingerprints {
     array_vcfs=( ~{sep=" " firstInputs} )
     array_indices=( ~{sep=" " firstInputIndices} )
     for i in ${!array_vcfs[@]}; do
-    ln -s ${array_indices[i]} $(dirname ${array_vcfs[i]})
+      ln -s ${array_indices[i]} $(dirname ${array_vcfs[i]})
     done
 
     array_vcfs2=( ~{sep=" " secondInputs} )
     array_indices2=( ~{sep=" " secondInputIndices} )
     for i in ${!array_vcfs2[@]}; do
-    ln -s ${array_indices2[i]} $(dirname ${array_vcfs2[i]})
+      ln -s ${array_indices2[i]} $(dirname ${array_vcfs2[i]})
     done
 
     gatk CrosscheckFingerprints -I ~{sep=" -I " firstInputs} -SI ~{sep=" -SI " secondInputs} -H ~{haplotypeDatabase} -O ~{basename}.crosscheck
