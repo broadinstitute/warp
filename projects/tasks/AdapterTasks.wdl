@@ -1,79 +1,8 @@
 version 1.0
 
-# Check that the library prep method, species, and organ are the same for all workflow being processed together
-task CheckStratumMetadata {
-  input {
-    Array[String] library
-    Array[String] species
-    Array[String] organ
-    Array[String] project_id
-    Array[String] project_name
-
-    String docker = "python:3.7.2"
-    Int memory = 3
-    Int disk = 20
-  }
-
-  command {
-  set -e pipefail
-  python3 <<CODE
-
-  library_set = set([ "~{sep='", "' library}" ])
-  species_set = set([ "~{sep='", "' species}" ])
-  organ_set = set([ "~{sep='", "' organ}" ])
-  project_id_set = set([ "~{sep='", "' project_id}" ])
-  project_name_set = set([ "~{sep='", "' project_name}" ])
-
-  errors=0
-
-  if len(library_set) != 1:
-      print("ERROR: Library metadata is not consistent within the project.")
-      errors += 1
-  if len(species_set) != 1:
-      print("ERROR: Species metadata is not consistent within the project.")
-      errors += 1
-  if len(organ_set) != 1:
-      print("ERROR: Organ metadata is not consistent within the project.")
-      errors += 1
-  if len(project_id_set) != 1:
-        print("ERROR: Project_id metadata is not consistent within the project.")
-        errors += 1
-  if len(project_name_set) != 1:
-      print("ERROR: Project_name metadata is not consistent within the project.")
-      errors += 1
-
-  if ';' in list(library_set)[0] or '=' in list(library_set)[0]:
-      print('ERROR: Library metadata contains an illegal character (";" or "=")')
-      errors += 1
-  if ';' in list(species_set)[0] or '=' in list(species_set)[0]:
-      print('ERROR: Species metadata contains an illegal character (";" or "=")')
-      errors += 1
-  if ';' in list(organ_set)[0] or '=' in list(organ_set)[0]:
-      print('ERROR: Organ metadata contains an illegal character (";" or "=")')
-      errors += 1
-  if ';' in list(project_id_set)[0] or '=' in list(project_id_set)[0]:
-      print('ERROR: Project_id metadata contains an illegal character (";" or "=")')
-      errors += 1
-  if ';' in list(project_name_set)[0] or '=' in list(project_name_set)[0]:
-      print('ERROR: Project_name metadata contains an illegal character (";" or "=")')
-      errors += 1
-
-  if errors > 0:
-      raise ValueError("Files must have matching metadata in order to combine.")
-  CODE
-  }
-  runtime {
-    docker: docker
-    cpu: 1
-    memory: "~{memory} GiB"
-    disks: "local-disk ~{disk} HDD"
-  }
-}
-
-
-# Due to the nature of running some things for intermediate steps and some for project steps, we have several place
-# where we process arrays of input which we expect to contain a single value duplicated many times.
-# This simple function confirms that the er is a sigle value in a given input array and that that value does not
+# Due to the nature generating adapters for intermediatt and project level files, we have several place
+# where we process arrays of inputs which we expect to contain a single value duplicated many times.
+# This simple function confirms that there is a sigle value in a given input array and that that value does not
 # contain any disallowed characters
 task CheckInput {
   input {
@@ -83,7 +12,7 @@ task CheckInput {
 
     String docker = "python:3.7.2"
     Int memory = 3
-    Int disk = 20
+    Int disk = 10
   }
 
   command <<<
@@ -121,6 +50,39 @@ task CheckInput {
     String output_string = read_string("output.txt")
   }
 }
+
+
+task GetPipelineType {
+  input {
+    String library
+    String docker = "python:3.7.2"
+    Int memory = 3
+    Int disk = 10
+  }
+
+  command <<<
+  set -e pipefail
+  python3 <<CODE
+  with open("output.txt", w) as f:
+      if ("10X" in ~{library}):
+          f.write("Optimus")
+      elif ("Smart-seq2" in ~{library}):
+          f.write("SS2")
+      else:
+          raise ValueError("Unexpected library_preparation_protocol__library_construction_approach")
+  CODE
+  >>>
+  runtime {
+    docker: docker
+    cpu: 1
+    memory: "~{memory} GiB"
+    disks: "local-disk ~{disk} HDD"
+  }
+  output {
+    String output_string = read_string("output.txt")
+  }
+}
+
 
 # Get Cromwell metadata for a workflow
 # Uses a workflow output to parse the cromwell id and fetch the metadata

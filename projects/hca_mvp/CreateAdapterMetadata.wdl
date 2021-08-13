@@ -23,8 +23,8 @@ workflow CreateAdapterMetadata {
 
     # These values come in as arrays from Terra, but should be populated with a single value (which may be repeated)
     Array[String] all_libraries
-    Array[String] all_species
     Array[String] all_organs
+    Array[String] all_species
     Array[String] all_project_ids
     Array[String] all_project_names
 
@@ -38,24 +38,52 @@ workflow CreateAdapterMetadata {
   # version of this pipeline
   String pipeline_version = "1.0.0"
 
-  Boolean is_SS2 = false # TODO: check an input value to determine if this is SS2
-  Boolean is_Optimus = true # TODO: check an input value to determine if this is Optimus (leaving this flexible for additional data types if needed
-
-  # TODO: clean this up
-  call Tasks.CheckStratumMetadata {
+  # Check inputs for multiple values or illegal characters
+  call Tasks.CheckInput as CheckLibrary {
     input:
-      library = all_libraries,
-      species = all_species,
-      organ = all_organs,
-      project_id = all_project_ids,
-      project_name = all_project_names
+      input_array = all_libraries,
+      input_type = "library",
+      illegal_characters = ";="
   }
 
-  String library = all_libraries[0]
-  String species = all_species[0]
-  String organ = all_organs[0]
-  String project_id = all_project_ids[0]
-  String project_name = all_project_names[0]
+  call Tasks.CheckInput as CheckOrgan {
+    input:
+      input_array = all_organs,
+      input_type = "organ",
+      illegal_characters = ";="
+  }
+
+  call Tasks.CheckInput as CheckSpecies {
+    input:
+      input_array = all_species,
+      input_type = "species",
+      illegal_characters = ";="
+  }
+
+  call Tasks.CheckInput as CheckProjectID {
+    input:
+      input_array = all_project_ids,
+      input_type = "project_id",
+      illegal_characters = ";="
+  }
+
+    call Tasks.CheckInput as CheckProjectName {
+    input:
+      input_array = all_project_names,
+      input_type = "project_name",
+      illegal_characters = ";="
+  }
+
+  String library = CheckLibrary.output_string
+  String organ = CheckOrgan.output_string
+  String species = CheckSpecies.output_string
+  String project_id = CheckProjectID.output_string
+  String project_name = CheckProjectName.output_string
+
+  call Tasks.GetPipelineType {
+    input:
+      library = library
+  }
 
   # Build staging bucket
   String staging_bucket = staging_area + project_id + "/staging/"
@@ -65,7 +93,7 @@ workflow CreateAdapterMetadata {
      String none = "None"
   }
   ########################## Get Optimus Metadata Files ##########################
-  if (is_Optimus) {
+  if (GetPipelineType.pipeline == "Optimus") {
     scatter (idx in range(length(output_looms))) {
       String fastq_i1_uuid = if defined(fastq_i1_uuids) then fastq_i1_uuids[idx] else none
       call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateIntermediateOptimusAdapters {
@@ -125,33 +153,32 @@ workflow CreateAdapterMetadata {
         version_timestamp = version_timestamp,
         cromwell_url = cromwell_url,
         is_project_level = true
-      }
     }
   }
 
   ########################## Get SS2 Metadata Files ###########################
-  if (is_SS2) {
-    call CreateSS2Objects as GetAdapterObjects{
-      input:
-        # Fill in input for subworkflow
-    }
-  }
+  #if (GetPipelineType.pipeline == "SS2") {
+  #  call CreateSS2Objects as GetAdapterObjects{
+  #    input:
+  #      # Fill in input for subworkflow
+  #  }
+  #}
 
   # TODO: copy to staging bucket
 
   ########################## Copy Files to Staging Bucket ##########################
-  call CopyToStagingBucket {
+  call Tasks.CopyToStagingBucket {
     input:
-      String staging_bucket = staging_bucket,
-      Array[File] links_objects = ,
-      Array[File] analysis_file_descriptor_objects = ,
-      Array[File] analysis_file_metadata_objects = ,
-      Array[File] analysis_process_objects = ,
-      Array[File] analysis_protocol_objects = ,
-      Array[File] reference_metadata_objects = ,
-      Array[File] reference_file_descriptor_objects = ,
-      Array[File] data = ,
-      String? cache_invalidate
+      staging_bucket = staging_bucket,                       # String
+      links_objects = ,                                      # Array[File]
+      analysis_file_descriptor_objects = ,                   # Array[File]
+      analysis_file_metadata_objects = ,                     # Array[File]
+      analysis_process_objects = ,                           # Array[File]
+      analysis_protocol_objects = ,                          # Array[File]
+      reference_metadata_objects = ,                         # Array[File]
+      reference_file_descriptor_objects = ,                  # Array[File]
+      data = ,                                               # Array[File]
+      cache_invalidate                                       # String?
   }
 
 
