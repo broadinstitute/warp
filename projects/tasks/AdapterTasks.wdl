@@ -505,10 +505,11 @@ task CopyToStagingBucket {
     Array[File] analysis_file_metadata_objects
     Array[File] analysis_process_objects
     Array[File] analysis_protocol_objects
-    #analysis_file_descriptor_objects ??
+    Array[File] analysis_file_descriptor_objects
     Array[File] links_objects
     Array[File] data_objects
     String staging_bucket
+    String? cache_invalidate
 
     String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
     Int cpu = 1
@@ -521,8 +522,7 @@ task CopyToStagingBucket {
     --analysis_files_metadata_jsons ~{analysis_file_metadata_objects} \
     --analysis_process_jsons ~{analysis_process_objects} \
     --analysis_protocol_jsons ~{analysis_protocol_objects} \
-    --loom_analysis_files_descriptors_jsons ~{} \ # need to figure this out
-    --bam_analysis_files_descriptors_jsons ~{} \ # need to figure this out
+    --analysis_files_descriptors_jsons ~{analysis_file_descriptor_objects} \
     --links_jsons ~{links_objects} \
     --data_files ~{data_objects} \
     --staging-bucket ~{staging_bucket}
