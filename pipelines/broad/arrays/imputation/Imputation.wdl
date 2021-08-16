@@ -24,13 +24,15 @@ workflow ImputationPipeline {
 
     Boolean perform_extra_qc_steps # these are optional additional extra QC steps from Amit's group that should only be
     # run for large sample sets, especially a diverse set of samples (it's further limiting called at sites to 95% and by HWE)
+    Float? optional_qc_max_missing
+    Float? optional_qc_hwe
     File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
     Array[ReferencePanelContig] referencePanelContigs
     File genetic_maps_eagle
     String output_callset_name # the output callset name
     Boolean split_output_to_single_sample = false
     File haplotype_database
-    Int merge_ssvcf_mem = 3 # the memory allocation for MergeSingleSampleVcfs (in GiB)
+    Int merge_ssvcf_mem_gb = 3 # the memory allocation for MergeSingleSampleVcfs (in GiB)
 
     Float frac_well_imputed_threshold = 0.9 # require fraction of sites well imputed to be greater than this to pass
     Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
@@ -65,14 +67,14 @@ workflow ImputationPipeline {
         input_vcf_indices = select_first([single_sample_vcf_indices]),
         output_vcf_basename = "merged_input_samples",
         bcftools_docker = bcftools_docker_tag,
-        mem = merge_ssvcf_mem
+        mem = merge_ssvcf_mem_gb
     }
   }
 
   File vcf_to_impute = select_first([multi_sample_vcf, MergeSingleSampleVcfs.output_vcf])
   File vcf_index_to_impute = select_first([multi_sample_vcf_index, MergeSingleSampleVcfs.output_vcf_index])
 
-  call tasks.SetIDs {
+  call tasks.SetIDs as SetIdsVcfToImpute{
     input:
       vcf = vcf_to_impute,
       vcfIndex = vcf_index_to_impute,
@@ -80,16 +82,9 @@ workflow ImputationPipeline {
       bcftools_docker = bcftools_docker_tag
   }
 
-  call tasks.SortIds as SortIdsVcfToImpute {
-    input:
-      vcf = SetIDs.output_vcf,
-      basename = "input_samples_with_variant_ids_sorted",
-      bcftools_docker = bcftools_docker_tag
-  }
-
   call tasks.ExtractIDs as ExtractIdsVcfToImpute {
     input:
-      vcf = SortIdsVcfToImpute.output_vcf,
+      vcf = SetIdsVcfToImpute.output_vcf,
       output_basename = "imputed_sites",
       bcftools_docker = bcftools_docker_tag
   }
@@ -104,8 +99,7 @@ workflow ImputationPipeline {
     call tasks.CalculateChromosomeLength {
       input:
         ref_dict = ref_dict,
-        chrom = referencePanelContig.contig,
-        gatk_docker = gatk_docker_tag
+        chrom = referencePanelContig.contig
     }
 
     Float chunkLengthFloat = chunkLength
@@ -135,11 +129,13 @@ workflow ImputationPipeline {
             input_vcf = GenerateChunk.output_vcf,
             input_vcf_index = GenerateChunk.output_vcf_index,
             output_vcf_basename =  "chrom_" + referencePanelContig.contig + "_chunk_" + i,
-            bcftools_vcftools_docker = bcftools_vcftools_docker_tag
+            bcftools_vcftools_docker = bcftools_vcftools_docker_tag,
+            max_missing = optional_qc_max_missing,
+            hwe = optional_qc_hwe
         }
       }
 
-      call tasks.CountChunks {
+      call tasks.CountVariantsInChunks {
         input:
           vcf = select_first([OptionalQCSites.output_vcf,  GenerateChunk.output_vcf]),
           vcf_index = select_first([OptionalQCSites.output_vcf_index, GenerateChunk.output_vcf_index]),
@@ -153,14 +149,14 @@ workflow ImputationPipeline {
           vcf_index = select_first([OptionalQCSites.output_vcf_index, GenerateChunk.output_vcf_index]),
           panel_vcf = referencePanelContig.vcf,
           panel_vcf_index = referencePanelContig.vcf_index,
-          var_in_original = CountChunks.var_in_original,
-          var_in_reference = CountChunks.var_in_reference,
+          var_in_original = CountVariantsInChunks.var_in_original,
+          var_in_reference = CountVariantsInChunks.var_in_reference,
           bcftools_docker = bcftools_docker_tag
       }
 
       if (CheckChunks.valid) {
 
-        call tasks.PrePhaseVariantsEagle {
+        call tasks.PhaseVariantsEagle {
           input:
             dataset_bcf = CheckChunks.valid_chunk_bcf,
             dataset_bcf_index = CheckChunks.valid_chunk_bcf_index,
@@ -176,7 +172,7 @@ workflow ImputationPipeline {
         call tasks.Minimac4 {
           input:
             ref_panel = referencePanelContig.m3vcf,
-            phased_vcf = PrePhaseVariantsEagle.dataset_prephased_vcf,
+            phased_vcf = PhaseVariantsEagle.dataset_prephased_vcf,
             prefix = "chrom_" + referencePanelContig.contig + "_chunk_" + i +"_imputed",
             chrom = referencePanelContig.contig,
             minimac4_docker = minimac4_docker_tag,
@@ -218,17 +214,17 @@ workflow ImputationPipeline {
             gatk_docker = gatk_docker_tag
         }
 
-        call tasks.SortIds {
+        call tasks.SetIDs {
           input:
             vcf = RemoveSymbolicAlleles.output_vcf,
-            basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed",
+            output_basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed",
             bcftools_docker = bcftools_docker_tag
         }
       }
     }
     Array[File] aggregatedImputationMetrics = select_all(AggregateImputationQCMetrics.aggregated_metrics)
-    Array[File] chromosome_vcfs = select_all(SortIds.output_vcf)
-    Array[File] chromosome_vcf_indices = select_all(SortIds.output_vcf_index)
+    Array[File] chromosome_vcfs = select_all(SetIDs.output_vcf)
+    Array[File] chromosome_vcf_indices = select_all(SetIDs.output_vcf_index)
   }
 
   Array[File] phased_vcfs = flatten(chromosome_vcfs)
@@ -258,7 +254,7 @@ workflow ImputationPipeline {
 
   call tasks.SelectVariantsByIds {
     input:
-      vcf = SortIdsVcfToImpute.output_vcf,
+      vcf = SetIdsVcfToImpute.output_vcf,
       ids = FindSitesUniqueToFileTwoOnly.missing_sites,
       basename = "imputed_sites_to_recover",
       gatk_docker = gatk_docker_tag
@@ -297,8 +293,8 @@ workflow ImputationPipeline {
       chroms = flatten(chunk_contig),
       starts = flatten(start),
       ends = flatten(end),
-      vars_in_array = flatten(CountChunks.var_in_original),
-      vars_in_panel = flatten(CountChunks.var_in_reference),
+      vars_in_array = flatten(CountVariantsInChunks.var_in_original),
+      vars_in_panel = flatten(CountVariantsInChunks.var_in_reference),
       valids = flatten(CheckChunks.valid),
       basename = output_callset_name,
       rtidyverse_docker = rtidyverse_docker_tag

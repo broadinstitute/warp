@@ -7,13 +7,13 @@ task CalculateChromosomeLength {
     String gatk_docker
   }
 
-  Int disk_size = ceil(2*size(ref_dict, "GiB")) + 50
+  Int disk_size = ceil(2*size(ref_dict, "GiB")) + 5
 
   command {
     grep -P "SN:~{chrom}\t" ~{ref_dict} | sed 's/.*LN://' | sed 's/\t.*//'
   }
   runtime {
-    docker: gatk_docker
+    docker: "alpine:3.14.1"
     disks: "local-disk " + disk_size + " HDD"
     memory: "2 GiB"
   }
@@ -66,7 +66,7 @@ task GenerateChunk {
   }
 }
 
-task CountChunks {
+task CountVariantsInChunks {
   input {
     File vcf
     File vcf_index
@@ -104,15 +104,16 @@ task CheckChunks {
   command <<<
     if [ $(( ~{var_in_reference} * 2 - ~{var_in_original})) -gt 0 ] && [ ~{var_in_reference} -gt 3 ]; then
       echo true > valid_file.txt
-      bcftools convert -Ob ~{vcf} > valid_variants.bcf
-      bcftools index -f valid_variants.bcf
     else
       echo false > valid_file.txt
     fi
+
+    bcftools convert -Ob ~{vcf} > valid_variants.bcf
+    bcftools index -f valid_variants.bcf
   >>>
   output {
-    File? valid_chunk_bcf = "valid_variants.bcf"
-    File? valid_chunk_bcf_index = "valid_variants.bcf.csi"
+    File valid_chunk_bcf = "valid_variants.bcf"
+    File valid_chunk_bcf_index = "valid_variants.bcf.csi"
     Boolean valid = read_boolean("valid_file.txt")
   }
   runtime {
@@ -123,10 +124,10 @@ task CheckChunks {
 
 }
 
-task PrePhaseVariantsEagle {
+task PhaseVariantsEagle {
   input {
-    File? dataset_bcf
-    File? dataset_bcf_index
+    File dataset_bcf
+    File dataset_bcf_index
     File reference_panel_bcf
     File reference_panel_bcf_index
     String chrom
@@ -183,9 +184,7 @@ task Minimac4 {
     --prefix ~{prefix} \
     --minRatio 0.00001
 
-    if [ ! -f ~{prefix}.dose.vcf.gz.tbi ]; then
-      bcftools index -t ~{prefix}.dose.vcf.gz
-    fi
+    bcftools index -t ~{prefix}.dose.vcf.gz
   >>>
   output {
     File vcf = "~{prefix}.dose.vcf.gz"
@@ -215,9 +214,8 @@ task GatherVcfs {
     -I ~{sep=' -I ' input_vcfs} \
     -O ~{output_vcf_basename}.vcf.gz
 
-    if [ ! -f ~{output_vcf_basename}.vcf.gz.tbi ]; then
-      gatk IndexFeatureFile -I ~{output_vcf_basename}.vcf.gz
-    fi
+    gatk IndexFeatureFile -I ~{output_vcf_basename}.vcf.gz
+
   >>>
   runtime {
     docker: gatk_docker
@@ -310,12 +308,14 @@ task OptionalQCSites {
     File input_vcf_index
     String output_vcf_basename
     String bcftools_vcftools_docker
+    Float max_missing = 0.05
+    Float hwe = 0.000001
   }
   Int disk_size = ceil(2*(size(input_vcf, "GiB") + size(input_vcf_index, "GiB")))
 
   command <<<
     # site missing rate < 5% ; hwe p > 1e-6
-    vcftools --gzvcf ~{input_vcf}  --max-missing 0.05 --hwe 0.000001 --recode -c | bgzip -c > ~{output_vcf_basename}.vcf.gz
+    vcftools --gzvcf ~{input_vcf}  --max-missing ~{max_missing} --hwe ~{hwe} --recode -c | bgzip -c > ~{output_vcf_basename}.vcf.gz
     bcftools index -t ~{output_vcf_basename}.vcf.gz # Note: this is necessary because vcftools doesn't have a way to output a zipped vcf, nor a way to index one (hence needing to use bcf).
   >>>
 
@@ -327,33 +327,6 @@ task OptionalQCSites {
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
     File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
-  }
-}
-
-task SortIds {
-  input {
-    File vcf
-    String basename
-    Int disk_space =  3*ceil(size(vcf, "GiB"))
-    String bcftools_docker
-  }
-
-  command <<<
-    zcat ~{vcf} | awk -v OFS='\t' '{split($3, n, ":"); if ( !($1 ~ /^"#"/) && n[4] < n[3])  $3=n[1]":"n[2]":"n[4]":"n[3]; print $0}' | bgzip -c > ~{basename}.vcf.gz
-    bcftools index -t ~{basename}.vcf.gz
-
-  >>>
-
-  output {
-    File output_vcf = "~{basename}.vcf.gz"
-    File output_vcf_index = "~{basename}.vcf.gz.tbi"
-
-  }
-
-  runtime {
-    docker: bcftools_docker
-    disks: "local-disk " + disk_space + " HDD"
-    memory: "16 GiB"
   }
 }
 
@@ -533,7 +506,10 @@ task SetIDs {
   Int disk_size = 100 + ceil(2.2 * size(vcf, "GiB"))
 
   command <<<
-    bcftools annotate ~{vcf} --set-id '%CHROM\:%POS\:%REF\:%FIRST_ALT' -Oz -o ~{output_basename}.vcf.gz
+    bcftools annotate ~{vcf} --set-id '%CHROM\:%POS\:%REF\:%FIRST_ALT' -Ov | \
+      awk -v OFS='\t' '{split($3, n, ":"); if ( !($1 ~ /^"#"/) && n[4] < n[3])  $3=n[1]":"n[2]":"n[4]":"n[3]; print $0}' | \
+      bgzip -c > ~{output_basename}.vcf.gz
+
     bcftools index -t ~{output_basename}.vcf.gz
   >>>
 

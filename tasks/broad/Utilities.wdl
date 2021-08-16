@@ -218,6 +218,6 @@ task ErrorWithMessage{
   >>>
 
   runtime {
-    docker: "ubuntu"
+    docker: "alpine:3.14.1"
   }
 }
