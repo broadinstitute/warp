@@ -171,13 +171,12 @@ workflow CreateAdapterMetadata {
       input:
         String staging_bucket = staging_bucket,
         Array[File] links_objects = [CreateIntermediateOptimusAdapters.links_outputs, CreateProjectOptimusAdapters.links_outputs],
-        # need to check and see if we can do a select first as the bams are optional
-        Array[File] analysis_file_descriptor_objects = [CreateIntermediateOptimusAdapters.loom_file_descriptor_outputs, CreateIntermediateOptimusAdapters.bam_file_descriptor_outputs, CreateProjectOptimusAdapters.loom_file_descriptor_outputs, CreateProjectOptimusAdapters.bam_file_descriptor_outputs],
+        Array[File] analysis_file_descriptor_objects = select_all[CreateIntermediateOptimusAdapters.loom_file_descriptor_outputs, CreateIntermediateOptimusAdapters.bam_file_descriptor_outputs, CreateProjectOptimusAdapters.loom_file_descriptor_outputs, CreateProjectOptimusAdapters.bam_file_descriptor_outputs],
         Array[File] analysis_file_metadata_objects = [CreateIntermediateOptimusAdapters.analysis_file_outputs, CreateProjectOptimusAdapters.analysis_file_outputs]
         Array[File] analysis_process_objects = [CreateIntermediateOptimusAdapters.analysis_process_outputs, CreateProjectOptimusAdapters.analysis_process_outputs],
         Array[File] analysis_protocol_objects = [CreateIntermediateOptimusAdapters.analysis_protocol_outputs, CreateProjectOptimusAdapters.analysis_protocol_outputs],
-        Array[File] reference_metadata_objects = , #need to check to see if we have a call for this
-        Array[File] reference_file_descriptor_objects = , #need to check to see if we have a call for this
+        Array[File] reference_metadata_objects = [CreateReferenceMetadata.reference_metadata_outputs],
+        Array[File] reference_file_descriptor_objects = [CreateReferenceMetadata.reference_file_descriptor_ouputs],
         Array[File] data_objects = [output_bams, output_looms, CreateReferenceMetadata.reference_fasta, MergeLooms.project_loom],
         String? cache_invalidate
       }

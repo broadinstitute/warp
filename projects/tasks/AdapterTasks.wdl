@@ -502,12 +502,18 @@ task GetProjectLevelInputIds {
 
 task CopyToStagingBucket {
   input  {
+    Array[File] analysis_file_metadata_objects
+    Array[File] analysis_process_objects
+    Array[File] analysis_protocol_objects
+    #analysis_file_descriptor_objects ??
+    Array[File] links_objects
+    Array[File] data_objects
+    String staging_bucket
 
-
-  String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
-  Int cpu = 1
-  Int machine_mem_mb = 2000
-  Int disk = 10
+    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    Int cpu = 1
+    Int machine_mem_mb = 2000
+    Int disk = 10
   }
 
   command {
