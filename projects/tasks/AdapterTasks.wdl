@@ -499,3 +499,37 @@ task GetProjectLevelInputIds {
     String process_input_uuids = read_string("output.txt")
   }
 }
+
+task CopyToStagingBucket {
+  input  {
+
+
+  String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+  Int cpu = 1
+  Int machine_mem_mb = 2000
+  Int disk = 10
+  }
+
+  command {
+    copy-adapter-outputs \
+    --analysis_files_metadata_jsons ~{analysis_file_metadata_objects} \
+    --analysis_process_jsons ~{analysis_process_objects} \
+    --analysis_protocol_jsons ~{analysis_protocol_objects} \
+    --loom_analysis_files_descriptors_jsons ~{} \ # need to figure this out
+    --bam_analysis_files_descriptors_jsons ~{} \ # need to figure this out
+    --links_jsons ~{links_objects} \
+    --data_files ~{data_objects} \
+    --staging-bucket ~{staging_bucket}
+  }
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
+  }
+
+  output {
+  }
+}
+

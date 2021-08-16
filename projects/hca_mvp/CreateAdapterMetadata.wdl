@@ -139,7 +139,7 @@ workflow CreateAdapterMetadata {
 
     # TODO: change the way the links file uses the project level input ids (need to accept strings instead of jsons)
 
-    call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateProjectOpitmusAdapters {
+    call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateProjectOptimusAdapters {
       input:
         loom = MergeLooms.project_loom,
         process_input_ids = GetProjectLevelInputIds.process_input_uuids,
@@ -167,19 +167,20 @@ workflow CreateAdapterMetadata {
   # TODO: copy to staging bucket
 
   ########################## Copy Files to Staging Bucket ##########################
-  call Tasks.CopyToStagingBucket {
-    input:
-      staging_bucket = staging_bucket,                       # String
-      links_objects = ,                                      # Array[File]
-      analysis_file_descriptor_objects = ,                   # Array[File]
-      analysis_file_metadata_objects = ,                     # Array[File]
-      analysis_process_objects = ,                           # Array[File]
-      analysis_protocol_objects = ,                          # Array[File]
-      reference_metadata_objects = ,                         # Array[File]
-      reference_file_descriptor_objects = ,                  # Array[File]
-      data = ,                                               # Array[File]
-      cache_invalidate                                       # String?
-  }
+    call Tasks.CopyToStagingBucket {
+      input:
+        String staging_bucket = staging_bucket,
+        Array[File] links_objects = [CreateIntermediateOptimusAdapters.links_outputs, CreateProjectOptimusAdapters.links_outputs],
+        # need to check and see if we can do a select first as the bams are optional
+        Array[File] analysis_file_descriptor_objects = [CreateIntermediateOptimusAdapters.loom_file_descriptor_outputs, CreateIntermediateOptimusAdapters.bam_file_descriptor_outputs, CreateProjectOptimusAdapters.loom_file_descriptor_outputs, CreateProjectOptimusAdapters.bam_file_descriptor_outputs],
+        Array[File] analysis_file_metadata_objects = [CreateIntermediateOptimusAdapters.analysis_file_outputs, CreateProjectOptimusAdapters.analysis_file_outputs]
+        Array[File] analysis_process_objects = [CreateIntermediateOptimusAdapters.analysis_process_outputs, CreateProjectOptimusAdapters.analysis_process_outputs],
+        Array[File] analysis_protocol_objects = [CreateIntermediateOptimusAdapters.analysis_protocol_outputs, CreateProjectOptimusAdapters.analysis_protocol_outputs],
+        Array[File] reference_metadata_objects = , #need to check to see if we have a call for this
+        Array[File] reference_file_descriptor_objects = , #need to check to see if we have a call for this
+        Array[File] data_objects = [output_bams, output_looms, CreateReferenceMetadata.reference_fasta, MergeLooms.project_loom],
+        String? cache_invalidate
+      }
 
 
   # TODO: update ouputs
