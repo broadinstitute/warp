@@ -19,29 +19,27 @@ workflow CreateReferenceMetadata {
 
   }
 
-  call Tasks.CheckReferences {
+  call Tasks.CheckInput as CheckReferences {
     input:
       reference_fastas = reference_fastas
   }
 
-  String reference_fasta = reference_fastas[0]
-
   call Tasks.GetReferenceDetails {
     input:
-      reference_file = reference_fasta,
+      reference_file = CheckReferences.output_string,
       species = species
   }
 
   call Tasks.GetCloudFileCreationDate {
     input:
-      file_path = reference_fasta
+      file_path = CheckReferences.output_string
   }
 
   call Tasks.CreateFileDescriptor as CreateReferenceFileDescriptor {
     input:
-      file_path = reference_fasta,
-      file_path_string = reference_fasta,
-      input_uuid = reference_fasta, # Reference files do not have a unique id, so the file path is hashed to create an id
+      file_path = CheckReferences.output_string,
+      file_path_string = CheckReferences.output_string,
+      input_uuid = CheckReferences.output_string, # Reference files do not have a unique id, so the file path is hashed to create an id
       pipeline_type = pipeline_type,
       creation_time = GetCloudFileCreationDate.creation_date,
       version_timestamp = version_timestamp
@@ -49,8 +47,8 @@ workflow CreateReferenceMetadata {
 
   call Tasks.GetReferenceFileMetadata {
     input:
-      file_path = reference_fasta,
-      input_uuid = reference_fasta, # Reference files do not have a unique id, so the file path is hashed to create an id
+      file_path = CheckReferences.output_string,
+      input_uuid = CheckReferences.output_string, # Reference files do not have a unique id, so the file path is hashed to create an id
       genus_species = species,
       assembly_type = GetReferenceDetails.assembly_type,
       pipeline_type = pipeline_type,

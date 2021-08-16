@@ -2,7 +2,7 @@ version 1.0
 
 import "../../projects/tasks/AdapterTasks.wdl" as Tasks
 
-# Making this a ssubworkflow will (hopefully) allow us to get the pertinent task level iput for the metadata to include in the analysis_process file
+# Making this a subworkflow will (hopefully) allow us to get the pertinent task level iput for the metadata to include in the analysis_process file
 
 workflow MergeOptimusLooms {
   meta {
