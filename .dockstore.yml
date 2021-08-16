@@ -56,3 +56,8 @@ workflows:
   - name: ReblockGVCF
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl
+
+  - name: Arrays
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/arrays/single_sample/Arrays.wdl
+
