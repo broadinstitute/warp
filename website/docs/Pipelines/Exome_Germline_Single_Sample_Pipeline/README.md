@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [ExomeGermlineSingleSample_v2.4.3](https://github.com/broadinstitute/warp/releases) | December 07, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in dsde-pipelines or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [ExomeGermlineSingleSample_v2.5.0](https://github.com/broadinstitute/warp/releases) | August 16, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in dsde-pipelines or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 
 The Exome Germline Single Sample pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices for germline SNP and Indel discovery in human exome sequencing data.
@@ -45,7 +45,7 @@ The Exome Germline Single Sample workflow is written in the Workflow Description
     * Files must pass validation by ValidateSamFile
     * Reads are provided in query-sorted order
     * All reads must have an RG tag
-- GVCF output names must end in ".g.vcf.gz"
+- Reblocked GVCF output names must end in ".rb.g.vcf.gz"
 - Reference genome must be Hg38 with ALT contigs
 - Unique exome calling, target, and bait [.interval_list](https://gatk.broadinstitute.org/hc/en-us/articles/360035531852) obtained from the sequencing provider. Generally the calling, target, and bait files will not be the same.
 
@@ -63,7 +63,7 @@ Check out the workflow [Methods](./exome.methods.md) to get started!
 ## Workflow Outputs
 
 - CRAM, CRAM index, and CRAM MD5
-- GVCF and its GVCF index
+- [Reblocked](https://gatk.broadinstitute.org/hc/en-us/articles/360037593171) GVCF and its GVCF index
 - BQSR report
 - Summary metrics; to read more about any particular metric, you can search the metric using the [GATK documentation search](https://gatk.broadinstitute.org/hc/en-us/categories/360002302312)
 

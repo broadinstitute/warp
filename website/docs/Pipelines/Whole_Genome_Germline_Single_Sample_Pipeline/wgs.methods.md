@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Whole Genome Germline Single Sample v2.2.0 Methods
+# Whole Genome Germline Single Sample v2.4.0 Methods
 
 The following contains a detailed methods description outlining the pipeline’s process, software, and tools that can be modified for a publication methods section.
 
@@ -28,6 +28,6 @@ The final base-recalibrated BAM was converted to CRAM using Samtools view and va
 
 ### Variant Calling
 
-Prior to variant calling, the variant calling interval list was split to enable parallelization. Using the GATK PrintReads tool, the WellformedReadFilter was applied to reads. Variant calling was then applied to reads that passed the filter using GATK (v3.5) HaplotypeCaller with the parameters --max_alternate_alleles 3 (sufficient for human data),  --ERC GVCF, and --read_filter OverclippedRead (to reduce false positives resulting from contamination). The resulting GVCFs were merged using Picard MergeVcfs and the final VCF file was validated using GATK ValidateVariants. Variant metrics were calculated using Picard CollectVariantCallingMetrics.
+Prior to variant calling, the variant calling interval list was split to enable parallelization. Using the GATK PrintReads tool, the WellformedReadFilter was applied to reads. Variant calling was then applied to reads that passed the filter using GATK (v3.5) HaplotypeCaller with the parameters --max_alternate_alleles 3 (sufficient for human data),  --ERC GVCF, and --read_filter OverclippedRead (to reduce false positives resulting from contamination). The resulting GVCFs were merged using Picard MergeVcfs and then reblocked using GATK ReblockGVCF. The final reblocked GVCF file was validated using GATK ValidateVariants. Variant metrics were calculated using Picard CollectVariantCallingMetrics.
 
-The pipeline’s final outputs included metrics, validation reports, an aligned CRAM with index, and a GVCF containing variant calls with an accompanying index.
+The pipeline’s final outputs included metrics, validation reports, an aligned CRAM with index, and a reblocked GVCF containing variant calls with an accompanying index.

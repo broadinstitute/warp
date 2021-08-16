@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [WholeGenomeGermlineSingleSample_v2.2.0](https://github.com/broadinstitute/warp/releases) | January 6, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [WholeGenomeGermlineSingleSample_v2.4.0](https://github.com/broadinstitute/warp/releases) | January 6, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 The Whole Genome Germline Single Sample pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices (June 2016) for germline SNP and Indel discovery in human whole-genome sequencing data. For a broad overview of the pipeline processes, read the GATK Best Practices documentation for [data pre-processing](https://gatk.broadinstitute.org/hc/en-us/articles/360035535912) and for [germline short variant discovery](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932).
 
@@ -59,7 +59,7 @@ Check out the workflow [Methods](./wgs.methods.md) to get started!
 ## Workflow Outputs
 
 * CRAM, CRAM index, and CRAM MD5
-* GVCF and its GVCF index
+* A [reblocked](https://gatk.broadinstitute.org/hc/en-us/articles/360037593171) GVCF and its GVCF index
 * BQSR report
 * Summary metrics; to read more about any particular metric, you can search the metric using the [GATK documentation search](https://gatk.broadinstitute.org/hc/en-us/categories/360002302312)
 
