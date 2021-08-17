@@ -8,6 +8,9 @@ WARP Pipelines are versioned semantically, allowing you to determine how and whe
 
 Versions of each pipeline are packaged into releases and published on GitHub (see the [WARP Release page](https://github.com/broadinstitute/warp/releases)). A published release of a pipeline version in GitHub has passed scientific tests (read more in [TestingPipelines](./TestingPipelines.md)) and is available to be used in production systems.
 
+:::tip To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
+:::
+
 ## Versioning Requirements
 
 All versioned pipelines must have:
