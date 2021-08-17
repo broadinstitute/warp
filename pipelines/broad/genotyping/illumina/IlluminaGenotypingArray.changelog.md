@@ -1,3 +1,8 @@
+# 1.11.4
+2021-08-10
+
+* Updated GtcToVcf task in IlluminaGenotypingArrayTasks to escape fingerprint file names.
+
 # 1.11.3
 2021-08-02
 
