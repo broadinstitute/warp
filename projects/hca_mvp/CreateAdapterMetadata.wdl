@@ -71,7 +71,7 @@ workflow CreateAdapterMetadata {
     input:
       input_array = all_project_names,
       input_type = "project_name",
-      illegal_characters = ";="
+      illegal_characters = ";=" # should we include % in this list? # ultimately we should switch to a whitelist
   }
 
   String library = CheckLibrary.output_string
