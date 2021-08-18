@@ -125,7 +125,7 @@ task StarAlignFastqPairedEnd {
           --limitBAMsortRAM 10000000000 \
           --quantMode GeneCounts \
           --genomeLoad LoadAndExit \
-          --outFileNamePrefix ${output_prefix[$i]}
+          --outFileNamePrefix "${output_prefix[$i]}_"
       done;
   >>>
   }

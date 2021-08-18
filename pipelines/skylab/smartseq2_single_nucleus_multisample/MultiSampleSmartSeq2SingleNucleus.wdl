@@ -81,20 +81,18 @@ workflow MultiSampleSmartSeq2SingleNucleus {
         fastq2_input_files = TrimAdapters.trimmed_fastq2_files,
         tar_star_reference = star_reference
    }
-    String quality_control_output_basename = output_name + "_qc"
 
     call Picard.RemoveDuplicatesFromBam as RemoveDuplicatesFromBam {
         input:
-            input_id = input_id,
-            aligned_bam = aligned_bam,
-            output_basename = quality_control_output_basename,
+            input_ids = input_ids,
+            aligned_bam_inputs = StarAlign.aligned_bam
     }
 
-    call Picard.CollectMultipleMetrics {
+    call Picard.CollectMultipleMetricsMultiSample {
         input:
-            aligned_bam = RemoveDuplicatesFromBam.output_bam,
+            aligned_bam_inputs = RemoveDuplicatesFromBam.output_bam,
             genome_ref_fasta = genome_ref_fasta,
-            output_basename = quality_control_output_basename,
+            output_basename = input_ids,
     }
 
     call CountAlignments.CountAlignments as CountAlignments {
