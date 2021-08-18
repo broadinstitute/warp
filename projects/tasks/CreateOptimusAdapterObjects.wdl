@@ -91,7 +91,7 @@ workflow CreateOptimusAdapterObjects {
     call Tasks.GetFileDescriptor as GetBamFileDescriptor {
       input:
         pipeline_type = pipeline_type,
-        file_path = lselect_first([bam]),
+        file_path = select_first([bam]),
         input_uuid = input_id,
         creation_time = GetBamFileCreationDate.creation_date,
         workspace_version = version_timestamp
