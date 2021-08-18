@@ -189,7 +189,8 @@ task GetAnalysisFileMetadata {
     disks: "local-disk ~{disk} HDD"
   }
   output {
-      Array[File] analysis_file_outputs = glob("*${version_timestamp}.json")
+    Array[File] analysis_file_outputs = glob("*${version_timestamp}.json")
+    File outputs_json = "outputs.json"
   }
 }
 
