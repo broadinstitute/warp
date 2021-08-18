@@ -43,13 +43,14 @@ Pipelines that are in progress or have not yet been validated are in the [beta-p
 There are three ways to use WARP pipelines:
 ### 1. Download the workflow and run on a WDL-compatible execution engine
 
-WDL workflows run on multiple systems, including [Cromwell](https://cromwell.readthedocs.io/en/stable/), [miniWDL](https://github.com/chanzuckerberg/miniwdl), and [dxWDL](https://github.com/dnanexus/dxWDL) (see the [openwdl documentation](https://github.com/openwdl/wdl#execution-engines)). To run a pipeline’s latest release, first navigate to WARP [Releases](https://github.com/broadinstitute/warp/releases), search for your pipeline’s tag, and download the pipeline’s assets (the WDL workflow, the JSON, and the ZIP with accompanying dependencies; see Optimus example below).
+WDL workflows run on multiple systems, including [Cromwell](https://cromwell.readthedocs.io/en/stable/), [miniWDL](https://github.com/chanzuckerberg/miniwdl), and [dxWDL](https://github.com/dnanexus/dxWDL) (see the [openwdl documentation](https://github.com/openwdl/wdl#execution-engines)). 
+
+
+To run a pipeline’s latest release, first navigate to WARP [releases page](https://github.com/broadinstitute/warp/releases), search for your pipeline’s tag, and download the pipeline’s assets (the WDL workflow, the JSON, and the ZIP with accompanying dependencies; see Optimus example below).
 
 ![optimus_release](./images/optimus_release.png)
 
-You can also access a pipeline’s release page by selecting the pipeline version number at the top of the pipeline’s README.
-
-![optimus_readme_tag](./images/optimus_readme_tag.png)
+You can also discover and search releases using the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
 
 After downloading the pipeline’s assets, launch the workflow following your execution engine’s instructions.
 
@@ -74,6 +75,9 @@ To view all available pipelines, just search “warp” in the Dockstore search 
 ## WARP Versioning and Releasing
 
 Pipelines in WARP are versioned [semantically](https://semver.org/) to support reproducibility in scientific analysis and provide clearer analysis provenance. Version numbers allow researchers to confirm their data has all been processed in a compatible way. Semantic versioning gives immediate insight into the compatibility of pipeline outputs. Read more about [versioning and releasing](./About_WARP/VersionAndReleasePipelines.md) in WARP.
+
+:::tip To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
+:::
 
 ## Testing in WARP
 
