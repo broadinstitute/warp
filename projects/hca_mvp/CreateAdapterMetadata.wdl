@@ -139,7 +139,7 @@ workflow CreateAdapterMetadata {
 
     # TODO: change the way the links file uses the project level input ids (need to accept strings instead of jsons)
 
-    call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateProjectOpitmusAdapters {
+    call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateProjectOptimusAdapters {
       input:
         loom = MergeLooms.project_loom,
         process_input_ids = GetProjectLevelInputIds.process_input_uuids,
@@ -164,22 +164,19 @@ workflow CreateAdapterMetadata {
   #  }
   #}
 
-  # TODO: copy to staging bucket
-
   ########################## Copy Files to Staging Bucket ##########################
-  call Tasks.CopyToStagingBucket {
-    input:
-      staging_bucket = staging_bucket,                       # String
-      links_objects = ,                                      # Array[File]
-      analysis_file_descriptor_objects = ,                   # Array[File]
-      analysis_file_metadata_objects = ,                     # Array[File]
-      analysis_process_objects = ,                           # Array[File]
-      analysis_protocol_objects = ,                          # Array[File]
-      reference_metadata_objects = ,                         # Array[File]
-      reference_file_descriptor_objects = ,                  # Array[File]
-      data = ,                                               # Array[File]
-      cache_invalidate                                       # String?
-  }
+    call Tasks.CopyToStagingBucket {
+      input:
+        staging_bucket = staging_bucket,
+        links_objects = flatten([CreateIntermediateOptimusAdapters.links_outputs, CreateProjectOptimusAdapters.links_outputs]),
+        analysis_file_descriptor_objects = flatten(select_all([CreateIntermediateOptimusAdapters.loom_file_descriptor_outputs, CreateIntermediateOptimusAdapters.bam_file_descriptor_outputs, CreateProjectOptimusAdapters.loom_file_descriptor_outputs])),
+        analysis_file_metadata_objects = flatten([CreateIntermediateOptimusAdapters.analysis_file_outputs, CreateProjectOptimusAdapters.analysis_file_outputs]),
+        analysis_process_objects = flatten([CreateIntermediateOptimusAdapters.analysis_process_outputs, CreateProjectOptimusAdapters.analysis_process_outputs]),
+        analysis_protocol_objects = flatten([CreateIntermediateOptimusAdapters.analysis_protocol_outputs, CreateProjectOptimusAdapters.analysis_protocol_outputs]),
+        reference_metadata_objects = CreateReferenceMetadata.reference_metadata_outputs,
+        reference_file_descriptor_objects = CreateReferenceMetadata.reference_file_descriptor_ouputs,
+        data_objects = flatten([output_bams, output_looms, CreateReferenceMetadata.reference_fasta, MergeLooms.project_loom]),
+      }
 
 
   # TODO: update ouputs
