@@ -101,12 +101,6 @@ workflow MultiSampleSmartSeq2SingleNucleus {
             annotation_gtf = annotations_gtf
     }
 
-
-
-
-
-
-
     call LoomUtils.SingleNucleiSmartSeq2LoomOutput as LoomOutput {
         input:
             input_id = input_ids,
@@ -125,7 +119,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   ### Aggregate the Loom Files Directly ###
   call LoomUtils.AggregateSmartSeq2Loom as AggregateLoom {
     input:
-      loom_input = sn_pe.loom_output_file,
+      loom_input = LoomOutput.loom_output_file,
       batch_id = batch_id,
       batch_name = batch_name,
       project_id = if defined(project_id) then select_first([project_id])[0] else none,
@@ -141,7 +135,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   output {
     # loom output, exon/intron count tsv files and the aligned bam files
     File loom_output = AggregateLoom.loom_output_file
-    Array[File] exon_intron_count_files = sn_pe.exon_intron_counts 
-    Array[File] bam_files = sn_pe.duplicates_removed_aligned_bam
+    Array[File] exon_intron_count_files = LoomOutput.exon_intron_counts
+    Array[File] bam_files = LoomOutput.duplicates_removed_aligned_bam
   }
 }
