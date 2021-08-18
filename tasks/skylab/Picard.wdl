@@ -203,9 +203,11 @@ task CollectMultipleMetricsMultiSample {
 
         bam_files=~{sep=' ' aligned_bam_inputs}
         n_files=${#bam_files[@]}
+        output_prefix=~{sep=' ' input_ids}
+
         for (( i=0; i<$n_files; ++i));
         do
-            output_basename=${}
+            output_basename=$output_prefix[$i]
             java -Xmx${command_mem_mb}m -jar /usr/picard/picard.jar CollectMultipleMetrics \
             VALIDATION_STRINGENCY=SILENT \
             METRIC_ACCUMULATION_LEVEL=ALL_READS \
@@ -217,6 +219,7 @@ task CollectMultipleMetricsMultiSample {
             PROGRAM=CollectGcBiasMetrics \
             REFERENCE_SEQUENCE="${genome_ref_fasta}" \
             ASSUME_SORTED=true
+        done;
     >>>
 
     runtime {
@@ -356,9 +359,8 @@ task CollectDuplicationMetrics {
 # Here we use "-XX:ParallelGCThreads=2" to run MarkDuplication on multiple threads 
 task RemoveDuplicatesFromBam {
   input {
-    File aligned_bam
-    String input_id
-    String output_basename
+    Array[File] aligned_bam_inputs
+    Array[String] input_ids
 
     # runtime values
     String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
@@ -377,7 +379,7 @@ task RemoveDuplicatesFromBam {
   }
 
   parameter_meta {
-    aligned_bam: "input aligned bam"
+    aligned_bam_inputs: "input aligned bam"
     output_basename: "basename used for output files"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
@@ -385,25 +387,33 @@ task RemoveDuplicatesFromBam {
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
-  
-  command {
-    java -Xmx${command_mem_mb}m -XX:ParallelGCThreads=${cpu} -jar /usr/picard/picard.jar  MarkDuplicates \
+
+  command <<<
+    set -e
+
+    bam_files=~{sep=' ' aligned_bam_inputs}
+    n_files=${#bam_files[@]}
+    output_prefix=~{sep=' ' input_ids}
+    for (( i=0; i<$n_files; ++i));
+    do
+      java -Xmx${command_mem_mb}m -XX:ParallelGCThreads=${cpu} -jar /usr/picard/picard.jar  MarkDuplicates \
        VALIDATION_STRINGENCY=SILENT  \
-       INPUT=${aligned_bam} \
-       OUTPUT=aligned_bam.DuplicatesRemoved.bam \
+       INPUT="${bam_files[$i]}" \
+       OUTPUT="$output_prefix[$i].aligned_bam.DuplicatesRemoved.bam" \
        ASSUME_SORTED=true \
        METRICS_FILE=aligned_bam.duplicate_metrics.txt \
        REMOVE_DUPLICATES=true
 
     java -Xmx${command_mem_mb}m -XX:ParallelGCThreads=${cpu} -jar /usr/picard/picard.jar AddOrReplaceReadGroups \
        I=aligned_bam.DuplicatesRemoved.bam \
-       O="~{input_id}.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam" \
+       O="$output_prefix[$i].aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam" \
        RGID=4 \
        RGLB=lib1 \
        RGPL=ILLUMINA \
        RGPU=unit1 \
        RGSM=20
-  }
+      done;
+  >>>
   
   runtime {
     docker: docker
@@ -414,8 +424,8 @@ task RemoveDuplicatesFromBam {
   }
   
   output {
-    File dedup_metrics = "aligned_bam.duplicate_metrics.txt"
-    File output_bam = "~{input_id}.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam"
+    Array[File] dedup_metrics = "~{input_ids}.aligned_bam.duplicate_metrics.txt"
+    Array[File] output_bam = "~{input_ids}.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam"
   }
 }
 

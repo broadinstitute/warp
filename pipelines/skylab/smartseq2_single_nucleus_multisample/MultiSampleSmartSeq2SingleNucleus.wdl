@@ -79,13 +79,13 @@ workflow MultiSampleSmartSeq2SingleNucleus {
       input:
         fastq1_input_files = TrimAdapters.trimmed_fastq1_files,
         fastq2_input_files = TrimAdapters.trimmed_fastq2_files,
-        tar_star_reference = star_reference
+        tar_star_reference = tar_star_reference
    }
 
     call Picard.RemoveDuplicatesFromBam as RemoveDuplicatesFromBam {
         input:
             input_ids = input_ids,
-            aligned_bam_inputs = StarAlign.aligned_bam
+            aligned_bam_inputs = StarAlign.output_bam
     }
 
     call Picard.CollectMultipleMetricsMultiSample {
@@ -97,7 +97,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
 
     call CountAlignments.CountAlignments as CountAlignments {
         input:
-            input_bam = RemoveDuplicatesFromBam.output_bam,
+            aligned_bam_inputs = RemoveDuplicatesFromBam.output_bam,
             annotation_gtf = annotations_gtf
     }
 
@@ -107,10 +107,10 @@ workflow MultiSampleSmartSeq2SingleNucleus {
                                     CollectMultipleMetrics.gc_bias_summary_metrics
                                     ]
 
-    call LoomUtils.SingleNucleiSmartSeq2LoomOutput as SingleNucleiSmartSeq2LoomOutput {
+    call LoomUtils.SingleNucleiSmartSeq2LoomOutput as LoomOutput {
         input:
-            input_id = input_id,
-            input_name = input_name,
+            input_id = input_ids,
+            input_name = input_names,
             pipeline_version = "SmartSeq2SingleNucleus_v~{pipeline_version}",
             input_id_metadata_field = input_id_metadata_field,
             input_name_metadata_field = input_name_metadata_field,
@@ -119,23 +119,6 @@ workflow MultiSampleSmartSeq2SingleNucleus {
             exons_counts = CountAlignments.exon_counts_out,
             annotation_introns_added_gtf = annotations_gtf
     }
-
-  ### Execution starts here ###
-  scatter(idx in range(length(input_ids))) {
-      call single_nucleus_run.SmartSeq2SingleNucleus as sn_pe {
-        input:
-           genome_ref_fasta = genome_ref_fasta,
-           annotations_gtf =  annotations_gtf,
-           adapter_list = adapter_list,
-           aligned_bam = StarAlign.aligned_bam[idx],
-           input_id = input_ids[idx],
-           output_name = input_ids[idx],
-           input_name_metadata_field = input_name_metadata_field,
-           input_id_metadata_field = input_id_metadata_field,
-           input_name = if defined(input_names) then select_first([input_names])[idx] else none
-      }
-  }
-
 
   ### Aggregate the Loom Files Directly ###
   call LoomUtils.AggregateSmartSeq2Loom as AggregateLoom {
