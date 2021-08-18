@@ -179,7 +179,7 @@ task CollectMultipleMetricsMultiSample {
         Int command_mem_mb = machine_mem_mb - 1000
         Int cpu = 1
         # use provided disk number or dynamically size on our own, with 200GiB of additional disk
-        Int disk = ceil(size(aligned_bam, "GiB") + size(genome_ref_fasta, "GiB") + 200)
+        Int disk = ceil(size(aligned_bam, "GiB") + size(genome_ref_fasta, "GiB") + 50)
         Int preemptible = 3
     }
 
@@ -214,13 +214,7 @@ task CollectMultipleMetricsMultiSample {
             FILE_EXTENSION=".txt" \
             PROGRAM=null \
             PROGRAM=CollectAlignmentSummaryMetrics \
-            PROGRAM=CollectInsertSizeMetrics \
             PROGRAM=CollectGcBiasMetrics \
-            PROGRAM=CollectBaseDistributionByCycle \
-            PROGRAM=QualityScoreDistribution \
-            PROGRAM=MeanQualityByCycle \
-            PROGRAM=CollectSequencingArtifactMetrics \
-            PROGRAM=CollectQualityYieldMetrics \
             REFERENCE_SEQUENCE="${genome_ref_fasta}" \
             ASSUME_SORTED=true
     >>>
@@ -235,22 +229,8 @@ task CollectMultipleMetricsMultiSample {
 
     output {
         Array[File] alignment_summary_metrics = "${output_basename}.alignment_summary_metrics.txt"
-        Array[File] base_call_dist_metrics = "${output_basename}.base_distribution_by_cycle_metrics.txt"
-        Array[File] base_call_pdf = "${output_basename}.base_distribution_by_cycle.pdf"
-        Array[File] gc_bias_detail_metrics = "${output_basename}.gc_bias.detail_metrics.txt"
-        Array[File] gc_bias_dist_pdf = "${output_basename}.gc_bias.pdf"
         Array[File] gc_bias_summary_metrics = "${output_basename}.gc_bias.summary_metrics.txt"
-        Array[File] insert_size_hist = glob("${output_basename}.insert_size_histogram.pdf")
-        Array[File?] insert_size_metrics = glob("${output_basename}.insert_size_metrics.txt")
-        Array[File] quality_distribution_metrics = "${output_basename}.quality_distribution_metrics.txt"
-        Array[File] quality_distribution_dist_pdf = "${output_basename}.quality_distribution.pdf"
-        Array[File] quality_by_cycle_metrics = "${output_basename}.quality_by_cycle_metrics.txt"
-        Array[File] quality_by_cycle_pdf = "${output_basename}.quality_by_cycle.pdf"
-        Array[File] pre_adapter_details_metrics = "${output_basename}.pre_adapter_detail_metrics.txt"
-        Array[File] pre_adapter_summary_metrics = "${output_basename}.pre_adapter_summary_metrics.txt"
-        Array[File] bait_bias_detail_metrics = "${output_basename}.bait_bias_detail_metrics.txt"
-        Array[File] bait_bias_summary_metrics = "${output_basename}.bait_bias_summary_metrics.txt"
-        Array[File] error_summary_metrics = "${output_basename}.error_summary_metrics.txt"
+
     }
 }
 task CollectRnaMetrics {
