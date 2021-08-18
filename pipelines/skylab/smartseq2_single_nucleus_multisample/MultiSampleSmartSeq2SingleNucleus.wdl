@@ -101,11 +101,11 @@ workflow MultiSampleSmartSeq2SingleNucleus {
             annotation_gtf = annotations_gtf
     }
 
-    Array[File] smartseq_qc_files = [
-                                    CollectMultipleMetrics.alignment_summary_metrics,
-                                    RemoveDuplicatesFromBam.dedup_metrics,
-                                    CollectMultipleMetrics.gc_bias_summary_metrics
-                                    ]
+
+
+
+
+
 
     call LoomUtils.SingleNucleiSmartSeq2LoomOutput as LoomOutput {
         input:
@@ -114,7 +114,9 @@ workflow MultiSampleSmartSeq2SingleNucleus {
             pipeline_version = "SmartSeq2SingleNucleus_v~{pipeline_version}",
             input_id_metadata_field = input_id_metadata_field,
             input_name_metadata_field = input_name_metadata_field,
-            smartseq_qc_files = smartseq_qc_files,
+            alignment_summary_metrics = CollectMultipleMetricsMultiSample.alignment_summary_metrics,
+            dedup_metrics = RemoveDuplicatesFromBam.dedup_metrics,
+            gc_bias_summary_metrics = CollectMultipleMetricsMultiSample.gc_bias_summary_metrics,
             introns_counts = CountAlignments.intron_counts_out,
             exons_counts = CountAlignments.exon_counts_out,
             annotation_introns_added_gtf = annotations_gtf
