@@ -472,6 +472,7 @@ task GetReferenceDetails {
     String ncbi_taxon_id = read_string("ncbi_taxon_id.txt")
     String assembly_type = read_string("assembly_type.txt")
     String reference_type = read_string("reference_type.txt")
+    String reference_version = read_string("reference_version.txt")
   }
 }
 
