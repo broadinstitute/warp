@@ -49,6 +49,10 @@ task BlacklistBarcode {
     String notes
   }
 
+  meta {
+    volatile: true
+  }
+
   command <<<
     set -eo pipefail
 
@@ -177,6 +181,10 @@ task UploadArraysMetrics {
     Int preemptible_tries
   }
 
+  meta {
+    volatile: true
+  }
+
   command <<<
     set -eo pipefail
 
@@ -234,19 +242,19 @@ task CreateChipWellBarcodeParamsFile {
   input {
     String chip_type_name
     String chip_well_barcode
-    String collaborator_participant_id
-    String lab_batch
-    String participant_id
-    String product_family
-    String product_name
-    String product_order_id
-    String product_part_number
+    String? collaborator_participant_id
+    String? lab_batch
+    String? participant_id
+    String? product_family
+    String? product_name
+    String? product_order_id
+    String? product_part_number
     String product_type
     String regulatory_designation
     String research_project_id
     String sample_alias
     String gender
-    String sample_id
+    String? sample_id
     String sample_lsid
     Int preemptible_tries
   }
@@ -295,6 +303,10 @@ task UpdateChipWellBarcodeIndex {
     String service_account_filename
     Int disk_size
     Int preemptible_tries
+  }
+
+  meta {
+    volatile: true
   }
 
   command <<<

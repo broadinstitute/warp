@@ -46,6 +46,10 @@ task DownloadGenotypes {
     Int preemptible_tries
   }
 
+  meta {
+    volatile: true
+  }
+
   String fp_retrieved_file = "fp_retrieved.txt"
 
   String output_vcf = output_vcf_base_name + if compress then ".vcf.gz" else".vcf"
@@ -117,6 +121,10 @@ task UploadFingerprintToMercury {
     Array[String] source_block
 
     Int preemptible_tries
+  }
+
+  meta {
+    volatile: true
   }
 
   command <<<
