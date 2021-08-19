@@ -55,7 +55,7 @@ workflow CreateReferenceMetadata {
       ncbi_taxon_id = GetReferenceDetails.ncbi_taxon_id,
       reference_type = GetReferenceDetails.reference_type,
       version_timestamp = version_timestamp,
-      reference_version = GetReferenceInfo.reference_version # TODO: what is this supposed to be??
+      reference_version = GetReferenceDetails.reference_version
   }
 
 
@@ -63,7 +63,7 @@ workflow CreateReferenceMetadata {
     File reference_file_descriptor_ouputs = CreateReferenceFileDescriptor.file_descriptor_outputs
     String reference_file_uuid = GetReferenceFileMetadata.reference_file_uuid
     Array[File] reference_metadata_outputs = GetReferenceFileMetadata.reference_metadata_outputs
-    String reference_fasta
+    String reference_fasta = CheckReferences.output_string
   }
 }
 
