@@ -11,7 +11,7 @@ task CountAlignments {
     String docker = "quay.io/humancellatlas/snss2-featurecount:0.1.0"
     Int machine_mem_mb = 8250
     Int cpu = 1
-    Int disk =50
+    Int disk = ceil(size(aligned_bam_inputs,"Gi")*2) + 10
     Int preemptible = 3
   }
 
@@ -30,28 +30,27 @@ task CountAlignments {
   command <<<
     set -e
     bam_files=~{sep=' ' aligned_bam_inputs}
-    n_files=${#bam_files[@]}
     output_prefix=~{sep=' ' input_ids}
-    for (( i=0; i<$n_files; ++i));
+    for (( i=0; i<${#bam_files[@]}; ++i));
       do
         # counting the introns
         featureCounts -M -p "${bam_files[$i]}" \
           -a ~{annotation_gtf} \
           -F GTF \
-          -o "$output_prefix[$i].introns.counts" \
+          -o "${output_prefix[$i]}.introns.counts" \
           --minOverlap 3  \
           -t intron  \
           -g gene_id
 
-   # create a new input bam where the alignemnts crossing intron-exon junctions are removed
-   python /tools/remove-reads-on-junctions.py --input-gtf  ~{annotation_gtf} \
-    --input-bam "${bam_files[$i]}"  --output-bam "$output_prefix[$i].input.nojunc.bam"
+       # create a new input bam where the alignemnts crossing intron-exon junctions are removed
+       python /tools/remove-reads-on-junctions.py --input-gtf  ~{annotation_gtf} \
+        --input-bam "${bam_files[$i]}"  --output-bam "${output_prefix[$i]}.input.nojunc.bam"
 
-   # counting the exons
-   featureCounts -M -p "$output_prefix[$i].input.nojunc.bam" \
-    -a ~{annotation_gtf} -F GTF -o "$output_prefix[$i].exons.counts"  \
-    --minOverlap 1 -t exon  -g gene_id 
-
+       # counting the exons
+       featureCounts -M -p "${output_prefix[$i]}.input.nojunc.bam" \
+        -a ~{annotation_gtf} -F GTF -o "${output_prefix[$i]}.exons.counts"  \
+        --minOverlap 1 -t exon  -g gene_id
+      done;
   >>>
 
   runtime {
@@ -63,9 +62,9 @@ task CountAlignments {
   }
 
   output {
-    Array[File] intron_counts_out = "~{input_ids}.introns.counts"
-    Array[File] intron_counts_out_summary = "~{input_ids}.introns.counts.summary"
-    Array[File] exon_counts_out = "~{input_ids}.exons.counts"
-    Array[File] exon_counts_out_summary = "~{input_ids}.exons.counts.summary"
+    Array[File] intron_counts_out = glob("*.introns.counts")
+    Array[File] intron_counts_out_summary = glob("*introns.counts.summary")
+    Array[File] exon_counts_out = glob("*exons.counts")
+    Array[File] exon_counts_out_summary = glob("*.exons.counts.summary")
   }
 }

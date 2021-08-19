@@ -215,9 +215,9 @@ task SingleNucleusSmartSeq2LoomOutput {
     File annotation_introns_added_gtf
     # name of the sample
     Array[String] input_ids
-    Array[String?] input_names
-    Array[String?] input_id_metadata_field
-    Array[String?] input_name_metadata_field
+    Array[String]? input_names
+    String? input_id_metadata_field
+    String? input_name_metadata_field
 
     String pipeline_version
     Int preemptible = 3
@@ -239,40 +239,40 @@ task SingleNucleusSmartSeq2LoomOutput {
 
     introns_counts_files=~{sep=' ' introns_counts}
     exons_counts_files=~{sep=' ' exons_counts}
-    n_files=${#introns_counts_files[@]}
     output_prefix=~{sep=' ' input_ids}
-    input_names_list=~{sep=' 'input_names}
-    input_id_metadata_field_list=~{sep=' 'input_id_metadata_field}
-    input_name_metadata_field_list=~{sep=' 'input_name_metadata_field}
+    #input_names_list=~{sep=' 'input_names}
+    alignment_summary_metrics_list=~{sep=' 'alignment_summary_metrics}
+    dedup_metrics_list=~{sep=' 'dedup_metrics}
+    gc_bias_summary_metrics_list=~{sep=' 'gc_bias_summary_metrics}
 
-    for (( i=0; i<$n_files; ++i));
+    for (( i=0; i<${#introns_counts_files[@]}; ++i));
       do
         # creates a table with gene_id, gene_name, intron and exon counts
         echo "Running create_snss2_counts_csv."
         python /tools/create_snss2_counts_csv.py \
           --in-gtf ~{annotation_introns_added_gtf} \
-          --intron-counts $introns_counts_files[$i] \
-          --exon-counts $exons_counts[$i]  \
-          -o "$output_prefix[$i].exon_intron_counts.tsv"
+          --intron-counts ${introns_counts_files[$i]} \
+          --exon-counts ${exons_counts_files[$i]}  \
+          -o "${output_prefix[$i]}.exon_intron_counts.tsv"
         echo "Success create_snss2_counts_csv."
 
         # groups the QC file into one file
         echo "Running GroupQCs"
-        GroupQCs -f alignment_summary_metrics dedup_metrics gc_bias_summary_metrics \
-            -t Picard -o "$output_prefix[$i].Picard_group"
+        GroupQCs -f "${alignment_summary_metrics_list[$i]}" "${dedup_metrics_list[$i]}" "${gc_bias_summary_metrics_list[$i]}" \
+            -t Picard -o "${output_prefix[$i]}.Picard_group"
         echo "Success GroupQCs"
 
         # create the loom file
         echo "Running create_loom_snss2."
         python3 /tools/create_loom_snss2.py \
-            --qc_files "$output_prefix[$i].Picard_group.csv" \
-            --count_results  "$output_prefix[$i].exon_intron_counts.tsv" \
-            --output_loom_path "$output_prefix[$i].loom" \
-            --input_id $output_prefix[$i] \
-            ~{"--input_name " + "$input_names_list[$i]"} \
-            ~{"--input_id_metadata_field " + "$input_id_metadata_field_list[$i]"} \
-            ~{"--input_name_metadata_field " + "$input_name_metadata_field_list[$i]"} \
+            --qc_files "${output_prefix[$i]}.Picard_group.csv" \
+            --count_results  "${output_prefix[$i]}.exon_intron_counts.tsv" \
+            --output_loom_path "${output_prefix[$i]}.loom" \
+            --input_id ${output_prefix[$i]} \
+            ~{"--input_id_metadata_field " + input_id_metadata_field} \
+            ~{"--input_name_metadata_field " + input_name_metadata_field} \
             --pipeline_version ~{pipeline_version}
+
         echo "Success create_loom_snss2"
       done;
   >>>
@@ -286,8 +286,8 @@ task SingleNucleusSmartSeq2LoomOutput {
   }
 
   output {
-    Array[File] loom_output = "~{input_ids}.loom"
-    Array[File] exon_intron_counts = "~{input_ids}.exon_intron_counts.tsv"
+    Array[File] loom_output = glob("*.loom")
+    Array[File] exon_intron_counts = glob("*exon_intron_counts.tsv")
   }
 }
 

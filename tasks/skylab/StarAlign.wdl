@@ -78,7 +78,7 @@ task StarAlignFastqPairedEnd {
     Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
-    Int disk = ceil((size(tar_star_reference, "Gi") * 2.5) + (size(fastq1, "Gi") * 5.0))
+    Int disk = ceil((size(tar_star_reference, "Gi") * 2.5) + (size(fastq2_input_files, "Gi") * 2.0))
     # by default request non preemptible machine to make sure the slow star alignment step completes
     Int preemptible = 3
   }
@@ -105,8 +105,8 @@ task StarAlignFastqPairedEnd {
 
     # prepare reference
     mkdir genome_reference
-    tar -xf "${tar_star_reference}" -C genome_reference --strip-components 1
-    rm "${tar_star_reference}"
+    tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
+    rm "~{tar_star_reference}"
 
     fastq1_files=~{sep=' ' fastq1_input_files}
     fastq2_files=~{sep=' ' fastq2_input_files}
@@ -116,7 +116,7 @@ task StarAlignFastqPairedEnd {
       do
         ./STAR \
           --genomeDir genome_reference \
-          --runThreadN ${cpu} \
+          --runThreadN ~{cpu} \
           --readFilesIn ${fastq1_files[$i]} ${fastq2_files[$i]} \
           --readFilesCommand "gunzip -c" \
           --outSAMtype BAM SortedByCoordinate \
@@ -128,7 +128,6 @@ task StarAlignFastqPairedEnd {
           --outFileNamePrefix "${output_prefix[$i]}_"
       done;
   >>>
-  }
 
   runtime {
     docker: docker
@@ -139,7 +138,7 @@ task StarAlignFastqPairedEnd {
   }
 
   output {
-    Array[File] output_bam = "~{input_ids}_Aligned.sortedByCoord.out.bam"
+    Array[File] output_bam = glob("*Aligned.sortedByCoord.out.bam")
   }
 
 }

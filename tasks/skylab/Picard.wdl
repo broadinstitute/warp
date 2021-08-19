@@ -179,7 +179,7 @@ task CollectMultipleMetricsMultiSample {
         Int command_mem_mb = machine_mem_mb - 1000
         Int cpu = 1
         # use provided disk number or dynamically size on our own, with 200GiB of additional disk
-        Int disk = ceil(size(aligned_bam, "GiB") + size(genome_ref_fasta, "GiB") + 50)
+        Int disk = ceil(size(aligned_bam_inputs, "GiB") + size(genome_ref_fasta, "GiB") + 50)
         Int preemptible = 3
     }
 
@@ -202,13 +202,12 @@ task CollectMultipleMetricsMultiSample {
         set -e
 
         bam_files=~{sep=' ' aligned_bam_inputs}
-        n_files=${#bam_files[@]}
         output_prefix=~{sep=' ' input_ids}
-
-        for (( i=0; i<$n_files; ++i));
+        for (( i=0; i<${#bam_files[@]}; ++i));
         do
-            output_basename=$output_prefix[$i]
-            java -Xmx${command_mem_mb}m -jar /usr/picard/picard.jar CollectMultipleMetrics \
+            output_basename=${output_prefix[$i]}
+            java -Xmx"~{command_mem_mb}"m \
+            -jar /usr/picard/picard.jar CollectMultipleMetrics \
             VALIDATION_STRINGENCY=SILENT \
             METRIC_ACCUMULATION_LEVEL=ALL_READS \
             INPUT="${bam_files[$i]}" \
@@ -217,7 +216,7 @@ task CollectMultipleMetricsMultiSample {
             PROGRAM=null \
             PROGRAM=CollectAlignmentSummaryMetrics \
             PROGRAM=CollectGcBiasMetrics \
-            REFERENCE_SEQUENCE="${genome_ref_fasta}" \
+            REFERENCE_SEQUENCE="~{genome_ref_fasta}" \
             ASSUME_SORTED=true
         done;
     >>>
@@ -231,8 +230,8 @@ task CollectMultipleMetricsMultiSample {
     }
 
     output {
-        Array[File] alignment_summary_metrics = "${output_basename}.alignment_summary_metrics.txt"
-        Array[File] gc_bias_summary_metrics = "${output_basename}.gc_bias.summary_metrics.txt"
+        Array[File] alignment_summary_metrics = glob("*.alignment_summary_metrics.txt")
+        Array[File] gc_bias_summary_metrics = glob("*.gc_bias.summary_metrics.txt")
 
     }
 }
@@ -369,7 +368,7 @@ task RemoveDuplicatesFromBam {
     Int command_mem_mb = machine_mem_mb - 1000
     Int cpu = 2
     # use provided disk number or dynamically size on our own, with 200GiB of additional disk
-    Int disk = ceil(size(aligned_bam, "GiB") + 200)
+    Int disk = ceil(size(aligned_bam_inputs, "GiB") * 2.5) + 10
     Int preemptible = 3
   }
   
@@ -392,21 +391,20 @@ task RemoveDuplicatesFromBam {
     set -e
 
     bam_files=~{sep=' ' aligned_bam_inputs}
-    n_files=${#bam_files[@]}
     output_prefix=~{sep=' ' input_ids}
-    for (( i=0; i<$n_files; ++i));
+    for (( i=0; i<${#bam_files[@]}; ++i));
     do
-      java -Xmx${command_mem_mb}m -XX:ParallelGCThreads=${cpu} -jar /usr/picard/picard.jar  MarkDuplicates \
+      java -Xmx"~{command_mem_mb}"m -XX:ParallelGCThreads=~{cpu} -jar /usr/picard/picard.jar  MarkDuplicates \
        VALIDATION_STRINGENCY=SILENT  \
        INPUT="${bam_files[$i]}" \
-       OUTPUT="$output_prefix[$i].aligned_bam.DuplicatesRemoved.bam" \
+       OUTPUT="${output_prefix[$i]}.aligned_bam.DuplicatesRemoved.bam" \
        ASSUME_SORTED=true \
        METRICS_FILE=aligned_bam.duplicate_metrics.txt \
        REMOVE_DUPLICATES=true
 
-    java -Xmx${command_mem_mb}m -XX:ParallelGCThreads=${cpu} -jar /usr/picard/picard.jar AddOrReplaceReadGroups \
+    java -Xmx"~{command_mem_mb}"m -XX:ParallelGCThreads=~{cpu} -jar /usr/picard/picard.jar AddOrReplaceReadGroups \
        I=aligned_bam.DuplicatesRemoved.bam \
-       O="$output_prefix[$i].aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam" \
+       O="${output_prefix[$i]}.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam" \
        RGID=4 \
        RGLB=lib1 \
        RGPL=ILLUMINA \
@@ -424,8 +422,8 @@ task RemoveDuplicatesFromBam {
   }
   
   output {
-    Array[File] dedup_metrics = "~{input_ids}.aligned_bam.duplicate_metrics.txt"
-    Array[File] output_bam = "~{input_ids}.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam"
+    Array[File] dedup_metrics = glob("*.aligned_bam.duplicate_metrics.txt")
+    Array[File] output_bam = glob("*.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam")
   }
 }
 
