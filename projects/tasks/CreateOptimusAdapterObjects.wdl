@@ -104,8 +104,8 @@ workflow CreateOptimusAdapterObjects {
       process_input_ids = process_input_ids, # for intermediate level use fastq_uuids from Terra, for project level use output_ids from intermediate files
       output_file_path = GetAnalysisFileMetadata.outputs_json,
       workspace_version = version_timestamp,
-      analysis_process_path = GetAnalysisProcessMetadata.outputs_json,
-      analysis_protocol_path = GetAnalysisProtocolMetadata.outputs_json,
+      analysis_process_path = GetAnalysisProcessMetadata.analysis_process_outputs,
+      analysis_protocol_path = GetAnalysisProtocolMetadata.analysis_protocol_outputs,
       file_name_string = input_id
   }
 

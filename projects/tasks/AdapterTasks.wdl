@@ -273,8 +273,8 @@ task GetLinksFileMetadata {
     Array[String] process_input_ids
     String output_file_path
     String version_timestamp
-    String analysis_process_path
-    String analysis_protocol_path
+    Array[String] analysis_process_path
+    Array[String] analysis_protocol_path
     String file_name_string
     Boolean? project_level
 
@@ -290,8 +290,8 @@ task GetLinksFileMetadata {
     --input_uuids = "~{sep=' ' process_input_ids}" \
     --output_file_path = "~{output_file_path}" \
     --workspace_version = "~{version_timestamp}" \
-    --analysis_process_path = "~{analysis_process_path}" \
-    --analysis_protocol_path = "~{analysis_protocol_path}" \
+    --analysis_process_path = "~{sep=' ' analysis_process_path}" \
+    --analysis_protocol_path = "~{sep=' ' analysis_protocol_path}" \
     --file_name_string = "~{file_name_string}" \
     ~{"--project_level " + project_level}
   }
