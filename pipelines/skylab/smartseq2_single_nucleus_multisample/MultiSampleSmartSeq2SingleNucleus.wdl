@@ -5,8 +5,8 @@ import "LoomUtils.wdl" as LoomUtils
 import "CheckInputs.wdl" as CheckInputs
 import "StarAlign.wdl" as StarAlign
 import "TrimAdapters.wdl" as TrimAdapters
+import "Picard.wdl" as Picard
 
->>>>>>> b55a7135e914ada215bba667e60c35d3003c3642
 workflow MultiSampleSmartSeq2SingleNucleus {
   meta {
     description: "The MultiSampleSmartSeq2SingleNucleus pipeline runs multiple snSS2 samples in a single pipeline invocation"
@@ -79,30 +79,47 @@ workflow MultiSampleSmartSeq2SingleNucleus {
       input:
         fastq1_input_files = TrimAdapters.trimmed_fastq1_files,
         fastq2_input_files = TrimAdapters.trimmed_fastq2_files,
-        tar_star_reference = star_reference
+        tar_star_reference = tar_star_reference
    }
 
-  ### Execution starts here ###
-  scatter(idx in range(length(input_ids))) {
-      call single_nucleus_run.SmartSeq2SingleNucleus as sn_pe {
+    call Picard.RemoveDuplicatesFromBam as RemoveDuplicatesFromBam {
         input:
-           genome_ref_fasta = genome_ref_fasta,
-           annotations_gtf =  annotations_gtf,
-           adapter_list = adapter_list,
-           aligned_bam = StarAlign.aligned_bam[idx],
-           input_id = input_ids[idx],
-           output_name = input_ids[idx],
-           input_name_metadata_field = input_name_metadata_field,
-           input_id_metadata_field = input_id_metadata_field,
-           input_name = if defined(input_names) then select_first([input_names])[idx] else none
-      }
-  }
+            input_ids = input_ids,
+            aligned_bam_inputs = StarAlign.output_bam
+    }
 
+    call Picard.CollectMultipleMetricsMultiSample {
+        input:
+            aligned_bam_inputs = RemoveDuplicatesFromBam.output_bam,
+            genome_ref_fasta = genome_ref_fasta,
+            output_basename = input_ids,
+    }
+
+    call CountAlignments.CountAlignments as CountAlignments {
+        input:
+            aligned_bam_inputs = RemoveDuplicatesFromBam.output_bam,
+            annotation_gtf = annotations_gtf
+    }
+
+    call LoomUtils.SingleNucleiSmartSeq2LoomOutput as LoomOutput {
+        input:
+            input_id = input_ids,
+            input_name = input_names,
+            pipeline_version = "SmartSeq2SingleNucleus_v~{pipeline_version}",
+            input_id_metadata_field = input_id_metadata_field,
+            input_name_metadata_field = input_name_metadata_field,
+            alignment_summary_metrics = CollectMultipleMetricsMultiSample.alignment_summary_metrics,
+            dedup_metrics = RemoveDuplicatesFromBam.dedup_metrics,
+            gc_bias_summary_metrics = CollectMultipleMetricsMultiSample.gc_bias_summary_metrics,
+            introns_counts = CountAlignments.intron_counts_out,
+            exons_counts = CountAlignments.exon_counts_out,
+            annotation_introns_added_gtf = annotations_gtf
+    }
 
   ### Aggregate the Loom Files Directly ###
   call LoomUtils.AggregateSmartSeq2Loom as AggregateLoom {
     input:
-      loom_input = sn_pe.loom_output_file,
+      loom_input = LoomOutput.loom_output_file,
       batch_id = batch_id,
       batch_name = batch_name,
       project_id = if defined(project_id) then select_first([project_id])[0] else none,
@@ -118,7 +135,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   output {
     # loom output, exon/intron count tsv files and the aligned bam files
     File loom_output = AggregateLoom.loom_output_file
-    Array[File] exon_intron_count_files = sn_pe.exon_intron_counts 
-    Array[File] bam_files = sn_pe.duplicates_removed_aligned_bam
+    Array[File] exon_intron_count_files = LoomOutput.exon_intron_counts
+    Array[File] bam_files = LoomOutput.duplicates_removed_aligned_bam
   }
 }
