@@ -122,7 +122,7 @@ task GtcToVcf {
     --SAMPLE_ALIAS "~{sample_alias}" \
     --ANALYSIS_VERSION_NUMBER ~{analysis_version_number} \
     --EXPECTED_GENDER "~{reported_gender}" \
-    ~{"--FINGERPRINT_GENOTYPES_VCF_FILE " + fingerprint_genotypes_vcf_file} \
+    ~{"--FINGERPRINT_GENOTYPES_VCF_FILE \"" + fingerprint_genotypes_vcf_file + "\""} \
     --REFERENCE_SEQUENCE ~{ref_fasta} \
     --MAX_RECORDS_IN_RAM 100000 \
     --CREATE_INDEX true \
@@ -396,7 +396,7 @@ task CheckFingerprint {
       CheckFingerprint \
       --INPUT ~{input_vcf_file} \
       --OBSERVED_SAMPLE_ALIAS "~{observed_sample_alias}" \
-      ~{"--GENOTYPES " + genotypes_vcf_file} \
+    ~{"--GENOTYPES \"" + genotypes_vcf_file +"\""} \
       --EXPECTED_SAMPLE_ALIAS "~{expected_sample_alias}" \
       --HAPLOTYPE_MAP ~{haplotype_database_file} \
       --GENOTYPE_LOD_THRESHOLD ~{genotype_lod_threshold} \

@@ -1,3 +1,19 @@
+
+# 2.4.0
+2021-08-05
+
+* Enable pipeline to (optionally) pull and push fingerprints from/to the Mercury Fingerprint Store
+
+# 2.3.6
+2021-08-02
+
+* Increased the version number to make new release tag for Dockstore 
+
+# 2.3.5
+2021-07-29
+
+* Updated documentation to describe changes to inputs and outputs
+
 # 2.3.4
 2021-07-28
 
