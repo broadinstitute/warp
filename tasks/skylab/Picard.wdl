@@ -379,7 +379,6 @@ task RemoveDuplicatesFromBam {
 
   parameter_meta {
     aligned_bam_inputs: "input aligned bam"
-    output_basename: "basename used for output files"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
