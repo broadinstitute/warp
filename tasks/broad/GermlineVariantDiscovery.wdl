@@ -96,7 +96,7 @@ task HaplotypeCaller_GATK4_VCF {
     Boolean dragen_mode_hard_filter = false
     Boolean use_spanning_event_genotyping = true
     File? dragstr_model
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.0.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.2.0"
     Int memory_multiplier = 1
   }
   
@@ -227,7 +227,7 @@ task DragenHardFilterVcf {
     Boolean make_gvcf
     String vcf_basename
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.2.0"
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
