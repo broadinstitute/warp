@@ -14,19 +14,18 @@ workflow CreateReferenceMetadata {
     String version_timestamp
 
     String species
-    String pipeline_type
     String version_timestamp
 
   }
 
   call Tasks.CheckInput as CheckReferences {
     input:
-      reference_fastas = reference_fastas
+      input_array = reference_fastas
   }
 
   call Tasks.GetReferenceDetails {
     input:
-      reference_file = CheckReferences.output_string,
+      ref_fasta = CheckReferences.output_string,
       species = species
   }
 
@@ -35,7 +34,7 @@ workflow CreateReferenceMetadata {
       file_path = CheckReferences.output_string
   }
 
-  call Tasks.CreateFileDescriptor as CreateReferenceFileDescriptor {
+  call Tasks.GetFileDescriptor as CreateReferenceFileDescriptor {
     input:
       file_path = CheckReferences.output_string,
       file_path_string = CheckReferences.output_string,
@@ -60,7 +59,7 @@ workflow CreateReferenceMetadata {
 
 
   output {
-    File reference_file_descriptor_ouputs = CreateReferenceFileDescriptor.file_descriptor_outputs
+    Array[File] reference_file_descriptor_outputs = CreateReferenceFileDescriptor.file_descriptor_outputs
     String reference_file_uuid = GetReferenceFileMetadata.reference_file_uuid
     Array[File] reference_metadata_outputs = GetReferenceFileMetadata.reference_metadata_outputs
     String reference_fasta = CheckReferences.output_string

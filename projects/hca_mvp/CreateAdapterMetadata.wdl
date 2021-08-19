@@ -174,7 +174,7 @@ workflow CreateAdapterMetadata {
         analysis_process_objects = flatten([CreateIntermediateOptimusAdapters.analysis_process_outputs, CreateProjectOptimusAdapters.analysis_process_outputs]),
         analysis_protocol_objects = flatten([CreateIntermediateOptimusAdapters.analysis_protocol_outputs, CreateProjectOptimusAdapters.analysis_protocol_outputs]),
         reference_metadata_objects = CreateReferenceMetadata.reference_metadata_outputs,
-        reference_file_descriptor_objects = CreateReferenceMetadata.reference_file_descriptor_ouputs,
+        reference_file_descriptor_objects = CreateReferenceMetadata.reference_file_descriptor_outputs,
         data_objects = flatten([output_bams, output_looms, CreateReferenceMetadata.reference_fasta, MergeLooms.project_loom]),
       }
 

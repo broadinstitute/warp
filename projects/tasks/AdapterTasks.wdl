@@ -90,10 +90,10 @@ task GetCromwellMetadata {
   input {
     String output_path
     String cromwell_url
-    Boolean include_subworkflows
-    Array[String] include_keys
+    Boolean include_subworkflows = false
+    String? include_keys
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:gw_cromwell_includekeys"
+    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
@@ -181,7 +181,6 @@ task GetAnalysisFileMetadata {
       --workspace_version = "~{version_timestamp}" \
       --input_file = "~{input_file}" \
       ~{true="--project_level " false="--project_level " project_level}
-
   }
   runtime {
     docker: docker
@@ -522,12 +521,12 @@ task CopyToStagingBucket {
 
   command {
     copy-adapter-outputs \
-    --analysis_files_metadata_jsons ~{analysis_file_metadata_objects} \
-    --analysis_process_jsons ~{analysis_process_objects} \
-    --analysis_protocol_jsons ~{analysis_protocol_objects} \
-    --analysis_files_descriptors_jsons ~{analysis_file_descriptor_objects} \
-    --links_jsons ~{links_objects} \
-    --data_files ~{data_objects} \
+    --analysis_files_metadata_jsons ~{sep=" " analysis_file_metadata_objects} \
+    --analysis_process_jsons ~{sep=" " analysis_process_objects} \
+    --analysis_protocol_jsons ~{sep=" " analysis_protocol_objects} \
+    --analysis_files_descriptors_jsons ~{sep=" " analysis_file_descriptor_objects} \
+    --links_jsons ~{sep=" " links_objects} \
+    --data_files ~{sep=" " data_objects} \
     --staging-bucket ~{staging_bucket}
   }
 
@@ -542,3 +541,22 @@ task CopyToStagingBucket {
   }
 }
 
+task GetPipelineVersion {
+  input {
+    String pipeline_version
+
+    String docker = "ubuntu:18.04"
+  }
+  command {
+    echo ~{pipeline_version} > pipeline_version.txt
+  }
+  output {
+    String pipeline_version_string = read_string("pipeline_version.txt")
+  }
+  runtime {
+    docker: docker
+    cpu: 1
+    memory: "3 GiB"
+    disks: "local-disk 10 HDD"
+  }
+}
