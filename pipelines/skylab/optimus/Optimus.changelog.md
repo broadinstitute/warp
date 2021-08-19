@@ -1,7 +1,7 @@
 # 5.0.0
 2021-07-26 
 
-* Replaced STAR alignment with STARsolo and modified the structure of the wdl to utilize the umi and barcode correction from STARsolo.
+* Replaced STAR alignment with STARsolo and modified the structure of the wdl to utilize the umi and barcode correction from STARsolo. In the new implementation of Optimus STARsolo takes the fastq file and directly creates a count matrix file and a BAM file.
 
 # 4.2.6
 2021-07-19 (Date of Last Commit)

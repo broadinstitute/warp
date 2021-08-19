@@ -35,7 +35,7 @@ def main():
     # we need to keep only those rows that have non-zero reads/counts
     scipy.sparse.save_npz("sparse_counts.npz", matrix[unique_nonzero_row_indices, :], compressed=True)
 
-    # read the barcodes file and create the barcode to index index
+    # read the barcodes file and create the barcode to index
     barcodes = []
     with gzip.open(args.barcodes, 'rt') if args.barcodes.endswith('.gz') else  \
         open(args.barcodes, 'r') as fin:

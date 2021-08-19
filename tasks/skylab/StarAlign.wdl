@@ -81,7 +81,7 @@ task STARsoloFastq {
     Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
-    Int disk = ceil(size(r2_fastq, "Gi") * 2.5) + 500
+    Int disk = ceil(size(r2_fastq, "Gi") * 4.5) + 200
     # by default request non preemptible machine to make sure the slow star alignment step completes
     Int preemptible = 0
   }
@@ -91,8 +91,8 @@ task STARsoloFastq {
   }
 
   parameter_meta {
-    r1_fastq: "input fastq file array"
-    r2_fastq: "input fastq file array"
+    r1_fastq: "input FASTQ file array"
+    r2_fastq: "array of forward read FASTQ files"
     tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
@@ -117,7 +117,7 @@ task STARsoloFastq {
         UMILen=12
         CBLen=16
     else
-        echo Error: unknown chemistry value: "$chemistry"
+        echo Error: unknown chemistry value: "$chemistry". Should be one of "tenX_v2" or "texX_v3".
         exit 1;
     fi
 
@@ -174,5 +174,58 @@ task STARsoloFastq {
     File barcodes = "Solo.out/Gene/raw/barcodes.tsv"
     File features = "Solo.out/Gene/raw/features.tsv"
     File matrix = "Solo.out/Gene/raw/matrix.mtx"
+  }
+}
+
+task ConvertStarOutput {
+
+  input {
+    File barcodes
+    File features
+    File matrix
+
+    #runtime values
+    String docker = " quay.io/kishorikonwar/secondary-analysis-python3-scientific:utils2"
+    Int machine_mem_mb = 8250
+    Int cpu = 1
+    Int disk = ceil(size(matrix, "Gi") * 2) + 10
+    Int preemptible = 3
+  }
+
+  meta {
+    description: "Create three numpy formats for the barcodes, gene names and the count matrix from the STARSolo count matrix in mtx format."
+  }
+
+  parameter_meta {
+    docker: "(optional) the docker image containing the runtime environment for this task"
+    machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
+    cpu: "(optional) the number of cpus to provision for this task"
+    disk: "(optional) the amount of disk space (GiB) to provision for this task"
+    preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
+  }
+
+  command {
+    set -e
+
+   # create the  compresed raw count matrix with the counts, gene names and the barcodes
+    python3 /tools/create-npz-output.py \
+        --barcodes ~{barcodes} \
+        --features ~{features} \
+        --matrix ~{matrix}
+
+  }
+
+  runtime {
+    docker: docker
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ${disk} HDD"
+    cpu: cpu
+    preemptible: preemptible
+  }
+
+  output {
+    File row_index = "sparse_counts_row_index.npy"
+    File col_index = "sparse_counts_col_index.npy"
+    File sparse_counts = "sparse_counts.npz"
   }
 }

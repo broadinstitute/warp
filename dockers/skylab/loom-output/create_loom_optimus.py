@@ -136,8 +136,6 @@ def generate_col_attr(args):
         logging.error("Cell metrics table is not valid")
         raise ValueError()
     metrics_df = metrics_df.rename(columns={"Unnamed: 0": "cell_id"})
-    # Drop first row that contains non-cell information from metrics file, this contains aggregate information
-    #metrics_df = metrics_df.iloc[1:]
 
     add_emptydrops_results = args.add_emptydrops_results
     if add_emptydrops_results == 'yes':

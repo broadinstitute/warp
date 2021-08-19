@@ -1,12 +1,12 @@
 version 1.0
 
-task CellSortBam {
+task CalculateCellMetrics {
   input {
     File bam_input
     File original_gtf
 
     # runtime values
-    String docker = "quay.io/kishorikonwar/secondary-analysis-python3-scientific:sctools-optimized8"
+    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v1.0.0"
     Int machine_mem_mb = 8000
     Int cpu = 8
     Int disk = ceil(size(bam_input, "Gi") * 4)
@@ -28,19 +28,30 @@ task CellSortBam {
   
   command {
     set -e
+    
+    # create the tmp folder for disk sorting
     mkdir temp
-    gunzip -c ~{original_gtf} > annotation.gtf
+
+
+    # if GTF file in compressed then uncompress
+    if [[ ~{original_gtf} =~ \.gz$ ]]
+    then
+        gunzip -c ~{original_gtf} > annotation.gtf
+    else
+        mv  ~{original_gtf}  annotation.gtf
+    fi
 
     TagSort --bam-input ~{bam_input} \
     --gtf-file annotation.gtf \
-    --metric-output cell-metrics.csv  --compute-metric \
+    --metric-output cell-metrics.csv \
+    --compute-metric \
     --metric-type cell \
     --barcode-tag CB \
     --umi-tag UB \
     --gene-tag GX \
     --temp-folder temp \
     --alignments-per-thread 1000000 \
-    --nthreads 6
+    --nthreads ${cpu}
 
     gzip cell-metrics.csv
   }
@@ -59,14 +70,14 @@ task CellSortBam {
   }
 }
 
-task GeneSortBam {
+task CalculateGeneMetrics {
   input {
     File bam_input
 
     # runtime values
-    String docker = "quay.io/kishorikonwar/secondary-analysis-python3-scientific:sctools-optimized8"
+    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v1.0.0"
     Int machine_mem_mb = 8000
-    Int cpu = 8
+    Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 
     Int preemptible = 0
   }
@@ -90,14 +101,15 @@ task GeneSortBam {
     mkdir temp
 
     TagSort --bam-input ~{bam_input} \
-    --metric-output gene-metrics.csv  --compute-metric \
+    --metric-output gene-metrics.csv \
+    --compute-metric \
     --metric-type gene \
     --gene-tag GX \
     --barcode-tag CB \
     --umi-tag UB \
     --temp-folder temp \
     --alignments-per-thread 1000000 \
-    --nthreads 6
+    --nthreads ${cpu}
 
     gzip gene-metrics.csv
 
@@ -106,7 +118,7 @@ task GeneSortBam {
   runtime {
     docker: docker
     memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ${disk} HDD" #TODO: make it an input
+    disks: "local-disk ${disk} HDD" 
     cpu: cpu
     preemptible: preemptible
   }
