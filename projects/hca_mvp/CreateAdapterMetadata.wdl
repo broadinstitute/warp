@@ -93,15 +93,15 @@ workflow CreateAdapterMetadata {
      String none = "None"
   }
   ########################## Get Optimus Metadata Files ##########################
-  if (GetPipelineType.pipeline == "Optimus") {
+  if (GetPipelineType.output_string == "Optimus") {
     scatter (idx in range(length(output_looms))) {
-      String fastq_i1_uuid = if defined(fastq_i1_uuids) then fastq_i1_uuids[idx] else none
+      String? fastq_i1_uuid = if defined(fastq_i1_uuids) then select_first([fastq_i1_uuids])[idx] else none
       call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateIntermediateOptimusAdapters {
         input:
           bam = output_bams[idx],
           loom = output_looms[idx],
           input_id = input_ids[idx],
-          process_input_ids = [fastq_1_uuids[idx],fastq_2_uuids[idx], fastq_i1_uuid],
+          process_input_ids = select_all([fastq_1_uuids[idx],fastq_2_uuids[idx], fastq_i1_uuid]),
           library = library,
           species = species,
           organ = organ,
@@ -115,7 +115,7 @@ workflow CreateAdapterMetadata {
     }
     call CreateReferenceMetadata.CreateReferenceMetadata as CreateReferenceMetadata {
       input:
-        reference_fastas = CreateIntermediateOptimusAdapters.reference_fastas,
+        reference_fastas = CreateIntermediateOptimusAdapters.reference_fasta,
         species = species,
         pipeline_type = 'Optimus',
         version_timestamp = version_timestamp
@@ -134,7 +134,7 @@ workflow CreateAdapterMetadata {
 
     call Tasks.GetProjectLevelInputIds {
       input:
-        intermediate_analysis_files = flatten([CreateIntermediateOptimusAdapters.analysis_file_outputs])
+        intermediate_analysis_files = flatten(CreateIntermediateOptimusAdapters.analysis_file_outputs)
     }
 
     # TODO: change the way the links file uses the project level input ids (need to accept strings instead of jsons)
@@ -142,7 +142,7 @@ workflow CreateAdapterMetadata {
     call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateProjectOptimusAdapters {
       input:
         loom = MergeLooms.project_loom,
-        process_input_ids = GetProjectLevelInputIds.process_input_uuids,
+        process_input_ids = [GetProjectLevelInputIds.process_input_uuids],
         input_id = project_stratum_string,
         library = library,
         species = species,
@@ -157,7 +157,7 @@ workflow CreateAdapterMetadata {
   }
 
   ########################## Get SS2 Metadata Files ###########################
-  #if (GetPipelineType.pipeline == "SS2") {
+  #if (GetPipelineType.output_string == "SS2") {
   #  call CreateSS2Objects as GetAdapterObjects{
   #    input:
   #      # Fill in input for subworkflow
@@ -165,23 +165,37 @@ workflow CreateAdapterMetadata {
   #}
 
   ########################## Copy Files to Staging Bucket ##########################
+    Array[File] links_objects = flatten(select_all([CreateIntermediateOptimusAdapters.links_outputs, CreateProjectOptimusAdapters.links_outputs]))
+    Array[File] analysis_file_descriptor_objects = flatten(select_all([CreateIntermediateOptimusAdapters.loom_file_descriptor_outputs, select_all([CreateIntermediateOptimusAdapters.bam_file_descriptor_outputs]), CreateProjectOptimusAdapters.loom_file_descriptor_outputs]))
+    Array[File] analysis_file_metadata_objects = flatten(select_all([CreateIntermediateOptimusAdapters.analysis_file_outputs, CreateProjectOptimusAdapters.analysis_file_outputs]))
+    Array[File] analysis_process_objects = flatten(select_all([CreateIntermediateOptimusAdapters.analysis_process_outputs, CreateProjectOptimusAdapters.analysis_process_outputs]))
+    Array[File] analysis_protocol_objects = flatten(select_all([CreateIntermediateOptimusAdapters.analysis_protocol_outputs, CreateProjectOptimusAdapters.analysis_protocol_outputs]))
+    Array[File] reference_metadata_objects = select_first([CreateReferenceMetadata.reference_metadata_outputs])
+    Array[File] reference_file_descriptor_objects = select_first([CreateReferenceMetadata.reference_file_descriptor_outputs])
+    Array[File] data_objects = flatten([select_all([output_bams, output_looms, CreateReferenceMetadata.reference_fasta, MergeLooms.project_loom])])
+
     call Tasks.CopyToStagingBucket {
       input:
         staging_bucket = staging_bucket,
-        links_objects = flatten([CreateIntermediateOptimusAdapters.links_outputs, CreateProjectOptimusAdapters.links_outputs]),
-        analysis_file_descriptor_objects = flatten(select_all([CreateIntermediateOptimusAdapters.loom_file_descriptor_outputs, CreateIntermediateOptimusAdapters.bam_file_descriptor_outputs, CreateProjectOptimusAdapters.loom_file_descriptor_outputs])),
-        analysis_file_metadata_objects = flatten([CreateIntermediateOptimusAdapters.analysis_file_outputs, CreateProjectOptimusAdapters.analysis_file_outputs]),
-        analysis_process_objects = flatten([CreateIntermediateOptimusAdapters.analysis_process_outputs, CreateProjectOptimusAdapters.analysis_process_outputs]),
-        analysis_protocol_objects = flatten([CreateIntermediateOptimusAdapters.analysis_protocol_outputs, CreateProjectOptimusAdapters.analysis_protocol_outputs]),
-        reference_metadata_objects = CreateReferenceMetadata.reference_metadata_outputs,
-        reference_file_descriptor_objects = CreateReferenceMetadata.reference_file_descriptor_outputs,
-        data_objects = flatten([output_bams, output_looms, CreateReferenceMetadata.reference_fasta, MergeLooms.project_loom]),
+        links_objects = links_objects,
+        analysis_file_descriptor_objects = analysis_file_descriptor_objects,
+        analysis_file_metadata_objects = analysis_file_metadata_objects,
+        analysis_process_objects = analysis_process_objects,
+        analysis_protocol_objects = analysis_protocol_objects,
+        reference_metadata_objects = reference_metadata_objects,
+        reference_file_descriptor_objects = reference_file_descriptor_objects,
+        data_objects = data_objects
       }
 
-
-  # TODO: update ouputs
   output {
-    Array[File] json_adapters = GetAdapterObjects.json_adapters
+    Array[File] output_links_objects = links_objects
+    Array[File] output_analysis_file_descriptor_objects = analysis_file_descriptor_objects
+    Array[File] output_analysis_file_metadata_objects = analysis_file_metadata_objects
+    Array[File] output_analysis_process_objects = analysis_process_objects
+    Array[File] output_analysis_protocol_objects = analysis_protocol_objects
+    Array[File] output_reference_metadata_objects = reference_metadata_objects
+    Array[File] output_reference_file_descriptor_objects = reference_file_descriptor_objects
+    Array[File] output_data_objects = data_objects
   }
 }
 

@@ -25,7 +25,7 @@ workflow CreateOptimusAdapterObjects {
     String cromwell_url
     Boolean is_project_level
     String? pipeline_version # parsed from metadata for intermediate, passed in for project level
-    String? reference_fasta # parsed from metadata for intermediate, passed in for project level
+    String? reference_file_fasta # parsed from metadata for intermediate, passed in for project level
   }
 
   call Tasks.GetCromwellMetadata {
@@ -42,7 +42,7 @@ workflow CreateOptimusAdapterObjects {
         pipeline_type = pipeline_type
     }
   }
-    String reference = select_first([ParseCromwellMetadata.ref_fasta,reference_fasta])
+    String reference = select_first([ParseCromwellMetadata.ref_fasta,reference_file_fasta])
 
   call Tasks.GetAnalysisFileMetadata {
     input:
@@ -57,7 +57,7 @@ workflow CreateOptimusAdapterObjects {
       input_uuid = input_id,
       pipeline_type = pipeline_type,
       version_timestamp = version_timestamp,
-      references = select_first([ParseCromwellMetadata.ref_fasta,reference_fasta]),
+      references = select_first([ParseCromwellMetadata.ref_fasta,reference_file_fasta]),
       input_file = GetCromwellMetadata.metadata
   }
 
@@ -80,7 +80,8 @@ workflow CreateOptimusAdapterObjects {
       file_path = loom,
       input_uuid = input_id,
       creation_time = GetLoomFileCreationDate.creation_date,
-      version_timestamp = version_timestamp
+      version_timestamp = version_timestamp,
+      file_path_string = loom
   }
 
   if (defined(bam)){
@@ -95,7 +96,8 @@ workflow CreateOptimusAdapterObjects {
         file_path = select_first([bam]),
         input_uuid = input_id,
         creation_time = GetBamFileCreationDate.creation_date,
-        version_timestamp = version_timestamp
+        version_timestamp = version_timestamp,
+        file_path_string = select_first([bam])
     }
   }
 
@@ -109,7 +111,6 @@ workflow CreateOptimusAdapterObjects {
       analysis_protocol_path = GetAnalysisProtocolMetadata.analysis_protocol_outputs,
       file_name_string = input_id
   }
-
 
   output {
     File metadata_json = GetCromwellMetadata.metadata

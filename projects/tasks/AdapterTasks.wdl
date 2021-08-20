@@ -271,7 +271,7 @@ task GetLinksFileMetadata {
   input {
     String project_id
     Array[String] process_input_ids
-    String output_file_path
+    Array[String] output_file_path
     String version_timestamp
     Array[String] analysis_process_path
     Array[String] analysis_protocol_path
@@ -288,7 +288,7 @@ task GetLinksFileMetadata {
     create-links \
     --project_id = "~{project_id}" \
     --input_uuids = "~{sep=' ' process_input_ids}" \
-    --output_file_path = "~{output_file_path}" \
+    --output_file_path = "~{sep=' ' output_file_path}" \
     --workspace_version = "~{version_timestamp}" \
     --analysis_process_path = "~{sep=' ' analysis_process_path}" \
     --analysis_protocol_path = "~{sep=' ' analysis_protocol_path}" \
@@ -510,6 +510,8 @@ task CopyToStagingBucket {
     Array[File] analysis_file_descriptor_objects
     Array[File] links_objects
     Array[File] data_objects
+    Array[File] reference_metadata_objects
+    Array[File] reference_file_descriptor_objects
     String staging_bucket
     String? cache_invalidate
 
@@ -527,6 +529,8 @@ task CopyToStagingBucket {
     --analysis_files_descriptors_jsons ~{sep=" " analysis_file_descriptor_objects} \
     --links_jsons ~{sep=" " links_objects} \
     --data_files ~{sep=" " data_objects} \
+    --reference_metadata_jsons ~{sep=" " reference_metadata_objects} \
+    --reference_file_descriptor_jsons ~{sep=" " reference_file_descriptor_objects} \
     --staging-bucket ~{staging_bucket}
   }
 
@@ -535,9 +539,6 @@ task CopyToStagingBucket {
     cpu: cpu
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
-  }
-
-  output {
   }
 }
 
