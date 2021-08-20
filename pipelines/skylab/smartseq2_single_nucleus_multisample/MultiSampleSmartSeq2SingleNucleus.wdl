@@ -132,11 +132,13 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   }
 
 
+
+
   ### Pipeline output ###
   output {
     # loom output, exon/intron count tsv files and the aligned bam files
     File loom_output = AggregateLoom.loom_output_file
-    Array[File] exon_intron_count_files = sep(' ',LoomOutput.loom_output)
-    Array[File] bam_files = sep(' ',LoomOutput.exon_intron_counts)
+    Array[File] exon_intron_count_files = LoomOutput.exon_intron_counts
+    Array[File] bam_files = RemoveDuplicatesFromBam.output_bam
   }
 }
