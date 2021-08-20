@@ -23,7 +23,7 @@ struct ReferenceFasta {
 
 struct DragmapReference {
   File reference_bin
-  File reference_index_bin
+  File hash_table_cfg_bin
   File hash_table_cmp
 }
 

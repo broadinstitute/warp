@@ -35,7 +35,7 @@ task SamToFastqAndDragmapAndMba {
   Float unmapped_bam_size = size(input_bam, "GiB")
   Float ref_size = size(reference_fasta.ref_fasta, "GiB") + size(reference_fasta.ref_fasta_index, "GiB") + size(reference_fasta.ref_dict, "GiB")
   Float bwa_ref_size = ref_size + size(reference_fasta.ref_alt, "GiB") + size(reference_fasta.ref_amb, "GiB") + size(reference_fasta.ref_ann, "GiB") + size(reference_fasta.ref_bwt, "GiB") + size(reference_fasta.ref_pac, "GiB") + size(reference_fasta.ref_sa, "GiB")
-  Float dragmap_ref_size = size(dragmap_reference.reference_bin, "GiB") + size(dragmap_reference.reference_index_bin, "GiB") + size(dragmap_reference.hash_table_cmp, "GiB")
+  Float dragmap_ref_size = size(dragmap_reference.reference_bin, "GiB") + size(dragmap_reference.hash_table_cfg_bin, "GiB") + size(dragmap_reference.hash_table_cmp, "GiB")
   Float disk_multiplier = 8
   Int disk_size = ceil(unmapped_bam_size + bwa_ref_size + dragmap_ref_size + (disk_multiplier * unmapped_bam_size) + 20)
 
@@ -51,7 +51,7 @@ task SamToFastqAndDragmapAndMba {
     fi
 
     mkdir dragen_reference
-    mv ~{dragmap_reference.reference_bin} ~{dragmap_reference.reference_index_bin} ~{dragmap_reference.hash_table_cmp} dragen_reference
+    mv ~{dragmap_reference.reference_bin} ~{dragmap_reference.hash_table_cfg_bin} ~{dragmap_reference.hash_table_cmp} dragen_reference
 
     samtools fastq -1 reads1.fastq.gz -2 reads2.fastq.gz -0 /dev/null -s /dev/null -n ~{input_bam}
 
