@@ -81,7 +81,7 @@ task STARsoloFastq {
     Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
-    Int disk = ceil(size(r2_fastq, "Gi") * 4.5) + 200
+    Int disk = ceil((size(tar_star_reference, "Gi") * 2.5) + ceil(size(r2_fastq, "Gi") * 5) + 200
     # by default request non preemptible machine to make sure the slow star alignment step completes
     Int preemptible = 0
   }
@@ -185,7 +185,7 @@ task ConvertStarOutput {
     File matrix
 
     #runtime values
-    String docker = " quay.io/kishorikonwar/secondary-analysis-python3-scientific:utils2"
+    String docker = "quay.io/kishorikonwar/secondary-analysis-python3-scientific:utils2"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
