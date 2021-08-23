@@ -177,10 +177,10 @@ task GetAnalysisFileMetadata {
 
   command {
     create-analysis-file \
-      --input_uuid = "~{input_uuid}" \
-      --pipeline_type = "~{pipeline_type}" \
-      --workspace_version = "~{version_timestamp}" \
-      --input_file = "~{input_file}" \
+      --input_uuid "~{input_uuid}" \
+      --pipeline_type "~{pipeline_type}" \
+      --workspace_version "~{version_timestamp}" \
+      --input_file "~{input_file}" \
       ~{true="--project_level " false="--project_level " project_level}
   }
   runtime {
@@ -214,11 +214,11 @@ task GetAnalysisProcessMetadata {
 
   command {
     create-analysis-process \
-      --input_uuid = "~{input_uuid}" \
-      --pipeline_type = "~{pipeline_type}" \
-      --workspace_version = "~{version_timestamp}" \
-      --references ="~{references}" \
-      --input_file ="~{input_file}" \
+      --input_uuid "~{input_uuid}" \
+      --pipeline_type "~{pipeline_type}" \
+      --workspace_version "~{version_timestamp}" \
+      --references "~{references}" \
+      --input_file "~{input_file}" \
       ~{true="--project_level " false="--project_level " project_level}
       ~{"--loom_timestamp " + loom_timestamp}
 
@@ -250,10 +250,10 @@ task GetAnalysisProtocolMetadata {
 
    command {
      create-analysis-protocol \
-       --input_uuid = "~{input_uuid}" \
-       --pipeline_type = "~{pipeline_type}" \
-       --workspace_version = "~{version_timestamp}" \
-       --pipeline_version = "~{pipeline_version}" \
+       --input_uuid "~{input_uuid}" \
+       --pipeline_type "~{pipeline_type}" \
+       --workspace_version "~{version_timestamp}" \
+       --pipeline_version "~{pipeline_version}" \
       ~{true="--project_level " false="--project_level " project_level}
    }
    runtime {
@@ -287,13 +287,13 @@ task GetLinksFileMetadata {
 
   command {
     create-links \
-    --project_id = "~{project_id}" \
-    --input_uuids = "~{sep=' ' process_input_ids}" \
-    --output_file_path = "~{sep=' ' output_file_path}" \
-    --workspace_version = "~{version_timestamp}" \
-    --analysis_process_path = "~{sep=' ' analysis_process_path}" \
-    --analysis_protocol_path = "~{sep=' ' analysis_protocol_path}" \
-    --file_name_string = "~{file_name_string}" \
+    --project_id "~{project_id}" \
+    --input_uuids "~{sep=' ' process_input_ids}" \
+    --output_file_path "~{sep=' ' output_file_path}" \
+    --workspace_version "~{version_timestamp}" \
+    --analysis_process_path "~{sep=' ' analysis_process_path}" \
+    --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
+    --file_name_string "~{file_name_string}" \
     ~{true="--project_level " false="--project_level " project_level}
   }
   runtime {
@@ -330,14 +330,14 @@ task GetFileDescriptor {
       export size=$(gsutil stat ~{file_path_string} | awk '/Content-Length/ { print $2 }')
 
     create-file-descriptor \
-    --size = "$size" \
-    --sha256 = "$sha256" \
-    --crc32c = "$crc32c" \
-    --pipeline_type = "~{pipeline_type}" \
-    --file_path = "~{file_path}" \
-    --input_uuid = "~{input_uuid}" \
-    --creation_time = "~{creation_time}" \
-    --workspace_version = "~{version_timestamp}"
+    --size "$size" \
+    --sha256 "$sha256" \
+    --crc32c "$crc32c" \
+    --pipeline_type "~{pipeline_type}" \
+    --file_path "~{file_path}" \
+    --input_uuid "~{input_uuid}" \
+    --creation_time "~{creation_time}" \
+    --workspace_version "~{version_timestamp}"
 
   >>>
   runtime {
@@ -372,15 +372,15 @@ task GetReferenceFileMetadata {
 
   command {
   create-reference-file \
-  --genus_species = "~{genus_species}" \
-  --file_path = "~{file_path}" \
-  --workspace_version = "~{version_timestamp}" \
-  --input_uuid = "~{input_uuid}" \
-  --reference_version = "~{reference_type}" \
-  --ncbi_taxon_id = "~{ncbi_taxon_id}" \
-  --pipeline_type = "~{pipeline_type}" \
-  --assembly_type = "~{assembly_type}" \
-  --reference_type = "~{reference_type}"
+  --genus_species "~{genus_species}" \
+  --file_path "~{file_path}" \
+  --workspace_version "~{version_timestamp}" \
+  --input_uuid "~{input_uuid}" \
+  --reference_version "~{reference_type}" \
+  --ncbi_taxon_id "~{ncbi_taxon_id}" \
+  --pipeline_type "~{pipeline_type}" \
+  --assembly_type "~{assembly_type}" \
+  --reference_type "~{reference_type}"
   }
   runtime {
     docker: docker
