@@ -67,7 +67,8 @@ workflow MultiSampleSmartSeq2SingleNucleus {
          input_ids = input_ids,
          input_names = input_names,
          fastq1_input_files = fastq1_input_files,
-         fastq2_input_files = fastq2_input_files
+         fastq2_input_files = fastq2_input_files,
+         paired_end = true
   }
   call TrimAdapters.TrimAdapters as TrimAdapters {
        input:
@@ -78,6 +79,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
 
    call StarAlign.StarAlignFastqPairedEnd as StarAlign {
       input:
+        input_ids = input_ids,
         fastq1_input_files = TrimAdapters.trimmed_fastq1_files,
         fastq2_input_files = TrimAdapters.trimmed_fastq2_files,
         tar_star_reference = tar_star_reference
@@ -98,6 +100,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
 
     call CountAlignments.CountAlignments as CountAlignments {
         input:
+            input_ids = input_ids,
             aligned_bam_inputs = RemoveDuplicatesFromBam.output_bam,
             annotation_gtf = annotations_gtf
     }
