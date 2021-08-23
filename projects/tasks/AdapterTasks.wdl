@@ -272,10 +272,10 @@ task GetLinksFileMetadata {
   input {
     String project_id
     Array[String] process_input_ids
-    Array[String] output_file_path
+    Array[File] output_file_path
     String version_timestamp
-    Array[String] analysis_process_path
-    Array[String] analysis_protocol_path
+    Array[File] analysis_process_path
+    Array[File] analysis_protocol_path
     String file_name_string
     Boolean? project_level
 
