@@ -6,6 +6,7 @@ task TrimAdapters {
     Array[File] fastq1_input_files
     Array[File] fastq2_input_files
     File adapter_list
+    Array[String] input_ids
 
     #runtime values
     String docker = "quay.io/humancellatlas/snss2-trim-adapters:0.1.0"
@@ -32,6 +33,7 @@ task TrimAdapters {
 
     fastq1_files=~{sep=' ' fastq1_input_files}
     fastq2_files=~{sep=' ' fastq2_input_files}
+    output_prefix=~{sep=' ' input_ids}
     for ((i=0; i<${#fastq1_files[@]}; ++i));
       do
         fastq1=${fastq1_files[$i]}
@@ -41,8 +43,8 @@ task TrimAdapters {
            -C 200000 ~{adapter_list} \
            $fastq1 \
            $fastq2 \
-           -o "$fastq1.trimmed_R1.fastq.gz" \
-           -o "$fastq2.trimmed_R2.fastq.gz"
+           -o "${output_prefix[$i]}.trimmed_R1.fastq.gz" \
+           -o "${output_prefix[$i]}.trimmed_R2.fastq.gz"
       done;
   >>>
 
