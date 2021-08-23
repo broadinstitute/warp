@@ -49,7 +49,7 @@ There is an [example configuration (JSON) file](https://github.com/broadinstitut
 
 #### Sample data input
 
-The pipeline is designed for take in an array of paired-end reads in the form of two FASTQ files per cell. 
+The pipeline is designed to take in an array of paired-end reads in the form of two FASTQ files per cell. 
 
 *  `fastq1_input_files`: array of FASTQ files containing forward paired-end sequencing reads for each cell (sample) 
 *  `fastq2_input_files`: array of FASTQ files containing reverse paired-end sequencing reads for each cell (sample). 
@@ -140,7 +140,7 @@ The Multi-snSS2 pipeline was scientifically validated by the BRAIN Initiatives C
 All Multi-snSS2 release notes are documented in the [Multi-snSS2 changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.changelog.md).
 
 ## Citing the Multi-snSS2 Pipeline
-Please identify the pipeline in your methods section using the Multi-snSS2 Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_021312/resolver).
+To cite the Multi-snSS2 pipeline, use the [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_021312/resolver).
 * Ex: *Smart-seq2 Single Nucleus Multi-Sample Pipeline (RRID:SCR_021312)*
 
 To view an example of this citation as well as a publication-style methods section, see the Multi-snSS2 [Example Methods](./multi_snss2.methods.md) 
@@ -152,5 +152,6 @@ If your organization also uses this pipeline, we would love to list you! Please 
 
 ## Have Suggestions?
 Help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+
 
 
