@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # Smart-seq2 Single Nucleus Multi-Sample Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
@@ -51,8 +55,8 @@ There is an [example configuration (JSON) file](https://github.com/broadinstitut
 
 The pipeline is designed to take in an array of paired-end reads in the form of two FASTQ files per cell. 
 
-*  `fastq1_input_files`: array of FASTQ files containing forward paired-end sequencing reads for each cell (sample) 
-*  `fastq2_input_files`: array of FASTQ files containing reverse paired-end sequencing reads for each cell (sample). 
+*  `fastq1_input_files`: array of FASTQ files containing forward paired-end sequencing reads for each cell (sample); order must match the order in input_id (described below). 
+*  `fastq2_input_files`: array of FASTQ files containing reverse paired-end sequencing reads for each cell (sample); order must match the order in input_id (described below). 
 
 
 #### Reference and additional inputs
