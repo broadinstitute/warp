@@ -108,9 +108,9 @@ task StarAlignFastqPairedEnd {
     tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
     rm "~{tar_star_reference}"
 
-    fastq1_files=~{sep=' ' fastq1_input_files}
-    fastq2_files=~{sep=' ' fastq2_input_files}
-    output_prefix=~{sep=' ' input_ids}
+    declare -a fastq1_files=(~{sep=' ' fastq1_input_files})
+    declare -a fastq2_files=(~{sep=' ' fastq2_input_files})
+    declare -a output_prefix=(~{sep=' ' input_ids})
 
     for (( i=0; i<${#output_prefix[@]}; ++i));
       do

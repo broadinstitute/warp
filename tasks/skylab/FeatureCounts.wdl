@@ -29,8 +29,8 @@ task CountAlignments {
 
   command <<<
     set -e
-    bam_files=~{sep=' ' aligned_bam_inputs}
-    output_prefix=~{sep=' ' input_ids}
+    declare -a bam_files=(~{sep=' ' aligned_bam_inputs})
+    declare -a output_prefix=(~{sep=' ' input_ids})
     for (( i=0; i<${#bam_files[@]}; ++i));
       do
         # counting the introns
