@@ -166,7 +166,7 @@ task GetAnalysisFileMetadata {
     String input_uuid
     String pipeline_type
     String version_timestamp
-    String input_file
+    File input_file
     Boolean? project_level
 
     String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
@@ -202,7 +202,7 @@ task GetAnalysisProcessMetadata {
     String pipeline_type
     String version_timestamp
     String references
-    String input_file
+    File input_file
     Boolean? project_level
     String? loom_timestamp
 
