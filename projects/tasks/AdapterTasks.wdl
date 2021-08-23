@@ -64,7 +64,7 @@ task GetPipelineType {
   command <<<
   set -e pipefail
   python3 <<CODE
-  with open("output.txt", w) as f:
+  with open("output.txt", "w") as f:
       if ("10X" in "~{library}"):
           f.write("Optimus")
       elif ("Smart-seq2" in "~{library}"):
