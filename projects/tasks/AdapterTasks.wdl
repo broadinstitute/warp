@@ -279,7 +279,7 @@ task GetLinksFileMetadata {
     String file_name_string
     Boolean? project_level
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:wd_optimus_script" #remember to change back to master
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
