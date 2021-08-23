@@ -43,35 +43,35 @@ workflow CreateAdapterMetadata {
     input:
       input_array = all_libraries,
       input_type = "library",
-      illegal_characters = ";="
+      illegal_characters = "; ="
   }
 
   call Tasks.CheckInput as CheckOrgan {
     input:
       input_array = all_organs,
       input_type = "organ",
-      illegal_characters = ";="
+      illegal_characters = "; ="
   }
 
   call Tasks.CheckInput as CheckSpecies {
     input:
       input_array = all_species,
       input_type = "species",
-      illegal_characters = ";="
+      illegal_characters = "; ="
   }
 
   call Tasks.CheckInput as CheckProjectID {
     input:
       input_array = all_project_ids,
       input_type = "project_id",
-      illegal_characters = ";="
+      illegal_characters = "; ="
   }
 
     call Tasks.CheckInput as CheckProjectName {
     input:
       input_array = all_project_names,
       input_type = "project_name",
-      illegal_characters = ";=" # should we include % in this list? # ultimately we should switch to a whitelist
+      illegal_characters = "; =" # should we include % in this list? # ultimately we should switch to a whitelist
   }
 
   String library = CheckLibrary.output_string
