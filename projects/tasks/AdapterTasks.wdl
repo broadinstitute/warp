@@ -1,8 +1,8 @@
 version 1.0
 
-# Due to the nature generating adapters for intermediatt and project level files, we have several place
-# where we process arrays of inputs which we expect to contain a single value duplicated many times.
-# This simple function confirms that there is a sigle value in a given input array and that that value does not
+# Due to the nature generating adapters for intermediate and project level files, we have several placee
+# where we process arrays of inputs which we expect to contain a single value, duplicated many times.
+# This simple function confirms that there is a single value in a given input array and that that value does not
 # contain any disallowed characters
 task CheckInput {
   input {
@@ -20,6 +20,7 @@ task CheckInput {
   python3 <<CODE
 
   input_set = set([ "~{sep='", "' input_array}" ])
+  list_illegal = ~{illegal_characters}.split(" ")
 
   errors=0
 
@@ -27,7 +28,7 @@ task CheckInput {
       print("ERROR: Expected one value for {}, but found multiple: {}".format(input_type, input_set))
       errors += 1
 
-  for c in list(~{illegal_characters}):
+  for c in list_illegal:
       for i in input_set:
           if c in i:
               print("ERROR: {} string, {}, contains an illegal character {}".format(input_type, i, c))
