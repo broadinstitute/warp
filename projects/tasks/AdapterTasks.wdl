@@ -67,7 +67,7 @@ task GetPipelineType {
   with open("output.txt", w) as f:
       if ("10X" in "~{library}"):
           f.write("Optimus")
-      elif ("Smart-seq2" in ~{library}):
+      elif ("Smart-seq2" in "~{library}"):
           f.write("SS2")
       else:
           raise ValueError("Unexpected library_preparation_protocol__library_construction_approach")
