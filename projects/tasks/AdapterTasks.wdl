@@ -289,7 +289,7 @@ task GetLinksFileMetadata {
     create-links \
     --project_id "~{project_id}" \
     --input_uuids "~{sep=' ' process_input_ids}" \
-    --output_file_path "~{sep=' ' output_file_path}" \
+    --output_file_path "~{output_file_path}" \
     --workspace_version "~{version_timestamp}" \
     --analysis_process_path "~{sep=' ' analysis_process_path}" \
     --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
