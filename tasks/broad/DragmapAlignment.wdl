@@ -39,8 +39,6 @@ task SamToFastqAndDragmapAndMba {
   Float disk_multiplier = 8
   Int disk_size = ceil(unmapped_bam_size + bwa_ref_size + dragmap_ref_size + (disk_multiplier * unmapped_bam_size) + 20)
 
-  String dragmap_commandline = "-1 reads1.fastq.gz -2 reads2.fastq.gz -r dragen_reference"
-
   command <<<
     set -euxo pipefail
 
@@ -53,9 +51,7 @@ task SamToFastqAndDragmapAndMba {
     mkdir dragen_reference
     mv ~{dragmap_reference.reference_bin} ~{dragmap_reference.hash_table_cfg_bin} ~{dragmap_reference.hash_table_cmp} dragen_reference
 
-    samtools fastq -1 reads1.fastq.gz -2 reads2.fastq.gz -0 /dev/null -s /dev/null -n ~{input_bam}
-
-    dragen-os ~{dragmap_commandline} 2> >(tee ~{output_bam_basename}.dragmap.stderr.log >&2) | samtools view -h -O BAM - > aligned.bam
+    dragen-os -b ~{input_bam} -r dragen_reference --interleaved=1 2> >(tee ~{output_bam_basename}.dragmap.stderr.log >&2) | samtools view -h -O BAM - > aligned.bam
     java -Dsamjdk.compression_level=~{compression_level} -Xms1000m -Xmx1000m -jar /picard/picard.jar \
       MergeBamAlignment \
       VALIDATION_STRINGENCY=SILENT \
@@ -81,7 +77,7 @@ task SamToFastqAndDragmapAndMba {
       PRIMARY_ALIGNMENT_STRATEGY=MostDistant \
       PROGRAM_RECORD_ID="dragen-os" \
       PROGRAM_GROUP_VERSION="${DRAGMAP_VERSION}" \
-      PROGRAM_GROUP_COMMAND_LINE="dragen-os ~{dragmap_commandline}" \
+      PROGRAM_GROUP_COMMAND_LINE="dragen-os -b ~{input_bam} -r dragen_reference --interleaved=1" \
       PROGRAM_GROUP_NAME="dragen-os" \
       UNMAPPED_READ_STRATEGY=COPY_TO_TAG \
       ALIGNER_PROPER_PAIR_FLAGS=true \
