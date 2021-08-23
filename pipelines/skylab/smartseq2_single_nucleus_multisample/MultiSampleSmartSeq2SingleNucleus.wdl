@@ -72,6 +72,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   }
   call TrimAdapters.TrimAdapters as TrimAdapters {
        input:
+         input_ids = input_ids,
          fastq1_input_files = fastq1_input_files,
          fastq2_input_files = fastq2_input_files,
          adapter_list = adapter_list
