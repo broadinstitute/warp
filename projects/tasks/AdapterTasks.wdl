@@ -94,7 +94,7 @@ task GetCromwellMetadata {
     Boolean include_subworkflows = false
     String? include_keys
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
@@ -169,7 +169,7 @@ task GetAnalysisFileMetadata {
     File input_file
     Boolean? project_level
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
@@ -206,7 +206,7 @@ task GetAnalysisProcessMetadata {
     Boolean? project_level
     String? loom_timestamp
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
@@ -242,7 +242,7 @@ task GetAnalysisProtocolMetadata {
      String pipeline_version
      Boolean? project_level
 
-     String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
      Int cpu = 1
      Int machine_mem_mb = 2000
      Int disk = 10
@@ -317,7 +317,7 @@ task GetFileDescriptor {
     File file_path
     String file_path_string #does this need to be set to file_path ?
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 30
@@ -364,7 +364,7 @@ task GetReferenceFileMetadata {
     String version_timestamp
     String reference_version
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
@@ -424,7 +424,7 @@ task ParseCromwellMetadata {
     File cromwell_metadata
     String pipeline_type
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
@@ -453,7 +453,7 @@ task GetReferenceDetails {
     File ref_fasta
     String species
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
@@ -482,7 +482,7 @@ task GetProjectLevelInputIds {
   input {
     Array[File] intermediate_analysis_files
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
@@ -516,7 +516,7 @@ task CopyToStagingBucket {
     String staging_bucket
     String? cache_invalidate
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
