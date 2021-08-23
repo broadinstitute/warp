@@ -118,7 +118,8 @@ workflow CreateAdapterMetadata {
         reference_fastas = CreateIntermediateOptimusAdapters.reference_fasta,
         species = species,
         pipeline_type = 'Optimus',
-        version_timestamp = version_timestamp
+        version_timestamp = version_timestamp,
+        input_type = "reference"
     }
     call MergeLooms.MergeOptimusLooms as MergeLooms {
       input:
