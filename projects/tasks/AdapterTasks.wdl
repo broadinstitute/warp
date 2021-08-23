@@ -20,11 +20,7 @@ task CheckInput {
   python3 <<CODE
 
   input_set = set([ "~{sep='", "' input_array}" ])
-<<<<<<< HEAD
   list_illegal = "~{illegal_characters}".split(" ")
-=======
-  list_illegal = ~{illegal_characters}.split(" ")
->>>>>>> c30c828bf6b325623dea59226607822daccb02df
 
   errors=0
 
@@ -69,7 +65,7 @@ task GetPipelineType {
   set -e pipefail
   python3 <<CODE
   with open("output.txt", w) as f:
-      if ("10X" in ~{library}):
+      if ("10X" in "~{library}"):
           f.write("Optimus")
       elif ("Smart-seq2" in ~{library}):
           f.write("SS2")
