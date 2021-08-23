@@ -20,11 +20,8 @@ task CheckInput {
   python3 <<CODE
 
   input_set = set([ "~{sep='", "' input_array}" ])
-<<<<<<< HEAD
   list_illegal = "~{illegal_characters}".split(" ")
-=======
-  list_illegal = ~{illegal_characters}.split(" ")
->>>>>>> c30c828bf6b325623dea59226607822daccb02df
+
 
   errors=0
 
