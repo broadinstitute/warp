@@ -489,7 +489,7 @@ task GetProjectLevelInputIds {
   }
 
   command {
-    python3 get_process_input_ids.py \
+    get-process-input-ids \
     --input-json-files ~{sep=' ' intermediate_analysis_files}
   }
   runtime {
