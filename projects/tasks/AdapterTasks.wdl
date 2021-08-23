@@ -21,6 +21,7 @@ task CheckInput {
 
   input_set = set([ "~{sep='", "' input_array}" ])
   list_illegal = "~{illegal_characters}".split(" ")
+  input_type = "~{input_type}"
 
   errors=0
 

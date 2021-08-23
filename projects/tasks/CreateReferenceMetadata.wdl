@@ -12,14 +12,14 @@ workflow CreateReferenceMetadata {
     Array[String] reference_fastas
     String pipeline_type
     String version_timestamp
-
+    String input_type
     String species
   }
 
   call Tasks.CheckInput as CheckReferences {
     input:
       input_array = reference_fastas,
-      input_type = "reference"
+      input_type = input_type
   }
 
   call Tasks.GetReferenceDetails {
