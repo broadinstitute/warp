@@ -80,6 +80,7 @@ The table below details the Multi-snSS2 inputs. The pipeline is designed to take
 | genome_ref_fasta | FASTA file used for STAR alignment. | FASTA | 
 | adapter_list | File listing adapter sequences used in the library preparation (i.e. Illumina adapters for Illumina sequencing). | FASTA | 
 | output_name | Unique name used for output files; can also be a cloud path. | String |
+| paired_end | Boolean to indicate if reads are paired-end; default is set to true and pipeline is currntly only validated for paired-end | Boolean |
 
 
 ## Running Multi-snSS2
