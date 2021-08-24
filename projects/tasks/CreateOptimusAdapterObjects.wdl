@@ -43,6 +43,7 @@ workflow CreateOptimusAdapterObjects {
     }
   }
     String reference = select_first([ParseCromwellMetadata.ref_fasta,reference_file_fasta])
+    String pipe_version = select_first([ParseCromwellMetadata.pipeline_version,pipeline_version])
 
   call Tasks.GetAnalysisFileMetadata {
     input:
@@ -115,6 +116,7 @@ workflow CreateOptimusAdapterObjects {
   output {
     File metadata_json = GetCromwellMetadata.metadata
     String reference_fasta = reference
+    String version_pipeline = pipe_version
     Array[File] analysis_file_outputs = GetAnalysisFileMetadata.analysis_file_outputs
     Array[File] analysis_process_outputs = GetAnalysisProcessMetadata.analysis_process_outputs
     Array[File] analysis_protocol_outputs = GetAnalysisProtocolMetadata.analysis_protocol_outputs

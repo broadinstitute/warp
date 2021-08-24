@@ -152,7 +152,10 @@ workflow CreateAdapterMetadata {
         project_stratum_string = project_stratum_string,
         version_timestamp = version_timestamp,
         cromwell_url = cromwell_url,
-        is_project_level = true
+        is_project_level = true,
+        reference_file_fasta = CreateIntermediateOptimusAdapters.reference_fasta,
+        pipeline_version = CreateIntermediateOptimusAdapters.version_pipeline
+
     }
   }
 
