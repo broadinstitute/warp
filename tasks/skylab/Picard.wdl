@@ -398,11 +398,11 @@ task RemoveDuplicatesFromBam {
        INPUT="${bam_files[$i]}" \
        OUTPUT="${output_prefix[$i]}.aligned_bam.DuplicatesRemoved.bam" \
        ASSUME_SORTED=true \
-       METRICS_FILE=aligned_bam.duplicate_metrics.txt \
-       REMOVE_DUPLICATES=true
+       METRICS_FILE="${output_prefix[$i]}.aligned_bam.duplicate_metrics.txt" \
+       REMOVE_DUPLICATES=true;
 
     java -Xmx"~{command_mem_mb}"m -XX:ParallelGCThreads=~{cpu} -jar /usr/picard/picard.jar AddOrReplaceReadGroups \
-       I=aligned_bam.DuplicatesRemoved.bam \
+       I="${output_prefix[$i]}.aligned_bam.DuplicatesRemoved.bam" \
        O="${output_prefix[$i]}.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam" \
        RGID=4 \
        RGLB=lib1 \
