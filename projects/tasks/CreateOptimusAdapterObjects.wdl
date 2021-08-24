@@ -42,15 +42,30 @@ workflow CreateOptimusAdapterObjects {
         pipeline_type = pipeline_type
     }
   }
+
   String reference = select_first([ParseCromwellMetadata.ref_fasta, reference_file_fasta])
   String pipe_version = select_first([ParseCromwellMetadata.pipeline_version, pipeline_version])
 
-  call Tasks.GetAnalysisFileMetadata {
-    input:
-      input_uuid = input_id,
-      pipeline_type = pipeline_type,
-      version_timestamp = version_timestamp,
-      input_file = GetCromwellMetadata.metadata
+  # for intermediate level, input_file should be the metadata.json
+  if (!is_project_level) {
+    call Tasks.GetAnalysisFileMetadata as GetIntermediateAnalysisFileMetadata {
+      input:
+        input_uuid = input_id,
+        pipeline_type = pipeline_type,
+        version_timestamp = version_timestamp,
+        input_file = GetCromwellMetadata.metadata
+    }
+  }
+  
+  # for project level, input_file should be loom file name
+  if (is_project_level) {
+    call Tasks.GetAnalysisFileMetadata as GetProjectAnalysisFileMetadata {
+      input:
+        input_uuid = input_id,
+        pipeline_type = pipeline_type,
+        version_timestamp = version_timestamp,
+        input_file = loom
+    }
   }
 
   call Tasks.GetAnalysisProcessMetadata {
