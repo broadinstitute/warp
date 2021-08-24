@@ -185,14 +185,14 @@ task GetAnalysisFileMetadata {
       --pipeline_type "~{pipeline_type}" \
       --workspace_version "~{version_timestamp}" \
       --input_file "~{project_loom}" \
-      ~{true="--project_level " false="--project_level " project_level}
+      --project_level true
     else
       create-analysis-file \
       --input_uuid "~{input_uuid}" \
       --pipeline_type "~{pipeline_type}" \
       --workspace_version "~{version_timestamp}" \
       --input_file "~{input_file}" \
-      ~{true="--project_level " false="--project_level " project_level}
+      --project_level false
     fi
   }
 
@@ -232,7 +232,7 @@ task GetAnalysisProcessMetadata {
       --workspace_version "~{version_timestamp}" \
       --references "~{references}" \
       --input_file "~{input_file}" \
-      ~{true="--project_level " false="--project_level " project_level}
+      --project_level ~{project_level} \
       ~{"--loom_timestamp " + loom_timestamp}
 
   }
@@ -267,8 +267,9 @@ task GetAnalysisProtocolMetadata {
        --pipeline_type "~{pipeline_type}" \
        --workspace_version "~{version_timestamp}" \
        --pipeline_version "~{pipeline_version}" \
-      ~{true="--project_level " false="--project_level " project_level}
+       --project_level ~{project_level}
    }
+
    runtime {
      docker: docker
      cpu: cpu
@@ -307,7 +308,7 @@ task GetLinksFileMetadata {
     --analysis_process_path "~{sep=' ' analysis_process_path}" \
     --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
     --file_name_string "~{file_name_string}" \
-    ~{true="--project_level " false="--project_level " project_level}
+    --project_level ~{project_level}
   }
   runtime {
     docker: docker
@@ -389,7 +390,7 @@ task GetReferenceFileMetadata {
   --file_path "~{file_path}" \
   --workspace_version "~{version_timestamp}" \
   --input_uuid "~{input_uuid}" \
-  --reference_version "~{reference_type}" \
+  --reference_version "~{reference_version}" \
   --ncbi_taxon_id "~{ncbi_taxon_id}" \
   --pipeline_type "~{pipeline_type}" \
   --assembly_type "~{assembly_type}" \
