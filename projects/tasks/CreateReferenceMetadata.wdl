@@ -12,7 +12,7 @@ workflow CreateReferenceMetadata {
     Array[String] reference_fastas
     String pipeline_type
     String version_timestamp
-
+    String input_type
     String species
   }
 

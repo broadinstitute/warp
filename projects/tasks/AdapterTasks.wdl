@@ -21,6 +21,7 @@ task CheckInput {
 
   input_set = set([ "~{sep='", "' input_array}" ])
   list_illegal = "~{illegal_characters}".split(" ")
+  input_type = "~{input_type}"
 
   errors=0
 
@@ -64,10 +65,10 @@ task GetPipelineType {
   command <<<
   set -e pipefail
   python3 <<CODE
-  with open("output.txt", w) as f:
+  with open("output.txt", "w") as f:
       if ("10X" in "~{library}"):
           f.write("Optimus")
-      elif ("Smart-seq2" in ~{library}):
+      elif ("Smart-seq2" in "~{library}"):
           f.write("SS2")
       else:
           raise ValueError("Unexpected library_preparation_protocol__library_construction_approach")
@@ -94,7 +95,7 @@ task GetCromwellMetadata {
     Boolean include_subworkflows = false
     String? include_keys
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
@@ -166,10 +167,10 @@ task GetAnalysisFileMetadata {
     String input_uuid
     String pipeline_type
     String version_timestamp
-    String input_file
+    File input_file
     Boolean? project_level
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
@@ -177,10 +178,10 @@ task GetAnalysisFileMetadata {
 
   command {
     create-analysis-file \
-      --input_uuid = "~{input_uuid}" \
-      --pipeline_type = "~{pipeline_type}" \
-      --workspace_version = "~{version_timestamp}" \
-      --input_file = "~{input_file}" \
+      --input_uuid "~{input_uuid}" \
+      --pipeline_type "~{pipeline_type}" \
+      --workspace_version "~{version_timestamp}" \
+      --input_file "~{input_file}" \
       ~{true="--project_level " false="--project_level " project_level}
   }
   runtime {
@@ -202,11 +203,11 @@ task GetAnalysisProcessMetadata {
     String pipeline_type
     String version_timestamp
     String references
-    String input_file
+    File input_file
     Boolean? project_level
     String? loom_timestamp
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
@@ -214,11 +215,11 @@ task GetAnalysisProcessMetadata {
 
   command {
     create-analysis-process \
-      --input_uuid = "~{input_uuid}" \
-      --pipeline_type = "~{pipeline_type}" \
-      --workspace_version = "~{version_timestamp}" \
-      --references ="~{references}" \
-      --input_file ="~{input_file}" \
+      --input_uuid "~{input_uuid}" \
+      --pipeline_type "~{pipeline_type}" \
+      --workspace_version "~{version_timestamp}" \
+      --references "~{references}" \
+      --input_file "~{input_file}" \
       ~{true="--project_level " false="--project_level " project_level}
       ~{"--loom_timestamp " + loom_timestamp}
 
@@ -242,7 +243,7 @@ task GetAnalysisProtocolMetadata {
      String pipeline_version
      Boolean? project_level
 
-     String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
      Int cpu = 1
      Int machine_mem_mb = 2000
      Int disk = 10
@@ -250,10 +251,10 @@ task GetAnalysisProtocolMetadata {
 
    command {
      create-analysis-protocol \
-       --input_uuid = "~{input_uuid}" \
-       --pipeline_type = "~{pipeline_type}" \
-       --workspace_version = "~{version_timestamp}" \
-       --pipeline_version = "~{pipeline_version}" \
+       --input_uuid "~{input_uuid}" \
+       --pipeline_type "~{pipeline_type}" \
+       --workspace_version "~{version_timestamp}" \
+       --pipeline_version "~{pipeline_version}" \
       ~{true="--project_level " false="--project_level " project_level}
    }
    runtime {
@@ -272,14 +273,14 @@ task GetLinksFileMetadata {
   input {
     String project_id
     Array[String] process_input_ids
-    Array[String] output_file_path
+    File output_file_path
     String version_timestamp
-    Array[String] analysis_process_path
-    Array[String] analysis_protocol_path
+    Array[File] analysis_process_path
+    Array[File] analysis_protocol_path
     String file_name_string
     Boolean? project_level
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest" #remember to change back to quay?
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
@@ -287,13 +288,13 @@ task GetLinksFileMetadata {
 
   command {
     create-links \
-    --project_id = "~{project_id}" \
-    --input_uuids = "~{sep=' ' process_input_ids}" \
-    --output_file_path = "~{sep=' ' output_file_path}" \
-    --workspace_version = "~{version_timestamp}" \
-    --analysis_process_path = "~{sep=' ' analysis_process_path}" \
-    --analysis_protocol_path = "~{sep=' ' analysis_protocol_path}" \
-    --file_name_string = "~{file_name_string}" \
+    --project_id "~{project_id}" \
+    --input_uuids "~{sep=' ' process_input_ids}" \
+    --output_file_path "~{output_file_path}" \
+    --workspace_version "~{version_timestamp}" \
+    --analysis_process_path "~{sep=' ' analysis_process_path}" \
+    --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
+    --file_name_string "~{file_name_string}" \
     ~{true="--project_level " false="--project_level " project_level}
   }
   runtime {
@@ -317,7 +318,7 @@ task GetFileDescriptor {
     File file_path
     String file_path_string #does this need to be set to file_path ?
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 30
@@ -330,14 +331,14 @@ task GetFileDescriptor {
       export size=$(gsutil stat ~{file_path_string} | awk '/Content-Length/ { print $2 }')
 
     create-file-descriptor \
-    --size = "$size" \
-    --sha256 = "$sha256" \
-    --crc32c = "$crc32c" \
-    --pipeline_type = "~{pipeline_type}" \
-    --file_path = "~{file_path}" \
-    --input_uuid = "~{input_uuid}" \
-    --creation_time = "~{creation_time}" \
-    --workspace_version = "~{version_timestamp}"
+    --size "$size" \
+    --sha256 "$sha256" \
+    --crc32c "$crc32c" \
+    --pipeline_type "~{pipeline_type}" \
+    --file_path "~{file_path}" \
+    --input_uuid "~{input_uuid}" \
+    --creation_time "~{creation_time}" \
+    --workspace_version "~{version_timestamp}"
 
   >>>
   runtime {
@@ -364,7 +365,7 @@ task GetReferenceFileMetadata {
     String version_timestamp
     String reference_version
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
@@ -372,15 +373,15 @@ task GetReferenceFileMetadata {
 
   command {
   create-reference-file \
-  --genus_species = "~{genus_species}" \
-  --file_path = "~{file_path}" \
-  --workspace_version = "~{version_timestamp}" \
-  --input_uuid = "~{input_uuid}" \
-  --reference_version = "~{reference_type}" \
-  --ncbi_taxon_id = "~{ncbi_taxon_id}" \
-  --pipeline_type = "~{pipeline_type}" \
-  --assembly_type = "~{assembly_type}" \
-  --reference_type = "~{reference_type}"
+  --genus_species "~{genus_species}" \
+  --file_path "~{file_path}" \
+  --workspace_version "~{version_timestamp}" \
+  --input_uuid "~{input_uuid}" \
+  --reference_version "~{reference_type}" \
+  --ncbi_taxon_id "~{ncbi_taxon_id}" \
+  --pipeline_type "~{pipeline_type}" \
+  --assembly_type "~{assembly_type}" \
+  --reference_type "~{reference_type}"
   }
   runtime {
     docker: docker
@@ -424,7 +425,7 @@ task ParseCromwellMetadata {
     File cromwell_metadata
     String pipeline_type
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
@@ -453,7 +454,7 @@ task GetReferenceDetails {
     File ref_fasta
     String species
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
@@ -482,14 +483,14 @@ task GetProjectLevelInputIds {
   input {
     Array[File] intermediate_analysis_files
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
   }
 
   command {
-    python3 get_process_input_ids.py \
+    get-process-input-ids \
     --input-json-files ~{sep=' ' intermediate_analysis_files}
   }
   runtime {
@@ -516,7 +517,7 @@ task CopyToStagingBucket {
     String staging_bucket
     String? cache_invalidate
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-pipeline-tools:master"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10

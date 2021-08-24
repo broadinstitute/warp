@@ -90,7 +90,7 @@ workflow CreateAdapterMetadata {
   String project_stratum_string = "project=" + project_id + ";library=" + library + ";species=" + species + ";organ=" + organ
 
   if (false) {
-     String none = "None"
+    String none = "None"
   }
   ########################## Get Optimus Metadata Files ##########################
   if (GetPipelineType.output_string == "Optimus") {
@@ -118,7 +118,8 @@ workflow CreateAdapterMetadata {
         reference_fastas = CreateIntermediateOptimusAdapters.reference_fasta,
         species = species,
         pipeline_type = 'Optimus',
-        version_timestamp = version_timestamp
+        version_timestamp = version_timestamp,
+        input_type = "reference"
     }
     call MergeLooms.MergeOptimusLooms as MergeLooms {
       input:
