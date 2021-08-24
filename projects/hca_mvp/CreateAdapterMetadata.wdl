@@ -154,7 +154,6 @@ workflow CreateAdapterMetadata {
         version_timestamp = version_timestamp,
         cromwell_url = cromwell_url,
         is_project_level = true,
-        reference_file_fasta = CreateIntermediateOptimusAdapters.reference_fasta,
     }
   }
 

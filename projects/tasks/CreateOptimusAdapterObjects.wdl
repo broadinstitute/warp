@@ -42,7 +42,7 @@ workflow CreateOptimusAdapterObjects {
         pipeline_type = pipeline_type
     }
   }
-    String reference = select_first([ParseCromwellMetadata.ref_fasta,reference_file_fasta])
+  String reference = select_first([ParseCromwellMetadata.ref_fasta,reference_file_fasta])
 
   call Tasks.GetAnalysisFileMetadata {
     input:
