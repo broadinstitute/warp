@@ -453,7 +453,6 @@ task GetReferenceDetails {
   input {
     File ref_fasta
     String species
-
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
@@ -462,8 +461,8 @@ task GetReferenceDetails {
 
   command {
     get-reference-file-details \
-    --reference-file ~{ref_fasta} \
-    --species ~{species}
+    --reference-file "~{ref_fasta}" \
+    --species "~{species}"
   }
   runtime {
     docker: docker
