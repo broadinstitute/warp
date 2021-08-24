@@ -187,14 +187,14 @@ task GetAnalysisFileMetadata {
       --pipeline_type "~{pipeline_type}" \
       --workspace_version "~{version_timestamp}" \
       --input_file "~{project_loom}" \
-      --project_level ~project_level
+      --project_level ~{project_level}
     else
       create-analysis-file \
       --input_uuid "~{input_uuid}" \
       --pipeline_type "~{pipeline_type}" \
       --workspace_version "~{version_timestamp}" \
       --input_file "~{input_file}" \
-      --project_level ~project_level
+      --project_level ~{project_level}
 
     fi
   }
