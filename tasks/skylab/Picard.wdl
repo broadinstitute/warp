@@ -173,7 +173,7 @@ task CollectMultipleMetricsMultiSample {
         Array[String] input_ids
 
         # runtime values
-        String docker ="quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"
+        String docker ="us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
         Int machine_mem_mb = 8250
         # give the command 1 GiB of overhead
         Int command_mem_mb = machine_mem_mb - 1000
@@ -201,23 +201,23 @@ task CollectMultipleMetricsMultiSample {
     command <<<
         set -e
 
-        bam_files=~{sep=' ' aligned_bam_inputs}
-        output_prefix=~{sep=' ' input_ids}
+        declare -a bam_files=(~{sep=' ' aligned_bam_inputs})
+        declare -a output_prefix=(~{sep=' ' input_ids})
         for (( i=0; i<${#bam_files[@]}; ++i));
         do
             output_basename=${output_prefix[$i]}
             java -Xmx"~{command_mem_mb}"m \
             -jar /usr/picard/picard.jar CollectMultipleMetrics \
-            VALIDATION_STRINGENCY=SILENT \
-            METRIC_ACCUMULATION_LEVEL=ALL_READS \
-            INPUT="${bam_files[$i]}" \
-            OUTPUT="${output_basename}" \
-            FILE_EXTENSION=".txt" \
-            PROGRAM=null \
-            PROGRAM=CollectAlignmentSummaryMetrics \
-            PROGRAM=CollectGcBiasMetrics \
-            REFERENCE_SEQUENCE="~{genome_ref_fasta}" \
-            ASSUME_SORTED=true
+            -VALIDATION_STRINGENCY SILENT \
+            -METRIC_ACCUMULATION_LEVEL ALL_READS \
+            -INPUT "${bam_files[$i]}" \
+            -OUTPUT "${output_basename}" \
+            -FILE_EXTENSION ".txt" \
+            -PROGRAM null \
+            -PROGRAM CollectAlignmentSummaryMetrics \
+            -PROGRAM CollectGcBiasMetrics \
+            -REFERENCE_SEQUENCE "~{genome_ref_fasta}" \
+            -ASSUME_SORTED true
         done;
     >>>
 
@@ -394,21 +394,21 @@ task RemoveDuplicatesFromBam {
     for (( i=0; i<${#bam_files[@]}; ++i));
     do
       java -Xmx"~{command_mem_mb}"m -XX:ParallelGCThreads=~{cpu} -jar /usr/picard/picard.jar  MarkDuplicates \
-       VALIDATION_STRINGENCY=SILENT  \
-       INPUT="${bam_files[$i]}" \
-       OUTPUT="${output_prefix[$i]}.aligned_bam.DuplicatesRemoved.bam" \
-       ASSUME_SORTED=true \
-       METRICS_FILE="${output_prefix[$i]}.aligned_bam.duplicate_metrics.txt" \
-       REMOVE_DUPLICATES=true;
+       -VALIDATION_STRINGENCY SILENT  \
+       -INPUT "${bam_files[$i]}" \
+       -OUTPUT "${output_prefix[$i]}.aligned_bam.DuplicatesRemoved.bam" \
+       -ASSUME_SORTED true \
+       -METRICS_FILE "${output_prefix[$i]}.aligned_bam.duplicate_metrics.txt" \
+       -REMOVE_DUPLICATES true;
 
     java -Xmx"~{command_mem_mb}"m -XX:ParallelGCThreads=~{cpu} -jar /usr/picard/picard.jar AddOrReplaceReadGroups \
-       I="${output_prefix[$i]}.aligned_bam.DuplicatesRemoved.bam" \
-       O="${output_prefix[$i]}.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam" \
-       RGID=4 \
-       RGLB=lib1 \
-       RGPL=ILLUMINA \
-       RGPU=unit1 \
-       RGSM=20
+       -I "${output_prefix[$i]}.aligned_bam.DuplicatesRemoved.bam" \
+       -O "${output_prefix[$i]}.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam" \
+       -RGID 4 \
+       -RGLB lib1 \
+       -RGPL ILLUMINA \
+       -RGPU unit1 \
+       -RGSM 20
       done;
   >>>
   
