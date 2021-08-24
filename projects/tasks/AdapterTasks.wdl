@@ -167,16 +167,18 @@ task GetAnalysisFileMetadata {
     String input_uuid
     String pipeline_type
     String version_timestamp
-    File input_file
-    Boolean? project_level
-    String? project_loom 
+    File input_file # Input file is the internal path to metadata.json
+    Boolean project_level
+    String? project_loom # Project loom is optional and provided on project level run as the gs:// link
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
   }
-  
+
+  # If we are doing a project level run then provide project_loom as the input_file
+  # otherwise provide metadata.json
   command {
     if ~{project_level}
     then
@@ -185,14 +187,15 @@ task GetAnalysisFileMetadata {
       --pipeline_type "~{pipeline_type}" \
       --workspace_version "~{version_timestamp}" \
       --input_file "~{project_loom}" \
-      --project_level True
+      --project_level ~project_level
     else
       create-analysis-file \
       --input_uuid "~{input_uuid}" \
       --pipeline_type "~{pipeline_type}" \
       --workspace_version "~{version_timestamp}" \
       --input_file "~{input_file}" \
-      --project_level False
+      --project_level ~project_level
+
     fi
   }
 
@@ -216,7 +219,7 @@ task GetAnalysisProcessMetadata {
     String version_timestamp
     String references
     File input_file
-    Boolean? project_level
+    Boolean project_level
     String? loom_timestamp
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
@@ -253,7 +256,7 @@ task GetAnalysisProtocolMetadata {
      String pipeline_type
      String version_timestamp
      String pipeline_version
-     Boolean? project_level
+     Boolean project_level
 
      String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
      Int cpu = 1
@@ -291,7 +294,7 @@ task GetLinksFileMetadata {
     Array[File] analysis_process_path
     Array[File] analysis_protocol_path
     String file_name_string
-    Boolean? project_level
+    Boolean project_level
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest" #remember to change back to quay?
     Int cpu = 1
