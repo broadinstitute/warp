@@ -4,7 +4,6 @@ task CalculateChromosomeLength {
   input {
     File ref_dict
     Int chrom
-    String gatk_docker
   }
 
   Int disk_size = ceil(2*size(ref_dict, "GiB")) + 5
@@ -498,7 +497,6 @@ task MergeImputationQCMetrics {
 task SetIDs {
   input {
     File vcf
-    File vcfIndex
     String output_basename
     String bcftools_docker
   }

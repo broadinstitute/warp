@@ -22,7 +22,7 @@ workflow ImputationPipeline {
     Array[File]? single_sample_vcfs
     Array[File]? single_sample_vcf_indices
 
-    Boolean perform_extra_qc_steps # these are optional additional extra QC steps from Amit's group that should only be
+    Boolean perform_extra_qc_steps = false # these are optional additional extra QC steps from Amit's group that should only be
     # run for large sample sets, especially a diverse set of samples (it's further limiting called at sites to 95% and by HWE)
     Float? optional_qc_max_missing
     Float? optional_qc_hwe
@@ -77,7 +77,6 @@ workflow ImputationPipeline {
   call tasks.SetIDs as SetIdsVcfToImpute{
     input:
       vcf = vcf_to_impute,
-      vcfIndex = vcf_index_to_impute,
       output_basename = "input_samples_with_variant_ids",
       bcftools_docker = bcftools_docker_tag
   }
