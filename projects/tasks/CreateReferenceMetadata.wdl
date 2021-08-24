@@ -19,7 +19,8 @@ workflow CreateReferenceMetadata {
   call Tasks.CheckInput as CheckReferences {
     input:
       input_array = reference_fastas,
-      input_type = "reference"
+      input_type = "reference",
+      illegal_characters = "; ="
   }
 
   call Tasks.GetReferenceDetails {
