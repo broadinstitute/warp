@@ -51,7 +51,9 @@ workflow CreateOptimusAdapterObjects {
       input_uuid = input_id,
       pipeline_type = pipeline_type,
       version_timestamp = version_timestamp,
-      input_file = GetCromwellMetadata.metadata
+      input_file = GetCromwellMetadata.metadata,
+      project_level = is_project_level,
+      project_loom = loom
   }
 
   call Tasks.GetAnalysisProcessMetadata {
@@ -60,6 +62,7 @@ workflow CreateOptimusAdapterObjects {
       pipeline_type = pipeline_type,
       version_timestamp = version_timestamp,
       references = select_first([ParseCromwellMetadata.ref_fasta,reference_file_fasta]),
+      project_level = is_project_level,
       input_file = GetCromwellMetadata.metadata
   }
 
@@ -68,6 +71,7 @@ workflow CreateOptimusAdapterObjects {
       input_uuid = input_id,
       pipeline_type = pipeline_type,
       version_timestamp = version_timestamp,
+      project_level = is_project_level,
       pipeline_version = select_first([ParseCromwellMetadata.pipeline_version,pipeline_version])
   }
 
@@ -111,6 +115,7 @@ workflow CreateOptimusAdapterObjects {
       version_timestamp = version_timestamp,
       analysis_process_path = GetAnalysisProcessMetadata.analysis_process_outputs,
       analysis_protocol_path = GetAnalysisProtocolMetadata.analysis_protocol_outputs,
+      project_level = is_project_level,
       file_name_string = input_id
   }
 

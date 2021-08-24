@@ -169,21 +169,33 @@ task GetAnalysisFileMetadata {
     String version_timestamp
     File input_file
     Boolean? project_level
+    File? project_loom 
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
   }
-
+  
   command {
-    create-analysis-file \
+    if ~{project_level}
+    then
+      create-analysis-file \
+      --input_uuid "~{input_uuid}" \
+      --pipeline_type "~{pipeline_type}" \
+      --workspace_version "~{version_timestamp}" \
+      --input_file "~{project_loom}" \
+      ~{true="--project_level " false="--project_level " project_level}
+    else
+      create-analysis-file \
       --input_uuid "~{input_uuid}" \
       --pipeline_type "~{pipeline_type}" \
       --workspace_version "~{version_timestamp}" \
       --input_file "~{input_file}" \
       ~{true="--project_level " false="--project_level " project_level}
+    fi
   }
+
   runtime {
     docker: docker
     cpu: cpu
