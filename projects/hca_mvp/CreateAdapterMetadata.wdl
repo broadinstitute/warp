@@ -109,7 +109,7 @@ workflow CreateAdapterMetadata {
     }
     call CreateReferenceMetadata.CreateReferenceMetadata as CreateReferenceMetadata {
       input:
-        reference_fastas = flatten(CreateIntermediateOptimusScatterWrapper.reference_fasta),
+        reference_fastas = CreateIntermediateOptimusScatterWrapper.reference_fasta,
         species = species,
         pipeline_type = 'Optimus',
         version_timestamp = version_timestamp,
