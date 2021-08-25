@@ -42,7 +42,7 @@ task zCall {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/zcall:4.0.1-1.3-1625831535"
+    docker: "us.gcr.io/broad-gotc-prod/zcall:4.0.1-1.3-1629905653"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -542,7 +542,7 @@ task AutoCall {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/illumina-iaap-autocall:1.0.2-1.1.0-1626361770"
+    docker: "us.gcr.io/broad-gotc-prod/illumina-iaap-autocall:1.0.2-1.1.0-1629905564"
     disks: "local-disk " + disk_size + " HDD"
     memory: "7 GiB"
     preemptible: preemptible_tries

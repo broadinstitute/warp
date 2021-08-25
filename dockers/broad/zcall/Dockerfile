@@ -14,6 +14,8 @@ WORKDIR /usr/gitc
 
 # Install dependencies
 RUN set eux; \
+        apk update \
+            upgrade; \
         apk add --no-cache \
             bash \
             curl  \

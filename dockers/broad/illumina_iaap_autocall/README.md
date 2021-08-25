@@ -4,7 +4,7 @@
 
 Copy and paste to pull this image
 
-#### `docker pull us.gcr.io/broad-gotc-prod/illumina-iaap-autocall:1.0.2-1.1.0-1626361770`
+#### `docker pull us.gcr.io/broad-gotc-prod/illumina-iaap-autocall:1.0.2-1.1.0-1629905564`
 
 - __What is this image:__ This image is a lightweight alpine-based image for running the Illumina Iaap CLI.
 - __What is the Illumina IAAP CLI:__ Illumina Iaap CLI is a tool for reporting genotype calls and sample-level quality metrics in various formats (Illumina GTC and PED files). See [here](https://emea.support.illumina.com/downloads/iaap-genotyping-cli.html) more information.
@@ -21,8 +21,8 @@ We keep track of all past versions in [docker_versions](docker_versions.tsv) wit
 You can see more information about the image, including the tool versions, by running the following command:
 
 ```bash
-$ docker pull us.gcr.io/broad-gotc-prod/illumina-iaap-autocall:1.0.2-1.1.0-1626361770
-$ docker inspect us.gcr.io/broad-gotc-prod/illumina-iaap-autocall:1.0.2-1.1.0-1626361770
+$ docker pull us.gcr.io/broad-gotc-prod/illumina-iaap-autocall:1.0.2-1.1.0-1629905564
+$ docker inspect us.gcr.io/broad-gotc-prod/illumina-iaap-autocall:1.0.2-1.1.0-1629905564
 ```
 
 ## Usage
@@ -30,6 +30,6 @@ $ docker inspect us.gcr.io/broad-gotc-prod/illumina-iaap-autocall:1.0.2-1.1.0-16
 ```bash
 $ docker run --rm -it \
     -v /illumina-files:/illumina-files \
-    us.gcr.io/broad-gotc-prod/illumina-iaap-autocall:1.0.2-1.1.0-1626361770 /usr/gitc/iaap/iaap-cli/iaap-cli \
+    us.gcr.io/broad-gotc-prod/illumina-iaap-autocall:1.0.2-1.1.0-1629905564 /usr/gitc/iaap/iaap-cli/iaap-cli \
     gencall /illumina-files/bead_pool_manifest_file /illumina-files/cluster_file .
 ```
