@@ -50,7 +50,7 @@ workflow CreateIntermediateObject {
     Array[String] reference_fasta = CreateIntermediateOptimusAdapters.reference_fasta
     Array[String] pipeline_version_string = CreateIntermediateOptimusAdapters.pipeline_version_string
     Array[Array[File]] analysis_file_outputs = CreateIntermediateOptimusAdapters.analysis_file_outputs
-    Array[Array[File]] analysis_process_ouputs = CreateIntermediateOptimusAdapters.analysis_process_outputs
+    Array[Array[File]] analysis_process_outputs = CreateIntermediateOptimusAdapters.analysis_process_outputs
     Array[Array[File]] analysis_protocol_outputs = CreateIntermediateOptimusAdapters.analysis_protocol_outputs
     Array[Array[File]] links_outputs = CreateIntermediateOptimusAdapters.links_outputs
     Array[Array[File]] loom_file_descriptor_outputs = CreateIntermediateOptimusAdapters.loom_file_descriptor_outputs

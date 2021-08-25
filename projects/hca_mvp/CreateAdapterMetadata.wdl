@@ -109,7 +109,7 @@ workflow CreateAdapterMetadata {
     }
     call CreateReferenceMetadata.CreateReferenceMetadata as CreateReferenceMetadata {
       input:
-        reference_fastas = [CreateIntermediateOptimusScatterWrapper.reference_fasta,
+        reference_fastas = [CreateIntermediateOptimusScatterWrapper.reference_fasta],
         species = species,
         pipeline_type = 'Optimus',
         version_timestamp = version_timestamp,
@@ -146,8 +146,8 @@ workflow CreateAdapterMetadata {
         version_timestamp = version_timestamp,
         cromwell_url = cromwell_url,
         is_project_level = true,
-        reference_file_fasta = CreateIntermediateOptimusScatterWrapper.reference_fasta,
-        pipeline_version = CreateIntermediateOptimusScatterWrapper.pipeline_version_string
+        reference_file_fasta = CreateIntermediateOptimusScatterWrapper.reference_fasta[0],
+        pipeline_version = CreateIntermediateOptimusScatterWrapper.pipeline_version_string[0]
     }
   }
 
