@@ -1,8 +1,8 @@
-
 # 2.4.0
-2021-08-05
+2021-08-25
 
 * Enable pipeline to (optionally) pull and push fingerprints from/to the Mercury Fingerprint Store
+* Updated arrays-picard-private docker image to address critical vulnerability
 
 # 2.3.6
 2021-08-02

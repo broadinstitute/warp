@@ -1,8 +1,9 @@
 # 1.13.2
-2021-08-10
+2021-08-25
 
 * Updated GtcToVcf task in IlluminaGenotypingArrayTasks to escape fingerprint file names.
 * Updated Illumina IAAP Autocall to alpine base image
+* Updated Illumina IAAP Autocall docker image to address critical vulnerability
 
 # 1.13.1
 2021-07-23
