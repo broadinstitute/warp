@@ -49,7 +49,7 @@ task CheckInput {
     disks: "local-disk ~{disk} HDD"
   }
   output {
-    String output_string = read_string("output.txt")
+    File output_string = "output.txt"
   }
 }
 
