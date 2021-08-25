@@ -1,6 +1,7 @@
 version 1.0
 
 import "../verification/VerifyTasks.wdl" as Tasks
+import "../verification/VerifyMetrics.wdl" as MetricsVerification
 
 ## Copyright Broad Institute, 2018
 ##
@@ -61,6 +62,30 @@ workflow VerifyValidateChip {
       file1=truth_indel_genotype_concordance_vcf,
       file2=test_indel_genotype_concordance_vcf
   }
+
+  call MetricsVerification.CompareTwoNumbers {
+    input:
+      num1 = length(test_metrics),
+      num2 = length(truth_metrics),
+      error_msg = "Different number of metric files"
+  }
+
+  String avcdm_ext = "arrays_variant_calling_detail_metrics"
+
+  scatter (idx in range(length(truth_metrics))) {
+    String metrics_basename = basename(truth_metrics[idx])
+    Boolean is_avcdm_file = basename(metrics_basename, avcdm_ext) != metrics_basename
+    Array[String] metrics_to_ignore = if (is_avcdm_file) then ["AUTOCALL_DATE", "ANALYSIS_VERSION", "PIPELINE_VERSION"] else []
+    call MetricsVerification.CompareMetricFiles {
+      input:
+        dependency_input = CompareTwoNumbers.output_file,
+        file1 = test_metrics[idx],
+        file2 = truth_metrics[idx],
+        output_file = "metric_~{idx}.txt",
+        metrics_to_ignore = metrics_to_ignore
+    }
+  }
+
   meta {
     allowNestedInputs: true
   }
