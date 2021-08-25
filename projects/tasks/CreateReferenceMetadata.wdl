@@ -62,7 +62,7 @@ workflow CreateReferenceMetadata {
     Array[File] reference_file_descriptor_outputs = CreateReferenceFileDescriptor.file_descriptor_outputs
     String reference_file_uuid = GetReferenceFileMetadata.reference_file_uuid
     Array[File] reference_metadata_outputs = GetReferenceFileMetadata.reference_metadata_outputs
-    File reference_fasta = CheckReferences.output_string
+    String reference_fasta = CheckReferences.output_string
   }
 }
 
