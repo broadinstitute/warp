@@ -12,7 +12,8 @@ The Optimus Pipeline outputs a barcoded BAM file of aligned reads. There are mul
 | CB | Chromium cellular barcode sequence that is error-corrected and confirmed against a list of known-good barcode sequences | [10X Genomics](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/output/bam) |
 | CR | Chromium cellular barcode sequence as reported by the sequencer | [10X Genomics](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/output/bam) |
 | CY | Chromium cellular barcode read quality. Phred scores as reported by sequencer | [10X Genomics](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/output/bam) |
-| GE | Gene exon | [Drop-seq Tools](https://github.com/broadinstitute/Drop-seq) |
+| GX | Gene ID | [STAR aligner](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md) |
+| GN | Gene names | [STAR aligner](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md) |
 | GS | Reserved for backwards compatibility reasons | [SAM](https://samtools.github.io/hts-specs/SAMtags.pdf) |
 | HI | Query hit index | [SAM](https://samtools.github.io/hts-specs/SAMtags.pdf) |
 | MD | String for mismatching indexes | [SAM](https://samtools.github.io/hts-specs/SAMtags.pdf) |
