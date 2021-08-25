@@ -305,7 +305,7 @@ task GetLinksFileMetadata {
   command {
     create-links \
     --project_id "~{project_id}" \
-    --input_uuids "~{sep=' ' process_input_ids}" \
+    --input_uuids ~{sep=' ' process_input_ids} \
     --output_file_path "~{output_file_path}" \
     --workspace_version "~{version_timestamp}" \
     --analysis_process_path "~{sep=' ' analysis_process_path}" \
@@ -342,13 +342,13 @@ task GetFileDescriptor {
 
   command
   <<<
-      export sha=$(sha256sum ~{file_path} | cut -f1 -d ' ')
-      export crc=$(gsutil hash -h ~{file_path_string} | awk '/crc32c/ { print $3 }')
+      export sha256=$(sha256sum ~{file_path_string} | cut -f1 -d ' ')
+      export crc32c=$(gsutil hash -h ~{file_path_string} | awk '/crc32c/ { print $3 }')
       export size=$(gsutil stat ~{file_path_string} | awk '/Content-Length/ { print $2 }')
 
     create-file-descriptor \
     --size "$size" \
-    --sha256 "$sha256" \
+    --sha256 "$sha25" \
     --crc32c "$crc32c" \
     --pipeline_type "~{pipeline_type}" \
     --file_path "~{file_path}" \
