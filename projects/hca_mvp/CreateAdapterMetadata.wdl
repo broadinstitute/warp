@@ -4,6 +4,7 @@ import "../../projects/tasks/CreateOptimusAdapterObjects.wdl" as CreateOptimusOb
 import "../../projects/tasks/MergeOptimusLooms.wdl" as MergeLooms
 import "../../projects/tasks/AdapterTasks.wdl" as Tasks
 import "../../projects/tasks/CreateReferenceMetadata.wdl" as CreateReferenceMetadata
+import "../../projects/tasks/CreateIntermediateObject.wdl" as CreateIntermediateObject
 
 
 workflow CreateAdapterMetadata {
@@ -89,32 +90,26 @@ workflow CreateAdapterMetadata {
   String staging_bucket = staging_area + project_id + "/staging/"
   String project_stratum_string = "project=" + project_id + ";library=" + library + ";species=" + species + ";organ=" + organ
 
-  if (false) {
-    String none = "None"
-  }
   ########################## Get Optimus Metadata Files ##########################
   if (GetPipelineType.output_string == "Optimus") {
-    scatter (idx in range(length(output_looms))) {
-      String? fastq_i1_uuid = if defined(fastq_i1_uuids) then select_first([fastq_i1_uuids])[idx] else none
-      call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateIntermediateOptimusAdapters {
-        input:
-          bam = output_bams[idx],
-          loom = output_looms[idx],
-          input_id = input_ids[idx],
-          process_input_ids = select_all([fastq_1_uuids[idx],fastq_2_uuids[idx], fastq_i1_uuid]),
-          library = library,
-          species = species,
-          organ = organ,
-          project_id = project_id,
-          project_name = project_name,
-          version_timestamp = version_timestamp,
-          cromwell_url = cromwell_url,
-          is_project_level = false
-      }
+    call CreateIntermediateObject.CreateIntermediateObject as CreateIntermediateOptimusScatterWrapper{
+      input:
+        output_bams = output_bams,
+        output_looms = output_looms,
+        input_ids = input_ids,
+        output_bais = output_bais,
+        fastq_1_uuids = fastq_1_uuids,
+        fastq_2_uuids = fastq_2_uuids,
+        fastq_i1_uuids = fastq_i1_uuids,
+        library = library,
+        organ = organ,
+        species = species,
+        project_id = project_id,
+        project_name = project_name
     }
     call CreateReferenceMetadata.CreateReferenceMetadata as CreateReferenceMetadata {
       input:
-        reference_fastas = CreateIntermediateOptimusAdapters.reference_fasta,
+        reference_fastas = [CreateIntermediateOptimusScatterWrapper.reference_fasta,
         species = species,
         pipeline_type = 'Optimus',
         version_timestamp = version_timestamp,
@@ -134,10 +129,8 @@ workflow CreateAdapterMetadata {
 
     call Tasks.GetProjectLevelInputIds {
       input:
-        intermediate_analysis_files = flatten(CreateIntermediateOptimusAdapters.analysis_file_outputs)
+        intermediate_analysis_files = flatten(CreateIntermediateOptimusScatterWrapper.analysis_file_outputs)
     }
-
-    # TODO: change the way the links file uses the project level input ids (need to accept strings instead of jsons)
 
     call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateProjectOptimusAdapters {
       input:
@@ -153,8 +146,8 @@ workflow CreateAdapterMetadata {
         version_timestamp = version_timestamp,
         cromwell_url = cromwell_url,
         is_project_level = true,
-        reference_file_fasta = CreateIntermediateOptimusAdapters.reference_fasta[0],
-        pipeline_version = CreateIntermediateOptimusAdapters.pipeline_version_string[0]
+        reference_file_fasta = CreateIntermediateOptimusScatterWrapper.reference_fasta,
+        pipeline_version = CreateIntermediateOptimusScatterWrapper.pipeline_version_string
     }
   }
 
@@ -167,12 +160,12 @@ workflow CreateAdapterMetadata {
   #}
 
   ########################## Copy Files to Staging Bucket ##########################
-    Array[File] links_objects = flatten(select_all([CreateIntermediateOptimusAdapters.links_outputs, CreateProjectOptimusAdapters.links_outputs]))
-    Array[File] analysis_file_descriptor_objects = flatten(select_all([select_all([CreateIntermediateOptimusAdapters.loom_file_descriptor_outputs, CreateIntermediateOptimusAdapters.bam_file_descriptor_outputs]), CreateProjectOptimusAdapters.loom_file_descriptor_outputs]))
-    #Array[File] analysis_file_descriptor_objects = flatten([CreateIntermediateOptimusAdapters.loom_file_descriptor_outputs, select_all([CreateIntermediateOptimusAdapters.bam_file_descriptor_outputs]), CreateProjectOptimusAdapters.loom_file_descriptor_outputs])
-    Array[File] analysis_file_metadata_objects = flatten(select_all([CreateIntermediateOptimusAdapters.analysis_file_outputs, CreateProjectOptimusAdapters.analysis_file_outputs]))
-    Array[File] analysis_process_objects = flatten(select_all([CreateIntermediateOptimusAdapters.analysis_process_outputs, CreateProjectOptimusAdapters.analysis_process_outputs]))
-    Array[File] analysis_protocol_objects = flatten(select_all([CreateIntermediateOptimusAdapters.analysis_protocol_outputs, CreateProjectOptimusAdapters.analysis_protocol_outputs]))
+    Array[File] links_objects = flatten(select_all([CreateIntermediateOptimusScatterWrapper.links_outputs, CreateProjectOptimusAdapters.links_outputs]))
+    Array[File] analysis_file_descriptor_objects = flatten(select_all([select_all([CreateIntermediateOptimusScatterWrapper.loom_file_descriptor_outputs, CreateIntermediateOptimusScatterWrapper.bam_file_descriptor_outputs]), CreateProjectOptimusAdapters.loom_file_descriptor_outputs]))
+    #Array[File] analysis_file_descriptor_objects = flatten([CreateIntermediateOptimusScatterWrapper.loom_file_descriptor_outputs, select_all([CreateIntermediateOptimusScatterWrapper.bam_file_descriptor_outputs]), CreateProjectOptimusAdapters.loom_file_descriptor_outputs])
+    Array[File] analysis_file_metadata_objects = flatten(select_all([CreateIntermediateOptimusScatterWrapper.analysis_file_outputs, CreateProjectOptimusAdapters.analysis_file_outputs]))
+    Array[File] analysis_process_objects = flatten(select_all([CreateIntermediateOptimusScatterWrapper.analysis_process_outputs, CreateProjectOptimusAdapters.analysis_process_outputs]))
+    Array[File] analysis_protocol_objects = flatten(select_all([CreateIntermediateOptimusScatterWrapper.analysis_protocol_outputs, CreateProjectOptimusAdapters.analysis_protocol_outputs]))
     Array[File] reference_metadata_objects = select_first([CreateReferenceMetadata.reference_metadata_outputs])
     Array[File] reference_file_descriptor_objects = select_first([CreateReferenceMetadata.reference_file_descriptor_outputs])
     Array[File] data_objects = flatten([select_all([output_bams, output_looms, CreateReferenceMetadata.reference_fasta, MergeLooms.project_loom])])
