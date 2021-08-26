@@ -161,40 +161,40 @@ workflow CreateAdapterMetadata {
   #      # Fill in input for subworkflow
   #  }
   #}
-
+    
   ########################## Copy Files to Staging Bucket ##########################
-    Array[File] links_objects = flatten(select_all([flatten(CreateIntermediateOptimusScatterWrapper.links_outputs), CreateProjectOptimusAdapters.links_outputs]))
-    Array[File] analysis_file_descriptor_objects = flatten(select_all([flatten(CreateIntermediateOptimusScatterWrapper.loom_file_descriptor_outputs), flatten(CreateIntermediateOptimusScatterWrapper.bam_file_descriptor_outputs), CreateProjectOptimusAdapters.loom_file_descriptor_outputs]))
-    Array[File] analysis_file_metadata_objects = flatten(select_all([flatten(CreateIntermediateOptimusScatterWrapper.analysis_file_outputs), CreateProjectOptimusAdapters.analysis_file_outputs]))
-    Array[File] analysis_process_objects = flatten(select_all([flatten(CreateIntermediateOptimusScatterWrapper.analysis_process_outputs), CreateProjectOptimusAdapters.analysis_process_outputs]))
-    Array[File] analysis_protocol_objects = flatten(select_all([flatten(CreateIntermediateOptimusScatterWrapper.analysis_protocol_outputs), CreateProjectOptimusAdapters.analysis_protocol_outputs]))
-    Array[File] reference_metadata_objects = select_first([CreateReferenceMetadata.reference_metadata_outputs])
-    Array[File] reference_file_descriptor_objects = select_first([CreateReferenceMetadata.reference_file_descriptor_outputs])
-    Array[File] data_objects = flatten([select_all([output_bams, output_looms, [CreateReferenceMetadata.reference_fasta], [MergeLooms.project_loom]])])
+    Array[File] links_objects = flatten(CreateIntermediateOptimusScatterWrapper.links_outputs)
+    #Array[File] analysis_file_descriptor_objects = flatten(select_all([flatten(CreateIntermediateOptimusScatterWrapper.loom_file_descriptor_outputs), flatten(CreateIntermediateOptimusScatterWrapper.bam_file_descriptor_outputs), CreateProjectOptimusAdapters.loom_file_descriptor_outputs]))
+    #Array[File] analysis_file_metadata_objects = flatten(select_all([flatten(CreateIntermediateOptimusScatterWrapper.analysis_file_outputs), CreateProjectOptimusAdapters.analysis_file_outputs]))
+    #Array[File] analysis_process_objects = flatten(select_all([flatten(CreateIntermediateOptimusScatterWrapper.analysis_process_outputs), CreateProjectOptimusAdapters.analysis_process_outputs]))
+    #Array[File] analysis_protocol_objects = flatten(select_all([flatten(CreateIntermediateOptimusScatterWrapper.analysis_protocol_outputs), CreateProjectOptimusAdapters.analysis_protocol_outputs]))
+    #Array[File] reference_metadata_objects = select_first([CreateReferenceMetadata.reference_metadata_outputs])
+    #Array[File] reference_file_descriptor_objects = select_first([CreateReferenceMetadata.reference_file_descriptor_outputs])
+    #Array[File] data_objects = flatten([select_all([output_bams, output_looms, [CreateReferenceMetadata.reference_fasta], [MergeLooms.project_loom]])])
 
-    call Tasks.CopyToStagingBucket {
-      input:
-        staging_bucket = staging_bucket,
-        links_objects = links_objects,
-        analysis_file_descriptor_objects = analysis_file_descriptor_objects,
-        analysis_file_metadata_objects = analysis_file_metadata_objects,
-        analysis_process_objects = analysis_process_objects,
-        analysis_protocol_objects = analysis_protocol_objects,
-        reference_metadata_objects = reference_metadata_objects,
-        reference_file_descriptor_objects = reference_file_descriptor_objects,
-        data_objects = data_objects
-      }
+    #call Tasks.CopyToStagingBucket {
+    #  input:
+    #    staging_bucket = staging_bucket,
+    #    links_objects = links_objects,
+    #    analysis_file_descriptor_objects = analysis_file_descriptor_objects,
+    #    analysis_file_metadata_objects = analysis_file_metadata_objects,
+    #    analysis_process_objects = analysis_process_objects,
+    #    analysis_protocol_objects = analysis_protocol_objects,
+    #    reference_metadata_objects = reference_metadata_objects,
+    #    reference_file_descriptor_objects = reference_file_descriptor_objects,
+    #    data_objects = data_objects
+    #  }
 
 
   output {
     Array[File] output_links_objects = links_objects
-    Array[File] output_analysis_file_descriptor_objects = analysis_file_descriptor_objects
-    Array[File] output_analysis_file_metadata_objects = analysis_file_metadata_objects
-    Array[File] output_analysis_process_objects = analysis_process_objects
-    Array[File] output_analysis_protocol_objects = analysis_protocol_objects
-    Array[File] output_reference_metadata_objects = reference_metadata_objects
-    Array[File] output_reference_file_descriptor_objects = reference_file_descriptor_objects
-    Array[File] output_data_objects = data_objects
+    #Array[File] output_analysis_file_descriptor_objects = analysis_file_descriptor_objects
+    #Array[File] output_analysis_file_metadata_objects = analysis_file_metadata_objects
+    #Array[File] output_analysis_process_objects = analysis_process_objects
+    #Array[File] output_analysis_protocol_objects = analysis_protocol_objects
+    #Array[File] output_reference_metadata_objects = reference_metadata_objects
+    #Array[File] output_reference_file_descriptor_objects = reference_file_descriptor_objects
+    #Array[File] output_data_objects = data_objects
   }
 }
 
