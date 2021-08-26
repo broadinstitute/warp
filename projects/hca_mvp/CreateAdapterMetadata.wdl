@@ -67,7 +67,7 @@ workflow CreateAdapterMetadata {
       illegal_characters = "; ="
   }
 
-    call Tasks.CheckInput as CheckProjectName {
+  call Tasks.CheckInput as CheckProjectName {
     input:
       input_array = all_project_names,
       input_type = "project_name",
@@ -112,6 +112,7 @@ workflow CreateAdapterMetadata {
           is_project_level = false
       }
     }
+
     call CreateReferenceMetadata.CreateReferenceMetadata as CreateReferenceMetadata {
       input:
         reference_fastas = CreateIntermediateOptimusAdapters.reference_fasta,
@@ -120,6 +121,7 @@ workflow CreateAdapterMetadata {
         version_timestamp = version_timestamp,
         input_type = "reference"
     }
+
     call MergeLooms.MergeOptimusLooms as MergeLooms {
       input:
         output_looms = output_looms,
@@ -130,7 +132,6 @@ workflow CreateAdapterMetadata {
         project_name = project_name,
         output_basename = output_basename
     }
-
 
     call Tasks.GetProjectLevelInputIds {
       input:
@@ -175,8 +176,7 @@ workflow CreateAdapterMetadata {
     Array[File] analysis_protocol_objects = flatten(select_all([CreateIntermediateOptimusAdapters.analysis_protocol_outputs, CreateProjectOptimusAdapters.analysis_protocol_outputs]))
     Array[File] reference_metadata_objects = select_first([CreateReferenceMetadata.reference_metadata_outputs])
     Array[File] reference_file_descriptor_objects = select_first([CreateReferenceMetadata.reference_file_descriptor_outputs])
-    File? reference_fasta_file = CreateReferenceMetadata.reference_fasta
-    Array[File] data_objects = flatten([select_all([output_bams, output_looms, reference_fasta_file, MergeLooms.project_loom])])
+    Array[File] data_objects = flatten([select_all([output_bams, output_looms, CreateReferenceMetadata.reference_fasta, MergeLooms.project_loom])])
 
     call Tasks.CopyToStagingBucket {
       input:
@@ -189,7 +189,7 @@ workflow CreateAdapterMetadata {
         reference_metadata_objects = reference_metadata_objects,
         reference_file_descriptor_objects = reference_file_descriptor_objects,
         data_objects = data_objects
-      }
+    }
 
 
   output {
