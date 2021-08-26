@@ -29,7 +29,7 @@ For examples of how to specify each input in a configuration file, as well as cl
 | Input name | Description | Type |
 | --- | --- | --- |
 | ChunkLength | Size of chunks; default set to 25 MB. | Int |
-| chunkOverlaps | Padding adding to the beginning and end of each chunk to reduce edge effects; default set 5 MB. |  
+| chunkOverlaps | Padding adding to the beginning and end of each chunk to reduce edge effects; default set 5 MB. |  Int |
 | multi_sample_vcf | Merged VCF containing multiple samples; can also use an array of individual VCFs.  | File |
 | multi_sample_vcf_index | Merged index for the merged VCF; can also use an array of index files if using an array of VCFs. | Index |
 | single_sample_vcfs | Array of VCFs, one for each sample; can be used in lieu of a merged VCF containing all samples. | Array of files |
@@ -69,12 +69,12 @@ The [Imputation workflow](https://github.com/broadinstitute/warp/blob/master/pip
 | ExtractIDs (ExtractIdsVcfToImpute) | query | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Extracts the variant IDs from the SortIDs output VCF to a new “.ids” file so that any missing variants can be added back to the final VCF after imputation. |
 | CountSamples | query | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Uses the merged input VCF file to count the number of samples and output a TXT file containing the count. |
 | CalculateChromsomeLength | grep | bash | Reads chromosome lengths from the reference dictionary and uses these to generate chunk intervals for the GenerateChunk task. | 
-| GenerateChunk | SelectVariants;  | GATK | Performs site filtering by selecting SNPs only and excluding InDels, removing duplicate sites from the VCF, selecting biallelic variants, excluding symbolic/mixed variants, and removing sites with a maximum fraction of samples with no-call genotypes greater than 0.1. Also subsets to only a specified chunk of the genome.|
+| GenerateChunk | SelectVariants  | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Performs site filtering by selecting SNPs only and excluding InDels, removing duplicate sites from the VCF, selecting biallelic variants, excluding symbolic/mixed variants, and removing sites with a maximum fraction of samples with no-call genotypes greater than 0.1. Also subsets to only a specified chunk of the genome.|
 | OptionalQCSites | --- | [vcftools](http://vcftools.sourceforge.net/), [bcftools](http://samtools.github.io/bcftools/bcftools.html) | If the boolean extra_qc_steps is true, performs additional QC steps; excludes sites with more than 95% missing data and assesses sites for Hardy Weinberg Equilibrium, excluding any site with a p-value less than 0.000001.| 
-| CountVariantsInChunks | CountVariants | GATK | Counts variants in the filtered VCF file; Returns the number of chunks in the array and in the reference file.  | 
+| CountVariantsInChunks | CountVariants | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Counts variants in the filtered VCF file; Returns the number of chunks in the array and in the reference file.  | 
 | CheckChunks | ---  | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Confirms that there are no chunks where less than 3 sites or less than 50% of the sites in the array are also in the reference panel; if valid, creates a new VCF output. |
 | PhaseVariantsEagle | --- | [Eagle2](https://alkesgroup.broadinstitute.org/Eagle/Eagle_manual.html) | Performs phasing on the filtered, validated VCF using the phased reference panel; allows for REF/ALT swaps |
-| Minimac4 | --- | [minimac4](https://genome.sph.umich.edu/wiki/Minimac4_Documentation), bcftools | Performs imputation on the prephased VCF; parameterized to include variants that were genotyped but NOT in the reference panel and to specify a minRatio of 0.00001. |
+| Minimac4 | --- | [minimac4](https://genome.sph.umich.edu/wiki/Minimac4_Documentation), [bcftools]([bcftools](http://samtools.github.io/bcftools/bcftools.html)) | Performs imputation on the prephased VCF; parameterized to include variants that were genotyped but NOT in the reference panel and to specify a minRatio of 0.00001. |
 | AggregateImputationQCMetrics | --- | R | Uses an R script to take calculate metrics from minimac4 output info file, including total sites, total sites with variants, and sites with an [R2 metric](https://genome.sph.umich.edu/wiki/Minimac3_Info_File) of 0.3 (total_sites_r2_gt_0.3); adds the metrics to a new TSV output. |
 | UpdateHeader | UpdateVCFSequenceDictionary | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Updates the header of the imputed VCF; adds contig lengths |
 | SeparateMultiallelics | norm | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Splits multiallelic sites in the imputed VCF into biallelic records. |
@@ -88,7 +88,7 @@ The [Imputation workflow](https://github.com/broadinstitute/warp/blob/master/pip
 | InterleaveVariants | MergeVCFs | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Combines the missing variants from the original VCF and the imputed variants into a new VCF. | 
 | MergeImputationQCMetrics | --- | R | Uses an R script to calculate the fraction of well-imputed sites and outputs them to a TXT file; the fraction of "well-imputed" sites is based on the minimac reported R2 metric, with R2>0.3 being "well-imputed." Since homomorphic sites lead to an R2 value of 0, we report the fraction of sites with any variation which are well-imputed in addition to the fraction of total sites. |
 | StoreChunksInfo | --- | R | Uses an R script to record the coordinates of each imputation chunk, number of sites in the original array, and number of sites in the original array which are also in the reference panel, for each imputation chunk. |
-| CrosscheckFingerprints | CrosscheckFingerprints | Picard | Verifies that all the data in a given sample come from the same individual. |
+| CrosscheckFingerprints | CrosscheckFingerprints | [Picard](https://broadinstitute.github.io/picard/) | Verifies that all the data in a given sample come from the same individual. |
 | SplitMultiSampleVcf | split | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | If boolean is set to true, will split the interleave variants VCF into single sample VCFs and re-run the CrossCheckFingerprints tasks. | 
  
 ## Workflow outputs
