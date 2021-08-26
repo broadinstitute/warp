@@ -40,9 +40,9 @@ def create_output_files(input_file,output_prefix):
         r2_values = r2_fastq_uuid.iloc[i].values
         i1_values = i1_fastq_uuid.iloc[i].values
 
-        r1_fastq_uuid_array.append("; ".join([value for value in r1_values]))
-        r2_fastq_uuid_array.append("; ".join([value for value in r2_values]))
-        i1_fastq_uuid_array.append("; ".join([value for value in i1_values]))
+        r1_fastq_uuid_array.append(" ".join([value for value in r1_values]))
+        r2_fastq_uuid_array.append(" ".join([value for value in r2_values]))
+        i1_fastq_uuid_array.append(" ".join([value for value in i1_values]))
 
     # TBD: move this to a function and call on each row of df change. Note: change index 0 to get other participants
     # for each fastq read, create a lane
