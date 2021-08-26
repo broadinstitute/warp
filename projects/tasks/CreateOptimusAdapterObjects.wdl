@@ -90,6 +90,7 @@ workflow CreateOptimusAdapterObjects {
       file_path_string = loom
   }
 
+  # Bam file is not defined for project level run
   if (defined(bam)){
     call Tasks.GetCloudFileCreationDate  as GetBamFileCreationDate {
       input:
@@ -107,10 +108,12 @@ workflow CreateOptimusAdapterObjects {
     }
   }
 
+  # Intermediate level links uses fastq ids for process_input_id
+  # Project level links uses all intermediate run loom file ids 
   call Tasks.GetLinksFileMetadata {
     input:
       project_id = project_id,
-      process_input_ids = process_input_ids, # for intermediate level use fastq_uuids from Terra, for project level use output_ids from intermediate files
+      process_input_ids = process_input_ids, 
       output_file_path = GetAnalysisFileMetadata.outputs_json,
       version_timestamp = version_timestamp,
       analysis_process_path = GetAnalysisProcessMetadata.analysis_process_outputs,

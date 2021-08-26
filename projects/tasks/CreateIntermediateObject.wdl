@@ -1,5 +1,9 @@
 version 1.0
 
+# This workflow functions as a wrapper around the scatter call to CreateIntermediateOptimusAdapters
+# As files are created in each iteration (each individual run of Optimus) we have to gather them all and export
+# See the 'scatter-gather' pattern here https://github.com/openwdl/wdl/blob/main/versions/development/SPEC.md#advanced-wdl-features
+
 import "../../projects/tasks/CreateOptimusAdapterObjects.wdl" as CreateOptimusObjects
 
 workflow CreateIntermediateObject {
@@ -7,7 +11,7 @@ workflow CreateIntermediateObject {
     Array[File] output_bams
     Array[File] output_looms
     Array[File]? output_bais
-    Array[String] input_ids #sequencing_process_provenance_document_id
+    Array[String] input_ids 
     Array[String] fastq_1_uuids
     Array[String] fastq_2_uuids
     Array[String]? fastq_i1_uuids
@@ -20,7 +24,7 @@ workflow CreateIntermediateObject {
 
   
     String cromwell_url = "https://api.firecloud.org/"
-    String version_timestamp = "2021-05-24T12:00:00.000000Z" # TODO should we hard code this?
+    String version_timestamp = "2021-05-24T12:00:00.000000Z" 
   }
 
   if (false) {

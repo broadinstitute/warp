@@ -107,6 +107,7 @@ workflow CreateAdapterMetadata {
         project_id = project_id,
         project_name = project_name
     }
+    # Create the reference metadata and reference descriptor file (this is only done once)
     call CreateReferenceMetadata.CreateReferenceMetadata as CreateReferenceMetadata {
       input:
         reference_fastas = CreateIntermediateOptimusScatterWrapper.reference_fasta,
@@ -115,6 +116,7 @@ workflow CreateAdapterMetadata {
         version_timestamp = version_timestamp,
         input_type = "reference"
     }
+    # Merge all intermediate run looms to a single project level loom
     call MergeLooms.MergeOptimusLooms as MergeLooms {
       input:
         output_looms = output_looms,
@@ -126,12 +128,13 @@ workflow CreateAdapterMetadata {
         output_basename = output_basename
     }
 
-
+    # Get all of the intermediate loom file
     call Tasks.GetProjectLevelInputIds {
       input:
         intermediate_analysis_files = flatten(CreateIntermediateOptimusScatterWrapper.analysis_file_outputs)
     }
 
+    # Create the project level objects based on the intermediate looms and the final merged loom
     call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateProjectOptimusAdapters {
       input:
         loom = MergeLooms.project_loom,
