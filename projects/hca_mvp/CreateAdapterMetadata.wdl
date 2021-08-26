@@ -176,7 +176,7 @@ workflow CreateAdapterMetadata {
     Array[File] reference_metadata_objects = select_first([CreateReferenceMetadata.reference_metadata_outputs])
     Array[File] reference_file_descriptor_objects = select_first([CreateReferenceMetadata.reference_file_descriptor_outputs])
     File? reference_fasta_file = CreateReferenceMetadata.reference_fasta
-    Array[File] data_objects = select_all([output_bams, output_looms, reference_fasta_file, MergeLooms.project_loom])
+    Array[File] data_objects = flatten([select_all([output_bams, output_looms, reference_fasta_file, MergeLooms.project_loom])])
 
     call Tasks.CopyToStagingBucket {
       input:
