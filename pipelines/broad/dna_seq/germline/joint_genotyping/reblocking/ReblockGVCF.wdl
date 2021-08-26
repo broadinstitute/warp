@@ -2,12 +2,17 @@ version 1.0
 
 workflow ReblockGVCF {
 
-  String pipeline_version = "1.1.0"
+  String pipeline_version = "2.0.0"
 
   input {
     File gvcf
     File gvcf_index
-    String docker_image = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
+
+    File ref_fasta
+    File ref_fasta_index
+    File ref_dict
+
+    String docker_image = "us.gcr.io/broad-gatk/gatk:4.2.2.0"
   }
 
   String gvcf_basename = basename(gvcf, ".g.vcf.gz")
@@ -16,7 +21,10 @@ workflow ReblockGVCF {
     input:
       gvcf = gvcf,
       gvcf_index = gvcf_index,
-      output_vcf_filename = gvcf_basename + ".reblocked.g.vcf.gz",
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
+      ref_dict = ref_dict,
+      output_vcf_filename = gvcf_basename + ".rb.g.vcf.gz",
       docker_image = docker_image
   }
 
@@ -34,19 +42,24 @@ task Reblock {
   input {
     File gvcf
     File gvcf_index
+
+    File ref_fasta
+    File ref_fasta_index
+    File ref_dict
+
     String output_vcf_filename
-    String docker_image
+    String docker_image = "us.gcr.io/broad-gatk/gatk:4.2.2.0"
   }
 
-  Int disk_size = ceil(size(gvcf, "GiB")) * 2
+  Int disk_size = ceil(size(gvcf, "GiB")) * 2 + 3
 
   command {
     gatk --java-options "-Xms3g -Xmx3g" \
       ReblockGVCF \
+      -R ~{ref_fasta} \
       -V ~{gvcf} \
-      -drop-low-quals \
       -do-qual-approx \
-      --floor-blocks -GQB 10 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 \
+      --floor-blocks -GQB 20 -GQB 30 -GQB 40 \
       -O ~{output_vcf_filename}
   }
 
