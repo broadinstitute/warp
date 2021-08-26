@@ -132,5 +132,8 @@ $ wreleaser reset # Clears the cache at $HOME/.wreleaser/cache.json
 $ wreleaser reset --cachedir=/path/to/custom # Clears the cache at /path/to/custom
 ```
 
+## :boom: Troubleshooting
+If you have any questions about this tool or need some help configuring it please reach out at [dsde-engineer@broadinstitute.org](dsde-engineer@broadinstitute.org).
+
 
 
