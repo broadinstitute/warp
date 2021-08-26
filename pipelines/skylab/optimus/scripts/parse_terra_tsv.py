@@ -77,17 +77,39 @@ def create_output_files(input_file,output_prefix):
                             lane_i1_fastq_document_id
                             ],
                             axis=1)
+
         lane_df.columns = column_names
         participant_df = participant_df.append(lane_df)
+
+    #lane_fastqr1_uuid = participant_df.groupby(["input_id"], dropna=False)["r1_fastq_uuid"].agg(lambda x: "[%s]" % ', '.join(x))
+    #lane_fastqr2_uuid = participant_df.groupby(["input_id"], dropna=False)["r2_fastq_uuid"].agg(lambda x: "[%s]" % ', '.join(x))
+    #lane_fastqi1_uuid = participant_df.groupby(["input_id"], dropna=False)["i1_fastq_uuid"].agg(lambda x: "[%s]" % ', '.join(x))
+
+    fastqr1_uuid_dict = {}
+    fastqr2_uuid_dict = {}
+    fastqi1_uuid_dict = {}
+
+    for index,row in participant_df.iterrows():
+        fastqr1_uuid_dict[row["input_id"]]
+        print(row["r1_fastq_uuid"], row["r2_fastq_uuid"], row["i1_fastq_uuid"])
+    exit(0)
+
     # participant_lane_df = participant_df.dropna()
     participant_df.to_csv(output_prefix + ".tsv",sep="\t",index=None)
-    particpant_set_df = participant_df[['input_id','entity:participant_lane_id']]
-    particpant_set_df.columns = ['membership:participant_lane_set_id', 'participant_lane']
-    particpant_set_df.to_csv(output_prefix + "_membership.tsv",sep="\t",index=None)
+    participant_set_df = participant_df[['input_id','entity:participant_lane_id']]
+
+    participant_set_df.columns = ['membership:participant_lane_set_id', 'participant_lane']
+    participant_set_df.to_csv(output_prefix + "_membership.tsv",sep="\t",index=None)
     temp = df[['sequencing_process__provenance__document_id','sequencing_input__biomaterial_core__biomaterial_id','project__provenance__document_id',
                'donor_organism__genus_species', 'library_preparation_protocol__library_construction_approach', 'specimen_from_organism__organ', 'project__project_core__project_short_name']]
+
+    temp.append(lane_fastqr1_uuid)
+    temp.append(lane_fastqr2_uuid)
+    temp.append(lane_fastqi1_uuid)
+    #temp.append(input_id)
+
     temp.columns = ['entity:participant_lane_set_id','input_name','project_id',
-                    'species', 'library', 'organ', 'project_name']
+                    'species', 'library', 'organ', 'project_name', 'fastq1_uuid', 'fastq2_uuid', 'fastqi_uuid']
     temp.to_csv(output_prefix + "_entity.tsv",sep="\t",index=None)
 
 
