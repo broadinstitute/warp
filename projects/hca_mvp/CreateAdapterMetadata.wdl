@@ -163,15 +163,14 @@ workflow CreateAdapterMetadata {
   #}
 
   ########################## Copy Files to Staging Bucket ##########################
-    Array[File] links_objects = flatten(select_all([CreateIntermediateOptimusScatterWrapper.links_outputs, CreateProjectOptimusAdapters.links_outputs]))
-    Array[File] analysis_file_descriptor_objects = flatten(select_all([select_all([CreateIntermediateOptimusScatterWrapper.loom_file_descriptor_outputs, CreateIntermediateOptimusScatterWrapper.bam_file_descriptor_outputs]), CreateProjectOptimusAdapters.loom_file_descriptor_outputs]))
-    #Array[File] analysis_file_descriptor_objects = flatten([CreateIntermediateOptimusScatterWrapper.loom_file_descriptor_outputs, select_all([CreateIntermediateOptimusScatterWrapper.bam_file_descriptor_outputs]), CreateProjectOptimusAdapters.loom_file_descriptor_outputs])
-    Array[File] analysis_file_metadata_objects = flatten(select_all([CreateIntermediateOptimusScatterWrapper.analysis_file_outputs, CreateProjectOptimusAdapters.analysis_file_outputs]))
-    Array[File] analysis_process_objects = flatten(select_all([CreateIntermediateOptimusScatterWrapper.analysis_process_outputs, CreateProjectOptimusAdapters.analysis_process_outputs]))
-    Array[File] analysis_protocol_objects = flatten(select_all([CreateIntermediateOptimusScatterWrapper.analysis_protocol_outputs, CreateProjectOptimusAdapters.analysis_protocol_outputs]))
+    Array[File] links_objects = flatten([flatten(CreateIntermediateOptimusScatterWrapper.links_outputs), CreateProjectOptimusAdapters.links_outputs])
+    Array[File] analysis_file_descriptor_objects = flatten([flatten(CreateIntermediateOptimusScatterWrapper.loom_file_descriptor_outputs), flatten(CreateIntermediateOptimusScatterWrapper.bam_file_descriptor_outputs), CreateProjectOptimusAdapters.loom_file_descriptor_outputs])
+    Array[File] analysis_file_metadata_objects = flatten([flatten(CreateIntermediateOptimusScatterWrapper.analysis_file_outputs), CreateProjectOptimusAdapters.analysis_file_outputs])
+    Array[File] analysis_process_objects = flatten([flatten(CreateIntermediateOptimusScatterWrapper.analysis_process_outputs), CreateProjectOptimusAdapters.analysis_process_outputs])
+    Array[File] analysis_protocol_objects = flatten([flatten(CreateIntermediateOptimusScatterWrapper.analysis_protocol_outputs), CreateProjectOptimusAdapters.analysis_protocol_outputs])
     Array[File] reference_metadata_objects = select_first([CreateReferenceMetadata.reference_metadata_outputs])
     Array[File] reference_file_descriptor_objects = select_first([CreateReferenceMetadata.reference_file_descriptor_outputs])
-    Array[File] data_objects = flatten([select_all([output_bams, output_looms, CreateReferenceMetadata.reference_fasta, MergeLooms.project_loom])])
+    #Array[File] data_objects = flatten([select_all([output_bams, output_looms, CreateReferenceMetadata.reference_fasta, MergeLooms.project_loom])])
 
     call Tasks.CopyToStagingBucket {
       input:
