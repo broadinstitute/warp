@@ -13,5 +13,9 @@
         <link href="https://broadinstitute.github.io/warp/blog/blog1"/>
         <updated>2021-05-29T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[We are planning to add more blogs in the future, talking about the research and engineering at our group!]]></summary>
+        <author>
+            <name>Rex Wang</name>
+            <uri>https://github.com/wgao19</uri>
+        </author>
     </entry>
 </feed>

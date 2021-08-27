@@ -1,1 +1,0 @@
-(self.webpackChunkwebsite_2=self.webpackChunkwebsite_2||[]).push([[6980],{4937:function(a){"use strict";a.exports=JSON.parse('{"allTagsPath":"/warp/blog/tags","slug":"warp","name":"warp","count":1,"permalink":"/warp/blog/tags/warp"}')}}]);

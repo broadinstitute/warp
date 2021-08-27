@@ -1,1 +1,0 @@
-(self.webpackChunkwebsite_2=self.webpackChunkwebsite_2||[]).push([[8087],{3805:function(e){"use strict";e.exports=JSON.parse('{"allTagsPath":"/warp/blog/tags","slug":"wdl","name":"wdl","count":1,"permalink":"/warp/blog/tags/wdl"}')}}]);
