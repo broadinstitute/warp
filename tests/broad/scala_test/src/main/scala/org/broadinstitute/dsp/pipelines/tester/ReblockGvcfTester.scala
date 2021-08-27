@@ -70,8 +70,8 @@ class ReblockGvcfTester(testerConfig: GermlineCloudWorkflowConfig)(
         .getGvcfBasename(workflowName)
 
     val validationInputs = ReblockGvcfValidationInputs(
-      testGvcf = resultsCloudPath.resolve(s"$gvcfBasename.reblocked.g.vcf.gz"),
-      truthGvcf = truthCloudPath.resolve(s"$gvcfBasename.reblocked.g.vcf.gz"),
+      testGvcf = resultsCloudPath.resolve(s"$gvcfBasename.rb.g.vcf.gz"),
+      truthGvcf = truthCloudPath.resolve(s"$gvcfBasename.rb.g.vcf.gz"),
     )
     ReblockGvcfValidationInputs.marshall(validationInputs).printWith(implicitly)
   }
