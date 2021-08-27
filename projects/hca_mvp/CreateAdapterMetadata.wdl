@@ -67,7 +67,7 @@ workflow CreateAdapterMetadata {
       illegal_characters = "; ="
   }
 
-    call Tasks.CheckInput as CheckProjectName {
+  call Tasks.CheckInput as CheckProjectName {
     input:
       input_array = all_project_names,
       input_type = "project_name",
@@ -112,6 +112,7 @@ workflow CreateAdapterMetadata {
           is_project_level = false
       }
     }
+
     call CreateReferenceMetadata.CreateReferenceMetadata as CreateReferenceMetadata {
       input:
         reference_fastas = CreateIntermediateOptimusAdapters.reference_fasta,
@@ -120,6 +121,7 @@ workflow CreateAdapterMetadata {
         version_timestamp = version_timestamp,
         input_type = "reference"
     }
+
     call MergeLooms.MergeOptimusLooms as MergeLooms {
       input:
         output_looms = output_looms,
@@ -130,7 +132,6 @@ workflow CreateAdapterMetadata {
         project_name = project_name,
         output_basename = output_basename
     }
-
 
     call Tasks.GetProjectLevelInputIds {
       input:
@@ -188,7 +189,7 @@ workflow CreateAdapterMetadata {
         reference_metadata_objects = reference_metadata_objects,
         reference_file_descriptor_objects = reference_file_descriptor_objects,
         data_objects = data_objects
-      }
+    }
 
 
   output {
