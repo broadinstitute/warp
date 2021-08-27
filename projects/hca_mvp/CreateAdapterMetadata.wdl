@@ -177,8 +177,8 @@ workflow CreateAdapterMetadata {
   Array[File] analysis_protocol_objects = flatten(select_all([CreateIntermediateOptimusAdapters.analysis_protocol_outputs, CreateProjectOptimusAdapters.analysis_protocol_outputs]))
   Array[File] reference_metadata_objects = select_first([CreateReferenceMetadata.reference_metadata_outputs])
   Array[File] reference_file_descriptor_objects = select_first([CreateReferenceMetadata.reference_file_descriptor_outputs])
-  Array[Array[File]] test_array = select_all([output_bams, output_looms])
-  Array[File] data_objects = flatten(test_array)
+  Array[File] task_outputs_array = select_all([CreateReferenceMetadata.reference_fasta, MergeLooms.project_loom])
+  Array[File] data_objects = flatten([task_outputs_array, output_bams, output_looms])
 
   call Tasks.CopyToStagingBucket {
     input:

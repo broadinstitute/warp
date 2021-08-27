@@ -57,7 +57,6 @@ workflow CreateReferenceMetadata {
       reference_version = GetReferenceDetails.reference_version
   }
 
-
   output {
     Array[File] reference_file_descriptor_outputs = CreateReferenceFileDescriptor.file_descriptor_outputs
     String reference_file_uuid = GetReferenceFileMetadata.reference_file_uuid
