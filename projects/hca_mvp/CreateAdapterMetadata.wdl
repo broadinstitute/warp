@@ -93,7 +93,7 @@ workflow CreateAdapterMetadata {
     String none = "None"
   }
   ########################## Get Optimus Metadata Files ##########################
-  if (GetPipelineType.output_string == "Optimus") {
+  #if (GetPipelineType.output_string == "Optimus") {
     scatter (idx in range(length(output_looms))) {
       String? fastq_i1_uuid = if defined(fastq_i1_uuids) then select_first([fastq_i1_uuids])[idx] else none
       call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateIntermediateOptimusAdapters {
@@ -158,7 +158,7 @@ workflow CreateAdapterMetadata {
         reference_file_fasta = CreateIntermediateOptimusAdapters.reference_fasta[0],
         pipeline_version = CreateIntermediateOptimusAdapters.pipeline_version_string[0]
     }
-  }
+  #}
 
   ########################## Get SS2 Metadata Files ###########################
   #if (GetPipelineType.output_string == "SS2") {
