@@ -15,6 +15,7 @@ module.exports = {
     path.resolve(__dirname, 'plugins/docusaurus-plugin-hotjar')
   ],
   themeConfig: {
+    hideableSidebar: true,
     navbar: {
       title: 'WARP Pipelines',
       // logo: {
