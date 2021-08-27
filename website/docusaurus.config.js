@@ -108,6 +108,7 @@ module.exports = {
             'https://github.com/broadinstitute/warp/edit/develop/website/',
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
+          sidebarCollapsible: true,
         },
         blog: {
           showReadingTime: true,
