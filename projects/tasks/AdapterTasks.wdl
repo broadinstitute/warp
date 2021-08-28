@@ -97,7 +97,7 @@ task GetCromwellMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int machine_mem_mb = 2000
+    Int machine_mem_mb = 40000
     Int disk = 10
   }
 
