@@ -115,6 +115,9 @@ workflow CreateAdapterMetadata {
 
     # store variable resulting from intermediate run
     Array[File] intermediate_links = flatten(CreateIntermediateOptimusAdapters.links_outputs)
+    Array[File] intermediate_analysis_process_objects = flatten(CreateIntermediateOptimusAdapters.analysis_process_outputs)
+    Array[File] intermediate_analysis_protocol_objects = flatten(CreateIntermediateOptimusAdapters.analysis_protocol_outputs)
+    Array[File] intermediate_analysis_file_objects = flatten(CreateIntermediateOptimusAdapters.analysis_file_outputs)
 
     call CreateReferenceMetadata.CreateReferenceMetadata as CreateReferenceMetadata {
       input:
@@ -176,9 +179,9 @@ workflow CreateAdapterMetadata {
   Array[File] links_objects = flatten([intermediate_links, CreateProjectOptimusAdapters.links_outputs])
   # Array[File] analysis_file_descriptor_objects = flatten(select_all([select_all([CreateIntermediateOptimusAdapters.loom_file_descriptor_outputs, CreateIntermediateOptimusAdapters.bam_file_descriptor_outputs]), CreateProjectOptimusAdapters.loom_file_descriptor_outputs]))
   # #Array[File] analysis_file_descriptor_objects = flatten([CreateIntermediateOptimusAdapters.loom_file_descriptor_outputs, select_all([CreateIntermediateOptimusAdapters.bam_file_descriptor_outputs]), CreateProjectOptimusAdapters.loom_file_descriptor_outputs])
-  # Array[File] analysis_file_metadata_objects = flatten(select_all([CreateIntermediateOptimusAdapters.analysis_file_outputs, CreateProjectOptimusAdapters.analysis_file_outputs]))
-  # Array[File] analysis_process_objects = flatten(select_all([CreateIntermediateOptimusAdapters.analysis_process_outputs, CreateProjectOptimusAdapters.analysis_process_outputs]))
-  # Array[File] analysis_protocol_objects = flatten(select_all([CreateIntermediateOptimusAdapters.analysis_protocol_outputs, CreateProjectOptimusAdapters.analysis_protocol_outputs]))
+  Array[File] analysis_file_metadata_objects = flatten([intermediate_analysis_file_objects, CreateProjectOptimusAdapters.analysis_file_outputs])
+  Array[File] analysis_process_objects = flatten([intermediate_analysis_process_objects, CreateProjectOptimusAdapters.analysis_process_outputs])
+  Array[File] analysis_protocol_objects = flatten([intermediate_analysis_protocol_objects, CreateProjectOptimusAdapters.analysis_protocol_outputs])
   # Array[File] reference_metadata_objects = select_first([CreateReferenceMetadata.reference_metadata_outputs])
   # Array[File] reference_file_descriptor_objects = select_first([CreateReferenceMetadata.reference_file_descriptor_outputs])
   # # Array[File] reference_fasta_array = select_all([CreateReferenceMetadata.reference_fasta])
@@ -200,9 +203,9 @@ workflow CreateAdapterMetadata {
   output {
     Array[File] output_links_objects = links_objects
     # Array[File] output_analysis_file_descriptor_objects = analysis_file_descriptor_objects
-    # Array[File] output_analysis_file_metadata_objects = analysis_file_metadata_objects
-    # Array[File] output_analysis_process_objects = analysis_process_objects
-    # Array[File] output_analysis_protocol_objects = analysis_protocol_objects
+    Array[File] output_analysis_file_metadata_objects = analysis_file_metadata_objects
+    Array[File] output_analysis_process_objects = analysis_process_objects
+    Array[File] output_analysis_protocol_objects = analysis_protocol_objects
     # Array[File] output_reference_metadata_objects = reference_metadata_objects
     # Array[File] output_reference_file_descriptor_objects = reference_file_descriptor_objects
     # Array[File] output_data_objects = data_objects
