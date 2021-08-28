@@ -533,9 +533,9 @@ task CopyToStagingBucket {
     String? cache_invalidate
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
-    Int cpu = 1
+    Int cpu = 3
     Int machine_mem_mb = 40000
-    Int disk = 10
+    Int disk = 20
   }
 
   command {
