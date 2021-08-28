@@ -192,17 +192,18 @@ workflow CreateAdapterMetadata {
   Array[File] reference_file_descriptor_objects = CreateReferenceMetadata.reference_file_descriptor_outputs
   Array[File] data_objects = flatten([reference_fasta_array, project_loom_array, output_bams, output_looms])
 
-  # call Tasks.CopyToStagingBucket {
-  #   input:
-  #     staging_bucket = staging_bucket,
-  #     links_objects = links_objects,
-  #     analysis_file_descriptor_objects = analysis_file_descriptor_objects,
-  #     analysis_file_metadata_objects = analysis_file_metadata_objects,
-  #     analysis_process_objects = analysis_process_objects,
-  #     analysis_protocol_objects = analysis_protocol_objects,
-  #     reference_metadata_objects = reference_metadata_objects,
-  #     reference_file_descriptor_objects = reference_file_descriptor_objects
-  # }
+  call Tasks.CopyToStagingBucket {
+    input:
+      staging_bucket = staging_bucket,
+      links_objects = links_objects,
+      analysis_file_descriptor_objects = analysis_file_descriptor_objects,
+      analysis_file_metadata_objects = analysis_file_metadata_objects,
+      analysis_process_objects = analysis_process_objects,
+      analysis_protocol_objects = analysis_protocol_objects,
+      reference_metadata_objects = reference_metadata_objects,
+      reference_file_descriptor_objects = reference_file_descriptor_objects,
+      data_objects = data_objects
+  }
 
   output {
     Array[File] output_links_objects = links_objects
