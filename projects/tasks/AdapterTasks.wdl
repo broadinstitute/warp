@@ -533,9 +533,9 @@ task CopyToStagingBucket {
     String? cache_invalidate
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
-    Int cpu = 3
-    Int machine_mem_mb = 40000
-    Int disk = 20
+    Int cpu = 1
+    Int memory = ceil((size(data_objects, "G") * 1.5)) + 5
+    Int disk = ceil((size(data_objects, "G") * 3)) + 20
   }
 
   command {
@@ -554,7 +554,7 @@ task CopyToStagingBucket {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${machine_mem_mb} MiB"
+    memory: "~{memory} GiB"
     disks: "local-disk ~{disk} HDD"
   }
 }
