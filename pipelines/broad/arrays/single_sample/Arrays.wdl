@@ -22,7 +22,7 @@ import "../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 
 workflow Arrays {
 
-  String pipeline_version = "2.4.2"
+  String pipeline_version = "2.4.1"
 
   input {
 
@@ -41,7 +41,7 @@ workflow Arrays {
     String? participant_id
 
     Float call_rate_threshold = 0.98
-    Float genotype_concordance_threshold = 0.98
+    Float genotype_concordance_threshold = 0.95
 
     File red_idat_cloud_path
     File green_idat_cloud_path
