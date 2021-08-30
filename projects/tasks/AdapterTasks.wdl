@@ -190,7 +190,6 @@ task GetAnalysisProcessMetadata {
     String references
     File input_file
     Boolean project_level
-    String? loom_timestamp
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
