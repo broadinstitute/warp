@@ -6,7 +6,7 @@ task CalculateCellMetrics {
     File original_gtf
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v1.0.0"
+    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.4.0"
     Int machine_mem_mb = 8000
     Int cpu = 8
     Int disk = ceil(size(bam_input, "Gi") * 4)
@@ -75,7 +75,7 @@ task CalculateGeneMetrics {
     File bam_input
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v1.0.0"
+    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.4.0"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 

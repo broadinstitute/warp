@@ -78,10 +78,11 @@ task STARsoloFastq {
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
-    Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
+    Int machine_mem_mb = 32000 
+    #ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
-    Int disk = ceil((size(tar_star_reference, "Gi") * 2.5) + ceil(size(r2_fastq, "Gi") * 5) + 200
+    Int disk = ceil((size(tar_star_reference, "Gi") * 3)) + ceil(size(r1_fastq, "Gi") * 20) +  ceil(size(r2_fastq, "Gi") * 20)
     # by default request non preemptible machine to make sure the slow star alignment step completes
     Int preemptible = 0
   }
@@ -158,6 +159,8 @@ task STARsoloFastq {
       --soloUMIdedup 1MM_Directional_UMItools \
       --outSAMtype BAM SortedByCoordinate \
       --outSAMattributes UB UR UY CR CB CY NH GX GN
+
+    du -h -d 1 .
   }
 
   runtime {
@@ -171,6 +174,7 @@ task STARsoloFastq {
   output {
     File bam_output = "Aligned.sortedByCoord.out.bam"
     File alignment_log = "Log.final.out"
+    File general_log = "Log.out"
     File barcodes = "Solo.out/Gene/raw/barcodes.tsv"
     File features = "Solo.out/Gene/raw/features.tsv"
     File matrix = "Solo.out/Gene/raw/matrix.mtx"
