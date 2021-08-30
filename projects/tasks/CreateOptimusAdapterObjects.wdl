@@ -56,7 +56,7 @@ workflow CreateOptimusAdapterObjects {
       input_uuid = input_id,
       pipeline_type = pipeline_type,
       version_timestamp = version_timestamp,
-      references = select_first([ParseCromwellMetadata.ref_fasta,reference_file_fasta]),
+      references = reference,
       project_level = is_project_level,
       input_file = GetCromwellMetadata.metadata
   }
