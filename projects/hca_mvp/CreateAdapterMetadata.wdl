@@ -30,7 +30,7 @@ workflow CreateAdapterMetadata {
 
     String output_basename
     String cromwell_url = "https://api.firecloud.org/"
-    String staging_area = "gs://fc-8a5de2d4-9f6d-4f8c-aed0-bd1d504056aa/"
+    String staging_area = "gs://broad-dsp-monster-hca-prod-lantern/"
     String version_timestamp = "2021-05-24T12:00:00.000000Z" # TODO should we hard code this?
   }
 
