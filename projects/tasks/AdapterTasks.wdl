@@ -205,7 +205,6 @@ task GetAnalysisProcessMetadata {
       --references "~{references}" \
       --input_file "~{input_file}" \
       --project_level ~{project_level} \
-      ~{"--loom_timestamp " + loom_timestamp}
 
   }
   runtime {
