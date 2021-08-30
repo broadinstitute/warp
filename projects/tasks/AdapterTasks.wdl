@@ -565,7 +565,7 @@ task GetPipelineVersion {
     String docker = "ubuntu:18.04"
   }
   command {
-    echo ~{pipeline_version} > pipeline_version.txt
+    echo ~{prefix}~{pipeline_version} > pipeline_version.txt
   }
   output {
     String pipeline_version_string = read_string("pipeline_version.txt")
