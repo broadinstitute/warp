@@ -13,13 +13,8 @@ workflow CreateOptimusAdapterObjects {
     File? bam
     File loom
     Array[String] process_input_ids # Array of space seperated strings...fastq for intermediate, intermediate looms for project level
-    String library
-    String species
     String input_id
-    String organ
     String project_id
-    String project_name
-    String? project_stratum_string
     String version_timestamp
     String pipeline_type = "Optimus"
     String cromwell_url
@@ -32,7 +27,7 @@ workflow CreateOptimusAdapterObjects {
     input:
       output_path = loom,
       cromwell_url = cromwell_url,
-      include_subworkflows = false # TODO: do we need subworkflows???
+      include_subworkflows = false
   }
 
   if (!is_project_level) {

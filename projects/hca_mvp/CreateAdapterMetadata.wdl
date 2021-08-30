@@ -15,11 +15,10 @@ workflow CreateAdapterMetadata {
   input {
     Array[File] output_bams
     Array[File] output_looms
-    Array[File]? output_bais
     Array[String] input_ids #sequencing_process_provenance_document_id
-    Array[String] fastq_1_uuids
-    Array[String] fastq_2_uuids
-    Array[String]? fastq_i1_uuids
+    Array[String] fastq_1_uuids #array of space separated strings
+    Array[String] fastq_2_uuids #array of space separated strings
+    Array[String]? fastq_i1_uuids #array of space separated strings
 
     # These values come in as arrays from Terra, but should be populated with a single value (which may be repeated)
     Array[String] all_libraries
@@ -92,102 +91,83 @@ workflow CreateAdapterMetadata {
   if (false) {
     String none = "None"
   }
+
   ########################## Get Optimus Metadata Files ##########################
-  #if (GetPipelineType.output_string == "Optimus") {
-    scatter (idx in range(length(output_looms))) {
-      String? fastq_i1_uuid = if defined(fastq_i1_uuids) then select_first([fastq_i1_uuids])[idx] else none
-      call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateIntermediateOptimusAdapters {
-        input:
-          bam = output_bams[idx],
-          loom = output_looms[idx],
-          input_id = input_ids[idx],
-          process_input_ids = select_all([fastq_1_uuids[idx],fastq_2_uuids[idx], fastq_i1_uuid]),
-          library = library,
-          species = species,
-          organ = organ,
-          project_id = project_id,
-          project_name = project_name,
-          version_timestamp = version_timestamp,
-          cromwell_url = cromwell_url,
-          is_project_level = false
-      }
-    }
-
-    # store variable resulting from intermediate run
-    Array[File] intermediate_links = flatten(CreateIntermediateOptimusAdapters.links_outputs)
-    Array[File] intermediate_analysis_process_objects = flatten(CreateIntermediateOptimusAdapters.analysis_process_outputs)
-    Array[File] intermediate_analysis_protocol_objects = flatten(CreateIntermediateOptimusAdapters.analysis_protocol_outputs)
-    Array[File] intermediate_analysis_file_objects = flatten(CreateIntermediateOptimusAdapters.analysis_file_outputs)
-    Array[File] intermediate_loom_descriptor_objects = flatten(CreateIntermediateOptimusAdapters.loom_file_descriptor_outputs)
-    Array[File] intermediate_bam_descriptor_objects = flatten(select_all(CreateIntermediateOptimusAdapters.bam_file_descriptor_outputs))
-
-    call CreateReferenceMetadata.CreateReferenceMetadata as CreateReferenceMetadata {
+  scatter (idx in range(length(output_looms))) {
+    String? fastq_i1_uuid = if defined(fastq_i1_uuids) then select_first([fastq_i1_uuids])[idx] else none
+    call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateIntermediateOptimusAdapters {
       input:
-        reference_fastas = CreateIntermediateOptimusAdapters.reference_fasta,
-        species = species,
-        pipeline_type = 'Optimus',
-        version_timestamp = version_timestamp,
-        input_type = "reference"
-    }
-
-    Array[File] reference_fasta_array = [CreateReferenceMetadata.reference_fasta]
-
-    # Merge all intermediate run looms to a single project level loom
-    call MergeLooms.MergeOptimusLooms as MergeLooms {
-      input:
-        output_looms = output_looms,
-        library = library,
-        species = species,
-        organ = organ,
+        bam = output_bams[idx],
+        loom = output_looms[idx],
+        input_id = input_ids[idx],
+        process_input_ids = select_all([fastq_1_uuids[idx],fastq_2_uuids[idx], fastq_i1_uuid]),
         project_id = project_id,
-        project_name = project_name,
-        output_basename = output_basename
-    }
-
-    Array[File] project_loom_array = [MergeLooms.project_loom]
-
-    # Get all of the intermediate loom file
-    call Tasks.GetProjectLevelInputIds {
-      input:
-        intermediate_analysis_files = flatten(CreateIntermediateOptimusAdapters.analysis_file_outputs)
-    }
-
-    
-    # Create the project level objects based on the intermediate looms and the final merged loom
-    call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateProjectOptimusAdapters {
-      input:
-        loom = MergeLooms.project_loom,
-        process_input_ids = [GetProjectLevelInputIds.process_input_uuids],
-        input_id = project_stratum_string,
-        library = library,
-        species = species,
-        organ = organ,
-        project_id = project_id,
-        project_name = project_name,
-        project_stratum_string = project_stratum_string,
         version_timestamp = version_timestamp,
         cromwell_url = cromwell_url,
-        is_project_level = true,
-        reference_file_fasta = CreateIntermediateOptimusAdapters.reference_fasta[0],
-        pipeline_version = CreateIntermediateOptimusAdapters.pipeline_version_string[0]
+        is_project_level = false
     }
+  }
 
-    # store variable resulting from project run
-    Array[File] project_links = CreateProjectOptimusAdapters.links_outputs
-    Array[File] project_analysis_process_objects = CreateProjectOptimusAdapters.analysis_process_outputs
-    Array[File] project_analysis_protocol_objects = CreateProjectOptimusAdapters.analysis_protocol_outputs
-    Array[File] project_analysis_file_objects = CreateProjectOptimusAdapters.analysis_file_outputs
-    Array[File] project_loom_descriptor_objects = CreateProjectOptimusAdapters.loom_file_descriptor_outputs
+  # store variable resulting from intermediate run
+  Array[File] intermediate_links = flatten(CreateIntermediateOptimusAdapters.links_outputs)
+  Array[File] intermediate_analysis_process_objects = flatten(CreateIntermediateOptimusAdapters.analysis_process_outputs)
+  Array[File] intermediate_analysis_protocol_objects = flatten(CreateIntermediateOptimusAdapters.analysis_protocol_outputs)
+  Array[File] intermediate_analysis_file_objects = flatten(CreateIntermediateOptimusAdapters.analysis_file_outputs)
+  Array[File] intermediate_loom_descriptor_objects = flatten(CreateIntermediateOptimusAdapters.loom_file_descriptor_outputs)
+  Array[File] intermediate_bam_descriptor_objects = flatten(select_all(CreateIntermediateOptimusAdapters.bam_file_descriptor_outputs))
 
-  #}
+  call CreateReferenceMetadata.CreateReferenceMetadata as CreateReferenceMetadata {
+    input:
+      reference_fastas = CreateIntermediateOptimusAdapters.reference_fasta,
+      species = species,
+      pipeline_type = 'Optimus',
+      version_timestamp = version_timestamp,
+      input_type = "reference"
+  }
 
-  ########################## Get SS2 Metadata Files ###########################
-  #if (GetPipelineType.output_string == "SS2") {
-  #  call CreateSS2Objects as GetAdapterObjects{
-  #    input:
-  #      # Fill in input for subworkflow
-  #  }
-  #}
+  Array[File] reference_fasta_array = [CreateReferenceMetadata.reference_fasta]
+
+  # Merge all intermediate run looms to a single project level loom
+  call MergeLooms.MergeOptimusLooms as MergeLooms {
+    input:
+      output_looms = output_looms,
+      library = library,
+      species = species,
+      organ = organ,
+      project_id = project_id,
+      project_name = project_name,
+      output_basename = output_basename
+  }
+
+  Array[File] project_loom_array = [MergeLooms.project_loom]
+
+  # Get all of the intermediate loom file
+  call Tasks.GetProjectLevelInputIds {
+    input:
+      intermediate_analysis_files = flatten(CreateIntermediateOptimusAdapters.analysis_file_outputs)
+  }
+
+  
+  # Create the project level objects based on the intermediate looms and the final merged loom
+  call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateProjectOptimusAdapters {
+    input:
+      loom = MergeLooms.project_loom,
+      process_input_ids = [GetProjectLevelInputIds.process_input_uuids],
+      input_id = project_stratum_string,
+      project_id = project_id,
+      version_timestamp = version_timestamp,
+      cromwell_url = cromwell_url,
+      is_project_level = true,
+      reference_file_fasta = CreateIntermediateOptimusAdapters.reference_fasta[0],
+      pipeline_version = CreateIntermediateOptimusAdapters.pipeline_version_string[0]
+  }
+
+  # store variable resulting from project run
+  Array[File] project_links = CreateProjectOptimusAdapters.links_outputs
+  Array[File] project_analysis_process_objects = CreateProjectOptimusAdapters.analysis_process_outputs
+  Array[File] project_analysis_protocol_objects = CreateProjectOptimusAdapters.analysis_protocol_outputs
+  Array[File] project_analysis_file_objects = CreateProjectOptimusAdapters.analysis_file_outputs
+  Array[File] project_loom_descriptor_objects = CreateProjectOptimusAdapters.loom_file_descriptor_outputs
 
   ########################## Copy Files to Staging Bucket ##########################
   Array[File] links_objects = flatten([intermediate_links, project_links])

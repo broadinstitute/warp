@@ -296,7 +296,7 @@ task GetLinksFileMetadata {
     String file_name_string
     Boolean project_level
 
-    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest" #remember to change back to quay?
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 10
