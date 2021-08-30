@@ -124,7 +124,7 @@ workflow CreateAdapterMetadata {
   Array[File] reference_fasta_array = [CreateReferenceMetadata.reference_fasta]
 
   # Merge all intermediate run looms to a single project level loom
-  call MergeLooms.MergeOptimusLooms as MergeLooms {
+  call MergeLooms.MergeOptimusLooms {
     input:
       output_looms = output_looms,
       library = library,
