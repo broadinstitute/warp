@@ -79,10 +79,6 @@ workflow CreateAdapterMetadata {
   String project_id = CheckProjectID.output_string
   String project_name = CheckProjectName.output_string
 
-  call Tasks.GetPipelineType {
-    input:
-      library = library
-  }
 
   # Build staging bucket
   String staging_bucket = staging_area + project_id + "/staging/"
