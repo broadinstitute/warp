@@ -116,7 +116,7 @@ workflow CreateAdapterMetadata {
   Array[File] intermediate_loom_descriptor_objects = flatten(CreateIntermediateOptimusAdapters.loom_file_descriptor_outputs)
   Array[File] intermediate_bam_descriptor_objects = flatten(select_all(CreateIntermediateOptimusAdapters.bam_file_descriptor_outputs))
 
-  call CreateReferenceMetadata.CreateReferenceMetadata as CreateReferenceMetadata {
+  call CreateReferenceMetadata.CreateReferenceMetadata {
     input:
       reference_fastas = CreateIntermediateOptimusAdapters.reference_fasta,
       species = species,
