@@ -177,7 +177,7 @@ task CollectMultipleMetricsMultiSample {
         Int machine_mem_mb = 8250
         # give the command 1 GiB of overhead
         Int command_mem_mb = machine_mem_mb - 1000
-        Int cpu = 1
+        Int cpu = 4
         # use provided disk number or dynamically size on our own, with 200GiB of additional disk
         Int disk = ceil(size(aligned_bam_inputs, "GiB") + size(genome_ref_fasta, "GiB") + 50)
         Int preemptible = 3
@@ -208,16 +208,16 @@ task CollectMultipleMetricsMultiSample {
             output_basename=${output_prefix[$i]}
             java -Xmx"~{command_mem_mb}"m \
             -jar /usr/picard/picard.jar CollectMultipleMetrics \
-            -VALIDATION_STRINGENCY SILENT \
-            -METRIC_ACCUMULATION_LEVEL ALL_READS \
-            -INPUT "${bam_files[$i]}" \
-            -OUTPUT "${output_basename}" \
-            -FILE_EXTENSION ".txt" \
-            -PROGRAM null \
-            -PROGRAM CollectAlignmentSummaryMetrics \
-            -PROGRAM CollectGcBiasMetrics \
-            -REFERENCE_SEQUENCE "~{genome_ref_fasta}" \
-            -ASSUME_SORTED true
+            --VALIDATION_STRINGENCY SILENT \
+            --METRIC_ACCUMULATION_LEVEL ALL_READS \
+            --INPUT "${bam_files[$i]}" \
+            --OUTPUT "${output_basename}" \
+            --FILE_EXTENSION ".txt" \
+            --PROGRAM null \
+            --PROGRAM CollectAlignmentSummaryMetrics  \
+            --PROGRAM CollectGcBiasMetrics \
+            --REFERENCE_SEQUENCE "~{genome_ref_fasta}" \
+            --ASSUME_SORTED true
         done;
     >>>
 
