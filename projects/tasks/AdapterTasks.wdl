@@ -561,7 +561,7 @@ task CopyToStagingBucket {
 task GetPipelineVersion {
   input {
     String pipeline_version
-
+    String prefix = "MergeOptimusLooms_v"
     String docker = "ubuntu:18.04"
   }
   command {
