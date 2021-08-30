@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../projects/tasks/OptimusPostProcessingTasks.wdl" as PostProcessing
+import "../projects/hca_mvp/tasks/OptimusPostProcessingTasks.wdl" as PostProcessing
 
 workflow OptimusPostProcessing {
   meta {

@@ -1,7 +1,6 @@
 version 1.0
 
-import "../../projects/tasks/OptimusPostProcessingTasks.wdl" as PostProcessing
-import "../../projects/tasks/AdapterTasks.wdl" as Tasks
+import "../../projects/hca_mvp/tasks/AdapterTasks.wdl" as Tasks
 
 workflow CreateOptimusAdapterObjects {
   meta {

@@ -1,12 +1,12 @@
 version 1.0
 
-import "../../projects/tasks/AdapterTasks.wdl" as Tasks
+import "../projects/hca_mvp/tasks/AdapterTasks.wdl" as Tasks
 
 # Making this a subworkflow will (hopefully) allow us to get the pertinent task level iput for the metadata to include in the analysis_process file
 
-workflow MergeOptimusLooms {
+workflow MergeSs2Looms {
   meta {
-    description: "Creates a merged project level matrix for Optimus"
+    description: "Creates a merged project level matrix for smartseq2"
     allowNestedInputs: true
   }
 

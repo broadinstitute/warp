@@ -1,9 +1,10 @@
 version 1.0
 
-import "../projects/hca_mvp/tasks/CreateOptimusAdapterObjects.wdl" as CreateOptimusObjects
-import "../projects/hca_mvp/tasks/MergeOptimusLooms.wdl" as MergeLooms
+import "../projects/optimus/CreateOptimusAdapterObjects.wdl" as CreateOptimusObjects
+import "../projects/optimus/MergeOptimusLooms.wdl" as MergeLooms
 import "../projects/hca_mvp/tasks/AdapterTasks.wdl" as Tasks
 import "../projects/hca_mvp/tasks/CreateReferenceMetadata.wdl" as CreateReferenceMetadata
+
 
 workflow CreateAdapterMetadata {
   meta {

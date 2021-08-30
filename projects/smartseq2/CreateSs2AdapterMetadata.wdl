@@ -1,13 +1,14 @@
 version 1.0
 
-import "../projects/hca_mvp/tasks/CreateOptimusAdapterObjects.wdl" as CreateOptimusObjects
-import "../projects/hca_mvp/tasks/MergeOptimusLooms.wdl" as MergeLooms
+import "../projects/smartseq2/CreateSs2AdapterObjects.wdl" as CreateSs2Objects
+import "../projects/smartseq2/MergeSs2Looms.wdl" as MergeLooms
 import "../projects/hca_mvp/tasks/AdapterTasks.wdl" as Tasks
 import "../projects/hca_mvp/tasks/CreateReferenceMetadata.wdl" as CreateReferenceMetadata
 
+
 workflow CreateAdapterMetadata {
   meta {
-    description: "Creates json objects for indexing HCA analysis data"
+    description: "Creates json objects for indexing HCA smartseq2 analysis data"
     allowNestedInputs: true
   }
 
@@ -87,10 +88,10 @@ workflow CreateAdapterMetadata {
     String none = "None"
   }
 
-  ########################## Get Optimus Metadata Files ##########################
+  ########################## Get Ss2 Metadata Files ##########################
   scatter (idx in range(length(output_looms))) {
     String? fastq_i1_uuid = if defined(fastq_i1_uuids) then select_first([fastq_i1_uuids])[idx] else none
-    call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateIntermediateOptimusAdapters {
+    call CreateSs2Objects.CreateSs2AdapterObjects as CreateIntermediateSs2Adapters {
       input:
         bam = output_bams[idx],
         loom = output_looms[idx],
@@ -104,18 +105,18 @@ workflow CreateAdapterMetadata {
   }
 
   # store variable resulting from intermediate run
-  Array[File] intermediate_links = flatten(CreateIntermediateOptimusAdapters.links_outputs)
-  Array[File] intermediate_analysis_process_objects = flatten(CreateIntermediateOptimusAdapters.analysis_process_outputs)
-  Array[File] intermediate_analysis_protocol_objects = flatten(CreateIntermediateOptimusAdapters.analysis_protocol_outputs)
-  Array[File] intermediate_analysis_file_objects = flatten(CreateIntermediateOptimusAdapters.analysis_file_outputs)
-  Array[File] intermediate_loom_descriptor_objects = flatten(CreateIntermediateOptimusAdapters.loom_file_descriptor_outputs)
-  Array[File] intermediate_bam_descriptor_objects = flatten(select_all(CreateIntermediateOptimusAdapters.bam_file_descriptor_outputs))
+  Array[File] intermediate_links = flatten(CreateIntermediateSs2Adapters.links_outputs)
+  Array[File] intermediate_analysis_process_objects = flatten(CreateIntermediateSs2Adapters.analysis_process_outputs)
+  Array[File] intermediate_analysis_protocol_objects = flatten(CreateIntermediateSs2Adapters.analysis_protocol_outputs)
+  Array[File] intermediate_analysis_file_objects = flatten(CreateIntermediateSs2Adapters.analysis_file_outputs)
+  Array[File] intermediate_loom_descriptor_objects = flatten(CreateIntermediateSs2Adapters.loom_file_descriptor_outputs)
+  Array[File] intermediate_bam_descriptor_objects = flatten(select_all(CreateIntermediateSs2Adapters.bam_file_descriptor_outputs))
 
   call CreateReferenceMetadata.CreateReferenceMetadata {
     input:
-      reference_fastas = CreateIntermediateOptimusAdapters.reference_fasta,
+      reference_fastas = CreateIntermediateSs2Adapters.reference_fasta,
       species = species,
-      pipeline_type = "Optimus",
+      pipeline_type = "Smartseq2",
       version_timestamp = version_timestamp,
       input_type = "reference"
   }
@@ -123,7 +124,7 @@ workflow CreateAdapterMetadata {
   Array[File] reference_fasta_array = [CreateReferenceMetadata.reference_fasta]
 
   # Merge all intermediate run looms to a single project level loom
-  call MergeLooms.MergeOptimusLooms {
+  call MergeLooms.MergeSs2Looms {
     input:
       output_looms = output_looms,
       library = library,
@@ -134,35 +135,35 @@ workflow CreateAdapterMetadata {
       output_basename = output_basename
   }
 
-  Array[File] project_loom_array = [MergeOptimusLooms.project_loom]
+  Array[File] project_loom_array = [MergeSs2Looms.project_loom]
 
   # Get all of the intermediate loom file
   call Tasks.GetProjectLevelInputIds {
     input:
-      intermediate_analysis_files = flatten(CreateIntermediateOptimusAdapters.analysis_file_outputs)
+      intermediate_analysis_files = flatten(CreateIntermediateSs2Adapters.analysis_file_outputs)
   }
 
   
   # Create the project level objects based on the intermediate looms and the final merged loom
-  call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateProjectOptimusAdapters {
+  call CreateSs2Objects.CreateSs2AdapterObjects as CreateProjectSs2Objects {
     input:
-      loom = MergeOptimusLooms.project_loom,
+      loom = MergeSs2Looms.project_loom,
       process_input_ids = [GetProjectLevelInputIds.process_input_uuids],
       input_id = project_stratum_string,
       project_id = project_id,
       version_timestamp = version_timestamp,
       cromwell_url = cromwell_url,
       is_project_level = true,
-      reference_file_fasta = CreateIntermediateOptimusAdapters.reference_fasta[0],
-      pipeline_version = MergeOptimusLooms.pipeline_version_string
+      reference_file_fasta = CreateIntermediateSs2Adapters.reference_fasta[0],
+      pipeline_version = MergeSs2Looms.pipeline_version_string
   }
 
   # store variable resulting from project run
-  Array[File] project_links = CreateProjectOptimusAdapters.links_outputs
-  Array[File] project_analysis_process_objects = CreateProjectOptimusAdapters.analysis_process_outputs
-  Array[File] project_analysis_protocol_objects = CreateProjectOptimusAdapters.analysis_protocol_outputs
-  Array[File] project_analysis_file_objects = CreateProjectOptimusAdapters.analysis_file_outputs
-  Array[File] project_loom_descriptor_objects = CreateProjectOptimusAdapters.loom_file_descriptor_outputs
+  Array[File] project_links = CreateProjectSs2Objects.links_outputs
+  Array[File] project_analysis_process_objects = CreateProjectSs2Objects.analysis_process_outputs
+  Array[File] project_analysis_protocol_objects = CreateProjectSs2Objects.analysis_protocol_outputs
+  Array[File] project_analysis_file_objects = CreateProjectSs2Objects.analysis_file_outputs
+  Array[File] project_loom_descriptor_objects = CreateProjectSs2Objects.loom_file_descriptor_outputs
 
   ########################## Copy Files to Staging Bucket ##########################
   Array[File] links_objects = flatten([intermediate_links, project_links])
