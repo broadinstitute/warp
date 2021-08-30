@@ -147,7 +147,7 @@ workflow CreateAdapterMetadata {
   # Create the project level objects based on the intermediate looms and the final merged loom
   call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateProjectOptimusAdapters {
     input:
-      loom = MergeLooms.project_loom,
+      loom = MergeOptimusLooms.project_loom,
       process_input_ids = [GetProjectLevelInputIds.process_input_uuids],
       input_id = project_stratum_string,
       project_id = project_id,
