@@ -159,7 +159,7 @@ workflow CreateAdapterMetadata {
       cromwell_url = cromwell_url,
       is_project_level = true,
       reference_file_fasta = CreateIntermediateOptimusAdapters.reference_fasta[0],
-      pipeline_version = CreateIntermediateOptimusAdapters.pipeline_version_string[0]
+      pipeline_version = MergeOptimusLooms.pipeline_version_string
   }
 
   # store variable resulting from project run
