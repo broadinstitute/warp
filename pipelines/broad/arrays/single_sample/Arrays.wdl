@@ -1,7 +1,8 @@
 version 1.0
 
 import "../../../../pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl" as IlluminaGenotyping
-import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
+import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalArraysTasks
+import "../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 
 ## Copyright Broad Institute, 2019
 ##
@@ -21,7 +22,7 @@ import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 workflow Arrays {
 
-  String pipeline_version = "2.3.6"
+  String pipeline_version = "2.4.0"
 
   input {
 
@@ -71,12 +72,19 @@ workflow Arrays {
     File? zcall_thresholds_file
 
     # For CheckFingerprint:
+    # If this is true, we will read fingerprints from Mercury
+    # Otherwise, we will use the optional input fingerprint VCFs below
+    Boolean read_fingerprint_from_mercury = false
     File? fingerprint_genotypes_vcf_file
     File? fingerprint_genotypes_vcf_index_file
     File haplotype_database_file
 
-    # For SelectVariants
+    # For fingerprint generation.
+    # For SelectVariants, in order to generate a fingerprint for upload to Mercury
     File variant_rsids_file
+    # If this is true, the WDL will upload the generated finerprint to Mercury
+    # The generated fingerprint VCF and json are available as outputs too.
+    Boolean write_fingerprint_to_mercury = false
 
     # For Subsampled Metrics
     File? subsampled_metrics_interval_list
@@ -101,37 +109,52 @@ workflow Arrays {
 
   String service_account_filename = "service-account.json"
 
-  # An array of strings to be run by VMs that need authentication
-  Array[String] authentication_block = ["export VAULT_ADDR=https://clotho.broadinstitute.org:8200",
-  "export VAULT_TOKEN=~{read_lines(vault_token_path)[0]}",
-  "declare -r secrets=secret/dsde/gotc/~{environment}/metrics/wdl/secrets",
-  "for field in user password jdbc_string",
-  "do",
-  "    n=0",
-  "    until [ $n -ge 5 ]",
-  "    do",
-  "        vault read -field=$field $secrets > cloudsql.db_$field.txt",
-  "        if [ -s cloudsql.db_$field.txt ]",
-  "        then break",
-  "        else",
-  "            n=$[$n+1]",
-  "            sleep 60",
-  "        fi",
-  "    done",
-  "done",
-  "mv cloudsql.db_jdbc_string.txt cloudsql.db_jdbc.txt",
-  "if [ ~{environment} == prod ]; then",
-  "  key=secret/dsde/gotc/prod/service-accounts/metrics-cloudsql-prod-service-account.json",
-  "else",
-  "  key=secret/dsde/gotc/dev/service-accounts/metrics-cloudsql-non-prod-service-account.json",
-  "fi",
-  "vault read --format=json $key | jq .data > ~{service_account_filename}"]
+  # Authorization block to be sourced by Mercury-accessing tasks.
+  # Sets up access to vault, key to read Mercury authentication, Mercury FP storage URL
+  Array[String] mercury_auth_block = [
+    "export VAULT_ADDR=https://clotho.broadinstitute.org:8200",
+    "export VAULT_TOKEN=~{read_lines(vault_token_path)[0]}",
+    "if [ ~{environment} == prod ]; then",
+    "  export MERCURY_AUTH_KEY=secret/dsde/gotc/prod/wdl/secrets",
+    "  export MERCURY_FP_STORE_URI=https://portals.broadinstitute.org/portal/mercury-ws/fingerprint",
+    "else",
+    "  export MERCURY_AUTH_KEY=secret/dsde/gotc/dev/wdl/secrets",
+    "  export MERCURY_FP_STORE_URI=https://portals.broadinstitute.org/portal-test/mercury-ws/fingerprint",
+    "fi"]
+
+  # Authorization block to be sourced by tasks that access cloud SQL database
+  # Sets up access to vault, reads authentication information from vault, sets permissions for accessing cloud sql.
+  Array[String] authentication_block = [
+    "export VAULT_ADDR=https://clotho.broadinstitute.org:8200",
+    "export VAULT_TOKEN=~{read_lines(vault_token_path)[0]}",
+    "declare -r secrets=secret/dsde/gotc/~{environment}/metrics/wdl/secrets",
+    "for field in user password jdbc_string",
+    "do",
+    "    n=0",
+    "    until [ $n -ge 5 ]",
+    "    do",
+    "        vault read -field=$field $secrets > cloudsql.db_$field.txt",
+    "        if [ -s cloudsql.db_$field.txt ]",
+    "        then break",
+    "        else",
+    "            n=$[$n+1]",
+    "            sleep 60",
+    "        fi",
+    "    done",
+    "done",
+    "mv cloudsql.db_jdbc_string.txt cloudsql.db_jdbc.txt",
+    "if [ ~{environment} == prod ]; then",
+    "  key=secret/dsde/gotc/prod/service-accounts/metrics-cloudsql-prod-service-account.json",
+    "else",
+    "  key=secret/dsde/gotc/dev/service-accounts/metrics-cloudsql-non-prod-service-account.json",
+    "fi",
+    "vault read --format=json $key | jq .data > ~{service_account_filename}"]
 
   if (!defined(params_file)) {
     # If the params_file is not provided, we will generate it from the (currently optional) bunch of parameters.
     # This is to allow for backwards-compatibility.  When we remove params_file as an (optional) input, this will be
     # made a required step and all the inputs will become non-optional
-    call InternalTasks.CreateChipWellBarcodeParamsFile {
+    call InternalArraysTasks.CreateChipWellBarcodeParamsFile {
       input:
         chip_type_name = chip_type,
         chip_well_barcode = chip_well_barcode,
@@ -152,7 +175,31 @@ workflow Arrays {
         preemptible_tries = preemptible_tries
     }
   }
-  call InternalTasks.UpdateChipWellBarcodeIndex {
+
+  if (read_fingerprint_from_mercury) {
+    call InternalTasks.MakeSafeFilename {
+      input:
+        name = sample_alias
+    }
+
+    call InternalTasks.DownloadGenotypes {
+      input:
+        sample_alias = sample_alias,
+        sample_lsid = sample_lsid,
+        output_vcf_base_name = chip_well_barcode + "." + MakeSafeFilename.output_safe_name + ".reference.fingerprint",
+        params_file = select_first([CreateChipWellBarcodeParamsFile.params_file, params_file]),
+        haplotype_database_file = haplotype_database_file,
+        ref_fasta = ref_fasta,
+        ref_fasta_index = ref_fasta_index,
+        ref_dict = ref_dict,
+        preemptible_tries = preemptible_tries,
+        source_block = mercury_auth_block
+    }
+  }
+
+  Boolean fingerprint_downloaded_from_mercury = select_first([DownloadGenotypes.fingerprint_retrieved, false])
+
+  call InternalArraysTasks.UpdateChipWellBarcodeIndex {
     input:
       params_file = select_first([CreateChipWellBarcodeParamsFile.params_file, params_file]),
       disk_size = disk_size,
@@ -181,8 +228,8 @@ workflow Arrays {
       cluster_file = cluster_file,
       gender_cluster_file = gender_cluster_file,
       zcall_thresholds_file = zcall_thresholds_file,
-      fingerprint_genotypes_vcf_file = fingerprint_genotypes_vcf_file,
-      fingerprint_genotypes_vcf_index_file = fingerprint_genotypes_vcf_index_file,
+      fingerprint_genotypes_vcf_file = if (fingerprint_downloaded_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf else fingerprint_genotypes_vcf_file,
+      fingerprint_genotypes_vcf_index_file = if (fingerprint_downloaded_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf_index else fingerprint_genotypes_vcf_index_file,
       haplotype_database_file = haplotype_database_file,
       variant_rsids_file = variant_rsids_file,
       subsampled_metrics_interval_list = subsampled_metrics_interval_list,
@@ -198,7 +245,7 @@ workflow Arrays {
   }
 
   if (size(IlluminaGenotypingArray.gtc) == 0) {
-    call InternalTasks.GenerateEmptyVariantCallingMetricsFile {
+    call InternalArraysTasks.GenerateEmptyVariantCallingMetricsFile {
       input:
         chip_well_barcode = chip_well_barcode,
         sample_alias = sample_alias,
@@ -211,7 +258,7 @@ workflow Arrays {
         preemptible_tries = preemptible_tries
     }
 
-    call InternalTasks.UploadArraysMetrics as UploadEmptyArraysMetrics {
+    call InternalArraysTasks.UploadArraysMetrics as UploadEmptyArraysMetrics {
       input:
         arrays_variant_calling_detail_metrics = GenerateEmptyVariantCallingMetricsFile.detail_metrics,
         disk_size = disk_size,
@@ -220,7 +267,7 @@ workflow Arrays {
         service_account_filename = service_account_filename
     }
 
-    call InternalTasks.BlacklistBarcode as BlacklistFailedNormalization {
+    call InternalArraysTasks.BlacklistBarcode as BlacklistFailedNormalization {
       input:
         upload_metrics_output = UploadEmptyArraysMetrics.upload_metrics_empty_file,
         analysis_version = analysis_version_number,
@@ -234,7 +281,7 @@ workflow Arrays {
   }
 
   if (size(IlluminaGenotypingArray.gtc) > 0) {
-    call InternalTasks.VcfToMercuryFingerprintJson {
+    call InternalArraysTasks.VcfToMercuryFingerprintJson {
       input:
         input_vcf_file = select_first([IlluminaGenotypingArray.output_fingerprint_vcf]),
         input_vcf_index_file = select_first([IlluminaGenotypingArray.output_fingerprint_vcf_index]),
@@ -245,8 +292,18 @@ workflow Arrays {
         preemptible_tries = preemptible_tries
     }
 
+    if (write_fingerprint_to_mercury) {
+      call InternalTasks.UploadFingerprintToMercury {
+        input:
+          fingerprint_json_file = VcfToMercuryFingerprintJson.output_json_file,
+          gtc_file = IlluminaGenotypingArray.gtc,
+          preemptible_tries = preemptible_tries,
+          source_block = mercury_auth_block
+      }
+    }
+
     if (defined(IlluminaGenotypingArray.bafregress_results_file)) {
-      call InternalTasks.CreateBafRegressMetricsFile {
+      call InternalArraysTasks.CreateBafRegressMetricsFile {
         input:
           input_file = select_first([IlluminaGenotypingArray.bafregress_results_file]),
           output_metrics_basefilename = chip_well_barcode,
@@ -255,7 +312,7 @@ workflow Arrays {
       }
     }
 
-    call InternalTasks.UploadArraysMetrics {
+    call InternalArraysTasks.UploadArraysMetrics {
       input:
         arrays_variant_calling_detail_metrics = select_first([IlluminaGenotypingArray.arrays_variant_calling_detail_metrics]),
         arrays_variant_calling_summary_metrics = IlluminaGenotypingArray.arrays_variant_calling_summary_metrics,
@@ -274,7 +331,7 @@ workflow Arrays {
     }
 
     if (select_first([IlluminaGenotypingArray.genotype_concordance_failed, false])) {
-      call InternalTasks.BlacklistBarcode as BlacklistFailedGenotypeConcordance {
+      call InternalArraysTasks.BlacklistBarcode as BlacklistFailedGenotypeConcordance {
         input:
           upload_metrics_output = UploadArraysMetrics.upload_metrics_empty_file,
           analysis_version = analysis_version_number,
@@ -289,7 +346,7 @@ workflow Arrays {
 
     if (defined(fingerprint_genotypes_vcf_file) &&
         select_first([IlluminaGenotypingArray.check_fingerprint_lod, 0.0]) < -3.0) {
-      call InternalTasks.BlacklistBarcode as BlacklistFailedFingerprint {
+      call InternalArraysTasks.BlacklistBarcode as BlacklistFailedFingerprint {
         input:
           upload_metrics_output = UploadArraysMetrics.upload_metrics_empty_file,
           analysis_version = analysis_version_number,
@@ -314,6 +371,8 @@ workflow Arrays {
     File? OutputVcfIndexFile = IlluminaGenotypingArray.output_vcf_index
     File? BafRegressMetricsFile = CreateBafRegressMetricsFile.output_metrics_file
     File? ContaminationMetricsFile = IlluminaGenotypingArray.contamination_metrics
+    File? ReferenceFingerprintVcf = DownloadGenotypes.reference_fingerprint_vcf
+    File? ReferenceFingerprintVcfIndex = DownloadGenotypes.reference_fingerprint_vcf_index
     File? OutputFingerprintVcfFile = IlluminaGenotypingArray.output_fingerprint_vcf
     File? OutputFingerprintVcfIndexFile = IlluminaGenotypingArray.output_fingerprint_vcf_index
     File? OutputFingerprintJsonFile = VcfToMercuryFingerprintJson.output_json_file
