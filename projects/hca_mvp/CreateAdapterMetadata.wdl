@@ -139,7 +139,7 @@ workflow CreateAdapterMetadata {
       output_basename = output_basename
   }
 
-  Array[File] project_loom_array = [MergeLooms.project_loom]
+  Array[File] project_loom_array = [MergeOptimusLooms.project_loom]
 
   # Get all of the intermediate loom file
   call Tasks.GetProjectLevelInputIds {
