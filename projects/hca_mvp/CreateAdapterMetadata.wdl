@@ -172,6 +172,13 @@ workflow CreateAdapterMetadata {
         pipeline_version = CreateIntermediateOptimusAdapters.pipeline_version_string[0]
     }
 
+    # store variable resulting from project run
+    Array[File] project_links = CreateProjectOptimusAdapters.links_outputs
+    Array[File] project_analysis_process_objects = CreateProjectOptimusAdapters.analysis_process_outputs
+    Array[File] project_analysis_protocol_objects = CreateProjectOptimusAdapters.analysis_protocol_outputs
+    Array[File] project_analysis_file_objects = CreateProjectOptimusAdapters.analysis_file_outputs
+    Array[File] project_loom_descriptor_objects = CreateProjectOptimusAdapters.loom_file_descriptor_outputs
+
   #}
 
   ########################## Get SS2 Metadata Files ###########################
@@ -183,11 +190,11 @@ workflow CreateAdapterMetadata {
   #}
 
   ########################## Copy Files to Staging Bucket ##########################
-  Array[File] links_objects = flatten([intermediate_links, CreateProjectOptimusAdapters.links_outputs])
-  Array[File] analysis_file_descriptor_objects = flatten([intermediate_loom_descriptor_objects, intermediate_bam_descriptor_objects, CreateProjectOptimusAdapters.loom_file_descriptor_outputs])
-  Array[File] analysis_file_metadata_objects = flatten([intermediate_analysis_file_objects, CreateProjectOptimusAdapters.analysis_file_outputs])
-  Array[File] analysis_process_objects = flatten([intermediate_analysis_process_objects, CreateProjectOptimusAdapters.analysis_process_outputs])
-  Array[File] analysis_protocol_objects = flatten([intermediate_analysis_protocol_objects, CreateProjectOptimusAdapters.analysis_protocol_outputs])
+  Array[File] links_objects = flatten([intermediate_links, project_links])
+  Array[File] analysis_file_descriptor_objects = flatten([intermediate_loom_descriptor_objects, intermediate_bam_descriptor_objects, project_loom_descriptor_objects])
+  Array[File] analysis_file_metadata_objects = flatten([intermediate_analysis_file_objects, project_analysis_file_objects])
+  Array[File] analysis_process_objects = flatten([intermediate_analysis_process_objects, project_analysis_process_objects])
+  Array[File] analysis_protocol_objects = flatten([intermediate_analysis_protocol_objects, project_analysis_protocol_objects])
   Array[File] reference_metadata_objects = CreateReferenceMetadata.reference_metadata_outputs
   Array[File] reference_file_descriptor_objects = CreateReferenceMetadata.reference_file_descriptor_outputs
   Array[File] data_objects = flatten([reference_fasta_array, project_loom_array, output_bams, output_looms])
