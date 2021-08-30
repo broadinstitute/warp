@@ -67,7 +67,7 @@ workflow CreateOptimusAdapterObjects {
       pipeline_type = pipeline_type,
       version_timestamp = version_timestamp,
       project_level = is_project_level,
-      pipeline_version = select_first([ParseCromwellMetadata.pipeline_version,pipeline_version])
+      pipeline_version = pipe_version
   }
 
   call Tasks.GetCloudFileCreationDate  as GetLoomFileCreationDate {
