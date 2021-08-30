@@ -81,7 +81,7 @@ workflow CreateOptimusAdapterObjects {
       file_path = loom,
       input_uuid = input_id,
       creation_time = GetLoomFileCreationDate.creation_date,
-      version_timestamp = version_timestamp,
+      version_timestamp = version_timestamp
   }
 
   if (defined(bam)){
