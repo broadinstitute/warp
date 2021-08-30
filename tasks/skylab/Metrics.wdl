@@ -32,7 +32,6 @@ task CalculateCellMetrics {
     # create the tmp folder for disk sorting
     mkdir temp
 
-
     # if GTF file in compressed then uncompress
     if [[ ~{original_gtf} =~ \.gz$ ]]
     then
