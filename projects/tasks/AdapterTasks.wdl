@@ -411,7 +411,7 @@ task ParseCromwellMetadata {
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
-    Int disk = 10
+    Int disk = ceil((size(cromwell_metadata, "G") * 2)) + 5
   }
 
   command {
