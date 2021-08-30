@@ -12,7 +12,7 @@ workflow CreateOptimusAdapterObjects {
   input {
     File? bam
     File loom
-    Array[String] process_input_ids # TODO: create array of strings for project level inputs (intermediate outputs)
+    Array[String] process_input_ids # Array of space seperated strings...fastq for intermediate, intermediate looms for project level
     String library
     String species
     String input_id
@@ -87,7 +87,6 @@ workflow CreateOptimusAdapterObjects {
       input_uuid = input_id,
       creation_time = GetLoomFileCreationDate.creation_date,
       version_timestamp = version_timestamp,
-      file_path_string = loom
   }
 
   if (defined(bam)){
@@ -103,7 +102,6 @@ workflow CreateOptimusAdapterObjects {
         input_uuid = input_id,
         creation_time = GetBamFileCreationDate.creation_date,
         version_timestamp = version_timestamp,
-        file_path_string = select_first([bam])
     }
   }
 
