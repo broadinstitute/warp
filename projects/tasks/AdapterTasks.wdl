@@ -332,7 +332,6 @@ task GetFileDescriptor {
     String creation_time
     String version_timestamp
     File file_path
-    String file_path_string #does this need to be set to file_path ?
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
@@ -342,13 +341,13 @@ task GetFileDescriptor {
 
   command
   <<<
-      export sha256=$(sha256sum ~{file_path_string} | cut -f1 -d ' ')
-      export crc32c=$(gsutil hash -h ~{file_path_string} | awk '/crc32c/ { print $3 }')
-      export size=$(gsutil stat ~{file_path_string} | awk '/Content-Length/ { print $2 }')
+      export sha256=$(sha256sum ~{file_path} | cut -f1 -d ' ')
+      export crc32c=$(gsutil hash -h ~{file_path} | awk '/crc32c/ { print $3 }')
+      export size=$(gsutil stat ~{file_path} | awk '/Content-Length/ { print $2 }')
 
     create-file-descriptor \
     --size "$size" \
-    --sha256 "$sha25" \
+    --sha256 "$sha256" \
     --crc32c "$crc32c" \
     --pipeline_type "~{pipeline_type}" \
     --file_path "~{file_path}" \

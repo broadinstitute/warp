@@ -37,7 +37,6 @@ workflow CreateReferenceMetadata {
   call Tasks.GetFileDescriptor as CreateReferenceFileDescriptor {
     input:
       file_path = CheckReferences.output_string,
-      file_path_string = CheckReferences.output_string,
       input_uuid = CheckReferences.output_string, # Reference files do not have a unique id, so the file path is hashed to create an id
       pipeline_type = pipeline_type,
       creation_time = GetCloudFileCreationDate.creation_date,
