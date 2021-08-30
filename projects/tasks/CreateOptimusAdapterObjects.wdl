@@ -96,7 +96,7 @@ workflow CreateOptimusAdapterObjects {
         file_path = select_first([bam]),
         input_uuid = input_id,
         creation_time = GetBamFileCreationDate.creation_date,
-        version_timestamp = version_timestamp,
+        version_timestamp = version_timestamp
     }
   }
 
