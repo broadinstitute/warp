@@ -1,3 +1,13 @@
+# 1.13.2
+2021-08-10
+
+* Updated GtcToVcf task in IlluminaGenotypingArrayTasks to escape fingerprint file names.
+
+# 1.13.1
+2021-07-23
+
+* Task wdls used by Validate chip were updated with changes that don't affect ValidateChip wdl
+
 # 1.13.0
 2021-05-19
 

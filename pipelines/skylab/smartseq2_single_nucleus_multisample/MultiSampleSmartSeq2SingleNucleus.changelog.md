@@ -1,3 +1,8 @@
+# 1.0.2
+2021-08-02 (Date of Last Commit)
+
+* Increased the version number to make new release tag for Dockstore 
+
 # 1.0.1
 2021-07-19 (Date of Last Commit)
 

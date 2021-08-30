@@ -1,7 +1,12 @@
 # 5.0.0
-2021-07-26 
+2021-08-30 
 
 * Replaced STAR alignment with STARsolo and modified the structure of the wdl to utilize the umi and barcode correction from STARsolo. In the new implementation of Optimus STARsolo takes the fastq file and directly creates a count matrix file and a BAM file.
+
+# 4.2.7
+2021-08-02 (Date of Last Commit)
+
+* Increased the version number to make new release tag for Dockstore 
 
 # 4.2.6
 2021-07-19 (Date of Last Commit)
