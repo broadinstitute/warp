@@ -54,36 +54,6 @@ task CheckInput {
 }
 
 
-task GetPipelineType {
-  input {
-    String library
-    String docker = "python:3.7.2"
-    Int memory = 3
-    Int disk = 10
-  }
-
-  command <<<
-  set -e pipefail
-  python3 <<CODE
-  with open("output.txt", "w") as f:
-      if ("10X" in "~{library}"):
-          f.write("Optimus")
-      elif ("Smart-seq2" in "~{library}"):
-          f.write("SS2")
-      else:
-          raise ValueError("Unexpected library_preparation_protocol__library_construction_approach")
-  CODE
-  >>>
-  runtime {
-    docker: docker
-    cpu: 1
-    memory: "~{memory} GiB"
-    disks: "local-disk ~{disk} HDD"
-  }
-  output {
-    String output_string = read_string("output.txt")
-  }
-}
 
 
 # Get Cromwell metadata for a workflow
