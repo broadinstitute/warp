@@ -70,7 +70,7 @@ workflow CreateOptimusAdapterObjects {
       pipeline_version = pipe_version
   }
 
-  call Tasks.GetCloudFileCreationDate  as GetLoomFileCreationDate {
+  call Tasks.GetCloudFileCreationDate as GetLoomFileCreationDate {
     input:
       file_path = loom
   }
