@@ -310,7 +310,7 @@ task GetFileDescriptor {
 
   command
   <<<
-      export sha256=$(sha256sum ~{file_path_string} | cut -f1 -d ' ')
+      export sha256=$(sha256sum ~{file_path} | cut -f1 -d ' ')
       export crc32c=$(gsutil hash -h ~{file_path_string} | awk '/crc32c/ { print $3 }')
       export size=$(gsutil stat ~{file_path_string} | awk '/Content-Length/ { print $2 }')
 
