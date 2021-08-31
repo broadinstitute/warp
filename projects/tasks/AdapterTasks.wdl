@@ -299,6 +299,7 @@ task GetFileDescriptor {
     String pipeline_type
     String creation_time
     String version_timestamp
+    String file_path_string # Must be the gs:// file path to properly hash and size
     File file_path
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
@@ -309,9 +310,9 @@ task GetFileDescriptor {
 
   command
   <<<
-      export sha256=$(sha256sum ~{file_path} | cut -f1 -d ' ')
-      export crc32c=$(gsutil hash -h ~{file_path} | awk '/crc32c/ { print $3 }')
-      export size=$(gsutil stat ~{file_path} | awk '/Content-Length/ { print $2 }')
+      export sha256=$(sha256sum ~{file_path_string} | cut -f1 -d ' ')
+      export crc32c=$(gsutil hash -h ~{file_path_string} | awk '/crc32c/ { print $3 }')
+      export size=$(gsutil stat ~{file_path_string} | awk '/Content-Length/ { print $2 }')
 
     create-file-descriptor \
     --size "$size" \
