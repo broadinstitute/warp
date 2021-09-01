@@ -9,8 +9,8 @@ workflow CreateSs2AdapterObjects {
   }
 
   input {
-    File? bam
-    File? bai
+    File bam
+    File bai
     File loom
     Array[String] process_input_ids # Array of space seperated strings...fastq for intermediate, intermediate looms for project level
     String input_id
