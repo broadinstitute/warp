@@ -5,7 +5,7 @@ import "../hca_mvp/tasks/AdapterTasks.wdl" as Tasks
 import "../hca_mvp/tasks/CreateReferenceMetadata.wdl" as CreateReferenceMetadata
 
 
-workflow CreateAdapterMetadata {
+workflow CreateSs2AdapterMetadata {
   meta {
     description: "Creates json objects for indexing HCA smartseq2 analysis data"
     allowNestedInputs: true

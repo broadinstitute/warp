@@ -1,12 +1,12 @@
 version 1.0
 
-import "../projects/optimus/CreateOptimusAdapterObjects.wdl" as CreateOptimusObjects
-import "../projects/optimus/MergeOptimusLooms.wdl" as MergeLooms
-import "../projects/hca_mvp/tasks/AdapterTasks.wdl" as Tasks
-import "../projects/hca_mvp/tasks/CreateReferenceMetadata.wdl" as CreateReferenceMetadata
+import "../optimus/CreateOptimusAdapterObjects.wdl" as CreateOptimusObjects
+import "../optimus/MergeOptimusLooms.wdl" as MergeLooms
+import "../hca_mvp/tasks/AdapterTasks.wdl" as Tasks
+import "../hca_mvp/tasks/CreateReferenceMetadata.wdl" as CreateReferenceMetadata
 
 
-workflow CreateAdapterMetadata {
+workflow CreateOptimusAdapterMetadata {
   meta {
     description: "Creates json objects for indexing HCA analysis data"
     allowNestedInputs: true
@@ -143,7 +143,6 @@ workflow CreateAdapterMetadata {
       intermediate_analysis_files = flatten(CreateIntermediateOptimusAdapters.analysis_file_outputs)
   }
 
-  
   # Create the project level objects based on the intermediate looms and the final merged loom
   call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateProjectOptimusAdapters {
     input:
