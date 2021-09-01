@@ -1,6 +1,8 @@
+
 # 2.4.1
 2021-08-25
 * Updated arrays-picard-private docker image to address critical vulnerability
+* Changed arrays-picard-private hash and pull from correct artifactory
 
 # 2.4.0
 2021-08-05

@@ -1,6 +1,7 @@
 # 1.13.3
 2021-08-25
 * Updated Illumina IAAP Autocall docker image to address critical vulnerability
+* Changed arrays-picard-private hash and pull from correct artifactory
 
 # 1.13.2
 2021-08-10
