@@ -92,6 +92,19 @@ workflow CreateSs2AdapterMetadata {
     String none = "None"
   }
 
+  call Tasks.GetCromwellMetadata {
+    input:
+      output_path = output_loom,
+      cromwell_url = cromwell_url,
+      include_subworkflows = true
+  }
+
+  call Tasks.ParseCromwellMetadata {
+    input:
+      cromwell_metadata = GetCromwellMetadata.metadata,
+      pipeline_type = "SS2"
+  }
+
   ########################## Get Ss2 Metadata Files ##########################
   scatter (idx in range(length(output_bams))) {
     String? fastq_i1_uuid = if defined(fastq_i1_uuids) then select_first([fastq_i1_uuids])[idx] else none
@@ -104,7 +117,8 @@ workflow CreateSs2AdapterMetadata {
         process_input_ids = select_all([fastq_1_uuids[idx],fastq_2_uuids[idx], fastq_i1_uuid]),
         project_id = project_id,
         version_timestamp = version_timestamp,
-        cromwell_url = cromwell_url,
+        reference_file_fasta = ParseCromwellMetadata.ref_fasta,
+        metadata = GetCromwellMetadata.metadata,
         is_project_level = false
     }
   }
@@ -114,14 +128,17 @@ workflow CreateSs2AdapterMetadata {
   Array[File] intermediate_analysis_process_objects = flatten(CreateIntermediateSs2Adapters.analysis_process_outputs)
   Array[File] intermediate_analysis_protocol_objects = flatten(CreateIntermediateSs2Adapters.analysis_protocol_outputs)
   Array[File] intermediate_analysis_file_objects = flatten(CreateIntermediateSs2Adapters.analysis_file_outputs)
-  Array[File] intermediate_loom_descriptor_objects = flatten(CreateIntermediateSs2Adapters.loom_file_descriptor_outputs)
-  Array[File] intermediate_bam_descriptor_objects = flatten(CreateIntermediateSs2Adapters.bam_file_descriptor_outputs)
+  Array[File] intermediate_loom_descriptor_objects = flatten(select_all(CreateIntermediateSs2Adapters.loom_file_descriptor_outputs))
+  Array[File] intermediate_bam_descriptor_objects = flatten(select_all(CreateIntermediateSs2Adapters.bam_file_descriptor_outputs))
+  Array[File] intermediate_bai_descriptor_objects = flatten(select_all(CreateIntermediateSs2Adapters.bai_file_descriptor_outputs))
 
+
+  # should this pipeline_type be Smartseq2_Multisample or SS2? does it matter?
   call CreateReferenceMetadata.CreateReferenceMetadata {
     input:
-      reference_fastas = CreateIntermediateSs2Adapters.reference_fasta,
+      reference_fastas = [ParseCromwellMetadata.ref_fasta],
       species = species,
-      pipeline_type = "Smartseq2_Multisample",
+      pipeline_type = "SS2",
       version_timestamp = version_timestamp,
       input_type = "reference"
   }
@@ -142,10 +159,10 @@ workflow CreateSs2AdapterMetadata {
       input_id = project_stratum_string,
       project_id = project_id,
       version_timestamp = version_timestamp,
-      cromwell_url = cromwell_url,
       is_project_level = true,
-      reference_file_fasta = CreateIntermediateSs2Adapters.reference_fasta[0],
-      pipeline_version = CheckPipelineVersion.pipeline_version_string
+      reference_file_fasta = ParseCromwellMetadata.ref_fasta,
+      pipeline_version = CheckPipelineVersion.pipeline_version_string,
+      metadata = GetCromwellMetadata.metadata
   }
 
   # store variable resulting from project run
@@ -153,7 +170,7 @@ workflow CreateSs2AdapterMetadata {
   Array[File] project_analysis_process_objects = CreateProjectSs2Adapters.analysis_process_outputs
   Array[File] project_analysis_protocol_objects = CreateProjectSs2Adapters.analysis_protocol_outputs
   Array[File] project_analysis_file_objects = CreateProjectSs2Adapters.analysis_file_outputs
-  Array[File] project_loom_descriptor_objects = CreateProjectSs2Adapters.loom_file_descriptor_outputs
+  Array[File] project_loom_descriptor_objects = flatten(select_all([CreateProjectSs2Adapters.loom_file_descriptor_outputs]))
 
   ########################## Copy Files to Staging Bucket ##########################
   # Array[File] links_objects = flatten([intermediate_links, project_links]) # TODO create large links file

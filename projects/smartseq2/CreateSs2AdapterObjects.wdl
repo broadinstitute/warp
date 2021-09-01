@@ -11,43 +11,25 @@ workflow CreateSs2AdapterObjects {
   input {
     File? bam
     File? bai
-    File loom
+    File? loom
     Array[String] process_input_ids # Array of space seperated strings...fastq for intermediate, intermediate looms for project level
     String input_id
     String project_id
     String version_timestamp
     String pipeline_type = "Smartseq2_Multisample"
     String pipeline_type_for_descriptor = "SS2" # GetFileDescriptor calls parse_cromwell_metadata.py which accepts SS2 or Optimus only
-    String cromwell_url
     Boolean is_project_level
-    String? pipeline_version # parsed from metadata for intermediate, passed in for project level
-    String? reference_file_fasta # parsed from metadata for intermediate, passed in for project level
+    String pipeline_version # parsed from metadata for intermediate, passed in for project level
+    String reference_file_fasta # parsed from metadata for intermediate, passed in for project level
+    File metadata
   }
-
-  call Tasks.GetCromwellMetadata {
-    input:
-      output_path = loom,
-      cromwell_url = cromwell_url,
-      include_subworkflows = false
-  }
-
-  if (!is_project_level) {
-    call Tasks.ParseCromwellMetadata {
-      input:
-        cromwell_metadata = GetCromwellMetadata.metadata,
-        pipeline_type = pipeline_type_for_descriptor 
-    }
-  }
-
-  String reference = select_first([ParseCromwellMetadata.ref_fasta, reference_file_fasta])
-  String pipe_version = select_first([ParseCromwellMetadata.pipeline_version, pipeline_version])
 
   call Tasks.GetAnalysisFileMetadata {
     input:
       input_uuid = input_id,
       pipeline_type = pipeline_type,
       version_timestamp = version_timestamp,
-      input_file = GetCromwellMetadata.metadata,
+      input_file = metadata,
       project_level = is_project_level,
       project_loom = loom
   }
@@ -57,9 +39,9 @@ workflow CreateSs2AdapterObjects {
       input_uuid = input_id,
       pipeline_type = pipeline_type,
       version_timestamp = version_timestamp,
-      references = reference,
+      references = reference_file_fasta,
       project_level = is_project_level,
-      input_file = GetCromwellMetadata.metadata
+      input_file = metadata
   }
 
   call Tasks.GetAnalysisProtocolMetadata {
@@ -68,24 +50,25 @@ workflow CreateSs2AdapterObjects {
       pipeline_type = pipeline_type,
       version_timestamp = version_timestamp,
       project_level = is_project_level,
-      pipeline_version = pipe_version
+      pipeline_version = pipeline_version
   }
 
-  call Tasks.GetCloudFileCreationDate as GetLoomFileCreationDate {
-    input:
-      file_path = loom
-  }
+  if(defined(loom)) {
+    call Tasks.GetCloudFileCreationDate as GetLoomFileCreationDate {
+      input:
+        file_path = select_first([loom])
+    }
 
-  call Tasks.GetFileDescriptor as GetLoomFileDescriptor {
-    input:
-      pipeline_type = pipeline_type_for_descriptor,
-      file_path = loom,
-      file_path_string = loom,
-      input_uuid = input_id,
-      creation_time = GetLoomFileCreationDate.creation_date,
-      version_timestamp = version_timestamp
+    call Tasks.GetFileDescriptor as GetLoomFileDescriptor {
+      input:
+        pipeline_type = pipeline_type_for_descriptor,
+        file_path = select_first([loom]),
+        file_path_string = select_first([loom]),
+        input_uuid = input_id,
+        creation_time = GetLoomFileCreationDate.creation_date,
+        version_timestamp = version_timestamp
+    }
   }
-
 
   # bam
   if (defined(bam)){
@@ -137,16 +120,13 @@ workflow CreateSs2AdapterObjects {
   # }
 
   output {
-    File metadata_json = GetCromwellMetadata.metadata
-    String reference_fasta = reference
-    String pipeline_version_string = pipe_version
     Array[File] analysis_file_outputs = GetAnalysisFileMetadata.analysis_file_outputs
     Array[File] analysis_process_outputs = GetAnalysisProcessMetadata.analysis_process_outputs
     Array[File] analysis_protocol_outputs = GetAnalysisProtocolMetadata.analysis_protocol_outputs
     # Array[File] links_outputs = GetLinksFileMetadata.links_outputs
-    Array[File] loom_file_descriptor_outputs = GetLoomFileDescriptor.file_descriptor_outputs
-    Array[File] bam_file_descriptor_outputs = flatten(select_all([GetBamFileDescriptor.file_descriptor_outputs]))
-    Array[File] bai_file_descriptor_outputs = flatten(select_all([GetBaiFileDescriptor.file_descriptor_outputs]))
+    Array[File]? loom_file_descriptor_outputs = GetLoomFileDescriptor.file_descriptor_outputs
+    Array[File]? bam_file_descriptor_outputs = GetBamFileDescriptor.file_descriptor_outputs
+    Array[File]? bai_file_descriptor_outputs = GetBaiFileDescriptor.file_descriptor_outputs
   }
 }
 
