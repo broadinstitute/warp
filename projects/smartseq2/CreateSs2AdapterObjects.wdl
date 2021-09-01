@@ -17,6 +17,7 @@ workflow CreateSs2AdapterObjects {
     String project_id
     String version_timestamp
     String pipeline_type = "Smartseq2_Multisample"
+    String pipeline_type_for_descriptor = "SS2" # GetFileDescriptor calls parse_cromwell_metadata.py which accepts SS2 or Optimus only
     String cromwell_url
     Boolean is_project_level
     String? pipeline_version # parsed from metadata for intermediate, passed in for project level
@@ -34,7 +35,7 @@ workflow CreateSs2AdapterObjects {
     call Tasks.ParseCromwellMetadata {
       input:
         cromwell_metadata = GetCromwellMetadata.metadata,
-        pipeline_type = pipeline_type
+        pipeline_type = pipeline_type_for_descriptor 
     }
   }
 
@@ -77,8 +78,9 @@ workflow CreateSs2AdapterObjects {
 
   call Tasks.GetFileDescriptor as GetLoomFileDescriptor {
     input:
-      pipeline_type = pipeline_type,
+      pipeline_type = pipeline_type_for_descriptor,
       file_path = loom,
+      file_path_string = loom,
       input_uuid = input_id,
       creation_time = GetLoomFileCreationDate.creation_date,
       version_timestamp = version_timestamp
@@ -94,8 +96,9 @@ workflow CreateSs2AdapterObjects {
 
     call Tasks.GetFileDescriptor as GetBamFileDescriptor {
       input:
-        pipeline_type = pipeline_type,
+        pipeline_type = pipeline_type_for_descriptor,
         file_path = select_first([bam]),
+        file_path_string = select_first([bam]),
         input_uuid = input_id,
         creation_time = GetBamFileCreationDate.creation_date,
         version_timestamp = version_timestamp
@@ -111,8 +114,9 @@ workflow CreateSs2AdapterObjects {
 
     call Tasks.GetFileDescriptor as GetBaiFileDescriptor {
       input:
-        pipeline_type = pipeline_type,
+        pipeline_type = pipeline_type_for_descriptor,
         file_path = select_first([bai]),
+        file_path_string = select_first([bai]),
         input_uuid = input_id,
         creation_time = GetBaiFileCreationDate.creation_date,
         version_timestamp = version_timestamp
