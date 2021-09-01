@@ -30,6 +30,7 @@ workflow CreateSs2AdapterMetadata {
     String cromwell_url = "https://firecloud-orchestration.dsde-dev.broadinstitute.org"
     String staging_area = "gs://fc-b4648544-9363-4a04-aa37-e7031c078a67/"
     String version_timestamp
+    String pipeline_type = "SS2"
   }
 
   ########################## Set up Inputs ##########################
@@ -102,7 +103,7 @@ workflow CreateSs2AdapterMetadata {
   call Tasks.ParseCromwellMetadata {
     input:
       cromwell_metadata = GetCromwellMetadata.metadata,
-      pipeline_type = "SS2"
+      pipeline_type = pipeline_type
   }
 
   ########################## Get Ss2 Metadata Files ##########################
@@ -118,7 +119,7 @@ workflow CreateSs2AdapterMetadata {
         project_id = project_id,
         version_timestamp = version_timestamp,
         pipeline_version = CheckPipelineVersion.pipeline_version_string,
-        pipeline_type = "ss2",
+        pipeline_type = pipeline_type,
         reference_file_fasta = ParseCromwellMetadata.ref_fasta,
         metadata = GetCromwellMetadata.metadata,
         is_project_level = false
@@ -140,7 +141,7 @@ workflow CreateSs2AdapterMetadata {
     input:
       reference_fastas = [ParseCromwellMetadata.ref_fasta],
       species = species,
-      pipeline_type = "SS2",
+      pipeline_type = pipeline_type,
       version_timestamp = version_timestamp,
       input_type = "reference"
   }
@@ -163,8 +164,8 @@ workflow CreateSs2AdapterMetadata {
       version_timestamp = version_timestamp,
       is_project_level = true,
       reference_file_fasta = ParseCromwellMetadata.ref_fasta,
-      pipeline_type = "ss2",
       pipeline_version = CheckPipelineVersion.pipeline_version_string,
+      pipeline_type = pipeline_type,
       metadata = GetCromwellMetadata.metadata
   }
 

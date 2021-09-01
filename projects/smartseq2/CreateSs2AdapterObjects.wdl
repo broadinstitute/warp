@@ -16,8 +16,7 @@ workflow CreateSs2AdapterObjects {
     String input_id
     String project_id
     String version_timestamp
-    String pipeline_type = "Smartseq2_Multisample"
-    String pipeline_type_for_descriptor = "SS2" # GetFileDescriptor calls parse_cromwell_metadata.py which accepts SS2 or Optimus only
+    String pipeline_type
     Boolean is_project_level
     String pipeline_version # parsed from metadata for intermediate, passed in for project level
     String reference_file_fasta # parsed from metadata for intermediate, passed in for project level
@@ -45,10 +44,12 @@ workflow CreateSs2AdapterObjects {
       input_file = metadata
   }
 
+  # pipeline_type is used for a dockstore URL here, so it needs to fit into this example:
+  # "computational_method": "https://dockstore.org/workflows/github.com/broadinstitute/warp/Smartseq2_Multisample:MultiSampleSmartSeq2_v2.1.4",
   call Tasks.GetAnalysisProtocolMetadata {
     input:
       input_uuid = input_id,
-      pipeline_type = pipeline_type,
+      pipeline_type = "Smartseq2_Multisample",
       version_timestamp = version_timestamp,
       project_level = is_project_level,
       pipeline_version = pipeline_version
@@ -62,7 +63,7 @@ workflow CreateSs2AdapterObjects {
 
     call Tasks.GetFileDescriptor as GetLoomFileDescriptor {
       input:
-        pipeline_type = pipeline_type_for_descriptor,
+        pipeline_type = pipeline_type,
         file_path = select_first([loom]),
         file_path_string = select_first([loom]),
         input_uuid = input_id,
@@ -80,7 +81,7 @@ workflow CreateSs2AdapterObjects {
 
     call Tasks.GetFileDescriptor as GetBamFileDescriptor {
       input:
-        pipeline_type = pipeline_type_for_descriptor,
+        pipeline_type = pipeline_type,
         file_path = select_first([bam]),
         file_path_string = select_first([bam]),
         input_uuid = input_id,
@@ -98,7 +99,7 @@ workflow CreateSs2AdapterObjects {
 
     call Tasks.GetFileDescriptor as GetBaiFileDescriptor {
       input:
-        pipeline_type = pipeline_type_for_descriptor,
+        pipeline_type = pipeline_type,
         file_path = select_first([bai]),
         file_path_string = select_first([bai]),
         input_uuid = input_id,
