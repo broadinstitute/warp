@@ -117,7 +117,8 @@ workflow CreateSs2AdapterMetadata {
         process_input_ids = select_all([fastq_1_uuids[idx],fastq_2_uuids[idx], fastq_i1_uuid]),
         project_id = project_id,
         version_timestamp = version_timestamp,
-        pipeline_version = "ss2",
+        pipeline_version = CheckPipelineVersion.pipeline_version_string,
+        pipeline_type = "ss2",
         reference_file_fasta = ParseCromwellMetadata.ref_fasta,
         metadata = GetCromwellMetadata.metadata,
         is_project_level = false
@@ -162,7 +163,8 @@ workflow CreateSs2AdapterMetadata {
       version_timestamp = version_timestamp,
       is_project_level = true,
       reference_file_fasta = ParseCromwellMetadata.ref_fasta,
-      pipeline_version = "ss2",
+      pipeline_type = "ss2",
+      pipeline_version = CheckPipelineVersion.pipeline_version_string,
       metadata = GetCromwellMetadata.metadata
   }
 
