@@ -9,8 +9,8 @@ workflow CreateSs2AdapterObjects {
   }
 
   input {
-    File bam
-    File bai
+    File? bam
+    File? bai
     File loom
     Array[String] process_input_ids # Array of space seperated strings...fastq for intermediate, intermediate looms for project level
     String input_id
@@ -86,33 +86,37 @@ workflow CreateSs2AdapterObjects {
 
 
   # bam
-  call Tasks.GetCloudFileCreationDate  as GetBamFileCreationDate {
-    input:
-      file_path = select_first([bam])
-  }
+  if (defined(bam)){
+    call Tasks.GetCloudFileCreationDate  as GetBamFileCreationDate {
+      input:
+        file_path = select_first([bam])
+    }
 
-  call Tasks.GetFileDescriptor as GetBamFileDescriptor {
-    input:
-      pipeline_type = pipeline_type,
-      file_path = select_first([bam]),
-      input_uuid = input_id,
-      creation_time = GetBamFileCreationDate.creation_date,
-      version_timestamp = version_timestamp
+    call Tasks.GetFileDescriptor as GetBamFileDescriptor {
+      input:
+        pipeline_type = pipeline_type,
+        file_path = select_first([bam]),
+        input_uuid = input_id,
+        creation_time = GetBamFileCreationDate.creation_date,
+        version_timestamp = version_timestamp
+    }
   }
 
   # bai
+  if (defined(bai)){
     call Tasks.GetCloudFileCreationDate  as GetBaiFileCreationDate {
     input:
       file_path = select_first([bai])
-  }
+    }
 
-  call Tasks.GetFileDescriptor as GetBaiFileDescriptor {
-    input:
-      pipeline_type = pipeline_type,
-      file_path = select_first([bai]),
-      input_uuid = input_id,
-      creation_time = GetBaiFileCreationDate.creation_date,
-      version_timestamp = version_timestamp
+    call Tasks.GetFileDescriptor as GetBaiFileDescriptor {
+      input:
+        pipeline_type = pipeline_type,
+        file_path = select_first([bai]),
+        input_uuid = input_id,
+        creation_time = GetBaiFileCreationDate.creation_date,
+        version_timestamp = version_timestamp
+    }
   }
 
 # TODO: create one large links file for ss2
@@ -137,8 +141,8 @@ workflow CreateSs2AdapterObjects {
     Array[File] analysis_protocol_outputs = GetAnalysisProtocolMetadata.analysis_protocol_outputs
     # Array[File] links_outputs = GetLinksFileMetadata.links_outputs
     Array[File] loom_file_descriptor_outputs = GetLoomFileDescriptor.file_descriptor_outputs
-    Array[File] bam_file_descriptor_outputs = GetBamFileDescriptor.file_descriptor_outputs
-    Array[File] bai_file_descriptor_outputs = GetBaiFileDescriptor.file_descriptor_outputs
+    Array[File] bam_file_descriptor_outputs = flatten(select_all([GetBamFileDescriptor.file_descriptor_outputs]))
+    Array[File] bai_file_descriptor_outputs = flatten(select_all([GetBaiFileDescriptor.file_descriptor_outputs]))
   }
 }
 
