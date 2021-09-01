@@ -28,7 +28,7 @@ workflow CreateSs2AdapterMetadata {
     Array[String] all_project_names
 
     String output_basename
-    String cromwell_url = "https://api.firecloud.org/"
+    String cromwell_url = "https://firecloud-orchestration.dsde-dev.broadinstitute.org"
     String staging_area = "gs://broad-dsp-monster-hca-prod-lantern/"
     String version_timestamp
   }
