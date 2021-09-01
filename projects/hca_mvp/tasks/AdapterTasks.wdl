@@ -137,9 +137,11 @@ task GetAnalysisFileMetadata {
     String input_uuid
     String pipeline_type
     String version_timestamp
-    File input_file # Input file is the internal path to metadata.json
+    File? input_file # Input file is the internal path to metadata.json
     Boolean project_level
     String? project_loom # Project loom is optional and provided on project level run as the gs:// link
+    String? ss2_bam_file # Individual bam file to be used for intermediate analysis file for ss2 runs
+    String? ss2_bai_file # Individual bai file to be used for intermediate analysis file for ss2 runs
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
@@ -147,8 +149,9 @@ task GetAnalysisFileMetadata {
     Int disk = 10
   }
 
-  # If we are doing a project level run then provide project_loom as the input_file
-  # otherwise provide metadata.json
+  # For Optimus, if we are doing an intermediate level run, then we pass in the metadata.json
+  # For Ss2, if we are doing an intermediate level run, then we pass in the intermediate bam and bai
+  # For project level runs on either pipeline, we pass in the project loom
   command {
     if ~{project_level}
     then
@@ -163,7 +166,9 @@ task GetAnalysisFileMetadata {
       --input_uuid "~{input_uuid}" \
       --pipeline_type "~{pipeline_type}" \
       --workspace_version "~{version_timestamp}" \
-      --input_file "~{input_file}" \
+      ~{"--input_file " + input_file} \
+      ~{"--ss2_bam_file " + ss2_bam_file}" \
+      ~{"--ss2_bai_file " + ss2_bai_file}" \
       --project_level ~{project_level}
 
     fi

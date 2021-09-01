@@ -28,8 +28,9 @@ workflow CreateSs2AdapterObjects {
     input:
       input_uuid = input_id,
       pipeline_type = pipeline_type,
+      ss2_bam_file = select_first([bam]),
+      ss2_bai_file = select_first([bai]),
       version_timestamp = version_timestamp,
-      input_file = metadata,
       project_level = is_project_level,
       project_loom = loom
   }
