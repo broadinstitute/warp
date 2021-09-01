@@ -11,7 +11,7 @@ workflow MergeSs2Looms {
   }
 
   input {
-    Array[File] output_looms
+    File output_loom
     String library
     String species
     String organ
@@ -24,7 +24,7 @@ workflow MergeSs2Looms {
 
   call Tasks.MergeLooms as MergeLooms {
     input:
-      output_looms = output_looms,
+      output_looms = [output_loom],
       library = library,
       species = species,
       organ = organ,

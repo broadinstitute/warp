@@ -10,12 +10,13 @@ workflow CreateSs2AdapterObjects {
 
   input {
     File? bam
+    File? bai
     File loom
     Array[String] process_input_ids # Array of space seperated strings...fastq for intermediate, intermediate looms for project level
     String input_id
     String project_id
     String version_timestamp
-    String pipeline_type = "Ss2"
+    String pipeline_type = "Smartseq2_Multisample"
     String cromwell_url
     Boolean is_project_level
     String? pipeline_version # parsed from metadata for intermediate, passed in for project level
@@ -83,33 +84,49 @@ workflow CreateSs2AdapterObjects {
       version_timestamp = version_timestamp
   }
 
-  if (defined(bam)){
-    call Tasks.GetCloudFileCreationDate  as GetBamFileCreationDate {
-      input:
-        file_path = select_first([bam])
-    }
 
-    call Tasks.GetFileDescriptor as GetBamFileDescriptor {
-      input:
-        pipeline_type = pipeline_type,
-        file_path = select_first([bam]),
-        input_uuid = input_id,
-        creation_time = GetBamFileCreationDate.creation_date,
-        version_timestamp = version_timestamp
-    }
-  }
-
-  call Tasks.GetLinksFileMetadata {
+  # bam
+  call Tasks.GetCloudFileCreationDate  as GetBamFileCreationDate {
     input:
-      project_id = project_id,
-      process_input_ids = process_input_ids, # for intermediate level use fastq_uuids from Terra, for project level use output_ids from intermediate files
-      output_file_path = GetAnalysisFileMetadata.outputs_json,
-      version_timestamp = version_timestamp,
-      analysis_process_path = GetAnalysisProcessMetadata.analysis_process_outputs,
-      analysis_protocol_path = GetAnalysisProtocolMetadata.analysis_protocol_outputs,
-      project_level = is_project_level,
-      file_name_string = input_id
+      file_path = select_first([bam])
   }
+
+  call Tasks.GetFileDescriptor as GetBamFileDescriptor {
+    input:
+      pipeline_type = pipeline_type,
+      file_path = select_first([bam]),
+      input_uuid = input_id,
+      creation_time = GetBamFileCreationDate.creation_date,
+      version_timestamp = version_timestamp
+  }
+
+  # bai
+    call Tasks.GetCloudFileCreationDate  as GetBaiFileCreationDate {
+    input:
+      file_path = select_first([bai])
+  }
+
+  call Tasks.GetFileDescriptor as GetBaiFileDescriptor {
+    input:
+      pipeline_type = pipeline_type,
+      file_path = select_first([bai]),
+      input_uuid = input_id,
+      creation_time = GetBaiFileCreationDate.creation_date,
+      version_timestamp = version_timestamp
+  }
+
+# TODO: create one large links file for ss2
+  # call Tasks.GetLinksFileMetadata {
+  #   input:
+  #     project_id = project_id,
+  #     process_input_ids = process_input_ids, # for intermediate level use fastq_uuids from Terra, for project level use output_ids from intermediate files
+  #     output_file_path = GetAnalysisFileMetadata.outputs_json,
+  #     version_timestamp = version_timestamp,
+  #     analysis_process_path = GetAnalysisProcessMetadata.analysis_process_outputs,
+  #     analysis_protocol_path = GetAnalysisProtocolMetadata.analysis_protocol_outputs,
+  #     project_level = is_project_level,
+  #     file_name_string = input_id
+  # }
 
   output {
     File metadata_json = GetCromwellMetadata.metadata
@@ -118,9 +135,10 @@ workflow CreateSs2AdapterObjects {
     Array[File] analysis_file_outputs = GetAnalysisFileMetadata.analysis_file_outputs
     Array[File] analysis_process_outputs = GetAnalysisProcessMetadata.analysis_process_outputs
     Array[File] analysis_protocol_outputs = GetAnalysisProtocolMetadata.analysis_protocol_outputs
-    Array[File] links_outputs = GetLinksFileMetadata.links_outputs
+    # Array[File] links_outputs = GetLinksFileMetadata.links_outputs
     Array[File] loom_file_descriptor_outputs = GetLoomFileDescriptor.file_descriptor_outputs
-    Array[File]? bam_file_descriptor_outputs = GetBamFileDescriptor.file_descriptor_outputs
+    Array[File] bam_file_descriptor_outputs = GetBamFileDescriptor.file_descriptor_outputs
+    Array[File] bai_file_descriptor_outputs = GetBaiFileDescriptor.file_descriptor_outputs
   }
 }
 

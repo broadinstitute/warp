@@ -14,7 +14,8 @@ workflow CreateAdapterMetadata {
 
   input {
     Array[File] output_bams
-    Array[File] output_looms
+    Array[File] output_bais
+    File output_loom
     Array[String] input_ids #sequencing_process_provenance_document_id
     Array[String] fastq_1_uuids #array of space separated strings
     Array[String] fastq_2_uuids #array of space separated strings
@@ -89,12 +90,12 @@ workflow CreateAdapterMetadata {
   }
 
   ########################## Get Ss2 Metadata Files ##########################
-  scatter (idx in range(length(output_looms))) {
+  scatter (idx in range(length(output_bams))) {
     String? fastq_i1_uuid = if defined(fastq_i1_uuids) then select_first([fastq_i1_uuids])[idx] else none
     call CreateSs2Objects.CreateSs2AdapterObjects as CreateIntermediateSs2Adapters {
       input:
         bam = output_bams[idx],
-        loom = output_looms[idx],
+        bais = output_bais[idx],
         input_id = input_ids[idx],
         process_input_ids = select_all([fastq_1_uuids[idx],fastq_2_uuids[idx], fastq_i1_uuid]),
         project_id = project_id,
@@ -105,7 +106,7 @@ workflow CreateAdapterMetadata {
   }
 
   # store variable resulting from intermediate run
-  Array[File] intermediate_links = flatten(CreateIntermediateSs2Adapters.links_outputs)
+  # Array[File] intermediate_links = flatten(CreateIntermediateSs2Adapters.links_outputs)
   Array[File] intermediate_analysis_process_objects = flatten(CreateIntermediateSs2Adapters.analysis_process_outputs)
   Array[File] intermediate_analysis_protocol_objects = flatten(CreateIntermediateSs2Adapters.analysis_protocol_outputs)
   Array[File] intermediate_analysis_file_objects = flatten(CreateIntermediateSs2Adapters.analysis_file_outputs)
@@ -116,7 +117,7 @@ workflow CreateAdapterMetadata {
     input:
       reference_fastas = CreateIntermediateSs2Adapters.reference_fasta,
       species = species,
-      pipeline_type = "Smartseq2",
+      pipeline_type = "Smartseq2_Multisample",
       version_timestamp = version_timestamp,
       input_type = "reference"
   }
@@ -126,7 +127,7 @@ workflow CreateAdapterMetadata {
   # Merge all intermediate run looms to a single project level loom
   call MergeLooms.MergeSs2Looms {
     input:
-      output_looms = output_looms,
+      output_loom = [output_loom],
       library = library,
       species = species,
       organ = organ,
@@ -159,26 +160,26 @@ workflow CreateAdapterMetadata {
   }
 
   # store variable resulting from project run
-  Array[File] project_links = CreateProjectSs2Objects.links_outputs
+  # Array[File] project_links = CreateProjectSs2Objects.links_outputs // TODO create large links file
   Array[File] project_analysis_process_objects = CreateProjectSs2Objects.analysis_process_outputs
   Array[File] project_analysis_protocol_objects = CreateProjectSs2Objects.analysis_protocol_outputs
   Array[File] project_analysis_file_objects = CreateProjectSs2Objects.analysis_file_outputs
   Array[File] project_loom_descriptor_objects = CreateProjectSs2Objects.loom_file_descriptor_outputs
 
   ########################## Copy Files to Staging Bucket ##########################
-  Array[File] links_objects = flatten([intermediate_links, project_links])
+  # Array[File] links_objects = flatten([intermediate_links, project_links]) # TODO create large links file
   Array[File] analysis_file_descriptor_objects = flatten([intermediate_loom_descriptor_objects, intermediate_bam_descriptor_objects, project_loom_descriptor_objects])
   Array[File] analysis_file_metadata_objects = flatten([intermediate_analysis_file_objects, project_analysis_file_objects])
   Array[File] analysis_process_objects = flatten([intermediate_analysis_process_objects, project_analysis_process_objects])
   Array[File] analysis_protocol_objects = flatten([intermediate_analysis_protocol_objects, project_analysis_protocol_objects])
   Array[File] reference_metadata_objects = CreateReferenceMetadata.reference_metadata_outputs
   Array[File] reference_file_descriptor_objects = CreateReferenceMetadata.reference_file_descriptor_outputs
-  Array[File] data_objects = flatten([reference_fasta_array, project_loom_array, output_bams, output_looms])
+  Array[File] data_objects = flatten([reference_fasta_array, project_loom_array, output_bams]) # TODO add output_loom back in
 
   call Tasks.CopyToStagingBucket {
     input:
       staging_bucket = staging_bucket,
-      links_objects = links_objects,
+      # links_objects = links_objects,
       analysis_file_descriptor_objects = analysis_file_descriptor_objects,
       analysis_file_metadata_objects = analysis_file_metadata_objects,
       analysis_process_objects = analysis_process_objects,
@@ -189,7 +190,7 @@ workflow CreateAdapterMetadata {
   }
 
   output {
-    Array[File] output_links_objects = links_objects
+    # Array[File] output_links_objects = links_objects
     Array[File] output_analysis_file_descriptor_objects = analysis_file_descriptor_objects
     Array[File] output_analysis_file_metadata_objects = analysis_file_metadata_objects
     Array[File] output_analysis_process_objects = analysis_process_objects
