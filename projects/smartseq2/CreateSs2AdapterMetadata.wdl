@@ -117,6 +117,7 @@ workflow CreateSs2AdapterMetadata {
         process_input_ids = select_all([fastq_1_uuids[idx],fastq_2_uuids[idx], fastq_i1_uuid]),
         project_id = project_id,
         version_timestamp = version_timestamp,
+        pipeline_version = CheckPipelineVersion.pipeline_version_string,
         reference_file_fasta = ParseCromwellMetadata.ref_fasta,
         metadata = GetCromwellMetadata.metadata,
         is_project_level = false
@@ -174,7 +175,7 @@ workflow CreateSs2AdapterMetadata {
 
   ########################## Copy Files to Staging Bucket ##########################
   # Array[File] links_objects = flatten([intermediate_links, project_links]) # TODO create large links file
-  Array[File] analysis_file_descriptor_objects = flatten([intermediate_loom_descriptor_objects, intermediate_bam_descriptor_objects, project_loom_descriptor_objects])
+  Array[File] analysis_file_descriptor_objects = flatten([intermediate_loom_descriptor_objects, intermediate_bam_descriptor_objects, intermediate_bai_descriptor_objects, project_loom_descriptor_objects])
   Array[File] analysis_file_metadata_objects = flatten([intermediate_analysis_file_objects, project_analysis_file_objects])
   Array[File] analysis_process_objects = flatten([intermediate_analysis_process_objects, project_analysis_process_objects])
   Array[File] analysis_protocol_objects = flatten([intermediate_analysis_protocol_objects, project_analysis_protocol_objects])
