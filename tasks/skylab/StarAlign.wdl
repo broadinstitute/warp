@@ -111,7 +111,7 @@ task StarAlignFastqPairedEnd {
     declare -a fastq1_files=(~{sep=' ' fastq1_input_files})
     declare -a fastq2_files=(~{sep=' ' fastq2_input_files})
     declare -a output_prefix=(~{sep=' ' input_ids})
-
+    STAR --genomeLoad LoadAndExit --genomeDir genome_reference
     for (( i=0; i<${#output_prefix[@]}; ++i));
       do
         STAR \
@@ -124,9 +124,10 @@ task StarAlignFastqPairedEnd {
           --runRNGseed 777 \
           --limitBAMsortRAM 10000000000 \
           --quantMode GeneCounts \
-          --genomeLoad LoadAndExit \
+          --genomeLoad LoadAndKeep \
           --outFileNamePrefix "${output_prefix[$i]}_"
       done;
+    STAR --genomeLoad Remove --genomeDir genome_reference
   >>>
 
   runtime {
