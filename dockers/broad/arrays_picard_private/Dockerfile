@@ -1,10 +1,10 @@
 FROM frolvlad/alpine-glibc:glibc-2.33
 
-ARG PICARD_PRIVATE_VERSION=61af9bff4587783e5981a496f422ea36102482b5
+ARG PICARD_PRIVATE_VERSION=edad6685a5e4abacc907b8940723a2960b59c099
 
 ENV TERM=xterm-256color \
     NO_VAULT=true \
-    ARTIFACTORY_URL=https://broadinstitute.jfrog.io/artifactory/libs-release-local/org/broadinstitute/picard-private
+    ARTIFACTORY_URL=https://broadinstitute.jfrog.io/artifactory/libs-snapshot-local/org/broadinstitute/picard-private
 
 LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>" \
         PICARD_PRIVATE_VERSION=${PICARD_PRIVATE_VERSION}
@@ -26,7 +26,7 @@ RUN set -eux; \
             wget \
     ; \
 # Download picard private jar
-    curl -L ${ARTIFACTORY_URL}/${PICARD_PRIVATE_VERSION}/picard-private-${PICARD_PRIVATE_VERSION}.jar > picard-private.jar \
+    curl -L ${ARTIFACTORY_URL}/${PICARD_PRIVATE_VERSION}/jars/picard-private-all-${PICARD_PRIVATE_VERSION}.jar > picard-private.jar \
     ; \
 # Download the gsutil install script
     wget https://dl.google.com/dl/cloudsdk/channels/rapid/install_google_cloud_sdk.bash -O - | bash \

@@ -2,7 +2,7 @@
 set -e
 
 # Update version when changes to Dockerfile are made
-DOCKER_IMAGE_VERSION=4.0.10
+DOCKER_IMAGE_VERSION=4.1.0
 TIMESTAMP=$(date +"%s")
 DIR=$(cd $(dirname $0) && pwd)
 
@@ -11,7 +11,7 @@ GCR_URL="us.gcr.io/broad-arrays-prod/arrays-picard-private"
 IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
 
 # Picard private artifact
-PICARD_PRIVATE_VERSION="61af9bff4587783e5981a496f422ea36102482b5"
+PICARD_PRIVATE_VERSION="edad6685a5e4abacc907b8940723a2960b59c099"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud vault jq)
