@@ -492,7 +492,7 @@ task CopyToStagingBucket {
     Array[File] analysis_process_objects
     Array[File] analysis_protocol_objects
     Array[File] analysis_file_descriptor_objects
-    Array[File]? links_objects = [] # TODO this shouldnt be optional when we add links back in for ss2
+    Array[File]? links_objects = [] # TODO this shouldnt be optional when we add links back in for ss2, does setting it to empty array by default work?
     Array[File] data_objects
     Array[File] reference_metadata_objects
     Array[File] reference_file_descriptor_objects
@@ -526,10 +526,30 @@ task CopyToStagingBucket {
   }
 }
 
-task GetPipelineVersion {
+task GetOptimusPipelineVersion {
   input {
     String pipeline_version
     String prefix = "MergeOptimusLooms_v"
+    String docker = "ubuntu:18.04"
+  }
+  command {
+    echo ~{prefix}~{pipeline_version} > pipeline_version.txt
+  }
+  output {
+    String pipeline_version_string = read_string("pipeline_version.txt")
+  }
+  runtime {
+    docker: docker
+    cpu: 1
+    memory: "3 GiB"
+    disks: "local-disk 10 HDD"
+  }
+}
+
+task GetSs2PipelineVersion {
+  input {
+    String pipeline_version
+    String prefix = "MultiSampleSmartSeq2_v"
     String docker = "ubuntu:18.04"
   }
   command {

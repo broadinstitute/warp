@@ -33,14 +33,14 @@ workflow MergeOptimusLooms {
       output_basename = output_basename
   }
 
-  call Tasks.GetPipelineVersion {
+  call Tasks.GetOptimusPipelineVersion {
     input:
       pipeline_version = pipeline_version
   }
 
   output {
     File project_loom = MergeLooms.project_loom
-    String pipeline_version_string = GetPipelineVersion.pipeline_version_string
+    String pipeline_version_string = GetOptimusPipelineVersion.pipeline_version_string
   }
 }
 

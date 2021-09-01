@@ -1,9 +1,8 @@
 version 1.0
 
-import "../projects/smartseq2/CreateSs2AdapterObjects.wdl" as CreateSs2Objects
-import "../projects/smartseq2/MergeSs2Looms.wdl" as MergeLooms
-import "../projects/hca_mvp/tasks/AdapterTasks.wdl" as Tasks
-import "../projects/hca_mvp/tasks/CreateReferenceMetadata.wdl" as CreateReferenceMetadata
+import "../smartseq2/CreateSs2AdapterObjects.wdl" as CreateSs2Objects
+import "../hca_mvp/tasks/AdapterTasks.wdl" as Tasks
+import "../hca_mvp/tasks/CreateReferenceMetadata.wdl" as CreateReferenceMetadata
 
 
 workflow CreateAdapterMetadata {
@@ -74,6 +73,11 @@ workflow CreateAdapterMetadata {
       illegal_characters = "; =" # should we include % in this list? # ultimately we should switch to a whitelist
   }
 
+  call Tasks.GetSs2PipelineVersion as CheckPipelineVersion {
+    input:
+      pipeline_version = pipeline_version
+  }
+
   String library = CheckLibrary.output_string
   String organ = CheckOrgan.output_string
   String species = CheckSpecies.output_string
@@ -95,7 +99,7 @@ workflow CreateAdapterMetadata {
     call CreateSs2Objects.CreateSs2AdapterObjects as CreateIntermediateSs2Adapters {
       input:
         bam = output_bams[idx],
-        bais = output_bais[idx],
+        bai = output_bais[idx],
         input_id = input_ids[idx],
         process_input_ids = select_all([fastq_1_uuids[idx],fastq_2_uuids[idx], fastq_i1_uuid]),
         project_id = project_id,
@@ -111,7 +115,7 @@ workflow CreateAdapterMetadata {
   Array[File] intermediate_analysis_protocol_objects = flatten(CreateIntermediateSs2Adapters.analysis_protocol_outputs)
   Array[File] intermediate_analysis_file_objects = flatten(CreateIntermediateSs2Adapters.analysis_file_outputs)
   Array[File] intermediate_loom_descriptor_objects = flatten(CreateIntermediateSs2Adapters.loom_file_descriptor_outputs)
-  Array[File] intermediate_bam_descriptor_objects = flatten(select_all(CreateIntermediateSs2Adapters.bam_file_descriptor_outputs))
+  Array[File] intermediate_bam_descriptor_objects = flatten(CreateIntermediateSs2Adapters.bam_file_descriptor_outputs)
 
   call CreateReferenceMetadata.CreateReferenceMetadata {
     input:
@@ -124,31 +128,16 @@ workflow CreateAdapterMetadata {
 
   Array[File] reference_fasta_array = [CreateReferenceMetadata.reference_fasta]
 
-  # Merge all intermediate run looms to a single project level loom
-  call MergeLooms.MergeSs2Looms {
-    input:
-      output_loom = [output_loom],
-      library = library,
-      species = species,
-      organ = organ,
-      project_id = project_id,
-      project_name = project_name,
-      output_basename = output_basename
-  }
-
-  Array[File] project_loom_array = [MergeSs2Looms.project_loom]
-
   # Get all of the intermediate loom file
   call Tasks.GetProjectLevelInputIds {
     input:
       intermediate_analysis_files = flatten(CreateIntermediateSs2Adapters.analysis_file_outputs)
   }
 
-  
   # Create the project level objects based on the intermediate looms and the final merged loom
-  call CreateSs2Objects.CreateSs2AdapterObjects as CreateProjectSs2Objects {
+  call CreateSs2Objects.CreateSs2AdapterObjects as CreateProjectSs2Adapters {
     input:
-      loom = MergeSs2Looms.project_loom,
+      loom = output_loom,
       process_input_ids = [GetProjectLevelInputIds.process_input_uuids],
       input_id = project_stratum_string,
       project_id = project_id,
@@ -156,15 +145,15 @@ workflow CreateAdapterMetadata {
       cromwell_url = cromwell_url,
       is_project_level = true,
       reference_file_fasta = CreateIntermediateSs2Adapters.reference_fasta[0],
-      pipeline_version = MergeSs2Looms.pipeline_version_string
+      pipeline_version = CheckPipelineVersion.pipeline_version_string
   }
 
   # store variable resulting from project run
   # Array[File] project_links = CreateProjectSs2Objects.links_outputs // TODO create large links file
-  Array[File] project_analysis_process_objects = CreateProjectSs2Objects.analysis_process_outputs
-  Array[File] project_analysis_protocol_objects = CreateProjectSs2Objects.analysis_protocol_outputs
-  Array[File] project_analysis_file_objects = CreateProjectSs2Objects.analysis_file_outputs
-  Array[File] project_loom_descriptor_objects = CreateProjectSs2Objects.loom_file_descriptor_outputs
+  Array[File] project_analysis_process_objects = CreateProjectSs2Adapters.analysis_process_outputs
+  Array[File] project_analysis_protocol_objects = CreateProjectSs2Adapters.analysis_protocol_outputs
+  Array[File] project_analysis_file_objects = CreateProjectSs2Adapters.analysis_file_outputs
+  Array[File] project_loom_descriptor_objects = CreateProjectSs2Adapters.loom_file_descriptor_outputs
 
   ########################## Copy Files to Staging Bucket ##########################
   # Array[File] links_objects = flatten([intermediate_links, project_links]) # TODO create large links file
@@ -174,7 +163,7 @@ workflow CreateAdapterMetadata {
   Array[File] analysis_protocol_objects = flatten([intermediate_analysis_protocol_objects, project_analysis_protocol_objects])
   Array[File] reference_metadata_objects = CreateReferenceMetadata.reference_metadata_outputs
   Array[File] reference_file_descriptor_objects = CreateReferenceMetadata.reference_file_descriptor_outputs
-  Array[File] data_objects = flatten([reference_fasta_array, project_loom_array, output_bams]) # TODO add output_loom back in
+  Array[File] data_objects = flatten([reference_fasta_array, [output_loom], output_bams, output_bais])
 
   call Tasks.CopyToStagingBucket {
     input:
