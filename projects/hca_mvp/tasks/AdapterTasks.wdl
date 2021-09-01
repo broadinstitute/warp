@@ -166,9 +166,9 @@ task GetAnalysisFileMetadata {
       --input_uuid "~{input_uuid}" \
       --pipeline_type "~{pipeline_type}" \
       --workspace_version "~{version_timestamp}" \
-      ~{"--input_file " + input_file} \
-      ~{"--ss2_bam_file " + ss2_bam_file}" \
-      ~{"--ss2_bai_file " + ss2_bai_file}" \
+      ~{"--input_file " + "\"" + input_file + "\""} \
+      ~{"--ss2_bam_file " + "\"" + ss2_bam_file + "\""} \
+      ~{"--ss2_bai_file " + "\"" + ss2_bai_file + "\""} \
       --project_level ~{project_level}
 
     fi
