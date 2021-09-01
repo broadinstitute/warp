@@ -1,4 +1,7 @@
 # A description of (some of) the test files here.
+- 101342370134_R12C02_NA12891
+    - Control sample
+    - Not setting all optional inputs destined to chip_well_barcode_index table to test that it allows nulls
 - 200557060038_R10C02_PRISM_7032
     - Non-control sample
     - Not pulling fingerprint from Mercury

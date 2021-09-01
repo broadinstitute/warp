@@ -22,7 +22,7 @@ import "../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 
 workflow Arrays {
 
-  String pipeline_version = "2.4.0"
+  String pipeline_version = "2.4.1"
 
   input {
 
@@ -158,19 +158,19 @@ workflow Arrays {
       input:
         chip_type_name = chip_type,
         chip_well_barcode = chip_well_barcode,
-        collaborator_participant_id = select_first([collaborator_participant_id]),
-        lab_batch = select_first([lab_batch]),
-        participant_id = select_first([participant_id]),
-        product_family = select_first([product_family]),
-        product_name = select_first([product_name]),
-        product_order_id = select_first([product_order_id]),
-        product_part_number = select_first([product_part_number]),
+        collaborator_participant_id = collaborator_participant_id,
+        lab_batch = lab_batch,
+        participant_id = participant_id,
+        product_family = product_family,
+        product_name = product_name,
+        product_order_id = product_order_id,
+        product_part_number = product_part_number,
         product_type = product_type,
         regulatory_designation = select_first([regulatory_designation]),
         research_project_id = select_first([research_project_id]),
         sample_alias = sample_alias,
         gender = reported_gender,
-        sample_id = select_first([sample_id]),
+        sample_id = sample_id,
         sample_lsid = sample_lsid,
         preemptible_tries = preemptible_tries
     }
