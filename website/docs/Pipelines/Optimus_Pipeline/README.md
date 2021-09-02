@@ -171,11 +171,11 @@ The task’s output includes a coordinate-sorted BAM file containing the cell ba
 
 #### 2. Calculate gene metrics
 
-The [GeneSortBam](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to calculate summary metrics that help assess the quality of the data output each time this pipeline is run. These metrics are included in the output Loom matrix. A detailed list of these metrics is found in the [Optimus Count Matrix Overview](./Loom_schema.md).
+The [CalculateGeneMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to calculate summary metrics that help assess the quality of the data output each time this pipeline is run. These metrics are included in the output Loom matrix. A detailed list of these metrics is found in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
 #### 3. Calculate cell metrics
 
-The [CellSortBam](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to calculate summary metrics that help assess the per-cell quality of the data output each time this pipeline is run. These metrics are included in the output Loom matrix. A detailed list of these metrics is found in the [Optimus Count Matrix Overview](./Loom_schema.md).
+The [CalculateCellMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to calculate summary metrics that help assess the per-cell quality of the data output each time this pipeline is run. These metrics are included in the output Loom matrix. A detailed list of these metrics is found in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
 
 #### 4. Convert STAR output
