@@ -72,11 +72,15 @@ task CompareTextFiles {
     while read -r a && read -r b <&3;
     do
       echo "Comparing File $a with $b"
-      diff $a $b
-      if [ $? -ne 0 ]; then
+      diff $a $b > diffs.txt
+      if [ $? -ne 0 ];
+      then
         exit_code=1
         echo "Error: Files $a and $b differ" >&2
+        cat diffs.txt >&2
       fi
+      # catting the diffs.txt on STDOUT as that's what's expected.
+      cat diffs.txt
     done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
 
     exit $exit_code
@@ -89,6 +93,7 @@ task CompareTextFiles {
     preemptible: 3
   }
 }
+
 
 task CompareCrams {
 

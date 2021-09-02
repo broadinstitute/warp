@@ -1,3 +1,44 @@
+# 2.4.1
+2021-08-30
+
+* Modified pipeline to make several inputs optional:
+    * sample_id
+    * participant_id
+    * collaborator_participant_id
+    * lab_batch
+    * product_family
+    * product_name
+    * product_order_id
+    * product_part_number
+* Set the volatile=true flag for several internal tasks so they will not use call-caching
+
+# 2.4.0
+2021-08-05
+
+* Enable pipeline to (optionally) pull and push fingerprints from/to the Mercury Fingerprint Store
+
+# 2.3.6
+2021-08-02
+
+* Increased the version number to make new release tag for Dockstore 
+
+# 2.3.5
+2021-07-29
+
+* Updated documentation to describe changes to inputs and outputs
+
+# 2.3.4
+2021-07-28
+
+* Set a default value for product_type so that it can be safely omitted from input file
+
+# 2.3.3
+2021-07-22
+
+* Have pipeline take the values supplied in 'params.txt' input file as optional top-level inputs. First step towards removal
+* Provide params.txt file as output of pipeline.
+* Set default call rate threshold of pipeline to 0.98
+
 # 2.3.2
 2021-07-13
 

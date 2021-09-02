@@ -1,4 +1,0 @@
-{
-  "ReblockGVCF.gvcf": "gs://broad-gotc-test-storage/germline_single_sample/wgs/plumbing/truth/{TRUTH_BRANCH}/G96830.NA12878/NA12878_PLUMBING.g.vcf.gz",
-  "ReblockGVCF.gvcf_index": "gs://broad-gotc-test-storage/germline_single_sample/wgs/plumbing/truth/{TRUTH_BRANCH}/G96830.NA12878/NA12878_PLUMBING.g.vcf.gz.tbi"
-}

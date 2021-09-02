@@ -1,5 +1,5 @@
 {
-  "IlluminaGenotypingArray.sample_alias": "BMS_000637780",
+  "IlluminaGenotypingArray.sample_alias": "BMS 000637780",
   "IlluminaGenotypingArray.analysis_version_number": 1,
   "IlluminaGenotypingArray.call_rate_threshold": 0.98,
   "IlluminaGenotypingArray.genotype_concordance_threshold": 0.98,

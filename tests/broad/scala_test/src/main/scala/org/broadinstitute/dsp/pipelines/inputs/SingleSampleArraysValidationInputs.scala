@@ -29,5 +29,7 @@ case class SingleSampleArraysValidationInputs(
     truth_green_idat_md5: URI,
     test_green_idat_md5: URI,
     truth_red_idat_md5: URI,
-    test_red_idat_md5: URI
+    test_red_idat_md5: URI,
+    truth_params_file: URI,
+    test_params_file: URI
 )

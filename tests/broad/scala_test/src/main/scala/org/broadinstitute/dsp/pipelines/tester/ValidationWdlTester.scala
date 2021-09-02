@@ -200,19 +200,23 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
 
   def generateRunParameters: Seq[WorkflowRunParameters] = {
     logger.info(s"workflowInputRoot: $workflowInputRoot")
-    workflowInputRoot.list.toSeq.map(_.name.toString).map { fileName =>
-      val inputsName = fileName.replace(".json", "")
-      val resultsPath =
-        resultsPrefix.resolve(s"$inputsName/")
-      val truthPath = truthPrefix.resolve(s"$inputsName/")
+    workflowInputRoot.list
+      .filter(_.name.endsWith(".json"))
+      .toSeq
+      .map(_.name.toString)
+      .map { fileName =>
+        val inputsName = fileName.replace(".json", "")
+        val resultsPath =
+          resultsPrefix.resolve(s"$inputsName/")
+        val truthPath = truthPrefix.resolve(s"$inputsName/")
 
-      WorkflowRunParameters(
-        id = s"${envString}_$inputsName",
-        workflowInputs = getInputContents(fileName),
-        resultsCloudPath = resultsPath,
-        truthCloudPath = truthPath
-      )
-    }
+        WorkflowRunParameters(
+          id = s"${envString}_$inputsName",
+          workflowInputs = getInputContents(fileName),
+          resultsCloudPath = resultsPath,
+          truthCloudPath = truthPath
+        )
+      }
   }
 
   def getInputContents(fileName: String): String =
