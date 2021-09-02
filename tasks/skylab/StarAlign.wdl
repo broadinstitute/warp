@@ -63,8 +63,74 @@ task StarAlignBamSingleEnd {
     File bam_output = "Aligned.out.bam"
     File alignment_log = "Log.final.out"
   }
+}
+
+
+task StarAlignFastqPairedEnd {
+  input {
+    File fastq1
+    File fastq2
+    File tar_star_reference
+
+    # runtime values
+    String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
+    Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
+    Int cpu = 16
+    # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
+    Int disk = ceil((size(tar_star_reference, "Gi") * 2.5) + (size(fastq1, "Gi") * 5.0))
+    # by default request non preemptible machine to make sure the slow star alignment step completes
+    Int preemptible = 3
+  }
+
+  meta {
+    description: "Aligns reads in fastq1 and fastq2 to the reference genome in tar_star_reference"
+  }
+
+  parameter_meta {
+    fastq1: "trimmed R1 FASTQ file containing genomic sequence"
+    fastq2: "trimmed R2 FASTQ file containing genomic sequence"
+    tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
+    docker: "(optional) the docker image containing the runtime environment for this task"
+    machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
+    cpu: "(optional) the number of cpus to provision for this task"
+    disk: "(optional) the amount of disk space (GiB) to provision for this task"
+    preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
+  }
+
+  command {
+    set -e
+
+    # prepare reference
+    mkdir genome_reference
+    tar -xf "${tar_star_reference}" -C genome_reference --strip-components 1
+    rm "${tar_star_reference}"
+
+    STAR \
+      --genomeDir genome_reference \
+      --runThreadN ${cpu} \
+      --readFilesIn ~{fastq1} ~{fastq2} \
+      --readFilesCommand "gunzip -c" \
+      --outSAMtype BAM SortedByCoordinate \
+      --outReadsUnmapped Fastx \
+      --runRNGseed 777 \
+      --limitBAMsortRAM 10000000000 \
+      --quantMode GeneCounts 
+  }
+
+  runtime {
+    docker: docker
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ${disk} SSD"
+    cpu: cpu
+    preemptible: preemptible
+  }
+
+  output {
+    File output_bam = "Aligned.sortedByCoord.out.bam"
+  }
 
 }
+
 
 task STARsoloFastq {
   input {
@@ -73,7 +139,6 @@ task STARsoloFastq {
     File tar_star_reference
     File white_list
     String chemistry
-    String input_id
     String counting_mode
 
     # runtime values
@@ -107,12 +172,12 @@ task STARsoloFastq {
 
     UMILen=10
     CBLen=16
-    if [ "${chemistry}" == "tenX_v2" ]
+    if [ "~{chemistry}" == "tenX_v2" ]
     then
         ## V2
         UMILen=10
         CBLen=16
-    elif [ "${chemistry}" == "tenX_v3" ]
+    elif [ "~{chemistry}" == "tenX_v3" ]
     then
         ## V3
         UMILen=12
@@ -124,11 +189,11 @@ task STARsoloFastq {
 
 
     COUNTING_MODE=""
-    if [ "${counting_mode}" == "sc_rna" ]
+    if [ "~{counting_mode}" == "sc_rna" ]
     then
         ## single cell or whole cell
         COUNTING_MODE="Gene"
-    elif [ "${counting_mode}" == "sn_rna" ]
+    elif [ "~{counting_mode}" == "sn_rna" ]
     then
         ## single nuclei
         COUNTING_MODE="GeneFull"
@@ -139,8 +204,8 @@ task STARsoloFastq {
 
     # prepare reference
     mkdir genome_reference
-    tar -xf "${tar_star_reference}" -C genome_reference --strip-components 1
-    rm "${tar_star_reference}"
+    tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
+    rm "~{tar_star_reference}"
 
     echo "UMI LEN " $UMILen 
     STAR \
