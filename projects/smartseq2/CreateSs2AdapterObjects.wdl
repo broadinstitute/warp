@@ -36,6 +36,7 @@ workflow CreateSs2AdapterObjects {
     }
   }
 
+  # If project level then loom is defined
   if (defined(loom)) {
     call Tasks.GetAnalysisFileMetadata as GetProjectAnalysisFileMetadata {
       input:
@@ -70,6 +71,7 @@ workflow CreateSs2AdapterObjects {
       pipeline_version = pipeline_version
   }
 
+  # loom
   if (defined(loom)) {
     call Tasks.GetCloudFileCreationDate as GetLoomFileCreationDate {
       input:
