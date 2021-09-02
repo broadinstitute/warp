@@ -47,6 +47,7 @@ workflow CreateSs2AdapterObjects {
     }
   }
 
+  # ss2_index will be undefined for project level
   call Tasks.GetAnalysisProcessMetadata {
     input:
       input_uuid = input_id,
