@@ -1,5 +1,4 @@
 {
-  "TestOptimusPR.expected_bam_hash": "none",
   "TestOptimusPR.reference_matrix": "gs://hca-dcp-sc-pipelines-test-data/optimus-test-data/referenceMatrix.rds",
   "TestOptimusPR.expected_cell_metric_hash": "none",
   "TestOptimusPR.expected_gene_metric_hash": "none",
