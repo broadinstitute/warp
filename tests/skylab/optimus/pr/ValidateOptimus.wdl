@@ -7,7 +7,6 @@ workflow ValidateOptimus {
 
      input {
          # Optimus output files to be checked
-         File bam
          File matrix
          File matrix_row_index
          File matrix_col_index
@@ -17,7 +16,6 @@ workflow ValidateOptimus {
 
          # Reference data and checksums
          File reference_matrix
-         String expected_bam_hash
          String expected_cell_metric_hash
          String expected_gene_metric_hash
          String expected_loom_file_checksum
@@ -200,7 +198,6 @@ task ValidateMetrics {
 
 task GenerateReport {
   input {
-    String bam_validation_result
     String metric_and_index_validation_result
     String matrix_validation_result
     String loom_validation_result
@@ -216,11 +213,6 @@ task GenerateReport {
 
     # test each output for equality, echoing any failure states to stdout
     fail=false
-
-    echo Bam Validation: ~{bam_validation_result}
-    if [ "~{bam_validation_result}" == "FAIL" ]; then
-        fail=true
-    fi
 
     echo Metrics Validation: ~{metric_and_index_validation_result}
     if [ ~{metric_and_index_validation_result} == "FAIL" ]; then
