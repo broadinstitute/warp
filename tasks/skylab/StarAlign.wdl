@@ -143,7 +143,7 @@ task STARsoloFastq {
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
-    Int machine_mem_mb = 64000 
+    Int machine_mem_mb = 64000
     #ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -231,7 +231,7 @@ task STARsoloFastq {
   runtime {
     docker: docker
     memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ${disk} SSD"
+    disks: "local-disk ${disk} HDD"
     cpu: cpu
     preemptible: preemptible
   }
