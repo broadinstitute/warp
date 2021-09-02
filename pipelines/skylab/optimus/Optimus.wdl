@@ -87,7 +87,6 @@ workflow Optimus {
       white_list = whitelist,
       tar_star_reference = tar_star_reference,
       chemistry = chemistry,
-      input_id = input_id,
       counting_mode = counting_mode
   }
 

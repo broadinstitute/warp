@@ -73,7 +73,6 @@ task STARsoloFastq {
     File tar_star_reference
     File white_list
     String chemistry
-    String input_id
     String counting_mode
 
     # runtime values
@@ -107,12 +106,12 @@ task STARsoloFastq {
 
     UMILen=10
     CBLen=16
-    if [ "${chemistry}" == "tenX_v2" ]
+    if [ "~{chemistry}" == "tenX_v2" ]
     then
         ## V2
         UMILen=10
         CBLen=16
-    elif [ "${chemistry}" == "tenX_v3" ]
+    elif [ "~{chemistry}" == "tenX_v3" ]
     then
         ## V3
         UMILen=12
@@ -124,11 +123,11 @@ task STARsoloFastq {
 
 
     COUNTING_MODE=""
-    if [ "${counting_mode}" == "sc_rna" ]
+    if [ "~{counting_mode}" == "sc_rna" ]
     then
         ## single cell or whole cell
         COUNTING_MODE="Gene"
-    elif [ "${counting_mode}" == "sn_rna" ]
+    elif [ "~{counting_mode}" == "sn_rna" ]
     then
         ## single nuclei
         COUNTING_MODE="GeneFull"
@@ -139,8 +138,8 @@ task STARsoloFastq {
 
     # prepare reference
     mkdir genome_reference
-    tar -xf "${tar_star_reference}" -C genome_reference --strip-components 1
-    rm "${tar_star_reference}"
+    tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
+    rm "~{tar_star_reference}"
 
     echo "UMI LEN " $UMILen 
     STAR \
