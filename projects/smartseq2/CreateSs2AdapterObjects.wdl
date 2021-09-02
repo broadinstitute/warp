@@ -24,15 +24,27 @@ workflow CreateSs2AdapterObjects {
     File metadata
   }
 
-  call Tasks.GetAnalysisFileMetadata {
-    input:
-      input_uuid = input_id,
-      pipeline_type = pipeline_type,
-      ss2_bam_file = select_first([bam]),
-      ss2_bai_file = select_first([bai]),
-      version_timestamp = version_timestamp,
-      project_level = is_project_level,
-      project_loom = loom
+  if (defined(bam)) {
+    call Tasks.GetAnalysisFileMetadata as GetIntermediateAnalysisFileMetadata {
+      input:
+        input_uuid = input_id,
+        pipeline_type = pipeline_type,
+        ss2_bam_file = select_first([bam]),
+        ss2_bai_file = select_first([bai]),
+        version_timestamp = version_timestamp,
+        project_level = is_project_level
+    }
+  }
+
+  if (defined(loom)) {
+    call Tasks.GetAnalysisFileMetadata as GetProjectAnalysisFileMetadata {
+      input:
+        input_uuid = input_id,
+        pipeline_type = pipeline_type,
+        version_timestamp = version_timestamp,
+        project_level = is_project_level,
+        project_loom = select_first([loom])
+    }
   }
 
   call Tasks.GetAnalysisProcessMetadata {
@@ -57,7 +69,7 @@ workflow CreateSs2AdapterObjects {
       pipeline_version = pipeline_version
   }
 
-  if(defined(loom)) {
+  if (defined(loom)) {
     call Tasks.GetCloudFileCreationDate as GetLoomFileCreationDate {
       input:
         file_path = select_first([loom])
@@ -124,7 +136,7 @@ workflow CreateSs2AdapterObjects {
   # }
 
   output {
-    Array[File] analysis_file_outputs = GetAnalysisFileMetadata.analysis_file_outputs
+    Array[File] analysis_file_outputs = select_first([GetIntermediateAnalysisFileMetadata.analysis_file_outputs, GetProjectAnalysisFileMetadata.analysis_file_outputs])
     Array[File] analysis_process_outputs = GetAnalysisProcessMetadata.analysis_process_outputs
     Array[File] analysis_protocol_outputs = GetAnalysisProtocolMetadata.analysis_protocol_outputs
     # Array[File] links_outputs = GetLinksFileMetadata.links_outputs
