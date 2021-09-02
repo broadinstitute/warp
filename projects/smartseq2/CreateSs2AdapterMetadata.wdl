@@ -115,6 +115,7 @@ workflow CreateSs2AdapterMetadata {
         bai = output_bais[idx],
         loom = output_loom,
         input_id = input_ids[idx],
+        ss2_index = idx,
         process_input_ids = select_all([fastq_1_uuids[idx],fastq_2_uuids[idx], fastq_i1_uuid]),
         project_id = project_id,
         version_timestamp = version_timestamp,

@@ -12,6 +12,7 @@ workflow CreateSs2AdapterObjects {
     File? bam
     File? bai
     File? loom
+    Int? ss2_index
     Array[String] process_input_ids # Array of space seperated strings...fastq for intermediate, intermediate looms for project level
     String input_id
     String project_id
@@ -41,7 +42,8 @@ workflow CreateSs2AdapterObjects {
       version_timestamp = version_timestamp,
       references = reference_file_fasta,
       project_level = is_project_level,
-      input_file = metadata
+      input_file = metadata,
+      ss2_index = ss2_index
   }
 
   # pipeline_type is used for a dockstore URL here, so it needs to fit into this example:

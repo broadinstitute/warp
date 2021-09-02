@@ -195,6 +195,7 @@ task GetAnalysisProcessMetadata {
     String references
     File input_file
     Boolean project_level
+    Int? ss2_index
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
@@ -210,6 +211,7 @@ task GetAnalysisProcessMetadata {
       --references "~{references}" \
       --input_file "~{input_file}" \
       --project_level ~{project_level} \
+      ~{"--ss2_index " + ss2_index}
 
   }
   runtime {
