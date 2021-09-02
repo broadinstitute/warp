@@ -1,3 +1,8 @@
+# 5.1.4
+2021-09-02 (Date of Last Commit)
+
+* Updated picard task to accomodate Star-Solo based Optimus
+
 # 5.1.3
 2021-07-19 (Date of Last Commit)
 
