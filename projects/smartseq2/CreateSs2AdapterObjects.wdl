@@ -13,9 +13,7 @@ workflow CreateSs2AdapterObjects {
     File? bai
     File? loom
     Int? ss2_index
-    Array[String] process_input_ids # Array of space seperated strings...fastq for intermediate, intermediate looms for project level
     String input_id
-    String project_id
     String version_timestamp
     String pipeline_type
     Boolean is_project_level
@@ -125,24 +123,11 @@ workflow CreateSs2AdapterObjects {
     }
   }
 
-# TODO: create one large links file for ss2
-  # call Tasks.GetLinksFileMetadata {
-  #   input:
-  #     project_id = project_id,
-  #     process_input_ids = process_input_ids, # for intermediate level use fastq_uuids from Terra, for project level use output_ids from intermediate files
-  #     output_file_path = GetAnalysisFileMetadata.outputs_json,
-  #     version_timestamp = version_timestamp,
-  #     analysis_process_path = GetAnalysisProcessMetadata.analysis_process_outputs,
-  #     analysis_protocol_path = GetAnalysisProtocolMetadata.analysis_protocol_outputs,
-  #     project_level = is_project_level,
-  #     file_name_string = input_id
-  # }
-
   output {
     Array[File] analysis_file_outputs = select_first([GetIntermediateAnalysisFileMetadata.analysis_file_outputs, GetProjectAnalysisFileMetadata.analysis_file_outputs])
     Array[File] analysis_process_outputs = GetAnalysisProcessMetadata.analysis_process_outputs
     Array[File] analysis_protocol_outputs = GetAnalysisProtocolMetadata.analysis_protocol_outputs
-    # Array[File] links_outputs = GetLinksFileMetadata.links_outputs
+    File analysis_file_outputs_json = select_first([GetIntermediateAnalysisFileMetadata.outputs_json, GetProjectAnalysisFileMetadata.outputs_json])
     Array[File]? loom_file_descriptor_outputs = GetLoomFileDescriptor.file_descriptor_outputs
     Array[File]? bam_file_descriptor_outputs = GetBamFileDescriptor.file_descriptor_outputs
     Array[File]? bai_file_descriptor_outputs = GetBaiFileDescriptor.file_descriptor_outputs

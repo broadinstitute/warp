@@ -263,13 +263,18 @@ task GetAnalysisProtocolMetadata {
 task GetLinksFileMetadata {
   input {
     String project_id
-    Array[String] process_input_ids
+    Array[String]? process_input_ids
     File output_file_path
     String version_timestamp
     Array[File] analysis_process_path
     Array[File] analysis_protocol_path
     String file_name_string
+    String pipeline_type
     Boolean project_level
+    Array[String]? bam_array
+    Array[String]? bai_array
+    Array[String]? fastq1_array
+    Array[String]? fastq2_array
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
@@ -278,15 +283,30 @@ task GetLinksFileMetadata {
   }
 
   command {
-    create-links \
-    --project_id "~{project_id}" \
-    --input_uuids ~{sep=' ' process_input_ids} \
-    --output_file_path "~{output_file_path}" \
-    --workspace_version "~{version_timestamp}" \
-    --analysis_process_path "~{sep=' ' analysis_process_path}" \
-    --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
-    --file_name_string "~{file_name_string}" \
-    --project_level ~{project_level}
+    if ["~{pipeline_type}" == "Optimus"]; then
+      create-links \
+      --project_id "~{project_id}" \
+      --input_uuids ~{sep=' ' process_input_ids} \
+      --output_file_path "~{output_file_path}" \
+      --workspace_version "~{version_timestamp}" \
+      --analysis_process_path "~{sep=' ' analysis_process_path}" \
+      --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
+      --file_name_string "~{file_name_string}" \
+      --project_level ~{project_level}
+    else
+      create-links \
+      --project_id "~{project_id}" \
+      --output_file_path "~{output_file_path}" \
+      --workspace_version "~{version_timestamp}" \
+      --analysis_process_path "~{sep=' ' analysis_process_path}" \
+      --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
+      --ss2_bam "~{sep=' ' bam_array}" \
+      --ss2_bai "~{sep=' ' bai_array}" \
+      --ss2_fastq1 "~{sep=' ' fastq1_array}" \
+      --ss2_fastq2 "~{sep=' ' fastq2_array}" \
+      --file_name_string "~{file_name_string}" \
+      --project_level ~{project_level}
+    fi
   }
   runtime {
     docker: docker

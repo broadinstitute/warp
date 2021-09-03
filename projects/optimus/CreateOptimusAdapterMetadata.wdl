@@ -31,6 +31,7 @@ workflow CreateOptimusAdapterMetadata {
     String cromwell_url = "https://api.firecloud.org/"
     String staging_area = "gs://broad-dsp-monster-hca-prod-lantern/"
     String version_timestamp
+    String pipeline_type = "Optimus"
   }
 
   ########################## Set up Inputs ##########################
@@ -100,7 +101,8 @@ workflow CreateOptimusAdapterMetadata {
         project_id = project_id,
         version_timestamp = version_timestamp,
         cromwell_url = cromwell_url,
-        is_project_level = false
+        is_project_level = false,
+        pipeline_type = pipeline_type
     }
   }
 
@@ -116,7 +118,7 @@ workflow CreateOptimusAdapterMetadata {
     input:
       reference_fastas = CreateIntermediateOptimusAdapters.reference_fasta,
       species = species,
-      pipeline_type = "Optimus",
+      pipeline_type = pipeline_type,
       version_timestamp = version_timestamp,
       input_type = "reference"
   }
@@ -154,7 +156,8 @@ workflow CreateOptimusAdapterMetadata {
       cromwell_url = cromwell_url,
       is_project_level = true,
       reference_file_fasta = CreateIntermediateOptimusAdapters.reference_fasta[0],
-      pipeline_version = MergeOptimusLooms.pipeline_version_string
+      pipeline_version = MergeOptimusLooms.pipeline_version_string,
+      pipeline_type = pipeline_type
   }
 
   # store variable resulting from project run

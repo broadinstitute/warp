@@ -78,6 +78,7 @@ workflow CreateOptimusAdapterObjects {
     input:
       pipeline_type = pipeline_type,
       file_path = loom,
+      file_path_string = loom,
       input_uuid = input_id,
       creation_time = GetLoomFileCreationDate.creation_date,
       version_timestamp = version_timestamp
@@ -93,6 +94,7 @@ workflow CreateOptimusAdapterObjects {
       input:
         pipeline_type = pipeline_type,
         file_path = select_first([bam]),
+        file_path_string = select_first([bam]),
         input_uuid = input_id,
         creation_time = GetBamFileCreationDate.creation_date,
         version_timestamp = version_timestamp

@@ -85,7 +85,6 @@ workflow CreateSs2AdapterMetadata {
   String project_id = CheckProjectID.output_string
   String project_name = CheckProjectName.output_string
 
-
   # Build staging bucket
   String staging_bucket = staging_area + project_id + "/staging/"
   String project_stratum_string = "project=" + project_id + ";library=" + library + ";species=" + species + ";organ=" + organ
@@ -116,8 +115,6 @@ workflow CreateSs2AdapterMetadata {
         bai = output_bais[idx],
         input_id = input_ids[idx],
         ss2_index = idx,
-        process_input_ids = select_all([fastq_1_uuids[idx],fastq_2_uuids[idx], fastq_i1_uuid]),
-        project_id = project_id,
         version_timestamp = version_timestamp,
         pipeline_version = CheckPipelineVersion.pipeline_version_string,
         pipeline_type = pipeline_type,
@@ -159,9 +156,7 @@ workflow CreateSs2AdapterMetadata {
   call CreateSs2Objects.CreateSs2AdapterObjects as CreateProjectSs2Adapters {
     input:
       loom = output_loom,
-      process_input_ids = [GetProjectLevelInputIds.process_input_uuids],
       input_id = project_stratum_string,
-      project_id = project_id,
       version_timestamp = version_timestamp,
       is_project_level = true,
       reference_file_fasta = ParseCromwellMetadata.ref_fasta,
@@ -171,11 +166,30 @@ workflow CreateSs2AdapterMetadata {
   }
 
   # store variable resulting from project run
-  # Array[File] project_links = CreateProjectSs2Objects.links_outputs // TODO create large links file
   Array[File] project_analysis_process_objects = CreateProjectSs2Adapters.analysis_process_outputs
   Array[File] project_analysis_protocol_objects = CreateProjectSs2Adapters.analysis_protocol_outputs
+  File analysis_file_outputs_json = CreateProjectSs2Adapters.analysis_file_outputs_json
   Array[File] project_analysis_file_objects = CreateProjectSs2Adapters.analysis_file_outputs
   Array[File] project_loom_descriptor_objects = flatten(select_all([CreateProjectSs2Adapters.loom_file_descriptor_outputs]))
+
+
+  call Tasks.GetLinksFileMetadata {
+    input:
+      project_id = project_id,
+      output_file_path = analysis_file_outputs_json,
+      version_timestamp = version_timestamp,
+      analysis_process_path = project_analysis_process_objects,
+      analysis_protocol_path = project_analysis_protocol_objects,
+      bam_array = output_bams,
+      bai_array = output_bais,
+      fastq1_array = fastq_1_uuids,
+      fastq2_array = fastq_2_uuids,
+      project_level = true,
+      file_name_string = project_stratum_string,
+      pipeline_type = pipeline_type
+  }
+
+  Array[File] project_links = GetLinksFileMetadata.links_outputs
 
   ########################## Copy Files to Staging Bucket ##########################
   # Array[File] links_objects = flatten([intermediate_links, project_links]) # TODO create large links file
