@@ -523,7 +523,7 @@ task CopyToStagingBucket {
     Array[File] analysis_process_objects
     Array[File] analysis_protocol_objects
     Array[File] analysis_file_descriptor_objects
-    Array[File]? links_objects = [] # TODO this shouldnt be optional when we add links back in for ss2, does setting it to empty array by default work?
+    Array[File] links_objects
     Array[File] data_objects
     Array[File] reference_metadata_objects
     Array[File] reference_file_descriptor_objects

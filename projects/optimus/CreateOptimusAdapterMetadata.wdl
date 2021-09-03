@@ -101,8 +101,7 @@ workflow CreateOptimusAdapterMetadata {
         project_id = project_id,
         version_timestamp = version_timestamp,
         cromwell_url = cromwell_url,
-        is_project_level = false,
-        pipeline_type = pipeline_type
+        is_project_level = false
     }
   }
 
@@ -156,8 +155,7 @@ workflow CreateOptimusAdapterMetadata {
       cromwell_url = cromwell_url,
       is_project_level = true,
       reference_file_fasta = CreateIntermediateOptimusAdapters.reference_fasta[0],
-      pipeline_version = MergeOptimusLooms.pipeline_version_string,
-      pipeline_type = pipeline_type
+      pipeline_version = MergeOptimusLooms.pipeline_version_string
   }
 
   # store variable resulting from project run
