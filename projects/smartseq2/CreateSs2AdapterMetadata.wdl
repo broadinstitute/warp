@@ -1,6 +1,5 @@
 version 1.0
 
-# testing for dockstore to terra
 import "../smartseq2/CreateSs2AdapterObjects.wdl" as CreateSs2Objects
 import "../hca_mvp/tasks/AdapterTasks.wdl" as Tasks
 import "../hca_mvp/tasks/CreateReferenceMetadata.wdl" as CreateReferenceMetadata
@@ -226,4 +225,3 @@ workflow CreateSs2AdapterMetadata {
     Array[File] output_data_objects = data_objects
   }
 }
-
