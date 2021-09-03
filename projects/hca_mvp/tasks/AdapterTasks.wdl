@@ -263,7 +263,7 @@ task GetAnalysisProtocolMetadata {
 task GetLinksFileMetadata {
   input {
     String project_id
-    Array[String]? process_input_ids
+    Array[String] process_input_ids
     File output_file_path
     String version_timestamp
     Array[File] analysis_process_path
@@ -292,12 +292,14 @@ task GetLinksFileMetadata {
       --analysis_process_path "~{sep=' ' analysis_process_path}" \
       --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
       --file_name_string "~{file_name_string}" \
-      --project_level ~{project_level}
+      --project_level ~{project_level} \
+      --pipeline_type ~{pipeline_type}
     else
       create-links \
       --project_id "~{project_id}" \
       --output_file_path "~{output_file_path}" \
       --workspace_version "~{version_timestamp}" \
+      --input_uuids ~{sep=' ' process_input_ids} \
       --analysis_process_path "~{sep=' ' analysis_process_path}" \
       --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
       --ss2_bam "~{sep=' ' bam_array}" \
@@ -305,7 +307,8 @@ task GetLinksFileMetadata {
       --ss2_fastq1 "~{sep=' ' fastq1_array}" \
       --ss2_fastq2 "~{sep=' ' fastq2_array}" \
       --file_name_string "~{file_name_string}" \
-      --project_level ~{project_level}
+      --project_level ~{project_level} \
+      --pipeline_type ~{pipeline_type}
     fi
   }
   runtime {

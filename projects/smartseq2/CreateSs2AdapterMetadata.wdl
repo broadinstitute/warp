@@ -178,6 +178,7 @@ workflow CreateSs2AdapterMetadata {
       project_id = project_id,
       output_file_path = analysis_file_outputs_json,
       version_timestamp = version_timestamp,
+      process_input_ids = input_ids,
       analysis_process_path = project_analysis_process_objects,
       analysis_protocol_path = project_analysis_protocol_objects,
       bam_array = output_bams,
@@ -192,7 +193,7 @@ workflow CreateSs2AdapterMetadata {
   Array[File] project_links = GetLinksFileMetadata.links_outputs
 
   ########################## Copy Files to Staging Bucket ##########################
-  # Array[File] links_objects = flatten([intermediate_links, project_links]) # TODO create large links file
+  Array[File] links_objects = project_links
   Array[File] analysis_file_descriptor_objects = flatten([intermediate_loom_descriptor_objects, intermediate_bam_descriptor_objects, intermediate_bai_descriptor_objects, project_loom_descriptor_objects])
   Array[File] analysis_file_metadata_objects = flatten([intermediate_analysis_file_objects, project_analysis_file_objects])
   Array[File] analysis_process_objects = flatten([intermediate_analysis_process_objects, project_analysis_process_objects])
@@ -204,7 +205,7 @@ workflow CreateSs2AdapterMetadata {
   call Tasks.CopyToStagingBucket {
     input:
       staging_bucket = staging_bucket,
-      # links_objects = links_objects,
+      links_objects = links_objects,
       analysis_file_descriptor_objects = analysis_file_descriptor_objects,
       analysis_file_metadata_objects = analysis_file_metadata_objects,
       analysis_process_objects = analysis_process_objects,
@@ -215,7 +216,7 @@ workflow CreateSs2AdapterMetadata {
   }
 
   output {
-    # Array[File] output_links_objects = links_objects
+    Array[File] output_links_objects = links_objects
     Array[File] output_analysis_file_descriptor_objects = analysis_file_descriptor_objects
     Array[File] output_analysis_file_metadata_objects = analysis_file_metadata_objects
     Array[File] output_analysis_process_objects = analysis_process_objects
