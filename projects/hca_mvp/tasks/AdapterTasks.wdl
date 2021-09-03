@@ -53,9 +53,6 @@ task CheckInput {
   }
 }
 
-
-
-
 # Get Cromwell metadata for a workflow
 # Uses a workflow output to parse the cromwell id and fetch the metadata
 task GetCromwellMetadata {
@@ -94,7 +91,6 @@ task GetCromwellMetadata {
   }
 }
 
-
 task MergeLooms {
   input {
     Array[File] output_looms
@@ -130,7 +126,6 @@ task MergeLooms {
     File project_loom = "~{output_basename}.loom"
   }
 }
-
 
 task GetAnalysisFileMetadata {
   input {
@@ -186,7 +181,6 @@ task GetAnalysisFileMetadata {
   }
 }
 
-
 task GetAnalysisProcessMetadata {
   input {
     String input_uuid
@@ -226,39 +220,38 @@ task GetAnalysisProcessMetadata {
 }
 
 task GetAnalysisProtocolMetadata {
-   input {
-     String input_uuid
-     String pipeline_type
-     String version_timestamp
-     String pipeline_version
-     Boolean project_level
+  input {
+    String input_uuid
+    String pipeline_type
+    String version_timestamp
+    String pipeline_version
+    Boolean project_level
 
-     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
-     Int cpu = 1
-     Int machine_mem_mb = 2000
-     Int disk = 10
-   }
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
+    Int cpu = 1
+    Int machine_mem_mb = 2000
+    Int disk = 10
+  }
 
-   command {
-     create-analysis-protocol \
-       --input_uuid "~{input_uuid}" \
-       --pipeline_type "~{pipeline_type}" \
-       --workspace_version "~{version_timestamp}" \
-       --pipeline_version "~{pipeline_version}" \
-       --project_level ~{project_level}
-   }
+  command {
+    create-analysis-protocol \
+      --input_uuid "~{input_uuid}" \
+      --pipeline_type "~{pipeline_type}" \
+      --workspace_version "~{version_timestamp}" \
+      --pipeline_version "~{pipeline_version}" \
+      --project_level ~{project_level}
+  }
 
-   runtime {
-     docker: docker
-     cpu: cpu
-     memory: "${machine_mem_mb} MiB"
-     disks: "local-disk ~{disk} HDD"
-    }
-    output {
-      Array[File] analysis_protocol_outputs = glob("*${version_timestamp}.json")
-    }
- }
-
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
+  }
+  output {
+    Array[File] analysis_protocol_outputs = glob("*${version_timestamp}.json")
+  }
+}
 
 task GetLinksFileMetadata {
   input {
@@ -322,7 +315,6 @@ task GetLinksFileMetadata {
   }
 }
 
-
 task GetFileDescriptor {
   input {
     String input_uuid
@@ -336,13 +328,13 @@ task GetFileDescriptor {
     Int cpu = 1
     Int machine_mem_mb = 2000
     Int disk = 30
-   }
+  }
 
   command
   <<<
-      export sha256=$(sha256sum ~{file_path} | cut -f1 -d ' ')
-      export crc32c=$(gsutil hash -h ~{file_path_string} | awk '/crc32c/ { print $3 }')
-      export size=$(gsutil stat ~{file_path_string} | awk '/Content-Length/ { print $2 }')
+    export sha256=$(sha256sum ~{file_path} | cut -f1 -d ' ')
+    export crc32c=$(gsutil hash -h ~{file_path_string} | awk '/crc32c/ { print $3 }')
+    export size=$(gsutil stat ~{file_path_string} | awk '/Content-Length/ { print $2 }')
 
     create-file-descriptor \
     --size "$size" \
@@ -365,7 +357,6 @@ task GetFileDescriptor {
     Array[File] file_descriptor_outputs = glob("*${version_timestamp}.json")
   }
 }
-
 
 task GetReferenceFileMetadata {
   input {
@@ -409,7 +400,6 @@ task GetReferenceFileMetadata {
   }
 }
 
-
 task GetCloudFileCreationDate {
   input {
     String file_path
@@ -432,7 +422,6 @@ task GetCloudFileCreationDate {
     String creation_date = read_string("creation_date.txt")
   }
 }
-
 
 task ParseCromwellMetadata {
   input {
@@ -461,7 +450,6 @@ task ParseCromwellMetadata {
     String pipeline_version = read_string("pipeline_version.txt")
   }
 }
-
 
 task GetReferenceDetails {
   input {

@@ -145,12 +145,6 @@ workflow CreateSs2AdapterMetadata {
 
   Array[File] reference_fasta_array = [CreateReferenceMetadata.reference_fasta]
 
-  # Get all of the intermediate loom file
-  call Tasks.GetProjectLevelInputIds {
-    input:
-      intermediate_analysis_files = flatten(CreateIntermediateSs2Adapters.analysis_file_outputs)
-  }
-
   # Create the project level objects based on the intermediate looms and the final merged loom
   call CreateSs2Objects.CreateSs2AdapterObjects as CreateProjectSs2Adapters {
     input:
