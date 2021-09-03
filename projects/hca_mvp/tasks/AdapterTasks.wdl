@@ -295,10 +295,10 @@ task GetLinksFileMetadata {
       --input_uuids ~{sep=' ' process_input_ids} \
       --analysis_process_path "~{sep=' ' analysis_process_path}" \
       --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
-      --ss2_bam "~{sep=' ' bam_array}" \
-      --ss2_bai "~{sep=' ' bai_array}" \
-      --ss2_fastq1 "~{sep=' ' fastq1_array}" \
-      --ss2_fastq2 "~{sep=' ' fastq2_array}" \
+      --ss2_bam ~{sep=' ' bam_array} \
+      --ss2_bai ~{sep=' ' bai_array} \
+      --ss2_fastq1 ~{sep=' ' fastq1_array} \
+      --ss2_fastq2 ~{sep=' ' fastq2_array} \
       --file_name_string "~{file_name_string}" \
       --project_level ~{project_level} \
       --pipeline_type ~{pipeline_type}
