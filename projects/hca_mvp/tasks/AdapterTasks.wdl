@@ -286,7 +286,7 @@ task GetLinksFileMetadata {
       --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
       --file_name_string "~{file_name_string}" \
       --project_level ~{project_level} \
-      --pipeline_type ~{pipeline_type}
+      --pipeline_type "~{pipeline_type}"
     else
       create-links \
       --project_id "~{project_id}" \
@@ -301,7 +301,7 @@ task GetLinksFileMetadata {
       --ss2_fastq2 ~{sep=' ' fastq2_array} \
       --file_name_string "~{file_name_string}" \
       --project_level ~{project_level} \
-      --pipeline_type ~{pipeline_type}
+      --pipeline_type "~{pipeline_type}"
     fi
   }
   runtime {
