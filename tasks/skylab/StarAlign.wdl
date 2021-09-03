@@ -207,7 +207,9 @@ task STARsoloFastq {
     tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
     rm "~{tar_star_reference}"
 
+
     echo "UMI LEN " $UMILen 
+
     STAR \
       --soloType Droplet \
       --soloStrand Unstranded \
@@ -225,13 +227,17 @@ task STARsoloFastq {
       --outSAMtype BAM SortedByCoordinate \
       --outSAMattributes UB UR UY CR CB CY NH GX GN
 
-    du -h -d 1 .
+    if [ $COUNTING_MODE == "GeneFull" ]
+    then
+        mv Solo.out/GeneFull Solo.out/Gene
+    fi
+ 
   }
 
   runtime {
     docker: docker
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ${disk} HDD"
+    memory: "~{machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
     cpu: cpu
     preemptible: preemptible
   }
