@@ -73,11 +73,6 @@ workflow CreateSs2AdapterMetadata {
       illegal_characters = "; =" # should we include % in this list? # ultimately we should switch to a whitelist
   }
 
-  call Tasks.GetSs2PipelineVersion as CheckPipelineVersion {
-    input:
-      pipeline_version = pipeline_version
-  }
-
   String library = CheckLibrary.output_string
   String organ = CheckOrgan.output_string
   String species = CheckSpecies.output_string
@@ -105,6 +100,15 @@ workflow CreateSs2AdapterMetadata {
       pipeline_type = pipeline_type
   }
 
+  # store variables from ParseCromwellMetadata
+  String reference_fasta = ParseCromwellMetadata.ref_fasta
+  String ss2_pipeline_version = ParseCromwellMetadata.pipeline_version
+
+  call Tasks.GetSs2PipelineVersion as CheckPipelineVersion {
+    input:
+      pipeline_version = ss2_pipeline_version
+  }
+
   ########################## Get Ss2 Metadata Files ##########################
   scatter (idx in range(length(output_bams))) {
     String? fastq_i1_uuid = if defined(fastq_i1_uuids) then select_first([fastq_i1_uuids])[idx] else none
@@ -115,16 +119,15 @@ workflow CreateSs2AdapterMetadata {
         input_id = input_ids[idx],
         ss2_index = idx,
         version_timestamp = version_timestamp,
-        pipeline_version = CheckPipelineVersion.pipeline_version_string,
+        pipeline_version = ss2_pipeline_version,
         pipeline_type = pipeline_type,
-        reference_file_fasta = ParseCromwellMetadata.ref_fasta,
+        reference_file_fasta = reference_fasta,
         metadata = GetCromwellMetadata.metadata,
         is_project_level = false
     }
   }
 
   # store variable resulting from intermediate run
-  # Array[File] intermediate_links = flatten(CreateIntermediateSs2Adapters.links_outputs)
   Array[File] intermediate_analysis_process_objects = flatten(CreateIntermediateSs2Adapters.analysis_process_outputs)
   Array[File] intermediate_analysis_protocol_objects = flatten(CreateIntermediateSs2Adapters.analysis_protocol_outputs)
   Array[File] intermediate_analysis_file_objects = flatten(CreateIntermediateSs2Adapters.analysis_file_outputs)
@@ -133,10 +136,9 @@ workflow CreateSs2AdapterMetadata {
   Array[File] intermediate_bai_descriptor_objects = flatten(select_all(CreateIntermediateSs2Adapters.bai_file_descriptor_outputs))
 
 
-  # should this pipeline_type be Smartseq2_Multisample or SS2? does it matter?
   call CreateReferenceMetadata.CreateReferenceMetadata {
     input:
-      reference_fastas = [ParseCromwellMetadata.ref_fasta],
+      reference_fastas = [reference_fasta],
       species = species,
       pipeline_type = pipeline_type,
       version_timestamp = version_timestamp,
@@ -152,8 +154,8 @@ workflow CreateSs2AdapterMetadata {
       input_id = project_stratum_string,
       version_timestamp = version_timestamp,
       is_project_level = true,
-      reference_file_fasta = ParseCromwellMetadata.ref_fasta,
-      pipeline_version = CheckPipelineVersion.pipeline_version_string,
+      reference_file_fasta = reference_fasta,
+      pipeline_version = ss2_pipeline_version,
       pipeline_type = pipeline_type,
       metadata = GetCromwellMetadata.metadata
   }

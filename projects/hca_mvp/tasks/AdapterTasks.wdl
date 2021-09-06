@@ -568,11 +568,10 @@ task GetOptimusPipelineVersion {
 task GetSs2PipelineVersion {
   input {
     String pipeline_version
-    String prefix = "MultiSampleSmartSeq2_v"
     String docker = "ubuntu:18.04"
   }
   command {
-    echo ~{prefix}~{pipeline_version} > pipeline_version.txt
+    echo ~{pipeline_version} > pipeline_version.txt
   }
   output {
     String pipeline_version_string = read_string("pipeline_version.txt")
