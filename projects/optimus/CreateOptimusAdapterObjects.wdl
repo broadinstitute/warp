@@ -31,15 +31,15 @@ workflow CreateOptimusAdapterObjects {
   }
 
   if (!is_project_level) {
-    call Tasks.ParseCromwellMetadata {
+    call Tasks.ParseOptimusCromwellMetadata {
       input:
         cromwell_metadata = GetCromwellMetadata.metadata,
         pipeline_type = pipeline_type
     }
   }
 
-  String reference = select_first([ParseCromwellMetadata.ref_fasta, reference_file_fasta])
-  String pipe_version = select_first([ParseCromwellMetadata.pipeline_version, pipeline_version])
+  String reference = select_first([ParseOptimusCromwellMetadata.ref_fasta, reference_file_fasta])
+  String pipe_version = select_first([ParseOptimusCromwellMetadata.pipeline_version, pipeline_version])
 
   call Tasks.GetAnalysisFileMetadata {
     input:
