@@ -1,7 +1,9 @@
 # 2.2.5
 2021-09-02 (Date of Last Commit)
 
-* Updated picard task wdl to add support for StarSolo. Changes affect the Optimus pipeline, but have no effect on SS2 pipelines
+* Removed a redundant task in Picard.wdl that was use in the previous  Optimus pipeline. However, 
+  that wdl also contains other Picard task that are used in the smartseq2 single sample. Therefore, 
+  the smartseq2 single sample is not expected to change. 
 
 # 2.2.4
 2021-08-02 (Date of Last Commit)
