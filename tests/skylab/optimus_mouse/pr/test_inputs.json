@@ -1,6 +1,4 @@
 {
-  "TestOptimusPR.expected_bam_hash": "812a4bd9bfa6e5a340672306fb48bf3d",   "b8df763cedf2207fddd124b03edd6847",
-  "TestOptimusPR.expected_matrix_hash": "79d0e000e9e707e16fce1ecc1559cd5d",
   "TestOptimusPR.expected_cell_metric_hash": "cc30d32963ea26110620c1c07fd7ebee", 
   "TestOptimusPR.expected_gene_metric_hash": "47ab7bb6ab2ca6e301eb1563e8388a6f", 
   "TestOptimusPR.r1_fastq": [
