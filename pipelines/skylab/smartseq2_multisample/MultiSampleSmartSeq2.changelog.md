@@ -1,7 +1,7 @@
 # 2.2.5
 2021-09-02 (Date of Last Commit)
 
-* Updated picard task wdl
+* Updated picard task wdl to add support for StarSolo. Changes affect the Optimus pipeline, but have no effect on SS2 pipelines
 
 # 2.2.4
 2021-08-02 (Date of Last Commit)
