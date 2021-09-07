@@ -1,5 +1,5 @@
 {
-  "TestOptimusPR.reference_matrix": "gs://hca-dcp-sc-pipelines-test-data/optimus-test-data/1/referenceMatrix_mouse_v1.rds",
+  "TestOptimusPR.reference_matrix": "gs://hca-dcp-sc-pipelines-test-data/optimus-test-data/1/referenceMatrix_snrna_v1.rds",
   "TestOptimusPR.expected_cell_metric_hash": "cc30d32963ea26110620c1c07fd7ebee", 
   "TestOptimusPR.expected_gene_metric_hash": "47ab7bb6ab2ca6e301eb1563e8388a6f", 
   "TestOptimusPR.expected_bam": "gs://hca-dcp-sc-pipelines-test-data/optimus-test-data/optimus_mouse_v1.bam",
