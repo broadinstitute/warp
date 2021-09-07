@@ -11,6 +11,7 @@ workflow TestOptimusPR {
     String expected_cell_metric_hash
     String expected_loom_file_checksum
     File reference_matrix
+    File expected_bam
 
     # Optimus inputs
     Array[File] r1_fastq
@@ -51,6 +52,8 @@ workflow TestOptimusPR {
       matrix_col_index = target.matrix_col_index,
       gene_metrics = target.gene_metrics,
       cell_metrics = target.cell_metrics,
+      test_bam = target.bam, 
+      truth_bam = expected_bam,
       loom_file = target.loom_output_file,
       
       reference_matrix = reference_matrix,

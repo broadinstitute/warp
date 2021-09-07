@@ -1,6 +1,7 @@
 version 1.0
 
 import "../../../../verification/VerifyTasks.wdl" as VerifyTasks
+
 workflow ValidateOptimus {
      meta {
          description: "Validate Optimus Outputs"
