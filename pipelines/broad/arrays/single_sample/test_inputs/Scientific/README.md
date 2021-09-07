@@ -21,6 +21,9 @@
     - NOT Pulling fingerprint from Mercury
         - Using pre-existing fingerprint file (uploaded previously to GCS)
     - Pushing fingerprint to Mercury    
+- 200598830050_R01C01_90C04566
+    - Non-control sample
+    - NOT defining the analysis_version_number.  Test that the wrapper wdl will generate it.
 - 201651080129_R05C01_S8_N4B3GY
     - Non-control sample
     - Sample has a space in its name
