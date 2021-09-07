@@ -17,8 +17,8 @@ workflow CreateSs2AdapterObjects {
     String version_timestamp
     String pipeline_type
     Boolean is_project_level
-    String pipeline_version # parsed from metadata for intermediate, passed in for project level
-    String reference_file_fasta # parsed from metadata for intermediate, passed in for project level
+    String pipeline_version 
+    String reference_file_fasta 
     File metadata
   }
 

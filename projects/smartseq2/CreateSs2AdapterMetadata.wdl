@@ -105,14 +105,8 @@ workflow CreateSs2AdapterMetadata {
   String multisample_pipeline_version = ParseSS2CromwellMetadata.pipeline_version
   String single_sample_pipeline_version = ParseSS2CromwellMetadata.single_sample_pipeline_version
 
-  call Tasks.GetSs2PipelineVersion as CheckPipelineVersion {
-    input:
-      pipeline_version = multisample_pipeline_version
-  }
-
   ########################## Get Ss2 Metadata Files ##########################
   scatter (idx in range(length(output_bams))) {
-    String? fastq_i1_uuid = if defined(fastq_i1_uuids) then select_first([fastq_i1_uuids])[idx] else none
     call CreateSs2Objects.CreateSs2AdapterObjects as CreateIntermediateSs2Adapters {
       input:
         bam = output_bams[idx],
