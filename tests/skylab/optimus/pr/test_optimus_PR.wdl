@@ -55,7 +55,6 @@ workflow TestOptimusPR {
       test_bam = target.bam, 
       truth_bam = expected_bam,
       loom_file = target.loom_output_file,
-      
       reference_matrix = reference_matrix,
       expected_cell_metric_hash = expected_cell_metric_hash,
       expected_gene_metric_hash = expected_gene_metric_hash,

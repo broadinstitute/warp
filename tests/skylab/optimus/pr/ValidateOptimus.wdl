@@ -16,7 +16,6 @@ workflow ValidateOptimus {
          File test_bam
          File truth_bam
          File? loom_file
-
          # Reference data and checksums
          File reference_matrix
          String expected_cell_metric_hash
