@@ -8,9 +8,9 @@ task CalculateCellMetrics {
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.4.0"
     Int machine_mem_mb = 8000
-    Int cpu = 8
+    Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
-    Int preemptible = 0
+    Int preemptible = 3
   }
 
   meta {
@@ -78,7 +78,7 @@ task CalculateGeneMetrics {
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 
-    Int preemptible = 0
+    Int preemptible = 3
   }
   
 
