@@ -451,7 +451,7 @@ task ParseOptimusCromwellMetadata {
   }
 }
 
-task ParseSS2CromwellMetadata {
+task ParseSs2CromwellMetadata {
   input {
     File cromwell_metadata
     String pipeline_type
