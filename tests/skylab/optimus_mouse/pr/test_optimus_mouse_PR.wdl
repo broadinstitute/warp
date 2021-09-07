@@ -38,7 +38,7 @@ workflow TestOptimusPR {
       chemistry = chemistry
   }
 
-  call checker.ValidateOptimusMouse as checker {
+  call checker.ValidateOptimus as checker {
     input:
       matrix = target.matrix,
       matrix_row_index = target.matrix_row_index,
