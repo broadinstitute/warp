@@ -13,7 +13,7 @@ task ValidateOptimusMouse {
     String expected_cell_metric_hash
   }
 
-  Int required_disk =  size(matrix, "G")) * 1.1)
+  Int required_disk =  ceil(size(matrix, "G") * 1.1)
 
   command <<<
     # catch intermittent failures
