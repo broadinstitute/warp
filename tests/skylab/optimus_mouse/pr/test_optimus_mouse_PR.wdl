@@ -1,7 +1,7 @@
 version 1.0
 
 import "../../../../pipelines/skylab/optimus/Optimus.wdl" as target
-import "../../../../tests/skylab/optimus_mouse/pr/ValidateOptimusMouse.wdl" as checker
+import "../../../../tests/skylab/optimus/pr/ValidateOptimus.wdl" as checker
 
 # this workflow will be run by the jenkins script that gets executed by PRs.
 workflow TestOptimusPR {
@@ -9,7 +9,6 @@ workflow TestOptimusPR {
     # output hashes
     String expected_gene_metric_hash
     String expected_cell_metric_hash
-
     File expected_bam
 
     # Optimus inputs
@@ -48,8 +47,11 @@ workflow TestOptimusPR {
       cell_metrics = target.cell_metrics,
       test_bam = target.bam, 
       truth_bam = expected_bam,
+      loom_file = target.loom_output_file,
+      reference_matrix = reference_matrix,
       expected_cell_metric_hash = expected_cell_metric_hash,
       expected_gene_metric_hash = expected_gene_metric_hash,
+      expected_loom_file_checksum = expected_loom_file_checksum
   }
 
 }
