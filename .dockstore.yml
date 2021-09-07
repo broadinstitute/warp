@@ -61,3 +61,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/arrays/single_sample/Arrays.wdl
 
+  - name: BamProcessing
+    subclass: WDL
+    primaryDescriptorPath: /tasks/broad/BamProcessing.wdl
