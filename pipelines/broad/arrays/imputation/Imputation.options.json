@@ -1,0 +1,5 @@
+{
+  "read_from_cache": true,
+  "write_to_cache": true,
+  "monitoring_script": "gs://broad-gotc-test-storage/cromwell_monitoring_script.sh"
+}
