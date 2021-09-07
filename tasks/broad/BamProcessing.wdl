@@ -239,6 +239,14 @@ task ApplyBQSR {
   }
 
   command {
+
+    # Ensure that bin_base_qualities is also true if bin_somatic_base_qualities is true
+    if [ ~{bin_base_qualities} == "false"] && [~{bin_somatic_base_qualities} == "true ]
+    then
+       echo "bin_base_qualities should also be true if bin_somatic_base_qualities is true"
+       exit 1;
+    fi
+
     gatk --java-options "-XX:+PrintFlagsFinal -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps \
       -XX:+PrintGCDetails -Xloggc:gc_log.log \
       -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Dsamjdk.compression_level=~{compression_level} -Xms3000m" \
