@@ -1,4 +1,5 @@
 # 1.0.0
+
 Initial public release of the Imputation Pipeline. 
 
 The Imputation pipeline imputes missing genotypes from a multi-sample VCF using a large genomic reference panel. 
