@@ -1,5 +1,6 @@
 version 1.0
 
+import "../../../../verification/VerifyTasks.wdl" as VerifyTasks
 workflow ValidateOptimus {
      meta {
          description: "Validate Optimus Outputs"
@@ -12,6 +13,8 @@ workflow ValidateOptimus {
          File matrix_col_index
          File cell_metrics
          File gene_metrics
+         File test_bam
+         File truth_bam
          File? loom_file
 
          # Reference data and checksums
@@ -19,6 +22,12 @@ workflow ValidateOptimus {
          String expected_cell_metric_hash
          String expected_gene_metric_hash
          String expected_loom_file_checksum
+     }
+
+     call VerifyTasks.CompareBams as CompareBams {
+         input:
+             test_bam = test_bam,
+             truth_bam = truth_bam
      }
 
      call ValidateMatrix as ValidateMatrix {
