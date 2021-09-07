@@ -94,16 +94,16 @@ workflow CreateSs2AdapterMetadata {
       include_subworkflows = true
   }
 
-  call Tasks.ParseSs2CromwellMetadata {
+  call Tasks.ParseCromwellMetadata {
     input:
       cromwell_metadata = GetCromwellMetadata.metadata,
       pipeline_type = pipeline_type
   }
 
-  # store variables from ParseSs2CromwellMetadata
-  String reference_fasta = ParseSs2CromwellMetadata.ref_fasta
-  String multi_sample_pipeline_version = ParseSs2CromwellMetadata.pipeline_version
-  String single_sample_pipeline_version = ParseSs2CromwellMetadata.single_sample_pipeline_version
+  # store variables from ParseCromwellMetadata
+  String reference_fasta = ParseCromwellMetadata.ref_fasta
+  String multi_sample_pipeline_version = ParseCromwellMetadata.pipeline_version
+  String single_sample_pipeline_version = ParseCromwellMetadata.single_sample_pipeline_version
 
   call Tasks.GetSs2PipelineVersion as CheckPipelineVersion {
     input:

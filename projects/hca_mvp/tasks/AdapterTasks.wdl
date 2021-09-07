@@ -423,35 +423,7 @@ task GetCloudFileCreationDate {
   }
 }
 
-task ParseOptimusCromwellMetadata {
-  input {
-    File cromwell_metadata
-    String pipeline_type
-
-    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
-    Int cpu = 1
-    Int machine_mem_mb = 2000
-    Int disk = ceil((size(cromwell_metadata, "G") * 2)) + 5
-  }
-
-  command {
-    parse-metadata \
-    --cromwell-metadata-json ~{cromwell_metadata} \
-    --pipeline-type ~{pipeline_type}
-  }
-  runtime {
-    docker: docker
-    cpu: cpu
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
-  }
-  output {
-    String ref_fasta = read_string("ref_fasta.txt")
-    String pipeline_version = read_string("pipeline_version.txt")
-  }
-}
-
-task ParseSs2CromwellMetadata {
+task ParseCromwellMetadata {
   input {
     File cromwell_metadata
     String pipeline_type
