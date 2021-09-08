@@ -575,7 +575,7 @@ task CopyToStagingBucket {
   }
 }
 
-# This task is specifically for getting the MergeLoomsOptimus version
+# This task is specifically for getting the MergeOptimusLooms version
 # MergeLoomsOptimus version is found in MergeOptimusLooms.wdl
 task GetOptimusPipelineVersion {
   input {
