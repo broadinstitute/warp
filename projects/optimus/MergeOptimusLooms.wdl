@@ -1,6 +1,6 @@
 version 1.0
 
-import "../hca_mvp/tasks/AdapterTasks.wdl" as Tasks
+import "../tasks/AdapterTasks.wdl" as Tasks
 
 # Making this a subworkflow will (hopefully) allow us to get the pertinent task level iput for the metadata to include in the analysis_process file
 

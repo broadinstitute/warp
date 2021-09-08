@@ -1,6 +1,6 @@
 version 1.0
 
-import "../hca_mvp/tasks/AdapterTasks.wdl" as Tasks
+import "../tasks/AdapterTasks.wdl" as Tasks
 
 workflow CreateSs2AdapterObjects {
   meta {

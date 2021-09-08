@@ -1,8 +1,8 @@
 version 1.0
 
 import "../smartseq2/CreateSs2AdapterObjects.wdl" as CreateSs2Objects
-import "../hca_mvp/tasks/AdapterTasks.wdl" as Tasks
-import "../hca_mvp/tasks/CreateReferenceMetadata.wdl" as CreateReferenceMetadata
+import "../tasks/AdapterTasks.wdl" as Tasks
+import "../tasks/CreateReferenceMetadata.wdl" as CreateReferenceMetadata
 
 
 workflow CreateSs2AdapterMetadata {
