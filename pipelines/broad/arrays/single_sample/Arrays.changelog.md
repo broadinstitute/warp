@@ -1,3 +1,8 @@
+# 2.4.2
+2021-09-07
+
+* Modified pipeline to automatically generate the analysis_version_number if it is not supplied as an input.
+
 # 2.4.1
 2021-08-30
 
