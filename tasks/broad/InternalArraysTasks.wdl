@@ -27,7 +27,7 @@ task GenerateEmptyVariantCallingMetricsFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }
@@ -71,7 +71,7 @@ task BlacklistBarcode {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }
@@ -122,7 +122,7 @@ task VcfToMercuryFingerprintJson {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -150,7 +150,7 @@ task CreateBafRegressMetricsFile {
       --OUTPUT ~{output_metrics_basefilename}
   }
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -227,7 +227,7 @@ task UploadArraysMetrics {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -324,7 +324,7 @@ task UpdateChipWellBarcodeIndex {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
