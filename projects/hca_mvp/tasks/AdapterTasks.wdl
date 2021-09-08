@@ -481,6 +481,7 @@ task GetReferenceDetails {
   }
 }
 
+# This task is specifically for getting intermediate level loom ids for Optimues
 task GetProjectLevelInputIds {
   input {
     Array[File] intermediate_analysis_files
@@ -546,6 +547,8 @@ task CopyToStagingBucket {
   }
 }
 
+# This task is specifically for getting the MergeOptimusLooms version
+# MergeOptimusLooms version is found in MergeOptimusLooms.wdl
 task GetOptimusPipelineVersion {
   input {
     String pipeline_version
@@ -554,25 +557,6 @@ task GetOptimusPipelineVersion {
   }
   command {
     echo ~{prefix}~{pipeline_version} > pipeline_version.txt
-  }
-  output {
-    String pipeline_version_string = read_string("pipeline_version.txt")
-  }
-  runtime {
-    docker: docker
-    cpu: 1
-    memory: "3 GiB"
-    disks: "local-disk 10 HDD"
-  }
-}
-
-task GetSs2PipelineVersion {
-  input {
-    String pipeline_version
-    String docker = "ubuntu:18.04"
-  }
-  command {
-    echo ~{pipeline_version} > pipeline_version.txt
   }
   output {
     String pipeline_version_string = read_string("pipeline_version.txt")
