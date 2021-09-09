@@ -1,4 +1,7 @@
 # A description of (some of) the test files here.
+- 101342370134_R12C02_NA12891
+    - Control sample
+    - Not setting all optional inputs destined to chip_well_barcode_index table to test that it allows nulls
 - 200557060038_R10C02_PRISM_7032
     - Non-control sample
     - Not pulling fingerprint from Mercury
@@ -18,6 +21,9 @@
     - NOT Pulling fingerprint from Mercury
         - Using pre-existing fingerprint file (uploaded previously to GCS)
     - Pushing fingerprint to Mercury    
+- 200598830050_R01C01_90C04566
+    - Non-control sample
+    - NOT defining the analysis_version_number.  Test that the wrapper wdl will generate it.
 - 201651080129_R05C01_S8_N4B3GY
     - Non-control sample
     - Sample has a space in its name
