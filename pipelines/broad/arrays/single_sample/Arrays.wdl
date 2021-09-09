@@ -22,7 +22,7 @@ import "../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 
 workflow Arrays {
 
-  String pipeline_version = "2.4.0"
+  String pipeline_version = "2.4.1"
 
   input {
 
@@ -31,7 +31,7 @@ workflow Arrays {
     String autocall_version = "3.0.0"
 
     String chip_well_barcode
-    Int analysis_version_number
+    Int? analysis_version_number
 
     String sample_alias
     String? sample_id
@@ -41,7 +41,7 @@ workflow Arrays {
     String? participant_id
 
     Float call_rate_threshold = 0.98
-    Float genotype_concordance_threshold = 0.98
+    Float genotype_concordance_threshold = 0.95
 
     File red_idat_cloud_path
     File green_idat_cloud_path
@@ -158,23 +158,37 @@ workflow Arrays {
       input:
         chip_type_name = chip_type,
         chip_well_barcode = chip_well_barcode,
-        collaborator_participant_id = select_first([collaborator_participant_id]),
-        lab_batch = select_first([lab_batch]),
-        participant_id = select_first([participant_id]),
-        product_family = select_first([product_family]),
-        product_name = select_first([product_name]),
-        product_order_id = select_first([product_order_id]),
-        product_part_number = select_first([product_part_number]),
+        collaborator_participant_id = collaborator_participant_id,
+        lab_batch = lab_batch,
+        participant_id = participant_id,
+        product_family = product_family,
+        product_name = product_name,
+        product_order_id = product_order_id,
+        product_part_number = product_part_number,
         product_type = product_type,
         regulatory_designation = select_first([regulatory_designation]),
         research_project_id = select_first([research_project_id]),
         sample_alias = sample_alias,
         gender = reported_gender,
-        sample_id = select_first([sample_id]),
+        sample_id = sample_id,
         sample_lsid = sample_lsid,
         preemptible_tries = preemptible_tries
     }
   }
+
+  if (!defined(analysis_version_number)) {
+    # If the analysis_version_number is not provided as an input, we will query the ARRAYS_QC table to get the
+    # next value.
+    call InternalArraysTasks.GetNextArraysQcAnalysisVersionNumber {
+      input:
+        chip_well_barcode = chip_well_barcode,
+        preemptible_tries = preemptible_tries,
+        authentication = authentication_block,
+        service_account_filename = service_account_filename
+    }
+  }
+
+  Int analysis_version = select_first([analysis_version_number, GetNextArraysQcAnalysisVersionNumber.analysis_version_number])
 
   if (read_fingerprint_from_mercury) {
     call InternalTasks.MakeSafeFilename {
@@ -212,7 +226,7 @@ workflow Arrays {
     input:
       autocall_version = autocall_version,
       sample_alias = sample_alias,
-      analysis_version_number = analysis_version_number,
+      analysis_version_number = analysis_version,
       call_rate_threshold = call_rate_threshold,
       reported_gender = reported_gender,
       chip_well_barcode = chip_well_barcode,
@@ -254,7 +268,7 @@ workflow Arrays {
         autocall_version = autocall_version,
         output_metrics_basename = sample_alias,
         cluster_filename = cluster_filename,
-        analysis_version_number = analysis_version_number,
+        analysis_version_number = analysis_version,
         preemptible_tries = preemptible_tries
     }
 
@@ -270,7 +284,7 @@ workflow Arrays {
     call InternalArraysTasks.BlacklistBarcode as BlacklistFailedNormalization {
       input:
         upload_metrics_output = UploadEmptyArraysMetrics.upload_metrics_empty_file,
-        analysis_version = analysis_version_number,
+        analysis_version_number = analysis_version,
         chip_well_barcode = chip_well_barcode,
         preemptible_tries = preemptible_tries,
         reason = "DATA_QUALITY",
@@ -334,7 +348,7 @@ workflow Arrays {
       call InternalArraysTasks.BlacklistBarcode as BlacklistFailedGenotypeConcordance {
         input:
           upload_metrics_output = UploadArraysMetrics.upload_metrics_empty_file,
-          analysis_version = analysis_version_number,
+          analysis_version_number = analysis_version,
           chip_well_barcode = chip_well_barcode,
           preemptible_tries = preemptible_tries,
           reason = "GENOTYPE_CONCORDANCE",
@@ -349,7 +363,7 @@ workflow Arrays {
       call InternalArraysTasks.BlacklistBarcode as BlacklistFailedFingerprint {
         input:
           upload_metrics_output = UploadArraysMetrics.upload_metrics_empty_file,
-          analysis_version = analysis_version_number,
+          analysis_version_number = analysis_version,
           chip_well_barcode = chip_well_barcode,
           preemptible_tries = preemptible_tries,
           reason = "SAMPLE_MIXUP",

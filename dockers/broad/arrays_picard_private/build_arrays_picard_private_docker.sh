@@ -9,7 +9,7 @@ declare -r DOCKER_IMAGE_VERSION=4.0.10
 # Update this when there is a new release of picard-private to use as the
 # default jar.
 #
-declare -r PICARD_PRIVATE_VERSION=61af9bff4587783e5981a496f422ea36102482b5
+declare -r PICARD_PRIVATE_VERSION=257537c72dae29257b09bacf413505eed295ac32
 
 declare -r ARTIFACTORY=https://broadinstitute.jfrog.io/broadinstitute
 declare -r LIBS_SNAPSHOT_LOCAL=$ARTIFACTORY/libs-snapshot-local

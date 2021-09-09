@@ -15,6 +15,7 @@ module.exports = {
     path.resolve(__dirname, 'plugins/docusaurus-plugin-hotjar')
   ],
   themeConfig: {
+    hideableSidebar: true,
     navbar: {
       title: 'WARP Pipelines',
       // logo: {
@@ -108,6 +109,7 @@ module.exports = {
             'https://github.com/broadinstitute/warp/edit/develop/website/',
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
+          sidebarCollapsible: true,
         },
         blog: {
           showReadingTime: true,
