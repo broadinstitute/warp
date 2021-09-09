@@ -62,7 +62,8 @@ task CompareGvcfs {
   command {
     exit_code=0
 
-    DIFF_LINES=$(diff <(gunzip -c -f ~{test_gvcf} | grep -v '^##') <(gunzip -c -f ~{truth_gvcf} | grep -v '^##') | grep -e "^<" | wc -l)
+    diff <(gunzip -c -f ~{test_gvcf} | grep -v '^##') <(gunzip -c -f ~{truth_gvcf} | grep -v '^##') > gvcf_diff.txt
+    DIFF_LINES=$( grep -e "^<" gvcf_diff.txt | wc -l)
     if [ $DIFF_LINES -ge 10 ]; then
       exit_code=1
       echo "Error: GVCF ~{test_gvcf} differs in content from ~{truth_gvcf} by $DIFF_LINES lines" >&2
@@ -80,5 +81,9 @@ task CompareGvcfs {
     disks: "local-disk 70 HDD"
     memory: "2 GiB"
     preemptible: 3
+  }
+
+  output {
+    File gvcf_diff = "gvcf_diff.txt"
   }
 }
