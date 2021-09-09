@@ -11,7 +11,7 @@ GCR_URL="us.gcr.io/broad-arrays-prod/arrays-picard-private"
 IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
 
 # Picard private artifact
-PICARD_PRIVATE_VERSION="edad6685a5e4abacc907b8940723a2960b59c099"
+PICARD_PRIVATE_VERSION="257537c72dae29257b09bacf413505eed295ac32"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud vault jq)

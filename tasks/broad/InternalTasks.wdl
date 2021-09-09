@@ -46,6 +46,10 @@ task DownloadGenotypes {
     Int preemptible_tries
   }
 
+  meta {
+    volatile: true
+  }
+
   String fp_retrieved_file = "fp_retrieved.txt"
 
   String output_vcf = output_vcf_base_name + if compress then ".vcf.gz" else".vcf"
@@ -96,7 +100,7 @@ task DownloadGenotypes {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1630497923"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }
@@ -119,6 +123,10 @@ task UploadFingerprintToMercury {
     Int preemptible_tries
   }
 
+  meta {
+    volatile: true
+  }
+
   command <<<
     set -eo pipefail
 
@@ -137,7 +145,7 @@ task UploadFingerprintToMercury {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1630497923"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }

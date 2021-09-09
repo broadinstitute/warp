@@ -1,7 +1,7 @@
-# 4.3.0
+# 5.0.0
+2021-08-30 (Date of Last Commit)
 
-2021-07-20 (Date of Last Commit)
-
+* Replaced STAR alignment with STARsolo and modified the structure of the WDL to utilize the UMI and barcode correction from STARsolo. In the new implementation of Optimus, STARsolo uses the FASTQ file as input and directly creates a count matrix file and a BAM file. No updates have been made to the inputs or outputs. The outputs for this version are identical to the outputs for the previous Optimus version. 
 * Updated GoTC base image to AppSec approved 
 * Updated BWA version for GoTC image from 0.7.15.r1140 to 0.7.15
 

@@ -1,3 +1,21 @@
+# 2.4.2
+2021-09-07
+
+* Modified pipeline to automatically generate the analysis_version_number if it is not supplied as an input.
+
+# 2.4.1
+2021-08-30
+
+* Modified pipeline to make several inputs optional:
+    * sample_id
+    * participant_id
+    * collaborator_participant_id
+    * lab_batch
+    * product_family
+    * product_name
+    * product_order_id
+    * product_part_number
+* Set the volatile=true flag for several internal tasks so they will not use call-caching
 
 # 2.4.1
 2021-08-25

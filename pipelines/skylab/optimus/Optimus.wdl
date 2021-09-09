@@ -1,17 +1,9 @@
 version 1.0
 
-import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
-import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
-import "../../../tasks/skylab/CreateCountMatrix.wdl" as Count
-import "../../../tasks/skylab/StarAlign.wdl" as StarAlignBam
-import "../../../tasks/skylab/TagGeneExon.wdl" as TagGeneExon
-import "../../../tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
-import "../../../tasks/skylab/TagSortBam.wdl" as TagSortBam
+import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
+import "../../../tasks/skylab/Metrics.wdl" as Metrics
 import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
-import "../../../tasks/skylab/Picard.wdl" as Picard
-import "../../../tasks/skylab/UmiCorrection.wdl" as UmiCorrection
-import "../../../tasks/skylab/ModifyGtf.wdl" as ModifyGtf
 import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
 
 workflow Optimus {
@@ -58,7 +50,9 @@ workflow Optimus {
   }
 
   # version of this pipeline
-  String pipeline_version = "4.3.0"
+
+  String pipeline_version = "5.0.0"
+
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -87,126 +81,39 @@ workflow Optimus {
       counting_mode = counting_mode
   }
 
-  call FastqProcessing.FastqProcessing {
+  call StarAlign.STARsoloFastq as STARsoloFastq {
     input:
-      i1_fastq = i1_fastq,
       r1_fastq = r1_fastq,
       r2_fastq = r2_fastq,
-      whitelist = whitelist,
+      white_list = whitelist,
+      tar_star_reference = tar_star_reference,
       chemistry = chemistry,
-      sample_id = input_id
+      counting_mode = counting_mode
   }
 
-  call ModifyGtf.ReplaceGeneNameWithGeneID as ModifyGtf {
+  call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
+      bam_input = STARsoloFastq.bam_output
+  }
+
+  call Metrics.CalculateCellMetrics as CellMetrics {
+    input:
+      bam_input = STARsoloFastq.bam_output,
       original_gtf = annotations_gtf
   }
 
-  scatter (bam in FastqProcessing.bam_output_array) {
-    call StarAlignBam.StarAlignBamSingleEnd as StarAlign {
-      input:
-        bam_input = bam,
-        tar_star_reference = tar_star_reference
-    }
-
-    if (counting_mode == "sc_rna") {
-      call TagGeneExon.TagGeneExon as TagGenes {
-        input:
-          bam_input = StarAlign.bam_output,
-          annotations_gtf = ModifyGtf.modified_gtf
-      }
-    }
-    if (counting_mode == "sn_rna") {
-      call TagGeneExon.TagReadWithGeneFunction as TagGeneFunction {
-        input:
-          bam_input = StarAlign.bam_output,
-          annotations_gtf = ModifyGtf.modified_gtf,
-          gene_name_tag = "GE",
-          gene_strand_tag = "GS",
-          gene_function_tag = "XF",
-          use_strand_info = use_strand_info
-      }
-    }
-
-    call Picard.SortBamAndIndex as PreUMISort {
-      input:
-        bam_input = select_first([TagGenes.bam_output, TagGeneFunction.bam_output])
-    }
-
-    call UmiCorrection.CorrectUMItools as CorrectUMItools {
-      input:
-        bam_input = PreUMISort.bam_output,
-        bam_index = PreUMISort.bam_index
-    }
-
-    call Picard.SortBamAndIndex as PreMergeSort {
-      input:
-        bam_input = CorrectUMItools.bam_output
-    }
-
-    call TagSortBam.GeneSortBam {
-      input:
-        bam_input = CorrectUMItools.bam_output
-    }
-
-    call TagSortBam.CellSortBam {
-      input:
-        bam_input = CorrectUMItools.bam_output
-    }
-
-    call Metrics.CalculateGeneMetrics {
-      input:
-        bam_input = GeneSortBam.bam_output
-    }
-
-    call Metrics.CalculateCellMetrics {
-      input:
-        bam_input = CellSortBam.bam_output,
-        original_gtf = annotations_gtf
-    }
-
-    call Picard.SortBam as PreCountSort {
-      input:
-        bam_input = CorrectUMItools.bam_output,
-        sort_order = "queryname"
-    }
-
-    call Count.CreateSparseCountMatrix {
-      input:
-        bam_input = PreCountSort.bam_output,
-        gtf_file = ModifyGtf.modified_gtf
-    }
-  }
-
-  call Merge.MergeSortBamFiles as MergeSorted {
+  call StarAlign.ConvertStarOutput as ConvertOutputs {
     input:
-      bam_inputs = PreMergeSort.bam_output,
-      output_bam_filename = output_bam_basename + ".bam",
-      sort_order = "coordinate"
-  }
-
-  call Metrics.MergeGeneMetrics {
-    input:
-      metric_files = CalculateGeneMetrics.gene_metrics
-  }
-
-  call Metrics.MergeCellMetrics {
-    input:
-      metric_files = CalculateCellMetrics.cell_metrics
-  }
-
-  call Count.MergeCountFiles {
-    input:
-      sparse_count_matrices = CreateSparseCountMatrix.sparse_count_matrix,
-      row_indices = CreateSparseCountMatrix.row_index,
-      col_indices = CreateSparseCountMatrix.col_index
+      barcodes = STARsoloFastq.barcodes,
+      features = STARsoloFastq.features,
+      matrix = STARsoloFastq.matrix
   }
 
   call RunEmptyDrops.RunEmptyDrops {
     input:
-      sparse_count_matrix = MergeCountFiles.sparse_count_matrix,
-      row_index = MergeCountFiles.row_index,
-      col_index = MergeCountFiles.col_index,
+      sparse_count_matrix = ConvertOutputs.sparse_counts,
+      row_index = ConvertOutputs.row_index,
+      col_index = ConvertOutputs.col_index,
       emptydrops_lower = emptydrops_lower
   }
 
@@ -217,11 +124,11 @@ workflow Optimus {
       input_id_metadata_field = input_id_metadata_field,
       input_name_metadata_field = input_name_metadata_field,
       annotation_file = annotations_gtf,
-      cell_metrics = MergeCellMetrics.cell_metrics,
-      gene_metrics = MergeGeneMetrics.gene_metrics,
-      sparse_count_matrix = MergeCountFiles.sparse_count_matrix,
-      cell_id = MergeCountFiles.row_index,
-      gene_id = MergeCountFiles.col_index,
+      cell_metrics = CellMetrics.cell_metrics,
+      gene_metrics = GeneMetrics.gene_metrics,
+      sparse_count_matrix = ConvertOutputs.sparse_counts,
+      cell_id = ConvertOutputs.row_index,
+      gene_id = ConvertOutputs.col_index,
       empty_drops_result = RunEmptyDrops.empty_drops_result,
       counting_mode = counting_mode,
       pipeline_version = "Optimus_v~{pipeline_version}"
@@ -231,12 +138,12 @@ workflow Optimus {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
 
-    File bam = MergeSorted.output_bam
-    File matrix = MergeCountFiles.sparse_count_matrix
-    File matrix_row_index = MergeCountFiles.row_index
-    File matrix_col_index = MergeCountFiles.col_index
-    File cell_metrics = MergeCellMetrics.cell_metrics
-    File gene_metrics = MergeGeneMetrics.gene_metrics
+    File bam = STARsoloFastq.bam_output
+    File matrix = ConvertOutputs.sparse_counts
+    File matrix_row_index = ConvertOutputs.row_index
+    File matrix_col_index = ConvertOutputs.col_index
+    File cell_metrics = CellMetrics.cell_metrics
+    File gene_metrics = GeneMetrics.gene_metrics
     File cell_calls = RunEmptyDrops.empty_drops_result
 
     # loom
