@@ -2,7 +2,6 @@
   "IlluminaGenotypingArray.sample_alias": "BMS 000637780",
   "IlluminaGenotypingArray.analysis_version_number": 1,
   "IlluminaGenotypingArray.call_rate_threshold": 0.98,
-  "IlluminaGenotypingArray.genotype_concordance_threshold": 0.98,
   "IlluminaGenotypingArray.reported_gender": "Male",
   "IlluminaGenotypingArray.chip_well_barcode": "201008710016_R05C01",
 
