@@ -1,7 +1,7 @@
 # 5.1.0
 2021-09-10 (Date of Last Commit)
 
-* Added the option "--soloBarcodeReadLength 0" to ignore Barcode + UBI read of incorrect length
+* Added the option "--soloBarcodeReadLength 0" to STARsoloFastq task to ignore Barcode + UBI read of incorrect length
 
 # 5.0.0
 2021-08-30 (Date of Last Commit)
