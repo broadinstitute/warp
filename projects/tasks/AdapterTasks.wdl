@@ -26,13 +26,13 @@ task CheckInput {
   errors=0
 
   if len(input_set) != 1:
-      print("ERROR: Expected one value for {}, but found multiple: {}".format(input_type, input_set))
+      raise ValueError("ERROR: Expected one value for {}, but found multiple: {}".format(input_type, input_set))
       errors += 1
 
   for c in list_illegal:
       for i in input_set:
           if c in i:
-              print("ERROR: {} string, {}, contains an illegal character {}".format(input_type, i, c))
+              raise ValueError("ERROR: {} string, {}, contains an illegal character {}".format(input_type, i, c))s
               errors += 1
 
   if errors > 0:
