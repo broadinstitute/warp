@@ -1,3 +1,8 @@
+# 1.0.4
+2021-09-10 (Date of Last Commit)
+
+* Added the option "--soloBarcodeReadLength 0" to ignore Barcode + UBI read of incorrect length and has no impact on the current workflow
+
 # 1.0.3
 2021-09-02 (Date of Last Commit)
 
