@@ -1,3 +1,10 @@
+# 2.4.7
+2021-09-13
+
+* Added ErrorWithMessage task to Utilities wdl, which is imported by the ExomeGermlineSingleSample.
+ This change has no effect on the ExomeGermlineSingleSample pipeline.
+ 
+ 
 # 2.4.6
 2021-08-02
 
