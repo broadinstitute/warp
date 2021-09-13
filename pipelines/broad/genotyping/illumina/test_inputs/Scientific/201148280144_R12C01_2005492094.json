@@ -2,7 +2,6 @@
   "IlluminaGenotypingArray.sample_alias": "2005492094",
   "IlluminaGenotypingArray.analysis_version_number": 1,
   "IlluminaGenotypingArray.call_rate_threshold": 0.98,
-  "IlluminaGenotypingArray.genotype_concordance_threshold": 0.98,
   "IlluminaGenotypingArray.reported_gender": "NotReported",
   "IlluminaGenotypingArray.chip_well_barcode": "201148280144_R12C01",
 
