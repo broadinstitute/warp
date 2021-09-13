@@ -4,9 +4,8 @@ import "../../../../projects/optimus/CreateOptimusAdapterMetadata.wdl" as test_t
 import "../../../../tests/skylab/hca_adapter/pr/ValidateHcaAdapter.wdl" as checker_adapter
 
 # this workflow will be run by the jenkins script that gets executed by PRs.
-workflow TestHcaAdapter {
+workflow TestOptimusHcaAdapter {
   input {
-
     # hca optimus inputs 
     Array[File] output_bams
     Array[File] output_looms
@@ -154,6 +153,7 @@ workflow TestHcaAdapter {
       Array[File] analysis_process = target_adapter.output_analysis_process_objects
       Array[File] analysis_protocol = target_adapter.output_analysis_protocol_objects
       Array[File] analysis_output = target_adapter.output_data_objects
+      File reference_genome = target_adapter.output_data_objects[0]
       Array[File] reference_genome_reference_file = target_adapter.output_reference_metadata_objects
       Array[File] reference_genome_descriptor = target_adapter.output_reference_file_descriptor_objects
       Array[File] analysis_file_descriptor = target_adapter.output_analysis_file_descriptor_objects
