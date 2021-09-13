@@ -32,7 +32,7 @@ task CheckInput {
   for c in list_illegal:
       for i in input_set:
           if c in i:
-              raise ValueError("ERROR: {} string, {}, contains an illegal character {}".format(input_type, i, c))s
+              raise ValueError("ERROR: {} string, {}, contains an illegal character {}".format(input_type, i, c))
               errors += 1
 
   if errors > 0:
