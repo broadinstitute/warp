@@ -1,7 +1,13 @@
-# 4.2.8
-2021-08-19 (Date of Last Commit)
+# 5.0.1
+2021-09-13 (Date of Last Commit)
 
 * Updated Picard.wdl and LoomUtils.wdl for Single Nucleus SmartSeq2
+
+# 5.0.0
+2021-08-30 (Date of Last Commit)
+
+* Replaced STAR alignment with STARsolo and modified the structure of the WDL to utilize the UMI and barcode correction from STARsolo. In the new implementation of Optimus, STARsolo uses the FASTQ file as input and directly creates a count matrix file and a BAM file. No updates have been made to the inputs or outputs. The outputs for this version are identical to the outputs for the previous Optimus version. 
+>>>>>>> develop
 
 # 4.2.7
 2021-08-02 (Date of Last Commit)
