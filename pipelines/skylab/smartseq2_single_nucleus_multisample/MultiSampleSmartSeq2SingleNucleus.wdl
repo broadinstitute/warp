@@ -77,7 +77,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
          adapter_list = adapter_list
    }
 
-   call StarAlign.StarAlignFastqPairedEnd as StarAlign {
+   call StarAlign.StarAlignFastqMultisample as StarAlign {
       input:
         input_ids = input_ids,
         fastq1_input_files = TrimAdapters.trimmed_fastq1_files,
