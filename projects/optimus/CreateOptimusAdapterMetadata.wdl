@@ -31,6 +31,8 @@ workflow CreateOptimusAdapterMetadata {
     String cromwell_url = "https://api.firecloud.org/"
     String staging_area = "gs://broad-dsp-monster-hca-prod-lantern/"
     String pipeline_type = "Optimus"
+
+    String? version_timestamp
   }
 
   ########################## Set up Inputs ##########################
@@ -85,6 +87,8 @@ workflow CreateOptimusAdapterMetadata {
   String project_id = CheckProjectID.output_string
   String project_name = CheckProjectName.output_string
 
+  # Default should be timestamp from bucket creation but can be overwritten if data is updated after import
+  String workspace_version_timestamp = select_first([version_timestamp, GetVersionTimestamp.version_timestamp])
 
   # Build staging bucket
   String staging_bucket = staging_area + project_id + "/staging/"
@@ -104,7 +108,7 @@ workflow CreateOptimusAdapterMetadata {
         input_id = input_ids[idx],
         process_input_ids = select_all([fastq_1_uuids[idx],fastq_2_uuids[idx], fastq_i1_uuid]),
         project_id = project_id,
-        version_timestamp = GetVersionTimestamp.version_timestamp,
+        version_timestamp = workspace_version_timestamp,
         cromwell_url = cromwell_url,
         is_project_level = false
     }
@@ -123,7 +127,7 @@ workflow CreateOptimusAdapterMetadata {
       reference_fastas = CreateIntermediateOptimusAdapters.reference_fasta,
       species = species,
       pipeline_type = pipeline_type,
-      version_timestamp = GetVersionTimestamp.version_timestamp,
+      version_timestamp = workspace_version_timestamp,
       input_type = "reference"
   }
 
@@ -156,7 +160,7 @@ workflow CreateOptimusAdapterMetadata {
       process_input_ids = [GetProjectLevelInputIds.process_input_uuids],
       input_id = project_stratum_string,
       project_id = project_id,
-      version_timestamp = GetVersionTimestamp.version_timestamp,
+      version_timestamp = workspace_version_timestamp,
       cromwell_url = cromwell_url,
       is_project_level = true,
       reference_file_fasta = CreateIntermediateOptimusAdapters.reference_fasta[0],
