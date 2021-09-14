@@ -568,3 +568,32 @@ task GetOptimusPipelineVersion {
     disks: "local-disk 10 HDD"
   }
 }
+
+task GetBucketCreationDate {
+  input {
+    String bucket_path
+
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
+    Int cpu = 1
+    Int machine_mem_mb = 2000
+    Int disk = 30
+  }
+  command 
+  <<<
+    export timestamp=$(gsutil ls -L -b ~{bucket_path} | grep -e "created:" | sed -e 's/.*created:\(.*\)GMT.*/\1/' | awk '{$1=$1};1')
+
+    get-bucket-date \
+      --timestamp ${timestamp}
+  >>>
+
+  output{
+    String version_timestamp = read_string("bucket_timestamp.txt")
+  }
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
+  }
+}
