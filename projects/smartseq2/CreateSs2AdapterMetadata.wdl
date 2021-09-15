@@ -29,13 +29,20 @@ workflow CreateSs2AdapterMetadata {
 
     String cromwell_url = "https://firecloud-orchestration.dsde-dev.broadinstitute.org"
     String staging_area = "gs://fc-b4648544-9363-4a04-aa37-e7031c078a67/"
-    String version_timestamp
     String pipeline_type = "SS2"
+
+    String? version_timestamp
   }
 
   ########################## Set up Inputs ##########################
   # version of this pipeline
   String pipeline_version = "1.0.0"
+
+  # Get the version timestamp which is the creation date of the staging bucket
+  call Tasks.GetBucketCreationDate as GetVersionTimestamp {
+    input:
+      bucket_path = staging_area
+  }
 
   # Check inputs for multiple values or illegal characters
   call Tasks.CheckInput as CheckLibrary {
@@ -79,6 +86,9 @@ workflow CreateSs2AdapterMetadata {
   String project_id = CheckProjectID.output_string
   String project_name = CheckProjectName.output_string
 
+  # Default should be timestamp from bucket creation but can be overwritten if data is updated after import
+  String workspace_version_timestamp = select_first([version_timestamp, GetVersionTimestamp.version_timestamp])
+
   # Build staging bucket
   String staging_bucket = staging_area + project_id + "/staging/"
   String project_stratum_string = "project=" + project_id + ";library=" + library + ";species=" + species + ";organ=" + organ
@@ -113,7 +123,7 @@ workflow CreateSs2AdapterMetadata {
         bai = output_bais[idx],
         input_id = input_ids[idx],
         ss2_index = idx,
-        version_timestamp = version_timestamp,
+        version_timestamp = workspace_version_timestamp,
         pipeline_version = single_sample_pipeline_version,
         pipeline_type = pipeline_type,
         reference_file_fasta = reference_fasta,
@@ -136,7 +146,7 @@ workflow CreateSs2AdapterMetadata {
       reference_fastas = [reference_fasta],
       species = species,
       pipeline_type = pipeline_type,
-      version_timestamp = version_timestamp,
+      version_timestamp = workspace_version_timestamp,
       input_type = "reference"
   }
 
@@ -147,7 +157,7 @@ workflow CreateSs2AdapterMetadata {
     input:
       loom = output_loom,
       input_id = project_stratum_string,
-      version_timestamp = version_timestamp,
+      version_timestamp = workspace_version_timestamp,
       is_project_level = true,
       reference_file_fasta = reference_fasta,
       pipeline_version = multi_sample_pipeline_version,
@@ -167,7 +177,7 @@ workflow CreateSs2AdapterMetadata {
     input:
       project_id = project_id,
       output_file_path = analysis_file_outputs_json,
-      version_timestamp = version_timestamp,
+      version_timestamp = workspace_version_timestamp,
       process_input_ids = input_ids,
       analysis_process_path = project_analysis_process_objects,
       analysis_protocol_path = project_analysis_protocol_objects,
