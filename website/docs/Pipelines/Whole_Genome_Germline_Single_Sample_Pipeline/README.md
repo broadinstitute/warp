@@ -64,7 +64,7 @@ Check out the workflow [Methods](./wgs.methods.md) to get started!
 * Summary metrics; to read more about any particular metric, you can search the metric using the [GATK documentation search](https://gatk.broadinstitute.org/hc/en-us/categories/360002302312)
 
 ### Reblocking
-Reblocking is a process that compresses a HaplotypeCaller GVCF by merging hom-ref blocks according to new genotype quality (GQ) bands. 
+Reblocking is a process that compresses a HaplotypeCaller GVCF by merging homRef blocks according to new genotype quality (GQ) bands. 
 
 As of September 2021, reblocking is a default task in the WGS pipeline. The [Reblocking workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl) calls the GATK ReblockGVCF tool and uses the arguments:
 
@@ -74,7 +74,7 @@ As of September 2021, reblocking is a default task in the WGS pipeline. The [Reb
 The following summarizes how reblocking affects the WGS GVCF and downstream tools compared to the GVCF produced with HaplotypeCaller :
 
 
-1. Reblocked GVCFs are currently incompatible with the joint genotyping tool GenotypeGVCFs, but are compatible with GnarlyGenotyper which you can specify in the json configuration for the WARP JointGenotyping WDL workflow. 
+1. Reblocked GVCFs are currently incompatible with the joint genotyping tool GenotypeGVCFs, but are compatible with GnarlyGenotyper which you can specify in the JSON configuration for the WARP JointGenotyping WDL workflow. 
 
 
 2. PLs are omitted for homozygous reference sites to save space (which is why this format is currently incompatible with GenotypeGVCFs)–GQs are output for genotypes, PLs can be approximated as [0, GQ, 2\*GQ].
@@ -99,7 +99,8 @@ The following summarizes how reblocking affects the WGS GVCF and downstream tool
 Additionally, the 4 GQ band schema has specific improvements compared with the 7-band schema:
 1. It does not drop GQ0s; reblocked GVCFs should cover all the positions that the input GVCF covers.
 2. It has no overlaps; the only overlapping positions should be two variants (i.e. deletions) on separate haplotypes
-3. No more no-calls; all genotypes should be called. Positions with no data will be hom-ref with GQ0.
+3. No more no-calls; all genotypes should be called. Positions with no data will be homRef with GQ0.
+
 
 
 ### Base quality scores
