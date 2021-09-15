@@ -23,7 +23,6 @@ workflow TestSs2HcaAdapter {
 
     String cromwell_url = "https://firecloud-orchestration.dsde-dev.broadinstitute.org"
     String staging_area = "gs://fc-b4648544-9363-4a04-aa37-e7031c078a67/"
-    String version_timestamp
     String pipeline_type = "SS2"
 
     # ss2 truth inputs
@@ -58,7 +57,6 @@ workflow TestSs2HcaAdapter {
       all_project_names = all_project_names,
       cromwell_url = cromwell_url,
       staging_area = staging_area,
-      version_timestamp = version_timestamp,
       pipeline_type = pipeline_type
   }
 

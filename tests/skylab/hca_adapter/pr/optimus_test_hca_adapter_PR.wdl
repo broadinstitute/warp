@@ -23,7 +23,6 @@ workflow TestOptimusHcaAdapter {
     String output_basename
     String cromwell_url = "https://api.firecloud.org/"
     String staging_area = "gs://broad-dsp-monster-hca-prod-lantern/"
-    String version_timestamp
     String pipeline_type = "Optimus"
 
     #optimus truth inputs
@@ -60,7 +59,6 @@ workflow TestOptimusHcaAdapter {
       output_basename = output_basename,
       cromwell_url = cromwell_url,
       staging_area = staging_area,
-      version_timestamp = version_timestamp,
       pipeline_type = pipeline_type
   }
 
