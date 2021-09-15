@@ -578,6 +578,11 @@ task GetBucketCreationDate {
     Int machine_mem_mb = 2000
     Int disk = 30
   }
+
+  meta {
+    volatile: true
+  }
+
   command 
   <<<
     export timestamp=$(gsutil ls -L -b ~{bucket_path} | grep -e "created:" | sed -e 's/.*created:\(.*\)GMT.*/\1/' | awk '{$1=$1};1')
