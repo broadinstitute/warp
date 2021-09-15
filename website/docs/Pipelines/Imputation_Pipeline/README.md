@@ -42,7 +42,6 @@ For examples of how to specify each input in a configuration file, as well as cl
 | genetics_maps_eagle | Genetic map file for phasing.| File |
 | output_callset_name | Output callset name. | String |
 | split_output_to_single_sample | Boolean to split out the final combined VCF to individual sample VCFs; set to false by default. | Boolean | 
-| haplotype_database | Cloud path to haplotype database used for fingerprinting. | File |
 | merge_ssvcf_mem_gb | Memory allocation for MergeSingleSampleVcfs (in GB). | Int | 
 | frac_well_imputed_threshold | Threshold for the fraction of well-imputed sites; default set to 0.9. | Float | 
 | chunks_fail_threshold | Maximum threshold for the number of chunks allowed to fail; default set to 1. | Float | 
@@ -88,8 +87,7 @@ The [Imputation workflow](https://github.com/broadinstitute/warp/blob/develop/pi
 | InterleaveVariants | MergeVCFs | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Combines the missing variants from the original VCF and the imputed variants into a new VCF. | 
 | MergeImputationQCMetrics | --- | R | Uses an R script to calculate the fraction of well-imputed sites and outputs them to a TXT file; the fraction of "well-imputed" sites is based on the minimac reported R2 metric, with R2>0.3 being "well-imputed." Since homomorphic sites lead to an R2 value of 0, we report the fraction of sites with any variation which are well-imputed in addition to the fraction of total sites. |
 | StoreChunksInfo | --- | R | Uses an R script to record the coordinates of each imputation chunk, number of sites in the original array, and number of sites in the original array which are also in the reference panel, for each imputation chunk. |
-| CrosscheckFingerprints | CrosscheckFingerprints | [Picard](https://broadinstitute.github.io/picard/) | Verifies that all the data in a given sample come from the same individual. |
-| SplitMultiSampleVcf | split | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | If boolean is set to true, will split the interleave variants VCF into single sample VCFs and re-run the CrossCheckFingerprints tasks. | 
+| SplitMultiSampleVcf | split | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | If boolean is set to true, will split the interleave variants VCF into single sample VCFs. | 
  
 ## Workflow outputs
 
@@ -104,8 +102,6 @@ The table below summarizes the workflow outputs. If running the workflow on Crom
 | File aggregated_imputation_metrics | Aggregated QC metrics from the MergeImputationQcMetrics task; reports the fraction of sites well-imputed and outputs to TXT file; fraction of "well-imputed" is based on the minimac reported R2 metric, with R2>0.3 being "well-imputed." Since homomorphic sites lead to an R2 value of 0, we report the fraction of sites with any variation which are well-imputed in addition to the fraction of total sites. | TXT |
 | chunks_info | TSV from StoreChunksInfo task; contains the chunk intervals as well as the number of variants in the array.  | TSV |
 | failed_chunks | Number of failed chunks from the StoreChunksInfo task. | Int |
-| crosscheck | Metric file from the CrossCheckFingerprints task. | TXT |
-| crosscheck_split | Crosscheck output from the CrossCheckFingerprints task that is run if VCF is split into individual samples | TXT |
  
 ## Important notes
  
