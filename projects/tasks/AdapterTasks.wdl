@@ -327,7 +327,7 @@ task GetFileDescriptor {
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int machine_mem_mb = 2000
-    Int disk = 30
+    Int disk = ceil((size(file_path, "G") * 2)) + 5
   }
 
   command
