@@ -1,3 +1,8 @@
+# 1.0.3
+2021-09-10 (Date of Last Commit)
+
+* Added the option "--soloBarcodeReadLength 0" STARsoloFastq task to support alignment in Optimus. This change has no impact on SmartSeq2SingleNucleus
+
 # 1.0.2
 2021-09-02 (Date of Last Commit)
 
