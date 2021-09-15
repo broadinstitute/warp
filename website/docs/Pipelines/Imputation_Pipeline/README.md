@@ -39,13 +39,13 @@ For examples of how to specify each input in a configuration file, as well as cl
 | optional_qc_hwe | Optional HWE p-value when performing additional QC steps; default set to 0.000001 | Float |
 | ref_dict | Reference dictionary. | File |
 | referencePanelContigs | Array of structs containing reference panel files that is imported from [ImputationStructs WDL](https://github.com/broadinstitute/warp/blob/ck_imputation/structs/imputation/ImputationStructs.wdl); each input is specified in the configuration JSON. | Array of structs |
-| genetics_maps_eagle | String for the genetic map file; by default, calls a file in the eagle Docker image using "/genetic_map_hg19_withX.txt.gz" by default. | String |
-| output_callset_name | the output callset name. | String |
+| genetics_maps_eagle | Genetic map file for phasing.| File |
+| output_callset_name | Output callset name. | String |
 | split_output_to_single_sample | Boolean to split out the final combined VCF to individual sample VCFs; set to false by default. | Boolean | 
 | haplotype_database | Cloud path to haplotype database used for fingerprinting. | File |
 | merge_ssvcf_mem_gb | Memory allocation for MergeSingleSampleVcfs (in GB). | Int | 
-| frac_well_imputed_threshold | threshold for the fraction of well-imputed sites; default set to 0.9. | Float | 
-| chunks_fail_threshold | the maximum threshold for the number of chunks allowed to fail; default set to 1. | Float | 
+| frac_well_imputed_threshold | Threshold for the fraction of well-imputed sites; default set to 0.9. | Float | 
+| chunks_fail_threshold | Maximum threshold for the number of chunks allowed to fail; default set to 1. | Float | 
 | bcftools_docker_tag | Cloud path to the Docker image containing bcftools software. | String |
 | bcftools_vcftools_docker_tag | Cloud path to the Docker image containing bcftools and vcftools software. | String |
 | gatk_docker_tag | Cloud path to the Docker image containing GATK software for variant selection and manipulation. | String |
@@ -79,7 +79,7 @@ The [Imputation workflow](https://github.com/broadinstitute/warp/blob/master/pip
 | UpdateHeader | UpdateVCFSequenceDictionary | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Updates the header of the imputed VCF; adds contig lengths |
 | SeparateMultiallelics | norm | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Splits multiallelic sites in the imputed VCF into biallelic records. |
 | RemoveSymbolicAlleles | SelectVariants | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Removes SYMBOLIC alleles from the output VCF of the SeparateMultiallelics. |
-| SetIds | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Sorts the alleles in the variant ID from the RemoveSymbolicAllele output VCF so that REF:ALT is lexicographically consistent across IDs. |
+| SetIds | annotate, index | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Sorts the alleles in the variant ID from the RemoveSymbolicAllele output VCF so that REF:ALT is lexicographically consistent across IDs. |
 | GatherVcfs | GatherVCFs | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Gathers the array of imputed VCFs and merges them into one VCF output. |
 | ExtractIDs | query | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Extracts the variant IDs from the imputed VCF. | 
 | FindSitesUniqueToFileTwoOnly | --- | Ubuntu | Uses the IDs extracted from imputed VCF and those extracted from original VCF to identify missing variant sites from the original VCF; outputs the IDs to a file. |
