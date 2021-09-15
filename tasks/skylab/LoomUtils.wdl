@@ -237,13 +237,12 @@ task SingleNucleusSmartSeq2LoomOutput {
   command <<<
     set -euo pipefail
 
-    introns_counts_files=~{sep=' ' introns_counts}
-    exons_counts_files=~{sep=' ' exons_counts}
-    output_prefix=~{sep=' ' input_ids}
-    #input_names_list=~{sep=' 'input_names}
-    alignment_summary_metrics_list=~{sep=' 'alignment_summary_metrics}
-    dedup_metrics_list=~{sep=' 'dedup_metrics}
-    gc_bias_summary_metrics_list=~{sep=' 'gc_bias_summary_metrics}
+    declare -a introns_counts_files=(~{sep=' ' introns_counts})
+    declare -a exons_counts_files=(~{sep=' ' exons_counts})
+    declare -a output_prefix=(~{sep=' ' input_ids})
+    declare -a alignment_summary_metrics_list=(~{sep=' 'alignment_summary_metrics})
+    declare -a dedup_metrics_list=(~{sep=' 'dedup_metrics})
+    declare -a gc_bias_summary_metrics_list=(~{sep=' 'gc_bias_summary_metrics})
 
     for (( i=0; i<${#introns_counts_files[@]}; ++i));
       do
