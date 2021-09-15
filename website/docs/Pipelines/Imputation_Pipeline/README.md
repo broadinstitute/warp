@@ -16,9 +16,9 @@ The Imputation pipeline imputes missing genotypes from either a multi-sample VCF
  
 ### Workflow installation and requirements
  
-The [Imputation workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/arrays/imputation/Imputation.wdl) is written in the Workflow Description Language (WDL) and can be deployed using a WDL-compatible execution engine like  [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms.
+The [Imputation workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/Imputation.wdl) is written in the Workflow Description Language (WDL) and can be deployed using a WDL-compatible execution engine like  [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms.
  
-To identify the latest workflow version and release notes, please see the Imputation workflow [changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/arrays/imputation/Imputation.changelog.md). 
+To identify the latest workflow version and release notes, please see the Imputation workflow [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/Imputation.changelog.md). 
  
 The latest release of the workflow, example data, and dependencies are available from the WARP releases page. To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
  
@@ -60,7 +60,7 @@ The reference panel files required for the Imputation workflow are hosted in a [
  
 ## Workflow tasks and tools
  
-The [Imputation workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/arrays/imputation/Imputation.wdl) imports a series of tasks from the ImputationTasks WDL, which is hosted in the Broad [tasks library](https://github.com/broadinstitute/warp/tree/master/tasks/broad). The table below describes each workflow task, including the task name, tools, relevant software and non-default parameters. 
+The [Imputation workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/Imputation.wdl) imports a series of tasks from the ImputationTasks WDL, which is hosted in the Broad [tasks library](https://github.com/broadinstitute/warp/tree/develop/tasks/broad). The table below describes each workflow task, including the task name, tools, relevant software and non-default parameters. 
  
 | Task name (alias) in WDL | Tool | Software | Description |
 | --- | --- | --- | --- |
@@ -72,9 +72,9 @@ The [Imputation workflow](https://github.com/broadinstitute/warp/blob/master/pip
 | GenerateChunk | SelectVariants  | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Performs site filtering by selecting SNPs only and excluding InDels, removing duplicate sites from the VCF, selecting biallelic variants, excluding symbolic/mixed variants, and removing sites with a maximum fraction of samples with no-call genotypes greater than 0.1. Also subsets to only a specified chunk of the genome.|
 | OptionalQCSites | --- | [vcftools](http://vcftools.sourceforge.net/), [bcftools](http://samtools.github.io/bcftools/bcftools.html) | If the boolean extra_qc_steps is true, performs additional QC steps; excludes sites with more than 95% missing data and assesses sites for Hardy Weinberg Equilibrium, excluding any site with a p-value less than 0.000001.| 
 | CountVariantsInChunks | CountVariants | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Counts variants in the filtered VCF file; Returns the number of chunks in the array and in the reference file.  | 
-| CheckChunks | ---  | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Confirms that there are no chunks where less than 3 sites or less than 50% of the sites in the array are also in the reference panel; if valid, creates a new VCF output. |
-| PhaseVariantsEagle | --- | [Eagle2](https://alkesgroup.broadinstitute.org/Eagle/Eagle_manual.html) | Performs phasing on the filtered, validated VCF using the phased reference panel; allows for REF/ALT swaps |
-| Minimac4 | --- | [minimac4](https://genome.sph.umich.edu/wiki/Minimac4_Documentation), [bcftools]([bcftools](http://samtools.github.io/bcftools/bcftools.html)) | Performs imputation on the prephased VCF; parameterized to include variants that were genotyped but NOT in the reference panel and to specify a minRatio of 0.00001. |
+| CheckChunks | convert, index  | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Confirms that there are no chunks where less than 3 sites or less than 50% of the sites in the array are also in the reference panel; if valid, creates a new VCF output. |
+| PhaseVariantsEagle | eagle | [Eagle2](https://alkesgroup.broadinstitute.org/Eagle/Eagle_manual.html) | Performs phasing on the filtered, validated VCF using the phased reference panel; allows for REF/ALT swaps |
+| Minimac4 | Minimac4 | [minimac4](https://genome.sph.umich.edu/wiki/Minimac4_Documentation), [bcftools]([bcftools](http://samtools.github.io/bcftools/bcftools.html)) | Performs imputation on the prephased VCF; parameterized to include variants that were genotyped but NOT in the reference panel and to specify a minRatio of 0.00001. |
 | AggregateImputationQCMetrics | --- | R | Uses an R script to take calculate metrics from minimac4 output info file, including total sites, total sites with variants, and sites with an [R2 metric](https://genome.sph.umich.edu/wiki/Minimac3_Info_File) of 0.3 (total_sites_r2_gt_0.3); adds the metrics to a new TSV output. |
 | UpdateHeader | UpdateVCFSequenceDictionary | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Updates the header of the imputed VCF; adds contig lengths |
 | SeparateMultiallelics | norm | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Splits multiallelic sites in the imputed VCF into biallelic records. |
