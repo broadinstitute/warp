@@ -59,14 +59,15 @@ task CompareGvcfs {
     File truth_gvcf
 
     # Uncompressed size is ~10x larger with 2 files -> 20
-    Int memory = ceil((size(test_gvcf, "G") * 20)) + 5
+    # Int memory = ceil((size(test_gvcf, "G") * 20)) + 5
   }
 
   command {
-    set -euo pipefail
+    set -eo pipefail
+
     exit_code=0
 
-    diff --speed-large-files <(gunzip -c -f ~{test_gvcf} | grep -v '^##') <(gunzip -c -f ~{truth_gvcf} | grep -v '^##') > gvcf_diff.txt
+    diff <(gunzip -c -f ~{test_gvcf} | grep -v '^##') <(gunzip -c -f ~{truth_gvcf} | grep -v '^##') > gvcf_diff.txt
     DIFF_LINES=$( grep -e "^<" gvcf_diff.txt | wc -l)
     if [ $DIFF_LINES -ge 10 ]; then
       exit_code=1
@@ -83,7 +84,7 @@ task CompareGvcfs {
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 70 HDD"
-    memory: "~{memory} GiB"
+    memory: "25 GiB"
     preemptible: 3
   }
 
