@@ -16,7 +16,7 @@ workflow TestSmartSeq2SingleNucleusPR {
 
     # snSS2 inputs
     File genome_ref_fasta
-    File star_reference
+    File tar_star_reference
     File annotations_gtf
     File adapter_list
     String batch_id
@@ -34,7 +34,7 @@ workflow TestSmartSeq2SingleNucleusPR {
       fastq2_input_files = fastq2_input_files,
       adapter_list = adapter_list,
       annotations_gtf = annotations_gtf,
-      tar_star_reference = star_reference
+      tar_star_reference = tar_star_reference
   }
   scatter(idx in range(length(input_ids))) {
     call checker_wdl.ValidateSnSmartSeq2 as checker_workflow {
