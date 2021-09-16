@@ -28,11 +28,13 @@ workflow CreateOptimusAdapterMetadata {
     Array[String] all_project_names
 
     String output_basename
+
     String cromwell_url = "https://api.firecloud.org/"
     String staging_area = "gs://broad-dsp-monster-hca-prod-lantern/"
     String pipeline_type = "Optimus"
+    String workspace_bucket # gs:// path associated with the terra workspace
 
-    String? version_timestamp
+    String? version_timestamp # default behavior is to retrieve this from workspace_bucket metadata
   }
 
   ########################## Set up Inputs ##########################
@@ -42,7 +44,7 @@ workflow CreateOptimusAdapterMetadata {
   # Get the version timestamp which is the creation date of the staging bucket
   call Tasks.GetBucketCreationDate as GetVersionTimestamp {
     input:
-      bucket_path = staging_area
+      bucket_path = workspace_bucket
   }
 
   # Check inputs for multiple values or illegal characters

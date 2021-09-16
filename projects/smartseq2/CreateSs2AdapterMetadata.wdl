@@ -27,11 +27,12 @@ workflow CreateSs2AdapterMetadata {
     Array[String] all_project_ids
     Array[String] all_project_names
 
-    String cromwell_url = "https://firecloud-orchestration.dsde-dev.broadinstitute.org"
-    String staging_area = "gs://fc-b4648544-9363-4a04-aa37-e7031c078a67/"
+    String cromwell_url = "https://api.firecloud.org/"
+    String staging_area = "gs://broad-dsp-monster-hca-prod-lantern/"
     String pipeline_type = "SS2"
+    String workspace_bucket # gs:// path associated with the terra workspace
 
-    String? version_timestamp
+    String? version_timestamp # default behavior is to retrieve this from workspace_bucket metadata
   }
 
   ########################## Set up Inputs ##########################
@@ -41,7 +42,7 @@ workflow CreateSs2AdapterMetadata {
   # Get the version timestamp which is the creation date of the staging bucket
   call Tasks.GetBucketCreationDate as GetVersionTimestamp {
     input:
-      bucket_path = staging_area
+      bucket_path = workspace_bucket
   }
 
   # Check inputs for multiple values or illegal characters
