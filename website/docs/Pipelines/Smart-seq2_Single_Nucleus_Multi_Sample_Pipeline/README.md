@@ -79,9 +79,6 @@ The table below details the Multi-snSS2 inputs. The pipeline is designed to take
 | annotations_gtf | Custom GTF file containing annotations for exon and intron tagging; must match the STAR reference. | GTF | 
 | genome_ref_fasta | FASTA file used for STAR alignment. | FASTA | 
 | adapter_list | File listing adapter sequences used in the library preparation (i.e. Illumina adapters for Illumina sequencing). | FASTA | 
-| output_name | Unique name used for output files; can also be a cloud path. | String |
-| paired_end | Boolean to indicate if reads are paired-end; default is set to true and pipeline is currntly only validated for paired-end | Boolean |
-
 
 ## Running Multi-snSS2
 
@@ -129,8 +126,7 @@ The table below details the final outputs of the Multi-snSS2 workflow.
 
 | Output Name | Output Description | Output Format |
 | --- | --- | --- |
-| pipeline_version_out | Version of the processing pipeline run on this data. | String |
-| loom_output_files | Cell-by-gene count matrix that includes the raw exon counts (in matrix), intron counts (in matrix layer), cell metrics (column attributes) and gene IDs (row attributes). | Loom |
+| loom_output | Cell-by-gene count matrix that includes the raw exon counts (in matrix), intron counts (in matrix layer), cell metrics (column attributes) and gene IDs (row attributes). | Loom |
 | bam_files | Array of genome-aligned BAM files (one for each cell) generated with Star.  | Array [BAM]|
 | exon_intron_count_files | Array of TXT files (one per cell) that contain intronic and exonic counts. | Array [TXT]| 
 
