@@ -1,7 +1,8 @@
 # 1.1.0
-2021-08-19 (Date of Last Commit)
+2021-09-16 (Date of Last Commit)
 
-* Removed Single sample pipeline and changed the wdl tasks to run multiple samples in the same VM.
+* Removed the Smart-seq2 Single Nucleus workflow (SmartSeq2SingleNucleus.wdl) and changed the workflow tasks to run multiple samples in the same VM
+* Renamed the StarAlignFastq.StarAlignFastqPairedEnd task to StarAlign.StarAlignFastqMultisample
 
 # 1.0.4
 2021-09-10 (Date of Last Commit)
