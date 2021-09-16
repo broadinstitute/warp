@@ -11,7 +11,7 @@ workflow TestSmartSeq2SingleNucleusPR {
     #checksums
     Array[String] truth_exon_intron_counts_hash
     Array[File] truth_bam
-    Array[File] truth_loom
+    File truth_loom
 
 
     # snSS2 inputs
@@ -25,24 +25,24 @@ workflow TestSmartSeq2SingleNucleusPR {
     Array[File] fastq2_input_files
   }
 
-  call target_wdl.SmartSeq2SingleNucleus as target_workflow {
+  call target_wdl.MultiSampleSmartSeq2SingleNucleus as target_workflow {
     input:
       genome_ref_fasta = genome_ref_fasta,
-      input_id = input_ids,
+      input_ids = input_ids,
       batch_id = batch_id,
-      fastq1 = fastq1_input_files,
-      fastq2 = fastq2_input_files,
+      fastq1_input_files = fastq1_input_files,
+      fastq2_input_files = fastq2_input_files,
       adapter_list = adapter_list,
       annotations_gtf = annotations_gtf,
-      star_reference = star_reference
+      tar_star_reference = star_reference
   }
   scatter(idx in range(length(input_ids))) {
     call checker_wdl.ValidateSnSmartSeq2 as checker_workflow {
       input:
         exon_intron_counts_hash = target_workflow.exon_intron_count_files[idx],
         truth_exon_intron_counts_hash = truth_exon_intron_counts_hash[idx],
-        loom_output = target_workflow.loom_output[idx],
-        truth_loom = truth_loom[idx]
+        loom_output = target_workflow.loom_output,
+        truth_loom = truth_loom
     }
     call verify_tasks.CompareBams as CompareBams {
       input:
