@@ -56,78 +56,93 @@ workflow TestSs2HcaAdapter {
       workspace_bucket = workspace_bucket
   }
 
+  # bam file descriptors come first in output_analysis_file_descriptor_objects array
   call checker_adapter.CompareAdapterFiles as checker_adapter_descriptors_bam {
     input:
       test_json = target_adapter.output_analysis_file_descriptor_objects[0],
       truth_json = ss2_descriptors_analysis_file_intermediate_bam_json
   }
 
+  # check length of array, minus project level
+  # first half of array is bam descriptors, second half is bai descriptors
   call checker_adapter.CompareAdapterFiles as checker_adapter_descriptors_bai {
     input:
-      test_json = target_adapter.output_analysis_file_descriptor_objects[1],
+      test_json = target_adapter.output_analysis_file_descriptor_objects[((length(target_adapter.output_analysis_file_descriptor_objects) - 1 ) / 2)],
       truth_json = ss2_descriptors_analysis_file_intermediate_bai_json
   }
 
+  # project loom descriptor will be in last position of output_analysis_file_descriptor_objects array
   call checker_adapter.CompareAdapterFiles as checker_adapter_descriptors_loom {
     input:
-      test_json = target_adapter.output_analysis_file_descriptor_objects[2],
+      test_json = target_adapter.output_analysis_file_descriptor_objects[(length(target_adapter.output_analysis_file_descriptor_objects) - 1)],
       truth_json = ss2_descriptors_analysis_file_project_loom_json
   }
 
+  # intermediate bam analysis files come first in output_analysis_file_metadata_objects
   call checker_adapter.CompareAdapterFiles as checker_adapter_metadata_analysis_files_bam {
     input:
       test_json = target_adapter.output_analysis_file_metadata_objects[0],
       truth_json = ss2_metadata_analysis_file_intermediate_bam_json
   }
 
+  # check length of array, minus project level
+  # first half of array is bam descriptors, second half is bai analysis files
   call checker_adapter.CompareAdapterFiles as checker_adapter_metadata_analysis_files_bai {
     input:
-      test_json = target_adapter.output_analysis_file_metadata_objects[1],
+      test_json = target_adapter.output_analysis_file_metadata_objects[((length(target_adapter.output_analysis_file_metadata_objects) - 1 ) / 2)],
       truth_json = ss2_metadata_analysis_file_intermediate_bai_json
   }
 
+  # project loom analysis file will be in last position of output_analysis_file_metadata_objects array
   call checker_adapter.CompareAdapterFiles as checker_adapter_metadata_analysis_files_loom {
     input:
-      test_json = target_adapter.output_analysis_file_metadata_objects[2],
+      test_json = target_adapter.output_analysis_file_metadata_objects[(length(target_adapter.output_analysis_file_metadata_objects) - 1)],
       truth_json = ss2_metadata_analysis_file_project_loom_json
   }
 
+  # interemediate process file is first in output_analysis_process_objects array
   call checker_adapter.CompareAdapterFiles as checker_adapter_metadata_analysis_process {
     input:
       test_json = target_adapter.output_analysis_process_objects[0],
       truth_json = ss2_metadata_analysis_process_file_intermediate_json
   }
 
+  # project loom analysis process will be in last position of output_analysis_process_objects array
   call checker_adapter.CompareAdapterFiles as checker_adapter_ss2_project_metadata_analysis_process {
     input:
-      test_json = target_adapter.output_analysis_process_objects[1],
+      test_json = target_adapter.output_analysis_process_objects[(length(target_adapter.output_analysis_process_objects) - 1)],
       truth_json = ss2_metadata_analysis_process_project_loom_json
   }
 
+  # intermediate protocol file is first in output_analysis_protocol_objects array
   call checker_adapter.CompareAdapterFiles as checker_adapter_metadata_analysis_protocol {
     input:
       test_json = target_adapter.output_analysis_protocol_objects[0],
       truth_json = ss2_metadata_analysis_protocol_file_intermediate_json
   }
 
+  # project level analysis protocol will be in last position of output_analysis_protocol_objects array
   call checker_adapter.CompareAdapterFiles as checker_adapter_ss2_project_metadata_analysis_protocol {
     input:
-      test_json = target_adapter.output_analysis_protocol_objects[1],
+      test_json = target_adapter.output_analysis_protocol_objects[(length(target_adapter.output_analysis_protocol_objects) - 1)],
       truth_json = ss2_metadata_analysis_protocol_file_project_json
   }
 
+  # only one resulting links file
   call checker_adapter.CompareAdapterFiles as checker_adapter_links {
     input:
       test_json = target_adapter.output_links_objects[0],
       truth_json = ss2_links_json
   }
 
+  # only one resulting reference file descriptor
   call checker_adapter.CompareAdapterFiles as checker_adapter_descriptors_reference {
     input:
       test_json = target_adapter.output_reference_file_descriptor_objects[0],
       truth_json = ss2_descriptors_analysis_file_intermediate_reference_json
   }
 
+  # only one resulting reference file
   call checker_adapter.CompareAdapterFiles as checker_adapter_metadata_reference_file {
     input:
       test_json = target_adapter.output_reference_metadata_objects[0],
