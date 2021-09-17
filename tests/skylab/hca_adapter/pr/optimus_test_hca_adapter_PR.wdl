@@ -21,9 +21,7 @@ workflow TestOptimusHcaAdapter {
     Array[String] all_project_names
 
     String output_basename
-    String cromwell_url = "https://api.firecloud.org/"
-    String staging_area = "gs://broad-dsp-monster-hca-prod-lantern/"
-    String pipeline_type = "Optimus"
+    String workspace_bucket
 
     #optimus truth inputs
     File optimus_descriptors_analysis_file_intermediate_loom_json
@@ -57,9 +55,7 @@ workflow TestOptimusHcaAdapter {
       all_project_ids = all_project_ids,
       all_project_names = all_project_names,
       output_basename = output_basename,
-      cromwell_url = cromwell_url,
-      staging_area = staging_area,
-      pipeline_type = pipeline_type
+      workspace_bucket = workspace_bucket
   }
 
   call checker_adapter.CompareAdapterFiles as checker_adapter_descriptors_loom {

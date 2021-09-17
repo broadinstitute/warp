@@ -21,9 +21,7 @@ workflow TestSs2HcaAdapter {
     Array[String] all_project_ids
     Array[String] all_project_names
 
-    String cromwell_url = "https://firecloud-orchestration.dsde-dev.broadinstitute.org"
-    String staging_area = "gs://fc-b4648544-9363-4a04-aa37-e7031c078a67/"
-    String pipeline_type = "SS2"
+    String workspace_bucket
 
     # ss2 truth inputs
     File ss2_metadata_analysis_file_intermediate_bam_json
@@ -55,9 +53,7 @@ workflow TestSs2HcaAdapter {
       all_species = all_species,
       all_project_ids = all_project_ids,
       all_project_names = all_project_names,
-      cromwell_url = cromwell_url,
-      staging_area = staging_area,
-      pipeline_type = pipeline_type
+      workspace_bucket = workspace_bucket
   }
 
   call checker_adapter.CompareAdapterFiles as checker_adapter_descriptors_bam {
