@@ -78,18 +78,17 @@ workflow TestSs2HcaAdapter {
       truth_json = ss2_descriptors_analysis_file_project_loom_json
   }
 
-  # intermediate bam analysis files come first in output_analysis_file_metadata_objects
+  # intermediate bam analysis file is second in output_analysis_file_metadata_objects
   call checker_adapter.CompareAdapterFiles as checker_adapter_metadata_analysis_files_bam {
     input:
-      test_json = target_adapter.output_analysis_file_metadata_objects[0],
+      test_json = target_adapter.output_analysis_file_metadata_objects[1],
       truth_json = ss2_metadata_analysis_file_intermediate_bam_json
   }
 
-  # check length of array, minus project level
-  # first half of array is bam descriptors, second half is bai analysis files
+  # intermediate bai analysis files is first in output_analysis_file_metadata_objects
   call checker_adapter.CompareAdapterFiles as checker_adapter_metadata_analysis_files_bai {
     input:
-      test_json = target_adapter.output_analysis_file_metadata_objects[((length(target_adapter.output_analysis_file_metadata_objects) - 1 ) / 2)],
+      test_json = target_adapter.output_analysis_file_metadata_objects[0],
       truth_json = ss2_metadata_analysis_file_intermediate_bai_json
   }
 
