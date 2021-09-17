@@ -92,7 +92,7 @@ task HaplotypeCaller_GATK4_VCF {
     Boolean make_bamout
     Int preemptible_tries
     Int hc_scatter
-    Boolean run_dragen_mode = false
+    Boolean run_dragen_mode
     Boolean dragen_mode_hard_filter = false
     Boolean use_spanning_event_genotyping = true
     File? dragstr_model

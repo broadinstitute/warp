@@ -40,7 +40,7 @@ workflow SplitLargeReadGroup {
     Int reads_per_file = 48000000
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
-    Boolean use_bwa_mem = true
+    Boolean use_bwa_mem
   }
 
   call Alignment.SamSplitter as SamSplitter {

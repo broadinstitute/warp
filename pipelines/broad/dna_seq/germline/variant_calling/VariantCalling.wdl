@@ -11,7 +11,7 @@ workflow VariantCalling {
   String pipeline_version = "1.0.2"
 
   input {
-    Boolean run_dragen_mode = false
+    Boolean run_dragen_mode
     Boolean use_spanning_event_genotyping = true
     File calling_interval_list
     File evaluation_interval_list

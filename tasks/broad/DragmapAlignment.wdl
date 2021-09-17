@@ -1,6 +1,6 @@
 version 1.0
 
-## Copyright Broad Institute, 2020
+## Copyright Broad Institute, 2021
 ##
 ## This WDL defines tasks used for alignment of human whole-genome or exome sequencing data using Illumina's DRAGEN open source mapper.
 ##
@@ -30,13 +30,15 @@ task SamToFastqAndDragmapAndMba {
     Int preemptible_tries
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
+
+    Float disk_multiplier = 8
+    Int memory_gb = 40
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
   Float ref_size = size(reference_fasta.ref_fasta, "GiB") + size(reference_fasta.ref_fasta_index, "GiB") + size(reference_fasta.ref_dict, "GiB")
   Float bwa_ref_size = ref_size + size(reference_fasta.ref_alt, "GiB") + size(reference_fasta.ref_amb, "GiB") + size(reference_fasta.ref_ann, "GiB") + size(reference_fasta.ref_bwt, "GiB") + size(reference_fasta.ref_pac, "GiB") + size(reference_fasta.ref_sa, "GiB")
   Float dragmap_ref_size = size(dragmap_reference.reference_bin, "GiB") + size(dragmap_reference.hash_table_cfg_bin, "GiB") + size(dragmap_reference.hash_table_cmp, "GiB")
-  Float disk_multiplier = 8
   Int disk_size = ceil(unmapped_bam_size + bwa_ref_size + dragmap_ref_size + (disk_multiplier * unmapped_bam_size) + 20)
 
   command <<<
@@ -87,7 +89,7 @@ task SamToFastqAndDragmapAndMba {
   runtime {
     docker: "us.gcr.io/broad-dsde-methods/dragmap:1.2.0"
     preemptible: preemptible_tries
-    memory: "40 GiB"
+    memory: memory_gb + " GiB"
     cpu: "16"
     disks: "local-disk " + disk_size + " HDD"
   }

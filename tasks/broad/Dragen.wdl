@@ -1,6 +1,6 @@
 version 1.0
 
-## Copyright Broad Institute, 2020
+## Copyright Broad Institute, 2021
 ##
 ## This WDL defines tasks to use Dragen's DRAGstr approach to STR sequencing artifacts 
 ## Indel genotype priors in the DRAGEN-Gatk pipeline. 

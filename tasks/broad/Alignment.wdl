@@ -32,7 +32,7 @@ task SamToFastqAndBwaMemAndMba {
     Int compression_level
     Int preemptible_tries
     Boolean hard_clip_reads = false
-    Boolean unmap_contaminant_reads = true
+    Boolean unmap_contaminant_reads
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
