@@ -509,14 +509,14 @@ task GetProjectLevelInputIds {
 
 task CopyToStagingBucket {
   input  {
-    Array[File] analysis_file_metadata_objects
-    Array[File] analysis_process_objects
-    Array[File] analysis_protocol_objects
-    Array[File] analysis_file_descriptor_objects
-    Array[File] links_objects
-    Array[File] data_objects
-    Array[File] reference_metadata_objects
-    Array[File] reference_file_descriptor_objects
+    Array[String] analysis_file_metadata_objects
+    Array[String] analysis_process_objects
+    Array[String] analysis_protocol_objects
+    Array[String] analysis_file_descriptor_objects
+    Array[String] links_objects
+    Array[String] data_objects
+    Array[String] reference_metadata_objects
+    Array[String] reference_file_descriptor_objects
     String staging_bucket
     String? cache_invalidate
 
