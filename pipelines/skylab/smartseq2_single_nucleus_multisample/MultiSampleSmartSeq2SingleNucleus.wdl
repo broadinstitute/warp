@@ -136,7 +136,6 @@ workflow MultiSampleSmartSeq2SingleNucleus {
 
 
 
-
   ### Pipeline output ###
   output {
     # loom output, exon/intron count tsv files and the aligned bam files
