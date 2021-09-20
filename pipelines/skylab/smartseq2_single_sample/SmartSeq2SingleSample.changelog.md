@@ -1,7 +1,7 @@
 # 5.1.5
 2021-09-13 (Date of Last Commit)
 
-* Updated Picard.wdl and LoomUtils.wdl for Single Nucleus SmartSeq2
+* Updated Picard.wdl and LoomUtils.wdl for Single Nucleus SmartSeq2. These changes do not affect SmartSeq2SingleSample
 
 # 5.1.4
 2021-09-02 (Date of Last Commit)
