@@ -306,33 +306,11 @@ workflow ImputationPipeline {
     }
   }
 
-  call tasks.CrosscheckFingerprints {
-    input:
-      firstInputs = if (defined(multi_sample_vcf)) then select_all([multi_sample_vcf]) else select_first([single_sample_vcfs]),
-      firstInputIndices = if (defined(multi_sample_vcf)) then select_all([multi_sample_vcf_index]) else select_first([single_sample_vcf_indices]),
-      secondInputs = [InterleaveVariants.output_vcf],
-      secondInputIndices = [InterleaveVariants.output_vcf_index],
-      haplotypeDatabase = haplotype_database,
-      basename = output_callset_name,
-      gatk_docker = gatk_docker_tag
-  }
-
   if (split_output_to_single_sample) {
     call tasks.SplitMultiSampleVcf {
       input:
         multiSampleVcf = InterleaveVariants.output_vcf,
         bcftools_docker = bcftools_docker_tag
-    }
-
-    call tasks.CrosscheckFingerprints as CrosscheckFingerprintsSplit {
-      input:
-        firstInputs = if (defined(multi_sample_vcf)) then select_all([multi_sample_vcf]) else select_first([single_sample_vcfs]),
-        firstInputIndices = if (defined(multi_sample_vcf)) then select_all([multi_sample_vcf_index]) else select_first([single_sample_vcf_indices]),
-        secondInputs = SplitMultiSampleVcf.single_sample_vcfs,
-        secondInputIndices = SplitMultiSampleVcf.single_sample_vcf_indices,
-        haplotypeDatabase = haplotype_database,
-        basename = output_callset_name + ".split",
-        gatk_docker = gatk_docker_tag
     }
   }
 
@@ -346,7 +324,5 @@ workflow ImputationPipeline {
     File chunks_info = StoreChunksInfo.chunks_info
     File failed_chunks = StoreChunksInfo.failed_chunks
     Int n_failed_chunks = StoreChunksInfo.n_failed_chunks
-    File crosscheck = CrosscheckFingerprints.crosscheck
-    File? crosscheck_split = CrosscheckFingerprintsSplit.crosscheck
   }
 }
