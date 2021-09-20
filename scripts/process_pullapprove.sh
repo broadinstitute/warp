@@ -51,6 +51,10 @@ joint_genotyping_files=("pipelines/broad/dna_seq/germline/joint_genotyping/**")
 somatic_single_sample_wdls=("beta-pipelines/broad/somatic/single_sample/targeted/TargetedSomaticSingleSample.wdl")
 somatic_single_sample_files=("beta-pipelines/broad/somatic/single_sample/targeted/**")
 
+# scientific_owners_imputation:
+imputation_wdls=("pipelines/broad/arrays/imputation/Imputation.wdl")
+imputation_files=("pipelines/broad/arrays/imputation/**")
+
 # clinical_owners:
 clinical_wdls=("pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl")
 
@@ -110,6 +114,7 @@ arrays_all_wdls=$(get_dependencies_for_wdls ${arrays_wdls[@]})
 germline_single_sample_all_wdls=$(get_dependencies_for_wdls ${germline_single_sample_wdls[@]})
 joint_genotyping_all_wdls=$(get_dependencies_for_wdls ${joint_genotyping_wdls[@]})
 somatic_single_sample_all_wdls=$(get_dependencies_for_wdls ${somatic_single_sample_wdls[@]})
+imputation_all_wdls=$(get_dependencies_for_wdls ${imputation_wdls[@]})
 clinical_all_wdls=$(get_dependencies_for_wdls ${clinical_wdls[@]})
 
 export GDC_WGS_FILES="$(get_string ${gdc_wgs_all_wdls[@]} ${gdc_wgs_files[@]})"
@@ -119,6 +124,7 @@ export ARRAYS_FILES="$(get_string ${arrays_all_wdls[@]} ${arrays_files[@]})"
 export GERMLINE_SINGLE_SAMPLE_FILES="$(get_string ${germline_single_sample_all_wdls[@]} ${germline_single_sample_files[@]})"
 export JOINT_GENOTYPING_FILES="$(get_string ${joint_genotyping_all_wdls[@]} ${joint_genotyping_files[@]})"
 export SOMATIC_SINGLE_SAMPLE_FILES="$(get_string ${somatic_single_sample_all_wdls[@]} ${somatic_single_sample_files[@]})"
+export IMPUTATION_FILES="$(get_string ${imputation_all_wdls[@]} ${imputation_files[@]})"
 export CLINICAL_FILES="$(get_string ${clinical_all_wdls[@]})"
 
 
