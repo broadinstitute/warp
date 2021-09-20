@@ -4,7 +4,6 @@
 * Updated Picard.wdl and LoomUtils.wdl for Single Nucleus SmartSeq2
 
 # 5.1.4
-
 2021-09-02 (Date of Last Commit)
 
 * Removed a redundant task in Picard.wdl that was use in the previous  Optimus pipeline. However, 
