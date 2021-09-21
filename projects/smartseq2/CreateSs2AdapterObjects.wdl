@@ -22,6 +22,7 @@ workflow CreateSs2AdapterObjects {
     File metadata
   }
 
+  # If bam is defined then run intermediate level tasks
   if (defined(bam)) {
     call Tasks.GetAnalysisFileMetadata as GetIntermediateAnalysisFileMetadata {
       input:
@@ -57,6 +58,21 @@ workflow CreateSs2AdapterObjects {
         file_path_string = select_first([bam]),
         input_uuid = input_id,
         creation_time = GetBamFileCreationDate.creation_date,
+        version_timestamp = version_timestamp
+    }
+
+    call Tasks.GetCloudFileCreationDate  as GetBaiFileCreationDate {
+      input:
+        file_path = select_first([bai])
+    }
+
+    call Tasks.GetFileDescriptor as GetBaiFileDescriptor {
+      input:
+        pipeline_type = pipeline_type,
+        file_path = select_first([bai]),
+        file_path_string = select_first([bai]),
+        input_uuid = input_id,
+        creation_time = GetBaiFileCreationDate.creation_date,
         version_timestamp = version_timestamp
     }
   }
@@ -110,24 +126,6 @@ workflow CreateSs2AdapterObjects {
       project_level = is_project_level,
       input_file = metadata,
       ss2_index = ss2_index
-  }
-
-  # bai
-  if (defined(bai)){
-    call Tasks.GetCloudFileCreationDate  as GetBaiFileCreationDate {
-    input:
-      file_path = select_first([bai])
-    }
-
-    call Tasks.GetFileDescriptor as GetBaiFileDescriptor {
-      input:
-        pipeline_type = pipeline_type,
-        file_path = select_first([bai]),
-        file_path_string = select_first([bai]),
-        input_uuid = input_id,
-        creation_time = GetBaiFileCreationDate.creation_date,
-        version_timestamp = version_timestamp
-    }
   }
 
   output {

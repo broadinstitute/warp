@@ -65,7 +65,7 @@ workflow TestOptimusHcaAdapter {
       truth_json = optimus_descriptors_analysis_file_intermediate_loom_json
   }
 
-  # loom file descriptors come second in output_analysis_file_descriptor_objects array
+  # bam file descriptors come second in output_analysis_file_descriptor_objects array
   call checker_adapter.CompareAdapterFiles as checker_adapter_descriptors_bam {
     input:
       test_json = target_adapter.output_analysis_file_descriptor_objects[1],

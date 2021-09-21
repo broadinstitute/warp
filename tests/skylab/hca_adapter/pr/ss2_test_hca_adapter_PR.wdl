@@ -13,7 +13,6 @@ workflow TestSs2HcaAdapter {
     Array[String] input_ids
     Array[String] fastq_1_uuids
     Array[String] fastq_2_uuids
-    Array[String]? fastq_i1_uuids
 
     Array[String] all_libraries
     Array[String] all_organs
@@ -47,7 +46,6 @@ workflow TestSs2HcaAdapter {
       input_ids = input_ids,
       fastq_1_uuids = fastq_1_uuids,
       fastq_2_uuids = fastq_2_uuids,
-      fastq_i1_uuids = fastq_i1_uuids,
       all_libraries = all_libraries,
       all_organs = all_organs,
       all_species = all_species,
