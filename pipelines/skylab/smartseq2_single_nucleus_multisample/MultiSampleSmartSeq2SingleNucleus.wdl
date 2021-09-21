@@ -142,5 +142,6 @@ workflow MultiSampleSmartSeq2SingleNucleus {
     File loom_output = AggregateLoom.loom_output_file
     Array[File] exon_intron_count_files = LoomOutput.exon_intron_counts
     Array[File] bam_files = RemoveDuplicatesFromBam.output_bam
+    String pipeline_version_out = pipeline_version
   }
 }
