@@ -69,7 +69,7 @@ task CompareGvcfs {
 
     /usr/bin/diff <(gunzip -c -f ~{test_gvcf} | grep -v '^##') <(gunzip -c -f ~{truth_gvcf} | grep -v '^##') > gvcf_diff.txt
 
-    if [[ $(cat gvcf_diff.txt | wc - l ) -eq 0 ]]; then
+    if [[ $(cat gvcf_diff.txt | wc -l ) -eq 0 ]]; then
       exit 0
     fi
 
