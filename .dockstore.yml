@@ -41,9 +41,13 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl
 
-  - name: OptimusPostProcessing
+  - name: OptimusHcaAdapter
     subclass: WDL
-    primaryDescriptorPath: /projects/hca_mvp/OptimusPostProcessing.wdl
+    primaryDescriptorPath: /projects/optimus/CreateOptimusAdapterMetadata.wdl
+
+  - name: Ss2HcaAdapter
+    subclass: WDL
+    primaryDescriptorPath: /projects/smartseq2/CreateSs2AdapterMetadata.wdl
 
   - name: CEMBA
     subclass: WDL
