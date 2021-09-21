@@ -16,45 +16,7 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-
-task ComposeSTRTableFile {
-    
-  input {
-    File ref_fasta
-    File ref_fasta_idx
-    File ref_dict
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.2.0"
-    Int preemptible_tries = 3
-  }
-
-  String base_name = sub(basename(ref_fasta), ".fa(sta)$","")
-  String str_table_file_name = base_name + ".str"
-  Int disk_size_gb = ceil(size([ref_fasta, ref_fasta_idx], "GiB")) + 
-                        21 # 1gb for the output file (usually far less than that) and 20 for the rest of the fs.
-
-  command <<<
-
-    gatk --java-options "-Xmx2g" \
-      ComposeSTRTableFile \
-        -R ~{ref_fasta} \
-        -O ~{str_table_file_name}
-
-  >>>
-
-  runtime {
-    docker: docker 
-    disks: "local-disk " + disk_size_gb + " HDD"
-    memory: "3 GiB"
-    preemptible: preemptible_tries
-  }
-
-  output {
-    File str_table_file = "~{str_table_file_name}"
-  }
-}
-
 task CalibrateDragstrModel {
-
   input {
     File ref_fasta
     File ref_fasta_idx
