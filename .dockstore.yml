@@ -45,10 +45,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /projects/optimus/CreateOptimusAdapterMetadata.wdl
 
-  - name: Ss2HcaAdapter
-    subclass: WDL
-    primaryDescriptorPath: /projects/smartseq2/CreateSs2AdapterMetadata.wdl
-
   - name: CEMBA
     subclass: WDL
     primaryDescriptorPath: /pipelines/cemba/cemba_methylcseq/CEMBA.wdl
