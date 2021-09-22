@@ -1,3 +1,8 @@
+# 2.4.7
+2021-09-22
+
+* Updated Utilities.wdl task definitions to include a new task that is NOT used in this pipeline.
+
 # 2.4.6
 2021-08-02
 
