@@ -8,22 +8,21 @@ import better.files.File
 import org.broadinstitute.dsp.pipelines.batch.WorkflowTest
 import org.broadinstitute.dsp.pipelines.config._
 import org.broadinstitute.dsp.pipelines.inputs.{
-  IlluminaGenotypingArrayValidationInputs,
-  SingleSampleArraysInputs
+  ImputationValidationInputs
 }
 
-class IlluminaGenotypingArrayTester(testerConfig: IlluminaGenotypingArrayConfig)(
+class ImputationTester(testerConfig: ImputationConfig)(
     implicit am: ActorMaterializer,
     as: ActorSystem
 ) extends ValidationWdlTester(testerConfig) {
 
-  override val workflowName: String = "IlluminaGenotypingArray"
+  override val workflowName: String = "Imputation"
 
   val workflowDir
-    : File = CromwellWorkflowTester.PipelineRoot / "broad" / "genotyping" / "illumina"
+    : File = CromwellWorkflowTester.PipelineRoot / "broad" / "arrays" / "imputation"
 
   override protected val validationWorkflowName: String =
-    "VerifyIlluminaGenotypingArray"
+    "VerifyImputation"
 
   override protected lazy val googleProject: String = {
     if (env.picardEnv.equals("dev")) {
@@ -40,13 +39,13 @@ class IlluminaGenotypingArrayTester(testerConfig: IlluminaGenotypingArrayConfig)
 
   protected lazy val resultsPrefix: URI = {
     URI.create(
-      s"gs://broad-gotc-test-results/$envString/genotyping/illumina/$testTypeString/$timestamp/"
+      s"gs://broad-gotc-test-results/$envString/imputation/$testTypeString/$timestamp/"
     )
   }
 
   protected lazy val truthPrefix: URI =
     URI.create(
-      s"gs://broad-gotc-test-storage/genotyping/illumina/$testTypeString/truth/${testerConfig.truthBranch}/"
+      s"gs://broad-gotc-test-storage/imputation/$testTypeString/truth/${testerConfig.truthBranch}/"
     )
 
   override protected def buildValidationWdlInputs(
@@ -65,7 +64,7 @@ class IlluminaGenotypingArrayTester(testerConfig: IlluminaGenotypingArrayConfig)
       .listGoogleObjects(truthCloudPath)
       .filter(_.getPath.endsWith("metrics"))
       .map(uriToFilename)
-    val validationInputs = IlluminaGenotypingArrayValidationInputs(
+    val validationInputs = ImputationValidationInputs(
       test_metrics = metricsFileNames.map(resultsCloudPath.resolve),
       truth_metrics = metricsFileNames.map(truthCloudPath.resolve),
       bead_pool_manifest_file =
@@ -74,20 +73,8 @@ class IlluminaGenotypingArrayTester(testerConfig: IlluminaGenotypingArrayConfig)
       truth_gtc = truthCloudPath.resolve(s"$outputBaseName.gtc"),
       test_vcf = resultsCloudPath.resolve(s"$outputBaseName.vcf.gz"),
       truth_vcf = truthCloudPath.resolve(s"$outputBaseName.vcf.gz"),
-      test_fp_vcf =
-        resultsCloudPath.resolve(s"$outputBaseName.fingerprint.vcf.gz"),
-      truth_fp_vcf =
-        truthCloudPath.resolve(s"$outputBaseName.fingerprint.vcf.gz"),
-      truth_green_idat_md5 =
-        truthCloudPath.resolve(s"${outputBaseName}_Grn.idat.md5sum"),
-      test_green_idat_md5 =
-        resultsCloudPath.resolve(s"${outputBaseName}_Grn.idat.md5sum"),
-      truth_red_idat_md5 =
-        truthCloudPath.resolve(s"${outputBaseName}_Red.idat.md5sum"),
-      test_red_idat_md5 =
-        resultsCloudPath.resolve(s"${outputBaseName}_Red.idat.md5sum")
     )
-    IlluminaGenotypingArrayValidationInputs
+    ImputationValidationInputs
       .marshall(validationInputs)
       .printWith(implicitly)
   }
