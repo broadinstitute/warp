@@ -3,6 +3,7 @@ version 1.0
 import "../../../../pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl" as IlluminaGenotyping
 import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalArraysTasks
 import "../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
+import "../../../../tasks/broad/Utilities.wdl" as utils
 
 ## Copyright Broad Institute, 2019
 ##
@@ -22,7 +23,7 @@ import "../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 
 workflow Arrays {
 
-  String pipeline_version = "2.4.1"
+  String pipeline_version = "2.4.2"
 
   input {
 
@@ -62,8 +63,10 @@ workflow Arrays {
     String? regulatory_designation
     String? research_project_id
 
-    File bead_pool_manifest_file
-    String chip_type = basename(bead_pool_manifest_file, ".bpm")
+    String? arrays_metadata_path
+
+    String? bead_pool_manifest_filename
+    File? bead_pool_manifest_file
 
     File extended_chip_manifest_file
     File cluster_file
@@ -149,6 +152,31 @@ workflow Arrays {
     "  key=secret/dsde/gotc/dev/service-accounts/metrics-cloudsql-non-prod-service-account.json",
     "fi",
     "vault read --format=json $key | jq .data > ~{service_account_filename}"]
+
+  if (!defined(bead_pool_manifest_filename) && !defined(bead_pool_manifest_file)) {
+    call utils.ErrorWithMessage as ErrorMessageNoInput {
+      input:
+        message = "Either bead_pool_manifest_filename or bead_pool_manifest_file (and NOT both) must be defined as input"
+    }
+  }
+
+  if (defined(bead_pool_manifest_filename) && defined(bead_pool_manifest_file)) {
+    call utils.ErrorWithMessage as ErrorMessageDoubleInput {
+      input:
+        message = "bead_pool_manifest_filename and bead_pool_manifest_file cannot both be defined as input"
+    }
+  }
+
+  if (defined(bead_pool_manifest_filename) && !defined(arrays_metadata_path)) {
+    call utils.ErrorWithMessage as ErrorMessageNoArraysMetadataPath {
+      input:
+        message = "If bead_pool_manifest_filename is defined, then arrays_metadata_path must also be defined"
+    }
+  }
+
+  String bpm_filename = if (defined(bead_pool_manifest_file)) then select_first([bead_pool_manifest_file]) else select_first([bead_pool_manifest_filename, ""])
+  String chip_type = basename(bpm_filename, ".bpm")
+  File bpm_file = if (defined(bead_pool_manifest_file)) then select_first([bead_pool_manifest_file]) else select_first([arrays_metadata_path, ""]) + chip_type + "/" + select_first([bead_pool_manifest_filename, ""])
 
   if (!defined(params_file)) {
     # If the params_file is not provided, we will generate it from the (currently optional) bunch of parameters.
@@ -237,7 +265,7 @@ workflow Arrays {
       ref_dict = ref_dict,
       dbSNP_vcf = dbSNP_vcf,
       dbSNP_vcf_index = dbSNP_vcf_index,
-      bead_pool_manifest_file = bead_pool_manifest_file,
+      bead_pool_manifest_file = bpm_file,
       extended_chip_manifest_file = extended_chip_manifest_file,
       cluster_file = cluster_file,
       gender_cluster_file = gender_cluster_file,
