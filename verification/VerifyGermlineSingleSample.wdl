@@ -58,8 +58,6 @@ task CompareGvcfs {
     File test_gvcf
     File truth_gvcf
 
-    # Uncompressed size is ~10x larger with 2 files -> 20
-    # Int memory = ceil((size(test_gvcf, "G") * 20)) + 5
   }
 
   command {
@@ -98,7 +96,7 @@ task CompareGvcfs {
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 70 HDD"
-    memory: "50 GiB"
+    memory: "75 GiB"
     preemptible: 3
   }
 
