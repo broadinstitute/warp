@@ -65,11 +65,11 @@ task CompareGvcfs {
 
     exit_code=0
 
-    /usr/bin/diff <( gunzip -c -f ~{test_gvcf} | grep -v '^##' ) <( gunzip -c -f ~{truth_gvcf} | grep -v '^##' ) > gvcf_diff.txt
-
-    if [[ $(cat gvcf_diff.txt | wc -l ) -eq 0 ]]; then
+    if [[ cmp -s ( gunzip -c -f ~{test_gvcf} | grep -v '^##' ) <( gunzip -c -f ~{truth_gvcf} | grep -v '^##' ) ]]; then
       exit 0
     fi
+
+    /usr/bin/diff <( gunzip -c -f ~{test_gvcf} | grep -v '^##' ) <( gunzip -c -f ~{truth_gvcf} | grep -v '^##' ) > gvcf_diff.txt
 
     DIFF_LINES=$( grep -e "^<" gvcf_diff.txt | wc -l )
 
@@ -102,5 +102,7 @@ task CompareGvcfs {
 
   output {
     File gvcf_diff = "gvcf_diff.txt"
+    File diff_lines_total = "diff_lines_total.txt"
+    File diff_lines_quality = "diff_lines_quality.txt"
   }
 }
