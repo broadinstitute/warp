@@ -281,10 +281,7 @@ task GetLinksFileMetadata {
 
   command
   <<<
-    # Change the max allowable stack size to 1GB so we successfully pass all array arguments to python script
-
     if ["~{pipeline_type}" == "Optimus"]; then
-
       create-links \
       --project_id "~{project_id}" \
       --input_uuids ~{sep=' ' process_input_ids} \
@@ -295,49 +292,41 @@ task GetLinksFileMetadata {
       --file_name_string "~{file_name_string}" \
       --project_level ~{project_level} \
       --pipeline_type "~{pipeline_type}"
-
     else
+    # SS2 will have runs over 10k samples, must write info to a file rather than pass as arguments
 
-      PROTOCOL_PATH_LIST=~{sep=' ' analysis_protocol_path_list}
-      PROCESS_PATH_LIST=~{sep=' ' analysis_process_path_list}
-      BAM_ARRAY=~{sep=' ' bam_array}
-      BAI_ARRAY=~{sep=' ' bai_array}
-      FASTQ1_ARRAY=~{sep=' ' fastq1_array}
-      INPUT_UUIDS=~{sep=' ' process_input_ids}
+      declare -a PROTOCOL_PATH_LIST=(~{sep=' ' analysis_protocol_path_list})
+      declare -a PROCESS_PATH_LIST=(~{sep=' ' analysis_process_path_list})
+      declare -a BAM_ARRAY=(~{sep=' ' bam_array})
+      declare -a BAI_ARRAY=(~{sep=' ' bai_array})
+      declare -a FASTQ1_ARRAY=(~{sep=' ' fastq1_array})
+      declare -a FASTQ2_ARRAY=(~{sep=' ' fastq2_array}) 
+      declare -a INPUT_UUIDS=~({sep=' ' process_input_ids}
 
       jq -nc '$ARGS.positional' --args ${PROTOCOL_PATH_LIST[@]} > /cromwell_root/protocol_list.json
       jq -nc '$ARGS.positional' --args ${PROCESS_PATH_LIST[@]} > /cromwell_root/process_list.json
       jq -nc '$ARGS.positional' --args ${BAM_ARRAY[@]} > /cromwell_root/ss2_bam.json
       jq -nc '$ARGS.positional' --args ${BAI_ARRAY[@]} > /cromwell_root/ss2_bai.json
       jq -nc '$ARGS.positional' --args ${FASTQ1_ARRAY[@]} > /cromwell_root/ss2_fastq1.json
+      jq -nc '$ARGS.positional' --args ${FASTQ2_ARRAY[@]} > /cromwell_root/ss2_fastq2.json # fastq2 does not exist for single end runs, this should write an empty array
       jq -nc '$ARGS.positional' --args ${INPUT_UUIDS[@]} > /cromwell_root/input_ids.json
-
-      FASTQ2_PATH=""
-      
-      # Write fastq2 paths to file is paired end run
-      if [ -z ~{sep=' ' fastq2_array} ]; then
-        FASTQ2_ARRAY={sep=' ' fastq2_array}
-        jq -nc '$ARGS.positional' --args ${FASTQ2_ARRAY[@]} > /cromwell_root/ss2_fastq2.json
-        FASTQ2_PATH="/cromwell_root/ss2_fastq2.json"
-      fi
 
       create-links \
       --project_id "~{project_id}" \
-      --output_file_path "~{output_file_path}" \
+      --output_file_path "~{output_file_path}" \ # Path to project level outputs.json i.e. project loom
       --workspace_version "~{version_timestamp}" \
       --input_uuids_path "/cromwell_root/input_ids.json"
-      --analysis_process_path "~{sep=' ' analysis_process_path}" \
-      --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
+      --analysis_process_path "~{sep=' ' analysis_process_path}" \ # Single path for project_level analysis process
+      --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \ # Single path for project_level analysis protocol
       --analysis_process_list_path "/cromwell_root/process_list.json" \
       --analysis_protocol_list_path "/cromwell_root/process_list.json" \
       --ss2_bam "/cromwell_root/ss2_bam.json" \
       --ss2_bai  "/cromwell_root/ss2_bai.json" \
       --ss2_fastq1 "/cromwell_root/ss2_fastq1.json" \
-      --ss2_fastq2 ~{sep=' ' fastq2_array} \
-      --file_name_string $FASTQ2_PATH \
-      --project_level ~{project_level} \
+      --ss2_fastq2 "/cromwell_root/ss2_fastq2.json" \
+      --file_name_string "~{file_name_string}" \
+      --project_level "~{project_level}" \
       --pipeline_type "~{pipeline_type}"
-
     fi
   >>>
 
