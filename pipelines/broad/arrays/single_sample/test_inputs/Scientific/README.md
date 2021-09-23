@@ -47,3 +47,12 @@
     - On the GDA chip
     - Using the 2.0 Extended Manifest
     - Looks up the bead_pool_manifest_file using the combination of arrays_metadata_path and bead_pool_manifest_filename
+- 204520870050_R02C01_NA24385
+    - A Coriell sample for which we have no control data
+    - Ashkenazim trio (Son)
+- 204520870050_R04C01_NA24143
+    - A Coriell sample for which we have no control data
+    - Ashkenazim trio (Mother)
+- 204520870050_R06C01_NA24149
+    - A Coriell sample for which we have no control data
+    - Ashkenazim trio (Daughter)
