@@ -275,8 +275,8 @@ task GetLinksFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 2
-    Int machine_mem_mb = "10GiB"
-    Int disk = "70"
+    Int machine_mem_mb = 200000
+    Int disk = 10
   }
 
   command
@@ -318,7 +318,7 @@ task GetLinksFileMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${machine_mem_mb}"
+    memory: "${machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
   }
   output {
