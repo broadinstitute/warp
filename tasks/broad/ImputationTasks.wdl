@@ -12,7 +12,7 @@ task CalculateChromosomeLength {
     grep -P "SN:~{chrom}\t" ~{ref_dict} | sed 's/.*LN://' | sed 's/\t.*//'
   }
   runtime {
-    docker: "alpine:3.14.1"
+    docker: "ubuntu:18.04"
     disks: "local-disk " + disk_size + " HDD"
     memory: "2 GiB"
   }
@@ -307,9 +307,12 @@ task OptionalQCSites {
     File input_vcf_index
     String output_vcf_basename
     String bcftools_vcftools_docker
-    Float max_missing = 0.05
-    Float hwe = 0.000001
+    Float? optional_qc_max_missing
+    Float? optional_qc_hwe
   }
+  Float max_missing = select_first([optional_qc_max_missing, 0.05])
+  Float hwe = select_first([optional_qc_hwe, 0.000001])
+
   Int disk_size = ceil(2*(size(input_vcf, "GiB") + size(input_vcf_index, "GiB")))
 
   command <<<
@@ -338,10 +341,10 @@ task MergeSingleSampleVcfs {
     Int mem
   }
 
-  Int disk_size = 3* ceil(size(input_vcfs, "GiB") + size(input_vcf_indices, "GiB")) + 20
+  Int disk_size = 3 * ceil(size(input_vcfs, "GiB") + size(input_vcf_indices, "GiB")) + 20
 
   command <<<
-    bcftools merge ~{sep=' ' input_vcfs} -Oz -o ~{output_vcf_basename}.vcf.gz
+    bcftools merge ~{sep=' ' input_vcfs} -O z -o ~{output_vcf_basename}.vcf.gz
     bcftools index -t ~{output_vcf_basename}.vcf.gz
   >>>
 

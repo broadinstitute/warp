@@ -129,8 +129,8 @@ workflow ImputationPipeline {
             input_vcf_index = GenerateChunk.output_vcf_index,
             output_vcf_basename =  "chrom_" + referencePanelContig.contig + "_chunk_" + i,
             bcftools_vcftools_docker = bcftools_vcftools_docker_tag,
-            max_missing = optional_qc_max_missing,
-            hwe = optional_qc_hwe
+            optional_qc_max_missing = optional_qc_max_missing,
+            optional_qc_hwe = optional_qc_hwe
         }
       }
 
