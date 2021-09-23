@@ -11,25 +11,15 @@ import io.circe.generic.extras.semiauto.{
 object ImputationValidationInputs
     extends EncodableInputs[ImputationValidationInputs] {
   override def workflowNames: Seq[String] = Seq("VerifyImputation")
-  override implicit val decoder
-    : Decoder[ImputationValidationInputs] =
+  override implicit val decoder: Decoder[ImputationValidationInputs] =
     deriveConfiguredDecoder
-  override implicit val encoder
-    : Encoder[ImputationValidationInputs] =
+  override implicit val encoder: Encoder[ImputationValidationInputs] =
     deriveConfiguredEncoder
 }
+// TODO add in optional single_sample_vcfs if necessary
 case class ImputationValidationInputs(
     truth_metrics: Seq[URI],
     test_metrics: Seq[URI],
-    test_gtc: URI,
-    truth_gtc: URI,
-    bead_pool_manifest_file: URI,
     truth_vcf: URI,
-    test_vcf: URI,
-    truth_fp_vcf: URI,
-    test_fp_vcf: URI,
-    truth_green_idat_md5: URI,
-    test_green_idat_md5: URI,
-    truth_red_idat_md5: URI,
-    test_red_idat_md5: URI
+    test_vcf: URI
 )

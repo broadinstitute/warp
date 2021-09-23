@@ -1,6 +1,5 @@
 package org.broadinstitute.dsp.pipelines.config
 
-import org.broadinstitute.dsp.pipelines.util.DataType
 import org.broadinstitute.dsp.pipelines.commandline.PapiVersion.PAPIv2
 import org.broadinstitute.dsp.pipelines.commandline.{
   CromwellEnvironment,
@@ -11,7 +10,6 @@ import org.broadinstitute.dsp.pipelines.commandline.{
 case class ImputationConfig(
     category: WorkflowTestCategory = WorkflowTestCategory.Plumbing,
     truthBranch: String = "develop",
-    dataType: DataType = DataType.WGS,
     useTimestamp: Option[String] = None,
     useCallCaching: Boolean = true,
     updateTruth: Boolean = false,

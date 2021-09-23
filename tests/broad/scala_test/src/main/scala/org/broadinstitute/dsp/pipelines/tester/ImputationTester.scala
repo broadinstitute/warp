@@ -8,6 +8,7 @@ import better.files.File
 import org.broadinstitute.dsp.pipelines.batch.WorkflowTest
 import org.broadinstitute.dsp.pipelines.config._
 import org.broadinstitute.dsp.pipelines.inputs.{
+  ImputationInputs,
   ImputationValidationInputs
 }
 
@@ -23,14 +24,6 @@ class ImputationTester(testerConfig: ImputationConfig)(
 
   override protected val validationWorkflowName: String =
     "VerifyImputation"
-
-  override protected lazy val googleProject: String = {
-    if (env.picardEnv.equals("dev")) {
-      s"broad-gotc-${env.picardEnv}"
-    } else {
-      s"broad-arrays-${env.picardEnv}"
-    }
-  }
 
   // Validation uses the same options as the arrays workflow
   override protected lazy val validationWdlOptions: String = {
@@ -51,28 +44,33 @@ class ImputationTester(testerConfig: ImputationConfig)(
   override protected def buildValidationWdlInputs(
       workflowTest: WorkflowTest
   ): String = {
-    val singleSampleArraysInputs = new SingleSampleArraysInputs(
+    val imputationInputs = new ImputationInputs(
       workflowTest.runParameters.workflowInputs
     )
     val outputBaseName =
-      singleSampleArraysInputs.getChipwellBarcode(workflowName)
+      imputationInputs.getBasename(workflowName)
     val resultsCloudPath =
       workflowTest.runParameters.resultsCloudPath
     val truthCloudPath = workflowTest.runParameters.truthCloudPath
 
-    val metricsFileNames = ioUtil
-      .listGoogleObjects(truthCloudPath)
-      .filter(_.getPath.endsWith("metrics"))
-      .map(uriToFilename)
+    // TODO add in optional single_sample_vcfs if necessary
     val validationInputs = ImputationValidationInputs(
-      test_metrics = metricsFileNames.map(resultsCloudPath.resolve),
-      truth_metrics = metricsFileNames.map(truthCloudPath.resolve),
-      bead_pool_manifest_file =
-        new URI(singleSampleArraysInputs.getBeadPoolManifestFile(workflowName)),
-      test_gtc = resultsCloudPath.resolve(s"$outputBaseName.gtc"),
-      truth_gtc = truthCloudPath.resolve(s"$outputBaseName.gtc"),
+      test_metrics = Array(
+        resultsCloudPath.resolve(s"${outputBaseName}_chunk_info.tsv"),
+        resultsCloudPath.resolve(s"${outputBaseName}_failed_chunks.tsv"),
+        resultsCloudPath.resolve(s"n_failed_chunks.txt"),
+        resultsCloudPath.resolve(
+          s"${outputBaseName}_aggregated_imputation_metrics.tsv")
+      ),
+      truth_metrics = Array(
+        truthCloudPath.resolve(s"${outputBaseName}_chunk_info.tsv"),
+        truthCloudPath.resolve(s"${outputBaseName}_failed_chunks.tsv"),
+        truthCloudPath.resolve(s"n_failed_chunks.txt"),
+        truthCloudPath.resolve(
+          s"${outputBaseName}_aggregated_imputation_metrics.tsv")
+      ),
       test_vcf = resultsCloudPath.resolve(s"$outputBaseName.vcf.gz"),
-      truth_vcf = truthCloudPath.resolve(s"$outputBaseName.vcf.gz"),
+      truth_vcf = truthCloudPath.resolve(s"$outputBaseName.vcf.gz")
     )
     ImputationValidationInputs
       .marshall(validationInputs)
