@@ -67,7 +67,7 @@ task CompareGvcfs {
 
     exit_code=0
 
-    /usr/bin/diff <(gunzip -c -f ~{test_gvcf} | grep -v '^##') <(gunzip -c -f ~{truth_gvcf} | grep -v '^##') > gvcf_diff.txt
+    /usr/bin/diff <( gunzip -c -f ~{test_gvcf} | grep -v '^##' ) <( gunzip -c -f ~{truth_gvcf} | grep -v '^##' ) > gvcf_diff.txt
 
     if [[ $(cat gvcf_diff.txt | wc -l ) -eq 0 ]]; then
       exit 0
@@ -75,12 +75,16 @@ task CompareGvcfs {
 
     DIFF_LINES=$( grep -e "^<" gvcf_diff.txt | wc -l )
 
+    echo "$DIFF_LINES" > diff_lines_total.txt
+
     if [ $DIFF_LINES -ge 10 ]; then
       exit_code=1
       
-      echo "Error: GVCF ~{test_gvcf} differs in content from ~{truth_gvcf} by $DIFF_LINES lines" >&2
+      echo "Error: GVCF ~{test_gvcf} differs in content from ~{truth_gvcf} by $DIFF_LINES lines"
 
-      DIFF_LINES=$(diff <(gunzip -c -f ~{test_gvcf} | grep -v '^##' | cut -f 1-5,7-) <(gunzip -c -f ~{truth_gvcf} | grep -v '^##' | cut -f 1-5,7-) | grep -e "^<" | wc -l)
+      DIFF_LINES=$(diff <( gunzip -c -f ~{test_gvcf} | grep -v '^##' | cut -f 1-5,7- ) <( gunzip -c -f ~{truth_gvcf} | grep -v '^##' | cut -f 1-5,7- ) | grep -e "^<" | wc -l )
+
+      echo "$DIFF_LINES" > diff_lines_quality.txt
 
       if [ $DIFF_LINES -eq 0 ]; then
         echo "However they ONLY differ in the quality column" >&2
