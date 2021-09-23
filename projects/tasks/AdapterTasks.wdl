@@ -281,8 +281,8 @@ task GetLinksFileMetadata {
 
   command
   <<<
-
-    ulimit -s 65535
+    # Change the max allowable stack size to 1GB so we successfully pass all array arguments to python script
+    ulimit -s 1000000
 
     if ["~{pipeline_type}" == "Optimus"]; then
       create-links \
