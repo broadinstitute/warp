@@ -24,7 +24,7 @@ The latest release of the workflow, example data, and dependencies are available
  
 ### Input descriptions
 The table below describes each of the Imputation pipeline inputs. The workflow requires either a multi-sample VCF or an array of single sample VCFs.
-For examples of how to specify each input in a configuration file, as well as cloud locations for different example input files, see the [input configuration file (JSON)](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json).
+For examples of how to specify each input in a configuration file, as well as cloud locations for different example input files, see the [example input configuration file (JSON)](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json).
  
 | Input name | Description | Type |
 | --- | --- | --- |
@@ -55,7 +55,7 @@ For examples of how to specify each input in a configuration file, as well as cl
  
 ### Imputation reference panel
  
-The reference panel files required for the Imputation workflow will soon be hosted in a public Google Bucket. See the example JSON for the current reference panel files.
+The reference panel files required for the Imputation workflow will soon be hosted in a public Google Bucket. See the [example input configuration](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json) for the current reference panel files.
  
 ## Workflow tasks and tools
  
