@@ -274,12 +274,16 @@ task GetLinksFileMetadata {
     Array[String]? fastq2_array
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
-    Int cpu = 1
-    Int machine_mem_mb = 2000
-    Int disk = 10
+    Int cpu = 2
+    Int machine_mem_mb = "10GiB"
+    Int disk = "local-disk 70 HDD"
   }
 
-  command {
+  command
+  <<<
+
+    ulimit -s 65535
+
     if ["~{pipeline_type}" == "Optimus"]; then
       create-links \
       --project_id "~{project_id}" \
@@ -309,7 +313,8 @@ task GetLinksFileMetadata {
       --project_level ~{project_level} \
       --pipeline_type "~{pipeline_type}"
     fi
-  }
+  >>>
+
   runtime {
     docker: docker
     cpu: cpu
