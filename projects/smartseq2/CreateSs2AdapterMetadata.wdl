@@ -18,7 +18,6 @@ workflow CreateSs2AdapterMetadata {
     Array[String] input_ids #sequencing_process_provenance_document_id
     Array[String] fastq_1_uuids #array of space separated strings
     Array[String] fastq_2_uuids #array of space separated strings
-    Array[String]? fastq_i1_uuids #array of space separated strings
 
     # These values come in as arrays from Terra, but should be populated with a single value (which may be repeated)
     Array[String] all_libraries
@@ -78,7 +77,7 @@ workflow CreateSs2AdapterMetadata {
     input:
       input_array = all_project_names,
       input_type = "project_name",
-      illegal_characters = "; =" # should we include % in this list? # ultimately we should switch to a whitelist
+      illegal_characters = "; ="
   }
 
   String library = CheckLibrary.output_string
@@ -93,10 +92,6 @@ workflow CreateSs2AdapterMetadata {
   # Build staging bucket
   String staging_bucket = staging_area + project_id + "/staging/"
   String project_stratum_string = "project=" + project_id + ";library=" + library + ";species=" + species + ";organ=" + organ
-
-  if (false) {
-    String none = "None"
-  }
 
   call Tasks.GetCromwellMetadata {
     input:
@@ -153,7 +148,7 @@ workflow CreateSs2AdapterMetadata {
 
   Array[File] reference_fasta_array = [CreateReferenceMetadata.reference_fasta]
 
-  # Create the project level objects based on the intermediate looms and the final merged loom
+  # Create the project level adapter objects based on project loom
   call CreateSs2Objects.CreateSs2AdapterObjects as CreateProjectSs2Adapters {
     input:
       loom = output_loom,
