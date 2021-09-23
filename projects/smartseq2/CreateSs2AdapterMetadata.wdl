@@ -182,6 +182,8 @@ workflow CreateSs2AdapterMetadata {
       process_input_ids = input_ids,
       analysis_process_path = project_analysis_process_objects,
       analysis_protocol_path = project_analysis_protocol_objects,
+      analysis_process_path_list = intermediate_analysis_process_objects,
+      analysis_protocol_path_list = intermediate_analysis_protocol_objects,
       bam_array = output_bams,
       bai_array = output_bais,
       fastq1_array = fastq_1_uuids,

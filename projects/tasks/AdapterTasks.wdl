@@ -256,14 +256,18 @@ task GetAnalysisProtocolMetadata {
 task GetLinksFileMetadata {
   input {
     String project_id
-    Array[String] process_input_ids
+    String pipeline_type
     File output_file_path
+    Boolean project_level
+    String file_name_string
     String version_timestamp
+    Array[String] process_input_ids
     Array[File] analysis_process_path
     Array[File] analysis_protocol_path
-    String file_name_string
-    String pipeline_type
-    Boolean project_level
+
+    # SS2 specific
+    Array[String]? analysis_process_path_list # List of analysis_process paths from intermediate SS2 runs
+    Array[String]? analysis_protocol_path_list # List of analysis_protocol paths from intermediate SS2 runs (should be a single element)
     Array[String]? bam_array
     Array[String]? bai_array
     Array[String]? fastq1_array
@@ -295,6 +299,8 @@ task GetLinksFileMetadata {
       --input_uuids ~{sep=' ' process_input_ids} \
       --analysis_process_path "~{sep=' ' analysis_process_path}" \
       --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
+      --analysis_process_path_list ~{sep=' ' analysis_process_path_list} \
+      --analysis_protocol_path_list "~{sep=' ' analysis_protocol_path_list}" \
       --ss2_bam ~{sep=' ' bam_array} \
       --ss2_bai ~{sep=' ' bai_array} \
       --ss2_fastq1 ~{sep=' ' fastq1_array} \
