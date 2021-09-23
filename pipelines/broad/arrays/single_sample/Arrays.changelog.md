@@ -1,3 +1,8 @@
+# 2.4.2
+2021-09-22
+
+* Enabled pipeline to lookup the bead_pool_manifest_file using an alternate method (using the arrays_metadata_path and bead_pool_manifest_filename)
+
 # 2.4.1
 2021-09-09
 
