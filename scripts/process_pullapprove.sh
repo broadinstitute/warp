@@ -24,6 +24,7 @@ annotation_filtration_files=("pipelines/broad/annotation_filtration/**")
 arrays_wdls=("pipelines/broad/arrays/validate_chip/ValidateChip.wdl"
              "pipelines/broad/arrays/multi_sample/MultiSampleArrays.wdl"
              "pipelines/broad/arrays/single_sample/Arrays.wdl"
+             "pipelines/broad/arrays/imputation/Imputation.wdl"
              "verification/VerifyArrays.wdl"
              "verification/VerifyMultiSampleArrays.wdl"
              "verification/VerifyValidateChip.wdl")

@@ -37,16 +37,3 @@
   "ImputationPipeline.optional_qc_max_missing": 0.05,
   "ImputationPipeline.optional_qc_hwe": 0.000001
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
