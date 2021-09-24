@@ -314,14 +314,14 @@ task GetLinksFileMetadata {
       printf '%s\n' "${FASTQ1_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_fastq1.json
       printf '%s\n' "${FASTQ2_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_fastq2.json # fastq2 does not exist for single end runs, this should write an empty array if that is the case
       printf '%s\n' "${INPUT_UUIDS[@]}" | jq -R . | jq -s . > $TMP_DIR/input_ids.json
-
+    
       create-links \
       --project_id "~{project_id}" \
-      --output_file_path "~{output_file_path}" \ # Path to project level outputs.json i.e. project loom
+      --output_file_path "~{output_file_path}" \ 
       --workspace_version "~{version_timestamp}" \
       --input_uuids_path "$TMP_DIR/input_ids.json" \
-      --analysis_process_path "~{sep=' ' analysis_process_path}" \ # Single path for project_level analysis process
-      --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \ # Single path for project_level analysis protocol
+      --analysis_process_path "~{sep=' ' analysis_process_path}" \ 
+      --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \ 
       --analysis_process_list_path "$TMP_DIR/process_list.json" \
       --analysis_protocol_list_path "$TMP_DIR/process_list.json" \
       --ss2_bam "$TMP_DIR/ss2_bam.json" \
