@@ -4,7 +4,7 @@ import "../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as Calling
 import "../../../../../tasks/broad/Qc.wdl" as QC
 import "../../../../../tasks/broad/Utilities.wdl" as Utils
 import "../../../../../tasks/broad/BamProcessing.wdl" as BamProcessing
-import "../../../../../tasks/broad/Dragen.wdl" as Dragen
+import "../../../../../tasks/broad/DragenTasks.wdl" as DragenTasks
 
 workflow VariantCalling {
 
@@ -41,7 +41,7 @@ workflow VariantCalling {
   }
 
   if (run_dragen_mode) {
-    call Dragen.CalibrateDragstrModel as DragstrAutoCalibration {
+    call DragenTasks.CalibrateDragstrModel as DragstrAutoCalibration {
        input:
          ref_fasta = ref_fasta,
          ref_fasta_idx = ref_fasta_index,
