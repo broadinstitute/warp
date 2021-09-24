@@ -54,8 +54,7 @@ groups:
         'verification/VerifyValidateChip.wdl' in files or
         'pipelines/broad/arrays/multi_sample' in files or
         'pipelines/broad/arrays/single_sample' in files or
-        'pipelines/broad/arrays/validate_chip' in files or
-        'pipelines/broad/arrays/imputation' in files
+        'pipelines/broad/arrays/validate_chip' in files
         
     reviews:
       required: 1
