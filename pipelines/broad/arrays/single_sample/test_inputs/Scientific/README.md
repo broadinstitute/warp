@@ -21,6 +21,9 @@
     - NOT Pulling fingerprint from Mercury
         - Using pre-existing fingerprint file (uploaded previously to GCS)
     - Pushing fingerprint to Mercury    
+- 200598830050_R01C01_90C04566
+    - Non-control sample
+    - NOT defining the analysis_version_number.  Test that the wrapper wdl will generate it.
 - 201651080129_R05C01_S8_N4B3GY
     - Non-control sample
     - Sample has a space in its name
@@ -39,3 +42,17 @@
     - Pulling fingerprint from Mercury
         - IS a clinical sample, so only pulling fluidigm fingerprint
     - Not pushing fingerprint to Mercury
+- 204126290052_R01C01_NA12878_2
+    - Control sample
+    - On the GDA chip
+    - Using the 2.0 Extended Manifest
+    - Looks up the bead_pool_manifest_file using the combination of arrays_metadata_path and bead_pool_manifest_filename
+- 204520870050_R02C01_NA24385
+    - A Coriell sample for which we have no control data
+    - Ashkenazim trio (Son)
+- 204520870050_R04C01_NA24143
+    - A Coriell sample for which we have no control data
+    - Ashkenazim trio (Mother)
+- 204520870050_R06C01_NA24149
+    - A Coriell sample for which we have no control data
+    - Ashkenazim trio (Daughter)

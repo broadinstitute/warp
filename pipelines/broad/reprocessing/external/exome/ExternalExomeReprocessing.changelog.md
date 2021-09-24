@@ -1,7 +1,7 @@
 # 2.4.9
-2021-09-13
+2021-09-22
 
-* Added ErrorWithMessage task to Utilities wdl, which is imported by the ExternalExomeReprocessing. This change has no effect on the ExternalExomeReprocessing pipeline. 
+* Updated Utilities.wdl task definitions to include a new ErrorWithMessage task that is NOT used in the ExternalExomeReprocessing pipeline.
 
 # 2.4.8
 2021-08-02

@@ -1,7 +1,7 @@
 # 2.3.9
-2021-09-13
+2021-09-22
 
-* Added ErrorWithMessage task to Utilities wdl, which is imported by the WholeGenomeReprocessing. This change has no effect on the WholeGenomeReprocessing pipeline. 
+* Updated Utilities.wdl task definitions to include a new ErrorWithMessage task that is NOT used in the WholeGenomeReprocessing pipeline.
 
 # 2.3.8
 2021-08-02

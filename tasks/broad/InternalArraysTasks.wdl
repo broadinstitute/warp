@@ -27,7 +27,7 @@ task GenerateEmptyVariantCallingMetricsFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }
@@ -41,7 +41,7 @@ task BlacklistBarcode {
   input {
     File upload_metrics_output
     String chip_well_barcode
-    Int analysis_version
+    Int analysis_version_number
     Int preemptible_tries
     Array[String] authentication
     String service_account_filename
@@ -62,7 +62,7 @@ task BlacklistBarcode {
     java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
                   ArraysManualBlacklistUpdate \
                   --CHIP_WELL_BARCODE ~{chip_well_barcode} \
-                  --ANALYSIS_VERSION ~{analysis_version} \
+                  --ANALYSIS_VERSION ~{analysis_version_number} \
                   --REASON ~{reason} \
                   --DB_USERNAME_FILE cloudsql.db_user.txt \
                   --DB_PASSWORD_FILE cloudsql.db_password.txt \
@@ -71,7 +71,7 @@ task BlacklistBarcode {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }
@@ -122,7 +122,7 @@ task VcfToMercuryFingerprintJson {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -150,7 +150,7 @@ task CreateBafRegressMetricsFile {
       --OUTPUT ~{output_metrics_basefilename}
   }
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -227,7 +227,7 @@ task UploadArraysMetrics {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -324,9 +324,45 @@ task UpdateChipWellBarcodeIndex {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
+  }
+}
+
+task GetNextArraysQcAnalysisVersionNumber {
+  input {
+    String chip_well_barcode
+    Int preemptible_tries
+    Array[String] authentication
+    String service_account_filename
+  }
+
+  meta {
+    volatile: true
+  }
+
+  command <<<
+    set -eo pipefail
+
+    AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
+    export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
+
+    java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+      GetNextArraysQcAnalysisVersionNumber \
+        --CHIP_WELL_BARCODE ~{chip_well_barcode} \
+        --DB_USERNAME_FILE cloudsql.db_user.txt \
+        --DB_PASSWORD_FILE cloudsql.db_password.txt \
+        --DB_JDBC_FILE cloudsql.db_jdbc.txt
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
+    memory: "3.5 GiB"
+    preemptible: preemptible_tries
+  }
+  output {
+    Int analysis_version_number = read_int(stdout())
   }
 }

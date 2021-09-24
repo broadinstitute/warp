@@ -1,7 +1,7 @@
 # 1.0.2
-2021-09-13
+2021-09-22
 
-* Added ErrorWithMessage task to Utilities wdl, which is imported by the VariantCalling. This change has no effect on the VariantCalling pipeline. 
+* Updated Utilities.wdl task definitions to include a new ErrorWithMessage task that is NOT used in the VariantCalling pipeline.
 
 # 1.0.1
 2021-06-22
