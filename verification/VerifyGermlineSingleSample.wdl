@@ -65,7 +65,7 @@ task CompareGvcfs {
 
     exit_code=0
 
-    if [[ cmp -s ( gunzip -c -f ~{test_gvcf} | grep -v '^##' ) <( gunzip -c -f ~{truth_gvcf} | grep -v '^##' ) ]]; then
+    if cmp <( gunzip -c -f ~{test_gvcf} | grep -v '^##' ) <( gunzip -c -f ~{truth_gvcf} | grep -v '^##' ); then
       exit 0
     fi
 
