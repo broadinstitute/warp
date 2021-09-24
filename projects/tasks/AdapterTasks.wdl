@@ -323,7 +323,7 @@ task GetLinksFileMetadata {
       --analysis_process_path "~{sep=' ' analysis_process_path}" \
       --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
       --analysis_process_list_path "$TMP_DIR/process_list.json" \
-      --analysis_protocol_list_path "$TMP_DIR/process_list.json" \
+      --analysis_protocol_list_path "$TMP_DIR/protocol_list.json" \
       --ss2_bam "$TMP_DIR/ss2_bam.json" \
       --ss2_bai "$TMP_DIR/ss2_bai.json" \
       --ss2_fastq1 "$TMP_DIR/ss2_fastq1.json" \
