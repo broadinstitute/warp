@@ -281,6 +281,8 @@ task GetLinksFileMetadata {
 
   command
   <<<
+  set -o pipefail
+  
     if ["~{pipeline_type}" == "Optimus"]; then
       create-links \
       --project_id "~{project_id}" \
@@ -305,19 +307,19 @@ task GetLinksFileMetadata {
 
       TMP_DIR=$(mktemp -d -t XXXXXX)
 
-      jq -nc '$ARGS.positional' --args ${PROTOCOL_PATH_LIST[@]} > $TMP_DIR/protocol_list.json
-      jq -nc '$ARGS.positional' --args ${PROCESS_PATH_LIST[@]} > $TMP_DIR//process_list.json
-      jq -nc '$ARGS.positional' --args ${BAM_ARRAY[@]} >  $TMP_DIR/ss2_bam.json
-      jq -nc '$ARGS.positional' --args ${BAI_ARRAY[@]} >  $TMP_DIR/ss2_bai.json
-      jq -nc '$ARGS.positional' --args ${FASTQ1_ARRAY[@]} >  $TMP_DIR/ss2_fastq1.json
-      jq -nc '$ARGS.positional' --args ${FASTQ2_ARRAY[@]} >  $TMP_DIR/ss2_fastq2.json # fastq2 does not exist for single end runs, this should write an empty array if that is the case
-      jq -nc '$ARGS.positional' --args ${INPUT_UUIDS[@]} >  $TMP_DIR/input_ids.json
+      printf '%s\n' "${PROTOCOL_PATH_LIST[@]}" | jq -R . | jq -s . > $TMP_DIR/protocol_list.json
+      printf '%s\n' "${PROCESS_PATH_LIST[@]}" | jq -R . | jq -s . > $TMP_DIR//process_list.json
+      printf '%s\n' "${BAM_ARRAY[@]}" >  | jq -R . | jq -s . > $TMP_DIR/ss2_bam.json
+      printf '%s\n' "${BAI_ARRAY[@]}" >  | jq -R . | jq -s . > $TMP_DIR/ss2_bai.json
+      printf '%s\n' "${FASTQ1_ARRAY[@]}">  | jq -R . | jq -s . > $TMP_DIR/ss2_fastq1.json
+      printf '%s\n' "${FASTQ2_ARRAY[@]}" >  | jq -R . | jq -s . > $TMP_DIR/ss2_fastq2.json # fastq2 does not exist for single end runs, this should write an empty array if that is the case
+      printf '%s\n' "${INPUT_UUIDS[@]}" >  | jq -R . | jq -s . > $TMP_DIR/input_ids.json
 
       create-links \
       --project_id "~{project_id}" \
       --output_file_path "~{output_file_path}" \ # Path to project level outputs.json i.e. project loom
       --workspace_version "~{version_timestamp}" \
-      --input_uuids_path "$TMP_DIR/input_ids.json"
+      --input_uuids_path "$TMP_DIR/input_ids.json" \
       --analysis_process_path "~{sep=' ' analysis_process_path}" \ # Single path for project_level analysis process
       --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \ # Single path for project_level analysis protocol
       --analysis_process_list_path "$TMP_DIR/process_list.json" \
