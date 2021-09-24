@@ -24,7 +24,7 @@ The latest release of the workflow, example data, and dependencies are available
  
 ### Input descriptions
 The table below describes each of the Imputation pipeline inputs. The workflow requires either a multi-sample VCF or an array of single sample VCFs.
-For examples of how to specify each input in a configuration file, as well as cloud locations for different example input files, see the [input configuration file (JSON)](link).
+For examples of how to specify each input in a configuration file, as well as cloud locations for different example input files, see the [example input configuration file (JSON)](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json).
  
 | Input name | Description | Type |
 | --- | --- | --- |
@@ -38,7 +38,7 @@ For examples of how to specify each input in a configuration file, as well as cl
 | optional_qc_max_missing | Optional float used for the additional QC steps that sets a max threshold for the maximum rate of missing data allowed for sites; default set to 0.05 | Float | 
 | optional_qc_hwe | Optional HWE p-value when performing additional QC steps; default set to 0.000001 | Float |
 | ref_dict | Reference dictionary. | File |
-| referencePanelContigs | Array of structs containing reference panel files that is imported from [ImputationStructs WDL](https://github.com/broadinstitute/warp/blob/ck_imputation/structs/imputation/ImputationStructs.wdl); each input is specified in the configuration JSON. | Array of structs |
+| referencePanelContigs | Array of structs containing reference panel files that is imported from [ImputationStructs WDL](https://github.com/broadinstitute/warp/blob/develop/structs/imputation/ImputationStructs.wdl); each input is specified in the configuration JSON. | Array of structs |
 | genetics_maps_eagle | Genetic map file for phasing.| File |
 | output_callset_name | Output callset name. | String |
 | split_output_to_single_sample | Boolean to split out the final combined VCF to individual sample VCFs; set to false by default. | Boolean | 
@@ -55,7 +55,7 @@ For examples of how to specify each input in a configuration file, as well as cl
  
 ### Imputation reference panel
  
-The reference panel files required for the Imputation workflow are hosted in a [public Google Bucket](link).
+The reference panel files required for the Imputation workflow will soon be hosted in a public Google Bucket. See the [example input configuration](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json) for the current reference panel files.
  
 ## Workflow tasks and tools
  
