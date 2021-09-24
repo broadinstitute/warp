@@ -282,7 +282,7 @@ task GetLinksFileMetadata {
   command
   <<<
   set -o pipefail
-  
+
     if ["~{pipeline_type}" == "Optimus"]; then
       create-links \
       --project_id "~{project_id}" \
@@ -309,11 +309,11 @@ task GetLinksFileMetadata {
 
       printf '%s\n' "${PROTOCOL_PATH_LIST[@]}" | jq -R . | jq -s . > $TMP_DIR/protocol_list.json
       printf '%s\n' "${PROCESS_PATH_LIST[@]}" | jq -R . | jq -s . > $TMP_DIR//process_list.json
-      printf '%s\n' "${BAM_ARRAY[@]}" >  | jq -R . | jq -s . > $TMP_DIR/ss2_bam.json
-      printf '%s\n' "${BAI_ARRAY[@]}" >  | jq -R . | jq -s . > $TMP_DIR/ss2_bai.json
-      printf '%s\n' "${FASTQ1_ARRAY[@]}">  | jq -R . | jq -s . > $TMP_DIR/ss2_fastq1.json
-      printf '%s\n' "${FASTQ2_ARRAY[@]}" >  | jq -R . | jq -s . > $TMP_DIR/ss2_fastq2.json # fastq2 does not exist for single end runs, this should write an empty array if that is the case
-      printf '%s\n' "${INPUT_UUIDS[@]}" >  | jq -R . | jq -s . > $TMP_DIR/input_ids.json
+      printf '%s\n' "${BAM_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_bam.json
+      printf '%s\n' "${BAI_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_bai.json
+      printf '%s\n' "${FASTQ1_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_fastq1.json
+      printf '%s\n' "${FASTQ2_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_fastq2.json # fastq2 does not exist for single end runs, this should write an empty array if that is the case
+      printf '%s\n' "${INPUT_UUIDS[@]}" | jq -R . | jq -s . > $TMP_DIR/input_ids.json
 
       create-links \
       --project_id "~{project_id}" \
