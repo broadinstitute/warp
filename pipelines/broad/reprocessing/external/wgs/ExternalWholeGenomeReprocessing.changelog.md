@@ -1,7 +1,7 @@
 # 1.3.9
 2021-09-22
 
-* Updated Utilities.wdl task definitions to include a new task that is NOT used in this pipeline.
+* Updated Utilities.wdl task definitions to include a new ErrorWithMessage task that is NOT used in the ExternalWholeGenomeReprocessing pipeline.
 
 # 1.3.8
 2021-08-02
