@@ -317,20 +317,21 @@ task GetLinksFileMetadata {
     
       create-links \
       --project_id "~{project_id}" \
-      --output_file_path "~{output_file_path}" \ 
+      --output_file_path "~{output_file_path}" \
       --workspace_version "~{version_timestamp}" \
       --input_uuids_path "$TMP_DIR/input_ids.json" \
-      --analysis_process_path "~{sep=' ' analysis_process_path}" \ 
-      --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \ 
+      --analysis_process_path "~{sep=' ' analysis_process_path}" \
+      --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
       --analysis_process_list_path "$TMP_DIR/process_list.json" \
       --analysis_protocol_list_path "$TMP_DIR/process_list.json" \
       --ss2_bam "$TMP_DIR/ss2_bam.json" \
-      --ss2_bai  "$TMP_DIR/ss2_bai.json" \
+      --ss2_bai "$TMP_DIR/ss2_bai.json" \
       --ss2_fastq1 "$TMP_DIR/ss2_fastq1.json" \
       --ss2_fastq2 "$TMP_DIR/ss2_fastq2.json" \
       --file_name_string "~{file_name_string}" \
-      --project_level ~{project_level} \
-      --pipeline_type "~{pipeline_type}"
+      --pipeline_type "~{pipeline_type}" \
+      --project_level ~{project_level} 
+
     fi
   >>>
 
