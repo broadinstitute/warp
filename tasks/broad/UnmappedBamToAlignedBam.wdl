@@ -45,8 +45,8 @@ workflow UnmappedBamToAlignedBam {
     Boolean unmap_contaminant_reads = true
     Boolean bin_base_qualities = true
     Boolean somatic = false
-    Boolean perform_bqsr
-    Boolean use_bwa_mem
+    Boolean perform_bqsr = true
+    Boolean use_bwa_mem = true
   }
 
   Float cutoff_for_large_rg_in_gb = 20.0
