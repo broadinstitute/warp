@@ -17,7 +17,7 @@ class ImputationTester(testerConfig: ImputationConfig)(
     as: ActorSystem
 ) extends ValidationWdlTester(testerConfig) {
 
-  override val workflowName: String = "Imputation"
+  override val workflowName: String = "ImputationPipeline"
 
   val workflowDir
     : File = CromwellWorkflowTester.PipelineRoot / "broad" / "arrays" / "imputation"
