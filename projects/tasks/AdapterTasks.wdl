@@ -283,7 +283,7 @@ task GetLinksFileMetadata {
   <<<
   set -o pipefail
 
-    if ["~{pipeline_type}" == "Optimus"]; then
+    if [ "~{pipeline_type}" == "Optimus" ]; then
       create-links \
       --project_id "~{project_id}" \
       --input_uuids ~{sep=' ' process_input_ids} \
