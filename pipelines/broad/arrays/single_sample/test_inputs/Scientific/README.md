@@ -1,4 +1,7 @@
 # A description of (some of) the test files here.
+- 101342370027_R12C02_NA12892
+    - Control sample
+    - Looks up the genotype concordance control data using the combination of arrays_control_data_path and control_sample_name 
 - 101342370134_R12C02_NA12891
     - Control sample
     - Not setting all optional inputs destined to chip_well_barcode_index table to test that it allows nulls
