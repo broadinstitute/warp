@@ -1,7 +1,8 @@
 # 2.4.3
-2021-09-24
+2021-09-27
 
 * Enabled pipeline to lookup the cluster_file using an alternate method (using the arrays_metadata_path and cluster_filename)
+* Modified pipeline to NOT write fingerprints for control samples to the Mercury Fingerprint Store.
 
 # 2.4.2
 2021-09-22
