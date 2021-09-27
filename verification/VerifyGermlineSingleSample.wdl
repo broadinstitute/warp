@@ -101,8 +101,8 @@ task CompareGvcfs {
   }
 
   output {
-    File gvcf_diff = "gvcf_diff.txt"
-    File diff_lines_total = "diff_lines_total.txt"
-    File diff_lines_quality = "diff_lines_quality.txt"
+    File? gvcf_diff = "gvcf_diff.txt"
+    File? diff_lines_total = "diff_lines_total.txt"
+    File? diff_lines_quality = "diff_lines_quality.txt"
   }
 }
