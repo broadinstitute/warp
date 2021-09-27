@@ -85,7 +85,7 @@ task CompareGvcfs {
       echo "$DIFF_LINES" > diff_lines_quality.txt
 
       if [ $DIFF_LINES -eq 0 ]; then
-        echo "However they ONLY differ in the quality column" >&2
+        echo "However they ONLY differ in the quality column"
       fi
 
     fi
