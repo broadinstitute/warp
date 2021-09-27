@@ -100,7 +100,7 @@ task DownloadGenotypes {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }
@@ -145,7 +145,7 @@ task UploadFingerprintToMercury {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }

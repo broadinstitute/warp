@@ -1,6 +1,18 @@
-# 2.4.1
-2021-08-30
+# 2.4.3
+2021-09-24
 
+* Enabled pipeline to lookup the cluster_file using an alternate method (using the arrays_metadata_path and cluster_filename)
+
+# 2.4.2
+2021-09-22
+
+* Enabled pipeline to lookup the bead_pool_manifest_file using an alternate method (using the arrays_metadata_path and bead_pool_manifest_filename)
+
+# 2.4.1
+2021-09-09
+
+* Changed default threshold for passing control (HapMap) genotype concordance from 0.98 to 0.95
+* Modified pipeline to automatically generate the analysis_version_number if it is not supplied as an input.
 * Modified pipeline to make several inputs optional:
     * sample_id
     * participant_id

@@ -1,7 +1,7 @@
 # 2.3.7
-2021-09-13
+2021-09-22
 
-* Added ErrorWithMessage task to Utilities wdl, which is imported by the WholeGenomeGermlineSingleSample. This change has no effect on the WholeGenomeGermlineSingleSample pipeline. 
+* Updated Utilities.wdl task definitions to include a new ErrorWithMessage task that is NOT used in the WholeGenomeGermlineSingleSample pipeline.
 
 # 2.3.6
 2021-08-02

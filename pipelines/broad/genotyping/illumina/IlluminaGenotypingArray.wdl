@@ -20,7 +20,7 @@ import "../../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingT
 
 workflow IlluminaGenotypingArray {
 
-  String pipeline_version = "1.11.4"
+  String pipeline_version = "1.11.5"
 
   input {
 
@@ -76,7 +76,7 @@ workflow IlluminaGenotypingArray {
     Int disk_size
     Int preemptible_tries
 
-    Float genotype_concordance_threshold = 0.98
+    Float genotype_concordance_threshold = 0.95
   }
 
   call GenotypingTasks.AutoCall {

@@ -1,3 +1,8 @@
+# 1.11.5
+2021-09-08
+
+* Changed default threshold for passing control (HapMap) genotype concordance from 0.98 to 0.95
+
 # 1.11.4
 2021-08-10
 

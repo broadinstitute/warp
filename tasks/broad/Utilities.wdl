@@ -207,7 +207,7 @@ task SumFloats {
   }
 }
 
-#Print given message to stderr and return an error
+# Print given message to stderr and return an error
 task ErrorWithMessage{
   input {
     String message
@@ -220,4 +220,8 @@ task ErrorWithMessage{
   runtime {
     docker: "ubuntu:20.04"
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> develop

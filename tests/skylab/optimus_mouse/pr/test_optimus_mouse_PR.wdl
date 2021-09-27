@@ -1,16 +1,17 @@
 version 1.0
 
 import "../../../../pipelines/skylab/optimus/Optimus.wdl" as target
-import "../../../../tests/skylab/optimus_mouse/pr/ValidateOptimusMouse.wdl" as checker
+import "../../../../tests/skylab/optimus/pr/ValidateOptimus.wdl" as checker
 
 # this workflow will be run by the jenkins script that gets executed by PRs.
 workflow TestOptimusPR {
   input {
     # output hashes
-    String expected_bam_hash
-    String expected_matrix_hash
     String expected_gene_metric_hash
     String expected_cell_metric_hash
+    File expected_bam
+    File reference_matrix
+    String expected_loom_file_checksum
 
     # Optimus inputs
     Array[File] r1_fastq
@@ -39,18 +40,20 @@ workflow TestOptimusPR {
       chemistry = chemistry
   }
 
-  call checker.ValidateOptimusMouse as checker {
+  call checker.ValidateOptimus as checker {
     input:
-      bam = target.bam,
       matrix = target.matrix,
       matrix_row_index = target.matrix_row_index,
       matrix_col_index = target.matrix_col_index,
       gene_metrics = target.gene_metrics,
       cell_metrics = target.cell_metrics,
-      expected_matrix_hash = expected_matrix_hash,
-      expected_bam_hash = expected_bam_hash,
+      test_bam = target.bam, 
+      truth_bam = expected_bam,
+      loom_file = target.loom_output_file,
+      reference_matrix = reference_matrix,
       expected_cell_metric_hash = expected_cell_metric_hash,
       expected_gene_metric_hash = expected_gene_metric_hash,
+      expected_loom_file_checksum = expected_loom_file_checksum
   }
 
 }

@@ -1,8 +1,8 @@
 {
-  "TestOptimusPR.expected_bam_hash": "none",
   "TestOptimusPR.reference_matrix": "gs://hca-dcp-sc-pipelines-test-data/optimus-test-data/referenceMatrix.rds",
   "TestOptimusPR.expected_cell_metric_hash": "none",
   "TestOptimusPR.expected_gene_metric_hash": "none",
+  "TestOptimusPR.expected_bam": "none",
   "TestOptimusPR.expected_loom_file_checksum": "none",
     "TestOptimusPR.r1_fastq": [
       "gs://hca-dcp-sc-pipelines-test-data/referenceData/fastq/chemistry_X10_V2/4k_pbmc/fastqs/pbmc4k_S1_L001_R1_001.fastq.gz",
