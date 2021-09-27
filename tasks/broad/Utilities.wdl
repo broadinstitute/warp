@@ -220,8 +220,4 @@ task ErrorWithMessage{
   runtime {
     docker: "ubuntu:20.04"
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> develop
