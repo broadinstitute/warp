@@ -4,7 +4,7 @@ import "../../../../structs/imputation/ImputationStructs.wdl" as structs
 import "../../../../tasks/broad/ImputationTasks.wdl" as tasks
 import "../../../../tasks/broad/Utilities.wdl" as utils
 
-workflow ImputationPipeline {
+workflow Imputation {
 
   String pipeline_version = "1.0.0"
 
