@@ -66,7 +66,7 @@ task CompareGvcfs {
     exit_code=0
 
     gunzip -c -f ~{test_gvcf} | grep -v '^##' > test.vcf 
-    gunzip -c -f ~{test_gvcf} | grep -v '^##' > truth.vcf 
+    gunzip -c -f ~{truth_gvcf} | grep -v '^##' > truth.vcf 
 
     if cmp test.vcf truth.vcf; then
       exit 0
@@ -103,7 +103,7 @@ task CompareGvcfs {
 
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 70 HDD"
+    disks: "local-disk 100 HDD"
     memory: "75 GiB"
     preemptible: 3
   }
