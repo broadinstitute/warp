@@ -308,7 +308,7 @@ task GetLinksFileMetadata {
       TMP_DIR=$(mktemp -d -t XXXXXX)
 
       printf '%s\n' "${PROTOCOL_PATH_LIST[@]}" | jq -R . | jq -s . > $TMP_DIR/protocol_list.json
-      printf '%s\n' "${PROCESS_PATH_LIST[@]}" | jq -R . | jq -s . > $TMP_DIR//process_list.json
+      printf '%s\n' "${PROCESS_PATH_LIST[@]}" | jq -R . | jq -s . > $TMP_DIR/process_list.json
       printf '%s\n' "${BAM_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_bam.json
       printf '%s\n' "${BAI_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_bai.json
       printf '%s\n' "${FASTQ1_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_fastq1.json
