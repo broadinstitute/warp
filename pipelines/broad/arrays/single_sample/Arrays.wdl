@@ -183,8 +183,8 @@ workflow Arrays {
     }
   }
 
-  String bpm_filename = if (defined(bead_pool_manifest_file)) then select_first([bead_pool_manifest_file]) else select_first([bead_pool_manifest_filename, ""])
-  String chip_type = basename(bpm_filename, ".bpm")
+  String bpm_filename = if (defined(bead_pool_manifest_file)) then basename(select_first([bead_pool_manifest_file])) else select_first([bead_pool_manifest_filename, ""])
+  String chip_type = sub(bpm_filename, ".bpm", "")
   File bpm_file = if (defined(bead_pool_manifest_file)) then select_first([bead_pool_manifest_file]) else select_first([arrays_metadata_path, ""]) + chip_type + "/" + select_first([bead_pool_manifest_filename, ""])
 
   if (!defined(cluster_filename) && !defined(cluster_file)) {
@@ -378,7 +378,8 @@ workflow Arrays {
         preemptible_tries = preemptible_tries
     }
 
-    if (write_fingerprint_to_mercury) {
+    # Only write fingerprints to the Mercury Fingerprint Store if writing is enabled AND the sample is NOT a control
+    if (write_fingerprint_to_mercury && (!defined(control_sample_name))) {
       call InternalTasks.UploadFingerprintToMercury {
         input:
           fingerprint_json_file = VcfToMercuryFingerprintJson.output_json_file,
