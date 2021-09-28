@@ -1,0 +1,15 @@
+#manifest_filename	cluster_filename	extended_illumina_manifest_filename
+Broad_GWAS_supplemental_15061359_A1.bpm	Broad_GWAS_supplemental_15061359_A1.egt	Broad_GWAS_supplemental_15061359_A1.1.3.extended.csv
+GDA-8v1-0_A5.bpm	GDA-8v1-0_A1_ClusterFile.egt	GDA-8v1-0_A5.1.5.extended.csv
+GSA-24v1-0_A1.bpm	GSA-24v1-0_A1_ClusterFile.egt	GSA-24v1-0_A1.1.3.extended.csv
+GSAMD-24v3-0-EA_20034606_A1.bpm	GSAMD-24v3-0-EA_20034606_A1_custom.egt	GSAMD-24v3-0-EA_20034606_A1.2.0.extended.csv
+GSAMD-24v1-0_20011747_A1.bpm	GSAMD-24v1-0_20011747_A1.egt	GSAMD-24v1-0_20011747_A1.1.3.extended.csv
+HumanExome-12v1-1_A.bpm	HumanExomev1_1_CEPH_A.egt	HumanExome-12v1-1_A.1.3.extended.csv
+HumanOmniExpress-12v1_H.bpm	HumanOmniExpress-12v1_H.egt	HumanOmniExpress-12v1_H.1.3.extended.csv
+HumanOmni2.5-8v1_A.bpm	HumanOmni2.5-8v1_A.egt	HumanOmni2.5-8v1_A.1.3.extended.csv
+InfiniumImmunoArray-24v2-0_A.bpm	InfiniumImmunoArray-24v2-0_A_ClusterFile.egt	InfiniumImmunoArray-24v2-0_A.1.3.extended.csv
+InfiniumOmniExpressExome-8v1-4_A1.bpm	InfiniumOmniExpressExome-8v1-4_A1_ClusterFile.egt	InfiniumOmniExpressExome-8v1-4_A1.1.3.extended.csv
+InfiniumOmniExpressExome-8v1-6_A1.bpm	InfiniumOmniExpressExome-8v1-6_A1_ClusterFile.egt	InfiniumOmniExpressExome-8v1-6_A1.1.3.extended.csv
+MEG_AllofUs_20002558X351448_A2.bpm	MEG_AllofUs_A1_Gentrain_1299_edited_prevalidation_081419update.egt	MEG_AllofUs_20002558X351448_A2.1.4.extended.csv
+Multi-EthnicGlobal_A1.bpm	Multi-EthnicGlobal_ClusterFile.egt	Multi-EthnicGlobal-8_A1.1.3.extended.csv
+PsychChip_v1-1_15073391_A1.bpm	PsychChip_v1-1_15073391_A1_ClusterFile.egt	PsychChip_v1-1_15073391_A1.1.3.extended.csv
