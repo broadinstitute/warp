@@ -87,7 +87,7 @@ task SamToFastqAndDragmapAndMba {
       ADD_PG_TAG_TO_READS=false
   >>>
   runtime {
-    docker: "us.gcr.io/broad-dsde-methods/dragmap:1.2.0"
+    docker: "us.gcr.io/broad-dsde-methods/dragmap:1.2.1"
     preemptible: preemptible_tries
     memory: memory_gb + " GiB"
     cpu: "16"
