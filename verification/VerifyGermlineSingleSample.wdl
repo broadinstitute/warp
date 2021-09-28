@@ -61,7 +61,7 @@ task CompareGvcfs {
   }
 
   command {
-    set -e -o pipefail
+    set -o pipefail
 
     exit_code=0
 
@@ -103,7 +103,7 @@ task CompareGvcfs {
 
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 100 HDD"
+    disks: "local-disk 150 HDD"
     memory: "75 GiB"
     preemptible: 3
   }
