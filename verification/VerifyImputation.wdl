@@ -31,15 +31,13 @@ workflow VerifyImputation {
     Array[File]? single_sample_test_vcf
   }
 
-  # commenting out for now because failing on header,
-  # might  need  a new program to compare these
-  # metrics are not picard metrics
-  # might consider diff because they are small files
-  # call MetricsVerification.VerifyMetrics as CompareMetrics {
-  #   input:
-  #     test_metrics = test_metrics,
-  #     truth_metrics = truth_metrics
-  # }
+  scatter (idx in range(length(truth_metrics))) {
+    call CompareImputationMetrics {
+      input:
+        test_metrics = test_metrics[idx],
+        truth_metrics = truth_metrics[idx]
+    }
+  }
 
   call Tasks.CompareVcfs as CompareOutputVcfs {
     input:
@@ -63,5 +61,28 @@ workflow VerifyImputation {
   }
   meta {
     allowNestedInputs: true
+  }
+}
+
+task CompareImputationMetrics {
+  input {
+    File test_metrics
+    File truth_metrics
+  }
+  command <<<
+  set -eo pipefail
+  diff "~{test_metrics}" "~{truth_metrics}"
+
+  if [ $? -ne 0 ];
+  then
+    echo "Error: ${test_metrics} and ${truth_metrics}  differ"
+  fi
+  >>>
+
+  runtime {
+    docker: "ubuntu:20.04"
+    cpu: 1
+    memory: "3.75 GiB"
+    disks: "local-disk 10 HDD"
   }
 }
