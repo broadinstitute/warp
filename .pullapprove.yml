@@ -47,6 +47,7 @@ groups:
         'tasks/broad/IlluminaGenotypingArrayTasks.wdl' in files or
         'tasks/broad/InternalArraysTasks.wdl' in files or
         'tasks/broad/InternalTasks.wdl' in files or
+        'tasks/broad/Utilities.wdl' in files or
         'verification/VerifyArrays.wdl' in files or
         'verification/VerifyIlluminaGenotypingArray.wdl' in files or
         'verification/VerifyMetrics.wdl' in files or
@@ -233,7 +234,8 @@ groups:
         'tasks/broad/Utilities.wdl' in files or
         'pipelines/broad/arrays/imputation/Imputation.changelog.md' in files or
         'pipelines/broad/arrays/imputation/Imputation.options.json' in files or
-        'pipelines/broad/arrays/imputation/Imputation.wdl' in files
+        'pipelines/broad/arrays/imputation/Imputation.wdl' in files or
+        'pipelines/broad/arrays/imputation/example_inputs.json' in files
         
     reviews:
       required: 1
