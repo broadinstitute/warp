@@ -104,10 +104,12 @@ workflow Arrays {
     File? minor_allele_frequency_file
 
     # For HapMap GenotypeConcordance Check:
+    String? arrays_control_data_path
+
+    String? control_sample_name
     File? control_sample_vcf_file
     File? control_sample_vcf_index_file
     File? control_sample_intervals_file
-    String? control_sample_name
 
     Int disk_size
     Int preemptible_tries
@@ -183,8 +185,8 @@ workflow Arrays {
     }
   }
 
-  String bpm_filename = if (defined(bead_pool_manifest_file)) then select_first([bead_pool_manifest_file]) else select_first([bead_pool_manifest_filename, ""])
-  String chip_type = basename(bpm_filename, ".bpm")
+  String bpm_filename = if (defined(bead_pool_manifest_file)) then basename(select_first([bead_pool_manifest_file])) else select_first([bead_pool_manifest_filename, ""])
+  String chip_type = sub(bpm_filename, ".bpm", "")
   File bpm_file = if (defined(bead_pool_manifest_file)) then select_first([bead_pool_manifest_file]) else select_first([arrays_metadata_path, ""]) + chip_type + "/" + select_first([bead_pool_manifest_filename, ""])
 
   if (!defined(cluster_filename) && !defined(cluster_file)) {
@@ -221,6 +223,19 @@ workflow Arrays {
   }
 
   File? zcall_file = if (defined(zcall_thresholds_file)) then select_first([zcall_thresholds_file]) else if (defined(zcall_thresholds_filename)) then select_first([arrays_metadata_path, ""]) + chip_type + "/" + select_first([zcall_thresholds_filename, ""]) else none
+
+  if ((defined(control_sample_name)) &&
+      ((!defined(control_sample_vcf_file)) || (!defined(control_sample_vcf_index_file)) || (!defined(control_sample_intervals_file))) &&
+      (!defined(arrays_control_data_path))) {
+        call utils.ErrorWithMessage as ErrorMessageNoArraysControlDataPath {
+          input:
+            message = "If either control_sample_name is defined and control_sample_vcf_file, control_sample_vcf_index_file, control_sample_vcf_index, or control_sample_intervals_file ARE NOT defined, then arrays_control_data_path must also be defined"
+        }
+  }
+
+  File? control_sample_vcf =       if (defined(control_sample_vcf_file))       then select_first([control_sample_vcf_file])       else if (defined(control_sample_name)) then select_first([arrays_control_data_path, ""]) + select_first([control_sample_name, ""]) + ".vcf.gz" else none
+  File? control_sample_vcf_index = if (defined(control_sample_vcf_index_file)) then select_first([control_sample_vcf_index_file]) else if (defined(control_sample_name)) then select_first([arrays_control_data_path, ""]) + select_first([control_sample_name, ""]) + ".vcf.gz.tbi" else none
+  File? control_sample_intervals = if (defined(control_sample_intervals_file)) then select_first([control_sample_intervals_file]) else if (defined(control_sample_name)) then select_first([arrays_control_data_path, ""]) + select_first([control_sample_name, ""]) + ".interval_list" else none
 
   if (!defined(params_file)) {
     # If the params_file is not provided, we will generate it from the (currently optional) bunch of parameters.
@@ -321,9 +336,9 @@ workflow Arrays {
       subsampled_metrics_interval_list = subsampled_metrics_interval_list,
       contamination_controls_vcf = contamination_controls_vcf,
       minor_allele_frequency_file = minor_allele_frequency_file,
-      control_sample_vcf_file = control_sample_vcf_file,
-      control_sample_vcf_index_file = control_sample_vcf_index_file,
-      control_sample_intervals_file = control_sample_intervals_file,
+      control_sample_vcf_file = control_sample_vcf,
+      control_sample_vcf_index_file = control_sample_vcf_index,
+      control_sample_intervals_file = control_sample_intervals,
       control_sample_name = control_sample_name,
       disk_size = disk_size,
       preemptible_tries = preemptible_tries,
@@ -378,7 +393,8 @@ workflow Arrays {
         preemptible_tries = preemptible_tries
     }
 
-    if (write_fingerprint_to_mercury) {
+    # Only write fingerprints to the Mercury Fingerprint Store if writing is enabled AND the sample is NOT a control
+    if (write_fingerprint_to_mercury && (!defined(control_sample_name))) {
       call InternalTasks.UploadFingerprintToMercury {
         input:
           fingerprint_json_file = VcfToMercuryFingerprintJson.output_json_file,

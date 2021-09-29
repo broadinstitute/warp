@@ -1,7 +1,11 @@
 # 2.4.3
-2021-09-24
+2021-09-27
 
 * Enabled pipeline to lookup the cluster_file using an alternate method (using the arrays_metadata_path and cluster_filename)
+* Enabled pipeline to lookup the gender_cluster_file using an alternate method (using the arrays_metdata_path and gender_cluster_filename)
+* Enabled pipeline to lookup the zcall_thresholds_file using an alternate method (using the arrays_metdata_path and zcall_thresholds_filename)
+* Enabled pipeline to lookup the genotype control data using an alternate method (using the arrays_control_data_path and control_sample_name)
+* Modified pipeline to NOT write fingerprints for control samples to the Mercury Fingerprint Store.
 
 # 2.4.2
 2021-09-22
