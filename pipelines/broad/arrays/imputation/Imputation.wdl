@@ -98,7 +98,8 @@ workflow ImputationPipeline {
     call tasks.CalculateChromosomeLength {
       input:
         ref_dict = ref_dict,
-        chrom = referencePanelContig.contig
+        chrom = referencePanelContig.contig,
+        ubuntu_docker = ubuntu_docker_tag
     }
 
     Float chunkLengthFloat = chunkLength
