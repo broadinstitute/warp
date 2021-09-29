@@ -26,9 +26,8 @@
   "Arrays.arrays_metadata_path": "gs://broad-gotc-test-storage/arrays/metadata/",
 
   "Arrays.bead_pool_manifest_filename": "GDA-8v1-0_A5.bpm",
-  "Arrays.cluster_filename": "GDA-8v1-0_A1_ClusterFile.egt",
-
   "Arrays.extended_chip_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.2.0.extended.csv",
+  "Arrays.cluster_filename": "GDA-8v1-0_A1_ClusterFile.egt",
 
   "Arrays.control_sample_name": "NA12878",
   "Arrays.control_sample_vcf_file": "gs://broad-gotc-test-storage/arrays/controldata/NA12878.vcf.gz",

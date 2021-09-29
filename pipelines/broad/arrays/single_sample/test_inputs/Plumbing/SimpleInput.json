@@ -26,7 +26,6 @@
   "Arrays.arrays_metadata_path": "gs://broad-gotc-test-storage/arrays/metadata/",
 
   "Arrays.bead_pool_manifest_filename": "HumanExome-12v1-1_A.bpm",
-  "Arrays.extended_chip_manifest_file": "gs://gcp-public-data--broad-references/arrays/HumanExome-12v1-1_A/HumanExome-12v1-1_A.1.3.extended.csv",
   "Arrays.cluster_filename": "HumanExomev1_1_CEPH_A.egt",
   "Arrays.gender_cluster_filename": "HumanExomev1_1_gender.egt",
   "Arrays.zcall_thresholds_filename": "IBDPRISM_EX.egt.thresholds.txt",
