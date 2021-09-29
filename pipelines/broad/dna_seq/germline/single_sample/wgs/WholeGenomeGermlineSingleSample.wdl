@@ -32,6 +32,7 @@ import "../../../../../../tasks/broad/UnmappedBamToAlignedBam.wdl" as ToBam
 import "../../../../../../tasks/broad/AggregatedBamQC.wdl" as AggregatedQC
 import "../../../../../../tasks/broad/Qc.wdl" as QC
 import "../../../../../../tasks/broad/BamToCram.wdl" as ToCram
+import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
 import "../../../../../../pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
 import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 
@@ -54,13 +55,31 @@ workflow WholeGenomeGermlineSingleSample {
 
     Boolean provide_bam_output = false
     Boolean use_gatk3_haplotype_caller = true
-    Boolean run_dragen_mode = false
+
+    Boolean dragen_mode_functional_equivalence = false
+    Boolean dragen_mode_best_results = false
+
+    Boolean run_dragen_mode_variant_calling = false
     Boolean use_spanning_event_genotyping = true
     Boolean unmap_contaminant_reads = true
     Boolean perform_bqsr = true
     Boolean use_bwa_mem = true
-    Boolean dragen_mode_hard_filter = false
+    Boolean use_dragen_hard_filtering = false
   }
+
+  if (dragen_mode_functional_equivalence && dragen_mode_best_results) {
+    call Utilities.ErrorWithMessage {
+      input:
+        message = "Both dragen_mode_functional_equivalence and dragen_mode_best_results have been set to true, however, they are mutually exclusive. You can set either of them to true, or set them both to false and adjust the arguments individually."
+    }
+  }
+
+  # Set DRAGEN-related arguments according to the preset arguments
+  Boolean run_dragen_mode_variant_calling_ = if (dragen_mode_functional_equivalence || dragen_mode_best_results) then true else run_dragen_mode_variant_calling
+  Boolean use_spanning_event_genotyping_ = if dragen_mode_functional_equivalence then false else (if dragen_mode_best_results then true else use_spanning_event_genotyping)
+  Boolean unmap_contaminant_reads_ = if dragen_mode_functional_equivalence then false else (if dragen_mode_best_results then true else unmap_contaminant_reads) 
+  Boolean perform_bqsr_ = if (dragen_mode_functional_equivalence || dragen_mode_best_results) then false else perform_bqsr
+  Boolean use_bwa_mem_ = if (dragen_mode_functional_equivalence || dragen_mode_best_results) then false else use_bwa_mem
 
   # Not overridable:
   Int read_length = 250
@@ -85,9 +104,9 @@ workflow WholeGenomeGermlineSingleSample {
       haplotype_database_file     = references.haplotype_database_file,
       lod_threshold               = lod_threshold,
       recalibrated_bam_basename   = recalibrated_bam_basename,
-      perform_bqsr                = perform_bqsr,
-      use_bwa_mem                 = use_bwa_mem,
-      unmap_contaminant_reads     = unmap_contaminant_reads
+      perform_bqsr                = perform_bqsr_,
+      use_bwa_mem                 = use_bwa_mem_,
+      unmap_contaminant_reads     = unmap_contaminant_reads_
   }
 
   call AggregatedQC.AggregatedBamQC {
@@ -144,8 +163,8 @@ workflow WholeGenomeGermlineSingleSample {
 
   call ToGvcf.VariantCalling as BamToGvcf {
     input:
-      run_dragen_mode = run_dragen_mode,
-      use_spanning_event_genotyping = use_spanning_event_genotyping,
+      run_dragen_mode_variant_calling = run_dragen_mode_variant_calling_,
+      use_spanning_event_genotyping = use_spanning_event_genotyping_,
       calling_interval_list = references.calling_interval_list,
       evaluation_interval_list = references.evaluation_interval_list,
       haplotype_scatter_count = scatter_settings.haplotype_scatter_count,
@@ -163,7 +182,7 @@ workflow WholeGenomeGermlineSingleSample {
       final_vcf_base_name = final_gvcf_base_name,
       agg_preemptible_tries = papi_settings.agg_preemptible_tries,
       use_gatk3_haplotype_caller = use_gatk3_haplotype_caller,
-      dragen_mode_hard_filter = dragen_mode_hard_filter
+      use_dragen_hard_filtering = use_dragen_hard_filtering
   }
 
   if (provide_bam_output) {

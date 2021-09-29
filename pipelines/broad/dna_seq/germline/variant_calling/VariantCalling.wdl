@@ -11,7 +11,7 @@ workflow VariantCalling {
   String pipeline_version = "1.0.2"
 
   input {
-    Boolean run_dragen_mode = false
+    Boolean run_dragen_mode_variant_calling = false
     Boolean use_spanning_event_genotyping = true
     File calling_interval_list
     File evaluation_interval_list
@@ -32,15 +32,15 @@ workflow VariantCalling {
     Boolean make_gvcf = true
     Boolean make_bamout = false
     Boolean use_gatk3_haplotype_caller = false
-    Boolean dragen_mode_hard_filter = false
+    Boolean use_dragen_hard_filtering = false
   }
 
   parameter_meta {
     make_bamout: "For CNNScoreVariants to run with a 2D model, a bamout must be created by HaplotypeCaller. The bamout is a bam containing information on how HaplotypeCaller remapped reads while it was calling variants. See https://gatkforums.broadinstitute.org/gatk/discussion/5484/howto-generate-a-bamout-file-showing-how-haplotypecaller-has-remapped-sequence-reads for more details."
-    run_dragen_mode: "Run variant calling using the DRAGEN-GATK pipeline, false by default."
+    run_dragen_mode_variant_calling: "Run variant calling using the DRAGEN-GATK pipeline, false by default."
   }
 
-  if (run_dragen_mode) {
+  if (run_dragen_mode_variant_calling) {
     call DragenTasks.CalibrateDragstrModel as DragstrAutoCalibration {
        input:
          ref_fasta = ref_fasta,
@@ -91,7 +91,7 @@ workflow VariantCalling {
       # Generate GVCF by interval
       call Calling.HaplotypeCaller_GATK4_VCF as HaplotypeCallerGATK4 {
         input:
-          contamination = if run_dragen_mode then 0 else contamination,
+          contamination = if run_dragen_mode_variant_calling then 0 else contamination,
           input_bam = input_bam,
           input_bam_index = input_bam_index,
           interval_list = scattered_interval_list,
@@ -102,14 +102,14 @@ workflow VariantCalling {
           hc_scatter = hc_divisor,
           make_gvcf = make_gvcf,
           make_bamout = make_bamout,
-          run_dragen_mode = run_dragen_mode,
-          dragen_mode_hard_filter = dragen_mode_hard_filter,
+          run_dragen_mode_variant_calling = run_dragen_mode_variant_calling,
+          use_dragen_hard_filtering = use_dragen_hard_filtering,
           use_spanning_event_genotyping = use_spanning_event_genotyping,
           dragstr_model = DragstrAutoCalibration.dragstr_model,
           preemptible_tries = agg_preemptible_tries
        }
       
-      if (dragen_mode_hard_filter) {
+      if (use_dragen_hard_filtering) {
         call Calling.DragenHardFilterVcf as DragenHardFilterVcf {
           input:
             input_vcf = HaplotypeCallerGATK4.output_vcf,
@@ -137,7 +137,7 @@ workflow VariantCalling {
   }
 
   # Combine by-interval (g)VCFs into a single sample (g)VCF file
-  String hard_filter_suffix = if dragen_mode_hard_filter then ".hard-filtered" else ""
+  String hard_filter_suffix = if use_dragen_hard_filtering then ".hard-filtered" else ""
   String merge_suffix = if make_gvcf then ".g.vcf.gz" else ".vcf.gz"
   call Calling.MergeVCFs as MergeVCFs {
     input:
