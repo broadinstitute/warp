@@ -1,6 +1,8 @@
 # 2.4.3
-2021-09-27
+2021-09-28
 
+* Enabled pipeline to lookup the extended_illumina_manifest_file using an alternate method
+    * If the path to the file is not provided, it will look in the arrays_metadata_path for a map file that contains a mapping of chip to extended_illumina_manifest
 * Enabled pipeline to lookup the cluster_file using an alternate method (using the arrays_metadata_path and cluster_filename)
 * Enabled pipeline to lookup the gender_cluster_file using an alternate method (using the arrays_metdata_path and gender_cluster_filename)
 * Enabled pipeline to lookup the zcall_thresholds_file using an alternate method (using the arrays_metdata_path and zcall_thresholds_filename)

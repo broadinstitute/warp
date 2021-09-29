@@ -25,12 +25,11 @@ workflow Arrays {
 
   String pipeline_version = "2.4.3"
 
+  # This is the autocall_version, needed for the case where autocall fails (likely due to normalization errors)
+  # In this case it no longer emits the version in its output, so we store it here.
+  String autocall_version = "3.0.0"
+
   input {
-
-    # This is the autocall_version, needed for the case where autocall fails (likely due to normalization errors)
-    # In this case it no longer emits the version in its output, so we store it here.
-    String autocall_version = "3.0.0"
-
     String chip_well_barcode
     Int? analysis_version_number
 
@@ -77,7 +76,7 @@ workflow Arrays {
     String? zcall_thresholds_filename
     File? zcall_thresholds_file
 
-    File extended_chip_manifest_file
+    File? extended_chip_manifest_file
 
     # For CheckFingerprint:
     # If this is true, we will read fingerprints from Mercury
@@ -187,7 +186,8 @@ workflow Arrays {
 
   String bpm_filename = if (defined(bead_pool_manifest_file)) then basename(select_first([bead_pool_manifest_file])) else select_first([bead_pool_manifest_filename, ""])
   String chip_type = sub(bpm_filename, ".bpm", "")
-  File bpm_file = if (defined(bead_pool_manifest_file)) then select_first([bead_pool_manifest_file]) else select_first([arrays_metadata_path, ""]) + chip_type + "/" + select_first([bead_pool_manifest_filename, ""])
+  String arrays_chip_metadata_path = select_first([arrays_metadata_path, ""]) + chip_type + "/"
+  File bpm_file = if (defined(bead_pool_manifest_file)) then select_first([bead_pool_manifest_file]) else arrays_chip_metadata_path + select_first([bead_pool_manifest_filename, ""])
 
   if (!defined(cluster_filename) && !defined(cluster_file)) {
     call utils.ErrorWithMessage as ErrorMessageEgtNoInput {
@@ -203,7 +203,7 @@ workflow Arrays {
     }
   }
 
-  File egt_file = if (defined(cluster_file)) then select_first([cluster_file]) else select_first([arrays_metadata_path, ""]) + chip_type + "/" + select_first([cluster_filename, ""])
+  File egt_file = if (defined(cluster_file)) then select_first([cluster_file]) else arrays_chip_metadata_path + select_first([cluster_filename, ""])
   String egt_filename = basename(egt_file)
 
   if (defined(gender_cluster_filename) && defined(gender_cluster_file)) {
@@ -213,7 +213,7 @@ workflow Arrays {
     }
   }
 
-  File? gender_egt_file = if (defined(gender_cluster_file)) then select_first([gender_cluster_file]) else if (defined(gender_cluster_filename)) then select_first([arrays_metadata_path, ""]) + chip_type + "/" + select_first([gender_cluster_filename, ""]) else none
+  File? gender_egt_file = if (defined(gender_cluster_file)) then select_first([gender_cluster_file]) else if (defined(gender_cluster_filename)) then arrays_chip_metadata_path + select_first([gender_cluster_filename, ""]) else none
 
   if (defined(zcall_thresholds_filename) && defined(zcall_thresholds_file)) {
     call utils.ErrorWithMessage as ErrorMessageGenderZCallDoubleInput {
@@ -222,7 +222,41 @@ workflow Arrays {
     }
   }
 
-  File? zcall_file = if (defined(zcall_thresholds_file)) then select_first([zcall_thresholds_file]) else if (defined(zcall_thresholds_filename)) then select_first([arrays_metadata_path, ""]) + chip_type + "/" + select_first([zcall_thresholds_filename, ""]) else none
+  File? zcall_file = if (defined(zcall_thresholds_file)) then select_first([zcall_thresholds_file]) else if (defined(zcall_thresholds_filename)) then arrays_chip_metadata_path + select_first([zcall_thresholds_filename, ""]) else none
+
+  if (!defined(extended_chip_manifest_file)) {
+    if (!defined(arrays_metadata_path)) {
+      call utils.ErrorWithMessage as ErrorMessageNoExtChipManifestFileNoArraysMetadataPath {
+        input:
+          message = "If extended_chip_manifest_file is NOT defined, then arrays_metadata_path MUST be defined"
+      }
+    }
+    if (defined(arrays_metadata_path)) {
+      String extended_manifest_map_filename = "extended_manifest_map.txt"
+      File extended_manifest_map_file = select_first([arrays_metadata_path, ""]) + extended_manifest_map_filename
+      call InternalArraysTasks.ResolveExtendedIlluminaManifestFile {
+        input:
+          extended_manifest_map_file = extended_manifest_map_file,
+          bpm_filename = bpm_filename,
+          egt_filename = egt_filename,
+          arrays_chip_metadata_path = arrays_chip_metadata_path,
+          preemptible_tries = preemptible_tries
+      }
+    }
+  }
+
+  if (defined(arrays_metadata_path)) {
+    String minor_allele_frequency_map_filename = "maf_map.txt"
+    File minor_allele_frequency_map_file = select_first([arrays_metadata_path, ""]) + minor_allele_frequency_map_filename
+    call InternalArraysTasks.ResolveMinorAlleleFrequencyFile {
+      input:
+        minor_allele_frequency_map_file = minor_allele_frequency_map_file,
+        bpm_filename = bpm_filename,
+        arrays_chip_metadata_path = arrays_chip_metadata_path,
+        preemptible_tries = preemptible_tries
+    }
+    File? resolved_maf = if (ResolveMinorAlleleFrequencyFile.found == true) then ResolveMinorAlleleFrequencyFile.minor_allele_frequency_file else none
+  }
 
   if ((defined(control_sample_name)) &&
       ((!defined(control_sample_vcf_file)) || (!defined(control_sample_vcf_index_file)) || (!defined(control_sample_intervals_file))) &&
@@ -309,6 +343,8 @@ workflow Arrays {
       service_account_filename = service_account_filename
   }
 
+  File? maf = if (defined(minor_allele_frequency_file)) then select_first([minor_allele_frequency_file]) else resolved_maf
+
   call IlluminaGenotyping.IlluminaGenotypingArray as IlluminaGenotypingArray {
     input:
       autocall_version = autocall_version,
@@ -325,7 +361,7 @@ workflow Arrays {
       dbSNP_vcf = dbSNP_vcf,
       dbSNP_vcf_index = dbSNP_vcf_index,
       bead_pool_manifest_file = bpm_file,
-      extended_chip_manifest_file = extended_chip_manifest_file,
+      extended_chip_manifest_file = select_first([extended_chip_manifest_file, ResolveExtendedIlluminaManifestFile.extended_illumina_manifest_file]),
       cluster_file = egt_file,
       gender_cluster_file = gender_egt_file,
       zcall_thresholds_file = zcall_file,
@@ -335,7 +371,7 @@ workflow Arrays {
       variant_rsids_file = variant_rsids_file,
       subsampled_metrics_interval_list = subsampled_metrics_interval_list,
       contamination_controls_vcf = contamination_controls_vcf,
-      minor_allele_frequency_file = minor_allele_frequency_file,
+      minor_allele_frequency_file = maf,
       control_sample_vcf_file = control_sample_vcf,
       control_sample_vcf_index_file = control_sample_vcf_index,
       control_sample_intervals_file = control_sample_intervals,

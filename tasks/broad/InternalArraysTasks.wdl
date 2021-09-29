@@ -366,3 +366,72 @@ task GetNextArraysQcAnalysisVersionNumber {
     Int analysis_version_number = read_int(stdout())
   }
 }
+
+task ResolveExtendedIlluminaManifestFile {
+  input {
+    File extended_manifest_map_file
+    String bpm_filename
+    String egt_filename
+    String arrays_chip_metadata_path
+    Int preemptible_tries
+  }
+
+  command <<<
+    cat ~{extended_manifest_map_file} | grep -v '^#' | grep -E '^~{bpm_filename}\s+~{egt_filename}' | cut -f 3 > output_file.txt
+    if [[ ! -s output_file.txt ]]
+    then
+      echo "ERROR: Unable to find entry in ~{extended_manifest_map_file} for ~{bpm_filename} / ~{egt_filename}" 1>&2
+      exit 1
+    elif [[ $(cat output_file.txt | wc -l) -ne 1 ]]
+    then
+      echo "ERROR: Found more than one entry in ~{extended_manifest_map_file} for ~{bpm_filename} / ~{egt_filename}" 1>&2
+      exit 1
+    fi
+  >>>
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    preemptible: preemptible_tries
+  }
+  output {
+    String extended_illumina_manifest_file = arrays_chip_metadata_path + read_string("output_file.txt")
+  }
+}
+
+task ResolveMinorAlleleFrequencyFile {
+  input {
+    File minor_allele_frequency_map_file
+    String bpm_filename
+    String arrays_chip_metadata_path
+    Int preemptible_tries
+  }
+
+  command <<<
+    cat ~{minor_allele_frequency_map_file} | grep -v '^#' | grep ~{bpm_filename} | cut -f 2 > output_file.txt
+    if [[ ! -s output_file.txt ]]
+    then
+      echo "Unable to find entry in ~{minor_allele_frequency_map_file} for ~{bpm_filename}"
+      echo false > found.txt
+      exit 0
+    elif [[ $(cat output_file.txt | wc -l) -ne 1 ]]
+    then
+      echo "ERROR: Found more than one entry in ~{minor_allele_frequency_map_file} for ~{bpm_filename}" 1>&2
+      echo false > found.txt
+      exit 1
+    fi
+    echo true > found.txt
+  >>>
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    preemptible: preemptible_tries
+  }
+  output {
+    Boolean found = read_boolean("found.txt")
+    String minor_allele_frequency_file = arrays_chip_metadata_path + read_string("output_file.txt")
+  }
+}

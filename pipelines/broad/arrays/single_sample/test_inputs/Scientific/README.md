@@ -52,6 +52,11 @@
     - Pulling fingerprint from Mercury
         - IS a clinical sample, so only pulling fluidigm fingerprint
     - Not pushing fingerprint to Mercury
+- 204126290052_R01C01_NA12878
+    - Control sample
+    - On the GDA chip
+    - Using the 1.5 Extended Manifest
+    - Looks up the extended illumina manifest from the map file stored online at arrays_metadata_path
 - 204126290052_R01C01_NA12878_2
     - Control sample
     - On the GDA chip
@@ -61,6 +66,7 @@
 - 204520870050_R02C01_NA24385
     - A Coriell sample for which we have no control data
     - Ashkenazim trio (Son)
+    - Looks up the minor_allele_frequency_file from the maf_map file stored online at arrays_metadata_path
 - 204520870050_R04C01_NA24143
     - A Coriell sample for which we have no control data
     - Ashkenazim trio (Mother)
