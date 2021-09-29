@@ -560,9 +560,9 @@ task SelectVariantsByIds {
 
   parameter_meta {
     vcf: {
-         description: "vcf",
-         localization_optional: true
-       }
+      description: "vcf",
+      localization_optional: true
+    }
   }
 
   command <<<
@@ -662,7 +662,7 @@ task SplitMultiSampleVcf {
   input {
     File multiSampleVcf
     Int mem = 8
-    Int bcftools_docker
+    Int bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
   }
 
   Int disk_size = ceil(3*size(multiSampleVcf, "GiB")) + 100
@@ -694,9 +694,9 @@ task CrosscheckFingerprints {
     Array[File] firstInputIndices
     Array[File] secondInputIndices
     File haplotypeDatabase
-    String basename
+    String basename = "plumbing_test"
     Int mem = 8
-    String gatk_docker
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
   }
 
   Int disk_size = ceil(1.2*(size(firstInputs, "GiB") + size(secondInputs, "GiB") + size(haplotypeDatabase, "GiB"))) + 100

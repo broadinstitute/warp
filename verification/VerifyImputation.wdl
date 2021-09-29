@@ -1,6 +1,7 @@
 version 1.0
 
 import "../verification/VerifyTasks.wdl" as Tasks
+import "../tasks/broad/ImputationTasks.wdl" as ImputationTasks
 
 ## Copyright Broad Institute, 2018
 ##
@@ -20,14 +21,24 @@ import "../verification/VerifyTasks.wdl" as Tasks
 
 workflow VerifyImputation {
   input {
+    File haplotype_database
+    Boolean split_output_to_single_sample
+
     Array[File] truth_metrics
     Array[File] test_metrics
 
     File truth_vcf
     File test_vcf
+    File test_vcf_index
+
+    File? input_multi_sample_vcf
+    File? input_multi_sample_vcf_index
+    Array[File]? input_single_sample_vcfs
+    Array[File]? input_single_sample_vcfs_indices
 
     Array[File]? single_sample_truth_vcf
     Array[File]? single_sample_test_vcf
+    Array[File]? single_sample_test_vcf_indices
   }
 
   scatter (idx in range(length(truth_metrics))) {
@@ -54,7 +65,30 @@ workflow VerifyImputation {
     }
   }
 
-  # TODO add fingerprint checks for verification
+  call ImputationTasks.CrosscheckFingerprints {
+    input:
+      firstInputs = if (defined(input_multi_sample_vcf)) then select_all([input_multi_sample_vcf]) else select_first([input_single_sample_vcfs]),
+      firstInputIndices = if (defined(input_multi_sample_vcf_index)) then select_all([input_multi_sample_vcf_index]) else select_first([input_single_sample_vcfs_indices]),
+      secondInputs = [test_vcf],
+      secondInputIndices = [test_vcf_index],
+      haplotypeDatabase = haplotype_database
+  }
+
+  if (split_output_to_single_sample) {
+    call ImputationTasks.SplitMultiSampleVcf {
+      input:
+        multiSampleVcf = test_vcf
+    }
+
+    call ImputationTasks.CrosscheckFingerprints as CrosscheckFingerprintsSplit {
+      input:
+        firstInputs = if (defined(input_multi_sample_vcf)) then select_all([input_multi_sample_vcf]) else select_first([input_single_sample_vcfs]),
+        firstInputIndices = if (defined(input_multi_sample_vcf_index)) then select_all([input_multi_sample_vcf_index]) else select_first([input_single_sample_vcfs_indices]),
+        secondInputs = SplitMultiSampleVcf.single_sample_vcfs,
+        secondInputIndices = SplitMultiSampleVcf.single_sample_vcf_indices,
+        haplotypeDatabase = haplotype_database
+    }
+  }
 
   output {
   }

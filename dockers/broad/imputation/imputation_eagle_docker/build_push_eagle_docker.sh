@@ -1,6 +1,6 @@
 # Build docker image from Dockerfile in this directory
 # This is to help keep track of versions, etc.
-# Wraps around ImputationPipeline/build_push_docker.sh.
+# Wraps around Imputation/build_push_docker.sh.
 
 dockerfile_directory=imputation_eagle_docker
 image_version=v1.0.0 # as of Jan 25 2021
