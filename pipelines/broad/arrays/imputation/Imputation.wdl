@@ -27,7 +27,8 @@ workflow ImputationPipeline {
     Float? optional_qc_max_missing
     Float? optional_qc_hwe
     File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
-    Array[ReferencePanelContig] referencePanelContigs
+    Array[String] contigs
+    String reference_panel_path # path to the bucket where the reference panel files are stored for all contigs
     File genetic_maps_eagle
     String output_callset_name # the output callset name
     Boolean split_output_to_single_sample = false
@@ -94,7 +95,19 @@ workflow ImputationPipeline {
       bcftools_docker = bcftools_docker_tag
   }
 
-  scatter (referencePanelContig in referencePanelContigs) {
+  scatter (contig in contigs) {
+
+    String reference_filename = reference_panel_path + "ALL.chr" + contig + ".phase3_integrated.20130502.genotypes.cleaned"
+
+    ReferencePanelContig referencePanelContig = {
+      "vcf": reference_filename + ".vcf.gz",
+      "vcf_index": reference_filename + ".vcf.gz.tbi",
+      "bcf": reference_filename + ".bcf",
+      "bcf_index": reference_filename + ".bcf.csi",
+      "m3vcf": reference_filename + ".m3vcf.gz",
+      "contig": contig
+    }
+
     call tasks.CalculateChromosomeLength {
       input:
         ref_dict = ref_dict,
