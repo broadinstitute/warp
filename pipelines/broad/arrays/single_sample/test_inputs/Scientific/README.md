@@ -1,4 +1,7 @@
 # A description of (some of) the test files here.
+- 101342370027_R12C02_NA12892
+    - Control sample
+    - Looks up the genotype concordance control data using the combination of arrays_control_data_path and control_sample_name 
 - 101342370134_R12C02_NA12891
     - Control sample
     - Not setting all optional inputs destined to chip_well_barcode_index table to test that it allows nulls
@@ -24,6 +27,13 @@
 - 200598830050_R01C01_90C04566
     - Non-control sample
     - NOT defining the analysis_version_number.  Test that the wrapper wdl will generate it.
+- 200598830050_R06C02_01C05949
+    - Non-control sample
+    - Looks up the zcall_thresholds_file using the combination of arrays_metadata_path and zcall_thresholds_filename                
+- 201159110147_R09C01_MH_0178994
+    - Non-control sample
+    - Sample has a space in its name
+    - Looks up the gender_cluster_file using the combination of arrays_metadata_path and gender_cluster_filename        
 - 201651080129_R05C01_S8_N4B3GY
     - Non-control sample
     - Sample has a space in its name
@@ -42,3 +52,18 @@
     - Pulling fingerprint from Mercury
         - IS a clinical sample, so only pulling fluidigm fingerprint
     - Not pushing fingerprint to Mercury
+- 204126290052_R01C01_NA12878_2
+    - Control sample
+    - On the GDA chip
+    - Using the 2.0 Extended Manifest
+    - Looks up the bead_pool_manifest_file using the combination of arrays_metadata_path and bead_pool_manifest_filename
+    - Looks up the cluster_file using the combination of arrays_metadata_path and cluster_filename
+- 204520870050_R02C01_NA24385
+    - A Coriell sample for which we have no control data
+    - Ashkenazim trio (Son)
+- 204520870050_R04C01_NA24143
+    - A Coriell sample for which we have no control data
+    - Ashkenazim trio (Mother)
+- 204520870050_R06C01_NA24149
+    - A Coriell sample for which we have no control data
+    - Ashkenazim trio (Daughter)

@@ -126,6 +126,22 @@ groups:
       users:
         - fleharty # Mark Fleharty
 
+  scientific_owners_imputation:
+    conditions:
+      - "'eng-only' not in labels"
+      - "base.ref != 'master'"
+      - "base.ref != 'staging'"
+      - >
+        ${IMPUTATION_FILES}
+    reviews:
+      required: 1
+      author_value: 1
+      request: 1
+      request_order: given
+    reviewers:
+      users:
+        - kachulis # Chris Kachulis
+
 
   # Clinical reviews:
   # - Approval is not required, this is just to send an email to Betty

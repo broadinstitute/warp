@@ -1,3 +1,7 @@
+# 2.4.9
+2021-09-22
+
+* Updated Utilities.wdl task definitions to include a new ErrorWithMessage task that is NOT used in the ExternalExomeReprocessing pipeline.
 
 # 2.4.8
 2021-08-02

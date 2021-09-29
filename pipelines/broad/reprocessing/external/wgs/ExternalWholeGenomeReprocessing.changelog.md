@@ -1,8 +1,12 @@
+# 1.3.9
+2021-09-22
+
+* Updated Utilities.wdl task definitions to include a new ErrorWithMessage task that is NOT used in the ExternalWholeGenomeReprocessing pipeline.
+
 # 1.3.8
 2021-08-02
 
 * Increased the version number to make new release tag for Dockstore 
-
 
 # 1.3.7
 2021-06-22

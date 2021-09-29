@@ -13,6 +13,13 @@ class SingleSampleArraysInputs(inputs: String) {
   def getChipwellBarcode(workflowName: String): String =
     parsed.unsafeGet[String](s"$workflowName.chip_well_barcode")
 
-  def getBeadPoolManifestFile(workflowName: String): String =
-    parsed.unsafeGet[String](s"$workflowName.bead_pool_manifest_file")
+  def getArraysMetadataPath(workflowName: String): Option[String] =
+    parsed.unsafeGet[Option[String]](s"$workflowName.arrays_metadata_path")
+
+  def getBeadPoolManifestFile(workflowName: String): Option[String] =
+    parsed.unsafeGet[Option[String]](s"$workflowName.bead_pool_manifest_file")
+
+  def getBeadPoolManifestFilename(workflowName: String): Option[String] =
+    parsed.unsafeGet[Option[String]](
+      s"$workflowName.bead_pool_manifest_filename")
 }
