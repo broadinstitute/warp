@@ -132,8 +132,8 @@ task GetAnalysisFileMetadata {
     String input_uuid
     String pipeline_type
     String version_timestamp
-    File? input_file # Input file is the internal path to metadata.json
     Boolean project_level
+    File? input_file # Input file is the internal path to metadata.json
     String? project_loom # Project loom is optional and provided on project level run as the gs:// link
     String? ss2_bam_file # Individual bam file to be used for intermediate analysis file for ss2 runs
     String? ss2_bai_file # Individual bai file to be used for intermediate analysis file for ss2 runs
@@ -295,7 +295,7 @@ task GetLinksFileMetadata {
       --project_level ~{project_level} \
       --pipeline_type "~{pipeline_type}"
     else
-    # SS2 will have runs over 10k samples, must write info to a file rather than pass as arguments
+    # SS2 will have runs with thousand of samples, must write info to a file rather than pass as arguments
 
       declare -a PROTOCOL_PATH_LIST=(~{sep=' ' analysis_protocol_path_list})
       declare -a PROCESS_PATH_LIST=(~{sep=' ' analysis_process_path_list})
@@ -557,18 +557,44 @@ task CopyToStagingBucket {
     Int disk = ceil((size(data_objects, "G") * 3)) + 20
   }
 
-  command {
-    copy-adapter-outputs \
-    --analysis_files_metadata_jsons ~{sep=" " analysis_file_metadata_objects} \
-    --analysis_process_jsons ~{sep=" " analysis_process_objects} \
-    --analysis_protocol_jsons ~{sep=" " analysis_protocol_objects} \
-    --analysis_files_descriptors_jsons ~{sep=" " analysis_file_descriptor_objects} \
-    --links_jsons ~{sep=" " links_objects} \
-    --data_files ~{sep=" " data_objects} \
-    --reference_metadata_jsons ~{sep=" " reference_metadata_objects} \
-    --reference_file_descriptor_jsons ~{sep=" " reference_file_descriptor_objects} \
-    --staging-bucket ~{staging_bucket}
-  }
+  command
+  <<<
+    set -o pipefail
+      
+      # SS2 will have runs with thousand of samples, must write info to a file rather than pass as arguments
+
+      declare -a ANALYSIS_FILE_METADATA=(~{sep=' ' analysis_file_metadata_objects})
+      declare -a ANALYSIS_PROCESS=(~{sep=' ' analysis_process_objects})
+      declare -a ANALYSIS_PROTOCOL=(~{sep=' ' analysis_protocol_objects})
+      declare -a ANALYSIS_FILE_DESCRIPTORS=(~{sep=' ' analysis_file_descriptor_objects})
+      declare -a LINKS_FILES=(~{sep=' ' links_objects})
+      declare -a DATA_FILES=(~{sep=' ' data_objects})
+      declare -a REFERENCE_METADATA=(~{sep=' ' reference_metadata_objects})
+      declare -a REFERENCE_FILE_DESCRIPTORS=(~{sep=' ' reference_file_descriptor_objects})
+  
+      TMP_DIR=$(mktemp -d -t XXXXXX)
+
+      printf '%s\n' "${ANALYSIS_FILE_METADATA[@]}" | jq -R . | jq -s . > $TMP_DIR/analysis_file_metadata.json
+      printf '%s\n' "${ANALYSIS_PROCESS[@]}" | jq -R . | jq -s . > $TMP_DIR/analysis_process.json
+      printf '%s\n' "${ANALYSIS_PROTOCOL[@]}" | jq -R . | jq -s . > $TMP_DIR/analysis_protocol.json
+      printf '%s\n' "${ANALYSIS_FILE_DESCRIPTORS[@]}" | jq -R . | jq -s . > $TMP_DIR/analysis_file_descriptors.json
+      printf '%s\n' "${LINKS_FILES[@]}" | jq -R . | jq -s . > $TMP_DIR/links_files.json
+      printf '%s\n' "${DATA_FILES[@]}" | jq -R . | jq -s . > $TMP_DIR/data_files.json
+      printf '%s\n' "${REFERENCE_METADATA[@]}" | jq -R . | jq -s . > $TMP_DIR/reference_metadata.json
+      printf '%s\n' "${REFERENCE_FILE_DESCRIPTORS[@]}" | jq -R . | jq -s . > $TMP_DIR/reference_file_descriptors.json
+  
+      copy-adapter-outputs \
+      --analysis_files_metadata_jsons "$TMP_DIR/analysis_file_metadata.json" \
+      --analysis_process_jsons "$TMP_DIR/analysis_process.json" \
+      --analysis_protocol_jsons "$TMP_DIR/analysis_protocol.json" \
+      --analysis_files_descriptors_jsons "$TMP_DIR/analysis_file_descriptors.json" \
+      --links_jsons "$TMP_DIR/links_files.json" \
+      --data_files "$TMP_DIR/data_files.json" \
+      --reference_metadata_jsons "$TMP_DIR/reference_metadata.json" \
+      --reference_file_descriptor_jsons "$TMP_DIR/reference_file_descriptors.json" \
+      --staging-bucket ~{staging_bucket}
+  >>>
+  
 
   runtime {
     docker: docker
