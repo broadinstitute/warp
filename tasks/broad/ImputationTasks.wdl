@@ -4,6 +4,7 @@ task CalculateChromosomeLength {
   input {
     File ref_dict
     Int chrom
+    String ubuntu_docker
   }
 
   Int disk_size = ceil(2*size(ref_dict, "GiB")) + 5
@@ -12,7 +13,7 @@ task CalculateChromosomeLength {
     grep -P "SN:~{chrom}\t" ~{ref_dict} | sed 's/.*LN://' | sed 's/\t.*//'
   }
   runtime {
-    docker: "ubuntu:18.04"
+    docker: ubuntu_docker
     disks: "local-disk " + disk_size + " HDD"
     memory: "2 GiB"
   }
