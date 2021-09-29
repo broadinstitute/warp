@@ -104,7 +104,7 @@ workflow ImputationPipeline {
       "vcf_index": reference_filename + ".vcf.gz.tbi",
       "bcf": reference_filename + ".bcf",
       "bcf_index": reference_filename + ".bcf.csi",
-      "m3vcf": reference_filename + ".m3vcf.gz",
+      "m3vcf": reference_filename + ".cleaned.m3vcf.gz",
       "contig": contig
     }
 
