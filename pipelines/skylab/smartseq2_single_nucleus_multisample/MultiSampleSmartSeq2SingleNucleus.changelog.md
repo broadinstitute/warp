@@ -1,3 +1,9 @@
+# 1.1.0
+2021-09-16 (Date of Last Commit)
+
+* Removed the Smart-seq2 Single Nucleus workflow (SmartSeq2SingleNucleus.wdl) and changed the workflow tasks to run multiple samples in the same VM. This change is expected to make the pipeline faster and cheaper.
+* Renamed the StarAlignFastq.StarAlignFastqPairedEnd task to StarAlign.StarAlignFastqMultisample
+
 # 1.0.4
 2021-09-10 (Date of Last Commit)
 
@@ -10,7 +16,6 @@ Added the option "--soloBarcodeReadLength 0" STARsoloFastq task to support align
   contains other Star tasks that are used in the smartseq2 single nuclei for paired and 
   single stranged fastq files. As a result, the smartseq2 processing is not expected to 
   change. 
-
 
 # 1.0.2
 2021-08-02 (Date of Last Commit)
