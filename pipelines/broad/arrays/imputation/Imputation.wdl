@@ -324,6 +324,7 @@ workflow Imputation {
     File aggregated_imputation_metrics = MergeImputationQCMetrics.aggregated_metrics
     File chunks_info = StoreChunksInfo.chunks_info
     File failed_chunks = StoreChunksInfo.failed_chunks
+    File n_failed_chunks_file = StoreChunksInfo.n_failed_chunks_file
     Int n_failed_chunks = StoreChunksInfo.n_failed_chunks
   }
 }
