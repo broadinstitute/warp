@@ -16,12 +16,12 @@ class ImputationInputs(inputs: String) {
   def getHaplotypeDatabase(workflowName: String): String =
     parsed.unsafeGet[String](s"$workflowName.haplotype_database")
 
-  def getSplitOutputToSingleSample(workflowName: String): String =
-    parsed.unsafeGet[String](s"$workflowName.split_output_to_single_sample")
+  def getSplitOutputToSingleSample(workflowName: String): Boolean =
+    parsed.unsafeGet[Boolean](s"$workflowName.split_output_to_single_sample")
 
-  def getSingleSampleVcfs(workflowName: String): Array =
-    parsed.unsafeGet[String](s"$workflowName.single_sample_vcfs")
+  def getSingleSampleVcfs(workflowName: String): Option[String] =
+    parsed.unsafeGet[Option[String]](s"$workflowName.single_sample_vcfs")
 
-  def getSingleSampleVcfsIndices(workflowName: String): Array =
-    parsed.unsafeGet[String](s"$workflowName.single_sample_vcf_indices")
+  def getSingleSampleVcfsIndices(workflowName: String): Option[String] =
+    parsed.unsafeGet[Option[String]](s"$workflowName.single_sample_vcf_indices")
 }
