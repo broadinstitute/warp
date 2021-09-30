@@ -1,3 +1,14 @@
+# 2.2.6
+2021-09-13 (Date of Last Commit)
+
+* Updated Picard.wdl and LoomUtils.wdl for Single Nucleus SmartSeq2. These changes do not affect MultiSampleSmartSeq2
+
+# 2.2.5
+2021-09-02 (Date of Last Commit)
+
+* Removed a redundant task in Picard.wdl that was use in the previous  Optimus pipeline. However, 
+  that wdl also contains other Picard task that are used in the smartseq2 single sample. Therefore, 
+  the smartseq2 single sample is not expected to change. 
 
 # 2.2.4
 2021-08-02 (Date of Last Commit)

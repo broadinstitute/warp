@@ -1,3 +1,34 @@
+# 2.4.3
+2021-09-28
+
+* Enabled pipeline to lookup the extended_illumina_manifest_file using an alternate method
+    * If the path to the file is not provided, it will look in the arrays_metadata_path for a map file that contains a mapping of chip to extended_illumina_manifest
+* Enabled pipeline to lookup the cluster_file using an alternate method (using the arrays_metadata_path and cluster_filename)
+* Enabled pipeline to lookup the gender_cluster_file using an alternate method (using the arrays_metdata_path and gender_cluster_filename)
+* Enabled pipeline to lookup the zcall_thresholds_file using an alternate method (using the arrays_metdata_path and zcall_thresholds_filename)
+* Enabled pipeline to lookup the genotype control data using an alternate method (using the arrays_control_data_path and control_sample_name)
+* Modified pipeline to NOT write fingerprints for control samples to the Mercury Fingerprint Store.
+
+# 2.4.2
+2021-09-22
+
+* Enabled pipeline to lookup the bead_pool_manifest_file using an alternate method (using the arrays_metadata_path and bead_pool_manifest_filename)
+
+# 2.4.1
+2021-09-09
+
+* Changed default threshold for passing control (HapMap) genotype concordance from 0.98 to 0.95
+* Modified pipeline to automatically generate the analysis_version_number if it is not supplied as an input.
+* Modified pipeline to make several inputs optional:
+    * sample_id
+    * participant_id
+    * collaborator_participant_id
+    * lab_batch
+    * product_family
+    * product_name
+    * product_order_id
+    * product_part_number
+* Set the volatile=true flag for several internal tasks so they will not use call-caching
 
 # 2.4.0
 2021-08-05
