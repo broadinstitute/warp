@@ -37,6 +37,12 @@ workflow ImputationPipeline {
 
     Float frac_well_imputed_threshold = 0.9 # require fraction of sites well imputed to be greater than this to pass
     Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
+
+    String vcf_suffix = ".vcf.gz"
+    String vcf_index_suffix = ".vcf.gz.tbi"
+    String bcf_suffix = ".bcf"
+    String bcf_index_suffix =  ".bcf.csi"
+    String m3vcf_suffix = ".cleaned.m3vcf.gz"
   }
   # Docker images here
   String bcftools_docker_tag = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
@@ -100,11 +106,11 @@ workflow ImputationPipeline {
     String reference_filename = reference_panel_path + "ALL.chr" + contig + ".phase3_integrated.20130502.genotypes.cleaned"
 
     ReferencePanelContig referencePanelContig = {
-      "vcf": reference_filename + ".vcf.gz",
-      "vcf_index": reference_filename + ".vcf.gz.tbi",
-      "bcf": reference_filename + ".bcf",
-      "bcf_index": reference_filename + ".bcf.csi",
-      "m3vcf": reference_filename + ".cleaned.m3vcf.gz",
+      "vcf": reference_filename + vcf_suffix,
+      "vcf_index": reference_filename + vcf_index_suffix,
+      "bcf": reference_filename + bcf_suffix,
+      "bcf_index": reference_filename + bcf_index_suffix,
+      "m3vcf": reference_filename + m3vcf_suffix,
       "contig": contig
     }
 
