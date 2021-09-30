@@ -65,7 +65,7 @@ workflow VerifyImputation {
     }
   }
 
-  call ImputationTasks.CrosscheckFingerprints {
+  call CrosscheckFingerprints {
     input:
       firstInputs = if (defined(input_multi_sample_vcf)) then select_all([input_multi_sample_vcf]) else select_first([input_single_sample_vcfs]),
       firstInputIndices = if (defined(input_multi_sample_vcf_index)) then select_all([input_multi_sample_vcf_index]) else select_first([input_single_sample_vcfs_indices]),
@@ -80,7 +80,7 @@ workflow VerifyImputation {
         multiSampleVcf = test_vcf
     }
 
-    call ImputationTasks.CrosscheckFingerprints as CrosscheckFingerprintsSplit {
+    call CrosscheckFingerprints as CrosscheckFingerprintsSplit {
       input:
         firstInputs = if (defined(input_multi_sample_vcf)) then select_all([input_multi_sample_vcf]) else select_first([input_single_sample_vcfs]),
         firstInputIndices = if (defined(input_multi_sample_vcf_index)) then select_all([input_multi_sample_vcf_index]) else select_first([input_single_sample_vcfs_indices]),
@@ -117,5 +117,47 @@ task CompareImputationMetrics {
     cpu: 1
     memory: "3.75 GiB"
     disks: "local-disk 10 HDD"
+  }
+}
+
+task CrosscheckFingerprints {
+  input {
+    Array[File] firstInputs
+    Array[File] secondInputs
+    Array[File] firstInputIndices
+    Array[File] secondInputIndices
+    File haplotypeDatabase
+    String basename = "plumbing_test"
+    Int mem = 8
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+  }
+
+  Int disk_size = ceil(1.2*(size(firstInputs, "GiB") + size(secondInputs, "GiB") + size(haplotypeDatabase, "GiB"))) + 100
+
+  command <<<
+    # add links to ensure correctly located indices
+    array_vcfs=( ~{sep=" " firstInputs} )
+    array_indices=( ~{sep=" " firstInputIndices} )
+    for i in ${!array_vcfs[@]}; do
+      ln -s ${array_indices[i]} $(dirname ${array_vcfs[i]})
+    done
+
+    array_vcfs2=( ~{sep=" " secondInputs} )
+    array_indices2=( ~{sep=" " secondInputIndices} )
+    for i in ${!array_vcfs2[@]}; do
+      ln -s ${array_indices2[i]} $(dirname ${array_vcfs2[i]})
+    done
+
+    gatk CrosscheckFingerprints -I ~{sep=" -I " firstInputs} -SI ~{sep=" -SI " secondInputs} -H ~{haplotypeDatabase} -O ~{basename}.crosscheck
+  >>>
+
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "16 GiB"
+  }
+
+  output {
+    File crosscheck = "~{basename}.crosscheck"
   }
 }
