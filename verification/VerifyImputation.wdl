@@ -128,7 +128,6 @@ task CrosscheckFingerprints {
     Array[File] secondInputIndices
     File haplotypeDatabase
     String basename = "plumbing_test"
-    Int mem = 8
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
   }
 
@@ -154,7 +153,7 @@ task CrosscheckFingerprints {
   runtime {
     docker: gatk_docker
     disks: "local-disk " + disk_size + " HDD"
-    memory: "16 GiB"
+    memory: "8 GiB"
   }
 
   output {
