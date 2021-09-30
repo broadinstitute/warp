@@ -38,6 +38,7 @@ workflow ImputationPipeline {
     Float frac_well_imputed_threshold = 0.9 # require fraction of sites well imputed to be greater than this to pass
     Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
 
+    # file extensions used to find reference panel files
     String vcf_suffix = ".vcf.gz"
     String vcf_index_suffix = ".vcf.gz.tbi"
     String bcf_suffix = ".bcf"
