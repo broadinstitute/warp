@@ -30,6 +30,20 @@ def create_output_files(input_file,output_prefix):
     r2_fastq_document_id = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_read2') & pd.Series(df.columns).str.endswith('__file_document_id')]]
     i1_fastq_document_id = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_index') & pd.Series(df.columns).str.endswith('__file_document_id')]]
 
+    # create array of strings to be added to participant_lane_set data table
+    r1_fastq_uuid_array = []
+    r2_fastq_uuid_array = []
+    i1_fastq_uuid_array = []
+
+    for i in range(r1_fastq_uuid.shape[0]):
+        r1_values = r1_fastq_uuid.iloc[i].values
+        r2_values = r2_fastq_uuid.iloc[i].values
+        i1_values = i1_fastq_uuid.iloc[i].values
+
+        r1_fastq_uuid_array.append(" ".join([value for value in r1_values]))
+        r2_fastq_uuid_array.append(" ".join([value for value in r2_values]))
+        i1_fastq_uuid_array.append(" ".join([value for value in i1_values]))
+
     # TBD: move this to a function and call on each row of df change. Note: change index 0 to get other participants
     # for each fastq read, create a lane
     n_lanes = r1_fastq.shape[1] - r1_fastq.isnull().sum(axis=1)  # number of fastq reads
@@ -77,17 +91,28 @@ def create_output_files(input_file,output_prefix):
                             lane_i1_fastq_document_id
                             ],
                             axis=1)
+
         lane_df.columns = column_names
         participant_df = participant_df.append(lane_df)
+
     # participant_lane_df = participant_df.dropna()
     participant_df.to_csv(output_prefix + ".tsv",sep="\t",index=None)
-    particpant_set_df = participant_df[['input_id','entity:participant_lane_id']]
-    particpant_set_df.columns = ['membership:participant_lane_set_id', 'participant_lane']
-    particpant_set_df.to_csv(output_prefix + "_membership.tsv",sep="\t",index=None)
+    participant_set_df = participant_df[['input_id','entity:participant_lane_id']]
+
+    participant_set_df.columns = ['membership:participant_lane_set_id', 'participant_lane']
+    participant_set_df.to_csv(output_prefix + "_membership.tsv",sep="\t",index=None)
     temp = df[['sequencing_process__provenance__document_id','sequencing_input__biomaterial_core__biomaterial_id','project__provenance__document_id',
-               'donor_organism__genus_species', 'library_preparation_protocol__library_construction_approach', 'specimen_from_organism__organ', 'project__project_core__project_short_name']]
+               'donor_organism__genus_species', 'library_preparation_protocol__library_construction_approach', 'specimen_from_organism__organ', 'project__project_core__project_short_name']].copy()
+
     temp.columns = ['entity:participant_lane_set_id','input_name','project_id',
                     'species', 'library', 'organ', 'project_name']
+
+    # add values from participant_lane that is needed in participant_lane_set
+    temp["r1_fastq_uuid"] = r1_fastq_uuid_array
+    temp["r2_fastq_uuid"] = r2_fastq_uuid_array
+    temp["i1_fastq_uuid"] = i1_fastq_uuid_array
+    temp["input_id"] = temp['entity:participant_lane_set_id']
+
     temp.to_csv(output_prefix + "_entity.tsv",sep="\t",index=None)
 
 

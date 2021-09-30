@@ -27,7 +27,7 @@ task GenerateEmptyVariantCallingMetricsFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }
@@ -41,12 +41,16 @@ task BlacklistBarcode {
   input {
     File upload_metrics_output
     String chip_well_barcode
-    Int analysis_version
+    Int analysis_version_number
     Int preemptible_tries
     Array[String] authentication
     String service_account_filename
     String reason
     String notes
+  }
+
+  meta {
+    volatile: true
   }
 
   command <<<
@@ -58,7 +62,7 @@ task BlacklistBarcode {
     java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
                   ArraysManualBlacklistUpdate \
                   --CHIP_WELL_BARCODE ~{chip_well_barcode} \
-                  --ANALYSIS_VERSION ~{analysis_version} \
+                  --ANALYSIS_VERSION ~{analysis_version_number} \
                   --REASON ~{reason} \
                   --DB_USERNAME_FILE cloudsql.db_user.txt \
                   --DB_PASSWORD_FILE cloudsql.db_password.txt \
@@ -67,7 +71,7 @@ task BlacklistBarcode {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }
@@ -118,7 +122,7 @@ task VcfToMercuryFingerprintJson {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -146,7 +150,7 @@ task CreateBafRegressMetricsFile {
       --OUTPUT ~{output_metrics_basefilename}
   }
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -175,6 +179,10 @@ task UploadArraysMetrics {
 
     Int disk_size
     Int preemptible_tries
+  }
+
+  meta {
+    volatile: true
   }
 
   command <<<
@@ -219,7 +227,7 @@ task UploadArraysMetrics {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -234,19 +242,19 @@ task CreateChipWellBarcodeParamsFile {
   input {
     String chip_type_name
     String chip_well_barcode
-    String collaborator_participant_id
-    String lab_batch
-    String participant_id
-    String product_family
-    String product_name
-    String product_order_id
-    String product_part_number
+    String? collaborator_participant_id
+    String? lab_batch
+    String? participant_id
+    String? product_family
+    String? product_name
+    String? product_order_id
+    String? product_part_number
     String product_type
     String regulatory_designation
     String research_project_id
     String sample_alias
     String gender
-    String sample_id
+    String? sample_id
     String sample_lsid
     Int preemptible_tries
   }
@@ -297,6 +305,10 @@ task UpdateChipWellBarcodeIndex {
     Int preemptible_tries
   }
 
+  meta {
+    volatile: true
+  }
+
   command <<<
     set -eo pipefail
 
@@ -312,9 +324,114 @@ task UpdateChipWellBarcodeIndex {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
+  }
+}
+
+task GetNextArraysQcAnalysisVersionNumber {
+  input {
+    String chip_well_barcode
+    Int preemptible_tries
+    Array[String] authentication
+    String service_account_filename
+  }
+
+  meta {
+    volatile: true
+  }
+
+  command <<<
+    set -eo pipefail
+
+    AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
+    export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
+
+    java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+      GetNextArraysQcAnalysisVersionNumber \
+        --CHIP_WELL_BARCODE ~{chip_well_barcode} \
+        --DB_USERNAME_FILE cloudsql.db_user.txt \
+        --DB_PASSWORD_FILE cloudsql.db_password.txt \
+        --DB_JDBC_FILE cloudsql.db_jdbc.txt
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
+    memory: "3.5 GiB"
+    preemptible: preemptible_tries
+  }
+  output {
+    Int analysis_version_number = read_int(stdout())
+  }
+}
+
+task ResolveExtendedIlluminaManifestFile {
+  input {
+    File extended_manifest_map_file
+    String bpm_filename
+    String egt_filename
+    String arrays_chip_metadata_path
+    Int preemptible_tries
+  }
+
+  command <<<
+    cat ~{extended_manifest_map_file} | grep -v '^#' | grep -E '^~{bpm_filename}\s+~{egt_filename}' | cut -f 3 > output_file.txt
+    if [[ ! -s output_file.txt ]]
+    then
+      echo "ERROR: Unable to find entry in ~{extended_manifest_map_file} for ~{bpm_filename} / ~{egt_filename}" 1>&2
+      exit 1
+    elif [[ $(cat output_file.txt | wc -l) -ne 1 ]]
+    then
+      echo "ERROR: Found more than one entry in ~{extended_manifest_map_file} for ~{bpm_filename} / ~{egt_filename}" 1>&2
+      exit 1
+    fi
+  >>>
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    preemptible: preemptible_tries
+  }
+  output {
+    String extended_illumina_manifest_file = arrays_chip_metadata_path + read_string("output_file.txt")
+  }
+}
+
+task ResolveMinorAlleleFrequencyFile {
+  input {
+    File minor_allele_frequency_map_file
+    String bpm_filename
+    String arrays_chip_metadata_path
+    Int preemptible_tries
+  }
+
+  command <<<
+    cat ~{minor_allele_frequency_map_file} | grep -v '^#' | grep ~{bpm_filename} | cut -f 2 > output_file.txt
+    if [[ ! -s output_file.txt ]]
+    then
+      echo "Unable to find entry in ~{minor_allele_frequency_map_file} for ~{bpm_filename}"
+      echo false > found.txt
+      exit 0
+    elif [[ $(cat output_file.txt | wc -l) -ne 1 ]]
+    then
+      echo "ERROR: Found more than one entry in ~{minor_allele_frequency_map_file} for ~{bpm_filename}" 1>&2
+      echo false > found.txt
+      exit 1
+    fi
+    echo true > found.txt
+  >>>
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    preemptible: preemptible_tries
+  }
+  output {
+    Boolean found = read_boolean("found.txt")
+    String minor_allele_frequency_file = arrays_chip_metadata_path + read_string("output_file.txt")
   }
 }

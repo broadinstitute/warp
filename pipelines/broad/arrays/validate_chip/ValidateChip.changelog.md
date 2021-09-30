@@ -1,3 +1,13 @@
+# 1.13.4
+2021-09-28
+
+* Task wdls used by ValidateChip were updated with changes that don't affect ValidateChip wdl
+
+# 1.13.3
+2021-09-09
+
+* Set the volatile=true flag for several internal tasks so they will not use call-caching
+
 # 1.13.2
 2021-08-10
 

@@ -68,8 +68,8 @@ class IlluminaGenotypingArrayTester(testerConfig: IlluminaGenotypingArrayConfig)
     val validationInputs = IlluminaGenotypingArrayValidationInputs(
       test_metrics = metricsFileNames.map(resultsCloudPath.resolve),
       truth_metrics = metricsFileNames.map(truthCloudPath.resolve),
-      bead_pool_manifest_file =
-        new URI(singleSampleArraysInputs.getBeadPoolManifestFile(workflowName)),
+      bead_pool_manifest_file = new URI(
+        singleSampleArraysInputs.getBeadPoolManifestFile(workflowName).get),
       test_gtc = resultsCloudPath.resolve(s"$outputBaseName.gtc"),
       truth_gtc = truthCloudPath.resolve(s"$outputBaseName.gtc"),
       test_vcf = resultsCloudPath.resolve(s"$outputBaseName.vcf.gz"),

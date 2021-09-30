@@ -3,6 +3,7 @@ version 1.0
 import "../../../../pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl" as IlluminaGenotyping
 import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalArraysTasks
 import "../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
+import "../../../../tasks/broad/Utilities.wdl" as utils
 
 ## Copyright Broad Institute, 2019
 ##
@@ -22,16 +23,15 @@ import "../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 
 workflow Arrays {
 
-  String pipeline_version = "2.4.0"
+  String pipeline_version = "2.4.3"
+
+  # This is the autocall_version, needed for the case where autocall fails (likely due to normalization errors)
+  # In this case it no longer emits the version in its output, so we store it here.
+  String autocall_version = "3.0.0"
 
   input {
-
-    # This is the autocall_version, needed for the case where autocall fails (likely due to normalization errors)
-    # In this case it no longer emits the version in its output, so we store it here.
-    String autocall_version = "3.0.0"
-
     String chip_well_barcode
-    Int analysis_version_number
+    Int? analysis_version_number
 
     String sample_alias
     String? sample_id
@@ -41,7 +41,7 @@ workflow Arrays {
     String? participant_id
 
     Float call_rate_threshold = 0.98
-    Float genotype_concordance_threshold = 0.98
+    Float genotype_concordance_threshold = 0.95
 
     File red_idat_cloud_path
     File green_idat_cloud_path
@@ -62,14 +62,21 @@ workflow Arrays {
     String? regulatory_designation
     String? research_project_id
 
-    File bead_pool_manifest_file
-    String chip_type = basename(bead_pool_manifest_file, ".bpm")
+    String? arrays_metadata_path
 
-    File extended_chip_manifest_file
-    File cluster_file
-    String cluster_filename = basename(cluster_file)
+    String? bead_pool_manifest_filename
+    File? bead_pool_manifest_file
+
+    String? cluster_filename
+    File? cluster_file
+
+    String? gender_cluster_filename
     File? gender_cluster_file
+
+    String? zcall_thresholds_filename
     File? zcall_thresholds_file
+
+    File? extended_chip_manifest_file
 
     # For CheckFingerprint:
     # If this is true, we will read fingerprints from Mercury
@@ -96,15 +103,21 @@ workflow Arrays {
     File? minor_allele_frequency_file
 
     # For HapMap GenotypeConcordance Check:
+    String? arrays_control_data_path
+
+    String? control_sample_name
     File? control_sample_vcf_file
     File? control_sample_vcf_index_file
     File? control_sample_intervals_file
-    String? control_sample_name
 
     Int disk_size
     Int preemptible_tries
     String environment
     File vault_token_path
+  }
+
+  if (false) {
+    String? none = "None"
   }
 
   String service_account_filename = "service-account.json"
@@ -150,6 +163,114 @@ workflow Arrays {
     "fi",
     "vault read --format=json $key | jq .data > ~{service_account_filename}"]
 
+  if ((defined(bead_pool_manifest_filename) || defined(cluster_filename) || defined(gender_cluster_filename) || defined(zcall_thresholds_filename)) && !defined(arrays_metadata_path)) {
+    call utils.ErrorWithMessage as ErrorMessageNoArraysMetadataPath {
+      input:
+        message = "If either bead_pool_manifest_filename, cluster_filename, gender_cluster_filename, or zcall_thresholds_filename is defined, then arrays_metadata_path must also be defined"
+    }
+  }
+
+  if (!defined(bead_pool_manifest_filename) && !defined(bead_pool_manifest_file)) {
+    call utils.ErrorWithMessage as ErrorMessageBpmNoInput {
+      input:
+        message = "Either bead_pool_manifest_filename or bead_pool_manifest_file (and NOT both) must be defined as input"
+    }
+  }
+
+  if (defined(bead_pool_manifest_filename) && defined(bead_pool_manifest_file)) {
+    call utils.ErrorWithMessage as ErrorMessageBpmDoubleInput {
+      input:
+        message = "bead_pool_manifest_filename and bead_pool_manifest_file cannot both be defined as input"
+    }
+  }
+
+  String bpm_filename = if (defined(bead_pool_manifest_file)) then basename(select_first([bead_pool_manifest_file])) else select_first([bead_pool_manifest_filename, ""])
+  String chip_type = sub(bpm_filename, ".bpm", "")
+  String arrays_chip_metadata_path = select_first([arrays_metadata_path, ""]) + chip_type + "/"
+  File bpm_file = if (defined(bead_pool_manifest_file)) then select_first([bead_pool_manifest_file]) else arrays_chip_metadata_path + select_first([bead_pool_manifest_filename, ""])
+
+  if (!defined(cluster_filename) && !defined(cluster_file)) {
+    call utils.ErrorWithMessage as ErrorMessageEgtNoInput {
+      input:
+        message = "Either cluster_filename or cluster_file (and NOT both) must be defined as input"
+    }
+  }
+
+  if (defined(cluster_filename) && defined(cluster_file)) {
+    call utils.ErrorWithMessage as ErrorMessageEgtDoubleInput {
+      input:
+        message = "cluster_filename and cluster_file cannot both be defined as input"
+    }
+  }
+
+  File egt_file = if (defined(cluster_file)) then select_first([cluster_file]) else arrays_chip_metadata_path + select_first([cluster_filename, ""])
+  String egt_filename = basename(egt_file)
+
+  if (defined(gender_cluster_filename) && defined(gender_cluster_file)) {
+    call utils.ErrorWithMessage as ErrorMessageGenderEgtDoubleInput {
+      input:
+        message = "gender_cluster_filename and gender_cluster_file cannot both be defined as input"
+    }
+  }
+
+  File? gender_egt_file = if (defined(gender_cluster_file)) then select_first([gender_cluster_file]) else if (defined(gender_cluster_filename)) then arrays_chip_metadata_path + select_first([gender_cluster_filename, ""]) else none
+
+  if (defined(zcall_thresholds_filename) && defined(zcall_thresholds_file)) {
+    call utils.ErrorWithMessage as ErrorMessageGenderZCallDoubleInput {
+      input:
+        message = "zcall_thresholds_filename and zcall_thresholds_file cannot both be defined as input"
+    }
+  }
+
+  File? zcall_file = if (defined(zcall_thresholds_file)) then select_first([zcall_thresholds_file]) else if (defined(zcall_thresholds_filename)) then arrays_chip_metadata_path + select_first([zcall_thresholds_filename, ""]) else none
+
+  if (!defined(extended_chip_manifest_file)) {
+    if (!defined(arrays_metadata_path)) {
+      call utils.ErrorWithMessage as ErrorMessageNoExtChipManifestFileNoArraysMetadataPath {
+        input:
+          message = "If extended_chip_manifest_file is NOT defined, then arrays_metadata_path MUST be defined"
+      }
+    }
+    if (defined(arrays_metadata_path)) {
+      String extended_manifest_map_filename = "extended_manifest_map.txt"
+      File extended_manifest_map_file = select_first([arrays_metadata_path, ""]) + extended_manifest_map_filename
+      call InternalArraysTasks.ResolveExtendedIlluminaManifestFile {
+        input:
+          extended_manifest_map_file = extended_manifest_map_file,
+          bpm_filename = bpm_filename,
+          egt_filename = egt_filename,
+          arrays_chip_metadata_path = arrays_chip_metadata_path,
+          preemptible_tries = preemptible_tries
+      }
+    }
+  }
+
+  if (defined(arrays_metadata_path)) {
+    String minor_allele_frequency_map_filename = "maf_map.txt"
+    File minor_allele_frequency_map_file = select_first([arrays_metadata_path, ""]) + minor_allele_frequency_map_filename
+    call InternalArraysTasks.ResolveMinorAlleleFrequencyFile {
+      input:
+        minor_allele_frequency_map_file = minor_allele_frequency_map_file,
+        bpm_filename = bpm_filename,
+        arrays_chip_metadata_path = arrays_chip_metadata_path,
+        preemptible_tries = preemptible_tries
+    }
+    File? resolved_maf = if (ResolveMinorAlleleFrequencyFile.found == true) then ResolveMinorAlleleFrequencyFile.minor_allele_frequency_file else none
+  }
+
+  if ((defined(control_sample_name)) &&
+      ((!defined(control_sample_vcf_file)) || (!defined(control_sample_vcf_index_file)) || (!defined(control_sample_intervals_file))) &&
+      (!defined(arrays_control_data_path))) {
+        call utils.ErrorWithMessage as ErrorMessageNoArraysControlDataPath {
+          input:
+            message = "If either control_sample_name is defined and control_sample_vcf_file, control_sample_vcf_index_file, control_sample_vcf_index, or control_sample_intervals_file ARE NOT defined, then arrays_control_data_path must also be defined"
+        }
+  }
+
+  File? control_sample_vcf =       if (defined(control_sample_vcf_file))       then select_first([control_sample_vcf_file])       else if (defined(control_sample_name)) then select_first([arrays_control_data_path, ""]) + select_first([control_sample_name, ""]) + ".vcf.gz" else none
+  File? control_sample_vcf_index = if (defined(control_sample_vcf_index_file)) then select_first([control_sample_vcf_index_file]) else if (defined(control_sample_name)) then select_first([arrays_control_data_path, ""]) + select_first([control_sample_name, ""]) + ".vcf.gz.tbi" else none
+  File? control_sample_intervals = if (defined(control_sample_intervals_file)) then select_first([control_sample_intervals_file]) else if (defined(control_sample_name)) then select_first([arrays_control_data_path, ""]) + select_first([control_sample_name, ""]) + ".interval_list" else none
+
   if (!defined(params_file)) {
     # If the params_file is not provided, we will generate it from the (currently optional) bunch of parameters.
     # This is to allow for backwards-compatibility.  When we remove params_file as an (optional) input, this will be
@@ -158,23 +279,37 @@ workflow Arrays {
       input:
         chip_type_name = chip_type,
         chip_well_barcode = chip_well_barcode,
-        collaborator_participant_id = select_first([collaborator_participant_id]),
-        lab_batch = select_first([lab_batch]),
-        participant_id = select_first([participant_id]),
-        product_family = select_first([product_family]),
-        product_name = select_first([product_name]),
-        product_order_id = select_first([product_order_id]),
-        product_part_number = select_first([product_part_number]),
+        collaborator_participant_id = collaborator_participant_id,
+        lab_batch = lab_batch,
+        participant_id = participant_id,
+        product_family = product_family,
+        product_name = product_name,
+        product_order_id = product_order_id,
+        product_part_number = product_part_number,
         product_type = product_type,
         regulatory_designation = select_first([regulatory_designation]),
         research_project_id = select_first([research_project_id]),
         sample_alias = sample_alias,
         gender = reported_gender,
-        sample_id = select_first([sample_id]),
+        sample_id = sample_id,
         sample_lsid = sample_lsid,
         preemptible_tries = preemptible_tries
     }
   }
+
+  if (!defined(analysis_version_number)) {
+    # If the analysis_version_number is not provided as an input, we will query the ARRAYS_QC table to get the
+    # next value.
+    call InternalArraysTasks.GetNextArraysQcAnalysisVersionNumber {
+      input:
+        chip_well_barcode = chip_well_barcode,
+        preemptible_tries = preemptible_tries,
+        authentication = authentication_block,
+        service_account_filename = service_account_filename
+    }
+  }
+
+  Int analysis_version = select_first([analysis_version_number, GetNextArraysQcAnalysisVersionNumber.analysis_version_number])
 
   if (read_fingerprint_from_mercury) {
     call InternalTasks.MakeSafeFilename {
@@ -208,11 +343,13 @@ workflow Arrays {
       service_account_filename = service_account_filename
   }
 
+  File? maf = if (defined(minor_allele_frequency_file)) then select_first([minor_allele_frequency_file]) else resolved_maf
+
   call IlluminaGenotyping.IlluminaGenotypingArray as IlluminaGenotypingArray {
     input:
       autocall_version = autocall_version,
       sample_alias = sample_alias,
-      analysis_version_number = analysis_version_number,
+      analysis_version_number = analysis_version,
       call_rate_threshold = call_rate_threshold,
       reported_gender = reported_gender,
       chip_well_barcode = chip_well_barcode,
@@ -223,21 +360,21 @@ workflow Arrays {
       ref_dict = ref_dict,
       dbSNP_vcf = dbSNP_vcf,
       dbSNP_vcf_index = dbSNP_vcf_index,
-      bead_pool_manifest_file = bead_pool_manifest_file,
-      extended_chip_manifest_file = extended_chip_manifest_file,
-      cluster_file = cluster_file,
-      gender_cluster_file = gender_cluster_file,
-      zcall_thresholds_file = zcall_thresholds_file,
+      bead_pool_manifest_file = bpm_file,
+      extended_chip_manifest_file = select_first([extended_chip_manifest_file, ResolveExtendedIlluminaManifestFile.extended_illumina_manifest_file]),
+      cluster_file = egt_file,
+      gender_cluster_file = gender_egt_file,
+      zcall_thresholds_file = zcall_file,
       fingerprint_genotypes_vcf_file = if (fingerprint_downloaded_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf else fingerprint_genotypes_vcf_file,
       fingerprint_genotypes_vcf_index_file = if (fingerprint_downloaded_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf_index else fingerprint_genotypes_vcf_index_file,
       haplotype_database_file = haplotype_database_file,
       variant_rsids_file = variant_rsids_file,
       subsampled_metrics_interval_list = subsampled_metrics_interval_list,
       contamination_controls_vcf = contamination_controls_vcf,
-      minor_allele_frequency_file = minor_allele_frequency_file,
-      control_sample_vcf_file = control_sample_vcf_file,
-      control_sample_vcf_index_file = control_sample_vcf_index_file,
-      control_sample_intervals_file = control_sample_intervals_file,
+      minor_allele_frequency_file = maf,
+      control_sample_vcf_file = control_sample_vcf,
+      control_sample_vcf_index_file = control_sample_vcf_index,
+      control_sample_intervals_file = control_sample_intervals,
       control_sample_name = control_sample_name,
       disk_size = disk_size,
       preemptible_tries = preemptible_tries,
@@ -253,8 +390,8 @@ workflow Arrays {
         reported_gender = reported_gender,
         autocall_version = autocall_version,
         output_metrics_basename = sample_alias,
-        cluster_filename = cluster_filename,
-        analysis_version_number = analysis_version_number,
+        cluster_filename = egt_filename,
+        analysis_version_number = analysis_version,
         preemptible_tries = preemptible_tries
     }
 
@@ -270,7 +407,7 @@ workflow Arrays {
     call InternalArraysTasks.BlacklistBarcode as BlacklistFailedNormalization {
       input:
         upload_metrics_output = UploadEmptyArraysMetrics.upload_metrics_empty_file,
-        analysis_version = analysis_version_number,
+        analysis_version_number = analysis_version,
         chip_well_barcode = chip_well_barcode,
         preemptible_tries = preemptible_tries,
         reason = "DATA_QUALITY",
@@ -292,7 +429,8 @@ workflow Arrays {
         preemptible_tries = preemptible_tries
     }
 
-    if (write_fingerprint_to_mercury) {
+    # Only write fingerprints to the Mercury Fingerprint Store if writing is enabled AND the sample is NOT a control
+    if (write_fingerprint_to_mercury && (!defined(control_sample_name))) {
       call InternalTasks.UploadFingerprintToMercury {
         input:
           fingerprint_json_file = VcfToMercuryFingerprintJson.output_json_file,
@@ -334,7 +472,7 @@ workflow Arrays {
       call InternalArraysTasks.BlacklistBarcode as BlacklistFailedGenotypeConcordance {
         input:
           upload_metrics_output = UploadArraysMetrics.upload_metrics_empty_file,
-          analysis_version = analysis_version_number,
+          analysis_version_number = analysis_version,
           chip_well_barcode = chip_well_barcode,
           preemptible_tries = preemptible_tries,
           reason = "GENOTYPE_CONCORDANCE",
@@ -349,7 +487,7 @@ workflow Arrays {
       call InternalArraysTasks.BlacklistBarcode as BlacklistFailedFingerprint {
         input:
           upload_metrics_output = UploadArraysMetrics.upload_metrics_empty_file,
-          analysis_version = analysis_version_number,
+          analysis_version_number = analysis_version,
           chip_well_barcode = chip_well_barcode,
           preemptible_tries = preemptible_tries,
           reason = "SAMPLE_MIXUP",

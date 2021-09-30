@@ -206,3 +206,18 @@ task SumFloats {
     preemptible: preemptible_tries
   }
 }
+
+# Print given message to stderr and return an error
+task ErrorWithMessage{
+  input {
+    String message
+  }
+  command <<<
+    >&2 echo "Error: ~{message}"
+    exit 1
+  >>>
+
+  runtime {
+    docker: "ubuntu:20.04"
+  }
+}
