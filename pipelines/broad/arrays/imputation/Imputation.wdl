@@ -27,7 +27,8 @@ workflow ImputationPipeline {
     Float? optional_qc_max_missing
     Float? optional_qc_hwe
     File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
-    Array[ReferencePanelContig] referencePanelContigs
+    Array[String] contigs
+    String reference_panel_path # path to the bucket where the reference panel files are stored for all contigs
     File genetic_maps_eagle
     String output_callset_name # the output callset name
     Boolean split_output_to_single_sample = false
@@ -36,6 +37,13 @@ workflow ImputationPipeline {
 
     Float frac_well_imputed_threshold = 0.9 # require fraction of sites well imputed to be greater than this to pass
     Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
+
+    # file extensions used to find reference panel files
+    String vcf_suffix = ".vcf.gz"
+    String vcf_index_suffix = ".vcf.gz.tbi"
+    String bcf_suffix = ".bcf"
+    String bcf_index_suffix =  ".bcf.csi"
+    String m3vcf_suffix = ".cleaned.m3vcf.gz"
   }
   # Docker images here
   String bcftools_docker_tag = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
@@ -94,7 +102,19 @@ workflow ImputationPipeline {
       bcftools_docker = bcftools_docker_tag
   }
 
-  scatter (referencePanelContig in referencePanelContigs) {
+  scatter (contig in contigs) {
+
+    String reference_filename = reference_panel_path + "ALL.chr" + contig + ".phase3_integrated.20130502.genotypes.cleaned"
+
+    ReferencePanelContig referencePanelContig = {
+      "vcf": reference_filename + vcf_suffix,
+      "vcf_index": reference_filename + vcf_index_suffix,
+      "bcf": reference_filename + bcf_suffix,
+      "bcf_index": reference_filename + bcf_index_suffix,
+      "m3vcf": reference_filename + m3vcf_suffix,
+      "contig": contig
+    }
+
     call tasks.CalculateChromosomeLength {
       input:
         ref_dict = ref_dict,
