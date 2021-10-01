@@ -24,4 +24,10 @@ class ImputationInputs(inputs: String) {
 
   def getSingleSampleVcfsIndices(workflowName: String): Seq[String] =
     parsed.unsafeGet[Seq[String]](s"$workflowName.single_sample_vcf_indices")
+
+  def getMultiSampleVcf(workflowName: String): String =
+    parsed.unsafeGet[String](s"$workflowName.multi_sample_vcf")
+
+  def getMultiSampleVcfIndices(workflowName: String): String =
+    parsed.unsafeGet[String](s"$workflowName.multi_sample_vcf_index")
 }

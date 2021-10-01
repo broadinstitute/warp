@@ -57,6 +57,10 @@ class ImputationTester(testerConfig: ImputationConfig)(
       imputationInputs.getSingleSampleVcfs(workflowName)
     val singleSampleVcfsIndices =
       imputationInputs.getSingleSampleVcfsIndices(workflowName)
+    val multiSampleVcf =
+      imputationInputs.getMultiSampleVcf(workflowName)
+    val multiSampleVcfIndices =
+      imputationInputs.getMultiSampleVcfIndices(workflowName)
     val resultsCloudPath =
       workflowTest.runParameters.resultsCloudPath
     val truthCloudPath = workflowTest.runParameters.truthCloudPath
@@ -66,6 +70,8 @@ class ImputationTester(testerConfig: ImputationConfig)(
       split_output_to_single_sample = splitOutputToSingleSample,
       input_single_sample_vcfs = singleSampleVcfs,
       input_single_sample_vcfs_indices = singleSampleVcfsIndices,
+      input_multi_sample_vcf = multiSampleVcf,
+      input_multi_sample_vcf_index = multiSampleVcfIndices,
       test_metrics = Array(
         resultsCloudPath.resolve(s"${outputBaseName}_chunk_info.tsv"),
         resultsCloudPath.resolve(s"${outputBaseName}_failed_chunks.tsv"),

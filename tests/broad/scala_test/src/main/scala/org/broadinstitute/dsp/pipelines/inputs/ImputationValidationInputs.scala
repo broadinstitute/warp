@@ -22,6 +22,8 @@ case class ImputationValidationInputs(
     split_output_to_single_sample: Boolean,
     input_single_sample_vcfs: Seq[String],
     input_single_sample_vcfs_indices: Seq[String],
+    input_multi_sample_vcf: String,
+    input_multi_sample_vcf_index: String,
     truth_metrics: Seq[URI],
     test_metrics: Seq[URI],
     truth_vcf: URI,
