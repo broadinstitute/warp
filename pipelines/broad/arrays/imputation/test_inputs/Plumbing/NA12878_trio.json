@@ -11,8 +11,8 @@
   ],
 
   "Imputation.ref_dict": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict",
-  "ImputationPipeline.reference_panel_path": "gs://broad-gotc-test-storage/imputation/1000G_reference_panel/",
-  "ImputationPipeline.contigs": [ "21", "22" ],
+  "Imputation.reference_panel_path": "gs://broad-gotc-test-storage/imputation/1000G_reference_panel/",
+  "Imputation.contigs": [ "21", "22" ],
   "Imputation.genetic_maps_eagle": "gs://broad-gotc-test-storage/imputation/eagle_genetic_map/genetic_map_hg19_withX.txt.gz",
   "Imputation.output_callset_name": "plumbing_test",
   "Imputation.split_output_to_single_sample": false,
