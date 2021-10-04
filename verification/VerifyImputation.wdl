@@ -72,7 +72,8 @@ workflow VerifyImputation {
       firstInputIndices = if (defined(input_multi_sample_vcf_index)) then select_all([input_multi_sample_vcf_index]) else select_first([input_single_sample_vcfs_indices]),
       secondInputs = [test_vcf],
       secondInputIndices = [test_vcf_index],
-      haplotypeDatabase = haplotype_database
+      haplotypeDatabase = haplotype_database,
+      basename = output_callset_name
   }
 
   if (split_output_to_single_sample) {
@@ -87,7 +88,8 @@ workflow VerifyImputation {
         firstInputIndices = if (defined(input_multi_sample_vcf_index)) then select_all([input_multi_sample_vcf_index]) else select_first([input_single_sample_vcfs_indices]),
         secondInputs = SplitMultiSampleVcf.single_sample_vcfs,
         secondInputIndices = SplitMultiSampleVcf.single_sample_vcf_indices,
-        haplotypeDatabase = haplotype_database
+        haplotypeDatabase = haplotype_database,
+        basename = output_callset_name
     }
   }
 
@@ -128,7 +130,7 @@ task CrosscheckFingerprints {
     Array[File] firstInputIndices
     Array[File] secondInputIndices
     File haplotypeDatabase
-    String basename = output_callset_name
+    String basename
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
   }
 
