@@ -16,6 +16,9 @@ class ImputationInputs(inputs: String) {
   def getHaplotypeDatabase(workflowName: String): String =
     parsed.unsafeGet[String](s"$workflowName.haplotype_database")
 
+  def getOutputCallsetName(workflowName: String): String =
+    parsed.unsafeGet[String](s"$workflowName.output_callset_name")
+
   def getSplitOutputToSingleSample(workflowName: String): Boolean =
     parsed.unsafeGet[Boolean](s"$workflowName.split_output_to_single_sample")
 

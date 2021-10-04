@@ -23,6 +23,7 @@ workflow VerifyImputation {
   input {
     File haplotype_database
     Boolean split_output_to_single_sample
+    String output_callset_name
 
     Array[File] truth_metrics
     Array[File] test_metrics
@@ -127,7 +128,7 @@ task CrosscheckFingerprints {
     Array[File] firstInputIndices
     Array[File] secondInputIndices
     File haplotypeDatabase
-    String basename = "plumbing_test"
+    String basename = output_callset_name
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
   }
 
