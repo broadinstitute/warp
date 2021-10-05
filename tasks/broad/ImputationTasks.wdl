@@ -458,7 +458,7 @@ task StoreChunksInfo {
   output {
     File chunks_info = "~{basename}_chunk_info.tsv"
     File failed_chunks = "~{basename}_failed_chunks.tsv"
-    File n_failed_chunks_file = "n_failed_chunks.txt"
+    File n_failed_chunks = "n_failed_chunks.txt"
   }
 }
 
