@@ -459,7 +459,6 @@ task StoreChunksInfo {
     File chunks_info = "~{basename}_chunk_info.tsv"
     File failed_chunks = "~{basename}_failed_chunks.tsv"
     File n_failed_chunks_file = "n_failed_chunks.txt"
-    Int n_failed_chunks = read_int("n_failed_chunks.txt")
   }
 }
 
