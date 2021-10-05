@@ -852,7 +852,7 @@ class ConfigParser
           )
         },
       opt[String]('b', "branch")
-        .text("The branch of truth data to test against (Defaults to develop)")
+        .text("The branch of truth data to test against (Defaults to master)")
         .optional()
         .action { (branch, config) =>
           config.copy(

@@ -1,3 +1,8 @@
+# 1.11.6
+2021-10-01
+
+* Changed the way the version of autocall is returned for the case of arrays that fail gencall
+
 # 1.11.5
 2021-09-08
 

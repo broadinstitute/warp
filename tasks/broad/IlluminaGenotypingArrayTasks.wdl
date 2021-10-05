@@ -522,6 +522,13 @@ task AutoCall {
 
   String gtc_filename = "~{chip_well_barcode}.gtc"
 
+  # This is the autocall_version, It is normally output by autocall (gencall) itself, except for the case
+  # where autocall fails (likely due to normalization errors)
+  # In this case it no longer emits the version in its output, so we have it here so that it can be output and
+  # stored in the database.
+  # NB - this should be returned from the docker ideally.
+  String autocall_ver = "3.0.0"
+
   command <<<
     set -e
     rm -rf ~{chip_well_barcode}
@@ -550,6 +557,7 @@ task AutoCall {
 
   output {
     File gtc_file = gtc_filename
+    String autocall_version = autocall_ver
   }
 }
 

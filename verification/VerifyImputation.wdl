@@ -106,13 +106,13 @@ task CompareImputationMetrics {
     File truth_metrics
   }
   command <<<
-  set -eo pipefail
-  diff "~{test_metrics}" "~{truth_metrics}"
+    set -eo pipefail
+    diff "~{test_metrics}" "~{truth_metrics}"
 
-  if [ $? -ne 0 ];
-  then
-    echo "Error: ${test_metrics} and ${truth_metrics}  differ"
-  fi
+    if [ $? -ne 0 ];
+    then
+      echo "Error: ${test_metrics} and ${truth_metrics}  differ"
+    fi
   >>>
 
   runtime {
@@ -131,7 +131,7 @@ task CrosscheckFingerprints {
     Array[File] secondInputIndices
     File haplotypeDatabase
     String basename
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+    String picard_docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
   }
 
   Int disk_size = ceil(1.2*(size(firstInputs, "GiB") + size(secondInputs, "GiB") + size(haplotypeDatabase, "GiB"))) + 100
@@ -150,11 +150,16 @@ task CrosscheckFingerprints {
       ln -s ${array_indices2[i]} $(dirname ${array_vcfs2[i]})
     done
 
-    gatk CrosscheckFingerprints -I ~{sep=" -I " firstInputs} -SI ~{sep=" -SI " secondInputs} -H ~{haplotypeDatabase} -O ~{basename}.crosscheck
+    java -Xms3500m -jar /usr/picard/picard.jar \
+      CrosscheckFingerprints \
+      -I ~{sep=" -I " firstInputs} \
+      -SI ~{sep=" -SI " secondInputs} \
+      -H ~{haplotypeDatabase} \
+      -O ~{basename}.crosscheck
   >>>
 
   runtime {
-    docker: gatk_docker
+    docker: picard_docker
     disks: "local-disk " + disk_size + " HDD"
     memory: "8 GiB"
   }
