@@ -61,56 +61,25 @@ task CompareGvcfs {
   }
 
   command {
-    set -o pipefail
-
     exit_code=0
 
-    gunzip -c -f ~{test_gvcf} | grep -v '^##' > test.vcf 
-    gunzip -c -f ~{truth_gvcf} | grep -v '^##' > truth.vcf 
-
-    if cmp test.vcf truth.vcf; then
-      exit 0
-    fi
-
-    /usr/bin/diff test.vcf truth.vcf > gvcf_diff.txt
-
-    DIFF_LINES=$( grep -e "^<" gvcf_diff.txt | wc -l )
-
-    echo "$DIFF_LINES" > diff_lines_total.txt
-
+    DIFF_LINES=$(diff <(gunzip -c -f ~{test_gvcf} | grep -v '^##') <(gunzip -c -f ~{truth_gvcf} | grep -v '^##') | grep -e "^<" | wc -l)
     if [ $DIFF_LINES -ge 10 ]; then
       exit_code=1
-      
-      echo "Error: GVCF ~{test_gvcf} differs in content from ~{truth_gvcf} by $DIFF_LINES lines"
-      
-      cat test.vcf | cut -f 1-5,7 > test_quality.txt
-      cat truth.vcf | cut -f 1-5,7 > truth_quality.txt
-
-      /usr/bin/diff test_quality.txt truth_quality.txt > diff_quality.txt
-
-      DIFF_LINES_QUALITY=$( cat diff_quality.txt | grep -e "^<" | wc -l )
-
-      echo "$DIFF_LINES_QUALITY" > diff_lines_quality.txt
-
-      if [ $DIFF_LINES_QUALITY -eq 0 ]; then
-        echo "However they ONLY differ in the quality column"
+      echo "Error: GVCF ~{test_gvcf} differs in content from ~{truth_gvcf} by $DIFF_LINES lines" >&2
+      DIFF_LINES=$(diff <(gunzip -c -f ~{test_gvcf} | grep -v '^##' | cut -f 1-5,7-) <(gunzip -c -f ~{truth_gvcf} | grep -v '^##' | cut -f 1-5,7-) | grep -e "^<" | wc -l)
+      if [ $DIFF_LINES -eq 0 ]; then
+        echo "However they ONLY differ in the quality column" >&2
       fi
-
     fi
-
     exit $exit_code
   }
 
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 150 HDD"
-    memory: "75 GiB"
+    disks: "local-disk 70 HDD"
+    memory: "2 GiB"
     preemptible: 3
   }
-
-  output {
-    File? gvcf_diff = "gvcf_diff.txt"
-    File? diff_lines_total = "diff_lines_total.txt"
-    File? diff_lines_quality = "diff_lines_quality.txt"
-  }
+  
 }
