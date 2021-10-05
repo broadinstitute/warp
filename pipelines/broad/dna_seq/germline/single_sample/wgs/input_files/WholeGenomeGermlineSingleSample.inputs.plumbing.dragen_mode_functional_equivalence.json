@@ -61,5 +61,5 @@
     "agg_preemptible_tries": 3
   },
 
-  "WholeGenomeGermlineSingleSample.dragen_mode_functional_equivalence": true
+  "WholeGenomeGermlineSingleSample.dragen_functional_equivalency_mode": true
 }
