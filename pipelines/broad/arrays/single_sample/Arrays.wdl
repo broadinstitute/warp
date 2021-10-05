@@ -25,10 +25,6 @@ workflow Arrays {
 
   String pipeline_version = "2.4.3"
 
-  # This is the autocall_version, needed for the case where autocall fails (likely due to normalization errors)
-  # In this case it no longer emits the version in its output, so we store it here.
-  String autocall_version = "3.0.0"
-
   input {
     String chip_well_barcode
     Int? analysis_version_number
@@ -122,24 +118,10 @@ workflow Arrays {
 
   String service_account_filename = "service-account.json"
 
-  # Authorization block to be sourced by Mercury-accessing tasks.
-  # Sets up access to vault, key to read Mercury authentication, Mercury FP storage URL
-  Array[String] mercury_auth_block = [
-    "export VAULT_ADDR=https://clotho.broadinstitute.org:8200",
-    "export VAULT_TOKEN=~{read_lines(vault_token_path)[0]}",
-    "if [ ~{environment} == prod ]; then",
-    "  export MERCURY_AUTH_KEY=secret/dsde/gotc/prod/wdl/secrets",
-    "  export MERCURY_FP_STORE_URI=https://portals.broadinstitute.org/portal/mercury-ws/fingerprint",
-    "else",
-    "  export MERCURY_AUTH_KEY=secret/dsde/gotc/dev/wdl/secrets",
-    "  export MERCURY_FP_STORE_URI=https://portals.broadinstitute.org/portal-test/mercury-ws/fingerprint",
-    "fi"]
-
   # Authorization block to be sourced by tasks that access cloud SQL database
   # Sets up access to vault, reads authentication information from vault, sets permissions for accessing cloud sql.
   Array[String] authentication_block = [
     "export VAULT_ADDR=https://clotho.broadinstitute.org:8200",
-    "export VAULT_TOKEN=~{read_lines(vault_token_path)[0]}",
     "declare -r secrets=secret/dsde/gotc/~{environment}/metrics/wdl/secrets",
     "for field in user password jdbc_string",
     "do",
@@ -304,6 +286,7 @@ workflow Arrays {
       input:
         chip_well_barcode = chip_well_barcode,
         preemptible_tries = preemptible_tries,
+        vault_token_path = vault_token_path,
         authentication = authentication_block,
         service_account_filename = service_account_filename
     }
@@ -327,8 +310,9 @@ workflow Arrays {
         ref_fasta = ref_fasta,
         ref_fasta_index = ref_fasta_index,
         ref_dict = ref_dict,
-        preemptible_tries = preemptible_tries,
-        source_block = mercury_auth_block
+        environment = environment,
+        vault_token_path = vault_token_path,
+        preemptible_tries = preemptible_tries
     }
   }
 
@@ -339,6 +323,7 @@ workflow Arrays {
       params_file = select_first([CreateChipWellBarcodeParamsFile.params_file, params_file]),
       disk_size = disk_size,
       preemptible_tries = preemptible_tries,
+      vault_token_path = vault_token_path,
       authentication = authentication_block,
       service_account_filename = service_account_filename
   }
@@ -347,7 +332,6 @@ workflow Arrays {
 
   call IlluminaGenotyping.IlluminaGenotypingArray as IlluminaGenotypingArray {
     input:
-      autocall_version = autocall_version,
       sample_alias = sample_alias,
       analysis_version_number = analysis_version,
       call_rate_threshold = call_rate_threshold,
@@ -388,18 +372,19 @@ workflow Arrays {
         sample_alias = sample_alias,
         chip_type = chip_type,
         reported_gender = reported_gender,
-        autocall_version = autocall_version,
+        autocall_version = IlluminaGenotypingArray.autocall_version,
         output_metrics_basename = sample_alias,
         cluster_filename = egt_filename,
         analysis_version_number = analysis_version,
         preemptible_tries = preemptible_tries
     }
 
-    call InternalArraysTasks.UploadArraysMetrics as UploadEmptyArraysMetrics {
+    call InternalArraysTasks.UploadEmptyArraysMetrics {
       input:
         arrays_variant_calling_detail_metrics = GenerateEmptyVariantCallingMetricsFile.detail_metrics,
         disk_size = disk_size,
         preemptible_tries = preemptible_tries,
+        vault_token_path = vault_token_path,
         authentication = authentication_block,
         service_account_filename = service_account_filename
     }
@@ -412,6 +397,7 @@ workflow Arrays {
         preemptible_tries = preemptible_tries,
         reason = "DATA_QUALITY",
         notes = "Normalization Failed",
+        vault_token_path = vault_token_path,
         authentication = authentication_block,
         service_account_filename = service_account_filename
     }
@@ -435,8 +421,9 @@ workflow Arrays {
         input:
           fingerprint_json_file = VcfToMercuryFingerprintJson.output_json_file,
           gtc_file = IlluminaGenotypingArray.gtc,
-          preemptible_tries = preemptible_tries,
-          source_block = mercury_auth_block
+          environment = environment,
+          vault_token_path = vault_token_path,
+          preemptible_tries = preemptible_tries
       }
     }
 
@@ -453,8 +440,8 @@ workflow Arrays {
     call InternalArraysTasks.UploadArraysMetrics {
       input:
         arrays_variant_calling_detail_metrics = select_first([IlluminaGenotypingArray.arrays_variant_calling_detail_metrics]),
-        arrays_variant_calling_summary_metrics = IlluminaGenotypingArray.arrays_variant_calling_summary_metrics,
-        arrays_control_code_summary_metrics = IlluminaGenotypingArray.arrays_variant_calling_control_metrics,
+        arrays_variant_calling_summary_metrics = select_first([IlluminaGenotypingArray.arrays_variant_calling_summary_metrics]),
+        arrays_control_code_summary_metrics = select_first([IlluminaGenotypingArray.arrays_variant_calling_control_metrics]),
         fingerprinting_detail_metrics = IlluminaGenotypingArray.fingerprint_detail_metrics,
         fingerprinting_summary_metrics = IlluminaGenotypingArray.fingerprint_summary_metrics,
         genotype_concordance_summary_metrics = IlluminaGenotypingArray.genotype_concordance_summary_metrics,
@@ -464,6 +451,7 @@ workflow Arrays {
         bafregress_metrics = CreateBafRegressMetricsFile.output_metrics_file,
         disk_size = disk_size,
         preemptible_tries = preemptible_tries,
+        vault_token_path = vault_token_path,
         authentication = authentication_block,
         service_account_filename = service_account_filename
     }
@@ -477,6 +465,7 @@ workflow Arrays {
           preemptible_tries = preemptible_tries,
           reason = "GENOTYPE_CONCORDANCE",
           notes = "Genotype concordance below threshold: ~{genotype_concordance_threshold}",
+          vault_token_path = vault_token_path,
           authentication = authentication_block,
           service_account_filename = service_account_filename
       }
@@ -492,6 +481,7 @@ workflow Arrays {
           preemptible_tries = preemptible_tries,
           reason = "SAMPLE_MIXUP",
           notes = "Fingerprint LOD below -3.0",
+          vault_token_path = vault_token_path,
           authentication = authentication_block,
           service_account_filename = service_account_filename
       }
