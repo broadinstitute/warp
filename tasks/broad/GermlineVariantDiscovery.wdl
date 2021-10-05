@@ -92,7 +92,7 @@ task HaplotypeCaller_GATK4_VCF {
     Boolean make_bamout
     Int preemptible_tries
     Int hc_scatter
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.2.0"
   }
 
   String output_suffix = if make_gvcf then ".g.vcf.gz" else ".vcf.gz"
