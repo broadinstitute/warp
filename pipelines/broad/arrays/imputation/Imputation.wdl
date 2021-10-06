@@ -43,7 +43,7 @@ workflow Imputation {
     String vcf_index_suffix = ".vcf.gz.tbi"
     String bcf_suffix = ".bcf"
     String bcf_index_suffix =  ".bcf.csi"
-    String m3vcf_suffix = ".m3vcf.gz"
+    String m3vcf_suffix = ".cleaned.m3vcf.gz"
   }
   # Docker images here
   String bcftools_docker_tag = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
