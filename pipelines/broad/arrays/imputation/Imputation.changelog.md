@@ -1,5 +1,4 @@
 # 1.0.0
-
 2021-09-29 (Date of Last Commit)
 
 * Initial public release of the Imputation pipeline. Read more in the [Imputation pipeline overview](https://broadinstitute.github.io/warp/docs/Pipelines/Imputation_Pipeline/README).

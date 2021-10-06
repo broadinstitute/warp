@@ -4,7 +4,7 @@ import "../../../../structs/imputation/ImputationStructs.wdl" as structs
 import "../../../../tasks/broad/ImputationTasks.wdl" as tasks
 import "../../../../tasks/broad/Utilities.wdl" as utils
 
-workflow ImputationPipeline {
+workflow Imputation {
 
   String pipeline_version = "1.0.0"
 
@@ -319,11 +319,13 @@ workflow ImputationPipeline {
       basename = output_callset_name,
       rtidyverse_docker = rtidyverse_docker_tag
   }
+  
+  Int n_failed_chunks_int = read_int(StoreChunksInfo.n_failed_chunks)
 
-  if (StoreChunksInfo.n_failed_chunks >= chunks_fail_threshold) {
+  if (n_failed_chunks_int >= chunks_fail_threshold) {
     call utils.ErrorWithMessage as FailQCNChunks {
       input:
-        message = StoreChunksInfo.n_failed_chunks + " chunks failed imputation, QC threshold was set to " + chunks_fail_threshold
+        message = n_failed_chunks_int + " chunks failed imputation, QC threshold was set to " + chunks_fail_threshold
     }
   }
 
@@ -344,6 +346,6 @@ workflow ImputationPipeline {
     File aggregated_imputation_metrics = MergeImputationQCMetrics.aggregated_metrics
     File chunks_info = StoreChunksInfo.chunks_info
     File failed_chunks = StoreChunksInfo.failed_chunks
-    Int n_failed_chunks = StoreChunksInfo.n_failed_chunks
+    File n_failed_chunks = StoreChunksInfo.n_failed_chunks
   }
 }
