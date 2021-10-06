@@ -458,7 +458,7 @@ task StoreChunksInfo {
   output {
     File chunks_info = "~{basename}_chunk_info.tsv"
     File failed_chunks = "~{basename}_failed_chunks.tsv"
-    Int n_failed_chunks = read_int("n_failed_chunks.txt")
+    File n_failed_chunks = "n_failed_chunks.txt"
   }
 }
 
@@ -560,9 +560,9 @@ task SelectVariantsByIds {
 
   parameter_meta {
     vcf: {
-         description: "vcf",
-         localization_optional: true
-       }
+      description: "vcf",
+      localization_optional: true
+    }
   }
 
   command <<<
@@ -662,7 +662,7 @@ task SplitMultiSampleVcf {
   input {
     File multiSampleVcf
     Int mem = 8
-    Int bcftools_docker
+    Int bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
   }
 
   Int disk_size = ceil(3*size(multiSampleVcf, "GiB")) + 100
@@ -684,47 +684,5 @@ task SplitMultiSampleVcf {
   output {
     Array[File] single_sample_vcfs = glob("out_dir/*.vcf.gz")
     Array[File] single_sample_vcf_indices = glob("out_dir/*.vcf.gz.tbi")
-  }
-}
-
-task CrosscheckFingerprints {
-  input {
-    Array[File] firstInputs
-    Array[File] secondInputs
-    Array[File] firstInputIndices
-    Array[File] secondInputIndices
-    File haplotypeDatabase
-    String basename
-    Int mem = 8
-    String gatk_docker
-  }
-
-  Int disk_size = ceil(1.2*(size(firstInputs, "GiB") + size(secondInputs, "GiB") + size(haplotypeDatabase, "GiB"))) + 100
-
-  command <<<
-    # add links to ensure correctly located indices
-    array_vcfs=( ~{sep=" " firstInputs} )
-    array_indices=( ~{sep=" " firstInputIndices} )
-    for i in ${!array_vcfs[@]}; do
-      ln -s ${array_indices[i]} $(dirname ${array_vcfs[i]})
-    done
-
-    array_vcfs2=( ~{sep=" " secondInputs} )
-    array_indices2=( ~{sep=" " secondInputIndices} )
-    for i in ${!array_vcfs2[@]}; do
-      ln -s ${array_indices2[i]} $(dirname ${array_vcfs2[i]})
-    done
-
-    gatk CrosscheckFingerprints -I ~{sep=" -I " firstInputs} -SI ~{sep=" -SI " secondInputs} -H ~{haplotypeDatabase} -O ~{basename}.crosscheck
-  >>>
-
-  runtime {
-    docker: gatk_docker
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "16 GiB"
-  }
-
-  output {
-    File crosscheck = "~{basename}.crosscheck"
   }
 }
