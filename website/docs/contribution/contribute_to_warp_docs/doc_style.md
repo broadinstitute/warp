@@ -190,7 +190,7 @@ This is a tip without title!
 :::
 
 ```md
-:::tip
+:::tip TITLE
 This is a tip with a title!
 :::
 ```
@@ -200,8 +200,8 @@ This is a tip with a title!
 :::
 
 
-```md WARNING
-:::caution
+```md
+:::caution WARNING
 This is a warning!
 :::
 ```

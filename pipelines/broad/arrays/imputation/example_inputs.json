@@ -1,0 +1,36 @@
+{
+  "ImputationPipeline.single_sample_vcfs": [
+    "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370027_R02C01.vcf.gz",
+    "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370027_R12C02.vcf.gz",
+    "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370134_R12C02.vcf.gz"
+  ],
+  "ImputationPipeline.single_sample_vcf_indices":[
+    "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370027_R02C01.vcf.gz.tbi",
+    "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370027_R12C02.vcf.gz.tbi",
+    "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370134_R12C02.vcf.gz.tbi"
+  ],
+
+  "ImputationPipeline.ref_dict": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict",
+  "ImputationPipeline.reference_panel_path": "gs://broad-gotc-test-storage/imputation/1000G_reference_panel/",
+  "ImputationPipeline.contigs": [ "21", "22" ],
+  "ImputationPipeline.genetic_maps_eagle": "gs://broad-gotc-test-storage/imputation/eagle_genetic_map/genetic_map_hg19_withX.txt.gz",
+  "ImputationPipeline.output_callset_name": "plumbing_test",
+  "ImputationPipeline.split_output_to_single_sample": false,
+  "ImputationPipeline.haplotype_database": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt",
+  "ImputationPipeline.perform_extra_qc_steps": false,
+  "ImputationPipeline.optional_qc_max_missing": 0.05,
+  "ImputationPipeline.optional_qc_hwe": 0.000001
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

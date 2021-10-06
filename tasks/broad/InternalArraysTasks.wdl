@@ -43,6 +43,7 @@ task BlacklistBarcode {
     String chip_well_barcode
     Int analysis_version_number
     Int preemptible_tries
+    File vault_token_path
     Array[String] authentication
     String service_account_filename
     String reason
@@ -56,6 +57,7 @@ task BlacklistBarcode {
   command <<<
     set -eo pipefail
 
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
     AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
     export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
 
@@ -164,8 +166,8 @@ task CreateBafRegressMetricsFile {
 task UploadArraysMetrics {
   input {
     File arrays_variant_calling_detail_metrics
-    File? arrays_variant_calling_summary_metrics
-    File? arrays_control_code_summary_metrics
+    File arrays_variant_calling_summary_metrics
+    File arrays_control_code_summary_metrics
     File? fingerprinting_detail_metrics
     File? fingerprinting_summary_metrics
     File? genotype_concordance_summary_metrics
@@ -174,6 +176,7 @@ task UploadArraysMetrics {
     File? verify_id_metrics
     File? bafregress_metrics
 
+    File vault_token_path
     Array[String] authentication
     String service_account_filename
 
@@ -188,13 +191,18 @@ task UploadArraysMetrics {
   command <<<
     set -eo pipefail
 
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
     AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
     export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
 
     rm -rf metrics_upload_dir &&
     mkdir metrics_upload_dir &&
 
-    # check that files are passed in before copying them -- [ -z FILE ] evaluates to true if FILE not there
+    cp ~{arrays_control_code_summary_metrics} metrics_upload_dir
+    cp ~{arrays_variant_calling_detail_metrics} metrics_upload_dir
+    cp ~{arrays_variant_calling_summary_metrics} metrics_upload_dir
+
+    # check that optional files exist before copying them -- [ -z FILE ] evaluates to true if FILE not there
     ! [ -z ~{genotype_concordance_summary_metrics} ] &&
     cp ~{genotype_concordance_summary_metrics} metrics_upload_dir
     ! [ -z ~{genotype_concordance_detail_metrics} ] &&
@@ -211,12 +219,6 @@ task UploadArraysMetrics {
     ! [ -z ~{fingerprinting_summary_metrics} ] &&
     cp ~{fingerprinting_summary_metrics} metrics_upload_dir
 
-    cp ~{arrays_variant_calling_detail_metrics} metrics_upload_dir
-    ! [ -z ~{arrays_variant_calling_summary_metrics} ] &&
-    cp ~{arrays_variant_calling_summary_metrics} metrics_upload_dir
-
-    ! [ -z ~{arrays_control_code_summary_metrics} ] &&
-    cp ~{arrays_control_code_summary_metrics} metrics_upload_dir
     java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
       UploadArraysMetrics \
       --ANALYSIS_DIRECTORY metrics_upload_dir \
@@ -236,6 +238,55 @@ task UploadArraysMetrics {
   output {
       File upload_metrics_empty_file = "empty_file_for_dependency"
     }
+}
+
+task UploadEmptyArraysMetrics {
+  input {
+    File arrays_variant_calling_detail_metrics
+
+    File vault_token_path
+    Array[String] authentication
+    String service_account_filename
+
+    Int disk_size
+    Int preemptible_tries
+  }
+
+  meta {
+    volatile: true
+  }
+
+  command <<<
+    set -eo pipefail
+
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
+    AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
+    export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
+
+    rm -rf metrics_upload_dir &&
+    mkdir metrics_upload_dir &&
+
+    cp ~{arrays_variant_calling_detail_metrics} metrics_upload_dir
+
+    java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+    UploadArraysMetrics \
+    --ANALYSIS_DIRECTORY metrics_upload_dir \
+    --DB_USERNAME_FILE cloudsql.db_user.txt \
+    --DB_PASSWORD_FILE cloudsql.db_password.txt \
+    --DB_JDBC_FILE cloudsql.db_jdbc.txt &&
+    touch empty_file_for_dependency
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "3.5 GiB"
+    preemptible: preemptible_tries
+  }
+
+  output {
+    File upload_metrics_empty_file = "empty_file_for_dependency"
+  }
 }
 
 task CreateChipWellBarcodeParamsFile {
@@ -299,6 +350,7 @@ task CreateChipWellBarcodeParamsFile {
 task UpdateChipWellBarcodeIndex {
   input {
     File params_file
+    File vault_token_path
     Array[String] authentication
     String service_account_filename
     Int disk_size
@@ -312,6 +364,7 @@ task UpdateChipWellBarcodeIndex {
   command <<<
     set -eo pipefail
 
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
     AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
     export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
     java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
@@ -335,6 +388,7 @@ task GetNextArraysQcAnalysisVersionNumber {
   input {
     String chip_well_barcode
     Int preemptible_tries
+    File vault_token_path
     Array[String] authentication
     String service_account_filename
   }
@@ -346,6 +400,7 @@ task GetNextArraysQcAnalysisVersionNumber {
   command <<<
     set -eo pipefail
 
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
     AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
     export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
 
@@ -364,5 +419,74 @@ task GetNextArraysQcAnalysisVersionNumber {
   }
   output {
     Int analysis_version_number = read_int(stdout())
+  }
+}
+
+task ResolveExtendedIlluminaManifestFile {
+  input {
+    File extended_manifest_map_file
+    String bpm_filename
+    String egt_filename
+    String arrays_chip_metadata_path
+    Int preemptible_tries
+  }
+
+  command <<<
+    cat ~{extended_manifest_map_file} | grep -v '^#' | grep -E '^~{bpm_filename}\s+~{egt_filename}' | cut -f 3 > output_file.txt
+    if [[ ! -s output_file.txt ]]
+    then
+      echo "ERROR: Unable to find entry in ~{extended_manifest_map_file} for ~{bpm_filename} / ~{egt_filename}" 1>&2
+      exit 1
+    elif [[ $(cat output_file.txt | wc -l) -ne 1 ]]
+    then
+      echo "ERROR: Found more than one entry in ~{extended_manifest_map_file} for ~{bpm_filename} / ~{egt_filename}" 1>&2
+      exit 1
+    fi
+  >>>
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    preemptible: preemptible_tries
+  }
+  output {
+    String extended_illumina_manifest_file = arrays_chip_metadata_path + read_string("output_file.txt")
+  }
+}
+
+task ResolveMinorAlleleFrequencyFile {
+  input {
+    File minor_allele_frequency_map_file
+    String bpm_filename
+    String arrays_chip_metadata_path
+    Int preemptible_tries
+  }
+
+  command <<<
+    cat ~{minor_allele_frequency_map_file} | grep -v '^#' | grep ~{bpm_filename} | cut -f 2 > output_file.txt
+    if [[ ! -s output_file.txt ]]
+    then
+      echo "Unable to find entry in ~{minor_allele_frequency_map_file} for ~{bpm_filename}"
+      echo false > found.txt
+      exit 0
+    elif [[ $(cat output_file.txt | wc -l) -ne 1 ]]
+    then
+      echo "ERROR: Found more than one entry in ~{minor_allele_frequency_map_file} for ~{bpm_filename}" 1>&2
+      echo false > found.txt
+      exit 1
+    fi
+    echo true > found.txt
+  >>>
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    preemptible: preemptible_tries
+  }
+  output {
+    Boolean found = read_boolean("found.txt")
+    String minor_allele_frequency_file = arrays_chip_metadata_path + read_string("output_file.txt")
   }
 }

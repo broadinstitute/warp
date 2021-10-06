@@ -1,6 +1,13 @@
-# 1.11.5
-2021-08-25
+# 1.11.6
+2021-10-01
+
+* Changed the way the version of autocall is returned for the case of arrays that fail gencall
 * Updated Illumina IAAP Autocall and Zcall docker images to address critical vulnerability
+
+# 1.11.5
+2021-09-08
+
+* Changed default threshold for passing control (HapMap) genotype concordance from 0.98 to 0.95
 
 # 1.11.4
 2021-08-10

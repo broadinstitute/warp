@@ -1,12 +1,13 @@
 # 1.13.4
-2021-09-07
+2021-10-01
 
 * Task wdls used by Validate chip were updated with changes that don't affect ValidateChip wdl
 * Updated Illumina IAAP Autocall docker image to address critical vulnerability
 * Changed arrays-picard-private hash and pull from correct artifactory
+* Task wdls used by ValidateChip were updated with changes that don't affect ValidateChip wdl
 
 # 1.13.3
-2021-08-31
+2021-09-09
 
 * Set the volatile=true flag for several internal tasks so they will not use call-caching
 

@@ -18,7 +18,7 @@ It is an alignment and transcriptome quantification pipeline that corrects cell 
 
 **In addition to providing commonly used metrics such as empty drop detection and mitochondrial reads, Optimus takes special care to keep all reads in the output BAM that may be useful to the downstream user**, such as unaligned reads or reads with uncorrectable barcodes. This design provides flexibility to the downstream user and allows for alternative filtering or leveraging the data for novel methodological development. 
 
-Optimus has been validated for analyzing both human and mouse single-cell or single-nucleus datasets. Learn more in the [validation section](#validation-against-cell-ranger).
+Optimus has been validated for analyzing both human and mouse single-cell or single-nucleus datasets. It is currently optimized for samples less than 100 GB. Learn more in the [validation section](#validation-against-cell-ranger).
 
 :::tip Want to use the Optimus pipeline for your publication?
 Check out the [Optimus Publication Methods](./optimus.methods.md) to get started!
@@ -63,11 +63,13 @@ Additionally, there are multiple full-size example datasets available in the [te
 
 #### Sample data input
 
-Each 10x v2 and v3 3’ sequencing experiment generates triplets of FASTQ files for any given sample:
+Each 10x v2 and v3 3’ sequencing experiment generates triplets of FASTQ files for any given sample. Optimus takes the FASTQs list below as input. The pipeline is optimized for samples under 100 GB. To run larger samples, increasing the memory (the `machine_mem_mb` attribute) on the STARsoloFastq task. 
+. 
 
 1. Forward reads (`r1_fastq`) containing the unique molecular identifier (UMI) and cell barcode sequences
 2. Reverse reads (`r2_fastq`) containing the alignable genomic information from the mRNA transcript
 3. Optional index FASTQ (`i1_fastq`) containing the sample barcodes, when provided by the sequencing facility
+
 
 :::tip Optimus is currently a single sample pipeline
 
@@ -82,7 +84,7 @@ The JSON file also contains metadata for the reference information in the follow
 | Parameter name | Description | Optional strings (when applicable) |
 | --- | --- | --- |
 | whitelist | Cloud path to list of known CBs from [10x Genomics](https://www.10xgenomics.com/) that corresponds to the v2 or v3 chemistry. | NA |
-| tar_star_reference | Cloud path to TAR file containing a species-specific reference genome and gtf; it is generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_indices/BuildIndices.wdl). | NA |
+| tar_star_reference | Cloud path to TAR file containing a species-specific reference genome and GTF; it is generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_indices/BuildIndices.wdl). | NA |
 | input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | NA |
 | input_name | Optional string that can be used to further identify the original biological sample. | NA |
 | input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the input_id. | NA |
@@ -97,7 +99,7 @@ The JSON file also contains metadata for the reference information in the follow
 
 #### Sample inputs for analyses in a Terra Workspace
 
-The Optimus pipeline is currently available on the cloud-based platform Terra. After registering,, you can access the Featured Workspace using this address: [https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline](https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline). The workspace is preloaded with instructions and sample data. Please view the [Support Center](https://support.terra.bio/hc/en-us) for more information on using the Terra platform.
+The Optimus pipeline is currently available on the cloud-based platform Terra. After registering, you can access the Featured Workspace using this address: [https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline](https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline). The workspace is preloaded with instructions and sample data. Please view the [Support Center](https://support.terra.bio/hc/en-us) for more information on using the Terra platform.
 
 ## Optimus tasks and tools
 
@@ -309,5 +311,6 @@ For three reasons:
 
 3) Addition of metrics. We wanted the pipeline to calculate key metrics that would be useful to the scientific community, such as emptyDrops calculations, mitochondrial read metrics, etc.
 :::
+
 
 
