@@ -2,6 +2,7 @@
 2021-10-01
 
 * Changed the way the version of autocall is returned for the case of arrays that fail gencall
+* Updated Illumina IAAP Autocall and Zcall docker images to address critical vulnerability
 
 # 1.11.5
 2021-09-08
@@ -12,6 +13,7 @@
 2021-08-10
 
 * Updated GtcToVcf task in IlluminaGenotypingArrayTasks to escape fingerprint file names.
+* Updated Illumina IAAP Autocall to alpine base image
 
 # 1.11.3
 2021-08-02
@@ -19,9 +21,9 @@
 * Increased the version number to make new release tag for Dockstore 
 
 # 1.11.2
-2021-07-13
+2021-07-19
 
-* Make chip_well_barcode and analysis_version_number available as outputs of the WDL
+* Make chip_well_barcode and analysis_version_number available as outputs of the WDL.
 
 # 1.11.1
 2021-05-19
