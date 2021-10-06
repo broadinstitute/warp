@@ -17,13 +17,14 @@ object WorkflowTestType extends Enum[WorkflowTestType] {
   case object Dummy extends WorkflowTestType
   case object ExternalReprocessing extends WorkflowTestType
   case object GDCWholeGenomeSomaticSingleSample extends WorkflowTestType
-  case object JointGenotyping extends WorkflowTestType
   case object GenotypeConcordance extends WorkflowTestType
   case object GermlineSingleSample extends WorkflowTestType
+  case object IlluminaGenotypingArray extends WorkflowTestType
+  case object Imputation extends WorkflowTestType
+  case object JointGenotyping extends WorkflowTestType
   case object Reprocessing extends WorkflowTestType
   case object ReblockGvcf extends WorkflowTestType
   case object SomaticSingleSample extends WorkflowTestType
   case object ValidateChip extends WorkflowTestType
-  case object IlluminaGenotypingArray extends WorkflowTestType
   case object VariantCalling extends WorkflowTestType
 }
