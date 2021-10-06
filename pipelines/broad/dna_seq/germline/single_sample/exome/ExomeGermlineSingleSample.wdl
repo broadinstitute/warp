@@ -39,8 +39,7 @@ import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 # WORKFLOW DEFINITION
 workflow ExomeGermlineSingleSample {
 
-
-  String pipeline_version = "2.4.7"
+  String pipeline_version = "2.5.0"
 
   input {
     PapiSettings papi_settings

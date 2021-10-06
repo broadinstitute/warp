@@ -1,0 +1,4 @@
+DOCKER_VERSION
+
+us.gcr.io/broad-gotc-prod/gatk:1.0.0-1625076597
+us.gcr.io/broad-gotc-prod/gatk:1.0.0-4.1.8.0-1626439571

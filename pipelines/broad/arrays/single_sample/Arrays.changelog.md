@@ -30,6 +30,11 @@
     * product_part_number
 * Set the volatile=true flag for several internal tasks so they will not use call-caching
 
+# 2.4.1
+2021-08-25
+* Updated arrays-picard-private docker image to address critical vulnerability
+* Changed arrays-picard-private hash and pull from correct artifactory
+
 # 2.4.0
 2021-08-05
 
@@ -58,10 +63,11 @@
 * Set default call rate threshold of pipeline to 0.98
 
 # 2.3.2
-2021-07-13
+2021-7-19
 
+* Updated Illumina IAAP Autocall to alpine base image
 * Make chip_well_barcode and analysis_version_number available as outputs of the WDL.
-
+  
 # 2.3.1
 2021-05-19
 
