@@ -42,6 +42,8 @@ workflow VerifyImputation {
     Array[File]? single_sample_test_vcf_indices
   }
 
+  String bcftools_docker_tag = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+
   scatter (idx in range(length(truth_metrics))) {
     call CompareImputationMetrics {
       input:
@@ -79,7 +81,8 @@ workflow VerifyImputation {
   if (split_output_to_single_sample) {
     call ImputationTasks.SplitMultiSampleVcf {
       input:
-        multiSampleVcf = test_vcf
+        multiSampleVcf = test_vcf,
+        bcftools_docker = bcftools_docker_tag
     }
 
     call CrosscheckFingerprints as CrosscheckFingerprintsSplit {
