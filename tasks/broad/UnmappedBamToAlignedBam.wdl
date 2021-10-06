@@ -81,7 +81,7 @@ workflow UnmappedBamToAlignedBam {
           bwa_commandline = bwa_commandline,
           output_bam_basename = unmapped_bam_basename + ".aligned.unsorted",
           reference_fasta = references.reference_fasta,
-          dragmap_reference = select_first([dragmap_reference]),
+          dragmap_reference = dragmap_reference,
           compression_level = compression_level,
           preemptible_tries = papi_settings.preemptible_tries,
           hard_clip_reads = hard_clip_reads,
