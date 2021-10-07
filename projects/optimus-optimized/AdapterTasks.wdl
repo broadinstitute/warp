@@ -273,7 +273,7 @@ task GetLinksFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(analysis_process_path, "MiB")) * 2) + 1000
+    Int memory_mb = ceil((size(analysis_process_path, "MiB")) * 2) + 2000
     Int disk_size_gb = ceil((size(analysis_process_path, "GiB")) * 2) + 3
   }
 
