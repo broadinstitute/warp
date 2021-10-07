@@ -498,7 +498,7 @@ workflow Arrays {
     File? output_vcf = IlluminaGenotypingArray.output_vcf
     File? output_vcf_index = IlluminaGenotypingArray.output_vcf_index
     File? baf_regress_metrics_file = CreateBafRegressMetricsFile.output_metrics_file
-    File? ContaminationMetricsFile = IlluminaGenotypingArray.contamination_metrics
+    File? contamination_metrics_file = IlluminaGenotypingArray.contamination_metrics
     File? reference_fingerprint_vcf = DownloadGenotypes.reference_fingerprint_vcf
     File? reference_fingerprint_vcf_index = DownloadGenotypes.reference_fingerprint_vcf_index
     File? output_fingerprint_vcf = IlluminaGenotypingArray.output_fingerprint_vcf
