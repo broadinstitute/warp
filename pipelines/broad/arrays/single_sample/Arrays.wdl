@@ -23,7 +23,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Arrays {
 
-  String pipeline_version = "2.4.3"
+  String pipeline_version = "2.5.0"
 
   input {
     String chip_well_barcode
@@ -489,33 +489,33 @@ workflow Arrays {
   }
 
   output {
-    String ChipWellBarcodeOutput = IlluminaGenotypingArray.chip_well_barcode_output
-    Int AnalysisVersionNumberOutput = IlluminaGenotypingArray.analysis_version_number_output
-    File GtcFile = IlluminaGenotypingArray.gtc
-    File RedIdatMd5CloudPath = IlluminaGenotypingArray.red_idat_md5_cloud_path
-    File GreenIdatMd5CloudPath = IlluminaGenotypingArray.green_idat_md5_cloud_path
-    File? OutputVcfMd5CloudPath = IlluminaGenotypingArray.output_vcf_md5_cloud_path
-    File? OutputVcfFile = IlluminaGenotypingArray.output_vcf
-    File? OutputVcfIndexFile = IlluminaGenotypingArray.output_vcf_index
-    File? BafRegressMetricsFile = CreateBafRegressMetricsFile.output_metrics_file
+    String chip_well_barcode_output = IlluminaGenotypingArray.chip_well_barcode_output
+    Int analysis_version_number_output = IlluminaGenotypingArray.analysis_version_number_output
+    File gtc_file = IlluminaGenotypingArray.gtc
+    File red_idat_md5_cloud_path = IlluminaGenotypingArray.red_idat_md5_cloud_path
+    File green_idat_md5_cloud_path = IlluminaGenotypingArray.green_idat_md5_cloud_path
+    File? output_vcf_md5_cloud_path = IlluminaGenotypingArray.output_vcf_md5_cloud_path
+    File? output_vcf = IlluminaGenotypingArray.output_vcf
+    File? output_vcf_index = IlluminaGenotypingArray.output_vcf_index
+    File? baf_regress_metrics_file = CreateBafRegressMetricsFile.output_metrics_file
     File? ContaminationMetricsFile = IlluminaGenotypingArray.contamination_metrics
-    File? ReferenceFingerprintVcf = DownloadGenotypes.reference_fingerprint_vcf
-    File? ReferenceFingerprintVcfIndex = DownloadGenotypes.reference_fingerprint_vcf_index
-    File? OutputFingerprintVcfFile = IlluminaGenotypingArray.output_fingerprint_vcf
-    File? OutputFingerprintVcfIndexFile = IlluminaGenotypingArray.output_fingerprint_vcf_index
-    File? OutputFingerprintJsonFile = VcfToMercuryFingerprintJson.output_json_file
-    File ArraysVariantCallingDetailMetricsFile = select_first([IlluminaGenotypingArray.arrays_variant_calling_detail_metrics, GenerateEmptyVariantCallingMetricsFile.detail_metrics])
-    File? ArraysVariantCallingSummaryMetricsFile = IlluminaGenotypingArray.arrays_variant_calling_summary_metrics
-    File? ArraysVariantCallingControlMetricsFile = IlluminaGenotypingArray.arrays_variant_calling_control_metrics
-    File? ArraysSubsetVariantCallingDetailMetricsFile = IlluminaGenotypingArray.arrays_subset_variant_calling_detail_metrics
-    File? ArraysSubsetVariantCallingSummaryMetricsFile = IlluminaGenotypingArray.arrays_subset_variant_calling_summary_metrics
-    File? ArraysSubsetVariantCallingControlMetricsFile = IlluminaGenotypingArray.arrays_subset_variant_calling_control_metrics
-    File? FingerprintDetailMetricsFile = IlluminaGenotypingArray.fingerprint_detail_metrics
-    File? FingerprintSummaryMetricsFile = IlluminaGenotypingArray.fingerprint_summary_metrics
-    File? GenotypeConcordanceSummaryMetricsFile = IlluminaGenotypingArray.genotype_concordance_summary_metrics
-    File? GenotypeConcordanceDetailMetricsFile  = IlluminaGenotypingArray.genotype_concordance_detail_metrics
-    File? GenotypeConcordanceContingencyMetricsFile = IlluminaGenotypingArray.genotype_concordance_contingency_metrics
-    File ChipWellBarcodeParamsFile = select_first([CreateChipWellBarcodeParamsFile.params_file, params_file])
+    File? reference_fingerprint_vcf = DownloadGenotypes.reference_fingerprint_vcf
+    File? reference_fingerprint_vcf_index = DownloadGenotypes.reference_fingerprint_vcf_index
+    File? output_fingerprint_vcf = IlluminaGenotypingArray.output_fingerprint_vcf
+    File? output_fingerprint_vcf_index = IlluminaGenotypingArray.output_fingerprint_vcf_index
+    File? output_fingerprint_json_file = VcfToMercuryFingerprintJson.output_json_file
+    File arrays_variant_calling_detail_metrics_file = select_first([IlluminaGenotypingArray.arrays_variant_calling_detail_metrics, GenerateEmptyVariantCallingMetricsFile.detail_metrics])
+    File? arrays_variant_calling_summary_metrics_file = IlluminaGenotypingArray.arrays_variant_calling_summary_metrics
+    File? arrays_variant_calling_control_metrics_file = IlluminaGenotypingArray.arrays_variant_calling_control_metrics
+    File? arrays_subset_variant_calling_detail_metrics_file = IlluminaGenotypingArray.arrays_subset_variant_calling_detail_metrics
+    File? arrays_subset_variant_calling_summary_metrics_file = IlluminaGenotypingArray.arrays_subset_variant_calling_summary_metrics
+    File? arrays_subset_variant_calling_control_metrics_file = IlluminaGenotypingArray.arrays_subset_variant_calling_control_metrics
+    File? fingerprint_detail_metrics_file = IlluminaGenotypingArray.fingerprint_detail_metrics
+    File? fingerprint_summary_metrics_file = IlluminaGenotypingArray.fingerprint_summary_metrics
+    File? genotype_concordance_summary_metrics_file = IlluminaGenotypingArray.genotype_concordance_summary_metrics
+    File? genotype_concordance_detail_metrics_file  = IlluminaGenotypingArray.genotype_concordance_detail_metrics
+    File? genotype_concordance_contingency_metrics_file = IlluminaGenotypingArray.genotype_concordance_contingency_metrics
+    File chip_well_barcode_params_file = select_first([CreateChipWellBarcodeParamsFile.params_file, params_file])
   }
   meta {
     allowNestedInputs: true
