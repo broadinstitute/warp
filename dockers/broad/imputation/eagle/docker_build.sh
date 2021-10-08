@@ -9,16 +9,16 @@ DIR=$(cd $(dirname $0) && pwd)
 # Registries and tags
 GCR_URL="us.gcr.io/broad-gotc-prod/imputation-eagle"
 
-#EAGLE version
+# Eagle version
 EAGLE_VERSION="2.4"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-e|--eagle] [-t|--tools] -- script to build the Imputation Eagle tools image and push to GCR & Quay
+HELP="$(basename "$0") [-h|--help] [-e|--eagle] [-t|--tools] -- script to build the Imputation Eagle image and push to GCR & Quay
 
 where:
     -h|--help Show help text
-    -e|--eagle Version of EAGLE to use (default: EAGLE_VERSIOn=${EAGLE_VERSION})
+    -e|--eagle Version of Eagle to use (default: EAGLE_VERSION=${EAGLE_VERSION})
     -t|--tools Show tools needed to run script
     "
 

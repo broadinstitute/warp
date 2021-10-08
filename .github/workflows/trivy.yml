@@ -17,6 +17,8 @@ jobs:
         - dockers/broad/samtools_picard_bwa
         - dockers/broad/zcall
         - dockers/broad/imputation/bcftools_vcftools
+        - dockers/broad/imputation/eagle
+        - dockers/broad/imputation/minimac
     steps:
       - uses: actions/checkout@v2
 

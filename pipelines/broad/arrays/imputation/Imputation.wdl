@@ -46,11 +46,11 @@ workflow Imputation {
     String m3vcf_suffix = ".cleaned.m3vcf.gz"
   }
   # Docker images here
-  String bcftools_docker_tag = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
-  String bcftools_vcftools_docker_tag = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+  String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
+  String bcftools_vcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
   String gatk_docker_tag = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
-  String minimac4_docker_tag = "us.gcr.io/broad-dsde-methods/imputation-minimac-docker:v1.0.0"
-  String eagle_docker_tag = "us.gcr.io/broad-dsde-methods/imputation_eagle_docker:v1.0.0"
+  String minimac4_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.0-1.0.2-1633700284"
+  String eagle_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-eagle:1.0.0-2.4-1633695564"
   String ubuntu_docker_tag = "ubuntu:20.04"
   String rtidyverse_docker_tag = "rocker/tidyverse:4.1.0"
 

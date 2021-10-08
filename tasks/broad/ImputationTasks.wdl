@@ -662,7 +662,7 @@ task SplitMultiSampleVcf {
   input {
     File multiSampleVcf
     Int mem = 8
-    Int bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    Int bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
   }
 
   Int disk_size = ceil(3*size(multiSampleVcf, "GiB")) + 100
