@@ -138,7 +138,7 @@ task PhaseVariantsEagle {
   }
   Int disk_size = ceil(3 * size([dataset_bcf, reference_panel_bcf, dataset_bcf_index, reference_panel_bcf_index], "GiB"))
   command <<<
-    /eagle  \
+    /usr/gitc/eagle  \
     --vcfTarget ~{dataset_bcf}  \
     --vcfRef ~{reference_panel_bcf} \
     --geneticMapFile ~{genetic_map_file} \
@@ -171,7 +171,7 @@ task Minimac4 {
     Int window
   }
   command <<<
-    /Minimac4 \
+    /usr/gitc/minimac4 \
     --refHaps ~{ref_panel} \
     --haps ~{phased_vcf} \
     --start ~{start} \
