@@ -1,5 +1,5 @@
-# 2.4.3
-2021-10-01
+# 2.5.0
+2021-10-07
 
 * Enabled pipeline to lookup the extended_illumina_manifest_file using an alternate method
     * If the path to the file is not provided, it will look in the arrays_metadata_path for a map file that contains a mapping of chip to extended_illumina_manifest
@@ -8,6 +8,7 @@
 * Enabled pipeline to lookup the zcall_thresholds_file using an alternate method (using the arrays_metdata_path and zcall_thresholds_filename)
 * Enabled pipeline to lookup the genotype control data using an alternate method (using the arrays_control_data_path and control_sample_name)
 * Modified pipeline to NOT write fingerprints for control samples to the Mercury Fingerprint Store.
+* Change outputs of Arrays and pipeline to use python_file_naming_convention instead of CamelCase
 
 # 2.4.2
 2021-09-22
