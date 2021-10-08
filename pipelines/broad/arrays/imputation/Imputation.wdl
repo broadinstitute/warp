@@ -75,7 +75,7 @@ workflow Imputation {
         input_vcf_indices = select_first([single_sample_vcf_indices]),
         output_vcf_basename = "merged_input_samples",
         bcftools_docker = bcftools_docker_tag,
-        mem = merge_ssvcf_mem_gb
+        memory_mb = merge_ssvcf_mem_gb
     }
   }
 
