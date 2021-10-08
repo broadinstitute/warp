@@ -4,7 +4,7 @@
     "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370027_R12C02.vcf.gz",
     "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370134_R12C02.vcf.gz"
   ],
-  "Imputation.single_sample_vcf_indices":[
+  "Imputation.single_sample_vcf_indices": [
     "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370027_R02C01.vcf.gz.tbi",
     "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370027_R12C02.vcf.gz.tbi",
     "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370134_R12C02.vcf.gz.tbi"
