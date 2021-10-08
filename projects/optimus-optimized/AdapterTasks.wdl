@@ -273,8 +273,8 @@ task GetLinksFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(analysis_process_path, "MiB")) * 2) + 2000
-    Int disk_size_gb = ceil((size(analysis_process_path, "GiB")) * 2) + 3
+    Int memory_mb = ceil(size(analysis_process_path, "MiB")) + 2000
+    Int disk_size_gb = ceil(size(analysis_process_path, "GiB") * 2) + 50
   }
 
   command {
@@ -310,7 +310,7 @@ task GetLinksFileMetadata {
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
   output {
     Array[File] links_outputs = glob("*${version_timestamp}*.json")
