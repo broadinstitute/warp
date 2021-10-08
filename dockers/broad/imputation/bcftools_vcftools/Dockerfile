@@ -36,28 +36,30 @@ RUN set -eux; \
     pip3 install docopt \
     ; \
 # Install BCFTools
-    wget https://github.com/samtools/bcftools/releases/download/1.10.2/bcftools-1.10.2.tar.bz2; \
-    tar xf bcftools-1.10.2.tar.bz2; \
-    cd bcftools-1.10.2; \
+    wget https://github.com/samtools/bcftools/releases/download/${BCFTOOLS_VERSION}/bcftools-${BCFTOOLS_VERSION}.tar.bz2; \
+    tar xf bcftools-${BCFTOOLS_VERSION}.tar.bz2; \
+    cd bcftools-${BCFTOOLS_VERSION}; \
     \
     ./configure; \
     make; \
     make install; \
     \
     cd ../; \
-    rm -r bcftools-1.10.2.tar.bz2 \
+    rm -r bcftools-${BCFTOOLS_VERSION}; \
+    rm bcftools-${BCFTOOLS_VERSION}.tar.bz2 \
     ; \
 # Install VCFTools
-    wget https://github.com/vcftools/vcftools/releases/download/v0.1.16/vcftools-0.1.16.tar.gz; \
-    tar xf vcftools-0.1.16.tar.gz; \
-    cd vcftools-0.1.16; \
+    wget https://github.com/vcftools/vcftools/releases/download/v${VCFTOOLS_VERSION}/vcftools-${VCFTOOLS_VERSION}.tar.gz; \
+    tar xf vcftools-${VCFTOOLS_VERSION}.tar.gz; \
+    cd vcftools-${VCFTOOLS_VERSION}; \
     \
     ./configure; \
     make; \
     make install; \
     \
     cd ../; \
-    rm -r vcftools-0.1.16.tar.gz 
+    rm -r vcftools-${VCFTOOLS_VERSION}; \
+    rm vcftools-${VCFTOOLS_VERSION}.tar.gz;
 
 # Set tini as default entrypoint
 ENTRYPOINT [ "/sbin/tini", "--" ]

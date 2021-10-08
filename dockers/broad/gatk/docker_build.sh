@@ -18,7 +18,7 @@ GATK3_VERSION="3.5"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-v4|--version4] [-v3|--version3] [-t|tools] -- script to build the GATK image and push to GCR & Dockerhub
+HELP="$(basename "$0") [-h|--help] [-v4|--version4] [-v3|--version3] [-t|--tools] -- script to build the GATK image and push to GCR & Quay
 
 where:
     -h|--help Show help text

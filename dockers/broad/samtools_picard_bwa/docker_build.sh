@@ -18,7 +18,7 @@ PICARD_PUBLIC_VERSION="2.23.8"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-b|--bwa_version] [-p|--picard_public_version] [-t|tools] -- script to build the SAMTOOLS/PICARD/BWA image and push to GCR & Dockerhub
+HELP="$(basename "$0") [-h|--help] [-b|--bwa_version] [-p|--picard_public_version] [-t|tools] -- script to build the SAMTOOLS/PICARD/BWA image and push to GCR & Quay
 
 where:
     -h|--help Show help text
