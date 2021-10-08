@@ -390,7 +390,8 @@ abstract class CromwellWorkflowTester(
             cromwellMetadata <- cromwellClient()
               .metadata(
                 finishedWorkflow.workflow.id,
-                Option(Map("expandSubWorkflows" -> List("true")))
+                Option(Map("includeKey" -> List("backendLogs"),
+                          "expandSubWorkflows" -> List("true")))
               )
               .value
               .unsafeToFuture()
