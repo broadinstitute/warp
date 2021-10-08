@@ -345,6 +345,19 @@ task MergeSingleSampleVcfs {
   Int disk_size = 3 * ceil(size(input_vcfs, "GiB") + size(input_vcf_indices, "GiB")) + 20
 
   command <<<
+    # Move the index file next to the vcf file with the corresponding name
+
+    declare -a VCFS=(~{sep=' ' input_vcfs})
+    declare -a VCF_INDICES=(~{sep=' ' input_vcf_indices})
+
+    for i in ${VCF_INDICES[@]}; do
+      for v in ${VCFS[@]}; do
+        if [[ $(basename $i .vcf.gz.tbi) == $(basename $v .vcf.gz) ]]; then
+          mv $i $(dirname $v)
+        fi
+      done
+    done
+
     bcftools merge ~{sep=' ' input_vcfs} -O z -o ~{output_vcf_basename}.vcf.gz
     bcftools index -t ~{output_vcf_basename}.vcf.gz
   >>>
