@@ -59,7 +59,20 @@ RUN set -eux; \
     \
     cd ../; \
     rm -r vcftools-${VCFTOOLS_VERSION}; \
-    rm vcftools-${VCFTOOLS_VERSION}.tar.gz;
+    rm vcftools-${VCFTOOLS_VERSION}.tar.gz \
+    ; \
+# Install HTSlib
+    wget  https://github.com/samtools/samtools/releases/download/1.10/samtools-1.10.tar.bz2; \
+    tar xf samtools-1.10.tar.bz2; \
+    cd samtools-1.10/htslib-1.10; \
+    \
+    ./configure; \
+    make; \
+    make install; \
+    \ 
+    cd ../..; \
+    rm -r samtools-1.10; \
+    rm samtools-1.10.tar.bz2
 
 # Set tini as default entrypoint
 ENTRYPOINT [ "/sbin/tini", "--" ]
