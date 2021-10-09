@@ -20,8 +20,11 @@ object ImputationValidationInputs
 case class ImputationValidationInputs(
     haplotype_database: String,
     split_output_to_single_sample: Boolean,
-    input_single_sample_vcfs: Seq[String],
-    input_single_sample_vcfs_indices: Seq[String],
+    output_callset_name: String,
+    input_single_sample_vcfs: Option[Seq[String]],
+    input_single_sample_vcfs_indices: Option[Seq[String]],
+    input_multi_sample_vcf: Option[String],
+    input_multi_sample_vcf_index: Option[String],
     truth_metrics: Seq[URI],
     test_metrics: Seq[URI],
     truth_vcf: URI,

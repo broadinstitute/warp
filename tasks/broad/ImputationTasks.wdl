@@ -3,7 +3,7 @@ version 1.0
 task CalculateChromosomeLength {
   input {
     File ref_dict
-    Int chrom
+    String chrom
     String ubuntu_docker
   }
 
@@ -662,7 +662,7 @@ task SplitMultiSampleVcf {
   input {
     File multiSampleVcf
     Int mem = 8
-    Int bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    String bcftools_docker
   }
 
   Int disk_size = ceil(3*size(multiSampleVcf, "GiB")) + 100
