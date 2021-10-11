@@ -107,7 +107,7 @@ task MergeLooms {
   }
 
   command {
-    python3 /tools/optimus_HCA_loom_merge.py \
+    merge_looms \
       --input-loom-files ~{sep=' ' output_looms} \
       --library "~{library}" \
       --species "~{species}" \
