@@ -1,9 +1,20 @@
+# 2.5.0
+2021-10-06
+
+* Updated VerifyBamID to use AppSec base image
+* Changed GoTC image to Samtools specific image in CramToUnmappedBams and Utilities
+* Changed GoTC image to GATK specific image in GermlineVariantDiscovery
+* Changed GoTC image to SAMTOOLS/PICARD/BWA specific image in Alignment
+
+# 2.4.9
+2021-09-22
+
+* Updated Utilities.wdl task definitions to include a new ErrorWithMessage task that is NOT used in the ExomeReprocessing pipeline.
 
 # 2.4.8
 2021-08-02
 
 * Increased the version number to make new release tag for Dockstore 
-
 
 # 2.4.7
 2021-06-22

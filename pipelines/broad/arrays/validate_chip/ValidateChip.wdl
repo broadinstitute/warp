@@ -21,7 +21,7 @@ import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 workflow ValidateChip {
 
-  String pipeline_version = "1.13.3"
+  String pipeline_version = "1.14.0"
 
   input {
     String sample_alias
@@ -223,26 +223,26 @@ workflow ValidateChip {
   }
 
   output {
-    File GtcFile = AutoCall.gtc_file
-    File OutputVcfFile = GtcToVcf.output_vcf
-    File OutputVcfIndexFile = GtcToVcf.output_vcf_index
-    File ArraysVariantCallingDetailMetricsFile = CollectArraysVariantCallingMetrics.detail_metrics
-    File ArraysVariantCallingSummaryMetricsFile = CollectArraysVariantCallingMetrics.summary_metrics
-    File ArraysVariantCallingControlMetricsFile = CollectArraysVariantCallingMetrics.control_metrics
-    Boolean PassesAutocall = CollectArraysVariantCallingMetrics.passes_autocall
-    File CreateExtendedIlluminaManifestExtendedCsvFile = CreateExtendedIlluminaManifest.output_csv
-    File CreateExtendedIlluminaManifestBadAssaysFile = CreateExtendedIlluminaManifest.output_bad_assays_file
-    File CreateExtendedIlluminaManifestReportFile = CreateExtendedIlluminaManifest.report_file
-    File GenotypeConcordanceSummaryMetricsFile = GenotypeConcordance.summary_metrics
-    File GenotypeConcordanceDetailMetricsFile  = GenotypeConcordance.detail_metrics
-    File GenotypeConcordanceContingencyMetricsFile = GenotypeConcordance.contingency_metrics
-    File GenotypeConcordanceVcfFile = GenotypeConcordance.output_vcf
-    File GenotypeConcordanceTxtFile = GenotypeConcordance.output_txt
-    File IndelGenotypeConcordanceSummaryMetricsFile = IndelGenotypeConcordance.summary_metrics
-    File IndelGenotypeConcordanceDetailMetricsFile  = IndelGenotypeConcordance.detail_metrics
-    File IndelGenotypeConcordanceContingencyMetricsFile = IndelGenotypeConcordance.contingency_metrics
-    File IndelGenotypeConcordanceVcfFile = IndelGenotypeConcordance.output_vcf
-    File IndelGenotypeConcordanceTxtFile = IndelGenotypeConcordance.output_txt
+    File gtc_file = AutoCall.gtc_file
+    File output_vcf = GtcToVcf.output_vcf
+    File output_vcf_index = GtcToVcf.output_vcf_index
+    File arrays_variant_calling_detail_metrics_file = CollectArraysVariantCallingMetrics.detail_metrics
+    File arrays_variant_calling_summary_metrics_file = CollectArraysVariantCallingMetrics.summary_metrics
+    File arrays_variant_calling_control_metrics_file = CollectArraysVariantCallingMetrics.control_metrics
+    Boolean passes_autocall = CollectArraysVariantCallingMetrics.passes_autocall
+    File create_extended_illumina_manifest_extended_csv_file = CreateExtendedIlluminaManifest.output_csv
+    File create_extended_illumina_manifest_bad_assays_file = CreateExtendedIlluminaManifest.output_bad_assays_file
+    File create_extended_illumina_manifest_report_file = CreateExtendedIlluminaManifest.report_file
+    File genotype_concordance_summary_metrics_file = GenotypeConcordance.summary_metrics
+    File genotype_concordance_detail_metrics_file  = GenotypeConcordance.detail_metrics
+    File genotype_concordance_contingency_metrics_file = GenotypeConcordance.contingency_metrics
+    File genotype_concordance_vcf = GenotypeConcordance.output_vcf
+    File genotype_concordance_txt_file = GenotypeConcordance.output_txt
+    File indel_genotype_concordance_summary_metrics_file = IndelGenotypeConcordance.summary_metrics
+    File indel_genotype_concordance_detail_metrics_file  = IndelGenotypeConcordance.detail_metrics
+    File indel_genotype_concordance_contingency_metrics_file = IndelGenotypeConcordance.contingency_metrics
+    File indel_genotype_concordance_vcf = IndelGenotypeConcordance.output_vcf
+    File indel_genotype_concordance_txt_file = IndelGenotypeConcordance.output_txt
   }
   meta {
     allowNestedInputs: true

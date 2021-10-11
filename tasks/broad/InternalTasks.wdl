@@ -41,7 +41,8 @@ task DownloadGenotypes {
     File ref_fasta_index
     File ref_dict
 
-    Array[String] source_block
+    String environment
+    File vault_token_path
 
     Int preemptible_tries
   }
@@ -57,12 +58,20 @@ task DownloadGenotypes {
 
   command <<<
 
+    export VAULT_ADDR=https://clotho.broadinstitute.org:8200
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
+    if [ ~{environment} == prod ]; then
+      export MERCURY_AUTH_KEY=secret/dsde/gotc/prod/wdl/secrets
+      export MERCURY_FP_STORE_URI=https://portals.broadinstitute.org/portal/mercury-ws/fingerprint
+    else
+      export MERCURY_AUTH_KEY=secret/dsde/gotc/dev/wdl/secrets
+      export MERCURY_FP_STORE_URI=https://portals.broadinstitute.org/portal-test/mercury-ws/fingerprint
+    fi
+
     grep 'REGULATORY_DESIGNATION=RESEARCH_ONLY' ~{params_file}
     if [ $? -eq 0 ]; then
       ADDITIONAL_PLATFORM_STRING="--EXPECTED_GENOTYPING_PLATFORMS GENERAL_ARRAY"
     fi
-
-    AUTH=~{write_lines(source_block)} && source $AUTH
 
     exit_code=0
 
@@ -100,7 +109,7 @@ task DownloadGenotypes {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }
@@ -118,7 +127,8 @@ task UploadFingerprintToMercury {
     File fingerprint_json_file
     File gtc_file
 
-    Array[String] source_block
+    String environment
+    File vault_token_path
 
     Int preemptible_tries
   }
@@ -130,9 +140,17 @@ task UploadFingerprintToMercury {
   command <<<
     set -eo pipefail
 
-    du -k ~{gtc_file} | cut -f 1 > size.txt
+    export VAULT_ADDR=https://clotho.broadinstitute.org:8200
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
+    if [ ~{environment} == prod ]; then
+      export MERCURY_AUTH_KEY=secret/dsde/gotc/prod/wdl/secrets
+      export MERCURY_FP_STORE_URI=https://portals.broadinstitute.org/portal/mercury-ws/fingerprint
+    else
+      export MERCURY_AUTH_KEY=secret/dsde/gotc/dev/wdl/secrets
+      export MERCURY_FP_STORE_URI=https://portals.broadinstitute.org/portal-test/mercury-ws/fingerprint
+    fi
 
-    AUTH=~{write_lines(source_block)} && source $AUTH
+    du -k ~{gtc_file} | cut -f 1 > size.txt
 
     # TODO -Fix UploadFingerprintToMercury so I don't need to pass a file size
 
@@ -145,7 +163,7 @@ task UploadFingerprintToMercury {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }

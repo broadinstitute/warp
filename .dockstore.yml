@@ -61,3 +61,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/arrays/single_sample/Arrays.wdl
 
+  - name: Imputation
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/arrays/imputation/Imputation.wdl
+
