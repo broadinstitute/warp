@@ -104,8 +104,8 @@ task MergeLooms {
 
     String docker = "quay.io/humancellatlas/hca_post_processing:2.0"
     Int cpu = 1
-    Int memory_mb = ceil(size(output_looms, "MiB")) + 10
-    Int disk_size_gb = ceil((size(output_looms, "GiB") * 2)) + 3
+    Int memory_mb = ceil(size(output_looms, "M")) + 10
+    Int disk_size_gb = ceil((size(output_looms, "G") * 2)) + 3
   }
 
   command {
