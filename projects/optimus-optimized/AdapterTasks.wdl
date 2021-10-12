@@ -46,7 +46,7 @@ task CheckInput {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "~{memory_mb} MiB"
+    memory: "~{memory_mb} Mi"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -83,7 +83,7 @@ task GetCromwellMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
+    memory: "${memory_mb} Mi"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -104,8 +104,8 @@ task MergeLooms {
 
     String docker = "quay.io/humancellatlas/hca_post_processing:2.0"
     Int cpu = 1
-    Int memory_mb = ceil(size(output_looms, "MiB")) + 10
-    Int disk_size_gb = ceil((size(output_looms, "GiB") * 2)) + 3
+    Int memory_mb = ceil(size(output_looms, "Mi")) + 10
+    Int disk_size_gb = ceil((size(output_looms, "Gi") * 2)) + 3
   }
 
   command {
@@ -121,7 +121,7 @@ task MergeLooms {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "~{memory_mb} MiB"
+    memory: "~{memory_mb} Mi"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -142,8 +142,8 @@ task GetAnalysisFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = if defined(input_file) then ceil((size(input_file, "MiB"))) + 3 else 2000
-    Int disk_size_gb = if defined(input_file) then ceil((size(input_file, "GiB"))) + 3 else 10
+    Int memory_mb = if defined(input_file) then ceil((size(input_file, "Mi"))) + 3 else 2000
+    Int disk_size_gb = if defined(input_file) then ceil((size(input_file, "Gi"))) + 3 else 10
   }
 
   # For Optimus, if we are doing an intermediate level run, then we pass in the metadata.json
@@ -174,7 +174,7 @@ task GetAnalysisFileMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
+    memory: "${memory_mb} Mi"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -195,8 +195,8 @@ task GetAnalysisProcessMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(input_file, "MiB"))) + 2000
-    Int disk_size_gb = ceil((size(input_file, "GiB"))) + 3
+    Int memory_mb = ceil((size(input_file, "Mi"))) + 2000
+    Int disk_size_gb = ceil((size(input_file, "Gi"))) + 3
   }
 
   command {
@@ -213,7 +213,7 @@ task GetAnalysisProcessMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
+    memory: "${memory_mb} Mi"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -247,7 +247,7 @@ task GetAnalysisProtocolMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
+    memory: "${memory_mb} Mi"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -273,8 +273,8 @@ task GetLinksFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil(size(output_file_path, "MiB") * 2) + 2000
-    Int disk_size_gb = ceil(size(output_file_path, "GiB") * 2) + 50
+    Int memory_mb = ceil(size(output_file_path, "Mi") * 2) + 2000
+    Int disk_size_gb = ceil(size(output_file_path, "Gi") * 2) + 50
   }
 
   command {
@@ -309,7 +309,7 @@ task GetLinksFileMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
+    memory: "${memory_mb} Mi"
     disks: "local-disk ${disk_size_gb} HDD"
   }
   output {
@@ -328,8 +328,8 @@ task GetFileDescriptor {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(file_path, "MiB")) * 2) + 1000
-    Int disk_size_gb = ceil((size(file_path, "GiB") * 2)) + 5
+    Int memory_mb = ceil((size(file_path, "Mi")) * 2) + 1000
+    Int disk_size_gb = ceil((size(file_path, "Gi") * 2)) + 5
   }
 
   command
@@ -352,7 +352,7 @@ task GetFileDescriptor {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
+    memory: "${memory_mb} Mi"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -393,7 +393,7 @@ task GetReferenceFileMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
+    memory: "${memory_mb} Mi"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -419,7 +419,7 @@ task GetCloudFileCreationDate {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
+    memory: "${memory_mb} Mi"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -434,8 +434,8 @@ task ParseCromwellMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(cromwell_metadata, "MiB")) * 2) + 1000
-    Int disk_size_gb = ceil((size(cromwell_metadata, "GiB") * 2)) + 5
+    Int memory_mb = ceil((size(cromwell_metadata, "Mi")) * 2) + 1000
+    Int disk_size_gb = ceil((size(cromwell_metadata, "Gi") * 2)) + 5
   }
 
   command {
@@ -446,7 +446,7 @@ task ParseCromwellMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
+    memory: "${memory_mb} Mi"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -463,8 +463,8 @@ task GetReferenceDetails {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(ref_fasta, "MiB")) * 2) + 1000
-    Int disk_size_gb = ceil((size(ref_fasta, "GiB") * 2)) + 5
+    Int memory_mb = ceil((size(ref_fasta, "Mi")) * 2) + 1000
+    Int disk_size_gb = ceil((size(ref_fasta, "Gi") * 2)) + 5
   }
 
   command {
@@ -475,7 +475,7 @@ task GetReferenceDetails {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
+    memory: "${memory_mb} Mi"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -493,8 +493,8 @@ task GetProjectLevelInputIds {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(intermediate_analysis_files, "MiB")) * 2) + 1000
-    Int disk_size_gb = ceil((size(intermediate_analysis_files, "GiB") * 2)) + 5
+    Int memory_mb = ceil((size(intermediate_analysis_files, "Mi")) * 2) + 1000
+    Int disk_size_gb = ceil((size(intermediate_analysis_files, "Gi") * 2)) + 5
   }
 
   command {
@@ -504,7 +504,7 @@ task GetProjectLevelInputIds {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
+    memory: "${memory_mb} Mi"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -527,8 +527,8 @@ task CopyToStagingBucket {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(data_objects, "MiB") * 2)) + 2000
-    Int disk_size_gb = ceil((size(data_objects, "GiB") * 2)) + 5
+    Int memory_mb = ceil((size(data_objects, "Mi") * 2)) + 2000
+    Int disk_size_gb = ceil((size(data_objects, "Gi") * 2)) + 5
   }
 
   command {
@@ -547,7 +547,7 @@ task CopyToStagingBucket {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "~{memory_mb} MiB"
+    memory: "~{memory_mb} Mi"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
 }
@@ -573,7 +573,7 @@ task GetOptimusPipelineVersion {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
+    memory: "${memory_mb} Mi"
     disks: "local-disk ${disk_size_gb} HDD"
   }
 }
@@ -607,7 +607,7 @@ task GetBucketCreationDate {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
+    memory: "${memory_mb} Mi"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
 }
