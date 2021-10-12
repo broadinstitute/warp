@@ -1,5 +1,5 @@
 #1.0.1
-2021-10-08
+2021-10-12
 
 * Standardized runtime attributes sections and added docker as input to ImputationTasks.wdl
 
