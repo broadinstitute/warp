@@ -51,12 +51,18 @@ class ImputationTester(testerConfig: ImputationConfig)(
       imputationInputs.getBasename(workflowName)
     val haplotypeDatabase =
       imputationInputs.getHaplotypeDatabase(workflowName)
+    val outputCallsetName =
+      imputationInputs.getOutputCallsetName(workflowName)
     val splitOutputToSingleSample =
       imputationInputs.getSplitOutputToSingleSample(workflowName)
     val singleSampleVcfs =
       imputationInputs.getSingleSampleVcfs(workflowName)
     val singleSampleVcfsIndices =
       imputationInputs.getSingleSampleVcfsIndices(workflowName)
+    val multiSampleVcf =
+      imputationInputs.getMultiSampleVcf(workflowName)
+    val multiSampleVcfIndices =
+      imputationInputs.getMultiSampleVcfIndices(workflowName)
     val resultsCloudPath =
       workflowTest.runParameters.resultsCloudPath
     val truthCloudPath = workflowTest.runParameters.truthCloudPath
@@ -64,8 +70,11 @@ class ImputationTester(testerConfig: ImputationConfig)(
     val validationInputs = ImputationValidationInputs(
       haplotype_database = haplotypeDatabase,
       split_output_to_single_sample = splitOutputToSingleSample,
+      output_callset_name = outputCallsetName,
       input_single_sample_vcfs = singleSampleVcfs,
       input_single_sample_vcfs_indices = singleSampleVcfsIndices,
+      input_multi_sample_vcf = multiSampleVcf,
+      input_multi_sample_vcf_index = multiSampleVcfIndices,
       test_metrics = Array(
         resultsCloudPath.resolve(s"${outputBaseName}_chunk_info.tsv"),
         resultsCloudPath.resolve(s"${outputBaseName}_failed_chunks.tsv"),
