@@ -46,7 +46,7 @@ task CheckInput {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "~{memory_mb} Mi"
+    memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -83,7 +83,7 @@ task GetCromwellMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} Mi"
+    memory: "${memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -102,14 +102,14 @@ task MergeLooms {
     String project_name
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:2.0"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int memory_mb = ceil(size(output_looms, "Mi")) * length(output_looms)
     Int disk_size_gb = ceil((size(output_looms, "Gi") * 2)) + 5
   }
 
   command {
-    python3 /tools/optimus_HCA_loom_merge.py \
+    merge-looms \
       --input-loom-files ~{sep=' ' output_looms} \
       --library "~{library}" \
       --species "~{species}" \
@@ -120,8 +120,8 @@ task MergeLooms {
   }
   runtime {
     docker: docker
-    cpu: cpu
-    memory: "~{memory_mb} Mi"
+    cpu: 1
+    memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -174,7 +174,7 @@ task GetAnalysisFileMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} Mi"
+    memory: "${memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -213,7 +213,7 @@ task GetAnalysisProcessMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} Mi"
+    memory: "${memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -247,7 +247,7 @@ task GetAnalysisProtocolMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} Mi"
+    memory: "${memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -273,8 +273,8 @@ task GetLinksFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil(size(output_file_path, "Mi") * 2) + 2000
-    Int disk_size_gb = ceil(size(output_file_path, "Gi") * 2) + 50
+    Int memory_mb = ceil(size(analysis_process_path, "Mi") * 2) + 2000
+    Int disk_size_gb = ceil(size(analysis_process_path, "Gi") * 2) + 5
   }
 
   command {
@@ -309,7 +309,7 @@ task GetLinksFileMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} Mi"
+    memory: "${memory_mb} MiB"
     disks: "local-disk ${disk_size_gb} HDD"
   }
   output {
@@ -352,7 +352,7 @@ task GetFileDescriptor {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} Mi"
+    memory: "${memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -393,7 +393,7 @@ task GetReferenceFileMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} Mi"
+    memory: "${memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -419,7 +419,7 @@ task GetCloudFileCreationDate {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} Mi"
+    memory: "${memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -446,7 +446,7 @@ task ParseCromwellMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} Mi"
+    memory: "${memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -475,7 +475,7 @@ task GetReferenceDetails {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} Mi"
+    memory: "${memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -504,7 +504,7 @@ task GetProjectLevelInputIds {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} Mi"
+    memory: "${memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
   output {
@@ -547,7 +547,7 @@ task CopyToStagingBucket {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "~{memory_mb} Mi"
+    memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
 }
@@ -573,7 +573,7 @@ task GetOptimusPipelineVersion {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} Mi"
+    memory: "${memory_mb} MiB"
     disks: "local-disk ${disk_size_gb} HDD"
   }
 }
@@ -607,7 +607,7 @@ task GetBucketCreationDate {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} Mi"
+    memory: "${memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
   }
 }
