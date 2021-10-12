@@ -33,7 +33,7 @@ workflow Imputation {
     String output_callset_name # the output callset name
     Boolean split_output_to_single_sample = false
     File haplotype_database
-    Int merge_ssvcf_mem_gb = 3 # the memory allocation for MergeSingleSampleVcfs (in GiB)
+    Int merge_ssvcf_mem_mb = 3000 # the memory allocation for MergeSingleSampleVcfs (in mb)
 
     Float frac_well_imputed_threshold = 0.9 # require fraction of sites well imputed to be greater than this to pass
     Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
@@ -66,7 +66,7 @@ workflow Imputation {
         input_vcfs = select_first([single_sample_vcfs]),
         input_vcf_indices = select_first([single_sample_vcf_indices]),
         output_vcf_basename = "merged_input_samples",
-        memory_mb = merge_ssvcf_mem_gb
+        memory_mb = merge_ssvcf_mem_mb
     }
   }
 
