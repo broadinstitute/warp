@@ -65,8 +65,8 @@ task GetCromwellMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = 2000
-    Int disk_size_gb = 10
+    Int memory_mb = ceil((size(output_path, "Mi")))
+    Int disk_size_gb = ceil((size(output_path, "Gi")))
   }
 
   command {
@@ -273,8 +273,8 @@ task GetLinksFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil(size(analysis_process_path, "Mi") * 2) + 2000
-    Int disk_size_gb = ceil(size(analysis_process_path, "Gi") * 2) + 5
+    Int memory_mb = ceil(size(output_file_path, "Mi")) * length(analysis_process_path)
+    Int disk_size_gb = ceil(size(output_file_path, "Gi")) * length(analysis_process_path)
   }
 
   command {
@@ -328,8 +328,8 @@ task GetFileDescriptor {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(file_path, "Mi")) * 2) + 1000
-    Int disk_size_gb = ceil((size(file_path, "Gi") * 2)) + 5
+    Int memory_mb = ceil((size(file_path, "Mi")))
+    Int disk_size_gb = ceil((size(file_path, "Gi")))
   }
 
   command
