@@ -286,8 +286,8 @@ task GetLinksFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil(size(output_file_path), "Mi"))
-    Int disk_size_gb = ceil(size(output_file_path), "Gi"))
+    Int memory_mb = ceil(size(output_file_path, "Mi"))
+    Int disk_size_gb = ceil(size(output_file_path, "Gi"))
   }
 
   command
@@ -369,8 +369,8 @@ task GetFileDescriptor {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(file_path, "Mi")))
-    Int disk_size_gb = ceil((size(file_path, "Gi")))
+    Int memory_mb = ceil(size(file_path, "Mi"))
+    Int disk_size_gb = ceil(size(file_path, "Gi"))
   }
 
   command
