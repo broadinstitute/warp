@@ -10,6 +10,7 @@ task CalculateChromosomeLength {
     Int cpu = 1
     Int disk_size_gb = ceil(2*size(ref_dict, "GiB")) + 5
   }
+
   command {
     grep -P "SN:~{chrom}\t" ~{ref_dict} | sed 's/.*LN://' | sed 's/\t.*//'
   }
@@ -702,7 +703,7 @@ task FindSitesUniqueToFileTwoOnly {
 }
 
 task SplitMultiSampleVcf {
-  input {
+ input {
     File multiSampleVcf
 
     String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
