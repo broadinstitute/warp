@@ -1,2 +1,4 @@
 .testcontainers*
 target
+
+.venv

@@ -23,26 +23,23 @@ def create_output_files(input_file,output_prefix):
     r1_fastq = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_read1') & pd.Series(df.columns).str.endswith('drs_uri')]]
     r2_fastq = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_read2') & pd.Series(df.columns).str.endswith('drs_uri')]]
     i1_fastq = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_index') & pd.Series(df.columns).str.endswith('drs_uri')]]
-    r1_fastq_uuid = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_read1') & pd.Series(df.columns).str.endswith('__file_uuid')]]
-    r2_fastq_uuid = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_read2') & pd.Series(df.columns).str.endswith('__file_uuid')]]
-    i1_fastq_uuid = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_index') & pd.Series(df.columns).str.endswith('__file_uuid')]]
     r1_fastq_document_id = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_read1') & pd.Series(df.columns).str.endswith('__file_document_id')]]
     r2_fastq_document_id = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_read2') & pd.Series(df.columns).str.endswith('__file_document_id')]]
     i1_fastq_document_id = df[df.columns[pd.Series(df.columns).str.startswith('__fastq_index') & pd.Series(df.columns).str.endswith('__file_document_id')]]
 
     # create array of strings to be added to participant_lane_set data table
-    r1_fastq_uuid_array = []
-    r2_fastq_uuid_array = []
-    i1_fastq_uuid_array = []
+    r1_fastq_document_id_array = []
+    r2_fastq_document_id_array = []
+    i1_fastq_document_id_array = []
 
-    for i in range(r1_fastq_uuid.shape[0]):
-        r1_values = r1_fastq_uuid.iloc[i].values
-        r2_values = r2_fastq_uuid.iloc[i].values
-        i1_values = i1_fastq_uuid.iloc[i].values
+    for i in range(r1_fastq_document_id.shape[0]):
+        r1_values = r1_fastq_document_id.iloc[i].values
+        r2_values = r2_fastq_document_id.iloc[i].values
+        i1_values = i1_fastq_document_id.iloc[i].values
 
-        r1_fastq_uuid_array.append(" ".join([value for value in r1_values]))
-        r2_fastq_uuid_array.append(" ".join([value for value in r2_values]))
-        i1_fastq_uuid_array.append(" ".join([value for value in i1_values]))
+        r1_fastq_document_id_array.append(" ".join([value for value in r1_values]))
+        r2_fastq_document_id_array.append(" ".join([value for value in r2_values]))
+        i1_fastq_document_id_array.append(" ".join([value for value in i1_values]))
 
     # TBD: move this to a function and call on each row of df change. Note: change index 0 to get other participants
     # for each fastq read, create a lane
@@ -59,9 +56,6 @@ def create_output_files(input_file,output_prefix):
         lane_fastq_r1 = pd.DataFrame({"fastq1":r1_fastq.iloc[j].to_numpy()[:n_lane]})
         lane_fastq_r2 = pd.DataFrame({"fastq2":r2_fastq.iloc[j].to_numpy()[:n_lane]})
         lane_fastq_i1 = pd.DataFrame({"fastqi":i1_fastq.iloc[j].to_numpy()[:n_lane]})
-        lane_fastq_r1_uuid = pd.DataFrame({"fastq1_uuid":r1_fastq_uuid.iloc[j].to_numpy()[:n_lane]})
-        lane_fastq_r2_uuid = pd.DataFrame({"fastq2_uuid":r2_fastq_uuid.iloc[j].to_numpy()[:n_lane]})
-        lane_fastq_i1_uuid = pd.DataFrame({"fastqi_uuid":i1_fastq_uuid.iloc[j].to_numpy()[:n_lane]})
         lane_r1_fastq_document_id = pd.DataFrame({"fastq1_document_id":r1_fastq_document_id.iloc[j].to_numpy()[:n_lane]})
         lane_r2_fastq_document_id = pd.DataFrame({"fastq2_document_id":r2_fastq_document_id.iloc[j].to_numpy()[:n_lane]})
         lane_i1_fastq_document_id = pd.DataFrame({"fastqi1_document_id":i1_fastq_document_id.iloc[j].to_numpy()[:n_lane]})
@@ -72,24 +66,20 @@ def create_output_files(input_file,output_prefix):
         input_name_metadata_field = pd.DataFrame({"input_name_metadata_field":np.repeat("sequencing_input.biomaterial_core.biomaterial_id",n_lanes[j])})
 
         column_names = ['entity:participant_lane_id', 'input_id', 'input_name','input_id_metadata_field','input_name_metadata_field',
-                        'r1_fastq','r2_fastq', 'i1_fastq','r1_fastq_uuid','r2_fastq_uuid', 'i1_fastq_uuid',
-                        'r1_fastq_document_id','r2_fastq_document_id','i1_fastq_document_id']
+                        'r1_fastq','r2_fastq', 'i1_fastq', 'r1_fastq_document_id','r2_fastq_document_id','i1_fastq_document_id']
 
         lane_df = pd.concat([lane_id,
-                            input_id,
-                            input_name,
-                            input_id_metadata_field,
-                            input_name_metadata_field,
-                            lane_fastq_r1,
-                            lane_fastq_r2,
-                            lane_fastq_i1,
-                            lane_fastq_r1_uuid,
-                            lane_fastq_r2_uuid,
-                            lane_fastq_i1_uuid,
-                            lane_r1_fastq_document_id,
-                            lane_r2_fastq_document_id,
-                            lane_i1_fastq_document_id
-                            ],
+                             input_id,
+                             input_name,
+                             input_id_metadata_field,
+                             input_name_metadata_field,
+                             lane_fastq_r1,
+                             lane_fastq_r2,
+                             lane_fastq_i1,
+                             lane_r1_fastq_document_id,
+                             lane_r2_fastq_document_id,
+                             lane_i1_fastq_document_id
+                             ],
                             axis=1)
 
         lane_df.columns = column_names
@@ -108,9 +98,9 @@ def create_output_files(input_file,output_prefix):
                     'species', 'library', 'organ', 'project_name']
 
     # add values from participant_lane that is needed in participant_lane_set
-    temp["r1_fastq_uuid"] = r1_fastq_uuid_array
-    temp["r2_fastq_uuid"] = r2_fastq_uuid_array
-    temp["i1_fastq_uuid"] = i1_fastq_uuid_array
+    temp["r1_fastq_document_id"] = r1_fastq_document_id_array
+    temp["r2_fastq_document_id"] = r2_fastq_document_id_array
+    temp["i1_fastq_document_id"] = i1_fastq_document_id_array
     temp["input_id"] = temp['entity:participant_lane_set_id']
 
     temp.to_csv(output_prefix + "_entity.tsv",sep="\t",index=None)

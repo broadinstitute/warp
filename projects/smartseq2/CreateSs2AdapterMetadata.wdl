@@ -17,7 +17,7 @@ workflow CreateSs2AdapterMetadata {
     File output_loom
     Array[String] input_ids #sequencing_process_provenance_document_id
     Array[String] fastq_1_uuids #array of space separated strings
-    Array[String] fastq_2_uuids #array of space separated strings
+    Array[String]? fastq_2_uuids #array of space separated strings
 
     # These values come in as arrays from Terra, but should be populated with a single value (which may be repeated)
     Array[String] all_libraries
@@ -177,10 +177,12 @@ workflow CreateSs2AdapterMetadata {
       process_input_ids = input_ids,
       analysis_process_path = project_analysis_process_objects,
       analysis_protocol_path = project_analysis_protocol_objects,
+      analysis_process_path_list = intermediate_analysis_process_objects,
+      analysis_protocol_path_list = intermediate_analysis_protocol_objects,
       bam_array = output_bams,
       bai_array = output_bais,
       fastq1_array = fastq_1_uuids,
-      fastq2_array = fastq_2_uuids,
+      fastq2_array = select_first([ fastq_2_uuids, [] ]),
       project_level = true,
       file_name_string = project_stratum_string,
       pipeline_type = pipeline_type

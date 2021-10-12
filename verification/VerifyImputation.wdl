@@ -23,6 +23,7 @@ workflow VerifyImputation {
   input {
     File haplotype_database
     Boolean split_output_to_single_sample
+    String output_callset_name
 
     Array[File] truth_metrics
     Array[File] test_metrics
@@ -40,6 +41,8 @@ workflow VerifyImputation {
     Array[File]? single_sample_test_vcf
     Array[File]? single_sample_test_vcf_indices
   }
+
+  String bcftools_docker_tag = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
 
   scatter (idx in range(length(truth_metrics))) {
     call CompareImputationMetrics {
@@ -71,13 +74,15 @@ workflow VerifyImputation {
       firstInputIndices = if (defined(input_multi_sample_vcf_index)) then select_all([input_multi_sample_vcf_index]) else select_first([input_single_sample_vcfs_indices]),
       secondInputs = [test_vcf],
       secondInputIndices = [test_vcf_index],
-      haplotypeDatabase = haplotype_database
+      haplotypeDatabase = haplotype_database,
+      basename = output_callset_name
   }
 
   if (split_output_to_single_sample) {
     call ImputationTasks.SplitMultiSampleVcf {
       input:
-        multiSampleVcf = test_vcf
+        multiSampleVcf = test_vcf,
+        bcftools_docker = bcftools_docker_tag
     }
 
     call CrosscheckFingerprints as CrosscheckFingerprintsSplit {
@@ -86,7 +91,8 @@ workflow VerifyImputation {
         firstInputIndices = if (defined(input_multi_sample_vcf_index)) then select_all([input_multi_sample_vcf_index]) else select_first([input_single_sample_vcfs_indices]),
         secondInputs = SplitMultiSampleVcf.single_sample_vcfs,
         secondInputIndices = SplitMultiSampleVcf.single_sample_vcf_indices,
-        haplotypeDatabase = haplotype_database
+        haplotypeDatabase = haplotype_database,
+        basename = output_callset_name
     }
   }
 
@@ -127,7 +133,7 @@ task CrosscheckFingerprints {
     Array[File] firstInputIndices
     Array[File] secondInputIndices
     File haplotypeDatabase
-    String basename = "plumbing_test"
+    String basename
     String picard_docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
   }
 

@@ -101,13 +101,13 @@ task MergeLooms {
     String project_name
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:2.0"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int memory = ceil(size(output_looms, "G"))+ 10
     Int disk = ceil((size(output_looms, "G") * 4)) + 50
   }
 
   command {
-    python3 /tools/optimus_HCA_loom_merge.py \
+    merge-looms \
       --input-loom-files ~{sep=' ' output_looms} \
       --library "~{library}" \
       --species "~{species}" \
@@ -132,8 +132,8 @@ task GetAnalysisFileMetadata {
     String input_uuid
     String pipeline_type
     String version_timestamp
-    File? input_file # Input file is the internal path to metadata.json
     Boolean project_level
+    File? input_file # Input file is the internal path to metadata.json
     String? project_loom # Project loom is optional and provided on project level run as the gs:// link
     String? ss2_bam_file # Individual bam file to be used for intermediate analysis file for ss2 runs
     String? ss2_bai_file # Individual bai file to be used for intermediate analysis file for ss2 runs
@@ -256,27 +256,34 @@ task GetAnalysisProtocolMetadata {
 task GetLinksFileMetadata {
   input {
     String project_id
-    Array[String] process_input_ids
+    String pipeline_type
     File output_file_path
+    Boolean project_level
+    String file_name_string
     String version_timestamp
+    Array[String] process_input_ids
     Array[File] analysis_process_path
     Array[File] analysis_protocol_path
-    String file_name_string
-    String pipeline_type
-    Boolean project_level
+
+    # SS2 specific
+    Array[String]? analysis_process_path_list # List of analysis_process paths from intermediate SS2 runs
+    Array[String]? analysis_protocol_path_list # List of analysis_protocol paths from intermediate SS2 runs (should be a single element)
     Array[String]? bam_array
     Array[String]? bai_array
     Array[String]? fastq1_array
     Array[String]? fastq2_array
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
-    Int cpu = 1
-    Int machine_mem_mb = 2000
+    Int cpu = 2
+    Int machine_mem_mb = 200000
     Int disk = 10
   }
 
-  command {
-    if ["~{pipeline_type}" == "Optimus"]; then
+  command
+  <<<
+  set -o pipefail
+
+    if [ "~{pipeline_type}" == "Optimus" ]; then
       create-links \
       --project_id "~{project_id}" \
       --input_uuids ~{sep=' ' process_input_ids} \
@@ -288,22 +295,46 @@ task GetLinksFileMetadata {
       --project_level ~{project_level} \
       --pipeline_type "~{pipeline_type}"
     else
+    # SS2 will have runs with thousand of samples, must write info to a file rather than pass as arguments
+
+      declare -a PROTOCOL_PATH_LIST=(~{sep=' ' analysis_protocol_path_list})
+      declare -a PROCESS_PATH_LIST=(~{sep=' ' analysis_process_path_list})
+      declare -a BAM_ARRAY=(~{sep=' ' bam_array})
+      declare -a BAI_ARRAY=(~{sep=' ' bai_array})
+      declare -a FASTQ1_ARRAY=(~{sep=' ' fastq1_array})
+      declare -a FASTQ2_ARRAY=(~{sep=' ' fastq2_array}) 
+      declare -a INPUT_UUIDS=(~{sep=' ' process_input_ids})
+
+      TMP_DIR=$(mktemp -d -t XXXXXX)
+
+      printf '%s\n' "${PROTOCOL_PATH_LIST[@]}" | jq -R . | jq -s . > $TMP_DIR/protocol_list.json
+      printf '%s\n' "${PROCESS_PATH_LIST[@]}" | jq -R . | jq -s . > $TMP_DIR/process_list.json
+      printf '%s\n' "${BAM_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_bam.json
+      printf '%s\n' "${BAI_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_bai.json
+      printf '%s\n' "${FASTQ1_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_fastq1.json
+      printf '%s\n' "${FASTQ2_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_fastq2.json # fastq2 does not exist for single end runs, this should write an empty array if that is the case
+      printf '%s\n' "${INPUT_UUIDS[@]}" | jq -R . | jq -s . > $TMP_DIR/input_ids.json
+    
       create-links \
       --project_id "~{project_id}" \
       --output_file_path "~{output_file_path}" \
       --workspace_version "~{version_timestamp}" \
-      --input_uuids ~{sep=' ' process_input_ids} \
+      --input_uuids_path "$TMP_DIR/input_ids.json" \
       --analysis_process_path "~{sep=' ' analysis_process_path}" \
       --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
-      --ss2_bam ~{sep=' ' bam_array} \
-      --ss2_bai ~{sep=' ' bai_array} \
-      --ss2_fastq1 ~{sep=' ' fastq1_array} \
-      --ss2_fastq2 ~{sep=' ' fastq2_array} \
+      --analysis_process_list_path "$TMP_DIR/process_list.json" \
+      --analysis_protocol_list_path "$TMP_DIR/protocol_list.json" \
+      --ss2_bam "$TMP_DIR/ss2_bam.json" \
+      --ss2_bai "$TMP_DIR/ss2_bai.json" \
+      --ss2_fastq1 "$TMP_DIR/ss2_fastq1.json" \
+      --ss2_fastq2 "$TMP_DIR/ss2_fastq2.json" \
       --file_name_string "~{file_name_string}" \
-      --project_level ~{project_level} \
-      --pipeline_type "~{pipeline_type}"
+      --pipeline_type "~{pipeline_type}" \
+      --project_level ~{project_level} 
+
     fi
-  }
+  >>>
+
   runtime {
     docker: docker
     cpu: cpu
@@ -526,18 +557,44 @@ task CopyToStagingBucket {
     Int disk = ceil((size(data_objects, "G") * 3)) + 20
   }
 
-  command {
-    copy-adapter-outputs \
-    --analysis_files_metadata_jsons ~{sep=" " analysis_file_metadata_objects} \
-    --analysis_process_jsons ~{sep=" " analysis_process_objects} \
-    --analysis_protocol_jsons ~{sep=" " analysis_protocol_objects} \
-    --analysis_files_descriptors_jsons ~{sep=" " analysis_file_descriptor_objects} \
-    --links_jsons ~{sep=" " links_objects} \
-    --data_files ~{sep=" " data_objects} \
-    --reference_metadata_jsons ~{sep=" " reference_metadata_objects} \
-    --reference_file_descriptor_jsons ~{sep=" " reference_file_descriptor_objects} \
-    --staging-bucket ~{staging_bucket}
-  }
+  command
+  <<<
+    set -o pipefail
+      
+      # SS2 will have runs with thousand of samples, must write info to a file rather than pass as arguments
+
+      declare -a ANALYSIS_FILE_METADATA=(~{sep=' ' analysis_file_metadata_objects})
+      declare -a ANALYSIS_PROCESS=(~{sep=' ' analysis_process_objects})
+      declare -a ANALYSIS_PROTOCOL=(~{sep=' ' analysis_protocol_objects})
+      declare -a ANALYSIS_FILE_DESCRIPTORS=(~{sep=' ' analysis_file_descriptor_objects})
+      declare -a LINKS_FILES=(~{sep=' ' links_objects})
+      declare -a DATA_FILES=(~{sep=' ' data_objects})
+      declare -a REFERENCE_METADATA=(~{sep=' ' reference_metadata_objects})
+      declare -a REFERENCE_FILE_DESCRIPTORS=(~{sep=' ' reference_file_descriptor_objects})
+  
+      TMP_DIR=$(mktemp -d -t XXXXXX)
+
+      printf '%s\n' "${ANALYSIS_FILE_METADATA[@]}" | jq -R . | jq -s . > $TMP_DIR/analysis_file_metadata.json
+      printf '%s\n' "${ANALYSIS_PROCESS[@]}" | jq -R . | jq -s . > $TMP_DIR/analysis_process.json
+      printf '%s\n' "${ANALYSIS_PROTOCOL[@]}" | jq -R . | jq -s . > $TMP_DIR/analysis_protocol.json
+      printf '%s\n' "${ANALYSIS_FILE_DESCRIPTORS[@]}" | jq -R . | jq -s . > $TMP_DIR/analysis_file_descriptors.json
+      printf '%s\n' "${LINKS_FILES[@]}" | jq -R . | jq -s . > $TMP_DIR/links_files.json
+      printf '%s\n' "${DATA_FILES[@]}" | jq -R . | jq -s . > $TMP_DIR/data_files.json
+      printf '%s\n' "${REFERENCE_METADATA[@]}" | jq -R . | jq -s . > $TMP_DIR/reference_metadata.json
+      printf '%s\n' "${REFERENCE_FILE_DESCRIPTORS[@]}" | jq -R . | jq -s . > $TMP_DIR/reference_file_descriptors.json
+  
+      copy-adapter-outputs \
+      --analysis_files_metadata_jsons "$TMP_DIR/analysis_file_metadata.json" \
+      --analysis_process_jsons "$TMP_DIR/analysis_process.json" \
+      --analysis_protocol_jsons "$TMP_DIR/analysis_protocol.json" \
+      --analysis_files_descriptors_jsons "$TMP_DIR/analysis_file_descriptors.json" \
+      --links_jsons "$TMP_DIR/links_files.json" \
+      --data_files "$TMP_DIR/data_files.json" \
+      --reference_metadata_jsons "$TMP_DIR/reference_metadata.json" \
+      --reference_file_descriptor_jsons "$TMP_DIR/reference_file_descriptors.json" \
+      --staging-bucket ~{staging_bucket}
+  >>>
+  
 
   runtime {
     docker: docker

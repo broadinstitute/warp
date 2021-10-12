@@ -119,8 +119,11 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
 
   protected lazy val validationWdlOptions: String = Json
     .obj(
-      Seq("read_from_cache" -> true.asJson, "write_to_cache" -> true.asJson,
-      "monitoring_script" -> "gs://broad-gotc-test-storage/cromwell_monitoring_script.sh".asJson)
+
+      Seq(
+        "read_from_cache" -> true.asJson,
+        "write_to_cache" -> true.asJson,
+        "monitoring_script" -> "gs://broad-gotc-test-storage/cromwell_monitoring_script.sh".asJson)
         ++ parse(
           readTestOptions(
             releaseDir,
@@ -276,14 +279,14 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
             WorkflowId(UUID.randomUUID()),
             env.cromwellUrl,
             WorkflowSingleSubmission(None,
-                                     None,
-                                     None,
-                                     None,
-                                     None,
-                                     None,
-                                     None,
-                                     None,
-                                     None)
+                                    None,
+                                    None,
+                                    None,
+                                    None,
+                                    None,
+                                    None,
+                                    None,
+                                    None)
           ),
           workflowStatus = Succeeded
       )

@@ -4,19 +4,24 @@ task CalculateChromosomeLength {
   input {
     File ref_dict
     Int chrom
-    String ubuntu_docker
-  }
 
-  Int disk_size = ceil(2*size(ref_dict, "GiB")) + 5
+    String ubuntu_docker = "ubuntu:20.04"
+    Int memory_mb = 2000
+    Int cpu = 1
+    Int disk_size_gb = ceil(2*size(ref_dict, "GiB")) + 5
+  }
 
   command {
     grep -P "SN:~{chrom}\t" ~{ref_dict} | sed 's/.*LN://' | sed 's/\t.*//'
   }
+
   runtime {
     docker: ubuntu_docker
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "2 GiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
+
   output {
     Int chrom_length = read_int(stdout())
   }
@@ -30,9 +35,13 @@ task GenerateChunk {
     String basename
     String vcf
     String vcf_index
-    Int disk_size = 400 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
-    String gatk_docker
+
+    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
+    Int cpu = 1
+    Int memory_mb = 8000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
   }
+
   command {
     gatk SelectVariants \
     -V ~{vcf} \
@@ -45,11 +54,14 @@ task GenerateChunk {
     -O ~{basename}.vcf.gz \
     --exclude-filtered true
   }
+
   runtime {
     docker: gatk_docker
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "8 GiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
+
   parameter_meta {
     vcf: {
       description: "vcf",
@@ -60,6 +72,7 @@ task GenerateChunk {
       localization_optional: true
     }
   }
+
   output {
     File output_vcf = "~{basename}.vcf.gz"
     File output_vcf_index = "~{basename}.vcf.gz.tbi"
@@ -72,24 +85,31 @@ task CountVariantsInChunks {
     File vcf_index
     File panel_vcf
     File panel_vcf_index
-    Int disk_size = ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
-    String gatk_docker
+
+    Int disk_size_gb = ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+    Int cpu = 1
+    Int memory_mb = 4000
   }
+
   command <<<
     echo $(gatk CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
     echo $(gatk  CountVariants -V ~{vcf} -L ~{panel_vcf}  | sed 's/Tool returned://') > var_in_reference
   >>>
+
   output {
     Int var_in_original = read_int("var_in_original")
     Int var_in_reference = read_int("var_in_reference")
   }
+
   runtime {
     docker: gatk_docker
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "4 GiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
-
 }
+
 task CheckChunks {
   input {
     File vcf
@@ -98,9 +118,13 @@ task CheckChunks {
     File panel_vcf_index
     Int var_in_original
     Int var_in_reference
-    Int disk_size =ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
-    String bcftools_docker
+
+    Int disk_size_gb = ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
+    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    Int cpu = 1
+    Int memory_mb = 4000
   }
+
   command <<<
     if [ $(( ~{var_in_reference} * 2 - ~{var_in_original})) -gt 0 ] && [ ~{var_in_reference} -gt 3 ]; then
       echo true > valid_file.txt
@@ -111,17 +135,19 @@ task CheckChunks {
     bcftools convert -Ob ~{vcf} > valid_variants.bcf
     bcftools index -f valid_variants.bcf
   >>>
+
   output {
     File valid_chunk_bcf = "valid_variants.bcf"
     File valid_chunk_bcf_index = "valid_variants.bcf.csi"
     Boolean valid = read_boolean("valid_file.txt")
   }
+
   runtime {
     docker: bcftools_docker
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "4 GiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
-
 }
 
 task PhaseVariantsEagle {
@@ -134,9 +160,13 @@ task PhaseVariantsEagle {
     File genetic_map_file
     Int start
     Int end
-    String eagle_docker
+
+    String eagle_docker = "us.gcr.io/broad-dsde-methods/imputation_eagle_docker:v1.0.0"
+    Int cpu = 8
+    Int memory_mb = 32000
+    Int disk_size_gb = ceil(3 * size([dataset_bcf, reference_panel_bcf, dataset_bcf_index, reference_panel_bcf_index], "GiB"))
   }
-  Int disk_size = ceil(3 * size([dataset_bcf, reference_panel_bcf, dataset_bcf_index, reference_panel_bcf_index], "GiB"))
+
   command <<<
     /eagle  \
     --vcfTarget ~{dataset_bcf}  \
@@ -148,14 +178,16 @@ task PhaseVariantsEagle {
     --bpEnd ~{end} \
     --allowRefAltSwap
   >>>
+
   output {
     File dataset_prephased_vcf="pre_phased_~{chrom}.vcf.gz"
   }
+
   runtime {
     docker: eagle_docker
-    memory: "32 GiB"
-    cpu: "8"
-    disks: "local-disk " + disk_size + " HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
 }
 
@@ -167,9 +199,14 @@ task Minimac4 {
     String chrom
     Int start
     Int end
-    String minimac4_docker
     Int window
+
+    String minimac4_docker = "us.gcr.io/broad-dsde-methods/imputation-minimac-docker:v1.0.0"
+    Int cpu = 1
+    Int memory_mb = 4000
+    Int disk_size_gb = ceil(size(ref_panel, "GiB") + 2*size(phased_vcf, "GiB")) + 50
   }
+
   command <<<
     /Minimac4 \
     --refHaps ~{ref_panel} \
@@ -186,16 +223,18 @@ task Minimac4 {
 
     bcftools index -t ~{prefix}.dose.vcf.gz
   >>>
+
   output {
     File vcf = "~{prefix}.dose.vcf.gz"
     File vcf_index = "~{prefix}.dose.vcf.gz.tbi"
     File info = "~{prefix}.info"
   }
+
   runtime {
     docker: minimac4_docker
-    memory: "4 GiB"
-    cpu: "1"
-    disks: "local-disk 100 HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
 }
 
@@ -204,10 +243,12 @@ task GatherVcfs {
     Array[File] input_vcfs
     Array[File] input_vcf_indices
     String output_vcf_basename
-    String gatk_docker
-  }
 
-  Int disk_size = ceil(3*size(input_vcfs, "GiB"))
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+    Int cpu = 1
+    Int memory_mb = 16000
+    Int disk_size_gb = ceil(3*size(input_vcfs, "GiB"))
+  }
 
   command <<<
     gatk GatherVcfs \
@@ -217,11 +258,14 @@ task GatherVcfs {
     gatk IndexFeatureFile -I ~{output_vcf_basename}.vcf.gz
 
   >>>
+
   runtime {
     docker: gatk_docker
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "16 GiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
+
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
     File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
@@ -234,9 +278,13 @@ task UpdateHeader {
     File vcf_index
     File ref_dict
     String basename
-    Int disk_size = ceil(4*(size(vcf, "GiB") + size(vcf_index, "GiB"))) + 20
-    String gatk_docker
+
+    Int disk_size_gb = ceil(4*(size(vcf, "GiB") + size(vcf_index, "GiB"))) + 20
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+    Int cpu = 1
+    Int memory_mb = 8000
   }
+
   command <<<
 
     ## update the header of the merged vcf
@@ -246,11 +294,14 @@ task UpdateHeader {
     --replace -V ~{vcf} \
     --disable-sequence-dictionary-validation
   >>>
+
   runtime {
     docker: gatk_docker
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "8 GiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
+
   output {
     File output_vcf = "~{basename}.vcf.gz"
     File output_vcf_index = "~{basename}.vcf.gz.tbi"
@@ -262,20 +313,27 @@ task RemoveSymbolicAlleles {
     File original_vcf
     File original_vcf_index
     String output_basename
-    Int disk_size = ceil(3*(size(original_vcf, "GiB") + size(original_vcf_index, "GiB")))
-    String gatk_docker
+
+    Int disk_size_gb = ceil(3*(size(original_vcf, "GiB") + size(original_vcf_index, "GiB")))
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+    Int cpu = 1
+    Int memory_mb = 4000
   }
+
   command {
     gatk SelectVariants -V ~{original_vcf} -xl-select-type SYMBOLIC -O ~{output_basename}.vcf.gz
   }
+
   output {
     File output_vcf = "~{output_basename}.vcf.gz"
     File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
   }
+
   runtime {
     docker: gatk_docker
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "4 GiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
 }
 
@@ -284,21 +342,28 @@ task SeparateMultiallelics {
     File original_vcf
     File original_vcf_index
     String output_basename
-    Int disk_size =  ceil(2*(size(original_vcf, "GiB") + size(original_vcf_index, "GiB")))
-    String bcftools_docker
+
+    Int disk_size_gb =  ceil(2*(size(original_vcf, "GiB") + size(original_vcf_index, "GiB")))
+    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    Int cpu = 1
+    Int memory_mb = 4000
   }
+
   command {
     bcftools norm -m - ~{original_vcf} -Oz -o ~{output_basename}.vcf.gz
     bcftools index -t ~{output_basename}.vcf.gz
   }
+
   output {
     File output_vcf = "~{output_basename}.vcf.gz"
     File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
   }
+
   runtime {
     docker: bcftools_docker
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "4 GiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
 }
 
@@ -307,14 +372,17 @@ task OptionalQCSites {
     File input_vcf
     File input_vcf_index
     String output_vcf_basename
-    String bcftools_vcftools_docker
     Float? optional_qc_max_missing
     Float? optional_qc_hwe
+
+    String bcftools_vcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    Int cpu = 1
+    Int memory_mb = 16000
+    Int disk_size_gb = ceil(2*(size(input_vcf, "GiB") + size(input_vcf_index, "GiB")))
   }
+
   Float max_missing = select_first([optional_qc_max_missing, 0.05])
   Float hwe = select_first([optional_qc_hwe, 0.000001])
-
-  Int disk_size = ceil(2*(size(input_vcf, "GiB") + size(input_vcf_index, "GiB")))
 
   command <<<
     # site missing rate < 5% ; hwe p > 1e-6
@@ -324,9 +392,11 @@ task OptionalQCSites {
 
   runtime {
     docker: bcftools_vcftools_docker
-    memory: "16 GiB"
-    disks: "local-disk " + disk_size + " HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
+
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
     File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
@@ -338,11 +408,12 @@ task MergeSingleSampleVcfs {
     Array[File] input_vcfs
     Array[File] input_vcf_indices
     String output_vcf_basename
-    String bcftools_docker
-    Int mem
-  }
 
-  Int disk_size = 3 * ceil(size(input_vcfs, "GiB") + size(input_vcf_indices, "GiB")) + 20
+    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    Int memory_mb = 2000
+    Int cpu = 1
+    Int disk_size_gb = 3 * ceil(size(input_vcfs, "GiB") + size(input_vcf_indices, "GiB")) + 20
+  }
 
   command <<<
     bcftools merge ~{sep=' ' input_vcfs} -O z -o ~{output_vcf_basename}.vcf.gz
@@ -351,9 +422,11 @@ task MergeSingleSampleVcfs {
 
   runtime {
     docker: bcftools_docker
-    memory: mem + " GiB"
-    disks: "local-disk " + disk_size + " HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
+
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
     File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
@@ -363,10 +436,12 @@ task MergeSingleSampleVcfs {
 task CountSamples {
   input {
     File vcf
-    String bcftools_docker
-  }
 
-  Int disk_size = 100 + ceil(size(vcf, "GiB"))
+    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    Int cpu = 1
+    Int memory_mb = 3000
+    Int disk_size_gb = 100 + ceil(size(vcf, "GiB"))
+  }
 
   command <<<
     bcftools query -l ~{vcf} | wc -l
@@ -374,8 +449,9 @@ task CountSamples {
 
   runtime {
     docker: bcftools_docker
-    memory: "3 GiB"
-    disks: "local-disk " + disk_size + " HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
 
   output {
@@ -388,10 +464,12 @@ task AggregateImputationQCMetrics {
     File infoFile
     Int nSamples
     String basename
-    String rtidyverse_docker
-  }
 
-  Int disk_size = 100 + ceil(size(infoFile, "GiB"))
+    String rtidyverse_docker = "rocker/tidyverse:4.1.0"
+    Int cpu = 1
+    Int memory_mb = 2000
+    Int disk_size_gb = 100 + ceil(size(infoFile, "GiB"))
+  }
 
   command <<<
     Rscript -<< "EOF"
@@ -415,7 +493,9 @@ task AggregateImputationQCMetrics {
 
   runtime {
     docker: rtidyverse_docker
-    disks : "local-disk " + disk_size + " HDD"
+    disks : "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
     preemptible : 3
   }
 
@@ -433,7 +513,11 @@ task StoreChunksInfo {
     Array[Int] vars_in_panel
     Array[Boolean] valids
     String basename
-    String rtidyverse_docker
+
+    String rtidyverse_docker = "rocker/tidyverse:4.1.0"
+    Int cpu = 1
+    Int memory_mb = 2000
+    Int disk_size_gb = 10
   }
 
   command <<<
@@ -452,6 +536,9 @@ task StoreChunksInfo {
 
   runtime {
     docker: rtidyverse_docker
+    disks : "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
     preemptible : 3
   }
 
@@ -466,10 +553,12 @@ task MergeImputationQCMetrics {
   input {
     Array[File] metrics
     String basename
-    String rtidyverse_docker
-  }
 
-  Int disk_size = 100 + ceil(size(metrics, "GiB"))
+    String rtidyverse_docker = "rocker/tidyverse:4.1.0"
+    Int cpu = 1
+    Int memory_mb = 2000
+    Int disk_size_gb = 100 + ceil(size(metrics, "GiB"))
+  }
 
   command <<<
     Rscript -<< "EOF"
@@ -488,7 +577,9 @@ task MergeImputationQCMetrics {
 
   runtime {
     docker: rtidyverse_docker
-    disks : "local-disk " + disk_size + " HDD"
+    disks : "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
     preemptible : 3
   }
 
@@ -502,10 +593,12 @@ task SetIDs {
   input {
     File vcf
     String output_basename
-    String bcftools_docker
-  }
 
-  Int disk_size = 100 + ceil(2.2 * size(vcf, "GiB"))
+    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    Int cpu = 1
+    Int memory_mb = 4000
+    Int disk_size_gb = 100 + ceil(2.2 * size(vcf, "GiB"))
+  }
 
   command <<<
     bcftools annotate ~{vcf} --set-id '%CHROM\:%POS\:%REF\:%FIRST_ALT' -Ov | \
@@ -517,8 +610,9 @@ task SetIDs {
 
   runtime {
     docker: bcftools_docker
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "4 GiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
 
   output {
@@ -531,20 +625,26 @@ task ExtractIDs {
   input {
     File vcf
     String output_basename
-    Int disk_size = 2*ceil(size(vcf, "GiB")) + 100
-    String bcftools_docker
+
+    Int disk_size_gb = 2*ceil(size(vcf, "GiB")) + 100
+    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    Int cpu = 1
+    Int memory_mb = 4000
   }
 
   command <<<
     bcftools query -f "%ID\n" ~{vcf} -o ~{output_basename}.ids.txt
   >>>
+
   output {
     File ids = "~{output_basename}.ids.txt"
   }
+
   runtime {
     docker: bcftools_docker
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "4 GiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
 }
 
@@ -553,10 +653,12 @@ task SelectVariantsByIds {
     File vcf
     File ids
     String basename
-    String gatk_docker
-  }
 
-  Int disk_size = ceil(1.2*size(vcf, "GiB")) + 100
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+    Int cpu = 1
+    Int memory_mb = 16000
+    Int disk_size_gb = ceil(1.2*size(vcf, "GiB")) + 100
+  }
 
   parameter_meta {
     vcf: {
@@ -572,8 +674,9 @@ task SelectVariantsByIds {
 
   runtime {
     docker: gatk_docker
-    disks: "local-disk " + disk_size + " SSD"
-    memory: "16 GiB"
+    disks: "local-disk ${disk_size_gb} SSD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
 
   output {
@@ -586,10 +689,12 @@ task RemoveAnnotations {
   input {
     File vcf
     String basename
-    String bcftools_docker
-  }
 
-  Int disk_size = ceil(2.2*size(vcf, "GiB")) + 100
+    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    Int cpu = 1
+    Int memory_mb = 3000
+    Int disk_size_gb = ceil(2.2*size(vcf, "GiB")) + 100
+  }
 
   command <<<
     bcftools annotate ~{vcf} -x FORMAT,INFO -Oz -o ~{basename}.vcf.gz
@@ -598,8 +703,9 @@ task RemoveAnnotations {
 
   runtime {
     docker: bcftools_docker
-    memory: "3 GiB"
-    disks: "local-disk " + disk_size + " HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
 
   output {
@@ -612,20 +718,22 @@ task InterleaveVariants {
   input {
     Array[File] vcfs
     String basename
-    String gatk_docker
-  }
 
-  Int disk_size = ceil(3.2*size(vcfs, "GiB")) + 100
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+    Int cpu = 1
+    Int memory_mb = 16000
+    Int disk_size_gb = ceil(3.2*size(vcfs, "GiB")) + 100
+  }
 
   command <<<
     gatk MergeVcfs -I ~{sep=" -I " vcfs} -O ~{basename}.vcf.gz
   >>>
 
-
   runtime {
     docker: gatk_docker
-    disks: "local-disk " + disk_size + " SSD"
-    memory: "16 GiB"
+    disks: "local-disk ${disk_size_gb} SSD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
 
   output {
@@ -638,10 +746,12 @@ task FindSitesUniqueToFileTwoOnly {
   input {
     File file1
     File file2
-    String ubuntu_docker
-  }
 
-  Int disk_size = ceil(size(file1, "GiB") + 2*size(file2, "GiB")) + 100
+    String ubuntu_docker = "ubuntu:20.04"
+    Int cpu = 1
+    Int memory_mb = 4000
+    Int disk_size_gb = ceil(size(file1, "GiB") + 2*size(file2, "GiB")) + 100
+  }
 
   command <<<
     comm -13 <(sort ~{file1} | uniq) <(sort ~{file2} | uniq) > missing_sites.ids
@@ -649,8 +759,9 @@ task FindSitesUniqueToFileTwoOnly {
 
   runtime {
     docker: ubuntu_docker
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "4 GiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
 
   output {
@@ -661,11 +772,12 @@ task FindSitesUniqueToFileTwoOnly {
 task SplitMultiSampleVcf {
   input {
     File multiSampleVcf
-    Int mem = 8
-    Int bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
-  }
 
-  Int disk_size = ceil(3*size(multiSampleVcf, "GiB")) + 100
+    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    Int cpu = 1
+    Int memory_mb = 8000
+    Int disk_size_gb = ceil(3*size(multiSampleVcf, "GiB")) + 100
+  }
 
   command <<<
     mkdir out_dir
@@ -677,8 +789,9 @@ task SplitMultiSampleVcf {
 
   runtime {
     docker: bcftools_docker
-    disks: "local-disk " + disk_size + " SSD"
-    memory: mem + " GiB"
+    disks: "local-disk ${disk_size_gb} SSD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
   }
 
   output {
