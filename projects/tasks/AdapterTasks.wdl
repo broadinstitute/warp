@@ -107,7 +107,7 @@ task MergeLooms {
   }
 
   command {
-    merge_looms \
+    merge-looms \
       --input-loom-files ~{sep=' ' output_looms} \
       --library "~{library}" \
       --species "~{species}" \
