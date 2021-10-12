@@ -33,7 +33,7 @@ workflow Imputation {
     String output_callset_name # the output callset name
     Boolean split_output_to_single_sample = false
     File haplotype_database
-    Int merge_ssvcf_mem_gb = 3 # the memory allocation for MergeSingleSampleVcfs (in GiB)
+    Int merge_ssvcf_mem_mb = 3000 # the memory allocation for MergeSingleSampleVcfs (in mb)
 
     Float frac_well_imputed_threshold = 0.9 # require fraction of sites well imputed to be greater than this to pass
     Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
@@ -45,6 +45,7 @@ workflow Imputation {
     String bcf_index_suffix =  ".bcf.csi"
     String m3vcf_suffix = ".cleaned.m3vcf.gz"
   }
+<<<<<<< HEAD
   # Docker images here
   String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
   String bcftools_vcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
@@ -53,6 +54,8 @@ workflow Imputation {
   String eagle_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-eagle:1.0.0-2.4-1633695564"
   String ubuntu_docker_tag = "ubuntu:20.04"
   String rtidyverse_docker_tag = "rocker/tidyverse:4.1.0"
+=======
+>>>>>>> develop
 
   if (defined(single_sample_vcfs) && defined(multi_sample_vcf)) {
     call utils.ErrorWithMessage as ErrorMessageDoubleInput{
@@ -74,8 +77,7 @@ workflow Imputation {
         input_vcfs = select_first([single_sample_vcfs]),
         input_vcf_indices = select_first([single_sample_vcf_indices]),
         output_vcf_basename = "merged_input_samples",
-        bcftools_docker = bcftools_docker_tag,
-        mem = merge_ssvcf_mem_gb
+        memory_mb = merge_ssvcf_mem_mb
     }
   }
 
@@ -86,20 +88,17 @@ workflow Imputation {
     input:
       vcf = vcf_to_impute,
       output_basename = "input_samples_with_variant_ids",
-      bcftools_docker = bcftools_docker_tag
   }
 
   call tasks.ExtractIDs as ExtractIdsVcfToImpute {
     input:
       vcf = SetIdsVcfToImpute.output_vcf,
       output_basename = "imputed_sites",
-      bcftools_docker = bcftools_docker_tag
   }
 
   call tasks.CountSamples {
     input:
       vcf = vcf_to_impute,
-      bcftools_docker = bcftools_docker_tag
   }
 
   scatter (contig in contigs) {
@@ -118,8 +117,7 @@ workflow Imputation {
     call tasks.CalculateChromosomeLength {
       input:
         ref_dict = ref_dict,
-        chrom = referencePanelContig.contig,
-        ubuntu_docker = ubuntu_docker_tag
+        chrom = referencePanelContig.contig
     }
 
     Float chunkLengthFloat = chunkLength
@@ -139,8 +137,7 @@ workflow Imputation {
           start = startWithOverlaps,
           end = endWithOverlaps,
           chrom = referencePanelContig.contig,
-          basename = "chrom_" + referencePanelContig.contig + "_chunk_" + i,
-          gatk_docker = gatk_docker_tag
+          basename = "chrom_" + referencePanelContig.contig + "_chunk_" + i
       }
 
       if (perform_extra_qc_steps) {
@@ -149,7 +146,6 @@ workflow Imputation {
             input_vcf = GenerateChunk.output_vcf,
             input_vcf_index = GenerateChunk.output_vcf_index,
             output_vcf_basename =  "chrom_" + referencePanelContig.contig + "_chunk_" + i,
-            bcftools_vcftools_docker = bcftools_vcftools_docker_tag,
             optional_qc_max_missing = optional_qc_max_missing,
             optional_qc_hwe = optional_qc_hwe
         }
@@ -160,8 +156,7 @@ workflow Imputation {
           vcf = select_first([OptionalQCSites.output_vcf,  GenerateChunk.output_vcf]),
           vcf_index = select_first([OptionalQCSites.output_vcf_index, GenerateChunk.output_vcf_index]),
           panel_vcf = referencePanelContig.vcf,
-          panel_vcf_index = referencePanelContig.vcf_index,
-          gatk_docker = gatk_docker_tag
+          panel_vcf_index = referencePanelContig.vcf_index
       }
       call tasks.CheckChunks {
         input:
@@ -170,8 +165,7 @@ workflow Imputation {
           panel_vcf = referencePanelContig.vcf,
           panel_vcf_index = referencePanelContig.vcf_index,
           var_in_original = CountVariantsInChunks.var_in_original,
-          var_in_reference = CountVariantsInChunks.var_in_reference,
-          bcftools_docker = bcftools_docker_tag
+          var_in_reference = CountVariantsInChunks.var_in_reference
       }
 
       if (CheckChunks.valid) {
@@ -184,7 +178,6 @@ workflow Imputation {
             reference_panel_bcf_index = referencePanelContig.bcf_index,
             chrom = referencePanelContig.contig,
             genetic_map_file = genetic_maps_eagle,
-            eagle_docker = eagle_docker_tag,
             start = startWithOverlaps,
             end = endWithOverlaps
         }
@@ -195,7 +188,6 @@ workflow Imputation {
             phased_vcf = PhaseVariantsEagle.dataset_prephased_vcf,
             prefix = "chrom_" + referencePanelContig.contig + "_chunk_" + i +"_imputed",
             chrom = referencePanelContig.contig,
-            minimac4_docker = minimac4_docker_tag,
             start = start,
             end = end,
             window = chunkOverlaps
@@ -205,8 +197,7 @@ workflow Imputation {
           input:
             infoFile = Minimac4.info,
             nSamples = CountSamples.nSamples,
-            basename = output_callset_name + "chrom_" + referencePanelContig.contig + "_chunk_" + i,
-            rtidyverse_docker = rtidyverse_docker_tag
+            basename = output_callset_name + "chrom_" + referencePanelContig.contig + "_chunk_" + i
         }
 
         call tasks.UpdateHeader {
@@ -214,31 +205,27 @@ workflow Imputation {
             vcf = Minimac4.vcf,
             vcf_index = Minimac4.vcf_index,
             ref_dict = ref_dict,
-            basename = "chrom_" + referencePanelContig.contig + "_chunk_" + i +"_imputed",
-            gatk_docker = gatk_docker_tag
+            basename = "chrom_" + referencePanelContig.contig + "_chunk_" + i +"_imputed"
         }
 
         call tasks.SeparateMultiallelics {
           input:
             original_vcf = UpdateHeader.output_vcf,
             original_vcf_index = UpdateHeader.output_vcf_index,
-            output_basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed",
-            bcftools_docker = bcftools_docker_tag
+            output_basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed"
         }
 
         call tasks.RemoveSymbolicAlleles {
           input:
             original_vcf = SeparateMultiallelics.output_vcf,
             original_vcf_index = SeparateMultiallelics.output_vcf_index,
-            output_basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed",
-            gatk_docker = gatk_docker_tag
+            output_basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed"
         }
 
         call tasks.SetIDs {
           input:
             vcf = RemoveSymbolicAlleles.output_vcf,
-            output_basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed",
-            bcftools_docker = bcftools_docker_tag
+            output_basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed"
         }
       }
     }
@@ -254,51 +241,44 @@ workflow Imputation {
     input:
       input_vcfs = phased_vcfs,
       input_vcf_indices = phased_vcf_indices,
-      output_vcf_basename = output_callset_name,
-      gatk_docker = gatk_docker_tag
+      output_vcf_basename = output_callset_name
   }
 
   call tasks.ExtractIDs {
     input:
       vcf = GatherVcfs.output_vcf,
-      output_basename = "imputed_sites",
-      bcftools_docker = bcftools_docker_tag
+      output_basename = "imputed_sites"
   }
 
   call tasks.FindSitesUniqueToFileTwoOnly {
     input:
       file1 = ExtractIDs.ids,
-      file2 = ExtractIdsVcfToImpute.ids,
-      ubuntu_docker = ubuntu_docker_tag
+      file2 = ExtractIdsVcfToImpute.ids
   }
 
   call tasks.SelectVariantsByIds {
     input:
       vcf = SetIdsVcfToImpute.output_vcf,
       ids = FindSitesUniqueToFileTwoOnly.missing_sites,
-      basename = "imputed_sites_to_recover",
-      gatk_docker = gatk_docker_tag
+      basename = "imputed_sites_to_recover"
   }
 
   call tasks.RemoveAnnotations {
     input:
       vcf = SelectVariantsByIds.output_vcf,
-      basename = "imputed_sites_to_recover_annotations_removed",
-      bcftools_docker = bcftools_docker_tag
+      basename = "imputed_sites_to_recover_annotations_removed"
   }
 
   call tasks.InterleaveVariants {
     input:
       vcfs = [RemoveAnnotations.output_vcf, GatherVcfs.output_vcf],
-      basename = output_callset_name,
-      gatk_docker = gatk_docker_tag
+      basename = output_callset_name
   }
 
   call tasks.MergeImputationQCMetrics {
     input:
       metrics = flatten(aggregatedImputationMetrics),
-      basename = output_callset_name,
-      rtidyverse_docker = rtidyverse_docker_tag
+      basename = output_callset_name
   }
 
   if (MergeImputationQCMetrics.frac_well_imputed < frac_well_imputed_threshold) {
@@ -316,8 +296,7 @@ workflow Imputation {
       vars_in_array = flatten(CountVariantsInChunks.var_in_original),
       vars_in_panel = flatten(CountVariantsInChunks.var_in_reference),
       valids = flatten(CheckChunks.valid),
-      basename = output_callset_name,
-      rtidyverse_docker = rtidyverse_docker_tag
+      basename = output_callset_name
   }
   
   Int n_failed_chunks_int = read_int(StoreChunksInfo.n_failed_chunks)
@@ -332,8 +311,7 @@ workflow Imputation {
   if (split_output_to_single_sample) {
     call tasks.SplitMultiSampleVcf {
       input:
-        multiSampleVcf = InterleaveVariants.output_vcf,
-        bcftools_docker = bcftools_docker_tag
+        multiSampleVcf = InterleaveVariants.output_vcf
     }
   }
 
