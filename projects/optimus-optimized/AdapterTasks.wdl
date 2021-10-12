@@ -43,12 +43,14 @@ task CheckInput {
         f.write(list(input_set)[0])
   CODE
   >>>
+
   runtime {
     docker: docker
     cpu: cpu
-    memory: "~{memory_mb} MiB"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     String output_string = read_string("output.txt")
   }
@@ -80,12 +82,14 @@ task GetCromwellMetadata {
       ~{true="--include_subworkflows True" false="--include_subworkflows False" include_subworkflows} \
       ~{"--include_keys " + include_keys}
   }
+
   runtime {
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     File metadata = "metadata.json"
     String workflow_id = read_string("workflow_id.txt")
@@ -118,12 +122,14 @@ task MergeLooms {
       --project-name "~{project_name}" \
       --output-loom-file ~{output_basename}.loom
   }
+
   runtime {
     docker: docker
     cpu: 1
-    memory: "~{memory_mb} MiB"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     File project_loom = "~{output_basename}.loom"
   }
@@ -175,8 +181,9 @@ task GetAnalysisFileMetadata {
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     Array[File] analysis_file_outputs = glob("*${version_timestamp}.json")
     File outputs_json = "outputs.json"
@@ -208,14 +215,15 @@ task GetAnalysisProcessMetadata {
       --input_file "~{input_file}" \
       --project_level ~{project_level} \
       ~{"--ss2_index " + ss2_index}
-
   }
+
   runtime {
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     Array[File] analysis_process_outputs = glob("*${version_timestamp}.json")
   }
@@ -248,8 +256,9 @@ task GetAnalysisProtocolMetadata {
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     Array[File] analysis_protocol_outputs = glob("*${version_timestamp}.json")
   }
@@ -258,14 +267,18 @@ task GetAnalysisProtocolMetadata {
 task GetLinksFileMetadata {
   input {
     String project_id
-    Array[String] process_input_ids
+    String pipeline_type
     File output_file_path
+    Boolean project_level
+    String file_name_string
     String version_timestamp
+    Array[String] process_input_ids
     Array[File] analysis_process_path
     Array[File] analysis_protocol_path
-    String file_name_string
-    String pipeline_type
-    Boolean project_level
+
+    # SS2 specific
+    Array[String]? analysis_process_path_list # List of analysis_process paths from intermediate SS2 runs
+    Array[String]? analysis_protocol_path_list # List of analysis_protocol paths from intermediate SS2 runs (should be a single element)
     Array[String]? bam_array
     Array[String]? bai_array
     Array[String]? fastq1_array
@@ -273,12 +286,15 @@ task GetLinksFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = 200000
-    Int disk_size_gb = 10
+    Int memory_mb = ceil(size(output_file_path), "Mi"))
+    Int disk_size_gb = ceil(size(output_file_path), "Gi"))
   }
 
-  command {
-    if ["~{pipeline_type}" == "Optimus"]; then
+  command
+  <<<
+  set -o pipefail
+
+    if [ "~{pipeline_type}" == "Optimus" ]; then
       create-links \
       --project_id "~{project_id}" \
       --input_uuids ~{sep=' ' process_input_ids} \
@@ -290,28 +306,53 @@ task GetLinksFileMetadata {
       --project_level ~{project_level} \
       --pipeline_type "~{pipeline_type}"
     else
+    # SS2 will have runs with thousand of samples, must write info to a file rather than pass as arguments
+
+      declare -a PROTOCOL_PATH_LIST=(~{sep=' ' analysis_protocol_path_list})
+      declare -a PROCESS_PATH_LIST=(~{sep=' ' analysis_process_path_list})
+      declare -a BAM_ARRAY=(~{sep=' ' bam_array})
+      declare -a BAI_ARRAY=(~{sep=' ' bai_array})
+      declare -a FASTQ1_ARRAY=(~{sep=' ' fastq1_array})
+      declare -a FASTQ2_ARRAY=(~{sep=' ' fastq2_array}) 
+      declare -a INPUT_UUIDS=(~{sep=' ' process_input_ids})
+
+      TMP_DIR=$(mktemp -d -t XXXXXX)
+
+      printf '%s\n' "${PROTOCOL_PATH_LIST[@]}" | jq -R . | jq -s . > $TMP_DIR/protocol_list.json
+      printf '%s\n' "${PROCESS_PATH_LIST[@]}" | jq -R . | jq -s . > $TMP_DIR/process_list.json
+      printf '%s\n' "${BAM_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_bam.json
+      printf '%s\n' "${BAI_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_bai.json
+      printf '%s\n' "${FASTQ1_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_fastq1.json
+      printf '%s\n' "${FASTQ2_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_fastq2.json # fastq2 does not exist for single end runs, this should write an empty array if that is the case
+      printf '%s\n' "${INPUT_UUIDS[@]}" | jq -R . | jq -s . > $TMP_DIR/input_ids.json
+    
       create-links \
       --project_id "~{project_id}" \
       --output_file_path "~{output_file_path}" \
       --workspace_version "~{version_timestamp}" \
-      --input_uuids ~{sep=' ' process_input_ids} \
+      --input_uuids_path "$TMP_DIR/input_ids.json" \
       --analysis_process_path "~{sep=' ' analysis_process_path}" \
       --analysis_protocol_path "~{sep=' ' analysis_protocol_path}" \
-      --ss2_bam ~{sep=' ' bam_array} \
-      --ss2_bai ~{sep=' ' bai_array} \
-      --ss2_fastq1 ~{sep=' ' fastq1_array} \
-      --ss2_fastq2 ~{sep=' ' fastq2_array} \
+      --analysis_process_list_path "$TMP_DIR/process_list.json" \
+      --analysis_protocol_list_path "$TMP_DIR/protocol_list.json" \
+      --ss2_bam "$TMP_DIR/ss2_bam.json" \
+      --ss2_bai "$TMP_DIR/ss2_bai.json" \
+      --ss2_fastq1 "$TMP_DIR/ss2_fastq1.json" \
+      --ss2_fastq2 "$TMP_DIR/ss2_fastq2.json" \
       --file_name_string "~{file_name_string}" \
-      --project_level ~{project_level} \
-      --pipeline_type "~{pipeline_type}"
+      --pipeline_type "~{pipeline_type}" \
+      --project_level ~{project_level} 
+
     fi
-  }
+  >>>
+
   runtime {
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
     disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     Array[File] links_outputs = glob("*${version_timestamp}*.json")
   }
@@ -349,12 +390,14 @@ task GetFileDescriptor {
     --workspace_version "~{version_timestamp}"
 
   >>>
+
   runtime {
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     Array[File] file_descriptor_outputs = glob("*${version_timestamp}.json")
   }
@@ -390,12 +433,14 @@ task GetReferenceFileMetadata {
   --assembly_type "~{assembly_type}" \
   --reference_type "~{reference_type}"
   }
+
   runtime {
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     String reference_file_uuid = read_string("reference_uuid.txt")
     Array[File] reference_metadata_outputs = glob("*${version_timestamp}.json")
@@ -420,8 +465,9 @@ task GetCloudFileCreationDate {
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     String creation_date = read_string("creation_date.txt")
   }
@@ -443,12 +489,14 @@ task ParseCromwellMetadata {
     --cromwell-metadata-json ~{cromwell_metadata} \
     --pipeline-type ~{pipeline_type}
   }
+
   runtime {
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     String ref_fasta = read_string("ref_fasta.txt")
     String pipeline_version = read_string("pipeline_version.txt")
@@ -472,12 +520,14 @@ task GetReferenceDetails {
     --reference-file "~{ref_fasta}" \
     --species "~{species}"
   }
+
   runtime {
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     String ncbi_taxon_id = read_string("ncbi_taxon_id.txt")
     String assembly_type = read_string("assembly_type.txt")
@@ -501,12 +551,14 @@ task GetProjectLevelInputIds {
     get-process-input-ids \
     --input-json-files ~{sep=' ' intermediate_analysis_files}
   }
+
   runtime {
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     String process_input_uuids = read_string("output.txt")
   }
@@ -547,8 +599,8 @@ task CopyToStagingBucket {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "~{memory_mb} MiB"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
 }
 
@@ -564,17 +616,20 @@ task GetOptimusPipelineVersion {
     Int memory_mb = 2000
     Int disk_size_gb = 5
   }
+
   command {
     echo ~{prefix}~{pipeline_version} > pipeline_version.txt
   }
-  output {
-    String pipeline_version_string = read_string("pipeline_version.txt")
-  }
+
   runtime {
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
     disks: "local-disk ${disk_size_gb} HDD"
+  }
+
+  output {
+    String pipeline_version_string = read_string("pipeline_version.txt")
   }
 }
 
@@ -600,14 +655,14 @@ task GetBucketCreationDate {
       --timestamp "${timestamp}"
   >>>
 
-  output{
-    String version_timestamp = read_string("bucket_timestamp.txt")
-  }
-
   runtime {
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    disks: "local-disk ${disk_size_gb} HDD"
+  }
+
+  output {
+    String version_timestamp = read_string("bucket_timestamp.txt")
   }
 }
