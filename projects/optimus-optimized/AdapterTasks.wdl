@@ -232,7 +232,7 @@ task GetAnalysisProtocolMetadata {
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int memory_mb = 2000
-    Int disk_size_gb = 10
+    Int disk_size_gb = 5
   }
 
   command {
@@ -273,8 +273,8 @@ task GetLinksFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil(size(output_file_path, "Mi")) * length(analysis_process_path)
-    Int disk_size_gb = ceil(size(output_file_path, "Gi")) * length(analysis_process_path)
+    Int memory_mb = 200000
+    Int disk_size_gb = 10
   }
 
   command {
@@ -374,8 +374,8 @@ task GetReferenceFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = 2000
-    Int disk_size_gb = 10
+    Int memory_mb = ceil(size(file_path, "Mi"))
+    Int disk_size_gb = ceil(size(file_path, "Gi"))
   }
 
   command {
@@ -409,7 +409,7 @@ task GetCloudFileCreationDate {
     String docker = "gcr.io/google.com/cloudsdktool/cloud-sdk:latest"
     Int cpu = 1
     Int memory_mb = 2000
-    Int disk_size_gb = 10
+    Int disk_size_gb = 5
   }
 
   command <<<
@@ -434,8 +434,8 @@ task ParseCromwellMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(cromwell_metadata, "Mi")) * 2) + 1000
-    Int disk_size_gb = ceil((size(cromwell_metadata, "Gi") * 2)) + 5
+    Int memory_mb = ceil((size(cromwell_metadata, "Mi")))
+    Int disk_size_gb = ceil(size(cromwell_metadata, "Gi"))
   }
 
   command {
@@ -562,7 +562,7 @@ task GetOptimusPipelineVersion {
     String docker = "ubuntu:18.04"
     Int cpu = 1
     Int memory_mb = 2000
-    Int disk_size_gb = 3
+    Int disk_size_gb = 5
   }
   command {
     echo ~{prefix}~{pipeline_version} > pipeline_version.txt
@@ -585,7 +585,7 @@ task GetBucketCreationDate {
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
     Int memory_mb = 2000
-    Int disk_size_gb = 30
+    Int disk_size_gb = 5
   }
 
   meta {
