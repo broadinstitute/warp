@@ -101,7 +101,7 @@ task MergeLooms {
     String project_name
     String output_basename
 
-    String docker = "quay.io/humancellatlas/hca_post_processing:2.0"
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int memory = ceil(size(output_looms, "G"))+ 10
     Int disk = ceil((size(output_looms, "G") * 4)) + 50
   }
