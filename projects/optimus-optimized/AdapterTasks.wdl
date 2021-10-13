@@ -148,8 +148,8 @@ task GetAnalysisFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = if defined(input_file) then ceil((size(input_file, "Mi"))) + 3 else 2000
-    Int disk_size_gb = if defined(input_file) then ceil((size(input_file, "Gi"))) + 3 else 10
+    Int memory_mb = if defined(input_file) then ceil(size(input_file, "Mi")) else 2000
+    Int disk_size_gb = if defined(input_file) then ceil(size(input_file, "Gi")) else 5
   }
 
   # For Optimus, if we are doing an intermediate level run, then we pass in the metadata.json
@@ -369,8 +369,8 @@ task GetFileDescriptor {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil(size(file_path, "Mi"))
-    Int disk_size_gb = ceil(size(file_path, "Gi"))
+    Int memory_mb = ceil(size(file_path, "Mi")) + 2000
+    Int disk_size_gb = ceil(size(file_path, "Gi")) + 5
   }
 
   command
