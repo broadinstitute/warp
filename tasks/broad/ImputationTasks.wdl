@@ -72,7 +72,7 @@ task CountVariantsInChunks {
     File vcf_index
     File panel_vcf
     File panel_vcf_index
-    Int disk_size = ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
+    Int disk_size = 100 #ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
     String gatk_docker
   }
   command <<<
