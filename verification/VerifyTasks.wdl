@@ -46,7 +46,7 @@ task CompareGtcs {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.3"
     disks: "local-disk 10 HDD"
     memory: "5 GiB"
     preemptible: 3
@@ -164,7 +164,7 @@ task CompareBams {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.3"
     disks: "local-disk " + disk_size + " HDD"
     cpu: 2
     memory: "7.5 GiB"

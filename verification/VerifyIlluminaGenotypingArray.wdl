@@ -86,8 +86,8 @@ workflow VerifyIlluminaGenotypingArray {
 
   call Tasks.CompareVcfs as CompareOutputFingerprintVcfs {
     input:
-       file1 = truth_fp_vcf,
-       file2 = test_fp_vcf
+      file1 = truth_fp_vcf,
+      file2 = test_fp_vcf
   }
 
   call Tasks.CompareGtcs {
@@ -131,7 +131,7 @@ task CompareGtcs {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.3"
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
     preemptible: 3

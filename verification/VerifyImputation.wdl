@@ -134,7 +134,7 @@ task CrosscheckFingerprints {
     Array[File] secondInputIndices
     File haplotypeDatabase
     String basename
-    String picard_docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    String picard_docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.3"
   }
 
   Int disk_size = ceil(1.2*(size(firstInputs, "GiB") + size(secondInputs, "GiB") + size(haplotypeDatabase, "GiB"))) + 100

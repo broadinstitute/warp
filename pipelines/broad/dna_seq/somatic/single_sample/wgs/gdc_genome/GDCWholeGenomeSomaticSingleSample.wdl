@@ -615,7 +615,7 @@ task collect_insert_size_metrics {
       HISTOGRAM_FILE=~{output_bam_prefix}.insert_size_histogram.pdf
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.3"
     memory: mem + " MiB"
     disks: "local-disk " + disk_size + " HDD"
   }
