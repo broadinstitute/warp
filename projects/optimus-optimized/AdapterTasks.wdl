@@ -67,8 +67,8 @@ task GetCromwellMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(output_path, "Mi")))
-    Int disk_size_gb = ceil((size(output_path, "Gi")))
+    Int memory_mb = ceil((size(output_path, "MiB")))
+    Int disk_size_gb = ceil((size(output_path, "GiB")))
   }
 
   command {
@@ -108,8 +108,8 @@ task MergeLooms {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil(size(output_looms, "Mi")) * length(output_looms)
-    Int disk_size_gb = ceil((size(output_looms, "Gi") * 2)) + 5
+    Int memory_mb = ceil(size(output_looms, "MiB")) * length(output_looms)
+    Int disk_size_gb = ceil((size(output_looms, "GiB") * 2)) + 5
   }
 
   command {
@@ -148,8 +148,8 @@ task GetAnalysisFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = if defined(input_file) then ceil(size(input_file, "Mi")) else 2000
-    Int disk_size_gb = if defined(input_file) then ceil(size(input_file, "Gi")) else 5
+    Int memory_mb = if defined(input_file) then ceil(size(input_file, "MiB")) else 2000
+    Int disk_size_gb = if defined(input_file) then ceil(size(input_file, "GiB")) else 5
   }
 
   # For Optimus, if we are doing an intermediate level run, then we pass in the metadata.json
@@ -202,8 +202,8 @@ task GetAnalysisProcessMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(input_file, "Mi"))) + 2000
-    Int disk_size_gb = ceil((size(input_file, "Gi"))) + 3
+    Int memory_mb = ceil((size(input_file, "MiB"))) + 2000
+    Int disk_size_gb = ceil((size(input_file, "GiB"))) + 3
   }
 
   command {
@@ -286,8 +286,8 @@ task GetLinksFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil(size(output_file_path, "Mi"))
-    Int disk_size_gb = ceil(size(output_file_path, "Gi"))
+    Int memory_mb = ceil(size(output_file_path, "MiB"))
+    Int disk_size_gb = ceil(size(output_file_path, "GiB"))
   }
 
   command
@@ -369,8 +369,8 @@ task GetFileDescriptor {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil(size(file_path, "Mi")) + 2000
-    Int disk_size_gb = ceil(size(file_path, "Gi")) + 5
+    Int memory_mb = ceil(size(file_path, "MiB")) + 2000
+    Int disk_size_gb = ceil(size(file_path, "GiB")) + 5
   }
 
   command
@@ -480,8 +480,8 @@ task ParseCromwellMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(cromwell_metadata, "Mi")))
-    Int disk_size_gb = ceil(size(cromwell_metadata, "Gi"))
+    Int memory_mb = ceil((size(cromwell_metadata, "MiB")))
+    Int disk_size_gb = ceil(size(cromwell_metadata, "GiB"))
   }
 
   command {
@@ -511,8 +511,8 @@ task GetReferenceDetails {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(ref_fasta, "Mi")) * 2) + 1000
-    Int disk_size_gb = ceil((size(ref_fasta, "Gi") * 2)) + 5
+    Int memory_mb = ceil((size(ref_fasta, "MiB")) * 2) + 1000
+    Int disk_size_gb = ceil((size(ref_fasta, "GiB") * 2)) + 5
   }
 
   command {
@@ -543,8 +543,8 @@ task GetProjectLevelInputIds {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(intermediate_analysis_files, "Mi")) * 2) + 1000
-    Int disk_size_gb = ceil((size(intermediate_analysis_files, "Gi") * 2)) + 5
+    Int memory_mb = ceil((size(intermediate_analysis_files, "MiB")) * 2) + 1000
+    Int disk_size_gb = ceil((size(intermediate_analysis_files, "GiB") * 2)) + 5
   }
 
   command {
@@ -579,8 +579,8 @@ task CopyToStagingBucket {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil(size(data_objects, "Mi"))
-    Int disk_size_gb = ceil(size(data_objects, "Gi"))
+    Int memory_mb = ceil(size(data_objects, "MiB"))
+    Int disk_size_gb = ceil(size(data_objects, "GiB"))
   }
 
   command
