@@ -417,21 +417,21 @@ task GetReferenceFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil(size(file_path, "Mi"))
-    Int disk_size_gb = ceil(size(file_path, "Gi"))
+    Int memory_mb = 2000
+    Int disk_size_gb = 5
   }
 
   command {
-  create-reference-file \
-  --genus_species "~{genus_species}" \
-  --file_path "~{file_path}" \
-  --workspace_version "~{version_timestamp}" \
-  --input_uuid "~{input_uuid}" \
-  --reference_version "~{reference_version}" \
-  --ncbi_taxon_id "~{ncbi_taxon_id}" \
-  --pipeline_type "~{pipeline_type}" \
-  --assembly_type "~{assembly_type}" \
-  --reference_type "~{reference_type}"
+    create-reference-file \
+      --genus_species "~{genus_species}" \
+      --file_path "~{file_path}" \
+      --workspace_version "~{version_timestamp}" \
+      --input_uuid "~{input_uuid}" \
+      --reference_version "~{reference_version}" \
+      --ncbi_taxon_id "~{ncbi_taxon_id}" \
+      --pipeline_type "~{pipeline_type}" \
+      --assembly_type "~{assembly_type}" \
+      --reference_type "~{reference_type}"
   }
 
   runtime {
@@ -453,8 +453,8 @@ task GetCloudFileCreationDate {
 
     String docker = "gcr.io/google.com/cloudsdktool/cloud-sdk:latest"
     Int cpu = 1
-    Int memory_mb = 2000
-    Int disk_size_gb = 5
+    Int memory_mb = 1000
+    Int disk_size_gb = 1
   }
 
   command <<<
@@ -579,8 +579,8 @@ task CopyToStagingBucket {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(data_objects, "Mi") * 2)) + 2000
-    Int disk_size_gb = ceil((size(data_objects, "Gi") * 2)) + 5
+    Int memory_mb = ceil((size(data_objects, "Mi") * 5)) + 1000
+    Int disk_size_gb = ceil((size(data_objects, "Gi") * 5)) + 5
   }
 
   command {
@@ -639,8 +639,8 @@ task GetBucketCreationDate {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = 2000
-    Int disk_size_gb = 5
+    Int memory_mb = 1000
+    Int disk_size_gb = 1
   }
 
   meta {
