@@ -579,22 +579,47 @@ task CopyToStagingBucket {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil((size(data_objects, "Mi") * 5)) + 1000
-    Int disk_size_gb = ceil((size(data_objects, "Gi") * 5)) + 5
+    Int memory_mb = ceil(size(data_objects, "Mi"))
+    Int disk_size_gb = ceil(size(data_objects, "Gi"))
   }
 
-  command {
-    copy-adapter-outputs \
-    --analysis_files_metadata_jsons ~{sep=" " analysis_file_metadata_objects} \
-    --analysis_process_jsons ~{sep=" " analysis_process_objects} \
-    --analysis_protocol_jsons ~{sep=" " analysis_protocol_objects} \
-    --analysis_files_descriptors_jsons ~{sep=" " analysis_file_descriptor_objects} \
-    --links_jsons ~{sep=" " links_objects} \
-    --data_files ~{sep=" " data_objects} \
-    --reference_metadata_jsons ~{sep=" " reference_metadata_objects} \
-    --reference_file_descriptor_jsons ~{sep=" " reference_file_descriptor_objects} \
-    --staging-bucket ~{staging_bucket}
-  }
+  command
+  <<<
+    set -o pipefail
+      
+      # SS2 will have runs with thousand of samples, must write info to a file rather than pass as arguments
+
+      declare -a ANALYSIS_FILE_METADATA=(~{sep=' ' analysis_file_metadata_objects})
+      declare -a ANALYSIS_PROCESS=(~{sep=' ' analysis_process_objects})
+      declare -a ANALYSIS_PROTOCOL=(~{sep=' ' analysis_protocol_objects})
+      declare -a ANALYSIS_FILE_DESCRIPTORS=(~{sep=' ' analysis_file_descriptor_objects})
+      declare -a LINKS_FILES=(~{sep=' ' links_objects})
+      declare -a DATA_FILES=(~{sep=' ' data_objects})
+      declare -a REFERENCE_METADATA=(~{sep=' ' reference_metadata_objects})
+      declare -a REFERENCE_FILE_DESCRIPTORS=(~{sep=' ' reference_file_descriptor_objects})
+  
+      TMP_DIR=$(mktemp -d -t XXXXXX)
+
+      printf '%s\n' "${ANALYSIS_FILE_METADATA[@]}" | jq -R . | jq -s . > $TMP_DIR/analysis_file_metadata.json
+      printf '%s\n' "${ANALYSIS_PROCESS[@]}" | jq -R . | jq -s . > $TMP_DIR/analysis_process.json
+      printf '%s\n' "${ANALYSIS_PROTOCOL[@]}" | jq -R . | jq -s . > $TMP_DIR/analysis_protocol.json
+      printf '%s\n' "${ANALYSIS_FILE_DESCRIPTORS[@]}" | jq -R . | jq -s . > $TMP_DIR/analysis_file_descriptors.json
+      printf '%s\n' "${LINKS_FILES[@]}" | jq -R . | jq -s . > $TMP_DIR/links_files.json
+      printf '%s\n' "${DATA_FILES[@]}" | jq -R . | jq -s . > $TMP_DIR/data_files.json
+      printf '%s\n' "${REFERENCE_METADATA[@]}" | jq -R . | jq -s . > $TMP_DIR/reference_metadata.json
+      printf '%s\n' "${REFERENCE_FILE_DESCRIPTORS[@]}" | jq -R . | jq -s . > $TMP_DIR/reference_file_descriptors.json
+  
+      copy-adapter-outputs \
+      --analysis_files_metadata_jsons "$TMP_DIR/analysis_file_metadata.json" \
+      --analysis_process_jsons "$TMP_DIR/analysis_process.json" \
+      --analysis_protocol_jsons "$TMP_DIR/analysis_protocol.json" \
+      --analysis_files_descriptors_jsons "$TMP_DIR/analysis_file_descriptors.json" \
+      --links_jsons "$TMP_DIR/links_files.json" \
+      --data_files "$TMP_DIR/data_files.json" \
+      --reference_metadata_jsons "$TMP_DIR/reference_metadata.json" \
+      --reference_file_descriptor_jsons "$TMP_DIR/reference_file_descriptors.json" \
+      --staging-bucket ~{staging_bucket}
+  >>>
 
   runtime {
     docker: docker
