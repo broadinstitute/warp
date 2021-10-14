@@ -20,13 +20,9 @@ import "../../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingT
 
 workflow IlluminaGenotypingArray {
 
-  String pipeline_version = "1.11.5"
+  String pipeline_version = "1.11.6"
 
   input {
-
-    # This is the autocall_version, needed for the case where autocall fails (likely due to normalization errors)
-    # In this case it no longer emits the version in its output, so we store it here.
-    String autocall_version = "3.0.0"
     String sample_alias
     Int analysis_version_number
     Float call_rate_threshold
@@ -337,6 +333,7 @@ workflow IlluminaGenotypingArray {
   output {
     String chip_well_barcode_output = chip_well_barcode
     Int analysis_version_number_output = analysis_version_number
+    String autocall_version = AutoCall.autocall_version
     File gtc = AutoCall.gtc_file
     File red_idat_md5_cloud_path = RedIdatMd5Sum.md5_cloud_path
     File green_idat_md5_cloud_path = GreenIdatMd5Sum.md5_cloud_path
