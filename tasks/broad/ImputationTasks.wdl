@@ -111,7 +111,7 @@ task CheckChunks {
     Int var_in_reference
 
     Int disk_size_gb = ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
-    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
     Int cpu = 1
     Int memory_mb = 4000
   }
@@ -149,13 +149,13 @@ task PhaseVariantsEagle {
     Int start
     Int end
 
-    String eagle_docker = "us.gcr.io/broad-dsde-methods/imputation_eagle_docker:v1.0.0"
+    String eagle_docker = "us.gcr.io/broad-gotc-prod/imputation-eagle:1.0.0-2.4-1633695564"
     Int cpu = 8
     Int memory_mb = 32000
     Int disk_size_gb = ceil(3 * size([dataset_bcf, reference_panel_bcf, dataset_bcf_index, reference_panel_bcf_index], "GiB"))
   }
   command <<<
-    /eagle  \
+    /usr/gitc/eagle  \
     --vcfTarget ~{dataset_bcf}  \
     --vcfRef ~{reference_panel_bcf} \
     --geneticMapFile ~{genetic_map_file} \
@@ -186,13 +186,13 @@ task Minimac4 {
     Int end
     Int window
 
-    String minimac4_docker = "us.gcr.io/broad-dsde-methods/imputation-minimac-docker:v1.0.0"
+    String minimac4_docker = "us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.0-1.0.2-1633700284"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = ceil(size(ref_panel, "GiB") + 2*size(phased_vcf, "GiB")) + 50
   }
   command <<<
-    /Minimac4 \
+    /usr/gitc/minimac4 \
     --refHaps ~{ref_panel} \
     --haps ~{phased_vcf} \
     --start ~{start} \
@@ -317,7 +317,7 @@ task SeparateMultiallelics {
     String output_basename
 
     Int disk_size_gb =  ceil(2*(size(original_vcf, "GiB") + size(original_vcf_index, "GiB")))
-    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
     Int cpu = 1
     Int memory_mb = 4000
   }
@@ -345,7 +345,7 @@ task OptionalQCSites {
     Float? optional_qc_max_missing
     Float? optional_qc_hwe
 
-    String bcftools_vcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    String bcftools_vcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = ceil(2*(size(input_vcf, "GiB") + size(input_vcf_index, "GiB")))
@@ -376,7 +376,7 @@ task MergeSingleSampleVcfs {
     Array[File] input_vcf_indices
     String output_vcf_basename
 
-    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
     Int memory_mb = 2000
     Int cpu = 1
     Int disk_size_gb = 3 * ceil(size(input_vcfs, "GiB") + size(input_vcf_indices, "GiB")) + 20
@@ -401,7 +401,7 @@ task CountSamples {
   input {
     File vcf
 
-    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
     Int cpu = 1
     Int memory_mb = 3000
     Int disk_size_gb = 100 + ceil(size(vcf, "GiB"))
@@ -546,7 +546,7 @@ task SetIDs {
     File vcf
     String output_basename
 
-    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = 100 + ceil(2.2 * size(vcf, "GiB"))
@@ -576,7 +576,7 @@ task ExtractIDs {
     String output_basename
 
     Int disk_size_gb = 2*ceil(size(vcf, "GiB")) + 100
-    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
     Int cpu = 1
     Int memory_mb = 4000
   }
@@ -632,7 +632,7 @@ task RemoveAnnotations {
     File vcf
     String basename
 
-    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
     Int cpu = 1
     Int memory_mb = 3000
     Int disk_size_gb = ceil(2.2*size(vcf, "GiB")) + 100
@@ -706,7 +706,7 @@ task SplitMultiSampleVcf {
  input {
     File multiSampleVcf
 
-    String bcftools_docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
     Int cpu = 1
     Int memory_mb = 8000
     Int disk_size_gb = ceil(3*size(multiSampleVcf, "GiB")) + 100

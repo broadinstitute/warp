@@ -1,26 +1,25 @@
 #!/bin/bash
 set -e
 
-# Update verson when changes to Dockerfile are made
-DOCKER_IMAGE_VERSION=1.0.2
+# Update version when changes to Dockerfile are made
+DOCKER_IMAGE_VERSION=1.0.0
 TIMESTAMP=$(date +"%s")
 DIR=$(cd $(dirname $0) && pwd)
 
-# Registries and tags"
-GCR_URL="us.gcr.io/broad-gotc-prod/illumina-iaap-autocall"
-QUAY_URL="quay.io/broadinstitute/gotc-prod-illumina_iaap_autocall"
+# Registries and tags
+GCR_URL="us.gcr.io/broad-gotc-prod/imputation-eagle"
+QUAY_URL="quay.io/broadinstitute/gotc-prod-imputation_eagle"
 
-
-# Iaap cli version
-IAAP_CLI_VERSION="iaap-cli-linux-x64-1.1.0-sha.80d7e5b3d9c1fdfc2e99b472a90652fd3848bbc7"
+# Eagle version
+EAGLE_VERSION="2.4"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-t|--tools] -- script to build the Illumina IAAP image and push to GCR & Quay
+HELP="$(basename "$0") [-h|--help] [-e|--eagle] [-t|--tools] -- script to build the Imputation Eagle image and push to GCR & Quay
 
 where:
     -h|--help Show help text
-    -v|--version Zip version of Zcall to use (default: $IAAP_CLI_VERSION)
+    -e|--eagle Version of Eagle to use (default: EAGLE_VERSION=${EAGLE_VERSION})
     -t|--tools Show tools needed to run script
     "
 
@@ -36,8 +35,8 @@ function main(){
     do 
     key="$1"
     case $key in
-        -v|--version)
-        IAAP_CLI_VERSION="$2"
+        -e|--eagle)
+        EAGLE_VERSION="$2"
         shift
         shift
         ;;
@@ -55,19 +54,19 @@ function main(){
     esac
     done
 
-    VERSION_NUMBER=$(echo $IAAP_CLI_VERSION | grep -Eo '[-][0-9]+([.][0-9]+)+[-]' | sed 's/-//g' )
-    IMAGE_TAG="$DOCKER_IMAGE_VERSION-$VERSION_NUMBER-$TIMESTAMP"
+    IMAGE_TAG="$DOCKER_IMAGE_VERSION-$EAGLE_VERSION-$TIMESTAMP"
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
-    docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \
-        --build-arg IAAP_CLI_VERSION="$IAAP_CLI_VERSION" "$DIR"
+    docker build -t "$GCR_URL:$IMAGE_TAG" \
+        --build-arg EAGLE_VERSION="$EAGLE_VERSION" \
+        --no-cache $DIR   
     docker push "$GCR_URL:$IMAGE_TAG"
 
     echo "tagging and pushing Quay Image"
     docker tag "$GCR_URL:$IMAGE_TAG" "$QUAY_URL:$IMAGE_TAG"
     docker push "$QUAY_URL:$IMAGE_TAG"
 
-    echo "$GCR_URL:$IMAGE_TAG" >> "$DIR/docker_versions.tsv"
+    echo -e "$GCR_URL:$IMAGE_TAG" >> "$DIR/docker_versions.tsv"
     echo "done"
 }
 

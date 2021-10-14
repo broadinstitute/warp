@@ -133,10 +133,6 @@ task UploadFingerprintToMercury {
     Int preemptible_tries
   }
 
-  meta {
-    volatile: true
-  }
-
   command <<<
     set -eo pipefail
 

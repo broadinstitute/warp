@@ -7,23 +7,23 @@ TIMESTAMP=$(date +"%s")
 DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
-GCR_URL="us.gcr.io/broad-gotc-prod/gatk"
-QUAY_URL="quay.io/broadinstitute/gotc-prod-gatk"
+GCR_URL="us.gcr.io/broad-gotc-prod/imputation-bcf-vcf"
+QUAY_URL="quay.io/broadinstitute/gotc-prod-imputation_bcf_vcf"
 
-# GATK4 version
-GATK4_VERSION="4.1.8.0"
+#BCFTOOLS version
+BCFTOOLS_VERSION="1.10.2"
 
-# GATK3 version
-GATK3_VERSION="3.5"
+#VCFTOOLS version
+VCFTOOLS_VERSION="0.1.16"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-v4|--version4] [-v3|--version3] [-t|--tools] -- script to build the GATK image and push to GCR & Quay
+HELP="$(basename "$0") [-h|--help] [-b|--bcf] [-v|--vcf] [-t|--tools] -- script to build the Imputation Bcf/Vcf tools image and push to GCR & Quay
 
 where:
     -h|--help Show help text
-    -v4|--version4 Version of GATK4 to use (default: GATK4=$GATK4_VERSION)
-    -v3|--version3 Version of GATK3 to use (default: GATK3=$GATK3_VERSION)
+    -b|--bcf Version of BCFTOOLS to use (default: BCFTOOLS_VERSION=${BCFTOOLS_VERSION})
+    -v|--vcf Version of VCFTOOLS to use (default: VCFTOOLS_VERSION=${VCFTOOLS_VERSION})
     -t|--tools Show tools needed to run script
     "
 
@@ -39,13 +39,13 @@ function main(){
     do 
     key="$1"
     case $key in
-        -v4|--version4)
-        GATK4_VERSION="$2"
+        -b|--bcf)
+        BCFTOOLS_VERSION="$2"
         shift
         shift
         ;;
-        -v3|--version3)
-        GATK3_VERSION="$2"
+        -v|--vcf)
+        VCFTOOLS_VERSION="$2"
         shift
         shift
         ;;
@@ -63,12 +63,12 @@ function main(){
     esac
     done
 
-    IMAGE_TAG="$DOCKER_IMAGE_VERSION-$GATK4_VERSION-$TIMESTAMP"
+    IMAGE_TAG="$DOCKER_IMAGE_VERSION-$BCFTOOLS_VERSION-$VCFTOOLS_VERSION-$TIMESTAMP"
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build -t "$GCR_URL:$IMAGE_TAG" \
-        --build-arg GATK4_VERSION="$GATK4_VERSION" \
-        --build-arg GATK3_VERSION="$GATK3_VERSION" \
+        --build-arg BCFTOOLS_VERSION="$BCFTOOLS_VERSION" \
+        --build-arg VCFTOOLS_VERSION="$VCFTOOLS_VERSION" \
         --no-cache $DIR   
     docker push "$GCR_URL:$IMAGE_TAG"
 
