@@ -13,7 +13,7 @@ QUAY_URL="quay.io/broadinstitute/gotc-prod-verify_bam_id"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|tools] -- script to build the VerifyBamID image and push to GCR & Dockerhub
+HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|tools] -- script to build the VerifyBamID image and push to GCR & Quay
 
 where:
     -h|--help Show help text
