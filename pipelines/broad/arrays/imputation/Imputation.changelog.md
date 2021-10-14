@@ -1,9 +1,5 @@
 # 1.0.0
-<<<<<<< HEAD
-2021-10-08 (Date of Last Commit)
-=======
 2021-10-12 (Date of Last Commit)
->>>>>>> develop
 
 * Initial public release of the Imputation pipeline. Read more in the [Imputation pipeline overview](https://broadinstitute.github.io/warp/docs/Pipelines/Imputation_Pipeline/README).
 
