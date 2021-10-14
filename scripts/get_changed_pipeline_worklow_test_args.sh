@@ -35,6 +35,8 @@ function pipeline_to_args() {
       echo JointGenotyping -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached} --papi-version PAPIv2;;
     IlluminaGenotypingArray)
       echo IlluminaGenotypingArray ${common_args};;
+    Imputation)
+      echo Imputation ${common_args};;
     ExternalExomeReprocessing)
       if [[ "${test}" == "Scientific" ]]; then
         echo ExternalReprocessing -d Exome --env ${env} -t Plumbing -b ${truth} ${uncached}

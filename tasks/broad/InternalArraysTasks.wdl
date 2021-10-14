@@ -27,7 +27,7 @@ task GenerateEmptyVariantCallingMetricsFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }
@@ -43,6 +43,7 @@ task BlacklistBarcode {
     String chip_well_barcode
     Int analysis_version_number
     Int preemptible_tries
+    File vault_token_path
     Array[String] authentication
     String service_account_filename
     String reason
@@ -56,6 +57,7 @@ task BlacklistBarcode {
   command <<<
     set -eo pipefail
 
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
     AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
     export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
 
@@ -71,7 +73,7 @@ task BlacklistBarcode {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }
@@ -122,7 +124,7 @@ task VcfToMercuryFingerprintJson {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -150,7 +152,7 @@ task CreateBafRegressMetricsFile {
       --OUTPUT ~{output_metrics_basefilename}
   }
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -164,8 +166,8 @@ task CreateBafRegressMetricsFile {
 task UploadArraysMetrics {
   input {
     File arrays_variant_calling_detail_metrics
-    File? arrays_variant_calling_summary_metrics
-    File? arrays_control_code_summary_metrics
+    File arrays_variant_calling_summary_metrics
+    File arrays_control_code_summary_metrics
     File? fingerprinting_detail_metrics
     File? fingerprinting_summary_metrics
     File? genotype_concordance_summary_metrics
@@ -174,6 +176,7 @@ task UploadArraysMetrics {
     File? verify_id_metrics
     File? bafregress_metrics
 
+    File vault_token_path
     Array[String] authentication
     String service_account_filename
 
@@ -188,13 +191,18 @@ task UploadArraysMetrics {
   command <<<
     set -eo pipefail
 
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
     AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
     export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
 
     rm -rf metrics_upload_dir &&
     mkdir metrics_upload_dir &&
 
-    # check that files are passed in before copying them -- [ -z FILE ] evaluates to true if FILE not there
+    cp ~{arrays_control_code_summary_metrics} metrics_upload_dir
+    cp ~{arrays_variant_calling_detail_metrics} metrics_upload_dir
+    cp ~{arrays_variant_calling_summary_metrics} metrics_upload_dir
+
+    # check that optional files exist before copying them -- [ -z FILE ] evaluates to true if FILE not there
     ! [ -z ~{genotype_concordance_summary_metrics} ] &&
     cp ~{genotype_concordance_summary_metrics} metrics_upload_dir
     ! [ -z ~{genotype_concordance_detail_metrics} ] &&
@@ -211,18 +219,61 @@ task UploadArraysMetrics {
     ! [ -z ~{fingerprinting_summary_metrics} ] &&
     cp ~{fingerprinting_summary_metrics} metrics_upload_dir
 
-    cp ~{arrays_variant_calling_detail_metrics} metrics_upload_dir
-    ! [ -z ~{arrays_variant_calling_summary_metrics} ] &&
-    cp ~{arrays_variant_calling_summary_metrics} metrics_upload_dir
-
-    ! [ -z ~{arrays_control_code_summary_metrics} ] &&
-    cp ~{arrays_control_code_summary_metrics} metrics_upload_dir
     java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
       UploadArraysMetrics \
       --ANALYSIS_DIRECTORY metrics_upload_dir \
       --DB_USERNAME_FILE cloudsql.db_user.txt \
       --DB_PASSWORD_FILE cloudsql.db_password.txt \
       --DB_JDBC_FILE cloudsql.db_jdbc.txt &&
+    touch empty_file_for_dependency
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359"
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "3.5 GiB"
+    preemptible: preemptible_tries
+  }
+
+  output {
+      File upload_metrics_empty_file = "empty_file_for_dependency"
+    }
+}
+
+task UploadEmptyArraysMetrics {
+  input {
+    File arrays_variant_calling_detail_metrics
+
+    File vault_token_path
+    Array[String] authentication
+    String service_account_filename
+
+    Int disk_size
+    Int preemptible_tries
+  }
+
+  meta {
+    volatile: true
+  }
+
+  command <<<
+    set -eo pipefail
+
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
+    AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
+    export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
+
+    rm -rf metrics_upload_dir &&
+    mkdir metrics_upload_dir &&
+
+    cp ~{arrays_variant_calling_detail_metrics} metrics_upload_dir
+
+    java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+    UploadArraysMetrics \
+    --ANALYSIS_DIRECTORY metrics_upload_dir \
+    --DB_USERNAME_FILE cloudsql.db_user.txt \
+    --DB_PASSWORD_FILE cloudsql.db_password.txt \
+    --DB_JDBC_FILE cloudsql.db_jdbc.txt &&
     touch empty_file_for_dependency
   >>>
 
@@ -234,8 +285,8 @@ task UploadArraysMetrics {
   }
 
   output {
-      File upload_metrics_empty_file = "empty_file_for_dependency"
-    }
+    File upload_metrics_empty_file = "empty_file_for_dependency"
+  }
 }
 
 task CreateChipWellBarcodeParamsFile {
@@ -299,6 +350,7 @@ task CreateChipWellBarcodeParamsFile {
 task UpdateChipWellBarcodeIndex {
   input {
     File params_file
+    File vault_token_path
     Array[String] authentication
     String service_account_filename
     Int disk_size
@@ -312,6 +364,7 @@ task UpdateChipWellBarcodeIndex {
   command <<<
     set -eo pipefail
 
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
     AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
     export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
     java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
@@ -324,7 +377,7 @@ task UpdateChipWellBarcodeIndex {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
@@ -335,6 +388,7 @@ task GetNextArraysQcAnalysisVersionNumber {
   input {
     String chip_well_barcode
     Int preemptible_tries
+    File vault_token_path
     Array[String] authentication
     String service_account_filename
   }
@@ -346,6 +400,7 @@ task GetNextArraysQcAnalysisVersionNumber {
   command <<<
     set -eo pipefail
 
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
     AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
     export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
 
@@ -358,7 +413,7 @@ task GetNextArraysQcAnalysisVersionNumber {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1631039849"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
   }

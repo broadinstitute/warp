@@ -1,7 +1,10 @@
-# 1.13.4
-2021-09-28
+# 1.14.0
+2021-10-07
 
-* Task wdls used by ValidateChip were updated with changes that don't affect ValidateChip wdl
+* Updated Illumina IAAP Autocall docker image to address critical vulnerability
+* Changed arrays-picard-private hash and pull from correct artifactory
+* Task wdls used by Validate chip were updated with changes that don't affect ValidateChip wdl
+* Change outputs of ValidateChip pipeline to use python_file_naming_convention instead of CamelCase
 
 # 1.13.3
 2021-09-09
@@ -12,6 +15,7 @@
 2021-08-10
 
 * Updated GtcToVcf task in IlluminaGenotypingArrayTasks to escape fingerprint file names.
+* Updated Illumina IAAP Autocall to alpine base image
 
 # 1.13.1
 2021-07-23

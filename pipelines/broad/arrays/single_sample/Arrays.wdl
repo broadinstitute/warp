@@ -23,11 +23,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Arrays {
 
-  String pipeline_version = "2.4.3"
-
-  # This is the autocall_version, needed for the case where autocall fails (likely due to normalization errors)
-  # In this case it no longer emits the version in its output, so we store it here.
-  String autocall_version = "3.0.0"
+  String pipeline_version = "2.5.0"
 
   input {
     String chip_well_barcode
@@ -122,24 +118,10 @@ workflow Arrays {
 
   String service_account_filename = "service-account.json"
 
-  # Authorization block to be sourced by Mercury-accessing tasks.
-  # Sets up access to vault, key to read Mercury authentication, Mercury FP storage URL
-  Array[String] mercury_auth_block = [
-    "export VAULT_ADDR=https://clotho.broadinstitute.org:8200",
-    "export VAULT_TOKEN=~{read_lines(vault_token_path)[0]}",
-    "if [ ~{environment} == prod ]; then",
-    "  export MERCURY_AUTH_KEY=secret/dsde/gotc/prod/wdl/secrets",
-    "  export MERCURY_FP_STORE_URI=https://portals.broadinstitute.org/portal/mercury-ws/fingerprint",
-    "else",
-    "  export MERCURY_AUTH_KEY=secret/dsde/gotc/dev/wdl/secrets",
-    "  export MERCURY_FP_STORE_URI=https://portals.broadinstitute.org/portal-test/mercury-ws/fingerprint",
-    "fi"]
-
   # Authorization block to be sourced by tasks that access cloud SQL database
   # Sets up access to vault, reads authentication information from vault, sets permissions for accessing cloud sql.
   Array[String] authentication_block = [
     "export VAULT_ADDR=https://clotho.broadinstitute.org:8200",
-    "export VAULT_TOKEN=~{read_lines(vault_token_path)[0]}",
     "declare -r secrets=secret/dsde/gotc/~{environment}/metrics/wdl/secrets",
     "for field in user password jdbc_string",
     "do",
@@ -304,6 +286,7 @@ workflow Arrays {
       input:
         chip_well_barcode = chip_well_barcode,
         preemptible_tries = preemptible_tries,
+        vault_token_path = vault_token_path,
         authentication = authentication_block,
         service_account_filename = service_account_filename
     }
@@ -327,8 +310,9 @@ workflow Arrays {
         ref_fasta = ref_fasta,
         ref_fasta_index = ref_fasta_index,
         ref_dict = ref_dict,
-        preemptible_tries = preemptible_tries,
-        source_block = mercury_auth_block
+        environment = environment,
+        vault_token_path = vault_token_path,
+        preemptible_tries = preemptible_tries
     }
   }
 
@@ -339,6 +323,7 @@ workflow Arrays {
       params_file = select_first([CreateChipWellBarcodeParamsFile.params_file, params_file]),
       disk_size = disk_size,
       preemptible_tries = preemptible_tries,
+      vault_token_path = vault_token_path,
       authentication = authentication_block,
       service_account_filename = service_account_filename
   }
@@ -347,7 +332,6 @@ workflow Arrays {
 
   call IlluminaGenotyping.IlluminaGenotypingArray as IlluminaGenotypingArray {
     input:
-      autocall_version = autocall_version,
       sample_alias = sample_alias,
       analysis_version_number = analysis_version,
       call_rate_threshold = call_rate_threshold,
@@ -388,18 +372,19 @@ workflow Arrays {
         sample_alias = sample_alias,
         chip_type = chip_type,
         reported_gender = reported_gender,
-        autocall_version = autocall_version,
+        autocall_version = IlluminaGenotypingArray.autocall_version,
         output_metrics_basename = sample_alias,
         cluster_filename = egt_filename,
         analysis_version_number = analysis_version,
         preemptible_tries = preemptible_tries
     }
 
-    call InternalArraysTasks.UploadArraysMetrics as UploadEmptyArraysMetrics {
+    call InternalArraysTasks.UploadEmptyArraysMetrics {
       input:
         arrays_variant_calling_detail_metrics = GenerateEmptyVariantCallingMetricsFile.detail_metrics,
         disk_size = disk_size,
         preemptible_tries = preemptible_tries,
+        vault_token_path = vault_token_path,
         authentication = authentication_block,
         service_account_filename = service_account_filename
     }
@@ -412,6 +397,7 @@ workflow Arrays {
         preemptible_tries = preemptible_tries,
         reason = "DATA_QUALITY",
         notes = "Normalization Failed",
+        vault_token_path = vault_token_path,
         authentication = authentication_block,
         service_account_filename = service_account_filename
     }
@@ -435,8 +421,9 @@ workflow Arrays {
         input:
           fingerprint_json_file = VcfToMercuryFingerprintJson.output_json_file,
           gtc_file = IlluminaGenotypingArray.gtc,
-          preemptible_tries = preemptible_tries,
-          source_block = mercury_auth_block
+          environment = environment,
+          vault_token_path = vault_token_path,
+          preemptible_tries = preemptible_tries
       }
     }
 
@@ -453,8 +440,8 @@ workflow Arrays {
     call InternalArraysTasks.UploadArraysMetrics {
       input:
         arrays_variant_calling_detail_metrics = select_first([IlluminaGenotypingArray.arrays_variant_calling_detail_metrics]),
-        arrays_variant_calling_summary_metrics = IlluminaGenotypingArray.arrays_variant_calling_summary_metrics,
-        arrays_control_code_summary_metrics = IlluminaGenotypingArray.arrays_variant_calling_control_metrics,
+        arrays_variant_calling_summary_metrics = select_first([IlluminaGenotypingArray.arrays_variant_calling_summary_metrics]),
+        arrays_control_code_summary_metrics = select_first([IlluminaGenotypingArray.arrays_variant_calling_control_metrics]),
         fingerprinting_detail_metrics = IlluminaGenotypingArray.fingerprint_detail_metrics,
         fingerprinting_summary_metrics = IlluminaGenotypingArray.fingerprint_summary_metrics,
         genotype_concordance_summary_metrics = IlluminaGenotypingArray.genotype_concordance_summary_metrics,
@@ -464,6 +451,7 @@ workflow Arrays {
         bafregress_metrics = CreateBafRegressMetricsFile.output_metrics_file,
         disk_size = disk_size,
         preemptible_tries = preemptible_tries,
+        vault_token_path = vault_token_path,
         authentication = authentication_block,
         service_account_filename = service_account_filename
     }
@@ -477,6 +465,7 @@ workflow Arrays {
           preemptible_tries = preemptible_tries,
           reason = "GENOTYPE_CONCORDANCE",
           notes = "Genotype concordance below threshold: ~{genotype_concordance_threshold}",
+          vault_token_path = vault_token_path,
           authentication = authentication_block,
           service_account_filename = service_account_filename
       }
@@ -492,6 +481,7 @@ workflow Arrays {
           preemptible_tries = preemptible_tries,
           reason = "SAMPLE_MIXUP",
           notes = "Fingerprint LOD below -3.0",
+          vault_token_path = vault_token_path,
           authentication = authentication_block,
           service_account_filename = service_account_filename
       }
@@ -499,33 +489,33 @@ workflow Arrays {
   }
 
   output {
-    String ChipWellBarcodeOutput = IlluminaGenotypingArray.chip_well_barcode_output
-    Int AnalysisVersionNumberOutput = IlluminaGenotypingArray.analysis_version_number_output
-    File GtcFile = IlluminaGenotypingArray.gtc
-    File RedIdatMd5CloudPath = IlluminaGenotypingArray.red_idat_md5_cloud_path
-    File GreenIdatMd5CloudPath = IlluminaGenotypingArray.green_idat_md5_cloud_path
-    File? OutputVcfMd5CloudPath = IlluminaGenotypingArray.output_vcf_md5_cloud_path
-    File? OutputVcfFile = IlluminaGenotypingArray.output_vcf
-    File? OutputVcfIndexFile = IlluminaGenotypingArray.output_vcf_index
-    File? BafRegressMetricsFile = CreateBafRegressMetricsFile.output_metrics_file
-    File? ContaminationMetricsFile = IlluminaGenotypingArray.contamination_metrics
-    File? ReferenceFingerprintVcf = DownloadGenotypes.reference_fingerprint_vcf
-    File? ReferenceFingerprintVcfIndex = DownloadGenotypes.reference_fingerprint_vcf_index
-    File? OutputFingerprintVcfFile = IlluminaGenotypingArray.output_fingerprint_vcf
-    File? OutputFingerprintVcfIndexFile = IlluminaGenotypingArray.output_fingerprint_vcf_index
-    File? OutputFingerprintJsonFile = VcfToMercuryFingerprintJson.output_json_file
-    File ArraysVariantCallingDetailMetricsFile = select_first([IlluminaGenotypingArray.arrays_variant_calling_detail_metrics, GenerateEmptyVariantCallingMetricsFile.detail_metrics])
-    File? ArraysVariantCallingSummaryMetricsFile = IlluminaGenotypingArray.arrays_variant_calling_summary_metrics
-    File? ArraysVariantCallingControlMetricsFile = IlluminaGenotypingArray.arrays_variant_calling_control_metrics
-    File? ArraysSubsetVariantCallingDetailMetricsFile = IlluminaGenotypingArray.arrays_subset_variant_calling_detail_metrics
-    File? ArraysSubsetVariantCallingSummaryMetricsFile = IlluminaGenotypingArray.arrays_subset_variant_calling_summary_metrics
-    File? ArraysSubsetVariantCallingControlMetricsFile = IlluminaGenotypingArray.arrays_subset_variant_calling_control_metrics
-    File? FingerprintDetailMetricsFile = IlluminaGenotypingArray.fingerprint_detail_metrics
-    File? FingerprintSummaryMetricsFile = IlluminaGenotypingArray.fingerprint_summary_metrics
-    File? GenotypeConcordanceSummaryMetricsFile = IlluminaGenotypingArray.genotype_concordance_summary_metrics
-    File? GenotypeConcordanceDetailMetricsFile  = IlluminaGenotypingArray.genotype_concordance_detail_metrics
-    File? GenotypeConcordanceContingencyMetricsFile = IlluminaGenotypingArray.genotype_concordance_contingency_metrics
-    File ChipWellBarcodeParamsFile = select_first([CreateChipWellBarcodeParamsFile.params_file, params_file])
+    String chip_well_barcode_output = IlluminaGenotypingArray.chip_well_barcode_output
+    Int analysis_version_number_output = IlluminaGenotypingArray.analysis_version_number_output
+    File gtc_file = IlluminaGenotypingArray.gtc
+    File red_idat_md5_cloud_path = IlluminaGenotypingArray.red_idat_md5_cloud_path
+    File green_idat_md5_cloud_path = IlluminaGenotypingArray.green_idat_md5_cloud_path
+    File? output_vcf_md5_cloud_path = IlluminaGenotypingArray.output_vcf_md5_cloud_path
+    File? output_vcf = IlluminaGenotypingArray.output_vcf
+    File? output_vcf_index = IlluminaGenotypingArray.output_vcf_index
+    File? baf_regress_metrics_file = CreateBafRegressMetricsFile.output_metrics_file
+    File? contamination_metrics_file = IlluminaGenotypingArray.contamination_metrics
+    File? reference_fingerprint_vcf = DownloadGenotypes.reference_fingerprint_vcf
+    File? reference_fingerprint_vcf_index = DownloadGenotypes.reference_fingerprint_vcf_index
+    File? output_fingerprint_vcf = IlluminaGenotypingArray.output_fingerprint_vcf
+    File? output_fingerprint_vcf_index = IlluminaGenotypingArray.output_fingerprint_vcf_index
+    File? output_fingerprint_json_file = VcfToMercuryFingerprintJson.output_json_file
+    File arrays_variant_calling_detail_metrics_file = select_first([IlluminaGenotypingArray.arrays_variant_calling_detail_metrics, GenerateEmptyVariantCallingMetricsFile.detail_metrics])
+    File? arrays_variant_calling_summary_metrics_file = IlluminaGenotypingArray.arrays_variant_calling_summary_metrics
+    File? arrays_variant_calling_control_metrics_file = IlluminaGenotypingArray.arrays_variant_calling_control_metrics
+    File? arrays_subset_variant_calling_detail_metrics_file = IlluminaGenotypingArray.arrays_subset_variant_calling_detail_metrics
+    File? arrays_subset_variant_calling_summary_metrics_file = IlluminaGenotypingArray.arrays_subset_variant_calling_summary_metrics
+    File? arrays_subset_variant_calling_control_metrics_file = IlluminaGenotypingArray.arrays_subset_variant_calling_control_metrics
+    File? fingerprint_detail_metrics_file = IlluminaGenotypingArray.fingerprint_detail_metrics
+    File? fingerprint_summary_metrics_file = IlluminaGenotypingArray.fingerprint_summary_metrics
+    File? genotype_concordance_summary_metrics_file = IlluminaGenotypingArray.genotype_concordance_summary_metrics
+    File? genotype_concordance_detail_metrics_file  = IlluminaGenotypingArray.genotype_concordance_detail_metrics
+    File? genotype_concordance_contingency_metrics_file = IlluminaGenotypingArray.genotype_concordance_contingency_metrics
+    File chip_well_barcode_params_file = select_first([CreateChipWellBarcodeParamsFile.params_file, params_file])
   }
   meta {
     allowNestedInputs: true
