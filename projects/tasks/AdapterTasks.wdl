@@ -11,8 +11,9 @@ task CheckInput {
     String illegal_characters = ""
 
     String docker = "python:3.7.2"
-    Int memory = 3
-    Int disk = 10
+    Int cpu = 1
+    Int memory_mb = 1000
+    Int disk_size_gb = 1
   }
 
   command <<<
@@ -42,12 +43,14 @@ task CheckInput {
         f.write(list(input_set)[0])
   CODE
   >>>
+
   runtime {
     docker: docker
-    cpu: 1
-    memory: "~{memory} GiB"
-    disks: "local-disk ~{disk} HDD"
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     String output_string = read_string("output.txt")
   }
@@ -64,8 +67,8 @@ task GetCromwellMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int machine_mem_mb = 2000
-    Int disk = 10
+    Int memory_mb = ceil((size(output_path, "MiB")))
+    Int disk_size_gb = ceil((size(output_path, "GiB")))
   }
 
   command {
@@ -79,12 +82,14 @@ task GetCromwellMetadata {
       ~{true="--include_subworkflows True" false="--include_subworkflows False" include_subworkflows} \
       ~{"--include_keys " + include_keys}
   }
+
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     File metadata = "metadata.json"
     String workflow_id = read_string("workflow_id.txt")
@@ -102,8 +107,9 @@ task MergeLooms {
     String output_basename
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
-    Int memory = ceil(size(output_looms, "G"))+ 10
-    Int disk = ceil((size(output_looms, "G") * 4)) + 50
+    Int cpu = 1
+    Int memory_mb = ceil(size(output_looms, "MiB")) * length(output_looms)
+    Int disk_size_gb = ceil((size(output_looms, "GiB") * 2)) + 5
   }
 
   command {
@@ -116,12 +122,14 @@ task MergeLooms {
       --project-name "~{project_name}" \
       --output-loom-file ~{output_basename}.loom
   }
+
   runtime {
     docker: docker
-    cpu: 1
-    memory: "~{memory} GiB"
-    disks: "local-disk ~{disk} HDD"
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     File project_loom = "~{output_basename}.loom"
   }
@@ -140,8 +148,8 @@ task GetAnalysisFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int machine_mem_mb = 2000
-    Int disk = 10
+    Int memory_mb = if defined(input_file) then ceil(size(input_file, "MiB")) else 2000
+    Int disk_size_gb = if defined(input_file) then ceil(size(input_file, "GiB")) else 5
   }
 
   # For Optimus, if we are doing an intermediate level run, then we pass in the metadata.json
@@ -172,9 +180,10 @@ task GetAnalysisFileMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     Array[File] analysis_file_outputs = glob("*${version_timestamp}.json")
     File outputs_json = "outputs.json"
@@ -193,8 +202,8 @@ task GetAnalysisProcessMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int machine_mem_mb = 2000
-    Int disk = 10
+    Int memory_mb = ceil((size(input_file, "MiB"))) + 2000
+    Int disk_size_gb = ceil((size(input_file, "GiB"))) + 3
   }
 
   command {
@@ -208,12 +217,14 @@ task GetAnalysisProcessMetadata {
       ~{"--ss2_index " + ss2_index}
 
   }
+
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     Array[File] analysis_process_outputs = glob("*${version_timestamp}.json")
   }
@@ -229,8 +240,8 @@ task GetAnalysisProtocolMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int machine_mem_mb = 2000
-    Int disk = 10
+    Int memory_mb = 2000
+    Int disk_size_gb = 5
   }
 
   command {
@@ -245,9 +256,10 @@ task GetAnalysisProtocolMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     Array[File] analysis_protocol_outputs = glob("*${version_timestamp}.json")
   }
@@ -274,9 +286,9 @@ task GetLinksFileMetadata {
     Array[String]? fastq2_array
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
-    Int cpu = 2
-    Int machine_mem_mb = 200000
-    Int disk = 10
+    Int cpu = 1
+    Int memory_mb = ceil(size(output_file_path, "MiB"))
+    Int disk_size_gb = ceil(size(output_file_path, "GiB"))
   }
 
   command
@@ -338,9 +350,10 @@ task GetLinksFileMetadata {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     Array[File] links_outputs = glob("*${version_timestamp}*.json")
   }
@@ -357,8 +370,8 @@ task GetFileDescriptor {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int machine_mem_mb = 2000
-    Int disk = ceil((size(file_path, "G") * 2)) + 5
+    Int memory_mb = ceil(size(file_path, "MiB")) + 2000
+    Int disk_size_gb = ceil(size(file_path, "GiB")) + 5
   }
 
   command
@@ -378,12 +391,14 @@ task GetFileDescriptor {
     --workspace_version "~{version_timestamp}"
 
   >>>
+
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     Array[File] file_descriptor_outputs = glob("*${version_timestamp}.json")
   }
@@ -403,8 +418,8 @@ task GetReferenceFileMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int machine_mem_mb = 2000
-    Int disk = 10
+    Int memory_mb = 2000
+    Int disk_size_gb = 5
   }
 
   command {
@@ -419,12 +434,14 @@ task GetReferenceFileMetadata {
   --assembly_type "~{assembly_type}" \
   --reference_type "~{reference_type}"
   }
+
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     String reference_file_uuid = read_string("reference_uuid.txt")
     Array[File] reference_metadata_outputs = glob("*${version_timestamp}.json")
@@ -434,9 +451,11 @@ task GetReferenceFileMetadata {
 task GetCloudFileCreationDate {
   input {
     String file_path
+
+    String docker = "gcr.io/google.com/cloudsdktool/cloud-sdk:latest"
     Int cpu = 1
-    Int machine_mem_mb = 2000
-    Int disk = 10
+    Int memory_mb = 1000
+    Int disk_size_gb = 1
   }
 
   command <<<
@@ -444,11 +463,12 @@ task GetCloudFileCreationDate {
   >>>
 
   runtime {
-    docker: "gcr.io/google.com/cloudsdktool/cloud-sdk:latest"
+    docker: docker
     cpu: cpu
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     String creation_date = read_string("creation_date.txt")
   }
@@ -461,8 +481,8 @@ task ParseCromwellMetadata {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int machine_mem_mb = 2000
-    Int disk = ceil((size(cromwell_metadata, "G") * 2)) + 5
+    Int memory_mb = ceil((size(cromwell_metadata, "MiB")))
+    Int disk_size_gb = ceil(size(cromwell_metadata, "GiB"))
   }
 
   command {
@@ -470,12 +490,14 @@ task ParseCromwellMetadata {
     --cromwell-metadata-json ~{cromwell_metadata} \
     --pipeline-type ~{pipeline_type}
   }
+
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     String ref_fasta = read_string("ref_fasta.txt")
     String pipeline_version = read_string("pipeline_version.txt")
@@ -487,10 +509,11 @@ task GetReferenceDetails {
   input {
     File ref_fasta
     String species
+
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int machine_mem_mb = 2000
-    Int disk = 10
+    Int memory_mb = ceil((size(ref_fasta, "MiB")) * 2) + 1000
+    Int disk_size_gb = ceil((size(ref_fasta, "GiB") * 2)) + 5
   }
 
   command {
@@ -498,12 +521,14 @@ task GetReferenceDetails {
     --reference-file "~{ref_fasta}" \
     --species "~{species}"
   }
+
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     String ncbi_taxon_id = read_string("ncbi_taxon_id.txt")
     String assembly_type = read_string("assembly_type.txt")
@@ -519,20 +544,22 @@ task GetProjectLevelInputIds {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int machine_mem_mb = 2000
-    Int disk = 10
+    Int memory_mb = ceil((size(intermediate_analysis_files, "MiB")) * 2) + 1000
+    Int disk_size_gb = ceil((size(intermediate_analysis_files, "GiB") * 2)) + 5
   }
 
   command {
     get-process-input-ids \
     --input-json-files ~{sep=' ' intermediate_analysis_files}
   }
+
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
+
   output {
     String process_input_uuids = read_string("output.txt")
   }
@@ -553,8 +580,8 @@ task CopyToStagingBucket {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory = ceil((size(data_objects, "G") * 1.5)) + 5
-    Int disk = ceil((size(data_objects, "G") * 3)) + 20
+    Int memory_mb = ceil(size(data_objects, "MiB"))
+    Int disk_size_gb = ceil(size(data_objects, "GiB"))
   }
 
   command
@@ -594,13 +621,12 @@ task CopyToStagingBucket {
       --reference_file_descriptor_jsons "$TMP_DIR/reference_file_descriptors.json" \
       --staging-bucket ~{staging_bucket}
   >>>
-  
 
   runtime {
     docker: docker
     cpu: cpu
-    memory: "~{memory} GiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
 }
 
@@ -610,19 +636,26 @@ task GetOptimusPipelineVersion {
   input {
     String pipeline_version
     String prefix = "MergeOptimusLooms_v"
+
     String docker = "ubuntu:18.04"
+    Int cpu = 1
+    Int memory_mb = 2000
+    Int disk_size_gb = 5
   }
+
   command {
     echo ~{prefix}~{pipeline_version} > pipeline_version.txt
   }
+
   output {
     String pipeline_version_string = read_string("pipeline_version.txt")
   }
+
   runtime {
     docker: docker
-    cpu: 1
-    memory: "3 GiB"
-    disks: "local-disk 10 HDD"
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
 }
 
@@ -632,8 +665,8 @@ task GetBucketCreationDate {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int machine_mem_mb = 2000
-    Int disk = 30
+    Int memory_mb = 1000
+    Int disk_size_gb = 1
   }
 
   meta {
@@ -648,14 +681,14 @@ task GetBucketCreationDate {
       --timestamp "${timestamp}"
   >>>
 
-  output{
+  output {
     String version_timestamp = read_string("bucket_timestamp.txt")
   }
 
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
   }
 }
