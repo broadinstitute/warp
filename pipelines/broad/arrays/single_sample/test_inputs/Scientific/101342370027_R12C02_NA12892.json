@@ -27,10 +27,9 @@
   "Arrays.cluster_file": "gs://gcp-public-data--broad-references/arrays/PsychChip_v1-1_15073391_A1/PsychChip_v1-1_15073391_A1_ClusterFile.egt",
   "Arrays.zcall_thresholds_file": "gs://broad-gotc-test-storage/arrays/metadata/PsychChip_v1-1_15073391_A1/thresholds.7.txt",
 
+  "Arrays.arrays_control_data_path": "gs://broad-gotc-test-storage/arrays/controldata/",
+
   "Arrays.control_sample_name": "NA12892",
-  "Arrays.control_sample_vcf_file": "gs://broad-gotc-test-storage/arrays/controldata/NA12892.vcf.gz",
-  "Arrays.control_sample_vcf_index_file": "gs://broad-gotc-test-storage/arrays/controldata/NA12892.vcf.gz.tbi",
-  "Arrays.control_sample_intervals_file": "gs://broad-gotc-test-storage/arrays/controldata/NA12892.interval_list",
 
   "Arrays.ref_fasta": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",
   "Arrays.ref_fasta_index": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai",

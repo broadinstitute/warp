@@ -1,7 +1,15 @@
+# 2.5.0
+2021-10-06
+
+* Updated VerifyBamID to use AppSec base image
+* Changed GoTC image to Samtools specific image in CramToUnmappedBams and Utilities
+* Changed GoTC image to GATK specific image in GermlineVariantDiscovery
+* Changed GoTC image to SAMTOOLS/PICARD/BWA specific image in Alignment
+
 # 2.4.9
 2021-09-22
 
-* Updated Utilities.wdl task definitions to include a new task that is NOT used in this pipeline.
+* Updated Utilities.wdl task definitions to include a new ErrorWithMessage task that is NOT used in the ExternalExomeReprocessing pipeline.
 
 # 2.4.8
 2021-08-02
