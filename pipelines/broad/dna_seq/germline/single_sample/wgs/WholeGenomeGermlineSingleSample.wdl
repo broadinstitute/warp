@@ -68,9 +68,16 @@ workflow WholeGenomeGermlineSingleSample {
   }
 
   if (dragen_functional_equivalence_mode && dragen_maximum_quality_mode) {
-    call Utilities.ErrorWithMessage {
+    call Utilities.ErrorWithMessage as PresetArgumentsError {
       input:
         message = "Both dragen_functional_equivalence_mode and dragen_maximum_quality_mode have been set to true, however, they are mutually exclusive. You can set either of them to true, or set them both to false and adjust the arguments individually."
+    }
+  }
+
+  if (run_dragen_mode_variant_calling && use_gatk3_haplotype_caller) {
+    call Utilities.ErrorWithMessage as DragenModeVariantCallingAndGATK3Error {
+      input:
+        message = "DRAGEN mode variant calling has been activated, however, the HaplotypeCaller version has been set to use GATK 3. Please set use_gatk3_haplotype_caller to false to use DRAGEN mode variant calling."
     }
   }
 
@@ -80,6 +87,7 @@ workflow WholeGenomeGermlineSingleSample {
   Boolean unmap_contaminant_reads_ = if dragen_functional_equivalence_mode then false else (if dragen_maximum_quality_mode then true else unmap_contaminant_reads) 
   Boolean perform_bqsr_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then false else perform_bqsr
   Boolean use_bwa_mem_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then false else use_bwa_mem
+  Boolean use_gatk3_haplotype_caller_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then true else use_gatk3_haplotype_caller
 
   # Not overridable:
   Int read_length = 250
@@ -181,7 +189,7 @@ workflow WholeGenomeGermlineSingleSample {
       base_file_name = sample_and_unmapped_bams.base_file_name,
       final_vcf_base_name = final_gvcf_base_name,
       agg_preemptible_tries = papi_settings.agg_preemptible_tries,
-      use_gatk3_haplotype_caller = use_gatk3_haplotype_caller,
+      use_gatk3_haplotype_caller = use_gatk3_haplotype_caller_,
       use_dragen_hard_filtering = use_dragen_hard_filtering
   }
 
