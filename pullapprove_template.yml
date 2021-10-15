@@ -126,7 +126,7 @@ groups:
       users:
         - fleharty # Mark Fleharty
 
-scientific_owners_imputation:
+  scientific_owners_imputation:
     conditions:
       - "'eng-only' not in labels"
       - "base.ref != 'master'"

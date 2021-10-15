@@ -91,6 +91,8 @@ object CromwellWorkflowTester {
         new ArraysTester(config.arraysConfig)
       case IlluminaGenotypingArray =>
         new IlluminaGenotypingArrayTester(config.illuminaGenotypingArrayConfig)
+      case Imputation =>
+        new ImputationTester(config.imputationConfig)
       case SomaticSingleSample =>
         new SomaticSingleSampleTester(config.somaticCloudWorkflowConfig)
       case VariantCalling =>
@@ -388,7 +390,8 @@ abstract class CromwellWorkflowTester(
             cromwellMetadata <- cromwellClient()
               .metadata(
                 finishedWorkflow.workflow.id,
-                Option(Map("expandSubWorkflows" -> List("true")))
+                Option(Map("includeKey" -> List("backendLogs"),
+                          "expandSubWorkflows" -> List("true")))
               )
               .value
               .unsafeToFuture()

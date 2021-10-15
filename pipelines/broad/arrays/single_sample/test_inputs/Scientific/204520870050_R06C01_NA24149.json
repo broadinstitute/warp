@@ -5,6 +5,8 @@
   "Arrays.sample_id": "SM-K5P4A",
   "Arrays.sample_lsid": "org.broadinstitute:crsp:K5P4A",
   "Arrays.reported_gender": "Male",
+  "Arrays.collaborator_participant_id": "NA24149_2_SM-GZQPM",
+  "Arrays.participant_id": "NA24149_2_SM-GZQPM",
   "Arrays.product_type": "aou_array",
   "Arrays.regulatory_designation": "CLINICAL_DIAGNOSTICS",
   "Arrays.research_project_id": "RP-1710",

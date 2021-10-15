@@ -57,6 +57,7 @@ task CompareGvcfs {
   input {
     File test_gvcf
     File truth_gvcf
+
   }
 
   command {
@@ -71,7 +72,6 @@ task CompareGvcfs {
         echo "However they ONLY differ in the quality column" >&2
       fi
     fi
-
     exit $exit_code
   }
 
@@ -81,4 +81,5 @@ task CompareGvcfs {
     memory: "2 GiB"
     preemptible: 3
   }
+  
 }
