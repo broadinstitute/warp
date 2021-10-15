@@ -56,7 +56,7 @@ workflow WholeGenomeGermlineSingleSample {
     Boolean provide_bam_output = false
     Boolean use_gatk3_haplotype_caller = true
 
-    Boolean dragen_functional_equivalency_mode = false
+    Boolean dragen_functional_equivalence_mode = false
     Boolean dragen_maximum_quality_mode = false
 
     Boolean run_dragen_mode_variant_calling = false
@@ -67,19 +67,19 @@ workflow WholeGenomeGermlineSingleSample {
     Boolean use_dragen_hard_filtering = false
   }
 
-  if (dragen_functional_equivalency_mode && dragen_maximum_quality_mode) {
+  if (dragen_functional_equivalence_mode && dragen_maximum_quality_mode) {
     call Utilities.ErrorWithMessage {
       input:
-        message = "Both dragen_functional_equivalency_mode and dragen_maximum_quality_mode have been set to true, however, they are mutually exclusive. You can set either of them to true, or set them both to false and adjust the arguments individually."
+        message = "Both dragen_functional_equivalence_mode and dragen_maximum_quality_mode have been set to true, however, they are mutually exclusive. You can set either of them to true, or set them both to false and adjust the arguments individually."
     }
   }
 
   # Set DRAGEN-related arguments according to the preset arguments
-  Boolean run_dragen_mode_variant_calling_ = if (dragen_functional_equivalency_mode || dragen_maximum_quality_mode) then true else run_dragen_mode_variant_calling
-  Boolean use_spanning_event_genotyping_ = if dragen_functional_equivalency_mode then false else (if dragen_maximum_quality_mode then true else use_spanning_event_genotyping)
-  Boolean unmap_contaminant_reads_ = if dragen_functional_equivalency_mode then false else (if dragen_maximum_quality_mode then true else unmap_contaminant_reads) 
-  Boolean perform_bqsr_ = if (dragen_functional_equivalency_mode || dragen_maximum_quality_mode) then false else perform_bqsr
-  Boolean use_bwa_mem_ = if (dragen_functional_equivalency_mode || dragen_maximum_quality_mode) then false else use_bwa_mem
+  Boolean run_dragen_mode_variant_calling_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then true else run_dragen_mode_variant_calling
+  Boolean use_spanning_event_genotyping_ = if dragen_functional_equivalence_mode then false else (if dragen_maximum_quality_mode then true else use_spanning_event_genotyping)
+  Boolean unmap_contaminant_reads_ = if dragen_functional_equivalence_mode then false else (if dragen_maximum_quality_mode then true else unmap_contaminant_reads) 
+  Boolean perform_bqsr_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then false else perform_bqsr
+  Boolean use_bwa_mem_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then false else use_bwa_mem
 
   # Not overridable:
   Int read_length = 250
