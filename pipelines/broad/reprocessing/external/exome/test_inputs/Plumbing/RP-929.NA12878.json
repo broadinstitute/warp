@@ -1,5 +1,5 @@
 {
-  "ExternalExomeReprocessing.input_cram": "gs://broad-gotc-test-storage/germline_single_sample/exome/plumbing/truth/develop/RP-929.NA12878/NA12878_PLUMBING.cram",
+  "ExternalExomeReprocessing.input_cram": "https://github.com/sbg/sbg_dockstore_tools/raw/master/topmed-workflows/variant-caller/testdata/NA12878_plumbing.cram",
 
   "ExternalExomeReprocessing.sample_name": "NA12878 PLUMBING",
   "ExternalExomeReprocessing.base_file_name": "RP-929.NA12878",
@@ -44,8 +44,8 @@
     "break_bands_at_multiples_of": 0
   },
 
-  "ExternalExomeReprocessing.target_interval_list": "gs://broad-references-private/HybSelOligos/whole_exome_illumina_coding_v1/whole_exome_illumina_coding_v1.Homo_sapiens_assembly38.targets.interval_list",
-  "ExternalExomeReprocessing.bait_interval_list": "gs://broad-references-private/HybSelOligos/whole_exome_illumina_coding_v1/whole_exome_illumina_coding_v1.Homo_sapiens_assembly38.baits.interval_list",
+  "ExternalExomeReprocessing.target_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/HybSelOligos/whole_exome_illumina_coding_v1/whole_exome_illumina_coding_v1.Homo_sapiens_assembly38.targets.interval_list",
+  "ExternalExomeReprocessing.bait_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/HybSelOligos/whole_exome_illumina_coding_v1/whole_exome_illumina_coding_v1.Homo_sapiens_assembly38.baits.interval_list",
   "ExternalExomeReprocessing.bait_set_name": "whole_exome_illumina_coding_v1",
 
   "ExternalExomeReprocessing.papi_settings": {
