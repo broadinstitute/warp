@@ -4,7 +4,7 @@
     * `ref_str`: new optional file in ReferenceFasta struct
     * `dragen_functional_equivalence_mode`
     * `dragen_maximum_quality_mode`
-    * DragmapReference dragmap_reference
+    * `DragmapReference dragmap_reference`
     * `Boolean run_dragen_mode_variant_calling = false`
     * `Boolean use_spanning_event_genotyping = true`
     * `Boolean unmap_contaminant_reads = true`
