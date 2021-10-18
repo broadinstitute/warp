@@ -129,7 +129,6 @@ workflow ExomeGermlineSingleSample {
       ref_fasta = references.reference_fasta.ref_fasta,
       ref_fasta_index = references.reference_fasta.ref_fasta_index,
       ref_dict = references.reference_fasta.ref_dict,
-      ref_str = references.reference_fasta.ref_str,
       dbsnp_vcf = references.dbsnp_vcf,
       dbsnp_vcf_index = references.dbsnp_vcf_index,
       base_file_name = sample_and_unmapped_bams.base_file_name,
