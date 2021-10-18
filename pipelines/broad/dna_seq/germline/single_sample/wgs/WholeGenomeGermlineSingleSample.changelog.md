@@ -1,3 +1,23 @@
+# 2.5.0
+2021-10-18
+* Added optional functionality to run the Whole Genome Germline Single Sample (WGS) workflow in DRAGEN-GATK mode. Learn more about DRAGEN mode and optional inputs in the [WGS Overview](https://broadinstitute.github.io/warp/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/README). The workflow includes the following new optional inputs:
+    * `ref_str`: new optional file in ReferenceFasta struct
+    * `dragen_functional_equivalence_mode`
+    * `dragen_maximum_quality_mode`
+    * DragmapReference dragmap_reference
+    * `Boolean run_dragen_mode_variant_calling = false`
+    * `Boolean use_spanning_event_genotyping = true`
+    * `Boolean unmap_contaminant_reads = true`
+    * `Boolean perform_bqsr = true`
+    * `Boolean use_bwa_mem = true`
+    * `Boolean use_dragen_hard_filtering = false`
+    * `output_bqsr_reports`; optional BQSR report output because BQSR is now optional
+* Added a new task DragenTasks.CalibrateDragstrModel to support calibrating a Dragstr model for the DRAGEN-GATK mode of the WGS workflow
+* Added a new task DragmapAlignment.SamToFastqAndDragmapAndMba to align reads using the Dragmap aligner
+* Added a new docker for GATK v4.2.2.0 to enable the DRAGEN-GATK mode of the WGS workflow
+
+ 
+
 # 2.4.0
 2021-10-06
 
