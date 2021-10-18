@@ -1,3 +1,12 @@
+# 1.2.0
+2021-10-18
+* Added new optional workflow inputs to support the DRAGEN-GATK mode of the Whole Genome Germline Single Sample workflow. These include:
+    * `Boolean run_dragen_mode_variant_calling = false`
+    * `Boolean use_spanning_event_genotyping = true`
+    * `Boolean use_dragen_hard_filtering = false`
+* Added a new task (DragenTasks) to support variant calling in DRAGEN mode
+* Updated GATK to v4.2.2.0 for variant calling
+
 # 1.1.0
 2021-10-06
 
