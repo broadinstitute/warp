@@ -91,11 +91,9 @@ Our planned upcoming improvements include:
 
 1. A unified testing infrastructure that eases the overhead for contribution
 2. Full contribution guidance
-3. Automated GitHub releases of pipelines after merge to master
-4. Improved Docker images and tracking of image tool versions
-5. Continued additions of pipeline documentation
-6. Pre-written methods sections and DOIs to enable easy publication citations
-7. More pipelines: Somatic genome alignment, bulk RNAseq processing, single nuclei support for SmartSeq2
+3. Continued additions of pipeline documentation
+4. Pre-written methods sections and DOIs to enable easy publication citations
+5. More pipelines: bulk RNAseq, SlideSeq, updates to joint genotyping
 
 ## Acknowledgements
 
