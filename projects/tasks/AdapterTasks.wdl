@@ -314,7 +314,7 @@ task GetLinksFileMetadata {
       declare -a BAM_ARRAY=(~{sep=' ' bam_array})
       declare -a BAI_ARRAY=(~{sep=' ' bai_array})
       declare -a FASTQ1_ARRAY=(~{sep=' ' fastq1_array})
-      declare -a FASTQ2_ARRAY=(~{sep=' ' fastq2_array})   
+      declare -a FASTQ2_ARRAY=(~{sep=' ' fastq2_array})
       declare -a INPUT_UUIDS=(~{sep=' ' process_input_ids})
 
       TMP_DIR=$(mktemp -d -t XXXXXX)
