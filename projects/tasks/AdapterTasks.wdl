@@ -274,8 +274,8 @@ task GetLinksFileMetadata {
     String file_name_string
     String version_timestamp
     Array[String] process_input_ids
-    Array[File] analysis_process_path
-    Array[File] analysis_protocol_path
+    Array[File] analysis_process_path # Only Optimus runs and SS2 project level
+    Array[File] analysis_protocol_path # Only Optimus runs and SS2 project level
 
     # SS2 specific
     Array[String]? analysis_process_path_list # List of analysis_process paths from intermediate SS2 runs
@@ -314,7 +314,7 @@ task GetLinksFileMetadata {
       declare -a BAM_ARRAY=(~{sep=' ' bam_array})
       declare -a BAI_ARRAY=(~{sep=' ' bai_array})
       declare -a FASTQ1_ARRAY=(~{sep=' ' fastq1_array})
-      declare -a FASTQ2_ARRAY=(~{sep=' ' fastq2_array}) 
+      declare -a FASTQ2_ARRAY=(~{sep=' ' fastq2_array})   
       declare -a INPUT_UUIDS=(~{sep=' ' process_input_ids})
 
       TMP_DIR=$(mktemp -d -t XXXXXX)
@@ -324,7 +324,7 @@ task GetLinksFileMetadata {
       printf '%s\n' "${BAM_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_bam.json
       printf '%s\n' "${BAI_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_bai.json
       printf '%s\n' "${FASTQ1_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_fastq1.json
-      printf '%s\n' "${FASTQ2_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_fastq2.json # fastq2 does not exist for single end runs, this should write an empty array if that is the case
+      printf '%s\n' "${FASTQ2_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_fastq2.json # fastq2 does not exist for single end runs, this should write a single element array of empty string [""]
       printf '%s\n' "${INPUT_UUIDS[@]}" | jq -R . | jq -s . > $TMP_DIR/input_ids.json
     
       create-links \
