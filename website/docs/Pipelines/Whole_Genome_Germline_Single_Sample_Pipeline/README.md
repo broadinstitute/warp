@@ -28,15 +28,15 @@ Multiple WGS parameters are adjusted for the WGS workflow to run in the DRAGEN-G
 ![dragen](./DRAGEN_Fig4_resize.jpg)
 
 #### Individual DRAGEN-GATK parameters
-The WGS workflow can be customized to mix and match different DRAGEN-related parameters. The default DRAGEN settings and descriptions are listed below and may be modified as needed: 
+The WGS workflow can be customized to mix and match different DRAGEN-related parameters. In general, the following booleans may be modified to run in different DRAGEN-realted features: 
 
-1. `use_bwa_mem` is false.
-    * When true, the workflow calls the DRAGEN DRAGMAP aligner instead of BWA mem.
-2.  `run_dragen_mode_variant_calling` is true.
-    *  The workflow creates a DRAGstr model with the GATK CalibrateDragstrModel tool and uses it for variant calling with HaplotypeCaller in --dragen-mode.
-3. `perform_bqsr` is optionally false.
-    * BQSR is not necessary for the DRAGEN pipeline as the DRAGstr model is used for base recalibration. 
-4. `dragen_mode_hard_filter` is false.
+1. `use_bwa_mem`
+    * When false, the workflow calls the DRAGEN DRAGMAP aligner instead of BWA mem.
+2.  `run_dragen_mode_variant_calling`
+    *  When true, the workflow creates a DRAGstr model with the GATK CalibrateDragstrModel tool and uses it for variant calling with HaplotypeCaller in --dragen-mode.
+3. `perform_bqsr`
+    * When false, turns off BQSR as it is not necessary for the DRAGEN pipeline; instead, base error correction is performed during variant calling. 
+4. `dragen_mode_hard_filter`
     * When true, the parameter turns on VCF hard filtering.
  
 
