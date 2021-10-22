@@ -45,7 +45,7 @@ Although the DRAGEN parameters can be turned on and off as needed, there are two
 1. **dragen_functional_equivalence_mode**
 2. **dragen_maximum_quality_mode**
 
-The **dragen_functional_equivalence_mode** runs the pipeline so that it is functionally equivalent to the DRAGEN hardware. This mode has the following defaults:
+The **dragen_functional_equivalence_mode** runs the pipeline so that it is functionally equivalent to the DRAGEN hardware. This mode will automatically set the following parameters:
 1. `run_dragen_mode_variant_calling` is true.
 2. `use_bwa_mem` is false.
 3. `perform_bqsr` is false.
@@ -55,7 +55,7 @@ By setting the Dragen parameters as listed above, the WGS workflow produces outp
 
 To learn more about how outputs are tested for functional equivalence, try the [Functional Equivalence workflow](https://app.terra.bio/#workspaces/broad-firecloud-dsde-methods/FunctionalEquivalence) in Terra.
 
-The **dragen_maximum_quality_mode** runs the pipeline using the DRAGMAP aligner and DRAGEN variant calling, but with additional parameters that produce maximum quality results that are **not** functionally equivalent to the DRAGEN hardware. This mode has the following defaults:
+The **dragen_maximum_quality_mode** runs the pipeline using the DRAGMAP aligner and DRAGEN variant calling, but with additional parameters that produce maximum quality results that are **not** functionally equivalent to the DRAGEN hardware. This mode will automatically set the following parameters:
 1. `run_dragen_mode_variant_calling` is true.
 2. `use_spanning_event_genotyping` is true.
 3. `use_bwa_mem` is false.
