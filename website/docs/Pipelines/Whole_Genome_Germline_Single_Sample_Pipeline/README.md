@@ -51,7 +51,7 @@ The **dragen_functional_equivalence_mode** runs the pipeline so that it is funct
 3. `perform_bqsr` is false.
 4. `use_spanning_event_genotyping` is false.
 
-By setting the Dragen parameters as listed below, the WGS workflow produces outputs that are functionally equivalent to the DRAGEN pipeline. 
+By setting the Dragen parameters as listed above, the WGS workflow produces outputs that are functionally equivalent to the DRAGEN pipeline. 
 
 To learn more about how outputs are tested for functional equivalence, try the [Functional Equivalence workflow](https://app.terra.bio/#workspaces/broad-firecloud-dsde-methods/FunctionalEquivalence) in Terra.
 
