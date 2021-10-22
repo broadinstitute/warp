@@ -104,7 +104,7 @@ The following table describes the inputs imported from a struct. Although these 
 | contamination_sites_ud | DNASeqSingleSampleReferences (references) | Contamination site files for the CheckContamination task.  | File |
 | contamination_sites_bed | DNASeqSingleSampleReferences (references) | Contamination site files for the CheckContamination task. | File |
 | contamination_sites_mu | DNASeqSingleSampleReferences (references) | Contamination site files for the CheckContamination task. | File |
-| calling_interval_list | DNASeqSingleSampleReferences (references) | Interval list used for variant calling | File |
+| calling_interval_list | DNASeqSingleSampleReferences (references) | Interval list used for variant calling. | File |
 | reference_bin | DragmapReference (dragmap_reference) | Binary representation of the reference FASTA file used for the DRAGEN mode DRAGMAP aligner. | File |
 | hash_table_cfg_bin | DragmapReference (dragmap_reference) | Binary representation of the configuration for the hash table used for the DRAGEN mode DRAGMAP aligner. | File |
 | hash_table_cmp | DragmapReference (dragmap_reference_ | Compressed representation of the hash table that is used for the DRAGEN mode DRAGMAP aligner. | File |
