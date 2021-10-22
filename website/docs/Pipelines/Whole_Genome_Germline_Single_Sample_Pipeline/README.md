@@ -270,7 +270,7 @@ The table below describes the final workflow outputs. If running the workflow on
 | unsorted_read_group_quality_distribution_metrics | Quality distribution metrics for the unsorted, readgroup-specific BAMs. | Array of PDFs |
 | read_group_alignment_summary_metrics | Alignment summary metrics for the aggregated BAM. | File |
 | read_group_gc_bias_detail_metrics | GC bias detail metrics for the aggregated BAM. | File |
-| read_group_gc_bias_pd | PDF of the GC bias by readgroup for the aggregated BAM. | PDF |
+| read_group_gc_bias_pdf | PDF of the GC bias by readgroup for the aggregated BAM. | PDF |
 | read_group_gc_bias_summary_metrics | GC bias summary metrics by readgroup for the aggregated BAM. | File |
 | cross_check_fingerprints_metrics | Fingerprint metrics file if optional fingerprinting is performed. | File |
 | selfSM | Contamination estimate from VerifyBamID. | File |
