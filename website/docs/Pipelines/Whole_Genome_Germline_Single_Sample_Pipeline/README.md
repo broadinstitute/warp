@@ -132,11 +132,11 @@ Additional inputs that are not contained in a struct are described in the table 
 | perform_bqsr | Boolean to turn on base recalibration with BQSR; default set to true, but not necessary when running the pipeline in DRAGEN mode. | Boolean |
 | use_bwa_mem | Boolean indicating if workflow should use the BWA mem aligner; default set to true, but must be set to false to alternatively run the DRAGEN-GATK DRAGMAP aligner. | Boolean | 
 | use_dragen_hard_filtering | Boolean that indicates if workflow should perform hard filtering using the GATK VariantFiltration tool with the --filter-name "DRAGENHardQUAL"; default set to false. | Boolean
-|  read_length | Set to a max of 250 for collecting WGS metrics; specified in the workflow WDL, not in the input JSON. | Int | 
-| lod_threshold | LOD threshold for checking fingerprints; set to -20.0 specified in the workflow WDL, not in the input JSON. | Float | 
-| cross_check_fingerprints_by | Checks fingerprints by READGROUP; specified in the workflow WDL, not in the input JSON. | String |
-| recalibrated_bam_basename | Basename for the recalibrated BAM file; specified to be the base_file_name in the sample_and_unmapped_bams struct + ".aligned.duplicates_marked.recalibrated" in the workflow WDL, not in the input JSON. | String |
-| final_gvcf_base_name | Basename for the final GVCF file; specified in workflow WDL to be the final_gvcf_base_name from the sample_and_unmapped_bams struct, if applicable, or the base_file_name. | String | 
+|  read_length | Set to a max of 250 for collecting WGS metrics; hardcoded in the workflow WDL. | Int | 
+| lod_threshold | LOD threshold for checking fingerprints; hardcoded to -20.0 in workflow WDL. | Float | 
+| cross_check_fingerprints_by | Checks fingerprints by READGROUP; hardcoded in the workflow WDL. | String |
+| recalibrated_bam_basename | Basename for the recalibrated BAM file; hardcoded to be the base_file_name in the sample_and_unmapped_bams struct + ".aligned.duplicates_marked.recalibrated" in the workflow WDL. | String |
+| final_gvcf_base_name | Basename for the final GVCF file; harcoded in workflow WDL to be the final_gvcf_base_name from the sample_and_unmapped_bams struct, if applicable, or the base_file_name. | String | 
  
 ## Workflow tasks and tools
  
@@ -286,7 +286,7 @@ The table below describes the final workflow outputs. If running the workflow on
 | agg_insert_size_metrics | Insert size metrics for the aggregated BAM. | File |
 | agg_pre_adapter_detail_metrics | Details metrics for artifacts that occur prior to the addition of adaptors for the aggregated BAM. | File |
 | agg_pre_adapter_summary_metrics | Summary metrics for artifacts that occur prior to the addition of adaptors for the aggregated BAM. | File |
-| agg_quality_distribution_pdf | PDF of the quality distribution for the aggregated BAM. | PDF |
+| agg_quality_distribution_pdf | PDF of the quality distribution for the aggregated BAM. | File |
 | agg_quality_distribution_metrics | Quality distribution metrics for the aggregated BAM. | File |
 | agg_error_summary_metrics | Error summary metrics for the aggregated BAM. | File | 
 | fingerprint_summary_metrics | Optional fingerprint summary metrics for the aggregated BAM. | File |
