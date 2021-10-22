@@ -1,6 +1,7 @@
 # 2.6.0
 2021-10-18
 * Updated GATK to v4.2.2.0 for variant calling
+    - In accordance with known improvements in GATK 4.1.9.0 and 4.2.0.0, sensitivity to phased variants is improved in a small number of cases and genotypes are more accurate in a very small number of cases involving indels and spanning deletions.
 * Added optional BQSR outputs
 
 # 2.5.0
