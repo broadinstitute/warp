@@ -107,7 +107,7 @@ The following table describes the inputs imported from a struct. Although these 
 | calling_interval_list | DNASeqSingleSampleReferences (references) | Interval list used for variant calling. | File |
 | reference_bin | DragmapReference (dragmap_reference) | Binary representation of the reference FASTA file used for the DRAGEN mode DRAGMAP aligner. | File |
 | hash_table_cfg_bin | DragmapReference (dragmap_reference) | Binary representation of the configuration for the hash table used for the DRAGEN mode DRAGMAP aligner. | File |
-| hash_table_cmp | DragmapReference (dragmap_reference_ | Compressed representation of the hash table that is used for the DRAGEN mode DRAGMAP aligner. | File |
+| hash_table_cmp | DragmapReference (dragmap_reference) | Compressed representation of the hash table that is used for the DRAGEN mode DRAGMAP aligner. | File |
 | haplotype_scatter_count | VariantCallingScatterSettings (scatter_settings) | Scatter count used for variant calling. | Int |
 | break_bands_at_multiples_of | VariantCallingScatterSettings (scatter_settings) | Breaks reference bands up at genomic positions that are multiples of this number; used to reduce GVCF file size. | Int |
 | preemptible_tries |  PapiSettings (papi_settings) | Number of times the workflow can be preempted. | Int | 
