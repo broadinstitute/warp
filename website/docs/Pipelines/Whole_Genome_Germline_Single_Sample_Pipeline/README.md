@@ -100,7 +100,7 @@ The following table describes the inputs imported from a struct. Although these 
 | final_gvcf_base_name | SampleAndUnmappedBams (sample_and_unmapped_bams) | Base name for the output GVCF file; can be set to a read group ID. | String |
 | flowcell_unmapped_bams | SampleAndUnmappedBams (sample_and_unmapped_bams) | Human whole-genome paired-end sequencing data in unmapped BAM (uBAM) format; each uBAM file contains one or more read groups all belonging to a single sample (SM). | Array of files | 
 | sample_name | SampleAndUnmappedBams (sample_and_unmapped_bams) | A string to describe the sample; can be set to a read group ID. | String |
-| unmapped_bam_suffix | SampleAndUnmappedBams (sample_and_unmapped_bams) | The suffice for the input UBAM file; must be consistent across files; (ex: “.unmapped.bam”). | String |
+| unmapped_bam_suffix | SampleAndUnmappedBams (sample_and_unmapped_bams) | The suffice for the input uBAM file; must be consistent across files; (ex: “.unmapped.bam”). | String |
 | contamination_sites_ud | DNASeqSingleSampleReferences (references) | Contamination site files for the CheckContamination task.  | File |
 | ontamination_sites_bed | DNASeqSingleSampleReferences (references) | Contamination site files for the CheckContamination task. | File |
 | contamination_sites_mu | DNASeqSingleSampleReferences (references) | Contamination site files for the CheckContamination task. | File |
