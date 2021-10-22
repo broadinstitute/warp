@@ -289,7 +289,7 @@ The table below describes the final workflow outputs. If running the workflow on
 | agg_quality_distribution_pdf | PDF of the quality distribution for the aggregated BAM. | PDF |
 | agg_quality_distribution_metrics | Quality distribution metrics for the aggregated BAM. | File |
 | agg_error_summary_metrics | Error summary metrics for the aggregated BAM. | File | 
-| fingerprint_summary_metrics | Optional fingerprint summary metrics for the aggregated BAM.. | File |
+| fingerprint_summary_metrics | Optional fingerprint summary metrics for the aggregated BAM. | File |
 | fingerprint_detail_metrics |Optional fingerprint detail metrics for the aggregated BAM. | File |
 | wgs_metrics | Metrics from the CollectWgsMetrics tool. | File |
 | raw_wgs_metric | Metrics from the CollectRawWgsMetrics tool. | File |
