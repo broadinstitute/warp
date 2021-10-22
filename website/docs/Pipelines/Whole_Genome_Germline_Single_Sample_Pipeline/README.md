@@ -124,8 +124,8 @@ Additional inputs that are not contained in a struct are described in the table 
 | wgs_coverage_interval_list | Interval list for the CollectWgsMetrics tool. | File |
 | provide_bam_output | If set to true, provides the aligned BAM and index as workflow output; default set to false. | Boolean |
 | use_gatk3_haplotype_caller | Uses the GATK3.5 HaplotypeCalller; default set to true. | Boolean |
-| dragen_functional_equivalence_mode | Boolean used to run the WGS pipeline in a mode functionally equivalent to DRAGEN; set to false by default. | Boolean |
-| dragen_maximum_quality_mode | Boolean used to run the pipeline in DRAGEN mode with modifications to produce maximum quality results; set to false by default. | Boolean |
+| dragen_functional_equivalence_mode | Boolean used to run the WGS pipeline in a mode functionally equivalent to DRAGEN; set to false by default. This parameter is mutually exclusive with the `dragen_maxiumum_quality_mode` and will result in an error if both are set to true. | Boolean |
+| dragen_maximum_quality_mode | Boolean used to run the pipeline in DRAGEN mode with modifications to produce maximum quality results; set to false by default. This parameter is mutually exclusive with the `dragen_functional_equivalence_mode` and will result in an error if both are set to true. | Boolean |
 | run_dragen_mode_variant_calling | Boolean used to indicate that DRAGEN mode should be used for variant calling; default set to false but must be true to compose DRAGstr model and perform variant calling with HaplotypeCaller in dragen-mode. | Boolean |
 | use_spanning_event_genotyping | Boolean used to call the HaplotypeCaller --disable-spanning-event-genotyping parameter; default set to true so that variant calling includes spanning events. Set to false to run the DRAGEN pipeline.  | Boolean |
 | unmap_contaminant_reads | Boolean to indicate whether to identify extremely short alignments (with clipping on both sides) as cross-species contamination and unmap the reads; default set to true. This feature is not used in the pipeline mode functionally equivalent to DRAGEN. | Boolean |
