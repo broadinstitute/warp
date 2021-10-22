@@ -272,7 +272,7 @@ The table below describes the final workflow outputs. If running the workflow on
 | read_group_gc_bias_detail_metrics | GC bias detail metrics for the aggregated BAM. | File |
 | read_group_gc_bias_pd | PDF of the GC bias by readgroup for the aggregated BAM. | PDF |
 | read_group_gc_bias_summary_metrics | GC bias summary metrics by readgroup for the aggregated BAM. | File |
-| cross_check_fingerprints_metrics | Fingerprint metrics file If optional fingerprinting is performed. | File |
+| cross_check_fingerprints_metrics | Fingerprint metrics file if optional fingerprinting is performed. | File |
 | selfSM | Contamination estimate from VerifyBamID. | File |
 | contamination | Estimated contamination from the CheckContamination task. | Float |
 | calculate_read_group_checksum_md5 | MD5 checksum for aggregated BAM. | File |
