@@ -260,17 +260,17 @@ The table below describes the final workflow outputs. If running the workflow on
 | Output variable name | Description | Type |
 | --- | --- | --- |
 | quality_yield_metrics | The quality metrics calculated for the unmapped BAM files. | Array of files |
-| unsorted_read_group_base_distribution_by_cycle_pdf | PDF of the base distribution for each unsorted, readgroup-specific BAM. | Array of PDFs |
+| unsorted_read_group_base_distribution_by_cycle_pdf | PDF of the base distribution for each unsorted, readgroup-specific BAM. | Array of files |
 | unsorted_read_group_base_distribution_by_cycle_metrics | Metrics of the base distribution by cycle for each unsorted, readgroup-specific BAM. | Array of files | 
-| unsorted_read_group_insert_size_histogram_pdf | Histograms of insert size for the unsorted, readgroup-specific BAMs.  | Array of PDFs |
+| unsorted_read_group_insert_size_histogram_pdf | Histograms of insert size for the unsorted, readgroup-specific BAMs.  | Array of files |
 | unsorted_read_group_insert_size_metrics | Insert size metrics for the unsorted, readgroup-specific BAMs. | Array of files |
-| unsorted_read_group_quality_by_cycle_pdf | Quality by cycle PDF for the unsorted, readgroup-specific BAMs. | Array of PDFs |
-| unsorted_read_group_quality_by_cycle_metrics | Quality by cycle metrics for the unsorted, readgroup-specific BAMs.  | Array of Files |
-| unsorted_read_group_quality_distribution_pdf | Quality distribution PDF for the unsorted, readgroup-specific BAMs.  | Array of PDFs |
-| unsorted_read_group_quality_distribution_metrics | Quality distribution metrics for the unsorted, readgroup-specific BAMs. | Array of PDFs |
+| unsorted_read_group_quality_by_cycle_pdf | Quality by cycle PDF for the unsorted, readgroup-specific BAMs. | Array of files |
+| unsorted_read_group_quality_by_cycle_metrics | Quality by cycle metrics for the unsorted, readgroup-specific BAMs.  | Array of files |
+| unsorted_read_group_quality_distribution_pdf | Quality distribution PDF for the unsorted, readgroup-specific BAMs.  | Array of files |
+| unsorted_read_group_quality_distribution_metrics | Quality distribution metrics for the unsorted, readgroup-specific BAMs. | Array of files |
 | read_group_alignment_summary_metrics | Alignment summary metrics for the aggregated BAM. | File |
 | read_group_gc_bias_detail_metrics | GC bias detail metrics for the aggregated BAM. | File |
-| read_group_gc_bias_pdf | PDF of the GC bias by readgroup for the aggregated BAM. | PDF |
+| read_group_gc_bias_pdf | PDF of the GC bias by readgroup for the aggregated BAM. | File |
 | read_group_gc_bias_summary_metrics | GC bias summary metrics by readgroup for the aggregated BAM. | File |
 | cross_check_fingerprints_metrics | Fingerprint metrics file if optional fingerprinting is performed. | File |
 | selfSM | Contamination estimate from VerifyBamID. | File |
@@ -280,9 +280,9 @@ The table below describes the final workflow outputs. If running the workflow on
 | agg_bait_bias_detail_metrics | Bait bias detail metrics for the aggregated BAM. | File |
 | agg_bait_bias_summary_metrics | Bait bias summary metrics for the aggregated BAM. | File |
 | agg_gc_bias_detail_metric | GC bias detail metrics for the aggregated BAM. | File |
-| agg_gc_bias_pdf | PDF of GC bias for the aggregated BAM. | PDF |
+| agg_gc_bias_pdf | PDF of GC bias for the aggregated BAM. | File |
 | agg_gc_bias_summary_metrics | GC bias summary metrics for the aggregated BAM. | File |
-| agg_insert_size_histogram_pdf | Histogram of insert size for aggregated BAM. | PDF |
+| agg_insert_size_histogram_pdf | Histogram of insert size for aggregated BAM. | File |
 | agg_insert_size_metrics | Insert size metrics for the aggregated BAM. | File |
 | agg_pre_adapter_detail_metrics | Details metrics for artifacts that occur prior to the addition of adaptors for the aggregated BAM. | File |
 | agg_pre_adapter_summary_metrics | Summary metrics for artifacts that occur prior to the addition of adaptors for the aggregated BAM. | File |
