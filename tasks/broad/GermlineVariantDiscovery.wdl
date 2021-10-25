@@ -100,7 +100,7 @@ task HaplotypeCaller_GATK4_VCF {
     Int memory_multiplier = 1
   }
   
-  Int memory_size = ceil(6.5 * memory_multiplier)
+  Int memory_size_gb = ceil(8 * memory_multiplier)
 
   String output_suffix = if make_gvcf then ".g.vcf.gz" else ".vcf.gz"
   String output_file_name = vcf_basename + output_suffix
@@ -118,7 +118,12 @@ task HaplotypeCaller_GATK4_VCF {
 
   command <<<
     set -e
-    gatk --java-options "-Xms6000m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10" \
+    # Calculate available memory to set the Java variables. The actual available memory can be different from the value
+    # defined in the inputs because of Cromwell's retry with more memory feature.
+    available_memory_mb=$(free -m | awk '/^Mem/ {print $2}')
+    let java_memory_size_mb=available_memory_mb-1024
+
+    gatk --java-options "-Xmx${java_memory_size_mb}m -Xms${java_memory_size_mb}m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10" \
       HaplotypeCaller \
       -R ~{ref_fasta} \
       -I ~{input_bam} \
@@ -140,7 +145,7 @@ task HaplotypeCaller_GATK4_VCF {
   runtime {
     docker: gatk_docker
     preemptible: preemptible_tries
-    memory: "~{memory_size} GiB"
+    memory: "~{memory_size_gb} GiB"
     cpu: "2"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
