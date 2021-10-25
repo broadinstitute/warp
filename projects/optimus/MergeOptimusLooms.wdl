@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../projects/tasks/AdapterTasks.wdl" as Tasks
+import "../tasks/AdapterTasks.wdl" as Tasks
 
 # Making this a subworkflow will (hopefully) allow us to get the pertinent task level iput for the metadata to include in the analysis_process file
 
@@ -33,14 +33,14 @@ workflow MergeOptimusLooms {
       output_basename = output_basename
   }
 
-  call Tasks.GetPipelineVersion {
+  call Tasks.GetOptimusPipelineVersion {
     input:
       pipeline_version = pipeline_version
   }
 
   output {
     File project_loom = MergeLooms.project_loom
-    String pipeline_version_string = GetPipelineVersion.pipeline_version_string
+    String pipeline_version_string = GetOptimusPipelineVersion.pipeline_version_string
   }
 }
 

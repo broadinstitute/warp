@@ -27,7 +27,7 @@
   "Arrays.fingerprint_genotypes_vcf_index_file": "gs://broad-gotc-test-storage/arrays/Broad_GWAS_supplemental_15061359_A1/inputs/200557060038_R10C02/200557060038_R10C02.PRISM_7032.reference.fingerprint.vcf.gz.tbi",
 
   "Arrays.write_fingerprint_to_mercury": false,
-  "Arrays.variant_rsids_file": "gs://broad-references-private/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
+  "Arrays.variant_rsids_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
 
   "Arrays.bead_pool_manifest_file": "gs://gcp-public-data--broad-references/arrays/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.bpm",
   "Arrays.extended_chip_manifest_file": "gs://gcp-public-data--broad-references/arrays/Broad_GWAS_supplemental_15061359_A1/Broad_GWAS_supplemental_15061359_A1.1.3.extended.csv",
