@@ -121,6 +121,8 @@ task HaplotypeCaller_GATK4_VCF {
     # We need at least 1 GB of available memory outside of the Java heap in order to execute native code, thus, limit
     # Java's memory by the total memory minus 1 GB. We need to compute the total memory as it might differ from
     # memory_size_gb because of Cromwell's retry with more memory feature.
+    # Note: In the future this should be done using Cromwell's ${MEM_SIZE} and ${MEM_UNIT} environment variables,
+    #       which do not rely on the output format of the `free` command.
     available_memory_mb=$(free -m | awk '/^Mem/ {print $2}')
     let java_memory_size_mb=available_memory_mb-1024
     echo Total available memory: ${available_memory_mb} MB >&2

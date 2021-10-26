@@ -88,6 +88,7 @@ workflow WholeGenomeGermlineSingleSample {
   Boolean perform_bqsr_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then false else perform_bqsr
   Boolean use_bwa_mem_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then false else use_bwa_mem
   Boolean use_gatk3_haplotype_caller_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then false else use_gatk3_haplotype_caller
+  Boolean use_dragen_hard_filtering_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then true else use_dragen_hard_filtering
 
   # Not overridable:
   Int read_length = 250
@@ -190,7 +191,7 @@ workflow WholeGenomeGermlineSingleSample {
       final_vcf_base_name = final_gvcf_base_name,
       agg_preemptible_tries = papi_settings.agg_preemptible_tries,
       use_gatk3_haplotype_caller = use_gatk3_haplotype_caller_,
-      use_dragen_hard_filtering = use_dragen_hard_filtering
+      use_dragen_hard_filtering = use_dragen_hard_filtering_
   }
 
   if (provide_bam_output) {
