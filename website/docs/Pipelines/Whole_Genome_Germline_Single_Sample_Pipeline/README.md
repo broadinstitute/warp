@@ -45,13 +45,12 @@ Although the DRAGEN parameters can be turned on and off as needed, there are two
 1. **dragen_functional_equivalence_mode**
 2. **dragen_maximum_quality_mode**
 
-The **dragen_functional_equivalence_mode** runs the pipeline so that it is functionally equivalent to the DRAGEN hardware. This mode will automatically set the following parameters:
+The **dragen_functional_equivalence_mode** runs the pipeline so that it the outputs are functionally equivalent to those produced with the DRAGEN hardware. This mode will automatically set the following parameters:
 1. `run_dragen_mode_variant_calling` is true.
 2. `use_bwa_mem` is false.
 3. `perform_bqsr` is false.
 4. `use_spanning_event_genotyping` is false.
-
-By setting the Dragen parameters as listed above, the WGS workflow produces outputs that are functionally equivalent to the DRAGEN pipeline. 
+5. `dragen_mode_hard_filter` is true.
 
 To learn more about how outputs are tested for functional equivalence, try the [Functional Equivalence workflow](https://app.terra.bio/#workspaces/broad-firecloud-dsde-methods/FunctionalEquivalence) in Terra.
 
@@ -60,6 +59,7 @@ The **dragen_maximum_quality_mode** runs the pipeline using the DRAGMAP aligner 
 2. `use_spanning_event_genotyping` is true.
 3. `use_bwa_mem` is false.
 4. `perform_bqsr` is false.
+5. `dragen_mode_hard_filter` is true.
 
 
 When the workflow applies the DRAGMAP aligner, it calls reference files specific to the aligner. These files are located in a [public Google bucket](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/) and described in the [Input descriptions](#input-descriptions). See the [reference README](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/README_dragen_gatk_resources.txt) for details on recreating DRAGEN references.
