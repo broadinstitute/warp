@@ -44,7 +44,8 @@ task DownloadGenotypes {
     String environment
     File vault_token_path
 
-    Int preemptible_tries
+    Int? max_retries
+    Int? preemptible_tries
   }
 
   meta {
@@ -111,7 +112,8 @@ task DownloadGenotypes {
   runtime {
     docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359"
     memory: "3.5 GiB"
-    preemptible: preemptible_tries
+    maxRetries: select_first([max_retries, 2])
+    preemptible: select_first([preemptible_tries, 3])
   }
 
   output {
@@ -130,7 +132,8 @@ task UploadFingerprintToMercury {
     String environment
     File vault_token_path
 
-    Int preemptible_tries
+    Int? max_retries
+    Int? preemptible_tries
   }
 
   command <<<
@@ -161,6 +164,7 @@ task UploadFingerprintToMercury {
   runtime {
     docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359"
     memory: "3.5 GiB"
-    preemptible: preemptible_tries
+    maxRetries: select_first([max_retries, 2])
+    preemptible: select_first([preemptible_tries, 3])
   }
 }
