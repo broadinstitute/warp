@@ -1,3 +1,9 @@
+# 2.5.1
+2021-10-25
+
+* Make fingerprint retrieval and storage tasks use max_retries to enable recovery from transient failures
+* Modified Arrays pipeline to not read fingerprints for control samples from the Mercury Fingerprint Store.
+
 # 2.5.0
 2021-10-07
 
