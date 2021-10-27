@@ -462,6 +462,12 @@ function copy_part_one_outputs_to_safe_location() {
           continue
         else
           gsutil cp ${hardFilteredVcf} ${outputDir}${copyName}
+        fi
+        # Check hardFilteredVcf index separately
+        if grep -q "${copyName}.tbi$" ${existingFilesFile}; then
+          >&2 echo "Skipping copying of ${hardFilteredVcf}.tbi as it already exists in the destination directory"
+          continue
+        else
           gsutil cp ${hardFilteredVcf}.tbi ${outputDir}${copyName}.tbi
         fi
         ) &
