@@ -1,7 +1,6 @@
 version 1.0
 
-import "../../projects/tasks/OptimusPostProcessingTasks.wdl" as PostProcessing
-import "../../projects/tasks/AdapterTasks.wdl" as Tasks
+import "../tasks/AdapterTasks.wdl" as Tasks
 
 workflow CreateOptimusAdapterObjects {
   meta {
@@ -16,12 +15,13 @@ workflow CreateOptimusAdapterObjects {
     String input_id
     String project_id
     String version_timestamp
-    String pipeline_type = "Optimus"
     String cromwell_url
     Boolean is_project_level
     String? pipeline_version # parsed from metadata for intermediate, passed in for project level
     String? reference_file_fasta # parsed from metadata for intermediate, passed in for project level
   }
+
+  String pipeline_type = "Optimus"
 
   call Tasks.GetCromwellMetadata {
     input:
@@ -111,7 +111,8 @@ workflow CreateOptimusAdapterObjects {
       analysis_process_path = GetAnalysisProcessMetadata.analysis_process_outputs,
       analysis_protocol_path = GetAnalysisProtocolMetadata.analysis_protocol_outputs,
       project_level = is_project_level,
-      file_name_string = input_id
+      file_name_string = input_id,
+      pipeline_type = pipeline_type
   }
 
   output {

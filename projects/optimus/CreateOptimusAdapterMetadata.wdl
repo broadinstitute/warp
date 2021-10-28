@@ -1,12 +1,12 @@
 version 1.0
 
-import "../../projects/tasks/CreateOptimusAdapterObjects.wdl" as CreateOptimusObjects
-import "../../projects/tasks/MergeOptimusLooms.wdl" as MergeLooms
-import "../../projects/tasks/AdapterTasks.wdl" as Tasks
-import "../../projects/tasks/CreateReferenceMetadata.wdl" as CreateReferenceMetadata
+import "../optimus/CreateOptimusAdapterObjects.wdl" as CreateOptimusObjects
+import "../optimus/MergeOptimusLooms.wdl" as MergeLooms
+import "../tasks/AdapterTasks.wdl" as Tasks
+import "../tasks/CreateReferenceMetadata.wdl" as CreateReferenceMetadata
 
 
-workflow CreateAdapterMetadata {
+workflow CreateOptimusAdapterMetadata {
   meta {
     description: "Creates json objects for indexing HCA analysis data"
     allowNestedInputs: true
@@ -28,14 +28,24 @@ workflow CreateAdapterMetadata {
     Array[String] all_project_names
 
     String output_basename
+
     String cromwell_url = "https://api.firecloud.org/"
     String staging_area = "gs://broad-dsp-monster-hca-prod-lantern/"
-    String version_timestamp
+    String pipeline_type = "Optimus"
+    String workspace_bucket # gs:// path associated with the terra workspace
+
+    String? version_timestamp # default behavior is to retrieve this from workspace_bucket metadata
   }
 
   ########################## Set up Inputs ##########################
   # version of this pipeline
   String pipeline_version = "1.0.0"
+
+  # Get the version timestamp which is the creation date of the staging bucket
+  call Tasks.GetBucketCreationDate as GetVersionTimestamp {
+    input:
+      bucket_path = workspace_bucket
+  }
 
   # Check inputs for multiple values or illegal characters
   call Tasks.CheckInput as CheckLibrary {
@@ -70,7 +80,7 @@ workflow CreateAdapterMetadata {
     input:
       input_array = all_project_names,
       input_type = "project_name",
-      illegal_characters = "; =" # should we include % in this list? # ultimately we should switch to a whitelist
+      illegal_characters = "; ="
   }
 
   String library = CheckLibrary.output_string
@@ -79,6 +89,8 @@ workflow CreateAdapterMetadata {
   String project_id = CheckProjectID.output_string
   String project_name = CheckProjectName.output_string
 
+  # Default should be timestamp from bucket creation but can be overwritten if data is updated after import
+  String workspace_version_timestamp = select_first([version_timestamp, GetVersionTimestamp.version_timestamp])
 
   # Build staging bucket
   String staging_bucket = staging_area + project_id + "/staging/"
@@ -98,7 +110,7 @@ workflow CreateAdapterMetadata {
         input_id = input_ids[idx],
         process_input_ids = select_all([fastq_1_uuids[idx],fastq_2_uuids[idx], fastq_i1_uuid]),
         project_id = project_id,
-        version_timestamp = version_timestamp,
+        version_timestamp = workspace_version_timestamp,
         cromwell_url = cromwell_url,
         is_project_level = false
     }
@@ -116,8 +128,8 @@ workflow CreateAdapterMetadata {
     input:
       reference_fastas = CreateIntermediateOptimusAdapters.reference_fasta,
       species = species,
-      pipeline_type = "Optimus",
-      version_timestamp = version_timestamp,
+      pipeline_type = pipeline_type,
+      version_timestamp = workspace_version_timestamp,
       input_type = "reference"
   }
 
@@ -143,7 +155,6 @@ workflow CreateAdapterMetadata {
       intermediate_analysis_files = flatten(CreateIntermediateOptimusAdapters.analysis_file_outputs)
   }
 
-  
   # Create the project level objects based on the intermediate looms and the final merged loom
   call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateProjectOptimusAdapters {
     input:
@@ -151,7 +162,7 @@ workflow CreateAdapterMetadata {
       process_input_ids = [GetProjectLevelInputIds.process_input_uuids],
       input_id = project_stratum_string,
       project_id = project_id,
-      version_timestamp = version_timestamp,
+      version_timestamp = workspace_version_timestamp,
       cromwell_url = cromwell_url,
       is_project_level = true,
       reference_file_fasta = CreateIntermediateOptimusAdapters.reference_fasta[0],
