@@ -1,3 +1,10 @@
+# 2.5.0
+2021-10-18
+
+* Updated the Whole Genome Germline Single Sample (WGS) workflow to include new DRAGEN-GATK functionality; the default pipeline remains unchanged. Read more about the DRAGEN-GATK mode in the [WGS Overview](https://broadinstitute.github.io/warp/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/README)
+* Added optional BQSR outputs
+* Added a new Docker image for GATK v4.2.2.0 for variant calling in DRAGEN mode
+
 # 2.4.0
 2021-10-06
 

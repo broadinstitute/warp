@@ -580,8 +580,8 @@ task CopyToStagingBucket {
 
     String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
     Int cpu = 1
-    Int memory_mb = ceil(size(data_objects, "MiB"))
-    Int disk_size_gb = ceil(size(data_objects, "GiB"))
+    Int memory_mb = 20000
+    Int disk_size_gb = 50
   }
 
   command
