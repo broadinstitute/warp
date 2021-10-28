@@ -42,13 +42,13 @@ workflow VariantCalling {
 
   if (run_dragen_mode_variant_calling) {
     call DragenTasks.CalibrateDragstrModel as DragstrAutoCalibration {
-       input:
-         ref_fasta = ref_fasta,
-         ref_fasta_idx = ref_fasta_index,
-         ref_dict = ref_dict,
-         alignment = input_bam,
-         alignment_index = input_bam_index,
-         str_table_file = select_first([ref_str])
+      input:
+        ref_fasta = ref_fasta,
+        ref_fasta_idx = ref_fasta_index,
+        ref_dict = ref_dict,
+        alignment = input_bam,
+        alignment_index = input_bam_index,
+        str_table_file = select_first([ref_str])
     }
   }
 
@@ -107,7 +107,7 @@ workflow VariantCalling {
           use_spanning_event_genotyping = use_spanning_event_genotyping,
           dragstr_model = DragstrAutoCalibration.dragstr_model,
           preemptible_tries = agg_preemptible_tries
-       }
+      }
       
       if (use_dragen_hard_filtering) {
         call Calling.DragenHardFilterVcf as DragenHardFilterVcf {
