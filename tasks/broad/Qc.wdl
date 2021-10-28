@@ -387,7 +387,7 @@ task ValidateSamFile {
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
   Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + additional_disk
 
-  Int memory_size = ceil(7 * memory_multiplier)
+  Int memory_size = ceil(16 * memory_multiplier)
   Int java_memory_size = (memory_size - 1) * 1000
 
   command {
@@ -554,7 +554,7 @@ task CalculateReadGroupChecksum {
     Int preemptible_tries
   }
 
-  Int disk_size = ceil(size(input_bam, "GiB")) + 20
+  Int disk_size = ceil(size(input_bam, "GiB")) + 40
 
   command {
     java -Xms1000m -jar /usr/picard/picard.jar \
@@ -565,7 +565,7 @@ task CalculateReadGroupChecksum {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     preemptible: preemptible_tries
-    memory: "2 GiB"
+    memory: "4 GiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
