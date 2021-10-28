@@ -221,8 +221,9 @@ task MergeBamouts {
   runtime {
     docker: "biocontainers/samtools:1.3.1"
     memory: "4 GiB"
-    disks: "local-disk ~{disk_size} HDD"
-    preemptible: 3
+    disk: "~{disk_size} GB"
+    preemptible: true
+    maxRetries:  3
     cpu: 1
   }
 }

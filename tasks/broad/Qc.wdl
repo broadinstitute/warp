@@ -34,9 +34,10 @@ task CollectQualityYieldMetrics {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
-    disks: "local-disk " + disk_size + " HDD"
+    disk: disk_size + " GB"
     memory: "3.5 GiB"
-    preemptible: preemptible_tries
+    preemptible: true
+    maxRetries:  preemptible_tries
   }
   output {
     File quality_yield_metrics = "~{metrics_filename}"
@@ -73,8 +74,9 @@ task CollectUnsortedReadgroupBamQualityMetrics {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     memory: "7 GiB"
-    disks: "local-disk " + disk_size + " HDD"
-    preemptible: preemptible_tries
+    disk: disk_size + " GB"
+    preemptible: true
+    maxRetries:  preemptible_tries
   }
   output {
     File base_distribution_by_cycle_pdf = "~{output_bam_prefix}.base_distribution_by_cycle.pdf"
@@ -125,8 +127,9 @@ task CollectReadgroupBamQualityMetrics {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     memory: "7 GiB"
-    disks: "local-disk " + disk_size + " HDD"
-    preemptible: preemptible_tries
+    disk: disk_size + " GB"
+    preemptible: true
+    maxRetries:  preemptible_tries
   }
   output {
     File alignment_summary_metrics = "~{output_bam_prefix}.alignment_summary_metrics"
@@ -179,8 +182,9 @@ task CollectAggregationMetrics {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     memory: "7 GiB"
-    disks: "local-disk " + disk_size + " HDD"
-    preemptible: preemptible_tries
+    disk: disk_size + " GB"
+    preemptible: true
+    maxRetries:  preemptible_tries
   }
   output {
     File alignment_summary_metrics = "~{output_bam_prefix}.alignment_summary_metrics"
@@ -229,8 +233,9 @@ task ConvertSequencingArtifactToOxoG {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     memory: "~{memory_size} GiB"
-    disks: "local-disk " + disk_size + " HDD"
-    preemptible: preemptible_tries
+    disk: disk_size + " GB"
+    preemptible: true
+    maxRetries:  preemptible_tries
   }
   output {
     File oxog_metrics = "~{base_name}.oxog_metrics"
@@ -266,9 +271,10 @@ task CrossCheckFingerprints {
   >>>
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
-    preemptible: preemptible_tries
+    preemptible: true
+    maxRetries:  preemptible_tries
     memory: "3.5 GiB"
-    disks: "local-disk " + disk_size + " HDD"
+    disk: disk_size + " GB"
   }
   output {
     File cross_check_fingerprints_metrics = "~{metrics_filename}"
@@ -310,9 +316,10 @@ task CheckFingerprint {
   >>>
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
-    preemptible: preemptible_tries
+    preemptible: true
+    maxRetries:  preemptible_tries
     memory: "3.5 GiB"
-    disks: "local-disk " + disk_size + " HDD"
+    disk: disk_size + " GB"
   }
   output {
     File summary_metrics = summary_metrics_location
@@ -358,7 +365,8 @@ task CheckPreValidation {
 >>>
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/python:2.7"
-    preemptible: preemptible_tries
+    preemptible: true
+    maxRetries:  preemptible_tries
     memory: "2 GiB"
   }
   output {
@@ -404,9 +412,10 @@ task ValidateSamFile {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
-    preemptible: preemptible_tries
+    preemptible: true
+    maxRetries:  preemptible_tries
     memory: "~{memory_size} GiB"
-    disks: "local-disk " + disk_size + " HDD"
+    disk: disk_size + " GB"
   }
   output {
     File report = "~{report_filename}"
@@ -443,9 +452,10 @@ task CollectWgsMetrics {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
-    preemptible: preemptible_tries
+    preemptible: true
+    maxRetries:  preemptible_tries
     memory: "3 GiB"
-    disks: "local-disk " + disk_size + " HDD"
+    disk: disk_size + " GB"
   }
   output {
     File metrics = "~{metrics_filename}"
@@ -487,9 +497,10 @@ task CollectRawWgsMetrics {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
-    preemptible: preemptible_tries
+    preemptible: true
+    maxRetries:  preemptible_tries
     memory: "~{memory_size} GiB"
-    disks: "local-disk " + disk_size + " HDD"
+    disk: disk_size + " GB"
   }
   output {
     File metrics = "~{metrics_filename}"
@@ -535,9 +546,10 @@ task CollectHsMetrics {
 
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
-    preemptible: preemptible_tries
+    preemptible: true
+    maxRetries:  preemptible_tries
     memory: "~{memory_size} GiB"
-    disks: "local-disk " + disk_size + " HDD"
+    disk: disk_size + " GB"
   }
 
   output {
@@ -564,9 +576,10 @@ task CalculateReadGroupChecksum {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
-    preemptible: preemptible_tries
+    preemptible: true
+    maxRetries:  preemptible_tries
     memory: "4 GiB"
-    disks: "local-disk " + disk_size + " HDD"
+    disk: disk_size + " GB"
   }
   output {
     File md5_file = "~{read_group_md5_filename}"
@@ -604,10 +617,10 @@ task ValidateVCF {
   }
   runtime {
     docker: gatk_docker
-    preemptible: preemptible_tries
+    preemptible: true
+    maxRetries:  preemptible_tries
     memory: "7 GiB"
-    bootDiskSizeGb: 15
-    disks: "local-disk " + disk_size + " HDD"
+    disk: disk_size + " GB"
   }
 }
 
@@ -639,9 +652,10 @@ task CollectVariantCallingMetrics {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
-    preemptible: preemptible_tries
+    preemptible: true
+    maxRetries:  preemptible_tries
     memory: "3 GiB"
-    disks: "local-disk " + disk_size + " HDD"
+    disk: disk_size + " GB"
   }
   output {
     File summary_metrics = "~{metrics_basename}.variant_calling_summary_metrics"

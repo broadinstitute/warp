@@ -61,7 +61,8 @@ task CreateSequenceGroupingTSV {
     CODE
   >>>
   runtime {
-    preemptible: preemptible_tries
+    preemptible: true
+    maxRetries:  preemptible_tries
     docker: "us.gcr.io/broad-gotc-prod/python:2.7"
     memory: "2 GiB"
   }
@@ -146,10 +147,11 @@ task ConvertToCram {
   >>>
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
-    preemptible: preemptible_tries
+    preemptible: true
+    maxRetries:  preemptible_tries
     memory: "3 GiB"
     cpu: "1"
-    disks: "local-disk " + disk_size + " HDD"
+    disk: disk_size + " GB"
   }
   output {
     File output_cram = "~{output_basename}.cram"
@@ -177,10 +179,11 @@ task ConvertToBam {
   >>>
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
-    preemptible: 3
+    preemptible: true
+    maxRetries:  3
     memory: "3 GiB"
     cpu: "1"
-    disks: "local-disk 200 HDD"
+    disk: "200 GB"
   }
   output {
     File output_bam = "~{output_basename}.bam"
@@ -203,7 +206,8 @@ task SumFloats {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/python:2.7"
-    preemptible: preemptible_tries
+    preemptible: true
+    maxRetries:  preemptible_tries
   }
 }
 
