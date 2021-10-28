@@ -23,7 +23,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Arrays {
 
-  String pipeline_version = "2.5.0"
+  String pipeline_version = "2.5.1"
 
   input {
     String chip_well_barcode
@@ -294,7 +294,7 @@ workflow Arrays {
 
   Int analysis_version = select_first([analysis_version_number, GetNextArraysQcAnalysisVersionNumber.analysis_version_number])
 
-  if (read_fingerprint_from_mercury) {
+  if (read_fingerprint_from_mercury && (!defined(control_sample_name))) {
     call InternalTasks.MakeSafeFilename {
       input:
         name = sample_alias
