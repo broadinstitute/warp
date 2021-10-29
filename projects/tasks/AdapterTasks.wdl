@@ -575,6 +575,7 @@ task CopyToStagingBucket {
     Array[String] data_objects
     Array[String] reference_metadata_objects
     Array[String] reference_file_descriptor_objects
+    Array[String] is_update_file
     String staging_bucket
     String? cache_invalidate
 
@@ -598,6 +599,7 @@ task CopyToStagingBucket {
       declare -a DATA_FILES=(~{sep=' ' data_objects})
       declare -a REFERENCE_METADATA=(~{sep=' ' reference_metadata_objects})
       declare -a REFERENCE_FILE_DESCRIPTORS=(~{sep=' ' reference_file_descriptor_objects})
+      declare -a IS_UPDATE_FILE=(~{sep=' ' is_update_file})
   
       TMP_DIR=$(mktemp -d -t XXXXXX)
 
@@ -609,6 +611,7 @@ task CopyToStagingBucket {
       printf '%s\n' "${DATA_FILES[@]}" | jq -R . | jq -s . > $TMP_DIR/data_files.json
       printf '%s\n' "${REFERENCE_METADATA[@]}" | jq -R . | jq -s . > $TMP_DIR/reference_metadata.json
       printf '%s\n' "${REFERENCE_FILE_DESCRIPTORS[@]}" | jq -R . | jq -s . > $TMP_DIR/reference_file_descriptors.json
+      printf '%s\n' "${IS_UPDATE_FILE[@]}" | jq -R . | jq -s . > $TMP_DIR/is_update.json
   
       copy-adapter-outputs \
       --analysis_files_metadata_jsons "$TMP_DIR/analysis_file_metadata.json" \
@@ -619,6 +622,7 @@ task CopyToStagingBucket {
       --data_files "$TMP_DIR/data_files.json" \
       --reference_metadata_jsons "$TMP_DIR/reference_metadata.json" \
       --reference_file_descriptor_jsons "$TMP_DIR/reference_file_descriptors.json" \
+      --is_update_file "$TMP_DIR/is_update.json" \
       --staging-bucket ~{staging_bucket}
   >>>
 
@@ -691,4 +695,35 @@ task GetBucketCreationDate {
     memory: "${memory_mb} MiB"
     disks: "local-disk ${disk_size_gb} HDD"
   }
+}
+
+# See spec https://github.com/HumanCellAtlas/dcp2/blob/main/docs/dcp2_system_design.rst#311staging-area-properties
+task CreateStagingAreaFile {
+  input {
+    Boolean is_update
+
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:latest"
+    Int cpu = 1
+    Int memory_mb = 1000
+    Int disk_size_gb = 1
+  }
+
+  command
+  <<<
+    cat <<EOF > staging_area.json
+    { "is_delta" : ~{is_update} }
+    EOF
+  >>>
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+  }
+
+  output{
+    Array[File] is_update_file = glob("*.json")
+  }
+
 }
