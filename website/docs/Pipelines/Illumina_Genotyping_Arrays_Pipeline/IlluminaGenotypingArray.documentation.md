@@ -57,7 +57,7 @@ An example of all workflow inputs (both required and optional) can be found in t
 #### Reference data inputs
 | Input name | Description | Required or optional | Input format |
 | --- | --- | --- | --- |
-| ref_fasta | Cloud path to the reference FASTA (only validated for [Hg19](https://storage.cloud.google.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta)). | Required | String |
+| ref_fasta | Cloud path to the reference FASTA (only validated for Hg19; view the file in the [public Google repository](https://storage.cloud.google.com/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta)). | Required | String |
 | ref_fasta_index | Cloud path to the reference FASTA index file. | Required | String |
 | ref_dict | Cloud path to the reference FASTA dictionary file. | Required | String |
 | dbSNP_vcf | Cloud path to the dbSNP VCF, used for metrics collection. | Required | String |
