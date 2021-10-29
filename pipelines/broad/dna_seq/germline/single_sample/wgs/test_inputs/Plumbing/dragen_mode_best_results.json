@@ -61,5 +61,6 @@
     "agg_preemptible_tries": 3
   },
 
-  "WholeGenomeGermlineSingleSample.dragen_maximum_quality_mode": true
+  "WholeGenomeGermlineSingleSample.dragen_maximum_quality_mode": true,
+  "WholeGenomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true
 }
