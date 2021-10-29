@@ -48,7 +48,6 @@ An example of all workflow inputs (both required and optional) can be found in t
 | Input name | Description | Required or optional | Input format |
 | --- | --- | --- | --- |
 | bead_pool_manifest_file | Cloud path to the Illumina array-specific bead pool manifest (bpm file). | Required | String |
-| chip_type | Hardcoded string used to name output files from the BpmToNormalizationManifestCsv task; uses the file basename of the bead_pool_manifest file and adds “.bpm” to the filename. | Required | String |
 | extended_chip_manifest_file | Cloud path to an [extended CSV-formatted Illumina array-specific chip manifest](https://gatk.broadinstitute.org/hc/en-us/articles/360037431851-GtcToVcf-Picard-#--EXTENDED_ILLUMINA_MANIFEST). | Required | String |
 | cluster_file | Cloud path to the Illumina array-specific cluster EGT file. | Required | String |
 | gender_cluster_file | Cloud path to the Illumina array-specific gender cluster EGT file. | Optional | String |
