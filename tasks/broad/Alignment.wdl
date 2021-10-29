@@ -32,6 +32,7 @@ task SamToFastqAndBwaMemAndMba {
     Int compression_level
     Int preemptible_tries
     Boolean hard_clip_reads = false
+    Boolean unmap_contaminant_reads = true
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
@@ -96,7 +97,7 @@ task SamToFastqAndBwaMemAndMba {
         PROGRAM_GROUP_NAME="bwamem" \
         UNMAPPED_READ_STRATEGY=COPY_TO_TAG \
         ALIGNER_PROPER_PAIR_FLAGS=true \
-        UNMAP_CONTAMINANT_READS=true \
+        UNMAP_CONTAMINANT_READS=~{unmap_contaminant_reads} \
         ADD_PG_TAG_TO_READS=false
 
       grep -m1 "read .* ALT contigs" ~{output_bam_basename}.bwa.stderr.log | \
@@ -108,7 +109,7 @@ task SamToFastqAndBwaMemAndMba {
     fi
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
+    docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.0-0.7.15-2.23.8-1626449438"
     preemptible: preemptible_tries
     memory: "14 GiB"
     cpu: "16"
@@ -149,7 +150,7 @@ task SamSplitter {
     Array[File] split_bams = glob("output_dir/*.bam")
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
+    docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.0-0.7.15-2.23.8-1626449438"
     preemptible: preemptible_tries
     memory: "3.75 GiB"
     disks: "local-disk " + disk_size + " HDD"

@@ -58,19 +58,19 @@ function do_setup() {
 esac
 
   >&2 echo "Setting up shop in ${OLD_DIR}"
-  ln -fs ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/${dataType}/JointGenotypingByChromosomePartOne.template.input.json ${OLD_DIR}/JointGenotypingByChromosomePartOne.input.json
-  ln -fs ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/${dataType}/JointGenotypingByChromosomePartTwo.template.input.json ${OLD_DIR}/JointGenotypingByChromosomePartTwo.input.json
+  ln -fs ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/${dataType}/JointGenotypingByChromosomePartOne.template.input.json ${OLD_DIR}/JointGenotypingByChromosomePartOne.input.json
+  ln -fs ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/${dataType}/JointGenotypingByChromosomePartTwo.template.input.json ${OLD_DIR}/JointGenotypingByChromosomePartTwo.input.json
 
   cp \
-    ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.sh \
-    ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
+    ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.sh \
+    ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
 
-  sed -i.bak 's|{{DATA_TYPE}}|'${dataType}'|g' ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
-  sed -i.bak 's|{{COMPUTE_PROJECT_PREFIX}}|'${computeProjectPrefix}'|g' ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
-  sed -i.bak 's|{{PROJECT_NUMBER_RANGE_START}}|'${projectNumberRangeStart}'|g; s|{{PROJECT_NUMBER_RANGE_END}}|'${projectNumberRangeEnd}'|g' ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
-  ln -fs ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh ${OLD_DIR}/by_chromosome_client.sh
+  sed -i.bak 's|{{DATA_TYPE}}|'${dataType}'|g' ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
+  sed -i.bak 's|{{COMPUTE_PROJECT_PREFIX}}|'${computeProjectPrefix}'|g' ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
+  sed -i.bak 's|{{PROJECT_NUMBER_RANGE_START}}|'${projectNumberRangeStart}'|g; s|{{PROJECT_NUMBER_RANGE_END}}|'${projectNumberRangeEnd}'|g' ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
+  ln -fs ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh ${OLD_DIR}/by_chromosome_client.sh
 
-  rm ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/*.bak
+  rm ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/*.bak
 }
 
 if [[ ${1} == "setup" ]]; then
@@ -78,16 +78,16 @@ if [[ ${1} == "setup" ]]; then
   exit 0
 fi
 
-JOINT_GENOTYPING_PART_ONE_WDL=${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartOne.wdl
-JOINT_GENOTYPING_PART_TWO_WDL=${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartTwo.wdl
+JOINT_GENOTYPING_PART_ONE_WDL=${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartOne.wdl
+JOINT_GENOTYPING_PART_TWO_WDL=${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartTwo.wdl
 
-JOINT_GENOTYPING_PART_ONE_INPUTS_TEMPLATE=${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/${DATA_TYPE}/JointGenotypingByChromosomePartOne.template.input.json
-JOINT_GENOTYPING_PART_TWO_INPUTS_TEMPLATE=${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/${DATA_TYPE}/JointGenotypingByChromosomePartTwo.template.input.json
+JOINT_GENOTYPING_PART_ONE_INPUTS_TEMPLATE=${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/${DATA_TYPE}/JointGenotypingByChromosomePartOne.template.input.json
+JOINT_GENOTYPING_PART_TWO_INPUTS_TEMPLATE=${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/${DATA_TYPE}/JointGenotypingByChromosomePartTwo.template.input.json
 
-CROMWELL_OPTIONS_TEMPLATE=${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosome.template.options.json
+CROMWELL_OPTIONS_TEMPLATE=${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosome.template.options.json
 
 WORKFLOWS_CSV=${SCRIPT_DIR}/workflows.csv
-CHROMOSOME_SCATTER_CSV=${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/${DATA_TYPE}/chromosome_scatter_counts.csv
+CHROMOSOME_SCATTER_CSV=${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/${DATA_TYPE}/chromosome_scatter_counts.csv
 RELEASE_DIR=''
 
 KEYS_TO_INCLUDE="includeKey=executionStatus&includeKey=backendStatus&includeKey=status&includeKey=workflowName&includeKey=subWorkflowMetadata&includeKey=subWorkflowId&includeKey=id"
@@ -462,6 +462,12 @@ function copy_part_one_outputs_to_safe_location() {
           continue
         else
           gsutil cp ${hardFilteredVcf} ${outputDir}${copyName}
+        fi
+        # Check hardFilteredVcf index separately
+        if grep -q "${copyName}.tbi$" ${existingFilesFile}; then
+          >&2 echo "Skipping copying of ${hardFilteredVcf}.tbi as it already exists in the destination directory"
+          continue
+        else
           gsutil cp ${hardFilteredVcf}.tbi ${outputDir}${copyName}.tbi
         fi
         ) &

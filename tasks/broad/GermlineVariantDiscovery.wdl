@@ -66,7 +66,7 @@ task HaplotypeCaller_GATK35_GVCF {
       --read_filter OverclippedRead
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
+    docker: "us.gcr.io/broad-gotc-prod/gatk:1.0.0-4.1.8.0-1626439571"
     preemptible: preemptible_tries
     memory: "10 GiB"
     cpu: "1"
@@ -92,8 +92,15 @@ task HaplotypeCaller_GATK4_VCF {
     Boolean make_bamout
     Int preemptible_tries
     Int hc_scatter
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
+    Boolean run_dragen_mode_variant_calling = false
+    Boolean use_dragen_hard_filtering = false
+    Boolean use_spanning_event_genotyping = true
+    File? dragstr_model
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.2.0"
+    Int memory_multiplier = 1
   }
+  
+  Int memory_size_gb = ceil(8 * memory_multiplier)
 
   String output_suffix = if make_gvcf then ".g.vcf.gz" else ".vcf.gz"
   String output_file_name = vcf_basename + output_suffix
@@ -111,7 +118,17 @@ task HaplotypeCaller_GATK4_VCF {
 
   command <<<
     set -e
-    gatk --java-options "-Xms6000m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10" \
+    # We need at least 1 GB of available memory outside of the Java heap in order to execute native code, thus, limit
+    # Java's memory by the total memory minus 1 GB. We need to compute the total memory as it might differ from
+    # memory_size_gb because of Cromwell's retry with more memory feature.
+    # Note: In the future this should be done using Cromwell's ${MEM_SIZE} and ${MEM_UNIT} environment variables,
+    #       which do not rely on the output format of the `free` command.
+    available_memory_mb=$(free -m | awk '/^Mem/ {print $2}')
+    let java_memory_size_mb=available_memory_mb-1024
+    echo Total available memory: ${available_memory_mb} MB >&2
+    echo Memory reserved for Java: ${java_memory_size_mb} MB >&2
+
+    gatk --java-options "-Xmx${java_memory_size_mb}m -Xms${java_memory_size_mb}m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10" \
       HaplotypeCaller \
       -R ~{ref_fasta} \
       -I ~{input_bam} \
@@ -119,6 +136,9 @@ task HaplotypeCaller_GATK4_VCF {
       -O ~{output_file_name} \
       -contamination ~{default=0 contamination} \
       -G StandardAnnotation -G StandardHCAnnotation ~{true="-G AS_StandardAnnotation" false="" make_gvcf} \
+      ~{true="--dragen-mode" false="" run_dragen_mode_variant_calling} \
+      ~{false="--disable-spanning-event-genotyping" true="" use_spanning_event_genotyping} \
+      ~{if defined(dragstr_model) then "--dragstr-params-path " + dragstr_model else ""} \
       -GQB 10 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 -GQB 70 -GQB 80 -GQB 90 \
       ~{true="-ERC GVCF" false="" make_gvcf} \
       ~{bamout_arg}
@@ -130,7 +150,7 @@ task HaplotypeCaller_GATK4_VCF {
   runtime {
     docker: gatk_docker
     preemptible: preemptible_tries
-    memory: "6.5 GiB"
+    memory: "~{memory_size_gb} GiB"
     cpu: "2"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
@@ -194,6 +214,43 @@ task HardFilterVcf {
       -L ~{interval_list} \
       --filter-expression "QD < 2.0 || FS > 30.0 || SOR > 3.0 || MQ < 40.0 || MQRankSum < -3.0 || ReadPosRankSum < -3.0" \
       --filter-name "HardFiltered" \
+      -O ~{output_vcf_name}
+  }
+  output {
+    File output_vcf = "~{output_vcf_name}"
+    File output_vcf_index = "~{output_vcf_name}.tbi"
+  }
+  runtime {
+    docker: gatk_docker
+    preemptible: preemptible_tries
+    memory: "3 GiB"
+    bootDiskSizeGb: 15
+    disks: "local-disk " + disk_size + " HDD"
+  }
+}
+
+# This hard filtering matches DRAGEN 3.4.12. For later DRAGEN versions, this needs to be updated.
+task DragenHardFilterVcf {
+  input {
+    File input_vcf
+    File input_vcf_index
+    Boolean make_gvcf
+    String vcf_basename
+    Int preemptible_tries
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.2.0"
+  }
+
+  Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
+
+  String output_suffix = if make_gvcf then ".g.vcf.gz" else ".vcf.gz"
+  String output_vcf_name = vcf_basename + ".hard-filtered" + output_suffix
+
+  command {
+     gatk --java-options "-Xms3000m" \
+      VariantFiltration \
+      -V ~{input_vcf} \
+      --filter-expression "QUAL < 10.4139" \
+      --filter-name "DRAGENHardQUAL" \
       -O ~{output_vcf_name}
   }
   output {

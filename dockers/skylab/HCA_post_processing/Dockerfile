@@ -13,6 +13,5 @@ RUN mkdir /tools
 WORKDIR /tools
 
 COPY HCA_create_adapter_json.py .
-COPY optimus_HCA_loom_merge.py .
 COPY file_utils.sh .
 COPY create_input_metadata_json.py .

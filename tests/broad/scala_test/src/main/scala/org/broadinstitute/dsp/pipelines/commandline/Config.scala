@@ -17,6 +17,7 @@ case class Config(
       GermlineCloudWorkflowConfig(),
     illuminaGenotypingArrayConfig: IlluminaGenotypingArrayConfig =
       IlluminaGenotypingArrayConfig(),
+    imputationConfig: ImputationConfig = ImputationConfig(),
     somaticCloudWorkflowConfig: SomaticCloudWorkflowConfig =
       SomaticCloudWorkflowConfig(),
     validateChipConfig: ValidateChipConfig = ValidateChipConfig()

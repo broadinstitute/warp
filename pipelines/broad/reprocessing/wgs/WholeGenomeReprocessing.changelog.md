@@ -1,7 +1,22 @@
+# 2.5.0
+2021-10-18
+
+* Updated the Whole Genome Germline Single Sample (WGS) workflow to include new DRAGEN-GATK functionality; the default pipeline remains unchanged. Read more about the DRAGEN-GATK mode in the [WGS Overview](https://broadinstitute.github.io/warp/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/README)
+* Added optional BQSR outputs
+* Added a new Docker image for GATK v4.2.2.0 for variant calling in DRAGEN mode
+
+# 2.4.0
+2021-10-06
+
+* Updated VerifyBamID to use AppSec base image
+* Change GoTC image to Samtools specific image in CramToUnmappedBams and Utilities
+* Changed GoTC image to GATK specific image in GermlineVariantDiscovery
+* Changed GoTC image to SAMTOOLS/PICARD/BWA specific image in Alignment
+
 # 2.3.9
 2021-09-22
 
-* Updated Utilities.wdl task definitions to include a new task that is NOT used in this pipeline.
+* Updated Utilities.wdl task definitions to include a new ErrorWithMessage task that is NOT used in the WholeGenomeReprocessing pipeline.
 
 # 2.3.8
 2021-08-02
