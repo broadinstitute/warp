@@ -622,6 +622,7 @@ task CopyToStagingBucket {
       --data_files "$TMP_DIR/data_files.json" \
       --reference_metadata_jsons "$TMP_DIR/reference_metadata.json" \
       --reference_file_descriptor_jsons "$TMP_DIR/reference_file_descriptors.json" \
+      --is_update_file "$TMP_DIR/is_update.json" \
       --staging-bucket ~{staging_bucket}
   >>>
 
