@@ -117,7 +117,7 @@ task BuildStarSingleNucleus {
 
     tar -cvf ~{star_index_name} star
 
-    python  /script/add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_introns}
+    python3  /script/add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_introns}
   >>>
 
   output {
