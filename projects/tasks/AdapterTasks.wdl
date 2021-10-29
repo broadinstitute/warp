@@ -106,7 +106,11 @@ task MergeLooms {
     String project_name
     String output_basename
 
+<<<<<<< HEAD
     String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:latest"
+=======
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
+>>>>>>> develop
     Int cpu = 1
     Int memory_mb = ceil(size(output_looms, "MiB")) * length(output_looms)
     Int disk_size_gb = ceil((size(output_looms, "GiB") * 2)) + 5
@@ -237,6 +241,7 @@ task GetAnalysisProtocolMetadata {
     String version_timestamp
     String pipeline_version
     Boolean project_level
+<<<<<<< HEAD
 
     String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:latest"
     Int cpu = 1
@@ -253,6 +258,24 @@ task GetAnalysisProtocolMetadata {
       --project_level ~{project_level}
   }
 
+=======
+
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
+    Int cpu = 1
+    Int memory_mb = 2000
+    Int disk_size_gb = 5
+  }
+
+  command {
+    create-analysis-protocol \
+      --input_uuid "~{input_uuid}" \
+      --pipeline_type "~{pipeline_type}" \
+      --workspace_version "~{version_timestamp}" \
+      --pipeline_version "~{pipeline_version}" \
+      --project_level ~{project_level}
+  }
+
+>>>>>>> develop
   runtime {
     docker: docker
     cpu: cpu
@@ -274,8 +297,21 @@ task GetLinksFileMetadata {
     String file_name_string
     String version_timestamp
     Array[String] process_input_ids
+<<<<<<< HEAD
     Array[File] analysis_process_path
     Array[File] analysis_protocol_path
+=======
+    Array[File] analysis_process_path # Only Optimus runs and SS2 project level
+    Array[File] analysis_protocol_path # Only Optimus runs and SS2 project level
+
+    # SS2 specific
+    Array[String]? analysis_process_path_list # List of analysis_process paths from intermediate SS2 runs
+    Array[String]? analysis_protocol_path_list # List of analysis_protocol paths from intermediate SS2 runs (should be a single element)
+    Array[String]? bam_array
+    Array[String]? bai_array
+    Array[String]? fastq1_array
+    Array[String]? fastq2_array
+>>>>>>> develop
 
     # SS2 specific
     Array[String]? analysis_process_path_list # List of analysis_process paths from intermediate SS2 runs
@@ -314,7 +350,11 @@ task GetLinksFileMetadata {
       declare -a BAM_ARRAY=(~{sep=' ' bam_array})
       declare -a BAI_ARRAY=(~{sep=' ' bai_array})
       declare -a FASTQ1_ARRAY=(~{sep=' ' fastq1_array})
+<<<<<<< HEAD
       declare -a FASTQ2_ARRAY=(~{sep=' ' fastq2_array}) 
+=======
+      declare -a FASTQ2_ARRAY=(~{sep=' ' fastq2_array})
+>>>>>>> develop
       declare -a INPUT_UUIDS=(~{sep=' ' process_input_ids})
 
       TMP_DIR=$(mktemp -d -t XXXXXX)
@@ -324,7 +364,11 @@ task GetLinksFileMetadata {
       printf '%s\n' "${BAM_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_bam.json
       printf '%s\n' "${BAI_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_bai.json
       printf '%s\n' "${FASTQ1_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_fastq1.json
+<<<<<<< HEAD
       printf '%s\n' "${FASTQ2_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_fastq2.json # fastq2 does not exist for single end runs, this should write an empty array if that is the case
+=======
+      printf '%s\n' "${FASTQ2_ARRAY[@]}" | jq -R . | jq -s . > $TMP_DIR/ss2_fastq2.json # fastq2 does not exist for single end runs, this should write a single element array of empty string [""]
+>>>>>>> develop
       printf '%s\n' "${INPUT_UUIDS[@]}" | jq -R . | jq -s . > $TMP_DIR/input_ids.json
     
       create-links \
@@ -510,7 +554,11 @@ task GetReferenceDetails {
     File ref_fasta
     String species
 
+<<<<<<< HEAD
     String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:latest"
+=======
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
+>>>>>>> develop
     Int cpu = 1
     Int memory_mb = ceil((size(ref_fasta, "MiB")) * 2) + 1000
     Int disk_size_gb = ceil((size(ref_fasta, "GiB") * 2)) + 5
@@ -575,14 +623,22 @@ task CopyToStagingBucket {
     Array[String] data_objects
     Array[String] reference_metadata_objects
     Array[String] reference_file_descriptor_objects
+<<<<<<< HEAD
     Array[String] is_update_file
+=======
+>>>>>>> develop
     String staging_bucket
     String? cache_invalidate
 
     String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:latest"
     Int cpu = 1
+<<<<<<< HEAD
     Int memory_mb = ceil(size(data_objects, "MiB"))
     Int disk_size_gb = ceil(size(data_objects, "GiB"))
+=======
+    Int memory_mb = 20000
+    Int disk_size_gb = 50
+>>>>>>> develop
   }
 
   command
@@ -599,7 +655,10 @@ task CopyToStagingBucket {
       declare -a DATA_FILES=(~{sep=' ' data_objects})
       declare -a REFERENCE_METADATA=(~{sep=' ' reference_metadata_objects})
       declare -a REFERENCE_FILE_DESCRIPTORS=(~{sep=' ' reference_file_descriptor_objects})
+<<<<<<< HEAD
       declare -a IS_UPDATE_FILE=(~{sep=' ' is_update_file})
+=======
+>>>>>>> develop
   
       TMP_DIR=$(mktemp -d -t XXXXXX)
 
@@ -611,7 +670,10 @@ task CopyToStagingBucket {
       printf '%s\n' "${DATA_FILES[@]}" | jq -R . | jq -s . > $TMP_DIR/data_files.json
       printf '%s\n' "${REFERENCE_METADATA[@]}" | jq -R . | jq -s . > $TMP_DIR/reference_metadata.json
       printf '%s\n' "${REFERENCE_FILE_DESCRIPTORS[@]}" | jq -R . | jq -s . > $TMP_DIR/reference_file_descriptors.json
+<<<<<<< HEAD
       printf '%s\n' "${IS_UPDATE_FILE[@]}" | jq -R . | jq -s . > $TMP_DIR/is_update.json
+=======
+>>>>>>> develop
   
       copy-adapter-outputs \
       --analysis_files_metadata_jsons "$TMP_DIR/analysis_file_metadata.json" \
@@ -622,7 +684,6 @@ task CopyToStagingBucket {
       --data_files "$TMP_DIR/data_files.json" \
       --reference_metadata_jsons "$TMP_DIR/reference_metadata.json" \
       --reference_file_descriptor_jsons "$TMP_DIR/reference_file_descriptors.json" \
-      --is_update_file "$TMP_DIR/is_update.json" \
       --staging-bucket ~{staging_bucket}
   >>>
 
@@ -653,6 +714,40 @@ task GetOptimusPipelineVersion {
 
   output {
     String pipeline_version_string = read_string("pipeline_version.txt")
+  }
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+  }
+}
+
+task GetBucketCreationDate {
+  input {
+    String bucket_path
+
+    String docker = "us.gcr.io/broad-gotc-prod/pipeline-tools:latest"
+    Int cpu = 1
+    Int memory_mb = 1000
+    Int disk_size_gb = 1
+  }
+
+  meta {
+    volatile: true
+  }
+
+  command 
+  <<<
+    export timestamp=$(gsutil ls -L -b ~{bucket_path} | grep -e "created:" | sed -e 's/.*created:\(.*\)GMT.*/\1/' | awk '{$1=$1};1')
+
+    get-bucket-date \
+      --timestamp "${timestamp}"
+  >>>
+
+  output {
+    String version_timestamp = read_string("bucket_timestamp.txt")
   }
 
   runtime {

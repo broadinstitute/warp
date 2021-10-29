@@ -55,6 +55,10 @@ For examples of how to specify each input in a configuration file, as well as cl
 ### Imputation reference panel
  
 The reference panel files required for the Imputation workflow will soon be hosted in a public Google Bucket. See the [example input configuration](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json) for the current reference panel files.
+
+:::tip X-chromosome not imputed
+Currently, the pipeline does not perform imputation on the X-chromosome and no reference panels are needed for the X-chromosome. Any sites identified on the X-chromosome after array analysis are merged back into the VCF after the imputation steps. 
+:::
  
 ## Workflow tasks and tools
  
