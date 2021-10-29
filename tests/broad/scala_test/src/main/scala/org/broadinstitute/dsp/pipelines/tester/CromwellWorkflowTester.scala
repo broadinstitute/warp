@@ -391,7 +391,7 @@ abstract class CromwellWorkflowTester(
               .metadata(
                 finishedWorkflow.workflow.id,
                 Option(Map("includeKey" -> List("backendLogs"),
-                          "expandSubWorkflows" -> List("true")))
+                           "expandSubWorkflows" -> List("true")))
               )
               .value
               .unsafeToFuture()

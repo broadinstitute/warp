@@ -109,7 +109,7 @@ task Funcotate {
 
     # runtime args
     String gatk_docker
-    Int machine_memory = 3
+    Int memory_mb = 3
     Int preemptible_attempts = 3
     Int additional_disk = 0
     Int cpu_threads = 1
@@ -128,7 +128,7 @@ task Funcotate {
   String disk_type = if use_ssd then "SSD" else "HDD"
 
 
-  Int command_memory = (machine_memory - 1) * 1024
+  Int command_memory = memory_mb - 1000
 
   command <<<
     set -e
@@ -169,7 +169,7 @@ task Funcotate {
 
   runtime {
     docker: gatk_docker
-    memory: "~{machine_memory} GiB"
+    memory: "~{memory_mb} MiB"
     bootDiskSizeGb: 15
     disks: "local-disk ~{disk_size} ~{disk_type}"
     preemptible: preemptible_attempts

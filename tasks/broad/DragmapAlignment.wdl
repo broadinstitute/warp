@@ -32,7 +32,7 @@ task SamToFastqAndDragmapAndMba {
     Boolean unmap_contaminant_reads = true
 
     Float disk_multiplier = 8
-    Int memory_gb = 40
+    Int memory_mb = 40000  # TODO should I increase the maximum heap size? currently the default memory is 40Gb, but the max heap is only 1Gb
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
@@ -89,7 +89,7 @@ task SamToFastqAndDragmapAndMba {
   runtime {
     docker: "us.gcr.io/broad-dsde-methods/dragmap:1.2.1"
     preemptible: preemptible_tries
-    memory: memory_gb + " GiB"
+    memory: memory_mb + " MiB"
     cpu: "16"
     disks: "local-disk " + disk_size + " HDD"
   }

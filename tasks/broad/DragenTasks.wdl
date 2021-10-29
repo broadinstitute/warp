@@ -27,7 +27,7 @@ task CalibrateDragstrModel {
     String docker = "us.gcr.io/broad-gatk/gatk:4.2.2.0"
     Int preemptible_tries = 3
     Int threads = 4
-    Int? mem_gb
+    Int? memory_mb
     Boolean use_ssd = true
   }
 
@@ -42,16 +42,16 @@ task CalibrateDragstrModel {
   Int disk_size_gb = ceil(size([ref_fasta, ref_fasta_idx, alignment, str_table_file], "GiB")) + 
                         20 # 20 for the rest of the fs.
 
-  String parallel_args  = if (java_threads <= 1) then "" else "--threads " + threads
+  String parallel_args  = if (java_threads <= 1) then "" else "--threads " + java_threads
   
   # If the input is a CRAM we need an additional 500MB of memory per thread
-  Int recommended_memory_gb = ceil(2 + (if (is_cram) then 0.5 else 0.1) * java_threads)
-  Int runtime_memory_gb = select_first([mem_gb, recommended_memory_gb])
-  Int java_memory_gb = if (runtime_memory_gb < 2) then 1 else runtime_memory_gb - 1
+  Int recommended_memory_mb = ceil(2000 + (if (is_cram) then 500 else 100) * java_threads)
+  Int runtime_memory_mb = select_first([memory_mb, recommended_memory_mb])
+  Int java_memory_mb = if (runtime_memory_mb < 2000) then 1000 else runtime_memory_mb - 1000 # TODO: what if 1000 > runtime_memory_mb??  &&  Do we need Xms as well as Xmx??
 
   command <<<
     set -x
-    gatk --java-options "-Xmx~{java_memory_gb}g -DGATK_STACKTRACE_ON_USER_EXCEPTION=true -Dsamjdk.reference_fasta=~{ref_fasta}" \
+    gatk --java-options "-Xmx~{java_memory_mb}m -DGATK_STACKTRACE_ON_USER_EXCEPTION=true -Dsamjdk.reference_fasta=~{ref_fasta}" \
       CalibrateDragstrModel \
         -R ~{ref_fasta} \
         -I ~{alignment} \
@@ -64,7 +64,7 @@ task CalibrateDragstrModel {
   runtime {
      docker: docker
      disks: "local-disk " + disk_size_gb + (if use_ssd then " SSD" else " HDD")
-     memory: (java_memory_gb + 1) + " GiB"
+     memory: runtime_memory_mb + " MiB"
      preemptible: preemptible_tries
      cpu: java_threads
   }
