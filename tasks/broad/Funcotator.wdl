@@ -109,7 +109,7 @@ task Funcotate {
 
     # runtime args
     String gatk_docker
-    Int memory_mb = 3
+    Int memory_mb = 3000
     Int preemptible_attempts = 3
     Int additional_disk = 0
     Int cpu_threads = 1

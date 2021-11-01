@@ -53,44 +53,6 @@ task SortSam {
   }
 }
 
-# Sort BAM file by coordinate order -- using Spark!
-task SortSamSpark {
-  input {
-    File input_bam
-    String output_bam_basename
-    Int preemptible_tries
-    Int compression_level
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
-  }
-  # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
-  # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
-  Float sort_sam_disk_multiplier = 3.25
-  Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
-
-  command {
-    set -e
-
-    gatk --java-options "-Dsamjdk.compression_level=~{compression_level} -Xms100g -Xmx100g" \
-      SortSamSpark \
-      -I ~{input_bam} \
-      -O ~{output_bam_basename}.bam \
-      -- --conf spark.local.dir=. --spark-master 'local[16]' --conf 'spark.kryo.referenceTracking=false'
-
-    samtools index ~{output_bam_basename}.bam ~{output_bam_basename}.bai
-  }
-  runtime {
-    docker: gatk_docker
-    disks: "local-disk " + disk_size + " HDD"
-    bootDiskSizeGb: "15"
-    cpu: "16"
-    memory: "102 GiB"  # TODO: Why do we have this hardcoded to 102G of memory??? Is this task used??
-    preemptible: preemptible_tries
-  }
-  output {
-    File output_bam = "~{output_bam_basename}.bam"
-    File output_bam_index = "~{output_bam_basename}.bai"
-  }
-}
 
 # Mark duplicate reads to avoid counting non-independent observations
 task MarkDuplicates {

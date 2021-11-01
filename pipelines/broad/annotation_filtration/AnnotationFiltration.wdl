@@ -56,7 +56,7 @@ workflow AnnotationFiltration {
         use_gnomad_genome = true,
 
         gatk_docker = gatk_docker,
-        machine_memory = 4
+        memory_mb = 4000
     }
 
     call FilterFuncotations {
