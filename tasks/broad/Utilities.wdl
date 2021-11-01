@@ -25,7 +25,7 @@ task CreateSequenceGroupingTSV {
   # It outputs to stdout where it is parsed into a wdl Array[Array[String]]
   # e.g. [["1"], ["2"], ["3", "4"], ["5"], ["6", "7", "8"]]
   command <<<
-    python <<CODE
+    python3 <<CODE
     with open("~{ref_dict}", "r") as ref_dict_file:
         sequence_tuple_list = []
         longest_sequence = 0
@@ -196,7 +196,7 @@ task SumFloats {
   }
 
   command <<<
-    python -c "print ~{sep="+" sizes}"
+    python3 -c 'print("~{sep="+" sizes}")'
   >>>
   output {
     Float total_size = read_float(stdout())

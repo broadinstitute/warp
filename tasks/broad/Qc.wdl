@@ -336,7 +336,7 @@ task CheckPreValidation {
     grep -A 1 PERCENT_DUPLICATION ~{duplication_metrics} > duplication.csv
     grep -A 3 PCT_CHIMERAS ~{chimerism_metrics} | grep -v OF_PAIR > chimerism.csv
 
-    python <<CODE
+    python3 <<CODE
 
     import csv
     with open('duplication.csv') as dupfile:
