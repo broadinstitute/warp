@@ -723,7 +723,7 @@ task CreateStagingAreaFile {
   }
 
   output{
-    Array[File] is_update_file = glob("*.json")
+    File is_update_file = "staging_area.json"
   }
 
 }
