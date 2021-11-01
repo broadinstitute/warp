@@ -599,7 +599,6 @@ task CopyToStagingBucket {
       declare -a DATA_FILES=(~{sep=' ' data_objects})
       declare -a REFERENCE_METADATA=(~{sep=' ' reference_metadata_objects})
       declare -a REFERENCE_FILE_DESCRIPTORS=(~{sep=' ' reference_file_descriptor_objects})
-      declare -a IS_UPDATE_FILE=(~{sep=' ' is_update_file})
   
       TMP_DIR=$(mktemp -d -t XXXXXX)
 
