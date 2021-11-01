@@ -218,7 +218,7 @@ workflow CreateOptimusAdapterMetadata {
     Array[File] output_reference_metadata_objects = reference_metadata_objects
     Array[File] output_reference_file_descriptor_objects = reference_file_descriptor_objects
     Array[File] output_data_objects = data_objects
-    Array[File] output_is_update_file = is_update_file
+    File output_is_update_file = is_update_file
   }
 }
 
