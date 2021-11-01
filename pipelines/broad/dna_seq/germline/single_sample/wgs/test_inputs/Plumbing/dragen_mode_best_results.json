@@ -62,6 +62,5 @@
   },
 
   "WholeGenomeGermlineSingleSample.dragen_maximum_quality_mode": true,
-  "WholeGenomeGermlineSingleSample.use_dragen_hard_filtering": false,
   "WholeGenomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true
 }
