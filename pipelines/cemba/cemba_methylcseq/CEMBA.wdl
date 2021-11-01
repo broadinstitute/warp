@@ -1091,7 +1091,7 @@ task VCFtoALLC {
   command <<<
     set -euo pipefail
 
-    python /tools/convert-vcf-to-allc.py -i ~{methylation_vcf_output_name} -o ~{methylation_allc_output_name}
+    python3 /tools/convert-vcf-to-allc.py -i ~{methylation_vcf_output_name} -o ~{methylation_allc_output_name}
   >>>
 
   runtime {

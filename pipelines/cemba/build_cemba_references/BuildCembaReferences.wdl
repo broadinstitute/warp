@@ -77,7 +77,7 @@ task BuildBisulfiteReferences {
       echo "No monitoring script given as input" > monitoring.log &
     fi
 
-    python /build_bisulfite_references.py \
+    python3 /build_bisulfite_references.py \
       --input-fasta ~{fasta_input} \
       --forward-convert-out ~{fwd_converted_reference_fasta_output_name} \
       --reverse-convert-out ~{rev_converted_reference_fasta_output_name}
