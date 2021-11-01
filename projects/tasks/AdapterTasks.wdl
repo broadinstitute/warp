@@ -610,7 +610,7 @@ task CopyToStagingBucket {
       printf '%s\n' "${DATA_FILES[@]}" | jq -R . | jq -s . > $TMP_DIR/data_files.json
       printf '%s\n' "${REFERENCE_METADATA[@]}" | jq -R . | jq -s . > $TMP_DIR/reference_metadata.json
       printf '%s\n' "${REFERENCE_FILE_DESCRIPTORS[@]}" | jq -R . | jq -s . > $TMP_DIR/reference_file_descriptors.json
-      printf '%s\n' "${IS_UPDATE_FILE[@]}" | jq -R . | jq -s . > $TMP_DIR/is_update.json
+      printf '%s\n' ~{is_update_file} | jq -R . | jq -s . > $TMP_DIR/is_update.json
   
       copy-adapter-outputs \
       --analysis_files_metadata_jsons "$TMP_DIR/analysis_file_metadata.json" \
