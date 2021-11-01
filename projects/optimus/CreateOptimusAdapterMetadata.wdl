@@ -193,7 +193,7 @@ workflow CreateOptimusAdapterMetadata {
   Array[File] reference_metadata_objects = CreateReferenceMetadata.reference_metadata_outputs
   Array[File] reference_file_descriptor_objects = CreateReferenceMetadata.reference_file_descriptor_outputs
   Array[File] data_objects = flatten([reference_fasta_array, project_loom_array, output_bams, output_looms])
-  Array[File] is_update_file = CreateStagingAreaFile.is_update_file
+  File is_update_file = CreateStagingAreaFile.is_update_file
 
   call Tasks.CopyToStagingBucket {
     input:
