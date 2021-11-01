@@ -196,7 +196,7 @@ task SumFloats {
   }
 
   command <<<
-    python3 -c 'print("~{sep="+" sizes}")'
+    python3 -c 'print(~{sep="+" sizes})'
   >>>
   output {
     Float total_size = read_float(stdout())
