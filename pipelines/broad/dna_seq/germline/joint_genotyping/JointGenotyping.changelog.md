@@ -1,4 +1,4 @@
-#1.5.2
+# 1.5.2
 2021-11-01
 
 Updated GenotypeGVCFs to support reblocked GVCFs as inputs
