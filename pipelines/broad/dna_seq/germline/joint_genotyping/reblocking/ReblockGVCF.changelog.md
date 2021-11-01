@@ -1,3 +1,9 @@
+# 2.0.1
+2021-11-01
+
+* Added a validation task to check output reblocked GVCFs for reference block overlaps
+* Moved ReblockGVCF task to GermlineVariantDiscovery tasks wdl
+
 # 2.0.0
 2021-08-17
 

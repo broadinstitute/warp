@@ -1,4 +1,4 @@
-# 2.7.0
+# 3.0.0
 2021-10-28 
 
 * Added an optional step to reblock gVCFs, this step is included by default

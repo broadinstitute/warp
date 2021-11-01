@@ -1,5 +1,5 @@
-# 2.7.0
-2021-06-17 
+# 3.0.0
+2021-11-01 
 
 * Added an optional step to reblock gVCFs, this step is included by default
     * The ExomeGermlineSingleSample pipeline now outputs reblocked gVCFs by default. To skip reblocking, add '"ExomeGermlineSingleSample.BamToGvcf.skip_reblocking": true' to the inputs
