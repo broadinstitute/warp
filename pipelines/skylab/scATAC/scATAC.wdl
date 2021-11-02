@@ -271,7 +271,7 @@ task MakeCompliantBAM {
 task BreakoutSnap {
     input {
         File snap_input
-        String docker_image = "quay.io/humancellatlas/snap-breakout:0.0.1"
+        String docker_image = "quay.io/humancellatlas/snap-breakout:0.0.1.test"
         String bin_size_list
         String input_id
     }
