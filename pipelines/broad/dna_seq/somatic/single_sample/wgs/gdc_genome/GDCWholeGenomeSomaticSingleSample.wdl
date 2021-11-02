@@ -409,15 +409,15 @@ task picard_markduplicates {
   Float md_disk_multiplier = 3
   Int disk_size = ceil(md_disk_multiplier * total_input_size) + additional_disk_gb
 
-  Float memory_size = 7.5 * memory_multiplier
-  Int java_memory_size = (ceil(memory_size) - 2)
+  Int memory_size = 7500 * memory_multiplier
+  Int java_memory_size = memory_size - 2000
 
   # Task is assuming query-sorted input so that the Secondary and Supplementary reads get marked correctly
   # This works because the output of BWA is query-grouped and therefore, so is the output of MergeBamAlignment.
   # While query-grouped isn't actually query-sorted, it's good enough for MarkDuplicates with ASSUME_SORT_ORDER="queryname"
 
   command {
-    java -Dsamjdk.compression_level=~{compression_level} -Xms~{java_memory_size}g -jar /usr/picard/picard.jar \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms~{java_memory_size}m  -Xmx~{java_memory_size + 1500}m -jar /usr/picard/picard.jar \
       MarkDuplicates \
       INPUT=~{sep=' INPUT=' bams} \
       OUTPUT=~{outbam} \
@@ -434,7 +434,7 @@ task picard_markduplicates {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11_NoCustomEntryPoint"
     preemptible: preemptible_tries
-    memory: "~{memory_size} GiB"
+    memory: "~{memory_size} MiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
@@ -524,7 +524,7 @@ task gatk_baserecalibrator {
     command {
         gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
             -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-            -Xloggc:gc_log.log -Xms~{jvm_mem}m" \
+            -Xloggc:gc_log.log -Xms~{jvm_mem}m -Xmx~{jvm_mem + 500}m" \
             BaseRecalibrator \
                 --input ~{bam} \
                 --known-sites ~{dbsnp_vcf} \
@@ -571,7 +571,7 @@ task gatk_applybqsr {
     command {
         gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
             -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-            -Xloggc:gc_log.log -Xms~{jvm_mem}m" \
+            -Xloggc:gc_log.log -Xms~{jvm_mem}m -Xmx~{jvm_mem + 500}m" \
             ApplyBQSR \
                 --input ~{input_bam} \
                 --bqsr-recal-file ~{bqsr_recal_file} \
@@ -608,7 +608,7 @@ task collect_insert_size_metrics {
   Int disk_size = ceil(size(input_bam, "GiB")) + 20 + additional_disk_gb
 
   command {
-    java -Xms~{jvm_mem}m -jar /usr/picard/picard.jar \
+    java -Xms~{jvm_mem}m -Xmx~{jvm_mem + 500}m -jar /usr/picard/picard.jar \
       CollectInsertSizeMetrics \
       INPUT=~{input_bam} \
       OUTPUT=~{output_bam_prefix}.insert_size_metrics \

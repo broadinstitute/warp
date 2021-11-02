@@ -107,7 +107,7 @@ task RevertSam {
   Int java_mem = memory_in_MiB - 1000
 
   command <<<
-    java -Xms~{java_mem}m -jar /usr/picard/picard.jar \
+    java -Xms~{java_mem}m -Xmx~{java_mem + 500}m -jar /usr/picard/picard.jar \
     RevertSam \
     --INPUT ~{input_bam} \
     --OUTPUT ~{output_bam_filename} \
@@ -272,7 +272,7 @@ task ValidateSamFile {
 
   command <<<
 
-    java -Xms~{java_mem}m -jar /usr/picard/picard.jar \
+    java -Xms~{java_mem}m -Xmx~{java_mem + 500}m -jar /usr/picard/picard.jar \
       ValidateSamFile \
       --INPUT ~{input_bam} \
       --OUTPUT ~{report_filename} \
@@ -306,7 +306,7 @@ task SortSam {
   Int java_mem = memory_in_MiB - 1000
 
   command <<<
-    java -Xms~{java_mem}m -jar /usr/picard/picard.jar \
+    java -Xms~{java_mem}m -Xmx~{java_mem + 500}m -jar /usr/picard/picard.jar \
     SortSam \
     --INPUT ~{input_bam} \
     --OUTPUT ~{output_bam_filename} \
