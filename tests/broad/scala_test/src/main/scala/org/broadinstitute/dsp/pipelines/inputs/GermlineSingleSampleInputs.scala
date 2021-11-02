@@ -18,17 +18,4 @@ class GermlineSingleSampleInputs(inputs: String) {
 
   def getBaseFileName(workflowName: String): String =
     sampleAndUnmappedBams(workflowName).unsafeGet[String]("base_file_name")
-
-  def getFinalGvcfBaseName(workflowName: String): String =
-    sampleAndUnmappedBams(workflowName)
-      .unsafeGet[String]("final_gvcf_base_name")
-
-  // def getHardFitered(workflowName: String): Boolean =
-  //   if (sampleAndUnmappedBams(workflowName)
-  //     .unsafeGet[Boolean]("dragen_maximum_quality_mode") || 
-  //     sampleAndUnmappedBams(workflowName)
-  //     .unsafeGet[Boolean]("dragen_functional_equivalence_mode"))
-  //     true 
-  //   else
-  //     false
 }

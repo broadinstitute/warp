@@ -70,8 +70,6 @@ class GermlineSingleSampleTester(testerConfig: GermlineCloudWorkflowConfig)(
     )
     val outputBaseName =
       germlineSingleSampleInputs.getBaseFileName(workflowName)
-    val gvcfBaseName =
-      germlineSingleSampleInputs.getFinalGvcfBaseName(workflowName)
     val resultsCloudPath =
       workflowTest.runParameters.resultsCloudPath
     val truthCloudPath = workflowTest.runParameters.truthCloudPath
