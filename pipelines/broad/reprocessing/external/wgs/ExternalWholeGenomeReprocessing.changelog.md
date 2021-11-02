@@ -1,3 +1,8 @@
+# 1.5.1
+2021-11-02
+
+* Adding WGS plumbing tests for dragen_maximum_quality_mode and dragen_functional_equivalence_mode
+
 # 1.5.0
 2021-10-18
 

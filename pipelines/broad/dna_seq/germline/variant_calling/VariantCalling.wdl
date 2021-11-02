@@ -8,7 +8,7 @@ import "../../../../../tasks/broad/DragenTasks.wdl" as DragenTasks
 
 workflow VariantCalling {
 
-  String pipeline_version = "1.2.0"
+  String pipeline_version = "1.2.1"
 
   input {
     Boolean run_dragen_mode_variant_calling = false
