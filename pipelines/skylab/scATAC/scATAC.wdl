@@ -289,7 +289,7 @@ task BreakoutSnap {
     command {
         set -euo pipefail
         mkdir output
-        python3 tools/breakoutSnap.py --input ~{snap_input} \
+        python3 /tools/breakoutSnap.py --input ~{snap_input} \
             --output-prefix output/~{input_id}_
     }
 
