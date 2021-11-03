@@ -19,6 +19,7 @@ var validReleases = []string{
 	"ExternalWholeGenomeReprocessing",
 	"GDCWholeGenomeSomaticSingleSample",
 	"IlluminaGenotypingArray",
+	"Imputation",
 	"JointGenotyping",
 	"JointGenotypingByChromosomePartOne",
 	"JointGenotypingByChromosomePartTwo",
