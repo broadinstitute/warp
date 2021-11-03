@@ -267,7 +267,7 @@ task CrossCheckFingerprints {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     preemptible: preemptible_tries
-    memory: "3500 GiB"
+    memory: "3500 MiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
