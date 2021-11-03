@@ -26,6 +26,9 @@ workflow CreateOptimusAdapterMetadata {
     Array[String] all_species
     Array[String] all_project_ids
     Array[String] all_project_names
+    
+    # Flag which tells data importers if this run is a re-run of a previously processed project
+    Boolean is_update
 
     String output_basename
 
@@ -169,6 +172,11 @@ workflow CreateOptimusAdapterMetadata {
       pipeline_version = MergeOptimusLooms.pipeline_version_string
   }
 
+  call Tasks.CreateStagingAreaFile as CreateStagingAreaFile {
+    input:
+      is_update = is_update
+  }
+
   # store variable resulting from project run
   Array[File] project_links = CreateProjectOptimusAdapters.links_outputs
   Array[File] project_analysis_process_objects = CreateProjectOptimusAdapters.analysis_process_outputs
@@ -185,6 +193,7 @@ workflow CreateOptimusAdapterMetadata {
   Array[File] reference_metadata_objects = CreateReferenceMetadata.reference_metadata_outputs
   Array[File] reference_file_descriptor_objects = CreateReferenceMetadata.reference_file_descriptor_outputs
   Array[File] data_objects = flatten([reference_fasta_array, project_loom_array, output_bams, output_looms])
+  File is_update_file = CreateStagingAreaFile.is_update_file
 
   call Tasks.CopyToStagingBucket {
     input:
@@ -196,7 +205,8 @@ workflow CreateOptimusAdapterMetadata {
       analysis_protocol_objects = analysis_protocol_objects,
       reference_metadata_objects = reference_metadata_objects,
       reference_file_descriptor_objects = reference_file_descriptor_objects,
-      data_objects = data_objects
+      data_objects = data_objects,
+      is_update_file = is_update_file
   }
 
   output {
@@ -208,6 +218,7 @@ workflow CreateOptimusAdapterMetadata {
     Array[File] output_reference_metadata_objects = reference_metadata_objects
     Array[File] output_reference_file_descriptor_objects = reference_file_descriptor_objects
     Array[File] output_data_objects = data_objects
+    File output_is_update_file = is_update_file
   }
 }
 
