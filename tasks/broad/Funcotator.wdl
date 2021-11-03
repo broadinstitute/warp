@@ -138,7 +138,7 @@ task Funcotate {
     DATA_SOURCES_TAR_GZ=~{default="" data_sources_tar_gz}
     if [[ ! -e $DATA_SOURCES_TAR_GZ ]] ; then
       DOWNLOADED_DATASOURCES_NAME="downloaded_datasources.tar.gz"
-      gatk FuncotatorDataSourceDownloader --germline --output $DOWNLOADED_DATASOURCES_NAME
+      gatk --java-options -Xmx~{command_memory}m FuncotatorDataSourceDownloader --germline --output $DOWNLOADED_DATASOURCES_NAME
       DATA_SOURCES_TAR_GZ=$DOWNLOADED_DATASOURCES_NAME
     fi
     # Extract provided the tar.gz:

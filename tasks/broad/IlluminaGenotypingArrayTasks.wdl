@@ -616,7 +616,12 @@ task SubsetArrayVCF {
   Int disk_size = ceil(size(input_vcf_file, "GiB") * 2 + size(ref_fasta, "GiB"))
 
   command <<<
-    gatk SelectVariants -V  ~{input_vcf_file} -L ~{intervals} -O ~{output_name} -R ~{ref_fasta}
+    gatk --java-options -Xms2500m -Xmx3000m \
+      SelectVariants \
+      -V  ~{input_vcf_file} \
+      -L ~{intervals} \
+      -O ~{output_name} \
+      -R ~{ref_fasta}
   >>>
 
   output {
@@ -627,7 +632,7 @@ task SubsetArrayVCF {
   runtime {
     docker: "us.gcr.io/broad-gatk/gatk:4.1.3.0"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "3.5 GiB"
+    memory: "3500 MiB"
   }
 
 }

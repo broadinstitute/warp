@@ -66,10 +66,10 @@ task RunValidation {
         files=(~{sep=" " vcf_files})
         names=(~{sep=" " vcf_names})
         for ((i=0;i<${#files[@]};++i)); do
-            gatk SelectVariants -V ${files[i]} -sn NA12878 --exclude-non-variants \
+            gatk --java-options -Xms~{command_mem}m -Xmx~{command_mem + 500}m SelectVariants -V ${files[i]} -sn NA12878 --exclude-non-variants \
             --remove-unused-alternates -O ${names[i]}.NA12878.vcf.gz
 
-            gatk Concordance -eval ${names[i]}.NA12878.vcf.gz \
+            gatk --java-options -Xms~{command_mem}m -Xmx~{command_mem + 500}m Concordance -eval ${names[i]}.NA12878.vcf.gz \
             --truth ~{truth_vcf} -L ~{truth_intervals} --summary ${names[i]}.summary.tsv
         done
     >>>

@@ -997,7 +997,8 @@ task AddReadGroup {
       echo "No monitoring script given as input" > monitoring.log &
     fi
 
-    gatk AddOrReplaceReadGroups \
+    gatk --java-options -Xms2500m -Xmx3000m \
+    AddOrReplaceReadGroups \
       --INPUT ~{bam_input} \
       --RGLB ~{read_group_library_name} \
       --RGPL ~{read_group_platform_name} \
@@ -1012,7 +1013,7 @@ task AddReadGroup {
     # disks should be set to 2 * input file size
     disks: "local-disk " + ceil(2 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
-    memory: "3.5 GB"
+    memory: "3500 MB"
   }
 
   output {
@@ -1053,7 +1054,8 @@ task MethylationTypeCaller {
       echo "No monitoring script given as input" > monitoring.log &
     fi
 
-    gatk MethylationTypeCaller \
+    gatk --java-options -Xms2500m -Xmx3000m \
+    MethylationTypeCaller \
       --input ~{bam_input} \
       --reference ~{reference_fasta} \
       --output ~{methylation_vcf_output_name} \
@@ -1065,7 +1067,7 @@ task MethylationTypeCaller {
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     disks: "local-disk " + ceil(4.5 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
-    memory: "3.5 GB"
+    memory: "3500 MB"
   }
 
   output {

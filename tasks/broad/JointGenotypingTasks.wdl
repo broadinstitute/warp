@@ -1011,7 +1011,8 @@ task GetFingerprintingIntervalIndices {
     hdb_to_interval_list ~{haplotype_database} > hdb.interval_list
 
     # find the intervals that overlap the haplotype_database
-    gatk IntervalListTools \
+    gatk --java-options -Xms3000m -Xmx3250m \
+    IntervalListTools \
       -ACTION OVERLAPS \
       -O all.sorted.interval_list \
       -I all.interval_list \
@@ -1033,7 +1034,7 @@ task GetFingerprintingIntervalIndices {
 
   runtime {
     cpu: 2
-    memory: "3.75 GiB"
+    memory: "3750 MiB"
     preemptible: 1
     bootDiskSizeGb: 15
     disks: "local-disk 10 HDD"

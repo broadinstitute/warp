@@ -487,7 +487,8 @@ task FilterMaxFragmentLength {
   command {
     set -euo pipefail
 
-    gatk PrintReads \
+    gatk --java-options -Xms2750m -Xmx3250m \
+      PrintReads \
       --input=~{bam_input} \
       --read-filter FragmentLengthReadFilter --max-fragment-length ~{max_fragment_length} \
       --output=~{bam_filter_fragment_length_output_name}
@@ -497,7 +498,7 @@ task FilterMaxFragmentLength {
     docker: docker_image
     disks: "local-disk " + disk_size + " HDD"
     cpu: 1
-    memory: "3.75 GiB"
+    memory: "3750 MiB"
   }
 
   output {
