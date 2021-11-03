@@ -487,7 +487,7 @@ task FilterMaxFragmentLength {
   command {
     set -euo pipefail
 
-    gatk --java-options -Xms2750m -Xmx3250m \
+    gatk --java-options "-Xms2750m -Xmx3250m" \
       PrintReads \
       --input=~{bam_input} \
       --read-filter FragmentLengthReadFilter --max-fragment-length ~{max_fragment_length} \
