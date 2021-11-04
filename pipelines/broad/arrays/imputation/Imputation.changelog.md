@@ -1,3 +1,7 @@
+# 1.0.1
+2021-10-4 (Date of Last Commit)
+
+* Made input to the pipeline 'output_callset_name' available as pipeline output under the name 'output_callset_name_output'
 # 1.0.0
 2021-10-14 (Date of Last Commit)
 
