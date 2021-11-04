@@ -34,7 +34,7 @@ task SamToFastqAndDragmapAndMba {
     String docker = "us.gcr.io/broad-gotc-prod/dragmap:1.0.0-1.2.1-2.26.4-1.11-1636046599"
     Int cpu = 16
     Float disk_multiplier = 8
-    Int memory_mb = 4000
+    Int memory_mb = 40960
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
