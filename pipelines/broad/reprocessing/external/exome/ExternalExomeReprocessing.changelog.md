@@ -5,6 +5,8 @@
     * The ExternalExomeReprocessing pipeline now outputs reblocked gVCFs by default. To skip reblocking, add '\"ExternalExomeReprocessing.ExomeReprocessing.ExomeGermlineSingleSample.BamToGvcf.make_gvcf\": false' to the inputs
 * Adding WGS plumbing tests for dragen_maximum_quality_mode and dragen_functional_equivalence_mode
 * Moved Dragmap docker to WARP and updated to follow repo's best practices
+* Added option to allow empty ref_alt file for running BWA mem with masked reference
+* Added plumbing input JSON for masked reference
 
 # 2.6.0
 2021-10-18
