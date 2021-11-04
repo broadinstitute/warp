@@ -8,6 +8,7 @@ DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
 GCR_URL="us.gcr.io/broad-gotc-prod/dragmap"
+# TODO uncomment when BITS completed request
 # QUAY_URL="quay.io/broadinstitute/gotc-prod-dragmap"
 
 # DRAGMAP version
@@ -81,6 +82,7 @@ function main(){
         --build-arg SAMTOOLS_VERSION="${SAMTOOLS_VERSION}" \
     docker push "${GCR_URL}:${IMAGE_TAG}"
 
+    # TODO uncomment when BITS completed request
     # echo "tagging and pushing Quay Image"
     # docker tag "${GCR_URL}:${IMAGE_TAG}" "${QUAY_URL}:${IMAGE_TAG}"
     # docker push "${QUAY_URL}:${IMAGE_TAG}"

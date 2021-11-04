@@ -1,4 +1,4 @@
-# Samtools_Picard_BWA
+# Dragmap
 
 ## Quick reference
 
