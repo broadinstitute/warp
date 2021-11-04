@@ -6,7 +6,7 @@ sidebar_position: 1
  
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [WholeGenomeGermlineSingleSample_v2.5.0](https://github.com/broadinstitute/warp/releases) | October 18, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [WholeGenomeGermlineSingleSample_v3.0.0](https://github.com/broadinstitute/warp/releases) | November, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
  
 ## Introduction to the Whole Genome Germline Single Sample Pipeline
 The Whole Genome Germline Single Sample (WGS) pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices for germline SNP and Indel discovery in human whole-genome sequencing data. It includes the DRAGEN-GATK mode, which makes the pipeline functionally equivalent to DRAGEN’s analysis pipeline (read more in this [DRAGEN-GATK blog](https://gatk.broadinstitute.org/hc/en-us/articles/360039984151)).
@@ -303,9 +303,61 @@ The table below describes the final workflow outputs. If running the workflow on
 | output_cram_index | Index for the aligned recalibrated CRAM. | File |
 | output_cram_md5 | MD5 checksum for the aligned recalibrated BAM. | File |
 | validate_cram_file_report | Validated report for the CRAM created with the ValidateSam tool.  | File |
-| output_vcf | Final VCF with variant calls produced by HaplotypeCaller. | File |
-| output_vcf_index | Index for the final VCF. | File |
+| output_vcf | Final [reblocked](https://gatk.broadinstitute.org/hc/en-us/articles/360037593171) GVCF with variant calls produced by HaplotypeCaller (read more in the [Reblocking](#reblocking) section below).| File |
+| output_vcf_index | Index for the final GVCF. | File |
  
+### Reblocking
+Reblocking is a process that compresses a HaplotypeCaller GVCF by merging homRef blocks according to new genotype quality (GQ) bands. 
+
+As of November 2021, reblocking is a default task in the WGS pipeline. To skip reblocking, add '"WholeGenomeGermlineSingleSample.BamToGvcf.skip_reblocking": true' to the workflow's input configuration file (JSON).
+
+The [Reblocking workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl) calls the GATK ReblockGVCF tool and uses the arguments:
+
+```WDL
+-do-qual-approx -floor-blocks -GQB 20 -GQB 30 -GQB 40 
+```
+The following summarizes how reblocking affects the WGS GVCF and downstream tools compared to the GVCF produced with HaplotypeCaller :
+
+
+1. Reblocked GVCFs are currently incompatible with the joint genotyping tool GenotypeGVCFs, but are compatible with GnarlyGenotyper which you can specify in the JSON configuration for the WARP JointGenotyping WDL workflow. 
+
+
+2. PLs are omitted for homozygous reference sites to save space (which is why this format is currently incompatible with GenotypeGVCFs)–GQs are output for genotypes, PLs can be approximated as [0, GQ, 2\*GQ].
+
+3. GQ resolution for homozygous reference genotypes is reduced (i.e. homRef GQs will be underconfident) which may affect analyses like de novo calling where confident reference genotypes are important.
+
+4. Alleles that aren’t called in the sample genotype are dropped. Each variant should have no more than two alt alleles, with the majority having just one plus <NON_REF>.
+
+5. New annotations enable merging data for filtering without using genotypes. For example:
+    * RAW_GT_COUNT(S) for doing ExcessHet calculation from a sites-only file
+    * QUALapprox and/or AS_QUALapprox for doing QUAL approximation/filling 
+    * QUAL VCF field from a combined sites-only field
+    * VarDP and/or AS_VarDP used to calculate QualByDepth/QD annotation for VQSR
+
+6. The MIN_DP has been removed
+
+7. Unblocked GVCFs have the following cost/scale improvements:
+    * A reduced storage footprint compared with HaplotypeCaller GVCF output.
+    * Fewer VariantContexts (i.e. lines) per VCF which speeds up GenomicsDB/Hail import.
+    * Fewer alternate alleles which reduce memory requirements for merging.
+
+Additionally, the 4 GQ band schema has specific improvements compared with the 7-band schema:
+1. It does not drop GQ0s; reblocked GVCFs should cover all the positions that the input GVCF covers.
+2. It has no overlaps; the only overlapping positions should be two variants (i.e. deletions) on separate haplotypes
+3. No more no-calls; all genotypes should be called. Positions with no data will be homRef with GQ0.
+
+### Base quality scores
+The final CRAM files have base quality scores binned according to the [Functional Equivalence specification](https://github.com/CCDG/Pipeline-Standardization/blob/master/PipelineStandard.md#base-quality-score-binning-scheme) ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)). This does not apply to the workflow's DRAGEN modes, which do not perform BQSR recalibration.
+
+| Original Score | Score after BQSR recalibration |
+| --- | --- |
+| 1-6 | unchanged |
+| 7-12 | 10 |
+| 13-22 | 20 |
+| 22-infinity | 30 |
+
+
+
 ## Important notes
  
 - Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
