@@ -41,7 +41,7 @@ For examples of how to specify each input in a configuration file, as well as cl
 | contigs | Array of strings defining which contigs (chromsomes) should be used for the reference panel. | Array of strings |
 | reference_panel_path | Path to the cloud storage containing the reference panel files for all contigs. | String
 | genetics_maps_eagle | Genetic map file for phasing.| File |
-| output_callset_name | Output callset name. | String |
+| callset_name | Output callset name. | String |
 | split_output_to_single_sample | Boolean to split out the final combined VCF to individual sample VCFs; set to false by default. | Boolean | 
 | merge_ssvcf_mem_gb | Memory allocation for MergeSingleSampleVcfs (in GB). | Int | 
 | frac_well_imputed_threshold | Threshold for the fraction of well-imputed sites; default set to 0.9. | Float | 
@@ -106,6 +106,7 @@ The table below summarizes the workflow outputs. If running the workflow on Crom
 | chunks_info | TSV from StoreChunksInfo task; contains the chunk intervals as well as the number of variants in the array.  | TSV |
 | failed_chunks | File with the failed chunks from the StoreChunksInfo task. | File |
 | n_failed_chunks | File with the number of failed chunks from the StoreChunksInfo task. | File |
+| callset_name_output | String with the callset name. Matches the input `callset_name`. | String |
  
 ## Important notes
  
