@@ -448,7 +448,7 @@ task SelectVariants {
   command <<<
     set -eo pipefail
 
-    /gatk/gatk --java-options -Xms2000m -Xmx3000m \
+    /gatk/gatk --java-options "-Xms2000m -Xmx3000m" \
       SelectVariants \
       -V ~{input_vcf_file} \
       ~{true="--exclude-filtered true" false="" excludeFiltered} \
@@ -763,7 +763,7 @@ task CreateExtendedIlluminaManifest {
   String report_filename = output_base_name + ".report.txt"
 
   command <<<
-    java --Xms13000m -Xmx13500m -jar /usr/picard/picard.jar \
+    java -Xms13000m -Xmx13500m -jar /usr/picard/picard.jar \
     CreateExtendedIlluminaManifest \
     --INPUT ~{input_csv} \
     --OUTPUT ~{extended_illumina_manifest_filename} \

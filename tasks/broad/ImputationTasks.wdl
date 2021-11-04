@@ -42,7 +42,7 @@ task GenerateChunk {
   Int command_mem = memory_mb - 1000
 
   command {
-    gatk --java-options -Xms~{command_mem}m -Xmx~{command_mem + 500}m \
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{command_mem + 500}m" \
     SelectVariants \
     -V ~{vcf} \
     --select-type-to-include SNP \

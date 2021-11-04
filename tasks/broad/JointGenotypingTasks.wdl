@@ -56,7 +56,7 @@ task SplitIntervalList {
   }
 
   command <<<
-    gatk --java-options -Xms3000m -Xmx3250m SplitIntervals \
+    gatk --java-options "-Xms3000m -Xmx3250m" SplitIntervals \
       -L ~{interval_list} -O  scatterDir -scatter ~{scatter_count} -R ~{ref_fasta} \
       -mode ~{scatter_mode} --interval-merging-rule OVERLAPPING_ONLY
     >>>

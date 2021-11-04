@@ -243,7 +243,7 @@ task GatherBqsrReports {
   }
 
   command {
-    gatk --java-options "-Xms3000m -Xmx3000m' \
+    gatk --java-options "-Xms3000m -Xmx3000m" \
       GatherBQSRReports \
       -I ~{sep=' -I ' input_bqsr_reports} \
       -O ~{output_report_filename}
