@@ -1,3 +1,9 @@
+# 2.5.1
+2021-11-04
+
+* Adding WGS plumbing tests for dragen_maximum_quality_mode and dragen_functional_equivalence_mode
+* Moved Dragmap docker to WARP and updated to follow repo's best practices
+
 # 2.5.0
 2021-10-18
 * Added optional functionality to run the Whole Genome Germline Single Sample (WGS) workflow in DRAGEN-GATK mode. The default run mode will remain exactly the same. Learn more about DRAGEN mode and optional inputs in the [WGS Overview](https://broadinstitute.github.io/warp/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/README). The workflow includes the following new optional inputs:
