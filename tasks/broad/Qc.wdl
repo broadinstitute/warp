@@ -216,10 +216,11 @@ task ConvertSequencingArtifactToOxoG {
 
   Int memory_size = ceil(4000 * memory_multiplier)
   Int java_memory_size = memory_size - 1000
+  Int max_heap = memory_size - 500
 
   command {
     input_base=$(dirname ~{pre_adapter_detail_metrics})/~{base_name}
-    java -Xms~{java_memory_size}m -Xmx~{java_memory_size + 500}m \
+    java -Xms~{java_memory_size}m -Xmx~{max_heap}m \
       -jar /usr/picard/picard.jar \
       ConvertSequencingArtifactToOxoG \
       --INPUT_BASE $input_base \
@@ -389,9 +390,10 @@ task ValidateSamFile {
 
   Int memory_size = ceil(16000 * memory_multiplier)
   Int java_memory_size = memory_size - 1000
+  Int max_heap = memory_size - 500
 
   command {
-    java -Xms~{java_memory_size}m -Xmx~{java_memory_size + 500}m -jar /usr/picard/picard.jar \
+    java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
       ValidateSamFile \
       INPUT=~{input_bam} \
       OUTPUT=~{report_filename} \
@@ -471,10 +473,11 @@ task CollectRawWgsMetrics {
   Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + additional_disk
 
   Int memory_size = ceil((if (disk_size < 110) then 5000 else 7000) * memory_multiplier)
-  String java_memory_size = memory_size - 1000
+  Int java_memory_size = memory_size - 1000
+  Int max_heap = memory_size - 500
 
   command {
-    java -Xms~{java_memory_size}m -Xmx~{java_memory_size + 500}m -jar /usr/picard/picard.jar \
+    java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
       CollectRawWgsMetrics \
       INPUT=~{input_bam} \
       VALIDATION_STRINGENCY=SILENT \
@@ -517,10 +520,11 @@ task CollectHsMetrics {
   Int rounded_memory_size = ceil((if (rounded_bam_size > 10) then 10 else rounded_bam_size) * memory_multiplier)
   Int memory_size = if rounded_memory_size < 7 then 7000 else (rounded_memory_size * 1000)
   Int java_memory_size = memory_size - 1000
+  Int max_heap = memory_size - 500
 
   # There are probably more metrics we want to generate with this tool
   command {
-    java -Xms~{java_memory_size}m -Xmx~{java_memory_size + 500}m -jar /usr/picard/picard.jar \
+    java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
       CollectHsMetrics \
       INPUT=~{input_bam} \
       REFERENCE_SEQUENCE=~{ref_fasta} \

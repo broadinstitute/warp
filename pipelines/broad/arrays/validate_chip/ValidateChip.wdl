@@ -273,7 +273,7 @@ task GenotypeConcordance {
   command <<<
     set -e
 
-    /gatk/gatk --java-options -Xms6000m -Xmx6500m \
+    /gatk/gatk --java-options "-Xms6000m -Xmx6500m" \
       GenotypeConcordance \
       --CALL_VCF ~{call_vcf_file} \
       --CALL_SAMPLE ~{call_sample_name} \

@@ -997,7 +997,7 @@ task AddReadGroup {
       echo "No monitoring script given as input" > monitoring.log &
     fi
 
-    gatk --java-options -Xms2500m -Xmx3000m \
+    gatk --java-options "-Xms2500m -Xmx3000m" \
     AddOrReplaceReadGroups \
       --INPUT ~{bam_input} \
       --RGLB ~{read_group_library_name} \
@@ -1054,7 +1054,7 @@ task MethylationTypeCaller {
       echo "No monitoring script given as input" > monitoring.log &
     fi
 
-    gatk --java-options -Xms2500m -Xmx3000m \
+    gatk --java-options "-Xms2500m -Xmx3000m" \
     MethylationTypeCaller \
       --input ~{bam_input} \
       --reference ~{reference_fasta} \

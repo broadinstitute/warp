@@ -293,7 +293,7 @@ task CNNScoreVariants {
   String tensor_type = if defined(bamout) then "read-tensor" else "reference"
 
   command {
-     gatk --java-options -Xmx10000m CNNScoreVariants \
+     gatk --java-options "-Xmx10000m" CNNScoreVariants \
        -V ~{input_vcf} \
        -R ~{ref_fasta} \
        -O ~{output_vcf} \
@@ -346,7 +346,7 @@ task FilterVariantTranches {
 
   command {
 
-    gatk --java-options -Xmx6000m FilterVariantTranches \
+    gatk --java-options "-Xmx6000m" FilterVariantTranches \
       -V ~{input_vcf} \
       -O ~{vcf_basename}.filtered.vcf.gz \
       ~{sep=" " prefix("--snp-tranche ", snp_tranches)} \

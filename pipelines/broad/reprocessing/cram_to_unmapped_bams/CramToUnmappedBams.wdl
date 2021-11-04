@@ -105,9 +105,10 @@ task RevertSam {
   }
 
   Int java_mem = memory_in_MiB - 1000
+  Int max_heap = memory_in_MiB - 500
 
   command <<<
-    java -Xms~{java_mem}m -Xmx~{java_mem + 500}m -jar /usr/picard/picard.jar \
+    java -Xms~{java_mem}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
     RevertSam \
     --INPUT ~{input_bam} \
     --OUTPUT ~{output_bam_filename} \
@@ -269,10 +270,11 @@ task ValidateSamFile {
   }
 
   Int java_mem = memory_in_MiB - 1000
+  Int max_heap = memory_in_MiB - 500
 
   command <<<
 
-    java -Xms~{java_mem}m -Xmx~{java_mem + 500}m -jar /usr/picard/picard.jar \
+    java -Xms~{java_mem}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
       ValidateSamFile \
       --INPUT ~{input_bam} \
       --OUTPUT ~{report_filename} \
@@ -304,9 +306,10 @@ task SortSam {
   # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
   Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
   Int java_mem = memory_in_MiB - 1000
+  Int max_heap = memory_in_MiB - 500
 
   command <<<
-    java -Xms~{java_mem}m -Xmx~{java_mem + 500}m -jar /usr/picard/picard.jar \
+    java -Xms~{java_mem}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
     SortSam \
     --INPUT ~{input_bam} \
     --OUTPUT ~{output_bam_filename} \

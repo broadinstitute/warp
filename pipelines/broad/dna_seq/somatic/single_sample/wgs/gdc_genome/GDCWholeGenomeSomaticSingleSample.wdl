@@ -510,6 +510,7 @@ task gatk_baserecalibrator {
     Float dbsnp_size = size([dbsnp_vcf, dbsnp_vcf_index], "GiB")
     Int mem = ceil(size(bam, "MiB")) + 6000 + additional_memory_mb
     Int jvm_mem = mem - 1000
+    Int max_heap = mem - 500
     Int disk_space = ceil(size(bam, "GiB") + ref_size + dbsnp_size) + 20 + additional_disk_gb
 
     parameter_meta {
@@ -524,7 +525,7 @@ task gatk_baserecalibrator {
     command {
         gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
             -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-            -Xloggc:gc_log.log -Xms~{jvm_mem}m -Xmx~{jvm_mem + 500}m" \
+            -Xloggc:gc_log.log -Xms~{jvm_mem}m -Xmx~{max_heap}m" \
             BaseRecalibrator \
                 --input ~{bam} \
                 --known-sites ~{dbsnp_vcf} \
@@ -562,6 +563,7 @@ task gatk_applybqsr {
     String output_bai = basename(input_bam, ".bam") + ".bai"
     Int mem = ceil(size(input_bam, "MiB")) + 4000 + additional_memory_mb
     Int jvm_mem = mem - 1000
+    Int max_heap = mem - 500
     Int disk_space = ceil((size(input_bam, "GiB") * 3)) + 20 + additional_disk_gb
 
     parameter_meta {
@@ -571,7 +573,7 @@ task gatk_applybqsr {
     command {
         gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
             -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-            -Xloggc:gc_log.log -Xms~{jvm_mem}m -Xmx~{jvm_mem + 500}m" \
+            -Xloggc:gc_log.log -Xms~{jvm_mem}m -Xmx~{max_heap}m" \
             ApplyBQSR \
                 --input ~{input_bam} \
                 --bqsr-recal-file ~{bqsr_recal_file} \
@@ -605,10 +607,11 @@ task collect_insert_size_metrics {
   }
   Int mem = ceil(size(input_bam, "GiB")) + 7000 + additional_memory_mb
   Int jvm_mem = mem - 1000
+  Int max_heap = mem - 500
   Int disk_size = ceil(size(input_bam, "GiB")) + 20 + additional_disk_gb
 
   command {
-    java -Xms~{jvm_mem}m -Xmx~{jvm_mem + 500}m -jar /usr/picard/picard.jar \
+    java -Xms~{jvm_mem}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
       CollectInsertSizeMetrics \
       INPUT=~{input_bam} \
       OUTPUT=~{output_bam_prefix}.insert_size_metrics \

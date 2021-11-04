@@ -486,7 +486,7 @@ task SelectIndels {
   }
 
   command <<<
-    /gatk/gatk --java-options -Xms2000m -Xmx3000m \
+    /gatk/gatk --java-options "-Xms2000m -Xmx3000m" \
       SelectVariants \
       -V ~{input_vcf_file} \
       --select-type-to-include INDEL \
@@ -616,7 +616,7 @@ task SubsetArrayVCF {
   Int disk_size = ceil(size(input_vcf_file, "GiB") * 2 + size(ref_fasta, "GiB"))
 
   command <<<
-    gatk --java-options -Xms2500m -Xmx3000m \
+    gatk --java-options "-Xms2500m -Xmx3000m" \
       SelectVariants \
       -V  ~{input_vcf_file} \
       -L ~{intervals} \
@@ -720,7 +720,7 @@ task ValidateVariants {
     Int preemptible_tries
   }
   command <<<
-    /gatk/gatk --java-options -Xms2000m -Xmx3000m \
+    /gatk/gatk --java-options "-Xms2000m -Xmx3000m" \
       ValidateVariants \
       -V ~{input_vcf_file} \
       --validation-type-to-exclude ALLELES \
