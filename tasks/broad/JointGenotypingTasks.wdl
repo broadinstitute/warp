@@ -869,7 +869,7 @@ task CrossCheckFingerprint {
   # Compute memory to use based on the CPU count, following the pattern of
   # 3.75GiB / cpu used by GCP's pricing: https://cloud.google.com/compute/pricing
   Int memMb = round(cpu * 3.75 * 1024)
-  Int java_mem = - 512
+  Int java_mem = memMb - 512
   Int disk = 100
 
   String output_name = output_base_name + ".fingerprintcheck"

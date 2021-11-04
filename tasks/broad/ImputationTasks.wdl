@@ -40,7 +40,7 @@ task GenerateChunk {
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
   }
   Int command_mem = memory_mb - 1000
-  Int max_heap = command_mem - 500
+  Int max_heap = memory_mb - 500
 
   command {
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
@@ -90,7 +90,7 @@ task CountVariantsInChunks {
     Int memory_mb = 4000
   }
   Int command_mem = memory_mb - 1000
-  Int max_heap = command_mem - 500
+  Int max_heap = memory_mb - 500
 
   command <<<
     echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
@@ -239,7 +239,7 @@ task GatherVcfs {
     Int disk_size_gb = ceil(3*size(input_vcfs, "GiB"))
   }
   Int command_mem = memory_mb - 1000
-  Int max_heap = command_mem - 500
+  Int max_heap = memory_mb - 500
 
   command <<<
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
@@ -276,7 +276,7 @@ task UpdateHeader {
     Int memory_mb = 8000
   }
   Int command_mem = memory_mb - 1000
-  Int max_heap = command_mem - 500
+  Int max_heap = memory_mb - 500
 
   command <<<
 
@@ -312,7 +312,7 @@ task RemoveSymbolicAlleles {
     Int memory_mb = 4000
   }
   Int command_mem = memory_mb - 1000
-  Int max_heap = command_mem - 500
+  Int max_heap = memory_mb - 500
 
   command {
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
@@ -632,7 +632,7 @@ task SelectVariantsByIds {
     }
   }
   Int command_mem = memory_mb - 1000
-  Int max_heap = command_mem - 500
+  Int max_heap = memory_mb - 500
 
   command <<<
     cp ~{ids} sites.list
@@ -688,7 +688,7 @@ task InterleaveVariants {
     Int disk_size_gb = ceil(3.2*size(vcfs, "GiB")) + 100
   }
   Int command_mem = memory_mb - 1000
-  Int max_heap = command_mem - 500
+  Int max_heap = memory_mb - 500
 
   command <<<
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
