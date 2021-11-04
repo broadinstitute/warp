@@ -26,6 +26,9 @@ workflow CreateSs2AdapterMetadata {
     Array[String] all_project_ids
     Array[String] all_project_names
 
+    # Flag which tells data importers if this run is a re-run of a previously processed project
+    Boolean is_update
+
     String cromwell_url = "https://api.firecloud.org/"
     String staging_area = "gs://broad-dsp-monster-hca-prod-lantern/"
     String pipeline_type = "SS2"
@@ -188,6 +191,11 @@ workflow CreateSs2AdapterMetadata {
       pipeline_type = pipeline_type
   }
 
+  call Tasks.CreateStagingAreaFile as CreateStagingAreaFile {
+    input:
+      is_update = is_update
+  }
+
   Array[File] project_links = GetLinksFileMetadata.links_outputs
 
   ########################## Copy Files to Staging Bucket ##########################
@@ -199,6 +207,7 @@ workflow CreateSs2AdapterMetadata {
   Array[File] reference_metadata_objects = CreateReferenceMetadata.reference_metadata_outputs
   Array[File] reference_file_descriptor_objects = CreateReferenceMetadata.reference_file_descriptor_outputs
   Array[File] data_objects = flatten([reference_fasta_array, [output_loom], output_bams, output_bais])
+    File is_update_file = CreateStagingAreaFile.is_update_file
 
   call Tasks.CopyToStagingBucket {
     input:
@@ -210,7 +219,8 @@ workflow CreateSs2AdapterMetadata {
       analysis_protocol_objects = analysis_protocol_objects,
       reference_metadata_objects = reference_metadata_objects,
       reference_file_descriptor_objects = reference_file_descriptor_objects,
-      data_objects = data_objects
+      data_objects = data_objects,
+      is_update_file = is_update_file
   }
 
   output {
@@ -222,5 +232,6 @@ workflow CreateSs2AdapterMetadata {
     Array[File] output_reference_metadata_objects = reference_metadata_objects
     Array[File] output_reference_file_descriptor_objects = reference_file_descriptor_objects
     Array[File] output_data_objects = data_objects
+    File output_is_update_file = is_update_file
   }
 }
