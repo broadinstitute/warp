@@ -357,7 +357,7 @@ task CheckPreValidation {
 
 >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/python:2.7"
+    docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     preemptible: preemptible_tries
     memory: "2 GiB"
   }

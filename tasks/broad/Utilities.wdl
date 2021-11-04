@@ -62,7 +62,7 @@ task CreateSequenceGroupingTSV {
   >>>
   runtime {
     preemptible: preemptible_tries
-    docker: "us.gcr.io/broad-gotc-prod/python:2.7"
+    docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     memory: "2 GiB"
   }
   output {
@@ -202,7 +202,7 @@ task SumFloats {
     Float total_size = read_float(stdout())
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/python:2.7"
+    docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     preemptible: preemptible_tries
   }
 }
