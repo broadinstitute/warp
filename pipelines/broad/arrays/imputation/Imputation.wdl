@@ -30,7 +30,7 @@ workflow Imputation {
     Array[String] contigs
     String reference_panel_path # path to the bucket where the reference panel files are stored for all contigs
     File genetic_maps_eagle
-    String output_callset_name # the output callset name
+    String callset_name # the output callset name
     Boolean split_output_to_single_sample = false
     File haplotype_database
     Int merge_ssvcf_mem_mb = 3000 # the memory allocation for MergeSingleSampleVcfs (in mb)
@@ -186,7 +186,7 @@ workflow Imputation {
           input:
             infoFile = Minimac4.info,
             nSamples = CountSamples.nSamples,
-            basename = output_callset_name + "chrom_" + referencePanelContig.contig + "_chunk_" + i
+            basename = callset_name + "chrom_" + referencePanelContig.contig + "_chunk_" + i
         }
 
         call tasks.UpdateHeader {
@@ -230,7 +230,7 @@ workflow Imputation {
     input:
       input_vcfs = phased_vcfs,
       input_vcf_indices = phased_vcf_indices,
-      output_vcf_basename = output_callset_name
+      output_vcf_basename = callset_name
   }
 
   call tasks.ExtractIDs {
@@ -261,13 +261,13 @@ workflow Imputation {
   call tasks.InterleaveVariants {
     input:
       vcfs = [RemoveAnnotations.output_vcf, GatherVcfs.output_vcf],
-      basename = output_callset_name
+      basename = callset_name
   }
 
   call tasks.MergeImputationQCMetrics {
     input:
       metrics = flatten(aggregatedImputationMetrics),
-      basename = output_callset_name
+      basename = callset_name
   }
 
   if (MergeImputationQCMetrics.frac_well_imputed < frac_well_imputed_threshold) {
@@ -285,7 +285,7 @@ workflow Imputation {
       vars_in_array = flatten(CountVariantsInChunks.var_in_original),
       vars_in_panel = flatten(CountVariantsInChunks.var_in_reference),
       valids = flatten(CheckChunks.valid),
-      basename = output_callset_name
+      basename = callset_name
   }
   
   Int n_failed_chunks_int = read_int(StoreChunksInfo.n_failed_chunks)
@@ -314,6 +314,6 @@ workflow Imputation {
     File chunks_info = StoreChunksInfo.chunks_info
     File failed_chunks = StoreChunksInfo.failed_chunks
     File n_failed_chunks = StoreChunksInfo.n_failed_chunks
-    String output_callset_name_output = output_callset_name
+    String callset_name_output = callset_name
   }
 }
