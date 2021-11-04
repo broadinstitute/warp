@@ -314,5 +314,6 @@ workflow Imputation {
     File chunks_info = StoreChunksInfo.chunks_info
     File failed_chunks = StoreChunksInfo.failed_chunks
     File n_failed_chunks = StoreChunksInfo.n_failed_chunks
+    String output_callset_name_output = output_callset_name
   }
 }
