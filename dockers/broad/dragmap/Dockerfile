@@ -62,13 +62,14 @@ RUN set -eux; \
     wget ${SAMTOOLS_URL}; \
     tar -xf samtools-${SAMTOOLS_VERSION}.tar.bz2; \
     rm samtools-${SAMTOOLS_VERSION}.tar.bz2; \
+    \
     cd samtools-${SAMTOOLS_VERSION}; \
     make; \
     make install; \
+    \
     cd ../; \
     rm -r samtools-${SAMTOOLS_VERSION} \
     ; \
-    \
 # Install PICARD
     wget ${PICARD_URL}; \
     mkdir /picard; \
