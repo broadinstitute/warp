@@ -50,13 +50,14 @@ RUN set -eux; \
     wget ${DRAGMAP_URL}; \
     tar -xf ${DRAGMAP_VERSION}.tar.gz; \
     rm ${DRAGMAP_VERSION}.tar.gz; \
+    \
     cd DRAGMAP-${DRAGMAP_VERSION}; \
     make; \
     mv build/release/dragen-os /usr/local/bin/; \
+    \
     cd ../; \
     rm -r DRAGMAP-${DRAGMAP_VERSION} \
     ; \
-    \
 #Install SAMTOOLS
     wget ${SAMTOOLS_URL}; \
     tar -xf samtools-${SAMTOOLS_VERSION}.tar.bz2; \
