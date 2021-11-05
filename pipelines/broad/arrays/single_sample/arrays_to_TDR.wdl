@@ -180,7 +180,7 @@ task ingest_outputs_to_tdr {
 
     command {
 
-        python3 WDL_write_arrays_wdl_outputs_to_TDR_ArraysOutputsTable.py -w ~(workspace_name) \
+        python3 WDL_write_arrays_wdl_outputs_to_TDR_ArraysOutputsTable.py -w ~{workspace_name} \
                                                                           -b ~{workspace_bucket} \
                                                                           -d ~{tdr_dataset_id} \
                                                                           -t ~{tdr_target_table_name} \
