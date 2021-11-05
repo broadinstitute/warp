@@ -35,10 +35,6 @@ RUN set -eux; \
             xz-devel \
             zlib-devel \
         ; \
-        yum clean all; \
-        rm -rf /var/cache/yum \
-        ; \
-        \
 # Install TINI
     mkdir temp; \
     cd temp; \
