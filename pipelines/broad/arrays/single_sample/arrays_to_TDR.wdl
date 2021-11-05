@@ -10,9 +10,9 @@ workflow arrays_outputs_to_TDR {
     input {
         # inputs to wrapper task 
         String workspace_name
-        String workspace_project
-        String workspace_project
-        String gcp_project
+        String workspace_bucket
+        # String workspace_project
+        # String gcp_project
         String tdr_dataset_id
         String tdr_target_table_name
         # String workflow_name # Arrays in this example
@@ -92,12 +92,12 @@ workflow arrays_outputs_to_TDR {
     call ingest_outputs_to_tdr {
         input:
             workspace_name          = workspace_name,
-            workspace_project       = workspace_project,
+            # workspace_project       = workspace_project,
             workspace_bucket        = workspace_bucket,
-            gcp_project             = gcp_project,
+            # gcp_project             = gcp_project,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
-            ingest_json             = format_arrays_outputs.ingest_outputs_json
+            outputs_tsv             = format_arrays_outputs.ingest_outputs_tsv
     }
 
 
@@ -108,12 +108,12 @@ task format_arrays_outputs {
         String  chip_well_barcode_output
         Int     analysis_version_number_output
         String? baf_regress_metrics_file
-        String  gtc_file
+        String? gtc_file
 
         String? output_vcf
         String? output_vcf_index
 
-        String  arrays_variant_calling_detail_metrics_file
+        String? arrays_variant_calling_detail_metrics_file
         String? arrays_variant_calling_summary_metrics_file
         String? arrays_variant_calling_control_metrics_file
 
@@ -155,45 +155,43 @@ task format_arrays_outputs {
     >>>
 
     runtime {
-
+        docker: "broadinstitute/horsefish:emerge_scripts"
     }
 
     output {
         File ingest_outputs_tsv = "ingestDataset_arrays_outputs.tsv"
-        File ingest_outputs_json = "ingestDataset_arrays_outputs.json"
+        # File ingest_outputs_json = "ingestDataset_arrays_outputs.json"
     }
 }
 
 task ingest_outputs_to_tdr {
     input {
         String workspace_name
-        String workspace_project
+        # String workspace_project
         String workspace_bucket
-        String gcp_project
+        # String gcp_project
         # String workflow_name
         String tdr_dataset_id
         String tdr_target_table_name
 
-        File   outputs_json
+        # File   outputs_json
+        File   outputs_tsv
     }
 
     command {
 
-        python3 WDL_write_arrays_wdl_outputs_to_TDR_ArraysOutputsTable.py -s submission_id \
-                                                                          -p ~{workspace_project} \
-                                                                          -w ~(workspace_name) \
-                                                                          -g ~{gcp_project} \
+        python3 WDL_write_arrays_wdl_outputs_to_TDR_ArraysOutputsTable.py -w ~(workspace_name) \
                                                                           -b ~{workspace_bucket} \
                                                                           -d ~{tdr_dataset_id} \
                                                                           -t ~{tdr_target_table_name} \
-                                                                          -j ~{outputs_json}
+                                                                          -f ~{outputs_tsv}
     }
 
     runtime {
-
+        docker: "broadinstitute/horsefish:emerge_scripts"
     }
 
     output {
-
+        File ingest_logs = stdout()
     }
 }
