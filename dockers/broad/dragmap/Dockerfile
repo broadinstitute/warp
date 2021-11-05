@@ -73,12 +73,14 @@ RUN set -eux; \
 # Install PICARD
     wget ${PICARD_URL}; \
     mkdir /picard; \
-    mv picard.jar /picard/ \
-    ; \
+    mv picard.jar /picard/;  \
     \ 
     cd ../; \
     rm -r temp \
-    ;
+    ; \
+# Clean up cached files
+    yum clean all; \
+    rm -rf /var/cache/yum
 
 # Set tini as default entrypoint
 ENTRYPOINT [ "/sbin/tini", "--" ]
