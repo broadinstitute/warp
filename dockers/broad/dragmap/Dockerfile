@@ -42,10 +42,10 @@ RUN set -eux; \
 # Install TINI
     mkdir temp; \
     cd temp; \
+    \
     wget https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -O /sbin/tini; \
     chmod +x /sbin/tini \
     ; \
-    \
 # Install DRAGMAP
     wget ${DRAGMAP_URL}; \
     tar -xf ${DRAGMAP_VERSION}.tar.gz; \
