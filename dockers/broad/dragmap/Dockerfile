@@ -76,7 +76,7 @@ RUN set -eux; \
     ; \
 # Clean up cached files
     yum clean all; \
-    rm -rf /var/cache/yum
+    rm -rf /var/cache/yum;
 
 # Set tini as default entrypoint
 ENTRYPOINT [ "/sbin/tini", "--" ]
