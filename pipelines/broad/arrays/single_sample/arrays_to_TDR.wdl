@@ -144,12 +144,12 @@ task format_arrays_outputs {
                  >> ingestDataset_arrays_outputs.tsv
 
         python3 << CODE
-            import pandas as pd
+        import pandas as pd
 
-            tsv_df = pd.read_csv("ingestDataset_arrays_outputs.tsv", sep="\t")
-            tsv_df = tsv_df.dropna(axis=1, how="all")  # drop columns if no value (optional outputs etc)
+        tsv_df = pd.read_csv("ingestDataset_arrays_outputs.tsv", sep="\t")
+        tsv_df = tsv_df.dropna(axis=1, how="all")  # drop columns if no value (optional outputs etc)
 
-            outputs = tsv_df.to_json("ingestDataset_arrays_outputs.json", orient="records")  # write json file
+        outputs = tsv_df.to_json("ingestDataset_arrays_outputs.json", orient="records")  # write json file
 
         CODE
     >>>
