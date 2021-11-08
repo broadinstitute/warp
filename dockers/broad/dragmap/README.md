@@ -4,7 +4,7 @@
 
 Copy and paste to pull this image
 
-#### `docker pull us.gcr.io/broad-gotc-prod/dragmap:1.0.0-1.2.1-2.26.4-1.11-1636046599`
+#### `docker pull us.gcr.io/broad-gotc-prod/dragmap:1.0.0-1.2.1-2.26.4-1.11-1636392425`
 `
 
 - __What is this image:__ This image is a centos-based custom image for running DRAGMAP, Picard and SAMTOOLS, it uses `centos:centos7` as a base image.
@@ -22,8 +22,8 @@ We keep track of all past versions in [docker_versions](docker_versions.tsv) wit
 You can see more information about the image, including the tool versions, by running the following command:
 
 ```bash
-$ docker pull us.gcr.io/broad-gotc-prod/dragmap:1.0.0-1.2.1-2.26.4-1.11-1636046599
-$ docker inspect us.gcr.io/broad-gotc-prod/dragmap:1.0.0-1.2.1-2.26.4-1.11-1636046599
+$ docker pull us.gcr.io/broad-gotc-prod/dragmap:1.0.0-1.2.1-2.26.4-1.11-1636392425
+$ docker inspect us.gcr.io/broad-gotc-prod/dragmap:1.0.0-1.2.1-2.26.4-1.11-1636392425
 ```
 
 ## Usage
@@ -41,5 +41,5 @@ See Picard GitHub for [more info](https://github.com/broadinstitute/picard)
 ```bash
 $ docker run --rm -it \
     -v /bamfiles:/bamfiles \
-    us.gcr.io/broad-gotc-prod/dragmap:1.0.0-1.2.1-2.26.4-1.11-1636046599 samtools view -H /bamfiles/<bam-file>
+    us.gcr.io/broad-gotc-prod/dragmap:1.0.0-1.2.1-2.26.4-1.11-1636392425 samtools view -H /bamfiles/<bam-file>
 ```
