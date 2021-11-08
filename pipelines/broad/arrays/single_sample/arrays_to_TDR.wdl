@@ -63,30 +63,17 @@ workflow arrays_outputs_to_TDR {
             chip_well_barcode_output                            = Arrays.chip_well_barcode_output,
             analysis_version_number_output                      = Arrays.analysis_version_number_output,
             gtc_file                                            = Arrays.gtc_file,
-            # red_idat_md5_cloud_path                             = Arrays.red_idat_md5_cloud_path,
-            # green_idat_md5_cloud_path                           = Arrays.green_idat_md5_cloud_path,
-            # output_vcf_md5_cloud_path                           = Arrays.output_vcf_md5_cloud_path,
             output_vcf                                          = Arrays.output_vcf,
             output_vcf_index                                    = Arrays.output_vcf_index,
             baf_regress_metrics_file                            = Arrays.baf_regress_metrics_file,
-            # contamination_metrics_file                          = Arrays.contamination_metrics_file,
-            # reference_fingerprint_vcf                           = Arrays.reference_fingerprint_vcf,
-            # reference_fingerprint_vcf_index                     = Arrays.reference_fingerprint_vcf_index,
-            # output_fingerprint_vcf                              = Arrays.output_fingerprint_vcf,
-            # output_fingerprint_vcf_index                        = Arrays.output_fingerprint_vcf_index,
-            # output_fingerprint_json_file                        = Arrays.output_fingerprint_json_file,
             arrays_variant_calling_detail_metrics_file          = Arrays.arrays_variant_calling_detail_metrics_file,
             arrays_variant_calling_summary_metrics_file         = Arrays.arrays_variant_calling_summary_metrics_file,
             arrays_variant_calling_control_metrics_file         = Arrays.arrays_variant_calling_control_metrics_file,
-            # arrays_subset_variant_calling_detail_metrics_file   = Arrays.arrays_subset_variant_calling_detail_metrics_file,
-            # arrays_subset_variant_calling_summary_metrics_file  = Arrays.arrays_subset_variant_calling_summary_metrics_file,
-            # arrays_subset_variant_calling_control_metrics_file  = Arrays.arrays_subset_variant_calling_control_metrics_file,
             fingerprint_detail_metrics_file                     = Arrays.fingerprint_detail_metrics_file,
             fingerprint_summary_metrics_file                    = Arrays.fingerprint_summary_metrics_file,
             genotype_concordance_summary_metrics_file           = Arrays.genotype_concordance_summary_metrics_file,
             genotype_concordance_detail_metrics_file            = Arrays.genotype_concordance_detail_metrics_file,
             genotype_concordance_contingency_metrics_file       = Arrays.genotype_concordance_contingency_metrics_file
-            # chip_well_barcode_params_file                       = Arrays.chip_well_barcode_params_file
     }
 
     call ingest_outputs_to_tdr {
@@ -98,6 +85,23 @@ workflow arrays_outputs_to_TDR {
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
             outputs_tsv             = format_arrays_outputs.ingest_outputs_tsv
+    }
+
+    output {
+        String chip_well_barcode_output = Arrays.chip_well_barcode_output
+        Int analysis_version_number_output = Arrays.analysis_version_number_output
+        File gtc_file = Arrays.gtc_file
+        File? output_vcf = Arrays.output_vcf
+        File? output_vcf_index = Arrays.output_vcf_index
+        File? baf_regress_metrics_file = Arrays.baf_regress_metrics_file
+        File arrays_variant_calling_detail_metrics_file = Arrays.arrays_variant_calling_detail_metrics_file
+        File? arrays_variant_calling_summary_metrics_file = Arrays.arrays_variant_calling_summary_metrics_file
+        File? arrays_variant_calling_control_metrics_file = Arrays.arrays_variant_calling_control_metrics_file
+        File? fingerprint_detail_metrics_file = Arrays.fingerprint_detail_metrics_file
+        File? fingerprint_summary_metrics_file = Arrays.fingerprint_summary_metrics_file
+        File? genotype_concordance_summary_metrics_file = Arrays.genotype_concordance_summary_metrics_file
+        File? genotype_concordance_detail_metrics_file  = Arrays.genotype_concordance_detail_metrics_file
+        File? genotype_concordance_contingency_metrics_file = Arrays.genotype_concordance_contingency_metrics_file
     }
 
 
