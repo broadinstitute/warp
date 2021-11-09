@@ -13,7 +13,7 @@ Copy and paste to pull this image
 
 ## Versioning
 
-Dragmap uses the following convention for verisoning:
+Dragmap uses the following convention for versioning:
 
 #### `us.gcr.io/broad-gotc-prod/dragmap:<image-version>-<dragmap-version>-<picard-version>-<samtools-version>-<unix-timestamp>` 
 
