@@ -70,7 +70,13 @@ Check out the workflow [Methods](./exome.methods.md) to get started!
 ### Reblocking
 Reblocking is a process that compresses a HaplotypeCaller GVCF by merging homRef blocks according to new genotype quality (GQ) bands. 
 
-As of November 2021, reblocking is a default task in the WGS pipeline. The [Reblocking workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl) calls the GATK ReblockGVCF tool and uses the arguments:
+As of November 2021, reblocking is a default task in the Exome pipeline. To skip reblocking, add the following to the workflow's input configuration file (JSON):
+
+```WDL
+"WholeGenomeGermlineSingleSample.BamToGvcf.skip_reblocking": true
+```
+
+The [Reblocking workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl) calls the GATK ReblockGVCF tool and uses the arguments:
 
 ```WDL
 -do-qual-approx -floor-blocks -GQB 20 -GQB 30 -GQB 40 
@@ -81,7 +87,7 @@ The following summarizes how reblocking affects the WGS GVCF and downstream tool
 1. Reblocked GVCFs are currently incompatible with the joint genotyping tool GenotypeGVCFs, but are compatible with GnarlyGenotyper which you can specify in the JSON configuration for the WARP JointGenotyping WDL workflow. 
 
 
-2. PLs are omitted for homozygous reference sites to save space (which is why this format is currently incompatible with GenotypeGVCFs)–GQs are output for genotypes, PLs can be approximated as [0, GQ, 2\*GQ].
+2. PLs are omitted for homozygous reference sites to save space (which is why this format is currently incompatible with GenotypeGVCFs)– GQs are output for genotypes, PLs can be approximated as [0, GQ, 2\*GQ].
 
 3. GQ resolution for homozygous reference genotypes is reduced (i.e. homRef GQs will be underconfident) which may affect analyses like de novo calling where confident reference genotypes are important.
 
@@ -95,7 +101,7 @@ The following summarizes how reblocking affects the WGS GVCF and downstream tool
 
 6. The MIN_DP has been removed
 
-7. Unblocked GVCFs have the following cost/scale improvements:
+7. Reblocked GVCFs have the following cost/scale improvements:
     * A reduced storage footprint compared with HaplotypeCaller GVCF output.
     * Fewer VariantContexts (i.e. lines) per VCF which speeds up GenomicsDB/Hail import.
     * Fewer alternate alleles which reduce memory requirements for merging.
