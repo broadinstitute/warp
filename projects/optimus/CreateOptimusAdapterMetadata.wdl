@@ -209,6 +209,11 @@ workflow CreateOptimusAdapterMetadata {
       is_update_file = is_update_file
   }
 
+  call Tasks.ValidateStagingArea {
+    input:
+      staging_area = staging_bucket
+  }
+
   output {
     Array[File] output_links_objects = links_objects
     Array[File] output_analysis_file_descriptor_objects = analysis_file_descriptor_objects
