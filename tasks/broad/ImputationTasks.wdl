@@ -80,10 +80,10 @@ task CountVariantsInChunks {
     File panel_vcf
     File panel_vcf_index
 
-    Int disk_size_gb = ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
     Int cpu = 1
     Int memory_mb = 4000
+    Int disk_size_gb = 100 #ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
   }
   command <<<
     echo $(gatk CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
@@ -382,6 +382,19 @@ task MergeSingleSampleVcfs {
     Int disk_size_gb = 3 * ceil(size(input_vcfs, "GiB") + size(input_vcf_indices, "GiB")) + 20
   }
   command <<<
+    # Move the index file next to the vcf file with the corresponding name
+
+    declare -a VCFS=(~{sep=' ' input_vcfs})
+    declare -a VCF_INDICES=(~{sep=' ' input_vcf_indices})
+
+    for i in ${VCF_INDICES[@]}; do
+      for v in ${VCFS[@]}; do
+        if [[ $(basename $i .vcf.gz.tbi) == $(basename $v .vcf.gz) ]]; then
+          mv $i $(dirname $v)
+        fi
+      done
+    done
+
     bcftools merge ~{sep=' ' input_vcfs} -O z -o ~{output_vcf_basename}.vcf.gz
     bcftools index -t ~{output_vcf_basename}.vcf.gz
   >>>
