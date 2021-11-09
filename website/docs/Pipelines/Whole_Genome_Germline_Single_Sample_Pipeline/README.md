@@ -322,25 +322,21 @@ The [Reblocking workflow](https://github.com/broadinstitute/warp/blob/master/pip
 ```
 The following summarizes how reblocking affects the WGS GVCF and downstream tools compared to the GVCF produced with HaplotypeCaller:
 
+1. PLs are omitted for homozygous reference sites to save space– GQs are output for genotypes, PLs can be approximated as [0, GQ, 2\*GQ].
 
-1. Reblocked GVCFs are currently incompatible with the joint genotyping tool GenotypeGVCFs, but are compatible with GnarlyGenotyper which you can specify in the JSON configuration for the WARP JointGenotyping WDL workflow. 
+2. GQ resolution for homozygous reference genotypes is reduced (i.e. homRef GQs will be underconfident) which may affect analyses like de novo calling where confident reference genotypes are important.
 
+3. Alleles that aren’t called in the sample genotype are dropped. Each variant should have no more than two alt alleles, with the majority having just one plus <NON_REF>.
 
-2. PLs are omitted for homozygous reference sites to save space (which is why this format is currently incompatible with GenotypeGVCFs)– GQs are output for genotypes, PLs can be approximated as [0, GQ, 2\*GQ].
-
-3. GQ resolution for homozygous reference genotypes is reduced (i.e. homRef GQs will be underconfident) which may affect analyses like de novo calling where confident reference genotypes are important.
-
-4. Alleles that aren’t called in the sample genotype are dropped. Each variant should have no more than two alt alleles, with the majority having just one plus <NON_REF>.
-
-5. New annotations enable merging data for filtering without using genotypes. For example:
+4. New annotations enable merging data for filtering without using genotypes. For example:
     * RAW_GT_COUNT(S) for doing ExcessHet calculation from a sites-only file.
-    * QUALapprox and/or AS_QUALapprox for doing QUAL approximation/filling.
+    * QUALapprox and/or AS_QUALapprox for doing QUAL approximation/filling. 
     * QUAL VCF field from a combined sites-only field.
     * VarDP and/or AS_VarDP used to calculate QualByDepth/QD annotation for VQSR.
 
-6. The MIN_DP has been removed.
+5. The MIN_DP has been removed.
 
-7. Reblocked GVCFs have the following cost/scale improvements:
+6. Reblocked GVCFs have the following cost/scale improvements:
     * A reduced storage footprint compared with HaplotypeCaller GVCF output.
     * Fewer VariantContexts (i.e. lines) per VCF which speeds up GenomicsDB/Hail import.
     * Fewer alternate alleles which reduce memory requirements for merging.
