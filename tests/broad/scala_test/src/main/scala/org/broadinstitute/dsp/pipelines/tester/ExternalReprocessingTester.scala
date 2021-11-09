@@ -95,8 +95,8 @@ class ExternalReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
     val suffixes =
       Seq(".cram",
           ".cram.crai",
-          ".g.vcf.gz",
-          ".g.vcf.gz.tbi",
+          ".rb.g.vcf.gz",
+          ".rb.g.vcf.gz.tbi",
           ".preBqsr.selfSM")
     val files =
       suffixes.map(suffix => uriCloudPath.resolve(s"$outputBaseName$suffix"))
