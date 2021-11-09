@@ -96,8 +96,8 @@ workflow CreateOptimusAdapterMetadata {
   String workspace_version_timestamp = select_first([version_timestamp, GetVersionTimestamp.version_timestamp])
 
   # Build staging bucket
+  # When validating the staging bucket it can't end with '/'
   String staging_bucket = staging_area + project_id + "/staging/"
-  # Validation area bucket can't end with '/'
   String staging_bucket_validation = staging_area + project_id + "/staging"
 
   String project_stratum_string = "project=" + project_id + ";library=" + library + ";species=" + species + ";organ=" + organ
