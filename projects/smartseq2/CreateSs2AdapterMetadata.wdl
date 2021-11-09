@@ -94,6 +94,9 @@ workflow CreateSs2AdapterMetadata {
 
   # Build staging bucket
   String staging_bucket = staging_area + project_id + "/staging/"
+  # Validation area bucket can't end with '/'
+  String staging_bucket_validation = staging_area + project_id + "/staging"
+
   String project_stratum_string = "project=" + project_id + ";library=" + library + ";species=" + species + ";organ=" + organ
 
   call Tasks.GetCromwellMetadata {
@@ -225,7 +228,7 @@ workflow CreateSs2AdapterMetadata {
 
   call Tasks.ValidateStagingArea {
     input:
-      staging_area = staging_bucket
+      staging_area = staging_bucket_validation
   }
 
   output {
