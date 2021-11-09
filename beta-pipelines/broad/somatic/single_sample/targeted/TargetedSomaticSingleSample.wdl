@@ -37,6 +37,7 @@ workflow TargetedSomaticSingleSample {
     Boolean provide_bam_output = false
     Boolean hard_clip_reads = false
     Boolean bin_base_qualities = false
+    Boolean disable_sanity_check = false
   }
 
   # Not overridable:
