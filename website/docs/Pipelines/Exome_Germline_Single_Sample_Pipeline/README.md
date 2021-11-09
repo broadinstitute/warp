@@ -73,7 +73,7 @@ Reblocking is a process that compresses a HaplotypeCaller GVCF by merging homRef
 As of November 2021, reblocking is a default task in the Exome pipeline. To skip reblocking, add the following to the workflow's input configuration file (JSON):
 
 ```WDL
-"WholeGenomeGermlineSingleSample.BamToGvcf.skip_reblocking": true
+"ExomeGermlineSingleSample.BamToGvcf.skip_reblocking": true
 ```
 
 The [Reblocking workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl) calls the GATK ReblockGVCF tool and uses the arguments:
