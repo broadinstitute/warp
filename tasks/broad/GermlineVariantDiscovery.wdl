@@ -209,7 +209,7 @@ task Reblock {
   Int disk_size = ceil(size(gvcf, "GiB")) * 2 + 3
 
   command {
-    gatk --java-options "-Xms3g -Xmx3g" \
+    gatk --java-options "-Xms3000m -Xmx3000m" \
       ReblockGVCF \
       -R ~{ref_fasta} \
       -V ~{gvcf} \
@@ -219,7 +219,7 @@ task Reblock {
   }
 
   runtime {
-    memory: "3.75 GB"
+    memory: "3750 MB"
     disks: "local-disk " + disk_size + " HDD"
     bootDiskSizeGb: 15
     preemptible: 3
