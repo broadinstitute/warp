@@ -59,6 +59,9 @@ The reference panel files required for the Imputation workflow will soon be host
 :::tip X-chromosome not imputed
 Currently, the pipeline does not perform imputation on the X-chromosome and no reference panels are needed for the X-chromosome. Any sites identified on the X-chromosome after array analysis are merged back into the VCF after the imputation steps. 
 :::
+
+### Creating Imputation references
+
  
 ## Workflow tasks and tools
  
