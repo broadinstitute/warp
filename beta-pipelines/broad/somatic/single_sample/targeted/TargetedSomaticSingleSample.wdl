@@ -37,7 +37,6 @@ workflow TargetedSomaticSingleSample {
     Boolean provide_bam_output = false
     Boolean hard_clip_reads = false
     Boolean bin_base_qualities = false
-    Boolean disable_sanity_check = false
   }
 
   # Not overridable:
@@ -186,5 +185,9 @@ workflow TargetedSomaticSingleSample {
     File output_cram_md5 = BamToCram.output_cram_md5
 
     File validate_cram_file_report = BamToCram.validate_cram_file_report
+  }
+
+  meta {
+    allowNestedInputs: true
   }
 }
