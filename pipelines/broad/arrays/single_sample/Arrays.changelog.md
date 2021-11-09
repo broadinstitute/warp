@@ -1,3 +1,9 @@
+# 2.5.1
+2021-10-25
+
+* Make fingerprint retrieval and storage tasks use max_retries to enable recovery from transient failures
+* Modified Arrays pipeline to not read fingerprints for control samples from the Mercury Fingerprint Store.
+
 # 2.5.0
 2021-10-07
 
@@ -9,6 +15,7 @@
 * Enabled pipeline to lookup the genotype control data using an alternate method (using the arrays_control_data_path and control_sample_name)
 * Modified pipeline to NOT write fingerprints for control samples to the Mercury Fingerprint Store.
 * Change outputs of Arrays and pipeline to use python_file_naming_convention instead of CamelCase
+* Removed the volatile=true flag from UploadFingerprintToMercury
 
 # 2.4.2
 2021-09-22

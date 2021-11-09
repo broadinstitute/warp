@@ -387,7 +387,7 @@ task ValidateSamFile {
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
   Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + additional_disk
 
-  Int memory_size = ceil(7 * memory_multiplier)
+  Int memory_size = ceil(16 * memory_multiplier)
   Int java_memory_size = (memory_size - 1) * 1000
 
   command {
@@ -554,7 +554,7 @@ task CalculateReadGroupChecksum {
     Int preemptible_tries
   }
 
-  Int disk_size = ceil(size(input_bam, "GiB")) + 20
+  Int disk_size = ceil(size(input_bam, "GiB")) + 40
 
   command {
     java -Xms1000m -jar /usr/picard/picard.jar \
@@ -565,7 +565,7 @@ task CalculateReadGroupChecksum {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     preemptible: preemptible_tries
-    memory: "2 GiB"
+    memory: "4 GiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
@@ -581,11 +581,13 @@ task ValidateVCF {
     File ref_fasta
     File ref_fasta_index
     File ref_dict
-    File dbsnp_vcf
-    File dbsnp_vcf_index
+    File? dbsnp_vcf
+    File? dbsnp_vcf_index
     File calling_interval_list
-    Int preemptible_tries
+    File? calling_interval_list_index  # if the interval list is a VCF, than an index file is also required
+    Int preemptible_tries = 3
     Boolean is_gvcf = true
+    String? extra_args
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
   }
 
@@ -593,6 +595,7 @@ task ValidateVCF {
   Int disk_size = ceil(size(input_vcf, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 20
 
   command {
+    # Note that WGS needs a lot of memory to do the -L *.vcf if an interval file is not supplied
     gatk --java-options -Xms6000m \
       ValidateVariants \
       -V ~{input_vcf} \
@@ -600,7 +603,8 @@ task ValidateVCF {
       -L ~{calling_interval_list} \
       ~{true="-gvcf" false="" is_gvcf} \
       --validation-type-to-exclude ALLELES \
-      --dbsnp ~{dbsnp_vcf}
+      ~{"--dbsnp " + dbsnp_vcf} \
+      ~{extra_args}
   }
   runtime {
     docker: gatk_docker

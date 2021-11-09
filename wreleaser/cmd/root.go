@@ -31,6 +31,7 @@ Currently available pipelines:
 	- ExternalWholeGenomeReprocessing
 	- GDCWholeGenomeSomaticSingleSample
 	- IlluminaGenotypingArray
+        - Imputation
 	- JointGenotyping
         - JointGenotypingByChromosomePartOne
         - JointGenotypingByChromosomePartTwo

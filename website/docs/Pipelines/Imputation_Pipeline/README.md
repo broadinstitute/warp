@@ -35,27 +35,30 @@ For examples of how to specify each input in a configuration file, as well as cl
 | single_sample_vcfs | Array of VCFs, one for each sample; can be used in lieu of a merged VCF containing all samples. | Array of files |
 | single_sample_vcf_indices | Array of indices, one for each sample; can be used in lieu of a merged index for a multi-sample VCF. | Array of index files |
 | perform_extra_qc_steps | Boolean to indicate if additional QC steps should be performed before imputing; when true, sites with call rates below 95% or low Hardy Weinberg Equilibrium (HWE) p-value are removed before imputation. Default is set to false. | Boolean | 
-| optional_qc_max_missing | Optional float used for the additional QC steps that sets a max threshold for the maximum rate of missing data allowed for sites; default set to 0.05 | Float | 
-| optional_qc_hwe | Optional HWE p-value when performing additional QC steps; default set to 0.000001 | Float |
+| optional_qc_max_missing | Optional float used for the additional QC steps that sets a max threshold for the maximum rate of missing data allowed for sites; default set to 0.05. | Float | 
+| optional_qc_hwe | Optional HWE p-value when performing additional QC steps; default set to 0.000001. | Float |
 | ref_dict | Reference dictionary. | File |
-| referencePanelContigs | Array of structs containing reference panel files that is imported from [ImputationStructs WDL](https://github.com/broadinstitute/warp/blob/develop/structs/imputation/ImputationStructs.wdl); each input is specified in the configuration JSON. | Array of structs |
+| contigs | Array of strings defining which contigs (chromsomes) should be used for the reference panel. | Array of strings |
+| reference_panel_path | Path to the cloud storage containing the reference panel files for all contigs. | String
 | genetics_maps_eagle | Genetic map file for phasing.| File |
 | output_callset_name | Output callset name. | String |
 | split_output_to_single_sample | Boolean to split out the final combined VCF to individual sample VCFs; set to false by default. | Boolean | 
 | merge_ssvcf_mem_gb | Memory allocation for MergeSingleSampleVcfs (in GB). | Int | 
 | frac_well_imputed_threshold | Threshold for the fraction of well-imputed sites; default set to 0.9. | Float | 
 | chunks_fail_threshold | Maximum threshold for the number of chunks allowed to fail; default set to 1. | Float | 
-| bcftools_docker_tag | Cloud path to the Docker image containing bcftools software. | String |
-| bcftools_vcftools_docker_tag | Cloud path to the Docker image containing bcftools and vcftools software. | String |
-| gatk_docker_tag | Cloud path to the Docker image containing GATK software for variant selection and manipulation. | String |
-| minimac4_docker_tag | Cloud path to the Docker image containing minimac4 software for phasing. | String |
-| eagle_docker_tag | Cloud path the Docker image containing Eagle2 software for imputation. | String |
-| ubuntu_docker_tag | Cloud path to the Docker image containing Ubuntu software. | String |
-| rtidyverse_docker_tag | Cloud path to the Docker image containing R tidyverse packages. | String |
+| vcf_suffix | File extension used for the VCF in the reference panel. | String |
+| vcf_index_suffix | File extension used for the VCF index in the reference panel. | String |
+| bcf_suffix | File extension used for the BCF in the reference panel. | String |
+| bcf_index_suffix | File extension used for the BCF index in the reference panel. | String |
+| m3vcf_suffix | File extension used for the M3VCF in the reference panel. | String |
  
 ### Imputation reference panel
  
 The reference panel files required for the Imputation workflow will soon be hosted in a public Google Bucket. See the [example input configuration](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json) for the current reference panel files.
+
+:::tip X-chromosome not imputed
+Currently, the pipeline does not perform imputation on the X-chromosome and no reference panels are needed for the X-chromosome. Any sites identified on the X-chromosome after array analysis are merged back into the VCF after the imputation steps. 
+:::
  
 ## Workflow tasks and tools
  
@@ -99,9 +102,10 @@ The table below summarizes the workflow outputs. If running the workflow on Crom
 | imputed_single_sample_vcf_indices | Array of indices for the imputed VCFs from the SplitMultiSampleVcf task | Array |
 | imputed_multisample_vcf | VCF from the InterleaveVariants task; contains imputed variants as well as missing variants from the input VCF. | VCF |
 | imputed_multisample_vcf_index | Index file for VCF from the InterleaveVariants task. | Index |
-| File aggregated_imputation_metrics | Aggregated QC metrics from the MergeImputationQcMetrics task; reports the fraction of sites well-imputed and outputs to TXT file; fraction of "well-imputed" is based on the minimac reported R2 metric, with R2>0.3 being "well-imputed." Since homomorphic sites lead to an R2 value of 0, we report the fraction of sites with any variation which are well-imputed in addition to the fraction of total sites. | TXT |
+| aggregated_imputation_metrics | Aggregated QC metrics from the MergeImputationQcMetrics task; reports the fraction of sites well-imputed and outputs to TXT file; fraction of "well-imputed" is based on the minimac reported R2 metric, with R2>0.3 being "well-imputed." Since homomorphic sites lead to an R2 value of 0, we report the fraction of sites with any variation which are well-imputed in addition to the fraction of total sites. | TXT |
 | chunks_info | TSV from StoreChunksInfo task; contains the chunk intervals as well as the number of variants in the array.  | TSV |
-| failed_chunks | Number of failed chunks from the StoreChunksInfo task. | Int |
+| failed_chunks | File with the failed chunks from the StoreChunksInfo task. | File |
+| n_failed_chunks | File with the number of failed chunks from the StoreChunksInfo task. | File |
  
 ## Important notes
  
