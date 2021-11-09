@@ -34,4 +34,4 @@ The pipeline’s final outputs included metrics, validation reports, an aligned 
 
 ## Previous methods documents
 - [WholeGenomeGermlineSingleSample_v2.5.0](https://github.com/broadinstitute/warp/blob/WholeGenomeGermlineSingleSample_v2.5.0/website/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/wgs.methods.md)
-- [holeGenomeGermlineSingleSample_v2.3.7](https://github.com/broadinstitute/warp/blob/WholeGenomeGermlineSingleSample_v2.3.7/website/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/wgs.methods.md)
+- [WholeGenomeGermlineSingleSample_v2.3.7](https://github.com/broadinstitute/warp/blob/WholeGenomeGermlineSingleSample_v2.3.7/website/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/wgs.methods.md)
