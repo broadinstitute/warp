@@ -731,7 +731,6 @@ task ValidateStagingArea {
   input {
 
     String staging_area
-    Boolean ignore_dangling = true
 
     String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:wd_add_validation_script"
     Int cpu = 1
@@ -743,7 +742,7 @@ task ValidateStagingArea {
 
     validate-staging-area \
     --staging-area ~{staging_area} \
-    --ignore-dangling-inputs ~{ignore_dangling}
+    --ignore-dangling-inputs 
 
     }
 
