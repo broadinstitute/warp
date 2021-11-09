@@ -2,7 +2,7 @@ version 1.0
 
 import "Imputation.wdl" as ImputationPipeline
 
-workflow arrays_outputs_to_TDR {
+workflow imputation_outputs_to_TDR {
     meta {
         description: "Push outputs of Imputation.wdl to TDR dataset table ImputationOutputsTable."
     }
