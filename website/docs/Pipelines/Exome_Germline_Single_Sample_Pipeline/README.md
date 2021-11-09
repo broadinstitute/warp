@@ -94,12 +94,12 @@ The following summarizes how reblocking affects the WGS GVCF and downstream tool
 4. Alleles that aren’t called in the sample genotype are dropped. Each variant should have no more than two alt alleles, with the majority having just one plus <NON_REF>.
 
 5. New annotations enable merging data for filtering without using genotypes. For example:
-    * RAW_GT_COUNT(S) for doing ExcessHet calculation from a sites-only file
-    * QUALapprox and/or AS_QUALapprox for doing QUAL approximation/filling 
-    * QUAL VCF field from a combined sites-only field
-    * VarDP and/or AS_VarDP used to calculate QualByDepth/QD annotation for VQSR
+    * RAW_GT_COUNT(S) for doing ExcessHet calculation from a sites-only file.
+    * QUALapprox and/or AS_QUALapprox for doing QUAL approximation/filling. 
+    * QUAL VCF field from a combined sites-only field.
+    * VarDP and/or AS_VarDP used to calculate QualByDepth/QD annotation for VQSR.
 
-6. The MIN_DP has been removed
+6. The MIN_DP has been removed.
 
 7. Reblocked GVCFs have the following cost/scale improvements:
     * A reduced storage footprint compared with HaplotypeCaller GVCF output.
@@ -108,7 +108,7 @@ The following summarizes how reblocking affects the WGS GVCF and downstream tool
 
 Additionally, the 4 GQ band schema has specific improvements compared with the 7-band schema:
 1. It does not drop GQ0s; reblocked GVCFs should cover all the positions that the input GVCF covers.
-2. It has no overlaps; the only overlapping positions should be two variants (i.e. deletions) on separate haplotypes
+2. It has no overlaps; the only overlapping positions should be two variants (i.e. deletions) on separate haplotypes.
 3. No more no-calls; all genotypes should be called. Positions with no data will be homRef with GQ0.
 
 
