@@ -81,7 +81,7 @@ The [Reblocking workflow](https://github.com/broadinstitute/warp/blob/master/pip
 ```WDL
 -do-qual-approx -floor-blocks -GQB 20 -GQB 30 -GQB 40 
 ```
-The following summarizes how reblocking affects the WGS GVCF and downstream tools compared to the GVCF produced with HaplotypeCaller :
+The following summarizes how reblocking affects the WGS GVCF and downstream tools compared to the GVCF produced with HaplotypeCaller:
 
 
 1. Reblocked GVCFs are currently incompatible with the joint genotyping tool GenotypeGVCFs, but are compatible with GnarlyGenotyper which you can specify in the JSON configuration for the WARP JointGenotyping WDL workflow. 
