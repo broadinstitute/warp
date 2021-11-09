@@ -1,3 +1,9 @@
+# 1.0.1
+2021-11-09 (Date of Last Commit)
+* Added a step to MergeSingleSampleVcfs task to copy index files next to VCF files before running merge
+
+    * This is needed for runnning in Broad production on data stored in TDR
+
 # 1.0.0
 2021-10-14 (Date of Last Commit)
 
