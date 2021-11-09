@@ -87,7 +87,11 @@ task CountVariantsInChunks {
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
     Int cpu = 1
     Int memory_mb = 4000
+<<<<<<< HEAD
     Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB")) + 20
+=======
+    Int disk_size_gb = 100 #ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
+>>>>>>> 0549afbc (match jw branch for localizing index to same dir as vcf)
   }
   Int command_mem = memory_mb - 1000
   Int max_heap = memory_mb - 500
@@ -402,7 +406,7 @@ task MergeSingleSampleVcfs {
     Int disk_size_gb = 3 * ceil(size(input_vcfs, "GiB") + size(input_vcf_indices, "GiB")) + 20
   }
   command <<<
-    # Move the index file next to the vcf with the corresponding name
+    # Move the index file next to the vcf file with the corresponding name
 
     declare -a VCFS=(~{sep=' ' input_vcfs})
     declare -a VCF_INDICES=(~{sep=' ' input_vcf_indices})
