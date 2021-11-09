@@ -26,6 +26,6 @@ The final base-recalibrated BAM was converted to CRAM using Samtools view and va
 
 ### Variant Calling
 
-Prior to variant calling, the variant calling interval list was split to enable parallelization. Variant calling was performed using GATK HaplotypeCaller with the annotation parameters -G StandardAnnotation -G StandardHCAnnotation and -G AS_StandardAnnotation. Reference block genotype quality (GQ) bands were set using  -GQB 10 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 -GQB 70 -GQB 80 -GQB 90. The resulting GVCFs were merged using Picard MergeVcfs and reblocked using GATK ReblockGVCF. The final VCF file was validated using GATK ValidateVariants. Variant metrics were calculated using Picard CollectVariantCallingMetrics.
+Prior to variant calling, the variant calling interval list was split to enable parallelization. Variant calling was performed using GATK HaplotypeCaller with the annotation parameters -G StandardAnnotation -G StandardHCAnnotation and -G AS_StandardAnnotation. Reference block genotype quality (GQ) bands were set using  -GQB 10 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 -GQB 70 -GQB 80 -GQB 90. The resulting GVCFs were merged using Picard MergeVcfs and reblocked using GATK ReblockGVCF with -GQB 20 -GQB 30 -GQB 40. The final VCF file was validated using GATK ValidateVariants. Variant metrics were calculated using Picard CollectVariantCallingMetrics.
 
 The pipeline’s final outputs included metrics, the ValidateSamFile validation reports, an aligned CRAM with index, and a reblocked GVCF containing variant calls with an accompanying index.
