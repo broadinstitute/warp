@@ -1,3 +1,8 @@
+# 1.4.2
+2021-11-01
+
+Task wdls used by JointGenotypingByChromosomePartOne were updated with changes that don't affect JointGenotypingByChromosomePartOne wdl
+
 # 1.4.1
 2020-12-16
 

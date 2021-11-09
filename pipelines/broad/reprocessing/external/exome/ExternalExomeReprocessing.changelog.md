@@ -1,6 +1,8 @@
-# 2.6.1
-2021-11-04
+# 3.0.0
+2021-11-09 
 
+* Added an optional step to reblock gVCFs, this step is included by default
+    * The ExternalExomeReprocessing pipeline now outputs reblocked gVCFs by default. To skip reblocking, add '"ExternalExomeReprocessing.ExomeReprocessing.ExomeGermlineSingleSample.BamToGvcf.make_gvcf": false' to the inputs
 * Adding WGS plumbing tests for dragen_maximum_quality_mode and dragen_functional_equivalence_mode
 * Moved Dragmap docker to WARP and updated to follow repo's best practices
 
