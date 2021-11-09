@@ -581,11 +581,13 @@ task ValidateVCF {
     File ref_fasta
     File ref_fasta_index
     File ref_dict
-    File dbsnp_vcf
-    File dbsnp_vcf_index
+    File? dbsnp_vcf
+    File? dbsnp_vcf_index
     File calling_interval_list
-    Int preemptible_tries
+    File? calling_interval_list_index  # if the interval list is a VCF, than an index file is also required
+    Int preemptible_tries = 3
     Boolean is_gvcf = true
+    String? extra_args
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
   }
 
@@ -593,6 +595,7 @@ task ValidateVCF {
   Int disk_size = ceil(size(input_vcf, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 20
 
   command {
+    # Note that WGS needs a lot of memory to do the -L *.vcf if an interval file is not supplied
     gatk --java-options -Xms6000m \
       ValidateVariants \
       -V ~{input_vcf} \
@@ -600,7 +603,8 @@ task ValidateVCF {
       -L ~{calling_interval_list} \
       ~{true="-gvcf" false="" is_gvcf} \
       --validation-type-to-exclude ALLELES \
-      --dbsnp ~{dbsnp_vcf}
+      ~{"--dbsnp " + dbsnp_vcf} \
+      ~{extra_args}
   }
   runtime {
     docker: gatk_docker
