@@ -1,8 +1,9 @@
 # 2.0.0
-2021-10-06 
+2021-10-09
 
 * Added an optional step to reblock gVCFs, this step is included by default
     * The ExternalWholeGenomeReprocessing pipeline now outputs reblocked gVCFs by default. To skip reblocking, add '"ExternalWholeGenomeReprocessing.WholeGenomeReprocessing.WholeGenomeGermlineSingleSample.BamToGvcf.skip_reblocking": true' to the inputs
+* Adding WGS plumbing tests for dragen_maximum_quality_mode and dragen_functional_equivalence_mode
 
 # 1.5.0
 2021-10-18

@@ -18,8 +18,4 @@ class GermlineSingleSampleInputs(inputs: String) {
 
   def getBaseFileName(workflowName: String): String =
     sampleAndUnmappedBams(workflowName).unsafeGet[String]("base_file_name")
-
-  def getFinalGvcfBaseName(workflowName: String): String =
-    sampleAndUnmappedBams(workflowName)
-      .unsafeGet[String]("final_gvcf_base_name")
 }
