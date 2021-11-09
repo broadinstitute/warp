@@ -8,7 +8,7 @@ import "../../../../../tasks/broad/DragenTasks.wdl" as DragenTasks
 
 workflow VariantCalling {
 
-  String pipeline_version = "1.2.1"
+  String pipeline_version = "2.0.0"
 
   input {
     Boolean run_dragen_mode_variant_calling = false
@@ -32,6 +32,7 @@ workflow VariantCalling {
     Boolean make_gvcf = true
     Boolean make_bamout = false
     Boolean use_gatk3_haplotype_caller = false
+    Boolean skip_reblocking = false
     Boolean use_dragen_hard_filtering = false
   }
 
@@ -107,8 +108,8 @@ workflow VariantCalling {
           use_spanning_event_genotyping = use_spanning_event_genotyping,
           dragstr_model = DragstrAutoCalibration.dragstr_model,
           preemptible_tries = agg_preemptible_tries
-      }
-      
+       }
+
       if (use_dragen_hard_filtering) {
         call Calling.DragenHardFilterVcf as DragenHardFilterVcf {
           input:
@@ -147,6 +148,18 @@ workflow VariantCalling {
       preemptible_tries = agg_preemptible_tries
   }
 
+  if (make_gvcf && !skip_reblocking) {
+    call Calling.Reblock as Reblock {
+      input:
+        gvcf = MergeVCFs.output_vcf,
+        gvcf_index = MergeVCFs.output_vcf_index,
+        ref_fasta = ref_fasta,
+        ref_fasta_index = ref_fasta_index,
+        ref_dict = ref_dict,
+        output_vcf_filename = basename(MergeVCFs.output_vcf, ".g.vcf.gz") + ".rb.g.vcf.gz"
+    }
+  }
+
   if (make_bamout) {
     call MergeBamouts {
       input:
@@ -158,8 +171,8 @@ workflow VariantCalling {
   # Validate the (g)VCF output of HaplotypeCaller
   call QC.ValidateVCF as ValidateVCF {
     input:
-      input_vcf = MergeVCFs.output_vcf,
-      input_vcf_index = MergeVCFs.output_vcf_index,
+      input_vcf = select_first([Reblock.output_vcf, MergeVCFs.output_vcf]),
+      input_vcf_index = select_first([Reblock.output_vcf_index, MergeVCFs.output_vcf_index]),
       dbsnp_vcf = dbsnp_vcf,
       dbsnp_vcf_index = dbsnp_vcf_index,
       ref_fasta = ref_fasta,
@@ -167,14 +180,16 @@ workflow VariantCalling {
       ref_dict = ref_dict,
       calling_interval_list = calling_interval_list,
       is_gvcf = make_gvcf,
+      extra_args = "--no-overlaps",
+      gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.2.0",
       preemptible_tries = agg_preemptible_tries
   }
 
   # QC the (g)VCF
   call QC.CollectVariantCallingMetrics as CollectVariantCallingMetrics {
     input:
-      input_vcf = MergeVCFs.output_vcf,
-      input_vcf_index = MergeVCFs.output_vcf_index,
+      input_vcf = select_first([Reblock.output_vcf, MergeVCFs.output_vcf]),
+      input_vcf_index = select_first([Reblock.output_vcf_index, MergeVCFs.output_vcf_index]),
       metrics_basename = final_vcf_base_name,
       dbsnp_vcf = dbsnp_vcf,
       dbsnp_vcf_index = dbsnp_vcf_index,
@@ -187,8 +202,8 @@ workflow VariantCalling {
   output {
     File vcf_summary_metrics = CollectVariantCallingMetrics.summary_metrics
     File vcf_detail_metrics = CollectVariantCallingMetrics.detail_metrics
-    File output_vcf = MergeVCFs.output_vcf
-    File output_vcf_index = MergeVCFs.output_vcf_index
+    File output_vcf = select_first([Reblock.output_vcf, MergeVCFs.output_vcf])
+    File output_vcf_index = select_first([Reblock.output_vcf_index, MergeVCFs.output_vcf_index])
     File? bamout = MergeBamouts.output_bam
     File? bamout_index = MergeBamouts.output_bam_index
   }

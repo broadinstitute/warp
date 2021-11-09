@@ -18,8 +18,8 @@ workflow VerifyMetrics {
     call CompareMetricFiles {
       input:
         dependency_input = CompareNumberOfMetricFiles.output_file,
-        file1 = test_metrics[idx],
-        file2 = truth_metrics[idx],
+        file1 = truth_metrics[idx],
+        file2 = test_metrics[idx],
         output_file = "metric_~{idx}.txt",
         metrics_to_ignore = []
     }
