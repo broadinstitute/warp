@@ -83,7 +83,7 @@ task CountVariantsInChunks {
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
     Int cpu = 1
     Int memory_mb = 4000
-    Int disk_size_gb = 100 #ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
+    Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB")) + 20
   }
   command <<<
     echo $(gatk CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
