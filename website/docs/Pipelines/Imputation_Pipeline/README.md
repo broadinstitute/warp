@@ -6,10 +6,10 @@ sidebar_position: 1
  
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Imputation_v1.0.0](https://github.com/broadinstitute/warp/releases) | August, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [Imputation_v1.0.0](https://github.com/broadinstitute/warp/releases?q=Imputation_v1.0.0&expanded=true) | August, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
  
 ## Introduction to the Imputation pipeline
-The Imputation pipeline imputes missing genotypes from either a multi-sample VCF or an array of single sample VCFs using a large genomic reference panel. It is based on the Michigan Imputation Server pipeline. Overall, the pipeline filters, phases, and performs imputation on a multi-sample VCF. It outputs the imputed VCF along with key imputation metrics.
+The Imputation pipeline imputes missing genotypes from either a multi-sample VCF or an array of single sample VCFs using a large genomic reference panel. It is based on the [Michigan Imputation Server pipeline](https://imputationserver.readthedocs.io/en/latest/pipeline/). Overall, the pipeline filters, phases, and performs imputation on a multi-sample VCF. It outputs the imputed VCF along with key imputation metrics.
  
 ![](imputation.png)
 ## Set-up
@@ -60,7 +60,16 @@ The reference panel files required for the Imputation workflow will soon be host
 Currently, the pipeline does not perform imputation on the X-chromosome and no reference panels are needed for the X-chromosome. Any sites identified on the X-chromosome after array analysis are merged back into the VCF after the imputation steps. 
 :::
 
-### Creating Imputation references
+### Generation of the modified 10000 Genomes reference
+Initial tests of the Imputation and Polygenic Risk Score pipelines revealed that disease risk scores were lower when computed from imputed array data as opposed to whole-genome sequencing data, possibly because of incorrectly genotyped sites in the 1000 Genomes (1000G) reference. As a result, the 1000G reference file was modified for the Imputation pipeline. To remove these candidate "bad" sites, allele frequencies were compared between the 1000G and GnomadV2 references. 
+
+First, the CBuildAFComparisonTable workflow created a table of the allele frequencies for both references. Then, the FilterAFComparisonTable workflow compared the observed number of alleles in 1000G to the expected number of alleles set by the GnomadV2 reference using a two-sided binomial p-value. If both p-values are less than 1e-10, then the site is flagged as "bad." The "bad" sites are removed with the RemoveBadSitesById workflow.
+
+The modified reference is available in a public Google bucket: 
+Each of the workflows are available in a public Terra workspace:
+
+For questions regarding reference generation, email [Chris Kachullis](mailto:). 
+
 
  
 ## Workflow tasks and tools
