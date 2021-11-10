@@ -186,4 +186,8 @@ workflow TargetedSomaticSingleSample {
 
     File validate_cram_file_report = BamToCram.validate_cram_file_report
   }
+
+  meta {
+    allowNestedInputs: true
+  }
 }
