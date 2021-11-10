@@ -64,19 +64,22 @@ def create_output_files(input_file, output_prefix):
     r2_fastq_document_id_array = []
     i1_fastq_document_id_array = []
 
+    # Check that the value in the column is not NaN before appending to space seperated string
+    # Terra will render the value as NaN if there is no value for that fastq
+    # Conversion from pd dataframe infers NaN as a float
     for i in range(r1_fastq_document_id.shape[0]):
         r1_values = r1_fastq_document_id.iloc[i].values
         r2_values = r2_fastq_document_id.iloc[i].values
         i1_values = i1_fastq_document_id.iloc[i].values
 
         r1_fastq_document_id_array.append(
-            " ".join([value for value in r1_values if not math.isnan(value)])
+            " ".join([value for value in r1_values if type(value) != float])
         )
         r2_fastq_document_id_array.append(
-            " ".join([value for value in r2_values if not math.isnan(value)])
+            " ".join([value for value in r2_values if type(value) != float])
         )
         i1_fastq_document_id_array.append(
-            " ".join([value for value in i1_values if not math.isnan(value)])
+            " ".join([value for value in i1_values if type(value) != float])
         )
 
     # TBD: move this to a function and call on each row of df change. Note: change index 0 to get other participants
