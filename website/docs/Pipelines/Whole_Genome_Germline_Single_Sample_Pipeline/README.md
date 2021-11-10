@@ -307,7 +307,7 @@ The table below describes the final workflow outputs. If running the workflow on
 | output_vcf_index | Index for the final GVCF. | File |
  
 ### Reblocking
-Reblocking is a process that compresses a HaplotypeCaller GVCF by merging homRef blocks according to new genotype quality (GQ) bands. 
+Reblocking is a process that compresses a HaplotypeCaller GVCF by merging homRef blocks according to new genotype quality (GQ) bands and facilitates joint genotyping by removing alt alleles that do not appear in the called genotype. 
 
 As of November 2021, reblocking is a default task in the WGS pipeline. To skip reblocking, add the following to the workflow's input configuration file (JSON):
 
@@ -315,18 +315,18 @@ As of November 2021, reblocking is a default task in the WGS pipeline. To skip r
 "WholeGenomeGermlineSingleSample.BamToGvcf.skip_reblocking": true
 ```
 
-The [Reblocking workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl) calls the GATK ReblockGVCF tool and uses the arguments:
+The [Reblocking task](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/GermlineVariantDiscovery.wdl) uses the GATK ReblockGVCF tool with the arguments:
 
 ```WDL
 -do-qual-approx -floor-blocks -GQB 20 -GQB 30 -GQB 40 
 ```
-The following summarizes how reblocking affects the WGS GVCF and downstream tools compared to the GVCF produced with HaplotypeCaller:
+The following summarizes how reblocking affects the WGS GVCF and downstream tools compared to the GVCF produced with the default HaplotypeCaller GQ bands:
 
 1. PLs are omitted for homozygous reference sites to save space– GQs are output for genotypes, PLs can be approximated as [0, GQ, 2\*GQ].
 
-2. GQ resolution for homozygous reference genotypes is reduced (i.e. homRef GQs will be underconfident) which may affect analyses like de novo calling where confident reference genotypes are important.
+2. GQ resolution for homozygous reference genotypes is reduced (i.e. homRef GQs will be underconfident) which may affect analyses like de novo calling where well-calibrated reference genotype qualities are important.
 
-3. Alleles that aren’t called in the sample genotype are dropped. Each variant should have no more than two alt alleles, with the majority having just one plus <NON_REF>.
+3. Alleles that aren’t called in the sample genotype are dropped. Each variant should have no more than two non-symbolic alt alleles, with the majority having just one plus <NON_REF>.
 
 4. New annotations enable merging data for filtering without using genotypes. For example:
     * RAW_GT_COUNT(S) for doing ExcessHet calculation from a sites-only file.
