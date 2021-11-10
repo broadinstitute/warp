@@ -219,7 +219,7 @@ task Reblock {
   }
 
   runtime {
-    memory: "3750 MB"
+    memory: "3750 MiB"
     disks: "local-disk " + disk_size + " HDD"
     bootDiskSizeGb: 15
     preemptible: 3

@@ -46,8 +46,9 @@ task CalibrateDragstrModel {
   
   # If the input is a CRAM we need an additional 500MB of memory per thread
   Int recommended_memory_mb = ceil(2000 + (if (is_cram) then 500 else 100) * java_threads)
-  Int runtime_memory_mb = select_first([memory_mb, recommended_memory_mb])
-  Int java_memory_mb = if (runtime_memory_mb < 2000) then 1000 else runtime_memory_mb - 1000 # TODO: what if 1000 > runtime_memory_mb??  &&  Do we need Xms as well as Xmx??
+  Int selected_memory_mb = select_first([memory_mb, recommended_memory_mb])
+  Int runtime_memory_mb = if (selected_memory_mb < 1500) then 1500 else selected_memory_mb
+  Int java_memory_mb = if (runtime_memory_mb < 2000) then 1000 else runtime_memory_mb - 1000
 
   command <<<
     set -x

@@ -68,7 +68,7 @@ task CalculateSomaticContamination {
     runtime {
         docker: gatk_docker
         bootDiskSizeGb: 12
-        memory: memory_mb + " MB"
+        memory: memory_mb + " MiB"
         maxRetries: select_first([max_retries, 2])
         disks: "local-disk " + disk_size + " HDD"
         preemptible: select_first([preemptible_attempts, 3])

@@ -487,7 +487,7 @@ task CreateUnmappedBam {
     # disks should be set to 2.25 * input file size
     disks: "local-disk " + ceil(2.25 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
-    memory: "3500 MB"
+    memory: "3500 MiB"
   }
 
   output {
@@ -693,7 +693,7 @@ task AttachBarcodes {
     # disks should be set to 2 * input file size
     disks: "local-disk " + ceil(2 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
-    memory: "3500 MB"
+    memory: "3500 MiB"
   }
 
   output {
@@ -788,7 +788,7 @@ task Sort {
     # disks should be set to 3.25 * input file size
     disks: "local-disk " + ceil(3.25 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
-    memory: "3500 MB"
+    memory: "3500 MiB"
   }
 
   output {
@@ -837,7 +837,7 @@ task FilterDuplicates {
      # disks should be set to 2 * input file size
      disks: "local-disk " + ceil(2 * (if input_size < 1 then 1 else input_size)) + " HDD"
      cpu: 1
-     memory: "3500 MB"
+     memory: "3500 MiB"
   }
 
   output {
@@ -1013,7 +1013,7 @@ task AddReadGroup {
     # disks should be set to 2 * input file size
     disks: "local-disk " + ceil(2 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
-    memory: "3500 MB"
+    memory: "3500 MiB"
   }
 
   output {
@@ -1067,7 +1067,7 @@ task MethylationTypeCaller {
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     disks: "local-disk " + ceil(4.5 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
-    memory: "3500 MB"
+    memory: "3500 MiB"
   }
 
   output {
