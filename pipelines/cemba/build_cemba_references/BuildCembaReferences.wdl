@@ -5,6 +5,8 @@ workflow BuildCembaReferences {
     File reference_fasta
     File? monitoring_script
   }
+  # version of this pipeline
+  String pipeline_version = "1.0.0"
 
   # prepare reference fasta for building indexes with bowtie2
   call BuildBisulfiteReferences as Convert {
