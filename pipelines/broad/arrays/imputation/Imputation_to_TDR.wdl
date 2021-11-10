@@ -87,13 +87,14 @@ task format_imputation_outputs {
     command <<<
         echo -e "aggregated_imputation_metrics\tchunks_info\tfailed_chunks\tn_failed_chunks\t\
         imputed_multisample_vcf\timputed_multisample_vcf_index\t\
-        imputed_single_sample_vcfs\timputed_single_sample_vcf_indices" \
+        imputed_single_sample_vcf\timputed_single_sample_vcf_index" \
         > ingestDataset_imputation_outputs.tsv
 
         echo -e "~{aggregated_imputation_metrics}\t~{chunks_info}\t~{failed_chunks}\t~{n_failed_chunks}\t\
         ~{imputed_multisample_vcf}\t~{imputed_multisample_vcf_index}\t\
-        [~{sep="," imputed_single_sample_vcfs}]\t[~{sep="," imputed_single_sample_vcf_indices}]" \
+        ['"'~{sep='","' imputed_single_sample_vcfs}'"']\t['"'~{sep='","' imputed_single_sample_vcf_indices}'"']" \
         >> ingestDataset_imputation_outputs.tsv
+
 
         python3 << CODE
         import pandas as pd
