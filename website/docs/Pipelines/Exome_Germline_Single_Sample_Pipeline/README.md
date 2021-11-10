@@ -63,7 +63,7 @@ Check out the workflow [Methods](./exome.methods.md) to get started!
 ## Workflow Outputs
 
 - CRAM, CRAM index, and CRAM MD5
-- [Reblocked](https://gatk.broadinstitute.org/hc/en-us/articles/360037593171) GVCF and its GVCF index
+- [Reblocked](https://gatk.broadinstitute.org/hc/en-us/articles/360037593171) GVCF and its GVCF index (read more in the [Reblocking](#reblocking) section below)
 - BQSR report
 - Summary metrics; to read more about any particular metric, you can search the metric using the [GATK documentation search](https://gatk.broadinstitute.org/hc/en-us/categories/360002302312)
 
