@@ -101,17 +101,19 @@ task format_imputation_outputs {
         OPEN_BRACKET='"'
         CLOSE_BRACKET='"'
 
+        IMPUTED_VCFS="~{sep='","' imputed_single_sample_vcfs}"
+
         echo -e "aggregated_imputation_metrics\tchunks_info\tfailed_chunks\tn_failed_chunks\t\
         imputed_multisample_vcf\timputed_multisample_vcf_index\t\
         imputed_single_sample_vcf\timputed_single_sample_vcf_index" \
         > ingestDataset_imputation_outputs.tsv
 
-        echo -e "[${OPEN_BRACKET}~{sep='","' imputed_single_sample_vcfs}${CLOSE_BRACKET}]"
+        echo -e "[${OPEN_BRACKET}${IMPUTED_VCFS}${CLOSE_BRACKET}]"
 
-        echo -e "~{aggregated_imputation_metrics}\t~{chunks_info}\t~{failed_chunks}\t~{n_failed_chunks}\t\
-        ~{imputed_multisample_vcf}\t~{imputed_multisample_vcf_index}\t\
-        [\"~{sep='", "' imputed_single_sample_vcfs}\"]\t\
-        [\"~{sep='", "' imputed_single_sample_vcf_indices}\"]"
+        # echo -e "~{aggregated_imputation_metrics}\t~{chunks_info}\t~{failed_chunks}\t~{n_failed_chunks}\t\
+        # ~{imputed_multisample_vcf}\t~{imputed_multisample_vcf_index}\t\
+        # [\"~{sep='", "' imputed_single_sample_vcfs}\"]\t\
+        # [\"~{sep='", "' imputed_single_sample_vcf_indices}\"]"
         # \
         # >> ingestDataset_imputation_outputs.tsv
 
