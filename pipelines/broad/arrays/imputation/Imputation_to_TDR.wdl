@@ -54,8 +54,8 @@ workflow imputation_outputs_to_TDR {
         input:
             imputed_single_sample_vcfs          = single_sample_vcfs,
             imputed_single_sample_vcf_indices   = single_sample_vcf_indices,
-            imputed_multisample_vcf             = single_sample_vcfs,
-            imputed_multisample_vcf_index       = single_sample_vcf_indices,
+            imputed_multisample_vcf             = genetic_maps_eagle,
+            imputed_multisample_vcf_index       = genetic_maps_eagle,
             aggregated_imputation_metrics       = genetic_maps_eagle,
             chunks_info                         = genetic_maps_eagle,
             failed_chunks                       = genetic_maps_eagle,
