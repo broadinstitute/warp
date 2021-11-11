@@ -84,8 +84,7 @@ task format_imputation_outputs {
         String          n_failed_chunks
     }
 
-    String          open_quote = '"'
-    String          close_quote = '"'
+    String          double_quote = '"'
 
     command <<<
 
@@ -96,8 +95,8 @@ task format_imputation_outputs {
 
         echo -e "~{aggregated_imputation_metrics}\t~{chunks_info}\t~{failed_chunks}\t~{n_failed_chunks}\t\
         ~{imputed_multisample_vcf}\t~{imputed_multisample_vcf_index}\t\
-        [~{open_quote}~{sep='", "' imputed_single_sample_vcfs}~{close_quote}]\t\
-        [~{open_quote}~{sep='", "' imputed_single_sample_vcf_indices}~{close_quote}]" \
+        [~{double_quote}~{sep='", "' imputed_single_sample_vcfs}~{double_quote}]\t\
+        [~{double_quote}~{sep='", "' imputed_single_sample_vcf_indices}~{double_quote}]" \
         >> ingestDataset_imputation_outputs.tsv
 
 
