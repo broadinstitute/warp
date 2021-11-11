@@ -104,7 +104,7 @@ task format_imputation_outputs {
         IMPUTED_VCFS="~{sep='\", \"' imputed_single_sample_vcfs}"
         echo -e "IMPUTED_VCFS\t${IMPUTED_VCFS}"
 
-        echo -e "~{sep="," imputed_single_sample_vcfs}"
+        echo -e "~{sep='","' imputed_single_sample_vcfs}"
 
         echo -e "[${OPEN_BRACKET}${IMPUTED_VCFS}${CLOSE_BRACKET}]"
 
