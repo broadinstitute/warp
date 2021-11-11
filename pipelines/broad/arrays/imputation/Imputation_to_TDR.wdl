@@ -85,8 +85,8 @@ task format_imputation_outputs {
     }
 
     command <<<
-        open_bracket='["'
-        close_bracket='"]'
+        open_quote='"'
+        close_quote='"'
 
         echo -e "aggregated_imputation_metrics\tchunks_info\tfailed_chunks\tn_failed_chunks\t\
         imputed_multisample_vcf\timputed_multisample_vcf_index\t\
@@ -95,8 +95,8 @@ task format_imputation_outputs {
 
         echo -e "~{aggregated_imputation_metrics}\t~{chunks_info}\t~{failed_chunks}\t~{n_failed_chunks}\t\
         ~{imputed_multisample_vcf}\t~{imputed_multisample_vcf_index}\t\
-        ${open_bracket}~{sep='", "' imputed_single_sample_vcfs}${close_bracket}\t\
-        ${open_bracket}~{sep='", "' imputed_single_sample_vcf_indices}${close_bracket}" \
+        [${open_quote}~{sep='", "' imputed_single_sample_vcfs}${close_quote}]\t\
+        [${open_quote}~{sep='", "' imputed_single_sample_vcf_indices}${close_quote}]" \
         >> ingestDataset_imputation_outputs.tsv
 
 
