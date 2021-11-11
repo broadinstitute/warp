@@ -102,7 +102,7 @@ task format_imputation_outputs {
         CLOSE_BRACKET='"'
         SEP='", "'
 
-        IMPUTED_VCFS="~{sep="$SEP" imputed_single_sample_vcfs}"
+        IMPUTED_VCFS="~{sep='","' imputed_single_sample_vcfs}"
         echo -e "IMPUTED_VCFS\t${IMPUTED_VCFS}"
 
         echo -e "aggregated_imputation_metrics\tchunks_info\tfailed_chunks\tn_failed_chunks\t\
