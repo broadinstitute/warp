@@ -90,8 +90,10 @@ task format_imputation_outputs {
         String          failed_chunks
         String          imputed_multisample_vcf
         String          imputed_multisample_vcf_index
-        Array[String]?  imputed_single_sample_vcfs
-        Array[String]?  imputed_single_sample_vcf_indices
+        # Array[String]?  imputed_single_sample_vcfs
+        # Array[String]?  imputed_single_sample_vcf_indices
+        Array[String]  imputed_single_sample_vcfs
+        Array[String]  imputed_single_sample_vcf_indices
         String          n_failed_chunks
     }
 
