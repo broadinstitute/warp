@@ -102,21 +102,18 @@ task format_imputation_outputs {
         IMPUTED_VCFS="~{sep='", "' imputed_single_sample_vcfs}"
         echo -e "IMPUTED_VCFS\t${IMPUTED_VCFS}"
         
-        echo "1"
-        echo -e "~{sep='"",""' imputed_single_sample_vcfs}"
+        # echo "1"
+        # echo -e "~{sep='"",""' imputed_single_sample_vcfs}"
 
         echo "3"
-        TEST1=~{sep="\",\"" imputed_single_sample_vcfs}
+        TEST1=~{sep='","' imputed_single_sample_vcfs}
         echo $TEST1
         echo "[\"$TEST1\"]"
 
-        echo "4"
-        echo -e "~{sep='\",\"' imputed_single_sample_vcfs}"
+        # echo "4"
+        # echo -e "~{sep='\",\"' imputed_single_sample_vcfs}"
 
-        echo "5"
-        echo -e "[${OPEN_BRACKET}${IMPUTED_VCFS}${CLOSE_BRACKET}]"
-
-        echo -e "['"'~{sep='","' imputed_single_sample_vcfs}'"']"
+        echo -e "[\"~{sep='","' imputed_single_sample_vcfs}\"]"
 
         echo -e "aggregated_imputation_metrics\tchunks_info\tfailed_chunks\tn_failed_chunks\t\
         imputed_multisample_vcf\timputed_multisample_vcf_index\t\
