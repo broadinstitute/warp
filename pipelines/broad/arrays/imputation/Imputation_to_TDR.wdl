@@ -115,7 +115,7 @@ task format_imputation_outputs {
         echo "[\"${vcfs_string}\"]"
 
         echo "5"
-        echo -e "[""~{sep='","' imputed_single_sample_vcfs}""]"
+        echo -e "["\"'~{sep='","' imputed_single_sample_vcfs}'""]"
 
         echo "6"
         echo -e "[\"~{sep="\",\"" imputed_single_sample_vcfs}\"]"
