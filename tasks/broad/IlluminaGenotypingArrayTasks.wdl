@@ -101,7 +101,7 @@ task GtcToVcf {
     File ref_dict
 
     # Set memory to n1-standard-2 or n1-highmem-2
-    Int memory_mb = if size(extended_chip_manifest_file, "MiB") > 800 then 1300 else 7500
+    Int memory_mb = if size(extended_chip_manifest_file, "MiB") > 800 then 13000 else 7500
     Int disk_size
     Int preemptible_tries
 
