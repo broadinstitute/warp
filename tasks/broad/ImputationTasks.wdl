@@ -382,7 +382,7 @@ task MergeSingleSampleVcfs {
     Int disk_size_gb = 3 * ceil(size(input_vcfs, "GiB") + size(input_vcf_indices, "GiB")) + 20
   }
   command <<<
-    # Move the index file next to the vcf file with the corresponding name
+    # Move the index file next to the vcf with the corresponding name
 
     declare -a VCFS=(~{sep=' ' input_vcfs})
     declare -a VCF_INDICES=(~{sep=' ' input_vcf_indices})
