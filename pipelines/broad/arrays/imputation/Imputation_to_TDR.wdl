@@ -120,13 +120,14 @@ task format_imputation_outputs {
         echo -e "[""'~{sep='","' imputed_single_sample_vcfs}'""]"
 
         echo "6"
-        echo -e "[\"~{sep='","' imputed_single_sample_vcfs}\"]"
+        echo -e "[~{sep='","' imputed_single_sample_vcfs}]"
 
         echo "7" 
         echo -e "${open_bracket}"~{sep='","' imputed_single_sample_vcfs}"${close_bracket}"
 
         echo "8" 
-        echo -e "${open_bracket}'~{sep='","' imputed_single_sample_vcfs}'${close_bracket}"
+        echo -e "['"'~{sep='","' imputed_single_sample_vcfs}'"']"
+
         # echo "3"
         # echo -e "[\"~{sep='","' imputed_single_sample_vcfs}\"]"
 
