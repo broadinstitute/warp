@@ -101,11 +101,19 @@ task format_imputation_outputs {
         OPEN_BRACKET='"'
         CLOSE_BRACKET='"'
 
-        IMPUTED_VCFS="~{sep='\", \"' imputed_single_sample_vcfs}"
+        IMPUTED_VCFS="~{sep='", "' imputed_single_sample_vcfs}"
         echo -e "IMPUTED_VCFS\t${IMPUTED_VCFS}"
-
+        
+        echo "1"
         echo -e "~{sep='","' imputed_single_sample_vcfs}"
 
+        echo "2"
+        echo -e "~{sep='\",\"' imputed_single_sample_vcfs}"
+
+        echo "3"
+        echo -e '[${OPEN_BRACKET}${IMPUTED_VCFS}${CLOSE_BRACKET}]'
+
+        echo "4"
         echo -e "[${OPEN_BRACKET}${IMPUTED_VCFS}${CLOSE_BRACKET}]"
 
         echo -e "aggregated_imputation_metrics\tchunks_info\tfailed_chunks\tn_failed_chunks\t\
