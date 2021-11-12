@@ -1,5 +1,5 @@
-# 2.5.2
-2021-11-09
+# 2.6.0
+2021-11-12
 
 * Updated to Picard 2.26.4
     * Changed GtcToVcf to account for zeroed-out SNPs in the calculation of GTC Call Rate. Previously the GTC Call Rate (which is stored in the VCF header) had been copied directly from the Illumina GTC File. However Illumina's calculation of the GTC Call Rate does not account for (ignore) zeroed-out SNPs, so we recalculate the GTC Call Rate, ignoring zeroed-out SNPs and use this.
