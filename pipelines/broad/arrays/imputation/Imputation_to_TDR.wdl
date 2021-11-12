@@ -125,10 +125,11 @@ task format_imputation_outputs {
         echo "7" 
         echo -e "${open_bracket}~{sep='","' imputed_single_sample_vcfs}${close_bracket}"
 
-        echo "8" 
+        echo "8"
         echo -e "['"'~{sep='","' imputed_single_sample_vcfs}'"']"
 
-        orig="['"'~{sep='","' imputed_single_sample_vcfs}'"']"
+        echo "9"
+        orig=$(echo -e "['"'~{sep='","' imputed_single_sample_vcfs}'"']")
         echo "sed"
         sed "s/'/\"/g" "$orig"
         echo "tr"
