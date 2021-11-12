@@ -1,6 +1,6 @@
 # Arrays Pipeline
 
-This document describes version 2.3.5 of the Arrays Pipeline. The Arrays Pipeline is used internally within the Broad Institute.  It is written in WDL and designed to work on the Cromwell execution engine using Google Cloud Services and Google Cloud Storage as its backend and storage.  
+This document describes version 2.5.2 of the Arrays Pipeline. The Arrays Pipeline is used internally within the Broad Institute.  It is written in WDL and designed to work on the Cromwell execution engine using Google Cloud Services and Google Cloud Storage as its backend and storage.  
 
 The Arrays Pipeline is designed to process Illumina genotyping data (in the form of IDATs) with metadata about the genotyping chip, the sample being processed, and reference information. The pipeline generates several outputs, including an extensively annotated VCF and associated metrics.  The Arrays Pipeline differs from the ‘Illumina Genotyping Array Pipeline’ in that the former calls the latter to do primary analysis, and then uploads the metrics from these analyses to several tables in a cloud database.
 
@@ -12,7 +12,7 @@ The Arrays Pipeline takes the inputs described below. Inputs are grouped by func
 
 *   **Sample-specific**
     *   chip_well_barcode. The unique identifier of the section of the chip on which the sample was run on. This is the concatenation of the chip barcode and the coordinates of the sample on the chip. Example: 7991775143_R01C01
-    *   analysis_version. A numeric value that is used to track the number of times the pipeline has been run on this chip_well_barcode.
+    *   analysis_version_number. A numeric value that is used to track the number of times the pipeline has been run on this chip_well_barcode.
     *   sample_alias. The name of the sample that was run on the chip segment specified in the chip well barcode above.
     *   sample_lsid.  The lsid of the sample in BSP.  This is used for generating the JSON file of fingerprint genotypes that is to be uploaded to Mercury.
     *   reported_gender. The reported sex/gender of the sample.
@@ -33,7 +33,7 @@ The Arrays Pipeline takes the inputs described below. Inputs are grouped by func
         *   product_name [Optional]. The product name, as specified by the Mercury LIMS.
         *   product_order_id [Optional]. The product order ID, as specified by the Mercury LIMS.
         *   product_part_number [Optional]. The product part number, as specified by the Mercury LIMS.
-        *   product_type [Optional]. The product type, as specified by the Mercury LIMS.
+        *   product_type. The product type, as specified by the Mercury LIMS.
         *   regulatory_designation. The regulatory designation, as specified by the Mercury LIMS.
         *   research_project_id. The research project ID, as specified by the Mercury LIMS.
     
@@ -45,28 +45,40 @@ The Arrays Pipeline takes the inputs described below. Inputs are grouped by func
     *   dbSNP_vcf_index. The cloud path of the index file for the dbSnp VCF.
 
 *   **Chip Metadata**
-    *   bead_pool_manifest_file. The cloud path of the Illumina bead pool manifest file for the genotyping array to be processed. 
-    *   extended_chip_manifest_file. The cloud path of the Illumina chip manifest for the genotyping array to be processed, in CSV form, as extended by the Picard tool CreateExtendedIlluminaManifest.
-    *   cluster_file. The cloud path of the Illumina cluster file (.egt) for the genotyping array to be processed.
-    *   gender_cluster_file [Optional]. The cloud path of the Illumina gender cluster file (.egt) for the genotyping array to be processed. This optional cluster file is used to run IAAP/gencall specifically for calling the gender of the sample.  It typically is designed with all assays other than those at specific sites on the sex chromosomes zeroed out.
-    *   zcall_thresholds_file [Optional]. The cloud path of a thresholds file to be used with zCall. [zCall](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3463112/) is a rare variants caller that can be used to improve the calls on rare variant assays on the genotyping array. If this optional parameter is provided, the pipeline will run zCall using the specified thresholds file.
+    *   arrays_metadata_path [Optional]. The cloud path where chip-specific metadata will be looked for by the workflow under certain conditions as explained below:
+    *   bead_pool_manifest. The cloud path of the Illumina bead pool manifest file (.bpm) that will be used to process the array data is determined based on which of the following inputs are provided:
+        *   bead_pool_manifest_filename [Optional]. The **name** of the Illumina bead pool manifest file that will be used to process the array data. If specified, a file by this name will be looked for in arrays_metadata_path. If **NOT** specified, the pipeline will use the **bead_pool_manifest_file**
+        *   bead_pool_manifest_file [Optional]. The cloud path of the Illumina bead pool manifest file for the genotyping array to be processed.
+    *   cluster. The cloud path of the Illumina cluster file (.egt) that will be used to process the array is determined based on which of the following inputs are provided:
+        *   cluster_filename [Optional]. The **name** of the Illumina cluster file (.egt) that will be used to process the array data. If specified, a file by this name will be looked for in arrays_metadata_path. If **NOT** specified, the pipeline will use the **cluster_file**.
+        *   cluster_file [Optional]. The cloud path of the Illumina cluster file (.egt) for the genotyping array to be processed.
+    *   gender_cluster [Optional]. The gender cluster file is an Illumina cluster file (.egt) that is used to run IAAP/gencall specifically for calling the gender of the sample.  It typically is designed with all assays other than those at specific sites on the sex chromosomes zeroed out. The cloud path of the gender_cluster_file that is used is determined based on which of the following inputs are provided:    
+        *   gender_cluster_filename [Optional]. The **name** of the Illumina cluster file (.egt) that will be used to process the array data for gender calling. If specified, a file by this name will be looked for in arrays_metadata_path. If **NOT** specified, the pipeline will use **gender_cluster_file**. 
+        *   gender_cluster_file [Optional]. The cloud path of the Illumina cluster file (.egt) that will be used to process the array data for gender calling.
+    *   zcall_thresholds [Optional]. The zcall_thresholds file is tobe used with zCall. [zCall](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3463112/) is a rare variants caller that can be used to improve the calls on rare variant assays on the genotyping array. If this optional parameter is provided, the pipeline will run zCall using the specified thresholds file. The cloud path of the zcall_thresholds_file that is used is determined based on which of the following inputs are provided:    
+        *   zcall_thresholds_filename [Optional]. The **name** of the thresholds file  If specified, a file by this name will be looked for in arrays_metadata_path. If **NOT** specified, the pipeline will use **zcall_thresholds_file**. 
+        *   zcall_thresholds_file [Optional]. The cloud path of a zcall thresholds file to be used with zCall.
+    *   extended_chip_manifest_file [Optional]. The cloud path of the Illumina chip manifest for the genotyping array to be processed, in CSV form, as extended by the Picard tool CreateExtendedIlluminaManifest. **Note** that this is optional - if NOT specified, the pipeline will use a lookup strategy: It will look for a file in arrays_metadata_path named 'extended_manifest_map.txt' and select the extended_chip_manifest_file entry in that file for the specified bead_pool_manifest_filename and cluster_filename.
+    *   minor_allele_frequency_file [Optional].  The cloud path to a chip-specific text file containing locus-id to minor allele frequency used as an input to the BAFRegress tool used for calculating contamination.  **Note** that this is optional - if NOT specified, the pipeline will use a lookup strategy: It will look for a file in arrays_metadata_path named 'maf_map.txt' and select the minor_allele_frequency_file entry in that file for the specified bead_pool_manifest_filename.
 
 *   **Fingerprinting**
+    *   read_fingerprint_from_mercury. If this boolean is true, the pipeline will read the fingerprint from the Mercury Fingerprint Store. If it is false, the pipeline will use the (optional) fingerprint_genotypes_vcf_file, below.
+    *   write_fingerprint_to_mercury. If this boolean is true, the pipeline will write the fingerprint **generated from the output vcf** back to the Mercury Fingerprint Store.
     *   fingerprint_genotypes_vcf_file [Optional]. The cloud path of a VCF containing a ‘fingerprint’ (a set of genotypes - typically generated on an orthogonal genotyping platform - for the sample to be processed). If provided, this file is used by CheckFingerprint to verify that the sample being processed is the same as that reported in the fingerprint_genotypes_file.
     *   fingerprint_genotypes_vcf_index_file [Optional]. The cloud path of the index file for the fingerprint_genotypes_vcf_file
     *   haplotype_database_file. The cloud path of the ‘haplotype_database_file’. This is a file that contains the haplotype block information for the sites used in the fingerprint_genotypes_vcf_file.
     *   variant_rsids_file. The cloud path to the variant_rsids_file. This file contains a list of rsids for fingerprint sites that can be supplied to the pipeline to have it generate a subset of the output VCF containing genotypes only at these sites. This output VCF can then be used as a source of fingerprint information from the sample processed by the pipeline.
 
 *   **Genotype Concordance**
+    *   arrays_control_data_path [Optional]. The cloud path where control sample VCF and related files will be looked for by the workflow under certain conditions as explained below:
+    *   control_sample_name [Optional]. The name of the control sample in the control_sample_vcf_file. Note that if this is specified, and the remaining three fields (control_sample_vcf_file, control_sample_vcf_index_file, and control_sample_intervals_file) are NOT specified, then the pipeline will look for the VCF and related files for 'control_sample_name' in the path specified in 'arrays_control_data_path'
     *   control_sample_vcf_file [Optional]. The cloud path of a VCF containing the genotypes from a control sample. If this file is provided, the pipeline will do a genotype concordance between the VCF of the sample generated by the pipeline and this file.
     *   control_sample_vcf_index_file [Optional]. The cloud path of the index file for the control_sample_vcf_file.
     *   control_sample_intervals_file [Optional]. The cloud path of the interval_list file of the control_sample_vcf_file.
-    *   control_sample_name [Optional]. The name of the control sample in the control_sample_vcf_file.
 
 *   **Other**
     *   call_rate_threshold. A numeric value for determining whether the pipeline reports this sample as passing or failing. If the call rate calculated by the pipeline is greater than this value the sample is reported as passing.
     *   genotype_concordance_threshold. A numeric value for determining whether a sample with control data passes genotype_concordance.  If the genotype concordance calculated by the pipeline is greater than this value the sample is reported as passing genotype concordance.
-    *   minor_allele_frequency_file.  The cloud path to a chip-specific text file containing locus-id to minor allele frequency used as an input to the BAFRegress tool used for calculating contamination.
     *   contamination_controls_vcf.  The cloud path to a VCF of samples run on this chip type to be used to supplement contamination calling.
     *   subsampled_metrics_interval_list. The cloud path to the subsampled_metrics_interval_list. This file contains a list of sites that can be supplied to the pipeline to have it subset the output VCF and generate metrics specifically for those sites.
     *   disk_size. The default disk size (in GiB) for cloud VMs spun up for the tasks in this pipeline.
