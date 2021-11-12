@@ -101,11 +101,11 @@ task format_imputation_outputs {
         open_bracket='["'
         close_bracket='"]'
 
-        echo "1"
-        echo "~{sep="','" imputed_single_sample_vcfs}"
+        # echo "1"
+        # echo "~{sep="','" imputed_single_sample_vcfs}"
 
-        echo "2"
-        echo "${open_bracket}~{sep='","' imputed_single_sample_vcfs}${close_bracket}"
+        # echo "2"
+        # echo "${open_bracket}~{sep='","' imputed_single_sample_vcfs}${close_bracket}"
 
         echo "3"
         vcfs_string='~{sep='","' imputed_single_sample_vcfs}'
@@ -116,17 +116,14 @@ task format_imputation_outputs {
         echo "$vcfs_string"
         echo "${vcfs_string}"
 
-        echo "5"
-        # echo -e "[""'~{sep="\",\"" imputed_single_sample_vcfs}'""]"
+        # echo "6"
+        # echo -e "[~{sep='","' imputed_single_sample_vcfs}]"
 
-        echo "6"
-        echo -e "[~{sep='","' imputed_single_sample_vcfs}]"
+        # echo "7" 
+        # echo -e "${open_bracket}~{sep='","' imputed_single_sample_vcfs}${close_bracket}"
 
-        echo "7" 
-        echo -e "${open_bracket}~{sep='","' imputed_single_sample_vcfs}${close_bracket}"
-
-        echo "8"
-        echo -e "['"'~{sep='","' imputed_single_sample_vcfs}'"']"
+        # echo "8"
+        # echo -e "['"'~{sep='","' imputed_single_sample_vcfs}'"']"
 
         echo "9"
         orig=$(echo -e "['"'~{sep='","' imputed_single_sample_vcfs}'"']")
@@ -140,13 +137,16 @@ task format_imputation_outputs {
         imputed_single_sample_vcf\timputed_single_sample_vcf_index" \
         > ingestDataset_imputation_outputs.tsv
 
+        imputed_single_sample_vcfs='~{sep='","' imputed_single_sample_vcfs}'
+        echo "[\"${imputed_single_sample_vcfs}\"]"
+        imputed_single_sample_vcf_indices='~{sep='","' imputed_single_sample_vcf_indices}'
+        echo "[\"${imputed_single_sample_vcf_indices}\"]"
 
-        # echo -e "~{aggregated_imputation_metrics}\t~{chunks_info}\t~{failed_chunks}\t~{n_failed_chunks}\t\
-        # ~{imputed_multisample_vcf}\t~{imputed_multisample_vcf_index}\t\
-        # [\"~{sep='", "' imputed_single_sample_vcfs}\"]\t\
-        # [\"~{sep='", "' imputed_single_sample_vcf_indices}\"]"
-        # \
-        # >> ingestDataset_imputation_outputs.tsv
+        echo -e "~{aggregated_imputation_metrics}\t~{chunks_info}\t~{failed_chunks}\t~{n_failed_chunks}\t\
+        ~{imputed_multisample_vcf}\t~{imputed_multisample_vcf_index}\t\
+        [\"${imputed_single_sample_vcfs}\"]\t\
+        [\"${imputed_single_sample_vcf_indices}\"]" \
+        >> ingestDataset_imputation_outputs.tsv
 
 
         python3 << CODE
