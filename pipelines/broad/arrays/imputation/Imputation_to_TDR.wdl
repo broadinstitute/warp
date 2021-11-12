@@ -27,60 +27,60 @@ workflow imputation_outputs_to_TDR {
         Array[File]     single_sample_vcf_indices
     }
 
-    # call ImputationPipeline.Imputation {
-    #     input:
-    #         contigs = contigs,
-    #         genetic_maps_eagle          = genetic_maps_eagle,
-    #         haplotype_database          = haplotype_database,
-    #         output_callset_name         = output_callset_name,
-    #         ref_dict                    = ref_dict,
-    #         reference_panel_path        = reference_panel_path,
-    #         single_sample_vcfs          = single_sample_vcfs,
-    #         single_sample_vcf_indices   = single_sample_vcf_indices
-    # }
-
-    # call format_imputation_outputs {
-    #     input:
-    #         imputed_single_sample_vcfs          = Imputation.imputed_single_sample_vcfs,
-    #         imputed_single_sample_vcf_indices   = Imputation.imputed_single_sample_vcf_indices,
-    #         imputed_multisample_vcf             = Imputation.imputed_multisample_vcf,
-    #         imputed_multisample_vcf_index       = Imputation.imputed_multisample_vcf_index,
-    #         aggregated_imputation_metrics       = Imputation.aggregated_imputation_metrics,
-    #         chunks_info                         = Imputation.chunks_info,
-    #         failed_chunks                       = Imputation.failed_chunks,
-    #         n_failed_chunks                     = Imputation.n_failed_chunks
-    # }
-        call format_imputation_outputs {
+    call ImputationPipeline.Imputation {
         input:
-            imputed_single_sample_vcfs          = single_sample_vcfs,
-            imputed_single_sample_vcf_indices   = single_sample_vcf_indices,
-            imputed_multisample_vcf             = genetic_maps_eagle,
-            imputed_multisample_vcf_index       = genetic_maps_eagle,
-            aggregated_imputation_metrics       = genetic_maps_eagle,
-            chunks_info                         = genetic_maps_eagle,
-            failed_chunks                       = genetic_maps_eagle,
-            n_failed_chunks                     = genetic_maps_eagle
+            contigs = contigs,
+            genetic_maps_eagle          = genetic_maps_eagle,
+            haplotype_database          = haplotype_database,
+            output_callset_name         = output_callset_name,
+            ref_dict                    = ref_dict,
+            reference_panel_path        = reference_panel_path,
+            single_sample_vcfs          = single_sample_vcfs,
+            single_sample_vcf_indices   = single_sample_vcf_indices
     }
 
-    # call ingest_outputs_to_tdr {
+    call format_imputation_outputs {
+        input:
+            imputed_single_sample_vcfs          = Imputation.imputed_single_sample_vcfs,
+            imputed_single_sample_vcf_indices   = Imputation.imputed_single_sample_vcf_indices,
+            imputed_multisample_vcf             = Imputation.imputed_multisample_vcf,
+            imputed_multisample_vcf_index       = Imputation.imputed_multisample_vcf_index,
+            aggregated_imputation_metrics       = Imputation.aggregated_imputation_metrics,
+            chunks_info                         = Imputation.chunks_info,
+            failed_chunks                       = Imputation.failed_chunks,
+            n_failed_chunks                     = Imputation.n_failed_chunks
+    }
+    #     call format_imputation_outputs {
     #     input:
-    #         workspace_name          = workspace_name,
-    #         workspace_bucket        = workspace_bucket,
-    #         tdr_dataset_id          = tdr_dataset_id,
-    #         tdr_target_table_name   = tdr_target_table_name,
-    #         outputs_tsv             = format_imputation_outputs.ingest_outputs_tsv
+    #         imputed_single_sample_vcfs          = single_sample_vcfs,
+    #         imputed_single_sample_vcf_indices   = single_sample_vcf_indices,
+    #         imputed_multisample_vcf             = genetic_maps_eagle,
+    #         imputed_multisample_vcf_index       = genetic_maps_eagle,
+    #         aggregated_imputation_metrics       = genetic_maps_eagle,
+    #         chunks_info                         = genetic_maps_eagle,
+    #         failed_chunks                       = genetic_maps_eagle,
+    #         n_failed_chunks                     = genetic_maps_eagle
     # }
 
-    # output {
-    #     File aggregated_imputation_metrics              = Imputation.aggregated_imputation_metrics
-    #     File chunks_info                                = Imputation.chunks_info
-    #     File failed_chunks                              = Imputation.failed_chunks
-    #     File imputed_multisample_vcf                    = Imputation.imputed_multisample_vcf
-    #     File imputed_multisample_vcf_index              = Imputation.imputed_multisample_vcf_index
-    #     Array[File]? imputed_single_sample_vcfs         = Imputation.imputed_single_sample_vcfs
-    #     Array[File]? imputed_single_sample_vcf_indices  = Imputation.imputed_single_sample_vcf_indices
-    #     File n_failed_chunks                            = Imputation.n_failed_chunks
-    # }
+    call ingest_outputs_to_tdr {
+        input:
+            workspace_name          = workspace_name,
+            workspace_bucket        = workspace_bucket,
+            tdr_dataset_id          = tdr_dataset_id,
+            tdr_target_table_name   = tdr_target_table_name,
+            outputs_tsv             = format_imputation_outputs.ingest_outputs_tsv
+    }
+
+    output {
+        File aggregated_imputation_metrics              = Imputation.aggregated_imputation_metrics
+        File chunks_info                                = Imputation.chunks_info
+        File failed_chunks                              = Imputation.failed_chunks
+        File imputed_multisample_vcf                    = Imputation.imputed_multisample_vcf
+        File imputed_multisample_vcf_index              = Imputation.imputed_multisample_vcf_index
+        Array[File]? imputed_single_sample_vcfs         = Imputation.imputed_single_sample_vcfs
+        Array[File]? imputed_single_sample_vcf_indices  = Imputation.imputed_single_sample_vcf_indices
+        File n_failed_chunks                            = Imputation.n_failed_chunks
+    }
 }
 
 task format_imputation_outputs {
@@ -90,58 +90,42 @@ task format_imputation_outputs {
         String          failed_chunks
         String          imputed_multisample_vcf
         String          imputed_multisample_vcf_index
-        # Array[String]?  imputed_single_sample_vcfs
-        # Array[String]?  imputed_single_sample_vcf_indices
-        Array[String]  imputed_single_sample_vcfs
-        Array[String]  imputed_single_sample_vcf_indices
+        Array[String]?  imputed_single_sample_vcfs
+        Array[String]?  imputed_single_sample_vcf_indices
+        # Array[String]  imputed_single_sample_vcfs
+        # Array[String]  imputed_single_sample_vcf_indices
         String          n_failed_chunks
     }
 
     command <<<
-        open_bracket='["'
-        close_bracket='"]'
-
-        # echo "1"
-        # echo "~{sep="','" imputed_single_sample_vcfs}"
-
-        # echo "2"
-        # echo "${open_bracket}~{sep='","' imputed_single_sample_vcfs}${close_bracket}"
-
         echo "3"
         vcfs_string='~{sep='","' imputed_single_sample_vcfs}'
-        echo "${open_bracket}${vcfs_string}${close_bracket}"
-
-        echo "4"
         echo "[\"${vcfs_string}\"]"
         echo "$vcfs_string"
         echo "${vcfs_string}"
-
-        # echo "6"
-        # echo -e "[~{sep='","' imputed_single_sample_vcfs}]"
-
-        # echo "7" 
-        # echo -e "${open_bracket}~{sep='","' imputed_single_sample_vcfs}${close_bracket}"
-
-        # echo "8"
-        # echo -e "['"'~{sep='","' imputed_single_sample_vcfs}'"']"
-
+        # using sed to replace single with double quotes
         echo "9"
         orig=$(echo -e "['"'~{sep='","' imputed_single_sample_vcfs}'"']")
         echo "sed"
         new=$(echo "$orig" | sed "s/'/\"/g")
         echo "$new"
 
-
+        # write header to file
         echo -e "aggregated_imputation_metrics\tchunks_info\tfailed_chunks\tn_failed_chunks\t\
         imputed_multisample_vcf\timputed_multisample_vcf_index\t\
         imputed_single_sample_vcf\timputed_single_sample_vcf_index" \
         > ingestDataset_imputation_outputs.tsv
 
+        # handle array[type] variables to print as list with double quotes
         imputed_single_sample_vcfs='~{sep='","' imputed_single_sample_vcfs}'
+        echo "imputed_single_sample_vcfs"
         echo "[\"${imputed_single_sample_vcfs}\"]"
+
         imputed_single_sample_vcf_indices='~{sep='","' imputed_single_sample_vcf_indices}'
+        echo "imputed_single_sample_vcf_indices"
         echo "[\"${imputed_single_sample_vcf_indices}\"]"
 
+        # write file paths to row in tsv file
         echo -e "~{aggregated_imputation_metrics}\t~{chunks_info}\t~{failed_chunks}\t~{n_failed_chunks}\t\
         ~{imputed_multisample_vcf}\t~{imputed_multisample_vcf_index}\t\
         [\"${imputed_single_sample_vcfs}\"]\t\
