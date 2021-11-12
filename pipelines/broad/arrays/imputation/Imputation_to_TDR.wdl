@@ -108,7 +108,7 @@ task format_imputation_outputs {
         echo "${open_bracket}~{sep='","' imputed_single_sample_vcfs}${close_bracket}"
 
         echo "3"
-        vcfs_string=~{sep='","' imputed_single_sample_vcfs}
+        vcfs_string="~{sep='","' imputed_single_sample_vcfs}"
         echo "${open_bracket}${vcfs_string}${close_bracket}"
 
         echo "4"
