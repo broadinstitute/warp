@@ -100,9 +100,9 @@ task format_imputation_outputs {
     command <<<
         open_bracket='["'
         close_bracket='"]'
-
+        sep='","'
         echo "1"
-        echo "~{sep='","' imputed_single_sample_vcfs}"
+        echo "~{sep="${sep}" imputed_single_sample_vcfs}"
 
         echo "2"
         echo "${open_bracket}~{sep='","' imputed_single_sample_vcfs}${close_bracket}"
@@ -117,22 +117,27 @@ task format_imputation_outputs {
         echo "${vcfs_string}"
 
         echo "5"
-        echo -e "[""'~{sep="\",\"" imputed_single_sample_vcfs}'""]"
+        # echo -e "[""'~{sep="\",\"" imputed_single_sample_vcfs}'""]"
 
         echo "6"
         echo -e "[~{sep='","' imputed_single_sample_vcfs}]"
 
         echo "7" 
-        echo -e "${open_bracket}""~{sep='","' imputed_single_sample_vcfs}""${close_bracket}"
+        echo -e "${open_bracket}~{sep='","' imputed_single_sample_vcfs}${close_bracket}"
 
         echo "8" 
-        echo -e "[\""~{sep='","' imputed_single_sample_vcfs}"\""]"
+        echo -e "['"'~{sep='","' imputed_single_sample_vcfs}'"']"
 
-        # echo "3"
-        # echo -e "[\"~{sep='","' imputed_single_sample_vcfs}\"]"
+        orig="['"'~{sep='","' imputed_single_sample_vcfs}'"']"
+        echo "sed"
+        sed "s/'/\"/g" "$orig"
+        echo "tr"
+        tr "'" '"' "$orig"
+        echo "sed 2"
+        sed "s/'/\"/g" $orig
 
-        # echo "4"
-        # echo -e "~{sep='","' imputed_single_sample_vcfs}"
+        echo "tr 2"
+        tr "'" '"' $orig
 
 
         echo -e "aggregated_imputation_metrics\tchunks_info\tfailed_chunks\tn_failed_chunks\t\
