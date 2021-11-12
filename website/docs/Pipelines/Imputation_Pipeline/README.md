@@ -63,7 +63,7 @@ Currently, the pipeline does not perform imputation on the X-chromosome and no r
 ### Generation of the modified 10000 Genomes reference
 Initial tests of the Imputation and Polygenic Risk Score pipelines revealed that disease risk scores were lower when computed from imputed array data as opposed to whole-genome sequencing data, possibly because of incorrectly genotyped sites in the 1000 Genomes (1000G) reference. As a result, the 1000G reference file was modified for the Imputation pipeline. To remove these candidate "bad" sites, allele frequencies were compared between the 1000G and GnomadV2 references. 
 
-First, the CBuildAFComparisonTable workflow created a table of the allele frequencies for both references. Then, the FilterAFComparisonTable workflow compared the observed number of alleles in 1000G to the expected number of alleles set by the GnomadV2 reference using a two-sided binomial p-value. If both p-values are less than 1e-10, then the site is flagged as "bad." The "bad" sites are removed with the RemoveBadSitesById workflow.
+First, the CBuildAFComparisonTable workflow created a table of the allele frequencies for both references. Then, the FilterAFComparisonTable workflow compared the observed number of alleles in 1000G to the expected number of alleles set by the GnomadV2 reference using a two-sided binomial p-value. If both p-values were less than 1e-10, then the site was flagged as "bad." The "bad" sites were removed with the RemoveBadSitesById workflow.
 
 The modified reference is available in a public Google bucket: 
 Each of the workflows are available in a public Terra workspace:
