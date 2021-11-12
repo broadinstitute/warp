@@ -100,9 +100,9 @@ task format_imputation_outputs {
     command <<<
         open_bracket='["'
         close_bracket='"]'
-        sep='","'
+
         echo "1"
-        echo "~{sep="${sep}" imputed_single_sample_vcfs}"
+        echo "~{sep="','" imputed_single_sample_vcfs}"
 
         echo "2"
         echo "${open_bracket}~{sep='","' imputed_single_sample_vcfs}${close_bracket}"
