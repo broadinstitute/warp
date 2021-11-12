@@ -107,6 +107,7 @@ task format_imputation_outputs {
         echo "1"
         TEST1=~{sep='","' imputed_single_sample_vcfs}
         echo $TEST1
+
         echo "2"
         echo "[\"$TEST1\"]"
 
@@ -114,7 +115,7 @@ task format_imputation_outputs {
         echo -e "[\"~{sep='","' imputed_single_sample_vcfs}\"]"
 
         echo "4"
-        echo -e "${open_bracket}~{sep='","' imputed_single_sample_vcfs}${close_bracket}"
+        echo -e "~{sep='","' imputed_single_sample_vcfs}"
 
         # echo "5"
         # echo -e "[\"~{sep='${separator}' imputed_single_sample_vcfs}\"]"
