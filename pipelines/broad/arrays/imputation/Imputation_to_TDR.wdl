@@ -131,14 +131,8 @@ task format_imputation_outputs {
         echo "9"
         orig=$(echo -e "['"'~{sep='","' imputed_single_sample_vcfs}'"']")
         echo "sed"
-        sed "s/'/\"/g" "$orig"
-        echo "tr"
-        tr "'" '"' "$orig"
-        echo "sed 2"
-        sed "s/'/\"/g" $orig
-
-        echo "tr 2"
-        tr "'" '"' $orig
+        new=$(echo "$orig" | sed "s/'/\"/g")
+        echo "$new"
 
 
         echo -e "aggregated_imputation_metrics\tchunks_info\tfailed_chunks\tn_failed_chunks\t\
