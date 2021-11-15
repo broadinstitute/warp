@@ -8,7 +8,8 @@
 # as an environment variable
 set -e
 
-declare -r REPO=$(git remote -v | grep fetch | sed -E 's/.*git@github.com:(.*).git.*/\1/')
+##declare -r REPO=$(git remote -v | grep fetch | sed -E 's/.*git@github.com:(.*).git.*/\1/')
+declare -r REPO="broadinstitute/warp"
 declare SCRIPT_DIR
 SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
 source ${SCRIPT_DIR}/common.sh
@@ -165,8 +166,11 @@ function upload_to_github_as_draft() {
   local -r payload="${4}"
 
   local -r releaseResponse=${localReleaseDir}/releaseResponse
+
+  stderr "---"
+  stderr ${REPO}
+  stderr "---"
   local -r releaseResponseCode=$(curl \
-    --silent \
     --output ${releaseResponse} \
     --write-out "%{http_code}" \
     -X POST \
