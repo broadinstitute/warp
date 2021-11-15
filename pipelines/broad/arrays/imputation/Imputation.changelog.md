@@ -1,3 +1,8 @@
+#1.0.1
+2021-11-15
+
+* Task wdls used by the Imputation pipeline were updated with changes that don't affect Imputation wdl
+
 # 1.0.0
 2021-10-14 (Date of Last Commit)
 
