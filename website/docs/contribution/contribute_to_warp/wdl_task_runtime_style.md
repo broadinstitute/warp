@@ -1,8 +1,12 @@
+---
+sidebar_position: 2
+---
+
 # WDL Task Runtime Style Guide Overview
 
-This style guide provides formatting guidelines and best practices for the runtime block of a WDL task.
+This style guide provides formatting guidelines and best practices for the runtime block of a WDL workflow task. For more information about scripting in WDL, see the [WDL 1.0 Specification](https://github.com/openwdl/wdl/blob/main/SPEC.md).
 
-## Variables
+## Variables and suggested configurations
 - Disk
     - Set in GiB
     - Variable type is Int
@@ -20,7 +24,7 @@ This style guide provides formatting guidelines and best practices for the runti
 - Docker
     - Variable name should be `docker`
 
-## Example Task Input
+## Example task input
 
 Include runtime variables in the task inputs. Always provide a default value. Separate runtime variables from task inputs with one blank line.
 
@@ -35,7 +39,7 @@ Include runtime variables in the task inputs. Always provide a default value. Se
     }
 ```
 
-## Example Task Runtime
+## Example task runtime
 
 Runtime block should be positioned between the command and output blocks of the task.
 
