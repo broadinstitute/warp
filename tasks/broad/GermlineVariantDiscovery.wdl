@@ -246,7 +246,7 @@ task HardFilterVcf {
   String output_vcf_name = vcf_basename + ".filtered.vcf.gz"
 
   command {
-     gatk --java-options "-Xms3000m" \
+    gatk --java-options "-Xms3000m" \
       VariantFiltration \
       -V ~{input_vcf} \
       -L ~{interval_list} \
