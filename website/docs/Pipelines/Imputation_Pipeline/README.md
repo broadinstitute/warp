@@ -54,21 +54,19 @@ For examples of how to specify each input in a configuration file, as well as cl
  
 ### Imputation reference panel
  
-The reference panel files required for the Imputation workflow will soon be hosted in a public Google Bucket. See the [example input configuration](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json) for the current reference panel files.
+The Imputation workflow's reference panel files is hosted in a public Google Bucket. See the [example input configuration](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json) for the current reference panel files.
+
+#### Generation of the modified 10000 Genomes reference
+Initial tests of both the Imputation and Polygenic Risk Score pipelines revealed that disease risk scores were lower when computed from imputed array data as opposed to whole-genome sequencing data, possibly because of incorrectly genotyped sites in the 1000 Genomes (1000G) reference (you can view the 1000G VCFs [here](https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/)). As a result, the 1000G reference files were modified for the Imputation pipeline. To remove the candidate "bad" sites from the 1000G reference panel, allele frequencies were compared between it and the GnomadV2 references. 
+
+To make this comparison, the Broad Methods team first ran the [BuildAFComparisonTable workflow](https://github.com/broadinstitute/warp/tree/develop/scripts/BuildAFComparisonTable.wdl) to create a table of the allele frequencies for both references. Then, they applied the [FilterAFComparisonTable workflow](https://github.com/broadinstitute/warp/tree/develop/scripts/FilterAFComparisonTable.wdl) to compare the observed number of alleles in 1000G to the expected number of alleles set by the GnomadV2 reference using a two-sided binomial p-value. If both p-values were less than 1e-10, then the site was flagged as "bad." Lastly, they used the [RemoveBadSitesById workflow](https://github.com/broadinstitute/warp/tree/develop/scripts/RemoveBadSitesById.wdl) to remove the "bad" sites.
+
+
+For questions regarding reference generation, email [Chris Kachullis](mailto:). 
 
 :::tip X-chromosome not imputed
 Currently, the pipeline does not perform imputation on the X-chromosome and no reference panels are needed for the X-chromosome. Any sites identified on the X-chromosome after array analysis are merged back into the VCF after the imputation steps. 
 :::
-
-### Generation of the modified 10000 Genomes reference
-Initial tests of the Imputation and Polygenic Risk Score pipelines revealed that disease risk scores were lower when computed from imputed array data as opposed to whole-genome sequencing data, possibly because of incorrectly genotyped sites in the 1000 Genomes (1000G) reference. As a result, the 1000G reference file was modified for the Imputation pipeline. To remove these candidate "bad" sites, allele frequencies were compared between the 1000G and GnomadV2 references. 
-
-First, the CBuildAFComparisonTable workflow created a table of the allele frequencies for both references. Then, the FilterAFComparisonTable workflow compared the observed number of alleles in 1000G to the expected number of alleles set by the GnomadV2 reference using a two-sided binomial p-value. If both p-values were less than 1e-10, then the site was flagged as "bad." The "bad" sites were removed with the RemoveBadSitesById workflow.
-
-The modified reference is available in a public Google bucket: 
-Each of the workflows are available in a public Terra workspace:
-
-For questions regarding reference generation, email [Chris Kachullis](mailto:). 
 
 
  
