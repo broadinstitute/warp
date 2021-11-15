@@ -1,4 +1,4 @@
-#1.1.1
+# 1.1.1
 2021-11-15 (Date of Last Commit)
 * Updated remove-reads-on-junctions.py in the FeatureCounts.wdl to use python3 instead of python2.
 
