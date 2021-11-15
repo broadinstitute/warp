@@ -1,3 +1,8 @@
+# 2.0.1
+2021-11-15
+
+* Task wdls used by the VariantCalling pipeline were updated with changes that don't affect VariantCalling wdl
+
 # 2.0.0
 2021-11-09
 
