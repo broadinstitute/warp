@@ -545,8 +545,7 @@ task AutoCall {
       . \
       -f ~{chip_well_barcode} \
       ~{true='--gender-estimate-call-rate-threshold -0.1' false='--gender-estimate-call-rate-threshold 0.9' is_gender_autocall} \
-      -g \
-      -i 1
+      -g
   >>>
 
   runtime {
