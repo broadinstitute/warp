@@ -1,5 +1,6 @@
 # 1.0.1
-2021-11-09 (Date of Last Commit)
+2021-11-10 (Date of Last Commit)
+* Added Xmx flag (maximum heap size) to all tasks with java commands
 * Added a step to MergeSingleSampleVcfs task to copy index files next to VCFs before running merge
 
     * This is needed for runnning in Broad production on data stored in TDR

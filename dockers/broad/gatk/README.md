@@ -34,7 +34,7 @@ $ docker inspect us.gcr.io/broad-gotc-prod/gatk:1.0.0-4.1.8.0-1626439571
 ```bash
 $ docker run --rm -it \
     -v /gatk-files:/gatk-files \
-    us.gcr.io/broad-gotc-prod/gatk:1.0.0-4.1.8.0-1626439571  /usr/gitc/gatk4/gatk --java-options "-Xms2g" \
+    us.gcr.io/broad-gotc-prod/gatk:1.0.0-4.1.8.0-1626439571  /usr/gitc/gatk4/gatk --java-options "-Xms2000m -Xmx2500m" \
     PrintReads \
     -I /gatk-files/input_bam\
     --interval-padding 500 \
@@ -47,7 +47,7 @@ $ docker run --rm -it \
 ```bash
 $ docker run --rm -it \
     -v /gatk-files:/gatk-files \
-    us.gcr.io/broad-gotc-prod/gatk:1.0.0-4.1.8.0-1626439571  java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms8000m \
+    us.gcr.io/broad-gotc-prod/gatk:1.0.0-4.1.8.0-1626439571  java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms8000m -Xmx9000m \
     -jar /usr/gitc/GATK35.jar \
     -T HaplotypeCaller \
     -R /gatk-files/ref_fasta \
