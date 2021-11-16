@@ -7,7 +7,7 @@
 2021-11-09
 
 * Added an optional step to reblock gVCFs, this step is included by default
-    * The WholeGenomeGermlineSingleSample and ExomeGermlineSingleSample pipelines now output reblocked gVCFs by default. To skip reblocking, add '"WholeGenomeGermlineSingleSample.BamToGvcf.skip_reblocking": true' or '"ExomeGermlineSingleSample.BamToGvcf.skip_reblocking": true' to the appropriate inputs
+    * The WholeGenomeGermlineSingleSample and ExomeGermlineSingleSample pipelines now output reblocked gVCFs by default. To skip reblocking, add '\"WholeGenomeGermlineSingleSample.BamToGvcf.skip_reblocking\": true' or '\"ExomeGermlineSingleSample.BamToGvcf.skip_reblocking\": true' to the appropriate inputs
 * Adding WGS plumbing tests for dragen_maximum_quality_mode and dragen_functional_equivalence_mode
 
 # 1.2.0

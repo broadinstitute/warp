@@ -7,7 +7,7 @@
 2021-11-09
 
 * Added an optional step to reblock gVCFs, this step is included by default
-    * The ExomeGermlineSingleSample pipeline now outputs reblocked gVCFs by default. To skip reblocking, add '"ExomeGermlineSingleSample.BamToGvcf.skip_reblocking": true' to the inputs
+    * The ExomeGermlineSingleSample pipeline now outputs reblocked gVCFs by default. To skip reblocking, add '\"ExomeGermlineSingleSample.BamToGvcf.skip_reblocking\": true' to the inputs
 * Adding WGS plumbing tests for dragen_maximum_quality_mode and dragen_functional_equivalence_mode
 * Moved Dragmap docker to WARP and updated to follow repo's best practices
 
