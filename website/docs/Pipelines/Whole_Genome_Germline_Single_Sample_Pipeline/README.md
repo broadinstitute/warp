@@ -346,6 +346,8 @@ Additionally, the 4 GQ band schema has specific improvements compared with the 7
 2. It has no overlaps; the only overlapping positions should be two variants (i.e. deletions) on separate haplotypes.
 3. No more no-calls; all genotypes should be called. Positions with no data will be homRef with GQ0.
 
+Read more about the reblocked GVCFs in the [WARP Blog](https://broadinstitute.github.io/warp/blog/Blog%201).
+
 ### Base quality scores
 The final CRAM files have base quality scores binned according to the [Functional Equivalence specification](https://github.com/CCDG/Pipeline-Standardization/blob/master/PipelineStandard.md#base-quality-score-binning-scheme) ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)). This does not apply to the workflow's DRAGEN modes, which do not perform BQSR recalibration.
 
