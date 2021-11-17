@@ -198,7 +198,7 @@ workflow CreateOptimusAdapterMetadata {
   Array[File] data_objects = flatten([reference_fasta_array, project_loom_array, output_bams, output_looms])
   File is_update_file = CreateStagingAreaFile.is_update_file
 
-  call Tasks.CopyToStagingBucket {
+  call Tasks.CopyToStagingBucket as CopyToStagingBucket {
     input:
       staging_bucket = staging_bucket,
       links_objects = links_objects,
@@ -212,7 +212,7 @@ workflow CreateOptimusAdapterMetadata {
       is_update_file = is_update_file
   }
 
-  call Tasks.ValidateStagingArea {
+  call Tasks.ValidateStagingArea as ValidateStagingArea after CopyToStagingBucket {
     input:
       staging_area = staging_bucket_validation
   }

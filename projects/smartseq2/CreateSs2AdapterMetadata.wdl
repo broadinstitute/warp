@@ -212,7 +212,7 @@ workflow CreateSs2AdapterMetadata {
   Array[File] data_objects = flatten([reference_fasta_array, [output_loom], output_bams, output_bais])
     File is_update_file = CreateStagingAreaFile.is_update_file
 
-  call Tasks.CopyToStagingBucket {
+  call Tasks.CopyToStagingBucket as CopyToStagingBucket {
     input:
       staging_bucket = staging_bucket,
       links_objects = links_objects,
@@ -226,7 +226,7 @@ workflow CreateSs2AdapterMetadata {
       is_update_file = is_update_file
   }
 
-  call Tasks.ValidateStagingArea {
+  call Tasks.ValidateStagingArea as ValidateStagingArea after CopyToStagingBucket {
     input:
       staging_area = staging_bucket_validation
   }
