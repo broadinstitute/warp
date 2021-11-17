@@ -2,7 +2,7 @@
 
 set -e
 
-DOCKER_IMAGE_TAG=2.0
+DOCKER_IMAGE_TAG=3.0
 DIR=$(cd $(dirname $0) && pwd)
 
 QUAY_URL="quay.io/humancellatlas/hca_preprocessing"
