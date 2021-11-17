@@ -1,3 +1,8 @@
+# 2.2.7
+2021-11-10 (Date of Last Commit)
+
+* Added Xmx flag (maximum heap size) to all tasks with java commands
+
 # 2.2.6
 2021-09-13 (Date of Last Commit)
 
