@@ -1,10 +1,5 @@
-# 3.0.1
-2021-11-15
-
-* Updated the SumFloats task used in WholeGenomeGermlineSingleSample.wdl to use python3 instead of python2
-
 # 3.0.0
-2021-11-10
+2021-11-15
 
 * Added an optional step to reblock gVCFs, this step is included by default
     * The WholeGenomeReprocessing pipeline now outputs reblocked gVCFs by default. To skip reblocking, add '\"WholeGenomeReprocessing.WholeGenomeGermlineSingleSample.BamToGvcf.skip_reblocking\": true' to the inputs
@@ -13,6 +8,7 @@
 * Added Xmx flag (maximum heap size) to all tasks with java commands
 * Added option to allow empty ref_alt file for running BWA mem with masked reference
 * Added plumbing input JSON for masked reference
+* Updated the SumFloats task used in WholeGenomeGermlineSingleSample.wdl to use python3 instead of python2
 
 # 2.5.0
 2021-10-18
