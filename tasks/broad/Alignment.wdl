@@ -33,6 +33,7 @@ task SamToFastqAndBwaMemAndMba {
     Int preemptible_tries
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
+    Boolean allow_empty_ref_alt = false
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
@@ -61,8 +62,8 @@ task SamToFastqAndBwaMemAndMba {
 
     # set the bash variable needed for the command-line
     bash_ref_fasta=~{reference_fasta.ref_fasta}
-    # if reference_fasta.ref_alt has data in it,
-    if [ -s ~{reference_fasta.ref_alt} ]; then
+    # if reference_fasta.ref_alt has data in it or allow_empty_ref_alt is set
+    if [ -s ~{reference_fasta.ref_alt} ] || ~{allow_empty_ref_alt}; then
       java -Xms1000m -Xmx1000m -jar /usr/gitc/picard.jar \
         SamToFastq \
         INPUT=~{input_bam} \
@@ -100,11 +101,14 @@ task SamToFastqAndBwaMemAndMba {
         UNMAP_CONTAMINANT_READS=~{unmap_contaminant_reads} \
         ADD_PG_TAG_TO_READS=false
 
-      grep -m1 "read .* ALT contigs" ~{output_bam_basename}.bwa.stderr.log | \
-      grep -v "read 0 ALT contigs"
+      if ~{!allow_empty_ref_alt}; then
+        grep -m1 "read .* ALT contigs" ~{output_bam_basename}.bwa.stderr.log | \
+        grep -v "read 0 ALT contigs"
+      fi
 
     # else reference_fasta.ref_alt is empty or could not be found
     else
+      echo ref_alt input is empty or not provided. >&2
       exit 1;
     fi
   >>>
@@ -140,7 +144,7 @@ task SamSplitter {
 
     total_reads=$(samtools view -c ~{input_bam})
 
-    java -Dsamjdk.compression_level=~{compression_level} -Xms3000m -jar /usr/gitc/picard.jar SplitSamByNumberOfReads \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms3000m -Xmx3600m -jar /usr/gitc/picard.jar SplitSamByNumberOfReads \
       INPUT=~{input_bam} \
       OUTPUT=output_dir \
       SPLIT_TO_N_READS=~{n_reads} \

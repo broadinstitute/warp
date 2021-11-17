@@ -1,3 +1,9 @@
+# 1.2.1
+
+2021-11-15 (Date of Last Commit)
+
+* Updated breakoutSnap.py to use python3 instead of python2.
+
 # 1.2.0
 
 2020-12-23 (Date of Last Commit)
