@@ -631,6 +631,10 @@ task CopyToStagingBucket {
     memory: "${memory_mb} MiB"
     disks: "local-disk ${disk_size_gb} HDD"
   }
+
+  output {
+    Boolean done = true
+  }
 }
 
 # This task is specifically for getting the MergeOptimusLooms version
@@ -731,6 +735,7 @@ task ValidateStagingArea {
   input {
 
     String staging_area
+    Boolean done
 
     String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:wd_add_validation_script"
     Int cpu = 1

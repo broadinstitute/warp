@@ -226,9 +226,12 @@ workflow CreateSs2AdapterMetadata {
       is_update_file = is_update_file
   }
 
-  call Tasks.ValidateStagingArea as ValidateStagingArea after CopyToStagingBucket {
+  # Only validate the staging bucket after files have been copied otherwise it will fail
+  # The 'done' flag is a hack to make this depend on the completion of CopyToStagingBucket
+  call Tasks.ValidateStagingArea {
     input:
-      staging_area = staging_bucket_validation
+      staging_area = staging_bucket_validation,
+      done = CopyToStagingBucket.done
   }
 
   output {
