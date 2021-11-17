@@ -1,3 +1,8 @@
+# 3.0.1
+2021-11-15
+
+* Updated the SumFloats task used in ExomeGermlineSingleSample.wdl to use python3 instead of python2
+
 # 3.0.0
 2021-11-10
 
