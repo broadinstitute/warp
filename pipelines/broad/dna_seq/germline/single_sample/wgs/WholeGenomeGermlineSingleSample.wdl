@@ -64,6 +64,7 @@ workflow WholeGenomeGermlineSingleSample {
     Boolean unmap_contaminant_reads = true
     Boolean perform_bqsr = true
     Boolean use_bwa_mem = true
+    Boolean allow_empty_ref_alt = false
     Boolean use_dragen_hard_filtering = false
   }
 
@@ -115,7 +116,8 @@ workflow WholeGenomeGermlineSingleSample {
       recalibrated_bam_basename   = recalibrated_bam_basename,
       perform_bqsr                = perform_bqsr_,
       use_bwa_mem                 = use_bwa_mem_,
-      unmap_contaminant_reads     = unmap_contaminant_reads_
+      unmap_contaminant_reads     = unmap_contaminant_reads_,
+      allow_empty_ref_alt         = allow_empty_ref_alt
   }
 
   call AggregatedQC.AggregatedBamQC {
