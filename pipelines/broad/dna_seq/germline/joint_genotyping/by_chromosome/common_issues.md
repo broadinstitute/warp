@@ -137,7 +137,7 @@ docker run -d \
   -v $(pwd):/workingDir \
   -v ~/references/:/references \
   ${GNARLY_DOCKER_IMAGE} \
-  gatk --java-options -Xms5g \
+  gatk --java-options "-Xms5000m -Xmx6500m"\
   GnarlyGenotyper \
   -R /references/Homo_sapiens_assembly38.fasta \
   -O /workingDir/${OUTPUT_VCF_BASE_NAME}.vcf.gz \

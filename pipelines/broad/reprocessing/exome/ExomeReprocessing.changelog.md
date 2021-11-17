@@ -1,8 +1,13 @@
 # 3.0.0
-2021-10-28 
+2021-11-10
 
 * Added an optional step to reblock gVCFs, this step is included by default
-    * The ExomeReprocessing pipeline now outputs reblocked gVCFs by default. To skip reblocking, add '"ExomeReprocessing.ExomeGermlineSingleSample.BamToGvcf.skip_reblocking": true' to the inputs
+    * The ExomeReprocessing pipeline now outputs reblocked gVCFs by default. To skip reblocking, add '\"ExomeReprocessing.ExomeGermlineSingleSample.BamToGvcf.skip_reblocking\": true' to the inputs
+* Added WGS plumbing tests for dragen_maximum_quality_mode and dragen_functional_equivalence_mode
+* Moved Dragmap docker to WARP and updated to follow repo's best practices
+* Added Xmx flag (maximum heap size) to all tasks with java commands
+* Added option to allow empty ref_alt file for running BWA mem with masked reference
+* Added plumbing input JSON for masked reference
 
 # 2.6.0
 2021-10-18

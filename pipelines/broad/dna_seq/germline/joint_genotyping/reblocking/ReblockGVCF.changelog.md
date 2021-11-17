@@ -1,8 +1,10 @@
 # 2.0.1
-2021-11-01
+2021-11-10
 
 * Added a validation task to check output reblocked GVCFs for reference block overlaps
 * Moved ReblockGVCF task to GermlineVariantDiscovery tasks wdl
+* Added WGS plumbing tests for dragen_maximum_quality_mode and dragen_functional_equivalence_mode
+* Added Xmx flag (maximum heap size) to all tasks with java commands
 
 # 2.0.0
 2021-08-17
