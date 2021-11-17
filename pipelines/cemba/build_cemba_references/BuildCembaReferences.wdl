@@ -162,7 +162,7 @@ task CreateReferenceDictionary {
     fi
 
     # create a reference dict
-    java -jar /picard-tools/picard.jar CreateSequenceDictionary \
+    java -Xmx3500m -jar /picard-tools/picard.jar CreateSequenceDictionary \
       REFERENCE=~{reference_fasta} \
       OUTPUT=~{ref_dict_output_name}
 
@@ -175,7 +175,7 @@ task CreateReferenceDictionary {
     # disks should be set to 2 * input file size
     disks: "local-disk " + ceil(2 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
-    memory: "4 GB"
+    memory: "4000 MiB"
   }
 
   output {
