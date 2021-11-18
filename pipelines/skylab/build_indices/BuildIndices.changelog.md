@@ -1,3 +1,9 @@
+# 0.1.1
+
+2021-11-15 (Date of Last Commit)
+
+* Updated add-introns-to-gtf.py to use python3 instead of python2.
+
 # 0.1.0
 
 2021-05-03 (Date of Last Commit)

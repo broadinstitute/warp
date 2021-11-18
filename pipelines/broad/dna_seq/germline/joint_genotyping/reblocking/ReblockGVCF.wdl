@@ -5,7 +5,7 @@ import "../../../../../../tasks/broad/Qc.wdl" as QC
 
 workflow ReblockGVCF {
 
-  String pipeline_version = "2.0.1"
+  String pipeline_version = "2.0.2"
 
   input {
     File gvcf

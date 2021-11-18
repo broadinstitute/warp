@@ -47,6 +47,7 @@ workflow UnmappedBamToAlignedBam {
     Boolean somatic = false
     Boolean perform_bqsr = true
     Boolean use_bwa_mem = true
+    Boolean allow_empty_ref_alt = false
   }
 
   Float cutoff_for_large_rg_in_gb = 20.0
@@ -86,7 +87,8 @@ workflow UnmappedBamToAlignedBam {
           preemptible_tries = papi_settings.preemptible_tries,
           hard_clip_reads = hard_clip_reads,
           unmap_contaminant_reads = unmap_contaminant_reads,
-          use_bwa_mem = use_bwa_mem
+          use_bwa_mem = use_bwa_mem,
+          allow_empty_ref_alt = allow_empty_ref_alt
       }
     }
 
@@ -102,7 +104,8 @@ workflow UnmappedBamToAlignedBam {
             compression_level = compression_level,
             preemptible_tries = papi_settings.preemptible_tries,
             hard_clip_reads = hard_clip_reads,
-            unmap_contaminant_reads = unmap_contaminant_reads
+            unmap_contaminant_reads = unmap_contaminant_reads,
+            allow_empty_ref_alt = allow_empty_ref_alt
         }
       }
       if (!use_bwa_mem) {

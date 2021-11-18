@@ -1,3 +1,8 @@
+# 2.5.3
+2021-11-15
+
+* Task wdls used by the Arrays pipeline were updated with changes that don't affect Arrays wdl
+
 # 2.5.2
 2021-11-10
 

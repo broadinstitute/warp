@@ -117,7 +117,7 @@ task BuildStarSingleNucleus {
 
     tar -cvf ~{star_index_name} star
 
-    python  /script/add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_introns}
+    python3  /script/add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_introns}
   >>>
 
   output {
@@ -374,7 +374,7 @@ workflow BuildIndices {
 
   # version of this pipeline
 
-  String pipeline_version = "0.1.0"
+  String pipeline_version = "0.1.1"
 
   parameter_meta {
     gtf_version: "the actual number of gencode, ex.  27"

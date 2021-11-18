@@ -57,7 +57,7 @@ workflow CEMBA {
     }
 
     # version of this pipeline
-    String pipeline_version = "1.1.2"
+    String pipeline_version = "1.1.3"
 
   # trim off hardcoded sequence adapters
   call Trim as TrimAdapters {
@@ -1093,7 +1093,7 @@ task VCFtoALLC {
   command <<<
     set -euo pipefail
 
-    python /tools/convert-vcf-to-allc.py -i ~{methylation_vcf_output_name} -o ~{methylation_allc_output_name}
+    python3 /tools/convert-vcf-to-allc.py -i ~{methylation_vcf_output_name} -o ~{methylation_allc_output_name}
   >>>
 
   runtime {

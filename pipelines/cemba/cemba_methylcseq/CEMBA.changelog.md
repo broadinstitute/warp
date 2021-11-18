@@ -1,3 +1,8 @@
+# 1.1.3
+2021-11-15 (Date of Last Commit)
+
+* Updated convert-vcf-to-allc.py to use python3 instead of python2.
+
 # 1.1.2
 2021-11-10 (Date of Last Commit)
 

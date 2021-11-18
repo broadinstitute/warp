@@ -43,7 +43,7 @@ task CountAlignments {
           -g gene_id
 
        # create a new input bam where the alignemnts crossing intron-exon junctions are removed
-       python /tools/remove-reads-on-junctions.py --input-gtf  ~{annotation_gtf} \
+       python3 /tools/remove-reads-on-junctions.py --input-gtf  ~{annotation_gtf} \
         --input-bam "${bam_files[$i]}"  --output-bam "${output_prefix[$i]}.input.nojunc.bam"
 
        # counting the exons
