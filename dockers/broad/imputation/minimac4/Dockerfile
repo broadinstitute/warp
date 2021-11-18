@@ -1,5 +1,5 @@
 # Minimac image uses bcftools
-FROM us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919
+FROM us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.1-1.10.2-0.1.16-1637264085
 
 ARG MINIMAC4_VERSION=1.0.2
 
