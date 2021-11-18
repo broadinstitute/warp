@@ -79,7 +79,7 @@ task MarkDuplicates {
   Float md_disk_multiplier = 3
   Int disk_size = ceil(md_disk_multiplier * total_input_size) + additional_disk
 
-  Int memory_size = 7500 * memory_multiplier
+  Int memory_size = 8192 * memory_multiplier
   Int java_memory_size = (memory_size - 1000)
   Int max_heap = memory_size - 500
 
