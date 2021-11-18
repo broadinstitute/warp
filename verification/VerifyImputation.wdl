@@ -153,7 +153,7 @@ task CrosscheckFingerprints {
       ln -s ${array_indices2[i]} $(dirname ${array_vcfs2[i]})
     done
 
-    java -Xms3500m -jar /usr/picard/picard.jar \
+    java -Xms3500m -Xms7500m -jar /usr/picard/picard.jar \
       CrosscheckFingerprints \
       -I ~{sep=" -I " firstInputs} \
       -SI ~{sep=" -SI " secondInputs} \
@@ -164,7 +164,7 @@ task CrosscheckFingerprints {
   runtime {
     docker: picard_docker
     disks: "local-disk " + disk_size + " HDD"
-    memory: "8 GiB"
+    memory: "8000 MiB"
   }
 
   output {

@@ -15,7 +15,7 @@ workflow scATAC {
         String bin_size_list = "10000"
     }
 
-    String pipeline_version = "1.2.0"
+    String pipeline_version = "1.2.1"
 
     parameter_meta {
         input_fastq1: "read 1 input fastq, the read names must be tagged with the cellular barcodes"
@@ -289,7 +289,7 @@ task BreakoutSnap {
     command {
         set -euo pipefail
         mkdir output
-        breakoutSnap.py --input ~{snap_input} \
+        python3 /tools/breakoutSnap.py --input ~{snap_input} \
             --output-prefix output/~{input_id}_
     }
 
