@@ -49,8 +49,6 @@ class ImputationTester(testerConfig: ImputationConfig)(
     )
     val outputBaseName =
       imputationInputs.getBasename(workflowName)
-    val haplotypeDatabase =
-      imputationInputs.getHaplotypeDatabase(workflowName)
     val outputCallsetName =
       imputationInputs.getOutputCallsetName(workflowName)
     val splitOutputToSingleSample =
