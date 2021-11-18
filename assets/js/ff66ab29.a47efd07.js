@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwebsite_2=self.webpackChunkwebsite_2||[]).push([[2451],{665:function(e){e.exports=JSON.parse('{"allTagsPath":"/warp/blog/tags","slug":"/warp/blog/tags/germline","name":"germline","count":1,"permalink":"/warp/blog/tags/germline"}')}}]);

@@ -4,15 +4,15 @@
         <title>WARP Blog</title>
         <link>https://broadinstitute.github.io/warp/blog</link>
         <description>WARP Blog</description>
-        <lastBuildDate>Sat, 29 May 2021 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 09 Nov 2021 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <item>
-            <title><![CDATA[Hello World!]]></title>
-            <link>https://broadinstitute.github.io/warp/blog/blog1</link>
-            <guid>blog1</guid>
-            <pubDate>Sat, 29 May 2021 00:00:00 GMT</pubDate>
-            <description><![CDATA[We are planning to add more blogs in the future, talking about the research and engineering at our group!]]></description>
+            <title><![CDATA[WARP Whole Genome and Exome Pipelines Produce Reblocked GVCFs]]></title>
+            <link>https://broadinstitute.github.io/warp/blog/Nov21_ReblockedGVCF</link>
+            <guid>Nov21_ReblockedGVCF</guid>
+            <pubDate>Tue, 09 Nov 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[November 9, 2021]]></description>
         </item>
     </channel>
 </rss>
