@@ -2,7 +2,7 @@
   "IlluminaGenotypingArray.sample_alias": "HG001",
   "IlluminaGenotypingArray.analysis_version_number": 1,
   "IlluminaGenotypingArray.call_rate_threshold": 0.98,
-  "IlluminaGenotypingArray.reported_gender": "Female",
+  "IlluminaGenotypingArray.reported_gender": "F",
   "IlluminaGenotypingArray.chip_well_barcode": "204038380098_R02C01",
 
   "IlluminaGenotypingArray.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GDA-8v1-0_A5/idats/204038380098_R02C01/204038380098_R02C01_Grn.idat",
