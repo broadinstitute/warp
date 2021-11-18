@@ -108,7 +108,7 @@ Additionally, the 4 GQ band schema has specific improvements compared with the 7
 2. It has no overlaps; the only overlapping positions should be two variants (i.e. deletions) on separate haplotypes.
 3. No more no-calls; all genotypes should be called. Positions with no data will be homRef with GQ0.
 
-Read more about the reblocked GVCFs in the [WARP Blog](https://broadinstitute.github.io/warp/blog/Blog%201).
+Read more about the reblocked GVCFs in the [WARP Blog](https://broadinstitute.github.io/warp/blog/Nov21_ReblockedGVCF).
 
 
 ### Base quality scores
