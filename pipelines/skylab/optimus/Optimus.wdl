@@ -88,7 +88,7 @@ workflow Optimus {
       tar_star_reference = tar_star_reference,
       chemistry = chemistry,
       counting_mode = counting_mode,
-      input_id = input_id
+      output_bam_basename = output_bam_basename
   }
 
   call Metrics.CalculateGeneMetrics as GeneMetrics {

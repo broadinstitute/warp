@@ -217,7 +217,7 @@ task STARsoloFastq {
     File white_list
     String chemistry
     String counting_mode
-    String input_id
+    String output_bam_basename
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
@@ -310,7 +310,7 @@ task STARsoloFastq {
         mv Solo.out/GeneFull Solo.out/Gene
     fi
 
-    mv Aligned.sortedByCoord.out.bam ~{input_id}.bam
+    mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
  
   }
 
@@ -323,7 +323,7 @@ task STARsoloFastq {
   }
 
   output {
-    File bam_output = "~{input_id}.bam"
+    File bam_output = "~{output_bam_basename}.bam"
     File alignment_log = "Log.final.out"
     File general_log = "Log.out"
     File barcodes = "Solo.out/Gene/raw/barcodes.tsv"
