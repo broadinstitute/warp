@@ -71,7 +71,7 @@ task BpmToNormalizationManifestCsv {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.4"
     disks: "local-disk 10 HDD"
     memory: "7500 MiB"
     cpu: 2
@@ -130,7 +130,7 @@ task GtcToVcf {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.4"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_mb} MiB"
     cpu: 2
@@ -195,7 +195,7 @@ task VcfToAdpc {
              --OUTPUT ~{output_adpc_filename}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.4"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -269,7 +269,7 @@ task CreateVerifyIDIntensityContaminationMetricsFile {
              --OUTPUT ~{output_metrics_basefilename}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.4"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -325,7 +325,7 @@ task CollectArraysVariantCallingMetrics {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.4"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -356,7 +356,7 @@ task VcfToIntervalList {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.4"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -410,7 +410,7 @@ task CheckFingerprint {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.4"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -515,7 +515,7 @@ task AutoCall {
     File red_idat_cloud_path
     File bead_pool_manifest_file
     File? cluster_file
-    Boolean? is_gender_autocall
+    Boolean is_gender_autocall = false
     Int disk_size
     Int preemptible_tries
   }
@@ -544,8 +544,8 @@ task AutoCall {
       ~{cluster_file} \
       . \
       -f ~{chip_well_barcode} \
-      ~{default='' true='--gender-estimate-call-rate-threshold -0.1' false='' is_gender_autocall} \
-      -g
+      ~{true='--gender-estimate-call-rate-threshold -0.1' false='--gender-estimate-call-rate-threshold 0.9' is_gender_autocall} \
+      --output-gtc
   >>>
 
   runtime {
@@ -589,7 +589,7 @@ task MergePedIntoVcf {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.4"
     memory: "3500 MiB"
     cpu: "1"
     disks: "local-disk " + disk_size + " HDD"
@@ -693,7 +693,7 @@ task GenotypeConcordance {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.4"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -779,7 +779,7 @@ task CreateExtendedIlluminaManifest {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.4"
     disks: "local-disk " + disk_size + " HDD"
     memory: "14000 MiB"
     preemptible: preemptible_tries
