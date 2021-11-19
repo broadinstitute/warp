@@ -1,3 +1,7 @@
+# 1.0.3
+2021-11-19 (Date of Last Commit)
+
+* Security patch to bcftools-vcftools docker image used in Imputation pipeline
 # 1.0.2
 2021-11-15 (Date of Last Commit)
 
