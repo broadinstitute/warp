@@ -1,3 +1,7 @@
+# 1.1.2
+2021-11-19 (Date of Last Commit)
+
+* Updated STARsoloFastq to use 'output_bam_basename' to name the aligned bam. This is consistent with versions 4.2.7 and older. This change has no impact MultiSampleSmartSeq2SingleNucleus
 # 1.1.1
 2021-11-15 (Date of Last Commit)
 * Updated remove-reads-on-junctions.py in the FeatureCounts.wdl to use python3 instead of python2.
