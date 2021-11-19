@@ -309,8 +309,6 @@ task CollectMultipleMetrics {
 	Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
 	Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 20
 
-	File ref_flat = "gs://gcp-public-data--broad-references/hg38/v0/GRCh38_gencode.v27.refFlat.txt"
-
 	command {
 		java -Xms5000m -jar /usr/gitc/picard.jar CollectMultipleMetrics \
 		INPUT=~{input_bam} \
