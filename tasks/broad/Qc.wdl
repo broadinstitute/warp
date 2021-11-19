@@ -337,7 +337,7 @@ task CheckPreValidation {
     grep -A 1 PERCENT_DUPLICATION ~{duplication_metrics} > duplication.csv
     grep -A 3 PCT_CHIMERAS ~{chimerism_metrics} | grep -v OF_PAIR > chimerism.csv
 
-    python <<CODE
+    python3 <<CODE
 
     import csv
     with open('duplication.csv') as dupfile:
@@ -358,7 +358,7 @@ task CheckPreValidation {
 
 >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/python:2.7"
+    docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     preemptible: preemptible_tries
     memory: "2 GiB"
   }

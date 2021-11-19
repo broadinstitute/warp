@@ -1,3 +1,8 @@
+# 2.0.2
+2021-11-15
+
+* Task wdls used by the ReblockGVCF pipeline were updated with changes that don't affect ReblockGVCF wdl
+
 # 2.0.1
 2021-11-10
 
