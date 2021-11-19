@@ -51,7 +51,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "5.1.1"
+  String pipeline_version = "5.1.2"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -87,7 +87,8 @@ workflow Optimus {
       white_list = whitelist,
       tar_star_reference = tar_star_reference,
       chemistry = chemistry,
-      counting_mode = counting_mode
+      counting_mode = counting_mode,
+      output_bam_basename = output_bam_basename
   }
 
   call Metrics.CalculateGeneMetrics as GeneMetrics {
