@@ -318,8 +318,6 @@ task CollectMultipleMetrics {
 		PROGRAM=CollectInsertSizeMetrics \
 		PROGRAM=CollectAlignmentSummaryMetrics \
 		REFERENCE_SEQUENCE=~{ref_fasta}
-
-		ls > ls.txt
 	}
 
 	runtime {
@@ -330,7 +328,6 @@ task CollectMultipleMetrics {
 	}
 
 	output {
-		File ls = "ls.txt"
 		File alignment_summary_metrics = output_bam_prefix + ".alignment_summary_metrics"
 		File insert_size_metrics = output_bam_prefix + ".insert_size_metrics"
 	}
