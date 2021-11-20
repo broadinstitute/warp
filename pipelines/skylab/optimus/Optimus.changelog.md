@@ -1,3 +1,8 @@
+# 5.1.2
+2021-11-19 (Date of Last Commit)
+
+* Updated STARsoloFastq to use 'output_bam_basename' to name the aligned bam. This is consistent with versions 4.2.7 and older
+
 # 5.1.1
 2021-09-13 (Date of Last Commit)
 
