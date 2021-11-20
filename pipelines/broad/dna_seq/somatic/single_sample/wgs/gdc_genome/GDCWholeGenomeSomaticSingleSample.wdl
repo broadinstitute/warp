@@ -411,13 +411,14 @@ task picard_markduplicates {
 
   Int memory_size = 7500 * memory_multiplier
   Int java_memory_size = memory_size - 2000
+  Int max_heap = memory_size - 500
 
   # Task is assuming query-sorted input so that the Secondary and Supplementary reads get marked correctly
   # This works because the output of BWA is query-grouped and therefore, so is the output of MergeBamAlignment.
   # While query-grouped isn't actually query-sorted, it's good enough for MarkDuplicates with ASSUME_SORT_ORDER="queryname"
 
   command {
-    java -Dsamjdk.compression_level=~{compression_level} -Xms~{java_memory_size}m  -Xmx~{java_memory_size + 1500}m -jar /usr/picard/picard.jar \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms~{java_memory_size}m  -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
       MarkDuplicates \
       INPUT=~{sep=' INPUT=' bams} \
       OUTPUT=~{outbam} \
