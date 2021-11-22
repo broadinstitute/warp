@@ -21,6 +21,10 @@ The [Imputation workflow](https://github.com/broadinstitute/warp/blob/develop/pi
 To identify the latest workflow version and release notes, please see the Imputation workflow [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/Imputation.changelog.md). 
  
 The latest release of the workflow, example data, and dependencies are available from the WARP releases page. To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
+
+:::tip Try the Imputation pipeline in Terra
+You can run the pipeline in the [Imputation workspace](https://app.terra.bio/#workspaces/warp-pipelines/Imputation) on [Terra](https://app.terra.bio), a cloud-optimized scalable bioinformatics platform. The workspace contains a preconfigured workflow, example inputs, instructions, and cost-estimates. 
+:::
  
 ### Input descriptions
 The table below describes each of the Imputation pipeline inputs. The workflow requires either a multi-sample VCF or an array of single sample VCFs.
@@ -56,7 +60,7 @@ For examples of how to specify each input in a configuration file, as well as cl
  
 The Imputation workflow's reference panel files is hosted in a [public Google Bucket](https://console.cloud.google.com/storage/browser/broad-gotc-test-storage/imputation/1000G_reference_panel;tab=objects?prefix=&forceOnObjectsSortingFiltering=false). For the cloud-path (URI) to the files, see the [example input configuration](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json).
 
-#### Generation of the modified 10000 Genomes reference
+#### Generation of the modified 1000 Genomes reference
 Initial tests of the Imputation workflow followed by assessments of polygenic risk score revealed that disease risk scores were lower when computed from imputed array data as opposed to whole-genome sequencing data, possibly because of incorrectly genotyped sites in the 1000 Genomes (1000G) reference panel. As a result, the 1000G reference files were modified for the Imputation pipeline as described below. You can view the original, unmodified 1000G VCFs [here](https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/). 
 
 To remove putative incorrect sites from the 1000G reference panel, allele frequencies were compared between it and the GnomadV2 reference panel. First, the [BuildAFComparisonTable workflow](https://github.com/broadinstitute/warp/tree/develop/scripts/BuildAFComparisonTable.wdl) was used to create a table of the allele frequencies for both reference panels. Then, the [FilterAFComparisonTable workflow](https://github.com/broadinstitute/warp/tree/develop/scripts/FilterAFComparisonTable.wdl) was applied to compare the observed number of alleles in 1000G to the expected number of alleles set by the GnomadV2 reference using a two-sided binomial p-value. If both p-values were less than 1e-10, then the site was flagged as incorrect. After identifying the putative incorrect sites, the [RemoveBadSitesById workflow](https://github.com/broadinstitute/warp/tree/develop/scripts/RemoveBadSitesById.wdl) was used to remove them, generating a cleaned 1000G reference panel. Read more about the comparison in the [technical report](https://github.com/broadinstitute/hydro.gen/tree/main/Analysis/cleaned_1000G_for_imputation). 
