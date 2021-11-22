@@ -105,7 +105,7 @@ workflow CreateOptimusAdapterMetadata {
 
   ########################## Get Optimus Metadata Files ##########################
   scatter (idx in range(length(output_looms))) {
-    String? fastq_i1_uuid = if defined(fastq_i1_uuids) then select_first([fastq_i1_uuids])[idx] else none
+    String? fastq_i1_uuid = if defined(fastq_i1_uuids[idx]) then select_first([fastq_i1_uuids])[idx] else none
     call CreateOptimusObjects.CreateOptimusAdapterObjects as CreateIntermediateOptimusAdapters {
       input:
         bam = output_bams[idx],
