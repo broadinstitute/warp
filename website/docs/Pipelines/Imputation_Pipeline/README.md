@@ -27,8 +27,14 @@ You can run the pipeline in the [Imputation workspace](https://app.terra.bio/#wo
 :::
  
 ### Input descriptions
-The table below describes each of the Imputation pipeline inputs. The workflow requires either a multi-sample VCF or an array of single sample VCFs.
+The table below describes each of the Imputation pipeline inputs. The workflow requires **either** a multi-sample VCF or an array of single sample VCFs. These samples must be from the same species and genotyping chip.
+
+**You must have two or more samples to run the pipeline.** 
+
+However, the pipeline is cost-optimized for between 100 and 1,000 samples. After 1,000 samples, the cost per sample no longer decreases (see the [Price estimates](#price-estimates) section). 
+
 For examples of how to specify each input in a configuration file, as well as cloud locations for different example input files, see the [example input configuration file (JSON)](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json).
+
  
 | Input name | Description | Type |
 | --- | --- | --- |
@@ -123,6 +129,17 @@ The table below summarizes the workflow outputs. If running the workflow on Crom
 ## Important notes
  
 - Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
+
+## Price estimates
+The pipeline is cost-optimized for between 100 and 1,000 samples, where the cost per sample continues to decrease until 1,000 samples are run. Cost estimates per sample are provided below:
+
+| Cohort size ( # samples) | Cost $ |
+| --- | --- | 
+| 1 | 8 |
+| 10 | 0.8 | 
+| 100 | 0.11 | 
+| 1000 | 0.024 |
+| 13.5 K | 0.025 |
  
 ## Contact us
 
