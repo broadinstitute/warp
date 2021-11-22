@@ -25,7 +25,7 @@ task CreateSequenceGroupingTSV {
   # It outputs to stdout where it is parsed into a wdl Array[Array[String]]
   # e.g. [["1"], ["2"], ["3", "4"], ["5"], ["6", "7", "8"]]
   command <<<
-    python <<CODE
+    python3 <<CODE
     with open("~{ref_dict}", "r") as ref_dict_file:
         sequence_tuple_list = []
         longest_sequence = 0
@@ -62,7 +62,7 @@ task CreateSequenceGroupingTSV {
   >>>
   runtime {
     preemptible: preemptible_tries
-    docker: "us.gcr.io/broad-gotc-prod/python:2.7"
+    docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     memory: "2 GiB"
   }
   output {
@@ -84,7 +84,7 @@ task ScatterIntervalList {
   command <<<
     set -e
     mkdir out
-    java -Xms1g -jar /usr/gitc/picard.jar \
+    java -Xms1000m -Xmx1500m -jar /usr/gitc/picard.jar \
       IntervalListTools \
       SCATTER_COUNT=~{scatter_count} \
       SUBDIVISION_MODE=BALANCING_WITHOUT_INTERVAL_SUBDIVISION_WITH_OVERFLOW \
@@ -111,7 +111,7 @@ task ScatterIntervalList {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.5.7-2021-06-09_16-47-48Z"
-    memory: "2 GiB"
+    memory: "2000 MiB"
   }
 }
 
@@ -196,13 +196,13 @@ task SumFloats {
   }
 
   command <<<
-    python -c "print ~{sep="+" sizes}"
+    python3 -c 'print(~{sep="+" sizes})'
   >>>
   output {
     Float total_size = read_float(stdout())
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/python:2.7"
+    docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     preemptible: preemptible_tries
   }
 }

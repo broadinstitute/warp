@@ -39,8 +39,12 @@ task GenerateChunk {
     Int memory_mb = 8000
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
   }
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
   command {
-    gatk SelectVariants \
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    SelectVariants \
     -V ~{vcf} \
     --select-type-to-include SNP \
     --max-nocall-fraction 0.1 \
@@ -80,14 +84,17 @@ task CountVariantsInChunks {
     File panel_vcf
     File panel_vcf_index
 
-    Int disk_size_gb = ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
     Int cpu = 1
     Int memory_mb = 4000
+    Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB")) + 20
   }
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
   command <<<
-    echo $(gatk CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
-    echo $(gatk  CountVariants -V ~{vcf} -L ~{panel_vcf}  | sed 's/Tool returned://') > var_in_reference
+    echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
+    echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_vcf}  | sed 's/Tool returned://') > var_in_reference
   >>>
   output {
     Int var_in_original = read_int("var_in_original")
@@ -111,7 +118,7 @@ task CheckChunks {
     Int var_in_reference
 
     Int disk_size_gb = ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
-    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.1-1.10.2-0.1.16-1637264085"
     Int cpu = 1
     Int memory_mb = 4000
   }
@@ -186,7 +193,7 @@ task Minimac4 {
     Int end
     Int window
 
-    String minimac4_docker = "us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.0-1.0.2-1633700284"
+    String minimac4_docker = "us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.1-1.0.2-1637268830"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = ceil(size(ref_panel, "GiB") + 2*size(phased_vcf, "GiB")) + 50
@@ -231,12 +238,17 @@ task GatherVcfs {
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3*size(input_vcfs, "GiB"))
   }
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
   command <<<
-    gatk GatherVcfs \
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    GatherVcfs \
     -I ~{sep=' -I ' input_vcfs} \
     -O ~{output_vcf_basename}.vcf.gz
 
-    gatk IndexFeatureFile -I ~{output_vcf_basename}.vcf.gz
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    IndexFeatureFile -I ~{output_vcf_basename}.vcf.gz
 
   >>>
   runtime {
@@ -263,10 +275,14 @@ task UpdateHeader {
     Int cpu = 1
     Int memory_mb = 8000
   }
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
   command <<<
 
     ## update the header of the merged vcf
-    gatk UpdateVCFSequenceDictionary \
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    UpdateVCFSequenceDictionary \
     --source-dictionary ~{ref_dict} \
     --output ~{basename}.vcf.gz \
     --replace -V ~{vcf} \
@@ -295,8 +311,12 @@ task RemoveSymbolicAlleles {
     Int cpu = 1
     Int memory_mb = 4000
   }
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
   command {
-    gatk SelectVariants -V ~{original_vcf} -xl-select-type SYMBOLIC -O ~{output_basename}.vcf.gz
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    SelectVariants -V ~{original_vcf} -xl-select-type SYMBOLIC -O ~{output_basename}.vcf.gz
   }
   output {
     File output_vcf = "~{output_basename}.vcf.gz"
@@ -317,7 +337,7 @@ task SeparateMultiallelics {
     String output_basename
 
     Int disk_size_gb =  ceil(2*(size(original_vcf, "GiB") + size(original_vcf_index, "GiB")))
-    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.1-1.10.2-0.1.16-1637264085"
     Int cpu = 1
     Int memory_mb = 4000
   }
@@ -345,7 +365,7 @@ task OptionalQCSites {
     Float? optional_qc_max_missing
     Float? optional_qc_hwe
 
-    String bcftools_vcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
+    String bcftools_vcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.1-1.10.2-0.1.16-1637264085"
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = ceil(2*(size(input_vcf, "GiB") + size(input_vcf_index, "GiB")))
@@ -376,12 +396,25 @@ task MergeSingleSampleVcfs {
     Array[File] input_vcf_indices
     String output_vcf_basename
 
-    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.1-1.10.2-0.1.16-1637264085"
     Int memory_mb = 2000
     Int cpu = 1
     Int disk_size_gb = 3 * ceil(size(input_vcfs, "GiB") + size(input_vcf_indices, "GiB")) + 20
   }
   command <<<
+    # Move the index file next to the vcf with the corresponding name
+
+    declare -a VCFS=(~{sep=' ' input_vcfs})
+    declare -a VCF_INDICES=(~{sep=' ' input_vcf_indices})
+
+    for i in ${VCF_INDICES[@]}; do
+      for v in ${VCFS[@]}; do
+        if [[ $(basename $i .vcf.gz.tbi) == $(basename $v .vcf.gz) ]]; then
+          mv $i $(dirname $v)
+        fi
+      done
+    done
+
     bcftools merge ~{sep=' ' input_vcfs} -O z -o ~{output_vcf_basename}.vcf.gz
     bcftools index -t ~{output_vcf_basename}.vcf.gz
   >>>
@@ -401,7 +434,7 @@ task CountSamples {
   input {
     File vcf
 
-    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.1-1.10.2-0.1.16-1637264085"
     Int cpu = 1
     Int memory_mb = 3000
     Int disk_size_gb = 100 + ceil(size(vcf, "GiB"))
@@ -546,7 +579,7 @@ task SetIDs {
     File vcf
     String output_basename
 
-    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.1-1.10.2-0.1.16-1637264085"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = 100 + ceil(2.2 * size(vcf, "GiB"))
@@ -576,7 +609,7 @@ task ExtractIDs {
     String output_basename
 
     Int disk_size_gb = 2*ceil(size(vcf, "GiB")) + 100
-    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.1-1.10.2-0.1.16-1637264085"
     Int cpu = 1
     Int memory_mb = 4000
   }
@@ -611,9 +644,13 @@ task SelectVariantsByIds {
       localization_optional: true
     }
   }
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
   command <<<
     cp ~{ids} sites.list
-    gatk SelectVariants -V ~{vcf} --exclude-filtered --keep-ids sites.list -O ~{basename}.vcf.gz
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    SelectVariants -V ~{vcf} --exclude-filtered --keep-ids sites.list -O ~{basename}.vcf.gz
   >>>
   runtime {
     docker: gatk_docker
@@ -632,7 +669,7 @@ task RemoveAnnotations {
     File vcf
     String basename
 
-    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.1-1.10.2-0.1.16-1637264085"
     Int cpu = 1
     Int memory_mb = 3000
     Int disk_size_gb = ceil(2.2*size(vcf, "GiB")) + 100
@@ -663,8 +700,12 @@ task InterleaveVariants {
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3.2*size(vcfs, "GiB")) + 100
   }
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
   command <<<
-    gatk MergeVcfs -I ~{sep=" -I " vcfs} -O ~{basename}.vcf.gz
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    MergeVcfs -I ~{sep=" -I " vcfs} -O ~{basename}.vcf.gz
   >>>
   runtime {
     docker: gatk_docker
@@ -706,7 +747,7 @@ task SplitMultiSampleVcf {
  input {
     File multiSampleVcf
 
-    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919"
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.1-1.10.2-0.1.16-1637264085"
     Int cpu = 1
     Int memory_mb = 8000
     Int disk_size_gb = ceil(3*size(multiSampleVcf, "GiB")) + 100

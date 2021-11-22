@@ -2,13 +2,13 @@
 sidebar_position: 2
 ---
 
-# Whole Genome Germline Single Sample v2.5.0 Methods
+# Whole Genome Germline Single Sample v3.0.0 Methods (Default workflow)
 
 The following contains a detailed methods description outlining the pipeline’s process, software, and tools that can be modified for a publication methods section.
 
 ## Detailed methods for the default Whole Genome Germline Single Sample workflow
 
-Preprocessing and variant calling was performed using the WholeGenomeGermlineSingleSample 2.5.0 pipeline using Picard 2.23.8, GATK 4.2.2.0, and Samtools 1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline follows GATK Best Practices as previously described ([Van der Auwera & O'Connor, 2020](https://www.oreilly.com/library/view/genomics-in-the/9781491975183/)) as well as the Functional Equivalence specification ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)).
+Preprocessing and variant calling was performed using the WholeGenomeGermlineSingleSample 3.0.0 pipeline using Picard 2.23.8, GATK 4.2.2.0, and Samtools 1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline follows GATK Best Practices as previously described ([Van der Auwera & O'Connor, 2020](https://www.oreilly.com/library/view/genomics-in-the/9781491975183/)) as well as the Functional Equivalence specification ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)).
 
 ### Pre-processing and quality control metrics
 
@@ -28,6 +28,10 @@ The final base-recalibrated BAM was converted to CRAM using Samtools view and va
 
 ### Variant calling
 
-Prior to variant calling, the variant calling interval list was split to enable parallelization. Using the GATK PrintReads tool, the WellformedReadFilter was applied to reads. Variant calling was then applied to reads that passed the filter using GATK (v3.5) HaplotypeCaller with the parameters --max_alternate_alleles 3 (sufficient for human data),  --ERC GVCF, and --read_filter OverclippedRead (to reduce false positives resulting from contamination). The resulting GVCFs were merged using Picard MergeVcfs and the final VCF file was validated using GATK ValidateVariants. Variant metrics were calculated using Picard CollectVariantCallingMetrics.
+Prior to variant calling, the variant calling interval list was split to enable parallelization. Using the GATK PrintReads tool, the WellformedReadFilter was applied to reads. Variant calling was then applied to reads that passed the filter using GATK (v3.5) HaplotypeCaller with the parameters --max_alternate_alleles 3 (sufficient for human data),  --ERC GVCF, and --read_filter OverclippedRead (to reduce false positives resulting from contamination). The resulting GVCFs were merged using Picard MergeVcfs and then reblocked using GATK ReblockGVCF with -GQB 20 -GQB 30 -GQB 40. The final reblocked GVCF file was validated using GATK ValidateVariants. Variant metrics were calculated using Picard CollectVariantCallingMetrics.
 
-The pipeline’s final outputs included metrics, validation reports, an aligned CRAM with index, and a GVCF containing variant calls with an accompanying index.
+The pipeline’s final outputs included metrics, validation reports, an aligned CRAM with index, and a reblocked GVCF containing variant calls with an accompanying index.
+
+## Previous methods documents
+- [WholeGenomeGermlineSingleSample_v2.5.0](https://github.com/broadinstitute/warp/blob/WholeGenomeGermlineSingleSample_v2.5.0/website/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/wgs.methods.md)
+- [WholeGenomeGermlineSingleSample_v2.3.7](https://github.com/broadinstitute/warp/blob/WholeGenomeGermlineSingleSample_v2.3.7/website/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/wgs.methods.md)

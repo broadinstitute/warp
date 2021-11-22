@@ -108,8 +108,8 @@ task MergeLooms {
 
     String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:wd_add_validation_script"
     Int cpu = 1
-    Int memory_mb = ceil(size(output_looms, "MiB")) * length(output_looms) * 5
-    Int disk_size_gb = ceil((size(output_looms, "GiB") * 2)) + 5
+    Int memory_mb = ceil((size(output_looms, "MiB") * 2)) + 40000
+    Int disk_size_gb = ceil((size(output_looms, "GiB") * 2)) + 75
   }
 
   command {

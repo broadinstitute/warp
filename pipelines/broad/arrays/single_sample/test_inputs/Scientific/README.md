@@ -52,6 +52,13 @@
     - Pulling fingerprint from Mercury
         - IS a clinical sample, so only pulling fluidigm fingerprint
     - Not pushing fingerprint to Mercury
+- 204038380098_R02C01_HG001
+    - Control sample (HG001 = NA12878) as contributed by CIDR (Johns Hopkins)
+    - On the GDA chip
+    - Using the 2.0 Extended Manifest.
+    - Looks up the bead_pool_manifest_file using the combination of arrays_metadata_path and bead_pool_manifest_filename
+    - Looks up the cluster_file using the combination of arrays_metadata_path and cluster_filename
+    - Looks up the minor_allele_frequency_file from the maf_map file stored online at arrays_metadata_path
 - 204126290052_R01C01_NA12878
     - Control sample
     - On the GDA chip
@@ -60,9 +67,11 @@
 - 204126290052_R01C01_NA12878_2
     - Control sample
     - On the GDA chip
-    - Using the 2.0 Extended Manifest
+    - Using the 2.0 Extended Manifest and the (JHU-supplied) custom cluster file
     - Looks up the bead_pool_manifest_file using the combination of arrays_metadata_path and bead_pool_manifest_filename
     - Looks up the cluster_file using the combination of arrays_metadata_path and cluster_filename
+    - Looks up the extended illumina manifest from the map file stored online at arrays_metadata_path
+    - Looks up the minor_allele_frequency_file from the maf_map file stored online at arrays_metadata_path
 - 204520870050_R02C01_NA24385
     - A Coriell sample for which we have no control data
     - Ashkenazim trio (Son)
