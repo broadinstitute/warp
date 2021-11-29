@@ -510,8 +510,8 @@ workflow Arrays {
     File? arrays_subset_variant_calling_detail_metrics_file = IlluminaGenotypingArray.arrays_subset_variant_calling_detail_metrics
     File? arrays_subset_variant_calling_summary_metrics_file = IlluminaGenotypingArray.arrays_subset_variant_calling_summary_metrics
     File? arrays_subset_variant_calling_control_metrics_file = IlluminaGenotypingArray.arrays_subset_variant_calling_control_metrics
-    File? fingerprint_summary_metrics_file = IlluminaGenotypingArray.fingerprint_summary_metrics
     File? fingerprint_detail_metrics_file = IlluminaGenotypingArray.fingerprint_detail_metrics
+    File? fingerprint_summary_metrics_file = IlluminaGenotypingArray.fingerprint_summary_metrics
     File? genotype_concordance_summary_metrics_file = IlluminaGenotypingArray.genotype_concordance_summary_metrics
     File? genotype_concordance_detail_metrics_file  = IlluminaGenotypingArray.genotype_concordance_detail_metrics
     File? genotype_concordance_contingency_metrics_file = IlluminaGenotypingArray.genotype_concordance_contingency_metrics
