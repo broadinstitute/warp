@@ -88,19 +88,28 @@ workflow RNAWithUMIsPipeline {
 	}
 
 
-  output {
-	File transcriptome_bam = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam
-	File transcriptome_bam_index = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam_index
-	File transcriptome_duplicate_metrics = UMIAwareDuplicateMarkingTranscriptome.duplicate_metrics
-	File output_bam = UMIAwareDuplicateMarking.duplicate_marked_bam
-	File output_bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index
-	File duplicate_metrics = UMIAwareDuplicateMarking.duplicate_metrics
-	File gene_tpm = rnaseqc2.gene_tpm
-	File gene_counts = rnaseqc2.gene_counts
-	File exon_counts = rnaseqc2.exon_counts
-	File metrics = rnaseqc2.metrics
-		
-  }
+	output {
+		File transcriptome_bam = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam
+		File transcriptome_bam_index = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam_index
+		File transcriptome_duplicate_metrics = UMIAwareDuplicateMarkingTranscriptome.duplicate_metrics
+		File output_bam = UMIAwareDuplicateMarking.duplicate_marked_bam
+		File output_bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index
+		File duplicate_metrics = UMIAwareDuplicateMarking.duplicate_metrics
+		File gene_tpm = rnaseqc2.gene_tpm
+		File gene_counts = rnaseqc2.gene_counts
+		File exon_counts = rnaseqc2.exon_counts
+		File metrics = rnaseqc2.metrics
+		File rna_metrics = CollectRNASeqMetrics.rna_metrics
+		File alignment_summary_metrics = CollectMultipleMetrics.alignment_summary_metrics
+		File insert_size_metrics = CollectMultipleMetrics.insert_size_metrics
+		File insert_size_histogram = CollectMultipleMetrics.insert_size_histogram
+		File base_distribution_by_cycle_metrics = CollectMultipleMetrics.base_distribution_by_cycle_metrics
+		File base_distribution_by_cycle_pdf = CollectMultipleMetrics.base_distribution_by_cycle_pdf
+		File quality_by_cycle_metrics = CollectMultipleMetrics.quality_by_cycle_metrics
+		File quality_by_cycle_pdf = CollectMultipleMetrics.quality_by_cycle_pdf
+		File quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
+		File quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
+	}
 }
 
 task STAR {
@@ -113,7 +122,7 @@ task STAR {
 	command <<<
 		echo $(date +"[%b %d %H:%M:%S] Extracting STAR index")
 		mkdir star_index
-		tar -xvf ~{starIndex} -C star_index --strip-components=1
+		tar -xvvf ~{starIndex} -C star_index --strip-components=1
 
 		STAR --readFilesIn ~{bam} --readFilesType SAM PE --readFilesCommand samtools view -h \
 			--runMode alignReads --genomeDir star_index --outSAMtype BAM Unsorted --runThreadN 8 \
@@ -270,7 +279,7 @@ task CollectRNASeqMetrics {
 	Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 20
 
 	# This jar skips the header check of the ribosomal interval
-	File picard_jar = "gs://broad-dsde-methods-takuto/hydro.gen/picard_ignore_ribosomal_header.jar"
+	File picard_jar = "gs://broad-gotc-test-storage/rna_seq/picard_ignore_ribosomal_header.jar"
 
 	command {
 		java -Xms5000m -jar ~{picard_jar} CollectRnaSeqMetrics \
