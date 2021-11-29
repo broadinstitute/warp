@@ -28,6 +28,7 @@ The comparison below shows that the improvement is due only to the removal of si
 
 ![](cleaned_vs_original_compare_to_gnomad_af_method_correlations-1.png)
 
+A public copy of the cleaned reference can be found at gs://broad-gotc-test-storage/imputation/1000G_reference_panel/ as shown in the Imputation workflow's [example configuration file](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/arrays/imputation/example_inputs.json) (JSON).
 
 ## Questions 
 For questions or additional information about the Imputation pipeline's reference generation, email [Chris Kachullis](mailto:ckachuli@broadinstitute.org).
