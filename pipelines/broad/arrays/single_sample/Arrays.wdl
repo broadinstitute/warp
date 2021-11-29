@@ -504,11 +504,11 @@ workflow Arrays {
     File? output_fingerprint_vcf = IlluminaGenotypingArray.output_fingerprint_vcf
     File? output_fingerprint_vcf_index = IlluminaGenotypingArray.output_fingerprint_vcf_index
     File? output_fingerprint_json_file = VcfToMercuryFingerprintJson.output_json_file
-    File? arrays_variant_calling_summary_metrics_file = IlluminaGenotypingArray.arrays_variant_calling_summary_metrics
     File arrays_variant_calling_detail_metrics_file = select_first([IlluminaGenotypingArray.arrays_variant_calling_detail_metrics, GenerateEmptyVariantCallingMetricsFile.detail_metrics])
+    File? arrays_variant_calling_summary_metrics_file = IlluminaGenotypingArray.arrays_variant_calling_summary_metrics
     File? arrays_variant_calling_control_metrics_file = IlluminaGenotypingArray.arrays_variant_calling_control_metrics
-    File? arrays_subset_variant_calling_summary_metrics_file = IlluminaGenotypingArray.arrays_subset_variant_calling_summary_metrics
     File? arrays_subset_variant_calling_detail_metrics_file = IlluminaGenotypingArray.arrays_subset_variant_calling_detail_metrics
+    File? arrays_subset_variant_calling_summary_metrics_file = IlluminaGenotypingArray.arrays_subset_variant_calling_summary_metrics
     File? arrays_subset_variant_calling_control_metrics_file = IlluminaGenotypingArray.arrays_subset_variant_calling_control_metrics
     File? fingerprint_summary_metrics_file = IlluminaGenotypingArray.fingerprint_summary_metrics
     File? fingerprint_detail_metrics_file = IlluminaGenotypingArray.fingerprint_detail_metrics

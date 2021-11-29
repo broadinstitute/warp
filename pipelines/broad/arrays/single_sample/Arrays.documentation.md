@@ -1,6 +1,6 @@
 # Arrays Pipeline
 
-This document describes version 2.5.1 of the Arrays Pipeline. The Arrays Pipeline is used internally within the Broad Institute.  It is written in WDL and designed to work on the Cromwell execution engine using Google Cloud Services and Google Cloud Storage as its backend and storage.  
+This document describes version 2.6.0 of the Arrays Pipeline. The Arrays Pipeline is used internally within the Broad Institute.  It is written in WDL and designed to work on the Cromwell execution engine using Google Cloud Services and Google Cloud Storage as its backend and storage.  
 
 The Arrays Pipeline is designed to process Illumina genotyping data (in the form of IDATs) with metadata about the genotyping chip, the sample being processed, and reference information. The pipeline generates several outputs, including an extensively annotated VCF and associated metrics.  The Arrays Pipeline differs from the ‘Illumina Genotyping Array Pipeline’ in that the former calls the latter to do primary analysis, and then uploads the metrics from these analyses to several tables in a cloud database.
 
