@@ -1,15 +1,15 @@
 # Creating the Imputation Pipeline's Modified 1000 Genomes Reference
 
 ## Background
-Initial tests of the Imputation workflow followed by assessments of polygenic risk score (PRS) revealed that risk scores for coronary artery disease (CAD) were lower when computed from imputed array data as opposed to whole-genome sequencing data (see figures below), possibly because of incorrectly genotyped sites in the 1000 Genomes (1000G) reference panel. 
+Initial tests of the Imputation workflow followed by assessments of polygenic risk score (PRS) revealed that risk scores for coronary artery disease (CAD) were lower when computed from imputed array data as opposed to whole-genome sequencing data (see figures below).
 
 ![](imputed_vs_wgs_scores_original_1kg-1.png)
 
 ![](imputed_vs_wgs_scores_original_1kg-2.png)
 
-The systematic difference was due to a single site (10:104952499) which had a relatively high effect weight in the CAD weights file used for the PRS analysis. When using hte [gnomAD V2 reference](https://gnomad.broadinstitute.org/) for comparison, the site appears to be incorrectly genotyped in the 1000G reference. Whereas the site's allele fraction is 0.72 in 1000G, it is only 0.086 in the gnomAD V2 reference. 
+The systematic difference was due to a single site (10:104952499) which had a relatively high effect weight in the CAD weights file used for the PRS analysis. When using the [gnomAD V2 reference](https://gnomad.broadinstitute.org/) for comparison, the site appears to be incorrectly genotyped in the 1000G reference. Whereas the site's allele fraction is 0.72 in 1000G, it is only 0.086 in the gnomAD V2 reference. 
 
-As a result, the 1000G reference files were modified for the Imputation pipeline as described below. You can view the original, unmodified 1000G VCFs [here](https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/). 
+This finding suggests that 1000G sites may be incorrectly genotyped. As a result, the 1000G reference files were modified for the Imputation pipeline as described below. You can view the original, unmodified 1000G VCFs [here](https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/). 
 
 ## Reference modification 
 To remove putative incorrect sites from the 1000G reference panel, allele frequencies were compared between it and the gnomAD V2 reference panel. First, the [BuildAFComparisonTable workflow](https://github.com/broadinstitute/warp/tree/develop/scripts/BuildAFComparisonTable.wdl) was used to create a table of the allele frequencies for both reference panels. Then, the [FilterAFComparisonTable workflow](https://github.com/broadinstitute/warp/tree/develop/scripts/FilterAFComparisonTable.wdl) was applied to compare the observed number of alleles in 1000G to the expected number of alleles set by the gnomAD V2 reference using a two-sided binomial p-value. If both p-values were less than 1e-10, then the site was flagged as incorrect. After identifying the putative incorrect sites, the [RemoveBadSitesById workflow](https://github.com/broadinstitute/warp/tree/develop/scripts/RemoveBadSitesById.wdl) was used to remove them, generating a cleaned 1000G reference panel. 
