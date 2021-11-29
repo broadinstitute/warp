@@ -38,7 +38,7 @@ task CompareGtcs {
   }
 
   command {
-    java -Xms4500m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+    java -Xms4500m -Xmx4500m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
       CompareGtcFiles \
       --INPUT ~{file1} \
       --INPUT ~{file2} \
@@ -48,7 +48,7 @@ task CompareGtcs {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk 10 HDD"
-    memory: "5 GiB"
+    memory: "5000 MiB"
     preemptible: 3
   }
 }
@@ -154,7 +154,7 @@ task CompareBams {
     set -e
     set -o pipefail
 
-    java -Xms3500m -jar /usr/picard/picard.jar \
+    java -Xms3500m -Xmx7000m -jar /usr/picard/picard.jar \
     CompareSAMs \
           ~{test_bam} \
           ~{truth_bam} \
@@ -167,7 +167,7 @@ task CompareBams {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk " + disk_size + " HDD"
     cpu: 2
-    memory: "7.5 GiB"
+    memory: "7500 MiB"
     preemptible: 3
   }
 }

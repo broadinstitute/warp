@@ -1,6 +1,6 @@
 {
   "IlluminaGenotypingArray.sample_alias": "NA12878",
-  "IlluminaGenotypingArray.analysis_version_number": 1,
+  "IlluminaGenotypingArray.analysis_version_number": 2,
   "IlluminaGenotypingArray.call_rate_threshold": 0.98,
   "IlluminaGenotypingArray.reported_gender": "Female",
   "IlluminaGenotypingArray.chip_well_barcode": "204126290052_R01C01",
