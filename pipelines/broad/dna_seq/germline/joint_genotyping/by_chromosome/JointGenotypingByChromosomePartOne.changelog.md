@@ -1,7 +1,8 @@
 # 1.4.2
-2021-11-01
+2021-11-10
 
-Task wdls used by JointGenotypingByChromosomePartOne were updated with changes that don't affect JointGenotypingByChromosomePartOne wdl
+* Task wdls used by JointGenotypingByChromosomePartOne were updated with changes that don't affect JointGenotypingByChromosomePartOne wdl
+* Added Xmx flag (maximum heap size) to all tasks with java commands
 
 # 1.4.1
 2020-12-16

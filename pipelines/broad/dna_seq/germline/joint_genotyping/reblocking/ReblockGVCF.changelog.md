@@ -1,9 +1,15 @@
+# 2.0.2
+2021-11-15
+
+* Task wdls used by the ReblockGVCF pipeline were updated with changes that don't affect ReblockGVCF wdl
+
 # 2.0.1
-2021-11-09
+2021-11-10
 
 * Added a validation task to check output reblocked GVCFs for reference block overlaps
 * Moved ReblockGVCF task to GermlineVariantDiscovery tasks wdl
-* Adding WGS plumbing tests for dragen_maximum_quality_mode and dragen_functional_equivalence_mode
+* Added WGS plumbing tests for dragen_maximum_quality_mode and dragen_functional_equivalence_mode
+* Added Xmx flag (maximum heap size) to all tasks with java commands
 
 # 2.0.0
 2021-08-17

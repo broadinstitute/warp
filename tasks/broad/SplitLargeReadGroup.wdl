@@ -41,6 +41,7 @@ workflow SplitLargeReadGroup {
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
     Boolean use_bwa_mem = true
+    Boolean allow_empty_ref_alt = false
   }
 
   call Alignment.SamSplitter as SamSplitter {
@@ -65,7 +66,8 @@ workflow SplitLargeReadGroup {
           compression_level = compression_level,
           preemptible_tries = preemptible_tries,
           hard_clip_reads = hard_clip_reads,
-          unmap_contaminant_reads = unmap_contaminant_reads
+          unmap_contaminant_reads = unmap_contaminant_reads,
+          allow_empty_ref_alt = allow_empty_ref_alt
       }
     }
     if (!use_bwa_mem) {

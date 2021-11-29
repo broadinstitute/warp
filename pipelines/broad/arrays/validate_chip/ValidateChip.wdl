@@ -21,7 +21,7 @@ import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 workflow ValidateChip {
 
-  String pipeline_version = "1.14.0"
+  String pipeline_version = "1.15.0"
 
   input {
     String sample_alias
@@ -273,7 +273,7 @@ task GenotypeConcordance {
   command <<<
     set -e
 
-    /gatk/gatk --java-options -Xms7g \
+    /gatk/gatk --java-options "-Xms6000m -Xmx6500m" \
       GenotypeConcordance \
       --CALL_VCF ~{call_vcf_file} \
       --CALL_SAMPLE ~{call_sample_name} \
@@ -327,7 +327,7 @@ task GenotypeConcordance {
   runtime {
     docker: "us.gcr.io/broad-gatk/gatk:4.1.3.0"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "7 GiB"
+    memory: "7000 MiB"
     preemptible: preemptible_tries
   }
 
