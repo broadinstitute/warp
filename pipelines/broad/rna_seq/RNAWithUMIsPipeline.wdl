@@ -102,13 +102,6 @@ workflow RNAWithUMIsPipeline {
 		File rna_metrics = CollectRNASeqMetrics.rna_metrics
 		File alignment_summary_metrics = CollectMultipleMetrics.alignment_summary_metrics
 		File insert_size_metrics = CollectMultipleMetrics.insert_size_metrics
-		File insert_size_histogram = CollectMultipleMetrics.insert_size_histogram
-		File base_distribution_by_cycle_metrics = CollectMultipleMetrics.base_distribution_by_cycle_metrics
-		File base_distribution_by_cycle_pdf = CollectMultipleMetrics.base_distribution_by_cycle_pdf
-		File quality_by_cycle_metrics = CollectMultipleMetrics.quality_by_cycle_metrics
-		File quality_by_cycle_pdf = CollectMultipleMetrics.quality_by_cycle_pdf
-		File quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
-		File quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
 	}
 }
 
@@ -134,9 +127,9 @@ task STAR {
 			--chimOutType WithinBAM SoftClip --chimOutJunctionFormat 0 --twopassMode Basic --quantMode TranscriptomeSAM --quantTranscriptomeBan Singleend
 
 	>>>
-
+	# Copied the docker from tag's private location to a public location.
 	runtime {
-		docker : "us.gcr.io/tag-team-160914/neovax-tag-rnaseq:v1"
+		docker : "us.gcr.io/broad-gotc-prod/neovax-tag-rnaseq:v1"
 		disks : "local-disk " + disk_space + " HDD"
 		memory : "64GB"
 		cpu : "8"
