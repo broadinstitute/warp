@@ -9,7 +9,7 @@ Initial tests of the Imputation workflow followed by assessments of polygenic ri
 
 The systematic difference was due to a single site (10:104952499) which had a relatively high effect weight in the CAD weights file used for the PRS analysis. When using [gnomAD V2](https://gnomad.broadinstitute.org/) for comparison, the site appears to be incorrectly genotyped in the 1000G reference. Whereas the site's allele frequency is 0.72 in 1000G, it is only 0.086 in gnomAD V2. 
 
-This finding suggests that 1000G sites may be incorrectly genotyped. As a result, the 1000G reference files were modified for the Imputation pipeline as described below. You can view the original, unmodified 1000G VCFs [here](https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/). 
+This finding suggests that some 1000G sites may be systematically incorrectly genotyped. As a result, the 1000G reference files were modified for the Imputation pipeline as described below. You can view the original, unmodified 1000G VCFs [here](https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/). 
 
 ## Reference modification 
 To remove putative incorrect sites from the 1000G reference panel, allele frequencies were compared between it and gnomAD V2. First, the [BuildAFComparisonTable workflow](https://github.com/broadinstitute/warp/tree/develop/scripts/BuildAFComparisonTable.wdl) was used to create a table of the allele frequencies for both reference panels. Then, the [FilterAFComparisonTable workflow](https://github.com/broadinstitute/warp/tree/develop/scripts/FilterAFComparisonTable.wdl) was applied to compare the observed number of alleles in 1000G to the expected number of alleles set by gnomAD V2 using a two-sided binomial p-value. 
