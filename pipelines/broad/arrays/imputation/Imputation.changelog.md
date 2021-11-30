@@ -1,3 +1,8 @@
+# 1.0.4
+2021-11-22 (Date of Last Commit)
+
+* Removed haplotype_database as a pipeline input since it is not used
+
 # 1.0.3
 2021-11-19 (Date of Last Commit)
 
