@@ -175,7 +175,8 @@ task rnaseqc2 {
 		File bam_file
 		File genes_gtf
 		String sample_id
-		File exon_bed = "gs://gtex-resources/GENCODE/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed"
+		## Commented out because I can't access it.
+##		File exon_bed = "gs://gtex-resources/GENCODE/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed"
 	}
 	
 	Int disk_space = ceil(size(bam_file, 'GB') + size(genes_gtf, 'GB')) + 100
@@ -183,7 +184,8 @@ task rnaseqc2 {
 	command {
 		set -euo pipefail
 		echo $(date +"[%b %d %H:%M:%S] Running RNA-SeQC 2")
-		rnaseqc ~{genes_gtf} ~{bam_file} . -s ~{sample_id} -v --bed ~{exon_bed}
+		rnaseqc ~{genes_gtf} ~{bam_file} . -s ~{sample_id} -v
+		## rnaseqc ~{genes_gtf} ~{bam_file} . -s ~{sample_id} -v --bed ~{exon_bed}
 		echo "  * compressing outputs"
 		gzip *.gct
 		echo $(date +"[%b %d %H:%M:%S] done")
@@ -193,7 +195,7 @@ task rnaseqc2 {
 		File gene_tpm = "${sample_id}.gene_tpm.gct.gz"
 		File gene_counts = "${sample_id}.gene_reads.gct.gz"
 		File exon_counts = "${sample_id}.exon_reads.gct.gz"
-		File insert_size_histogram = "${sample_id}.fragmentSizes.txt"
+#		File insert_size_histogram = "${sample_id}.fragmentSizes.txt"
 		File metrics = "${sample_id}.metrics.tsv"
 	}
 
@@ -309,7 +311,7 @@ task CollectMultipleMetrics {
 	Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 20
 
 	command {
-		java -Xms5000m -jar /usr/gitc/picard.jar CollectMultipleMetrics \
+		java -Xms5000m -jar /usr/picard/picard.jar CollectMultipleMetrics \
 		INPUT=~{input_bam} \
 		OUTPUT=~{output_bam_prefix} \
 		PROGRAM=CollectInsertSizeMetrics \
@@ -318,7 +320,7 @@ task CollectMultipleMetrics {
 	}
 
 	runtime {
-		docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.3-1564508330"
+		docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
 		memory: "7 GiB"
 		disks: "local-disk " + disk_size + " HDD"
 		preemptible: preemptible_tries
