@@ -18,7 +18,7 @@ The pipeline adheres to the Functional Equivalence pipeline specification ([Regi
  
 :::tip Want to try the WGS pipeline in Terra?
 Two workspaces containing example data and instructions are available to test the WGS pipeline: 
-1. a [DRAGEN-GATK-Germline-Whole-Genome-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/DRAGEN-GATK-Germline-Whole-Genome-Pipeline) to showcase the DRAGEN-GATK pipeline mode
+1. a [DRAGEN-GATK-Germline-Whole-Genome-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/DRAGEN-GATK-Whole-Genome-Germline-Pipeline) to showcase the DRAGEN-GATK pipeline mode
 2. a [Whole-Genome-Analysis-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/Whole-Genome-Analysis-Pipeline) to showcase the WGS pipeline with joint calling
 :::
  
