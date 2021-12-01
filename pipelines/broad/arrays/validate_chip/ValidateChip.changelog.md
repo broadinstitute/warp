@@ -1,3 +1,16 @@
+# 1.15.0
+2021-11-17
+
+* Updated to Picard 2.26.4
+    * Changed GtcToVcf to account for zeroed-out SNPs in the calculation of GTC Call Rate. Previously the GTC Call Rate (which is stored in the VCF header) had been copied directly from the Illumina GTC File. However Illumina's calculation of the GTC Call Rate does not account for (ignore) zeroed-out SNPs, so we recalculate the GTC Call Rate, ignoring zeroed-out SNPs and use this.
+    * Fixed a bug in GtcToVcf where 'SOURCE' fields read from the Illumina manifest that contain a semicolon may be incorrectly populated in the INFO field of the VCF.
+* Lowered call rate threshold used in autocall to determine if a gender call can be made in order to compensate for Illumina's GTC Call Rate not accounting for zeroed-out SNPs.
+
+# 1.14.1
+2021-11-10
+
+* Added Xmx flag (maximum heap size) to all tasks with java commands
+
 # 1.14.0
 2021-10-07
 

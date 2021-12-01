@@ -1,3 +1,8 @@
+# 1.1.1
+2021-11-10
+
+* Added Xmx flag (maximum heap size) to all tasks with java commands
+
 # 1.1.0
 2021-07-19
 

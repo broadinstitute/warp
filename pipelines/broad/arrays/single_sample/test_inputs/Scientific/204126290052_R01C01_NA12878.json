@@ -28,6 +28,8 @@
   "Arrays.bead_pool_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.bpm",
   "Arrays.cluster_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A1_ClusterFile.egt",
 
+  "Arrays.minor_allele_frequency_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.MAF.txt",
+
   "Arrays.control_sample_name": "NA12878",
   "Arrays.control_sample_vcf_file": "gs://broad-gotc-test-storage/arrays/controldata/NA12878.vcf.gz",
   "Arrays.control_sample_vcf_index_file": "gs://broad-gotc-test-storage/arrays/controldata/NA12878.vcf.gz.tbi",
@@ -40,7 +42,6 @@
   "Arrays.dbSNP_vcf_index": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz.tbi",
   "Arrays.haplotype_database_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt",
   "Arrays.variant_rsids_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
-  "Arrays.minor_allele_frequency_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.MAF.txt",
 
   "Arrays.disk_size": 100,
   "Arrays.preemptible_tries": 3,

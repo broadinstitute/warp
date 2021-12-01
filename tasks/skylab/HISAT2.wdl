@@ -495,7 +495,7 @@ task HISAT2RSEMSingleEnd {
 
   runtime {
     docker: docker
-    memory: "${machine_mem_mb} MB"
+    memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     cpu: cpu
     preemptible: preemptible

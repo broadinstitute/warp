@@ -29,7 +29,7 @@ task SortSam {
   Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
 
   command {
-    java -Dsamjdk.compression_level=~{compression_level} -Xms4000m -jar /usr/picard/picard.jar \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms4000m -Xmx4500m -jar /usr/picard/picard.jar \
       SortSam \
       INPUT=~{input_bam} \
       OUTPUT=~{output_bam_basename}.bam \
@@ -53,44 +53,6 @@ task SortSam {
   }
 }
 
-# Sort BAM file by coordinate order -- using Spark!
-task SortSamSpark {
-  input {
-    File input_bam
-    String output_bam_basename
-    Int preemptible_tries
-    Int compression_level
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
-  }
-  # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
-  # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
-  Float sort_sam_disk_multiplier = 3.25
-  Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
-
-  command {
-    set -e
-
-    gatk --java-options "-Dsamjdk.compression_level=~{compression_level} -Xms100g -Xmx100g" \
-      SortSamSpark \
-      -I ~{input_bam} \
-      -O ~{output_bam_basename}.bam \
-      -- --conf spark.local.dir=. --spark-master 'local[16]' --conf 'spark.kryo.referenceTracking=false'
-
-    samtools index ~{output_bam_basename}.bam ~{output_bam_basename}.bai
-  }
-  runtime {
-    docker: gatk_docker
-    disks: "local-disk " + disk_size + " HDD"
-    bootDiskSizeGb: "15"
-    cpu: "16"
-    memory: "102 GiB"
-    preemptible: preemptible_tries
-  }
-  output {
-    File output_bam = "~{output_bam_basename}.bam"
-    File output_bam_index = "~{output_bam_basename}.bai"
-  }
-}
 
 # Mark duplicate reads to avoid counting non-independent observations
 task MarkDuplicates {
@@ -182,7 +144,7 @@ task BaseRecalibrator {
   command {
     gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
       -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-      -Xloggc:gc_log.log -Xms5g" \
+      -Xloggc:gc_log.log -Xms5000m -Xmx5500m" \
       BaseRecalibrator \
       -R ~{ref_fasta} \
       -I ~{input_bam} \
@@ -195,7 +157,7 @@ task BaseRecalibrator {
   runtime {
     docker: gatk_docker
     preemptible: preemptible_tries
-    memory: "6 GiB"
+    memory: "6000 MiB"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
   }
@@ -229,6 +191,7 @@ task ApplyBQSR {
   Int disk_size = ceil((size(input_bam, "GiB") * 3 / bqsr_scatter) + ref_size) + additional_disk
 
   Int memory_size = ceil(3500 * memory_multiplier)
+  Int java_memory_mb = memory_size - 500
 
   Boolean bin_somatic_base_qualities = bin_base_qualities && somatic
 
@@ -241,7 +204,7 @@ task ApplyBQSR {
   command {
     gatk --java-options "-XX:+PrintFlagsFinal -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps \
       -XX:+PrintGCDetails -Xloggc:gc_log.log \
-      -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Dsamjdk.compression_level=~{compression_level} -Xms3000m" \
+      -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Dsamjdk.compression_level=~{compression_level} -Xms3000m -Xmx~{java_memory_mb}m" \
       ApplyBQSR \
       --create-output-bam-md5 \
       --add-output-sam-program-record \
@@ -280,7 +243,7 @@ task GatherBqsrReports {
   }
 
   command {
-    gatk --java-options "-Xms3000m" \
+    gatk --java-options "-Xms3000m -Xmx3000m" \
       GatherBQSRReports \
       -I ~{sep=' -I ' input_bqsr_reports} \
       -O ~{output_report_filename}
@@ -311,7 +274,7 @@ task GatherSortedBamFiles {
   Int disk_size = ceil(2 * total_input_size) + 20
 
   command {
-    java -Dsamjdk.compression_level=~{compression_level} -Xms2000m -jar /usr/picard/picard.jar \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms2000m -Xmx2500m -jar /usr/picard/picard.jar \
       GatherBamFiles \
       INPUT=~{sep=' INPUT=' input_bams} \
       OUTPUT=~{output_bam_basename}.bam \
@@ -346,7 +309,7 @@ task GatherUnsortedBamFiles {
   Int disk_size = ceil(2 * total_input_size) + 20
 
   command {
-    java -Dsamjdk.compression_level=~{compression_level} -Xms2000m -jar /usr/picard/picard.jar \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms2000m -Xmx2500m -jar /usr/picard/picard.jar \
       GatherBamFiles \
       INPUT=~{sep=' INPUT=' input_bams} \
       OUTPUT=~{output_bam_basename}.bam \

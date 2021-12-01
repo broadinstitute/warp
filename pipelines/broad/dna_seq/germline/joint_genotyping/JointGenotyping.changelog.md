@@ -1,3 +1,9 @@
+# 1.5.2
+2021-11-10
+
+* Updated GenotypeGVCFs to support reblocked GVCFs as inputs
+* Added Xmx flag (maximum heap size) to all tasks with java commands
+
 # 1.5.1
 2020-12-16
 

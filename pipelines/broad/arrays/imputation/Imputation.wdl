@@ -6,7 +6,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Imputation {
 
-  String pipeline_version = "1.0.0"
+  String pipeline_version = "1.0.4"
 
   input {
     Int chunkLength = 25000000
@@ -32,7 +32,6 @@ workflow Imputation {
     File genetic_maps_eagle
     String output_callset_name # the output callset name
     Boolean split_output_to_single_sample = false
-    File haplotype_database
     Int merge_ssvcf_mem_mb = 3000 # the memory allocation for MergeSingleSampleVcfs (in mb)
 
     Float frac_well_imputed_threshold = 0.9 # require fraction of sites well imputed to be greater than this to pass

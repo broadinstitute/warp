@@ -6,7 +6,7 @@ sidebar_position: 1
  
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [WholeGenomeGermlineSingleSample_v2.5.0](https://github.com/broadinstitute/warp/releases) | October 18, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [WholeGenomeGermlineSingleSample_v3.0.0](https://github.com/broadinstitute/warp/releases?q=WholeGenomeGermlineSingleSample_v2.5.0&expanded=true) | November, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
  
 ## Introduction to the Whole Genome Germline Single Sample Pipeline
 The Whole Genome Germline Single Sample (WGS) pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices for germline SNP and Indel discovery in human whole-genome sequencing data. It includes the DRAGEN-GATK mode, which makes the pipeline functionally equivalent to DRAGEN’s analysis pipeline (read more in this [DRAGEN-GATK blog](https://gatk.broadinstitute.org/hc/en-us/articles/360039984151)).
@@ -18,14 +18,14 @@ The pipeline adheres to the Functional Equivalence pipeline specification ([Regi
  
 :::tip Want to try the WGS pipeline in Terra?
 Two workspaces containing example data and instructions are available to test the WGS pipeline: 
-1. a [DRAGEN-GATK-Germline-Whole-Genome-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/DRAGEN-GATK-Germline-Whole-Genome-Pipeline) to showcase the DRAGEN-GATK pipeline mode
+1. a [DRAGEN-GATK-Germline-Whole-Genome-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/DRAGEN-GATK-Whole-Genome-Germline-Pipeline) to showcase the DRAGEN-GATK pipeline mode
 2. a [Whole-Genome-Analysis-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/Whole-Genome-Analysis-Pipeline) to showcase the WGS pipeline with joint calling
 :::
  
 ## Running the DRAGEN-GATK implementation of the WGS pipeline
 Multiple WGS parameters are adjusted for the WGS workflow to run in the DRAGEN-GATK mode. 
 
-![dragen](./DRAGEN_Fig4_resize.jpg)
+![dragen](./DRAGEN_Fig4_resize.png)
 
 #### Individual DRAGEN-GATK parameters
 The WGS workflow can be customized to mix and match different DRAGEN-related parameters. In general, the following booleans may be modified to run in different DRAGEN-realted features: 
@@ -56,10 +56,10 @@ To learn more about how outputs are tested for functional equivalence, try the [
 
 The **dragen_maximum_quality_mode** runs the pipeline using the DRAGMAP aligner and DRAGEN variant calling, but with additional parameters that produce maximum quality results that are **not** functionally equivalent to the DRAGEN hardware. This mode will automatically set the following parameters:
 1. `run_dragen_mode_variant_calling` is true.
-2. `use_spanning_event_genotyping` is true.
-3. `use_bwa_mem` is false.
-4. `perform_bqsr` is false.
-5. `dragen_mode_hard_filter` is true.
+1. `use_bwa_mem` is false.
+1. `perform_bqsr` is false.
+1. `use_spanning_event_genotyping` is true.
+1. `dragen_mode_hard_filter` is true.
 
 
 When the workflow applies the DRAGMAP aligner, it calls reference files specific to the aligner. These files are located in a [public Google bucket](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/) and described in the [Input descriptions](#input-descriptions). See the [reference README](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/README_dragen_gatk_resources.txt) for details on recreating DRAGEN references.
@@ -303,9 +303,63 @@ The table below describes the final workflow outputs. If running the workflow on
 | output_cram_index | Index for the aligned recalibrated CRAM. | File |
 | output_cram_md5 | MD5 checksum for the aligned recalibrated BAM. | File |
 | validate_cram_file_report | Validated report for the CRAM created with the ValidateSam tool.  | File |
-| output_vcf | Final VCF with variant calls produced by HaplotypeCaller. | File |
-| output_vcf_index | Index for the final VCF. | File |
+| output_vcf | Final [reblocked](https://gatk.broadinstitute.org/hc/en-us/articles/360037593171) GVCF with variant calls produced by HaplotypeCaller (read more in the [Reblocking](#reblocking) section below).| File |
+| output_vcf_index | Index for the final GVCF. | File |
  
+### Reblocking
+Reblocking is a process that compresses a HaplotypeCaller GVCF by merging homRef blocks according to new genotype quality (GQ) bands and facilitates joint genotyping by removing alt alleles that do not appear in the called genotype. 
+
+As of November 2021, reblocking is a default task in the WGS pipeline. To skip reblocking, add the following to the workflow's input configuration file (JSON):
+
+```WDL
+"WholeGenomeGermlineSingleSample.BamToGvcf.skip_reblocking": true
+```
+
+The [Reblocking task](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/GermlineVariantDiscovery.wdl) uses the GATK ReblockGVCF tool with the arguments:
+
+```WDL
+-do-qual-approx -floor-blocks -GQB 20 -GQB 30 -GQB 40 
+```
+The following summarizes how reblocking affects the WGS GVCF and downstream tools compared to the GVCF produced with the default HaplotypeCaller GQ bands:
+
+1. PLs are omitted for homozygous reference sites to save space– GQs are output for genotypes, PLs can be approximated as [0, GQ, 2\*GQ].
+
+2. GQ resolution for homozygous reference genotypes is reduced (i.e. homRef GQs will be underconfident) which may affect analyses like de novo calling where well-calibrated reference genotype qualities are important.
+
+3. Alleles that aren’t called in the sample genotype are dropped. Each variant should have no more than two non-symbolic alt alleles, with the majority having just one plus <NON_REF>.
+
+4. New annotations enable merging data for filtering without using genotypes. For example:
+    * RAW_GT_COUNT(S) for doing ExcessHet calculation from a sites-only file.
+    * QUALapprox and/or AS_QUALapprox for doing QUAL approximation/filling. 
+    * QUAL VCF field from a combined sites-only field.
+    * VarDP and/or AS_VarDP used to calculate QualByDepth/QD annotation for VQSR.
+
+5. The MIN_DP has been removed.
+
+6. Reblocked GVCFs have the following cost/scale improvements:
+    * A reduced storage footprint compared with HaplotypeCaller GVCF output.
+    * Fewer VariantContexts (i.e. lines) per VCF which speeds up GenomicsDB/Hail import.
+    * Fewer alternate alleles which reduce memory requirements for merging.
+
+Additionally, the 4 GQ band schema has specific improvements compared with the 7-band schema:
+1. It does not drop GQ0s; reblocked GVCFs should cover all the positions that the input GVCF covers.
+2. It has no overlaps; the only overlapping positions should be two variants (i.e. deletions) on separate haplotypes.
+3. No more no-calls; all genotypes should be called. Positions with no data will be homRef with GQ0.
+
+Read more about the reblocked GVCFs in the [WARP Blog](https://broadinstitute.github.io/warp/blog/Nov21_ReblockedGVCF).
+
+### Base quality scores
+The final CRAM files have base quality scores binned according to the [Functional Equivalence specification](https://github.com/CCDG/Pipeline-Standardization/blob/master/PipelineStandard.md#base-quality-score-binning-scheme) ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)). This does not apply to the workflow's DRAGEN modes, which do not perform BQSR recalibration.
+
+| Original Score | Score after BQSR recalibration |
+| --- | --- |
+| 1-6 | unchanged |
+| 7-12 | 10 |
+| 13-22 | 20 |
+| 22-infinity | 30 |
+
+
+
 ## Important notes
  
 - Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
