@@ -31,6 +31,8 @@ The comparison below shows that the improvement is due only to the removal of si
 
 A public copy of the cleaned reference can be found at gs://broad-gotc-test-storage/imputation/1000G_reference_panel/ as shown in the Imputation workflow's [example configuration file](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/arrays/imputation/example_inputs.json) (JSON).
 
-## Questions 
-For questions or additional information about the Imputation pipeline's reference generation, email [Chris Kachullis](mailto:ckachuli@broadinstitute.org).
 
+## Acknowledgments and Questions
+This technical report was contributed by the Methods Team of the Broad Data Sciences Platform. 
+
+For questions or additional information about the Imputation pipeline's reference generation, email [Chris Kachullis](mailto:ckachuli@broadinstitute.org).
