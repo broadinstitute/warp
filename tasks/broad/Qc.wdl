@@ -468,16 +468,14 @@ task CollectRawWgsMetrics {
     Int memory_multiplier = 1
     Int additional_disk = 20
   }
-
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")
   Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + additional_disk
 
-  Int memory_size = ceil((if (disk_size < 110) then 5000 else 7000) * memory_multiplier)
-  Int java_memory_size = memory_size - 1000
-  Int max_heap = memory_size - 500
+  Int memory_size = ceil((if (disk_size < 110) then 5 else 7) * memory_multiplier)
+  String java_memory_size = (memory_size - 1) * 1000
 
   command {
-    java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
+    java -Xms~{java_memory_size}m -jar /usr/picard/picard.jar \
       CollectRawWgsMetrics \
       INPUT=~{input_bam} \
       VALIDATION_STRINGENCY=SILENT \
@@ -491,7 +489,7 @@ task CollectRawWgsMetrics {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     preemptible: preemptible_tries
-    memory: "~{memory_size} MiB"
+    memory: "~{memory_size} GiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {

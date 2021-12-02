@@ -21,7 +21,6 @@ import "../tasks/broad/ImputationTasks.wdl" as ImputationTasks
 
 workflow VerifyImputation {
   input {
-    File haplotype_database
     Boolean split_output_to_single_sample
     String output_callset_name
 
@@ -74,7 +73,6 @@ workflow VerifyImputation {
       firstInputIndices = if (defined(input_multi_sample_vcf_index)) then select_all([input_multi_sample_vcf_index]) else select_first([input_single_sample_vcfs_indices]),
       secondInputs = [test_vcf],
       secondInputIndices = [test_vcf_index],
-      haplotypeDatabase = haplotype_database,
       basename = output_callset_name
   }
 
@@ -91,7 +89,6 @@ workflow VerifyImputation {
         firstInputIndices = if (defined(input_multi_sample_vcf_index)) then select_all([input_multi_sample_vcf_index]) else select_first([input_single_sample_vcfs_indices]),
         secondInputs = SplitMultiSampleVcf.single_sample_vcfs,
         secondInputIndices = SplitMultiSampleVcf.single_sample_vcf_indices,
-        haplotypeDatabase = haplotype_database,
         basename = output_callset_name
     }
   }
@@ -132,8 +129,8 @@ task CrosscheckFingerprints {
     Array[File] secondInputs
     Array[File] firstInputIndices
     Array[File] secondInputIndices
-    File haplotypeDatabase
     String basename
+    File haplotypeDatabase = "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt"
     String picard_docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
   }
 
