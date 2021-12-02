@@ -108,7 +108,7 @@ task SortSam {
 
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
     disks: "local-disk " + disk_size + " HDD"
     cpu: "1"
     memory: "16 GB"
@@ -139,7 +139,9 @@ task GroupByUMIs {
   }
 
   runtime {
-    docker : "us.gcr.io/tag-team-160914/tag-gtex-umi-tools:v1"
+    # Using a docker from which tag's was built:
+#    docker : "us.gcr.io/tag-team-160914/tag-gtex-umi-tools:v1"
+    docker : "gcr.io/broad-cga-sanand-gtex/umi-tools:latest"
     disks : "local-disk " + disk_space + " HDD"
     preemptible: 0
     cpu: "8"
