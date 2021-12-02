@@ -403,22 +403,20 @@ task picard_markduplicates {
   }
   Float total_input_size = size(bams, "GiB")
   String metrics_filename = outbam + ".metrics"
-
   # The merged bam will be smaller than the sum of the parts so we need to account for the unmerged inputs and the merged output.
   # Mark Duplicates takes in as input readgroup bams and outputs a slightly smaller aggregated bam. Giving .25 as wiggleroom
   Float md_disk_multiplier = 3
   Int disk_size = ceil(md_disk_multiplier * total_input_size) + additional_disk_gb
 
-  Int memory_size = 7500 * memory_multiplier
-  Int java_memory_size = memory_size - 2000
-  Int max_heap = memory_size - 500
+  Float memory_size = 7.5 * memory_multiplier
+  Int java_memory_size = (ceil(memory_size) - 2)
 
   # Task is assuming query-sorted input so that the Secondary and Supplementary reads get marked correctly
   # This works because the output of BWA is query-grouped and therefore, so is the output of MergeBamAlignment.
   # While query-grouped isn't actually query-sorted, it's good enough for MarkDuplicates with ASSUME_SORT_ORDER="queryname"
 
   command {
-    java -Dsamjdk.compression_level=~{compression_level} -Xms~{java_memory_size}m  -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms~{java_memory_size}g -jar /usr/picard/picard.jar \
       MarkDuplicates \
       INPUT=~{sep=' INPUT=' bams} \
       OUTPUT=~{outbam} \
@@ -428,14 +426,13 @@ task picard_markduplicates {
       ~{"SORTING_COLLECTION_SIZE_RATIO=" + sorting_collection_size_ratio} \
       ~{"READ_NAME_REGEX=" + read_name_regex}
   }
-
   # We are using a non-standard docker image here because we currently run this WDL on Cromwell v52 which cannot support
   # the custom entrypoint in the picard-cloud:2.18.11 docker image. Cromwell v53 and newer can support the
   # us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11 docker image
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11_NoCustomEntryPoint"
     preemptible: preemptible_tries
-    memory: "~{memory_size} MiB"
+    memory: "~{memory_size} GiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
