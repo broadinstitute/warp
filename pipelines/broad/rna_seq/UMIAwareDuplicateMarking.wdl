@@ -139,7 +139,9 @@ task GroupByUMIs {
   }
 
   runtime {
-		docker : "gcr.io/broad-cga-sanand-gtex/umi-tools:latest"
+    # Using a docker from which tag's was built:
+#    docker : "us.gcr.io/tag-team-160914/tag-gtex-umi-tools:v1"
+    docker : "gcr.io/broad-cga-sanand-gtex/umi-tools:latest"
     disks : "local-disk " + disk_space + " HDD"
     preemptible: 0
     cpu: "8"

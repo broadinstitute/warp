@@ -62,7 +62,7 @@ workflow RNAWithUMIsPipeline {
 			bam_file = UMIAwareDuplicateMarking.duplicate_marked_bam,
 			genes_gtf = gtf,
 			sample_id = GetSampleName.sample_name,
-		  exon_bed = exonBedFile
+			exon_bed = exonBedFile
 	}
 
 	call CollectRNASeqMetrics {
@@ -104,6 +104,13 @@ workflow RNAWithUMIsPipeline {
 		File rna_metrics = CollectRNASeqMetrics.rna_metrics
 		File alignment_summary_metrics = CollectMultipleMetrics.alignment_summary_metrics
 		File insert_size_metrics = CollectMultipleMetrics.insert_size_metrics
+		File insert_size_histogram = CollectMultipleMetrics.insert_size_histogram
+		File base_distribution_by_cycle_metrics = CollectMultipleMetrics.base_distribution_by_cycle_metrics
+		File base_distribution_by_cycle_pdf = CollectMultipleMetrics.base_distribution_by_cycle_pdf
+		File quality_by_cycle_metrics = CollectMultipleMetrics.quality_by_cycle_metrics
+		File quality_by_cycle_pdf = CollectMultipleMetrics.quality_by_cycle_pdf
+		File quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
+		File quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
 	}
 }
 
@@ -117,7 +124,7 @@ task STAR {
 	command <<<
 		echo $(date +"[%b %d %H:%M:%S] Extracting STAR index")
 		mkdir star_index
-		tar -xvvf ~{starIndex} -C star_index --strip-components=1
+		tar -xvf ~{starIndex} -C star_index --strip-components=1
 
 		STAR --readFilesIn ~{bam} --readFilesType SAM PE --readFilesCommand samtools view -h \
 			--runMode alignReads --genomeDir star_index --outSAMtype BAM Unsorted --runThreadN 8 \
@@ -129,8 +136,10 @@ task STAR {
 			--chimOutType WithinBAM SoftClip --chimOutJunctionFormat 0 --twopassMode Basic --quantMode TranscriptomeSAM --quantTranscriptomeBan Singleend
 
 	>>>
-	# Copied the docker from tag's private location to a public location.
+
 	runtime {
+		# Copied the docker from tag's private location to a public location.
+#		docker : "us.gcr.io/tag-team-160914/neovax-tag-rnaseq:v1"
 		docker : "us.gcr.io/broad-gotc-prod/neovax-tag-rnaseq:v1"
 		disks : "local-disk " + disk_space + " HDD"
 		memory : "64GB"
@@ -274,6 +283,8 @@ task CollectRNASeqMetrics {
 	Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 20
 
 	# This jar skips the header check of the ribosomal interval
+#	File picard_jar = "gs://broad-dsde-methods-takuto/hydro.gen/picard_ignore_ribosomal_header.jar"
+	# copied the jar into a gotc-accessible location. TODO - this presumably won't work in Terra?
 	File picard_jar = "gs://broad-gotc-test-storage/rna_seq/picard_ignore_ribosomal_header.jar"
 
 	command {
@@ -329,5 +340,12 @@ task CollectMultipleMetrics {
 	output {
 		File alignment_summary_metrics = output_bam_prefix + ".alignment_summary_metrics"
 		File insert_size_metrics = output_bam_prefix + ".insert_size_metrics"
+		File insert_size_histogram = output_bam_prefix + ".insert_size_histogram.pdf"
+		File base_distribution_by_cycle_metrics = output_bam_prefix + ".base_distribution_by_cycle_metrics"
+		File base_distribution_by_cycle_pdf = output_bam_prefix + ".base_distribution_by_cycle.pdf"
+		File quality_by_cycle_metrics = output_bam_prefix + ".quality_by_cycle_metrics"
+		File quality_by_cycle_pdf = output_bam_prefix + ".quality_by_cycle.pdf"
+		File quality_distribution_metrics = output_bam_prefix + ".quality_distribution_metrics"
+		File quality_distribution_pdf = output_bam_prefix + ".quality_distribution.pdf"
 	}
 }
