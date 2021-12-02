@@ -18,14 +18,14 @@ The pipeline adheres to the Functional Equivalence pipeline specification ([Regi
  
 :::tip Want to try the WGS pipeline in Terra?
 Two workspaces containing example data and instructions are available to test the WGS pipeline: 
-1. a [DRAGEN-GATK-Germline-Whole-Genome-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/DRAGEN-GATK-Germline-Whole-Genome-Pipeline) to showcase the DRAGEN-GATK pipeline mode
+1. a [DRAGEN-GATK-Germline-Whole-Genome-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/DRAGEN-GATK-Whole-Genome-Germline-Pipeline) to showcase the DRAGEN-GATK pipeline mode
 2. a [Whole-Genome-Analysis-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/Whole-Genome-Analysis-Pipeline) to showcase the WGS pipeline with joint calling
 :::
  
 ## Running the DRAGEN-GATK implementation of the WGS pipeline
 Multiple WGS parameters are adjusted for the WGS workflow to run in the DRAGEN-GATK mode. 
 
-![dragen](./DRAGEN_Fig4_resize.jpg)
+![dragen](./DRAGEN_Fig4_resize.png)
 
 #### Individual DRAGEN-GATK parameters
 The WGS workflow can be customized to mix and match different DRAGEN-related parameters. In general, the following booleans may be modified to run in different DRAGEN-realted features: 
@@ -56,10 +56,10 @@ To learn more about how outputs are tested for functional equivalence, try the [
 
 The **dragen_maximum_quality_mode** runs the pipeline using the DRAGMAP aligner and DRAGEN variant calling, but with additional parameters that produce maximum quality results that are **not** functionally equivalent to the DRAGEN hardware. This mode will automatically set the following parameters:
 1. `run_dragen_mode_variant_calling` is true.
-2. `use_spanning_event_genotyping` is true.
-3. `use_bwa_mem` is false.
-4. `perform_bqsr` is false.
-5. `dragen_mode_hard_filter` is true.
+1. `use_bwa_mem` is false.
+1. `perform_bqsr` is false.
+1. `use_spanning_event_genotyping` is true.
+1. `dragen_mode_hard_filter` is true.
 
 
 When the workflow applies the DRAGMAP aligner, it calls reference files specific to the aligner. These files are located in a [public Google bucket](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/) and described in the [Input descriptions](#input-descriptions). See the [reference README](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/README_dragen_gatk_resources.txt) for details on recreating DRAGEN references.
