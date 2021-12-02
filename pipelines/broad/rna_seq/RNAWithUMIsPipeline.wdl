@@ -16,6 +16,7 @@ workflow RNAWithUMIsPipeline {
 		File refDict
 		File refFlat
 		File ribosomalIntervals
+		File exonBedFile
 	}
 
 	call ExtractUMIs {
@@ -60,7 +61,8 @@ workflow RNAWithUMIsPipeline {
 		input:
 			bam_file = UMIAwareDuplicateMarking.duplicate_marked_bam,
 			genes_gtf = gtf,
-			sample_id = GetSampleName.sample_name
+			sample_id = GetSampleName.sample_name,
+		  exon_bed = exonBedFile
 	}
 
 	call CollectRNASeqMetrics {
@@ -175,8 +177,7 @@ task rnaseqc2 {
 		File bam_file
 		File genes_gtf
 		String sample_id
-		## Commented out because I can't access it.
-##		File exon_bed = "gs://gtex-resources/GENCODE/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed"
+		File exon_bed
 	}
 	
 	Int disk_space = ceil(size(bam_file, 'GB') + size(genes_gtf, 'GB')) + 100
@@ -184,8 +185,7 @@ task rnaseqc2 {
 	command {
 		set -euo pipefail
 		echo $(date +"[%b %d %H:%M:%S] Running RNA-SeQC 2")
-		rnaseqc ~{genes_gtf} ~{bam_file} . -s ~{sample_id} -v
-		## rnaseqc ~{genes_gtf} ~{bam_file} . -s ~{sample_id} -v --bed ~{exon_bed}
+		rnaseqc ~{genes_gtf} ~{bam_file} . -s ~{sample_id} -v --bed ~{exon_bed}
 		echo "  * compressing outputs"
 		gzip *.gct
 		echo $(date +"[%b %d %H:%M:%S] done")
@@ -195,7 +195,7 @@ task rnaseqc2 {
 		File gene_tpm = "${sample_id}.gene_tpm.gct.gz"
 		File gene_counts = "${sample_id}.gene_reads.gct.gz"
 		File exon_counts = "${sample_id}.exon_reads.gct.gz"
-#		File insert_size_histogram = "${sample_id}.fragmentSizes.txt"
+		File insert_size_histogram = "${sample_id}.fragmentSizes.txt"
 		File metrics = "${sample_id}.metrics.tsv"
 	}
 
