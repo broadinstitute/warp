@@ -16,7 +16,7 @@ IAAP_CLI_VERSION="iaap-cli-linux-x64-1.1.0-sha.80d7e5b3d9c1fdfc2e99b472a90652fd3
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-t|tools] -- script to build the Illumina IAAP image and push to GCR & Dockerhub
+HELP="$(basename "$0") [-h|--help] [-t|--tools] -- script to build the Illumina IAAP image and push to GCR & Quay
 
 where:
     -h|--help Show help text

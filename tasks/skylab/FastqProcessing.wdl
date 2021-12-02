@@ -42,7 +42,7 @@ task FastqProcessing {
   command {
     set -e
 
-    FASTQS=$(python <<CODE
+    FASTQS=$(python3 <<CODE
     def rename_file(filename):
         import shutil
         import gzip

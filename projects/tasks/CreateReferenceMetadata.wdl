@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../projects/tasks/AdapterTasks.wdl" as Tasks
+import "../tasks/AdapterTasks.wdl" as Tasks
 
 workflow CreateReferenceMetadata {
   meta {

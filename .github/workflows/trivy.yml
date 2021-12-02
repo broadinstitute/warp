@@ -10,12 +10,16 @@ jobs:
       matrix:
         context:
         - dockers/broad/arrays_picard_private
+        - dockers/broad/dragmap
         - dockers/broad/gatk
         - dockers/broad/illumina_iaap_autocall
         - dockers/broad/verify_bam_id
         - dockers/broad/samtools
         - dockers/broad/samtools_picard_bwa
         - dockers/broad/zcall
+        - dockers/broad/imputation/bcftools_vcftools
+        - dockers/broad/imputation/eagle
+        - dockers/broad/imputation/minimac4
     steps:
       - uses: actions/checkout@v2
 

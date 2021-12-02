@@ -44,7 +44,8 @@ task DownloadGenotypes {
     String environment
     File vault_token_path
 
-    Int preemptible_tries
+    Int? max_retries
+    Int? preemptible_tries
   }
 
   meta {
@@ -75,7 +76,7 @@ task DownloadGenotypes {
 
     exit_code=0
 
-    java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
     DownloadGenotypes \
       --SAMPLE_ALIAS "~{sample_alias}" \
       --SAMPLE_LSID "~{sample_lsid}" \
@@ -110,8 +111,9 @@ task DownloadGenotypes {
 
   runtime {
     docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359"
-    memory: "3.5 GiB"
-    preemptible: preemptible_tries
+    memory: "3500 MiB"
+    maxRetries: select_first([max_retries, 2])
+    preemptible: select_first([preemptible_tries, 3])
   }
 
   output {
@@ -130,11 +132,8 @@ task UploadFingerprintToMercury {
     String environment
     File vault_token_path
 
-    Int preemptible_tries
-  }
-
-  meta {
-    volatile: true
+    Int? max_retries
+    Int? preemptible_tries
   }
 
   command <<<
@@ -154,7 +153,7 @@ task UploadFingerprintToMercury {
 
     # TODO -Fix UploadFingerprintToMercury so I don't need to pass a file size
 
-    java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
       UploadFingerprintToMercury \
       --INPUT "~{fingerprint_json_file}" \
       --GTC_FILE_SIZE size.txt \
@@ -164,7 +163,8 @@ task UploadFingerprintToMercury {
 
   runtime {
     docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359"
-    memory: "3.5 GiB"
-    preemptible: preemptible_tries
+    memory: "3500 MiB"
+    maxRetries: select_first([max_retries, 2])
+    preemptible: select_first([preemptible_tries, 3])
   }
 }

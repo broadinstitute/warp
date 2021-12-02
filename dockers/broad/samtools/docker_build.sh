@@ -15,7 +15,7 @@ SAMTOOLS_VERSION="1.11"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|tools] -- script to build the samtools image and push to GCR & Dockerhub
+HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|tools] -- script to build the samtools image and push to GCR & Quay
 
 where:
     -h|--help Show help text

@@ -21,7 +21,6 @@ import "../tasks/broad/ImputationTasks.wdl" as ImputationTasks
 
 workflow VerifyImputation {
   input {
-    File haplotype_database
     Boolean split_output_to_single_sample
     String output_callset_name
 
@@ -42,7 +41,7 @@ workflow VerifyImputation {
     Array[File]? single_sample_test_vcf_indices
   }
 
-  String bcftools_docker_tag = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+  String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.1-1.10.2-0.1.16-1637264085"
 
   scatter (idx in range(length(truth_metrics))) {
     call CompareImputationMetrics {
@@ -74,7 +73,6 @@ workflow VerifyImputation {
       firstInputIndices = if (defined(input_multi_sample_vcf_index)) then select_all([input_multi_sample_vcf_index]) else select_first([input_single_sample_vcfs_indices]),
       secondInputs = [test_vcf],
       secondInputIndices = [test_vcf_index],
-      haplotypeDatabase = haplotype_database,
       basename = output_callset_name
   }
 
@@ -91,7 +89,6 @@ workflow VerifyImputation {
         firstInputIndices = if (defined(input_multi_sample_vcf_index)) then select_all([input_multi_sample_vcf_index]) else select_first([input_single_sample_vcfs_indices]),
         secondInputs = SplitMultiSampleVcf.single_sample_vcfs,
         secondInputIndices = SplitMultiSampleVcf.single_sample_vcf_indices,
-        haplotypeDatabase = haplotype_database,
         basename = output_callset_name
     }
   }
@@ -132,8 +129,8 @@ task CrosscheckFingerprints {
     Array[File] secondInputs
     Array[File] firstInputIndices
     Array[File] secondInputIndices
-    File haplotypeDatabase
     String basename
+    File haplotypeDatabase = "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt"
     String picard_docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
   }
 
@@ -153,7 +150,7 @@ task CrosscheckFingerprints {
       ln -s ${array_indices2[i]} $(dirname ${array_vcfs2[i]})
     done
 
-    java -Xms3500m -jar /usr/picard/picard.jar \
+    java -Xms3500m -Xms7500m -jar /usr/picard/picard.jar \
       CrosscheckFingerprints \
       -I ~{sep=" -I " firstInputs} \
       -SI ~{sep=" -SI " secondInputs} \
@@ -164,7 +161,7 @@ task CrosscheckFingerprints {
   runtime {
     docker: picard_docker
     disks: "local-disk " + disk_size + " HDD"
-    memory: "8 GiB"
+    memory: "8000 MiB"
   }
 
   output {

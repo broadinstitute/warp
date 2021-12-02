@@ -1,0 +1,4 @@
+DOCKER_VERSION
+us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0
+us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.0-1.10.2-0.1.16-1633627919
+us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.1-1.10.2-0.1.16-1637264085

@@ -1,3 +1,22 @@
+# 2.0.0
+2021-11-15
+
+* Added an optional step to reblock gVCFs, this step is included by default
+    * The ExternalWholeGenomeReprocessing pipeline now outputs reblocked gVCFs by default. To skip reblocking, add '\"ExternalWholeGenomeReprocessing.WholeGenomeReprocessing.WholeGenomeGermlineSingleSample.BamToGvcf.skip_reblocking\": true' to the inputs
+* Added WGS plumbing tests for dragen_maximum_quality_mode and dragen_functional_equivalence_mode
+* Moved Dragmap docker to WARP and updated to follow repo's best practices
+* Added Xmx flag (maximum heap size) to all tasks with java commands
+* Added option to allow empty ref_alt file for running BWA mem with masked reference
+* Added plumbing input JSON for masked reference
+* Updated the SumFloats task used in WholeGenomeGermlineSingleSample.wdl to use python3 instead of python2
+
+# 1.5.0
+2021-10-18
+
+* Updated the Whole Genome Germline Single Sample (WGS) workflow to include new DRAGEN-GATK functionality; the default pipeline remains unchanged. Read more about the DRAGEN-GATK mode in the [WGS Overview](https://broadinstitute.github.io/warp/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/README)
+* Added optional BQSR outputs
+* Added a new Docker image for GATK v4.2.2.0 for variant calling in DRAGEN mode
+
 # 1.4.0
 2021-10-06
 
