@@ -203,7 +203,7 @@ task Reblock {
     File ref_fasta
     File ref_fasta_index
     String output_vcf_filename
-    String docker_image = "us.gcr.io/broad-arrays-prod/test:emeryj.test.merge.gatk.docker"
+    String docker_image = "us.gcr.io/broad-gatk/gatk:4.2.2.0"
   }
 
   Int disk_size = ceil(size(gvcf, "GiB")) * 2 + 3
@@ -275,7 +275,7 @@ task DragenHardFilterVcf {
     Boolean make_gvcf
     String vcf_basename
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-arrays-prod/test:emeryj.test.merge.gatk.docker"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.2.0"
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
