@@ -97,20 +97,21 @@ workflow RNAWithUMIsPipeline {
 		File output_bam = UMIAwareDuplicateMarking.duplicate_marked_bam
 		File output_bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index
 		File duplicate_metrics = UMIAwareDuplicateMarking.duplicate_metrics
-		File gene_tpm = rnaseqc2.gene_tpm
-		File gene_counts = rnaseqc2.gene_counts
-		File exon_counts = rnaseqc2.exon_counts
-		File metrics = rnaseqc2.metrics
-		File rna_metrics = CollectRNASeqMetrics.rna_metrics
-		File alignment_summary_metrics = CollectMultipleMetrics.alignment_summary_metrics
-		File insert_size_metrics = CollectMultipleMetrics.insert_size_metrics
-		File insert_size_histogram = CollectMultipleMetrics.insert_size_histogram
-		File base_distribution_by_cycle_metrics = CollectMultipleMetrics.base_distribution_by_cycle_metrics
-		File base_distribution_by_cycle_pdf = CollectMultipleMetrics.base_distribution_by_cycle_pdf
-		File quality_by_cycle_metrics = CollectMultipleMetrics.quality_by_cycle_metrics
-		File quality_by_cycle_pdf = CollectMultipleMetrics.quality_by_cycle_pdf
-		File quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
-		File quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
+		File rnaseqc2_gene_tpm = rnaseqc2.gene_tpm
+		File rnaseqc2_gene_counts = rnaseqc2.gene_counts
+		File rnaseqc2_exon_counts = rnaseqc2.exon_counts
+		File rnaseqc2_fragment_size_histogram = rnaseqc2.fragment_size_histogram
+		File rnaseqc2_metrics = rnaseqc2.metrics
+		File picard_rna_metrics = CollectRNASeqMetrics.rna_metrics
+		File picard_alignment_summary_metrics = CollectMultipleMetrics.alignment_summary_metrics
+		File picard_insert_size_metrics = CollectMultipleMetrics.insert_size_metrics
+		File picard_insert_size_histogram = CollectMultipleMetrics.insert_size_histogram
+		File picard_base_distribution_by_cycle_metrics = CollectMultipleMetrics.base_distribution_by_cycle_metrics
+		File picard_base_distribution_by_cycle_pdf = CollectMultipleMetrics.base_distribution_by_cycle_pdf
+		File picard_quality_by_cycle_metrics = CollectMultipleMetrics.quality_by_cycle_metrics
+		File picard_quality_by_cycle_pdf = CollectMultipleMetrics.quality_by_cycle_pdf
+		File picard_quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
+		File picard_quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
 	}
 }
 
@@ -204,7 +205,7 @@ task rnaseqc2 {
 		File gene_tpm = "${sample_id}.gene_tpm.gct.gz"
 		File gene_counts = "${sample_id}.gene_reads.gct.gz"
 		File exon_counts = "${sample_id}.exon_reads.gct.gz"
-		File insert_size_histogram = "${sample_id}.fragmentSizes.txt"
+		File fragment_size_histogram = "${sample_id}.fragmentSizes.txt"
 		File metrics = "${sample_id}.metrics.tsv"
 	}
 
