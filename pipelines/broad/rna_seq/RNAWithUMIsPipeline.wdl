@@ -138,9 +138,7 @@ task STAR {
 	>>>
 
 	runtime {
-		# Copied the docker from tag's private location to a public location.
-#		docker : "us.gcr.io/tag-team-160914/neovax-tag-rnaseq:v1"
-		docker : "us.gcr.io/broad-gotc-prod/neovax-tag-rnaseq:v1"
+		docker : "quay.io/biocontainers/star:2.6.1d--h9ee0642_1"
 		disks : "local-disk " + disk_space + " HDD"
 		memory : "64GB"
 		cpu : "8"
@@ -163,7 +161,7 @@ task ExtractUMIs {
 	Int disk_space = ceil(2.2 * size(bam, "GB")) + 50
 
 	command <<<
-		fgbio ExtractUmisFromBam --input ~{bam} \
+		java -jar /usr/gitc/fgbio.jar ExtractUmisFromBam --input ~{bam} \
 			--read-structure ~{read1Structure} \
 			--read-structure ~{read2Structure} \
 			--molecular-index-tags RX \
@@ -171,7 +169,7 @@ task ExtractUMIs {
 	>>>
 
 	runtime {
-		docker : "quay.io/biocontainers/fgbio@sha256:a8e5cf58c318bffba3b2b694a3640ecd9e8106cee2e33b75710c0e8215138b6e"
+		docker : "us.gcr.io/broad-gotc-prod/fgbio:1.0.0-1.4.0-1638817487"
 		disks : "local-disk " + disk_space + " HDD"
 		preemptible: 0
 	}
@@ -257,7 +255,7 @@ task CopyReadGroupsToHeader {
 	>>>
 
 	runtime {
-		docker: "us.gcr.io/broad-dsde-methods/samtools@sha256:0e49b0a5d91c203b8c07f5242277c2060b4b8ea54df8b1d123f990a1ad0588b2"
+		docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
 		disks: "local-disk " + disk_size + " HDD"
 	}
 
