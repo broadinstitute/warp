@@ -160,7 +160,7 @@ task CompareBams {
           ~{test_bam} \
           ~{truth_bam} \
           O=comparison.tsv \
-          ~{true='LENIENT_HEADER=true' false="LENIENT_HEADER=false" lenient_header}
+          LENIENT_HEADER=~{lenient_header}
   }
 
   runtime {
