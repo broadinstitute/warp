@@ -1,6 +1,6 @@
 version 1.0
 
-import "UMIAwareDuplicateMarking.wdl" as UmiMD
+import "../../../pipelines/broad/rna_seq/UMIAwareDuplicateMarking.wdl" as UmiMD
 
 workflow RNAWithUMIsPipeline {
 	input {

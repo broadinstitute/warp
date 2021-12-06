@@ -46,7 +46,7 @@ task CompareGtcs {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
     disks: "local-disk 10 HDD"
     memory: "5000 MiB"
     preemptible: 3
@@ -145,6 +145,7 @@ task CompareBams {
   input {
     File test_bam
     File truth_bam
+    Boolean lenient_header = false
   }
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
@@ -159,15 +160,37 @@ task CompareBams {
           ~{test_bam} \
           ~{truth_bam} \
           O=comparison.tsv \
-          LENIENT_HEADER=true
-
+          ~{true='LENIENT_HEADER=true' false="LENIENT_HEADER=false" lenient_header}
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
     disks: "local-disk " + disk_size + " HDD"
     cpu: 2
     memory: "7500 MiB"
     preemptible: 3
   }
+}
+
+task CompareCompressedTextFiles {
+
+  input {
+    File test_zip
+    File truth_zip
+  }
+
+  Float file_size = size(test_zip, "GiB") + size(truth_zip, "GiB")
+  Int disk_size = ceil(file_size * 4) + 20
+
+  command {
+    diff <(gunzip -c -f ~{test_zip}) <(gunzip -c -f ~{truth_zip})
+  }
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "3.5 GiB"
+    preemptible: 3
+  }
+
 }
