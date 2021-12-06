@@ -180,7 +180,7 @@ task FastqToUbam {
 
         Int disk = ceil(size(r2_fastq, "GiB") * 2.2)
         Int cpu = 1
-        String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.3-1564508330" #TODO update docker to picard cloud
+        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
         Int memory_mb = 3850
     }
 
