@@ -15,11 +15,11 @@ FGBIO_VERSION="1.4.0"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-t|--tools] -- script to build the Fgbio image and push to GCR & Quay
+HELP="$(basename "$0") [-h|--help] [-t|--tools] -- script to build the fgbio image and push to GCR & Quay
 
 where:
     -h|--help Show help text
-    -v|--version of Fgbio to use (default: $FGBIO_VERSION)
+    -v|--version of fgbio to use (default: $FGBIO_VERSION)
     -t|--tools Show tools needed to run script
     "
 
