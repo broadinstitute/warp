@@ -47,7 +47,8 @@ workflow TestSmartSeq2SingleNucleusPR {
     call verify_tasks.CompareBams as CompareBams {
       input:
         test_bam = target_workflow.bam_files[idx],
-        truth_bam = truth_bam[idx]
+        truth_bam = truth_bam[idx],
+        lenient_header = true
     }
     }
 

@@ -27,7 +27,8 @@ workflow ValidateOptimus {
      call VerifyTasks.CompareBams as CompareBams {
          input:
              test_bam = test_bam,
-             truth_bam = truth_bam
+             truth_bam = truth_bam,
+             lenient_header = true
      }
 
      call ValidateMatrix as ValidateMatrix {

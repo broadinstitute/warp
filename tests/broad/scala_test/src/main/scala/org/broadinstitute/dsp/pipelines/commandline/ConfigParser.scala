@@ -978,15 +978,6 @@ class ConfigParser
             rnaWithUmisConfig =
               config.rnaWithUmisConfig.copy(useCallCaching = false)
           )
-        },
-      opt[PapiVersion]("papi-version")
-        .text("The version of Pipelines API to use")
-        .optional()
-        .action { (papiVersion, config) =>
-          config.copy(
-            rnaWithUmisConfig =
-              config.rnaWithUmisConfig.copy(papiVersion = papiVersion)
-          )
         }
     )
 }
