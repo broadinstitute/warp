@@ -89,7 +89,7 @@ workflow RNAWithUMIsPipeline {
 			preemptible_tries=0
 	}
 
-	# TODO: wire in fingerprint_summary_metrics once we have it
+	# TODO: wire in fingerprint_summary_metrics once we have it. Using static example for now
 	call MergeMetrics {
 		input:
 			alignment_summary_metrics=CollectMultipleMetrics.alignment_summary_metrics,
@@ -97,7 +97,7 @@ workflow RNAWithUMIsPipeline {
 			picard_rna_metrics=CollectRNASeqMetrics.rna_metrics,
 			duplicate_metrics=UMIAwareDuplicateMarking.duplicate_metrics,
 			rnaseqc2_metrics=rnaseqc2.metrics,
-			fingerprint_summary_metrics=""
+			fingerprint_summary_metrics="gs://broad-dsp-spec-ops/kcibul/rnaseq/metrics/example.duplicate.metrics"
 	}
 
 
