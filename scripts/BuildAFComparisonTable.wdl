@@ -219,7 +219,6 @@ task VariantsToTable {
 	Int disk_size = ceil(2 * size(vcf, "GB")) + 10
 
 	command <<<
-		export GATK_LOCAL_JAR=~{gatk_override}
 		gatk VariantsToTable -V ~{vcf} -F CHROM -F POS -F ID -F ~{sep=" -F " infoFields} -O variants.tsv
 	>>>
 
