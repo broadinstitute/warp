@@ -122,7 +122,6 @@ task SplitX {
 
 	command <<<
 		set -xeuo pipefail
-		export GATK_LOCAL_JAR=~{gatk_override}
 		gatk SelectVariants -V ~{input_vcf} -L X:1-~{par1_end} -select "vc.getEnd()<~{par1_end}" -O PAR1.~{name}.vcf.gz
 		gatk SelectVariants -V ~{input_vcf} -L X:~{par2_start}-~{par2_end} -select "vc.getStart()>=~{par2_start}" -O PAR2.~{name}.vcf.gz
 		gatk SelectVariants -V ~{input_vcf} -L X:~{par1_end + 1}-~{par2_start} -select "vc.getStart()>~{par1_end} && vc.getStart()<~{par2_start}" -O NON_PAR.~{name}.vcf.gz
