@@ -109,7 +109,6 @@ task SplitX {
 		Int par2_start
 		Int par2_end
 
-		File gatk_override = "gs://broad-dsde-methods-ckachulis/jars/gatk_select_variants_lazy.jar"
 	}
 
 	Int disk_size = ceil(size(input_vcf, "GB")) + 50
