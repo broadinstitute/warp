@@ -73,6 +73,5 @@ task FilterAFComparisonTable_t {
 
 	output {
 		File filtered_table = "filteredAFComparisonSites.tsv"
-		File monitoring_log = "monitoring.log"
 	}
 }
