@@ -128,7 +128,7 @@ task SplitX {
 	>>>
 
 	runtime {
-		docker: "us.gcr.io/broad-gatk/gatk:4.1.1.0"
+docker: "us.gcr.io/broad-gatk/gatk:4.2.3.0"
 		disks: "local-disk " + disk_size + "  HDD"
 		memory: "16 GB"
 	}
