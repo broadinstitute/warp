@@ -197,7 +197,6 @@ task RemoveBadSitesFromVcf {
 		File bad_sites_list
 		String basename
 
-		File gatk_override = "gs://broad-dsde-methods-ckachulis/jars/gatk_select_variants_lazy.jar"
 	}
 
 	parameter_meta {
