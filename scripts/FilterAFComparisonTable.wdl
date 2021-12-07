@@ -18,7 +18,6 @@ workflow FilterAFComparisonTable {
 task FilterAFComparisonTable_t {
 	input {
 		File table
-		File monitoring_script = "gs://broad-dsde-methods-ckachulis/cromwell_monitoring_script/cromwell_monitoring_script.sh"
 	}
 
 	command <<<
