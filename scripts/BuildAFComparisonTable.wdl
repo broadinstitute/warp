@@ -2,7 +2,7 @@ version 1.0
 
 workflow BuildAFComparisonTable {
 	input {
-		File thouandG_vcf
+		File thousandG_vcf
 		File thouandG_vcf_index
 
 		String gnomad_vcf_prefix
