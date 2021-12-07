@@ -189,7 +189,7 @@ task FastqToUbam {
         String unmapped_bam_output_name = output_basename + ".unmapped.bam"
 
     command <<<
-        java -jar picard.jar FastqToSam \
+        java -jar /usr/picard/picard.jar FastqToSam \
            F1=~{r1_fastq}\
            F2=~{r2_fastq} \
            SM="~{output_basename}" \
