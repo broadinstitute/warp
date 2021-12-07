@@ -207,7 +207,6 @@ task VariantsToTable {
 		File vcf
 		Array[String] infoFields
 
-		File gatk_override = "gs://broad-dsde-methods-ckachulis/jars/gatk_variants_to_table_trailing_tab_fix.jar"
 	}
 
 	parameter_meta {
