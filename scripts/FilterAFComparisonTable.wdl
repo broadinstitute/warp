@@ -21,7 +21,6 @@ task FilterAFComparisonTable_t {
 	}
 
 	command <<<
-		bash ~{monitoring_script} > monitoring.log &
 		Rscript -<<"EOF"
 			library(dplyr)
 			library(readr)
