@@ -109,7 +109,7 @@ workflow RNAWithUMIsPipeline {
 
 	call GetSampleName {
 		input:
-			bam = select_first([bam])
+			bam = bam_to_use
 	}
 
 	call rnaseqc2 {
