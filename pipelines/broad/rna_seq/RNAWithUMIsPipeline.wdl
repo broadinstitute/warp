@@ -72,9 +72,11 @@ workflow RNAWithUMIsPipeline {
         }
     }
 
+    File bam_to_use = select_first([bam, FastqToUbam.unmapped_bam])
+
 	call ExtractUMIs {
 		input:
-			bam = select_first([bam, FastqToUbam.unmapped_bam]),
+			bam = bam_to_use,
 			read1Structure = read1Structure,
 			read2Structure = read2Structure
 	}
