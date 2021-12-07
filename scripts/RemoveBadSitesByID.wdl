@@ -210,7 +210,6 @@ task RemoveBadSitesFromVcf {
 
 		cp ~{bad_sites_list} bad_sites.list
 
-		export GATK_LOCAL_JAR=~{gatk_override}
 		gatk SelectVariants -V ~{vcf} --exclude-ids bad_sites.list -O ~{basename}.cleaned.vcf.gz
 	>>>
 
