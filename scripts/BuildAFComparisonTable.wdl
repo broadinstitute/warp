@@ -106,7 +106,6 @@ task AnnotateWithAF_t {
     Int mem = 16
     Array[String] expressions
 
-    #File gatk_override = "gs://broad-dsde-methods-ckachulis/jars/gatk_feature_cache_max_size.jar"
   }
 
   Int disk_size = 400
