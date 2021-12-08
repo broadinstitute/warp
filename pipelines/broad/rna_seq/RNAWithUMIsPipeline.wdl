@@ -413,7 +413,7 @@ EOF
         cat ~{picard_rna_metrics} | grep -A 1 "RIBOSOMAL_BASES" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP)" | awk '{print "picard_rna_metrics_" $0}' >> unified_metrics.txt
 
         echo "Processing Duplicate Metrics"
-        cat ~{dupe_metrics} | grep -A 1 "READ_PAIR_DUPLICATES" | python transpose.py | awk '{print "picard_" $0}' >> unified_metrics.txt
+        cat ~{duplicate_metrics} | grep -A 1 "READ_PAIR_DUPLICATES" | python transpose.py | awk '{print "picard_" $0}' >> unified_metrics.txt
 
         echo "Processing RNASeQC2 Metrics"
         cat ~{rnaseqc2_metrics} | python clean.py | awk '{print "rnaseqc2_" $0}' >> unified_metrics.txt
