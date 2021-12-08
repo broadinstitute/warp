@@ -57,16 +57,18 @@ workflow RNAWithUMIsPipeline {
             message = "If r1_fastq is defined then library_name, platform, platform_unit, read_group_name, and sequencing center must also be defined"
         }
       }
-      call FastqToUbam {
-        input:
-          r1_fastq = select_first([r1_fastq]),
-          r2_fastq = select_first([r2_fastq]),
-          output_basename = output_basename,
-          library_name = select_first([library_name]),
-          platform = select_first([platform]),
-          platform_unit = select_first([platform_unit]),
-          read_group_name = select_first([read_group_name]),
-          sequencing_center = select_first([sequencing_center])
+      if (defined(r1_fastq) && defined(r2_fastq)) {
+        call FastqToUbam {
+          input:
+            r1_fastq = select_first([r1_fastq]),
+            r2_fastq = select_first([r2_fastq]),
+            output_basename = output_basename,
+            library_name = select_first([library_name]),
+            platform = select_first([platform]),
+            platform_unit = select_first([platform_unit]),
+            read_group_name = select_first([read_group_name]),
+            sequencing_center = select_first([sequencing_center])
+        }
       }
     }
 
