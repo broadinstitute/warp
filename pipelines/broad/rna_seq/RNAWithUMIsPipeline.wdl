@@ -30,42 +30,45 @@ workflow RNAWithUMIsPipeline {
 		File exonBedFile
 	}
 
-
-    if ((defined(r1_fastq) && !defined(r2_fastq)) || (defined(r2_fastq) && !defined(r1_fastq))) {
-        call utils.ErrorWithMessage as ErrorMessageMissingR2Fastq {
-          input:
-             message = "R1_fastq and r2_fastq must both be defined"
+    if (defined(bam) && (defined(r1_fastq) || defined(r2_fastq))) {
+        call utils.ErrorWithMessage as ErrorMessageDoubleInput {
+            input:
+                message = "Bam and fastq files cannot both be defined as input"
         }
     }
 
-    if (defined(r1_fastq)) {
+    if (!defined(bam) && (!defined(r1_fastq) && !defined(r2_fastq))) {
+        call utils.ErrorWithMessage as ErrorMessageMissingInput {
+                  input:
+                     message = "Either bam or fastqs must be defined."
+                }
+            }
+
+    if (defined(r1_fastq) || defined(r2_fastq)) {
+      if ((defined(r1_fastq) && !defined(r2_fastq)) || (defined(r2_fastq) && !defined(r1_fastq))) {
+        call utils.ErrorWithMessage as ErrorMessageMissingR2Fastq {
+          input:
+            message = "R1_fastq and r2_fastq must both be defined"
+          }
+      }
       if (!defined(library_name) || (!defined(platform)) || (!defined(platform_unit)) || (!defined(read_group_name)) || (!defined(sequencing_center))) {
         call utils.ErrorWithMessage as ErrorMessageMissingFastqHeaderMetadata {
           input:
             message = "If r1_fastq is defined then library_name, platform, platform_unit, read_group_name, and sequencing center must also be defined"
         }
       }
+      call FastqToUbam {
+        input:
+          r1_fastq = select_first([r1_fastq]),
+          r2_fastq = select_first([r2_fastq]),
+          output_basename = output_basename,
+          library_name = select_first([library_name]),
+          platform = select_first([platform]),
+          platform_unit = select_first([platform_unit]),
+          read_group_name = select_first([read_group_name]),
+          sequencing_center = select_first([sequencing_center])
+      }
     }
-
-if ((defined(bam) && defined(r1_fastq)) || (defined(bam) && defined(r2_fastq))) {
-    call utils.ErrorWithMessage as ErrorMessageDoubleInput {
-      input:
-        message = "Bam and fastq files cannot both be defined as input"
-    }
-    if (defined(r1_fastq) && defined(r2_fastq) && !defined(bam)) {
-        call FastqToUbam {
-          input:
-            r1_fastq = select_first([r1_fastq]),
-            r2_fastq = select_first([r2_fastq]),
-            output_basename = output_basename,
-            library_name = select_first([library_name]),
-            platform = select_first([platform]),
-            platform_unit = select_first([platform_unit]),
-            read_group_name = select_first([read_group_name]),
-            sequencing_center = select_first([sequencing_center])
-        }
-    }
-}
 
     File bam_to_use = select_first([bam, FastqToUbam.unmapped_bam])
 
