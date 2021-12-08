@@ -52,7 +52,7 @@ The BAM was converted to CRAM using Samtools view and validated using Picard Val
 
 ### Variant calling
 
-Prior to variant calling, the DRAGEN STR model was calibrated using the CalibrateDragstrModel tool with a [public STR table](gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.str). The variant calling interval list was then split to enable parallelization. Variant calling was applied to reads using GATK4 HaplotypeCaller with the parameters --dragen-mode --disable-spanning-event-genotyping, and --ERC GVCF. The resulting GVCFs were merged using Picard MergeVcfs and then reblocked using GATK ReblockGVCF with -GQB 20 -GQB 30 -GQB 40. The final reblocked GVCF file was validated using GATK ValidateVariants. Variant metrics were calculated using Picard CollectVariantCallingMetrics.
+Prior to variant calling, the DRAGEN STR model was calibrated using the CalibrateDragstrModel tool with a [public STR table](gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.str). The variant calling interval list was then split to enable parallelization. Variant calling was applied to reads using GATK4 HaplotypeCaller with the parameters --dragen-mode --disable-spanning-event-genotyping (to maintain functional equivalence to the DRAGEN hardware), and --ERC GVCF. The resulting GVCFs were merged using Picard MergeVcfs and then reblocked using GATK ReblockGVCF with -GQB 20 -GQB 30 -GQB 40. The final reblocked GVCF file was validated using GATK ValidateVariants. Variant metrics were calculated using Picard CollectVariantCallingMetrics.
 
 The pipeline’s final outputs included metrics, validation reports, an aligned CRAM with index, and a reblocked GVCF containing variant calls with an accompanying index.
 
