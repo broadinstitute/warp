@@ -34,7 +34,7 @@ The pipeline’s final outputs included metrics, validation reports, an aligned 
 
 ## Detailed methods for the Functional Equivalence mode of the Whole Genome Germline Single Sample workflow
 
-Preprocessing and variant calling was performed using the WholeGenomeGermlineSingleSample 3.0.0 pipeline using Picard 2.23.8, GATK 4.2.2.0, and Samtools 1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline follows the Functional Equivalence specification ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)).
+Preprocessing and variant calling was performed using the WholeGenomeGermlineSingleSample 3.0.0 pipeline using Picard 2.23.8, GATK 4.2.2.0, and Samtools 1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline is functionally equivalent (as described in GATK Support: https://gatk.broadinstitute.org/hc/en-us/articles/4410456501915) to DRAGEN version 3.4.12. 
 
 ### Pre-processing and quality control metrics
 
