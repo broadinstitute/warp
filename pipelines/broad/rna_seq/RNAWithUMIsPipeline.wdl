@@ -54,13 +54,12 @@ workflow RNAWithUMIsPipeline {
       }
     }
 
-#TODO same kind of check for r2_fastq?
 if ((defined(bam) && defined(r1_fastq)) || (defined(bam) && defined(r2_fastq))) {
     call utils.ErrorWithMessage as ErrorMessageDoubleInput {
       input:
         message = "Bam and fastq files cannot both be defined as input"
     }
-    if (defined(r1_fastq) && defined(r2_fastq)) {
+    if (defined(r1_fastq) && defined(r2_fastq) && !defined(bam)) {
         call FastqToUbam {
           input:
             r1_fastq = select_first([r1_fastq]),
