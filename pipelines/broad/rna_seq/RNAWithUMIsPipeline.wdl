@@ -30,29 +30,30 @@ workflow RNAWithUMIsPipeline {
 		File exonBedFile
 	}
 
+#TODO same kind of check for r2_fastq?
     if (defined(bam) && defined(r1_fastq)) {
         call utils.ErrorWithMessage as ErrorMessageDoubleInput{
           input:
             message = "Bam and fastq files cannot both be defined as input"
-          }
         }
+    }
 
     if (defined(r1_fastq) && !defined(r2_fastq)) {
         call utils.ErrorWithMessage as ErrorMessageMissingR2Fastq {
           input:
              message = "Missing r2_fastq files. r1_fastq and r2_fastq must both be defined"
-          }
         }
+    }
 
     if (defined(r2_fastq) && !defined(r1_fastq)) {
         call utils.ErrorWithMessage as ErrorMessageMissingR1Fastq {
           input:
              message = "Missing r1_fastq files. r1_fastq and r2_fastq must both be defined"
-          }
         }
+    }
 
     if (defined(r1_fastq)) {
-      if (!defined(library_name) && (!defined(platform)) && (!defined(platform_unit)) && (!defined(read_group_name)) && (!defined(sequencing_center))) {
+      if (!defined(library_name) || (!defined(platform)) || (!defined(platform_unit)) || (!defined(read_group_name)) || (!defined(sequencing_center))) {
         call utils.ErrorWithMessage as ErrorMessageMissingFastqHeaderMetadata {
           input:
             message = "If r1_fastq is defined then library_name, platform, platform_unit, read_group_name, and sequencing center must also be defined"
@@ -60,7 +61,7 @@ workflow RNAWithUMIsPipeline {
       }
     }
 
-    if (defined(r1_fastq)) {
+    if (defined(r1_fastq) && defined(r2_fastq)) {
         call FastqToUbam {
           input:
             r1_fastq = select_first([r1_fastq]),
