@@ -51,12 +51,14 @@ workflow RNAWithUMIsPipeline {
           }
         }
 
-    if (((defined(r1_fastq)) && ((!defined(library_name))) || (!defined(platform)) || (!defined(platform_unit)) || (!defined(read_group_name)) || (!defined(sequencing_center)))) {
-         call utils.ErrorWithMessage as ErrorMessageNoFastqHeaderMetadata {
+    if (defined(r1_fastq)) {
+      if (!defined(library_name) && (!defined(platform)) && (!defined(platform_unit)) && (!defined(read_group_name)) && (!defined(sequencing_center))) {
+        call utils.ErrorWithMessage as ErrorMessageMissingFastqHeaderMetadata {
           input:
-            message = "If r1_fastq is defined then library_name, platform, platform_unit, read_group_name, or sequencing center must also be defined"
-          }
-       }
+            message = "If r1_fastq is defined then library_name, platform, platform_unit, read_group_name, and sequencing center must also be defined"
+        }
+      }
+    }
 
     if (defined(r1_fastq)) {
         call FastqToUbam {
