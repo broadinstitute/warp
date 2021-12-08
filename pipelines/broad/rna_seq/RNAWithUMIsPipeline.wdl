@@ -31,17 +31,10 @@ workflow RNAWithUMIsPipeline {
 	}
 
 
-    if (defined(r1_fastq) && !defined(r2_fastq)) {
+    if ((defined(r1_fastq) && !defined(r2_fastq)) || (defined(r2_fastq) && !defined(r1_fastq))) {
         call utils.ErrorWithMessage as ErrorMessageMissingR2Fastq {
           input:
-             message = "Missing r2_fastq files. r1_fastq and r2_fastq must both be defined"
-        }
-    }
-
-    if (defined(r2_fastq) && !defined(r1_fastq)) {
-        call utils.ErrorWithMessage as ErrorMessageMissingR1Fastq {
-          input:
-             message = "Missing r1_fastq files. r1_fastq and r2_fastq must both be defined"
+             message = "R1_fastq and r2_fastq must both be defined"
         }
     }
 
