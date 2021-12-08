@@ -1,4 +1,4 @@
-FROM centos:centos7
+FROM centos:8
 
 ARG DRAGMAP_VERSION=1.2.1 \
         PICARD_VERSION=2.26.4 \
