@@ -1,6 +1,7 @@
 version 1.0
 
 import "../../../pipelines/broad/rna_seq/UMIAwareDuplicateMarking.wdl" as UmiMD
+import "../../../tasks/broad/Utilities.wdl" as utils
 
 ## Copyright Broad Institute, 2021
 ##
@@ -22,12 +23,21 @@ workflow RNAWithUMIsPipeline {
 	String pipeline_version = "0.1.0"
 
 	input {
-		File bam
+		File? bam
+		File? r1_fastq
+		File? r2_fastq
 		String read1Structure
 		String read2Structure
 		File starIndex
 		String output_basename
 		File gtf
+
+		# only needed if inputs are fastqs instead of a bam
+		String? library_name
+		String? platform
+		String? platform_unit
+		String? read_group_name
+		String? sequencing_center = "BI"
 
 		File ref
 		File refIndex
@@ -37,9 +47,53 @@ workflow RNAWithUMIsPipeline {
 		File exonBedFile
 	}
 
+    if (defined(bam) && (defined(r1_fastq) || defined(r2_fastq))) {
+      call utils.ErrorWithMessage as ErrorMessageDoubleInput {
+        input:
+          message = "Bam and fastq files cannot both be defined as input"
+      }
+    }
+
+    if (!defined(bam) && (!defined(r1_fastq) && !defined(r2_fastq))) {
+      call utils.ErrorWithMessage as ErrorMessageMissingInput {
+         input:
+           message = "Either bam or fastqs must be defined."
+      }
+    }
+
+    if (defined(r1_fastq) || defined(r2_fastq)) {
+      if (!(defined(r1_fastq) && defined(r2_fastq))) {
+        call utils.ErrorWithMessage as ErrorMessageMissingFastq {
+          input:
+            message = "r1_fastq and r2_fastq must both be defined"
+        }
+      }
+      if (!defined(library_name) || (!defined(platform)) || (!defined(platform_unit)) || (!defined(read_group_name)) || (!defined(sequencing_center))) {
+        call utils.ErrorWithMessage as ErrorMessageMissingFastqHeaderMetadata {
+          input:
+            message = "If r1_fastq and r2_fastq are defined then library_name, platform, platform_unit, read_group_name, and sequencing center must also be defined"
+        }
+      }
+      if (defined(r1_fastq) && defined(r2_fastq)) {
+        call FastqToUbam {
+          input:
+            r1_fastq = select_first([r1_fastq]),
+            r2_fastq = select_first([r2_fastq]),
+            output_basename = output_basename,
+            library_name = select_first([library_name]),
+            platform = select_first([platform]),
+            platform_unit = select_first([platform_unit]),
+            read_group_name = select_first([read_group_name]),
+            sequencing_center = select_first([sequencing_center])
+        }
+      }
+    }
+
+    File bam_to_use = select_first([bam, FastqToUbam.unmapped_bam])
+
 	call ExtractUMIs {
 		input:
-			bam = bam,
+			bam = bam_to_use,
 			read1Structure = read1Structure,
 			read2Structure = read2Structure
 	}
@@ -72,7 +126,7 @@ workflow RNAWithUMIsPipeline {
 
 	call GetSampleName {
 		input:
-			bam = bam
+			bam = bam_to_use
 	}
 
 	call rnaseqc2 {
@@ -144,6 +198,50 @@ workflow RNAWithUMIsPipeline {
 		File picard_quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
 		File unified_metrics = MergeMetrics.unified_metrics
 	}
+}
+
+task FastqToUbam {
+    input {
+        File r1_fastq
+        File r2_fastq
+        String output_basename
+        String library_name
+        String platform
+        String platform_unit
+        String read_group_name
+        String sequencing_center
+        # estimate that the bam is approximately equal in size to fastqs, add a small buffer
+        Int disk = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2)
+        Int cpu = 1
+        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+        Int memory_mb = 3750
+    }
+
+        String unmapped_bam_output_name = output_basename + ".unmapped.bam"
+
+    command <<<
+        java -jar /usr/picard/picard.jar FastqToSam \
+           F1=~{r1_fastq}\
+           F2=~{r2_fastq} \
+           SM="~{output_basename}" \
+           LB="~{library_name}" \
+           PL="~{platform}" \
+           PU="~{platform_unit}" \
+           RG="~{read_group_name}" \
+           CN="~{sequencing_center}" \
+           O="~{unmapped_bam_output_name}"
+       >>>
+
+    runtime {
+        docker: docker
+        disk: disk
+        cpu: cpu
+        memory: "${memory_mb} MiB"
+     }
+
+    output {
+        File unmapped_bam = unmapped_bam_output_name
+    }
 }
 
 task STAR {
