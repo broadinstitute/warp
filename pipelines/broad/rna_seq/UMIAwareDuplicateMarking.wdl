@@ -1,6 +1,24 @@
 version 1.0
 
+## Copyright Broad Institute, 2021
+##
+## This WDL pipeline implements UMI Aware Duplicate Marking
+##
+## Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
+## For program versions, see docker containers.
+##
+## LICENSING :
+## This script is released under the WDL source code license (BSD-3) (see LICENSE in
+## https://github.com/broadinstitute/wdl). Note however that the programs it calls may
+## be subject to different licenses. Users are responsible for checking that they are
+## authorized to run all programs before running this script. Please see the docker
+## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
+## licensing information pertaining to the included programs.
+
 workflow UMIAwareDuplicateMarking {
+
+  String pipeline_version = "0.1.0"
+
   input {
     File aligned_bam # aligned bam sorted by the query (read) name. 
     String output_basename
