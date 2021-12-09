@@ -223,6 +223,7 @@ task FastqToUbam {
         java -jar /usr/picard/picard.jar FastqToSam \
            F1=~{r1_fastq}\
            F2=~{r2_fastq} \
+           SO="unsorted" \
            SM="~{output_basename}" \
            LB="~{library_name}" \
            PL="~{platform}" \
