@@ -183,7 +183,7 @@ task FastqToUbam {
         Int disk = ceil(size(r2_fastq, "GiB") * 2.2)
         Int cpu = 1
         String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
-        Int memory_mb = 3850
+        Int memory_mb = 3750
     }
 
         String unmapped_bam_output_name = output_basename + ".unmapped.bam"
