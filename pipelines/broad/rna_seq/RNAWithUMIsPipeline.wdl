@@ -97,7 +97,7 @@ workflow RNAWithUMIsPipeline {
 			picard_rna_metrics=CollectRNASeqMetrics.rna_metrics,
 			duplicate_metrics=UMIAwareDuplicateMarking.duplicate_metrics,
 			rnaseqc2_metrics=rnaseqc2.metrics,
-			fingerprint_summary_metrics="gs://broad-dsp-spec-ops/kcibul/rnaseq/metrics/example.duplicate.metrics"
+			fingerprint_summary_metrics="gs://broad-gotc-test-storage/rna_seq/example.fingerprinting_summary_metrics"
 	}
 
 
