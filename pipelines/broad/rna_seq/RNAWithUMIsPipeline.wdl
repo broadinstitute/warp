@@ -115,7 +115,8 @@ workflow RNAWithUMIsPipeline {
 			picard_rna_metrics=CollectRNASeqMetrics.rna_metrics,
 			duplicate_metrics=UMIAwareDuplicateMarking.duplicate_metrics,
 			rnaseqc2_metrics=rnaseqc2.metrics,
-			fingerprint_summary_metrics="gs://broad-gotc-test-storage/rna_seq/example.fingerprinting_summary_metrics"
+			fingerprint_summary_metrics="gs://broad-gotc-test-storage/rna_seq/example.fingerprinting_summary_metrics",
+			output_basename = GetSampleName.sample_name
 	}
 
 
@@ -389,7 +390,10 @@ task MergeMetrics {
         File duplicate_metrics
         File rnaseqc2_metrics
         File fingerprint_summary_metrics
+			  String output_basename
     }
+
+	  String out_filename = output_basename + ".unified_metrics.txt"
     
     command <<<
 
@@ -422,22 +426,22 @@ EOF
         # Process each metric file, transposing and cleaning if necessary, and pre-pending a source to the metric name
 
         echo "Processing Alignment Summary Metrics - Only PAIR line"
-        cat ~{alignment_summary_metrics} | egrep "(CATEGORY|^PAIR)" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP)" | awk '{print "picard_" $0}' >> unified_metrics.txt
+        cat ~{alignment_summary_metrics} | egrep "(CATEGORY|^PAIR)" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP)" | awk '{print "picard_" $0}' >> ~{out_filename}
 
         echo "Processing Insert Size Metrics - removing various WIDTH metrics"
-        cat ~{insert_size_metrics} | grep -A 1 "MEDIAN_INSERT_SIZE" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP|WIDTH)" | awk '{print "picard_" $0}' >> unified_metrics.txt
+        cat ~{insert_size_metrics} | grep -A 1 "MEDIAN_INSERT_SIZE" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP|WIDTH)" | awk '{print "picard_" $0}' >> ~{out_filename}
 
         echo "Processing Picard RNA Metrics"
-        cat ~{picard_rna_metrics} | grep -A 1 "RIBOSOMAL_BASES" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP)" | awk '{print "picard_rna_metrics_" $0}' >> unified_metrics.txt
+        cat ~{picard_rna_metrics} | grep -A 1 "RIBOSOMAL_BASES" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP)" | awk '{print "picard_rna_metrics_" $0}' >> ~{out_filename}
 
         echo "Processing Duplicate Metrics"
-        cat ~{duplicate_metrics} | grep -A 1 "READ_PAIR_DUPLICATES" | python transpose.py | awk '{print "picard_" $0}' >> unified_metrics.txt
+        cat ~{duplicate_metrics} | grep -A 1 "READ_PAIR_DUPLICATES" | python transpose.py | awk '{print "picard_" $0}' >> ~{out_filename}
 
         echo "Processing RNASeQC2 Metrics"
-        cat ~{rnaseqc2_metrics} | python clean.py | awk '{print "rnaseqc2_" $0}' >> unified_metrics.txt
+        cat ~{rnaseqc2_metrics} | python clean.py | awk '{print "rnaseqc2_" $0}' >> ~{out_filename}
 
         echo "Processing Fingerprint Summary Metrics - only extracting LOD_EXPECTED_SAMPLE"
-        cat ~{fingerprint_summary_metrics} | grep -A 1 "LOD_EXPECTED_SAMPLE" | python transpose.py | grep -i "LOD_EXPECTED_SAMPLE" | awk '{print "fp_"$0}' >> unified_metrics.txt
+        cat ~{fingerprint_summary_metrics} | grep -A 1 "LOD_EXPECTED_SAMPLE" | python transpose.py | grep -i "LOD_EXPECTED_SAMPLE" | awk '{print "fp_"$0}' >> ~{out_filename}
     >>>
 
     runtime {
@@ -449,7 +453,7 @@ EOF
     }
 
     output {
-        File unified_metrics = "unified_metrics.txt"
+        File unified_metrics = out_filename
     }
 }    
 
