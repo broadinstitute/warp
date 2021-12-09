@@ -221,7 +221,7 @@ task FastqToUbam {
 
     command <<<
         java -jar /usr/picard/picard.jar FastqToSam \
-           SORT_ORDER=unsorted \ 
+           SORT_ORDER=unsorted \
            F1=~{r1_fastq}\
            F2=~{r2_fastq} \
            SM="~{output_basename}" \
