@@ -45,8 +45,8 @@ workflow RNAWithUMIsPipeline {
     }
 
     if (defined(r1_fastq) || defined(r2_fastq)) {
-      if ((defined(r1_fastq) && !defined(r2_fastq)) || (defined(r2_fastq) && !defined(r1_fastq))) {
-        call utils.ErrorWithMessage as ErrorMessageMissingR2Fastq {
+      if (!(defined(r1_fastq) && defined(r2_fastq))) {
+        call utils.ErrorWithMessage as ErrorMessageMissingFastq {
           input:
             message = "R1_fastq and r2_fastq must both be defined"
         }
@@ -179,8 +179,8 @@ task FastqToUbam {
         String platform_unit
         String read_group_name
         String sequencing_center
-
-        Int disk = ceil(size(r2_fastq, "GiB") * 2.2)
+        # estimate that the bam is approximately equal in size to fastqs, add a small buffer
+        Int disk = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2)
         Int cpu = 1
         String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
         Int memory_mb = 3750
