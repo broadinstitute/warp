@@ -62,13 +62,6 @@
     "haplotype_database_file": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt"
   },
 
-  "WholeGenomeGermlineSingleSample.dragmap_reference": {
-    "reference_bin": "gs://gcp-public-data--broad-references/hg38/v0/dragen_reference/reference.bin",
-    "hash_table_cfg_bin": "gs://gcp-public-data--broad-references/hg38/v0/dragen_reference/hash_table.cfg.bin",
-    "hash_table_cmp": "gs://gcp-public-data--broad-references/hg38/v0/dragen_reference/hash_table.cmp"
-  },
-
-
   "WholeGenomeGermlineSingleSample.scatter_settings": {
     "haplotype_scatter_count": 50,
     "break_bands_at_multiples_of": 1000000
@@ -80,7 +73,5 @@
   "WholeGenomeGermlineSingleSample.papi_settings": {
     "preemptible_tries": 3,
     "agg_preemptible_tries": 3
-  },
-
-  "WholeGenomeGermlineSingleSample.dragen_maximum_quality_mode": true
+  }
 }
