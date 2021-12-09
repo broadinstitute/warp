@@ -48,7 +48,7 @@ workflow RNAWithUMIsPipeline {
       if (!(defined(r1_fastq) && defined(r2_fastq))) {
         call utils.ErrorWithMessage as ErrorMessageMissingFastq {
           input:
-            message = "R1_fastq and r2_fastq must both be defined"
+            message = "r1_fastq and r2_fastq must both be defined"
         }
       }
       if (!defined(library_name) || (!defined(platform)) || (!defined(platform_unit)) || (!defined(read_group_name)) || (!defined(sequencing_center))) {
