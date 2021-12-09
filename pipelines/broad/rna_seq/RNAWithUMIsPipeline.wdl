@@ -89,6 +89,17 @@ workflow RNAWithUMIsPipeline {
 			preemptible_tries=0
 	}
 
+	# TODO: wire in fingerprint_summary_metrics once we have it. Using static example for now
+	call MergeMetrics {
+		input:
+			alignment_summary_metrics=CollectMultipleMetrics.alignment_summary_metrics,
+			insert_size_metrics=CollectMultipleMetrics.insert_size_metrics,
+			picard_rna_metrics=CollectRNASeqMetrics.rna_metrics,
+			duplicate_metrics=UMIAwareDuplicateMarking.duplicate_metrics,
+			rnaseqc2_metrics=rnaseqc2.metrics,
+			fingerprint_summary_metrics="gs://broad-gotc-test-storage/rna_seq/example.fingerprinting_summary_metrics"
+	}
+
 
 	output {
 		File transcriptome_bam = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam
@@ -112,6 +123,7 @@ workflow RNAWithUMIsPipeline {
 		File picard_quality_by_cycle_pdf = CollectMultipleMetrics.quality_by_cycle_pdf
 		File picard_quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
 		File picard_quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
+		File unified_metrics = MergeMetrics.unified_metrics
 	}
 }
 
@@ -350,3 +362,76 @@ task CollectMultipleMetrics {
 		File quality_distribution_pdf = output_bam_prefix + ".quality_distribution.pdf"
 	}
 }
+
+task MergeMetrics {
+    input {
+        File alignment_summary_metrics
+        File insert_size_metrics
+        File picard_rna_metrics
+        File duplicate_metrics
+        File rnaseqc2_metrics
+        File fingerprint_summary_metrics
+    }
+    
+    command <<<
+
+#
+# Script transpose a two line TSV
+#
+cat <<-'EOF' > transpose.py
+import csv, sys
+
+rows = list(csv.reader(sys.stdin, delimiter='\t'))
+
+for col in range(0, len(rows[0])):
+    key = rows[0][col].lower()
+    print(f"{key}\t{rows[1][col]}")
+EOF
+
+#
+# Script clean the keys, replacing space, dash and forward-slash with underscores, 
+# and removing comma, single quote and periods
+#
+cat <<-'EOF' > clean.py
+import sys
+
+for line in sys.stdin:
+    (k,v) = line.strip().lower().split("\t")
+    transtable = k.maketrans({' ':'_', '-':'_', '/':'_', ',':None, '\'':None, '.' : None})
+    print(f"{k.translate(transtable)}\t{v}")
+EOF
+
+        # Process each metric file, transposing and cleaning if necessary, and pre-pending a source to the metric name
+
+        echo "Processing Alignment Summary Metrics - Only PAIR line"
+        cat ~{alignment_summary_metrics} | egrep "(CATEGORY|^PAIR)" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP)" | awk '{print "picard_" $0}' >> unified_metrics.txt
+
+        echo "Processing Insert Size Metrics - removing various WIDTH metrics"
+        cat ~{insert_size_metrics} | grep -A 1 "MEDIAN_INSERT_SIZE" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP|WIDTH)" | awk '{print "picard_" $0}' >> unified_metrics.txt
+
+        echo "Processing Picard RNA Metrics"
+        cat ~{picard_rna_metrics} | grep -A 1 "RIBOSOMAL_BASES" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP)" | awk '{print "picard_rna_metrics_" $0}' >> unified_metrics.txt
+
+        echo "Processing Duplicate Metrics"
+        cat ~{duplicate_metrics} | grep -A 1 "READ_PAIR_DUPLICATES" | python transpose.py | awk '{print "picard_" $0}' >> unified_metrics.txt
+
+        echo "Processing RNASeQC2 Metrics"
+        cat ~{rnaseqc2_metrics} | python clean.py | awk '{print "rnaseqc2_" $0}' >> unified_metrics.txt
+
+        echo "Processing Fingerprint Summary Metrics - only extracting LOD_EXPECTED_SAMPLE"
+        cat ~{fingerprint_summary_metrics} | grep -A 1 "LOD_EXPECTED_SAMPLE" | python transpose.py | grep -i "LOD_EXPECTED_SAMPLE" | awk '{print "fp_"$0}' >> unified_metrics.txt
+    >>>
+
+    runtime {
+        docker : "python:3.8-slim"
+        disks : "local-disk 10 HDD"
+        memory : "3GB"
+        cpu : "1"
+        preemptible: 0
+    }
+
+    output {
+        File unified_metrics = "unified_metrics.txt"
+    }
+}    
+
