@@ -17,10 +17,10 @@ workflow RNAWithUMIsPipeline {
 
 		# only needed if inputs are fastqs instead of a bam
 		String? library_name
-        String? platform
-        String? platform_unit
-        String? read_group_name
-        String? sequencing_center = "BI"
+		String? platform
+		String? platform_unit
+		String? read_group_name
+		String? sequencing_center = "BI"
 
 		File ref
 		File refIndex
@@ -31,30 +31,30 @@ workflow RNAWithUMIsPipeline {
 	}
 
     if (defined(bam) && (defined(r1_fastq) || defined(r2_fastq))) {
-        call utils.ErrorWithMessage as ErrorMessageDoubleInput {
-            input:
-                message = "Bam and fastq files cannot both be defined as input"
-        }
+      call utils.ErrorWithMessage as ErrorMessageDoubleInput {
+        input:
+          message = "Bam and fastq files cannot both be defined as input"
+      }
     }
 
     if (!defined(bam) && (!defined(r1_fastq) && !defined(r2_fastq))) {
-        call utils.ErrorWithMessage as ErrorMessageMissingInput {
-                  input:
-                     message = "Either bam or fastqs must be defined."
-                }
-            }
+      call utils.ErrorWithMessage as ErrorMessageMissingInput {
+         input:
+           message = "Either bam or fastqs must be defined."
+      }
+    }
 
     if (defined(r1_fastq) || defined(r2_fastq)) {
       if ((defined(r1_fastq) && !defined(r2_fastq)) || (defined(r2_fastq) && !defined(r1_fastq))) {
         call utils.ErrorWithMessage as ErrorMessageMissingR2Fastq {
           input:
             message = "R1_fastq and r2_fastq must both be defined"
-          }
+        }
       }
       if (!defined(library_name) || (!defined(platform)) || (!defined(platform_unit)) || (!defined(read_group_name)) || (!defined(sequencing_center))) {
         call utils.ErrorWithMessage as ErrorMessageMissingFastqHeaderMetadata {
           input:
-            message = "If r1_fastq is defined then library_name, platform, platform_unit, read_group_name, and sequencing center must also be defined"
+            message = "If r1_fastq and r2_fastq are defined then library_name, platform, platform_unit, read_group_name, and sequencing center must also be defined"
         }
       }
       if (defined(r1_fastq) && defined(r2_fastq)) {
