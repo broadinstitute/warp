@@ -1,14 +1,12 @@
 {
   "WholeGenomeGermlineSingleSample.sample_and_unmapped_bams": {
-    "sample_name": "NA12878 PLUMBING",
-    "base_file_name": "NA12878_PLUMBING",
+    "sample_name": "NA12878",
+    "base_file_name": "NA12878.huge-ubam",
     "flowcell_unmapped_bams": [
-      "gs://broad-public-datasets/NA12878_downsampled_for_testing/unmapped/H06HDADXX130110.1.ATCACGAT.20k_reads.bam",
-      "gs://broad-public-datasets/NA12878_downsampled_for_testing/unmapped/H06HDADXX130110.2.ATCACGAT.20k_reads.bam",
-      "gs://broad-public-datasets/NA12878_downsampled_for_testing/unmapped/H06JUADXX130110.1.ATCACGAT.20k_reads.bam"
+        "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/RP-518.NA12878/H0164ALXX.2.Solexa-272222.unmapped.bam"
     ],
-    "final_gvcf_base_name": "NA12878_PLUMBING",
-    "unmapped_bam_suffix": ".bam"
+    "final_gvcf_base_name": "NA12878.huge-ubam",
+    "unmapped_bam_suffix": ".unmapped.bam"
   },
 
   "WholeGenomeGermlineSingleSample.references": {
@@ -41,13 +39,18 @@
     "haplotype_database_file": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt"
   },
 
-  "WholeGenomeGermlineSingleSample.scatter_settings": {
-    "haplotype_scatter_count": 10,
-    "break_bands_at_multiples_of": 100000
+  "WholeGenomeGermlineSingleSample.dragmap_reference": {
+    "reference_bin": "gs://gcp-public-data--broad-references/hg38/v0/dragen_reference/reference.bin",
+    "hash_table_cfg_bin": "gs://gcp-public-data--broad-references/hg38/v0/dragen_reference/hash_table.cfg.bin",
+    "hash_table_cmp": "gs://gcp-public-data--broad-references/hg38/v0/dragen_reference/hash_table.cmp"
   },
 
-  "WholeGenomeGermlineSingleSample.fingerprint_genotypes_file": "gs://broad-gotc-test-storage/germline_single_sample/wgs/plumbing/bams/NA12878_PLUMBING.hg38.reference.fingerprint.vcf.gz",
-  "WholeGenomeGermlineSingleSample.fingerprint_genotypes_index": "gs://broad-gotc-test-storage/germline_single_sample/wgs/plumbing/bams/NA12878_PLUMBING.hg38.reference.fingerprint.vcf.gz.tbi",
+  "WholeGenomeGermlineSingleSample.scatter_settings": {
+    "haplotype_scatter_count": 50,
+    "break_bands_at_multiples_of": 1000000
+  },
+
+  "WholeGenomeGermlineSingleSample.fingerprint_genotypes_file": "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/fingerprint_vcfs/RP-518.NA12878.reference.fingerprint.vcf",
   "WholeGenomeGermlineSingleSample.wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list",
 
   "WholeGenomeGermlineSingleSample.papi_settings": {
@@ -55,5 +58,5 @@
     "agg_preemptible_tries": 3
   },
 
-  "WholeGenomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true
+  "WholeGenomeGermlineSingleSample.dragen_maximum_quality_mode": true
 }

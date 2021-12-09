@@ -68,7 +68,6 @@
     "hash_table_cmp": "gs://gcp-public-data--broad-references/hg38/v0/dragen_reference/hash_table.cmp"
   },
 
-
   "WholeGenomeGermlineSingleSample.scatter_settings": {
     "haplotype_scatter_count": 50,
     "break_bands_at_multiples_of": 1000000
