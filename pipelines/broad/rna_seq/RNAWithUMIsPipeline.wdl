@@ -1,10 +1,27 @@
 version 1.0
 
-import "UMIAwareDuplicateMarking.wdl" as UmiMD
+import "../../../pipelines/broad/rna_seq/UMIAwareDuplicateMarking.wdl" as UmiMD
 import "../../../tasks/broad/Utilities.wdl" as utils
 
+## Copyright Broad Institute, 2021
+##
+## This WDL pipeline implements data processing for RNA with UMIs
+##
+## Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
+## For program versions, see docker containers.
+##
+## LICENSING :
+## This script is released under the WDL source code license (BSD-3) (see LICENSE in
+## https://github.com/broadinstitute/wdl). Note however that the programs it calls may
+## be subject to different licenses. Users are responsible for checking that they are
+## authorized to run all programs before running this script. Please see the docker
+## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
+## licensing information pertaining to the included programs.
 
 workflow RNAWithUMIsPipeline {
+
+	String pipeline_version = "0.1.0"
+
 	input {
 		File? bam
 		File? r1_fastq
@@ -144,6 +161,18 @@ workflow RNAWithUMIsPipeline {
 			preemptible_tries=0
 	}
 
+	# TODO: wire in fingerprint_summary_metrics once we have it. Using static example for now
+	call MergeMetrics {
+		input:
+			alignment_summary_metrics=CollectMultipleMetrics.alignment_summary_metrics,
+			insert_size_metrics=CollectMultipleMetrics.insert_size_metrics,
+			picard_rna_metrics=CollectRNASeqMetrics.rna_metrics,
+			duplicate_metrics=UMIAwareDuplicateMarking.duplicate_metrics,
+			rnaseqc2_metrics=rnaseqc2.metrics,
+			fingerprint_summary_metrics="gs://broad-gotc-test-storage/rna_seq/example.fingerprinting_summary_metrics",
+			output_basename = GetSampleName.sample_name
+	}
+
 
 	output {
 		File transcriptome_bam = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam
@@ -152,20 +181,22 @@ workflow RNAWithUMIsPipeline {
 		File output_bam = UMIAwareDuplicateMarking.duplicate_marked_bam
 		File output_bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index
 		File duplicate_metrics = UMIAwareDuplicateMarking.duplicate_metrics
-		File gene_tpm = rnaseqc2.gene_tpm
-		File gene_counts = rnaseqc2.gene_counts
-		File exon_counts = rnaseqc2.exon_counts
-		File metrics = rnaseqc2.metrics
-		File rna_metrics = CollectRNASeqMetrics.rna_metrics
-		File alignment_summary_metrics = CollectMultipleMetrics.alignment_summary_metrics
-		File insert_size_metrics = CollectMultipleMetrics.insert_size_metrics
-		File insert_size_histogram = CollectMultipleMetrics.insert_size_histogram
-		File base_distribution_by_cycle_metrics = CollectMultipleMetrics.base_distribution_by_cycle_metrics
-		File base_distribution_by_cycle_pdf = CollectMultipleMetrics.base_distribution_by_cycle_pdf
-		File quality_by_cycle_metrics = CollectMultipleMetrics.quality_by_cycle_metrics
-		File quality_by_cycle_pdf = CollectMultipleMetrics.quality_by_cycle_pdf
-		File quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
-		File quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
+		File rnaseqc2_gene_tpm = rnaseqc2.gene_tpm
+		File rnaseqc2_gene_counts = rnaseqc2.gene_counts
+		File rnaseqc2_exon_counts = rnaseqc2.exon_counts
+		File rnaseqc2_fragment_size_histogram = rnaseqc2.fragment_size_histogram
+		File rnaseqc2_metrics = rnaseqc2.metrics
+		File picard_rna_metrics = CollectRNASeqMetrics.rna_metrics
+		File picard_alignment_summary_metrics = CollectMultipleMetrics.alignment_summary_metrics
+		File picard_insert_size_metrics = CollectMultipleMetrics.insert_size_metrics
+		File picard_insert_size_histogram = CollectMultipleMetrics.insert_size_histogram
+		File picard_base_distribution_by_cycle_metrics = CollectMultipleMetrics.base_distribution_by_cycle_metrics
+		File picard_base_distribution_by_cycle_pdf = CollectMultipleMetrics.base_distribution_by_cycle_pdf
+		File picard_quality_by_cycle_metrics = CollectMultipleMetrics.quality_by_cycle_metrics
+		File picard_quality_by_cycle_pdf = CollectMultipleMetrics.quality_by_cycle_pdf
+		File picard_quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
+		File picard_quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
+		File unified_metrics = MergeMetrics.unified_metrics
 	}
 }
 
@@ -303,7 +334,7 @@ task rnaseqc2 {
 		File gene_tpm = "${sample_id}.gene_tpm.gct.gz"
 		File gene_counts = "${sample_id}.gene_reads.gct.gz"
 		File exon_counts = "${sample_id}.exon_reads.gct.gz"
-		File insert_size_histogram = "${sample_id}.fragmentSizes.txt"
+		File fragment_size_histogram = "${sample_id}.fragmentSizes.txt"
 		File metrics = "${sample_id}.metrics.tsv"
 	}
 
@@ -448,3 +479,79 @@ task CollectMultipleMetrics {
 		File quality_distribution_pdf = output_bam_prefix + ".quality_distribution.pdf"
 	}
 }
+
+task MergeMetrics {
+    input {
+        File alignment_summary_metrics
+        File insert_size_metrics
+        File picard_rna_metrics
+        File duplicate_metrics
+        File rnaseqc2_metrics
+        File fingerprint_summary_metrics
+			  String output_basename
+    }
+
+	  String out_filename = output_basename + ".unified_metrics.txt"
+    
+    command <<<
+
+#
+# Script transpose a two line TSV
+#
+cat <<-'EOF' > transpose.py
+import csv, sys
+
+rows = list(csv.reader(sys.stdin, delimiter='\t'))
+
+for col in range(0, len(rows[0])):
+    key = rows[0][col].lower()
+    print(f"{key}\t{rows[1][col]}")
+EOF
+
+#
+# Script clean the keys, replacing space, dash and forward-slash with underscores, 
+# and removing comma, single quote and periods
+#
+cat <<-'EOF' > clean.py
+import sys
+
+for line in sys.stdin:
+    (k,v) = line.strip().lower().split("\t")
+    transtable = k.maketrans({' ':'_', '-':'_', '/':'_', ',':None, '\'':None, '.' : None})
+    print(f"{k.translate(transtable)}\t{v}")
+EOF
+
+        # Process each metric file, transposing and cleaning if necessary, and pre-pending a source to the metric name
+
+        echo "Processing Alignment Summary Metrics - Only PAIR line"
+        cat ~{alignment_summary_metrics} | egrep "(CATEGORY|^PAIR)" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP)" | awk '{print "picard_" $0}' >> ~{out_filename}
+
+        echo "Processing Insert Size Metrics - removing various WIDTH metrics"
+        cat ~{insert_size_metrics} | grep -A 1 "MEDIAN_INSERT_SIZE" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP|WIDTH)" | awk '{print "picard_" $0}' >> ~{out_filename}
+
+        echo "Processing Picard RNA Metrics"
+        cat ~{picard_rna_metrics} | grep -A 1 "RIBOSOMAL_BASES" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP)" | awk '{print "picard_rna_metrics_" $0}' >> ~{out_filename}
+
+        echo "Processing Duplicate Metrics"
+        cat ~{duplicate_metrics} | grep -A 1 "READ_PAIR_DUPLICATES" | python transpose.py | awk '{print "picard_" $0}' >> ~{out_filename}
+
+        echo "Processing RNASeQC2 Metrics"
+        cat ~{rnaseqc2_metrics} | python clean.py | awk '{print "rnaseqc2_" $0}' >> ~{out_filename}
+
+        echo "Processing Fingerprint Summary Metrics - only extracting LOD_EXPECTED_SAMPLE"
+        cat ~{fingerprint_summary_metrics} | grep -A 1 "LOD_EXPECTED_SAMPLE" | python transpose.py | grep -i "LOD_EXPECTED_SAMPLE" | awk '{print "fp_"$0}' >> ~{out_filename}
+    >>>
+
+    runtime {
+        docker : "python:3.8-slim"
+        disks : "local-disk 10 HDD"
+        memory : "3GB"
+        cpu : "1"
+        preemptible: 0
+    }
+
+    output {
+        File unified_metrics = out_filename
+    }
+}    
+
