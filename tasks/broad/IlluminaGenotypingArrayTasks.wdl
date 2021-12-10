@@ -371,15 +371,17 @@ task CheckFingerprint {
   input {
     File input_vcf_file
     File input_vcf_index_file
-    File? genotypes_vcf_file
-    File? genotypes_vcf_index_file
-    File haplotype_database_file
-    String observed_sample_alias
+    String? input_sample_alias
+
+    File genotypes_vcf_file
+    File genotypes_vcf_index_file
     String expected_sample_alias
+
+    File haplotype_database_file
     String output_metrics_basename
 
-    Int disk_size
-    Int preemptible_tries
+    Int disk_size = 100
+    Int preemptible_tries = 3
   }
 
   # Paraphrased from Yossi:
@@ -395,12 +397,12 @@ task CheckFingerprint {
     java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
       CheckFingerprint \
       --INPUT ~{input_vcf_file} \
-      --OBSERVED_SAMPLE_ALIAS "~{observed_sample_alias}" \
-    ~{"--GENOTYPES \"" + genotypes_vcf_file +"\""} \
+      ~{"--OBSERVED_SAMPLE_ALIAS \"" + input_sample_alias + "\""} \
+      ~{"--GENOTYPES \"" + genotypes_vcf_file +"\""} \
       --EXPECTED_SAMPLE_ALIAS "~{expected_sample_alias}" \
       --HAPLOTYPE_MAP ~{haplotype_database_file} \
       --GENOTYPE_LOD_THRESHOLD ~{genotype_lod_threshold} \
-      --OUTPUT ~{output_metrics_basename}
+      --OUTPUT "~{output_metrics_basename}"
 
     CONTENT_LINE=$(cat ~{output_metrics_basename}~{summary_metrics_extension} |
     grep -n "## METRICS CLASS\tpicard.analysis.FingerprintingSummaryMetrics" |

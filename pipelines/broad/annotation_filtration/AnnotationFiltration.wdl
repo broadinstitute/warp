@@ -203,6 +203,6 @@ task GatherFiltrationReport {
   runtime {
     memory: "4 GiB"
     docker: "us.gcr.io/google-containers/alpine-with-bash:1.0"
-    disk: "10 HDD"
+    disks: "10 HDD"
   }
 }
