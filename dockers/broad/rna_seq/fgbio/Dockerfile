@@ -5,7 +5,8 @@ ARG FGBIO_VERSION=1.4.0
 ENV TERM=xterm-256color \
         FGBIO_URL=https://github.com/fulcrumgenomics/fgbio/releases/download/${FGBIO_VERSION}/fgbio-${FGBIO_VERSION}.jar
 
-LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>"
+LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>" \
+        FGBIO_VERSION=${FGBIO_VERSION}
 
 WORKDIR /usr/gitc
 

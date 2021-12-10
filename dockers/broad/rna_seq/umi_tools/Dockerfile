@@ -5,7 +5,8 @@ ARG UMI_TOOLS_VERSION=1.1.1
 ENV TERM=xterm-256color \
         TINI_VERSION=v0.19.0 
 
-LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>"
+LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>" \
+        UMI_TOOLS_VERSION=${UMI_TOOLS_VERSION}
 
 # Install dependencies
 RUN set -eux; \
