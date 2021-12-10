@@ -64,7 +64,7 @@ For examples of how to specify each input in a configuration file, as well as cl
  
 ### Imputation reference panel
  
-The Imputation workflow's reference panel files is hosted in a [public Google Bucket](https://console.cloud.google.com/storage/browser/broad-gotc-test-storage/imputation/1000G_reference_panel;tab=objects?prefix=&forceOnObjectsSortingFiltering=false). For the cloud-path (URI) to the files, see the [example input configuration](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json).
+The Imputation workflow's reference panel files are hosted in a [public Google Bucket](https://console.cloud.google.com/storage/browser/broad-gotc-test-storage/imputation/1000G_reference_panel;tab=objects?prefix=&forceOnObjectsSortingFiltering=false). For the cloud-path (URI) to the files, see the [example input configuration](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json).
 
 #### Generation of the modified 1000 Genomes reference
 Initial tests of the Imputation workflow followed by assessments of polygenic risk score revealed that disease risk scores were lower when computed from imputed array data as opposed to whole-genome sequencing data. This was found to be due to incorrectly genotyped sites in the 1000G reference panel. As a result, the 1000G reference files were modified for the Imputation pipeline as described in the [references overview](./references_overview.md). You can view the original, unmodified 1000G VCFs [here](https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/).
