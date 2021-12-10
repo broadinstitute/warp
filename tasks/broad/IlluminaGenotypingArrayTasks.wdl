@@ -369,8 +369,10 @@ task VcfToIntervalList {
 
 task CheckFingerprint {
   input {
-    File input_vcf_file
-    File input_vcf_index_file
+    File? input_bam
+    File? input_bam_index
+    File? input_vcf_file
+    File? input_vcf_index_file
     String? input_sample_alias
 
     File genotypes_vcf_file

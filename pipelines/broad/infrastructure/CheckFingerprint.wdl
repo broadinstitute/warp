@@ -1,5 +1,6 @@
 version 1.0
 
+import "../../../tasks/broad/Utilities.wdl" as utils
 import "../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 import "../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
 
@@ -27,8 +28,10 @@ workflow CheckFingerprint {
   input {
     # The name of the sample in the input_vcf.  Not required if there is only one sample in the VCF
     String? input_sample_alias
-    File input_vcf
-    File input_vcf_index
+    File? input_vcf
+    File? input_vcf_index
+    File? input_bam
+    File? input_bam_index
 
     String sample_alias
     String sample_lsid
@@ -46,6 +49,20 @@ workflow CheckFingerprint {
 
     String environment
     File vault_token_path
+  }
+
+  if (!defined(input_vcf) && !defined(input_bam)) {
+    call utils.ErrorWithMessage as ErrorMessageInput {
+      input:
+        message = "Either input_vcf or input_bam (and NOT both) must be defined as input"
+    }
+  }
+
+  if (defined(input_vcf) && defined(input_bam)) {
+    call utils.ErrorWithMessage as ErrorMessageDoubleInput {
+      input:
+        message = "input_vcf and input_bam cannot both be defined as input"
+    }
   }
 
   call InternalTasks.MakeSafeFilename {
