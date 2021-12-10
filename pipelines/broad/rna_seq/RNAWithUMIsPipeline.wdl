@@ -211,7 +211,7 @@ task FastqToUbam {
         String read_group_name
         String sequencing_center
         # estimate that the bam is approximately equal in size to fastqs, add a small buffer
-        Int disk = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2)
+        Int disk_space = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2) + 50
         Int cpu = 1
         String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
         Int memory_mb = 3750
@@ -235,7 +235,7 @@ task FastqToUbam {
 
     runtime {
         docker: docker
-        disk: disk
+        disks : "local-disk " + disk_space + " HDD"
         cpu: cpu
         memory: "${memory_mb} MiB"
      }
