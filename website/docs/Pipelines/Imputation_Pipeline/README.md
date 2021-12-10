@@ -130,7 +130,7 @@ The table below summarizes the workflow outputs. If running the workflow on Crom
 ## Price estimates
 The pipeline is cost-optimized for between 100 and 1,000 samples, where the cost per sample continues to decrease until 1,000 samples are run. Cost estimates per sample are provided below:
 
-| Cohort size ( # samples) | Cost $ |
+| Cohort size ( # samples) | Cost per sample ($) |
 | --- | --- | 
 | 1 | 8 |
 | 10 | 0.8 | 
