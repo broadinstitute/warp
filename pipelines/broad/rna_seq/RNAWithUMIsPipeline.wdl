@@ -413,13 +413,8 @@ task CollectRNASeqMetrics {
 	Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
 	Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 20
 
-	# This jar skips the header check of the ribosomal interval
-#	File picard_jar = "gs://broad-dsde-methods-takuto/hydro.gen/picard_ignore_ribosomal_header.jar"
-	# copied the jar into a gotc-accessible location. TODO - this presumably won't work in Terra?
-	File picard_jar = "gs://broad-gotc-test-storage/rna_seq/picard_ignore_ribosomal_header.jar"
-
 	command {
-		java -Xms5000m -jar ~{picard_jar} CollectRnaSeqMetrics \
+		java -Xms5000m -jar /usr/picard/picard.jar CollectRnaSeqMetrics \
 		REF_FLAT=~{ref_flat} \
 		RIBOSOMAL_INTERVALS= ~{ribosomal_intervals} \
 		STRAND_SPECIFICITY=SECOND_READ_TRANSCRIPTION_STRAND \
@@ -428,7 +423,7 @@ task CollectRNASeqMetrics {
 	}
 
 	runtime {
-		docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.3-1564508330"
+		docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
 		memory: "7 GiB"
 		disks: "local-disk " + disk_size + " HDD"
 		preemptible: preemptible_tries
