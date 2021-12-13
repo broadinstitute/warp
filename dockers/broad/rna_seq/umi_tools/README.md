@@ -6,7 +6,7 @@ Copy and paste to pull this image
 
 #### `us.gcr.io/broad-gotc-prod/umi_tools:1.0.0-1.1.1-1638821470`
 
-- __What is this image:__ This image is a lightweight alpined based image for running UMI-tools within our RNA sequencing pipeline.
+- __What is this image:__ This image is a lightweight debian based image for running UMI-tools within our RNA sequencing pipeline.
 - __What is fgbio:__ UMI-tools is set of tools for dealing with Unique Molecular Identifiers (UMIS)/Random Molecular Tags (RMTS) and single-cell RNA-seq barcodes. See [here](https://github.com/CGATOxford/UMI-tools) for more information.
 - __How to see tool version used in image:__ Please see below.
 
