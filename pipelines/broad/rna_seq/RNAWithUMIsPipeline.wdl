@@ -388,7 +388,7 @@ task CopyReadGroupsToHeader {
 	>>>
 
 	runtime {
-		docker: "us.gcr.io/broad-dsde-methods/samtools@sha256:0e49b0a5d91c203b8c07f5242277c2060b4b8ea54df8b1d123f990a1ad0588b2"
+		docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
 		disks: "local-disk " + disk_size + " HDD"
 	}
 
