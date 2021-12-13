@@ -38,14 +38,14 @@ workflow VerifyRNAWithUmis {
     input:
       test_bam = test_output_bam,
       truth_bam = truth_output_bam,
-      lenient_header = false
+      lenient_header = true
   }
 
   call VerifyTasks.CompareBams as CompareTranscriptomeBam {
     input:
       test_bam = test_transcriptome_bam,
       truth_bam = truth_transcriptome_bam,
-      lenient_header = false
+      lenient_header = true
   }
 
   call VerifyTasks.CompareCompressedTextFiles as CompareGeneTpms {

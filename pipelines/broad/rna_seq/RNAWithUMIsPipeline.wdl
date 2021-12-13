@@ -269,7 +269,9 @@ task STAR {
 	>>>
 
 	runtime {
-		docker : "quay.io/biocontainers/star:2.6.1d--h9ee0642_1"
+		# Copied the docker from tag's private location to a public location.
+#		docker : "us.gcr.io/tag-team-160914/neovax-tag-rnaseq:v1"
+		docker : "us.gcr.io/broad-gotc-prod/neovax-tag-rnaseq:v1"
 		disks : "local-disk " + disk_space + " HDD"
 		memory : "64GB"
 		cpu : "8"
@@ -292,7 +294,7 @@ task ExtractUMIs {
 	Int disk_space = ceil(2.2 * size(bam, "GB")) + 50
 
 	command <<<
-		java -jar /usr/gitc/fgbio.jar ExtractUmisFromBam --input ~{bam} \
+		fgbio ExtractUmisFromBam --input ~{bam} \
 			--read-structure ~{read1Structure} \
 			--read-structure ~{read2Structure} \
 			--molecular-index-tags RX \
@@ -300,7 +302,7 @@ task ExtractUMIs {
 	>>>
 
 	runtime {
-		docker : "us.gcr.io/broad-gotc-prod/fgbio:1.0.0-1.4.0-1638817487"
+		docker : "quay.io/biocontainers/fgbio@sha256:a8e5cf58c318bffba3b2b694a3640ecd9e8106cee2e33b75710c0e8215138b6e"
 		disks : "local-disk " + disk_space + " HDD"
 		preemptible: 0
 	}
@@ -386,7 +388,7 @@ task CopyReadGroupsToHeader {
 	>>>
 
 	runtime {
-		docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
+		docker: "us.gcr.io/broad-dsde-methods/samtools@sha256:0e49b0a5d91c203b8c07f5242277c2060b4b8ea54df8b1d123f990a1ad0588b2"
 		disks: "local-disk " + disk_size + " HDD"
 	}
 
@@ -411,8 +413,13 @@ task CollectRNASeqMetrics {
 	Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
 	Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 20
 
+	# This jar skips the header check of the ribosomal interval
+#	File picard_jar = "gs://broad-dsde-methods-takuto/hydro.gen/picard_ignore_ribosomal_header.jar"
+	# copied the jar into a gotc-accessible location. TODO - this presumably won't work in Terra?
+	File picard_jar = "gs://broad-gotc-test-storage/rna_seq/picard_ignore_ribosomal_header.jar"
+
 	command {
-		java -Xms5000m -jar /usr/picard/picard.jar CollectRnaSeqMetrics \
+		java -Xms5000m -jar ~{picard_jar} CollectRnaSeqMetrics \
 		REF_FLAT=~{ref_flat} \
 		RIBOSOMAL_INTERVALS= ~{ribosomal_intervals} \
 		STRAND_SPECIFICITY=SECOND_READ_TRANSCRIPTION_STRAND \
@@ -421,7 +428,7 @@ task CollectRNASeqMetrics {
 	}
 
 	runtime {
-		docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+		docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.3-1564508330"
 		memory: "7 GiB"
 		disks: "local-disk " + disk_size + " HDD"
 		preemptible: preemptible_tries
