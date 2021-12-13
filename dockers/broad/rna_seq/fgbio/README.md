@@ -6,7 +6,7 @@ Copy and paste to pull this image
 
 #### `us.gcr.io/broad-gotc-prod/fgbio:1.0.0-1.4.0-1638817487`
 
-- __What is this image:__ This image is a lightweight alpined based image for running the fgbio tool set within our RNA sequencing pipeline.
+- __What is this image:__ This image is a lightweight alpine based image for running the fgbio tool set within our RNA sequencing pipeline.
 - __What is fgbio:__ fgbio from Fulcrum Genomics is a set of tools to analyze genomice data with a focus on Next Generation Sequencing. See [here](https://github.com/fulcrumgenomics/fgbio) for more information.
 - __How to see tool version used in image:__ Please see below.
 
