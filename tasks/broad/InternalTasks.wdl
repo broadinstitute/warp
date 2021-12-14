@@ -88,7 +88,9 @@ task DownloadGenotypes {
       --ERR_NO_GENOTYPES_AVAILABLE 7
     exit_code=$?
 
-    if [ $exit_code -eq 7 ]; then
+    if [ $exit_code -eq 0 ]; then
+      echo "true" > ~{fp_retrieved_file}
+    elif [ $exit_code -eq 7 ]; then
       # Exit code from DownloadGenotypes if no fingerprints were found.
       # Treat this as a normal condition, but set a variable to indicate no fingerprints available.
       # Create empty file so that it exists.
@@ -98,7 +100,7 @@ task DownloadGenotypes {
       touch ~{output_vcf}
       touch ~{output_vcf_index}
     else
-      echo "true" > ~{fp_retrieved_file}
+      echo "false" > ~{fp_retrieved_file}
     fi
 
     exit $exit_code
@@ -184,7 +186,9 @@ task DownloadGenotypesForArrays {
       --ERR_NO_GENOTYPES_AVAILABLE 7
     exit_code=$?
 
-    if [ $exit_code -eq 7 ]; then
+    if [ $exit_code -eq 0 ]; then
+      echo "true" > ~{fp_retrieved_file}
+    elif [ $exit_code -eq 7 ]; then
       # Exit code from DownloadGenotypes if no fingerprints were found.
       # Treat this as a normal condition, but set a variable to indicate no fingerprints available.
       # Create empty file so that it exists.
@@ -194,7 +198,7 @@ task DownloadGenotypesForArrays {
       touch ~{output_vcf}
       touch ~{output_vcf_index}
     else
-      echo "true" > ~{fp_retrieved_file}
+      echo "false" > ~{fp_retrieved_file}
     fi
 
     exit $exit_code

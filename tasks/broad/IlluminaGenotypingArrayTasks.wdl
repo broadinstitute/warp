@@ -379,8 +379,11 @@ task CheckFingerprint {
     File genotypes_vcf_index_file
     String expected_sample_alias
 
-    File haplotype_database_file
     String output_metrics_basename
+
+    File haplotype_database_file
+    File ref_fasta
+    File ref_fasta_index
 
     Int disk_size = 100
     Int preemptible_tries = 3
@@ -404,9 +407,11 @@ task CheckFingerprint {
       ~{if defined(input_vcf) then "--OBSERVED_SAMPLE_ALIAS \"" + input_sample_alias + "\"" else ""} \
       ~{"--GENOTYPES \"" + genotypes_vcf_file +"\""} \
       --EXPECTED_SAMPLE_ALIAS "~{expected_sample_alias}" \
+      ~{if defined(input_bam) then "--IGNORE_READ_GROUPS true" else ""} \
       --HAPLOTYPE_MAP ~{haplotype_database_file} \
       --GENOTYPE_LOD_THRESHOLD ~{genotype_lod_threshold} \
-      --OUTPUT "~{output_metrics_basename}"
+      --OUTPUT "~{output_metrics_basename}" \
+      --REFERENCE_SEQUENCE ~{ref_fasta}
 
     CONTENT_LINE=$(cat ~{output_metrics_basename}~{summary_metrics_extension} |
     grep -n "## METRICS CLASS\tpicard.analysis.FingerprintingSummaryMetrics" |

@@ -34,7 +34,7 @@ workflow CheckFingerprint {
     File? input_bam_index
 
     String sample_alias
-    String sample_lsid
+    String? sample_lsid
 
     File ref_fasta
     File ref_fasta_index
@@ -70,11 +70,13 @@ workflow CheckFingerprint {
       name = sample_alias
   }
 
+  # TODO - need an error check for sample_lsid not defined when reading from mercury.
+
   if (read_fingerprint_from_mercury) {
     call InternalTasks.DownloadGenotypes {
       input:
         sample_alias = sample_alias,
-        sample_lsid = sample_lsid,
+        sample_lsid = select_first([sample_lsid]),
         output_vcf_base_name = MakeSafeFilename.output_safe_name + ".reference.fingerprint",
         haplotype_database_file = haplotype_database_file,
         ref_fasta = ref_fasta,
@@ -100,9 +102,11 @@ workflow CheckFingerprint {
         input_sample_alias = input_sample_alias,
         genotypes_vcf_file = select_first([fingerprint_vcf_to_use]),
         genotypes_vcf_index_file = select_first([fingerprint_vcf_to_use]),
-        haplotype_database_file = haplotype_database_file,
         expected_sample_alias = sample_alias,
-        output_metrics_basename = MakeSafeFilename.output_safe_name
+        output_metrics_basename = MakeSafeFilename.output_safe_name,
+        haplotype_database_file = haplotype_database_file,
+        ref_fasta = ref_fasta,
+        ref_fasta_index = ref_fasta_index
     }
   }
 
