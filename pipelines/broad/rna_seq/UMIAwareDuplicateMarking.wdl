@@ -157,6 +157,7 @@ task GroupByUMIs {
   }
 
   runtime {
+    # Note to Takuto that this updates umi_tools from 1.0.0 to 1.1.1 (no diffs found in test verification).
     docker : "us.gcr.io/broad-gotc-prod/umi_tools:1.0.0-1.1.1-1638821470"
     disks : "local-disk " + disk_space + " HDD"
     preemptible: 0

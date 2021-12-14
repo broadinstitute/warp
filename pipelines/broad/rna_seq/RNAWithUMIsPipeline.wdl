@@ -269,7 +269,11 @@ task STAR {
 	>>>
 
 	runtime {
-		docker : "quay.io/biocontainers/star:2.6.1d--h9ee0642_1"
+		# Copied the docker from tag's private location to a public location.
+#		docker : "us.gcr.io/tag-team-160914/neovax-tag-rnaseq:v1"
+		docker : "us.gcr.io/broad-gotc-prod/neovax-tag-rnaseq:v1"
+		# TODO - Updated docker (doesn't work?)
+##		docker : "quay.io/biocontainers/star:2.6.1d--h9ee0642_1"
 		disks : "local-disk " + disk_space + " HDD"
 		memory : "64GB"
 		cpu : "8"
@@ -291,8 +295,11 @@ task ExtractUMIs {
 
 	Int disk_space = ceil(2.2 * size(bam, "GB")) + 50
 
+	## TODO - updated syntax for new docker
+	##		java -jar /usr/gitc/fgbio.jar ExtractUmisFromBam --input ~{bam} \
+
 	command <<<
-		java -jar /usr/gitc/fgbio.jar ExtractUmisFromBam --input ~{bam} \
+		fgbio ExtractUmisFromBam --input ~{bam} \
 			--read-structure ~{read1Structure} \
 			--read-structure ~{read2Structure} \
 			--molecular-index-tags RX \
@@ -300,7 +307,9 @@ task ExtractUMIs {
 	>>>
 
 	runtime {
-		docker : "us.gcr.io/broad-gotc-prod/fgbio:1.0.0-1.4.0-1638817487"
+		docker : "quay.io/biocontainers/fgbio@sha256:a8e5cf58c318bffba3b2b694a3640ecd9e8106cee2e33b75710c0e8215138b6e"
+		# TODO - Updated docker (doesn't work?)
+##		docker : "us.gcr.io/broad-gotc-prod/fgbio:1.0.0-1.4.0-1638817487"
 		disks : "local-disk " + disk_space + " HDD"
 		preemptible: 0
 	}
