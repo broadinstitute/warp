@@ -14,6 +14,7 @@ WORKDIR /usr/gitc
 RUN set -eux; \
         apk --no-cache upgrade; \
         apk add --no-cache \ 
+            bash \
             wget \
             tini \
     ; \
