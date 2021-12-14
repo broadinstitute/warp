@@ -93,8 +93,10 @@ workflow CheckFingerprint {
   if (defined(fingerprint_vcf_to_use)) {
     call GenotypingTasks.CheckFingerprint {
       input:
-        input_vcf_file = input_vcf,
-        input_vcf_index_file = input_vcf_index,
+        input_bam = input_bam,
+        input_bam_index = input_bam_index,
+        input_vcf = input_vcf,
+        input_vcf_index = input_vcf_index,
         input_sample_alias = input_sample_alias,
         genotypes_vcf_file = select_first([fingerprint_vcf_to_use]),
         genotypes_vcf_index_file = select_first([fingerprint_vcf_to_use]),

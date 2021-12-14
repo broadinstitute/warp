@@ -371,8 +371,8 @@ task CheckFingerprint {
   input {
     File? input_bam
     File? input_bam_index
-    File? input_vcf_file
-    File? input_vcf_index_file
+    File? input_vcf
+    File? input_vcf_index
     String? input_sample_alias
 
     File genotypes_vcf_file
@@ -394,12 +394,14 @@ task CheckFingerprint {
   Float genotype_lod_threshold = 1.9
   String summary_metrics_extension = ".fingerprinting_summary_metrics"
 
+  File input_file = select_first([input_vcf, input_bam])
+
   command <<<
     set -e
     java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
       CheckFingerprint \
-      --INPUT ~{input_vcf_file} \
-      ~{"--OBSERVED_SAMPLE_ALIAS \"" + input_sample_alias + "\""} \
+      --INPUT ~{input_file} \
+      ~{if defined(input_vcf) then "--OBSERVED_SAMPLE_ALIAS \"" + input_sample_alias + "\"" else ""} \
       ~{"--GENOTYPES \"" + genotypes_vcf_file +"\""} \
       --EXPECTED_SAMPLE_ALIAS "~{expected_sample_alias}" \
       --HAPLOTYPE_MAP ~{haplotype_database_file} \

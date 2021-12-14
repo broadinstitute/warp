@@ -1,12 +1,14 @@
 {
   "CheckFingerprint.input_sample_alias": "201651080129_R05C01",
-  "CheckFingerprint.input_vcf": "gs://broad-gotc-test-storage/infrastructure/check_fingerprint/plumbing/inputs/201651080129_R05C01.vcf.gz",
-  "CheckFingerprint.input_vcf_index": "gs://broad-gotc-test-storage/infrastructure/check_fingerprint/plumbing/inputs/201651080129_R05C01.vcf.gz.tbi",
+  "CheckFingerprint.input_bam": "gs://broad-gotc-test-storage/infrastructure/check_fingerprint/plumbing/inputs/NA12878_PLUMBING.cram",
+  "CheckFingerprint.input_bam_index": "gs://broad-gotc-test-storage/infrastructure/check_fingerprint/plumbing/inputs/NA12878_PLUMBING.cram.crai",
 
   "CheckFingerprint.sample_alias": "S8 N4B3GY",
   "CheckFingerprint.sample_lsid": "broadinstitute.org:bsp.prod.sample:G7QQF",
 
-  "CheckFingerprint.read_fingerprint_from_mercury": true,
+  "CheckFingerprint.read_fingerprint_from_mercury": false,
+  "CheckFingerprint.fingerprint_genotypes_vcf": "gs://broad-gotc-test-storage/germline_single_sample/exome/plumbing/bams/RP-929.NA12878/RP-929.NA12878.reference.fingerprint.vcf.gz",
+  "CheckFingerprint.fingerprint_genotypes_vcf_index": "gs://broad-gotc-test-storage/germline_single_sample/exome/plumbing/bams/RP-929.NA12878/RP-929.NA12878.reference.fingerprint.vcf.gz.tbi",
 
   "CheckFingerprint.ref_fasta": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",
   "CheckFingerprint.ref_fasta_index": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai",
