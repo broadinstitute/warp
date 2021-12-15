@@ -13,7 +13,7 @@ LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>" \
 WORKDIR /usr/gitc
 
 # Install dependencies
-RUN set eux; \
+RUN set -eux; \
         apt-get update; \
         apt-get install -y \ 
             autoconf \
@@ -22,7 +22,7 @@ RUN set eux; \
             gcc \
             git \
             libbz2-dev \
-            libcurl4-openssl-dev \
+            libcurl4-gnutls-dev \
             libhts-dev \
             libssl-dev  \
             unzip \
