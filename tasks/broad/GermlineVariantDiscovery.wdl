@@ -96,7 +96,7 @@ task HaplotypeCaller_GATK4_VCF {
     Boolean use_dragen_hard_filtering = false
     Boolean use_spanning_event_genotyping = true
     File? dragstr_model
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.2.0"
+    String gatk_docker = "us.gcr.io/broad-arrays-prod/test:emeryj.test.merge.gatk.docker2"
     Int memory_multiplier = 1
   }
   
