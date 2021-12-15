@@ -23,7 +23,8 @@
       "ref_amb": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.amb",
       "ref_bwt": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.bwt",
       "ref_ann": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.ann",
-      "ref_pac": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.pac"
+      "ref_pac": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.pac",
+      "ref_str": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.str"
     },
     "known_indels_sites_vcfs": [
       "gs://gcp-public-data--broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz",
@@ -39,6 +40,12 @@
     "haplotype_database_file": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt"
   },
 
+  "WholeGenomeGermlineSingleSample.dragmap_reference": {
+    "reference_bin": "gs://gcp-public-data--broad-references/hg38/v0/dragen_reference/reference.bin",
+    "hash_table_cfg_bin": "gs://gcp-public-data--broad-references/hg38/v0/dragen_reference/hash_table.cfg.bin",
+    "hash_table_cmp": "gs://gcp-public-data--broad-references/hg38/v0/dragen_reference/hash_table.cmp"
+  },
+
   "WholeGenomeGermlineSingleSample.scatter_settings": {
     "haplotype_scatter_count": 50,
     "break_bands_at_multiples_of": 1000000
@@ -50,5 +57,7 @@
   "WholeGenomeGermlineSingleSample.papi_settings": {
     "preemptible_tries": 3,
     "agg_preemptible_tries": 3
-  }
+  },
+
+  "WholeGenomeGermlineSingleSample.dragen_maximum_quality_mode": true
 }
