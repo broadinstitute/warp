@@ -275,7 +275,7 @@ task DragenHardFilterVcf {
     Boolean make_gvcf
     String vcf_basename
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.3.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.2.0"
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
