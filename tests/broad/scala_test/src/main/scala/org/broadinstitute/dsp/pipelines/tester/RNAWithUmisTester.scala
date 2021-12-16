@@ -32,13 +32,13 @@ class RNAWithUmisTester(testerConfig: RNAWithUmisConfig)(
 
   protected lazy val resultsPrefix: URI = {
     URI.create(
-      s"gs://broad-gotc-test-results/$envString/rna_with_umis/$testTypeString/$timestamp/"
+      s"gs://broad-gotc-test-results/$envString/rna_seq/rna_with_umis/$testTypeString/$timestamp/"
     )
   }
 
   protected lazy val truthPrefix: URI =
     URI.create(
-      s"gs://broad-gotc-test-storage/rna_with_umis/$testTypeString/truth/${testerConfig.truthBranch}/"
+      s"gs://broad-gotc-test-storage/rna_seq/rna_with_umis/$testTypeString/truth/${testerConfig.truthBranch}/"
     )
 
   override protected def buildValidationWdlInputs(
