@@ -1,6 +1,6 @@
 FROM adoptopenjdk/openjdk8:alpine-slim
 
-ARG GATK4_VERSION=4.1.8.0 \
+ARG GATK4_VERSION=4.2.4.0 \
         GATK3_VERSION=3.5
 
 ENV TERM=xterm-256color \
