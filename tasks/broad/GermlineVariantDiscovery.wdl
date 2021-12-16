@@ -97,7 +97,7 @@ task HaplotypeCaller_GATK4_VCF {
     Boolean use_spanning_event_genotyping = true
     File? dragstr_model
     String gatk_docker = "us.gcr.io/broad-arrays-prod/test:emeryj.test.merge.gatk.docker2"
-    Int memory_multiplier = 1
+    Int memory_multiplier = 2
   }
   
   Int memory_size_mb = ceil(8000 * memory_multiplier)
