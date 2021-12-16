@@ -1,5 +1,6 @@
 version 1.0
 
+# This script is under review. It is not actively tested or maintained at this time.
 workflow BuildAFComparisonTable {
 	input {
 		File thousandG_vcf
