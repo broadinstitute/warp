@@ -12,4 +12,7 @@ class CheckFingerprintInputs(inputs: String) {
 
   def getBasename(workflowName: String): String =
     parsed.unsafeGet[String](s"$workflowName.output_basename")
+
+  def getSampleAlias(workflowName: String): String =
+    parsed.unsafeGet[String](s"$workflowName.sample_alias")
 }

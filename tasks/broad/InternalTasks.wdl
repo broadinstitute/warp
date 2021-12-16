@@ -95,7 +95,7 @@ task DownloadGenotypes {
       # Treat this as a normal condition, but set a variable to indicate no fingerprints available.
       # Create empty file so that it exists.
       exit_code=0
-      echo "Found no fingerprints for ~{sample_lsid}!"
+      echo "Found no fingerprints for ~{sample_lsid}"
       echo "false" > ~{fp_retrieved_file}
       touch ~{output_vcf}
       touch ~{output_vcf_index}
@@ -193,7 +193,7 @@ task DownloadGenotypesForArrays {
       # Treat this as a normal condition, but set a variable to indicate no fingerprints available.
       # Create empty file so that it exists.
       exit_code=0
-      echo "Found no fingerprints for ~{sample_lsid}!"
+      echo "Found no fingerprints for ~{sample_lsid}"
       echo "false" > ~{fp_retrieved_file}
       touch ~{output_vcf}
       touch ~{output_vcf_index}

@@ -1,9 +1,10 @@
 {
-  "CheckFingerprint.input_bam": "gs://broad-gotc-test-storage/germline_single_sample/exome/scientific/truth/master/C1963.CHMI_CHMI3_Nex1/CHMI_CHMI3_Nex1.cram",
-  "CheckFingerprint.input_bam_index": "gs://broad-gotc-test-storage/germline_single_sample/exome/scientific/truth/master/C1963.CHMI_CHMI3_Nex1/CHMI_CHMI3_Nex1.cram.crai",
+  "CheckFingerprint.input_bam": "gs://broad-gotc-test-storage/infrastructure/check_fingerprint/inputs/CHMI_CHMI3_Nex1.cram",
+  "CheckFingerprint.input_bam_index": "gs://broad-gotc-test-storage/infrastructure/check_fingerprint/inputs/CHMI_CHMI3_Nex1.cram.crai",
 
   "CheckFingerprint.sample_alias": "CHMI_CHMI3_Nex1",
   "CheckFingerprint.sample_lsid": "broadinstitute.org:bsp.prod.sample:AOERM",
+  "CheckFingerprint.output_basename": "CHMI_CHMI3_Nex1",
 
   "CheckFingerprint.read_fingerprint_from_mercury": true,
 

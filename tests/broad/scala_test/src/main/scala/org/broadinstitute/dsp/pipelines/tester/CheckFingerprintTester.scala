@@ -7,7 +7,10 @@ import akka.stream.ActorMaterializer
 import better.files.File
 import org.broadinstitute.dsp.pipelines.batch.WorkflowTest
 import org.broadinstitute.dsp.pipelines.config._
-import org.broadinstitute.dsp.pipelines.inputs.CheckFingerprintValidationInputs
+import org.broadinstitute.dsp.pipelines.inputs.{
+  CheckFingerprintInputs,
+  CheckFingerprintValidationInputs
+}
 
 class CheckFingerprintTester(testerConfig: CheckFingerprintConfig)(
     implicit am: ActorMaterializer,
@@ -55,11 +58,12 @@ class CheckFingerprintTester(testerConfig: CheckFingerprintConfig)(
   override protected def buildValidationWdlInputs(
       workflowTest: WorkflowTest
   ): String = {
-//    val checkFingerprintInputs = new CheckFingerprintInputs(
-//      workflowTest.runParameters.workflowInputs
-//    )
-//    val outputBaseName =
-//      checkFingerprintInputs.getBasename(workflowName)
+    val checkFingerprintInputs = new CheckFingerprintInputs(
+      workflowTest.runParameters.workflowInputs
+    )
+    val fileNameSafeSampleAlias =
+      checkFingerprintInputs.getSampleAlias(workflowName).replaceAll(" ", "_")
+
     val resultsCloudPath =
       workflowTest.runParameters.resultsCloudPath
     val truthCloudPath = workflowTest.runParameters.truthCloudPath
@@ -71,7 +75,11 @@ class CheckFingerprintTester(testerConfig: CheckFingerprintConfig)(
 
     val validationInputs = CheckFingerprintValidationInputs(
       test_metrics = metricsFileNames.map(resultsCloudPath.resolve),
-      truth_metrics = metricsFileNames.map(truthCloudPath.resolve)
+      truth_metrics = metricsFileNames.map(truthCloudPath.resolve),
+      test_fingerprint_vcf = resultsCloudPath.resolve(
+        s"$fileNameSafeSampleAlias.reference.fingerprint.vcf.gz"),
+      truth_fingerprint_vcf = truthCloudPath.resolve(
+        s"$fileNameSafeSampleAlias.reference.fingerprint.vcf.gz"),
     )
     CheckFingerprintValidationInputs
       .marshall(validationInputs)

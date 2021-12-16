@@ -1,6 +1,7 @@
 version 1.0
 
 import "../verification/VerifyMetrics.wdl" as MetricsVerification
+import "../verification/VerifyTasks.wdl" as Tasks
 
 ## Copyright Broad Institute, 2021
 ##
@@ -23,12 +24,21 @@ workflow VerifyCheckFingerprint {
   input {
     Array[File] test_metrics
     Array[File] truth_metrics
+
+    File test_fingerprint_vcf
+    File truth_fingerprint_vcf
   }
 
   call MetricsVerification.VerifyMetrics as CompareMetrics {
     input:
       test_metrics = test_metrics,
       truth_metrics = truth_metrics
+  }
+
+  call Tasks.CompareVcfs as CompareOutputFingerprintVcfs {
+    input:
+      file1 = test_fingerprint_vcf,
+      file2 = truth_fingerprint_vcf
   }
 
   output {

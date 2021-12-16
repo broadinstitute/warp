@@ -19,5 +19,7 @@ object CheckFingerprintValidationInputs
 
 case class CheckFingerprintValidationInputs(
     test_metrics: Seq[URI],
-    truth_metrics: Seq[URI]
+    truth_metrics: Seq[URI],
+    truth_fingerprint_vcf: URI,
+    test_fingerprint_vcf: URI
 )

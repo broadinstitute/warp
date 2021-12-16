@@ -10,6 +10,7 @@ import "../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingTask
 ## This WDL pipeline implements A CheckFingerprint Task
 ##
 ##
+##
 ## Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
 ## For program versions, see docker containers.
 ##
@@ -36,6 +37,8 @@ workflow CheckFingerprint {
     String sample_alias
     String? sample_lsid
 
+    String output_basename
+
     File ref_fasta
     File ref_fasta_index
     File ref_dict
@@ -51,13 +54,6 @@ workflow CheckFingerprint {
     File vault_token_path
   }
 
-  if (!defined(input_vcf) && !defined(input_bam)) {
-    call utils.ErrorWithMessage as ErrorMessageInput {
-      input:
-        message = "Either input_vcf or input_bam (and NOT both) must be defined as input"
-    }
-  }
-
   if (defined(input_vcf) && defined(input_bam)) {
     call utils.ErrorWithMessage as ErrorMessageDoubleInput {
       input:
@@ -65,12 +61,13 @@ workflow CheckFingerprint {
     }
   }
 
+  # TODO - need an error check for sample_lsid not defined when reading from mercury.
+
+  # sample_alias may contain spaces, so make a filename-safe version for the downloaded fingerprint file
   call InternalTasks.MakeSafeFilename {
     input:
       name = sample_alias
   }
-
-  # TODO - need an error check for sample_lsid not defined when reading from mercury.
 
   if (read_fingerprint_from_mercury) {
     call InternalTasks.DownloadGenotypes {
@@ -92,7 +89,7 @@ workflow CheckFingerprint {
   File? fingerprint_vcf_to_use = if (fingerprint_downloaded_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf else fingerprint_genotypes_vcf
   File? fingerprint_vcf_index_to_use = if (fingerprint_downloaded_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf_index else fingerprint_genotypes_vcf_index
 
-  if (defined(fingerprint_vcf_to_use)) {
+  if ((defined(fingerprint_vcf_to_use)) && (defined(input_vcf) || defined(input_bam))) {
     call GenotypingTasks.CheckFingerprint {
       input:
         input_bam = input_bam,
@@ -103,7 +100,7 @@ workflow CheckFingerprint {
         genotypes_vcf_file = select_first([fingerprint_vcf_to_use]),
         genotypes_vcf_index_file = select_first([fingerprint_vcf_to_use]),
         expected_sample_alias = sample_alias,
-        output_metrics_basename = MakeSafeFilename.output_safe_name,
+        output_metrics_basename = output_basename,
         haplotype_database_file = haplotype_database_file,
         ref_fasta = ref_fasta,
         ref_fasta_index = ref_fasta_index
@@ -111,8 +108,9 @@ workflow CheckFingerprint {
   }
 
   output {
-    File? reference_fingerprint_vcf = DownloadGenotypes.reference_fingerprint_vcf
-    File? reference_fingerprint_vcf_index = DownloadGenotypes.reference_fingerprint_vcf_index
+    Boolean fingerprint_downloaded = fingerprint_downloaded_from_mercury
+    File? reference_fingerprint_vcf = fingerprint_vcf_to_use
+    File? reference_fingerprint_vcf_index = fingerprint_vcf_index_to_use
     File? fingerprint_detail_metrics_file = CheckFingerprint.detail_metrics
     File? fingerprint_summary_metrics_file = CheckFingerprint.summary_metrics
     Float? lod_score = CheckFingerprint.lod
