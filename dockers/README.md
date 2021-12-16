@@ -224,4 +224,4 @@ ENTRYPOINT [ "/sbin/tini", "--" ]
 
 ## <a link="trouble"></a> Troubleshooting
 
-If you have any questions or would like some more guidance on writing Dockerfiles please file a github issue in WARP.
+If you have any questions or would like some more guidance on writing Dockerfiles please file a [GitHub issue in WARP](https://github.com/broadinstitute/warp/issues/new).
