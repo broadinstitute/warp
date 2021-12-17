@@ -526,7 +526,7 @@ task gatk_baserecalibrator {
                 --input ~{bam} \
                 --known-sites ~{dbsnp_vcf} \
                 --reference ~{ref_fasta} \
-                --TMP_DIR . \
+                --tmp-dir . \
                 --output ~{output_grp}
     }
 
