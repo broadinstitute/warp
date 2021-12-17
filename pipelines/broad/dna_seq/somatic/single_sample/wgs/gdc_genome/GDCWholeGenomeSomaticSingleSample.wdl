@@ -574,7 +574,7 @@ task gatk_applybqsr {
                 --input ~{input_bam} \
                 --bqsr-recal-file ~{bqsr_recal_file} \
                 --emit-original-quals ~{emit_original_quals} \
-                --TMP_DIR . \
+                --tmp-dir . \
                 --output ~{output_bam}
     }
 
