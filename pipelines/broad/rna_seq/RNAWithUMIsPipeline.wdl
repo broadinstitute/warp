@@ -2,7 +2,7 @@ version 1.0
 
 import "../../../pipelines/broad/rna_seq/UMIAwareDuplicateMarking.wdl" as UmiMD
 import "../../../tasks/broad/Utilities.wdl" as utils
-import "../../../pipelines/broad/infrastructure/CheckFingerprint.wdl" as FP
+import "../../../pipelines/broad/qc/CheckFingerprint.wdl" as FP
 
 ## Copyright Broad Institute, 2021
 ##

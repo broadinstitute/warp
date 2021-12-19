@@ -1,6 +1,6 @@
 {
-  "CheckFingerprint.input_bam": "gs://broad-gotc-test-storage/infrastructure/check_fingerprint/inputs/SM-K4Y2X_350ng_.65X_D3.duplicate_marked.coordinate_sorted.bam",
-  "CheckFingerprint.input_bam_index": "gs://broad-gotc-test-storage/infrastructure/check_fingerprint/inputs/SM-K4Y2X_350ng_.65X_D3.duplicate_marked.coordinate_sorted.bai",
+  "CheckFingerprint.input_bam": "gs://broad-gotc-test-storage/qc/check_fingerprint/inputs/SM-K4Y2X_350ng_.65X_D3_plumbing.duplicate_marked.coordinate_sorted.bam",
+  "CheckFingerprint.input_bam_index": "gs://broad-gotc-test-storage/qc/check_fingerprint/inputs/SM-K4Y2X_350ng_.65X_D3_plumbing.duplicate_marked.coordinate_sorted.bai",
 
   "CheckFingerprint.sample_alias": "SM-K4Y2X_350ng_.65X_D3",
   "CheckFingerprint.sample_lsid": "broadinstitute.org:bsp.prod.sample:K4Y2X",

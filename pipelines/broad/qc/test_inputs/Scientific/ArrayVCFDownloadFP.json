@@ -1,7 +1,7 @@
 {
   "CheckFingerprint.input_sample_alias": "201651080129_R05C01",
-  "CheckFingerprint.input_vcf": "gs://broad-gotc-test-storage/infrastructure/check_fingerprint/inputs/201651080129_R05C01.vcf.gz",
-  "CheckFingerprint.input_vcf_index": "gs://broad-gotc-test-storage/infrastructure/check_fingerprint/inputs/201651080129_R05C01.vcf.gz.tbi",
+  "CheckFingerprint.input_vcf": "gs://broad-gotc-test-storage/qc/check_fingerprint/inputs/201651080129_R05C01.vcf.gz",
+  "CheckFingerprint.input_vcf_index": "gs://broad-gotc-test-storage/qc/check_fingerprint/inputs/201651080129_R05C01.vcf.gz.tbi",
 
   "CheckFingerprint.sample_alias": "S8 N4B3GY",
   "CheckFingerprint.sample_lsid": "broadinstitute.org:bsp.prod.sample:G7QQF",

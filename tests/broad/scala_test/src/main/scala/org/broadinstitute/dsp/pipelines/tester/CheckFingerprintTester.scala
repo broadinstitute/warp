@@ -19,8 +19,7 @@ class CheckFingerprintTester(testerConfig: CheckFingerprintConfig)(
 
   override val workflowName: String = "CheckFingerprint"
 
-  val workflowDir
-    : File = CromwellWorkflowTester.PipelineRoot / "broad" / "infrastructure"
+  val workflowDir: File = CromwellWorkflowTester.PipelineRoot / "broad" / "qc"
 
   protected val vaultTokenPath: String =
     s"gs://broad-dsp-gotc-arrays-$envString-tokens/arrayswdl.token"
@@ -35,13 +34,13 @@ class CheckFingerprintTester(testerConfig: CheckFingerprintConfig)(
 
   protected lazy val resultsPrefix: URI = {
     URI.create(
-      s"gs://broad-gotc-test-results/$envString/infrastructure/check_fingerprint/$testTypeString/$timestamp/"
+      s"gs://broad-gotc-test-results/$envString/qc/check_fingerprint/$testTypeString/$timestamp/"
     )
   }
 
   protected lazy val truthPrefix: URI =
     URI.create(
-      s"gs://broad-gotc-test-storage/infrastructure/check_fingerprint/$testTypeString/truth/${testerConfig.truthBranch}/"
+      s"gs://broad-gotc-test-storage/qc/check_fingerprint/$testTypeString/truth/${testerConfig.truthBranch}/"
     )
 
   override def getInputContents(fileName: String): String = {

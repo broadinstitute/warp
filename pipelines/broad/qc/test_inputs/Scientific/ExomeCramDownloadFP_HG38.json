@@ -1,6 +1,6 @@
 {
-  "CheckFingerprint.input_bam": "gs://broad-gotc-test-storage/infrastructure/check_fingerprint/inputs/CHMI_CHMI3_Nex1.cram",
-  "CheckFingerprint.input_bam_index": "gs://broad-gotc-test-storage/infrastructure/check_fingerprint/inputs/CHMI_CHMI3_Nex1.cram.crai",
+  "CheckFingerprint.input_bam": "gs://broad-gotc-test-storage/qc/check_fingerprint/inputs/CHMI_CHMI3_Nex1.cram",
+  "CheckFingerprint.input_bam_index": "gs://broad-gotc-test-storage/qc/check_fingerprint/inputs/CHMI_CHMI3_Nex1.cram.crai",
 
   "CheckFingerprint.sample_alias": "CHMI_CHMI3_Nex1",
   "CheckFingerprint.sample_lsid": "broadinstitute.org:bsp.prod.sample:AOERM",

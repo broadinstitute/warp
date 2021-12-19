@@ -1,12 +1,13 @@
 {
-  "CheckFingerprint.input_bam": "gs://broad-gotc-test-storage/infrastructure/check_fingerprint/inputs/SM-K4Y2X_350ng_.65X_D3.duplicate_marked.coordinate_sorted.bam",
-  "CheckFingerprint.input_bam_index": "gs://broad-gotc-test-storage/infrastructure/check_fingerprint/inputs/SM-K4Y2X_350ng_.65X_D3.duplicate_marked.coordinate_sorted.bai",
+  "CheckFingerprint.input_bam": "gs://broad-gotc-test-storage/qc/check_fingerprint/inputs/SM-K4Y2X_350ng_.65X_D3_plumbing.duplicate_marked.coordinate_sorted.bam",
+  "CheckFingerprint.input_bam_index": "gs://broad-gotc-test-storage/qc/check_fingerprint/inputs/SM-K4Y2X_350ng_.65X_D3_plumbing.duplicate_marked.coordinate_sorted.bai",
 
   "CheckFingerprint.sample_alias": "SM-K4Y2X_350ng_.65X_D3",
-  "CheckFingerprint.sample_lsid": "broadinstitute.org:bsp.prod.sample:K4Y2X",
   "CheckFingerprint.output_basename": "SM-K4Y2X_350ng_.65X_D3",
 
-  "CheckFingerprint.read_fingerprint_from_mercury": true,
+  "CheckFingerprint.read_fingerprint_from_mercury": false,
+  "CheckFingerprint.fingerprint_genotypes_vcf": "gs://broad-gotc-test-storage/qc/check_fingerprint/inputs/fingerprint_vcfs/SM-K4Y2X_350ng_.65X_D3.reference.fingerprint.vcf.gz",
+  "CheckFingerprint.fingerprint_genotypes_vcf_index": "gs://broad-gotc-test-storage/qc/check_fingerprint/inputs/fingerprint_vcfs/SM-K4Y2X_350ng_.65X_D3.reference.fingerprint.vcf.gz.tbi",
 
   "CheckFingerprint.ref_fasta": "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta",
   "CheckFingerprint.ref_fasta_index": "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta.fai",
