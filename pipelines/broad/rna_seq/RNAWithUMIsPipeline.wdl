@@ -2,6 +2,7 @@ version 1.0
 
 import "../../../pipelines/broad/rna_seq/UMIAwareDuplicateMarking.wdl" as UmiMD
 import "../../../tasks/broad/Utilities.wdl" as utils
+import "../../../pipelines/broad/infrastructure/CheckFingerprint.wdl" as FP
 
 ## Copyright Broad Institute, 2021
 ##
@@ -32,6 +33,9 @@ workflow RNAWithUMIsPipeline {
 		String output_basename
 		File gtf
 
+		String sample_alias
+		String sample_lsid
+
 		# only needed if inputs are fastqs instead of a bam
 		String? library_name
 		String? platform
@@ -43,8 +47,12 @@ workflow RNAWithUMIsPipeline {
 		File refIndex
 		File refDict
 		File refFlat
+		File haplotype_database_file
 		File ribosomalIntervals
 		File exonBedFile
+
+		String environment
+		File vault_token_path
 	}
 
     if (defined(bam) && (defined(r1_fastq) || defined(r2_fastq))) {
@@ -122,6 +130,22 @@ workflow RNAWithUMIsPipeline {
 			output_basename = output_basename + ".transcriptome"
 	}
 
+	call FP.CheckFingerprint as CheckFingerprint {
+		input:
+			input_bam = UMIAwareDuplicateMarking.duplicate_marked_bam,
+	    input_bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index,
+	    sample_alias = sample_alias,
+	    sample_lsid = sample_lsid,
+	    output_basename = output_basename,
+			ref_fasta = ref,
+			ref_fasta_index = refIndex,
+			ref_dict = refDict,
+			read_fingerprint_from_mercury = true,
+			haplotype_database_file = haplotype_database_file,
+		  environment = environment,
+			vault_token_path = vault_token_path
+	}
+
 	### PLACEHOLDER for CROSSCHECK ###
 
 	call GetSampleName {
@@ -161,7 +185,6 @@ workflow RNAWithUMIsPipeline {
 			preemptible_tries=0
 	}
 
-	# TODO: wire in fingerprint_summary_metrics once we have it. Using static example for now
 	call MergeMetrics {
 		input:
 			alignment_summary_metrics=CollectMultipleMetrics.alignment_summary_metrics,
@@ -169,7 +192,7 @@ workflow RNAWithUMIsPipeline {
 			picard_rna_metrics=CollectRNASeqMetrics.rna_metrics,
 			duplicate_metrics=UMIAwareDuplicateMarking.duplicate_metrics,
 			rnaseqc2_metrics=rnaseqc2.metrics,
-			fingerprint_summary_metrics="gs://broad-gotc-test-storage/rna_seq/example.fingerprinting_summary_metrics",
+			fingerprint_summary_metrics=CheckFingerprint.fingerprint_summary_metrics_file,
 			output_basename = GetSampleName.sample_name
 	}
 
@@ -482,7 +505,7 @@ task MergeMetrics {
         File picard_rna_metrics
         File duplicate_metrics
         File rnaseqc2_metrics
-        File fingerprint_summary_metrics
+        File? fingerprint_summary_metrics
 			  String output_basename
     }
 
@@ -533,8 +556,15 @@ EOF
         echo "Processing RNASeQC2 Metrics"
         cat ~{rnaseqc2_metrics} | python clean.py | awk '{print "rnaseqc2_" $0}' >> ~{out_filename}
 
-        echo "Processing Fingerprint Summary Metrics - only extracting LOD_EXPECTED_SAMPLE"
-        cat ~{fingerprint_summary_metrics} | grep -A 1 "LOD_EXPECTED_SAMPLE" | python transpose.py | grep -i "LOD_EXPECTED_SAMPLE" | awk '{print "fp_"$0}' >> ~{out_filename}
+        if [[ -f "~{fingerprint_summary_metrics}" ]];
+        then
+          echo "Processing Fingerprint Summary Metrics - only extracting LOD_EXPECTED_SAMPLE"
+          cat ~{fingerprint_summary_metrics} | grep -A 1 "LOD_EXPECTED_SAMPLE" | python transpose.py | grep -i "LOD_EXPECTED_SAMPLE" | awk '{print "fp_"$0}' >> ~{out_filename}
+        else
+          echo "No Fingerprint Summary Metrics found."
+          echo "fp_lod_expected_sample	" >> ~{out_filename}
+        fi
+
     >>>
 
     runtime {

@@ -22,6 +22,9 @@ class RNAWithUmisTester(testerConfig: RNAWithUmisConfig)(
   val workflowDir
     : File = CromwellWorkflowTester.PipelineRoot / "broad" / "rna_seq"
 
+  protected val vaultTokenPath: String =
+    s"gs://broad-dsp-gotc-arrays-$envString-tokens/arrayswdl.token"
+
   override protected val validationWorkflowName: String =
     "VerifyRNAWithUMIs"
 
@@ -40,6 +43,17 @@ class RNAWithUmisTester(testerConfig: RNAWithUmisConfig)(
     URI.create(
       s"gs://broad-gotc-test-storage/rna_seq/rna_with_umis/$testTypeString/truth/${testerConfig.truthBranch}/"
     )
+
+  override def getInputContents(fileName: String): String = {
+    super
+      .getInputContents(fileName)
+      .lines
+      .map(
+        _.replace("{ENV}", envString)
+          .replace("{VAULT_TOKEN_PATH}", vaultTokenPath)
+      )
+      .mkString
+  }
 
   override protected def buildValidationWdlInputs(
       workflowTest: WorkflowTest
