@@ -47,6 +47,8 @@ workflow RNAWithUMIsPipeline {
 		File exonBedFile
 	}
 
+    String bam_filename = if (defined(bam)) then basename(select_first([bam])) else basename(select_first([r1_fastq]))
+
     if (defined(bam) && (defined(r1_fastq) || defined(r2_fastq))) {
       call utils.ErrorWithMessage as ErrorMessageDoubleInput {
         input:
@@ -79,7 +81,7 @@ workflow RNAWithUMIsPipeline {
           input:
             r1_fastq = select_first([r1_fastq]),
             r2_fastq = select_first([r2_fastq]),
-            output_basename = output_basename,
+            output_basename = bam_filename,
             library_name = select_first([library_name]),
             platform = select_first([platform]),
             platform_unit = select_first([platform_unit]),
@@ -483,7 +485,7 @@ task MergeMetrics {
         File duplicate_metrics
         File rnaseqc2_metrics
         File fingerprint_summary_metrics
-			  String output_basename
+		String output_basename
     }
 
 	  String out_filename = output_basename + ".unified_metrics.txt"
