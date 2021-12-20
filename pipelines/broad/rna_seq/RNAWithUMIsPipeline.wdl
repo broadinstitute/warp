@@ -47,7 +47,7 @@ workflow RNAWithUMIsPipeline {
 		File exonBedFile
 	}
 
-    String bam_filename = if (defined(bam)) then basename(select_first([bam])) else basename(select_first([r1_fastq]))
+    String bam_filename = if (defined(bam)) then basename(select_first([bam]), ".bam") else basename(select_first([r1_fastq]), ".fastq.gz")
 
     if (defined(bam) && (defined(r1_fastq) || defined(r2_fastq))) {
       call utils.ErrorWithMessage as ErrorMessageDoubleInput {
