@@ -226,7 +226,7 @@ task FastqToUbam {
            SORT_ORDER=unsorted \
            F1=~{r1_fastq}\
            F2=~{r2_fastq} \
-           SM="~{output_basename}" \
+           SM="~{bam_filename}" \
            LB="~{library_name}" \
            PL="~{platform}" \
            PU="~{platform_unit}" \
