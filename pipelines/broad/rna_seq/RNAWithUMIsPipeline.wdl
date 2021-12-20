@@ -81,7 +81,7 @@ workflow RNAWithUMIsPipeline {
           input:
             r1_fastq = select_first([r1_fastq]),
             r2_fastq = select_first([r2_fastq]),
-            output_basename = bam_filename,
+            bam_filename = bam_filename,
             library_name = select_first([library_name]),
             platform = select_first([platform]),
             platform_unit = select_first([platform_unit]),
@@ -206,7 +206,7 @@ task FastqToUbam {
     input {
         File r1_fastq
         File r2_fastq
-        String output_basename
+        String bam_filename
         String library_name
         String platform
         String platform_unit
@@ -219,7 +219,7 @@ task FastqToUbam {
         Int memory_mb = 3750
     }
 
-        String unmapped_bam_output_name = output_basename + ".unmapped.bam"
+        String unmapped_bam_output_name = bam_filename + ".unmapped.bam"
 
     command <<<
         java -jar /usr/picard/picard.jar FastqToSam \
