@@ -67,3 +67,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/arrays/imputation/Imputation.wdl
 
+  - name: RNAWithUMIsPipeline
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl
