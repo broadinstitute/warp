@@ -22,7 +22,7 @@ RUN set -eux; \
             gcc \
             git \
             libbz2-dev \
-            libcurl4-openssl-dev \
+            libcurl4-gnutls-dev \
             libhts-dev \
             libssl-dev  \
             unzip \

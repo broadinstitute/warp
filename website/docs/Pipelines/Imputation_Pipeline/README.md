@@ -6,10 +6,10 @@ sidebar_position: 1
  
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Imputation_v1.0.0](https://github.com/broadinstitute/warp/releases) | August, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [Imputation_v1.0.0](https://github.com/broadinstitute/warp/releases?q=Imputation_v1.0.0&expanded=true) | August, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
  
 ## Introduction to the Imputation pipeline
-The Imputation pipeline imputes missing genotypes from either a multi-sample VCF or an array of single sample VCFs using a large genomic reference panel. It is based on the Michigan Imputation Server pipeline. Overall, the pipeline filters, phases, and performs imputation on a multi-sample VCF. It outputs the imputed VCF along with key imputation metrics.
+The Imputation pipeline imputes missing genotypes from either a multi-sample VCF or an array of single sample VCFs using a large genomic reference panel. It is based on the [Michigan Imputation Server pipeline](https://imputationserver.readthedocs.io/en/latest/pipeline/). Overall, the pipeline filters, phases, and performs imputation on a multi-sample VCF. It outputs the imputed VCF along with key imputation metrics.
  
 ![](imputation.png)
 ## Set-up
@@ -21,10 +21,20 @@ The [Imputation workflow](https://github.com/broadinstitute/warp/blob/develop/pi
 To identify the latest workflow version and release notes, please see the Imputation workflow [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/Imputation.changelog.md). 
  
 The latest release of the workflow, example data, and dependencies are available from the WARP releases page. To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
+
+:::tip Try the Imputation pipeline in Terra
+You can run the pipeline in the [Imputation workspace](https://app.terra.bio/#workspaces/warp-pipelines/Imputation) on [Terra](https://app.terra.bio), a cloud-optimized scalable bioinformatics platform. The workspace contains a preconfigured workflow, example inputs, instructions, and cost-estimates. 
+:::
  
 ### Input descriptions
-The table below describes each of the Imputation pipeline inputs. The workflow requires either a multi-sample VCF or an array of single sample VCFs.
+The table below describes each of the Imputation pipeline inputs. The workflow requires **either** a multi-sample VCF or an array of single sample VCFs. These samples must be from the same species and genotyping chip.
+
+**You must have two or more samples to run the pipeline.** 
+
+However, the pipeline is cost-optimized for between 100 and 1,000 samples. After 1,000 samples, the cost per sample no longer decreases (see the [Price estimates](#price-estimates) section). 
+
 For examples of how to specify each input in a configuration file, as well as cloud locations for different example input files, see the [example input configuration file (JSON)](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json).
+
  
 | Input name | Description | Type |
 | --- | --- | --- |
@@ -54,11 +64,17 @@ For examples of how to specify each input in a configuration file, as well as cl
  
 ### Imputation reference panel
  
-The reference panel files required for the Imputation workflow will soon be hosted in a public Google Bucket. See the [example input configuration](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json) for the current reference panel files.
+The Imputation workflow's reference panel files are hosted in a [public Google Bucket](https://console.cloud.google.com/storage/browser/broad-gotc-test-storage/imputation/1000G_reference_panel;tab=objects?prefix=&forceOnObjectsSortingFiltering=false). For the cloud-path (URI) to the files, see the [example input configuration](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/arrays/imputation/example_inputs.json).
+
+#### Generation of the modified 1000 Genomes reference
+Initial tests of the Imputation workflow followed by assessments of polygenic risk score revealed that disease risk scores were lower when computed from imputed array data as opposed to whole-genome sequencing data. This was found to be due to incorrectly genotyped sites in the 1000G reference panel. As a result, the 1000G reference files were modified for the Imputation pipeline as described in the [references overview](./references_overview.md). You can view the original, unmodified 1000G VCFs [here](https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/).
+
 
 :::tip X-chromosome not imputed
 Currently, the pipeline does not perform imputation on the X-chromosome and no reference panels are needed for the X-chromosome. Any sites identified on the X-chromosome after array analysis are merged back into the VCF after the imputation steps. 
 :::
+
+
  
 ## Workflow tasks and tools
  
@@ -110,6 +126,17 @@ The table below summarizes the workflow outputs. If running the workflow on Crom
 ## Important notes
  
 - Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
+
+## Price estimates
+The pipeline is cost-optimized for between 100 and 1,000 samples, where the cost per sample continues to decrease until 1,000 samples are run. Cost estimates per sample are provided below:
+
+| Cohort size ( # samples) | Cost per sample ($) |
+| --- | --- | 
+| 1 | 8 |
+| 10 | 0.8 | 
+| 100 | 0.11 | 
+| 1000 | 0.024 |
+| 13.5 K | 0.025 |
  
 ## Contact us
 
