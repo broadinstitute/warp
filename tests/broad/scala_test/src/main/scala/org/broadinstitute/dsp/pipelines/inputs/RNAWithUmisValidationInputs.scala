@@ -10,7 +10,7 @@ import io.circe.generic.extras.semiauto.{
 
 object RNAWithUmisValidationInputs
     extends EncodableInputs[RNAWithUmisValidationInputs] {
-  override def workflowNames: Seq[String] = Seq("VerifyRNAWithUmis")
+  override def workflowNames: Seq[String] = Seq("VerifyRNAWithUMIs")
   override implicit val decoder: Decoder[RNAWithUmisValidationInputs] =
     deriveConfiguredDecoder
   override implicit val encoder: Encoder[RNAWithUmisValidationInputs] =

@@ -3,7 +3,7 @@ version 1.0
 import "../verification/VerifyMetrics.wdl" as MetricsVerification
 import "../verification/VerifyTasks.wdl" as VerifyTasks
 
-workflow VerifyRNAWithUmis {
+workflow VerifyRNAWithUMIs {
 
   input {
     Array[File] test_metrics
