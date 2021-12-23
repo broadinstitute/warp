@@ -1,6 +1,7 @@
 version 1.0
 
-import "../../../pipelines/broad/rna_seq/UMIAwareDuplicateMarking.wdl" as UmiMD
+import "../../../tasks/broad/UMIAwareDuplicateMarking.wdl" as UmiMD
+import "../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
 import "../../../tasks/broad/Utilities.wdl" as utils
 
 ## Copyright Broad Institute, 2021
@@ -32,7 +33,7 @@ workflow RNAWithUMIsPipeline {
 		String output_basename
 		File gtf
 
-		# only needed if inputs are fastqs instead of a bam
+		# only needed if inputs are fastqs instead of a bamz
 		String? library_name
 		String? platform
 		String? platform_unit
@@ -47,51 +48,36 @@ workflow RNAWithUMIsPipeline {
 		File exonBedFile
 	}
 
-    String bam_filename = if (defined(bam)) then basename(select_first([bam]), ".bam") else basename(select_first([r1_fastq]), ".fastq.gz")
+  String bam_filename = if (defined(bam)) then basename(select_first([bam]), ".bam") else basename(select_first([r1_fastq]), ".fastq.gz")
 
-    if (defined(bam) && (defined(r1_fastq) || defined(r2_fastq))) {
-      call utils.ErrorWithMessage as ErrorMessageDoubleInput {
+  call tasks.VerifyPipelineInputs {
+    input:
+      bam = bam,
+      r1_fastq = r1_fastq,
+      r2_fastq = r2_fastq,
+      library_name = library_name,
+      platform = platform,
+      platform_unit = platform_unit,
+      read_group_name = read_group_name,
+      sequencing_center = sequencing_center
+  }
+
+  if (VerifyPipelineInputs.fastq_run) {
+    call FastqToUbam {
         input:
-          message = "Bam and fastq files cannot both be defined as input"
+          r1_fastq = select_first([r1_fastq]),
+          r2_fastq = select_first([r2_fastq]),
+          bam_filename = bam_filename,
+          library_name = select_first([library_name]),
+          platform = select_first([platform]),
+          platform_unit = select_first([platform_unit]),
+          read_group_name = select_first([read_group_name]),
+          sequencing_center = select_first([sequencing_center])
       }
-    }
 
-    if (!defined(bam) && (!defined(r1_fastq) && !defined(r2_fastq))) {
-      call utils.ErrorWithMessage as ErrorMessageMissingInput {
-         input:
-           message = "Either bam or fastqs must be defined."
-      }
-    }
+  }
 
-    if (defined(r1_fastq) || defined(r2_fastq)) {
-      if (!(defined(r1_fastq) && defined(r2_fastq))) {
-        call utils.ErrorWithMessage as ErrorMessageMissingFastq {
-          input:
-            message = "r1_fastq and r2_fastq must both be defined"
-        }
-      }
-      if (!defined(library_name) || (!defined(platform)) || (!defined(platform_unit)) || (!defined(read_group_name)) || (!defined(sequencing_center))) {
-        call utils.ErrorWithMessage as ErrorMessageMissingFastqHeaderMetadata {
-          input:
-            message = "If r1_fastq and r2_fastq are defined then library_name, platform, platform_unit, read_group_name, and sequencing center must also be defined"
-        }
-      }
-      if (defined(r1_fastq) && defined(r2_fastq)) {
-        call FastqToUbam {
-          input:
-            r1_fastq = select_first([r1_fastq]),
-            r2_fastq = select_first([r2_fastq]),
-            bam_filename = bam_filename,
-            library_name = select_first([library_name]),
-            platform = select_first([platform]),
-            platform_unit = select_first([platform_unit]),
-            read_group_name = select_first([read_group_name]),
-            sequencing_center = select_first([sequencing_center])
-        }
-      }
-    }
-
-    File bam_to_use = select_first([bam, FastqToUbam.unmapped_bam])
+  File bam_to_use = select_first([bam, FastqToUbam.unmapped_bam])
 
 	call ExtractUMIs {
 		input:
