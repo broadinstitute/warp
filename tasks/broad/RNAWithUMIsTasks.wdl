@@ -112,11 +112,11 @@ task STAR {
 	}
 
 	command <<<
-		echo $(date +"[%b %d %H:%M:%S] Extracting STAR index")
-		mkdir star_index
-		tar -xvf ~{starIndex} -C star_index --strip-components=1
+        echo $(date +"[%b %d %H:%M:%S] Extracting STAR index")
+        mkdir star_index
+        tar -xvf ~{starIndex} -C star_index --strip-components=1
 
-		STAR \
+        STAR \
         --runMode alignReads \
         --runThreadN 8 \
         --genomeDir star_index \
