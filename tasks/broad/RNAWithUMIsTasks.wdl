@@ -301,12 +301,10 @@ task CollectRNASeqMetrics {
 		File ref_flat
 		File ribosomal_intervals
 
-        Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
-
         String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
         Int cpu = 1
         Int memory_mb = 10000
-        Int disk_size_gb = ceil(size(input_bam, "GiB") + ref_size) + 20
+        Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
 	}
 
 	command <<<
@@ -339,12 +337,10 @@ task CollectMultipleMetrics {
 		File ref_fasta
 		File ref_fasta_index
 
-        Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
-
         String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
         Int cpu = 1
         Int memory_mb = 10000
-        Int disk_size_gb = ceil(size(input_bam, "GiB") + ref_size) + 20
+        Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
 	}
 
 	command <<<
