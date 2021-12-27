@@ -45,7 +45,7 @@ task VerifyPipelineInputs {
         else:
             raise ValueError("Invalid Input. Input must be either ubam or pair of fastqs with supplemental data")
 
-        with open("output.txt", as "w") as f:
+        with open("output.txt", "w") as f:
             if fastq_flag == 1:
                 f.write("true")
         else: # Remaining case is that only bam is defined
