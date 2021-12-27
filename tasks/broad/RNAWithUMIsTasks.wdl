@@ -117,31 +117,31 @@ task STAR {
 		tar -xvf ~{starIndex} -C star_index --strip-components=1
 
 		STAR \
-		--runMode alignReads \
+        --runMode alignReads \
         --runThreadN 8 \
         --genomeDir star_index \
         --outSAMtype BAM Unsorted  \
         --readFilesIn ~{bam} \
         --readFilesType SAM PE \
         --readFilesCommand samtools view -h \
-		--limitSjdbInsertNsj 1200000 \
+        --limitSjdbInsertNsj 1200000 \
         --outSAMstrandField intronMotif \
         --outSAMunmapped Within \
-		--outFilterType BySJout \
+        --outFilterType BySJout \
         --outFilterMultimapNmax 20 \
         --outFilterScoreMinOverLread 0.33 \
-		--outFilterMatchNminOverLread 0.33 \
+        --outFilterMatchNminOverLread 0.33 \
         --outFilterMismatchNmax 999 \
         --outFilterMismatchNoverLmax 0.1 \
-		--alignIntronMin 20 \
+        --alignIntronMin 20 \
         --alignIntronMax 1000000 \
         --alignMatesGapMax 1000000 \
         --alignSJoverhangMin 8 \
-		--alignSJDBoverhangMin 1 \
+        --alignSJDBoverhangMin 1 \
         --alignSoftClipAtReferenceEnds Yes \
         --chimSegmentMin 15 \
         --chimMainSegmentMultNmax 1 \
-		--chimOutType WithinBAM SoftClip \
+        --chimOutType WithinBAM SoftClip \
         --chimOutJunctionFormat 0 \
         --twopassMode Basic \
         --quantMode TranscriptomeSAM \
