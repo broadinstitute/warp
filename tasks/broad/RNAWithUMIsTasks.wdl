@@ -48,8 +48,9 @@ task VerifyPipelineInputs {
         with open("output.txt", "w") as f:
             if fastq_flag == 1:
                 f.write("true")
-        else: # Remaining case is that only bam is defined
-            f.write("false")
+            # Remaining case is that only bam is defined
+            else: 
+                f.write("false")
 
         CODE
     >>>
