@@ -102,8 +102,8 @@ task ExtractUMIs {
 
 task STAR {
 	input {
-		File bam
-		File starIndex
+        File bam
+        File starIndex
 
         String docker = "us.gcr.io/broad-gotc-prod/neovax-tag-rnaseq:v1"
         Int cpu = 8
