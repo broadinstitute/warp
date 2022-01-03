@@ -180,7 +180,7 @@ task FastqToUbam {
         Int disk_size_gb = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2) + 50
     }
 
-    String unmapped_bam_output_name = bam_filename + ".unmapped.bam"
+    String unmapped_bam_output_name = bam_filename + ".u.bam"
 
     command <<<
         java -jar /usr/picard/picard.jar FastqToSam \

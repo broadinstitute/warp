@@ -47,8 +47,6 @@ workflow RNAWithUMIsPipeline {
 		File exonBedFile
 	}
 
-    String bam_filename = if (defined(bam)) then basename(select_first([bam]), ".bam") else basename(select_first([r1_fastq]), ".fastq.gz")
-
     call tasks.VerifyPipelineInputs {
         input:
             bam = bam,
@@ -66,7 +64,7 @@ workflow RNAWithUMIsPipeline {
             input:
                 r1_fastq = select_first([r1_fastq]),
                 r2_fastq = select_first([r2_fastq]),
-                bam_filename = bam_filename,
+                bam_filename = output_basename,
                 library_name = select_first([library_name]),
                 platform = select_first([platform]),
                 platform_unit = select_first([platform_unit]),
