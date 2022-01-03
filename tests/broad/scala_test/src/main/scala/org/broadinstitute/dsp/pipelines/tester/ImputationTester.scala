@@ -49,8 +49,6 @@ class ImputationTester(testerConfig: ImputationConfig)(
     )
     val outputBaseName =
       imputationInputs.getBasename(workflowName)
-    val haplotypeDatabase =
-      imputationInputs.getHaplotypeDatabase(workflowName)
     val outputCallsetName =
       imputationInputs.getOutputCallsetName(workflowName)
     val splitOutputToSingleSample =
@@ -68,7 +66,6 @@ class ImputationTester(testerConfig: ImputationConfig)(
     val truthCloudPath = workflowTest.runParameters.truthCloudPath
 
     val validationInputs = ImputationValidationInputs(
-      haplotype_database = haplotypeDatabase,
       split_output_to_single_sample = splitOutputToSingleSample,
       output_callset_name = outputCallsetName,
       input_single_sample_vcfs = singleSampleVcfs,

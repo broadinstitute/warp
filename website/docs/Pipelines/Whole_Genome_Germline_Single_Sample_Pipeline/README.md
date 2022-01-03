@@ -6,7 +6,7 @@ sidebar_position: 1
  
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [WholeGenomeGermlineSingleSample_v3.0.0](https://github.com/broadinstitute/warp/releases?q=WholeGenomeGermlineSingleSample_v2.5.0&expanded=true) | November, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| WholeGenomeGermlineSingleSample_v3.0.0 (see [releases page](https://github.com/broadinstitute/warp/releases)) | November, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
  
 ## Introduction to the Whole Genome Germline Single Sample Pipeline
 The Whole Genome Germline Single Sample (WGS) pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices for germline SNP and Indel discovery in human whole-genome sequencing data. It includes the DRAGEN-GATK mode, which makes the pipeline functionally equivalent to DRAGEN’s analysis pipeline (read more in this [DRAGEN-GATK blog](https://gatk.broadinstitute.org/hc/en-us/articles/360039984151)).
@@ -18,14 +18,14 @@ The pipeline adheres to the Functional Equivalence pipeline specification ([Regi
  
 :::tip Want to try the WGS pipeline in Terra?
 Two workspaces containing example data and instructions are available to test the WGS pipeline: 
-1. a [DRAGEN-GATK-Germline-Whole-Genome-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/DRAGEN-GATK-Germline-Whole-Genome-Pipeline) to showcase the DRAGEN-GATK pipeline mode
+1. a [DRAGEN-GATK-Germline-Whole-Genome-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/DRAGEN-GATK-Whole-Genome-Germline-Pipeline) to showcase the DRAGEN-GATK pipeline mode
 2. a [Whole-Genome-Analysis-Pipeline workspace](https://app.terra.bio/#workspaces/warp-pipelines/Whole-Genome-Analysis-Pipeline) to showcase the WGS pipeline with joint calling
 :::
  
 ## Running the DRAGEN-GATK implementation of the WGS pipeline
 Multiple WGS parameters are adjusted for the WGS workflow to run in the DRAGEN-GATK mode. 
 
-![dragen](./DRAGEN_Fig4_resize.jpg)
+![dragen](./DRAGEN_Fig4_resize.png)
 
 #### Individual DRAGEN-GATK parameters
 The WGS workflow can be customized to mix and match different DRAGEN-related parameters. In general, the following booleans may be modified to run in different DRAGEN-realted features: 
@@ -56,10 +56,10 @@ To learn more about how outputs are tested for functional equivalence, try the [
 
 The **dragen_maximum_quality_mode** runs the pipeline using the DRAGMAP aligner and DRAGEN variant calling, but with additional parameters that produce maximum quality results that are **not** functionally equivalent to the DRAGEN hardware. This mode will automatically set the following parameters:
 1. `run_dragen_mode_variant_calling` is true.
-2. `use_spanning_event_genotyping` is true.
-3. `use_bwa_mem` is false.
-4. `perform_bqsr` is false.
-5. `dragen_mode_hard_filter` is true.
+1. `use_bwa_mem` is false.
+1. `perform_bqsr` is false.
+1. `use_spanning_event_genotyping` is true.
+1. `dragen_mode_hard_filter` is true.
 
 
 When the workflow applies the DRAGMAP aligner, it calls reference files specific to the aligner. These files are located in a [public Google bucket](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/) and described in the [Input descriptions](#input-descriptions). See the [reference README](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/README_dragen_gatk_resources.txt) for details on recreating DRAGEN references.
@@ -241,10 +241,10 @@ The table below describes the subtasks of the VariantCalling.VariantCalling (Bam
  
 | Subtask name (alias) and link | Tool | Software | Description |
 | --- | --- | --- | --- |
-| [Dragen.CalibrateDragstrModel (DragstrAutoCalibration)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Dragen.wdl) | CalibrateDragstrModel | GATK | If `run_dragen_mode` is true, uses the reference FASTA file, the reference’s corresponding public STR (short tandem repeat) table file, and the recalibrated BAM to estimate the parameters for the DRAGEN STR model. The output parameter tables are used for the DRAGEN mode HaplotypeCaller. |
+| [Dragen.CalibrateDragstrModel (DragstrAutoCalibration)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/DragenTasks.wdl) | CalibrateDragstrModel | GATK | If `run_dragen_mode_variant_calling` is true, uses the reference FASTA file, the reference’s corresponding public STR (short tandem repeat) table file, and the recalibrated BAM to estimate the parameters for the DRAGEN STR model. The output parameter tables are used for the DRAGEN mode HaplotypeCaller. |
 | [Utils.ScatterIntervalList (ScatterIntervalList)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Utilities.wdl) | IntervalListTools | Picard, python | Breaks the interval list into subintervals for downstream variant calling. |
 | [Calling.HaplotypeCaller_GATK35_GVCF (HaplotypeCallerGATK3)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/GermlineVariantDiscovery.wdl) | PrintReads, HaplotypeCaller | GATK4, GATK3.5 | If `use_gatk3_haplotype_caller` is true, will call GATK3 Haplotypecaller to call variants in GVCF mode, otherwise will use the HaplotypeCaller_GATK4_VCF task below. |
-| [Calling.HaplotypeCaller_GATK4_VCF (HaplotypeCallerGATK4)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/GermlineVariantDiscovery.wdl) | HaplotypeCaller | GATK4 | If `use_gatk3_haplotype_caller` is false, will call GATK4 Haplotypecaller to call variants in GVCF mode. If `run_dragen_mode` is true, uses the --dragstr-params-path containing the DragSTR model and runs it with HaplotypeCaller in --dragen-mode. |
+| [Calling.HaplotypeCaller_GATK4_VCF (HaplotypeCallerGATK4)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/GermlineVariantDiscovery.wdl) | HaplotypeCaller | GATK4 | If `use_gatk3_haplotype_caller` is false, will call GATK4 Haplotypecaller to call variants in GVCF mode. If `run_dragen_mode_variant_calling` is true, uses the --dragstr-params-path containing the DragSTR model and runs it with HaplotypeCaller in --dragen-mode. |
 | [Calling.DragenHardFilterVcf (DragenHardFilterVcf)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/GermlineVariantDiscovery.wdl) | VariantFiltration | GATK | If `dragen_mode_hard_filter` is true, performs hard filtering that matches the filtering performed by the DRAGEN 3.4.12 pipeline. |
 | [BamProcessing.SortSam (SortBamout)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | SortSam | Picard |If the option to make a BAM out file is selected ( `make_bamout` is true), sorts and gathers the BAM files into one file. |
 | [MergeBamouts](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl) | merge, index | samtools | If `make_bamout` is true, makes corrections to the merged BAM out file from Picard. | 
