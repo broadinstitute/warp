@@ -68,40 +68,40 @@ task VerifyPipelineInputs {
 }
 
 task ExtractUMIs {
-	input {
-		File bam
-		String read1Structure
-		String read2Structure
+    input {
+        File bam
+        String read1Structure
+        String read2Structure
 
         String docker = "us.gcr.io/broad-gotc-prod/fgbio:1.0.0-1.4.0-1638817487"
         Int cpu = 4
         Int memory_mb = 8000
         Int disk_size_gb = ceil(2.2 * size(bam, "GB")) + 50
-	}
+    }
 
-	command <<<
-		java -jar /usr/gitc/fgbio.jar ExtractUmisFromBam --input ~{bam} \
-			--read-structure ~{read1Structure} \
-			--read-structure ~{read2Structure} \
-			--molecular-index-tags RX \
-			--output extractUMIs.out.bam
-	>>>
+    command <<<
+        java -jar /usr/gitc/fgbio.jar ExtractUmisFromBam --input ~{bam} \
+            --read-structure ~{read1Structure} \
+            --read-structure ~{read2Structure} \
+            --molecular-index-tags RX \
+            --output extractUMIs.out.bam
+    >>>
 
-	runtime {
-		docker : docker
-		cpu : cpu
-		memory : "${memory_mb} MiB"
-		disks : "local-disk ${disk_size_gb} HDD"
-		preemptible: 0
-	}
+    runtime {
+        docker : docker
+        cpu : cpu
+        memory : "${memory_mb} MiB"
+        disks : "local-disk ${disk_size_gb} HDD"
+        preemptible: 0
+    }
 
-	output {
-		File bam_umis_extracted = "extractUMIs.out.bam"
-	}
+    output {
+        File bam_umis_extracted = "extractUMIs.out.bam"
+    }
 }
 
 task STAR {
-	input {
+    input {
         File bam
         File starIndex
 
@@ -109,9 +109,9 @@ task STAR {
         Int cpu = 8
         Int memory_mb = 64000
         Int disk_size_gb = ceil(2.2 * size(bam, "GB") + size(starIndex, "GB")) + 250
-	}
+    }
 
-	command <<<
+    command <<<
         echo $(date +"[%b %d %H:%M:%S] Extracting STAR index")
         mkdir star_index
         tar -xvf ~{starIndex} -C star_index --strip-components=1
@@ -146,21 +146,21 @@ task STAR {
         --twopassMode Basic \
         --quantMode TranscriptomeSAM \
         --quantTranscriptomeBan Singleend
-	>>>
+    >>>
 
-	runtime {
-		# Note: this is 'us.gcr.io/tag-team-160914/neovax-tag-rnaseq:v1', just pulled into a location visible to warp tests
-		docker : docker
-		cpu : cpu
-		memory : "${memory_mb} MiB"
-		disks : "local-disk ${disk_size_gb} HDD"
-		preemptible: 0
-	}
+    runtime {
+        # Note: this is 'us.gcr.io/tag-team-160914/neovax-tag-rnaseq:v1', just pulled into a location visible to warp tests
+        docker : docker
+        cpu : cpu
+        memory : "${memory_mb} MiB"
+        disks : "local-disk ${disk_size_gb} HDD"
+        preemptible: 0
+    }
 
-	output {
-		File aligned_bam = "Aligned.out.bam"
-		File transcriptome_bam = "Aligned.toTranscriptome.out.bam"
-	}
+    output {
+        File aligned_bam = "Aligned.out.bam"
+        File transcriptome_bam = "Aligned.toTranscriptome.out.bam"
+    }
 }
 
 task FastqToUbam {
@@ -209,101 +209,101 @@ task FastqToUbam {
 }
 
 task CopyReadGroupsToHeader {
-	input {
-		File bam_with_readgroups
-		File bam_without_readgroups
+    input {
+        File bam_with_readgroups
+        File bam_without_readgroups
 
         String docker = "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
         Int cpu = 1
         Int memory_mb = 8000
-	    Int disk_size_gb = ceil(2.0 * size([bam_with_readgroups, bam_without_readgroups], "GB")) + 10 
-	}
+        Int disk_size_gb = ceil(2.0 * size([bam_with_readgroups, bam_without_readgroups], "GB")) + 10 
+    }
 
-	String basename = basename(bam_without_readgroups)
+    String basename = basename(bam_without_readgroups)
 
-	command <<<
-		samtools view -H ~{bam_without_readgroups} > header.sam
-		samtools view -H ~{bam_with_readgroups} | grep "@RG" >> header.sam
-		samtools reheader header.sam ~{bam_without_readgroups} > ~{basename}
-	>>>
+    command <<<
+        samtools view -H ~{bam_without_readgroups} > header.sam
+        samtools view -H ~{bam_with_readgroups} | grep "@RG" >> header.sam
+        samtools reheader header.sam ~{bam_without_readgroups} > ~{basename}
+    >>>
 
-	runtime {
-		docker: docker
-        cpu: cpu
-        memory: "${memory_mb} MiB"
-        disks : "local-disk ${disk_size_gb} HDD"
-	}
-
-	output {
-		File output_bam = basename
-	}
-}
-
-task GetSampleName {
-	input {
-		File bam
-
-		String docker = "us.gcr.io/broad-gatk/gatk:4.2.0.0"
-        Int cpu = 1
-        Int memory_mb = 1000
-        Int disk_size_gb = 100
-        
-	}
-
-	parameter_meta {
-		bam : {
-			localization_optional : true
-		}
-	}
-
-	command <<<
-		gatk GetSampleName -I ~{bam} -O sample_name.txt
-	>>>
-
-	runtime {
+    runtime {
         docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
         disks : "local-disk ${disk_size_gb} HDD"
     }
 
-	output {
-		String sample_name = read_string("sample_name.txt")
-	}
+    output {
+        File output_bam = basename
+    }
+}
+
+task GetSampleName {
+    input {
+        File bam
+
+        String docker = "us.gcr.io/broad-gatk/gatk:4.2.0.0"
+        Int cpu = 1
+        Int memory_mb = 1000
+        Int disk_size_gb = 100
+        
+    }
+
+    parameter_meta {
+        bam : {
+            localization_optional : true
+        }
+    }
+
+    command <<<
+        gatk GetSampleName -I ~{bam} -O sample_name.txt
+    >>>
+
+    runtime {
+        docker: docker
+        cpu: cpu
+        memory: "${memory_mb} MiB"
+        disks : "local-disk ${disk_size_gb} HDD"
+    }
+
+    output {
+        String sample_name = read_string("sample_name.txt")
+    }
 }
 
 task rnaseqc2 {
-	input {
-		File bam_file
-		File genes_gtf
-		String sample_id
-		File exon_bed
+    input {
+        File bam_file
+        File genes_gtf
+        String sample_id
+        File exon_bed
 
-		String docker =  "us.gcr.io/broad-dsde-methods/ckachulis/rnaseqc:2.4.2"
+        String docker =  "us.gcr.io/broad-dsde-methods/ckachulis/rnaseqc:2.4.2"
         Int cpu = 1
         Int memory_mb = 10000
         Int disk_size_gb = ceil(size(bam_file, 'GB') + size(genes_gtf, 'GB')) + 100
-	}
-	
+    }
+    
 
-	command <<<
-		set -euo pipefail
-		echo $(date +"[%b %d %H:%M:%S] Running RNA-SeQC 2")
-		rnaseqc ~{genes_gtf} ~{bam_file} . -s ~{sample_id} -v --bed ~{exon_bed}
-		echo "  * compressing outputs"
-		gzip *.gct
-		echo $(date +"[%b %d %H:%M:%S] done")
-	>>>
+    command <<<
+        set -euo pipefail
+        echo $(date +"[%b %d %H:%M:%S] Running RNA-SeQC 2")
+        rnaseqc ~{genes_gtf} ~{bam_file} . -s ~{sample_id} -v --bed ~{exon_bed}
+        echo "  * compressing outputs"
+        gzip *.gct
+        echo $(date +"[%b %d %H:%M:%S] done")
+    >>>
 
-	output {
-		File gene_tpm = "${sample_id}.gene_tpm.gct.gz"
-		File gene_counts = "${sample_id}.gene_reads.gct.gz"
-		File exon_counts = "${sample_id}.exon_reads.gct.gz"
-		File fragment_size_histogram = "${sample_id}.fragmentSizes.txt"
-		File metrics = "${sample_id}.metrics.tsv"
-	}
+    output {
+        File gene_tpm = "${sample_id}.gene_tpm.gct.gz"
+        File gene_counts = "${sample_id}.gene_reads.gct.gz"
+        File exon_counts = "${sample_id}.exon_reads.gct.gz"
+        File fragment_size_histogram = "${sample_id}.fragmentSizes.txt"
+        File metrics = "${sample_id}.metrics.tsv"
+    }
 
-	runtime {
+    runtime {
         docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
@@ -312,85 +312,85 @@ task rnaseqc2 {
 }
 
 task CollectRNASeqMetrics {
-	input {
-		File input_bam
-		File input_bam_index
-		String output_bam_prefix
-		File ref_dict
-		File ref_fasta
-		File ref_fasta_index
-		File ref_flat
-		File ribosomal_intervals
+    input {
+        File input_bam
+        File input_bam_index
+        String output_bam_prefix
+        File ref_dict
+        File ref_fasta
+        File ref_fasta_index
+        File ref_flat
+        File ribosomal_intervals
 
         String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
         Int cpu = 1
         Int memory_mb = 10000
         Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
-	}
+    }
 
-	command <<<
-		java -Xms5000m -jar /usr/picard/picard.jar CollectRnaSeqMetrics \
-		REF_FLAT=~{ref_flat} \
-		RIBOSOMAL_INTERVALS= ~{ribosomal_intervals} \
-		STRAND_SPECIFICITY=SECOND_READ_TRANSCRIPTION_STRAND \
-		INPUT=~{input_bam} \
-		OUTPUT=~{output_bam_prefix}.rna_metrics
-	>>>
+    command <<<
+        java -Xms5000m -jar /usr/picard/picard.jar CollectRnaSeqMetrics \
+        REF_FLAT=~{ref_flat} \
+        RIBOSOMAL_INTERVALS= ~{ribosomal_intervals} \
+        STRAND_SPECIFICITY=SECOND_READ_TRANSCRIPTION_STRAND \
+        INPUT=~{input_bam} \
+        OUTPUT=~{output_bam_prefix}.rna_metrics
+    >>>
 
-	runtime {
-		docker: docker
+    runtime {
+        docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
         disks : "local-disk ${disk_size_gb} HDD"
-	}
+    }
 
-	output {
-		File rna_metrics = output_bam_prefix + ".rna_metrics"
-	}
+    output {
+        File rna_metrics = output_bam_prefix + ".rna_metrics"
+    }
 }
 
 task CollectMultipleMetrics {
-	input {
-		File input_bam
-		File input_bam_index
-		String output_bam_prefix
-		File ref_dict
-		File ref_fasta
-		File ref_fasta_index
+    input {
+        File input_bam
+        File input_bam_index
+        String output_bam_prefix
+        File ref_dict
+        File ref_fasta
+        File ref_fasta_index
 
         String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
         Int cpu = 1
         Int memory_mb = 10000
         Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
-	}
+    }
 
-	command <<<
-		java -Xms5000m -jar /usr/picard/picard.jar CollectMultipleMetrics \
-		INPUT=~{input_bam} \
-		OUTPUT=~{output_bam_prefix} \
-		PROGRAM=CollectInsertSizeMetrics \
-		PROGRAM=CollectAlignmentSummaryMetrics \
-		REFERENCE_SEQUENCE=~{ref_fasta}
-	>>>
+    command <<<
+        java -Xms5000m -jar /usr/picard/picard.jar CollectMultipleMetrics \
+        INPUT=~{input_bam} \
+        OUTPUT=~{output_bam_prefix} \
+        PROGRAM=CollectInsertSizeMetrics \
+        PROGRAM=CollectAlignmentSummaryMetrics \
+        REFERENCE_SEQUENCE=~{ref_fasta}
+    >>>
 
-	runtime {
-		docker: docker
+    runtime {
+        docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
         disks : "local-disk ${disk_size_gb} HDD"
-	}
+    }
 
-	output {
-		File alignment_summary_metrics = output_bam_prefix + ".alignment_summary_metrics"
-		File insert_size_metrics = output_bam_prefix + ".insert_size_metrics"
-		File insert_size_histogram = output_bam_prefix + ".insert_size_histogram.pdf"
-		File base_distribution_by_cycle_metrics = output_bam_prefix + ".base_distribution_by_cycle_metrics"
-		File base_distribution_by_cycle_pdf = output_bam_prefix + ".base_distribution_by_cycle.pdf"
-		File quality_by_cycle_metrics = output_bam_prefix + ".quality_by_cycle_metrics"
-		File quality_by_cycle_pdf = output_bam_prefix + ".quality_by_cycle.pdf"
-		File quality_distribution_metrics = output_bam_prefix + ".quality_distribution_metrics"
-		File quality_distribution_pdf = output_bam_prefix + ".quality_distribution.pdf"
-	}
+    output {
+        File alignment_summary_metrics = output_bam_prefix + ".alignment_summary_metrics"
+        File insert_size_metrics = output_bam_prefix + ".insert_size_metrics"
+        File insert_size_histogram = output_bam_prefix + ".insert_size_histogram.pdf"
+        File base_distribution_by_cycle_metrics = output_bam_prefix + ".base_distribution_by_cycle_metrics"
+        File base_distribution_by_cycle_pdf = output_bam_prefix + ".base_distribution_by_cycle.pdf"
+        File quality_by_cycle_metrics = output_bam_prefix + ".quality_by_cycle_metrics"
+        File quality_by_cycle_pdf = output_bam_prefix + ".quality_by_cycle.pdf"
+        File quality_distribution_metrics = output_bam_prefix + ".quality_distribution_metrics"
+        File quality_distribution_pdf = output_bam_prefix + ".quality_distribution.pdf"
+    }
 }
 
 task MergeMetrics {
@@ -401,7 +401,7 @@ task MergeMetrics {
         File duplicate_metrics
         File rnaseqc2_metrics
         File fingerprint_summary_metrics
-		String output_basename
+        String output_basename
 
         String docker =  "python:3.8-slim"
         Int cpu = 1
@@ -409,7 +409,7 @@ task MergeMetrics {
         Int disk_size_gb = 10
     }
 
-	String out_filename = output_basename + ".unified_metrics.txt"
+    String out_filename = output_basename + ".unified_metrics.txt"
     
     command <<<
 
