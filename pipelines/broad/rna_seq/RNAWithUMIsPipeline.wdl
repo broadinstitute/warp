@@ -236,7 +236,7 @@ task FastqToUbam {
         # estimate that the bam is approximately equal in size to fastqs, add a small buffer
         Int disk_space = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2) + 50
         Int cpu = 1
-        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.8"
         Int memory_mb = 3750
     }
 
@@ -445,7 +445,7 @@ task CollectRNASeqMetrics {
 	}
 
 	runtime {
-		docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+		docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.8"
 		memory: "7 GiB"
 		disks: "local-disk " + disk_size + " HDD"
 		preemptible: preemptible_tries
@@ -479,7 +479,7 @@ task CollectMultipleMetrics {
 	}
 
 	runtime {
-		docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+		docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.8"
 		memory: "7 GiB"
 		disks: "local-disk " + disk_size + " HDD"
 		preemptible: preemptible_tries
