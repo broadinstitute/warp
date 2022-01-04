@@ -26,7 +26,7 @@ class RNAWithUmisTester(testerConfig: RNAWithUmisConfig)(
     s"gs://broad-dsp-gotc-arrays-$envString-tokens/arrayswdl.token"
 
   override protected val validationWorkflowName: String =
-    "VerifyRNAWithUmis"
+    "VerifyRNAWithUMIs"
 
   // Validation uses the same options as the arrays workflow
   override protected lazy val validationWdlOptions: String = {
