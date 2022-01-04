@@ -4,7 +4,7 @@
     - Output file on hg19
 - JustDownloadFP_HG38
     - Only download the fingerprint genotypes from Mercury.
-    - Output file on hg19
+    - Output file on hg38
 - PassThroughFP
     - Doesn't pull the FP from Mercury, just passes the input fingerprint VCF to output.
     - Just because.
