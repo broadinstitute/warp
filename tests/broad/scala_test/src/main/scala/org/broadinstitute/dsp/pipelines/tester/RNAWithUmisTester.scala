@@ -23,7 +23,7 @@ class RNAWithUmisTester(testerConfig: RNAWithUmisConfig)(
     : File = CromwellWorkflowTester.PipelineRoot / "broad" / "rna_seq"
 
   override protected val validationWorkflowName: String =
-    "VerifyRNAWithUmis"
+    "VerifyRNAWithUMIs"
 
   // Validation uses the same options as the arrays workflow
   override protected lazy val validationWdlOptions: String = {
