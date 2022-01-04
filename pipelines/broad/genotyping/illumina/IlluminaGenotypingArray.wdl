@@ -279,12 +279,12 @@ workflow IlluminaGenotypingArray {
         input:
           input_vcf = final_output_vcf,
           input_vcf_index = final_output_vcf_index,
+          input_sample_alias = chip_well_barcode,
           genotypes_vcf_file = select_first([fingerprint_genotypes_vcf_file]),
           genotypes_vcf_index_file = select_first([fingerprint_genotypes_vcf_index_file]),
-          haplotype_database_file = haplotype_database_file,
-          input_sample_alias = chip_well_barcode,
           expected_sample_alias = sample_alias,
           output_metrics_basename = chip_well_barcode,
+          haplotype_database_file = haplotype_database_file,
           disk_size = disk_size,
           preemptible_tries = preemptible_tries
       }
