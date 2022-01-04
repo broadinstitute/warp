@@ -1,9 +1,7 @@
 version 1.0
 
-import "../../../pipelines/broad/qc/CheckFingerprint.wdl" as FP
 import "../../../tasks/broad/UMIAwareDuplicateMarking.wdl" as UmiMD
 import "../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
-import "../../../tasks/broad/Utilities.wdl" as utils
 
 ## Copyright Broad Institute, 2021
 ##
@@ -34,11 +32,7 @@ workflow RNAWithUMIsPipeline {
 		String output_basename
 		File gtf
 
-		String sample_alias
-		String sample_lsid
-
-		# only needed if inputs are fastqs instead of a bam
-		String? library_name
+		# only needed if inputs are fastqs instead of ubam
 		String? platform
 		String? library_name
 		String? platform_unit
@@ -49,12 +43,8 @@ workflow RNAWithUMIsPipeline {
 		File refIndex
 		File refDict
 		File refFlat
-		File haplotype_database_file
 		File ribosomalIntervals
 		File exonBedFile
-
-		String environment
-		File vault_token_path
 	}
 
     call tasks.VerifyPipelineInputs {
@@ -116,22 +106,6 @@ workflow RNAWithUMIsPipeline {
 			output_basename = output_basename + ".transcriptome"
 	}
 
-	call FP.CheckFingerprint as CheckFingerprint {
-		input:
-			input_bam = UMIAwareDuplicateMarking.duplicate_marked_bam,
-	    input_bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index,
-	    sample_alias = sample_alias,
-	    sample_lsid = sample_lsid,
-	    output_basename = output_basename,
-			ref_fasta = ref,
-			ref_fasta_index = refIndex,
-			ref_dict = refDict,
-			read_fingerprint_from_mercury = true,
-			haplotype_database_file = haplotype_database_file,
-		  environment = environment,
-			vault_token_path = vault_token_path
-	}
-
 	### PLACEHOLDER for CROSSCHECK ###
 
 	call tasks.GetSampleName {
@@ -169,6 +143,7 @@ workflow RNAWithUMIsPipeline {
 			ref_fasta_index=refIndex
 	}
 
+	# TODO: wire in fingerprint_summary_metrics once we have it. Using static example for now
 	call tasks.MergeMetrics {
 		input:
 			alignment_summary_metrics=CollectMultipleMetrics.alignment_summary_metrics,
@@ -176,7 +151,7 @@ workflow RNAWithUMIsPipeline {
 			picard_rna_metrics=CollectRNASeqMetrics.rna_metrics,
 			duplicate_metrics=UMIAwareDuplicateMarking.duplicate_metrics,
 			rnaseqc2_metrics=rnaseqc2.metrics,
-			fingerprint_summary_metrics=CheckFingerprint.fingerprint_summary_metrics_file,
+			fingerprint_summary_metrics="gs://broad-gotc-test-storage/rna_seq/example.fingerprinting_summary_metrics",
 			output_basename = GetSampleName.sample_name
 	}
 
@@ -206,3 +181,4 @@ workflow RNAWithUMIsPipeline {
 		File unified_metrics = MergeMetrics.unified_metrics
 	}
 }
+

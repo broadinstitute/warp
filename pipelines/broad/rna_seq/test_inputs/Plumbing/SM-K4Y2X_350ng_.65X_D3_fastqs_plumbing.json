@@ -8,9 +8,6 @@
   "RNAWithUMIsPipeline.platform_unit": "barcode1",
   "RNAWithUMIsPipeline.read_group_name": "RG1",
 
-  "RNAWithUMIsPipeline.sample_alias": "SM-K4Y2X_350ng_.65X_D3",
-  "RNAWithUMIsPipeline.sample_lsid": "broadinstitute.org:bsp.prod.sample:K4Y2X",
-
   "RNAWithUMIsPipeline.starIndex": "gs://broad-gotc-test-storage/rna_seq/hg38/STAR_genome_GRCh38_noALT_noHLA_noDecoy_v26_oh149.tar.gz",
   "RNAWithUMIsPipeline.output_basename": "SM-K4Y2X_350ng_.65X_D3",
   "RNAWithUMIsPipeline.gtf": "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.genes.collapsed_only.gtf",
@@ -18,12 +15,8 @@
   "RNAWithUMIsPipeline.ref": "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta",
   "RNAWithUMIsPipeline.refIndex": "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta.fai",
   "RNAWithUMIsPipeline.refDict": "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.dict",
-  "RNAWithUMIsPipeline.haplotype_database_file": "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.haplotype_database.txt",
 
   "RNAWithUMIsPipeline.refFlat": "gs://broad-gotc-test-storage/rna_seq/hg38/GRCh38_gencode.v27.refFlat.txt",
   "RNAWithUMIsPipeline.ribosomalIntervals": "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.rRNA.withMT.interval_list",
-  "RNAWithUMIsPipeline.exonBedFile": "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed",
-
-  "RNAWithUMIsPipeline.vault_token_path": "{VAULT_TOKEN_PATH}",
-  "RNAWithUMIsPipeline.environment": "{ENV}"
+  "RNAWithUMIsPipeline.exonBedFile": "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed"
 }
