@@ -173,8 +173,8 @@ task FastqToUbam {
         String platform_unit
         String read_group_name
         String sequencing_center
-        
-        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+
+        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
         Int cpu = 1
         Int memory_mb = 4000
         Int disk_size_gb = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2) + 50
@@ -400,7 +400,7 @@ task MergeMetrics {
         File picard_rna_metrics
         File duplicate_metrics
         File rnaseqc2_metrics
-        File? fingerprint_summary_metrics
+        File fingerprint_summary_metrics
         String output_basename
 
         String docker =  "python:3.8-slim"
@@ -456,14 +456,8 @@ task MergeMetrics {
                 echo "Processing RNASeQC2 Metrics"
                 cat ~{rnaseqc2_metrics} | python clean.py | awk '{print "rnaseqc2_" $0}' >> ~{out_filename}
 
-                if [[ -f "~{fingerprint_summary_metrics}" ]];
-                then
-                    echo "Processing Fingerprint Summary Metrics - only extracting LOD_EXPECTED_SAMPLE"
-                    cat ~{fingerprint_summary_metrics} | grep -A 1 "LOD_EXPECTED_SAMPLE" | python transpose.py | grep -i "LOD_EXPECTED_SAMPLE" | awk '{print "fp_"$0}' >> ~{out_filename}
-                else
-                    echo "No Fingerprint Summary Metrics found."
-                    echo "fp_lod_expected_sample	" >> ~{out_filename}
-                fi
+                echo "Processing Fingerprint Summary Metrics - only extracting LOD_EXPECTED_SAMPLE"
+                cat ~{fingerprint_summary_metrics} | grep -A 1 "LOD_EXPECTED_SAMPLE" | python transpose.py | grep -i "LOD_EXPECTED_SAMPLE" | awk '{print "fp_"$0}' >> ~{out_filename}
     >>>
 
     runtime {
