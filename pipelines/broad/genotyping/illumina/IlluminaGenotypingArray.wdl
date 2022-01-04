@@ -277,12 +277,12 @@ workflow IlluminaGenotypingArray {
     if (defined(fingerprint_genotypes_vcf_file)) {
       call GenotypingTasks.CheckFingerprint {
         input:
-          input_vcf_file = final_output_vcf,
-          input_vcf_index_file = final_output_vcf_index,
+          input_vcf = final_output_vcf,
+          input_vcf_index = final_output_vcf_index,
           genotypes_vcf_file = select_first([fingerprint_genotypes_vcf_file]),
           genotypes_vcf_index_file = select_first([fingerprint_genotypes_vcf_index_file]),
           haplotype_database_file = haplotype_database_file,
-          observed_sample_alias = chip_well_barcode,
+          input_sample_alias = chip_well_barcode,
           expected_sample_alias = sample_alias,
           output_metrics_basename = chip_well_barcode,
           disk_size = disk_size,
