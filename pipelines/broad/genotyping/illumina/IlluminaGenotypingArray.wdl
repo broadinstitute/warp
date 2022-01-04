@@ -285,6 +285,8 @@ workflow IlluminaGenotypingArray {
           expected_sample_alias = sample_alias,
           output_metrics_basename = chip_well_barcode,
           haplotype_database_file = haplotype_database_file,
+          ref_fasta = ref_fasta,
+          ref_fasta_index = ref_fasta_index,
           disk_size = disk_size,
           preemptible_tries = preemptible_tries
       }
