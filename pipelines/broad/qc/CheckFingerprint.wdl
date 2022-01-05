@@ -2,7 +2,7 @@ version 1.0
 
 import "../../../tasks/broad/Utilities.wdl" as utils
 import "../../../tasks/broad/InternalTasks.wdl" as InternalTasks
-import "../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
+import "../../../tasks/broad/Qc.wdl" as Qc
 
 
 ## Copyright Broad Institute, 2021
@@ -90,17 +90,17 @@ workflow CheckFingerprint {
   File? fingerprint_vcf_index_to_use = if (fingerprint_downloaded_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf_index else fingerprint_genotypes_vcf_index
 
   if ((defined(fingerprint_vcf_to_use)) && (defined(input_vcf) || defined(input_bam))) {
-    call GenotypingTasks.CheckFingerprint {
+    call Qc.CheckFingerprint {
       input:
         input_bam = input_bam,
         input_bam_index = input_bam_index,
         input_vcf = input_vcf,
         input_vcf_index = input_vcf_index,
         input_sample_alias = input_sample_alias,
-        genotypes_vcf_file = select_first([fingerprint_vcf_to_use]),
-        genotypes_vcf_index_file = select_first([fingerprint_vcf_to_use]),
+        genotypes = select_first([fingerprint_vcf_to_use]),
+        genotypes_index = select_first([fingerprint_vcf_to_use]),
         expected_sample_alias = sample_alias,
-        output_metrics_basename = output_basename,
+        output_basename = output_basename,
         haplotype_database_file = haplotype_database_file,
         ref_fasta = ref_fasta,
         ref_fasta_index = ref_fasta_index
