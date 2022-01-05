@@ -64,10 +64,10 @@ input {
         input_bam = base_recalibrated_bam,
         input_bam_index = base_recalibrated_bam_index,
         haplotype_database_file = haplotype_database_file,
-        genotypes = fingerprint_genotypes_file,
-        genotypes_index = fingerprint_genotypes_index,
+        genotypes = select_first([fingerprint_genotypes_file]),
+        genotypes_index = select_first([fingerprint_genotypes_index]),
         output_basename = base_name,
-        sample = sample_name,
+        expected_sample_alias = sample_name,
         preemptible_tries = papi_settings.agg_preemptible_tries
     }
   }
