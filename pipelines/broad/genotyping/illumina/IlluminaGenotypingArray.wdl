@@ -292,8 +292,6 @@ workflow IlluminaGenotypingArray {
               # rate equivalent to a LOD score of 2, and we don't want to see
               # confident LOD scores w/ no confident SNPs.
           haplotype_database_file = haplotype_database_file,
-          ref_fasta = ref_fasta,
-          ref_fasta_index = ref_fasta_index,
           preemptible_tries = preemptible_tries
       }
     }
