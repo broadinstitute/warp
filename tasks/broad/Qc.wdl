@@ -312,7 +312,7 @@ task CheckFingerprint {
     CheckFingerprint \
     --INPUT ~{input_file} \
     ~{if defined(input_vcf) then "--OBSERVED_SAMPLE_ALIAS \"" + input_sample_alias + "\"" else ""} \
-    --GENOTYPES genotypes \
+    --GENOTYPES ~{genotypes} \
     --EXPECTED_SAMPLE_ALIAS "~{expected_sample_alias}" \
     ~{if defined(input_bam) then "--IGNORE_READ_GROUPS true" else ""} \
     --HAPLOTYPE_MAP ~{haplotype_database_file} \

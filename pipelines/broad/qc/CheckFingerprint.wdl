@@ -50,8 +50,8 @@ workflow CheckFingerprint {
     File? fingerprint_genotypes_vcf_index
     File haplotype_database_file
 
-    String environment
-    File vault_token_path
+    String? environment
+    File? vault_token_path
   }
 
   if (defined(input_vcf) && defined(input_bam)) {
@@ -61,7 +61,12 @@ workflow CheckFingerprint {
     }
   }
 
-  # TODO - need an error check for sample_lsid not defined when reading from mercury.
+  if (read_fingerprint_from_mercury && (!defined(sample_lsid) || !defined(environment) || !defined(vault_token_path))) {
+    call utils.ErrorWithMessage as ErrorMessageIncompleteForReadingFromMercury {
+      input:
+        message = "sample_lsid, environment, and vault_token_path must defined when reading from Mercury"
+    }
+  }
 
   # sample_alias may contain spaces, so make a filename-safe version for the downloaded fingerprint file
   call InternalTasks.MakeSafeFilename {
@@ -79,8 +84,8 @@ workflow CheckFingerprint {
         ref_fasta = ref_fasta,
         ref_fasta_index = ref_fasta_index,
         ref_dict = ref_dict,
-        environment = environment,
-        vault_token_path = vault_token_path
+        environment = select_first([environment]),
+        vault_token_path = select_first([vault_token_path])
     }
   }
 
