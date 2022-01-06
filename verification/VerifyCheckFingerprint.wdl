@@ -29,10 +29,12 @@ workflow VerifyCheckFingerprint {
     File truth_fingerprint_vcf
   }
 
-  call MetricsVerification.VerifyMetrics as CompareMetrics {
-    input:
-      test_metrics = test_metrics,
-      truth_metrics = truth_metrics
+  if (defined(test_metrics) && defined(truth_metrics)) {
+    call MetricsVerification.VerifyMetrics as CompareMetrics {
+      input:
+        test_metrics = select_first([test_metrics]),
+        truth_metrics = select_first([truth_metrics])
+    }
   }
 
   call Tasks.CompareVcfs as CompareOutputFingerprintVcfs {
@@ -42,7 +44,7 @@ workflow VerifyCheckFingerprint {
   }
 
   output {
-    Array[File] metric_comparison_report_files = CompareMetrics.metric_comparison_report_files
+    Array[File]? metric_comparison_report_files = CompareMetrics.metric_comparison_report_files
   }
   meta {
     allowNestedInputs: true

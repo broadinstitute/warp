@@ -91,10 +91,10 @@ workflow CheckFingerprint {
     }
   }
 
-  Boolean fingerprint_read_from_mercury = select_first([DownloadGenotypes.fingerprint_retrieved, false])
+  Boolean fingerprint_downloaded_from_mercury = select_first([DownloadGenotypes.fingerprint_retrieved, false])
 
-  File? fingerprint_vcf_to_use = if (fingerprint_read_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf else fingerprint_genotypes_vcf
-  File? fingerprint_vcf_index_to_use = if (fingerprint_read_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf_index else fingerprint_genotypes_vcf_index
+  File? fingerprint_vcf_to_use = if (fingerprint_downloaded_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf else fingerprint_genotypes_vcf
+  File? fingerprint_vcf_index_to_use = if (fingerprint_downloaded_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf_index else fingerprint_genotypes_vcf_index
 
   if ((defined(fingerprint_vcf_to_use)) && (defined(input_vcf) || defined(input_bam))) {
     call Qc.CheckFingerprint {
@@ -115,7 +115,7 @@ workflow CheckFingerprint {
   }
 
   output {
-    Boolean fingerprint_read_from_mercury = fingerprint_read_from_mercury
+    Boolean fingerprint_read_from_mercury = fingerprint_downloaded_from_mercury
     File? reference_fingerprint_vcf = fingerprint_vcf_to_use
     File? reference_fingerprint_vcf_index = fingerprint_vcf_index_to_use
     File? fingerprint_summary_metrics_file = CheckFingerprint.summary_metrics
