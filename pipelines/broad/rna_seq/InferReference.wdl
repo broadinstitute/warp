@@ -16,9 +16,9 @@ workflow InferReference {
     File? r2_fastq
     String read1Structure
     String read2Structure
-    File starIndex
+    File? starIndex
     String output_basename
-    File gtf
+    File? gtf
 
     # only needed if inputs are fastqs instead of ubam
     String? platform
@@ -27,13 +27,17 @@ workflow InferReference {
     String? read_group_name
     String? sequencing_center = "BI"
 
-    File ref
-    File refIndex
-    File refDict
-    File refFlat
-    File ribosomalIntervals
-    File exonBedFile
+    File? ref
+    File? refIndex
+    File? refDict
+    File? refFlat
+    File? ribosomalIntervals
+    File? exonBedFile
   }
+
+    if (false) {
+       String? none = "None"
+    }
 
  #if hg19, use hg19 references:
  if (defined(hg19)) {
