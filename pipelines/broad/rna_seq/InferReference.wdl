@@ -8,7 +8,7 @@ workflow InferReference {
 
   input {
     #what do we want this to be? string? file? bool? do want to default?
-    Boolean hg19 = true
+    Boolean hg19
 
     #RNAWithUMIsPipeline inputs
     File? bam
@@ -35,9 +35,9 @@ workflow InferReference {
     File? exonBedFile
   }
 
-    if (false) {
-       String? none = "None"
-    }
+  if (false) {
+     String? none = "None"
+  }
 
  #if hg19, use hg19 references:
  if (defined(hg19)) {
