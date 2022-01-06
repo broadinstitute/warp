@@ -2,13 +2,13 @@ version 1.0
 
 import "RNAWithUMIsPipeline.wdl" as RNAWithUMIsPipeline
 
-workflow InferReference {
+workflow BroadInternalRNAWithUMIsPipeline {
 
   String pipeline_version = "0.1.0"
 
   input {
-    #what do we want this to be? string? file? bool? do want to default?
-    Boolean hg19
+    #input needs to be either "hg19" or "b38"
+    String reference_build
 
     #RNAWithUMIsPipeline inputs
     File? bam
@@ -16,9 +16,7 @@ workflow InferReference {
     File? r2_fastq
     String read1Structure
     String read2Structure
-    File? starIndex
     String output_basename
-    File? gtf
 
     # only needed if inputs are fastqs instead of ubam
     String? platform
@@ -27,20 +25,12 @@ workflow InferReference {
     String? read_group_name
     String? sequencing_center = "BI"
 
-    File? ref
-    File? refIndex
-    File? refDict
-    File? refFlat
-    File? ribosomalIntervals
-    File? exonBedFile
   }
 
-  if (false) {
-     String? none = "None"
-  }
+  #add test to make sure one or another is defined
 
- #if hg19, use hg19 references:
- if (hg19) {
+ #if reference_build=hg19, use hg19 references:
+ if (reference_build == "hg19") {
    call RNAWithUMIsPipeline.RNAWithUMIsPipeline as RNAWithUMIsPipelineHg19 {
      input:
        #TODO switch over to public bucket paths
@@ -66,8 +56,8 @@ workflow InferReference {
    }
  }
 
- #if hg38, use hg 38 refernces:
- if (!hg19) {
+ #if reference_build=b38, use hg38 refernces:
+ if (reference_build == "b38") {
    call RNAWithUMIsPipeline.RNAWithUMIsPipeline as RNAWithUMIsPipelineHg38 {
      input:
        #TODO switch over to public bucket paths
