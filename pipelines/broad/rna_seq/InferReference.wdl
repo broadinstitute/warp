@@ -63,7 +63,7 @@ workflow InferReference {
  }
 
  #if hg38, use hg 38 refernces:
- if (defined(hg19)) {
+ if (!defined(hg19)) {
    call RNAWithUMIsPipeline.RNAWithUMIsPipeline as RNAWithUMIsPipelineHg38 {
      input:
        #TODO switch over to public bucket paths
