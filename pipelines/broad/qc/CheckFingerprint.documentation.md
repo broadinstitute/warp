@@ -26,7 +26,7 @@ The CheckFingerprint Pipeline takes the inputs described below. Optional inputs 
 
 ### Fingerprint Genotypes
 *    read_fingerprint_from_mercury. If true, the CheckFingerprint pipeline will attempt to retrieve fingerprint genotypes from the Mercury Fingerprint Store. If false, an input fingerprint genotypes file (VCF) is required.
-*    fingerprint_genotypes_vcf [Optional]. The fingerprint genotypes in a VCF. Required if you are not retrieving fingerprint genotypes from Mercury.
+* fingerprint_genotypes_vcf [Optional]. A VCF file containing fingerprint genotypes. Required if you are not retrieving fingerprint genotypes from Mercury.
 *    fingerprint_genotypes_vcf_index [Optional]. The index of the fingerprint genotypes VCF.
 *    sample_lsid [Optional]. The sample lsid used to retrieve the fingerprint genotypes from Mercury. This parameter is required if 'read_fingerprint_from_mercury' is true.
 *    sample_alias. The sample alias for the fingerprint genotypes file. If 'read_fingerprint_from_mercury' is true this is the value that is put into the fingerprint genotypes file generated when pulling the fingerprints from Mercury. If 'read_fingerprint_from_mercury' is false AND there is more than one sample in the fingerprint_genotypes_vcf, this parameter lets CheckFingerprint know which sample in the fingerprint_genotypes_vcf to use.
