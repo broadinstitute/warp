@@ -20,7 +20,7 @@ The CheckFingerprint Pipeline takes the inputs described below. Optional inputs 
 *    input_vcf_index [Optional]. The index file of the input (as VCF).
 *    input_bam [Optional]. The input (as CRAM, BAM, or SAM) to the CheckFingerprint program.
 *    input_bam_index [Optional]. The index file of the input (as CRAM, BAM, or SAM).
-*    input_sample_alias [Optional]. If the input is a VCF (that is, input_vcf is defined) and the VCF contains more than one sample, this parameter lets CheckFingerprint know which sample in the VCF to use.
+* input_sample_alias [Optional]. A string identifying the sample in a multi-sample VCF to be passed to the CheckFingerprint tool. This only needs to be defined if the `input_vcf`is defined.
 
 ** NOTE that if neither input_vcf nor input_bam is provided, CheckFingerprint will return the fingerprint as pulled from Mercury, or supplied as input.
 
