@@ -310,16 +310,16 @@ task CheckFingerprint {
     set -e
     java -Xms3000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
     CheckFingerprint \
-    --INPUT ~{input_file} \
-    ~{if defined(input_vcf) then "--OBSERVED_SAMPLE_ALIAS \"" + input_sample_alias + "\"" else ""} \
-    --GENOTYPES ~{genotypes} \
-    --EXPECTED_SAMPLE_ALIAS "~{expected_sample_alias}" \
-    ~{if defined(input_bam) then "--IGNORE_READ_GROUPS true" else ""} \
-    --HAPLOTYPE_MAP ~{haplotype_database_file} \
-    --GENOTYPE_LOD_THRESHOLD ~{genotype_lod_threshold} \
-    --SUMMARY_OUTPUT ~{summary_metrics_location} \
-    --DETAIL_OUTPUT ~{detail_metrics_location} \
-    ~{"--REFERENCE_SEQUENCE \"" + ref_fasta +"\""} \
+      --INPUT ~{input_file} \
+      ~{if defined(input_vcf) then "--OBSERVED_SAMPLE_ALIAS \"" + input_sample_alias + "\"" else ""} \
+      --GENOTYPES ~{genotypes} \
+      --EXPECTED_SAMPLE_ALIAS "~{expected_sample_alias}" \
+      ~{if defined(input_bam) then "--IGNORE_READ_GROUPS true" else ""} \
+      --HAPLOTYPE_MAP ~{haplotype_database_file} \
+      --GENOTYPE_LOD_THRESHOLD ~{genotype_lod_threshold} \
+      --SUMMARY_OUTPUT ~{summary_metrics_location} \
+      --DETAIL_OUTPUT ~{detail_metrics_location} \
+      ~{"--REFERENCE_SEQUENCE \"" + ref_fasta +"\""}
 
     CONTENT_LINE=$(cat ~{summary_metrics_location} |
     grep -n "## METRICS CLASS\tpicard.analysis.FingerprintingSummaryMetrics" |
@@ -339,51 +339,6 @@ task CheckFingerprint {
     File summary_metrics = summary_metrics_location
     File detail_metrics = detail_metrics_location
     Float lod = read_float("lod")
-  }
-}
-
-# Check that the fingerprint of the sample BAM matches the sample array
-task CheckFingerprintOld {
-  input {
-    File input_bam
-    File input_bam_index
-    String output_basename
-    File haplotype_database_file
-    File? genotypes
-    File? genotypes_index
-    String sample
-    Int preemptible_tries
-  }
-
-  Int disk_size = ceil(size(input_bam, "GiB")) + 20
-  # Picard has different behavior depending on whether or not the OUTPUT parameter ends with a '.', so we are explicitly
-  #   passing in where we want the two metrics files to go to avoid any potential confusion.
-  String summary_metrics_location = "~{output_basename}.fingerprinting_summary_metrics"
-  String detail_metrics_location = "~{output_basename}.fingerprinting_detail_metrics"
-
-  command <<<
-    java -Dsamjdk.buffer_size=131072 \
-      -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms3000m -Xmx3000m \
-      -jar /usr/picard/picard.jar \
-      CheckFingerprint \
-      INPUT=~{input_bam} \
-      SUMMARY_OUTPUT=~{summary_metrics_location} \
-      DETAIL_OUTPUT=~{detail_metrics_location} \
-      GENOTYPES=~{genotypes} \
-      HAPLOTYPE_MAP=~{haplotype_database_file} \
-      SAMPLE_ALIAS="~{sample}" \
-      IGNORE_READ_GROUPS=true
-
-  >>>
-  runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
-    preemptible: preemptible_tries
-    memory: "3500 MiB"
-    disks: "local-disk " + disk_size + " HDD"
-  }
-  output {
-    File summary_metrics = summary_metrics_location
-    File detail_metrics = detail_metrics_location
   }
 }
 

@@ -300,7 +300,7 @@ workflow Arrays {
         name = sample_alias
     }
 
-    call InternalTasks.DownloadGenotypes as DownloadGenotypes {
+    call InternalTasks.DownloadGenotypes {
       input:
         sample_alias = sample_alias,
         sample_lsid = sample_lsid,

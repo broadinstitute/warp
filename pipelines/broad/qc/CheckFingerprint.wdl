@@ -24,18 +24,25 @@ import "../../../tasks/broad/Qc.wdl" as Qc
 
 workflow CheckFingerprint {
 
-  String pipeline_version = "0.1.0"
+  String pipeline_version = "1.0.0"
 
   input {
-    # The name of the sample in the input_vcf.  Not required if there is only one sample in the VCF
-    String? input_sample_alias
     File? input_vcf
     File? input_vcf_index
     File? input_bam
     File? input_bam_index
 
-    String sample_alias
+    # The name of the sample in the input_vcf.  Not required if there is only one sample in the VCF
+    String? input_sample_alias
+
+    # If this is true, we will read fingerprints from Mercury
+    # Otherwise, we will use the optional input fingerprint VCFs below
+    Boolean read_fingerprint_from_mercury = false
+    File? fingerprint_genotypes_vcf
+    File? fingerprint_genotypes_vcf_index
+
     String? sample_lsid
+    String sample_alias
 
     String output_basename
 
@@ -43,11 +50,6 @@ workflow CheckFingerprint {
     File ref_fasta_index
     File ref_dict
 
-    # If this is true, we will read fingerprints from Mercury
-    # Otherwise, we will use the optional input fingerprint VCFs below
-    Boolean read_fingerprint_from_mercury = false
-    File? fingerprint_genotypes_vcf
-    File? fingerprint_genotypes_vcf_index
     File haplotype_database_file
 
     String? environment
@@ -89,10 +91,10 @@ workflow CheckFingerprint {
     }
   }
 
-  Boolean fingerprint_downloaded_from_mercury = select_first([DownloadGenotypes.fingerprint_retrieved, false])
+  Boolean fingerprint_read_from_mercury = select_first([DownloadGenotypes.fingerprint_retrieved, false])
 
-  File? fingerprint_vcf_to_use = if (fingerprint_downloaded_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf else fingerprint_genotypes_vcf
-  File? fingerprint_vcf_index_to_use = if (fingerprint_downloaded_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf_index else fingerprint_genotypes_vcf_index
+  File? fingerprint_vcf_to_use = if (fingerprint_read_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf else fingerprint_genotypes_vcf
+  File? fingerprint_vcf_index_to_use = if (fingerprint_read_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf_index else fingerprint_genotypes_vcf_index
 
   if ((defined(fingerprint_vcf_to_use)) && (defined(input_vcf) || defined(input_bam))) {
     call Qc.CheckFingerprint {
@@ -113,11 +115,11 @@ workflow CheckFingerprint {
   }
 
   output {
-    Boolean fingerprint_downloaded = fingerprint_downloaded_from_mercury
+    Boolean fingerprint_read_from_mercury = fingerprint_read_from_mercury
     File? reference_fingerprint_vcf = fingerprint_vcf_to_use
     File? reference_fingerprint_vcf_index = fingerprint_vcf_index_to_use
-    File? fingerprint_detail_metrics_file = CheckFingerprint.detail_metrics
     File? fingerprint_summary_metrics_file = CheckFingerprint.summary_metrics
+    File? fingerprint_detail_metrics_file = CheckFingerprint.detail_metrics
     Float? lod_score = CheckFingerprint.lod
   }
   meta {
