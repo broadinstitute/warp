@@ -1,16 +1,18 @@
 version 1.0
 
 import "RNAWithUMIsPipeline.wdl" as RNAWithUMIsPipeline
+import "../../../tasks/broad/Utilities.wdl" as utils
+
 
 workflow BroadInternalRNAWithUMIsPipeline {
 
   String pipeline_version = "0.1.0"
 
   input {
-    #input needs to be either "hg19" or "b38"
+    # input needs to be either "hg19" or "b38"
     String reference_build
 
-    #RNAWithUMIsPipeline inputs
+    # RNAWithUMIsPipeline inputs
     File? bam
     File? r1_fastq
     File? r2_fastq
@@ -27,9 +29,17 @@ workflow BroadInternalRNAWithUMIsPipeline {
 
   }
 
-  #add test to make sure one or another is defined
+  # make sure either hg19 or b38 is supplied as reference_build input
+  if (reference_build != "hg19") {
+    if (reference_build != "b38") {
+      call utils.ErrorWithMessage as ErrorMessageMissingInput {
+        input:
+          message = "reference_build must be supplied with either 'hg19' or 'b38'."
+      }
+    }
+  }
 
- #if reference_build=hg19, use hg19 references:
+ # if reference_build=hg19, use hg19 references:
  if (reference_build == "hg19") {
    call RNAWithUMIsPipeline.RNAWithUMIsPipeline as RNAWithUMIsPipelineHg19 {
      input:
@@ -56,7 +66,7 @@ workflow BroadInternalRNAWithUMIsPipeline {
    }
  }
 
- #if reference_build=b38, use hg38 refernces:
+ # if reference_build=b38, use hg38 refernces:
  if (reference_build == "b38") {
    call RNAWithUMIsPipeline.RNAWithUMIsPipeline as RNAWithUMIsPipelineHg38 {
      input:
@@ -82,4 +92,5 @@ workflow BroadInternalRNAWithUMIsPipeline {
        exonBedFile = "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed"
    }
  }
+
 }
