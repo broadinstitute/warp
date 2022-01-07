@@ -51,7 +51,7 @@ workflow BroadInternalRNAWithUMIsPipeline {
        read2Structure = read2Structure,
        starIndex = "gs://broad-gotc-test-storage/rna_seq/hg19/STAR_genome_hg19_v19.tar.gz",
        output_basename = output_basename,
-       gtf = "gs://broad-gotc-test-storage/rna_seq/hg19/gencode.v19.transcripts.patched_contigs.gtf",
+       gtf = "gs://fc-e0c2f056-a9f0-4710-9718-80873e6e67c1/hg19/gencode.v19.genes.v7.collapsed_only.patched_contigs.gtf",
        platform = platform,
        library_name = library_name,
        platform_unit = platform_unit,
@@ -62,7 +62,7 @@ workflow BroadInternalRNAWithUMIsPipeline {
        refDict = "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict",
        refFlat = "gs://broad-gotc-test-storage/rna_seq/hg19/Homo_sapiens_assembly19.refFlat.txt",
        ribosomalIntervals = "gs://broad-gotc-test-storage/rna_seq/hg19/Homo_sapiens_assembly19.rRNA.interval_list",
-       exonBedFile = "gs://broad-gotc-test-storage/rna_seq/hg19/gencode.v19.hg19.insert_size_intervals_geq1000bp.bedd"
+       exonBedFile = "gs://broad-gotc-test-storage/rna_seq/hg19/gencode.v19.hg19.insert_size_intervals_geq1000bp.bed"
    }
  }
 
@@ -92,5 +92,4 @@ workflow BroadInternalRNAWithUMIsPipeline {
        exonBedFile = "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed"
    }
  }
-
 }
