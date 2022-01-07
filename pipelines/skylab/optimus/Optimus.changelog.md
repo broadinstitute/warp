@@ -1,3 +1,7 @@
+# 5.1.3
+2022-01-07 (Date of Last Commit)
+
+* Updated LoomUtils.wdl to fix a missing metadata issue in Single Nucleus SmartSeq2 pipeline
 # 5.1.2
 2021-11-19 (Date of Last Commit)
 
