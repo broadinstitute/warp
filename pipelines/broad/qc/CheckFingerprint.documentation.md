@@ -6,7 +6,11 @@ The CheckFingerprint Pipeline runs the Picard tool 'CheckFingerprint' against a 
 
 ## Modes
 
-The CheckFingerprint Pipeline can operate in different modes (effectively) based on the inputs supplied. These are briefly described here.
+The CheckFingerprint Pipeline can operate in different modes based on the inputs supplied. These options include:
+1. Download a fingerprint file from the Mercury Fingerprint Store **OR** supply one as input (i.e. define the fingerprint_genotype_VCF input). 
+2. Compare the genotypes in the selected fingerprint file to those in an input VCF/BAM **OR** just return the fingerprint file (i.e. no comparison file is supplied as input).
+
+Read more about the different input options in the section below. 
 
 
 
