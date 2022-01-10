@@ -147,6 +147,9 @@ task GenotypeGVCFs {
     String dbsnp_vcf
 
     Int disk_size
+    Int memory_mb = 26000
+    Int cpu = 2
+
     # This is needed for gVCFs generated with GATK3 HaplotypeCaller
     Boolean allow_old_rms_mapping_quality_annotation_data = false
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.3.0"
@@ -178,8 +181,8 @@ task GenotypeGVCFs {
   >>>
 
   runtime {
-    memory: "26000 MiB"
-    cpu: 2
+    memory: "${memory_mb} MiB"
+    cpu: cpu
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     preemptible: 1
