@@ -146,7 +146,7 @@ task GenotypeGVCFs {
 
     String dbsnp_vcf
 
-    Int disk_size
+    Int disk_size = 200
     Int memory_mb = 26000
     Int cpu = 2
 
