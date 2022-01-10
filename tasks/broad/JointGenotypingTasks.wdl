@@ -167,7 +167,7 @@ task GenotypeGVCFs {
     tar -xf ~{workspace_tar}
     WORKSPACE=$(basename ~{workspace_tar} .tar)
 
-    gatk --java-options "-Xms8000m -Xmx25000m" \
+    gatk --java-options "-Xms10000m -Xmx25000m" \
       GenotypeGVCFs \
       -R ~{ref_fasta} \
       -O ~{output_vcf_filename} \
