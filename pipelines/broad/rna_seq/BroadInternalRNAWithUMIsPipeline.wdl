@@ -43,7 +43,6 @@ workflow BroadInternalRNAWithUMIsPipeline {
  if (reference_build == "hg19") {
    call RNAWithUMIsPipeline.RNAWithUMIsPipeline as RNAWithUMIsPipelineHg19 {
      input:
-       #TODO switch over to public bucket paths
        bam = bam,
        r1_fastq = r1_fastq,
        r2_fastq = r2_fastq,
@@ -51,7 +50,7 @@ workflow BroadInternalRNAWithUMIsPipeline {
        read2Structure = read2Structure,
        starIndex = "gs://broad-gotc-test-storage/rna_seq/hg19/STAR_genome_hg19_v19.tar.gz",
        output_basename = output_basename,
-       gtf = "gs://fc-e0c2f056-a9f0-4710-9718-80873e6e67c1/hg19/gencode.v19.genes.v7.collapsed_only.patched_contigs.gtf",
+       gtf = "gs://broad-gotc-test-storage/rna_seq/hg19/gencode.v19.genes.v7.collapsed_only.patched_contigs.gtf",
        platform = platform,
        library_name = library_name,
        platform_unit = platform_unit,
@@ -70,7 +69,6 @@ workflow BroadInternalRNAWithUMIsPipeline {
  if (reference_build == "b38") {
    call RNAWithUMIsPipeline.RNAWithUMIsPipeline as RNAWithUMIsPipelineHg38 {
      input:
-       #TODO switch over to public bucket paths
        bam = bam,
        r1_fastq = r1_fastq,
        r2_fastq = r2_fastq,
