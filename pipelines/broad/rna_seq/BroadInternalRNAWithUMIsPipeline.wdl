@@ -29,6 +29,20 @@ workflow BroadInternalRNAWithUMIsPipeline {
 
   }
 
+  parameter_meta {
+    bam: "Read group-specific unmapped BAM file;  alternatively, paired-end FASTQ files (the `r1_fastq` and `r2_fastq` inputs) may be used"
+    r1_fastq: "Read 1 FASTQ file; alternatively, the unmapped bam file (`bam` input) may be used as input"
+    r2_fastq: "Read 2 FASTQ file; alternatively, the unmapped bam file (`bam` input) may be used as input"
+    read1Structure: "String describing how the bases in a sequencing run should be allocated into logical reads for read 1"
+    read2Structure: "String describing how the bases in a sequencing run should be allocated into logical reads for read 2"
+    output_basename: "String used as a prefix in workflow output files"
+    platform: "String used to describe the sequencing platform; only required when using FASTQ files as input"
+    library_name: "String used to describe the library; only required when using FASTQ files as input"
+    platform_unit: "String used to describe the platform unit; only required when using FASTQ files as input"
+    read_group_name: "String used to describe the read group name; only required when using FASTQ files as input"
+    sequencing_center: "String used to describe the sequencing center; only required when using FASTQ files as input; default is set to “BI”"
+  }
+
   # make sure either hg19 or b38 is supplied as reference_build input
   if (reference_build != "hg19") {
     if (reference_build != "b38") {
