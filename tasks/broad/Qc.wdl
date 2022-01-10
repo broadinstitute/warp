@@ -285,7 +285,7 @@ task CheckFingerprint {
     String? input_sample_alias
 
     File genotypes
-    File genotypes_index
+    File? genotypes_index
     String expected_sample_alias
 
     String output_basename

@@ -64,7 +64,7 @@ input {
         input_bam = base_recalibrated_bam,
         input_bam_index = base_recalibrated_bam_index,
         genotypes = select_first([fingerprint_genotypes_file]),
-        genotypes_index = select_first([fingerprint_genotypes_index]),
+        genotypes_index = fingerprint_genotypes_index,
         expected_sample_alias = sample_name,
         output_basename = base_name,
         haplotype_database_file = haplotype_database_file,
