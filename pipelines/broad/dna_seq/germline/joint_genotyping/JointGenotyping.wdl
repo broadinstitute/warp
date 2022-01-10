@@ -167,8 +167,7 @@ workflow JointGenotyping {
           ref_fasta = ref_fasta,
           ref_fasta_index = ref_fasta_index,
           ref_dict = ref_dict,
-          dbsnp_vcf = dbsnp_vcf,
-          disk_size = medium_disk
+          dbsnp_vcf = dbsnp_vcf
       }
     }
 
