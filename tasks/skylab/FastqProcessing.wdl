@@ -100,7 +100,7 @@ task FastqProcessing {
     fi
 
     fastqprocess \
-        --bam-size 10.0 \
+        --bam-size 30.0 \
         --barcode-length 16 \
         --umi-length $UMILENGTH \
         --sample-id "~{sample_id}" \
