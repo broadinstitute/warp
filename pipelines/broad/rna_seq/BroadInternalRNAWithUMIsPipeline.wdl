@@ -46,12 +46,32 @@ workflow BroadInternalRNAWithUMIsPipeline {
 
   # make sure either hg19 or b38 is supplied as reference_build input
   if ((reference_build != "hg19") && (reference_build != "b38")) {
-    if (reference_build != "b38") {
       call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
         input:
           message = "reference_build must be supplied with either 'hg19' or 'b38'."
       }
-    }
+  }
+
+  if (reference_build == "hg19") {
+  	File starIndex =" gs://broad-gotc-test-storage/rna_seq/hg19/STAR_genome_hg19_v19.tar.gz"
+  	File gtf = "gs://broad-gotc-test-storage/rna_seq/hg19/gencode.v19.genes.v7.collapsed_only.patched_contigs.gtf"
+  	File ref = "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta"
+  	File refIndex = "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai"
+  	File refDict = "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict"
+  	File refFlat = "gs://broad-gotc-test-storage/rna_seq/hg19/Homo_sapiens_assembly19.refFlat.txt"
+  	File ribosomalIntervals = "gs://broad-gotc-test-storage/rna_seq/hg19/Homo_sapiens_assembly19.rRNA.interval_list"
+  	File exonBedFile = "gs://broad-gotc-test-storage/rna_seq/hg19/gencode.v19.hg19.insert_size_intervals_geq1000bp.bed"
+  }
+
+  if (reference_build == "b38") {
+    File starIndex = "gs://broad-gotc-test-storage/rna_seq/hg38/STAR_genome_GRCh38_noALT_noHLA_noDecoy_v26_oh149.tar.gz"
+    File gtf = "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.genes.collapsed_only.gtf"
+    File ref = "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta"
+    File refIndex = "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta.fai"
+    File refDict = "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.dict"
+    File refFlat = "gs://broad-gotc-test-storage/rna_seq/hg38/GRCh38_gencode.v27.refFlat.txt"
+    File ribosomalIntervals = "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.rRNA.withMT.interval_list"
+    File exonBedFile = "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed"
   }
 
  # if reference_build=hg19, use hg19 references:
@@ -80,7 +100,7 @@ workflow BroadInternalRNAWithUMIsPipeline {
    }
  }
 
- # if reference_build=b38, use hg38 refernces:
+  # if reference_build=b38, use hg38 references:
  if (reference_build == "b38") {
    call RNAWithUMIsPipeline.RNAWithUMIsPipeline as RNAWithUMIsPipelineHg38 {
      input:
