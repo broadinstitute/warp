@@ -44,7 +44,7 @@ workflow BroadInternalRNAWithUMIsPipeline {
   }
 
   # make sure either hg19 or b38 is supplied as reference_build input
-  if (reference_build != "hg19") {
+  if ((reference_build != "hg19") && (reference_build != "b38")) {
     if (reference_build != "b38") {
       call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
         input:
