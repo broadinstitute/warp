@@ -65,7 +65,7 @@ workflow RNAWithUMIsPipeline {
        refIndex: "FASTA index file used for collecting metrics"
        refDict: "Dictionary file used for collecting metrics"
        refFlat: "refFlat file used for collecting metrics"
-       ribosomalIntervals: "ntervals file used for collecting RNA metrics"
+       ribosomalIntervals: "Intervals file used for collecting RNA metrics"
        exonBedFile: "Bed file used in the rnaseq2 task for fragment size calculations; contains non-overlapping exons"
     }
 
