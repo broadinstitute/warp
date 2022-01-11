@@ -30,6 +30,7 @@ workflow BroadInternalRNAWithUMIsPipeline {
   }
 
   parameter_meta {
+    reference_build: "String used to define the reference genome build; should be set to 'hg19' or 'b38'"
     bam: "Read group-specific unmapped BAM file;  alternatively, paired-end FASTQ files (the `r1_fastq` and `r2_fastq` inputs) may be used"
     r1_fastq: "Read 1 FASTQ file; alternatively, the unmapped bam file (`bam` input) may be used as input"
     r2_fastq: "Read 2 FASTQ file; alternatively, the unmapped bam file (`bam` input) may be used as input"
