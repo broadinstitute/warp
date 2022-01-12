@@ -1,3 +1,9 @@
+# 1.15.1
+2022-01-11
+
+* Updated picard and picard-related tasks to Picard 2.26.10
+    * Address log4shell security issue (updated to log4j 2.17.1)
+
 # 1.15.0
 2021-11-17
 
