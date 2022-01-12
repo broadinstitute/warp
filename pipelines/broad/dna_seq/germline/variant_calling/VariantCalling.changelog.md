@@ -1,7 +1,13 @@
+2022-01-12
+# 2.0.2
+
+* Increased the disk space in CalibrateDragstrModel task
+
 # 2.0.1
 2021-12-9
 
 * Updated broken dependency in VerifyBamID docker image
+
 # 2.0.0
 2021-11-15
 
