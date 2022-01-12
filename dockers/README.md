@@ -44,7 +44,7 @@ There are some instances where a Debian base image is unavoidable, specifically 
 #OKAY, NOT GREAT - uses debian
 FROM python:debian
 
-RUN set eux; \
+RUN set -eux; \
         apt-get-update; \
         apt-get install -y \
             curl \
@@ -56,7 +56,7 @@ RUN set eux; \
 # GOOD - uses alpine
 FROM alpine:3.9
 
-RUN set eux; \
+RUN set -eux; \
         apk add --no-cache \
             curl \
             bash \
@@ -74,13 +74,13 @@ Just to note, many of the images maintained in WARP require a handful of system-
 ```dockerfile
 
 # BAD - uses multiple RUN steps
-RUN set eux
+RUN set -eux
 RUN apk add --no-cache curl bash wget
 RUN wget https://www.somezipfile.com/zip
 RUN unzip zip
 
 # GOOD - uses single RUN step
-RUN set eux; \
+RUN set -eux; \
         apk add --no-cache \
             curl \
             bash \
@@ -129,7 +129,7 @@ Luckily `tini` is available natively through APK so all you have to do is instal
 
 FROM alpine:3.9
 
-RUN set eux; 
+RUN set -eux; 
         apk add --no-cache \
             tini
 
@@ -178,7 +178,7 @@ LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>" \
 WORKDIR /usr/gitc
 
 # Install dependencies
-RUN set eux; \
+RUN set -eux; \
         apt-get update; \
         apt-get install -y \ 
             autoconf \
@@ -224,4 +224,4 @@ ENTRYPOINT [ "/sbin/tini", "--" ]
 
 ## <a link="trouble"></a> Troubleshooting
 
-If you have any questions or would like some more guidance on writing Dockerfiles please reach out at [dsde-engineering@broadinstitute.org](dsde-engineering@broadinstitute.org).
+If you have any questions or would like some more guidance on writing Dockerfiles please file a [GitHub issue in WARP](https://github.com/broadinstitute/warp/issues/new).

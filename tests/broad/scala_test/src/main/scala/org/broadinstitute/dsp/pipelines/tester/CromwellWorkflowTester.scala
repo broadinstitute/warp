@@ -93,6 +93,8 @@ object CromwellWorkflowTester {
         new IlluminaGenotypingArrayTester(config.illuminaGenotypingArrayConfig)
       case Imputation =>
         new ImputationTester(config.imputationConfig)
+      case RNAWithUmis =>
+        new RNAWithUmisTester(config.rnaWithUmisConfig)
       case SomaticSingleSample =>
         new SomaticSingleSampleTester(config.somaticCloudWorkflowConfig)
       case VariantCalling =>
