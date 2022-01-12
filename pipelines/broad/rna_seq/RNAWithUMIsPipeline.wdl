@@ -32,7 +32,7 @@ workflow RNAWithUMIsPipeline {
 		String output_basename
 		File gtf
 
-		# only needed if inputs are fastqs instead of ubam
+		# The following inputs are only required if fastqs are given as input.
 		String? platform
 		String? library_name
 		String? platform_unit
