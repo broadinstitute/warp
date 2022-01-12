@@ -201,7 +201,7 @@ task AggregateSmartSeq2Loom {
 task SingleNucleusSmartSeq2LoomOutput {
   input {
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.7"
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.8"
 
     Array[File] alignment_summary_metrics
     Array[File] dedup_metrics
