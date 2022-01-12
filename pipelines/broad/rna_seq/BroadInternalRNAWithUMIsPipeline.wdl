@@ -26,8 +26,16 @@ workflow BroadInternalRNAWithUMIsPipeline {
     String? platform_unit
     String? read_group_name
     String? sequencing_center = "BI"
-
   }
+
+  File starIndex = if (reference_build == "hg19") then "gs://broad-gotc-test-storage/rna_seq/hg19/STAR_genome_hg19_v19.tar.gz" else "gs://broad-gotc-test-storage/rna_seq/hg38/STAR_genome_GRCh38_noALT_noHLA_noDecoy_v26_oh149.tar.gz"
+  File gtf = if (reference_build == "hg19") then "gs://broad-gotc-test-storage/rna_seq/hg19/gencode.v19.genes.v7.collapsed_only.patched_contigs.gtf" else "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.genes.collapsed_only.gtf"
+  File ref = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta" else "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta"
+  File refIndex = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai" else "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta.fai"
+  File refDict = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict" else "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.dict"
+  File refFlat = if (reference_build == "hg19") then "gs://broad-gotc-test-storage/rna_seq/hg19/Homo_sapiens_assembly19.refFlat.txt" else "gs://broad-gotc-test-storage/rna_seq/hg38/GRCh38_gencode.v27.refFlat.txt"
+  File ribosomalIntervals = if (reference_build == "hg19") then "gs://broad-gotc-test-storage/rna_seq/hg19/Homo_sapiens_assembly19.rRNA.interval_list" else "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.rRNA.withMT.interval_list"
+  File exonBedFile = if (reference_build == "hg19") then "gs://broad-gotc-test-storage/rna_seq/hg19/gencode.v19.hg19.insert_size_intervals_geq1000bp.bed" else "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed"
 
   parameter_meta {
     reference_build: "String used to define the reference genome build; should be set to 'hg19' or 'b38'"
@@ -41,88 +49,37 @@ workflow BroadInternalRNAWithUMIsPipeline {
     library_name: "String used to describe the library; only required when using FASTQ files as input"
     platform_unit: "String used to describe the platform unit; only required when using FASTQ files as input"
     read_group_name: "String used to describe the read group name; only required when using FASTQ files as input"
-    sequencing_center: "String used to describe the sequencing center; only required when using FASTQ files as input; default is set to “BI”"
+    sequencing_center: "String used to describe the sequencing center; only required when using FASTQ files as input; default is set to 'BI'"
   }
 
   # make sure either hg19 or b38 is supplied as reference_build input
   if ((reference_build != "hg19") && (reference_build != "b38")) {
-      call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
-        input:
-          message = "reference_build must be supplied with either 'hg19' or 'b38'."
-      }
+    call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+      input:
+        message = "reference_build must be supplied with either 'hg19' or 'b38'."
+    }
   }
 
-  if (reference_build == "hg19") {
-  	File starIndex =" gs://broad-gotc-test-storage/rna_seq/hg19/STAR_genome_hg19_v19.tar.gz"
-  	File gtf = "gs://broad-gotc-test-storage/rna_seq/hg19/gencode.v19.genes.v7.collapsed_only.patched_contigs.gtf"
-  	File ref = "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta"
-  	File refIndex = "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai"
-  	File refDict = "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict"
-  	File refFlat = "gs://broad-gotc-test-storage/rna_seq/hg19/Homo_sapiens_assembly19.refFlat.txt"
-  	File ribosomalIntervals = "gs://broad-gotc-test-storage/rna_seq/hg19/Homo_sapiens_assembly19.rRNA.interval_list"
-  	File exonBedFile = "gs://broad-gotc-test-storage/rna_seq/hg19/gencode.v19.hg19.insert_size_intervals_geq1000bp.bed"
+  call RNAWithUMIsPipeline.RNAWithUMIsPipeline as RNAWithUMIsPipeline {
+    input:
+      bam = bam,
+      r1_fastq = r1_fastq,
+      r2_fastq = r2_fastq,
+      read1Structure = read1Structure,
+      read2Structure = read2Structure,
+      starIndex = starIndex,
+      output_basename = output_basename,
+      gtf = gtf,
+      platform = platform,
+      library_name = library_name,
+      platform_unit = platform_unit,
+      read_group_name = read_group_name,
+      sequencing_center = sequencing_center,
+      ref = ref,
+      refIndex = refIndex,
+      refDict = refDict,
+      refFlat = refFlat,
+      ribosomalIntervals = ribosomalIntervals,
+      exonBedFile = exonBedFile
   }
-
-  if (reference_build == "b38") {
-    File starIndex = "gs://broad-gotc-test-storage/rna_seq/hg38/STAR_genome_GRCh38_noALT_noHLA_noDecoy_v26_oh149.tar.gz"
-    File gtf = "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.genes.collapsed_only.gtf"
-    File ref = "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta"
-    File refIndex = "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta.fai"
-    File refDict = "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.dict"
-    File refFlat = "gs://broad-gotc-test-storage/rna_seq/hg38/GRCh38_gencode.v27.refFlat.txt"
-    File ribosomalIntervals = "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.rRNA.withMT.interval_list"
-    File exonBedFile = "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed"
-  }
-
- # if reference_build=hg19, use hg19 references:
- if (reference_build == "hg19") {
-   call RNAWithUMIsPipeline.RNAWithUMIsPipeline as RNAWithUMIsPipelineHg19 {
-     input:
-       bam = bam,
-       r1_fastq = r1_fastq,
-       r2_fastq = r2_fastq,
-       read1Structure = read1Structure,
-       read2Structure = read2Structure,
-       starIndex = "gs://broad-gotc-test-storage/rna_seq/hg19/STAR_genome_hg19_v19.tar.gz",
-       output_basename = output_basename,
-       gtf = "gs://broad-gotc-test-storage/rna_seq/hg19/gencode.v19.genes.v7.collapsed_only.patched_contigs.gtf",
-       platform = platform,
-       library_name = library_name,
-       platform_unit = platform_unit,
-       read_group_name = read_group_name,
-       sequencing_center = "BI",
-       ref = "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",
-       refIndex = "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai",
-       refDict = "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict",
-       refFlat = "gs://broad-gotc-test-storage/rna_seq/hg19/Homo_sapiens_assembly19.refFlat.txt",
-       ribosomalIntervals = "gs://broad-gotc-test-storage/rna_seq/hg19/Homo_sapiens_assembly19.rRNA.interval_list",
-       exonBedFile = "gs://broad-gotc-test-storage/rna_seq/hg19/gencode.v19.hg19.insert_size_intervals_geq1000bp.bed"
-   }
- }
-
-  # if reference_build=b38, use hg38 references:
- if (reference_build == "b38") {
-   call RNAWithUMIsPipeline.RNAWithUMIsPipeline as RNAWithUMIsPipelineHg38 {
-     input:
-       bam = bam,
-       r1_fastq = r1_fastq,
-       r2_fastq = r2_fastq,
-       read1Structure = read1Structure,
-       read2Structure = read2Structure,
-       starIndex = "gs://broad-gotc-test-storage/rna_seq/hg38/STAR_genome_GRCh38_noALT_noHLA_noDecoy_v26_oh149.tar.gz",
-       output_basename = output_basename,
-       gtf = "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.genes.collapsed_only.gtf",
-       platform = platform,
-       library_name = library_name,
-       platform_unit = platform_unit,
-       read_group_name = read_group_name,
-       sequencing_center = "BI",
-       ref = "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta",
-       refIndex = "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta.fai",
-       refDict = "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.dict",
-       refFlat = "gs://broad-gotc-test-storage/rna_seq/hg38/GRCh38_gencode.v27.refFlat.txt",
-       ribosomalIntervals = "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.rRNA.withMT.interval_list",
-       exonBedFile = "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed"
-   }
- }
 }
