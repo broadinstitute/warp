@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../RNAWithUMIsPipeline.wdl" as RNAWithUMIsPipeline
+import " ../../../pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl" as RNAWithUMIsPipeline
 import "../../../tasks/broad/Utilities.wdl" as utils
 
 
