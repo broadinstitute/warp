@@ -67,6 +67,9 @@ object CromwellWorkflowTester {
         new AllOfUsTester(config.germlineCloudConfig)
       case AnnotationFiltration =>
         new AnnotationFiltrationTester(config.annotationFiltrationConfig)
+      case BroadInternalRNAWithUMIs =>
+        new BroadInternalRNAWithUMIsTester(
+          config.broadInternalRNAWithUMIsConfig)
       case CheckFingerprint =>
         new CheckFingerprintTester(config.checkFingerprintConfig)
       case CramToUnmappedBams =>

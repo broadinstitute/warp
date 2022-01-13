@@ -39,7 +39,8 @@ workflow BroadInternalRNAWithUMIsPipeline {
   File refIndex = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai" else "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta.fai"
   File refDict = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict" else "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.dict"
   File refFlat = if (reference_build == "hg19") then "gs://broad-gotc-test-storage/rna_seq/hg19/Homo_sapiens_assembly19.refFlat.txt" else "gs://broad-gotc-test-storage/rna_seq/hg38/GRCh38_gencode.v27.refFlat.txt"
-  File haplotype_database_file = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt" else "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt"
+  # TODO - Need to push the hg38 haplotype db up to google bucket.
+  File haplotype_database_file = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt" else "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.haplotype_database.txt"
   File ribosomalIntervals = if (reference_build == "hg19") then "gs://broad-gotc-test-storage/rna_seq/hg19/Homo_sapiens_assembly19.rRNA.interval_list" else "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.rRNA.withMT.interval_list"
   File exonBedFile = if (reference_build == "hg19") then "gs://broad-gotc-test-storage/rna_seq/hg19/gencode.v19.hg19.insert_size_intervals_geq1000bp.bed" else "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed"
 
@@ -140,6 +141,8 @@ workflow BroadInternalRNAWithUMIsPipeline {
     File picard_quality_by_cycle_pdf = RNAWithUMIsPipeline.picard_quality_by_cycle_pdf
     File picard_quality_distribution_metrics = RNAWithUMIsPipeline.picard_quality_distribution_metrics
     File picard_quality_distribution_pdf = RNAWithUMIsPipeline.picard_quality_distribution_pdf
+    File? picard_fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file
+    File? picard_fingerprint_detail_metrics = CheckFingerprint.fingerprint_detail_metrics_file
     File unified_metrics = MergeMetrics.unified_metrics
   }
 }

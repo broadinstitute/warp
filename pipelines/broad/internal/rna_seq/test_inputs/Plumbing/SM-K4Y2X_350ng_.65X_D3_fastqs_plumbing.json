@@ -1,0 +1,19 @@
+{
+  "BroadInternalRNAWithUMIsPipeline.sample_alias": "SM-K4Y2X_350ng_.65X_D3",
+  "BroadInternalRNAWithUMIsPipeline.sample_lsid": "broadinstitute.org:bsp.prod.sample:K4Y2X",
+  "BroadInternalRNAWithUMIsPipeline.output_basename": "SM-K4Y2X_350ng_.65X_D3",
+
+  "BroadInternalRNAWithUMIsPipeline.reference_build": "hg38",
+
+  "BroadInternalRNAWithUMIsPipeline.r1_fastq": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/plumbing/inputs/SM-K4Y2X_350ng_.65X_D3_read1_plumbing.fastq",
+  "BroadInternalRNAWithUMIsPipeline.r2_fastq": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/plumbing/inputs/SM-K4Y2X_350ng_.65X_D3_read2_plumbing.fastq",
+  "BroadInternalRNAWithUMIsPipeline.read1Structure": "3M2S146T",
+  "BroadInternalRNAWithUMIsPipeline.read2Structure": "3M2S146T",
+  "BroadInternalRNAWithUMIsPipeline.library_name": "SM-K4Y2X_350ng_.65X_D3",
+  "BroadInternalRNAWithUMIsPipeline.platform": "ILLUMINA",
+  "BroadInternalRNAWithUMIsPipeline.platform_unit": "barcode1",
+  "BroadInternalRNAWithUMIsPipeline.read_group_name": "RG1",
+
+  "BroadInternalRNAWithUMIsPipeline.vault_token_path": "{VAULT_TOKEN_PATH}",
+  "BroadInternalRNAWithUMIsPipeline.environment": "{ENV}"
+}

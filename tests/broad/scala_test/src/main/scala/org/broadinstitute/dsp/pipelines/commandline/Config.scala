@@ -7,6 +7,8 @@ case class Config(
     annotationFiltrationConfig: AnnotationFiltrationConfig =
       AnnotationFiltrationConfig(),
     arraysConfig: ArraysConfig = ArraysConfig(),
+    broadInternalRNAWithUMIsConfig: BroadInternalRNAWithUMIsConfig =
+      BroadInternalRNAWithUMIsConfig(),
     checkFingerprintConfig: CheckFingerprintConfig = CheckFingerprintConfig(),
     cramToUnmappedBamsConfig: CramToUnmappedBamsConfig =
       CramToUnmappedBamsConfig(),
