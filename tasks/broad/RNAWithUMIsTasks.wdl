@@ -400,7 +400,7 @@ task MergeMetrics {
         File picard_rna_metrics
         File duplicate_metrics
         File rnaseqc2_metrics
-        File fingerprint_summary_metrics
+        File? fingerprint_summary_metrics
         String output_basename
 
         String docker =  "python:3.8-slim"
