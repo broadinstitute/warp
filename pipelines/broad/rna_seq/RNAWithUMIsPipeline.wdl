@@ -32,7 +32,7 @@ workflow RNAWithUMIsPipeline {
 		String output_basename
 		File gtf
 
-		# only needed if inputs are fastqs instead of ubam
+		# The following inputs are only required if fastqs are given as input.
 		String? platform
 		String? library_name
 		String? platform_unit
@@ -46,6 +46,28 @@ workflow RNAWithUMIsPipeline {
 		File ribosomalIntervals
 		File exonBedFile
 	}
+
+    parameter_meta {
+       bam: "Read group-specific unmapped BAM file;  alternatively, paired-end FASTQ files (the `r1_fastq` and `r2_fastq` inputs) may be used"
+       r1_fastq: "Read 1 FASTQ file; alternatively, the unmapped bam file (`bam` input) may be used as input"
+       r2_fastq: "Read 2 FASTQ file; alternatively, the unmapped bam file (`bam` input) may be used as input"
+       read1Structure: "String describing how the bases in a sequencing run should be allocated into logical reads for read 1"
+       read2Structure: "String describing how the bases in a sequencing run should be allocated into logical reads for read 2"
+       starIndex: "TAR file containing genome indices used for the STAR aligner"
+       output_basename: "String used as a prefix in workflow output files"
+       gtf: "Gene annotation file (GTF) used for the rnaseqc tool"
+       platform: "String used to describe the sequencing platform; only required when using FASTQ files as input"
+       library_name: "String used to describe the library; only required when using FASTQ files as input"
+       platform_unit: "String used to describe the platform unit; only required when using FASTQ files as input"
+       read_group_name: "String used to describe the read group name; only required when using FASTQ files as input"
+       sequencing_center: "String used to describe the sequencing center; only required when using FASTQ files as input; default is set to 'BI'"
+       ref: "FASTA file used for metric collection with Picard tools"
+       refIndex: "FASTA index file used for metric collection with Picard tools"
+       refDict: "Dictionary file used for metric collection with Picard tools"
+       refFlat: "refFlat file used for metric collection with Picard tools"
+       ribosomalIntervals: "Intervals file used for RNA metric collection with Picard tools"
+       exonBedFile: "Bed file used for fragment size calculations in the rnaseqc tool; contains non-overlapping exons"
+    }
 
     call tasks.VerifyPipelineInputs {
         input:
