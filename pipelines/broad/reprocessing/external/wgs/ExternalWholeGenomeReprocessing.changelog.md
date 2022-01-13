@@ -1,3 +1,8 @@
+# 2.0.1
+2021-12-09
+* Updated the base image for the Dragmap docker image
+* Updated broken dependency in VerifyBamID docker image
+
 # 2.0.0
 2021-11-15
 
