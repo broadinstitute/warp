@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_fix_memory_compare_gvcfs/tasks/broad/JointGenotypingTasks.wdl" as Tasks
 
 
 # Joint Genotyping for hg38 Whole Genomes and Exomes (has not been tested on hg19)
