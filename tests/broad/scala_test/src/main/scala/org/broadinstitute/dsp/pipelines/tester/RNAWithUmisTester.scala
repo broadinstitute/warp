@@ -80,12 +80,10 @@ class RNAWithUmisTester(testerConfig: RNAWithUmisConfig)(
           s"$outputBaseName.base_distribution_by_cycle_metrics")
       ),
       test_text_metrics = Array(
-        resultsCloudPath.resolve(s"$outputBaseName.metrics.tsv"),
-        resultsCloudPath.resolve(s"$outputBaseName.unified_metrics.txt")
+        resultsCloudPath.resolve(s"$outputBaseName.metrics.tsv")
       ),
       truth_text_metrics = Array(
-        truthCloudPath.resolve(s"$outputBaseName.metrics.tsv"),
-        truthCloudPath.resolve(s"$outputBaseName.unified_metrics.txt")
+        truthCloudPath.resolve(s"$outputBaseName.metrics.tsv")
       ),
       test_output_bam = resultsCloudPath.resolve(
         s"$outputBaseName.duplicate_marked.coordinate_sorted.bam"),

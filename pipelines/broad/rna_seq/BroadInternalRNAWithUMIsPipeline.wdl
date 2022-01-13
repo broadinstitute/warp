@@ -119,27 +119,27 @@ workflow BroadInternalRNAWithUMIsPipeline {
   }
 
   output {
-    File transcriptome_bam = RNAWithUMIsPipeline.duplicate_marked_bam
-    File transcriptome_bam_index = RNAWithUMIsPipeline.duplicate_marked_bam_index
-    File transcriptome_duplicate_metrics = RNAWithUMIsPipeline.duplicate_metrics
-    File output_bam = RNAWithUMIsPipeline.duplicate_marked_bam
-    File output_bam_index = RNAWithUMIsPipeline.duplicate_marked_bam_index
+    File transcriptome_bam = RNAWithUMIsPipeline.transcriptome_bam
+    File transcriptome_bam_index = RNAWithUMIsPipeline.transcriptome_bam_index
+    File transcriptome_duplicate_metrics = RNAWithUMIsPipeline.transcriptome_duplicate_metrics
+    File output_bam = RNAWithUMIsPipeline.output_bam
+    File output_bam_index = RNAWithUMIsPipeline.output_bam_index
     File duplicate_metrics = RNAWithUMIsPipeline.duplicate_metrics
-    File rnaseqc2_gene_tpm = RNAWithUMIsPipeline.gene_tpm
-    File rnaseqc2_gene_counts = RNAWithUMIsPipeline.gene_counts
-    File rnaseqc2_exon_counts = RNAWithUMIsPipeline.exon_counts
-    File rnaseqc2_fragment_size_histogram = RNAWithUMIsPipeline.fragment_size_histogram
-    File rnaseqc2_metrics = RNAWithUMIsPipeline.metrics
-    File picard_rna_metrics = RNAWithUMIsPipeline.rna_metrics
-    File picard_alignment_summary_metrics = RNAWithUMIsPipeline.alignment_summary_metrics
-    File picard_insert_size_metrics = RNAWithUMIsPipeline.insert_size_metrics
-    File picard_insert_size_histogram = RNAWithUMIsPipeline.insert_size_histogram
-    File picard_base_distribution_by_cycle_metrics = RNAWithUMIsPipeline.base_distribution_by_cycle_metrics
-    File picard_base_distribution_by_cycle_pdf = RNAWithUMIsPipeline.base_distribution_by_cycle_pdf
-    File picard_quality_by_cycle_metrics = RNAWithUMIsPipeline.quality_by_cycle_metrics
-    File picard_quality_by_cycle_pdf = RNAWithUMIsPipeline.quality_by_cycle_pdf
-    File picard_quality_distribution_metrics = RNAWithUMIsPipeline.quality_distribution_metrics
-    File picard_quality_distribution_pdf = RNAWithUMIsPipeline.quality_distribution_pdf
+    File rnaseqc2_gene_tpm = RNAWithUMIsPipeline.rnaseqc2_gene_tpm
+    File rnaseqc2_gene_counts = RNAWithUMIsPipeline.rnaseqc2_gene_counts
+    File rnaseqc2_exon_counts = RNAWithUMIsPipeline.rnaseqc2_exon_counts
+    File rnaseqc2_fragment_size_histogram = RNAWithUMIsPipeline.rnaseqc2_fragment_size_histogram
+    File rnaseqc2_metrics = RNAWithUMIsPipeline.rnaseqc2_metrics
+    File picard_rna_metrics = RNAWithUMIsPipeline.picard_rna_metrics
+    File picard_alignment_summary_metrics = RNAWithUMIsPipeline.picard_alignment_summary_metrics
+    File picard_insert_size_metrics = RNAWithUMIsPipeline.picard_insert_size_metrics
+    File picard_insert_size_histogram = RNAWithUMIsPipeline.picard_insert_size_histogram
+    File picard_base_distribution_by_cycle_metrics = RNAWithUMIsPipeline.picard_base_distribution_by_cycle_metrics
+    File picard_base_distribution_by_cycle_pdf = RNAWithUMIsPipeline.picard_base_distribution_by_cycle_pdf
+    File picard_quality_by_cycle_metrics = RNAWithUMIsPipeline.picard_quality_by_cycle_metrics
+    File picard_quality_by_cycle_pdf = RNAWithUMIsPipeline.picard_quality_by_cycle_pdf
+    File picard_quality_distribution_metrics = RNAWithUMIsPipeline.picard_quality_distribution_metrics
+    File picard_quality_distribution_pdf = RNAWithUMIsPipeline.picard_quality_distribution_pdf
     File unified_metrics = MergeMetrics.unified_metrics
   }
 }
