@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [RNAWithUMIsPipeline_v0.1.0](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | January, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [RNAWithUMIsPipeline_v0.2.0](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | January, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 <!--- Pipeline diagram will go here --->
 
@@ -49,7 +49,7 @@ The workflow takes in either a set of paired-end FASTQ files or a read group unm
 | read2Structure | String describing how the bases in a sequencing run should be allocated into logical reads for read 2 by fgbio's [ExtractUmisFromBam](http://fulcrumgenomics.github.io/fgbio/tools/latest/ExtractUmisFromBam.html) tool; for more information about read structures, see the [fgbio documentation](https://github.com/fulcrumgenomics/fgbio/wiki/Read-Structures).  | String |
 | starIndex | TAR file containing genome indices used for the [STAR aligner](https://github.com/alexdobin/STAR/tree/2.6.1a) | File | 
 | output_basename | String used as a prefix in workflow output files | String |
-| gtf | The gene annotation file (GTF) used for the [RNA-SeQC](https://github.com/getzlab/rnaseqc) tool | File | 
+| gtf | Gene annotation file (GTF) used for the [RNA-SeQC](https://github.com/getzlab/rnaseqc) tool | File | 
 | platform | String used to describe the sequencing platform; only required when using FASTQ files as input. | String |
 | library_name | String used to describe the library; only required when using FASTQ files as input. | String |
 | platform_unit | String used to describe the platform unit; only required when using FASTQ files as input. | String |
@@ -64,31 +64,140 @@ The workflow takes in either a set of paired-end FASTQ files or a read group unm
 
 ### References
 
-<!--- Maybe reference files/inputs should have their own table in their own section? It seems a little disjointed to have them in the table above and then have the files listed here --->
-
 The pipeline supports both hg19 and hg38 references. The reference set consists of:
 1. .fasta, .fai, and .dict files
-2. genome index file (STAR)
-1. GTF file (RNASeQC)
+1. GTF file (STAR, RNASeQC)
 1. ribosomal interval list (Picard)
 1. refFlat file (Picard)
 
 #### FASTA, index, and dictionary files
-When running the workflow with the hg38 reference, we recommend using a version without HLA, ALT, and decoy contigs. These non-primary assembly contigs lead to reduced sensitivity unless the mapper is ALT-aware (e.g. bwa-mem). STAR is not alt-contig aware, so these contigs should be removed from the reference using the [modified_ref.sh script](https://github.com/broadinstitute/hydro.gen/blob/ts_rna2/Analysis/874_twist_RNA/modified_ref/modified_ref.sh).
+
+When running the workflow with the hg38 reference, we recommend using a version without HLA, ALT, and decoy contigs. These non-primary assembly contigs lead to reduced sensitivity unless the mapper is ALT-aware (e.g. bwa-mem). STAR is not ALT-aware, so these contigs should be removed from the reference using the [modified_ref.sh script](https://github.com/broadinstitute/hydro.gen/blob/ts_rna2/Analysis/874_twist_RNA/modified_ref/modified_ref.sh).
 
 In contrast, the hg19 reference does not have nearly as many contigs as the hg38 reference, so the workflow can be run using the standard hg19 reference stored in Broad's [public reference bucket](https://console.cloud.google.com/storage/browser/_details/gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta).
 
 #### GTF file
+
 Genome annotation files (GTFs) contain information about genes such as the start and end coordinates of each exon, name of the gene, and the type of the transcript (e.g. protein-coding, antisense). 
 
 The workflow uses the GENCODE v27 GTF for hg38 and v19 for hg19. We selected the v27 because it was the version used by GTEX, and the v19 because it is the latest GENCODE version available for hg19.
 
 #### Ribosomal interval list
+
 The workflow ribosomal interval list and the refFlat file are used by Picard metrics calculations tools. The workflow uses a custom ribosomal interval list, based on the public hg38 ribosomal interval list, which has been modified to include mitochondrial rRNA coding genes. 
 
 #### Additional reference resources
-More information about ALT contigs, HLA, decoys, alt-contig aware mapping, may be found in the following resources:
 
-* [Which reference genome to use](https://lh3.github.io/2017/11/13/which-human-reference-genome-to-use) from Heng Li's blog which argues for removing ALT contigs to improve sensitivity (for both DNA and RNA). 
-* [Reference genome components](https://gatk.broadinstitute.org/hc/en-us/articles/360041155232-Reference-Genome-Components) from the GATK blog. 
-* [ALT-aware mapping](https://support.illumina.com/content/dam/illumina-support/help/Illumina_DRAGEN_Bio_IT_Platform_v3_7_1000000141465/Content/SW/Informatics/Dragen/GPipelineAltMap_fDG.htm) as described in Illumina DRAGEN documentation. 
+For more information about ALT contigs, HLA, decoys, and ALT-aware mapping, see the following resources:
+
+* [Heng Li's blog](https://lh3.github.io/2017/11/13/which-human-reference-genome-to-use) where he argues for removing ALT contigs to improve sensitivity (for both DNA and RNA). 
+* [GATK blog post](https://gatk.broadinstitute.org/hc/en-us/articles/360041155232-Reference-Genome-Components) describing the components of a reference genome. 
+* [Illumina DRAGEN documentation](https://support.illumina.com/content/dam/illumina-support/help/Illumina_DRAGEN_Bio_IT_Platform_v3_7_1000000141465/Content/SW/Informatics/Dragen/GPipelineAltMap_fDG.htm) describing ALT-aware mapping. 
+
+## RNA with UMIs tasks and tools
+
+The [RNA with UMIs workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl) imports two additional WDL scripts. The [UMIAwareDuplicateMarking.wdl](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UMIAwareDuplicateMarking.wdl) script is a nested workflow used to mark duplicate sequencing reads, while the [RNAWithUMIsTasks.wdl](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) script contins individual "tasks" called by the workflow.
+
+Overall, the RNA with UMIs workflow:
+1. Converts FASTQs to unmapped BAMS. 
+1. Extracts UMIs. 
+1. Aligns reads. 
+1. Marks duplicate reads.
+1. Quantifies gene counts 
+1. Calculates RNA and genomic metrics.
+
+The tools each task employs in the RNA with UMIs workflow are detailed in the table below. 
+
+To see specific tool parameters, select the task WDL link in the table; then find the task and view the `command {}` section of the task in the WDL script. To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `input {}` section as `String docker =`.
+
+| Task name and WDL link | Tool | Software | Description | 
+| --- | --- | --- | --- | 
+| [tasks.FastqToUbam](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | FastqToSam | [Picard](https://broadinstitute.github.io/picard/) | Converts the paired-end FASTQ files to unmapped BAM | 
+| [tasks.ExtractUMIs](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | ExtractUmisFromBam | [fgbio](http://fulcrumgenomics.github.io/fgbio/) | Extracts UMIs from the unmapped BAM and stores them in the RX tag of output BAM. | 
+| [tasks.STAR](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | STAR | [STAR v2.6.1](https://github.com/alexdobin/STAR/tree/2.6.1a) | Aligns reads to the genome (using the StarIndex file) and outputs aligned reads to BAM. The task additionally converts the resulting BAM file to transcriptome coordinates, producing a transcriptome-aligned BAM. Parameters are listed below. |
+| [tasks.CopyReadGroupsToHeader](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | view, reheader | [Samtools](http://www.htslib.org/) | Copies the read group information from the genome-aligned BAM to the transcriptome-aligned BAM. |
+| [UmiMD.UMIAwareDuplicateMarking](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UMIAwareDuplicateMarking.wdl) | SortSam, MarkDuplicates, group | [Picard](https://broadinstitute.github.io/picard/), [GATK](https://gatk.broadinstitute.org/hc/en-us), [UMI_tools](https://umi-tools.readthedocs.io/en/latest/index.html) | Marks duplicates on the genome-aligned BAM and tags reads with error-corrected UMIs | 
+| [UmiMD.UMIAwareDuplicateMarking as UMIAwareDuplicateMarkingTranscriptome](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UMIAwareDuplicateMarking.wdl) | SortSam, MarkDuplicates, group | [Picard](https://broadinstitute.github.io/picard/), [GATK](https://gatk.broadinstitute.org/hc/en-us), [UMI_tools](https://umi-tools.readthedocs.io/en/latest/index.html) | Marks duplicates on the transcriptome-aligned BAM and tags reads with error-corrected UMIs. | <!--- Cross check will go here --->
+| [tasks.GetSampleName](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | GetSampleName | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Writes the sample name from the unmapped BAM header into a separate text file. |
+| [tasks.rnaseqc2](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | rnaseqc | [RNA-SeQC](https://github.com/getzlab/rnaseqc) | Uses the genome-aligned, duplicate-marked BAM file to calculate TPMs, gene counts, exon counts, fragment sizes, and additional metrics, each of which is outputted to an individual file |
+| [tasks.CollectRNASeqMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | CollectRNASeqMetrics | [Picard](https://broadinstitute.github.io/picard/) | Calculates RNA metrics; strand specificity is set to SECOND_READ_TRANSCRIPTION_STRAND |
+| [tasks.CollectMultipleMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | CollectMultipleMetrics | [Picard](https://broadinstitute.github.io/picard/) | Collects multiple classes of metrics; runs tools CollectInsertSizeMetrics and CollectAlignmentSummaryMetrics. |
+| [tasks.MergeMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | --- | --- | Merges the metrics from Picard and RNA-SeQC. |
+
+#### 1. Convert FASTQ to uBAM
+
+If paired-end FASTQ files are used as inputs for the pipeline, the first task in the pipeline converts those FASTQ files into an unmapped BAM file using Picard’s [FastqToSam](https://gatk.broadinstitute.org/hc/en-us/articles/360036510672).
+
+If a read group unmapped BAM file is used as input for the pipeline, this task is skipped. 
+
+#### 2. UMI extraction
+
+Unique molecular identifiers (UMIs) are DNA tags (bases) that identify each DNA molecule before PCR amplification. This enables us to detect whether two reads that align to the same exact position in the reference are sequences of the same DNA molecule (have the same UMIs; PCR duplicates) or are two separate copies of DNA that happen to have the same sequence (have different UMIs; biological or natural duplicates). 
+
+As an example, the Illumina sequencers used by the Broad Genomics Platform read 151 bp per read, of which 5 bp are reserved for the UMIs.
+
+The first step of the RNA with UMIs workflow is to use the fgbio’s [ExtractUMIsFromBam](http://fulcrumgenomics.github.io/fgbio/tools/latest/ExtractUmisFromBam.html) to remove UMI bases from the reads and store them in the RX read tag. 
+
+The resulting RX tag may contain information like “ACT-GCT.” The “ACT” is the 3 bp for read1 and the “GCT” is the 3 bp for read2. Even though we reserve 5 bases in a read, we only use 3 bases for UMI; the other two bases are reserved for cell barcode, which the workflow doesn’t use.
+
+#### 3. Alignment with STAR
+
+After UMI extraction, the workflow aligns the paired-end reads to the reference (hg38 or hg19) using the [STAR (v2.6.1) aligner](https://github.com/alexdobin/STAR/tree/2.6.1a), which is specifically designed for RNA-seq data and is able to align cDNA sequences with many "gaps" that correspond to introns. 
+
+After STAR alignment, the workflow outputs both a genome- and transcriptome-aligned BAM.
+
+<!--- STAR parameters will go here --->
+
+#### 4. Mark duplicates
+
+As described in Step 2. UMI extraction], UMIs are DNA tags that allow us to distinguish between PCR duplicates (duplicate reads with the same UMI) and biological duplicates (duplicate reads with different UMIs).
+
+In this step, the workflow sorts the aligned BAMs coordinates using Picard’s [SortSam](https://gatk.broadinstitute.org/hc/en-us/articles/360036510732-SortSam-Picard-) tool and then groups the duplicates using UMI_tools [group](https://umi-tools.readthedocs.io/en/latest/reference/group.html#) function. Once the duplicates are grouped by UMI, the PCR duplicates are marked using Picard’s [MarkDuplicates](https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard-). This step outputs new genome- and transcriptome-aligned BAM files with PCR duplicates tagged and a corresponding index file.
+
+#### 5. Gene quantification
+
+After duplicate reads have been tagged, the workflow uses [RNA-SeQC](https://github.com/getzlab/rnaseqc) to quantify the expression level of transcripts based on the number of reads that align to one or more exons of each gene (`rnaseqc2_gene_counts`). Exon-level expression is also quantified based on the number of reads that align to each exon (`rnaseqc2_exon_counts`). 
+
+#### 6. Metric calculation
+
+The pipeline uses [RNA-SeQC](https://github.com/getzlab/rnaseqc), Picard’s [CollectRNASeqMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037057492-CollectRnaSeqMetrics-Picard-), and Picard’s [CollectMultipleMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037594031-CollectMultipleMetrics-Picard-) to calculate summary metrics that can be used to assess the quality of the data each time the pipeline is run. The resulting metrics are output to several individual files and merged together to create the `MergeMetrics.unified_metrics` output file. 
+
+#### 7. Outputs
+
+Workflow outputs are described in the table below. 
+<!--- Link to metrics overview will go here --->
+
+| Output variable name | Description | Type | 
+| ------ | ------ | ------ |
+| transcriptome_bam | Duplicate-marked BAM file containing alignments from STAR translated into transcriptome coordinates | BAM |
+| transcriptome_bam_index | Index file for the transcriptome_bam output | BAM Index |
+| transcriptome_duplicate_metrics | File containing duplication metrics | TXT | 
+| output_bam | Duplicate-marked BAM file containing alignments from STAR translated into genome coordinates | BAM |
+| output_bam_index | Index file for the output_bam output | BAM Index |
+| duplicate_metrics | Duplicate metrics file containing the number of reads marked as duplicates | TXT |
+| rnaseqc2_gene_tpm | File containing TPMs | GCT |
+| rnaseqc2_gene_counts | File containing gene counts | GCT |
+| rnaseqc2_exon_counts | File containing exon counts | GCT |
+| rnaseqc2_fragment_size_histogram | File containing counts of observed fragment size | TXT |
+| rnaseqc2_metrics | File containing RNA-SeQC metrics including strand specificity, 3’/5’ bias, rRNA reads, and others | TSV |
+| picard_rna_metrics | Metrics file containing the output of Picard’s CollectRnaSeqMetrics tool | TXT |
+| picard_alignment_summary_metrics | Metrics file containing output of Picard’s CollectAlignmentSummaryMetrics tool | TXT |
+| picard_insert_size_metrics | Metrics file containing output of Picard’s CollectInsertSizeMetrics tool | TXT |
+| picard_insert_size_histogram | Histogram chart of insert size | PDF |
+| picard_base_distribution_by_cycle_metrics | Metrics file containing the output of Picard’s CollectBaseDistributionByCycle tool | TXT |
+| picard_base_distribution_by_cycle_pdf | Chart of nucleotide distribution per cycle | PDF |
+| picard_quality_by_cycle_metrics | Metrics file containing the output of Picard’s MeanQualityByCycle tool | TXT |
+| picard_quality_by_cycle_pdf | Chart of mean quality by cycle | PDF |
+| picard_quality_distribution_metrics | Metrics file containing the output of Picard’s QualityScoreDistribution tool | TXT |
+| picard_quality_distribution_pdf | Chart of distribution of quality scores | PDF |
+| unified_metrics | Merged metrics file containing RNA-SeQC, Picard RNA-seq, Picard insert size, and Picard alignment metrics | TXT |
+
+<!--- Validation will go here --->
+
+## Versioning
+
+All RNA with UMIs pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/rna_seq/RNAWithUMIsPipeline.changelog.md).
+
+## Feedback
+
+Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
