@@ -55,7 +55,7 @@ workflow RNAWithUMIsPipeline {
        read2Structure: "String describing how the bases in a sequencing run should be allocated into logical reads for read 2"
        starIndex: "TAR file containing genome indices used for the STAR aligner"
        output_basename: "String used as a prefix in workflow output files"
-       gtf: "The gene annotation file (GTF) used for the rnaseqc tool"
+       gtf: "Gene annotation file (GTF) used for the rnaseqc tool"
        platform: "String used to describe the sequencing platform; only required when using FASTQ files as input"
        library_name: "String used to describe the library; only required when using FASTQ files as input"
        platform_unit: "String used to describe the platform unit; only required when using FASTQ files as input"
