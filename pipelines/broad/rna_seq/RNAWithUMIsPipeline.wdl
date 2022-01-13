@@ -165,20 +165,9 @@ workflow RNAWithUMIsPipeline {
 			ref_fasta_index=refIndex
 	}
 
-	# TODO: wire in fingerprint_summary_metrics once we have it. Using static example for now
-	call tasks.MergeMetrics {
-		input:
-			alignment_summary_metrics=CollectMultipleMetrics.alignment_summary_metrics,
-			insert_size_metrics=CollectMultipleMetrics.insert_size_metrics,
-			picard_rna_metrics=CollectRNASeqMetrics.rna_metrics,
-			duplicate_metrics=UMIAwareDuplicateMarking.duplicate_metrics,
-			rnaseqc2_metrics=rnaseqc2.metrics,
-			fingerprint_summary_metrics="gs://broad-gotc-test-storage/rna_seq/example.fingerprinting_summary_metrics",
-			output_basename = GetSampleName.sample_name
-	}
-
-
 	output {
+		# TODO - is sample_name really needed to be output here - used in MergeMetrics in wrapper...
+		String sample_name = GetSampleName.sample_name
 		File transcriptome_bam = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam
 		File transcriptome_bam_index = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam_index
 		File transcriptome_duplicate_metrics = UMIAwareDuplicateMarkingTranscriptome.duplicate_metrics
@@ -200,7 +189,6 @@ workflow RNAWithUMIsPipeline {
 		File picard_quality_by_cycle_pdf = CollectMultipleMetrics.quality_by_cycle_pdf
 		File picard_quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
 		File picard_quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
-		File unified_metrics = MergeMetrics.unified_metrics
 	}
 }
 
