@@ -367,62 +367,6 @@ task VcfToIntervalList {
   }
 }
 
-task CheckFingerprint {
-  input {
-    File input_vcf_file
-    File input_vcf_index_file
-    File? genotypes_vcf_file
-    File? genotypes_vcf_index_file
-    File haplotype_database_file
-    String observed_sample_alias
-    String expected_sample_alias
-    String output_metrics_basename
-
-    Int disk_size
-    Int preemptible_tries
-  }
-
-  # Paraphrased from Yossi:
-  # Override the default LOD threshold of 5 because if the PL field
-  # is missing from the VCF, CheckFingerprint will default to an error
-  # rate equivalent to a LOD score of 2, and we don't want to see
-  # confident LOD scores w/ no confident SNPs.
-  Float genotype_lod_threshold = 1.9
-  String summary_metrics_extension = ".fingerprinting_summary_metrics"
-
-  command <<<
-    set -e
-    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
-      CheckFingerprint \
-      --INPUT ~{input_vcf_file} \
-      --OBSERVED_SAMPLE_ALIAS "~{observed_sample_alias}" \
-    ~{"--GENOTYPES \"" + genotypes_vcf_file +"\""} \
-      --EXPECTED_SAMPLE_ALIAS "~{expected_sample_alias}" \
-      --HAPLOTYPE_MAP ~{haplotype_database_file} \
-      --GENOTYPE_LOD_THRESHOLD ~{genotype_lod_threshold} \
-      --OUTPUT ~{output_metrics_basename}
-
-    CONTENT_LINE=$(cat ~{output_metrics_basename}~{summary_metrics_extension} |
-    grep -n "## METRICS CLASS\tpicard.analysis.FingerprintingSummaryMetrics" |
-    cut -f1 -d:)
-    CONTENT_LINE=$(($CONTENT_LINE+2))
-    sed '8q;d' ~{output_metrics_basename}~{summary_metrics_extension} | cut -f5 > lod
-  >>>
-
-  runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "3500 MiB"
-    preemptible: preemptible_tries
-  }
-
-  output {
-    File summary_metrics = "~{output_metrics_basename}~{summary_metrics_extension}"
-    File detail_metrics = "~{output_metrics_basename}.fingerprinting_detail_metrics"
-    Float lod = read_float("lod")
-  }
-}
-
 task SelectVariants {
   input {
     File input_vcf_file

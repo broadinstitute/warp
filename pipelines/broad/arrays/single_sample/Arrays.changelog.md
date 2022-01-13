@@ -1,3 +1,8 @@
+# 2.6.2
+2022-01-12
+
+* Refactor to move CheckFingerprint functionality into separate task
+
 # 2.6.1
 2022-01-11
 

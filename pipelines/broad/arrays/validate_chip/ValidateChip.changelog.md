@@ -1,3 +1,8 @@
+# 1.15.2
+2022-01-12
+
+* Task wdls used by Validate chip were updated with changes that don't affect ValidateChip wdl
+
 # 1.15.1
 2022-01-11
 
