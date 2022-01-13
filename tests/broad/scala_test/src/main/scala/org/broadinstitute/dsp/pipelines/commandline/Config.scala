@@ -7,6 +7,7 @@ case class Config(
     annotationFiltrationConfig: AnnotationFiltrationConfig =
       AnnotationFiltrationConfig(),
     arraysConfig: ArraysConfig = ArraysConfig(),
+    checkFingerprintConfig: CheckFingerprintConfig = CheckFingerprintConfig(),
     cramToUnmappedBamsConfig: CramToUnmappedBamsConfig =
       CramToUnmappedBamsConfig(),
     genotypeConcordanceConfig: GenotypeConcordanceConfig =

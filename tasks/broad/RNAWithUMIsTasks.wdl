@@ -173,7 +173,7 @@ task FastqToUbam {
         String platform_unit
         String read_group_name
         String sequencing_center
-        
+
         String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
         Int cpu = 1
         Int memory_mb = 4000
