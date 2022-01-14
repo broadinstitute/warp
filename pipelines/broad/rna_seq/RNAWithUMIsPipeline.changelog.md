@@ -1,9 +1,5 @@
-# 0.2.0
-2022-01-12 (Date of Last Commit)
+# 1.0.0
+2022-01-14 (Date of Last Commit)
 
-* Work in progress.
+* Initial Release of RNAWithUMIs pipeline.
 
-# 0.1.0
-2022-01-12 (Date of Last Commit)
-
-* Initial work on RNAwithUMIs pipeline.

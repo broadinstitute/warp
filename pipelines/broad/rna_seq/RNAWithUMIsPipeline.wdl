@@ -20,7 +20,7 @@ import "../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
 
 workflow RNAWithUMIsPipeline {
 
-	String pipeline_version = "0.2.0"
+	String pipeline_version = "1.0.0"
 
 	input {
 		File? bam
@@ -28,9 +28,7 @@ workflow RNAWithUMIsPipeline {
 		File? r2_fastq
 		String read1Structure
 		String read2Structure
-		File starIndex
 		String output_basename
-		File gtf
 
 		# The following inputs are only required if fastqs are given as input.
 		String? platform
@@ -38,6 +36,9 @@ workflow RNAWithUMIsPipeline {
 		String? platform_unit
 		String? read_group_name
 		String? sequencing_center = "BI"
+
+		File starIndex
+		File gtf
 
 		File ref
 		File refIndex

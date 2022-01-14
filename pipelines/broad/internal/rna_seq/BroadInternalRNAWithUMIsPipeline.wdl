@@ -1,13 +1,13 @@
 version 1.0
 
-import "../../../pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl" as RNAWithUMIsPipeline
-import "../../../pipelines/broad/qc/CheckFingerprint.wdl" as FP
-import "../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
-import "../../../tasks/broad/Utilities.wdl" as utils
+import "../../../../pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl" as RNAWithUMIsPipeline
+import "../../../../pipelines/broad/qc/CheckFingerprint.wdl" as FP
+import "../../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
+import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow BroadInternalRNAWithUMIsPipeline {
 
-  String pipeline_version = "0.1.0"
+  String pipeline_version = "1.0.0"
 
   input {
     # input needs to be either "hg19" or "hg38"
