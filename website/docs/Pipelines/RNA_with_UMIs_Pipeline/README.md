@@ -104,7 +104,7 @@ Overall, the RNA with UMIs workflow:
 1. Extracts UMIs. 
 1. Aligns reads. 
 1. Marks duplicate reads.
-1. Quantifies gene counts 
+1. Quantifies gene counts. 
 1. Calculates RNA and genomic metrics.
 
 The tools each task employs in the RNA with UMIs workflow are detailed in the table below. 
