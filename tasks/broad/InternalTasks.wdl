@@ -91,8 +91,8 @@ task DownloadGenotypes {
       --HAPLOTYPE_MAP ~{haplotype_database_file} \
       --EXPECTED_GENOTYPING_PLATFORMS FLUIDIGM \
       --EXPECTED_GENOTYPING_PLATFORMS GENERAL_ARRAY \
-      ~{"--IGNORE_SPECIFIC_GENOTYPES_LSID \"" + ignoreSpecificGenotypesLsid +"\""} \
-      ~{"--IGNORE_SPECIFIC_GENOTYPES_PLATFORM \"" + ignoreSpecificGenotypesPlatform +"\""} \
+      ~{if defined(ignoreSpecificGenotypesLsid) then "--IGNORE_SPECIFIC_GENOTYPES_LSID \"" + ignoreSpecificGenotypesLsid + "\"" else ""} \
+      ~{if defined(ignoreSpecificGenotypesPlatform) then "--IGNORE_SPECIFIC_GENOTYPES_PLATFORM \"" + ignoreSpecificGenotypesPlatform + "\"" else ""} \
       --MERCURY_FP_STORE_URI $MERCURY_FP_STORE_URI \
       --CREDENTIALS_VAULT_PATH $MERCURY_AUTH_KEY \
       --ERR_NO_GENOTYPES_AVAILABLE 7
