@@ -17,10 +17,10 @@ task VerifyPipelineInputs {
         String? read_group_name
         String? sequencing_center = "BI"
 
-        String docker = "python:3.7.2"
+        String docker = "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
         Int cpu = 1
-        Int memory_mb = 1000
-        Int disk_size_gb = 1
+        Int memory_mb = 2000
+        Int disk_size_gb = ceil(size(bam, "GB") + size(r1_fastq,"GB") + size(r2_fastq, "GB")) + 10
     }
 
     command <<<
