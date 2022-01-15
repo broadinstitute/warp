@@ -1,11 +1,7 @@
-# 1.15.3
-2022-01-14
+# 1.15.2
+2022-01-14 (Date of Last Commit)
 
 * Fix issue with escaping of strings/filenames with spaces embedded that occurred on older (< 57) versions of Cromwell
-
-# 1.15.2
-2022-01-12
-
 * Task wdls used by Validate chip were updated with changes that don't affect ValidateChip wdl
 
 # 1.15.1
