@@ -8,7 +8,7 @@ sidebar_position: 1
 | :----: | :---: | :----: | :--------------: |
 | [RNAWithUMIsPipeline_v0.2.0](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | January, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
-<!--- Pipeline diagram will go here --->
+![RNAWithUMIs_diagram](RNAWithUMIs_diagram.png)
 
 ## Introduction to the RNA with UMIs workflow
 
