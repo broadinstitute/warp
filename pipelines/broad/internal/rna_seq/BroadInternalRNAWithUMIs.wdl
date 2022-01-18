@@ -5,7 +5,7 @@ import "../../../../pipelines/broad/qc/CheckFingerprint.wdl" as FP
 import "../../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
 import "../../../../tasks/broad/Utilities.wdl" as utils
 
-workflow BroadInternalRNAWithUMIsPipeline {
+workflow BroadInternalRNAWithUMIs {
 
   String pipeline_version = "1.0.0"
 
