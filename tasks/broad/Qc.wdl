@@ -319,7 +319,7 @@ task CheckFingerprint {
       --GENOTYPE_LOD_THRESHOLD ~{genotype_lod_threshold} \
       --SUMMARY_OUTPUT ~{summary_metrics_location} \
       --DETAIL_OUTPUT ~{detail_metrics_location} \
-      ~{"--REFERENCE_SEQUENCE \"" + ref_fasta +"\""}
+      ~{"--REFERENCE_SEQUENCE " + ref_fasta}
 
     CONTENT_LINE=$(cat ~{summary_metrics_location} |
     grep -n "## METRICS CLASS\tpicard.analysis.FingerprintingSummaryMetrics" |
