@@ -13,7 +13,6 @@ workflow BroadInternalRNAWithUMIs {
     # input needs to be either "hg19" or "hg38"
     String reference_build
 
-    String sample_alias
     String sample_lsid
 
     # RNAWithUMIs inputs
@@ -45,7 +44,6 @@ workflow BroadInternalRNAWithUMIs {
 
   parameter_meta {
     reference_build: "String used to define the reference genome build; should be set to 'hg19' or 'hg38'"
-    sample_alias: "The sample alias (aka the Collaborator Sample ID) the name of the sample"
     sample_lsid: "The sample lsid (an identifier used to retrieve fingerrints from Mercury)"
     r1_fastq: "Read 1 FASTQ file"
     r2_fastq: "Read 2 FASTQ file"
@@ -95,7 +93,7 @@ workflow BroadInternalRNAWithUMIs {
     input:
       input_bam = RNAWithUMIs.output_bam,
       input_bam_index = RNAWithUMIs.output_bam_index,
-      sample_alias = sample_alias,
+      sample_alias = RNAWithUMIs.sample_name,
       sample_lsid = sample_lsid,
       output_basename = output_basename,
       ref_fasta = ref,

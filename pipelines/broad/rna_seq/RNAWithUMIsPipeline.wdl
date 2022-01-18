@@ -167,7 +167,6 @@ workflow RNAWithUMIsPipeline {
 	}
 
 	output {
-		# TODO - is sample_name really needed to be output here - used in MergeMetrics in wrapper...
 		String sample_name = GetSampleName.sample_name
 		File transcriptome_bam = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam
 		File transcriptome_bam_index = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam_index
