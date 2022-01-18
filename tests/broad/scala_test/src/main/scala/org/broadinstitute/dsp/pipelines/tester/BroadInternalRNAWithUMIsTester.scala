@@ -8,8 +8,8 @@ import better.files.File
 import org.broadinstitute.dsp.pipelines.batch.WorkflowTest
 import org.broadinstitute.dsp.pipelines.config._
 import org.broadinstitute.dsp.pipelines.inputs.{
-  BroadInternalRNAWithUMIsValidationInputs,
-  RNAWithUmisInputs
+  RNAWithUmisInputs,
+  RNAWithUmisValidationInputs
 }
 
 class BroadInternalRNAWithUMIsTester(
@@ -27,7 +27,7 @@ class BroadInternalRNAWithUMIsTester(
     s"gs://broad-dsp-gotc-arrays-$envString-tokens/arrayswdl.token"
 
   override protected val validationWorkflowName: String =
-    "VerifyBroadInternalRNAWithUMIs"
+    "VerifyRNAWithUMIs"
 
   // Validation uses the same options as the arrays workflow
   override protected lazy val validationWdlOptions: String = {
@@ -68,7 +68,7 @@ class BroadInternalRNAWithUMIsTester(
       workflowTest.runParameters.resultsCloudPath
     val truthCloudPath = workflowTest.runParameters.truthCloudPath
 
-    val validationInputs = BroadInternalRNAWithUMIsValidationInputs(
+    val validationInputs = RNAWithUmisValidationInputs(
       test_metrics = Array(
         resultsCloudPath.resolve(
           s"$outputBaseName.transcriptome.duplicate.metrics"),
@@ -123,7 +123,7 @@ class BroadInternalRNAWithUMIsTester(
       truth_exon_counts =
         truthCloudPath.resolve(s"$outputBaseName.exon_reads.gct.gz")
     )
-    BroadInternalRNAWithUMIsValidationInputs
+    RNAWithUmisValidationInputs
       .marshall(validationInputs)
       .printWith(implicitly)
   }
