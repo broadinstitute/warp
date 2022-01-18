@@ -21,7 +21,7 @@ case class Config(
     illuminaGenotypingArrayConfig: IlluminaGenotypingArrayConfig =
       IlluminaGenotypingArrayConfig(),
     imputationConfig: ImputationConfig = ImputationConfig(),
-    rnaWithUmisConfig: RNAWithUmisConfig = RNAWithUmisConfig(),
+    rnaWithUMIsConfig: RNAWithUMIsConfig = RNAWithUMIsConfig(),
     somaticCloudWorkflowConfig: SomaticCloudWorkflowConfig =
       SomaticCloudWorkflowConfig(),
     validateChipConfig: ValidateChipConfig = ValidateChipConfig()

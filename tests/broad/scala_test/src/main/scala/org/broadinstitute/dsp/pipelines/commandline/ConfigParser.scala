@@ -912,12 +912,12 @@ class ConfigParser
     )
 
   note("")
-  cmd(RNAWithUmis.entryName)
+  cmd(RNAWithUMIs.entryName)
     .text("Test the RNA with UMIs workflow")
     .action(
       (_, config) =>
         config.copy(
-          test = RNAWithUmis
+          test = RNAWithUMIs
       )
     )
     .children(
@@ -926,7 +926,7 @@ class ConfigParser
         .optional()
         .action { (test, config) =>
           config.copy(
-            rnaWithUmisConfig = config.rnaWithUmisConfig.copy(category = test)
+            rnaWithUMIsConfig = config.rnaWithUMIsConfig.copy(category = test)
           )
         },
       opt[String]('b', "branch")
@@ -934,8 +934,8 @@ class ConfigParser
         .optional()
         .action { (branch, config) =>
           config.copy(
-            rnaWithUmisConfig =
-              config.rnaWithUmisConfig.copy(truthBranch = branch)
+            rnaWithUMIsConfig =
+              config.rnaWithUMIsConfig.copy(truthBranch = branch)
           )
         },
       opt[CromwellEnvironment]('e', "env")
@@ -945,7 +945,7 @@ class ConfigParser
         .required()
         .action { (env, config) =>
           config.copy(
-            rnaWithUmisConfig = config.rnaWithUmisConfig.copy(env = env)
+            rnaWithUMIsConfig = config.rnaWithUMIsConfig.copy(env = env)
           )
         },
       opt[Unit]("update-truth")
@@ -955,8 +955,8 @@ class ConfigParser
         .optional()
         .action { (_, config) =>
           config.copy(
-            rnaWithUmisConfig =
-              config.rnaWithUmisConfig.copy(updateTruth = true)
+            rnaWithUMIsConfig =
+              config.rnaWithUMIsConfig.copy(updateTruth = true)
           )
         },
       opt[String]("use-timestamp")
@@ -966,7 +966,7 @@ class ConfigParser
         .optional()
         .action { (timestamp, config) =>
           config.copy(
-            rnaWithUmisConfig = config.rnaWithUmisConfig
+            rnaWithUMIsConfig = config.rnaWithUMIsConfig
               .copy(useTimestamp = Option(timestamp))
           )
         },
@@ -975,8 +975,8 @@ class ConfigParser
         .optional()
         .action { (_, config) =>
           config.copy(
-            rnaWithUmisConfig =
-              config.rnaWithUmisConfig.copy(useCallCaching = false)
+            rnaWithUMIsConfig =
+              config.rnaWithUMIsConfig.copy(useCallCaching = false)
           )
         }
     )
