@@ -32,8 +32,10 @@ task DownloadGenotypes {
     String sample_alias
     String sample_lsid
     String output_vcf_base_name
-    File params_file
     Boolean compress = true
+
+    String? ignoreSpecificGenotypesLsid
+    String? ignoreSpecificGenotypesPlatform
 
     File haplotype_database_file
 
@@ -46,6 +48,11 @@ task DownloadGenotypes {
 
     Int? max_retries
     Int? preemptible_tries
+  }
+
+  parameter_meta {
+    ignoreSpecificGenotypesLsid: "Optional, MUST be specified with ignoreSpecificGenotypesPlatform. If both are defined will not download fingerprints for an LSID run on a specific genotyping platform. The intent is to ignore its own fingerprint"
+    ignoreSpecificGenotypesPlatform: "Optional, MUST be specified with ignoreSpecificGenotypesLsid. If both are defined will not download fingerprints for an LSID run on a specific genotyping platform. The intent is to ignore its own fingerprint"
   }
 
   meta {
@@ -69,12 +76,10 @@ task DownloadGenotypes {
       export MERCURY_FP_STORE_URI=https://portals.broadinstitute.org/portal-test/mercury-ws/fingerprint
     fi
 
-    grep 'REGULATORY_DESIGNATION=RESEARCH_ONLY' ~{params_file}
-    if [ $? -eq 0 ]; then
-      ADDITIONAL_PLATFORM_STRING="--EXPECTED_GENOTYPING_PLATFORMS GENERAL_ARRAY"
-    fi
-
     exit_code=0
+
+    # TODO - there is a bug in DownloadGenotypes - we should NOT have to set EXPECTED_GENOTYPING_PLATFORMS here
+    # it * should * default to all of them.
 
     java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
     DownloadGenotypes \
@@ -85,25 +90,27 @@ task DownloadGenotypes {
       --REFERENCE_SEQUENCE ~{ref_fasta} \
       --HAPLOTYPE_MAP ~{haplotype_database_file} \
       --EXPECTED_GENOTYPING_PLATFORMS FLUIDIGM \
-      $ADDITIONAL_PLATFORM_STRING \
-      --IGNORE_SPECIFIC_GENOTYPES_PLATFORM GENERAL_ARRAY \
-      --IGNORE_SPECIFIC_GENOTYPES_LSID ~{sample_lsid} \
+      --EXPECTED_GENOTYPING_PLATFORMS GENERAL_ARRAY \
+      ~{if defined(ignoreSpecificGenotypesLsid) then "--IGNORE_SPECIFIC_GENOTYPES_LSID \"" + ignoreSpecificGenotypesLsid + "\"" else ""} \
+      ~{if defined(ignoreSpecificGenotypesPlatform) then "--IGNORE_SPECIFIC_GENOTYPES_PLATFORM \"" + ignoreSpecificGenotypesPlatform + "\"" else ""} \
       --MERCURY_FP_STORE_URI $MERCURY_FP_STORE_URI \
       --CREDENTIALS_VAULT_PATH $MERCURY_AUTH_KEY \
       --ERR_NO_GENOTYPES_AVAILABLE 7
     exit_code=$?
 
-    if [ $exit_code -eq 7 ]; then
+    if [ $exit_code -eq 0 ]; then
+      echo "true" > ~{fp_retrieved_file}
+    elif [ $exit_code -eq 7 ]; then
       # Exit code from DownloadGenotypes if no fingerprints were found.
       # Treat this as a normal condition, but set a variable to indicate no fingerprints available.
       # Create empty file so that it exists.
       exit_code=0
-      echo "Found no fingerprints for ~{sample_lsid}!"
+      echo "Found no fingerprints for ~{sample_lsid}"
       echo "false" > ~{fp_retrieved_file}
       touch ~{output_vcf}
       touch ~{output_vcf_index}
     else
-      echo "true" > ~{fp_retrieved_file}
+      echo "false" > ~{fp_retrieved_file}
     fi
 
     exit $exit_code
@@ -122,7 +129,6 @@ task DownloadGenotypes {
     File reference_fingerprint_vcf_index = output_vcf_index
   }
 }
-
 
 task UploadFingerprintToMercury {
   input {

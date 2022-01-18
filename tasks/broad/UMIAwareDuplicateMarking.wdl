@@ -1,6 +1,6 @@
 version 1.0
 
-import "./RNAWithUMIsTasks.wdl" as tasks
+import "../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
 
 
 ## Copyright Broad Institute, 2021
