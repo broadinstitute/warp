@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../../pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl" as RNAWithUMIsPipeline
+import "../../../../pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl" as RNAWithUMIs
 import "../../../../pipelines/broad/qc/CheckFingerprint.wdl" as FP
 import "../../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
 import "../../../../tasks/broad/Utilities.wdl" as utils
@@ -16,7 +16,7 @@ workflow BroadInternalRNAWithUMIs {
     String sample_alias
     String sample_lsid
 
-    # RNAWithUMIsPipeline inputs
+    # RNAWithUMIs inputs
     File r1_fastq
     File r2_fastq
     String read1Structure
@@ -39,7 +39,6 @@ workflow BroadInternalRNAWithUMIs {
   File refIndex = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai" else "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta.fai"
   File refDict = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict" else "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.dict"
   File refFlat = if (reference_build == "hg19") then "gs://broad-gotc-test-storage/rna_seq/hg19/Homo_sapiens_assembly19.refFlat.txt" else "gs://broad-gotc-test-storage/rna_seq/hg38/GRCh38_gencode.v27.refFlat.txt"
-  # TODO - Need to push the hg38 haplotype db up to google bucket.
   File haplotype_database_file = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt" else "gs://broad-gotc-test-storage/rna_seq/hg38/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.haplotype_database.txt"
   File ribosomalIntervals = if (reference_build == "hg19") then "gs://broad-gotc-test-storage/rna_seq/hg19/Homo_sapiens_assembly19.rRNA.interval_list" else "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.rRNA.withMT.interval_list"
   File exonBedFile = if (reference_build == "hg19") then "gs://broad-gotc-test-storage/rna_seq/hg19/gencode.v19.hg19.insert_size_intervals_geq1000bp.bed" else "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed"
@@ -70,7 +69,7 @@ workflow BroadInternalRNAWithUMIs {
     }
   }
 
-  call RNAWithUMIsPipeline.RNAWithUMIsPipeline as RNAWithUMIsPipeline {
+  call RNAWithUMIs.RNAWithUMIsPipeline as RNAWithUMIs {
     input:
       r1_fastq = r1_fastq,
       r2_fastq = r2_fastq,
@@ -94,8 +93,8 @@ workflow BroadInternalRNAWithUMIs {
 
   call FP.CheckFingerprint as CheckFingerprint {
     input:
-      input_bam = RNAWithUMIsPipeline.output_bam,
-      input_bam_index = RNAWithUMIsPipeline.output_bam_index,
+      input_bam = RNAWithUMIs.output_bam,
+      input_bam_index = RNAWithUMIs.output_bam_index,
       sample_alias = sample_alias,
       sample_lsid = sample_lsid,
       output_basename = output_basename,
@@ -110,37 +109,37 @@ workflow BroadInternalRNAWithUMIs {
 
   call tasks.MergeMetrics {
     input:
-      alignment_summary_metrics = RNAWithUMIsPipeline.picard_alignment_summary_metrics,
-      insert_size_metrics = RNAWithUMIsPipeline.picard_insert_size_metrics,
-      picard_rna_metrics = RNAWithUMIsPipeline.picard_rna_metrics,
-      duplicate_metrics = RNAWithUMIsPipeline.duplicate_metrics,
-      rnaseqc2_metrics = RNAWithUMIsPipeline.rnaseqc2_metrics,
+      alignment_summary_metrics = RNAWithUMIs.picard_alignment_summary_metrics,
+      insert_size_metrics = RNAWithUMIs.picard_insert_size_metrics,
+      picard_rna_metrics = RNAWithUMIs.picard_rna_metrics,
+      duplicate_metrics = RNAWithUMIs.duplicate_metrics,
+      rnaseqc2_metrics = RNAWithUMIs.rnaseqc2_metrics,
       fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file,
-      output_basename = RNAWithUMIsPipeline.sample_name
+      output_basename = RNAWithUMIs.sample_name
   }
 
   output {
-    File transcriptome_bam = RNAWithUMIsPipeline.transcriptome_bam
-    File transcriptome_bam_index = RNAWithUMIsPipeline.transcriptome_bam_index
-    File transcriptome_duplicate_metrics = RNAWithUMIsPipeline.transcriptome_duplicate_metrics
-    File output_bam = RNAWithUMIsPipeline.output_bam
-    File output_bam_index = RNAWithUMIsPipeline.output_bam_index
-    File duplicate_metrics = RNAWithUMIsPipeline.duplicate_metrics
-    File rnaseqc2_gene_tpm = RNAWithUMIsPipeline.rnaseqc2_gene_tpm
-    File rnaseqc2_gene_counts = RNAWithUMIsPipeline.rnaseqc2_gene_counts
-    File rnaseqc2_exon_counts = RNAWithUMIsPipeline.rnaseqc2_exon_counts
-    File rnaseqc2_fragment_size_histogram = RNAWithUMIsPipeline.rnaseqc2_fragment_size_histogram
-    File rnaseqc2_metrics = RNAWithUMIsPipeline.rnaseqc2_metrics
-    File picard_rna_metrics = RNAWithUMIsPipeline.picard_rna_metrics
-    File picard_alignment_summary_metrics = RNAWithUMIsPipeline.picard_alignment_summary_metrics
-    File picard_insert_size_metrics = RNAWithUMIsPipeline.picard_insert_size_metrics
-    File picard_insert_size_histogram = RNAWithUMIsPipeline.picard_insert_size_histogram
-    File picard_base_distribution_by_cycle_metrics = RNAWithUMIsPipeline.picard_base_distribution_by_cycle_metrics
-    File picard_base_distribution_by_cycle_pdf = RNAWithUMIsPipeline.picard_base_distribution_by_cycle_pdf
-    File picard_quality_by_cycle_metrics = RNAWithUMIsPipeline.picard_quality_by_cycle_metrics
-    File picard_quality_by_cycle_pdf = RNAWithUMIsPipeline.picard_quality_by_cycle_pdf
-    File picard_quality_distribution_metrics = RNAWithUMIsPipeline.picard_quality_distribution_metrics
-    File picard_quality_distribution_pdf = RNAWithUMIsPipeline.picard_quality_distribution_pdf
+    File transcriptome_bam = RNAWithUMIs.transcriptome_bam
+    File transcriptome_bam_index = RNAWithUMIs.transcriptome_bam_index
+    File transcriptome_duplicate_metrics = RNAWithUMIs.transcriptome_duplicate_metrics
+    File output_bam = RNAWithUMIs.output_bam
+    File output_bam_index = RNAWithUMIs.output_bam_index
+    File duplicate_metrics = RNAWithUMIs.duplicate_metrics
+    File rnaseqc2_gene_tpm = RNAWithUMIs.rnaseqc2_gene_tpm
+    File rnaseqc2_gene_counts = RNAWithUMIs.rnaseqc2_gene_counts
+    File rnaseqc2_exon_counts = RNAWithUMIs.rnaseqc2_exon_counts
+    File rnaseqc2_fragment_size_histogram = RNAWithUMIs.rnaseqc2_fragment_size_histogram
+    File rnaseqc2_metrics = RNAWithUMIs.rnaseqc2_metrics
+    File picard_rna_metrics = RNAWithUMIs.picard_rna_metrics
+    File picard_alignment_summary_metrics = RNAWithUMIs.picard_alignment_summary_metrics
+    File picard_insert_size_metrics = RNAWithUMIs.picard_insert_size_metrics
+    File picard_insert_size_histogram = RNAWithUMIs.picard_insert_size_histogram
+    File picard_base_distribution_by_cycle_metrics = RNAWithUMIs.picard_base_distribution_by_cycle_metrics
+    File picard_base_distribution_by_cycle_pdf = RNAWithUMIs.picard_base_distribution_by_cycle_pdf
+    File picard_quality_by_cycle_metrics = RNAWithUMIs.picard_quality_by_cycle_metrics
+    File picard_quality_by_cycle_pdf = RNAWithUMIs.picard_quality_by_cycle_pdf
+    File picard_quality_distribution_metrics = RNAWithUMIs.picard_quality_distribution_metrics
+    File picard_quality_distribution_pdf = RNAWithUMIs.picard_quality_distribution_pdf
     File? picard_fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file
     File? picard_fingerprint_detail_metrics = CheckFingerprint.fingerprint_detail_metrics_file
     File unified_metrics = MergeMetrics.unified_metrics
