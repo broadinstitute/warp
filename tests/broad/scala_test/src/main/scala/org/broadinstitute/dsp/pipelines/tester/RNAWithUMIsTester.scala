@@ -6,7 +6,7 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import better.files.File
 import org.broadinstitute.dsp.pipelines.batch.WorkflowTest
-import org.broadinstitute.dsp.pipelines.config._
+import org.broadinstitute.dsp.pipelines.config.RNAWithUMIsConfig
 import org.broadinstitute.dsp.pipelines.inputs.{
   RNAWithUMIsInputs,
   RNAWithUMIsValidationInputs
@@ -17,7 +17,7 @@ class RNAWithUMIsTester(testerConfig: RNAWithUMIsConfig)(
     as: ActorSystem
 ) extends ValidationWdlTester(testerConfig) {
 
-  override val workflowName: String = "RNAWithUMIs"
+  override val workflowName: String = "RNAWithUMIsPipeline"
 
   val workflowDir
     : File = CromwellWorkflowTester.PipelineRoot / "broad" / "rna_seq"
