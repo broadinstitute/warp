@@ -48,7 +48,7 @@ The workflow takes in either a set of paired-end FASTQ files or a read group unm
 | r2_fastq | Read 2 FASTQ file; alternatively, the unmapped bam file (`bam`) may be used as input. | File |
 | read1Structure | String describing how the bases in a sequencing run should be allocated into logical reads for read 1 by fgbio's [ExtractUmisFromBam](http://fulcrumgenomics.github.io/fgbio/tools/latest/ExtractUmisFromBam.html) tool; for more information about read structures, see the [fgbio documentation](https://github.com/fulcrumgenomics/fgbio/wiki/Read-Structures).  | String |
 | read2Structure | String describing how the bases in a sequencing run should be allocated into logical reads for read 2 by fgbio's [ExtractUmisFromBam](http://fulcrumgenomics.github.io/fgbio/tools/latest/ExtractUmisFromBam.html) tool; for more information about read structures, see the [fgbio documentation](https://github.com/fulcrumgenomics/fgbio/wiki/Read-Structures).  | String |
-| starIndex | TAR file containing genome indices used for the [STAR aligner](https://github.com/alexdobin/STAR/tree/2.6.1a). | File | 
+| starIndex | TAR file containing genome indices used for the [STAR aligner](https://github.com/alexdobin/STAR). | File | 
 | output_basename | String used as a prefix in workflow output files. | String |
 | gtf | Gene annotation file (GTF) used for the [RNA-SeQC](https://github.com/getzlab/rnaseqc) tool. | File | 
 | platform | String used to describe the sequencing platform; only required when using FASTQ files as input. | String |
@@ -115,7 +115,7 @@ To see specific tool parameters, select the task WDL link in the table; then fin
 | --- | --- | --- | --- | 
 | [tasks.FastqToUbam](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | FastqToSam | [Picard](https://broadinstitute.github.io/picard/) | Converts the paired-end FASTQ files to unmapped BAM. | 
 | [tasks.ExtractUMIs](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | ExtractUmisFromBam | [fgbio](http://fulcrumgenomics.github.io/fgbio/) | Extracts UMIs from the unmapped BAM and stores them in the RX tag of output BAM. | 
-| [tasks.STAR](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | STAR | [STAR v2.6.1](https://github.com/alexdobin/STAR/tree/2.6.1a) | Aligns reads to the genome (using the StarIndex file) and outputs aligned reads to BAM. The task additionally converts the resulting BAM file to transcriptome coordinates, producing a transcriptome-aligned BAM. Parameters are listed below. |
+| [tasks.STAR](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | STAR | [STAR](https://github.com/alexdobin/STAR) | Aligns reads to the genome (using the StarIndex file) and outputs aligned reads to BAM. The task additionally converts the resulting BAM file to transcriptome coordinates, producing a transcriptome-aligned BAM. Parameters are listed below. |
 | [tasks.CopyReadGroupsToHeader](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | view, reheader | [Samtools](http://www.htslib.org/) | Copies the read group information from the genome-aligned BAM to the transcriptome-aligned BAM. |
 | [UmiMD.UMIAwareDuplicateMarking](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UMIAwareDuplicateMarking.wdl) | SortSam, MarkDuplicates, group | [Picard](https://broadinstitute.github.io/picard/), [GATK](https://gatk.broadinstitute.org/hc/en-us), [UMI_tools](https://umi-tools.readthedocs.io/en/latest/index.html) | Marks duplicates on the genome-aligned BAM and tags reads with error-corrected UMIs. | 
 | [UmiMD.UMIAwareDuplicateMarking as UMIAwareDuplicateMarkingTranscriptome](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UMIAwareDuplicateMarking.wdl) | SortSam, MarkDuplicates, group | [Picard](https://broadinstitute.github.io/picard/), [GATK](https://gatk.broadinstitute.org/hc/en-us), [UMI_tools](https://umi-tools.readthedocs.io/en/latest/index.html) | Marks duplicates on the transcriptome-aligned BAM and tags reads with error-corrected UMIs. | <!--- Cross check will go here --->
@@ -143,7 +143,7 @@ The resulting RX tag may contain information like “ACT-GCT.” The “ACT” i
 
 #### 3. Alignment with STAR
 
-After UMI extraction, the workflow aligns the paired-end reads to the reference (hg38 or hg19) using the [STAR (v2.6.1) aligner](https://github.com/alexdobin/STAR/tree/2.6.1a), which is specifically designed for RNA-seq data and is able to align cDNA sequences with many "gaps" that correspond to introns. 
+After UMI extraction, the workflow aligns the paired-end reads to the reference (hg38 or hg19) using the [STAR aligner](https://github.com/alexdobin/STAR), which is specifically designed for RNA-seq data and is able to align cDNA sequences with many "gaps" that correspond to introns. 
 
 After STAR alignment, the workflow outputs both a genome- and transcriptome-aligned BAM.
 
