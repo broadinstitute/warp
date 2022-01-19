@@ -6,13 +6,13 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import better.files.File
 import org.broadinstitute.dsp.pipelines.batch.WorkflowTest
-import org.broadinstitute.dsp.pipelines.config._
+import org.broadinstitute.dsp.pipelines.config.RNAWithUMIsConfig
 import org.broadinstitute.dsp.pipelines.inputs.{
-  RNAWithUmisInputs,
-  RNAWithUmisValidationInputs
+  RNAWithUMIsInputs,
+  RNAWithUMIsValidationInputs
 }
 
-class RNAWithUmisTester(testerConfig: RNAWithUmisConfig)(
+class RNAWithUMIsTester(testerConfig: RNAWithUMIsConfig)(
     implicit am: ActorMaterializer,
     as: ActorSystem
 ) extends ValidationWdlTester(testerConfig) {
@@ -44,7 +44,7 @@ class RNAWithUmisTester(testerConfig: RNAWithUmisConfig)(
   override protected def buildValidationWdlInputs(
       workflowTest: WorkflowTest
   ): String = {
-    val rnaWithUmisInputs = new RNAWithUmisInputs(
+    val rnaWithUmisInputs = new RNAWithUMIsInputs(
       workflowTest.runParameters.workflowInputs
     )
     val outputBaseName =
@@ -53,7 +53,7 @@ class RNAWithUmisTester(testerConfig: RNAWithUmisConfig)(
       workflowTest.runParameters.resultsCloudPath
     val truthCloudPath = workflowTest.runParameters.truthCloudPath
 
-    val validationInputs = RNAWithUmisValidationInputs(
+    val validationInputs = RNAWithUMIsValidationInputs(
       test_metrics = Array(
         resultsCloudPath.resolve(
           s"$outputBaseName.transcriptome.duplicate.metrics"),
@@ -80,12 +80,10 @@ class RNAWithUmisTester(testerConfig: RNAWithUmisConfig)(
           s"$outputBaseName.base_distribution_by_cycle_metrics")
       ),
       test_text_metrics = Array(
-        resultsCloudPath.resolve(s"$outputBaseName.metrics.tsv"),
-        resultsCloudPath.resolve(s"$outputBaseName.unified_metrics.txt")
+        resultsCloudPath.resolve(s"$outputBaseName.metrics.tsv")
       ),
       truth_text_metrics = Array(
-        truthCloudPath.resolve(s"$outputBaseName.metrics.tsv"),
-        truthCloudPath.resolve(s"$outputBaseName.unified_metrics.txt")
+        truthCloudPath.resolve(s"$outputBaseName.metrics.tsv")
       ),
       test_output_bam = resultsCloudPath.resolve(
         s"$outputBaseName.duplicate_marked.coordinate_sorted.bam"),
@@ -108,7 +106,7 @@ class RNAWithUmisTester(testerConfig: RNAWithUmisConfig)(
       truth_exon_counts =
         truthCloudPath.resolve(s"$outputBaseName.exon_reads.gct.gz")
     )
-    RNAWithUmisValidationInputs
+    RNAWithUMIsValidationInputs
       .marshall(validationInputs)
       .printWith(implicitly)
   }
