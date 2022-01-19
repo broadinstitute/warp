@@ -17,7 +17,7 @@ class RNAWithUMIsTester(testerConfig: RNAWithUMIsConfig)(
     as: ActorSystem
 ) extends ValidationWdlTester(testerConfig) {
 
-  override val workflowName: String = "RNAWithUMIsPipeline"
+  override val workflowName: String = "RNAWithUMIs"
 
   val workflowDir
     : File = CromwellWorkflowTester.PipelineRoot / "broad" / "rna_seq"
