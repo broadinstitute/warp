@@ -21,7 +21,7 @@ import "../../../../tasks/broad/Qc.wdl" as Qc
 
 workflow IlluminaGenotypingArray {
 
-  String pipeline_version = "1.12.2"
+  String pipeline_version = "1.12.3"
 
   input {
     String sample_alias
@@ -270,7 +270,6 @@ workflow IlluminaGenotypingArray {
         ref_fasta_index = ref_fasta_index,
         ref_dict = ref_dict,
         output_vcf_filename = chip_well_barcode + ".fingerprint.vcf.gz",
-        disk_size = disk_size,
         preemptible_tries = preemptible_tries
     }
 
@@ -314,7 +313,6 @@ workflow IlluminaGenotypingArray {
           ref_fasta = ref_fasta,
           ref_fasta_index = ref_fasta_index,
           ref_dict = ref_dict,
-          disk_size = disk_size,
           preemptible_tries = preemptible_tries
       }
 
