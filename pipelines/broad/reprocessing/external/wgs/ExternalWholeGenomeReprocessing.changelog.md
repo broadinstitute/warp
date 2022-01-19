@@ -1,10 +1,5 @@
-# 2.0.3
-2022-01-14
-
-* Fix issue with escaping of strings/filenames with spaces embedded that occurred on older (< 57) versions of Cromwell
-
 # 2.0.2
-2022-01-12
+2022-01-14 (Date of Last Commit)
 
 * Refactor to move CheckFingerprint functionality into new task
 

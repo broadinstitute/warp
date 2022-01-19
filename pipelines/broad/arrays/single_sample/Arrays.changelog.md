@@ -1,11 +1,12 @@
 # 2.6.3
-2022-01-14
+2022-01-18  (Date of Last Commit)
 
-* Fix issue with escaping of strings/filenames with spaces embedded that occurred on older (< 57) versions of Cromwell
+* Increase Boot disk for GATK tasks to avoid an out of disk space error
 
 # 2.6.2
-2022-01-12
+2022-01-14  (Date of Last Commit)
 
+* Fix issue with escaping of strings/filenames with spaces embedded that occurred on older (< 57) versions of Cromwell
 * Refactor to move CheckFingerprint functionality into separate task
 
 # 2.6.1
