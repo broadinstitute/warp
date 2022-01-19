@@ -381,13 +381,13 @@ task SelectVariants {
     File ref_fasta_index
     File ref_dict
 
-    Int disk_size
     Int preemptible_tries
   }
 
   String base_vcf = basename(output_vcf_filename)
   Boolean is_compressed = basename(base_vcf, "gz") != base_vcf
   String vcf_index_suffix = if is_compressed then ".tbi" else ".idx"
+  Int disk_size = 3 * ceil(size(input_vcf_file, "GiB") + size(input_vcf_index_file, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB"))
 
   command <<<
     set -eo pipefail
@@ -404,6 +404,7 @@ task SelectVariants {
 
   runtime {
     docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+    bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -440,6 +441,7 @@ task SelectIndels {
 
   runtime {
     docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+    bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -575,6 +577,7 @@ task SubsetArrayVCF {
 
   runtime {
     docker: "us.gcr.io/broad-gatk/gatk:4.1.3.0"
+    bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
   }
@@ -673,6 +676,7 @@ task ValidateVariants {
 
   runtime {
     docker: "us.gcr.io/broad-gatk/gatk:4.1.3.0"
+    bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
