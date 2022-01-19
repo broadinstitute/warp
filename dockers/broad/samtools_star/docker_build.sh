@@ -7,19 +7,22 @@ TIMESTAMP=$(date +"%s")
 DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
-GCR_URL="us.gcr.io/broad-gotc-prod/samtools"
-QUAY_URL="quay.io/broadinstitute/gotc-prod-samtools"
+GCR_URL="us.gcr.io/broad-gotc-prod/samtools-star"
+QUAY_URL="quay.io/broadinstitute/gotc-prod-samtools-star"
 
 # Samtools version
 SAMTOOLS_VERSION="1.11"
 
+# STAR version
+STAR_VERSION="2.7.10a"
+
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|tools] -- script to build the samtools image and push to GCR & Quay
+HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|tools] -- script to build the samtools/star image and push to GCR & Quay
 
 where:
     -h|--help Show help text
-    -v|--version Version of Samtools to use (default: $SAMTOOLS_VERSION)
+    -v|--version Version of STAR to use (default: $SAMTOOLS_VERSION)
     -t|--tools Show tools needed to run script
     "
 
@@ -36,7 +39,7 @@ function main(){
     key="$1"
     case $key in
         -v|--version)
-        SAMTOOLS_VERSION="$2"
+        STAR_VERSION="$2"
         shift
         shift
         ;;
@@ -54,16 +57,16 @@ function main(){
     esac
     done
     
-    IMAGE_TAG="$DOCKER_IMAGE_VERSION-$SAMTOOLS_VERSION-$TIMESTAMP"
+    IMAGE_TAG="$DOCKER_IMAGE_VERSION-$SAMTOOLS_VERSION-$STAR_VERSION-$TIMESTAMP"
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \
-        --build-arg SAMTOOLS_VERSION="$SAMTOOLS_VERSION" "$DIR" 
+        --build-arg STAR_VERSION="$STAR_VERSION" "$DIR" 
     docker push "$GCR_URL:$IMAGE_TAG"
 
-    echo "tagging and pushing Quay Image"
-    docker tag "$GCR_URL:$IMAGE_TAG" "$QUAY_URL:$IMAGE_TAG"
-    docker push "$QUAY_URL:$IMAGE_TAG"
+    #echo "tagging and pushing Quay Image"
+    #docker tag "$GCR_URL:$IMAGE_TAG" "$QUAY_URL:$IMAGE_TAG"
+    #docker push "$QUAY_URL:$IMAGE_TAG"
 
     echo -e "$GCR_URL:$IMAGE_TAG" >> "$DIR/docker_versions.tsv"
     echo "done"
