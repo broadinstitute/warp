@@ -1,3 +1,8 @@
+# 1.15.3
+2022-01-18  (Date of Last Commit)
+
+* Increase Boot disk for GATK tasks to avoid an out of disk space error
+
 # 1.15.2
 2022-01-14 (Date of Last Commit)
 
