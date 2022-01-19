@@ -20,7 +20,7 @@ import "../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
 
 workflow RNAWithUMIsPipeline {
 
-	String pipeline_version = "0.2.0"
+	String pipeline_version = "1.0.0"
 
 	input {
 		File? bam
@@ -28,9 +28,7 @@ workflow RNAWithUMIsPipeline {
 		File? r2_fastq
 		String read1Structure
 		String read2Structure
-		File starIndex
 		String output_basename
-		File gtf
 
 		# The following inputs are only required if fastqs are given as input.
 		String? platform
@@ -38,6 +36,9 @@ workflow RNAWithUMIsPipeline {
 		String? platform_unit
 		String? read_group_name
 		String? sequencing_center = "BI"
+
+		File starIndex
+		File gtf
 
 		File ref
 		File refIndex
@@ -165,20 +166,8 @@ workflow RNAWithUMIsPipeline {
 			ref_fasta_index=refIndex
 	}
 
-	# TODO: wire in fingerprint_summary_metrics once we have it. Using static example for now
-	call tasks.MergeMetrics {
-		input:
-			alignment_summary_metrics=CollectMultipleMetrics.alignment_summary_metrics,
-			insert_size_metrics=CollectMultipleMetrics.insert_size_metrics,
-			picard_rna_metrics=CollectRNASeqMetrics.rna_metrics,
-			duplicate_metrics=UMIAwareDuplicateMarking.duplicate_metrics,
-			rnaseqc2_metrics=rnaseqc2.metrics,
-			fingerprint_summary_metrics="gs://broad-gotc-test-storage/rna_seq/example.fingerprinting_summary_metrics",
-			output_basename = GetSampleName.sample_name
-	}
-
-
 	output {
+		String sample_name = GetSampleName.sample_name
 		File transcriptome_bam = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam
 		File transcriptome_bam_index = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam_index
 		File transcriptome_duplicate_metrics = UMIAwareDuplicateMarkingTranscriptome.duplicate_metrics
@@ -200,7 +189,6 @@ workflow RNAWithUMIsPipeline {
 		File picard_quality_by_cycle_pdf = CollectMultipleMetrics.quality_by_cycle_pdf
 		File picard_quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
 		File picard_quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
-		File unified_metrics = MergeMetrics.unified_metrics
 	}
 }
 
