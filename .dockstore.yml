@@ -4,6 +4,8 @@ workflows:
   - name: Optimus
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/optimus/Optimus.wdl
+    testParameterFiles:
+          -  /warp/pipelines/skylab/optimus/example_inputs/human_v3_example.json
 
   - name: Smartseq2_Multisample
     subclass: WDL
