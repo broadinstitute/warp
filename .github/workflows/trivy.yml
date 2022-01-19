@@ -20,6 +20,8 @@ jobs:
         - dockers/broad/imputation/bcftools_vcftools
         - dockers/broad/imputation/eagle
         - dockers/broad/imputation/minimac4
+        - dockers/broad/rna_seq/fgbio
+        - dockers/broad/rna_seq/umi_tools
     steps:
       - uses: actions/checkout@v2
 

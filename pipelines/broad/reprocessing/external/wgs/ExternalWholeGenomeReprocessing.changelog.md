@@ -1,3 +1,8 @@
+# 2.0.2
+2022-01-14 (Date of Last Commit)
+
+* Refactor to move CheckFingerprint functionality into new task
+
 # 2.0.1
 2021-12-09
 * Updated the base image for the Dragmap docker image

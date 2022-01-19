@@ -16,9 +16,14 @@ def generate_col_attr(args):
     qc_path = [p for p in args.qc_files if p.endswith(".csv")][0]
     with open(qc_path, 'r') as f:
         qc_values = [row for row in csv.reader(f)]
-
-    metadata_labels = qc_values[0][1:]
-    metadata_values = qc_values[2][1:]
+        n_metrics_files = len(qc_values)-2
+        metadata_labels = qc_values[0][1:]
+        metadata_values = []
+        for index_val in range(len(metadata_labels)):
+          arr_metric_val = []
+          for index_file in range(n_metrics_files):
+            arr_metric_val.append(qc_values[index_file+2][index_val+1])
+          metadata_values.append(','.join(s for s in arr_metric_val if s))
 
     cell_id = args.input_id
 

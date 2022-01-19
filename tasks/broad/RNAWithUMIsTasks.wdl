@@ -17,10 +17,10 @@ task VerifyPipelineInputs {
         String? read_group_name
         String? sequencing_center = "BI"
 
-        String docker = "python:3.7.2"
+        String docker = "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
         Int cpu = 1
-        Int memory_mb = 1000
-        Int disk_size_gb = 1
+        Int memory_mb = 2000
+        Int disk_size_gb = ceil(size(bam, "GB") + size(r1_fastq,"GB") + size(r2_fastq, "GB")) + 10
     }
 
     command <<<
@@ -49,7 +49,7 @@ task VerifyPipelineInputs {
             if fastq_flag == 1:
                 f.write("true")
             # Remaining case is that only bam is defined
-            else: 
+            else:
                 f.write("false")
 
         CODE
@@ -173,7 +173,7 @@ task FastqToUbam {
         String platform_unit
         String read_group_name
         String sequencing_center
-        
+
         String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
         Int cpu = 1
         Int memory_mb = 4000
@@ -216,7 +216,7 @@ task CopyReadGroupsToHeader {
         String docker = "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
         Int cpu = 1
         Int memory_mb = 8000
-        Int disk_size_gb = ceil(2.0 * size([bam_with_readgroups, bam_without_readgroups], "GB")) + 10 
+        Int disk_size_gb = ceil(2.0 * size([bam_with_readgroups, bam_without_readgroups], "GB")) + 10
     }
 
     String basename = basename(bam_without_readgroups)
@@ -247,7 +247,7 @@ task GetSampleName {
         Int cpu = 1
         Int memory_mb = 1000
         Int disk_size_gb = 100
-        
+
     }
 
     parameter_meta {
@@ -284,7 +284,7 @@ task rnaseqc2 {
         Int memory_mb = 10000
         Int disk_size_gb = ceil(size(bam_file, 'GB') + size(genes_gtf, 'GB')) + 100
     }
-    
+
 
     command <<<
         set -euo pipefail
@@ -400,7 +400,7 @@ task MergeMetrics {
         File picard_rna_metrics
         File duplicate_metrics
         File rnaseqc2_metrics
-        File fingerprint_summary_metrics
+        File? fingerprint_summary_metrics
         String output_basename
 
         String docker =  "python:3.8-slim"
@@ -410,7 +410,7 @@ task MergeMetrics {
     }
 
     String out_filename = output_basename + ".unified_metrics.txt"
-    
+
     command <<<
 
         #
@@ -427,7 +427,7 @@ task MergeMetrics {
         EOF
 
         #
-        # Script clean the keys, replacing space, dash and forward-slash with underscores, 
+        # Script clean the keys, replacing space, dash and forward-slash with underscores,
         # and removing comma, single quote and periods
         #
         cat <<-'EOF' > clean.py
@@ -456,9 +456,14 @@ task MergeMetrics {
                 echo "Processing RNASeQC2 Metrics"
                 cat ~{rnaseqc2_metrics} | python clean.py | awk '{print "rnaseqc2_" $0}' >> ~{out_filename}
 
-                echo "Processing Fingerprint Summary Metrics - only extracting LOD_EXPECTED_SAMPLE"
-                cat ~{fingerprint_summary_metrics} | grep -A 1 "LOD_EXPECTED_SAMPLE" | python transpose.py | grep -i "LOD_EXPECTED_SAMPLE" | awk '{print "fp_"$0}' >> ~{out_filename}
-    >>>
+                if [[ -f "~{fingerprint_summary_metrics}" ]];
+                then
+                    echo "Processing Fingerprint Summary Metrics - only extracting LOD_EXPECTED_SAMPLE"
+                    cat ~{fingerprint_summary_metrics} | grep -A 1 "LOD_EXPECTED_SAMPLE" | python transpose.py | grep -i "LOD_EXPECTED_SAMPLE" | awk '{print "fp_"$0}' >> ~{out_filename}
+                else
+                    echo "No Fingerprint Summary Metrics found."
+                    echo "fp_lod_expected_sample	" >> ~{out_filename}
+                fi    >>>
 
     runtime {
         docker: docker

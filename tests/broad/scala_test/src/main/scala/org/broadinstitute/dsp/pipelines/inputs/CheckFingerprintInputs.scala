@@ -3,7 +3,7 @@ package org.broadinstitute.dsp.pipelines.inputs
 import cats.syntax.either._
 import io.circe.parser._
 
-class RNAWithUmisInputs(inputs: String) {
+class CheckFingerprintInputs(inputs: String) {
   import org.broadinstitute.clio.JsonUtils.JsonOps
 
   private val parsed = parse(inputs).valueOr { e =>
@@ -12,4 +12,7 @@ class RNAWithUmisInputs(inputs: String) {
 
   def getBasename(workflowName: String): String =
     parsed.unsafeGet[String](s"$workflowName.output_basename")
+
+  def getSampleAlias(workflowName: String): String =
+    parsed.unsafeGet[String](s"$workflowName.sample_alias")
 }
