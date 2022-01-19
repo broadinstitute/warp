@@ -13,6 +13,7 @@ WORKDIR /usr/gitc
 
 # Install dependencies 
 RUN set -eux; \
+        apk upgrade; \
         apk add --no-cache \
             autoconf \
             automake \
