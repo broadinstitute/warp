@@ -67,6 +67,9 @@ object CromwellWorkflowTester {
         new AllOfUsTester(config.germlineCloudConfig)
       case AnnotationFiltration =>
         new AnnotationFiltrationTester(config.annotationFiltrationConfig)
+      case BroadInternalRNAWithUMIs =>
+        new BroadInternalRNAWithUMIsTester(
+          config.broadInternalRNAWithUMIsConfig)
       case CheckFingerprint =>
         new CheckFingerprintTester(config.checkFingerprintConfig)
       case CramToUnmappedBams =>
@@ -95,8 +98,8 @@ object CromwellWorkflowTester {
         new IlluminaGenotypingArrayTester(config.illuminaGenotypingArrayConfig)
       case Imputation =>
         new ImputationTester(config.imputationConfig)
-      case RNAWithUmis =>
-        new RNAWithUmisTester(config.rnaWithUmisConfig)
+      case RNAWithUMIs =>
+        new RNAWithUMIsTester(config.rnaWithUMIsConfig)
       case SomaticSingleSample =>
         new SomaticSingleSampleTester(config.somaticCloudWorkflowConfig)
       case VariantCalling =>
