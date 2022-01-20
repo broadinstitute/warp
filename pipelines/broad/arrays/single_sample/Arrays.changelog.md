@@ -1,3 +1,8 @@
+# 2.6.4
+2022-01-19  (Date of Last Commit)
+
+* Update version of gatk in used in tasks in IlluminaGenotypingArray WDL to 4.2.4.1 (updated to log4j 2.17.1)
+
 # 2.6.3
 2022-01-18  (Date of Last Commit)
 
