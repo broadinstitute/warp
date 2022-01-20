@@ -14,7 +14,7 @@ case class ArraysConfig(
     env: CromwellEnvironment = CromwellEnvironment.Dev,
     useCallCaching: Boolean = true,
     updateTruth: Boolean = false,
-    truthBranch: String = "develop",
+    truthBranch: String = "master",
     papiVersion: PapiVersion = PAPIv2,
     useTimestamp: Option[String] = None
 ) extends BaseConfig

@@ -10,7 +10,7 @@ import org.broadinstitute.dsp.pipelines.commandline.{
 
 case class GermlineCloudWorkflowConfig(
     category: WorkflowTestCategory = WorkflowTestCategory.Plumbing,
-    truthBranch: String = "develop",
+    truthBranch: String = "master",
     dataType: DataType = DataType.WGS,
     useTimestamp: Option[String] = None,
     useCallCaching: Boolean = true,
