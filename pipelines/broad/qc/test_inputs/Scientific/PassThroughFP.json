@@ -1,0 +1,16 @@
+{
+  "CheckFingerprint.sample_alias": "S8 N4B3GY",
+  "CheckFingerprint.output_basename": "S8_N4B3GY",
+
+  "CheckFingerprint.read_fingerprint_from_mercury": false,
+  "CheckFingerprint.fingerprint_genotypes_vcf": "gs://broad-gotc-test-storage/qc/check_fingerprint/inputs/fingerprint_vcfs/S8_N4B3GY.reference.fingerprint.vcf.gz",
+  "CheckFingerprint.fingerprint_genotypes_vcf_index": "gs://broad-gotc-test-storage/qc/check_fingerprint/inputs/fingerprint_vcfs/S8_N4B3GY.reference.fingerprint.vcf.gz.tbi",
+
+  "CheckFingerprint.ref_fasta": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",
+  "CheckFingerprint.ref_fasta_index": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai",
+  "CheckFingerprint.ref_dict": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict",
+  "CheckFingerprint.haplotype_database_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt",
+
+  "CheckFingerprint.vault_token_path": "{VAULT_TOKEN_PATH}",
+  "CheckFingerprint.environment": "{ENV}"
+}

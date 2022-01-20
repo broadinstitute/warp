@@ -1,0 +1,18 @@
+{
+  "BroadInternalRNAWithUMIs.sample_lsid": "broadinstitute.org:bsp.prod.sample:HFCB1",
+  "BroadInternalRNAWithUMIs.output_basename": "SM-HFCB1_100ng_.65X_A3",
+
+  "BroadInternalRNAWithUMIs.reference_build": "hg19",
+
+  "BroadInternalRNAWithUMIs.r1_fastq": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/plumbing/inputs/SM-HFCB1_100ng_.65X_A3_read1_plumbing.fastq",
+  "BroadInternalRNAWithUMIs.r2_fastq": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/plumbing/inputs/SM-HFCB1_100ng_.65X_A3_read2_plumbing.fastq",
+  "BroadInternalRNAWithUMIs.read1Structure": "3M2S146T",
+  "BroadInternalRNAWithUMIs.read2Structure": "3M2S146T",
+  "BroadInternalRNAWithUMIs.library_name": "SM-HFCB1_100ng_.65X_A3",
+  "BroadInternalRNAWithUMIs.platform": "ILLUMINA",
+  "BroadInternalRNAWithUMIs.platform_unit": "barcode1",
+  "BroadInternalRNAWithUMIs.read_group_name": "RG1",
+
+  "BroadInternalRNAWithUMIs.vault_token_path": "{VAULT_TOKEN_PATH}",
+  "BroadInternalRNAWithUMIs.environment": "{ENV}"
+}
