@@ -27,9 +27,12 @@ class CheckFingerprintTester(testerConfig: CheckFingerprintConfig)(
   override protected val validationWorkflowName: String =
     "VerifyCheckFingerprint"
 
-  // Validation uses the same options as the arrays workflow
-  override protected lazy val validationWdlOptions: String = {
-    readTestOptions(releaseDir, env)
+  override protected lazy val googleProject: String = {
+    if (env.picardEnv.equals("dev")) {
+      s"broad-gotc-${env.picardEnv}"
+    } else {
+      s"broad-arrays-${env.picardEnv}"
+    }
   }
 
   protected lazy val resultsPrefix: URI = {
