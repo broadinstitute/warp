@@ -1,3 +1,8 @@
+# 1.12.4
+2022-01-19  (Date of Last Commit)
+
+* Update version of gatk in used in SubsetArrayVCF to 4.2.4.1 (updated to log4j 2.17.1)
+
 # 1.12.3
 2022-01-18  (Date of Last Commit)
 
