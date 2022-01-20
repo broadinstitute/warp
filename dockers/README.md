@@ -45,7 +45,7 @@ There are some instances where a Debian base image is unavoidable, specifically 
 FROM python:debian
 
 RUN set -eux; \
-        apt-get-update; \
+        apt-get update; \
         apt-get install -y \
             curl \
             bash \
