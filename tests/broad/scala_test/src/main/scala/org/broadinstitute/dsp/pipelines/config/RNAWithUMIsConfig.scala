@@ -7,7 +7,7 @@ import org.broadinstitute.dsp.pipelines.commandline.{
   WorkflowTestCategory
 }
 
-case class RNAWithUmisConfig(
+case class RNAWithUMIsConfig(
     category: WorkflowTestCategory = WorkflowTestCategory.Plumbing,
     truthBranch: String = "master",
     useTimestamp: Option[String] = None,

@@ -1,5 +1,11 @@
+# 3.0.3
+2022-01-20 (Date of Last Commit)
+
+* Increased the disk space in CalibrateDragstrModel task
+
 # 3.0.2
 2022-01-14 (Date of Last Commit)
+
 * Refactor to move CheckFingerprint functionality into new task
 
 # 3.0.1
@@ -8,6 +14,7 @@
 * Updated broken dependency in VerifyBamID docker image
 
 # 3.0.0
+
 2021-11-15
 
 * Added an optional step to reblock gVCFs, this step is included by default
