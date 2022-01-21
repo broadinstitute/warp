@@ -14,9 +14,11 @@ sidebar_position: 1
 
 The [RNA with UMIs pipeline](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl) is an open-source, cloud-optimized workflow for processing total RNA isolated with the Transcriptome Capture (TCap) method. TCap is a technique that hybridizes exome baits to cDNA library preparations to better facilitate RNA-sequencing in low-input or poor quality (degraded) samples. These libraries may additionally be prepared with Unique Molecular Identifiers (UMIs) which can help distinguish biological signal from noise resulting from PCR amplification. 
 
-Overall, the workflow performs UMI correction, aligns reads to the genome, quantifies gene counts, and calculates quality metrics. The workflow produces genome- and transcriptome-aligned BAMs with indices and a merged quality metrics file. 
+Overall, the workflow performs UMI correction, aligns reads to the genome, quantifies gene counts, and calculates quality metrics. The workflow produces genome- and transcriptome-aligned BAMs with indices and a quality metrics files. 
 
 While this workflow was created to be used with TCap RNA-seq data, it can be used to process any bulk RNA-seq data. 
+
+<!--- add comment about validation of the pipeline --->
 
 <!--- tip for methods section will go here --->
 
@@ -29,6 +31,8 @@ While this workflow was created to be used with TCap RNA-seq data, it can be use
 To download the latest release of the RNA with UMIs pipeline, see the release tags prefixed with "RNAwithUMIs" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All releases of the RNA with UMIs pipeline are documented in the [RNA with UMIs changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/rna_seq/RNAWithUMIsPipeline.changelog.md). 
 
 To search releases of this and other pipelines, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
+
+<!--- add comment about running an old version of the workflow --->
 
 The RNA with UMIs pipeline can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. The workflow can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. 
 <!--- link to public workspace will go here --->
@@ -48,14 +52,14 @@ The workflow takes in either a set of paired-end FASTQ files or a read group unm
 | r2_fastq | Read 2 FASTQ file; alternatively, the unmapped bam file (`bam`) may be used as input. | File |
 | read1Structure | String describing how the bases in a sequencing run should be allocated into logical reads for read 1 by fgbio's [ExtractUmisFromBam](http://fulcrumgenomics.github.io/fgbio/tools/latest/ExtractUmisFromBam.html) tool; for more information about read structures, see the [fgbio documentation](https://github.com/fulcrumgenomics/fgbio/wiki/Read-Structures).  | String |
 | read2Structure | String describing how the bases in a sequencing run should be allocated into logical reads for read 2 by fgbio's [ExtractUmisFromBam](http://fulcrumgenomics.github.io/fgbio/tools/latest/ExtractUmisFromBam.html) tool; for more information about read structures, see the [fgbio documentation](https://github.com/fulcrumgenomics/fgbio/wiki/Read-Structures).  | String |
-| starIndex | TAR file containing genome indices used for the [STAR aligner](https://github.com/alexdobin/STAR). | File | 
 | output_basename | String used as a prefix in workflow output files. | String |
-| gtf | Gene annotation file (GTF) used for the [RNA-SeQC](https://github.com/getzlab/rnaseqc) tool. | File | 
 | platform | String used to describe the sequencing platform; only required when using FASTQ files as input. | String |
 | library_name | String used to describe the library; only required when using FASTQ files as input. | String |
 | platform_unit | String used to describe the platform unit; only required when using FASTQ files as input. | String |
 | read_group_name | String used to describe the read group name; only required when using FASTQ files as input. | String |
 | sequencing_center | String used to describe the sequencing center; only required when using FASTQ files as input; default is set to “BI”. |  String |
+| starIndex | TAR file containing genome indices used for the [STAR aligner](https://github.com/alexdobin/STAR). | File | 
+| gtf | Gene annotation file (GTF) used for the [RNA-SeQC](https://github.com/getzlab/rnaseqc) tool. | File | 
 | ref | FASTA file used for metric collection with [Picard](https://broadinstitute.github.io/picard/) tools. | File |
 | refIndex | FASTA index file used for metric collection with [Picard](https://broadinstitute.github.io/picard/) tools. | File |
 | refDict | Dictionary file used for metric collection with [Picard](https://broadinstitute.github.io/picard/) tools. | File |
@@ -123,7 +127,6 @@ To see specific tool parameters, select the task WDL link in the table; then fin
 | [tasks.rnaseqc2](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | rnaseqc | [RNA-SeQC](https://github.com/getzlab/rnaseqc) | Uses the genome-aligned, duplicate-marked BAM file to calculate TPMs, gene counts, exon counts, fragment sizes, and additional metrics, each of which is outputted to an individual file. |
 | [tasks.CollectRNASeqMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | CollectRNASeqMetrics | [Picard](https://broadinstitute.github.io/picard/) | Calculates RNA metrics; strand specificity is set to SECOND_READ_TRANSCRIPTION_STRAND. |
 | [tasks.CollectMultipleMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | CollectMultipleMetrics | [Picard](https://broadinstitute.github.io/picard/) | Collects multiple classes of metrics; runs tools CollectInsertSizeMetrics and CollectAlignmentSummaryMetrics. |
-| [tasks.MergeMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/RNAWithUMIsTasks.wdl) | --- | --- | Merges the metrics from Picard and RNA-SeQC. |
 
 #### 1. Convert FASTQ to uBAM
 
@@ -161,7 +164,9 @@ After duplicate reads have been tagged, the workflow uses [RNA-SeQC](https://git
 
 #### 6. Metric calculation
 
-The pipeline uses [RNA-SeQC](https://github.com/getzlab/rnaseqc), Picard’s [CollectRNASeqMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037057492-CollectRnaSeqMetrics-Picard-), and Picard’s [CollectMultipleMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037594031-CollectMultipleMetrics-Picard-) to calculate summary metrics that can be used to assess the quality of the data each time the pipeline is run. The resulting metrics are output to several individual files and merged together to create the `MergeMetrics.unified_metrics` output file. 
+The pipeline uses [RNA-SeQC](https://github.com/getzlab/rnaseqc), Picard’s [CollectRNASeqMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037057492-CollectRnaSeqMetrics-Picard-), and Picard’s [CollectMultipleMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037594031-CollectMultipleMetrics-Picard-) to calculate summary metrics that can be used to assess the quality of the data each time the pipeline is run. 
+
+If you are a member of the Broad Institute's Genomics Platform using the [internal RNA with UMIs pipeline](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/internal/rna_seq/BroadInternalRNAWithUMIs.wdl), there is an additional step which merges the individual metrics files together to create the `MergeMetrics.unified_metrics` output file and prepare the data for use in the Terra Data Repository.
 
 #### 7. Outputs
 
@@ -170,6 +175,7 @@ Workflow outputs are described in the table below.
 
 | Output variable name | Description | Type | 
 | ------ | ------ | ------ |
+| sample_name | Sample name extracted from the input unmapped BAM file header. | String
 | transcriptome_bam | Duplicate-marked BAM file containing alignments from STAR translated into transcriptome coordinates. | BAM |
 | transcriptome_bam_index | Index file for the transcriptome_bam output. | BAM Index |
 | transcriptome_duplicate_metrics | File containing duplication metrics. | TXT | 
@@ -180,7 +186,7 @@ Workflow outputs are described in the table below.
 | rnaseqc2_gene_counts | File containing gene counts. | GCT |
 | rnaseqc2_exon_counts | File containing exon counts. | GCT |
 | rnaseqc2_fragment_size_histogram | File containing counts of observed fragment size. | TXT |
-| rnaseqc2_metrics | File containing RNA-SeQC metrics including strand specificity, 3’/5’ bias, rRNA reads, and others | TSV |
+| rnaseqc2_metrics | File containing RNA-SeQC metrics including strand specificity, 3’/5’ bias, rRNA reads, and others. | TSV |
 | picard_rna_metrics | Metrics file containing the output of Picard’s CollectRnaSeqMetrics tool. | TXT |
 | picard_alignment_summary_metrics | Metrics file containing output of Picard’s CollectAlignmentSummaryMetrics tool. | TXT |
 | picard_insert_size_metrics | Metrics file containing output of Picard’s CollectInsertSizeMetrics tool. | TXT |
@@ -189,8 +195,8 @@ Workflow outputs are described in the table below.
 | picard_base_distribution_by_cycle_pdf | Chart of nucleotide distribution per cycle. | PDF |
 | picard_quality_by_cycle_metrics | Metrics file containing the output of Picard’s MeanQualityByCycle tool. | TXT |
 | picard_quality_by_cycle_pdf | Chart of mean quality by cycle. | PDF |
-| picard_quality_distribution_metrics | Metrics file containing the output of Picard’s QualityScoreDistribution tool.
-| unified_metrics | Merged metrics file containing RNA-SeQC, Picard RNA-seq, Picard insert size, and Picard alignment metrics. | TXT |
+| picard_quality_distribution_metrics | Metrics file containing the output of Picard’s QualityScoreDistribution tool. | TXT |
+| picard_quality_distribution_pdf | Chart of quality score distribution. | PDF |
 
 <!--- Validation will go here --->
 
@@ -198,6 +204,10 @@ Workflow outputs are described in the table below.
 
 All RNA with UMIs pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/rna_seq/RNAWithUMIsPipeline.changelog.md).
 
+<!--- citing the pipeline will go here --->
+
 ## Feedback
 
 Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+
+<!--- FAQs will go here --->
