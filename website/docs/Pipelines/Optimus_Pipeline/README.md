@@ -63,8 +63,7 @@ Additionally, there are multiple full-size example datasets available in the [te
 
 #### Sample data input
 
-Each 10x v2 and v3 3’ sequencing experiment generates triplets of FASTQ files for any given sample. Optimus takes the FASTQs list below as input. The pipeline is optimized for samples under 100 GB. To run larger samples, increasing the memory (the `machine_mem_mb` attribute) on the STARsoloFastq task. 
-. 
+Each 10x v2 and v3 3’ sequencing experiment generates triplets of FASTQ files for any given sample. Optimus takes the FASTQs list below as input. The pipeline is optimized for samples under 100 GB. To run larger samples, increasing the memory (the `machine_mem_mb` attribute) on the STARsoloFastq task.
 
 1. Forward reads (`r1_fastq`) containing the unique molecular identifier (UMI) and cell barcode sequences
 2. Reverse reads (`r2_fastq`) containing the alignable genomic information from the mRNA transcript
@@ -124,7 +123,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | ------------------------------------ | 
-| [StarAlign.STARsoloFastq (alias = STARsoloFastq)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | STAR | [Star v2.7.9a]((https://github.com/alexdobin/STAR) | Uses the input FASTQ files to perform cell barcode correction, adaptor trimming, alignment, gene annotation, UMI correction, and gene counting. |
+| [StarAlign.STARsoloFastq (alias = STARsoloFastq)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | STAR | [Star v2.7.9a](https://github.com/alexdobin/STAR) | Uses the input FASTQ files to perform cell barcode correction, adaptor trimming, alignment, gene annotation, UMI correction, and gene counting. |
 | [Metrics.CalculateGeneMetrics (alias = GeneMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | sctools | Sorts the BAM file by gene using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes gene metrics. | 
 | [Metrics.CalculateCellMetrics (alias = CellMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | sctools | Sorts the BAM file by cell using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes cell metrics. |
 | [StarAlign.ConvertStarOutput (alias = ConvertOutputs)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | create-npz-output.py | Python3 | Creates a compressed raw NPY or NPZ file containing the STARsolo output features (NPY), barcodes (NPZ) and counts (NPZ). | 
@@ -137,13 +136,13 @@ More information about the different tags used to flag the data can be found in 
 
 #### 1. CB correction, read trimming, alignment, gene annotation, UMI correction, and gene counting
 
-The [STARsoloFastq task]((https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) task uses the array of forward and reverse read FASTQ files to perform cell barcode correction, alignment, gene annotation, and counting. 
+The [STARsoloFastq task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) task uses the array of forward and reverse read FASTQ files to perform cell barcode correction, alignment, gene annotation, and counting. 
 
 **CB correction**
 
 Although the function of the CBs is to identify unique cells, barcode errors can arise during sequencing, such as the incorporation of the barcode into contaminating DNA or sequencing and PCR errors. This makes it difficult to distinguish unique cells from artifactual appearances of the barcode. The STARsoloFastq task uses the STAR aligner to evaluate barcode errors by comparing the R1 FASTQ sequences against a 10x chemistry-specific whitelist of known barcode sequences. 
 
-Corrected barcodes are those that come within one edit distance ([Hamming  distance](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5410656/) of matching the whitelist of barcode sequences. This is specified in the STAR parameter  `--soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts`, which allows multiple matches in the whitelist with 1 mismatched base and uses posterior probability calculation to choose one of the matches. Additionally, it adds pseudocounts of 1 to all whitelist barcodes and allows multi-matching of CBs with N-bases to the whitelist.
+Corrected barcodes are those that come within one edit distance ([Hamming  distance](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5410656/)) of matching the whitelist of barcode sequences. This is specified in the STAR parameter  `--soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts`, which allows multiple matches in the whitelist with 1 mismatched base and uses posterior probability calculation to choose one of the matches. Additionally, it adds pseudocounts of 1 to all whitelist barcodes and allows multi-matching of CBs with N-bases to the whitelist.
 
 Correct barcodes are assigned a “CB” tag in the BAM. Uncorrectable barcodes (with more than one error) are preserved and given a “CR” (Cell barcode Raw) tag. Cell barcode quality scores are also preserved in the file under the “CY” tag. 
 
@@ -256,7 +255,7 @@ All Optimus pipeline releases are documented in the [Optimus changelog](https://
 Please identify the pipeline in your methods section using the Optimus Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_018908/resolver?q=SCR_018908&l=SCR_018908).
 * Ex: *Optimus Pipeline (RRID:SCR_018908)*
 
-## Consortia Support 
+## Consortia Support
 This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project and the[BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
 
 If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org).
