@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [MultiSampleSmartSeq2SingleNuclei_v1.1.0.](https://github.com/broadinstitute/warp/releases) | January, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [MultiSampleSmartSeq2SingleNuclei_v1.2.0.](https://github.com/broadinstitute/warp/releases) | January, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![](./snSS2.png)
 
@@ -63,34 +63,46 @@ The table below details the Multi-snSS2 inputs. The pipeline is designed to take
 
 | Input Name | Input Description | Input Format |
 | --- | --- | --- |
+| genome_ref_fasta | FASTA file used for the [STAR aligner](https://github.com/alexdobin/STAR). | File | 
+| tar_star_reference | TAR file containing genome indices used for the [STAR aligner](https://github.com/alexdobin/STAR). | File |
+| annotations_gtf | Custom GTF file containing annotations for exon and intron tagging; must match `tar_star_reference`. | File |
+| adapter_list | FASTA file containing adapter sequences used in the library preparation (i.e. Illumina adapters for Illumina sequencing). | File | 
+| input_ids | Unique identifiers or names for each cell; can be a UUID or human-readable name. | Array of strings |
+| input_names | Optional unique identifiers/names to further describe each cell. If `input_ids` is a UUID, the `input_names` could be used as a human-readable identifier. | Array of strings |
 | fastq1_input_files | Cloud path to FASTQ files containing forward paired-end sequencing reads for each cell (sample); order must match the order in input_id. | Array of strings |
 | fastq2_input_files | Cloud path to FASTQ files containing reverse paired-end sequencing reads for each cell (sample); order must match the order in input_id. | Array of strings |
-| input_ids | Unique identifiers or names for each cell; can be a UUID or human-readable name. | Array of strings |
-| input_names | Optional unique identifiers/names to further describe each cell. If `input_ids` is a UUID, the `input_names` could be used as a human-readable identifier. | String |
 | batch_id | Identifier for the batch of multiple samples. | String |
 | batch_name | Optional string to describe the batch or biological sample. | String |
+| project_id | Optional project identifier; usually a number. | Array of strings |
+| project_name | Optional project identifier; usually a human-readable name. | Array of strings |
+| library | Optional description of the sequencing method or approach. | Array of strings |
+| organ | Optional description of the organ from which the cells were derived. | Array of strings |
+| species | Optional description of the species from which the cells were derived. | Array of strings |
 | input_name_metadata_field | Optional input describing, when applicable, the metadata field containing the `input_names`. | String |
 | input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the `input_ids`. | String |
-| project_id | Optional project identifier; usually a number. | String |
-| project_name | Optional project identifier; usually a human-readable name. | String |
-| library | Optional description of the sequencing method or approach. | String |
-| organ | Optional description of the organ from which the cells were derived. | String |
-| species | Optional description of the species from which the cells were derived. | String |
-| tar_star_reference | Genome references for STAR alignment. | TAR |
-| annotations_gtf | Custom GTF file containing annotations for exon and intron tagging; must match the STAR reference. | GTF | 
-| genome_ref_fasta | FASTA file used for STAR alignment. | FASTA | 
-| adapter_list | File listing adapter sequences used in the library preparation (i.e. Illumina adapters for Illumina sequencing). | FASTA | 
 
-## Running Multi-snSS2
+## Multi-snSS2 tasks and tools
 
-The [Multi-snSS2 workflow ](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl) is in the [pipelines/smartseq2_single_nucleus folder](https://github.com/broadinstitute/warp/tree/snSS2_first_wdls/pipelines/skylab/smartseq2_single_nucleus) of the WARP repository and implements the workflow by importing individual tasks (written in WDL script) from the WARP [tasks folder](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/).
+The [Multi-snSS2 workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.wdl) imports individual "tasks" (written in WDL script) from the WARP [tasks folder](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/).
+
+Overall, the Multi-snSS2 workflow:
+1. Trims adapters.
+1. Aligns reads.
+1. Removes duplicate reads.
+1. Calculates metrics.
+1. Quantifies gene counts.
+1. Merges exon counts, intron counts, and metrics into a Loom-formatted matrix.
+
+The tools each task employs in the Multi-snSS2 workflow are detailed in the table below. 
+
+To see specific tool parameters, select the task WDL link in the table; then view the `command {}` section of the task WDL script. To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `# runtime values` section as `String docker =`.
 
 ### Multi-snSS2 workflow summary
-| Task name and task’s WDL link | Description | Software | Tool |
+| Task name and WDL link | Tool | Software | Description |
 | --- | --- | --- | --- |
-| [CheckInputs.checkInputArrays](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/CheckInputs.wdl) | Checks the inputs and initiates the per cell processing. | Bash | NA | 
-| [TrimAdapters.TrimAdapters](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/TrimAdapters.wdl) | Trims adapter sequences from the FASTQ inputs | [ea-utils](https://github.com/ExpressionAnalysis/ea-utils). | [fastq-mcf](https://github.com/ExpressionAnalysis/ea-utils/tree/master/clipper) |
-| [StarAlign.StarAlignFastqMultisample](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/StarAlign.wdl) | Aligns reads to the genome. | STAR | STAR |
+| [CheckInputs.checkInputArrays](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CheckInputs.wdl) | --- | Bash | Checks the inputs and initiates the per cell processing.  | 
+| [TrimAdapters.TrimAdapters](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/TrimAdapters.wdl) | [fastq-mcf](https://github.com/ExpressionAnalysis/ea-utils/tree/master/clipper) | [ea-utils](https://github.com/ExpressionAnalysis/ea-utils) | Trims adapter sequences from the FASTQ inputs |
+| [StarAlign.StarAlignFastqMultisample](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/StarAlign.wdl) | STAR | [STAR](https://github.com/alexdobin/STAR) | Aligns reads to the genome. |
 | [Picard.RemoveDuplicatesFromBam](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/Picard.wdl) | Removes duplicate reads, producing a new BAM output; adds regroups to deduplicated BAM. | Picard | MarkDuplicates, AddOrReplaceReadGroups |
 | [Picard.CollectMultipleMetricsMultiSample](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/Picard.wdl) | Collects QC metrics on the deduplicated BAM files. | Picard | CollectMultipleMetrics |
 | [CountAlignments.CountAlignments](https://github.com/broadinstitute/warp/tree/develop/tasks/skylab/FeatureCounts.wdl) | Uses a custom GTF with featureCounts and Python to mark introns, create a BAM that has alignments spanning intron-exon junctions removed, and counts exons using the custom BAM and by excluding intron tags. | [Subread](http://subread.sourceforge.net/) | [FeatureCounts](http://bioinf.wehi.edu.au/featureCounts/), Python 3 | 
