@@ -63,7 +63,7 @@ The table below details the Multi-snSS2 inputs. The pipeline is designed to take
 
 | Input Name | Input Description | Input Format |
 | --- | --- | --- |
-| genome_ref_fasta | FASTA file used for the [STAR aligner](https://github.com/alexdobin/STAR). | File | 
+| genome_ref_fasta | FASTA file used for metric collection by [Picard](https://broadinstitute.github.io/picard/). | File |
 | tar_star_reference | TAR file containing genome indices used for the [STAR aligner](https://github.com/alexdobin/STAR). | File |
 | annotations_gtf | Custom GTF file containing annotations for exon and intron tagging; must match `tar_star_reference`. | File |
 | adapter_list | FASTA file containing adapter sequences used in the library preparation (i.e. Illumina adapters for Illumina sequencing). | File | 
