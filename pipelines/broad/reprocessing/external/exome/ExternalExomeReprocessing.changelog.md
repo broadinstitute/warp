@@ -1,3 +1,12 @@
+# 3.0.3
+2022-01-20 (Date of Last Commit)
+
+* Increased the disk space in CalibrateDragstrModel task
+# 3.0.2
+2022-01-14 (Date of Last Commit)
+
+* Increased the disk space in CalibrateDragstrModel task
+
 # 3.0.1
 2021-12-09
 * Updated the base image for the Dragmap docker image

@@ -1,7 +1,17 @@
+# 2.0.3
+2022-01-20 (Date of Last Commit)
+
+* Increased the disk space in CalibrateDragstrModel task
+# 2.0.2
+2022-01-14 (Date of Last Commit)
+
+* Task wdls used by VariantCalling were updated with changes that don't affect VariantCalling wdl
+
 # 2.0.1
 2021-12-9
 
 * Updated broken dependency in VerifyBamID docker image
+
 # 2.0.0
 2021-11-15
 
