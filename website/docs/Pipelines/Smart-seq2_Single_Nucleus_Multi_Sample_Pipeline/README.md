@@ -130,7 +130,19 @@ Lastly, featureCounts uses the intermediate BAM with junctions removed to count 
 #### 6. Creating the cell-by-gene matrix (Loom)
 The LoomUtils task combines the Picard metrics (alignment_summary_metrics, deduplication metrics, and the G/C bias summary metrics) with the featureCount exon and intron counts to create a Loom formatted cell-by-gene count matrix. 
 
-Exonic counts are stored in the main Loom matrix which is unnamed by default and can be accessed using Loompy's `layers()` method. For example, `loompy.connect.layers[“”]` will return the exonic counts from the output Loom file. Intronic counts are stored in the Loom file as an additional layer which is named `intron_counts`. Intronic counts can be accessed in a similar manner, where `loompy.connect.layers[“intron_counts”]` will return the intronic counts from the output Loom file. To read more about the Loom file format and use of layers, see the [Loompy documentation](https://linnarssonlab.org/loompy/index.html).
+Exonic counts are stored in the main Loom matrix which is unnamed by default. The exonic counts are the default return value of `loompy.connect()`, but can also be accessed using Loompy's `layers()` method. For example, `loompy.connect.layers[“”]` will return the exonic counts from the output Loom file. Intronic counts are stored in the Loom file as an additional layer which is named `intron_counts`. Intronic counts can be accessed in a similar manner, where `loompy.connect.layers[“intron_counts”]` will return the intronic counts from the output Loom file. Whole gene counts (which include both intronic and exonic counts) can be accessed by adding the intronic and exonic counts together. 
+
+The code block below demonstrates how to access exonic, intronic, and whole gene counts from the output Loom file using Loompy:
+
+```python
+import loompy
+ds = loompy.connect("/PATH/TO/File.loom")
+count_exons = ds[:,:] #geneXcell table for the exonic read counts
+count_introns = ds.layer["intron_counts"] #geneXcell table for the intronic read counts
+gene_counts = count_exons + count_introns
+```
+
+To read more about the Loom file format and use of layers, see the [Loompy documentation](https://linnarssonlab.org/loompy/index.html).
 
 #### 7. Outputs
 
@@ -162,6 +174,3 @@ If your organization also uses this pipeline, we would love to list you! Please 
 
 ## Feedback
 Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
-
-
-
