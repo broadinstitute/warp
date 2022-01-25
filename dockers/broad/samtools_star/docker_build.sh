@@ -64,9 +64,9 @@ function main(){
         --build-arg STAR_VERSION="$STAR_VERSION" "$DIR" 
     docker push "$GCR_URL:$IMAGE_TAG"
 
-    #echo "tagging and pushing Quay Image"
-    #docker tag "$GCR_URL:$IMAGE_TAG" "$QUAY_URL:$IMAGE_TAG"
-    #docker push "$QUAY_URL:$IMAGE_TAG"
+    echo "tagging and pushing Quay Image"
+    docker tag "$GCR_URL:$IMAGE_TAG" "$QUAY_URL:$IMAGE_TAG"
+    docker push "$QUAY_URL:$IMAGE_TAG"
 
     echo -e "$GCR_URL:$IMAGE_TAG" >> "$DIR/docker_versions.tsv"
     echo "done"
