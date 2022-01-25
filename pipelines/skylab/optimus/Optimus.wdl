@@ -1,14 +1,12 @@
 version 1.0
 
-#import "../../../tasks/skylab/
-
-import "FastqProcessing.wdl" as FastqProcessing
-import "StarAlign.wdl" as StarAlign
-import "Metrics.wdl" as Metrics
-import "RunEmptyDrops.wdl" as RunEmptyDrops
-import "LoomUtils.wdl" as LoomUtils
-import "OptimusInputChecks.wdl" as OptimusInputChecks
-import "MergeSortBam.wdl" as Merge
+import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
+import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
+import "../../../tasks/skylab/Metrics.wdl" as Metrics
+import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
+import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
+import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 
 workflow Optimus {
   meta {
