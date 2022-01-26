@@ -1,3 +1,8 @@
+# 1.0.1
+2022-01-25 (Date of Last Commit)
+
+* Updated STAR aligner to 2.7.10a for RNAWithUMIs pipeline
+
 # 1.0.0
 2022-01-18 (Date of Last Commit)
 
