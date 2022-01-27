@@ -1,3 +1,8 @@
+# 1.0.2
+2022-01-27 (Date of Last Commit)
+
+* Updated SortSam task to be able to use call caching
+
 # 1.0.1
 2022-01-25 (Date of Last Commit)
 
