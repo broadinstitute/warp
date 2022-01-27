@@ -8,43 +8,61 @@ import better.files.File
 import org.broadinstitute.dsp.pipelines.batch.WorkflowTest
 import org.broadinstitute.dsp.pipelines.config._
 import org.broadinstitute.dsp.pipelines.inputs.{
-  RNAWithUmisInputs,
-  RNAWithUmisValidationInputs
+  RNAWithUMIsInputs,
+  RNAWithUMIsValidationInputs
 }
 
-class RNAWithUmisTester(testerConfig: RNAWithUmisConfig)(
+class BroadInternalRNAWithUMIsTester(
+    testerConfig: BroadInternalRNAWithUMIsConfig)(
     implicit am: ActorMaterializer,
     as: ActorSystem
 ) extends ValidationWdlTester(testerConfig) {
 
-  override val workflowName: String = "RNAWithUMIsPipeline"
+  override val workflowName: String = "BroadInternalRNAWithUMIs"
 
   val workflowDir
-    : File = CromwellWorkflowTester.PipelineRoot / "broad" / "rna_seq"
+    : File = CromwellWorkflowTester.PipelineRoot / "broad" / "internal" / "rna_seq"
+
+  protected val vaultTokenPath: String =
+    s"gs://broad-dsp-gotc-arrays-$envString-tokens/arrayswdl.token"
 
   override protected val validationWorkflowName: String =
     "VerifyRNAWithUMIs"
 
-  // Validation uses the same options as the arrays workflow
-  override protected lazy val validationWdlOptions: String = {
-    readTestOptions(releaseDir, env)
+  override protected lazy val googleProject: String = {
+    if (env.picardEnv.equals("dev")) {
+      s"broad-gotc-${env.picardEnv}"
+    } else {
+      s"broad-arrays-${env.picardEnv}"
+    }
   }
 
   protected lazy val resultsPrefix: URI = {
     URI.create(
-      s"gs://broad-gotc-test-results/$envString/rna_seq/rna_with_umis/$testTypeString/$timestamp/"
+      s"gs://broad-gotc-test-results/$envString/broad_internal/rna_seq/broad_internal_rna_with_umis/$testTypeString/$timestamp/"
     )
   }
 
   protected lazy val truthPrefix: URI =
     URI.create(
-      s"gs://broad-gotc-test-storage/rna_seq/rna_with_umis/$testTypeString/truth/${testerConfig.truthBranch}/"
+      s"gs://broad-gotc-test-storage/broad_internal/rna_seq/broad_internal_rna_with_umis/$testTypeString/truth/${testerConfig.truthBranch}/"
     )
+
+  override def getInputContents(fileName: String): String = {
+    super
+      .getInputContents(fileName)
+      .lines
+      .map(
+        _.replace("{ENV}", envString)
+          .replace("{VAULT_TOKEN_PATH}", vaultTokenPath)
+      )
+      .mkString
+  }
 
   override protected def buildValidationWdlInputs(
       workflowTest: WorkflowTest
   ): String = {
-    val rnaWithUmisInputs = new RNAWithUmisInputs(
+    val rnaWithUmisInputs = new RNAWithUMIsInputs(
       workflowTest.runParameters.workflowInputs
     )
     val outputBaseName =
@@ -53,7 +71,7 @@ class RNAWithUmisTester(testerConfig: RNAWithUmisConfig)(
       workflowTest.runParameters.resultsCloudPath
     val truthCloudPath = workflowTest.runParameters.truthCloudPath
 
-    val validationInputs = RNAWithUmisValidationInputs(
+    val validationInputs = RNAWithUMIsValidationInputs(
       test_metrics = Array(
         resultsCloudPath.resolve(
           s"$outputBaseName.transcriptome.duplicate.metrics"),
@@ -108,7 +126,7 @@ class RNAWithUmisTester(testerConfig: RNAWithUmisConfig)(
       truth_exon_counts =
         truthCloudPath.resolve(s"$outputBaseName.exon_reads.gct.gz")
     )
-    RNAWithUmisValidationInputs
+    RNAWithUMIsValidationInputs
       .marshall(validationInputs)
       .printWith(implicitly)
   }

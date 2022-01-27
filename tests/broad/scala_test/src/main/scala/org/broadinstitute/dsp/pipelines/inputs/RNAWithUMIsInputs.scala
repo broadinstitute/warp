@@ -3,7 +3,7 @@ package org.broadinstitute.dsp.pipelines.inputs
 import cats.syntax.either._
 import io.circe.parser._
 
-class RNAWithUmisInputs(inputs: String) {
+class RNAWithUMIsInputs(inputs: String) {
   import org.broadinstitute.clio.JsonUtils.JsonOps
 
   private val parsed = parse(inputs).valueOr { e =>
