@@ -105,7 +105,7 @@ task STAR {
         File bam
         File starIndex
 
-        String docker = "us.gcr.io/broad-gotc-prod/neovax-tag-rnaseq:v1"
+        String docker = "us.gcr.io/broad-gotc-prod/samtools-star:1.0.0-1.11-2.7.10a-1642556627"
         Int cpu = 8
         Int memory_mb = 64000
         Int disk_size_gb = ceil(2.2 * size(bam, "GB") + size(starIndex, "GB")) + 250
