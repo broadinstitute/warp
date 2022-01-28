@@ -694,7 +694,7 @@ task formatPipelineOutputs {
     >>>
 
   runtime {
-      docker: "broadinstitute/horsefish:emerge_scripts"
+      docker: "broadinstitute/horsefish:twisttcap_scripts"
   }
 
   output {
@@ -908,7 +908,7 @@ task updateOutputsInTDR {
     >>>
 
     runtime {
-        docker: "broadinstitute/horsefish:emerge_scripts"
+        docker: "broadinstitute/horsefish:twisttcap_scripts"
     }
 
     output {
