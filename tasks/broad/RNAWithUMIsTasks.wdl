@@ -725,7 +725,7 @@ task updateOutputsInTDR {
   String tdr_target_table = "sample"
 
   command <<<
-        python -u scripts/export_pipeline_outputs_to_tdr.py -d "~{tdr_dataset_uuid}" \
+        python -u /scripts/export_pipeline_outputs_to_tdr.py -d "~{tdr_dataset_uuid}" \
             -b "~{staging_bucket}" -t "~{tdr_target_table}" -o "~{outputs_json}" \
             -s "~{sample_id}" -p "~{tdr_gcp_project_for_query}"
     >>>
