@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_add_starsolo_slideseq/tasks/skylab/StarAlign.wdl" as StarAlign
 
 workflow SlideSeq {
 
