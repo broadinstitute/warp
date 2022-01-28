@@ -355,17 +355,6 @@ task STARsoloFastqSlideSeq {
     description: "Aligns reads in bam_input to the reference genome in tar_star_reference"
   }
 
-  parameter_meta {
-    r1_fastq: "input FASTQ file array"
-    r2_fastq: "array of forward read FASTQ files"
-    tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
-    docker: "(optional) the docker image containing the runtime environment for this task"
-    machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
-    cpu: "(optional) the number of cpus to provision for this task"
-    disk: "(optional) the amount of disk space (GiB) to provision for this task"
-    preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
-  }
-
   command {
     set -e
   command {

@@ -20,7 +20,7 @@ workflow SlideSeq {
 
   }
 
-call StarAlign.STARsoloFastq as STARsoloFastqSlideSeq {
+call StarAlign.STARsoloFastqSlideSeq as STARsoloFastqSlideSeq {
     input:
       ubam = ubam,
       white_list = whitelist,
@@ -30,8 +30,6 @@ call StarAlign.STARsoloFastq as STARsoloFastqSlideSeq {
       }
 
  output {
-
     File bam = STARsoloFastqSlideSeq.bam_output
-
   }
 }
