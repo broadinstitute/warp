@@ -384,7 +384,8 @@ task STARsoloFastqSlideSeq {
       --soloUMIlen $UMILen \
       --runThreadN ${cpu} \
       --genomeDir genome_reference \
-      --readFilesIn ${ubam} --readFilesType SAM SE
+      --readFilesIn ${ubam} \
+      --readFilesType SAM SE \
       --readFilesCommand "zcat" \
       --limitOutSJcollapsed "5000000" \
       --outSAMtype BAM Unsorted
