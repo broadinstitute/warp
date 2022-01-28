@@ -1,3 +1,8 @@
+# 1.0.3
+2022-01-28 (Date of Last Commit)
+
+* Added optional tasks to write outputs to the Terra Data Repository
+
 # 1.0.2
 2022-01-27 (Date of Last Commit)
 
