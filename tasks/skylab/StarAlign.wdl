@@ -337,7 +337,6 @@ task STARsoloFastqSlideSeq {
     File ubam
     File tar_star_reference
     File white_list
-    String chemistry
     String counting_mode
     String output_bam_basename
 
@@ -354,7 +353,7 @@ task STARsoloFastqSlideSeq {
   command {
     set -e
 
-    UMILen=10 #### need to get this info
+    UMILen=10
     CBLen=14
 
 
