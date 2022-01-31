@@ -1,17 +1,9 @@
-# 1.0.3
-2022-01-28 (Date of Last Commit)
-
-* Added optional tasks to write outputs to the Terra Data Repository
-
-# 1.0.2
+# 1.0.1
 2022-01-27 (Date of Last Commit)
 
 * Updated SortSam task to be able to use call caching
-
-# 1.0.1
-2022-01-25 (Date of Last Commit)
-
 * Updated STAR aligner to 2.7.10a for RNAWithUMIs pipeline
+* Added optional tasks to write outputs to the Terra Data Repository
 
 # 1.0.0
 2022-01-18 (Date of Last Commit)

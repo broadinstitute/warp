@@ -524,7 +524,7 @@ task SortSamByQueryName {
 
         # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
         # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
-        Float sort_sam_disk_multiplier = 4.0
+        Float sort_sam_disk_multiplier = 6.0
 
         String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
         Int cpu = 1
