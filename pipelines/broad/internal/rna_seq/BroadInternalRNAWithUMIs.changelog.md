@@ -1,5 +1,5 @@
 # 1.0.1
-2022-01-27 (Date of Last Commit)
+2022-01-31 (Date of Last Commit)
 
 * Updated SortSam task to be able to use call caching
 * Updated STAR aligner to 2.7.10a for RNAWithUMIs pipeline
