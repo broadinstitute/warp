@@ -656,7 +656,7 @@ task formatPipelineOutputs {
 
         outputs_dict = {}
 
-        # write normal outputs, adjusting field names as needed for TDR schema
+        # NOTE: we rename some field names to match the TDR schema
         outputs_dict["transcriptome_bam"]="~{transcriptome_bam}"
         outputs_dict["transcriptome_bam_index"]="~{transcriptome_bam_index}"
         outputs_dict["transcriptome_duplicate_metrics_file"]="~{transcriptome_duplicate_metrics}"
