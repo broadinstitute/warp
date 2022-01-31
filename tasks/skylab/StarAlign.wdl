@@ -353,7 +353,8 @@ task STARsoloFastqSlideSeq {
   command {
     set -e
 
-    UMILen=10
+    #TODO make sure these values are correct
+    UMILen=9
     CBLen=14
 
 
@@ -378,7 +379,7 @@ task STARsoloFastqSlideSeq {
 
 
     STAR \
-      --soloType Droplet
+      --soloType Droplet \
       --soloCBwhitelist ~{white_list} \
       --soloFeatures $COUNTING_MODE \
       --soloUMIlen $UMILen \
