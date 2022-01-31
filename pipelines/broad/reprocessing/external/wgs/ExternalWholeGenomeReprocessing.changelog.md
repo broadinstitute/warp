@@ -1,7 +1,13 @@
+# 2.0.3
+2022-01-31 (Date of Last Commit)
+
+* Increased the disk space in Reblock task
+* Increased the disk space in CalibrateDragstrModel task
+
 # 2.0.2
 2022-01-14 (Date of Last Commit)
 
-* Refactor to move CheckFingerprint functionality into new task
+* Increased the disk space in CalibrateDragstrModel task
 
 # 2.0.1
 2021-12-09

@@ -105,7 +105,7 @@ task STAR {
         File bam
         File starIndex
 
-        String docker = "us.gcr.io/broad-gotc-prod/neovax-tag-rnaseq:v1"
+        String docker = "us.gcr.io/broad-gotc-prod/samtools-star:1.0.0-1.11-2.7.10a-1642556627"
         Int cpu = 8
         Int memory_mb = 64000
         Int disk_size_gb = ceil(2.2 * size(bam, "GB") + size(starIndex, "GB")) + 250
@@ -477,11 +477,10 @@ task MergeMetrics {
     }
 }
 
-task SortSamUMIAware {
+task SortSamByCoordinate {
     input {
         File input_bam
         String output_bam_basename
-        String sort_order # "queryname" or "coordinate"
 
         # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
         # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
@@ -489,21 +488,19 @@ task SortSamUMIAware {
 
         String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
         Int cpu = 1
-        Int memory_mb = 16000
-        Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 256
+        Int memory_mb = 7500
+        Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
     }
 
-    String extra_args = if sort_order == "coordinate" then "CREATE_INDEX=true" else ""
-
     command <<<
-        java -Xms8192m -jar /usr/picard/picard.jar \
+        java -Xms6500m -Xmx7000m  -jar /usr/picard/picard.jar \
         SortSam \
         INPUT=~{input_bam} \
         OUTPUT=~{output_bam_basename}.bam \
-        SORT_ORDER=~{sort_order} \
+        SORT_ORDER="coordinate" \
+        CREATE_INDEX=true \
         CREATE_MD5_FILE=true \
-        MAX_RECORDS_IN_RAM=300000 \
-        ~{extra_args}
+        MAX_RECORDS_IN_RAM=300000
     >>>
 
     runtime {
@@ -515,7 +512,45 @@ task SortSamUMIAware {
 
     output {
         File output_bam = "~{output_bam_basename}.bam"
-        File? output_bam_index = "~{output_bam_basename}.bai" # Create index for coordinate sort
+        File output_bam_index = "~{output_bam_basename}.bai"
+        File output_bam_md5 = "~{output_bam_basename}.bam.md5"
+    }
+}
+
+task SortSamByQueryName {
+    input {
+        File input_bam
+        String output_bam_basename
+
+        # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
+        # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
+        Float sort_sam_disk_multiplier = 6.0
+
+        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+        Int cpu = 1
+        Int memory_mb = 7500
+        Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
+    }
+
+    command <<<
+        java -Xms6500m -Xmx7000m  -jar /usr/picard/picard.jar \
+        SortSam \
+        INPUT=~{input_bam} \
+        OUTPUT=~{output_bam_basename}.bam \
+        SORT_ORDER="queryname" \
+        CREATE_MD5_FILE=true \
+        MAX_RECORDS_IN_RAM=300000
+    >>>
+
+    runtime {
+        docker: docker
+        cpu: cpu
+        memory: "${memory_mb} MiB"
+        disks : "local-disk ${disk_size_gb} HDD"
+    }
+
+    output {
+        File output_bam = "~{output_bam_basename}.bam"
         File output_bam_md5 = "~{output_bam_basename}.bam.md5"
     }
 }
