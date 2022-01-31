@@ -1,7 +1,9 @@
 # 3.0.3
-2022-01-20 (Date of Last Commit)
+2022-01-31 (Date of Last Commit)
 
+* Increased the disk space in Reblock task
 * Increased the disk space in CalibrateDragstrModel task
+
 # 3.0.2
 2022-01-14 (Date of Last Commit)
 
