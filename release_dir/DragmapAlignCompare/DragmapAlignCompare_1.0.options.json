@@ -1,0 +1,3 @@
+{
+  "monitoring_script": "gs://broad-gotc-test-storage/cromwell_monitoring_script.sh"
+}

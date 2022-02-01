@@ -1,0 +1,54 @@
+{
+  "DragmapAlign.input_bams":[
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HJYFJCCXX.4.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HJYFJCCXX.5.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HJYFJCCXX.6.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HJYFJCCXX.7.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HJYFJCCXX.8.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HJYN2CCXX.1.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK35MCCXX.1.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK35MCCXX.2.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK35MCCXX.3.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK35MCCXX.4.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK35MCCXX.5.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK35MCCXX.6.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK35MCCXX.7.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK35MCCXX.8.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK35NCCXX.1.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK35NCCXX.2.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK3T5CCXX.1.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK3T5CCXX.2.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK3T5CCXX.3.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK3T5CCXX.4.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK3T5CCXX.5.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK3T5CCXX.6.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK3T5CCXX.7.Pond-492093.unmapped.bam",
+    "gs://broad-gotc-test-storage/germline_single_sample/wgs/scientific/bams/G94982.NA12878/HK3T5CCXX.8.Pond-492093.unmapped.bam"
+  ],
+  "DragmapAlign.reference_fasta": {
+    "ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+    "ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+    "ref_alt": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.alt",
+    "ref_ann": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.ann",
+    "ref_sa": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.sa",
+    "ref_amb": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.amb",
+    "ref_str": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.str",
+    "ref_bwt": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.bwt",
+    "ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+    "ref_pac": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.pac"
+  },
+  "DragmapAlign.hard_clip_reads": false,
+  "DragmapAlign.docker": "us.gcr.io/broad-gotc-prod/dragmap:1.1.0-1.2.1-2.26.4-1.11-1638901436",
+  "DragmapAlign.compression_level": 2,
+  "DragmapAlign.memory_mb": 40960,
+  "DragmapAlign.cpu": 16,
+  "DragmapAlign.dragmap_reference": {
+    "hash_table_cfg_bin": "gs://gcp-public-data--broad-references/hg38/v0/dragen_reference/hash_table.cfg.bin",
+    "reference_bin": "gs://gcp-public-data--broad-references/hg38/v0/dragen_reference/reference.bin",
+    "hash_table_cmp": "gs://gcp-public-data--broad-references/hg38/v0/dragen_reference/hash_table.cmp"
+  },
+  "DragmapAlign.disk_multiplier": 8.0,
+  "DragmapAlign.preemptible_tries": 3,
+  "DragmapAlign.unmap_contaminant_reads": true
+}
+
