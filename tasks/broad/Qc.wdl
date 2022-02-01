@@ -295,8 +295,12 @@ task CheckFingerprint {
     File? ref_fasta
     File? ref_fasta_index
 
+    Int memory_size = 2500
     Int preemptible_tries = 3
   }
+
+  Int java_memory_size = memory_size - 1000
+  Int max_heap = memory_size - 500
 
   Int disk_size = ceil(size(input_bam, "GiB") + size(input_vcf, "GiB")) + 20
   # Picard has different behavior depending on whether or not the OUTPUT parameter ends with a '.', so we are explicitly
@@ -308,7 +312,7 @@ task CheckFingerprint {
 
   command <<<
     set -e
-    java -Xms3000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+    java -Xms~{java_memory_size}m -Xmx~{max_heap}m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
     CheckFingerprint \
       --INPUT ~{input_file} \
       ~{if defined(input_vcf) then "--OBSERVED_SAMPLE_ALIAS \"" + input_sample_alias + "\"" else ""} \
@@ -331,7 +335,7 @@ task CheckFingerprint {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.4"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "3500 MiB"
+    memory: "~{memory_size} MiB"
     preemptible: preemptible_tries
   }
 
