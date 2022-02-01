@@ -105,7 +105,7 @@ workflow CheckFingerprint {
         input_vcf_index = input_vcf_index,
         input_sample_alias = input_sample_alias,
         genotypes = select_first([fingerprint_vcf_to_use]),
-        genotypes_index = select_first([fingerprint_vcf_index_to_use]),
+        genotypes_index = fingerprint_vcf_index_to_use,
         expected_sample_alias = sample_alias,
         output_basename = output_basename,
         haplotype_database_file = haplotype_database_file,
