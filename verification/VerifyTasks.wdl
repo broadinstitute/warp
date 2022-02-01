@@ -145,6 +145,7 @@ task CompareBams {
   input {
     File test_bam
     File truth_bam
+    Boolean lenient_header = false
   }
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
@@ -159,8 +160,7 @@ task CompareBams {
           ~{test_bam} \
           ~{truth_bam} \
           O=comparison.tsv \
-          LENIENT_HEADER=true
-
+          LENIENT_HEADER=~{lenient_header}
   }
 
   runtime {
@@ -170,4 +170,27 @@ task CompareBams {
     memory: "7500 MiB"
     preemptible: 3
   }
+}
+
+task CompareCompressedTextFiles {
+
+  input {
+    File test_zip
+    File truth_zip
+  }
+
+  Float file_size = size(test_zip, "GiB") + size(truth_zip, "GiB")
+  Int disk_size = ceil(file_size * 4) + 20
+
+  command {
+    diff <(gunzip -c -f ~{test_zip}) <(gunzip -c -f ~{truth_zip})
+  }
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "3.5 GiB"
+    preemptible: 3
+  }
+
 }

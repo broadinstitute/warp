@@ -39,8 +39,8 @@ task CalibrateDragstrModel {
 
   String base_name = basename(alignment)
   String out_file_name = base_name + ".dragstr"
-  Int disk_size_gb = ceil(size([ref_fasta, ref_fasta_idx, alignment, str_table_file], "GiB")) + 
-                        20 # 20 for the rest of the fs.
+  Int disk_size_gb = ceil(size([ref_fasta, ref_fasta_idx, ref_dict, alignment, alignment_index, str_table_file], "GiB")) + 
+                        40 # 40 for the rest of the fs.
 
   String parallel_args  = if (java_threads <= 1) then "" else "--threads " + java_threads
   

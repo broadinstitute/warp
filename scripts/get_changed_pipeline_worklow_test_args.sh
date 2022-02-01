@@ -22,6 +22,10 @@ function pipeline_to_args() {
       echo Arrays -a Single ${common_args};;
     MultiSampleArrays)
       echo Arrays -a Multi ${common_args};;
+    BroadInternalRNAWithUMIs)
+      echo BroadInternalRNAWithUMIs ${common_args};;
+    CheckFingerprint)
+      echo CheckFingerprint ${common_args};;
     ExomeGermlineSingleSample)
       echo GermlineSingleSample -d Exome ${common_args};;
     ExomeReprocessing)
@@ -62,6 +66,8 @@ function pipeline_to_args() {
     ReblockGVCF)
       echo ReblockGvcf -d Exome ${common_args};
       echo ReblockGvcf -d WGS ${common_args};;
+    RNAWithUMIsPipeline)
+      echo RNAWithUMIs ${common_args};;
     TargetedSomaticSingleSample)
       echo SomaticSingleSample -d Targeted ${common_args};;
     CramToUnmappedBams)

@@ -1,8 +1,15 @@
+# 5.1.7
+2022-01-07 (Date of Last Commit)
+
+* Updated LoomUtils.wdl to fix a missing metadata issue in Single Nucleus SmartSeq2 pipeline
 # 5.1.6
 2021-11-10 (Date of Last Commit)
 
 * Added Xmx flag (maximum heap size) to all tasks with java commands
+# 5.1.3
+2022-01-07 (Date of Last Commit)
 
+* Updated LoomUtils.wdl to fix a missing metadata issue in Single Nucleus SmartSeq2 pipeline
 # 5.1.5
 2021-09-13 (Date of Last Commit)
 

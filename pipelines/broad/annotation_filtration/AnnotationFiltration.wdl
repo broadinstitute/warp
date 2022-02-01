@@ -4,7 +4,7 @@ import "../../../tasks/broad/Funcotator.wdl" as Funcotator
 
 workflow AnnotationFiltration {
 
-  String pipeline_version = "1.2.1"
+  String pipeline_version = "1.2.2"
 
   input {
     Array[File] vcfs
@@ -203,6 +203,6 @@ task GatherFiltrationReport {
   runtime {
     memory: "4 GiB"
     docker: "us.gcr.io/google-containers/alpine-with-bash:1.0"
-    disk: "10 HDD"
+    disks: "local-disk 10 HDD"
   }
 }

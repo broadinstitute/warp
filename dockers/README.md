@@ -45,7 +45,7 @@ There are some instances where a Debian base image is unavoidable, specifically 
 FROM python:debian
 
 RUN set -eux; \
-        apt-get-update; \
+        apt-get update; \
         apt-get install -y \
             curl \
             bash \
@@ -224,4 +224,4 @@ ENTRYPOINT [ "/sbin/tini", "--" ]
 
 ## <a link="trouble"></a> Troubleshooting
 
-If you have any questions or would like some more guidance on writing Dockerfiles please reach out at [dsde-engineering@broadinstitute.org](dsde-engineering@broadinstitute.org).
+If you have any questions or would like some more guidance on writing Dockerfiles please file a [GitHub issue in WARP](https://github.com/broadinstitute/warp/issues/new).

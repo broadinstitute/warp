@@ -7,6 +7,9 @@ case class Config(
     annotationFiltrationConfig: AnnotationFiltrationConfig =
       AnnotationFiltrationConfig(),
     arraysConfig: ArraysConfig = ArraysConfig(),
+    broadInternalRNAWithUMIsConfig: BroadInternalRNAWithUMIsConfig =
+      BroadInternalRNAWithUMIsConfig(),
+    checkFingerprintConfig: CheckFingerprintConfig = CheckFingerprintConfig(),
     cramToUnmappedBamsConfig: CramToUnmappedBamsConfig =
       CramToUnmappedBamsConfig(),
     genotypeConcordanceConfig: GenotypeConcordanceConfig =
@@ -18,6 +21,7 @@ case class Config(
     illuminaGenotypingArrayConfig: IlluminaGenotypingArrayConfig =
       IlluminaGenotypingArrayConfig(),
     imputationConfig: ImputationConfig = ImputationConfig(),
+    rnaWithUMIsConfig: RNAWithUMIsConfig = RNAWithUMIsConfig(),
     somaticCloudWorkflowConfig: SomaticCloudWorkflowConfig =
       SomaticCloudWorkflowConfig(),
     validateChipConfig: ValidateChipConfig = ValidateChipConfig()

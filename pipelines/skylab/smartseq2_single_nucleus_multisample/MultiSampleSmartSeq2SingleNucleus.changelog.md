@@ -1,3 +1,7 @@
+# 1.2.0
+2022-01-07 (Date of Last Commit)
+
+* Fixed missing metadata issue in the loom file
 # 1.1.2
 2021-11-19 (Date of Last Commit)
 
