@@ -387,6 +387,8 @@ task STARsoloFastqSlideSeq {
       --genomeDir genome_reference \
       --readFilesIn ${ubam} \
       --readFilesType SAM SE \
+      --soloInputSAMattrBarcodeSeq CR UR \
+      --soloInputSAMattrBarcodeQual CY UY \
       --limitOutSJcollapsed "5000000" \
       --outSAMtype BAM Unsorted
 
