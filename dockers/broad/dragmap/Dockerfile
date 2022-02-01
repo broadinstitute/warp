@@ -18,7 +18,10 @@ LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>"
 WORKDIR /usr/gitc
 
 # Install dependencies
+# https://stackoverflow.com/questions/70926799/centos-through-vm-no-urls-in-mirrorlist
 RUN set -eux; \
+    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*; \
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*; \ 
         yum update -y; \
         yum install -y epel-release; \
         yum install -y boost169-devel \
