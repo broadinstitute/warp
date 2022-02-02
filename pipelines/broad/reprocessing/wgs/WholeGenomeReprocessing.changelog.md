@@ -1,3 +1,9 @@
+# 3.0.4
+2022-02-02 (Date of Last Commit)
+
+* Changed dragmap base image from Centos to RockyLinux to comply with trivy scans
+
+
 # 3.0.3
 2022-02-01 (Date of Last Commit)
 
