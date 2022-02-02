@@ -31,6 +31,7 @@ task CollectQualityYieldMetrics {
       INPUT=~{input_bam} \
       OQ=true \
       OUTPUT=~{metrics_filename}
+    sed -i -e 1,5d ~{metrics_filename}  # for reproducibility
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
@@ -121,6 +122,7 @@ task CollectReadgroupBamQualityMetrics {
       ~{true='PROGRAM="CollectGcBiasMetrics"' false="" collect_gc_bias_metrics} \
       METRIC_ACCUMULATION_LEVEL=null \
       METRIC_ACCUMULATION_LEVEL=READ_GROUP
+    sed -i -e 1,5d "~{output_bam_prefix}.alignment_summary_metrics"   # for reproducibility
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
