@@ -1,3 +1,8 @@
+# 2.6.5
+2022-02-01  (Date of Last Commit)
+
+* Address memory usage in CheckFingerprint task to allow anough headroom for the VM
+
 # 2.6.4
 2022-01-19  (Date of Last Commit)
 
