@@ -194,3 +194,37 @@ task CompareCompressedTextFiles {
   }
 
 }
+
+task CompareLargeBamFiles {
+  input {
+    File test_bam
+    File truth_bam
+  }
+
+  Float file_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
+  Int disk_size = ceil(file_size * 6) + 20
+  Int mem_size = ceil(file_size * 3) + 20
+
+  command {
+    samtools view --header-only ~{test_bam} > test_header.sam
+    samtools view --header-only ~{truth_bam} > truth_header.sam
+
+    samtools view --no-header -b ~{test_bam} > test_records.bam
+    samtools view --no-header -b ~{test_bam} > test_records.bam
+
+    diff test_header.sam truth_header.sam > header_diff.txt
+
+    cmp test_records.bam test_records.bam
+  }
+
+  output {
+    File hearder_diff = "header_diff.txt"
+  }
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
+    disks: "local-disk " + disk_size + " HDD"
+    memory: mem_size
+    preemptible: 3
+  }
+}
