@@ -10,7 +10,7 @@
   "RNAWithUMIsPipeline.ref": "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta",
   "RNAWithUMIsPipeline.refIndex": "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta.fai",
   "RNAWithUMIsPipeline.refDict": "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.dict",
-  "RNAWithUMIsPipeline.refFlat": "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/GRCh38_gencode.v27.refFlat.txt",
+  "RNAWithUMIsPipeline.refFlat": "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/hg38_GENCODE_v34_refFlat.txt",
   "RNAWithUMIsPipeline.ribosomalIntervals": "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode.v26.rRNA.withMT.interval_list",
   "RNAWithUMIsPipeline.exonBedFile": "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed"
 }
