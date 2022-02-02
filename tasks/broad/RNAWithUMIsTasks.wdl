@@ -174,7 +174,7 @@ task FastqToUbam {
         String read_group_name
         String sequencing_center
 
-        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
         Int cpu = 1
         Int memory_mb = 4000
         Int disk_size_gb = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2) + 50
@@ -322,7 +322,7 @@ task CollectRNASeqMetrics {
         File ref_flat
         File ribosomal_intervals
 
-        String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+        String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
         Int cpu = 1
         Int memory_mb = 10000
         Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
@@ -358,7 +358,7 @@ task CollectMultipleMetrics {
         File ref_fasta
         File ref_fasta_index
 
-        String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+        String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
         Int cpu = 1
         Int memory_mb = 10000
         Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
@@ -486,7 +486,7 @@ task SortSamByCoordinate {
         # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
         Float sort_sam_disk_multiplier = 4.0
 
-        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
         Int cpu = 1
         Int memory_mb = 7500
         Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
@@ -526,7 +526,7 @@ task SortSamByQueryName {
         # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
         Float sort_sam_disk_multiplier = 6.0
 
-        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
         Int cpu = 1
         Int memory_mb = 7500
         Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
