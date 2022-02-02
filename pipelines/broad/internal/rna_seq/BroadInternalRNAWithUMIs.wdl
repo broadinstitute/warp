@@ -7,7 +7,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow BroadInternalRNAWithUMIs {
 
-  String pipeline_version = "1.0.1"
+  String pipeline_version = "1.0.2"
 
   input {
     # input needs to be either "hg19" or "hg38"
@@ -38,15 +38,15 @@ workflow BroadInternalRNAWithUMIs {
     File vault_token_path
   }
 
-  File ref = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta"
-  File refIndex = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta.fai"
-  File refDict = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.dict"
-  File haplotype_database_file = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.haplotype_database.txt"
-  File refFlat = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/annotation/Homo_sapiens_assembly19.refFlat.txt" else "gs://broad-gotc-test-storage/rna_seq/hg38/GRCh38_gencode.v27.refFlat.txt"
-  File starIndex = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/star/STAR2.7.10a_genome_hg19_noALT_noHLA_noDecoy_v19_oh145.tar.gz" else "gs://broad-gotc-test-storage/rna_seq/hg38/STAR2.7.10a_genome_GRCh38_noALT_noHLA_noDecoy_v34_oh145.tar.gz"
-  File gtf = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/annotation/gencode.v19.genes.v7.collapsed_only.patched_contigs.gtf" else "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v34.annotation_collapsed_only.gtf"
-  File ribosomalIntervals = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/annotation/Homo_sapiens_assembly19.rRNA.interval_list" else "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.rRNA.withMT.interval_list"
-  File exonBedFile = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/annotation/gencode.v19.hg19.insert_size_intervals_geq1000bp.bed" else "gs://broad-gotc-test-storage/rna_seq/hg38/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed"
+  File ref = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta"
+  File refIndex = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta.fai"
+  File refDict = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.dict"
+  File haplotype_database_file = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.haplotype_database.txt"
+  File refFlat = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/annotation/Homo_sapiens_assembly19.refFlat.txt" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/GRCh38_gencode.v27.refFlat.txt"
+  File starIndex = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/star/STAR2.7.10a_genome_hg19_noALT_noHLA_noDecoy_v19_oh145.tar.gz" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/star/STAR2.7.10a_genome_GRCh38_noALT_noHLA_noDecoy_v34_oh145.tar.gz"
+  File gtf = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/annotation/gencode.v19.genes.v7.collapsed_only.patched_contigs.gtf" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode.v34.annotation_collapsed_only.gtf"
+  File ribosomalIntervals = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/annotation/Homo_sapiens_assembly19.rRNA.interval_list" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode.v26.rRNA.withMT.interval_list"
+  File exonBedFile = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/annotation/gencode.v19.hg19.insert_size_intervals_geq1000bp.bed" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode.v26.GRCh38.insert_size_intervals_geq1000bp.bed"
 
   parameter_meta {
     reference_build: "String used to define the reference genome build; should be set to 'hg19' or 'hg38'"
