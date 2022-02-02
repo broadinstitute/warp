@@ -23,7 +23,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Arrays {
 
-  String pipeline_version = "2.6.4"
+  String pipeline_version = "2.6.5"
 
   input {
     String chip_well_barcode
