@@ -155,7 +155,7 @@ def main():
                                #                     # Indicate both disk type and disk size. example: local-disk 11 HDD
                                #  "docker_image": "",# string;
                                #                     # Name of docker image where the task is stored and executed.
-                               #                     # us.gcr.io/broad-gotc-prod/picard-cloud:2.26.8
+                               #                     # us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10
                                #  "cpus": 0,         # integer; Number of CPUs used to run this task.
                                #  "memory": "",      # string; Amount of memory allocated for this task. example: 7.5 GB
                                #  "zone": ""         # string Name of the Google Cloud zone where the task was run.
