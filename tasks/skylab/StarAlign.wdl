@@ -339,6 +339,8 @@ task STARsoloFastqSlideSeq {
     File white_list
     String counting_mode
     String output_bam_basename
+    Int umi_length
+    Int cell_barcode_length
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
@@ -353,25 +355,6 @@ task STARsoloFastqSlideSeq {
   command {
     set -e
 
-    #TODO make sure these values are correct
-    UMILen=9
-    CBLen=14
-
-
-    COUNTING_MODE=""
-    if [ "~{counting_mode}" == "sc_rna" ]
-    then
-        ## single cell or whole cell
-        COUNTING_MODE="Gene"
-    elif [ "~{counting_mode}" == "sn_rna" ]
-    then
-        ## single nuclei
-        COUNTING_MODE="GeneFull"
-    else
-        echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
-        exit 1;
-    fi
-
     # prepare reference
     mkdir genome_reference
     tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
@@ -381,17 +364,17 @@ task STARsoloFastqSlideSeq {
     STAR \
       --soloType Droplet \
       --soloCBwhitelist ~{white_list} \
-      --soloFeatures $COUNTING_MODE \
-      --soloUMIlen $UMILen \
+      --soloFeatures Gene \
       --runThreadN ${cpu} \
       --genomeDir genome_reference \
       --readFilesIn ${ubam} \
       --readFilesType SAM SE \
+      --soloCBlen ~{cell_barcode_length} \
+      --soloUMIlen ~{umi_length} \
       --soloInputSAMattrBarcodeSeq CR UR \
       --soloInputSAMattrBarcodeQual CY UY \
       --limitOutSJcollapsed "5000000" \
       --outSAMtype BAM Unsorted
-
   }
 
   runtime {

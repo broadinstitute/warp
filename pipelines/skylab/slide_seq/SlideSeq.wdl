@@ -18,6 +18,9 @@ workflow SlideSeq {
     String counting_mode = "sc_rna"
     String output_bam_basename
 
+    Int umi_length
+    Int cell_barcode_length
+
   }
 
 call StarAlign.STARsoloFastqSlideSeq as STARsoloFastqSlideSeq {
@@ -26,6 +29,8 @@ call StarAlign.STARsoloFastqSlideSeq as STARsoloFastqSlideSeq {
       white_list = whitelist,
       tar_star_reference = tar_star_reference,
       counting_mode = counting_mode,
+      umi_length = umi_length,
+      cell_barcode_length = cell_barcode_length,
       output_bam_basename = output_bam_basename
       }
 
