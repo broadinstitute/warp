@@ -1,3 +1,19 @@
+# 1.15.4
+2022-01-19  (Date of Last Commit)
+
+* Update version of gatk in used in ValidateVariants to 4.2.4.1 (updated to log4j 2.17.1)
+
+# 1.15.3
+2022-01-18  (Date of Last Commit)
+
+* Increase Boot disk for GATK tasks to avoid an out of disk space error
+
+# 1.15.2
+2022-01-14 (Date of Last Commit)
+
+* Fix issue with escaping of strings/filenames with spaces embedded that occurred on older (< 57) versions of Cromwell
+* Task wdls used by Validate chip were updated with changes that don't affect ValidateChip wdl
+
 # 1.15.1
 2022-01-11
 

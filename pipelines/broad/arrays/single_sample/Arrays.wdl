@@ -23,7 +23,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Arrays {
 
-  String pipeline_version = "2.6.1"
+  String pipeline_version = "2.6.5"
 
   input {
     String chip_well_barcode
@@ -305,7 +305,8 @@ workflow Arrays {
         sample_alias = sample_alias,
         sample_lsid = sample_lsid,
         output_vcf_base_name = chip_well_barcode + "." + MakeSafeFilename.output_safe_name + ".reference.fingerprint",
-        params_file = select_first([CreateChipWellBarcodeParamsFile.params_file, params_file]),
+        ignoreSpecificGenotypesLsid = sample_lsid,
+        ignoreSpecificGenotypesPlatform = "GENERAL_ARRAY",
         haplotype_database_file = haplotype_database_file,
         ref_fasta = ref_fasta,
         ref_fasta_index = ref_fasta_index,

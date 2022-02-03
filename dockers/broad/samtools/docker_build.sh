@@ -24,7 +24,7 @@ where:
     "
 
 function main(){
-    for t in "${TOOLS[@]}"; do which $t >/dev/null || ok=no; done
+    for t in "${TOOLS[@]}"; do which "$t" >/dev/null || ok=no; done
         if [[ $ok == no ]]; then
             echo "Missing one of the following tools: "
             for t in "${TOOLS[@]}"; do echo "$t"; done
@@ -45,7 +45,7 @@ function main(){
         exit 0
         ;;
         -t|--tools)
-        for t in "${TOOLS[@]}"; do echo $t; done
+        for t in "${TOOLS[@]}"; do echo "$t"; done
         exit 0
         ;;
         *)
@@ -58,7 +58,7 @@ function main(){
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \
-        --build-arg SAMTOOLS_VERSION="$SAMTOOLS_VERSION" $DIR 
+        --build-arg SAMTOOLS_VERSION="$SAMTOOLS_VERSION" "$DIR" 
     docker push "$GCR_URL:$IMAGE_TAG"
 
     echo "tagging and pushing Quay Image"
