@@ -105,7 +105,10 @@ task BuildStarSingleNucleus {
   command <<<
     set -eo pipefail
 
-    /script/modify_gtf_~{organism}.sh ~{references.genome_fa} ~{references.annotation_gtf}
+    python3 /script/modify_gtf.py  \
+    --input-gtf ~{references.annotation_gtf} \
+    --output-gtf ~{annotation_gtf_modified} \
+    --biotypes /script/Biotypes.csv
 
     mkdir star
     STAR --runMode genomeGenerate \
@@ -130,7 +133,7 @@ task BuildStarSingleNucleus {
   }
 
   runtime {
-    docker: "quay.io/humancellatlas/snss2-indices:1.1.0 "
+    docker: "quay.io/humancellatlas/snss2-indices:1.2.0 "
     memory: "50 GiB"
     disks :"local-disk 100 HDD"
     cpu:"16"
@@ -370,11 +373,12 @@ workflow BuildIndices {
     String organism_prefix
     String genome_short_string
     String dbsnp_version
+    String? biotypes
   }
 
   # version of this pipeline
 
-  String pipeline_version = "0.1.1"
+  String pipeline_version = "0.2.0"
 
   parameter_meta {
     gtf_version: "the actual number of gencode, ex.  27"
@@ -382,6 +386,7 @@ workflow BuildIndices {
     organism_prefix: "Either 'h' or 'm'"
     genome_short_string: "e.g. hg38, mm10"
     dbsnp_version: "integer num, ex 150"
+    biotypes: "gene_biotype attributes to include in the gtf file"
   }
 
   call GetReferences {
