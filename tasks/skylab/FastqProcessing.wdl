@@ -39,7 +39,7 @@ task FastqProcessingOptimus {
         import shutil
         import gzip
         import re
-        
+
         iscompressed = True
         with gzip.open(filename, 'rt') as fin:
           try:
@@ -158,7 +158,7 @@ task FastqProcessingSlidSeq {
         import shutil
         import gzip
         import re
-        
+
         iscompressed = True
         with gzip.open(filename, 'rt') as fin:
           try:
