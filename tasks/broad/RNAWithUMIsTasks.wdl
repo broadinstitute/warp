@@ -17,10 +17,10 @@ task VerifyPipelineInputs {
         String? read_group_name
         String? sequencing_center = "BI"
 
-        String docker = "python:3.7.2"
+        String docker = "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
         Int cpu = 1
-        Int memory_mb = 1000
-        Int disk_size_gb = 1
+        Int memory_mb = 2000
+        Int disk_size_gb = ceil(size(bam, "GB") + size(r1_fastq,"GB") + size(r2_fastq, "GB")) + 10
     }
 
     command <<<
@@ -49,7 +49,7 @@ task VerifyPipelineInputs {
             if fastq_flag == 1:
                 f.write("true")
             # Remaining case is that only bam is defined
-            else: 
+            else:
                 f.write("false")
 
         CODE
@@ -105,7 +105,7 @@ task STAR {
         File bam
         File starIndex
 
-        String docker = "us.gcr.io/broad-gotc-prod/neovax-tag-rnaseq:v1"
+        String docker = "us.gcr.io/broad-gotc-prod/samtools-star:1.0.0-1.11-2.7.10a-1642556627"
         Int cpu = 8
         Int memory_mb = 64000
         Int disk_size_gb = ceil(2.2 * size(bam, "GB") + size(starIndex, "GB")) + 250
@@ -173,7 +173,7 @@ task FastqToUbam {
         String platform_unit
         String read_group_name
         String sequencing_center
-        
+
         String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
         Int cpu = 1
         Int memory_mb = 4000
@@ -216,7 +216,7 @@ task CopyReadGroupsToHeader {
         String docker = "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
         Int cpu = 1
         Int memory_mb = 8000
-        Int disk_size_gb = ceil(2.0 * size([bam_with_readgroups, bam_without_readgroups], "GB")) + 10 
+        Int disk_size_gb = ceil(2.0 * size([bam_with_readgroups, bam_without_readgroups], "GB")) + 10
     }
 
     String basename = basename(bam_without_readgroups)
@@ -247,7 +247,7 @@ task GetSampleName {
         Int cpu = 1
         Int memory_mb = 1000
         Int disk_size_gb = 100
-        
+
     }
 
     parameter_meta {
@@ -284,7 +284,7 @@ task rnaseqc2 {
         Int memory_mb = 10000
         Int disk_size_gb = ceil(size(bam_file, 'GB') + size(genes_gtf, 'GB')) + 100
     }
-    
+
 
     command <<<
         set -euo pipefail
@@ -400,7 +400,7 @@ task MergeMetrics {
         File picard_rna_metrics
         File duplicate_metrics
         File rnaseqc2_metrics
-        File fingerprint_summary_metrics
+        File? fingerprint_summary_metrics
         String output_basename
 
         String docker =  "python:3.8-slim"
@@ -410,7 +410,7 @@ task MergeMetrics {
     }
 
     String out_filename = output_basename + ".unified_metrics.txt"
-    
+
     command <<<
 
         #
@@ -427,7 +427,7 @@ task MergeMetrics {
         EOF
 
         #
-        # Script clean the keys, replacing space, dash and forward-slash with underscores, 
+        # Script clean the keys, replacing space, dash and forward-slash with underscores,
         # and removing comma, single quote and periods
         #
         cat <<-'EOF' > clean.py
@@ -456,9 +456,14 @@ task MergeMetrics {
                 echo "Processing RNASeQC2 Metrics"
                 cat ~{rnaseqc2_metrics} | python clean.py | awk '{print "rnaseqc2_" $0}' >> ~{out_filename}
 
-                echo "Processing Fingerprint Summary Metrics - only extracting LOD_EXPECTED_SAMPLE"
-                cat ~{fingerprint_summary_metrics} | grep -A 1 "LOD_EXPECTED_SAMPLE" | python transpose.py | grep -i "LOD_EXPECTED_SAMPLE" | awk '{print "fp_"$0}' >> ~{out_filename}
-    >>>
+                if [[ -f "~{fingerprint_summary_metrics}" ]];
+                then
+                    echo "Processing Fingerprint Summary Metrics - only extracting LOD_EXPECTED_SAMPLE"
+                    cat ~{fingerprint_summary_metrics} | grep -A 1 "LOD_EXPECTED_SAMPLE" | python transpose.py | grep -i "LOD_EXPECTED_SAMPLE" | awk '{print "fp_"$0}' >> ~{out_filename}
+                else
+                    echo "No Fingerprint Summary Metrics found."
+                    echo "fp_lod_expected_sample	" >> ~{out_filename}
+                fi    >>>
 
     runtime {
         docker: docker
@@ -472,11 +477,10 @@ task MergeMetrics {
     }
 }
 
-task SortSamUMIAware {
+task SortSamByCoordinate {
     input {
         File input_bam
         String output_bam_basename
-        String sort_order # "queryname" or "coordinate"
 
         # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
         # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
@@ -484,21 +488,19 @@ task SortSamUMIAware {
 
         String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
         Int cpu = 1
-        Int memory_mb = 16000
-        Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 256
+        Int memory_mb = 7500
+        Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
     }
 
-    String extra_args = if sort_order == "coordinate" then "CREATE_INDEX=true" else ""
-
     command <<<
-        java -Xms8192m -jar /usr/picard/picard.jar \
+        java -Xms6500m -Xmx7000m  -jar /usr/picard/picard.jar \
         SortSam \
         INPUT=~{input_bam} \
         OUTPUT=~{output_bam_basename}.bam \
-        SORT_ORDER=~{sort_order} \
+        SORT_ORDER="coordinate" \
+        CREATE_INDEX=true \
         CREATE_MD5_FILE=true \
-        MAX_RECORDS_IN_RAM=300000 \
-        ~{extra_args}
+        MAX_RECORDS_IN_RAM=300000
     >>>
 
     runtime {
@@ -510,7 +512,45 @@ task SortSamUMIAware {
 
     output {
         File output_bam = "~{output_bam_basename}.bam"
-        File? output_bam_index = "~{output_bam_basename}.bai" # Create index for coordinate sort
+        File output_bam_index = "~{output_bam_basename}.bai"
+        File output_bam_md5 = "~{output_bam_basename}.bam.md5"
+    }
+}
+
+task SortSamByQueryName {
+    input {
+        File input_bam
+        String output_bam_basename
+
+        # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
+        # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
+        Float sort_sam_disk_multiplier = 6.0
+
+        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+        Int cpu = 1
+        Int memory_mb = 7500
+        Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
+    }
+
+    command <<<
+        java -Xms6500m -Xmx7000m  -jar /usr/picard/picard.jar \
+        SortSam \
+        INPUT=~{input_bam} \
+        OUTPUT=~{output_bam_basename}.bam \
+        SORT_ORDER="queryname" \
+        CREATE_MD5_FILE=true \
+        MAX_RECORDS_IN_RAM=300000
+    >>>
+
+    runtime {
+        docker: docker
+        cpu: cpu
+        memory: "${memory_mb} MiB"
+        disks : "local-disk ${disk_size_gb} HDD"
+    }
+
+    output {
+        File output_bam = "~{output_bam_basename}.bam"
         File output_bam_md5 = "~{output_bam_basename}.bam.md5"
     }
 }
@@ -574,3 +614,130 @@ task MarkDuplicatesUMIAware {
     }
 }
 
+
+task formatPipelineOutputs {
+  input {
+    String output_basename
+    String transcriptome_bam
+    String transcriptome_bam_index
+    String transcriptome_duplicate_metrics
+    String output_bam
+    String output_bam_index
+    String duplicate_metrics
+    String rnaseqc2_gene_tpm
+    String rnaseqc2_gene_counts
+    String rnaseqc2_exon_counts
+    String rnaseqc2_fragment_size_histogram
+    String rnaseqc2_metrics
+    String picard_rna_metrics
+    String picard_alignment_summary_metrics
+    String picard_insert_size_metrics
+    String picard_insert_size_histogram
+    String picard_base_distribution_by_cycle_metrics
+    String picard_base_distribution_by_cycle_pdf
+    String picard_quality_by_cycle_metrics
+    String picard_quality_by_cycle_pdf
+    String picard_quality_distribution_metrics
+    String picard_quality_distribution_pdf
+    String? picard_fingerprint_summary_metrics
+    String? picard_fingerprint_detail_metrics
+    File unified_metrics
+
+    Int cpu = 1
+    Int memory_mb = 2000
+    Int disk_size_gb = 10
+  }
+
+  String outputs_json_file_name = "outputs_to_TDR_~{output_basename}.json"
+
+  command <<<
+        python3 << CODE
+        import json
+
+        outputs_dict = {}
+
+        # NOTE: we rename some field names to match the TDR schema
+        outputs_dict["transcriptome_bam"]="~{transcriptome_bam}"
+        outputs_dict["transcriptome_bam_index"]="~{transcriptome_bam_index}"
+        outputs_dict["transcriptome_duplicate_metrics_file"]="~{transcriptome_duplicate_metrics}"
+        outputs_dict["genome_bam"]="~{output_bam}"
+        outputs_dict["genome_bam_index"]="~{output_bam_index}"
+        outputs_dict["picard_duplicate_metrics_file"]="~{duplicate_metrics}"
+        outputs_dict["rnaseqc2_gene_tpm_file"]="~{rnaseqc2_gene_tpm}"
+        outputs_dict["rnaseqc2_gene_counts_file"]="~{rnaseqc2_gene_counts}"
+        outputs_dict["rnaseqc2_exon_counts_file"]="~{rnaseqc2_exon_counts}"
+        outputs_dict["rnaseqc2_fragment_size_histogram_file"]="~{rnaseqc2_fragment_size_histogram}"
+        outputs_dict["rnaseqc2_metrics_file"]="~{rnaseqc2_metrics}"
+        outputs_dict["picard_rna_metrics_file"]="~{picard_rna_metrics}"
+        outputs_dict["picard_alignment_summary_metrics_file"]="~{picard_alignment_summary_metrics}"
+        outputs_dict["picard_insert_size_metrics_file"]="~{picard_insert_size_metrics}"
+        outputs_dict["picard_insert_size_histogram_file"]="~{picard_insert_size_histogram}"
+        outputs_dict["picard_base_distribution_by_cycle_metrics_file"]="~{picard_base_distribution_by_cycle_metrics}"
+        outputs_dict["picard_base_distribution_by_cycle_pdf_file"]="~{picard_base_distribution_by_cycle_pdf}"
+        outputs_dict["picard_quality_by_cycle_metrics_file"]="~{picard_quality_by_cycle_metrics}"
+        outputs_dict["picard_quality_by_cycle_pdf_file"]="~{picard_quality_by_cycle_pdf}"
+        outputs_dict["picard_quality_distribution_metrics_file"]="~{picard_quality_distribution_metrics}"
+        outputs_dict["picard_quality_distribution_pdf_file"]="~{picard_quality_distribution_pdf}"
+        outputs_dict["fp_summary_metrics_file"]="~{picard_fingerprint_summary_metrics}"
+        outputs_dict["fp_detail_metrics_file"]="~{picard_fingerprint_detail_metrics}"
+
+        # explode unified metrics file
+        with open("~{unified_metrics}", "r") as infile:
+            for row in infile:
+                key, value = row.rstrip("\n").split("\t")
+                outputs_dict[key] = value
+
+        # write full outputs to file
+        with open("~{outputs_json_file_name}", 'w') as outputs_file:
+            for key, value in outputs_dict.items():
+                if value == "None":
+                    outputs_dict[key] = None
+            outputs_file.write(json.dumps(outputs_dict))
+            outputs_file.write("\n")
+        CODE
+    >>>
+
+  runtime {
+      docker: "broadinstitute/horsefish:twisttcap_scripts"
+      cpu: cpu
+      memory: "${memory_mb} MiB"
+      disks : "local-disk ${disk_size_gb} HDD"
+  }
+
+  output {
+      File pipeline_outputs_json = outputs_json_file_name
+  }
+}
+
+task updateOutputsInTDR {
+  input {
+    String staging_bucket
+    String tdr_dataset_uuid
+    String tdr_gcp_project_for_query
+    File outputs_json
+    String sample_id
+
+    Int cpu = 1
+    Int memory_mb = 2000
+    Int disk_size_gb = 10
+  }
+
+  String tdr_target_table = "sample"
+
+  command <<<
+        python -u /scripts/export_pipeline_outputs_to_tdr.py -d "~{tdr_dataset_uuid}" \
+            -b "~{staging_bucket}" -t "~{tdr_target_table}" -o "~{outputs_json}" \
+            -s "~{sample_id}" -p "~{tdr_gcp_project_for_query}"
+    >>>
+
+    runtime {
+        docker: "broadinstitute/horsefish:twisttcap_scripts"
+        cpu: cpu
+        memory: "${memory_mb} MiB"
+        disks : "local-disk ${disk_size_gb} HDD"
+    }
+
+    output {
+        File ingest_logs = stdout()
+    }
+}

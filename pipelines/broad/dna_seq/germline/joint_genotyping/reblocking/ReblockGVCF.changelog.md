@@ -1,3 +1,13 @@
+# 2.0.4
+2022-02-01 (Date of Last Commit)
+
+* Increase disk for Reblock Task
+
+# 2.0.3
+2022-01-14 (Date of Last Commit)
+
+* Task wdls used by the ReblockGVCF pipeline were updated with changes that don't affect ReblockGVCF wdl
+
 # 2.0.2
 2021-11-15
 

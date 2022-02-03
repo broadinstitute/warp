@@ -1,7 +1,6 @@
 version 1.0
 
-import "./RNAWithUMIsTasks.wdl" as tasks
-
+import "../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
 
 ## Copyright Broad Institute, 2021
 ##
@@ -20,8 +19,6 @@ import "./RNAWithUMIsTasks.wdl" as tasks
 
 workflow UMIAwareDuplicateMarking {
 
-  String pipeline_version = "0.1.0"
-
   input {
     File aligned_bam 
     String output_basename
@@ -33,11 +30,10 @@ workflow UMIAwareDuplicateMarking {
   }
 
   # First sort the aligned bam by coordinate, so we can group duplicate sets using UMIs in the next step.
-  call tasks.SortSamUMIAware as SortSamFirst {
+  call tasks.SortSamByCoordinate as SortSamByCoordinateFirstPass {
     input:
       input_bam = aligned_bam,
-      output_bam_basename = output_basename + ".STAR_aligned.coorinate_sorted",
-      sort_order = "coordinate"
+      output_bam_basename = output_basename + ".STAR_aligned.coorinate_sorted"
   }
 
   # Further divide each duplicate set (a set of reads with the same insert start and end coordinates)
@@ -48,34 +44,32 @@ workflow UMIAwareDuplicateMarking {
   
   call tasks.GroupByUMIs {
     input:
-      bam = SortSamFirst.output_bam,
-      bam_index = select_first([SortSamFirst.output_bam_index, "bam_index_not_found"]),
+      bam = SortSamByCoordinateFirstPass.output_bam,
+      bam_index = SortSamByCoordinateFirstPass.output_bam_index,
       output_bam_basename = output_basename + ".grouped_by_UMI"
   }
 
-  call tasks.SortSamUMIAware as SortSamQueryName {
+  call tasks.SortSamByQueryName as SortSamByQueryName {
     input:
       input_bam = GroupByUMIs.grouped_bam,
-      output_bam_basename = output_basename + ".grouped.queryname_sorted",
-      sort_order = "queryname"
+      output_bam_basename = output_basename + ".grouped.queryname_sorted"
   }
 
   call tasks.MarkDuplicatesUMIAware as MarkDuplicates {
     input:
-      bam = SortSamQueryName.output_bam,
+      bam = SortSamByQueryName.output_bam,
       output_basename = output_basename
   }
 
-  call tasks.SortSamUMIAware as SortSamSecond {
+  call tasks.SortSamByCoordinate as SortSamByCoordinateSecondPass {
     input:
       input_bam = MarkDuplicates.duplicate_marked_bam,
-      output_bam_basename = output_basename + ".duplicate_marked.coordinate_sorted",
-      sort_order = "coordinate"
+      output_bam_basename = output_basename + ".duplicate_marked.coordinate_sorted"
   }
 
   output {
-    File duplicate_marked_bam = SortSamSecond.output_bam
-    File duplicate_marked_bam_index = select_first([SortSamSecond.output_bam_index, "bam_index_not_found"])
+    File duplicate_marked_bam = SortSamByCoordinateSecondPass.output_bam
+    File duplicate_marked_bam_index = SortSamByCoordinateSecondPass.output_bam_index
     File duplicate_metrics = MarkDuplicates.duplicate_metrics
   }
 }

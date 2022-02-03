@@ -20,7 +20,7 @@ import "../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
 
 workflow RNAWithUMIsPipeline {
 
-	String pipeline_version = "0.1.0"
+	String pipeline_version = "1.0.1"
 
 	input {
 		File? bam
@@ -28,16 +28,17 @@ workflow RNAWithUMIsPipeline {
 		File? r2_fastq
 		String read1Structure
 		String read2Structure
-		File starIndex
 		String output_basename
-		File gtf
 
-		# only needed if inputs are fastqs instead of ubam
+		# The following inputs are only required if fastqs are given as input.
 		String? platform
 		String? library_name
 		String? platform_unit
 		String? read_group_name
 		String? sequencing_center = "BI"
+
+		File starIndex
+		File gtf
 
 		File ref
 		File refIndex
@@ -46,6 +47,28 @@ workflow RNAWithUMIsPipeline {
 		File ribosomalIntervals
 		File exonBedFile
 	}
+
+    parameter_meta {
+       bam: "Read group-specific unmapped BAM file;  alternatively, paired-end FASTQ files (the `r1_fastq` and `r2_fastq` inputs) may be used"
+       r1_fastq: "Read 1 FASTQ file; alternatively, the unmapped bam file (`bam` input) may be used as input"
+       r2_fastq: "Read 2 FASTQ file; alternatively, the unmapped bam file (`bam` input) may be used as input"
+       read1Structure: "String describing how the bases in a sequencing run should be allocated into logical reads for read 1"
+       read2Structure: "String describing how the bases in a sequencing run should be allocated into logical reads for read 2"
+       starIndex: "TAR file containing genome indices used for the STAR aligner"
+       output_basename: "String used as a prefix in workflow output files"
+       gtf: "Gene annotation file (GTF) used for the rnaseqc tool"
+       platform: "String used to describe the sequencing platform; only required when using FASTQ files as input"
+       library_name: "String used to describe the library; only required when using FASTQ files as input"
+       platform_unit: "String used to describe the platform unit; only required when using FASTQ files as input"
+       read_group_name: "String used to describe the read group name; only required when using FASTQ files as input"
+       sequencing_center: "String used to describe the sequencing center; only required when using FASTQ files as input; default is set to 'BI'"
+       ref: "FASTA file used for metric collection with Picard tools"
+       refIndex: "FASTA index file used for metric collection with Picard tools"
+       refDict: "Dictionary file used for metric collection with Picard tools"
+       refFlat: "refFlat file used for metric collection with Picard tools"
+       ribosomalIntervals: "Intervals file used for RNA metric collection with Picard tools"
+       exonBedFile: "Bed file used for fragment size calculations in the rnaseqc tool; contains non-overlapping exons"
+    }
 
     call tasks.VerifyPipelineInputs {
         input:
@@ -143,20 +166,8 @@ workflow RNAWithUMIsPipeline {
 			ref_fasta_index=refIndex
 	}
 
-	# TODO: wire in fingerprint_summary_metrics once we have it. Using static example for now
-	call tasks.MergeMetrics {
-		input:
-			alignment_summary_metrics=CollectMultipleMetrics.alignment_summary_metrics,
-			insert_size_metrics=CollectMultipleMetrics.insert_size_metrics,
-			picard_rna_metrics=CollectRNASeqMetrics.rna_metrics,
-			duplicate_metrics=UMIAwareDuplicateMarking.duplicate_metrics,
-			rnaseqc2_metrics=rnaseqc2.metrics,
-			fingerprint_summary_metrics="gs://broad-gotc-test-storage/rna_seq/example.fingerprinting_summary_metrics",
-			output_basename = GetSampleName.sample_name
-	}
-
-
 	output {
+		String sample_name = GetSampleName.sample_name
 		File transcriptome_bam = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam
 		File transcriptome_bam_index = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam_index
 		File transcriptome_duplicate_metrics = UMIAwareDuplicateMarkingTranscriptome.duplicate_metrics
@@ -178,7 +189,6 @@ workflow RNAWithUMIsPipeline {
 		File picard_quality_by_cycle_pdf = CollectMultipleMetrics.quality_by_cycle_pdf
 		File picard_quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
 		File picard_quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
-		File unified_metrics = MergeMetrics.unified_metrics
 	}
 }
 

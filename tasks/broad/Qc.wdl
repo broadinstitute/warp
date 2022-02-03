@@ -276,48 +276,73 @@ task CrossCheckFingerprints {
   }
 }
 
-# Check that the fingerprint of the sample BAM matches the sample array
 task CheckFingerprint {
   input {
-    File input_bam
-    File input_bam_index
-    String output_basename
-    File haplotype_database_file
-    File? genotypes
+    File? input_bam
+    File? input_bam_index
+    File? input_vcf
+    File? input_vcf_index
+    String? input_sample_alias
+
+    File genotypes
     File? genotypes_index
-    String sample
-    Int preemptible_tries
+    String expected_sample_alias
+
+    String output_basename
+    Float genotype_lod_threshold = 5.0
+
+    File haplotype_database_file
+    File? ref_fasta
+    File? ref_fasta_index
+
+    Int memory_size = 2500
+    Int preemptible_tries = 3
   }
 
-  Int disk_size = ceil(size(input_bam, "GiB")) + 20
+  Int java_memory_size = memory_size - 1000
+  Int max_heap = memory_size - 500
+
+  Int disk_size = ceil(size(input_bam, "GiB") + size(input_vcf, "GiB")) + 20
   # Picard has different behavior depending on whether or not the OUTPUT parameter ends with a '.', so we are explicitly
   #   passing in where we want the two metrics files to go to avoid any potential confusion.
   String summary_metrics_location = "~{output_basename}.fingerprinting_summary_metrics"
   String detail_metrics_location = "~{output_basename}.fingerprinting_detail_metrics"
 
-  command <<<
-    java -Dsamjdk.buffer_size=131072 \
-      -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms3000m -Xmx3000m \
-      -jar /usr/picard/picard.jar \
-      CheckFingerprint \
-      INPUT=~{input_bam} \
-      SUMMARY_OUTPUT=~{summary_metrics_location} \
-      DETAIL_OUTPUT=~{detail_metrics_location} \
-      GENOTYPES=~{genotypes} \
-      HAPLOTYPE_MAP=~{haplotype_database_file} \
-      SAMPLE_ALIAS="~{sample}" \
-      IGNORE_READ_GROUPS=true
+  File input_file = select_first([input_vcf, input_bam])
 
+  command <<<
+    set -e
+    java -Xms~{java_memory_size}m -Xmx~{max_heap}m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+    CheckFingerprint \
+      --INPUT ~{input_file} \
+      ~{if defined(input_vcf) then "--OBSERVED_SAMPLE_ALIAS \"" + input_sample_alias + "\"" else ""} \
+      --GENOTYPES ~{genotypes} \
+      --EXPECTED_SAMPLE_ALIAS "~{expected_sample_alias}" \
+      ~{if defined(input_bam) then "--IGNORE_READ_GROUPS true" else ""} \
+      --HAPLOTYPE_MAP ~{haplotype_database_file} \
+      --GENOTYPE_LOD_THRESHOLD ~{genotype_lod_threshold} \
+      --SUMMARY_OUTPUT ~{summary_metrics_location} \
+      --DETAIL_OUTPUT ~{detail_metrics_location} \
+      ~{"--REFERENCE_SEQUENCE " + ref_fasta}
+
+    CONTENT_LINE=$(cat ~{summary_metrics_location} |
+    grep -n "## METRICS CLASS\tpicard.analysis.FingerprintingSummaryMetrics" |
+    cut -f1 -d:)
+    CONTENT_LINE=$(($CONTENT_LINE+2))
+    sed '8q;d' ~{summary_metrics_location} | cut -f5 > lod
   >>>
+
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
-    preemptible: preemptible_tries
-    memory: "3500 MiB"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.4"
     disks: "local-disk " + disk_size + " HDD"
+    memory: "~{memory_size} MiB"
+    preemptible: preemptible_tries
   }
+
   output {
     File summary_metrics = summary_metrics_location
     File detail_metrics = detail_metrics_location
+    Float lod = read_float("lod")
   }
 }
 

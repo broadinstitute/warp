@@ -1,7 +1,25 @@
+# 3.0.4
+2022-02-02 (Date of Last Commit)
+
+* Changed dragmap base image from Centos to RockyLinux to comply with trivy scans
+
+# 3.0.3
+2022-02-01 (Date of Last Commit)
+
+* Increased the disk space in Reblock task
+* Increased the disk space in CalibrateDragstrModel task
+* Addressed memory usage in CheckFingerprint task to allow sufficient headroom for the VM
+
+# 3.0.2
+2022-01-14 (Date of Last Commit)
+
+* Refactor to move CheckFingerprint functionality into new task
+
 # 3.0.1
 2021-12-09
 * Updated the base image for the Dragmap docker image
 * Updated broken dependency in VerifyBamID docker image
+
 # 3.0.0
 2021-11-15
 

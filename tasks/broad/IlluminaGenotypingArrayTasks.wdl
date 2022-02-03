@@ -122,7 +122,7 @@ task GtcToVcf {
     --SAMPLE_ALIAS "~{sample_alias}" \
     --ANALYSIS_VERSION_NUMBER ~{analysis_version_number} \
     --EXPECTED_GENDER "~{reported_gender}" \
-    ~{"--FINGERPRINT_GENOTYPES_VCF_FILE \"" + fingerprint_genotypes_vcf_file + "\""} \
+    ~{if defined(fingerprint_genotypes_vcf_file) then "--FINGERPRINT_GENOTYPES_VCF_FILE \"" + fingerprint_genotypes_vcf_file + "\"" else ""} \
     --REFERENCE_SEQUENCE ~{ref_fasta} \
     --MAX_RECORDS_IN_RAM 100000 \
     --CREATE_INDEX true \
@@ -367,62 +367,6 @@ task VcfToIntervalList {
   }
 }
 
-task CheckFingerprint {
-  input {
-    File input_vcf_file
-    File input_vcf_index_file
-    File? genotypes_vcf_file
-    File? genotypes_vcf_index_file
-    File haplotype_database_file
-    String observed_sample_alias
-    String expected_sample_alias
-    String output_metrics_basename
-
-    Int disk_size
-    Int preemptible_tries
-  }
-
-  # Paraphrased from Yossi:
-  # Override the default LOD threshold of 5 because if the PL field
-  # is missing from the VCF, CheckFingerprint will default to an error
-  # rate equivalent to a LOD score of 2, and we don't want to see
-  # confident LOD scores w/ no confident SNPs.
-  Float genotype_lod_threshold = 1.9
-  String summary_metrics_extension = ".fingerprinting_summary_metrics"
-
-  command <<<
-    set -e
-    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
-      CheckFingerprint \
-      --INPUT ~{input_vcf_file} \
-      --OBSERVED_SAMPLE_ALIAS "~{observed_sample_alias}" \
-    ~{"--GENOTYPES \"" + genotypes_vcf_file +"\""} \
-      --EXPECTED_SAMPLE_ALIAS "~{expected_sample_alias}" \
-      --HAPLOTYPE_MAP ~{haplotype_database_file} \
-      --GENOTYPE_LOD_THRESHOLD ~{genotype_lod_threshold} \
-      --OUTPUT ~{output_metrics_basename}
-
-    CONTENT_LINE=$(cat ~{output_metrics_basename}~{summary_metrics_extension} |
-    grep -n "## METRICS CLASS\tpicard.analysis.FingerprintingSummaryMetrics" |
-    cut -f1 -d:)
-    CONTENT_LINE=$(($CONTENT_LINE+2))
-    sed '8q;d' ~{output_metrics_basename}~{summary_metrics_extension} | cut -f5 > lod
-  >>>
-
-  runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "3500 MiB"
-    preemptible: preemptible_tries
-  }
-
-  output {
-    File summary_metrics = "~{output_metrics_basename}~{summary_metrics_extension}"
-    File detail_metrics = "~{output_metrics_basename}.fingerprinting_detail_metrics"
-    Float lod = read_float("lod")
-  }
-}
-
 task SelectVariants {
   input {
     File input_vcf_file
@@ -437,13 +381,13 @@ task SelectVariants {
     File ref_fasta_index
     File ref_dict
 
-    Int disk_size
     Int preemptible_tries
   }
 
   String base_vcf = basename(output_vcf_filename)
   Boolean is_compressed = basename(base_vcf, "gz") != base_vcf
   String vcf_index_suffix = if is_compressed then ".tbi" else ".idx"
+  Int disk_size = 3 * ceil(size(input_vcf_file, "GiB") + size(input_vcf_index_file, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB"))
 
   command <<<
     set -eo pipefail
@@ -460,6 +404,7 @@ task SelectVariants {
 
   runtime {
     docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+    bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -496,6 +441,7 @@ task SelectIndels {
 
   runtime {
     docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+    bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -630,7 +576,8 @@ task SubsetArrayVCF {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gatk/gatk:4.1.3.0"
+    docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+    bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
   }
@@ -728,7 +675,8 @@ task ValidateVariants {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gatk/gatk:4.1.3.0"
+    docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+    bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
