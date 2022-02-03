@@ -91,6 +91,7 @@ task BuildStarSingleNucleus {
     String organism
     String organism_prefix
     References references
+    String biotypes
   }
 
   meta {
@@ -108,7 +109,7 @@ task BuildStarSingleNucleus {
     python3 /script/modify_gtf.py  \
     --input-gtf ~{references.annotation_gtf} \
     --output-gtf ~{annotation_gtf_modified} \
-    --biotypes /script/Biotypes.csv
+    --biotypes ~{biotypes}
 
     mkdir star
     STAR --runMode genomeGenerate \
@@ -418,7 +419,8 @@ workflow BuildIndices {
       gtf_version = gtf_version,
       organism = organism,
       organism_prefix = organism_prefix,
-      references = GetReferences.references
+      references = GetReferences.references,
+      biotypes = biotypes
   }
 
   call BuildRsem {
