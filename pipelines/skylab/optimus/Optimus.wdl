@@ -82,7 +82,7 @@ workflow Optimus {
       counting_mode = counting_mode
   }
 
-  call FastqProcessing.FastqProcessing as SplitFastq {
+  call FastqProcessing.FastqProcessingOptimus as SplitFastq {
     input:
       i1_fastq = i1_fastq,
       r1_fastq = r1_fastq,

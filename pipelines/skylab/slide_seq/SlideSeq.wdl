@@ -25,18 +25,34 @@ workflow SlideSeq{
     input {
         Array[File] r1_fastq
         Array[File] r2_fastq
+        Array[File]? i1_fastq
         String sample_id
 
-        Int? cell_barcode_length
-        Int? umi_length
+        Int cell_barcode_length
+        Int umi_length
     }
 
     parameter_meta {
-        r1_fastq: "Array of Read 1 FASTQ files"
-        r2_fastq: "Array of Read 2 FASTQ files"
-        sample_id: "Id for the sample being processed"
+        r1_fastq: "Array of Read 1 FASTQ files - forward read, contains cell barcodes and molecule barcodes"
+        r2_fastq: "Array of Read 2 FASTQ files - reverse read, contains cDNA fragment generated from captured mRNA"
+        i1_fastq: "(optional) Array of i1 FASTQ files - index read, for demultiplexing of multiple samples on one flow cell."
+        sample_id: "Name of sample matching this file, inserted into read group header"
         cell_barcode_length: "Number of cell barcode base pairs in the Read 1 FASTQ"
         umi_length: "Number of UMI base pairs in the Read 1 FASTQ"
+    }
+
+    call FastqProcessing.FastqProcessingSlidSeq as SplitFastq {
+        input:
+            r1_fastq = r1_fastq,
+            r2_fastq = r2_fastq,
+            i1_fastq = i1_fastq,
+            umi_length = umi_length,
+            cell_barcode_length = cell_barcode_length,
+            sample_id = sample_id
+    }
+
+    output {
+
     }
 
 }
