@@ -57,6 +57,3 @@ task MergeSortBamFiles {
     File output_bam = output_bam_filename
   }
 }
-
-
-
