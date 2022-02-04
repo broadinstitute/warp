@@ -18,11 +18,10 @@ workflow DragmapAlignCompare {
     File truth_bam = input_bams_1[idx]
     File test_bam = input_bams_2[idx]
 
-    call VerifyTasks.CompareBams {
+    call VerifyTasks.CompareLargeBamFiles {
       input:
         test_bam = test_bam,
-        truth_bam =test_bam,
-        lenient_header = false
+        truth_bam = truth_bam,
     }
   }
 

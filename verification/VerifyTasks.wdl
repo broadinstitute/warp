@@ -210,11 +210,11 @@ task CompareLargeBamFiles {
     samtools view --header-only ~{truth_bam} > truth_header.sam
 
     samtools view --no-header -b ~{test_bam} > test_records.bam
-    samtools view --no-header -b ~{test_bam} > test_records.bam
+    samtools view --no-header -b ~{truth_bam} > truth_records.bam
 
     diff test_header.sam truth_header.sam > header_diff.txt
 
-    cmp test_records.bam test_records.bam
+    cmp test_records.bam truth_records.bam
   }
 
   output {
