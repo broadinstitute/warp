@@ -10,6 +10,7 @@ DIR=$(cd $(dirname $0) && pwd)
 GCR_URL="us.gcr.io/broad-gotc-prod/gatk"
 QUAY_URL="quay.io/broadinstitute/gotc-prod-gatk"
 
+# TODO update to 4.2.5.0 and build
 # GATK4 version
 GATK4_VERSION="4.2.4.0"
 
