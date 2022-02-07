@@ -420,7 +420,7 @@ task MergeStarOutput {
     declare -a features_files=(~{sep=' ' features})
     declare -a matrix_files=(~{sep=' ' matrix})
 
-   # create the  compresed raw count matrix with the counts, gene names and the barcodes
+   # create the  compressed raw count matrix with the counts, gene names and the barcodes
     python3 /tools/create-merged-npz-output.py \
         --barcodes $barcodes_files \
         --features $features_files \
