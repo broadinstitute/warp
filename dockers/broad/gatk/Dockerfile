@@ -1,7 +1,7 @@
 FROM adoptopenjdk/openjdk8:alpine-slim
 
 # TODO update to 4.2.5.0 and build
-ARG GATK4_VERSION=4.2.4.0 \
+ARG GATK4_VERSION=4.2.5.0 \
         GATK3_VERSION=3.5
 
 ENV TERM=xterm-256color \
