@@ -109,7 +109,7 @@ workflow Optimus {
     input:
       bam_inputs = STARsoloFastq.bam_output,
       output_bam_filename = output_bam_basename + ".bam",
-      sort_order = "unsorted"
+      sort_order = "coordinate"
   }
   call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
