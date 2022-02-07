@@ -16,6 +16,7 @@ jobs:
         - dockers/broad/verify_bam_id
         - dockers/broad/samtools
         - dockers/broad/samtools_picard_bwa
+        - dockers/broad/samtools_star
         - dockers/broad/zcall
         - dockers/broad/imputation/bcftools_vcftools
         - dockers/broad/imputation/eagle

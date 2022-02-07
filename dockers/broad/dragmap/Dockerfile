@@ -1,4 +1,5 @@
-FROM centos:8
+# Using rocky as temp replacement for CentOS
+FROM rockylinux:8.5 
 
 ARG DRAGMAP_VERSION=1.2.1 \
         PICARD_VERSION=2.26.4 \
@@ -19,7 +20,7 @@ WORKDIR /usr/gitc
 
 # Install dependencies
 RUN set -eux; \
-        yum update -y; \
+        yum upgrade -y; \
         yum install -y epel-release; \
         yum install -y boost169-devel \
             bzip2 \
