@@ -15,6 +15,8 @@ workflow ReblockGVCF {
     File ref_dict
     File ref_fasta
     File ref_fasta_index
+    Float? tree_score_cutoff
+    String? annotations_to_keep_command
   }
 
   String gvcf_basename = basename(gvcf, ".g.vcf.gz")
@@ -26,6 +28,8 @@ workflow ReblockGVCF {
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,
       ref_dict = ref_dict,
+      tree_score_cutoff = tree_score_cutoff,
+      annotations_to_keep_command = annotations_to_keep_command,
       output_vcf_filename = gvcf_basename + ".rb.g.vcf.gz"
   }
 
@@ -52,4 +56,3 @@ workflow ReblockGVCF {
     allowNestedInputs: true
   }
 }
-

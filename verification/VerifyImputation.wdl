@@ -51,7 +51,7 @@ workflow VerifyImputation {
     }
   }
 
-  call Tasks.CompareVcfs as CompareOutputVcfs {
+  call Tasks.CompareVcfsAllowingQualityDifferences as CompareOutputVcfs {
     input:
       file1 = truth_vcf,
       file2 = test_vcf
@@ -59,7 +59,7 @@ workflow VerifyImputation {
 
   if (defined(single_sample_truth_vcf)) {
     scatter (idx in range(length(select_first([single_sample_truth_vcf])))) {
-      call Tasks.CompareVcfs as CompareSingleSampleOutputVcfs {
+      call Tasks.CompareVcfsAllowingQualityDifferences as CompareSingleSampleOutputVcfs {
         input:
           file1 = select_first([single_sample_test_vcf])[idx],
           file2 = select_first([single_sample_truth_vcf])[idx]

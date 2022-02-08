@@ -1,0 +1,11 @@
+{
+  "ReblockGVCF.gvcf": "gs://broad-gotc-test-storage/tmp/jbx/gvcfs/NA12878.annotated.g.vcf.gz",
+  "ReblockGVCF.gvcf_index": "gs://broad-gotc-test-storage/tmp/jbx/gvcfs/NA12878.annotated.g.vcf.gz.tbi",
+  "ReblockGVCF.calling_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_calling_regions.hg38.interval_list",
+  "ReblockGVCF.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "ReblockGVCF.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+  "ReblockGVCF.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+  "ReblockGVCF.tree_score_cutoff": 0.2,
+  "ReblockGVCF.annotations_to_keep_command": "--annotations-to-keep TREE_SCORE --annotations-to-keep ASSEMBLED_HAPS --annotations-to-keep FILTERED_HAPS",
+  "ReblockGVCF.Reblock.docker_image":"us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v4"
+}
