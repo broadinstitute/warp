@@ -373,7 +373,6 @@ task STARsoloFastqSlideSeq {
       --soloUMIlen ~{umi_length} \
       --soloInputSAMattrBarcodeSeq CR UR \
       --soloInputSAMattrBarcodeQual CY UY \
-      --limitOutSJcollapsed "5000000" \
       --outSAMtype BAM Unsorted
   }
 
