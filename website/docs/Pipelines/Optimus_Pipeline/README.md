@@ -137,11 +137,9 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 More information about the different tags used to flag the data can be found in the [Bam_tags documentation](./Bam_tags.md).
 
 #### 1. Partition CBs
-To allow for optimal scaling, the workflow first uses the [FastqProcessing task]() to partition the input array of forward and reverse read FASTQ files by uncorrected CBs. The resulting array contains FASTQ files that are \~30 GB in size.
+To allow for optimal scaling, the workflow first uses the [FastqProcessing task](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/FastqProcessing.wdl) to partition the input array of forward and reverse read FASTQ files by uncorrected CBs. The resulting array contains FASTQ files that are \~30 GB in size.
 
 #### 2. Correct CBs, trims reads, align, annotate genes, correct UMIs, and count genes
-To allow for optimal scaling, the workflow first uses the [FastqProcessing task]() to partition the input array of forward and reverse read FASTQ files by uncorrected CBs. The resulting array contains FASTQ files that are \~30 GB in size.
-
 Then, the [STARsoloFastq task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) uses the partitioned FASTQ files to perform CB correction, alignment, gene annotation, and counting. 
 
 **CB correction**
