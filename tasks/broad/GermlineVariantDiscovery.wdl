@@ -98,6 +98,7 @@ task HaplotypeCaller_GATK4_VCF {
     File? dragstr_model
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.2.0"
     Int memory_multiplier = 1
+    String extra_args = ""
   }
   
   Int memory_size_mb = ceil(8000 * memory_multiplier)
@@ -134,6 +135,7 @@ task HaplotypeCaller_GATK4_VCF {
       -I ~{input_bam} \
       -L ~{interval_list} \
       -O ~{output_file_name} \
+      ~{extra_args} \
       -contamination ~{default=0 contamination} \
       -G StandardAnnotation -G StandardHCAnnotation ~{true="-G AS_StandardAnnotation" false="" make_gvcf} \
       ~{true="--dragen-mode" false="" run_dragen_mode_variant_calling} \
