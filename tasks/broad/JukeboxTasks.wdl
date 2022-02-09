@@ -8,10 +8,11 @@ task SplitCram {
     File input_cram_bam
     String base_file_name
     Int reads_per_file
-    String docker
     Int disk_size_gb = ceil(3 * size(input_cram_bam, "GB"))
     Int preemptible_tries
     Boolean no_address
+    
+    String docker = "gcr.io/terra-project-249020/crammer:1.3_0c527b2e"
   }
 
   command <<<
@@ -42,12 +43,13 @@ task ConvertCramOrBamToUBam {
     File monitoring_script
     File input_file
     String base_file_name
-    String docker
     Float split_chunk_size
     Int additional_disk
     Int disk_size_gb = ceil((2 * split_chunk_size) + additional_disk)
     Int preemptible_tries
     Boolean no_address
+    
+    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
   }
 
   command <<<
@@ -104,10 +106,11 @@ task ConvertCramOrBamToUBam {
 # Get version of BWA
 task GetBwaVersion {
   input {
-    String docker
     String gitc_path
     Boolean no_address
     String dummy_input_for_call_caching
+
+    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
   }
   command {
     # not setting set -o pipefail here because /bwa has a rc=1 and we dont want to allow rc=1 to succeed because
@@ -143,7 +146,7 @@ task SamToFastqAndBwaMemAndMba {
     Int disk_size
     Int compression_level
     Int preemptible_tries
-    String docker
+    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
   }
   command <<<
     set -o pipefail
@@ -229,11 +232,12 @@ task MarkDuplicatesSpark {
     File monitoring_script
     Int memory_gb
     Int disk_size_gb
-    String docker
     String no_address
     Int cpu
     String gitc_path
     String? args
+    
+    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
   }
   parameter_meta {
     input_bams: {
@@ -274,13 +278,14 @@ task MarkDuplicatesSpark {
 task FilterByRsq{
   input { 
     File monitoring_script 
-    String docker
     File input_bam
     Float rsq_threshold
     Boolean no_address
     Int preemptible_tries
     Int additional_disk
     Int disk_size_gb = ceil(2 * size(input_bam, "GB") + additional_disk)
+    
+    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
   }
 
   String output_filename = basename(input_bam, ".bam") + ".filter.rq.bam"
@@ -315,8 +320,9 @@ task ExtractSampleNameFlowOrder{
     File input_bam
     File monitoring_script
     Int preemptible_tries
-    String docker
     References references
+    
+    String docker = "broadinstitute/gatk:4.1.4.1"
   }
   parameter_meta {
     input_bam: {
@@ -458,7 +464,6 @@ task HaplotypeCaller {
     Float? contamination
     Int disk_size
     Int preemptible_tries
-    String docker
     String gitc_path
     Int memory_gb
     String? extra_args
@@ -467,6 +472,8 @@ task HaplotypeCaller {
     Boolean no_address
     Boolean make_gvcf
     Boolean make_bamout
+    
+    String docker = "gcr.io/terra-project-249020/gatk_ultima:0.6.1"
   }
 
   parameter_meta {
@@ -527,10 +534,11 @@ task MergeBams {
     Array[File] input_bams
     String output_bam_name
     Int preemptible_tries
-    String docker
     String gitc_path
     Boolean no_address
     Int disk_size_gb = ceil(2 * size(input_bams,"GB") + 20)
+    
+    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
   }
   # Using MergeVcfs instead of GatherVcfs so we can create indices
   # See https://github.com/broadinstitute/picard/issues/789 for relevant GatherVcfs ticket
@@ -569,8 +577,9 @@ task ConvertGVCFtoVCF {
     Int disk_size_gb
     Int preemptible_tries
     Boolean no_address
-    String docker
     String gitc_path
+
+    String docker = "gcr.io/terra-project-249020/gatk_ultima:0.6.1"
   }
   command {
     bash ~{monitoring_script} > monitoring.log &
@@ -613,8 +622,9 @@ task FilterVCF {
     Array[File] annotation_intervals
     Int disk_size_gb
     Int preemptible_tries
-    String docker
     Boolean no_address
+    
+    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
   }
   String used_flow_order = (if flow_order=="" then "TACG" else flow_order)
   command <<<
@@ -669,10 +679,11 @@ task TrainModel {
                         size(ref_fasta, "GB") +
                         size(annotation_intervals, "GB") +
                         size(blacklist_file, "GB") + additional_disk)
-    String docker
     Boolean no_address
     Int? exome_weight
     String? exome_weight_annotation
+    
+    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
   }
   command <<<
     bash ~{monitoring_script} > /cromwell_root/monitoring.log &
@@ -714,11 +725,12 @@ task CollectDuplicateMetrics {
     File monitoring_script
     String metrics_filename
     Int disk_size_gb
-    String docker
     String no_address
     String gitc_path
     File? jar_override
     Int preemptible_tries
+    
+    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
   }
 
   File jar = select_first([jar_override, "~{gitc_path}picard.jar"])
@@ -758,10 +770,11 @@ task CollectWgsMetrics {
     Int? read_length
     Int disk_size
     Int preemptible_tries
-    String docker
     String gitc_path
     File? jar_override
     Boolean no_address
+    
+    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
   }
   File jar = select_first([jar_override, "~{gitc_path}picard.jar"])
   command {
@@ -808,10 +821,11 @@ task CollectRawWgsMetrics {
     Int disk_size
     Int memory_size
     Int preemptible_tries
-    String docker
     String gitc_path
     File? jar_override
     Boolean no_address
+    
+    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
   }
   File jar = select_first([jar_override, "~{gitc_path}picard.jar"])
   command {
@@ -854,10 +868,11 @@ task CollectAggregationMetrics {
     References references
     Int preemptible_tries
     Int disk_size
-    String docker
     String gitc_path
     File? jar_override
     Boolean no_address
+    
+    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
   }
 
   File jar = select_first([jar_override, "~{gitc_path}picard.jar"])
@@ -913,8 +928,9 @@ task AnnotateVCF {
     Int additional_disk
     Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + size(references.ref_fasta, "GB") + size(reference_dbsnp, "GB") + additional_disk)
     Int preemptible_tries
-    String docker
     Boolean no_address
+    
+    String docker = "gcr.io/terra-project-249020/gatk_ultima:0.6.1"
   }
   command <<<
     bash ~{monitoring_script} > /cromwell_root/monitoring.log &
@@ -954,8 +970,9 @@ task AddIntervalAnnotationsToVCF {
     Array[File] annotation_intervals
     Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + 1)
     Int preemptible_tries
-    String docker
     Boolean no_address
+    
+    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
   }
 
   command <<<
@@ -1007,8 +1024,9 @@ task AnnotateVCF_AF {
     Int additional_disk
     Int disk_size_gb = ceil(3 * size(input_vcf, "GB") + size(af_only_gnomad, "GB") + additional_disk)
     Int preemptible_tries
-    String docker
     Boolean no_address
+    
+    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
   }
   command <<<
     bash ~{monitoring_script} > /cromwell_root/monitoring.log &
@@ -1058,6 +1076,8 @@ task MoveAnnotationsToGvcf {
 		File gvcf
 		File gvcf_index
 		String annotation = "TREE_SCORE"
+
+    String docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
 	}
 	String filename = basename(gvcf, ".g.vcf.gz")
 	Int disk_size_gb = ceil(size(filtered_vcf, "GB") + size(gvcf, "GB") * 2 + 30)
@@ -1074,7 +1094,7 @@ task MoveAnnotationsToGvcf {
 	}
 
 	runtime {
-		docker: "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
+		docker: docker
 		memory: "7 GiB"
     disks: "local-disk " + disk_size_gb + " HDD"
 	}

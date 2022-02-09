@@ -106,10 +106,10 @@ workflow JukeboxSingleSample {
     RuntimeOptions runtime_options
     AlignmentReferences alignment_references
     VariantCallingSettings variant_calling_settings
-    EnvironmentVersions environment_versions
     VcfPostProcessing vcf_post_processing
     ExtraArgs extra_args
   }
+  
   References references = alignment_references.references
 
   Int preemptibles = select_first([runtime_options.preemptible_tries, 1])
@@ -155,12 +155,8 @@ workflow JukeboxSingleSample {
       base_file_name_sub = base_file_name_sub,
       reads_per_split = extra_args.reads_per_split,
       rsq_threshold = extra_args.rsq_threshold,
-      crammer_docker = environment_versions.crammer_docker,
       compression_level = compression_level,
-      gitc_docker = environment_versions.gitc_docker,
       gitc_path = gitc_path,
-      gatk_markduplicates_docker = environment_versions.gatk_markduplicates_docker,
-      jukebox_vc_docker = environment_versions.jukebox_vc_docker,
       no_address = no_address,
       parallel_no_address = parallel_no_address,
       dummy_input_for_call_caching = runtime_options.dummy_input_for_call_caching,
@@ -217,7 +213,6 @@ workflow JukeboxSingleSample {
       references = references,
       preemptible_tries = preemptibles,
       monitoring_script = runtime_options.monitoring_script,
-      docker = environment_versions.broad_gatk_docker
   }
 
   # Break the calling interval_list into sub-intervals
@@ -247,7 +242,6 @@ workflow JukeboxSingleSample {
         # Divide the total output VCF size and the input bam size to account for the smaller scattered input and output.
         disk_size = ceil(((deduplicated_bam_size_vc + VCF_disk_size) / hc_divisor) + ref_size + additional_disk),
         preemptible_tries = preemptibles,
-        docker = environment_versions.jb_gatk_docker,
         gitc_path = gitc_path,
         monitoring_script = runtime_options.monitoring_script,
         extra_args = extra_args.hc_extra_args,
@@ -255,12 +249,12 @@ workflow JukeboxSingleSample {
         make_gvcf = make_gvcf,
         memory_gb = 12,
         make_bamout = false
-     }
+    }
 
-     # if cromwell implements optional outputs,
-     Boolean h1_success = (size(HC1.output_vcf_index)!=0)
-     if (!h1_success) {
-        call Tasks.HaplotypeCaller as HC2 {
+    # if cromwell implements optional outputs,
+    Boolean h1_success = (size(HC1.output_vcf_index)!=0)
+    if (!h1_success) {
+      call Tasks.HaplotypeCaller as HC2 {
         input:
           input_bam_list = [AlignmentAndMarkDuplicates.output_bam],
           interval_list = ScatterIntervalList.out[index],
@@ -269,7 +263,6 @@ workflow JukeboxSingleSample {
           # Divide the total output VCF size and the input bam size to account for the smaller scattered input and output.
           disk_size = ceil(((deduplicated_bam_size_vc + VCF_disk_size) / hc_divisor) + ref_size + additional_disk),
           preemptible_tries = preemptibles,
-          docker = environment_versions.jb_gatk_docker,
           gitc_path = gitc_path,
           monitoring_script = runtime_options.monitoring_script,
           extra_args = extra_args.hc_extra_args,
@@ -278,14 +271,14 @@ workflow JukeboxSingleSample {
           memory_gb = 40,
           native_sw = true,
           make_bamout = false
-       }
-     }
+      }
+    }
 
-     # gate success on h1_success
-     File HC_output_vcf_idx = select_first([ if h1_success then HC1.output_vcf_index else HC2.output_vcf_index])
-     File HC_output_vcf =     select_first([ if h1_success then HC1.output_vcf else HC2.output_vcf])
-     File monitoring_log =    select_first([ if h1_success then HC1.monitoring_log else HC2.monitoring_log])
-     File haplotypes_bam =    select_first([ if h1_success then HC1.haplotypes_bam else HC2.haplotypes_bam])
+    # gate success on h1_success
+    File HC_output_vcf_idx = select_first([ if h1_success then HC1.output_vcf_index else HC2.output_vcf_index])
+    File HC_output_vcf =     select_first([ if h1_success then HC1.output_vcf else HC2.output_vcf])
+    File monitoring_log =    select_first([ if h1_success then HC1.monitoring_log else HC2.monitoring_log])
+    File haplotypes_bam =    select_first([ if h1_success then HC1.haplotypes_bam else HC2.haplotypes_bam])
 
   }
 
@@ -306,7 +299,6 @@ workflow JukeboxSingleSample {
           input_bams = haplotypes_bam,
           output_bam_name = base_file_name_sub + ".bam",
           preemptible_tries = preemptibles,
-          docker = environment_versions.gitc_docker,
           gitc_path = gitc_path,
           no_address = no_address
       }
@@ -324,7 +316,6 @@ workflow JukeboxSingleSample {
       disk_size_gb = VCF_disk_size,
       preemptible_tries = preemptibles,
       no_address = no_address,
-      docker = environment_versions.jb_gatk_docker,
       gitc_path = gitc_path
   }
 
@@ -341,7 +332,6 @@ workflow JukeboxSingleSample {
       final_vcf_base_name = base_file_name_sub,
       additional_disk = additional_disk,
       preemptible_tries = preemptibles,
-      docker = environment_versions.jb_gatk_docker,
       no_address = no_address,
       gitc_path = gitc_path
   }
@@ -353,7 +343,6 @@ workflow JukeboxSingleSample {
       final_vcf_base_name = base_file_name_sub,
       annotation_intervals = vcf_post_processing.annotation_intervals,
       preemptible_tries = preemptibles,
-      docker = environment_versions.jukebox_vc_docker,
       monitoring_script = runtime_options.monitoring_script,
       no_address = no_address
   }
@@ -373,7 +362,6 @@ workflow JukeboxSingleSample {
         exome_weight_annotation = vcf_post_processing.exome_weight_annotation,
         additional_disk = additional_disk,
         preemptible_tries = eval_preemptible_tries,
-        docker = environment_versions.jukebox_vc_docker,
         monitoring_script = runtime_options.monitoring_script,
         no_address = no_address
   }
@@ -389,7 +377,6 @@ workflow JukeboxSingleSample {
         final_vcf_base_name = base_file_name_sub,
         additional_disk = additional_disk,
         preemptible_tries = preemptibles,
-        docker = environment_versions.jukebox_vc_docker,
         no_address = no_address
   }
 
@@ -407,7 +394,6 @@ workflow JukeboxSingleSample {
       annotation_intervals = vcf_post_processing.annotation_intervals,
       disk_size_gb = VCF_disk_size,
       preemptible_tries = eval_preemptible_tries,
-      docker = environment_versions.jukebox_vc_docker,
       monitoring_script = runtime_options.monitoring_script,
       no_address = no_address
   }
@@ -434,10 +420,7 @@ workflow JukeboxSingleSample {
       contamination_sites = contamination_sites,
       wgs_coverage_interval_list = vcf_post_processing.wgs_coverage_interval_list,
       picard_jar_override = environment_versions.picard_jar_override,
-      jb_gatk_docker = environment_versions.jb_gatk_docker,
-      gatk_markduplicates_docker = environment_versions.gatk_markduplicates_docker,
       gitc_path = gitc_path,
-      gitc_docker = environment_versions.gitc_docker,
       no_address = no_address,
       preemptibles = preemptibles,
       eval_preemptible_tries = eval_preemptible_tries,

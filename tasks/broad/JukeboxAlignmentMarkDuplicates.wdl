@@ -9,14 +9,9 @@ workflow AlignmentAndMarkDuplicates {
     SampleInputs sample_inputs
     String base_file_name_sub
     Int? reads_per_split
-    String crammer_docker
     Int preemptibles
     Int compression_level
     Int additional_disk
-    String gitc_docker
-    String gitc_path
-    String gatk_markduplicates_docker
-    String jukebox_vc_docker
 
     Boolean no_address
     Boolean parallel_no_address
@@ -54,7 +49,6 @@ workflow AlignmentAndMarkDuplicates {
           input_cram_bam = input_cram,
           base_file_name = base_file_name_sub,
           reads_per_file = reads_per_cram,
-          docker = crammer_docker,
           preemptible_tries = preemptibles,
           no_address = false
       }
@@ -88,7 +82,6 @@ workflow AlignmentAndMarkDuplicates {
 
   call Tasks.GetBwaVersion {
     input:
-      docker = gitc_docker,
       gitc_path = gitc_path,
       no_address = no_address,
       dummy_input_for_call_caching = dummy_input_for_call_caching,
@@ -108,14 +101,12 @@ workflow AlignmentAndMarkDuplicates {
         additional_disk = additional_disk,
         base_file_name = base_file_name_sub,
         preemptible_tries = preemptibles,
-        docker = gatk_markduplicates_docker,
         no_address = parallel_no_address
     }
 
     call Tasks.FilterByRsq {
       input:
         monitoring_script = monitoring_script, 
-        docker = jukebox_vc_docker, 
         input_bam = ConvertToUbam.unmapped_bam, 
         rsq_threshold = rsq_threshold,
         no_address = no_address, 
@@ -136,7 +127,6 @@ workflow AlignmentAndMarkDuplicates {
         bwa_version = GetBwaVersion.version,
         compression_level = compression_level,
         preemptible_tries = preemptibles,
-        docker = gitc_docker,
         monitoring_script=monitoring_script,
       # The merged bam can be bigger than only the aligned bam,
       # so account for the output size by multiplying the input size by 2.75.
@@ -168,7 +158,6 @@ workflow AlignmentAndMarkDuplicates {
       monitoring_script = monitoring_script,
       memory_gb = mark_duplicates_ram,
       disk_size_gb = mapped_bam_size_local_ssd,
-      docker = gatk_markduplicates_docker,
       gitc_path = gitc_path,
       no_address = false,
       cpu = mark_duplicates_cpus,
