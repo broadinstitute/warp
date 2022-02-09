@@ -169,7 +169,6 @@ task MergeVCFs {
     Array[File] input_vcfs
     Array[File] input_vcfs_indexes
     String output_vcf_name
-    
     Int preemptible_tries = 3
   }
 
