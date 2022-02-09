@@ -13,3 +13,4 @@ RUN mkdir /tools
 WORKDIR /tools
 
 COPY create-npz-output.py .
+COPY create-merged-npz-output.py .
