@@ -12,21 +12,6 @@ struct ContaminationSites {
   File contamination_sites_vcf_index
 }
 
-struct RuntimeOptions {
-  Int? preemptible_tries
-  Int? evaluation_preemptible_tries
-  String monitoring_script
-  # Optional input to increase all disk sizes in case of outlier sample with strange size behavior
-  Int? increase_disk_size
-  Int? additional_metrics_disk # will be added to increase_disk_size
-  Boolean? no_address_override
-  # When running on Terra, use workspace.name as this input to ensure that all tasks will only cache hit to runs in your
-  # own workspace. This will prevent call caching from failing with "Cache Miss (10 failed copy attempts)". Outside of
-  # Terra this can be left as the default empty String. This dummy input is only needed for tasks that have no inputs
-  # specific to the sample being run (such as GetBwaVersion which does not take in any sample data).
-  String dummy_input_for_call_caching
-}
-
 struct References {
   File ref_fasta
   File ref_fasta_index

@@ -20,7 +20,8 @@ task CollectQualityYieldMetrics {
   input {
     File input_bam
     String metrics_filename
-    Int preemptible_tries
+
+    Int preemptible_tries = 3
   }
 
   Int disk_size = ceil(size(input_bam, "GiB")) + 20
@@ -352,7 +353,8 @@ task CheckPreValidation {
     File chimerism_metrics
     Float max_duplication_in_reasonable_sample
     Float max_chimerism_in_reasonable_sample
-    Int preemptible_tries
+    
+    Int preemptible_tries = 3
   }
 
   command <<<
@@ -405,7 +407,7 @@ task ValidateSamFile {
     Int? max_output
     Array[String]? ignore
     Boolean? is_outlier_data
-    Int preemptible_tries
+    Int preemptible_tries = 0
     Int memory_multiplier = 1
     Int additional_disk = 20
   }
