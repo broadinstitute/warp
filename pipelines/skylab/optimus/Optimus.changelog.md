@@ -1,7 +1,15 @@
+# 5.2.0
+2022-01-07 (Date of Last Commit)
+
+* Updated the pipeline to split the fastq files and run parallel STARsolo jobs.
+* Added SplitFastq.wdl task to split fastq files by cell barcodes such that each shard gets all reads from the same cell.
+* Added MergeSortBam.wdl task to merge bam files from different shards
+
 # 5.1.3
 2022-01-07 (Date of Last Commit)
 
 * Updated LoomUtils.wdl to fix a missing metadata issue for the Smart-seq2 Single Nucleus Multi-Sample pipeline. This task update does not affect the Optimus pipeline
+
 # 5.1.2
 2021-11-19 (Date of Last Commit)
 

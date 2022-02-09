@@ -1,10 +1,12 @@
 version 1.0
 
+import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
 import "../../../tasks/skylab/Metrics.wdl" as Metrics
 import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
+import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 
 workflow Optimus {
   meta {
@@ -51,7 +53,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "5.1.3"
+  String pipeline_version = "5.2.0"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -80,40 +82,58 @@ workflow Optimus {
       counting_mode = counting_mode
   }
 
-  call StarAlign.STARsoloFastq as STARsoloFastq {
+  call FastqProcessing.FastqProcessing as SplitFastq {
     input:
+      i1_fastq = i1_fastq,
       r1_fastq = r1_fastq,
       r2_fastq = r2_fastq,
-      white_list = whitelist,
-      tar_star_reference = tar_star_reference,
+      whitelist = whitelist,
       chemistry = chemistry,
-      counting_mode = counting_mode,
-      output_bam_basename = output_bam_basename
+      sample_id = input_id
   }
 
+  scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
+    call StarAlign.STARsoloFastq as STARsoloFastq {
+      input:
+        r1_fastq = [SplitFastq.fastq_R1_output_array[idx]],
+        r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
+        white_list = whitelist,
+        tar_star_reference = tar_star_reference,
+        chemistry = chemistry,
+        counting_mode = counting_mode,
+        output_bam_basename = output_bam_basename + "_" + idx
+    }
+  }
+
+  call Merge.MergeSortBamFiles as MergeBam {
+    input:
+      bam_inputs = STARsoloFastq.bam_output,
+      output_bam_filename = output_bam_basename + ".bam",
+      sort_order = "coordinate"
+  }
   call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
-      bam_input = STARsoloFastq.bam_output
+      bam_input = MergeBam.output_bam
   }
 
   call Metrics.CalculateCellMetrics as CellMetrics {
     input:
-      bam_input = STARsoloFastq.bam_output,
+      bam_input = MergeBam.output_bam,
       original_gtf = annotations_gtf
   }
 
-  call StarAlign.ConvertStarOutput as ConvertOutputs {
+  call StarAlign.MergeStarOutput as MergeStarOutputs {
     input:
       barcodes = STARsoloFastq.barcodes,
       features = STARsoloFastq.features,
       matrix = STARsoloFastq.matrix
   }
-
+ 
   call RunEmptyDrops.RunEmptyDrops {
     input:
-      sparse_count_matrix = ConvertOutputs.sparse_counts,
-      row_index = ConvertOutputs.row_index,
-      col_index = ConvertOutputs.col_index,
+      sparse_count_matrix = MergeStarOutputs.sparse_counts,
+      row_index = MergeStarOutputs.row_index,
+      col_index = MergeStarOutputs.col_index,
       emptydrops_lower = emptydrops_lower
   }
 
@@ -126,9 +146,9 @@ workflow Optimus {
       annotation_file = annotations_gtf,
       cell_metrics = CellMetrics.cell_metrics,
       gene_metrics = GeneMetrics.gene_metrics,
-      sparse_count_matrix = ConvertOutputs.sparse_counts,
-      cell_id = ConvertOutputs.row_index,
-      gene_id = ConvertOutputs.col_index,
+      sparse_count_matrix = MergeStarOutputs.sparse_counts,
+      cell_id = MergeStarOutputs.row_index,
+      gene_id = MergeStarOutputs.col_index,
       empty_drops_result = RunEmptyDrops.empty_drops_result,
       counting_mode = counting_mode,
       pipeline_version = "Optimus_v~{pipeline_version}"
@@ -138,10 +158,10 @@ workflow Optimus {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
 
-    File bam = STARsoloFastq.bam_output
-    File matrix = ConvertOutputs.sparse_counts
-    File matrix_row_index = ConvertOutputs.row_index
-    File matrix_col_index = ConvertOutputs.col_index
+    File bam = MergeBam.output_bam
+    File matrix = MergeStarOutputs.sparse_counts
+    File matrix_row_index = MergeStarOutputs.row_index
+    File matrix_col_index = MergeStarOutputs.col_index
     File cell_metrics = CellMetrics.cell_metrics
     File gene_metrics = GeneMetrics.gene_metrics
     File cell_calls = RunEmptyDrops.empty_drops_result
