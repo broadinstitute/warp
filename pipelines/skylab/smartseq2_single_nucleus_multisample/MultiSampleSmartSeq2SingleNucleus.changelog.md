@@ -1,3 +1,8 @@
+# 1.2.1
+2022-02-07 (Date of Last Commit)
+
+* Updated a task in STARalign.wdl related to the Optimus pipeline. This pipeline has not been changed.
+
 # 1.2.0
 2022-01-07 (Date of Last Commit)
 
