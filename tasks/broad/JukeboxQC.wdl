@@ -20,10 +20,7 @@ workflow QC {
     File wgs_coverage_interval_list
 
     File? picard_jar_override
-    String jb_gatk_docker
-    String gatk_markduplicates_docker
     String gitc_path
-    String gitc_docker
     Boolean no_address
     Int preemptibles
     Int eval_preemptible_tries
@@ -58,7 +55,6 @@ workflow QC {
       references = references,
       disk_size = ceil((agg_bam_size + VCF_disk_size) + ref_size + additional_disk),
       preemptible_tries = preemptibles,
-      docker = jb_gatk_docker,
       gitc_path = gitc_path,
       monitoring_script = monitoring_script,
       extra_args = hc_contamination_extra_args,
@@ -95,7 +91,6 @@ workflow QC {
       input_bam = agg_bam,
       metrics_filename = base_file_name_sub + ".duplicate_metrics",
       disk_size_gb = statistics_disk_size,
-      docker = gatk_markduplicates_docker,
       preemptible_tries = eval_preemptible_tries,
       gitc_path = gitc_path,
       jar_override = picard_jar_override,
@@ -120,7 +115,6 @@ workflow QC {
       wgs_coverage_interval_list = wgs_coverage_interval_list,
       disk_size = statistics_disk_size,
       preemptible_tries = eval_preemptible_tries,
-      docker = gitc_docker,
       gitc_path = gitc_path,
       jar_override = picard_jar_override,
       no_address = no_address
@@ -143,7 +137,6 @@ workflow QC {
       disk_size = statistics_disk_size,
       memory_size = raw_wgs_memory_size,
       preemptible_tries = eval_preemptible_tries,
-      docker = gitc_docker,
       gitc_path = gitc_path,
       jar_override = picard_jar_override,
       no_address = no_address
@@ -159,7 +152,6 @@ workflow QC {
       references = references,
       disk_size = statistics_disk_size,
       preemptible_tries = eval_preemptible_tries,
-      docker = gatk_markduplicates_docker,
       gitc_path = gitc_path,
       jar_override = picard_jar_override,
       no_address = no_address

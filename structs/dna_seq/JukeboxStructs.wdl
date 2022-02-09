@@ -56,17 +56,6 @@ struct ExtraArgs {
   Float rsq_threshold
 }
 
-struct EnvironmentVersions {
-  String broad_gatk_docker
-  String crammer_docker
-  String jb_gatk_docker
-  String gatk_markduplicates_docker
-  String jukebox_vc_docker
-  String gitc_docker
-  String? gitc_path_override
-  File? picard_jar_override
-}
-
 struct VcfPostProcessing {
   Array[File] annotation_intervals
   File? filtering_model_no_gt
