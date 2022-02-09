@@ -91,7 +91,7 @@ task BuildStarSingleNucleus {
     String organism
     String organism_prefix
     References references
-    String biotypes
+    String? biotypes
   }
 
   meta {

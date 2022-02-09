@@ -2,6 +2,8 @@ import argparse
 import gzip
 import re
 
+# This function parses a file with gene_type or transcript_type attributes from gencode or ensemble.org
+# If the biotype is marked as Y it includes it in the annotation.
 def get_biotypes(biotypes_file_path):
     allowable_biotypes= []
     with open(biotypes_file_path, 'r', encoding='utf-8-sig') as biotypesFile:

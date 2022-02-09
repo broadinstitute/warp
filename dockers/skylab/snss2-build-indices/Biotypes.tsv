@@ -1,4 +1,6 @@
-﻿#List of gene_type or transcript_type in GENCODE and Ensembl GTF file ( see: https://www.gencodegenes.org/pages/biotypes.html)
+﻿# List of gene_type or transcript_type in GENCODE and Ensembl GTF file ( see: https://www.gencodegenes.org/pages/biotypes.html)
+# The first column is the gene_type or transcript_type attribute of the gtf and
+# the second column is a boolean (Y,N) if it is set to Y (or y), that biotype will be included in the gtf file.
 IG_C_gene	 Y
 IG_D_gene	 Y
 IG_J_gene	 Y
