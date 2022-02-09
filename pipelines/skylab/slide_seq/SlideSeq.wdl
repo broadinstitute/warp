@@ -2,7 +2,7 @@ version 1.0
 
 import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 
-## Copyright Broad Institute, 2021
+## Copyright Broad Institute, 2022
 ##
 ## This WDL pipeline implements data processing for RNA with UMIs
 ##
