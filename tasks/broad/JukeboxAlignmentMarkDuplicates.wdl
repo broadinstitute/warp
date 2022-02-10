@@ -53,9 +53,9 @@ workflow AlignmentAndMarkDuplicates {
     scatter(input_bam in sample_inputs.input_cram_bam_list) {
       call AlignmentTasks.SamSplitter as SplitInputBam {
         input:
-          input_bam = input_bam,
+          input_bam         = input_bam,
           compression_level = compression_level,
-          n_reads = select_first([reads_per_split, 20000000])
+          n_reads           = select_first([reads_per_split, 20000000])
       }
     }
   }
@@ -72,30 +72,30 @@ workflow AlignmentAndMarkDuplicates {
     
     call Tasks.ConvertCramOrBamToUBam as ConvertToUbam {
       input:
-        input_file = split_chunk,
-        split_chunk_size = split_chunk_size,
-        additional_disk = additional_disk,
-        base_file_name = base_file_name_sub,
+        input_file        = split_chunk,
+        split_chunk_size  = split_chunk_size,
+        additional_disk   = additional_disk,
+        base_file_name    = base_file_name_sub,
     }
 
     call Tasks.FilterByRsq {
       input:
-        input_bam = ConvertToUbam.unmapped_bam, 
-        rsq_threshold = rsq_threshold,
+        input_bam       = ConvertToUbam.unmapped_bam, 
+        rsq_threshold   = rsq_threshold,
         additional_disk = additional_disk
     }
 
-    File unmapped_bam = FilterByRsq.output_bam
+    File unmapped_bam       = FilterByRsq.output_bam
     Float unmapped_bam_size = size(unmapped_bam, "GB")
-    String current_name = basename(unmapped_bam, ".bam")
+    String current_name     = basename(unmapped_bam, ".bam")
 
     call Tasks.SamToFastqAndBwaMemAndMba{
       input :
-        input_bam = unmapped_bam,
-        output_bam_basename = current_name,
+        input_bam            = unmapped_bam,
+        output_bam_basename  = current_name,
         alignment_references = alignment_references,
-        bwa_version = GetBwaVersion.version,
-        disk_size = ceil(unmapped_bam_size + bwa_ref_size + (bwa_disk_multiplier * unmapped_bam_size) + additional_disk),
+        bwa_version          = GetBwaVersion.version,
+        disk_size            = ceil(unmapped_bam_size + bwa_ref_size + (bwa_disk_multiplier * unmapped_bam_size) + additional_disk),
     }
   }
   # Add one local ssd disk (375 GB) when spare disk is < 50 GB
@@ -109,12 +109,12 @@ workflow AlignmentAndMarkDuplicates {
 
   call Tasks.MarkDuplicatesSpark {
     input:
-      input_bams = SamToFastqAndBwaMemAndMba.output_bam,
+      input_bams          = SamToFastqAndBwaMemAndMba.output_bam,
       output_bam_basename = base_file_name_sub + ".aligned.sorted.duplicates_marked",
-      memory_gb = mark_duplicates_ram,
-      disk_size_gb = mapped_bam_size_local_ssd,
-      cpu = mark_duplicates_cpus,
-      args = mark_duplicates_extra_args
+      memory_gb           = mark_duplicates_ram,
+      disk_size_gb        = mapped_bam_size_local_ssd,
+      cpu                 = mark_duplicates_cpus,
+      args                = mark_duplicates_extra_args
   }
 
   output {

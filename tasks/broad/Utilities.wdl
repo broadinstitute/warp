@@ -126,7 +126,7 @@ task ConvertToCram {
     Int preemptible_tries = 3
 
     Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")
-    Float disk_size = ceil(2 * size(input_bam, "GiB") + ref_size) + 20
+    Int disk_size = ceil(2 * size(input_bam, "GiB") + ref_size) + 20
   }
 
   
