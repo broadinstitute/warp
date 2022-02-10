@@ -3,7 +3,7 @@ version 1.0
 import "JukeboxTasks.wdl" as Tasks
 import "Qc.wdl" as QC
 
-workflow QC {
+workflow JukeboxQC {
   input {
     File agg_bam
     File agg_bam_index
@@ -12,7 +12,7 @@ workflow QC {
 
     Float agg_bam_size
     Float ref_size
-    Int? additional_metrics_disk
+    Int additional_metrics_disk
     Float secure_disk_size_threshold
 
     References references
@@ -22,7 +22,6 @@ workflow QC {
     File? picard_jar_override
     String gitc_path
 
-    File monitoring_script
     Int VCF_disk_size
     Int additional_disk
 

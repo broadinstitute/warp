@@ -3,10 +3,10 @@ version 1.0
 import "../../../../../../tasks/broad/JukeboxTasks.wdl" as Tasks
 import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
 import "../../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as VariantDiscoverTasks
-import "../../../../../../tasks/broad/Qc.wdl" as QC
 import "../../../../../../tasks/broad/JukeboxAlignmentMarkDuplicates.wdl" as AlignmentAndMarkDuplicates
-import "../../../../../../tasks/broad/JukeboxQC.wdl" as WorkflowQC
-import "../../../../../../structs/dna_seq/JukeboxStructs" as Structs
+import "../../../../../../tasks/broad/Qc.wdl" as QC
+import "../../../../../../tasks/broad/JukeboxQC.wdl" as JukeboxQC
+import "../../../../../../structs/dna_seq/JukeboxStructs.wdl" as Structs
 
 # CHANGELOG
 #  1.1.1     get multiple input cram
@@ -134,8 +134,6 @@ workflow JukeboxSingleSample {
 
   String bwa_commandline = "/usr/gitc/bwa mem -K 100000000 -p -v 3 -t 16 -Y $bash_ref_fasta"
 
-  String gitc_path = select_first([environment_versions.gitc_path_override, "/usr/gitc/"])
-
   # Ensure no # charachters are found in base_file_name, MarkDuplicatesSpark can't handle it
   String base_file_name_sub = sub(sample_inputs.base_file_name, "#", "")
 
@@ -155,7 +153,6 @@ workflow JukeboxSingleSample {
       reads_per_split = extra_args.reads_per_split,
       rsq_threshold = extra_args.rsq_threshold,
       compression_level = compression_level,
-      gitc_path = gitc_path,
       dummy_input_for_call_caching = dummy_input_for_call_caching,
       additional_disk = additional_disk,
       bwa_commandline = bwa_commandline,
@@ -167,7 +164,6 @@ workflow JukeboxSingleSample {
   }
 
   Float agg_bam_size = size(AlignmentAndMarkDuplicates.output_bam, "GB")
-
   Float dynamic_convert_to_cram_disk_size = (2 * agg_bam_size) + ref_size + additional_disk
   Float convert_to_cram_disk_size = if dynamic_convert_to_cram_disk_size > secure_disk_size_threshold then dynamic_convert_to_cram_disk_size else secure_disk_size_threshold
 
@@ -369,7 +365,7 @@ workflow JukeboxSingleSample {
       gvcf_index = MergeVCFs.output_vcf_index
   }
 
-  call WorkflowQC.QC as CollectStatistics {
+  call JukeboxQC.JukeboxQC as CollectStatistics {
     input:
       agg_bam = AlignmentAndMarkDuplicates.output_bam,
       agg_bam_index = AlignmentAndMarkDuplicates.output_bam_index,

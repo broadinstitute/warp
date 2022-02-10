@@ -25,6 +25,8 @@ workflow AlignmentAndMarkDuplicates {
     Int local_ssd_size
     Float ref_size
 
+    String gitc_path = "/usr/gitc/"
+
   }
 
   # Get the size of the standard reference files as well as the additional reference files needed for BWA
@@ -53,15 +55,12 @@ workflow AlignmentAndMarkDuplicates {
 
     scatter(input_bam in sample_inputs.input_cram_bam_list){
 
-      File unmapped_bam = input_bam
-      Float unmapped_bam_size = size(unmapped_bam, "GB")
-
       # Split bam into multiple smaller bams,
       # map reads to reference and recombine into one bam
       Int reads_per_file = 20000000
       call AlignmentTasks.SamSplitter as SplitInputBam {
         input:
-          input_bam = unmapped_bam,
+          input_bam = input_bam,
           n_reads = reads_per_file,
           compression_level = compression_level
       }
