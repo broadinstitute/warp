@@ -109,7 +109,7 @@ The Optimus pipeline is currently available on the cloud-based platform Terra. A
 The [Optimus workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.wdl) imports individual "tasks," also written in  WDL script, from the WARP [tasks folder](https://github.com/broadinstitute/warp/blob/master/tasks/skylab). 
 
 Overall, the Optimus workflow:
-1. Partitions FASTQs by CB,
+1. Partitions FASTQs by CB.
 1. Corrects CBs, aligns reads, corrects UMIs, and counts genes with STAR v.2.7.9a.
 1. Merges the Star outputs into NPY and NPZ arrays.
 1. Calculates gene metrics.
