@@ -3,7 +3,7 @@ version 1.0
 import "../../../../../../tasks/broad/JukeboxTasks.wdl" as Tasks
 import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
 import "../../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as VariantDiscoverTasks
-import "../../../../../../tasks/broad/JukeboxAlignmentMarkDuplicates.wdl" as AlignmentAndMarkDuplicates
+import "../../../../../../tasks/broad/JukeboxAlignmentMarkDuplicates.wdl" as JukeboxAlignmentAndMarkDuplicates
 import "../../../../../../tasks/broad/Qc.wdl" as QC
 import "../../../../../../tasks/broad/JukeboxQC.wdl" as JukeboxQC
 import "../../../../../../structs/dna_seq/JukeboxStructs.wdl" as Structs
@@ -108,64 +108,47 @@ workflow JukeboxSingleSample {
     ExtraArgs extra_args
 
     String dummy_input_for_call_caching = ""
-    Int increase_disk_size = 20
-    Int additional_metrics_disk = 80
+    Int? increase_disk_size
+    Int? increase_metrics_disk_size
   }
+
   String pipeline_version = "3.2.3"
 
   
   References references = alignment_references.references
 
-  Int additional_disk = select_first([increase_disk_size, 20])
-
-  # tasks that need to download locally the full bam/cram can randomly fail because a Google Cloud inconsistency, taking a disk > 500 GB will overcome the issue
-  Float secure_disk_size_threshold = 510.0
-  Int local_ssd_size = 375
-
-  # Some tasks need wiggle room, and we also need to add a small amount of disk to prevent getting a
-  # Cromwell error from asking for 0 disk when the input is less than 1GB
-  # Germline single sample VCFs shouldn't get bigger even when the input bam is bigger (after a certain size)
+  # Allocate appropriate disk sizes for subtasks
+  Int secure_disk_size_threshold = 510
   Int VCF_disk_size = select_first([increase_disk_size, 80])
-  # Sometimes the output is larger than the input, or a task can spill to disk. In these cases we need to account for the
-  # input (1) and the output (1.5) or the input(1), the output(1), and spillage (.5).
-  Float bwa_disk_multiplier = 2.5
-
-  Int compression_level = 2
-
-  String bwa_commandline = "/usr/gitc/bwa mem -K 100000000 -p -v 3 -t 16 -Y $bash_ref_fasta"
+  Int additional_disk = select_first([increase_disk_size, 20])
+  Int additional_metrics_disk = select_first([increase_metrics_disk_size, 80])
+  Float ref_size = size(references.ref_fasta, "GB") + size(references.ref_fasta_index, "GB") + size(references.ref_dict, "GB")
 
   # Ensure no # charachters are found in base_file_name, MarkDuplicatesSpark can't handle it
   String base_file_name_sub = sub(sample_inputs.base_file_name, "#", "")
-
   # VCF post-processing default values
   File? interval_list = vcf_post_processing.interval_list_override
   String filtering_model_no_gt_name = select_first([vcf_post_processing.filtering_model_no_gt_name_override, 'rf_model_ignore_gt_incl_hpol_runs'])
-
   Boolean make_gvcf = select_first([vcf_post_processing.make_gvcf_override, false ])
   Boolean merge_bam_file = select_first([vcf_post_processing.merge_bam_file_override, true ])
 
-  Float ref_size = size(references.ref_fasta, "GB") + size(references.ref_fasta_index, "GB") + size(references.ref_dict, "GB")
 
-  call AlignmentAndMarkDuplicates.AlignmentAndMarkDuplicates as AlignmentAndMarkDuplicates {
+  call JukeboxAlignmentAndMarkDuplicates.AlignmentAndMarkDuplicates as AlignmentAndMarkDuplicates {
     input:
       sample_inputs = sample_inputs,
       base_file_name_sub = base_file_name_sub,
       reads_per_split = extra_args.reads_per_split,
       rsq_threshold = extra_args.rsq_threshold,
-      compression_level = compression_level,
       dummy_input_for_call_caching = dummy_input_for_call_caching,
       additional_disk = additional_disk,
-      bwa_commandline = bwa_commandline,
       alignment_references = alignment_references,
       mark_duplicates_extra_args = extra_args.mark_duplicates_extra_args,
-      bwa_disk_multiplier = bwa_disk_multiplier,
-      local_ssd_size = local_ssd_size,
       ref_size = ref_size,
   }
 
   Float agg_bam_size = size(AlignmentAndMarkDuplicates.output_bam, "GB")
   Float dynamic_convert_to_cram_disk_size = (2 * agg_bam_size) + ref_size + additional_disk
-  Float convert_to_cram_disk_size = if dynamic_convert_to_cram_disk_size > secure_disk_size_threshold then dynamic_convert_to_cram_disk_size else secure_disk_size_threshold
+  Int convert_to_cram_disk_size = if dynamic_convert_to_cram_disk_size > secure_disk_size_threshold then ceil(dynamic_convert_to_cram_disk_size) else ceil(secure_disk_size_threshold)
 
   # Convert the final merged recalibrated BAM file to CRAM format
   call Utilities.ConvertToCram {
@@ -174,11 +157,12 @@ workflow JukeboxSingleSample {
       ref_fasta = references.ref_fasta,
       ref_fasta_index = references.ref_fasta_index,
       output_basename = sample_inputs.base_file_name,
+      disk_size = convert_to_cram_disk_size
   }
 
   Float cram_size = size(ConvertToCram.output_cram, "GB")
   Float dynamic_validate_cram_disk_size = cram_size + ref_size + additional_metrics_disk
-  Float validate_cram_disk_size = if dynamic_validate_cram_disk_size > secure_disk_size_threshold then dynamic_validate_cram_disk_size else secure_disk_size_threshold
+  Int validate_cram_disk_size = if dynamic_validate_cram_disk_size > secure_disk_size_threshold then ceil(dynamic_validate_cram_disk_size) else ceil(secure_disk_size_threshold)
 
   # Validate the CRAM file
   call QC.ValidateSamFile as ValidateCram {
@@ -191,10 +175,9 @@ workflow JukeboxSingleSample {
       ref_fasta_index = references.ref_fasta_index,
       ignore = ["MISSING_TAG_NM" ,"INVALID_PLATFORM_VALUE"],
       max_output = 1000000000,
-      is_outlier_data = true #sets SKIP_MATE_VALIDATION=true
+      is_outlier_data = true, #sets SKIP_MATE_VALIDATION=true
+      disk_size = validate_cram_disk_size
   }
-
-  Float deduplicated_bam_size_vc = size(AlignmentAndMarkDuplicates.output_bam, "GB")
 
   call Tasks.ExtractSampleNameFlowOrder {
     input:
@@ -226,9 +209,7 @@ workflow JukeboxSingleSample {
         interval_list = ScatterIntervalList.out[index],
         vcf_basename = base_file_name_sub,
         references = references,
-        # Divide the total output VCF size and the input bam size to account for the smaller scattered input and output.
-        disk_size = ceil(((deduplicated_bam_size_vc + VCF_disk_size) / hc_divisor) + ref_size + additional_disk),
-        gitc_path = gitc_path,
+        disk_size = ceil(((agg_bam_size + VCF_disk_size) / hc_divisor) + ref_size + additional_disk),
         extra_args = extra_args.hc_extra_args,
         make_gvcf = make_gvcf,
         memory_gb = 12,
@@ -244,9 +225,7 @@ workflow JukeboxSingleSample {
           interval_list = ScatterIntervalList.out[index],
           vcf_basename = base_file_name_sub,
           references = references,
-          # Divide the total output VCF size and the input bam size to account for the smaller scattered input and output.
-          disk_size = ceil(((deduplicated_bam_size_vc + VCF_disk_size) / hc_divisor) + ref_size + additional_disk),
-          gitc_path = gitc_path,
+          disk_size = ceil(((agg_bam_size + VCF_disk_size) / hc_divisor) + ref_size + additional_disk),
           extra_args = extra_args.hc_extra_args,
           make_gvcf = make_gvcf,
           memory_gb = 40,
@@ -258,7 +237,6 @@ workflow JukeboxSingleSample {
     # gate success on h1_success
     File HC_output_vcf_idx = select_first([ if h1_success then HC1.output_vcf_index else HC2.output_vcf_index])
     File HC_output_vcf =     select_first([ if h1_success then HC1.output_vcf else HC2.output_vcf])
-    File monitoring_log =    select_first([ if h1_success then HC1.monitoring_log else HC2.monitoring_log])
     File haplotypes_bam =    select_first([ if h1_success then HC1.haplotypes_bam else HC2.haplotypes_bam])
 
   }
@@ -277,11 +255,8 @@ workflow JukeboxSingleSample {
         input:
           input_bams = haplotypes_bam,
           output_bam_name = base_file_name_sub + ".bam",
-          gitc_path = gitc_path,
       }
   }
-
-  Float vcf_size = size(MergeVCFs.output_vcf, "GB")
 
   call Tasks.ConvertGVCFtoVCF {
     input:
@@ -290,7 +265,6 @@ workflow JukeboxSingleSample {
       output_vcf_name = base_file_name_sub + '.vcf.gz',
       references = references,
       disk_size_gb = VCF_disk_size,
-      gitc_path = gitc_path
   }
 
   # VCF post-processings
@@ -304,7 +278,6 @@ workflow JukeboxSingleSample {
       flow_order = ExtractSampleNameFlowOrder.flow_order,
       final_vcf_base_name = base_file_name_sub,
       additional_disk = additional_disk,
-      gitc_path = gitc_path
   }
 
   call Tasks.AddIntervalAnnotationsToVCF {
@@ -316,30 +289,30 @@ workflow JukeboxSingleSample {
   }
 
   call Tasks.TrainModel {
-      input:
-        input_file = AddIntervalAnnotationsToVCF.output_vcf,
-        input_file_index = AddIntervalAnnotationsToVCF.output_vcf_index,
-        input_vcf_name = base_file_name_sub,
-        blacklist_file = vcf_post_processing.training_blacklist_file,
-        ref_fasta = references.ref_fasta,
-        ref_index = references.ref_fasta_index,
-        runs_file = vcf_post_processing.runs_file,
-        apply_model = filtering_model_no_gt_name,
-        annotation_intervals = vcf_post_processing.annotation_intervals,
-        exome_weight = vcf_post_processing.exome_weight,
-        exome_weight_annotation = vcf_post_processing.exome_weight_annotation,
-        additional_disk = additional_disk,
+    input:
+      input_file = AddIntervalAnnotationsToVCF.output_vcf,
+      input_file_index = AddIntervalAnnotationsToVCF.output_vcf_index,
+      input_vcf_name = base_file_name_sub,
+      blacklist_file = vcf_post_processing.training_blacklist_file,
+      ref_fasta = references.ref_fasta,
+      ref_index = references.ref_fasta_index,
+      runs_file = vcf_post_processing.runs_file,
+      apply_model = filtering_model_no_gt_name,
+      annotation_intervals = vcf_post_processing.annotation_intervals,
+      exome_weight = vcf_post_processing.exome_weight,
+      exome_weight_annotation = vcf_post_processing.exome_weight_annotation,
+      additional_disk = additional_disk,
   }
 
 
   call Tasks.AnnotateVCF_AF {
-      input :
-        input_vcf = AddIntervalAnnotationsToVCF.output_vcf,
-        input_vcf_index = AddIntervalAnnotationsToVCF.output_vcf_index,
-        af_only_gnomad = vcf_post_processing.af_only_gnomad,
-        af_only_gnomad_index = vcf_post_processing.af_only_gnomad_index,
-        final_vcf_base_name = base_file_name_sub,
-        additional_disk = additional_disk,
+    input :
+      input_vcf = AddIntervalAnnotationsToVCF.output_vcf,
+      input_vcf_index = AddIntervalAnnotationsToVCF.output_vcf_index,
+      af_only_gnomad = vcf_post_processing.af_only_gnomad,
+      af_only_gnomad_index = vcf_post_processing.af_only_gnomad_index,
+      final_vcf_base_name = base_file_name_sub,
+      additional_disk = additional_disk,
   }
 
   call Tasks.FilterVCF {
@@ -378,8 +351,6 @@ workflow JukeboxSingleSample {
       references = references,
       contamination_sites = contamination_sites,
       wgs_coverage_interval_list = vcf_post_processing.wgs_coverage_interval_list,
-      picard_jar_override = environment_versions.picard_jar_override,
-      gitc_path = gitc_path,
       VCF_disk_size = VCF_disk_size,
       additional_disk = additional_disk,
       max_duplication_in_reasonable_sample = vcf_post_processing.max_duplication_in_reasonable_sample,

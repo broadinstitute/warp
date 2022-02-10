@@ -20,7 +20,6 @@ workflow JukeboxQC {
     File wgs_coverage_interval_list
 
     File? picard_jar_override
-    String gitc_path
 
     Int VCF_disk_size
     Int additional_disk
@@ -29,6 +28,7 @@ workflow JukeboxQC {
     Float max_chimerism_in_reasonable_sample
     String flow_order
   }
+  
   Float dynamic_check_contamination_disk_size = agg_bam_size + ref_size + additional_metrics_disk
   Float check_contamination_disk_size = if dynamic_check_contamination_disk_size > secure_disk_size_threshold then dynamic_check_contamination_disk_size else secure_disk_size_threshold
 
@@ -51,7 +51,6 @@ workflow JukeboxQC {
       vcf_basename = base_file_name,
       references = references,
       disk_size = ceil((agg_bam_size + VCF_disk_size) + ref_size + additional_disk),
-      gitc_path = gitc_path,
       extra_args = hc_contamination_extra_args,
       make_gvcf = false,
       memory_gb = 12,
@@ -83,7 +82,6 @@ workflow JukeboxQC {
       input_bam = agg_bam,
       metrics_filename = base_file_name_sub + ".duplicate_metrics",
       disk_size_gb = statistics_disk_size,
-      gitc_path = gitc_path,
       jar_override = picard_jar_override,
   }
 
@@ -102,7 +100,6 @@ workflow JukeboxQC {
       references = references,
       wgs_coverage_interval_list = wgs_coverage_interval_list,
       disk_size = statistics_disk_size,
-      gitc_path = gitc_path,
       jar_override = picard_jar_override
   }
 
@@ -121,7 +118,6 @@ workflow JukeboxQC {
       wgs_coverage_interval_list = wgs_coverage_interval_list,
       disk_size = statistics_disk_size,
       memory_size = raw_wgs_memory_size,
-      gitc_path = gitc_path,
       jar_override = picard_jar_override
   }
 
@@ -133,7 +129,6 @@ workflow JukeboxQC {
       output_bam_prefix = base_file_name_sub,
       references = references,
       disk_size = statistics_disk_size,
-      gitc_path = gitc_path,
       jar_override = picard_jar_override
   }
 
