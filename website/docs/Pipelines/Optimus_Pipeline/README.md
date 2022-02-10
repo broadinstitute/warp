@@ -209,7 +209,7 @@ Often snRNAseq data does not produce a visual knee point inflection when running
 
 The [OptimusLoomGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) task uses a custom python script to merge the converted STARsolo count matrix, the emptyDrops results, and the cell and gene metrics into a Loom-formatted cell-by-gene matrix. Read full details for all the metrics in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
-The type of gene counts in the Loom will vary depending on Optimus workflow counting_mode. If running single-cell data (sc_rna mode), the counts will include only exonic gene counts. If running single-nucleus data (sn_rna mode), the counts will be whole transcript. 
+The type of gene counts in the Loom will vary depending on the Optimus workflow counting_mode. If running single-cell data (sc_rna mode), the counts will include only exonic gene counts. If running single-nucleus data (sn_rna mode), the counts will be whole transcript.
 
 You can determine which type of counts are in the loom by looking at the global attribute `expression_data_type`.
 
