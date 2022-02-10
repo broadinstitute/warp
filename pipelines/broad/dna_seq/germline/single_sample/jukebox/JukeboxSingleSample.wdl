@@ -135,15 +135,15 @@ workflow JukeboxSingleSample {
 
   call JukeboxAlignmentAndMarkDuplicates.AlignmentAndMarkDuplicates as AlignmentAndMarkDuplicates {
     input:
-      sample_inputs = sample_inputs,
-      base_file_name_sub = base_file_name_sub,
-      reads_per_split = extra_args.reads_per_split,
-      rsq_threshold = extra_args.rsq_threshold,
-      dummy_input_for_call_caching = dummy_input_for_call_caching,
-      additional_disk = additional_disk,
-      alignment_references = alignment_references,
-      mark_duplicates_extra_args = extra_args.mark_duplicates_extra_args,
-      ref_size = ref_size,
+      sample_inputs                 = sample_inputs,
+      base_file_name_sub            = base_file_name_sub,
+      reads_per_split               = extra_args.reads_per_split,
+      rsq_threshold                 = extra_args.rsq_threshold,
+      dummy_input_for_call_caching  = dummy_input_for_call_caching,
+      additional_disk               = additional_disk,
+      alignment_references          = alignment_references,
+      mark_duplicates_extra_args    = extra_args.mark_duplicates_extra_args,
+      ref_size                      = ref_size
   }
 
   Float agg_bam_size = size(AlignmentAndMarkDuplicates.output_bam, "GB")
@@ -153,11 +153,11 @@ workflow JukeboxSingleSample {
   # Convert the final merged recalibrated BAM file to CRAM format
   call Utilities.ConvertToCram {
     input:
-      input_bam = AlignmentAndMarkDuplicates.output_bam,
-      ref_fasta = references.ref_fasta,
+      input_bam       = AlignmentAndMarkDuplicates.output_bam,
+      ref_fasta       = references.ref_fasta,
       ref_fasta_index = references.ref_fasta_index,
       output_basename = sample_inputs.base_file_name,
-      disk_size = convert_to_cram_disk_size
+      disk_size       = convert_to_cram_disk_size
   }
 
   Float cram_size = size(ConvertToCram.output_cram, "GB")
@@ -167,16 +167,16 @@ workflow JukeboxSingleSample {
   # Validate the CRAM file
   call QC.ValidateSamFile as ValidateCram {
     input:
-      input_bam = ConvertToCram.output_cram,
-      input_bam_index = ConvertToCram.output_cram_index,
-      report_filename = sample_inputs.base_file_name + ".cram.validation_report",
-      ref_dict = references.ref_dict,
-      ref_fasta = references.ref_fasta,
-      ref_fasta_index = references.ref_fasta_index,
-      ignore = ["MISSING_TAG_NM" ,"INVALID_PLATFORM_VALUE"],
-      max_output = 1000000000,
-      is_outlier_data = true, #sets SKIP_MATE_VALIDATION=true
-      disk_size = validate_cram_disk_size
+      input_bam         = ConvertToCram.output_cram,
+      input_bam_index   = ConvertToCram.output_cram_index,
+      report_filename   = sample_inputs.base_file_name + ".cram.validation_report",
+      ref_dict          = references.ref_dict,
+      ref_fasta         = references.ref_fasta,
+      ref_fasta_index   = references.ref_fasta_index,
+      ignore            = ["MISSING_TAG_NM" ,"INVALID_PLATFORM_VALUE"],
+      max_output        = 1000000000,
+      is_outlier_data   = true, #sets SKIP_MATE_VALIDATION=true
+      disk_size         = validate_cram_disk_size
   }
 
   call Tasks.ExtractSampleNameFlowOrder {
