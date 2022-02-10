@@ -102,7 +102,6 @@ workflow JukeboxSingleSample {
 
     SampleInputs sample_inputs
     ContaminationSites contamination_sites
-    RuntimeOptions runtime_options
     AlignmentReferences alignment_references
     VariantCallingSettings variant_calling_settings
     VcfPostProcessing vcf_post_processing
@@ -182,7 +181,7 @@ workflow JukeboxSingleSample {
   }
 
   Float cram_size = size(ConvertToCram.output_cram, "GB")
-  Float dynamic_validate_cram_disk_size = cram_size + ref_size + runtime_options.additional_metrics_disk
+  Float dynamic_validate_cram_disk_size = cram_size + ref_size + additional_metrics_disk
   Float validate_cram_disk_size = if dynamic_validate_cram_disk_size > secure_disk_size_threshold then dynamic_validate_cram_disk_size else secure_disk_size_threshold
 
   # Validate the CRAM file
@@ -378,7 +377,7 @@ workflow JukeboxSingleSample {
       base_file_name_sub = base_file_name_sub,
       agg_bam_size = agg_bam_size,
       ref_size = ref_size,
-      additional_metrics_disk = runtime_options.additional_metrics_disk,
+      additional_metrics_disk = additional_metrics_disk,
       secure_disk_size_threshold = secure_disk_size_threshold,
       references = references,
       contamination_sites = contamination_sites,

@@ -254,7 +254,6 @@ task FilterByRsq{
   input { 
     File input_bam
     Float rsq_threshold
-    
     Int additional_disk
     Int disk_size_gb = ceil(2 * size(input_bam, "GB") + additional_disk)
     
