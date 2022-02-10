@@ -1,3 +1,8 @@
+# 5.2.1
+2022-02-10 (Date of Last Commit)
+
+* Rebuilt a docker to merge outputs of STAR in in StarAlign.wdl task and moved it to a public location.
+
 # 5.2.0
 2022-01-07 (Date of Last Commit)
 
