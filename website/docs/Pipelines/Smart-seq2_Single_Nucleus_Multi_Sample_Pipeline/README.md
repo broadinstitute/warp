@@ -32,9 +32,9 @@ You can run the [Smart-seq2 Single Nucleus Multi-Sample workflow](https://github
 | Workflow language | WDL | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic reference sequence (for validation)| GRCm38 mouse genome primary sequence. | GENCODE GRCm38 [Mouse](http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M23/GRCm38.primary_assembly.genome.fa.gz) |
 | Transcriptomic reference annotation (for validation) | Modified [M23](https://www.gencodegenes.org/mouse/release_M23.html) GTF built with the  [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl).| GENCODE |
-| Aligner  | STAR (v.2.7.10a) | [STAR](https://github.com/alexdobin/STAR) |
-| QC metrics | Picard (v.2.20.4) | [Broad Institute](https://broadinstitute.github.io/picard/)   |
-| Transcript quantification | featureCounts (utilities for counting reads to genomic features). | [featureCounts(v2.0.2)](http://subread.sourceforge.net/)
+| Aligner  | STAR | [STAR](https://github.com/alexdobin/STAR) |
+| QC metrics | Picard | [Broad Institute](https://broadinstitute.github.io/picard/)   |
+| Transcript quantification | featureCounts (utilities for counting reads to genomic features). | [featureCounts](http://subread.sourceforge.net/)
 | Data input file format | File format in which sequencing data is provided. | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) |
 | Data output file formats | File formats in which Smart-seq2 output is provided. | [BAM](http://samtools.github.io/hts-specs/), Loom (counts and metrics; generated with [Loompy v.3.0.6)](http://loompy.org/), TSV (counts) |
 
