@@ -9,7 +9,7 @@ The Optimus pipeline's default count matrix output is a Loom file, an HDF5 file 
 
 The matrix contains global attributes detailing how counts were generated for the single-cell or single-nucleus parameters ([Table 1](#table-1-global-attributes)). It additionally contains UMI-corrected counts as well as multiple metrics for both individual cells (the columns of the matrix; [Table 2](#table-2-column-attributes-cell-metrics)) and individual genes (the rows of the matrix; [Table 3](#table-3-row-attributes-gene-metrics)). 
 
-The type of gene counts in the Loom will vary depending on Optimus workflow counting_mode. If running single-cell data (sc_rna mode), the counts will include only exonic gene counts. If running single-nucleus data (sn_rna mode), the counts will be whole transcript. 
+The type of gene counts in the Loom will vary depending on the Optimus workflow counting_mode. If running single-cell data (sc_rna mode), the counts will include only exonic gene counts. If running single-nucleus data (sn_rna mode), the counts will be whole transcript.
 
 You can determine which type of counts are in the loom by looking at the global attribute `expression_data_type`.
 
