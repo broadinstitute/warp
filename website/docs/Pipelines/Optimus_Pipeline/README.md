@@ -227,7 +227,7 @@ The following table lists the output files produced from the pipeline. For sampl
 
 | Output Name | Filename, if applicable | Output Type |Output Format |
 | ------ |------ | ------ | ------ |
-| pipeline_version | | Version of the processing pipeline run on this data. | String |
+| pipeline_version | N/A | Version of the processing pipeline run on this data. | String |
 | bam | `<input_id>.bam` | Aligned BAM | BAM |
 | matrix | Converted sparse matrix file from the MergeStarOutputs task. | NPZ |
 | matrix_row_index | sparse_counts_row_index.npy | Index of cells in count matrix. | NPY |
