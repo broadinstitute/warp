@@ -6,17 +6,16 @@ import "../../structs/dna_seq/JukeboxStructs.wdl" as Structs
 
 workflow AlignmentAndMarkDuplicates {
   input {
-    SampleInputs sample_inputs
     AlignmentReferences alignment_references
 
+    Boolean is_cram
+    Array[File] input_cram_bam
     Float ref_size
     Float rsq_threshold
     Int additional_disk
+    Int reads_per_split
     String base_file_name_sub
     String dummy_input_for_call_caching
-
-    String? mark_duplicates_extra_args
-    Int? reads_per_split
   }
 
   Int compression_level = 2
@@ -28,8 +27,6 @@ workflow AlignmentAndMarkDuplicates {
                       + size(alignment_references.ref_bwt, "GB") 
                       + size(alignment_references.ref_pac, "GB") 
                       + size(alignment_references.ref_sa, "GB")
-  String detect_input_ending_from_file = if sub(sample_inputs.input_cram_bam_list[0], ".*\\.cram$", "is_cram") == "is_cram" then "is_cram" else "is_bam"
-  String detect_input_ending = select_first([sample_inputs.override_input_ending, detect_input_ending_from_file])
 
   # Values to dynamically determine disk & mem for MarkDuplicatesSpark
   Int local_ssd_size = 375
@@ -38,24 +35,23 @@ workflow AlignmentAndMarkDuplicates {
   Int mark_duplicates_memory_threshold = 600
   Int mark_duplicates_cpus = 32
 
-  if (detect_input_ending == "is_cram") {
-    scatter(input_cram in sample_inputs.input_cram_bam_list) {
+  if (is_cram) {
+    scatter(input_cram in input_cram_bam) {
       call Tasks.SplitCram as SplitInputCram{
         input:
           input_cram_bam = input_cram,
           base_file_name = base_file_name_sub,
-          reads_per_file = select_first([reads_per_split, 20000000])
+          reads_per_file = reads_per_split
       }
     }
   }
-
-  if ( detect_input_ending == "is_bam" ) {
-    scatter(input_bam in sample_inputs.input_cram_bam_list) {
+  if (!is_cram) {
+    scatter(input_bam in input_cram_bam) {
       call AlignmentTasks.SamSplitter as SplitInputBam {
         input:
           input_bam         = input_bam,
           compression_level = compression_level,
-          n_reads           = select_first([reads_per_split, 20000000])
+          n_reads           = reads_per_split
       }
     }
   }
@@ -114,7 +110,6 @@ workflow AlignmentAndMarkDuplicates {
       memory_gb           = mark_duplicates_ram,
       disk_size_gb        = mapped_bam_size_local_ssd,
       cpu                 = mark_duplicates_cpus,
-      args                = mark_duplicates_extra_args
   }
 
   output {

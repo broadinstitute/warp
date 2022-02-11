@@ -46,15 +46,15 @@ workflow JukeboxQC {
   String hc_contamination_extra_args = "--bam-writer-type NO_HAPLOTYPES --alleles " + contamination_sites.contamination_sites_vcf
   call Tasks.HaplotypeCaller as HaplotypeCallerForContamination {
     input:
-      input_bam_list  = [agg_bam],
-      interval_list   = contamination_sites.contamination_sites_vcf,
-      vcf_basename    = base_file_name,
-      references      = references,
-      disk_size       = ceil((agg_bam_size + VCF_disk_size) + ref_size + additional_disk),
-      extra_args      = hc_contamination_extra_args,
-      make_gvcf       = false,
-      memory_gb       = 12,
-      make_bamout     = true
+      input_bam_list                = [agg_bam],
+      interval_list                 = contamination_sites.contamination_sites_vcf,
+      vcf_basename                  = base_file_name,
+      references                    = references,
+      disk_size                     = ceil((agg_bam_size + VCF_disk_size) + ref_size + additional_disk),
+      contamination_extra_args      = hc_contamination_extra_args,
+      make_gvcf                     = false,
+      memory_gb                     = 12,
+      make_bamout                   = true
   }
 
   String contamination_sites_ud   = contamination_sites.contamination_sites_path + flow_order + ".UD"

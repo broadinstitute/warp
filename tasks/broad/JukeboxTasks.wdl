@@ -210,8 +210,6 @@ task MarkDuplicatesSpark {
     Int memory_gb
     Int disk_size_gb
     Int cpu
-
-    String? args
     
     String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
   }
@@ -232,7 +230,10 @@ task MarkDuplicatesSpark {
     --create-output-bam-index true \
     --spark-verbosity WARN \
     --verbosity WARNING \
-    ~{args}
+    --FLOW_END_LOCATION_SIGNIFICANT true \
+    --FLOW_USE_CLIPPED_LOCATIONS true \
+    --ENDS_READ_UNCERTAINTY 1 \
+    --FLOW_SKIP_START_HOMOPOLYMERS 0
 
   >>>
   runtime {
@@ -425,11 +426,10 @@ task HaplotypeCaller {
     File interval_list
     String vcf_basename
     References references
-    Float? contamination
     Int disk_size
     Int memory_gb
-    String? extra_args
     Boolean native_sw = false
+    String? contamination_extra_args 
     
     Boolean make_gvcf
     Boolean make_bamout
@@ -464,7 +464,30 @@ task HaplotypeCaller {
       --smith-waterman ~{if (native_sw) then "JAVA" else "FASTEST_AVAILABLE"} \
       ~{true="-ERC GVCF" false="" make_gvcf} \
       ~{true="--bamout realigned.bam" false="" make_bamout} \
-      ~{extra_args}
+      -mbq 0 \
+      --flow-filter-alleles \
+      --flow-filter-alleles-sor-threshold 3 \
+      --flow-assembly-collapse-hmer-size 12 \
+      --flow-matrix-mods 10,12,11,12 \
+      --bam-output haps.bam \
+      --bam-writer-type CALLED_HAPLOTYPES_NO_READS \
+      --apply-frd --minimum-mapping-quality 1 \
+      --mapping-quality-threshold-for-genotyping 1 \
+      --override-fragment-softclip-check \
+      --flow-likelihood-parallel-threads 2 \
+      --flow-likelihood-optimized-comp \
+      --adaptive-pruning \
+      --pruning-lod-threshold 3.0 \
+      --enable-dynamic-read-disqualification-for-genotyping \
+      --dynamic-read-disqualification-threshold 10 \
+      -G StandardAnnotation \
+      -G StandardHCAnnotation \
+      -G AS_StandardAnnotation\
+      -GQB 10 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 -GQB 70 -GQB 80 -GQB 90 \
+      --likelihood-calculation-engine FlowBased \
+      -A AssemblyComplexity \
+      --assembly-complexity-reference-mode \
+      ~{contamination_extra_args}
   }
 
   runtime {
