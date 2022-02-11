@@ -1,27 +1,26 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/broadinstitute/warp/np_add_starsolo_slideseq/tasks/skylab/StarAlign.wdl" as StarAlign
+import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
 
-workflow SlideSeq {
+workflow SlideSeq{
 
-  input {
+    String pipeline_version = "0.0.1"
 
-    # Sequencing data inputs
-    Array[File] r1_fastq
-    Array[File] r2_fastq
+    input {
+        Array[File] r1_fastq
+        Array[File] r2_fastq
+        Array[File]? i1_fastq
+        String sample_id
+        String read_structure
+        String tar_star_reference
+        String whitelist
+        String output_bam_basename
 
-    # organism reference parameters
-    File tar_star_reference
-    File annotations_gtf
+        #TODO eventually get rid of these inputs and just use read_structure. But to do this, we need to fix fastqprocess first
+        Int umi_length
+        Int cell_barcode_length
+    }
 
-    # 10x parameters
-    File whitelist
-    String output_bam_basename
-
-    Int umi_length
-    Int cell_barcode_length
-
-  }
 
 call StarAlign.STARsoloFastqSlideSeq as STARsoloFastqSlideSeq {
     input:
