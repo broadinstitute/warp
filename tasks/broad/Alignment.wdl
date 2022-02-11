@@ -129,7 +129,7 @@ task SamSplitter {
   input {
     File input_bam
     Int n_reads
-    Int preemptible_tries
+    Int preemptible_tries = 3
     Int compression_level
   }
 

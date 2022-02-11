@@ -123,7 +123,7 @@ task ConvertToCram {
     File ref_fasta
     File ref_fasta_index
     String output_basename
-    Int preemptible_tries
+    Int preemptible_tries = 3
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")

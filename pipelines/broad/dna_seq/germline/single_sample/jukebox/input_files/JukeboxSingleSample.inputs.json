@@ -8,12 +8,6 @@
         "contamination_sites_vcf_index":"gs://concordance/hg38/Homo_sapiens_assembly38.contam_fixed.vcf.idx",
         "contamination_sites_path": "gs://concordance/hg38/verifyBamID_inputs/Homo_sapiens_assembly38.contam.cskp."
     },
-    "JukeboxSingleSample.runtime_options": {
-        "preemptible_tries": 3,
-        "monitoring_script": "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh",
-        "additional_metrics_disk": "200",
-        "dummy_input_for_call_caching": ""
-    },
     "JukeboxSingleSample.alignment_references": {
         "references": {
             "ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",

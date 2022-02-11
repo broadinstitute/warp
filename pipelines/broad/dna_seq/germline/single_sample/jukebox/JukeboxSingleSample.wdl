@@ -3,10 +3,10 @@ version 1.0
 import "../../../../../../tasks/broad/JukeboxTasks.wdl" as Tasks
 import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
 import "../../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as VariantDiscoverTasks
-import "../../../../../../tasks/broad/Qc.wdl" as QC
 import "../../../../../../tasks/broad/JukeboxAlignmentMarkDuplicates.wdl" as AlignmentAndMarkDuplicates
-import "../../../../../../tasks/broad/JukeboxQC.wdl" as WorkflowQC
-import "../../../../../../structs/dna_seq/JukeboxStructs" as Structs
+import "../../../../../../tasks/broad/Qc.wdl" as QC
+import "../../../../../../tasks/broad/JukeboxQC.wdl" as JukeboxQC
+import "../../../../../../structs/dna_seq/JukeboxStructs.wdl" as Structs
 
 # CHANGELOG
 #  1.1.1     get multiple input cram
@@ -99,22 +99,24 @@ import "../../../../../../structs/dna_seq/JukeboxStructs" as Structs
 
 workflow JukeboxSingleSample {
   input {
-    String pipeline_version = "3.2.3"
 
     SampleInputs sample_inputs
     ContaminationSites contamination_sites
-    RuntimeOptions runtime_options
     AlignmentReferences alignment_references
     VariantCallingSettings variant_calling_settings
     VcfPostProcessing vcf_post_processing
     ExtraArgs extra_args
+
+    String dummy_input_for_call_caching = ""
+    Int increase_disk_size = 20
+    Int additional_metrics_disk = 80
   }
+  String pipeline_version = "3.2.3"
+
   
   References references = alignment_references.references
 
-  Int preemptibles = select_first([runtime_options.preemptible_tries, 1])
-
-  Int additional_disk = select_first([runtime_options.increase_disk_size, 20])
+  Int additional_disk = select_first([increase_disk_size, 20])
 
   # tasks that need to download locally the full bam/cram can randomly fail because a Google Cloud inconsistency, taking a disk > 500 GB will overcome the issue
   Float secure_disk_size_threshold = 510.0
@@ -123,7 +125,7 @@ workflow JukeboxSingleSample {
   # Some tasks need wiggle room, and we also need to add a small amount of disk to prevent getting a
   # Cromwell error from asking for 0 disk when the input is less than 1GB
   # Germline single sample VCFs shouldn't get bigger even when the input bam is bigger (after a certain size)
-  Int VCF_disk_size = select_first([runtime_options.increase_disk_size, 80])
+  Int VCF_disk_size = select_first([increase_disk_size, 80])
   # Sometimes the output is larger than the input, or a task can spill to disk. In these cases we need to account for the
   # input (1) and the output (1.5) or the input(1), the output(1), and spillage (.5).
   Float bwa_disk_multiplier = 2.5
@@ -132,17 +134,12 @@ workflow JukeboxSingleSample {
 
   String bwa_commandline = "/usr/gitc/bwa mem -K 100000000 -p -v 3 -t 16 -Y $bash_ref_fasta"
 
-  String gitc_path = select_first([environment_versions.gitc_path_override, "/usr/gitc/"])
-
   # Ensure no # charachters are found in base_file_name, MarkDuplicatesSpark can't handle it
   String base_file_name_sub = sub(sample_inputs.base_file_name, "#", "")
 
   # VCF post-processing default values
-  Int eval_preemptible_tries = select_first([runtime_options.evaluation_preemptible_tries, 0])
   File? interval_list = vcf_post_processing.interval_list_override
   String filtering_model_no_gt_name = select_first([vcf_post_processing.filtering_model_no_gt_name_override, 'rf_model_ignore_gt_incl_hpol_runs'])
-  Boolean no_address = select_first([runtime_options.no_address_override, true ])
-  Boolean parallel_no_address = select_first([runtime_options.no_address_override, true ])
 
   Boolean make_gvcf = select_first([vcf_post_processing.make_gvcf_override, false ])
   Boolean merge_bam_file = select_first([vcf_post_processing.merge_bam_file_override, true ])
@@ -156,11 +153,7 @@ workflow JukeboxSingleSample {
       reads_per_split = extra_args.reads_per_split,
       rsq_threshold = extra_args.rsq_threshold,
       compression_level = compression_level,
-      gitc_path = gitc_path,
-      no_address = no_address,
-      parallel_no_address = parallel_no_address,
-      dummy_input_for_call_caching = runtime_options.dummy_input_for_call_caching,
-      preemptibles = preemptibles,
+      dummy_input_for_call_caching = dummy_input_for_call_caching,
       additional_disk = additional_disk,
       bwa_commandline = bwa_commandline,
       alignment_references = alignment_references,
@@ -168,11 +161,9 @@ workflow JukeboxSingleSample {
       bwa_disk_multiplier = bwa_disk_multiplier,
       local_ssd_size = local_ssd_size,
       ref_size = ref_size,
-      monitoring_script = runtime_options.monitoring_script
   }
 
   Float agg_bam_size = size(AlignmentAndMarkDuplicates.output_bam, "GB")
-
   Float dynamic_convert_to_cram_disk_size = (2 * agg_bam_size) + ref_size + additional_disk
   Float convert_to_cram_disk_size = if dynamic_convert_to_cram_disk_size > secure_disk_size_threshold then dynamic_convert_to_cram_disk_size else secure_disk_size_threshold
 
@@ -183,11 +174,10 @@ workflow JukeboxSingleSample {
       ref_fasta = references.ref_fasta,
       ref_fasta_index = references.ref_fasta_index,
       output_basename = sample_inputs.base_file_name,
-      preemptible_tries = preemptibles
   }
 
   Float cram_size = size(ConvertToCram.output_cram, "GB")
-  Float dynamic_validate_cram_disk_size = cram_size + ref_size + runtime_options.additional_metrics_disk
+  Float dynamic_validate_cram_disk_size = cram_size + ref_size + additional_metrics_disk
   Float validate_cram_disk_size = if dynamic_validate_cram_disk_size > secure_disk_size_threshold then dynamic_validate_cram_disk_size else secure_disk_size_threshold
 
   # Validate the CRAM file
@@ -201,7 +191,6 @@ workflow JukeboxSingleSample {
       ref_fasta_index = references.ref_fasta_index,
       ignore = ["MISSING_TAG_NM" ,"INVALID_PLATFORM_VALUE"],
       max_output = 1000000000,
-      preemptible_tries = 0,
       is_outlier_data = true #sets SKIP_MATE_VALIDATION=true
   }
 
@@ -211,8 +200,6 @@ workflow JukeboxSingleSample {
     input:
       input_bam = AlignmentAndMarkDuplicates.output_bam,
       references = references,
-      preemptible_tries = preemptibles,
-      monitoring_script = runtime_options.monitoring_script,
   }
 
   # Break the calling interval_list into sub-intervals
@@ -241,11 +228,8 @@ workflow JukeboxSingleSample {
         references = references,
         # Divide the total output VCF size and the input bam size to account for the smaller scattered input and output.
         disk_size = ceil(((deduplicated_bam_size_vc + VCF_disk_size) / hc_divisor) + ref_size + additional_disk),
-        preemptible_tries = preemptibles,
         gitc_path = gitc_path,
-        monitoring_script = runtime_options.monitoring_script,
         extra_args = extra_args.hc_extra_args,
-        no_address = parallel_no_address,
         make_gvcf = make_gvcf,
         memory_gb = 12,
         make_bamout = false
@@ -262,11 +246,8 @@ workflow JukeboxSingleSample {
           references = references,
           # Divide the total output VCF size and the input bam size to account for the smaller scattered input and output.
           disk_size = ceil(((deduplicated_bam_size_vc + VCF_disk_size) / hc_divisor) + ref_size + additional_disk),
-          preemptible_tries = preemptibles,
           gitc_path = gitc_path,
-          monitoring_script = runtime_options.monitoring_script,
           extra_args = extra_args.hc_extra_args,
-          no_address = parallel_no_address,
           make_gvcf = make_gvcf,
           memory_gb = 40,
           native_sw = true,
@@ -288,19 +269,15 @@ workflow JukeboxSingleSample {
       input_vcfs = HC_output_vcf,
       input_vcfs_indexes = HC_output_vcf_idx,
       output_vcf_name = base_file_name_sub + (if make_gvcf then ".g.vcf.gz" else ".vcf.gz"),
-      preemptible_tries = preemptibles
   }
 
   # Combine by-interval BAMs into a single sample file
   if(merge_bam_file) {
       call Tasks.MergeBams {
         input:
-          monitoring_script = runtime_options.monitoring_script,
           input_bams = haplotypes_bam,
           output_bam_name = base_file_name_sub + ".bam",
-          preemptible_tries = preemptibles,
           gitc_path = gitc_path,
-          no_address = no_address
       }
   }
 
@@ -308,21 +285,17 @@ workflow JukeboxSingleSample {
 
   call Tasks.ConvertGVCFtoVCF {
     input:
-      monitoring_script = runtime_options.monitoring_script,
       input_gvcf = MergeVCFs.output_vcf,
       input_gvcf_index = MergeVCFs.output_vcf_index,
       output_vcf_name = base_file_name_sub + '.vcf.gz',
       references = references,
       disk_size_gb = VCF_disk_size,
-      preemptible_tries = preemptibles,
-      no_address = no_address,
       gitc_path = gitc_path
   }
 
   # VCF post-processings
   call Tasks.AnnotateVCF {
     input :
-      monitoring_script = runtime_options.monitoring_script,
       input_vcf = ConvertGVCFtoVCF.output_vcf,
       input_vcf_index = ConvertGVCFtoVCF.output_vcf_index,
       references = references,
@@ -331,8 +304,6 @@ workflow JukeboxSingleSample {
       flow_order = ExtractSampleNameFlowOrder.flow_order,
       final_vcf_base_name = base_file_name_sub,
       additional_disk = additional_disk,
-      preemptible_tries = preemptibles,
-      no_address = no_address,
       gitc_path = gitc_path
   }
 
@@ -341,10 +312,7 @@ workflow JukeboxSingleSample {
       input_vcf = AnnotateVCF.output_vcf_annotated,
       input_vcf_index = AnnotateVCF.output_vcf_annotated_index,
       final_vcf_base_name = base_file_name_sub,
-      annotation_intervals = vcf_post_processing.annotation_intervals,
-      preemptible_tries = preemptibles,
-      monitoring_script = runtime_options.monitoring_script,
-      no_address = no_address
+      annotation_intervals = vcf_post_processing.annotation_intervals
   }
 
   call Tasks.TrainModel {
@@ -361,23 +329,17 @@ workflow JukeboxSingleSample {
         exome_weight = vcf_post_processing.exome_weight,
         exome_weight_annotation = vcf_post_processing.exome_weight_annotation,
         additional_disk = additional_disk,
-        preemptible_tries = eval_preemptible_tries,
-        monitoring_script = runtime_options.monitoring_script,
-        no_address = no_address
   }
 
 
   call Tasks.AnnotateVCF_AF {
       input :
-        monitoring_script = runtime_options.monitoring_script,
         input_vcf = AddIntervalAnnotationsToVCF.output_vcf,
         input_vcf_index = AddIntervalAnnotationsToVCF.output_vcf_index,
         af_only_gnomad = vcf_post_processing.af_only_gnomad,
         af_only_gnomad_index = vcf_post_processing.af_only_gnomad_index,
         final_vcf_base_name = base_file_name_sub,
         additional_disk = additional_disk,
-        preemptible_tries = preemptibles,
-        no_address = no_address
   }
 
   call Tasks.FilterVCF {
@@ -393,9 +355,6 @@ workflow JukeboxSingleSample {
       flow_order = ExtractSampleNameFlowOrder.flow_order,
       annotation_intervals = vcf_post_processing.annotation_intervals,
       disk_size_gb = VCF_disk_size,
-      preemptible_tries = eval_preemptible_tries,
-      monitoring_script = runtime_options.monitoring_script,
-      no_address = no_address
   }
 
   call Tasks.MoveAnnotationsToGvcf {
@@ -406,7 +365,7 @@ workflow JukeboxSingleSample {
       gvcf_index = MergeVCFs.output_vcf_index
   }
 
-  call WorkflowQC.QC as CollectStatistics {
+  call JukeboxQC.JukeboxQC as CollectStatistics {
     input:
       agg_bam = AlignmentAndMarkDuplicates.output_bam,
       agg_bam_index = AlignmentAndMarkDuplicates.output_bam_index,
@@ -414,17 +373,13 @@ workflow JukeboxSingleSample {
       base_file_name_sub = base_file_name_sub,
       agg_bam_size = agg_bam_size,
       ref_size = ref_size,
-      additional_metrics_disk = runtime_options.additional_metrics_disk,
+      additional_metrics_disk = additional_metrics_disk,
       secure_disk_size_threshold = secure_disk_size_threshold,
       references = references,
       contamination_sites = contamination_sites,
       wgs_coverage_interval_list = vcf_post_processing.wgs_coverage_interval_list,
       picard_jar_override = environment_versions.picard_jar_override,
       gitc_path = gitc_path,
-      no_address = no_address,
-      preemptibles = preemptibles,
-      eval_preemptible_tries = eval_preemptible_tries,
-      monitoring_script = runtime_options.monitoring_script,
       VCF_disk_size = VCF_disk_size,
       additional_disk = additional_disk,
       max_duplication_in_reasonable_sample = vcf_post_processing.max_duplication_in_reasonable_sample,

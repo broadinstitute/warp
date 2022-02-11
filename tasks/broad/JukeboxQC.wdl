@@ -3,7 +3,7 @@ version 1.0
 import "JukeboxTasks.wdl" as Tasks
 import "Qc.wdl" as QC
 
-workflow QC {
+workflow JukeboxQC {
   input {
     File agg_bam
     File agg_bam_index
@@ -12,7 +12,7 @@ workflow QC {
 
     Float agg_bam_size
     Float ref_size
-    Int? additional_metrics_disk
+    Int additional_metrics_disk
     Float secure_disk_size_threshold
 
     References references
@@ -21,10 +21,7 @@ workflow QC {
 
     File? picard_jar_override
     String gitc_path
-    Boolean no_address
-    Int preemptibles
-    Int eval_preemptible_tries
-    File monitoring_script
+
     Int VCF_disk_size
     Int additional_disk
 
@@ -54,11 +51,8 @@ workflow QC {
       vcf_basename = base_file_name,
       references = references,
       disk_size = ceil((agg_bam_size + VCF_disk_size) + ref_size + additional_disk),
-      preemptible_tries = preemptibles,
       gitc_path = gitc_path,
-      monitoring_script = monitoring_script,
       extra_args = hc_contamination_extra_args,
-      no_address = no_address,
       make_gvcf = false,
       memory_gb = 12,
       make_bamout = true
@@ -78,8 +72,7 @@ workflow QC {
       contamination_sites_mu = contamination_sites_mu,
       references = references,
       output_prefix = base_file_name,
-      disk_size = ceil(check_contamination_disk_size),
-      preemptible_tries = preemptibles
+      disk_size = ceil(check_contamination_disk_size)
   }
 
   Float dynamic_statistics_disk_size = agg_bam_size + ref_size + ( additional_metrics_disk * 2 )
@@ -87,37 +80,30 @@ workflow QC {
 
   call Tasks.CollectDuplicateMetrics {
     input:
-      monitoring_script = monitoring_script,
       input_bam = agg_bam,
       metrics_filename = base_file_name_sub + ".duplicate_metrics",
       disk_size_gb = statistics_disk_size,
-      preemptible_tries = eval_preemptible_tries,
       gitc_path = gitc_path,
       jar_override = picard_jar_override,
-      no_address = no_address,
   }
 
   call QC.CollectQualityYieldMetrics {
     input:
       input_bam = agg_bam,
       metrics_filename = base_file_name_sub + ".unmapped.quality_yield_metrics",
-      preemptible_tries = eval_preemptible_tries
   }
 
   # QC the sample WGS metrics (stringent thresholds)
   call Tasks.CollectWgsMetrics {
     input:
-      monitoring_script = monitoring_script,
       input_bam = agg_bam,
       input_bam_index = agg_bam_index,
       metrics_filename = base_file_name_sub + ".wgs_metrics",
       references = references,
       wgs_coverage_interval_list = wgs_coverage_interval_list,
       disk_size = statistics_disk_size,
-      preemptible_tries = eval_preemptible_tries,
       gitc_path = gitc_path,
-      jar_override = picard_jar_override,
-      no_address = no_address
+      jar_override = picard_jar_override
   }
 
   Int default_raw_wgs_memory_size = 12
@@ -128,7 +114,6 @@ workflow QC {
   # QC the sample raw WGS metrics (common thresholds)
   call Tasks.CollectRawWgsMetrics {
     input:
-      monitoring_script = monitoring_script,
       input_bam = agg_bam,
       input_bam_index = agg_bam_index,
       metrics_filename = base_file_name_sub + ".raw_wgs_metrics",
@@ -136,25 +121,20 @@ workflow QC {
       wgs_coverage_interval_list = wgs_coverage_interval_list,
       disk_size = statistics_disk_size,
       memory_size = raw_wgs_memory_size,
-      preemptible_tries = eval_preemptible_tries,
       gitc_path = gitc_path,
-      jar_override = picard_jar_override,
-      no_address = no_address
+      jar_override = picard_jar_override
   }
 
   # QC the final BAM some more (no such thing as too much QC)
   call Tasks.CollectAggregationMetrics {
     input:
-      monitoring_script = monitoring_script,
       input_bam = agg_bam,
       input_bam_index = agg_bam_index,
       output_bam_prefix = base_file_name_sub,
       references = references,
       disk_size = statistics_disk_size,
-      preemptible_tries = eval_preemptible_tries,
       gitc_path = gitc_path,
-      jar_override = picard_jar_override,
-      no_address = no_address
+      jar_override = picard_jar_override
   }
 
   # Check whether the data has massively high duplication or chimerism rates
@@ -166,7 +146,6 @@ workflow QC {
       chimerism_metrics = CollectAggregationMetrics.alignment_summary_metrics,
       max_duplication_in_reasonable_sample = max_duplication_in_reasonable_sample,
       max_chimerism_in_reasonable_sample = max_chimerism_in_reasonable_sample,
-      preemptible_tries = eval_preemptible_tries
   }
 
   output {

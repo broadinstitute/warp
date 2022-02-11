@@ -9,12 +9,9 @@ workflow AlignmentAndMarkDuplicates {
     SampleInputs sample_inputs
     String base_file_name_sub
     Int? reads_per_split
-    Int preemptibles
     Int compression_level
     Int additional_disk
 
-    Boolean no_address
-    Boolean parallel_no_address
     String dummy_input_for_call_caching
     
     Float rsq_threshold
@@ -28,7 +25,8 @@ workflow AlignmentAndMarkDuplicates {
     Int local_ssd_size
     Float ref_size
 
-    File monitoring_script
+    String gitc_path = "/usr/gitc/"
+
   }
 
   # Get the size of the standard reference files as well as the additional reference files needed for BWA
@@ -45,12 +43,9 @@ workflow AlignmentAndMarkDuplicates {
 
       call Tasks.SplitCram as SplitInputCram{
         input:
-          monitoring_script = monitoring_script,
           input_cram_bam = input_cram,
           base_file_name = base_file_name_sub,
           reads_per_file = reads_per_cram,
-          preemptible_tries = preemptibles,
-          no_address = false
       }
     }
     Array[Array[File]]? split_cram = SplitInputCram.split_outputs
@@ -60,17 +55,13 @@ workflow AlignmentAndMarkDuplicates {
 
     scatter(input_bam in sample_inputs.input_cram_bam_list){
 
-      File unmapped_bam = input_bam
-      Float unmapped_bam_size = size(unmapped_bam, "GB")
-
       # Split bam into multiple smaller bams,
       # map reads to reference and recombine into one bam
       Int reads_per_file = 20000000
       call AlignmentTasks.SamSplitter as SplitInputBam {
         input:
-          input_bam = unmapped_bam,
+          input_bam = input_bam,
           n_reads = reads_per_file,
-          preemptible_tries = preemptibles,
           compression_level = compression_level
       }
 
@@ -83,7 +74,6 @@ workflow AlignmentAndMarkDuplicates {
   call Tasks.GetBwaVersion {
     input:
       gitc_path = gitc_path,
-      no_address = no_address,
       dummy_input_for_call_caching = dummy_input_for_call_caching,
   }
 
@@ -95,22 +85,16 @@ workflow AlignmentAndMarkDuplicates {
 
     call Tasks.ConvertCramOrBamToUBam as ConvertToUbam {
       input:
-        monitoring_script = monitoring_script,
         input_file = split_chunk,
         split_chunk_size = split_chunk_size,
         additional_disk = additional_disk,
         base_file_name = base_file_name_sub,
-        preemptible_tries = preemptibles,
-        no_address = parallel_no_address
     }
 
     call Tasks.FilterByRsq {
       input:
-        monitoring_script = monitoring_script, 
         input_bam = ConvertToUbam.unmapped_bam, 
         rsq_threshold = rsq_threshold,
-        no_address = no_address, 
-        preemptible_tries = preemptibles,
         additional_disk = additional_disk
     }
 
@@ -126,12 +110,9 @@ workflow AlignmentAndMarkDuplicates {
         alignment_references = alignment_references,
         bwa_version = GetBwaVersion.version,
         compression_level = compression_level,
-        preemptible_tries = preemptibles,
-        monitoring_script=monitoring_script,
       # The merged bam can be bigger than only the aligned bam,
       # so account for the output size by multiplying the input size by 2.75.
         disk_size = ceil(unmapped_bam_size + bwa_ref_size + (bwa_disk_multiplier * unmapped_bam_size) + additional_disk),
-        no_address = parallel_no_address
     }
   }
 
@@ -155,11 +136,9 @@ workflow AlignmentAndMarkDuplicates {
     input:
       input_bams = SamToFastqAndBwaMemAndMba.output_bam,
       output_bam_basename = base_file_name_sub + ".aligned.sorted.duplicates_marked",
-      monitoring_script = monitoring_script,
       memory_gb = mark_duplicates_ram,
       disk_size_gb = mapped_bam_size_local_ssd,
       gitc_path = gitc_path,
-      no_address = false,
       cpu = mark_duplicates_cpus,
       args = mark_duplicates_extra_args
   }
