@@ -1,3 +1,11 @@
+# 1.0.0
+
+2022-02-01 (Date of Last Commit)
+
+* Added modify_gtf.py and new docker for single nucleus smart-seq pipeline
+* Update STAR to version 2.7.10a 
+* Added biotypes as an input 
+
 # 0.1.1
 
 2021-11-15 (Date of Last Commit)
