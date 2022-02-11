@@ -207,6 +207,7 @@ task TrimAdapters {
 
   # use docker image for given tool cutadapat
   runtime {
+        maxRetries: 3
     docker: docker_image
     disks: "local-disk " + disk_size + " HDD"
     cpu: 1
@@ -270,6 +271,7 @@ task BWAPairedEndAlignment {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker_image
     disks: "local-disk " + disk_size + " HDD"
     cpu: cpu
@@ -313,6 +315,7 @@ task SamToBam {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker_image
     disks: "local-disk " + disk_size + " HDD"
     cpu: 1
@@ -359,6 +362,7 @@ task SortSam {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker_image
     disks: "local-disk " + disk_size + " HDD"
     cpu: 1
@@ -402,6 +406,7 @@ task FilterMarkDuplicates {
   }
 
   runtime {
+        maxRetries: 3
      docker: docker_image
      disks: "local-disk " + disk_size + " HDD"
      cpu: 1
@@ -450,6 +455,7 @@ task FilterMinMapQuality {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker_image
     disks: "local-disk " + disk_size + " HDD"
     cpu: 1
@@ -495,6 +501,7 @@ task FilterMaxFragmentLength {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker_image
     disks: "local-disk " + disk_size + " HDD"
     cpu: 1
@@ -559,6 +566,7 @@ task FilterMitochondrialReads {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker_image
     disks: "local-disk " + disk_size + " HDD"
     cpu: 1
@@ -617,6 +625,7 @@ task SnapPre {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker_image
     cpu: 1
     memory: "16 GiB"
@@ -662,6 +671,7 @@ task SnapCellByBin {
     File snap_output = snap_output_name
   }
   runtime {
+        maxRetries: 3
     docker: docker_image
     cpu: num_threads
     memory: "16 GiB"
@@ -693,6 +703,7 @@ task MakeCompliantBAM {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker_image
     cpu: 1
     memory: "4 GiB"
@@ -726,6 +737,7 @@ task BreakoutSnap {
         File barcodesSection = 'output/barcodesSection.csv'
     }
     runtime {
+        maxRetries: 3
         docker: docker_image
         cpu: num_threads
         memory: "16 GB"

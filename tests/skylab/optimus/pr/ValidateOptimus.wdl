@@ -90,6 +90,7 @@ task ValidateLoom {
    >>>
 
    runtime {
+        maxRetries: 3
        docker: "ubuntu:16.04"
        cpu: 1
        memory: "3.75 GB"
@@ -134,6 +135,7 @@ task ValidateMatrix {
     >>>
 
     runtime {
+        maxRetries: 3
         docker: "quay.io/humancellatlas/optimus-matrix-test:0.0.7"
         cpu: 1
         memory: "16 GB"
@@ -194,6 +196,7 @@ task ValidateMetrics {
     >>>
 
     runtime {
+        maxRetries: 3
         docker: "ubuntu:18.04"
         cpu: 1
         memory: "1.00 GB"
@@ -248,6 +251,7 @@ task GenerateReport {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "ubuntu:18.04"
     cpu: 1
     memory: "1.0 GB"

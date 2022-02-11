@@ -15,6 +15,7 @@ task CalculateChromosomeLength {
     grep -P "SN:~{chrom}\t" ~{ref_dict} | sed 's/.*LN://' | sed 's/\t.*//'
   }
   runtime {
+        maxRetries: 3
     docker: ubuntu_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -56,6 +57,7 @@ task GenerateChunk {
     --exclude-filtered true
   }
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -101,6 +103,7 @@ task CountVariantsInChunks {
     Int var_in_reference = read_int("var_in_reference")
   }
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -138,6 +141,7 @@ task CheckChunks {
     Boolean valid = read_boolean("valid_file.txt")
   }
   runtime {
+        maxRetries: 3
     docker: bcftools_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -176,6 +180,7 @@ task PhaseVariantsEagle {
     File dataset_prephased_vcf="pre_phased_~{chrom}.vcf.gz"
   }
   runtime {
+        maxRetries: 3
     docker: eagle_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -220,6 +225,7 @@ task Minimac4 {
     File info = "~{prefix}.info"
   }
   runtime {
+        maxRetries: 3
     docker: minimac4_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -252,6 +258,7 @@ task GatherVcfs {
 
   >>>
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -289,6 +296,7 @@ task UpdateHeader {
     --disable-sequence-dictionary-validation
   >>>
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -323,6 +331,7 @@ task RemoveSymbolicAlleles {
     File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
   }
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -350,6 +359,7 @@ task SeparateMultiallelics {
     File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
   }
   runtime {
+        maxRetries: 3
     docker: bcftools_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -379,6 +389,7 @@ task OptionalQCSites {
     bcftools index -t ~{output_vcf_basename}.vcf.gz # Note: this is necessary because vcftools doesn't have a way to output a zipped vcf, nor a way to index one (hence needing to use bcf).
   >>>
   runtime {
+        maxRetries: 3
     docker: bcftools_vcftools_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -419,6 +430,7 @@ task MergeSingleSampleVcfs {
     bcftools index -t ~{output_vcf_basename}.vcf.gz
   >>>
   runtime {
+        maxRetries: 3
     docker: bcftools_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -443,6 +455,7 @@ task CountSamples {
     bcftools query -l ~{vcf} | wc -l
   >>>
   runtime {
+        maxRetries: 3
     docker: bcftools_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -484,6 +497,7 @@ task AggregateImputationQCMetrics {
     EOF
   >>>
   runtime {
+        maxRetries: 3
     docker: rtidyverse_docker
     disks : "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -524,6 +538,7 @@ task StoreChunksInfo {
     EOF
   >>>
   runtime {
+        maxRetries: 3
     docker: rtidyverse_docker
     disks : "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -562,6 +577,7 @@ task MergeImputationQCMetrics {
     EOF
   >>>
   runtime {
+        maxRetries: 3
     docker: rtidyverse_docker
     disks : "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -592,6 +608,7 @@ task SetIDs {
     bcftools index -t ~{output_basename}.vcf.gz
   >>>
   runtime {
+        maxRetries: 3
     docker: bcftools_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -620,6 +637,7 @@ task ExtractIDs {
     File ids = "~{output_basename}.ids.txt"
   }
   runtime {
+        maxRetries: 3
     docker: bcftools_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -653,6 +671,7 @@ task SelectVariantsByIds {
     SelectVariants -V ~{vcf} --exclude-filtered --keep-ids sites.list -O ~{basename}.vcf.gz
   >>>
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
@@ -679,6 +698,7 @@ task RemoveAnnotations {
     bcftools index -t ~{basename}.vcf.gz
   >>>
   runtime {
+        maxRetries: 3
     docker: bcftools_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -708,6 +728,7 @@ task InterleaveVariants {
     MergeVcfs -I ~{sep=" -I " vcfs} -O ~{basename}.vcf.gz
   >>>
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"
@@ -733,6 +754,7 @@ task FindSitesUniqueToFileTwoOnly {
     comm -13 <(sort ~{file1} | uniq) <(sort ~{file2} | uniq) > missing_sites.ids
   >>>
   runtime {
+        maxRetries: 3
     docker: ubuntu_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
@@ -760,6 +782,7 @@ task SplitMultiSampleVcf {
     done
   >>>
   runtime {
+        maxRetries: 3
     docker: bcftools_docker
     disks: "local-disk ${disk_size_gb} SSD"
     memory: "${memory_mb} MiB"

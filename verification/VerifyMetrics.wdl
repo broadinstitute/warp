@@ -49,6 +49,7 @@ task CompareTwoNumbers {
   }
 
   runtime {
+        maxRetries: 3
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
@@ -78,6 +79,7 @@ task CompareMetricFiles {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"

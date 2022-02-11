@@ -27,6 +27,7 @@ task GenerateEmptyVariantCallingMetricsFile {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -73,6 +74,7 @@ task BlacklistBarcode {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -124,6 +126,7 @@ task VcfToMercuryFingerprintJson {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -152,6 +155,7 @@ task CreateBafRegressMetricsFile {
       --OUTPUT ~{output_metrics_basefilename}
   }
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -229,6 +233,7 @@ task UploadArraysMetrics {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -278,6 +283,7 @@ task UploadEmptyArraysMetrics {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -335,6 +341,7 @@ task CreateChipWellBarcodeParamsFile {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 10 HDD"
     memory: "2 GiB"
@@ -377,6 +384,7 @@ task UpdateChipWellBarcodeIndex {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -413,6 +421,7 @@ task GetNextArraysQcAnalysisVersionNumber {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -445,6 +454,7 @@ task ResolveExtendedIlluminaManifestFile {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 10 HDD"
     memory: "2 GiB"
@@ -480,6 +490,7 @@ task ResolveMinorAlleleFrequencyFile {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 10 HDD"
     memory: "2 GiB"

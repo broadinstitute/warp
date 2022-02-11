@@ -56,6 +56,7 @@ task VerifyPipelineInputs {
     >>>
 
     runtime {
+        maxRetries: 3
         docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
@@ -88,6 +89,7 @@ task ExtractUMIs {
     >>>
 
     runtime {
+        maxRetries: 3
         docker : docker
         cpu : cpu
         memory : "${memory_mb} MiB"
@@ -149,6 +151,7 @@ task STAR {
     >>>
 
     runtime {
+        maxRetries: 3
         # Note: this is 'us.gcr.io/tag-team-160914/neovax-tag-rnaseq:v1', just pulled into a location visible to warp tests
         docker : docker
         cpu : cpu
@@ -197,6 +200,7 @@ task FastqToUbam {
     >>>
 
     runtime {
+        maxRetries: 3
         docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
@@ -228,6 +232,7 @@ task CopyReadGroupsToHeader {
     >>>
 
     runtime {
+        maxRetries: 3
         docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
@@ -261,6 +266,7 @@ task GetSampleName {
     >>>
 
     runtime {
+        maxRetries: 3
         docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
@@ -304,6 +310,7 @@ task rnaseqc2 {
     }
 
     runtime {
+        maxRetries: 3
         docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
@@ -338,6 +345,7 @@ task CollectRNASeqMetrics {
     >>>
 
     runtime {
+        maxRetries: 3
         docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
@@ -374,6 +382,7 @@ task CollectMultipleMetrics {
     >>>
 
     runtime {
+        maxRetries: 3
         docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
@@ -466,6 +475,7 @@ task MergeMetrics {
                 fi    >>>
 
     runtime {
+        maxRetries: 3
         docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
@@ -504,6 +514,7 @@ task SortSamByCoordinate {
     >>>
 
     runtime {
+        maxRetries: 3
         docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
@@ -543,6 +554,7 @@ task SortSamByQueryName {
     >>>
 
     runtime {
+        maxRetries: 3
         docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
@@ -577,6 +589,7 @@ task GroupByUMIs {
     }
 
     runtime {
+        maxRetries: 3
         docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
@@ -607,6 +620,7 @@ task MarkDuplicatesUMIAware {
     }
 
     runtime {
+        maxRetries: 3
         docker: docker
         cpu: cpu
         memory: "${memory_mb} MiB"
@@ -698,6 +712,7 @@ task formatPipelineOutputs {
     >>>
 
   runtime {
+        maxRetries: 3
       docker: "broadinstitute/horsefish:twisttcap_scripts"
       cpu: cpu
       memory: "${memory_mb} MiB"
@@ -731,6 +746,7 @@ task updateOutputsInTDR {
     >>>
 
     runtime {
+        maxRetries: 3
         docker: "broadinstitute/horsefish:twisttcap_scripts"
         cpu: cpu
         memory: "${memory_mb} MiB"

@@ -40,6 +40,7 @@ task SortSam {
 
   }
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk " + disk_size + " HDD"
     cpu: "1"
@@ -101,6 +102,7 @@ task MarkDuplicates {
       ADD_PG_TAG_TO_READS=false
   }
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     preemptible: preemptible_tries
     memory: "~{memory_size} GiB"
@@ -155,6 +157,7 @@ task BaseRecalibrator {
       -L ~{sep=" -L " sequence_group_interval}
   }
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     preemptible: preemptible_tries
     memory: "6000 MiB"
@@ -221,6 +224,7 @@ task ApplyBQSR {
       -L ~{sep=" -L " sequence_group_interval}
   }
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     preemptible: preemptible_tries
     memory: "~{memory_size} MiB"
@@ -249,6 +253,7 @@ task GatherBqsrReports {
       -O ~{output_report_filename}
     }
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     preemptible: preemptible_tries
     memory: "3500 MiB"
@@ -282,6 +287,7 @@ task GatherSortedBamFiles {
       CREATE_MD5_FILE=true
     }
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     preemptible: preemptible_tries
     memory: "3 GiB"
@@ -317,6 +323,7 @@ task GatherUnsortedBamFiles {
       CREATE_MD5_FILE=false
     }
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     preemptible: preemptible_tries
     memory: "3 GiB"
@@ -367,6 +374,7 @@ task GenerateSubsettedContaminationResources {
 
   >>>
   runtime {
+        maxRetries: 3
     preemptible: preemptible_tries
     memory: "3.5 GiB"
     disks: "local-disk 10 HDD"
@@ -450,6 +458,7 @@ task CheckContamination {
     CODE
   >>>
   runtime {
+        maxRetries: 3
     preemptible: preemptible_tries
     memory: "7.5 GiB"
     disks: "local-disk " + disk_size + " HDD"

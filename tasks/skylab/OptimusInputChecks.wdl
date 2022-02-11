@@ -49,6 +49,7 @@ task checkOptimusInput {
   }
 
   runtime {
+        maxRetries: 3
     docker: "ubuntu:18.04"
     cpu: cpu
     memory: "~{machine_mem_mb} GiB"

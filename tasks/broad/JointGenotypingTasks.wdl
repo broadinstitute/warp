@@ -28,6 +28,7 @@ task CheckSamplesUnique {
   }
 
   runtime {
+        maxRetries: 3
     memory: "1 GiB"
     preemptible: 1
     disks: "local-disk 10 HDD"
@@ -62,6 +63,7 @@ task SplitIntervalList {
     >>>
 
   runtime {
+        maxRetries: 3
     memory: "3750 MiB"
     preemptible: 1
     bootDiskSizeGb: 15
@@ -119,6 +121,7 @@ task ImportGVCFs {
   >>>
 
   runtime {
+        maxRetries: 3
     memory: "26000 MiB"
     cpu: 4
     bootDiskSizeGb: 15
@@ -178,6 +181,7 @@ task GenotypeGVCFs {
   >>>
 
   runtime {
+        maxRetries: 3
     memory: "26000 MiB"
     cpu: 2
     bootDiskSizeGb: 15
@@ -234,6 +238,7 @@ task GnarlyGenotyper {
   >>>
 
   runtime {
+        maxRetries: 3
     memory: "26000 MiB"
     cpu: 2
     bootDiskSizeGb: 15
@@ -281,6 +286,7 @@ task HardFilterAndMakeSitesOnlyVcf {
   >>>
 
   runtime {
+        maxRetries: 3
     memory: "3750 MiB"
     cpu: "1"
     bootDiskSizeGb: 15
@@ -342,6 +348,7 @@ task IndelsVariantRecalibrator {
   >>>
 
   runtime {
+        maxRetries: 3
     memory: "26000 MiB"
     cpu: "2"
     bootDiskSizeGb: 15
@@ -409,6 +416,7 @@ task SNPsVariantRecalibratorCreateModel {
   >>>
 
   runtime {
+        maxRetries: 3
     memory: "104 GiB"
     cpu: "2"
     bootDiskSizeGb: 15
@@ -489,6 +497,7 @@ task SNPsVariantRecalibrator {
   >>>
 
   runtime {
+        maxRetries: 3
     memory: "~{machine_mem} MiB"
     cpu: 2
     bootDiskSizeGb: 15
@@ -555,6 +564,7 @@ task GatherTranches {
   >>>
 
   runtime {
+        maxRetries: 3
     memory: "7500 MiB"
     cpu: "2"
     bootDiskSizeGb: 15
@@ -614,6 +624,7 @@ task ApplyRecalibration {
   >>>
 
   runtime {
+        maxRetries: 3
     memory: "7000 MiB"
     cpu: "1"
     bootDiskSizeGb: 15
@@ -660,6 +671,7 @@ task GatherVcfs {
   >>>
 
   runtime {
+        maxRetries: 3
     memory: "7000 MiB"
     cpu: "1"
     bootDiskSizeGb: 15
@@ -708,6 +720,7 @@ task SelectFingerprintSiteVariants {
   >>>
 
   runtime {
+        maxRetries: 3
     memory: "7500 MiB"
     cpu: 1
     bootDiskSizeGb: 15
@@ -755,6 +768,7 @@ task CollectVariantCallingMetrics {
   }
 
   runtime {
+        maxRetries: 3
     memory: "7500 MiB"
     cpu: 2
     bootDiskSizeGb: 15
@@ -828,6 +842,7 @@ task GatherVariantCallingMetrics {
   >>>
 
   runtime {
+        maxRetries: 3
     memory: "3000 MiB"
     cpu: "1"
     bootDiskSizeGb: 15
@@ -920,6 +935,7 @@ task CrossCheckFingerprint {
   >>>
 
   runtime {
+        maxRetries: 3
     memory: memMb + " MiB"
     disks: "local-disk " + disk + " HDD"
     preemptible: 0
@@ -957,6 +973,7 @@ task GatherPicardMetrics {
   }
 
   runtime {
+        maxRetries: 3
     cpu: 1
     memory: "3.75 GiB"
     preemptible: 1
@@ -1035,6 +1052,7 @@ task GetFingerprintingIntervalIndices {
   }
 
   runtime {
+        maxRetries: 3
     cpu: 2
     memory: "3750 MiB"
     preemptible: 1
@@ -1065,6 +1083,7 @@ task PartitionSampleNameMap {
   }
 
   runtime {
+        maxRetries: 3
     memory: "1 GiB"
     preemptible: 1
     disks: "local-disk 10 HDD"

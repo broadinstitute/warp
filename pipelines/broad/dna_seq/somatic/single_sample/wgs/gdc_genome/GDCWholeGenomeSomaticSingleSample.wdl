@@ -66,6 +66,7 @@ task bam_readgroup_to_contents {
     }
     
     runtime {
+        maxRetries: 3
         docker: "broadgdac/samtools:1.10"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
@@ -130,6 +131,7 @@ task biobambam_bamtofastq {
     }
     
     runtime {
+        maxRetries: 3
         docker: "broadgdac/biobambam2:2.0.87-release-20180301132713"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
@@ -192,6 +194,7 @@ CODE
     }
     
     runtime {
+        maxRetries: 3
         docker: "python:3.8-slim"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
@@ -266,6 +269,7 @@ CODE
     }
     
     runtime {
+        maxRetries: 3
         docker: "python:3.8-slim"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
@@ -320,6 +324,7 @@ task bwa_pe {
     }
     
     runtime {
+        maxRetries: 3
         docker: "broadgdac/bwa:0.7.15-r1142-dirty"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
@@ -372,6 +377,7 @@ task bwa_se {
     }
     
     runtime {
+        maxRetries: 3
         docker: "broadgdac/bwa:0.7.15-r1142-dirty"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
@@ -430,6 +436,7 @@ task picard_markduplicates {
   # the custom entrypoint in the picard-cloud:2.18.11 docker image. Cromwell v53 and newer can support the
   # us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11 docker image
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11_NoCustomEntryPoint"
     preemptible: preemptible_tries
     memory: "~{memory_size} GiB"
@@ -479,6 +486,7 @@ task sort_and_index_markdup_bam {
     }
     
     runtime {
+        maxRetries: 3
         docker: "us.gcr.io/broad-gotc-prod/samtools:1.10"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
@@ -537,6 +545,7 @@ task gatk_baserecalibrator {
     }
 
     runtime {
+        maxRetries: 3
         docker: "us.gcr.io/broad-gatk/gatk:4.0.7.0"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
@@ -586,6 +595,7 @@ task gatk_applybqsr {
     }
     
     runtime {
+        maxRetries: 3
         docker: "us.gcr.io/broad-gatk/gatk:4.0.7.0"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
@@ -616,6 +626,7 @@ task collect_insert_size_metrics {
       HISTOGRAM_FILE=~{output_bam_prefix}.insert_size_histogram.pdf
   }
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     memory: mem + " MiB"
     disks: "local-disk " + disk_size + " HDD"

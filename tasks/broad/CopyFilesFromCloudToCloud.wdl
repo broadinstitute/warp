@@ -62,6 +62,7 @@ task CopyFilesFromCloudToCloud {
   # In the future, we should store the extracted data in a GCS bucket so that
   # We don't have to use an external IP.
   runtime {
+        maxRetries: 3
     memory: "2 GiB"
     cpu: "1"
     disks: "local-disk 20 HDD"

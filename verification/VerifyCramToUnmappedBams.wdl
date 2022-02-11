@@ -43,6 +43,7 @@ task CompareBams {
   }
 
   runtime {
+        maxRetries: 3
     docker: "biocontainers/samtools:1.3.1"
     disks: "local-disk " + disk_size + " HDD"
     cpu: 2

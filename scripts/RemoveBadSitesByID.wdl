@@ -129,6 +129,7 @@ task SplitX {
 	>>>
 
 	runtime {
+        maxRetries: 3
 docker: "us.gcr.io/broad-gatk/gatk:4.2.3.0"
 		disks: "local-disk " + disk_size + "  HDD"
 		memory: "16 GB"
@@ -157,6 +158,7 @@ task BuildM3VCF {
 	>>>
 
 	runtime {
+        maxRetries: 3
 		docker: "quay.io/ckachuli/minimac3@sha256:9b50682305869b103f2493179c9ea6ee618bd65d96bea17192dc609ce724c586"
 		memory: "16 GB"
 		disks: "local-disk 100 HDD"
@@ -181,6 +183,7 @@ task VcfToBcf {
 	>>>
 
 	runtime {
+        maxRetries: 3
 		docker: "biocontainers/bcftools:v1.9-1-deb_cv1"
 		memory: "3 GiB"
 		disks: "local-disk 100 HDD"
@@ -215,6 +218,7 @@ task RemoveBadSitesFromVcf {
 	>>>
 
 	runtime {
+        maxRetries: 3
                 docker: "us.gcr.io/broad-gatk/gatk:4.2.3.0"
 		disks: "local-disk 100 HDD"
 		memory: "16 GB"
@@ -243,6 +247,7 @@ task UpdateVariantIds {
   }
 
   runtime {
+        maxRetries: 3
     docker: "skwalker/imputation:with_vcftools"
     disks: "local-disk " + disk_space + " HDD"
     memory: "16 GB"
@@ -269,6 +274,7 @@ task SortVariantIds {
   }
 
   runtime {
+        maxRetries: 3
     docker: "skwalker/imputation:with_vcftools"
     disks: "local-disk " + disk_space + " HDD"
     memory: "16 GB"
@@ -292,6 +298,7 @@ task SortVariantIdsList {
   }
 
   runtime {
+        maxRetries: 3
     docker: "skwalker/imputation:with_vcftools"
     disks: "local-disk " + disk_space + " HDD"
     memory: "16 GB"

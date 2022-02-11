@@ -63,6 +63,7 @@ task CalibrateDragstrModel {
   >>>
 
   runtime {
+        maxRetries: 3
      docker: docker
      disks: "local-disk " + disk_size_gb + (if use_ssd then " SSD" else " HDD")
      memory: runtime_memory_mb + " MiB"

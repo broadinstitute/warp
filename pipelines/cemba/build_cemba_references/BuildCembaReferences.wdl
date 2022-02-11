@@ -86,6 +86,7 @@ task BuildBisulfiteReferences {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/broadinstitute/bisulfite-references:1.0"
     disks: "local-disk " + ceil(3.5 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
@@ -125,6 +126,7 @@ task Bowtie2Build {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/broadinstitute/bowtie2:2.3.4.3"
     disks: "local-disk " + ceil(3 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
@@ -170,6 +172,7 @@ task CreateReferenceDictionary {
 
   # use docker image for given tool cutadapat
   runtime {
+        maxRetries: 3
     docker: "quay.io/broadinstitute/picard:2.18.23"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 2 * input file size
@@ -220,6 +223,7 @@ task CreateReferenceFastaIndex {
 
   # use docker image for given tool cutadapat
   runtime {
+        maxRetries: 3
     docker: "quay.io/broadinstitute/samtools:1.9"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 2.25 * input file size

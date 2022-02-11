@@ -66,6 +66,7 @@ task HaplotypeCaller_GATK35_GVCF {
       --read_filter OverclippedRead
   }
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/gatk:1.0.0-4.1.8.0-1626439571"
     preemptible: preemptible_tries
     memory: "10000 MiB"
@@ -150,6 +151,7 @@ task HaplotypeCaller_GATK4_VCF {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     preemptible: preemptible_tries
     memory: "~{memory_size_mb} MiB"
@@ -185,6 +187,7 @@ task MergeVCFs {
       OUTPUT=~{output_vcf_name}
   }
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     preemptible: preemptible_tries
     memory: "3000 MiB"
@@ -222,6 +225,7 @@ task Reblock {
   }
 
   runtime {
+        maxRetries: 3
     memory: "3750 MiB"
     disks: "local-disk " + disk_size + " HDD"
     bootDiskSizeGb: 15
@@ -262,6 +266,7 @@ task HardFilterVcf {
     File output_vcf_index = "~{output_vcf_name}.tbi"
   }
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     preemptible: preemptible_tries
     memory: "3000 MiB"
@@ -299,6 +304,7 @@ task DragenHardFilterVcf {
     File output_vcf_index = "~{output_vcf_name}.tbi"
   }
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     preemptible: preemptible_tries
     memory: "3000 MiB"
@@ -348,6 +354,7 @@ task CNNScoreVariants {
   }
 
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     preemptible: preemptible_tries
     memory: "15000 MiB"
@@ -406,6 +413,7 @@ task FilterVariantTranches {
   }
 
   runtime {
+        maxRetries: 3
     memory: "7000 MiB"
     cpu: "2"
     bootDiskSizeGb: 15

@@ -17,6 +17,7 @@ task MakeSafeFilename {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 10 HDD"
     memory: "1 GiB"
@@ -117,6 +118,7 @@ task DownloadGenotypes {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
     memory: "3500 MiB"
     maxRetries: select_first([max_retries, 2])
@@ -168,6 +170,7 @@ task UploadFingerprintToMercury {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
     memory: "3500 MiB"
     maxRetries: select_first([max_retries, 2])

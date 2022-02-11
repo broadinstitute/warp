@@ -45,6 +45,7 @@ task CheckInput {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -84,6 +85,7 @@ task GetCromwellMetadata {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -124,6 +126,7 @@ task MergeLooms {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -178,6 +181,7 @@ task GetAnalysisFileMetadata {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -219,6 +223,7 @@ task GetAnalysisProcessMetadata {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -254,6 +259,7 @@ task GetAnalysisProtocolMetadata {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -348,6 +354,7 @@ task GetLinksFileMetadata {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -393,6 +400,7 @@ task GetFileDescriptor {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -436,6 +444,7 @@ task GetReferenceFileMetadata {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -463,6 +472,7 @@ task GetCloudFileCreationDate {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -492,6 +502,7 @@ task ParseCromwellMetadata {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -523,6 +534,7 @@ task GetReferenceDetails {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -554,6 +566,7 @@ task GetProjectLevelInputIds {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -626,6 +639,7 @@ task CopyToStagingBucket {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -659,6 +673,7 @@ task GetOptimusPipelineVersion {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -693,6 +708,7 @@ task GetBucketCreationDate {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -719,6 +735,7 @@ task CreateStagingAreaFile {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"
@@ -752,6 +769,7 @@ task ValidateStagingArea {
     }
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu
     memory: "${memory_mb} MiB"

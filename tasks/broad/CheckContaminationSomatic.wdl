@@ -66,6 +66,7 @@ task CalculateSomaticContamination {
     >>>
 
     runtime {
+        maxRetries: 3
         docker: gatk_docker
         bootDiskSizeGb: 12
         memory: memory_mb + " MiB"

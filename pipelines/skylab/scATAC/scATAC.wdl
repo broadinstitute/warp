@@ -129,6 +129,7 @@ task AlignPairedEnd {
     }
 
     runtime {
+        maxRetries: 3
         docker: docker_image
         cpu: num_threads
         memory: "16 GB"
@@ -186,6 +187,7 @@ task SnapPre {
     }
 
     runtime {
+        maxRetries: 3
         docker: docker_image
         cpu: num_threads
         memory: "16 GB"
@@ -227,6 +229,7 @@ task SnapCellByBin {
     }
 
     runtime {
+        maxRetries: 3
         docker: docker_image
         cpu: num_threads
         memory: "16 GB"
@@ -261,6 +264,7 @@ task MakeCompliantBAM {
     }
 
     runtime {
+        maxRetries: 3
         docker: docker_image
         cpu: num_threads
         memory: "4 GB"
@@ -302,6 +306,7 @@ task BreakoutSnap {
     }
 
     runtime {
+        maxRetries: 3
         docker: docker_image
         cpu: num_threads
         memory: "16 GB"

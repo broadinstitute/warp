@@ -111,6 +111,7 @@ task HISAT2PairedEnd {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
@@ -244,6 +245,7 @@ task HISAT2RSEM {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
@@ -338,6 +340,7 @@ input {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
@@ -389,6 +392,7 @@ task HISAT2InspectIndex {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
@@ -494,6 +498,7 @@ task HISAT2RSEMSingleEnd {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"

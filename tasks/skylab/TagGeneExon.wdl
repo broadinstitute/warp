@@ -40,6 +40,7 @@ task TagGeneExon {
 
   # Larger genomes (mouse-human) require a 7.5gb instance; single-organism genomes work with 3.75gb
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
@@ -107,6 +108,7 @@ task TagReadWithGeneFunction {
 
   # Larger genomes (mouse-human) require a 7.5gb instance; single-organism genomes work with 3.75gb
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"

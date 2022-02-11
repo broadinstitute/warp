@@ -158,6 +158,7 @@ task FilterFuncotations {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     memory: machine_memory + " GiB"
     bootDiskSizeGb: 15
@@ -201,6 +202,7 @@ task GatherFiltrationReport {
   }
 
   runtime {
+        maxRetries: 3
     memory: "4 GiB"
     docker: "us.gcr.io/google-containers/alpine-with-bash:1.0"
     disks: "local-disk 10 HDD"

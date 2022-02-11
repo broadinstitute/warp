@@ -30,6 +30,7 @@ task SortBam {
     }
 
     runtime {
+        maxRetries: 3
         docker: docker
         memory: "${machine_mem_mb} MiB"
         disks: "local-disk ${disk} HDD"
@@ -73,6 +74,7 @@ task SortBamAndIndex {
     }
 
     runtime {
+        maxRetries: 3
         docker: docker
         memory: "${machine_mem_mb} MiB"
         disks: "local-disk ${disk} HDD"
@@ -139,6 +141,7 @@ task CollectMultipleMetrics {
   }
   
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
@@ -222,6 +225,7 @@ task CollectMultipleMetricsMultiSample {
     >>>
 
     runtime {
+        maxRetries: 3
         docker: docker
         memory: "${machine_mem_mb} MiB"
         disks: "local-disk ${disk} HDD"
@@ -287,6 +291,7 @@ task CollectRnaMetrics {
   }
   
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
@@ -343,6 +348,7 @@ task CollectDuplicationMetrics {
   }
   
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
@@ -413,6 +419,7 @@ task RemoveDuplicatesFromBam {
   >>>
   
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"

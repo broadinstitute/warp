@@ -42,6 +42,7 @@ task ValidateSmartSeq2SingleCell {
   >>>
   
   runtime {
+        maxRetries: 3
     docker: "ubuntu:16.04"
     cpu: 1
     memory: "3.75 GB"

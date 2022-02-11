@@ -196,6 +196,7 @@ task checkInputArrays {
   }
 
   runtime {
+        maxRetries: 3
     docker: "ubuntu:18.04"
     cpu: 1
     memory: "1 GiB"

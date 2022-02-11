@@ -52,6 +52,7 @@ task StarAlignBamSingleEnd {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} SSD"
@@ -116,6 +117,7 @@ task StarAlignFastqPairedEnd {
     --quantMode GeneCounts
   }
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} SSD"
@@ -195,6 +197,7 @@ task StarAlignFastqMultisample {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} SSD"
@@ -315,6 +318,7 @@ task STARsoloFastq {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
@@ -371,6 +375,7 @@ task ConvertStarOutput {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
@@ -429,6 +434,7 @@ task MergeStarOutput {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"

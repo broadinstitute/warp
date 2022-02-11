@@ -18,6 +18,7 @@ task ValidateSmartSeq2Plate {
   >>>
   
   runtime {
+        maxRetries: 3
     docker: "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-fk-2"
     cpu: 1
     memory: "8 GiB"

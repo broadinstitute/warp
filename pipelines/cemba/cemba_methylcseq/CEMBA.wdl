@@ -434,6 +434,7 @@ task Trim {
 
   # use docker image for given tool cutadapat
   runtime {
+        maxRetries: 3
     docker: "quay.io/broadinstitute/cutadapt:1.18"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 2 * input file size
@@ -482,6 +483,7 @@ task CreateUnmappedBam {
 
   # use docker image for given tool cutadapat
   runtime {
+        maxRetries: 3
     docker: "quay.io/broadinstitute/picard:2.18.23"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 2.25 * input file size
@@ -537,6 +539,7 @@ task ExtractCellBarcodes {
 
   # use docker image for given tool sctools
   runtime {
+        maxRetries: 3
     docker: "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.4"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 2.5 * input file size
@@ -627,6 +630,7 @@ task Align {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/broadinstitute/bismark:0.21.0"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 3 * input file size
@@ -688,6 +692,7 @@ task AttachBarcodes {
 
   # use docker image for given tool cutadapat
   runtime {
+        maxRetries: 3
     docker: "quay.io/broadinstitute/picard:2.18.23"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 2 * input file size
@@ -735,6 +740,7 @@ task MergeBams {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/broadinstitute/samtools:1.9"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 2 * input file size
@@ -783,6 +789,7 @@ task Sort {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/broadinstitute/picard:2.18.23"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 3.25 * input file size
@@ -832,6 +839,7 @@ task FilterDuplicates {
   >>>
 
   runtime {
+        maxRetries: 3
      docker: "quay.io/broadinstitute/picard:2.18.23"
      # if the input size is less than 1 GB adjust to min input size of 1 GB
      # disks should be set to 2 * input file size
@@ -883,6 +891,7 @@ task FilterMapQuality {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/broadinstitute/samtools:1.9"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 2 * input file size
@@ -952,6 +961,7 @@ task GetMethylationReport {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/broadinstitute/bismark:0.21.0"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     disks: "local-disk " + ceil(4.5 * (if input_size < 1 then 1 else input_size)) + " HDD"
@@ -1008,6 +1018,7 @@ task AddReadGroup {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "broadinstitute/gatk:4.1.2.0"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 2 * input file size
@@ -1063,6 +1074,7 @@ task MethylationTypeCaller {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "broadinstitute/gatk:4.1.2.0"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     disks: "local-disk " + ceil(4.5 * (if input_size < 1 then 1 else input_size)) + " HDD"
@@ -1097,6 +1109,7 @@ task VCFtoALLC {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/humancellatlas/vcftoallc:v0.0.1"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     disks: "local-disk ~{disk_size_gib} HDD"
@@ -1139,6 +1152,7 @@ task ComputeCoverageDepth {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/broadinstitute/samtools:1.9"
     disks: "local-disk " + ceil(1.25 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
@@ -1181,6 +1195,7 @@ task IndexBam {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/broadinstitute/samtools:1.9"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 2 * input file size

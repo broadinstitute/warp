@@ -70,6 +70,7 @@ task Attach10xBarcodes {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"

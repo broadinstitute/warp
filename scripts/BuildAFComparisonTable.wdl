@@ -117,6 +117,7 @@ task AnnotateWithAF_t {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gatk/gatk:4.1.1.0"
     disks: "local-disk " + disk_size + " HDD"
     memory: mem + " GB" # some of the gnomad vcfs are like 38 gigs so maybe need more ?
@@ -145,6 +146,7 @@ task GatherVCFsCloud {
 	>>>
 
 	runtime {
+        maxRetries: 3
     		docker: "us.gcr.io/broad-gatk/gatk:4.1.1.0"
     		disks: "local-disk " + disk_size + " HDD"
     		memory: "16 GB"
@@ -169,6 +171,7 @@ task MakeSitesOnlyVcf {
 	>>>
 
 	runtime {
+        maxRetries: 3
 		docker: "us.gcr.io/broad-gatk/gatk:4.1.1.0"
 		disks: "local-disk " + disk_size + " HDD"
 		memory: "16 GB"
@@ -197,6 +200,7 @@ task AddVariantIDs {
 		File with_ids_vcf_index = "variants_with_ids.vcf.gz.tbi"
 	}
    runtime {
+        maxRetries: 3
 		docker: "biocontainers/bcftools:v1.9-1-deb_cv1"
 		disks: "local-disk " + disk_size + " HDD"
 		memory: "4 GB"
@@ -224,6 +228,7 @@ task VariantsToTable {
 	>>>
 
 	runtime {
+        maxRetries: 3
 		docker: "us.gcr.io/broad-gatk/gatk:4.1.1.0"
 		disks: "local-disk " + disk_size + " HDD"
 		memory: "16 GB"
@@ -255,6 +260,7 @@ task MergeTables {
 	>>>
 
 	runtime {
+        maxRetries: 3
 		docker: "rocker/tidyverse"
 		disks: "local-disk " + disk_size + " HDD"
 		memory: mem + " GB"
@@ -280,6 +286,7 @@ task RemoveSymbolicAlleles {
     File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
   }
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gatk/gatk:4.1.9.0"
     disks: "local-disk " + disk_size + " HDD"
     memory: "4 GB"

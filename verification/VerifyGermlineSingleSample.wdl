@@ -76,6 +76,7 @@ task CompareGvcfs {
   }
 
   runtime {
+        maxRetries: 3
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 70 HDD"
     memory: "2 GiB"

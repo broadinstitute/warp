@@ -67,6 +67,7 @@ task FilterAFComparisonTable_t {
 	>>>
 
 	runtime {
+        maxRetries: 3
 		docker: "rocker/tidyverse"
 		disks: "local-disk 100 HDD"
 		memory: "32 GB"

@@ -40,6 +40,7 @@ task GetReferences {
   }
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
     disks: "local-disk 10 HDD"
   }
@@ -78,6 +79,7 @@ task BuildStar {
   }
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
     memory: "50 GiB"
     disks :"local-disk 100 HDD"
@@ -134,6 +136,7 @@ task BuildStarSingleNucleus {
   }
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/humancellatlas/snss2-indices:1.2.0 "
     memory: "50 GiB"
     disks :"local-disk 100 HDD"
@@ -162,6 +165,7 @@ task BuildRsem {
     tar -cvf ~{rsem_index_name} rsem/
   }
   runtime {
+        maxRetries: 3
     docker: "quay.io/humancellatlas/secondary-analysis-rsem:v0.2.2-1.3.0"
     memory: "10 GiB"
     disks: "local-disk 100 HDD"
@@ -193,6 +197,7 @@ task BuildHisat2FromRsem {
   }
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
     memory: "8 GiB"
     disks: "local-disk 100 HDD"
@@ -228,6 +233,7 @@ task BuildHisat2 {
   }
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
     memory: "64 GiB"
     disks: "local-disk 100 HDD"
@@ -287,6 +293,7 @@ task BuildHisat2SnpHaplotypeSplicing {
   >>>
 
   runtime {
+        maxRetries: 3
     docker:"quay.io/humancellatlas/secondary-analysis-hisat2:v0.3.0-2-2.1.0"
     memory: "240 GiB"
     disks: "local-disk 100 HDD"
@@ -314,6 +321,7 @@ task BuildPicardRefFlat {
   }
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/humancellatlas/gtf_to_genepred:v0.0.0"
     memory: "8 GiB"
     disks: "local-disk 100 HDD"
@@ -355,6 +363,7 @@ task BuildIntervalList {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "quay.io/humancellatlas/secondary-analysis-umitools:0.0.1"
     memory: "8 GiB"
     disks: "local-disk 100 HDD"

@@ -44,6 +44,7 @@ task SmartSeq2LoomOutput {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu  # note that only 1 thread is supported by pseudobam
     memory: "~{machine_mem_mb} GiB"
@@ -130,6 +131,7 @@ task OptimusLoomGeneration {
   }
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu  # note that only 1 thread is supported by pseudobam
     memory: "~{machine_mem_mb} GiB"
@@ -188,6 +190,7 @@ task AggregateSmartSeq2Loom {
     }
 
     runtime {
+        maxRetries: 3
       docker: docker
       cpu: cpu
       memory: "~{machine_mem_mb} GiB"
@@ -277,6 +280,7 @@ task SingleNucleusSmartSeq2LoomOutput {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: docker
     cpu: cpu 
     memory: "~{machine_mem_mb} GiB"

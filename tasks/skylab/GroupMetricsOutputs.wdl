@@ -47,6 +47,7 @@ task GroupQCOutputs {
     Array[File] group_files = glob("${output_name}_*.csv")
   }
   runtime {
+        maxRetries: 3
     docker: docker
     memory: "${mem} GiB"
     disks: "local-disk ${disk_space} HDD"

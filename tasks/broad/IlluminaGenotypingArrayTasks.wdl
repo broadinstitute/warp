@@ -14,6 +14,7 @@ task Md5Sum {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
@@ -42,6 +43,7 @@ task zCall {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/zcall:4.0.1-1.3-1629910423"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
@@ -71,6 +73,7 @@ task BpmToNormalizationManifestCsv {
   }
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk 10 HDD"
     memory: "7500 MiB"
@@ -130,6 +133,7 @@ task GtcToVcf {
   }
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_mb} MiB"
@@ -162,6 +166,7 @@ task BafRegress {
     python /root/tools/bafRegress.py estimate --freqfile ~{maf_file} temp.final_report.txt > ~{output_results_filename}
   }
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/bafregress:1.0"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
@@ -195,6 +200,7 @@ task VcfToAdpc {
              --OUTPUT ~{output_adpc_filename}
   }
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -224,6 +230,7 @@ task VerifyIDIntensity {
     /usr/gitc/verifyIDintensity -m ~{num_markers} -n ~{num_samples} -i ~{input_adpc_file} -v -p > ~{output_filename}
   }
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/verify-id-intensity:e6354872834fe4262354a6b27bfe85ecc1323677-1561566044"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
@@ -269,6 +276,7 @@ task CreateVerifyIDIntensityContaminationMetricsFile {
              --OUTPUT ~{output_metrics_basefilename}
   }
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -325,6 +333,7 @@ task CollectArraysVariantCallingMetrics {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -356,6 +365,7 @@ task VcfToIntervalList {
   }
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -403,6 +413,7 @@ task SelectVariants {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
@@ -440,6 +451,7 @@ task SelectIndels {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
@@ -495,6 +507,7 @@ task AutoCall {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/illumina-iaap-autocall:1.0.2-1.1.0-1629910298"
     disks: "local-disk " + disk_size + " HDD"
     memory: "7 GiB"
@@ -535,6 +548,7 @@ task MergePedIntoVcf {
   }
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     memory: "3500 MiB"
     cpu: "1"
@@ -576,6 +590,7 @@ task SubsetArrayVCF {
   }
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
@@ -640,6 +655,7 @@ task GenotypeConcordance {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -675,6 +691,7 @@ task ValidateVariants {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
@@ -727,6 +744,7 @@ task CreateExtendedIlluminaManifest {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     memory: "14000 MiB"

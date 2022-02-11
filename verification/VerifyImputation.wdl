@@ -116,6 +116,7 @@ task CompareImputationMetrics {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "ubuntu:20.04"
     cpu: 1
     memory: "3.75 GiB"
@@ -159,6 +160,7 @@ task CrosscheckFingerprints {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: picard_docker
     disks: "local-disk " + disk_size + " HDD"
     memory: "8000 MiB"

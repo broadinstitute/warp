@@ -61,6 +61,7 @@ task CreateSequenceGroupingTSV {
     CODE
   >>>
   runtime {
+        maxRetries: 3
     preemptible: preemptible_tries
     docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     memory: "2 GiB"
@@ -110,6 +111,7 @@ task ScatterIntervalList {
     Int interval_count = read_int(stdout())
   }
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.5.7-2021-06-09_16-47-48Z"
     memory: "2000 MiB"
   }
@@ -145,6 +147,7 @@ task ConvertToCram {
     samtools index ~{output_basename}.cram
   >>>
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
     preemptible: preemptible_tries
     memory: "3 GiB"
@@ -176,6 +179,7 @@ task ConvertToBam {
     samtools index ~{output_basename}.bam
   >>>
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
     preemptible: 3
     memory: "3 GiB"
@@ -202,6 +206,7 @@ task SumFloats {
     Float total_size = read_float(stdout())
   }
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     preemptible: preemptible_tries
   }
@@ -218,6 +223,7 @@ task ErrorWithMessage{
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "ubuntu:20.04"
   }
 }

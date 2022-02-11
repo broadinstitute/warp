@@ -40,6 +40,7 @@ task BuildBWAreference {
      >>>
 
      runtime {
+        maxRetries: 3
          docker: "quay.io/humancellatlas/snaptools:0.0.1"
 	 memory: "96GB"
 	 disks: "local-disk 100 HDD"

@@ -23,6 +23,7 @@ task CompareVcfs {
   }
 
   runtime {
+        maxRetries: 3
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 50 HDD"
     memory: "3 GiB"
@@ -46,6 +47,7 @@ task CompareGtcs {
   }
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
     disks: "local-disk 10 HDD"
     memory: "5000 MiB"
@@ -87,6 +89,7 @@ task CompareTextFiles {
   }
 
   runtime {
+        maxRetries: 3
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 10 HDD"
     memory: "2 GiB"
@@ -113,6 +116,7 @@ task CompareCrams {
     cmp -i "$test_offset:$truth_offset" ~{test_cram} ~{truth_cram}
   }
   runtime {
+        maxRetries: 3
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 150 HDD"
     memory: "2 GiB"
@@ -133,6 +137,7 @@ task CompareCrais {
     cmp <(zcat ~{test_crai} | cut -f1,2,3,5,6) <(zcat ~{truth_crai} | cut -f1,2,3,5,6)
   }
   runtime {
+        maxRetries: 3
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk 10 HDD"
     memory: "2 GiB"
@@ -164,6 +169,7 @@ task CompareBams {
   }
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
     disks: "local-disk " + disk_size + " HDD"
     cpu: 2
@@ -187,6 +193,7 @@ task CompareCompressedTextFiles {
   }
 
   runtime {
+        maxRetries: 3
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"

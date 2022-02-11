@@ -31,6 +31,7 @@ task CompareBams {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-biccn-dev/samtools:0.11"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 1 * input file size

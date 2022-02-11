@@ -123,6 +123,7 @@ task RevertSam {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
@@ -159,6 +160,7 @@ task CramToBam {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
     cpu: 3
     memory: "~{memory_in_MiB} MiB"
@@ -195,6 +197,7 @@ task GenerateOutputMap {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
@@ -222,6 +225,7 @@ task SplitUpOutputMapFile {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
@@ -253,6 +257,7 @@ task SplitOutUbamByReadGroup {
   }
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
     cpu: 2
     disks: "local-disk " + disk_size + " HDD"
@@ -284,6 +289,7 @@ task ValidateSamFile {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
@@ -319,6 +325,7 @@ task SortSam {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"

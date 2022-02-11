@@ -80,6 +80,7 @@ task RunValidation {
     }
 
     runtime {
+        maxRetries: 3
         docker: "us.gcr.io/broad-gatk/gatk:4.1.4.1"
 
         memory: machine_mem + " MiB"

@@ -33,6 +33,7 @@ task PrintMessageToStdout {
     }
 
     runtime {
+        maxRetries: 3
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     }
 }

@@ -168,6 +168,7 @@ task Funcotate {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: gatk_docker
     memory: "~{memory_mb} MiB"
     bootDiskSizeGb: 15

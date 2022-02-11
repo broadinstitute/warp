@@ -83,6 +83,7 @@ task SplitFoFnToListFoFn {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     memory: "1 GiB"
   }
@@ -112,6 +113,7 @@ task CombineVCFs {
   >>>
 
   runtime {
+        maxRetries: 3
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.4"
     disks: "local-disk " + disk_size + " HDD"
     memory: "26 GiB"

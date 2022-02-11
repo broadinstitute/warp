@@ -89,6 +89,7 @@ task SamToFastqAndDragmapAndMba {
       ADD_PG_TAG_TO_READS=false
   >>>
   runtime {
+        maxRetries: 3
     docker: docker
     preemptible: preemptible_tries
     memory: "${memory_mb} MiB"
