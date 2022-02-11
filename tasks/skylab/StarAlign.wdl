@@ -334,20 +334,18 @@ task STARsoloFastq {
 
 task STARsoloFastqSlideSeq {
   input {
-    File ubam
+    Array[File] r1_fastq
+    Array[File] r2_fastq
     File tar_star_reference
     File white_list
-    String counting_mode
     String output_bam_basename
-    Int umi_length
-    Int cell_barcode_length
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
     Int machine_mem_mb = 64000
     Int cpu = 8
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
-    Int disk = ceil((size(tar_star_reference, "Gi") * 3)) + ceil(size(ubam, "Gi") * 5)
+    Int disk = ceil((size(tar_star_reference, "Gi") * 3)) + ceil(size(r1_fastq, "Gi") * 20) +  ceil(size(r2_fastq, "Gi") * 20)
     # by default request non preemptible machine to make sure the slow star alignment step completes
     Int preemptible = 3
   }
@@ -367,10 +365,8 @@ task STARsoloFastqSlideSeq {
       --soloFeatures Gene \
       --runThreadN ${cpu} \
       --genomeDir genome_reference \
-      --readFilesIn ${ubam} \
-      --readFilesType SAM SE \
-      --soloCBlen ~{cell_barcode_length} \
-      --soloUMIlen ~{umi_length} \
+      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
+      --readFilesCommand "gunzip -c" \
       --soloInputSAMattrBarcodeSeq CR UR \
       --soloInputSAMattrBarcodeQual CY UY \
       --outSAMtype BAM Unsorted

@@ -7,7 +7,8 @@ workflow SlideSeq {
   input {
 
     # Sequencing data inputs
-    File ubam
+    Array[File] r1_fastq
+    Array[File] r2_fastq
 
     # organism reference parameters
     File tar_star_reference
@@ -15,7 +16,6 @@ workflow SlideSeq {
 
     # 10x parameters
     File whitelist
-    String counting_mode = "sc_rna"
     String output_bam_basename
 
     Int umi_length
@@ -25,12 +25,10 @@ workflow SlideSeq {
 
 call StarAlign.STARsoloFastqSlideSeq as STARsoloFastqSlideSeq {
     input:
-      ubam = ubam,
+      r1_fastq = r1_fastq,
+      r2_fastq = r2_fastq,
       white_list = whitelist,
       tar_star_reference = tar_star_reference,
-      counting_mode = counting_mode,
-      umi_length = umi_length,
-      cell_barcode_length = cell_barcode_length,
       output_bam_basename = output_bam_basename
       }
 
