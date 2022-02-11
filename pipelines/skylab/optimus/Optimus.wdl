@@ -7,6 +7,8 @@ import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
+import "../../../tasks/skylab/Picard.wdl" as Picard
+import "../../../tasks/skylab/FeatureCounts.wdl" as CountAlignments
 
 workflow Optimus {
   meta {
@@ -44,6 +46,9 @@ workflow Optimus {
 
     # Set to true to count reads in stranded mode
     String use_strand_info = "false"
+    
+    # Set to true to count reads aligned to intronic regions in sn_rna mode
+    Boolean count_introns = false
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
@@ -104,7 +109,6 @@ workflow Optimus {
         output_bam_basename = output_bam_basename + "_" + idx
     }
   }
-
   call Merge.MergeSortBamFiles as MergeBam {
     input:
       bam_inputs = STARsoloFastq.bam_output,
@@ -153,6 +157,29 @@ workflow Optimus {
       counting_mode = counting_mode,
       pipeline_version = "Optimus_v~{pipeline_version}"
   }
+
+  Array[String] input_ids = basename(STARsoloFastq.bam_output)
+  if(count_introns == true) {
+    call Picard.RemoveDuplicatesFromBam as RemoveDuplicatesFromBam {
+      input:
+        input_ids = input_ids,
+        aligned_bam_inputs = STARsoloFastq.bam_output
+    }
+    call CountAlignments.CountAlignments as CountAlignments {
+      input:
+        input_ids = input_ids,
+        aligned_bam_inputs = RemoveDuplicatesFromBam.output_bam,
+        annotation_gtf = annotations_gtf
+    }
+    call LoomUtils.SingleNucleusOptimusCountsOutput as CountsOutput {
+      input:
+        input_ids = input_ids,
+        introns_counts = CountAlignments.intron_counts_out,
+        exons_counts = CountAlignments.exon_counts_out,
+        annotation_introns_added_gtf = annotations_gtf
+    }
+  }
+
 
   output {
     # version of this pipeline

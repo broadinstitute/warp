@@ -291,3 +291,64 @@ task SingleNucleusSmartSeq2LoomOutput {
 }
 
 
+
+task SingleNucleusOptimusCountsOutput {
+    input {
+        #runtime values
+        String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.9"
+        # introns counts
+        Array[File] introns_counts
+        # exons counts
+        Array[File] exons_counts
+        # annotation file
+        File annotation_introns_added_gtf
+        # name of the sample
+        Array[String] input_ids
+
+        String pipeline_version
+        Int preemptible = 3
+        Int disk = 200
+        Int machine_mem_mb = 8
+        Int cpu = 4
+    }
+
+    meta {
+        description: "This task will convert output from the SmartSeq2SingleNucleus pipeline into a loom file. Contrary to the SmartSeq2 single cell where there is only RSEM counts, here we have intronic and exonic counts per gene name"
+    }
+
+    parameter_meta {
+        preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
+    }
+
+    command <<<
+        set -euo pipefail
+
+        declare -a introns_counts_files=(~{sep=' ' introns_counts})
+        declare -a exons_counts_files=(~{sep=' ' exons_counts})
+        declare -a output_prefix=(~{sep=' ' input_ids})
+        for (( i=0; i<${#introns_counts_files[@]}; ++i));
+        do
+        # creates a table with gene_id, gene_name, intron and exon counts
+        echo "Running create_snrna_optimus_counts."
+        python /tools/create_snrna_optimus_counts.py \
+        --in-gtf ~{annotation_introns_added_gtf} \
+        --intron-counts ${introns_counts_files[$i]} \
+        --exon-counts ${exons_counts_files[$i]}  \
+        -o "${output_prefix[$i]}.exon_intron_counts.tsv"
+        echo "Success create_Optimus_counts_csv."
+
+        done;
+    >>>
+
+    runtime {
+        docker: docker
+        cpu: cpu
+        memory: "~{machine_mem_mb} GiB"
+        disks: "local-disk ~{disk} HDD"
+        preemptible: preemptible
+    }
+
+    output {
+        Array[File] exon_intron_counts = glob("*exon_intron_counts.tsv")
+    }
+}
