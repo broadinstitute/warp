@@ -1,9 +1,0 @@
-{
-  "SlideSeq.tar_star_reference": "gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/star/modified_star_2.7.9a_primary_gencode_mouse_vM23.tar",
-  "SlideSeq.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_gencode.vM23.primary_assembly.annotation.gtf",
-  "SlideSeq.ubam": "gs://broad-gotc-test-storage/nikelle_test_slidedeq/Puck_210303_36.unmapped.bam",
-  "SlideSeq.whitelist": "gs://broad-gotc-test-storage/nikelle_test_slidedeq/Puck_201225_40_BeadBarcodes.txt",
-  "SlideSeq.output_bam_basename": "nikelle_test",
-  "SlideSeq.umi_length": 9,
-  "SlideSeq.cell_barcode_length": 14
-}
