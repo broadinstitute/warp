@@ -21,6 +21,7 @@ task VerifyPipelineInputs {
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = ceil(size(bam, "GiB") + size(r1_fastq,"GiB") + size(r2_fastq, "GiB")) + 10
+    Int max_retries = 2
   }
 
   command <<<
@@ -58,8 +59,9 @@ task VerifyPipelineInputs {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -77,6 +79,7 @@ task ExtractUMIs {
     Int cpu = 4
     Int memory_mb = 5000
     Int disk_size_gb = ceil(2.2 * size(bam, "GiB")) + 20
+    Int max_retries = 2
   }
 
   command <<<
@@ -91,8 +94,9 @@ task ExtractUMIs {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
     preemptible: 0
   }
 
@@ -108,8 +112,9 @@ task STAR {
 
     String docker = "us.gcr.io/broad-gotc-prod/samtools-star:1.0.0-1.11-2.7.10a-1642556627"
     Int cpu = 8
-    Int memory_mb = 64000
+    Int memory_mb = ceil((size(starIndex, "GiB")) + 10) * 1500
     Int disk_size_gb = ceil(2.2 * size(bam, "GiB") + size(starIndex, "GiB")) + 150
+    Int max_retries = 2
   }
 
   command <<<
@@ -119,7 +124,7 @@ task STAR {
 
     STAR \
       --runMode alignReads \
-      --runThreadN 8 \
+      --runThreadN ~{cpu} \
       --genomeDir star_index \
       --outSAMtype BAM Unsorted  \
       --readFilesIn ~{bam} \
@@ -152,8 +157,9 @@ task STAR {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
     preemptible: 0
   }
 
@@ -178,6 +184,7 @@ task FastqToUbam {
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2) + 50
+    Int max_retries = 2
   }
 
   String unmapped_bam_output_name = bam_filename + ".u.bam"
@@ -202,8 +209,9 @@ task FastqToUbam {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -220,6 +228,7 @@ task CopyReadGroupsToHeader {
     Int cpu = 1
     Int memory_mb = 2500
     Int disk_size_gb = ceil(2.0 * size([bam_with_readgroups, bam_without_readgroups], "GiB")) + 10
+    Int max_retries = 2
   }
 
   String basename = basename(bam_without_readgroups)
@@ -233,8 +242,9 @@ task CopyReadGroupsToHeader {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -250,6 +260,7 @@ task GetSampleName {
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
+    Int max_retries = 2
   }
 
   parameter_meta {
@@ -265,8 +276,9 @@ task GetSampleName {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -285,6 +297,7 @@ task rnaseqc2 {
     Int cpu = 1
     Int memory_mb = 3500
     Int disk_size_gb = ceil(size(bam_file, 'GiB') + size(genes_gtf, 'GiB') + size(exon_bed, 'GiB')) + 50
+    Int max_retries = 2
   }
 
   command <<<
@@ -297,18 +310,19 @@ task rnaseqc2 {
   >>>
 
   output {
-    File gene_tpm = "${sample_id}.gene_tpm.gct.gz"
-    File gene_counts = "${sample_id}.gene_reads.gct.gz"
-    File exon_counts = "${sample_id}.exon_reads.gct.gz"
-    File fragment_size_histogram = "${sample_id}.fragmentSizes.txt"
-    File metrics = "${sample_id}.metrics.tsv"
+    File gene_tpm = "~{sample_id}.gene_tpm.gct.gz"
+    File gene_counts = "~{sample_id}.gene_reads.gct.gz"
+    File exon_counts = "~{sample_id}.exon_reads.gct.gz"
+    File fragment_size_histogram = "~{sample_id}.fragmentSizes.txt"
+    File metrics = "~{sample_id}.metrics.tsv"
   }
 
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
   }
 }
 
@@ -327,6 +341,7 @@ task CollectRNASeqMetrics {
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
+    Int max_retries = 2
   }
 
   Int java_memory_size = memory_mb - 1000
@@ -344,8 +359,9 @@ task CollectRNASeqMetrics {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -366,6 +382,7 @@ task CollectMultipleMetrics {
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
+    Int max_retries = 2
   }
 
   Int java_memory_size = memory_mb - 1000
@@ -383,8 +400,9 @@ task CollectMultipleMetrics {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -414,6 +432,7 @@ task MergeMetrics {
     Int cpu = 1
     Int memory_mb = 3000
     Int disk_size_gb = 10
+    Int max_retries = 2
   }
 
   String out_filename = output_basename + ".unified_metrics.txt"
@@ -475,8 +494,9 @@ task MergeMetrics {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -497,6 +517,7 @@ task SortSamByCoordinate {
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
+    Int max_retries = 2
   }
 
   Int java_memory_size = memory_mb - 1000
@@ -515,8 +536,9 @@ task SortSamByCoordinate {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -539,6 +561,7 @@ task SortSamByQueryName {
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
+    Int max_retries = 2
   }
 
   Int java_memory_size = memory_mb - 1000
@@ -556,8 +579,9 @@ task SortSamByQueryName {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -576,6 +600,7 @@ task GroupByUMIs {
     Int cpu = 2
     Int memory_mb = 7500
     Int disk_size_gb = ceil(2.2 * size([bam, bam_index], "GiB")) + 100
+    Int max_retries = 2
   }
 
   command <<<
@@ -590,8 +615,9 @@ task GroupByUMIs {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
   }
 }
 
@@ -604,6 +630,7 @@ task MarkDuplicatesUMIAware {
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3 * size(bam, "GiB")) + 60
+    Int max_retries = 2
   }
 
   String output_bam_basename = output_basename + ".duplicate_marked"
@@ -620,8 +647,9 @@ task MarkDuplicatesUMIAware {
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
   }
 }
 
@@ -657,6 +685,7 @@ task formatPipelineOutputs {
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = 10
+    Int max_retries = 2
   }
 
   String outputs_json_file_name = "outputs_to_TDR_~{output_basename}.json"
@@ -711,8 +740,9 @@ task formatPipelineOutputs {
   runtime {
     docker: "broadinstitute/horsefish:twisttcap_scripts"
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -731,6 +761,7 @@ task updateOutputsInTDR {
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = 10
+    Int max_retries = 2
   }
 
   String tdr_target_table = "sample"
@@ -748,8 +779,9 @@ task updateOutputsInTDR {
   runtime {
     docker: "broadinstitute/horsefish:twisttcap_scripts"
     cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: "~{max_retries}"
   }
 
   output {
