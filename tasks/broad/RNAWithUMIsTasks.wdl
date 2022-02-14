@@ -146,7 +146,8 @@ task STAR {
       --chimOutJunctionFormat 0 \
       --twopassMode Basic \
       --quantMode TranscriptomeSAM \
-      --quantTranscriptomeBan Singleend
+      --quantTranscriptomeBan Singleend \
+      --alignEndsProtrude 20 ConcordantPair
   >>>
 
   runtime {

@@ -1,3 +1,12 @@
+# 1.0.2
+2022-02-xx  (Date of Last Commit)
+
+* Updated STAR command line argument
+(TODO) Updated ribosomal intervals
+(TODO) Updated refFlat
+(TODO) Updated docker for Picard CollectRNAMetrics
+(TODO) Postprocess transcriptome bam
+
 # 1.0.1
 2022-02-17 (Date of Last Commit)
 
