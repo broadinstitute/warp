@@ -1,8 +1,7 @@
 {
-    "JukeboxSingleSample.sample_inputs": {
-        "input_cram_bam_list": ["<cram_bam>"],
-        "base_file_name": "<base_name>"
-    },
+    "input_cram_bam_list": ["<cram_bam>"],
+    "base_file_name": "<base_name>",
+    "is_cram" : true,
     "JukeboxSingleSample.contamination_sites": {
         "contamination_sites_vcf": "gs://concordance/hg38/Homo_sapiens_assembly38.contam_fixed.vcf",
         "contamination_sites_vcf_index":"gs://concordance/hg38/Homo_sapiens_assembly38.contam_fixed.vcf.idx",
@@ -25,11 +24,6 @@
         "wgs_calling_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_calling_regions.hg38.interval_list",
         "break_bands_at_multiples_of": "100000",
         "haplotype_scatter_count": "200"
-    },
-    "JukeboxSingleSample.extra_args": {
-        "hc_extra_args": "-mbq 0 --flow-filter-alleles --flow-filter-alleles-sor-threshold 3 --flow-assembly-collapse-hmer-size 12 --flow-matrix-mods 10,12,11,12 --bam-output haps.bam --bam-writer-type CALLED_HAPLOTYPES_NO_READS --apply-frd --minimum-mapping-quality 1 --mapping-quality-threshold-for-genotyping 1 --override-fragment-softclip-check --flow-likelihood-parallel-threads 2 --flow-likelihood-optimized-comp --adaptive-pruning --pruning-lod-threshold 3.0 --enable-dynamic-read-disqualification-for-genotyping --dynamic-read-disqualification-threshold 10 -G StandardAnnotation -G StandardHCAnnotation -G AS_StandardAnnotation -GQB 10 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 -GQB 70 -GQB 80 -GQB 90 --likelihood-calculation-engine FlowBased -A AssemblyComplexity --assembly-complexity-reference-mode",
-        "mark_duplicates_extra_args": "--FLOW_END_LOCATION_SIGNIFICANT true --FLOW_USE_CLIPPED_LOCATIONS true --ENDS_READ_UNCERTAINTY 1 --FLOW_SKIP_START_HOMOPOLYMERS 0",
-        "rsq_threshold": 1.0
     },
     "JukeboxSingleSample.vcf_post_processing": {
         "annotation_intervals": [

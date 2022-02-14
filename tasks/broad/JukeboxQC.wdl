@@ -7,10 +7,10 @@ workflow JukeboxQC {
   input {
     File agg_bam
     File agg_bam_index
+    Float agg_bam_size
     String base_file_name
     String base_file_name_sub
 
-    Float agg_bam_size
     Float ref_size
     Int additional_metrics_disk
     Float secure_disk_size_threshold
@@ -20,7 +20,6 @@ workflow JukeboxQC {
     File wgs_coverage_interval_list
 
     File? picard_jar_override
-    String gitc_path
 
     Int VCF_disk_size
     Int additional_disk
@@ -29,6 +28,7 @@ workflow JukeboxQC {
     Float max_chimerism_in_reasonable_sample
     String flow_order
   }
+
   Float dynamic_check_contamination_disk_size = agg_bam_size + ref_size + additional_metrics_disk
   Float check_contamination_disk_size = if dynamic_check_contamination_disk_size > secure_disk_size_threshold then dynamic_check_contamination_disk_size else secure_disk_size_threshold
 
@@ -46,33 +46,32 @@ workflow JukeboxQC {
   String hc_contamination_extra_args = "--bam-writer-type NO_HAPLOTYPES --alleles " + contamination_sites.contamination_sites_vcf
   call Tasks.HaplotypeCaller as HaplotypeCallerForContamination {
     input:
-      input_bam_list = [agg_bam],
-      interval_list = contamination_sites.contamination_sites_vcf,
-      vcf_basename = base_file_name,
-      references = references,
-      disk_size = ceil((agg_bam_size + VCF_disk_size) + ref_size + additional_disk),
-      gitc_path = gitc_path,
-      extra_args = hc_contamination_extra_args,
-      make_gvcf = false,
-      memory_gb = 12,
-      make_bamout = true
+      input_bam_list                = [agg_bam],
+      interval_list                 = contamination_sites.contamination_sites_vcf,
+      vcf_basename                  = base_file_name,
+      references                    = references,
+      disk_size                     = ceil((agg_bam_size + VCF_disk_size) + ref_size + additional_disk),
+      contamination_extra_args      = hc_contamination_extra_args,
+      make_gvcf                     = false,
+      memory_gb                     = 12,
+      make_bamout                   = true
   }
 
-  File contamination_sites_ud = contamination_sites.contamination_sites_path + flow_order + ".UD"
-  File contamination_sites_bed = contamination_sites.contamination_sites_path + flow_order + ".bed"
-  File contamination_sites_mu = contamination_sites.contamination_sites_path + flow_order + ".mu"
+  String contamination_sites_ud   = contamination_sites.contamination_sites_path + flow_order + ".UD"
+  String contamination_sites_bed  = contamination_sites.contamination_sites_path + flow_order + ".bed"
+  String contamination_sites_mu   = contamination_sites.contamination_sites_path + flow_order + ".mu"
 
   # Estimate level of cross-sample contamination
   call Tasks.CheckContamination {
     input:
-      input_bam = select_first([HaplotypeCallerForContamination.bamout]),
-      input_bam_index = select_first([HaplotypeCallerForContamination.bamout_index]),
-      contamination_sites_ud = contamination_sites_ud,
+      input_bam               = select_first([HaplotypeCallerForContamination.bamout]),
+      input_bam_index         = select_first([HaplotypeCallerForContamination.bamout_index]),
+      contamination_sites_ud  = contamination_sites_ud,
       contamination_sites_bed = contamination_sites_bed,
-      contamination_sites_mu = contamination_sites_mu,
-      references = references,
-      output_prefix = base_file_name,
-      disk_size = ceil(check_contamination_disk_size)
+      contamination_sites_mu  = contamination_sites_mu,
+      references              = references,
+      output_prefix           = base_file_name,
+      disk_size               = ceil(check_contamination_disk_size)
   }
 
   Float dynamic_statistics_disk_size = agg_bam_size + ref_size + ( additional_metrics_disk * 2 )
@@ -80,30 +79,28 @@ workflow JukeboxQC {
 
   call Tasks.CollectDuplicateMetrics {
     input:
-      input_bam = agg_bam,
+      input_bam        = agg_bam,
       metrics_filename = base_file_name_sub + ".duplicate_metrics",
-      disk_size_gb = statistics_disk_size,
-      gitc_path = gitc_path,
-      jar_override = picard_jar_override,
+      disk_size_gb     = statistics_disk_size,
+      jar_override     = picard_jar_override,
   }
 
   call QC.CollectQualityYieldMetrics {
     input:
-      input_bam = agg_bam,
+      input_bam        = agg_bam,
       metrics_filename = base_file_name_sub + ".unmapped.quality_yield_metrics",
   }
 
   # QC the sample WGS metrics (stringent thresholds)
   call Tasks.CollectWgsMetrics {
     input:
-      input_bam = agg_bam,
-      input_bam_index = agg_bam_index,
-      metrics_filename = base_file_name_sub + ".wgs_metrics",
-      references = references,
-      wgs_coverage_interval_list = wgs_coverage_interval_list,
-      disk_size = statistics_disk_size,
-      gitc_path = gitc_path,
-      jar_override = picard_jar_override
+      input_bam                   = agg_bam,
+      input_bam_index             = agg_bam_index,
+      metrics_filename            = base_file_name_sub + ".wgs_metrics",
+      references                  = references,
+      wgs_coverage_interval_list  = wgs_coverage_interval_list,
+      disk_size                   = statistics_disk_size,
+      jar_override                = picard_jar_override
   }
 
   Int default_raw_wgs_memory_size = 12
@@ -114,27 +111,25 @@ workflow JukeboxQC {
   # QC the sample raw WGS metrics (common thresholds)
   call Tasks.CollectRawWgsMetrics {
     input:
-      input_bam = agg_bam,
-      input_bam_index = agg_bam_index,
-      metrics_filename = base_file_name_sub + ".raw_wgs_metrics",
-      references = references,
-      wgs_coverage_interval_list = wgs_coverage_interval_list,
-      disk_size = statistics_disk_size,
-      memory_size = raw_wgs_memory_size,
-      gitc_path = gitc_path,
-      jar_override = picard_jar_override
+      input_bam                   = agg_bam,
+      input_bam_index             = agg_bam_index,
+      metrics_filename            = base_file_name_sub + ".raw_wgs_metrics",
+      references                  = references,
+      wgs_coverage_interval_list  = wgs_coverage_interval_list,
+      disk_size                   = statistics_disk_size,
+      memory_size                 = raw_wgs_memory_size,
+      jar_override                = picard_jar_override
   }
 
   # QC the final BAM some more (no such thing as too much QC)
   call Tasks.CollectAggregationMetrics {
     input:
-      input_bam = agg_bam,
-      input_bam_index = agg_bam_index,
-      output_bam_prefix = base_file_name_sub,
-      references = references,
-      disk_size = statistics_disk_size,
-      gitc_path = gitc_path,
-      jar_override = picard_jar_override
+      input_bam           = agg_bam,
+      input_bam_index     = agg_bam_index,
+      output_bam_prefix   = base_file_name_sub,
+      references          = references,
+      disk_size           = statistics_disk_size,
+      jar_override        = picard_jar_override
   }
 
   # Check whether the data has massively high duplication or chimerism rates
@@ -142,10 +137,10 @@ workflow JukeboxQC {
   File dup_metrics = CollectDuplicateMetrics.duplicate_metrics
   call QC.CheckPreValidation {
     input:
-      duplication_metrics = dup_metrics,
-      chimerism_metrics = CollectAggregationMetrics.alignment_summary_metrics,
+      duplication_metrics                  = dup_metrics,
+      chimerism_metrics                    = CollectAggregationMetrics.alignment_summary_metrics,
       max_duplication_in_reasonable_sample = max_duplication_in_reasonable_sample,
-      max_chimerism_in_reasonable_sample = max_chimerism_in_reasonable_sample,
+      max_chimerism_in_reasonable_sample   = max_chimerism_in_reasonable_sample,
   }
 
   output {

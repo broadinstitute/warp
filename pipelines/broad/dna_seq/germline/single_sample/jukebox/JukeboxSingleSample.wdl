@@ -3,7 +3,7 @@ version 1.0
 import "../../../../../../tasks/broad/JukeboxTasks.wdl" as Tasks
 import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
 import "../../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as VariantDiscoverTasks
-import "../../../../../../tasks/broad/JukeboxAlignmentMarkDuplicates.wdl" as AlignmentAndMarkDuplicates
+import "../../../../../../tasks/broad/JukeboxAlignmentMarkDuplicates.wdl" as JukeboxAlignmentAndMarkDuplicates
 import "../../../../../../tasks/broad/Qc.wdl" as QC
 import "../../../../../../tasks/broad/JukeboxQC.wdl" as JukeboxQC
 import "../../../../../../structs/dna_seq/JukeboxStructs.wdl" as Structs
@@ -100,105 +100,116 @@ import "../../../../../../structs/dna_seq/JukeboxStructs.wdl" as Structs
 workflow JukeboxSingleSample {
   input {
 
-    SampleInputs sample_inputs
     ContaminationSites contamination_sites
     AlignmentReferences alignment_references
     VariantCallingSettings variant_calling_settings
     VcfPostProcessing vcf_post_processing
-    ExtraArgs extra_args
 
-    String dummy_input_for_call_caching = ""
+    # Sample Information
+    Array[File] input_cram_bam
+    String base_file_name
+    Boolean is_cram
+
+    Float rsq_threshold = 1.0
+    Boolean make_gvcf = false
+    Boolean merge_bam_file = true
+    Int reads_per_split = 20000000
+    String filtering_model_no_gt_name = "rf_model_ignore_gt_incl_hpol_runs"
+
     Int increase_disk_size = 20
-    Int additional_metrics_disk = 80
+    Int increase_metrics_disk_size = 80
+    String dummy_input_for_call_caching = ""
   }
+
+  meta {
+
+  }
+
+  parameter_meta {
+    contamination_sites: ""
+    alignment_references: ""
+    variant_calling_settings: ""
+    vcf_post_processing: ""
+    input_cram_bam: ""
+    base_file_name: ""
+    is_cram: ""
+    rsq_threshold: ""
+    make_gvcf: ""
+    merge_bam_file: ""
+    reads_per_split: ""
+    filtering_model_no_gt_name: ""
+    increase_disk_size: ""
+    increase_metrics_disk_size: ""
+    dummy_input_for_call_caching: ""
+  }
+
   String pipeline_version = "3.2.3"
 
   
   References references = alignment_references.references
 
-  Int additional_disk = select_first([increase_disk_size, 20])
-
-  # tasks that need to download locally the full bam/cram can randomly fail because a Google Cloud inconsistency, taking a disk > 500 GB will overcome the issue
-  Float secure_disk_size_threshold = 510.0
-  Int local_ssd_size = 375
-
-  # Some tasks need wiggle room, and we also need to add a small amount of disk to prevent getting a
-  # Cromwell error from asking for 0 disk when the input is less than 1GB
-  # Germline single sample VCFs shouldn't get bigger even when the input bam is bigger (after a certain size)
-  Int VCF_disk_size = select_first([increase_disk_size, 80])
-  # Sometimes the output is larger than the input, or a task can spill to disk. In these cases we need to account for the
-  # input (1) and the output (1.5) or the input(1), the output(1), and spillage (.5).
-  Float bwa_disk_multiplier = 2.5
-
-  Int compression_level = 2
-
-  String bwa_commandline = "/usr/gitc/bwa mem -K 100000000 -p -v 3 -t 16 -Y $bash_ref_fasta"
-
-  # Ensure no # charachters are found in base_file_name, MarkDuplicatesSpark can't handle it
-  String base_file_name_sub = sub(sample_inputs.base_file_name, "#", "")
-
-  # VCF post-processing default values
-  File? interval_list = vcf_post_processing.interval_list_override
-  String filtering_model_no_gt_name = select_first([vcf_post_processing.filtering_model_no_gt_name_override, 'rf_model_ignore_gt_incl_hpol_runs'])
-
-  Boolean make_gvcf = select_first([vcf_post_processing.make_gvcf_override, false ])
-  Boolean merge_bam_file = select_first([vcf_post_processing.merge_bam_file_override, true ])
-
+  # Allocate appropriate disk sizes for subtasks
+  Int secure_disk_size_threshold = 510
+  Int VCF_disk_size = increase_disk_size
+  Int additional_disk = increase_disk_size
+  Int additional_metrics_disk = increase_metrics_disk_size
   Float ref_size = size(references.ref_fasta, "GB") + size(references.ref_fasta_index, "GB") + size(references.ref_dict, "GB")
 
-  call AlignmentAndMarkDuplicates.AlignmentAndMarkDuplicates as AlignmentAndMarkDuplicates {
+  # Ensure no # charachters are found in base_file_name, MarkDuplicatesSpark can't handle it
+  String base_file_name_sub = sub(base_file_name, "#", "")
+  # VCF post-processing default values
+  # Didn't see this used anywhere
+  # File? interval_list = vcf_post_processing.interval_list_override
+
+  call JukeboxAlignmentAndMarkDuplicates.AlignmentAndMarkDuplicates as AlignmentAndMarkDuplicates {
     input:
-      sample_inputs = sample_inputs,
-      base_file_name_sub = base_file_name_sub,
-      reads_per_split = extra_args.reads_per_split,
-      rsq_threshold = extra_args.rsq_threshold,
-      compression_level = compression_level,
-      dummy_input_for_call_caching = dummy_input_for_call_caching,
-      additional_disk = additional_disk,
-      bwa_commandline = bwa_commandline,
-      alignment_references = alignment_references,
-      mark_duplicates_extra_args = extra_args.mark_duplicates_extra_args,
-      bwa_disk_multiplier = bwa_disk_multiplier,
-      local_ssd_size = local_ssd_size,
-      ref_size = ref_size,
+      input_cram_bam                = input_cram_bam,
+      is_cram                       = is_cram,
+      base_file_name_sub            = base_file_name_sub,
+      reads_per_split               = reads_per_split,
+      rsq_threshold                 = rsq_threshold,
+      dummy_input_for_call_caching  = dummy_input_for_call_caching,
+      additional_disk               = additional_disk,
+      alignment_references          = alignment_references,
+      ref_size                      = ref_size
   }
 
   Float agg_bam_size = size(AlignmentAndMarkDuplicates.output_bam, "GB")
   Float dynamic_convert_to_cram_disk_size = (2 * agg_bam_size) + ref_size + additional_disk
-  Float convert_to_cram_disk_size = if dynamic_convert_to_cram_disk_size > secure_disk_size_threshold then dynamic_convert_to_cram_disk_size else secure_disk_size_threshold
+  Int convert_to_cram_disk_size = if dynamic_convert_to_cram_disk_size > secure_disk_size_threshold then ceil(dynamic_convert_to_cram_disk_size) else ceil(secure_disk_size_threshold)
 
   # Convert the final merged recalibrated BAM file to CRAM format
   call Utilities.ConvertToCram {
     input:
-      input_bam = AlignmentAndMarkDuplicates.output_bam,
-      ref_fasta = references.ref_fasta,
+      input_bam       = AlignmentAndMarkDuplicates.output_bam,
+      ref_fasta       = references.ref_fasta,
       ref_fasta_index = references.ref_fasta_index,
-      output_basename = sample_inputs.base_file_name,
+      output_basename = base_file_name_sub,
+      disk_size       = convert_to_cram_disk_size
   }
 
   Float cram_size = size(ConvertToCram.output_cram, "GB")
   Float dynamic_validate_cram_disk_size = cram_size + ref_size + additional_metrics_disk
-  Float validate_cram_disk_size = if dynamic_validate_cram_disk_size > secure_disk_size_threshold then dynamic_validate_cram_disk_size else secure_disk_size_threshold
+  Int validate_cram_disk_size = if dynamic_validate_cram_disk_size > secure_disk_size_threshold then ceil(dynamic_validate_cram_disk_size) else ceil(secure_disk_size_threshold)
 
   # Validate the CRAM file
   call QC.ValidateSamFile as ValidateCram {
     input:
-      input_bam = ConvertToCram.output_cram,
-      input_bam_index = ConvertToCram.output_cram_index,
-      report_filename = sample_inputs.base_file_name + ".cram.validation_report",
-      ref_dict = references.ref_dict,
-      ref_fasta = references.ref_fasta,
-      ref_fasta_index = references.ref_fasta_index,
-      ignore = ["MISSING_TAG_NM" ,"INVALID_PLATFORM_VALUE"],
-      max_output = 1000000000,
-      is_outlier_data = true #sets SKIP_MATE_VALIDATION=true
+      input_bam         = ConvertToCram.output_cram,
+      input_bam_index   = ConvertToCram.output_cram_index,
+      report_filename   = base_file_name_sub + ".cram.validation_report",
+      ref_dict          = references.ref_dict,
+      ref_fasta         = references.ref_fasta,
+      ref_fasta_index   = references.ref_fasta_index,
+      ignore            = ["MISSING_TAG_NM" ,"INVALID_PLATFORM_VALUE"],
+      max_output        = 1000000000,
+      is_outlier_data   = true, #sets SKIP_MATE_VALIDATION=true
+      disk_size         = validate_cram_disk_size
   }
-
-  Float deduplicated_bam_size_vc = size(AlignmentAndMarkDuplicates.output_bam, "GB")
 
   call Tasks.ExtractSampleNameFlowOrder {
     input:
-      input_bam = AlignmentAndMarkDuplicates.output_bam,
+      input_bam  = AlignmentAndMarkDuplicates.output_bam,
       references = references,
   }
 
@@ -206,8 +217,8 @@ workflow JukeboxSingleSample {
   # Perform variant calling on the sub-intervals, and then gather the results
   call Utilities.ScatterIntervalList {
     input:
-      interval_list = variant_calling_settings.wgs_calling_interval_list,
-      scatter_count = variant_calling_settings.haplotype_scatter_count,
+      interval_list               = variant_calling_settings.wgs_calling_interval_list,
+      scatter_count               = variant_calling_settings.haplotype_scatter_count,
       break_bands_at_multiples_of = variant_calling_settings.break_bands_at_multiples_of
   }
 
@@ -215,176 +226,144 @@ workflow JukeboxSingleSample {
   # If we take the number we are scattering by and reduce by factor 2 we will have enough disk space
   # to account for the fact that the data is quite uneven across the shards.
   Int hc_divisor = ScatterIntervalList.interval_count / 2
-  #Int hc_divisor = 1
 
   # Call variants in parallel over WGS calling intervals
   scatter (index in range(ScatterIntervalList.interval_count)) {
     # Generate VCF by interval
     call Tasks.HaplotypeCaller as HC1 {
       input:
-        input_bam_list = [AlignmentAndMarkDuplicates.output_bam],
-        interval_list = ScatterIntervalList.out[index],
-        vcf_basename = base_file_name_sub,
-        references = references,
-        # Divide the total output VCF size and the input bam size to account for the smaller scattered input and output.
-        disk_size = ceil(((deduplicated_bam_size_vc + VCF_disk_size) / hc_divisor) + ref_size + additional_disk),
-        gitc_path = gitc_path,
-        extra_args = extra_args.hc_extra_args,
-        make_gvcf = make_gvcf,
-        memory_gb = 12,
-        make_bamout = false
-    }
-
-    # if cromwell implements optional outputs,
-    Boolean h1_success = (size(HC1.output_vcf_index)!=0)
-    if (!h1_success) {
-      call Tasks.HaplotypeCaller as HC2 {
-        input:
-          input_bam_list = [AlignmentAndMarkDuplicates.output_bam],
-          interval_list = ScatterIntervalList.out[index],
-          vcf_basename = base_file_name_sub,
-          references = references,
-          # Divide the total output VCF size and the input bam size to account for the smaller scattered input and output.
-          disk_size = ceil(((deduplicated_bam_size_vc + VCF_disk_size) / hc_divisor) + ref_size + additional_disk),
-          gitc_path = gitc_path,
-          extra_args = extra_args.hc_extra_args,
-          make_gvcf = make_gvcf,
-          memory_gb = 40,
-          native_sw = true,
-          make_bamout = false
-      }
+        input_bam_list  = [AlignmentAndMarkDuplicates.output_bam],
+        interval_list   = ScatterIntervalList.out[index],
+        vcf_basename    = base_file_name_sub,
+        references      = references,
+        disk_size       = ceil(((agg_bam_size + VCF_disk_size) / hc_divisor) + ref_size + additional_disk),
+        make_gvcf       = make_gvcf,
+        memory_gb       = 12,
+        make_bamout     = false
     }
 
     # gate success on h1_success
-    File HC_output_vcf_idx = select_first([ if h1_success then HC1.output_vcf_index else HC2.output_vcf_index])
-    File HC_output_vcf =     select_first([ if h1_success then HC1.output_vcf else HC2.output_vcf])
-    File monitoring_log =    select_first([ if h1_success then HC1.monitoring_log else HC2.monitoring_log])
-    File haplotypes_bam =    select_first([ if h1_success then HC1.haplotypes_bam else HC2.haplotypes_bam])
+    File HC_output_vcf_idx = HC1.output_vcf_index 
+    File HC_output_vcf     = HC1.output_vcf
+    File haplotypes_bam    = HC1.haplotypes_bam
 
   }
 
   # Combine by-interval VCFs into a single sample  file
   call VariantDiscoverTasks.MergeVCFs {
     input:
-      input_vcfs = HC_output_vcf,
-      input_vcfs_indexes = HC_output_vcf_idx,
-      output_vcf_name = base_file_name_sub + (if make_gvcf then ".g.vcf.gz" else ".vcf.gz"),
+      input_vcfs          = HC_output_vcf,
+      input_vcfs_indexes  = HC_output_vcf_idx,
+      output_vcf_name     = base_file_name_sub + (if make_gvcf then ".g.vcf.gz" else ".vcf.gz"),
   }
 
   # Combine by-interval BAMs into a single sample file
   if(merge_bam_file) {
       call Tasks.MergeBams {
         input:
-          input_bams = haplotypes_bam,
+          input_bams      = haplotypes_bam,
           output_bam_name = base_file_name_sub + ".bam",
-          gitc_path = gitc_path,
       }
   }
 
-  Float vcf_size = size(MergeVCFs.output_vcf, "GB")
-
   call Tasks.ConvertGVCFtoVCF {
     input:
-      input_gvcf = MergeVCFs.output_vcf,
-      input_gvcf_index = MergeVCFs.output_vcf_index,
-      output_vcf_name = base_file_name_sub + '.vcf.gz',
-      references = references,
-      disk_size_gb = VCF_disk_size,
-      gitc_path = gitc_path
+      input_gvcf         = MergeVCFs.output_vcf,
+      input_gvcf_index   = MergeVCFs.output_vcf_index,
+      output_vcf_name    = base_file_name_sub + '.vcf.gz',
+      references         = references,
+      disk_size_gb       = VCF_disk_size,
   }
 
   # VCF post-processings
   call Tasks.AnnotateVCF {
     input :
-      input_vcf = ConvertGVCFtoVCF.output_vcf,
-      input_vcf_index = ConvertGVCFtoVCF.output_vcf_index,
-      references = references,
-      reference_dbsnp = vcf_post_processing.ref_dbsnp,
-      reference_dbsnp_index = vcf_post_processing.ref_dbsnp_index,
-      flow_order = ExtractSampleNameFlowOrder.flow_order,
-      final_vcf_base_name = base_file_name_sub,
-      additional_disk = additional_disk,
-      gitc_path = gitc_path
+      input_vcf               = ConvertGVCFtoVCF.output_vcf,
+      input_vcf_index         = ConvertGVCFtoVCF.output_vcf_index,
+      references              = references,
+      reference_dbsnp         = vcf_post_processing.ref_dbsnp,
+      reference_dbsnp_index   = vcf_post_processing.ref_dbsnp_index,
+      flow_order              = ExtractSampleNameFlowOrder.flow_order,
+      final_vcf_base_name     = base_file_name_sub,
+      additional_disk         = additional_disk,
   }
 
   call Tasks.AddIntervalAnnotationsToVCF {
     input:
-      input_vcf = AnnotateVCF.output_vcf_annotated,
-      input_vcf_index = AnnotateVCF.output_vcf_annotated_index,
-      final_vcf_base_name = base_file_name_sub,
-      annotation_intervals = vcf_post_processing.annotation_intervals
+      input_vcf             = AnnotateVCF.output_vcf_annotated,
+      input_vcf_index       = AnnotateVCF.output_vcf_annotated_index,
+      final_vcf_base_name   = base_file_name_sub,
+      annotation_intervals  = vcf_post_processing.annotation_intervals
   }
 
   call Tasks.TrainModel {
-      input:
-        input_file = AddIntervalAnnotationsToVCF.output_vcf,
-        input_file_index = AddIntervalAnnotationsToVCF.output_vcf_index,
-        input_vcf_name = base_file_name_sub,
-        blacklist_file = vcf_post_processing.training_blacklist_file,
-        ref_fasta = references.ref_fasta,
-        ref_index = references.ref_fasta_index,
-        runs_file = vcf_post_processing.runs_file,
-        apply_model = filtering_model_no_gt_name,
-        annotation_intervals = vcf_post_processing.annotation_intervals,
-        exome_weight = vcf_post_processing.exome_weight,
-        exome_weight_annotation = vcf_post_processing.exome_weight_annotation,
-        additional_disk = additional_disk,
+    input:
+      input_file                = AddIntervalAnnotationsToVCF.output_vcf,
+      input_file_index          = AddIntervalAnnotationsToVCF.output_vcf_index,
+      input_vcf_name            = base_file_name_sub,
+      blacklist_file            = vcf_post_processing.training_blacklist_file,
+      ref_fasta                 = references.ref_fasta,
+      ref_index                 = references.ref_fasta_index,
+      runs_file                 = vcf_post_processing.runs_file,
+      apply_model               = filtering_model_no_gt_name,
+      annotation_intervals      = vcf_post_processing.annotation_intervals,
+      exome_weight              = vcf_post_processing.exome_weight,
+      exome_weight_annotation   = vcf_post_processing.exome_weight_annotation,
+      additional_disk           = additional_disk,
   }
 
 
   call Tasks.AnnotateVCF_AF {
-      input :
-        input_vcf = AddIntervalAnnotationsToVCF.output_vcf,
-        input_vcf_index = AddIntervalAnnotationsToVCF.output_vcf_index,
-        af_only_gnomad = vcf_post_processing.af_only_gnomad,
-        af_only_gnomad_index = vcf_post_processing.af_only_gnomad_index,
-        final_vcf_base_name = base_file_name_sub,
-        additional_disk = additional_disk,
+    input :
+      input_vcf             = AddIntervalAnnotationsToVCF.output_vcf,
+      input_vcf_index       = AddIntervalAnnotationsToVCF.output_vcf_index,
+      af_only_gnomad        = vcf_post_processing.af_only_gnomad,
+      af_only_gnomad_index  = vcf_post_processing.af_only_gnomad_index,
+      final_vcf_base_name   = base_file_name_sub,
+      additional_disk       = additional_disk,
   }
 
   call Tasks.FilterVCF {
     input:
-      input_vcf = AnnotateVCF_AF.output_vcf_annotated,
-      input_model = select_first([vcf_post_processing.filtering_model_no_gt,TrainModel.model_pkl]),
-      runs_file = vcf_post_processing.runs_file,
-      references = references,
-      model_name = filtering_model_no_gt_name,
-      filter_cg_insertions = vcf_post_processing.filter_cg_insertions,
-      blacklist_file = vcf_post_processing.filtering_blacklist_file,
-      final_vcf_base_name = base_file_name_sub,
-      flow_order = ExtractSampleNameFlowOrder.flow_order,
-      annotation_intervals = vcf_post_processing.annotation_intervals,
-      disk_size_gb = VCF_disk_size,
+      input_vcf               = AnnotateVCF_AF.output_vcf_annotated,
+      input_model             = select_first([vcf_post_processing.filtering_model_no_gt,TrainModel.model_pkl]),
+      runs_file               = vcf_post_processing.runs_file,
+      references              = references,
+      model_name              = filtering_model_no_gt_name,
+      filter_cg_insertions    = vcf_post_processing.filter_cg_insertions,
+      blacklist_file          = vcf_post_processing.filtering_blacklist_file,
+      final_vcf_base_name     = base_file_name_sub,
+      flow_order              = ExtractSampleNameFlowOrder.flow_order,
+      annotation_intervals    = vcf_post_processing.annotation_intervals,
+      disk_size_gb            = VCF_disk_size,
   }
 
   call Tasks.MoveAnnotationsToGvcf {
     input:
-      filtered_vcf = FilterVCF.output_vcf_filtered,
-      filtered_vcf_index = FilterVCF.output_vcf_filtered_index,
-      gvcf = MergeVCFs.output_vcf,
-      gvcf_index = MergeVCFs.output_vcf_index
+      filtered_vcf        = FilterVCF.output_vcf_filtered,
+      filtered_vcf_index  = FilterVCF.output_vcf_filtered_index,
+      gvcf                = MergeVCFs.output_vcf,
+      gvcf_index          = MergeVCFs.output_vcf_index
   }
 
   call JukeboxQC.JukeboxQC as CollectStatistics {
     input:
-      agg_bam = AlignmentAndMarkDuplicates.output_bam,
-      agg_bam_index = AlignmentAndMarkDuplicates.output_bam_index,
-      base_file_name = sample_inputs.base_file_name,
-      base_file_name_sub = base_file_name_sub,
-      agg_bam_size = agg_bam_size,
-      ref_size = ref_size,
-      additional_metrics_disk = additional_metrics_disk,
-      secure_disk_size_threshold = secure_disk_size_threshold,
-      references = references,
-      contamination_sites = contamination_sites,
-      wgs_coverage_interval_list = vcf_post_processing.wgs_coverage_interval_list,
-      picard_jar_override = environment_versions.picard_jar_override,
-      gitc_path = gitc_path,
-      VCF_disk_size = VCF_disk_size,
-      additional_disk = additional_disk,
-      max_duplication_in_reasonable_sample = vcf_post_processing.max_duplication_in_reasonable_sample,
-      max_chimerism_in_reasonable_sample = vcf_post_processing.max_chimerism_in_reasonable_sample,
-      flow_order = ExtractSampleNameFlowOrder.flow_order
+      agg_bam                               = AlignmentAndMarkDuplicates.output_bam,
+      agg_bam_index                         = AlignmentAndMarkDuplicates.output_bam_index,
+      base_file_name                        = base_file_name_sub,
+      base_file_name_sub                    = base_file_name_sub,
+      agg_bam_size                          = agg_bam_size,
+      ref_size                              = ref_size,
+      additional_metrics_disk               = additional_metrics_disk,
+      secure_disk_size_threshold            = secure_disk_size_threshold,
+      references                            = references,
+      contamination_sites                   = contamination_sites,
+      wgs_coverage_interval_list            = vcf_post_processing.wgs_coverage_interval_list,
+      VCF_disk_size                         = VCF_disk_size,
+      additional_disk                       = additional_disk,
+      max_duplication_in_reasonable_sample  = vcf_post_processing.max_duplication_in_reasonable_sample,
+      max_chimerism_in_reasonable_sample    = vcf_post_processing.max_chimerism_in_reasonable_sample,
+      flow_order                            = ExtractSampleNameFlowOrder.flow_order
   }
 
   # Outputs that will be retained when execution is complete

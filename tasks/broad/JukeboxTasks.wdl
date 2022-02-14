@@ -94,7 +94,6 @@ task ConvertCramOrBamToUBam {
 # Get version of BWA
 task GetBwaVersion {
   input {
-    String gitc_path
     String dummy_input_for_call_caching
 
     String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
@@ -102,7 +101,7 @@ task GetBwaVersion {
   command {
     # not setting set -o pipefail here because /bwa has a rc=1 and we dont want to allow rc=1 to succeed because
     # the sed may also fail with that error and that is something we actually want to fail on.
-    ~{gitc_path}bwa 2>&1 | \
+    /usr/gitc/bwa 2>&1 | \
     grep -e '^Version' | \
     sed 's/Version: //'
   }
@@ -119,16 +118,14 @@ task GetBwaVersion {
 # Read unmapped BAM, convert on-the-fly to FASTQ and stream to BWA MEM for alignment, then stream to MergeBamAlignment
 task SamToFastqAndBwaMemAndMba {
   input {
-    File input_bam
-    String bwa_commandline
-    String bwa_version
-    String output_bam_basename
-
     # This is the .alt file from bwa-kit (https://github.com/lh3/bwa/tree/master/bwakit),
     # listing the reference contigs that are "alternative".
     AlignmentReferences alignment_references
+    File input_bam
+    String bwa_version
+    String output_bam_basename
+
     Int disk_size
-    Int compression_level
     Int preemptible = 3
     String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
   }
@@ -146,7 +143,8 @@ task SamToFastqAndBwaMemAndMba {
     FASTQ=/dev/stdout \
     INTERLEAVE=true \
     NON_PF=true | \
-    ~{bwa_commandline} /dev/stdin - 2> >(tee ~{output_bam_basename}.bwa.stderr.log >&2) | \
+    ~/usr/gitc/bwa mem -K 100000000 -p -v 3 -t 16 -Y $bash_ref_fasta \
+    /dev/stdin - 2> >(tee ~{output_bam_basename}.bwa.stderr.log >&2) | \
     java -Xms3000m -jar /usr/gitc/picard.jar \
     MergeBamAlignment \
     VALIDATION_STRINGENCY=SILENT \
@@ -173,7 +171,7 @@ task SamToFastqAndBwaMemAndMba {
     PRIMARY_ALIGNMENT_STRATEGY=MostDistant \
     PROGRAM_RECORD_ID="bwamem" \
     PROGRAM_GROUP_VERSION="~{bwa_version}" \
-    PROGRAM_GROUP_COMMAND_LINE="~{bwa_commandline}" \
+    PROGRAM_GROUP_COMMAND_LINE="/usr/gitc/bwa mem -K 100000000 -p -v 3 -t 16 -Y $bash_ref_fasta" \
     PROGRAM_GROUP_NAME="bwamem" \
     UNMAPPED_READ_STRATEGY=COPY_TO_TAG \
     ALIGNER_PROPER_PAIR_FLAGS=true \
@@ -212,8 +210,6 @@ task MarkDuplicatesSpark {
     Int memory_gb
     Int disk_size_gb
     Int cpu
-    String gitc_path
-    String? args
     
     String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
   }
@@ -227,14 +223,17 @@ task MarkDuplicatesSpark {
 
     bams_dirname=$(echo "~{sep='\n'input_bams}" | tail -1 | xargs dirname)
 
-    java -Xmx190g -jar ~{gitc_path}GATK_ultima.jar MarkDuplicatesSpark \
+    java -Xmx190g -jar /usr/gitc/GATK_ultima.jar MarkDuplicatesSpark \
     --spark-master local[~{cpu - 8}] \
     --input ~{sep=" --input " input_bams} \
     --output ~{output_bam_basename}.bam \
     --create-output-bam-index true \
     --spark-verbosity WARN \
     --verbosity WARNING \
-    ~{args}
+    --FLOW_END_LOCATION_SIGNIFICANT true \
+    --FLOW_USE_CLIPPED_LOCATIONS true \
+    --ENDS_READ_UNCERTAINTY 1 \
+    --FLOW_SKIP_START_HOMOPOLYMERS 0
 
   >>>
   runtime {
@@ -403,6 +402,7 @@ task CheckContamination {
           sys.exit(2)
     CODE
   >>>
+
   runtime {
     preemptible: preemptible
     memory: "2 GB"
@@ -410,6 +410,7 @@ task CheckContamination {
     docker: "us.gcr.io/broad-gotc-prod/verify-bam-id:f6cb51761861e57c43879aa262df5cf8e670cf7c-1606775309"
     maxRetries: 1
   }
+
   output {
     File selfSM = "~{output_prefix}.selfSM"
     Float contamination = read_float("contamination.txt")
@@ -425,12 +426,10 @@ task HaplotypeCaller {
     File interval_list
     String vcf_basename
     References references
-    Float? contamination
     Int disk_size
-    String gitc_path
     Int memory_gb
-    String? extra_args
     Boolean native_sw = false
+    String? contamination_extra_args 
     
     Boolean make_gvcf
     Boolean make_bamout
@@ -456,7 +455,7 @@ task HaplotypeCaller {
     touch realigned.bai
 
     java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms~{memory_gb-2}g \
-      -jar ~{gitc_path}GATK_ultima.jar \
+      -jar /usr/gitc/GATK_ultima.jar \
       HaplotypeCaller \
       -R ~{references.ref_fasta} \
       -O ~{output_filename} \
@@ -465,7 +464,30 @@ task HaplotypeCaller {
       --smith-waterman ~{if (native_sw) then "JAVA" else "FASTEST_AVAILABLE"} \
       ~{true="-ERC GVCF" false="" make_gvcf} \
       ~{true="--bamout realigned.bam" false="" make_bamout} \
-      ~{extra_args}
+      -mbq 0 \
+      --flow-filter-alleles \
+      --flow-filter-alleles-sor-threshold 3 \
+      --flow-assembly-collapse-hmer-size 12 \
+      --flow-matrix-mods 10,12,11,12 \
+      --bam-output haps.bam \
+      --bam-writer-type CALLED_HAPLOTYPES_NO_READS \
+      --apply-frd --minimum-mapping-quality 1 \
+      --mapping-quality-threshold-for-genotyping 1 \
+      --override-fragment-softclip-check \
+      --flow-likelihood-parallel-threads 2 \
+      --flow-likelihood-optimized-comp \
+      --adaptive-pruning \
+      --pruning-lod-threshold 3.0 \
+      --enable-dynamic-read-disqualification-for-genotyping \
+      --dynamic-read-disqualification-threshold 10 \
+      -G StandardAnnotation \
+      -G StandardHCAnnotation \
+      -G AS_StandardAnnotation\
+      -GQB 10 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 -GQB 70 -GQB 80 -GQB 90 \
+      --likelihood-calculation-engine FlowBased \
+      -A AssemblyComplexity \
+      --assembly-complexity-reference-mode \
+      ~{contamination_extra_args}
   }
 
   runtime {
@@ -492,7 +514,6 @@ task MergeBams {
   input {
     Array[File] input_bams
     String output_bam_name
-    String gitc_path
     
     Int disk_size_gb = ceil(2 * size(input_bams,"GB") + 20)
     
@@ -503,7 +524,7 @@ task MergeBams {
   # See https://github.com/broadinstitute/picard/issues/789 for relevant GatherVcfs ticket
   command {
 
-    java -Xms9000m -jar ~{gitc_path}picard.jar \
+    java -Xms9000m -jar /usr/gitc/picard.jar \
     MergeSamFiles \
     INPUT=~{sep=' INPUT=' input_bams} \
     OUTPUT=~{output_bam_name}
@@ -530,15 +551,13 @@ task ConvertGVCFtoVCF {
     String output_vcf_name
     References references
     Int disk_size_gb
-    
-    String gitc_path
 
     Int preemptible = 3
     String docker = "gcr.io/terra-project-249020/gatk_ultima:0.6.1"
   }
   command {
     java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m \
-    -jar ~{gitc_path}GATK_ultima.jar GenotypeGVCFs \
+    -jar /usr/gitc/GATK_ultima.jar GenotypeGVCFs \
     -R ~{references.ref_fasta} \
     -V ~{input_gvcf} \
     -O ~{output_vcf_name} \
@@ -666,14 +685,13 @@ task CollectDuplicateMetrics {
     File input_bam
     String metrics_filename
     Int disk_size_gb
-    String gitc_path
     File? jar_override
     
     Int preemptible = 3
     String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
   }
 
-  File jar = select_first([jar_override, "~{gitc_path}picard.jar"])
+  File jar = select_first([jar_override, "/usr/gitc/picard.jar"])
 
   command <<<
 
@@ -683,6 +701,7 @@ task CollectDuplicateMetrics {
     -M ~{metrics_filename}
 
   >>>
+
   runtime {
     disks: "local-disk " + disk_size_gb + " HDD"
     cpu: 1
@@ -690,6 +709,7 @@ task CollectDuplicateMetrics {
     preemptible: preemptible
     docker: docker
   }
+
   output {
     File duplicate_metrics = "~{metrics_filename}"
   }
@@ -705,13 +725,12 @@ task CollectWgsMetrics {
     References references
     Int? read_length
     Int disk_size
-    String gitc_path
     File? jar_override
     
     Int preemptible = 3
     String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
   }
-  File jar = select_first([jar_override, "~{gitc_path}picard.jar"])
+  File jar = select_first([jar_override, "/usr/gitc/picard.jar"])
   command {
 
     java -Xms8000m -jar ~{jar} \
@@ -750,13 +769,12 @@ task CollectRawWgsMetrics {
     Int? read_length
     Int disk_size
     Int memory_size
-    String gitc_path
     File? jar_override
     
     Int preemptible = 3
     String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
   }
-  File jar = select_first([jar_override, "~{gitc_path}picard.jar"])
+  File jar = select_first([jar_override, "/usr/gitc/picard.jar"])
   command {
 
     java -Xms8000m -jar ~{jar} \
@@ -791,14 +809,13 @@ task CollectAggregationMetrics {
     String output_bam_prefix
     References references
     Int disk_size
-    String gitc_path
     File? jar_override
     
     Int preemptible = 3
     String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
   }
 
-  File jar = select_first([jar_override, "~{gitc_path}picard.jar"])
+  File jar = select_first([jar_override, "/usr/gitc/picard.jar"])
 
   command {
 
@@ -842,7 +859,6 @@ task AnnotateVCF {
     File reference_dbsnp_index
     String flow_order
     String final_vcf_base_name
-    String gitc_path
     Int additional_disk
     Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + size(references.ref_fasta, "GB") + size(reference_dbsnp, "GB") + additional_disk)
     
@@ -852,7 +868,7 @@ task AnnotateVCF {
   command <<<
 
     java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m \
-    -jar ~{gitc_path}GATK_ultima.jar VariantAnnotator \
+    -jar /usr/gitc/GATK_ultima.jar VariantAnnotator \
     -R ~{references.ref_fasta} \
     -V ~{input_vcf} \
     -O ~{final_vcf_base_name}.annotated.vcf.gz \

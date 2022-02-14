@@ -124,10 +124,12 @@ task ConvertToCram {
     File ref_fasta_index
     String output_basename
     Int preemptible_tries = 3
+
+    Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")
+    Int disk_size = ceil(2 * size(input_bam, "GiB") + ref_size) + 20
   }
 
-  Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")
-  Int disk_size = ceil(2 * size(input_bam, "GiB") + ref_size) + 20
+  
 
   command <<<
     set -e

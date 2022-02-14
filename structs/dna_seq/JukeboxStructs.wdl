@@ -34,13 +34,6 @@ struct VariantCallingSettings {
   Int haplotype_scatter_count
 }
 
-struct ExtraArgs {
-  Int? reads_per_split
-  String? hc_extra_args
-  String? mark_duplicates_extra_args
-  Float rsq_threshold
-}
-
 struct VcfPostProcessing {
   Array[File] annotation_intervals
   File? filtering_model_no_gt
@@ -53,12 +46,9 @@ struct VcfPostProcessing {
   String? exome_weight_annotation
   File? interval_list_override
   File runs_file
-  String? filtering_model_no_gt_name_override
   String? filtering_model_with_gt_name_override
   Float max_duplication_in_reasonable_sample
   Float max_chimerism_in_reasonable_sample
-  Boolean? make_gvcf_override
-  Boolean? merge_bam_file_override
   File ref_dbsnp
   File ref_dbsnp_index
   File wgs_coverage_interval_list
