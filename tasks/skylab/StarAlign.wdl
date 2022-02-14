@@ -332,6 +332,64 @@ task STARsoloFastq {
   }
 }
 
+task STARsoloFastqSlideSeq {
+  input {
+    Array[File] r1_fastq
+    Array[File] r2_fastq
+    File tar_star_reference
+    File white_list
+    String output_bam_basename
+
+    # runtime values
+    String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
+    Int machine_mem_mb = 64000
+    Int cpu = 8
+    # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
+    Int disk = ceil((size(tar_star_reference, "Gi") * 3)) + ceil(size(r1_fastq, "Gi") * 20) +  ceil(size(r2_fastq, "Gi") * 20)
+    # by default request non preemptible machine to make sure the slow star alignment step completes
+    Int preemptible = 3
+  }
+
+  command {
+    set -e
+
+    # prepare reference
+    mkdir genome_reference
+    tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
+    rm "~{tar_star_reference}"
+
+
+    STAR \
+      --soloType Droplet \
+      --soloCBwhitelist ~{white_list} \
+      --soloFeatures Gene \
+      --runThreadN ${cpu} \
+      --genomeDir genome_reference \
+      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
+      --readFilesCommand "gunzip -c" \
+      --soloInputSAMattrBarcodeSeq CR UR \
+      --soloInputSAMattrBarcodeQual CY UY \
+      --outSAMtype BAM Unsorted
+  }
+
+  runtime {
+    docker: docker
+    memory: "~{machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
+    cpu: cpu
+    preemptible: preemptible
+  }
+
+  output {
+    File bam_output = "~{output_bam_basename}.bam"
+    File alignment_log = "Log.final.out"
+    File general_log = "Log.out"
+    File barcodes = "Solo.out/Gene/raw/barcodes.tsv"
+    File features = "Solo.out/Gene/raw/features.tsv"
+    File matrix = "Solo.out/Gene/raw/matrix.mtx"
+  }
+}
+
 task ConvertStarOutput {
 
   input {
