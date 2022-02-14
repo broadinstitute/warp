@@ -53,7 +53,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "5.1.3"
+  String pipeline_version = "5.2.1"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -109,7 +109,7 @@ workflow Optimus {
     input:
       bam_inputs = STARsoloFastq.bam_output,
       output_bam_filename = output_bam_basename + ".bam",
-      sort_order = "unsorted"
+      sort_order = "coordinate"
   }
   call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
@@ -128,7 +128,7 @@ workflow Optimus {
       features = STARsoloFastq.features,
       matrix = STARsoloFastq.matrix
   }
- 
+
   call RunEmptyDrops.RunEmptyDrops {
     input:
       sparse_count_matrix = MergeStarOutputs.sparse_counts,
