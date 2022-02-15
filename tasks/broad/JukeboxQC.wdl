@@ -1,7 +1,7 @@
 version 1.0
 
-import "JukeboxTasks.wdl" as Tasks
-import "Qc.wdl" as QC
+import "../../tasks/broad/JukeboxTasks.wdl" as Tasks
+import "../../tasks/broad/Qc.wdl" as QC
 
 workflow JukeboxQC {
   input {

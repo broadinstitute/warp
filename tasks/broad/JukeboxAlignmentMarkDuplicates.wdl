@@ -1,7 +1,7 @@
 version 1.0
 
-import "JukeboxTasks.wdl" as Tasks
-import "Alignment.wdl" as AlignmentTasks
+import "../../tasks/broad/JukeboxTasks.wdl" as Tasks
+import "../../tasks/broad/Alignment.wdl" as AlignmentTasks
 import "../../structs/dna_seq/JukeboxStructs.wdl" as Structs
 
 workflow AlignmentAndMarkDuplicates {
@@ -22,7 +22,7 @@ workflow AlignmentAndMarkDuplicates {
   Float bwa_disk_multiplier = 2.5
   Float bwa_ref_size = ref_size
                       + size(alignment_references.ref_alt, "GB") 
-                      + size(alignment_references.ref_amb, "GB") 
+                      + size(alignment_references.ref_amb, "GB")
                       + size(alignment_references.ref_ann, "GB") 
                       + size(alignment_references.ref_bwt, "GB") 
                       + size(alignment_references.ref_pac, "GB") 
