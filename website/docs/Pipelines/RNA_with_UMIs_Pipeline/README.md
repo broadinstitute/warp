@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [RNAWithUMIsPipeline_v1.0.0](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | January, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [RNAWithUMIsPipeline_v1.0.1](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | February, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![RNAWithUMIs_diagram](RNAWithUMIs_diagram.png)
 
@@ -71,9 +71,9 @@ The workflow takes in either a set of paired-end FASTQ files or a read group unm
 
 The pipeline supports both hg19 and hg38 references. The reference set consists of:
 1. .fasta, .fai, and .dict files
-1. GTF file (STAR, RNASeQC)
-1. ribosomal interval list (Picard)
-1. refFlat file (Picard)
+2. STAR index
+1. GTF file (RNASeQC)
+1. ribosomal interval list and refFlat file (Picard)
 
 #### FASTA, index, and dictionary files
 
@@ -83,11 +83,9 @@ In contrast, the hg19 reference does not have nearly as many contigs as the hg38
 
 #### GTF file
 
-Genome annotation files (GTFs) contain information about genes such as the start and end coordinates of each exon, name of the gene, and the type of the transcript (e.g. protein-coding, antisense). 
+Genome annotation files (GTFs) contain information about genes such as the start and end coordinates of each exon, name of the gene, and the type of the transcript (e.g. protein-coding, antisense). The workflow uses the the GENCODE v34 GTF for hg38 and v19 for hg19.
 
-The workflow uses the GENCODE v27 GTF for hg38 and v19 for hg19. We selected the v27 because it was the version used by [GTEX](https://gtexportal.org/home/), and the v19 because it is the latest GENCODE version available for hg19.
-
-#### Ribosomal interval list
+#### Ribosomal interval list and refFlat file
 
 The workflow ribosomal interval list and the refFlat file are used by Picard metrics calculation tools. The workflow uses a custom ribosomal interval list, based on the public hg38 ribosomal interval list, which has been modified to include mitochondrial rRNA coding genes. 
 
@@ -148,9 +146,33 @@ The resulting RX tag may contain information like “ACT-GCT.” The “ACT” i
 
 After UMI extraction, the workflow aligns the paired-end reads to the reference (hg38 or hg19) using the [STAR aligner](https://github.com/alexdobin/STAR), which is specifically designed for RNA-seq data and is able to align cDNA sequences with many "gaps" that correspond to introns. 
 
-After STAR alignment, the workflow outputs both a genome- and transcriptome-aligned BAM.
+The workflow uses the following parameters:
 
-<!--- STAR parameters will go here --->
+| Parameter | Value | Notes |
+| --- | --- | --- |
+| runThreadN | 8 | Number of threads. |
+| outSAMtype | BAM Unsorted | Specifies that the output is an unsorted BAM file. |
+| readFilesType | SAM PE | Specifies that the input file is a SAM/BAM file. |
+| readFilesCommand | samtools view -h | Tells STAR how to open the input file. |
+| outSAMstrandField | intronMotif | Adds the XS strand attribute for alignments containing splice junctions, allowing for reads with noncanonical introns to be filtered out. |
+| outSAMunmapped | Within | Includes unmapped reads in output file. | 
+| outFilterType | BySJout | Keeps only the reads that contain junctions that passed filtering into `SJ.out.tab`. |
+| outFilterMultimapNmax | 20 | Sets the maximum number of loci a read can be mapped to without being considered unmapped to the ENCODE standard value. |
+| outFilterMatchNminOverLread | 0.33 | Sets the fraction of reads that must match the reference. |
+| outFilterMismatchNmax | 999 | Turns off the mismatch filter. |
+| outFilterMismatchNoverLmax | 0.1 | Sets the maximum allowable ratio of mismatches to read length. Reads with a ratio larger than the set value are filtered. |
+| alignIntronMin | 20 | Sets the minimum intron length to the ENCODE standard value. |
+| alignIntronMax | 1000000 | Sets the maximum intron length to the ENCODE standard value. |
+| alignMatesGapMax | 1000000 | Sets the maximum genomic distance between mates to the ENCODE standard value. |
+| alignSJoverhangMin | 8 | Sets the minimum overhang for unannotated splice junctions to the ENCODE standard value. |
+| alignSJDBoverhangMin | 1 | Sets the minimum overhang for annotated splice junctions to the ENCODE standard value. |
+| chimSegmentMin | 15 | Turns on detection of chimeric alignments and sets the minimum number of aligned bases required in each "segment" to be considered a chimeric alignment. |
+| chimMainSegmentMultNmax | 1 | Requires the main chimeric segment to map uniquely. |
+| chimOutType | WithinBAM SoftClip | Includes chimeric alignments in the output file with soft-clipping. |
+| quantMode | TranscriptomeSAM | Outputs both a genome- and transcriptome-aligned BAM. |
+| alignEndsProtrude | 20 ConcordantPair | Allows a maximum of 20 protruding bases at alignment ends and marks these alignments as concordant pairs. |
+
+After STAR alignment, the workflow outputs both a genome- and transcriptome-aligned BAM.
 
 #### 4. Mark duplicates
 
