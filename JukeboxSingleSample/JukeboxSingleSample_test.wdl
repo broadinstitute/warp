@@ -1,13 +1,12 @@
 version 1.0
 
-import "../../../../../../tasks/broad/JukeboxTasks.wdl" as Tasks
-import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
-import "../../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as VariantDiscoverTasks
-import "../../../../../../tasks/broad/JukeboxAlignmentMarkDuplicates.wdl" as JukeboxAlignmentAndMarkDuplicates
-import "../../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
-import "../../../../../../tasks/broad/Qc.wdl" as QC
-import "../../../../../../tasks/broad/JukeboxQC.wdl" as JukeboxQC
-import "../../../../../../structs/dna_seq/JukeboxStructs.wdl" as Structs
+import "JukeboxTasks.wdl" as Tasks
+import "Utilities.wdl" as Utilities
+import "GermlineVariantDiscovery.wdl" as VariantDiscoverTasks
+import "JukeboxAlignmentMarkDuplicates.wdl" as JukeboxAlignmentAndMarkDuplicates
+import "Qc.wdl" as QC
+import "JukeboxQC.wdl" as JukeboxQC
+import "JukeboxStructs.wdl" as Structs
 
 # CHANGELOG
 #  1.1.1     get multiple input cram
@@ -123,7 +122,7 @@ workflow JukeboxSingleSample {
   }
 
   meta {
-    allowNestedInputs: true
+
   }
 
   parameter_meta {
@@ -156,16 +155,17 @@ workflow JukeboxSingleSample {
   Int additional_metrics_disk = increase_metrics_disk_size
   Float ref_size = size(references.ref_fasta, "GB") + size(references.ref_fasta_index, "GB") + size(references.ref_dict, "GB")
 
-  call InternalTasks.MakeSafeFilename as MakeSafeFilename {
-    input:
-      name = base_file_name
-  }
+  # Ensure no # charachters are found in base_file_name, MarkDuplicatesSpark can't handle it
+  String base_file_name_sub = sub(base_file_name, "#", "")
+  # VCF post-processing default values
+  # Didn't see this used anywhere
+  # File? interval_list = vcf_post_processing.interval_list_override
 
   call JukeboxAlignmentAndMarkDuplicates.AlignmentAndMarkDuplicates as AlignmentAndMarkDuplicates {
     input:
       input_cram_bam                = input_cram_bam,
       is_cram                       = is_cram,
-      base_file_name_sub            = MakeSafeFilename.output_safe_name,
+      base_file_name_sub            = base_file_name_sub,
       reads_per_split               = reads_per_split,
       rsq_threshold                 = rsq_threshold,
       dummy_input_for_call_caching  = dummy_input_for_call_caching,
@@ -184,7 +184,7 @@ workflow JukeboxSingleSample {
       input_bam       = AlignmentAndMarkDuplicates.output_bam,
       ref_fasta       = references.ref_fasta,
       ref_fasta_index = references.ref_fasta_index,
-      output_basename = MakeSafeFilename.output_safe_name,
+      output_basename = base_file_name_sub,
       disk_size       = convert_to_cram_disk_size
   }
 
@@ -197,7 +197,7 @@ workflow JukeboxSingleSample {
     input:
       input_bam         = ConvertToCram.output_cram,
       input_bam_index   = ConvertToCram.output_cram_index,
-      report_filename   = MakeSafeFilename.output_safe_name + ".cram.validation_report",
+      report_filename   = base_file_name_sub + ".cram.validation_report",
       ref_dict          = references.ref_dict,
       ref_fasta         = references.ref_fasta,
       ref_fasta_index   = references.ref_fasta_index,
@@ -230,33 +230,39 @@ workflow JukeboxSingleSample {
   # Call variants in parallel over WGS calling intervals
   scatter (index in range(ScatterIntervalList.interval_count)) {
     # Generate VCF by interval
-    call Tasks.HaplotypeCaller as HaplotypeCaller {
+    call Tasks.HaplotypeCaller as HC1 {
       input:
         input_bam_list  = [AlignmentAndMarkDuplicates.output_bam],
         interval_list   = ScatterIntervalList.out[index],
-        vcf_basename    = MakeSafeFilename.output_safe_name,
+        vcf_basename    = base_file_name_sub,
         references      = references,
         disk_size       = ceil(((agg_bam_size + VCF_disk_size) / hc_divisor) + ref_size + additional_disk),
         make_gvcf       = make_gvcf,
         memory_gb       = 12,
         make_bamout     = false
     }
+
+    # gate success on h1_success
+    File HC_output_vcf_idx = HC1.output_vcf_index 
+    File HC_output_vcf     = HC1.output_vcf
+    File haplotypes_bam    = HC1.haplotypes_bam
+
   }
 
   # Combine by-interval VCFs into a single sample  file
   call VariantDiscoverTasks.MergeVCFs {
     input:
-      input_vcfs          = HaplotypeCaller.output_vcf,
-      input_vcfs_indexes  = HaplotypeCaller.output_vcf_index,
-      output_vcf_name     = MakeSafeFilename.output_safe_name + (if make_gvcf then ".g.vcf.gz" else ".vcf.gz"),
+      input_vcfs          = HC_output_vcf,
+      input_vcfs_indexes  = HC_output_vcf_idx,
+      output_vcf_name     = base_file_name_sub + (if make_gvcf then ".g.vcf.gz" else ".vcf.gz"),
   }
 
   # Combine by-interval BAMs into a single sample file
   if(merge_bam_file) {
       call Tasks.MergeBams {
         input:
-          input_bams      = HaplotypeCaller.haplotypes_bam,
-          output_bam_name = MakeSafeFilename.output_safe_name + ".bam",
+          input_bams      = haplotypes_bam,
+          output_bam_name = base_file_name_sub + ".bam",
       }
   }
 
@@ -264,7 +270,7 @@ workflow JukeboxSingleSample {
     input:
       input_gvcf         = MergeVCFs.output_vcf,
       input_gvcf_index   = MergeVCFs.output_vcf_index,
-      output_vcf_name    = MakeSafeFilename.output_safe_name + '.vcf.gz',
+      output_vcf_name    = base_file_name_sub + '.vcf.gz',
       references         = references,
       disk_size_gb       = VCF_disk_size,
   }
@@ -278,7 +284,7 @@ workflow JukeboxSingleSample {
       reference_dbsnp         = vcf_post_processing.ref_dbsnp,
       reference_dbsnp_index   = vcf_post_processing.ref_dbsnp_index,
       flow_order              = ExtractSampleNameFlowOrder.flow_order,
-      final_vcf_base_name     = MakeSafeFilename.output_safe_name,
+      final_vcf_base_name     = base_file_name_sub,
       additional_disk         = additional_disk,
   }
 
@@ -286,7 +292,7 @@ workflow JukeboxSingleSample {
     input:
       input_vcf             = AnnotateVCF.output_vcf_annotated,
       input_vcf_index       = AnnotateVCF.output_vcf_annotated_index,
-      final_vcf_base_name   = MakeSafeFilename.output_safe_name,
+      final_vcf_base_name   = base_file_name_sub,
       annotation_intervals  = vcf_post_processing.annotation_intervals
   }
 
@@ -294,7 +300,7 @@ workflow JukeboxSingleSample {
     input:
       input_file                = AddIntervalAnnotationsToVCF.output_vcf,
       input_file_index          = AddIntervalAnnotationsToVCF.output_vcf_index,
-      input_vcf_name            = MakeSafeFilename.output_safe_name,
+      input_vcf_name            = base_file_name_sub,
       blacklist_file            = vcf_post_processing.training_blacklist_file,
       ref_fasta                 = references.ref_fasta,
       ref_index                 = references.ref_fasta_index,
@@ -313,7 +319,7 @@ workflow JukeboxSingleSample {
       input_vcf_index       = AddIntervalAnnotationsToVCF.output_vcf_index,
       af_only_gnomad        = vcf_post_processing.af_only_gnomad,
       af_only_gnomad_index  = vcf_post_processing.af_only_gnomad_index,
-      final_vcf_base_name   = MakeSafeFilename.output_safe_name,
+      final_vcf_base_name   = base_file_name_sub,
       additional_disk       = additional_disk,
   }
 
@@ -326,7 +332,7 @@ workflow JukeboxSingleSample {
       model_name              = filtering_model_no_gt_name,
       filter_cg_insertions    = vcf_post_processing.filter_cg_insertions,
       blacklist_file          = vcf_post_processing.filtering_blacklist_file,
-      final_vcf_base_name     = MakeSafeFilename.output_safe_name,
+      final_vcf_base_name     = base_file_name_sub,
       flow_order              = ExtractSampleNameFlowOrder.flow_order,
       annotation_intervals    = vcf_post_processing.annotation_intervals,
       disk_size_gb            = VCF_disk_size,
@@ -344,8 +350,8 @@ workflow JukeboxSingleSample {
     input:
       agg_bam                               = AlignmentAndMarkDuplicates.output_bam,
       agg_bam_index                         = AlignmentAndMarkDuplicates.output_bam_index,
-      base_file_name                        = MakeSafeFilename.output_safe_name,
-      base_file_name_sub                    = MakeSafeFilename.output_safe_name,
+      base_file_name                        = base_file_name_sub,
+      base_file_name_sub                    = base_file_name_sub,
       agg_bam_size                          = agg_bam_size,
       ref_size                              = ref_size,
       additional_metrics_disk               = additional_metrics_disk,
