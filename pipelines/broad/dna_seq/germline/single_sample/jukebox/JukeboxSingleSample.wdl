@@ -155,7 +155,7 @@ workflow JukeboxSingleSample {
   Int additional_metrics_disk = increase_metrics_disk_size
   Float ref_size = size(references.ref_fasta, "GB") + size(references.ref_fasta_index, "GB") + size(references.ref_dict, "GB")
 
-  # Ensure no # charachters are found in base_file_name, MarkDuplicatesSpark can't handle it
+  # Ensure no # characters are found in base_file_name, MarkDuplicatesSpark can't handle it
   String base_file_name_sub = sub(base_file_name, "#", "")
   # VCF post-processing default values
   # Didn't see this used anywhere
