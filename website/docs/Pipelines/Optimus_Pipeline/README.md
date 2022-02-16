@@ -265,7 +265,7 @@ Please identify the pipeline in your methods section using the Optimus Pipeline'
 * Ex: *Optimus Pipeline (RRID:SCR_018908)*
 
 ## Consortia support
-This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project and the[BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
+This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project and the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
 
 Each consortia may use slightly different reference files for data analysis or have different post-processing steps. Learn more by reading the [Consortia Processing](./consortia-processing.md) overview.
 
