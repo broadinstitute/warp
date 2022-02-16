@@ -304,8 +304,6 @@ task SingleNucleusOptimusCountsOutput {
         File annotation_introns_added_gtf
         # name of the sample
         Array[String] input_ids
-
-        String pipeline_version
         Int preemptible = 3
         Int disk = 200
         Int machine_mem_mb = 8

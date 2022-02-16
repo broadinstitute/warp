@@ -158,7 +158,7 @@ workflow Optimus {
       pipeline_version = "Optimus_v~{pipeline_version}"
   }
 
-  Array[String] input_ids = basename(STARsoloFastq.bam_output)
+  Array[String] input_ids = prefix(input_id + "_" , range(length(SplitFastq.fastq_R1_output_array)))
   if(count_introns == true) {
     call Picard.RemoveDuplicatesFromBam as RemoveDuplicatesFromBam {
       input:
@@ -180,6 +180,7 @@ workflow Optimus {
     }
   }
 
+  File final_loom_output = if defined(count_introns) then CountsOutput.loom else OptimusLoomGeneration.loom_output
 
   output {
     # version of this pipeline
@@ -194,6 +195,6 @@ workflow Optimus {
     File cell_calls = RunEmptyDrops.empty_drops_result
 
     # loom
-    File loom_output_file = OptimusLoomGeneration.loom_output
+    File loom_output_file = final_loom_output
   }
 }
