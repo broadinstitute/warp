@@ -1,11 +1,11 @@
 # 1.0.2
-2022-02-xx  (Date of Last Commit)
+2022-02-17  (Date of Last Commit)
 
 * Updated STAR command line argument
-(TODO) Updated ribosomal intervals
-(TODO) Updated refFlat
-(TODO) Updated docker for Picard CollectRNAMetrics
-(TODO) Postprocess transcriptome bam
+Updated ribosomal intervals to include unlocalized scaffolds in the UCSC naming convention to match our reference.
+Updated the STAR commandline arguments, as follows:
+- Add "--alignEndsProtrude 20 ConcordantPair"; to rescue the case where the insert size drops below the read length and the sequencer starts to read into the adapters.
+- 
 
 # 1.0.1
 2022-02-17 (Date of Last Commit)
