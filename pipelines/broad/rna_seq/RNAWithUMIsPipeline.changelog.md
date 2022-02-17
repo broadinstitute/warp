@@ -1,11 +1,10 @@
 # 1.0.2
 2022-02-17  (Date of Last Commit)
 
-* Updated STAR command line argument
-Updated ribosomal intervals to include unlocalized scaffolds in the UCSC naming convention to match our reference.
-Updated the STAR commandline arguments, as follows:
+* Updated ribosomal intervals to include unlocalized scaffolds in the UCSC naming convention to match our reference.
+* Updated the STAR command line arguments, as follows:
 - Add "--alignEndsProtrude 20 ConcordantPair"; to rescue the case where the insert size drops below the read length and the sequencer starts to read into the adapters.
-- 
+- Removed "--limitSjdbInsertNsj 1200000"; the default of 1,000,000 is sufficient.
 
 # 1.0.1
 2022-02-17 (Date of Last Commit)
