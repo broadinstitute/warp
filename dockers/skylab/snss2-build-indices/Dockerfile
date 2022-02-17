@@ -15,19 +15,15 @@ RUN pip3 install -r requirements.txt
 
 # Install subread 
 WORKDIR /usr/local/ 
+RUN wget https://github.com/alexdobin/STAR/archive/refs/tags/2.7.10a.tar.gz && \ 
+  tar -xf 2.7.10a.tar.gz
+RUN chmod +x /usr/local/STAR-2.7.10a/bin/Linux_x86_64_static/STAR
+ENV PATH /usr/local/STAR-2.7.10a/bin/Linux_x86_64_static/:$PATH
+
 
 # copy the script that removes alignments spanning intron-exon junctions
-RUN wget https://github.com/alexdobin/STAR/archive/2.7.8a.tar.gz && \
-  tar -xf 2.7.8a.tar.gz
-RUN chmod +x /usr/local/STAR-2.7.8a/bin/Linux_x86_64_static/STAR
-ENV PATH /usr/local/STAR-2.7.8a/bin/Linux_x86_64_static/:$PATH
 RUN mkdir /script
 WORKDIR /script
-
-
 COPY add-introns-to-gtf.py .
-COPY modify_gtf_human.sh .
-RUN chmod +x modify_gtf_human.sh
-COPY modify_gtf_mouse.sh .
-RUN chmod +x modify_gtf_mouse.sh
+COPY modify_gtf.py .
 ENV PATH /script/:$PATH
