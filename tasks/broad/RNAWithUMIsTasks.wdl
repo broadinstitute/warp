@@ -21,7 +21,6 @@ task VerifyPipelineInputs {
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = ceil(size(bam, "GiB") + size(r1_fastq,"GiB") + size(r2_fastq, "GiB")) + 10
-    Int max_retries = 2
   }
 
   command <<<
@@ -61,7 +60,6 @@ task VerifyPipelineInputs {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -79,7 +77,6 @@ task ExtractUMIs {
     Int cpu = 4
     Int memory_mb = 5000
     Int disk_size_gb = ceil(2.2 * size(bam, "GiB")) + 20
-    Int max_retries = 2
   }
 
   command <<<
@@ -96,7 +93,6 @@ task ExtractUMIs {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
     preemptible: 0
   }
 
@@ -114,7 +110,6 @@ task STAR {
     Int cpu = 8
     Int memory_mb = ceil((size(starIndex, "GiB")) + 10) * 1500
     Int disk_size_gb = ceil(2.2 * size(bam, "GiB") + size(starIndex, "GiB")) + 150
-    Int max_retries = 2
   }
 
   command <<<
@@ -159,7 +154,6 @@ task STAR {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
     preemptible: 0
   }
 
@@ -184,7 +178,6 @@ task FastqToUbam {
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2) + 50
-    Int max_retries = 2
   }
 
   String unmapped_bam_output_name = bam_filename + ".u.bam"
@@ -211,7 +204,6 @@ task FastqToUbam {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -228,7 +220,6 @@ task CopyReadGroupsToHeader {
     Int cpu = 1
     Int memory_mb = 2500
     Int disk_size_gb = ceil(2.0 * size([bam_with_readgroups, bam_without_readgroups], "GiB")) + 10
-    Int max_retries = 2
   }
 
   String basename = basename(bam_without_readgroups)
@@ -244,7 +235,6 @@ task CopyReadGroupsToHeader {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -260,7 +250,6 @@ task GetSampleName {
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
-    Int max_retries = 2
   }
 
   parameter_meta {
@@ -278,7 +267,6 @@ task GetSampleName {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -297,7 +285,6 @@ task rnaseqc2 {
     Int cpu = 1
     Int memory_mb = 3500
     Int disk_size_gb = ceil(size(bam_file, 'GiB') + size(genes_gtf, 'GiB') + size(exon_bed, 'GiB')) + 50
-    Int max_retries = 2
   }
 
   command <<<
@@ -322,7 +309,6 @@ task rnaseqc2 {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
   }
 }
 
@@ -341,7 +327,6 @@ task CollectRNASeqMetrics {
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
-    Int max_retries = 2
   }
 
   Int java_memory_size = memory_mb - 1000
@@ -361,7 +346,6 @@ task CollectRNASeqMetrics {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -382,7 +366,6 @@ task CollectMultipleMetrics {
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
-    Int max_retries = 2
   }
 
   Int java_memory_size = memory_mb - 1000
@@ -402,7 +385,6 @@ task CollectMultipleMetrics {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -432,7 +414,6 @@ task MergeMetrics {
     Int cpu = 1
     Int memory_mb = 3000
     Int disk_size_gb = 10
-    Int max_retries = 2
   }
 
   String out_filename = output_basename + ".unified_metrics.txt"
@@ -496,7 +477,6 @@ task MergeMetrics {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -517,7 +497,6 @@ task SortSamByCoordinate {
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
-    Int max_retries = 2
   }
 
   Int java_memory_size = memory_mb - 1000
@@ -538,7 +517,6 @@ task SortSamByCoordinate {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -561,7 +539,6 @@ task SortSamByQueryName {
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
-    Int max_retries = 2
   }
 
   Int java_memory_size = memory_mb - 1000
@@ -581,7 +558,6 @@ task SortSamByQueryName {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -600,7 +576,6 @@ task GroupByUMIs {
     Int cpu = 2
     Int memory_mb = 7500
     Int disk_size_gb = ceil(2.2 * size([bam, bam_index], "GiB")) + 100
-    Int max_retries = 2
   }
 
   command <<<
@@ -617,7 +592,6 @@ task GroupByUMIs {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
   }
 }
 
@@ -630,7 +604,6 @@ task MarkDuplicatesUMIAware {
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3 * size(bam, "GiB")) + 60
-    Int max_retries = 2
   }
 
   String output_bam_basename = output_basename + ".duplicate_marked"
@@ -649,7 +622,6 @@ task MarkDuplicatesUMIAware {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
   }
 }
 
@@ -685,7 +657,6 @@ task formatPipelineOutputs {
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = 10
-    Int max_retries = 2
   }
 
   String outputs_json_file_name = "outputs_to_TDR_~{output_basename}.json"
@@ -742,7 +713,6 @@ task formatPipelineOutputs {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
   }
 
   output {
@@ -761,7 +731,6 @@ task updateOutputsInTDR {
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = 10
-    Int max_retries = 2
   }
 
   String tdr_target_table = "sample"
@@ -781,7 +750,6 @@ task updateOutputsInTDR {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
-    maxRetries: "~{max_retries}"
   }
 
   output {

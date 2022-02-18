@@ -1,9 +1,9 @@
 # 1.0.2
-2022-02-14 (Date of Last Commit)
+2022-02-17 (Date of Last Commit)
 
 * Updated to use publicly-accessible reference and annotation files.
 * Slightly reduced memory and disk usage on several tasks.
-* Standardized memory sizing
+* Standardized memory sizing.
 
 # 1.0.1
 2022-02-01 (Date of Last Commit)
