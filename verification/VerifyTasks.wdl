@@ -30,6 +30,31 @@ task CompareVcfs {
   }
 }
 
+task CompareVCFsVerbosely {
+  input {
+    File actual
+    File expected
+    File ref_fasta = "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta"
+    File ref_fasta_index = "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai"
+    File ref_dict = "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict"
+    String extra_args = " --ignore-attribute VQSLOD --ignore-attribute AS_VQSLOD --ignore-filters "
+    + "--ignore-attribute culprit --ignore-attribute AS_culprit --ignore-attribute AS_FilterStatus "
+    + "--ignore-attribute ExcessHet --ignore-star-attributes --allow-nan-mismatch --ignore-attribute END"
+    Boolean warn_on_error = true;
+  }
+
+  command {
+    ./gatk VCFComparator -R ~{ref_fasta}  -V:actual ~{actual} -V:expected ~{expected} ~{extra_args} ~{if(warn_on_error) then "--warn=on-error" else ""}
+  }
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/gatk-vcfcomparator@sha256:6e5e09740a6b0035202682f82889e87a8b887a9df43a76c3406c9c6436a43051"
+    disks: "local-disk 50 HDD"
+    memory: "3 GiB"
+    preemptible: 3
+  }
+}
+
 task CompareGtcs {
   input {
     File file1

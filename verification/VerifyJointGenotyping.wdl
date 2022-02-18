@@ -29,6 +29,12 @@ workflow VerifyJointGenotyping {
         test_gvcf = test_vcfs[idx],
         truth_gvcf = truth_vcfs[idx]
     }
+
+    call GermlineVerification.CompareVcfsVerbosely {
+      input:
+        actual = test_vcfs[idx],
+        expected = truth_vcfs[idx]
+    }
   }
 
   call MetricsVerification.VerifyMetrics {
