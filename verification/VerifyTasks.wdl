@@ -40,7 +40,7 @@ task CompareVCFsVerbosely {
     String extra_args = " --ignore-attribute VQSLOD --ignore-attribute AS_VQSLOD --ignore-filters "
     + "--ignore-attribute culprit --ignore-attribute AS_culprit --ignore-attribute AS_FilterStatus "
     + "--ignore-attribute ExcessHet --ignore-star-attributes --allow-nan-mismatch --ignore-attribute END"
-    Boolean warn_on_error = true;
+    Boolean warn_on_error = true
   }
 
   command {
