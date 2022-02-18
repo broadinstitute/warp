@@ -90,7 +90,7 @@ The example configuration files also contain metadata for the reference files, d
 | input_name_metadata_field | Optional string describing, when applicable, the metadata field containing the input_name. | NA |
 | annotations_gtf | Cloud path to the GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | NA |
 | chemistry | Optional string describing whether data was generated with 10x v2 or v3 chemistry. Optimus validates this string. If the string does not match one of the optional strings, the pipeline will fail. You can remove the checks by setting "force_no_check = true" in the input JSON | "tenX_v2" (default) or "tenX_v3". |
-| counting_mode | String description of whether data is single-cell or single-nucleus. Single-cell mode counts reads aligned to the gene transcript, where as single-nucleus counts whole transcript to account for nuclear pre-mRNA.| "sc_rna" or "sn_rna" |
+| counting_mode | String describing whether data is single-cell or single-nucleus. Single-cell mode counts reads aligned to the gene transcript, whereas single-nucleus counts whole transcript to account for nuclear pre-mRNA. | "sc_rna" or "sn_rna" |
 | output_bam_basename | Optional string used for the output BAM file basename; the default is input_id. | NA |
 | use_strand_info | Optional string for reading stranded data. Default is "false"; set to "true" to count reads in stranded mode. | "true" or "false" (default) |
 | emptydrops_lower | UMI threshold for emptyDrops detection; default is 100. | NA |
