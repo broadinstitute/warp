@@ -125,7 +125,6 @@ task STAR {
       --readFilesIn ~{bam} \
       --readFilesType SAM PE \
       --readFilesCommand samtools view -h \
-      --outSAMstrandField intronMotif \
       --outSAMunmapped Within \
       --outFilterType BySJout \
       --outFilterMultimapNmax 20 \

@@ -5,6 +5,7 @@
 * Updated the STAR command line arguments, as follows:
 - Add "--alignEndsProtrude 20 ConcordantPair"; to rescue the case where the insert size drops below the read length and the sequencer starts to read into the adapters.
 - Removed "--limitSjdbInsertNsj 1200000"; the default of 1,000,000 is sufficient.
+- Removed "--outSAMstrandField intronMotif", defaults to "None"
 * Updated the RNASeQC2 insert size bed file from v26 to v34
 
 # 1.0.1
