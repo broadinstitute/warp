@@ -125,7 +125,6 @@ task STAR {
       --readFilesIn ~{bam} \
       --readFilesType SAM PE \
       --readFilesCommand samtools view -h \
-      --limitSjdbInsertNsj 1200000 \
       --outSAMstrandField intronMotif \
       --outSAMunmapped Within \
       --outFilterType BySJout \
