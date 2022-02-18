@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [RNAWithUMIsPipeline_v1.0.1](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | February, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [RNAWithUMIsPipeline_v1.0.2](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | February, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![RNAWithUMIs_diagram](RNAWithUMIs_diagram.png)
 
@@ -156,7 +156,6 @@ The workflow uses the following parameters:
 | outSAMtype | BAM Unsorted | Specifies that the output is an unsorted BAM file. |
 | readFilesType | SAM PE | Specifies that the input file is a SAM/BAM file. |
 | readFilesCommand | samtools view -h | Tells STAR how to open the input file. |
-| outSAMstrandField | intronMotif | Adds the XS strand attribute for alignments containing splice junctions, allowing for reads with noncanonical introns to be filtered out. |
 | outSAMunmapped | Within | Includes unmapped reads in the output file. | 
 | outFilterType | BySJout | Keeps only the reads that contain junctions that passed filtering into `SJ.out.tab`. |
 | outFilterMultimapNmax | 20 | Sets the maximum number of loci a read can be mapped to without being considered unmapped to the ENCODE standard value. |
