@@ -24,17 +24,18 @@ workflow VerifyJointGenotyping {
   }
 
   scatter (idx in range(length(truth_vcfs))) {
+    call GermlineVerification.CompareVcfsVerbosely {
+      input:
+        actual = test_vcfs[idx],
+        expected = truth_vcfs[idx]
+    }
+
     call GermlineVerification.CompareGvcfs {
       input:
         test_gvcf = test_vcfs[idx],
         truth_gvcf = truth_vcfs[idx]
     }
 
-    call GermlineVerification.CompareVcfsVerbosely {
-      input:
-        actual = test_vcfs[idx],
-        expected = truth_vcfs[idx]
-    }
   }
 
   call MetricsVerification.VerifyMetrics {
