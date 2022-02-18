@@ -8,10 +8,10 @@ task VerifyPipelineInputs {
     Array[File]? input_bam_list
 
     String docker = "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
-        Int cpu = 1
-        Int memory_mb = 1000
-        Int disk_size_gb = 10
-    }
+    Int cpu = 1
+    Int memory_mb = 1000
+    Int disk_size_gb = 10
+  }
 
     command <<<
       set -e
