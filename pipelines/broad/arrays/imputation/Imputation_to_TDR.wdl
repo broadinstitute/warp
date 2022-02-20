@@ -25,6 +25,7 @@ workflow imputation_outputs_to_TDR {
         # optional inputs to Imputation.wdl but required for eMerge
         Array[File]     single_sample_vcfs
         Array[File]     single_sample_vcf_indices
+        Array[String]   chip_well_barcodes
     }
 
     call ImputationPipeline.Imputation {
@@ -43,6 +44,7 @@ workflow imputation_outputs_to_TDR {
         input:
             imputed_single_sample_vcfs          = Imputation.imputed_single_sample_vcfs,
             imputed_single_sample_vcf_indices   = Imputation.imputed_single_sample_vcf_indices,
+            chip_well_barcodes                  = chip_well_barcodes,
             imputed_multisample_vcf             = Imputation.imputed_multisample_vcf,
             imputed_multisample_vcf_index       = Imputation.imputed_multisample_vcf_index,
             aggregated_imputation_metrics       = Imputation.aggregated_imputation_metrics,
@@ -81,6 +83,7 @@ task format_imputation_outputs {
         String          imputed_multisample_vcf_index
         Array[String]?  imputed_single_sample_vcfs
         Array[String]?  imputed_single_sample_vcf_indices
+        Array[String]   chip_well_barcodes
         String          n_failed_chunks
     }
 
@@ -89,7 +92,8 @@ task format_imputation_outputs {
         # write header to file
         echo -e "aggregated_imputation_metrics\tchunks_info\tfailed_chunks\tn_failed_chunks\t\
         imputed_multisample_vcf\timputed_multisample_vcf_index\t\
-        imputed_single_sample_vcfs\timputed_single_sample_vcf_indices" \
+        imputed_single_sample_vcfs\timputed_single_sample_vcf_indices\t\
+        chip_well_barcodes" \
         > ingestDataset_imputation_outputs.tsv
 
         # handle array[type] variables to print as list with double quotes
@@ -101,11 +105,16 @@ task format_imputation_outputs {
         echo "imputed_single_sample_vcf_indices"
         echo "[\"${imputed_single_sample_vcf_indices}\"]"
 
+        chip_well_barcodes='~{sep='","' chip_well_barcodes}'
+        echo "chip_well_barcodes"
+        echo "[\"${chip_well_barcodes}\"]"
+
         # write file paths to row in tsv file
         echo -e "~{aggregated_imputation_metrics}\t~{chunks_info}\t~{failed_chunks}\t~{n_failed_chunks}\t\
         ~{imputed_multisample_vcf}\t~{imputed_multisample_vcf_index}\t\
         [\"${imputed_single_sample_vcfs}\"]\t\
-        [\"${imputed_single_sample_vcf_indices}\"]" \
+        [\"${imputed_single_sample_vcf_indices}\"]\t\
+        [\"${chip_well_barcodes}\"]" \
         >> ingestDataset_imputation_outputs.tsv
 
 
