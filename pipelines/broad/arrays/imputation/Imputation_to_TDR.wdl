@@ -17,7 +17,6 @@ workflow imputation_outputs_to_TDR {
         # required inputs to Imputation.wdl
         Array[String]   contigs
         File            genetic_maps_eagle
-        File            haplotype_database
         String          output_callset_name
         File            ref_dict
         String          reference_panel_path
@@ -32,7 +31,6 @@ workflow imputation_outputs_to_TDR {
         input:
             contigs = contigs,
             genetic_maps_eagle          = genetic_maps_eagle,
-            haplotype_database          = haplotype_database,
             output_callset_name         = output_callset_name,
             ref_dict                    = ref_dict,
             reference_panel_path        = reference_panel_path,
