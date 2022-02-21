@@ -143,7 +143,7 @@ task SamToFastqAndBwaMemAndMba {
     FASTQ=/dev/stdout \
     INTERLEAVE=true \
     NON_PF=true | \
-    ~/usr/gitc/bwa mem -K 100000000 -p -v 3 -t 16 -Y $bash_ref_fasta \
+    /usr/gitc/bwa mem -K 100000000 -p -v 3 -t 16 -Y $bash_ref_fasta \
     /dev/stdin - 2> >(tee ~{output_bam_basename}.bwa.stderr.log >&2) | \
     java -Xms3000m -jar /usr/gitc/picard.jar \
     MergeBamAlignment \
