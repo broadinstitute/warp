@@ -157,10 +157,10 @@ The workflow uses the following parameters:
 | readFilesType | SAM PE | Specifies that the input file is a SAM/BAM file. |
 | readFilesCommand | samtools view -h | Tells STAR how to open the input file. |
 | outSAMunmapped | Within | Includes unmapped reads in the output file. | 
-| outFilterType | BySJout | Keeps only the reads that contain junctions that passed filtering into `SJ.out.tab`. |
+| outFilterType | BySJout | Keeps only the reads that contain junctions that passed filtering in `SJ.out.tab` to match the ENCODE standard option. |
 | outFilterMultimapNmax | 20 | Sets the maximum number of loci a read can be mapped to without being considered unmapped to the ENCODE standard value. |
 | outFilterMatchNminOverLread | 0.33 | Sets the fraction of reads that must match the reference. |
-| outFilterMismatchNmax | 999 | Turns off the mismatch filter. |
+| outFilterMismatchNmax | 999 | Turns off the mismatch filter to match the ENCODE standard option. |
 | outFilterMismatchNoverLmax | 0.1 | Sets the maximum allowable ratio of mismatches to read length. Reads with a ratio larger than the set value are filtered. |
 | alignIntronMin | 20 | Sets the minimum intron length to the ENCODE standard value. |
 | alignIntronMax | 1000000 | Sets the maximum intron length to the ENCODE standard value. |
