@@ -27,7 +27,9 @@ workflow VerifyJointGenotyping {
     call VerifyTasks.CompareVCFsVerbosely {
       input:
         actual = test_vcfs[idx],
-        expected = truth_vcfs[idx]
+        actual_index = test_vcf_indexes[idx],
+        expected = truth_vcfs[idx],
+        expected_index = truth_vcf_indexes[idx]
     }
 
     call GermlineVerification.CompareGvcfs {

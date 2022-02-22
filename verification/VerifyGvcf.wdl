@@ -9,6 +9,12 @@ workflow VerifyGvcf {
     File truth_gvcf
   }
   
+  call Tasks.CompareVCFsVerbosely {
+    input:
+      actual = test_gvcf,
+      expected = truth_gvcf
+  }
+
   call VerifyTasks.CompareVcfs {
     input:
       file1 = test_gvcf,

@@ -33,7 +33,9 @@ task CompareVcfs {
 task CompareVCFsVerbosely {
   input {
     File actual
+    File actual_index
     File expected
+    File expected_index
     File ref_fasta = "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta"
     File ref_fasta_index = "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai"
     File ref_dict = "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict"
