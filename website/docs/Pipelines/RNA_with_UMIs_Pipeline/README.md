@@ -71,7 +71,7 @@ The workflow takes in either a set of paired-end FASTQ files or a read group unm
 
 The pipeline supports both hg19 and hg38 references. The reference set consists of:
 1. .fasta, .fai, and .dict files
-2. STAR index
+1. STAR index
 1. GTF file (RNASeQC)
 1. ribosomal interval list and refFlat file (Picard)
 
