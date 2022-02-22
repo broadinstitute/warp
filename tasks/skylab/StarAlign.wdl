@@ -402,9 +402,9 @@ task ConvertStarOutput {
 task MergeStarOutput {
 
   input {
-    Array[File] barcodes
-    Array[File] features
-    Array[File] matrix
+    Array[File?] barcodes
+    Array[File?] features
+    Array[File?] matrix
 
     #runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-star:merge-star-outputs-v1.0.0"

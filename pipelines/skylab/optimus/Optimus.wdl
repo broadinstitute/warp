@@ -217,22 +217,27 @@ workflow Optimus {
 
   }
 
-  File final_loom_output = if defined(count_exons) then IntronExonLoom.loom_out else OptimusLoomGeneration.loom_output
+  File? final_loom_output = if defined(count_exons) then IntronExonLoom.loom_output else OptimusLoomGeneration.loom_output
+  File? matrix_output = if defined(count_exons) then MergeStarOutputsExons.sparse_counts else MergeStarOutputs.sparse_counts
+  File? matrix_row_index_output = if defined(count_exons) then MergeStarOutputsExons.row_index else MergeStarOutputs.row_index
+  File? matrix_col_index_output = if defined(count_exons) then MergeStarOutputsExons.col_index else MergeStarOutputs.col_index
+  File? empty_drops_result = if defined(count_exons) then EmptyDropsIntronExons.empty_drops_result else RunEmptyDrops.empty_drops_result
+
 
   output {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
 
     File bam = MergeBam.output_bam
-    File matrix = MergeStarOutputs.sparse_counts
-    File matrix_row_index = MergeStarOutputs.row_index
-    File matrix_col_index = MergeStarOutputs.col_index
+    File? matrix = matrix_output
+    File? matrix_row_index = matrix_row_index_output
+    File? matrix_col_index = matrix_col_index_output
     File cell_metrics = CellMetrics.cell_metrics
     File gene_metrics = GeneMetrics.gene_metrics
-    File cell_calls = RunEmptyDrops.empty_drops_result
+    File? cell_calls = empty_drops_result
 
     # loom
-    File loom_output_file = final_loom_output
+    File? loom_output_file = final_loom_output
     File? loom_exon = ExonLoom.loom_output
 
 }
