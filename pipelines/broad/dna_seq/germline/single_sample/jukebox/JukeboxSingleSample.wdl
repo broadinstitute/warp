@@ -190,8 +190,7 @@ workflow JukeboxSingleSample {
       input_bam       = AlignmentAndMarkDuplicates.output_bam,
       ref_fasta       = references.ref_fasta,
       ref_fasta_index = references.ref_fasta_index,
-      output_basename = MakeSafeFilename.output_safe_name,
-      disk_size       = convert_to_cram_disk_size
+      output_basename = MakeSafeFilename.output_safe_name
   }
 
   Float cram_size = size(ConvertToCram.output_cram, "GB")
