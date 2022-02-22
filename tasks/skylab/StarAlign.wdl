@@ -340,7 +340,7 @@ task ConvertStarOutput {
     File matrix
 
     #runtime values
-    String docker = "quay.io/kishorikonwar/secondary-analysis-python3-scientific:utils2"
+    String docker = "quay.io/humancellatlas/secondary-analysis-python3-scientific:0.1.12"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10

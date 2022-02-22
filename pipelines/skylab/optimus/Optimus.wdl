@@ -7,8 +7,6 @@ import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
-import "../../../tasks/skylab/Picard.wdl" as Picard
-import "../../../tasks/skylab/FeatureCounts.wdl" as CountAlignments
 
 workflow Optimus {
   meta {
@@ -158,25 +156,33 @@ workflow Optimus {
       pipeline_version = "Optimus_v~{pipeline_version}"
   }
 
-  Array[String] input_ids = prefix(input_id + "_" , range(length(SplitFastq.fastq_R1_output_array)))
   if(count_introns == true) {
-    call Picard.RemoveDuplicatesFromBam as RemoveDuplicatesFromBam {
-      input:
-        input_ids = input_ids,
-        aligned_bam_inputs = STARsoloFastq.bam_output
+    # Get exon counts from STAR step
+    scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
+      call StarAlign.STARsoloFastq as STARsoloFastqExon {
+        input:
+          r1_fastq = [SplitFastq.fastq_R1_output_array[idx]],
+          r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
+          white_list = whitelist,
+          tar_star_reference = tar_star_reference,
+          chemistry = chemistry,
+          counting_mode = "sc_rna",
+          output_bam_basename = output_bam_basename + "_" + idx
+      }
     }
-    call CountAlignments.CountAlignments as CountAlignments {
+    call StarAlign.MergeStarOutput as MergeStarOutputsExon {
       input:
-        input_ids = input_ids,
-        aligned_bam_inputs = RemoveDuplicatesFromBam.output_bam,
-        annotation_gtf = annotations_gtf
+        barcodes = STARsoloFastqExon.barcodes,
+        features = STARsoloFastqExon.features,
+        matrix = STARsoloFastqExon.matrix
     }
     call LoomUtils.SingleNucleusOptimusCountsOutput as CountsOutput {
       input:
-        input_ids = input_ids,
-        introns_counts = CountAlignments.intron_counts_out,
-        exons_counts = CountAlignments.exon_counts_out,
-        annotation_introns_added_gtf = annotations_gtf
+        sparse_count_matrix = MergeStarOutputsExon.sparse_counts,
+        cell_id = MergeStarOutputsExon.row_index,
+        gene_id = MergeStarOutputsExon.col_index,
+        annotation_file = annotations_gtf,
+        loom_input = OptimusLoomGeneration.loom_output
     }
   }
 
