@@ -36,7 +36,8 @@ workflow DragmapAlign {
         compression_level = compression_level,
         preemptible_tries = preemptible_tries,
         hard_clip_reads = hard_clip_reads,
-        unmap_contaminant_reads = unmap_contaminant_reads
+        unmap_contaminant_reads = unmap_contaminant_reads,
+        cpu_platform = "Intel Cascade Lake"
     }
 
     call DragmapAlignment.SamToFastqAndDragmapAndMba as DragmapAlignSecondRun {
@@ -48,7 +49,8 @@ workflow DragmapAlign {
         compression_level = compression_level,
         preemptible_tries = preemptible_tries,
         hard_clip_reads = hard_clip_reads,
-        unmap_contaminant_reads = unmap_contaminant_reads
+        unmap_contaminant_reads = unmap_contaminant_reads,
+        cpu_platform = "Intel Ice Lake"
     }
 
     call VerifyTasks.CompareLargeBamFiles {

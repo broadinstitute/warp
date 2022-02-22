@@ -31,6 +31,8 @@ task SamToFastqAndDragmapAndMba {
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
 
+    String cpu_platform
+
     String docker = "us.gcr.io/broad-gotc-prod/dragmap:1.1.1-1.2.1-2.26.4-1.11-1643744061"
     Int cpu = 16
     Float disk_multiplier = 8
@@ -98,6 +100,7 @@ task SamToFastqAndDragmapAndMba {
     memory: "${memory_mb} MiB"
     disks: "local-disk ${disk_size_gb} HDD"
     cpu: cpu
+    cpuPlatform: cpu_platform
   }
   output {
     File output_bam = "~{output_bam_basename}.bam"
