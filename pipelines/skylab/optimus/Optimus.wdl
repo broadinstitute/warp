@@ -46,7 +46,7 @@ workflow Optimus {
     String use_strand_info = "false"
     
     # Set to true to count reads aligned to intronic regions in sn_rna mode
-    Boolean count_introns = false
+    Boolean count_exons = false
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
@@ -104,6 +104,7 @@ workflow Optimus {
         tar_star_reference = tar_star_reference,
         chemistry = chemistry,
         counting_mode = counting_mode,
+        count_exons = count_exons,
         output_bam_basename = output_bam_basename + "_" + idx
     }
   }
@@ -123,70 +124,100 @@ workflow Optimus {
       bam_input = MergeBam.output_bam,
       original_gtf = annotations_gtf
   }
-
-  call StarAlign.MergeStarOutput as MergeStarOutputs {
-    input:
-      barcodes = STARsoloFastq.barcodes,
-      features = STARsoloFastq.features,
-      matrix = STARsoloFastq.matrix
-  }
- 
-  call RunEmptyDrops.RunEmptyDrops {
-    input:
-      sparse_count_matrix = MergeStarOutputs.sparse_counts,
-      row_index = MergeStarOutputs.row_index,
-      col_index = MergeStarOutputs.col_index,
-      emptydrops_lower = emptydrops_lower
-  }
-
-  call LoomUtils.OptimusLoomGeneration{
-    input:
-      input_id = input_id,
-      input_name = input_name,
-      input_id_metadata_field = input_id_metadata_field,
-      input_name_metadata_field = input_name_metadata_field,
-      annotation_file = annotations_gtf,
-      cell_metrics = CellMetrics.cell_metrics,
-      gene_metrics = GeneMetrics.gene_metrics,
-      sparse_count_matrix = MergeStarOutputs.sparse_counts,
-      cell_id = MergeStarOutputs.row_index,
-      gene_id = MergeStarOutputs.col_index,
-      empty_drops_result = RunEmptyDrops.empty_drops_result,
-      counting_mode = counting_mode,
-      pipeline_version = "Optimus_v~{pipeline_version}"
-  }
-
-  if(count_introns == true) {
-    # Get exon counts from STAR step
-    scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
-      call StarAlign.STARsoloFastq as STARsoloFastqExon {
-        input:
-          r1_fastq = [SplitFastq.fastq_R1_output_array[idx]],
-          r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
-          white_list = whitelist,
-          tar_star_reference = tar_star_reference,
-          chemistry = chemistry,
-          counting_mode = "sc_rna",
-          output_bam_basename = output_bam_basename + "_" + idx
-      }
-    }
-    call StarAlign.MergeStarOutput as MergeStarOutputsExon {
+  if (!count_exons) {
+    call StarAlign.MergeStarOutput as MergeStarOutputs {
       input:
-        barcodes = STARsoloFastqExon.barcodes,
-        features = STARsoloFastqExon.features,
-        matrix = STARsoloFastqExon.matrix
+        barcodes = STARsoloFastq.barcodes,
+        features = STARsoloFastq.features,
+        matrix = STARsoloFastq.matrix
     }
-    call LoomUtils.SingleNucleusOptimusCountsOutput as CountsOutput {
+    call RunEmptyDrops.RunEmptyDrops {
       input:
-        sparse_count_matrix = MergeStarOutputsExon.sparse_counts,
-        cell_id = MergeStarOutputsExon.row_index,
-        gene_id = MergeStarOutputsExon.col_index,
+        sparse_count_matrix = MergeStarOutputs.sparse_counts,
+        row_index = MergeStarOutputs.row_index,
+        col_index = MergeStarOutputs.col_index,
+        emptydrops_lower = emptydrops_lower
+    }
+    call LoomUtils.OptimusLoomGeneration{
+      input:
+        input_id = input_id,
+        input_name = input_name,
+        input_id_metadata_field = input_id_metadata_field,
+        input_name_metadata_field = input_name_metadata_field,
         annotation_file = annotations_gtf,
-        loom_input = OptimusLoomGeneration.loom_output
+        cell_metrics = CellMetrics.cell_metrics,
+        gene_metrics = GeneMetrics.gene_metrics,
+        sparse_count_matrix = MergeStarOutputs.sparse_counts,
+        cell_id = MergeStarOutputs.row_index,
+        gene_id = MergeStarOutputs.col_index,
+        empty_drops_result = RunEmptyDrops.empty_drops_result,
+        counting_mode = counting_mode,
+        pipeline_version = "Optimus_v~{pipeline_version}"
     }
   }
+  if (count_exons) {
+    call StarAlign.MergeStarOutput as MergeStarOutputsIntronExons {
+      input:
+        barcodes = STARsoloFastq.barcodes_sn_rna,
+        features = STARsoloFastq.features_sn_rna,
+        matrix = STARsoloFastq.matrix_sn_rna
+    }
+    call RunEmptyDrops.RunEmptyDrops as EmptyDropsIntronExons {
+      input:
+        sparse_count_matrix = MergeStarOutputsIntronExons.sparse_counts,
+        row_index = MergeStarOutputsIntronExons.row_index,
+        col_index = MergeStarOutputsIntronExons.col_index,
+        emptydrops_lower = emptydrops_lower
+    }
+    call LoomUtils.OptimusLoomGeneration as IntronExonLoom{
+      input:
+        input_id = input_id,
+        input_name = input_name,
+        input_id_metadata_field = input_id_metadata_field,
+        input_name_metadata_field = input_name_metadata_field,
+        annotation_file = annotations_gtf,
+        cell_metrics = CellMetrics.cell_metrics,
+        gene_metrics = GeneMetrics.gene_metrics,
+        sparse_count_matrix = MergeStarOutputsIntronExons.sparse_counts,
+        cell_id = MergeStarOutputsIntronExons.row_index,
+        gene_id = MergeStarOutputsIntronExons.col_index,
+        empty_drops_result = EmptyDropsIntronExons.empty_drops_result,
+        counting_mode = counting_mode,
+        pipeline_version = "Optimus_v~{pipeline_version}"
+    }
+    call StarAlign.MergeStarOutput as MergeStarOutputsExons {
+      input:
+        barcodes = STARsoloFastq.barcodes,
+        features = STARsoloFastq.features,
+        matrix = STARsoloFastq.matrix
+    }
+    call RunEmptyDrops.RunEmptyDrops as EmptyDropsExons{
+      input:
+        sparse_count_matrix = MergeStarOutputsExons.sparse_counts,
+        row_index = MergeStarOutputsExons.row_index,
+        col_index = MergeStarOutputsExons.col_index,
+        emptydrops_lower = emptydrops_lower
+    }
+    call LoomUtils.OptimusLoomGeneration as ExonLoom{
+      input:
+        input_id = input_id,
+        input_name = input_name,
+        input_id_metadata_field = input_id_metadata_field,
+        input_name_metadata_field = input_name_metadata_field,
+        annotation_file = annotations_gtf,
+        cell_metrics = CellMetrics.cell_metrics,
+        gene_metrics = GeneMetrics.gene_metrics,
+        sparse_count_matrix = MergeStarOutputsExons.sparse_counts,
+        cell_id = MergeStarOutputsExons.row_index,
+        gene_id = MergeStarOutputsExons.col_index,
+        empty_drops_result = EmptyDropsExons.empty_drops_result,
+        counting_mode = counting_mode,
+        pipeline_version = "Optimus_v~{pipeline_version}"
+    }
 
-  File final_loom_output = if defined(count_introns) then CountsOutput.loom else OptimusLoomGeneration.loom_output
+  }
+
+  File final_loom_output = if defined(count_exons) then IntronExonLoom.loom_out else OptimusLoomGeneration.loom_output
 
   output {
     # version of this pipeline
@@ -202,5 +233,7 @@ workflow Optimus {
 
     # loom
     File loom_output_file = final_loom_output
-  }
+    File? loom_exon = ExonLoom.loom_output
+
+}
 }

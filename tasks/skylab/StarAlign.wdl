@@ -218,6 +218,7 @@ task STARsoloFastq {
     String chemistry
     String counting_mode
     String output_bam_basename
+    Boolean? count_exons
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
@@ -272,8 +273,13 @@ task STARsoloFastq {
         COUNTING_MODE="Gene"
     elif [ "~{counting_mode}" == "sn_rna" ]
     then
-        ## single nuclei
+    ## single nuclei
+      if [~{count_exons} == "true" ]
+      then
+        COUNTING_MODE="Gene GeneFull"
+      else
         COUNTING_MODE="GeneFull"
+      fi
     else
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
         exit 1;
@@ -305,9 +311,12 @@ task STARsoloFastq {
       --outSAMattributes UB UR UY CR CB CY NH GX GN \
       --soloBarcodeReadLength 0
 
-    if [ $COUNTING_MODE == "GeneFull" ]
+    if [ "~{counting_mode}" == "sn_rna" ]
     then
+      if [ "~{count_exons}" == "false" ]
+      then
         mv Solo.out/GeneFull Solo.out/Gene
+      fi
     fi
 
     mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
@@ -329,6 +338,10 @@ task STARsoloFastq {
     File barcodes = "Solo.out/Gene/raw/barcodes.tsv"
     File features = "Solo.out/Gene/raw/features.tsv"
     File matrix = "Solo.out/Gene/raw/matrix.mtx"
+    File? barcodes_sn_rna = "Solo.out/GeneFull/raw/barcodes.tsv"
+    File? features_sn_rna = "Solo.out/GeneFull/raw/features.tsv"
+    File? matrix_sn_rna = "Solo.out/GeneFull/raw/matrix.mtx"
+
   }
 }
 
