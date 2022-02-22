@@ -1,6 +1,5 @@
 {
     "JukeboxSingleSample.input_cram_list": ["gs://broad-gotc-test-storage/tmp/jbx/004733-X0003.cram"],
-    "JukeboxSingleSample.input_bam_list" : [],
     "JukeboxSingleSample.base_file_name": "cram_base_name",
     "JukeboxSingleSample.contamination_sites": {
         "contamination_sites_vcf": "gs://concordance/hg38/Homo_sapiens_assembly38.contam_fixed.vcf",
