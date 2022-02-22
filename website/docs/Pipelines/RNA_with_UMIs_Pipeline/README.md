@@ -28,7 +28,7 @@ While this workflow was created to be used with TCap RNA-seq data, it can be use
 
 ### Installation
 
-To download the latest release of the RNA with UMIs pipeline, see the release tags prefixed with "RNAwithUMIs" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). In addition, all releases of the RNA with UMIs pipeline are documented in the [RNA with UMIs changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/rna_seq/RNAWithUMIsPipeline.changelog.md). 
+To download the latest release of the RNA with UMIs pipeline, see the release tags prefixed with "RNAwithUMIs" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All releases of the RNA with UMIs pipeline are documented in the [RNA with UMIs changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/rna_seq/RNAWithUMIsPipeline.changelog.md). 
 
 To search releases of this and other pipelines, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
 
