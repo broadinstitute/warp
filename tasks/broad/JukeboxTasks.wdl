@@ -685,18 +685,16 @@ task CollectDuplicateMetrics {
     File input_bam
     String metrics_filename
     Int disk_size_gb
-    File? jar_override
     
     Int preemptible = 3
     String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
   }
 
-  File jar = select_first([jar_override, "/usr/gitc/picard.jar"])
 
   command <<<
 
     samtools view -h ~{input_bam} | \
-    java -Xms8000m -jar ~{jar} CollectDuplicateMetrics \
+    java -Xms8000m -jar /usr/gitc/picard.jar CollectDuplicateMetrics \
     -I /dev/stdin \
     -M ~{metrics_filename}
 
@@ -725,15 +723,14 @@ task CollectWgsMetrics {
     References references
     Int? read_length
     Int disk_size
-    File? jar_override
     
     Int preemptible = 3
     String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
   }
-  File jar = select_first([jar_override, "/usr/gitc/picard.jar"])
+
   command {
 
-    java -Xms8000m -jar ~{jar} \
+    java -Xms8000m -jar /usr/gitc/picard.jar \
     CollectWgsMetrics \
     INPUT=~{input_bam} \
     VALIDATION_STRINGENCY=SILENT \
@@ -769,15 +766,14 @@ task CollectRawWgsMetrics {
     Int? read_length
     Int disk_size
     Int memory_size
-    File? jar_override
     
     Int preemptible = 3
     String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
   }
-  File jar = select_first([jar_override, "/usr/gitc/picard.jar"])
+
   command {
 
-    java -Xms8000m -jar ~{jar} \
+    java -Xms8000m -jar /usr/gitc/picard.jar \
     CollectRawWgsMetrics \
     INPUT=~{input_bam} \
     VALIDATION_STRINGENCY=SILENT \
@@ -809,17 +805,15 @@ task CollectAggregationMetrics {
     String output_bam_prefix
     References references
     Int disk_size
-    File? jar_override
     
     Int preemptible = 3
     String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
   }
 
-  File jar = select_first([jar_override, "/usr/gitc/picard.jar"])
 
   command {
 
-    java -Xms5000m -jar ~{jar} \
+    java -Xms5000m -jar /usr/gitc/picard.jar \
     CollectMultipleMetrics \
     INPUT=~{input_bam} \
     REFERENCE_SEQUENCE=~{references.ref_fasta} \

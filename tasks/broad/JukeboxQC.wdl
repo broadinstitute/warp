@@ -19,7 +19,6 @@ workflow JukeboxQC {
     ContaminationSites contamination_sites
     File wgs_coverage_interval_list
 
-    File? picard_jar_override
 
     Int VCF_disk_size
     Int additional_disk
@@ -81,8 +80,7 @@ workflow JukeboxQC {
     input:
       input_bam        = agg_bam,
       metrics_filename = base_file_name_sub + ".duplicate_metrics",
-      disk_size_gb     = statistics_disk_size,
-      jar_override     = picard_jar_override,
+      disk_size_gb     = statistics_disk_size
   }
 
   call QC.CollectQualityYieldMetrics {
@@ -99,8 +97,7 @@ workflow JukeboxQC {
       metrics_filename            = base_file_name_sub + ".wgs_metrics",
       references                  = references,
       wgs_coverage_interval_list  = wgs_coverage_interval_list,
-      disk_size                   = statistics_disk_size,
-      jar_override                = picard_jar_override
+      disk_size                   = statistics_disk_size
   }
 
   Int default_raw_wgs_memory_size = 12
@@ -117,8 +114,7 @@ workflow JukeboxQC {
       references                  = references,
       wgs_coverage_interval_list  = wgs_coverage_interval_list,
       disk_size                   = statistics_disk_size,
-      memory_size                 = raw_wgs_memory_size,
-      jar_override                = picard_jar_override
+      memory_size                 = raw_wgs_memory_size
   }
 
   # QC the final BAM some more (no such thing as too much QC)
@@ -128,8 +124,7 @@ workflow JukeboxQC {
       input_bam_index     = agg_bam_index,
       output_bam_prefix   = base_file_name_sub,
       references          = references,
-      disk_size           = statistics_disk_size,
-      jar_override        = picard_jar_override
+      disk_size           = statistics_disk_size
   }
 
   # Check whether the data has massively high duplication or chimerism rates
