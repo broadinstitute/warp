@@ -33,7 +33,7 @@ workflow UMIAwareDuplicateMarking {
   call tasks.SortSamByCoordinate as SortSamByCoordinateFirstPass {
     input:
       input_bam = aligned_bam,
-      output_bam_basename = output_basename + ".STAR_aligned.coorinate_sorted"
+      output_bam_basename = output_basename + ".STAR_aligned.coordinate_sorted"
   }
 
   # Further divide each duplicate set (a set of reads with the same insert start and end coordinates)
