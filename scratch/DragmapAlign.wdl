@@ -51,7 +51,7 @@ workflow DragmapAlign {
         unmap_contaminant_reads = unmap_contaminant_reads
     }
 
-    call VerifyTasks.CompareBams {
+    call VerifyTasks.CompareLargeBamFiles {
       input:
         test_bam = DragmapAlignSecondRun.output_bam,
         truth_bam = DragmapAlignFirstRun.output_bam,
