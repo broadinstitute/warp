@@ -2,6 +2,53 @@ version 1.0
 
 import "../../structs/dna_seq/JukeboxStructs.wdl" as Structs
 
+task VerifyPipelineInputs {
+  input {
+    Array[File]? input_cram_list
+    Array[File]? input_bam_list
+
+    String docker = "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
+    Int cpu = 1
+    Int memory_mb = 1000
+    Int disk_size_gb = 10
+  }
+
+    command <<<
+      set -e
+      python3 <<CODE
+
+      is_cram = False
+      input_crams = [ "~{sep='", "' input_cram_list}" ]
+      input_bams = [ "~{sep='", "' input_bam_list}" ]
+
+      if input_crams and not input_bams:
+        is_cram = True
+      elif input_bams and not input_crams:
+        pass
+      else:
+        raise ValueError("Invalid Input. Input must be either list of crams or list of bams")
+
+      with open("output.txt", "w") as f:
+        if is_cram:
+          f.write("true")
+        else:
+          f.write("false")
+
+      CODE
+    >>>
+
+    runtime {
+      docker: docker
+      cpu: cpu
+      memory: "${memory_mb} MiB"
+      disks: "local-disk ${disk_size_gb} HDD"
+    }
+
+    output {
+      Boolean is_cram = read_boolean("output.txt")
+    }
+}
+
 task SplitCram {
   input {
     File input_cram_bam
