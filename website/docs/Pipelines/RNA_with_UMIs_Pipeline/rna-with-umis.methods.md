@@ -18,4 +18,4 @@ Following alignment, the read group information from the genome-aligned BAM was 
 
 The genome-aligned BAM file was then used to calculate summary metrics using RNASeQC and Picard's CollectRNASeqMetrics and CollectMultipleMetrics tools. CollectMultipleMetrics was used with the programs “CollectInsertSizeMetrics” and “CollectAlignmentSummaryMetrics”. 
 
-The final outputs of the RNA with UMIs pipeline included a transcriptome-aligned, duplicate-marked BAM file with corresponding BAI and duplicate metrics files, a genome-aligned, duplicate-marked BAM file with corresponding BAI and duplicate metrics files, and metrics files generated with RNASeQC and Picard tools.
+The final outputs of the RNA with UMIs pipeline included a transcriptome-aligned, duplicate-marked BAM file with corresponding index and duplication metrics, a genome-aligned, duplicate-marked BAM file with corresponding index, duplication metrics, and metrics generated with RNASeQC and Picard tools.
