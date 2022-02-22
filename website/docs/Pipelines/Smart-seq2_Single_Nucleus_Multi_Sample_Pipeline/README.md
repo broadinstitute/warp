@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [MultiSampleSmartSeq2SingleNuclei_v1.2.0.](https://github.com/broadinstitute/warp/releases) | February, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [MultiSampleSmartSeq2SingleNuclei_v1.2.2](https://github.com/broadinstitute/warp/releases) | February, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![](./snSS2.png)
 
@@ -32,9 +32,9 @@ You can run the [Smart-seq2 Single Nucleus Multi-Sample workflow](https://github
 | Workflow language | WDL | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic reference sequence (for validation)| GRCm38 mouse genome primary sequence. | GENCODE GRCm38 [Mouse](http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M23/GRCm38.primary_assembly.genome.fa.gz) |
 | Transcriptomic reference annotation (for validation) | Modified [M23](https://www.gencodegenes.org/mouse/release_M23.html) GTF built with the  [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl).| GENCODE |
-| Aligner  | STAR (v.2.7.10a) | [STAR](https://github.com/alexdobin/STAR) |
-| QC metrics | Picard (v.2.20.4) | [Broad Institute](https://broadinstitute.github.io/picard/)   |
-| Transcript quantification | featureCounts (utilities for counting reads to genomic features). | [featureCounts(v2.0.2)](http://subread.sourceforge.net/)
+| Aligner  | STAR | [STAR](https://github.com/alexdobin/STAR) |
+| QC metrics | Picard | [Broad Institute](https://broadinstitute.github.io/picard/)   |
+| Transcript quantification | featureCounts (utilities for counting reads to genomic features). | [featureCounts](http://subread.sourceforge.net/)
 | Data input file format | File format in which sequencing data is provided. | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) |
 | Data output file formats | File formats in which Smart-seq2 output is provided. | [BAM](http://samtools.github.io/hts-specs/), Loom (counts and metrics; generated with [Loompy v.3.0.6)](http://loompy.org/), TSV (counts) |
 
@@ -57,8 +57,9 @@ There is an [example configuration (JSON) file](https://github.com/broadinstitut
 
 The table below details the Multi-snSS2 inputs. The pipeline is designed to take in an array of paired-end reads in the form of two FASTQ files per cell. 
 
-* Reference inputs are created using the [BuildIndices Pipeline](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices).
-* The pipeline modifies a given GTF downloaded from GENCODE to only include biotypes that are listed in a tab separated file (biotypes.tsv).
+* The example mouse reference inputs are created using the [BuildIndices Pipeline](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices).
+* The pipeline modifies a given GTF downloaded from GENCODE to only include biotypes that are listed in a tab separated file ([biotypes.tsv](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/snss2-build-indices/Biotypes.tsv)). 
+* The example references do not include the pseudogene biotype. Learn more about Ensembl biotypes in the [Ensembl overview](https://m.ensembl.org/info/genome/genebuild/biotypes.html).
 * To enable intron counting, the workflow calls a [python script](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/snss2-build-indices/add-introns-to-gtf.py) to create a custom GTF with intron annotations. Introns are considered any part of a contig that is not exonic nor intergenic. 
 
 | Input Name | Input Description | Input Format |
@@ -130,9 +131,13 @@ Lastly, featureCounts uses the intermediate BAM with junctions removed to count 
 #### 6. Creating the cell-by-gene matrix (Loom)
 The LoomUtils task combines the Picard metrics (alignment_summary_metrics, deduplication metrics, and the G/C bias summary metrics) with the featureCount exon and intron counts to create a Loom formatted cell-by-gene count matrix. 
 
-Exonic counts are stored in the main Loom matrix which is unnamed by default. The exonic counts are the default return value of `loompy.connect()`, but can also be accessed using Loompy's `layers()` method. For example, `loompy.connect.layers[“”]` will return the exonic counts from the output Loom file. Intronic counts are stored in the Loom file as an additional layer which is named `intron_counts`. Intronic counts can be accessed in a similar manner, where `loompy.connect.layers[“intron_counts”]` will return the intronic counts from the output Loom file. Whole gene counts (which include both intronic and exonic counts) can be accessed by adding the intronic and exonic counts together. 
+The cell-by-gene matrix can be examined using [Loompy software](https://linnarssonlab.org/loompy/index.html). Exonic counts are stored in the main Loom matrix which is unnamed by default. They are the default return value of the `loompy.connect()` command. Intronic counts are stored in the Loom as an additional layer which is named `intron_counts`.
 
-The code block below demonstrates how to access exonic, intronic, and whole gene counts from the output Loom file using Loompy:
+You can also access exonic and intronic counts using Loompy's `layers()` method. For example, `loompy.connect.layers[“”]` will return the exonic counts from the output Loom file. Similarly, `loompy.connect.layers[“intron_counts”]` will return the intronic counts from the output Loom. 
+
+Whole gene counts (which include both intronic and exonic counts) can be accessed by adding the intronic and exonic counts together. 
+
+Below is example Loompy code for accessing the Loom's exonic, intronic, and whole gene counts.
 
 ```python
 import loompy
@@ -154,6 +159,8 @@ The table below details the final outputs of the Multi-snSS2 workflow.
 | exon_intron_count_files | Array of TXT files (one per cell) that contain intronic and exonic counts. | Array [TXT]| 
 | bam_files | Array of genome-aligned BAM files (one for each cell) generated with STAR.  | Array [BAM]|
 | pipeline_version_out | Version of the processing pipeline run on this data. | String |
+
+To facilitate downstream analysis, the output Loom file contains both gene names and gene IDs.
 
 ## Validation
 The Multi-snSS2 pipeline was scientifically validated by the BRAIN Initiatives Cell Census Network (BICCN) 2.0 Whole Mouse Brain Working Group. 
