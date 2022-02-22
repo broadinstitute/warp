@@ -9,7 +9,7 @@ workflow VerifyGvcf {
     File truth_gvcf
   }
   
-  call Tasks.CompareVCFsVerbosely {
+  call VerifyTasks.CompareVCFsVerbosely {
     input:
       actual = test_gvcf,
       expected = truth_gvcf
