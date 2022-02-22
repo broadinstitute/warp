@@ -24,7 +24,7 @@ workflow VerifyJointGenotyping {
   }
 
   scatter (idx in range(length(truth_vcfs))) {
-    call VerifyTasks.CompareVcfsVerbosely {
+    call VerifyTasks.CompareVCFsVerbosely {
       input:
         actual = test_vcfs[idx],
         expected = truth_vcfs[idx]
