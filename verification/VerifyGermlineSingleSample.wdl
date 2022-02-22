@@ -18,6 +18,12 @@ workflow VerifyGermlineSingleSample {
     File test_gvcf
   }
 
+  call Tasks.CompareVCFsVerbosely {
+    input:
+      actual = test_gvcf,
+      expected = truth_gvcf
+  }
+
   call MetricsVerification.VerifyMetrics as CompareMetrics {
     input:
       test_metrics = test_metrics,
