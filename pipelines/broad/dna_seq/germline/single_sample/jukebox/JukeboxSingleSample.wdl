@@ -107,9 +107,9 @@ workflow JukeboxSingleSample {
     VcfPostProcessing vcf_post_processing
 
     # Sample Information
-    Array[File] input_cram_bam
+    Array[File]? input_cram_list
+    Array[File]? input_bam_list
     String base_file_name
-    Boolean is_cram
 
     Float rsq_threshold = 1.0
     Boolean make_gvcf = false
@@ -132,9 +132,9 @@ workflow JukeboxSingleSample {
     alignment_references: ""
     variant_calling_settings: ""
     vcf_post_processing: ""
-    input_cram_bam: ""
+    input_cram_list: ""
+    input_bam_list: ""
     base_file_name: ""
-    is_cram: ""
     rsq_threshold: ""
     make_gvcf: ""
     merge_bam_file: ""
@@ -162,10 +162,16 @@ workflow JukeboxSingleSample {
       name = base_file_name
   }
 
+  call Tasks.VerifyPipelineInputs as VerifyPipelineInputs {
+    input:
+      input_cram_list = input_cram_list,
+      input_bam_list  = input_bam_list
+  }
+
   call JukeboxAlignmentAndMarkDuplicates.AlignmentAndMarkDuplicates as AlignmentAndMarkDuplicates {
     input:
-      input_cram_bam                = input_cram_bam,
-      is_cram                       = is_cram,
+      input_cram_bam                = select_first([input_cram_list,input_bam_list]),
+      is_cram                       = VerifyPipelineInputs.is_cram,
       base_file_name_sub            = MakeSafeFilename.output_safe_name,
       reads_per_split               = reads_per_split,
       rsq_threshold                 = rsq_threshold,
