@@ -11,8 +11,7 @@
     "JukeboxSingleSample.runtime_options": {
         "preemptible_tries": 3,
         "monitoring_script": "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh",
-        "additional_metrics_disk": "200",
-        "dummy_input_for_call_caching": ""
+        "additional_metrics_disk": "200"
     },
     "JukeboxSingleSample.alignment_references": {
         "references": {

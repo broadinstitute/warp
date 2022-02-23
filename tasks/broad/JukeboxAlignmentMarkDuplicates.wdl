@@ -20,8 +20,7 @@ workflow AlignmentAndMarkDuplicates {
 
     Boolean no_address
     Boolean parallel_no_address
-    String dummy_input_for_call_caching
-    
+
     Float rsq_threshold
 
     String bwa_commandline
@@ -86,14 +85,6 @@ workflow AlignmentAndMarkDuplicates {
 
   Array[File] split_outputs = flatten(select_first([split_cram, split_bam, []]))
 
-  call Tasks.GetBwaVersion {
-    input:
-      docker = gitc_docker,
-      gitc_path = gitc_path,
-      no_address = no_address,
-      dummy_input_for_call_caching = dummy_input_for_call_caching,
-  }
-
   scatter(split_chunk in split_outputs) {
 
     Float split_chunk_size = size(split_chunk, "GB")
@@ -133,7 +124,6 @@ workflow AlignmentAndMarkDuplicates {
         bwa_commandline = bwa_commandline,
         output_bam_basename = current_name,
         alignment_references = alignment_references,
-        bwa_version = GetBwaVersion.version,
         compression_level = compression_level,
         preemptible_tries = preemptibles,
         docker = gitc_docker,

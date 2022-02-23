@@ -101,38 +101,12 @@ task ConvertCramOrBamToUBam {
   }
 }
 
-# Get version of BWA
-task GetBwaVersion {
-  input {
-    String docker
-    String gitc_path
-    Boolean no_address
-    String dummy_input_for_call_caching
-  }
-  command {
-    # not setting set -o pipefail here because /bwa has a rc=1 and we dont want to allow rc=1 to succeed because
-    # the sed may also fail with that error and that is something we actually want to fail on.
-    ~{gitc_path}bwa 2>&1 | \
-    grep -e '^Version' | \
-    sed 's/Version: //'
-  }
-  runtime {
-    memory: "1000 MiB"
-    docker: docker
-    noAddress: no_address
-  }
-  output {
-    String version = read_string(stdout())
-  }
-}
-
 #TODO: use the WARP version of this task once the MBA code is updated in picard public. Extra args will need to be parameterized
 # Read unmapped BAM, convert on-the-fly to FASTQ and stream to BWA MEM for alignment, then stream to MergeBamAlignment
 task SamToFastqAndBwaMemAndMba {
   input {
     File input_bam
     String bwa_commandline
-    String bwa_version
     String output_bam_basename
     File monitoring_script
     Boolean no_address
@@ -146,10 +120,22 @@ task SamToFastqAndBwaMemAndMba {
     String docker
   }
   command <<<
+
+
+    # This is done before "set -o pipefail" because "bwa" will have a rc=1 and we don't want to allow rc=1 to succeed
+    # because the sed may also fail with that error and that is something we actually want to fail on.
+    BWA_VERSION=$(/usr/gitc/bwa 2>&1 | \
+    grep -e '^Version' | \
+    sed 's/Version: //')
+
     set -o pipefail
     set -e
 
     bash ~{monitoring_script} > monitoring.log &
+
+    if [ -z ${BWA_VERSION} ]; then
+      exit 1;
+    fi
 
     # set the bash variable needed for the command-line
     bash_ref_fasta=~{alignment_references.references.ref_fasta}
@@ -187,7 +173,7 @@ task SamToFastqAndBwaMemAndMba {
     MAX_INSERTIONS_OR_DELETIONS=-1 \
     PRIMARY_ALIGNMENT_STRATEGY=MostDistant \
     PROGRAM_RECORD_ID="bwamem" \
-    PROGRAM_GROUP_VERSION="~{bwa_version}" \
+    PROGRAM_GROUP_VERSION="${BWA_VERSION}" \
     PROGRAM_GROUP_COMMAND_LINE="~{bwa_commandline}" \
     PROGRAM_GROUP_NAME="bwamem" \
     UNMAPPED_READ_STRATEGY=COPY_TO_TAG \

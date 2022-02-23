@@ -163,7 +163,6 @@ workflow JukeboxSingleSample {
       jukebox_vc_docker = environment_versions.jukebox_vc_docker,
       no_address = no_address,
       parallel_no_address = parallel_no_address,
-      dummy_input_for_call_caching = runtime_options.dummy_input_for_call_caching,
       preemptibles = preemptibles,
       additional_disk = additional_disk,
       bwa_commandline = bwa_commandline,
