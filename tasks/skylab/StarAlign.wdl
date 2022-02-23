@@ -324,7 +324,6 @@ task STARsoloFastq {
         mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
       else
-      then
         mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
