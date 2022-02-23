@@ -46,11 +46,11 @@ task CompareVCFsVerbosely {
   }
 
   command {
-    gatk VCFComparator -R ~{ref_fasta}  -V:actual ~{actual} -V:expected ~{expected} ~{extra_args} ~{if(warn_on_error) then "--warn-on-errors" else ""}
+    gatk VCFComparator -R ~{ref_fasta}  -V:actual ~{actual} -V:expected ~{expected} ~{extra_args} ~{if(warn_on_error) then "--warn-on-errors" else ""} --finish-before-failing
   }
 
   runtime {
-    docker: "us.gcr.io/broad-dsde-methods/gatk-vcfcomparator@sha256:f02b94357381339304040c74afb07416cd982db3a402d014e679d7ef787d02f3"
+    docker: "us.gcr.io/broad-dsde-methods/gatk-vcfcomparator@sha256:46b90eb9700556dbeb13f2c6c0909463f3b9b1d3be4295ab8c9e3706e41b486f"
     disks: "local-disk 50 HDD"
     memory: "3 GiB"
     preemptible: 3
