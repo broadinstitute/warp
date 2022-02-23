@@ -22,5 +22,7 @@ object ReblockGvcfValidationInputs
 
 case class ReblockGvcfValidationInputs(
     testGvcf: URI,
+    testGvcfIndex: URI,
     truthGvcf: URI,
+    truthGvcfIndex: URI
 )
