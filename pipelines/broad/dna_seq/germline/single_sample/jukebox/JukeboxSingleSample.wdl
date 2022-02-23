@@ -114,6 +114,7 @@ workflow JukeboxSingleSample {
     Float rsq_threshold = 1.0
     Boolean make_gvcf = false
     Boolean merge_bam_file = true
+    Boolean make_haplotype_bam = false
     Int reads_per_split = 20000000
     String filtering_model_no_gt_name = "rf_model_ignore_gt_incl_hpol_runs"
 
@@ -238,7 +239,7 @@ workflow JukeboxSingleSample {
         disk_size       = ceil(((agg_bam_size + VCF_disk_size) / hc_divisor) + ref_size + additional_disk),
         make_gvcf       = make_gvcf,
         memory_gb       = 12,
-        make_bamout     = false
+        make_bamout     = make_haplotype_bam
     }
   }
 
@@ -251,10 +252,10 @@ workflow JukeboxSingleSample {
   }
 
   # Combine by-interval BAMs into a single sample file
-  if(merge_bam_file) {
+  if(merge_bam_file && make_haplotype_bam) {
       call Tasks.MergeBams {
         input:
-          input_bams      = HaplotypeCaller.haplotypes_bam,
+          input_bams      = HaplotypeCaller.bamout,
           output_bam_name = MakeSafeFilename.output_safe_name + ".bam",
       }
   }

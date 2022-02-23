@@ -42,7 +42,7 @@ workflow JukeboxQC {
   # This vcf contains the SNPs sites with high allele frequency---the same sites as contamination_sites_bed.
   # We need to convert the bed to a vcf because we need alleles, not just the contig and positions, for the genotype-given-allele mode (i.e. --allele argument).
 
-  String hc_contamination_extra_args = "--bam-writer-type NO_HAPLOTYPES --alleles " + contamination_sites.contamination_sites_vcf
+  String hc_contamination_extra_args = "--alleles " + contamination_sites.contamination_sites_vcf
   call Tasks.HaplotypeCaller as HaplotypeCallerForContamination {
     input:
       input_bam_list                = [agg_bam],
@@ -63,8 +63,8 @@ workflow JukeboxQC {
   # Estimate level of cross-sample contamination
   call Tasks.CheckContamination {
     input:
-      input_bam               = select_first([HaplotypeCallerForContamination.bamout]),
-      input_bam_index         = select_first([HaplotypeCallerForContamination.bamout_index]),
+      input_bam               = HaplotypeCallerForContamination.bamout,
+      input_bam_index         = HaplotypeCallerForContamination.bamout_index,
       contamination_sites_ud  = contamination_sites_ud,
       contamination_sites_bed = contamination_sites_bed,
       contamination_sites_mu  = contamination_sites_mu,

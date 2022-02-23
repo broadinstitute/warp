@@ -422,18 +422,17 @@ task CheckContamination {
 # Call variants on a single sample with HaplotypeCaller to produce a VCF
 task HaplotypeCaller {
   input {
+    References references
     Array[File] input_bam_list
     File interval_list
     String vcf_basename
-    References references
-    Int disk_size
-    Int memory_gb
+    Boolean make_bamout
+    Boolean make_gvcf
     Boolean native_sw = false
     String? contamination_extra_args 
     
-    Boolean make_gvcf
-    Boolean make_bamout
-    
+    Int disk_size
+    Int memory_gb
     Int preemptible = 3
     String docker = "gcr.io/terra-project-249020/gatk_ultima:0.6.1"
   }
@@ -443,12 +442,12 @@ task HaplotypeCaller {
       localization_optional: true
     }
   }
-
+  
+  String bam_writer_type = if defined(contamination_extra_args) then "NO_HAPLOTYPES" else "CALLED_HAPLOTYPES_NO_READS"
   String output_suffix = if make_gvcf then ".g.vcf.gz" else ".vcf.gz"
   String output_filename = vcf_basename + output_suffix
 
   command {
-    touch haps.bam
     touch ~{output_filename}.tbi
     touch ~{output_filename}
     touch realigned.bam
@@ -469,8 +468,7 @@ task HaplotypeCaller {
       --flow-filter-alleles-sor-threshold 3 \
       --flow-assembly-collapse-hmer-size 12 \
       --flow-matrix-mods 10,12,11,12 \
-      --bam-output haps.bam \
-      --bam-writer-type CALLED_HAPLOTYPES_NO_READS \
+      --bam-writer-type ~{bam_writer_type} \
       --apply-frd --minimum-mapping-quality 1 \
       --mapping-quality-threshold-for-genotyping 1 \
       --override-fragment-softclip-check \
@@ -504,9 +502,8 @@ task HaplotypeCaller {
   output {
     File output_vcf = "~{output_filename}"
     File output_vcf_index = "~{output_filename}.tbi"
-    File haplotypes_bam = "haps.bam"
-    File? bamout = "realigned.bam"
-    File? bamout_index = "realigned.bai"
+    File bamout = "realigned.bam"
+    File bamout_index = "realigned.bai"
   }
 }
 # Combine multiple VCFs or GVCFs from scattered HaplotypeCaller runs
