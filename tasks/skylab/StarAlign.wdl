@@ -267,14 +267,14 @@ task STARsoloFastq {
 
 
     COUNTING_MODE=""
-    if [ "~{counting_mode}" == "sc_rna" ]
+    if [[ "~{counting_mode}" == "sc_rna" ]]
     then
         ## single cell or whole cell
         COUNTING_MODE="Gene"
-    elif [ "~{counting_mode}" == "sn_rna" ]
+    elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
     ## single nuclei
-      if [~{count_exons} == "true" ]
+      if [[~{count_exons} ]]
       then
         COUNTING_MODE="Gene GeneFull"
       else
@@ -311,16 +311,32 @@ task STARsoloFastq {
       --outSAMattributes UB UR UY CR CB CY NH GX GN \
       --soloBarcodeReadLength 0
 
-    if [ "~{counting_mode}" == "sn_rna" ]
+    if [[ "~{counting_mode}" == "sc_rna" ]]
     then
-      if [ "~{count_exons}" == "false" ]
+      mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
+      mv "Solo.out/Gene/raw/features.tsv" features.tsv
+      mv "Solo.out/Gene/raw/matrix.mtx"   matrix.tsv
+    elif [[ "~{counting_mode}" == "sn_rna" ]]
+    then
+      if ![[ ~{count_exons}]]
       then
-        mv Solo.out/GeneFull Solo.out/Gene
+        mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
+        mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
+        mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+      else
+      then
+        mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
+        mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
+        mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+        mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_sn_rna.tsv
+        mv "Solo.out/Gene/raw/features.tsv"     features_sn_rna.tsv
+        mv "Solo.out/Gene/raw/matrix.mtx"       matrix_sn_rna.tsv
       fi
+    else
+      echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
     fi
-
     mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
- 
+
   }
 
   runtime {
@@ -335,12 +351,12 @@ task STARsoloFastq {
     File bam_output = "~{output_bam_basename}.bam"
     File alignment_log = "Log.final.out"
     File general_log = "Log.out"
-    File barcodes = "Solo.out/Gene/raw/barcodes.tsv"
-    File features = "Solo.out/Gene/raw/features.tsv"
-    File matrix = "Solo.out/Gene/raw/matrix.mtx"
-    File? barcodes_sn_rna = "Solo.out/GeneFull/raw/barcodes.tsv"
-    File? features_sn_rna = "Solo.out/GeneFull/raw/features.tsv"
-    File? matrix_sn_rna = "Solo.out/GeneFull/raw/matrix.mtx"
+    File barcodes = "barcodes.tsv"
+    File features = "features.tsv"
+    File matrix = "matrix.mtx"
+    File? barcodes_sn_rna = "barcodes_sn_rna.tsv"
+    File? features_sn_rna = "features_sn_rna.tsv"
+    File? matrix_sn_rna = "matrix_sn_rna.mtx"
 
   }
 }
