@@ -274,7 +274,7 @@ task STARsoloFastq {
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
     ## single nuclei
-      if [[~{count_exons} ]]
+      if [[ ~{count_exons} ]]
       then
         COUNTING_MODE="Gene GeneFull"
       else
@@ -318,7 +318,7 @@ task STARsoloFastq {
       mv "Solo.out/Gene/raw/matrix.mtx"   matrix.tsv
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
-      if ![[ ~{count_exons}]]
+      if ! [[ ~{count_exons} ]]
       then
         mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
