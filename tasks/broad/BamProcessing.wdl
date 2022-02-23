@@ -101,7 +101,8 @@ task MarkDuplicates {
       ADD_PG_TAG_TO_READS=false
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    #docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
     preemptible: preemptible_tries
     memory: "~{memory_size} GiB"
     disks: "local-disk " + disk_size + " HDD"
