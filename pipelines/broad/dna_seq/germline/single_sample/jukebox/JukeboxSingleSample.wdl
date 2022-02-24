@@ -169,6 +169,7 @@ workflow JukeboxSingleSample {
 
   call JukeboxAlignmentAndMarkDuplicates.AlignmentAndMarkDuplicates as AlignmentAndMarkDuplicates {
     input:
+<<<<<<< HEAD
       input_cram_bam                = select_first([input_cram_list,input_bam_list]),
       is_cram                       = VerifyPipelineInputs.is_cram,
       base_file_name_sub            = MakeSafeFilename.output_safe_name,
@@ -178,6 +179,29 @@ workflow JukeboxSingleSample {
       additional_disk               = additional_disk,
       alignment_references          = alignment_references,
       ref_size                      = ref_size
+=======
+      sample_inputs = sample_inputs,
+      base_file_name_sub = base_file_name_sub,
+      reads_per_split = extra_args.reads_per_split,
+      rsq_threshold = extra_args.rsq_threshold,
+      crammer_docker = environment_versions.crammer_docker,
+      compression_level = compression_level,
+      gitc_docker = environment_versions.gitc_docker,
+      gitc_path = gitc_path,
+      gatk_markduplicates_docker = environment_versions.gatk_markduplicates_docker,
+      jukebox_vc_docker = environment_versions.jukebox_vc_docker,
+      no_address = no_address,
+      parallel_no_address = parallel_no_address,
+      preemptibles = preemptibles,
+      additional_disk = additional_disk,
+      bwa_commandline = bwa_commandline,
+      alignment_references = alignment_references,
+      mark_duplicates_extra_args = extra_args.mark_duplicates_extra_args,
+      bwa_disk_multiplier = bwa_disk_multiplier,
+      local_ssd_size = local_ssd_size,
+      ref_size = ref_size,
+      monitoring_script = runtime_options.monitoring_script
+>>>>>>> develop
   }
 
   Float agg_bam_size = size(AlignmentAndMarkDuplicates.output_bam, "GB")

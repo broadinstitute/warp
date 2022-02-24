@@ -58,11 +58,6 @@ workflow AlignmentAndMarkDuplicates {
 
   Array[File] split_outputs = flatten(select_first([SplitInputCram.split_outputs, SplitInputBam.split_bams, []]))
 
-  call Tasks.GetBwaVersion {
-    input:
-      dummy_input_for_call_caching = dummy_input_for_call_caching,
-  }
-
   scatter(split_chunk in split_outputs) {
     Float split_chunk_size = size(split_chunk, "GB")
     
@@ -90,7 +85,6 @@ workflow AlignmentAndMarkDuplicates {
         input_bam            = unmapped_bam,
         output_bam_basename  = current_name,
         alignment_references = alignment_references,
-        bwa_version          = GetBwaVersion.version,
         disk_size            = ceil(unmapped_bam_size + bwa_ref_size + (bwa_disk_multiplier * unmapped_bam_size) + additional_disk),
     }
   }

@@ -139,29 +139,6 @@ task ConvertCramOrBamToUBam {
   }
 }
 
-# Get version of BWA
-task GetBwaVersion {
-  input {
-    String dummy_input_for_call_caching
-
-    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
-  }
-  command {
-    # not setting set -o pipefail here because /bwa has a rc=1 and we dont want to allow rc=1 to succeed because
-    # the sed may also fail with that error and that is something we actually want to fail on.
-    /usr/gitc/bwa 2>&1 | \
-    grep -e '^Version' | \
-    sed 's/Version: //'
-  }
-  runtime {
-    memory: "1000 MiB"
-    docker: docker
-  }
-  output {
-    String version = read_string(stdout())
-  }
-}
-
 #TODO: use the WARP version of this task once the MBA code is updated in picard public. Extra args will need to be parameterized
 # Read unmapped BAM, convert on-the-fly to FASTQ and stream to BWA MEM for alignment, then stream to MergeBamAlignment
 task SamToFastqAndBwaMemAndMba {
@@ -170,7 +147,6 @@ task SamToFastqAndBwaMemAndMba {
     # listing the reference contigs that are "alternative".
     AlignmentReferences alignment_references
     File input_bam
-    String bwa_version
     String output_bam_basename
 
     Int disk_size
@@ -178,8 +154,20 @@ task SamToFastqAndBwaMemAndMba {
     String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
   }
   command <<<
+
+
+    # This is done before "set -o pipefail" because "bwa" will have a rc=1 and we don't want to allow rc=1 to succeed
+    # because the sed may also fail with that error and that is something we actually want to fail on.
+    BWA_VERSION=$(/usr/gitc/bwa 2>&1 | \
+    grep -e '^Version' | \
+    sed 's/Version: //')
+
     set -o pipefail
     set -e
+
+    if [ -z ${BWA_VERSION} ]; then
+      exit 1;
+    fi
 
     # set the bash variable needed for the command-line
     bash_ref_fasta=~{alignment_references.references.ref_fasta}
@@ -218,7 +206,7 @@ task SamToFastqAndBwaMemAndMba {
     MAX_INSERTIONS_OR_DELETIONS=-1 \
     PRIMARY_ALIGNMENT_STRATEGY=MostDistant \
     PROGRAM_RECORD_ID="bwamem" \
-    PROGRAM_GROUP_VERSION="~{bwa_version}" \
+    PROGRAM_GROUP_VERSION="${BWA_VERSION}" \
     PROGRAM_GROUP_COMMAND_LINE="/usr/gitc/bwa mem -K 100000000 -p -v 3 -t 16 -Y $bash_ref_fasta" \
     PROGRAM_GROUP_NAME="bwamem" \
     UNMAPPED_READ_STRATEGY=COPY_TO_TAG \
