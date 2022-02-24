@@ -311,6 +311,10 @@ task STARsoloFastq {
       --outSAMattributes UB UR UY CR CB CY NH GX GN \
       --soloBarcodeReadLength 0
 
+    touch barcodes_sn_rna.tsv
+    touch features_sn_rna.tsv
+    touch matrix_sn_rna.tsv
+
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
       mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
