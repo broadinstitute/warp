@@ -1,11 +1,5 @@
 version 1.0
 
-struct SampleInputs {
-  Array[File] input_cram_bam_list
-  String base_file_name
-  String? override_input_ending # For drs where there is no extension. Should be "is_cram" or "is_bam"
-}
-
 struct ContaminationSites {
   String contamination_sites_path
   File contamination_sites_vcf
