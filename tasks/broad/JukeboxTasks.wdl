@@ -154,8 +154,6 @@ task SamToFastqAndBwaMemAndMba {
     String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
   }
   command <<<
-
-
     # This is done before "set -o pipefail" because "bwa" will have a rc=1 and we don't want to allow rc=1 to succeed
     # because the sed may also fail with that error and that is something we actually want to fail on.
     BWA_VERSION=$(/usr/gitc/bwa 2>&1 | \
