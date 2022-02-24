@@ -112,7 +112,6 @@ workflow JukeboxSingleSample {
     String base_file_name
 
     Float rsq_threshold = 1.0
-    Boolean make_gvcf = false
     Boolean merge_bam_file = true
     Boolean make_haplotype_bam = false
     Int reads_per_split = 20000000
@@ -210,7 +209,6 @@ workflow JukeboxSingleSample {
       ignore            = ["MISSING_TAG_NM" ,"INVALID_PLATFORM_VALUE"],
       max_output        = 1000000000,
       is_outlier_data   = true, #sets SKIP_MATE_VALIDATION=true
-      disk_size         = validate_cram_disk_size
   }
 
   call Tasks.ExtractSampleNameFlowOrder {
@@ -243,7 +241,6 @@ workflow JukeboxSingleSample {
         vcf_basename    = MakeSafeFilename.output_safe_name,
         references      = references,
         disk_size       = ceil(((agg_bam_size + VCF_disk_size) / hc_divisor) + ref_size + additional_disk),
-        make_gvcf       = make_gvcf,
         memory_gb       = 12,
         make_bamout     = make_haplotype_bam
     }
@@ -254,7 +251,7 @@ workflow JukeboxSingleSample {
     input:
       input_vcfs          = HaplotypeCaller.output_vcf,
       input_vcfs_indexes  = HaplotypeCaller.output_vcf_index,
-      output_vcf_name     = MakeSafeFilename.output_safe_name + (if make_gvcf then ".g.vcf.gz" else ".vcf.gz"),
+      output_vcf_name     = MakeSafeFilename.output_safe_name + ".g.vcf.gz",
   }
 
   # Combine by-interval BAMs into a single sample file

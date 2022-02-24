@@ -51,7 +51,6 @@ workflow JukeboxQC {
       references                    = references,
       disk_size                     = ceil((agg_bam_size + VCF_disk_size) + ref_size + additional_disk),
       contamination_extra_args      = hc_contamination_extra_args,
-      make_gvcf                     = false,
       memory_gb                     = 12,
       make_bamout                   = true
   }

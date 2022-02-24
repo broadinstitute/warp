@@ -18,8 +18,9 @@ task VerifyPipelineInputs {
       python3 <<CODE
 
       is_cram = False
-      input_crams = [ "~{sep='", "' input_cram_list}" ]
-      input_bams = [ "~{sep='", "' input_bam_list}" ]
+      # WDL will add an empty string element if the input was not defined
+      input_crams = [ x for x in [ "~{sep='", "' input_cram_list}" ]  if x != "" ]
+      input_bams = [ x for x in [ "~{sep='", "' input_bam_list}" ] if x != "" ]
 
       if input_crams and not input_bams:
         is_cram = True
@@ -474,7 +475,6 @@ task HaplotypeCaller {
     File interval_list
     String vcf_basename
     Boolean make_bamout
-    Boolean make_gvcf
     Boolean native_sw = false
     String? contamination_extra_args 
     
@@ -491,7 +491,7 @@ task HaplotypeCaller {
   }
   
   String bam_writer_type = if defined(contamination_extra_args) then "NO_HAPLOTYPES" else "CALLED_HAPLOTYPES_NO_READS"
-  String output_suffix = if make_gvcf then ".g.vcf.gz" else ".vcf.gz"
+  String output_suffix = ".g.vcf.gz" 
   String output_filename = vcf_basename + output_suffix
 
   command {
@@ -508,7 +508,7 @@ task HaplotypeCaller {
       -I ~{sep = ' -I ' input_bam_list} \
       --intervals ~{interval_list} \
       --smith-waterman ~{if (native_sw) then "JAVA" else "FASTEST_AVAILABLE"} \
-      ~{true="-ERC GVCF" false="" make_gvcf} \
+      -ERC GVCF \
       ~{true="--bamout realigned.bam" false="" make_bamout} \
       -mbq 0 \
       --flow-filter-alleles \
