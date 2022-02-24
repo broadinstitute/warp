@@ -624,7 +624,7 @@ task MarkDuplicatesUMIAware {
   }
 }
 
-
+# sato: update
 task formatPipelineOutputs {
   input {
     String output_basename
@@ -754,4 +754,68 @@ task updateOutputsInTDR {
   output {
     File ingest_logs = stdout()
   }
+}
+
+# GATK CalculateContamination, adapted for RNA-seq data.
+# Specifically, we disable two read filters from the default set of read filters
+# for a LocusWalker:
+# 1. WellformedReadFilter: This filter removes (among others) reads with N's in the CIGAR string, which is 
+# common in RNA data.
+# 2. MappingQualityAvailableReadFilter: This filter removes reads with MQ=255, which by SAM spec
+# means mapping quality is missing. But STAR uses 255 to mean unique mapping, the equivalent of MQ60
+# for other aligners.
+task CalculateContamination {
+  input {
+    File ref_fasta
+    File ref_dict
+    File ref_index
+    File bam
+    File bam_index
+    File population_vcf
+    File population_vcf_index
+    # runtime
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.5.0"
+    Int cpu = 1
+    Int memory_mb = 8192
+    Int disk_size_gb = 256
+  }
+
+  parameter_meta {
+    bam: { localization_optional: true }
+    bam_index: { localization_optional: true }
+    ref_fasta: { localization_optional: true }
+    ref_fasta_index: { localization_optional: true }
+    ref_dict: { localization_optional: true }
+  }
+
+  command <<<
+    set -e
+    gatk --java-options "-Xmx4096m" GetPileupSummaries \
+    -R ${ref_fasta} \
+    -I ${bam} \
+    -V ${population_vcf} \
+    -L ${population_vcf} \
+    -O pileups.tsv \
+    --disable-read-filter WellformedReadFilter \
+    --disable-read-filter MappingQualityAvailableReadFilter
+
+    gatk --java-options "-Xmx4096m" CalculateContamination \
+    -I pileups.tsv \
+    -O contamination.tsv
+  
+    grep -v ^sample contamination.tsv | awk 'BEGIN{FS="\t"}{print($2)}' > contamination.txt        
+  >>>
+
+    runtime {
+      docker: docker
+      cpu: cpu
+      memory: "~{memory_mb} MiB"
+      disks: "local-disk ~{disk_size_gb} HDD"
+    }
+
+    output {
+        File pileups = "pileups.tsv"
+        File contamination_table = "contamination.tsv"
+        Float contamination = read_float("contamination.txt")
+    }
 }

@@ -47,6 +47,8 @@ workflow BroadInternalRNAWithUMIs {
   File gtf = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/annotation/gencode.v19.genes.v7.collapsed_only.patched_contigs.gtf" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode.v34.annotation_collapsed_only.gtf"
   File ribosomalIntervals = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/annotation/Homo_sapiens_assembly19.rRNA.interval_list" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode_v34_rRNA.interval_list"
   File exonBedFile = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/annotation/gencode.v19.hg19.insert_size_intervals_geq1000bp.bed" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode.v34.GRCh38.insert_size_intervals_geq1000bp.bed"
+  File population_vcf = if (reference_build == "hg19") then "gs://gatk-best-practices/somatic-b37/small_exac_common_3.vcf" else "gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz"
+  File population_vcf_index = if (reference_build == "hg19") then "gs://gatk-best-practices/somatic-b37/small_exac_common_3.vcf.idx" else "gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz.tbi"
 
   parameter_meta {
     reference_build: "String used to define the reference genome build; should be set to 'hg19' or 'hg38'"
@@ -96,7 +98,9 @@ workflow BroadInternalRNAWithUMIs {
       refDict = refDict,
       refFlat = refFlat,
       ribosomalIntervals = ribosomalIntervals,
-      exonBedFile = exonBedFile
+      exonBedFile = exonBedFile,
+      population_vcf = population_vcf,
+      population_vcf_index = population_vcf_index
   }
 
   call FP.CheckFingerprint as CheckFingerprint {

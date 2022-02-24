@@ -46,6 +46,9 @@ workflow RNAWithUMIsPipeline {
     File refFlat
     File ribosomalIntervals
     File exonBedFile
+
+    File population_vcf
+    File population_vcf_index
   }
 
   parameter_meta {
@@ -68,6 +71,8 @@ workflow RNAWithUMIsPipeline {
     refFlat: "refFlat file used for metric collection with Picard tools"
     ribosomalIntervals: "Intervals file used for RNA metric collection with Picard tools"
     exonBedFile: "Bed file used for fragment size calculations in the rnaseqc tool; contains non-overlapping exons"
+    population_vcf: "VCF file for contaimation estimation containing common SNP sites from population wide studies like ExAC or gnomad"
+    population_vcf_index: "Index for the population vcf"
   }
 
   call tasks.VerifyPipelineInputs {
@@ -161,6 +166,18 @@ workflow RNAWithUMIsPipeline {
       input_bam = UMIAwareDuplicateMarking.duplicate_marked_bam,
       input_bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index,
       output_bam_prefix = GetSampleName.sample_name,
+      ref_dict = refDict,
+      ref_fasta = ref,
+      ref_fasta_index = refIndex
+  }
+
+  call tasks.CalculateContamination {
+    input:
+      bam = UMIAwareDuplicateMarking.duplicate_marked_bam,
+      bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index,
+      output_bam_prefix = GetSampleName.sample_name,
+      population_vcf = population_vcf,
+      population_vcf_index = population_vcf_index,
       ref_dict = refDict,
       ref_fasta = ref,
       ref_fasta_index = refIndex
