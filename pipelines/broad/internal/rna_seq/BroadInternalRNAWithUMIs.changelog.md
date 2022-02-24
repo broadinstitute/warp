@@ -1,6 +1,7 @@
 # 1.0.2
-2022-02-18 (Date of Last Commit)
+2022-02-24 (Date of Last Commit)
 
+* Temporarily updated to use reference and annotation files where Terra can access them.
 * Updated to use publicly-accessible reference and annotation files.
 * Updated ribosomal intervals to include unlocalized scaffolds in the UCSC naming convention to match our reference (and renamed the file to reflect the fact that the header is not the standard GRCh38)
 * Updated the STAR command line arguments, as follows:
