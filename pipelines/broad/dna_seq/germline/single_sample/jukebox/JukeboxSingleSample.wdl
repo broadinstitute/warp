@@ -119,7 +119,6 @@ workflow JukeboxSingleSample {
 
     Int increase_disk_size = 20
     Int increase_metrics_disk_size = 80
-    String dummy_input_for_call_caching = ""
   }
 
   meta {
@@ -141,7 +140,6 @@ workflow JukeboxSingleSample {
     filtering_model_no_gt_name: ""
     increase_disk_size: ""
     increase_metrics_disk_size: ""
-    dummy_input_for_call_caching: ""
   }
 
   String pipeline_version = "3.2.3"
@@ -175,7 +173,6 @@ workflow JukeboxSingleSample {
       base_file_name_sub            = MakeSafeFilename.output_safe_name,
       reads_per_split               = reads_per_split,
       rsq_threshold                 = rsq_threshold,
-      dummy_input_for_call_caching  = dummy_input_for_call_caching,
       additional_disk               = additional_disk,
       alignment_references          = alignment_references,
       ref_size                      = ref_size

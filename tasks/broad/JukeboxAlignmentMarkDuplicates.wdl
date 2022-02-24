@@ -15,7 +15,6 @@ workflow AlignmentAndMarkDuplicates {
     Int additional_disk
     Int reads_per_split
     String base_file_name_sub
-    String dummy_input_for_call_caching
   }
 
   Int compression_level = 2
