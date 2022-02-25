@@ -156,21 +156,15 @@ The task uses the following parameters:
 | readFilesType | SAM PE | Specifies that the input file is a SAM/BAM file. |
 | readFilesCommand | samtools view -h | Tells STAR how to open the input file. |
 | outSAMunmapped | Within | Includes unmapped reads in the output file. | 
-| outFilterType | BySJout | Keeps only the reads that contain junctions that passed filtering in `SJ.out.tab` to match the ENCODE standard option. |
-| outFilterMultimapNmax | 20 | Sets the maximum number of loci a read can be mapped to without being considered unmapped to the ENCODE standard value. |
 | outFilterMatchNminOverLread | 0.33 | Sets the fraction of reads that must match the reference. |
-| outFilterMismatchNmax | 999 | Turns off the mismatch filter to match the ENCODE standard option. |
 | outFilterMismatchNoverLmax | 0.1 | Sets the maximum allowable ratio of mismatches to read length. Reads with a ratio larger than the set value are filtered. |
-| alignIntronMin | 20 | Sets the minimum intron length to the ENCODE standard value. |
-| alignIntronMax | 1000000 | Sets the maximum intron length to the ENCODE standard value. |
-| alignMatesGapMax | 1000000 | Sets the maximum genomic distance between mates to the ENCODE standard value. |
-| alignSJoverhangMin | 8 | Sets the minimum overhang for unannotated splice junctions to the ENCODE standard value. |
-| alignSJDBoverhangMin | 1 | Sets the minimum overhang for annotated splice junctions to the ENCODE standard value. |
 | chimSegmentMin | 15 | Turns on detection of chimeric alignments and sets the minimum number of aligned bases required in each "segment" to be considered a chimeric alignment. |
 | chimMainSegmentMultNmax | 1 | Requires the main chimeric segment to map uniquely. |
 | chimOutType | WithinBAM SoftClip | Includes chimeric alignments in the output file with soft-clipping. |
 | quantMode | TranscriptomeSAM | Outputs both a genome- and transcriptome-aligned BAM. |
 | alignEndsProtrude | 20 ConcordantPair | Allows a maximum of 20 protruding bases at alignment ends and marks these alignments as concordant pairs. |
+
+Additional parameters are used to match [ENCODE bulk RNA-seq data standards](https://www.encodeproject.org/data-standards/rna-seq/long-rnas/). To learn more about ENCODE options in STAR, see the [STAR manual](https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf).
 
 After STAR alignment, the workflow outputs both a genome- and transcriptome-aligned BAM.
 
