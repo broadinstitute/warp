@@ -149,7 +149,7 @@ The resulting RX tag may contain information like "ACT-GCT." The "ACT" is the 3 
 
 After UMI extraction, the workflow aligns the paired-end reads to the reference (hg38 or hg19) using the [STAR aligner](https://github.com/alexdobin/STAR), which is specifically designed for RNA-seq data and can align cDNA sequences with many "gaps" that correspond to introns. 
 
-The workflow uses the following parameters:
+The task uses the following parameters:
 
 | Parameter | Value | Notes |
 | --- | --- | --- |
