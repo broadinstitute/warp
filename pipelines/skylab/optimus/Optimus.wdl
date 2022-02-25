@@ -165,7 +165,7 @@ workflow Optimus {
         matrix = STARsoloFastq.matrix_sn_rna
     }
 
-    call LoomUtils.SingleNucleusSmartSeq2LoomOutput as OptimusLoomGenerationWithExons{
+    call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
       input:
         input_id = input_id,
         input_name = input_name,
