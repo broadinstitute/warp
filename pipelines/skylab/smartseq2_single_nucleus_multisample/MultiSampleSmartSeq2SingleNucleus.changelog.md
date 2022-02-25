@@ -1,3 +1,8 @@
+# 1.2.3 (Date of Last Commit)
+2022-02-25 (Date of Last Commit)
+
+* Updated LoomUtils.wdl to and added a task in Optimus pipeline.
+
 # 1.2.2
 2022-02-10 (Date of Last Commit)
 

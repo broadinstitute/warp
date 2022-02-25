@@ -1,7 +1,13 @@
+# 2.2.9
+2022-02-25 (Date of Last Commit)
+
+* Updated LoomUtils.wdl to and added a task in Optimus pipeline.
+
 # 2.2.8
 2022-01-07 (Date of Last Commit)
 
 * Updated LoomUtils.wdl to fix a missing metadata issue in Single Nucleus SmartSeq2 pipeline
+
 # 2.2.7
 2021-11-10 (Date of Last Commit)
 
