@@ -175,7 +175,7 @@ workflow RNAWithUMIsPipeline {
     input:
       bam = UMIAwareDuplicateMarking.duplicate_marked_bam,
       bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index,
-      output_bam_prefix = GetSampleName.sample_name,
+      base_name = GetSampleName.sample_name,
       population_vcf = population_vcf,
       population_vcf_index = population_vcf_index,
       ref_dict = refDict,

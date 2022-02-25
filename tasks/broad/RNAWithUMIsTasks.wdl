@@ -766,11 +766,12 @@ task updateOutputsInTDR {
 # for other aligners.
 task CalculateContamination {
   input {
-    File ref_fasta
-    File ref_dict
-    File ref_index
     File bam
     File bam_index
+    String base_name
+    File ref_fasta
+    File ref_dict
+    File ref_fasta_index
     File population_vcf
     File population_vcf_index
     # runtime
@@ -791,19 +792,20 @@ task CalculateContamination {
   command <<<
     set -e
     gatk --java-options "-Xmx4096m" GetPileupSummaries \
-    -R ${ref_fasta} \
-    -I ${bam} \
-    -V ${population_vcf} \
-    -L ${population_vcf} \
-    -O pileups.tsv \
+    -R ~{ref_fasta} \
+    -I ~{bam} \
+    -V ~{population_vcf} \
+    -L ~{population_vcf} \
+    -O ~{base_name}_pileups.tsv \
     --disable-read-filter WellformedReadFilter \
     --disable-read-filter MappingQualityAvailableReadFilter
 
     gatk --java-options "-Xmx4096m" CalculateContamination \
-    -I pileups.tsv \
-    -O contamination.tsv
+    -I ~{base_name}_pileups.tsv \
+    -O ~{base_name}_contamination.tsv
   
-    grep -v ^sample contamination.tsv | awk 'BEGIN{FS="\t"}{print($2)}' > contamination.txt        
+    grep -v ^sample contamination.tsv | awk 'BEGIN{FS="\t"}{print($2)}' > contamination.txt 
+    grep -v ^sample contamination.tsv | awk 'BEGIN{FS="\t"}{print($3)}' > contamination_error.txt        
   >>>
 
     runtime {
@@ -815,7 +817,8 @@ task CalculateContamination {
 
     output {
         File pileups = "pileups.tsv"
-        File contamination_table = "contamination.tsv"
+        File contamination_table = "~{base_name}_contamination.tsv"
         Float contamination = read_float("contamination.txt")
+        Float contamination_error = read_float("contamination_error.txt")
     }
 }
