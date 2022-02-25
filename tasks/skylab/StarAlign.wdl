@@ -333,7 +333,7 @@ task STARsoloFastq {
         mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
         mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_sn_rna.tsv
         mv "Solo.out/Gene/raw/features.tsv"     features_sn_rna.tsv
-        mv "Solo.out/Gene/raw/matrix.mtx"       matrix_sn_rna.tsv
+        mv "Solo.out/Gene/raw/matrix.mtx"       matrix_sn_rna.mtx
       fi
     else
       echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
