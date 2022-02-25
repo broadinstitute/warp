@@ -357,9 +357,9 @@ task STARsoloFastq {
     File barcodes = "barcodes.tsv"
     File features = "features.tsv"
     File matrix = "matrix.mtx"
-    File? barcodes_sn_rna = "barcodes_sn_rna.tsv"
-    File? features_sn_rna = "features_sn_rna.tsv"
-    File? matrix_sn_rna = "matrix_sn_rna.mtx"
+    File barcodes_sn_rna = "barcodes_sn_rna.tsv"
+    File features_sn_rna = "features_sn_rna.tsv"
+    File matrix_sn_rna = "matrix_sn_rna.mtx"
 
   }
 }

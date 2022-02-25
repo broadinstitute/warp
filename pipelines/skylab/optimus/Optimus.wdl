@@ -157,12 +157,12 @@ workflow Optimus {
         pipeline_version = "Optimus_v~{pipeline_version}"
     }
   }
-  if (count_exons) {
+  if (count_exons  && counting_mode=="sn_rna") {
     call StarAlign.MergeStarOutput as MergeStarOutputsExons {
       input:
-        barcodes = select_first([STARsoloFastq.barcodes_sn_rna,STARsoloFastq.barcodes]),
-        features = select_first([STARsoloFastq.features_sn_rna,STARsoloFastq.features]),
-        matrix = select_first([STARsoloFastq.matrix_sn_rna,STARsoloFastq.matrix])
+        barcodes = STARsoloFastq.barcodes_sn_rna,
+        features = STARsoloFastq.features_sn_rna,
+        matrix = STARsoloFastq.matrix_sn_rna
     }
 
     call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
