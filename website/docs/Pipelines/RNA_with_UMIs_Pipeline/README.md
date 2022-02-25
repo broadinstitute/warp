@@ -67,6 +67,8 @@ The workflow takes in either a set of paired-end FASTQ files or a read group unm
 | refFlat | refFlat file used for metric collection with [Picard](https://broadinstitute.github.io/picard/) tools. | File |
 | ribosomalIntervals | Intervals file used for RNA metric collection with [Picard](https://broadinstitute.github.io/picard/) tools. | File |
 | exonBedFile | Bed file used for fragment size calculations with the [RNA-SeQC](https://github.com/getzlab/rnaseqc) tool; contains non-overlapping exons.  | File |
+| population_vcf | VCF file used for contamination estimation by GATK's [GetPileupSummaries](https://gatk.broadinstitute.org/hc/en-us/articles/4418051471643-GetPileupSummaries) and [CalculateContamination](https://gatk.broadinstitute.org/hc/en-us/articles/4418054253211-CalculateContamination) tools; contains common SNP sites from population-wide studies. | File |
+| population_vcf_index | Population VCF index file used for contamination estimation by GATK's [GetPileupSummaries](https://gatk.broadinstitute.org/hc/en-us/articles/4418051471643-GetPileupSummaries) and [CalculateContamination](https://gatk.broadinstitute.org/hc/en-us/articles/4418054253211-CalculateContamination) tools. | File |
 
 ### References
 
@@ -126,6 +128,7 @@ To see specific tool parameters, select the task WDL link in the table; then fin
 | [tasks.rnaseqc2](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) | rnaseqc | [RNA-SeQC](https://github.com/getzlab/rnaseqc) | Uses the genome-aligned, duplicate-marked BAM file to calculate TPMs, gene counts, exon counts, fragment sizes, and additional metrics, each of which is outputted to an individual file. |
 | [tasks.CollectRNASeqMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) | CollectRNASeqMetrics | [Picard](https://broadinstitute.github.io/picard/) | Calculates RNA metrics; strand specificity is set to SECOND_READ_TRANSCRIPTION_STRAND. |
 | [tasks.CollectMultipleMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) | CollectMultipleMetrics | [Picard](https://broadinstitute.github.io/picard/) | Collects multiple classes of metrics; runs tools CollectInsertSizeMetrics and CollectAlignmentSummaryMetrics. |
+| [tasks.CalculateContamination](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) | GetPileupSummaries, Calculate Contamination | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Uses the population VCF and index files to calculate pileup metrics and estimate cross-sample contamination. |
 
 #### 1. Convert FASTQ to uBAM
 
@@ -180,7 +183,7 @@ After duplicate reads have been tagged, the workflow uses [RNA-SeQC](https://git
 
 #### 6. Metric calculation
 
-The pipeline uses [RNA-SeQC](https://github.com/getzlab/rnaseqc), Picard's [CollectRNASeqMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037057492-CollectRnaSeqMetrics-Picard-), and Picard's [CollectMultipleMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037594031-CollectMultipleMetrics-Picard-) to calculate summary metrics that can be used to assess the quality of the data each time the pipeline is run. 
+The pipeline uses [RNA-SeQC](https://github.com/getzlab/rnaseqc), Picard's [CollectRNASeqMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037057492-CollectRnaSeqMetrics-Picard-) and [CollectMultipleMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037594031-CollectMultipleMetrics-Picard-) tools, and GATK's [GetPileupSummaries](https://gatk.broadinstitute.org/hc/en-us/articles/4418051471643-GetPileupSummaries) and [CalculateContamination](https://gatk.broadinstitute.org/hc/en-us/articles/4418054253211-CalculateContamination) tools to calculate summary metrics that can be used to assess the quality of the data each time the pipeline is run. 
 
 If you are a member of the Broad Institute's Genomics Platform using the [internal RNA with UMIs pipeline](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/internal/rna_seq/BroadInternalRNAWithUMIs.wdl), there is an additional step that merges the individual metrics files to create the `MergeMetrics.unified_metrics` output file and prepare the data for use in the Terra Data Repository.
 
