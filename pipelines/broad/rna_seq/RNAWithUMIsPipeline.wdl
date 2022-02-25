@@ -206,6 +206,8 @@ workflow RNAWithUMIsPipeline {
     File picard_quality_by_cycle_pdf = CollectMultipleMetrics.quality_by_cycle_pdf
     File picard_quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
     File picard_quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
+    Float contamination = CalculateContamination.contamination
+    Float contamination_error = CalculateContamination.contamination_error
   }
 }
 
