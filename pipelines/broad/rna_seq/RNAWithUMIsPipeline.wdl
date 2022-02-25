@@ -71,7 +71,7 @@ workflow RNAWithUMIsPipeline {
     refFlat: "refFlat file used for metric collection with Picard tools"
     ribosomalIntervals: "Intervals file used for RNA metric collection with Picard tools"
     exonBedFile: "Bed file used for fragment size calculations in the rnaseqc tool; contains non-overlapping exons"
-    population_vcf: "VCF file for contaimation estimation containing common SNP sites from population wide studies like ExAC or gnomad"
+    population_vcf: "VCF file for contamination estimation; contains common SNP sites from population-wide studies like ExAC or gnomAD"
     population_vcf_index: "Population VCF index file used for contamination estimation"
   }
 
