@@ -92,7 +92,7 @@ task checkOptimusInput {
 
     if [[ "${counting_mode}" == "sc_rna" ]]
     then
-      if [[ ~{count_exons} ]]
+      if [[ ~{count_exons} == "true" ]]
       then
         pass="false"
         echo "ERROR: Invalid value count_exons should not be used with \"${counting_mode}\" input."
