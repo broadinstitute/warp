@@ -126,7 +126,7 @@ task HaplotypeCaller_GATK4_VCF {
     # Note: In the future this should be done using Cromwell's ${MEM_SIZE} and ${MEM_UNIT} environment variables,
     #       which do not rely on the output format of the `free` command.
     available_memory_mb=$(free -m | awk '/^Mem/ {print $2}')
-    let java_memory_size_mb=available_memory_mb-1024
+    let java_memory_size_mb=available_memory_mb-2024
     echo Total available memory: ${available_memory_mb} MB >&2
     echo Memory reserved for Java: ${java_memory_size_mb} MB >&2
 
