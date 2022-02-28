@@ -809,7 +809,7 @@ task CalculateContamination {
     -O ~{base_name}_contamination.tsv
   
     grep -v ^sample ~{base_name}_contamination.tsv | awk 'BEGIN{FS="\t"}{print($2)}' > contamination.txt 
-    grep -v ^sample ~{base_name}_contamination.tsv | awk 'BEGIN{FS="\t"}{print($3)}' > contamination_error.txt        
+    grep -v ^sample ~{base_name}_contamination.tsv | awk 'BEGIN{FS="\t"}{print($3)}' > contamination_error.txt
   >>>
 
     runtime {
@@ -820,7 +820,7 @@ task CalculateContamination {
     }
 
     output {
-        File pileups = "pileups.tsv"
+        File pileups = "~{base_name}_pileups.tsv"
         File contamination_table = "~{base_name}_contamination.tsv"
         Float contamination = read_float("contamination.txt")
         Float contamination_error = read_float("contamination_error.txt")
