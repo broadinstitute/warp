@@ -105,7 +105,7 @@ task checkOptimusInput {
       exit 1;
     fi
 
-
+    exit 0;
   }
 
   runtime {

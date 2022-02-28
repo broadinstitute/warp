@@ -258,7 +258,7 @@ task SingleNucleusOptimusLoomOutput {
         ADD_EMPTYDROPS_DATA="no"
         fi
 
-        python3 /tools/create_snrna_loom_optimus.py \
+        python3 /tools/create_snrna_optimus_counts.py \
         --empty_drops_file ~{empty_drops_result} \
         --add_emptydrops_data $ADD_EMPTYDROPS_DATA \
         --annotation_file ~{annotation_file} \
