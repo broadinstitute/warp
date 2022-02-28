@@ -808,8 +808,8 @@ task CalculateContamination {
     -I ~{base_name}_pileups.tsv \
     -O ~{base_name}_contamination.tsv
   
-    grep -v ^sample contamination.tsv | awk 'BEGIN{FS="\t"}{print($2)}' > contamination.txt 
-    grep -v ^sample contamination.tsv | awk 'BEGIN{FS="\t"}{print($3)}' > contamination_error.txt        
+    grep -v ^sample ~{base_name}_contamination.tsv | awk 'BEGIN{FS="\t"}{print($2)}' > contamination.txt 
+    grep -v ^sample ~{base_name}_contamination.tsv | awk 'BEGIN{FS="\t"}{print($3)}' > contamination_error.txt        
   >>>
 
     runtime {
