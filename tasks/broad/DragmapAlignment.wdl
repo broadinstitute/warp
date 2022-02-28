@@ -36,7 +36,7 @@ task SamToFastqAndDragmapAndMba {
     String docker = "us.gcr.io/broad-gotc-prod/dragmap:1.1.1-1.2.1-2.26.4-1.11-1643744061"
     Int cpu = 16
     Float disk_multiplier = 8
-    Int memory_mb = 40960
+    Int memory_gb = 58
   }
 
   meta {
@@ -97,7 +97,7 @@ task SamToFastqAndDragmapAndMba {
   runtime {
     docker: docker
     preemptible: preemptible_tries
-    memory: "${memory_mb} MiB"
+    memory: "${memory_gb} GiB"
     disks: "local-disk ${disk_size_gb} HDD"
     cpu: cpu
     cpuPlatform: cpu_platform

@@ -36,7 +36,8 @@ workflow DragmapAlign {
         compression_level = compression_level,
         preemptible_tries = preemptible_tries,
         hard_clip_reads = hard_clip_reads,
-        unmap_contaminant_reads = unmap_contaminant_reads
+        unmap_contaminant_reads = unmap_contaminant_reads,
+        cpu_platform = "Intel Haswell"
     }
 
     call DragmapAlignment.SamToFastqAndDragmapAndMba as DragmapAlignSecondRun {
@@ -48,14 +49,14 @@ workflow DragmapAlign {
         compression_level = compression_level,
         preemptible_tries = preemptible_tries,
         hard_clip_reads = hard_clip_reads,
-        unmap_contaminant_reads = unmap_contaminant_reads
+        unmap_contaminant_reads = unmap_contaminant_reads,
+        cpu_platform = "Intel Skylake"
     }
 
-    call VerifyTasks.CompareBams {
+    call VerifyTasks.CompareLargeBamFiles {
       input:
         test_bam = DragmapAlignSecondRun.output_bam,
         truth_bam = DragmapAlignFirstRun.output_bam,
-        lenient_header = false
     }
   }
   output {
