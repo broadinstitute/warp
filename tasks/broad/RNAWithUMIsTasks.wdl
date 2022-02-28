@@ -652,6 +652,8 @@ task formatPipelineOutputs {
     String? picard_fingerprint_summary_metrics
     String? picard_fingerprint_detail_metrics
     File unified_metrics
+    Float contamination
+    Float contamination_error
 
     Int cpu = 1
     Int memory_mb = 2000
@@ -690,6 +692,8 @@ task formatPipelineOutputs {
     outputs_dict["picard_quality_distribution_pdf_file"]="~{picard_quality_distribution_pdf}"
     outputs_dict["fp_summary_metrics_file"]="~{picard_fingerprint_summary_metrics}"
     outputs_dict["fp_detail_metrics_file"]="~{picard_fingerprint_detail_metrics}"
+    outputs_dict["contaminationn"]=~{contamination}
+    outputs_dict["contamination_error"]=~{contamination_error}
 
     # explode unified metrics file
     with open("~{unified_metrics}", "r") as infile:

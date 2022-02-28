@@ -1,3 +1,8 @@
+# 1.0.3
+2022-02-28 (Date of Last Commit)
+
+* Added contamination outputs to the workflow
+
 # 1.0.2
 2022-02-18 (Date of Last Commit)
 

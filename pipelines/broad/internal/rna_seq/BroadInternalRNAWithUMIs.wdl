@@ -157,7 +157,9 @@ workflow BroadInternalRNAWithUMIs {
         picard_quality_distribution_pdf = RNAWithUMIs.picard_quality_distribution_pdf,
         picard_fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file,
         picard_fingerprint_detail_metrics = CheckFingerprint.fingerprint_detail_metrics_file,
-        unified_metrics = MergeMetrics.unified_metrics
+        unified_metrics = MergeMetrics.unified_metrics,
+        contamination = CalculateContamination.contamination,
+        contamination_error = CalculateContamination.contamination_error
     }
 
     call tasks.updateOutputsInTDR {
