@@ -245,7 +245,7 @@ task GetSampleName {
   input {
     File bam
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.0.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.5.0"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
@@ -599,7 +599,7 @@ task MarkDuplicatesUMIAware {
     File bam
     String output_basename
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3 * size(bam, "GiB")) + 60
