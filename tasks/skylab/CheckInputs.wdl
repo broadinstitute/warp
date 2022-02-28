@@ -90,6 +90,13 @@ task checkOptimusInput {
        exit 0;
     fi
 
+    if [[ "${counting_mode}" == "sc_rna" ]]
+    then
+      if [[ ~{count_exons} ]]
+        pass="false"
+        echo "ERROR: Invalid value count_exons should not be used with \"${counting_mode}\" input.""
+    fi
+
     ## fail if any tests failed, ignore if force_no_check is set
     if [[ $pass == "true" ]]
     then
@@ -98,11 +105,7 @@ task checkOptimusInput {
       exit 1;
     fi
 
-    if [[ "${counting_mode}" == "sc_rna" && ~{count_exons}) ]]
-    then
-    pass="false"
-    echo "ERROR: Invalid value count_exons should not be used with \"${counting_mode}\" input.""
-    fi
+
   }
 
   runtime {

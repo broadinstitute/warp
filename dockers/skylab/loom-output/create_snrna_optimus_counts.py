@@ -57,13 +57,14 @@ def  generate_row_attr(args):
         logging.info("# gene numeric metadata {0}".format(len(gene_metrics[0][1:])))
 
     # read the gene ids  and adds into the gene_ids dataset
-    gene_ids = np.load(args.gene_ids)
+    gene_ids = np.load(args.gene_id_1)
     # add the gene names for the gene ids
     if args.annotation_file and len(gene_ids):
         gene_id_name_map = create_gene_id_name_map(args.annotation_file)
         gene_names = [
             gene_id_name_map.get(gene_id, "") for gene_id in gene_ids
         ]
+    else: print("error in gene_id and annotation file!")
 
 
     # Gene metric values, the row and column sizes
@@ -118,7 +119,7 @@ def  generate_row_attr(args):
         logging.info("# of gene metadate metrics: {0}".format(ncols))
     return row_attrs
 
-def generate_col_attr(args):
+def generate_col_attr(barcode_1_path,barcode_2_path,cell_metrics_path,bool_emptydrops,empty_drops_file_path):
     """Converts cell metrics from the Optimus pipeline to loom file
 
     Args:
@@ -127,19 +128,21 @@ def generate_col_attr(args):
         verbose (bool): whether to output verbose messages for debugging purposes
         empty_drops_path (str): emptydrops csv file
     """
-    cell_ids = np.load(args.cell_ids)
+    barcode_1 = np.load(barcode_1_path)
+    barcode_2 = np.load(barcode_2_path)
+    cell_ids = np.union1d(barcode_1,barcode_2)
 
     # Read the csv input files
-    metrics_df = pd.read_csv(args.cell_metrics, header=0,  dtype=str)
+    metrics_df = pd.read_csv(cell_metrics_path, header=0,  dtype=str)
     # Check that input is valid
     if metrics_df.shape[0] == 0 or metrics_df.shape[1] == 0:
         logging.error("Cell metrics table is not valid")
         raise ValueError()
     metrics_df = metrics_df.rename(columns={"Unnamed: 0": "cell_id"})
 
-    add_emptydrops_results = args.add_emptydrops_results
+    add_emptydrops_results = bool_emptydrops
     if add_emptydrops_results == 'yes':
-        emptydrops_df = pd.read_csv(args.empty_drops_file, dtype=str)
+        emptydrops_df = pd.read_csv(empty_drops_file_path, dtype=str)
         if emptydrops_df.shape[0] == 0 or emptydrops_df.shape[1] == 0:
             logging.error("EmptyDrops table is not valid")
             raise ValueError()
@@ -203,7 +206,7 @@ def generate_col_attr(args):
         emptydrops_df = emptydrops_df.rename(columns=namemap)
 
         # Confirm that the emptydrops table is a subset of the cell metadata table, fail if not
-        if not emptydrops_df.cell_id.isin(metrics_df.cell_id).all():
+        if not emptydrops_df.cell_id.isin(barcode_1).all():
             logging.error(
                 "Not all emptydrops cells can be found in the metrics table."
             )
@@ -268,13 +271,6 @@ def generate_col_attr(args):
         data = final_df_non_boolean[name].to_numpy()
         col_attrs[name] = data
 
-    if args.verbose:
-        logging.info(
-            "Added cell metadata_bool with {0} rows and {1} columns".format(
-                final_df_bool.shape[0], final_df_bool.shape[1]
-            )
-        )
-
     return col_attrs
 
 def generate_matrix(count_matrix_path):
@@ -287,10 +283,6 @@ def generate_matrix(count_matrix_path):
         shape=exp_counts["shape"],
     )
 
-    if args.verbose:
-        logging.info(
-            "shape of count matrix {0}, {1}".format(exp_counts["shape"], csr_exp_counts.shape)
-        )
     nrows, ncols = csr_exp_counts.shape
     expr_sp = sc.sparse.coo_matrix((nrows, ncols), np.float32)
 
@@ -353,7 +345,7 @@ def create_loom_files(args):
     row_attrs =  generate_row_attr(args)
 
     # generate a dictionarty of column attributes
-    col_attrs =  generate_col_attr(args)
+    col_attrs =  generate_col_attr(args.cell_id_1,args.cell_id_2,args.cell_metrics,args.add_emptydrops_results,args.empty_drops_file)
 
     # add the expression count matrix data
     sp1 = generate_matrix(args.count_matrix_1)
@@ -361,7 +353,7 @@ def create_loom_files(args):
 
     barcode_1 = np.load(args.cell_id_1)
     barcode_2 = np.load(args.cell_id_2)
-    expr_sp_t, exon_sp_t = changeCoord(sp1,sp2,barcodes_1,barcodes_1)
+    expr_sp_t, exon_sp_t = changeCoord(sp1,sp2,barcode_1,barcode_2)
 
 # add input_id to col_attrs
     col_attrs['input_id'] = np.repeat(args.input_id, expr_sp_t.shape[1])
