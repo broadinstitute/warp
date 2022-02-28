@@ -202,7 +202,7 @@ task SingleNucleusOptimusLoomOutput {
 
     input {
         #runtime values
-        String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.9"
+        String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:v1.0.0"
         # name of the sample
         String input_id
         # user provided id
