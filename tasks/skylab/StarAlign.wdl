@@ -319,7 +319,7 @@ task STARsoloFastq {
     then
       mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
       mv "Solo.out/Gene/raw/features.tsv" features.tsv
-      mv "Solo.out/Gene/raw/matrix.mtx"   matrix.tsv
+      mv "Solo.out/Gene/raw/matrix.mtx"   matrix.mtx
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
       if ! [[ ~{count_exons} ]]
