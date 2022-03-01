@@ -133,7 +133,7 @@ workflow BroadInternalRNAWithUMIs {
   if (defined(tdr_dataset_uuid) && defined(tdr_sample_id) && defined(tdr_staging_bucket) && defined(tdr_gcp_project_for_query)) {
     call tasks.formatPipelineOutputs {
       input:
-        sample_id = tdr_sample_id,
+        sample_id = select_first([tdr_sample_id, ""]),
         transcriptome_bam = RNAWithUMIs.transcriptome_bam,
         transcriptome_bam_index = RNAWithUMIs.transcriptome_bam_index,
         transcriptome_duplicate_metrics = RNAWithUMIs.transcriptome_duplicate_metrics,
@@ -165,7 +165,6 @@ workflow BroadInternalRNAWithUMIs {
     call tasks.updateOutputsInTDR {
       input:
         tdr_dataset_uuid = select_first([tdr_dataset_uuid, ""]),
-        tdr_gcp_project_for_query = select_first([tdr_gcp_project_for_query, ""]),
         outputs_json = formatPipelineOutputs.pipeline_outputs_json,
         sample_id = select_first([tdr_sample_id, ""]),
         staging_bucket = select_first([tdr_staging_bucket, ""])

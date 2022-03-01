@@ -728,7 +728,6 @@ task updateOutputsInTDR {
   input {
     String staging_bucket
     String tdr_dataset_uuid
-    String tdr_gcp_project_for_query
     File outputs_json
     String sample_id
 
@@ -745,8 +744,7 @@ task updateOutputsInTDR {
       -b "~{staging_bucket}" \
       -t "~{tdr_target_table}" \
       -o "~{outputs_json}" \
-      -s "~{sample_id}" \
-      -p "~{tdr_gcp_project_for_query}"
+      -s "~{sample_id}"
   >>>
 
   runtime {
