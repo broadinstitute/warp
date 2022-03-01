@@ -313,7 +313,7 @@ task STARsoloFastq {
 
     touch barcodes_sn_rna.tsv
     touch features_sn_rna.tsv
-    touch matrix_sn_rna.tsv
+    touch matrix_sn_rna.mtx
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
