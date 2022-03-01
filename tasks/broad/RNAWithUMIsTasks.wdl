@@ -627,7 +627,7 @@ task MarkDuplicatesUMIAware {
 # sato: update
 task formatPipelineOutputs {
   input {
-    String output_basename
+    String sample_id
     String transcriptome_bam
     String transcriptome_bam_index
     String transcriptome_duplicate_metrics
@@ -660,7 +660,7 @@ task formatPipelineOutputs {
     Int disk_size_gb = 10
   }
 
-  String outputs_json_file_name = "outputs_to_TDR_~{output_basename}.json"
+  String outputs_json_file_name = "outputs_to_TDR_~{sample_id}.json"
 
   command <<<
     python3 << CODE
@@ -669,6 +669,7 @@ task formatPipelineOutputs {
     outputs_dict = {}
 
     # NOTE: we rename some field names to match the TDR schema
+    outputs_dict["sample_id"]="~{sample_id}" # primary key
     outputs_dict["transcriptome_bam"]="~{transcriptome_bam}"
     outputs_dict["transcriptome_bam_index"]="~{transcriptome_bam_index}"
     outputs_dict["transcriptome_duplicate_metrics_file"]="~{transcriptome_duplicate_metrics}"
