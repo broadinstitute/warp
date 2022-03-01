@@ -205,7 +205,14 @@ task CompareLargeBamFiles {
   Int disk_size = ceil(file_size * 6) + 20
   Int mem_size = ceil(file_size * 3) + 20
 
+  meta {
+    volatile: true
+  }
+
   command {
+    set -e
+    set -o pipefail
+
     samtools view --header-only ~{test_bam} > test_header.sam
     samtools view --header-only ~{truth_bam} > truth_header.sam
 
