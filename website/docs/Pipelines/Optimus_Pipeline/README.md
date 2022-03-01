@@ -218,7 +218,7 @@ If running single-nucleus data (sn_rna mode), the counts in the main matrix will
 
 You can determine which type of counts are in the loom by looking at the global attribute `expression_data_type`.
 
-For sn_rna mode, you can also access whole transcript and exonic counts using Loompy's `layers()` method. For example, `loompy.connect.layers[“”]` will return the exonic counts from the output Loom file. Similarly, `loompy.connect.layers[“exon_counts”]` will return the intronic counts from the output Loom. 
+For sn_rna mode, you can also access whole transcript and exonic counts using Loompy's `layers()` method. For example, `loompy.connect.layers[“”]` will return the whole transcript counts from the output Loom file. Similarly, `loompy.connect.layers[“exon_counts”]` will return the exonic counts from the output Loom. 
 
 
 #### 8. Outputs
