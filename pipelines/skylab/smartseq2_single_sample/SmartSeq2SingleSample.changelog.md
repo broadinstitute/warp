@@ -1,7 +1,7 @@
 # 5.1.8
 2022-02-25 (Date of Last Commit)
 
-* Updated LoomUtils.wdl to and added a task in Optimus pipeline.
+* Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the SmartSeq2SingleSample pipeline.
 # 5.1.7
 2022-01-07 (Date of Last Commit)
 
