@@ -125,8 +125,6 @@ task STAR {
       --readFilesIn ~{bam} \
       --readFilesType SAM PE \
       --readFilesCommand samtools view -h \
-      --limitSjdbInsertNsj 1200000 \
-      --outSAMstrandField intronMotif \
       --outSAMunmapped Within \
       --outFilterType BySJout \
       --outFilterMultimapNmax 20 \
@@ -146,7 +144,8 @@ task STAR {
       --chimOutJunctionFormat 0 \
       --twopassMode Basic \
       --quantMode TranscriptomeSAM \
-      --quantTranscriptomeBan Singleend
+      --quantTranscriptomeBan Singleend \
+      --alignEndsProtrude 20 ConcordantPair
   >>>
 
   runtime {
