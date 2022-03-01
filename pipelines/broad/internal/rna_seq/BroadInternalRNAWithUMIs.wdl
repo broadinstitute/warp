@@ -32,7 +32,6 @@ workflow BroadInternalRNAWithUMIs {
     String? tdr_dataset_uuid
     String? tdr_sample_id
     String? tdr_staging_bucket
-    String? tdr_gcp_project_for_query
 
     String environment
     File vault_token_path
@@ -68,7 +67,6 @@ workflow BroadInternalRNAWithUMIs {
     tdr_dataset_uuid: "Optional String used to define the Terra Data Repo dataset to which outputs will be ingested, if populated"
     tdr_sample_id: "Optional String used to identify the sample being processed; this is the primary key in the TDR dataset"
     tdr_staging_bucket: "Optional String defining the GCS bucket to use to stage files for loading to TDR. Workspace bucket is recommended"
-    tdr_gcp_project_for_query: "Optional String defining the GCP project to use to query the TDR dataset in BigQuery"
   }
 
   # make sure either hg19 or hg38 is supplied as reference_build input
@@ -130,7 +128,7 @@ workflow BroadInternalRNAWithUMIs {
       output_basename = RNAWithUMIs.sample_name
   }
 
-  if (defined(tdr_dataset_uuid) && defined(tdr_sample_id) && defined(tdr_staging_bucket) && defined(tdr_gcp_project_for_query)) {
+  if (defined(tdr_dataset_uuid) && defined(tdr_sample_id) && defined(tdr_staging_bucket)) {
     call tasks.formatPipelineOutputs {
       input:
         sample_id = select_first([tdr_sample_id, ""]),
