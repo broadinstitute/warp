@@ -1,3 +1,8 @@
+# 1.0.6
+2022-03-01 (Date of Last Commit)
+
+* Security patch to bcftools-vcftools and minimac4 docker images
+
 # 1.0.5
 2022-01-19 (Date of Last Commit)
 
