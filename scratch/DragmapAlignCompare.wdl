@@ -9,14 +9,14 @@ import "../verification/VerifyTasks.wdl"
 workflow DragmapAlignCompare {
 
   input {
-    Array[File] input_bams_1
-    Array[File] input_bams_2
+    Array[File] test_bams
+    Array[File] truth_bams
   }
 
 
-  scatter (idx in range(length(input_bams_1))) {
-    File truth_bam = input_bams_1[idx]
-    File test_bam = input_bams_2[idx]
+  scatter (idx in range(length(truth_bams))) {
+    File truth_bam = truth_bams[idx]
+    File test_bam = test_bams[idx]
 
     call VerifyTasks.CompareLargeBamFiles {
       input:
