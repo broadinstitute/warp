@@ -1,5 +1,5 @@
 # 1.0.3
-2022-02-24 (Date of Last Commit)
+2022-02-28 (Date of Last Commit)
 
 * Added the contamination task to the workflow
 * Standardized the gatk docker version to 4.2.5.0 and corrected the docker for MarkDuplicates.

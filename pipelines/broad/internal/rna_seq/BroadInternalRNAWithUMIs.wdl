@@ -32,7 +32,6 @@ workflow BroadInternalRNAWithUMIs {
     String? tdr_dataset_uuid
     String? tdr_sample_id
     String? tdr_staging_bucket
-    String? tdr_gcp_project_for_query
 
     String environment
     File vault_token_path
@@ -68,7 +67,6 @@ workflow BroadInternalRNAWithUMIs {
     tdr_dataset_uuid: "Optional String used to define the Terra Data Repo dataset to which outputs will be ingested, if populated"
     tdr_sample_id: "Optional String used to identify the sample being processed; this is the primary key in the TDR dataset"
     tdr_staging_bucket: "Optional String defining the GCS bucket to use to stage files for loading to TDR. Workspace bucket is recommended"
-    tdr_gcp_project_for_query: "Optional String defining the GCP project to use to query the TDR dataset in BigQuery"
   }
 
   # make sure either hg19 or hg38 is supplied as reference_build input
@@ -130,10 +128,10 @@ workflow BroadInternalRNAWithUMIs {
       output_basename = RNAWithUMIs.sample_name
   }
 
-  if (defined(tdr_dataset_uuid) && defined(tdr_sample_id) && defined(tdr_staging_bucket) && defined(tdr_gcp_project_for_query)) {
+  if (defined(tdr_dataset_uuid) && defined(tdr_sample_id) && defined(tdr_staging_bucket)) {
     call tasks.formatPipelineOutputs {
       input:
-        output_basename = output_basename,
+        sample_id = select_first([tdr_sample_id, ""]),
         transcriptome_bam = RNAWithUMIs.transcriptome_bam,
         transcriptome_bam_index = RNAWithUMIs.transcriptome_bam_index,
         transcriptome_duplicate_metrics = RNAWithUMIs.transcriptome_duplicate_metrics,
@@ -157,13 +155,14 @@ workflow BroadInternalRNAWithUMIs {
         picard_quality_distribution_pdf = RNAWithUMIs.picard_quality_distribution_pdf,
         picard_fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file,
         picard_fingerprint_detail_metrics = CheckFingerprint.fingerprint_detail_metrics_file,
-        unified_metrics = MergeMetrics.unified_metrics
+        unified_metrics = MergeMetrics.unified_metrics,
+        contamination = RNAWithUMIs.contamination,
+        contamination_error = RNAWithUMIs.contamination_error
     }
 
     call tasks.updateOutputsInTDR {
       input:
         tdr_dataset_uuid = select_first([tdr_dataset_uuid, ""]),
-        tdr_gcp_project_for_query = select_first([tdr_gcp_project_for_query, ""]),
         outputs_json = formatPipelineOutputs.pipeline_outputs_json,
         sample_id = select_first([tdr_sample_id, ""]),
         staging_bucket = select_first([tdr_staging_bucket, ""])
@@ -195,5 +194,7 @@ workflow BroadInternalRNAWithUMIs {
     File? picard_fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file
     File? picard_fingerprint_detail_metrics = CheckFingerprint.fingerprint_detail_metrics_file
     File unified_metrics = MergeMetrics.unified_metrics
+    Float contamination = RNAWithUMIs.contamination
+    Float contamination_error = RNAWithUMIs.contamination_error
   }
 }
