@@ -1,5 +1,5 @@
 # 1.0.3
-2022-03-02 (Date of Last Commit)
+2022-03-03 (Date of Last Commit)
 
 * Updated ingest to TDR to use transactional updates
 * Added contamination outputs to the workflow

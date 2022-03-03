@@ -624,7 +624,6 @@ task MarkDuplicatesUMIAware {
   }
 }
 
-# sato: update
 task formatPipelineOutputs {
   input {
     String sample_id
@@ -693,8 +692,10 @@ task formatPipelineOutputs {
     outputs_dict["picard_quality_distribution_pdf_file"]="~{picard_quality_distribution_pdf}"
     outputs_dict["fp_summary_metrics_file"]="~{picard_fingerprint_summary_metrics}"
     outputs_dict["fp_detail_metrics_file"]="~{picard_fingerprint_detail_metrics}"
-    outputs_dict["contamination"]=str(~{contamination})
-    outputs_dict["contamination_error"]=str(~{contamination_error})
+
+    # truncate to 5 digits
+    outputs_dict["contamination"]='%.5f'%(~{contamination})
+    outputs_dict["contamination_error"]='%.5f'%(~{contamination_error})
 
     # explode unified metrics file
     with open("~{unified_metrics}", "r") as infile:
