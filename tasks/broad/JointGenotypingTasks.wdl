@@ -149,7 +149,7 @@ task GenotypeGVCFs {
     Int disk_size
     # This is needed for gVCFs generated with GATK3 HaplotypeCaller
     Boolean allow_old_rms_mapping_quality_annotation_data = false
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/gatk-log4jfix@sha256:82497d086912599459fe73c7b21d200a107c8691d9d197d954d8d324a748943a"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/gatk-log4jfix@sha256:5d035cd59d852633dab1de1daf584b385026529f8957e074e8b3b7971b8ac1b3"
   }
 
   parameter_meta {
@@ -203,7 +203,7 @@ task GnarlyGenotyper {
     File ref_dict
     String dbsnp_vcf
 
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/gatk-log4jfix@sha256:82497d086912599459fe73c7b21d200a107c8691d9d197d954d8d324a748943a"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/gatk-log4jfix@sha256:5d035cd59d852633dab1de1daf584b385026529f8957e074e8b3b7971b8ac1b3"
   }
 
   parameter_meta {
@@ -230,6 +230,7 @@ task GnarlyGenotyper {
       -V gendb://$WORKSPACE \
       -L ~{interval} \
       -stand-call-conf 10 \
+      --max-alternate-alleles 5 \
       --merge-input-intervals
   >>>
 
