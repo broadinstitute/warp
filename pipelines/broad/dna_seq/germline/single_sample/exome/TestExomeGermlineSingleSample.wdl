@@ -24,18 +24,29 @@ workflow TestExomeGermlineSingleSample {
   }
 
   # Run the pipeline
-  call ExomeGermlineSingleSample.ExomeGermlineSingleSample {
-    input:
-      sample_and_unmapped_bams = sample_and_unmapped_bams,
-      references = references,
-      scatter_settings = scatter_settings,
-      fingerprint_genotypes_file = fingerprint_genotypes_file,
-      fingerprint_genotypes_index = fingerprint_genotypes_index,
-      papi_settings = papi_settings,
-      target_interval_list = target_interval_list,
-      bait_interval_list = bait_interval_list,
-      bait_set_name = bait_set_name,
+  if (!use_timestamp) {
+    call ExomeGermlineSingleSample.ExomeGermlineSingleSample {
+      input:
+        sample_and_unmapped_bams = sample_and_unmapped_bams,
+        references = references,
+        scatter_settings = scatter_settings,
+        fingerprint_genotypes_file = fingerprint_genotypes_file,
+        fingerprint_genotypes_index = fingerprint_genotypes_index,
+        papi_settings = papi_settings,
+        target_interval_list = target_interval_list,
+        bait_interval_list = bait_interval_list,
+        bait_set_name = bait_set_name,
+    }
   }
+
+  call copy_outputs_to_results_bucket{
+  }
+
+  if (update_truth) {
+    call copy_outputs_to_truth_bucket {
+    }
+  }
+
   # Check if the verification should be run or skipped
   if (!update_truth) {
     # Create a list if the tst metrics files
@@ -57,7 +68,7 @@ workflow TestExomeGermlineSingleSample {
       test_metrics = test_metrics,                                   # Array[File] test_metric
       test_cram = ExomeGermlineSingleSample.output_cram,             # File test_cram
       test_crai = ExomeGermlineSingleSample.output_cram_index,       # File test_crai
-      test_gvcf = ExomeGermlineSingleSample.output_vcf              # File test_gvcf
+      test_gvcf = ExomeGermlineSingleSample.output_vcf               # File test_gvcf
     }
   }
 }
