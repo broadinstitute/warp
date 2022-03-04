@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../structs/dna_seq/JukeboxStructs.wdl" as Structs
+import "../../structs/dna_seq/UGGermlineSingleSampleStructs.wdl" as Structs
 
 task VerifyPipelineInputs {
   input {
@@ -742,9 +742,9 @@ task TrainModel {
 
     String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
     Int disk_size_gb = ceil(size(input_file, "GB") +
-                       size(ref_fasta, "GB") +
-                       size(annotation_intervals, "GB") +
-                       size(blacklist_file, "GB") + 20)
+                        size(ref_fasta, "GB") +
+                        size(annotation_intervals, "GB") +
+                        size(blocklist_file, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 64000
     Int preemptible = 3

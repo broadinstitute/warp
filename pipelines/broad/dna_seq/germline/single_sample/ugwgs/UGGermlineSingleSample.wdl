@@ -1,13 +1,13 @@
 version 1.0
 
-import "../../../../../../tasks/broad/JukeboxTasks.wdl" as Tasks
+import "../../../../../../tasks/broad/UGGermlineSingleSampleTasks.wdl" as Tasks
 import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
 import "../../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as VariantDiscoverTasks
-import "../../../../../../tasks/broad/JukeboxAlignmentMarkDuplicates.wdl" as JukeboxAlignmentAndMarkDuplicates
+import "../../../../../../tasks/broad/UGGermlineSingleSampleAlignmentMarkDuplicates.wdl" as UGGermlingSingleSampleAlignmentMarkDuplicates
 import "../../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 import "../../../../../../tasks/broad/Qc.wdl" as QC
-import "../../../../../../tasks/broad/JukeboxQC.wdl" as JukeboxQC
-import "../../../../../../structs/dna_seq/JukeboxStructs.wdl" as Structs
+import "../../../../../../tasks/broad/UGGermlineSingleSampleQC.wdl" as UGGermlineSingleSampleQC
+import "../../../../../../structs/dna_seq/UGGermlineSingleSampleStructs.wdl" as Structs
 
 # CHANGELOG
 #  1.1.1     get multiple input cram
@@ -98,7 +98,7 @@ import "../../../../../../structs/dna_seq/JukeboxStructs.wdl" as Structs
 #  3.2.3     Removed the rsq filtering
 #            Switched error model back to FlowBased
 
-workflow JukeboxSingleSample {
+workflow UGGermlineSingleSample {
   input {
 
     ContaminationSites contamination_sites
@@ -153,7 +153,7 @@ workflow JukeboxSingleSample {
       input_bam_list  = input_bam_list
   }
 
-  call JukeboxAlignmentAndMarkDuplicates.AlignmentAndMarkDuplicates as AlignmentAndMarkDuplicates {
+  call UGGermlingSingleSampleAlignmentMarkDuplicates.AlignmentAndMarkDuplicates as AlignmentAndMarkDuplicates {
     input:
       input_cram_bam                = select_first([input_cram_list,input_bam_list]),
       is_cram                       = VerifyPipelineInputs.is_cram,
@@ -316,7 +316,7 @@ workflow JukeboxSingleSample {
       gvcf_index          = MergeVCFs.output_vcf_index
   }
 
-  call JukeboxQC.JukeboxQC as CollectStatistics {
+  call UGGermlineSingleSampleQC.UGGermlineSingleSampleQC as CollectStatistics {
     input:
       agg_bam                               = AlignmentAndMarkDuplicates.output_bam,
       agg_bam_index                         = AlignmentAndMarkDuplicates.output_bam_index,
