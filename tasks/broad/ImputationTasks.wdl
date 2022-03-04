@@ -3,7 +3,7 @@ version 1.0
 task CalculateChromosomeLength {
   input {
     File ref_dict
-    Int chrom
+    String chrom
 
     String ubuntu_docker = "ubuntu:20.04"
     Int memory_mb = 2000
@@ -22,6 +22,34 @@ task CalculateChromosomeLength {
   }
   output {
     Int chrom_length = read_int(stdout())
+  }
+}
+
+task GetMissingContigList {
+  input {
+    File ref_dict
+    File included_contigs
+
+    String ubuntu_docker = "ubuntu:20.04"
+    Int memory_mb = 2000
+    Int cpu = 1
+    Int disk_size_gb = ceil(2*size(ref_dict, "GiB")) + 5
+  }
+
+  command <<<
+    grep "@SQ" ~{ref_dict} | sed 's/.*SN://' | sed 's/\t.*//' > contigs.txt
+    awk 'NR==FNR{arr[$0];next} !($0 in arr)' ~{included_contigs} contigs.txt > missing_contigs.txt
+  >>>
+
+  runtime {
+    docker: ubuntu_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+  }
+
+  output {
+    Array[String] missing_contigs = read_lines("missing_contigs.txt")
   }
 }
 
@@ -163,7 +191,7 @@ task PhaseVariantsEagle {
     String eagle_docker = "us.gcr.io/broad-gotc-prod/imputation-eagle:1.0.0-2.4-1633695564"
     Int cpu = 8
     Int memory_mb = 32000
-    Int disk_size_gb = ceil(3 * size([dataset_bcf, reference_panel_bcf, dataset_bcf_index, reference_panel_bcf_index], "GiB"))
+    Int disk_size_gb = ceil(3 * size([dataset_bcf, reference_panel_bcf, dataset_bcf_index, reference_panel_bcf_index], "GiB")) + 50
   }
   command <<<
     /usr/gitc/eagle  \
@@ -587,6 +615,57 @@ task MergeImputationQCMetrics {
   }
 }
 
+task SubsetVcfToRegion {
+  input {
+    File vcf
+    File vcf_index
+    String output_basename
+    String contig
+    Int start
+    Int end
+    Boolean exclude_filtered = false
+
+    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
+    Int cpu = 1
+    Int memory_mb = 8000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+  }
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
+  command {
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    SelectVariants \
+    -V ~{vcf} \
+    -L ~{contig}:~{start}-~{end} \
+    -select 'POS >= ~{start}' ~{if exclude_filtered then "--exclude-filtered" else ""} \
+    -O ~{output_basename}.vcf.gz
+  }
+
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+  }
+
+  parameter_meta {
+    vcf: {
+       description: "vcf",
+       localization_optional: true
+     }
+    vcf_index: {
+       description: "vcf index",
+       localization_optional: true
+     }
+  }
+
+  output {
+    File output_vcf = "~{output_basename}.vcf.gz"
+    File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
+  }
+}
+
 task SetIDs {
   input {
     File vcf
@@ -599,10 +678,7 @@ task SetIDs {
   }
   command <<<
     set -e -o pipefail
-    bcftools annotate ~{vcf} --set-id '%CHROM\:%POS\:%REF\:%FIRST_ALT' -Ov | \
-      awk -v OFS='\t' '{split($3, n, ":"); if ( !($1 ~ /^"#"/) && n[4] < n[3])  $3=n[1]":"n[2]":"n[4]":"n[3]; print $0}' | \
-      bgzip -c > ~{output_basename}.vcf.gz
-
+    bcftools annotate ~{vcf} --set-id '%CHROM\:%POS\:%REF\:%FIRST_ALT' -Oz -o ~{output_basename}.vcf.gz
     bcftools index -t ~{output_basename}.vcf.gz
   >>>
   runtime {
@@ -774,7 +850,7 @@ task SplitMultiSampleVcf {
   }
   command <<<
     set -e -o pipefail
-    
+
     mkdir out_dir
     bcftools +split ~{multiSampleVcf} -Oz -o out_dir
     for vcf in out_dir/*.vcf.gz; do
