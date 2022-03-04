@@ -23,7 +23,7 @@ import "../../../../../../structs/dna_seq/JukeboxStructs.wdl" as Structs
 #  2.1.5.3   reduced cpu number for MarkDuplicatesSpark
 #  2.1.6     minor restructuring in preparation of gatk 0.5.1
 #  2.1.7     replaced ultima markduplicates docker with broad one
-#  2.2.0     gatk 0.5.1, blacklist in filtering
+#  2.2.0     gatk 0.5.1, blocklist in filtering
 #  2.2.1     gatk 0.5.1-2 in markduplicates without localization
 #  2.2.2     added CollectIntervalCoverageStats, removed maxretries from tasks without default preemptible tries
 #  2.3.1     supports V4 of the basecalling pipeline, aggregates sequencing metrics
@@ -81,7 +81,7 @@ import "../../../../../../structs/dna_seq/JukeboxStructs.wdl" as Structs
 #            [BIOIN-169] Removed task to remove symbolic allele
 #            Minor fixes:
 #             [BIOIN-183] Better output of the report metadata
-#             [BIOIN-152] Improved blacklist for somatic pipeline
+#             [BIOIN-152] Improved blocklist for somatic pipeline
 #  2.7.2     Allow empty adapter in converted libraries
 #  3.1.1     [BIOIN-189] contamination is calcuated on the FlowBased model
 #            [BIOIN-257] Apply filtering model on the gVCF
@@ -295,7 +295,7 @@ workflow JukeboxSingleSample {
       input_file                = AddIntervalAnnotationsToVCF.output_vcf,
       input_file_index          = AddIntervalAnnotationsToVCF.output_vcf_index,
       input_vcf_name            = MakeSafeFilename.output_safe_name,
-      blacklist_file            = vcf_post_processing.training_blacklist_file,
+      blocklist_file            = vcf_post_processing.training_blocklist_file,
       ref_fasta                 = references.ref_fasta,
       ref_index                 = references.ref_fasta_index,
       runs_file                 = vcf_post_processing.runs_file,
@@ -325,7 +325,7 @@ workflow JukeboxSingleSample {
       references              = references,
       model_name              = filtering_model_no_gt_name,
       filter_cg_insertions    = vcf_post_processing.filter_cg_insertions,
-      blacklist_file          = vcf_post_processing.filtering_blacklist_file,
+      blocklist_file          = vcf_post_processing.filtering_blocklist_file,
       final_vcf_base_name     = MakeSafeFilename.output_safe_name,
       flow_order              = ExtractSampleNameFlowOrder.flow_order,
       annotation_intervals    = vcf_post_processing.annotation_intervals,
