@@ -76,6 +76,12 @@ class CloudWorkflowTester(testerConfig: BaseConfig)(
   protected lazy val inputFileNames: Seq[String] =
     workflowInputRoot.list.toSeq.map(_.name.toString)
 
+  protected lazy val updateTruth: Boolean =
+    testerConfig.updateTruth
+
+  protected lazy val useTimestamp: Boolean =
+    isDefined(testerConfig.useTimestamp)
+
   /**
     * If we're not updating the truth data, just validate the runs.
     * Else, use the provided run data as new truth data
@@ -197,13 +203,9 @@ class CloudWorkflowTester(testerConfig: BaseConfig)(
         .filter(_.getPath.endsWith("metrics"))
         .map(uriToFilename)
 
-      //TODO: Add update truth parameter and the truthPath to inputs sting
-
-      //TODO: Add metrics filenames ONLY if the list is non-empty
-
       WorkflowRunParameters(
         id = s"${envString}_$inputsName",
-        workflowInputs = getInputContents(fileName),
+        workflowInputs = getInputContents(fileName, resultsPath, truthPath),
         resultsCloudPath = resultsPath,
         truthCloudPath = truthPath
       )
@@ -211,8 +213,20 @@ class CloudWorkflowTester(testerConfig: BaseConfig)(
   }
 
 
-  def getInputContents(fileName: String): String =
-    (workflowInputRoot / fileName).contentAsString
+  def getInputContents(fileName: String, resultsPath: String, truthPath: String): String = {
+    val defaultInputs = Array(
+      workflowName + ".truth_path" -> truthPath.asJson,
+      workflowName + ".results_path" -> resultsPath.asJson,
+      workflowName + ".update_truth" -> updateTruth.asJson,
+      workflowName + ".use_timestamp" -> useTimestamp.asJson,
+      workflowName + ".timestamp" -> timestamp.asJson
+    )
+    val inputsString = (workflowInputRoot / fileName).contentAsString.replace(pipeline, workflowName)
+    parse(inputsString).fold(
+        e => throw new RuntimeException("Could not create inputs json", e),
+        _.deepMerge(Json.obj(defaultInputs: _*)).noSpaces
+      )
+  }
 
   override def runTest: Future[Unit] = {
     logger.info(
