@@ -34,8 +34,8 @@ struct VcfPostProcessing {
   File af_only_gnomad
   File af_only_gnomad_index
   Boolean filter_cg_insertions
-  File? filtering_blacklist_file
-  File? training_blacklist_file
+  File? filtering_blocklist_file
+  File? training_blocklist_file
   Int? exome_weight
   String? exome_weight_annotation
   File? interval_list_override
