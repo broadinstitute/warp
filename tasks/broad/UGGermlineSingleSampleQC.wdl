@@ -1,9 +1,9 @@
 version 1.0
 
-import "../../tasks/broad/JukeboxTasks.wdl" as Tasks
+import "../../tasks/broad/UGGermlineSingleSampleTasks.wdl" as Tasks
 import "../../tasks/broad/Qc.wdl" as QC
 
-workflow JukeboxQC {
+workflow UGGermlineSingleSampleQC {
   input {
     File agg_bam
     File agg_bam_index
