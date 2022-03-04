@@ -703,8 +703,8 @@ task FilterVCF {
     --reference_file ~{references.ref_fasta} \
     --hpol_filter_length_dist 12 10 \
     --flow_order ~{used_flow_order} \
-    ~{true="--blocklist_cg_insertions" false="" filter_cg_insertions} \
-    ~{"--blocklist " + blocklist_file} \
+    ~{true="--blacklist_cg_insertions" false="" filter_cg_insertions} \
+    ~{"--blacklist " + blocklist_file} \
     --annotate_intervals ~{sep=" --annotate_intervals " annotation_intervals} \
     --output_file /cromwell_root/~{final_vcf_base_name}.filtered.vcf.gz
   >>>
@@ -762,7 +762,7 @@ task TrainModel {
     ~{"--runs_intervals " + runs_file} \
     --evaluate_concordance \
     --apply_model ~{apply_model} \
-    ~{"--blocklist " + blocklist_file} \
+    ~{"--blacklist " + blocklist_file} \
     ~{"--exome_weight " + exome_weight} \
     ~{"--exome_weight_annotation " + exome_weight_annotation} \
     --annotate_intervals ~{sep=" --annotate_intervals " annotation_intervals} \
