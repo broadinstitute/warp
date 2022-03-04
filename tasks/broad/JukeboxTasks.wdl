@@ -616,7 +616,7 @@ task FilterVCF {
     References references
     String model_name
     Boolean filter_cg_insertions
-    File? blacklist_file
+    File? blocklist_file
     String final_vcf_base_name
     String flow_order
     Array[File] annotation_intervals
@@ -639,8 +639,8 @@ task FilterVCF {
     --reference_file ~{references.ref_fasta} \
     --hpol_filter_length_dist 12 10 \
     --flow_order ~{used_flow_order} \
-    ~{true="--blacklist_cg_insertions" false="" filter_cg_insertions} \
-    ~{"--blacklist " + blacklist_file} \
+    ~{true="--blocklist_cg_insertions" false="" filter_cg_insertions} \
+    ~{"--blocklist " + blocklist_file} \
     --annotate_intervals ~{sep=" --annotate_intervals " annotation_intervals} \
     --output_file /cromwell_root/~{final_vcf_base_name}.filtered.vcf.gz
   >>>
@@ -664,7 +664,7 @@ task TrainModel {
     File? ref_fasta
     File? ref_index
     File? runs_file
-    File? blacklist_file
+    File? blocklist_file
     String input_vcf_name
     Array[File] annotation_intervals
     String apply_model
@@ -672,7 +672,7 @@ task TrainModel {
     Int disk_size_gb = ceil(size(input_file, "GB") +
                         size(ref_fasta, "GB") +
                         size(annotation_intervals, "GB") +
-                        size(blacklist_file, "GB") + additional_disk)
+                        size(blocklist_file, "GB") + additional_disk)
     
     Int? exome_weight
     String? exome_weight_annotation
@@ -692,7 +692,7 @@ task TrainModel {
     ~{"--runs_intervals " + runs_file} \
     --evaluate_concordance \
     --apply_model ~{apply_model} \
-    ~{"--blacklist " + blacklist_file} \
+    ~{"--blocklist " + blocklist_file} \
     ~{"--exome_weight " + exome_weight} \
     ~{"--exome_weight_annotation " + exome_weight_annotation} \
     --annotate_intervals ~{sep=" --annotate_intervals " annotation_intervals} \
