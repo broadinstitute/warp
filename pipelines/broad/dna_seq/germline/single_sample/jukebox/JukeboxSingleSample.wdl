@@ -116,9 +116,6 @@ workflow JukeboxSingleSample {
     Boolean make_haplotype_bam = false
     Int reads_per_split = 20000000
     String filtering_model_no_gt_name = "rf_model_ignore_gt_incl_hpol_runs"
-
-    Int increase_disk_size = 20
-    Int increase_metrics_disk_size = 80
   }
 
   meta {
@@ -138,21 +135,12 @@ workflow JukeboxSingleSample {
     merge_bam_file: ""
     reads_per_split: ""
     filtering_model_no_gt_name: ""
-    increase_disk_size: ""
-    increase_metrics_disk_size: ""
   }
 
   String pipeline_version = "3.2.3"
 
-  
   References references = alignment_references.references
 
-  # Allocate appropriate disk sizes for subtasks
-  Int secure_disk_size_threshold = 510
-  Int VCF_disk_size = increase_disk_size
-  Int additional_disk = increase_disk_size
-  Int additional_metrics_disk = increase_metrics_disk_size
-  Float ref_size = size(references.ref_fasta, "GB") + size(references.ref_fasta_index, "GB") + size(references.ref_dict, "GB")
 
   call InternalTasks.MakeSafeFilename as MakeSafeFilename {
     input:
@@ -172,14 +160,9 @@ workflow JukeboxSingleSample {
       base_file_name_sub            = MakeSafeFilename.output_safe_name,
       reads_per_split               = reads_per_split,
       rsq_threshold                 = rsq_threshold,
-      additional_disk               = additional_disk,
       alignment_references          = alignment_references,
-      ref_size                      = ref_size
+      references                    = references
   }
-
-  Float agg_bam_size = size(AlignmentAndMarkDuplicates.output_bam, "GB")
-  Float dynamic_convert_to_cram_disk_size = (2 * agg_bam_size) + ref_size + additional_disk
-  Int convert_to_cram_disk_size = if dynamic_convert_to_cram_disk_size > secure_disk_size_threshold then ceil(dynamic_convert_to_cram_disk_size) else ceil(secure_disk_size_threshold)
 
   # Convert the final merged recalibrated BAM file to CRAM format
   call Utilities.ConvertToCram {
@@ -190,9 +173,8 @@ workflow JukeboxSingleSample {
       output_basename = MakeSafeFilename.output_safe_name
   }
 
-  Float cram_size = size(ConvertToCram.output_cram, "GB")
-  Float dynamic_validate_cram_disk_size = cram_size + ref_size + additional_metrics_disk
-  Int validate_cram_disk_size = if dynamic_validate_cram_disk_size > secure_disk_size_threshold then ceil(dynamic_validate_cram_disk_size) else ceil(secure_disk_size_threshold)
+  Float dynamic_validate_cram_disk_size = size(ConvertToCram.output_cram, "GB") + size(references.ref_fasta, "GB") + size(references.ref_fasta_index, "GB") + size(references.ref_dict, "GB") + 80
+  Int validate_cram_disk_size = if dynamic_validate_cram_disk_size > 510 then ceil(dynamic_validate_cram_disk_size) else 510
 
   # Validate the CRAM file
   call QC.ValidateSamFile as ValidateCram {
@@ -206,12 +188,13 @@ workflow JukeboxSingleSample {
       ignore            = ["MISSING_TAG_NM" ,"INVALID_PLATFORM_VALUE"],
       max_output        = 1000000000,
       is_outlier_data   = true, #sets SKIP_MATE_VALIDATION=true
+      disk_size         = validate_cram_disk_size
   }
 
   call Tasks.ExtractSampleNameFlowOrder {
     input:
       input_bam  = AlignmentAndMarkDuplicates.output_bam,
-      references = references,
+      references = references
   }
 
   # Break the calling interval_list into sub-intervals
@@ -237,8 +220,6 @@ workflow JukeboxSingleSample {
         interval_list   = ScatterIntervalList.out[index],
         vcf_basename    = MakeSafeFilename.output_safe_name,
         references      = references,
-        disk_size       = ceil(((agg_bam_size + VCF_disk_size) / hc_divisor) + ref_size + additional_disk),
-        memory_gb       = 12,
         make_bamout     = make_haplotype_bam
     }
   }
@@ -265,8 +246,7 @@ workflow JukeboxSingleSample {
       input_gvcf         = MergeVCFs.output_vcf,
       input_gvcf_index   = MergeVCFs.output_vcf_index,
       output_vcf_name    = MakeSafeFilename.output_safe_name + '.vcf.gz',
-      references         = references,
-      disk_size_gb       = VCF_disk_size,
+      references         = references
   }
 
   # VCF post-processings
@@ -278,8 +258,7 @@ workflow JukeboxSingleSample {
       reference_dbsnp         = vcf_post_processing.ref_dbsnp,
       reference_dbsnp_index   = vcf_post_processing.ref_dbsnp_index,
       flow_order              = ExtractSampleNameFlowOrder.flow_order,
-      final_vcf_base_name     = MakeSafeFilename.output_safe_name,
-      additional_disk         = additional_disk,
+      final_vcf_base_name     = MakeSafeFilename.output_safe_name
   }
 
   call Tasks.AddIntervalAnnotationsToVCF {
@@ -302,8 +281,7 @@ workflow JukeboxSingleSample {
       apply_model               = filtering_model_no_gt_name,
       annotation_intervals      = vcf_post_processing.annotation_intervals,
       exome_weight              = vcf_post_processing.exome_weight,
-      exome_weight_annotation   = vcf_post_processing.exome_weight_annotation,
-      additional_disk           = additional_disk,
+      exome_weight_annotation   = vcf_post_processing.exome_weight_annotation
   }
 
 
@@ -313,8 +291,7 @@ workflow JukeboxSingleSample {
       input_vcf_index       = AddIntervalAnnotationsToVCF.output_vcf_index,
       af_only_gnomad        = vcf_post_processing.af_only_gnomad,
       af_only_gnomad_index  = vcf_post_processing.af_only_gnomad_index,
-      final_vcf_base_name   = MakeSafeFilename.output_safe_name,
-      additional_disk       = additional_disk,
+      final_vcf_base_name   = MakeSafeFilename.output_safe_name
   }
 
   call Tasks.FilterVCF {
@@ -328,8 +305,7 @@ workflow JukeboxSingleSample {
       blocklist_file          = vcf_post_processing.filtering_blocklist_file,
       final_vcf_base_name     = MakeSafeFilename.output_safe_name,
       flow_order              = ExtractSampleNameFlowOrder.flow_order,
-      annotation_intervals    = vcf_post_processing.annotation_intervals,
-      disk_size_gb            = VCF_disk_size,
+      annotation_intervals    = vcf_post_processing.annotation_intervals
   }
 
   call Tasks.MoveAnnotationsToGvcf {
@@ -346,15 +322,9 @@ workflow JukeboxSingleSample {
       agg_bam_index                         = AlignmentAndMarkDuplicates.output_bam_index,
       base_file_name                        = MakeSafeFilename.output_safe_name,
       base_file_name_sub                    = MakeSafeFilename.output_safe_name,
-      agg_bam_size                          = agg_bam_size,
-      ref_size                              = ref_size,
-      additional_metrics_disk               = additional_metrics_disk,
-      secure_disk_size_threshold            = secure_disk_size_threshold,
       references                            = references,
       contamination_sites                   = contamination_sites,
       wgs_coverage_interval_list            = vcf_post_processing.wgs_coverage_interval_list,
-      VCF_disk_size                         = VCF_disk_size,
-      additional_disk                       = additional_disk,
       max_duplication_in_reasonable_sample  = vcf_post_processing.max_duplication_in_reasonable_sample,
       max_chimerism_in_reasonable_sample    = vcf_post_processing.max_chimerism_in_reasonable_sample,
       flow_order                            = ExtractSampleNameFlowOrder.flow_order

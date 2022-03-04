@@ -7,29 +7,17 @@ workflow JukeboxQC {
   input {
     File agg_bam
     File agg_bam_index
-    Float agg_bam_size
     String base_file_name
     String base_file_name_sub
-
-    Float ref_size
-    Int additional_metrics_disk
-    Float secure_disk_size_threshold
 
     References references
     ContaminationSites contamination_sites
     File wgs_coverage_interval_list
 
-
-    Int VCF_disk_size
-    Int additional_disk
-
     Float max_duplication_in_reasonable_sample
     Float max_chimerism_in_reasonable_sample
     String flow_order
   }
-
-  Float dynamic_check_contamination_disk_size = agg_bam_size + ref_size + additional_metrics_disk
-  Float check_contamination_disk_size = if dynamic_check_contamination_disk_size > secure_disk_size_threshold then dynamic_check_contamination_disk_size else secure_disk_size_threshold
 
   # Preprocessing step for VerifyBamID, where we realign the reads to the ref and alt haplotypes and extract a bamout.
   # --alleles ~{contamination_sites_vcf} activates the "genotype-given-allele" mode. This way, even in the case where the alt alleles have been pushed out
@@ -49,9 +37,7 @@ workflow JukeboxQC {
       interval_list                 = contamination_sites.contamination_sites_vcf,
       vcf_basename                  = base_file_name,
       references                    = references,
-      disk_size                     = ceil((agg_bam_size + VCF_disk_size) + ref_size + additional_disk),
       contamination_extra_args      = hc_contamination_extra_args,
-      memory_gb                     = 12,
       make_bamout                   = true
   }
 
@@ -68,18 +54,14 @@ workflow JukeboxQC {
       contamination_sites_bed = contamination_sites_bed,
       contamination_sites_mu  = contamination_sites_mu,
       references              = references,
-      output_prefix           = base_file_name,
-      disk_size               = ceil(check_contamination_disk_size)
+      output_prefix           = base_file_name
   }
-
-  Float dynamic_statistics_disk_size = agg_bam_size + ref_size + ( additional_metrics_disk * 2 )
-  Int statistics_disk_size = if dynamic_statistics_disk_size > secure_disk_size_threshold then ceil(dynamic_statistics_disk_size) else ceil(secure_disk_size_threshold)
 
   call Tasks.CollectDuplicateMetrics {
     input:
       input_bam        = agg_bam,
       metrics_filename = base_file_name_sub + ".duplicate_metrics",
-      disk_size_gb     = statistics_disk_size
+      references       = references
   }
 
   call QC.CollectQualityYieldMetrics {
@@ -95,14 +77,8 @@ workflow JukeboxQC {
       input_bam_index             = agg_bam_index,
       metrics_filename            = base_file_name_sub + ".wgs_metrics",
       references                  = references,
-      wgs_coverage_interval_list  = wgs_coverage_interval_list,
-      disk_size                   = statistics_disk_size
+      wgs_coverage_interval_list  = wgs_coverage_interval_list
   }
-
-  Int default_raw_wgs_memory_size = 12
-  Int increased_raw_wgs_memory_size = 30
-  Int input_bam_size_threshold = 200
-  Int raw_wgs_memory_size = if ceil(agg_bam_size) > input_bam_size_threshold then increased_raw_wgs_memory_size else default_raw_wgs_memory_size
 
   # QC the sample raw WGS metrics (common thresholds)
   call Tasks.CollectRawWgsMetrics {
@@ -111,9 +87,7 @@ workflow JukeboxQC {
       input_bam_index             = agg_bam_index,
       metrics_filename            = base_file_name_sub + ".raw_wgs_metrics",
       references                  = references,
-      wgs_coverage_interval_list  = wgs_coverage_interval_list,
-      disk_size                   = statistics_disk_size,
-      memory_size                 = raw_wgs_memory_size
+      wgs_coverage_interval_list  = wgs_coverage_interval_list
   }
 
   # QC the final BAM some more (no such thing as too much QC)
@@ -122,8 +96,7 @@ workflow JukeboxQC {
       input_bam           = agg_bam,
       input_bam_index     = agg_bam_index,
       output_bam_prefix   = base_file_name_sub,
-      references          = references,
-      disk_size           = statistics_disk_size
+      references          = references
   }
 
   # Check whether the data has massively high duplication or chimerism rates

@@ -55,26 +55,29 @@ task SplitCram {
     File input_cram_bam
     String base_file_name
     Int reads_per_file
-    Int disk_size_gb = ceil(3 * size(input_cram_bam, "GB"))
-    
-    Int preemptible = 3
+
     String docker = "gcr.io/terra-project-249020/crammer:1.3_0c527b2e"
+    Int disk_size_gb = ceil(3 * size(input_cram_bam, "GiB") + 20)
+    Int cpu = 1
+    Int memory_mb = ceil(size(input_cram_bam, "MiB"))
+    Int preemptible = 3
+    Int max_retries = 1
   }
 
   command <<<
-
     mkdir -p /cromwell_root/splitout
     /crammer --split --out /cromwell_root/splitout/~{base_file_name}-%d.cram \
     --progress --nreads-per-file ~{reads_per_file}  < ~{input_cram_bam}
   >>>
+
   runtime {
-    preemptible: preemptible
-    memory: "8000 MiB"
-    cpu: "1"
-    disks: "local-disk " + disk_size_gb + " HDD"
     docker: docker
-    maxRetries: 1
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    maxRetries: max_retries
   }
+
   output {
     Array[File] split_outputs = glob("/cromwell_root/splitout/*.cram")
   }
@@ -86,11 +89,13 @@ task ConvertCramOrBamToUBam {
     File input_file
     String base_file_name
     Float split_chunk_size
-    Int additional_disk
-    Int disk_size_gb = ceil((2 * split_chunk_size) + additional_disk)
-    
-    Int preemptible = 3
+
     String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
+    Int disk_size_gb = ceil((2 * split_chunk_size) + 20)
+    Int cpu = 2
+    Int memory_mb = 13000
+    Int preemptible = 3
+    Int max_retries = 1
   }
 
   command <<<
@@ -126,14 +131,16 @@ task ConvertCramOrBamToUBam {
     --VALIDATION_STRINGENCY LENIENT \
     $sort_order_flag
   >>>
+
   runtime {
-    preemptible: preemptible
-    memory: "13 GB"
-    cpu: "2"
-    disks: "local-disk " + disk_size_gb + " HDD"
     docker: docker
-    maxRetries: 1
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    maxRetries: max_retries
+    preemptible: preemptible
   }
+
   output {
     File unmapped_bam = "~{base_file_name}.u.bam"
   }
@@ -146,13 +153,29 @@ task SamToFastqAndBwaMemAndMba {
     # This is the .alt file from bwa-kit (https://github.com/lh3/bwa/tree/master/bwakit),
     # listing the reference contigs that are "alternative".
     AlignmentReferences alignment_references
+    References references
     File input_bam
-    String output_bam_basename
 
-    Int disk_size
-    Int preemptible = 3
     String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
+    Int disk_size_gb = ceil(size(input_bam, "GB") +
+                            size(references.ref_fasta, "GB") +
+                            size(references.ref_fasta_index, "GB") +
+                            size(references.ref_dict, "GB") +
+                            size(alignment_references.ref_alt, "GB") +
+                            size(alignment_references.ref_amb, "GB") +
+                            size(alignment_references.ref_ann, "GB") +
+                            size(alignment_references.ref_bwt, "GB") +
+                            size(alignment_references.ref_pac, "GB") +
+                            size(alignment_references.ref_sa, "GB") +
+                            (2.5 * size(input_bam, "GB")) + 20)
+    Int cpu = 16
+    Int memory_mb = 14000
+    Int preemptible = 3
+    Int max_retries = 1
   }
+
+   String output_bam_basename = basename(input_bam, ".bam")
+
   command <<<
     # This is done before "set -o pipefail" because "bwa" will have a rc=1 and we don't want to allow rc=1 to succeed
     # because the sed may also fail with that error and that is something we actually want to fail on.
@@ -223,14 +246,16 @@ task SamToFastqAndBwaMemAndMba {
     exit 1;
     fi
   >>>
+
   runtime {
-    preemptible: preemptible
-    memory: "14 GB"
-    cpu: "16"
-    disks: "local-disk " + disk_size + " HDD"
     docker: docker
-    maxRetries: 1
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    maxRetries: max_retries
+    preemptible: preemptible
   }
+
   output {
     File output_bam = "~{output_bam_basename}.bam"
     File bwa_stderr_log = "~{output_bam_basename}.bwa.stderr.log"
@@ -241,12 +266,14 @@ task MarkDuplicatesSpark {
   input {
     Array[File] input_bams
     String output_bam_basename
-    Int memory_gb
-    Int disk_size_gb
-    Int cpu
     
     String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
+    Int disk_size_gb
+    Int cpu = 32
+    Int memory_mb = if 4 * ceil(size(input_bams, "MB")) / 4000 > 600000 then 300000 else 208000
+    Int preemptible = 0
   }
+
   parameter_meta {
     input_bams: {
                   localization_optional: true
@@ -254,7 +281,6 @@ task MarkDuplicatesSpark {
   }
 
   command <<<
-
     bams_dirname=$(echo "~{sep='\n'input_bams}" | tail -1 | xargs dirname)
 
     java -Xmx190g -jar /usr/gitc/GATK_ultima.jar MarkDuplicatesSpark \
@@ -268,15 +294,16 @@ task MarkDuplicatesSpark {
     --FLOW_USE_CLIPPED_LOCATIONS true \
     --ENDS_READ_UNCERTAINTY 1 \
     --FLOW_SKIP_START_HOMOPOLYMERS 0
-
   >>>
+
   runtime {
-    disks: "local-disk " + disk_size_gb + " LOCAL"
-    cpu: cpu
-    memory: memory_gb + " GB"
-    preemptible: 0
     docker: docker
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk " + disk_size_gb + " LOCAL"
+    preemptible: preemptible
   }
+
   output {
     File output_bam = "~{output_bam_basename}.bam"
     File output_bam_index = "~{output_bam_basename}.bam.bai"
@@ -287,15 +314,17 @@ task FilterByRsq{
   input { 
     File input_bam
     Float rsq_threshold
-    Int additional_disk
-    Int disk_size_gb = ceil(2 * size(input_bam, "GB") + additional_disk)
-    
-    Int preemptible = 3
+
     String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
+    Int disk_size_gb = ceil(2 * size(input_bam, "GB") + 20)
+    Int cpu = 1
+    Int memory_mb = 5000
+    Int preemptible = 3
   }
 
   String output_filename = basename(input_bam, ".bam") + ".filter.rq.bam"
-  command <<< 
+
+  command <<<
     set -eo pipefail
 
     source ~/.bashrc
@@ -304,17 +333,18 @@ task FilterByRsq{
 
     bamtools filter -in ~{input_bam} -out ~{output_filename} -tag "rq":"<=~{rsq_threshold}"
   >>>
+
   output {
     File output_bam = "~{output_filename}"
   }
 
   runtime {
-    memory: "5000 MiB"
     docker: docker
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
     preemptible: preemptible
-    disks: "local-disk " + disk_size_gb + " HDD"
   }
-
 }
 
 task ExtractSampleNameFlowOrder{
@@ -322,9 +352,13 @@ task ExtractSampleNameFlowOrder{
     File input_bam
     References references
     
-    Int preemptible = 3
     String docker = "broadinstitute/gatk:4.1.4.1"
+    Int disk_size_gb = ceil(size(input_bam, "GB") + size(references.ref_fasta, "GB") + 20)
+    Int cpu = 1
+    Int memory_mb = 2000
+    Int preemptible = 3
   }
+
   parameter_meta {
     input_bam: {
      localization_optional: true
@@ -354,13 +388,14 @@ task ExtractSampleNameFlowOrder{
     --HEADER_ONLY true --ALIGNMENT_STATUS All --PF_STATUS All \
     | grep "^@RG" | awk '{for (i=1;i<=NF;i++){if ($i ~/ID:/) {print substr($i,4)}}}' | head -1 \
     > id.txt
-
   >>>
+
   runtime {
-    cpu: 1
-    memory: "2000 MiB"
-    preemptible: preemptible
-    docker: docker
+   docker: docker
+   cpu : cpu
+   memory : "${memory_mb} MiB"
+   disks : "local-disk ${disk_size_gb} HDD"
+   preemptible : preemptible
   }
 
   output {
@@ -387,10 +422,21 @@ task CheckContamination {
     File contamination_sites_mu
     References references
     String output_prefix
-    Int disk_size
 
+    String docker = "us.gcr.io/broad-gotc-prod/verify-bam-id:f6cb51761861e57c43879aa262df5cf8e670cf7c-1606775309"
+    Int disk_size_gb = ceil(if ceil((size(input_bam, "GB")) +
+                            (size(references.ref_fasta, "GB") +
+                            size(references.ref_fasta_index, "GB") +
+                            size(references.ref_dict, "GB")) + 80) > 510 then ceil((size(input_bam, "GB")) +
+                            (size(references.ref_fasta, "GB") +
+                            size(references.ref_fasta_index, "GB") +
+                            size(references.ref_dict, "GB")) + 80) else 510)
+    Int cpu = 1
+    Int memory_mb = 2000
     Int preemptible = 3
+    Int max_retries = 1
   }
+
   command <<<
     set -e
 
@@ -438,11 +484,12 @@ task CheckContamination {
   >>>
 
   runtime {
+    docker: docker
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
     preemptible: preemptible
-    memory: "2 GB"
-    disks: "local-disk " + disk_size + " HDD"
-    docker: "us.gcr.io/broad-gotc-prod/verify-bam-id:f6cb51761861e57c43879aa262df5cf8e670cf7c-1606775309"
-    maxRetries: 1
+    maxRetries: max_retries
   }
 
   output {
@@ -464,10 +511,12 @@ task HaplotypeCaller {
     Boolean native_sw = false
     String? contamination_extra_args 
     
-    Int disk_size
-    Int memory_gb
-    Int preemptible = 3
     String docker = "gcr.io/terra-project-249020/gatk_ultima:0.6.1"
+    Int disk_size_gb = ceil((size(input_bam_list, "GB")) + size(references.ref_fasta, "GB") + size(references.ref_fasta_index, "GB") + size(references.ref_dict, "GB") + 60)
+    Int cpu = 2
+    Int memory_mb = 12000
+    Int preemptible = 3
+    Int max_retries = 1
   }
 
   parameter_meta {
@@ -486,7 +535,7 @@ task HaplotypeCaller {
     touch realigned.bam
     touch realigned.bai
 
-    java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms~{memory_gb-2}g \
+    java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms~{memory_mb-2000}m \
       -jar /usr/gitc/GATK_ultima.jar \
       HaplotypeCaller \
       -R ~{references.ref_fasta} \
@@ -522,16 +571,16 @@ task HaplotypeCaller {
   }
 
   runtime {
-    preemptible: preemptible
-    memory: "~{memory_gb} GB"
-    cpu: "2"
-    disks: "local-disk " + disk_size + " HDD"
     docker: docker
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    preemptible: preemptible
+    maxRetries : max_retries
     continueOnReturnCode: [0,134,139]
     bootDiskSizeGb: 15
-    maxRetries: 1
-#    continueOnReturnCode: true
   }
+
   output {
     File output_vcf = "~{output_filename}"
     File output_vcf_index = "~{output_filename}.tbi"
@@ -539,21 +588,24 @@ task HaplotypeCaller {
     File bamout_index = "realigned.bai"
   }
 }
+
 # Combine multiple VCFs or GVCFs from scattered HaplotypeCaller runs
 task MergeBams {
   input {
     Array[File] input_bams
     String output_bam_name
-    
-    Int disk_size_gb = ceil(2 * size(input_bams,"GB") + 20)
-    
-    Int preemptible = 3
+
     String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
+    Int disk_size_gb = ceil(2 * size(input_bams,"GB") + 20)
+    Int cpu = 1
+    Int memory_mb = 10000
+    Int preemptible = 3
+    Int max_retries = 1
   }
+
   # Using MergeVcfs instead of GatherVcfs so we can create indices
   # See https://github.com/broadinstitute/picard/issues/789 for relevant GatherVcfs ticket
   command {
-
     java -Xms9000m -jar /usr/gitc/picard.jar \
     MergeSamFiles \
     INPUT=~{sep=' INPUT=' input_bams} \
@@ -561,13 +613,16 @@ task MergeBams {
 
     samtools index ~{output_bam_name}
   }
+
   runtime {
+    docker: docker
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
     preemptible: preemptible
-    memory: "10 GB"
-    disks: "local-disk " + ceil(disk_size_gb) + " HDD"
-    docker: docker 
-    maxRetries: 1
+    maxRetries: max_retries
   }
+
   output {
     File output_bam = "~{output_bam_name}"
     File output_bam_index = "~{output_bam_name}.bai"
@@ -580,11 +635,15 @@ task ConvertGVCFtoVCF {
     File input_gvcf_index
     String output_vcf_name
     References references
-    Int disk_size_gb
 
-    Int preemptible = 3
     String docker = "gcr.io/terra-project-249020/gatk_ultima:0.6.1"
+    Int disk_size_gb = ceil(2 * size(input_gvcf, "GB") + size(references.ref_fasta, "GB") + size(input_gvcf_index, "GB") + 20)
+    Int cpu = 1
+    Int memory_mb = 12000
+    Int preemptible = 3
+    Int max_retries = 1
   }
+
   command {
     java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m \
     -jar /usr/gitc/GATK_ultima.jar GenotypeGVCFs \
@@ -594,14 +653,16 @@ task ConvertGVCFtoVCF {
     -A  StrandBiasBySample \
     -A AS_HmerLength
   }
+
   runtime {
-    preemptible: preemptible
-    memory: "12 GB"
-    cpu: "1"
-    disks: "local-disk " + disk_size_gb + " HDD"
     docker: docker
-    maxRetries: 1
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    preemptible: preemptible
+    maxRetries: max_retries
   }
+
   output {
     File output_vcf = "~{output_vcf_name}"
     File output_vcf_index = "~{output_vcf_name}.tbi"
@@ -620,14 +681,17 @@ task FilterVCF {
     String final_vcf_base_name
     String flow_order
     Array[File] annotation_intervals
-    Int disk_size_gb
-    
-    Int preemptible = 3
-    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
-  }
-  String used_flow_order = (if flow_order=="" then "TACG" else flow_order)
-  command <<<
 
+    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
+    Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + size(references.ref_fasta, "GB") + size(input_model, "GB") + 20)
+    Int cpu = 1
+    Int memory_mb = 64000
+    Int preemptible = 3
+  }
+
+  String used_flow_order = (if flow_order=="" then "TACG" else flow_order)
+
+  command <<<
     source ~/.bashrc
     conda activate genomics.py3
 
@@ -644,12 +708,15 @@ task FilterVCF {
     --annotate_intervals ~{sep=" --annotate_intervals " annotation_intervals} \
     --output_file /cromwell_root/~{final_vcf_base_name}.filtered.vcf.gz
   >>>
+
   runtime {
-    preemptible: preemptible 
-    memory: "64 GB"
-    disks: "local-disk " + disk_size_gb + " HDD"
     docker: docker
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    preemptible: preemptible
   }
+
   output {
     File output_vcf_filtered = "/cromwell_root/~{final_vcf_base_name}.filtered.vcf.gz"
     File output_vcf_filtered_index = "/cromwell_root/~{final_vcf_base_name}.filtered.vcf.gz.tbi"
@@ -668,20 +735,23 @@ task TrainModel {
     String input_vcf_name
     Array[File] annotation_intervals
     String apply_model
-    Int additional_disk
-    Int disk_size_gb = ceil(size(input_file, "GB") +
-                        size(ref_fasta, "GB") +
-                        size(annotation_intervals, "GB") +
-                        size(blocklist_file, "GB") + additional_disk)
     
     Int? exome_weight
     String? exome_weight_annotation
-    
-    Int preemptible = 3
-    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
-  }
-  command <<<
 
+
+    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
+    Int disk_size_gb = ceil(size(input_file, "GB") +
+                       size(ref_fasta, "GB") +
+                       size(annotation_intervals, "GB") +
+                       size(blacklist_file, "GB") + 20)
+    Int cpu = 1
+    Int memory_mb = 64000
+    Int preemptible = 3
+  }
+
+  command
+  <<<
     source ~/.bashrc
     conda activate genomics.py3
     cd /VariantCalling/src/python/pipelines
@@ -698,12 +768,15 @@ task TrainModel {
     --annotate_intervals ~{sep=" --annotate_intervals " annotation_intervals} \
     --output_file_prefix /cromwell_root/~{input_vcf_name}.model
   >>>
+
   runtime {
-    preemptible: preemptible
-    memory: "64 GB"
-    disks: "local-disk " + disk_size_gb + " HDD"
     docker: docker
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    preemptible: preemptible
   }
+
   output {
     File model_h5 = "/cromwell_root/~{input_vcf_name}.model.h5"
     File model_pkl = "/cromwell_root/~{input_vcf_name}.model.pkl"
@@ -712,30 +785,37 @@ task TrainModel {
 
 task CollectDuplicateMetrics {
   input {
+    References references
     File input_bam
     String metrics_filename
-    Int disk_size_gb
+
     
-    Int preemptible = 3
     String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
+    Int disk_size_gb = if ceil((size(input_bam, "GB")) +
+                               size(references.ref_fasta, "GB") +
+                               size(references.ref_fasta_index, "GB") +
+                               size(references.ref_dict, "GB") + 160) > 510 then ceil((size(input_bam, "GB")) +
+                               size(references.ref_fasta, "GB") +
+                               size(references.ref_fasta_index, "GB") +
+                               size(references.ref_dict, "GB") + 160) else 510
+    Int cpu = 1
+    Int memory_mb = 4000
+    Int preemptible = 3
   }
 
-
   command <<<
-
     samtools view -h ~{input_bam} | \
     java -Xms8000m -jar /usr/gitc/picard.jar CollectDuplicateMetrics \
     -I /dev/stdin \
     -M ~{metrics_filename}
-
   >>>
 
   runtime {
-    disks: "local-disk " + disk_size_gb + " HDD"
-    cpu: 1
-    memory: "4000 MiB"
-    preemptible: preemptible
     docker: docker
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    preemptible: preemptible
   }
 
   output {
@@ -752,10 +832,19 @@ task CollectWgsMetrics {
     File wgs_coverage_interval_list
     References references
     Int? read_length
-    Int disk_size
-    
-    Int preemptible = 3
+    File? jar_override
+
     String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
+    Int disk_size_gb = if ceil((size(input_bam, "GB")) +
+                              size(references.ref_fasta, "GB") +
+                              size(references.ref_fasta_index, "GB") +
+                              size(references.ref_dict, "GB") + 160) > 510 then ceil((size(input_bam, "GB")) +
+                              size(references.ref_fasta, "GB") +
+                              size(references.ref_fasta_index, "GB") +
+                              size(references.ref_dict, "GB") + 160) else 510
+    Int cpu = 1
+    Int memory_mb = 10000
+    Int preemptible = 3
   }
 
   command {
@@ -773,12 +862,15 @@ task CollectWgsMetrics {
     COVERAGE_CAP=12500 \
     READ_LENGTH=~{default=250 read_length}
   }
+
   runtime {
-    preemptible: preemptible
-    memory: "10 GB"
-    disks: "local-disk " + disk_size + " HDD"
     docker: docker
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    preemptible: preemptible
   }
+
   output {
     File metrics = "~{metrics_filename}"
   }
@@ -794,11 +886,18 @@ task CollectRawWgsMetrics {
     File wgs_coverage_interval_list
     References references
     Int? read_length
-    Int disk_size
-    Int memory_size
-    
-    Int preemptible = 3
+
     String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
+    Int disk_size_gb = if ceil((size(input_bam, "GB")) +
+                              size(references.ref_fasta, "GB") +
+                              size(references.ref_fasta_index, "GB") +
+                              size(references.ref_dict, "GB") + 160) > 510 then ceil((size(input_bam, "GB")) +
+                              size(references.ref_fasta, "GB") +
+                              size(references.ref_fasta_index, "GB") +
+                              size(references.ref_dict, "GB") + 160) else 510
+    Int cpu = 1
+    Int memory_mb = if ceil(size(input_bam, "GB")) > 200 then 30000 else 12000
+    Int preemptible = 3
   }
 
   command {
@@ -815,12 +914,15 @@ task CollectRawWgsMetrics {
     USE_FAST_ALGORITHM=false \
     READ_LENGTH=~{default=250 read_length}
   }
+
   runtime {
-    preemptible: preemptible
-    memory: memory_size + " GB"
-    disks: "local-disk " + disk_size + " HDD"
     docker: docker
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    preemptible: preemptible
   }
+
   output {
     File metrics = "~{metrics_filename}"
   }
@@ -834,15 +936,22 @@ task CollectAggregationMetrics {
     File input_bam_index
     String output_bam_prefix
     References references
-    Int disk_size
     
-    Int preemptible = 3
     String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
+    Int disk_size_gb = if ceil((size(input_bam, "GB")) +
+                               size(references.ref_fasta, "GB") +
+                               size(references.ref_fasta_index, "GB") +
+                               size(references.ref_dict, "GB") + 160) > 510 then ceil((size(input_bam, "GB")) +
+                               size(references.ref_fasta, "GB") +
+                               size(references.ref_fasta_index, "GB") +
+                               size(references.ref_dict, "GB") + 160) else 510
+    Int cpu = 1
+    Int memory_mb = 7000
+    Int preemptible = 3
   }
 
 
   command {
-
     java -Xms5000m -jar /usr/gitc/picard.jar \
     CollectMultipleMetrics \
     INPUT=~{input_bam} \
@@ -857,12 +966,15 @@ task CollectAggregationMetrics {
     METRIC_ACCUMULATION_LEVEL="SAMPLE" \
     METRIC_ACCUMULATION_LEVEL="LIBRARY"
   }
+
   runtime {
-    memory: "7 GB"
-    disks: "local-disk " + disk_size + " HDD"
-    preemptible: preemptible
     docker: docker
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    preemptible: preemptible
   }
+
   output {
     File alignment_summary_metrics = "~{output_bam_prefix}.alignment_summary_metrics"
     File? alignment_summary_pdf = "~{output_bam_prefix}.read_length_histogram.pdf"
@@ -883,14 +995,16 @@ task AnnotateVCF {
     File reference_dbsnp_index
     String flow_order
     String final_vcf_base_name
-    Int additional_disk
-    Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + size(references.ref_fasta, "GB") + size(reference_dbsnp, "GB") + additional_disk)
-    
-    Int preemptible = 3
-    String docker = "gcr.io/terra-project-249020/gatk_ultima:0.6.1"
-  }
-  command <<<
 
+    String docker = "gcr.io/terra-project-249020/gatk_ultima:0.6.1"
+    Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + size(references.ref_fasta, "GB") + size(reference_dbsnp, "GB") + 20)
+    Int cpu = 1
+    Int memory_mb = 15000
+    Int preemptible = 3
+    Int max_retries = 1
+  }
+
+  command <<<
     java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m \
     -jar /usr/gitc/GATK_ultima.jar VariantAnnotator \
     -R ~{references.ref_fasta} \
@@ -900,15 +1014,17 @@ task AnnotateVCF {
     -A StrandOddsRatio \
     -G StandardFlowBasedAnnotation \
     --flow-order-for-annotations ~{flow_order}
-
   >>>
+
   runtime {
-    preemptible: preemptible
-    memory: "15 GB"
-    disks: "local-disk " + disk_size_gb + " HDD"
     docker: docker
-    maxRetries: 1
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    preemptible: preemptible
+    maxRetries: max_retries
   }
+
   output {
     File output_vcf_annotated = "~{final_vcf_base_name}.annotated.vcf.gz"
     File output_vcf_annotated_index = "~{final_vcf_base_name}.annotated.vcf.gz.tbi"
@@ -921,14 +1037,15 @@ task AddIntervalAnnotationsToVCF {
     File input_vcf_index
     String final_vcf_base_name
     Array[File] annotation_intervals
-    Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + 1)
-    
-    Int preemptible = 3
+
     String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
+    Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + 1)
+    Int cpu = 1
+    Int memory_mb = 15000
+    Int preemptible = 3
   }
 
   command <<<
-
     source ~/.bashrc
     conda activate genomics.py3
 
@@ -947,14 +1064,16 @@ task AddIntervalAnnotationsToVCF {
     done
     mv ~{input_vcf} ~{final_vcf_base_name}.intervals_annotated.vcf.gz
     bcftools index -f -t ~{final_vcf_base_name}.intervals_annotated.vcf.gz
-
     >>>
+
   runtime {
-    preemptible: preemptible
-    memory: "15 GB"
-    disks: "local-disk " + disk_size_gb + " HDD"
     docker: docker
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    preemptible: preemptible
   }
+
   output {
     File output_vcf = "/cromwell_root/~{final_vcf_base_name}.intervals_annotated.vcf.gz"
     File output_vcf_index = "/cromwell_root/~{final_vcf_base_name}.intervals_annotated.vcf.gz.tbi"
@@ -968,14 +1087,16 @@ task AnnotateVCF_AF {
     String final_vcf_base_name
     File af_only_gnomad
     File af_only_gnomad_index
-    Int additional_disk
-    Int disk_size_gb = ceil(3 * size(input_vcf, "GB") + size(af_only_gnomad, "GB") + additional_disk)
-    
-    Int preemptible = 3
-    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
-  }
-  command <<<
 
+    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
+    Int disk_size_gb = ceil(3 * size(input_vcf, "GB") + size(af_only_gnomad, "GB") + 20)
+    Int cpu = 1
+    Int memory_mb = 10000
+    Int preemptible = 3
+    Int max_retries = 1
+  }
+
+  command <<<
     source ~/.bashrc
     conda activate genomics.py3
 
@@ -999,13 +1120,16 @@ task AnnotateVCF_AF {
 
     bcftools index -t ~{final_vcf_base_name}.annotated.AF.vcf.gz
   >>>
+
   runtime {
-    preemptible: preemptible
-    memory: "10 GB"
-    disks: "local-disk " + disk_size_gb + " HDD"
     docker: docker
-    maxRetries: 1
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+    preemptible: preemptible
+    maxRetries: max_retries
   }
+
   output {
     File output_vcf_annotated = "~{final_vcf_base_name}.annotated.AF.vcf.gz"
     File output_vcf_annotated_index = "~{final_vcf_base_name}.annotated.AF.vcf.gz.tbi"
@@ -1013,32 +1137,37 @@ task AnnotateVCF_AF {
 }
 
 task MoveAnnotationsToGvcf {
-	input {
-		File filtered_vcf
-		File filtered_vcf_index
-		File gvcf
-		File gvcf_index
-		String annotation = "TREE_SCORE"
+  input {
+    File filtered_vcf
+    File filtered_vcf_index
+    File gvcf
+    File gvcf_index
+    String annotation = "TREE_SCORE"
 
     String docker = "us.gcr.io/broad-dsde-methods/imputation_bcftools_vcftools_docker:v1.0.0"
-	}
-	String filename = basename(gvcf, ".g.vcf.gz")
-	Int disk_size_gb = ceil(size(filtered_vcf, "GB") + size(gvcf, "GB") * 2 + 30)
+    Int disk_size_gb = ceil(size(filtered_vcf, "GB") + size(gvcf, "GB") * 2 + 30)
+    Int cpu = 1
+    Int memory_mb = 7000
+  }
 
-	command {
-		set -e
+  String filename = basename(gvcf, ".g.vcf.gz")
 
-		bcftools annotate -a ~{filtered_vcf} -c TREE_SCORE ~{gvcf} -o ~{filename}.annotated.g.vcf.gz -O z
-		tabix -p vcf ~{filename}.annotated.g.vcf.gz
-	}
-	output {
-		File output_gvcf = "~{filename}.annotated.g.vcf.gz"
-		File output_gvcf_index = "~{filename}.annotated.g.vcf.gz.tbi"
-	}
+  command {
+    set -e
 
-	runtime {
-		docker: docker
-		memory: "7 GiB"
-    disks: "local-disk " + disk_size_gb + " HDD"
-	}
+    bcftools annotate -a ~{filtered_vcf} -c TREE_SCORE ~{gvcf} -o ~{filename}.annotated.g.vcf.gz -O z
+    tabix -p vcf ~{filename}.annotated.g.vcf.gz
+  }
+
+  output {
+    File output_gvcf = "~{filename}.annotated.g.vcf.gz"
+    File output_gvcf_index = "~{filename}.annotated.g.vcf.gz.tbi"
+  }
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "${memory_mb} MiB"
+    disks: "local-disk ${disk_size_gb} HDD"
+  }
 }
