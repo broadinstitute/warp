@@ -6,9 +6,9 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [RNAWithUMIsPipeline_v1.0.2](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | February, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [RNAWithUMIsPipeline_v1.0.3](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | March, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
-![RNAWithUMIs_diagram](RNAWithUMIs_diagram.png)
+![RNAWithUMIs_diagram](rna-with-umis_diagram.png)
 
 ## Introduction to the RNA with UMIs workflow
 
@@ -24,7 +24,19 @@ While this workflow was created to be used with TCap RNA-seq data, it can be use
 Check out the [RNA with UMIs Methods](./rna-with-umis.methods.md) section to get started!
 :::
 
-<!--- quickstart table will go here --->
+## Quickstart table
+
+| Pipeline features | Description | Source | 
+| --- | --- | --- |
+| Assay type | TCap (or any bulk) RNA-seq data | [Cieslik et al. 2015](https://genome.cshlp.org/content/25/9/1372) |
+| Overall workflow | Read alignment and transcriptome quantification | Code available from [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl) |
+| Workflow language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
+| Genomic reference sequence | GRCh38 (hg38) and GRCh37 (hg19) human genome primary sequence | Genome Reference Consortium [GRCh38](https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.39) and [GRCh37](https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.25/) |
+| Gene annotations | GENCODE v34 (hg38) and v19 (hg19) gene annotations | GENCODE [v34](https://www.gencodegenes.org/human/release_34.html) and [v19](https://www.gencodegenes.org/human/release_19.html) | 
+| Aligner | STAR | [STAR](https://github.com/alexdobin/STAR) |
+| Transcript quantification and metric calculation | RNA-SeQC, Picard, and GATK | [RNA-SeQC](https://github.com/getzlab/rnaseqc), [Picard](https://broadinstitute.github.io/picard/), and [GATK](https://gatk.broadinstitute.org/hc/en-us) |
+| Data input file format | File format in which sequencing data is provided | [BAM](http://samtools.github.io/hts-specs/) or [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) |
+| Data output file formats | File formats in which RNA with UMIs outputs are provided | [BAM](http://samtools.github.io/hts-specs/); GCT (counts); TXT, TSV, and PDF (metrics) |
 
 ## Set-up
 
@@ -156,18 +168,10 @@ The task uses the following parameters:
 
 | Parameter | Value | Notes |
 | --- | --- | --- |
-| runThreadN | 8 | Number of threads. |
-| outSAMtype | BAM Unsorted | Specifies that the output is an unsorted BAM file. |
-| readFilesType | SAM PE | Specifies that the input file is a SAM/BAM file. |
-| readFilesCommand | samtools view -h | Tells STAR how to open the input file. |
-| outSAMunmapped | Within | Includes unmapped reads in the output file. | 
-| outFilterMatchNminOverLread | 0.33 | Sets the fraction of reads that must match the reference. |
-| outFilterMismatchNoverLmax | 0.1 | Sets the maximum allowable ratio of mismatches to read length. Reads with a ratio larger than the set value are filtered. |
-| chimSegmentMin | 15 | Turns on detection of chimeric alignments and sets the minimum number of aligned bases required in each "segment" to be considered a chimeric alignment. |
-| chimMainSegmentMultNmax | 1 | Requires the main chimeric segment to map uniquely. |
-| chimOutType | WithinBAM SoftClip | Includes chimeric alignments in the output file with soft-clipping. |
-| quantMode | TranscriptomeSAM | Outputs both a genome- and transcriptome-aligned BAM. |
-| alignEndsProtrude | 20 ConcordantPair | Allows a maximum of 20 protruding bases at alignment ends and marks these alignments as concordant pairs. |
+| outSAMunmapped | Within | Includes unmapped reads in the output file rather than dropping those reads to facilitate potential downstream analysis. | 
+| outFilterMatchNminOverLread | 0.33 | Sets the fraction of reads that must match the reference. | <!--- this is likely being changed to default, waiting to hear from Takuto about this --->
+| outFilterMismatchNoverLmax | 0.1 | Sets the maximum allowable ratio of mismatches to read length. Reads with a ratio larger than the set value are filtered. For example, for paired-end reads with length 146, the reads are filtered if the number of mismatches is greater than 29 (146 \* 2 \* 0.1 = 29).|
+| alignEndsProtrude | 20 ConcordantPair | Allows a maximum of 20 protruding bases at alignment ends and marks these alignments as concordant pairs to prevent reads from small cDNA fragments that were sequenced into adapters from being dropped. This parameter allows for processing of FFPE and other low-quality or degraded data. |
 
 Additional parameters are used to match [ENCODE bulk RNA-seq data standards](https://www.encodeproject.org/data-standards/rna-seq/long-rnas/). To learn more about ENCODE options in STAR, see the [STAR manual](https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf).
 
@@ -218,6 +222,8 @@ Workflow outputs are described in the table below.
 | picard_quality_by_cycle_pdf | Chart of mean quality by cycle. | PDF |
 | picard_quality_distribution_metrics | Metrics file containing the output of Picard’s QualityScoreDistribution tool. | TXT |
 | picard_quality_distribution_pdf | Chart of quality score distribution. | PDF |
+| contamination | Float representing the calculated cross-sample contamination. | Float |
+| contamination_error | Float representing the error associated with the contamination calculation. | Float |
 
 <!--- Validation will go here --->
 
