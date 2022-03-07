@@ -1,3 +1,9 @@
+# 1.15.5
+2022-02-025 (Date of Last Commit)
+
+* Update to Picard 2.26.11
+  * Address obscure bug in GtcToVcf -> VcfToAdpc (some variant metrics, calculated as infinite, were rendered incorrectly in the VCF)
+
 # 1.15.4
 2022-01-19  (Date of Last Commit)
 
