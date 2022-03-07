@@ -20,7 +20,9 @@ While this workflow was created to be used with TCap RNA-seq data, it can be use
 
 <!--- add comment about validation of the pipeline --->
 
-<!--- tip for methods section will go here --->
+:::tip Want to use the RNA with UMIs pipeline for your publication?
+Check out the [RNA with UMIs Methods](./rna-with-umis.methods.md) section to get started!
+:::
 
 <!--- quickstart table will go here --->
 
