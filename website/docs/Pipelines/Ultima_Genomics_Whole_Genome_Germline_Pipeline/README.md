@@ -14,7 +14,7 @@ sidebar_position: 1
 
 Ultimate Genomics sequencing is a novel technology that produces single-read, flow-based data. The [Ultima Genomics WholeGenome Germline (UG_WGS)  workflow](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl) is an open-source, cloud-optimized workflow for processing whole-genome germline sequencing data generated using the Ultima Genomics sequencing platform. 
 
-Overall, the workflow converts either an aligned CRAM output of the sequencing platform or a BAM to an unmapped BAM and then aligns reads to a reference genome, marks duplicate reads, calls variants, post-processes variants in the output VCF in preparation for joint calling, and calculates quality control metrics. The workflow outputs a (re)aligned CRAM, an annotated GVCF with index, and quality metrics. 
+Overall, the workflow requires either an aligned CRAM output of the sequencing platform or a unmapped BAM as input. It then aligns reads to a reference genome, marks duplicate reads, calls variants, post-processes variants in the output VCF in preparation for joint calling, and calculates quality control metrics. The workflow outputs a (re)aligned CRAM, an annotated GVCF with index, and quality metrics. 
 
 <!--- add a comment about validation of the pipeline --->
 
@@ -44,14 +44,14 @@ Multiple workflow inputs are in the form of a struct, which are defined in [UG_W
 
 #### Input descriptions
 
-The workflow takes in an aligned CRAM (output of the Ultima Genomics sequencing platform) or an unaligned BAM file for one sample. 
+The workflow takes in an aligned CRAM (output of the Ultima Genomics sequencing platform) or an unmapped BAM file for one sample. 
 
 When applicable, the struct containing the input is listed in the `Struct` column.
 
 | Input variable name | Struct | Description | Type |
 | --- | --- | --- |
 | input_cram_list  | NA | Array of CRAM files to be used as workflow input. Must be specified if `input_bam_list` is not provided.  | Array [File] |
-| input_bam_list  | NA | Array of BAM files to be used as workflow input. Must be specified if `input_cram_list` is not provided. | Array [File] |
+| input_bam_list  | NA | Array of unmapped BAM files to be used as workflow input. Must be specified if `input_cram_list` is not provided. | Array [File] |
 | base_file_name | NA | Base name for each of the output files. | String |
 | contamination_sites_path | ContaminationSites | Path to contamination site files. | String |
 | contamination_sites_vcf | ContaminationSites | Contamination site VCF. | File |
