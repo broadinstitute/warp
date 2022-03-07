@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../structs/dna_seq/UGGermlineSingleSampleStructs.wdl" as Structs
+import "../../structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl" as Structs
 
 task VerifyPipelineInputs {
   input {
