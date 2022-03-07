@@ -1,12 +1,12 @@
 {
-    "UGGermlineSingleSample.input_cram_list": ["gs://broad-gotc-test-storage/tmp/jbx/downsampled_004733-X0003.cram"],
-    "UGGermlineSingleSample.base_file_name": "plumbing_004733-X0003",
-    "UGGermlineSingleSample.contamination_sites": {
+    "UltimaGenomicsWholeGenomeGermline.input_cram_list": ["gs://broad-gotc-test-storage/tmp/jbx/downsampled_004733-X0003.cram"],
+    "UltimaGenomicsWholeGenomeGermline.base_file_name": "plumbing_004733-X0003",
+    "UltimaGenomicsWholeGenomeGermline.contamination_sites": {
         "contamination_sites_vcf": "gs://concordance/hg38/Homo_sapiens_assembly38.contam_fixed.vcf",
         "contamination_sites_vcf_index":"gs://concordance/hg38/Homo_sapiens_assembly38.contam_fixed.vcf.idx",
         "contamination_sites_path": "gs://concordance/hg38/verifyBamID_inputs/Homo_sapiens_assembly38.contam.cskp."
     },
-    "UGGermlineSingleSample.alignment_references": {
+    "UltimaGenomicsWholeGenomeGermline.alignment_references": {
         "references": {
             "ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
             "ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
@@ -19,12 +19,12 @@
         "ref_pac": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.pac",
         "ref_sa": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.sa"
     },
-    "UGGermlineSingleSample.variant_calling_settings": {
+    "UltimaGenomicsWholeGenomeGermline.variant_calling_settings": {
         "wgs_calling_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_calling_regions.hg38.interval_list",
         "break_bands_at_multiples_of": "100000",
         "haplotype_scatter_count": "200"
     },
-    "UGGermlineSingleSample.vcf_post_processing": {
+    "UltimaGenomicsWholeGenomeGermline.vcf_post_processing": {
         "annotation_intervals": [
             "gs://concordance/hg38/annotation_intervals/LCR-hs38.bed",
             "gs://concordance/hg38/annotation_intervals/exome.twist.bed",

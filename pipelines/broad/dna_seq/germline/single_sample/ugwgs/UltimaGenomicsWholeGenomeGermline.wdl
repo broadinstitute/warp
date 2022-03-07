@@ -1,13 +1,13 @@
 version 1.0
 
-import "../../../../../../tasks/broad/UGGermlineSingleSampleTasks.wdl" as Tasks
+import "../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl" as Tasks
 import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
 import "../../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as VariantDiscoverTasks
-import "../../../../../../tasks/broad/UGGermlineSingleSampleAlignmentMarkDuplicates.wdl" as UGGermlingSingleSampleAlignmentMarkDuplicates
+import "../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.wdl" as UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates
 import "../../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 import "../../../../../../tasks/broad/Qc.wdl" as QC
-import "../../../../../../tasks/broad/UGGermlineSingleSampleQC.wdl" as UGGermlineSingleSampleQC
-import "../../../../../../structs/dna_seq/UGGermlineSingleSampleStructs.wdl" as Structs
+import "../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineQC.wdl" as UltimaGenomicsWholeGenomeGermlineQC
+import "../../../../../../structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl" as Structs
 
 # CHANGELOG
 #  1.1.1     get multiple input cram
@@ -98,7 +98,7 @@ import "../../../../../../structs/dna_seq/UGGermlineSingleSampleStructs.wdl" as 
 #  3.2.3     Removed the rsq filtering
 #            Switched error model back to FlowBased
 
-workflow UGGermlineSingleSample {
+workflow UltimaGenomicsWholeGenomeGermline {
   input {
 
     ContaminationSites contamination_sites
@@ -153,7 +153,7 @@ workflow UGGermlineSingleSample {
       input_bam_list  = input_bam_list
   }
 
-  call UGGermlingSingleSampleAlignmentMarkDuplicates.AlignmentAndMarkDuplicates as AlignmentAndMarkDuplicates {
+  call UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.AlignmentAndMarkDuplicates as AlignmentAndMarkDuplicates {
     input:
       input_cram_bam                = select_first([input_cram_list,input_bam_list]),
       is_cram                       = VerifyPipelineInputs.is_cram,
@@ -316,7 +316,7 @@ workflow UGGermlineSingleSample {
       gvcf_index          = MergeVCFs.output_vcf_index
   }
 
-  call UGGermlineSingleSampleQC.UGGermlineSingleSampleQC as CollectStatistics {
+  call UltimaGenomicsWholeGenomeGermlineQC.UltimaGenomicsWholeGenomeGermlineQC as CollectStatistics {
     input:
       agg_bam                               = AlignmentAndMarkDuplicates.output_bam,
       agg_bam_index                         = AlignmentAndMarkDuplicates.output_bam_index,
