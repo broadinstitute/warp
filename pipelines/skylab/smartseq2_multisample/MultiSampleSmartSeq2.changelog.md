@@ -1,3 +1,40 @@
+# 2.2.9
+2022-02-25 (Date of Last Commit)
+
+* Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the MultiSampleSmartSeq2 pipeline. 
+
+# 2.2.8
+2022-01-07 (Date of Last Commit)
+
+* Updated LoomUtils.wdl to fix a missing metadata issue in Single Nucleus SmartSeq2 pipeline
+
+# 2.2.7
+2021-11-10 (Date of Last Commit)
+
+* Added Xmx flag (maximum heap size) to all tasks with java commands
+
+# 2.2.6
+2021-09-13 (Date of Last Commit)
+
+* Updated Picard.wdl and LoomUtils.wdl for Single Nucleus SmartSeq2. These changes do not affect MultiSampleSmartSeq2
+
+# 2.2.5
+2021-09-02 (Date of Last Commit)
+
+* Removed a redundant task in Picard.wdl that was use in the previous  Optimus pipeline. However, 
+  that wdl also contains other Picard task that are used in the smartseq2 single sample. Therefore, 
+  the smartseq2 single sample is not expected to change. 
+
+# 2.2.4
+2021-08-02 (Date of Last Commit)
+
+* Increased the version number to make new release tag for Dockstore 
+
+# 2.2.3
+2021-07-19 (Date of Last Commit)
+
+* Updated SmartSeq2 to accommodate spaces in input_name
+
 # 2.2.2
 
 2020-05-24 (Date of Last Commit)

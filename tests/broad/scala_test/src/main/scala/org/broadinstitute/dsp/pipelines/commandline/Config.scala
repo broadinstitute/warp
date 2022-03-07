@@ -7,6 +7,9 @@ case class Config(
     annotationFiltrationConfig: AnnotationFiltrationConfig =
       AnnotationFiltrationConfig(),
     arraysConfig: ArraysConfig = ArraysConfig(),
+    broadInternalRNAWithUMIsConfig: BroadInternalRNAWithUMIsConfig =
+      BroadInternalRNAWithUMIsConfig(),
+    checkFingerprintConfig: CheckFingerprintConfig = CheckFingerprintConfig(),
     cloudWorkflowConfig: CloudWorkflowConfig = CloudWorkflowConfig(),
     cramToUnmappedBamsConfig: CramToUnmappedBamsConfig =
       CramToUnmappedBamsConfig(),
@@ -18,6 +21,8 @@ case class Config(
       GermlineCloudWorkflowConfig(),
     illuminaGenotypingArrayConfig: IlluminaGenotypingArrayConfig =
       IlluminaGenotypingArrayConfig(),
+    imputationConfig: ImputationConfig = ImputationConfig(),
+    rnaWithUMIsConfig: RNAWithUMIsConfig = RNAWithUMIsConfig(),
     somaticCloudWorkflowConfig: SomaticCloudWorkflowConfig =
       SomaticCloudWorkflowConfig(),
     validateChipConfig: ValidateChipConfig = ValidateChipConfig()

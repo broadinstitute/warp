@@ -8,8 +8,8 @@ import better.files.File
 import org.broadinstitute.dsp.pipelines.batch.WorkflowTest
 import org.broadinstitute.dsp.pipelines.config._
 import org.broadinstitute.dsp.pipelines.inputs.{
-  SingleSampleArraysInputs,
-  SingleSampleArraysValidationInputs
+  IlluminaGenotypingArrayValidationInputs,
+  SingleSampleArraysInputs
 }
 
 class IlluminaGenotypingArrayTester(testerConfig: IlluminaGenotypingArrayConfig)(
@@ -22,7 +22,8 @@ class IlluminaGenotypingArrayTester(testerConfig: IlluminaGenotypingArrayConfig)
   val workflowDir
     : File = CromwellWorkflowTester.PipelineRoot / "broad" / "genotyping" / "illumina"
 
-  override protected val validationWorkflowName: String = "VerifyArrays"
+  override protected val validationWorkflowName: String =
+    "VerifyIlluminaGenotypingArray"
 
   override protected lazy val googleProject: String = {
     if (env.picardEnv.equals("dev")) {
@@ -64,11 +65,11 @@ class IlluminaGenotypingArrayTester(testerConfig: IlluminaGenotypingArrayConfig)
       .listGoogleObjects(truthCloudPath)
       .filter(_.getPath.endsWith("metrics"))
       .map(uriToFilename)
-    val validationInputs = SingleSampleArraysValidationInputs(
+    val validationInputs = IlluminaGenotypingArrayValidationInputs(
       test_metrics = metricsFileNames.map(resultsCloudPath.resolve),
       truth_metrics = metricsFileNames.map(truthCloudPath.resolve),
-      bead_pool_manifest_file =
-        new URI(singleSampleArraysInputs.getBeadPoolManifestFile(workflowName)),
+      bead_pool_manifest_file = new URI(
+        singleSampleArraysInputs.getBeadPoolManifestFile(workflowName).get),
       test_gtc = resultsCloudPath.resolve(s"$outputBaseName.gtc"),
       truth_gtc = truthCloudPath.resolve(s"$outputBaseName.gtc"),
       test_vcf = resultsCloudPath.resolve(s"$outputBaseName.vcf.gz"),
@@ -86,7 +87,7 @@ class IlluminaGenotypingArrayTester(testerConfig: IlluminaGenotypingArrayConfig)
       test_red_idat_md5 =
         resultsCloudPath.resolve(s"${outputBaseName}_Red.idat.md5sum")
     )
-    SingleSampleArraysValidationInputs
+    IlluminaGenotypingArrayValidationInputs
       .marshall(validationInputs)
       .printWith(implicitly)
   }

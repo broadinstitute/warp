@@ -173,7 +173,7 @@ workflow TargetedSomaticSingleSample {
     File? fingerprint_detail_metrics = AggregatedBamQC.fingerprint_detail_metrics
 
     File duplicate_metrics = UnmappedBamToAlignedBam.duplicate_metrics
-    File output_bqsr_reports = UnmappedBamToAlignedBam.output_bqsr_reports
+    File? output_bqsr_reports = UnmappedBamToAlignedBam.output_bqsr_reports
 
     File hybrid_selection_metrics = CollectHsMetrics.metrics
 
@@ -185,5 +185,9 @@ workflow TargetedSomaticSingleSample {
     File output_cram_md5 = BamToCram.output_cram_md5
 
     File validate_cram_file_report = BamToCram.validate_cram_file_report
+  }
+
+  meta {
+    allowNestedInputs: true
   }
 }

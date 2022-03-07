@@ -1,0 +1,84 @@
+# A description of (some of) the test files here.
+- 101342370027_R12C02_NA12892
+    - Control sample
+    - Looks up the genotype concordance control data using the combination of arrays_control_data_path and control_sample_name 
+- 101342370134_R12C02_NA12891
+    - Control sample
+    - Not setting all optional inputs destined to chip_well_barcode_index table to test that it allows nulls
+- 200557060038_R10C02_PRISM_7032
+    - Non-control sample
+    - Not pulling fingerprint from Mercury
+        - Using pre-existing fingerprint file (uploaded previously to GCS)
+    - Not pushing fingerprint to Mercury
+- 200557060038_R10C02_PRISM_7032_PullFPFromMercury
+    - Non-control sample
+    - Pulling fingerprint from Mercury
+    - Not pushing fingerprint to Mercury
+- 200557060038_R10C02_PRISM_7032_PullNoFPFromMercury
+    - Non-control sample
+    - Pulling fingerprint from Mercury
+        - BUT it's an invalid (not found) lsid in Mercury, so no Fingerprint returned
+    - Not pushing fingerprint to Mercury
+- 200557060038_R10C02_PRISM_7032_PushFPToMercury
+    - Non-control sample
+    - NOT Pulling fingerprint from Mercury
+        - Using pre-existing fingerprint file (uploaded previously to GCS)
+    - Pushing fingerprint to Mercury    
+- 200598830050_R01C01_90C04566
+    - Non-control sample
+    - NOT defining the analysis_version_number.  Test that the wrapper wdl will generate it.
+- 200598830050_R06C02_01C05949
+    - Non-control sample
+    - Looks up the zcall_thresholds_file using the combination of arrays_metadata_path and zcall_thresholds_filename                
+- 201159110147_R09C01_MH_0178994
+    - Non-control sample
+    - Sample has a space in its name
+    - Looks up the gender_cluster_file using the combination of arrays_metadata_path and gender_cluster_filename        
+- 201651080129_R05C01_S8_N4B3GY
+    - Non-control sample
+    - Sample has a space in its name
+    - Not pulling fingerprint from Mercury
+        - Using pre-existing fingerprint file (uploaded previously to GCS)
+    - Not pushing fingerprint to Mercury
+- 201651080129_R05C01_S8_N4B3GY_PullFPFromMercury
+    - Non-control sample
+    - Sample has a space in its name
+    - Pulling fingerprint from Mercury
+        - NOT a clinical sample, so will pull both array and fluidigm fingerprints
+    - Not pushing fingerprint to Mercury
+- 201651080129_R05C01_S8_N4B3GY_PullFPFromMercuryClinical
+    - Non-control sample
+    - Sample has a space in its name
+    - Pulling fingerprint from Mercury
+        - IS a clinical sample, so only pulling fluidigm fingerprint
+    - Not pushing fingerprint to Mercury
+- 204038380098_R02C01_HG001
+    - Control sample (HG001 = NA12878) as contributed by CIDR (Johns Hopkins)
+    - On the GDA chip
+    - Using the 2.0 Extended Manifest.
+    - Looks up the bead_pool_manifest_file using the combination of arrays_metadata_path and bead_pool_manifest_filename
+    - Looks up the cluster_file using the combination of arrays_metadata_path and cluster_filename
+    - Looks up the minor_allele_frequency_file from the maf_map file stored online at arrays_metadata_path
+- 204126290052_R01C01_NA12878
+    - Control sample
+    - On the GDA chip
+    - Using the 1.5 Extended Manifest
+    - Looks up the extended illumina manifest from the map file stored online at arrays_metadata_path
+- 204126290052_R01C01_NA12878_2
+    - Control sample
+    - On the GDA chip
+    - Using the 2.0 Extended Manifest and the (JHU-supplied) custom cluster file
+    - Looks up the bead_pool_manifest_file using the combination of arrays_metadata_path and bead_pool_manifest_filename
+    - Looks up the cluster_file using the combination of arrays_metadata_path and cluster_filename
+    - Looks up the extended illumina manifest from the map file stored online at arrays_metadata_path
+    - Looks up the minor_allele_frequency_file from the maf_map file stored online at arrays_metadata_path
+- 204520870050_R02C01_NA24385
+    - A Coriell sample for which we have no control data
+    - Ashkenazim trio (Son)
+    - Looks up the minor_allele_frequency_file from the maf_map file stored online at arrays_metadata_path
+- 204520870050_R04C01_NA24143
+    - A Coriell sample for which we have no control data
+    - Ashkenazim trio (Mother)
+- 204520870050_R06C01_NA24149
+    - A Coriell sample for which we have no control data
+    - Ashkenazim trio (Daughter)

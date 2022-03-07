@@ -38,7 +38,7 @@ task CompareGtcs {
   }
 
   command {
-    java -Xms4500m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+    java -Xms4500m -Xmx4500m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
       CompareGtcFiles \
       --INPUT ~{file1} \
       --INPUT ~{file2} \
@@ -46,9 +46,9 @@ task CompareGtcs {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
     disks: "local-disk 10 HDD"
-    memory: "5 GiB"
+    memory: "5000 MiB"
     preemptible: 3
   }
 }
@@ -72,11 +72,15 @@ task CompareTextFiles {
     while read -r a && read -r b <&3;
     do
       echo "Comparing File $a with $b"
-      diff $a $b
-      if [ $? -ne 0 ]; then
+      diff $a $b > diffs.txt
+      if [ $? -ne 0 ];
+      then
         exit_code=1
         echo "Error: Files $a and $b differ" >&2
+        cat diffs.txt >&2
       fi
+      # catting the diffs.txt on STDOUT as that's what's expected.
+      cat diffs.txt
     done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
 
     exit $exit_code
@@ -89,6 +93,7 @@ task CompareTextFiles {
     preemptible: 3
   }
 }
+
 
 task CompareCrams {
 
@@ -140,6 +145,7 @@ task CompareBams {
   input {
     File test_bam
     File truth_bam
+    Boolean lenient_header = false
   }
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
@@ -149,20 +155,42 @@ task CompareBams {
     set -e
     set -o pipefail
 
-    java -Xms3500m -jar /usr/picard/picard.jar \
+    java -Xms3500m -Xmx7000m -jar /usr/picard/picard.jar \
     CompareSAMs \
           ~{test_bam} \
           ~{truth_bam} \
           O=comparison.tsv \
-          LENIENT_HEADER=true
-
+          LENIENT_HEADER=~{lenient_header}
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
     disks: "local-disk " + disk_size + " HDD"
     cpu: 2
-    memory: "7.5 GiB"
+    memory: "7500 MiB"
     preemptible: 3
   }
+}
+
+task CompareCompressedTextFiles {
+
+  input {
+    File test_zip
+    File truth_zip
+  }
+
+  Float file_size = size(test_zip, "GiB") + size(truth_zip, "GiB")
+  Int disk_size = ceil(file_size * 4) + 20
+
+  command {
+    diff <(gunzip -c -f ~{test_zip}) <(gunzip -c -f ~{truth_zip})
+  }
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "3.5 GiB"
+    preemptible: 3
+  }
+
 }

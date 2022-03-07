@@ -2,7 +2,6 @@
   "IlluminaGenotypingArray.sample_alias": "NA12878",
   "IlluminaGenotypingArray.analysis_version_number": 1,
   "IlluminaGenotypingArray.call_rate_threshold": 0.98,
-  "IlluminaGenotypingArray.genotype_concordance_threshold": 0.98,
   "IlluminaGenotypingArray.reported_gender": "Female",
   "IlluminaGenotypingArray.chip_well_barcode": "201179310001_R01C01",
 
@@ -26,6 +25,6 @@
   "IlluminaGenotypingArray.dbSNP_vcf": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz",
   "IlluminaGenotypingArray.dbSNP_vcf_index": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz.tbi",
   "IlluminaGenotypingArray.haplotype_database_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt",
-  "IlluminaGenotypingArray.variant_rsids_file": "gs://broad-references-private/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
+  "IlluminaGenotypingArray.variant_rsids_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
   "IlluminaGenotypingArray.preemptible_tries": 3
 }

@@ -38,7 +38,7 @@ groups:
     conditions:
       - "'eng-only' not in labels"
       - "base.ref != 'master'"
-      - "base.ref != 'RC'"
+      - "base.ref != 'staging'"
       - >
         'pipelines/broad/arrays/multi_sample/MultiSampleArrays.wdl' in files or
         'pipelines/broad/arrays/single_sample/Arrays.wdl' in files or
@@ -46,11 +46,15 @@ groups:
         'pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl' in files or
         'tasks/broad/IlluminaGenotypingArrayTasks.wdl' in files or
         'tasks/broad/InternalArraysTasks.wdl' in files or
+        'tasks/broad/InternalTasks.wdl' in files or
+        'tasks/broad/Utilities.wdl' in files or
         'verification/VerifyArrays.wdl' in files or
+        'verification/VerifyIlluminaGenotypingArray.wdl' in files or
         'verification/VerifyMetrics.wdl' in files or
         'verification/VerifyMultiSampleArrays.wdl' in files or
         'verification/VerifyTasks.wdl' in files or
         'verification/VerifyValidateChip.wdl' in files or
+        'pipelines/broad/arrays/imputation' in files or
         'pipelines/broad/arrays/multi_sample' in files or
         'pipelines/broad/arrays/single_sample' in files or
         'pipelines/broad/arrays/validate_chip' in files
@@ -68,7 +72,7 @@ groups:
     conditions:
       - "'eng-only' not in labels"
       - "base.ref != 'master'"
-      - "base.ref != 'RC'"
+      - "base.ref != 'staging'"
       - >
         'pipelines/broad/dna_seq/somatic/single_sample/wgs/gdc_genome/GDCWholeGenomeSomaticSingleSample.wdl' in files or
         'pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl' in files or
@@ -97,7 +101,7 @@ groups:
     conditions:
       - "'eng-only' not in labels"
       - "base.ref != 'master'"
-      - "base.ref != 'RC'"
+      - "base.ref != 'staging'"
       - >
         'pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl' in files or
         'pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.changelog.md' in files or
@@ -119,7 +123,7 @@ groups:
     conditions:
       - "'eng-only' not in labels"
       - "base.ref != 'master'"
-      - "base.ref != 'RC'"
+      - "base.ref != 'staging'"
       - >
         'pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl' in files or
         'pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl' in files or
@@ -163,7 +167,7 @@ groups:
     conditions:
       - "'eng-only' not in labels"
       - "base.ref != 'master'"
-      - "base.ref != 'RC'"
+      - "base.ref != 'staging'"
       - >
         'pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.wdl' in files or
         'pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartOne.wdl' in files or
@@ -191,7 +195,7 @@ groups:
     conditions:
       - "'eng-only' not in labels"
       - "base.ref != 'master'"
-      - "base.ref != 'RC'"
+      - "base.ref != 'staging'"
       - >
         'beta-pipelines/broad/somatic/single_sample/targeted/TargetedSomaticSingleSample.wdl' in files or
         'structs/dna_seq/DNASeqStructs.wdl' in files or
@@ -218,6 +222,30 @@ groups:
       users:
         - fleharty # Mark Fleharty
 
+  scientific_owners_imputation:
+    conditions:
+      - "'eng-only' not in labels"
+      - "base.ref != 'master'"
+      - "base.ref != 'staging'"
+      - >
+        'pipelines/broad/arrays/imputation/Imputation.wdl' in files or
+        'structs/imputation/ImputationStructs.wdl' in files or
+        'tasks/broad/ImputationTasks.wdl' in files or
+        'tasks/broad/Utilities.wdl' in files or
+        'pipelines/broad/arrays/imputation/Imputation.changelog.md' in files or
+        'pipelines/broad/arrays/imputation/Imputation.options.json' in files or
+        'pipelines/broad/arrays/imputation/Imputation.wdl' in files or
+        'pipelines/broad/arrays/imputation/example_inputs.json' in files
+        
+    reviews:
+      required: 1
+      author_value: 1
+      request: 1
+      request_order: given
+    reviewers:
+      users:
+        - kachulis # Chris Kachulis
+
 
   # Clinical reviews:
   # - Approval is not required, this is just to send an email to Betty
@@ -225,7 +253,7 @@ groups:
   clinical_owners:
     conditions:
       - "base.ref != 'master'"
-      - "base.ref != 'RC'"
+      - "base.ref != 'staging'"
       - >
         'pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl' in files or
         'pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl' in files or
