@@ -229,6 +229,7 @@ task Minimac4 {
     docker: minimac4_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
+    maxRetrise: 3
     cpu: cpu
   }
 }
@@ -599,10 +600,7 @@ task SetIDs {
   }
   command <<<
     set -e -o pipefail
-    bcftools annotate ~{vcf} --set-id '%CHROM\:%POS\:%REF\:%FIRST_ALT' -Ov | \
-      awk -v OFS='\t' '{split($3, n, ":"); if ( !($1 ~ /^"#"/) && n[4] < n[3])  $3=n[1]":"n[2]":"n[4]":"n[3]; print $0}' | \
-      bgzip -c > ~{output_basename}.vcf.gz
-
+    bcftools annotate ~{vcf} --set-id '%CHROM\:%POS\:%REF\:%FIRST_ALT' -Oz -o ~{output_basename}.vcf.gz
     bcftools index -t ~{output_basename}.vcf.gz
   >>>
   runtime {
