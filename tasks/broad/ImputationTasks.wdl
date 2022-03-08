@@ -163,7 +163,7 @@ task PhaseVariantsEagle {
     String eagle_docker = "us.gcr.io/broad-gotc-prod/imputation-eagle:1.0.0-2.4-1633695564"
     Int cpu = 8
     Int memory_mb = 32000
-    Int disk_size_gb = ceil(3 * size([dataset_bcf, reference_panel_bcf, dataset_bcf_index, reference_panel_bcf_index], "GiB"))
+    Int disk_size_gb = ceil(3 * size([dataset_bcf, reference_panel_bcf, dataset_bcf_index, reference_panel_bcf_index], "GiB")) + 50
   }
   command <<<
     /usr/gitc/eagle  \
