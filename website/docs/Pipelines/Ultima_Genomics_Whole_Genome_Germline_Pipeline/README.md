@@ -68,7 +68,7 @@ When applicable, the struct containing the input is listed in the `Struct` colum
 | wgs_calling_interval_list | VariantCallingSettings | Interval list used for variant calling with HaplotypeCaller. | File |
 | break_bands_at_multiples_of | VariantCallingSettings | Breaks reference bands up at genomic positions that are multiples of this number; used to reduce GVCF file size. | Int |
 | haplotype_scatter_count | VariantCallingSettings | Scatter count used for variant calling. | Int | 
-| make_haplotype_bam | NA | Boolean indicating if HaplotypeCaller should output a bamout file. Default is false. | 
+| make_haplotype_bam | N/A | Boolean indicating if HaplotypeCaller should output a `bamout` file; default is set to "false". | 
 | rsq_threshold | NA | Threshold for a read quality metric that is produced by the sequencing platform. | Float | 
 | annotation_intervals | VcfPostProcessing | Annotation intervals used for filtering and annotating the HaplotypeCaller output VCF. | Array[File] |
 | af_only_gnomad | VcfPostProcessing | VCF with gnomAD allele frequencies used for metric stratification used in the AnnotateVCF_AF task. | File |
