@@ -152,7 +152,7 @@ The workflow implements initial variant calling with a version of HaplotypeCalle
 | Task name and WDL link | Tool | Software | Description |
 | --- | --- | --- | --- | 
 | [Utilities.ScatterIntervalList](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/Utilities.wdl) | IntervalListTools | Picard | Splits the calling interval list into sub-intervals in order to perform variant calling on the sub-intervals. |
-| [Tasks.HaplotypeCaller](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | HaplotypeCaller | GATK | Performs initial variant calls and  outputs sub-interval GVCFs and bamout. |
+| [Tasks.HaplotypeCaller](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | HaplotypeCaller | GATK | Performs initial variant calling and outputs sub-interval GVCFs and bamout. |
 
 #### 5. Merge VCFs and BAMs and convert GVCF to VCF 
 To prepare the VCF for downstream joint calling, the workflow performs multiple post-processing steps. The HaplotypeCaller GVCF outputs are merged into a single GVCF and then converted to VCF in preparation for post-processing.
