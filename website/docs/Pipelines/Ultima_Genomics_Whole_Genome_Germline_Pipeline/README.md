@@ -71,7 +71,7 @@ When applicable, the struct containing the input is listed in the `Struct` colum
 | make_haplotype_bam | N/A | Boolean indicating if HaplotypeCaller should output a `bamout` file; default is set to "false". | 
 | rsq_threshold | NA | Threshold for a read quality metric that is produced by the sequencing platform. | Float | 
 | annotation_intervals | VcfPostProcessing | Annotation intervals used for filtering and annotating the HaplotypeCaller output VCF. | Array[File] |
-| af_only_gnomad | VcfPostProcessing | VCF with gnomAD allele frequencies used for metric stratification used in the AnnotateVCF_AF task. | File |
+| af_only_gnomad | VcfPostProcessing | VCF with gnomAD allele frequencies used for metric stratification in the AnnotateVCF_AF task. | File |
 | af_only_gnomad_index | VcfPostProcessing | Index for the af_only_gnomad VCF. | File |
 | filter_cg_insertions | VcfPostProcessing | Boolean that indicates whether to filter CG insertions in HaplotypeCaller output VCF.  | Boolean |
 | filtering_blocklist_file | VcfPostProcessing | Optional file used to flag genomic locations that can’t be trusted while filtering the HaplotypeCaller output VCF. | File |
