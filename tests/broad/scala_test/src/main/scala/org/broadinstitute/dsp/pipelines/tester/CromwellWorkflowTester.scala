@@ -102,6 +102,9 @@ object CromwellWorkflowTester {
         new RNAWithUMIsTester(config.rnaWithUMIsConfig)
       case SomaticSingleSample =>
         new SomaticSingleSampleTester(config.somaticCloudWorkflowConfig)
+      case UltimaGenomicsWholeGenomeGermline =>
+        new UltimaGenomicsWholeGenomeGermlineTester(
+          config.ultimaGenomicsWholeGenomeGermlineConfig)
       case VariantCalling =>
         new VariantCallingTester(config.germlineCloudConfig)
     }

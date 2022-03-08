@@ -37,7 +37,7 @@ task CompareTwoNumbers {
   input {
     Int num1
     Int num2
-    String? error_msg = "Numbers differ"
+    String error_msg = "Numbers differ"
   }
 
   command {
@@ -78,7 +78,7 @@ task CompareMetricFiles {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
     preemptible: 3

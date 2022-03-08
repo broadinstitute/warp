@@ -37,7 +37,7 @@ workflow VerifyCheckFingerprint {
     }
   }
 
-  call Tasks.CompareVcfs as CompareOutputFingerprintVcfs {
+  call Tasks.CompareVcfsAllowingQualityDifferences as CompareOutputFingerprintVcfs {
     input:
       file1 = test_fingerprint_vcf,
       file2 = truth_fingerprint_vcf

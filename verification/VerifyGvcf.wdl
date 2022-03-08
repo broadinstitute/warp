@@ -9,7 +9,7 @@ workflow VerifyGvcf {
     File truth_gvcf
   }
   
-  call VerifyTasks.CompareVcfs {
+  call VerifyTasks.CompareVcfsAllowingQualityDifferences {
     input:
       file1 = test_gvcf,
       file2 = truth_gvcf

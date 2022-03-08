@@ -24,5 +24,7 @@ case class Config(
     rnaWithUMIsConfig: RNAWithUMIsConfig = RNAWithUMIsConfig(),
     somaticCloudWorkflowConfig: SomaticCloudWorkflowConfig =
       SomaticCloudWorkflowConfig(),
+    ultimaGenomicsWholeGenomeGermlineConfig: UltimaGenomicsWholeGenomeGermlineConfig =
+      UltimaGenomicsWholeGenomeGermlineConfig(),
     validateChipConfig: ValidateChipConfig = ValidateChipConfig()
 )

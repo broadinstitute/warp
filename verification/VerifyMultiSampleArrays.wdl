@@ -24,7 +24,7 @@ workflow VerifyMultiSampleArrays {
     File test_vcf
   }
 
-  call Tasks.CompareVcfs {
+  call Tasks.CompareVcfsAllowingQualityDifferences {
     input:
       file1 = truth_vcf,
       file2 = test_vcf
