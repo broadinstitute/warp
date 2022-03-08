@@ -319,7 +319,7 @@ task IndelsVariantRecalibrator {
     Int max_gaussians = 4
 
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/gatk-vqsr-regularization@sha256:4474e382c45b4794c8172070517ab2d4949fb459ce54ac777368d5ff823173cd"
   }
 
   command <<<
@@ -383,7 +383,7 @@ task SNPsVariantRecalibratorCreateModel {
     Int max_gaussians = 6
 
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/gatk-vqsr-regularization@sha256:4474e382c45b4794c8172070517ab2d4949fb459ce54ac777368d5ff823173cd"
   }
 
   command <<<
@@ -447,7 +447,7 @@ task SNPsVariantRecalibrator {
     Int max_gaussians = 6
 
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/gatk-vqsr-regularization@sha256:4474e382c45b4794c8172070517ab2d4949fb459ce54ac777368d5ff823173cd"
     Int? machine_mem_mb
 
   }
