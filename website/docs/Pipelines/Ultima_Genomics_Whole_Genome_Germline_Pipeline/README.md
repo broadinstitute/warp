@@ -85,7 +85,7 @@ When applicable, the struct containing the input is listed in the `Struct` colum
 | ref_dbsnp_index | VcfPostProcessing | Index for the dbSNP annotation VCF. | File |
 | wgs_coverage_interval_list | VcfPostProcessing | Interval list for the CollectWgsMetrics tool. | File |
 | filtering_model_no_gt | VcfPostProcessing | Optional filtering file defining the model for VCF postprocessing. | File |
-| increase_disk_size | NA | Interval used to increase disk size; set to 20 GB by default. |  Int | 
+| increase_disk_size | N/A | Interval used to increase disk size; set to 20 GB by default. |  Int | 
 | increase_metrics_disk_size | NA | Interval used to adjust disk size; set to 80 by default | Int | 
 | pipeline_version | NA | Workflow version number. | String |
 | filtering_model_no_gt_name | NA | String to describe the optional filtering model; default set to "rf_model_ignore_gt_incl_hpol_runs". | String |
