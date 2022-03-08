@@ -152,7 +152,7 @@ This task is skipped if a read group unmapped BAM file is used as input for the 
 
 #### 2. UMI extraction
 
-Unique molecular identifiers (UMIs) are DNA tags (bases) that identify each DNA molecule before PCR amplification. UMIs enable us to detect whether two reads that align to the same position in the reference are sequences of the same DNA molecule (have the same UMIs; PCR duplicates) or are two separate copies of DNA that happen to have the same sequence (have different UMIs; biological or natural duplicates). 
+Unique molecular identifiers (UMIs) are DNA tags (bases) that identify each DNA molecule before PCR amplification. They enable us to detect whether two reads that align to the same position in the reference are sequences of the same DNA molecule (have the same UMIs; PCR duplicates) or are two separate copies of DNA that happen to have the same sequence (have different UMIs; biological or natural duplicates).
 
 For example, the Illumina sequencers used by the Broad Genomics Platform read 151 bp per read, of which 5 bp are reserved for the UMIs.
 
