@@ -184,7 +184,7 @@ The workflow uses a contamination estimation that has been adapted to use only t
 
 | Subtask name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | --- | 
-| [Tasks.HaplotypeCaller as HaplotypeCallerForContamination](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | HaplotypeCaller | GATK | Runs HaplotypeCaller using an interval list of variants with high allele frequencies (contamination_sites_VCF). |
+| [Tasks.HaplotypeCaller as HaplotypeCallerForContamination](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | HaplotypeCaller | GATK | Runs HaplotypeCaller using an interval list of variants with high allele frequencies (`contamination_sites_vcf`). |
 | [Tasks.CheckContamination](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | VerifyBamID | VerifyBamID | Checks contamination in the HaplotypeCallerForContamination bamout. |
 | [Tasks.CollectDuplicateMetrics](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | CollectDuplicateMetrics | Picard | Checks duplication metrics in the aggregated, duplicate-marked BAM file. | 
 | [QC.CollectQualityYieldMetrics](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/Qc.wdl) | CollectQualityYieldMetrics | Picard | Calculates QC metrics on the duplicated-marked BAM. | 
