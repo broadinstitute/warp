@@ -89,7 +89,7 @@ When applicable, the struct containing the input is listed in the `Struct` colum
 | increase_metrics_disk_size | N/A | Interval used to adjust disk size; set to 80 by default. | Int | 
 | pipeline_version | N/A | Workflow version number. | String |
 | filtering_model_no_gt_name | N/A | String to describe the optional filtering model; default set to "rf_model_ignore_gt_incl_hpol_runs". | String |
-| merge_bam_file | NA | Boolean indicating if by-interval bamout files from HaplotypeCaller should be merged into a single BAM. | Boolean |
+| merge_bam_file | N/A | Boolean indicating if by-interval `bamout` files from HaplotypeCaller should be merged into a single BAM. | Boolean |
 | ref_size | NA | Float created by taking the size of the different reference files that is used dynamically specify disk size. | Float |
 | reads_per_split | NA | Number of reads by which to split the CRAM prior to alignment. | Int |
 
