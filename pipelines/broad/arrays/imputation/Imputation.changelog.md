@@ -2,6 +2,7 @@
 2022-03-08 (Date of Last Commit)
 
 * Add pipefail to imputation tasks to ensure that they don't fail silently
+
 # 1.0.6
 2022-03-01 (Date of Last Commit)
 
