@@ -171,7 +171,7 @@ The task uses the following parameters:
 | outSAMunmapped | Within | Includes unmapped reads in the output file rather than dropping those reads to facilitate potential downstream analysis. | 
 | outFilterMatchNminOverLread | 0.33 | Sets the fraction of reads that must match the reference. | <!--- this is likely being changed to default, waiting to hear from Takuto about this --->
 | outFilterMismatchNoverLmax | 0.1 | Sets the maximum allowable ratio of mismatches to read length. Reads with a ratio larger than the set value are filtered. For example, for paired-end reads with length 146, the reads are filtered if the number of mismatches is greater than 29 (146 \* 2 \* 0.1 = 29).|
-| alignEndsProtrude | 20 ConcordantPair | Allows a maximum of 20 protruding bases at alignment ends and marks these alignments as concordant pairs to prevent reads from small cDNA fragments that were sequenced into adapters from being dropped. This parameter allows for processing of FFPE and other low-quality or degraded data. |
+| alignEndsProtrude | 20 ConcordantPair | Allows a maximum of 20 protruding bases at alignment ends and marks these alignments as concordant pairs to prevent reads from small cDNA fragments that were sequenced into adapters from being dropped. This parameter allows for the processing of data derived from low-quality or degraded tissue such as formalin-fixed paraffin-embedded (FFPE) samples. |
 
 Additional parameters are used to match [ENCODE bulk RNA-seq data standards](https://www.encodeproject.org/data-standards/rna-seq/long-rnas/). To learn more about ENCODE options in STAR, see the [STAR manual](https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf).
 
