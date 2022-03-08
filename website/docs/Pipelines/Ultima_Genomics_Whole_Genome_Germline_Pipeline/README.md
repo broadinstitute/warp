@@ -51,7 +51,7 @@ When applicable, the struct containing the input is listed in the `Struct` colum
 | Input variable name | Struct | Description | Type |
 | --- | --- | --- | --- |
 | input_cram_list  | N/A | Array of CRAM files to be used as workflow input; must be specified if `input_bam_list` is not provided.  | Array [File] |
-| input_bam_list  | NA | Array of unmapped BAM files to be used as workflow input. Must be specified if `input_cram_list` is not provided. | Array [File] |
+| input_bam_list  | N/A | Array of unmapped BAM files to be used as workflow input; must be specified if `input_cram_list` is not provided. | Array [File] |
 | base_file_name | NA | Base name for each of the output files. | String |
 | contamination_sites_path | ContaminationSites | Path to contamination site files. | String |
 | contamination_sites_vcf | ContaminationSites | Contamination site VCF. | File |
