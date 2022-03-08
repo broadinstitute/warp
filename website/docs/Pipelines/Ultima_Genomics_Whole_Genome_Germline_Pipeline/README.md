@@ -159,7 +159,7 @@ To prepare the VCF for downstream joint calling, the workflow performs multiple 
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | --- | 
-| [VariantDiscoverTasks.MergeVCFs](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/GermlineVariantDiscovery.wdl) | Merges the array of GVCFs from HaplotypeCaller into one VCF and index. | MergeVcfs | Picard |
+| [VariantDiscoverTasks.MergeVCFs](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/GermlineVariantDiscovery.wdl) | MergeVcfs | Picard | Merges the array of GVCFs from HaplotypeCaller into one VCF and index. |
 | [Tasks.MergeBams](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | MergeSamFiles | Picard | Merges the HaplotypeCaller bamouts into a single BAM file. |
 | [Tasks.ConvertGVCFtoVCF](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | GenotypeGVCFs | GATK | Converts to GVCF to VCF format in preparation for post-processing. |
 
