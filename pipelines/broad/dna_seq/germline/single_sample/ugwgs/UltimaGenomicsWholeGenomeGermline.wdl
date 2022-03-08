@@ -131,7 +131,7 @@ workflow UltimaGenomicsWholeGenomeGermline {
     input_bam_list: "Array of unmapped BAM files to be used as workflow input. Must be specified if `input_cram_list` is not provided."
     base_file_name: "Base name for each of the output files."
     rsq_threshold: "Threshold for a read quality metric that is produced by the sequencing platform."
-    merge_bam_file: "Boolean indicating if by-interval bamout files from HaplotypeCaller should be merged into a single BAM. "
+    merge_bam_file: "Boolean indicating if by-interval bamout files from HaplotypeCaller should be merged into a single BAM."
     reads_per_split: "Number of reads by which to split the CRAM prior to alignment."
     filtering_model_no_gt_name: "String to describe the optional filtering model; default set to "rf_model_ignore_gt_incl_hpol_runs"."
   }
