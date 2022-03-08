@@ -99,7 +99,7 @@ Reference files, such as the hg38- and dbSNP-related files are located in a publ
 
 ## UG_WGS tasks and tools
 
-The [UG_WGS workflow](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl) imports additional WDL scripts that contain the different workflow tasks. When applicable, links are provided to the summary section below. To see specific tool parameters, select the task WDL link in the table; then find the task and view the `command {}` section of the task in the WDL script. To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `input {}` section as `String docker =`.
+The [UG_WGS workflow](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl) imports additional WDL scripts that contain the different workflow tasks. When applicable, links are provided in the summary section below. To see specific tool parameters, select the task WDL link in the table; then find the task and view the `command {}` section of the task in the WDL script. To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `input {}` section as `String docker =`.
 
 Overall, the UG_WGS workflow:
 1. Aligns with BWA mem and marks duplicates.
