@@ -56,15 +56,15 @@ When applicable, the struct containing the input is listed in the `Struct` colum
 | contamination_sites_path | ContaminationSites | Path to contamination site files. | String |
 | contamination_sites_vcf | ContaminationSites | Contamination site VCF. | File |
 | contamination_sites_vcf_index | ContaminationSites | Index for contamination site VCF. | File |
-| ref_fasta | References | Reference FASTA file for alignment with BWA mem. | File |
-| ref_fasta_index | References | Reference FASTA index file for alignment with BWA mem. | File |
+| ref_fasta | References | Reference FASTA file used for alignment with BWA mem. | File |
+| ref_fasta_index | References | Reference FASTA index file used for alignment with BWA mem. | File |
 | ref_dict | References | Dictionary file used for alignment with BWA mem. | File |
-| ref_alt |  AlignmentReferences |  Reference files used for BWA mem alignment. | File |
-| ref_amb | AlignmentReferences | Reference files used for BWA mem alignment.  | File |
-| ref_ann | AlignmentReferences | Reference files used for BWA mem alignment.  | File |
-| ref_bwt | AlignmentReferences | Reference files used for BWA mem alignment.  | File |
-| ref_pac | AlignmentReferences | Reference files used for BWA mem alignment.  | File |
-| ref_sa | AlignmentReferences | Reference files used for BWA mem alignment.  | File |
+| ref_alt |  AlignmentReferences |  Reference files used for alignment with BWA mem. | File |
+| ref_amb | AlignmentReferences | Reference files used for alignment with BWA mem.  | File |
+| ref_ann | AlignmentReferences | Reference files used for alignment with BWA mem.  | File |
+| ref_bwt | AlignmentReferences | Reference files used for alignment with BWA mem.  | File |
+| ref_pac | AlignmentReferences | Reference files used for alignment with BWA mem.  | File |
+| ref_sa | AlignmentReferences | Reference files used for alignment with BWA mem.  | File |
 | wgs_calling_interval_list | VariantCallingSettings | Interval list used for variant calling with HaplotypeCaller. | File |
 | break_bands_at_multiples_of | VariantCallingSettings | Breaks reference bands up at genomic positions that are multiples of this number; used to reduce GVCF file size. | Int |
 | haplotype_scatter_count | VariantCallingSettings | Scatter count used for variant calling. | Int | 
