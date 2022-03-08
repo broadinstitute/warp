@@ -94,7 +94,7 @@ When applicable, the struct containing the input is listed in the `Struct` colum
 | reads_per_split | NA | Number of reads by which to split the CRAM prior to alignment. | Int |
 
 #### Reference files
-Reference files, such as the Hg38- and dbSNP- related files are located in a public google bucket. See the [example input configuration file](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/pipelines/broad/dna_seq/germline/single_sample/ugwgs/input_files/UltimaGenomicsWholeGenomeGermline.inputs.json) for cloud locations.
+Reference files, such as the hg38- and dbSNP-related files are located in a public google bucket. See the [example input configuration file](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/pipelines/broad/dna_seq/germline/single_sample/ugwgs/input_files/UltimaGenomicsWholeGenomeGermline.inputs.json) for cloud locations.
 
 
 ## UG_WGS tasks and tools
