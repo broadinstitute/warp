@@ -105,7 +105,7 @@ Overall, the UG_WGS workflow:
 1. Aligns with BWA mem and marks duplicates.
 1. Converts a merged BAM to CRAM and validates the CRAM.
 1. Extracts the nucleotide flow order.
-1. Variant calls with HaplotypeCaller.
+1. Performs variant calling with HaplotypeCaller.
 1. Merges BAMs and converts the GVCF to VCF.
 1. Performs VCF post-processing in preparation for joint calling.
 1. Calculates quality control metrics.
