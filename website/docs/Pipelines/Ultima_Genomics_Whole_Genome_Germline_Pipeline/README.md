@@ -38,7 +38,7 @@ The UG_WGS pipeline can be deployed using [Cromwell](https://cromwell.readthedoc
 
 ### Inputs
 
-The UG_WGS workflow inputs are specified in JSON configuration files. Example configuration files can be found in the [input_files](Ihttps://github.com/Ultimagen/warp-private/tree/jukebox-refactor/pipelines/broad/dna_seq/germline/single_sample/ugwgs/input_files) folder in the WARP repository. 
+The UG_WGS workflow inputs are specified in JSON configuration files. Example configuration files can be found in the [input_files](https://github.com/Ultimagen/warp-private/tree/jukebox-refactor/pipelines/broad/dna_seq/germline/single_sample/ugwgs/input_files) folder in the WARP repository. 
 
 Multiple workflow inputs are in the form of a struct, which are defined in [UG_WGS structs WDL](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl).
 
