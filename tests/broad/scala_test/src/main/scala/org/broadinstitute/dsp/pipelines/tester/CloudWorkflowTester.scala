@@ -32,8 +32,6 @@ import scala.concurrent.Future
 
 //TODO: If we decide to implemnt this testing strategy, we need to clean up ValidationWddlTester, which is nearly identical to this class
 
-//TODO: confirm that we are using the truth prefix and building a truth path
-
 class CloudWorkflowTester(testerConfig: BaseConfig)(
     implicit am: ActorMaterializer,
     as: ActorSystem
