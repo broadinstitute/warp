@@ -619,6 +619,7 @@ task ExtractIDs {
   input {
     File vcf
     String output_basename
+    String? region
 
     Int disk_size_gb = 2*ceil(size(vcf, "GiB")) + 100
     String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.4-1.10.2-0.1.16-1646091598"
@@ -626,7 +627,7 @@ task ExtractIDs {
     Int memory_mb = 4000
   }
   command <<<
-    bcftools query -f "%ID\n" ~{vcf} -o ~{output_basename}.ids.txt
+    bcftools query -f "%ID\n" ~{"-t " + region} ~{vcf} -o ~{output_basename}.ids.txt
   >>>
   output {
     File ids = "~{output_basename}.ids.txt"

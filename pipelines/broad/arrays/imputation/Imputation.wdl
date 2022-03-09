@@ -72,18 +72,6 @@ workflow Imputation {
   File vcf_to_impute = select_first([multi_sample_vcf, MergeSingleSampleVcfs.output_vcf])
   File vcf_index_to_impute = select_first([multi_sample_vcf_index, MergeSingleSampleVcfs.output_vcf_index])
 
-  call tasks.SetIDs as SetIdsVcfToImpute{
-    input:
-      vcf = vcf_to_impute,
-      output_basename = "input_samples_with_variant_ids",
-  }
-
-  call tasks.ExtractIDs as ExtractIdsVcfToImpute {
-    input:
-      vcf = SetIdsVcfToImpute.output_vcf,
-      output_basename = "imputed_sites",
-  }
-
   call tasks.CountSamples {
     input:
       vcf = vcf_to_impute,
@@ -158,6 +146,19 @@ workflow Imputation {
 
       if (CheckChunks.valid) {
 
+        call tasks.SetIDs as SetIdsVcfToImpute{
+          input:
+            vcf = select_first([OptionalQCSites.output_vcf,  GenerateChunk.output_vcf]),
+            output_basename = "input_samples_with_variant_ids",
+        }
+
+        call tasks.ExtractIDs as ExtractIdsVcfToImpute {
+          input:
+            vcf = SetIdsVcfToImpute.output_vcf,
+            output_basename = "imputed_sites",
+            region = referencePanelContig.contig + ":" + start + "-" + end
+        }
+
         call tasks.PhaseVariantsEagle {
           input:
             dataset_bcf = CheckChunks.valid_chunk_bcf,
@@ -215,11 +216,42 @@ workflow Imputation {
             vcf = RemoveSymbolicAlleles.output_vcf,
             output_basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed"
         }
+
+        call tasks.ExtractIDs {
+          input:
+            vcf = SetIDs.output_vcf,
+            output_basename = "imputed_sites"
+        }
+
+        call tasks.FindSitesUniqueToFileTwoOnly {
+          input:
+            file1 = ExtractIDs.ids,
+            file2 = ExtractIdsVcfToImpute.ids
+        }
+
+        call tasks.SelectVariantsByIds {
+          input:
+            vcf = SetIdsVcfToImpute.output_vcf,
+            ids = FindSitesUniqueToFileTwoOnly.missing_sites,
+            basename = "imputed_sites_to_recover"
+        }
+
+        call tasks.RemoveAnnotations {
+          input:
+            vcf = SelectVariantsByIds.output_vcf,
+            basename = "imputed_sites_to_recover_annotations_removed"
+        }
+
+        call tasks.InterleaveVariants {
+          input:
+            vcfs = [RemoveAnnotations.output_vcf, SetIDs.output_vcf],
+            basename = output_callset_name
+        }
       }
     }
     Array[File] aggregatedImputationMetrics = select_all(AggregateImputationQCMetrics.aggregated_metrics)
-    Array[File] chromosome_vcfs = select_all(SetIDs.output_vcf)
-    Array[File] chromosome_vcf_indices = select_all(SetIDs.output_vcf_index)
+    Array[File] chromosome_vcfs = select_all(InterleaveVariants.output_vcf)
+    Array[File] chromosome_vcf_indices = select_all(InterleaveVariants.output_vcf_index)
   }
 
   Array[File] phased_vcfs = flatten(chromosome_vcfs)
@@ -230,37 +262,6 @@ workflow Imputation {
       input_vcfs = phased_vcfs,
       input_vcf_indices = phased_vcf_indices,
       output_vcf_basename = output_callset_name
-  }
-
-  call tasks.ExtractIDs {
-    input:
-      vcf = GatherVcfs.output_vcf,
-      output_basename = "imputed_sites"
-  }
-
-  call tasks.FindSitesUniqueToFileTwoOnly {
-    input:
-      file1 = ExtractIDs.ids,
-      file2 = ExtractIdsVcfToImpute.ids
-  }
-
-  call tasks.SelectVariantsByIds {
-    input:
-      vcf = SetIdsVcfToImpute.output_vcf,
-      ids = FindSitesUniqueToFileTwoOnly.missing_sites,
-      basename = "imputed_sites_to_recover"
-  }
-
-  call tasks.RemoveAnnotations {
-    input:
-      vcf = SelectVariantsByIds.output_vcf,
-      basename = "imputed_sites_to_recover_annotations_removed"
-  }
-
-  call tasks.InterleaveVariants {
-    input:
-      vcfs = [RemoveAnnotations.output_vcf, GatherVcfs.output_vcf],
-      basename = output_callset_name
   }
 
   call tasks.MergeImputationQCMetrics {
@@ -299,7 +300,7 @@ workflow Imputation {
   if (split_output_to_single_sample) {
     call tasks.SplitMultiSampleVcf {
       input:
-        multiSampleVcf = InterleaveVariants.output_vcf
+        multiSampleVcf = GatherVcfs.output_vcf
     }
   }
 
@@ -307,8 +308,8 @@ workflow Imputation {
   output {
     Array[File]? imputed_single_sample_vcfs = SplitMultiSampleVcf.single_sample_vcfs
     Array[File]? imputed_single_sample_vcf_indices = SplitMultiSampleVcf.single_sample_vcf_indices
-    File imputed_multisample_vcf = InterleaveVariants.output_vcf
-    File imputed_multisample_vcf_index = InterleaveVariants.output_vcf_index
+    File imputed_multisample_vcf = GatherVcfs.output_vcf
+    File imputed_multisample_vcf_index = GatherVcfs.output_vcf_index
     File aggregated_imputation_metrics = MergeImputationQCMetrics.aggregated_metrics
     File chunks_info = StoreChunksInfo.chunks_info
     File failed_chunks = StoreChunksInfo.failed_chunks
