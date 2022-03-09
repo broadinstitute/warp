@@ -145,18 +145,26 @@ workflow Imputation {
       }
 
       if (CheckChunks.valid) {
-
-        call tasks.SetIDs as SetIdsVcfToImpute{
+        call tasks.SubsetVcfToRegion {
           input:
-            vcf = select_first([OptionalQCSites.output_vcf,  GenerateChunk.output_vcf]),
+            vcf = vcf_to_impute,
+            vcf_index = vcf_index_to_impute,
+            output_basename = "input_samples_subset_to_chunk",
+            region = referencePanelContig.contig + ":" + start + "-" + end
+
+        }
+
+        call tasks.SetIDs as SetIdsVcfToImpute {
+          input:
+            vcf = SubsetVcfToRegion.output_vcf,
             output_basename = "input_samples_with_variant_ids",
+            region = referencePanelContig.contig + ":" + start + "-" + end
         }
 
         call tasks.ExtractIDs as ExtractIdsVcfToImpute {
           input:
             vcf = SetIdsVcfToImpute.output_vcf,
-            output_basename = "imputed_sites",
-            region = referencePanelContig.contig + ":" + start + "-" + end
+            output_basename = "imputed_sites"
         }
 
         call tasks.PhaseVariantsEagle {

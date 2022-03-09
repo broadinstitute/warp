@@ -588,10 +588,58 @@ task MergeImputationQCMetrics {
   }
 }
 
+task SubsetVcfToRegion {
+  input {
+    File vcf
+    File vcf_index
+    File output_basename
+    String region
+
+    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
+    Int cpu = 1
+    Int memory_mb = 8000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+  }
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
+  command {
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    SelectVariants \
+    -V ~{vcf} \
+    -L ~{region} \
+    -O ~{output_basename}.vcf.gz
+  }
+
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+  }
+
+  parameter_meta {
+    vcf: {
+       description: "vcf",
+       localization_optional: true
+     }
+    vcf_index: {
+       description: "vcf index",
+       localization_optional: true
+     }
+  }
+
+  output {
+    File output_vcf = "~{output_basename}.vcf.gz"
+    File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
+  }
+}
+
 task SetIDs {
   input {
     File vcf
     String output_basename
+    String? region
 
     String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.4-1.10.2-0.1.16-1646091598"
     Int cpu = 1
@@ -600,7 +648,7 @@ task SetIDs {
   }
   command <<<
     set -e -o pipefail
-    bcftools annotate ~{vcf} --set-id '%CHROM\:%POS\:%REF\:%FIRST_ALT' -Oz -o ~{output_basename}.vcf.gz
+    bcftools annotate ~{vcf} ~{"-t " + region} --set-id '%CHROM\:%POS\:%REF\:%FIRST_ALT' -Oz -o ~{output_basename}.vcf.gz
     bcftools index -t ~{output_basename}.vcf.gz
   >>>
   runtime {
@@ -619,7 +667,6 @@ task ExtractIDs {
   input {
     File vcf
     String output_basename
-    String? region
 
     Int disk_size_gb = 2*ceil(size(vcf, "GiB")) + 100
     String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.4-1.10.2-0.1.16-1646091598"
@@ -627,7 +674,7 @@ task ExtractIDs {
     Int memory_mb = 4000
   }
   command <<<
-    bcftools query -f "%ID\n" ~{"-t " + region} ~{vcf} -o ~{output_basename}.ids.txt
+    bcftools query -f "%ID\n" ~{vcf} -o ~{output_basename}.ids.txt
   >>>
   output {
     File ids = "~{output_basename}.ids.txt"
