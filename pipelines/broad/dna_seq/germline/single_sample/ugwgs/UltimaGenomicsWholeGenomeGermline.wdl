@@ -123,17 +123,17 @@ workflow UltimaGenomicsWholeGenomeGermline {
   }
 
   parameter_meta {
-    contamination_sites: "Struct containing files for contamination estimation."
-    alignment_references: "Struct containing reference files for alignment with BWA mem."
-    variant_calling_settings: "Struct containing reference files for variant calling with HaplotypeCaller."
-    vcf_post_processing: "Struct containing reference files for VCF postprocessing: annotation and filtering."
-    input_cram_list: "Array of CRAM files to be used as workflow input. Must be specified if `input_bam_list` is not provided."
-    input_bam_list: "Array of unmapped BAM files to be used as workflow input. Must be specified if `input_cram_list` is not provided."
+    contamination_sites: "Struct containing files for contamination estimation"
+    alignment_references: "Struct containing reference files for alignment with BWA mem"
+    variant_calling_settings: "Struct containing reference files for variant calling with HaplotypeCaller"
+    vcf_post_processing: "Struct containing reference files for VCF post-processing: annotation and filtering"
+    input_cram_list: "Array of CRAM files to be used as workflow input. Must be specified if `input_bam_list` is not provided"
+    input_bam_list: "Array of unmapped BAM files to be used as workflow input. Must be specified if `input_cram_list` is not provided"
     base_file_name: "Base name for each of the output files."
-    rsq_threshold: "Threshold for a read quality metric that is produced by the sequencing platform."
-    merge_bam_file: "Boolean indicating if by-interval bamout files from HaplotypeCaller should be merged into a single BAM."
-    reads_per_split: "Number of reads by which to split the CRAM prior to alignment."
-    filtering_model_no_gt_name: "String describing the optional filtering model; default set to "rf_model_ignore_gt_incl_hpol_runs"."
+    rsq_threshold: "Threshold for a read quality metric that is produced by the sequencing platform"
+    merge_bam_file: "Boolean indicating if by-interval bamout files from HaplotypeCaller should be merged into a single BAM"
+    reads_per_split: "Number of reads by which to split the CRAM prior to alignment"
+    filtering_model_no_gt_name: "String describing the optional filtering model; default set to rf_model_ignore_gt_incl_hpol_runs"
   }
 
   String pipeline_version = "3.2.3"

@@ -56,19 +56,19 @@ When applicable, the struct containing the input is listed in the `Struct` colum
 | contamination_sites_path | ContaminationSites | Path to contamination site files. | String |
 | contamination_sites_vcf | ContaminationSites | Contamination site VCF. | File |
 | contamination_sites_vcf_index | ContaminationSites | Index for contamination site VCF. | File |
-| ref_fasta | References | Reference FASTA file used for alignment with BWA mem. | File |
+| ref_fasta | References | Reference FASTA file used for alignment with BWA-MEM. | File |
 | ref_fasta_index | References | Reference FASTA index file used for alignment with BWA mem. | File |
-| ref_dict | References | Dictionary file used for alignment with BWA mem. | File |
-| ref_alt |  AlignmentReferences |  Reference files used for alignment with BWA mem. | File |
-| ref_amb | AlignmentReferences | Reference files used for alignment with BWA mem.  | File |
-| ref_ann | AlignmentReferences | Reference files used for alignment with BWA mem.  | File |
-| ref_bwt | AlignmentReferences | Reference files used for alignment with BWA mem.  | File |
-| ref_pac | AlignmentReferences | Reference files used for alignment with BWA mem.  | File |
-| ref_sa | AlignmentReferences | Reference files used for alignment with BWA mem.  | File |
+| ref_dict | References | Dictionary file used for alignment with BWA-MEM. | File |
+| ref_alt |  AlignmentReferences |  Reference files used for alignment with BWA-MEM. | File |
+| ref_amb | AlignmentReferences | Reference files used for alignment with BWA-MEM.  | File |
+| ref_ann | AlignmentReferences | Reference files used for alignment with BWA-MEM.  | File |
+| ref_bwt | AlignmentReferences | Reference files used for alignment with BWA-MEM.  | File |
+| ref_pac | AlignmentReferences | Reference files used for alignment with BWA-MEM.  | File |
+| ref_sa | AlignmentReferences | Reference files used for alignment with BWA-MEM.  | File |
 | wgs_calling_interval_list | VariantCallingSettings | Interval list used for variant calling with HaplotypeCaller. | File |
 | break_bands_at_multiples_of | VariantCallingSettings | Breaks reference bands up at genomic positions that are multiples of this number; used to reduce GVCF file size. | Int |
 | haplotype_scatter_count | VariantCallingSettings | Scatter count used for variant calling. | Int | 
-| make_haplotype_bam | N/A | Boolean indicating if HaplotypeCaller should output a `bamout` file; default is set to "false". | 
+| make_haplotype_bam | N/A | Boolean indicating if HaplotypeCaller should output a bamout file; default is set to "false". | 
 | rsq_threshold | NA | Threshold for a read quality metric that is produced by the sequencing platform. | Float | 
 | annotation_intervals | VcfPostProcessing | Annotation intervals used for filtering and annotating the HaplotypeCaller output VCF. | Array[File] |
 | af_only_gnomad | VcfPostProcessing | VCF with gnomAD allele frequencies used for metric stratification in the AnnotateVCF_AF task. | File |
@@ -76,7 +76,7 @@ When applicable, the struct containing the input is listed in the `Struct` colum
 | filter_cg_insertions | VcfPostProcessing | Boolean that indicates whether to filter CG insertions in HaplotypeCaller output VCF.  | Boolean |
 | filtering_blocklist_file | VcfPostProcessing | Optional file used to flag genomic locations that can’t be trusted while filtering the HaplotypeCaller output VCF. | File |
 | training_blocklist_file | VcfPostProcessing | Optional interval file for training a model to postprocess the HaplotypeCaller output VCF to identify false positives.  | File |
-| exome_weight | VcfPostProcessing | Optional interval for exome weight that is used to train a model to better identify false positives in the HaplotypeCaller output VCF.  | Int |
+| exome_weight | VcfPostProcessing | Optional interval for exome weight that is used to train a model to identify false positives in the HaplotypeCaller output VCF.  | Int |
 | exome_weight_annotation | VcfPostProcessing | Optional string to annotate exome weights. | String | 
 | runs_file | VcfPostProcessing | BED file of homopolymer runs that can be difficult to sequence. | File |
 | max_duplication_in_reasonable_sample | VcfPostProcessing | Number indicating the maximum duplication expected in a sample. | Float |
@@ -89,7 +89,7 @@ When applicable, the struct containing the input is listed in the `Struct` colum
 | increase_metrics_disk_size | N/A | Interval used to adjust disk size; set to 80 by default. | Int | 
 | pipeline_version | N/A | Workflow version number. | String |
 | filtering_model_no_gt_name | N/A | String to describe the optional filtering model; default set to "rf_model_ignore_gt_incl_hpol_runs". | String |
-| merge_bam_file | N/A | Boolean indicating if by-interval `bamout` files from HaplotypeCaller should be merged into a single BAM. | Boolean |
+| merge_bam_file | N/A | Boolean indicating if by-interval bamout files from HaplotypeCaller should be merged into a single BAM. | Boolean |
 | ref_size | N/A | Float created by taking the size of the different reference files and is used dynamically to specify disk size. | Float |
 | reads_per_split | N/A | Number of reads by which to split the CRAM prior to alignment. | Int |
 
@@ -102,7 +102,7 @@ Reference files, such as the hg38- and dbSNP-related files are located in a publ
 The [UG_WGS workflow](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl) imports additional WDL scripts that contain the different workflow tasks. When applicable, links are provided in the summary section below. To see specific tool parameters, select the task WDL link in the table; then find the task and view the `command {}` section of the task in the WDL script. To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `input {}` section as `String docker =`.
 
 Overall, the UG_WGS workflow:
-1. Aligns with BWA mem and marks duplicates.
+1. Aligns with BWA-MEM and marks duplicates.
 1. Converts a merged BAM to CRAM and validates the CRAM.
 1. Extracts the nucleotide flow order.
 1. Performs variant calling with HaplotypeCaller.
@@ -116,7 +116,7 @@ Overall, the UG_WGS workflow:
 
 **Task name and WDL link:**[UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.AlignmentAndMarkDuplicates as AlignmentAndMarkDuplicates](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.wdl)
 
-The table below details the subtasks called by the AlignmentAndMarkDuplicates task, which splits the CRAM or BAM into subfiles, converts them to uBAM format, filters by RSQ value, converts the uBAM to FASTQ for alignment with BWA mem, and marks duplicate reads in the resulting BAM files. 
+The table below details the subtasks called by the AlignmentAndMarkDuplicates task, which splits the CRAM or BAM into subfiles, converts them to uBAM format, filters by RSQ value, converts the uBAM to FASTQ for alignment with BWA-MEM, and marks duplicate reads in the resulting BAM files. 
 
 The Picard tool MarkDuplicates has been adapted to handle ambiguity in the aligned start of a read.
 
@@ -126,7 +126,7 @@ The Picard tool MarkDuplicates has been adapted to handle ambiguity in the align
 | [AlignmentTasks.SamSplitter as SplitInputBam](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/Alignment.wdl) | SplitSamByNumberOfReads | Picard | If BAM is workflow input, splits the BAM and outputs an array of BAMs. |
 | [Tasks.ConvertCramOrBamToUBam as ConvertToUbam](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | view, RevertSam | samtools, Picard | Converts the split CRAM or BAM file to uBAM. |
 | [Tasks.FilterByRsq](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | filter | bamtools | Filters each split uBAM by the predefined RSQ threshold and outputs a new filtered uBAM. |
-| [Tasks.SamToFastqAndBwaMemAndMba](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | SamToFastq, bwa mem, MergeBamAlignment | Picard, bwa mem  | Converts each uBAM to FASTQ format, aligns with BWA mem, and merges the alignment in the resulting BAM with metadata from the uBAM. |
+| [Tasks.SamToFastqAndBwaMemAndMba](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | SamToFastq, bwa mem, MergeBamAlignment | Picard, bwa mem  | Converts each uBAM to FASTQ format, aligns with BWA-MEM, and merges the alignment in the resulting BAM with metadata from the uBAM. |
 | [Tasks.MarkDuplicatesSpark](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | MarkDuplicatesSpark | GATK | Flags duplicate reads in the array of aligned and merged BAMs to create a new output BAM and index. |
 
 #### 2. Convert BAM to CRAM and validate the CRAM
@@ -152,7 +152,7 @@ The workflow implements initial variant calling with a version of HaplotypeCalle
 | Task name and WDL link | Tool | Software | Description |
 | --- | --- | --- | --- | 
 | [Utilities.ScatterIntervalList](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/Utilities.wdl) | IntervalListTools | Picard | Splits the calling interval list into sub-intervals in order to perform variant calling on the sub-intervals. |
-| [Tasks.HaplotypeCaller](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | HaplotypeCaller | GATK | Performs initial variant calling and outputs sub-interval GVCFs and bamout. |
+| [Tasks.HaplotypeCaller](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | HaplotypeCaller | GATK | Performs initial variant calling and outputs sub-interval GVCFs and a bamout file. |
 
 #### 5. Merge VCFs and BAMs and convert GVCF to VCF 
 To prepare the VCF for downstream joint calling, the workflow performs multiple post-processing steps. The HaplotypeCaller GVCF outputs are merged into a single GVCF and then converted to VCF in preparation for post-processing.
@@ -160,7 +160,7 @@ To prepare the VCF for downstream joint calling, the workflow performs multiple 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | --- | 
 | [VariantDiscoverTasks.MergeVCFs](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/GermlineVariantDiscovery.wdl) | MergeVcfs | Picard | Merges the array of GVCFs from HaplotypeCaller into one VCF and index. |
-| [Tasks.MergeBams](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | MergeSamFiles | Picard | Merges the HaplotypeCaller bamouts into a single BAM file. |
+| [Tasks.MergeBams](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | MergeSamFiles | Picard | Merges the HaplotypeCaller bamout files into a single BAM file. |
 | [Tasks.ConvertGVCFtoVCF](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | GenotypeGVCFs | GATK | Converts to GVCF to VCF format in preparation for post-processing. |
 
 #### 6. Perform VCF post-processing
@@ -185,7 +185,7 @@ The workflow uses a contamination estimation that has been adapted to use only t
 | Subtask name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | --- | 
 | [Tasks.HaplotypeCaller as HaplotypeCallerForContamination](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | HaplotypeCaller | GATK | Runs HaplotypeCaller using an interval list of variants with high allele frequencies (`contamination_sites_vcf`). |
-| [Tasks.CheckContamination](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | VerifyBamID | VerifyBamID | Checks contamination in the HaplotypeCallerForContamination bamout. |
+| [Tasks.CheckContamination](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | VerifyBamID | VerifyBamID | Checks contamination in the HaplotypeCallerForContamination bamout file. |
 | [Tasks.CollectDuplicateMetrics](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | CollectDuplicateMetrics | Picard | Checks duplication metrics in the aggregated, duplicate-marked BAM file. | 
 | [QC.CollectQualityYieldMetrics](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/Qc.wdl) | CollectQualityYieldMetrics | Picard | Calculates QC metrics on the duplicated-marked BAM. | 
 | [Tasks.CollectWgsMetrics](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | CollectWgsMetrics | Picard | Collects WGS metrics on the duplicate-marked BAM using stringent thresholds. |
