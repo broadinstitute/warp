@@ -157,8 +157,7 @@ workflow Imputation {
         call tasks.SetIDs as SetIdsVcfToImpute {
           input:
             vcf = SubsetVcfToRegion.output_vcf,
-            output_basename = "input_samples_with_variant_ids",
-            region = referencePanelContig.contig + ":" + start + "-" + end
+            output_basename = "input_samples_with_variant_ids"
         }
 
         call tasks.ExtractIDs as ExtractIdsVcfToImpute {

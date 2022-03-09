@@ -639,7 +639,6 @@ task SetIDs {
   input {
     File vcf
     String output_basename
-    String? region
 
     String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.4-1.10.2-0.1.16-1646091598"
     Int cpu = 1
@@ -648,7 +647,7 @@ task SetIDs {
   }
   command <<<
     set -e -o pipefail
-    bcftools annotate ~{vcf} ~{"-t " + region} --set-id '%CHROM\:%POS\:%REF\:%FIRST_ALT' -Oz -o ~{output_basename}.vcf.gz
+    bcftools annotate ~{vcf} --set-id '%CHROM\:%POS\:%REF\:%FIRST_ALT' -Oz -o ~{output_basename}.vcf.gz
     bcftools index -t ~{output_basename}.vcf.gz
   >>>
   runtime {
