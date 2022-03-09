@@ -27,7 +27,12 @@ workflow VerifyJointGenotyping {
     call VerifyTasks.CompareVCFsVerbosely {
       input:
         actual = test_vcfs[idx],
-        expected = truth_vcfs[idx]
+        actual_index = test_vcf_indexes[idx],
+        expected = truth_vcfs[idx],
+        expected_index = truth_vcf_indexes[idx],
+        extra_args = "--ignore-attribute VQSLOD --ignore-attribute AS_VQSLOD --ignore-filters --ignore-attribute culprit "
+        + " --ignore-attribute AS_culprit --ignore-attribute AS_FilterStatus --ignore-attribute ExcessHet --ignore-attribute AS_SOR "
+        +"--ignore-attribute AS_FS --ignore-attribute AS_BaseQRankSum --ignore-attribute AS_ReadPosRankSum --ignore-attribute AS_MQRankSum"
     }
 
     call GermlineVerification.CompareGvcfs {

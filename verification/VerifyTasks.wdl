@@ -33,7 +33,9 @@ task CompareVcfs {
 task CompareVCFsVerbosely {
   input {
     File actual
+    File actual_index
     File expected
+    File expected_index
     File ref_fasta = "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta"
     File ref_fasta_index = "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai"
     File ref_dict = "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict"
@@ -44,11 +46,11 @@ task CompareVCFsVerbosely {
   }
 
   command {
-    gatk VCFComparator -R ~{ref_fasta}  -V:actual ~{actual} -V:expected ~{expected} ~{extra_args} ~{if(warn_on_error) then "--warn=on-error" else ""}
+    gatk VCFComparator -R ~{ref_fasta}  -V:actual ~{actual} -V:expected ~{expected} ~{extra_args} ~{if(warn_on_error) then "--warn-on-errors" else ""} --finish-before-failing
   }
 
   runtime {
-    docker: "us.gcr.io/broad-dsde-methods/gatk-vcfcomparator@sha256:f02b94357381339304040c74afb07416cd982db3a402d014e679d7ef787d02f3"
+    docker: "us.gcr.io/broad-dsde-methods/gatk-vcfcomparator@sha256:d090fcc667a1a2e9ad775b31ff25502993de6cf60ff69a67f868c19f9a54e936"
     disks: "local-disk 50 HDD"
     memory: "3 GiB"
     preemptible: 3
