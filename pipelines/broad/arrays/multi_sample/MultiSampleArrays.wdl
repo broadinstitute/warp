@@ -18,7 +18,7 @@ version 1.0
 
 workflow MultiSampleArrays {
 
-  String pipeline_version = "1.6.0"
+  String pipeline_version = "1.6.1"
 
   input {
     File samples_fofn
