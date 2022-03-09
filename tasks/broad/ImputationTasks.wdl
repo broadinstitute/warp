@@ -229,7 +229,7 @@ task Minimac4 {
     docker: minimac4_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
-    maxRetrise: 3
+    maxRetries: 3
     cpu: cpu
   }
 }
