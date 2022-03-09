@@ -592,7 +592,7 @@ task SubsetVcfToRegion {
   input {
     File vcf
     File vcf_index
-    File output_basename
+    String output_basename
     String region
 
     Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
