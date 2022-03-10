@@ -127,16 +127,15 @@ task FastqProcessingSlidSeq {
     Array[File] r1_fastq
     Array[File] r2_fastq
     Array[File]? i1_fastq
-    Int umi_length
-    Int cell_barcode_length
+    String read_structure
     String sample_id
 
 
     # Runtime attributes
-    String docker =  "quay.io/kishorikonwar0/fastqprocess:1.0.0"
+    String docker =  "quay.io/humancellatlas/secondary-analysis-sctools:v0.4.0-test"
     Int cpu = 16
     Int machine_mb = 40000
-    Int disk = ceil(size(r1_fastq, "GiB")*3 + size(r2_fastq, "GiB")*3) + 500
+    Int disk = ceil(size(r1_fastq, "GiB")*3 + size(r2_fastq, "GiB")*3) + 50
     Int preemptible = 3
   }
 
@@ -149,8 +148,7 @@ task FastqProcessingSlidSeq {
         r2_fastq: "Array of Read 2 FASTQ files - reverse read, contains cDNA fragment generated from captured mRNA"
         i1_fastq: "(optional) Array of i1 FASTQ files - index read, for demultiplexing of multiple samples on one flow cell."
         sample_id: "Name of sample matching this file, inserted into read group header"
-        cell_barcode_length: "Number of cell barcode base pairs in the Read 1 FASTQ"
-        umi_length: "Number of UMI base pairs in the Read 1 FASTQ"
+        read_structure: "A string that specifies UMI (M) and Barcode (C) positions in the Read 1 fastq"
 
   }
 
@@ -205,13 +203,13 @@ task FastqProcessingSlidSeq {
     CODE)
 
 
-    fastqprocess \
-        --bam-size 30.0 \
-        --barcode-length "~{cell_barcode_length}" \
-        --umi-length "~{umi_length}" \
-        --sample-id "~{sample_id}" \
-        --output-format FASTQ \
-        $FASTQS
+    fastq_slideseq  \
+      --bam-size 30.0 \
+      --white-list whitelist \
+      --read-structure "~{read_structure}" \
+      --sample-id "~{sample_id}" \
+      --output-format FASTQ \
+      $FASTQS
   }
 
   runtime {
