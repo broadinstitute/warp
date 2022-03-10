@@ -26,8 +26,7 @@ class ReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
   override lazy val workflowDir: File =
     CromwellWorkflowTester.PipelineRoot / "broad" / "reprocessing" / dataTypeString
 
-  override lazy val localValidationWdlPath: File =
-    CromwellWorkflowTester.DsdePipelinesRoot / "verification" / "VerifyReprocessing.wdl"
+  override protected val validationWorkflowName: String = "VerifyReprocessing"
 
   override protected lazy val resultsPrefix: URI =
     URI.create(
@@ -37,8 +36,6 @@ class ReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
     URI.create(
       s"gs://broad-gotc-test-storage/reprocessing/$dataTypeString/$testTypeString/truth/${testerConfig.truthBranch}/"
     )
-
-  private val verifyWorkflowName = "VerifyReprocessing"
 
   override def generateRunParameters: Seq[WorkflowRunParameters] = {
     super.generateRunParameters.map(
@@ -74,10 +71,10 @@ class ReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
         testCrai = resultsCloudPath.resolve(s"$outputBaseName.cram.crai"),
         truthCram = truthCloudPath.resolve(s"$outputBaseName.cram"),
         truthCrai = truthCloudPath.resolve(s"$outputBaseName.cram.crai"),
-        testGvcf = resultsCloudPath.resolve(s"$gvcfBaseName.g.vcf.gz"),
-        truthGvcf = truthCloudPath.resolve(s"$gvcfBaseName.g.vcf.gz")
+        testGvcf = resultsCloudPath.resolve(s"$gvcfBaseName.rb.g.vcf.gz"),
+        truthGvcf = truthCloudPath.resolve(s"$gvcfBaseName.rb.g.vcf.gz")
       ),
-      verifyWorkflowName
+      validationWorkflowName
     )
 
     val revertedBams = ioUtil
@@ -93,7 +90,7 @@ class ReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
 
     val added = validationInputs.asObject.fold(JsonObject.empty)(
       _.add(
-        s"$verifyWorkflowName.bam_pairs",
+        s"$validationWorkflowName.bam_pairs",
         Json.arr(
           revertedBams
             .zip(truthBams)

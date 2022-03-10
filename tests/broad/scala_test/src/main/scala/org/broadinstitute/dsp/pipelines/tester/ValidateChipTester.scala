@@ -29,8 +29,7 @@ class ValidateChipTester(testerConfig: ValidateChipConfig)(
     s"gs://broad-gotc-test-storage/validate_chip/$testTypeString/truth/${testerConfig.truthBranch}/"
   )
 
-  override protected def localValidationWdlPath: File =
-    CromwellWorkflowTester.DsdePipelinesRoot / "verification" / "VerifyValidateChip.wdl"
+  override protected val validationWorkflowName: String = "VerifyValidateChip"
 
   override protected lazy val googleProject: String = {
     if (env.picardEnv.equals("dev")) {

@@ -1,0 +1,16 @@
+{
+  "RNAWithUMIsPipeline.bam": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/plumbing/inputs/SM-HFCB1_100ng_.65X_A3_plumbing.u.bam",
+  "RNAWithUMIsPipeline.read1Structure": "3M2S146T",
+  "RNAWithUMIsPipeline.read2Structure": "3M2S146T",
+
+  "RNAWithUMIsPipeline.output_basename": "SM-HFCB1_100ng_.65X_A3",
+
+  "RNAWithUMIsPipeline.starIndex": "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/star/STAR2.7.10a_genome_GRCh38_noALT_noHLA_noDecoy_v34_oh145.tar.gz",
+  "RNAWithUMIsPipeline.gtf": "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode.v34.annotation_collapsed_only.gtf",
+  "RNAWithUMIsPipeline.ref": "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta",
+  "RNAWithUMIsPipeline.refIndex": "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta.fai",
+  "RNAWithUMIsPipeline.refDict": "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.dict",
+  "RNAWithUMIsPipeline.refFlat": "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/hg38_GENCODE_v34_refFlat.txt",
+  "RNAWithUMIsPipeline.ribosomalIntervals": "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode_v34_rRNA.interval_list",
+  "RNAWithUMIsPipeline.exonBedFile": "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode.v34.GRCh38.insert_size_intervals_geq1000bp.bed"
+}

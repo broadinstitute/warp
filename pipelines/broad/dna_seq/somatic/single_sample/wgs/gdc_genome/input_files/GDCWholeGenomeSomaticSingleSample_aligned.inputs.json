@@ -1,0 +1,16 @@
+{
+  "GDCWholeGenomeSomaticSingleSample.contamination_vcf":"gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz",
+  "GDCWholeGenomeSomaticSingleSample.contamination_vcf_index":"gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz.tbi",
+  "GDCWholeGenomeSomaticSingleSample.dbsnp_vcf":"gs://gcp-public-data--broad-references/hg38/v0/gdc/dbsnp_144.hg38.vcf.gz",
+  "GDCWholeGenomeSomaticSingleSample.dbsnp_vcf_index":"gs://gcp-public-data--broad-references/hg38/v0/gdc/dbsnp_144.hg38.vcf.gz.tbi",
+  "GDCWholeGenomeSomaticSingleSample.ref_amb":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa.amb",
+  "GDCWholeGenomeSomaticSingleSample.ref_ann":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa.ann",
+  "GDCWholeGenomeSomaticSingleSample.ref_bwt":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa.bwt",
+  "GDCWholeGenomeSomaticSingleSample.ref_dict":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.dict",
+  "GDCWholeGenomeSomaticSingleSample.ref_fai":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa.fai",
+  "GDCWholeGenomeSomaticSingleSample.ref_fasta":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa",
+  "GDCWholeGenomeSomaticSingleSample.ref_pac":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa.pac",
+  "GDCWholeGenomeSomaticSingleSample.ref_sa":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa.sa",
+  "GDCWholeGenomeSomaticSingleSample.input_bam": "gs://broad-gotc-test-storage/somatic_single_sample/wgs/plumbing/bams/NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211.bam",
+  "GDCWholeGenomeSomaticSingleSample.base_file_name": "NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211"
+}

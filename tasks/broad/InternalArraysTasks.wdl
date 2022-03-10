@@ -1,56 +1,5 @@
 version 1.0
 
-task CreateExtendedIlluminaManifest {
-  input {
-    File input_csv
-    String output_base_name
-    File cluster_file
-
-    File ref_fasta
-    File ref_fasta_index
-    File ref_dict
-
-    File dbSNP_vcf_file
-    File dbSNP_vcf_index_file
-
-    File supported_ref_fasta
-    File supported_ref_fasta_index
-    File supported_ref_dict
-
-    File chain_file
-
-    Int disk_size
-    Int preemptible_tries
-  }
-
-  command <<<
-    java -Xms13g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
-            CreateExtendedIlluminaManifest \
-            --INPUT ~{input_csv} \
-            --OUTPUT_BASE_FILE ~{output_base_name} \
-            --CLUSTER_FILE ~{cluster_file} \
-            --DBSNP_FILE ~{dbSNP_vcf_file} \
-            --TARGET_BUILD 37 \
-            --TARGET_REFERENCE_FILE ~{ref_fasta} \
-            --SUPPORTED_BUILD 36 \
-            --SUPPORTED_REFERENCE_FILE ~{supported_ref_fasta} \
-            --SUPPORTED_CHAIN_FILE ~{chain_file}
-  >>>
-
-  runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "14 GiB"
-    preemptible: preemptible_tries
-  }
-
-  output {
-    File output_csv = "~{output_base_name}.extended.csv"
-    File output_bad_assays_file = "~{output_base_name}.bad_assays.csv"
-    File report_file = "~{output_base_name}.report.txt"
-  }
-}
-
 task GenerateEmptyVariantCallingMetricsFile {
   input {
     String chip_well_barcode
@@ -65,7 +14,7 @@ task GenerateEmptyVariantCallingMetricsFile {
   }
 
   command <<<
-    java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
             GenerateEmptyVariantCallingMetrics \
             --CHIP_WELL_BARCODE ~{chip_well_barcode} \
             --SAMPLE_ALIAS "~{sample_alias}" \
@@ -78,8 +27,8 @@ task GenerateEmptyVariantCallingMetricsFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
-    memory: "3.5 GiB"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    memory: "3500 MiB"
     preemptible: preemptible_tries
   }
 
@@ -92,24 +41,30 @@ task BlacklistBarcode {
   input {
     File upload_metrics_output
     String chip_well_barcode
-    Int analysis_version
+    Int analysis_version_number
     Int preemptible_tries
+    File vault_token_path
     Array[String] authentication
     String service_account_filename
     String reason
     String notes
   }
 
+  meta {
+    volatile: true
+  }
+
   command <<<
     set -eo pipefail
 
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
     AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
     export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
 
-    java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
                   ArraysManualBlacklistUpdate \
                   --CHIP_WELL_BARCODE ~{chip_well_barcode} \
-                  --ANALYSIS_VERSION ~{analysis_version} \
+                  --ANALYSIS_VERSION ~{analysis_version_number} \
                   --REASON ~{reason} \
                   --DB_USERNAME_FILE cloudsql.db_user.txt \
                   --DB_PASSWORD_FILE cloudsql.db_password.txt \
@@ -118,8 +73,8 @@ task BlacklistBarcode {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
-    memory: "3.5 GiB"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    memory: "3500 MiB"
     preemptible: preemptible_tries
   }
 }
@@ -158,7 +113,7 @@ task VcfToMercuryFingerprintJson {
        exit 1;
     fi
 
-    java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
       VcfToMercuryFingerprintJson \
       --VCF ~{input_vcf_file} \
       --LSID ~{sample_lsid} \
@@ -169,9 +124,9 @@ task VcfToMercuryFingerprintJson {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "3.5 GiB"
+    memory: "3500 MiB"
     preemptible: preemptible_tries
   }
 
@@ -191,15 +146,15 @@ task CreateBafRegressMetricsFile {
   }
 
   command {
-    java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
       CreateBafRegressMetricsFile \
       --INPUT ~{input_file} \
       --OUTPUT ~{output_metrics_basefilename}
   }
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "3.5 GiB"
+    memory: "3500 MiB"
     preemptible: preemptible_tries
   }
 
@@ -211,8 +166,8 @@ task CreateBafRegressMetricsFile {
 task UploadArraysMetrics {
   input {
     File arrays_variant_calling_detail_metrics
-    File? arrays_variant_calling_summary_metrics
-    File? arrays_control_code_summary_metrics
+    File arrays_variant_calling_summary_metrics
+    File arrays_control_code_summary_metrics
     File? fingerprinting_detail_metrics
     File? fingerprinting_summary_metrics
     File? genotype_concordance_summary_metrics
@@ -221,6 +176,7 @@ task UploadArraysMetrics {
     File? verify_id_metrics
     File? bafregress_metrics
 
+    File vault_token_path
     Array[String] authentication
     String service_account_filename
 
@@ -228,16 +184,25 @@ task UploadArraysMetrics {
     Int preemptible_tries
   }
 
+  meta {
+    volatile: true
+  }
+
   command <<<
     set -eo pipefail
 
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
     AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
     export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
 
     rm -rf metrics_upload_dir &&
     mkdir metrics_upload_dir &&
 
-    # check that files are passed in before copying them -- [ -z FILE ] evaluates to true if FILE not there
+    cp ~{arrays_control_code_summary_metrics} metrics_upload_dir
+    cp ~{arrays_variant_calling_detail_metrics} metrics_upload_dir
+    cp ~{arrays_variant_calling_summary_metrics} metrics_upload_dir
+
+    # check that optional files exist before copying them -- [ -z FILE ] evaluates to true if FILE not there
     ! [ -z ~{genotype_concordance_summary_metrics} ] &&
     cp ~{genotype_concordance_summary_metrics} metrics_upload_dir
     ! [ -z ~{genotype_concordance_detail_metrics} ] &&
@@ -254,13 +219,7 @@ task UploadArraysMetrics {
     ! [ -z ~{fingerprinting_summary_metrics} ] &&
     cp ~{fingerprinting_summary_metrics} metrics_upload_dir
 
-    cp ~{arrays_variant_calling_detail_metrics} metrics_upload_dir
-    ! [ -z ~{arrays_variant_calling_summary_metrics} ] &&
-    cp ~{arrays_variant_calling_summary_metrics} metrics_upload_dir
-
-    ! [ -z ~{arrays_control_code_summary_metrics} ] &&
-    cp ~{arrays_control_code_summary_metrics} metrics_upload_dir
-    java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
       UploadArraysMetrics \
       --ANALYSIS_DIRECTORY metrics_upload_dir \
       --DB_USERNAME_FILE cloudsql.db_user.txt \
@@ -270,9 +229,9 @@ task UploadArraysMetrics {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "3.5 GiB"
+    memory: "3500 MiB"
     preemptible: preemptible_tries
   }
 
@@ -281,21 +240,134 @@ task UploadArraysMetrics {
     }
 }
 
+task UploadEmptyArraysMetrics {
+  input {
+    File arrays_variant_calling_detail_metrics
+
+    File vault_token_path
+    Array[String] authentication
+    String service_account_filename
+
+    Int disk_size
+    Int preemptible_tries
+  }
+
+  meta {
+    volatile: true
+  }
+
+  command <<<
+    set -eo pipefail
+
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
+    AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
+    export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
+
+    rm -rf metrics_upload_dir &&
+    mkdir metrics_upload_dir &&
+
+    cp ~{arrays_variant_calling_detail_metrics} metrics_upload_dir
+
+    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+    UploadArraysMetrics \
+    --ANALYSIS_DIRECTORY metrics_upload_dir \
+    --DB_USERNAME_FILE cloudsql.db_user.txt \
+    --DB_PASSWORD_FILE cloudsql.db_password.txt \
+    --DB_JDBC_FILE cloudsql.db_jdbc.txt &&
+    touch empty_file_for_dependency
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "3500 MiB"
+    preemptible: preemptible_tries
+  }
+
+  output {
+    File upload_metrics_empty_file = "empty_file_for_dependency"
+  }
+}
+
+task CreateChipWellBarcodeParamsFile {
+  input {
+    String chip_type_name
+    String chip_well_barcode
+    String? collaborator_participant_id
+    String? lab_batch
+    String? participant_id
+    String? product_family
+    String? product_name
+    String? product_order_id
+    String? product_part_number
+    String product_type
+    String regulatory_designation
+    String research_project_id
+    String sample_alias
+    String gender
+    String? sample_id
+    String sample_lsid
+    Int preemptible_tries
+  }
+
+  String params_filename = "params.txt"
+
+  command <<<
+    set -eo pipefail
+
+    echo "CHIP_TYPE_NAME=~{chip_type_name}" > ~{params_filename}
+    echo "CHIP_WELL_BARCODE=~{chip_well_barcode}" >> ~{params_filename}
+    echo "INDIVIDUAL_ALIAS=~{collaborator_participant_id}" >> ~{params_filename}
+    echo "LAB_BATCH=~{lab_batch}" >> ~{params_filename}
+    echo "PARTICIPANT_ID=~{participant_id}" >> ~{params_filename}
+    echo "PRODUCT_FAMILY=~{product_family}" >> ~{params_filename}
+    echo "PRODUCT_NAME=~{product_name}" >> ~{params_filename}
+    echo "PRODUCT_ORDER_ID=~{product_order_id}" >> ~{params_filename}
+    echo "PRODUCT_PART_NUMBER=~{product_part_number}" >> ~{params_filename}
+    echo "PRODUCT_TYPE=~{product_type}" >> ~{params_filename}
+    echo "REGULATORY_DESIGNATION=~{regulatory_designation}" >> ~{params_filename}
+    echo "RESEARCH_PROJECT_ID=~{research_project_id}" >> ~{params_filename}
+    echo "SAMPLE_ALIAS=~{sample_alias}" >> ~{params_filename}
+    echo "SAMPLE_GENDER=~{gender}" >> ~{params_filename}
+    echo "SAMPLE_ID=~{sample_id}" >> ~{params_filename}
+    echo "SAMPLE_LSID=~{sample_lsid}" >> ~{params_filename}
+
+  >>>
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    preemptible: preemptible_tries
+  }
+  output {
+    File params_file = params_filename
+  }
+}
+
+
+
 task UpdateChipWellBarcodeIndex {
   input {
     File params_file
+    File vault_token_path
     Array[String] authentication
     String service_account_filename
     Int disk_size
     Int preemptible_tries
   }
 
+  meta {
+    volatile: true
+  }
+
   command <<<
     set -eo pipefail
 
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
     AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
     export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
-    java -Xms2g -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
       UpdateChipWellBarcodeIndex \
       --PARAMS_FILE ~{params_file} \
       --DB_USERNAME_FILE cloudsql.db_user.txt \
@@ -305,9 +377,116 @@ task UpdateChipWellBarcodeIndex {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1602016912"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "3.5 GiB"
+    memory: "3500 MiB"
     preemptible: preemptible_tries
+  }
+}
+
+task GetNextArraysQcAnalysisVersionNumber {
+  input {
+    String chip_well_barcode
+    Int preemptible_tries
+    File vault_token_path
+    Array[String] authentication
+    String service_account_filename
+  }
+
+  meta {
+    volatile: true
+  }
+
+  command <<<
+    set -eo pipefail
+
+    export VAULT_TOKEN=$(cat ~{vault_token_path})
+    AUTH=~{write_lines(authentication)} && chmod +x $AUTH && $AUTH
+    export GOOGLE_APPLICATION_CREDENTIALS=/cromwell_root/~{service_account_filename}
+
+    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/gitc/picard-private.jar \
+      GetNextArraysQcAnalysisVersionNumber \
+        --CHIP_WELL_BARCODE ~{chip_well_barcode} \
+        --DB_USERNAME_FILE cloudsql.db_user.txt \
+        --DB_PASSWORD_FILE cloudsql.db_password.txt \
+        --DB_JDBC_FILE cloudsql.db_jdbc.txt
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    memory: "3500 MiB"
+    preemptible: preemptible_tries
+  }
+  output {
+    Int analysis_version_number = read_int(stdout())
+  }
+}
+
+task ResolveExtendedIlluminaManifestFile {
+  input {
+    File extended_manifest_map_file
+    String bpm_filename
+    String egt_filename
+    String arrays_chip_metadata_path
+    Int preemptible_tries
+  }
+
+  command <<<
+    cat ~{extended_manifest_map_file} | grep -v '^#' | grep -E '^~{bpm_filename}\s+~{egt_filename}' | cut -f 3 > output_file.txt
+    if [[ ! -s output_file.txt ]]
+    then
+      echo "ERROR: Unable to find entry in ~{extended_manifest_map_file} for ~{bpm_filename} / ~{egt_filename}" 1>&2
+      exit 1
+    elif [[ $(cat output_file.txt | wc -l) -ne 1 ]]
+    then
+      echo "ERROR: Found more than one entry in ~{extended_manifest_map_file} for ~{bpm_filename} / ~{egt_filename}" 1>&2
+      exit 1
+    fi
+  >>>
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    preemptible: preemptible_tries
+  }
+  output {
+    String extended_illumina_manifest_file = arrays_chip_metadata_path + read_string("output_file.txt")
+  }
+}
+
+task ResolveMinorAlleleFrequencyFile {
+  input {
+    File minor_allele_frequency_map_file
+    String bpm_filename
+    String arrays_chip_metadata_path
+    Int preemptible_tries
+  }
+
+  command <<<
+    cat ~{minor_allele_frequency_map_file} | grep -v '^#' | grep ~{bpm_filename} | cut -f 2 > output_file.txt
+    if [[ ! -s output_file.txt ]]
+    then
+      echo "Unable to find entry in ~{minor_allele_frequency_map_file} for ~{bpm_filename}"
+      echo false > found.txt
+      exit 0
+    elif [[ $(cat output_file.txt | wc -l) -ne 1 ]]
+    then
+      echo "ERROR: Found more than one entry in ~{minor_allele_frequency_map_file} for ~{bpm_filename}" 1>&2
+      echo false > found.txt
+      exit 1
+    fi
+    echo true > found.txt
+  >>>
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+    preemptible: preemptible_tries
+  }
+  output {
+    Boolean found = read_boolean("found.txt")
+    String minor_allele_frequency_file = arrays_chip_metadata_path + read_string("output_file.txt")
   }
 }

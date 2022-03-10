@@ -1,6 +1,7 @@
 version 1.0
 
 import "../../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingTasks
+import "../../../../tasks/broad/Qc.wdl" as Qc
 
 ## Copyright Broad Institute, 2019
 ##
@@ -20,13 +21,9 @@ import "../../../../tasks/broad/IlluminaGenotypingArrayTasks.wdl" as GenotypingT
 
 workflow IlluminaGenotypingArray {
 
-  String pipeline_version = "1.11.0"
+  String pipeline_version = "1.12.6"
 
   input {
-
-    # This is the autocall_version, needed for the case where autocall fails (likely due to normalization errors)
-    # In this case it no longer emits the version in its output, so we store it here.
-    String autocall_version = "3.0.0"
     String sample_alias
     Int analysis_version_number
     Float call_rate_threshold
@@ -76,7 +73,7 @@ workflow IlluminaGenotypingArray {
     Int disk_size
     Int preemptible_tries
 
-    Float genotype_concordance_threshold = 0.98
+    Float genotype_concordance_threshold = 0.95
   }
 
   call GenotypingTasks.AutoCall {
@@ -273,23 +270,27 @@ workflow IlluminaGenotypingArray {
         ref_fasta_index = ref_fasta_index,
         ref_dict = ref_dict,
         output_vcf_filename = chip_well_barcode + ".fingerprint.vcf.gz",
-        disk_size = disk_size,
         preemptible_tries = preemptible_tries
     }
 
 
     if (defined(fingerprint_genotypes_vcf_file)) {
-      call GenotypingTasks.CheckFingerprint {
+      call Qc.CheckFingerprint {
         input:
-          input_vcf_file = final_output_vcf,
-          input_vcf_index_file = final_output_vcf_index,
-          genotypes_vcf_file = fingerprint_genotypes_vcf_file,
-          genotypes_vcf_index_file = fingerprint_genotypes_vcf_index_file,
-          haplotype_database_file = haplotype_database_file,
-          observed_sample_alias = chip_well_barcode,
+          input_vcf = final_output_vcf,
+          input_vcf_index = final_output_vcf_index,
+          input_sample_alias = chip_well_barcode,
+          genotypes = select_first([fingerprint_genotypes_vcf_file]),
+          genotypes_index = select_first([fingerprint_genotypes_vcf_index_file]),
           expected_sample_alias = sample_alias,
-          output_metrics_basename = chip_well_barcode,
-          disk_size = disk_size,
+          output_basename = chip_well_barcode,
+          genotype_lod_threshold = 1.9,
+              # Paraphrased from Yossi:
+              # Override the default LOD threshold of 5 because if the PL field
+              # is missing from the VCF, CheckFingerprint will default to an error
+              # rate equivalent to a LOD score of 2, and we don't want to see
+              # confident LOD scores w/ no confident SNPs.
+          haplotype_database_file = haplotype_database_file,
           preemptible_tries = preemptible_tries
       }
     }
@@ -312,7 +313,6 @@ workflow IlluminaGenotypingArray {
           ref_fasta = ref_fasta,
           ref_fasta_index = ref_fasta_index,
           ref_dict = ref_dict,
-          disk_size = disk_size,
           preemptible_tries = preemptible_tries
       }
 
@@ -335,6 +335,9 @@ workflow IlluminaGenotypingArray {
   }
 
   output {
+    String chip_well_barcode_output = chip_well_barcode
+    Int analysis_version_number_output = analysis_version_number
+    String autocall_version = AutoCall.autocall_version
     File gtc = AutoCall.gtc_file
     File red_idat_md5_cloud_path = RedIdatMd5Sum.md5_cloud_path
     File green_idat_md5_cloud_path = GreenIdatMd5Sum.md5_cloud_path

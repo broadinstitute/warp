@@ -7,6 +7,7 @@ import loompy
 from scipy import sparse
 import pandas as pd
 import scipy as sc
+import logging
 
 
 def create_gene_id_name_map(gtf_file):
@@ -129,14 +130,12 @@ def generate_col_attr(args):
     cell_ids = np.load(args.cell_ids)
 
     # Read the csv input files
-    metrics_df = pd.read_csv(args.cell_metrics, dtype=str)
+    metrics_df = pd.read_csv(args.cell_metrics, header=0,  dtype=str)
     # Check that input is valid
     if metrics_df.shape[0] == 0 or metrics_df.shape[1] == 0:
         logging.error("Cell metrics table is not valid")
         raise ValueError()
     metrics_df = metrics_df.rename(columns={"Unnamed: 0": "cell_id"})
-    # Drop first row that contains non-cell information from metrics file, this contains aggregate information
-    metrics_df = metrics_df.iloc[1:]
 
     add_emptydrops_results = args.add_emptydrops_results
     if add_emptydrops_results == 'yes':

@@ -52,8 +52,8 @@ class JointGenotypingTester(testerConfig: GermlineCloudWorkflowConfig)(
     }
   }
 
-  override protected def localValidationWdlPath: File =
-    CromwellWorkflowTester.DsdePipelinesRoot / "verification" / "VerifyJointGenotyping.wdl"
+  override protected val validationWorkflowName: String =
+    "VerifyJointGenotyping"
 
   override protected def buildValidationWdlInputs(
       workflowTest: WorkflowTest

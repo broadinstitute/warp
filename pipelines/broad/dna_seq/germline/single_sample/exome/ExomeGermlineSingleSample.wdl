@@ -33,14 +33,13 @@ import "../../../../../../tasks/broad/AggregatedBamQC.wdl" as AggregatedQC
 import "../../../../../../tasks/broad/Qc.wdl" as QC
 import "../../../../../../tasks/broad/BamProcessing.wdl" as Processing
 import "../../../../../../tasks/broad/BamToCram.wdl" as ToCram
-import "../../../../../../tasks/broad/VariantCalling.wdl" as ToGvcf
+import "../../../../../../pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
 import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 # WORKFLOW DEFINITION
 workflow ExomeGermlineSingleSample {
 
-
-  String pipeline_version = "2.4.1"
+  String pipeline_version = "3.0.4"
 
   input {
     PapiSettings papi_settings
@@ -191,7 +190,7 @@ workflow ExomeGermlineSingleSample {
     File? fingerprint_detail_metrics = AggregatedBamQC.fingerprint_detail_metrics
 
     File duplicate_metrics = UnmappedBamToAlignedBam.duplicate_metrics
-    File output_bqsr_reports = UnmappedBamToAlignedBam.output_bqsr_reports
+    File? output_bqsr_reports = UnmappedBamToAlignedBam.output_bqsr_reports
 
     File gvcf_summary_metrics = BamToGvcf.vcf_summary_metrics
     File gvcf_detail_metrics = BamToGvcf.vcf_detail_metrics

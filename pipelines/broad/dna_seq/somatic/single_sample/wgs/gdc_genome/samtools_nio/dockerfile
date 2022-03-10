@@ -1,0 +1,26 @@
+FROM google/cloud-sdk:slim
+
+RUN set -ex \
+    && apt-get update && apt-get install -y --no-install-recommends \
+        autoconf \
+        automake \
+        gcc \
+        perl \
+        procps \
+        bzip2 \
+        zlib1g-dev \
+        libbz2-dev \
+        liblzma-dev \
+        libcurl4-gnutls-dev \
+        libssl-dev \
+        libncurses5-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -L -O https://github.com/samtools/samtools/releases/download/1.10/samtools-1.10.tar.bz2 \
+    && tar -xjvf samtools-1.10.tar.bz2 \
+    && rm samtools-1.10.tar.bz2 \
+    && cd samtools-1.10 \
+    && ./configure --enable-libcurl \
+    && make all all-htslib \
+    && make install install-htslib \
+    && cd .. \
+    && rm -r samtools-1.10

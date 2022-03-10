@@ -1,7 +1,7 @@
 version 1.0
 
-import "../verification/VerifyMetrics.wdl" as MetricsVerification
-import "../verification/VerifyTasks.wdl" as Tasks
+import "../verification/VerifyIlluminaGenotypingArray.wdl" as VerifyIlluminaGenotypingArray
+import "../verification/VerifyTasks.wdl" as VerifyTasks
 
 ## Copyright Broad Institute, 2018
 ##
@@ -39,60 +39,25 @@ workflow VerifyArrays {
 
     File truth_green_idat_md5
     File test_green_idat_md5
+
+    File truth_params_file
+    File test_params_file
   }
 
-  call MetricsVerification.CompareTwoNumbers {
+  call VerifyIlluminaGenotypingArray.VerifyIlluminaGenotypingArray {
     input:
       num1 = length(test_metrics),
       num2 = length(truth_metrics),
       comparison_type_msg = "Different number of metric files"
   }
 
-  String avcdm_ext = "arrays_variant_calling_detail_metrics"
-
-  scatter (idx in range(length(truth_metrics))) {
-    String metrics_basename = basename(truth_metrics[idx])
-    Boolean is_avcdm_file = basename(metrics_basename, avcdm_ext) != metrics_basename
-    Array[String] metrics_to_ignore = if (is_avcdm_file) then ["AUTOCALL_DATE", "ANALYSIS_VERSION", "PIPELINE_VERSION"] else []
-    call MetricsVerification.CompareMetricFiles {
-      input:
-        dependency_input = CompareTwoNumbers.output_file,
-        file1 = test_metrics[idx],
-        file2 = truth_metrics[idx],
-        output_file = "metric_~{idx}.txt",
-        metrics_to_ignore = metrics_to_ignore
-    }
+  call VerifyTasks.CompareTextFiles as CompareParamsFiles {
+    input:
+      test_text_files = [test_params_file],
+      truth_text_files = [truth_params_file]
   }
 
-  call Tasks.CompareVcfs as CompareOutputVcfs {
-    input:
-      file1 = truth_vcf,
-      file2 = test_vcf
-  }
-
-  call Tasks.CompareVcfs as CompareOutputFingerprintVcfs {
-    input:
-       file1 = truth_fp_vcf,
-       file2 = test_fp_vcf
-  }
-
-  call Tasks.CompareGtcs {
-    input:
-      file1 = test_gtc,
-      file2 = truth_gtc,
-      bead_pool_manifest_file = bead_pool_manifest_file
-  }
-
-  call CompareFiles as CompareGreenIdatMdf5Sum {
-    input:
-      file1 = test_green_idat_md5,
-      file2 = truth_green_idat_md5
-  }
-
-  call CompareFiles as CompareRedIdatMdf5Sum {
-    input:
-      file1 = test_red_idat_md5,
-      file2 = truth_red_idat_md5
+  output {
   }
   meta {
     allowNestedInputs: true

@@ -46,3 +46,5 @@ At this point, the Bowtie index is not used. (HCA SS2)
 - `BuildStar` - Builds the STAR reference for the Optimus pipeline. (HCA Optimus)
 
 - `BuildHisat2FromRsem` - Builds the reference for HISAT2 from the rsem transcripts sequences. (HCA SS2)
+
+- `BuildStarSingleNucleus` - Builds the reference for STAR aligner and creates a modified GTF for the Single Nucleus Smart-Seq2 Pipeline.

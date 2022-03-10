@@ -1,0 +1,36 @@
+{
+  "Arrays.chip_well_barcode": "204520870050_R04C01",
+
+  "Arrays.sample_alias": "243320539",
+  "Arrays.sample_id": "SM-K5P3L",
+  "Arrays.sample_lsid": "org.broadinstitute:crsp:K5P3L",
+  "Arrays.reported_gender": "Female",
+  "Arrays.collaborator_participant_id": "NA24143_2_SM-GZQQY",
+  "Arrays.participant_id": "NA24143_2_SM-GZQQY",
+  "Arrays.product_type": "aou_array",
+  "Arrays.regulatory_designation": "CLINICAL_DIAGNOSTICS",
+  "Arrays.research_project_id": "RP-1710",
+
+  "Arrays.call_rate_threshold": 0.98,
+
+  "Arrays.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GDA-8v1-0_A5/idats/204520870050_R04C01/204520870050_R04C01_Grn.idat",
+  "Arrays.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GDA-8v1-0_A5/idats/204520870050_R04C01/204520870050_R04C01_Red.idat",
+
+  "Arrays.bead_pool_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.bpm",
+  "Arrays.extended_chip_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.1.5.extended.csv",
+  "Arrays.cluster_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A1_ClusterFile.egt",
+  "Arrays.minor_allele_frequency_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.MAF.txt",
+
+  "Arrays.ref_fasta": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",
+  "Arrays.ref_fasta_index": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai",
+  "Arrays.ref_dict": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict",
+  "Arrays.dbSNP_vcf": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz",
+  "Arrays.dbSNP_vcf_index": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz.tbi",
+  "Arrays.haplotype_database_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt",
+  "Arrays.variant_rsids_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
+
+  "Arrays.disk_size": 100,
+  "Arrays.preemptible_tries": 3,
+  "Arrays.vault_token_path": "{VAULT_TOKEN_PATH}",
+  "Arrays.environment": "{ENV}"
+}

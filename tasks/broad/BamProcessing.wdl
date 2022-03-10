@@ -29,7 +29,7 @@ task SortSam {
   Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
 
   command {
-    java -Dsamjdk.compression_level=~{compression_level} -Xms4000m -jar /usr/picard/picard.jar \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms4000m -Xmx4500m -jar /usr/picard/picard.jar \
       SortSam \
       INPUT=~{input_bam} \
       OUTPUT=~{output_bam_basename}.bam \
@@ -53,44 +53,6 @@ task SortSam {
   }
 }
 
-# Sort BAM file by coordinate order -- using Spark!
-task SortSamSpark {
-  input {
-    File input_bam
-    String output_bam_basename
-    Int preemptible_tries
-    Int compression_level
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
-  }
-  # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
-  # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
-  Float sort_sam_disk_multiplier = 3.25
-  Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
-
-  command {
-    set -e
-
-    gatk --java-options "-Dsamjdk.compression_level=~{compression_level} -Xms100g -Xmx100g" \
-      SortSamSpark \
-      -I ~{input_bam} \
-      -O ~{output_bam_basename}.bam \
-      -- --conf spark.local.dir=. --spark-master 'local[16]' --conf 'spark.kryo.referenceTracking=false'
-
-    samtools index ~{output_bam_basename}.bam ~{output_bam_basename}.bai
-  }
-  runtime {
-    docker: gatk_docker
-    disks: "local-disk " + disk_size + " HDD"
-    bootDiskSizeGb: "15"
-    cpu: "16"
-    memory: "102 GiB"
-    preemptible: preemptible_tries
-  }
-  output {
-    File output_bam = "~{output_bam_basename}.bam"
-    File output_bam_index = "~{output_bam_basename}.bai"
-  }
-}
 
 # Mark duplicate reads to avoid counting non-independent observations
 task MarkDuplicates {
@@ -108,6 +70,8 @@ task MarkDuplicates {
     String? read_name_regex
     Int memory_multiplier = 1
     Int additional_disk = 20
+
+    Float? sorting_collection_size_ratio
   }
 
   # The merged bam will be smaller than the sum of the parts so we need to account for the unmerged inputs and the merged output.
@@ -130,6 +94,7 @@ task MarkDuplicates {
       METRICS_FILE=~{metrics_filename} \
       VALIDATION_STRINGENCY=SILENT \
       ~{"READ_NAME_REGEX=" + read_name_regex} \
+      ~{"SORTING_COLLECTION_SIZE_RATIO=" + sorting_collection_size_ratio} \
       OPTICAL_DUPLICATE_PIXEL_DISTANCE=2500 \
       ASSUME_SORT_ORDER="queryname" \
       CLEAR_DT="false" \
@@ -144,64 +109,6 @@ task MarkDuplicates {
   output {
     File output_bam = "~{output_bam_basename}.bam"
     File duplicate_metrics = "~{metrics_filename}"
-  }
-}
-
-task MarkDuplicatesSpark {
-  input {
-    Array[File] input_bams
-    String output_bam_basename
-    String metrics_filename
-    Float total_input_size
-    Int compression_level
-    Int preemptible_tries
-
-    String? read_name_regex
-    Int memory_multiplier = 3
-    Int cpu_size = 6
-  }
-
-  # The merged bam will be smaller than the sum of the parts so we need to account for the unmerged inputs and the merged output.
-  # Mark Duplicates takes in as input readgroup bams and outputs a slightly smaller aggregated bam. Giving 2.5 as wiggleroom
-  Float md_disk_multiplier = 2.5
-  Int disk_size = ceil(md_disk_multiplier * total_input_size) + 20
-
-  Int memory_size = ceil(16 * memory_multiplier)
-  Int java_memory_size = (memory_size - 6)
-
-  String output_bam_location = "~{output_bam_basename}.bam"
-
-  # Removed options ASSUME_SORT_ORDER, CLEAR_DT, and ADD_PG_TAG_TO_READS as it seems like they are a) not implemented
-  #   in MarkDuplicatesSpark, and/or b) are set to "false" aka "don't do" anyhow.
-  # MarkDuplicatesSpark requires PAPIv2
-  command <<<
-    set -e
-    export GATK_LOCAL_JAR=/root/gatk.jar
-    gatk --java-options "-Dsamjdk.compression_level=~{compression_level} -Xmx~{java_memory_size}g" \
-      MarkDuplicatesSpark \
-      --input ~{sep=' --input ' input_bams} \
-      --output ~{output_bam_location} \
-      --metrics-file ~{metrics_filename} \
-      --read-validation-stringency SILENT \
-      ~{"--read-name-regex " + read_name_regex} \
-      --optical-duplicate-pixel-distance 2500 \
-      --treat-unsorted-as-querygroup-ordered \
-      --create-output-bam-index false \
-      -- --conf spark.local.dir=/mnt/tmp --spark-master 'local[16]' --conf 'spark.kryo.referenceTracking=false'
-  >>>
-
-  runtime {
-    docker: "jamesemery/gatknightly:gatkMasterSnapshot44ca2e9e84a"
-    disks: "/mnt/tmp " + ceil(2.1 * total_input_size) + " LOCAL, local-disk " + disk_size + " HDD"
-    bootDiskSizeGb: "50"
-    cpu: cpu_size
-    memory: "~{memory_size} GiB"
-    preemptible: preemptible_tries
-  }
-
-  output {
-    File output_bam = output_bam_location
-    File duplicate_metrics = metrics_filename
   }
 }
 
@@ -237,7 +144,7 @@ task BaseRecalibrator {
   command {
     gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
       -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-      -Xloggc:gc_log.log -Xms5g" \
+      -Xloggc:gc_log.log -Xms5000m -Xmx5500m" \
       BaseRecalibrator \
       -R ~{ref_fasta} \
       -I ~{input_bam} \
@@ -250,7 +157,7 @@ task BaseRecalibrator {
   runtime {
     docker: gatk_docker
     preemptible: preemptible_tries
-    memory: "6 GiB"
+    memory: "6000 MiB"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
   }
@@ -284,6 +191,7 @@ task ApplyBQSR {
   Int disk_size = ceil((size(input_bam, "GiB") * 3 / bqsr_scatter) + ref_size) + additional_disk
 
   Int memory_size = ceil(3500 * memory_multiplier)
+  Int java_memory_mb = memory_size - 500
 
   Boolean bin_somatic_base_qualities = bin_base_qualities && somatic
 
@@ -296,7 +204,7 @@ task ApplyBQSR {
   command {
     gatk --java-options "-XX:+PrintFlagsFinal -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps \
       -XX:+PrintGCDetails -Xloggc:gc_log.log \
-      -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Dsamjdk.compression_level=~{compression_level} -Xms3000m" \
+      -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Dsamjdk.compression_level=~{compression_level} -Xms3000m -Xmx~{java_memory_mb}m" \
       ApplyBQSR \
       --create-output-bam-md5 \
       --add-output-sam-program-record \
@@ -335,7 +243,7 @@ task GatherBqsrReports {
   }
 
   command {
-    gatk --java-options "-Xms3000m" \
+    gatk --java-options "-Xms3000m -Xmx3000m" \
       GatherBQSRReports \
       -I ~{sep=' -I ' input_bqsr_reports} \
       -O ~{output_report_filename}
@@ -366,7 +274,7 @@ task GatherSortedBamFiles {
   Int disk_size = ceil(2 * total_input_size) + 20
 
   command {
-    java -Dsamjdk.compression_level=~{compression_level} -Xms2000m -jar /usr/picard/picard.jar \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms2000m -Xmx2500m -jar /usr/picard/picard.jar \
       GatherBamFiles \
       INPUT=~{sep=' INPUT=' input_bams} \
       OUTPUT=~{output_bam_basename}.bam \
@@ -401,7 +309,7 @@ task GatherUnsortedBamFiles {
   Int disk_size = ceil(2 * total_input_size) + 20
 
   command {
-    java -Dsamjdk.compression_level=~{compression_level} -Xms2000m -jar /usr/picard/picard.jar \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms2000m -Xmx2500m -jar /usr/picard/picard.jar \
       GatherBamFiles \
       INPUT=~{sep=' INPUT=' input_bams} \
       OUTPUT=~{output_bam_basename}.bam \
@@ -545,7 +453,7 @@ task CheckContamination {
     preemptible: preemptible_tries
     memory: "7.5 GiB"
     disks: "local-disk " + disk_size + " HDD"
-    docker: "us.gcr.io/broad-gotc-prod/verify-bam-id:c1cba76e979904eb69c31520a0d7f5be63c72253-1553018888"
+    docker: "us.gcr.io/broad-gotc-prod/verify-bam-id:1.0.1-c1cba76e979904eb69c31520a0d7f5be63c72253-1639071840"
     cpu: 2
   }
   output {

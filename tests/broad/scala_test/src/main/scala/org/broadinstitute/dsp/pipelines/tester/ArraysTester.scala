@@ -28,8 +28,7 @@ class ArraysTester(testerConfig: ArraysConfig)(
   protected val vaultTokenPath: String =
     s"gs://broad-dsp-gotc-arrays-$envString-tokens/arrayswdl.token"
 
-  lazy val localValidationWdlPath: File =
-    CromwellWorkflowTester.DsdePipelinesRoot / "verification" / s"Verify$workflowName.wdl"
+  override protected val validationWorkflowName: String = s"Verify$workflowName"
 
   override protected lazy val googleProject: String = {
     if (env.picardEnv.equals("dev")) {
@@ -37,11 +36,6 @@ class ArraysTester(testerConfig: ArraysConfig)(
     } else {
       s"broad-arrays-${env.picardEnv}"
     }
-  }
-
-  // Validation uses the same options as the arrays workflow
-  override protected lazy val validationWdlOptions: String = {
-    readTestOptions(releaseDir, env)
   }
 
   protected lazy val resultsPrefix: URI = {
@@ -91,11 +85,25 @@ class ArraysTester(testerConfig: ArraysConfig)(
       .listGoogleObjects(truthCloudPath)
       .filter(_.getPath.endsWith("metrics"))
       .map(uriToFilename)
+    val bpmFile = singleSampleArraysInputs.getBeadPoolManifestFile("Arrays")
+    val bpmFilename =
+      singleSampleArraysInputs.getBeadPoolManifestFilename("Arrays")
+    val arraysMetadataPath =
+      singleSampleArraysInputs.getArraysMetadataPath("Arrays")
+    val bpmURI =
+      if (bpmFile.isDefined) {
+        new URI(bpmFile.get)
+      } else {
+        // gs://<pathtoarraysmetadata>/<chiptypename>/<chiptypename>.bpm
+        new URI(
+          arraysMetadataPath.get + bpmFilename.get
+            .replace(".bpm", "") + "/" + bpmFilename.get)
+      }
+
     val validationInputs = SingleSampleArraysValidationInputs(
       test_metrics = metricsFileNames.map(resultsCloudPath.resolve),
       truth_metrics = metricsFileNames.map(truthCloudPath.resolve),
-      bead_pool_manifest_file =
-        new URI(singleSampleArraysInputs.getBeadPoolManifestFile("Arrays")),
+      bead_pool_manifest_file = bpmURI,
       test_gtc = resultsCloudPath.resolve(s"$outputBaseName.gtc"),
       truth_gtc = truthCloudPath.resolve(s"$outputBaseName.gtc"),
       test_vcf = resultsCloudPath.resolve(s"$outputBaseName.vcf.gz"),
@@ -111,7 +119,9 @@ class ArraysTester(testerConfig: ArraysConfig)(
       truth_red_idat_md5 =
         truthCloudPath.resolve(s"${outputBaseName}_Red.idat.md5sum"),
       test_red_idat_md5 =
-        resultsCloudPath.resolve(s"${outputBaseName}_Red.idat.md5sum")
+        resultsCloudPath.resolve(s"${outputBaseName}_Red.idat.md5sum"),
+      truth_params_file = truthCloudPath.resolve("params.txt"),
+      test_params_file = resultsCloudPath.resolve("params.txt")
     )
     SingleSampleArraysValidationInputs
       .marshall(validationInputs)

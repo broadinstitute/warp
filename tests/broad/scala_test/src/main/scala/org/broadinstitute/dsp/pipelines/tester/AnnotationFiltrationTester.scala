@@ -13,6 +13,7 @@ import org.broadinstitute.dsp.pipelines.batch.{
   WorkflowRunParameters,
   WorkflowTest
 }
+import org.broadinstitute.dsp.pipelines.tester.CromwellWorkflowTester.WarpGitHash
 
 import scala.concurrent.Future
 import scala.sys.process._
@@ -37,7 +38,7 @@ class AnnotationFiltrationTester(testConfig: AnnotationFiltrationConfig)(
     )
 
   override lazy val wdlContents: String =
-    (releaseDir / workflowName / s"$workflowName.wdl").contentAsString
+    (releaseDir / workflowName / s"${workflowName}_${WarpGitHash}.wdl").contentAsString
 
   val testInputs: String = (workflowDir / "test_inputs" / {
     testConfig.category.entryName
@@ -45,7 +46,7 @@ class AnnotationFiltrationTester(testConfig: AnnotationFiltrationConfig)(
 
   override def runTest: Future[Unit] = {
     val workflowOptions =
-      (releaseDir / workflowName / s"$workflowName.options.json").contentAsString
+      (releaseDir / workflowName / s"${workflowName}_${WarpGitHash}.options.json").contentAsString
     val workflowRuns = Seq(
       WorkflowRunParameters(
         id = s"${envString}_${testConfig.category.entryName}",
@@ -60,7 +61,7 @@ class AnnotationFiltrationTester(testConfig: AnnotationFiltrationConfig)(
       submittedWorkflows <- submitBatchWorkflows(
         workflowRuns,
         Some(workflowOptions),
-        Some(dependenciesZipFromReleaseDir(releaseDir))
+        dependenciesZipFromReleaseDir(releaseDir, workflowName)
       )
       finishedSamples <- awaitBatchCromwellWorkflowCompletion(
         submittedWorkflows)
@@ -99,7 +100,7 @@ class AnnotationFiltrationTester(testConfig: AnnotationFiltrationConfig)(
       } yield {
         tempFile.overwrite(value)
         val cost =
-          s"${CromwellWorkflowTester.DsdePipelinesRoot}/scripts/calculate_cost.py --only_total --metadata $tempFile"
+          s"${CromwellWorkflowTester.WarpRoot}/scripts/calculate_cost.py --only_total --metadata $tempFile"
             .!!
         (workflow, cost)
       }

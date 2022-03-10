@@ -109,7 +109,7 @@ task Funcotate {
 
     # runtime args
     String gatk_docker
-    Int machine_memory = 3
+    Int memory_mb = 3000
     Int preemptible_attempts = 3
     Int additional_disk = 0
     Int cpu_threads = 1
@@ -128,7 +128,7 @@ task Funcotate {
   String disk_type = if use_ssd then "SSD" else "HDD"
 
 
-  Int command_memory = (machine_memory - 1) * 1024
+  Int command_memory = memory_mb - 1000
 
   command <<<
     set -e
@@ -138,7 +138,7 @@ task Funcotate {
     DATA_SOURCES_TAR_GZ=~{default="" data_sources_tar_gz}
     if [[ ! -e $DATA_SOURCES_TAR_GZ ]] ; then
       DOWNLOADED_DATASOURCES_NAME="downloaded_datasources.tar.gz"
-      gatk FuncotatorDataSourceDownloader --germline --output $DOWNLOADED_DATASOURCES_NAME
+      gatk --java-options "-Xmx~{command_memory}m" FuncotatorDataSourceDownloader --germline --output $DOWNLOADED_DATASOURCES_NAME
       DATA_SOURCES_TAR_GZ=$DOWNLOADED_DATASOURCES_NAME
     fi
     # Extract provided the tar.gz:
@@ -169,7 +169,7 @@ task Funcotate {
 
   runtime {
     docker: gatk_docker
-    memory: "~{machine_memory} GiB"
+    memory: "~{memory_mb} MiB"
     bootDiskSizeGb: 15
     disks: "local-disk ~{disk_size} ~{disk_type}"
     preemptible: preemptible_attempts

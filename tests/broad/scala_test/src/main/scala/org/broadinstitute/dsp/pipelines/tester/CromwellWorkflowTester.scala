@@ -33,6 +33,7 @@ import org.broadinstitute.dsp.pipelines.commandline.{
   CromwellEnvironment,
   WorkflowTestType
 }
+import org.broadinstitute.dsp.pipelines.tester.CromwellWorkflowTester.WarpGitHash
 import org.broadinstitute.dsp.pipelines.util.{CromwellUtils, VaultUtil}
 
 import scala.collection.immutable.Iterable
@@ -45,15 +46,15 @@ import scala.util.{Failure, Success, Try}
 object CromwellWorkflowTester {
   class TestFailedException(msg: String) extends RuntimeException(msg)
 
-  lazy val DsdePipelinesRoot: File =
+  lazy val WarpRoot: File =
     File(Process(Seq("git", "rev-parse", "--show-toplevel")).!!.trim)
 
-  lazy val DsdePipelinesGitHash: String =
+  lazy val WarpGitHash: String =
     Process(Seq("git", "rev-parse", "--short", "HEAD")).!!.trim
 
-  lazy val GotcRoot: File = DsdePipelinesRoot / "genomes_in_the_cloud"
+  lazy val GotcRoot: File = WarpRoot / "genomes_in_the_cloud"
 
-  lazy val PipelineRoot: File = DsdePipelinesRoot / "pipelines"
+  lazy val PipelineRoot: File = WarpRoot / "pipelines"
 
   def apply(config: Config)(
       implicit system: ActorSystem,
@@ -66,13 +67,19 @@ object CromwellWorkflowTester {
         new AllOfUsTester(config.germlineCloudConfig)
       case AnnotationFiltration =>
         new AnnotationFiltrationTester(config.annotationFiltrationConfig)
-      case ArraysDataDelivery =>
-        new ArraysDataDeliveryTester(config.arraysDataDeliveryConfig)
-      case CramDataDelivery =>
-        new CramDataDeliveryTester(config.cramDataDeliveryConfig)
+      case BroadInternalRNAWithUMIs =>
+        new BroadInternalRNAWithUMIsTester(
+          config.broadInternalRNAWithUMIsConfig)
+      case CheckFingerprint =>
+        new CheckFingerprintTester(config.checkFingerprintConfig)
+      case CramToUnmappedBams =>
+        new CramToUnmappedBamsTester(config.cramToUnmappedBamsConfig)
       case Dummy => new DummyTester()
       case ExternalReprocessing =>
         new ExternalReprocessingTester(config.germlineCloudConfig)
+      case GDCWholeGenomeSomaticSingleSample =>
+        new GDCWholeGenomeSomaticSingleSampleTester(
+          config.gdcWholeGenomeSomaticSingleSampleConfig)
       case GenotypeConcordance =>
         new GenotypeConcordanceTester(config.genotypeConcordanceConfig)
       case GermlineSingleSample =>
@@ -89,22 +96,32 @@ object CromwellWorkflowTester {
         new ArraysTester(config.arraysConfig)
       case IlluminaGenotypingArray =>
         new IlluminaGenotypingArrayTester(config.illuminaGenotypingArrayConfig)
+      case Imputation =>
+        new ImputationTester(config.imputationConfig)
+      case RNAWithUMIs =>
+        new RNAWithUMIsTester(config.rnaWithUMIsConfig)
       case SomaticSingleSample =>
         new SomaticSingleSampleTester(config.somaticCloudWorkflowConfig)
+      case VariantCalling =>
+        new VariantCallingTester(config.germlineCloudConfig)
     }
   }
 
   private lazy val pipelinesReleaseScript: File =
-    DsdePipelinesRoot / "scripts" / "build_workflow_release.sh"
+    WarpRoot / "scripts" / "build_pipeline_release.sh"
 
   def runReleaseWorkflow(wdlPath: File, env: CromwellEnvironment): File = {
     val tmp = File.newTemporaryDirectory().deleteOnExit()
     Process(
       pipelinesReleaseScript.pathAsString,
       Seq(
+        "-w",
         wdlPath.pathAsString,
+        "-o",
         tmp.pathAsString,
-        DsdePipelinesGitHash,
+        "-v",
+        WarpGitHash,
+        "-e",
         env.picardEnv
       )
     ).!!
@@ -380,7 +397,8 @@ abstract class CromwellWorkflowTester(
             cromwellMetadata <- cromwellClient()
               .metadata(
                 finishedWorkflow.workflow.id,
-                Option(Map("expandSubWorkflows" -> List("true")))
+                Option(Map("includeKey" -> List("backendLogs"),
+                           "expandSubWorkflows" -> List("true")))
               )
               .value
               .unsafeToFuture()
@@ -767,17 +785,23 @@ abstract class CromwellWorkflowTester(
     * @param releaseDir The release dir with WDLs and dependencies
     * @return The WDL contents
     */
-  protected def readWdlFromReleaseDir(releaseDir: File): String =
-    (releaseDir / workflowName / s"$workflowName.wdl").contentAsString
+  protected def readWdlFromReleaseDir(releaseDir: File,
+                                      workflowName: String): String =
+    (releaseDir / workflowName / s"${workflowName}_${WarpGitHash}.wdl").contentAsString
 
   /**
     * Get the dependencies zip from the provided release dir
     *
     * @param releaseDir The release dir with WDLs and dependencies
+    * @param workflowName The name of the workflow
     * @return A File of the dependencies ZIP
     */
-  protected def dependenciesZipFromReleaseDir(releaseDir: File): File =
-    releaseDir / "dependencies" / "workflow_dependencies.zip"
+  protected def dependenciesZipFromReleaseDir(
+      releaseDir: File,
+      workflowName: String): Option[File] = {
+    val zipFile = releaseDir / workflowName / s"${workflowName}_${WarpGitHash}.zip"
+    if (zipFile.exists) Option(zipFile) else None
+  }
 
   /**
     * Get the data type string prefix from the DataType enum

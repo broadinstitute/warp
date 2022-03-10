@@ -1,12 +1,12 @@
 version 1.0
 
 import "../../../../pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl" as WholeGenomeGermlineSingleSample
-import "../../../../tasks/broad/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
+import "../../../../pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl" as ToUbams
 import "../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 workflow WholeGenomeReprocessing {
 
-  String pipeline_version = "2.3.1"
+  String pipeline_version = "3.0.4"
 
   input {
     File? input_cram
@@ -37,6 +37,7 @@ workflow WholeGenomeReprocessing {
       input_bam = input_bam,
       ref_fasta = select_first([cram_ref_fasta, references.reference_fasta.ref_fasta]),
       ref_fasta_index = select_first([cram_ref_fasta_index, references.reference_fasta.ref_fasta_index]),
+      base_file_name = base_file_name,
       output_map = output_map
   }
 
@@ -106,7 +107,7 @@ workflow WholeGenomeReprocessing {
     File raw_wgs_metrics = WholeGenomeGermlineSingleSample.raw_wgs_metrics
 
     File duplicate_metrics = WholeGenomeGermlineSingleSample.duplicate_metrics
-    File output_bqsr_reports = WholeGenomeGermlineSingleSample.output_bqsr_reports
+    File? output_bqsr_reports = WholeGenomeGermlineSingleSample.output_bqsr_reports
 
     File gvcf_summary_metrics = WholeGenomeGermlineSingleSample.gvcf_summary_metrics
     File gvcf_detail_metrics = WholeGenomeGermlineSingleSample.gvcf_detail_metrics

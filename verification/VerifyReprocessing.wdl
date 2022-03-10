@@ -20,7 +20,7 @@ workflow VerifyReprocessing {
   }
 
   scatter(pair in bam_pairs) {
-    call CompareBams {
+    call CompareReprocessedBams {
       input:
         test_bam = pair.test_bam,
         truth_bam = pair.truth_bam,
@@ -108,7 +108,7 @@ task SummarizeResults {
   }
 }
 
-task CompareBams {
+task CompareReprocessedBams {
 
   input {
     File test_bam

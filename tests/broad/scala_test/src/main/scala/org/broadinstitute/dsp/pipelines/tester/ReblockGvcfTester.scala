@@ -25,6 +25,8 @@ class ReblockGvcfTester(testerConfig: GermlineCloudWorkflowConfig)(
 
   override def workflowName: String = "ReblockGVCF"
 
+  override protected val validationWorkflowName: String = s"VerifyGvcf"
+
   override protected def workflowInputRoot: File =
     workflowDir / "test_inputs" / dataTypeString / testerConfig.category.entryName
 
@@ -56,9 +58,6 @@ class ReblockGvcfTester(testerConfig: GermlineCloudWorkflowConfig)(
     }
   }
 
-  override protected def localValidationWdlPath: File =
-    CromwellWorkflowTester.DsdePipelinesRoot / "verification" / "VerifyReblockGVCF.wdl"
-
   override protected def buildValidationWdlInputs(
       workflowTest: WorkflowTest
   ): String = {
@@ -71,8 +70,8 @@ class ReblockGvcfTester(testerConfig: GermlineCloudWorkflowConfig)(
         .getGvcfBasename(workflowName)
 
     val validationInputs = ReblockGvcfValidationInputs(
-      testGvcf = resultsCloudPath.resolve(s"$gvcfBasename.reblocked.g.vcf.gz"),
-      truthGvcf = truthCloudPath.resolve(s"$gvcfBasename.reblocked.g.vcf.gz"),
+      testGvcf = resultsCloudPath.resolve(s"$gvcfBasename.rb.g.vcf.gz"),
+      truthGvcf = truthCloudPath.resolve(s"$gvcfBasename.rb.g.vcf.gz"),
     )
     ReblockGvcfValidationInputs.marshall(validationInputs).printWith(implicitly)
   }
