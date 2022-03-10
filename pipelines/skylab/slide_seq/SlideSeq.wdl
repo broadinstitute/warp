@@ -32,7 +32,6 @@ workflow SlideSeq{
         String tar_star_reference
         String whitelist
         String output_bam_basename
-        String pipeline_version = "0.0.1"
     }
 
     parameter_meta {
@@ -46,6 +45,7 @@ workflow SlideSeq{
     call FastqProcessing.FastqProcessingSlidSeq as SplitFastq {
         input:
             r1_fastq = r1_fastq,
+            r2_fastq = r2_fastq,
             r2_fastq = r2_fastq,
             i1_fastq = i1_fastq,
             read_structure = read_structure,
