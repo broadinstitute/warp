@@ -54,8 +54,8 @@ workflow SlideSeq{
 
     call StarAlign.STARsoloFastqSlideSeq as STARsoloFastqSlideSeq {
        input:
-          r1_fastq = r1_fastq,
-          r2_fastq = r2_fastq,
+          r1_fastq = SplitFastq.fastq_R1_output_array,
+          r2_fastq = SplitFastq.fastq_R2_output_array,
           white_list = whitelist,
           tar_star_reference = tar_star_reference,
           output_bam_basename = output_bam_basename
