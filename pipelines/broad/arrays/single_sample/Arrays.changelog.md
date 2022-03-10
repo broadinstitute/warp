@@ -1,5 +1,5 @@
 # 2.6.7
-2022-03-09 (Date of Last Commit)
+2022-03-10 (Date of Last Commit)
 * Updated to GATK version 4.2.5.0 to address log4j vulnerabilities
 
 # 2.6.6
