@@ -596,7 +596,6 @@ task SubsetVcfToRegion {
     String contig
     Int start
     Int end
-    String region
 
     Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
     Int cpu = 1
