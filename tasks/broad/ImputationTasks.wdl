@@ -610,7 +610,7 @@ task SubsetVcfToRegion {
     SelectVariants \
     -V ~{vcf} \
     -L ~{contig}:~{start}-~{end} \
-    -select 'POS > ~{start}' \
+    -select 'POS >= ~{start}' \
     -O ~{output_basename}.vcf.gz
   }
 
