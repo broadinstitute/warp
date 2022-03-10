@@ -593,6 +593,9 @@ task SubsetVcfToRegion {
     File vcf
     File vcf_index
     String output_basename
+    String contig
+    Int start
+    Int end
     String region
 
     Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
@@ -607,7 +610,8 @@ task SubsetVcfToRegion {
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants \
     -V ~{vcf} \
-    -L ~{region} \
+    -L ~{contig}:~{start}-~{end} \
+    -select 'POS > ~{start} \
     -O ~{output_basename}.vcf.gz
   }
 

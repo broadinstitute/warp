@@ -150,8 +150,9 @@ workflow Imputation {
             vcf = vcf_to_impute,
             vcf_index = vcf_index_to_impute,
             output_basename = "input_samples_subset_to_chunk",
-            region = referencePanelContig.contig + ":" + start + "-" + end
-
+            contig = referencePanelContig.contig,
+            start = start,
+            end = end
         }
 
         call tasks.SetIDs as SetIdsVcfToImpute {
