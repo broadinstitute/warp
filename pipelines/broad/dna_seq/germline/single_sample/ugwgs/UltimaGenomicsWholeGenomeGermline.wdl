@@ -334,7 +334,7 @@ workflow UltimaGenomicsWholeGenomeGermline {
     File output_gvcf = MoveAnnotationsToGvcf.output_gvcf
     File output_gvcf_index = MoveAnnotationsToGvcf.output_gvcf_index
     File output_vcf = ConvertGVCFtoVCF.output_vcf
-    File output_vcf_index = ConvertGVCFtoVCF.output_vcf
+    File output_vcf_index = ConvertGVCFtoVCF.output_vcf_index
 
     #MERGE bam file
     File? haplotype_bam = MergeBams.output_bam
