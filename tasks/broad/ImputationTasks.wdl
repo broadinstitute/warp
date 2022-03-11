@@ -38,7 +38,7 @@ task GetMissingContigList {
 
   command <<<
     grep "@SQ" ~{ref_dict} | sed 's/.*SN://' | sed 's/\t.*//' > contigs.txt
-    comm -13 <(sort ~{included_contigs} | uniq) <(sort contigs.txt | uniq) > missing_contigs.txt
+    awk 'NR==FNR{arr[$0];next} !($0 in arr)' ~{included_contigs} contigs.txt > missing_contigs.txt
   >>>
 
   runtime {
