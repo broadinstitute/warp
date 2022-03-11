@@ -38,7 +38,7 @@ task GetMissingContigList {
 
   command <<<
     grep "@SQ" ~{ref_dict} | sed 's/.*SN://' | sed 's/\t.*//' > contigs.txt
-    comm -13 ~{included_contigs} contigs.txt > missing_contigs.txt
+    comm -13 <(sort ~{included_contigs} | uniq) <(sort contigs.txt | uniq) > missing_contigs.txt
   >>>
 
   runtime {
@@ -622,8 +622,8 @@ task SubsetVcfToRegion {
     File vcf_index
     String output_basename
     String contig
-    Int? start
-    Int? end
+    Int start
+    Int end
 
     Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
     Int cpu = 1
@@ -637,7 +637,7 @@ task SubsetVcfToRegion {
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants \
     -V ~{vcf} \
-    -L ~{contig}~{":" + start}~{"-" + end} \
+    -L ~{contig}:~{start}-~{end} \
     -select 'POS >= ~{start}' \
     -O ~{output_basename}.vcf.gz
   }
