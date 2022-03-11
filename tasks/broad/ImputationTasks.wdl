@@ -25,6 +25,34 @@ task CalculateChromosomeLength {
   }
 }
 
+task GetMissingContigList {
+  input {
+    File ref_dict
+    File included_contigs
+
+    String ubuntu_docker = "ubuntu:20.04"
+    Int memory_mb = 2000
+    Int cpu = 1
+    Int disk_size_gb = ceil(2*size(ref_dict, "GiB")) + 5
+  }
+
+  command <<<
+    grep "@SQ" ~{ref_dict} | sed 's/.*SN://' | sed 's/\t.*//' > contigs.txt
+    comm -13 ~{included_contigs} contigs.txt > missing_contigs.txt
+  >>>
+
+  runtime {
+    docker: ubuntu_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+  }
+
+  output {
+    Array[String] missing_contigs = read_lines("missing_contigs.txt")
+  }
+}
+
 task GenerateChunk {
   input {
     Int start
@@ -594,8 +622,8 @@ task SubsetVcfToRegion {
     File vcf_index
     String output_basename
     String contig
-    Int start
-    Int end
+    Int? start
+    Int? end
 
     Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
     Int cpu = 1
@@ -609,7 +637,7 @@ task SubsetVcfToRegion {
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants \
     -V ~{vcf} \
-    -L ~{contig}:~{start}-~{end} \
+    -L ~{contig}~{":" + start}~{"-" + end} \
     -select 'POS >= ~{start}' \
     -O ~{output_basename}.vcf.gz
   }
@@ -630,6 +658,52 @@ task SubsetVcfToRegion {
        description: "vcf index",
        localization_optional: true
      }
+  }
+
+  output {
+    File output_vcf = "~{output_basename}.vcf.gz"
+    File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
+  }
+}
+
+task SubsetVcfToContigs {
+  input {
+    File vcf
+    File vcf_index
+    String output_basename
+    Array[String] contigs
+
+    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
+    Int cpu = 1
+    Int memory_mb = 8000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+  }
+    Int command_mem = memory_mb - 1000
+    Int max_heap = memory_mb - 500
+
+  command <<<
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+      SelectVariants \
+      -V ~{vcf} \
+      -L ~{sep = " -L " contigs}\
+      -O ~{output_basename}.vcf.gz
+  >>>
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+  }
+
+  parameter_meta {
+    vcf: {
+      description: "vcf",
+      localization_optional: true
+    }
+  vcf_index: {
+      description: "vcf index",
+      localization_optional: true
+    }
   }
 
   output {

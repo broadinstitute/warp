@@ -144,29 +144,29 @@ workflow Imputation {
           var_in_reference = CountVariantsInChunks.var_in_reference
       }
 
+      call tasks.SubsetVcfToRegion {
+        input:
+          vcf = vcf_to_impute,
+          vcf_index = vcf_index_to_impute,
+          output_basename = "input_samples_subset_to_chunk",
+          contig = referencePanelContig.contig,
+          start = start,
+          end = end
+      }
+
+      call tasks.SetIDs as SetIdsVcfToImpute {
+        input:
+          vcf = SubsetVcfToRegion.output_vcf,
+          output_basename = "input_samples_with_variant_ids"
+      }
+
+      call tasks.ExtractIDs as ExtractIdsVcfToImpute {
+        input:
+          vcf = SetIdsVcfToImpute.output_vcf,
+          output_basename = "imputed_sites"
+      }
+
       if (CheckChunks.valid) {
-        call tasks.SubsetVcfToRegion {
-          input:
-            vcf = vcf_to_impute,
-            vcf_index = vcf_index_to_impute,
-            output_basename = "input_samples_subset_to_chunk",
-            contig = referencePanelContig.contig,
-            start = start,
-            end = end
-        }
-
-        call tasks.SetIDs as SetIdsVcfToImpute {
-          input:
-            vcf = SubsetVcfToRegion.output_vcf,
-            output_basename = "input_samples_with_variant_ids"
-        }
-
-        call tasks.ExtractIDs as ExtractIdsVcfToImpute {
-          input:
-            vcf = SetIdsVcfToImpute.output_vcf,
-            output_basename = "imputed_sites"
-        }
-
         call tasks.PhaseVariantsEagle {
           input:
             dataset_bcf = CheckChunks.valid_chunk_bcf,
@@ -230,31 +230,30 @@ workflow Imputation {
             vcf = SetIDs.output_vcf,
             output_basename = "imputed_sites"
         }
+      }
+      call tasks.FindSitesUniqueToFileTwoOnly {
+        input:
+          file1 = select_first([ExtractIDs.ids, write_lines([])]),
+          file2 = ExtractIdsVcfToImpute.ids
+      }
 
-        call tasks.FindSitesUniqueToFileTwoOnly {
-          input:
-            file1 = ExtractIDs.ids,
-            file2 = ExtractIdsVcfToImpute.ids
-        }
+      call tasks.SelectVariantsByIds {
+        input:
+          vcf = SetIdsVcfToImpute.output_vcf,
+          ids = FindSitesUniqueToFileTwoOnly.missing_sites,
+          basename = "imputed_sites_to_recover"
+      }
 
-        call tasks.SelectVariantsByIds {
-          input:
-            vcf = SetIdsVcfToImpute.output_vcf,
-            ids = FindSitesUniqueToFileTwoOnly.missing_sites,
-            basename = "imputed_sites_to_recover"
-        }
+      call tasks.RemoveAnnotations {
+        input:
+          vcf = SelectVariantsByIds.output_vcf,
+          basename = "imputed_sites_to_recover_annotations_removed"
+      }
 
-        call tasks.RemoveAnnotations {
-          input:
-            vcf = SelectVariantsByIds.output_vcf,
-            basename = "imputed_sites_to_recover_annotations_removed"
-        }
-
-        call tasks.InterleaveVariants {
-          input:
-            vcfs = [RemoveAnnotations.output_vcf, SetIDs.output_vcf],
-            basename = output_callset_name
-        }
+      call tasks.InterleaveVariants {
+        input:
+          vcfs = select_all([RemoveAnnotations.output_vcf, SetIDs.output_vcf]),
+          basename = output_callset_name
       }
     }
     Array[File] aggregatedImputationMetrics = select_all(AggregateImputationQCMetrics.aggregated_metrics)
@@ -265,10 +264,28 @@ workflow Imputation {
   Array[File] phased_vcfs = flatten(chromosome_vcfs)
   Array[File] phased_vcf_indices = flatten(chromosome_vcf_indices)
 
+
+  call tasks.GetMissingContigList {
+    input:
+      ref_dict = ref_dict,
+      included_contigs = write_lines(contigs)
+  }
+
+  call tasks.SubsetVcfToContigs as SelectUnimputedContigs{
+    input:
+      vcf = vcf_to_impute,
+      vcf_index = vcf_index_to_impute,
+      output_basename = "input_samples_unimputed_contigs",
+      contigs = GetMissingContigList.missing_contigs
+  }
+
+  Array[File] vcfs_to_gather = flatten([phased_vcfs, [SelectUnimputedContigs.output_vcf]])
+  Array[File] vcf_to_gather_indices = flatten([phased_vcf_indices, [SelectUnimputedContigs.output_vcf_index]])
+
   call tasks.GatherVcfs {
     input:
-      input_vcfs = phased_vcfs,
-      input_vcf_indices = phased_vcf_indices,
+      input_vcfs = vcfs_to_gather,
+      input_vcf_indices = vcf_to_gather_indices,
       output_vcf_basename = output_callset_name
   }
 
