@@ -2,7 +2,12 @@
 2022-03-10 (Date of Last Commit)
 
 * Updated to Picard version 2.26.10 and GATK version 4.2.5.0 to address log4j vulnerabilities
-    *
+    * ExcessHet values change from removing mid-p correction; now PASS is zero 
+    * AS_\*RankSum values change after a fix for Histogram::median() 
+    * AS_MQ, AS_FS, AS_SOR values change in some cases from GenomicsDB non-ref assignment fix
+    * \* allele no longer gets annotation values
+    * Gnarly AN differences: Some ./. go to \*/\*, but those agree with upstream deletions
+
 
 # 1.5.2
 2021-11-10

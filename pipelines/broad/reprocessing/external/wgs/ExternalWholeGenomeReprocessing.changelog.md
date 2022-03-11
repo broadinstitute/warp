@@ -9,7 +9,8 @@
         * MIN_READ_LENGTH
         * SD_READ_LENGTHMEDIAN_READ_LENGTH
     * Small differences observed in PCT_SOFTCLIP in alignment summary metrics due to a bug fix in the way PCT_SOFTCLIP is calculated
-        * See code change here: https://github.com/broadinstitute/picard/pull/1586 
+    * RAW_RankSum NaN to empty for NON_REF data 
+    * Reblocking fix to merge sites with missing DP into adjacent ref blocks
 
 # 2.0.4
 2022-02-02 (Date of Last Commit)
