@@ -284,7 +284,7 @@ workflow Imputation {
 
     scatter (i_missing_contig in range(num_chunks_missing_contig)) {
       Int start_missing_contig = (i_missing_contig * chunkLength) + 1
-      Int end_missing_contig = if (CalculateMissingChromosomeLength.chrom_length < ((i_missing_contig + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i_missing_contig + 1) * chunkLength)
+      Int end_missing_contig = if (CalculateMissingChromosomeLength.chrom_length < ((i_missing_contig + 1) * chunkLength)) then CalculateMissingChromosomeLength.chrom_length else ((i_missing_contig + 1) * chunkLength)
 
       call tasks.SubsetVcfToRegion as SubsetVcfToRegionMissingContig{
         input:
