@@ -3,7 +3,7 @@ version 1.0
 task CalculateChromosomeLength {
   input {
     File ref_dict
-    Int chrom
+    String chrom
 
     String ubuntu_docker = "ubuntu:20.04"
     Int memory_mb = 2000
