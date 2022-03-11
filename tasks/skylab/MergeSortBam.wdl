@@ -38,7 +38,7 @@ task MergeSortBamFiles {
   command {
     set -e
 
-    java -Dsamjdk.compression_level=${compression_level} -Xms${command_mem_mb}m -Xmx${command_mem_mb}m -jar /usr/gitc/picard.jar \
+    java -Dsamjdk.compression_level=${compression_level} -Xms${command_mem_mb}m -Xmx${command_mem_mb}m -jar /usr/picard/picard.jar \
       MergeSamFiles \
       USE_THREADING=true \
       SORT_ORDER=${sort_order} \
