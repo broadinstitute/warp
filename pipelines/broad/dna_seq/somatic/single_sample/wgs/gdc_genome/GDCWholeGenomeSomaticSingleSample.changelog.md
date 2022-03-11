@@ -1,5 +1,5 @@
 # 1.2.2
-2022-03-10 (Date of Last Commit)
+2022-03-11 (Date of Last Commit)
 
 * Updated to Picard version 2.26.10 in CramToUnmappedBams subworkflow
 
