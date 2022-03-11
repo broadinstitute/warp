@@ -77,6 +77,9 @@ workflow Imputation {
       vcf = vcf_to_impute,
   }
 
+
+  Float chunkLengthFloat = chunkLength
+
   scatter (contig in contigs) {
 
     String reference_filename = reference_panel_path + "ALL.chr" + contig + ".phase3_integrated.20130502.genotypes.cleaned"
@@ -96,7 +99,6 @@ workflow Imputation {
         chrom = referencePanelContig.contig
     }
 
-    Float chunkLengthFloat = chunkLength
     Int num_chunks = ceil(CalculateChromosomeLength.chrom_length / chunkLengthFloat)
 
     scatter (i in range(num_chunks)) {
@@ -271,16 +273,44 @@ workflow Imputation {
       included_contigs = write_lines(contigs)
   }
 
-  call tasks.SubsetVcfToContigs as SelectUnimputedContigs{
-    input:
-      vcf = vcf_to_impute,
-      vcf_index = vcf_index_to_impute,
-      output_basename = "input_samples_unimputed_contigs",
-      contigs = GetMissingContigList.missing_contigs
+  scatter (missing_contig in GetMissingContigList.missing_contigs) {
+    call tasks.CalculateChromosomeLength as CalculateMissingChromosomeLength {
+      input:
+        ref_dict = ref_dict,
+        chrom = missing_contig
+    }
+
+    Int num_chunks_missing_contig = ceil(CalculateMissingChromosomeLength.chrom_length / chunkLengthFloat)
+
+    scatter (i_missing_contig in range(num_chunks_missing_contig)) {
+      Int start_missing_contig = (i_missing_contig * chunkLength) + 1
+      Int end_missing_contig = if (CalculateMissingChromosomeLength.chrom_length < ((i_missing_contig + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i_missing_contig + 1) * chunkLength)
+
+      call tasks.SubsetVcfToRegion as SubsetVcfToRegionMissingContig{
+        input:
+          vcf = vcf_to_impute,
+          vcf_index = vcf_index_to_impute,
+          output_basename = "input_samples_subset_to_chunk",
+          contig = missing_contig,
+          start = start_missing_contig,
+          end = end_missing_contig
+      }
+
+      call tasks.RemoveAnnotations as RemoveAnnotationsMissingContigs {
+        input:
+          vcf = SubsetVcfToRegionMissingContig.output_vcf,
+          basename = "uimputed_contigs_" + missing_contig +"_"+ i_missing_contig + "_annotations_removed"
+      }
+    }
   }
 
-  Array[File] vcfs_to_gather = flatten([phased_vcfs, [SelectUnimputedContigs.output_vcf]])
-  Array[File] vcf_to_gather_indices = flatten([phased_vcf_indices, [SelectUnimputedContigs.output_vcf_index]])
+  Array[File] missing_contig_vcf = flatten(RemoveAnnotationsMissingContigs.output_vcf)
+  Array[File] missing_contig_vcf_indices = flatten(RemoveAnnotationsMissingContigs.output_vcf)
+
+
+
+  Array[File] vcfs_to_gather = flatten([phased_vcfs, missing_contig_vcf])
+  Array[File] vcf_to_gather_indices = flatten([phased_vcf_indices, missing_contig_vcf_indices])
 
   call tasks.GatherVcfs {
     input:

@@ -666,52 +666,6 @@ task SubsetVcfToRegion {
   }
 }
 
-task SubsetVcfToContigs {
-  input {
-    File vcf
-    File vcf_index
-    String output_basename
-    Array[String] contigs
-
-    Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
-    Int cpu = 1
-    Int memory_mb = 8000
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
-  }
-    Int command_mem = memory_mb - 1000
-    Int max_heap = memory_mb - 500
-
-  command <<<
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
-      SelectVariants \
-      -V ~{vcf} \
-      -L ~{sep = " -L " contigs}\
-      -O ~{output_basename}.vcf.gz
-  >>>
-  runtime {
-    docker: gatk_docker
-    disks: "local-disk ${disk_size_gb} HDD"
-    memory: "${memory_mb} MiB"
-    cpu: cpu
-  }
-
-  parameter_meta {
-    vcf: {
-      description: "vcf",
-      localization_optional: true
-    }
-  vcf_index: {
-      description: "vcf index",
-      localization_optional: true
-    }
-  }
-
-  output {
-    File output_vcf = "~{output_basename}.vcf.gz"
-    File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
-  }
-}
-
 task SetIDs {
   input {
     File vcf
