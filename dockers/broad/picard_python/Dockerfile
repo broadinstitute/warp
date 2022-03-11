@@ -16,6 +16,8 @@ RUN set -eux; \
             gcompat \
             libc6-compat \
             openjdk8 \
+            tini \
+            wget \
     ; \
 # Install picard
     wget ${PICARD_URL};
