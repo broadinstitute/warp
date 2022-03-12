@@ -296,10 +296,16 @@ workflow Imputation {
           end = end_missing_contig
       }
 
-      call tasks.RemoveAnnotations as RemoveAnnotationsMissingContigs {
+      call tasks.SetIDs as SetIDsMissingContigs {
         input:
           vcf = SubsetVcfToRegionMissingContig.output_vcf,
-          basename = "uimputed_contigs_" + missing_contig +"_"+ i_missing_contig + "_annotations_removed"
+          output_basename = "unimputed_contigs_" + missing_contig +"_"+ i_missing_contig + "_with_ids"
+      }
+
+      call tasks.RemoveAnnotations as RemoveAnnotationsMissingContigs {
+        input:
+          vcf = SetIDsMissingContigs.output_vcf,
+          basename = "unimputed_contigs_" + missing_contig +"_"+ i_missing_contig + "_annotations_removed"
       }
     }
   }
