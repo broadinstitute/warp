@@ -624,6 +624,7 @@ task SubsetVcfToRegion {
     String contig
     Int start
     Int end
+    Boolean exclude_filtered = false
 
     Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
     Int cpu = 1
@@ -638,7 +639,7 @@ task SubsetVcfToRegion {
     SelectVariants \
     -V ~{vcf} \
     -L ~{contig}:~{start}-~{end} \
-    -select 'POS >= ~{start}' \
+    -select 'POS >= ~{start}' ~{if exclude_filtered then "--exclude-filtered" else ""} \
     -O ~{output_basename}.vcf.gz
   }
 

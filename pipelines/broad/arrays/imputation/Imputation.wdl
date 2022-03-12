@@ -293,7 +293,8 @@ workflow Imputation {
           output_basename = "input_samples_subset_to_chunk",
           contig = missing_contig,
           start = start_missing_contig,
-          end = end_missing_contig
+          end = end_missing_contig,
+          exclude_filtered = true
       }
 
       call tasks.SetIDs as SetIDsMissingContigs {
