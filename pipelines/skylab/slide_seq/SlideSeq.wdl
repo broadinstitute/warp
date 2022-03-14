@@ -32,10 +32,6 @@ workflow SlideSeq{
         String tar_star_reference
         String whitelist
         String output_bam_basename
-
-        #TODO eventually get rid of these inputs and just use read_structure. But to do this, we need to fix fastqprocess first
-        Int umi_length
-        Int cell_barcode_length
     }
 
     parameter_meta {
@@ -43,30 +39,30 @@ workflow SlideSeq{
         r2_fastq: "Array of Read 2 FASTQ files - reverse read, contains cDNA fragment generated from captured mRNA"
         i1_fastq: "(optional) Array of i1 FASTQ files - index read, for demultiplexing of multiple samples on one flow cell."
         sample_id: "Name of sample matching this file, inserted into read group header"
-        cell_barcode_length: "Number of cell barcode base pairs in the Read 1 FASTQ"
-        umi_length: "Number of UMI base pairs in the Read 1 FASTQ"
+        read_structure: "A string that specifies UMI (M) and Barcode (C) positions in the Read 1 fastq"
     }
 
     call FastqProcessing.FastqProcessingSlidSeq as SplitFastq {
         input:
             r1_fastq = r1_fastq,
             r2_fastq = r2_fastq,
+            r2_fastq = r2_fastq,
             i1_fastq = i1_fastq,
-            umi_length = umi_length,
-            cell_barcode_length = cell_barcode_length,
+            read_structure = read_structure,
             sample_id = sample_id
     }
 
     call StarAlign.STARsoloFastqSlideSeq as STARsoloFastqSlideSeq {
        input:
-          r1_fastq = r1_fastq,
-          r2_fastq = r2_fastq,
+          r1_fastq = SplitFastq.fastq_R1_output_array,
+          r2_fastq = SplitFastq.fastq_R2_output_array,
           white_list = whitelist,
           tar_star_reference = tar_star_reference,
           output_bam_basename = output_bam_basename
     }
 
     output {
+        String pipeline_version_out = pipeline_version
 
     }
 }

@@ -369,6 +369,10 @@ task STARsoloFastqSlideSeq {
       --readFilesCommand "gunzip -c" \
       --soloInputSAMattrBarcodeSeq CR UR \
       --soloInputSAMattrBarcodeQual CY UY \
+      --soloCBlen 14 \
+      --soloCBstart 1 \
+      --soloUMIlen 9 \
+      --soloUMIstart 15 \
       --outSAMtype BAM Unsorted
   }
 
