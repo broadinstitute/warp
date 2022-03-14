@@ -13,6 +13,7 @@ jobs:
         - dockers/broad/dragmap
         - dockers/broad/gatk
         - dockers/broad/illumina_iaap_autocall
+        - docker/broad/picard_python
         - dockers/broad/verify_bam_id
         - dockers/broad/samtools
         - dockers/broad/samtools_picard_bwa
