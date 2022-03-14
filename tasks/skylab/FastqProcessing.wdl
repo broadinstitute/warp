@@ -10,7 +10,7 @@ task FastqProcessingOptimus {
     String sample_id
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.13"
+    String docker = "http://quay.io/humancellatlas/secondary-analysis-sctools:v0.4.0-test"
 
     Int machine_mem_mb = 40000
     Int cpu = 16   
@@ -121,19 +121,18 @@ task FastqProcessingOptimus {
   }
 }
 
-task FastqProcessingSlidSeq {
+task FastqProcessingSlideSeq {
 
   input {
     Array[File] r1_fastq
     Array[File] r2_fastq
     Array[File]? i1_fastq
-    Int umi_length
-    Int cell_barcode_length
+    String read_structure
     String sample_id
 
 
     # Runtime attributes
-    String docker =  "quay.io/kishorikonwar0/fastqprocess:1.0.0"
+    String docker =  "http://quay.io/humancellatlas/secondary-analysis-sctools:v0.4.0-test"
     Int cpu = 16
     Int machine_mb = 40000
     Int disk = ceil(size(r1_fastq, "GiB")*3 + size(r2_fastq, "GiB")*3) + 500
@@ -141,7 +140,7 @@ task FastqProcessingSlidSeq {
   }
 
   meta {
-    description: "Converts a set of fastq files to unaligned bam file, also corrects barcodes and partitions the alignments by barcodes. Allows for variable barcode and umi lengths as input"
+    description: "Converts a set of fastq files to unaligned bam file, also corrects barcodes and partitions the alignments by barcodes. Allows for varying read structures"
   }
 
   parameter_meta {
@@ -149,9 +148,7 @@ task FastqProcessingSlidSeq {
         r2_fastq: "Array of Read 2 FASTQ files - reverse read, contains cDNA fragment generated from captured mRNA"
         i1_fastq: "(optional) Array of i1 FASTQ files - index read, for demultiplexing of multiple samples on one flow cell."
         sample_id: "Name of sample matching this file, inserted into read group header"
-        cell_barcode_length: "Number of cell barcode base pairs in the Read 1 FASTQ"
-        umi_length: "Number of UMI base pairs in the Read 1 FASTQ"
-
+        read_structure: "Unique read structure of the Read 1 FASTQ"
   }
 
   command {
@@ -207,8 +204,7 @@ task FastqProcessingSlidSeq {
 
     fastqprocess \
         --bam-size 30.0 \
-        --barcode-length "~{cell_barcode_length}" \
-        --umi-length "~{umi_length}" \
+        --read_structure "~{read_structure}" \
         --sample-id "~{sample_id}" \
         --output-format FASTQ \
         $FASTQS
@@ -223,7 +219,7 @@ task FastqProcessingSlidSeq {
   }
   
   output {
-    Array[File] fastq_R1_output_array = glob("fastq_R1_*")
-    Array[File] fastq_R2_output_array = glob("fastq_R2_*")
+    Array[File] fastq_R1_output = glob("fastq_R1_*")
+    Array[File] fastq_R2_output = glob("fastq_R2_*")
   }
 }
