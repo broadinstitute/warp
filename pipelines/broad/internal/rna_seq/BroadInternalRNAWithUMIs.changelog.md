@@ -8,9 +8,9 @@
 * Updated to use publicly-accessible reference and annotation files.
 * Updated ribosomal intervals to include unlocalized scaffolds in the UCSC naming convention to match our reference (and renamed the file to reflect the fact that the header is not the standard GRCh38)
 * Updated the STAR command line arguments, as follows:
-    * Add "--alignEndsProtrude 20 ConcordantPair"; to rescue the case where the insert size drops below the read length and the sequencer starts to read into the adapters.
-    * Removed "--limitSjdbInsertNsj 1200000"; the default of 1,000,000 is sufficient.
-    * Removed "--outSAMstrandField intronMotif", defaults to "None"
+    * Add \"--alignEndsProtrude 20 ConcordantPair\"; to rescue the case where the insert size drops below the read length and the sequencer starts to read into the adapters.
+    * Removed \"--limitSjdbInsertNsj 1200000\"; the default of 1,000,000 is sufficient.
+    * Removed \"--outSAMstrandField intronMotif\", defaults to \"None\"
 * Updated the RNASeQC2 insert size bed file from v26 to v34
 * Slightly reduced memory and disk usage on several tasks.
 * Standardized memory sizing.
