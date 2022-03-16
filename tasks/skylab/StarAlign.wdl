@@ -402,7 +402,7 @@ task STARsoloFastqSlideSeq {
       --soloUMIlen $UMILen \
       --soloUMIstart $UMIstart \
       --outSAMtype BAM Unsorted \
-      --clip3pAdapterMMp \
+      --clip3pAdapterMMp 0.1 \
       --outSAMattributes UB UR UY CR CB CY NH GX GN
 
     touch barcodes_exon.tsv
