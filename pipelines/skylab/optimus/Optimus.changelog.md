@@ -1,3 +1,15 @@
+# 5.3.1
+2022-03-11 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.5.0 to address log4j vulnerabilities
+
+# 5.3.0
+2022-02-22 (Date of Last Commit)
+
+* Added an optional flag count_exons as the Optimus workflow input with default value of false. 
+  If this flag is true, the pipeline adds two layers to the loom file: one for reads aligned to the
+  entire gene region, and the second layer is will be a count matrix of reads aligned to only exons.
+
 # 5.2.1
 2022-02-10 (Date of Last Commit)
 

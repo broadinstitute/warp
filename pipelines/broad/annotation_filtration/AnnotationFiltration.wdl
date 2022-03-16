@@ -4,7 +4,7 @@ import "../../../tasks/broad/Funcotator.wdl" as Funcotator
 
 workflow AnnotationFiltration {
 
-  String pipeline_version = "1.2.2"
+  String pipeline_version = "1.2.3"
 
   input {
     Array[File] vcfs

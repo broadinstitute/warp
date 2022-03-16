@@ -1,3 +1,15 @@
+# 2.6.7 
+2022-03-14 (Date of Last Commit)
+
+* Update base image for picard-private docker image
+* Updated to GATK version 4.2.5.0 to address log4j vulnerabilities
+
+# 2.6.6
+2022-02-25 (Date of Last Commit)
+
+* Update to Picard 2.26.11
+    * Address obscure bug in GtcToVcf -> VcfToAdpc (some variant metrics, calculated as infinite, were rendered incorrectly in the VCF)
+
 # 2.6.5
 2022-02-01  (Date of Last Commit)
 

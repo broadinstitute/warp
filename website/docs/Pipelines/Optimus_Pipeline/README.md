@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v5.2.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [optimus_v5.3.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![Optimus_diagram](Optimus_diagram.png)
 
@@ -89,11 +89,12 @@ The example configuration files also contain metadata for the reference files, d
 | input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the input_id. | NA |
 | input_name_metadata_field | Optional string describing, when applicable, the metadata field containing the input_name. | NA |
 | annotations_gtf | Cloud path to the GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | NA |
-| chemistry | Optional string description of whether data was generated with 10x v2 or v3 chemistry. Optimus validates this string. If the string does not match one of the optional strings, the pipeline will fail. You can remove the checks by setting "force_no_check = true" in the input JSON | "tenX_v2" (default) or "tenX_v3". |
-| counting_mode | String description of whether data is single-cell or single-nucleus. | "sc_rna" or "sn_rna" |
+| chemistry | Optional string describing whether data was generated with 10x v2 or v3 chemistry. Optimus validates this string. If the string does not match one of the optional strings, the pipeline will fail. You can remove the checks by setting "force_no_check = true" in the input JSON | "tenX_v2" (default) or "tenX_v3". |
+| counting_mode | String describing whether data is single-cell or single-nucleus. Single-cell mode counts reads aligned to the gene transcript, whereas single-nucleus counts whole transcript to account for nuclear pre-mRNA. | "sc_rna" or "sn_rna" |
 | output_bam_basename | Optional string used for the output BAM file basename; the default is input_id. | NA |
 | use_strand_info | Optional string for reading stranded data. Default is "false"; set to "true" to count reads in stranded mode. | "true" or "false" (default) |
 | emptydrops_lower | UMI threshold for emptyDrops detection; default is 100. | NA |
+| count_exons | Boolean indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**. If true, this option will output an additional layer for the Loom file. By default, it it set to false. If the parameter is true and used with sc_rna mode, the workflow will return an error. | "true" or "false" (default) |
 
 #### Pseudogene handling
 The example Optimus reference files are downloaded directly from GENCODE (see Quickstart table) and are not modified to remove pseudogenes. This is in contrast to the [references created for Cell Ranger](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/release-notes/references#header) which remove pseudogenes and small RNAs.
@@ -131,7 +132,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | [Metrics.CalculateGeneMetrics (alias = GeneMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | sctools | Sorts the BAM file by gene using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes gene metrics. | 
 | [Metrics.CalculateCellMetrics (alias = CellMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | sctools | Sorts the BAM file by cell using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes cell metrics. |
 | [RunEmptyDrops.RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) | npz2rds.sh, emptyDropsWrapper.R, emptyDrops | [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Runs custom scripts to convert the NPY and NPZ files to RDS and then uses emptyDrops to identify empty lipid droplets. |
-|  [LoomUtils.OptimusLoomGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | create_loom_optimus.py | Python3 | Merges the gene counts, cell metrics, gene metrics, and emptyDrops data into a Loom formatted cell-by-gene matrix. |
+|  [LoomUtils.OptimusLoomGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | create_loom_optimus.py | Python3 | Merges the gene counts, cell metrics, gene metrics, and emptyDrops data into a Loom formatted cell-by-gene matrix. The Loom contains exon counts when using sc_rna mode, and whole-gene counts when running in sn_rna mode. It optionally contains an additional layer for exon counts when running sn_rna mode with `exon_counts` set to true. |
 
 
 More information about the different tags used to flag the data can be found in the [Bam_tags documentation](./Bam_tags.md).
@@ -207,11 +208,17 @@ Often snRNAseq data does not produce a visual knee point inflection when running
 
 #### 7.  Matrix construction
 
-The [OptimusLoomGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) task uses a custom python script to merge the converted STARsolo count matrix, the emptyDrops results, and the cell and gene metrics into a Loom-formatted cell-by-gene matrix. Read full details for all the metrics in the [Optimus Count Matrix Overview](./Loom_schema.md).
+The [OptimusLoomGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) task uses a custom python script to merge the converted STARsolo count matrix, the emptyDrops results, and the cell and gene metrics into a Loom-formatted cell-by-gene matrix. **These counts are raw and unfiltered.**
 
-The type of gene counts in the Loom will vary depending on the Optimus workflow counting_mode. If running single-cell data (sc_rna mode), the counts will include only exonic gene counts. If running single-nucleus data (sn_rna mode), the counts will be whole transcript.
+Read full details for all the metrics in the [Optimus Count Matrix Overview](./Loom_schema.md).
+
+The type of gene counts in the Loom will vary depending on the Optimus workflow counting_mode. If running single-cell data (sc_rna mode), the counts will include only exonic gene counts. 
+
+If running single-nucleus data (sn_rna mode), the counts in the main matrix will be whole transcript and, when `count_exons` is set to true, the counts in an additional layer will be exonic. Using the `count_exons` parameter will cause the Loom matrix to have additional columns (cell barcodes) due to the difference in STARsolo counting mode.
 
 You can determine which type of counts are in the loom by looking at the global attribute `expression_data_type`.
+
+For sn_rna mode, you can also access whole transcript and exonic counts using Loompy's `layers()` method. For example, `loompy.connect.layers[“”]` will return the whole transcript counts from the output Loom file. Similarly, `loompy.connect.layers[“exon_counts”]` will return the exonic counts from the output Loom. 
 
 
 #### 8. Outputs
@@ -265,7 +272,9 @@ Please identify the pipeline in your methods section using the Optimus Pipeline'
 * Ex: *Optimus Pipeline (RRID:SCR_018908)*
 
 ## Consortia support
-This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project and the[BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
+This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project and the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
+
+Each consortia may use slightly different reference files for data analysis or have different post-processing steps. Learn more by reading the [Consortia Processing](./consortia-processing.md) overview.
 
 If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org).
 

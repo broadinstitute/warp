@@ -1,5 +1,15 @@
+# 1.0.8
+2022-03-11 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.5.0 to address log4j vulnerabilities
+
+# 1.0.7
+2022-03-08 (Date of Last Commit)
+
+* Add pipefail to imputation tasks to ensure that they don't fail silently
+
 # 1.0.6
-2022-02-08
+2022-03-01 (Date of Last Commit)
 
 * Security patch to bcftools-vcftools and minimac4 docker images
 

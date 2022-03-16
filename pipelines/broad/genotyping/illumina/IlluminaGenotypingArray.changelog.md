@@ -1,3 +1,13 @@
+# 1.12.7
+2022-03-11 (Date of Last Commit)
+* Updated to GATK version 4.2.5.0 to address log4j vulnerabilities
+
+# 1.12.6
+2022-02-025 (Date of Last Commit)
+
+* Update to Picard 2.26.11
+  * Address obscure bug in GtcToVcf -> VcfToAdpc (some variant metrics, calculated as infinite, were rendered incorrectly in the VCF)
+
 # 1.12.5
 2022-02-01 (Date of Last Commit)
 

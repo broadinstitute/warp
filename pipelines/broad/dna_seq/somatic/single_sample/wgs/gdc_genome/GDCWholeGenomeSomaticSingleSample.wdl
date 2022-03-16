@@ -426,9 +426,11 @@ task picard_markduplicates {
       ~{"SORTING_COLLECTION_SIZE_RATIO=" + sorting_collection_size_ratio} \
       ~{"READ_NAME_REGEX=" + read_name_regex}
   }
-
+  # We are using a non-standard docker image here because we currently run this WDL on Cromwell v52 which cannot support
+  # the custom entrypoint in the picard-cloud:2.18.11 docker image. Cromwell v53 and newer can support the
+  # us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11 docker image
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11_NoCustomEntryPoint"
     preemptible: preemptible_tries
     memory: "~{memory_size} GiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -526,7 +528,7 @@ task gatk_baserecalibrator {
                 --input ~{bam} \
                 --known-sites ~{dbsnp_vcf} \
                 --reference ~{ref_fasta} \
-                --tmp-dir . \
+                --TMP_DIR . \
                 --output ~{output_grp}
     }
 
@@ -535,7 +537,7 @@ task gatk_baserecalibrator {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+        docker: "us.gcr.io/broad-gatk/gatk:4.0.7.0"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
@@ -574,7 +576,7 @@ task gatk_applybqsr {
                 --input ~{input_bam} \
                 --bqsr-recal-file ~{bqsr_recal_file} \
                 --emit-original-quals ~{emit_original_quals} \
-                --tmp-dir . \
+                --TMP_DIR . \
                 --output ~{output_bam}
     }
 
@@ -584,7 +586,7 @@ task gatk_applybqsr {
     }
     
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+        docker: "us.gcr.io/broad-gatk/gatk:4.0.7.0"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
@@ -614,7 +616,7 @@ task collect_insert_size_metrics {
       HISTOGRAM_FILE=~{output_bam_prefix}.insert_size_histogram.pdf
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     memory: mem + " MiB"
     disks: "local-disk " + disk_size + " HDD"
   }
@@ -627,7 +629,7 @@ task collect_insert_size_metrics {
 
 workflow GDCWholeGenomeSomaticSingleSample {
 
-    String pipeline_version = "1.2.1"
+    String pipeline_version = "1.2.2"
 
     input {
         File? input_cram
