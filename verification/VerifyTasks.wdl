@@ -50,7 +50,7 @@ task CompareVCFsVerbosely {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-dsde-methods/gatk-vcfcomparator@sha256:d090fcc667a1a2e9ad775b31ff25502993de6cf60ff69a67f868c19f9a54e936"
+    docker: "us.gcr.io/broad-dsde-methods/gatk-vcfcomparator@sha256:4c1b32dd89c46af52e68ae34f99db483ba07b08def2479d145a185de0b2d9a4a"
     disks: "local-disk 50 HDD"
     memory: "3 GiB"
     preemptible: 3
