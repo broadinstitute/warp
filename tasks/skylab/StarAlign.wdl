@@ -339,6 +339,7 @@ task STARsoloFastqSlideSeq {
     File tar_star_reference
     File white_list
     String output_bam_basename
+    String read_structure
     Boolean? count_exons
 
     # runtime values
@@ -353,14 +354,16 @@ task STARsoloFastqSlideSeq {
 
   command {
     set -e
+    ##TODO: SET UMI and Barcode lengths from read_structure
 
-    # single nuclei
-      if [[ ~{count_exons} ]]
-      then
-        COUNTING_MODE="Gene GeneFull"
-      else
-        COUNTING_MODE="GeneFull"
-      fi
+
+    # If this argument is true, we will count reads aligned to exons in addition
+    if [[ ~{count_exons} ]]
+    then
+      COUNTING_MODE="Gene GeneFull"
+    else
+      COUNTING_MODE="GeneFull"
+    fi
 
     # prepare reference
     mkdir genome_reference
@@ -384,7 +387,33 @@ task STARsoloFastqSlideSeq {
       --soloUMIstart 15 \
       --outSAMtype BAM Unsorted \
       --clip3pAdapterMMp \
-      -outSAMattributes UB UR UY CR CB CY NH GX GN \
+      -outSAMattributes UB UR UY CR CB CY NH GX GN
+
+    touch barcodes_exon.tsv
+    touch features_exon.tsv
+    touch matrix_exon.mtx
+
+    mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
+    mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
+    mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+
+    if ! [[ ~{count_exons} ]]
+    then
+      mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
+      mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
+      mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+    else
+      mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
+      mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
+      mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+      mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_exon.tsv
+      mv "Solo.out/Gene/raw/features.tsv"     features_exon.tsv
+      mv "Solo.out/Gene/raw/matrix.mtx"       matrix_exon.mtx
+    fi
+    else
+    echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
+    fi
+    mv Aligned.out.bam ~{output_bam_basename}.bam
 
   }
 
@@ -400,9 +429,13 @@ task STARsoloFastqSlideSeq {
     File bam_output = "~{output_bam_basename}.bam"
     File alignment_log = "Log.final.out"
     File general_log = "Log.out"
-    File barcodes = "Solo.out/Gene/raw/barcodes.tsv"
-    File features = "Solo.out/Gene/raw/features.tsv"
-    File matrix = "Solo.out/Gene/raw/matrix.mtx"
+    File barcodes = "barcodes.tsv"
+    File features = "features.tsv"
+    File matrix = "matrix.mtx"
+    File barcodes_sn_rna = "barcodes_exon.tsv"
+    File features_sn_rna = "features_exon.tsv"
+    File matrix_sn_rna = "matrix_exon.mtx"
+
   }
 }
 

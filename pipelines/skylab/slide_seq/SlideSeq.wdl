@@ -60,11 +60,14 @@ workflow SlideSeq{
           white_list = whitelist,
           tar_star_reference = tar_star_reference,
           output_bam_basename = output_bam_basename,
+          read_structure = read_structure,
           count_exons = count_exons
     }
 
     output {
         String pipeline_version_out = pipeline_version
+        File bam = STARsoloFastqSlideSeq.bam_output
+        File matrix = STARsoloFastqSlideSeq.matrix
 
     }
 }
