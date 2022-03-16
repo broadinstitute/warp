@@ -339,6 +339,7 @@ task STARsoloFastqSlideSeq {
     File tar_star_reference
     File white_list
     String output_bam_basename
+    Boolean? count_exons
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
@@ -353,6 +354,14 @@ task STARsoloFastqSlideSeq {
   command {
     set -e
 
+    # single nuclei
+      if [[ ~{count_exons} ]]
+      then
+        COUNTING_MODE="Gene GeneFull"
+      else
+        COUNTING_MODE="GeneFull"
+      fi
+
     # prepare reference
     mkdir genome_reference
     tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
@@ -362,7 +371,7 @@ task STARsoloFastqSlideSeq {
     STAR \
       --soloType Droplet \
       --soloCBwhitelist ~{white_list} \
-      --soloFeatures Gene \
+      --soloFeatures GeneFull \
       --runThreadN ${cpu} \
       --genomeDir genome_reference \
       --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
@@ -373,7 +382,10 @@ task STARsoloFastqSlideSeq {
       --soloCBstart 1 \
       --soloUMIlen 9 \
       --soloUMIstart 15 \
-      --outSAMtype BAM Unsorted
+      --outSAMtype BAM Unsorted \
+      --clip3pAdapterMMp \
+      -outSAMattributes UB UR UY CR CB CY NH GX GN \
+
   }
 
   runtime {

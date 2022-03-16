@@ -32,6 +32,7 @@ workflow SlideSeq{
         String tar_star_reference
         String whitelist
         String output_bam_basename
+        Boolean? count_exons
     }
 
     parameter_meta {
@@ -58,7 +59,8 @@ workflow SlideSeq{
           r2_fastq = SplitFastq.fastq_R2_output_array,
           white_list = whitelist,
           tar_star_reference = tar_star_reference,
-          output_bam_basename = output_bam_basename
+          output_bam_basename = output_bam_basename,
+          count_exons = count_exons
     }
 
     output {
