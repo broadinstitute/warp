@@ -352,10 +352,27 @@ task STARsoloFastqSlideSeq {
     Int preemptible = 3
   }
 
-  command {
+  command <<<
     set -e
-    ##TODO: SET UMI and Barcode lengths from read_structure
+    nums=$(echo ~{read_structure} | sed 's/[[:alpha:]]/ /g')
+    read -a arr_num <<< $nums
 
+    chars=$(echo ~{read_structure} | sed 's/[[:digit:]]/ /g')
+    read -a arr_char <<< $chars
+
+    UMILen=0
+    CBLen=0
+    for (( i=0; i<${#arr_char[@]}; ++i));
+      do
+        if [[ ${arr_char[$i]} == 'C' ]]
+        then
+          CBLen=$(( CBLen + arr_num[$i] ))
+        elif [[ ${arr_char[$i]} == 'M' ]]
+        then
+          UMILen=$(( UMILen + arr_num[$i] ))
+        fi
+    done;
+    UMIstart=$(( 1 + CBLen))
 
     # If this argument is true, we will count reads aligned to exons in addition
     if [[ ~{count_exons} ]]
@@ -370,21 +387,20 @@ task STARsoloFastqSlideSeq {
     tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
     rm "~{tar_star_reference}"
 
-
     STAR \
       --soloType Droplet \
       --soloCBwhitelist ~{white_list} \
-      --soloFeatures GeneFull \
-      --runThreadN ${cpu} \
+      --soloFeatures $COUNTING_MODE \
+      --runThreadN ~{cpu} \
       --genomeDir genome_reference \
       --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
       --readFilesCommand "gunzip -c" \
       --soloInputSAMattrBarcodeSeq CR UR \
       --soloInputSAMattrBarcodeQual CY UY \
-      --soloCBlen 14 \
+      --soloCBlen $CBLen \
       --soloCBstart 1 \
-      --soloUMIlen 9 \
-      --soloUMIstart 15 \
+      --soloUMIlen $UMILen \
+      --soloUMIstart $UMIstart \
       --outSAMtype BAM Unsorted \
       --clip3pAdapterMMp \
       -outSAMattributes UB UR UY CR CB CY NH GX GN
@@ -410,12 +426,10 @@ task STARsoloFastqSlideSeq {
       mv "Solo.out/Gene/raw/features.tsv"     features_exon.tsv
       mv "Solo.out/Gene/raw/matrix.mtx"       matrix_exon.mtx
     fi
-    else
-    echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
-    fi
+
     mv Aligned.out.bam ~{output_bam_basename}.bam
 
-  }
+  >>>
 
   runtime {
     docker: docker
