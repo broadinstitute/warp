@@ -393,7 +393,7 @@ task STARsoloFastqSlideSeq {
       --soloFeatures $COUNTING_MODE \
       --runThreadN ~{cpu} \
       --genomeDir genome_reference \
-      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
+      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq} \
       --readFilesCommand "gunzip -c" \
       --soloInputSAMattrBarcodeSeq CR UR \
       --soloInputSAMattrBarcodeQual CY UY \
