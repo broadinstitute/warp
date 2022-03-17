@@ -5,6 +5,7 @@ import enumeratum.{Enum, EnumEntry}
 import scala.collection.immutable
 
 sealed abstract class PipelineTestType(val workflowName: String,
+                                       val pipelineName: String,
                                        val workflowDir: String)
     extends EnumEntry
 
@@ -34,6 +35,7 @@ object PipelineTestType extends Enum[PipelineTestType] {
   case object ExomeGermlineSingleSample
       extends PipelineTestType(
         "TestExomeGermlineSingleSample",
+        "ExomeGermlineSingleSample",
         "/broad/dna_seq/germline/single_sample/exome/"
       )
   //case object ExomeReprocessing
@@ -94,6 +96,7 @@ object PipelineTestType extends Enum[PipelineTestType] {
   case object scATAC
       extends PipelineTestType(
         "TestscATAC",
+        "scATAC",
         "/skylab/scATAC/"
       )
   //case object SmartSeq2SingleNucleus

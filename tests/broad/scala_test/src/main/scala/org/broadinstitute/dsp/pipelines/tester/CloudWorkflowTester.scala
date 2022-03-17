@@ -1,18 +1,11 @@
 package org.broadinstitute.dsp.pipelines.tester
 
 import java.net.URI
-import java.util.UUID
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
 import better.files.File
-import cromwell.api.model.{
-  SubmittedWorkflow,
-  Succeeded,
-  WorkflowId,
-  WorkflowSingleSubmission
-}
 import io.circe.Json
 import io.circe.parser.parse
 import io.circe.syntax._
@@ -20,11 +13,9 @@ import org.broadinstitute.dsp.pipelines.batch.{
   WorkflowRunParameters,
   WorkflowTest
 }
-import org.broadinstitute.dsp.pipelines.commandline.{
-  CromwellEnvironment,
-  WorkflowTestCategory
-}
-import org.broadinstitute.dsp.pipelines.config.BaseConfig
+import org.broadinstitute.dsp.pipelines.commandline.{CromwellEnvironment}
+import org.broadinstitute.dsp.pipelines.config.{CloudWorkflowConfig}
+
 import org.broadinstitute.dsp.pipelines.tester.CromwellWorkflowTester.WarpGitHash
 
 import scala.collection.immutable.Iterable
@@ -32,29 +23,54 @@ import scala.concurrent.Future
 
 //TODO: If we decide to implemnt this testing strategy, we need to clean up ValidationWddlTester, which is nearly identical to this class
 
-class CloudWorkflowTester(testerConfig: BaseConfig)(
+class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     implicit am: ActorMaterializer,
     as: ActorSystem
 ) extends CromwellWorkflowTester {
 
-  override protected def workflowName: String =
+  // Name of the workflow that we are running
+  // i.e. TestExomeGermlineSingleSample
+  override def workflowName: String =
     testerConfig.pipeline.workflowName
 
-  protected val pipeline: String = testerConfig.pipeline.getClass.getName
+  // Name of the pipeline that is being tested
+  // i.e. ExomeGermlineSingleSample
+  protected val pipeline: String =
+    testerConfig.pipeline.pipelineName
 
+  // Directory in WARP where the test workflow lives
+  // i.e. pipelines/broad/dna_seq/germline/single_sample/exome/TestExomeGermlineSingleSample.wdl
+  protected def workflowDir: File =
+    File(
+      CromwellWorkflowTester.PipelineRoot + testerConfig.pipeline.workflowDir)
+
+  // Bundle everything up into a single WDL
+  protected lazy val releaseDir: File =
+    CromwellWorkflowTester.runReleaseWorkflow(
+      workflowDir / s"$workflowName.wdl",
+      env
+    )
+
+  // Store the results
   protected lazy val resultsPrefix: URI =
     URI.create(
       s"gs://broad-gotc-test-results/$envString/$pipeline/$testTypeString/$timestamp/"
     )
+
   protected lazy val truthPrefix: URI =
     URI.create(
       s"gs://broad-gotc-test-storage/$pipeline/truth/$testTypeString/${testerConfig.truthBranch}/"
     )
-  protected def workflowDir: File =
-    File(
-      CromwellWorkflowTester.PipelineRoot + testerConfig.pipeline.workflowDir)
+
+  // Location for the test inputs in WARP
+  // i.e. /Plumbing or /Scientific
   protected def workflowInputRoot: File =
     workflowDir / "test_inputs" / testerConfig.category.entryName
+
+  // All of our plumbing or scientific test inputs
+  protected lazy val inputFileNames: Seq[String] =
+    workflowInputRoot.list.toSeq.map(_.name.toString)
+
   protected val testTypeString: String =
     testerConfig.category.entryName.toLowerCase
 
@@ -66,19 +82,9 @@ class CloudWorkflowTester(testerConfig: BaseConfig)(
 
   protected def env: CromwellEnvironment = testerConfig.env
 
-  protected lazy val releaseDir: File =
-    CromwellWorkflowTester.runReleaseWorkflow(localWdlPath, env)
+  protected lazy val updateTruth: Boolean = testerConfig.updateTruth
 
-  protected def localWdlPath: File = workflowDir / s"$workflowName.wdl"
-
-  protected lazy val inputFileNames: Seq[String] =
-    workflowInputRoot.list.toSeq.map(_.name.toString)
-
-  protected lazy val updateTruth: Boolean =
-    testerConfig.updateTruth
-
-  protected lazy val useTimestamp: Boolean =
-    isDefined(testerConfig.useTimestamp)
+  protected lazy val useTimestamp: Option[String] = testerConfig.useTimestamp
 
   /**
     * If we're not updating the truth data, just validate the runs.
@@ -88,6 +94,7 @@ class CloudWorkflowTester(testerConfig: BaseConfig)(
     * @return A Future of the work
     */
   // TODO: rename and refactor
+  /*
   def validateRunsOrUpdateTruth(
       finishedRuns: Seq[WorkflowTest],
       updateTruth: Boolean,
@@ -98,6 +105,7 @@ class CloudWorkflowTester(testerConfig: BaseConfig)(
       updateTruthData(finishedRuns)
     }
   }
+   */
 
   protected def testerValidation(finishedRun: WorkflowTest): Future[Unit] = {
     val _ = finishedRun
@@ -108,6 +116,7 @@ class CloudWorkflowTester(testerConfig: BaseConfig)(
     s"broad-gotc-${env.picardEnv}"
   }
 
+  /*
   protected lazy val validationWdlOptions: String = Json
     .obj(
       Seq("read_from_cache" -> true.asJson, "write_to_cache" -> true.asJson)
@@ -124,6 +133,8 @@ class CloudWorkflowTester(testerConfig: BaseConfig)(
         ++ env.environmentOptions: _*
     )
     .noSpaces
+
+   */
 
   /**
     * Update the truth data by deleting the old truth data and putting the new run data in its place
@@ -196,10 +207,12 @@ class CloudWorkflowTester(testerConfig: BaseConfig)(
       val resultsPath =
         resultsPrefix.resolve(s"$inputsName/")
       val truthPath = truthPrefix.resolve(s"$inputsName/")
-      val metricsFileNames = ioUtil
-        .listGoogleObjects(truthPath)
-        .filter(_.getPath.endsWith("metrics"))
-        .map(uriToFilename)
+      //val metricsFileNames = ioUtil
+      //.listGoogleObjects(truthPath)
+      //.filter(_.getPath.endsWith("metrics"))
+      //.map(uriToFilename)
+      val stupidInputs = getInputContents(fileName, resultsPath, truthPath)
+      logger.info(stupidInputs)
 
       WorkflowRunParameters(
         id = s"${envString}_$inputsName",
@@ -210,8 +223,9 @@ class CloudWorkflowTester(testerConfig: BaseConfig)(
     }
   }
 
-
-  def getInputContents(fileName: String, resultsPath: String, truthPath: String): String = {
+  def getInputContents(fileName: String,
+                       resultsPath: URI,
+                       truthPath: URI): String = {
     val defaultInputs = Array(
       workflowName + ".truth_path" -> truthPath.asJson,
       workflowName + ".results_path" -> resultsPath.asJson,
@@ -219,11 +233,13 @@ class CloudWorkflowTester(testerConfig: BaseConfig)(
       workflowName + ".use_timestamp" -> useTimestamp.asJson,
       workflowName + ".timestamp" -> timestamp.asJson
     )
-    val inputsString = (workflowInputRoot / fileName).contentAsString.replace(pipeline, workflowName)
+    logger.info(s"foo$pipeline")
+    val inputsString = (workflowInputRoot / fileName).contentAsString
+      .replace(pipeline, workflowName)
     parse(inputsString).fold(
-        e => throw new RuntimeException("Could not create inputs json", e),
-        _.deepMerge(Json.obj(defaultInputs: _*)).noSpaces
-      )
+      e => throw new RuntimeException("Could not create inputs json", e),
+      _.deepMerge(Json.obj(defaultInputs: _*)).noSpaces
+    )
   }
 
   override def runTest: Future[Unit] = {
@@ -232,11 +248,8 @@ class CloudWorkflowTester(testerConfig: BaseConfig)(
     )
     val samples = generateRunParameters
 
-    if (testerConfig.useTimestamp.isDefined) {
-      usePreviousRun(samples)
-    } else {
-      runFullTest(samples)
-    }
+    runFullTest(samples)
+
   }
 
   /**
@@ -251,12 +264,6 @@ class CloudWorkflowTester(testerConfig: BaseConfig)(
       )
       finishedSamples <- awaitBatchCromwellWorkflowCompletion(submittedSamples)
       _ <- copyBatchCromwellWorkflowResults(finishedSamples)
-      _ <- validateRunsOrUpdateTruth(
-        finishedSamples,
-        testerConfig.updateTruth,
-        testerConfig.category
-      )
-
     } yield ()
   }
 
@@ -266,6 +273,7 @@ class CloudWorkflowTester(testerConfig: BaseConfig)(
     * Run only the validation portion of the tests. This is triggered by providing a "validation" timestamp input
     * as a command line argument.
     */
+  /*
   private def usePreviousRun(
       samples: Seq[WorkflowRunParameters]): Future[Unit] = {
     testerConfig.useTimestamp.foreach { timestamp =>
@@ -299,6 +307,7 @@ class CloudWorkflowTester(testerConfig: BaseConfig)(
       testerConfig.category
     )
   }
+   */
 
   def readTestOptions(releaseDir: File,
                       environment: CromwellEnvironment): String = {

@@ -827,10 +827,10 @@ class ConfigParser
       opt[PipelineTestType]('p', "pipeline")
         .text("The pipeline to test")
         .required()
-        .action { (test, config) =>
+        .action { (pipeline, config) =>
           config.copy(
             cloudWorkflowConfig =
-              config.cloudWorkflowConfig.copy(pipeline = test)
+              config.cloudWorkflowConfig.copy(pipeline = pipeline)
           )
         },
       opt[WorkflowTestCategory]('t', "test")
