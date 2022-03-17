@@ -431,7 +431,7 @@ task STARsoloFastqSlideSeq {
       mv "Solo.out/Gene/raw/matrix.mtx"       matrix_exon.mtx
     fi
 
-    mv Aligned.out.bam ~{output_bam_basename}.bam
+    mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
 
   >>>
 
