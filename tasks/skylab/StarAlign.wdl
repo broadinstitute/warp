@@ -417,15 +417,7 @@ task STARsoloFastqSlideSeq {
     mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
     mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
 
-    if ! [[ ~{count_exons} ]]
-    then
-      mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
-      mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
-      mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
-    else
-      mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
-      mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
-      mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+    if [[ ~{count_exons} ]]
       mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_exon.tsv
       mv "Solo.out/Gene/raw/features.tsv"     features_exon.tsv
       mv "Solo.out/Gene/raw/matrix.mtx"       matrix_exon.mtx
