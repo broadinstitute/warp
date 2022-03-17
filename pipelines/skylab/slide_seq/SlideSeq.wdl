@@ -54,7 +54,6 @@ workflow SlideSeq{
         input:
             r1_fastq = r1_fastq,
             r2_fastq = r2_fastq,
-            r2_fastq = r2_fastq,
             i1_fastq = i1_fastq,
             read_structure = read_structure,
             sample_id = input_id
