@@ -354,6 +354,9 @@ task STARsoloFastqSlideSeq {
 
   command <<<
     set -e
+    declare -a fastq1_files=(~{sep=' ' r1_fastq})
+    declare -a fastq2_files=(~{sep=' ' r2_fastq})
+
     nums=$(echo ~{read_structure} | sed 's/[[:alpha:]]/ /g')
     read -a arr_num <<< $nums
 
@@ -393,7 +396,7 @@ task STARsoloFastqSlideSeq {
       --soloFeatures $COUNTING_MODE \
       --runThreadN ~{cpu} \
       --genomeDir genome_reference \
-      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
+      --readFilesIn $fastq2_files $fastq1_files \
       --readFilesCommand "gunzip -c" \
       --soloInputSAMattrBarcodeSeq CR UR \
       --soloInputSAMattrBarcodeQual CY UY \
