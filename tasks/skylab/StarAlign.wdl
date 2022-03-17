@@ -378,11 +378,10 @@ task STARsoloFastqSlideSeq {
     UMIstart=$(( 1 + CBLen))
 
     # If this argument is true, we will count reads aligned to exons in addition
-    if [[ ~{count_exons} ]]
+    COUNTING_MODE="GeneFull"
+    if ~{count_exons}
     then
       COUNTING_MODE="Gene GeneFull"
-    else
-      COUNTING_MODE="GeneFull"
     fi
 
     # prepare reference
@@ -417,7 +416,8 @@ task STARsoloFastqSlideSeq {
     mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
     mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
 
-    if [[ ~{count_exons} ]]
+    if  ~{count_exons}
+    then
       mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_exon.tsv
       mv "Solo.out/Gene/raw/features.tsv"     features_exon.tsv
       mv "Solo.out/Gene/raw/matrix.mtx"       matrix_exon.mtx
