@@ -404,7 +404,8 @@ task STARsoloFastqSlideSeq {
       --soloCBstart 1 \
       --soloUMIlen $UMILen \
       --soloUMIstart $UMIstart \
-      --outSAMtype BAM Unsorted \
+      --outSAMtype BAM SortedByCoordinate \
+      --clip3pAdapterSeq AAAAAA \
       --clip3pAdapterMMp 0.1 \
       --outSAMattributes UB UR UY CR CB CY NH GX GN
 
