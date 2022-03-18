@@ -5,6 +5,7 @@ import java.net.URI
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
+
 import better.files.File
 import io.circe.Json
 import io.circe.parser.parse
@@ -13,15 +14,13 @@ import org.broadinstitute.dsp.pipelines.batch.{
   WorkflowRunParameters,
   WorkflowTest
 }
-import org.broadinstitute.dsp.pipelines.commandline.{CromwellEnvironment}
-import org.broadinstitute.dsp.pipelines.config.{CloudWorkflowConfig}
-
+import org.broadinstitute.dsp.pipelines.commandline.CromwellEnvironment
+import org.broadinstitute.dsp.pipelines.config.CloudWorkflowConfig
 import org.broadinstitute.dsp.pipelines.tester.CromwellWorkflowTester.WarpGitHash
 
 import scala.collection.immutable.Iterable
 import scala.concurrent.Future
-
-//TODO: If we decide to implemnt this testing strategy, we need to clean up ValidationWddlTester, which is nearly identical to this class
+import scala.util.matching.Regex
 
 class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     implicit am: ActorMaterializer,
@@ -233,9 +232,21 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       workflowName + ".use_timestamp" -> useTimestamp.asJson,
       workflowName + ".timestamp" -> timestamp.asJson
     )
-    logger.info(s"foo$pipeline")
-    val inputsString = (workflowInputRoot / fileName).contentAsString
+    /**
+     * If we have nested inputs in our test inputs we need to push them down a level
+     * e.g.
+     * ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics ->
+     * TestExomeGermlineSingleSample.ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics
+     */
+    val pattern = new Regex("(TestExomeGermlineSingleSample).([A-Z]\\w+).")
+
+    var inputsString = (workflowInputRoot / fileName).contentAsString
       .replace(pipeline, workflowName)
+
+    inputsString = pattern.replaceAllIn(
+      inputsString,
+      m => s"$workflowName.$pipeline." + m.group(2) + ".")
+
     parse(inputsString).fold(
       e => throw new RuntimeException("Could not create inputs json", e),
       _.deepMerge(Json.obj(defaultInputs: _*)).noSpaces
