@@ -2,6 +2,7 @@
 2022-03-16 (Date of Last Commit)
 
 * Update to use references stored in Google-hosted public buckets.
+* Add gsutil to PATH in picard-private docker image
 
 # 1.0.3
 2022-03-14 (Date of Last Commit)
