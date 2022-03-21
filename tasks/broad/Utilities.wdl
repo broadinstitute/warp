@@ -221,3 +221,14 @@ task ErrorWithMessage{
     docker: "ubuntu:20.04"
   }
 }
+
+task CopyWorkflowOutputsByPath {
+  input {
+    String output_file_path
+    String copy_bucket_path
+    String workflow_name
+    String cromwell_env
+  }
+
+
+}

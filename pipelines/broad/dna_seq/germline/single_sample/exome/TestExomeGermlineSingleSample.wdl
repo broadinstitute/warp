@@ -2,6 +2,8 @@ version 1.0
 
 import "../../../../../../pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl" as ExomeGermlineSingleSample
 import "../../../../../../verification/VerifyGermlineSingleSample.wdl" as VerifyGermlineSingleSample
+import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
+
 
 workflow TestExomeGermlineSingleSample {
 
@@ -26,8 +28,13 @@ workflow TestExomeGermlineSingleSample {
     Boolean? use_timestamp
     Boolean? update_truth
     String? timestamp
+    String? cromwell_env
     #Array[String] metrics_files_to_test
     #Boolean update_truth
+  }
+
+  meta {
+    allowNestedInputs: true
   }
 
   # Run the pipeline
@@ -44,6 +51,15 @@ workflow TestExomeGermlineSingleSample {
        bait_interval_list = bait_interval_list,
        bait_set_name = bait_set_name,
    }
+
+  call Utilities.CopyWorfklowOutputsByPath as CopyToTestResults {
+    input:
+      output_file_path = ExomeGermlineSingleSample.output_vcf,
+      copy_bucket_path = results_path,
+      workflow_name = "ExomeGermlineSingleSample",
+      cromwell_env = cromwell_env,
+  }
+
 
 
 }

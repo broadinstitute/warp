@@ -230,14 +230,16 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       workflowName + ".results_path" -> resultsPath.asJson,
       workflowName + ".update_truth" -> updateTruth.asJson,
       workflowName + ".use_timestamp" -> useTimestamp.asJson,
-      workflowName + ".timestamp" -> timestamp.asJson
+      workflowName + ".timestamp" -> timestamp.asJson,
+      workflowName + ".cromwell_env" -> envString.asJson
     )
+
     /**
-     * If we have nested inputs in our test inputs we need to push them down a level
-     * e.g.
-     * ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics ->
-     * TestExomeGermlineSingleSample.ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics
-     */
+      * If we have nested inputs in our test inputs we need to push them down a level
+      * e.g.
+      * ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics ->
+      * TestExomeGermlineSingleSample.ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics
+      */
     val pattern = new Regex("(TestExomeGermlineSingleSample).([A-Z]\\w+).")
 
     var inputsString = (workflowInputRoot / fileName).contentAsString
