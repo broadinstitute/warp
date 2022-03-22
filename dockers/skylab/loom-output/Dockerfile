@@ -20,3 +20,4 @@ COPY loomCompare.py .
 COPY ss2_loom_merge.py .
 COPY create_snss2_counts_csv.py .
 COPY create_loom_snss2.py .
+COPY create_loom_slide_seq.py .
