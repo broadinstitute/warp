@@ -745,7 +745,8 @@ task updateOutputsInTDR {
       -b "~{staging_bucket}" \
       -t "~{tdr_target_table}" \
       -o "~{outputs_json}" \
-      -s "~{sample_id}"
+      -k "sample_id" \
+      -v "~{sample_id}"
   >>>
 
   runtime {
