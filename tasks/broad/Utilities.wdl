@@ -227,8 +227,73 @@ task CopyWorkflowOutputsByPath {
     String output_file_path
     String copy_bucket_path
     String workflow_name
-    String cromwell_env
+    String cromwell_url
+
+    String docker = " us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.2-1647866389"
+    Int memory_mb = 2000
+    Int cpu = 1
+    Int disk_size_gb = 20
   }
+  meta {
+    description: "For a test wrapper wdl, copy the results of the workflow being tested from the execution bucket to a given location"
+  }
+
+  parameter_meta {
+    output_file_path: "File path to parse for cromwell ID"
+    copy_bucket_path: "gs:// bucket path to copy workflow results to"
+    workflow_name: "Name of the workflow for which the results are copied"
+    cromwell_url: "Url for the cromwell server that ran the workflow"
+  }
+
+  command <<<
+    set -e
+    set -o pipefail
+
+    file_path="~{output_file_path}"
+    cromwell_url="~{cromwell_url}"
+
+    echo "Attempting to parse cromwell workflow ID from $file_path"
+
+    cromwell_id=$(python3 <<CODE
+    # Get second cromwell ID which is subworkflow
+
+    import re
+    pattern =  r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})"
+
+    m = re.findall(pattern, "~{output_file_path}")
+    print(m[1]) if m[1] else print("")
+
+    CODE)
+
+    if [[ ! -z $cromwell_id ]]; then
+      echo "Cromwell ID for subworkflow found -> $cromwell_id"
+      echo "$cromwell_id" > output.txt
+    else
+      echo "ERROR:Unable to parse cromwwell workflow ID from given path -> $file_path" >&2
+      exit 1
+    fi
+
+    java -jar /usr/gitc/picard-private.jar \
+      CopyCromwellWorkflowResults \
+      ID=$cromwell_id \
+      WORKFLOW_NAME=~{workflow_name} \
+      RESULTS_CLOUD_PATH=~{copy_bucket_path} \
+      URL_BASE=$cromwell_url \
+      VERBOSITY=DEBUG
+
+  >>>
+
+  runtime {
+    docker: docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu : cpu
+  }
+
+  output{
+    String cromwell_id = read_string("output.txt")
+  }
+
 
 
 }

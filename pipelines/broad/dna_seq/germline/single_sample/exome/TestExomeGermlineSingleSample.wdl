@@ -24,11 +24,11 @@ workflow TestExomeGermlineSingleSample {
 
     # These values will be determined and injected into the inputs by the scala test framework
     String? truth_path
-    String? results_path
+    String results_path
     Boolean? use_timestamp
     Boolean? update_truth
     String? timestamp
-    String? cromwell_env
+    String cromwell_url
     #Array[String] metrics_files_to_test
     #Boolean update_truth
   }
@@ -38,27 +38,32 @@ workflow TestExomeGermlineSingleSample {
   }
 
   # Run the pipeline
+  call ExomeGermlineSingleSample.ExomeGermlineSingleSample {
+    input:
+      sample_and_unmapped_bams     = sample_and_unmapped_bams,
+      references                   = references,
+      scatter_settings             = scatter_settings,
+      fingerprint_genotypes_file   = fingerprint_genotypes_file,
+      fingerprint_genotypes_index  = fingerprint_genotypes_index,
+      papi_settings                = papi_settings,
+      target_interval_list         = target_interval_list,
+      bait_interval_list           = bait_interval_list,
+      bait_set_name                = bait_set_name,
+  }
 
-   call ExomeGermlineSingleSample.ExomeGermlineSingleSample {
-     input:
-       sample_and_unmapped_bams = sample_and_unmapped_bams,
-       references = references,
-       scatter_settings = scatter_settings,
-       fingerprint_genotypes_file = fingerprint_genotypes_file,
-       fingerprint_genotypes_index = fingerprint_genotypes_index,
-       papi_settings = papi_settings,
-       target_interval_list = target_interval_list,
-       bait_interval_list = bait_interval_list,
-       bait_set_name = bait_set_name,
-   }
-
-  call Utilities.CopyWorfklowOutputsByPath as CopyToTestResults {
+  # Copy the outputs from broad-gotc-cromwell-execution
+  # to broad-gotc-test-results
+  call Utilities.CopyWorkflowOutputsByPath as CopyToTestResults {
     input:
       output_file_path = ExomeGermlineSingleSample.output_vcf,
       copy_bucket_path = results_path,
-      workflow_name = "ExomeGermlineSingleSample",
-      cromwell_env = cromwell_env,
+      workflow_name    = "ExomeGermlineSingleSample",
+      cromwell_url     = cromwell_url,
   }
+
+  output {
+    String cromwell_id = CopyToTestResults.cromwell_id
+ }
 
 
 

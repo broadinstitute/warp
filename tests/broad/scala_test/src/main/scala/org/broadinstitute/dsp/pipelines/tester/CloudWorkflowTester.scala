@@ -70,6 +70,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
   protected lazy val inputFileNames: Seq[String] =
     workflowInputRoot.list.toSeq.map(_.name.toString)
 
+  // plumbing or scientific
   protected val testTypeString: String =
     testerConfig.category.entryName.toLowerCase
 
@@ -80,6 +81,8 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     readWdlFromReleaseDir(releaseDir, workflowName)
 
   protected def env: CromwellEnvironment = testerConfig.env
+
+  protected lazy val cromwellUrl = env.cromwellUrl.toString
 
   protected lazy val updateTruth: Boolean = testerConfig.updateTruth
 
@@ -231,7 +234,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       workflowName + ".update_truth" -> updateTruth.asJson,
       workflowName + ".use_timestamp" -> useTimestamp.asJson,
       workflowName + ".timestamp" -> timestamp.asJson,
-      workflowName + ".cromwell_env" -> envString.asJson
+      workflowName + ".cromwell_url" -> cromwellUrl.asJson
     )
 
     /**
@@ -276,7 +279,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
         dependenciesZipFromReleaseDir(releaseDir, workflowName)
       )
       finishedSamples <- awaitBatchCromwellWorkflowCompletion(submittedSamples)
-      _ <- copyBatchCromwellWorkflowResults(finishedSamples)
+      //_ <- copyBatchCromwellWorkflowResults(finishedSamples)
     } yield ()
   }
 
