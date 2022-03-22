@@ -251,8 +251,10 @@ task CopyWorkflowOutputsByPath {
     import re
     import sys
     import requests
+    import subprocess
 
     cromwell_url = "~{cromwell_url}"
+    results_path = "~{copy_bucket_path}"
 
     def get_access_token() -> str:
       instance_url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
@@ -270,22 +272,24 @@ task CopyWorkflowOutputsByPath {
       file_path = "~{output_file_path}"
       pattern =  r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})"
 
-      sys.stdout.write(f"Attempting to parse cromwell workflow ID from {file_path}")
+      sys.stdout.write(f"Attempting to parse cromwell workflow ID from {file_path} \n")
 
       match = re.findall(pattern, file_path)
 
+      # Get the second capture group which is the workflow we are actually testing
       if match is not None and match[1]:
-        sys.stdout.write(f"cromwell_id found -> {match[1]}")
+        sys.stdout.write(f"cromwell workflow ID found -> {match[1]} \n")
         return match[1]
       else:
-        sys.stderr.write(f"ERROR: Unable to parse cromwell_id from given file path -> {file_path}")
+        sys.stderr.write(f"ERROR: Unable to parse cromwell workflow ID from given file path -> {file_path} \n")
         sys.exit(1)
 
     def get_workflow_outputs(cromwell_id, access_token) -> list:
       outputs_url = f"{cromwell_url}/api/workflows/1/{cromwell_id}/outputs"
       request_headers = { "Authorization": f"Bearer {access_token}" }
 
-      sys.stdout.write(f"Querying outputs for workflow id -> {cromwell_id}")
+      sys.stdout.write(f"Querying outputs for cromwell workflow ID -> {cromwell_id} \n")
+      sys.stdout.write(f"GET -> {outputs_url} \n"}
 
       # Grab the outputs of the workflow from the cromwell api
       r = request.get(outputs_url, headers=request_headers)
@@ -307,7 +311,11 @@ task CopyWorkflowOutputsByPath {
     cromwell_id, access_token = parse_cromwell_id(), get_access_token()
     workflow_outputs = get_workflow_outputs
 
+    for file in workflow_outputs:
+      sys.stdout.write(f"...Copying {file} to {results_path}/{file} \n")
+      subprocess.run(f"gsutil cp {file} {results_path}")
 
+    sys.stdout.write("Copy to {results_path} completed successfully")
   >>>
 
   runtime {
