@@ -247,39 +247,66 @@ task CopyWorkflowOutputsByPath {
 
   command <<<
     set -e
-    set -o pipefail
-
-    file_path="~{output_file_path}"
-    cromwell_url="~{cromwell_url}"
-
-    echo "Attempting to parse cromwell workflow ID from $file_path"
-
-    cromwell_id=$(python3 <<CODE
-    # Get second cromwell ID which is subworkflow
-
+    python3 <<CODE
     import re
-    pattern =  r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})"
+    import sys
+    import requests
 
-    m = re.findall(pattern, "~{output_file_path}")
-    print(m[1]) if m[1] else print("")
+    cromwell_url = "~{cromwell_url}"
 
-    CODE)
+    def get_access_token() -> str:
+      instance_url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
+      request_headers = { "Metadata-Flavor": "Google" }
 
-    if [[ ! -z $cromwell_id ]]; then
-      echo "Cromwell ID for subworkflow found -> $cromwell_id"
-      echo "$cromwell_id" > output.txt
-    else
-      echo "ERROR:Unable to parse cromwwell workflow ID from given path -> $file_path" >&2
-      exit 1
-    fi
+      # Request an access token from metadata server
+      r = requests.get(instance_url, headers=request_headers)
 
-    java -jar /usr/gitc/picard-private.jar \
-      CopyCromwellWorkflowResults \
-      ID=$cromwell_id \
-      WORKFLOW_NAME=~{workflow_name} \
-      RESULTS_CLOUD_PATH=~{copy_bucket_path} \
-      URL_BASE=$cromwell_url \
-      VERBOSITY=DEBUG
+      # Extract access token from response
+      access_token = r.json()["access_token"]
+
+      return access_token
+
+    def parse_cromwell_id() -> str:
+      file_path = "~{output_file_path}"
+      pattern =  r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})"
+
+      sys.stdout.write(f"Attempting to parse cromwell workflow ID from {file_path}")
+
+      match = re.findall(pattern, file_path)
+
+      if match is not None and match[1]:
+        sys.stdout.write(f"cromwell_id found -> {match[1]}")
+        return match[1]
+      else:
+        sys.stderr.write(f"ERROR: Unable to parse cromwell_id from given file path -> {file_path}")
+        sys.exit(1)
+
+    def get_workflow_outputs(cromwell_id, access_token) -> list:
+      outputs_url = f"{cromwell_url}/api/workflows/1/{cromwell_id}/outputs"
+      request_headers = { "Authorization": f"Bearer {access_token}" }
+
+      sys.stdout.write(f"Querying outputs for workflow id -> {cromwell_id}")
+
+      # Grab the outputs of the workflow from the cromwell api
+      r = request.get(outputs_url, headers=request_headers)
+
+      outputs = r.json()["outputs"]
+
+      outputs_list, task_outputs = [], [o for o in outputs.values()]
+
+      # Flatten the outputs from each task to single list
+      # Only want gs:// paths
+      for x in task_outputs:
+        if instance(x, str):
+          outputs_list.append(x)
+        if instance(x, list):
+          outputs_list.extend(x)
+
+      return outputs_list
+
+    cromwell_id, access_token = parse_cromwell_id(), get_access_token()
+    workflow_outputs = get_workflow_outputs
+
 
   >>>
 
