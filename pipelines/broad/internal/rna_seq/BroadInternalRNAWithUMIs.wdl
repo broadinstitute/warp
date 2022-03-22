@@ -64,9 +64,9 @@ workflow BroadInternalRNAWithUMIs {
     sequencing_center: "String used to describe the sequencing center; default is set to 'BI'"
     environment: "The environment (dev or prod) used for determining which service to use to retrieve Mercury fingerprints"
     vault_token_path: "The path to the vault token used for accessing the Mercury Fingerprint Store"
-    tdr_dataset_uuid: "Optional String used to define the Terra Data Repo dataset to which outputs will be ingested, if populated"
-    tdr_sample_id: "Optional String used to identify the sample being processed; this is the primary key in the TDR dataset"
-    tdr_staging_bucket: "Optional String defining the GCS bucket to use to stage files for loading to TDR. Workspace bucket is recommended"
+    tdr_dataset_uuid: "Optional string used to define the Terra Data Repo (TDR) dataset to which outputs will be ingested"
+    tdr_sample_id: "Optional string used to identify the sample being processed; this is the primary key in the TDR dataset"
+    tdr_staging_bucket: "Optional string defining the GCS bucket to use to stage files for loading to TDR; the workspace bucket is recommended"
   }
 
   # make sure either hg19 or hg38 is supplied as reference_build input
