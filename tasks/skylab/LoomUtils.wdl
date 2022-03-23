@@ -298,14 +298,12 @@ task SlideSeqLoomOutput {
     File gene_metrics
     File cell_id
     File gene_id
-    File count_matrix
-    File annotation_file
     File sparse_count_matrix
-    String output_path_for_loom
+    File annotation_file
     String input_id
     String pipeline_version
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.6-2"
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.6-2_slideseqtest"
     Int disk_size_gb = 200
     Int memory_mb = 18000
     Int cpu = 4
@@ -313,7 +311,7 @@ task SlideSeqLoomOutput {
 
   command <<<
     python3 /tools/create_loom_slide_seq.py \
-       --bead_locations -~{bead_locations} \
+       --bead_locations ~{bead_locations} \
        --annotation_file ~{annotation_file} \
        --cell_metrics ~{cell_metrics} \
        --gene_metrics ~{gene_metrics} \
