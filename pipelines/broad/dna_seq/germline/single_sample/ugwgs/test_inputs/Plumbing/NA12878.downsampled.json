@@ -2,9 +2,9 @@
     "UltimaGenomicsWholeGenomeGermline.input_cram_list": ["gs://broad-gotc-test-storage/tmp/jbx/downsampled_NA12878.cram"],
     "UltimaGenomicsWholeGenomeGermline.base_file_name": "downsampled_NA12878",
     "UltimaGenomicsWholeGenomeGermline.contamination_sites": {
-        "contamination_sites_vcf": "gs://concordance/hg38/Homo_sapiens_assembly38.contam_fixed.vcf",
-        "contamination_sites_vcf_index":"gs://concordance/hg38/Homo_sapiens_assembly38.contam_fixed.vcf.idx",
-        "contamination_sites_path": "gs://concordance/hg38/verifyBamID_inputs/Homo_sapiens_assembly38.contam.cskp."
+        "contamination_sites_vcf": "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/verify_bam_id/Homo_sapiens_assembly38.contam_fixed.vcf",
+        "contamination_sites_vcf_index":"gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/verify_bam_id/Homo_sapiens_assembly38.contam_fixed.vcf.idx",
+        "contamination_sites_path": "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/verify_bam_id/Homo_sapiens_assembly38.contam.cskp."
     },
     "UltimaGenomicsWholeGenomeGermline.alignment_references": {
         "references": {
@@ -26,17 +26,17 @@
     },
     "UltimaGenomicsWholeGenomeGermline.vcf_post_processing": {
         "annotation_intervals": [
-            "gs://concordance/hg38/annotation_intervals/LCR-hs38.bed",
-            "gs://concordance/hg38/annotation_intervals/exome.twist.bed",
-            "gs://concordance/hg38/annotation_intervals/mappability.0.bed",
-            "gs://concordance/hg38/annotation_intervals/hmers_7_and_higher.bed"
+            "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/LCR-hs38.bed",
+            "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/exome.twist.bed",
+            "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/mappability.0.bed",
+            "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/hmers_7_and_higher.bed"
         ],
-        "runs_file":"gs://concordance/hg38/runs.conservative.bed",
-        "af_only_gnomad": "gs://gatk-best-practices/somatic-hg38/af-only-gnomad.hg38.vcf.gz",
-        "af_only_gnomad_index": "gs://gatk-best-practices/somatic-hg38/af-only-gnomad.hg38.vcf.gz.tbi",
+        "runs_file":"gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/runs.conservative.bed",
+        "af_only_gnomad": "gs://gcp-public-data--broad-references/hg38/v0/somatic-hg38/af-only-gnomad.hg38.vcf.gz",
+        "af_only_gnomad_index": "gs://gcp-public-data--broad-references/hg38/v0/somatic-hg38/af-only-gnomad.hg38.vcf.gz.tbi",
         "filter_cg_insertions": "true",
-        "filtering_blocklist_file": "gs://concordance/filtering_models/blacklist_0.5.1.pkl",
-        "training_blocklist_file": "gs://concordance/filtering_models/blacklist_ua_good_old_blacklist.h5",
+        "filtering_blocklist_file": "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/filtering_models/blacklist_0.5.1.pkl",
+        "training_blocklist_file": "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/filtering_models/blacklist_ua_good_old_blacklist.h5",
         "exome_weight": 100,
         "exome_weight_annotation": "exome.twist",
         "max_duplication_in_reasonable_sample": "0.3",
