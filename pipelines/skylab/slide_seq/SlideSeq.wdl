@@ -41,6 +41,7 @@ workflow SlideSeq {
         String output_bam_basename
         Boolean? count_exons
         File bead_locations
+
     }
 
     parameter_meta {
