@@ -23,7 +23,7 @@ import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 ## licensing information pertaining to the included programs.
 
 
-workflow SlideSeq{
+workflow SlideSeq {
 
     String pipeline_version = "0.1.0"
 
@@ -40,6 +40,7 @@ workflow SlideSeq{
         String whitelist
         String output_bam_basename
         Boolean? count_exons
+        File bead_locations
     }
 
     parameter_meta {
@@ -93,19 +94,20 @@ workflow SlideSeq{
             features = STARsoloFastqSlideSeq.features,
             matrix = STARsoloFastqSlideSeq.matrix
     }
-#    if (!count_exons) {
-#        call LoomUtils.OptimusLoomGeneration{
-#            input:
-#                input_id = input_id,
-#                annotation_file = annotations_gtf,
-#                cell_metrics = CellMetrics.cell_metrics,
-#                gene_metrics = GeneMetrics.gene_metrics,
-#                sparse_count_matrix = MergeStarOutputs.sparse_counts,
-#                cell_id = MergeStarOutputs.row_index,
-#                gene_id = MergeStarOutputs.col_index,
-#                pipeline_version = "Optimus_v~{pipeline_version}"
-#        }
-#    }
+    if (!count_exons) {
+        call LoomUtils.SlideSeqLoomOutput{
+            input:
+                input_id = input_id,
+                bead_locations = bead_locations,
+                annotation_file = annotations_gtf,
+                cell_metrics = CellMetrics.cell_metrics,
+                gene_metrics = GeneMetrics.gene_metrics,
+                sparse_count_matrix = MergeStarOutputs.sparse_counts,
+                cell_id = MergeStarOutputs.row_index,
+                gene_id = MergeStarOutputs.col_index,
+                pipeline_version = "SlideSeq_v~{pipeline_version}"
+        }
+    }
 #    if (count_exons) {
 #        call StarAlign.MergeStarOutput as MergeStarOutputsExons {
 #            input:
@@ -117,6 +119,7 @@ workflow SlideSeq{
 #        call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
 #            input:
 #                input_id = input_id,
+#                bead_locations = bead_locations,
 #                annotation_file = annotations_gtf,
 #                cell_metrics = CellMetrics.cell_metrics,
 #                gene_metrics = GeneMetrics.gene_metrics,
@@ -126,7 +129,7 @@ workflow SlideSeq{
 #                sparse_count_matrix_exon = MergeStarOutputsExons.sparse_counts,
 #                cell_id_exon = MergeStarOutputsExons.row_index,
 #                gene_id_exon = MergeStarOutputsExons.col_index,
-#                pipeline_version = "Optimus_v~{pipeline_version}"
+#                pipeline_version = "SlideSeq_v~{pipeline_version}"
 #        }
 #
 #    }
@@ -145,7 +148,7 @@ workflow SlideSeq{
         File cell_metrics = CellMetrics.cell_metrics
         File gene_metrics = GeneMetrics.gene_metrics
         # loom
-        #File loom_output_file = final_loom_output
+        File? loom_output_file = SlideSeqLoomOutput.loom_output
 
     }
 }

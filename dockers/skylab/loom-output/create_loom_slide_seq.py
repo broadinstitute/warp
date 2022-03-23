@@ -310,15 +310,10 @@ def create_loom_files(args):
 
     # generate global attributes
     attrDict = dict()
-    attrDict['expression_data_type'] = args.expression_data_type
     attrDict['optimus_output_schema_version'] = version
     attrDict['input_id'] = args.input_id
     if args.input_name is not None:
         attrDict['input_name'] = args.input_name
-    if args.input_id_metadata_field is not None:
-        attrDict['input_id_metadata_field'] = args.input_id_metadata_field
-    if args.input_name_metadata_field is not None:
-        attrDict['input_name_metadata_field'] = args.input_name_metadata_field
     attrDict['pipeline_version'] = args.pipeline_version
     #generate loom file
     loompy.create(args.output_loom_path, expr_sp_t, row_attrs, col_attrs, file_attrs=attrDict)
@@ -401,30 +396,10 @@ def main():
     )
 
     parser.add_argument(
-        "--input_id_metadata_field",
-        dest="input_id_metadata_field",
-        help= "sequencing_process.provenance.document_id: [UUID] defined by the user",
-    )
-
-    parser.add_argument(
-        "--input_name_metadata_field",
-        dest="input_name_metadata_field",
-        help= "sequencing_input.biomaterial_core.biomaterial_id defined by the user",
-    )
-
-    parser.add_argument(
         "--verbose",
         dest="verbose",
         action="store_true",
         help="whether to output verbose debugging messages",
-    )
-
-    parser.add_argument(
-        "--expression_data_type",
-        dest="expression_data_type",
-        default="exonic",
-        choices=["exonic", "whole_transcript"],
-        help="The expression data type",
     )
 
     parser.add_argument(
