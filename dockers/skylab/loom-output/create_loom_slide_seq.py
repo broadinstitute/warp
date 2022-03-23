@@ -312,8 +312,6 @@ def create_loom_files(args):
     attrDict = dict()
     attrDict['optimus_output_schema_version'] = version
     attrDict['input_id'] = args.input_id
-    if args.input_name is not None:
-        attrDict['input_name'] = args.input_name
     attrDict['pipeline_version'] = args.pipeline_version
     #generate loom file
     loompy.create(args.output_loom_path, expr_sp_t, row_attrs, col_attrs, file_attrs=attrDict)
@@ -336,35 +334,35 @@ def main():
         "--cell_metrics",
         dest="cell_metrics",
         required=True,
-        help="a .csv file path for the cell metrics, an output of the MergeCellMetrics task",
+        help="a .csv file path for the cell metrics, an output of the CellMetrics task",
     )
 
     parser.add_argument(
         "--gene_metrics",
         dest="gene_metrics",
         required=True,
-        help="a .csv file path for the gene metrics, an output of the MergeGeneMetrics task",
+        help="a .csv file path for the gene metrics, an output of the GeneMetrics task",
     )
 
     parser.add_argument(
         "--cell_id",
         dest="cell_ids",
         required=True,
-        help="a .npy file path for the cell barcodes, an output of the MergeCountFiles task",
+        help="a .npy file path for the cell barcodes, an output of the MergeStarOutputs task",
     )
 
     parser.add_argument(
         "--gene_id",
         dest="gene_ids",
         required=True,
-        help="a .npy file path for the gene ids, an output of the MergeCountFiles task",
+        help="a .npy file path for the gene ids, an output of the MergeStarOutputs task",
     )
 
     parser.add_argument(
         "--count_matrix",
         dest="count_matrix",
         required=True,
-        help="a .npz file path for the count matrix, an output of the MergeCountFiles task",
+        help="a .npz file path for the count matrix, an output of the MergeStarOutputs task",
     )
 
     parser.add_argument(
@@ -390,12 +388,6 @@ def main():
     )
 
     parser.add_argument(
-        "--input_name",
-        dest="input_name",
-        help= "sequencing_input.biomaterial_core.biomaterial_id in HCA metadata, defined by the user",
-    )
-
-    parser.add_argument(
         "--verbose",
         dest="verbose",
         action="store_true",
@@ -406,7 +398,7 @@ def main():
         "--pipeline_version",
         dest="pipeline_version",
         required=True,
-        help="The version of Optimus that generated data",
+        help="The version of SlideSeq that generated data",
     )
 
     args = parser.parse_args()
