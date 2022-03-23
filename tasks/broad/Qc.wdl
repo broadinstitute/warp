@@ -440,7 +440,6 @@ task ValidateSamFile {
   }
 }
 
-# Note these tasks will break if the read lengths in the bam are greater than 250.
 task CollectWgsMetrics {
   input {
     File input_bam
@@ -449,7 +448,7 @@ task CollectWgsMetrics {
     File wgs_coverage_interval_list
     File ref_fasta
     File ref_fasta_index
-    Int read_length
+    Int read_length = 250
     Int preemptible_tries
   }
 
@@ -488,7 +487,7 @@ task CollectRawWgsMetrics {
     File wgs_coverage_interval_list
     File ref_fasta
     File ref_fasta_index
-    Int read_length
+    Int read_length = 250
     Int preemptible_tries
     Int memory_multiplier = 1
     Int additional_disk = 20
