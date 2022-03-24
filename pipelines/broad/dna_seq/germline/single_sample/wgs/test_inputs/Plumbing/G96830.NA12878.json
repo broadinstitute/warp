@@ -57,6 +57,6 @@
   },
 
   "WholeGenomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true,
-  "WholeGenomeGermlineSingleSample.CollectWgsMetrics.read_length": 300,
-  "WholeGenomeGermlineSingleSample.CollectRawWgsMetrics.read_length": 300
+  "WholeGenomeGermlineSingleSample.CollectWgsMetrics.read_length": 250,
+  "WholeGenomeGermlineSingleSample.CollectRawWgsMetrics.read_length": 250
 }
