@@ -34,7 +34,7 @@ workflow Imputation {
     Boolean split_output_to_single_sample = false
     Int merge_ssvcf_mem_mb = 3000 # the memory allocation for MergeSingleSampleVcfs (in mb)
 
-    Float frac_well_imputed_threshold = 0.8 # require fraction of sites well imputed to be greater than this to pass
+    Float frac_above_maf_5_percent_well_imputed_threshold = 0.98 # require fraction of maf > 0.05 sites well imputed to be greater than this to pass
     Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
 
     # file extensions used to find reference panel files
@@ -269,10 +269,10 @@ workflow Imputation {
       basename = output_callset_name
   }
 
-  if (MergeImputationQCMetrics.frac_well_imputed < frac_well_imputed_threshold) {
+  if (MergeImputationQCMetrics.frac_above_maf_5_percent_well_imputed < frac_above_maf_5_percent_well_imputed_threshold) {
     call utils.ErrorWithMessage as FailQCWellImputedFrac {
       input:
-        message = "Well imputed fraction was " + MergeImputationQCMetrics.frac_well_imputed + ", QC failure threshold was set at " + frac_well_imputed_threshold
+        message = "Well imputed fraction was " + MergeImputationQCMetrics.frac_above_maf_5_percent_well_imputed + ", QC failure threshold was set at " + frac_above_maf_5_percent_well_imputed_threshold
     }
   }
 
