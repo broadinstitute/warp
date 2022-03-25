@@ -3,6 +3,7 @@ version 1.0
 import "../../../../../../pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl" as ExomeGermlineSingleSample
 import "../../../../../../verification/VerifyGermlineSingleSample.wdl" as VerifyGermlineSingleSample
 import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
+import "../../../../../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestExomeGermlineSingleSample {
 
@@ -52,23 +53,69 @@ workflow TestExomeGermlineSingleSample {
       bait_set_name                = bait_set_name,
   }
 
-  # Copy the outputs from broad-gotc-cromwell-execution
-  # to broad-gotc-test-results
-  call Utilities.CopyWorkflowOutputsByPath as CopyToTestResults {
+  call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
     input:
-      output_file_path          = ExomeGermlineSingleSample.output_vcf,
-      copy_bucket_path          = results_path,
-      workflow_name             = "ExomeGermlineSingleSample",
-      cromwell_url              = cromwell_url_auth,
-      vault_token_path          = vault_token_path,
-      google_account_vault_path = google_account_vault_path
-
+      files_to_copy = flatten([
+                            [ # File outputs
+                            ExomeGermlineSingleSample.read_group_alignment_summary_metrics,
+                            ExomeGermlineSingleSample.selfSM,
+                            ExomeGermlineSingleSample.calculate_read_group_checksum_md5,
+                            ExomeGermlineSingleSample.agg_alignment_summary_metrics,
+                            ExomeGermlineSingleSample.agg_bait_bias_detail_metrics,
+                            ExomeGermlineSingleSample.agg_bait_bias_summary_metrics,
+                            ExomeGermlineSingleSample.agg_insert_size_histogram_pdf,
+                            ExomeGermlineSingleSample.agg_insert_size_metrics,
+                            ExomeGermlineSingleSample.agg_pre_adapter_detail_metrics,
+                            ExomeGermlineSingleSample.agg_pre_adapter_summary_metrics,
+                            ExomeGermlineSingleSample.agg_quality_distribution_pdf,
+                            ExomeGermlineSingleSample.agg_quality_distribution_metrics,
+                            ExomeGermlineSingleSample.agg_error_summary_metrics,
+                            ExomeGermlineSingleSample.duplicate_metrics,
+                            ExomeGermlineSingleSample.gvcf_summary_metrics,
+                            ExomeGermlineSingleSample.gvcf_detail_metrics,
+                            ExomeGermlineSingleSample.hybrid_selection_metrics,
+                            ExomeGermlineSingleSample.output_cram,
+                            ExomeGermlineSingleSample.output_cram_index,
+                            ExomeGermlineSingleSample.output_cram_md5,
+                            ExomeGermlineSingleSample.validate_cram_file_report,
+                            ExomeGermlineSingleSample.output_vcf,
+                            ExomeGermlineSingleSample.output_vcf_index
+                            ], # Array[File] outputs
+                            ExomeGermlineSingleSample.quality_yield_metrics,
+                            ExomeGermlineSingleSample.unsorted_read_group_base_distribution_by_cycle_pdf,
+                            ExomeGermlineSingleSample.unsorted_read_group_base_distribution_by_cycle_metrics,
+                            ExomeGermlineSingleSample.unsorted_read_group_insert_size_histogram_pdf,
+                            ExomeGermlineSingleSample.unsorted_read_group_insert_size_metrics,
+                            ExomeGermlineSingleSample.unsorted_read_group_quality_by_cycle_pdf,
+                            ExomeGermlineSingleSample.unsorted_read_group_quality_by_cycle_metrics,
+                            ExomeGermlineSingleSample.unsorted_read_group_quality_distribution_pdf,
+                            ExomeGermlineSingleSample.unsorted_read_group_quality_distribution_metrics,
+                            # File? outputs
+                            select_all([ExomeGermlineSingleSample.cross_check_fingerprints_metrics]),
+                            select_all([ExomeGermlineSingleSample.fingerprint_summary_metrics]),
+                            select_all([ExomeGermlineSingleSample.fingerprint_detail_metrics]),
+                            select_all([ExomeGermlineSingleSample.output_bqsr_reports]),
+                            select_all([ExomeGermlineSingleSample.output_bam]),
+                            select_all([ExomeGermlineSingleSample.output_bam_index]),
+      ]),
+      vault_token_path = vault_token_path,
+      google_account_vault_path = google_account_vault_path,
+      contamination = ExomeGermlineSingleSample.contamination,
+      destination_cloud_path = results_path
   }
 
-  output {
-    Array[String] workflow_outputs = CopyToTestResults.workflow_outputs
- }
-
+  ## Copy the outputs from broad-gotc-cromwell-execution
+  ## to broad-gotc-test-results
+  #call Utilities.CopyWorkflowOutputsByPath as CopyToTestResults {
+  #  input:
+  #    output_file_path          = ExomeGermlineSingleSample.output_vcf,
+  #    copy_bucket_path          = results_path,
+  #    workflow_name             = "ExomeGermlineSingleSample",
+  #    cromwell_url              = cromwell_url_auth,
+  #    vault_token_path          = vault_token_path,
+  #    google_account_vault_path = google_account_vault_path
+#
+  #}
 
 
 }

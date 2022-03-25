@@ -95,6 +95,10 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     s"secret/dsde/gotc/$envString/picard/picard-account.pem"
   protected lazy val cromwellUrl = env.cromwellUrl.toString
   protected lazy val cromwellUrlAuth = env.cromwellUrlAuth.toString
+  protected lazy val googleProject: String = {
+    s"broad-exomes-dev1"
+  }
+
 
   /**
     * If we're not updating the truth data, just validate the runs.
@@ -122,10 +126,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     Future.successful(())
   }
 
-  protected lazy val googleProject: String = {
-    s"broad-gotc-${env.picardEnv}"
-  }
-
+  
   /*
   protected lazy val validationWdlOptions: String = Json
     .obj(
