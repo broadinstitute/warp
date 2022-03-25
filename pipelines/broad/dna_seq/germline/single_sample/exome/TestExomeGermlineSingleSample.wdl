@@ -4,7 +4,6 @@ import "../../../../../../pipelines/broad/dna_seq/germline/single_sample/exome/E
 import "../../../../../../verification/VerifyGermlineSingleSample.wdl" as VerifyGermlineSingleSample
 import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
 
-
 workflow TestExomeGermlineSingleSample {
 
   input {
@@ -28,7 +27,9 @@ workflow TestExomeGermlineSingleSample {
     Boolean? use_timestamp
     Boolean? update_truth
     String? timestamp
-    String cromwell_url
+    String cromwell_url_auth
+    String vault_token_path
+    String google_account_vault_path
     #Array[String] metrics_files_to_test
     #Boolean update_truth
   }
@@ -55,14 +56,17 @@ workflow TestExomeGermlineSingleSample {
   # to broad-gotc-test-results
   call Utilities.CopyWorkflowOutputsByPath as CopyToTestResults {
     input:
-      output_file_path = ExomeGermlineSingleSample.output_vcf,
-      copy_bucket_path = results_path,
-      workflow_name    = "ExomeGermlineSingleSample",
-      cromwell_url     = cromwell_url,
+      output_file_path          = ExomeGermlineSingleSample.output_vcf,
+      copy_bucket_path          = results_path,
+      workflow_name             = "ExomeGermlineSingleSample",
+      cromwell_url              = cromwell_url_auth,
+      vault_token_path          = vault_token_path,
+      google_account_vault_path = google_account_vault_path
+
   }
 
   output {
-    String cromwell_id = CopyToTestResults.cromwell_id
+    Array[String] workflow_outputs = CopyToTestResults.workflow_outputs
  }
 
 

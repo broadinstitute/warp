@@ -50,12 +50,13 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       env
     )
 
-  // Store the results
+  // Bucket to copy test results to
   protected lazy val resultsPrefix: URI =
     URI.create(
       s"gs://broad-gotc-test-results/$envString/$pipeline/$testTypeString/$timestamp/"
     )
 
+  // Bucket to copy results to if we are upating truth
   protected lazy val truthPrefix: URI =
     URI.create(
       s"gs://broad-gotc-test-storage/$pipeline/truth/$testTypeString/${testerConfig.truthBranch}/"
@@ -74,19 +75,26 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
   protected val testTypeString: String =
     testerConfig.category.entryName.toLowerCase
 
+  // optional timestamp to run validation against
   protected val timestamp: String =
     testerConfig.useTimestamp.getOrElse(CromwellWorkflowTester.getTimestamp)
 
   override lazy val wdlContents: String =
     readWdlFromReleaseDir(releaseDir, workflowName)
 
-  protected def env: CromwellEnvironment = testerConfig.env
-
-  protected lazy val cromwellUrl = env.cromwellUrl.toString
-
   protected lazy val updateTruth: Boolean = testerConfig.updateTruth
 
   protected lazy val useTimestamp: Option[String] = testerConfig.useTimestamp
+
+  // Values below are needed so we can auth as picard service account and
+  // Query the cromwell-gotc-auth api
+  protected def env: CromwellEnvironment = testerConfig.env
+  protected val vaultTokenPath: String =
+    s"gs://broad-dsp-gotc-$envString-tokens/picardsa.token"
+  protected val googleAccountVaultPath: String =
+    s"secret/dsde/gotc/$envString/picard/picard-account.pem"
+  protected lazy val cromwellUrl = env.cromwellUrl.toString
+  protected lazy val cromwellUrlAuth = env.cromwellUrlAuth.toString
 
   /**
     * If we're not updating the truth data, just validate the runs.
@@ -234,7 +242,9 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       workflowName + ".update_truth" -> updateTruth.asJson,
       workflowName + ".use_timestamp" -> useTimestamp.asJson,
       workflowName + ".timestamp" -> timestamp.asJson,
-      workflowName + ".cromwell_url" -> cromwellUrl.asJson
+      workflowName + ".cromwell_url_auth" -> cromwellUrlAuth.asJson,
+      workflowName + ".vault_token_path" -> vaultTokenPath.asJson,
+      workflowName + ".google_account_vault_path" -> googleAccountVaultPath.asJson
     )
 
     /**
@@ -243,7 +253,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       * ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics ->
       * TestExomeGermlineSingleSample.ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics
       */
-    val pattern = new Regex("(TestExomeGermlineSingleSample).([A-Z]\\w+).")
+    val pattern = new Regex(s"($workflowName).([A-Z]\\w+).")
 
     var inputsString = (workflowInputRoot / fileName).contentAsString
       .replace(pipeline, workflowName)
