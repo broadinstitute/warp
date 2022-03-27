@@ -254,13 +254,13 @@ task CopyWorkflowOutputsByPath {
 
     export PATH=$PATH:/usr/local/google-cloud-sdk/bin
     export VAULT_ADDR=https://clotho.broadinstitute.org:8200
-    export VAULT_TOKEN=
+    export VAULT_TOKEN=$(gsutil cat ~{vault_token_path})
 
     vault read -format=json ~{google_account_vault_path} | jq .data > picard-account.pem
     gcloud auth activate-service-account --key-file=picard-account.pem
 
-    glcoud auth application-default print-access-token
-    glcoud auth application-default print-access-token > token.txt
+    gcloud auth application-default print-access-token
+    gcloud auth application-default print-access-token > token.txt
 
     python3 <<CODE
     import os, re, sys, requests, subprocess
