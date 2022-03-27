@@ -38,7 +38,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     testerConfig.pipeline.pipelineName
 
   // Directory in WARP where the test workflow lives
-  // i.e. pipelines/broad/dna_seq/germline/single_sample/exome/TestExomeGermlineSingleSample.wdl
+  // i.e. pipelines/broad/dna_seq/germline/single_sample/exome/
   protected def workflowDir: File =
     File(
       CromwellWorkflowTester.PipelineRoot + testerConfig.pipeline.workflowDir)
@@ -99,7 +99,6 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     s"broad-exomes-dev1"
   }
 
-
   /**
     * If we're not updating the truth data, just validate the runs.
     * Else, use the provided run data as new truth data
@@ -126,7 +125,6 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     Future.successful(())
   }
 
-  
   /*
   protected lazy val validationWdlOptions: String = Json
     .obj(
