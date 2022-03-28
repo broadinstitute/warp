@@ -25,14 +25,9 @@ workflow TestExomeGermlineSingleSample {
     # These values will be determined and injected into the inputs by the scala test framework
     String truth_path
     String results_path
-    Boolean? use_timestamp
     Boolean update_truth
-    String? timestamp
-    String cromwell_url_auth
     String vault_token_path
     String google_account_vault_path
-    #Array[String] metrics_files_to_test
-    #Boolean update_truth
   }
 
   meta {
@@ -164,7 +159,6 @@ workflow TestExomeGermlineSingleSample {
   # If not updating truth then we need to collect all input for the validation WDL
   # This is achieved by passing each desired file/array[files] to GetValidationInputs
   if (!update_truth){
-
     call Utilities.GetValidationInputs as GetMetricsInputs {
       input:
         input_files = flatten([
@@ -203,14 +197,14 @@ workflow TestExomeGermlineSingleSample {
           results_path = results_path,
           truth_path   = truth_path
     }
-  
+
     call Utilities.GetValidationInputs as GetCrais {
       input:
         input_file   = ExomeGermlineSingleSample.output_cram_index,
         results_path = results_path,
         truth_path   = truth_path
     }
-  
+
     call Utilities.GetValidationInputs as GetGVCFs {
       input:
         input_file   = ExomeGermlineSingleSample.output_vcf,
@@ -229,13 +223,10 @@ workflow TestExomeGermlineSingleSample {
         test_crai       = GetCrais.results_file,
         test_gvcf       = GetGVCFs.results_file
     }
-
   }
 
-  
   output {
     Array[File]? metric_comparison_report_files = Verify.metric_comparison_report_files
   }
-  
+
 }
-  

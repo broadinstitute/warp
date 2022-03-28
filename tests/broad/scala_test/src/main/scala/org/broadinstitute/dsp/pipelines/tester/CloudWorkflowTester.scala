@@ -56,7 +56,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       s"gs://broad-gotc-test-results/$envString/$pipeline/$testTypeString/$timestamp/"
     )
 
-  // Bucket to copy results to if we are upating truth
+  // Bucket to copy results to if we are updating truth
   protected lazy val truthPrefix: URI =
     URI.create(
       s"gs://broad-gotc-test-storage/$pipeline/truth/$testTypeString/${testerConfig.truthBranch}/"
@@ -75,133 +75,33 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
   protected val testTypeString: String =
     testerConfig.category.entryName.toLowerCase
 
-  // optional timestamp to run validation against
+  // Environment settings
+  protected def env: CromwellEnvironment = testerConfig.env
+
+  // Updating truth
+  protected lazy val updateTruth: Boolean = testerConfig.updateTruth
+
+  // Timestampe for results bucket
   protected val timestamp: String =
     testerConfig.useTimestamp.getOrElse(CromwellWorkflowTester.getTimestamp)
 
   override lazy val wdlContents: String =
     readWdlFromReleaseDir(releaseDir, workflowName)
 
-  protected lazy val updateTruth: Boolean = testerConfig.updateTruth
-
-  protected lazy val useTimestamp: Option[String] = testerConfig.useTimestamp
-
-  // Values below are needed so we can auth as picard service account and
-  // Query the cromwell-gotc-auth api
-  protected def env: CromwellEnvironment = testerConfig.env
+  // Values below are needed so we can auth as picard service account to copy output files
   protected val vaultTokenPath: String =
     s"gs://broad-dsp-gotc-$envString-tokens/picardsa.token"
   protected val googleAccountVaultPath: String =
     s"secret/dsde/gotc/$envString/picard/picard-account.pem"
-  protected lazy val cromwellUrl = env.cromwellUrl.toString
-  protected lazy val cromwellUrlAuth = env.cromwellUrlAuth.toString
+
+  // Always run in broad-exomes-dev1 google project
   protected lazy val googleProject: String = {
     s"broad-exomes-dev1"
   }
 
-  /**
-    * If we're not updating the truth data, just validate the runs.
-    * Else, use the provided run data as new truth data
-    *
-    * @param finishedRuns Completed workflow test runs
-    * @return A Future of the work
-    */
-  // TODO: rename and refactor
-  /*
-  def validateRunsOrUpdateTruth(
-      finishedRuns: Seq[WorkflowTest],
-      updateTruth: Boolean,
-      testCategory: WorkflowTestCategory
-  ): Future[Unit] = {
-    if (updateTruth) {
-      logger.info("Updating truth data instead of running validation")
-      updateTruthData(finishedRuns)
-    }
-  }
-   */
-
   protected def testerValidation(finishedRun: WorkflowTest): Future[Unit] = {
     val _ = finishedRun
     Future.successful(())
-  }
-
-  /*
-  protected lazy val validationWdlOptions: String = Json
-    .obj(
-      Seq("read_from_cache" -> true.asJson, "write_to_cache" -> true.asJson)
-        ++ parse(
-          readTestOptions(
-            releaseDir,
-            env
-          )
-        ).toOption
-          .flatMap(_.asObject)
-          .flatMap(_("google_project"))
-          .map(project => "google_project" -> project)
-          .toSeq
-        ++ env.environmentOptions: _*
-    )
-    .noSpaces
-
-   */
-
-  /**
-    * Update the truth data by deleting the old truth data and putting the new run data in its place
-    *
-    * @param tests the test runs to use as new truth
-    * @return A future of the operation
-    */
-  def updateTruthData(tests: Seq[WorkflowTest]): Future[Unit] = {
-    val parallelism = 8
-    Source(Iterable(tests: _*))
-      .flatMapConcat { test =>
-        logger.info(
-          s"Replacing truth data at ${test.runParameters.truthCloudPath} with data at ${test.runParameters.resultsCloudPath}"
-        )
-        // Delete the current truth data
-        stagingIoUtil
-          .deleteCloudObjects(
-            Iterable(
-              stagingIoUtil
-                .listGoogleObjects(test.runParameters.truthCloudPath): _*
-            ).flatMap(
-              uri =>
-                if (uri.toString.endsWith("logs/"))
-                  Iterable(stagingIoUtil.listGoogleObjects(uri): _*)
-                else Iterator(uri)
-            )
-          )
-          // Get all the new files
-          .flatMapMerge(
-            parallelism, { _ =>
-              Source(
-                Iterable(
-                  stagingIoUtil
-                    .listGoogleObjects(test.runParameters.resultsCloudPath): _*
-                ).flatMap(
-                  uri =>
-                    if (uri.toString.endsWith("logs/"))
-                      Iterable(stagingIoUtil.listGoogleObjects(uri): _*)
-                    else Iterator(uri)
-                )
-              )
-              // Shove all the new files into the truth location
-                .flatMapMerge(
-                  parallelism, { result =>
-                    Source.single(
-                      stagingIoUtil.copyGoogleObject(
-                        result,
-                        test.runParameters.truthCloudPath
-                          .resolve(uriToFilename(result))
-                      )
-                    )
-                  }
-                )
-            }
-          )
-      }
-      .runWith(Sink.ignore)
-      .map(_ => ())
   }
 
   protected def uriToFilename(uri: URI): String = {
@@ -209,19 +109,16 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     path.substring(path.lastIndexOf('/') + 1)
   }
 
+  /**
+    * Generate the run parameters for each testing sample
+    */
   def generateRunParameters: Seq[WorkflowRunParameters] = {
-    logger.info(s"workflowInputRoot: $workflowInputRoot")
     workflowInputRoot.list.toSeq.map(_.name.toString).map { fileName =>
       val inputsName = fileName.replace(".json", "")
-      val resultsPath =
-        resultsPrefix.resolve(s"$inputsName/")
+      val resultsPath = resultsPrefix.resolve(s"$inputsName/")
       val truthPath = truthPrefix.resolve(s"$inputsName/")
-      //val metricsFileNames = ioUtil
-      //.listGoogleObjects(truthPath)
-      //.filter(_.getPath.endsWith("metrics"))
-      //.map(uriToFilename)
-      val stupidInputs = getInputContents(fileName, resultsPath, truthPath)
-      logger.info(stupidInputs)
+
+      logger.info(s"Generating WDL inputs for -> $fileName")
 
       WorkflowRunParameters(
         id = s"${envString}_$inputsName",
@@ -232,16 +129,16 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     }
   }
 
+  /**
+    * Format the inputs for the test WDL
+    */
   def getInputContents(fileName: String,
-                       resultsPath: URI,
-                       truthPath: URI): String = {
+                        resultsPath: URI,
+                        truthPath: URI): String = {
     val defaultInputs = Array(
       workflowName + ".truth_path" -> truthPath.asJson,
       workflowName + ".results_path" -> resultsPath.asJson,
       workflowName + ".update_truth" -> updateTruth.asJson,
-      workflowName + ".use_timestamp" -> useTimestamp.asJson,
-      workflowName + ".timestamp" -> timestamp.asJson,
-      workflowName + ".cromwell_url_auth" -> cromwellUrlAuth.asJson,
       workflowName + ".vault_token_path" -> vaultTokenPath.asJson,
       workflowName + ".google_account_vault_path" -> googleAccountVaultPath.asJson
     )
@@ -249,7 +146,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     /**
       * If we have nested inputs in our test inputs we need to push them down a level
       * e.g.
-      * ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics ->
+      * ExomeGermUrllineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics ->
       * TestExomeGermlineSingleSample.ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics
       */
     val pattern = new Regex(s"($workflowName).([A-Z]\\w+).")
@@ -267,14 +164,15 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     )
   }
 
+  /**
+    * Collect all the samples to run
+    */
   override def runTest: Future[Unit] = {
     logger.info(
       s"Running the $workflowName workflow using ${testerConfig.category} data"
     )
     val samples = generateRunParameters
-
     runFullTest(samples)
-
   }
 
   /**
@@ -292,48 +190,9 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     } yield ()
   }
 
-// TODO: either fix this so it will work, or disable it. Question: Do we need / want this functionality
-
   /**
-    * Run only the validation portion of the tests. This is triggered by providing a "validation" timestamp input
-    * as a command line argument.
+    * Generate options.json for test sample
     */
-  /*
-  private def usePreviousRun(
-      samples: Seq[WorkflowRunParameters]): Future[Unit] = {
-    testerConfig.useTimestamp.foreach { timestamp =>
-      logger.info(
-        s"Only running validation workflows with timestamp $timestamp"
-      )
-    }
-    val validationRuns = samples.map(
-      run =>
-        WorkflowTest(
-          runParameters = run,
-          workflow = SubmittedWorkflow(
-            WorkflowId(UUID.randomUUID()),
-            env.cromwellUrl,
-            WorkflowSingleSubmission(None,
-                                     None,
-                                     None,
-                                     None,
-                                     None,
-                                     None,
-                                     None,
-                                     None,
-                                     None)
-          ),
-          workflowStatus = Succeeded
-      )
-    )
-    validateRunsOrUpdateTruth(
-      validationRuns,
-      testerConfig.updateTruth,
-      testerConfig.category
-    )
-  }
-   */
-
   def readTestOptions(releaseDir: File,
                       environment: CromwellEnvironment): String = {
     val defaultOptions = Array(
