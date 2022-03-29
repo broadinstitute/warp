@@ -4,7 +4,6 @@ import java.net.URI
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{Sink, Source}
 
 import better.files.File
 import io.circe.Json
@@ -18,7 +17,6 @@ import org.broadinstitute.dsp.pipelines.commandline.CromwellEnvironment
 import org.broadinstitute.dsp.pipelines.config.CloudWorkflowConfig
 import org.broadinstitute.dsp.pipelines.tester.CromwellWorkflowTester.WarpGitHash
 
-import scala.collection.immutable.Iterable
 import scala.concurrent.Future
 import scala.util.matching.Regex
 
@@ -133,8 +131,8 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     * Format the inputs for the test WDL
     */
   def getInputContents(fileName: String,
-                        resultsPath: URI,
-                        truthPath: URI): String = {
+                       resultsPath: URI,
+                       truthPath: URI): String = {
     val defaultInputs = Array(
       workflowName + ".truth_path" -> truthPath.asJson,
       workflowName + ".results_path" -> resultsPath.asJson,
@@ -186,7 +184,6 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
         dependenciesZipFromReleaseDir(releaseDir, workflowName)
       )
       finishedSamples <- awaitBatchCromwellWorkflowCompletion(submittedSamples)
-      //_ <- copyBatchCromwellWorkflowResults(finishedSamples)
     } yield ()
   }
 
