@@ -2,28 +2,24 @@
 set -e
 
 # Update version when changes to Dockerfile are made
-DOCKER_IMAGE_VERSION=1.0.4
+DOCKER_IMAGE_VERSION=1.0.0
 TIMESTAMP=$(date +"%s")
 DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
-GCR_URL="us.gcr.io/broad-gotc-prod/imputation-bcf-vcf"
-QUAY_URL="quay.io/broadinstitute/gotc-prod-imputation_bcf_vcf"
+GCR_URL="us.gcr.io/broad-gotc-prod/picard-python"
+QUAY_URL="quay.io/broadinstitute/gotc-prod-picard-python"
 
-#BCFTOOLS version
-BCFTOOLS_VERSION="1.10.2"
-
-#VCFTOOLS version
-VCFTOOLS_VERSION="0.1.16"
+# PICARD PUBLIC version
+PICARD_PUBLIC_VERSION="2.26.10"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-b|--bcf] [-v|--vcf] [-t|--tools] -- script to build the Imputation Bcf/Vcf tools image and push to GCR & Quay
+HELP="$(basename "$0") [-h|--help] [-p|--picard_public_version] [-t|tools] -- script to build the PICARD/PYTHON image and push to GCR & Quay
 
 where:
     -h|--help Show help text
-    -b|--bcf Version of BCFTOOLS to use (default: BCFTOOLS_VERSION=${BCFTOOLS_VERSION})
-    -v|--vcf Version of VCFTOOLS to use (default: VCFTOOLS_VERSION=${VCFTOOLS_VERSION})
+    -p|--picard_public_version Version of PICARD_PUBLIC to use (default: PICARD_PUBLIC=$PICARD_PUBLIC_VERSION)
     -t|--tools Show tools needed to run script
     "
 
@@ -39,13 +35,8 @@ function main(){
     do 
     key="$1"
     case $key in
-        -b|--bcf)
-        BCFTOOLS_VERSION="$2"
-        shift
-        shift
-        ;;
-        -v|--vcf)
-        VCFTOOLS_VERSION="$2"
+        -p|--picard_public_version)
+        PICARD_PUBLIC_VERSION="$2"
         shift
         shift
         ;;
@@ -63,13 +54,12 @@ function main(){
     esac
     done
 
-    IMAGE_TAG="$DOCKER_IMAGE_VERSION-$BCFTOOLS_VERSION-$VCFTOOLS_VERSION-$TIMESTAMP"
+    IMAGE_TAG="$DOCKER_IMAGE_VERSION-$PICARD_PUBLIC_VERSION-$TIMESTAMP"
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build -t "$GCR_URL:$IMAGE_TAG" \
-        --build-arg BCFTOOLS_VERSION="$BCFTOOLS_VERSION" \
-        --build-arg VCFTOOLS_VERSION="$VCFTOOLS_VERSION" \
-        --no-cache $DIR   
+        --build-arg PICARD_PUBLIC_VERSION="$PICARD_PUBLIC_VERSION" \
+        --no-cache $DIR
     docker push "$GCR_URL:$IMAGE_TAG"
 
     echo "tagging and pushing Quay Image"
