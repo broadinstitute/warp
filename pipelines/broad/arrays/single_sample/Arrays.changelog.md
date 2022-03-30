@@ -1,5 +1,5 @@
 # 2.6.7 
-2022-03-14 (Date of Last Commit)
+2022-03-24 (Date of Last Commit)
 
 * Update base image for picard-private docker image
 * Add gsutil to PATH in picard-private docker image

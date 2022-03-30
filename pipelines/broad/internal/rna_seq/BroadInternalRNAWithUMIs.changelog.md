@@ -5,7 +5,7 @@
 * Added contamination outputs to the workflow
 
 # 1.0.4
-2022-03-16 (Date of Last Commit)
+2022-03-24 (Date of Last Commit)
 
 * Update to use references stored in Google-hosted public buckets.
 * Add gsutil to PATH in picard-private docker image
