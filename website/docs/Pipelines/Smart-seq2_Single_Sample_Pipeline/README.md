@@ -29,8 +29,8 @@ Check out the [Smart-seq2 Publication Methods](../Smart-seq2_Multi_Sample_Pipeli
 | Assay Type | Smart-seq2 Single Sample | [Smart-seq2](https://www.nature.com/articles/nprot.2014.006)
 | Overall Workflow  | Quality control and transcriptome quantification | Code available from [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl) |
 | Workflow Language | WDL | [openWDL](https://github.com/openwdl/wdl) |
-| Genomic Reference Sequence (for validation)| GRCh38 human genome primary sequence and M21 (GRCm38.p6) mouse genome primary sequence | GENCODE [Human](https://www.gencodegenes.org/human/release_27.html) and [Mouse](https://www.gencodegenes.org/mouse/release_M21.html)
-| Transcriptomic Reference Annotation (for validation) | V27 GENCODE human transcriptome and M21 mouse transcriptome | GENCODE [Human](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_27/gencode.v27.annotation.gtf.gz) and [Mouse](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M21/gencode.vM21.annotation.gff3.gz) |
+| Genomic Reference Sequence (for validation)| GRCh38 human genome primary sequence and M21 (GRCm38.p6) mouse genome primary sequence | GENCODE [human reference files](https://www.gencodegenes.org/human/release_27.html) and [mouse reference files](https://www.gencodegenes.org/mouse/release_M21.html)
+| Transcriptomic Reference Annotation (for validation) | V27 GENCODE human transcriptome and M21 mouse transcriptome | GENCODE [human GTF](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_27/gencode.v27.annotation.gtf.gz) and [mouse GTF](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M21/gencode.vM21.annotation.gff3.gz) |
 | Aligner  | HISAT2 (v.2.1.0) | [Kim, et al.,2019](https://www.nature.com/articles/s41587-019-0201-4) |
 | QC Metrics | Picard (v.2.10.10) | [Broad Institute](https://broadinstitute.github.io/picard/)   |
 | Transcript Quantification | Utilities for processing large-scale single cell datasets | [RSEM v.1.3.0](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-323)

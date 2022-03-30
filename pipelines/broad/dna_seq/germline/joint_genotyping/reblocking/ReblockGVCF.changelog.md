@@ -1,3 +1,8 @@
+# 2.0.5
+2022-03-24 (Date of Last Commit)
+
+* Task wdls used by the ReblockGVCF pipeline were updated with changes that don't affect the ReblockGVCF pipeline itself
+
 # 2.0.4
 2022-02-01 (Date of Last Commit)
 
