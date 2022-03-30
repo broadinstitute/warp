@@ -331,6 +331,5 @@ task SlideSeqLoomOutput {
   }
 
   output {
-    File loom_output = glob("*.loom")
-  }
+    File loom_output = "~{input_id}.loom"  }
 }
