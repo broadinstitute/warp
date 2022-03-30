@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# RNA with UMIs v1.0.4 Methods
+# RNA with UMIs v1.0.3 Methods
 
 Below we provide an example methods section for publications using the RNA with UMIs pipeline. For the complete pipeline documentation, see the [RNA with UMIs Overview](./README.md).
 
