@@ -168,7 +168,7 @@ task CompareBams {
     disks: "local-disk " + disk_size + " HDD"
     cpu: 2
     memory: "7500 MiB"
-    preemptible: 3
+    preemptible: 0
   }
 }
 
