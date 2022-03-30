@@ -245,7 +245,7 @@ task GetSampleName {
   input {
     File bam
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.0.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.5.0"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
@@ -624,10 +624,9 @@ task MarkDuplicatesUMIAware {
   }
 }
 
-
 task formatPipelineOutputs {
   input {
-    String output_basename
+    String sample_id
     String transcriptome_bam
     String transcriptome_bam_index
     String transcriptome_duplicate_metrics
@@ -652,13 +651,15 @@ task formatPipelineOutputs {
     String? picard_fingerprint_summary_metrics
     String? picard_fingerprint_detail_metrics
     File unified_metrics
+    Float contamination
+    Float contamination_error
 
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = 10
   }
 
-  String outputs_json_file_name = "outputs_to_TDR_~{output_basename}.json"
+  String outputs_json_file_name = "outputs_to_TDR_~{sample_id}.json"
 
   command <<<
     python3 << CODE
@@ -667,6 +668,7 @@ task formatPipelineOutputs {
     outputs_dict = {}
 
     # NOTE: we rename some field names to match the TDR schema
+    outputs_dict["sample_id"]="~{sample_id}" # primary key
     outputs_dict["transcriptome_bam"]="~{transcriptome_bam}"
     outputs_dict["transcriptome_bam_index"]="~{transcriptome_bam_index}"
     outputs_dict["transcriptome_duplicate_metrics_file"]="~{transcriptome_duplicate_metrics}"
@@ -690,6 +692,10 @@ task formatPipelineOutputs {
     outputs_dict["picard_quality_distribution_pdf_file"]="~{picard_quality_distribution_pdf}"
     outputs_dict["fp_summary_metrics_file"]="~{picard_fingerprint_summary_metrics}"
     outputs_dict["fp_detail_metrics_file"]="~{picard_fingerprint_detail_metrics}"
+
+    # truncate to 5 digits
+    outputs_dict["contamination"]='%.5f'%(~{contamination})
+    outputs_dict["contamination_error"]='%.5f'%(~{contamination_error})
 
     # explode unified metrics file
     with open("~{unified_metrics}", "r") as infile:
@@ -723,7 +729,6 @@ task updateOutputsInTDR {
   input {
     String staging_bucket
     String tdr_dataset_uuid
-    String tdr_gcp_project_for_query
     File outputs_json
     String sample_id
 
@@ -740,8 +745,8 @@ task updateOutputsInTDR {
       -b "~{staging_bucket}" \
       -t "~{tdr_target_table}" \
       -o "~{outputs_json}" \
-      -s "~{sample_id}" \
-      -p "~{tdr_gcp_project_for_query}"
+      -k "sample_id" \
+      -v "~{sample_id}"
   >>>
 
   runtime {
@@ -754,4 +759,71 @@ task updateOutputsInTDR {
   output {
     File ingest_logs = stdout()
   }
+}
+
+# GATK CalculateContamination, adapted for RNA-seq data.
+# Specifically, we disable two read filters from the default set of read filters
+# for a LocusWalker:
+# 1. WellformedReadFilter: This filter removes (among others) reads with N's in the CIGAR string, which is 
+# common in RNA data.
+# 2. MappingQualityAvailableReadFilter: This filter removes reads with MQ=255, which by SAM spec
+# means mapping quality is missing. But STAR uses 255 to mean unique mapping, the equivalent of MQ60
+# for other aligners.
+task CalculateContamination {
+  input {
+    File bam
+    File bam_index
+    String base_name
+    File ref_fasta
+    File ref_dict
+    File ref_fasta_index
+    File population_vcf
+    File population_vcf_index
+    # runtime
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.5.0"
+    Int cpu = 1
+    Int memory_mb = 8192
+    Int disk_size_gb = 256
+  }
+
+  parameter_meta {
+    bam: { localization_optional: true }
+    bam_index: { localization_optional: true }
+    ref_fasta: { localization_optional: true }
+    ref_fasta_index: { localization_optional: true }
+    ref_dict: { localization_optional: true }
+  }
+
+  command <<<
+    set -e
+    gatk --java-options "-Xmx4096m" GetPileupSummaries \
+    -R ~{ref_fasta} \
+    -I ~{bam} \
+    -V ~{population_vcf} \
+    -L ~{population_vcf} \
+    -O ~{base_name}_pileups.tsv \
+    --disable-read-filter WellformedReadFilter \
+    --disable-read-filter MappingQualityAvailableReadFilter
+
+    gatk --java-options "-Xmx4096m" CalculateContamination \
+    -I ~{base_name}_pileups.tsv \
+    -O ~{base_name}_contamination.tsv
+  
+    grep -v ^sample ~{base_name}_contamination.tsv | awk 'BEGIN{FS="\t"}{print($2)}' > contamination.txt 
+    grep -v ^sample ~{base_name}_contamination.tsv | awk 'BEGIN{FS="\t"}{print($3)}' > contamination_error.txt
+  >>>
+
+    runtime {
+      docker: docker
+      cpu: cpu
+      memory: "~{memory_mb} MiB"
+      disks: "local-disk ~{disk_size_gb} HDD"
+    }
+
+    output {
+        File pileups = "~{base_name}_pileups.tsv"
+        File contamination_table = "~{base_name}_contamination.tsv"
+        Float contamination = read_float("contamination.txt")
+        Float contamination_error = read_float("contamination_error.txt")
+    }
 }
