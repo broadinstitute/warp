@@ -1,0 +1,5 @@
+The WGS "hand curated" 20K intervals were created by splitting the genome into a very large number of shards, running joint genotyping (of some cohort), recording the runtime, and using a custom Picard tool to merge intervals by runtime until 20K approximately equal runtime intervals are derived.  The Picard tool itself is lost to time.
+
+The centromeres were derived from the UCSC table browser "centromeres" table.  Then `bedtools merge` was run with a large `-d` distance argument to create one merged interval per chromosome, i.e. the mergedCentromeres.bed file.  Telomeres are first 10,000 and last 10,000, which are Ns in the reference.
+
+Centromeres and telomeres were subtracted from the original "hand curated" 20K using Picard IntervalListTools with `ACTION=SUBTRACT`.
