@@ -23,7 +23,7 @@
   "JointGenotyping.mills_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi",
   "JointGenotyping.axiomPoly_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi",
 
-  "JointGenotyping.unpadded_intervals_file": "gs://gcp-public-data--broad-references/hg38/v0/exome_calling_regions.v1.interval_list",
+  "JointGenotyping.unpadded_intervals_file": "gs://gcp-public-data--broad-references/hg38/v0/exome_calling_regions.v1.1.interval_list",
 
   "JointGenotyping.haplotype_database": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt",
 

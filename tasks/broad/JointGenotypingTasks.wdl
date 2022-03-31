@@ -46,6 +46,7 @@ task SplitIntervalList {
     Boolean sample_names_unique_done
     Int disk_size
     String scatter_mode = "BALANCING_WITHOUT_INTERVAL_SUBDIVISION_WITH_OVERFLOW"
+    String? extra_args
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
   }
 
@@ -58,7 +59,7 @@ task SplitIntervalList {
   command <<<
     gatk --java-options "-Xms3000m -Xmx3250m" SplitIntervals \
       -L ~{interval_list} -O  scatterDir -scatter ~{scatter_count} -R ~{ref_fasta} \
-      -mode ~{scatter_mode} --interval-merging-rule OVERLAPPING_ONLY
+      -mode ~{scatter_mode} --interval-merging-rule OVERLAPPING_ONLY ~{extra_args}
     >>>
 
   runtime {
