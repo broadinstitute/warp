@@ -49,10 +49,8 @@ workflow TestExomeGermlineSingleSample {
       provide_bam_output           = provide_bam_output
   }
 
-  # Copy results of pipeline to test results bucket
-  call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
-    input:
-      files_to_copy = flatten([
+  # Collect all of the pipeline outputs into a single Array[String]]
+  Array[String] pipeline_outputs = flatten([
                             [ # File outputs
                             ExomeGermlineSingleSample.read_group_alignment_summary_metrics,
                             ExomeGermlineSingleSample.selfSM,
@@ -94,74 +92,10 @@ workflow TestExomeGermlineSingleSample {
                             select_all([ExomeGermlineSingleSample.output_bqsr_reports]),
                             select_all([ExomeGermlineSingleSample.output_bam]),
                             select_all([ExomeGermlineSingleSample.output_bam_index]),
-      ]),
-      vault_token_path          = vault_token_path,
-      google_account_vault_path = google_account_vault_path,
-      contamination             = ExomeGermlineSingleSample.contamination,
-      destination_cloud_path    = results_path
-  }
+  ])
 
-
-  # If updating truth then copy pipeline results to truth bucket
-  if (update_truth){
-    call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
-    input:
-      files_to_copy = flatten([
-                            [ # File outputs
-                            ExomeGermlineSingleSample.read_group_alignment_summary_metrics,
-                            ExomeGermlineSingleSample.selfSM,
-                            ExomeGermlineSingleSample.calculate_read_group_checksum_md5,
-                            ExomeGermlineSingleSample.agg_alignment_summary_metrics,
-                            ExomeGermlineSingleSample.agg_bait_bias_detail_metrics,
-                            ExomeGermlineSingleSample.agg_bait_bias_summary_metrics,
-                            ExomeGermlineSingleSample.agg_insert_size_histogram_pdf,
-                            ExomeGermlineSingleSample.agg_insert_size_metrics,
-                            ExomeGermlineSingleSample.agg_pre_adapter_detail_metrics,
-                            ExomeGermlineSingleSample.agg_pre_adapter_summary_metrics,
-                            ExomeGermlineSingleSample.agg_quality_distribution_pdf,
-                            ExomeGermlineSingleSample.agg_quality_distribution_metrics,
-                            ExomeGermlineSingleSample.agg_error_summary_metrics,
-                            ExomeGermlineSingleSample.duplicate_metrics,
-                            ExomeGermlineSingleSample.gvcf_summary_metrics,
-                            ExomeGermlineSingleSample.gvcf_detail_metrics,
-                            ExomeGermlineSingleSample.hybrid_selection_metrics,
-                            ExomeGermlineSingleSample.output_cram,
-                            ExomeGermlineSingleSample.output_cram_index,
-                            ExomeGermlineSingleSample.output_cram_md5,
-                            ExomeGermlineSingleSample.validate_cram_file_report,
-                            ExomeGermlineSingleSample.output_vcf,
-                            ExomeGermlineSingleSample.output_vcf_index
-                            ], # Array[File] outputs
-                            ExomeGermlineSingleSample.quality_yield_metrics,
-                            ExomeGermlineSingleSample.unsorted_read_group_base_distribution_by_cycle_pdf,
-                            ExomeGermlineSingleSample.unsorted_read_group_base_distribution_by_cycle_metrics,
-                            ExomeGermlineSingleSample.unsorted_read_group_insert_size_histogram_pdf,
-                            ExomeGermlineSingleSample.unsorted_read_group_insert_size_metrics,
-                            ExomeGermlineSingleSample.unsorted_read_group_quality_by_cycle_pdf,
-                            ExomeGermlineSingleSample.unsorted_read_group_quality_by_cycle_metrics,
-                            ExomeGermlineSingleSample.unsorted_read_group_quality_distribution_pdf,
-                            ExomeGermlineSingleSample.unsorted_read_group_quality_distribution_metrics,
-                            # File? outputs
-                            select_all([ExomeGermlineSingleSample.cross_check_fingerprints_metrics]),
-                            select_all([ExomeGermlineSingleSample.fingerprint_summary_metrics]),
-                            select_all([ExomeGermlineSingleSample.fingerprint_detail_metrics]),
-                            select_all([ExomeGermlineSingleSample.output_bqsr_reports]),
-                            select_all([ExomeGermlineSingleSample.output_bam]),
-                            select_all([ExomeGermlineSingleSample.output_bam_index]),
-      ]),
-      vault_token_path          = vault_token_path,
-      google_account_vault_path = google_account_vault_path,
-      contamination             = ExomeGermlineSingleSample.contamination,
-      destination_cloud_path    = truth_path
-    }
-  }
-
-  # If not updating truth then we need to collect all input for the validation WDL
-  # This is achieved by passing each desired file/array[files] to GetValidationInputs
-  if (!update_truth){
-    call Utilities.GetValidationInputs as GetMetricsInputs {
-      input:
-        input_files = flatten([
+  # Collect all of the pipeline metrics into a single Array[String]
+  Array[String] pipeline_metrics = flatten([
                               [ # File outputs
                               ExomeGermlineSingleSample.read_group_alignment_summary_metrics,
                               ExomeGermlineSingleSample.agg_alignment_summary_metrics,
@@ -186,9 +120,41 @@ workflow TestExomeGermlineSingleSample {
                               select_all([ExomeGermlineSingleSample.cross_check_fingerprints_metrics]),
                               select_all([ExomeGermlineSingleSample.fingerprint_summary_metrics]),
                               select_all([ExomeGermlineSingleSample.fingerprint_detail_metrics]),
-      ]),
-      results_path = results_path,
-      truth_path = truth_path
+  ])
+
+  # Copy results of pipeline to test results bucket
+  call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
+    input:
+      files_to_copy             = pipeline_outputs,
+      vault_token_path          = vault_token_path,
+      google_account_vault_path = google_account_vault_path,
+      contamination             = ExomeGermlineSingleSample.contamination,
+      destination_cloud_path    = results_path
+  }
+
+  
+
+
+  # If updating truth then copy pipeline results to truth bucket
+  if (update_truth){
+    call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
+    input:
+      files_to_copy             = pipeline_outputs,
+      vault_token_path          = vault_token_path,
+      google_account_vault_path = google_account_vault_path,
+      contamination             = ExomeGermlineSingleSample.contamination,
+      destination_cloud_path    = truth_path
+    }
+  }
+
+  # If not updating truth then we need to collect all input for the validation WDL
+  # This is achieved by passing each desired file/array[files] to GetValidationInputs
+  if (!update_truth){
+    call Utilities.GetValidationInputs as GetMetricsInputs {
+      input:
+        input_files  = pipeline_metrics,
+        results_path = results_path,
+        truth_path   = truth_path
     }
 
     call Utilities.GetValidationInputs as GetCrams {
