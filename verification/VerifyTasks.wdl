@@ -164,11 +164,11 @@ task CompareBams {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:gg_IgnoreBamHeaderVersionDiffs"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
     disks: "local-disk " + disk_size + " HDD"
     cpu: 2
     memory: "7500 MiB"
-    preemptible: 0
+    preemptible: 3
   }
 }
 
