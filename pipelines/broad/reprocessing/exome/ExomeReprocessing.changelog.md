@@ -2,6 +2,7 @@
 2022-04-04 (Date of Last Commit)
 
 * Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+* Task wdls used by the ExomeReprocessing pipeline were updated with changes that don't affect the ExomeReprocessing pipeline itself
 
 # 3.0.4
 2022-02-02 (Date of Last Commit)

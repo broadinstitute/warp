@@ -2,6 +2,7 @@
 2022-04-04 (Date of Last Commit)
 
 * Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+* Task wdls used by the VariantCalling pipeline were updated with changes that don't affect the VariantCalling pipeline itself
 
 # 2.0.3
 2022-02-01 (Date of Last Commit)
