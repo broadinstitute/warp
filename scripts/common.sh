@@ -45,7 +45,7 @@ function get_versioned_pipelines() {
 function get_modified_pipelines() {
   local -r commitToCompare=${1}
   local -r -a pipelines=($(get_versioned_pipelines))
-  local -r -a changedWdls=($(git diff --name-only HEAD ${commitToCompare} | grep -E '.*\.wdl' | xargs -n1 basename))
+  local -r -a changedWdls=($(git diff --name-only HEAD ${commitToCompare} | grep -E '.*\.wdl' | grep -v '.Test*' | xargs -n1 basename))
   local -a modifiedPipelines=()
   for pipeline in ${pipelines[@]}; do
     if [[ " ${changedWdls[@]}" =~ " $(basename ${pipeline})" ]]; then
