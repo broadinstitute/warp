@@ -303,7 +303,7 @@ task SlideSeqLoomOutput {
     String input_id
     String pipeline_version
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.6-2_slideseqtest"
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.6-3"
     Int disk_size_gb = 200
     Int memory_mb = 18000
     Int cpu = 4
