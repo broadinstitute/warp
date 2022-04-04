@@ -102,6 +102,7 @@ task ExtractUMIs {
 }
 
 # Adapter clipping
+# https://github.com/OpenGene/fastp
 task Fastp {
   input {
     File fastq1

@@ -30,7 +30,6 @@ workflow RNAWithUMIsPipeline {
     String read2Structure
     String output_basename
 
-    # sato: make a note of this change---no longer optional
     String platform
     String library_name
     String platform_unit
@@ -60,11 +59,11 @@ workflow RNAWithUMIsPipeline {
     starIndex: "TAR file containing genome indices used for the STAR aligner"
     output_basename: "String used as a prefix in workflow output files"
     gtf: "Gene annotation file (GTF) used for the rnaseqc tool"
-    platform: "String used to describe the sequencing platform; only required when using FASTQ files as input" # sato: delete the second half
-    library_name: "String used to describe the library; only required when using FASTQ files as input"
-    platform_unit: "String used to describe the platform unit; only required when using FASTQ files as input"
-    read_group_name: "String used to describe the read group name; only required when using FASTQ files as input"
-    sequencing_center: "String used to describe the sequencing center; only required when using FASTQ files as input; default is set to 'BI'"
+    platform: "String used to describe the sequencing platform"
+    library_name: "String used to describe the library"
+    platform_unit: "String used to describe the platform unit"
+    read_group_name: "String used to describe the read group name"
+    sequencing_center: "String used to describe the sequencing center; default is set to 'BI'"
     ref: "FASTA file used for metric collection with Picard tools"
     refIndex: "FASTA index file used for metric collection with Picard tools"
     refDict: "Dictionary file used for metric collection with Picard tools"
@@ -75,20 +74,8 @@ workflow RNAWithUMIsPipeline {
     population_vcf_index: "Population VCF index file used for contamination estimation"
   }
 
-  # sato: since library_name etc are no longer required we can delete this task (sorry)
-  call tasks.VerifyPipelineInputs {
-    input:
-      bam = bam,
-      r1_fastq = r1_fastq,
-      r2_fastq = r2_fastq,
-      library_name = library_name,
-      platform = platform,
-      platform_unit = platform_unit,
-      read_group_name = read_group_name,
-      sequencing_center = sequencing_center
-  }
-
-  if (VerifyPipelineInputs.fastq_run) {
+  # Assume 
+  if (defined(r1_fastq)) {
     call tasks.FastqToUbam {
       input:
         r1_fastq = select_first([r1_fastq]),
@@ -104,7 +91,6 @@ workflow RNAWithUMIsPipeline {
 
   File bam_to_use = select_first([bam, FastqToUbam.unmapped_bam])
 
-  # sato: this step must take place, either ubam or fastq input
   call tasks.ExtractUMIs {
     input:
       bam = bam_to_use,
@@ -170,6 +156,7 @@ workflow RNAWithUMIsPipeline {
   call UmiMD.UMIAwareDuplicateMarking as UMIAwareDuplicateMarkingTranscriptome {
     input:
       aligned_bam = CopyReadGroupsToHeader.output_bam,
+      unaligned_bam = ExtractUMIs.bam_umis_extracted,
       output_basename = output_basename + ".transcriptome",
       remove_duplicates = true
   }
