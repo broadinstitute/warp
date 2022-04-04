@@ -113,6 +113,7 @@ workflow RNAWithUMIsPipeline {
   }
 
   # Convert SAM to fastq for adapter clipping
+  # This step also removes reads that fail platform/vendor quality checks
   call tasks.SamToFastq {
     input:
       bam = ExtractUMIs.bam_umis_extracted,
@@ -161,13 +162,16 @@ workflow RNAWithUMIsPipeline {
     input:
       aligned_bam = STAR.aligned_bam,
       unaligned_bam = ExtractUMIs.bam_umis_extracted,
-      output_basename = output_basename
+      output_basename = output_basename,
+      remove_duplicates = false
   }
 
+  # We set remove dupli
   call UmiMD.UMIAwareDuplicateMarking as UMIAwareDuplicateMarkingTranscriptome {
     input:
       aligned_bam = CopyReadGroupsToHeader.output_bam,
-      output_basename = output_basename + ".transcriptome"
+      output_basename = output_basename + ".transcriptome",
+      remove_duplicates = true
   }
 
   call tasks.GetSampleName {

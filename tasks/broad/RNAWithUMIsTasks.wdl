@@ -177,7 +177,7 @@ task STAR {
       --chimOutJunctionFormat 0 \
       --twopassMode Basic \
       --quantMode TranscriptomeSAM \
-      --quantTranscriptomeBan Singleend \
+      --quantTranscriptomeBan IndelSoftclipSingleend \
       --alignEndsProtrude 20 ConcordantPair
   >>>
 
@@ -631,8 +631,9 @@ task MarkDuplicatesUMIAware {
   input {
     File bam
     String output_basename
+    Boolean remove_duplicates
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3 * size(bam, "GiB")) + 60
@@ -641,7 +642,12 @@ task MarkDuplicatesUMIAware {
   String output_bam_basename = output_basename + ".duplicate_marked"
 
   command <<<
-    gatk MarkDuplicates -I ~{bam} --READ_ONE_BARCODE_TAG BX -O ~{output_bam_basename}.bam --METRICS_FILE ~{output_basename}.duplicate.metrics --ASSUME_SORT_ORDER queryname
+    java -jar /usr/picard/picard.jar MarkDuplicates \
+    INPUT=~{bam} \
+    OUTPUT=~{output_bam_basename}.bam \
+    METRICS_FILE=~{output_basename}.duplicate.metrics \
+    READ_ONE_BARCODE_TAG=BX \
+    REMOVE_DUPLICATES=~{remove_duplicates}
   >>>
 
   output {
