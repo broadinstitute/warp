@@ -111,7 +111,7 @@ workflow RNAWithUMIsPipeline {
     input:
       fastq1 = SamToFastq.fastq1,
       fastq2 = SamToFastq.fastq1,
-      output_prefix = output_basename + "_adapter_clipped"
+      output_prefix = output_basename + ".adapter_clipped"
   }
 
   # Back to SAM before alignment
@@ -119,7 +119,7 @@ workflow RNAWithUMIsPipeline {
     input:
         r1_fastq = Fastp.fastq1_clipped,
         r2_fastq = Fastp.fastq2_clipped,
-        bam_filename = output_basename + "_adapter_clipped",
+        bam_filename = output_basename + ".adapter_clipped",
         library_name = library_name,
         platform = platform,
         platform_unit = platform_unit,
