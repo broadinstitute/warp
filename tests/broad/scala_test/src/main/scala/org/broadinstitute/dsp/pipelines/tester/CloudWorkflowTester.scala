@@ -36,7 +36,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     testerConfig.pipeline.pipelineName
 
   // Directory in WARP where the test workflow lives
-  // i.e. pipelines/broad/dna_seq/germline/single_sample/exome/test_inputs
+  // i.e. pipelines/broad/dna_seq/germline/single_sample/exome/
   protected def workflowDir: File =
     File(
       CromwellWorkflowTester.PipelineRoot + testerConfig.pipeline.workflowDir)
@@ -63,7 +63,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
   // Location for the test inputs in WARP
   // i.e. /Plumbing or /Scientific
   protected def workflowInputRoot: File =
-    workflowDir / testerConfig.category.entryName
+    workflowDir / "test_inputs" / testerConfig.category.entryName
 
   // All of our plumbing or scientific test inputs
   protected lazy val inputFileNames: Seq[String] =
