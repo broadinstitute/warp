@@ -21,18 +21,33 @@ workflow UMIAwareDuplicateMarking {
 
   input {
     File aligned_bam 
+    File unaligned_bam
     String output_basename
   }
 
   parameter_meta {
-    aligned_bam: "Aligned bam sorted by the query (read) name"
+    aligned_bam: "Unsorted aligned bam (the output of STAR in multithread mode is not query-name sorted)"
+    unaligned_bam: "Query-name sorted unaligned bam; contains UMIs in the RX tag"
     output_basename: "Basename for file outputs from this workflow"
+  }
+
+  call tasks.SortSamByQueryName as SortSamByQueryNameAfterAlignment {
+    input:
+      input_bam = aligned_bam,
+      output_bam_basename = output_basename + "_queryname_sorted"
+  }
+
+  call tasks.TransferReadTags {
+    input:
+      aligned_bam = SortSamByQueryNameAfterAlignment.output_bam,
+      ubam = unaligned_bam,
+      output_basename = output_basename + "_queryname_sorted_with_RX"
   }
 
   # First sort the aligned bam by coordinate, so we can group duplicate sets using UMIs in the next step.
   call tasks.SortSamByCoordinate as SortSamByCoordinateFirstPass {
     input:
-      input_bam = aligned_bam,
+      input_bam = TransferReadTags.output_bam,
       output_bam_basename = output_basename + ".STAR_aligned.coordinate_sorted"
   }
 
@@ -49,7 +64,7 @@ workflow UMIAwareDuplicateMarking {
       output_bam_basename = output_basename + ".grouped_by_UMI"
   }
 
-  call tasks.SortSamByQueryName as SortSamByQueryName {
+  call tasks.SortSamByQueryName as SortSamByQueryNameBeforeDuplicateMarking {
     input:
       input_bam = GroupByUMIs.grouped_bam,
       output_bam_basename = output_basename + ".grouped.queryname_sorted"
@@ -57,7 +72,7 @@ workflow UMIAwareDuplicateMarking {
 
   call tasks.MarkDuplicatesUMIAware as MarkDuplicates {
     input:
-      bam = SortSamByQueryName.output_bam,
+      bam = SortSamByQueryNameBeforeDuplicateMarking.output_bam,
       output_basename = output_basename
   }
 

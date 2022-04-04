@@ -1,3 +1,8 @@
+# 1.0.4
+2022-03-29 (Date of Last Commit)
+
+* Clip adapter bases pre-alignment
+
 # 1.0.3
 2022-03-29 (Date of Last Commit)
 

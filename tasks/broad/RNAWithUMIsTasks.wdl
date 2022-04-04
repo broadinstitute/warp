@@ -101,6 +101,39 @@ task ExtractUMIs {
   }
 }
 
+# Adapter clipping
+task Fastp {
+  input {
+    File fastq1
+    File fastq2
+    String output_prefix
+    File adapter_fasta = "gs://broad-dsde-methods-takuto/RNA/resources/Illumina_adapters.fasta" # sato: move to a public place
+  }
+
+  Int disk_size = 5*ceil(size(fastq1, "GiB")) + 128
+
+  command {
+    fastp --in1 ~{fastq1} --in2 ~{fastq2} --out1 ~{output_prefix}_read1.fastq.gz --out2 ~{output_prefix}_read2.fastq.gz \
+    --disable_quality_filtering --adapter_fasta ~{adapter_fasta} 
+  }
+  
+
+  runtime {
+    docker: "biocontainers/fastp:v0.20.1_cv1"
+    memory: "8 GiB"
+    disks: "local-disk " + disk_size + " HDD"
+    preemptible: 0
+  }
+
+  output {
+    File fastq1_clipped = output_prefix + "_read1.fastq.gz"
+    File fastq2_clipped = output_prefix + "_read2.fastq.gz"
+    File html = "fastp.html" # sato: these are optional
+    File json = "fastp.json" # sato: these are optional
+  }
+
+}
+
 task STAR {
   input {
     File bam
@@ -121,7 +154,7 @@ task STAR {
       --runMode alignReads \
       --runThreadN ~{cpu} \
       --genomeDir star_index \
-      --outSAMtype BAM Unsorted  \
+      --outSAMtype BAM Unsorted \
       --readFilesIn ~{bam} \
       --readFilesType SAM PE \
       --readFilesCommand samtools view -h \
@@ -826,4 +859,95 @@ task CalculateContamination {
         Float contamination = read_float("contamination.txt")
         Float contamination_error = read_float("contamination_error.txt")
     }
+}
+
+task SamToFastq {
+  input {
+    File bam
+    String output_prefix
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+  }
+
+  Int disk_size = 3*ceil(size(bam, "GiB")) + 128
+
+  command {
+    java -jar /usr/picard/picard.jar SamToFastq \
+    I=~{bam} \
+    FASTQ=~{output_prefix}_1.fastq.gz \
+    SECOND_END_FASTQ=~{output_prefix}_2.fastq.gz
+
+  }
+
+  runtime {
+    docker: docker
+    preemptible: 0
+    memory: "3.5 GiB"
+    disks: "local-disk " + disk_size + " HDD"
+  }
+
+  output {
+    File fastq1 = output_prefix + "_1.fastq.gz"
+    File fastq2 = output_prefix + "_2.fastq.gz"
+  }
+}
+
+task FastQC {
+  input {
+    File unmapped_bam
+    Float? mem = 4
+    String docker = "us.gcr.io/tag-public/tag-tools:1.0.0" # sato: This likely needs to be made public
+  }
+
+  Int disk_size = ceil(size(unmapped_bam, "GiB") * 3)  + 100
+  String bam_basename = basename(unmapped_bam, ".bam")
+
+  command {
+    perl /usr/tag/scripts/FastQC/fastqc ~{unmapped_bam} --extract -o ./
+    mv ~{bam_basename}_fastqc/fastqc_data.txt ~{bam_basename}_fastqc_data.txt
+
+    tail -n 2 ~{bam_basename}_fastqc_data.txt | head -n 1 | cut -f 2 > ~{bam_basename}_adapter_content.txt
+  }
+  
+  runtime {
+    docker: docker
+    disks: "local-disk " + disk_size + " HDD"
+    memory: mem + "GB"
+    cpu: "1"
+  }
+
+  output {
+    # File fastqc_data = "~{bam_basename}_fastqc_data.txt" # Sato: probably OK to delete.
+    File fastqc_html = "~{bam_basename}_fastqc.html"
+    Float adapter_content = read_float("~{bam_basename}_adapter_content.txt")
+  }
+}
+
+task TransferReadTags {
+  input {
+    File aligned_bam
+    File ubam
+    String output_basename
+    File gatk_jar = "gs://broad-dsde-methods-takuto/RNA/gatk_transfer_read_tags.jar"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11" # sato: replace with a new gatk docker release, as needed
+  }
+
+  Int disk_size = ceil(2 * size(aligned_bam, "GB")) + ceil(2 * size(ubam, "GB")) + 128
+  
+  command <<<
+    java -jar ~{gatk_jar} TransferReadTags \
+    -I ~{aligned_bam} \
+    --unmapped-sam ~{ubam} \
+    -O ~{output_basename}.bam \
+    --read-tags RX
+  >>>
+
+  output {
+    File output_bam = "~{output_basename}.bam"
+  }
+
+  runtime {
+    docker: docker
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "16 GB"
+  }
 }

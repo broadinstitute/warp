@@ -20,7 +20,7 @@ import "../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
 
 workflow RNAWithUMIsPipeline {
 
-  String pipeline_version = "1.0.3"
+  String pipeline_version = "1.0.4"
 
   input {
     File? bam
@@ -30,12 +30,12 @@ workflow RNAWithUMIsPipeline {
     String read2Structure
     String output_basename
 
-    # The following inputs are only required if fastqs are given as input.
-    String? platform
-    String? library_name
-    String? platform_unit
-    String? read_group_name
-    String? sequencing_center = "BI"
+    # sato: make a note of this change---no longer optional
+    String platform
+    String library_name
+    String platform_unit
+    String read_group_name
+    String sequencing_center = "BI"
 
     File starIndex
     File gtf
@@ -60,7 +60,7 @@ workflow RNAWithUMIsPipeline {
     starIndex: "TAR file containing genome indices used for the STAR aligner"
     output_basename: "String used as a prefix in workflow output files"
     gtf: "Gene annotation file (GTF) used for the rnaseqc tool"
-    platform: "String used to describe the sequencing platform; only required when using FASTQ files as input"
+    platform: "String used to describe the sequencing platform; only required when using FASTQ files as input" # sato: delete the second half
     library_name: "String used to describe the library; only required when using FASTQ files as input"
     platform_unit: "String used to describe the platform unit; only required when using FASTQ files as input"
     read_group_name: "String used to describe the read group name; only required when using FASTQ files as input"
@@ -75,6 +75,7 @@ workflow RNAWithUMIsPipeline {
     population_vcf_index: "Population VCF index file used for contamination estimation"
   }
 
+  # sato: since library_name etc are no longer required we can delete this task (sorry)
   call tasks.VerifyPipelineInputs {
     input:
       bam = bam,
@@ -93,16 +94,17 @@ workflow RNAWithUMIsPipeline {
         r1_fastq = select_first([r1_fastq]),
         r2_fastq = select_first([r2_fastq]),
         bam_filename = output_basename,
-        library_name = select_first([library_name]),
-        platform = select_first([platform]),
-        platform_unit = select_first([platform_unit]),
-        read_group_name = select_first([read_group_name]),
-        sequencing_center = select_first([sequencing_center])
+        library_name = library_name,
+        platform = platform,
+        platform_unit = platform_unit,
+        read_group_name = read_group_name,
+        sequencing_center = sequencing_center
     }
   }
 
   File bam_to_use = select_first([bam, FastqToUbam.unmapped_bam])
 
+  # sato: this step must take place, either ubam or fastq input
   call tasks.ExtractUMIs {
     input:
       bam = bam_to_use,
@@ -110,9 +112,42 @@ workflow RNAWithUMIsPipeline {
       read2Structure = read2Structure
   }
 
-  call tasks.STAR {
+  # Convert SAM to fastq for adapter clipping
+  call tasks.SamToFastq {
     input:
       bam = ExtractUMIs.bam_umis_extracted,
+      output_prefix = output_basename
+  }
+
+  # Adapter clipping
+  call tasks.Fastp {
+    input:
+      fastq1 = SamToFastq.fastq1,
+      fastq2 = SamToFastq.fastq1,
+      output_prefix = output_basename + "_adapter_clipped"
+  }
+
+  # Back to SAM before alignment
+  call tasks.FastqToUbam as FastqToUbamAfterClipping {
+    input:
+        r1_fastq = Fastp.fastq1_clipped,
+        r2_fastq = Fastp.fastq2_clipped,
+        bam_filename = output_basename + "_adapter_clipped",
+        library_name = library_name,
+        platform = platform,
+        platform_unit = platform_unit,
+        read_group_name = read_group_name,
+        sequencing_center = sequencing_center
+  }
+
+  call tasks.FastQC {
+    input:
+      unmapped_bam = FastqToUbamAfterClipping.unmapped_bam
+  }
+
+  call tasks.STAR {
+    input:
+      bam = FastqToUbamAfterClipping.unmapped_bam,
       starIndex = starIndex
   }
 
@@ -125,6 +160,7 @@ workflow RNAWithUMIsPipeline {
   call UmiMD.UMIAwareDuplicateMarking {
     input:
       aligned_bam = STAR.aligned_bam,
+      unaligned_bam = ExtractUMIs.bam_umis_extracted,
       output_basename = output_basename
   }
 
@@ -133,8 +169,6 @@ workflow RNAWithUMIsPipeline {
       aligned_bam = CopyReadGroupsToHeader.output_bam,
       output_basename = output_basename + ".transcriptome"
   }
-
-  ### PLACEHOLDER for CROSSCHECK ###
 
   call tasks.GetSampleName {
     input:
@@ -208,6 +242,8 @@ workflow RNAWithUMIsPipeline {
     File picard_quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
     Float contamination = CalculateContamination.contamination
     Float contamination_error = CalculateContamination.contamination_error
+    File fastqc_html_report = FastQC.fastqc_html
+    Float fastqc_adapter_content = FastQC.adapter_content # sato: might be good to have this one too.
   }
 }
 
