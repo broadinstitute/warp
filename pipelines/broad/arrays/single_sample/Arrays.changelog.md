@@ -1,7 +1,10 @@
-# 2.6.7
+# 2.6.8
 2022-04-04 (Date of Last Commit)
 
 * Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+# 2.6.7
+2022-03-24 (Date of Last Commit)
+
 * Update base image for picard-private docker image
 * Add gsutil to PATH in picard-private docker image
 

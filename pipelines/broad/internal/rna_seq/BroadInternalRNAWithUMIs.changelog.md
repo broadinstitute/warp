@@ -1,9 +1,13 @@
-# 1.0.5
+# 1.0.6
 2022-04-04 (Date of Last Commit)
+
+* Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+
+# 1.0.5
+2022-03-29 (Date of Last Commit)
 
 * Updated ingest to TDR to use transactional updates
 * Added contamination outputs to the workflow
-* * Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
 
 # 1.0.4
 2022-03-24 (Date of Last Commit)
