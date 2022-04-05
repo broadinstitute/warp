@@ -80,10 +80,11 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
   // Updating truth
   protected lazy val updateTruth: Boolean = testerConfig.updateTruth
 
-  // Timestampe for results bucket
+  // Timestamp for results bucket
   protected val timestamp: String =
     testerConfig.useTimestamp.getOrElse(CromwellWorkflowTester.getTimestamp)
 
+  // Get string contents of test wdl 
   override lazy val wdlContents: String =
     readWdlFromReleaseDir(releaseDir, workflowName)
 
