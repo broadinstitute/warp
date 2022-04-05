@@ -56,6 +56,8 @@ object CromwellWorkflowTester {
 
   lazy val PipelineRoot: File = WarpRoot / "pipelines"
 
+  lazy val TestsRoot: File = WarpRoot / "verification" / "test-wdls"
+
   def apply(config: Config)(
       implicit system: ActorSystem,
       mat: ActorMaterializer

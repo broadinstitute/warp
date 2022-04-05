@@ -1,9 +1,9 @@
 version 1.0
 
-import "../../../../../../pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl" as ExomeGermlineSingleSample
-import "../../../../../../verification/VerifyGermlineSingleSample.wdl" as VerifyGermlineSingleSample
-import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
-import "../../../../../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
+import "../../pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl" as ExomeGermlineSingleSample
+import "../../verification/VerifyGermlineSingleSample.wdl" as VerifyGermlineSingleSample
+import "../../tasks/broad/Utilities.wdl" as Utilities
+import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestExomeGermlineSingleSample {
 

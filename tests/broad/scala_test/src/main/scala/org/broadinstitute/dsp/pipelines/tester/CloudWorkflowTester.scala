@@ -35,16 +35,17 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
   protected val pipeline: String =
     testerConfig.pipeline.pipelineName
 
-  // Directory in WARP where the test workflow lives
+  // Directory in WARP where the main workflow lives
   // i.e. pipelines/broad/dna_seq/germline/single_sample/exome/
   protected def workflowDir: File =
     File(
       CromwellWorkflowTester.PipelineRoot + testerConfig.pipeline.workflowDir)
 
   // Bundle everything up into a single WDL
+  // Grab the test workflow that we are running from verification/test-wdls
   protected lazy val releaseDir: File =
     CromwellWorkflowTester.runReleaseWorkflow(
-      workflowDir / s"$workflowName.wdl",
+      CromwellWorkflowTester.TestsRoot / s"$workflowName.wdl",
       env
     )
 
