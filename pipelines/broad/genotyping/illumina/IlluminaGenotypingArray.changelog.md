@@ -1,3 +1,41 @@
+# 1.12.7
+2022-03-24 (Date of Last Commit)
+
+* Task wdls used by the IlluminaGenotypingArray pipeline were updated with changes that don't affect the IlluminaGenotypingArray pipeline itself
+
+# 1.12.6
+2022-02-025 (Date of Last Commit)
+
+* Update to Picard 2.26.11
+  * Address obscure bug in GtcToVcf -> VcfToAdpc (some variant metrics, calculated as infinite, were rendered incorrectly in the VCF)
+
+# 1.12.5
+2022-02-01 (Date of Last Commit)
+
+* Addressed memory usage in CheckFingerprint task to allow sufficient headroom for the VM
+
+# 1.12.4
+2022-01-19  (Date of Last Commit)
+
+* Update version of gatk in used in SubsetArrayVCF to 4.2.4.1 (updated to log4j 2.17.1)
+
+# 1.12.3
+2022-01-18  (Date of Last Commit)
+
+* Increase Boot disk for GATK tasks to avoid an out of disk space error
+
+# 1.12.2
+2022-01-14 (Date of Last Commit)
+
+* Fix issue with escaping of strings/filenames with spaces embedded that occurred on older (< 57) versions of Cromwell
+* Refactor to move CheckFingerprint functionality into new task
+
+# 1.12.1
+2022-01-11
+
+* Updated picard and picard-related tasks to Picard 2.26.10
+    * Address log4shell security issue (updated to log4j 2.17.1)
+
 # 1.12.0
 2021-11-17
 

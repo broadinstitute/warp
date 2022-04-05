@@ -1,3 +1,22 @@
+# 1.2.3 (Date of Last Commit)
+2022-02-25 (Date of Last Commit)
+
+* Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline.
+
+# 1.2.2
+2022-02-10 (Date of Last Commit)
+
+* Rebuilt a docker to merge outputs of STAR in in StarAlign.wdl task and moved it to a public location.
+
+# 1.2.1
+2022-02-07 (Date of Last Commit)
+
+* Updated a task in STARalign.wdl related to the Optimus pipeline. This pipeline has not been changed.
+
+# 1.2.0
+2022-01-07 (Date of Last Commit)
+
+* Fixed missing metadata issue in the loom file
 # 1.1.2
 2021-11-19 (Date of Last Commit)
 

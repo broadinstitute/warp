@@ -2,7 +2,8 @@ version: 2
 jobs:
 
     test_optimus:
-        machine: true
+        machine:
+            image: ubuntu-2004:202201-02
         steps:
             - checkout
             - run:
@@ -12,7 +13,8 @@ jobs:
 
 
     test_optimus_snrna:
-        machine: true
+        machine:
+            image: ubuntu-2004:202201-02
         steps:
             - checkout
             - run:
@@ -21,7 +23,8 @@ jobs:
                   no_output_timeout: 1.5h
 
     test_optimus_v3:
-        machine: true
+        machine:
+            image: ubuntu-2004:202201-02
         steps:
             - checkout
             - run:
@@ -30,7 +33,8 @@ jobs:
                   no_output_timeout: 1.5h
 
     test_smartseq2:
-        machine: true
+        machine:
+            image: ubuntu-2004:202201-02
         steps:
             - checkout
             - run:
@@ -39,7 +43,8 @@ jobs:
                   no_output_timeout: 1.5h
 
     test_smartseq2_multisample:
-        machine: true
+        machine:
+            image: ubuntu-2004:202201-02
         steps:
             - checkout
             - run:
@@ -48,7 +53,8 @@ jobs:
                   no_output_timeout: 1.5h
 
     test_smartseq2_multisample_single_end:
-        machine: true
+        machine:
+            image: ubuntu-2004:202201-02
         steps:
             - checkout
             - run:
@@ -57,7 +63,8 @@ jobs:
                   no_output_timeout: 1.5h
 
     test_smartseq2_single_end:
-        machine: true
+        machine:
+            image: ubuntu-2004:202201-02
         steps:
             - checkout
             - run:
@@ -66,7 +73,8 @@ jobs:
                   no_output_timeout: 1.5h
 
     test_optimus_mouse:
-        machine: true
+        machine:
+            image: ubuntu-2004:202201-02
 
         steps:
             - checkout
@@ -96,7 +104,8 @@ jobs:
                       ./test.sh
 
     test_bulk_rna:
-        machine: true
+        machine:
+            image: ubuntu-2004:202201-02
         steps:
             - checkout
             - run:
@@ -105,7 +114,8 @@ jobs:
                   no_output_timeout: 1.5h
 
     test_sc_atac:
-        machine: true
+        machine:
+            image: ubuntu-2004:202201-02
         steps:
             - checkout
             - run:
@@ -114,7 +124,8 @@ jobs:
                   no_output_timeout: 1.5h
 
     test_atac:
-        machine: true
+        machine:
+            image: ubuntu-2004:202201-02
         steps:
             - checkout
             - run:
@@ -123,7 +134,8 @@ jobs:
                   no_output_timeout: 3.0h
 
     test_smartseq2_single_nucleus:
-      machine: true
+      machine:
+            image: ubuntu-2004:202201-02
       steps:
         - checkout
         - run:
