@@ -1,3 +1,8 @@
+# 5.3.1
+2022-04-05 (Date of Last Commit)
+
+* Changed the Optimus wdl logic to skip splitting fastqs if the total input size for read 1 and read 2 is smaller than 30 G.
+
 # 5.3.0
 2022-02-22 (Date of Last Commit)
 

@@ -56,7 +56,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "5.3.0"
+  String pipeline_version = "5.3.1"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -86,51 +86,71 @@ workflow Optimus {
       count_exons = count_exons
   }
 
-  call FastqProcessing.FastqProcessing as SplitFastq {
-    input:
-      i1_fastq = i1_fastq,
-      r1_fastq = r1_fastq,
-      r2_fastq = r2_fastq,
-      whitelist = whitelist,
-      chemistry = chemistry,
-      sample_id = input_id
-  }
-
-  scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
-    call StarAlign.STARsoloFastq as STARsoloFastq {
+  Int fastq_input_size = ceil(size(r1_fastq, "Gi") ) +  ceil(size(r2_fastq, "Gi"))
+  Boolean split_fastqs = if ( fastq_input_size > 30 ) then true else false
+  if ( split_fastqs ) {
+    call FastqProcessing.FastqProcessing as SplitFastq {
       input:
-        r1_fastq = [SplitFastq.fastq_R1_output_array[idx]],
-        r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
+        i1_fastq = i1_fastq,
+        r1_fastq = r1_fastq,
+        r2_fastq = r2_fastq,
+        whitelist = whitelist,
+        chemistry = chemistry,
+        sample_id = input_id
+    }
+    scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
+      call StarAlign.STARsoloFastq as STARsoloFastq {
+        input:
+          r1_fastq = [SplitFastq.fastq_R1_output_array[idx]],
+          r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
+          white_list = whitelist,
+          tar_star_reference = tar_star_reference,
+          chemistry = chemistry,
+          counting_mode = counting_mode,
+          count_exons = count_exons,
+          output_bam_basename = output_bam_basename + "_" + idx
+      }
+    }
+    call Merge.MergeSortBamFiles as MergeBam {
+      input:
+        bam_inputs = STARsoloFastq.bam_output,
+        output_bam_filename = output_bam_basename + ".bam",
+        sort_order = "coordinate"
+    }
+  }
+  if ( !split_fastqs ) {
+    call StarAlign.STARsoloFastq as STARsoloFastqSingle {
+      input:
+        r1_fastq = r1_fastq,
+        r2_fastq = r2_fastq,
         white_list = whitelist,
         tar_star_reference = tar_star_reference,
         chemistry = chemistry,
         counting_mode = counting_mode,
         count_exons = count_exons,
-        output_bam_basename = output_bam_basename + "_" + idx
+        output_bam_basename = output_bam_basename
     }
-  }
-  call Merge.MergeSortBamFiles as MergeBam {
-    input:
-      bam_inputs = STARsoloFastq.bam_output,
-      output_bam_filename = output_bam_basename + ".bam",
-      sort_order = "coordinate"
   }
   call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
-      bam_input = MergeBam.output_bam
+      bam_input = select_first([STARsoloFastqSingle.bam_output , MergeBam.output_bam])
   }
 
   call Metrics.CalculateCellMetrics as CellMetrics {
     input:
-      bam_input = MergeBam.output_bam,
+      bam_input = select_first([STARsoloFastqSingle.bam_output , MergeBam.output_bam]),
       original_gtf = annotations_gtf
   }
 
+  Array[File] barcodes_out = select_all([STARsoloFastqSingle.barcodes,STARsoloFastq.barcodes])
+  Array[File] features_out = select_all([STARsoloFastqSingle.features, STARsoloFastq.features])
+  Array[File] matrix_out = select_all([STARsoloFastqSingle.matrix, STARsoloFastq.matrix])
+
   call StarAlign.MergeStarOutput as MergeStarOutputs {
     input:
-      barcodes = STARsoloFastq.barcodes,
-      features = STARsoloFastq.features,
-      matrix = STARsoloFastq.matrix
+      barcodes =  barcodes_out,
+      features = features_out,
+      matrix = matrix_out
   }
   call RunEmptyDrops.RunEmptyDrops {
     input:
@@ -158,12 +178,16 @@ workflow Optimus {
         pipeline_version = "Optimus_v~{pipeline_version}"
     }
   }
+  Array[File] barcodes_sn_rna = select_all([STARsoloFastqSingle.barcodes_sn_rna, STARsoloFastq.barcodes_sn_rna])
+  Array[File] features_sn_rna = select_all([STARsoloFastqSingle.features_sn_rna, STARsoloFastq.features_sn_rna])
+  Array[File] matrix_sn_rna = select_all([STARsoloFastqSingle.matrix_sn_rna, STARsoloFastq.matrix_sn_rna])
+
   if (count_exons  && counting_mode=="sn_rna") {
     call StarAlign.MergeStarOutput as MergeStarOutputsExons {
       input:
-        barcodes = STARsoloFastq.barcodes_sn_rna,
-        features = STARsoloFastq.features_sn_rna,
-        matrix = STARsoloFastq.matrix_sn_rna
+        barcodes = barcodes_sn_rna,
+        features = features_sn_rna,
+        matrix = matrix_sn_rna
     }
 
     call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
@@ -195,7 +219,7 @@ workflow Optimus {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
 
-    File bam = MergeBam.output_bam
+    File bam = select_first([STARsoloFastqSingle.bam_output, MergeBam.output_bam])
     File matrix = MergeStarOutputs.sparse_counts
     File matrix_row_index = MergeStarOutputs.row_index
     File matrix_col_index = MergeStarOutputs.col_index
