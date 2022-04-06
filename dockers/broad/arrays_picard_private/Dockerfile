@@ -5,7 +5,9 @@ ARG PICARD_PRIVATE_VERSION=c24d8e2dfd6de9c663416278040a9f91b6a5e3eb
 ENV TERM=xterm-256color \
     NO_VAULT=true \
     ARTIFACTORY_URL=https://broadinstitute.jfrog.io/artifactory/libs-snapshot-local/org/broadinstitute/picard-private \
-    TINI_VERSION=v0.19.0
+    TINI_VERSION=v0.19.0 \
+    PATH=$PATH:/root/google-cloud-sdk/bin 
+
 
 LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>" \
         PICARD_PRIVATE_VERSION=${PICARD_PRIVATE_VERSION}

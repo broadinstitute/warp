@@ -1,6 +1,8 @@
 # 1.12.7
-2022-03-11 (Date of Last Commit)
+20222-03-24  (Date of Last Commit)
+
 * Updated to GATK version 4.2.5.0 to address log4j vulnerabilities
+* Task wdls used by the IlluminaGenotypingArray pipeline were updated with changes that don't affect the IlluminaGenotypingArray pipeline itself
 
 # 1.12.6
 2022-02-025 (Date of Last Commit)

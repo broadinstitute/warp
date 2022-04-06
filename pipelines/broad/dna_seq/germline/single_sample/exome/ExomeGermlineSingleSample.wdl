@@ -41,6 +41,7 @@ workflow ExomeGermlineSingleSample {
 
   String pipeline_version = "3.1.0"
 
+
   input {
     PapiSettings papi_settings
     SampleAndUnmappedBams sample_and_unmapped_bams

@@ -12,11 +12,15 @@
     * RAW_RankSum NaN to empty for NON_REF data 
     * Reblocking fix to merge sites with missing DP into adjacent ref blocks
 
+# 3.0.5
+2022-03-24 (Date of Last Commit)
+
+* The pipeline was modified to allow the read_length parameter to be overridden in the QC tasks CollectWGSMetrics and CollectRawWGSMetrics
+
 # 3.0.4
 2022-02-02 (Date of Last Commit)
 
 * Changed dragmap base image from Centos to RockyLinux to comply with trivy scans
-
 
 # 3.0.3
 2022-02-01 (Date of Last Commit)

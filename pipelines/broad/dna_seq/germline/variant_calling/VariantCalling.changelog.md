@@ -4,6 +4,11 @@
 * Updated to Picard version 2.26.10 and GATK version 4.2.5.0 to address log4j vulnerabilities
     * RAW_RankSum NaN to empty for NON_REF data 
 
+# 2.0.4
+2022-03-24 (Date of Last Commit)
+
+* Task wdls used by the VariantCalling pipeline were updated with changes that don't affect the VariantCalling pipeline itself
+
 # 2.0.3
 2022-02-01 (Date of Last Commit)
 

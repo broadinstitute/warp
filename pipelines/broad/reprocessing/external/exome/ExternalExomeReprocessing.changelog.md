@@ -21,6 +21,10 @@
     * RAW_RankSum NaN to empty for NON_REF data 
     * Reblocking fix to merge sites with missing DP into adjacent ref blocks
 
+# 3.0.5
+2022-03-24 (Date of Last Commit)
+
+* Task wdls used by the ExternalExomeReprocessing pipeline were updated with changes that don't affect the ExternalExomeProcessing pipeline itself
 
 # 3.0.4
 2022-02-02 (Date of Last Commit)

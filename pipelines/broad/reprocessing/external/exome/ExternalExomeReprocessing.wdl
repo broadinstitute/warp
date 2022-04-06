@@ -6,7 +6,7 @@ import "../../../../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 workflow ExternalExomeReprocessing {
 
   String pipeline_version = "3.1.0"
-
+  
   input {
     File? input_cram
     File? input_bam

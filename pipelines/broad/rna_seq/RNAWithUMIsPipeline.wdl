@@ -46,6 +46,9 @@ workflow RNAWithUMIsPipeline {
     File refFlat
     File ribosomalIntervals
     File exonBedFile
+
+    File population_vcf
+    File population_vcf_index
   }
 
   parameter_meta {
@@ -68,6 +71,8 @@ workflow RNAWithUMIsPipeline {
     refFlat: "refFlat file used for metric collection with Picard tools"
     ribosomalIntervals: "Intervals file used for RNA metric collection with Picard tools"
     exonBedFile: "Bed file used for fragment size calculations in the rnaseqc tool; contains non-overlapping exons"
+    population_vcf: "VCF file for contamination estimation; contains common SNP sites from population-wide studies like ExAC or gnomAD"
+    population_vcf_index: "Population VCF index file used for contamination estimation"
   }
 
   call tasks.VerifyPipelineInputs {
@@ -166,6 +171,18 @@ workflow RNAWithUMIsPipeline {
       ref_fasta_index = refIndex
   }
 
+  call tasks.CalculateContamination {
+    input:
+      bam = UMIAwareDuplicateMarking.duplicate_marked_bam,
+      bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index,
+      base_name = GetSampleName.sample_name,
+      population_vcf = population_vcf,
+      population_vcf_index = population_vcf_index,
+      ref_dict = refDict,
+      ref_fasta = ref,
+      ref_fasta_index = refIndex
+  }
+
   output {
     String sample_name = GetSampleName.sample_name
     File transcriptome_bam = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam
@@ -189,6 +206,8 @@ workflow RNAWithUMIsPipeline {
     File picard_quality_by_cycle_pdf = CollectMultipleMetrics.quality_by_cycle_pdf
     File picard_quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
     File picard_quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
+    Float contamination = CalculateContamination.contamination
+    Float contamination_error = CalculateContamination.contamination_error
   }
 }
 

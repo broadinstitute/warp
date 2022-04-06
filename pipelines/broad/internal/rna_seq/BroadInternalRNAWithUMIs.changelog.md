@@ -1,8 +1,21 @@
+# 1.0.5
+2022-03-29 (Date of Last Commit)
+
+* Updated ingest to TDR to use transactional updates
+* Added contamination outputs to the workflow
+
+# 1.0.4
+2022-03-24 (Date of Last Commit)
+
+* Update to use references stored in Google-hosted public buckets.
+* Add gsutil to PATH in picard-private docker image
+
 # 1.0.3
 2022-03-14 (Date of Last Commit)
 
 * Update base image for picard-private docker image
 * Updated to Picard version 2.26.10 and GATK version 4.2.5.0 to address log4j vulnerabilities
+
 
 # 1.0.2
 2022-02-18 (Date of Last Commit)
