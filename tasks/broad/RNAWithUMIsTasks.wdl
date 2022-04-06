@@ -693,6 +693,8 @@ task formatPipelineOutputs {
     File unified_metrics
     Float contamination
     Float contamination_error
+    String fastqc_html_report
+    String fastqc_percent_reads_with_adapter
 
     Int cpu = 1
     Int memory_mb = 2000
@@ -732,6 +734,8 @@ task formatPipelineOutputs {
     outputs_dict["picard_quality_distribution_pdf_file"]="~{picard_quality_distribution_pdf}"
     outputs_dict["fp_summary_metrics_file"]="~{picard_fingerprint_summary_metrics}"
     outputs_dict["fp_detail_metrics_file"]="~{picard_fingerprint_detail_metrics}"
+    outputs_dict["fastqc_html_report"]="~{fastqc_html_report}"
+    outputs_dict["fastqc_percent_reads_with_adapter"]="~{fastqc_percent_reads_with_adapter}"
 
     # truncate to 5 digits
     outputs_dict["contamination"]='%.5f'%(~{contamination})
@@ -754,7 +758,7 @@ task formatPipelineOutputs {
   >>>
 
   runtime {
-    docker: "broadinstitute/horsefish:twisttcap_scripts"
+    docker: "broadinstitute/horsefish:tdr_import_v1.1"
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
