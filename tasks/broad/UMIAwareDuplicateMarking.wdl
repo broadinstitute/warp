@@ -23,12 +23,14 @@ workflow UMIAwareDuplicateMarking {
     File aligned_bam 
     File unaligned_bam
     String output_basename
+    Boolean remove_duplicates
   }
 
   parameter_meta {
     aligned_bam: "Unsorted aligned bam (the output of STAR in multithread mode is not query-name sorted)"
     unaligned_bam: "Query-name sorted unaligned bam; contains UMIs in the RX tag"
     output_basename: "Basename for file outputs from this workflow"
+    remove_duplicates: "If true, remove (rather than mark) duplicate reads from the output"
   }
 
   call tasks.SortSamByQueryName as SortSamByQueryNameAfterAlignment {
@@ -73,7 +75,8 @@ workflow UMIAwareDuplicateMarking {
   call tasks.MarkDuplicatesUMIAware as MarkDuplicates {
     input:
       bam = SortSamByQueryNameBeforeDuplicateMarking.output_bam,
-      output_basename = output_basename
+      output_basename = output_basename,
+      remove_duplicates = remove_duplicates
   }
 
   call tasks.SortSamByCoordinate as SortSamByCoordinateSecondPass {

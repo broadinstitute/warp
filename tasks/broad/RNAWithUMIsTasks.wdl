@@ -102,15 +102,18 @@ task ExtractUMIs {
 }
 
 # Adapter clipping
+# https://github.com/OpenGene/fastp
 task Fastp {
   input {
     File fastq1
     File fastq2
     String output_prefix
     File adapter_fasta = "gs://broad-dsde-methods-takuto/RNA/resources/Illumina_adapters.fasta" # sato: move to a public place
-  }
 
-  Int disk_size = 5*ceil(size(fastq1, "GiB")) + 128
+    String docker = "us.gcr.io/broad-gotc-prod/fastp:1.0.0-0.20.1-1649253500"
+    Int memory_mb =  "8192"
+    Int disk_size_gb = 5*ceil(size(fastq1, "GiB")) + 128
+  }
 
   command {
     fastp --in1 ~{fastq1} --in2 ~{fastq2} --out1 ~{output_prefix}_read1.fastq.gz --out2 ~{output_prefix}_read2.fastq.gz \
@@ -119,17 +122,15 @@ task Fastp {
   
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/fastp:1.0.0-0.20.1-1649253500"
-    memory: "8 GiB"
-    disks: "local-disk " + disk_size + " HDD"
+    docker: docker
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
     preemptible: 0
   }
 
   output {
     File fastq1_clipped = output_prefix + "_read1.fastq.gz"
     File fastq2_clipped = output_prefix + "_read2.fastq.gz"
-    File html = "fastp.html" # sato: these are optional
-    File json = "fastp.json" # sato: these are optional
   }
 
 }
@@ -177,7 +178,7 @@ task STAR {
       --chimOutJunctionFormat 0 \
       --twopassMode Basic \
       --quantMode TranscriptomeSAM \
-      --quantTranscriptomeBan Singleend \
+      --quantTranscriptomeBan IndelSoftclipSingleend \
       --alignEndsProtrude 20 ConcordantPair
   >>>
 
@@ -206,7 +207,7 @@ task FastqToUbam {
     String read_group_name
     String sequencing_center
 
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2) + 50
@@ -355,7 +356,7 @@ task CollectRNASeqMetrics {
     File ref_flat
     File ribosomal_intervals
 
-    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
@@ -394,7 +395,7 @@ task CollectMultipleMetrics {
     File ref_fasta
     File ref_fasta_index
 
-    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
@@ -525,7 +526,7 @@ task SortSamByCoordinate {
     # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
     Float sort_sam_disk_multiplier = 4.0
 
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
@@ -567,7 +568,7 @@ task SortSamByQueryName {
     # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
     Float sort_sam_disk_multiplier = 6.0
 
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
@@ -631,8 +632,9 @@ task MarkDuplicatesUMIAware {
   input {
     File bam
     String output_basename
+    Boolean remove_duplicates
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3 * size(bam, "GiB")) + 60
@@ -641,7 +643,12 @@ task MarkDuplicatesUMIAware {
   String output_bam_basename = output_basename + ".duplicate_marked"
 
   command <<<
-    gatk MarkDuplicates -I ~{bam} --READ_ONE_BARCODE_TAG BX -O ~{output_bam_basename}.bam --METRICS_FILE ~{output_basename}.duplicate.metrics --ASSUME_SORT_ORDER queryname
+    java -jar /usr/picard/picard.jar MarkDuplicates \
+    INPUT=~{bam} \
+    OUTPUT=~{output_bam_basename}.bam \
+    METRICS_FILE=~{output_basename}.duplicate.metrics \
+    READ_ONE_BARCODE_TAG=BX \
+    REMOVE_DUPLICATES=~{remove_duplicates}
   >>>
 
   output {
@@ -846,29 +853,29 @@ task CalculateContamination {
     grep -v ^sample ~{base_name}_contamination.tsv | awk 'BEGIN{FS="\t"}{print($3)}' > contamination_error.txt
   >>>
 
-    runtime {
-      docker: docker
-      cpu: cpu
-      memory: "~{memory_mb} MiB"
-      disks: "local-disk ~{disk_size_gb} HDD"
-    }
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+  }
 
-    output {
-        File pileups = "~{base_name}_pileups.tsv"
-        File contamination_table = "~{base_name}_contamination.tsv"
-        Float contamination = read_float("contamination.txt")
-        Float contamination_error = read_float("contamination_error.txt")
-    }
+  output {
+      File pileups = "~{base_name}_pileups.tsv"
+      File contamination_table = "~{base_name}_contamination.tsv"
+      Float contamination = read_float("contamination.txt")
+      Float contamination_error = read_float("contamination_error.txt")
+  }
 }
 
 task SamToFastq {
   input {
     File bam
     String output_prefix
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
+    Int memory_mb = 4096
+    Int disk_size_gb = 3*ceil(size(bam, "GiB")) + 128
   }
-
-  Int disk_size = 3*ceil(size(bam, "GiB")) + 128
 
   command {
     java -jar /usr/picard/picard.jar SamToFastq \
@@ -880,9 +887,8 @@ task SamToFastq {
 
   runtime {
     docker: docker
-    preemptible: 0
-    memory: "3.5 GiB"
-    disks: "local-disk " + disk_size + " HDD"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
   }
 
   output {
@@ -896,9 +902,10 @@ task FastQC {
     File unmapped_bam
     Float? mem = 4
     String docker = "us.gcr.io/tag-public/tag-tools:1.0.0" # sato: This likely needs to be made public
+    Int memory_mb = 4096
+    Int disk_size_gb = 3*ceil(size(unmapped_bam, "GiB")) + 128
   }
 
-  Int disk_size = ceil(size(unmapped_bam, "GiB") * 3)  + 100
   String bam_basename = basename(unmapped_bam, ".bam")
 
   command {
@@ -910,9 +917,8 @@ task FastQC {
   
   runtime {
     docker: docker
-    disks: "local-disk " + disk_size + " HDD"
-    memory: mem + "GB"
-    cpu: "1"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
   }
 
   output {
@@ -929,10 +935,10 @@ task TransferReadTags {
     String output_basename
     File gatk_jar = "gs://broad-dsde-methods-takuto/RNA/gatk_transfer_read_tags.jar"
     String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11" # sato: replace with a new gatk docker release, as needed
+    Int memory_mb = 16000
+    Int disk_size_gb = ceil(2 * size(aligned_bam, "GB")) + ceil(2 * size(ubam, "GB")) + 128
   }
 
-  Int disk_size = ceil(2 * size(aligned_bam, "GB")) + ceil(2 * size(ubam, "GB")) + 128
-  
   command <<<
     java -jar ~{gatk_jar} TransferReadTags \
     -I ~{aligned_bam} \
@@ -947,7 +953,7 @@ task TransferReadTags {
 
   runtime {
     docker: docker
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "16 GB"
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
   }
 }
