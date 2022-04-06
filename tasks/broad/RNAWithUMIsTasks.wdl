@@ -922,9 +922,9 @@ task FastQC {
   }
 
   output {
-    # File fastqc_data = "~{bam_basename}_fastqc_data.txt" # Sato: probably OK to delete.
+    File fastqc_data = "~{bam_basename}_fastqc_data.txt"
     File fastqc_html = "~{bam_basename}_fastqc.html"
-    Float adapter_content = read_float("~{bam_basename}_adapter_content.txt")
+    Float fastqc_percent_reads_with_adapter = read_float("~{bam_basename}_adapter_content.txt")
   }
 }
 

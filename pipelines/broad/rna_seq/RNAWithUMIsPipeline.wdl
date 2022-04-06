@@ -234,7 +234,7 @@ workflow RNAWithUMIsPipeline {
     Float contamination = CalculateContamination.contamination
     Float contamination_error = CalculateContamination.contamination_error
     File fastqc_html_report = FastQC.fastqc_html
-    Float fastqc_adapter_content = FastQC.adapter_content # sato: might be good to have this one too.
+    Float fastqc_percent_reads_with_adapter = FastQC.fastqc_percent_reads_with_adapter
   }
 }
 

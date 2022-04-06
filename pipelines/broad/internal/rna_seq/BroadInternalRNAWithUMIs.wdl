@@ -196,5 +196,7 @@ workflow BroadInternalRNAWithUMIs {
     File unified_metrics = MergeMetrics.unified_metrics
     Float contamination = RNAWithUMIs.contamination
     Float contamination_error = RNAWithUMIs.contamination_error
+    File fastqc_html_report = RNAWithUMIs.fastqc_html_report
+    Float fastqc_percent_reads_with_adapter = RNAWithUMIs.fastqc_percent_reads_with_adapter
   }
 }
