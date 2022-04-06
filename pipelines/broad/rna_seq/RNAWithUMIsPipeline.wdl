@@ -152,7 +152,7 @@ workflow RNAWithUMIsPipeline {
       remove_duplicates = false
   }
 
-  # We set remove dupli
+  # Remove duplicates from the transcriptome bams
   call UmiMD.UMIAwareDuplicateMarking as UMIAwareDuplicateMarkingTranscriptome {
     input:
       aligned_bam = CopyReadGroupsToHeader.output_bam,
