@@ -60,7 +60,7 @@ task SortChunksByContigs {
   }
 
   command <<<
-    set -e -o p
+    set -e -o pipefail
 
     python3 << "EOF"
     import pysam
