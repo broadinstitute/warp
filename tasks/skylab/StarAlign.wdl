@@ -275,7 +275,6 @@ task STARsoloFastq {
     then
     ## single nuclei
         COUNTING_MODE="GeneFull"
-    fi
     else
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
         exit 1;
