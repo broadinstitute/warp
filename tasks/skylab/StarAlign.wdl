@@ -274,12 +274,8 @@ task STARsoloFastq {
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
     ## single nuclei
-      if [[ ~{count_exons} ]]
-      then
-        COUNTING_MODE="Gene GeneFull"
-      else
         COUNTING_MODE="GeneFull"
-      fi
+    fi
     else
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
         exit 1;
@@ -291,7 +287,27 @@ task STARsoloFastq {
     rm "~{tar_star_reference}"
 
 
-    echo "UMI LEN " $UMILen 
+    echo "UMI LEN " $UMILen
+    if [[ ~{count_exons} ]]
+    then
+      STAR \
+      --soloType Droplet \
+      --soloStrand Unstranded \
+      --runThreadN ${cpu} \
+      --genomeDir genome_reference \
+      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
+      --readFilesCommand "gunzip -c" \
+      --soloCBwhitelist ~{white_list} \
+      --soloUMIlen $UMILen --soloCBlen $CBLen \
+      --soloFeatures "Gene" \
+      --clipAdapterType CellRanger4 \
+      --outFilterScoreMin 30  \
+      --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
+      --soloUMIdedup 1MM_Directional_UMItools \
+      --outSAMtype BAM SortedByCoordinate \
+      --outSAMattributes UB UR UY CR CB CY NH GX GN \
+      --soloBarcodeReadLength 0
+    fi
 
     STAR \
       --soloType Droplet \
