@@ -1,3 +1,8 @@
+# 1.2.4
+2022-04-06 (Date of Last Commit)
+
+* Updated STARsoloFastq task in StarAlign.wdl
+
 # 1.2.3 (Date of Last Commit)
 2022-02-25 (Date of Last Commit)
 
