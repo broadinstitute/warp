@@ -53,6 +53,57 @@ task GetMissingContigList {
   }
 }
 
+task SortChunksByContigs {
+  input {
+    File vcfs_and_indices_and_contigs_list
+    File ref_dict
+  }
+
+  command <<<
+    set -e -o p
+
+    python3 << "EOF"
+    import pysam
+    import csv
+
+    class Chunk:
+      def __init__(self, vcf, vcf_index, contig):
+        self.vcf = vcf
+        self.vcf_index = vcf_index
+        self.contig = contig
+
+    def getContigIndex(contig, ref_dictionary):
+      index = ref_dictionary.get_tid(contig)
+      if index == -1:
+        raise ValueError(f'Contig {contig} not found in dictionary')
+      return index
+
+    chunks = []
+    with open("~{vcfs_and_indices_and_contigs_list}") as f_vcfs_and_contigs:
+      vcf_and_contigs_reader = csv.reader(f_vcfs_and_contigs, delimiter='\t')
+      for line in vcf_and_contigs_reader:
+        chunks.append(Chunk(line[0], line[1], line[2]))
+
+    with pysam.AlignmentFile("~{ref_dict}") as ref_dict:
+      chunks.sort(key=lambda chunk: getContigIndex(chunk.contig, ref_dict))
+
+    with open("vcf_chunks.txt", "w") as f_vcfs_out, open("vcf_index_chunks.txt") as f_vcf_indices_out:
+      for chunk in chunks:
+        f_vcfs_out.write(chunk.vcf + "\n")
+        f_vcf_indices_out.write(chunk.vcf_index + "\n")
+    EOF
+  >>>
+
+  runtime {
+    docker: "biocontainers/pysam:v0.15.2ds-2-deb-py3_cv1"
+  }
+
+  output {
+    Array[File] sorted_vcfs = read_lines("vcf_chunks.txt")
+    Array[File] sorted_vcf_indices = read_lines("vcf_index_chunks.txt")
+  }
+}
+
 task GenerateChunk {
   input {
     Int start

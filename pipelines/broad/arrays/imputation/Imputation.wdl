@@ -263,9 +263,12 @@ workflow Imputation {
     Array[File] chromosome_vcf_indices = select_all(InterleaveVariants.output_vcf_index)
   }
 
-  Array[File] phased_vcfs = flatten(chromosome_vcfs)
-  Array[File] phased_vcf_indices = flatten(chromosome_vcf_indices)
+  Array[String] phased_vcfs = flatten(chromosome_vcfs)
+  Array[String] phased_vcf_indices = flatten(chromosome_vcf_indices)
+  Array[String] phased_contigs = flatten(chunk_contig)
 
+  #this will be an array of arrays of [vcf, vcf_index, contig] for each chunk
+  Array[Array[String]] phased_contig_tuples = transpose([phased_vcfs, phased_vcf_indices, phased_contigs])
 
   call tasks.GetMissingContigList {
     input:
@@ -308,21 +311,30 @@ workflow Imputation {
           vcf = SetIDsMissingContigs.output_vcf,
           basename = "unimputed_contigs_" + missing_contig +"_"+ i_missing_contig + "_annotations_removed"
       }
+      String missing_contig_this_chunk = missing_contig
     }
   }
 
-  Array[File] missing_contig_vcf = flatten(RemoveAnnotationsMissingContigs.output_vcf)
-  Array[File] missing_contig_vcf_indices = flatten(RemoveAnnotationsMissingContigs.output_vcf)
+  Array[String] missing_contig_vcf = flatten(RemoveAnnotationsMissingContigs.output_vcf)
+  Array[String] missing_contig_vcf_indices = flatten(RemoveAnnotationsMissingContigs.output_vcf)
+  Array[String] missing_contig_per_chunk = flatten(missing_contig_this_chunk)
+
+  #this will be an array of arrays of [vcf, vcf_index, contig] for each chunk
+  Array[Array[String]] missing_contig_tuples = transpose([missing_contig_vcf, missing_contig_vcf_indices, missing_contig_per_chunk])
 
 
+  Array[Array[String]] unsorted_contig_tuples = flatten([phased_contig_tuples, missing_contig_tuples])
 
-  Array[File] vcfs_to_gather = flatten([phased_vcfs, missing_contig_vcf])
-  Array[File] vcf_to_gather_indices = flatten([phased_vcf_indices, missing_contig_vcf_indices])
+  call tasks.SortChunksByContigs {
+    input:
+      vcfs_and_indices_and_contigs_list = write_tsv(unsorted_contig_tuples),
+      ref_dict = ref_dict
+  }
 
   call tasks.GatherVcfs {
     input:
-      input_vcfs = vcfs_to_gather,
-      input_vcf_indices = vcf_to_gather_indices,
+      input_vcfs = SortChunksByContigs.sorted_vcfs,
+      input_vcf_indices = SortChunksByContigs.sorted_vcf_indices,
       output_vcf_basename = output_callset_name
   }
 
