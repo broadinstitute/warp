@@ -111,13 +111,16 @@ task Fastp {
     File adapter_fasta = "gs://gcp-public-data--broad-references/RNA/resources/Illumina_adapters.fasta"
 
     String docker = "us.gcr.io/broad-gotc-prod/fastp:1.0.0-0.20.1-1649253500"
-    Int memory_mb =  "8192"
+    Int memory_mb =  "16384"
     Int disk_size_gb = 5*ceil(size(fastq1, "GiB")) + 128
+    File monitoring_script = "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh"
   }
 
   command {
+    bash ~{monitoring_script} > monitoring.log &
+
     fastp --in1 ~{fastq1} --in2 ~{fastq2} --out1 ~{output_prefix}_read1.fastq.gz --out2 ~{output_prefix}_read2.fastq.gz \
-    --disable_quality_filtering --adapter_fasta ~{adapter_fasta} 
+    --disable_quality_filtering --adapter_fasta ~{adapter_fasta}
   }
   
 
@@ -131,6 +134,7 @@ task Fastp {
   output {
     File fastq1_clipped = output_prefix + "_read1.fastq.gz"
     File fastq2_clipped = output_prefix + "_read2.fastq.gz"
+    File monitoring_log = "monitoring.log"
   }
 
 }
