@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v5.3.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [optimus_v5.3.1](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
 
 ![Optimus_diagram](Optimus_diagram.png)
 
@@ -125,7 +125,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | ------------------------------------ | 
-| [FastqProcessing.FastqProcessing (alias = SplitFastq)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/FastqProcessing.wdl) | fastqprocess | sctools | Partitions the input FASTQ files by CB to create an array of FASTQ files that are each ~ 30 GB. | 
+| [FastqProcessing.FastqProcessing (alias = SplitFastq)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/FastqProcessing.wdl) | fastqprocess | sctools | Partitions the input FASTQ files by CB to create an array of FASTQ files that are each ~ 30 GB. This task is skipped if the input files are less than 30 GB. | 
 | [StarAlign.STARsoloFastq (alias = STARsoloFastq)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | STAR | [Star](https://github.com/alexdobin/STAR) | Uses the partitioned FASTQ files to perform CB correction, adaptor trimming, alignment, gene annotation, UMI correction, and gene counting. |
 | [Merge.MergeSortBamFiles (alias= MergeBam)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/MergeSortBam.wdl) | MergeSamFiles | Picard | Merges the array of BAM files into a single BAM and sorts in coordinate order. |
 | [StarAlign.MergeStarOutput (alias = MergeStarOutputs)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | create-npz-output.py | Python3 | Creates a compressed raw NPY or NPZ file containing the STARsolo output features (NPY), barcodes (NPZ) and counts (NPZ). | 
@@ -138,7 +138,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 More information about the different tags used to flag the data can be found in the [Bam_tags documentation](./Bam_tags.md).
 
 #### 1. Partition CBs
-To optimally scale for large files, the workflow first uses the [FastqProcessing task](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/FastqProcessing.wdl) to partition the input array of forward and reverse read FASTQ files by uncorrected CBs. The resulting array contains FASTQ files that are \~30 GB in size. 
+To optimally scale for large files, the workflow first uses the [FastqProcessing task](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/FastqProcessing.wdl) to partition the input array of forward and reverse read FASTQ files by uncorrected CBs. The resulting array contains FASTQ files that are \~30 GB in size. If the input files are less than 30 GB, this task is omitted.
 
 #### 2. Correct CBs, trims reads, align, annotate genes, correct UMIs, and count genes
 The [STARsoloFastq task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) uses the partitioned FASTQ files to perform CB correction, alignment, gene annotation, and counting. 
@@ -161,7 +161,7 @@ STAR maps barcoded reads to the genome primary assembly reference (see the Quick
 
 **Gene annotation**
 
-Prior to gene counting, STARsolo adds gene annotations which will vary depending on the counting_mode ("sc_rna" or "sn_rna") specified in the Optimus workflow. With sc_rna, STARsolo runs with the “Gene” COUNTING_MODE, whereas with sn_rna, it runs the “GeneFull” COUNTING_MODE.
+Prior to gene counting, STARsolo adds gene annotations which will vary depending on the counting_mode ("sc_rna" or "sn_rna") specified in the Optimus workflow. With `sc_rna`, STARsolo runs with the “Gene” COUNTING_MODE, which is specific to exons.  With the `sn_rna` mode, STARsolo runs the “GeneFull” COUNTING_MODE and has the additional option to run the "Gene" mode when the input parameter `count_exons` is set to true. 
 
 Genes that overlap an alignment are stored with the GX BAM tag; for sc_rna mode, this will include the gene that corresponds to an exon or UTR, whereas for sn_rna mode, this will include the gene corresponding to an exon, UTR, and intron.
 
