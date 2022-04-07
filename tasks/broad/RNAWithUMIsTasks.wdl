@@ -108,7 +108,7 @@ task Fastp {
     File fastq1
     File fastq2
     String output_prefix
-    File adapter_fasta = "gs://broad-dsde-methods-takuto/RNA/resources/Illumina_adapters.fasta" # sato: move to a public place
+    File adapter_fasta = "gs://gcp-public-data--broad-references/RNA/resources/Illumina_adapters.fasta"
 
     String docker = "us.gcr.io/broad-gotc-prod/fastp:1.0.0-0.20.1-1649253500"
     Int memory_mb =  "8192"

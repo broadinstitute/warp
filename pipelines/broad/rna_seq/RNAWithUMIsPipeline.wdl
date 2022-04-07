@@ -110,7 +110,7 @@ workflow RNAWithUMIsPipeline {
   call tasks.Fastp {
     input:
       fastq1 = SamToFastq.fastq1,
-      fastq2 = SamToFastq.fastq1,
+      fastq2 = SamToFastq.fastq2,
       output_prefix = output_basename + ".adapter_clipped"
   }
 
