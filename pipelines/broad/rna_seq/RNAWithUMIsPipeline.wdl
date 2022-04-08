@@ -150,21 +150,31 @@ workflow RNAWithUMIsPipeline {
       bam_without_readgroups = STAR.transcriptome_bam
   }
 
+  # Mark duplicate reads in the genome-aligned bam. The output is coordinate-sorted.
   call UmiMD.UMIAwareDuplicateMarking {
     input:
       aligned_bam = STAR.aligned_bam,
       unaligned_bam = ExtractUMIs.bam_umis_extracted,
       output_basename = output_basename,
-      remove_duplicates = false
+      remove_duplicates = false,
+      coordinate_sort_output = true
   }
 
-  # Remove duplicates from the transcriptome bams
+  # Remove, rather than mark, duplicates reads from the transcriptome-aligned bam
+  # The output is query-name-sorted.
   call UmiMD.UMIAwareDuplicateMarking as UMIAwareDuplicateMarkingTranscriptome {
     input:
       aligned_bam = CopyReadGroupsToHeader.output_bam,
       unaligned_bam = ExtractUMIs.bam_umis_extracted,
       output_basename = output_basename + ".transcriptome",
-      remove_duplicates = true
+      remove_duplicates = true,
+      coordinate_sort_output = false
+  }
+
+  call tasks.PostprocessTranscriptomeForRSEM {
+    input:
+      prefix = output_basename + ".transcriptome.RSEM_formatted",
+      input_bam = UMIAwareDuplicateMarking.duplicate_marked_bam
   }
 
   call tasks.GetSampleName {
@@ -183,7 +193,7 @@ workflow RNAWithUMIsPipeline {
   call tasks.CollectRNASeqMetrics {
     input:
       input_bam = UMIAwareDuplicateMarking.duplicate_marked_bam,
-      input_bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index,
+      input_bam_index = select_first([UMIAwareDuplicateMarking.duplicate_marked_bam_index]),
       output_bam_prefix = GetSampleName.sample_name,
       ref_dict = refDict,
       ref_fasta = ref,
@@ -195,7 +205,7 @@ workflow RNAWithUMIsPipeline {
   call tasks.CollectMultipleMetrics {
     input:
       input_bam = UMIAwareDuplicateMarking.duplicate_marked_bam,
-      input_bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index,
+      input_bam_index = select_first([UMIAwareDuplicateMarking.duplicate_marked_bam_index]),
       output_bam_prefix = GetSampleName.sample_name,
       ref_dict = refDict,
       ref_fasta = ref,
@@ -205,7 +215,7 @@ workflow RNAWithUMIsPipeline {
   call tasks.CalculateContamination {
     input:
       bam = UMIAwareDuplicateMarking.duplicate_marked_bam,
-      bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index,
+      bam_index = select_first([UMIAwareDuplicateMarking.duplicate_marked_bam_index]),
       base_name = GetSampleName.sample_name,
       population_vcf = population_vcf,
       population_vcf_index = population_vcf_index,
@@ -217,10 +227,9 @@ workflow RNAWithUMIsPipeline {
   output {
     String sample_name = GetSampleName.sample_name
     File transcriptome_bam = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam
-    File transcriptome_bam_index = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam_index
     File transcriptome_duplicate_metrics = UMIAwareDuplicateMarkingTranscriptome.duplicate_metrics
     File output_bam = UMIAwareDuplicateMarking.duplicate_marked_bam
-    File output_bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index
+    File output_bam_index = select_first([UMIAwareDuplicateMarking.duplicate_marked_bam_index])
     File duplicate_metrics = UMIAwareDuplicateMarking.duplicate_metrics
     File rnaseqc2_gene_tpm = rnaseqc2.gene_tpm
     File rnaseqc2_gene_counts = rnaseqc2.gene_counts

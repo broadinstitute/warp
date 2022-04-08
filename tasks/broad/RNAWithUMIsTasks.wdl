@@ -954,3 +954,30 @@ task TransferReadTags {
     disks: "local-disk ~{disk_size_gb} HDD"
   }
 }
+
+task PostprocessTranscriptomeForRSEM {
+  input {
+    String prefix
+    File input_bam # the input must be queryname sorted
+    File gatk_jar = "gs://broad-dsde-methods-takuto/RNA/gatk_post_processing.jar"
+    Int disk_size_gb = ceil(3*size(input_bam,"GB")) + 128
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.0.0"
+    Int memory_mb = 16000
+  }
+
+  command {
+    java -jar ~{gatk_jar} PostProcessReadsForRSEM \
+    -I ~{input_bam} \
+    -O ~{prefix}_gatk.bam
+  }
+
+  output {
+    File output_bam = "~{prefix}.bam"
+  }
+
+  runtime {
+    docker: docker 
+    disks: "local-disk ~{disk_size_gb} HDD"
+    memory: memory_mb
+  }
+}

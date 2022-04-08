@@ -24,6 +24,7 @@ workflow UMIAwareDuplicateMarking {
     File unaligned_bam
     String output_basename
     Boolean remove_duplicates
+    Boolean coordinate_sort_output
   }
 
   parameter_meta {
@@ -31,6 +32,7 @@ workflow UMIAwareDuplicateMarking {
     unaligned_bam: "Query-name sorted unaligned bam; contains UMIs in the RX tag"
     output_basename: "Basename for file outputs from this workflow"
     remove_duplicates: "If true, remove (rather than mark) duplicate reads from the output"
+    coordinate_sort: "If true, the output bam will be coordinate sorted. Else it will be query-name sorted."
   }
 
   call tasks.SortSamByQueryName as SortSamByQueryNameAfterAlignment {
@@ -86,15 +88,19 @@ workflow UMIAwareDuplicateMarking {
       remove_duplicates = remove_duplicates
   }
 
-  call tasks.SortSamByCoordinate as SortSamByCoordinateSecondPass {
-    input:
-      input_bam = MarkDuplicates.duplicate_marked_bam,
-      output_bam_basename = output_basename + ".duplicate_marked.coordinate_sorted"
+  if (coordinate_sort_output){
+    call tasks.SortSamByCoordinate as SortSamByCoordinateSecondPass {
+      input:
+        input_bam = MarkDuplicates.duplicate_marked_bam,
+        output_bam_basename = output_basename + ".duplicate_marked.coordinate_sorted"
+    }
   }
 
+
   output {
-    File duplicate_marked_bam = SortSamByCoordinateSecondPass.output_bam
-    File duplicate_marked_bam_index = SortSamByCoordinateSecondPass.output_bam_index
+    File duplicate_marked_bam = select_first([SortSamByCoordinateSecondPass.output_bam, MarkDuplicates.duplicate_marked_bam])
+    # Index is output if coordinate sorting is requested
+    File? duplicate_marked_bam_index = SortSamByCoordinateSecondPass.output_bam_index
     File duplicate_metrics = MarkDuplicates.duplicate_metrics
   }
 }
