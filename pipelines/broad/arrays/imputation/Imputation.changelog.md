@@ -2,8 +2,9 @@
 2022-04-04 (Date of Last Commit)
 
 * Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+
 # 1.0.7
-2022-03-08(Date of Last Commit)
+2022-03-08 (Date of Last Commit)
 
 * Add pipefail to imputation tasks to ensure that they don't fail silently
 

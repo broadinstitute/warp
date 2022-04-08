@@ -84,7 +84,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
   protected val timestamp: String =
     testerConfig.useTimestamp.getOrElse(CromwellWorkflowTester.getTimestamp)
 
-  // Get string contents of test wdl 
+  // Get string contents of test wdl
   override lazy val wdlContents: String =
     readWdlFromReleaseDir(releaseDir, workflowName)
 
@@ -146,7 +146,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     /**
       * If we have nested inputs in our test inputs we need to push them down a level
       * e.g.
-      * ExomeGermUrllineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics ->
+      * ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics ->
       * TestExomeGermlineSingleSample.ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics
       */
     val pattern = new Regex(s"($workflowName).([A-Z]\\w+).")
