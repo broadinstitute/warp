@@ -96,11 +96,16 @@ workflow UMIAwareDuplicateMarking {
     }
   }
 
+  # We won't have the index file if the output is query-name sorted.
+  # Until we remove the transcriptome index from the TDR schema,
+  # output a placeholder text file as the bam index as a temporary fix
+  if (!coordinate_sort_output){
+    call tasks.CreateEmptyFile {}
+  }
 
   output {
     File duplicate_marked_bam = select_first([SortSamByCoordinateSecondPass.output_bam, MarkDuplicates.duplicate_marked_bam])
-    # Index is output if coordinate sorting is requested
-    File? duplicate_marked_bam_index = SortSamByCoordinateSecondPass.output_bam_index
+    File duplicate_marked_bam_index = select_first([SortSamByCoordinateSecondPass.output_bam_index, CreateEmptyFile.empty_file])
     File duplicate_metrics = MarkDuplicates.duplicate_metrics
   }
 }

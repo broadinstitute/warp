@@ -981,3 +981,25 @@ task PostprocessTranscriptomeForRSEM {
     memory: memory_mb
   }
 }
+
+task CreateEmptyFile {
+  input {
+    Int disk_size_gb = 128
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.0.0"
+    Int memory_mb = 4096
+  }
+
+  command {
+    cat "place holder for a bam index file" > empty.txt
+  }
+
+  output {
+    File empty_file = "empty.txt"
+  }
+
+  runtime {
+    docker: docker 
+    disks: "local-disk ~{disk_size_gb} HDD"
+    memory: memory_mb
+  }
+}
