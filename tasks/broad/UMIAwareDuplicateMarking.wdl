@@ -36,14 +36,21 @@ workflow UMIAwareDuplicateMarking {
   call tasks.SortSamByQueryName as SortSamByQueryNameAfterAlignment {
     input:
       input_bam = aligned_bam,
-      output_bam_basename = output_basename + "_queryname_sorted"
+      output_bam_basename = output_basename + ".queryname_sorted"
+  }
+
+  # It appears we cannot assume that the unmapped bam/fastqs will be sorted
+  call tasks.SortSamByQueryName as SortSamByQueryNameUnmapped {
+    input:
+      input_bam = unaligned_bam,
+      output_bam_basename = output_basename + ".u.queryname_sorted"
   }
 
   call tasks.TransferReadTags {
     input:
       aligned_bam = SortSamByQueryNameAfterAlignment.output_bam,
-      ubam = unaligned_bam,
-      output_basename = output_basename + "_queryname_sorted_with_RX"
+      ubam = SortSamByQueryNameUnmapped.output_bam,
+      output_basename = output_basename + ".queryname_sorted_with_RX"
   }
 
   # First sort the aligned bam by coordinate, so we can group duplicate sets using UMIs in the next step.
