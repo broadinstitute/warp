@@ -93,6 +93,8 @@ task CountVariantsInChunks {
   Int max_heap = memory_mb - 500
 
   command <<<
+    set -e -o pipefail
+
     echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
     echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_vcf}  | sed 's/Tool returned://') > var_in_reference
   >>>
@@ -123,6 +125,8 @@ task CheckChunks {
     Int memory_mb = 4000
   }
   command <<<
+    set -e -o pipefail
+
     if [ $(( ~{var_in_reference} * 2 - ~{var_in_original})) -gt 0 ] && [ ~{var_in_reference} -gt 3 ]; then
       echo true > valid_file.txt
     else
@@ -199,6 +203,8 @@ task Minimac4 {
     Int disk_size_gb = ceil(size(ref_panel, "GiB") + 2*size(phased_vcf, "GiB")) + 50
   }
   command <<<
+    set -e -o pipefail
+
     /usr/gitc/minimac4 \
     --refHaps ~{ref_panel} \
     --haps ~{phased_vcf} \
@@ -242,6 +248,8 @@ task GatherVcfs {
   Int max_heap = memory_mb - 500
 
   command <<<
+    set -e -o pipefail
+
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     GatherVcfs \
     -I ~{sep=' -I ' input_vcfs} \
@@ -342,6 +350,8 @@ task SeparateMultiallelics {
     Int memory_mb = 4000
   }
   command {
+    set -e -o pipefail
+
     bcftools norm -m - ~{original_vcf} -Oz -o ~{output_basename}.vcf.gz
     bcftools index -t ~{output_basename}.vcf.gz
   }
@@ -374,6 +384,8 @@ task OptionalQCSites {
   Float max_missing = select_first([optional_qc_max_missing, 0.05])
   Float hwe = select_first([optional_qc_hwe, 0.000001])
   command <<<
+    set -e -o pipefail
+
     # site missing rate < 5% ; hwe p > 1e-6
     vcftools --gzvcf ~{input_vcf}  --max-missing ~{max_missing} --hwe ~{hwe} --recode -c | bgzip -c > ~{output_vcf_basename}.vcf.gz
     bcftools index -t ~{output_vcf_basename}.vcf.gz # Note: this is necessary because vcftools doesn't have a way to output a zipped vcf, nor a way to index one (hence needing to use bcf).
@@ -402,6 +414,7 @@ task MergeSingleSampleVcfs {
     Int disk_size_gb = 3 * ceil(size(input_vcfs, "GiB") + size(input_vcf_indices, "GiB")) + 20
   }
   command <<<
+    set -e -o pipefail
     # Move the index file next to the vcf with the corresponding name
 
     declare -a VCFS=(~{sep=' ' input_vcfs})
@@ -587,6 +600,7 @@ task SetIDs {
     Int disk_size_gb = 100 + ceil(2.2 * size(vcf, "GiB"))
   }
   command <<<
+    set -e -o pipefail
     bcftools annotate ~{vcf} --set-id '%CHROM\:%POS\:%REF\:%FIRST_ALT' -Ov | \
       awk -v OFS='\t' '{split($3, n, ":"); if ( !($1 ~ /^"#"/) && n[4] < n[3])  $3=n[1]":"n[2]":"n[4]":"n[3]; print $0}' | \
       bgzip -c > ~{output_basename}.vcf.gz
@@ -650,6 +664,8 @@ task SelectVariantsByIds {
   Int max_heap = memory_mb - 500
 
   command <<<
+    set -e -o pipefail
+
     cp ~{ids} sites.list
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants -V ~{vcf} --exclude-filtered --keep-ids sites.list -O ~{basename}.vcf.gz
@@ -677,6 +693,8 @@ task RemoveAnnotations {
     Int disk_size_gb = ceil(2.2*size(vcf, "GiB")) + 100
   }
   command <<<
+    set -e -o pipefail
+
     bcftools annotate ~{vcf} -x FORMAT,INFO -Oz -o ~{basename}.vcf.gz
     bcftools index -t ~{basename}.vcf.gz
   >>>
@@ -706,6 +724,8 @@ task InterleaveVariants {
   Int max_heap = memory_mb - 500
 
   command <<<
+    set -e -o pipefail
+
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     MergeVcfs -I ~{sep=" -I " vcfs} -O ~{basename}.vcf.gz
   >>>
@@ -755,6 +775,8 @@ task SplitMultiSampleVcf {
     Int disk_size_gb = ceil(3*size(multiSampleVcf, "GiB")) + 100
   }
   command <<<
+    set -e -o pipefail
+    
     mkdir out_dir
     bcftools +split ~{multiSampleVcf} -Oz -o out_dir
     for vcf in out_dir/*.vcf.gz; do

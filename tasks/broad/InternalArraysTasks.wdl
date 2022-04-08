@@ -27,7 +27,7 @@ task GenerateEmptyVariantCallingMetricsFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.2-1647866389"
     memory: "3500 MiB"
     preemptible: preemptible_tries
   }
@@ -73,7 +73,7 @@ task BlacklistBarcode {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.2-1647866389"
     memory: "3500 MiB"
     preemptible: preemptible_tries
   }
@@ -124,7 +124,7 @@ task VcfToMercuryFingerprintJson {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.2-1647866389"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -152,7 +152,7 @@ task CreateBafRegressMetricsFile {
       --OUTPUT ~{output_metrics_basefilename}
   }
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.2-1647866389"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -229,7 +229,7 @@ task UploadArraysMetrics {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.2-1647866389"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -278,7 +278,7 @@ task UploadEmptyArraysMetrics {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.2-1647866389"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -377,7 +377,7 @@ task UpdateChipWellBarcodeIndex {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.2-1647866389"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -413,7 +413,7 @@ task GetNextArraysQcAnalysisVersionNumber {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.2-1647866389"
     memory: "3500 MiB"
     preemptible: preemptible_tries
   }

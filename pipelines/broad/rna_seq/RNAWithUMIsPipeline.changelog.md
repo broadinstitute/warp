@@ -1,10 +1,15 @@
+# 1.0.3
+2022-03-29 (Date of Last Commit)
+
+* Added the contamination task to the workflow.
+
 # 1.0.2
 2022-02-18 (Date of Last Commit)
 
 * Updated the STAR command line arguments, as follows:
-    * Add "--alignEndsProtrude 20 ConcordantPair"; to rescue the case where the insert size drops below the read length and the sequencer starts to read into the adapters.
-    * Removed "--limitSjdbInsertNsj 1200000"; the default of 1,000,000 is sufficient.
-    * Removed "--outSAMstrandField intronMotif", defaults to "None"
+    * Add \"--alignEndsProtrude 20 ConcordantPair\"; to rescue the case where the insert size drops below the read length and the sequencer starts to read into the adapters.
+    * Removed \"--limitSjdbInsertNsj 1200000\"; the default of 1,000,000 is sufficient.
+    * Removed \"--outSAMstrandField intronMotif\", defaults to \"None\"
 * Slightly reduced memory and disk usage on several tasks.
 * Standardized memory sizing.
 
