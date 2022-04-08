@@ -10,13 +10,6 @@ task VerifyPipelineInputs {
     File? r1_fastq
     File? r2_fastq
 
-    # fastq specific field
-    String? platform
-    String? library_name
-    String? platform_unit
-    String? read_group_name
-    String? sequencing_center = "BI"
-
     String docker = "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     Int cpu = 1
     Int memory_mb = 2000
@@ -31,19 +24,13 @@ task VerifyPipelineInputs {
     bam = "~{bam}"
     r1_fastq = "~{r1_fastq}"
     r2_fastq = "~{r2_fastq}"
-    platform = "~{platform}"
-    library_name = "~{library_name}"
-    platform_unit = "~{platform_unit}"
-    read_group_name = "~{read_group_name}"
-    sequencing_center = "~{sequencing_center}"
 
     if bam and not r1_fastq and not r2_fastq:
       pass
     elif r1_fastq and r2_fastq and not bam:
-      if platform and library_name and platform_unit and read_group_name and sequencing_center:
-        fastq_flag += 1
-      else:
-        raise ValueError("Invalid Input. Input must be either ubam or pair of fastqs with supplemental data")
+      fastq_flag += 1
+    else:
+      raise ValueError("Invalid Input. Input must be either ubam or a pair of fastqs")
 
     with open("output.txt", "w") as f:
       if fastq_flag == 1:

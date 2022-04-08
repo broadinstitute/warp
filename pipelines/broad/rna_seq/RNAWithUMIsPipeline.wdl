@@ -74,8 +74,14 @@ workflow RNAWithUMIsPipeline {
     population_vcf_index: "Population VCF index file used for contamination estimation"
   }
 
-  # Assume 
-  if (defined(r1_fastq)) {
+  call tasks.VerifyPipelineInputs {
+    input:
+      bam = bam,
+      r1_fastq = r1_fastq,
+      r2_fastq = r2_fastq
+  }
+
+  if (VerifyPipelineInputs.fastq_run) {
     call tasks.FastqToUbam {
       input:
         r1_fastq = select_first([r1_fastq]),
