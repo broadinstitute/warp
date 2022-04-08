@@ -1,7 +1,11 @@
-# 5.3.1
-2022-03-11 (Date of Last Commit)
-
+# 5.3.2
+2022-04-08 (Date of Last Commit)
 * Updated to Picard version 2.26.10 and GATK version 4.2.5.0 to address log4j vulnerabilities
+
+# 5.3.1
+2022-04-04 (Date of Last Commit)
+
+* Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
 
 # 5.3.0
 2022-02-22 (Date of Last Commit)

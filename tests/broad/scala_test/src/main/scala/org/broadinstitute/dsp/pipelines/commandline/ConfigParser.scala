@@ -814,6 +814,85 @@ class ConfigParser
           )
         }
     )
+  note("")
+  cmd(CloudWorkflow.entryName)
+    .text("Test a cloud workflow")
+    .action(
+      (_, config) =>
+        config.copy(
+          test = CloudWorkflow
+      )
+    )
+    .children(
+      opt[PipelineTestType]('p', "pipeline")
+        .text("The pipeline to test")
+        .required()
+        .action { (pipeline, config) =>
+          config.copy(
+            cloudWorkflowConfig =
+              config.cloudWorkflowConfig.copy(pipeline = pipeline)
+          )
+        },
+      opt[WorkflowTestCategory]('t', "test")
+        .text("The type of test to run")
+        .required()
+        .action { (test, config) =>
+          config.copy(
+            cloudWorkflowConfig =
+              config.cloudWorkflowConfig.copy(category = test)
+          )
+        },
+      opt[String]('b', "branch")
+        .text("The branch of truth data to test against (Defaults to develop)")
+        .optional()
+        .action { (branch, config) =>
+          config.copy(
+            cloudWorkflowConfig =
+              config.cloudWorkflowConfig.copy(truthBranch = branch)
+          )
+        },
+      opt[CromwellEnvironment]('e', "env")
+        .text(
+          s"The environment that this should run in ${CromwellEnvironment.optionsString}"
+        )
+        .required()
+        .action { (env, config) =>
+          config.copy(
+            cloudWorkflowConfig = config.cloudWorkflowConfig.copy(env = env)
+          )
+        },
+      opt[Unit]("update-truth")
+        .text(
+          "Update the truth data with the results of this run."
+        )
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            cloudWorkflowConfig =
+              config.cloudWorkflowConfig.copy(updateTruth = true)
+          )
+        },
+      opt[String]("use-timestamp")
+        .text(
+          "Do not run the workflows. Instead, just use a previous runs timestamp (yyyy-MM-dd-HH-mm-ss)"
+        )
+        .optional()
+        .action { (timestamp, config) =>
+          config.copy(
+            cloudWorkflowConfig = config.cloudWorkflowConfig
+              .copy(useTimestamp = Option(timestamp))
+          )
+        },
+      opt[Unit]('u', "uncached")
+        .text("Disable call-caching for the main workflow run")
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            cloudWorkflowConfig =
+              config.cloudWorkflowConfig.copy(useCallCaching = false)
+          )
+        }
+    )
 
   note("")
   germlineCloudPipelineCommandLineConfig(

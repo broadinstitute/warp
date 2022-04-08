@@ -41,6 +41,7 @@ workflow WholeGenomeGermlineSingleSample {
 
   String pipeline_version = "3.1.0"
 
+
   input {
     SampleAndUnmappedBams sample_and_unmapped_bams
     DNASeqSingleSampleReferences references

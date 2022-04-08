@@ -10,6 +10,7 @@ workflow VariantCalling {
 
   String pipeline_version = "2.1.0"
 
+
   input {
     Boolean run_dragen_mode_variant_calling = false
     Boolean use_spanning_event_genotyping = true
