@@ -89,12 +89,14 @@ def main():
 
     # we need to keep only those rows that have non-zero reads/counts
     matrix = coo_matrix.tocsr()
-    nonzero_row_indices, _ = matrix.nonzero()
-    unique_nonzero_row_indices = np.sort(np.unique(nonzero_row_indices))
-    scipy.sparse.save_npz("sparse_counts.npz", matrix[unique_nonzero_row_indices, :], compressed=True)
+    #nonzero_row_indices, _ = matrix.nonzero()
+    #unique_nonzero_row_indices = np.sort(np.unique(nonzero_row_indices))
+    #scipy.sparse.save_npz("sparse_counts.npz", matrix[unique_nonzero_row_indices, :], compressed=True)
+    scipy.sparse.save_npz("sparse_counts.npz", matrix, compressed=True)
 
     # we need to keep only those barcodes that have non-zero reads/counts
-    np.save("sparse_counts_row_index.npy", barcode_list[unique_nonzero_row_indices])
-      
+    #np.save("sparse_counts_row_index.npy", barcode_list[unique_nonzero_row_indices])
+    np.save("sparse_counts_row_index.npy", barcode_list)
+
 if __name__ == '__main__':
     main()
