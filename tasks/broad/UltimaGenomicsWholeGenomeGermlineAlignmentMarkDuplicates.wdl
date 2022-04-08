@@ -50,16 +50,10 @@ workflow AlignmentAndMarkDuplicates {
         split_chunk_size  = split_chunk_size,
         base_file_name    = base_file_name_sub
     }
-
-    call Tasks.FilterByRsq {
-      input:
-        input_bam       = ConvertToUbam.unmapped_bam, 
-        rsq_threshold   = rsq_threshold
-    }
-
+    
     call Tasks.SamToFastqAndBwaMemAndMba{
       input :
-        input_bam            = FilterByRsq.output_bam,
+        input_bam            = ConvertToUbam.unmapped_bam,
         alignment_references = alignment_references,
         references           = references
     }

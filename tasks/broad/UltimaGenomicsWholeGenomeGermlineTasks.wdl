@@ -56,30 +56,31 @@ task SplitCram {
     String base_file_name
     Int reads_per_file
 
-    String docker = "gcr.io/terra-project-249020/crammer:1.3_0c527b2e"
+    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:test_0.7rc1"
     Int disk_size_gb = ceil(3 * size(input_cram_bam, "GiB") + 20)
     Int cpu = 1
-    Int memory_mb = ceil(size(input_cram_bam, "MiB"))
+    Int memory_gb = 10
     Int preemptible = 3
     Int max_retries = 1
   }
 
   command <<<
-    mkdir -p /cromwell_root/splitout
-    /crammer --split --out /cromwell_root/splitout/~{base_file_name}-%d.cram \
-    --progress --nreads-per-file ~{reads_per_file}  < ~{input_cram_bam}
+    mkdir -p splitout
+    java -Xmx8g -jar /usr/gitc/GATK_ultima.jar SplitCRAM -I ~{input_cram_bam} \
+                          -O splitout/~{base_file_name}-%04d.cram \
+                          --shard-records ~{reads_per_file}
   >>>
 
   runtime {
     docker: docker
     cpu: cpu
-    memory: "${memory_mb} MiB"
+    memory: "${memory_gb} GB"
     disks: "local-disk ${disk_size_gb} HDD"
     maxRetries: max_retries
   }
 
   output {
-    Array[File] split_outputs = glob("/cromwell_root/splitout/*.cram")
+    Array[File] split_outputs = glob("splitout/*.cram")
   }
 }
 
@@ -90,7 +91,7 @@ task ConvertCramOrBamToUBam {
     String base_file_name
     Float split_chunk_size
 
-    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
+    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:test_0.7rc1"
     Int disk_size_gb = ceil((2 * split_chunk_size) + 20)
     Int cpu = 2
     Int memory_mb = 13000
@@ -266,8 +267,7 @@ task MarkDuplicatesSpark {
   input {
     Array[File] input_bams
     String output_bam_basename
-    
-    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
+    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:test_0.7rc1"
     Int disk_size_gb
     Int cpu = 32
     Int memory_mb = if 4 * ceil(size(input_bams, "MB")) / 4000 > 600000 then 300000 else 208000
@@ -290,10 +290,7 @@ task MarkDuplicatesSpark {
     --create-output-bam-index true \
     --spark-verbosity WARN \
     --verbosity WARNING \
-    --FLOW_END_LOCATION_SIGNIFICANT true \
-    --FLOW_USE_CLIPPED_LOCATIONS true \
-    --ENDS_READ_UNCERTAINTY 1 \
-    --FLOW_SKIP_START_HOMOPOLYMERS 0
+    --flowbased
   >>>
 
   runtime {
@@ -307,43 +304,6 @@ task MarkDuplicatesSpark {
   output {
     File output_bam = "~{output_bam_basename}.bam"
     File output_bam_index = "~{output_bam_basename}.bam.bai"
-  }
-}
-
-task FilterByRsq{
-  input { 
-    File input_bam
-    Float rsq_threshold
-
-    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
-    Int disk_size_gb = ceil(2 * size(input_bam, "GB") + 20)
-    Int cpu = 1
-    Int memory_mb = 5000
-    Int preemptible = 3
-  }
-
-  String output_filename = basename(input_bam, ".bam") + ".filter.rq.bam"
-
-  command <<<
-    set -eo pipefail
-
-    source ~/.bashrc
-
-    conda activate genomics.py3
-
-    bamtools filter -in ~{input_bam} -out ~{output_filename} -tag "rq":"<=~{rsq_threshold}"
-  >>>
-
-  output {
-    File output_bam = "~{output_filename}"
-  }
-
-  runtime {
-    docker: docker
-    cpu: cpu
-    memory: "${memory_mb} MiB"
-    disks: "local-disk ${disk_size_gb} HDD"
-    preemptible: preemptible
   }
 }
 
@@ -512,7 +472,7 @@ task HaplotypeCaller {
     Boolean native_sw = false
     String? contamination_extra_args 
     
-    String docker = "gcr.io/terra-project-249020/gatk_ultima:0.6.1"
+    String docker = "gcr.io/terra-project-249020/gatk_ultima:test_0.7rc1"
     Int disk_size_gb = ceil((size(input_bam_list, "GB")) + size(references.ref_fasta, "GB") + size(references.ref_fasta_index, "GB") + size(references.ref_dict, "GB") + 60)
     Int cpu = 2
     Int memory_mb = 12000
@@ -542,30 +502,17 @@ task HaplotypeCaller {
       -R ~{references.ref_fasta} \
       -O ~{output_filename} \
       -I ~{sep = ' -I ' input_bam_list} \
+      --read-index ~{sep = ' --read-index' input_bam_index_list} \
       --intervals ~{interval_list} \
       --smith-waterman ~{if (native_sw) then "JAVA" else "FASTEST_AVAILABLE"} \
       -ERC GVCF \
       ~{true="--bamout realigned.bam" false="" make_bamout} \
-      -mbq 0 \
-      --flow-filter-alleles \
-      --flow-filter-alleles-sor-threshold 3 \
-      --flow-assembly-collapse-hmer-size 12 \
-      --flow-matrix-mods 10,12,11,12 \
+      --flow-mode ADVANCED \
       --bam-writer-type ~{bam_writer_type} \
-      --apply-frd --minimum-mapping-quality 1 \
-      --mapping-quality-threshold-for-genotyping 1 \
-      --override-fragment-softclip-check \
-      --flow-likelihood-parallel-threads 2 \
-      --flow-likelihood-optimized-comp \
-      --adaptive-pruning \
-      --pruning-lod-threshold 3.0 \
-      --enable-dynamic-read-disqualification-for-genotyping \
-      --dynamic-read-disqualification-threshold 10 \
       -G StandardAnnotation \
       -G StandardHCAnnotation \
-      -G AS_StandardAnnotation\
+      -G AS_StandardAnnotation \
       -GQB 10 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 -GQB 70 -GQB 80 -GQB 90 \
-      --likelihood-calculation-engine FlowBased \
       -A AssemblyComplexity \
       --assembly-complexity-reference-mode \
       ~{contamination_extra_args}
@@ -637,7 +584,7 @@ task ConvertGVCFtoVCF {
     String output_vcf_name
     References references
 
-    String docker = "gcr.io/terra-project-249020/gatk_ultima:0.6.1"
+    String docker = "gcr.io/terra-project-249020/gatk_ultima:test_0.7rc1"
     Int disk_size_gb = ceil(2 * size(input_gvcf, "GB") + size(references.ref_fasta, "GB") + size(input_gvcf_index, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 12000
@@ -652,7 +599,7 @@ task ConvertGVCFtoVCF {
     -V ~{input_gvcf} \
     -O ~{output_vcf_name} \
     -A  StrandBiasBySample \
-    -A AS_HmerLength
+    -stand-call-conf 0 
   }
 
   runtime {
@@ -678,12 +625,11 @@ task FilterVCF {
     References references
     String model_name
     Boolean filter_cg_insertions
-    File? blocklist_file
     String final_vcf_base_name
     String flow_order
     Array[File] annotation_intervals
 
-    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
+    String docker = "gcr.io/terra-project-249020/jukebox_vc:test_0.7rc1"
     Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + size(references.ref_fasta, "GB") + size(input_model, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 64000
@@ -696,18 +642,16 @@ task FilterVCF {
     source ~/.bashrc
     conda activate genomics.py3
 
-    cd /VariantCalling/src/python/pipelines
-    python filter_variants_pipeline.py --input_file ~{input_vcf} \
-    --model_file ~{input_model} \
-    --model_name ~{model_name} \
-    --runs_file ~{runs_file} \
-    --reference_file ~{references.ref_fasta} \
-    --hpol_filter_length_dist 12 10 \
-    --flow_order ~{used_flow_order} \
-    ~{true="--blacklist_cg_insertions" false="" filter_cg_insertions} \
-    ~{"--blacklist " + blocklist_file} \
-    --annotate_intervals ~{sep=" --annotate_intervals " annotation_intervals} \
-    --output_file /cromwell_root/~{final_vcf_base_name}.filtered.vcf.gz
+    filter_variants_pipeline.py --input_file ~{input_vcf} \
+        --model_file ~{input_model} \
+        --model_name ~{model_name} \
+        --runs_file ~{runs_file} \
+        --reference_file ~{references.ref_fasta} \
+        --hpol_filter_length_dist 12 10 \
+        --flow_order ~{used_flow_order} \
+        ~{true="--blacklist_cg_insertions" false="" filter_cg_insertions} \
+        --annotate_intervals ~{sep=" --annotate_intervals " annotation_intervals} \
+        --output_file /cromwell_root/~{final_vcf_base_name}.filtered.vcf.gz
   >>>
 
   runtime {
@@ -719,8 +663,8 @@ task FilterVCF {
   }
 
   output {
-    File output_vcf_filtered = "/cromwell_root/~{final_vcf_base_name}.filtered.vcf.gz"
-    File output_vcf_filtered_index = "/cromwell_root/~{final_vcf_base_name}.filtered.vcf.gz.tbi"
+    File output_vcf_filtered = "~{final_vcf_base_name}.filtered.vcf.gz"
+    File output_vcf_filtered_index = "~{final_vcf_base_name}.filtered.vcf.gz.tbi"
   }
 }
 
@@ -741,7 +685,7 @@ task TrainModel {
     String? exome_weight_annotation
 
 
-    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
+    String docker = "gcr.io/terra-project-249020/jukebox_vc:test_0.7rc1"
     Int disk_size_gb = ceil(size(input_file, "GB") +
                         size(ref_fasta, "GB") +
                         size(annotation_intervals, "GB") +
@@ -755,19 +699,18 @@ task TrainModel {
   <<<
     source ~/.bashrc
     conda activate genomics.py3
-    cd /VariantCalling/src/python/pipelines
-    python train_models_pipeline.py \
-    --input_file ~{input_file} \
-    ~{"--input_interval " + input_interval} \
-    ~{"--reference " + ref_fasta} \
-    ~{"--runs_intervals " + runs_file} \
-    --evaluate_concordance \
-    --apply_model ~{apply_model} \
-    ~{"--blacklist " + blocklist_file} \
-    ~{"--exome_weight " + exome_weight} \
-    ~{"--exome_weight_annotation " + exome_weight_annotation} \
-    --annotate_intervals ~{sep=" --annotate_intervals " annotation_intervals} \
-    --output_file_prefix /cromwell_root/~{input_vcf_name}.model
+    train_models_pipeline.py \
+        --input_file ~{input_file} \
+        ~{"--input_interval " + input_interval} \
+        ~{"--reference " + ref_fasta} \
+        ~{"--runs_intervals " + runs_file} \
+        --evaluate_concordance \
+        --apply_model ~{apply_model} \
+        ~{"--blacklist " + blocklist_file} \
+        ~{"--exome_weight " + exome_weight} \
+        ~{"--exome_weight_annotation " + exome_weight_annotation} \
+        --annotate_intervals ~{sep=" --annotate_intervals " annotation_intervals} \
+        --output_file_prefix /cromwell_root/~{input_vcf_name}.model
   >>>
 
   runtime {
@@ -779,8 +722,8 @@ task TrainModel {
   }
 
   output {
-    File model_h5 = "/cromwell_root/~{input_vcf_name}.model.h5"
-    File model_pkl = "/cromwell_root/~{input_vcf_name}.model.pkl"
+    File model_h5 = "~{input_vcf_name}.model.h5"
+    File model_pkl = "~{input_vcf_name}.model.pkl"
   }
 }
 
@@ -791,7 +734,7 @@ task CollectDuplicateMetrics {
     String metrics_filename
 
     
-    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
+    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:test_0.7rc1"
     Int disk_size_gb = if ceil((size(input_bam, "GB")) +
                                size(references.ref_fasta, "GB") +
                                size(references.ref_fasta_index, "GB") +
@@ -938,7 +881,7 @@ task CollectAggregationMetrics {
     String output_bam_prefix
     References references
     
-    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
+    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:test_0.7rc1"
     Int disk_size_gb = if ceil((size(input_bam, "GB")) +
                                size(references.ref_fasta, "GB") +
                                size(references.ref_fasta_index, "GB") +
@@ -997,7 +940,7 @@ task AnnotateVCF {
     String flow_order
     String final_vcf_base_name
 
-    String docker = "gcr.io/terra-project-249020/gatk_ultima:0.6.1"
+    String docker = "gcr.io/terra-project-249020/gatk_ultima:test_0.7rc1"
     Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + size(references.ref_fasta, "GB") + size(reference_dbsnp, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 15000
@@ -1039,7 +982,7 @@ task AddIntervalAnnotationsToVCF {
     String final_vcf_base_name
     Array[File] annotation_intervals
 
-    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
+    String docker = "gcr.io/terra-project-249020/jukebox_vc:test_0.7rc1"
     Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + 1)
     Int cpu = 1
     Int memory_mb = 15000
@@ -1076,8 +1019,8 @@ task AddIntervalAnnotationsToVCF {
   }
 
   output {
-    File output_vcf = "/cromwell_root/~{final_vcf_base_name}.intervals_annotated.vcf.gz"
-    File output_vcf_index = "/cromwell_root/~{final_vcf_base_name}.intervals_annotated.vcf.gz.tbi"
+    File output_vcf = "~{final_vcf_base_name}.intervals_annotated.vcf.gz"
+    File output_vcf_index = "~{final_vcf_base_name}.intervals_annotated.vcf.gz.tbi"
   }
 }
 
@@ -1089,7 +1032,7 @@ task AnnotateVCF_AF {
     File af_only_gnomad
     File af_only_gnomad_index
 
-    String docker = "gcr.io/terra-project-249020/jukebox_vc:0.6.2_8f51ed"
+    String docker = "gcr.io/terra-project-249020/jukebox_vc:test_0.7rc1"
     Int disk_size_gb = ceil(3 * size(input_vcf, "GB") + size(af_only_gnomad, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 10000

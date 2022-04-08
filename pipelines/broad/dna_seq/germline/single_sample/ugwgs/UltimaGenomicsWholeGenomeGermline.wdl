@@ -173,7 +173,6 @@ workflow UltimaGenomicsWholeGenomeGermline {
       references              = references,
       model_name              = filtering_model_no_gt_name,
       filter_cg_insertions    = vcf_post_processing.filter_cg_insertions,
-      blocklist_file          = vcf_post_processing.filtering_blocklist_file,
       final_vcf_base_name     = UltimaGenomicsWholeGenomeCramOnly.output_safe_name,
       flow_order              = UltimaGenomicsWholeGenomeCramOnly.flow_order,
       annotation_intervals    = vcf_post_processing.annotation_intervals
