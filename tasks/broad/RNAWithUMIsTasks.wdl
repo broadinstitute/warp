@@ -272,7 +272,7 @@ task GetSampleName {
   input {
     File bam
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.5.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
@@ -817,7 +817,7 @@ task CalculateContamination {
     File population_vcf
     File population_vcf_index
     # runtime
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.5.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
     Int cpu = 1
     Int memory_mb = 8192
     Int disk_size_gb = 256
@@ -930,14 +930,13 @@ task TransferReadTags {
     File aligned_bam
     File ubam
     String output_basename
-    File gatk_jar = "gs://broad-dsde-methods-takuto/RNA/gatk_transfer_read_tags.jar"
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11" # sato: replace with a new gatk docker release, as needed
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
     Int memory_mb = 16000
     Int disk_size_gb = ceil(2 * size(aligned_bam, "GB")) + ceil(2 * size(ubam, "GB")) + 128
   }
 
   command <<<
-    java -jar ~{gatk_jar} TransferReadTags \
+    gatk TransferReadTags \
     -I ~{aligned_bam} \
     --unmapped-sam ~{ubam} \
     -O ~{output_basename}.bam \
@@ -959,14 +958,13 @@ task PostprocessTranscriptomeForRSEM {
   input {
     String prefix
     File input_bam # the input must be queryname sorted
-    File gatk_jar = "gs://broad-dsde-methods-takuto/RNA/gatk_post_processing.jar"
     Int disk_size_gb = ceil(3*size(input_bam,"GB")) + 128
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.0.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
     Int memory_mb = 16000
   }
 
   command {
-    java -jar ~{gatk_jar} PostProcessReadsForRSEM \
+    gatk PostProcessReadsForRSEM \
     -I ~{input_bam} \
     -O ~{prefix}_gatk.bam
   }
@@ -985,7 +983,7 @@ task PostprocessTranscriptomeForRSEM {
 task CreateEmptyFile {
   input {
     Int disk_size_gb = 128
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.0.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
     Int memory_mb = 4096
   }
 
