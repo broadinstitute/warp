@@ -1,3 +1,9 @@
+# 5.3.1
+2022-04-04 (Date of Last Commit)
+
+* Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+
+
 # 5.3.0
 2022-02-22 (Date of Last Commit)
 
