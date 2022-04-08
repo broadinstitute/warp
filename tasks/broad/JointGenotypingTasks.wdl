@@ -149,7 +149,7 @@ task GenotypeGVCFs {
     Int disk_size
     # This is needed for gVCFs generated with GATK3 HaplotypeCaller
     Boolean allow_old_rms_mapping_quality_annotation_data = false
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/gatk-log4jfix@sha256:3946dd31c32fe39dccb9a08577f16d6f259aa34dabaa5c7c185abb6af6862496"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0."
   }
 
   parameter_meta {
@@ -203,7 +203,7 @@ task GnarlyGenotyper {
     File ref_dict
     String dbsnp_vcf
 
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/gatk-log4jfix@sha256:3946dd31c32fe39dccb9a08577f16d6f259aa34dabaa5c7c185abb6af6862496"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk4.2.6.0"
   }
 
   parameter_meta {
