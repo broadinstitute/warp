@@ -1,7 +1,7 @@
 # 1.0.3
 2022-03-29 (Date of Last Commit)
 
-* Updated to Picard version 2.26.10 and GATK version 4.2.5.0 to address log4j vulnerabilities
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.0 to address log4j vulnerabilities
 * Added the contamination task to the workflow.
 
 # 1.0.2

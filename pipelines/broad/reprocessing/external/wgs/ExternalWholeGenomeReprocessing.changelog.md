@@ -1,7 +1,7 @@
 # 2.1.0
 2022-04-08 (Date of Last Commit)
 
-* Updated to Picard version 2.26.10 and GATK version 4.2.5.0 to address log4j vulnerabilities
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.0 to address log4j vulnerabilities
     * The following metrics were added to alignment summary and readgroup alignment summary metrics:
         * AVG_POS_3PRIME_SOFTCLIP_LENGTH
         * MAD_READ_LENGTH

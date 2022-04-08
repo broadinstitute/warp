@@ -6,7 +6,7 @@
 2022-03-24 (Date of Last Commit)
 
 * Update base image for picard-private docker image
-* Updated to GATK version 4.2.5.0 to address log4j vulnerabilities
+* Updated to GATK version 4.2.6.0 to address log4j vulnerabilities
 * Add gsutil to PATH in picard-private docker image
 
 # 2.6.6

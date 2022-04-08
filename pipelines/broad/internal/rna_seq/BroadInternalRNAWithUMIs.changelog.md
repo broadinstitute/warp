@@ -1,7 +1,7 @@
 # 1.0.7
 2022-04-08 (Date of Last Commit)
 * Update base image for picard-private docker image
-* Updated to Picard version 2.26.10 and GATK version 4.2.5.0 to address log4j vulnerabilities
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.0 to address log4j vulnerabilities
 
 # 1.0.6
 2022-04-04 (Date of Last Commit)

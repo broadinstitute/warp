@@ -1,7 +1,7 @@
 # 5.1.9
 2022-03-11 (Date of Last Commit)
 
-* Updated to Picard version 2.26.10 and GATK version 4.2.5.0 to address log4j vulnerabilities
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.0 to address log4j vulnerabilities
     * Two new metrics added to insert size metrics: 
         * MODE_INSERT_SIZE
         * WIDTH_OF_95_PERCENT
