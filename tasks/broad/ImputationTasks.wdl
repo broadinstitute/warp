@@ -87,7 +87,7 @@ task SortChunksByContigs {
     with pysam.AlignmentFile("~{ref_dict}") as ref_dict:
       chunks.sort(key=lambda chunk: getContigIndex(chunk.contig, ref_dict))
 
-    with open("vcf_chunks.txt", "w") as f_vcfs_out, open("vcf_index_chunks.txt") as f_vcf_indices_out:
+    with open("vcf_chunks.txt", "w") as f_vcfs_out, open("vcf_index_chunks.txt", "w") as f_vcf_indices_out:
       for chunk in chunks:
         f_vcfs_out.write(chunk.vcf + "\n")
         f_vcf_indices_out.write(chunk.vcf_index + "\n")
