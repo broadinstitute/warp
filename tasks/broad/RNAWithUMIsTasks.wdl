@@ -970,7 +970,7 @@ task PostprocessTranscriptomeForRSEM {
   }
 
   output {
-    File output_bam = "~{prefix}.bam"
+    File output_bam = "~{prefix}_gatk.bam"
   }
 
   runtime {
@@ -988,7 +988,7 @@ task CreateEmptyFile {
   }
 
   command {
-    cat "place holder for a bam index file" > empty.txt
+    echo "place holder for a bam index file" > empty.txt
   }
 
   output {
