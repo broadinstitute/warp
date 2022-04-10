@@ -203,7 +203,7 @@ task GnarlyGenotyper {
     File ref_dict
     String dbsnp_vcf
 
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk4.2.6.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
   }
 
   parameter_meta {
