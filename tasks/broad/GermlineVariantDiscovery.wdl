@@ -44,7 +44,7 @@ task HaplotypeCaller_GATK35_GVCF {
   # Using PrintReads is a temporary solution until we update HaploypeCaller to use GATK4. Once that is done,
   # HaplotypeCaller can stream the required intervals directly from the cloud.
   command {
-    gatk --java-options "-Xms2000m -Xmx9000m"\
+    /usr/gitc/gatk4/gatk --java-options "-Xms2000m -Xmx9000m"\
       PrintReads \
       -I ~{input_bam} \
       --interval-padding 500 \
@@ -66,7 +66,7 @@ task HaplotypeCaller_GATK35_GVCF {
       --read_filter OverclippedRead
   }
   runtime {
-    docker: "us.gcr.io/broad-gatk/gatk:4.2.6.0"
+    docker: "us.gcr.io/broad-gotc-prod/gatk:1.2.0-4.2.6.0-1649467214"
     preemptible: preemptible_tries
     memory: "10000 MiB"
     cpu: "1"
