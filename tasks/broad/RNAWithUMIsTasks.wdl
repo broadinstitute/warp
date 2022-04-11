@@ -100,12 +100,9 @@ task Fastp {
     String docker = "us.gcr.io/broad-gotc-prod/fastp:1.0.0-0.20.1-1649253500"
     Int memory_mb =  "16384"
     Int disk_size_gb = 5*ceil(size(fastq1, "GiB")) + 128
-    File monitoring_script = "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh"
   }
 
   command {
-    bash ~{monitoring_script} > monitoring.log &
-
     fastp --in1 ~{fastq1} --in2 ~{fastq2} --out1 ~{output_prefix}_read1.fastq.gz --out2 ~{output_prefix}_read2.fastq.gz \
     --disable_quality_filtering \
     --disable_length_filtering \
@@ -932,7 +929,7 @@ task TransferReadTags {
     String output_basename
     String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
     Int memory_mb = 16000
-    Int disk_size_gb = ceil(2 * size(aligned_bam, "GB")) + ceil(2 * size(ubam, "GB")) + 128
+    Int disk_size_gb = ceil(2 * size(aligned_bam, "GiB")) + ceil(2 * size(ubam, "GiB")) + 128
   }
 
   command <<<
@@ -958,7 +955,7 @@ task PostprocessTranscriptomeForRSEM {
   input {
     String prefix
     File input_bam # the input must be queryname sorted
-    Int disk_size_gb = ceil(3*size(input_bam,"GB")) + 128
+    Int disk_size_gb = ceil(3*size(input_bam,"GiB")) + 128
     String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
     Int memory_mb = 16000
   }
@@ -966,11 +963,11 @@ task PostprocessTranscriptomeForRSEM {
   command {
     gatk PostProcessReadsForRSEM \
     -I ~{input_bam} \
-    -O ~{prefix}_gatk.bam
+    -O ~{prefix}_RSEM_post_processed.bam
   }
 
   output {
-    File output_bam = "~{prefix}_gatk.bam"
+    File output_bam = "~{prefix}_RSEM_post_processed.bam"
   }
 
   runtime {

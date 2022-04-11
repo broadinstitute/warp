@@ -2,7 +2,7 @@
   "BroadInternalRNAWithUMIs.sample_lsid": "broadinstitute.org:bsp.prod.sample:K4Y2X",
   "BroadInternalRNAWithUMIs.output_basename": "SM-K4Y2X_350ng_.65X_D3",
 
-  "BroadInternalRNAWithUMIs.reference_build": "hg19",
+  "BroadInternalRNAWithUMIs.reference_build": "hg38",
 
   "BroadInternalRNAWithUMIs.r1_fastq": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/plumbing/inputs/SM-K4Y2X_350ng_.65X_D3_read1_plumbing.fastq",
   "BroadInternalRNAWithUMIs.r2_fastq": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/plumbing/inputs/SM-K4Y2X_350ng_.65X_D3_read2_plumbing.fastq",
