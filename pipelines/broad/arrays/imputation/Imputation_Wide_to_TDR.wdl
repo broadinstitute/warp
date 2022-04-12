@@ -148,6 +148,9 @@ task format_imputation_wide_outputs{
         Array[String]?  imputed_single_sample_vcf_indices
     }
 
+    String prefix="[\""
+    String postfix="\"]"
+
     command <<<
 
         # handle array[type] variables to print as list with double quotes
@@ -160,11 +163,15 @@ task format_imputation_wide_outputs{
         import pandas as pd
         import os
 
-        imputed_single_sample_vcfs_TEST = os.environ["imputed_single_sample_vcfs"]
+        # imputed_single_sample_vcfs_TEST = os.environ["imputed_single_sample_vcfs"]
         # imputed_single_sample_vcfs_TEST = '["' + "~{sep='","' imputed_single_sample_vcfs}" + '"]'
-        print("imputed_single_sample_vcfs_2 with brackets")
-        print(type(imputed_single_sample_vcfs_TEST))
-        print(imputed_single_sample_vcfs_TEST)
+        # print("imputed_single_sample_vcfs_2 with brackets")
+        # print(type(imputed_single_sample_vcfs_TEST))
+        # print(imputed_single_sample_vcfs_TEST)
+
+        PREFIX_POSTFIX_TEST=~{prefix}~{sep="\", \"" imputed_single_sample_vcfs}~{postfix}
+        print(type(PREFIX_POSTFIX_TEST))
+        print(PREFIX_POSTFIX_TEST)
 
         # tsv_df = pd.DataFrame(columns = ["chip_well_barcode", "imputed_single_sample_vcf", "imputed_single_sample_vcf_index"], sep="\t")
         # sample_dict = {}
