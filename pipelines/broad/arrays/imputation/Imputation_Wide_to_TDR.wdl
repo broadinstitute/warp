@@ -150,10 +150,18 @@ task format_imputation_wide_outputs{
 
     command <<<
 
+        # handle array[type] variables to print as list with double quotes
+        imputed_single_sample_vcfs='~{sep='","' imputed_single_sample_vcfs}'
+        echo "imputed_single_sample_vcfs"
+        echo "[\"${imputed_single_sample_vcfs}\"]"
+        export imputed_single_sample_vcfs
+
         python3 << CODE
         import pandas as pd
+        import os
 
-        imputed_single_sample_vcfs_TEST = '["' + "~{sep='","' imputed_single_sample_vcfs}" + '"]'
+        imputed_single_sample_vcfs_TEST = os.environ["imputed_single_sample_vcfs"]
+        # imputed_single_sample_vcfs_TEST = '["' + "~{sep='","' imputed_single_sample_vcfs}" + '"]'
         print("imputed_single_sample_vcfs_2 with brackets")
         print(type(imputed_single_sample_vcfs_TEST))
         print(imputed_single_sample_vcfs_TEST)
