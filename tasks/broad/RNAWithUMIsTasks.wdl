@@ -120,7 +120,6 @@ task Fastp {
   output {
     File fastq1_clipped = output_prefix + "_read1.fastq.gz"
     File fastq2_clipped = output_prefix + "_read2.fastq.gz"
-    File monitoring_log = "monitoring.log"
   }
 
 }
