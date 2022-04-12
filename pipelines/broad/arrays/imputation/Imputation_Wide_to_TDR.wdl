@@ -173,16 +173,17 @@ task format_imputation_wide_outputs{
         python3 << CODE
         import pandas as pd
 
-        print("imputed_single_sample_vcfs without variable assignment")
-        print(~{sep='","' imputed_single_sample_vcfs})
+        # print("imputed_single_sample_vcfs without variable assignment")
+        # print(~{sep='","' imputed_single_sample_vcfs})
+
+        imputed_single_sample_vcfs_2 = '["' + imputed_single_sample_vcfs + '"]'
+        print("imputed_single_sample_vcfs_2 with brackets")
+        print(type(imputed_single_sample_vcfs_2))
+        print(imputed_single_sample_vcfs_2)
 
         imputed_single_sample_vcfs = ~{sep='","' imputed_single_sample_vcfs}
         print("imputed_single_sample_vcfs variable with separator")
         print(imputed_single_sample_vcfs)
-
-        imputed_single_sample_vcfs_2 = '["' + imputed_single_sample_vcfs + '"]'
-        print("imputed_single_sample_vcfs_2 with brackets")
-        print(imputed_single_sample_vcfs_2)
 
 
         # tsv_df = pd.read_csv("ingestDataset_imputation_wide_outputs.tsv", sep="\t")
