@@ -85,5 +85,5 @@ workflows:
 
   - name: Imputation_Wide_TDR
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/arrays/imputation/Imputation_Widee_to_TDR.wdl
+    primaryDescriptorPath: /pipelines/broad/arrays/imputation/Imputation_Wide_to_TDR.wdl
 
