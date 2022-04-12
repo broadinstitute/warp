@@ -173,10 +173,10 @@ task format_imputation_wide_outputs{
         python3 << CODE
         import pandas as pd
 
-        imputed_single_sample_vcfs_2 = '["' + imputed_single_sample_vcfs + '"]'
+        imputed_single_sample_vcfs_TEST = '["' + ~{sep='","' imputed_single_sample_vcfs} + '"]'
         print("imputed_single_sample_vcfs_2 with brackets")
-        print(type(imputed_single_sample_vcfs_2))
-        print(imputed_single_sample_vcfs_2)
+        print(type(imputed_single_sample_vcfs_TEST))
+        print(imputed_single_sample_vcfs_TEST)
 
         # tsv_df = pd.DataFrame(columns = ["chip_well_barcode", "imputed_single_sample_vcf", "imputed_single_sample_vcf_index"], sep="\t")
         # sample_dict = {}
