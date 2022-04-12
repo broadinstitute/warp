@@ -150,30 +150,10 @@ task format_imputation_wide_outputs{
 
     command <<<
 
-        # write header to file
-        # echo -e "chip_well_barcode\timputed_single_sample_vcf\timputed_single_sample_vcf_index" \
-        # > ingestDataset_imputation_wide_outputs.tsv
-
-        # handle array[type] variables to print as list with double quotes
-        # imputed_single_sample_vcfs='~{sep='","' imputed_single_sample_vcfs}'
-        # echo "imputed_single_sample_vcfs"
-        # echo "[\"${imputed_single_sample_vcfs}\"]"
-
-        # imputed_single_sample_vcf_indices='~{sep='","' imputed_single_sample_vcf_indices}'
-        # echo "imputed_single_sample_vcf_indices"
-        # echo "[\"${imputed_single_sample_vcf_indices}\"]"
-
-        # write file paths to row in tsv file
-        # echo -e "[\"${imputed_single_sample_vcfs}\"]\t\
-        # [\"${imputed_single_sample_vcf_indices}\"]\t\
-        # [\"${chip_well_barcodes}\"]" \
-        # >> ingestDataset_imputation_wide_outputs.tsv
-
-
         python3 << CODE
         import pandas as pd
 
-        imputed_single_sample_vcfs_TEST = '["' + ~{sep='","' imputed_single_sample_vcfs} + '"]'
+        imputed_single_sample_vcfs_TEST = '["' + "~{sep='","' imputed_single_sample_vcfs}" + '"]'
         print("imputed_single_sample_vcfs_2 with brackets")
         print(type(imputed_single_sample_vcfs_TEST))
         print(imputed_single_sample_vcfs_TEST)
