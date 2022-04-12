@@ -173,22 +173,29 @@ task format_imputation_wide_outputs{
         python3 << CODE
         import pandas as pd
 
-        # print("imputed_single_sample_vcfs without variable assignment")
-        # print(~{sep='","' imputed_single_sample_vcfs})
-
         imputed_single_sample_vcfs_2 = '["' + imputed_single_sample_vcfs + '"]'
         print("imputed_single_sample_vcfs_2 with brackets")
         print(type(imputed_single_sample_vcfs_2))
         print(imputed_single_sample_vcfs_2)
 
-        imputed_single_sample_vcfs = ~{sep='","' imputed_single_sample_vcfs}
-        print("imputed_single_sample_vcfs variable with separator")
-        print(imputed_single_sample_vcfs)
+        # tsv_df = pd.DataFrame(columns = ["chip_well_barcode", "imputed_single_sample_vcf", "imputed_single_sample_vcf_index"], sep="\t")
+        # sample_dict = {}
+        # # for each file in list of imputed vcfs, get chip_well_barcode value
+        # for vcf in imputed_single_sample_vcfs:
+        #     imputed_vcf_filename = vcf.split("/")[-1]
+        #     imputed_vcf_index_filename = imputed_vcf_filename + ".tbi"
+        #     chip_well_barcode = filename.split(".")[0]
+        #     imputed_vcf_path = vcf
+        #     imputed_vcf_index_path = [s for s in imputed_single_sample_vcf_indices if imputed_vcf_index_filename in s][0]
 
+        #     sample_dict["chip_well_barcode"] = chip_well_barcode
+        #     sample_dict["imputed_single_sample_vcf"] = imputed_vcf_path
+        #     sample_dict["imputed_single_sample_vcf_index"] = imputed_vcf_index_path
 
-        # tsv_df = pd.read_csv("ingestDataset_imputation_wide_outputs.tsv", sep="\t")
+        #     tsv_df = tsv_df.append(sample_dict, ignore_index = True)
+
+        # # tsv_df = pd.read_csv("ingestDataset_imputation_wide_outputs.tsv", sep="\t")
         # tsv_df = tsv_df.dropna(axis=1, how="all")  # drop columns if no value (optional outputs etc)
-
         # outputs = tsv_df.to_json("ingestDataset_imputation_wide_outputs.json", orient="records")  # write json file
 
         CODE
