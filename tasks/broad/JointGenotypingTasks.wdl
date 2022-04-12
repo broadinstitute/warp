@@ -202,6 +202,7 @@ task GnarlyGenotyper {
     File ref_fasta_index
     File ref_dict
     String dbsnp_vcf
+    Boolean make_annotation_db = false
 
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
   }
@@ -224,7 +225,7 @@ task GnarlyGenotyper {
       GnarlyGenotyper \
       -R ~{ref_fasta} \
       -O ~{output_vcf_filename} \
-      --output-database-name annotationDB.vcf.gz \
+      ~{true="--output-database-name annotationDB.vcf.gz" false="" make_annotation_db} \
       -D ~{dbsnp_vcf} \
       --only-output-calls-starting-in-intervals \
       -V gendb://$WORKSPACE \
@@ -245,8 +246,8 @@ task GnarlyGenotyper {
   output {
     File output_vcf = "~{output_vcf_filename}"
     File output_vcf_index = "~{output_vcf_filename}.tbi"
-    File output_database = "annotationDB.vcf.gz"
-    File output_database_index = "annotationDB.vcf.gz.tbi"
+    File? output_database = "annotationDB.vcf.gz"
+    File? output_database_index = "annotationDB.vcf.gz.tbi"
   }
 }
 

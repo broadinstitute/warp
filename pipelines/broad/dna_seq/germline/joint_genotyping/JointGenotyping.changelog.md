@@ -1,3 +1,7 @@
+# 1.5.3
+2022-04-12
+
+* Remove annotationDB files from per chromosome in JointGenotyping
 # 1.5.2
 2021-11-10
 
