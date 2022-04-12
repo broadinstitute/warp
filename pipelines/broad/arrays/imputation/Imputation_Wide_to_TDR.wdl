@@ -155,23 +155,32 @@ task format_imputation_wide_outputs{
 
         # handle array[type] variables to print as list with double quotes
         imputed_single_sample_vcfs='~{sep='","' imputed_single_sample_vcfs}'
-        echo "imputed_single_sample_vcfs"
-        echo "[\"${imputed_single_sample_vcfs}\"]"
+        imputed_single_sample_vcf_indices='~{sep='","' imputed_single_sample_vcf_indices}'
         export imputed_single_sample_vcfs
+        export imputed_single_sample_vcf_indices
 
         python3 << CODE
         import pandas as pd
         import os
 
-        # imputed_single_sample_vcfs_TEST = os.environ["imputed_single_sample_vcfs"]
-        # imputed_single_sample_vcfs_TEST = '["' + "~{sep='","' imputed_single_sample_vcfs}" + '"]'
-        # print("imputed_single_sample_vcfs_2 with brackets")
-        # print(type(imputed_single_sample_vcfs_TEST))
-        # print(imputed_single_sample_vcfs_TEST)
+        print("imputed_single_sample_vcfs and indices with os.environ export method")
+        os_imputed_single_sample_vcfs = '["' + os.environ["imputed_single_sample_vcfs"] + '"]'
+        print("type of imputed_single_sample_vcfs:")
+        print(type(os_imputed_single_sample_vcfs))
+        
+        os_imputed_single_sample_vcf_indices = '["' + os.environ["imputed_single_sample_vcf_indices"] + '"]'
+        print("type of imputed_single_sample_vcf_indices:")
+        print(type(os_imputed_single_sample_vcf_indices))
 
-        PREFIX_POSTFIX_TEST=~{prefix}~{sep="\", \"" imputed_single_sample_vcfs}~{postfix}
-        print(type(PREFIX_POSTFIX_TEST))
-        print(PREFIX_POSTFIX_TEST)
+        print("imputed_single_sample_vcfs with prefix and postfix method")
+        ppt_simple_sample_vcfs=~{prefix}~{sep="\", \"" imputed_single_sample_vcfs}~{postfix}
+        print(type(ppt_simple_sample_vcfs))
+        print(ppt_simple_sample_vcfs)
+
+        print("imputed_single_sample_vcf_indices with prefix and postfix method")
+        ppt_simple_sample_vcf_indices=~{prefix}~{sep="\", \"" imputed_single_sample_vcf_indices}~{postfix}
+        print(type(ppt_simple_sample_vcf_indices))
+        print(ppt_simple_sample_vcf_indices)
 
         # tsv_df = pd.DataFrame(columns = ["chip_well_barcode", "imputed_single_sample_vcf", "imputed_single_sample_vcf_index"], sep="\t")
         # sample_dict = {}
