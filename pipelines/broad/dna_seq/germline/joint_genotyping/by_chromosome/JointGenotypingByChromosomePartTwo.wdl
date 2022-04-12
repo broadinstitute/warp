@@ -91,8 +91,8 @@ workflow JointGenotypingByChromosomePartTwo {
   }
 
   if (use_gnarly_genotyper && make_annotation_db) {
-    Array[File] annotation_db_vcfs = read_lines(annotation_db_vcfs_fofn)
-    Array[File] annotation_db_vcf_indices = read_lines(annotation_db_vcf_indices_fofn)
+    Array[File] annotation_db_vcfs = read_lines(select_first([annotation_db_vcfs_fofn, ""]))
+    Array[File] annotation_db_vcf_indices = read_lines(select_first([annotation_db_vcf_indices_fofn, ""]))
     call Tasks.GatherVcfs as GatherAnnotationDBVcf {
       input:
         input_vcfs = annotation_db_vcfs,
