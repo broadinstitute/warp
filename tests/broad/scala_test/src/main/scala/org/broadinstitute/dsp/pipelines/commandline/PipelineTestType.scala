@@ -120,11 +120,11 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "/broad/dna_seq/germline/variant_calling/"
   //    )
   case object WholeGenomeGermlineSingleSample
-    extends PipelineTestType(
-      "TestWholeGenomeGermlineSingleSample",
-      "WholeGenomeGermlineSingleSample",
-      "/broad/dna_seq/germline/single_sample/WGS/"
-    )
+      extends PipelineTestType(
+        "TestWholeGenomeGermlineSingleSample",
+        "WholeGenomeGermlineSingleSample",
+        "/broad/dna_seq/germline/single_sample/WGS/"
+      )
   //case object WholeGenomeReprocessing
   //    extends PipelineTestType(
   //      "TestWholeGenomeReprocessing",

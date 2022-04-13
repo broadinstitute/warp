@@ -5,7 +5,7 @@ import "../../verification/VerifyGermlineSingleSample.wdl" as VerifyGermlineSing
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 
-workflow TestExomeGermlineSingleSample {
+workflow TestWholeGenomeGermlineSingleSample {
 
   input {
     SampleAndUnmappedBams sample_and_unmapped_bams
