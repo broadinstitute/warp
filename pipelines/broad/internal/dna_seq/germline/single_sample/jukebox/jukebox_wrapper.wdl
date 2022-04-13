@@ -309,144 +309,58 @@ workflow BroadInternalJbxWrapper {
       vault_token_path = vault_token_path
   }
 
-  # CONVERT METRICS TO JSON
-  call ConvertMetricsToJson as ConvertWgsMetricsToJson {
+  call MergeMetrics {
     input:
-      metric_file = select_first([JukeboxVC.wgs_metrics]),
-      basename = base_file_name + ".wgs_metrics",
-      collab_sample_id_run_id = collab_sample_id_run_id
+      wgs_metrics = select_first([JukeboxVC.wgs_metrics]),
+      alignment_summary_metrics = select_first([JukeboxVC.agg_alignment_summary_metrics]),
+      gc_bias_summary_metrics = select_first([JukeboxVC.agg_gc_bias_summary_metrics]),
+      duplicate_metrics = select_first([JukeboxVC.duplicate_metrics]),
+      quality_yield_metrics = select_first([JukeboxVC.quality_yield_metrics]),
+      raw_wgs_metrics = select_first([JukeboxVC.raw_wgs_metrics]),
+      contamination_metrics = select_first([JukeboxVC.selfSM]),
+      fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file,
+      output_basename = collab_sample_id_run_id
   }
-
-  call ConvertMetricsToJson as ConvertAlignmentSummaryMetricsToJson {
-    input:
-      metric_file = select_first([JukeboxVC.agg_alignment_summary_metrics]),
-      basename = base_file_name + ".alignment_metrics",
-      collab_sample_id_run_id = collab_sample_id_run_id
-  }
-
-  call ConvertMetricsToJson as ConvertGcBiasMetricsToJson {
-    input:
-      metric_file = select_first([JukeboxVC.agg_gc_bias_summary_metrics]),
-      basename = base_file_name + ".gc_metrics",
-      collab_sample_id_run_id = collab_sample_id_run_id
-  }
-
-  call ConvertMetricsToJson as ConvertGcBiasDetailMetricsToJson {
-    input:
-      metric_file = select_first([JukeboxVC.agg_gc_bias_detail_metrics]),
-      basename = base_file_name + ".gc_detail_metrics",
-      collab_sample_id_run_id = collab_sample_id_run_id,
-      detail_metrics = true
-  }
-
-  call ConvertMetricsToJson as ConvertQualityDistributionMetricsToJson {
-    input:
-      metric_file = select_first([JukeboxVC.agg_quality_distribution_metrics]),
-      basename = base_file_name + ".quality_distribution_metrics",
-      collab_sample_id_run_id = collab_sample_id_run_id
-  }
-
-  call ConvertMetricsToJson as ConvertDuplicateMetricsToJson {
-    input:
-      metric_file = select_first([JukeboxVC.duplicate_metrics]),
-      basename = base_file_name + ".duplicate_metrics",
-      collab_sample_id_run_id = collab_sample_id_run_id
-  }
-
-  call ConvertMetricsToJson as ConvertQualityYieldMetricsToJson {
-    input:
-      metric_file = select_first([JukeboxVC.quality_yield_metrics]),
-      basename = base_file_name + ".quality_yield_metrics",
-      collab_sample_id_run_id = collab_sample_id_run_id
-  }
-
-  call ConvertMetricsToJson as ConvertRawWgsMetricsToJson {
-    input:
-      metric_file = select_first([JukeboxVC.raw_wgs_metrics]),
-      basename = base_file_name + ".raw_wgs_metrics",
-      collab_sample_id_run_id = collab_sample_id_run_id
-}
-
-  call ConvertContaminationMetricsToJson {
-    input:
-      metric_file = select_first([JukeboxVC.selfSM]),
-      basename = base_file_name + ".contamination_metrics",
-      collab_sample_id_run_id = collab_sample_id_run_id
-  }
-  
 
   # CALL TDR TASKS TO FORMAT JSON
   
   if (defined(tdr_dataset_uuid) && defined(tdr_sample_id) && defined(tdr_staging_bucket)) {
     call formatPipelineOutputs {
       input:
+        output_basename = output_basename,
         collab_sample_id_run_id = collab_sample_id_run_id,
-        agg_alignment_summary_metrics = ConvertAlignmentSummaryMetricsToJson.metrics_json,
-        agg_gc_bias_detail_metrics = ConvertGcBiasDetailMetricsToJson.metrics_json,
-        agg_gc_bias_summary_metrics = ConvertGcBiasMetricsToJson.metrics_json,
-        agg_quality_distribution_metrics = ConvertQualityDistributionMetricsToJson.metrics_json,
-        duplicate_metrics = ConvertDuplicateMetricsToJson.metrics_json,
-        quality_yield_metrics = ConvertQualityYieldMetricsToJson.metrics_json,
-        raw_wgs_metrics = ConvertRawWgsMetricsToJson.metrics_json,
-        selfSM = ConvertContaminationMetricsToJson.metrics_json,
-        wgs_metrics = ConvertWgsMetricsToJson.metrics_json,
-        agg_alignment_summary_pdf = JukeboxVC.agg_alignment_summary_pdf,
-        agg_gc_bias_pdf = JukeboxVC.agg_gc_bias_pdf,
-        agg_quality_distribution_pdf = JukeboxVC.agg_quality_distribution_pdf,
-        barcode = JukeboxVC.barcode,
-        chimerism_rate = JukeboxVC.chimerism_rate,
-        contamination = JukeboxVC.contamination,
-        duplication_rate = JukeboxVC.duplication_rate,
-        filtered_vcf = JukeboxVC.filtered_vcf,
-        filtered_vcf_index = JukeboxVC.filtered_vcf_index,
-        flow_order = JukeboxVC.flow_order,
-        id = JukeboxVC.id,
-        is_outlier_data = JukeboxVC.is_outlier_data,
-        model_h5_no_gt = JukeboxVC.model_h5_no_gt,
-        model_pkl_no_gt = JukeboxVC.model_pkl_no_gt,
-        output_cram = JukeboxVC.output_cram,
-        output_cram_index = JukeboxVC.output_cram_index,
-        output_cram_md5 = JukeboxVC.output_cram_md5,
         output_gvcf = JukeboxVC.output_gvcf,
         output_gvcf_index = JukeboxVC.output_gvcf_index,
         output_vcf = JukeboxVC.output_vcf,
         output_vcf_index = JukeboxVC.output_vcf_index,
-        sample_name = JukeboxVC.sample_name,
-        aggregated_metrics_h5 = JukeboxVC.aggregated_metrics_h5,
-        aggregated_metrics_json = JukeboxVC.aggregated_metrics_json,
-        comparison_output = JukeboxVC.comparison_output,
-        coverage_per_motif = JukeboxVC.coverage_per_motif,
-        featuremap = JukeboxVC.featuremap,
-        featuremap_dataframe = JukeboxVC.featuremap_dataframe,
-        featuremap_index = JukeboxVC.featuremap_index,
-        featuremap_single_substitutions = JukeboxVC.featuremap_single_substitutions,
-        featuremap_single_substitutions_dataframe = JukeboxVC.featuremap_single_substitutions_dataframe,
-        featuremap_single_substitutions_index = JukeboxVC.featuremap_single_substitutions_index,
-        fingerprints_csv = JukeboxVC.fingerprints_csv,
-        funcotator_vcf = JukeboxVC.funcotator_vcf,
-        funcotator_vcf_index = JukeboxVC.funcotator_vcf_index,
-        gt_sample_name = JukeboxVC.gt_sample_name,
-        model_h5 = JukeboxVC.model_h5,
-        model_pkl = JukeboxVC.model_pkl,
-        no_gt_report_html = JukeboxVC.no_gt_report_html,
-        orig_vcf = JukeboxVC.orig_vcf,
-        orig_vcf_index = JukeboxVC.orig_vcf_index,
-        short_report_h5 = JukeboxVC.short_report_h5,
-        short_report_html = JukeboxVC.short_report_html,
-        sv_calls = JukeboxVC.sv_calls,
-        sv_calls_index = JukeboxVC.sv_calls_index,
-        varStats = JukeboxVC.varStats,
-        evaluate_report_h5 = JukeboxVC.evaluate_report_h5,
-        extended_report_h5 = JukeboxVC.extended_report_h5,
-        extended_report_html = JukeboxVC.extended_report_html,
-        snp_error_rate = JukeboxVC.snp_error_rate,
-        snp_error_rate_plot = JukeboxVC.snp_error_rate_plot,
-
-        output_basename = output_basename,
-    
         haplotype_bam = JukeboxVC.haplotype_bam,
         haplotype_bam_index = JukeboxVC.haplotype_bam_index,
-
+        output_cram = JukeboxVC.output_cram,
+        output_cram_index = JukeboxVC.output_cram_index,
+        output_cram_md5 = JukeboxVC.output_cram_md5,
+        selfSM = JukeboxVC.selfSM,
+        contamination = JukeboxVC.contamination,
+        filtered_vcf = JukeboxVC.filtered_vcf,
+        filtered_vcf_index = JukeboxVC.filtered_vcf_index,
+        quality_yield_metrics = JukeboxVC.quality_yield_metrics,
+        wgs_metrics = JukeboxVC.wgs_metrics,
+        raw_wgs_metrics = JukeboxVC.raw_wgs_metrics,
+        duplicate_metrics = JukeboxVC.duplicate_metrics,
+        agg_alignment_summary_metrics = JukeboxVC.agg_alignment_summary_metrics,
+        agg_alignment_summary_pdf = JukeboxVC.agg_alignment_summary_pdf,
+        agg_gc_bias_detail_metrics = JukeboxVC.agg_gc_bias_detail_metrics,
+        agg_gc_bias_pdf = JukeboxVC.agg_gc_bias_pdf,
+        agg_gc_bias_summary_metrics = JukeboxVC.agg_gc_bias_summary_metrics,
+        agg_quality_distribution_pdf = JukeboxVC.agg_quality_distribution_pdf,
+        agg_quality_distribution_metrics = JukeboxVC.agg_quality_distribution_metrics,
+        duplication_rate = JukeboxVC.duplication_rate,
+        chimerism_rate = JukeboxVC.chimerism_rate,
+        is_outlier_data = JukeboxVC.is_outlier_data,
+        sample_name = JukeboxVC.sample_name,
+        flow_order = JukeboxVC.flow_order,
+        barcode = JukeboxVC.barcode,
+        id = JukeboxVC.id,
+        unified_metrics = MergeMetrics.unified_metrics,
         fingerprint_summary_metrics_file = CheckFingerprint.fingerprint_summary_metrics_file,
         fingerprint_detail_metrics_file = CheckFingerprint.fingerprint_detail_metrics_file
     }
@@ -464,187 +378,135 @@ workflow BroadInternalJbxWrapper {
     File? picard_fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file
     File? picard_fingerprint_detail_metrics = CheckFingerprint.fingerprint_detail_metrics_file
 
-    File? agg_alignment_summary_metrics = JukeboxVC.agg_alignment_summary_metrics
-    File? agg_gc_bias_detail_metrics = JukeboxVC.agg_gc_bias_detail_metrics
-    File? agg_gc_bias_summary_metrics = JukeboxVC.agg_gc_bias_summary_metrics
-    File? agg_quality_distribution_metrics = JukeboxVC.agg_quality_distribution_metrics
-    File? duplicate_metrics = JukeboxVC.duplicate_metrics
-    File? quality_yield_metrics = JukeboxVC.quality_yield_metrics
-    File? raw_wgs_metrics = JukeboxVC.raw_wgs_metrics
-    File? selfSM = JukeboxVC.selfSM
-    File? wgs_metrics = JukeboxVC.wgs_metrics
-    File? agg_alignment_summary_pdf = JukeboxVC.agg_alignment_summary_pdf
-    File? agg_gc_bias_pdf = JukeboxVC.agg_gc_bias_pdf
-    File? agg_quality_distribution_pdf = JukeboxVC.agg_quality_distribution_pdf
-    String barcode = JukeboxVC.barcode
-    Float? chimerism_rate = JukeboxVC.chimerism_rate
-    Float? contamination = JukeboxVC.contamination
-    Float? duplication_rate = JukeboxVC.duplication_rate
-    File? filtered_vcf = JukeboxVC.filtered_vcf
-    File? filtered_vcf_index = JukeboxVC.filtered_vcf_index
-    String flow_order = JukeboxVC.flow_order
-    String id = JukeboxVC.id
-    Boolean? is_outlier_data = JukeboxVC.is_outlier_data
-    File? model_h5_no_gt = JukeboxVC.model_h5_no_gt
-    File? model_pkl_no_gt = JukeboxVC.model_pkl_no_gt
-    File? output_cram = JukeboxVC.output_cram
-    File? output_cram_index = JukeboxVC.output_cram_index
-    File? output_cram_md5 = JukeboxVC.output_cram_md5
-    File? output_gvcf = JukeboxVC.output_gvcf
-    File? output_gvcf_index = JukeboxVC.output_gvcf_index
-    File? output_vcf = JukeboxVC.output_vcf
-    File? output_vcf_index = JukeboxVC.output_vcf_index
-    String sample_name = JukeboxVC.sample_name
-    File? aggregated_metrics_h5 = JukeboxVC.aggregated_metrics_h5
-    File? aggregated_metrics_json = JukeboxVC.aggregated_metrics_json
-    File? comparison_output = JukeboxVC.comparison_output
-    Array[File]? coverage_boxplot_all = JukeboxVC.coverage_boxplot_all
-    Array[File]? coverage_depth_parquet_vhq = JukeboxVC.coverage_depth_parquet_vhq
-    File? coverage_per_motif = JukeboxVC.coverage_per_motif
-    File? featuremap = JukeboxVC.featuremap
-    File? featuremap_dataframe = JukeboxVC.featuremap_dataframe
-    File? featuremap_index = JukeboxVC.featuremap_index
-    File? featuremap_single_substitutions = JukeboxVC.featuremap_single_substitutions
-    File? featuremap_single_substitutions_dataframe = JukeboxVC.featuremap_single_substitutions_dataframe
-    File? featuremap_single_substitutions_index = JukeboxVC.featuremap_single_substitutions_index
-    File? fingerprints_csv = JukeboxVC.fingerprints_csv
-    File? funcotator_vcf = JukeboxVC.funcotator_vcf
-    File? funcotator_vcf_index = JukeboxVC.funcotator_vcf_index
-    String? gt_sample_name = JukeboxVC.gt_sample_name
-    File? model_h5 = JukeboxVC.model_h5
-    File? model_pkl = JukeboxVC.model_pkl
-    File? no_gt_report_html = JukeboxVC.no_gt_report_html
-    File? orig_vcf = JukeboxVC.orig_vcf
-    File? orig_vcf_index = JukeboxVC.orig_vcf_index
-    Array[File]? output_bam = JukeboxVC.output_bam
-    Array[File]? output_bam_index = JukeboxVC.output_bam_index
-    File? short_report_h5 = JukeboxVC.short_report_h5
-    File? short_report_html = JukeboxVC.short_report_html
-    File? sv_calls = JukeboxVC.sv_calls
-    File? sv_calls_index = JukeboxVC.sv_calls_index
-    File? varStats = JukeboxVC.varStats
+    File output_gvcf = JukeboxVC.output_gvcf
+    File output_gvcf_index = JukeboxVC.output_gvcf_index
+    File output_vcf = JukeboxVC.output_vcf
+    File output_vcf_index = JukeboxVC.output_vcf_index
 
     File? haplotype_bam = JukeboxVC.haplotype_bam
     File? haplotype_bam_index = JukeboxVC.haplotype_bam_index
+
+    File output_cram = JukeboxVC.output_cram
+    File output_cram_index = JukeboxVC.output_cram_index
+    File output_cram_md5 = JukeboxVC.output_cram_md5
+
+    File selfSM = JukeboxVC.selfSM
+    Float contamination = JukeboxVC.contamination
+
+    File filtered_vcf = JukeboxVC.filtered_vcf
+    File filtered_vcf_index = JukeboxVC.filtered_vcf_index
+
+    File quality_yield_metrics = JukeboxVC.quality_yield_metrics
+    File wgs_metrics = JukeboxVC.wgs_metrics
+    File raw_wgs_metrics = JukeboxVC.raw_wgs_metrics
+    File duplicate_metrics = JukeboxVC.duplicate_metrics
+    File agg_alignment_summary_metrics = JukeboxVC.agg_alignment_summary_metrics
+    File? agg_alignment_summary_pdf = JukeboxVC.agg_alignment_summary_pdf
+    File agg_gc_bias_detail_metrics = JukeboxVC.agg_gc_bias_detail_metrics
+    File agg_gc_bias_pdf = JukeboxVC.agg_gc_bias_pdf
+    File agg_gc_bias_summary_metrics = JukeboxVC.agg_gc_bias_summary_metrics
+    File agg_quality_distribution_pdf = JukeboxVC.agg_quality_distribution_pdf
+    File agg_quality_distribution_metrics = JukeboxVC.agg_quality_distribution_metrics
+    Float duplication_rate = JukeboxVC.duplication_rate
+    Float chimerism_rate = JukeboxVC.chimerism_rate
+    Boolean is_outlier_data = JukeboxVC.is_outlier_data
+
+    String sample_name = JukeboxVC.sample_name
+    String flow_order = JukeboxVC.flow_order
+    String barcode = JukeboxVC.barcode
+    String id = JukeboxVC.id
   }
 }
 
-task ConvertContaminationMetricsToJson {
+task MergeMetrics {
   input {
-      File metric_file
-      String basename
-      String collab_sample_id_run_id
+    File wgs_metrics
+    File alignment_summary_metrics
+    File gc_bias_summary_metrics
+    File duplicate_metrics
+    File quality_yield_metrics
+    File raw_wgs_metrics
+    File contamination_metrics
+    File? fingerprint_summary_metrics
+    String output_basename
+
+    String docker =  "python:3.8-slim"
+    Int cpu = 1
+    Int memory_mb = 3000
+    Int disk_size_gb = 10
   }
+
+  String out_filename = output_basename + ".unified_metrics.txt"
+
   command <<<
-    python3 <<CODE
-    import pandas as pd
-    import os
-    import json
 
-    df = pd.read_csv("~{metric_file}", sep="\t")
-    df_no_nan = df.where(pd.notnull(df), None)
-    header_dict = {'id': '~{collab_sample_id_run_id}', 'metric_class': "contamination"}
-    d = {'header': header_dict, 'metrics': df.to_dict(orient='records')}
-    with open('~{basename}.json', 'w') as json_file:
-        json.dump(d, json_file, indent=2)
-    CODE
-  >>>
-  output {
-    File metrics_json = "~{basename}.json"
-  }
+    #
+    # Script transpose a two line TSV
+    #
+    cat <<-'EOF' > transpose.py
+    import csv, sys
+
+    rows = list(csv.reader(sys.stdin, delimiter='\t'))
+
+    for col in range(0, len(rows[0])):
+      key = rows[0][col].lower()
+      print(f"{key}\t{rows[1][col]}")
+    EOF
+
+    #
+    # Script clean the keys, replacing space, dash and forward-slash with underscores,
+    # and removing comma, single quote, periods, and #
+    #
+    cat <<-'EOF' > clean.py
+    import sys
+
+    for line in sys.stdin:
+      (k,v) = line.strip().split("\t")
+      transtable = k.maketrans({' ':'_', '-':'_', '/':'_', ',':None, '\'':None, '.':None, '#':None})
+      print(f"{k.translate(transtable)}\t{v}")
+    EOF
+
+    # Process each metric file, transposing and cleaning if necessary, and pre-pending a source to the metric name
+
+    echo "Processing WGS Metrics"
+    cat ~{wgs_metrics} | grep -A 1 "GENOME_TERRITORY" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP)" | awk '{print "wgs_metrics_" $0}' >> ~{out_filename}
+
+    echo "Processing Alignment Summary Metrics"
+    cat ~{alignment_summary_metrics} | grep -A 1 "CATEGORY" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP)" | awk '{print "alignment_summary_metrics_" $0}' >> ~{out_filename}
+
+    echo "Processing GCBias Summary Metrics"
+    cat ~{gc_bias_summary_metrics} | grep -A 1 "AT_DROPOUT" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP)" | awk '{print "gc_bias_summary_metrics_" $0}' >> ~{out_filename}
+
+    echo "Processing Duplicate Metrics: WARNING this only works for samples from one library"
+    cat ~{duplicate_metrics} | grep -A 1 "UNPAIRED_READ_DUPLICATES" | python transpose.py | awk '{print "duplicate_metrics_" $0}' >> ~{out_filename}
+
+    echo "Processing Quality Yield Metrics"
+    cat ~{quality_yield_metrics} | grep -A 1 "TOTAL_READS" | python transpose.py | awk '{print "quality_yield_metrics_" $0}' >> ~{out_filename}
+
+    echo "Processing Raw WGS Metrics"
+    cat ~{raw_wgs_metrics} | grep -A 1 "GENOME_TERRITORY" | python transpose.py | grep -Eiv "(SAMPLE|LIBRARY|READ_GROUP)" | awk '{print "raw_wgs_metrics_" $0}' >> ~{out_filename}
+
+    echo "Processing Contamination Metrics"
+    cat ~{contamination_metrics} | python transpose.py | python clean.py | awk '{print "contamination_metrics_" $0}' >> ~{out_filename}
+
+    if [[ -f "~{fingerprint_summary_metrics}" ]];
+    then
+      echo "Processing Fingerprint Summary Metrics - only extracting LOD_EXPECTED_SAMPLE"
+      cat ~{fingerprint_summary_metrics} | grep -A 1 "LOD_EXPECTED_SAMPLE" | python transpose.py | grep -i "LOD_EXPECTED_SAMPLE" | awk '{print "fp_"$0}' >> ~{out_filename}
+    else
+      echo "No Fingerprint Summary Metrics found."
+      echo "fp_lod_expected_sample	" >> ~{out_filename}
+    fi    >>>
+
   runtime {
-    docker: "broadinstitute/horsefish:tdr_import_v1.1"
-    disks: "local-disk 10 HDD"
+    docker: docker
+    cpu: cpu
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
   }
-}
 
-task ConvertMetricsToJson {
-  input {
-    File metric_file
-    String basename
-    String collab_sample_id_run_id 
-    Boolean detail_metrics = false
-  }
-  #String nrows_string = if detail_metrics then "" else ", nrows=1"
-  
-  command <<<
-    python3 <<CODE
-    import pandas as pd
-    import os
-    import json
-
-    def parse_metrics(metric_file):
-      """Parses Picard metrics file
-      Parameters
-      ----------
-      metric_file : str
-          Picard metric file
-      Returns
-      -------
-      res0 : str
-          Program header line
-      res1 : str
-          Picard file metrics class
-      res2 : pd.DataFrame
-          Picard metrics table
-      res3 : pd.DataFrame
-          Picard Histogram output
-      """
-      lines_in_hist = 0
-      with open(metric_file) as infile:
-          out = next(infile)
-          while not out.startswith("# "):
-              out = next(infile)
-          res0 = out.strip()
-      try:
-          with open(metric_file) as infile:
-              out = next(infile)
-              while not out.startswith("## HISTOGRAM"):
-                  out = next(infile)
-
-              res3 = pd.read_csv(infile, sep="\t")
-              lines_in_hist = len(res3.index) + 2 #extra blank line at the end and the header line need to be counted
-      except StopIteration:
-          res3 = None
-      try:
-        with open(metric_file) as infile:
-            out = next(infile)
-            while not out.startswith("## METRICS CLASS"):
-                out = next(infile)
-
-            res1 = out.strip().split('\t')[1].split('.')[-1]
-            res2 = pd.read_csv(infile, sep="\t", skipfooter=lines_in_hist, comment="#").replace({float("nan"): None})
-      except StopIteration:
-        res1 = None
-        res2 = None
-      return res0, res1, res2, res3
-
-    if os.path.getsize("~{metric_file}") > 0:
-        header, metric_class, stats, histogram = parse_metrics("~{metric_file}")
-        if metric_class is not None:
-            metric_class = metric_class[metric_class.find("$")+1:]
-            header_dict = {'id': '~{collab_sample_id_run_id}', 'program_line': header, 'metric_class': metric_class}
-        else:
-            header_dict = {'id': '~{collab_sample_id_run_id}', 'program_line': header}
-        if histogram is not None:
-          hist_dict = histogram.to_dict(orient='split')
-          del hist_dict['index']
-          if stats is not None:
-            d = {'header': header_dict, 'metrics': stats.to_dict(orient='records'), 'histogram': hist_dict}
-          else:
-            d = {'header': header_dict, 'histogram': hist_dict}
-        else:
-          d = {'header': header_dict, 'metrics': stats.to_dict(orient='records')}
-        with open('~{basename}.json', 'w') as json_file:
-          json.dump(d, json_file, indent=2)
-    CODE
-  >>>
   output {
-    File metrics_json = "~{basename}.json"
-  }
-  runtime {
-    docker: "broadinstitute/horsefish:tdr_import_v1.1"
-    disks: "local-disk 10 HDD"
+    File unified_metrics = out_filename
   }
 }
 
@@ -655,76 +517,48 @@ task ConvertMetricsToJson {
       String output_basename
       String collab_sample_id_run_id
       
-      # Metrics Output Files
-      #TODO: update these "optional outputs" to latest version (most will no longer be optional)
-      String? agg_alignment_summary_metrics = ""
-      String? agg_gc_bias_detail_metrics = ""
-      String? agg_gc_bias_summary_metrics = ""
-      String? agg_quality_distribution_metrics = ""
-      String? duplicate_metrics = ""
-      String? quality_yield_metrics = ""
-      String? raw_wgs_metrics = ""
-      String? selfSM = ""
-      String? wgs_metrics = ""
-      
-      # PDF Output Files
-      String? agg_alignment_summary_pdf = ""
-      String? agg_gc_bias_pdf = ""
-      String? agg_quality_distribution_pdf = ""
-      
-      String barcode
-      Float? chimerism_rate = ""
-      Float? contamination = ""
-      Float? duplication_rate = ""
-      String? filtered_vcf = ""
-      String? filtered_vcf_index = ""
-      String flow_order
+      String output_gvcf
+      String output_gvcf_index
+      String output_vcf
+      String output_vcf_index
+
       String? haplotype_bam = ""
       String? haplotype_bam_index = ""
-      String id
-      Boolean? is_outlier_data
-      String? model_h5_no_gt = ""
-      String? model_pkl_no_gt = ""
-      String? output_cram = ""
-      String? output_cram_index = ""
-      String? output_cram_md5 = ""
-      String? output_gvcf = ""
-      String? output_gvcf_index = ""
-      String? output_vcf = ""
-      String? output_vcf_index = ""
+
+      String output_cram
+      String output_cram_index
+      String output_cram_md5
+
+      String selfSM
+      Float contamination
+
+      String filtered_vcf
+      String filtered_vcf_index
+
+      String quality_yield_metrics
+      String wgs_metrics
+      String raw_wgs_metrics
+      String duplicate_metrics
+      String agg_alignment_summary_metrics
+      String? agg_alignment_summary_pdf = ""
+      String agg_gc_bias_detail_metrics
+      String agg_gc_bias_pdf
+      String agg_gc_bias_summary_metrics
+      String agg_quality_distribution_pdf
+      String agg_quality_distribution_metrics
+      Float duplication_rate
+      Float chimerism_rate
+      Boolean is_outlier_data
+
       String sample_name
-      String? aggregated_metrics_h5 = ""
-      String? aggregated_metrics_json = ""
-      String? comparison_output = ""
-      String? coverage_per_motif = ""
-      String? featuremap = ""
-      String? featuremap_dataframe = ""
-      String? featuremap_index = ""
-      String? featuremap_single_substitutions = ""
-      String? featuremap_single_substitutions_dataframe = ""
-      String? featuremap_single_substitutions_index = ""
-      String? fingerprints_csv = ""
-      String? funcotator_vcf = ""
-      String? funcotator_vcf_index = ""
-      String? gt_sample_name = ""
-      String? model_h5 = ""
-      String? model_pkl = ""
-      String? no_gt_report_html = ""
-      String? orig_vcf = ""
-      String? orig_vcf_index = ""
-      String? short_report_h5 = ""
-      String? short_report_html = ""
-      String? sv_calls = ""
-      String? sv_calls_index = ""
-      String? varStats = ""
-      String? evaluate_report_h5 = ""
-      String? extended_report_h5 = ""
-      String? extended_report_html = ""
-      String? snp_error_rate = ""
-      String? snp_error_rate_plot = ""
+      String flow_order
+      String barcode
+      String id
 
       String? fingerprint_detail_metrics_file = ""
       String? fingerprint_summary_metrics_file = ""
+
+      File unified_metrics
 
       Int cpu = 1
       Int memory_mb = 2000
@@ -733,7 +567,7 @@ task ConvertMetricsToJson {
 
     String outputs_json_file_name = "outputs_to_TDR_~{output_basename}.json"
 
-    String outlier_data_string = if defined(is_outlier_data) && is_outlier_data then "True" else if defined(is_outlier_data) then "False" else ""
+    String outlier_data_string = if is_outlier_data then "True" else "False"
 
     command <<<
           python3 << CODE
@@ -761,8 +595,6 @@ task ConvertMetricsToJson {
           outputs_dict["haplotype_bam_index"]="~{haplotype_bam_index}"
           outputs_dict["id"]="~{id}"
           outputs_dict["is_outlier_data"]="~{outlier_data_string}"
-          outputs_dict["model_h5_no_gt"]="~{model_h5_no_gt}"
-          outputs_dict["model_pkl_no_gt"]="~{model_pkl_no_gt}"
           outputs_dict["output_cram"]="~{output_cram}"
           outputs_dict["output_cram_index"]="~{output_cram_index}"
           outputs_dict["output_cram_md5"]="~{output_cram_md5}"
@@ -775,37 +607,17 @@ task ConvertMetricsToJson {
           outputs_dict["sample_name"]="~{sample_name}"
           outputs_dict["selfSM"]="~{selfSM}"
           outputs_dict["wgs_metrics"]="~{wgs_metrics}"
-          outputs_dict["aggregated_metrics_h5"]="~{aggregated_metrics_h5}"
-          outputs_dict["aggregated_metrics_json"]="~{aggregated_metrics_json}"
-          outputs_dict["comparison_output"]="~{comparison_output}"
-          outputs_dict["coverage_per_motif"]="~{coverage_per_motif}"
-          outputs_dict["featuremap"]="~{featuremap}"
-          outputs_dict["featuremap_dataframe"]="~{featuremap_dataframe}"
-          outputs_dict["featuremap_index"]="~{featuremap_index}"
-          outputs_dict["featuremap_single_substitutions"]="~{featuremap_single_substitutions}"
-          outputs_dict["featuremap_single_substitutions_dataframe"]="~{featuremap_single_substitutions_dataframe}"
-          outputs_dict["featuremap_single_substitutions_index"]="~{featuremap_single_substitutions_index}"
-          outputs_dict["fingerprints_csv"]="~{fingerprints_csv}"
-          outputs_dict["funcotator_vcf"]="~{funcotator_vcf}"
-          outputs_dict["funcotator_vcf_index"]="~{funcotator_vcf_index}"
-          outputs_dict["gt_sample_name"]="~{gt_sample_name}"
-          outputs_dict["model_h5"]="~{model_h5}"
-          outputs_dict["model_pkl"]="~{model_pkl}"
-          outputs_dict["no_gt_report_html"]="~{no_gt_report_html}"
-          outputs_dict["orig_vcf"]="~{orig_vcf}"
-          outputs_dict["orig_vcf_index"]="~{orig_vcf_index}"
-          outputs_dict["short_report_h5"]="~{short_report_h5}"
-          outputs_dict["short_report_html"]="~{short_report_html}"
-          outputs_dict["sv_calls"]="~{sv_calls}"
-          outputs_dict["sv_calls_index"]="~{sv_calls_index}"
-          outputs_dict["varStats"]="~{varStats}"
           outputs_dict["fingerprint_summary_metrics_file"]="~{fingerprint_summary_metrics_file}"
           outputs_dict["fingerprint_detail_metrics_file"]="~{fingerprint_detail_metrics_file}"
-          outputs_dict["evaluate_report_h5"]="~{evaluate_report_h5}"
-          outputs_dict["extended_report_h5"]="~{extended_report_h5}"
-          outputs_dict["extended_report_html"]="~{extended_report_html}"
-          outputs_dict["snp_error_rate"]="~{snp_error_rate}"
-          outputs_dict["snp_error_rate_plot"]="~{snp_error_rate_plot}"
+
+          # explode unified metrics file
+          with open("~{unified_metrics}", "r") as infile:
+            for row in infile:
+              key, value = row.rstrip("\n").split("\t")
+              if value == "NA" or value == "" or value == "?" or value == "-":
+                outputs_dict[key] = None
+              else:
+                outputs_dict[key] = value
 
           # Write full outputs to file
           with open("~{outputs_json_file_name}", 'w') as outputs_file:
@@ -978,94 +790,45 @@ task JukeboxVC {
     gsutil cp gs://fc-secure-5881a722-0e34-45a0-9eb7-eae48f047042/000_testOutputs/* .
   }
   output {
-  
-    File? output_gvcf = "004733-X0003.annotated.g.vcf.gz"
-    File? output_gvcf_index = "004733-X0003.annotated.g.vcf.gz.tbi"
-    File? orig_vcf = "unfiltered_vcf"
-    File? orig_vcf_index = "unfiltered_vcf_index"
-    File? output_vcf = "004733-X0003.vcf.gz"
-    File? output_vcf_index = "004733-X0003.vcf.gz"
-    File? sv_calls = "SVcalls.output_bcf"
-    File? sv_calls_index = "SVcalls.output_bcf_index"
 
-    File? no_gt_report_html = "CreateNoGTReport.no_gt_report_html"
-    File? funcotator_vcf = "Funcotator.funcotator_output"
-    File? funcotator_vcf_index = "Funcotator.funcotator_output_index"
-    #MERGE bam file
+    File output_gvcf ="004733-X0003.annotated.g.vcf.gz"
+    File output_gvcf_index = "004733-X0003.annotated.g.vcf.gz.tbi"
+    File output_vcf = "004733-X0003.vcf.gz"
+    File output_vcf_index = "004733-X0003.vcf.gz"
+
     File? haplotype_bam = "004733-X0003.bam"
     File? haplotype_bam_index = "004733-X0003.bam.bai"
 
-    Array[File]? output_bam = ["004733-X0003.bam"]
-    Array[File]? output_bam_index = ["004733-X0003.bam.bai"]
+    File output_cram = "004733-X0003.cram"
+    File output_cram_index = "004733-X0003.cram.crai"
+    File output_cram_md5 = "004733-X0003.cram.md5"
 
-    File? output_cram = "004733-X0003.cram"
-    File? output_cram_index = "004733-X0003.cram.crai"
-    File? output_cram_md5 = "004733-X0003.cram.md5"
+    File selfSM = "004733-X0003.selfSM"
+    Float contamination = 0.000152612
 
-
-    File? selfSM = "004733-X0003.selfSM"
-    Float? contamination = 0.000152612
-
-    File? comparison_output = "CompareToGroundTruthFilteredVCF.compare_h5"
-    Array[File]? comparison_beds = []
-
-    # VCF post-processing
-    File? filtered_vcf = "004733-X0003.filtered.vcf.gz"
-    File? filtered_vcf_index = "004733-X0003.filtered.vcf.gz.tbi"
-    File? fingerprints_csv = "CrosscheckFingerprints_gt.output_vcf_fingerprints"
-    File? model_h5 = "TrainModelWithGT.model_h5"
-    File? model_pkl = "TrainModelWithGT.model_pkl"
-    File? model_h5_no_gt = "TrainModelNoGT.model_h5"
-    File? model_pkl_no_gt = "TrainModelNoGT.model_pkl"
-    File? evaluate_report_h5 = "EvaluateResults.short_report_h5"
-    File? short_report_html = "CreateReport.short_report_html"
-    File? extended_report_html = "CreateReport.extended_report_html"
-    File? short_report_h5 = "CreateReport.short_report_h5"
-    File? extended_report_h5 = "CreateReport.extended_report_h5"
-    File? varStats = "CreateReport.varStats"
-    Array[File]? report_plots_png = []
+    File filtered_vcf = "004733-X0003.filtered.vcf.gz"
+    File filtered_vcf_index = "004733-X0003.filtered.vcf.gz.tbi"
 
     # STATISTIC COLLECTION
-    File? quality_yield_metrics = "004733-X0003.unmapped.quality_yield_metrics"
-    File? wgs_metrics = "004733-X0003.wgs_metrics"
-    File? raw_wgs_metrics = "004733-X0003.raw_wgs_metrics"
-    File? duplicate_metrics = "004733-X0003.duplicate_metrics"
-    File? agg_alignment_summary_metrics = "004733-X0003.alignment_summary_metrics"
+    File quality_yield_metrics = "downsampled_NA12878.unmapped.quality_yield_metrics"
+    File wgs_metrics = "downsampled_NA12878.wgs_metrics"
+    File raw_wgs_metrics = "downsampled_NA12878.raw_wgs_metrics"
+    File duplicate_metrics = "004733-X0003.duplicate_metrics"
+    File agg_alignment_summary_metrics = "downsampled_NA12878.alignment_summary_metrics"
     File? agg_alignment_summary_pdf = "004733-X0003.read_length_histogram.pdf"
-    File? agg_gc_bias_detail_metrics = "004733-X0003.gc_bias.detail_metrics"
-    File? agg_gc_bias_pdf = "004733-X0003.gc_bias.pdf"
-    File? agg_gc_bias_summary_metrics = "004733-X0003.gc_bias.summary_metrics"
-    File? agg_quality_distribution_pdf = "004733-X0003.quality_distribution.pdf"
-    File? agg_quality_distribution_metrics = "004733-X0003.quality_distribution_metrics"
-    File? aggregated_metrics_h5 = "AggregateMetrics.aggregated_metrics_h5"
-    File? aggregated_metrics_json = "ConvertAggregatedMetricsToJson.aggregated_metrics_json"
-    Float? duplication_rate = 0.043528
-    Float? chimerism_rate = 0.008962
-    Boolean? is_outlier_data = false
+    File agg_gc_bias_detail_metrics = "004733-X0003.gc_bias.detail_metrics"
+    File agg_gc_bias_pdf = "004733-X0003.gc_bias.pdf"
+    File agg_gc_bias_summary_metrics = "downsampled_NA12878.gc_bias.summary_metrics"
+    File agg_quality_distribution_pdf = "004733-X0003.quality_distribution.pdf"
+    File agg_quality_distribution_metrics = "downsampled_NA12878.quality_distribution_metrics"
+    Float duplication_rate = 0.043528
+    Float chimerism_rate = 0.008962
+    Boolean is_outlier_data = false
 
-    # COVERAGE COLLECTION
-
-    Array[File]? coverage_depth_parquet_vhq = []
-    Array[File]? coverage_boxplot_all = []
-    Array[File]? coverage_profileplot_all = []
     String sample_name = "HG03476"
-    String? gt_sample_name = "right_sample_name"
     String flow_order = "TGCA"
     String barcode = "CAACATACATCAGAT"
     String id = "X0003"
-
-    # FEATUREMAP
-    File? featuremap = "FeatureMapMerge.featuremap"
-    File? featuremap_index = "FeatureMapMerge.featuremap_index"
-    File? featuremap_single_substitutions = "FeatureMapSingleSubstitutionsMerge.featuremap"
-    File? featuremap_single_substitutions_index = "FeatureMapSingleSubstitutionsMerge.featuremap_index"
-    File? featuremap_dataframe = "FeatureMapMergeDataframes.featuremap_df"
-    File? featuremap_single_substitutions_dataframe = "FeatureMapMergeSingleSubstitutionsDataframes.featuremap_df"
-
-    # SNP Rate
-    File? coverage_per_motif = "SNPRate.coverage_per_motif"
-    File? snp_error_rate = "SNPRate.snp_error_rate"
-    File? snp_error_rate_plot = "SNPRate.snp_error_rate_threshold5"
   }
   runtime {
     docker: "google/cloud-sdk:374.0.0"
