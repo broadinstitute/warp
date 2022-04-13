@@ -53,57 +53,6 @@ task GetMissingContigList {
   }
 }
 
-task SortChunksByContigs {
-  input {
-    File vcfs_and_indices_and_contigs_list
-    File ref_dict
-  }
-
-  command <<<
-    set -e -o pipefail
-
-    python3 << "EOF"
-    import pysam
-    import csv
-
-    class Chunk:
-      def __init__(self, vcf, vcf_index, contig):
-        self.vcf = vcf
-        self.vcf_index = vcf_index
-        self.contig = contig
-
-    def getContigIndex(contig, ref_dictionary):
-      index = ref_dictionary.get_tid(contig)
-      if index == -1:
-        raise ValueError(f'Contig {contig} not found in dictionary')
-      return index
-
-    chunks = []
-    with open("~{vcfs_and_indices_and_contigs_list}") as f_vcfs_and_contigs:
-      vcf_and_contigs_reader = csv.reader(f_vcfs_and_contigs, delimiter='\t')
-      for line in vcf_and_contigs_reader:
-        chunks.append(Chunk(line[0], line[1], line[2]))
-
-    with pysam.AlignmentFile("~{ref_dict}") as ref_dict:
-      chunks.sort(key=lambda chunk: getContigIndex(chunk.contig, ref_dict))
-
-    with open("vcf_chunks.txt", "w") as f_vcfs_out, open("vcf_index_chunks.txt", "w") as f_vcf_indices_out:
-      for chunk in chunks:
-        f_vcfs_out.write(chunk.vcf + "\n")
-        f_vcf_indices_out.write(chunk.vcf_index + "\n")
-    EOF
-  >>>
-
-  runtime {
-    docker: "biocontainers/pysam:v0.15.2ds-2-deb-py3_cv1"
-  }
-
-  output {
-    Array[File] sorted_vcfs = read_lines("vcf_chunks.txt")
-    Array[File] sorted_vcf_indices = read_lines("vcf_index_chunks.txt")
-  }
-}
-
 task GenerateChunk {
   input {
     Int start
@@ -315,7 +264,6 @@ task Minimac4 {
 task GatherVcfs {
   input {
     Array[File] input_vcfs
-    Array[File] input_vcf_indices
     String output_vcf_basename
 
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
@@ -332,6 +280,7 @@ task GatherVcfs {
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     GatherVcfs \
     -I ~{sep=' -I ' input_vcfs} \
+    --REORDER_INPUT_BY_FIRST_VARIANT \
     -O ~{output_vcf_basename}.vcf.gz
 
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
@@ -347,6 +296,35 @@ task GatherVcfs {
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
     File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
+  }
+}
+
+task ReplaceHeader {
+  input {
+    File vcf_to_replace_header
+    File vcf_with_new_header
+
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.4-1.10.2-0.1.16-1646091598"
+  }
+
+  String output_name = basename(vcf_to_replace_header,".vcf.gz") + ".new_header.vcf.gz"
+  Int disk_size_gb = ceil(4*(size(vcf_to_replace_header, "GiB") + size(vcf_with_new_header, "GiB"))) + 20
+
+  command <<<
+    set -e -o pipefail
+
+    bcftools head ~{vcf_with_new_header} > header.hr
+
+    bcftools reheader -h header.hr ~{vcf_to_replace_header} -o ~{output_name}
+  >>>
+
+  runtime {
+    docker: bcftools_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+  }
+
+  output {
+    File output_vcf = "~{output_name}"
   }
 }
 

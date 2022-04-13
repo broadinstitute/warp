@@ -260,15 +260,9 @@ workflow Imputation {
     }
     Array[File] aggregatedImputationMetrics = select_all(AggregateImputationQCMetrics.aggregated_metrics)
     Array[File] chromosome_vcfs = select_all(InterleaveVariants.output_vcf)
-    Array[File] chromosome_vcf_indices = select_all(InterleaveVariants.output_vcf_index)
   }
 
   Array[String] phased_vcfs = flatten(chromosome_vcfs)
-  Array[String] phased_vcf_indices = flatten(chromosome_vcf_indices)
-  Array[String] phased_contigs = flatten(chunk_contig)
-
-  #this will be an array of arrays of [vcf, vcf_index, contig] for each chunk
-  Array[Array[String]] phased_contig_tuples = transpose([phased_vcfs, phased_vcf_indices, phased_contigs])
 
   call tasks.GetMissingContigList {
     input:
@@ -311,30 +305,23 @@ workflow Imputation {
           vcf = SetIDsMissingContigs.output_vcf,
           basename = "unimputed_contigs_" + missing_contig +"_"+ i_missing_contig + "_annotations_removed"
       }
-      String missing_contig_this_chunk = missing_contig
+
+      call tasks.ReplaceHeader {
+        input:
+          vcf_to_replace_header = RemoveAnnotationsMissingContigs.output_vcf,
+          vcf_with_new_header = phased_vcfs[0]
+      }
     }
   }
 
-  Array[String] missing_contig_vcf = flatten(RemoveAnnotationsMissingContigs.output_vcf)
-  Array[String] missing_contig_vcf_indices = flatten(RemoveAnnotationsMissingContigs.output_vcf)
-  Array[String] missing_contig_per_chunk = flatten(missing_contig_this_chunk)
-
-  #this will be an array of arrays of [vcf, vcf_index, contig] for each chunk
-  Array[Array[String]] missing_contig_tuples = transpose([missing_contig_vcf, missing_contig_vcf_indices, missing_contig_per_chunk])
+  Array[String] missing_contig_vcfs = flatten(ReplaceHeader.output_vcf)
 
 
-  Array[Array[String]] unsorted_contig_tuples = flatten([phased_contig_tuples, missing_contig_tuples])
-
-  call tasks.SortChunksByContigs {
-    input:
-      vcfs_and_indices_and_contigs_list = write_tsv(unsorted_contig_tuples),
-      ref_dict = ref_dict
-  }
+  Array[String] unsorted_vcfs = flatten([phased_vcfs, missing_contig_vcfs])
 
   call tasks.GatherVcfs {
     input:
-      input_vcfs = SortChunksByContigs.sorted_vcfs,
-      input_vcf_indices = SortChunksByContigs.sorted_vcf_indices,
+      input_vcfs = unsorted_vcfs,
       output_vcf_basename = output_callset_name
   }
 
