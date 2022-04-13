@@ -1,5 +1,10 @@
-# 3.0.5
-2022-03-24 (Date of Last Commit)
+# 3.0.6
+2022-04-04 (Date of Last Commit)
+
+* Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+
+# 3.0.5 
+2022-03-24(Date of Last Commit)
 
 * The pipeline was modified to allow the read_length parameter to be overridden in the QC tasks CollectWGSMetrics and CollectRawWGSMetrics
 

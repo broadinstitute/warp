@@ -1,7 +1,13 @@
-# 5.3.1
+# 5.4.0
 2022-04-06 (Date of Last Commit)
 
 * Updated the STARsoloFastq task in StarAlign.wdl to run STARsolo independently with "Gene" COUNTING_MODE when the Optimus input parameter `count_exons` is set to true.
+
+# 5.3.1
+2022-04-04 (Date of Last Commit)
+
+* Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+
 
 # 5.3.0
 2022-02-22 (Date of Last Commit)
