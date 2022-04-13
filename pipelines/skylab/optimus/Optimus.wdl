@@ -133,7 +133,7 @@ workflow Optimus {
   }
   call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
-      bam_input = select_first([STARsoloFastqSingle.bam_output , MergeBam.output_bam])
+      bam_input = select_first([STARsoloFastqSingle.bam_output, MergeBam.output_bam])
   }
 
   call Metrics.CalculateCellMetrics as CellMetrics {
