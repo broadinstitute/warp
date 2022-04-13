@@ -59,7 +59,7 @@ workflow TestExomeGermlineSingleSample {
       provide_bam_output = provide_bam_output,
       use_gatk3_haplotype_caller = use_gatk3_haplotype_caller,
       dragen_functional_equivalence_mode = dragen_functional_equivalence_mode,
-      dragen_maximum_quality_mode = dragen_maximum_quality_mode,,
+      dragen_maximum_quality_mode = dragen_maximum_quality_mode,
       run_dragen_mode_variant_calling = run_dragen_mode_variant_calling,
       use_spanning_event_genotyping = use_spanning_event_genotyping,
       unmap_contaminant_reads = unmap_contaminant_reads,
@@ -101,7 +101,7 @@ workflow TestExomeGermlineSingleSample {
                             WholeGenomeGermlineSingleSample.output_cram_md5,
                             WholeGenomeGermlineSingleSample.validate_cram_file_report,
                             WholeGenomeGermlineSingleSample.output_vcf,
-                            WholeGenomeGermlineSingleSample.output_vcf_index
+                            WholeGenomeGermlineSingleSample.output_vcf_index,
                             ], # Array[File] outputs
                             WholeGenomeGermlineSingleSample.quality_yield_metrics,
                             WholeGenomeGermlineSingleSample.unsorted_read_group_base_distribution_by_cycle_pdf,
@@ -111,7 +111,7 @@ workflow TestExomeGermlineSingleSample {
                             WholeGenomeGermlineSingleSample.unsorted_read_group_quality_by_cycle_pdf,
                             WholeGenomeGermlineSingleSample.unsorted_read_group_quality_by_cycle_metrics,
                             WholeGenomeGermlineSingleSample.unsorted_read_group_quality_distribution_pdf,
-                            WholeGenomeGermlineSingleSample.unsorted_read_group_quality_distribution_metrics
+                            WholeGenomeGermlineSingleSample.unsorted_read_group_quality_distribution_metrics,
                             # File? outputs
                             select_all([WholeGenomeGermlineSingleSample.cross_check_fingerprints_metrics]),
                             select_all([WholeGenomeGermlineSingleSample.fingerprint_summary_metrics]),
@@ -142,7 +142,7 @@ workflow TestExomeGermlineSingleSample {
                               WholeGenomeGermlineSingleSample.raw_wgs_metrics,
                               WholeGenomeGermlineSingleSample.duplicate_metrics,
                               WholeGenomeGermlineSingleSample.gvcf_summary_metrics,
-                              WholeGenomeGermlineSingleSample.gvcf_detail_metrics
+                              WholeGenomeGermlineSingleSample.gvcf_detail_metrics,
                               ], # Array[File] outputs
                               WholeGenomeGermlineSingleSample.quality_yield_metrics,
                               WholeGenomeGermlineSingleSample.unsorted_read_group_base_distribution_by_cycle_metrics,
