@@ -144,9 +144,9 @@ workflow Optimus {
 
   call StarAlign.MergeStarOutput as MergeStarOutputs {
     input:
-      barcodes = select_all([STARsoloFastqSingle.barcodes, STARsoloFastq.barcodes])[0],
-      features = select_all([STARsoloFastqSingle.features, STARsoloFastq.features])[0],
-      matrix =  select_all([STARsoloFastqSingle.matrix, STARsoloFastq.matrix])[0]
+      barcodes = [select_all([STARsoloFastqSingle.barcodes, STARsoloFastq.barcodes])[0]],
+      features = [select_all([STARsoloFastqSingle.features, STARsoloFastq.features])[0]],
+      matrix =  [select_all([STARsoloFastqSingle.matrix, STARsoloFastq.matrix])[0]]
   }
   call RunEmptyDrops.RunEmptyDrops {
     input:
@@ -177,9 +177,9 @@ workflow Optimus {
   if (count_exons  && counting_mode=="sn_rna") {
     call StarAlign.MergeStarOutput as MergeStarOutputsExons {
       input:
-        barcodes = select_all([STARsoloFastqSingle.barcodes_sn_rna, STARsoloFastq.barcodes_sn_rna])[0],
-        features = select_all([STARsoloFastqSingle.features_sn_rna, STARsoloFastq.features_sn_rna])[0],
-        matrix = select_all([STARsoloFastqSingle.matrix_sn_rna, STARsoloFastq.matrix_sn_rna])[0]
+        barcodes = [select_all([STARsoloFastqSingle.barcodes_sn_rna, STARsoloFastq.barcodes_sn_rna])[0]],
+        features = [select_all([STARsoloFastqSingle.features_sn_rna, STARsoloFastq.features_sn_rna])[0]],
+        matrix = [select_all([STARsoloFastqSingle.matrix_sn_rna, STARsoloFastq.matrix_sn_rna])[0]]
     }
 
     call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
