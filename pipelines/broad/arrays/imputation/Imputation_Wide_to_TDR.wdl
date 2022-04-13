@@ -177,7 +177,8 @@ task format_imputation_wide_outputs{
         print(ppt_simple_sample_vcf_indices)
 
         print("creating dataframe")
-        tsv_df = pd.DataFrame(columns = ["chip_well_barcode", "imputed_single_sample_vcf", "imputed_single_sample_vcf_index"])
+        # tsv_df = pd.DataFrame(columns = ["chip_well_barcode", "imputed_single_sample_vcf", "imputed_single_sample_vcf_index"])
+        all_samples = []
         sample_dict = {}
 
         print("getting vcf + vcf index file names and paths and chipwell barcode")
@@ -197,10 +198,12 @@ task format_imputation_wide_outputs{
             print(sample_dict)
 
             print("appending single vcf dict to dataframe")
-            tsv_df = tsv_df.append(sample_dict, ignore_index = True)
+            # tsv_df = tsv_df.append(sample_dict, ignore_index = True)
+            all_samples.append(sample_dict)
 
         # tsv_df = pd.read_csv("ingestDataset_imputation_wide_outputs.tsv", sep="\t")
         print("writing final dataframe to json file")
+        tsv_df = pd.DataFrame(all_samples) 
         tsv_df = tsv_df.dropna(axis=1, how="all")  # drop columns if no value (optional outputs etc)
         outputs = tsv_df.to_json("ingestDataset_imputation_wide_outputs.json", orient="records")  # write json file
 
