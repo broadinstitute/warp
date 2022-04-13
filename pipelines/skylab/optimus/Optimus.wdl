@@ -148,7 +148,7 @@ workflow Optimus {
 
   call StarAlign.MergeStarOutput as MergeStarOutputs {
     input:
-      barcodes =  barcodes_out,
+      barcodes = barcodes_out,
       features = features_out,
       matrix = matrix_out
   }
