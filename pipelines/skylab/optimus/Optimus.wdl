@@ -174,10 +174,6 @@ workflow Optimus {
         pipeline_version = "Optimus_v~{pipeline_version}"
     }
   }
-  Array[File] barcodes_sn_rna = select_all([STARsoloFastqSingle.barcodes_sn_rna, STARsoloFastq.barcodes_sn_rna])
-  Array[File] features_sn_rna = select_all([STARsoloFastqSingle.features_sn_rna, STARsoloFastq.features_sn_rna])
-  Array[File] matrix_sn_rna = select_all([STARsoloFastqSingle.matrix_sn_rna, STARsoloFastq.matrix_sn_rna])
-
   if (count_exons  && counting_mode=="sn_rna") {
     call StarAlign.MergeStarOutput as MergeStarOutputsExons {
       input:
