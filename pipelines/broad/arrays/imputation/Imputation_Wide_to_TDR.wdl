@@ -186,7 +186,7 @@ task format_imputation_wide_outputs{
         for vcf in single_sample_vcfs:
             imputed_vcf_filename = vcf.split("/")[-1]
             imputed_vcf_index_filename = imputed_vcf_filename + ".tbi"
-            chip_well_barcode = filename.split(".")[0]
+            chip_well_barcode = imputed_vcf_filename.split(".")[0]
             imputed_vcf_path = vcf
             imputed_vcf_index_path = [s for s in single_sample_vcf_indices if imputed_vcf_index_filename in s][0]
 
