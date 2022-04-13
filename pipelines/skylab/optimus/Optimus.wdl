@@ -142,7 +142,7 @@ workflow Optimus {
       original_gtf = annotations_gtf
   }
 
-  Array[File] barcodes_out = select_all([STARsoloFastqSingle.barcodes,STARsoloFastq.barcodes])
+  Array[File] barcodes_out = select_all([STARsoloFastqSingle.barcodes, STARsoloFastq.barcodes])
   Array[File] features_out = select_all([STARsoloFastqSingle.features, STARsoloFastq.features])
   Array[File] matrix_out = select_all([STARsoloFastqSingle.matrix, STARsoloFastq.matrix])
 
