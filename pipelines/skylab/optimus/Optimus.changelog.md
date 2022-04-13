@@ -1,7 +1,7 @@
 # 5.3.1
 2022-04-06 (Date of Last Commit)
 
-* Updated STARsoloFastq task in StarAlign.wdl
+* Updated the STARsoloFastq task in StarAlign.wdl to run STARsolo independently with "Gene" COUNTING_MODE when the Optimus input parameter `count_exons` is set to true.
 
 # 5.3.0
 2022-02-22 (Date of Last Commit)
