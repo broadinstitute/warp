@@ -177,7 +177,7 @@ task format_imputation_wide_outputs{
         print(ppt_simple_sample_vcf_indices)
 
         print("creating dataframe")
-        tsv_df = pd.DataFrame(columns = ["chip_well_barcode", "imputed_single_sample_vcf", "imputed_single_sample_vcf_index"], sep="\t")
+        tsv_df = pd.DataFrame(columns = ["chip_well_barcode", "imputed_single_sample_vcf", "imputed_single_sample_vcf_index"])
         sample_dict = {}
 
         print("getting vcf + vcf index file names and paths and chipwell barcode")
