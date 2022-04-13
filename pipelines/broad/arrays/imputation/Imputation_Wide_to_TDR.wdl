@@ -167,14 +167,14 @@ task format_imputation_wide_outputs{
         import os
 
         print("imputed_single_sample_vcfs")
-        sinple_sample_vcfs=~{prefix}~{sep="\", \"" imputed_single_sample_vcfs}~{postfix}
-        print(type(sinple_sample_vcfs))
-        print(sinple_sample_vcfs)
+        single_sample_vcfs=~{prefix}~{sep="\", \"" imputed_single_sample_vcfs}~{postfix}
+        print(type(single_sample_vcfs))
+        print(single_sample_vcfs)
 
         print("imputed_single_sample_vcf_indices")
-        ppt_simple_sample_vcf_indices=~{prefix}~{sep="\", \"" imputed_single_sample_vcf_indices}~{postfix}
-        print(type(ppt_simple_sample_vcf_indices))
-        print(ppt_simple_sample_vcf_indices)
+        single_sample_vcf_indices=~{prefix}~{sep="\", \"" imputed_single_sample_vcf_indices}~{postfix}
+        print(type(single_sample_vcf_indices))
+        print(single_sample_vcf_indices)
 
         print("creating dataframe")
         # tsv_df = pd.DataFrame(columns = ["chip_well_barcode", "imputed_single_sample_vcf", "imputed_single_sample_vcf_index"])
@@ -183,12 +183,12 @@ task format_imputation_wide_outputs{
 
         print("getting vcf + vcf index file names and paths and chipwell barcode")
         # for each file in list of imputed vcfs, get chip_well_barcode value
-        for vcf in imputed_single_sample_vcfs:
+        for vcf in single_sample_vcfs:
             imputed_vcf_filename = vcf.split("/")[-1]
             imputed_vcf_index_filename = imputed_vcf_filename + ".tbi"
             chip_well_barcode = filename.split(".")[0]
             imputed_vcf_path = vcf
-            imputed_vcf_index_path = [s for s in imputed_single_sample_vcf_indices if imputed_vcf_index_filename in s][0]
+            imputed_vcf_index_path = [s for s in single_sample_vcf_indices if imputed_vcf_index_filename in s][0]
 
             sample_dict["chip_well_barcode"] = chip_well_barcode
             sample_dict["imputed_single_sample_vcf"] = imputed_vcf_path
