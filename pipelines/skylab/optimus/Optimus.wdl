@@ -138,7 +138,7 @@ workflow Optimus {
 
   call Metrics.CalculateCellMetrics as CellMetrics {
     input:
-      bam_input = select_first([STARsoloFastqSingle.bam_output , MergeBam.output_bam]),
+      bam_input = select_first([STARsoloFastqSingle.bam_output, MergeBam.output_bam]),
       original_gtf = annotations_gtf
   }
 
