@@ -1,7 +1,7 @@
 # 1.2.4
 2022-04-06 (Date of Last Commit)
 
-* Updated STARsoloFastq task in StarAlign.wdl
+* Updated STARsoloFastq task in StarAlign.wdl; this change does not affect the Mutl-snSS2 workflow.
 
 # 1.2.3 (Date of Last Commit)
 2022-02-25 (Date of Last Commit)
