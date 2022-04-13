@@ -56,7 +56,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "5.3.1"
+  String pipeline_version = "5.3.2"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -142,15 +142,11 @@ workflow Optimus {
       original_gtf = annotations_gtf
   }
 
-  Array[File] barcodes_out = select_all([STARsoloFastqSingle.barcodes, STARsoloFastq.barcodes])
-  Array[File] features_out = select_all([STARsoloFastqSingle.features, STARsoloFastq.features])
-  Array[File] matrix_out = select_all([STARsoloFastqSingle.matrix, STARsoloFastq.matrix])
-
   call StarAlign.MergeStarOutput as MergeStarOutputs {
     input:
-      barcodes = barcodes_out,
-      features = features_out,
-      matrix = matrix_out
+      barcodes = select_all([STARsoloFastqSingle.barcodes, STARsoloFastq.barcodes])[0],
+      features = select_all([STARsoloFastqSingle.features, STARsoloFastq.features])[0],
+      matrix =  select_all([STARsoloFastqSingle.matrix, STARsoloFastq.matrix])[0]
   }
   call RunEmptyDrops.RunEmptyDrops {
     input:
@@ -185,9 +181,9 @@ workflow Optimus {
   if (count_exons  && counting_mode=="sn_rna") {
     call StarAlign.MergeStarOutput as MergeStarOutputsExons {
       input:
-        barcodes = barcodes_sn_rna,
-        features = features_sn_rna,
-        matrix = matrix_sn_rna
+        barcodes = select_all([STARsoloFastqSingle.barcodes_sn_rna, STARsoloFastq.barcodes_sn_rna])[0],
+        features = select_all([STARsoloFastqSingle.features_sn_rna, STARsoloFastq.features_sn_rna])[0],
+        matrix = select_all([STARsoloFastqSingle.matrix_sn_rna, STARsoloFastq.matrix_sn_rna])[0]
     }
 
     call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
