@@ -1,7 +1,12 @@
-# 5.3.1
-2022-04-05 (Date of Last Commit)
+# 5.3.2
+2022-04-13 (Date of Last Commit)
 
 * Changed the Optimus WDL logic to skip splitting FASTQs if the total input size for read 1 and read 2 is smaller than 30 GB.
+
+# 5.3.1
+2022-04-04 (Date of Last Commit)
+
+* Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
 
 # 5.3.0
 2022-02-22 (Date of Last Commit)
