@@ -51,13 +51,7 @@ workflow imputation_outputs_to_TDR {
     #         n_failed_chunks                     = Imputation.n_failed_chunks
     # }
 
-    call format_imputation_wide_outputs {
-        input:
-            imputed_single_sample_vcfs          = Imputation.imputed_single_sample_vcfs,
-            imputed_single_sample_vcf_indices   = Imputation.imputed_single_sample_vcf_indices
-    }
-
-    # call ingest_outputs_to_tdr {
+    # call ingest_outputs_to_tdr as ingest_to_imputation_outputs {
     #     input:
     #         workspace_name          = workspace_name,
     #         workspace_bucket        = workspace_bucket,
@@ -65,6 +59,21 @@ workflow imputation_outputs_to_TDR {
     #         tdr_target_table_name   = tdr_target_table_name,
     #         outputs_tsv             = format_imputation_outputs.ingest_outputs_tsv
     # }
+
+    call format_imputation_wide_outputs {
+        input:
+            imputed_single_sample_vcfs          = Imputation.imputed_single_sample_vcfs,
+            imputed_single_sample_vcf_indices   = Imputation.imputed_single_sample_vcf_indices
+    }
+
+    call ingest_outputs_to_tdr as ingest_to_imputation_wide_outputs {
+        input:
+            workspace_name          = workspace_name,
+            workspace_bucket        = workspace_bucket,
+            tdr_dataset_id          = tdr_dataset_id,
+            tdr_target_table_name   = tdr_target_table_name,
+            outputs_tsv             = format_imputation_wide_outputs.ingest_outputs_wide_tsv
+    }
 
     output {
         File aggregated_imputation_metrics              = Imputation.aggregated_imputation_metrics
@@ -153,54 +162,47 @@ task format_imputation_wide_outputs{
 
     command <<<
 
-        # handle array[type] variables to print as list with double quotes
-        imputed_single_sample_vcfs='~{sep='","' imputed_single_sample_vcfs}'
-        imputed_single_sample_vcf_indices='~{sep='","' imputed_single_sample_vcf_indices}'
-        export imputed_single_sample_vcfs
-        export imputed_single_sample_vcf_indices
-
         python3 << CODE
         import pandas as pd
         import os
 
-        print("imputed_single_sample_vcfs and indices with os.environ export method")
-        os_imputed_single_sample_vcfs = '["' + os.environ["imputed_single_sample_vcfs"] + '"]'
-        print("type of imputed_single_sample_vcfs:")
-        print(type(os_imputed_single_sample_vcfs))
-        
-        os_imputed_single_sample_vcf_indices = '["' + os.environ["imputed_single_sample_vcf_indices"] + '"]'
-        print("type of imputed_single_sample_vcf_indices:")
-        print(type(os_imputed_single_sample_vcf_indices))
+        print("imputed_single_sample_vcfs")
+        sinple_sample_vcfs=~{prefix}~{sep="\", \"" imputed_single_sample_vcfs}~{postfix}
+        print(type(sinple_sample_vcfs))
+        print(sinple_sample_vcfs)
 
-        print("imputed_single_sample_vcfs with prefix and postfix method")
-        ppt_simple_sample_vcfs=~{prefix}~{sep="\", \"" imputed_single_sample_vcfs}~{postfix}
-        print(type(ppt_simple_sample_vcfs))
-        print(ppt_simple_sample_vcfs)
-
-        print("imputed_single_sample_vcf_indices with prefix and postfix method")
+        print("imputed_single_sample_vcf_indices")
         ppt_simple_sample_vcf_indices=~{prefix}~{sep="\", \"" imputed_single_sample_vcf_indices}~{postfix}
         print(type(ppt_simple_sample_vcf_indices))
         print(ppt_simple_sample_vcf_indices)
 
-        # tsv_df = pd.DataFrame(columns = ["chip_well_barcode", "imputed_single_sample_vcf", "imputed_single_sample_vcf_index"], sep="\t")
-        # sample_dict = {}
-        # # for each file in list of imputed vcfs, get chip_well_barcode value
-        # for vcf in imputed_single_sample_vcfs:
-        #     imputed_vcf_filename = vcf.split("/")[-1]
-        #     imputed_vcf_index_filename = imputed_vcf_filename + ".tbi"
-        #     chip_well_barcode = filename.split(".")[0]
-        #     imputed_vcf_path = vcf
-        #     imputed_vcf_index_path = [s for s in imputed_single_sample_vcf_indices if imputed_vcf_index_filename in s][0]
+        print("creating dataframe")
+        tsv_df = pd.DataFrame(columns = ["chip_well_barcode", "imputed_single_sample_vcf", "imputed_single_sample_vcf_index"], sep="\t")
+        sample_dict = {}
 
-        #     sample_dict["chip_well_barcode"] = chip_well_barcode
-        #     sample_dict["imputed_single_sample_vcf"] = imputed_vcf_path
-        #     sample_dict["imputed_single_sample_vcf_index"] = imputed_vcf_index_path
+        print("getting vcf + vcf index file names and paths and chipwell barcode")
+        # for each file in list of imputed vcfs, get chip_well_barcode value
+        for vcf in imputed_single_sample_vcfs:
+            imputed_vcf_filename = vcf.split("/")[-1]
+            imputed_vcf_index_filename = imputed_vcf_filename + ".tbi"
+            chip_well_barcode = filename.split(".")[0]
+            imputed_vcf_path = vcf
+            imputed_vcf_index_path = [s for s in imputed_single_sample_vcf_indices if imputed_vcf_index_filename in s][0]
 
-        #     tsv_df = tsv_df.append(sample_dict, ignore_index = True)
+            sample_dict["chip_well_barcode"] = chip_well_barcode
+            sample_dict["imputed_single_sample_vcf"] = imputed_vcf_path
+            sample_dict["imputed_single_sample_vcf_index"] = imputed_vcf_index_path
 
-        # # tsv_df = pd.read_csv("ingestDataset_imputation_wide_outputs.tsv", sep="\t")
-        # tsv_df = tsv_df.dropna(axis=1, how="all")  # drop columns if no value (optional outputs etc)
-        # outputs = tsv_df.to_json("ingestDataset_imputation_wide_outputs.json", orient="records")  # write json file
+            print("single vcf dictionary for vcf with name:" + imputed_vcf_filename)
+            print(sample_dict)
+
+            print("appending single vcf dict to dataframe")
+            tsv_df = tsv_df.append(sample_dict, ignore_index = True)
+
+        # tsv_df = pd.read_csv("ingestDataset_imputation_wide_outputs.tsv", sep="\t")
+        print("writing final dataframe to json file")
+        tsv_df = tsv_df.dropna(axis=1, how="all")  # drop columns if no value (optional outputs etc)
+        outputs = tsv_df.to_json("ingestDataset_imputation_wide_outputs.json", orient="records")  # write json file
 
         CODE
     >>>
