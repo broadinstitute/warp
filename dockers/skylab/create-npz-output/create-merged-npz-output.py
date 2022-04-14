@@ -95,7 +95,6 @@ def main():
     features_list = []
     for key in features_dict.keys():
         features_list = np.union1d(np.unique(features_list),features_dict[key])
-    np.save(args.input_id+"_sparse_counts_col_index.npy", features_list)
 
     # read the barcodes file and create the barcode to index
     barcodes_dict = {}
@@ -104,8 +103,6 @@ def main():
     barcodes_list = []
     for key in barcodes_dict.keys():
         barcodes_list = np.union1d(barcodes_list, barcodes_dict[key])
-
-    np.save(args.input_id+"_sparse_counts_row_index.npy", barcodes_list)
 
     matrix_dict = {}
     for i in range(len(args.matrix)):
@@ -118,10 +115,14 @@ def main():
         expr_sp = expr_sp+sp
     # covert the mtx file to the matrix
     matrix = expr_sp.tocsr()
-    nonzero_row_indices, _ = matrix.nonzero()
+    nonzero_row_indices, nonzero_col_indices = matrix.nonzero()
     unique_nonzero_row_indices = np.sort(np.unique(nonzero_row_indices))
-    # we need to keep only those rows that have non-zero reads/counts
-    scipy.sparse.save_npz(args.input_id+"_sparse_counts.npz", matrix[unique_nonzero_row_indices, :], compressed=True)
+    unique_nonzero_col_indices = np.sort(np.unique(nonzero_col_indices))
+
+# we need to keep only those rows that have non-zero reads/counts
+    scipy.sparse.save_npz(args.input_id+"_sparse_counts.npz", matrix[unique_nonzero_row_indices, unique_nonzero_col_indices], compressed=True)
+    np.save(args.input_id+"_sparse_counts_col_index.npy", features_list[unique_nonzero_col_indices])
+    np.save(args.input_id+"_sparse_counts_row_index.npy", barcodes_list[unique_nonzero_row_indices])
 
 if __name__ == '__main__':
     main()
