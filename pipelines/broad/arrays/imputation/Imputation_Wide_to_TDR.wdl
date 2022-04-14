@@ -202,10 +202,15 @@ task format_imputation_wide_outputs{
             all_samples.append(sample_dict)
 
         # tsv_df = pd.read_csv("ingestDataset_imputation_wide_outputs.tsv", sep="\t")
-        print("writing final dataframe to json file")
+        print("writing final dataframe to tsv and json file")
         tsv_df = pd.DataFrame(all_samples) 
         tsv_df = tsv_df.dropna(axis=1, how="all")  # drop columns if no value (optional outputs etc)
-        outputs = tsv_df.to_json("ingestDataset_imputation_wide_outputs.json", orient="records")  # write json file
+
+        # write dataframe to tsv
+        tsv_df.to_csv("ingestDataset_imputation_wide_outputs.tsv", sep="\t")
+        print("finished writing dataframe of split out imputation outputs to tsv file")
+        # write dataframe to json
+        # outputs = tsv_df.to_json("ingestDataset_imputation_wide_outputs.json", orient="records")  # write json file
 
         CODE
     >>>
