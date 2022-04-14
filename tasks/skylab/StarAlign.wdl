@@ -469,8 +469,8 @@ task MergeStarOutput {
   }
 
   output {
-    File row_index = "sparse_counts_row_index.npy"
-    File col_index = "sparse_counts_col_index.npy"
-    File sparse_counts = "sparse_counts.npz"
+    File row_index = "~{input_id}_sparse_counts_row_index.npy"
+    File col_index = "~{input_id}_sparse_counts_col_index.npy"
+    File sparse_counts = "~{input_id}_sparse_counts.npz"
   }
 }
