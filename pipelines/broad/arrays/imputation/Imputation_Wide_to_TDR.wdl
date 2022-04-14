@@ -71,7 +71,7 @@ workflow imputation_outputs_to_TDR {
             workspace_name          = workspace_name,
             workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
-            tdr_target_table_name   = tdr_target_table_name,
+            tdr_target_table_name   = "ImputationWideOutputsTable",
             outputs_tsv             = format_imputation_wide_outputs.ingest_outputs_wide_tsv
     }
 
