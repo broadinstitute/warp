@@ -1,7 +1,7 @@
 # 1.2.3
-2022-03-11 (Date of Last Commit)
+2022-04-14 (Date of Last Commit)
 
-* Updated to Picard version 2.26.10 and GATK version 4.2.6.0 to address log4j vulnerabilities
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
 
 # 1.2.2
 2022-01-12

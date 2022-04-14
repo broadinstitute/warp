@@ -1,7 +1,7 @@
 # 2.1.0
-2022-03-11 (Date of Last Commit)
+2022-04-14 (Date of Last Commit)
 
-* Updated to Picard version 2.26.10 and GATK version 4.2.6.0 to address log4j vulnerabilities
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
     * Reblocking fix to merge sites with missing DP into adjacent ref blocks
     
 # 2.0.5
