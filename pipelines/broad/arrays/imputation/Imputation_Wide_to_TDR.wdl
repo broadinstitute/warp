@@ -210,7 +210,7 @@ task format_imputation_wide_outputs{
         tsv_df.to_csv("ingestDataset_imputation_wide_outputs.tsv", index=False , sep="\t")
         print("finished writing dataframe of split out imputation outputs to tsv file")
         # write dataframe to json
-        # outputs = tsv_df.to_json("ingestDataset_imputation_wide_outputs.json", orient="records")  # write json file
+        outputs = tsv_df.to_json("ingestDataset_imputation_wide_outputs.json", orient="records")  # write json file
 
         CODE
     >>>
