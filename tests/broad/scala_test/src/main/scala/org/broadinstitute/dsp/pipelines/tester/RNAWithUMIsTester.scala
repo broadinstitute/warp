@@ -90,9 +90,9 @@ class RNAWithUMIsTester(testerConfig: RNAWithUMIsConfig)(
       truth_output_bam = truthCloudPath.resolve(
         s"$outputBaseName.duplicate_marked.coordinate_sorted.bam"),
       test_transcriptome_bam = resultsCloudPath.resolve(
-        s"$outputBaseName.transcriptome.duplicate_marked.coordinate_sorted.bam"),
+        s"$outputBaseName.transcriptome.duplicate_marked.bam"),
       truth_transcriptome_bam = truthCloudPath.resolve(
-        s"$outputBaseName.transcriptome.duplicate_marked.coordinate_sorted.bam"),
+        s"$outputBaseName.transcriptome.duplicate_marked.bam"),
       test_gene_tpm =
         resultsCloudPath.resolve(s"$outputBaseName.gene_tpm.gct.gz"),
       truth_gene_tpm =
