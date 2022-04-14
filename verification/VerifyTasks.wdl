@@ -194,3 +194,32 @@ task CompareCompressedTextFiles {
   }
 
 }
+
+task CompareLooms {
+
+  input {
+    File truth_loom
+    File test_loom
+    Float delta_threshold = 0.05
+
+    Int cpu = 1
+    String docker = "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    Int disk_size_gb = ceil((size(truth_loom, "GiB") + size(test_loom, "GiB")) * 2) + 20
+    Int memory_mb = ceil(size(truth_loom, "MiB") + size(test_loom, "MiB"))
+
+  }
+
+  command {
+
+  }
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    preemptible: 3
+  }
+
+
+}
