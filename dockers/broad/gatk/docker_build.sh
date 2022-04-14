@@ -11,7 +11,7 @@ GCR_URL="us.gcr.io/broad-gotc-prod/gatk"
 QUAY_URL="quay.io/broadinstitute/gotc-prod-gatk"
 
 # GATK4 version
-GATK4_VERSION="4.2.6.0"
+GATK4_VERSION="4.2.6.1"
 
 # GATK3 version
 GATK3_VERSION="3.5"
