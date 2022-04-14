@@ -130,7 +130,8 @@ workflow Optimus {
     input:
       barcodes = STARsoloFastq.barcodes,
       features = STARsoloFastq.features,
-      matrix = STARsoloFastq.matrix
+      matrix = STARsoloFastq.matrix,
+      input_id = input_id
   }
   call RunEmptyDrops.RunEmptyDrops {
     input:
@@ -163,7 +164,8 @@ workflow Optimus {
       input:
         barcodes = STARsoloFastq.barcodes_sn_rna,
         features = STARsoloFastq.features_sn_rna,
-        matrix = STARsoloFastq.matrix_sn_rna
+        matrix = STARsoloFastq.matrix_sn_rna,
+        input_id = input_id
     }
 
     call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{

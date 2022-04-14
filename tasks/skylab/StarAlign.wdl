@@ -423,6 +423,7 @@ task MergeStarOutput {
     Array[File] barcodes
     Array[File] features
     Array[File] matrix
+    String input_id
 
     #runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-star:merge-star-outputs-v1.1.0"
@@ -454,7 +455,8 @@ task MergeStarOutput {
     python3 /tools/create-merged-npz-output.py \
         --barcodes $barcodes_files \
         --features $features_files \
-        --matrix $matrix_files
+        --matrix $matrix_files \
+        --input_id ~{input_id}
 
   }
 
