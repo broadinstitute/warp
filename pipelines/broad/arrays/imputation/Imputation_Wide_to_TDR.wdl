@@ -207,7 +207,7 @@ task format_imputation_wide_outputs{
         tsv_df = tsv_df.dropna(axis=1, how="all")  # drop columns if no value (optional outputs etc)
 
         # write dataframe to tsv
-        tsv_df.to_csv("ingestDataset_imputation_wide_outputs.tsv", sep="\t")
+        tsv_df.to_csv("ingestDataset_imputation_wide_outputs.tsv", index=False , sep="\t")
         print("finished writing dataframe of split out imputation outputs to tsv file")
         # write dataframe to json
         # outputs = tsv_df.to_json("ingestDataset_imputation_wide_outputs.json", orient="records")  # write json file
