@@ -110,7 +110,7 @@ def main():
     matrix_dict = {}
     for i in range(len(args.matrix)):
         matrix_dict["sample{0}".format(i)] = scipy.io.mmread(args.matrix[i])
-    expr_sp = scipy.sparse.coo_matrix((len(features_list), len(barcodes_list)), np.float32)
+    expr_sp = scipy.sparse.coo_matrix((len(barcodes_list),len(features_list)), np.float32)
     for k in features_dict.keys():
         sp = changeCoord(features_dict[k],features_list,
                          barcodes_dict[k],barcodes_list,
