@@ -101,6 +101,7 @@ workflow TestOptimus {
     }
   }
 
+  # If not updating truth then gather the inputs and call verification wdl
   if (!update_truth) {
     call Utilities.GetValidationInputs as GetLoomInputs {
       input:
