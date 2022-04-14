@@ -48,7 +48,7 @@ def changeCoord(feature_subset, features_union,
         mapped_col.append(col_index[c])
         data.append(v)
     sp = scipy.sparse.coo_matrix((data, (mapped_row, mapped_col)), shape=(len(features_union),len(barcode_union)))
-    return sp
+    return sp.transpose()
 
 def main():
     description = """Create npz, npy file from the mtx files produced by STARsolo"""
