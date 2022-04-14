@@ -207,7 +207,7 @@ task SumFloats {
 }
 
 # Print given message to stderr and return an error
-task ErrorWithMessage{
+task ErrorWithMessage {
   input {
     String message
   }
@@ -218,5 +218,30 @@ task ErrorWithMessage{
 
   runtime {
     docker: "ubuntu:20.04"
+  }
+}
+
+# If keep_inputs is true then this outputs the same file that was input, otherwise it outputs null.
+task MakeOptionalOutput {
+  input {
+    File file_input
+    Boolean keep_inputs
+    Int preemptible_tries = 3
+  }
+    Int disk_size = ceil(size(file_input, "GiB")) + 5
+    String basename = basename(file_input)
+  command<<<
+    if [ ~{keep_inputs} = "true" ]
+    then
+      ln -s ~{file_input} ~{basename}
+    fi
+  >>>
+  runtime {
+    docker: "ubuntu:20.04"
+    disks: "local-disk " + disk_size + " HDD"
+    preemptible: preemptible_tries
+  }
+  output {
+    File? optional_output = "~{basename}"
   }
 }
