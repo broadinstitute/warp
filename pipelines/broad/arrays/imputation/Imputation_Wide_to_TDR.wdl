@@ -4,7 +4,7 @@ import "Imputation.wdl" as ImputationPipeline
 
 workflow imputation_outputs_to_TDR {
     meta {
-        description: "Push outputs of Imputation.wdl to TDR dataset table ImputationOutputsTable."
+        description: "Push outputs of Imputation.wdl to TDR dataset table ImputationOutputsTable and split out Imputation arrays into ImputationWideOutputsTable."
     }
 
     input {
