@@ -313,7 +313,7 @@ task ReplaceHeader {
   command <<<
     set -e -o pipefail
 
-    bcftools head ~{vcf_with_new_header} > header.hr
+    bcftools view -h ~{vcf_with_new_header} > header.hr
 
     bcftools reheader -h header.hr ~{vcf_to_replace_header} -o ~{output_name}
   >>>
