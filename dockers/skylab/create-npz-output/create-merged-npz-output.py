@@ -113,9 +113,30 @@ def main():
                          barcodes_dict[k],barcodes_list,
                          matrix_dict[k])
         expr_sp = expr_sp+sp
-    scipy.sparse.save_npz(args.input_id+"_sparse_counts.npz", expr_sp, compressed=True)
+
+    matrix=expr_sp.tocsr()
+    prev_index = 0
+    discard_rows_indices = []
+    for i in range(len(matrix.indptr)-1):
+        if matrix.indptr[i] == matrix.indptr[i+1]:
+            discard_rows_indices.append(i)
+
+    nonzero_barcodes = [None] * (len(barcodes_list)-len(discard_rows_indices))
+    j = 0
+    i_dst = 0
+    for i_src in range(len(barcodes_list)):
+        if (j >= len(discard_rows_indices)) or (discard_rows_indices[j] != i_src):
+            nonzero_barcodes[i_dst] = barcodes_list[i_src]
+            i_dst = i_dst+1
+        else:
+            j = j+1
+
+    reshaped_matrix = scipy.sparse.csr_matrix((matrix.data, matrix.indices, np.unique(matrix.indptr)),
+                                              shape=(len(nonzero_barcodes), len(features_list)))
+
+    scipy.sparse.save_npz(args.input_id+"_sparse_counts.npz", reshaped_matrix, compressed=True)
     np.save(args.input_id+"_sparse_counts_col_index.npy", features_list)
-    np.save(args.input_id+"_sparse_counts_row_index.npy", barcodes_list)
+    np.save(args.input_id+"_sparse_counts_row_index.npy", nonzero_barcodes)
 
 if __name__ == '__main__':
     main()
