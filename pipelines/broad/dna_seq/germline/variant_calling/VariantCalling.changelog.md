@@ -1,3 +1,8 @@
+# 2.0.6
+2022-04-15 (Date of Last Commit)
+
+* Added memory multiplier input to SortSam in BamProcessing.wdl
+
 # 2.0.5
 2022-04-04 (Date of Last Commit)
 
