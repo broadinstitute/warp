@@ -114,7 +114,7 @@ def main():
                          matrix_dict[k])
         expr_sp = expr_sp+sp
 
-    matrix=expr_sp.tocsr()
+    matrix = expr_sp.tocsr()
     prev_index = 0
     discard_rows_indices = []
     for i in range(len(matrix.indptr)-1):
