@@ -1,6 +1,7 @@
 # 5.4.0
 2022-04-06 (Date of Last Commit)
 
+* Updated the STARsoloFastq task in StarAlign.wdl to run STARsolo independently with "Gene" COUNTING_MODE when the Optimus input parameter `count_exons` is set to true.
 * Updated the MergeStarOutput task in StarAlign.wdl to run an updated script for merging. The previous version included a bug where certain barcodes were getting zero counts after merging.
 * Changed the npz output names to include input_id as a prefix. All outputs are prefixed with input_id and are differentiated from run to run with different inputs.
 # 5.3.1
