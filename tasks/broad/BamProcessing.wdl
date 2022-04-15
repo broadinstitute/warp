@@ -22,11 +22,15 @@ task SortSam {
     String output_bam_basename
     Int preemptible_tries
     Int compression_level
+    Int memory_multiplier = 1
   }
   # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
   # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
   Float sort_sam_disk_multiplier = 3.25
   Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
+
+  Int machine_mem_mb = ceil(5000 * memory_multiplier)
+
 
   command {
     java -Dsamjdk.compression_level=~{compression_level} -Xms4000m -Xmx4500m -jar /usr/picard/picard.jar \
@@ -43,7 +47,7 @@ task SortSam {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
     disks: "local-disk " + disk_size + " HDD"
     cpu: "1"
-    memory: "5000 MiB"
+    memory: "${machine_mem_mb} MiB"
     preemptible: preemptible_tries
   }
   output {
