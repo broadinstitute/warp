@@ -1,3 +1,8 @@
+# 1.12.7
+2022-03-24 (Date of Last Commit)
+
+* Task wdls used by the IlluminaGenotypingArray pipeline were updated with changes that don't affect the IlluminaGenotypingArray pipeline itself
+
 # 1.12.6
 2022-02-025 (Date of Last Commit)
 

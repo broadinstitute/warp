@@ -2,6 +2,7 @@
 2022-04-08 (Date of Last Commit)
 
 * Fix Imputation scaling issue by moving problematic tasks inside of a scatter call
+* Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
 
 # 1.0.7
 2022-03-08 (Date of Last Commit)
