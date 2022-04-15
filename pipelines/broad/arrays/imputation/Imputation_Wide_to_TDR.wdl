@@ -38,27 +38,27 @@ workflow imputation_outputs_to_TDR {
             single_sample_vcf_indices   = single_sample_vcf_indices
     }
 
-    # call format_imputation_outputs {
-    #     input:
-    #         imputed_single_sample_vcfs          = Imputation.imputed_single_sample_vcfs,
-    #         imputed_single_sample_vcf_indices   = Imputation.imputed_single_sample_vcf_indices,
-    #         chip_well_barcodes                  = chip_well_barcodes,
-    #         imputed_multisample_vcf             = Imputation.imputed_multisample_vcf,
-    #         imputed_multisample_vcf_index       = Imputation.imputed_multisample_vcf_index,
-    #         aggregated_imputation_metrics       = Imputation.aggregated_imputation_metrics,
-    #         chunks_info                         = Imputation.chunks_info,
-    #         failed_chunks                       = Imputation.failed_chunks,
-    #         n_failed_chunks                     = Imputation.n_failed_chunks
-    # }
+    call format_imputation_outputs {
+        input:
+            imputed_single_sample_vcfs          = Imputation.imputed_single_sample_vcfs,
+            imputed_single_sample_vcf_indices   = Imputation.imputed_single_sample_vcf_indices,
+            chip_well_barcodes                  = chip_well_barcodes,
+            imputed_multisample_vcf             = Imputation.imputed_multisample_vcf,
+            imputed_multisample_vcf_index       = Imputation.imputed_multisample_vcf_index,
+            aggregated_imputation_metrics       = Imputation.aggregated_imputation_metrics,
+            chunks_info                         = Imputation.chunks_info,
+            failed_chunks                       = Imputation.failed_chunks,
+            n_failed_chunks                     = Imputation.n_failed_chunks
+    }
 
-    # call ingest_outputs_to_tdr as ingest_to_imputation_outputs {
-    #     input:
-    #         workspace_name          = workspace_name,
-    #         workspace_bucket        = workspace_bucket,
-    #         tdr_dataset_id          = tdr_dataset_id,
-    #         tdr_target_table_name   = tdr_target_table_name,
-    #         outputs_tsv             = format_imputation_outputs.ingest_outputs_tsv
-    # }
+    call ingest_outputs_to_tdr as ingest_to_imputation_outputs {
+        input:
+            workspace_name          = workspace_name,
+            workspace_bucket        = workspace_bucket,
+            tdr_dataset_id          = tdr_dataset_id,
+            tdr_target_table_name   = tdr_target_table_name,
+            outputs_tsv             = format_imputation_outputs.ingest_outputs_tsv
+    }
 
     call format_imputation_wide_outputs {
         input:
