@@ -30,10 +30,11 @@ task SortSam {
   Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
 
   Int machine_mem_mb = ceil(5000 * memory_multiplier)
-
+  Int java_max_memory_mb = machine_mem_mb - 500
+  Int java_inital_memory_mb = machine_mem_mb - 1000
 
   command {
-    java -Dsamjdk.compression_level=~{compression_level} -Xms4000m -Xmx4500m -jar /usr/picard/picard.jar \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms~{java_inital_memory_mb}m -Xmx~{java_max_memory_mb}m -jar /usr/picard/picard.jar \
       SortSam \
       INPUT=~{input_bam} \
       OUTPUT=~{output_bam_basename}.bam \

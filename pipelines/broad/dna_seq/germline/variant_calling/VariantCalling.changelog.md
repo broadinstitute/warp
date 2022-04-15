@@ -1,7 +1,7 @@
 # 2.0.6
 2022-04-15 (Date of Last Commit)
 
-* Added memory multiplier input to SortSam in BamProcessing.wdl
+* Updated task SortSam in BamProcessing.wdl to take an optional memory_multiplier
 
 # 2.0.5
 2022-04-04 (Date of Last Commit)

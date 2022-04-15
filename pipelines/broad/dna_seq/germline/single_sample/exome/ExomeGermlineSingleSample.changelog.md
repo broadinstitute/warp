@@ -1,7 +1,7 @@
 # 3.0.7
 2022-04-15 (Date of Last Commit)
 
-* Updated task SortSam in BamProcessing.wdl, this update has no effect on this pipeline
+* Updated task SortSam in BamProcessing.wdl to take an optional memory_multiplier
 
 # 3.0.6
 2022-04-04 (Date of Last Commit)
