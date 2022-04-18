@@ -459,7 +459,7 @@ task MergeStarOutput {
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
-  command {
+  command <<<
     set -e
     declare -a barcodes_files=(~{sep=' ' barcodes})
     declare -a features_files=(~{sep=' ' features})
@@ -467,12 +467,11 @@ task MergeStarOutput {
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
     python3 /tools/create-merged-npz-output.py \
-        --barcodes $barcodes_files \
-        --features $features_files \
-        --matrix $matrix_files \
+        --barcodes ${barcodes_files[@]} \
+        --features ${features_files[@]} \
+        --matrix $matrix_files[@]} \
         --input_id ~{input_id}
-
-  }
+  >>>
 
   runtime {
     docker: docker
