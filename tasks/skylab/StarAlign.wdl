@@ -469,7 +469,7 @@ task MergeStarOutput {
     python3 /tools/create-merged-npz-output.py \
         --barcodes ${barcodes_files[@]} \
         --features ${features_files[@]} \
-        --matrix $matrix_files[@]} \
+        --matrix ${matrix_files[@]} \
         --input_id ~{input_id}
   >>>
 
