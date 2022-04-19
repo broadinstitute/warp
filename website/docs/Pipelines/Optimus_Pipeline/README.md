@@ -91,7 +91,7 @@ The example configuration files also contain metadata for the reference files, d
 | annotations_gtf | Cloud path to the GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | NA |
 | chemistry | Optional string describing whether data was generated with 10x v2 or v3 chemistry. Optimus validates this string. If the string does not match one of the optional strings, the pipeline will fail. You can remove the checks by setting "force_no_check = true" in the input JSON | "tenX_v2" (default) or "tenX_v3". |
 | counting_mode | String describing whether data is single-cell or single-nucleus. Single-cell mode counts reads aligned to the gene transcript, whereas single-nucleus counts whole transcript to account for nuclear pre-mRNA. | "sc_rna" or "sn_rna" |
-| output_bam_basename | String used as a basename for output BAM file; the default is set the string used for the `input_id` parameter. | NA |
+| output_bam_basename | String used as a basename for output BAM file; the default is set to the string used for the `input_id` parameter. | NA |
 | use_strand_info | Optional string for reading stranded data. Default is "false"; set to "true" to count reads in stranded mode. | "true" or "false" (default) |
 | emptydrops_lower | UMI threshold for emptyDrops detection; default is 100. | NA |
 | count_exons | Boolean indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**. If true, this option will output an additional layer for the Loom file. By default, it it set to "false". If the parameter is true and used with sc_rna mode, the workflow will return an error. | "true" or "false" (default) |
