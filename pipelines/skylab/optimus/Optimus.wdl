@@ -56,7 +56,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "5.3.2"
+  String pipeline_version = "5.4.1"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -130,7 +130,8 @@ workflow Optimus {
     input:
       barcodes = STARsoloFastq.barcodes,
       features = STARsoloFastq.features,
-      matrix = STARsoloFastq.matrix
+      matrix = STARsoloFastq.matrix,
+      input_id = input_id
   }
   call RunEmptyDrops.RunEmptyDrops {
     input:
@@ -163,7 +164,8 @@ workflow Optimus {
       input:
         barcodes = STARsoloFastq.barcodes_sn_rna,
         features = STARsoloFastq.features_sn_rna,
-        matrix = STARsoloFastq.matrix_sn_rna
+        matrix = STARsoloFastq.matrix_sn_rna,
+        input_id = input_id
     }
 
     call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
