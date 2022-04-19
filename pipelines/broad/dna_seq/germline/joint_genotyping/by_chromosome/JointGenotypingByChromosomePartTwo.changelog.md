@@ -1,7 +1,11 @@
+# 1.4.4
+2022-04-19 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
 # 1.4.3
 2022-04-14 (Date of Last Commit)
 
-* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
 * Remove annotationDB files from per chromosome in JointGenotyping
 
 # 1.4.2

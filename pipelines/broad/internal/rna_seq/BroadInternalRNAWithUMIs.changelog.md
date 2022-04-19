@@ -1,7 +1,11 @@
-# 1.0.7
-2022-04-14 (Date of Last Commit)
+# 1.0.8
+2022-04-19 (Date of Last Commit)
 * Update base image for picard-private docker image
 * Updated to Picard version 2.26.11 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
+
+# 1.0.7
+2022-04-14 (Date of Last Commit)
 * Clip adapter bases pre-alignment & associated updates for TDR ingest
 
 # 1.0.6
