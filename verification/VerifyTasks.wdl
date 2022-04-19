@@ -203,15 +203,52 @@ task CompareLooms {
     Float delta_threshold = 0.05
 
     Int cpu = 1
-    String docker = "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    String docker = "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     Int disk_size_gb = ceil((size(truth_loom, "GiB") + size(test_loom, "GiB")) * 2) + 20
-    Int memory_mb = ceil(size(truth_loom, "MiB") + size(test_loom, "MiB"))
+    Int memory_mb = ceil(size(truth_loom, "MiB") + size(test_loom, "MiB") * 2)
 
   }
 
-  command {
+  command <<<
+  set -e
 
-  }
+  python3 <<CODE
+  import loompy
+  import numpy as numpy
+  import pandas as pd
+
+
+  truth_loom = "~{truth_loom}"
+  test_loom="~{test_loom}"
+  threshold = "~{delta_threshold}"
+
+  truth_loom_array = pd.DataFrame(
+        data=truth_loom[:, :],
+        index=truth_loom.row_attrs["gene_names"],
+        columns=truth_loom.col_attrs["cell_names"],
+    )
+  check_loom_array = pd.DataFrame(
+      data=check_loom[:, :],
+      index=check_loom.row_attrs["gene_names"],
+      columns=check_loom.col_attrs["cell_names"],
+  )
+
+  delta = (check_loom_array - truth_loom_array).abs().sum().sum()
+
+  if delta < args.threshold
+      sys.stdout.write(
+          f"Matrices are identical: delta: {delta} delta_cutoff: {threshold}"
+      )
+      sys.exit(0)
+  else:
+      sys.stderr.write(
+          f"Matrices are NOT identical: delta: {delta} delta_cutoff: {threshold}"
+      )
+      sys.exit(1)
+
+  CODE
+  >>>
+
 
   runtime {
     docker: docker
