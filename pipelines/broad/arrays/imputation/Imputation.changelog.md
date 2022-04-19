@@ -1,3 +1,14 @@
+# 1.0.9
+2022-04-14 (Date of Last Commit)
+
+* Security patch to bcftools-vcftools and minimac4 docker images
+
+# 1.0.8
+2022-04-08 (Date of Last Commit)
+
+* Fix Imputation scaling issue by moving problematic tasks inside of a scatter call
+* Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+
 # 1.0.7
 2022-03-08 (Date of Last Commit)
 
@@ -23,7 +34,7 @@
 
 * Security patch to bcftools-vcftools docker image used in Imputation pipeline
 # 1.0.2
-2021-11-15 (Date of Last Commit)
+∑2021-11-15 (Date of Last Commit)
 
 * Task wdls used by the Imputation pipeline were updated with changes that don't affect Imputation wdl
 
