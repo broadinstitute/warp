@@ -1,3 +1,8 @@
+# 1.0.5
+2022-04-20 (Date of Last Commit)
+
+* Added memory unit to the PostprocessTranscriptomeForRSEM task in the RNAWithUMIsTasks.wdl
+
 # 1.0.4
 2022-04-08 (Date of Last Commit)
 
