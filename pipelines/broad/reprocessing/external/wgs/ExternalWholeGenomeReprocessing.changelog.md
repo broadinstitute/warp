@@ -1,7 +1,12 @@
-# 2.0.7
+# 2.0.8
 2022-04-20 (Date of Last Commit)
 
 * Updated task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+
+# 2.0.7
+2022-04-15 (Date of Last Commit)
+
+* Updated task SortSam in BamProcessing.wdl to take an optional memory_multiplier
 
 # 2.0.6
 2022-04-04 (Date of Last Commit)

@@ -972,7 +972,7 @@ task PostprocessTranscriptomeForRSEM {
   runtime {
     docker: docker 
     disks: "local-disk ~{disk_size_gb} HDD"
-    memory: memory_mb
+    memory: "${memory_mb} MiB"
   }
 }
 
@@ -994,6 +994,6 @@ task CreateEmptyFile {
   runtime {
     docker: docker 
     disks: "local-disk ~{disk_size_gb} HDD"
-    memory: memory_mb
+    memory: "${memory_mb} MiB"
   }
 }
