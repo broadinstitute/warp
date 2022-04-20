@@ -1,3 +1,13 @@
+# 1.0.8
+2022-04-20 (Date of Last Commit)
+
+* Added memory unit to the PostprocessTranscriptomeForRSEM task in the RNAWithUMIsTasks.wdl
+
+# 1.0.7
+2022-04-12 (Date of Last Commit)
+
+* Clip adapter bases pre-alignment & associated updates for TDR ingest
+
 # 1.0.6
 2022-04-04 (Date of Last Commit)
 
