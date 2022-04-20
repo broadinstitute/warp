@@ -41,7 +41,7 @@ workflow VerifyImputation {
     Array[File]? single_sample_test_vcf_indices
   }
 
-  String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.4-1.10.2-0.1.16-1646091598"
+  String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.5-1.10.2-0.1.16-1649948623"
 
   scatter (idx in range(length(truth_metrics))) {
     call CompareImputationMetrics {
