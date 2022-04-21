@@ -2,7 +2,7 @@
 set -e
 
 # Update version when changes to Dockerfile are made
-DOCKER_IMAGE_VERSION=1.0.0
+DOCKER_IMAGE_VERSION=1.0.2
 TIMESTAMP=$(date +"%s")
 DIR=$(cd $(dirname $0) && pwd)
 
@@ -14,7 +14,7 @@ QUAY_URL="quay.io/broadinstitute/gotc-prod-samtools_picard_bwa"
 BWA_VERSION="0.7.15"
 
 # PICARD PUBLIC version
-PICARD_PUBLIC_VERSION="2.23.8"
+PICARD_PUBLIC_VERSION="2.26.10"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
