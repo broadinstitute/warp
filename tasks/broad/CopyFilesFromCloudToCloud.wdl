@@ -22,7 +22,7 @@ task CopyFilesFromCloudToCloud {
     String vault_token_path
     String google_account_vault_path
     Float? contamination
-    String base_file_name
+    String base_file_name = "base_file"
   }
 
   command {
@@ -34,6 +34,7 @@ task CopyFilesFromCloudToCloud {
 
     vault read -format=json ~{google_account_vault_path} | jq .data > picard-account.pem
     /usr/local/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file=picard-account.pem
+
 
     echo ~{default='no_contamination' contamination} > contamination
 
