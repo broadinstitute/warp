@@ -1,7 +1,7 @@
 # 1.1.0 
 2022-04-21 (Date of Last Commit)
 
-* Update QC metrics calculation for Imputation pipeline to only evaluate sites with MAF > 0.05
+* Update QC metrics calculation for Imputation pipeline to only evaluate sites with MAF
 
 # 1.0.9
 2022-04-14 (Date of Last Commit)
