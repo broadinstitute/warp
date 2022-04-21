@@ -1,6 +1,6 @@
 FROM adoptopenjdk/openjdk8:debian-slim
 
-ARG PICARD_PRIVATE_VERSION=257537c72dae29257b09bacf413505eed295ac32
+ARG PICARD_PRIVATE_VERSION=c24d8e2dfd6de9c663416278040a9f91b6a5e3eb
 
 ENV TERM=xterm-256color \
     NO_VAULT=true \
