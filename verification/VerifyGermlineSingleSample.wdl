@@ -16,6 +16,8 @@ workflow VerifyGermlineSingleSample {
 
     File truth_gvcf
     File test_gvcf
+
+    Boolean? done 
   }
 
   call MetricsVerification.VerifyMetrics as CompareMetrics {
