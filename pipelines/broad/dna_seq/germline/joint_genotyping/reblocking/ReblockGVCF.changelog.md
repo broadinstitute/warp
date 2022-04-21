@@ -1,3 +1,8 @@
+# 2.1.1
+2022-04-21 (Date of Last Commit)
+
+* Fixed path to docker image in GermlineVariantDiscovery.wdl
+
 # 2.1.0
 2022-04-14 (Date of Last Commit)
 
