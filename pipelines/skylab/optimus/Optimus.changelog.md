@@ -1,11 +1,15 @@
-# 5.4.1
-2022-04-19 (Date of Last Commit)
+# 5.4.2
+2022-04-21 (Date of Last Commit)
 * Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
+# 5.4.1
+2022-04-21 (Date of Last Commit)
+* Fixing syntax in changelog documentation
 
 # 5.4.0
 2022-04-06 (Date of Last Commit)
 
-* Updated the STARsoloFastq task in StarAlign.wdl to run STARsolo independently with "Gene" COUNTING_MODE when the Optimus input parameter `count_exons` is set to true.
+* Updated the STARsoloFastq task in StarAlign.wdl to run STARsolo independently with \"Gene\" COUNTING_MODE when the Optimus input parameter `count_exons` is set to true.
 * Updated the MergeStarOutput task in StarAlign.wdl to run an updated script for merging. The previous version included a bug where certain barcodes were getting zero counts after merging.
 * Changed the npz output names to include input_id as a prefix. All outputs are prefixed with input_id and are differentiated from run to run with different inputs.
 
