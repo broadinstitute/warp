@@ -4,7 +4,7 @@ import "Imputation.wdl" as ImputationPipeline
 
 workflow imputation_outputs_to_TDR {
     meta {
-        description: "Push outputs of Imputation.wdl to TDR dataset table ImputationOutputsTable."
+        description: "Push outputs of Imputation.wdl to TDR dataset table ImputationOutputsTable and split out Imputation arrays into ImputationWideOutputsTable."
     }
 
     input {
@@ -51,13 +51,28 @@ workflow imputation_outputs_to_TDR {
             n_failed_chunks                     = Imputation.n_failed_chunks
     }
 
-    call ingest_outputs_to_tdr {
+    call ingest_outputs_to_tdr as ingest_to_imputation_outputs {
         input:
             workspace_name          = workspace_name,
             workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
             outputs_tsv             = format_imputation_outputs.ingest_outputs_tsv
+    }
+
+    call format_imputation_wide_outputs {
+        input:
+            imputed_single_sample_vcfs          = Imputation.imputed_single_sample_vcfs,
+            imputed_single_sample_vcf_indices   = Imputation.imputed_single_sample_vcf_indices
+    }
+
+    call ingest_outputs_to_tdr as ingest_to_imputation_wide_outputs {
+        input:
+            workspace_name          = workspace_name,
+            workspace_bucket        = workspace_bucket,
+            tdr_dataset_id          = tdr_dataset_id,
+            tdr_target_table_name   = "ImputationWideOutputsTable",
+            outputs_tsv             = format_imputation_wide_outputs.ingest_outputs_wide_tsv
     }
 
     output {
@@ -133,6 +148,80 @@ task format_imputation_outputs {
 
     output {
         File ingest_outputs_tsv = "ingestDataset_imputation_outputs.tsv"
+    }
+}
+
+task format_imputation_wide_outputs{
+    input {
+        Array[String]?  imputed_single_sample_vcfs
+        Array[String]?  imputed_single_sample_vcf_indices
+    }
+
+    String prefix="[\""
+    String postfix="\"]"
+
+    command <<<
+
+        python3 << CODE
+        import pandas as pd
+        import os
+
+        print("imputed_single_sample_vcfs")
+        single_sample_vcfs=~{prefix}~{sep="\", \"" imputed_single_sample_vcfs}~{postfix}
+        print(type(single_sample_vcfs))
+        print(single_sample_vcfs)
+
+        print("imputed_single_sample_vcf_indices")
+        single_sample_vcf_indices=~{prefix}~{sep="\", \"" imputed_single_sample_vcf_indices}~{postfix}
+        print(type(single_sample_vcf_indices))
+        print(single_sample_vcf_indices)
+
+        print("creating dataframe")
+        all_samples = []
+        sample_dict = {}
+
+        print("getting vcf + vcf index file names and paths and chipwell barcode")
+        # for each file in list of imputed vcfs, get chip_well_barcode value
+        for vcf in single_sample_vcfs:
+            imputed_vcf_filename = vcf.split("/")[-1]
+            imputed_vcf_index_filename = imputed_vcf_filename + ".tbi"
+            chip_well_barcode = imputed_vcf_filename.split(".")[0]
+            imputed_vcf_path = vcf
+            imputed_vcf_index_path = [s for s in single_sample_vcf_indices if imputed_vcf_index_filename in s][0]
+
+            sample_dict["chip_well_barcode"] = chip_well_barcode
+            sample_dict["imputed_single_sample_vcf"] = imputed_vcf_path
+            sample_dict["imputed_single_sample_vcf_index"] = imputed_vcf_index_path
+
+            print("single vcf dictionary for vcf with name:" + imputed_vcf_filename)
+            print(sample_dict)
+
+            print("appending single vcf dict to dataframe")
+            all_samples.append(sample_dict)
+            print("list of dictionaries after adding" + chip_well_barcode)
+            print(all_samples)
+
+        print("writing final dataframe to tsv and json file")
+        tsv_df = pd.DataFrame(all_samples)
+        print("dataframe after adding all imputation samples")
+        tsv_df = tsv_df.dropna(axis=1, how="all")  # drop columns if no value (optional outputs etc)
+
+        # write dataframe to tsv
+        tsv_df.to_csv("ingestDataset_imputation_wide_outputs.tsv", index=False , sep="\t")
+        print("finished writing dataframe of split out imputation outputs to tsv file")
+        # write dataframe to json
+        outputs = tsv_df.to_json("ingestDataset_imputation_wide_outputs.json", orient="records")  # write json file
+
+        CODE
+    >>>
+
+    runtime {
+        docker: "broadinstitute/horsefish:emerge_scripts"
+    }
+
+    output {
+        File ingest_outputs_wide_tsv = "ingestDataset_imputation_wide_outputs.tsv"
+        File ingest_outputs_wide_json = "ingestDataset_imputation_wide_outputs.json"
     }
 }
 
