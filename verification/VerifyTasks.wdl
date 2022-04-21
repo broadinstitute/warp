@@ -206,7 +206,6 @@ task CompareLooms {
     String docker = "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     Int disk_size_gb = ceil((size(truth_loom, "GiB") + size(test_loom, "GiB")) * 2) + 20
     Int memory_mb = ceil(size(truth_loom, "MiB") + size(test_loom, "MiB") * 2)
-
   }
 
   command <<<
@@ -214,28 +213,30 @@ task CompareLooms {
 
   python3 <<CODE
   import loompy
-  import numpy as numpy
+  import numpy as np
   import pandas as pd
-
 
   truth_loom = "~{truth_loom}"
   test_loom="~{test_loom}"
   threshold = "~{delta_threshold}"
 
-  truth_loom_array = pd.DataFrame(
-        data=truth_loom[:, :],
-        index=truth_loom.row_attrs["gene_names"],
-        columns=truth_loom.col_attrs["cell_names"],
-    )
-  check_loom_array = pd.DataFrame(
-      data=check_loom[:, :],
-      index=check_loom.row_attrs["gene_names"],
-      columns=check_loom.col_attrs["cell_names"],
+  test_loom = scanpy.read_loom(
+    truth_loom, obs_names="cell_names", var_names="gene_names"
+  )
+  truth_loom = scanpy.read_loom(
+      test_loom, obs_names="cell_names", var_names="gene_names"
   )
 
-  delta = (check_loom_array - truth_loom_array).abs().sum().sum()
+  truth_cells = np.array(test_loom.X.sum(axis=1)).flatten()
+  test_cells = np.array(truth_loom.X.sum(axis=1)).flatten()
 
-  if delta < args.threshold
+  differences = [
+    1 for (truth, test) in zip(truth_cells, test_cells) if (truth - test) != 0
+  ]
+
+  delta = len(differences) / len(truth_cells)
+
+  if delta < threshold
       sys.stdout.write(
           f"Matrices are identical: delta: {delta} delta_cutoff: {threshold}"
       )
