@@ -109,7 +109,7 @@ def  generate_row_attr(args):
 
     gene_metrics_data =np.array(gene_metric_values)
     numeric_field_names = gene_metrics[0][1:]
-    for i in range(0, len(numeric_field_names)):
+    for i in range(len(numeric_field_names)):
         name = numeric_field_names[i]
         data = gene_metrics_data[:, i]
         row_attrs[name] = data
