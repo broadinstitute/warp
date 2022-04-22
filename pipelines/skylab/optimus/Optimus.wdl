@@ -181,11 +181,9 @@ workflow Optimus {
         sparse_count_matrix = MergeStarOutputs.sparse_counts,
         cell_id = MergeStarOutputs.row_index,
         gene_id = MergeStarOutputs.col_index,
-        empty_drops_result = RunEmptyDrops.empty_drops_result,
         sparse_count_matrix_exon = MergeStarOutputsExons.sparse_counts,
         cell_id_exon = MergeStarOutputsExons.row_index,
         gene_id_exon = MergeStarOutputsExons.col_index,
-        counting_mode = counting_mode,
         pipeline_version = "Optimus_v~{pipeline_version}"
     }
 

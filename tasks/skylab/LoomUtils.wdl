@@ -202,7 +202,7 @@ task SingleNucleusOptimusLoomOutput {
 
     input {
         #runtime values
-        String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:v1.0.0"
+        String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:v1.1.0"
         # name of the sample
         String input_id
         # user provided id
@@ -227,9 +227,6 @@ task SingleNucleusOptimusLoomOutput {
         File cell_id_exon
         # file (.npy) that contains the array of gene names
         File gene_id_exon
-        # emptydrops output metadata
-        File? empty_drops_result
-        String counting_mode = "sc_rna"
 
         String pipeline_version
 
@@ -250,17 +247,7 @@ task SingleNucleusOptimusLoomOutput {
     command {
         set -euo pipefail
 
-        if [ "~{counting_mode}" == "sc_rna" ]; then
-        EXPRESSION_DATA_TYPE_PARAM="exonic"
-        ADD_EMPTYDROPS_DATA="yes"
-        else
-        EXPRESSION_DATA_TYPE_PARAM="whole_transcript"
-        ADD_EMPTYDROPS_DATA="no"
-        fi
-
         python3 /tools/create_snrna_optimus_counts.py \
-        --empty_drops_file ~{empty_drops_result} \
-        --add_emptydrops_data $ADD_EMPTYDROPS_DATA \
         --annotation_file ~{annotation_file} \
         --cell_metrics ~{cell_metrics} \
         --gene_metrics ~{gene_metrics} \
@@ -275,7 +262,7 @@ task SingleNucleusOptimusLoomOutput {
         ~{"--input_name " + input_name} \
         ~{"--input_id_metadata_field " + input_id_metadata_field} \
         ~{"--input_name_metadata_field " + input_name_metadata_field} \
-        --expression_data_type $EXPRESSION_DATA_TYPE_PARAM \
+        --expression_data_type "whole_transcript" \
         --pipeline_version ~{pipeline_version}
     }
 
