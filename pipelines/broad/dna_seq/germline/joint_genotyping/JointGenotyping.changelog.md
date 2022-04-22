@@ -1,5 +1,5 @@
 # 1.6.1
-2022-04-21 (Date of Last Commit)
+2022-04-22 (Date of Last Commit)
 
 * Fixed syntax in changelog documentation 
 
