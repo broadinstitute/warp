@@ -56,7 +56,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "5.4.2"
+  String pipeline_version = "5.4.3"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -133,12 +133,14 @@ workflow Optimus {
       matrix = STARsoloFastq.matrix,
       input_id = input_id
   }
-  call RunEmptyDrops.RunEmptyDrops {
-    input:
-      sparse_count_matrix = MergeStarOutputs.sparse_counts,
-      row_index = MergeStarOutputs.row_index,
-      col_index = MergeStarOutputs.col_index,
-      emptydrops_lower = emptydrops_lower
+  if (counting_mode == "sc_rna"){
+    call RunEmptyDrops.RunEmptyDrops {
+      input:
+        sparse_count_matrix = MergeStarOutputs.sparse_counts,
+        row_index = MergeStarOutputs.row_index,
+        col_index = MergeStarOutputs.col_index,
+        emptydrops_lower = emptydrops_lower
+    }
   }
 
   if (!count_exons) {
@@ -167,7 +169,6 @@ workflow Optimus {
         matrix = STARsoloFastq.matrix_sn_rna,
         input_id = input_id
     }
-
     call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
       input:
         input_id = input_id,
