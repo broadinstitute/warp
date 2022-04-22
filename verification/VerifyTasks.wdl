@@ -217,15 +217,15 @@ task CompareLooms {
   import scanpy
   import numpy as np
 
-  test_loom="~{test_loom}"
-  truth_loom = "~{truth_loom}"
-  threshold = "~{delta_threshold}"
+  test_loom_file="~{test_loom}"
+  truth_loom_file = "~{truth_loom}"
+  threshold = ~{delta_threshold}
 
   test_loom = scanpy.read_loom(
-    truth_loom, obs_names="cell_names", var_names="gene_names"
+    test_loom_file, obs_names="cell_names", var_names="gene_names"
   )
   truth_loom = scanpy.read_loom(
-      test_loom, obs_names="cell_names", var_names="gene_names"
+    truth_loom_file, obs_names="cell_names", var_names="gene_names"
   )
 
   truth_cells = np.array(test_loom.X.sum(axis=1)).flatten()
