@@ -4,7 +4,7 @@
 
 Copy and paste to pull this image
 
-#### `docker pull us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.0-0.7.15-2.23.8-1626449438`
+#### `docker pull us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748`
 `
 
 - __What is this image:__ This image is a lightweight alpine-based custom image for running Samtools, BWA and Picard, it uses `us.gcr.io/broad-gotc-prod/samtools` as a base image.
@@ -24,8 +24,8 @@ We keep track of all past versions in [docker_versions](docker_versions.tsv) wit
 You can see more information about the image, including the tool versions, by running the following command:
 
 ```bash
-$ docker pull us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.0-0.7.15-2.23.8-1626449438
-$ docker inspect us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.0-0.7.15-2.23.8-1626449438
+$ docker pull us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748
+$ docker inspect us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748
 ```
 
 ## Usage
@@ -35,7 +35,7 @@ $ docker inspect us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.0-0.7.15-2.23
 ```bash
 $ docker run --rm -it \
     -v /bwa-files:bwa-files \
-    us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.0-0.7.15-2.23.8-1626449438 /usr/gitc/bwa mem \
+    us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748 /usr/gitc/bwa mem \
     /bwa-files/ref.fa /bwa-files/reads.fq > /bwa-files/aln.sam
 ```
 
