@@ -199,7 +199,7 @@ def generate_col_attr(args):
     bool_field_names = final_df_bool_column_names
 
     # Create metadata tables and their headers for bool
-    for i in range(0, bool_field_names.shape[0]):
+    for i in range(bool_field_names.shape[0]):
         name = bool_field_names[i]
         data = final_df_bool[:, i]
         col_attrs[name] = data
