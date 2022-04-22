@@ -542,12 +542,14 @@ task AggregateImputationQCMetrics {
     library(ggplot2)
 
     sites_info <- read_tsv("~{infoFile}")
+    genotyped_sites_info <- sites_info %>% filter(Genotyped=="Genotyped") %>% mutate(EmpRsq=as.numeric(EmpRsq))
 
-    nSites <- sites_info %>% nrow()
-    nSites_with_var <- sites_info %>% filter(MAF >= 0.3/(2*~{nSamples} - 0.7)) %>% nrow()
-    nSites_high_r2 <- sites_info %>% filter(Rsq>0.3) %>% nrow()
+    nSites_genotyped <- genotyped_sites_info %>% nrow()
+    nSites_genotyped_maf_gt_0.05 <- genotyped_sites_info %>% filter(MAF > 0.05) %>% nrow()
+    nSites_genotyped_emp_r2_gt_0.6 <- genotyped_sites_info %>% filter(EmpRsq>0.6) %>% nrow()
+    nSites_genotyped_maf_gt_0.05_emp_r2_gt_0.6 <- sites_info %>% filter(EmpRsq>0.6, MAF > 0.05) %>% nrow()
 
-    aggregated_metrics <- tibble(total_sites=nSites, total_sites_with_var=nSites_with_var, total_sites_r2_gt_0.3=nSites_high_r2,)
+    aggregated_metrics <- tibble(total_sites_evaluated=nSites_genotyped, total_sites_evaluated_maf_gt_0.05=nSites_genotyped_maf_gt_0.05, total_sites_emp_r2_gt_0.6=nSites_genotyped_emp_r2_gt_0.6, total_sites_evaluated_maf_gt_0.05_r2_gt_0.6=nSites_genotyped_maf_gt_0.05_emp_r2_gt_0.6)
 
     write_tsv(aggregated_metrics, "~{basename}_aggregated_imputation_metrics.tsv")
 
@@ -624,10 +626,10 @@ task MergeImputationQCMetrics {
     library(purrr)
     library(ggplot2)
 
-    metrics <- list("~{sep='", "' metrics}") %>% map(read_tsv) %>% reduce(`+`) %>% mutate(frac_sites_r2_gt_0.3=total_sites_r2_gt_0.3/total_sites, frac_sites_with_var_r2_gt_0.3=total_sites_r2_gt_0.3/total_sites_with_var)
+    metrics <- list("~{sep='", "' metrics}") %>% map(read_tsv) %>% reduce(`+`) %>% mutate(frac_sites_emp_r2_gt_0.6=total_sites_evaluated_maf_gt_0.05/total_sites_evaluated, frac_sites_maf_gt_0.05_emp_r2_gt_0.6=total_sites_evaluated_maf_gt_0.05_r2_gt_0.6/total_sites_evaluated_maf_gt_0.05)
 
     write_tsv(metrics, "~{basename}_aggregated_imputation_metrics.tsv")
-    write(metrics %>% pull(frac_sites_with_var_r2_gt_0.3), "frac_well_imputed.txt")
+    write(metrics %>% pull(frac_sites_maf_gt_0.05_emp_r2_gt_0.6), "frac_above_maf_5_percent_well_imputed.txt")
 
     EOF
   >>>
@@ -640,7 +642,7 @@ task MergeImputationQCMetrics {
   }
   output {
     File aggregated_metrics = "~{basename}_aggregated_imputation_metrics.tsv"
-    Float frac_well_imputed = read_float("frac_well_imputed.txt")
+    Float frac_above_maf_5_percent_well_imputed = read_float("frac_above_maf_5_percent_well_imputed.txt")
   }
 }
 
