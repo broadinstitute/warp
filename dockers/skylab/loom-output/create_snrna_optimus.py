@@ -23,7 +23,7 @@ def create_gene_id_name_map(gtf_file):
 
     # loop through the lines and find the gene_id and gene_name pairs
     with gzip.open(gtf_file, "rt") if gtf_file.endswith(".gz") else open(
-            gtf_file, "r"
+        gtf_file, "r"
     ) as fpin:
         for _line in fpin:
             line = _line.strip()
@@ -57,14 +57,13 @@ def  generate_row_attr(args):
         logging.info("# gene numeric metadata {0}".format(len(gene_metrics[0][1:])))
 
     # read the gene ids  and adds into the gene_ids dataset
-    gene_ids = np.load(args.gene_id_1)
+    gene_ids = np.load(args.gene_ids)
     # add the gene names for the gene ids
     if args.annotation_file and len(gene_ids):
         gene_id_name_map = create_gene_id_name_map(args.annotation_file)
         gene_names = [
             gene_id_name_map.get(gene_id, "") for gene_id in gene_ids
         ]
-    else: print("error in gene_id and annotation file!")
 
 
     # Gene metric values, the row and column sizes
@@ -110,7 +109,7 @@ def  generate_row_attr(args):
 
     gene_metrics_data =np.array(gene_metric_values)
     numeric_field_names = gene_metrics[0][1:]
-    for i in range(0, len(numeric_field_names)):
+    for i in range(len(numeric_field_names)):
         name = numeric_field_names[i]
         data = gene_metrics_data[:, i]
         row_attrs[name] = data
@@ -119,7 +118,7 @@ def  generate_row_attr(args):
         logging.info("# of gene metadate metrics: {0}".format(ncols))
     return row_attrs
 
-def generate_col_attr(barcode_1_path,barcode_2_path,cell_metrics_path):
+def generate_col_attr(args):
     """Converts cell metrics from the Optimus pipeline to loom file
 
     Args:
@@ -127,12 +126,10 @@ def generate_col_attr(barcode_1_path,barcode_2_path,cell_metrics_path):
         cell_ids (list): list of cell ids
         verbose (bool): whether to output verbose messages for debugging purposes
     """
-    barcode_1 = np.load(barcode_1_path)
-    barcode_2 = np.load(barcode_2_path)
-    cell_ids = np.union1d(barcode_1,barcode_2)
+    cell_ids = np.load(args.cell_ids)
 
     # Read the csv input files
-    metrics_df = pd.read_csv(cell_metrics_path, header=0,  dtype=str)
+    metrics_df = pd.read_csv(args.cell_metrics, header=0,  dtype=str)
     # Check that input is valid
     if metrics_df.shape[0] == 0 or metrics_df.shape[1] == 0:
         logging.error("Cell metrics table is not valid")
@@ -165,7 +162,7 @@ def generate_col_attr(barcode_1_path,barcode_2_path,cell_metrics_path):
         "reads_mapped_too_many_loci",
         "n_genes",
         "genes_detected_multiple_observations"
-    ]
+    ] 
 
     FloatColumnNames = [ # Float32
         "molecule_barcode_fraction_bases_above_30_mean",
@@ -183,8 +180,6 @@ def generate_col_attr(barcode_1_path,barcode_2_path,cell_metrics_path):
         "pct_mitochondrial_molecules"
     ]
 
-    newcolnames = []
-
     final_df = cellorder_df.merge(metrics_df, on="cell_id", how="left")
     ColumnNames = IntColumnNames + FloatColumnNames
     BoolColumnNames = []
@@ -195,8 +190,6 @@ def generate_col_attr(barcode_1_path,barcode_2_path,cell_metrics_path):
     final_df_bool_column_names = final_df[BoolColumnNames].columns.values
     # Create a numpy array of the same shape of booleans
     final_df_bool = np.full(final_df[BoolColumnNames].shape, True)
-
-
     final_df_non_boolean = final_df_non_boolean.apply(pd.to_numeric)
 
     # COLUMN/CELL Metadata
@@ -206,37 +199,47 @@ def generate_col_attr(barcode_1_path,barcode_2_path,cell_metrics_path):
     bool_field_names = final_df_bool_column_names
 
     # Create metadata tables and their headers for bool
-    for i in range(0, bool_field_names.shape[0]):
+    for i in range(bool_field_names.shape[0]):
         name = bool_field_names[i]
         data = final_df_bool[:, i]
         col_attrs[name] = data
-
+    
     # Create metadata tables and their headers for float
     float_field_names = list(final_df_non_boolean.columns)
 
     for i in range(len(float_field_names)):
         name = float_field_names[i]
         data = final_df_non_boolean[name].to_numpy()
-        col_attrs[name] = data
+        col_attrs[name] = data 
+
+    if args.verbose:
+        logging.info(
+            "Added cell metadata_bool with {0} rows and {1} columns".format(
+                final_df_bool.shape[0], final_df_bool.shape[1]
+            )
+        )
 
     return col_attrs
 
-def generate_matrix(count_matrix_path):
+def generate_matrix(args):
 
     # read .npz file expression counts and add it to the expression_counts dataset
-    exp_counts = np.load(count_matrix_path)
+    exp_counts = np.load(args.count_matrix)
     # now convert it back to a csr_matrix object
     csr_exp_counts = sparse.csr_matrix(
         (exp_counts["data"], exp_counts["indices"], exp_counts["indptr"]),
         shape=exp_counts["shape"],
     )
 
+    if args.verbose:
+        logging.info(
+            "shape of count matrix {0}, {1}".format(exp_counts["shape"], csr_exp_counts.shape)
+        )
     nrows, ncols = csr_exp_counts.shape
     expr_sp = sc.sparse.coo_matrix((nrows, ncols), np.float32)
 
-    xcoord = []
-    ycoord = []
-    value = []
+    xcoord = ycoord = value = []
+   
 
     chunk_row_size = 10000
     chunk_col_size = 10000
@@ -267,22 +270,10 @@ def generate_matrix(count_matrix_path):
 
     return expr_sp_t
 
-# This function takes two sparse matrices with different number of columns and makes them the same shape
-def changeCoord(sp_1,sp_2, barcodes_1, barcodes_2):
-    barcodes = np.union1d(barcodes_1,barcodes_2)
-    i1=np.where(np.in1d(barcodes,barcodes_1))[0]
-    i2= np.where(np.in1d(barcodes,barcodes_2))[0]
-    sp_1_col_new = [i1[i] for i in sp_1.col]
-    sp_2_col_new = [i2[i] for i in sp_2.col]
-    sp_1_new = sc.sparse.coo_matrix((sp_1.data, (sp_1.row, sp_1_col_new)), shape=(sp_1.shape[0],len(barcodes)))
-    sp_2_new = sc.sparse.coo_matrix((sp_2.data, (sp_2.row, sp_2_col_new)), shape=(sp_2.shape[0],len(barcodes)))
-
-    return sp_1_new, sp_2_new
-
 def create_loom_files(args):
     """This function creates the loom file or folder structure in output_loom_path in format file_format,
        with input_id from the input folder analysis_output_path
-
+    
     Args:
         args (argparse.Namespace): input arguments for the run
     """
@@ -290,20 +281,15 @@ def create_loom_files(args):
 
 
     # generate a dictionary of row attributes
-    row_attrs =  generate_row_attr(args)
-
+    row_attrs =  generate_row_attr(args) 
+    
     # generate a dictionarty of column attributes
-    col_attrs =  generate_col_attr(args.cell_id_1,args.cell_id_2,args.cell_metrics)
+    col_attrs =  generate_col_attr(args) 
 
     # add the expression count matrix data
-    sp1 = generate_matrix(args.count_matrix_1)
-    sp2 = generate_matrix(args.count_matrix_2)
-
-    barcode_1 = np.load(args.cell_id_1)
-    barcode_2 = np.load(args.cell_id_2)
-    expr_sp_t, exon_sp_t = changeCoord(sp1,sp2,barcode_1,barcode_2)
-
-# add input_id to col_attrs
+    expr_sp_t = generate_matrix(args)
+    
+    # add input_id to col_attrs
     col_attrs['input_id'] = np.repeat(args.input_id, expr_sp_t.shape[1])
 
     # generate global attributes
@@ -318,13 +304,8 @@ def create_loom_files(args):
     if args.input_name_metadata_field is not None:
         attrDict['input_name_metadata_field'] = args.input_name_metadata_field
     attrDict['pipeline_version'] = args.pipeline_version
-    #generate loom file
+    #generate loom file 
     loompy.create(args.output_loom_path, expr_sp_t, row_attrs, col_attrs, file_attrs=attrDict)
-
-    ds = loompy.connect(args.output_loom_path)
-    ds["exon_counts"] = exon_sp_t
-
-    ds.close()
 
 def main():
     description = """This script converts the some of the Optimus outputs in to
@@ -348,44 +329,24 @@ def main():
     )
 
     parser.add_argument(
-        "--cell_id_1",
-        dest="cell_id_1",
+        "--cell_id",
+        dest="cell_ids",
         required=True,
-        help="a .npy file path for the cell barcodes in the main layer, an output of the MergeCountFiles task",
+        help="a .npy file path for the cell barcodes, an output of the MergeCountFiles task",
     )
 
     parser.add_argument(
-        "--gene_id_1",
-        dest="gene_id_1",
+        "--gene_id",
+        dest="gene_ids",
         required=True,
-        help="a .npy file path for the gene ids in the main layer of the loom, an output of the MergeCountFiles task",
+        help="a .npy file path for the gene ids, an output of the MergeCountFiles task",
     )
 
     parser.add_argument(
-        "--count_matrix_1",
-        dest="count_matrix_1",
+        "--count_matrix",
+        dest="count_matrix",
         required=True,
-        help="a .npz file path for the count matrix for the main layer of the loom, an output of the MergeCountFiles task",
-    )
-    parser.add_argument(
-        "--cell_id_2",
-        dest="cell_id_2",
-        required=True,
-        help="a .npy file path for the cell barcodes for the second layer, an output of the MergeCountFiles task",
-    )
-
-    parser.add_argument(
-        "--gene_id_2",
-        dest="gene_id_2",
-        required=True,
-        help="a .npy file path for the gene ids for the second layer, an output of the MergeCountFiles task",
-    )
-
-    parser.add_argument(
-        "--count_matrix_2",
-        dest="count_matrix_2",
-        required=True,
-        help="a .npz file path for the count matrix for the second layer, an output of the MergeCountFiles task",
+        help="a .npz file path for the count matrix, an output of the MergeCountFiles task",
     )
 
     parser.add_argument(
@@ -434,7 +395,7 @@ def main():
         action="store_true",
         help="whether to output verbose debugging messages",
     )
-
+    
     parser.add_argument(
         "--expression_data_type",
         dest="expression_data_type",
