@@ -213,9 +213,10 @@ task CompareLooms {
   pip3 install scanpy loompy numpy pandas > /dev/null
 
   python3 <<CODE
+  import sys
   import scanpy
   import numpy as np
-  import pandas as pd
+  
 
   truth_loom = "~{truth_loom}"
   test_loom="~{test_loom}"
@@ -252,7 +253,6 @@ task CompareLooms {
   CODE
   >>>
 
-
   runtime {
     docker: docker
     cpu: cpu
@@ -260,6 +260,5 @@ task CompareLooms {
     memory: "${memory_mb} MiB"
     preemptible: 3
   }
-
 
 }
