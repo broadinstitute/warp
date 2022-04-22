@@ -16,6 +16,8 @@ workflow VerifyOptimus {
     
     File test_cell_metrics
     File truth_cell_metrics
+
+    Boolean? done
   }
 
   call VerifyTasks.CompareBams as CompareBams {

@@ -140,7 +140,8 @@ workflow TestOptimus {
         truth_loom         = GetLoomInputs.truth_file,
         truth_bam          = GetBamInputs.truth_file,
         truth_gene_metrics = GetGeneMetrics.truth_file,
-        truth_cell_metrics = GetCellMetrics.truth_file
+        truth_cell_metrics = GetCellMetrics.truth_file,
+        done               = CopyToTestResults.done
     }
 
   }

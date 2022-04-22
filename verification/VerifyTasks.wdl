@@ -202,17 +202,18 @@ task CompareLooms {
     File test_loom
     Float delta_threshold = 0.05
 
-    Int cpu = 1
+    Int cpu = 3
     String docker = "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     Int disk_size_gb = ceil((size(truth_loom, "GiB") + size(test_loom, "GiB")) * 2) + 20
-    Int memory_mb = ceil(size(truth_loom, "MiB") + size(test_loom, "MiB") * 2)
+    Int memory_mb = ceil(size(truth_loom, "MiB") + size(test_loom, "MiB") * 4) + 20000
   }
 
   command <<<
   set -e
+  pip3 install scanpy loompy numpy pandas > /dev/null
 
   python3 <<CODE
-  import loompy
+  import scanpy
   import numpy as np
   import pandas as pd
 
@@ -227,6 +228,7 @@ task CompareLooms {
       test_loom, obs_names="cell_names", var_names="gene_names"
   )
 
+  print("foo")
   truth_cells = np.array(test_loom.X.sum(axis=1)).flatten()
   test_cells = np.array(truth_loom.X.sum(axis=1)).flatten()
 
@@ -236,7 +238,7 @@ task CompareLooms {
 
   delta = len(differences) / len(truth_cells)
 
-  if delta < threshold
+  if delta < threshold:
       sys.stdout.write(
           f"Matrices are identical: delta: {delta} delta_cutoff: {threshold}"
       )
