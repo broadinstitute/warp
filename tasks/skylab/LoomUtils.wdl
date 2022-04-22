@@ -61,7 +61,7 @@ task OptimusLoomGeneration {
 
   input {
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.6-2"
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:v1.2.0"
     # name of the sample
     String input_id
     # user provided id
@@ -100,34 +100,43 @@ task OptimusLoomGeneration {
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
-  command {
+  command <<<
     set -euo pipefail
 
     if [ "~{counting_mode}" == "sc_rna" ]; then
-        EXPRESSION_DATA_TYPE_PARAM="exonic" 
-        ADD_EMPTYDROPS_DATA="yes"
+        python3 /tools/create_loom_optimus.py \
+          --empty_drops_file ~{empty_drops_result} \
+          --add_emptydrops_data "yes" \
+          --annotation_file ~{annotation_file} \
+          --cell_metrics ~{cell_metrics} \
+          --gene_metrics ~{gene_metrics} \
+          --cell_id ~{cell_id} \
+          --gene_id  ~{gene_id} \
+          --output_path_for_loom "~{input_id}.loom" \
+          --input_id ~{input_id} \
+          ~{"--input_name " + input_name} \
+          ~{"--input_id_metadata_field " + input_id_metadata_field} \
+          ~{"--input_name_metadata_field " + input_name_metadata_field} \
+          --count_matrix ~{sparse_count_matrix} \
+          --expression_data_type "exonic" \
+          --pipeline_version ~{pipeline_version}
     else
-        EXPRESSION_DATA_TYPE_PARAM="whole_transcript"
-        ADD_EMPTYDROPS_DATA="no" 
+        python3 /tools/create_snrna_optimus.py \
+          --annotation_file ~{annotation_file} \
+          --cell_metrics ~{cell_metrics} \
+          --gene_metrics ~{gene_metrics} \
+          --cell_id ~{cell_id} \
+          --gene_id  ~{gene_id} \
+          --output_path_for_loom "~{input_id}.loom" \
+          --input_id ~{input_id} \
+          ~{"--input_name " + input_name} \
+          ~{"--input_id_metadata_field " + input_id_metadata_field} \
+          ~{"--input_name_metadata_field " + input_name_metadata_field} \
+          --count_matrix ~{sparse_count_matrix} \
+          --expression_data_type "whole_transcript"\
+          --pipeline_version ~{pipeline_version}
     fi
-
-    python3 /tools/create_loom_optimus.py \
-       --empty_drops_file ~{empty_drops_result} \
-       --add_emptydrops_data $ADD_EMPTYDROPS_DATA \
-       --annotation_file ~{annotation_file} \
-       --cell_metrics ~{cell_metrics} \
-       --gene_metrics ~{gene_metrics} \
-       --cell_id ~{cell_id} \
-       --gene_id  ~{gene_id} \
-       --output_path_for_loom "~{input_id}.loom" \
-       --input_id ~{input_id} \
-       ~{"--input_name " + input_name} \
-       ~{"--input_id_metadata_field " + input_id_metadata_field} \
-       ~{"--input_name_metadata_field " + input_name_metadata_field} \
-       --count_matrix ~{sparse_count_matrix} \
-       --expression_data_type $EXPRESSION_DATA_TYPE_PARAM \
-       --pipeline_version ~{pipeline_version}
-  }
+  >>>
 
   runtime {
     docker: docker
