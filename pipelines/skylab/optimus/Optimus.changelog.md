@@ -1,3 +1,7 @@
+# 5.4.3
+2022-04-22 (Date of Last Commit)
+* Updated Optimus to not run emptydrop step in sn_rna mode.
+
 # 5.4.2
 2022-04-21 (Date of Last Commit)
 * Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
