@@ -238,9 +238,8 @@ def generate_matrix(args):
     nrows, ncols = csr_exp_counts.shape
     expr_sp = sc.sparse.coo_matrix((nrows, ncols), np.float32)
 
-    xcoord = []
-    ycoord = []
-    value = []
+    xcoord = ycoord = value = []
+   
 
     chunk_row_size = 10000
     chunk_col_size = 10000
