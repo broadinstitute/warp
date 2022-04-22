@@ -204,7 +204,7 @@ workflow Optimus {
     File matrix_col_index = MergeStarOutputs.col_index
     File cell_metrics = CellMetrics.cell_metrics
     File gene_metrics = GeneMetrics.gene_metrics
-    File cell_calls = RunEmptyDrops.empty_drops_result
+    File? cell_calls = RunEmptyDrops.empty_drops_result
     # loom
     File loom_output_file = final_loom_output
 

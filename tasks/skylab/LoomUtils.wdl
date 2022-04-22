@@ -228,7 +228,7 @@ task SingleNucleusOptimusLoomOutput {
         # file (.npy) that contains the array of gene names
         File gene_id_exon
         # emptydrops output metadata
-        File empty_drops_result
+        File? empty_drops_result
         String counting_mode = "sc_rna"
 
         String pipeline_version
