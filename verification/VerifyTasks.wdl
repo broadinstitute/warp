@@ -210,16 +210,15 @@ task CompareLooms {
 
   command <<<
   set -e
-  pip3 install scanpy loompy numpy pandas > /dev/null
+  pip3 install scanpy loompy numpy pandas 
 
   python3 <<CODE
   import sys
   import scanpy
   import numpy as np
-  
 
-  truth_loom = "~{truth_loom}"
   test_loom="~{test_loom}"
+  truth_loom = "~{truth_loom}"
   threshold = "~{delta_threshold}"
 
   test_loom = scanpy.read_loom(
@@ -229,7 +228,6 @@ task CompareLooms {
       test_loom, obs_names="cell_names", var_names="gene_names"
   )
 
-  print("foo")
   truth_cells = np.array(test_loom.X.sum(axis=1)).flatten()
   test_cells = np.array(truth_loom.X.sum(axis=1)).flatten()
 
