@@ -2,7 +2,7 @@
 FROM rockylinux:8.5 
 
 ARG DRAGMAP_VERSION=1.2.1 \
-        PICARD_VERSION=2.26.4 \
+        PICARD_VERSION=2.26.10 \
         SAMTOOLS_VERSION=1.11
 
 ENV TERM=xterm-256color \
