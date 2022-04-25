@@ -729,11 +729,9 @@ task formatPipelineOutputs {
     outputs_dict["fp_summary_metrics_file"]="~{picard_fingerprint_summary_metrics}"
     outputs_dict["fp_detail_metrics_file"]="~{picard_fingerprint_detail_metrics}"
     outputs_dict["fastqc_html_report"]="~{fastqc_html_report}"
-
-    # truncate to 5 digits
-    outputs_dict["fastqc_percent_reads_with_adapter"]='%.5f'%(~{fastqc_percent_reads_with_adapter})
-    outputs_dict["contamination"]='%.5f'%(~{contamination})
-    outputs_dict["contamination_error"]='%.5f'%(~{contamination_error})
+    outputs_dict["fastqc_percent_reads_with_adapter"]="~{fastqc_percent_reads_with_adapter}"
+    outputs_dict["contamination"]="~{contamination}"
+    outputs_dict["contamination_error"]="~{contamination_error}"
 
     # explode unified metrics file
     with open("~{unified_metrics}", "r") as infile:
