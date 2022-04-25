@@ -24,5 +24,7 @@ case class GermlineSingleSampleValidationInputs(
     truthCram: URI,
     truthCrai: URI,
     testGvcf: URI,
-    truthGvcf: URI
+    testGvcfIndex: URI,
+    truthGvcf: URI,
+    truthGvcfIndex: URI
 )

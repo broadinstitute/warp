@@ -30,6 +30,33 @@ task CompareVcfs {
   }
 }
 
+task CompareVCFsVerbosely {
+  input {
+    File actual
+    File actual_index
+    File expected
+    File expected_index
+    File ref_fasta = "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta"
+    File ref_fasta_index = "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai"
+    File ref_dict = "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict"
+    String extra_args = " --ignore-attribute VQSLOD --ignore-attribute AS_VQSLOD --ignore-filters "
+    + "--ignore-attribute culprit --ignore-attribute AS_culprit --ignore-attribute AS_FilterStatus "
+    + "--ignore-attribute ExcessHet --ignore-star-attributes --allow-nan-mismatch --ignore-attribute END"
+    Boolean warn_on_error = true
+  }
+
+  command {
+    gatk VCFComparator -R ~{ref_fasta}  -V:actual ~{actual} -V:expected ~{expected} ~{extra_args} ~{if(warn_on_error) then "--warn-on-errors" else ""} --finish-before-failing
+  }
+
+  runtime {
+    docker: "us.gcr.io/broad-dsde-methods/gatk-vcfcomparator@sha256:4c1b32dd89c46af52e68ae34f99db483ba07b08def2479d145a185de0b2d9a4a"
+    disks: "local-disk 50 HDD"
+    memory: "3 GiB"
+    preemptible: 3
+  }
+}
+
 task CompareGtcs {
   input {
     File file1
@@ -46,7 +73,7 @@ task CompareGtcs {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk 10 HDD"
     memory: "5000 MiB"
     preemptible: 3
@@ -164,7 +191,7 @@ task CompareBams {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     cpu: 2
     memory: "7500 MiB"
@@ -260,3 +287,4 @@ task CompareLooms {
   }
 
 }
+
