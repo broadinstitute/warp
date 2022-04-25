@@ -268,7 +268,7 @@ task GetSampleName {
   input {
     File bam
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
@@ -345,6 +345,7 @@ task CollectRNASeqMetrics {
     File ref_flat
     File ribosomal_intervals
 
+
     String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
     Int memory_mb = 7500
@@ -383,6 +384,7 @@ task CollectMultipleMetrics {
     File ref_dict
     File ref_fasta
     File ref_fasta_index
+
 
     String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
@@ -515,6 +517,7 @@ task SortSamByCoordinate {
     # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
     Float sort_sam_disk_multiplier = 4.0
 
+
     String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
     Int memory_mb = 7500
@@ -556,6 +559,7 @@ task SortSamByQueryName {
     # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
     # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
     Float sort_sam_disk_multiplier = 6.0
+
 
     String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
@@ -622,6 +626,7 @@ task MarkDuplicatesUMIAware {
     File bam
     String output_basename
     Boolean remove_duplicates
+
 
     String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
@@ -813,7 +818,7 @@ task CalculateContamination {
     File population_vcf
     File population_vcf_index
     # runtime
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
     Int cpu = 1
     Int memory_mb = 8192
     Int disk_size_gb = 256
@@ -972,7 +977,7 @@ task PostprocessTranscriptomeForRSEM {
   runtime {
     docker: docker 
     disks: "local-disk ~{disk_size_gb} HDD"
-    memory: memory_mb
+    memory: "${memory_mb} MiB"
   }
 }
 
@@ -994,6 +999,6 @@ task CreateEmptyFile {
   runtime {
     docker: docker 
     disks: "local-disk ~{disk_size_gb} HDD"
-    memory: memory_mb
+    memory: "${memory_mb} MiB"
   }
 }

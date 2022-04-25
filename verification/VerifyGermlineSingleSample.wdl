@@ -15,7 +15,19 @@ workflow VerifyGermlineSingleSample {
     File test_crai
 
     File truth_gvcf
+    File truth_gvcf_index
     File test_gvcf
+    File test_gvcf_index
+
+    Boolean? done 
+  }
+
+  call Tasks.CompareVCFsVerbosely {
+    input:
+      actual = test_gvcf,
+      actual_index = test_gvcf_index,
+      expected = truth_gvcf,
+      expected_index = truth_gvcf_index
   }
 
   call MetricsVerification.VerifyMetrics as CompareMetrics {

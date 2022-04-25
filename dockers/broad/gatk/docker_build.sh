@@ -2,7 +2,7 @@
 set -e
 
 # Update version when changes to Dockerfile are made
-DOCKER_IMAGE_VERSION=1.0.0
+DOCKER_IMAGE_VERSION=1.2.0
 TIMESTAMP=$(date +"%s")
 DIR=$(cd $(dirname $0) && pwd)
 
@@ -11,7 +11,7 @@ GCR_URL="us.gcr.io/broad-gotc-prod/gatk"
 QUAY_URL="quay.io/broadinstitute/gotc-prod-gatk"
 
 # GATK4 version
-GATK4_VERSION="4.1.8.0"
+GATK4_VERSION="4.2.6.1"
 
 # GATK3 version
 GATK3_VERSION="3.5"
