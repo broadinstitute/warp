@@ -5,6 +5,7 @@ import "../../../../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow ExternalWholeGenomeReprocessing {
 
+
   String pipeline_version = "2.1.2"
 
   input {
