@@ -1,7 +1,8 @@
 FROM adoptopenjdk/openjdk8:alpine-slim
 
-ARG GATK4_VERSION=4.1.8.0 \
-        GATK3_VERSION=3.5
+# TODO update to 4.2.6.1 and build
+ARG GATK4_VERSION=4.2.6.1
+ARG GATK3_VERSION=3.5
 
 ENV TERM=xterm-256color \
     GATK4_URL=https://github.com/broadinstitute/gatk/releases/download/${GATK4_VERSION}/gatk-${GATK4_VERSION}.zip \

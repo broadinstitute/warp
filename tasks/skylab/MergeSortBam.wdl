@@ -9,7 +9,7 @@ task MergeSortBamFiles {
     Int compression_level = 5
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.5.7-2021-06-09_16-47-48Z"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     Int machine_mem_mb = 18150
     Int cpu = 1
     # default to 500GiB of space
@@ -38,7 +38,7 @@ task MergeSortBamFiles {
   command {
     set -e
 
-    java -Dsamjdk.compression_level=${compression_level} -Xms${command_mem_mb}m -Xmx${command_mem_mb}m -jar /usr/gitc/picard.jar \
+    java -Dsamjdk.compression_level=${compression_level} -Xms${command_mem_mb}m -Xmx${command_mem_mb}m -jar /usr/picard/picard.jar \
       MergeSamFiles \
       USE_THREADING=true \
       SORT_ORDER=${sort_order} \
