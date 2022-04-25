@@ -68,13 +68,14 @@ workflow TestOptimus {
   }
 
   # Collect all of the pipeling output into single Array
-  Array[String] pipeline_outputs = [  Optimus.bam,
+  Array[String] pipeline_outputs = select_all([  
+                                      Optimus.bam,
                                       Optimus.matrix,
                                       Optimus.matrix_row_index,
                                       Optimus.matrix_col_index,
                                       Optimus.cell_calls,
                                       Optimus.loom_output_file,
-  ]
+  ])
 
   # Collect all of the pipeline metrics into a single Array
   Array[String] pipeline_metrics = [  Optimus.cell_metrics,
