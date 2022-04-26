@@ -1,7 +1,7 @@
 FROM us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616
 
 ARG BWA_VERSION=0.7.15 \
-        PICARD_PUBLIC_VERSION=2.23.8
+        PICARD_PUBLIC_VERSION=2.26.10
 
 ENV TERM=xterm-256color \
     BWA_URL=https://github.com/lh3/bwa/releases/download/v${BWA_VERSION}/bwakit-${BWA_VERSION}_x64-linux.tar.bz2 \

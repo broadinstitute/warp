@@ -1,3 +1,14 @@
+# 2.1.1
+2022-04-21 (Date of Last Commit)
+
+* Fixed path to docker image in GermlineVariantDiscovery.wdl
+
+# 2.1.0
+2022-04-19 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+    * RAW_RankSum NaN to empty for NON_REF data 
+
 # 2.0.6
 2022-04-15 (Date of Last Commit)
 
