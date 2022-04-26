@@ -1,6 +1,7 @@
 # 1.0.10
-2022-04-25 (Date of Last Commit)
+2022-04-26 (Date of Last Commit)
 * Remove rounding on some metrics outputs in RNAWithUMIsTasks.formatPipelineOutputs for TDR inputs
+* Handle missing file inputs to TDR
 
 # 1.0.9
 2022-04-21 (Date of Last Commit)

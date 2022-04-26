@@ -742,7 +742,7 @@ task formatPipelineOutputs {
     # write full outputs to file
     with open("~{outputs_json_file_name}", 'w') as outputs_file:
       for key, value in outputs_dict.items():
-        if value == "None":
+        if value == "None" or value == "":
           outputs_dict[key] = None
       outputs_file.write(json.dumps(outputs_dict))
       outputs_file.write("\n")
