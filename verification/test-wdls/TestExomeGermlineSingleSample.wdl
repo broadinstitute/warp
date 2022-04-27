@@ -154,6 +154,8 @@ workflow TestExomeGermlineSingleSample {
         truth_path   = truth_path
     }
 
+
+    # done is dummy input to force copy completion before verification
     call VerifyGermlineSingleSample.VerifyGermlineSingleSample as Verify {
       input:
         truth_metrics   = GetMetricsInputs.truth_files,
@@ -163,7 +165,8 @@ workflow TestExomeGermlineSingleSample {
         test_metrics    = GetMetricsInputs.results_files,
         test_cram       = GetCrams.results_file,
         test_crai       = GetCrais.results_file,
-        test_gvcf       = GetGVCFs.results_file
+        test_gvcf       = GetGVCFs.results_file,
+        done            = CopyToTestResults.done
     }
   }
 

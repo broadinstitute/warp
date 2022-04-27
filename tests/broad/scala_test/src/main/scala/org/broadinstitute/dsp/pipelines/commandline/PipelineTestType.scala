@@ -83,11 +83,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestMultiSampleSmartSeq2SingleNucleus",
   //      "/skylab/smartseq2_single_nucleus_multisample/"
   //    )
-  //case object Optimus
-  //    extends PipelineTestType(
-  //      "TestOptimus",
-  //      "/skylab/optimus/"
-  //    )
+  case object Optimus
+      extends PipelineTestType(
+        "TestOptimus",
+        "Optimus",
+        "/skylab/optimus/"
+      )
   //case object ReblockGVCF
   //    extends PipelineTestType(
   //      "TestReblockGVCF",
@@ -119,11 +120,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestVariantCalling",
   //      "/broad/dna_seq/germline/variant_calling/"
   //    )
-  //case object WholeGenomeGermlineSingleSample
-  //    extends PipelineTestType(
-  //      "TestWholeGenomeGermlineSingleSample",
-  //      "/broad/dna_seq/germline/single_sample/wgs/"
-  //    )
+  case object WholeGenomeGermlineSingleSample
+      extends PipelineTestType(
+        "TestWholeGenomeGermlineSingleSample",
+        "WholeGenomeGermlineSingleSample",
+        "/broad/dna_seq/germline/single_sample/WGS/"
+      )
   //case object WholeGenomeReprocessing
   //    extends PipelineTestType(
   //      "TestWholeGenomeReprocessing",
