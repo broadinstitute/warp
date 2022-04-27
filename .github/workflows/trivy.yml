@@ -39,7 +39,6 @@ jobs:
       fail-fast: false
       matrix:
         image:
-        - us.gcr.io/broad-gotc-prod/dsde-toolbox:stable_04-18-2022
         - us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10
     steps:
       - uses: broadinstitute/dsp-appsec-trivy-action@v1
