@@ -154,7 +154,8 @@ workflow TestExomeGermlineSingleSample {
         truth_path   = truth_path
     }
 
-    # done is dummy input to force copy completion before verificatio
+
+    # done is dummy input to force copy completion before verification
     call VerifyGermlineSingleSample.VerifyGermlineSingleSample as Verify {
       input:
         truth_metrics   = GetMetricsInputs.truth_files,
