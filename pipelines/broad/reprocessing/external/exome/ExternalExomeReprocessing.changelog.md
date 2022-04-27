@@ -1,3 +1,8 @@
+# 3.1.3
+2022-04-27 (Date of Last Commit)
+
+* Updated dsde-toolbox image to patch security vulnerabilities, this update has no effect on this pipeline
+
 # 3.1.2
 2022-04-22 (Date of Last Commit)
 
