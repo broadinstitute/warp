@@ -1,3 +1,14 @@
+# 2.1.1
+2022-04-21 (Date of Last Commit)
+
+* Fixed path to docker image in GermlineVariantDiscovery.wdl
+
+# 2.1.0
+2022-04-14 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+    * Reblocking fix to merge sites with missing DP into adjacent ref blocks
+    
 # 2.0.5
 2022-03-24 (Date of Last Commit)
 
