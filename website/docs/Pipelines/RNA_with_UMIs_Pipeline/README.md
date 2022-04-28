@@ -190,7 +190,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 #### 5. Convert FASTQs to uBAM
 
-The [tasks.FastqToUbam (alias = FastqToUbamAfterClipping)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) task converts FASTQs back to an unmapped BAM using Picard's [FastqToSam](https://gatk.broadinstitute.org/hc/en-us/articles/360036510672).
+The [tasks.FastqToUbam (alias = FastqToUbamAfterClipping)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/RNAWithUMIsTasks.wdl) task converts trimmed FASTQs to an unmapped BAM using Picard's [FastqToSam](https://gatk.broadinstitute.org/hc/en-us/articles/360036510672).
 
 #### 6. Alignment with STAR
 
