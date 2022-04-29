@@ -15,8 +15,8 @@ workflow VerifyGermlineSingleSample {
     File test_crai
 
     File truth_gvcf
-    File truth_gvcf_index
     File test_gvcf
+    File truth_gvcf_index
     File test_gvcf_index
 
     Boolean? done 
