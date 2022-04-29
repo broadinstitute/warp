@@ -93,7 +93,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     s"gs://broad-dsp-gotc-$envString-tokens/picardsa.token"
   protected val googleAccountVaultPath: String =
     s"secret/dsde/gotc/$envString/picard/picard-account.pem"
-  // Specific to arrays workflows
+  // Specific to arrays workflows to allow Arrays authenticate with Vault
   protected val vaultTokenPathArrays: String =
     s"gs://broad-dsp-gotc-arrays-$envString-tokens/arrayswdl.token"
 
@@ -147,10 +147,10 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     )
 
     // Only add the vault token and environment for arrays
-    // These allow Arrays to read from cloudSQL
+    // These allow Arrays wdl to auth with Vault
     if (pipeline == "Arrays") {
       defaultInputs = defaultInputs :+ workflowName + ".vault_token_path_arrays" -> vaultTokenPathArrays.asJson
-      defaultInput = defaultInput :+ workflowName + ".environment" -> envString.asJson
+      defaultInputs = defaultInputs :+ workflowName + ".environment" -> envString.asJson
     }
 
     /**
