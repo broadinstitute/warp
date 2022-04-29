@@ -495,6 +495,7 @@ workflow Arrays {
     File gtc_file = IlluminaGenotypingArray.gtc
     File red_idat_md5_cloud_path = IlluminaGenotypingArray.red_idat_md5_cloud_path
     File green_idat_md5_cloud_path = IlluminaGenotypingArray.green_idat_md5_cloud_path
+    File output_beadpool_manifest_file = bpm_file
     File? output_vcf_md5_cloud_path = IlluminaGenotypingArray.output_vcf_md5_cloud_path
     File? output_vcf = IlluminaGenotypingArray.output_vcf
     File? output_vcf_index = IlluminaGenotypingArray.output_vcf_index

@@ -160,12 +160,14 @@ workflow TestArrays {
         vault_token_path                     = vault_token_path_arrays
     }
 
+    # Collect all of the pipeline outputs into singe Array[String]
     Array[String] pipeline_outputs = flatten([
                             [ # File outputs
                             Arrays.gtc_file,
                             Arrays.red_idat_md5_cloud_path,
                             Arrays.green_idat_md5_cloud_path,
-                            Arrays.chip_well_barcode_params_file
+                            Arrays.chip_well_barcode_params_file,
+                            Arrays.output_beadpool_manifest_file
                             ], # File? outputs
                             select_all([Arrays.output_vcf_md5_cloud_path]),
                             select_all([Arrays.output_vcf]),
@@ -177,6 +179,7 @@ workflow TestArrays {
                             select_all([Arrays.output_fingerprint_json_file]),
     ])
 
+    # Collect all of the pipeline metric into a single Array[String]
     Array[String] pipeline_metrics = flatten([
                             [ # File_outputs
                             Arrays.arrays_variant_calling_detail_metrics_file
@@ -204,6 +207,7 @@ workflow TestArrays {
         destination_cloud_path    = results_path
     }
 
+    # If updating truth then copy output to truth bucket
     if (update_truth){
       call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
         input: 
@@ -214,6 +218,8 @@ workflow TestArrays {
       }
     }
 
+    # If not updating truth then we need to collect all input for the validation WDL
+    # This is achieved by passing each desired file/array[files] to GetValidationInputs
     if (!update_truth) {
       call Utilities.GetValidationInputs as GetMetricsInputs {
         input:
@@ -280,7 +286,7 @@ workflow TestArrays {
           test_red_idat_md5       = GetRedIdat.results_file,
           test_green_idat_md5     = GetGreenIdat.results_file,
           test_params_file        = GetParams.results_file,
-          bead_pool_manifest_file = select_first([bead_pool_manifest_file])
+          bead_pool_manifest_file = Arrays.output_beadpool_manifest_file
         }
 
     }
