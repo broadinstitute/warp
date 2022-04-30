@@ -93,10 +93,11 @@ workflow SlideSeq {
         input:
             barcodes = STARsoloFastqSlideSeq.barcodes,
             features = STARsoloFastqSlideSeq.features,
-            matrix = STARsoloFastqSlideSeq.matrix
+            matrix = STARsoloFastqSlideSeq.matrix,
+            input_id = input_id
     }
     if (!count_exons) {
-        call LoomUtils.SlideSeqLoomOutput{
+        call LoomUtils.SlideSeqLoomOutput as SlideseqLoomGeneration{
             input:
                 input_id = input_id,
                 bead_locations = bead_locations,
@@ -109,34 +110,32 @@ workflow SlideSeq {
                 pipeline_version = "SlideSeq_v~{pipeline_version}"
         }
     }
-#    if (count_exons) {
-#        call StarAlign.MergeStarOutput as MergeStarOutputsExons {
-#            input:
-#                barcodes = STARsoloFastqSlideSeq.barcodes_sn_rna,
-#                features = STARsoloFastqSlideSeq.features_sn_rna,
-#                matrix = STARsoloFastqSlideSeq.matrix_sn_rna
-#        }
-#
-#        call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
-#            input:
-#                input_id = input_id,
-#                bead_locations = bead_locations,
-#                annotation_file = annotations_gtf,
-#                cell_metrics = CellMetrics.cell_metrics,
-#                gene_metrics = GeneMetrics.gene_metrics,
-#                sparse_count_matrix = MergeStarOutputs.sparse_counts,
-#                cell_id = MergeStarOutputs.row_index,
-#                gene_id = MergeStarOutputs.col_index,
-#                sparse_count_matrix_exon = MergeStarOutputsExons.sparse_counts,
-#                cell_id_exon = MergeStarOutputsExons.row_index,
-#                gene_id_exon = MergeStarOutputsExons.col_index,
-#                pipeline_version = "SlideSeq_v~{pipeline_version}"
-#        }
-#
-#    }
+    if (count_exons) {
+        call StarAlign.MergeStarOutput as MergeStarOutputsExons {
+            input:
+                barcodes = STARsoloFastq.barcodes_sn_rna,
+                features = STARsoloFastq.features_sn_rna,
+                matrix = STARsoloFastq.matrix_sn_rna,
+                input_id = input_id
+        }
+        call LoomUtils.SingleNucleusOptimusLoomOutput as SlideseqLoomGenerationWithExons{
+            input:
+                input_id = input_id,
+                annotation_file = annotations_gtf,
+                cell_metrics = CellMetrics.cell_metrics,
+                gene_metrics = GeneMetrics.gene_metrics,
+                sparse_count_matrix = MergeStarOutputs.sparse_counts,
+                cell_id = MergeStarOutputs.row_index,
+                gene_id = MergeStarOutputs.col_index,
+                sparse_count_matrix_exon = MergeStarOutputsExons.sparse_counts,
+                cell_id_exon = MergeStarOutputsExons.row_index,
+                gene_id_exon = MergeStarOutputsExons.col_index,
+                pipeline_version = "SlideSeq_v~{pipeline_version}"
+        }
 
-    #File final_loom_output = select_first([OptimusLoomGenerationWithExons.loom_output, OptimusLoomGeneration.loom_output])
+    }
 
+    File final_loom_output = select_first([SlideseqLoomGenerationWithExons.loom_output, SlideseqLoomGeneration.loom_output])
 
     output {
         String pipeline_version_out = pipeline_version

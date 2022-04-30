@@ -509,15 +509,15 @@ task MergeStarOutput {
     Array[File] barcodes
     Array[File] features
     Array[File] matrix
+    String input_id
 
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:merge-star-outputs-v1.0.0"
+    String docker = "quay.io/humancellatlas/secondary-analysis-star:merge-star-outputs-v1.1.7"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
     Int preemptible = 3
   }
-
   meta {
     description: "Create three files as .npy,  .npy and .npz for numpy array and scipy csr matrix for the barcodes, gene names and the count matrix by merging multiple  STARSolo count matrices (mtx format)."
   }
@@ -530,19 +530,19 @@ task MergeStarOutput {
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
-  command {
+  command <<<
     set -e
     declare -a barcodes_files=(~{sep=' ' barcodes})
     declare -a features_files=(~{sep=' ' features})
     declare -a matrix_files=(~{sep=' ' matrix})
 
-   # create the  compressed raw count matrix with the counts, gene names and the barcodes
+    # create the  compressed raw count matrix with the counts, gene names and the barcodes
     python3 /tools/create-merged-npz-output.py \
-        --barcodes $barcodes_files \
-        --features $features_files \
-        --matrix $matrix_files
-
-  }
+    --barcodes ${barcodes_files[@]} \
+    --features ${features_files[@]} \
+    --matrix ${matrix_files[@]} \
+    --input_id ~{input_id}
+  >>>
 
   runtime {
     docker: docker
@@ -553,8 +553,8 @@ task MergeStarOutput {
   }
 
   output {
-    File row_index = "sparse_counts_row_index.npy"
-    File col_index = "sparse_counts_col_index.npy"
-    File sparse_counts = "sparse_counts.npz"
+    File row_index = "~{input_id}_sparse_counts_row_index.npy"
+    File col_index = "~{input_id}_sparse_counts_col_index.npy"
+    File sparse_counts = "~{input_id}_sparse_counts.npz"
   }
 }
