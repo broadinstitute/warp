@@ -39,7 +39,7 @@ workflow SlideSeq {
 
         String whitelist
         String output_bam_basename
-        Boolean? count_exons
+        Boolean count_exons
         File bead_locations
 
     }
@@ -96,7 +96,7 @@ workflow SlideSeq {
             matrix = STARsoloFastqSlideSeq.matrix,
             input_id = input_id
     }
-    if (!count_exons) {
+    if ( !count_exons ) {
         call LoomUtils.SlideSeqLoomOutput as SlideseqLoomGeneration{
             input:
                 input_id = input_id,
@@ -113,9 +113,9 @@ workflow SlideSeq {
     if (count_exons) {
         call StarAlign.MergeStarOutput as MergeStarOutputsExons {
             input:
-                barcodes = STARsoloFastq.barcodes_sn_rna,
-                features = STARsoloFastq.features_sn_rna,
-                matrix = STARsoloFastq.matrix_sn_rna,
+                barcodes = STARsoloFastqSlideSeq.barcodes_sn_rna,
+                features = STARsoloFastqSlideSeq.features_sn_rna,
+                matrix = STARsoloFastqSlideSeq.matrix_sn_rna,
                 input_id = input_id
         }
         call LoomUtils.SingleNucleusOptimusLoomOutput as SlideseqLoomGenerationWithExons{
@@ -148,7 +148,7 @@ workflow SlideSeq {
         File cell_metrics = CellMetrics.cell_metrics
         File gene_metrics = GeneMetrics.gene_metrics
         # loom
-        File? loom_output_file = SlideSeqLoomOutput.loom_output
+        File? loom_output_file = final_loom_output
 
     }
 }
