@@ -221,3 +221,70 @@ task CompareCompressedTextFiles {
   }
 
 }
+
+task CompareLooms {
+
+  input {
+    File truth_loom
+    File test_loom
+    Float delta_threshold = 0.05
+
+    Int cpu = 3
+    String docker = "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
+    Int disk_size_gb = ceil((size(truth_loom, "GiB") + size(test_loom, "GiB")) * 2) + 20
+    Int memory_mb = ceil(size(truth_loom, "MiB") + size(test_loom, "MiB") * 4) + 20000
+  }
+
+  command <<<
+  set -e
+  pip3 install scanpy loompy numpy pandas 
+
+  python3 <<CODE
+  import sys
+  import scanpy
+  import numpy as np
+
+  test_loom_file="~{test_loom}"
+  truth_loom_file = "~{truth_loom}"
+  threshold = ~{delta_threshold}
+
+  test_loom = scanpy.read_loom(
+    test_loom_file, obs_names="cell_names", var_names="gene_names"
+  )
+  truth_loom = scanpy.read_loom(
+    truth_loom_file, obs_names="cell_names", var_names="gene_names"
+  )
+
+  truth_cells = np.array(test_loom.X.sum(axis=1)).flatten()
+  test_cells = np.array(truth_loom.X.sum(axis=1)).flatten()
+
+  differences = [
+    1 for (truth, test) in zip(truth_cells, test_cells) if (truth - test) != 0
+  ]
+
+  delta = len(differences) / len(truth_cells)
+
+  if delta < threshold:
+      sys.stdout.write(
+          f"Matrices are identical: delta: {delta} delta_cutoff: {threshold}"
+      )
+      sys.exit(0)
+  else:
+      sys.stderr.write(
+          f"Matrices are NOT identical: delta: {delta} delta_cutoff: {threshold}"
+      )
+      sys.exit(1)
+
+  CODE
+  >>>
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    preemptible: 3
+  }
+
+}
+

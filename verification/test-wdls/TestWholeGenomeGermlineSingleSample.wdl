@@ -48,25 +48,25 @@ workflow TestWholeGenomeGermlineSingleSample {
   # Run the pipeline
   call WholeGenomeGermlineSingleSample.WholeGenomeGermlineSingleSample {
     input:
-      sample_and_unmapped_bams = sample_and_unmapped_bams,
-      references = references,
-      dragmap_reference =  dragmap_reference,
-      scatter_settings = scatter_settings,
-      papi_settings = papi_settings,
-      fingerprint_genotypes_file = fingerprint_genotypes_file,
-      fingerprint_genotypes_index = fingerprint_genotypes_index,
-      wgs_coverage_interval_list = wgs_coverage_interval_list,
-      provide_bam_output = provide_bam_output,
-      use_gatk3_haplotype_caller = use_gatk3_haplotype_caller,
+      sample_and_unmapped_bams           = sample_and_unmapped_bams,
+      references                         = references,
+      dragmap_reference                  =  dragmap_reference,
+      scatter_settings                   = scatter_settings,
+      papi_settings                      = papi_settings,
+      fingerprint_genotypes_file         = fingerprint_genotypes_file,
+      fingerprint_genotypes_index        = fingerprint_genotypes_index,
+      wgs_coverage_interval_list         = wgs_coverage_interval_list,
+      provide_bam_output                 = provide_bam_output,
+      use_gatk3_haplotype_caller         = use_gatk3_haplotype_caller,
       dragen_functional_equivalence_mode = dragen_functional_equivalence_mode,
-      dragen_maximum_quality_mode = dragen_maximum_quality_mode,
-      run_dragen_mode_variant_calling = run_dragen_mode_variant_calling,
-      use_spanning_event_genotyping = use_spanning_event_genotyping,
-      unmap_contaminant_reads = unmap_contaminant_reads,
-      perform_bqsr = perform_bqsr,
-      use_bwa_mem = use_bwa_mem,
-      allow_empty_ref_alt = allow_empty_ref_alt,
-      use_dragen_hard_filtering = use_dragen_hard_filtering
+      dragen_maximum_quality_mode        = dragen_maximum_quality_mode,
+      run_dragen_mode_variant_calling    = run_dragen_mode_variant_calling,
+      use_spanning_event_genotyping      = use_spanning_event_genotyping,
+      unmap_contaminant_reads            = unmap_contaminant_reads,
+      perform_bqsr                       = perform_bqsr,
+      use_bwa_mem                        = use_bwa_mem,
+      allow_empty_ref_alt                = allow_empty_ref_alt,
+      use_dragen_hard_filtering          = use_dragen_hard_filtering
   }
 
   # Collect all of the pipeline outputs into a single Array[String]
@@ -182,18 +182,27 @@ workflow TestWholeGenomeGermlineSingleSample {
         truth_path   = truth_path
     }
 
+    call Utilities.GetValidationInputs as GetGVCFIndexes {
+      input:
+        input_file    = WholeGenomeGermlineSingleSample.output_vcf_index,
+        results_path  = results_path,
+        truth_path    = truth_path
+    }
+
     # done is dummy input to force copy completion before verification
     call VerifyGermlineSingleSample.VerifyGermlineSingleSample as Verify {
       input:
-        truth_metrics   = GetMetricsInputs.truth_files,
-        truth_cram      = GetCrams.truth_file,
-        truth_crai      = GetCrais.truth_file,
-        truth_gvcf      = GetGVCFs.truth_file,
-        test_metrics    = GetMetricsInputs.results_files,
-        test_cram       = GetCrams.results_file,
-        test_crai       = GetCrais.results_file,
-        test_gvcf       = GetGVCFs.results_file,
-        done            = CopyToTestResults.done
+        truth_metrics    = GetMetricsInputs.truth_files,
+        truth_cram       = GetCrams.truth_file,
+        truth_crai       = GetCrais.truth_file,
+        truth_gvcf       = GetGVCFs.truth_file,
+        truth_gvcf_index = GetGVCFIndexes.truth_file,
+        test_metrics     = GetMetricsInputs.results_files,
+        test_cram        = GetCrams.results_file,
+        test_crai        = GetCrais.results_file,
+        test_gvcf        = GetGVCFs.results_file,
+        test_gvcf_index  = GetGVCFIndexes.results_file,
+        done             = CopyToTestResults.done
     }
   }
 
