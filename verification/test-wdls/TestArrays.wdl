@@ -286,7 +286,8 @@ workflow TestArrays {
           test_red_idat_md5       = GetRedIdat.results_file,
           test_green_idat_md5     = GetGreenIdat.results_file,
           test_params_file        = GetParams.results_file,
-          bead_pool_manifest_file = Arrays.output_beadpool_manifest_file
+          bead_pool_manifest_file = Arrays.output_beadpool_manifest_file,
+          done                    = CopyToTestResults.done
         }
 
     }
