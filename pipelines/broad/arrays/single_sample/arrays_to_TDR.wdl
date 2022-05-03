@@ -13,11 +13,8 @@ workflow arrays_outputs_to_TDR {
         # inputs to wrapper task 
         String workspace_name
         String workspace_bucket
-        # String workspace_project
-        # String gcp_project
         String tdr_dataset_id
         String tdr_target_table_name
-        # String workflow_name # Arrays in this example
 
         # required inputs to Arrays.wdl
         String chip_well_barcode
@@ -81,9 +78,7 @@ workflow arrays_outputs_to_TDR {
     call ingest_outputs_to_tdr {
         input:
             workspace_name          = workspace_name,
-            # workspace_project       = workspace_project,
             workspace_bucket        = workspace_bucket,
-            # gcp_project             = gcp_project,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
             outputs_tsv             = format_arrays_outputs.ingest_outputs_tsv
@@ -130,8 +125,6 @@ task format_arrays_outputs {
         String? genotype_concordance_detail_metrics_file
         String? genotype_concordance_contingency_metrics_file
 
-        # this value is added during the python script that recodes json
-        #String last_modified_date
     }
 
     command <<<
@@ -166,21 +159,17 @@ task format_arrays_outputs {
 
     output {
         File ingest_outputs_tsv = "ingestDataset_arrays_outputs.tsv"
-        # File ingest_outputs_json = "ingestDataset_arrays_outputs.json"
+        File ingest_outputs_json = "ingestDataset_arrays_outputs.json"
     }
 }
 
 task ingest_outputs_to_tdr {
     input {
         String workspace_name
-        # String workspace_project
         String workspace_bucket
-        # String gcp_project
-        # String workflow_name
         String tdr_dataset_id
         String tdr_target_table_name
 
-        # File   outputs_json
         File   outputs_tsv
     }
 
