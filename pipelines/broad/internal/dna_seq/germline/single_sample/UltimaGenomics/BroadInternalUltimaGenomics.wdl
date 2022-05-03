@@ -2,9 +2,9 @@ version 1.0
 
 import "../../../../pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl" as UltimaGenomicsWholeGenomeGermline
 import "../../../../structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl" as Structs
-import "../../../../pipelines/broad/qc/CheckFingerprint.wdl" as FP
+import "../../../../pipelines/broad/qc/CheckFingerprint.wdl" as CheckFingerprint
 
-workflow BroadInternalUGWrapper {
+workflow BroadInternalUltimaGenomics {
 
   String pipeline_version = "1.0.0"
 

@@ -9,8 +9,8 @@ case class Config(
     arraysConfig: ArraysConfig = ArraysConfig(),
     broadInternalRNAWithUMIsConfig: BroadInternalRNAWithUMIsConfig =
       BroadInternalRNAWithUMIsConfig(),
-    broadInternalUGWrapperConfig: BroadInternalUGWrapperConfig =
-      BroadInternalUGWrapperConfig(),
+    broadInternalUltimaGenomicsConfig: BroadInternalUltimaGenomicsConfig =
+      BroadInternalUltimaGenomicsConfig(),
     checkFingerprintConfig: CheckFingerprintConfig = CheckFingerprintConfig(),
     cramToUnmappedBamsConfig: CramToUnmappedBamsConfig =
       CramToUnmappedBamsConfig(),

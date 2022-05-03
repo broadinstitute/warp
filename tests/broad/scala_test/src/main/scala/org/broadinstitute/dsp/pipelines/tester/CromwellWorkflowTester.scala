@@ -70,9 +70,9 @@ object CromwellWorkflowTester {
       case BroadInternalRNAWithUMIs =>
         new BroadInternalRNAWithUMIsTester(
           config.broadInternalRNAWithUMIsConfig)
-      case BroadInteralUGWrapper =>
-        new BroadInteralUGWrapperTester(
-          config.broadInternalUGWrapperConfig)
+      case BroadInternalUltimaGenomics =>
+        new BroadInternalUltimaGenomicsTester(
+          config.broadInternalUltimaGenomicsConfig)
       case CheckFingerprint =>
         new CheckFingerprintTester(config.checkFingerprintConfig)
       case CramToUnmappedBams =>

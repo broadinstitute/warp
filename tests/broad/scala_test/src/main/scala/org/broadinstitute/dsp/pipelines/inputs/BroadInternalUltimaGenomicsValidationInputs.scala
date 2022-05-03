@@ -7,19 +7,19 @@ import io.circe.generic.extras.semiauto.{
 }
 import io.circe.{Decoder, Encoder}
 
-object BroadInteralUGWrapperValidationInputs
-    extends EncodableInputs[BroadInteralUGWrapperValidationInputs] {
+object BroadInternalUltimaGenomicsValidationInputs
+    extends EncodableInputs[BroadInternalUltimaGenomicsValidationInputs] {
   override def workflowNames: Seq[String] =
-    Seq("VerifyBroadInternalUGWrapper")
+    Seq("VerifyBroadInternalUltimaGenomics")
   override implicit val decoder
-    : Decoder[BroadInternalUGWrapperValidationInputs] =
+    : Decoder[BroadInternalUltimaGenomicsValidationInputs] =
     deriveConfiguredDecoder
   override implicit val encoder
-    : Encoder[BroadInternalUGWrapperValidationInputs] =
+    : Encoder[BroadInternalUltimaGenomicsValidationInputs] =
     deriveConfiguredEncoder
 }
 
-case class BroadInternalUGWrapperValidationInputs(
+case class BroadInternalUltimaGenomicsValidationInputs(
     testMetrics: Seq[URI],
     truthMetrics: Seq[URI],
     testCram: URI,

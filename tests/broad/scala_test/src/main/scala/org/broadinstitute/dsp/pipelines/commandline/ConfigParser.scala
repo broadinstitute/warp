@@ -1203,12 +1203,12 @@ class ConfigParser
     )
 
   note("")
-  cmd(BroadInternalUGWrapper.entryName)
-    .text(s"Test the ${BroadInternalUGWrapper.entryName} workflow")
+  cmd(BroadInternalUltimaGenomics.entryName)
+    .text(s"Test the ${BroadInternalUltimaGenomics.entryName} workflow")
     .action(
       (_, config) =>
         config.copy(
-          test = BroadInternalUGWrapper
+          test = BroadInternalUltimaGenomics
       )
     )
     .children(
@@ -1217,9 +1217,8 @@ class ConfigParser
         .required()
         .action { (test, config) =>
           config.copy(
-            broadInternalUGWrapperConfig =
-              config.broadInternalUGWrapperConfig.copy(
-                category = test)
+            broadInternalUltimaGenomicsConfig =
+              config.broadInternalUltimaGenomicsConfig.copy(category = test)
           )
         },
       opt[String]('b', "branch")
@@ -1227,8 +1226,8 @@ class ConfigParser
         .optional()
         .action { (branch, config) =>
           config.copy(
-            broadInternalUGWrapperConfig =
-              config.broadInternalUGWrapperConfig.copy(
+            broadInternalUltimaGenomicsConfig =
+              config.broadInternalUltimaGenomicsConfig.copy(
                 truthBranch = branch)
           )
         },
@@ -1239,8 +1238,8 @@ class ConfigParser
         .required()
         .action { (env, config) =>
           config.copy(
-            broadInternalUGWrapperConfig =
-              config.broadInternalUGWrapperConfig.copy(env = env)
+            broadInternalUltimaGenomicsConfig =
+              config.broadInternalUltimaGenomicsConfig.copy(env = env)
           )
         },
       opt[Unit]("update-truth")
@@ -1250,9 +1249,8 @@ class ConfigParser
         .optional()
         .action { (_, config) =>
           config.copy(
-            broadInternalUGWrapperConfig =
-              config.broadInternalUGWrapperConfig.copy(
-                updateTruth = true)
+            broadInternalUltimaGenomicsConfig =
+              config.broadInternalUltimaGenomicsConfig.copy(updateTruth = true)
           )
         },
       opt[String]("use-timestamp")
@@ -1272,8 +1270,8 @@ class ConfigParser
         .optional()
         .action { (_, config) =>
           config.copy(
-            broadInternalUGWrapperConfig =
-              broadInternalUGWrapperConfig.copy(
+            broadInternalUltimaGenomicsConfig =
+              config.broadInternalUltimaGenomicsConfig.copy(
                 useCallCaching = false)
           )
         }
