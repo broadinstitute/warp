@@ -5,7 +5,7 @@ import "../verification/VerifyGermlineSingleSample.wdl" as VerifyGermlineSingleS
 workflow VerifyReprocessing {
 
   input {
-    Array[BamPair] bam_pairs
+    Array[BamPair]? bam_pairs
 
     Array[File] truth_metrics
     Array[File] test_metrics
@@ -20,15 +20,32 @@ workflow VerifyReprocessing {
     File test_gvcf
     File test_gvcf_index
 
+    Array[File]? test_bams
+    Array[File]? truth_bams
+
+    Boolean? done
+
   }
 
-  scatter(pair in bam_pairs) {
+#  if (defined(test_bams)) {
+#  scatter(idx in range(length(select_first([test_bams])))) {
+#    call CompareReprocessedBams as CompareReprocessedBams_NEW {
+#      input:
+#        test_bam = select_first([test_bams[idx]]),
+#        truth_bam = select_first([truth_bams[idx]])
+#    }
+#  }
+#}
+  if (defined(bam_pairs)) {
+  scatter(pair in select_first([bam_pairs])) {
     call CompareReprocessedBams {
       input:
         test_bam = pair.test_bam,
         truth_bam = pair.truth_bam
     }
   }
+}
+
 
   call VerifyGermlineSingleSample.VerifyGermlineSingleSample {
     input:
@@ -45,6 +62,10 @@ workflow VerifyReprocessing {
   }
   meta {
     allowNestedInputs: true
+  }
+
+  output {
+     Array[File]? metric_comparison_report_files = VerifyGermlineSingleSample.metric_comparison_report_files
   }
 }
 

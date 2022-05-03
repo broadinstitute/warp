@@ -63,6 +63,17 @@ class ReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
       .filter(_.getPath.endsWith("metrics"))
       .map(uriToFilename)
 
+    val revertedBams = ioUtil
+      .listGoogleObjects(resultsCloudPath)
+      .filter(_.toString.endsWith(".bam"))
+      .sorted
+    val truthBamList = revertedBams
+      .map(uri => File(uri.getPath).name)
+      .map { fileName =>
+        getCloudUnmappedBam(outputBaseName, fileName)
+      }
+      .sorted
+
     val validationInputs = GermlineSingleSampleValidationInputs.marshall(
       GermlineSingleSampleValidationInputs(
         testMetrics = metricsFileNames.map(resultsCloudPath.resolve),
@@ -72,23 +83,14 @@ class ReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
         truthCram = truthCloudPath.resolve(s"$outputBaseName.cram"),
         truthCrai = truthCloudPath.resolve(s"$outputBaseName.cram.crai"),
         testGvcf = resultsCloudPath.resolve(s"$gvcfBaseName.rb.g.vcf.gz"),
-        testGvcfIndex = resultsCloudPath.resolve(s"$gvcfBaseName.rb.g.vcf.gz.tbi"),
+        testGvcfIndex =
+          resultsCloudPath.resolve(s"$gvcfBaseName.rb.g.vcf.gz.tbi"),
         truthGvcf = truthCloudPath.resolve(s"$gvcfBaseName.rb.g.vcf.gz"),
-        truthGvcfIndex = truthCloudPath.resolve(s"$gvcfBaseName.rb.g.vcf.gz.tbi")
+        truthGvcfIndex =
+          truthCloudPath.resolve(s"$gvcfBaseName.rb.g.vcf.gz.tbi")
       ),
       validationWorkflowName
     )
-
-    val revertedBams = ioUtil
-      .listGoogleObjects(resultsCloudPath)
-      .filter(_.toString.endsWith(".bam"))
-      .sorted
-    val truthBams = revertedBams
-      .map(uri => File(uri.getPath).name)
-      .map { fileName =>
-        getCloudUnmappedBam(outputBaseName, fileName)
-      }
-      .sorted
 
     val added = validationInputs.asObject.fold(JsonObject.empty)(
       _.add(
