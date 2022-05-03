@@ -2,7 +2,7 @@ version 1.0
 
 import "../../../../pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl" as UltimaGenomicsWholeGenomeGermline
 import "../../../../structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl" as Structs
-import "../../../../pipelines/broad/qc/CheckFingerprint.wdl" as CheckFingerprint
+import "../../../../pipelines/broad/qc/CheckFingerprint.wdl" as FP
 
 workflow BroadInternalUltimaGenomics {
 
