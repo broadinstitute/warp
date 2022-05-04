@@ -7,8 +7,6 @@ workflow arrays_outputs_to_TDR {
         description: "Push outputs of Arrays.wdl to TDR dataset table ArraysOutputsTable."
     }
 
-    String arrays_pipeline_version = "2.6.5"
-
     input {
         # inputs to wrapper task 
         String workspace_name
