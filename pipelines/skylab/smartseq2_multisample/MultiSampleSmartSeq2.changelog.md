@@ -1,7 +1,23 @@
+# 2.2.11
+2022-04-22 (Date of Last Commit)
+
+* Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the SmartSeq2SingleSample pipeline.
+
+# 2.2.10
+2022-04-14 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
+# 2.2.9
+2022-02-25 (Date of Last Commit)
+
+* Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the MultiSampleSmartSeq2 pipeline. 
+
 # 2.2.8
 2022-01-07 (Date of Last Commit)
 
 * Updated LoomUtils.wdl to fix a missing metadata issue in Single Nucleus SmartSeq2 pipeline
+
 # 2.2.7
 2021-11-10 (Date of Last Commit)
 

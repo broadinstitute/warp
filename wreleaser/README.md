@@ -63,6 +63,7 @@ Currently available pipelines:
         - MultiSampleSmartSeq2SingleNucleus
         - Optimus
         - ReblockGVCF
+        - RNAWithUMIsPipeline
         - SmartSeq2SingleNucleus
         - SmartSeq2SingleSample
         - ValidateChip

@@ -115,5 +115,22 @@ For example code showing how to link a contributor matrix to a DCP project matri
 
 If you have any questions related to the contributor matrix and content, reach out to the individual project contributors listed on the Project page.
 
+## Brain Initiative Cell Census Network Processing
+The Optimus pipeline supports data processing for the [BRAIN Initiative Cell Census Network (BICCN)](https://biccn.org/). An overview of the BICCN pipeline resources is available on the BICCN's [Pipelines page](https://biccn.org/tools/biccn-pipelines).
+
+### Optimus reference files for BICCN data processing
+The BICCN 2.0 Whole Mouse Brain Working Group uses the Ensembl GRCm38 reference for alignment and a modified GTF for gene annotation (see table below). All Optimus pipeline reference inputs were created with the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices).
+
+BICCN processes single-nucleus data, which is enriched in pre-mRNAs containing introns. To account for this, the BuildIndices workflow uses the `BuildStarSingleNucleus` task to add intron annotations to the GTF with a custom [python script](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snss2-build-indices/add-introns-to-gtf.py). The GTF contains all annotations for any `gene_id` that has at least one transcript. This reduces the number of genes in the GTF to \~32,000. 
+
+All reference files are available in a public Google bucket (see table below) and are accompanied by a README that details reference provenance (gs://gcp-public-data--broad-references/mm10/v0/README_mm10_singlecell_gencode.txt). 
+
+| Optimus reference input name | Google bucket URI | Reference source | Description |
+| --- | --- | --- | --- |
+| `annotations_gtf` | gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_gencode.vM23.primary_assembly.annotation.gtf | https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M23/gencode.vM23.annotation.gtf.gzf | Modified GENCODE GTF including intron annotations that can be used for intron counting with featureCounts. |
+| `ref_genome_fasta` | gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_mm10.primary_assembly.genome.fa | https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M23/GRCm38.p6.genome.fa.gz | FASTA filed used to create the STAR reference files. |
+| `tar_star_reference` | gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/star/modified_star_2.7.9a_primary_gencode_mouse_vM23.tar | NA — built with the BuildIndices workflow. | Reference files used for alignment with STAR. |
+| `whitelist` | gs://hca-dcp-sc-pipelines-test-data/whitelists/737K-august-2016.txt (for v2 chemistry) and gs://hca-dcp-sc-pipelines-test-data/whitelists/3M-february-2018.txt (for v3 chemisty) | See [10x barcode descriptions](https://kb.10xgenomics.com/hc/en-us/articles/115004506263-What-is-a-barcode-whitelist). | List of barcode sequences included in 10x library preparations. Each barcode demarcates an individual cell. |
+
 
 

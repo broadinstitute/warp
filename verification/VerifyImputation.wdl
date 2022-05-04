@@ -41,7 +41,7 @@ workflow VerifyImputation {
     Array[File]? single_sample_test_vcf_indices
   }
 
-  String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.3-1.10.2-0.1.16-1644255588"
+  String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.5-1.10.2-0.1.16-1649948623"
 
   scatter (idx in range(length(truth_metrics))) {
     call CompareImputationMetrics {
@@ -131,7 +131,7 @@ task CrosscheckFingerprints {
     Array[File] secondInputIndices
     String basename
     File haplotypeDatabase = "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt"
-    String picard_docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+    String picard_docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
   }
 
   Int disk_size = ceil(1.2*(size(firstInputs, "GiB") + size(secondInputs, "GiB") + size(haplotypeDatabase, "GiB"))) + 100

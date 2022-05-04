@@ -13,6 +13,7 @@ jobs:
         - dockers/broad/dragmap
         - dockers/broad/gatk
         - dockers/broad/illumina_iaap_autocall
+        - dockers/broad/picard_python
         - dockers/broad/verify_bam_id
         - dockers/broad/samtools
         - dockers/broad/samtools_picard_bwa
@@ -38,8 +39,7 @@ jobs:
       fail-fast: false
       matrix:
         image:
-        - us.gcr.io/broad-gotc-prod/dsde-toolbox:stable_06-10-2021
-        - us.gcr.io/broad-gotc-prod/picard-cloud:2.25.5
+        - us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10
     steps:
       - uses: broadinstitute/dsp-appsec-trivy-action@v1
         with:

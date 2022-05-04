@@ -14,3 +14,5 @@ us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1629905256 61af9bff4587
 us.gcr.io/broad-arrays-prod/arrays-picard-private:4.0.10-1629909993 61af9bff4587783e5981a496f422ea36102482b5
 us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1631191359 257537c72dae29257b09bacf413505eed295ac32
 us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612 bcd01bb85df4c0876453a4b6359c19c01bd4caf4
+us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.1-1647006677 bcd01bb85df4c0876453a4b6359c19c01bd4caf4
+us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.2-1647866389 bcd01bb85df4c0876453a4b6359c19c01bd4caf4

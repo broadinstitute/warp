@@ -39,7 +39,9 @@ import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 # WORKFLOW DEFINITION
 workflow WholeGenomeGermlineSingleSample {
 
-  String pipeline_version = "3.0.4"
+
+  String pipeline_version = "3.1.2"
+
 
   input {
     SampleAndUnmappedBams sample_and_unmapped_bams
@@ -92,7 +94,6 @@ workflow WholeGenomeGermlineSingleSample {
   Boolean use_dragen_hard_filtering_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then true else use_dragen_hard_filtering
 
   # Not overridable:
-  Int read_length = 250
   Float lod_threshold = -20.0
   String cross_check_fingerprints_by = "READGROUP"
   String recalibrated_bam_basename = sample_and_unmapped_bams.base_file_name + ".aligned.duplicates_marked.recalibrated"
@@ -155,7 +156,6 @@ workflow WholeGenomeGermlineSingleSample {
       ref_fasta = references.reference_fasta.ref_fasta,
       ref_fasta_index = references.reference_fasta.ref_fasta_index,
       wgs_coverage_interval_list = wgs_coverage_interval_list,
-      read_length = read_length,
       preemptible_tries = papi_settings.agg_preemptible_tries
   }
 
@@ -168,7 +168,6 @@ workflow WholeGenomeGermlineSingleSample {
       ref_fasta = references.reference_fasta.ref_fasta,
       ref_fasta_index = references.reference_fasta.ref_fasta_index,
       wgs_coverage_interval_list = wgs_coverage_interval_list,
-      read_length = read_length,
       preemptible_tries = papi_settings.agg_preemptible_tries
   }
 

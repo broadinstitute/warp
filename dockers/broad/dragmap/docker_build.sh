@@ -2,7 +2,7 @@
 set -e
 
 # Update version when changes to Dockerfile are made
-DOCKER_IMAGE_VERSION=1.1.1
+DOCKER_IMAGE_VERSION=1.1.2
 TIMESTAMP=$(date +"%s")
 DIR=$(cd $(dirname $0) && pwd)
 
@@ -14,7 +14,7 @@ QUAY_URL="quay.io/broadinstitute/gotc-prod-dragmap"
 DRAGMAP_VERSION="1.2.1"
 
 # PICARD version
-PICARD_VERSION="2.26.4"
+PICARD_VERSION="2.26.10"
 
 # SAMTOOLS version
 SAMTOOLS_VERSION="1.11"

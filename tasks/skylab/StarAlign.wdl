@@ -218,6 +218,7 @@ task STARsoloFastq {
     String chemistry
     String counting_mode
     String output_bam_basename
+    Boolean? count_exons
 
     # runtime values
     String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
@@ -264,15 +265,14 @@ task STARsoloFastq {
         exit 1;
     fi
 
-
     COUNTING_MODE=""
-    if [ "~{counting_mode}" == "sc_rna" ]
+    if [[ "~{counting_mode}" == "sc_rna" ]]
     then
         ## single cell or whole cell
         COUNTING_MODE="Gene"
-    elif [ "~{counting_mode}" == "sn_rna" ]
+    elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
-        ## single nuclei
+    ## single nuclei
         COUNTING_MODE="GeneFull"
     else
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
@@ -285,7 +285,27 @@ task STARsoloFastq {
     rm "~{tar_star_reference}"
 
 
-    echo "UMI LEN " $UMILen 
+    echo "UMI LEN " $UMILen
+    if [[ ~{count_exons} ]]
+    then
+      STAR \
+      --soloType Droplet \
+      --soloStrand Unstranded \
+      --runThreadN ${cpu} \
+      --genomeDir genome_reference \
+      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
+      --readFilesCommand "gunzip -c" \
+      --soloCBwhitelist ~{white_list} \
+      --soloUMIlen $UMILen --soloCBlen $CBLen \
+      --soloFeatures "Gene" \
+      --clipAdapterType CellRanger4 \
+      --outFilterScoreMin 30  \
+      --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
+      --soloUMIdedup 1MM_Directional_UMItools \
+      --outSAMtype BAM SortedByCoordinate \
+      --outSAMattributes UB UR UY CR CB CY NH GX GN \
+      --soloBarcodeReadLength 0
+    fi
 
     STAR \
       --soloType Droplet \
@@ -305,13 +325,35 @@ task STARsoloFastq {
       --outSAMattributes UB UR UY CR CB CY NH GX GN \
       --soloBarcodeReadLength 0
 
-    if [ $COUNTING_MODE == "GeneFull" ]
-    then
-        mv Solo.out/GeneFull Solo.out/Gene
-    fi
+    touch barcodes_sn_rna.tsv
+    touch features_sn_rna.tsv
+    touch matrix_sn_rna.mtx
 
+    if [[ "~{counting_mode}" == "sc_rna" ]]
+    then
+      mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
+      mv "Solo.out/Gene/raw/features.tsv" features.tsv
+      mv "Solo.out/Gene/raw/matrix.mtx"   matrix.mtx
+    elif [[ "~{counting_mode}" == "sn_rna" ]]
+    then
+      if ! [[ ~{count_exons} ]]
+      then
+        mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
+        mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
+        mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+      else
+        mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
+        mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
+        mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+        mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_sn_rna.tsv
+        mv "Solo.out/Gene/raw/features.tsv"     features_sn_rna.tsv
+        mv "Solo.out/Gene/raw/matrix.mtx"       matrix_sn_rna.mtx
+      fi
+    else
+      echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
+    fi
     mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
- 
+
   }
 
   runtime {
@@ -326,9 +368,13 @@ task STARsoloFastq {
     File bam_output = "~{output_bam_basename}.bam"
     File alignment_log = "Log.final.out"
     File general_log = "Log.out"
-    File barcodes = "Solo.out/Gene/raw/barcodes.tsv"
-    File features = "Solo.out/Gene/raw/features.tsv"
-    File matrix = "Solo.out/Gene/raw/matrix.mtx"
+    File barcodes = "barcodes.tsv"
+    File features = "features.tsv"
+    File matrix = "matrix.mtx"
+    File barcodes_sn_rna = "barcodes_sn_rna.tsv"
+    File features_sn_rna = "features_sn_rna.tsv"
+    File matrix_sn_rna = "matrix_sn_rna.mtx"
+
   }
 }
 
@@ -340,7 +386,7 @@ task ConvertStarOutput {
     File matrix
 
     #runtime values
-    String docker = "quay.io/kishorikonwar/secondary-analysis-python3-scientific:utils2"
+    String docker = "quay.io/humancellatlas/secondary-analysis-python3-scientific:0.1.12"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
@@ -392,15 +438,15 @@ task MergeStarOutput {
     Array[File] barcodes
     Array[File] features
     Array[File] matrix
+    String input_id
 
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:merge-star-outputs-v1.0.0"
+    String docker = "quay.io/humancellatlas/secondary-analysis-star:merge-star-outputs-v1.1.7"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
     Int preemptible = 3
   }
-
   meta {
     description: "Create three files as .npy,  .npy and .npz for numpy array and scipy csr matrix for the barcodes, gene names and the count matrix by merging multiple  STARSolo count matrices (mtx format)."
   }
@@ -413,7 +459,7 @@ task MergeStarOutput {
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
-  command {
+  command <<<
     set -e
     declare -a barcodes_files=(~{sep=' ' barcodes})
     declare -a features_files=(~{sep=' ' features})
@@ -421,11 +467,11 @@ task MergeStarOutput {
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
     python3 /tools/create-merged-npz-output.py \
-        --barcodes $barcodes_files \
-        --features $features_files \
-        --matrix $matrix_files
-
-  }
+        --barcodes ${barcodes_files[@]} \
+        --features ${features_files[@]} \
+        --matrix ${matrix_files[@]} \
+        --input_id ~{input_id}
+  >>>
 
   runtime {
     docker: docker
@@ -436,8 +482,8 @@ task MergeStarOutput {
   }
 
   output {
-    File row_index = "sparse_counts_row_index.npy"
-    File col_index = "sparse_counts_col_index.npy"
-    File sparse_counts = "sparse_counts.npz"
+    File row_index = "~{input_id}_sparse_counts_row_index.npy"
+    File col_index = "~{input_id}_sparse_counts_col_index.npy"
+    File sparse_counts = "~{input_id}_sparse_counts.npz"
   }
 }

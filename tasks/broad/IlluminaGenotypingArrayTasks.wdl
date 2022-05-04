@@ -63,7 +63,7 @@ task BpmToNormalizationManifestCsv {
     Int preemptible_tries
   }
   command {
-  java -Xms7000m -Xmx7000m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+  java -Xms7000m -Xmx7000m -jar /usr/picard/picard.jar \
     BpmToNormalizationManifestCsv \
     --INPUT ~{bead_pool_manifest_file} \
     --CLUSTER_FILE ~{cluster_file} \
@@ -71,7 +71,7 @@ task BpmToNormalizationManifestCsv {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     disks: "local-disk 10 HDD"
     memory: "7500 MiB"
     cpu: 2
@@ -110,7 +110,7 @@ task GtcToVcf {
   }
 
   command {
-  java -Xms~{memory_mb - 1000}m -Xmx~{memory_mb - 500}m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+  java -Xms~{memory_mb - 1000}m -Xmx~{memory_mb - 500}m -jar /usr/picard/picard.jar \
     GtcToVcf \
     --INPUT ~{input_gtc} \
     ~{"--GENDER_GTC " + gender_gtc} \
@@ -126,11 +126,12 @@ task GtcToVcf {
     --REFERENCE_SEQUENCE ~{ref_fasta} \
     --MAX_RECORDS_IN_RAM 100000 \
     --CREATE_INDEX true \
-    --PIPELINE_VERSION ~{pipeline_version}
+    --PIPELINE_VERSION ~{pipeline_version} \
+    --VERBOSITY DEBUG
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_mb} MiB"
     cpu: 2
@@ -186,7 +187,7 @@ task VcfToAdpc {
   }
 
   command {
-    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+    java -Xms2000m -Xmx3000m -jar /usr/picard/picard.jar \
              VcfToAdpc \
              --VCF ~{input_vcf} \
              ~{"--VCF " + contamination_controls_vcf} \
@@ -195,7 +196,7 @@ task VcfToAdpc {
              --OUTPUT ~{output_adpc_filename}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -263,13 +264,13 @@ task CreateVerifyIDIntensityContaminationMetricsFile {
       exit 1;
     fi
 
-    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+    java -Xms2000m -Xmx3000m -jar /usr/picard/picard.jar \
              CreateVerifyIDIntensityContaminationMetricsFile \
              --INPUT $TRUNCATED_INPUT_FILE \
              --OUTPUT ~{output_metrics_basefilename}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -296,7 +297,7 @@ task CollectArraysVariantCallingMetrics {
   command <<<
     set -eo pipefail
 
-    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+    java -Xms2000m -Xmx3000m -jar /usr/picard/picard.jar \
       CollectArraysVariantCallingMetrics \
       --INPUT ~{input_vcf_file} \
       --DBSNP ~{dbSNP_vcf_file} \
@@ -325,7 +326,7 @@ task CollectArraysVariantCallingMetrics {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -349,14 +350,14 @@ task VcfToIntervalList {
   }
 
   command {
-    java -Xms2000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+    java -Xms2000m -Xmx3000m -jar /usr/picard/picard.jar \
       VcfToIntervalList \
       --INPUT ~{vcf_file} \
       --OUTPUT ~{interval_list_filename}
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -523,7 +524,7 @@ task MergePedIntoVcf {
   }
 
   command {
-    java -Xms3000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+    java -Xms3000m -Xmx3000m -jar /usr/picard/picard.jar \
       MergePedIntoVcf \
       --ORIGINAL_VCF ~{input_vcf} \
       --PED_FILE ~{ped_file} \
@@ -535,7 +536,7 @@ task MergePedIntoVcf {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     memory: "3500 MiB"
     cpu: "1"
     disks: "local-disk " + disk_size + " HDD"
@@ -604,7 +605,7 @@ task GenotypeConcordance {
   command <<<
     set -eo pipefail
 
-    java -Xms3000m -Xmx3000m -Dpicard.useLegacyParser=false -jar /usr/picard/picard.jar \
+    java -Xms3000m -Xmx3000m -jar /usr/picard/picard.jar \
       GenotypeConcordance \
       --CALL_VCF ~{call_vcf_file} \
       --CALL_SAMPLE ~{call_sample_name} \
@@ -640,7 +641,7 @@ task GenotypeConcordance {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -727,7 +728,7 @@ task CreateExtendedIlluminaManifest {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     disks: "local-disk " + disk_size + " HDD"
     memory: "14000 MiB"
     preemptible: preemptible_tries

@@ -20,7 +20,7 @@ import "../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
 
 workflow RNAWithUMIsPipeline {
 
-  String pipeline_version = "1.0.1"
+  String pipeline_version = "1.0.6"
 
   input {
     File? bam
@@ -30,12 +30,11 @@ workflow RNAWithUMIsPipeline {
     String read2Structure
     String output_basename
 
-    # The following inputs are only required if fastqs are given as input.
-    String? platform
-    String? library_name
-    String? platform_unit
-    String? read_group_name
-    String? sequencing_center = "BI"
+    String platform
+    String library_name
+    String platform_unit
+    String read_group_name
+    String sequencing_center = "BI"
 
     File starIndex
     File gtf
@@ -46,6 +45,9 @@ workflow RNAWithUMIsPipeline {
     File refFlat
     File ribosomalIntervals
     File exonBedFile
+
+    File population_vcf
+    File population_vcf_index
   }
 
   parameter_meta {
@@ -57,29 +59,26 @@ workflow RNAWithUMIsPipeline {
     starIndex: "TAR file containing genome indices used for the STAR aligner"
     output_basename: "String used as a prefix in workflow output files"
     gtf: "Gene annotation file (GTF) used for the rnaseqc tool"
-    platform: "String used to describe the sequencing platform; only required when using FASTQ files as input"
-    library_name: "String used to describe the library; only required when using FASTQ files as input"
-    platform_unit: "String used to describe the platform unit; only required when using FASTQ files as input"
-    read_group_name: "String used to describe the read group name; only required when using FASTQ files as input"
-    sequencing_center: "String used to describe the sequencing center; only required when using FASTQ files as input; default is set to 'BI'"
+    platform: "String used to describe the sequencing platform"
+    library_name: "String used to describe the library"
+    platform_unit: "String used to describe the platform unit"
+    read_group_name: "String used to describe the read group name"
+    sequencing_center: "String used to describe the sequencing center; default is set to 'BI'"
     ref: "FASTA file used for metric collection with Picard tools"
     refIndex: "FASTA index file used for metric collection with Picard tools"
     refDict: "Dictionary file used for metric collection with Picard tools"
     refFlat: "refFlat file used for metric collection with Picard tools"
     ribosomalIntervals: "Intervals file used for RNA metric collection with Picard tools"
     exonBedFile: "Bed file used for fragment size calculations in the rnaseqc tool; contains non-overlapping exons"
+    population_vcf: "VCF file for contamination estimation; contains common SNP sites from population-wide studies like ExAC or gnomAD"
+    population_vcf_index: "Population VCF index file used for contamination estimation"
   }
 
   call tasks.VerifyPipelineInputs {
     input:
       bam = bam,
       r1_fastq = r1_fastq,
-      r2_fastq = r2_fastq,
-      library_name = library_name,
-      platform = platform,
-      platform_unit = platform_unit,
-      read_group_name = read_group_name,
-      sequencing_center = sequencing_center
+      r2_fastq = r2_fastq
   }
 
   if (VerifyPipelineInputs.fastq_run) {
@@ -88,11 +87,11 @@ workflow RNAWithUMIsPipeline {
         r1_fastq = select_first([r1_fastq]),
         r2_fastq = select_first([r2_fastq]),
         bam_filename = output_basename,
-        library_name = select_first([library_name]),
-        platform = select_first([platform]),
-        platform_unit = select_first([platform_unit]),
-        read_group_name = select_first([read_group_name]),
-        sequencing_center = select_first([sequencing_center])
+        library_name = library_name,
+        platform = platform,
+        platform_unit = platform_unit,
+        read_group_name = read_group_name,
+        sequencing_center = sequencing_center
     }
   }
 
@@ -105,9 +104,43 @@ workflow RNAWithUMIsPipeline {
       read2Structure = read2Structure
   }
 
-  call tasks.STAR {
+  # Convert SAM to fastq for adapter clipping
+  # This step also removes reads that fail platform/vendor quality checks
+  call tasks.SamToFastq {
     input:
       bam = ExtractUMIs.bam_umis_extracted,
+      output_prefix = output_basename
+  }
+
+  # Adapter clipping
+  call tasks.Fastp {
+    input:
+      fastq1 = SamToFastq.fastq1,
+      fastq2 = SamToFastq.fastq2,
+      output_prefix = output_basename + ".adapter_clipped"
+  }
+
+  # Back to SAM before alignment
+  call tasks.FastqToUbam as FastqToUbamAfterClipping {
+    input:
+        r1_fastq = Fastp.fastq1_clipped,
+        r2_fastq = Fastp.fastq2_clipped,
+        bam_filename = output_basename + ".adapter_clipped",
+        library_name = library_name,
+        platform = platform,
+        platform_unit = platform_unit,
+        read_group_name = read_group_name,
+        sequencing_center = sequencing_center
+  }
+
+  call tasks.FastQC {
+    input:
+      unmapped_bam = FastqToUbamAfterClipping.unmapped_bam
+  }
+
+  call tasks.STAR {
+    input:
+      bam = FastqToUbamAfterClipping.unmapped_bam,
       starIndex = starIndex
   }
 
@@ -117,19 +150,32 @@ workflow RNAWithUMIsPipeline {
       bam_without_readgroups = STAR.transcriptome_bam
   }
 
+  # Mark duplicate reads in the genome-aligned bam. The output is coordinate-sorted.
   call UmiMD.UMIAwareDuplicateMarking {
     input:
       aligned_bam = STAR.aligned_bam,
-      output_basename = output_basename
+      unaligned_bam = ExtractUMIs.bam_umis_extracted,
+      output_basename = output_basename,
+      remove_duplicates = false,
+      coordinate_sort_output = true
   }
 
+  # Remove, rather than mark, duplicates reads from the transcriptome-aligned bam
+  # The output is query-name-sorted.
   call UmiMD.UMIAwareDuplicateMarking as UMIAwareDuplicateMarkingTranscriptome {
     input:
       aligned_bam = CopyReadGroupsToHeader.output_bam,
-      output_basename = output_basename + ".transcriptome"
+      unaligned_bam = ExtractUMIs.bam_umis_extracted,
+      output_basename = output_basename + ".transcriptome",
+      remove_duplicates = true,
+      coordinate_sort_output = false
   }
 
-  ### PLACEHOLDER for CROSSCHECK ###
+  call tasks.PostprocessTranscriptomeForRSEM {
+    input:
+      prefix = output_basename + ".transcriptome.RSEM",
+      input_bam = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam
+  }
 
   call tasks.GetSampleName {
     input:
@@ -166,6 +212,18 @@ workflow RNAWithUMIsPipeline {
       ref_fasta_index = refIndex
   }
 
+  call tasks.CalculateContamination {
+    input:
+      bam = UMIAwareDuplicateMarking.duplicate_marked_bam,
+      bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index,
+      base_name = GetSampleName.sample_name,
+      population_vcf = population_vcf,
+      population_vcf_index = population_vcf_index,
+      ref_dict = refDict,
+      ref_fasta = ref,
+      ref_fasta_index = refIndex
+  }
+
   output {
     String sample_name = GetSampleName.sample_name
     File transcriptome_bam = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam
@@ -189,6 +247,10 @@ workflow RNAWithUMIsPipeline {
     File picard_quality_by_cycle_pdf = CollectMultipleMetrics.quality_by_cycle_pdf
     File picard_quality_distribution_metrics = CollectMultipleMetrics.quality_distribution_metrics
     File picard_quality_distribution_pdf = CollectMultipleMetrics.quality_distribution_pdf
+    Float contamination = CalculateContamination.contamination
+    Float contamination_error = CalculateContamination.contamination_error
+    File fastqc_html_report = FastQC.fastqc_html
+    Float fastqc_percent_reads_with_adapter = FastQC.fastqc_percent_reads_with_adapter
   }
 }
 
