@@ -24,7 +24,7 @@ import "../../../tasks/broad/Qc.wdl" as Qc
 
 workflow CheckFingerprint {
 
-  String pipeline_version = "1.0.2"
+  String pipeline_version = "1.0.4"
 
   input {
     File? input_vcf

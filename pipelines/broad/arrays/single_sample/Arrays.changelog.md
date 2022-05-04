@@ -1,11 +1,20 @@
-# 2.6.7 
+# 2.6.9
+2022-04-19 (Date of Last Commit)
+* Updated to GATK version 4.2.6.1 to address log4j vulnerabilities
+
+# 2.6.8
+2022-04-04 (Date of Last Commit)
+
+* Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+
+# 2.6.7
 2022-03-24 (Date of Last Commit)
 
 * Update base image for picard-private docker image
 * Add gsutil to PATH in picard-private docker image
 
 # 2.6.6
-2022-02-025 (Date of Last Commit)
+2022-02-25 (Date of Last Commit)
 
 * Update to Picard 2.26.11
     * Address obscure bug in GtcToVcf -> VcfToAdpc (some variant metrics, calculated as infinite, were rendered incorrectly in the VCF)

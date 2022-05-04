@@ -16,7 +16,10 @@ workflow VerifyReprocessing {
     File test_crai
 
     File truth_gvcf
+    File truth_gvcf_index
     File test_gvcf
+    File test_gvcf_index
+
   }
 
   scatter(pair in bam_pairs) {
@@ -36,7 +39,9 @@ workflow VerifyReprocessing {
       test_cram = test_cram,
       test_crai = test_crai,
       truth_gvcf = truth_gvcf,
-      test_gvcf = test_gvcf
+      test_gvcf = test_gvcf,
+      truth_gvcf_index = truth_gvcf_index,
+      test_gvcf_index = test_gvcf_index
   }
   meta {
     allowNestedInputs: true

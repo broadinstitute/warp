@@ -9,7 +9,7 @@ version 1.0
 # If the file is not provided, the output names of the unmapped bams will be the read_group_id<unmapped_bam_suffix>
 workflow CramToUnmappedBams {
 
-  String pipeline_version = "1.1.1"
+  String pipeline_version = "1.1.2"
 
   input {
     File? input_cram
@@ -123,7 +123,7 @@ task RevertSam {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
     preemptible: 3
@@ -284,7 +284,7 @@ task ValidateSamFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
     preemptible: 3
@@ -319,7 +319,7 @@ task SortSam {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
     preemptible: 3

@@ -7,7 +7,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow BroadInternalRNAWithUMIs {
 
-  String pipeline_version = "1.0.5"
+  String pipeline_version = "1.0.9"
 
   input {
     # input needs to be either "hg19" or "hg38"
@@ -157,7 +157,9 @@ workflow BroadInternalRNAWithUMIs {
         picard_fingerprint_detail_metrics = CheckFingerprint.fingerprint_detail_metrics_file,
         unified_metrics = MergeMetrics.unified_metrics,
         contamination = RNAWithUMIs.contamination,
-        contamination_error = RNAWithUMIs.contamination_error
+        contamination_error = RNAWithUMIs.contamination_error,
+        fastqc_html_report = RNAWithUMIs.fastqc_html_report,
+        fastqc_percent_reads_with_adapter = RNAWithUMIs.fastqc_percent_reads_with_adapter
     }
 
     call tasks.updateOutputsInTDR {
@@ -196,5 +198,7 @@ workflow BroadInternalRNAWithUMIs {
     File unified_metrics = MergeMetrics.unified_metrics
     Float contamination = RNAWithUMIs.contamination
     Float contamination_error = RNAWithUMIs.contamination_error
+    File fastqc_html_report = RNAWithUMIs.fastqc_html_report
+    Float fastqc_percent_reads_with_adapter = RNAWithUMIs.fastqc_percent_reads_with_adapter
   }
 }

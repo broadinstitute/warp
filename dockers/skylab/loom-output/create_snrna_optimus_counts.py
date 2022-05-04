@@ -119,14 +119,13 @@ def  generate_row_attr(args):
         logging.info("# of gene metadate metrics: {0}".format(ncols))
     return row_attrs
 
-def generate_col_attr(barcode_1_path,barcode_2_path,cell_metrics_path,bool_emptydrops,empty_drops_file_path):
+def generate_col_attr(barcode_1_path,barcode_2_path,cell_metrics_path):
     """Converts cell metrics from the Optimus pipeline to loom file
 
     Args:
         input_path (str): file containing gene metrics name and values
         cell_ids (list): list of cell ids
         verbose (bool): whether to output verbose messages for debugging purposes
-        empty_drops_path (str): emptydrops csv file
     """
     barcode_1 = np.load(barcode_1_path)
     barcode_2 = np.load(barcode_2_path)
@@ -139,15 +138,6 @@ def generate_col_attr(barcode_1_path,barcode_2_path,cell_metrics_path,bool_empty
         logging.error("Cell metrics table is not valid")
         raise ValueError()
     metrics_df = metrics_df.rename(columns={"Unnamed: 0": "cell_id"})
-
-    add_emptydrops_results = bool_emptydrops
-    if add_emptydrops_results == 'yes':
-        emptydrops_df = pd.read_csv(empty_drops_file_path, dtype=str)
-        if emptydrops_df.shape[0] == 0 or emptydrops_df.shape[1] == 0:
-            logging.error("EmptyDrops table is not valid")
-            raise ValueError()
-        # Rename cell columns for both datasets to cell_id
-        emptydrops_df = emptydrops_df.rename(columns={"CellId": "cell_id"})
 
     # Order the cells by merging with cell_ids
     cellorder_df = pd.DataFrame(data={"cell_id": cell_ids})
@@ -193,38 +183,11 @@ def generate_col_attr(barcode_1_path,barcode_2_path,cell_metrics_path,bool_empty
         "pct_mitochondrial_molecules"
     ]
 
-    # Prefix emptydrops column names (except the key cell_id)
     newcolnames = []
-    if add_emptydrops_results == 'yes':
-        colnames = list(emptydrops_df.columns)
-        newcolnames = ["emptydrops_" + s for s in colnames]
 
-        namemap = dict(zip(colnames, newcolnames))
-        # Do not map the cell_id as it will be used for the merge
-        del namemap["cell_id"]
-
-        emptydrops_df = emptydrops_df.rename(columns=namemap)
-
-        # Confirm that the emptydrops table is a subset of the cell metadata table, fail if not
-        if not emptydrops_df.cell_id.isin(barcode_1).all():
-            logging.error(
-                "Not all emptydrops cells can be found in the metrics table."
-            )
-            raise Exception(
-                "Not all emptydrops cells can be found in the metrics table."
-            )
-        merged_df = metrics_df.merge(emptydrops_df, on="cell_id", how="outer")
-
-        final_df = cellorder_df.merge(merged_df, on="cell_id", how="left")
-
-        ColumnNames = IntColumnNames + ["emptydrops_Total"] + FloatColumnNames + \
-                      [ "emptydrops_LogProb", "emptydrops_PValue", "emptydrops_FDR" ]
-        BoolColumnNames = ["emptydrops_Limited", "emptydrops_IsCell"]
-
-    else:
-        final_df = cellorder_df.merge(metrics_df, on="cell_id", how="left")
-        ColumnNames = IntColumnNames + FloatColumnNames
-        BoolColumnNames = []
+    final_df = cellorder_df.merge(metrics_df, on="cell_id", how="left")
+    ColumnNames = IntColumnNames + FloatColumnNames
+    BoolColumnNames = []
 
     # Split the dataframe
     final_df_non_boolean = final_df[ColumnNames]
@@ -233,21 +196,6 @@ def generate_col_attr(barcode_1_path,barcode_2_path,cell_metrics_path,bool_empty
     # Create a numpy array of the same shape of booleans
     final_df_bool = np.full(final_df[BoolColumnNames].shape, True)
 
-    if "emptydrops_Limited" in final_df[BoolColumnNames].columns:
-        for index, row in final_df[BoolColumnNames].iterrows():
-            if row["emptydrops_Limited"] == "TRUE":
-                final_df_bool[index, 0] = True
-            elif row["emptydrops_Limited"] == "FALSE":
-                final_df_bool[index, 0] = False
-            else:
-                final_df_bool[index, 0] = np.nan
-
-            if row["emptydrops_IsCell"] == "TRUE":
-                final_df_bool[index, 1] = True
-            elif row["emptydrops_IsCell"] == "FALSE":
-                final_df_bool[index, 1] = False
-            else:
-                final_df_bool[index, 1] = np.nan
 
     final_df_non_boolean = final_df_non_boolean.apply(pd.to_numeric)
 
@@ -345,7 +293,7 @@ def create_loom_files(args):
     row_attrs =  generate_row_attr(args)
 
     # generate a dictionarty of column attributes
-    col_attrs =  generate_col_attr(args.cell_id_1,args.cell_id_2,args.cell_metrics,args.add_emptydrops_results,args.empty_drops_file)
+    col_attrs =  generate_col_attr(args.cell_id_1,args.cell_id_2,args.cell_metrics)
 
     # add the expression count matrix data
     sp1 = generate_matrix(args.count_matrix_1)
@@ -384,21 +332,6 @@ def main():
                    This script can be used as a module or run as a command line script."""
 
     parser = argparse.ArgumentParser(description=description)
-
-    parser.add_argument(
-        "--empty_drops_file",
-        dest="empty_drops_file",
-        required=True,
-        help="A csv file with the output of the emptyDrops step in Optimus",
-    )
-
-    parser.add_argument(
-        "--add_emptydrops_data",
-        dest="add_emptydrops_results",
-        required=True,
-        choices = ['yes', 'no'],
-        help="if yes then add the emptydrops data or else do not add Optimus",
-    )
 
     parser.add_argument(
         "--cell_metrics",

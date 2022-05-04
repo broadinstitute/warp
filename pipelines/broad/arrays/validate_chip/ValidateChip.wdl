@@ -21,7 +21,7 @@ import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalTasks
 
 workflow ValidateChip {
 
-  String pipeline_version = "1.15.6"
+  String pipeline_version = "1.15.7"
 
   input {
     String sample_alias
@@ -323,7 +323,7 @@ task GenotypeConcordance {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gatk/gatk:4.1.3.0"
+    docker: "us.gcr.io/broad-gatk/gatk:4.2.6.1"
     disks: "local-disk " + disk_size + " HDD"
     memory: "7000 MiB"
     preemptible: preemptible_tries

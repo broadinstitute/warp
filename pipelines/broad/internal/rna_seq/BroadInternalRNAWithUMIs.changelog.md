@@ -1,3 +1,25 @@
+# 1.0.9
+2022-04-21 (Date of Last Commit)
+* Update base image for picard-private docker image
+* Updated to Picard version 2.26.11 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
+# 1.0.8
+2022-04-20 (Date of Last Commit)
+
+* Added memory unit to the PostprocessTranscriptomeForRSEM task in the RNAWithUMIsTasks.wdl
+
+# 1.0.7
+2022-04-12 (Date of Last Commit)
+
+# 1.0.7
+2022-04-14 (Date of Last Commit)
+* Clip adapter bases pre-alignment & associated updates for TDR ingest
+
+# 1.0.6
+2022-04-04 (Date of Last Commit)
+
+* Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+
 # 1.0.5
 2022-03-29 (Date of Last Commit)
 
@@ -12,8 +34,6 @@
 
 # 1.0.3
 2022-03-14 (Date of Last Commit)
-
-* Update base image for picard-private docker image
 
 # 1.0.2
 2022-02-18 (Date of Last Commit)

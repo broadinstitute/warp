@@ -59,6 +59,7 @@ object CromwellEnvironment extends Enum[CromwellEnvironment] {
     )
     override val picardEnv: String = "prod"
   }
+
   case object JGDev extends CromwellEnvironment {
     override val cromwellUrl = new URL(
       "https://cromwell-jg.gotc-dev.broadinstitute.org")

@@ -28,6 +28,7 @@ var validReleases = []string{
 	"MultiSampleSmartSeq2SingleNucleus",
 	"Optimus",
 	"ReblockGVCF",
+	"RNAWithUMIsPipeline",
 	"SmartSeq2SingleNucleus",
 	"SmartSeq2SingleSample",
 	"ValidateChip",

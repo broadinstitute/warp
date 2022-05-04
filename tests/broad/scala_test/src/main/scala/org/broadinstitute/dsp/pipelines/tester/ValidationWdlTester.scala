@@ -71,7 +71,10 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
   protected def localWdlPath: File = workflowDir / s"$workflowName.wdl"
 
   protected lazy val inputFileNames: Seq[String] =
-    workflowInputRoot.list.toSeq.map(_.name.toString)
+    workflowInputRoot.list
+      .filter(_.name.endsWith(".json"))
+      .toSeq
+      .map(_.name.toString)
 
   /**
     * If we're not updating the truth data, just validate the runs.

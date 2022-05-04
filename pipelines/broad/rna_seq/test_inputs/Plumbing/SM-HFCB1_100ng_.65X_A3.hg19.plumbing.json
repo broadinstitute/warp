@@ -5,6 +5,11 @@
 
   "RNAWithUMIsPipeline.output_basename": "SM-HFCB1_100ng_.65X_A3",
 
+  "RNAWithUMIsPipeline.library_name": "SM-HFCB1_100ng_.65X_A3",
+  "RNAWithUMIsPipeline.platform": "ILLUMINA",
+  "RNAWithUMIsPipeline.platform_unit": "barcode1",
+  "RNAWithUMIsPipeline.read_group_name": "RG1",
+
   "RNAWithUMIsPipeline.starIndex": "gs://gcp-public-data--broad-references/hg19/v0/star/STAR2.7.10a_genome_hg19_noALT_noHLA_noDecoy_v19_oh145.tar.gz",
   "RNAWithUMIsPipeline.gtf": "gs://gcp-public-data--broad-references/hg19/v0/annotation/gencode.v19.genes.v7.collapsed_only.patched_contigs.gtf",
   "RNAWithUMIsPipeline.ref": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",

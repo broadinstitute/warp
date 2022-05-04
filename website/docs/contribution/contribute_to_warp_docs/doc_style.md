@@ -18,7 +18,7 @@ task SortBam {
         String sort_order = "coordinate"
 
         # runtime values
-        String docker = "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"
+        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
         Int machine_mem_mb = 8250
         Int machine_overhead_mb = 500
         Int cpu = 1
@@ -65,7 +65,7 @@ task SortBam {
         String sort_order = "coordinate"
 
         # runtime values
-        String docker = "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10"
+        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
         Int machine_mem_mb = 8250
         Int machine_overhead_mb = 500
         Int cpu = 1

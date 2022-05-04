@@ -110,7 +110,7 @@ task ScatterIntervalList {
     Int interval_count = read_int(stdout())
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.5.7-2021-06-09_16-47-48Z"
+    docker: "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.26.10-1647265026"
     memory: "2000 MiB"
   }
 }
@@ -220,4 +220,83 @@ task ErrorWithMessage{
   runtime {
     docker: "ubuntu:20.04"
   }
+}
+
+# This task is unused for now, going to keep it in here though if we need it in the future
+task GetValidationInputs {
+  input {
+    String results_path
+    String truth_path
+    Array[String]? input_files
+    String? input_file
+
+    String docker = "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
+    Int cpu = 1
+    Int memory_mb = 2000
+    Int disk_size_gb = 20
+  }
+
+  meta {
+    description: "Given either a file or list of files, output both the truth and results path"
+  }
+
+  command <<<
+    set -e
+
+    touch truth_file.txt
+    touch truth_files.txt
+    touch results_file.txt
+    touch results_files.txt
+    
+    python3 <<CODE
+    import os.path
+
+  
+
+    results_path = "~{results_path}"
+    truth_path = "~{truth_path}"
+    input_file = "~{input_file}"
+    input_files = [ x for x in [ "~{sep='", "' input_files}" ]  if x != "" ]
+
+    if input_file:
+      file = os.path.basename(input_file)
+      truth_file = os.path.join(truth_path, file)
+      results_file = os.path.join(results_path, file)
+
+      with open("truth_file.txt", "w") as f:
+        f.write(truth_file)
+      with open("results_file.txt", "w") as f:
+        f.write(results_file)
+
+    elif input_files:
+      truth_files, results_files = [], []
+
+      for input_file in input_files:
+        file = os.path.basename(input_file)
+        truth_files.append(os.path.join(truth_path, file))
+        results_files.append(os.path.join(results_path, file))
+
+      with open("truth_files.txt", "w") as f:
+        f.write("\n".join(truth_files))
+      with open("results_files.txt", "w") as f:
+        f.write("\n".join(results_files))
+
+
+    CODE
+  >>>
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+  }
+
+  output {
+    String truth_file = read_string("truth_file.txt")
+    String results_file = read_string("results_file.txt")
+    Array[String] truth_files = read_lines("truth_files.txt")
+    Array[String] results_files = read_lines("results_files.txt")
+  }
+  
 }

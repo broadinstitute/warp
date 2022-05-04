@@ -1,5 +1,20 @@
+# 1.0.6
+2022-04-21 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
+# 1.0.5
+2022-04-20 (Date of Last Commit)
+
+* Added memory unit to the PostprocessTranscriptomeForRSEM task in the RNAWithUMIsTasks.wdl
+
+# 1.0.4
+2022-04-08 (Date of Last Commit)
+
+* Clip adapter bases pre-alignment
+
 # 1.0.3
-2022-03-29 (Date of Last Commit)
+2022-04-14 (Date of Last Commit)
 
 * Added the contamination task to the workflow.
 
