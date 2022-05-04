@@ -24,6 +24,8 @@ function pipeline_to_args() {
       echo Arrays -a Multi ${common_args};;
     BroadInternalRNAWithUMIs)
       echo BroadInternalRNAWithUMIs ${common_args};;
+    BroadInternalUltimaGenomics)
+      echo BroadInternalUltimaGenomics ${common_args};;
     CheckFingerprint)
       echo CheckFingerprint ${common_args};;
     ExomeGermlineSingleSample)
