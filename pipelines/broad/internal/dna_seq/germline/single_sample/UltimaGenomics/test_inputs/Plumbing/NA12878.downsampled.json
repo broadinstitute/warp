@@ -1,12 +1,12 @@
 {
-    "BroadInternalUGWrapper.input_cram_list": ["gs://broad-gotc-test-storage/tmp/jbx/downsampled_NA12878.cram"],
-    "BroadInternalUGWrapper.base_file_name": "downsampled_NA12878",
-    "BroadInternalUGWrapper.contamination_sites": {
+    "BroadInternalUltimaGenomics.input_cram_list": ["gs://broad-gotc-test-storage/tmp/jbx/downsampled_NA12878.cram"],
+    "BroadInternalUltimaGenomics.base_file_name": "downsampled_NA12878",
+    "BroadInternalUltimaGenomics.contamination_sites": {
         "contamination_sites_vcf": "gs://concordance/hg38/Homo_sapiens_assembly38.contam_fixed.vcf",
         "contamination_sites_vcf_index":"gs://concordance/hg38/Homo_sapiens_assembly38.contam_fixed.vcf.idx",
         "contamination_sites_path": "gs://concordance/hg38/verifyBamID_inputs/Homo_sapiens_assembly38.contam.cskp."
     },
-    "BroadInternalUGWrapper.alignment_references": {
+    "BroadInternalUltimaGenomics.alignment_references": {
         "references": {
             "ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
             "ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
@@ -19,12 +19,12 @@
         "ref_pac": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.pac",
         "ref_sa": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.sa"
     },
-    "BroadInternalUGWrapper.variant_calling_settings": {
+    "BroadInternalUltimaGenomics.variant_calling_settings": {
         "wgs_calling_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_calling_regions.hg38.interval_list",
         "break_bands_at_multiples_of": "100000",
         "haplotype_scatter_count": "200"
     },
-    "BroadInternalUGWrapper.vcf_post_processing": {
+    "BroadInternalUltimaGenomics.vcf_post_processing": {
         "annotation_intervals": [
             "gs://concordance/hg38/annotation_intervals/LCR-hs38.bed",
             "gs://concordance/hg38/annotation_intervals/exome.twist.bed",
@@ -46,9 +46,9 @@
         "ref_dbsnp_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx",
         "wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list"
     },
-    "BroadInternalUGWrapper.collab_sample_id_run_id": "NA12878_004733",
-    "BroadInternalUGWrapper.environment": "{ENV}",
-    "BroadInternalUGWrapper.sample_lsid": "broadinstitute.org:bsp.prod.sample:LO5X1",
-    "BroadInternalUGWrapper.output_basename": "NA12878",
-    "BroadInternalUGWrapper.vault_token_path": "{VAULT_TOKEN_PATH}"
+    "BroadInternalUltimaGenomics.collab_sample_id_run_id": "NA12878_004733",
+    "BroadInternalUltimaGenomics.environment": "{ENV}",
+    "BroadInternalUltimaGenomics.sample_lsid": "broadinstitute.org:bsp.prod.sample:LO5X1",
+    "BroadInternalUltimaGenomics.output_basename": "NA12878",
+    "BroadInternalUltimaGenomics.vault_token_path": "{VAULT_TOKEN_PATH}"
 }

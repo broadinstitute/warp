@@ -14,6 +14,7 @@ object WorkflowTestType extends Enum[WorkflowTestType] {
   case object AnnotationFiltration extends WorkflowTestType
   case object Arrays extends WorkflowTestType
   case object BroadInternalRNAWithUMIs extends WorkflowTestType
+  case object BroadInternalUltimaGenomics extends WorkflowTestType
   case object CheckFingerprint extends WorkflowTestType
   case object CramToUnmappedBams extends WorkflowTestType
   case object Dummy extends WorkflowTestType
