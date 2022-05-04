@@ -505,6 +505,7 @@ task HaplotypeCaller {
   input {
     References references
     Array[File] input_bam_list
+    Array[File] input_bam_index_list
     File interval_list
     String vcf_basename
     Boolean make_bamout

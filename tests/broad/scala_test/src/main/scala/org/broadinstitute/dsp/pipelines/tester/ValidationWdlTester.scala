@@ -114,7 +114,7 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
   }
 
   protected lazy val googleProject: String = {
-    s"broad-gotc-${env.picardEnv}"
+    s"broad-exomes-dev1"
   }
 
   protected lazy val validationWdlOptions: String = Json

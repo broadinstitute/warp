@@ -146,6 +146,9 @@ task GenotypeGVCFs {
 
     String dbsnp_vcf
 
+    Boolean keep_combined_raw_annotations = false
+    String? additional_annotation
+
     Int disk_size
     # This is needed for gVCFs generated with GATK3 HaplotypeCaller
     Boolean allow_old_rms_mapping_quality_annotation_data = false
@@ -173,7 +176,9 @@ task GenotypeGVCFs {
       --only-output-calls-starting-in-intervals \
       -V gendb://$WORKSPACE \
       -L ~{interval} \
+      ~{"-A " + additional_annotation} \
       ~{true='--allow-old-rms-mapping-quality-annotation-data' false='' allow_old_rms_mapping_quality_annotation_data} \
+      ~{true='--keep-combined-raw-annotations' false='' keep_combined_raw_annotations} \
       --merge-input-intervals
   >>>
 

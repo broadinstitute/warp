@@ -205,9 +205,10 @@ workflow UltimaGenomicsWholeGenomeCramOnly {
       flow_order                            = ExtractSampleNameFlowOrder.flow_order
   }
 
-  call Utilities.MakeOptionalOutput {
+  call Utilities.MakeOptionalOutputBam {
     input:
-      file_input = AlignmentAndMarkDuplicates.output_bam,
+      bam_input = AlignmentAndMarkDuplicates.output_bam,
+      bai_input = AlignmentAndMarkDuplicates.output_bam_index,
       keep_inputs = save_bam_file
   }
 
@@ -242,7 +243,9 @@ workflow UltimaGenomicsWholeGenomeCramOnly {
     String id = ExtractSampleNameFlowOrder.readgroup_id
 
     #Intermediate outputs required for germline pipeline
-    File? output_bam = MakeOptionalOutput.optional_output
+    File? output_bam = MakeOptionalOutputBam.optional_output_bam
+    File? output_bam_index = MakeOptionalOutputBam.optional_output_bai
+
     String output_safe_name = MakeSafeFilename.output_safe_name
   }
 

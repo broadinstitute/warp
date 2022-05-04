@@ -34,6 +34,7 @@ workflow UltimaGenomicsWholeGenomeGermlineQC {
   call Tasks.HaplotypeCaller as HaplotypeCallerForContamination {
     input:
       input_bam_list                = [agg_bam],
+      input_bam_index_list          = [agg_bam_index],
       interval_list                 = contamination_sites.contamination_sites_vcf,
       vcf_basename                  = base_file_name,
       references                    = references,

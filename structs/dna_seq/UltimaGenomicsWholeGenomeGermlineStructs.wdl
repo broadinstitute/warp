@@ -46,4 +46,6 @@ struct VcfPostProcessing {
   File ref_dbsnp
   File ref_dbsnp_index
   File wgs_coverage_interval_list
+  Float? remove_low_tree_score_sites_cutoff
+  String? annotations_to_keep_command_for_reblocking
 }

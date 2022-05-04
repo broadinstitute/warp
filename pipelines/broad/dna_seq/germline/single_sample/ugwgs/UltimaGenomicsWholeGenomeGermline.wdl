@@ -9,6 +9,7 @@ import "../../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 import "../../../../../../tasks/broad/Qc.wdl" as QC
 import "../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineQC.wdl" as UltimaGenomicsWholeGenomeGermlineQC
 import "../../../../../../structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl" as Structs
+import "../../../../../../pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl" as ReblockGVCF
 
 # CHANGELOG
 #  1.1.1     get multiple input cram
@@ -174,6 +175,7 @@ workflow UltimaGenomicsWholeGenomeGermline {
     call Tasks.HaplotypeCaller as HaplotypeCaller {
       input:
         input_bam_list  = [select_first([UltimaGenomicsWholeGenomeCramOnly.output_bam])],
+        input_bam_index_list = [select_first([UltimaGenomicsWholeGenomeCramOnly.output_bam_index])],
         interval_list   = ScatterIntervalList.out[index],
         vcf_basename    = UltimaGenomicsWholeGenomeCramOnly.output_safe_name,
         references      = references,
@@ -273,10 +275,22 @@ workflow UltimaGenomicsWholeGenomeGermline {
       gvcf_index          = MergeVCFs.output_vcf_index
   }
 
+  call ReblockGVCF.ReblockGVCF {
+    input:
+      gvcf = MoveAnnotationsToGvcf.output_gvcf,
+      gvcf_index = MoveAnnotationsToGvcf.output_gvcf_index,
+      calling_interval_list = variant_calling_settings.wgs_calling_interval_list,
+      ref_dict = alignment_references.references.ref_dict,
+      ref_fasta = alignment_references.references.ref_fasta,
+      ref_fasta_index = alignment_references.references.ref_fasta_index,
+      tree_score_cutoff = vcf_post_processing.remove_low_tree_score_sites_cutoff,
+      annotations_to_keep_command = vcf_post_processing.annotations_to_keep_command_for_reblocking
+  }
+
   # Outputs that will be retained when execution is complete
   output {
-    File output_gvcf = MoveAnnotationsToGvcf.output_gvcf
-    File output_gvcf_index = MoveAnnotationsToGvcf.output_gvcf_index
+    File output_gvcf = ReblockGVCF.output_vcf
+    File output_gvcf_index = ReblockGVCF.output_vcf_index
     File output_vcf = ConvertGVCFtoVCF.output_vcf
     File output_vcf_index = ConvertGVCFtoVCF.output_vcf_index
 
