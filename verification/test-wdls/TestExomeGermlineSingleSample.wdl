@@ -53,6 +53,8 @@ workflow TestExomeGermlineSingleSample {
   Array[String] pipeline_outputs = flatten([
                             [ # File outputs
                             ExomeGermlineSingleSample.selfSM,
+                            ExomeGermlineSingleSample.agg_insert_size_histogram_pdf,
+                            ExomeGermlineSingleSample.agg_quality_distribution_pdf,
                             ExomeGermlineSingleSample.calculate_read_group_checksum_md5,
                             ExomeGermlineSingleSample.agg_insert_size_histogram_pdf,
                             ExomeGermlineSingleSample.agg_quality_distribution_pdf,
@@ -114,13 +116,13 @@ workflow TestExomeGermlineSingleSample {
   # If updating truth then copy pipeline results to truth bucket
   if (update_truth){
     call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
-    input:
-      files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
-      vault_token_path          = vault_token_path,
-      google_account_vault_path = google_account_vault_path,
-      contamination             = ExomeGermlineSingleSample.contamination,
-      destination_cloud_path    = truth_path
-    }
+      input:
+        files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
+        vault_token_path          = vault_token_path,
+        google_account_vault_path = google_account_vault_path,
+        contamination             = ExomeGermlineSingleSample.contamination,
+        destination_cloud_path    = truth_path
+      }
   }
 
   # If not updating truth then we need to collect all input for the validation WDL
@@ -154,19 +156,27 @@ workflow TestExomeGermlineSingleSample {
         truth_path   = truth_path
     }
 
-
+    call Utilities.GetValidationInputs as GetGVCFIndexes {
+      input:
+        input_file    = ExomeGermlineSingleSample.output_vcf_index,
+        results_path  = results_path,
+        truth_path    = truth_path
+    }
+    
     # done is dummy input to force copy completion before verification
     call VerifyGermlineSingleSample.VerifyGermlineSingleSample as Verify {
       input:
-        truth_metrics   = GetMetricsInputs.truth_files,
-        truth_cram      = GetCrams.truth_file,
-        truth_crai      = GetCrais.truth_file,
-        truth_gvcf      = GetGVCFs.truth_file,
-        test_metrics    = GetMetricsInputs.results_files,
-        test_cram       = GetCrams.results_file,
-        test_crai       = GetCrais.results_file,
-        test_gvcf       = GetGVCFs.results_file,
-        done            = CopyToTestResults.done
+        truth_metrics    = GetMetricsInputs.truth_files,
+        truth_cram       = GetCrams.truth_file,
+        truth_crai       = GetCrais.truth_file,
+        truth_gvcf       = GetGVCFs.truth_file,
+        truth_gvcf_index = GetGVCFIndexes.truth_file,
+        test_metrics     = GetMetricsInputs.results_files,
+        test_cram        = GetCrams.results_file,
+        test_crai        = GetCrais.results_file,
+        test_gvcf        = GetGVCFs.results_file,
+        test_gvcf_index  = GetGVCFIndexes.results_file,
+        done             = CopyToTestResults.done
     }
   }
 
