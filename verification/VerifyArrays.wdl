@@ -42,6 +42,8 @@ workflow VerifyArrays {
 
     File truth_params_file
     File test_params_file
+
+    Boolean? done
   }
 
   call VerifyIlluminaGenotypingArray.VerifyIlluminaGenotypingArray {

@@ -69,7 +69,7 @@ workflow TestWholeGenomeGermlineSingleSample {
       use_dragen_hard_filtering          = use_dragen_hard_filtering
   }
 
-  # Collect all of the pipeline outputs into a single Array[String]]
+  # Collect all of the pipeline outputs into a single Array[String]
   Array[String] pipeline_outputs = flatten([
                             [ # File outputs
                             WholeGenomeGermlineSingleSample.read_group_gc_bias_pdf,
