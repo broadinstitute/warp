@@ -167,7 +167,7 @@ workflow TestArrays {
                             Arrays.red_idat_md5_cloud_path,
                             Arrays.green_idat_md5_cloud_path,
                             Arrays.chip_well_barcode_params_file,
-                            Arrays.output_beadpool_manifest_file
+                            Arrays.output_bead_pool_manifest_file
                             ], # File? outputs
                             select_all([Arrays.output_vcf_md5_cloud_path]),
                             select_all([Arrays.output_vcf]),
@@ -286,7 +286,7 @@ workflow TestArrays {
           test_red_idat_md5       = GetRedIdat.results_file,
           test_green_idat_md5     = GetGreenIdat.results_file,
           test_params_file        = GetParams.results_file,
-          bead_pool_manifest_file = Arrays.output_beadpool_manifest_file,
+          bead_pool_manifest_file = Arrays.output_bead_pool_manifest_file,
           done                    = CopyToTestResults.done
         }
 
