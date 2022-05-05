@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../../../../pipelines/broad/dna_seq/UltimaGenomics/UltimaGenomicsWholeGenomeCramOnly.wdl" as UltimaGenomicsWholeGenomeCramOnly
+import "../../../../../../pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl" as UltimaGenomicsWholeGenomeCramOnly
 import "../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl" as Tasks
 import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
 import "../../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as VariantDiscoverTasks
