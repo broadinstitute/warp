@@ -11,94 +11,6 @@ import "../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineQC.wdl" a
 import "../../../../../../structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl" as Structs
 import "../../../../../../pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl" as ReblockGVCF
 
-# CHANGELOG
-#  1.1.1     get multiple input cram
-#  1.1.2     optional gvcf, copy report outputs to Nexus
-#  2.1.0     gatk 5.0 (not for real, I forgot to update the docker)
-#  2.1.1     gatk 5.0 for real
-#  2.1.2     changed mark duplicates disk logic
-#  2.1.3     changed CheckContamination docker and updated args (--adjust-MQ 0), updated default HaplotypeCaller flags to create bam files
-#  2.1.4     fixed logic in H1->H2 retry mechanism, new gatk with bugfix
-#  2.1.5     new gatk/picard docker for MarkDuplicatesSpark and CrosscheckFingerprints
-#  2.1.5.1   light output naming refactoring
-#  2.1.5.2   MarkDuplicatesSpark disk fix
-#  2.1.5.3   reduced cpu number for MarkDuplicatesSpark
-#  2.1.6     minor restructuring in preparation of gatk 0.5.1
-#  2.1.7     replaced ultima markduplicates docker with broad one
-#  2.2.0     gatk 0.5.1, blocklist in filtering
-#  2.2.1     gatk 0.5.1-2 in markduplicates without localization
-#  2.2.2     added CollectIntervalCoverageStats, removed maxretries from tasks without default preemptible tries
-#  2.3.1     supports V4 of the basecalling pipeline, aggregates sequencing metrics
-#  2.3.2     BIOIN-73 Flow for converted libraries
-#            BIOIN-80 Contig filtering replaced with allele filtering in the GATK (much lower cost for high coverage runs)
-#            BIOIN-72 Expanded variant calling report
-#            BIOIN-48 MarkDuplicates for single end reads
-#            BIOIN-69 SV calls
-#  2.3.2.1   increased memory in CreateReport
-#  2.4.1     [BIOIN-91, BIOIN-114] Improved report
-#            BIOIN-130 Added new ground truth datasets
-#            BIOIN-109 Variant filtering now outputs correct false positive rate
-#            BIOIN-49 Flow based mark duplicates turned on by default with optimized parameters
-#            BIOIN-112 SOR-based allele filtering in GATK
-#  2.4.2     Variant calling report without ground truth [BIOIN-103]
-#            GATK updated to 4.2.0 [BIOIN-139]
-#            T/N support in Mutect [BIOIN-115]
-#            GATK is about 40% faster [BIOIN-138]
-#            Variant report outputs added to the aggregated metrics [BIOIN-23]
-#            inputs/outputs are ingested into the database
-#            Funcotator reports [BIOIN-84]
-# 2.5.1      Major changes
-#              [BIOIN-74] Contamination is calculated from realigned reads and flow based model rather than PairHMM
-#              [BIOIN-97] FeatureMapper integrated into jukebox_vc pipeline
-#              [BIOIN-107, BIOIN-156] Optimization of the coverage collection code
-#              [BIOIN-142] Filtering alleles without ground truth
-#              [BIOIN-151] Expanded test set
-#            Minor changes
-#              SB and AS_HmerLength are now reported in the VCF
-#              Another error code to SW crash and optional SV calls
-#              Barcode and read group ID are extracted and sent to metadata
-#              Changed markDuplicates parameter (expected to decrease significantly duplicate marking)
-#              Changed GATK parameters (to use adaptive pruning and dynamic read disqualification)
-# 2.6.1      BIOIN-168 Compatible to BARC 4.2
-# 2.6.2      Major changes
-#              BIOIN-142 Improved allele filtering and performance on exome
-#              BIOIN-146 UA is an optional aligner
-#              BIOIN-162 SNP Error rate is calculated for all runs
-#            Minor changes
-#              Various bug fixes and stability improvements
-#               * Fixes [BIOIN-185]
-#               * Fixes [BIOIN-195]
-#               * Fixes [BIOIN-198]
-#               * Fixes [BIOIN-202]
-#               * Remedy for [BIOIN-181]
-#  2.6.3     Disabled featureMap by default
-#            Added exome weights
-#            Fixed output parameter
-#  2.7.1     [BIOIN-153] GATK outputs isolated weak variants
-#            GATK rebased to version 4.2.2.0
-#            [BIOIN-224] Additional metrics: RLQ30, RLQ25, MEDIAN_READ_LENGTH output by picard for the FAT table
-#            [BIOIN-127] Coverage statistics outptus bigwig files, coverage annotation in comparison scripts much faste
-#            Stability improvements and bug fix in the somatic pipeline
-#            [BIOIN-192] Metrics from no ground truth report added to the database
-#            [BIOIN-169] Removed task to remove symbolic allele
-#            Minor fixes:
-#             [BIOIN-183] Better output of the report metadata
-#             [BIOIN-152] Improved blocklist for somatic pipeline
-#  2.7.2     Allow empty adapter in converted libraries
-#  3.1.1     [BIOIN-189] contamination is calcuated on the FlowBased model
-#            [BIOIN-257] Apply filtering model on the gVCF
-#            [BIOIN-228] VCF contain flow-based annotations
-#            [BIOIN-269] Improved filteirng with no overfitting and new training sets
-#            Other minor fixes
-#  3.2.1     [BIOIN-288] filter reads by rsq
-#            FlowBasedHMM used by default as the error model in haplotypeCaller
-#            Picard overrides in metrics collection
-#            Contamination uses cycle-skip files
-#            Annotations in the GATK from the allele filteirng
-#  3.2.2     Fixed an error when the pipeline was running without the variant calling
-#            [BIOIN-260] Rewired the flow of the VCFs in the pipeline so that the final output contains interval annotation and funcotator receives the correct vcf
-#  3.2.3     Removed the rsq filtering
-#            Switched error model back to FlowBased
 
 workflow UltimaGenomicsWholeGenomeGermline {
   input {
@@ -138,7 +50,7 @@ workflow UltimaGenomicsWholeGenomeGermline {
     filtering_model_no_gt_name: "String describing the optional filtering model; default set to rf_model_ignore_gt_incl_hpol_runs"
   }
 
-  String pipeline_version = "3.2.3"
+  String pipeline_version = "1.0.0"
 
   References references = alignment_references.references
 
