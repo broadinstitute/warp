@@ -1,5 +1,5 @@
 {
-  "WholeGenomeGermlineSingleSample.sample_and_unmapped_bams": {
+  "ExomeGermlineSingleSample.sample_and_unmapped_bams": {
     "sample_name": "NA12787_high_duplication_rating",
     "base_file_name": "NA12787_high_duplication_rating",
     "flowcell_unmapped_bams": [
@@ -12,11 +12,11 @@
     "unmapped_bam_suffix": ".unmapped.bam"
   },
 
-  "WholeGenomeGermlineSingleSample.references": {
+  "ExomeGermlineSingleSample.references": {
     "contamination_sites_ud": "gs://gcp-public-data--broad-references/hg38/v0/contamination-resources/1000g/1000g.phase3.100k.b38.vcf.gz.dat.UD",
     "contamination_sites_bed": "gs://gcp-public-data--broad-references/hg38/v0/contamination-resources/1000g/1000g.phase3.100k.b38.vcf.gz.dat.bed",
     "contamination_sites_mu": "gs://gcp-public-data--broad-references/hg38/v0/contamination-resources/1000g/1000g.phase3.100k.b38.vcf.gz.dat.mu",
-    "calling_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_calling_regions.hg38.interval_list",
+    "calling_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/exome_calling_regions.v1.interval_list",
     "reference_fasta": {
       "ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
       "ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
@@ -38,21 +38,27 @@
     ],
     "dbsnp_vcf": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf",
     "dbsnp_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx",
-    "evaluation_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_evaluation_regions.hg38.interval_list",
+    "evaluation_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/exome_evaluation_regions.v1.interval_list",
     "haplotype_database_file": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt"
   },
 
-  "WholeGenomeGermlineSingleSample.scatter_settings": {
-    "haplotype_scatter_count": 50,
-    "break_bands_at_multiples_of": 1000000
+  "ExomeGermlineSingleSample.scatter_settings": {
+    "haplotype_scatter_count": 10,
+    "break_bands_at_multiples_of": 0
   },
 
-  "WholeGenomeGermlineSingleSample.wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list",
+  "ExomeGermlineSingleSample.fingerprint_genotypes_file": "gs://broad-gotc-test-storage/germline_single_sample/exome/plumbing/bams/RP-929.NA12878/RP-929.NA12878.reference.fingerprint.vcf.gz",
+  "ExomeGermlineSingleSample.fingerprint_genotypes_index": "gs://broad-gotc-test-storage/germline_single_sample/exome/plumbing/bams/RP-929.NA12878/RP-929.NA12878.reference.fingerprint.vcf.gz.tbi",
+  "ExomeGermlineSingleSample.target_interval_list": "gs://broad-references-private/HybSelOligos/whole_exome_illumina_coding_v1/whole_exome_illumina_coding_v1.Homo_sapiens_assembly38.targets.interval_list",
+  "ExomeGermlineSingleSample.bait_interval_list": "gs://broad-references-private/HybSelOligos/whole_exome_illumina_coding_v1/whole_exome_illumina_coding_v1.Homo_sapiens_assembly38.baits.interval_list",
+  "ExomeGermlineSingleSample.bait_set_name": "whole_exome_illumina_coding_v1",
 
-  "WholeGenomeGermlineSingleSample.papi_settings": {
+  "ExomeGermlineSingleSample.papi_settings": {
     "preemptible_tries": 3,
     "agg_preemptible_tries": 3
   },
 
-  "WholeGenomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true
+  "ExomeGermlineSingleSample.AggregatedBamQC.CollectReadgroupBamQualityMetrics.collect_gc_bias_metrics": false,
+  "ExomeGermlineSingleSample.AggregatedBamQC.CollectAggregationMetrics.collect_gc_bias_metrics": false,
+  "ExomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true
 }
