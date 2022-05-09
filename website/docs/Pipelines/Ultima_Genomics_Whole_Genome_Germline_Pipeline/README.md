@@ -12,7 +12,7 @@ sidebar_position: 1
 
 ## Introduction to the UG_WGS workflow
 
-The [Ultima Genomics WholeGenome Germline (UG_WGS) workflow](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl) is an open-source, cloud-optimized workflow for processing whole-genome germline sequencing data generated using the Ultima Genomics sequencing platform. Ultima Genomics sequencing is a novel technology that produces single-read, flow-based data.
+The [Ultima Genomics Whole Genome Germline (UG_WGS) workflow](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl) is an open-source, cloud-optimized workflow for processing whole-genome germline sequencing data generated using the Ultima Genomics sequencing platform. Ultima Genomics sequencing is a novel technology that produces single-read, flow-based data.
 
 The workflow requires either an aligned CRAM output of the sequencing platform or an unmapped BAM as input. Overall, it aligns reads to a reference genome, marks duplicate reads, calls variants, post-processes variants in the output VCF in preparation for joint calling, and calculates quality control metrics. The workflow outputs a (re)aligned CRAM, an annotated GVCF with index, and quality metrics. 
 
@@ -69,29 +69,30 @@ When applicable, the struct containing the input is listed in the `Struct` colum
 | break_bands_at_multiples_of | VariantCallingSettings | Breaks reference bands up at genomic positions that are multiples of this number; used to reduce GVCF file size. | Int |
 | haplotype_scatter_count | VariantCallingSettings | Scatter count used for variant calling. | Int | 
 | make_haplotype_bam | N/A | Boolean indicating if HaplotypeCaller should output a bamout file; default is set to "false". | Boolean |
-| rsq_threshold | NA | Threshold for a read quality metric that is produced by the sequencing platform. | Float | 
+| rsq_threshold | NA | Threshold for a read quality metric that is produced by the sequencing platform; default set to 1.0 | Float | 
 | annotation_intervals | VcfPostProcessing | Annotation intervals used for filtering and annotating the HaplotypeCaller output VCF. | Array[File] |
+| filtering_model_no_gt | VcfPostProcessing | Optional filtering file defining the model for VCF postprocessing. | File |
 | af_only_gnomad | VcfPostProcessing | VCF with gnomAD allele frequencies used for metric stratification in the AnnotateVCF_AF task. | File |
 | af_only_gnomad_index | VcfPostProcessing | Index for the `af_only_gnomad` VCF. | File |
 | filter_cg_insertions | VcfPostProcessing | Boolean that indicates whether to filter CG insertions in HaplotypeCaller output VCF.  | Boolean |
 | filtering_blocklist_file | VcfPostProcessing | Optional file used to flag genomic locations that can’t be trusted while filtering the HaplotypeCaller output VCF. | File |
 | training_blocklist_file | VcfPostProcessing | Optional interval file for training a model to postprocess the HaplotypeCaller output VCF to identify false positives.  | File |
 | exome_weight | VcfPostProcessing | Optional interval for exome weight that is used to train a model to identify false positives in the HaplotypeCaller output VCF.  | Int |
-| exome_weight_annotation | VcfPostProcessing | Optional string to annotate exome weights. | String | 
+| exome_weight_annotation | VcfPostProcessing | Optional string to annotate exome weights. | String |
+| interval_list_override | VcfPostProcessing | Optional interval list to use for VCF postprocessing | File |
 | runs_file | VcfPostProcessing | BED file of homopolymer runs that can be difficult to sequence. | File |
+| filtering_model_with_gt_name_override | VcfPostProcessing | Optional string to describe the optional filtering model with gt. | String |
 | max_duplication_in_reasonable_sample | VcfPostProcessing | Number indicating the maximum duplication expected in a sample. | Float |
 | max_chimerism_in_reasonable_sample | VcfPostProcessing | Number indicating the maximum chimerism expected in a sample. | Float |
 | ref_dbsnp | VcfPostProcessing | VCF with dbSNP annotations to be added to the HaplotypeCaller output VCF. | File |
 | ref_dbsnp_index | VcfPostProcessing | Index for the dbSNP annotation VCF. | File |
 | wgs_coverage_interval_list | VcfPostProcessing | Interval list for the CollectWgsMetrics tool. | File |
-| filtering_model_no_gt | VcfPostProcessing | Optional filtering file defining the model for VCF postprocessing. | File |
 | increase_disk_size | N/A | Interval used to increase disk size; set to 20 GB by default. |  Int | 
 | increase_metrics_disk_size | N/A | Interval used to adjust disk size; set to 80 by default. | Int | 
-| pipeline_version | N/A | Workflow version number. | String |
 | filtering_model_no_gt_name | N/A | String to describe the optional filtering model; default set to "rf_model_ignore_gt_incl_hpol_runs". | String |
 | merge_bam_file | N/A | Boolean indicating if by-interval bamout files from HaplotypeCaller should be merged into a single BAM. | Boolean |
-| ref_size | N/A | Float created by taking the size of the different reference files and is used dynamically to specify disk size. | Float |
 | reads_per_split | N/A | Number of reads by which to split the CRAM prior to alignment. | Int |
+| pipeline_version | N/A | String that describes the pipeline version number. | String |
 
 #### Reference files
 Reference files, such as the hg38- and dbSNP-related files are located in a public google bucket. See the [example input configuration file](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/pipelines/broad/dna_seq/germline/single_sample/ugwgs/input_files/UltimaGenomicsWholeGenomeGermline.inputs.json) for cloud locations.
@@ -99,22 +100,31 @@ Reference files, such as the hg38- and dbSNP-related files are located in a publ
 
 ## UG_WGS tasks and tools
 
-The [UG_WGS workflow](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl) imports additional WDL scripts that contain the different workflow tasks. When applicable, links are provided in the summary section below. To see specific tool parameters, select the task WDL link in the table; then find the task and view the `command {}` section of the task in the WDL script. To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `input {}` section as `String docker =`.
+The [UG_WGS workflow](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl) imports additional WDL scripts that contain the different workflow tasks. When applicable, links are provided in the summary section below. 
+
+* To see specific tool parameters, select the task WDL link in the table; then find the task and view the `command {}` section of the task in the WDL script. 
+
+* To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `input {}` section as `String docker =`.
 
 Overall, the UG_WGS workflow:
 1. Aligns with BWA-MEM and marks duplicates.
 1. Converts a merged BAM to CRAM and validates the CRAM.
 1. Extracts the nucleotide flow order.
+1. Calculates quality control metrics.
 1. Performs variant calling with HaplotypeCaller.
 1. Merges BAMs and converts the GVCF to VCF.
 1. Performs VCF post-processing in preparation for joint calling.
-1. Calculates quality control metrics.
 
+:::tip Multiple tasks are imported from nested sub-workflows
+When applicable, links to the sub-workflow WDLs and nested tasks WDLs are provided. 
+:::
 
+### 1. Align and mark duplicates
+**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor.adapt.0.6.4/pipelines/broad/dna_seq/UltimaGenomics/UltimaGenomicsWholeGenomeCramOnly.wdl)
 
-#### 1. Align and mark duplicates
+  * **Nested task name and WDL link:**
 
-**Task name and WDL link:**[UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.AlignmentAndMarkDuplicates as AlignmentAndMarkDuplicates](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.wdl)
+  [UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.AlignmentAndMarkDuplicates](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.wdl)
 
 The table below details the subtasks called by the AlignmentAndMarkDuplicates task, which splits the CRAM or BAM into subfiles, converts them to uBAM format, filters by RSQ value, converts the uBAM to FASTQ for alignment with BWA-MEM, and marks duplicate reads in the resulting BAM files. 
 
@@ -125,60 +135,38 @@ The Picard tool MarkDuplicates has been adapted to handle ambiguity in the align
 | [Tasks.SplitCram as SplitInputCram](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | split | crammer | If CRAM is the workflow input, splits the CRAM and outputs a split CRAM. |
 | [AlignmentTasks.SamSplitter as SplitInputBam](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/Alignment.wdl) | SplitSamByNumberOfReads | Picard | If BAM is workflow input, splits the BAM and outputs an array of BAMs. |
 | [Tasks.ConvertCramOrBamToUBam as ConvertToUbam](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | view, RevertSam | samtools, Picard | Converts the split CRAM or BAM file to uBAM. |
-| [Tasks.FilterByRsq](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | filter | bamtools | Filters each split uBAM by the predefined RSQ threshold and outputs a new filtered uBAM. |
 | [Tasks.SamToFastqAndBwaMemAndMba](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | SamToFastq, bwa mem, MergeBamAlignment | Picard, bwa mem  | Converts each uBAM to FASTQ format, aligns with BWA-MEM, and merges the alignment in the resulting BAM with metadata from the uBAM. |
 | [Tasks.MarkDuplicatesSpark](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | MarkDuplicatesSpark | GATK | Flags duplicate reads in the array of aligned and merged BAMs to create a new output BAM and index. |
 
-#### 2. Convert BAM to CRAM and validate the CRAM
+### 2. Convert BAM to CRAM and validate the CRAM
+
+**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor.adapt.0.6.4/pipelines/broad/dna_seq/UltimaGenomics/UltimaGenomicsWholeGenomeCramOnly.wdl)
+
 The two tasks below are used to convert each duplicate-marked BAM to CRAM and validate the resulting files.
 
 | TASK name and WDL link | Tool | Software | Description |
 | --- | --- | --- | --- |
 | [Utilities.ConvertToCram](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/Utilities.wdl) | view | samtools | Converts the duplicated-marked BAM to CRAM. |
-| QC.ValidateSamFile as ValidateCram](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/Qc.wdl) | ValidateSamFile | Picard | Validates the CRAM file. |
+| [QC.ValidateSamFile as ValidateCram](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/Qc.wdl) | ValidateSamFile | Picard | Validates the CRAM file. |
 
 
-#### 3. Extract nucleotide flow order
+### 3. Extract nucleotide flow order
+
+**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor.adapt.0.6.4/pipelines/broad/dna_seq/UltimaGenomics/UltimaGenomicsWholeGenomeCramOnly.wdl)
+
 The flow order is the order in which nucleotides are passed during sequencing. This information is captured in the header of the BAM and is extracted as a text file for downstream processing.
 
 | TASK name and WDL link | Tool | Software | Description |
 | --- | --- | --- | --- | 
 | [Tasks.ExtractSampleNameFlowOrder](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | GetSampleName | GATK | Extracts the flow order from the BAM header into a text file that is used in downstream VCF post-processing. |
 
-#### 4. Variant call with HaplotypeCaller
+### 4. Calculate quality control metrics
 
-The workflow implements initial variant calling with a version of HaplotypeCaller that handles flow-based data. This version replaces the classic Hidden Markov Model (HMM) with a flow-based likelihood model that more accurately accounts for sequencing errors present in the data.
+**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor.adapt.0.6.4/pipelines/broad/dna_seq/UltimaGenomics/UltimaGenomicsWholeGenomeCramOnly.wdl)
 
-| Task name and WDL link | Tool | Software | Description |
-| --- | --- | --- | --- | 
-| [Utilities.ScatterIntervalList](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/Utilities.wdl) | IntervalListTools | Picard | Splits the calling interval list into sub-intervals in order to perform variant calling on the sub-intervals. |
-| [Tasks.HaplotypeCaller](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | HaplotypeCaller | GATK | Performs initial variant calling and outputs sub-interval GVCFs and a bamout file. |
+ * **Nested task name and WDL link:**
 
-#### 5. Merge VCFs and BAMs and convert GVCF to VCF 
-To prepare the VCF for downstream joint calling, the workflow performs multiple post-processing steps. The HaplotypeCaller GVCF outputs are merged into a single GVCF and then converted to VCF in preparation for post-processing.
-
-| Task name and WDL link | Tool | Software | Description | 
-| --- | --- | --- | --- | 
-| [VariantDiscoverTasks.MergeVCFs](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/GermlineVariantDiscovery.wdl) | MergeVcfs | Picard | Merges the array of GVCFs from HaplotypeCaller into one VCF and index. |
-| [Tasks.MergeBams](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | MergeSamFiles | Picard | Merges the HaplotypeCaller bamout files into a single BAM file. |
-| [Tasks.ConvertGVCFtoVCF](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | GenotypeGVCFs | GATK | Converts to GVCF to VCF format in preparation for post-processing. |
-
-#### 6. Perform VCF post-processing
-The workflow performs post-processing steps to prepare the VCF for downstream joint calling. First, it annotates the merged HaplotypeCaller output VCF with dbSNP variants, then it trains a model to distinguish between true positive variants and false positives. Next, the model is applied to filter variants in the VCF.
-
-| Task name and WDL link | Tool | Software | Description | 
-| --- | --- | --- | --- | 
-| [Tasks.AnnotateVCF](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | VariantAnnotator | GATK | Adds dbSNP annotations to the HaplotypeCaller output VCF and outputs a new VCF with index. |
-| [Tasks.AddIntervalAnnotationsToVCF](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | annotate | bcftools | Adds additional interval annotations to the VCF. |
-| [Tasks.TrainModel](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | Custom script (train_models_pipeline.py) | genomics.py3 | Trains a model that can be applied for variant filtering to distinguish true and false-positive variants. |
-| [Tasks.AnnotateVCF_AF](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | view, index | vcfanno, bcftools | Adds gnomAD allele frequencies to the VCF for downstream metric calculation. |
-| [Tasks.FilterVCF](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | filter_variants_pipeline.py | genomics.py3 | Applies a trained model to filter for high quality VCF variants. |
-| [Tasks.MoveAnnotationsToGvcf](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | annotate | bcftools | Produces a final post-processed GVCF and index. |
-
-
-#### 7. Calculate quality control metrics
-
-**Task name and WDL link:**[UltimaGenomicsWholeGenomeGermlineQC.UltimaGenomicsWholeGenomeGermlineQC as CollectStatistics](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineQC.wdl)
+ [UltimaGenomicsWholeGenomeGermlineQC.UltimaGenomicsWholeGenomeGermlineQC as CollectStatistics](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineQC.wdl)
 
 The workflow uses a contamination estimation that has been adapted to use only the highest quality SNP sites based on flow cycles and local realignment. This is different from the [Whole Genome Germline Single Sample](https://broadinstitute.github.io/warp/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/README/) pipeline in that HaplotypeCaller performs local realignment and feeds that output to VerifyBAM ID, which cleans up the alignment.
 
@@ -193,10 +181,37 @@ The workflow uses a contamination estimation that has been adapted to use only t
 | [Tasks.CollectAggregationMetrics](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | CollectMultipleMetrics | Picard | Performs QC on the aligned, duplicated-marked BAM.| 
 | [QC.CheckPreValidation](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/Qc.wdl) | custom script | python3 | Checks chimerism and duplicate files for a given threshold using a custom python script. |
 
+### 5. Variant call with HaplotypeCaller
 
+The workflow implements initial variant calling with a version of HaplotypeCaller that handles flow-based data. This version replaces the classic Hidden Markov Model (HMM) with a flow-based likelihood model that more accurately accounts for sequencing errors present in the data.
 
+| Task name and WDL link | Tool | Software | Description |
+| --- | --- | --- | --- | 
+| [Utilities.ScatterIntervalList](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/Utilities.wdl) | IntervalListTools | Picard | Splits the calling interval list into sub-intervals in order to perform variant calling on the sub-intervals. |
+| [Tasks.HaplotypeCaller](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | HaplotypeCaller | GATK | Performs initial variant calling and outputs sub-interval GVCFs and a bamout file. |
 
-#### 8. Outputs
+### 6. Merge VCFs and BAMs and convert GVCF to VCF 
+To prepare the VCF for downstream joint calling, the workflow performs multiple post-processing steps. The HaplotypeCaller GVCF outputs are merged into a single GVCF and then converted to VCF in preparation for post-processing.
+
+| Task name and WDL link | Tool | Software | Description | 
+| --- | --- | --- | --- | 
+| [VariantDiscoverTasks.MergeVCFs](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/GermlineVariantDiscovery.wdl) | MergeVcfs | Picard | Merges the array of GVCFs from HaplotypeCaller into one VCF and index. |
+| [Tasks.MergeBams](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | MergeSamFiles | Picard | Merges the HaplotypeCaller bamout files into a single BAM file. |
+| [Tasks.ConvertGVCFtoVCF](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | GenotypeGVCFs | GATK | Converts to GVCF to VCF format in preparation for post-processing. |
+
+### 7. Perform VCF post-processing
+The workflow performs post-processing steps to prepare the VCF for downstream joint calling. First, it annotates the merged HaplotypeCaller output VCF with dbSNP variants, then it trains a model to distinguish between true positive variants and false positives. Next, the model is applied to filter variants in the VCF.
+
+| Task name and WDL link | Tool | Software | Description | 
+| --- | --- | --- | --- | 
+| [Tasks.AnnotateVCF](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | VariantAnnotator | GATK | Adds dbSNP annotations to the HaplotypeCaller output VCF and outputs a new VCF with index. |
+| [Tasks.AddIntervalAnnotationsToVCF](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | annotate | bcftools | Adds additional interval annotations to the VCF. |
+| [Tasks.TrainModel](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | Custom script (train_models_pipeline.py) | genomics.py3 | Trains a model that can be applied for variant filtering to distinguish true and false-positive variants. |
+| [Tasks.AnnotateVCF_AF](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | view, index | vcfanno, bcftools | Adds gnomAD allele frequencies to the VCF for downstream metric calculation. |
+| [Tasks.FilterVCF](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | filter_variants_pipeline.py | genomics.py3 | Applies a trained model to filter for high quality VCF variants. |
+| [Tasks.MoveAnnotationsToGvcf](https://github.com/Ultimagen/warp-private/blob/jukebox-refactor/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | annotate | bcftools | Produces a final post-processed GVCF and index. |
+
+### 8. Outputs
 
 Workflow outputs are described in the table below. 
 <!--- Link to metrics overview will go here --->
