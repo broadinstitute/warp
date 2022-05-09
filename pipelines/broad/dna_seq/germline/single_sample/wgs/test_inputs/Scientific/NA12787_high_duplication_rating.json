@@ -52,7 +52,5 @@
   "WholeGenomeGermlineSingleSample.papi_settings": {
     "preemptible_tries": 3,
     "agg_preemptible_tries": 3
-  },
-
-  "WholeGenomeGermlineSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true
+  }
 }
