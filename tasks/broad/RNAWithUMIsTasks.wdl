@@ -100,9 +100,12 @@ task Fastp {
     String docker = "us.gcr.io/broad-gotc-prod/fastp:1.0.0-0.20.1-1649253500"
     Int memory_mb =  "32000"
     Int disk_size_gb = 5*ceil(size(fastq1, "GiB")) + 128
+    File monitoring_script = "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh"
   }
 
   command {
+    bash ~{monitoring_script} > monitoring.log &
+
     fastp --in1 ~{fastq1} --in2 ~{fastq2} --out1 ~{output_prefix}_read1.fastq.gz --out2 ~{output_prefix}_read2.fastq.gz \
     --disable_quality_filtering \
     --disable_length_filtering \
@@ -118,6 +121,7 @@ task Fastp {
   }
 
   output {
+    File monitoring_log = "monitoring.log"
     File fastq1_clipped = output_prefix + "_read1.fastq.gz"
     File fastq2_clipped = output_prefix + "_read2.fastq.gz"
   }
@@ -602,15 +606,20 @@ task GroupByUMIs {
     Int cpu = 2
     Int memory_mb = 16000
     Int disk_size_gb = ceil(2.2 * size([bam, bam_index], "GiB")) + 100
+
+    File monitoring_script = "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh"
   }
 
   command <<<
+    bash ~{monitoring_script} > monitoring.log &
+
     umi_tools group -I ~{bam} --paired --no-sort-output --output-bam --stdout ~{output_bam_basename}.bam --umi-tag-delimiter "-" \
     --extract-umi-method tag --umi-tag RX --unmapped-reads use
   >>>
 
   output {
     File grouped_bam = "~{output_bam_basename}.bam"
+    File monitoring_log = "monitoring.log"
   }
 
   runtime {
