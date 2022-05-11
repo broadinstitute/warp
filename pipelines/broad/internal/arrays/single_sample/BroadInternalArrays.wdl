@@ -1,6 +1,6 @@
 version 1.0
 
-import "Arrays.wdl" as ArraysPipeline
+import "../../../arrays/single_sample/Arrays.wdl" as ArraysPipeline
 
 workflow arrays_outputs_to_TDR {
     meta {
@@ -8,8 +8,7 @@ workflow arrays_outputs_to_TDR {
     }
 
     input {
-        # inputs to wrapper task 
-        String workspace_name
+        # inputs to wrapper task
         String workspace_bucket
         String tdr_dataset_id
         String tdr_target_table_name
@@ -75,7 +74,6 @@ workflow arrays_outputs_to_TDR {
 
     call ingest_outputs_to_tdr {
         input:
-            workspace_name          = workspace_name,
             workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
@@ -152,7 +150,7 @@ task format_arrays_outputs {
     >>>
 
     runtime {
-        docker: "broadinstitute/horsefish:emerge_scripts"
+        docker: "broadinstitute/horsefish"
     }
 
     output {
@@ -163,7 +161,6 @@ task format_arrays_outputs {
 
 task ingest_outputs_to_tdr {
     input {
-        String workspace_name
         String workspace_bucket
         String tdr_dataset_id
         String tdr_target_table_name
@@ -173,15 +170,14 @@ task ingest_outputs_to_tdr {
 
     command {
 
-        python3 /scripts/emerge/WDL_write_arrays_wdl_outputs_to_TDR_ArraysOutputsTable.py -w ~{workspace_name} \
-                                                                          -b ~{workspace_bucket} \
-                                                                          -d ~{tdr_dataset_id} \
-                                                                          -t ~{tdr_target_table_name} \
-                                                                          -f ~{outputs_tsv}
+        python3 /scripts/emerge/ingest_to_tdr.py -b ~{workspace_bucket} \
+                                                 -d ~{tdr_dataset_id} \
+                                                 -t ~{tdr_target_table_name} \
+                                                 -f ~{outputs_tsv}
     }
 
     runtime {
-        docker: "broadinstitute/horsefish:emerge_scripts"
+        docker: "broadinstitute/horsefish"
     }
 
     output {

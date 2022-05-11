@@ -1,15 +1,14 @@
 version 1.0
 
-import "Imputation.wdl" as ImputationPipeline
+import "../../../arrays/imputation/Imputation.wdl" as ImputationPipeline
 
-workflow imputation_outputs_to_TDR {
+workflow BroadInternalImputation {
     meta {
         description: "Push outputs of Imputation.wdl to TDR dataset table ImputationOutputsTable and split out Imputation arrays into ImputationWideOutputsTable."
     }
 
     input {
         # inputs to wrapper task 
-        String workspace_name
         String workspace_bucket
         String tdr_dataset_id
         String tdr_target_table_name
@@ -53,7 +52,6 @@ workflow imputation_outputs_to_TDR {
 
     call ingest_outputs_to_tdr as ingest_to_imputation_outputs {
         input:
-            workspace_name          = workspace_name,
             workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
@@ -68,7 +66,6 @@ workflow imputation_outputs_to_TDR {
 
     call ingest_outputs_to_tdr as ingest_to_imputation_wide_outputs {
         input:
-            workspace_name          = workspace_name,
             workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = "ImputationWideOutputsTable",
@@ -111,16 +108,8 @@ task format_imputation_outputs {
 
         # handle array[type] variables to print as list with double quotes
         imputed_single_sample_vcfs='~{sep='","' imputed_single_sample_vcfs}'
-        echo "imputed_single_sample_vcfs"
-        echo "[\"${imputed_single_sample_vcfs}\"]"
-
         imputed_single_sample_vcf_indices='~{sep='","' imputed_single_sample_vcf_indices}'
-        echo "imputed_single_sample_vcf_indices"
-        echo "[\"${imputed_single_sample_vcf_indices}\"]"
-
         chip_well_barcodes='~{sep='","' chip_well_barcodes}'
-        echo "chip_well_barcodes"
-        echo "[\"${chip_well_barcodes}\"]"
 
         # write file paths to row in tsv file
         echo -e "~{aggregated_imputation_metrics}\t~{chunks_info}\t~{failed_chunks}\t~{n_failed_chunks}\t\
@@ -143,11 +132,12 @@ task format_imputation_outputs {
     >>>
 
     runtime {
-        docker: "broadinstitute/horsefish:emerge_scripts"
+        docker: "broadinstitute/horsefish"
     }
 
     output {
         File ingest_outputs_tsv = "ingestDataset_imputation_outputs.tsv"
+        File ingest_outputs_json = "ingestDataset_imputation_outputs.json"
     }
 }
 
@@ -168,13 +158,9 @@ task format_imputation_wide_outputs{
 
         print("imputed_single_sample_vcfs")
         single_sample_vcfs=~{prefix}~{sep="\", \"" imputed_single_sample_vcfs}~{postfix}
-        print(type(single_sample_vcfs))
-        print(single_sample_vcfs)
 
         print("imputed_single_sample_vcf_indices")
         single_sample_vcf_indices=~{prefix}~{sep="\", \"" imputed_single_sample_vcf_indices}~{postfix}
-        print(type(single_sample_vcf_indices))
-        print(single_sample_vcf_indices)
 
         print("creating dataframe")
         all_samples = []
@@ -216,7 +202,7 @@ task format_imputation_wide_outputs{
     >>>
 
     runtime {
-        docker: "broadinstitute/horsefish:emerge_scripts"
+        docker: "broadinstitute/horsefish"
     }
 
     output {
@@ -227,7 +213,6 @@ task format_imputation_wide_outputs{
 
 task ingest_outputs_to_tdr {
     input {
-        String workspace_name
         String workspace_bucket
         String tdr_dataset_id
         String tdr_target_table_name
@@ -237,15 +222,14 @@ task ingest_outputs_to_tdr {
 
     command {
 
-        python3 /scripts/emerge/WDL_write_arrays_wdl_outputs_to_TDR_ArraysOutputsTable.py -w ~{workspace_name} \
-                                                                          -b ~{workspace_bucket} \
-                                                                          -d ~{tdr_dataset_id} \
-                                                                          -t ~{tdr_target_table_name} \
-                                                                          -f ~{outputs_tsv}
+        python3 /scripts/emerge/ingest_to_tdr.py -b ~{workspace_bucket} \
+                                                 -d ~{tdr_dataset_id} \
+                                                 -t ~{tdr_target_table_name} \
+                                                 -f ~{outputs_tsv}
     }
 
     runtime {
-        docker: "broadinstitute/horsefish:emerge_scripts"
+        docker: "broadinstitute/horsefish"
     }
 
     output {

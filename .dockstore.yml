@@ -77,9 +77,8 @@ workflows:
 
   - name: Arrays_TDR
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/arrays/single_sample/arrays_to_TDR.wdl
+    primaryDescriptorPath: /pipelines/broad/internal/arrays/single_sample/BroadInternalArrays.wdl
 
   - name: Imputation_TDR
     subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/arrays/imputation/Imputation_to_TDR.wdl
-
+    primaryDescriptorPath: /pipelines/broad/internal/arrays/imputation/BroadInternalImputation.wdl
