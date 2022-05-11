@@ -2,7 +2,7 @@ version 1.0
 
 import "../../../arrays/single_sample/Arrays.wdl" as ArraysPipeline
 
-workflow arrays_outputs_to_TDR {
+workflow BroadInternalArrays {
     meta {
         description: "Push outputs of Arrays.wdl to TDR dataset table ArraysOutputsTable."
     }
