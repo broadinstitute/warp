@@ -95,6 +95,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestReblockGVCF",
   //      "/broad/dna_seq/germline/joint_genotyping/reblocking/"
   //    )
+  case object RNAWithUMIsPipeline
+      extends PipelineTestType(
+        "TestRNAWithUMIsPipeline",
+        "RNAWithUMIsPipeline",
+        "/broad/rna_seq/"
+      )
   case object scATAC
       extends PipelineTestType(
         "TestscATAC",
