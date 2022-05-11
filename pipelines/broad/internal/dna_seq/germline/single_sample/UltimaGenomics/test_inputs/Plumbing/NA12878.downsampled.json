@@ -44,8 +44,11 @@
         "make_gvcf_override": "true",
         "ref_dbsnp": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf",
         "ref_dbsnp_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx",
-        "wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list"
+        "wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list",
+        "remove_low_tree_score_sites_cutoff": 0.2,
+        "annotations_to_keep_command_for_reblocking": "--annotations-to-keep TREE_SCORE --annotations-to-keep ASSEMBLED_HAPS --annotations-to-keep FILTERED_HAPS"
     },
+    "BroadInternalUltimaGenomics.UltimaGenomicsWholeGenomeGermline.ReblockGVCF.Reblock.docker_image":"gcr.io/broad-gotc-prod/gatk_ultima:0.6.4",
     "BroadInternalUltimaGenomics.collab_sample_id_run_id": "NA12878_004733",
     "BroadInternalUltimaGenomics.environment": "{ENV}",
     "BroadInternalUltimaGenomics.sample_lsid": "broadinstitute.org:bsp.prod.sample:LO5X1",

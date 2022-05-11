@@ -1276,4 +1276,80 @@ class ConfigParser
           )
         }
     )
+
+  note("")
+  cmd(UltimaGenomicsJointGenotyping.entryName)
+    .text(s"Test the ${UltimaGenomicsJointGenotyping.entryName} workflow")
+    .action(
+      (_, config) =>
+        config.copy(
+          test = UltimaGenomicsJointGenotyping
+      )
+    )
+    .children(
+      opt[WorkflowTestCategory]('t', "test")
+        .text("The type of test to run")
+        .required()
+        .action { (test, config) =>
+          config.copy(
+            ultimaGenomicsJointGenotypingConfig =
+              config.ultimaGenomicsJointGenotypingConfig.copy(category = test)
+          )
+        },
+      opt[String]('b', "branch")
+        .text("The branch of truth data to test against (Defaults to master)")
+        .optional()
+        .action { (branch, config) =>
+          config.copy(
+            ultimaGenomicsJointGenotypingConfig =
+              config.ultimaGenomicsJointGenotypingConfig.copy(
+                truthBranch = branch)
+          )
+        },
+      opt[CromwellEnvironment]('e', "env")
+        .text(
+          s"The environment that this should run in ${CromwellEnvironment.optionsString}"
+        )
+        .required()
+        .action { (env, config) =>
+          config.copy(
+            ultimaGenomicsJointGenotypingConfig =
+              config.ultimaGenomicsJointGenotypingConfig.copy(env = env)
+          )
+        },
+      opt[Unit]("update-truth")
+        .text(
+          "Update the truth data with the results of this run."
+        )
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            ultimaGenomicsJointGenotypingConfig =
+              config.ultimaGenomicsJointGenotypingConfig.copy(
+                updateTruth = true)
+          )
+        },
+      opt[String]("use-timestamp")
+        .text(
+          "Do not run the workflows. Instead, just use a previous runs timestamp (yyyy-MM-dd-HH-mm-ss)"
+        )
+        .optional()
+        .action { (timestamp, config) =>
+          config.copy(
+            ultimaGenomicsJointGenotypingConfig =
+              config.ultimaGenomicsJointGenotypingConfig
+                .copy(useTimestamp = Option(timestamp))
+          )
+        },
+      opt[Unit]('u', "uncached")
+        .text("Disable call-caching for the main workflow run")
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            ultimaGenomicsJointGenotypingConfig =
+              config.ultimaGenomicsJointGenotypingConfig.copy(
+                useCallCaching = false)
+          )
+        }
+    )
 }

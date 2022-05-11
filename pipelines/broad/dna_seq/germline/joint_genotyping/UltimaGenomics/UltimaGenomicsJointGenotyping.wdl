@@ -4,9 +4,9 @@ import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 
 
 # Joint Genotyping for hg38 Whole Genomes (has not been tested on hg19)
-workflow JointGenotyping {
+workflow UltimaGenomicsJointGenotyping {
 
-  String pipeline_version = "1.5.2"
+  String pipeline_version = "1.0.0"
 
   input {
     File unpadded_intervals_file

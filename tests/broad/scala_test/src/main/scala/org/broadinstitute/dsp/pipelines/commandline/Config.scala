@@ -28,5 +28,7 @@ case class Config(
       SomaticCloudWorkflowConfig(),
     ultimaGenomicsWholeGenomeGermlineConfig: UltimaGenomicsWholeGenomeGermlineConfig =
       UltimaGenomicsWholeGenomeGermlineConfig(),
+    ultimaGenomicsJointGenotypingConfig: UltimaGenomicsJointGenotypingConfig =
+      UltimaGenomicsJointGenotypingConfig(),
     validateChipConfig: ValidateChipConfig = ValidateChipConfig()
 )

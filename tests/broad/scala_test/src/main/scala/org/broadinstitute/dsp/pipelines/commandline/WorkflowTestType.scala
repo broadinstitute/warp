@@ -30,6 +30,7 @@ object WorkflowTestType extends Enum[WorkflowTestType] {
   case object RNAWithUMIs extends WorkflowTestType
   case object SomaticSingleSample extends WorkflowTestType
   case object UltimaGenomicsWholeGenomeGermline extends WorkflowTestType
+  case object UltimaGenomicsJointGenotyping extends WorkflowTestType
   case object ValidateChip extends WorkflowTestType
   case object VariantCalling extends WorkflowTestType
 }

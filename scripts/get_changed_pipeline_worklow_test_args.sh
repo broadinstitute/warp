@@ -78,6 +78,10 @@ function pipeline_to_args() {
       continue;;
     JointGenotypingByChromosomePartTwo)
       continue;;
+    UltimaGenomicsGermlineSingleSample)
+      echo UltimaGenomicsGermlineSingleSample ${common_args};;
+    UltimaGenomicsJointGenotyping)
+      echo UltimaGenomicsJointGenotyping ${common_args};;
     GDCWholeGenomeSomaticSingleSample)
       echo GDCWholeGenomeSomaticSingleSample -d WGS ${common_args};;
     VariantCalling)
