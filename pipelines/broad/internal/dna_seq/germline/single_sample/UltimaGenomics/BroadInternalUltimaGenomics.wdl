@@ -41,6 +41,10 @@ workflow BroadInternalUltimaGenomics {
   String collab_sample_id_run_id
   }
 
+  meta {
+    allowNestedInputs: true
+  }
+
   # PARAMETER DEFINITIONS
   parameter_meta {
     sample_lsid: "The sample lsid (an identifier used to retrieve fingerrints from Mercury)"
