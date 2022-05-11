@@ -16,5 +16,5 @@
   "SlideSeq.tar_star_reference": "gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/star/modified_star_2.7.9a_primary_gencode_mouse_vM23.tar",
   "SlideSeq.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_gencode.vM23.primary_assembly.annotation.gtf",
   "SlideSeq.count_exons": false,
-  "SlideSeq.bead_locations": "gs://hca-dcp-mint-test-data/datasets/slideseq/Puck_210727_12.BeadCoordinates.txt"
+  "SlideSeq.bead_locations": "gs://hca-dcp-mint-test-data/datasets/slideseq/Puck_210727_12_barcode_xy.txt"
 }
