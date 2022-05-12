@@ -3,7 +3,7 @@
 "gs://hca-dcp-mint-test-data/datasets/slideseq/Puck_210727_12_L01_R1.fastq.gz",
 "gs://hca-dcp-mint-test-data/datasets/slideseq/Puck_210727_12_L02_R1.fastq.gz",
 "gs://hca-dcp-mint-test-data/datasets/slideseq/Puck_210727_12_L03_R1.fastq.gz",
-"gs://hca-dcp-mint-test-data/datasets/slideseq/Puck_210727_12_L04_R1.fastq.gz"],
+"gs://hca-dcp-mint-test-data/datasets/slideseq/Puck_210727_12_L04_R1_fastq.gz"],
 "SlideSeq.r2_fastq": [
 "gs://hca-dcp-mint-test-data/datasets/slideseq/Puck_210727_12_L01_R2.fastq.gz",
 "gs://hca-dcp-mint-test-data/datasets/slideseq/Puck_210727_12_L02_R2.fastq.gz",
