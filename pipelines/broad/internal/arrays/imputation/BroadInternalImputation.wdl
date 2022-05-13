@@ -164,11 +164,11 @@ task format_imputation_wide_outputs{
 
         print("creating dataframe")
         all_samples = []
-        sample_dict = {}
 
         print("getting vcf + vcf index file names and paths and chipwell barcode")
         # for each file in list of imputed vcfs, get chip_well_barcode value
         for vcf in single_sample_vcfs:
+            sample_dict = {}
             imputed_vcf_filename = vcf.split("/")[-1]
             imputed_vcf_index_filename = imputed_vcf_filename + ".tbi"
             chip_well_barcode = imputed_vcf_filename.split(".")[0]
