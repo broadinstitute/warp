@@ -1,5 +1,5 @@
 {
-  "ExomeReprocessing.input_cram": "gs://broad-gotc-test-storage/germline_single_sample/exome/plumbing/truth/{TRUTH_BRANCH}/RP-929.NA12878/NA12878_PLUMBING.cram",
+  "ExomeReprocessing.input_cram": "gs://broad-gotc-test-storage/germline_single_sample/exome/plumbing/truth/master/RP-929.NA12878/NA12878_PLUMBING.cram",
   "ExomeReprocessing.output_map": "gs://broad-gotc-test-storage/germline_single_sample/exome/plumbing/bams/RP-929.NA12878/readgroupid_to_bamfilename_map.txt",
 
   "ExomeReprocessing.sample_name": "NA12878 PLUMBING",

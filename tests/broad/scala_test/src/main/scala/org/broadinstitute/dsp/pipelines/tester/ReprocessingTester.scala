@@ -63,17 +63,6 @@ class ReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
       .filter(_.getPath.endsWith("metrics"))
       .map(uriToFilename)
 
-    val revertedBams = ioUtil
-      .listGoogleObjects(resultsCloudPath)
-      .filter(_.toString.endsWith(".bam"))
-      .sorted
-    val truthBamList = revertedBams
-      .map(uri => File(uri.getPath).name)
-      .map { fileName =>
-        getCloudUnmappedBam(outputBaseName, fileName)
-      }
-      .sorted
-
     val validationInputs = GermlineSingleSampleValidationInputs.marshall(
       GermlineSingleSampleValidationInputs(
         testMetrics = metricsFileNames.map(resultsCloudPath.resolve),
@@ -91,6 +80,17 @@ class ReprocessingTester(testerConfig: GermlineCloudWorkflowConfig)(
       ),
       validationWorkflowName
     )
+
+    val revertedBams = ioUtil
+      .listGoogleObjects(resultsCloudPath)
+      .filter(_.toString.endsWith(".bam"))
+      .sorted
+    val truthBams = revertedBams
+      .map(uri => File(uri.getPath).name)
+      .map { fileName =>
+        getCloudUnmappedBam(outputBaseName, fileName)
+      }
+      .sorted
 
     val added = validationInputs.asObject.fold(JsonObject.empty)(
       _.add(
