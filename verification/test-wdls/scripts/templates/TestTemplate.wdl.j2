@@ -1,0 +1,65 @@
+version 1.0
+
+{% for import in imports %}
+import "{{ import.path }}" as {{ import.name }}
+{%- endfor %}
+
+workflow {{ test_workflow }} {
+
+    input {
+
+    {%- for input in inputs %}
+      {{ input.type }} {{ input.name }}
+    {%- endfor %}
+
+      # These values will be determined and injected into the inputs by the scala test framework
+      String truth_path
+      String results_path
+      Boolean update_truth
+      String vault_token_path
+      String google_account_vault_path
+    }
+
+  meta {
+    allowNestedInputs: true
+  }
+
+  call {{ workflow }}.{{workflow}} {
+    input:
+    {%- for input in subworkflow_inputs %}
+      {{ input.name }} = {{ input.name }}
+      {%- if not loop.last -%}
+      ,
+      {%- endif %}
+    {%- endfor %}
+
+  }
+
+  # Collect all of the pipeline outputs into single Array[String]
+  Array[String] pipeline_outputs = flatten([
+
+  ])
+
+  # Copy results of pipeline to test results bucket
+    call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
+      input:
+        files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
+        vault_token_path          = vault_token_path,
+        google_account_vault_path = google_account_vault_path,
+        destination_cloud_path    = results_path
+    }
+
+    # If updating truth then copy output to truth bucket
+    if (update_truth){
+      call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
+        input: 
+          files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
+          vault_token_path          = vault_token_path,
+          google_account_vault_path = google_account_vault_path,
+          destination_cloud_path    = results_path
+      }
+    }
+
+
+
+}
