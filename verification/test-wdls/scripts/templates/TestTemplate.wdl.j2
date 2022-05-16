@@ -20,27 +20,72 @@ workflow {{ test_workflow }} {
       String google_account_vault_path
     }
 
-  meta {
-    allowNestedInputs: true
-  }
+    meta {
+      allowNestedInputs: true
+    }
+  
+    call {{ workflow }}.{{workflow}} {
+      input:
+      {%- for input in subworkflow_inputs %}
+        {{ input.name }} = {{ input.name }}
+        {%- if not loop.last -%}
+        ,
+        {%- endif %}
+      {%- endfor %}
+  
+    }
 
-  call {{ workflow }}.{{workflow}} {
-    input:
-    {%- for input in subworkflow_inputs %}
-      {{ input.name }} = {{ input.name }}
-      {%- if not loop.last -%}
-      ,
-      {%- endif %}
-    {%- endfor %}
+    {% if outputs %}
+    # Collect all of the pipeline outputs into single Array[String]
+    Array[String] pipeline_outputs = flatten([
+                                    {% if outputs.file -%}
+                                    [ # File outputs
+                                    {% for file in outputs.file -%}
+                                      {{workflow}}.{{ file }},
+                                    {% endfor -%}
+                                    ],
+                                    {% endif %}
+                                    {%- if outputs.array_file -%}
+                                    # Array[File] outputs
+                                    {% for array in outputs.array_file -%}
+                                      {{workflow}}.{{ array }},
+                                    {% endfor -%}
+                                    {% endif %}
+                                    {%- if outputs.optional -%}
+                                    # File? outputs
+                                    {% for file in outputs.optional -%}
+                                      select_all([{{workflow}}.{{file}}]),
+                                    {% endfor -%}
+                                    {% endif %}
+    ])
+    {%- endif %}
 
-  }
+    {% if metrics %}
+    # Collect all of the pipeline metrics into single Array[String]
+    Array[String] pipeline_metrics = flatten([
+                                    {% if metrics.file -%}
+                                    [ # File outputs
+                                    {% for file in metrics.file -%}
+                                      {{workflow}}.{{ file }},
+                                    {% endfor -%}
+                                    ],
+                                    {% endif %}
+                                    {%- if metrics.array_file -%}
+                                    # Array[File] outputs
+                                    {% for array in metrics.array_file -%}
+                                      {{workflow}}.{{ array }},
+                                    {% endfor -%}
+                                    {% endif %}
+                                    {%- if metrics.optional -%}
+                                    # File? outputs
+                                    {% for file in metrics.optional -%}
+                                      select_all([{{workflow}}.{{file}}]),
+                                    {% endfor -%}
+                                    {% endif %}
+    ])
+    {%- endif %}
 
-  # Collect all of the pipeline outputs into single Array[String]
-  Array[String] pipeline_outputs = flatten([
-
-  ])
-
-  # Copy results of pipeline to test results bucket
+    # Copy results of pipeline to test results bucket
     call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
       input:
         files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
@@ -48,7 +93,7 @@ workflow {{ test_workflow }} {
         google_account_vault_path = google_account_vault_path,
         destination_cloud_path    = results_path
     }
-
+  
     # If updating truth then copy output to truth bucket
     if (update_truth){
       call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
@@ -59,6 +104,26 @@ workflow {{ test_workflow }} {
           destination_cloud_path    = results_path
       }
     }
+
+    # If not updating truth then we need to collect all input for the validation WDL
+    # This is achieved by passing each desired file/array[files] to GetValidationInputs
+    if (!update_truth){
+      {%- for k, v in validation_inputs.items() %}
+        call Utilities.GetValidationInputs as Get{{v.format_name}} {
+          input:
+            {% if v.is_file -%}
+            input_file = ,
+            {%- else -%}
+            input_files = ,
+            {%- endif %}
+            results_path = results_path,
+            truth_path = truth_path
+        }
+      {%- endfor%}
+  
+    }
+
+
 
 
 

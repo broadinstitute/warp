@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import annotations
+from typing import List
 from collections import namedtuple
 from jinja2 import Environment, FileSystemLoader
 import argparse
@@ -39,16 +40,19 @@ class TestGenerator:
         # }
         self.workflow_outputs = dict()
         self.workflow_metrics = dict()
+        self.validation_inputs = dict()
 
         # Hold values to be passed to template
         (
             self.imports,
             self.workflow_text,
+            self.validation_text,
             self.workflow_inputs,
+            self.raw_validation_inputs,
             self.raw_inputs,
             self.raw_outputs,
             self.subworkflow_inputs,
-        ) = (list(), list(), list(), list(), list(), list())
+        ) = (list(), list(), list(), list(), list(), list(), list(), list())
 
         # Get the absolute path for the provided workflow
         for path, _, files in os.walk(self.PIPELINE_ROOT):
@@ -95,9 +99,9 @@ class TestGenerator:
 
         return self
 
-    def get_imports(self) -> TestGenerator:
-        """Parses the wdl specified to grab all of the import statements and makes them relative to
-        the verification/test-wdls dir. Then adds them as a list of WdlImports to self.imports
+    def parse_validation(self) -> TestGenerator:
+        """Parses the valdiation wdl specified, strips out newline characters, empty lines and comments
+        then inserts each line in into self.validation_text
 
         Args:
             self (TestGenerator): The current instance of class TestGenerator
@@ -106,20 +110,50 @@ class TestGenerator:
             self (TestGenerator): Returns the current instance of class TestGenerator for method chaining
         """
 
-        imports = [
-            line.split() for line in self.workflow_text if line.startswith("import")
-        ]
-
-        for i in imports:
-            match = reg_expression.findall(i[1])[0]
-            rel_path = f"../..{match}"
-            self.imports.append(WdlImport(rel_path, i[-1]))
-
-        # Add the main workflow as an import
-        main_workflow_path = f"../..{self.workflow_path.split('/warp')[-1]}"
-        self.imports.append(WdlImport(main_workflow_path, self.workflow))
+        with open(self.validation_path, "r") as f:
+            self.validation_text = [
+                line.strip()
+                for line in f.readlines()
+                if line.strip() and not line.strip().startswith("#")
+            ]
 
         return self
+
+    def get_imports(self) -> TestGenerator:
+        """Add the necessary imports to the test wdl: Copy, Utilities, main Wdl and Validation Wdl. Append them
+        to self.imports
+
+        Args:
+            self (TestGenerator): The current instance of class TestGenerator
+
+        Returns:
+            self (TestGenerator): Returns the current instance of class TestGenerator for method chaining
+        """
+
+        main_workflow_path = f"../..{self.workflow_path.split('/warp')[-1]}"
+        validation_workflow_path = f"../..{self.validation_path.split('warp')[-1]}"
+
+        self.imports.append(WdlImport(main_workflow_path, self.workflow))
+        self.imports.append(WdlImport(validation_workflow_path, self.validation))
+        self.imports.append(WdlImport("../../tasks/broad/Utilities.wdl", "Utilities"))
+        self.imports.append(
+            WdlImport("../../tasks/broad/CopyFilesFromCloudToCloud.wdl", "Copy")
+        )
+
+        return self
+
+    def _input_indexes(self, text: List[str]) -> (int, int):
+        start = end = 0
+
+        for i in range(len(text)):
+            if text[i].startswith("input {"):
+                start = i
+                while not text[i].startswith("}"):
+                    i += 1
+                end = i
+                break
+
+        return start, end
 
     def get_inputs(self) -> TestGenerator:
         """Parses the wdl specified to grab all of the workflow inputs, includes defaults. Then adds them as list of WdlInputs
@@ -131,16 +165,8 @@ class TestGenerator:
         Returns:
             self (TestGenerator): Returns the current instance of class TestGenerator for method chaining
         """
-        start = end = 0
         text = self.workflow_text
-
-        for i in range(len(text)):
-            if text[i].startswith("input {"):
-                start = i
-                while not text[i].startswith("}"):
-                    i += 1
-                end = i
-                break
+        start, end = self._input_indexes(text)
 
         # Add raw lines to instance
         self.raw_inputs = text[start + 1 : end]
@@ -151,7 +177,50 @@ class TestGenerator:
             WdlInput(t, n) for t, n in (line.split(None, 1) for line in self.raw_inputs)
         ]
 
+        logging.info(f"Generating inputs for Test{self.workflow}.wdl...")
+
         return self
+
+    def get_validation_inputs(self) -> TestGenerator:
+        """Parses the validation wdl specified to grab all of the validation wdl inputs
+
+        This task builds a dictionary that will allow the main workflow to call the Validation workflow
+        and have all of the information that it needs for each test/truth pair
+
+        Args:
+            self (TestGenerator): The current instance of class TestGenerator
+
+        Returns:
+            self (TestGenerator): Returns the current instance of class TestGenerator for method chaining
+        """
+        text = self.validation_text
+        start, end = self._input_indexes(text)
+
+        self.raw_validation_inputs = text[start + 1 : end]
+
+        for i in self.raw_validation_inputs:
+            t, v = i.split()
+            is_file = t == "File"
+
+            # If we aren't at a paired input then skip
+            if not v.startswith("truth_") and not v.startswith("test_"):
+                continue
+
+            _, input_name = v.split("_", 1)
+
+            # check if we have an entry for this validation pair, if not then add it
+            if input_name not in self.validation_inputs:
+                # convert red_idat_md5 to RedIdatMd5
+                formatted_name = "".join(
+                    [text.capitalize() for text in input_name.split("_")]
+                )
+                self.validation_inputs[input_name] = {
+                    "value": input_name,
+                    "format_name": formatted_name,
+                    "is_file": is_file,
+                }
+
+        print(self.validation_inputs)
 
     def get_subworkflow_inputs(self) -> TestGenerator:
         """Adds only the names of the workflow inputs as SubWorkflowInputs to self.subworkflow_inputs
@@ -169,12 +238,20 @@ class TestGenerator:
             SubWorkflowInput(l[1]) for l in (line.split() for line in self.raw_inputs)
         ]
 
+        logging.info(f"Generating subworkflow inputs for {self.workflow}.wdl...")
+
         return self
 
     def get_outputs(self) -> TestGenerator:
         """ Parses the output of the main workflow and seperates it into regular outputs and metrics outputs
 
         Those outputs are then organized into a dict based on the type: Array[File], File, File?
+
+        Args:
+            self (TestGenerator): The current instance of class TestGenerator
+
+        Returns:
+            self (TestGenerator): Returns the current instance of class TestGenerator for method chaining
         """
 
         start = end = 0
@@ -196,7 +273,6 @@ class TestGenerator:
                 self._parse_metric(line)
             else:
                 self._parse_output(line)
-        print(self.workflow_outputs)
         return self
 
     def _parse_metric(self, line: str) -> None:
@@ -221,7 +297,6 @@ class TestGenerator:
     def _parse_output(self, line: str) -> None:
         vals = line.split()
         t, n = vals[0], vals[1]
-        print(t, n)
 
         if t == "Array[File]":
             self.workflow_outputs.update(
@@ -237,14 +312,12 @@ class TestGenerator:
             )
         return
 
-    def get_validation_inputs(self) -> TestGenerator:
-        return self
-
 
 def main(args):
     generator = TestGenerator(workflow=args.workflow, validation=args.validation)
     (
         generator.parse_workflow()
+        .parse_validation()
         .get_imports()
         .get_inputs()
         .get_subworkflow_inputs()
@@ -253,17 +326,22 @@ def main(args):
     )
 
     tester_name = f"Test{args.workflow}"
+
     jinja_env = Environment(loader=FileSystemLoader("templates"))
     template = jinja_env.get_template("TestTemplate.wdl.j2")
+
     content = template.render(
         workflow=args.workflow,
         imports=generator.imports,
         inputs=generator.workflow_inputs,
+        outputs=generator.workflow_outputs,
+        metrics=generator.workflow_metrics,
         test_workflow=tester_name,
         subworkflow_inputs=generator.subworkflow_inputs,
+        validation_inputs=generator.validation_inputs,
     )
 
-    with open("foo.wdl", "w") as f:
+    with open(f"{tester_name}.wdl", "w") as f:
         f.write(content)
 
 
