@@ -65,7 +65,7 @@ task GetCromwellMetadata {
     Boolean include_subworkflows = false
     String? include_keys
 
-    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1642526778"
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1652287059"
     Int cpu = 1
     Int memory_mb = ceil((size(output_path, "MiB")))
     Int disk_size_gb = ceil((size(output_path, "GiB")))
@@ -106,7 +106,7 @@ task MergeLooms {
     String project_name
     String output_basename
 
-    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1642526778"
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1652287059"
     Int cpu = 1
     Int memory_mb = ceil((size(output_looms, "MiB") * 2)) + 40000
     Int disk_size_gb = ceil((size(output_looms, "GiB") * 2)) + 75
@@ -146,7 +146,7 @@ task GetAnalysisFileMetadata {
     String? ss2_bam_file # Individual bam file to be used for intermediate analysis file for ss2 runs
     String? ss2_bai_file # Individual bai file to be used for intermediate analysis file for ss2 runs
 
-    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1642526778"
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1652287059"
     Int cpu = 1
     Int memory_mb = if defined(input_file) then ceil(size(input_file, "MiB")) else 2000
     Int disk_size_gb = if defined(input_file) then ceil(size(input_file, "GiB")) else 5
@@ -200,7 +200,7 @@ task GetAnalysisProcessMetadata {
     Boolean project_level
     Int? ss2_index
 
-    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1642526778"
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1652287059"
     Int cpu = 1
     Int memory_mb = ceil((size(input_file, "MiB"))) + 2000
     Int disk_size_gb = ceil((size(input_file, "GiB"))) + 3
@@ -238,7 +238,7 @@ task GetAnalysisProtocolMetadata {
     String pipeline_version
     Boolean project_level
 
-    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1642526778"
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1652287059"
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = 5
@@ -285,7 +285,7 @@ task GetLinksFileMetadata {
     Array[String]? fastq1_array
     Array[String]? fastq2_array
 
-    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1642526778"
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1652287059"
     Int cpu = 1
     Int memory_mb = ceil(size(output_file_path, "MiB"))
     Int disk_size_gb = ceil(size(output_file_path, "GiB"))
@@ -368,7 +368,7 @@ task GetFileDescriptor {
     String file_path_string # Must be the gs:// file path to properly hash and size
     File file_path
 
-    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1642526778"
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1652287059"
     Int cpu = 1
     Int memory_mb = ceil(size(file_path, "MiB")) + 2000
     Int disk_size_gb = ceil(size(file_path, "GiB")) + 5
@@ -416,7 +416,7 @@ task GetReferenceFileMetadata {
     String version_timestamp
     String reference_version
 
-    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1642526778"
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1652287059"
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = 5
@@ -479,7 +479,7 @@ task ParseCromwellMetadata {
     File cromwell_metadata
     String pipeline_type
 
-    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1642526778"
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1652287059"
     Int cpu = 1
     Int memory_mb = ceil((size(cromwell_metadata, "MiB")))
     Int disk_size_gb = ceil(size(cromwell_metadata, "GiB"))
@@ -510,7 +510,7 @@ task GetReferenceDetails {
     File ref_fasta
     String species
 
-    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1642526778"
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1652287059"
     Int cpu = 1
     Int memory_mb = ceil((size(ref_fasta, "MiB")) * 2) + 1000
     Int disk_size_gb = ceil((size(ref_fasta, "GiB") * 2)) + 5
@@ -542,7 +542,7 @@ task GetProjectLevelInputIds {
   input {
     Array[File] intermediate_analysis_files
 
-    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1642526778"
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1652287059"
     Int cpu = 1
     Int memory_mb = ceil((size(intermediate_analysis_files, "MiB")) * 2) + 1000
     Int disk_size_gb = ceil((size(intermediate_analysis_files, "GiB") * 2)) + 5
@@ -579,7 +579,7 @@ task CopyToStagingBucket {
     String staging_bucket
     String? cache_invalidate
 
-    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1642526778"
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1652287059"
     Int cpu = 1
     Int memory_mb = 20000
     Int disk_size_gb = 50
@@ -670,7 +670,7 @@ task GetBucketCreationDate {
   input {
     String bucket_path
 
-    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1642526778"
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1652287059"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = 1
@@ -705,7 +705,7 @@ task CreateStagingAreaFile {
   input {
     Boolean is_update
 
-    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1642526778"
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1652287059"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = 1
@@ -737,7 +737,7 @@ task ValidateStagingArea {
     String staging_area
     Boolean done
 
-    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1642526778"
+    String docker = "us.gcr.io/broad-gotc-prod/hca-adapter-tools:main_1652287059"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = 1

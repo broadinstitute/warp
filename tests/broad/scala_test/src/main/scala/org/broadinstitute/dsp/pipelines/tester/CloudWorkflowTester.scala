@@ -93,6 +93,9 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     s"gs://broad-dsp-gotc-$envString-tokens/picardsa.token"
   protected val googleAccountVaultPath: String =
     s"secret/dsde/gotc/$envString/picard/picard-account.pem"
+  // Specific to arrays workflows to allow Arrays authenticate with Vault
+  protected val vaultTokenPathArrays: String =
+    s"gs://broad-dsp-gotc-arrays-$envString-tokens/arrayswdl.token"
 
   // Always run in broad-exomes-dev1 google project
   protected lazy val googleProject: String = {
@@ -135,13 +138,20 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
   def getInputContents(fileName: String,
                        resultsPath: URI,
                        truthPath: URI): String = {
-    val defaultInputs = Array(
+    var defaultInputs = Array(
       workflowName + ".truth_path" -> truthPath.asJson,
       workflowName + ".results_path" -> resultsPath.asJson,
       workflowName + ".update_truth" -> updateTruth.asJson,
       workflowName + ".vault_token_path" -> vaultTokenPath.asJson,
-      workflowName + ".google_account_vault_path" -> googleAccountVaultPath.asJson
+      workflowName + ".google_account_vault_path" -> googleAccountVaultPath.asJson,
     )
+
+    // Only add the vault token and environment for arrays
+    // These allow Arrays wdl to auth with Vault
+    if (pipeline == "Arrays") {
+      defaultInputs = defaultInputs :+ workflowName + ".vault_token_path_arrays" -> vaultTokenPathArrays.asJson
+      defaultInputs = defaultInputs :+ workflowName + ".environment" -> envString.asJson
+    }
 
     /**
       * If we have nested inputs in our test inputs we need to push them down a level
