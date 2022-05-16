@@ -98,7 +98,7 @@ task Fastp {
     File adapter_fasta = "gs://gcp-public-data--broad-references/RNA/resources/Illumina_adapters.fasta"
 
     String docker = "us.gcr.io/broad-gotc-prod/fastp:1.0.0-0.20.1-1649253500"
-    Int memory_mb =  "32000"
+    Int memory_mb =  1.5*(ceil(size(fastq1, "MiB")) + 8192 # Experimentally determined formula for memory allocation
     Int disk_size_gb = 5*ceil(size(fastq1, "GiB")) + 128
     File monitoring_script = "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh"
   }
@@ -604,7 +604,7 @@ task GroupByUMIs {
 
     String docker = "us.gcr.io/broad-gotc-prod/umi_tools:1.0.0-1.1.1-1638821470"
     Int cpu = 2
-    Int memory_mb = 1.2 * size([bam, bam_index], "GiB") + 4 # Using the empirically estimated slope of (max memory usage) as a function of (input disk size)
+    Int memory_mb = 1.2 * size([bam, bam_index], "GiB") + 4096 # Using the empirically estimated slope of (max memory usage) as a function of (input disk size)
     Int disk_size_gb = ceil(2.2 * size([bam, bam_index], "GiB")) + 100
 
     File monitoring_script = "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh"
