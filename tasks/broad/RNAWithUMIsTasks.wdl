@@ -98,7 +98,7 @@ task Fastp {
     File adapter_fasta = "gs://gcp-public-data--broad-references/RNA/resources/Illumina_adapters.fasta"
 
     String docker = "us.gcr.io/broad-gotc-prod/fastp:1.0.0-0.20.1-1649253500"
-    Int memory_mb =  1.5*(ceil(size(fastq1, "MiB")) + 8192 # Experimentally determined formula for memory allocation
+    Int memory_mb =  1.5*(ceil(size(fastq1, "MiB"))) + 8192 # Experimentally determined formula for memory allocation
     Int disk_size_gb = 5*ceil(size(fastq1, "GiB")) + 128
     File monitoring_script = "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh"
   }
