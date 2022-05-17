@@ -56,7 +56,7 @@ task SplitCram {
     String base_file_name
     Int reads_per_file
 
-    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:test_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch"
     Int disk_size_gb = ceil(3 * size(input_cram_bam, "GiB") + 20)
     Int cpu = 1
     Int memory_gb = 10
@@ -66,9 +66,10 @@ task SplitCram {
 
   command <<<
     mkdir -p splitout
-    java -Xmx8g -jar /usr/gitc/GATK_ultima.jar SplitCRAM -I ~{input_cram_bam} \
-                          -O splitout/~{base_file_name}-%04d.cram \
-                          --shard-records ~{reads_per_file}
+    gatk --java-options "-Xmx8g" \
+      SplitCRAM -I ~{input_cram_bam} \
+      -O splitout/~{base_file_name}-%04d.cram \
+      --shard-records ~{reads_per_file}
   >>>
 
   runtime {
@@ -267,7 +268,7 @@ task MarkDuplicatesSpark {
   input {
     Array[File] input_bams
     String output_bam_basename
-    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:test_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch"
     Int disk_size_gb
     Int cpu = 32
     Int memory_mb = if 4 * ceil(size(input_bams, "MB")) / 4000 > 600000 then 300000 else 208000
@@ -283,7 +284,7 @@ task MarkDuplicatesSpark {
   command <<<
     bams_dirname=$(echo "~{sep='\n'input_bams}" | tail -1 | xargs dirname)
 
-    java -Xmx190g -jar /usr/gitc/GATK_ultima.jar MarkDuplicatesSpark \
+    gatk --java-options "-Xmx190g" MarkDuplicatesSpark \
     --spark-master local[~{cpu - 8}] \
     --input ~{sep=" --input " input_bams} \
     --output ~{output_bam_basename}.bam \
@@ -472,7 +473,7 @@ task HaplotypeCaller {
     Boolean native_sw = false
     String? contamination_extra_args 
     
-    String docker = "gcr.io/terra-project-249020/gatk_ultima:test_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch"
     Int disk_size_gb = ceil((size(input_bam_list, "GB")) + size(references.ref_fasta, "GB") + size(references.ref_fasta_index, "GB") + size(references.ref_dict, "GB") + 60)
     Int cpu = 2
     Int memory_mb = 12000
@@ -496,8 +497,7 @@ task HaplotypeCaller {
     touch realigned.bam
     touch realigned.bai
 
-    java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms~{memory_mb-2000}m \
-      -jar /usr/gitc/GATK_ultima.jar \
+    gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms~{memory_mb-2000}m" \
       HaplotypeCaller \
       -R ~{references.ref_fasta} \
       -O ~{output_filename} \
@@ -584,7 +584,7 @@ task ConvertGVCFtoVCF {
     String output_vcf_name
     References references
 
-    String docker = "gcr.io/terra-project-249020/gatk_ultima:test_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch"
     Int disk_size_gb = ceil(2 * size(input_gvcf, "GB") + size(references.ref_fasta, "GB") + size(input_gvcf_index, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 12000
@@ -593,8 +593,8 @@ task ConvertGVCFtoVCF {
   }
 
   command {
-    java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m \
-    -jar /usr/gitc/GATK_ultima.jar GenotypeGVCFs \
+    gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m" \
+    GenotypeGVCFs \
     -R ~{references.ref_fasta} \
     -V ~{input_gvcf} \
     -O ~{output_vcf_name} \
@@ -940,7 +940,7 @@ task AnnotateVCF {
     String flow_order
     String final_vcf_base_name
 
-    String docker = "gcr.io/terra-project-249020/gatk_ultima:test_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch"
     Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + size(references.ref_fasta, "GB") + size(reference_dbsnp, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 15000
@@ -949,8 +949,8 @@ task AnnotateVCF {
   }
 
   command <<<
-    java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m \
-    -jar /usr/gitc/GATK_ultima.jar VariantAnnotator \
+    gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m" \
+    VariantAnnotator \
     -R ~{references.ref_fasta} \
     -V ~{input_vcf} \
     -O ~{final_vcf_base_name}.annotated.vcf.gz \
