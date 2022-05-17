@@ -120,6 +120,20 @@ workflow {{ test_workflow }} {
             truth_path = truth_path
         }
       {%- endfor%}
+
+      call {{validation}}.{{validation}} as Verify {
+        input:
+          {%- for k, v in validation_inputs.items() %}
+          {% if v.is_file -%}
+          truth_{{k}} = Get{{v.format_name}}.truth_file 
+          test_{{k}} = Get{{v.format_name}}.results_file
+          {%- else -%}
+          truth_{{k}} = Get{{v.format_name}}.truth_files 
+          test_{{k}} = Get{{v.format_name}}.results_files
+          {%- endif%}
+          {%- endfor%}
+          done = CopyToTestResults.done
+      }
   
     }
 

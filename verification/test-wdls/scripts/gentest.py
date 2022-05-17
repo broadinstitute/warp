@@ -143,6 +143,8 @@ class TestGenerator:
         return self
 
     def _input_indexes(self, text: List[str]) -> (int, int):
+        """Get the start and end index of an input{} section"""
+
         start = end = 0
 
         for i in range(len(text)):
@@ -155,16 +157,25 @@ class TestGenerator:
 
         return start, end
 
+    def _output_indexes(self, text: List[str]) -> (int, int):
+        """Get the start and end index of an output{} section"""
+
+        start = end = 0
+
+        for i in range(len(text)):
+            if text[i].startswith("output {"):
+                start = i
+                while not text[i].startswith("}"):
+                    i += 1
+                end = i
+                break
+
+        return start, end
+
     def get_inputs(self) -> TestGenerator:
         """Parses the wdl specified to grab all of the workflow inputs, includes defaults. Then adds them as list of WdlInputs
-        to self.inputs
+        to self.inputs"""
 
-        Args:
-            self (TestGenerator): The current instance of class TestGenerator
-
-        Returns:
-            self (TestGenerator): Returns the current instance of class TestGenerator for method chaining
-        """
         text = self.workflow_text
         start, end = self._input_indexes(text)
 
@@ -177,22 +188,14 @@ class TestGenerator:
             WdlInput(t, n) for t, n in (line.split(None, 1) for line in self.raw_inputs)
         ]
 
-        logging.info(f"Generating inputs for Test{self.workflow}.wdl...")
+        logging.info(f" - Generating inputs for Test{self.workflow}.wdl...")
 
         return self
 
     def get_validation_inputs(self) -> TestGenerator:
         """Parses the validation wdl specified to grab all of the validation wdl inputs
+        Also formats them in PascalCase and checks whether they are a File of Array[File]"""
 
-        This task builds a dictionary that will allow the main workflow to call the Validation workflow
-        and have all of the information that it needs for each test/truth pair
-
-        Args:
-            self (TestGenerator): The current instance of class TestGenerator
-
-        Returns:
-            self (TestGenerator): Returns the current instance of class TestGenerator for method chaining
-        """
         text = self.validation_text
         start, end = self._input_indexes(text)
 
@@ -220,17 +223,12 @@ class TestGenerator:
                     "is_file": is_file,
                 }
 
-        print(self.validation_inputs)
+        logging.info(
+            f" - Collecting and formatting inputs for {self.validation}.wdl..."
+        )
 
     def get_subworkflow_inputs(self) -> TestGenerator:
-        """Adds only the names of the workflow inputs as SubWorkflowInputs to self.subworkflow_inputs
-
-        Args:
-            self (TestGenerator): The current instance of class TestGenerator
-
-        Returns:
-            self (TestGenerator): Returns the current instance of class TestGenerator for method chaining
-        """
+        """Adds only the names of the workflow inputs as SubWorkflowInputs to self.subworkflow_inputs"""
 
         # Spit into tuple without default (Name)
         # e.g. (read_fingerprint_from_mercury)
@@ -238,32 +236,16 @@ class TestGenerator:
             SubWorkflowInput(l[1]) for l in (line.split() for line in self.raw_inputs)
         ]
 
-        logging.info(f"Generating subworkflow inputs for {self.workflow}.wdl...")
+        logging.info(f" - Generating subworkflow inputs for {self.workflow}.wdl...")
 
         return self
 
     def get_outputs(self) -> TestGenerator:
-        """ Parses the output of the main workflow and seperates it into regular outputs and metrics outputs
+        """ Parses the output of the main workflow and seperates it into regular outputs and metrics outputs"""
 
-        Those outputs are then organized into a dict based on the type: Array[File], File, File?
-
-        Args:
-            self (TestGenerator): The current instance of class TestGenerator
-
-        Returns:
-            self (TestGenerator): Returns the current instance of class TestGenerator for method chaining
-        """
-
-        start = end = 0
         text = self.workflow_text
 
-        for i in range(len(text)):
-            if text[i].startswith("output {"):
-                start = i
-                while not text[i].startswith("}"):
-                    i += 1
-                end = i
-                break
+        start, end = self._output_indexes(text)
 
         # Add raw lines to instance
         self.raw_outputs = text[start + 1 : end]
@@ -275,7 +257,17 @@ class TestGenerator:
                 self._parse_output(line)
         return self
 
+        logging.info(f" - Parsing metrics and outputs for {self.workflow}.wdl...")
+
     def _parse_metric(self, line: str) -> None:
+        """Create a list for each type of metric output and map it to that type
+        {
+            array_file : [],
+            file: [],
+            optional: []
+        }
+        """
+
         vals = line.split()
         t, n = vals[0], vals[1]
 
@@ -295,6 +287,14 @@ class TestGenerator:
         return
 
     def _parse_output(self, line: str) -> None:
+        """Create a list for each type of regular output and map it to that type
+        {
+            array_file : [],
+            file: [],
+            optional: []
+        }
+        """
+
         vals = line.split()
         t, n = vals[0], vals[1]
 
@@ -330,6 +330,8 @@ def main(args):
     jinja_env = Environment(loader=FileSystemLoader("templates"))
     template = jinja_env.get_template("TestTemplate.wdl.j2")
 
+    logging.info(f" - Building {tester_name}.wdl...")
+
     content = template.render(
         workflow=args.workflow,
         imports=generator.imports,
@@ -337,12 +339,15 @@ def main(args):
         outputs=generator.workflow_outputs,
         metrics=generator.workflow_metrics,
         test_workflow=tester_name,
+        validation=generator.validation,
         subworkflow_inputs=generator.subworkflow_inputs,
         validation_inputs=generator.validation_inputs,
     )
 
     with open(f"{tester_name}.wdl", "w") as f:
         f.write(content)
+
+    logging.info(f" - Successfully generated {tester_name}.wdl!")
 
 
 def _parse_args(argv):
