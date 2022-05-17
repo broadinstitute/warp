@@ -92,7 +92,7 @@ task ConvertCramOrBamToUBam {
     String base_file_name
     Float split_chunk_size
 
-    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:test_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:samtools_picard_bwa_snapshot_UG"
     Int disk_size_gb = ceil((2 * split_chunk_size) + 20)
     Int cpu = 2
     Int memory_mb = 13000
@@ -158,7 +158,7 @@ task SamToFastqAndBwaMemAndMba {
     References references
     File input_bam
 
-    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
     Int disk_size_gb = ceil(size(input_bam, "GB") +
                             size(references.ref_fasta, "GB") +
                             size(references.ref_fasta_index, "GB") +
@@ -543,7 +543,7 @@ task MergeBams {
     Array[File] input_bams
     String output_bam_name
 
-    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
     Int disk_size_gb = ceil(2 * size(input_bams,"GB") + 20)
     Int cpu = 1
     Int memory_mb = 10000
@@ -629,7 +629,7 @@ task FilterVCF {
     String flow_order
     Array[File] annotation_intervals
 
-    String docker = "gcr.io/terra-project-249020/jukebox_vc:test_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_0.7rc1"
     Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + size(references.ref_fasta, "GB") + size(input_model, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 64000
@@ -685,7 +685,7 @@ task TrainModel {
     String? exome_weight_annotation
 
 
-    String docker = "gcr.io/terra-project-249020/jukebox_vc:test_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_0.7rc1"
     Int disk_size_gb = ceil(size(input_file, "GB") +
                         size(ref_fasta, "GB") +
                         size(annotation_intervals, "GB") +
@@ -734,7 +734,7 @@ task CollectDuplicateMetrics {
     String metrics_filename
 
     
-    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:test_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:samtools_picard_bwa_snapshot_UG"
     Int disk_size_gb = if ceil((size(input_bam, "GB")) +
                                size(references.ref_fasta, "GB") +
                                size(references.ref_fasta_index, "GB") +
@@ -778,7 +778,7 @@ task CollectWgsMetrics {
     Int? read_length
     File? jar_override
 
-    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
     Int disk_size_gb = if ceil((size(input_bam, "GB")) +
                               size(references.ref_fasta, "GB") +
                               size(references.ref_fasta_index, "GB") +
@@ -831,7 +831,7 @@ task CollectRawWgsMetrics {
     References references
     Int? read_length
 
-    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.6-1599252698"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
     Int disk_size_gb = if ceil((size(input_bam, "GB")) +
                               size(references.ref_fasta, "GB") +
                               size(references.ref_fasta_index, "GB") +
@@ -881,7 +881,7 @@ task CollectAggregationMetrics {
     String output_bam_prefix
     References references
     
-    String docker = "gcr.io/terra-project-249020/gatk_ultima_md:test_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:samtools_picard_bwa_snapshot_UG"
     Int disk_size_gb = if ceil((size(input_bam, "GB")) +
                                size(references.ref_fasta, "GB") +
                                size(references.ref_fasta_index, "GB") +
@@ -982,7 +982,7 @@ task AddIntervalAnnotationsToVCF {
     String final_vcf_base_name
     Array[File] annotation_intervals
 
-    String docker = "gcr.io/terra-project-249020/jukebox_vc:test_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_0.7rc1"
     Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + 1)
     Int cpu = 1
     Int memory_mb = 15000
@@ -1032,7 +1032,7 @@ task AnnotateVCF_AF {
     File af_only_gnomad
     File af_only_gnomad_index
 
-    String docker = "gcr.io/terra-project-249020/jukebox_vc:test_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_0.7rc1"
     Int disk_size_gb = ceil(3 * size(input_vcf, "GB") + size(af_only_gnomad, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 10000
