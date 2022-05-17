@@ -12,7 +12,7 @@ you will have two inputs of the name `vault token_path`. One will need to be cha
 The script only needs two arguments: the workflow to generate the test wrapper for, and the validation wdl for that workflow.
 
 ```bash
-pip3 install requirements.txt
+pip3 install -r requirements.txt
 
 python3 gentest.py --workflow Arrays --validation VerifyArrays
 ```
