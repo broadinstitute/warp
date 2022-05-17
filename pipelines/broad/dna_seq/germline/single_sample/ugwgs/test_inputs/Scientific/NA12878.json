@@ -48,5 +48,5 @@
         "remove_low_tree_score_sites_cutoff": 0.2,
         "annotations_to_keep_command_for_reblocking": "--annotations-to-keep TREE_SCORE --annotations-to-keep ASSEMBLED_HAPS --annotations-to-keep FILTERED_HAPS"
     },
-    "UltimaGenomicsWholeGenomeGermline.ReblockGVCF.Reblock.docker_image":"gcr.io/broad-gotc-prod/gatk_ultima:0.6.4"
+    "UltimaGenomicsWholeGenomeGermline.ReblockGVCF.Reblock.docker_image":"us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch"
 }
