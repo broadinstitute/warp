@@ -881,7 +881,7 @@ task CollectAggregationMetrics {
     String output_bam_prefix
     References references
     
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:samtools_picard_bwa_snapshot_UG"
+    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.3-1564508330"
     Int disk_size_gb = if ceil((size(input_bam, "GB")) +
                                size(references.ref_fasta, "GB") +
                                size(references.ref_fasta_index, "GB") +
