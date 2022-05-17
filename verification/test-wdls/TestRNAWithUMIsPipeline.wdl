@@ -76,7 +76,7 @@ workflow TestRNAWithUMIsPipeline {
                                     RNAWithUMIsPipeline.transcriptome_bam_index,
                                     RNAWithUMIsPipeline.output_bam,
                                     RNAWithUMIsPipeline.output_bam_index,
-                                    RNAWithUMIsPipeline.rnaseq2_gene_tpm,
+                                    RNAWithUMIsPipeline.rnaseqc2_gene_tpm,
                                     RNAWithUMIsPipeline.rnaseqc2_gene_counts,
                                     RNAWithUMIsPipeline.rnaseqc2_exon_counts,
                                     RNAWithUMIsPipeline.rnaseqc2_fragment_size_histogram,
@@ -151,7 +151,7 @@ workflow TestRNAWithUMIsPipeline {
 
     call Utilities.GetValidationInputs as GetGeneTpm {
       input:
-        input_file   = RNAWithUMIsPipeline.rnaseq2_gene_tpm,
+        input_file   = RNAWithUMIsPipeline.rnaseqc2_gene_tpm,
         results_path  = results_path,
         truth_path    = truth_path
     }

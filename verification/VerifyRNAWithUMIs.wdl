@@ -20,6 +20,7 @@ workflow VerifyRNAWithUMIs {
     File truth_gene_counts
     File test_exon_counts
     File truth_exon_counts
+    Boolean? done
   }
 
   call MetricsVerification.VerifyMetrics as CompareMetrics {
