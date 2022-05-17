@@ -81,14 +81,7 @@ class TestGenerator:
 
     def parse_workflow(self) -> TestGenerator:
         """Parses the wdl specified, strips out newline characters, empty lines and comments
-        then inserts each line in into self.workflow_text
-
-        Args:
-            self (TestGenerator): The current instance of class TestGenerator
-
-        Returns:
-            self (TestGenerator): Returns the current instance of class TestGenerator for method chaining
-        """
+        then inserts each line in into self.workflow_text"""
 
         with open(self.workflow_path, "r") as f:
             self.workflow_text = [
@@ -101,14 +94,7 @@ class TestGenerator:
 
     def parse_validation(self) -> TestGenerator:
         """Parses the valdiation wdl specified, strips out newline characters, empty lines and comments
-        then inserts each line in into self.validation_text
-
-        Args:
-            self (TestGenerator): The current instance of class TestGenerator
-
-        Returns:
-            self (TestGenerator): Returns the current instance of class TestGenerator for method chaining
-        """
+        then inserts each line in into self.validation_text"""
 
         with open(self.validation_path, "r") as f:
             self.validation_text = [
@@ -121,14 +107,7 @@ class TestGenerator:
 
     def get_imports(self) -> TestGenerator:
         """Add the necessary imports to the test wdl: Copy, Utilities, main Wdl and Validation Wdl. Append them
-        to self.imports
-
-        Args:
-            self (TestGenerator): The current instance of class TestGenerator
-
-        Returns:
-            self (TestGenerator): Returns the current instance of class TestGenerator for method chaining
-        """
+        to self.imports"""
 
         main_workflow_path = f"../..{self.workflow_path.split('/warp')[-1]}"
         validation_workflow_path = f"../..{self.validation_path.split('warp')[-1]}"
@@ -244,7 +223,6 @@ class TestGenerator:
         """ Parses the output of the main workflow and seperates it into regular outputs and metrics outputs"""
 
         text = self.workflow_text
-
         start, end = self._output_indexes(text)
 
         # Add raw lines to instance
@@ -326,7 +304,6 @@ def main(args):
     )
 
     tester_name = f"Test{args.workflow}"
-
     jinja_env = Environment(loader=FileSystemLoader("templates"))
     template = jinja_env.get_template("TestTemplate.wdl.j2")
 
