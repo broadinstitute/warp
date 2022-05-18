@@ -1,6 +1,7 @@
 # 5.5.0
 2022-05-18 (Date of Last Commit)
-* Updated merge npz docker in StarAlign.wdl
+* Updated merge npz docker in StarAlign.wdl to fix a bug in the output loom matrix where gene names were inapporpriately assigned to counts. Any data previously processed with Optimus version 5.0.0 and above should be re-analyzed.
+ 
 
 # 5.4.3
 2022-04-22 (Date of Last Commit)
