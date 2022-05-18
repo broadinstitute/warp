@@ -1,7 +1,7 @@
 version 1.0
 
 import "../../pipelines/broad/reprocessing/exome/ExomeReprocessing.wdl" as ExomeReprocessing
-import "../../verification/VerifyReprocessing.wdl" as VerifyExomeReprocessing
+import "../../verification/VerifyExomeReprocessing.wdl" as VerifyExomeReprocessing
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 import "../../structs/dna_seq/DNASeqStructs.wdl"
@@ -156,9 +156,16 @@ workflow TestExomeReprocessing {
 
     call Utilities.GetValidationInputs as GetCrams {
       input:
-          input_file   = ExomeReprocessing.output_cram,
-          results_path = results_path,
-          truth_path   = truth_path
+        input_file   = ExomeReprocessing.output_cram,
+        results_path = results_path,
+        truth_path   = truth_path
+    }
+
+    call Utilities.GetValidationInputs as GetBams {
+      input:
+        input_files  = ExomeReprocessing.unmapped_bams,
+        results_path = results_path,
+        truth_path   = truth_path
     }
 
     call Utilities.GetValidationInputs as GetCrais {
@@ -186,8 +193,8 @@ workflow TestExomeReprocessing {
     # done is dummy input to force copy completion before verification
     call VerifyExomeReprocessing.VerifyReprocessing as Verify {
       input:
-        test_bams = GetCrams.results_files,
-        truth_bams = GetCrams.truth_files,
+        test_bams = GetBams.results_files,
+        truth_bams = GetBams.truth_files,
         truth_metrics = GetMetricsInputs.truth_files,
         test_metrics = GetMetricsInputs.results_files,
         truth_cram = GetCrams.truth_file,
