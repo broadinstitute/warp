@@ -473,7 +473,7 @@ task HaplotypeCaller {
     Boolean native_sw = false
     String? contamination_extra_args 
     
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v2"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v3"
     Int disk_size_gb = ceil((size(input_bam_list, "GB")) + size(references.ref_fasta, "GB") + size(references.ref_fasta_index, "GB") + size(references.ref_dict, "GB") + 60)
     Int cpu = 2
     Int memory_mb = 12000
