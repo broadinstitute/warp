@@ -1,4 +1,4 @@
-# 5.4.4
+# 5.5.0
 2022-05-18 (Date of Last Commit)
 * Updated merge npz docker in StarAlign.wdl
 
