@@ -307,7 +307,7 @@ task CollectDuplicationMetrics {
     String output_basename
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:samtools_picard_bwa_snapshot_UG"
     Int machine_mem_mb = 32768
     # give the command 1 GiB of overhead
     Int command_mem_mb = machine_mem_mb - 1000
@@ -333,7 +333,7 @@ task CollectDuplicationMetrics {
   }
   
   command {
-    java -Xmx${command_mem_mb}m -XX:ParallelGCThreads=${cpu}  -jar /usr/picard/picard.jar  MarkDuplicates \
+    java -Xmx${command_mem_mb}m -XX:ParallelGCThreads=${cpu}  -jar /usr/gitc/picard.jar  MarkDuplicates \
        VALIDATION_STRINGENCY=SILENT  \
        INPUT=${aligned_bam} \
        OUTPUT="${output_basename}.MarkDuplicated.bam" \
@@ -362,7 +362,7 @@ task RemoveDuplicatesFromBam {
     Array[String] input_ids
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:samtools_picard_bwa_snapshot_UG"
     Int machine_mem_mb = 32768
     # give the command 1 GiB of overhead
     Int command_mem_mb = machine_mem_mb - 1000
@@ -393,7 +393,7 @@ task RemoveDuplicatesFromBam {
     declare -a output_prefix=(~{sep=' ' input_ids})
     for (( i=0; i<${#bam_files[@]}; ++i));
     do
-      java -Xmx"~{command_mem_mb}"m -XX:ParallelGCThreads=~{cpu} -jar /usr/picard/picard.jar  MarkDuplicates \
+      java -Xmx"~{command_mem_mb}"m -XX:ParallelGCThreads=~{cpu} -jar /usr/gitc/picard.jar  MarkDuplicates \
        -VALIDATION_STRINGENCY SILENT  \
        -INPUT "${bam_files[$i]}" \
        -OUTPUT "${output_prefix[$i]}.aligned_bam.DuplicatesRemoved.bam" \
@@ -401,7 +401,7 @@ task RemoveDuplicatesFromBam {
        -METRICS_FILE "${output_prefix[$i]}.aligned_bam.duplicate_metrics.txt" \
        -REMOVE_DUPLICATES true;
 
-    java -Xmx"~{command_mem_mb}"m -XX:ParallelGCThreads=~{cpu} -jar /usr/picard/picard.jar AddOrReplaceReadGroups \
+    java -Xmx"~{command_mem_mb}"m -XX:ParallelGCThreads=~{cpu} -jar /usr/gitc/picard.jar AddOrReplaceReadGroups \
        -I "${output_prefix[$i]}.aligned_bam.DuplicatesRemoved.bam" \
        -O "${output_prefix[$i]}.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam" \
        -RGID 4 \
