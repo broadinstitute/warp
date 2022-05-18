@@ -92,9 +92,7 @@ def main():
     features_dict = {}
     for i in range(len(args.features)):
         features_dict["sample{0}".format(i)] = read_features_list(args.features[i])
-    features_list = []
-    for key in features_dict.keys():
-        features_list = np.union1d(np.unique(features_list),features_dict[key])
+    features_list = read_features_list(args.features[i])
 
     # read the barcodes file and create the barcode to index
     barcodes_dict = {}

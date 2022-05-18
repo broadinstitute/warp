@@ -1,3 +1,7 @@
+# 5.4.4
+2022-05-18 (Date of Last Commit)
+* Updated merge npz docker in StarAlign.wdl
+
 # 5.4.3
 2022-04-22 (Date of Last Commit)
 * Updated Optimus to not run emptydrop step in sn_rna mode.
