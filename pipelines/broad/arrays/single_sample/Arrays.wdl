@@ -23,7 +23,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Arrays {
 
-  String pipeline_version = "2.6.9"
+  String pipeline_version = "2.6.10"
 
   input {
     String chip_well_barcode
@@ -495,6 +495,7 @@ workflow Arrays {
     File gtc_file = IlluminaGenotypingArray.gtc
     File red_idat_md5_cloud_path = IlluminaGenotypingArray.red_idat_md5_cloud_path
     File green_idat_md5_cloud_path = IlluminaGenotypingArray.green_idat_md5_cloud_path
+    File output_bead_pool_manifest_file = bpm_file
     File? output_vcf_md5_cloud_path = IlluminaGenotypingArray.output_vcf_md5_cloud_path
     File? output_vcf = IlluminaGenotypingArray.output_vcf
     File? output_vcf_index = IlluminaGenotypingArray.output_vcf_index

@@ -17,11 +17,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestAnnotationFiltration",
   //      "/broad/annotation_filtration/"
   //    )
-  //case object Arrays
-  //    extends PipelineTestType(
-  //      "TestArrays",
-  //      "/broad/arrays/single_sample/"
-  //    )
+  case object Arrays
+      extends PipelineTestType(
+        "TestArrays",
+        "Arrays",
+        "/broad/arrays/single_sample/"
+      )
   //case object CEMBA
   //    extends PipelineTestType(
   //      "TestCEMBA",
@@ -83,11 +84,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestMultiSampleSmartSeq2SingleNucleus",
   //      "/skylab/smartseq2_single_nucleus_multisample/"
   //    )
-  //case object Optimus
-  //    extends PipelineTestType(
-  //      "TestOptimus",
-  //      "/skylab/optimus/"
-  //    )
+  case object Optimus
+      extends PipelineTestType(
+        "TestOptimus",
+        "Optimus",
+        "/skylab/optimus/"
+      )
   //case object ReblockGVCF
   //    extends PipelineTestType(
   //      "TestReblockGVCF",
