@@ -66,7 +66,7 @@ task HaplotypeCaller_GATK35_GVCF {
       --read_filter OverclippedRead
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
+    docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:control-1.2.0-4.2.6.1-18-g72684d0-1652800728"
     preemptible: preemptible_tries
     memory: "10000 MiB"
     cpu: "1"
@@ -96,7 +96,7 @@ task HaplotypeCaller_GATK4_VCF {
     Boolean use_dragen_hard_filtering = false
     Boolean use_spanning_event_genotyping = true
     File? dragstr_model
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:control-1.2.0-4.2.6.1-18-g72684d0-1652800728"
     Int memory_multiplier = 1
   }
   
@@ -128,7 +128,7 @@ task HaplotypeCaller_GATK4_VCF {
     echo Total available memory: ${available_memory_mb} MB >&2
     echo Memory reserved for Java: ${java_memory_size_mb} MB >&2
 
-    gatk --java-options "-Xmx${java_memory_size_mb}m -Xms${java_memory_size_mb}m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10" \
+    /usr/gitc/gatk4/gatk --java-options "-Xmx${java_memory_size_mb}m -Xms${java_memory_size_mb}m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10" \
       HaplotypeCaller \
       -R ~{ref_fasta} \
       -I ~{input_bam} \
@@ -276,7 +276,7 @@ task DragenHardFilterVcf {
     Boolean make_gvcf
     String vcf_basename
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "http://us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:control-1.2.0-4.2.6.1-18-g72684d0-1652800728"
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
