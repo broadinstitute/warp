@@ -1,3 +1,7 @@
+# 2.6.10
+2022-05-05 (Date of Last Commit)
+* Update Arrays.wdl to output bead_pool_manifest_file so it can be used in new test wdls
+
 # 2.6.9
 2022-04-19 (Date of Last Commit)
 * Updated to GATK version 4.2.6.1 to address log4j vulnerabilities

@@ -17,11 +17,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestAnnotationFiltration",
   //      "/broad/annotation_filtration/"
   //    )
-  //case object Arrays
-  //    extends PipelineTestType(
-  //      "TestArrays",
-  //      "/broad/arrays/single_sample/"
-  //    )
+  case object Arrays
+      extends PipelineTestType(
+        "TestArrays",
+        "Arrays",
+        "/broad/arrays/single_sample/"
+      )
   //case object CEMBA
   //    extends PipelineTestType(
   //      "TestCEMBA",
