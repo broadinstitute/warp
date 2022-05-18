@@ -2,7 +2,7 @@
 set -e
 
 # Update version when changes to Dockerfile are made
-DOCKER_IMAGE_VERSION=4.1.2
+DOCKER_IMAGE_VERSION=4.1.3
 TIMESTAMP=$(date +"%s")
 DIR=$(cd $(dirname $0) && pwd)
 
@@ -57,7 +57,7 @@ function main(){
     echo "building & pushing GCR Image - $GCR_URL:$IMAGE_TAG"
     docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \
         --build-arg PICARD_PRIVATE_VERSION="$PICARD_PRIVATE_VERSION" $DIR  
-    docker push "$GCR_URL:$IMAGE_TAG"
+    #docker push "$GCR_URL:$IMAGE_TAG"
     
 
     echo "$GCR_URL:$IMAGE_TAG $PICARD_PRIVATE_VERSION" >> "$DIR/docker_versions.tsv"
