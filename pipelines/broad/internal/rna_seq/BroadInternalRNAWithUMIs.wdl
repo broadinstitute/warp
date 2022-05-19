@@ -31,7 +31,6 @@ workflow BroadInternalRNAWithUMIs {
     # Terra Data Repo dataset information
     String? tdr_dataset_uuid
     String? tdr_sample_id
-    String? tdr_staging_bucket
 
     String environment
     File vault_token_path
@@ -66,7 +65,6 @@ workflow BroadInternalRNAWithUMIs {
     vault_token_path: "The path to the vault token used for accessing the Mercury Fingerprint Store"
     tdr_dataset_uuid: "Optional string used to define the Terra Data Repo (TDR) dataset to which outputs will be ingested"
     tdr_sample_id: "Optional string used to identify the sample being processed; this is the primary key in the TDR dataset"
-    tdr_staging_bucket: "Optional string defining the GCS bucket to use to stage files for loading to TDR; the workspace bucket is recommended"
   }
 
   # make sure either hg19 or hg38 is supplied as reference_build input
@@ -128,7 +126,7 @@ workflow BroadInternalRNAWithUMIs {
       output_basename = RNAWithUMIs.sample_name
   }
 
-  if (defined(tdr_dataset_uuid) && defined(tdr_sample_id) && defined(tdr_staging_bucket)) {
+  if (defined(tdr_dataset_uuid) && defined(tdr_sample_id)) {
     call tasks.formatPipelineOutputs {
       input:
         sample_id = select_first([tdr_sample_id, ""]),
@@ -166,8 +164,7 @@ workflow BroadInternalRNAWithUMIs {
       input:
         tdr_dataset_uuid = select_first([tdr_dataset_uuid, ""]),
         outputs_json = formatPipelineOutputs.pipeline_outputs_json,
-        sample_id = select_first([tdr_sample_id, ""]),
-        staging_bucket = select_first([tdr_staging_bucket, ""])
+        sample_id = select_first([tdr_sample_id, ""])
     }
   }
 
