@@ -14,6 +14,6 @@
 "UltimaGenomicsJointGenotyping.scatter_cross_check_fingerprints":false,
 "UltimaGenomicsJointGenotyping.unbounded_scatter_count_scale_factor":2.5,
 "UltimaGenomicsJointGenotyping.unpadded_intervals_file":"gs://gcp-public-data--broad-references/hg38/v0/hg38.even.handcurated.20k.intervals",
-"UltimaGenomicsJointGenotyping.GenotypeGVCFs.gatk_docker":"gcr.io/broad-gotc-prod/gatk_ultima:0.6.4",
-"UltimaGenomicsJointGenotyping.ImportGVCFs.gatk_docker":"gcr.io/broad-gotc-prod/gatk_ultima:0.6.4"
+"UltimaGenomicsJointGenotyping.GenotypeGVCFs.gatk_docker":"us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v3",
+"UltimaGenomicsJointGenotyping.ImportGVCFs.gatk_docker":"us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v3"
 }
