@@ -34,7 +34,7 @@ workflow Imputation {
     Boolean split_output_to_single_sample = false
     Int merge_ssvcf_mem_mb = 3000 # the memory allocation for MergeSingleSampleVcfs (in mb)
 
-    Float frac_above_maf_5_percent_well_imputed_threshold = 0.8 # require fraction of maf > 0.05 sites well imputed to be greater than this to pass
+    Float frac_above_maf_5_percent_well_imputed_threshold = 0.9 # require fraction of maf > 0.05 sites well imputed to be greater than this to pass
     Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
 
     # file extensions used to find reference panel files
