@@ -1,6 +1,8 @@
 version 1.0
 
 import "../../../arrays/single_sample/Arrays.wdl" as ArraysPipeline
+import "../../../../../tasks/broad/InternalArraysTasks.wdl" as InternalArraysTasks
+import "../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 
 workflow BroadInternalArrays {
     meta {
@@ -54,7 +56,7 @@ workflow BroadInternalArrays {
             vault_token_path           = vault_token_path
     }
 
-    call format_arrays_outputs {
+    call InternalArraysTasks.FormatArraysOutputs {
         input:
             chip_well_barcode_output                            = Arrays.chip_well_barcode_output,
             analysis_version_number_output                      = Arrays.analysis_version_number_output,
@@ -72,12 +74,12 @@ workflow BroadInternalArrays {
             genotype_concordance_contingency_metrics_file       = Arrays.genotype_concordance_contingency_metrics_file
     }
 
-    call ingest_outputs_to_tdr {
+    call InternalTasks.IngestOutputsToTDR {
         input:
             workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
-            outputs_tsv             = format_arrays_outputs.ingest_outputs_tsv
+            outputs_tsv             = FormatArraysOutputs.ingest_outputs_tsv
     }
 
     output {
@@ -95,92 +97,5 @@ workflow BroadInternalArrays {
         File? genotype_concordance_summary_metrics_file = Arrays.genotype_concordance_summary_metrics_file
         File? genotype_concordance_detail_metrics_file  = Arrays.genotype_concordance_detail_metrics_file
         File? genotype_concordance_contingency_metrics_file = Arrays.genotype_concordance_contingency_metrics_file
-    }
-
-
-}
-
-task format_arrays_outputs {
-    input {
-        String  chip_well_barcode_output
-        Int     analysis_version_number_output
-        String? baf_regress_metrics_file
-        String? gtc_file
-
-        String? output_vcf
-        String? output_vcf_index
-
-        String? arrays_variant_calling_detail_metrics_file
-        String? arrays_variant_calling_summary_metrics_file
-        String? arrays_variant_calling_control_metrics_file
-
-        String? fingerprint_detail_metrics_file
-        String? fingerprint_summary_metrics_file
-
-        String? genotype_concordance_summary_metrics_file
-        String? genotype_concordance_detail_metrics_file
-        String? genotype_concordance_contingency_metrics_file
-
-    }
-
-    command <<<
-        echo -e "chip_well_barcode_output\tanalysis_version_number_output\tbaf_regress_metrics_file\tgtc_file\t\
-        output_vcf\toutput_vcf_index\t\
-        arrays_variant_calling_detail_metrics_file\tarrays_variant_calling_summary_metrics_file\tarrays_variant_calling_control_metrics_file\t\
-        fingerprint_detail_metrics_file\tfingerprint_summary_metrics_file\t\
-        genotype_concordance_summary_metrics_file\tgenotype_concordance_detail_metrics_file\tgenotype_concordance_contingency_metrics_file" \
-        > ingestDataset_arrays_outputs.tsv
-
-        echo -e "~{chip_well_barcode_output}\t~{analysis_version_number_output}\t~{baf_regress_metrics_file}\t~{gtc_file}\t\
-        ~{output_vcf}\t~{output_vcf_index}\t\
-        ~{arrays_variant_calling_detail_metrics_file}\t~{arrays_variant_calling_summary_metrics_file}\t~{arrays_variant_calling_control_metrics_file}\t\
-        ~{fingerprint_detail_metrics_file}\t~{fingerprint_summary_metrics_file}\t\
-        ~{genotype_concordance_summary_metrics_file}\t~{genotype_concordance_detail_metrics_file}\t~{genotype_concordance_contingency_metrics_file}" \
-        >> ingestDataset_arrays_outputs.tsv
-
-        python3 << CODE
-        import pandas as pd
-
-        tsv_df = pd.read_csv("ingestDataset_arrays_outputs.tsv", sep="\t")
-        tsv_df = tsv_df.dropna(axis=1, how="all")  # drop columns if no value (optional outputs etc)
-
-        outputs = tsv_df.to_json("ingestDataset_arrays_outputs.json", orient="records")  # write json file
-
-        CODE
-    >>>
-
-    runtime {
-        docker: "broadinstitute/horsefish"
-    }
-
-    output {
-        File ingest_outputs_tsv = "ingestDataset_arrays_outputs.tsv"
-        File ingest_outputs_json = "ingestDataset_arrays_outputs.json"
-    }
-}
-
-task ingest_outputs_to_tdr {
-    input {
-        String workspace_bucket
-        String tdr_dataset_id
-        String tdr_target_table_name
-
-        File   outputs_tsv
-    }
-
-    command {
-
-        python3 /scripts/emerge/ingest_to_tdr.py -b ~{workspace_bucket} \
-                                                 -d ~{tdr_dataset_id} \
-                                                 -t ~{tdr_target_table_name} \
-                                                 -f ~{outputs_tsv}
-    }
-
-    runtime {
-        docker: "broadinstitute/horsefish"
-    }
-
-    output {
-        File ingest_logs = stdout()
     }
 }

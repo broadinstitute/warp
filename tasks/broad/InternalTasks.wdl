@@ -174,3 +174,29 @@ task UploadFingerprintToMercury {
     preemptible: select_first([preemptible_tries, 3])
   }
 }
+
+task IngestOutputsToTDR {
+    input {
+        String workspace_bucket
+        String tdr_dataset_id
+        String tdr_target_table_name
+
+        File   outputs_tsv
+    }
+
+    command {
+
+        python3 /scripts/emerge/ingest_to_tdr.py -b ~{workspace_bucket} \
+                                                 -d ~{tdr_dataset_id} \
+                                                 -t ~{tdr_target_table_name} \
+                                                 -f ~{outputs_tsv}
+    }
+
+    runtime {
+        docker: "broadinstitute/horsefish"
+    }
+
+    output {
+        File ingest_logs = stdout()
+    }
+}
