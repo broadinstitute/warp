@@ -789,8 +789,8 @@ task updateOutputsInTDR {
       -o "~{outputs_json}" \      # json of data to ingest
       -k "sample_id" \            # primary key field name
       -v "~{sample_id}" \         # primary key value
-      -t "version_timestamp" \    # field to populate with timestamp at ingest
-      -t "analysis_end_time"      # field to populate with timestamp at ingest
+      -f "version_timestamp" \    # field to populate with timestamp at ingest
+      -f "analysis_end_time"      # field to populate with timestamp at ingest
   >>>
 
   runtime {
