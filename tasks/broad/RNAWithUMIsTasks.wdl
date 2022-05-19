@@ -783,14 +783,21 @@ task updateOutputsInTDR {
   }
 
   command <<<
+    # input args:
+    # -d dataset uuid
+    # -t target table in dataset
+    # -o json of data to ingest
+    # -k primary key field name
+    # -v primary key value
+    # -f field to populate with timestamp at ingest (can have multiple)
     python -u /scripts/export_pipeline_outputs_to_tdr.py \
-      -d "~{tdr_dataset_uuid}" \  # dataset uuid
-      -t "sample" \               # target table in dataset
-      -o "~{outputs_json}" \      # json of data to ingest
-      -k "sample_id" \            # primary key field name
-      -v "~{sample_id}" \         # primary key value
-      -f "version_timestamp" \    # field to populate with timestamp at ingest
-      -f "analysis_end_time"      # field to populate with timestamp at ingest
+      -d "~{tdr_dataset_uuid}" \
+      -t "sample" \
+      -o "~{outputs_json}" \
+      -k "sample_id" \
+      -v "~{sample_id}" \
+      -f "version_timestamp" \
+      -f "analysis_end_time"
   >>>
 
   runtime {
