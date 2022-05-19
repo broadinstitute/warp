@@ -63,9 +63,6 @@ task FormatImputationWideOutputs{
         Array[String]?  imputed_single_sample_vcf_indices
     }
 
-    # String prefix="[\""
-    # String postfix="\"]"
-
     command <<<
 
         python3 << CODE
@@ -74,11 +71,9 @@ task FormatImputationWideOutputs{
 
         print("imputed_single_sample_vcfs")
         single_sample_vcfs = [ x for x in [ "~{sep='", "' imputed_single_sample_vcfs}" ]  if x != "" ]
-        # single_sample_vcfs=~{prefix}~{sep="\", \"" imputed_single_sample_vcfs}~{postfix}
 
         print("imputed_single_sample_vcf_indices")
         single_sample_vcf_indices = [ x for x in [ "~{sep='", "' imputed_single_sample_vcf_indices}" ]  if x != "" ]
-        # single_sample_vcf_indices=~{prefix}~{sep="\", \"" imputed_single_sample_vcf_indices}~{postfix}
 
         print("creating dataframe")
         all_samples = []
