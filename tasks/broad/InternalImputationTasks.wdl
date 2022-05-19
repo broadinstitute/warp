@@ -48,7 +48,7 @@ task FormatImputationOutputs {
     >>>
 
     runtime {
-        docker: "broadinstitute/horsefish"
+        docker: "broadinstitute/horsefish:eMerge_05192022"
     }
 
     output {
@@ -118,7 +118,7 @@ task FormatImputationWideOutputs{
     >>>
 
     runtime {
-        docker: "broadinstitute/horsefish"
+        docker: "broadinstitute/horsefish:eMerge_05192022"
     }
 
     output {
