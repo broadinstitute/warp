@@ -2,6 +2,7 @@
 2022-05-19 (Date of Last Commit)
 
 * Patch security vulnerability in arrays-picard-private docker image
+* Update arrays internal tasks, this update has no effect on this pipeline
 
 # 1.0.10
 2022-04-26 (Date of Last Commit)
