@@ -1,3 +1,8 @@
+# 2.6.11
+2022-05-19 (Date of Last Commit)
+
+* Patch security vulnerability in arrays-picard-private docker image
+
 # 2.6.10
 2022-05-05 (Date of Last Commit)
 * Update Arrays.wdl to output bead_pool_manifest_file so it can be used in new test wdls

@@ -1,3 +1,8 @@
+# 1.0.11
+2022-05-19 (Date of Last Commit)
+
+* Patch security vulnerability in arrays-picard-private docker image
+
 # 1.0.10
 2022-04-26 (Date of Last Commit)
 * Remove rounding on some metrics outputs in RNAWithUMIsTasks.formatPipelineOutputs for TDR inputs
