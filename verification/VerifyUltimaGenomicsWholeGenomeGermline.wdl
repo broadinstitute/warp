@@ -88,22 +88,17 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
       patternForLinesToExcludeFromComparison = "^##GATKCommandLine"
   }
 
-  # TODO - Temporarily commenting out CompareFilteredVcfs and CompareGvcfs:
-  # the outputs of the FilterVcf task are non-deterministic
-  # particiularly - specifically the TREE_SCORE.
-  # Ultima is going to look into this andd if the task can be made deterministic
-#  call Tasks.CompareVcfs as CompareFilteredVcfs {
-#    input:
-#      file1 = test_filtered_vcf,
-#      file2 = truth_filtered_vcf
-#  }
+  call Tasks.CompareVcfs as CompareFilteredVcfs {
+    input:
+      file1 = test_filtered_vcf,
+      file2 = truth_filtered_vcf
+  }
 
-#  call Tasks.CompareVcfs as CompareGvcfs {
-#    input:
-#      file1 = test_gvcf,
-#      file2 = truth_gvcf,
-#  }
-  # END TODOO
+  call Tasks.CompareVcfs as CompareGvcfs {
+    input:
+     file1 = test_gvcf,
+      file2 = truth_gvcf,
+  }
 
   meta {
     allowNestedInputs: true
