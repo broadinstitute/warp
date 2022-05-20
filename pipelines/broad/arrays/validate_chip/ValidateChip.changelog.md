@@ -1,3 +1,8 @@
+# 1.15.8
+2022-05-19 (Date of Last Commit)
+
+* Patch security vulnerability in arrays-picard-private docker image
+
 # 1.15.7
 2022-04-19 (Date of Last Commit)
 
