@@ -74,3 +74,11 @@ workflows:
   - name: BroadInternalRNAWithUMIs
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/internal/rna_seq/BroadInternalRNAWithUMIs.wdl
+
+  - name: Arrays_TDR
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/internal/arrays/single_sample/BroadInternalArrays.wdl
+
+  - name: Imputation_TDR
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/internal/arrays/imputation/BroadInternalImputation.wdl
