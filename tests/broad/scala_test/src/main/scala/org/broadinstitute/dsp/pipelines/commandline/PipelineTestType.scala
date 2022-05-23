@@ -33,6 +33,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestCramToUnmappedBams",
   //      "/broad/reprocessing/cram_to_unmapped_bams/"
   //    )
+  case object BroadInternalRNAWithUMIs
+      extends PipelineTestType(
+        "TestBroadInternalRNAWithUMIs",
+        "BroadInternalRNAWithUMIs",
+        "/broad/internal/rna_seq/"
+      )
   case object ExomeGermlineSingleSample
       extends PipelineTestType(
         "TestExomeGermlineSingleSample",
