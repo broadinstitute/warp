@@ -1,3 +1,9 @@
+# 1.0.1
+2022-05-23 (Date of Last Commit)
+
+* Task added to copy the outputs of FormatImputationOutputs to an external GCS location to trigger a CF for a downstream eMerge process.
+
+
 # 1.0.0
 2022-05-19 (Date of Last Commit)
 
