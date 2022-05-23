@@ -72,7 +72,6 @@ workflow TestExomeReprocessing {
   # Collect all of the pipeline outputs into a single Array[String]]
   Array[String] pipeline_outputs = flatten([
                             [ # File outputs
-                            ExomeReprocessing.read_group_alignment_summary_metrics,
                             ExomeReprocessing.selfSM,
                             ExomeReprocessing.calculate_read_group_checksum_md5,
                             ExomeReprocessing.output_cram,
@@ -128,7 +127,6 @@ workflow TestExomeReprocessing {
       files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
       vault_token_path          = vault_token_path,
       google_account_vault_path = google_account_vault_path,
-      contamination             = ExomeReprocessing.contamination,
       destination_cloud_path    = results_path
   }
 
@@ -139,7 +137,6 @@ workflow TestExomeReprocessing {
       files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
       vault_token_path          = vault_token_path,
       google_account_vault_path = google_account_vault_path,
-      contamination             = ExomeReprocessing.contamination,
       destination_cloud_path    = truth_path
     }
   }
@@ -209,7 +206,5 @@ workflow TestExomeReprocessing {
     }
   }
 
-  output {
-    Array[File]? metric_comparison_report_files = Verify.metric_comparison_report_files
-  }
+
 }

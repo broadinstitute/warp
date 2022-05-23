@@ -52,7 +52,6 @@ workflow VerifyReprocessing {
   }
 
   output {
-     Array[File]? metric_comparison_report_files = VerifyGermlineSingleSample.metric_comparison_report_files
   }
 }
 
