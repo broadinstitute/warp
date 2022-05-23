@@ -1,7 +1,7 @@
 # 1.0.1
 2022-05-23 (Date of Last Commit)
 
-* Task added to copy the outputs of FormatImputationOutputs to an external GCS location to trigger a CF for a downstream eMerge process.
+* Task (and call) added to copy the outputs of FormatImputationOutputs to an external GCS location which acts as a trigger for a CF (cloud function) for a downstream eMerge process - set up for PRS scoring WDL.
 
 
 # 1.0.0
