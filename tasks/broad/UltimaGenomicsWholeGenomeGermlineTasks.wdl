@@ -629,7 +629,7 @@ task FilterVCF {
     String flow_order
     Array[File] annotation_intervals
 
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_cfa2f0"
     Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + size(references.ref_fasta, "GB") + size(input_model, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 64000
@@ -685,7 +685,7 @@ task TrainModel {
     String? exome_weight_annotation
 
 
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_cfa2f0"
     Int disk_size_gb = ceil(size(input_file, "GB") +
                         size(ref_fasta, "GB") +
                         size(annotation_intervals, "GB") +
@@ -982,7 +982,7 @@ task AddIntervalAnnotationsToVCF {
     String final_vcf_base_name
     Array[File] annotation_intervals
 
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_cfa2f0"
     Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + 1)
     Int cpu = 1
     Int memory_mb = 15000
@@ -1032,7 +1032,7 @@ task AnnotateVCF_AF {
     File af_only_gnomad
     File af_only_gnomad_index
 
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_0.7rc1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_cfa2f0"
     Int disk_size_gb = ceil(3 * size(input_vcf, "GB") + size(af_only_gnomad, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 10000
