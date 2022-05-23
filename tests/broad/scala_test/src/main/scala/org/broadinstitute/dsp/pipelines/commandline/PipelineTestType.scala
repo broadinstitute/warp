@@ -33,6 +33,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestCramToUnmappedBams",
   //      "/broad/reprocessing/cram_to_unmapped_bams/"
   //    )
+  case object BroadInternalRNAWithUMIs
+      extends PipelineTestType(
+        "TestBroadInternalRNAWithUMIs",
+        "BroadInternalRNAWithUMIs",
+        "/broad/internal/rna_seq/"
+      )
   case object ExomeGermlineSingleSample
       extends PipelineTestType(
         "TestExomeGermlineSingleSample",
@@ -96,6 +102,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestReblockGVCF",
   //      "/broad/dna_seq/germline/joint_genotyping/reblocking/"
   //    )
+  case object RNAWithUMIsPipeline
+      extends PipelineTestType(
+        "TestRNAWithUMIsPipeline",
+        "RNAWithUMIsPipeline",
+        "/broad/rna_seq/"
+      )
   case object scATAC
       extends PipelineTestType(
         "TestscATAC",
