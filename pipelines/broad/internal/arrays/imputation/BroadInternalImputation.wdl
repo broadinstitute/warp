@@ -15,6 +15,7 @@ workflow BroadInternalImputation {
         String workspace_bucket
         String tdr_dataset_id
         String tdr_target_table_name
+        String prs_cf_trigger_bucket_path
 
         # required inputs to Imputation.wdl
         Array[String]   contigs
@@ -73,6 +74,12 @@ workflow BroadInternalImputation {
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = "ImputationWideOutputsTable",
             outputs_tsv             = FormatImputationWideOutputs.ingest_outputs_wide_tsv
+    }
+
+    call InternalImputationTasks.TriggerPrsWithImputationTsv {
+        input:
+            imputation_outputs_tsv = FormatImputationOutputs.ingest_outputs_tsv,
+            trigger_bucket_path = prs_cf_trigger_bucket_path
     }
 
     output {
