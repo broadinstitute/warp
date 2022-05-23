@@ -309,7 +309,7 @@ task rnaseqc2 {
 
     String docker =  "us.gcr.io/broad-dsde-methods/ckachulis/rnaseqc:2.4.2"
     Int cpu = 1
-    Int memory_mb = 3500
+    Int memory_mb = 8000
     Int disk_size_gb = ceil(size(bam_file, 'GiB') + size(genes_gtf, 'GiB') + size(exon_bed, 'GiB')) + 50
   }
 
