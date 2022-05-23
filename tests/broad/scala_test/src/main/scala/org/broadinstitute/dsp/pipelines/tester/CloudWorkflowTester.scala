@@ -132,6 +132,18 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     }
   }
 
+// private def buildWorkflowInputs(
+//     truthBranch: String
+// ): String = {
+//   Resource
+//     .getAsString("SomeInputs.json?")
+//     .lines
+//     .map(
+//         .replace("{TRUTH_BRANCH}", truthBranch)
+//     )
+//     .mkString
+// }
+
   /**
     * Format the inputs for the test WDL
     */
@@ -163,6 +175,9 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
 
     var inputsString = (workflowInputRoot / fileName).contentAsString
       .replace(pipeline, workflowName)
+
+    inputsString =
+      inputsString.replaceAll("\\{TRUTH_BRANCH}", testerConfig.truthBranch)
 
     inputsString = pattern.replaceAllIn(
       inputsString,
