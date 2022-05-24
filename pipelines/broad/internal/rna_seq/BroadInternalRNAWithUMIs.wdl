@@ -7,7 +7,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow BroadInternalRNAWithUMIs {
 
-  String pipeline_version = "1.0.2"
+  String pipeline_version = "1.0.11"
 
   input {
     # input needs to be either "hg19" or "hg38"
@@ -32,21 +32,22 @@ workflow BroadInternalRNAWithUMIs {
     String? tdr_dataset_uuid
     String? tdr_sample_id
     String? tdr_staging_bucket
-    String? tdr_gcp_project_for_query
 
     String environment
     File vault_token_path
   }
 
-  File ref = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta"
-  File refIndex = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta.fai"
-  File refDict = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.dict"
-  File haplotype_database_file = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.haplotype_database.txt"
-  File refFlat = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/annotation/Homo_sapiens_assembly19.refFlat.txt" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/hg38_GENCODE_v34_refFlat.txt"
-  File starIndex = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/star/STAR2.7.10a_genome_hg19_noALT_noHLA_noDecoy_v19_oh145.tar.gz" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/star/STAR2.7.10a_genome_GRCh38_noALT_noHLA_noDecoy_v34_oh145.tar.gz"
-  File gtf = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/annotation/gencode.v19.genes.v7.collapsed_only.patched_contigs.gtf" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode.v34.annotation_collapsed_only.gtf"
-  File ribosomalIntervals = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/annotation/Homo_sapiens_assembly19.rRNA.interval_list" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode_v34_rRNA.interval_list"
-  File exonBedFile = if (reference_build == "hg19") then "gs://broad-references/hg19/v0/annotation/gencode.v19.hg19.insert_size_intervals_geq1000bp.bed" else "gs://broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode.v34.GRCh38.insert_size_intervals_geq1000bp.bed"
+  File ref = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta" else "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta"
+  File refIndex = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai" else "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta.fai"
+  File refDict = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict" else "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.dict"
+  File haplotype_database_file = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt" else "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.haplotype_database.txt"
+  File refFlat = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/annotation/Homo_sapiens_assembly19.refFlat.txt" else "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/hg38_GENCODE_v34_refFlat.txt"
+  File starIndex = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/star/STAR2.7.10a_genome_hg19_noALT_noHLA_noDecoy_v19_oh145.tar.gz" else "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/star/STAR2.7.10a_genome_GRCh38_noALT_noHLA_noDecoy_v34_oh145.tar.gz"
+  File gtf = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/annotation/gencode.v19.genes.v7.collapsed_only.patched_contigs.gtf" else "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode.v34.annotation_collapsed_only.gtf"
+  File ribosomalIntervals = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/annotation/Homo_sapiens_assembly19.rRNA.interval_list" else "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode_v34_rRNA.interval_list"
+  File exonBedFile = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/annotation/gencode.v19.hg19.insert_size_intervals_geq1000bp.bed" else "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/annotation/gencode.v34.GRCh38.insert_size_intervals_geq1000bp.bed"
+  File population_vcf = if (reference_build == "hg19") then "gs://gatk-best-practices/somatic-b37/small_exac_common_3.vcf" else "gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz"
+  File population_vcf_index = if (reference_build == "hg19") then "gs://gatk-best-practices/somatic-b37/small_exac_common_3.vcf.idx" else "gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz.tbi"
 
   parameter_meta {
     reference_build: "String used to define the reference genome build; should be set to 'hg19' or 'hg38'"
@@ -63,10 +64,9 @@ workflow BroadInternalRNAWithUMIs {
     sequencing_center: "String used to describe the sequencing center; default is set to 'BI'"
     environment: "The environment (dev or prod) used for determining which service to use to retrieve Mercury fingerprints"
     vault_token_path: "The path to the vault token used for accessing the Mercury Fingerprint Store"
-    tdr_dataset_uuid: "Optional String used to define the Terra Data Repo dataset to which outputs will be ingested, if populated"
-    tdr_sample_id: "Optional String used to identify the sample being processed; this is the primary key in the TDR dataset"
-    tdr_staging_bucket: "Optional String defining the GCS bucket to use to stage files for loading to TDR. Workspace bucket is recommended"
-    tdr_gcp_project_for_query: "Optional String defining the GCP project to use to query the TDR dataset in BigQuery"
+    tdr_dataset_uuid: "Optional string used to define the Terra Data Repo (TDR) dataset to which outputs will be ingested"
+    tdr_sample_id: "Optional string used to identify the sample being processed; this is the primary key in the TDR dataset"
+    tdr_staging_bucket: "Optional string defining the GCS bucket to use to stage files for loading to TDR; the workspace bucket is recommended"
   }
 
   # make sure either hg19 or hg38 is supplied as reference_build input
@@ -96,7 +96,9 @@ workflow BroadInternalRNAWithUMIs {
       refDict = refDict,
       refFlat = refFlat,
       ribosomalIntervals = ribosomalIntervals,
-      exonBedFile = exonBedFile
+      exonBedFile = exonBedFile,
+      population_vcf = population_vcf,
+      population_vcf_index = population_vcf_index
   }
 
   call FP.CheckFingerprint as CheckFingerprint {
@@ -126,10 +128,10 @@ workflow BroadInternalRNAWithUMIs {
       output_basename = RNAWithUMIs.sample_name
   }
 
-  if (defined(tdr_dataset_uuid) && defined(tdr_sample_id) && defined(tdr_staging_bucket) && defined(tdr_gcp_project_for_query)) {
+  if (defined(tdr_dataset_uuid) && defined(tdr_sample_id) && defined(tdr_staging_bucket)) {
     call tasks.formatPipelineOutputs {
       input:
-        output_basename = output_basename,
+        sample_id = select_first([tdr_sample_id, ""]),
         transcriptome_bam = RNAWithUMIs.transcriptome_bam,
         transcriptome_bam_index = RNAWithUMIs.transcriptome_bam_index,
         transcriptome_duplicate_metrics = RNAWithUMIs.transcriptome_duplicate_metrics,
@@ -153,13 +155,16 @@ workflow BroadInternalRNAWithUMIs {
         picard_quality_distribution_pdf = RNAWithUMIs.picard_quality_distribution_pdf,
         picard_fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file,
         picard_fingerprint_detail_metrics = CheckFingerprint.fingerprint_detail_metrics_file,
-        unified_metrics = MergeMetrics.unified_metrics
+        unified_metrics = MergeMetrics.unified_metrics,
+        contamination = RNAWithUMIs.contamination,
+        contamination_error = RNAWithUMIs.contamination_error,
+        fastqc_html_report = RNAWithUMIs.fastqc_html_report,
+        fastqc_percent_reads_with_adapter = RNAWithUMIs.fastqc_percent_reads_with_adapter
     }
 
     call tasks.updateOutputsInTDR {
       input:
         tdr_dataset_uuid = select_first([tdr_dataset_uuid, ""]),
-        tdr_gcp_project_for_query = select_first([tdr_gcp_project_for_query, ""]),
         outputs_json = formatPipelineOutputs.pipeline_outputs_json,
         sample_id = select_first([tdr_sample_id, ""]),
         staging_bucket = select_first([tdr_staging_bucket, ""])
@@ -191,5 +196,9 @@ workflow BroadInternalRNAWithUMIs {
     File? picard_fingerprint_summary_metrics = CheckFingerprint.fingerprint_summary_metrics_file
     File? picard_fingerprint_detail_metrics = CheckFingerprint.fingerprint_detail_metrics_file
     File unified_metrics = MergeMetrics.unified_metrics
+    Float contamination = RNAWithUMIs.contamination
+    Float contamination_error = RNAWithUMIs.contamination_error
+    File fastqc_html_report = RNAWithUMIs.fastqc_html_report
+    Float fastqc_percent_reads_with_adapter = RNAWithUMIs.fastqc_percent_reads_with_adapter
   }
 }

@@ -265,7 +265,6 @@ task STARsoloFastq {
         exit 1;
     fi
 
-
     COUNTING_MODE=""
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
@@ -274,12 +273,7 @@ task STARsoloFastq {
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
     ## single nuclei
-      if [[ ~{count_exons} ]]
-      then
-        COUNTING_MODE="Gene GeneFull"
-      else
         COUNTING_MODE="GeneFull"
-      fi
     else
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
         exit 1;
@@ -291,7 +285,27 @@ task STARsoloFastq {
     rm "~{tar_star_reference}"
 
 
-    echo "UMI LEN " $UMILen 
+    echo "UMI LEN " $UMILen
+    if [[ ~{count_exons} ]]
+    then
+      STAR \
+      --soloType Droplet \
+      --soloStrand Unstranded \
+      --runThreadN ${cpu} \
+      --genomeDir genome_reference \
+      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
+      --readFilesCommand "gunzip -c" \
+      --soloCBwhitelist ~{white_list} \
+      --soloUMIlen $UMILen --soloCBlen $CBLen \
+      --soloFeatures "Gene" \
+      --clipAdapterType CellRanger4 \
+      --outFilterScoreMin 30  \
+      --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
+      --soloUMIdedup 1MM_Directional_UMItools \
+      --outSAMtype BAM SortedByCoordinate \
+      --outSAMattributes UB UR UY CR CB CY NH GX GN \
+      --soloBarcodeReadLength 0
+    fi
 
     STAR \
       --soloType Droplet \
@@ -424,15 +438,15 @@ task MergeStarOutput {
     Array[File] barcodes
     Array[File] features
     Array[File] matrix
+    String input_id
 
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:merge-star-outputs-v1.0.0"
+    String docker = "quay.io/humancellatlas/secondary-analysis-star:merge-star-outputs-v1.1.9"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
     Int preemptible = 3
   }
-
   meta {
     description: "Create three files as .npy,  .npy and .npz for numpy array and scipy csr matrix for the barcodes, gene names and the count matrix by merging multiple  STARSolo count matrices (mtx format)."
   }
@@ -445,7 +459,7 @@ task MergeStarOutput {
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
-  command {
+  command <<<
     set -e
     declare -a barcodes_files=(~{sep=' ' barcodes})
     declare -a features_files=(~{sep=' ' features})
@@ -453,11 +467,11 @@ task MergeStarOutput {
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
     python3 /tools/create-merged-npz-output.py \
-        --barcodes $barcodes_files \
-        --features $features_files \
-        --matrix $matrix_files
-
-  }
+        --barcodes ${barcodes_files[@]} \
+        --features ${features_files[@]} \
+        --matrix ${matrix_files[@]} \
+        --input_id ~{input_id}
+  >>>
 
   runtime {
     docker: docker
@@ -468,8 +482,8 @@ task MergeStarOutput {
   }
 
   output {
-    File row_index = "sparse_counts_row_index.npy"
-    File col_index = "sparse_counts_col_index.npy"
-    File sparse_counts = "sparse_counts.npz"
+    File row_index = "~{input_id}_sparse_counts_row_index.npy"
+    File col_index = "~{input_id}_sparse_counts_col_index.npy"
+    File sparse_counts = "~{input_id}_sparse_counts.npz"
   }
 }

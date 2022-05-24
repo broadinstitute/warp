@@ -30,8 +30,8 @@ You can run the [Smart-seq2 Single Nucleus Multi-Sample workflow](https://github
 | Assay type | Smart-seq2 Single Nucleus | [Smart-seq2](https://www.nature.com/articles/nprot.2014.006)
 | Overall workflow  | Quality control and transcriptome quantification. | Code available from the [WARP repository](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/smartseq2_single_nucleus/SmartSeq2SingleNucleus.wdl) in GitHub |
 | Workflow language | WDL | [openWDL](https://github.com/openwdl/wdl) |
-| Genomic reference sequence (for validation)| GRCm38 mouse genome primary sequence. | GENCODE GRCm38 [Mouse](http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M23/GRCm38.primary_assembly.genome.fa.gz) |
-| Transcriptomic reference annotation (for validation) | Modified [M23](https://www.gencodegenes.org/mouse/release_M23.html) GTF built with the  [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl).| GENCODE |
+| Genomic reference sequence (for validation)| GRCm38 mouse genome primary sequence. | GENCODE GRCm38 [mouse reference files](http://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M23/GRCm38.primary_assembly.genome.fa.gz) |
+| Transcriptomic reference annotation (for validation) | Modified M23 GTF built with the  [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl).| GENCODE [M23 GTF](https://www.gencodegenes.org/mouse/release_M23.html); modified version available [Broad references](gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_gencode.vM23.primary_assembly.annotation.gtf)|
 | Aligner  | STAR | [STAR](https://github.com/alexdobin/STAR) |
 | QC metrics | Picard | [Broad Institute](https://broadinstitute.github.io/picard/)   |
 | Transcript quantification | featureCounts (utilities for counting reads to genomic features). | [featureCounts](http://subread.sourceforge.net/)

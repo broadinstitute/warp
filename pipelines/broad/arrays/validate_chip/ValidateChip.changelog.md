@@ -1,3 +1,20 @@
+# 1.15.8
+2022-05-19 (Date of Last Commit)
+
+* Patch security vulnerability in arrays-picard-private docker image
+* Update arrays internal tasks, this update has no effect on this pipeline
+
+# 1.15.7
+2022-04-19 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
+# 1.15.6
+2022-04-14 (Date of Last Commit)
+
+* Update base image for picard-private docker image
+* Add gsutil to PATH in picard-private docker image
+
 # 1.15.5
 2022-02-025 (Date of Last Commit)
 

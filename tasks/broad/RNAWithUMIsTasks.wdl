@@ -10,13 +10,6 @@ task VerifyPipelineInputs {
     File? r1_fastq
     File? r2_fastq
 
-    # fastq specific field
-    String? platform
-    String? library_name
-    String? platform_unit
-    String? read_group_name
-    String? sequencing_center = "BI"
-
     String docker = "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     Int cpu = 1
     Int memory_mb = 2000
@@ -31,19 +24,13 @@ task VerifyPipelineInputs {
     bam = "~{bam}"
     r1_fastq = "~{r1_fastq}"
     r2_fastq = "~{r2_fastq}"
-    platform = "~{platform}"
-    library_name = "~{library_name}"
-    platform_unit = "~{platform_unit}"
-    read_group_name = "~{read_group_name}"
-    sequencing_center = "~{sequencing_center}"
 
     if bam and not r1_fastq and not r2_fastq:
       pass
     elif r1_fastq and r2_fastq and not bam:
-      if platform and library_name and platform_unit and read_group_name and sequencing_center:
-        fastq_flag += 1
-      else:
-        raise ValueError("Invalid Input. Input must be either ubam or pair of fastqs with supplemental data")
+      fastq_flag += 1
+    else:
+      raise ValueError("Invalid Input. Input must be either ubam or a pair of fastqs")
 
     with open("output.txt", "w") as f:
       if fastq_flag == 1:
@@ -101,6 +88,42 @@ task ExtractUMIs {
   }
 }
 
+# Adapter clipping
+# https://github.com/OpenGene/fastp
+task Fastp {
+  input {
+    File fastq1
+    File fastq2
+    String output_prefix
+    File adapter_fasta = "gs://gcp-public-data--broad-references/RNA/resources/Illumina_adapters.fasta"
+
+    String docker = "us.gcr.io/broad-gotc-prod/fastp:1.0.0-0.20.1-1649253500"
+    Int memory_mb =  "16384"
+    Int disk_size_gb = 5*ceil(size(fastq1, "GiB")) + 128
+  }
+
+  command {
+    fastp --in1 ~{fastq1} --in2 ~{fastq2} --out1 ~{output_prefix}_read1.fastq.gz --out2 ~{output_prefix}_read2.fastq.gz \
+    --disable_quality_filtering \
+    --disable_length_filtering \
+    --adapter_fasta ~{adapter_fasta}
+  }
+  
+
+  runtime {
+    docker: docker
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+    preemptible: 0
+  }
+
+  output {
+    File fastq1_clipped = output_prefix + "_read1.fastq.gz"
+    File fastq2_clipped = output_prefix + "_read2.fastq.gz"
+  }
+
+}
+
 task STAR {
   input {
     File bam
@@ -121,7 +144,7 @@ task STAR {
       --runMode alignReads \
       --runThreadN ~{cpu} \
       --genomeDir star_index \
-      --outSAMtype BAM Unsorted  \
+      --outSAMtype BAM Unsorted \
       --readFilesIn ~{bam} \
       --readFilesType SAM PE \
       --readFilesCommand samtools view -h \
@@ -144,7 +167,7 @@ task STAR {
       --chimOutJunctionFormat 0 \
       --twopassMode Basic \
       --quantMode TranscriptomeSAM \
-      --quantTranscriptomeBan Singleend \
+      --quantTranscriptomeBan IndelSoftclipSingleend \
       --alignEndsProtrude 20 ConcordantPair
   >>>
 
@@ -173,7 +196,7 @@ task FastqToUbam {
     String read_group_name
     String sequencing_center
 
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2) + 50
@@ -245,7 +268,7 @@ task GetSampleName {
   input {
     File bam
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.0.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
@@ -322,7 +345,8 @@ task CollectRNASeqMetrics {
     File ref_flat
     File ribosomal_intervals
 
-    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+
+    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
@@ -361,7 +385,8 @@ task CollectMultipleMetrics {
     File ref_fasta
     File ref_fasta_index
 
-    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+
+    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
@@ -492,7 +517,8 @@ task SortSamByCoordinate {
     # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
     Float sort_sam_disk_multiplier = 4.0
 
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
@@ -534,7 +560,8 @@ task SortSamByQueryName {
     # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
     Float sort_sam_disk_multiplier = 6.0
 
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
@@ -598,8 +625,10 @@ task MarkDuplicatesUMIAware {
   input {
     File bam
     String output_basename
+    Boolean remove_duplicates
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+
+    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3 * size(bam, "GiB")) + 60
@@ -608,7 +637,12 @@ task MarkDuplicatesUMIAware {
   String output_bam_basename = output_basename + ".duplicate_marked"
 
   command <<<
-    gatk MarkDuplicates -I ~{bam} --READ_ONE_BARCODE_TAG BX -O ~{output_bam_basename}.bam --METRICS_FILE ~{output_basename}.duplicate.metrics --ASSUME_SORT_ORDER queryname
+    java -jar /usr/picard/picard.jar MarkDuplicates \
+    INPUT=~{bam} \
+    OUTPUT=~{output_bam_basename}.bam \
+    METRICS_FILE=~{output_basename}.duplicate.metrics \
+    READ_ONE_BARCODE_TAG=BX \
+    REMOVE_DUPLICATES=~{remove_duplicates}
   >>>
 
   output {
@@ -624,10 +658,9 @@ task MarkDuplicatesUMIAware {
   }
 }
 
-
 task formatPipelineOutputs {
   input {
-    String output_basename
+    String sample_id
     String transcriptome_bam
     String transcriptome_bam_index
     String transcriptome_duplicate_metrics
@@ -652,13 +685,17 @@ task formatPipelineOutputs {
     String? picard_fingerprint_summary_metrics
     String? picard_fingerprint_detail_metrics
     File unified_metrics
+    Float contamination
+    Float contamination_error
+    String fastqc_html_report
+    String fastqc_percent_reads_with_adapter
 
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = 10
   }
 
-  String outputs_json_file_name = "outputs_to_TDR_~{output_basename}.json"
+  String outputs_json_file_name = "outputs_to_TDR_~{sample_id}.json"
 
   command <<<
     python3 << CODE
@@ -667,6 +704,7 @@ task formatPipelineOutputs {
     outputs_dict = {}
 
     # NOTE: we rename some field names to match the TDR schema
+    outputs_dict["sample_id"]="~{sample_id}" # primary key
     outputs_dict["transcriptome_bam"]="~{transcriptome_bam}"
     outputs_dict["transcriptome_bam_index"]="~{transcriptome_bam_index}"
     outputs_dict["transcriptome_duplicate_metrics_file"]="~{transcriptome_duplicate_metrics}"
@@ -690,6 +728,10 @@ task formatPipelineOutputs {
     outputs_dict["picard_quality_distribution_pdf_file"]="~{picard_quality_distribution_pdf}"
     outputs_dict["fp_summary_metrics_file"]="~{picard_fingerprint_summary_metrics}"
     outputs_dict["fp_detail_metrics_file"]="~{picard_fingerprint_detail_metrics}"
+    outputs_dict["fastqc_html_report"]="~{fastqc_html_report}"
+    outputs_dict["fastqc_percent_reads_with_adapter"]="~{fastqc_percent_reads_with_adapter}"
+    outputs_dict["contamination"]="~{contamination}"
+    outputs_dict["contamination_error"]="~{contamination_error}"
 
     # explode unified metrics file
     with open("~{unified_metrics}", "r") as infile:
@@ -700,7 +742,7 @@ task formatPipelineOutputs {
     # write full outputs to file
     with open("~{outputs_json_file_name}", 'w') as outputs_file:
       for key, value in outputs_dict.items():
-        if value == "None":
+        if value == "None" or value == "":
           outputs_dict[key] = None
       outputs_file.write(json.dumps(outputs_dict))
       outputs_file.write("\n")
@@ -708,7 +750,7 @@ task formatPipelineOutputs {
   >>>
 
   runtime {
-    docker: "broadinstitute/horsefish:twisttcap_scripts"
+    docker: "broadinstitute/horsefish:tdr_import_v1.1"
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
@@ -723,7 +765,6 @@ task updateOutputsInTDR {
   input {
     String staging_bucket
     String tdr_dataset_uuid
-    String tdr_gcp_project_for_query
     File outputs_json
     String sample_id
 
@@ -740,8 +781,8 @@ task updateOutputsInTDR {
       -b "~{staging_bucket}" \
       -t "~{tdr_target_table}" \
       -o "~{outputs_json}" \
-      -s "~{sample_id}" \
-      -p "~{tdr_gcp_project_for_query}"
+      -k "sample_id" \
+      -v "~{sample_id}"
   >>>
 
   runtime {
@@ -753,5 +794,209 @@ task updateOutputsInTDR {
 
   output {
     File ingest_logs = stdout()
+  }
+}
+
+# GATK CalculateContamination, adapted for RNA-seq data.
+# Specifically, we disable two read filters from the default set of read filters
+# for a LocusWalker:
+# 1. WellformedReadFilter: This filter removes (among others) reads with N's in the CIGAR string, which is 
+# common in RNA data.
+# 2. MappingQualityAvailableReadFilter: This filter removes reads with MQ=255, which by SAM spec
+# means mapping quality is missing. But STAR uses 255 to mean unique mapping, the equivalent of MQ60
+# for other aligners.
+task CalculateContamination {
+  input {
+    File bam
+    File bam_index
+    String base_name
+    File ref_fasta
+    File ref_dict
+    File ref_fasta_index
+    File population_vcf
+    File population_vcf_index
+    # runtime
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    Int cpu = 1
+    Int memory_mb = 8192
+    Int disk_size_gb = 256
+  }
+
+  parameter_meta {
+    bam: { localization_optional: true }
+    bam_index: { localization_optional: true }
+    ref_fasta: { localization_optional: true }
+    ref_fasta_index: { localization_optional: true }
+    ref_dict: { localization_optional: true }
+  }
+
+  command <<<
+    set -e
+    gatk --java-options "-Xmx4096m" GetPileupSummaries \
+    -R ~{ref_fasta} \
+    -I ~{bam} \
+    -V ~{population_vcf} \
+    -L ~{population_vcf} \
+    -O ~{base_name}_pileups.tsv \
+    --disable-read-filter WellformedReadFilter \
+    --disable-read-filter MappingQualityAvailableReadFilter
+
+    gatk --java-options "-Xmx4096m" CalculateContamination \
+    -I ~{base_name}_pileups.tsv \
+    -O ~{base_name}_contamination.tsv
+  
+    grep -v ^sample ~{base_name}_contamination.tsv | awk 'BEGIN{FS="\t"}{print($2)}' > contamination.txt 
+    grep -v ^sample ~{base_name}_contamination.tsv | awk 'BEGIN{FS="\t"}{print($3)}' > contamination_error.txt
+  >>>
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+  }
+
+  output {
+      File pileups = "~{base_name}_pileups.tsv"
+      File contamination_table = "~{base_name}_contamination.tsv"
+      Float contamination = read_float("contamination.txt")
+      Float contamination_error = read_float("contamination_error.txt")
+  }
+}
+
+task SamToFastq {
+  input {
+    File bam
+    String output_prefix
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
+    Int memory_mb = 4096
+    Int disk_size_gb = 3*ceil(size(bam, "GiB")) + 128
+  }
+
+  command {
+    java -jar /usr/picard/picard.jar SamToFastq \
+    I=~{bam} \
+    FASTQ=~{output_prefix}_1.fastq.gz \
+    SECOND_END_FASTQ=~{output_prefix}_2.fastq.gz
+
+  }
+
+  runtime {
+    docker: docker
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+  }
+
+  output {
+    File fastq1 = output_prefix + "_1.fastq.gz"
+    File fastq2 = output_prefix + "_2.fastq.gz"
+  }
+}
+
+task FastQC {
+  input {
+    File unmapped_bam
+    Float? mem = 4
+    String docker = "us.gcr.io/tag-public/tag-tools:1.0.0" # sato: This likely needs to be made public
+    Int memory_mb = 4096
+    Int disk_size_gb = 3*ceil(size(unmapped_bam, "GiB")) + 128
+  }
+
+  String bam_basename = basename(unmapped_bam, ".bam")
+
+  command {
+    perl /usr/tag/scripts/FastQC/fastqc ~{unmapped_bam} --extract -o ./
+    mv ~{bam_basename}_fastqc/fastqc_data.txt ~{bam_basename}_fastqc_data.txt
+
+    tail -n 2 ~{bam_basename}_fastqc_data.txt | head -n 1 | cut -f 2 > ~{bam_basename}_adapter_content.txt
+  }
+  
+  runtime {
+    docker: docker
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+  }
+
+  output {
+    File fastqc_data = "~{bam_basename}_fastqc_data.txt"
+    File fastqc_html = "~{bam_basename}_fastqc.html"
+    Float fastqc_percent_reads_with_adapter = read_float("~{bam_basename}_adapter_content.txt")
+  }
+}
+
+task TransferReadTags {
+  input {
+    File aligned_bam
+    File ubam
+    String output_basename
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
+    Int memory_mb = 16000
+    Int disk_size_gb = ceil(2 * size(aligned_bam, "GiB")) + ceil(2 * size(ubam, "GiB")) + 128
+  }
+
+  command <<<
+    gatk TransferReadTags \
+    -I ~{aligned_bam} \
+    --unmapped-sam ~{ubam} \
+    -O ~{output_basename}.bam \
+    --read-tags RX
+  >>>
+
+  output {
+    File output_bam = "~{output_basename}.bam"
+  }
+
+  runtime {
+    docker: docker
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+  }
+}
+
+task PostprocessTranscriptomeForRSEM {
+  input {
+    String prefix
+    File input_bam # the input must be queryname sorted
+    Int disk_size_gb = ceil(3*size(input_bam,"GiB")) + 128
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
+    Int memory_mb = 16000
+  }
+
+  command {
+    gatk PostProcessReadsForRSEM \
+    -I ~{input_bam} \
+    -O ~{prefix}_RSEM_post_processed.bam
+  }
+
+  output {
+    File output_bam = "~{prefix}_RSEM_post_processed.bam"
+  }
+
+  runtime {
+    docker: docker 
+    disks: "local-disk ~{disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+  }
+}
+
+task CreateEmptyFile {
+  input {
+    Int disk_size_gb = 128
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
+    Int memory_mb = 4096
+  }
+
+  command {
+    echo "place holder for a bam index file" > empty.txt
+  }
+
+  output {
+    File empty_file = "empty.txt"
+  }
+
+  runtime {
+    docker: docker 
+    disks: "local-disk ~{disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
   }
 }

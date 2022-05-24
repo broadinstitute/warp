@@ -21,5 +21,7 @@ object VariantCallingValidationInputs
 
 case class VariantCallingValidationInputs(
     testGvcf: URI,
+    testGvcfIndex: URI,
     truthGvcf: URI,
+    truthGvcfIndex: URI
 )

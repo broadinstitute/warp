@@ -12,10 +12,10 @@ import org.broadinstitute.dsp.pipelines.commandline.{
   */
 trait BaseConfig {
   def category: WorkflowTestCategory
+  def env: CromwellEnvironment
   def truthBranch: String
+  def updateTruth: Boolean
   def useTimestamp: Option[String]
   def useCallCaching: Boolean
-  def updateTruth: Boolean
   def papiVersion: PapiVersion
-  def env: CromwellEnvironment
 }

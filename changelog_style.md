@@ -99,4 +99,9 @@ The following is the markdown format required for non-major changelog version up
 * Updated the documentation with additional information for the README and additional files for Loom schema and BAM tags
 * Updated the Zarr output
 
+## Syntax issues
 
+ Not all valid markdown can be parsed and displayed in the release notes on GitHub. The following are known syntax issues:
+ 
+ * code snippets, specified with the \` character are not supported (even when escaped)
+ * double quotes need to be escaped: \\"

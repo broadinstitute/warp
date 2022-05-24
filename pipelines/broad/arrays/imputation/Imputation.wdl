@@ -6,7 +6,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Imputation {
 
-  String pipeline_version = "1.0.7"
+  String pipeline_version = "1.1.0"
 
   input {
     Int chunkLength = 25000000
@@ -34,7 +34,7 @@ workflow Imputation {
     Boolean split_output_to_single_sample = false
     Int merge_ssvcf_mem_mb = 3000 # the memory allocation for MergeSingleSampleVcfs (in mb)
 
-    Float frac_well_imputed_threshold = 0.9 # require fraction of sites well imputed to be greater than this to pass
+    Float frac_above_maf_5_percent_well_imputed_threshold = 0.9 # require fraction of maf > 0.05 sites well imputed to be greater than this to pass
     Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
 
     # file extensions used to find reference panel files
@@ -72,22 +72,13 @@ workflow Imputation {
   File vcf_to_impute = select_first([multi_sample_vcf, MergeSingleSampleVcfs.output_vcf])
   File vcf_index_to_impute = select_first([multi_sample_vcf_index, MergeSingleSampleVcfs.output_vcf_index])
 
-  call tasks.SetIDs as SetIdsVcfToImpute{
-    input:
-      vcf = vcf_to_impute,
-      output_basename = "input_samples_with_variant_ids",
-  }
-
-  call tasks.ExtractIDs as ExtractIdsVcfToImpute {
-    input:
-      vcf = SetIdsVcfToImpute.output_vcf,
-      output_basename = "imputed_sites",
-  }
-
   call tasks.CountSamples {
     input:
       vcf = vcf_to_impute,
   }
+
+
+  Float chunkLengthFloat = chunkLength
 
   scatter (contig in contigs) {
 
@@ -108,7 +99,6 @@ workflow Imputation {
         chrom = referencePanelContig.contig
     }
 
-    Float chunkLengthFloat = chunkLength
     Int num_chunks = ceil(CalculateChromosomeLength.chrom_length / chunkLengthFloat)
 
     scatter (i in range(num_chunks)) {
@@ -156,8 +146,29 @@ workflow Imputation {
           var_in_reference = CountVariantsInChunks.var_in_reference
       }
 
-      if (CheckChunks.valid) {
+      call tasks.SubsetVcfToRegion {
+        input:
+          vcf = vcf_to_impute,
+          vcf_index = vcf_index_to_impute,
+          output_basename = "input_samples_subset_to_chunk",
+          contig = referencePanelContig.contig,
+          start = start,
+          end = end
+      }
 
+      call tasks.SetIDs as SetIdsVcfToImpute {
+        input:
+          vcf = SubsetVcfToRegion.output_vcf,
+          output_basename = "input_samples_with_variant_ids"
+      }
+
+      call tasks.ExtractIDs as ExtractIdsVcfToImpute {
+        input:
+          vcf = SetIdsVcfToImpute.output_vcf,
+          output_basename = "imputed_sites"
+      }
+
+      if (CheckChunks.valid) {
         call tasks.PhaseVariantsEagle {
           input:
             dataset_bcf = CheckChunks.valid_chunk_bcf,
@@ -215,52 +226,103 @@ workflow Imputation {
             vcf = RemoveSymbolicAlleles.output_vcf,
             output_basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed"
         }
+
+        call tasks.ExtractIDs {
+          input:
+            vcf = SetIDs.output_vcf,
+            output_basename = "imputed_sites"
+        }
+      }
+      call tasks.FindSitesUniqueToFileTwoOnly {
+        input:
+          file1 = select_first([ExtractIDs.ids, write_lines([])]),
+          file2 = ExtractIdsVcfToImpute.ids
+      }
+
+      call tasks.SelectVariantsByIds {
+        input:
+          vcf = SetIdsVcfToImpute.output_vcf,
+          ids = FindSitesUniqueToFileTwoOnly.missing_sites,
+          basename = "imputed_sites_to_recover"
+      }
+
+      call tasks.RemoveAnnotations {
+        input:
+          vcf = SelectVariantsByIds.output_vcf,
+          basename = "imputed_sites_to_recover_annotations_removed"
+      }
+
+      call tasks.InterleaveVariants {
+        input:
+          vcfs = select_all([RemoveAnnotations.output_vcf, SetIDs.output_vcf]),
+          basename = output_callset_name
       }
     }
     Array[File] aggregatedImputationMetrics = select_all(AggregateImputationQCMetrics.aggregated_metrics)
-    Array[File] chromosome_vcfs = select_all(SetIDs.output_vcf)
-    Array[File] chromosome_vcf_indices = select_all(SetIDs.output_vcf_index)
+    Array[File] chromosome_vcfs = select_all(InterleaveVariants.output_vcf)
   }
 
-  Array[File] phased_vcfs = flatten(chromosome_vcfs)
-  Array[File] phased_vcf_indices = flatten(chromosome_vcf_indices)
+  Array[String] phased_vcfs = flatten(chromosome_vcfs)
+
+  call tasks.GetMissingContigList {
+    input:
+      ref_dict = ref_dict,
+      included_contigs = write_lines(contigs)
+  }
+
+  scatter (missing_contig in GetMissingContigList.missing_contigs) {
+    call tasks.CalculateChromosomeLength as CalculateMissingChromosomeLength {
+      input:
+        ref_dict = ref_dict,
+        chrom = missing_contig
+    }
+
+    Int num_chunks_missing_contig = ceil(CalculateMissingChromosomeLength.chrom_length / chunkLengthFloat)
+
+    scatter (i_missing_contig in range(num_chunks_missing_contig)) {
+      Int start_missing_contig = (i_missing_contig * chunkLength) + 1
+      Int end_missing_contig = if (CalculateMissingChromosomeLength.chrom_length < ((i_missing_contig + 1) * chunkLength)) then CalculateMissingChromosomeLength.chrom_length else ((i_missing_contig + 1) * chunkLength)
+
+      call tasks.SubsetVcfToRegion as SubsetVcfToRegionMissingContig{
+        input:
+          vcf = vcf_to_impute,
+          vcf_index = vcf_index_to_impute,
+          output_basename = "input_samples_subset_to_chunk",
+          contig = missing_contig,
+          start = start_missing_contig,
+          end = end_missing_contig,
+          exclude_filtered = true
+      }
+
+      call tasks.SetIDs as SetIDsMissingContigs {
+        input:
+          vcf = SubsetVcfToRegionMissingContig.output_vcf,
+          output_basename = "unimputed_contigs_" + missing_contig +"_"+ i_missing_contig + "_with_ids"
+      }
+
+      call tasks.RemoveAnnotations as RemoveAnnotationsMissingContigs {
+        input:
+          vcf = SetIDsMissingContigs.output_vcf,
+          basename = "unimputed_contigs_" + missing_contig +"_"+ i_missing_contig + "_annotations_removed"
+      }
+
+      call tasks.ReplaceHeader {
+        input:
+          vcf_to_replace_header = RemoveAnnotationsMissingContigs.output_vcf,
+          vcf_with_new_header = phased_vcfs[0]
+      }
+    }
+  }
+
+  Array[String] missing_contig_vcfs = flatten(ReplaceHeader.output_vcf)
+
+
+  Array[String] unsorted_vcfs = flatten([phased_vcfs, missing_contig_vcfs])
 
   call tasks.GatherVcfs {
     input:
-      input_vcfs = phased_vcfs,
-      input_vcf_indices = phased_vcf_indices,
+      input_vcfs = unsorted_vcfs,
       output_vcf_basename = output_callset_name
-  }
-
-  call tasks.ExtractIDs {
-    input:
-      vcf = GatherVcfs.output_vcf,
-      output_basename = "imputed_sites"
-  }
-
-  call tasks.FindSitesUniqueToFileTwoOnly {
-    input:
-      file1 = ExtractIDs.ids,
-      file2 = ExtractIdsVcfToImpute.ids
-  }
-
-  call tasks.SelectVariantsByIds {
-    input:
-      vcf = SetIdsVcfToImpute.output_vcf,
-      ids = FindSitesUniqueToFileTwoOnly.missing_sites,
-      basename = "imputed_sites_to_recover"
-  }
-
-  call tasks.RemoveAnnotations {
-    input:
-      vcf = SelectVariantsByIds.output_vcf,
-      basename = "imputed_sites_to_recover_annotations_removed"
-  }
-
-  call tasks.InterleaveVariants {
-    input:
-      vcfs = [RemoveAnnotations.output_vcf, GatherVcfs.output_vcf],
-      basename = output_callset_name
   }
 
   call tasks.MergeImputationQCMetrics {
@@ -269,10 +331,10 @@ workflow Imputation {
       basename = output_callset_name
   }
 
-  if (MergeImputationQCMetrics.frac_well_imputed < frac_well_imputed_threshold) {
+  if (MergeImputationQCMetrics.frac_above_maf_5_percent_well_imputed < frac_above_maf_5_percent_well_imputed_threshold) {
     call utils.ErrorWithMessage as FailQCWellImputedFrac {
       input:
-        message = "Well imputed fraction was " + MergeImputationQCMetrics.frac_well_imputed + ", QC failure threshold was set at " + frac_well_imputed_threshold
+        message = "Well imputed fraction was " + MergeImputationQCMetrics.frac_above_maf_5_percent_well_imputed + ", QC failure threshold was set at " + frac_above_maf_5_percent_well_imputed_threshold
     }
   }
 
@@ -299,7 +361,7 @@ workflow Imputation {
   if (split_output_to_single_sample) {
     call tasks.SplitMultiSampleVcf {
       input:
-        multiSampleVcf = InterleaveVariants.output_vcf
+        multiSampleVcf = GatherVcfs.output_vcf
     }
   }
 
@@ -307,8 +369,8 @@ workflow Imputation {
   output {
     Array[File]? imputed_single_sample_vcfs = SplitMultiSampleVcf.single_sample_vcfs
     Array[File]? imputed_single_sample_vcf_indices = SplitMultiSampleVcf.single_sample_vcf_indices
-    File imputed_multisample_vcf = InterleaveVariants.output_vcf
-    File imputed_multisample_vcf_index = InterleaveVariants.output_vcf_index
+    File imputed_multisample_vcf = GatherVcfs.output_vcf
+    File imputed_multisample_vcf_index = GatherVcfs.output_vcf_index
     File aggregated_imputation_metrics = MergeImputationQCMetrics.aggregated_metrics
     File chunks_info = StoreChunksInfo.chunks_info
     File failed_chunks = StoreChunksInfo.failed_chunks

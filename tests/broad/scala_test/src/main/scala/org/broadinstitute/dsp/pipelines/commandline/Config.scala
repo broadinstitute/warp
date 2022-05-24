@@ -10,6 +10,7 @@ case class Config(
     broadInternalRNAWithUMIsConfig: BroadInternalRNAWithUMIsConfig =
       BroadInternalRNAWithUMIsConfig(),
     checkFingerprintConfig: CheckFingerprintConfig = CheckFingerprintConfig(),
+    cloudWorkflowConfig: CloudWorkflowConfig = CloudWorkflowConfig(),
     cramToUnmappedBamsConfig: CramToUnmappedBamsConfig =
       CramToUnmappedBamsConfig(),
     genotypeConcordanceConfig: GenotypeConcordanceConfig =

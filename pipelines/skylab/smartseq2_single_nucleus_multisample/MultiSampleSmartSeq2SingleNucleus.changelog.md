@@ -1,4 +1,24 @@
-# 1.2.3 (Date of Last Commit)
+# 1.2.7
+2022-05-18 (Date of Last Commit)
+* Updated merge npz docker in StarAlign.wdl
+
+# 1.2.6
+2022-04-22 (Date of Last Commit)
+
+* Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the SmartSeq2SingleSample pipeline.
+
+# 1.2.5
+2022-04-19 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
+# 1.2.4
+
+2022-04-06 (Date of Last Commit)
+
+* Updated STARsoloFastq task in StarAlign.wdl; this change does not affect the Mutl-snSS2 workflow.
+
+# 1.2.3
 2022-02-25 (Date of Last Commit)
 
 * Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline.

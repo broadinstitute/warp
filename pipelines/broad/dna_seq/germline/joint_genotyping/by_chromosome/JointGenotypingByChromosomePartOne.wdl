@@ -5,7 +5,7 @@ import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 # Joint Genotyping for hg38 Exomes and Whole Genomes (has not been tested on hg19)
 workflow JointGenotypingByChromosomePartOne {
 
-  String pipeline_version = "1.4.2"
+  String pipeline_version = "1.4.4"
 
   input {
     File unpadded_intervals_file
@@ -132,7 +132,6 @@ workflow JointGenotypingByChromosomePartOne {
 
         if (gnarly_workaround_exists) {
           File faked_gnarly_genotyped_vcf = gnarly_workaround[gnarly_workaround_key]
-          File faked_gnarly_annotation_vcf = gnarly_workaround_annotations[gnarly_workaround_key]
         }
 
         if (!gnarly_workaround_exists) {
@@ -149,11 +148,9 @@ workflow JointGenotypingByChromosomePartOne {
         }
 
         File gnarly_vcf = select_first([faked_gnarly_genotyped_vcf, GnarlyGenotyper.output_vcf])
-        File annotation_vcf = select_first([faked_gnarly_annotation_vcf, GnarlyGenotyper.output_database])
       }
 
       Array[File] gnarly_vcfs = gnarly_vcf
-      Array[File] annotation_vcfs = annotation_vcf
 
       # Gather the VCFs generated in the GnarlyGenotyper shards so that we end
       # up with the same number of VCF shards as the original top-level scatter
@@ -163,15 +160,8 @@ workflow JointGenotypingByChromosomePartOne {
           output_vcf_name = callset_name + "." + idx + ".gnarly.vcf.gz",
           disk_size = large_disk
       }
+  }
 
-      # Gather the AnnotationDBs for the same reason
-      call Tasks.GatherVcfs as TotallyAwesomeGatherAnnotationDBs {
-        input:
-          input_vcfs = annotation_vcfs,
-          output_vcf_name = callset_name + "." + idx + ".gnarly.vcf.gz",
-          disk_size = large_disk
-      }
-    }
 
     if (!use_gnarly_genotyper) {
       call Tasks.GenotypeGVCFs {
@@ -208,14 +198,6 @@ workflow JointGenotypingByChromosomePartOne {
       disk_size = medium_disk
   }
 
-  if (use_gnarly_genotyper) {
-    call Tasks.GatherVcfs as GatherAnnotationDBVcf {
-      input:
-        input_vcfs = select_all(TotallyAwesomeGatherAnnotationDBs.output_vcf),
-        output_vcf_name = callset_name + ".annotationDB.vcf.gz",
-        disk_size = medium_disk
-    }
-  }
 
   call Tasks.GetFingerprintingIntervalIndices {
     input:
@@ -259,9 +241,6 @@ workflow JointGenotypingByChromosomePartOne {
     File? output_fingerprinting_vcf_index = SelectFingerprintSiteVariants.output_vcf_index
 
     Array[File] genomics_databases = genomicsdb
-
-    File? annotation_db_vcf = GatherAnnotationDBVcf.output_vcf
-    File? annotation_db_vcf_index = GatherAnnotationDBVcf.output_vcf_index
 
     # Output the interval list generated/used by this run workflow.
     Array[File] output_intervals = SplitIntervalList.output_intervals

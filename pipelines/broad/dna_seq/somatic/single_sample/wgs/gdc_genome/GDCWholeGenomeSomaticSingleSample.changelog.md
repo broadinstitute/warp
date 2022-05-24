@@ -1,7 +1,12 @@
 # 1.3.0
-2022-03-29 (Date of Last Commit)
+2022-05-24 (Date of Last Commit)
 
 * Updated to Picard version 2.26.10 and GATK version 4.2.4.1 to address log4j vulnerabilities
+
+# 1.2.2
+2022-03-11 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 in CramToUnmappedBams subworkflow
 
 # 1.2.1
 2021-11-10

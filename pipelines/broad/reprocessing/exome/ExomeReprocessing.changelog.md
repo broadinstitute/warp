@@ -1,3 +1,46 @@
+# 3.1.1
+2022-04-21 (Date of Last Commit)
+
+* Fixed path to docker image in GermlineVariantDiscovery.wdl
+
+# 3.1.0
+2022-04-19 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+    * The following metrics were added to alignment summary and readgroup alignment summary metrics:
+        * AVG_POS_3PRIME_SOFTCLIP_LENGTH
+        * MAD_READ_LENGTH
+        * MAX_READ_LENGTH
+        * MIN_READ_LENGTH
+        * SD_READ_LENGTHMEDIAN_READ_LENGTH
+    * The following metrics were added to hybrid selection metrics:
+        * PCT_TARGET_BASES_100000X
+        * PCT_TARGET_BASES_1000X
+        * PCT_TARGET_BASES_25000X
+        * PCT_TARGET_BASES_2500X
+        * PCT_TARGET_BASES_250X
+        * PCT_TARGET_BASES_50000X
+        * PCT_TARGET_BASES_5000XPCT_TARGET_BASES_10000X
+        * PCT_TARGET_BASES_500X
+    * Small differences observed in PCT_SOFTCLIP in alignment summary metrics due to a bug fix in the way PCT_SOFTCLIP is calculated
+    * RAW_RankSum NaN to empty for NON_REF data 
+    * Reblocking fix to merge sites with missing DP into adjacent ref blocks
+
+# 3.0.7
+2022-04-15 (Date of Last Commit)
+
+* Updated task SortSam in BamProcessing.wdl to take an optional memory_multiplier
+
+# 3.0.6
+2022-04-04 (Date of Last Commit)
+
+* Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+
+# 3.0.5
+2022-03-24 (Date of Last Commit)
+
+* Task wdls used by the ExomeReprocessing pipeline were updated with changes that don't affect the ExomeReprocessing pipeline itself
+
 # 3.0.4
 2022-02-02 (Date of Last Commit)
 

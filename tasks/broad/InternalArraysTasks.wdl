@@ -27,7 +27,7 @@ task GenerateEmptyVariantCallingMetricsFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.3-1652895718"
     memory: "3500 MiB"
     preemptible: preemptible_tries
   }
@@ -73,7 +73,7 @@ task BlacklistBarcode {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.3-1652895718"
     memory: "3500 MiB"
     preemptible: preemptible_tries
   }
@@ -124,7 +124,7 @@ task VcfToMercuryFingerprintJson {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.3-1652895718"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -152,7 +152,7 @@ task CreateBafRegressMetricsFile {
       --OUTPUT ~{output_metrics_basefilename}
   }
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.3-1652895718"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -229,7 +229,7 @@ task UploadArraysMetrics {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.3-1652895718"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -278,7 +278,7 @@ task UploadEmptyArraysMetrics {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.3-1652895718"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -377,7 +377,7 @@ task UpdateChipWellBarcodeIndex {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.3-1652895718"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -413,7 +413,7 @@ task GetNextArraysQcAnalysisVersionNumber {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.0-1641925612"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.3-1652895718"
     memory: "3500 MiB"
     preemptible: preemptible_tries
   }
@@ -489,4 +489,63 @@ task ResolveMinorAlleleFrequencyFile {
     Boolean found = read_boolean("found.txt")
     String minor_allele_frequency_file = arrays_chip_metadata_path + read_string("output_file.txt")
   }
+}
+
+task FormatArraysOutputs {
+    input {
+        String  chip_well_barcode_output
+        Int     analysis_version_number_output
+        String? baf_regress_metrics_file
+        String? gtc_file
+
+        String? output_vcf
+        String? output_vcf_index
+
+        String? arrays_variant_calling_detail_metrics_file
+        String? arrays_variant_calling_summary_metrics_file
+        String? arrays_variant_calling_control_metrics_file
+
+        String? fingerprint_detail_metrics_file
+        String? fingerprint_summary_metrics_file
+
+        String? genotype_concordance_summary_metrics_file
+        String? genotype_concordance_detail_metrics_file
+        String? genotype_concordance_contingency_metrics_file
+
+    }
+
+    command <<<
+        echo -e "chip_well_barcode_output\tanalysis_version_number_output\tbaf_regress_metrics_file\tgtc_file\t\
+        output_vcf\toutput_vcf_index\t\
+        arrays_variant_calling_detail_metrics_file\tarrays_variant_calling_summary_metrics_file\tarrays_variant_calling_control_metrics_file\t\
+        fingerprint_detail_metrics_file\tfingerprint_summary_metrics_file\t\
+        genotype_concordance_summary_metrics_file\tgenotype_concordance_detail_metrics_file\tgenotype_concordance_contingency_metrics_file" \
+        > ingestDataset_arrays_outputs.tsv
+
+        echo -e "~{chip_well_barcode_output}\t~{analysis_version_number_output}\t~{baf_regress_metrics_file}\t~{gtc_file}\t\
+        ~{output_vcf}\t~{output_vcf_index}\t\
+        ~{arrays_variant_calling_detail_metrics_file}\t~{arrays_variant_calling_summary_metrics_file}\t~{arrays_variant_calling_control_metrics_file}\t\
+        ~{fingerprint_detail_metrics_file}\t~{fingerprint_summary_metrics_file}\t\
+        ~{genotype_concordance_summary_metrics_file}\t~{genotype_concordance_detail_metrics_file}\t~{genotype_concordance_contingency_metrics_file}" \
+        >> ingestDataset_arrays_outputs.tsv
+
+        python3 << CODE
+        import pandas as pd
+
+        tsv_df = pd.read_csv("ingestDataset_arrays_outputs.tsv", sep="\t")
+        tsv_df = tsv_df.dropna(axis=1, how="all")  # drop columns if no value (optional outputs etc)
+
+        outputs = tsv_df.to_json("ingestDataset_arrays_outputs.json", orient="records")  # write json file
+
+        CODE
+    >>>
+
+    runtime {
+        docker: "broadinstitute/horsefish:eMerge_05192022"
+    }
+
+    output {
+        File ingest_outputs_tsv = "ingestDataset_arrays_outputs.tsv"
+        File ingest_outputs_json = "ingestDataset_arrays_outputs.json"
+    }
 }

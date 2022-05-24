@@ -3,8 +3,8 @@ version 1.0
 import "../../../../pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl" as IlluminaGenotyping
 import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalArraysTasks
 import "../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
-import "../../../../tasks/broad/Utilities.wdl" as utils
 
+import "../../../../tasks/broad/Utilities.wdl" as utils
 ## Copyright Broad Institute, 2019
 ##
 ## This WDL pipeline implements data processing for Illumina Genotyping Arrays
@@ -23,7 +23,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Arrays {
 
-  String pipeline_version = "2.6.6"
+  String pipeline_version = "2.6.11"
 
   input {
     String chip_well_barcode
@@ -495,6 +495,7 @@ workflow Arrays {
     File gtc_file = IlluminaGenotypingArray.gtc
     File red_idat_md5_cloud_path = IlluminaGenotypingArray.red_idat_md5_cloud_path
     File green_idat_md5_cloud_path = IlluminaGenotypingArray.green_idat_md5_cloud_path
+    File output_bead_pool_manifest_file = bpm_file
     File? output_vcf_md5_cloud_path = IlluminaGenotypingArray.output_vcf_md5_cloud_path
     File? output_vcf = IlluminaGenotypingArray.output_vcf
     File? output_vcf_index = IlluminaGenotypingArray.output_vcf_index

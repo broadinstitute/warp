@@ -56,6 +56,8 @@ object CromwellWorkflowTester {
 
   lazy val PipelineRoot: File = WarpRoot / "pipelines"
 
+  lazy val TestsRoot: File = WarpRoot / "verification" / "test-wdls"
+
   def apply(config: Config)(
       implicit system: ActorSystem,
       mat: ActorMaterializer
@@ -74,6 +76,8 @@ object CromwellWorkflowTester {
         new CheckFingerprintTester(config.checkFingerprintConfig)
       case CramToUnmappedBams =>
         new CramToUnmappedBamsTester(config.cramToUnmappedBamsConfig)
+      case CloudWorkflow =>
+        new CloudWorkflowTester(config.cloudWorkflowConfig)
       case Dummy => new DummyTester()
       case ExternalReprocessing =>
         new ExternalReprocessingTester(config.germlineCloudConfig)
