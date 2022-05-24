@@ -227,7 +227,6 @@ workflow RNAWithUMIsPipeline {
   output {
     String sample_name = GetSampleName.sample_name
     File transcriptome_bam = PostprocessTranscriptomeForRSEM.output_bam
-    File transcriptome_bam_index = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam_index
     File transcriptome_duplicate_metrics = UMIAwareDuplicateMarkingTranscriptome.duplicate_metrics
     File output_bam = UMIAwareDuplicateMarking.duplicate_marked_bam
     File output_bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index
