@@ -1,8 +1,3 @@
-# 1.2.0
-2022-05-24 (Date of Last Commit)
-
-* Updated to Picard version 2.26.10 to address log4j vulnerabilities
-
 # 1.1.2
 2022-04-14 (Date of Last Commit)
 
