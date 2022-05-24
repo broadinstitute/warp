@@ -88,8 +88,8 @@ class BroadInternalUltimaGenomicsTester(
         resultsCloudPath.resolve(s"$outputBaseName.filtered.vcf.gz"),
       truthFilteredVcf =
         truthCloudPath.resolve(s"$outputBaseName.filtered.vcf.gz"),
-      testGvcf = resultsCloudPath.resolve(s"$outputBaseName.annotated.g.vcf.gz"),
-      truthGvcf = truthCloudPath.resolve(s"$outputBaseName.annotated.g.vcf.gz")
+      testGvcf = resultsCloudPath.resolve(s"$outputBaseName.annotated.rb.g.vcf.gz"),
+      truthGvcf = truthCloudPath.resolve(s"$outputBaseName.annotated.rb.g.vcf.gz")
     )
     UltimaGenomicsWholeGenomeGermlineValidationInputs
       .marshall(validationInputs)
