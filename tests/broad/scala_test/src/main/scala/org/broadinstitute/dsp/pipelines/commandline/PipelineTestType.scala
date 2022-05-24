@@ -65,11 +65,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestGDCWholeGenomeSomaticSingleSample",
   //      "/broad/dna_seq/somatic/single_sample/wgs/gdc_genome/"
   //    )
-  //case object IlluminaGenotypingArray
-  //    extends PipelineTestType(
-  //      "TestIlluminaGenotypingArray",
-  //      "/broad/genotyping/illumina/"
-  //    )
+  case object IlluminaGenotypingArray
+      extends PipelineTestType(
+        "TestIlluminaGenotypingArray",
+        "IlluminaGenotypingArray",
+        "/broad/genotyping/illumina/"
+      )
   //case object JointGenotyping
   //    extends PipelineTestType(
   //      "TestJointGenotyping",
