@@ -672,7 +672,6 @@ task formatPipelineOutputs {
   input {
     String sample_id
     String transcriptome_bam
-    String transcriptome_bam_index
     String transcriptome_duplicate_metrics
     String output_bam
     String output_bam_index
@@ -716,7 +715,6 @@ task formatPipelineOutputs {
     # NOTE: we rename some field names to match the TDR schema
     outputs_dict["sample_id"]="~{sample_id}" # primary key
     outputs_dict["transcriptome_bam"]="~{transcriptome_bam}"
-    outputs_dict["transcriptome_bam_index"]="~{transcriptome_bam_index}"
     outputs_dict["transcriptome_duplicate_metrics_file"]="~{transcriptome_duplicate_metrics}"
     outputs_dict["genome_bam"]="~{output_bam}"
     outputs_dict["genome_bam_index"]="~{output_bam_index}"

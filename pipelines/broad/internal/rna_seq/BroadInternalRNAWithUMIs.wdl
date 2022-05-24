@@ -133,7 +133,6 @@ workflow BroadInternalRNAWithUMIs {
       input:
         sample_id = select_first([tdr_sample_id, ""]),
         transcriptome_bam = RNAWithUMIs.transcriptome_bam,
-        transcriptome_bam_index = RNAWithUMIs.transcriptome_bam_index,
         transcriptome_duplicate_metrics = RNAWithUMIs.transcriptome_duplicate_metrics,
         output_bam = RNAWithUMIs.output_bam,
         output_bam_index = RNAWithUMIs.output_bam_index,
@@ -173,7 +172,6 @@ workflow BroadInternalRNAWithUMIs {
 
   output {
     File transcriptome_bam = RNAWithUMIs.transcriptome_bam
-    File transcriptome_bam_index = RNAWithUMIs.transcriptome_bam_index
     File transcriptome_duplicate_metrics = RNAWithUMIs.transcriptome_duplicate_metrics
     File output_bam = RNAWithUMIs.output_bam
     File output_bam_index = RNAWithUMIs.output_bam_index
