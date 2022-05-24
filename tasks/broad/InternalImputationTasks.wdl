@@ -123,3 +123,22 @@ task FormatImputationWideOutputs{
         File ingest_outputs_wide_json = "ingestDataset_imputation_wide_outputs.json"
     }
 }
+
+task TriggerPrsWithImputationTsv {
+    input {
+        File    imputation_outputs_tsv
+        String  trigger_bucket_path
+    }
+
+    command {
+        gsutil cp ~{imputation_outputs_tsv} ~{trigger_bucket_path}
+    }
+
+    runtime {
+        docker: "gcr.io/google.com/cloudsdktool/cloud-sdk:305.0.0"
+    }
+
+    output {
+        File trigger_prs_cf_log = stdout()
+    }
+}
