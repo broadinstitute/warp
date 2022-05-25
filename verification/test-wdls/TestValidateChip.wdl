@@ -184,11 +184,9 @@ workflow TestValidateChip {
           test_metrics = GetMetrics.results_files,
           done = CopyToTestResults.done
       }
-  
+
     }
 
-
-
-
+    output {}
 
 }
