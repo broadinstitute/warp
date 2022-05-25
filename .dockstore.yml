@@ -74,3 +74,7 @@ workflows:
   - name: BroadInternalRNAWithUMIs
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/internal/rna_seq/BroadInternalRNAWithUMIs.wdl
+
+  - name: UltimaGenomicsWholeGenomeGermline
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl
