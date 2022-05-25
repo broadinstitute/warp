@@ -165,6 +165,9 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     var inputsString = (workflowInputRoot / fileName).contentAsString
       .replace(pipeline, workflowName)
 
+    inputsString =
+      inputsString.replaceAll("\\{TRUTH_BRANCH}", testerConfig.truthBranch)
+
     inputsString = pattern.replaceAllIn(
       inputsString,
       m => s"$workflowName.$pipeline." + m.group(2) + ".")
