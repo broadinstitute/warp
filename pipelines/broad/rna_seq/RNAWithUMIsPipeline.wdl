@@ -173,7 +173,7 @@ workflow RNAWithUMIsPipeline {
 
   call tasks.PostprocessTranscriptomeForRSEM {
     input:
-      prefix = output_basename + ".transcriptome.RSEM",
+      prefix = output_basename + ".transcriptome",
       input_bam = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam
   }
 
