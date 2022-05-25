@@ -125,11 +125,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestSmartSeq2SingleSample",
   //      "/skylab/smartseq2_single_sample/"
   //    )
-  //case object ValidateChip
-  //    extends PipelineTestType(
-  //      "TestValidateChip",
-  //      "/broad/arrays/validate_chip/"
-  //    )
+  case object ValidateChip
+      extends PipelineTestType(
+        "TestValidateChip",
+        "ValidateChip",
+        "/broad/arrays/validate_chip/"
+      )
   //case object VariantCalling
   //    extends PipelineTestType(
   //      "TestVariantCalling",
