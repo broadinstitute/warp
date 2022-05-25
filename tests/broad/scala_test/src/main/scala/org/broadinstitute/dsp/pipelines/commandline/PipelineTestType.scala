@@ -46,11 +46,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "ExomeGermlineSingleSample",
         "/broad/dna_seq/germline/single_sample/exome/"
       )
-  //case object ExomeReprocessing
-  //    extends PipelineTestType(
-  //      "TestExomeReprocessing",
-  //      "/broad/reprocessing/exome/"
-  //    )
+  case object ExomeReprocessing
+      extends PipelineTestType(
+        "TestExomeReprocessing",
+        "ExomeReprocessing",
+        "/broad/reprocessing/exome/"
+      )
   //case object ExternalExomeReprocessing
   //    extends PipelineTestType(
   //      "TestExternalExomeReprocessing",
