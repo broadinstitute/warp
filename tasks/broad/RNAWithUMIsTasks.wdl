@@ -758,7 +758,7 @@ task formatPipelineOutputs {
   >>>
 
   runtime {
-    docker: "broadinstitute/horsefish:tdr_import_v1.1"
+    docker: "broadinstitute/horsefish:tdr_import_v1.2"
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
@@ -771,7 +771,6 @@ task formatPipelineOutputs {
 
 task updateOutputsInTDR {
   input {
-    String staging_bucket
     String tdr_dataset_uuid
     File outputs_json
     String sample_id
@@ -781,20 +780,26 @@ task updateOutputsInTDR {
     Int disk_size_gb = 10
   }
 
-  String tdr_target_table = "sample"
-
   command <<<
+    # input args:
+    # -d dataset uuid
+    # -t target table in dataset
+    # -o json of data to ingest
+    # -k primary key field name
+    # -v primary key value
+    # -f field to populate with timestamp at ingest (can have multiple)
     python -u /scripts/export_pipeline_outputs_to_tdr.py \
       -d "~{tdr_dataset_uuid}" \
-      -b "~{staging_bucket}" \
-      -t "~{tdr_target_table}" \
+      -t "sample" \
       -o "~{outputs_json}" \
       -k "sample_id" \
-      -v "~{sample_id}"
+      -v "~{sample_id}" \
+      -f "version_timestamp" \
+      -f "analysis_end_time"
   >>>
 
   runtime {
-    docker: "broadinstitute/horsefish:twisttcap_scripts"
+    docker: "broadinstitute/horsefish:tdr_import_v1.2"
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
