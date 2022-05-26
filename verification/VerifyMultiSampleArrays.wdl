@@ -22,6 +22,7 @@ workflow VerifyMultiSampleArrays {
   input {
     File truth_vcf
     File test_vcf
+    Boolean? done
   }
 
   call Tasks.CompareVcfs {
