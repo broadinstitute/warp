@@ -78,11 +78,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestJointGenotyping",
   //      "/broad/dna_seq/germline/joint_genotyping/"
   //    )
-  //case object MultiSampleArrays
-  //    extends PipelineTestType(
-  //      "TestMultiSampleArrays",
-  //      "/broad/arrays/multi_sample/"
-  //    )
+  case object MultiSampleArrays
+      extends PipelineTestType(
+        "TestMultiSampleArrays",
+        "MultiSampleArrays",
+        "/broad/arrays/multi_sample/"
+      )
   //case object MultiSampleSmartSeq2
   //    extends PipelineTestType(
   //      "TestMultiSampleSmartSeq2",
