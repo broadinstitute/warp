@@ -39,6 +39,8 @@ workflow VerifyIlluminaGenotypingArray {
 
     File truth_green_idat_md5
     File test_green_idat_md5
+
+    Boolean? done
   }
 
   call MetricsVerification.CompareTwoNumbers {
