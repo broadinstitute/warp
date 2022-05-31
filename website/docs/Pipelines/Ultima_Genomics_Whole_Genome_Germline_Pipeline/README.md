@@ -16,7 +16,7 @@ The [Ultima Genomics Whole Genome Germline (UG_WGS) workflow](https://github.com
 
 ### Background: Ultima Genomics sequencing
 
-Ultima Genomics sequencing is a novel technology that produces single-read, flow-based data. The sequencing platform works by flowing one nucleotide at a time in order, iteratively. This is in contrast to technologies like Illumina that do all four nucleotides at once. This iterative approach ensures that only one dNTP is responsible for the signal and it does not require the blocking of dNTPs.  
+Ultima Genomics sequencing is a novel technology that produces single-read, flow-based data ([Almogy et al., 2022](https://www.biorxiv.org/content/10.1101/2022.05.29.493900v1)). The sequencing platform works by flowing one nucleotide at a time in order, iteratively. This is in contrast to traditional technologies that do all four nucleotides at once. This iterative approach ensures that only one dNTP is responsible for the signal and it does not require the blocking of dNTPs.  
 
 ### What does the workflow do? 
 
@@ -52,7 +52,7 @@ Multiple workflow inputs are in the form of structs, which are defined in [UG_WG
 
 The workflow takes in an aligned CRAM (output of the Ultima Genomics sequencing platform) or an unmapped BAM file for one sample and one read group. 
 
-The workflow input variables are listed below. If an input variable is part of a struct, the struct is listed in the `Struct` column.
+The workflow input variables are listed below. If an input variable is part of a struct, the struct name is listed in the `Struct` column.
 
 | Input variable name | Struct | Description | Type |
 | --- | --- | --- | --- |
@@ -112,7 +112,9 @@ The [UG_WGS workflow](https://github.com/broadinstitute/warp/blob/develop/pipeli
 
 * Workflow tasks use different software tools to manipulate the workflow input data. To see specific tool parameters, select the task WDL link in the table; then find the task and view the `command {}` section of the task in the WDL script. 
 
-* To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `input {}` section as `String docker =`.
+* To view or use the exact tool software, see the task's Docker image which is specified in the task WDL `input {}` section as `String docker =`. 
+
+* Docker images for the UG_WGS workflow are not yet versioned and officially released, but they are publicly available to test the workflow. 
 
 Overall, the UG_WGS workflow:
 1. Aligns with BWA-MEM and marks duplicates.
@@ -134,7 +136,7 @@ When applicable, links to the sub-workflow WDLs and nested tasks WDLs are provid
 
   [UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.AlignmentAndMarkDuplicates](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.wdl)
 
-The table below details the subtasks called by the AlignmentAndMarkDuplicates task, which splits the CRAM or BAM into subfiles, converts them to uBAM format, filters the uBAM by RSQ value, converts the uBAM to FASTQ for alignment with BWA-MEM, and marks duplicate reads in the resulting BAM files. 
+The table below details the subtasks called by the AlignmentAndMarkDuplicates task, which splits the CRAM or BAM into subfiles, converts them to uBAM format, converts the uBAM to FASTQ for alignment with BWA-MEM, and marks duplicate reads in the resulting BAM files. 
 
 The Picard tool MarkDuplicatesSpark has been adapted to handle ambiguity in the aligned start of a read. This functionality is applied using the tool’s `--flowbased` parameter.
 
@@ -208,7 +210,7 @@ The workflow performs multiple post-processing steps to prepare the VCF for down
 | [Tasks.ConvertGVCFtoVCF](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | GenotypeGVCFs | GATK | Converts to GVCF to VCF format in preparation for post-processing. |
 
 ### 7. Perform VCF post-processing
-The workflow performs post-processing steps to prepare the VCF for downstream joint calling. First, it annotates the merged HaplotypeCaller output VCF with dbSNP variants, then it trains a model to distinguish between true positive variants and false positives. Next, the model is applied to filter variants in the VCF.
+The workflow performs post-processing steps to prepare the VCF for downstream joint calling. First, it annotates the merged HaplotypeCaller output VCF with dbSNP variants, then it trains a model, a random forest classifier ([Almogy et al., 2022](https://www.biorxiv.org/content/10.1101/2022.05.29.493900v1)). to distinguish between true positive variants and false positives. Next, the model is applied to filter variants in the VCF.
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | --- | 
@@ -260,7 +262,7 @@ Workflow outputs are described in the table below.
 | id | ID from the aligned BAM header. | String |
 
 #### Using outputs for downstream joint calling
-The outputs of the UG_WGS workflow are compatible with the WARP [Ultimate Genomics Joint Genotyping workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/UltimaGenomicsJointGenotyping.wdl).  
+The outputs of the UG_WGS workflow are not yet compatible with the WARP [Ultimate Genomics Joint Genotyping workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/UltimaGenomicsJointGenotyping.wdl), but efforts to release the workflow are in-progress.  
 
 <!--- Validation will go here --->
 
