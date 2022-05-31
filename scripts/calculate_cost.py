@@ -65,8 +65,8 @@ def get_us_keys(dict):
 us_cost = count = 0
     for k, v in dict.items():
         if k.startswith("us"):
-            count = count + 1
-            us_cost = us_cost + v
+            count += 1
+            us_cost += v
     if count == 0:
         print("The dictionary doesn't contain a US cost object")
         exit(0)
