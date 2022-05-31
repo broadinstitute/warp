@@ -202,6 +202,7 @@ task PhaseVariantsEagle {
     --vcfOutFormat z \
     --bpStart ~{start} \
     --bpEnd ~{end} \
+    --numThreads ~{cpu} \
     --allowRefAltSwap
   >>>
   output {
