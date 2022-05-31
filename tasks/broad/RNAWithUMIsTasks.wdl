@@ -636,7 +636,7 @@ task MarkDuplicatesUMIAware {
     File bam
     String output_basename
     Boolean remove_duplicates
-
+    Boolean use_umi
 
     String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
@@ -651,8 +651,9 @@ task MarkDuplicatesUMIAware {
     INPUT=~{bam} \
     OUTPUT=~{output_bam_basename}.bam \
     METRICS_FILE=~{output_basename}.duplicate.metrics \
-    READ_ONE_BARCODE_TAG=BX \
-    REMOVE_DUPLICATES=~{remove_duplicates}
+    REMOVE_DUPLICATES=~{remove_duplicates} \
+    ~{true='READ_ONE_BARCODE_TAG=BX' false='' use_umi} \
+
   >>>
 
   output {
