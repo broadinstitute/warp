@@ -116,10 +116,13 @@ The following table describes the inputs imported from a struct. Although these 
 #### Additional inputs
 Additional inputs that are not contained in a struct are described in the table below. Similar to the struct inputs, these inputs are specified in the [example configuration files](https://github.com/broadinstitute/warp/tree/develop/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files) or, when noted, are hardcoded into the WDL workflow.
 
+* Optional inputs, like the fingerprint_genotypes_file, will need to match your input samples. For example, the fingerprint file in the workflow's [test input configuration JSON](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files/WholeGenomeGermlineSingleSample.inputs.plumbing.masked_reference.json) is set up to check fingerprints for the NA12878 Plumbing sample. The sample name in the VCF matches the name used for the `sample_name` input.
+
+
 
 | Input name | Input description | Input type |
 | --- | --- | --- |
-| fingerprint_genotypes_file | Genotype VCF if optionally performing fingerprinting.  | File |
+| fingerprint_genotypes_file | Genotype VCF if optionally performing fingerprinting. For the CheckFingerprint task (below), the sample name specified in the sample_and_unmapped_bams variable must match the sample name in the fingerprint_genoptyes_file (VCF format). | File |
 | fingerprint_genotypes_index | Optional index for the fingerprinting VCF. | File |
 | wgs_coverage_interval_list | Interval list for the CollectWgsMetrics tool. | File |
 | provide_bam_output | If set to true, provides the aligned BAM and index as workflow output; default set to false. | Boolean |
