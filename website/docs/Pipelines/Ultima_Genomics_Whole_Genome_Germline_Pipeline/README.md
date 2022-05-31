@@ -210,7 +210,7 @@ The workflow performs multiple post-processing steps to prepare the VCF for down
 | [Tasks.ConvertGVCFtoVCF](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | GenotypeGVCFs | GATK | Converts to GVCF to VCF format in preparation for post-processing. |
 
 ### 7. Perform VCF post-processing
-The workflow performs post-processing steps to prepare the VCF for downstream joint calling. First, it annotates the merged HaplotypeCaller output VCF with dbSNP variants, then it trains a model, a random forest classifier ([Almogy et al., 2022](https://www.biorxiv.org/content/10.1101/2022.05.29.493900v1)). to distinguish between true positive variants and false positives. Next, the model is applied to filter variants in the VCF.
+The workflow performs post-processing steps to prepare the VCF for downstream joint calling. First, it annotates the merged HaplotypeCaller output VCF with dbSNP variants, then it trains a model, a random forest classifier ([Almogy et al., 2022](https://www.biorxiv.org/content/10.1101/2022.05.29.493900v1)), to distinguish between true positive variants and false positives. Next, the model is applied to filter variants in the VCF.
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | --- | 
