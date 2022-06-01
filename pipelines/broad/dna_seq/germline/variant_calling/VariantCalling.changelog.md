@@ -1,3 +1,10 @@
+# 2.1.2
+2022-06-01 (Date of Last Commit)
+
+* Added a MakeOptionalOutputBam task to the Utilities.wdl tp support UltimaGenomicsWholeGenomeCramOnly.wdl
+* Added inputs to the GenotypeGVCFs task to support the UltimaGenomicsJointGenotyping.wdl
+
+
 # 2.1.1
 2022-04-21 (Date of Last Commit)
 

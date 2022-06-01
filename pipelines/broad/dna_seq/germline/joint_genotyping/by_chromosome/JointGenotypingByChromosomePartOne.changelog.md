@@ -1,3 +1,8 @@
+# 1.4.5
+2022-06-01 (Date of Last Commit)
+
+* Added inputs to the GenotypeGVCFs task to support the UltimaGenomicsJointGenotyping.wdl
+
 # 1.4.4
 2022-04-19 (Date of Last Commit)
 
