@@ -146,9 +146,10 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       workflowName + ".google_account_vault_path" -> googleAccountVaultPath.asJson,
     )
 
-    // Only add the vault token and environment for arrays
-    // These allow Arrays wdl to auth with Vault
-    if (pipeline == "Arrays") {
+    val tokenPipelines = List("Arrays", "BroadInternalRNAWithUMIs")
+    // Only add the vault token and environment for pipelines above
+    // These allow these pipelines to auth with vault/gcp
+    if (tokenPipelines.contains(pipeline)) {
       defaultInputs = defaultInputs :+ workflowName + ".vault_token_path_arrays" -> vaultTokenPathArrays.asJson
       defaultInputs = defaultInputs :+ workflowName + ".environment" -> envString.asJson
     }
@@ -163,6 +164,9 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
 
     var inputsString = (workflowInputRoot / fileName).contentAsString
       .replace(pipeline, workflowName)
+
+    inputsString =
+      inputsString.replaceAll("\\{TRUTH_BRANCH}", testerConfig.truthBranch)
 
     inputsString = pattern.replaceAllIn(
       inputsString,

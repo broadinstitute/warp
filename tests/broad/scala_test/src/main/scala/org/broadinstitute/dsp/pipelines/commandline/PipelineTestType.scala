@@ -28,22 +28,30 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestCEMBA",
   //      "/cemba/cemba_methylcseq/"
   //    )
-  //case object CramToUnmappedBams
-  //    extends PipelineTestType(
-  //      "TestCramToUnmappedBams",
-  //      "/broad/reprocessing/cram_to_unmapped_bams/"
-  //    )
+  case object CramToUnmappedBams
+      extends PipelineTestType(
+        "TestCramToUnmappedBams",
+        "CramToUnmappedBams",
+        "/broad/reprocessing/cram_to_unmapped_bams/"
+      )
+  case object BroadInternalRNAWithUMIs
+      extends PipelineTestType(
+        "TestBroadInternalRNAWithUMIs",
+        "BroadInternalRNAWithUMIs",
+        "/broad/internal/rna_seq/"
+      )
   case object ExomeGermlineSingleSample
       extends PipelineTestType(
         "TestExomeGermlineSingleSample",
         "ExomeGermlineSingleSample",
         "/broad/dna_seq/germline/single_sample/exome/"
       )
-  //case object ExomeReprocessing
-  //    extends PipelineTestType(
-  //      "TestExomeReprocessing",
-  //      "/broad/reprocessing/exome/"
-  //    )
+  case object ExomeReprocessing
+      extends PipelineTestType(
+        "TestExomeReprocessing",
+        "ExomeReprocessing",
+        "/broad/reprocessing/exome/"
+      )
   //case object ExternalExomeReprocessing
   //    extends PipelineTestType(
   //      "TestExternalExomeReprocessing",
@@ -59,21 +67,23 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestGDCWholeGenomeSomaticSingleSample",
   //      "/broad/dna_seq/somatic/single_sample/wgs/gdc_genome/"
   //    )
-  //case object IlluminaGenotypingArray
-  //    extends PipelineTestType(
-  //      "TestIlluminaGenotypingArray",
-  //      "/broad/genotyping/illumina/"
-  //    )
+  case object IlluminaGenotypingArray
+      extends PipelineTestType(
+        "TestIlluminaGenotypingArray",
+        "IlluminaGenotypingArray",
+        "/broad/genotyping/illumina/"
+      )
   //case object JointGenotyping
   //    extends PipelineTestType(
   //      "TestJointGenotyping",
   //      "/broad/dna_seq/germline/joint_genotyping/"
   //    )
-  //case object MultiSampleArrays
-  //    extends PipelineTestType(
-  //      "TestMultiSampleArrays",
-  //      "/broad/arrays/multi_sample/"
-  //    )
+  case object MultiSampleArrays
+      extends PipelineTestType(
+        "TestMultiSampleArrays",
+        "MultiSampleArrays",
+        "/broad/arrays/multi_sample/"
+      )
   //case object MultiSampleSmartSeq2
   //    extends PipelineTestType(
   //      "TestMultiSampleSmartSeq2",
@@ -95,6 +105,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestReblockGVCF",
   //      "/broad/dna_seq/germline/joint_genotyping/reblocking/"
   //    )
+  case object RNAWithUMIsPipeline
+      extends PipelineTestType(
+        "TestRNAWithUMIsPipeline",
+        "RNAWithUMIsPipeline",
+        "/broad/rna_seq/"
+      )
   case object scATAC
       extends PipelineTestType(
         "TestscATAC",
