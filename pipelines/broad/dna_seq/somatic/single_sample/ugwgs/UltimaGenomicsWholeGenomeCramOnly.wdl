@@ -1,13 +1,13 @@
 version 1.0
 
-import "../../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl" as Tasks
-import "../../../../../../../tasks/broad/Utilities.wdl" as Utilities
-import "../../../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as VariantDiscoverTasks
-import "../../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.wdl" as UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates
-import "../../../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
-import "../../../../../../../tasks/broad/Qc.wdl" as QC
-import "../../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineQC.wdl" as UltimaGenomicsWholeGenomeGermlineQC
-import "../../../../../../../structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl" as Structs
+import "../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl" as Tasks
+import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
+import "../../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as VariantDiscoverTasks
+import "../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates.wdl" as UltimaGenomicsWholeGenomeGermlineAlignmentMarkDuplicates
+import "../../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
+import "../../../../../../tasks/broad/Qc.wdl" as QC
+import "../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineQC.wdl" as UltimaGenomicsWholeGenomeGermlineQC
+import "../../../../../../structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl" as Structs
 
 
 workflow UltimaGenomicsWholeGenomeCramOnly {
