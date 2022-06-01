@@ -5,7 +5,6 @@ import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalArraysTasks
 import "../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 
 import "../../../../tasks/broad/Utilities.wdl" as utils
-
 ## Copyright Broad Institute, 2019
 ##
 ## This WDL pipeline implements data processing for Illumina Genotyping Arrays
