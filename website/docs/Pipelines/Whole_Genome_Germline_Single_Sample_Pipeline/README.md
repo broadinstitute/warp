@@ -6,7 +6,7 @@ sidebar_position: 1
  
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| WholeGenomeGermlineSingleSample_v3.0.0 (see [releases page](https://github.com/broadinstitute/warp/releases)) | November, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| WholeGenomeGermlineSingleSample_v3.1.2 (see [releases page](https://github.com/broadinstitute/warp/releases)) | June, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
  
 ## Introduction to the Whole Genome Germline Single Sample Pipeline
 The Whole Genome Germline Single Sample (WGS) pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices for germline SNP and Indel discovery in human whole-genome sequencing data. It includes the DRAGEN-GATK mode, which makes the pipeline functionally equivalent to DRAGEN’s analysis pipeline (read more in this [DRAGEN-GATK blog](https://gatk.broadinstitute.org/hc/en-us/articles/360039984151)).
