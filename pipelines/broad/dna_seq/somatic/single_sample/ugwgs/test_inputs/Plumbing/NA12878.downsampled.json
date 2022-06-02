@@ -1,5 +1,5 @@
 {
-    "UltimaGenomicsWholeGenomeCramOnly.input_cram_list": ["gs://broad-gotc-test-storage/tmp/jbx/downsampled_NA12878.cram"],
+    "UltimaGenomicsWholeGenomeCramOnly.input_cram_list": ["gs://broad-gotc-test-storage/somatic_single_sample/ugwgs/plumbing/crams/downsampled_NA12878.cram"],
     "UltimaGenomicsWholeGenomeCramOnly.base_file_name": "downsampled_NA12878",
     "UltimaGenomicsWholeGenomeCramOnly.contamination_sites": {
         "contamination_sites_vcf": "gs://concordance/hg38/Homo_sapiens_assembly38.contam_fixed.vcf",
