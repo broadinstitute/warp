@@ -34,7 +34,7 @@ workflow BroadInternalImputation {
         input:
             contigs = contigs,
             genetic_maps_eagle          = genetic_maps_eagle,
-            output_callset_name         = output_callset_name,
+            output_callset_name         = sub(output_callset_name, ":", "_"),
             ref_dict                    = ref_dict,
             reference_panel_path        = reference_panel_path,
             single_sample_vcfs          = single_sample_vcfs,
@@ -79,7 +79,8 @@ workflow BroadInternalImputation {
     call InternalImputationTasks.TriggerPrsWithImputationTsv {
         input:
             imputation_outputs_tsv = FormatImputationOutputs.ingest_outputs_tsv,
-            trigger_bucket_path = prs_cf_trigger_bucket_path
+            trigger_bucket_path = prs_cf_trigger_bucket_path,
+            output_callset_name = sub(output_callset_name, ":", "_")
     }
 
     output {
