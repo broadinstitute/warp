@@ -22,7 +22,8 @@ workflow VerifyGvcf {
   call VerifyTasks.CompareVcfs {
     input:
       file1 = test_gvcf,
-      file2 = truth_gvcf
+      file2 = truth_gvcf,
+      patternForLinesToExcludeFromComparison = "^##GATKCommandLine"
   }
   meta {
     allowNestedInputs: true
