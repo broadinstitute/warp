@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../arrays/single_sample/Arrays.wdl" as ArraysPipeline
+import "../../../../../pipelines/broad/arrays/single_sample/Arrays.wdl" as ArraysPipeline
 import "../../../../../tasks/broad/InternalArraysTasks.wdl" as InternalArraysTasks
 import "../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 
