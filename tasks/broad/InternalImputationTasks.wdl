@@ -128,11 +128,11 @@ task TriggerPrsWithImputationTsv {
     input {
         File    imputation_outputs_tsv
         String  trigger_bucket_path
-        String  output_callset_name
+        String  timestamp
     }
 
     command {
-        gsutil cp ~{imputation_outputs_tsv} ~{trigger_bucket_path}~{output_callset_name}~{imputation_outputs_tsv}
+        gsutil cp ~{imputation_outputs_tsv} ~{trigger_bucket_path}~{timestamp}~{imputation_outputs_tsv}
     }
 
     runtime {
