@@ -28,13 +28,14 @@ workflow BroadInternalImputation {
         Array[File]     single_sample_vcfs
         Array[File]     single_sample_vcf_indices
         Array[String]   chip_well_barcodes
+        String          timestamp
     }
 
     call ImputationPipeline.Imputation {
         input:
             contigs = contigs,
             genetic_maps_eagle          = genetic_maps_eagle,
-            output_callset_name         = sub(output_callset_name, ":", "_"),
+            output_callset_name         = output_callset_name,
             ref_dict                    = ref_dict,
             reference_panel_path        = reference_panel_path,
             single_sample_vcfs          = single_sample_vcfs,
@@ -78,9 +79,9 @@ workflow BroadInternalImputation {
 
     call InternalImputationTasks.TriggerPrsWithImputationTsv {
         input:
-            imputation_outputs_tsv = FormatImputationOutputs.ingest_outputs_tsv,
-            trigger_bucket_path = prs_cf_trigger_bucket_path,
-            output_callset_name = sub(output_callset_name, ":", "_")
+            imputation_outputs_tsv  = FormatImputationOutputs.ingest_outputs_tsv,
+            trigger_bucket_path     = prs_cf_trigger_bucket_path,
+            timestamp               = timestamp
     }
 
     output {
