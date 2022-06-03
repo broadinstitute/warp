@@ -1,7 +1,12 @@
-# 1.0.2
-2022-06-01 (Date of Last Commit)
+# 1.0.3
+2022-06-03 (Date of Last Commit)
 
 * Renamed the CompareVCFs task in VerifyImputation.wdl to CompareVcfsAllowingQualityDifferences, this update has no effect on this pipeline
+
+# 1.0.2
+2022-06-02 (Date of Last Commit)
+
+* Fix level of relative import of a pipeline WDL to allow for warp testing framework to operate properly
 
 # 1.0.1
 2022-05-23 (Date of Last Commit)

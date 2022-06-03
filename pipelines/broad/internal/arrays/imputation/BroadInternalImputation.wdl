@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../arrays/imputation/Imputation.wdl" as ImputationPipeline
+import "../../../../../pipelines/broad/arrays/imputation/Imputation.wdl" as ImputationPipeline
 import "../../../../../tasks/broad/InternalImputationTasks.wdl" as InternalImputationTasks
 import "../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 
