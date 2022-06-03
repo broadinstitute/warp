@@ -1,3 +1,8 @@
+# 1.0.2
+2022-06-02 (Date of Last Commit)
+
+* Fix level of relative import of a pipeline WDL to allow for warp testing framework to operate properly
+
 # 1.0.1
 2022-05-23 (Date of Last Commit)
 
