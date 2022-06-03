@@ -1,7 +1,12 @@
-# 1.0.12
-2022-06-01 (Date of Last Commit)
+# 1.0.13
+2022-06-03 (Date of Last Commit)
 
 * Renamed the CompareVCFs task in VerifyCheckFingerprint.wdl to CompareVcfsAllowingQualityDifferences, this update has no effect on this pipeline
+
+# 1.0.12
+2022-06-03 (Date of Last Commit)
+
+* Updated whitespace in BroadInternalRNAWithUMIS.wdl, this has no functional effect on the pipeline
 
 # 1.0.11
 2022-05-19 (Date of Last Commit)

@@ -62,7 +62,7 @@ def get_gce_pricing():
     return data
 
 def get_us_keys(dict):
-us_cost = count = 0
+    us_cost = count = 0
     for k, v in dict.items():
         if k.startswith("us"):
             count += 1
