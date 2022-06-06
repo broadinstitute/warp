@@ -94,8 +94,8 @@ workflow CreateSs2AdapterMetadata {
 
   # Build staging bucket
   # When validating the staging bucket it can't end with '/
-  String staging_bucket = staging_area + project_id + "/staging/"
-  String staging_bucket_validation = staging_area + project_id + "/staging"
+  String staging_bucket = staging_area + project_id + "/"
+  String staging_bucket_validation = staging_area + project_id
 
   String project_stratum_string = "project=" + project_id + ";library=" + library + ";species=" + species + ";organ=" + organ
 
