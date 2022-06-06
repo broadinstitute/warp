@@ -82,3 +82,7 @@ workflows:
   - name: Imputation_TDR
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/internal/arrays/imputation/BroadInternalImputation.wdl
+
+  - name: GDCWholeGenomeSomaticSingleSample
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/somatic/single_sample/wgs/gdc_genome/GDCWholeGenomeSomaticSingleSample.wdl

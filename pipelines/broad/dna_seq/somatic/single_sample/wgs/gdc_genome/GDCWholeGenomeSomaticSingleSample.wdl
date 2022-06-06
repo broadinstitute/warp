@@ -638,7 +638,7 @@ workflow GDCWholeGenomeSomaticSingleSample {
         String? unmapped_bam_suffix
         String base_file_name
 
-        File? ubam
+        Array[File]? rg_ubams
 
         File contamination_vcf
         File contamination_vcf_index
@@ -655,10 +655,10 @@ workflow GDCWholeGenomeSomaticSingleSample {
         File ref_sa
     }
 
-    String outbam = if (defined(ubam) || defined(input_bam)) then basename(select_first([ubam, input_bam]), ".bam") + ".aln.mrkdp.bam"
+    String outbam = if (defined(rg_ubams) || defined(input_bam)) then basename(select_first([rg_ubams, input_bam]), ".bam") + ".aln.mrkdp.bam"
                     else basename(select_first([input_cram]), ".cram") + ".aln.mrkdp.bam"
 
-    if (!defined(ubam)) {
+    if (!defined(rg_ubams)) {
         call ToUbams.CramToUnmappedBams {
              input:
                  input_cram = input_cram,
@@ -671,7 +671,7 @@ workflow GDCWholeGenomeSomaticSingleSample {
         }
     }
 
-    Array[File] ubams = if defined(ubam) then [select_first([ubam])] else select_first([CramToUnmappedBams.unmapped_bams])
+    Array[File] ubams = select_first([rg_ubams, CramToUnmappedBams.unmapped_bams])
 
     scatter (ubam in ubams) {
         call bam_readgroup_to_contents {
