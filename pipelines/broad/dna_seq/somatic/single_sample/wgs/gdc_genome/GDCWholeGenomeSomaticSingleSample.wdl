@@ -655,7 +655,7 @@ workflow GDCWholeGenomeSomaticSingleSample {
         File ref_sa
     }
 
-    String outbam = if (defined(rg_ubams) || defined(input_bam)) then basename(select_first([rg_ubams, input_bam]), ".bam") + ".aln.mrkdp.bam"
+    String outbam = if (defined(rg_ubams)) then base_file_name else if (defined(input_bam)) then basename(select_first([input_bam]), ".bam") + ".aln.mrkdp.bam"
                     else basename(select_first([input_cram]), ".cram") + ".aln.mrkdp.bam"
 
     if (!defined(rg_ubams)) {
