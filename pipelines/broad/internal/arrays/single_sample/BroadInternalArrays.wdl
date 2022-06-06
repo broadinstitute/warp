@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../arrays/single_sample/Arrays.wdl" as ArraysPipeline
+import "../../../../../pipelines/broad/arrays/single_sample/Arrays.wdl" as ArraysPipeline
 import "../../../../../tasks/broad/InternalArraysTasks.wdl" as InternalArraysTasks
 import "../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 
@@ -9,7 +9,7 @@ workflow BroadInternalArrays {
         description: "Push outputs of Arrays.wdl to TDR dataset table ArraysOutputsTable."
     }
 
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.1"
 
     input {
         # inputs to wrapper task
