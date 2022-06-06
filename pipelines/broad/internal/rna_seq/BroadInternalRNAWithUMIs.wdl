@@ -7,7 +7,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow BroadInternalRNAWithUMIs {
 
-  String pipeline_version = "1.0.12"
+  String pipeline_version = "1.0.13"
 
 
   input {

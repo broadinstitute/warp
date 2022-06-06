@@ -1,3 +1,8 @@
+# 1.0.3
+2022-06-03 (Date of Last Commit)
+
+* Renamed the CompareVCFs task in VerifyImputation.wdl to CompareVcfsAllowingQualityDifferences, this update has no effect on this pipeline
+
 # 1.0.2
 2022-06-02 (Date of Last Commit)
 
