@@ -105,7 +105,6 @@ workflow {{ test_workflow }} {
       }
     }
 
-    # If not updating truth then we need to collect all input for the validation WDL
     # This is achieved by passing each desired file/array[files] to GetValidationInputs
     if (!update_truth){
       {%- for k, v in validation_inputs.items() %}
@@ -134,11 +133,5 @@ workflow {{ test_workflow }} {
           {%- endfor%}
           done = CopyToTestResults.done
       }
-  
     }
-
-
-
-
-
 }
