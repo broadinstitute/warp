@@ -42,24 +42,35 @@ def get_gce_pricing():
     pricing = json.loads(data)
 
     data = {}
+
     for k, v in pricing.items():
         if k == "gcp_price_list":
             for k2, v2 in v.items():
                 if k2.startswith("CP-COMPUTEENGINE-VMIMAGE"):
-                    data[k2.replace("CP-COMPUTEENGINE-VMIMAGE-", "").lower()] = v2['us']
+                    data[k2.replace("CP-COMPUTEENGINE-VMIMAGE-", "").lower()] = get_us_keys(v2)
                 if k2.startswith("CP-COMPUTEENGINE-STORAGE-PD"):
-                    data[k2] = v2['us']
+                    data[k2] = get_us_keys(v2)
                 if k2.startswith("CP-COMPUTEENGINE-LOCAL-SSD"):
-                    data[k2] = v2['us']
+                    data[k2] = get_us_keys(v2)
                 if k2.startswith("CP-COMPUTEENGINE-LOCAL-SSD-PREEMPTIBLE"):
-                    data[k2] = v2['us']
+                    data[k2] = get_us_keys(v2)
                 if k2.startswith("CP-COMPUTEENGINE-STORAGE-PD-CAPACITY"):
-                    data[k2] = v2['us']
+                    data[k2] = get_us_keys(v2)
                 if k2 in CUSTOM_MACHINE_TYPES:
-                    data[k2] = v2['us']
+                    data[k2] = get_us_keys(v2)
 
     return data
 
+def get_us_keys(dict):
+    us_cost = count = 0
+    for k, v in dict.items():
+        if k.startswith("us"):
+            count += 1
+            us_cost += v
+    if count == 0:
+        print("The dictionary doesn't contain a US cost object")
+        exit(0)
+    return us_cost / count
 
 def extract_machine_type(call_info):
     # First, look in the executionEvents for the type of machine allocated:
@@ -173,11 +184,11 @@ def calculate_cost(metadata, ignore_preempted, only_total_cost, print_header):
     hdd_cost_per_gb_per_month = float(pricing["CP-COMPUTEENGINE-STORAGE-PD-CAPACITY"])
     hdd_cost_per_gb_hour = (hdd_cost_per_gb_per_month / (24 * 365 / 12))
 
-    disk_costs = {"PERSISTENT_SSD"      : ssd_cost_per_gb_hour, 
+    disk_costs = {"PERSISTENT_SSD"      : ssd_cost_per_gb_hour,
                   "PERSISTENT_HDD"      : hdd_cost_per_gb_hour,
                   "PERSISTENT_LOCAL"    : local_ssd_cost_per_gb_hour,
                   "PE_PERSISTENT_LOCAL" : pe_local_ssd_cost_per_gb_hour,
-              }
+                  }
 
     if print_header and not only_total_cost:
         # print out a header

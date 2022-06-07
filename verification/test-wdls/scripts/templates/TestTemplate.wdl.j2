@@ -88,7 +88,7 @@ workflow {{ test_workflow }} {
     # Copy results of pipeline to test results bucket
     call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
       input:
-        files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
+        files_to_copy             = flatten([pipeline_outputs {%- if metrics %}, pipeline_metrics {%- endif %}]),
         vault_token_path          = vault_token_path,
         google_account_vault_path = google_account_vault_path,
         destination_cloud_path    = results_path
@@ -98,14 +98,13 @@ workflow {{ test_workflow }} {
     if (update_truth){
       call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
         input: 
-          files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
+          files_to_copy             = flatten([pipeline_outputs {%- if metrics %}, pipeline_metrics {%- endif %}]),
           vault_token_path          = vault_token_path,
           google_account_vault_path = google_account_vault_path,
           destination_cloud_path    = truth_path
       }
     }
 
-    # If not updating truth then we need to collect all input for the validation WDL
     # This is achieved by passing each desired file/array[files] to GetValidationInputs
     if (!update_truth){
       {%- for k, v in validation_inputs.items() %}
@@ -134,11 +133,5 @@ workflow {{ test_workflow }} {
           {%- endfor%}
           done = CopyToTestResults.done
       }
-  
     }
-
-
-
-
-
 }

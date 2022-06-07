@@ -45,19 +45,19 @@ workflow VerifyValidateChip {
       bead_pool_manifest_file=bead_pool_manifest_file
   }
 
-  call Tasks.CompareVcfs as CompareOutputVcfs {
+  call Tasks.CompareVcfsAllowingQualityDifferences as CompareOutputVcfs {
     input:
       file1=truth_vcf,
       file2=test_vcf
   }
 
-  call Tasks.CompareVcfs as CompareGenotypeConcordanceVcfs {
+  call Tasks.CompareVcfsAllowingQualityDifferences as CompareGenotypeConcordanceVcfs {
     input:
       file1=truth_genotype_concordance_vcf,
       file2=test_genotype_concordance_vcf
   }
 
-  call Tasks.CompareVcfs as CompareIndelGenotypeConcordanceVcfs {
+  call Tasks.CompareVcfsAllowingQualityDifferences as CompareIndelGenotypeConcordanceVcfs {
     input:
       file1=truth_indel_genotype_concordance_vcf,
       file2=test_indel_genotype_concordance_vcf

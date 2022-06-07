@@ -150,6 +150,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     // Only add the vault token and environment for pipelines above
     // These allow these pipelines to auth with vault/gcp
     if (tokenPipelines.contains(pipeline)) {
+
       defaultInputs = defaultInputs :+ workflowName + ".vault_token_path_arrays" -> vaultTokenPathArrays.asJson
       defaultInputs = defaultInputs :+ workflowName + ".environment" -> envString.asJson
     }
