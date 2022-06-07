@@ -1,3 +1,8 @@
+# 1.0.14
+2022-06-07 (Date of Last Commit)
+
+* Fixing whitespace in the BroadInternalRNAWithUMIS.wdl, this has no functional effect on the pipeline
+
 # 1.0.13
 2022-06-03 (Date of Last Commit)
 
