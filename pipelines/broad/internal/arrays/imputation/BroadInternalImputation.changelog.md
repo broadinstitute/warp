@@ -1,8 +1,13 @@
-# 1.0.3
+# 1.0.4
 2022-06-06 (Date of Last Commit)
 
 * Add timestamp variable to workflow inputs
 * Update TriggerPrsWithImputationTsv task with destination filename prefixed with timestamp from workflow input
+
+ # 1.0.3
+2022-06-03 (Date of Last Commit)
+
+* Renamed the CompareVCFs task in VerifyImputation.wdl to CompareVcfsAllowingQualityDifferences, this update has no effect on this pipeline
 
 # 1.0.2
 2022-06-02 (Date of Last Commit)

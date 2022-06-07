@@ -1,3 +1,8 @@
+# 3.1.2
+2022-06-01 (Date of Last Commit)
+
+* Updated tasks in the QC.wdl and VariantCalling.wdl, this update has no effect on this pipeline 
+
 # 3.1.1
 2022-04-21 (Date of Last Commit)
 
