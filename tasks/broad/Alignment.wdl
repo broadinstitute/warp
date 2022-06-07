@@ -129,8 +129,8 @@ task SamSplitter {
   input {
     File input_bam
     Int n_reads
-    Int preemptible_tries
     Int compression_level
+    Int preemptible_tries = 3
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")

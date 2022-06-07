@@ -80,13 +80,13 @@ workflow VerifyIlluminaGenotypingArray {
     }
   }
 
-  call Tasks.CompareVcfs as CompareOutputVcfs {
+  call Tasks.CompareVcfsAllowingQualityDifferences as CompareOutputVcfs {
     input:
       file1 = truth_vcf,
       file2 = test_vcf
   }
 
-  call Tasks.CompareVcfs as CompareOutputFingerprintVcfs {
+  call Tasks.CompareVcfsAllowingQualityDifferences as CompareOutputFingerprintVcfs {
     input:
        file1 = truth_fp_vcf,
        file2 = test_fp_vcf

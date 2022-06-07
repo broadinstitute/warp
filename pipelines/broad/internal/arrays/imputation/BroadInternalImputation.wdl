@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../arrays/imputation/Imputation.wdl" as ImputationPipeline
+import "../../../../../pipelines/broad/arrays/imputation/Imputation.wdl" as ImputationPipeline
 import "../../../../../tasks/broad/InternalImputationTasks.wdl" as InternalImputationTasks
 import "../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 
@@ -8,7 +8,7 @@ workflow BroadInternalImputation {
     meta {
         description: "Push outputs of Imputation.wdl to TDR dataset table ImputationOutputsTable and split out Imputation arrays into ImputationWideOutputsTable."
     }
-    String pipeline_version = "1.0.1"
+    String pipeline_version = "1.0.3"
     
     input {
         # inputs to wrapper task 

@@ -1,3 +1,8 @@
+# 2.6.12
+2022-06-01 (Date of Last Commit)
+
+* Renamed the CompareVCFs task in VerifyIlluminaGenotypingArray.wdl to CompareVcfsAllowingQualityDifferences, this update has no effect on this pipeline
+
 # 2.6.11
 2022-05-19 (Date of Last Commit)
 
