@@ -169,7 +169,7 @@ task MergeVCFs {
     Array[File] input_vcfs
     Array[File] input_vcfs_indexes
     String output_vcf_name
-    Int preemptible_tries
+    Int preemptible_tries = 3
   }
 
   Int disk_size = ceil(size(input_vcfs, "GiB") * 2.5) + 10
@@ -205,17 +205,23 @@ task Reblock {
     String output_vcf_filename
     String docker_image = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
     Int additional_disk = 20
+    String? annotations_to_keep_command
+    Float? tree_score_cutoff
   }
 
   Int disk_size = ceil((size(gvcf, "GiB")) * 4) + additional_disk
 
   command {
+    set -e 
+
     gatk --java-options "-Xms3000m -Xmx3000m" \
       ReblockGVCF \
       -R ~{ref_fasta} \
       -V ~{gvcf} \
       -do-qual-approx \
       --floor-blocks -GQB 20 -GQB 30 -GQB 40 \
+      ~{annotations_to_keep_command} \
+      ~{"--tree-score-threshold-to-no-call " + tree_score_cutoff} \
       -O ~{output_vcf_filename}
   }
 

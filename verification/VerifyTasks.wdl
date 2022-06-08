@@ -4,6 +4,32 @@ task CompareVcfs {
   input {
     File file1
     File file2
+    String patternForLinesToExcludeFromComparison = ""
+  }
+
+  command {
+    set -eo pipefail
+
+    if [ -z ~{patternForLinesToExcludeFromComparison} ]; then
+      diff <(gunzip -c -f ~{file1}) <(gunzip -c -f ~{file2})
+    else
+      echo "It's defined!"
+      diff <(gunzip -c -f ~{file1} | grep -v '~{patternForLinesToExcludeFromComparison}') <(gunzip -c -f ~{file2} | grep -v '~{patternForLinesToExcludeFromComparison}')
+    fi
+  }
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk 50 HDD"
+    memory: "16 GiB"
+    preemptible: 3
+  }
+}
+
+task CompareVcfsAllowingQualityDifferences {
+  input {
+    File file1
+    File file2
   }
 
   command {

@@ -24,6 +24,8 @@ function pipeline_to_args() {
       echo Arrays -a Multi ${common_args};;
     BroadInternalRNAWithUMIs)
       echo BroadInternalRNAWithUMIs ${common_args};;
+    BroadInternalUltimaGenomics)
+      echo BroadInternalUltimaGenomics ${common_args};;
     CheckFingerprint)
       echo CheckFingerprint ${common_args};;
     ExomeGermlineSingleSample)
@@ -76,6 +78,10 @@ function pipeline_to_args() {
       continue;;
     JointGenotypingByChromosomePartTwo)
       continue;;
+    UltimaGenomicsGermlineSingleSample)
+      echo UltimaGenomicsGermlineSingleSample ${common_args};;
+    UltimaGenomicsJointGenotyping)
+      echo UltimaGenomicsJointGenotyping ${common_args};;
     GDCWholeGenomeSomaticSingleSample)
       echo GDCWholeGenomeSomaticSingleSample -d WGS ${common_args};;
     VariantCalling)
