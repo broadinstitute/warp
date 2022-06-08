@@ -72,6 +72,9 @@ object CromwellWorkflowTester {
       case BroadInternalRNAWithUMIs =>
         new BroadInternalRNAWithUMIsTester(
           config.broadInternalRNAWithUMIsConfig)
+      case BroadInternalUltimaGenomics =>
+        new BroadInternalUltimaGenomicsTester(
+          config.broadInternalUltimaGenomicsConfig)
       case CheckFingerprint =>
         new CheckFingerprintTester(config.checkFingerprintConfig)
       case CramToUnmappedBams =>
@@ -106,6 +109,12 @@ object CromwellWorkflowTester {
         new RNAWithUMIsTester(config.rnaWithUMIsConfig)
       case SomaticSingleSample =>
         new SomaticSingleSampleTester(config.somaticCloudWorkflowConfig)
+      case UltimaGenomicsJointGenotyping =>
+        new UltimaGenomicsJointGenotypingTester(
+          config.ultimaGenomicsJointGenotypingConfig)
+      case UltimaGenomicsWholeGenomeGermline =>
+        new UltimaGenomicsWholeGenomeGermlineTester(
+          config.ultimaGenomicsWholeGenomeGermlineConfig)
       case VariantCalling =>
         new VariantCallingTester(config.germlineCloudConfig)
     }
