@@ -59,7 +59,7 @@ func cacheExists() bool {
 func makeCache() (*os.File, error) {
 	cacheFile := getCacheDir()
 
-	if err := os.MkdirAll(filepath.Dir(cacheFile), 0o770); err != nil {
+	if err := os.MkdirAll(filepath.Dir(cacheFile), 0770); err != nil {
 		return nil, err
 	}
 	return os.Create(cacheFile)
