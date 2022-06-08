@@ -10,7 +10,7 @@ workflow VerifyGvcf {
     File truth_gvcf
     File truth_gvcf_index
   }
-  
+
   call VerifyTasks.CompareVCFsVerbosely {
     input:
       actual = test_gvcf,
@@ -22,7 +22,8 @@ workflow VerifyGvcf {
   call VerifyTasks.CompareVcfs {
     input:
       file1 = test_gvcf,
-      file2 = truth_gvcf
+      file2 = truth_gvcf,
+      patternForLinesToExcludeFromComparison = "^##GATKCommandLine"
   }
   meta {
     allowNestedInputs: true
