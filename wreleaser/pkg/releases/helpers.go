@@ -11,7 +11,12 @@ import (
 var validReleases = []string{
 	"AnnotationFiltration",
 	"Arrays",
+	"BroadInternalRNAWithUMIs",
+	"BroadInternalArrays",
+	"BroadInternalImputation",
+	"BroadInternalUltimaGenomics",
 	"CEMBA",
+	"CheckFingerprint",
 	"CramToUnmappedBams",
 	"ExomeGermlineSingleSample",
 	"ExomeReprocessing",
@@ -31,6 +36,8 @@ var validReleases = []string{
 	"RNAWithUMIsPipeline",
 	"SmartSeq2SingleNucleus",
 	"SmartSeq2SingleSample",
+	"UltimaGenomicsWholeGenomeGermline",
+	"UltimaGenomicsJointGenotyping",
 	"ValidateChip",
 	"VariantCalling",
 	"WholeGenomeGermlineSingleSample",
@@ -52,7 +59,7 @@ func cacheExists() bool {
 func makeCache() (*os.File, error) {
 	cacheFile := getCacheDir()
 
-	if err := os.MkdirAll(filepath.Dir(cacheFile), 0770); err != nil {
+	if err := os.MkdirAll(filepath.Dir(cacheFile), 0o770); err != nil {
 		return nil, err
 	}
 	return os.Create(cacheFile)
