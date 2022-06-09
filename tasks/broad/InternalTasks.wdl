@@ -197,6 +197,7 @@ task IngestOutputsToTDR {
     }
 
     output {
-        File ingest_logs = stdout()
+        File    ingest_logs = stdout()
+        String  done        = "done"
     }
 }

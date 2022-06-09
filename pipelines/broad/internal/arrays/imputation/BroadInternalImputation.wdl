@@ -79,7 +79,7 @@ workflow BroadInternalImputation {
 
     call InternalImputationTasks.TriggerPrsWithImputationTsv {
         input:
-            run_task                = IngestToImputationWideOutputsTable.ingest_logs,
+            run_task                = IngestToImputationWideOutputsTable.done,
             imputation_outputs_tsv  = FormatImputationOutputs.ingest_outputs_tsv,
             trigger_bucket_path     = prs_cf_trigger_bucket_path,
             timestamp               = timestamp
