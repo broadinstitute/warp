@@ -126,7 +126,7 @@ task FormatImputationWideOutputs{
 
 task TriggerPrsWithImputationTsv {
     input {
-        String  run_task
+        File    run_task
         File    imputation_outputs_tsv
         String  trigger_bucket_path
         String  timestamp
