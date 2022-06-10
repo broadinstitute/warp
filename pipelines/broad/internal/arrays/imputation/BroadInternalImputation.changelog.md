@@ -1,5 +1,5 @@
 # 1.0.5
-2022-06-09 (Date of Last Commit)
+2022-06-10 (Date of Last Commit)
 
 * Add run_task variable as input to TriggerPrsWithImputationTsv task to ensure that task runs after IngestToImputationWideOutputsTable. Without completion of IngestToImputationWideOutputsTable, the CF that is triggered in TriggerPrsWithImputationTsv will fail - adding the additional variable forces the task to wait for the upstream ingest task to complete and generate its output file, which is required as input to the downstream task.
 
