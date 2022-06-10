@@ -118,6 +118,7 @@ task Fastp {
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
     preemptible: 0
+    maxRetries: 2
   }
 
   output {
@@ -628,6 +629,7 @@ task GroupByUMIs {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: 1
   }
 }
 
