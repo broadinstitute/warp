@@ -74,6 +74,8 @@ workflow Arrays {
 
     File? extended_chip_manifest_file
 
+    # Test comment
+    
     # For CheckFingerprint:
     # If this is true, we will read fingerprints from Mercury
     # Otherwise, we will use the optional input fingerprint VCFs below
