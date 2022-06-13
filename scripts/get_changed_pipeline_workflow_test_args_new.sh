@@ -19,9 +19,9 @@ function pipeline_to_args() {
     AnnotationFiltration)
       echo CloudWorkflow -p AnnotationFiltration -t ${test} --env ${env};;
     Arrays)
-      echo CloudWorkflow -p Arrays -a Single ${common_args};;
+      echo CloudWorkflow -p Arrays ${common_args};;
     MultiSampleArrays)
-      echo CloudWorkflow -p Arrays -a Multi ${common_args};;
+      echo CloudWorkflow -p Arrays ${common_args};;
     BroadInternalRNAWithUMIs)
       echo CloudWorkflow -p BroadInternalRNAWithUMIs ${common_args};;
     BroadInternalUltimaGenomics)
