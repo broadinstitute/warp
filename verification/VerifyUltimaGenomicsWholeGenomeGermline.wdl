@@ -158,7 +158,7 @@ task CompareOldMetricFiles {
   >>>
 
   runtime {
-    docker: "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
+    docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:samtools_picard_bwa_snapshot_UG"
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
     preemptible: 3
