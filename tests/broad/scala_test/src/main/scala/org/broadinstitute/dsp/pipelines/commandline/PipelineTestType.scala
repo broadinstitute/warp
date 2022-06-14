@@ -151,4 +151,16 @@ object PipelineTestType extends Enum[PipelineTestType] {
   //      "TestWholeGenomeReprocessing",
   //      "/broad/reprocessing/wgs/"
   //    )
+  case object UltimaGenomicsWholeGenomeGermline
+      extends PipelineTestType(
+        "TestUltimaGenomicsWholeGenomeGermline",
+        "UltimaGenomicsWholeGenomeGermline",
+        "/broad/dna_seq/germline/single_sample/UGWGS/"
+      )
+  case object UltimaGenomicsJointGenotyping
+      extends PipelineTestType(
+        "TestUltimaGenomicsJointGenotyping",
+        "UltimaGenomicsJointGenotyping",
+        "/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/"
+      )
 }
