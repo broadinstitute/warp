@@ -30,7 +30,8 @@ workflow MultiSampleArrays {
 
     Int preemptible_tries
   }
-
+  # Comment
+  
   call SplitFoFnToListFoFn as SampleFofn {
     input:
       fofn = samples_fofn

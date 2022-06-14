@@ -76,6 +76,8 @@ workflow IlluminaGenotypingArray {
     Float genotype_concordance_threshold = 0.95
   }
 
+  # Comment
+
   call GenotypingTasks.AutoCall {
     input:
       chip_well_barcode = chip_well_barcode,

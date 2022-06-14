@@ -50,6 +50,8 @@ workflow RNAWithUMIsPipeline {
     File population_vcf_index
   }
 
+  # Comment
+
   parameter_meta {
     bam: "Read group-specific unmapped BAM file;  alternatively, paired-end FASTQ files (the `r1_fastq` and `r2_fastq` inputs) may be used"
     r1_fastq: "Read 1 FASTQ file; alternatively, the unmapped bam file (`bam` input) may be used as input"

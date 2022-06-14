@@ -22,6 +22,8 @@ workflow CramToUnmappedBams {
     Int additional_disk = 20
   }
 
+  # Comment
+
   if (defined(input_cram)) {
     Float cram_size = size(input_cram, "GiB")
     String bam_from_cram_name = basename(input_cram_path, ".cram")

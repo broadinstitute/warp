@@ -58,6 +58,9 @@ workflow ExomeGermlineSingleSample {
     Boolean provide_bam_output = false
   }
 
+  # Comment
+
+
   # Not overridable:
   Float lod_threshold = -10.0
   String cross_check_fingerprints_by = "READGROUP"

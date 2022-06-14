@@ -70,6 +70,8 @@ workflow WholeGenomeGermlineSingleSample {
     Boolean use_dragen_hard_filtering = false
   }
 
+  # Comment
+
   if (dragen_functional_equivalence_mode && dragen_maximum_quality_mode) {
     call Utilities.ErrorWithMessage as PresetArgumentsError {
       input:
