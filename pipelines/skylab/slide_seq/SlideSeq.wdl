@@ -51,7 +51,13 @@ workflow SlideSeq {
         input_id: "Name of sample matching this file; inserted into read group header"
         read_structure: "String used to specify the UMI (M) and Barcode (C) positions in the Read 1 FASTQ"
     }
-
+    call Metrics.FastqMetricsSlidSeq as FastqMetrics {
+        input:
+            r1_fastq = r1_fastq,
+            read_structure = read_structure,
+            sample_id = input_id,
+            whitelist = whitelist
+    }
     call FastqProcessing.FastqProcessingSlidSeq as SplitFastq {
         input:
             r1_fastq = r1_fastq,
@@ -149,6 +155,10 @@ workflow SlideSeq {
         File gene_metrics = GeneMetrics.gene_metrics
         # loom
         File? loom_output_file = final_loom_output
-
+        # metrics
+        File barcode_distribution = FastqMetrics.barcode_distribution
+        File umi_distribution = FastqMetrics.umi_distribution
+        File numReads_perCell = FastqMetrics.numReads_perCell
+        File numReads_perUMI = FastqMetrics.numReads_perUMI
     }
 }
