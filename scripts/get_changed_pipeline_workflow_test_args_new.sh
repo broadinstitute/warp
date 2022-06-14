@@ -74,6 +74,8 @@ function pipeline_to_args() {
     #   echo CloudWorkflow -p TargetedSomaticSingleSample ${common_args};;
     CramToUnmappedBams)
       echo CloudWorkflow -p CramToUnmappedBams ${common_args};;
+    Optimus)
+      echo CloudWorkflow -p Optimus ${common_args};;
     JointGenotypingByChromosomePartOne)
       continue;;
     JointGenotypingByChromosomePartTwo)

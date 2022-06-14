@@ -54,6 +54,8 @@ workflow Optimus {
     # usage of preemptible machines, attempt to request for preemptible instance up to 3 times. 
   }
 
+  # Comment
+
   # version of this pipeline
 
   String pipeline_version = "5.5.0"
