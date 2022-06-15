@@ -46,7 +46,12 @@ $ wreleaser is a lightweight CLI to list, query and download various WARP releas
 Currently available pipelines:
         - AnnotationFiltration
         - Arrays
+        - BroadInternalRNAWithUMIs
+        - BroadInternalArrays
+        - BroadInternalImputation
+        - BroadInternalUltimaGenomics
         - CEMBA
+        - CheckFingerprint
         - CramToUnmappedBams
         - ExomeGermlineSingleSample
         - ExomeReprocessing
@@ -66,6 +71,8 @@ Currently available pipelines:
         - RNAWithUMIsPipeline
         - SmartSeq2SingleNucleus
         - SmartSeq2SingleSample
+        - UltimaGenomicsWholeGenomeGermline
+        - UltimaGenomicsJointGenotyping
         - ValidateChip
         - VariantCalling
         - WholeGenomeGermlineSingleSample
