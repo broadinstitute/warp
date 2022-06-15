@@ -250,6 +250,9 @@ workflow RNAWithUMIsPipeline {
     Float contamination_error = CalculateContamination.contamination_error
     File fastqc_html_report = FastQC.fastqc_html
     Float fastqc_percent_reads_with_adapter = FastQC.fastqc_percent_reads_with_adapter
+
+    # Optional, to compare against duplicate marked transcriptome bam
+    File transcriptome_bam_with_duplicates = UMIAwareDuplicateMarkingTranscriptome.query_sorted_aligned_bam
   }
 }
 

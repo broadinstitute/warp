@@ -117,5 +117,8 @@ workflow UMIAwareDuplicateMarking {
     File duplicate_marked_bam = select_first([SortSamByCoordinateSecondPass.output_bam, MarkDuplicates.duplicate_marked_bam])
     File duplicate_marked_bam_index = select_first([SortSamByCoordinateSecondPass.output_bam_index, CreateEmptyFile.empty_file])
     File duplicate_metrics = MarkDuplicates.duplicate_metrics
+
+    # Aligned bam without duplicate marking, for comparison
+    File query_sorted_aligned_bam = SortSamByQueryNameAfterAlignment.output_bam # 
   }
 }
