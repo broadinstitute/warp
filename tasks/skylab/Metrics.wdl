@@ -150,11 +150,8 @@ task FastqMetricsSlidSeq {
 
   parameter_meta {
     r1_fastq: "Array of Read 1 FASTQ files - forward read, contains cell barcodes and molecule barcodes"
-    r2_fastq: "Array of Read 2 FASTQ files - reverse read, contains cDNA fragment generated from captured mRNA"
-    i1_fastq: "(optional) Array of i1 FASTQ files - index read, for demultiplexing of multiple samples on one flow cell."
     sample_id: "Name of sample matching this file, inserted into read group header"
     read_structure: "A string that specifies UMI (M) and Barcode (C) positions in the Read 1 fastq"
-
   }
 
   command {
