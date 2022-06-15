@@ -8,7 +8,7 @@ workflow BroadInternalImputation {
     meta {
         description: "Push outputs of Imputation.wdl to TDR dataset table ImputationOutputsTable and split out Imputation arrays into ImputationWideOutputsTable."
     }
-    String pipeline_version = "1.0.4"
+    String pipeline_version = "1.0.5"
     
     input {
         # inputs to wrapper task 
@@ -79,6 +79,7 @@ workflow BroadInternalImputation {
 
     call InternalImputationTasks.TriggerPrsWithImputationTsv {
         input:
+            run_task                = IngestToImputationWideOutputsTable.ingest_logs,
             imputation_outputs_tsv  = FormatImputationOutputs.ingest_outputs_tsv,
             trigger_bucket_path     = prs_cf_trigger_bucket_path,
             timestamp               = timestamp
