@@ -163,4 +163,10 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "UltimaGenomicsJointGenotyping",
         "/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/"
       )
+  case object BroadInternalUltimaGenomics
+      extends PipelineTestType(
+        "TestBroadInternalUltimaGenomics",
+        "BroadInternalUltimaGenomics",
+        "/broad/internal/dna_seq/germline/single_sample/UltimaGenomics"
+      )
 }
