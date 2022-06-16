@@ -24,8 +24,8 @@ function pipeline_to_args() {
       echo CloudWorkflow -p Arrays ${common_args};;
     BroadInternalRNAWithUMIs)
       echo CloudWorkflow -p BroadInternalRNAWithUMIs ${common_args};;
-    # BroadInternalUltimaGenomics)
-    #   echo CloudWorkflow -p BroadInternalUltimaGenomics ${common_args};;
+    BroadInternalUltimaGenomics)
+      echo CloudWorkflow -p BroadInternalUltimaGenomics ${common_args};;
     # CheckFingerprint)
     #   echo CloudWorkflow -p CheckFingerprint ${common_args};;
     ExomeGermlineSingleSample)
@@ -80,10 +80,10 @@ function pipeline_to_args() {
       continue;;
     JointGenotypingByChromosomePartTwo)
       continue;;
-    # UltimaGenomicsGermlineSingleSample)
-    #   echo CloudWorkflow -p UltimaGenomicsGermlineSingleSample ${common_args};;
-    # UltimaGenomicsJointGenotyping)
-    #   echo CloudWorkflow -p UltimaGenomicsJointGenotyping ${common_args};;
+    UltimaGenomicsGermlineSingleSample)
+      echo CloudWorkflow -p UltimaGenomicsGermlineSingleSample ${common_args};;
+    UltimaGenomicsJointGenotyping)
+      echo CloudWorkflow -p UltimaGenomicsJointGenotyping ${common_args};;
     # GDCWholeGenomeSomaticSingleSample)
     #   echo CloudWorkflow -p GDCWholeGenomeSomaticSingleSample -d WGS ${common_args};;
     # VariantCalling)
