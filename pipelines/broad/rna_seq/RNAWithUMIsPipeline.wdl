@@ -177,6 +177,12 @@ workflow RNAWithUMIsPipeline {
       input_bam = UMIAwareDuplicateMarkingTranscriptome.duplicate_marked_bam
   }
 
+  call tasks.PostprocessTranscriptomeForRSEM as PostProcessWithDuplicates {
+    input:
+      prefix = output_basename + ".transcriptome_with_duplicates",
+      input_bam = UMIAwareDuplicateMarkingTranscriptome.query_sorted_aligned_bam
+  }
+
   call tasks.GetSampleName {
     input:
       bam = bam_to_use
@@ -252,7 +258,7 @@ workflow RNAWithUMIsPipeline {
     Float fastqc_percent_reads_with_adapter = FastQC.fastqc_percent_reads_with_adapter
 
     # Optional, to compare against duplicate marked transcriptome bam
-    File transcriptome_bam_with_duplicates = UMIAwareDuplicateMarkingTranscriptome.query_sorted_aligned_bam
+    File transcriptome_bam_with_duplicates = PostProcessWithDuplicates.output_bam
   }
 }
 
