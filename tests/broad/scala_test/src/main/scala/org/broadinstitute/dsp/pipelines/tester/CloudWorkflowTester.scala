@@ -159,7 +159,8 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       workflowName + ".google_account_vault_path" -> googleAccountVaultPath.asJson,
     )
 
-    val tokenPipelines = List("Arrays", "BroadInternalRNAWithUMIs")
+    val tokenPipelines =
+      List("Arrays", "BroadInternalRNAWithUMIs", "CheckFingerprint")
     val externalPipelines =
       List("ExternalWholeGenomeReprocessing", "ExternalExomeReprocessing")
 
