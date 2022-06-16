@@ -24,7 +24,7 @@ import "../../../tasks/broad/Qc.wdl" as Qc
 
 workflow CheckFingerprint {
 
-  String pipeline_version = "1.0.6"
+  String pipeline_version = "1.0.7"
 
   input {
     File? input_vcf
@@ -97,7 +97,7 @@ workflow CheckFingerprint {
   File? fingerprint_vcf_index_to_use = if (fingerprint_downloaded_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf_index else fingerprint_genotypes_vcf_index
 
   if ((defined(fingerprint_vcf_to_use)) && (defined(input_vcf) || defined(input_bam))) {
-    call Qc.CheckFingerprint {
+    call Qc.CheckMercuryFingerprint {
       input:
         input_bam = input_bam,
         input_bam_index = input_bam_index,
@@ -118,9 +118,9 @@ workflow CheckFingerprint {
     Boolean fingerprint_read_from_mercury = fingerprint_downloaded_from_mercury
     File? reference_fingerprint_vcf = fingerprint_vcf_to_use
     File? reference_fingerprint_vcf_index = fingerprint_vcf_index_to_use
-    File? fingerprint_summary_metrics_file = CheckFingerprint.summary_metrics
-    File? fingerprint_detail_metrics_file = CheckFingerprint.detail_metrics
-    Float? lod_score = CheckFingerprint.lod
+    File? fingerprint_summary_metrics_file = CheckMercuryFingerprint.summary_metrics
+    File? fingerprint_detail_metrics_file = CheckMercuryFingerprint.detail_metrics
+    Float? lod_score = CheckMercuryFingerprint.lod
   }
   meta {
     allowNestedInputs: true
