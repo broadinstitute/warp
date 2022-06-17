@@ -170,7 +170,6 @@ workflow BroadInternalRNAWithUMIs {
   output {
     File transcriptome_bam = RNAWithUMIs.transcriptome_bam
     File transcriptome_bam_with_duplicates = RNAWithUMIs.transcriptome_bam_with_duplicates
-    File transcriptome_duplicate_metrics = RNAWithUMIs.transcriptome_duplicate_metrics
     File output_bam = RNAWithUMIs.output_bam
     File output_bam_index = RNAWithUMIs.output_bam_index
 
