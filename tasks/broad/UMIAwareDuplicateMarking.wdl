@@ -118,6 +118,11 @@ workflow UMIAwareDuplicateMarking {
     File duplicate_marked_bam_index = select_first([SortSamByCoordinateSecondPass.output_bam_index, CreateEmptyFile.empty_file])
     File duplicate_metrics = MarkDuplicates.duplicate_metrics
 
+    # The debate is whether to use trnascriptome bam that is not duplicate marked at all
+    # or one that's duplicate marked with UMIs, so no need to output no-umi duplicate marked bam
+    # File duplicate_marked_bam_no_umi = MarkDuplicatesNoUMI.output_bam
+    File duplicate_metrics_no_umi = MarkDuplicatesNoUMI.duplicate_metrics
+
     # Aligned bam without duplicate marking, for comparison
     File query_sorted_aligned_bam = SortSamByQueryNameAfterAlignment.output_bam # 
   }

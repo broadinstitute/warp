@@ -236,7 +236,12 @@ workflow RNAWithUMIsPipeline {
     File transcriptome_duplicate_metrics = UMIAwareDuplicateMarkingTranscriptome.duplicate_metrics
     File output_bam = UMIAwareDuplicateMarking.duplicate_marked_bam
     File output_bam_index = UMIAwareDuplicateMarking.duplicate_marked_bam_index
+    
     File duplicate_metrics = UMIAwareDuplicateMarking.duplicate_metrics
+    File duplicate_metrics_no_umi = UMIAwareDuplicateMarking.duplicate_metrics_no_umi
+    File transcriptome_duplicate_metrics = UMIAwareDuplicateMarkingTranscriptome.duplicate_metrics
+    File transcriptome_duplicate_metrics_no_umi = UMIAwareDuplicateMarkingTranscriptome.duplicate_metrics_no_umi
+
     File rnaseqc2_gene_tpm = rnaseqc2.gene_tpm
     File rnaseqc2_gene_counts = rnaseqc2.gene_counts
     File rnaseqc2_exon_counts = rnaseqc2.exon_counts

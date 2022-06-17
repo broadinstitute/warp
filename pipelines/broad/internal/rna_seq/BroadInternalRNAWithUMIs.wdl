@@ -173,7 +173,12 @@ workflow BroadInternalRNAWithUMIs {
     File transcriptome_duplicate_metrics = RNAWithUMIs.transcriptome_duplicate_metrics
     File output_bam = RNAWithUMIs.output_bam
     File output_bam_index = RNAWithUMIs.output_bam_index
+
     File duplicate_metrics = RNAWithUMIs.duplicate_metrics
+    File duplicate_metrics_no_umi = RNAWithUMIs.duplicate_metrics_no_umi
+    File transcriptome_duplicate_metrics = RNAWithUMIs.transcriptome_duplicate_metrics
+    File transcriptome_duplicate_metrics_no_umi = RNAWithUMIs.transcriptome_duplicate_metrics_no_umi
+
     File rnaseqc2_gene_tpm = RNAWithUMIs.rnaseqc2_gene_tpm
     File rnaseqc2_gene_counts = RNAWithUMIs.rnaseqc2_gene_counts
     File rnaseqc2_exon_counts = RNAWithUMIs.rnaseqc2_exon_counts
