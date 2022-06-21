@@ -182,7 +182,8 @@ workflow TestValidateChip {
           test_indel_genotype_concordance_vcf = GetIndelGenotypeConcordanceVcf.results_file,
           truth_metrics = GetMetrics.truth_files, 
           test_metrics = GetMetrics.results_files,
-          done = CopyToTestResults.done
+          done = CopyToTestResults.done,
+          bead_pool_manifest_file = ValidateChip.output_bead_pool_manifest_file
       }
 
     }
