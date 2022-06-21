@@ -160,7 +160,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     )
 
     val tokenPipelines =
-      List("Arrays", "BroadInternalRNAWithUMIs", "CheckFingerprint")
+      List("Arrays", "BroadInternalRNAWithUMIs", "BroadInternalUltimaGenomics", "CheckFingerprint")
     val externalPipelines =
       List("ExternalWholeGenomeReprocessing", "ExternalExomeReprocessing")
 
