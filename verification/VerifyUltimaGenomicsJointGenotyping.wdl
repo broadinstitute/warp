@@ -21,6 +21,8 @@ workflow VerifyJointGenotyping {
 
     File test_fingerprint
     File truth_fingerprint
+
+    Boolean? done
   }
 
   scatter (idx in range(length(truth_vcfs))) {
