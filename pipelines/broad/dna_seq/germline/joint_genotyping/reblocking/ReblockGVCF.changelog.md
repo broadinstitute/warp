@@ -1,3 +1,8 @@
+# 2.1.3
+2022-06-21 (Date of Last Commit)
+
+* Changed QC.CheckFingerprint to QC.CheckMercuryFingerprint to avoid a naming conflict in the update scala tests, no effect on this pipeline
+
 # 2.1.2
 2022-06-01 (Date of Last Commit)
 
