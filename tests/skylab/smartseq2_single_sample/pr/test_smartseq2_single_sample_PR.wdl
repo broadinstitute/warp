@@ -26,7 +26,7 @@ workflow TestSmartSeq2SingleCellPR {
     File fastq2
   }
 
-  call target_wdl.SmartSeq2SingleCell as target_workflow {
+  call target_wdl.SmartSeq2SingleSample as target_workflow {
     input:
       genome_ref_fasta = genome_ref_fasta,
       rrna_intervals = rrna_intervals,
@@ -44,7 +44,7 @@ workflow TestSmartSeq2SingleCellPR {
       paired_end = true
   }
 
-  call checker_wdl.ValidateSmartSeq2SingleCell as checker_workflow {
+  call checker_wdl.ValidateSmartSeq2SingleSample as checker_workflow {
     input:
      counts = target_workflow.rsem_gene_results,
      expected_counts_hash = expected_counts_hash,
