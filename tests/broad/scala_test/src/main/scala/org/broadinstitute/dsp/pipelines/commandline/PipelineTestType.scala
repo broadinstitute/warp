@@ -151,6 +151,7 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "TestSmartSeq2SingleSample",
         "SmartSeq2SingleSample",
         "/skylab/smartseq2_single_sample"
+      )
   case object WholeGenomeReprocessing
       extends PipelineTestType(
         "TestWholeGenomeReprocessing",
