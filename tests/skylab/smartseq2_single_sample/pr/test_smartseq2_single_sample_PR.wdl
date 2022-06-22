@@ -44,7 +44,7 @@ workflow TestSmartSeq2SingleCellPR {
       paired_end = true
   }
 
-  call checker_wdl.ValidateSmartSeq2SingleSample as checker_workflow {
+  call checker_wdl.ValidateSmartSeq2SingleCell as checker_workflow {
     input:
      counts = target_workflow.rsem_gene_results,
      expected_counts_hash = expected_counts_hash,
