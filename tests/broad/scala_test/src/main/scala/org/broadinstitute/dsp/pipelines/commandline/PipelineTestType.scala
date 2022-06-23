@@ -135,6 +135,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "ValidateChip",
         "/broad/arrays/validate_chip/"
       )
+  case object CheckFingerprint
+      extends PipelineTestType(
+        "TestCheckFingerprint",
+        "CheckFingerprint",
+        "/broad/qc"
+      )
   //case object VariantCalling
   //    extends PipelineTestType(
   //      "TestVariantCalling",
