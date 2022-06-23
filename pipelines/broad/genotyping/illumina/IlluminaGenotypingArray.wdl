@@ -275,7 +275,7 @@ workflow IlluminaGenotypingArray {
 
 
     if (defined(fingerprint_genotypes_vcf_file)) {
-      call Qc.CheckMercuryFingerprint as CheckMercuryFingerprint{
+      call Qc.CheckMercuryTask as CheckMercuryTask{
         input:
           input_vcf = final_output_vcf,
           input_vcf_index = final_output_vcf_index,
@@ -354,9 +354,9 @@ workflow IlluminaGenotypingArray {
     File? arrays_subset_variant_calling_detail_metrics = SubsettedVariantCallingMetrics.detail_metrics
     File? arrays_subset_variant_calling_summary_metrics = SubsettedVariantCallingMetrics.summary_metrics
     File? arrays_subset_variant_calling_control_metrics = SubsettedVariantCallingMetrics.control_metrics
-    File? fingerprint_detail_metrics = CheckMercuryFingerprint.detail_metrics
-    File? fingerprint_summary_metrics = CheckMercuryFingerprint.summary_metrics
-    Float? check_fingerprint_lod = CheckMercuryFingerprint.lod
+    File? fingerprint_detail_metrics = CheckMercuryTask.detail_metrics
+    File? fingerprint_summary_metrics = CheckMercuryTask.summary_metrics
+    Float? check_fingerprint_lod = CheckMercuryTask.lod
     File? genotype_concordance_summary_metrics = GenotypeConcordance.summary_metrics
     File? genotype_concordance_detail_metrics = GenotypeConcordance.detail_metrics
     File? genotype_concordance_contingency_metrics = GenotypeConcordance.contingency_metrics

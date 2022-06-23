@@ -277,7 +277,7 @@ task CrossCheckFingerprints {
   }
 }
 
-task CheckMercuryFingerprint {
+task CheckMercuryTask {
   input {
     File? input_bam
     File? input_bam_index

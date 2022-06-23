@@ -97,7 +97,7 @@ workflow CheckFingerprint {
   File? fingerprint_vcf_index_to_use = if (fingerprint_downloaded_from_mercury) then DownloadGenotypes.reference_fingerprint_vcf_index else fingerprint_genotypes_vcf_index
 
   if ((defined(fingerprint_vcf_to_use)) && (defined(input_vcf) || defined(input_bam))) {
-    call Qc.CheckMercuryFingerprint {
+    call Qc.CheckMercuryTask {
       input:
         input_bam = input_bam,
         input_bam_index = input_bam_index,
@@ -118,9 +118,9 @@ workflow CheckFingerprint {
     Boolean fingerprint_read_from_mercury = fingerprint_downloaded_from_mercury
     File? reference_fingerprint_vcf = fingerprint_vcf_to_use
     File? reference_fingerprint_vcf_index = fingerprint_vcf_index_to_use
-    File? fingerprint_summary_metrics_file = CheckMercuryFingerprint.summary_metrics
-    File? fingerprint_detail_metrics_file = CheckMercuryFingerprint.detail_metrics
-    Float? lod_score = CheckMercuryFingerprint.lod
+    File? fingerprint_summary_metrics_file = CheckMercuryTask.summary_metrics
+    File? fingerprint_detail_metrics_file = CheckMercuryTask.detail_metrics
+    Float? lod_score = CheckMercuryTask.lod
   }
   meta {
     allowNestedInputs: true
