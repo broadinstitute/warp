@@ -25,7 +25,7 @@ workflow TestSmartSeq2SingleCellPR {
       File fastq1
   }
 
-  call target_wdl.SmartSeq2SingleCell as target_workflow {
+  call target_wdl.SmartSeq2SingleSample as target_workflow {
     input:
       genome_ref_fasta = genome_ref_fasta,
       rrna_intervals = rrna_intervals,

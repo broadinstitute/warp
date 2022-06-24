@@ -1,3 +1,8 @@
+# 2.2.12
+2022-06-22 (Date of Last Commit)
+
+* Updated main workflow name from SmartSeq2SingleCell to SmartSeq2SingleSample in the SS2 single sample pipeline. This allows the pipeline to run in the updated scala tests.
+
 # 2.2.11
 2022-04-22 (Date of Last Commit)
 
