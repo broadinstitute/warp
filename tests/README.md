@@ -24,8 +24,6 @@ This README serves as a summary of the testing process for the pipelines that ex
 
 Downstream users of these pipelines expect robustness and consistency. When a change is made to a pipeline it is critical to ensure that the change does not affect the scientific validity of pipeline outputs.
 
-
-
 ## :page_with_curl: Terms and Concepts
 
 #### Main Workflow/Pipeline
@@ -68,21 +66,28 @@ Finally, it passes these argument to the downstream [Workflow Test](https://gith
 
 As mentioned above, the test framework leverages Scala as a CLI tool to submit the wrapper workflows to Cromwell. The code for the Scala tool can be found in the [tests/broad/scala_test](../tests/broad/scala_test/) directory.
 
-The Scala tool is responsible for preparing the inputs for the wrapper workflow for the given pipeline and submitting that workflow to the cromwell environment specified.
+The Scala tool is responsible for preparing the inputs for the wrapper workflow of the given pipeline and submitting that workflow to the cromwell environment specified.
 
 #### Command Format
 
-Command : CloudWorklow
+```bash
+Command: CloudWorkflow [options]
+Test a cloud workflow
+  -p <value> | --pipeline <value>
+        The pipeline to test
+  -t <value> | --test <value>
+        The type of test to run
+  -b <value> | --branch <value>
+        The branch of truth data to test against (Defaults to develop)
+  -e <value> | --env <value>
+        The environment that this should run in [test|staging|dev|prod]
+  --update-truth
+        Update the truth data with the results of this run.
+  -u | --uncached
+        Disable call-caching for the main workflow
 
-Parameters: 
-    - p : Pipeline to test (any) - *required*
-    - e : Cromwell environment to run (staging/dev) - *required*
-    - t : Type of test to run (Plumbing/Scientific) - *required*
-    - b : Truth branch to run against (master/develop/any) -r *required*
-    - u : Run the main workflow uncached - *optional*
-    - update_truth: Skip validation and just update the truth set specified - *optional*
 
-```bash 
+
 # Run the arrays plumbing test against the master truth set in the cromwell dev environment
 $ CloudWorkflow -p Arrays -e dev -b master -t Plumbing
 
