@@ -12,9 +12,14 @@
       - [Validation Workflow](#validation-workflow)
       - [Plumbing vs Scientific data](#plumbing-vs-scientific-data)
       - [Truth Branches](#truth-branches)
+      - [Results vs Storage buckets](#results-vs-storage-buckets)
   - [:hammer_and_pick: Testing Process](#hammer_and_pick-testing-process)
     - [Scala Framework](#scala-framework)
       - [Command Format](#command-format)
+    - [What does the wrapper workflow do?](#what-does-the-wrapper-workflow-do)
+  - [:mag_right: Working with tests locally](#mag_right-working-with-tests-locally)
+    - [Creating a new test](#creating-a-new-test)
+    - [Running your new test](#running-your-new-test)
 
 ## :dna: Overview 
 
@@ -50,23 +55,33 @@ The testing framework has a concept of "truth branches". This allows users to de
 
 In most cases the branch being run against is "master" which corresponds to a google storage bucket containing the agreed upon output of the pipeline as it exists in the "master" git branch.
 
+#### Results vs Storage buckets
+
+Every workflow run in cromwell has its output stored in an "execution" bucket. When running the pipeline tests its important that we store this ouptut in a location that we can later reference if needed.
+
+All test workflows that are run will have their output copied to a "results" bucket -> `gs://broad-gotc-test-results/`
+
+When we want to update the "truth" branches for our pipelines we can copy that output to the respective "truth" bucket -> `gs://broad-gotc-test-storage/`
+
 ## :hammer_and_pick: Testing Process
 
 We use Jenkins to run our test suite with two webhooks to kick off tests: PR to dev branch kicks off plumbing tests, PR to main/master kicks off scientific tests.
 
 Jenkins will run a job called `Smart Tests` which can be viewed in the [dsp-jenkins](https://github.com/broadinstitute/dsp-jenkins/blob/master/jobs/gotc-jenkins/WarpSmartTestJob.groovy) repo.
 
-The job of the smart tests is to run the `get_changed_pipeline_worklow_test_args.sh` bash script. The script performs a git diff against the target branch and recursively searches for any pipelines that have been changed either directly or via their imports.
+The job of the smart tests is to run the `get_changed_pipeline_worklow_test_args.sh` bash script. The script performs a git diff against the target branch and recursively searches for any pipelines that have been changed either directly or indirectly via an imported sub-workflow.
 
-For each pipeline that has changed it will prepare the arguments for the scala framework that submits the wrapper workflow to cromwell.
+For each pipeline that has changed it will prepare the arguments for the Scala tool that submits the wrapper workflow to cromwell.
 
-Finally, it passes these argument to the downstream [Workflow Test](https://github.com/broadinstitute/dsp-jenkins/blob/master/jobs/gotc-jenkins/WarpWorkflowTestsJob.groovy) job which calls the Scala `CloudWorkflow` command and submits the wrapper workflow.
+Finally, it passes these arguments to the downstream [Workflow Test](https://github.com/broadinstitute/dsp-jenkins/blob/master/jobs/gotc-jenkins/WarpWorkflowTestsJob.groovy) job which calls the Scala `CloudWorkflow` command and submits the wrapper workflow.
 
 ### Scala Framework
 
 As mentioned above, the test framework leverages Scala as a CLI tool to submit the wrapper workflows to Cromwell. The code for the Scala tool can be found in the [tests/broad/scala_test](../tests/broad/scala_test/) directory.
 
 The Scala tool is responsible for preparing the inputs for the wrapper workflow of the given pipeline and submitting that workflow to the cromwell environment specified.
+
+**NOTE** - When looking at the the scala code you will see that there are multiple 'tester' files. A major rewrite of the framework was done to only use one tester command (CloudWorkflow) and to pass in the desired pipeline as an argument. This change makes it easier for contributors and maintainers of these workflows to write tests by pushing the functionality of the test framework away from Scala and into the wrapper workflows.
 
 #### Command Format
 
@@ -100,3 +115,40 @@ $ CloudWorkflow -p WholeGenomeGermlineSingleSample -e staging -b develop -t Scie
 # Run the WGS scientific test against the develop truth set in the cromwell staging environment
 $ CloudWorkflow -p WholeGenomeGermlineSingleSample -e staging -b develop -t Scientific 
 ```
+
+### What does the wrapper workflow do?
+
+As mentioned previously, each main workflow will have an accompanying wrapper workflow to act as a test harness. The steps that this workflow takes are the following:
+
+1. Execute the main workflow
+2. Collect the outputs from the main workflow, these are typically seperated into 'regular' outputs and metrics based outputds
+3. Copy these outputs to the *results* bucket
+4. If updating the truth for the pipeline then copy the outputs to the *truth* bucket and finish
+5. Otherwise get the location for the test and truth inputs
+6. Call the validation workflow to compare the current test outputs against the known truth outputs
+
+## :mag_right: Working with tests locally
+
+### Creating a new test
+
+If you are a contributor and would like to add your own test we have a [script](../verification/test-wdls/scripts/) to generate a wrapper workflow as long as the main and validation workflow already exist (it will generate ~95%, inputs will need to be provided for each call to the GetValidationInputs tasks).
+
+Finally you can add your new test to the scala framework by editing the [PipelineTestType](../tests/broad/scala_test/src/main/scala/org/broadinstitute/dsp/pipelines/commandline/PipelineTestType.scala) file and providing the wrapper workflow name, the main workflow name and the path to that workflow relative to the `pipelines/` directory.
+
+Example for *Arrays* workflow:
+
+```bash
+
+$ python3 gentest.py --workflow Arrays --validation VerifyArrays
+
+$ INFO:root: - Workflow found at path -> broadinstitute/warp/pipelines/broad/arrays/single_sample/Arrays.wdl
+$ INFO:root: - Validation wdl found at path -> broadinstitute/warp/verification/VerifyArrays.wdl
+$ INFO:root: - Generating inputs for TestArrays.wdl...
+$ INFO:root: - Generating subworkflow inputs for Arrays.wdl...
+$ INFO:root: - Collecting and formatting inputs for VerifyArrays.wdl...
+$ INFO:root: - Building TestArrays.wdl...
+$ INFO:root: - Successfully generated TestArrays.wdl!
+```
+
+### Running your new test
+
