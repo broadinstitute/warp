@@ -124,7 +124,7 @@ As mentioned previously, each main workflow will have an accompanying wrapper wo
 2. Collect the outputs from the main workflow, these are typically seperated into 'regular' outputs and metrics based outputds
 3. Copy these outputs to the *results* bucket
 4. If updating the truth for the pipeline then copy the outputs to the *truth* bucket and finish
-5. Otherwise get the location for the test and truth inputs
+5. Otherwise, get the location for the test and truth inputs
 6. Call the validation workflow to compare the current test outputs against the known truth outputs
 
 ## :mag_right: Working with tests locally
@@ -152,3 +152,22 @@ $ INFO:root: - Successfully generated TestArrays.wdl!
 
 ### Running your new test
 
+If you are connected to the Broad VPN you can run the Scala tool locally to build and submit the job to cromwell.
+
+From the root directory of WARP:
+
+```bash
+
+$ cd tests/broad/scala_test
+$ sbt
+$ run CloudWorkflow -p Arrays -e dev -t Plumbing -b master
+
+[info] Running org.broadinstitute.dsp.pipelines.WorkflowTest CloudWorkflow -p Arrays -e dev -t Plumbing -b master
+[info] 2022-06-27T13:33:17,639Z [INFO] Running the TestArrays workflow using Plumbing data
+[info] 2022-06-27T13:33:17,929Z [INFO] Generating WDL inputs for -> SimpleInput.json
+[info] 2022-06-27T13:33:18,693Z [INFO] Submitting TestArrays job to Cromwell
+[info] 2022-06-27T13:33:21,350Z [INFO] Awaiting completion of 1 workflows
+[info] 2022-06-27T13:33:21,472Z [INFO] A timing diagram for workflow dev_SimpleInput will be available at https://cromwell.gotc-dev.broadinstitute.org/api/workflows/1/7d3a91d1-3364-4921-965b-b40bc6842155/timing
+[info] 2022-06-27T13:33:26,862Z [INFO] Workflows with status of Submitted: [7d3a91d1-3364-4921-965b-b40bc6842155]
+[info] 2022-06-27T13:33:57,296Z [INFO] Workflows with status of Running: [7d3a91d1-3364-4921-965b-b40bc6842155]
+```
