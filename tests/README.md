@@ -41,7 +41,7 @@ Every main pipeline has an accompanying "wrapper" workflow in the [verification/
 
 #### Validation Workflow
 
-The validation workflow takes the output of completed pipeline and compares it against a known truth set for that pipeline. As with the wrapper workflow, each main workflow must also have a [validation workflow](../verification/).
+The validation workflow takes the output of a completed pipeline and compares it against a known truth set for that pipeline. As with the wrapper workflow, each main workflow must also have a [validation workflow](../verification/).
 
 #### Plumbing vs Scientific data
 
