@@ -1,7 +1,7 @@
 # 1.0.7
 2022-06-16 (Date of Last Commit)
 
-* Changed the name of the task QC.CheckFingerprint to QC.CheckMercuryFingerprint. This prevents a naming conflict in the updated scala tests.
+* Changed the name of the task QC.CheckFingerprint to QC.CheckFingerprintTask. This prevents a naming conflict in the updated scala tests.
 
 # 1.0.6
 2022-06-01 (Date of Last Commit)
