@@ -29,6 +29,8 @@ workflow WholeGenomeReprocessing {
     File? fingerprint_genotypes_index
 
     File wgs_coverage_interval_list
+
+    # Comment
   }
 
   call ToUbams.CramToUnmappedBams {

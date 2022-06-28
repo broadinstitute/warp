@@ -26,8 +26,8 @@ function pipeline_to_args() {
       echo CloudWorkflow -p BroadInternalRNAWithUMIs ${common_args};;
     BroadInternalUltimaGenomics)
       echo CloudWorkflow -p BroadInternalUltimaGenomics ${common_args};;
-    # CheckFingerprint)
-    #   echo CloudWorkflow -p CheckFingerprint ${common_args};;
+    CheckFingerprint)
+      echo CloudWorkflow -p CheckFingerprint ${common_args};;
     ExomeGermlineSingleSample)
       echo CloudWorkflow -p ExomeGermlineSingleSample ${common_args};;
     ExomeReprocessing)
@@ -36,9 +36,9 @@ function pipeline_to_args() {
       else
         continue
       fi;;
-    # JointGenotyping)
-    #   echo CloudWorkflow -p JointGenotyping -d Exome ${common_args} --papi-version PAPIv2;
-    #   echo CloudWorkflow -p JointGenotyping -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached} --papi-version PAPIv2;;
+    JointGenotyping)
+      echo CloudWorkflow -p JointGenotyping -d Exome ${common_args} --papi-version PAPIv2;
+      echo CloudWorkflow -p JointGenotyping -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached} --papi-version PAPIv2;;
     IlluminaGenotypingArray)
       echo CloudWorkflow -p IlluminaGenotypingArray ${common_args};;
     # Imputation)
@@ -57,17 +57,16 @@ function pipeline_to_args() {
       fi;;
     WholeGenomeGermlineSingleSample)
       echo CloudWorkflow -p WholeGenomeGermlineSingleSample ${common_args};;
-    # WholeGenomeReprocessing)
-    #   if [[ "${test}" == "Scientific" ]]; then
-    #     echo CloudWorkflow -p Reprocessing -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached}
-    #   else
-    #     continue
-    #   fi;;
+    WholeGenomeReprocessing)
+      if [[ "${test}" == "Scientific" ]]; then
+        echo CloudWorkflow -p WholeGenomeReprocessing -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached}
+      else
+        continue
+      fi;;
     ValidateChip)
       echo CloudWorkflow -p ValidateChip ${common_args};;
-    # ReblockGVCF)
-    #   echo CloudWorkflow -p ReblockGvcf -d Exome ${common_args};
-    #   echo CloudWorkflow -p ReblockGvcf -d WGS ${common_args};;
+    ReblockGVCF)
+      echo CloudWorkflow -p ReblockGvcf  ${common_args};;
     RNAWithUMIsPipeline)
       echo CloudWorkflow -p RNAWithUMIsPipeline ${common_args};;
     # TargetedSomaticSingleSample)
@@ -76,6 +75,12 @@ function pipeline_to_args() {
       echo CloudWorkflow -p CramToUnmappedBams ${common_args};;
     Optimus)
       echo CloudWorkflow -p Optimus ${common_args};;
+    SmartSeq2SingleSample)
+      echo CloudWorkflow -p SmartSeq2SingleSample ${common_args};;
+    MultiSampleSmartSeq2)
+      echo CloudWorkflow -p MultiSampleSmartSeq2 ${common_args};;
+    MultiSampleSmartSeq2SingleNucleus)
+      echo CloudWorkflow -p MultiSampleSmartSeq2SingleNucleus ${common_args};;
     JointGenotypingByChromosomePartOne)
       continue;;
     JointGenotypingByChromosomePartTwo)

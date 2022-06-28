@@ -38,6 +38,8 @@ workflow MultiSampleSmartSeq2SingleNucleus {
       Array[String]? organ
       String? input_name_metadata_field
       String? input_id_metadata_field
+
+      # Comment
   }
   # Version of this pipeline
   String pipeline_version = "1.2.7"

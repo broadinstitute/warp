@@ -38,6 +38,8 @@ workflow MultiSampleSmartSeq2 {
       String? input_name_metadata_field
       String? input_id_metadata_field
       Boolean paired_end
+
+      # Comment
   }
   # Version of this pipeline
   String pipeline_version = "2.2.12"

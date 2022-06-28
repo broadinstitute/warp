@@ -33,6 +33,8 @@ workflow SmartSeq2SingleSample {
     File fastq1
     File? fastq2
     Boolean paired_end
+
+    # Comment
   }
   
   # version of this pipeline

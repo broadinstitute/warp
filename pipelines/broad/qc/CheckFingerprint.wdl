@@ -54,6 +54,8 @@ workflow CheckFingerprint {
 
     String? environment
     File? vault_token_path
+
+    # Comment
   }
 
   if (defined(input_vcf) && defined(input_bam)) {

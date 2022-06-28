@@ -64,6 +64,8 @@ workflow JointGenotyping {
     Boolean use_allele_specific_annotations = true
     Boolean cross_check_fingerprints = true
     Boolean scatter_cross_check_fingerprints = false
+
+    # Comment
   }
 
   Boolean allele_specific_annotations = !use_gnarly_genotyper && use_allele_specific_annotations
