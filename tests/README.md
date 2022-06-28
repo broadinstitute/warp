@@ -121,7 +121,7 @@ $ CloudWorkflow -p WholeGenomeGermlineSingleSample -e staging -b develop -t Scie
 As mentioned previously, each main workflow will have an accompanying wrapper workflow to act as a test harness. The steps that this workflow takes are the following:
 
 1. Execute the main workflow
-2. Collect the outputs from the main workflow, these are typically seperated into 'regular' outputs and metrics based outputds
+2. Collect the outputs from the main workflow, these are typically separated into 'regular' outputs and metrics based outputs
 3. Copy these outputs to the *results* bucket
 4. If updating the truth for the pipeline then copy the outputs to the *truth* bucket and finish
 5. Otherwise, get the location for the test and truth inputs
