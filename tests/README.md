@@ -57,7 +57,7 @@ In most cases the branch being run against is "master" which corresponds to a go
 
 #### Results vs Storage buckets
 
-Every workflow run in cromwell has its output stored in an "execution" bucket. When running the pipeline tests its important that we store this ouptut in a location that we can later reference if needed.
+Every workflow run in cromwell has its output stored in an "execution" bucket. When running the pipeline tests it's important that we store this ouptut in a location that we can later reference if needed.
 
 All test workflows that are run will have their output copied to a "results" bucket -> `gs://broad-gotc-test-results/`
 
