@@ -65,24 +65,42 @@ function pipeline_to_args() {
     MultiSampleArrays)
       echo CloudWorkflow -p Arrays ${common_args};;
     MultiSampleSmartSeq2)
-      echo CloudWorkflow -p MultiSampleSmartSeq2 ${common_args};;
+      if [[ "${test}" == "Scientific" ]]; then
+        echo CloudWorkflow -p MultiSampleSmartSeq2 -e ${env} -t Plumbing -b ${truth} ${uncached}
+      else
+        continue
+      fi;;
     MultiSampleSmartSeq2SingleNucleus)
-      echo CloudWorkflow -p MultiSampleSmartSeq2SingleNucleus ${common_args};;
+      if [[ "${test}" == "Scientific" ]]; then
+        echo CloudWorkflow -p MultiSampleSmartSeq2SingleNucleus -e ${env} -t Plumbing -b ${truth} ${uncached}
+      else
+        continue
+      fi;;
     Optimus)
       echo CloudWorkflow -p Optimus ${common_args};;
     ReblockGVCF)
       echo CloudWorkflow -p ReblockGvcf  ${common_args};;
     RNAWithUMIsPipeline)
       echo CloudWorkflow -p RNAWithUMIsPipeline ${common_args};;
+    scATAC)
+      if [[ "${test}" == "Scientific" ]]; then
+        echo CloudWorkflow -p scATAC -e ${env} -t Plumbing -b ${truth} ${uncached}
+      else
+        continue
+      fi;;
     SmartSeq2SingleSample)
-      echo CloudWorkflow -p SmartSeq2SingleSample ${common_args};;
+      if [[ "${test}" == "Scientific" ]]; then
+        echo CloudWorkflow -p SmartSeq2SingleSample -e ${env} -t Plumbing -b ${truth} ${uncached}
+      else
+        continue
+      fi;;
     TargetedSomaticSingleSample)
       continue;;
     ValidateChip)
       echo CloudWorkflow -p ValidateChip ${common_args};;
     VariantCalling)
       if [[ "${test}" == "Scientific" ]]; then
-        echo CloudWorkflow -p VariantCalling ${common_args}
+        echo CloudWorkflow -p VariantCalling -e ${env} -t Plumbing -b ${truth} ${uncached}
       else
         continue
       fi;;
