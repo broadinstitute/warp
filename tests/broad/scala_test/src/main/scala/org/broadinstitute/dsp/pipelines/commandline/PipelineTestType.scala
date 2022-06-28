@@ -102,11 +102,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "Optimus",
         "/skylab/optimus/"
       )
-  //case object ReblockGVCF
-  //    extends PipelineTestType(
-  //      "TestReblockGVCF",
-  //      "/broad/dna_seq/germline/joint_genotyping/reblocking/"
-  //    )
+  case object ReblockGVCF
+      extends PipelineTestType(
+        "TestReblockGVCF",
+        "ReblockGVCF",
+        "/broad/dna_seq/germline/joint_genotyping/reblocking/"
+      )
   case object RNAWithUMIsPipeline
       extends PipelineTestType(
         "TestRNAWithUMIsPipeline",
