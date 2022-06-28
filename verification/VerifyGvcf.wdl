@@ -9,6 +9,8 @@ workflow VerifyGvcf {
     File test_gvcf_index
     File truth_gvcf
     File truth_gvcf_index
+    
+    Boolean? done
   }
 
   call VerifyTasks.CompareVCFsVerbosely {

@@ -88,6 +88,19 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
   override lazy val wdlContents: String =
     readWdlFromReleaseDir(releaseDir, workflowName)
 
+  // ExternalWholeGenomeReprocessing destination
+  protected val destinationCloudPathWGS: String =
+    s"gs://broad-gotc-$envString/external_reprocessing/WGS/$testTypeString/$timestamp/copied/"
+
+  // ExternalExomeReprocessing destination
+  protected val destinationCloudPathExome: String =
+    s"gs://broad-gotc-$envString/external_reprocessing/Exome/$testTypeString/$timestamp/copied/"
+
+  // Final destination for external reprocessing copy step
+  val destinationCloudPath =
+    if (pipeline.contains("Exome")) destinationCloudPathExome
+    else destinationCloudPathWGS
+
   // Values below are needed so we can auth as picard service account to copy output files
   protected val vaultTokenPath: String =
     s"gs://broad-dsp-gotc-$envString-tokens/picardsa.token"
@@ -146,13 +159,24 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       workflowName + ".google_account_vault_path" -> googleAccountVaultPath.asJson,
     )
 
-    val tokenPipelines = List("Arrays", "BroadInternalRNAWithUMIs")
-    // Only add the vault token and environment for pipelines above
+    val tokenPipelines =
+      List("Arrays",
+           "BroadInternalRNAWithUMIs",
+           "BroadInternalUltimaGenomics",
+           "CheckFingerprint")
+    val externalPipelines =
+      List("ExternalWholeGenomeReprocessing", "ExternalExomeReprocessing")
+
+    // Only add the vault token for the pipelines above
     // These allow these pipelines to auth with vault/gcp
     if (tokenPipelines.contains(pipeline)) {
-
       defaultInputs = defaultInputs :+ workflowName + ".vault_token_path_arrays" -> vaultTokenPathArrays.asJson
       defaultInputs = defaultInputs :+ workflowName + ".environment" -> envString.asJson
+    }
+
+    // Only add the destinationCloudPath for the external pipelines
+    if (externalPipelines.contains(pipeline)) {
+      defaultInputs = defaultInputs :+ workflowName + ".destination_cloud_path" -> destinationCloudPath.asJson
     }
 
     /**
@@ -166,8 +190,12 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     var inputsString = (workflowInputRoot / fileName).contentAsString
       .replace(pipeline, workflowName)
 
-    inputsString =
-      inputsString.replaceAll("\\{TRUTH_BRANCH}", testerConfig.truthBranch)
+    // Replace all of the injected {} value in the test inputs file
+    inputsString = inputsString
+      .replaceAll("\\{TRUTH_BRANCH}", testerConfig.truthBranch)
+      .replaceAll("\\DESTINATION_CLOUD_PATH", destinationCloudPath)
+      .replaceAll("\\VAULT_TOKEN_PATH", vaultTokenPath)
+      .replaceAll("\\GOOGLE_ACCOUNT_VAULT_PATH", googleAccountVaultPath)
 
     inputsString = pattern.replaceAllIn(
       inputsString,

@@ -21,6 +21,8 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
 
     File test_gvcf
     File truth_gvcf
+
+    Boolean? done
   }
 
   ## TEMP - Can't use this simple call, because the picard version used by UltimaGenomicsWholeGenomeGermline is based on an old version of Picard,
@@ -105,6 +107,8 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
   meta {
     allowNestedInputs: true
   }
+
+  output{}
 }
 
 task CompareGvcfs {
@@ -158,7 +162,7 @@ task CompareOldMetricFiles {
   >>>
 
   runtime {
-    docker: "gcr.io/terra-project-249020/gatk_ultima_md:0.5.7_2.23.8-35"
+    docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:samtools_picard_bwa_snapshot_UG"
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
     preemptible: 3

@@ -6,7 +6,7 @@ import "../../../tasks/skylab/RSEM.wdl" as RSEM
 import "../../../tasks/skylab/GroupMetricsOutputs.wdl" as GroupQCs
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 
-workflow SmartSeq2SingleCell {
+workflow SmartSeq2SingleSample {
   meta {
     description: "Process SmartSeq2 scRNA-Seq data, include reads alignment, QC metrics collection, and gene expression quantitication"
   }
@@ -36,7 +36,7 @@ workflow SmartSeq2SingleCell {
   }
   
   # version of this pipeline
-  String pipeline_version = "5.1.10"
+  String pipeline_version = "5.1.11"
 
   parameter_meta {
     genome_ref_fasta: "Genome reference in fasta format"
