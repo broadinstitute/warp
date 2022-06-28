@@ -1,3 +1,8 @@
+# 1.15.9
+2022-06-15 (Date of Last Commit)
+
+* Added bead_pool_manifest file to the output section of ValidateChip.wdl
+
 # 1.15.8
 2022-05-19 (Date of Last Commit)
 

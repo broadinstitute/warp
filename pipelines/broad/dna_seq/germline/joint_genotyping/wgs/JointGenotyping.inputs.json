@@ -24,7 +24,7 @@
   "JointGenotyping.one_thousand_genomes_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/1000G_phase1.snps.high_confidence.hg38.vcf.gz",
   "JointGenotyping.one_thousand_genomes_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/1000G_phase1.snps.high_confidence.hg38.vcf.gz.tbi",
 
-  "JointGenotyping.SNP_VQSR_downsampleFactor": 10,
+  "JointGenotyping.snp_vqsr_downsampleFactor": 10,
   "JointGenotyping.snps_variant_recalibration_threshold": 20000,
   "JointGenotyping.snp_filter_level": 99.7,
   "JointGenotyping.snp_recalibration_annotation_values": ["QD", "MQRankSum", "ReadPosRankSum", "FS", "MQ", "SOR", "DP"],

@@ -27,6 +27,8 @@ workflow VerifyCheckFingerprint {
 
     File test_fingerprint_vcf
     File truth_fingerprint_vcf
+
+    Boolean? done
   }
 
   if (defined(test_metrics) && defined(truth_metrics)) {

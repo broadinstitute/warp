@@ -1,0 +1,22 @@
+{
+    "MultiSampleSmartSeq2.genome_ref_fasta": "gs://gcp-public-data--broad-references/mm10/v0/GRCm38.primary_assembly.genome.fa",
+    "MultiSampleSmartSeq2.rrna_intervals": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.interval_list",
+    "MultiSampleSmartSeq2.gene_ref_flat": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.refflat.txt",
+    "MultiSampleSmartSeq2.hisat2_ref_name": "hisat2_primary_gencode_mouse_vM21",
+    "MultiSampleSmartSeq2.hisat2_ref_trans_name": "hisat2_from_rsem_star_primary_gencode_mouse_vM21",
+    "MultiSampleSmartSeq2.hisat2_ref_index": "gs://gcp-public-data--broad-references/mm10/v0/hisat2_primary_gencode_mouse_vM21.tar.gz",
+    "MultiSampleSmartSeq2.hisat2_ref_trans_index": "gs://gcp-public-data--broad-references/mm10/v0/hisat2_from_rsem_star_primary_gencode_mouse_vM21.tar.gz",
+    "MultiSampleSmartSeq2.rsem_ref_index": "gs://gcp-public-data--broad-references/mm10/v0/rsem_primary_gencode_mouse_vM21.tar",
+    "MultiSampleSmartSeq2.stranded": "NONE",
+    "MultiSampleSmartSeq2.paired_end": true,
+    "MultiSampleSmartSeq2.input_ids": ["SRR5676728", "SRR5676730"],
+    "MultiSampleSmartSeq2.fastq1_input_files": [
+        "gs://hca-dcp-mint-test-data/datasets/sloan_sa_astrocytes/SRR5676728_1.fastq.gz",
+        "gs://hca-dcp-mint-test-data/datasets/sloan_sa_astrocytes/SRR5676730_1.fastq.gz"
+    ],
+    "MultiSampleSmartSeq2.fastq2_input_files": [
+        "gs://hca-dcp-mint-test-data/datasets/sloan_sa_astrocytes/SRR5676728_2.fastq.gz",
+        "gs://hca-dcp-mint-test-data/datasets/sloan_sa_astrocytes/SRR5676730_2.fastq.gz"
+    ],
+    "MultiSampleSmartSeq2.batch_id": "mouse_test"
+}

@@ -21,6 +21,8 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
 
     File test_gvcf
     File truth_gvcf
+
+    Boolean? done
   }
 
   ## TEMP - Can't use this simple call, because the picard version used by UltimaGenomicsWholeGenomeGermline is based on an old version of Picard,
@@ -105,6 +107,8 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
   meta {
     allowNestedInputs: true
   }
+
+  output{}
 }
 
 task CompareGvcfs {
