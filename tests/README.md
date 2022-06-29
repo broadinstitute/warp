@@ -61,7 +61,7 @@ Every workflow run in Cromwell has its output stored in an "execution" bucket. W
 
 All test workflows that are run will have their output copied to a "results" bucket -> `gs://broad-gotc-test-results/`
 
-When we want to update the "truth" branches for our pipelines we can copy that output to the respective "truth" bucket -> `gs://broad-gotc-test-storage/`
+When we want to update the "truth" branches for our pipelines the test workflow will copy the run output to the respective "truth" bucket -> `gs://broad-gotc-test-storage/` (this is achieved with the `--update-truth` flag).
 
 ## :hammer_and_pick: Testing Process
 
