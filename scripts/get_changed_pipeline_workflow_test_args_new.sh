@@ -57,7 +57,7 @@ function pipeline_to_args() {
     Imputation)
       echo CloudWorkflow -p Imputation ${common_args};;
     JointGenotyping)
-      echo CloudWorkflow -p JointGenotyping -d Exome ${common_args};;
+      echo CloudWorkflow -p JointGenotyping ${common_args};;
     JointGenotypingByChromosomePartOne)
       continue;;
     JointGenotypingByChromosomePartTwo)
