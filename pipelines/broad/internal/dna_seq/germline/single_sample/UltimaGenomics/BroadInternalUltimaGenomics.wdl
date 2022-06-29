@@ -345,7 +345,7 @@ task MergeMetrics {
       Int disk_size_gb = 10
     }
 
-    String outputs_json_file_name = "outputs_to_TDR_~{output_basename}.json"
+    String outputs_json_file_name = sub("outputs_to_TDR_~{output_basename}.json", " ", "")
 
     String outlier_data_string = if is_outlier_data then "True" else "False"
 
@@ -355,7 +355,7 @@ task MergeMetrics {
 
           outputs_dict = {}
 
-          outputs_dict["collab_sample_id_run_id"]="~{collab_sample_id_run_id}"       
+          outputs_dict["collab_sample_id_run_id"]="~{collab_sample_id_run_id}"
           outputs_dict["agg_alignment_summary_metrics"]="~{agg_alignment_summary_metrics}"
           outputs_dict["agg_alignment_summary_pdf"]="~{agg_alignment_summary_pdf}"
           outputs_dict["agg_gc_bias_detail_metrics"]="~{agg_gc_bias_detail_metrics}"

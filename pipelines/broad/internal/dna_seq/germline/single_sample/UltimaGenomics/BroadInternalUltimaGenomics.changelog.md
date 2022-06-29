@@ -1,3 +1,8 @@
+# 1.0.2
+2022-06-29 (Date of Last Commit)
+
+* Bugfix: Changed name of TDR outputs json to remove spaces
+
 # 1.0.1
 2022-06-21 (Date of Last Commit)
 
