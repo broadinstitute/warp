@@ -79,12 +79,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "IlluminaGenotypingArray",
         "/broad/genotyping/illumina/"
       )
-  // case object Imputation
-  //  extends PipelineTestType(
-  //    "TestImputation",
-  //    "Imputation",
-  //    "/broad/arrays/imputation"
-  //)
+  case object Imputation
+      extends PipelineTestType(
+        "TestImputation",
+        "Imputation",
+        "/broad/arrays/imputation"
+      )
   case object JointGenotyping
       extends PipelineTestType(
         "TestJointGenotyping",
