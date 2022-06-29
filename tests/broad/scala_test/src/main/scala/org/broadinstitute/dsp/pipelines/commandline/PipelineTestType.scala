@@ -12,33 +12,42 @@ sealed abstract class PipelineTestType(val workflowName: String,
 object PipelineTestType extends Enum[PipelineTestType] {
   override val values: immutable.IndexedSeq[PipelineTestType] = findValues
 
-  //case object AnnotationFiltration
-  //    extends PipelineTestType(
-  //      "TestAnnotationFiltration",
-  //      "/broad/annotation_filtration/"
-  //    )
+  // Broad Pipelines
   case object Arrays
       extends PipelineTestType(
         "TestArrays",
         "Arrays",
         "/broad/arrays/single_sample/"
       )
-  //case object CEMBA
-  //    extends PipelineTestType(
-  //      "TestCEMBA",
-  //      "/cemba/cemba_methylcseq/"
-  //    )
+  case object BroadInternalRNAWithUMIs
+      extends PipelineTestType(
+        "TestBroadInternalRNAWithUMIs",
+        "BroadInternalRNAWithUMIs",
+        "/broad/internal/rna_seq/"
+      )
+  case object BroadInternalUltimaGenomics
+      extends PipelineTestType(
+        "TestBroadInternalUltimaGenomics",
+        "BroadInternalUltimaGenomics",
+        "/broad/internal/dna_seq/germline/single_sample/UltimaGenomics"
+      )
+  case object CheckFingerprint
+      extends PipelineTestType(
+        "TestCheckFingerprint",
+        "CheckFingerprint",
+        "/broad/qc"
+      )
   case object CramToUnmappedBams
       extends PipelineTestType(
         "TestCramToUnmappedBams",
         "CramToUnmappedBams",
         "/broad/reprocessing/cram_to_unmapped_bams/"
       )
-  case object BroadInternalRNAWithUMIs
+  case object ExternalExomeReprocessing
       extends PipelineTestType(
-        "TestBroadInternalRNAWithUMIs",
-        "BroadInternalRNAWithUMIs",
-        "/broad/internal/rna_seq/"
+        "TestExternalExomeReprocessing",
+        "ExternalExomeReprocessing",
+        "/broad/reprocessing/external/exome/"
       )
   case object ExomeGermlineSingleSample
       extends PipelineTestType(
@@ -51,12 +60,6 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "TestExomeReprocessing",
         "ExomeReprocessing",
         "/broad/reprocessing/exome/"
-      )
-  case object ExternalExomeReprocessing
-      extends PipelineTestType(
-        "TestExternalExomeReprocessing",
-        "ExternalExomeReprocessing",
-        "/broad/reprocessing/external/exome/"
       )
   case object ExternalWholeGenomeReprocessing
       extends PipelineTestType(
@@ -76,6 +79,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "IlluminaGenotypingArray",
         "/broad/genotyping/illumina/"
       )
+  // case object Imputation
+  //  extends PipelineTestType(
+  //    "TestImputation",
+  //    "Imputation",
+  //    "/broad/arrays/imputation"
+  //)
   case object JointGenotyping
       extends PipelineTestType(
         "TestJointGenotyping",
@@ -88,21 +97,11 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "MultiSampleArrays",
         "/broad/arrays/multi_sample/"
       )
-  //case object MultiSampleSmartSeq2
-  //    extends PipelineTestType(
-  //      "TestMultiSampleSmartSeq2",
-  //      "/skylab/smartseq2_multisample/"
-  //    )
-  //case object MultiSampleSmartSeq2SingleNucleus
-  //    extends PipelineTestType(
-  //      "TestMultiSampleSmartSeq2SingleNucleus",
-  //      "/skylab/smartseq2_single_nucleus_multisample/"
-  //    )
-  case object Optimus
+  case object ReblockGVCF
       extends PipelineTestType(
-        "TestOptimus",
-        "Optimus",
-        "/skylab/optimus/"
+        "TestReblockGVCF",
+        "ReblockGVCF",
+        "/broad/dna_seq/germline/joint_genotyping/reblocking/"
       )
   case object ReblockGVCF
       extends PipelineTestType(
@@ -110,57 +109,51 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "ReblockGVCF",
         "/broad/dna_seq/germline/joint_genotyping/reblocking/"
       )
+
   case object RNAWithUMIsPipeline
       extends PipelineTestType(
         "TestRNAWithUMIsPipeline",
         "RNAWithUMIsPipeline",
         "/broad/rna_seq/"
       )
-  case object scATAC
+  case object UltimaGenomicsJointGenotyping
       extends PipelineTestType(
-        "TestscATAC",
-        "scATAC",
-        "/skylab/scATAC/"
+        "TestUltimaGenomicsJointGenotyping",
+        "UltimaGenomicsJointGenotyping",
+        "/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/"
       )
-  //case object SmartSeq2SingleNucleus
-  //    extends PipelineTestType(
-  //      "TestSmartSeq2SingleNucleus",
-  //      "/skylab/smartseq2_single_nucleus/"
-  //    )
-  //case object SmartSeq2SingleSample
-  //    extends PipelineTestType(
-  //      "TestSmartSeq2SingleSample",
-  //      "/skylab/smartseq2_single_sample/"
-  //    )
+  case object UltimaGenomicsWholeGenomeGermline
+      extends PipelineTestType(
+        "TestUltimaGenomicsWholeGenomeGermline",
+        "UltimaGenomicsWholeGenomeGermline",
+        "/broad/dna_seq/germline/single_sample/UGWGS/"
+      )
   case object ValidateChip
       extends PipelineTestType(
         "TestValidateChip",
         "ValidateChip",
         "/broad/arrays/validate_chip/"
       )
-  case object CheckFingerprint
+  case object VariantCalling
       extends PipelineTestType(
-        "TestCheckFingerprint",
-        "CheckFingerprint",
-        "/broad/qc"
+        "TestVariantCalling",
+        "VariantCalling",
+        "/broad/dna_seq/germline/variant_calling/"
       )
-  //case object VariantCalling
-  //    extends PipelineTestType(
-  //      "TestVariantCalling",
-  //      "/broad/dna_seq/germline/variant_calling/"
-  //    )
   case object WholeGenomeGermlineSingleSample
       extends PipelineTestType(
         "TestWholeGenomeGermlineSingleSample",
         "WholeGenomeGermlineSingleSample",
         "/broad/dna_seq/germline/single_sample/WGS/"
       )
-  case object SmartSeq2SingleSample
+  case object WholeGenomeReprocessing
       extends PipelineTestType(
-        "TestSmartSeq2SingleSample",
-        "SmartSeq2SingleSample",
-        "/skylab/smartseq2_single_sample"
+        "TestWholeGenomeReprocessing",
+        "WholeGenomeReprocessing",
+        "/broad/reprocessing/wgs"
       )
+
+  // Skylab Pipelines
   case object MultiSampleSmartSeq2
       extends PipelineTestType(
         "TestMultiSampleSmartSeq2",
@@ -173,33 +166,29 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "MultiSampleSmartSeq2SingleNucleus",
         "/skylab/smartseq2_single_nucleus_multisample"
       )
-  case object WholeGenomeReprocessing
+  case object Optimus
       extends PipelineTestType(
-        "TestWholeGenomeReprocessing",
-        "WholeGenomeReprocessing",
-        "/broad/reprocessing/wgs"
+        "TestOptimus",
+        "Optimus",
+        "/skylab/optimus/"
       )
-  //case object WholeGenomeReprocessing
+  case object scATAC
+      extends PipelineTestType(
+        "TestscATAC",
+        "scATAC",
+        "/skylab/scATAC/"
+      )
+  case object SmartSeq2SingleSample
+      extends PipelineTestType(
+        "TestSmartSeq2SingleSample",
+        "SmartSeq2SingleSample",
+        "/skylab/smartseq2_single_sample"
+      )
+
+  // CEMBA Pipelines
+  //case object CEMBA
   //    extends PipelineTestType(
-  //      "TestWholeGenomeReprocessing",
-  //      "/broad/reprocessing/wgs/"
+  //      "TestCEMBA",
+  //      "/cemba/cemba_methylcseq/"
   //    )
-  case object UltimaGenomicsWholeGenomeGermline
-      extends PipelineTestType(
-        "TestUltimaGenomicsWholeGenomeGermline",
-        "UltimaGenomicsWholeGenomeGermline",
-        "/broad/dna_seq/germline/single_sample/UGWGS/"
-      )
-  case object UltimaGenomicsJointGenotyping
-      extends PipelineTestType(
-        "TestUltimaGenomicsJointGenotyping",
-        "UltimaGenomicsJointGenotyping",
-        "/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/"
-      )
-  case object BroadInternalUltimaGenomics
-      extends PipelineTestType(
-        "TestBroadInternalUltimaGenomics",
-        "BroadInternalUltimaGenomics",
-        "/broad/internal/dna_seq/germline/single_sample/UltimaGenomics"
-      )
 }
