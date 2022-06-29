@@ -188,7 +188,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     val pattern = new Regex(s"($workflowName).([A-Z]\\w+).")
 
     var inputsString = (workflowInputRoot / fileName).contentAsString
-      .replace(pipeline, workflowName)
+      .replace(s"$pipeline.", s"$workflowName.")
 
     // Replace all of the injected {} value in the test inputs file
     inputsString = inputsString
