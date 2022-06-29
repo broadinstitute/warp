@@ -2,6 +2,7 @@
 2022-06-29 (Date of Last Commit)
 
 * Bugfix: Changed name of TDR outputs json to remove spaces
+* Updated TDR ingest script to use merge strategy
 
 # 1.0.1
 2022-06-21 (Date of Last Commit)
