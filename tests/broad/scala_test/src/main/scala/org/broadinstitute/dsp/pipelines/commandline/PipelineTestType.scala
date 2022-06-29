@@ -79,12 +79,21 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "IlluminaGenotypingArray",
         "/broad/genotyping/illumina/"
       )
+<<<<<<< HEAD
   // case object Imputation
   //  extends PipelineTestType(
   //    "TestImputation",
   //    "Imputation",
   //    "/broad/arrays/imputation"
   //)
+=======
+  case object Imputation
+      extends PipelineTestType(
+        "TestImputation",
+        "Imputation",
+        "/broad/arrays/imputation"
+      )
+>>>>>>> develop
   case object JointGenotyping
       extends PipelineTestType(
         "TestJointGenotyping",
@@ -137,7 +146,7 @@ object PipelineTestType extends Enum[PipelineTestType] {
       extends PipelineTestType(
         "TestWholeGenomeGermlineSingleSample",
         "WholeGenomeGermlineSingleSample",
-        "/broad/dna_seq/germline/single_sample/WGS/"
+        "/broad/dna_seq/germline/single_sample/wgs/"
       )
   case object WholeGenomeReprocessing
       extends PipelineTestType(

@@ -187,8 +187,14 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       */
     val pattern = new Regex(s"($workflowName).([A-Z]\\w+).")
 
+    /** Find any instance of the pipeline followed by . and replace with wrapper workflow
+      * e.g.
+      * Arrays. -> TestArrays.
+      * 
+      * This handles the case where the wrapper workflow is a substring of a nested input (CheckFingerprint CheckFingerprintTask)
+      */
     var inputsString = (workflowInputRoot / fileName).contentAsString
-      .replace(pipeline, workflowName)
+      .replace(s"$pipeline.", s"$workflowName.")
 
     // Replace all of the injected {} value in the test inputs file
     inputsString = inputsString
@@ -197,6 +203,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       .replaceAll("\\VAULT_TOKEN_PATH", vaultTokenPath)
       .replaceAll("\\GOOGLE_ACCOUNT_VAULT_PATH", googleAccountVaultPath)
 
+    // If wrapper workflow name is follow by [A-Z] then we know its a nested input
     inputsString = pattern.replaceAllIn(
       inputsString,
       m => s"$workflowName.$pipeline." + m.group(2) + ".")
