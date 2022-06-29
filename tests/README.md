@@ -79,7 +79,7 @@ Finally, it passes these arguments to the downstream [Workflow Test](https://git
 
 As mentioned above, the test framework leverages Scala as a CLI tool to submit the wrapper workflows to Cromwell. The code for the Scala tool can be found in the [tests/broad/scala_test](../tests/broad/scala_test/) directory.
 
-The Scala tool is responsible for preparing the inputs for the wrapper workflow of the given pipeline and submitting that workflow to the cromwell environment specified.
+The Scala tool is responsible for preparing the inputs for the wrapper workflow of the given pipeline and submitting that workflow to the Cromwell environment specified.
 
 **NOTE** - When looking at the the scala code you will see that there are multiple 'tester' files. A major rewrite of the framework was done to only use one tester command (CloudWorkflow) and to pass in the desired pipeline as an argument. This change makes it easier for contributors and maintainers of these workflows to write tests by pushing the functionality of the test framework away from Scala and into the wrapper workflows.
 
