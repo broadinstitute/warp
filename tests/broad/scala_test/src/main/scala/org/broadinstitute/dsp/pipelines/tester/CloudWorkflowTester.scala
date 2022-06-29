@@ -187,11 +187,11 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       */
     val pattern = new Regex(s"($workflowName).([A-Z]\\w+).")
 
-    /** Find any instance of the pipeline follow by . and replace with wrapper worfklow
+    /** Find any instance of the pipeline followed by . and replace with wrapper workflow
       * e.g.
       * Arrays. -> TestArrays.
       * 
-      * This handles the case where the wrapper workflow name make still be in the pipeline name (CheckFingerprint CheckFingerprintTask)
+      * This handles the case where the wrapper workflow is a substring of a nested input (CheckFingerprint CheckFingerprintTask)
       */
     var inputsString = (workflowInputRoot / fileName).contentAsString
       .replace(s"$pipeline.", s"$workflowName.")
