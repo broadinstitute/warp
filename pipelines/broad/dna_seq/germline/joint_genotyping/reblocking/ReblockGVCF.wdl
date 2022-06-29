@@ -17,6 +17,8 @@ workflow ReblockGVCF {
     File ref_fasta_index
     Float? tree_score_cutoff
     String? annotations_to_keep_command
+
+    # comment
   }
 
   String gvcf_basename = basename(gvcf, ".g.vcf.gz")

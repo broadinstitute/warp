@@ -36,6 +36,8 @@ workflow VariantCalling {
     Boolean use_gatk3_haplotype_caller = false
     Boolean skip_reblocking = false
     Boolean use_dragen_hard_filtering = false
+
+    # Comment
   }
 
   parameter_meta {

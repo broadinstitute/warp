@@ -54,8 +54,8 @@ function pipeline_to_args() {
       echo CloudWorkflow -p GDCWholeGenomeSomaticSingleSample ${common_args};;
     IlluminaGenotypingArray)
       echo CloudWorkflow -p IlluminaGenotypingArray ${common_args};;
-    # Imputation)
-    #   echo CloudWorkflow -p Imputation ${common_args};;
+    Imputation)
+      echo CloudWorkflow -p Imputation ${common_args};;
     JointGenotyping)
       echo CloudWorkflow -p JointGenotyping -d Exome ${common_args};;
     JointGenotypingByChromosomePartOne)

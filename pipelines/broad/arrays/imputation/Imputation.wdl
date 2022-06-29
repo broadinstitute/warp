@@ -43,6 +43,8 @@ workflow Imputation {
     String bcf_suffix = ".bcf"
     String bcf_index_suffix =  ".bcf.csi"
     String m3vcf_suffix = ".cleaned.m3vcf.gz"
+
+    #comment
   }
 
   if (defined(single_sample_vcfs) && defined(multi_sample_vcf)) {
