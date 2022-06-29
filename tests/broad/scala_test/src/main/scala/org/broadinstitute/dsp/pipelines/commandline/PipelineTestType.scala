@@ -64,11 +64,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "ExternalWholeGenomeReprocessing",
         "/broad/reprocessing/external/wgs/"
       )
-  //case object GDCWholeGenomeSomaticSingleSample
-  //    extends PipelineTestType(
-  //      "TestGDCWholeGenomeSomaticSingleSample",
-  //      "/broad/dna_seq/somatic/single_sample/wgs/gdc_genome/"
-  //    )
+  case object GDCWholeGenomeSomaticSingleSample
+      extends PipelineTestType(
+        "TestGDCWholeGenomeSomaticSingleSample",
+        "GDCWholeGenomeSomaticSingleSample",
+        "/broad/dna_seq/somatic/single_sample/wgs/gdc_genome/"
+      )
   case object IlluminaGenotypingArray
       extends PipelineTestType(
         "TestIlluminaGenotypingArray",
