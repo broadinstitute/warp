@@ -23,7 +23,7 @@
 
 ## :dna: Overview 
 
-This README serves as a summary of the testing process for the pipelines that exists in WARP.
+This README serves as a summary of the testing process for the pipelines that exist in WARP.
 
 ### Why test?
 
