@@ -15,5 +15,18 @@
 "UltimaGenomicsJointGenotyping.unbounded_scatter_count_scale_factor":2.5,
 "UltimaGenomicsJointGenotyping.unpadded_intervals_file":"gs://gcp-public-data--broad-references/hg38/v0/hg38.even.handcurated.20k.intervals",
 "UltimaGenomicsJointGenotyping.GenotypeGVCFs.gatk_docker":"us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v4",
-"UltimaGenomicsJointGenotyping.ImportGVCFs.gatk_docker":"us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v4"
+"UltimaGenomicsJointGenotyping.ImportGVCFs.gatk_docker":"us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v4",
+"UltimaGenomicsJointGenotyping.snp_annotations": "-A ReadPosRankSum -A FS -A SOR -A QD -A AVERAGE_TREE_SCORE -A AVERAGE_ASSEMBLED_HAPS -A AVERAGE_FILTERED_HAPS",
+"UltimaGenomicsJointGenotyping.indel_annotations": "-A MQRankSum -A ReadPosRankSum -A FS -A SOR -A QD -A AVERAGE_TREE_SCORE",
+"UltimaGenomicsJointGenotyping.flow_order": "TGCA",
+"UltimaGenomicsJointGenotyping.ref_fasta_sdf": "gs://broad-gotc-test-storage/tmp/jbx/reference_sdf.tar",
+"UltimaGenomicsJointGenotyping.runs_file": "gs://broad-gotc-test-storage/tmp/jbx/runs.conservative.bed",
+"UltimaGenomicsJointGenotyping.annotation_intervals": ["gs://broad-gotc-test-storage/tmp/jbx/LCR-hs38.bed", "gs://broad-gotc-test-storage/tmp/jbx/mappability.0.bed", "gs://broad-gotc-test-storage/tmp/jbx/exome.twist.bed"],
+"UltimaGenomicsJointGenotyping.use_allele_specific_annotations": true,
+"UltimaGenomicsJointGenotyping.gtr_vcf":"gs://broad-gotc-test-storage/tmp/jbx/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.broad-header.vcf.gz",
+"UltimaGenomicsJointGenotyping.gtr_vcf_index":"gs://broad-gotc-test-storage/tmp/jbx/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.broad-header.vcf.gz",
+"UltimaGenomicsJointGenotyping.gtr_highconf_intervals": "gs://broad-gotc-test-storage/tmp/jbx/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_nosomaticdel_noCENorHET7.bed",
+"UltimaGenomicsJointGenotyping.sample_name_calls": "NA12878",
+"UltimaGenomicsJointGenotyping.sample_name_truth": "HG001",
+"UltimaGenomicsJointGenotyping.model_backend": "PYTHON_IFOREST"
 }
