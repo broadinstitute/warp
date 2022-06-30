@@ -405,7 +405,7 @@ task MergeMetrics {
       >>>
 
     runtime {
-        docker: "broadinstitute/horsefish:tdr_import_v1.3"
+        docker: "broadinstitute/horsefish:tdr_import_v1.4"
         cpu: cpu
         memory: "${memory_mb} MiB"
         disks : "local-disk ${disk_size_gb} HDD"
@@ -436,7 +436,7 @@ task MergeMetrics {
     >>>
 
     runtime {
-      docker: "broadinstitute/horsefish:tdr_import_v1.3"
+      docker: "broadinstitute/horsefish:tdr_import_v1.4"
       cpu: cpu
       memory: "~{memory_mb} MiB"
       disks: "local-disk ~{disk_size_gb} HDD"
