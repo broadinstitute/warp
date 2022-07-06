@@ -86,14 +86,12 @@ workflow TestBroadInternalRNAWithUMIs {
     # Collect all of the pipeline metrics into single Array[String]
     Array[String] pipeline_metrics = flatten([
                                     [ # File outputs
-                                    BroadInternalRNAWithUMIs.unified_metrics,
                                     BroadInternalRNAWithUMIs.picard_quality_distribution_metrics,
                                     BroadInternalRNAWithUMIs.picard_quality_by_cycle_metrics,
                                     BroadInternalRNAWithUMIs.picard_base_distribution_by_cycle_metrics,
                                     BroadInternalRNAWithUMIs.picard_insert_size_metrics,
                                     BroadInternalRNAWithUMIs.picard_alignment_summary_metrics,
                                     BroadInternalRNAWithUMIs.picard_rna_metrics,
-                                    BroadInternalRNAWithUMIs.rnaseqc2_metrics,
                                     BroadInternalRNAWithUMIs.duplicate_metrics,
                                     BroadInternalRNAWithUMIs.transcriptome_duplicate_metrics,
                                     ],
@@ -103,12 +101,12 @@ workflow TestBroadInternalRNAWithUMIs {
                                     
     ])
 
-    Array[String] pipeline_text_metrics = select_all([BroadInternalRNAWithUMIs.rnaseqc2_metrics])
+    Array[String] pipeline_text_metrics = select_all([BroadInternalRNAWithUMIs.rnaseqc2_metrics, BroadInternalRNAWithUMIs.unified_metrics])
 
     # Copy results of pipeline to test results bucket
     call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
       input:
-        files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
+        files_to_copy             = flatten([pipeline_outputs, pipeline_metrics, pipeline_text_metrics]),
         vault_token_path          = vault_token_path,
         google_account_vault_path = google_account_vault_path,
         destination_cloud_path    = results_path
