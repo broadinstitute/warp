@@ -30,6 +30,7 @@ workflow VerifyImputation {
     File truth_vcf
     File test_vcf
     File test_vcf_index
+    File truth_vcf_index
 
     File? input_multi_sample_vcf
     File? input_multi_sample_vcf_index
@@ -38,7 +39,8 @@ workflow VerifyImputation {
 
     Array[File]? single_sample_truth_vcf
     Array[File]? single_sample_test_vcf
-    Array[File]? single_sample_test_vcf_indices
+
+    Boolean? done
   }
 
   String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.5-1.10.2-0.1.16-1649948623"

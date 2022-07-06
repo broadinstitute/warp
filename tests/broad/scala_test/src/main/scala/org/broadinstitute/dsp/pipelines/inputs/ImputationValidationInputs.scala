@@ -28,5 +28,6 @@ case class ImputationValidationInputs(
     test_metrics: Seq[URI],
     truth_vcf: URI,
     test_vcf: URI,
-    test_vcf_index: URI
+    test_vcf_index: URI,
+    truth_vcf_index: URI
 )
