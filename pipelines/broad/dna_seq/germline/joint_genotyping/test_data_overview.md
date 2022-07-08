@@ -3,7 +3,7 @@ The following lists the data sets used for workflow validation, including workfl
 
 * WARP tests (scientific and plumbing) run 5 configurations: Gnarly and GenotypeGVcFs with combinations of {gather, don't gather VCFs} and {serial, parallel VQSR}.
 
-* All input GVCFs should be "reblocked" with latest version of ReblockGVCF, as in the single-sample pipeline.
+* All input GVCFs should be \"reblocked\" with latest version of ReblockGVCF, as in the single-sample pipeline.
 
 ### Exome Joint Calling
 * Input GVCFs include 60 1000G samples plus SynDip, CEU trio, and NA19238 Yoruba trio daughter
