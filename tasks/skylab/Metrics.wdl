@@ -154,55 +154,53 @@ task FastqMetricsSlidSeq {
     read_structure: "A string that specifies UMI (M) and Barcode (C) positions in the Read 1 fastq"
   }
 
-  command {
-
-    command {
+  command <<<
     set -e
 
-    FASTQS=$(python3 <<CODE
+    FASTQS=$(python3 <<`CODE'
     def rename_file(filename):
-    import shutil
-    import gzip
-    import re
+        import shutil
+        import gzip
+        import re
 
-    iscompressed = True
-    with gzip.open(filename, 'rt') as fin:
-    try:
-    _ = fin.readline()
-    except:
-    iscompressed = False
+        iscompressed = True
+        with gzip.open(filename, 'rt') as fin:
+          try:
+              _ = fin.readline()
+          except:
+              iscompressed = False
 
-    basename = re.sub(r'.gz$', '', filename)
-    basename = re.sub(r'.fastq$', '', basename)
+        basename = re.sub(r'.gz$', '', filename)
+        basename = re.sub(r'.fastq$', '', basename)
 
-    if iscompressed:
-    # if it is already compressed then add an extension .fastq.gz
-    newname = basename + ".fastq.gz"
-    else:
-    # otherwis, add just the .fastq extension
-    newname = basename + ".fastq"
+        if iscompressed:
+            # if it is already compressed then add an extension .fastq.gz
+            newname = basename + ".fastq.gz"
+        else:
+            # otherwis, add just the .fastq extension
+            newname = basename + ".fastq"
 
-    if filename != newname:
-    # safe to rename since the old and the new names are different
-    shutil.move(filename, newname)
+        if filename != newname:
+            # safe to rename since the old and the new names are different
+            shutil.move(filename, newname)
 
-    return newname
+        return newname
     optstring = ""
 
     r1_fastqs = [ "${sep='", "' r1_fastq}" ]
     for fastq in r1_fastqs:
-    if fastq.strip():
-    optstring += " --R1 " + rename_file(fastq)
+        if fastq.strip():
+            optstring += " --R1 " + rename_file(fastq)
+
     print(optstring)
-    CODE)
 
-
+    `CODE')
     fastq_metrics \
     --white-list ~{whitelist} \
     --read-structure "~{read_structure}" \
     --sample-id "~{sample_id}" \
     $FASTQS
-  }
+  >>>
 
   runtime {
     docker: docker
