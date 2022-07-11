@@ -292,7 +292,7 @@ task GatherSortedBamFiles {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: preemptible_tries
-    memory: "$(machine_mem_mb) MiB"
+    memory: "${machine_mem_mb} MiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
