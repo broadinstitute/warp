@@ -1,3 +1,8 @@
+# 2.1.6
+2022-07-11 (Date of Last Commit)
+
+* Added memory_multiplier and additional_disk inputs to GatherSortedBamFiles task in BamProcessing.wdl
+
 # 2.1.5
 2022-06-21 (Date of Last Commit)
 
