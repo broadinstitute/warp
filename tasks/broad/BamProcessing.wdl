@@ -280,9 +280,11 @@ task GatherSortedBamFiles {
   # Multiply the input bam size by two to account for the input and output
   Int disk_size = ceil(2 * total_input_size) + additional_disk
   Int machine_mem_mb = ceil(3000 * memory_multiplier)
+  Int java_max_memory_mb = machine_mem_mb - 500
+  Int java_inital_memory_mb = machine_mem_mb - 1000
 
   command {
-    java -Dsamjdk.compression_level=~{compression_level} -Xms2000m -Xmx2500m -jar /usr/picard/picard.jar \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms~{java_inital_memory_mb}m -Xmx~{java_max_memory_mb}m -jar /usr/picard/picard.jar \
       GatherBamFiles \
       INPUT=~{sep=' INPUT=' input_bams} \
       OUTPUT=~{output_bam_basename}.bam \
