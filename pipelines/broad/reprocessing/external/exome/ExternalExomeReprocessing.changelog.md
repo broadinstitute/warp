@@ -1,5 +1,4 @@
 # 3.1.7
-
 2022-07-12 (Date of Last Commit)
 
 * Added additional_disk input to SortSam task in BamProcessing.wdl
