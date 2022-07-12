@@ -273,8 +273,8 @@ task GatherSortedBamFiles {
     Float total_input_size
     Int compression_level
     Int preemptible_tries
-    Int additional_disk = 20
-    Int memory_multiplier = 1
+    Int additional_disk = 40
+    Int memory_multiplier = 2
   }
 
   # Multiply the input bam size by two to account for the input and output
