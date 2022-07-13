@@ -157,49 +157,15 @@ task FastqMetricsSlidSeq {
   command <<<
     set -e
 
-    FASTQS=$(python3 <<`CODE'
-    def rename_file(filename):
-        import shutil
-        import gzip
-        import re
 
-        iscompressed = True
-        with gzip.open(filename, 'rt') as fin:
-          try:
-              _ = fin.readline()
-          except:
-              iscompressed = False
-
-        basename = re.sub(r'.gz$', '', filename)
-        basename = re.sub(r'.fastq$', '', basename)
-
-        if iscompressed:
-            # if it is already compressed then add an extension .fastq.gz
-            newname = basename + ".fastq.gz"
-        else:
-            # otherwis, add just the .fastq extension
-            newname = basename + ".fastq"
-
-        if filename != newname:
-            # safe to rename since the old and the new names are different
-            shutil.move(filename, newname)
-
-        return newname
-    optstring = ""
-
-    r1_fastqs = [ "${sep='", "' r1_fastq}" ]
-    for fastq in r1_fastqs:
-        if fastq.strip():
-            optstring += " --R1 " + rename_file(fastq)
-
-    print(optstring)
-
-    `CODE')
+    declare -a arr_fastqs=(~{sep=' ' r1_fastq})
+    p=" --R1 "
+    arr_fastqs=( "${arr_fastqs[@]/#/$p}" ) 
     fastq_metrics \
     --white-list ~{whitelist} \
     --read-structure "~{read_structure}" \
     --sample-id "~{sample_id}" \
-    $FASTQS
+    ${arr_fastqs[@]}
   >>>
 
   runtime {
@@ -214,6 +180,6 @@ task FastqMetricsSlidSeq {
     File barcode_distribution = "~{sample_id}.barcode_distribution_XC.txt"
     File umi_distribution = "~{sample_id}.barcode_distribution_XM.txt"
     File numReads_perCell = "~{sample_id}.numReads_perCell_XC.txt"
-    File numReads_perUMI = "~{sample_id}.mumReads_perCell_XM.txt"
+    File numReads_perUMI = "~{sample_id}.numReads_perCell_XM.txt"
   }
 }
