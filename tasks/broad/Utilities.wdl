@@ -308,7 +308,7 @@ task MakeOptionalOutputBam {
     Boolean keep_inputs
     Int preemptible_tries = 3
   }
-    Int disk_size = ceil(size(bam_input, "GiB")) + 5
+    Int disk_size = ceil(size(bam_input, "GiB")) + 15
     String basename = basename(bam_input, ".bam")
   command<<<
     if [ ~{keep_inputs} = "true" ]
