@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 
 # Install system requirements
 RUN apt update  && \
-    apt install -y git python python-pip zlib1g zlib1g-dev wget
+    apt install -y git python python-pip zlib1g zlib1g-dev wget libbz2-dev liblzma-dev
 
 # Install SnapTools
 RUN mkdir /install && \

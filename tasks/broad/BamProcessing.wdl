@@ -22,7 +22,7 @@ task SortSam {
     String output_bam_basename
     Int preemptible_tries
     Int compression_level
-    Int additional_disk = 20
+    Int additional_disk = 200
     Int memory_multiplier = 1
   }
   # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
