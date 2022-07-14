@@ -40,7 +40,7 @@ import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 workflow WholeGenomeGermlineSingleSample {
 
 
-  String pipeline_version = "3.1.3"
+  String pipeline_version = "3.1.6"
 
 
   input {
