@@ -9,7 +9,7 @@
 
   "CheckFingerprint.read_fingerprint_from_mercury": true,
 
-  "CheckFingerprint.CheckFingerprint.genotype_lod_threshold": 1.9,
+  "CheckFingerprint.CheckFingerprintTask.genotype_lod_threshold": 1.9,
 
   "CheckFingerprint.ref_fasta": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",
   "CheckFingerprint.ref_fasta_index": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai",

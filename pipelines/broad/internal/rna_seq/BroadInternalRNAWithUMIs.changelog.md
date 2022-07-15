@@ -1,3 +1,13 @@
+# 1.0.15
+2022-06-21 (Date of Last Commit)
+
+* Changed QC.CheckFingerprint to QC.CheckFingerprintTask to avoid a naming conflict in the update scala tests, no effect on this pipeline
+
+# 1.0.14
+2022-06-07 (Date of Last Commit)
+
+* Fixing whitespace in the BroadInternalRNAWithUMIS.wdl, this has no functional effect on the pipeline
+
 # 1.0.13
 2022-06-03 (Date of Last Commit)
 

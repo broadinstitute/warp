@@ -1,4 +1,15 @@
-# 1.0.3
+# 1.0.5
+2022-06-10 (Date of Last Commit)
+
+* Add run_task variable as input to TriggerPrsWithImputationTsv task to ensure that task runs after IngestToImputationWideOutputsTable. Without completion of IngestToImputationWideOutputsTable, the CF that is triggered in TriggerPrsWithImputationTsv will fail - adding the additional variable forces the task to wait for the upstream ingest task to complete and generate its output file, which is required as input to the downstream task.
+
+# 1.0.4
+2022-06-06 (Date of Last Commit)
+
+* Add timestamp variable to workflow inputs
+* Update TriggerPrsWithImputationTsv task with destination filename prefixed with timestamp from workflow input
+
+ # 1.0.3
 2022-06-03 (Date of Last Commit)
 
 * Renamed the CompareVCFs task in VerifyImputation.wdl to CompareVcfsAllowingQualityDifferences, this update has no effect on this pipeline

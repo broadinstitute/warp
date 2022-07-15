@@ -11,7 +11,7 @@
   "JointGenotyping.indel_recalibration_annotation_values": ["AS_FS", "AS_ReadPosRankSum", "AS_MQRankSum", "AS_QD", "AS_SOR"],
   "JointGenotyping.snp_filter_level": 99.7,
   "JointGenotyping.indel_filter_level": 95.0,
-  "JointGenotyping.SNP_VQSR_downsampleFactor": 10,
+  "JointGenotyping.snp_vqsr_downsampleFactor": 10,
   "JointGenotyping.hapmap_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/hapmap_3.3.hg38.vcf.gz",
   "JointGenotyping.omni_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/1000G_omni2.5.hg38.vcf.gz",
   "JointGenotyping.one_thousand_genomes_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/1000G_phase1.snps.high_confidence.hg38.vcf.gz",
