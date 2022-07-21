@@ -9,8 +9,11 @@ LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org" \
         STAR_VERSION=${STAR_VERSION}
 
 WORKDIR /usr/gitc
-
-RUN set -eux \
+RUN set -eux; \
+        apk add --no-cache \
+            bash \
+            tini \
+            wget \
     ; \
 # Install STAR
     mkdir temp; \
@@ -23,7 +26,7 @@ RUN set -eux \
     chmod +x ./STAR; \
     cp ./STAR /usr/local/bin; \
     \
-    rm -r /usr/gitc/temp
+    rm -r /usr/gitc/temp;
 
 # Set tini as default entrypoint
 ENTRYPOINT [ "/sbin/tini", "--" ]
