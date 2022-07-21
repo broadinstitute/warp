@@ -1,3 +1,7 @@
+# 5.5.1
+2022-07-21 (Date of Last Commit)
+* Updated STARsoloFastq runtime docker URL.
+
 # 5.5.0
 2022-05-18 (Date of Last Commit)
 * Updated merge npz docker in StarAlign.wdl to fix a bug in the output loom matrix where gene names were inapporpriately assigned to counts. Any data previously processed with Optimus version 5.0.0 and above should be re-analyzed.
