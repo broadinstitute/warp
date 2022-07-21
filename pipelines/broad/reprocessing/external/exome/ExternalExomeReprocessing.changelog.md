@@ -1,3 +1,28 @@
+# 3.1.8
+2022-07-15 (Date of Last Commit)
+
+* Updated task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
+# 3.1.7
+2022-07-12 (Date of Last Commit)
+
+* Added additional_disk input to SortSam task in BamProcessing.wdl
+
+# 3.1.6
+2022-07-11 (Date of Last Commit)
+
+* Added memory_multiplier and additional_disk inputs to GatherSortedBamFiles task in BamProcessing.wdl
+
+# 3.1.5
+2022-06-21 (Date of Last Commit)
+
+* Changed QC.CheckFingerprint to QC.CheckFingerprintTask to avoid a naming conflict in the update scala tests, no effect on this pipeline
+
+# 3.1.4
+2022-06-01 (Date of Last Commit)
+
+* Updated tasks in the QC.wdl and VariantCalling.wdl, this update has no effect on this pipeline 
+
 # 3.1.3
 2022-04-27 (Date of Last Commit)
 

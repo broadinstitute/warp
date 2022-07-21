@@ -1,3 +1,14 @@
+# 1.15.9
+2022-06-15 (Date of Last Commit)
+
+* Added bead_pool_manifest file to the output section of ValidateChip.wdl
+
+# 1.15.8
+2022-05-19 (Date of Last Commit)
+
+* Patch security vulnerability in arrays-picard-private docker image
+* Update arrays internal tasks, this update has no effect on this pipeline
+
 # 1.15.7
 2022-04-19 (Date of Last Commit)
 

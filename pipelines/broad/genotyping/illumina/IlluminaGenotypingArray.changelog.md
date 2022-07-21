@@ -1,3 +1,13 @@
+# 1.12.10
+2022-06-21 (Date of Last Commit)
+
+* Changed QC.CheckFingerprint to QC.CheckFingerprintTask to avoid a naming conflict in the update scala tests, no effect on this pipeline
+
+# 1.12.9
+20222-06-01  (Date of Last Commit)
+
+* Renamed the CompareVCFs task in VerifyIlluminaGenotypingArray.wdl to CompareVcfsAllowingQualityDifferences, this update has no effect on this pipeline
+
 # 1.12.8
 20222-04-19  (Date of Last Commit)
 

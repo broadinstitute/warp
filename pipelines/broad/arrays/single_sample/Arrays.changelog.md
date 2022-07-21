@@ -1,3 +1,24 @@
+# 2.6.14
+2022-07-15 (Date of Last Commit)
+
+* Updated task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
+# 2.6.13
+2022-06-21 (Date of Last Commit)
+
+* Changed QC.CheckFingerprint to QC.CheckFingerprintTask to avoid a naming conflict in the update scala tests, no effect on this pipeline
+
+# 2.6.12
+2022-06-01 (Date of Last Commit)
+
+* Renamed the CompareVCFs task in VerifyIlluminaGenotypingArray.wdl to CompareVcfsAllowingQualityDifferences, this update has no effect on this pipeline
+
+# 2.6.11
+2022-05-19 (Date of Last Commit)
+
+* Patch security vulnerability in arrays-picard-private docker image
+* Update arrays internal tasks, this update has no effect on this pipeline
+
 # 2.6.10
 2022-05-05 (Date of Last Commit)
 * Update Arrays.wdl to output bead_pool_manifest_file so it can be used in new test wdls

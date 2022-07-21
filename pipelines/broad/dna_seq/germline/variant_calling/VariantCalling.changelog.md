@@ -1,3 +1,30 @@
+# 2.1.6
+2022-07-15 (Date of Last Commit)
+
+* Updated task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
+# 2.1.5
+2022-07-12 (Date of Last Commit)
+
+* Added additional_disk input to SortSam task in BamProcessing.wdl
+
+# 2.1.4
+2022-07-11 (Date of Last Commit)
+
+* Added memory_multiplier and additional_disk inputs to GatherSortedBamFiles task in BamProcessing.wdl
+
+# 2.1.3
+2022-06-21 (Date of Last Commit)
+
+* Changed QC.CheckFingerprint to QC.CheckFingerprintTask to avoid a naming conflict in the update scala tests, no effect on this pipeline
+
+# 2.1.2
+2022-06-01 (Date of Last Commit)
+
+* Added a MakeOptionalOutputBam task to the Utilities.wdl tp support UltimaGenomicsWholeGenomeCramOnly.wdl
+* Added inputs to the GenotypeGVCFs task to support the UltimaGenomicsJointGenotyping.wdl
+
+
 # 2.1.1
 2022-04-21 (Date of Last Commit)
 

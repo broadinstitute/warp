@@ -1,6 +1,37 @@
+# 1.0.17
+2022-07-21 (Date of Last Commit)
+* Update TDR ingest script task and docker to remove staging bucket and specify timestamp fields
+
+# 1.0.16
+2022-07-15 (Date of Last Commit)
+
+* Updated task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
+# 1.0.15
+2022-06-21 (Date of Last Commit)
+
+* Changed QC.CheckFingerprint to QC.CheckFingerprintTask to avoid a naming conflict in the update scala tests, no effect on this pipeline
+
+# 1.0.14
+2022-06-07 (Date of Last Commit)
+
+* Fixing whitespace in the BroadInternalRNAWithUMIS.wdl, this has no functional effect on the pipeline
+
+# 1.0.13
+2022-06-03 (Date of Last Commit)
+
+* Renamed the CompareVCFs task in VerifyCheckFingerprint.wdl to CompareVcfsAllowingQualityDifferences, this update has no effect on this pipeline
+
+# 1.0.12
+2022-06-03 (Date of Last Commit)
+
+* Updated whitespace in BroadInternalRNAWithUMIS.wdl, this has no functional effect on the pipeline
+
 # 1.0.11
 2022-05-19 (Date of Last Commit)
-* Update TDR ingest script task and docker to remove staging bucket and specify timestamp fields
+
+* Patch security vulnerability in arrays-picard-private docker image
+* Update arrays internal tasks, this update has no effect on this pipeline
 
 # 1.0.10
 2022-04-26 (Date of Last Commit)

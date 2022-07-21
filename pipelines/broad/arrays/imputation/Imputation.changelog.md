@@ -1,3 +1,13 @@
+# 1.1.2
+2022-07-15 (Date of Last Commit)
+
+* Updated task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
+# 1.1.1
+2022-06-01 (Date of Last Commit)
+
+* Renamed the CompareVCFs task in VerifyImputation.wdl to CompareVcfsAllowingQualityDifferences, this update has no effect on this pipeline
+
 # 1.1.0 
 2022-04-21 (Date of Last Commit)
 

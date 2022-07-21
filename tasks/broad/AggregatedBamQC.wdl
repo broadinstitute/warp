@@ -59,7 +59,7 @@ input {
 
   if (defined(haplotype_database_file) && defined(fingerprint_genotypes_file)) {
     # Check the sample BAM fingerprint against the sample array
-    call QC.CheckFingerprint as CheckFingerprint {
+    call QC.CheckFingerprintTask as CheckFingerprintTask {
       input:
         input_bam = base_recalibrated_bam,
         input_bam_index = base_recalibrated_bam_index,
@@ -103,8 +103,8 @@ input {
     File agg_quality_distribution_metrics = CollectAggregationMetrics.quality_distribution_metrics
     File agg_error_summary_metrics = CollectAggregationMetrics.error_summary_metrics
 
-    File? fingerprint_summary_metrics = CheckFingerprint.summary_metrics
-    File? fingerprint_detail_metrics = CheckFingerprint.detail_metrics
+    File? fingerprint_summary_metrics = CheckFingerprintTask.summary_metrics
+    File? fingerprint_detail_metrics = CheckFingerprintTask.detail_metrics
   }
   meta {
     allowNestedInputs: true
