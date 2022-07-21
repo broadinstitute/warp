@@ -5,7 +5,7 @@ FROM ubuntu:18.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Image label
-LABEL maintainer="Broad Institute DSDE <dsde-engineering@broadinstitute.org>" \
+LABEL maintainer="Nick Barkas <nbarkas@broadinstititute.org>" \
   software="DropletUtils" \
   version="1.2.1-0.1.0" \
   description="Bioconductor DropletUtils Package with the suitable version of R" \
