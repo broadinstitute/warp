@@ -26,7 +26,7 @@ task CollectQualityYieldMetrics {
     Int preemptible_tries = 3
   }
 
-  Int disk_size = ceil(size(input_bam, "GiB")) + 20
+  Int disk_size = ceil(size(input_bam, "GiB") + size(reference_fasta, "GiB") + size(reference_fasta_index, "GiB")) + 20
 
   command {
     java -Xms2000m -Xmx3000m -jar /usr/picard/picard.jar \
