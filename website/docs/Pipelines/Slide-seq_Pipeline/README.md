@@ -8,7 +8,7 @@ sidebar_position: 1
 | :----: | :---: | :----: | :--------------: |
 | [SlideSeq v.1.0.0](LINK) | July, 2022 | Elizabeth Kiernan & Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
 
-![SlideSeq_diagram](LINK)
+![SlideSeq_diagram](./slide-seq_diagram.png)
 
 ## Introduction to the SlideSeq workflow
 
