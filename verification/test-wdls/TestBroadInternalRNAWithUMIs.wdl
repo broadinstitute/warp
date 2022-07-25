@@ -76,7 +76,6 @@ workflow TestBroadInternalRNAWithUMIs {
                                     BroadInternalRNAWithUMIs.rnaseqc2_gene_tpm,
                                     BroadInternalRNAWithUMIs.output_bam_index,
                                     BroadInternalRNAWithUMIs.output_bam,
-                                    BroadInternalRNAWithUMIs.transcriptome_bam_index,
                                     BroadInternalRNAWithUMIs.transcriptome_bam,
                                     ],
                                     
