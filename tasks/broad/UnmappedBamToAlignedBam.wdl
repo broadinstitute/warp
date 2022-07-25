@@ -70,7 +70,9 @@ workflow UnmappedBamToAlignedBam {
       input:
         input_bam = unmapped_bam,
         metrics_filename = unmapped_bam_basename + ".unmapped.quality_yield_metrics",
-        preemptible_tries = papi_settings.preemptible_tries
+        preemptible_tries = papi_settings.preemptible_tries,
+        reference_fasta = references.reference_fasta.ref_fasta,
+        reference_fasta_index = references.reference_fasta.ref_fasta_index,
     }
 
     if (unmapped_bam_size > cutoff_for_large_rg_in_gb) {

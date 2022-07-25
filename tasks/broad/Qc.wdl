@@ -20,6 +20,8 @@ task CollectQualityYieldMetrics {
   input {
     File input_bam
     String metrics_filename
+    File? reference_fasta
+    File? reference_fasta_index
 
     Int preemptible_tries = 3
   }
@@ -31,6 +33,7 @@ task CollectQualityYieldMetrics {
       CollectQualityYieldMetrics \
       INPUT=~{input_bam} \
       OQ=true \
+      ~{true="R=" false="" defined(reference_fasta)}~{default="" reference_fasta} \
       OUTPUT=~{metrics_filename}
   }
   runtime {
