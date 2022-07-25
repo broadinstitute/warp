@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM --platform=linux/amd64 alpine:latest
 
 ARG STAR_VERSION=2.7.9a
 
@@ -9,6 +9,7 @@ LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org" \
         STAR_VERSION=${STAR_VERSION}
 
 WORKDIR /usr/gitc
+
 RUN set -eux; \
         apk add --no-cache \
             bash \
@@ -29,4 +30,4 @@ RUN set -eux; \
     rm -r /usr/gitc/temp;
 
 # Set tini as default entrypoint
-ENTRYPOINT [ "/sbin/tini", "--" ]
+ENTRYPOINT [ "/sbin/tini", "--"]
