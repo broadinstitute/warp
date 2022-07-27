@@ -34,7 +34,7 @@ task SamToFastqAndBwaMemAndMba {
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
     Boolean allow_empty_ref_alt = false
-    Int temp_additional_disk
+    Int temp_additional_disk = 500
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
