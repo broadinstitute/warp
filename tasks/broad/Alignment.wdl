@@ -34,6 +34,7 @@ task SamToFastqAndBwaMemAndMba {
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
     Boolean allow_empty_ref_alt = false
+    Int temp_additional_disk
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
@@ -42,7 +43,7 @@ task SamToFastqAndBwaMemAndMba {
   # Sometimes the output is larger than the input, or a task can spill to disk.
   # In these cases we need to account for the input (1) and the output (1.5) or the input(1), the output(1), and spillage (.5).
   Float disk_multiplier = 2.5
-  Int disk_size = ceil(unmapped_bam_size + bwa_ref_size + (disk_multiplier * unmapped_bam_size) + 20)
+  Int disk_size = ceil(unmapped_bam_size + bwa_ref_size + (disk_multiplier * unmapped_bam_size) + 20) + temp_additional_disk
 
   command <<<
 
