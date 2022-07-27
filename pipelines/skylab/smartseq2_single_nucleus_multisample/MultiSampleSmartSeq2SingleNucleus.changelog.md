@@ -1,3 +1,7 @@
+# 1.2.8
+2022-07-21 (Date of Last Commit)
+* Updated STARsoloFastq runtime docker URL.
+
 # 1.2.7
 2022-05-18 (Date of Last Commit)
 * Updated merge npz docker in StarAlign.wdl
@@ -26,7 +30,7 @@
 # 1.2.2
 2022-02-10 (Date of Last Commit)
 
-* Rebuilt a docker to merge outputs of STAR in in StarAlign.wdl task and moved it to a public location.
+* Rebuilt a docker to merge outputs of STAR in StarAlign.wdl task and moved it to a public location.
 
 # 1.2.1
 2022-02-07 (Date of Last Commit)
