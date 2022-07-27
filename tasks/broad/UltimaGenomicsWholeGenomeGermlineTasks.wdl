@@ -497,7 +497,7 @@ task HaplotypeCaller {
     touch realigned.bam
     touch realigned.bai
 
-    gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms~{memory_mb-2000}m" \
+    /usr/gitc/gatk4/gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms~{memory_mb-2000}m" \
       HaplotypeCaller \
       -R ~{references.ref_fasta} \
       -O ~{output_filename} \
