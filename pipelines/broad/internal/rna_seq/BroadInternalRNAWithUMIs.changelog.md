@@ -1,7 +1,7 @@
 # 1.0.17
-2022-07-21 (Date of Last Commit)
+2022-07-28 (Date of Last Commit)
 
-* Update TDR ingest script task and docker to remove staging bucket and specify timestamp fields
+* Update TDR ingest script task and docker to remove staging bucket, specify timestamp fields, and use merge ingest strategy
 * Specify the RSEM post-processed transcriptome bam as output
 * Dynamically allocate memory in Fastp task, increase fixed memory to 8gb in RNASeQC2, and increased fixed memory to 64gb in GroupByUMI
 * Remove transcriptome bam index from output
