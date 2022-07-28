@@ -66,7 +66,7 @@ task SplitCram {
 
   command <<<
     mkdir -p splitout
-    gatk --java-options "-Xmx8g" \
+    /usr/gitc/gatk4/gatk --java-options "-Xmx8g" \
       SplitCRAM -I ~{input_cram_bam} \
       -O splitout/~{base_file_name}-%04d.cram \
       --shard-records ~{reads_per_file}
@@ -284,7 +284,7 @@ task MarkDuplicatesSpark {
   command <<<
     bams_dirname=$(echo "~{sep='\n'input_bams}" | tail -1 | xargs dirname)
 
-    gatk --java-options "-Xmx190g" MarkDuplicatesSpark \
+    /usr/gitc/gatk4/gatk --java-options "-Xmx190g" MarkDuplicatesSpark \
     --spark-master local[~{cpu - 8}] \
     --input ~{sep=" --input " input_bams} \
     --output ~{output_bam_basename}.bam \
@@ -593,7 +593,7 @@ task ConvertGVCFtoVCF {
   }
 
   command {
-    gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m" \
+    /usr/gitc/gatk4/gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m" \
     GenotypeGVCFs \
     -R ~{references.ref_fasta} \
     -V ~{input_gvcf} \
@@ -949,7 +949,7 @@ task AnnotateVCF {
   }
 
   command <<<
-    gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m" \
+    /usr/gitc/gatk4/gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m" \
     VariantAnnotator \
     -R ~{references.ref_fasta} \
     -V ~{input_vcf} \
