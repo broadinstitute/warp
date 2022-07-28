@@ -66,7 +66,7 @@ task SplitCram {
 
   command <<<
     mkdir -p splitout
-    /usr/gitc/gatk4/gatk --java-options "-Xmx8g" \
+    /usr/gitc/gatk4 --java-options "-Xmx8g" \
       SplitCRAM -I ~{input_cram_bam} \
       -O splitout/~{base_file_name}-%04d.cram \
       --shard-records ~{reads_per_file}
