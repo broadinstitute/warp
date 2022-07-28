@@ -7,7 +7,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow BroadInternalRNAWithUMIs {
 
-  String pipeline_version = "1.0.16"
+  String pipeline_version = "1.0.17"
 
   input {
     # input needs to be either "hg19" or "hg38"
@@ -169,10 +169,15 @@ workflow BroadInternalRNAWithUMIs {
 
   output {
     File transcriptome_bam = RNAWithUMIs.transcriptome_bam
-    File transcriptome_duplicate_metrics = RNAWithUMIs.transcriptome_duplicate_metrics
+    File transcriptome_bam_with_duplicates = RNAWithUMIs.transcriptome_bam_with_duplicates
     File output_bam = RNAWithUMIs.output_bam
     File output_bam_index = RNAWithUMIs.output_bam_index
+
     File duplicate_metrics = RNAWithUMIs.duplicate_metrics
+    File duplicate_metrics_no_umi = RNAWithUMIs.duplicate_metrics_no_umi
+    File transcriptome_duplicate_metrics = RNAWithUMIs.transcriptome_duplicate_metrics
+    File transcriptome_duplicate_metrics_no_umi = RNAWithUMIs.transcriptome_duplicate_metrics_no_umi
+
     File rnaseqc2_gene_tpm = RNAWithUMIs.rnaseqc2_gene_tpm
     File rnaseqc2_gene_counts = RNAWithUMIs.rnaseqc2_gene_counts
     File rnaseqc2_exon_counts = RNAWithUMIs.rnaseqc2_exon_counts
