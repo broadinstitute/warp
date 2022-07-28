@@ -336,6 +336,7 @@ task rnaseqc2 {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: 2
   }
 }
 
