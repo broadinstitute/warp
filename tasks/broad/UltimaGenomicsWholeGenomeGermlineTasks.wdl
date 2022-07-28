@@ -56,7 +56,7 @@ task SplitCram {
     String base_file_name
     Int reads_per_file
 
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v4"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-42-g8c348aa-SNAPSHOT-1658941911"
     Int disk_size_gb = ceil(3 * size(input_cram_bam, "GiB") + 20)
     Int cpu = 1
     Int memory_gb = 10
@@ -66,7 +66,7 @@ task SplitCram {
 
   command <<<
     mkdir -p splitout
-    gatk --java-options "-Xmx8g" \
+    /usr/gitc/gatk4/gatk --java-options "-Xmx8g" \
       SplitCRAM -I ~{input_cram_bam} \
       -O splitout/~{base_file_name}-%04d.cram \
       --shard-records ~{reads_per_file}
