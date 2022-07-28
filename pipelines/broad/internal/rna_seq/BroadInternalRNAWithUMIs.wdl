@@ -64,7 +64,7 @@ workflow BroadInternalRNAWithUMIs {
     environment: "The environment (dev or prod) used for determining which service to use to retrieve Mercury fingerprints"
     vault_token_path: "The path to the vault token used for accessing the Mercury Fingerprint Store"
     tdr_dataset_uuid: "Optional string used to define the Terra Data Repo (TDR) dataset to which outputs will be ingested"
-    tdr_sample_id: "Optional string used to identify the sample being processed; this is the primary key in the TDR dataset"
+    tdr_sample_id: "Optional string used to identify the sample being processed; this must be the primary key in the TDR dataset"
   }
 
   # make sure either hg19 or hg38 is supplied as reference_build input
@@ -162,8 +162,7 @@ workflow BroadInternalRNAWithUMIs {
     call tasks.updateOutputsInTDR {
       input:
         tdr_dataset_uuid = select_first([tdr_dataset_uuid, ""]),
-        outputs_json = formatPipelineOutputs.pipeline_outputs_json,
-        sample_id = select_first([tdr_sample_id, ""])
+        outputs_json = formatPipelineOutputs.pipeline_outputs_json
     }
   }
 
