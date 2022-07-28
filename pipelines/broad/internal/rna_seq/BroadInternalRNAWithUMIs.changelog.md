@@ -6,7 +6,7 @@
 * Dynamically allocate memory in Fastp task, increase fixed memory to 8gb in RNASeQC2, and increased fixed memory to 64gb in GroupByUMI
 * Remove transcriptome bam index from output
 * Add monitoring script to fastp and GroupByUMI tasks during soft-launch/continuous improvement
-* Add maxRestries to Fastp, GroupByUMI, and RNASeQC2
+* Add maxRestries to Fastp, GroupByUMI, and RNASeQC2. Multiplier = 2 is set elsewhere.
 
 # 1.0.16
 2022-07-15 (Date of Last Commit)
