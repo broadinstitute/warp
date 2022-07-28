@@ -89,15 +89,6 @@ workflow UMIAwareDuplicateMarking {
       use_umi = true
   }
 
-  # sato: remove before merging
-  call tasks.MarkDuplicatesUMIAware as MarkDuplicatesNoUMI {
-    input:
-      bam = SortSamByQueryNameBeforeDuplicateMarking.output_bam,
-      output_basename = output_basename,
-      remove_duplicates = remove_duplicates,
-      use_umi = false
-  }
-
   if (coordinate_sort_output){
     call tasks.SortSamByCoordinate as SortSamByCoordinateSecondPass {
       input:
