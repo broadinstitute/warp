@@ -1,7 +1,6 @@
 # 1.0.17
 2022-07-28 (Date of Last Commit)
 
-<<<<<<< HEAD
 * Update TDR ingest script task and docker to remove staging bucket, specify timestamp fields, and use merge ingest strategy
 * Remove transcriptome bam index from output
 

@@ -1,4 +1,6 @@
 # 1.0.8
+2022-07-29 (Date of Last Commit)
+
 * Specify the RSEM post-processed transcriptome bam as output
 * Dynamically allocate memory in Fastp task, increase fixed memory to 8gb in RNASeQC2, and increased fixed memory to 64gb in GroupByUMI
 * Remove transcriptome bam index from output
