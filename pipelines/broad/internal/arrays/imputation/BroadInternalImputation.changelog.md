@@ -1,3 +1,8 @@
+# 1.0.7
+2022-08-03 (Date of Last Commit)
+
+* Updated BCFTools/VCFTools Minimac4 Docker images
+
 # 1.0.6
 2022-07-15 (Date of Last Commit)
 
