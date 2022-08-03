@@ -148,7 +148,7 @@ task BaseRecalibrator {
   }
 
   command {
-    gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
+    /usr/gitc/gatk4/gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
       -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
       -Xloggc:gc_log.log -Xms5000m -Xmx5500m" \
       BaseRecalibrator \
@@ -208,7 +208,7 @@ task ApplyBQSR {
   }
 
   command {
-    gatk --java-options "-XX:+PrintFlagsFinal -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps \
+    /usr/gitc/gatk4/gatk --java-options "-XX:+PrintFlagsFinal -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps \
       -XX:+PrintGCDetails -Xloggc:gc_log.log \
       -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Dsamjdk.compression_level=~{compression_level} -Xms3000m -Xmx~{java_memory_mb}m" \
       ApplyBQSR \
@@ -249,7 +249,7 @@ task GatherBqsrReports {
   }
 
   command {
-    gatk --java-options "-Xms3000m -Xmx3000m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms3000m -Xmx3000m" \
       GatherBQSRReports \
       -I ~{sep=' -I ' input_bqsr_reports} \
       -O ~{output_report_filename}

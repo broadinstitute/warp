@@ -128,7 +128,7 @@ task HaplotypeCaller_GATK4_VCF {
     echo Total available memory: ${available_memory_mb} MB >&2
     echo Memory reserved for Java: ${java_memory_size_mb} MB >&2
 
-    gatk --java-options "-Xmx${java_memory_size_mb}m -Xms${java_memory_size_mb}m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10" \
+    /usr/gitc/gatk4/gatk --java-options "-Xmx${java_memory_size_mb}m -Xms${java_memory_size_mb}m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10" \
       HaplotypeCaller \
       -R ~{ref_fasta} \
       -I ~{input_bam} \
@@ -214,7 +214,7 @@ task Reblock {
   command {
     set -e 
 
-    gatk --java-options "-Xms3000m -Xmx3000m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms3000m -Xmx3000m" \
       ReblockGVCF \
       -R ~{ref_fasta} \
       -V ~{gvcf} \
@@ -291,7 +291,7 @@ task DragenHardFilterVcf {
   String output_vcf_name = vcf_basename + ".hard-filtered" + output_suffix
 
   command {
-     gatk --java-options "-Xms2000m -Xmx2500m" \
+     /usr/gitc/gatk4/gatk --java-options "-Xms2000m -Xmx2500m" \
       VariantFiltration \
       -V ~{input_vcf} \
       --filter-expression "QUAL < 10.4139" \

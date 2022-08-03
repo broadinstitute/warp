@@ -52,7 +52,7 @@ task CalibrateDragstrModel {
 
   command <<<
     set -x
-    gatk --java-options "-Xmx~{java_memory_mb}m -DGATK_STACKTRACE_ON_USER_EXCEPTION=true -Dsamjdk.reference_fasta=~{ref_fasta}" \
+    /usr/gitc/gatk4/gatk --java-options "-Xmx~{java_memory_mb}m -DGATK_STACKTRACE_ON_USER_EXCEPTION=true -Dsamjdk.reference_fasta=~{ref_fasta}" \
       CalibrateDragstrModel \
         -R ~{ref_fasta} \
         -I ~{alignment} \

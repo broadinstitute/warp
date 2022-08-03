@@ -626,7 +626,7 @@ task ValidateVCF {
 
   command {
     # Note that WGS needs a lot of memory to do the -L *.vcf if an interval file is not supplied
-    gatk --java-options "-Xms6000m -Xmx6500m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms6000m -Xmx6500m" \
       ValidateVariants \
       -V ~{input_vcf} \
       -R ~{ref_fasta} \
