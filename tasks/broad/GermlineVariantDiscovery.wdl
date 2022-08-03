@@ -66,7 +66,7 @@ task HaplotypeCaller_GATK35_GVCF {
       --read_filter OverclippedRead
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
+    docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
     preemptible: preemptible_tries
     memory: "10000 MiB"
     cpu: "1"
@@ -96,7 +96,7 @@ task HaplotypeCaller_GATK4_VCF {
     Boolean use_dragen_hard_filtering = false
     Boolean use_spanning_event_genotyping = true
     File? dragstr_model
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
     Int memory_multiplier = 1
   }
   
@@ -203,7 +203,7 @@ task Reblock {
     File ref_fasta
     File ref_fasta_index
     String output_vcf_filename
-    String docker_image = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String docker_image = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
     Int additional_disk = 20
     String? annotations_to_keep_command
     Float? tree_score_cutoff
@@ -282,7 +282,7 @@ task DragenHardFilterVcf {
     Boolean make_gvcf
     String vcf_basename
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
