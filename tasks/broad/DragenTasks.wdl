@@ -24,7 +24,7 @@ task CalibrateDragstrModel {
     File str_table_file
     File alignment ## can handle cram or bam.
     File alignment_index
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
     Int preemptible_tries = 3
     Int threads = 4
     Int? memory_mb
@@ -52,7 +52,7 @@ task CalibrateDragstrModel {
 
   command <<<
     set -x
-    gatk --java-options "-Xmx~{java_memory_mb}m -DGATK_STACKTRACE_ON_USER_EXCEPTION=true -Dsamjdk.reference_fasta=~{ref_fasta}" \
+    /usr/gitc/gatk4/gatk --java-options "-Xmx~{java_memory_mb}m -DGATK_STACKTRACE_ON_USER_EXCEPTION=true -Dsamjdk.reference_fasta=~{ref_fasta}" \
       CalibrateDragstrModel \
         -R ~{ref_fasta} \
         -I ~{alignment} \

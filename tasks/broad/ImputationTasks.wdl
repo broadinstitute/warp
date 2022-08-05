@@ -65,13 +65,13 @@ task GenerateChunk {
     Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
     Int cpu = 1
     Int memory_mb = 8000
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
   }
   Int command_mem = memory_mb - 1000
   Int max_heap = memory_mb - 500
 
   command {
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants \
     -V ~{vcf} \
     --select-type-to-include SNP \
@@ -112,7 +112,7 @@ task CountVariantsInChunks {
     File panel_vcf
     File panel_vcf_index
 
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB")) + 20
@@ -123,8 +123,8 @@ task CountVariantsInChunks {
   command <<<
     set -e -o pipefail
 
-    echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
-    echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_vcf}  | sed 's/Tool returned://') > var_in_reference
+    echo $(/usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
+    echo $(/usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_vcf}  | sed 's/Tool returned://') > var_in_reference
   >>>
   output {
     Int var_in_original = read_int("var_in_original")
@@ -266,7 +266,7 @@ task GatherVcfs {
     Array[File] input_vcfs
     String output_vcf_basename
 
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3*size(input_vcfs, "GiB"))
@@ -277,7 +277,7 @@ task GatherVcfs {
   command <<<
     set -e -o pipefail
 
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     GatherVcfs \
     -I ~{sep=' -I ' input_vcfs} \
     --REORDER_INPUT_BY_FIRST_VARIANT \
@@ -336,7 +336,7 @@ task UpdateHeader {
     String basename
 
     Int disk_size_gb = ceil(4*(size(vcf, "GiB") + size(vcf_index, "GiB"))) + 20
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
     Int cpu = 1
     Int memory_mb = 8000
   }
@@ -346,7 +346,7 @@ task UpdateHeader {
   command <<<
 
     ## update the header of the merged vcf
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     UpdateVCFSequenceDictionary \
     --source-dictionary ~{ref_dict} \
     --output ~{basename}.vcf.gz \
@@ -372,7 +372,7 @@ task RemoveSymbolicAlleles {
     String output_basename
 
     Int disk_size_gb = ceil(3*(size(original_vcf, "GiB") + size(original_vcf_index, "GiB")))
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
     Int cpu = 1
     Int memory_mb = 4000
   }
@@ -380,7 +380,7 @@ task RemoveSymbolicAlleles {
   Int max_heap = memory_mb - 500
 
   command {
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants -V ~{original_vcf} -xl-select-type SYMBOLIC -O ~{output_basename}.vcf.gz
   }
   output {
@@ -754,7 +754,7 @@ task SelectVariantsByIds {
     File ids
     String basename
 
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = ceil(1.2*size(vcf, "GiB")) + 100
@@ -772,7 +772,7 @@ task SelectVariantsByIds {
     set -e -o pipefail
 
     cp ~{ids} sites.list
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants -V ~{vcf} --exclude-filtered --keep-ids sites.list -O ~{basename}.vcf.gz
   >>>
   runtime {
@@ -820,7 +820,7 @@ task InterleaveVariants {
     Array[File] vcfs
     String basename
 
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3.2*size(vcfs, "GiB")) + 100
@@ -831,7 +831,7 @@ task InterleaveVariants {
   command <<<
     set -e -o pipefail
 
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     MergeVcfs -I ~{sep=" -I " vcfs} -O ~{basename}.vcf.gz
   >>>
   runtime {

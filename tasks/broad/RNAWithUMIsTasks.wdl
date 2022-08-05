@@ -268,7 +268,7 @@ task GetSampleName {
   input {
     File bam
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
@@ -281,7 +281,7 @@ task GetSampleName {
   }
 
   command <<<
-    gatk GetSampleName -I ~{bam} -O sample_name.txt
+    /usr/gitc/gatk4/gatk GetSampleName -I ~{bam} -O sample_name.txt
   >>>
 
   runtime {
@@ -816,7 +816,7 @@ task CalculateContamination {
     File population_vcf
     File population_vcf_index
     # runtime
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
     Int cpu = 1
     Int memory_mb = 8192
     Int disk_size_gb = 256
@@ -832,7 +832,7 @@ task CalculateContamination {
 
   command <<<
     set -e
-    gatk --java-options "-Xmx4096m" GetPileupSummaries \
+    /usr/gitc/gatk4/gatk --java-options "-Xmx4096m" GetPileupSummaries \
     -R ~{ref_fasta} \
     -I ~{bam} \
     -V ~{population_vcf} \
