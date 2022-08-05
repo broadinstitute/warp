@@ -841,7 +841,7 @@ task CalculateContamination {
     --disable-read-filter WellformedReadFilter \
     --disable-read-filter MappingQualityAvailableReadFilter
 
-    gatk --java-options "-Xmx4096m" CalculateContamination \
+    /usr/gitc/gatk4/gatk --java-options "-Xmx4096m" CalculateContamination \
     -I ~{base_name}_pileups.tsv \
     -O ~{base_name}_contamination.tsv
   
