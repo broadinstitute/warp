@@ -2,13 +2,13 @@
 
 set -e
 
-# Update verson when changes to Dockerfile are made
+# Update version when changes to Dockerfile are made
 DOCKER_IMAGE_VERSION=1.0.0
 TIMESTAMP=$(date +"%s")
 DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
-GCR_URL="us.gcr.io/broad-gotc-prod/trim-adapters"
+GCR_URL="us.gcr.io/broad-gotc-prod/ea-utils"
 #QUAY_URL="quay.io/humancellatlas/snss2-trim-adapters"
 
 # ea-utils version
