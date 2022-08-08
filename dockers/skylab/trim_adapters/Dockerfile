@@ -1,9 +1,11 @@
-FROM --platform=linux/amd64 alpine:latest
+FROM --platform=linux/amd64 ubuntu:16.04
 
 ARG EAUTILS_VERSION=1.04.807
 
 ENV TERM=xterm-256color \
         EAUTILS_URL=https://github.com/ExpressionAnalysis/ea-utils/archive/refs/tags/${EAUTILS_VERSION}.tar.gz \
+        EAUTILS_VERSION=${EAUTILS_VERSION} \
+        TINI_VERSION=v0.19.0 \
         PATH="$PATH:/usr/gitc/ea-utils-${EAUTILS_VERSION}/clipper/"
 
 LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org" \
@@ -11,24 +13,26 @@ LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org" \
 
 WORKDIR /usr/gitc
 
-# Install dependencies
 RUN set -eux; \
-        apk add --no-cache \
-            automake \
-            bash \
-            build-base \
-            cmake \
-            gsl-dev \
-            tini \
-            wget \
-            zlib-dev \
-        ; \
+    apt update; \
+    apt install -y \
+       zlib1g-dev \
+       cmake \
+       automake \
+       wget \
+       build-essential \
+       libgsl0-dev \
+    ; \
 # Install ea-utils  \
     wget ${EAUTILS_URL}; \
     tar -xzvf ${EAUTILS_VERSION}.tar.gz; \
     cd ea-utils-${EAUTILS_VERSION}/clipper; \
     make; \
-    make install;
+    make install \
+    ; \
+# Install tini
+    wget https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -O /sbin/tini; \
+    chmod +x /sbin/tini
 
 # Set tini as default entrypoint
 ENTRYPOINT [ "/sbin/tini", "--"]
