@@ -281,7 +281,7 @@ task HardFilterAndMakeSitesOnlyVcf {
       -O ~{variant_filtered_vcf_filename} \
       -V ~{vcf}
 
-    gatk --java-options "-Xms3000m -Xmx3250m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms3000m -Xmx3250m" \
       MakeSitesOnlyVcf \
       -I ~{variant_filtered_vcf_filename} \
       -O ~{sites_only_vcf_filename}
