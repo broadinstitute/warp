@@ -355,7 +355,7 @@ task BuildIntervalList {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-umitools:0.0.1"
+    docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
     memory: "8 GiB"
     disks: "local-disk 100 HDD"
     cpu: "8"
