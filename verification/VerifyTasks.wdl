@@ -20,7 +20,7 @@ task CompareVcfs {
 
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 100 HDD"
+    disks: "local-disk 200 HDD"
     memory: "32 GiB"
     preemptible: 3
   }
