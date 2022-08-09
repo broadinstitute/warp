@@ -1,25 +1,38 @@
-FROM ubuntu:16.04
-LABEL software="ea-utils package" \
-      version="1.04.807" \
-      description="Command-line tools for processing biological sequencing data. Barcode demultiplexing, adapter trimming, etc. Primarily written to support an Illumina based pipeline - but should work with any FASTQs." \
-      website="http://expressionanalysis.github.io/ea-utils/"
+FROM --platform=linux/amd64 ubuntu:16.04
 
-# Install compiler 
-RUN apt update && apt install -y \
-   zlib1g-dev \
-   cmake \
-   automake \
-   wget \
-   build-essential \	
-   libgsl0-dev 
+ARG EAUTILS_VERSION=1.04.807
 
-# Install ea-utils 
-WORKDIR /usr/local/ 
-RUN wget "https://github.com/ExpressionAnalysis/ea-utils/archive/refs/tags/1.04.807.tar.gz"
-RUN tar -xzvf 1.04.807.tar.gz
-WORKDIR /usr/local/ea-utils-1.04.807/clipper 
-RUN make
-RUN make install
-ENV PATH /usr/local/ea-utils-1.04.807/clipper/:$PATH
-# Cleanup
-RUN apt-get clean
+ENV TERM=xterm-256color \
+        EAUTILS_URL=https://github.com/ExpressionAnalysis/ea-utils/archive/refs/tags/${EAUTILS_VERSION}.tar.gz \
+        EAUTILS_VERSION=${EAUTILS_VERSION} \
+        TINI_VERSION=v0.19.0 \
+        PATH="$PATH:/usr/gitc/ea-utils-${EAUTILS_VERSION}/clipper/"
+
+LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org" \
+        EAUTILS_VERSION=${EAUTILS_VERSION}
+
+WORKDIR /usr/gitc
+
+RUN set -eux; \
+    apt update; \
+    apt install -y \
+       zlib1g-dev \
+       cmake \
+       automake \
+       wget \
+       build-essential \
+       libgsl0-dev \
+    ; \
+# Install ea-utils  \
+    wget ${EAUTILS_URL}; \
+    tar -xzvf ${EAUTILS_VERSION}.tar.gz; \
+    cd ea-utils-${EAUTILS_VERSION}/clipper; \
+    make; \
+    make install \
+    ; \
+# Install tini
+    wget https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -O /sbin/tini; \
+    chmod +x /sbin/tini
+
+# Set tini as default entrypoint
+ENTRYPOINT [ "/sbin/tini", "--"]
