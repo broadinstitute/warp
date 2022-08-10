@@ -83,21 +83,21 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
       truth_crai = truth_crai
   }
 
-  call Tasks.CompareVcfs as CompareVcfs {
+  call Tasks.CompareVCFsVerbosely as CompareVcfs {
     input:
       file1 = test_vcf,
       file2 = truth_vcf,
       patternForLinesToExcludeFromComparison = "^##GATKCommandLine"
   }
 
-  call Tasks.CompareVcfs as CompareFilteredVcfs {
+  call Tasks.CompareVCFsVerbosely as CompareFilteredVcfs {
     input:
       file1 = test_filtered_vcf,
       file2 = truth_filtered_vcf,
       patternForLinesToExcludeFromComparison = "^##"
   }
 
-  call Tasks.CompareVcfs as CompareGvcfs {
+  call Tasks.CompareVCFsVerbosely as CompareGvcfs {
     input:
       file1 = test_gvcf,
       file2 = truth_gvcf,
