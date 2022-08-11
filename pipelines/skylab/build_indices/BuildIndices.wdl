@@ -355,7 +355,7 @@ task BuildIntervalList {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
+    docker: "quay.io/humancellatlas/secondary-analysis-umitools:0.0.1"
     memory: "8 GiB"
     disks: "local-disk 100 HDD"
     cpu: "8"
@@ -379,7 +379,7 @@ workflow BuildIndices {
 
   # version of this pipeline
 
-  String pipeline_version = "1.0.1"
+  String pipeline_version = "1.0.0"
 
   parameter_meta {
     gtf_version: "the actual number of gencode, ex.  27"

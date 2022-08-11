@@ -1,7 +1,3 @@
-# 1.0.1
-2022-08-09 (Date of Last Commit)
-* Update BuildIndices.wdl to use a Samtools docker image
-
 # 1.0.0
 
 2022-02-01 (Date of Last Commit)
