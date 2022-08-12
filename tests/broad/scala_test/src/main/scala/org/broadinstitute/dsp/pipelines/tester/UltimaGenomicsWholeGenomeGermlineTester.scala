@@ -86,22 +86,14 @@ class UltimaGenomicsWholeGenomeGermlineTester(
       testVcfIndex = resultsCloudPath.resolve(s"$outputBaseName.vcf.gz.tbi"),
       truthVcf = truthCloudPath.resolve(s"$outputBaseName.vcf.gz"),
       truthVcfIndex = truthCloudPath.resolve(s"$outputBaseName.vcf.gz.tbi"),
-      testFilteredVcf =
-        resultsCloudPath.resolve(s"$outputBaseName.filtered.vcf.gz"),
-      testFilteredVcfIndex =
-        resultsCloudPath.resolve(s"$outputBaseName.filtered.vcf.gz.tbi"),
-      truthFilteredVcf =
-        truthCloudPath.resolve(s"$outputBaseName.filtered.vcf.gz"),
-      truthFilteredVcfIndex =
-        truthCloudPath.resolve(s"$outputBaseName.filtered.vcf.gz.tbi"),
-      testGvcf =
-        resultsCloudPath.resolve(s"$outputBaseName.annotated.rb.g.vcf.gz"),
-      testGvcfIndex =
-        resultsCloudPath.resolve(s"$outputBaseName.annotated.rb.g.vcf.gz.tbi"),
-      truthGvcf =
-        truthCloudPath.resolve(s"$outputBaseName.annotated.rb.g.vcf.gz"),
-      truthGvcfIndex =
-        truthCloudPath.resolve(s"$outputBaseName.annotated.rb.g.vcf.gz.tbi")
+      testFilteredVcf = resultsCloudPath.resolve(s"$outputBaseName.filtered.vcf.gz"),
+      testFilteredVcfIndex = resultsCloudPath.resolve(s"$outputBaseName.filtered.vcf.gz.tbi"),
+      truthFilteredVcf = truthCloudPath.resolve(s"$outputBaseName.filtered.vcf.gz"),
+      truthFilteredVcfIndex = truthCloudPath.resolve(s"$outputBaseName.filtered.vcf.gz.tbi"),
+      testGvcf = resultsCloudPath.resolve(s"$outputBaseName.annotated.rb.g.vcf.gz"),
+      testGvcfIndex = resultsCloudPath.resolve(s"$outputBaseName.annotated.rb.g.vcf.gz.tbi"),
+      truthGvcf = truthCloudPath.resolve(s"$outputBaseName.annotated.rb.g.vcf.gz"),
+      truthGvcfIndex = truthCloudPath.resolve(s"$outputBaseName.annotated.rb.g.vcf.gz.tbi")
     )
     UltimaGenomicsWholeGenomeGermlineValidationInputs
       .marshall(validationInputs)
