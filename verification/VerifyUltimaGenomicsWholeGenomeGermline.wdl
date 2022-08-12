@@ -15,19 +15,19 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
     File truth_crai
 
     File test_vcf
-    File test_vcf_index
+    #File test_vcf_index
     File truth_vcf
-    File truth_vcf_index
+    #File truth_vcf_index
 
     File test_filtered_vcf
-    File test_filtered_vcf_index
+    #File test_filtered_vcf_index
     File truth_filtered_vcf
-    File truth_filtered_vcf_index
+    #File truth_filtered_vcf_index
 
     File test_gvcf
-    File test_gvcf_index
+    #File test_gvcf_index
     File truth_gvcf
-    File truth_gvcf_index
+    #File truth_gvcf_index
 
     Boolean? done
   }
