@@ -27,15 +27,15 @@ case class UltimaGenomicsWholeGenomeGermlineValidationInputs(
     testCrai: URI,
     truthCrai: URI,
     testVcf: URI,
-    testVcfIndex: URI,
+   // testVcfIndex: URI,
     truthVcf: URI,
-    truthVcfIndex: URI,
+   // truthVcfIndex: URI,
     testFilteredVcf: URI,
-    testFilteredVcfIndex: URI,
+   // testFilteredVcfIndex: URI,
     truthFilteredVcf: URI,
-    truthFilteredVcfIndex: URI,
+   //truthFilteredVcfIndex: URI,
     testGvcf: URI,
-    testGvcfIndex: URI,
-    truthGvcf: URI,
-    truthGvcfIndex: URI
+    //testGvcfIndex: URI,
+    truthGvcf: URI
+  //  truthGvcfIndex: URI
 )
