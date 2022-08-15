@@ -441,7 +441,7 @@ task MergeStarOutput {
     String input_id
 
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:merge-star-outputs-v1.1.9"
+    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660582269"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
