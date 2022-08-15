@@ -238,7 +238,7 @@ task MakeCompliantBAM {
     input {
         File input_bam
         String output_bam_filename
-        String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
+        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660582269"
     }
 
     parameter_meta {
@@ -253,7 +253,7 @@ task MakeCompliantBAM {
     command {
         set -euo pipefail
 
-        /tools/makeCompliantBAM.py --input-bam ~{input_bam} --output-bam ~{output_bam_filename}
+        /usr/gitc/makeCompliantBAM.py --input-bam ~{input_bam} --output-bam ~{output_bam_filename}
     }
 
     output {
@@ -271,7 +271,7 @@ task MakeCompliantBAM {
 task BreakoutSnap {
     input {
         File snap_input
-        String docker_image = "quay.io/humancellatlas/snap-breakout:0.0.1"
+        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660582269"
         String bin_size_list
         String input_id
     }
@@ -289,7 +289,7 @@ task BreakoutSnap {
     command {
         set -euo pipefail
         mkdir output
-        python3 /tools/breakoutSnap.py --input ~{snap_input} \
+        python3 /usr/gitc/breakoutSnap.py --input ~{snap_input} \
             --output-prefix output/~{input_id}_
     }
 

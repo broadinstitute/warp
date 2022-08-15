@@ -61,7 +61,7 @@ task OptimusLoomGeneration {
 
   input {
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660582269"
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:v1.3.0"
     # name of the sample
     String input_id
     # user provided id
@@ -104,7 +104,7 @@ task OptimusLoomGeneration {
     set -euo pipefail
 
     if [ "~{counting_mode}" == "sc_rna" ]; then
-        python3 /usr/gitc/create_loom_optimus.py \
+        python3 /tools/create_loom_optimus.py \
           --empty_drops_file ~{empty_drops_result} \
           --add_emptydrops_data "yes" \
           --annotation_file ~{annotation_file} \
@@ -121,7 +121,7 @@ task OptimusLoomGeneration {
           --expression_data_type "exonic" \
           --pipeline_version ~{pipeline_version}
     else
-        python3 /usr/gitc/create_snrna_optimus.py \
+        python3 /tools/create_snrna_optimus.py \
           --annotation_file ~{annotation_file} \
           --cell_metrics ~{cell_metrics} \
           --gene_metrics ~{gene_metrics} \
