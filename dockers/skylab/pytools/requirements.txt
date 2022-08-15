@@ -1,0 +1,6 @@
+# create-npz-output
+numpy
+scipy
+# loom-output
+loompy==3.0.6
+h5py==2.10.0
