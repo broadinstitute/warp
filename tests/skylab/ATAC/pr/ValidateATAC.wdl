@@ -52,7 +52,7 @@ task ValidateATAC {
   >>>
   
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-samtools:v0.2.2-1.6"
+    docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
     cpu: 1
     memory: "3.75 GB"
     disks: "local-disk ${required_disk} HDD"

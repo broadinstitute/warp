@@ -36,8 +36,6 @@ workflow VerifyValidateChip {
 
     Array[File] test_metrics
     Array[File] truth_metrics
-
-    Boolean? done
   }
 
   call Tasks.CompareGtcs {
@@ -91,6 +89,4 @@ workflow VerifyValidateChip {
   meta {
     allowNestedInputs: true
   }
-
-  output {}
 }

@@ -33,7 +33,7 @@ $ docker inspect us.gcr.io/broad-gotc-prod/samtools-star:1.0.0-1.11-2.7.10a-1642
 
 ```bash
 $ docker run --rm -it \
-    us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.0-0.7.15-2.23.8-1626449438 STAR
+    us.gcr.io/broad-gotc-prod/samtools-star:1.0.0-1.11-2.7.10a-1642556627 STAR
 ```
 
 ### Samtools

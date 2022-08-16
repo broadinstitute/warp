@@ -1,3 +1,14 @@
+# 1.0.3
+2022-07-15 (Date of Last Commit)
+
+* Increased disk space in the MakeOptionalOutputBam task in Utilities.wdl 
+
+# 1.0.2
+2022-07-07 (Date of Last Commit)
+
+* Bugfix: Changed name of TDR outputs json to remove spaces
+* Updated TDR ingest script to version 1.4 to use merge strategy and retry ingest once if it fails
+
 # 1.0.1
 2022-06-21 (Date of Last Commit)
 

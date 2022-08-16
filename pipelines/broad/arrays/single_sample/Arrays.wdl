@@ -23,7 +23,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Arrays {
 
-  String pipeline_version = "2.6.13"
+  String pipeline_version = "2.6.14"
 
   input {
     String chip_well_barcode
@@ -74,7 +74,7 @@ workflow Arrays {
 
     File? extended_chip_manifest_file
 
-    # Comment
+    # Test comment
 
     # For CheckFingerprint:
     # If this is true, we will read fingerprints from Mercury
