@@ -1,3 +1,8 @@
+# 1.2.2
+2022-08-16 (Date of Last Commit)
+
+* Update MakeCompliantBAM and BreakoutSnap tasks to use a consolidated python utilities docker image.
+
 # 1.2.1
 
 2021-11-15 (Date of Last Commit)
