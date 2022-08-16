@@ -171,7 +171,7 @@ The table below details the subtasks called by the UnmappedBamToAlignedBam task,
 | [Processing.SortSam](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | SortSam | Picard | Sorts the aggregated BAM by coordinate sort order. |
 | [QC.CrossCheckFingerprints (CrossCheckFingerprints)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CrosscheckFingerprints | Picard | Optionally checks fingerprints if haplotype database is provided. |
 | [Utils.CreateSequenceGroupingTSV (CreateSequenceGroupingTSV)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Utilities.wdl) | --- | python | Creates the sequencing groupings used for BQSR and PrintReads Scatter. |
-| [Processing.CheckContamination](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | VerifyBamID | --- | Checks cross-sample contamination prior to variant calling. |
+| [Processing.CheckContamination](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | VerifyBamID2 | --- | Checks cross-sample contamination prior to variant calling. |
 | [Processing.BaseRecalibrator (BaseRecalibrator)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | BaseRecalibrator | GATK | If `perform_bqsr` is true, performs base recalibration by interval. When using the DRAGEN-GATK mode, `perform_bqsr` is optionally false as base calling errors are corrected in the DRAGEN variant calling step.|
 | [Processing.GatherBqsrReports (GatherBqsrReports)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | GatherBQSRReports | GATK | Merges the BQSR reports resulting from by-interval calibration. |
 | [Processing.ApplyBQSR (ApplyBQSR)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | ApplyBQSR | GATK | Applies the BQSR base recalibration model by interval. |
@@ -276,7 +276,7 @@ The table below describes the final workflow outputs. If running the workflow on
 | read_group_gc_bias_pdf | PDF of the GC bias by readgroup for the aggregated BAM. | File |
 | read_group_gc_bias_summary_metrics | GC bias summary metrics by readgroup for the aggregated BAM. | File |
 | cross_check_fingerprints_metrics | Fingerprint metrics file if optional fingerprinting is performed. | File |
-| selfSM | Contamination estimate from VerifyBamID. | File |
+| selfSM | Contamination estimate from VerifyBamID2. | File |
 | contamination | Estimated contamination from the CheckContamination task. | Float |
 | calculate_read_group_checksum_md5 | MD5 checksum for aggregated BAM. | File |
 | agg_alignment_summary_metrics | Alignment summary metrics for the aggregated BAM. | File |

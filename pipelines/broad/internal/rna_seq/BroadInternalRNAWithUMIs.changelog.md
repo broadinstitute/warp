@@ -1,3 +1,14 @@
+# 1.0.17
+2022-07-28 (Date of Last Commit)
+
+* Update TDR ingest script task and docker to remove staging bucket, specify timestamp fields, and use merge ingest strategy
+* Remove transcriptome bam index from output
+
+# 1.0.16
+2022-07-15 (Date of Last Commit)
+
+* Updated task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
 # 1.0.15
 2022-06-21 (Date of Last Commit)
 

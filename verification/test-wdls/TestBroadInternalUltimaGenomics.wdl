@@ -14,8 +14,6 @@ workflow TestBroadInternalUltimaGenomics {
       File haplotype_database_file = "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt"
 
       String? tdr_dataset_uuid
-      String? tdr_sample_id
-      String? tdr_staging_bucket
 
       ContaminationSites contamination_sites
       AlignmentReferences alignment_references
@@ -52,8 +50,6 @@ workflow TestBroadInternalUltimaGenomics {
         output_basename = output_basename,
         haplotype_database_file = haplotype_database_file,
         tdr_dataset_uuid = tdr_dataset_uuid,
-        tdr_sample_id = tdr_sample_id,
-        tdr_staging_bucket = tdr_staging_bucket,
         contamination_sites = contamination_sites,
         alignment_references = alignment_references,
         variant_calling_settings = variant_calling_settings,

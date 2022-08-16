@@ -4,7 +4,7 @@
 
 Copy and paste to pull this image
 
-#### `us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.5-1.0.2-1649949471`
+#### `us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.6-1.0.2-1659550538`
 
 - __What is this image:__ This image is a lightweight alpine-based image for running Minimac4 in the [Imputation pipeline](../../../../pipelines/broad/arrays/imputation/Imputation.wdl).
 - __What is Minimac4:__ Minimac4 is a low-memory and computationally efficient piece of software for genotype imputation. See [here](https://github.com/statgen/Minimac4) more information.
@@ -21,8 +21,8 @@ We keep track of all past versions in [docker_versions](docker_versions.tsv) wit
 You can see more information about the image, including the tool versions, by running the following command:
 
 ```bash
-$ docker pull us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.5-1.0.2-1649949471
-$ docker inspect us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.5-1.0.2-1649949471
+$ docker pull us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.6-1.0.2-1659550538
+$ docker inspect us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.6-1.0.2-1659550538
 ```
 
 ## Usage
@@ -31,5 +31,5 @@ $ docker inspect us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.5-1.0.2-16499
 
 ```bash
 $ docker run --rm -it \
-    us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.5-1.0.2-1649949471 /usr/gitc/minimac4
+    us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.6-1.0.2-1659550538 /usr/gitc/minimac4
 ```
