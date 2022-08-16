@@ -354,7 +354,7 @@ task SingleNucleusSmartSeq2LoomOutput {
 
         # create the loom file
         echo "Running create_loom_snss2."
-        python3 /tools/create_loom_snss2.py \
+        python3 /usr/gitc/create_loom_snss2.py \
         --qc_files "${output_prefix[$i]}.Picard_group.csv" \
         --count_results  "${output_prefix[$i]}.exon_intron_counts.tsv" \
         --output_loom_path "${output_prefix[$i]}.loom" \
