@@ -238,7 +238,7 @@ task MakeCompliantBAM {
     input {
         File input_bam
         String output_bam_filename
-        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660582269"
+        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660657299"
     }
 
     parameter_meta {
