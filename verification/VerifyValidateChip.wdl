@@ -3,7 +3,7 @@ version 1.0
 import "../verification/VerifyTasks.wdl" as Tasks
 import "../verification/VerifyMetrics.wdl" as MetricsVerification
 
-## Copyright Broad Institute, 2018
+## Copyright Broad Institute, 2018 test
 ##
 ## This WDL script is designed to verify (compare) the outputs of a ValidateChip wdl.
 ##
