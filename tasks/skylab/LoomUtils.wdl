@@ -61,7 +61,7 @@ task OptimusLoomGeneration {
 
   input {
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:v1.3.0"
+    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660657299"
     # name of the sample
     String input_id
     # user provided id
