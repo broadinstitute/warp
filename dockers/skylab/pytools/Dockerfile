@@ -5,7 +5,7 @@ ENV TERM=xterm-256color \
 
 LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org"
 
-WORKDIR /usr/gitc
+WORKDIR /tools
 
 # Copy scripts and dependencies into image
 COPY tools .

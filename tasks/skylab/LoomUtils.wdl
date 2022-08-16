@@ -32,7 +32,7 @@ task SmartSeq2LoomOutput {
   command {
     set -euo pipefail
 
-    python3 /usr/gitc/create_loom_ss2.py \
+    python3 /tools/create_loom_ss2.py \
        --qc_files ~{sep=' ' smartseq_qc_files} \
        --rsem_genes_results  ~{rsem_gene_results} \
        --output_loom_path  "~{input_id}.loom" \
@@ -104,7 +104,7 @@ task OptimusLoomGeneration {
     set -euo pipefail
 
     if [ "~{counting_mode}" == "sc_rna" ]; then
-        python3 /usr/gitc/create_loom_optimus.py \
+        python3 /tools/create_loom_optimus.py \
           --empty_drops_file ~{empty_drops_result} \
           --add_emptydrops_data "yes" \
           --annotation_file ~{annotation_file} \
@@ -121,7 +121,7 @@ task OptimusLoomGeneration {
           --expression_data_type "exonic" \
           --pipeline_version ~{pipeline_version}
     else
-        python3 /usr/gitc/create_snrna_optimus.py \
+        python3 /tools/create_snrna_optimus.py \
           --annotation_file ~{annotation_file} \
           --cell_metrics ~{cell_metrics} \
           --gene_metrics ~{gene_metrics} \
@@ -177,7 +177,7 @@ task AggregateSmartSeq2Loom {
       set -e
       
       # Merge the loom files
-      python3 /usr/gitc/ss2_loom_merge.py \
+      python3 /tools/ss2_loom_merge.py \
       --input-loom-files ~{sep=' ' loom_input} \
       --output-loom-file "~{batch_id}.loom" \
       --batch_id ~{batch_id} \
@@ -256,7 +256,7 @@ task SingleNucleusOptimusLoomOutput {
     command {
         set -euo pipefail
 
-        python3 /usr/gitc/create_snrna_optimus_counts.py \
+        python3 /tools/create_snrna_optimus_counts.py \
         --annotation_file ~{annotation_file} \
         --cell_metrics ~{cell_metrics} \
         --gene_metrics ~{gene_metrics} \
@@ -339,7 +339,7 @@ task SingleNucleusSmartSeq2LoomOutput {
         do
         # creates a table with gene_id, gene_name, intron and exon counts
         echo "Running create_snss2_counts_csv."
-        python /usr/gitc/create_snss2_counts_csv.py \
+        python /tools/create_snss2_counts_csv.py \
         --in-gtf ~{annotation_introns_added_gtf} \
         --intron-counts ${introns_counts_files[$i]} \
         --exon-counts ${exons_counts_files[$i]}  \
@@ -354,7 +354,7 @@ task SingleNucleusSmartSeq2LoomOutput {
 
         # create the loom file
         echo "Running create_loom_snss2."
-        python3 /usr/gitc/create_loom_snss2.py \
+        python3 /tools/create_loom_snss2.py \
         --qc_files "${output_prefix[$i]}.Picard_group.csv" \
         --count_results  "${output_prefix[$i]}.exon_intron_counts.tsv" \
         --output_loom_path "${output_prefix[$i]}.loom" \

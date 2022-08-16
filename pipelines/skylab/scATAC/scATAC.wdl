@@ -253,7 +253,7 @@ task MakeCompliantBAM {
     command {
         set -euo pipefail
 
-        /usr/gitc/makeCompliantBAM.py --input-bam ~{input_bam} --output-bam ~{output_bam_filename}
+        /tools/makeCompliantBAM.py --input-bam ~{input_bam} --output-bam ~{output_bam_filename}
     }
 
     output {
@@ -289,7 +289,7 @@ task BreakoutSnap {
     command {
         set -euo pipefail
         mkdir output
-        python3 /usr/gitc/breakoutSnap.py --input ~{snap_input} \
+        python3 /tools/breakoutSnap.py --input ~{snap_input} \
             --output-prefix output/~{input_id}_
     }
 
