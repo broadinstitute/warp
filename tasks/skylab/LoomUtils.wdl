@@ -3,7 +3,7 @@ version 1.0
 task SmartSeq2LoomOutput {
   input {
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660657299"
+    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660672376"
     # the gene count file "<input_id>_rsem.genes.results" in the task results folder call-RSEMExpression
     File rsem_gene_results
     # file named "<input_id>_QCs.csv" in the folder  "call-GroupQCOutputs/glob-*" of the the SS2  output
@@ -61,7 +61,7 @@ task OptimusLoomGeneration {
 
   input {
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660657299"
+    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660672376"
     # name of the sample
     String input_id
     # user provided id
@@ -163,7 +163,7 @@ task AggregateSmartSeq2Loom {
         String? species
         String? organ
         String pipeline_version
-        String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660657299"
+        String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660672376"
         Int disk = 200
         Int machine_mem_mb = 4
         Int cpu = 1
@@ -211,7 +211,7 @@ task SingleNucleusOptimusLoomOutput {
 
     input {
         #runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660657299"
+        String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660672376"
         # name of the sample
         String input_id
         # user provided id
@@ -292,7 +292,7 @@ task SingleNucleusOptimusLoomOutput {
 task SingleNucleusSmartSeq2LoomOutput {
     input {
         #runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660657299"
+        String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660672376"
 
         Array[File] alignment_summary_metrics
         Array[File] dedup_metrics
