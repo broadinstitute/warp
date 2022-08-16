@@ -25,5 +25,3 @@ RUN mkdir -p /home/r3fang/anaconda2/bin/ && \
     ln -s `which python` /home/r3fang/anaconda2/bin/python
 
 ENV PATH /tools/:$PATH
-
-COPY makeCompliantBAM.py /tools/
