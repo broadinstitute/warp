@@ -271,7 +271,7 @@ task MakeCompliantBAM {
 task BreakoutSnap {
     input {
         File snap_input
-        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660582269"
+        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660657299"
         String bin_size_list
         String input_id
     }
