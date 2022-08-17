@@ -1,3 +1,7 @@
+# 1.2.9
+2022-08-08 (Date of Last Commit)
+* Updated TrimAdapters runtime docker URL.
+
 # 1.2.8
 2022-07-21 (Date of Last Commit)
 * Updated STARsoloFastq runtime docker URL.
