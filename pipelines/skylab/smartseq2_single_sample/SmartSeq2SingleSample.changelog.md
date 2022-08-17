@@ -1,3 +1,8 @@
+# 5.1.12
+2022-08-16 (Date of Last Commit)
+
+* Updated LoomUtils.wdl to use a consolidated python utilities docker image. This change does not affect the SmartSeq2SingleSample pipeline.
+
 # 5.1.11
 2022-06-21 (Date of Last Commit)
 

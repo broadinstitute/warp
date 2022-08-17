@@ -441,7 +441,7 @@ task MergeStarOutput {
     String input_id
 
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:merge-star-outputs-v1.1.9"
+    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660758110"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
@@ -466,7 +466,7 @@ task MergeStarOutput {
     declare -a matrix_files=(~{sep=' ' matrix})
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
-    python3 /tools/create-merged-npz-output.py \
+    python3 /usr/gitc/create-merged-npz-output.py \
         --barcodes ${barcodes_files[@]} \
         --features ${features_files[@]} \
         --matrix ${matrix_files[@]} \
