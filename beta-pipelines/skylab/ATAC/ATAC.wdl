@@ -230,7 +230,7 @@ task BWAPairedEndAlignment {
     String read_group_sample_name
     Int cpu
     String output_base_name
-    String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
+    String docker_image = "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660768115"
   }
 
   parameter_meta {
@@ -673,7 +673,7 @@ task MakeCompliantBAM {
   input {
     File bam_input
     String output_base_name
-    String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
+    String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660758110"
   }
 
   parameter_meta {
@@ -687,7 +687,7 @@ task MakeCompliantBAM {
   String compliant_bam_output_name = output_base_name + ".compliant.bam"
 
   command {
-    makeCompliantBAM.py \
+    /usr/gitc/makeCompliantBAM.py \
       --input-bam ~{bam_input} \
       --output-bam ~{compliant_bam_output_name}
   }
@@ -707,7 +707,7 @@ task MakeCompliantBAM {
 task BreakoutSnap {
     input {
         File snap_input
-        String docker_image = "quay.io/humancellatlas/snap-breakout:0.0.1"
+        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660758110"
         String bin_size_list
     }
     Int num_threads = 1
@@ -715,7 +715,7 @@ task BreakoutSnap {
     command {
         set -euo pipefail
         mkdir output
-        breakoutSnap.py --input ~{snap_input} \
+        /usr/gitc/breakoutSnap.py --input ~{snap_input} \
             --output-prefix output/
     }
     output {
