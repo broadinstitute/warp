@@ -23,7 +23,7 @@ def create_gene_id_name_map(gtf_file):
 
     # loop through the lines and find the gene_id and gene_name pairs
     with gzip.open(gtf_file, "rt") if gtf_file.endswith(".gz") else open(
-        gtf_file, "r"
+            gtf_file, "r"
     ) as fpin:
         for _line in fpin:
             line = _line.strip()
@@ -109,7 +109,7 @@ def  generate_row_attr(args):
 
     gene_metrics_data =np.array(gene_metric_values)
     numeric_field_names = gene_metrics[0][1:]
-    for i in range(len(numeric_field_names)):
+    for i in range(0, len(numeric_field_names)):
         name = numeric_field_names[i]
         data = gene_metrics_data[:, i]
         row_attrs[name] = data
@@ -162,7 +162,7 @@ def generate_col_attr(args):
         "reads_mapped_too_many_loci",
         "n_genes",
         "genes_detected_multiple_observations"
-    ] 
+    ]
 
     FloatColumnNames = [ # Float32
         "molecule_barcode_fraction_bases_above_30_mean",
@@ -199,18 +199,18 @@ def generate_col_attr(args):
     bool_field_names = final_df_bool_column_names
 
     # Create metadata tables and their headers for bool
-    for i in range(bool_field_names.shape[0]):
+    for i in range(0, bool_field_names.shape[0]):
         name = bool_field_names[i]
         data = final_df_bool[:, i]
         col_attrs[name] = data
-    
+
     # Create metadata tables and their headers for float
     float_field_names = list(final_df_non_boolean.columns)
 
     for i in range(len(float_field_names)):
         name = float_field_names[i]
         data = final_df_non_boolean[name].to_numpy()
-        col_attrs[name] = data 
+        col_attrs[name] = data
 
     if args.verbose:
         logging.info(
@@ -238,8 +238,9 @@ def generate_matrix(args):
     nrows, ncols = csr_exp_counts.shape
     expr_sp = sc.sparse.coo_matrix((nrows, ncols), np.float32)
 
-    xcoord = ycoord = value = []
-   
+    xcoord = []
+    ycoord = []
+    value = []
 
     chunk_row_size = 10000
     chunk_col_size = 10000
@@ -273,7 +274,7 @@ def generate_matrix(args):
 def create_loom_files(args):
     """This function creates the loom file or folder structure in output_loom_path in format file_format,
        with input_id from the input folder analysis_output_path
-    
+
     Args:
         args (argparse.Namespace): input arguments for the run
     """
@@ -281,14 +282,14 @@ def create_loom_files(args):
 
 
     # generate a dictionary of row attributes
-    row_attrs =  generate_row_attr(args) 
-    
+    row_attrs =  generate_row_attr(args)
+
     # generate a dictionarty of column attributes
-    col_attrs =  generate_col_attr(args) 
+    col_attrs =  generate_col_attr(args)
 
     # add the expression count matrix data
     expr_sp_t = generate_matrix(args)
-    
+
     # add input_id to col_attrs
     col_attrs['input_id'] = np.repeat(args.input_id, expr_sp_t.shape[1])
 
@@ -304,7 +305,7 @@ def create_loom_files(args):
     if args.input_name_metadata_field is not None:
         attrDict['input_name_metadata_field'] = args.input_name_metadata_field
     attrDict['pipeline_version'] = args.pipeline_version
-    #generate loom file 
+    #generate loom file
     loompy.create(args.output_loom_path, expr_sp_t, row_attrs, col_attrs, file_attrs=attrDict)
 
 def main():
@@ -395,7 +396,7 @@ def main():
         action="store_true",
         help="whether to output verbose debugging messages",
     )
-    
+
     parser.add_argument(
         "--expression_data_type",
         dest="expression_data_type",
