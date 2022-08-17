@@ -15,19 +15,19 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
     File truth_crai
 
     File test_vcf
-    #File test_vcf_index
+    File test_vcf_index
     File truth_vcf
-    #File truth_vcf_index
+    File truth_vcf_index
 
     File test_filtered_vcf
-    #File test_filtered_vcf_index
+    File test_filtered_vcf_index
     File truth_filtered_vcf
-    #File truth_filtered_vcf_index
+    File truth_filtered_vcf_index
 
     File test_gvcf
-    #File test_gvcf_index
+    File test_gvcf_index
     File truth_gvcf
-    #File truth_gvcf_index
+    File truth_gvcf_index
 
     Boolean? done
   }
@@ -93,25 +93,25 @@ workflow VerifyUltimaGenomicsWholeGenomeGermline {
   call Tasks.CompareVCFsVerbosely as CompareVcfs {
     input:
       actual = test_vcf,
-      #actual_index = test_vcf_index,
-      expected = truth_vcf
-      #expected_index = truth_vcf_index
+      actual_index = test_vcf_index,
+      expected = truth_vcf,
+      expected_index = truth_vcf_index
   }
 
   call Tasks.CompareVCFsVerbosely as CompareFilteredVcfs {
     input:
       actual = test_filtered_vcf,
-      #actual_index = test_filtered_vcf_index,
-      expected = truth_filtered_vcf
-      #expected_index = truth_filtered_vcf_index
+      actual_index = test_filtered_vcf_index,
+      expected = truth_filtered_vcf,
+      expected_index = truth_filtered_vcf_index
   }
 
   call Tasks.CompareVCFsVerbosely as CompareGvcfs {
     input:
       actual = test_gvcf,
-      #actual_index = test_gvcf_index,
-      expected = truth_gvcf
-      #expected_index = truth_gvcf_index
+      actual_index = test_gvcf_index,
+      expected = truth_gvcf,
+      expected_index = truth_gvcf_index
   }
 
   meta {
