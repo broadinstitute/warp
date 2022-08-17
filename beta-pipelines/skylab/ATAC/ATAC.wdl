@@ -230,7 +230,7 @@ task BWAPairedEndAlignment {
     String read_group_sample_name
     Int cpu
     String output_base_name
-    String docker_image = "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660768115"
+    String docker_image = "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463"
   }
 
   parameter_meta {
