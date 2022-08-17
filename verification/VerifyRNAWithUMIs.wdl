@@ -42,7 +42,7 @@ workflow VerifyRNAWithUMIs {
       lenient_header = true
   }
 
-  call VerifyTasks.CompareBams as CompareTranscriptomeBam {
+  call VerifyTasks.CompareTranscriptomeBams as CompareTranscriptomeBam {
     input:
       test_bam = test_transcriptome_bam,
       truth_bam = truth_transcriptome_bam,

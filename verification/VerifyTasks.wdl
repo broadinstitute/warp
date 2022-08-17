@@ -225,6 +225,40 @@ task CompareBams {
   }
 }
 
+task CompareTranscriptomeBams {
+
+  input {
+    File test_bam
+    File truth_bam
+    Boolean lenient_header = false
+  }
+
+  Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
+  Int disk_size = ceil(bam_size * 4) + 20
+
+  command {
+    set -e
+    set -o pipefail
+
+    java -Xms3500m -Xmx7000m -jar /usr/picard/picard.jar \
+    CompareSAMs \
+          ~{test_bam} \
+          ~{truth_bam} \
+          O=comparison.tsv \
+          LENIENT_HEADER=~{lenient_header} \
+          LENIENT_LOW_MQ_ALIGNMENT=true \
+          LOW_MQ_THRESHOLD=1
+  }
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    disks: "local-disk " + disk_size + " HDD"
+    cpu: 2
+    memory: "7500 MiB"
+    preemptible: 3
+  }
+}
+
 task CompareCompressedTextFiles {
 
   input {
