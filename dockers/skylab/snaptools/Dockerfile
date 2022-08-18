@@ -1,27 +1,29 @@
-FROM ubuntu:18.04
+FROM --platform=linux/amd64 python:3.7.2
 
-# Install system requirements
-RUN apt update  && \
-    apt install -y git python python-pip zlib1g zlib1g-dev wget
+ENV TERM=xterm-256color \
+        TINI_VERSION=v0.19.0 \
+        PATH=$PATH:/usr/gitc
 
-# Install SnapTools
-RUN mkdir /install && \
-    cd /install && \
-    git clone https://github.com/r3fang/SnapTools.git && \
-    cd SnapTools && \
-    pip install .
+LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org"
 
-RUN cd /install && \
-    wget -O "bwa-0.7.17.tar.bz2" "https://sourceforge.net/projects/bio-bwa/files/bwa-0.7.17.tar.bz2/download" && \
-    tar xvjf bwa-0.7.17.tar.bz2 && \
-    cd bwa-0.7.17 && \
-    make && \
-    mkdir /tools/ && \
-    cp bwa /tools/
+WORKDIR /usr/gitc
 
-# This fixes an error in the code of snaptools that
-# references an absolute path for the python binary
-RUN mkdir -p /home/r3fang/anaconda2/bin/ && \
-    ln -s `which python` /home/r3fang/anaconda2/bin/python
+RUN set -eux; \
+    pip install --upgrade pip; \
+    apt-get update; \
+    apt-get install -y bash wget \
+    ; \
+    # Install snaptools
+    pip install snaptools; \
+    mkdir -p /home/r3fang/anaconda2/bin/; \
+    ln -s `which python` /home/r3fang/anaconda2/bin/python \
+    ; \
+    # Install TINI
+    mkdir temp; \
+    cd temp; \
+    wget https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -O /sbin/tini; \
+    chmod +x /sbin/tini; \
+    rm -r /usr/gitc/temp;
 
-ENV PATH /tools/:$PATH
+# Set tini as default entrypoint
+ENTRYPOINT ["/sbin/tini", "--"]
