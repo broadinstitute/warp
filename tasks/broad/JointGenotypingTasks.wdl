@@ -88,6 +88,8 @@ task ImportGVCFs {
     Int disk_size
     Int batch_size
 
+    Int preemptible = 3
+
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
   }
 
@@ -124,7 +126,7 @@ task ImportGVCFs {
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     docker: gatk_docker
-    preemptible: 1
+    preemptible: preemptible
   }
 
   output {
@@ -153,6 +155,8 @@ task GenotypeGVCFs {
     # This is needed for gVCFs generated with GATK3 HaplotypeCaller
     Boolean allow_old_rms_mapping_quality_annotation_data = false
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+
+    Int preemptible = 3
   }
 
   parameter_meta {
@@ -187,7 +191,7 @@ task GenotypeGVCFs {
     cpu: 2
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
-    preemptible: 1
+    preemptible: preemptible
     docker: gatk_docker
   }
 
@@ -457,6 +461,7 @@ task SNPsVariantRecalibrator {
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
     Int? machine_mem_mb
 
+    Int preemptible = 3
   }
 
   Int auto_mem = ceil(2 * size([sites_only_variant_filtered_vcf,
@@ -500,7 +505,7 @@ task SNPsVariantRecalibrator {
     cpu: 2
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
-    preemptible: 1
+    preemptible: preemptible
     docker: gatk_docker
   }
 
@@ -642,6 +647,7 @@ task GatherVcfs {
     String output_vcf_name
     Int disk_size
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    Int preemptible = 3
   }
 
   parameter_meta {
@@ -671,7 +677,7 @@ task GatherVcfs {
     cpu: "1"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
-    preemptible: 1
+    preemptible: preemptible
     docker: gatk_docker
   }
 
