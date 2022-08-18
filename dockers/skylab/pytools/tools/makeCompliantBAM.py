@@ -34,7 +34,7 @@ def main():
     for read in bamfile:
         counter += 1
         if (counter % 100000 == 0):
-            print counter
+            print(counter)
         qname = str(read.qname)
         i = qname.find(':')
         cb, qn = qname[:i], qname[i+1:]
