@@ -28,6 +28,7 @@ workflow BroadInternalRNAWithUMIs {
     String read_group_name
     String sequencing_center = "BI"
 
+    # This is useful for testing, when the array-based fingerprint may not be available
     Boolean check_fingerprint = true
 
     # Terra Data Repo dataset information
