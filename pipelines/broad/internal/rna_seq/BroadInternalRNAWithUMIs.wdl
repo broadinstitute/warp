@@ -28,6 +28,8 @@ workflow BroadInternalRNAWithUMIs {
     String read_group_name
     String sequencing_center = "BI"
 
+    Boolean check_fingerprint = true
+
     # Terra Data Repo dataset information
     String? tdr_dataset_uuid
     String? tdr_sample_id
@@ -99,21 +101,24 @@ workflow BroadInternalRNAWithUMIs {
       population_vcf_index = population_vcf_index
   }
 
-  call FP.CheckFingerprint as CheckFingerprint {
-    input:
-      input_bam = RNAWithUMIs.output_bam,
-      input_bam_index = RNAWithUMIs.output_bam_index,
-      sample_alias = RNAWithUMIs.sample_name,
-      sample_lsid = sample_lsid,
-      output_basename = output_basename,
-      ref_fasta = ref,
-      ref_fasta_index = refIndex,
-      ref_dict = refDict,
-      read_fingerprint_from_mercury = true,
-      haplotype_database_file = haplotype_database_file,
-      environment = environment,
-      vault_token_path = vault_token_path
+  if (check_fingerprint){
+      call FP.CheckFingerprint as CheckFingerprint {
+      input:
+        input_bam = RNAWithUMIs.output_bam,
+        input_bam_index = RNAWithUMIs.output_bam_index,
+        sample_alias = RNAWithUMIs.sample_name,
+        sample_lsid = sample_lsid,
+        output_basename = output_basename,
+        ref_fasta = ref,
+        ref_fasta_index = refIndex,
+        ref_dict = refDict,
+        read_fingerprint_from_mercury = true,
+        haplotype_database_file = haplotype_database_file,
+        environment = environment,
+        vault_token_path = vault_token_path
+    }
   }
+
 
   call tasks.MergeMetrics {
     input:
