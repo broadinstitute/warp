@@ -241,7 +241,7 @@ task BWAPairedEndAlignment {
     read_group_sample_name: "the read group sample to be added upon alignment"
     cpu: "the number of cpu cores to use during alignment"
     output_base_name: "basename to be used for the output of the task"
-    docker_image: "the docker image using BWA to be used (default: quay.io/humancellatlas/snaptools:0.0.1)"
+    docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660758110)"
   }
 
   # runtime requirements based upon input file size
@@ -679,7 +679,7 @@ task MakeCompliantBAM {
   parameter_meta {
     bam_input: "the bam with barcodes in the read ids that need to be converted to barcodes in bam tags"
     output_base_name: "base name to be used for the output of the task"
-    docker_image: "the docker image using the python script to convert the bam barcodes/read ids (default: quay.io/humancellatlas/snaptools:0.0.1)"
+    docker_image: "the docker image using the python script to convert the bam barcodes/read ids (default: us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660758110)"
   }
 
   Int disk_size = ceil(2.5 * (if size(bam_input, "GiB") < 1 then 1 else size(bam_input, "GiB")))
