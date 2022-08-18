@@ -84,7 +84,7 @@ task AlignPairedEnd {
         String reference_unpack_name = "genome/genome.fa"
         String output_bam
         Int min_cov = 0
-        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools:1.0.0-1.4.8-1660834594"
+        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660841553"
     }
 
     parameter_meta {
@@ -115,7 +115,7 @@ task AlignPairedEnd {
             --input-fastq2=~{input_fastq2} \
             --output-bam=~{output_bam} \
             --aligner=bwa \
-            --path-to-aligner=/tools/ \
+            --path-to-aligner=/usr/local/bin/ \
             --read-fastq-command=zcat \
             --min-cov=~{min_cov} \
             --num-threads=~{num_threads} \
