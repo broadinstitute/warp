@@ -15,7 +15,7 @@ workflow scATAC {
         String bin_size_list = "10000"
     }
 
-    String pipeline_version = "1.2.2"
+    String pipeline_version = "1.2.3"
 
     parameter_meta {
         input_fastq1: "read 1 input fastq, the read names must be tagged with the cellular barcodes"
