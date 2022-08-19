@@ -8,7 +8,7 @@ Copy and paste to pull this image
 
 
 - __What is this image:__ This image is an Ubuntu-based custom image for running BWA.
-- __What is BWA:__ BWA is a software package for mapping DNA sequewnces against a large reference genome, [more info](http://bio-bwa.sourceforge.net).
+- __What is BWA:__ BWA is a software package for mapping DNA sequences against a large reference genome, [more info](http://bio-bwa.sourceforge.net).
 - __How to see tool version used in image:__ Please see below.
 
 ## Versioning
