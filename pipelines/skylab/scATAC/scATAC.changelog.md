@@ -1,3 +1,8 @@
+# 1.2.3
+2022-08-18 (Date of Last Commit)
+
+* Update AlignPairedEnd, SnapPre, SnapCellByBin tasks to use rebuilt snaptools docker image.
+
 # 1.2.2
 2022-08-16 (Date of Last Commit)
 
