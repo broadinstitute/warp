@@ -4,9 +4,10 @@ task CalculateCellMetrics {
   input {
     File bam_input
     File original_gtf
+    File? mt_genes
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.4.0"
+    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.14-test1"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
@@ -50,7 +51,8 @@ task CalculateCellMetrics {
     --gene-tag GX \
     --temp-folder temp \
     --alignments-per-thread 1000000 \
-    --nthreads ${cpu}
+    --nthreads ${cpu} \
+    --mitochondrial-gene-names-filename ~{mt_genes}
 
     gzip cell-metrics.csv
   }
@@ -72,9 +74,9 @@ task CalculateCellMetrics {
 task CalculateGeneMetrics {
   input {
     File bam_input
-
+    File? mt_genes
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.4.0"
+    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.14-test1"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 
@@ -108,7 +110,8 @@ task CalculateGeneMetrics {
     --umi-tag UB \
     --temp-folder temp \
     --alignments-per-thread 1000000 \
-    --nthreads ${cpu}
+    --nthreads ${cpu} \
+    --mitochondrial-gene-names-filename ~{mt_genes}
 
     gzip gene-metrics.csv
 

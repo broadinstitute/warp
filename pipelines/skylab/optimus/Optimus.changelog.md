@@ -1,3 +1,8 @@
+# 5.6.9
+2022-08-19 (Date of Last Commit)
+
+* Updated Metrics.wdl and Optimus.wdl to take an optional inputs for mitochondrial gene names.
+
 # 5.5.2
 2022-08-16 (Date of Last Commit)
 
