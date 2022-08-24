@@ -1,3 +1,8 @@
+# 5.5.3
+2022-08-23 (Date of Last Commit)
+
+* Remove an unused script in pytools docker image and removed unused ConvertStarOutputs task.
+
 # 5.5.2
 2022-08-16 (Date of Last Commit)
 
