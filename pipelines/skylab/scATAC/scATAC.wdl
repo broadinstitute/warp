@@ -15,7 +15,7 @@ workflow scATAC {
         String bin_size_list = "10000"
     }
 
-    String pipeline_version = "1.2.3"
+    String pipeline_version = "1.2.4"
 
     parameter_meta {
         input_fastq1: "read 1 input fastq, the read names must be tagged with the cellular barcodes"
@@ -238,7 +238,7 @@ task MakeCompliantBAM {
     input {
         File input_bam
         String output_bam_filename
-        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660758110"
+        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
     }
 
     parameter_meta {
@@ -271,7 +271,7 @@ task MakeCompliantBAM {
 task BreakoutSnap {
     input {
         File snap_input
-        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660758110"
+        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
         String bin_size_list
         String input_id
     }
