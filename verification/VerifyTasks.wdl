@@ -14,7 +14,7 @@ task CompareVcfs {
       diff <(gunzip -c -f ~{file1}) <(gunzip -c -f ~{file2})
     else
       echo "It's defined!"
-      diff <(gunzip -c -f ~{file1} | grep -v '~{patternForLinesToExcludeFromComparison}') <(gunzip -c -f ~{file2} | grep -v '~{patternForLinesToExcludeFromComparison}')
+      diff <(gunzip -c -f ~{file1} | grep -v '~{patternForLinesToExcludeFromComparison}') <(gunzip -c -f ~{file2} | grep -v '~{patternForLinesToExcludeFromComparison}') | head
     fi
   }
 
