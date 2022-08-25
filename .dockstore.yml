@@ -1,6 +1,14 @@
 version: 1.2
 workflows:
 
+  - name: UnmappedBamToAlignedBam
+    subclass: WDL
+    primaryDescriptorPath: /tasks/broad/UnmappedBamToAlignedBam.wdl
+
+  - name: VariantCalling
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl
+
   - name: Optimus
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/optimus/Optimus.wdl
