@@ -27,15 +27,9 @@ case class BroadInternalUltimaGenomicsValidationInputs(
     testCrai: URI,
     truthCrai: URI,
     testVcf: URI,
-    testVcfIndex: URI,
     truthVcf: URI,
-    truthVcfIndex: URI,
     testFilteredVcf: URI,
-    testFilteredVcfIndex: URI,
     truthFilteredVcf: URI,
-    truthFilteredVcfIndex: URI,
     testGvcf: URI,
-    testGvcfIndex: URI,
-    truthGvcf: URI,
-    truthGvcfIndex: URI
+    truthGvcf: URI
 )
