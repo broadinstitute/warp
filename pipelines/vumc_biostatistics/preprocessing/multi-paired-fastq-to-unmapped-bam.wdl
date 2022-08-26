@@ -33,7 +33,7 @@ version 1.0
 ## licensing information pertaining to the included programs.
 
 # WORKFLOW DEFINITION
-workflow ConvertPairedFastQsToUnmappedBamWf {
+workflow ConvertMultiplePairedFastQsToUnmappedBamWf {
   input {
     String sample_name 
     Array[File] fastq_1_list 
