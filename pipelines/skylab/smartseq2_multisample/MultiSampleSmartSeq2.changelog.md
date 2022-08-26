@@ -1,3 +1,8 @@
+# 2.2.14
+2022-08-23 (Date of Last Commit)
+
+* Remove an unused script in pytools docker image.
+
 # 2.2.13
 2022-08-16 (Date of Last Commit)
 

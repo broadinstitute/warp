@@ -68,7 +68,10 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
 
   // All of our plumbing or scientific test inputs
   protected lazy val inputFileNames: Seq[String] =
-    workflowInputRoot.list.toSeq.map(_.name.toString)
+    workflowInputRoot.list
+      .filter(_.name.endsWith(".json"))
+      .toSeq
+      .map(_.name.toString)
 
   // plumbing or scientific
   protected val testTypeString: String =
@@ -129,7 +132,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     * Generate the run parameters for each testing sample
     */
   def generateRunParameters: Seq[WorkflowRunParameters] = {
-    workflowInputRoot.list.toSeq.map(_.name.toString).map { fileName =>
+    inputFileNames.map { fileName =>
       val inputsName = fileName.replace(".json", "")
       val resultsPath = resultsPrefix.resolve(s"$inputsName/")
       val truthPath = truthPrefix.resolve(s"$inputsName/")
@@ -190,7 +193,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     /** Find any instance of the pipeline followed by . and replace with wrapper workflow
       * e.g.
       * Arrays. -> TestArrays.
-      * 
+      *
       * This handles the case where the wrapper workflow is a substring of a nested input (CheckFingerprint CheckFingerprintTask)
       */
     var inputsString = (workflowInputRoot / fileName).contentAsString
