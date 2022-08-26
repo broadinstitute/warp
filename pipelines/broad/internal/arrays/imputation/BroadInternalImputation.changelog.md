@@ -1,3 +1,8 @@
+# 1.0.8
+2022-08-23 (Date of Last Commit)
+
+* Updated BCFTools/VCFTools docker image
+
 # 1.0.7
 2022-08-03 (Date of Last Commit)
 
