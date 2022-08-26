@@ -14,13 +14,13 @@ task CompareVcfs {
       diff <(gunzip -c -f ~{file1}) <(gunzip -c -f ~{file2})
     else
       echo "It's defined!"
-      diff <(gunzip -c -f ~{file1} | grep -v '~{patternForLinesToExcludeFromComparison}') <(gunzip -c -f ~{file2} | grep -v '~{patternForLinesToExcludeFromComparison}') | head
+      diff <(gunzip -c -f ~{file1} | grep -v '~{patternForLinesToExcludeFromComparison}') <(gunzip -c -f ~{file2} | grep -v '~{patternForLinesToExcludeFromComparison}') | head -n 100
     fi
   }
 
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 200 HDD"
+    disks: "local-disk 100 HDD"
     memory: "32 GiB"
     preemptible: 3
   }
