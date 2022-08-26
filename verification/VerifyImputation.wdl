@@ -43,7 +43,7 @@ workflow VerifyImputation {
     Boolean? done
   }
 
-  String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.6-1.10.2-0.1.16-1659548257"
+  String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.6-1.10.2-0.1.16-1661278921"
 
   scatter (idx in range(length(truth_metrics))) {
     call CompareImputationMetrics {
