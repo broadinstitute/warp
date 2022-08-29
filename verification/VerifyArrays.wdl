@@ -18,7 +18,7 @@ import "../verification/VerifyTasks.wdl" as VerifyTasks
 ## authorized to run all programs before running this script. Please see the docker
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
-
+#comment
 workflow VerifyArrays {
   input {
     Array[File] truth_metrics
