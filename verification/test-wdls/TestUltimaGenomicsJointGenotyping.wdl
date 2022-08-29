@@ -24,11 +24,11 @@ workflow TestUltimaGenomicsJointGenotyping {
       File haplotype_database
       File eval_interval_list
       Float excess_het_threshold = 54.69
-      String sample_name_truth
-      File gtr_vcf
-      File gtr_vcf_index
-      File gtr_highconf_intervals
-      String sample_name_calls
+      String truth_sample_name
+      File truth_vcf
+      File truth_vcf_index
+      File truth_highconf_intervals
+      String call_sample_name
       File ref_fasta_sdf
       File runs_file
       Array[File] annotation_intervals
@@ -72,11 +72,11 @@ workflow TestUltimaGenomicsJointGenotyping {
         haplotype_database = haplotype_database,
         eval_interval_list = eval_interval_list,
         excess_het_threshold = excess_het_threshold,
-        sample_name_truth = sample_name_truth,
-        gtr_vcf = gtr_vcf,
-        gtr_vcf_index = gtr_vcf_index,
-        gtr_highconf_intervals = gtr_hiconf_intervals,
-        sample_name_calls = sample_name_calls,
+        sample_name_truth = truth_sample_name,
+        gtr_vcf = truth_vcf,
+        gtr_vcf_index = truth_vcf_index,
+        gtr_highconf_intervals = truth_highconf_intervals,
+        sample_name_calls = call_sample_name,
         ref_fasta_sdf = ref_fasta_sdf,
         runs_file = runs_file,
         annotation_intervals = annotation_intervals,

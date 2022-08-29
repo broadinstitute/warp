@@ -40,11 +40,11 @@ workflow UltimaGenomicsJointGenotyping {
     Float excess_het_threshold = 54.69
 
     #inputs for threshold filtering
-    String sample_name_truth
-    File gtr_vcf
-    File gtr_vcf_index
-    File gtr_highconf_intervals
-    String sample_name_calls
+    String truth_sample_name
+    File truth_vcf
+    File truth_vcf_index
+    File truth_highconf_intervals
+    String call_sample_name
     File ref_fasta_sdf
     File runs_file
     Array[File] annotation_intervals
@@ -172,11 +172,11 @@ workflow UltimaGenomicsJointGenotyping {
       input_vcf = TrainAndApplyFilteringModel.variant_scored_vcf,
       input_vcf_index = TrainAndApplyFilteringModel.variant_scored_vcf_index,
       base_file_name = callset_name,
-      sample_name_calls = sample_name_calls,
-      gtr_vcf = gtr_vcf,
-      gtr_vcf_index = gtr_vcf_index,
-      gtr_highconf_intervals = gtr_highconf_intervals,
-      sample_name_gtr = sample_name_truth,
+      call_sample_name = call_sample_name,
+      truth_vcf = truth_vcf,
+      truth_vcf_index = truth_vcf_index,
+      truth_highconf_intervals = truth_highconf_intervals,
+      truth_sample_name = truth_sample_name,
       flow_order = flow_order,
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,

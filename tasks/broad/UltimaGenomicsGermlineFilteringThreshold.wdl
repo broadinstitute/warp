@@ -4,16 +4,17 @@ import "../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 
 # Given a joint callset with a "score_key" INFO level annotation, this pipeline chooses a threshold that maximizes
 # the F1 score on a single sample in the callset using known truth data for that one sample.
+# WDL adapted from original author: Ultima Genomics
 workflow ExtractOptimizeSingleSample { 
     input {
         Array[File] input_vcf
         Array[File] input_vcf_index
         String base_file_name
-        String sample_name_calls
-        File gtr_vcf
-        File gtr_vcf_index
-        File gtr_highconf_intervals
-        String sample_name_gtr
+        String call_sample_name
+        File truth_vcf
+        File truth_vcf_index
+        File truth_highconf_intervals
+        String truth_sample_name
         String flow_order
         File ref_fasta
         File ref_fasta_index
@@ -38,7 +39,7 @@ workflow ExtractOptimizeSingleSample {
 
         call ExtractSample {
             input:
-                sample_name = sample_name_calls,
+                sample_name = call_sample_name,
                 input_vcf = AnnotateSampleVCF.output_vcf_file,
                 input_vcf_index = AnnotateSampleVCF.output_vcf_index
         }
@@ -65,14 +66,14 @@ workflow ExtractOptimizeSingleSample {
 
     call CompareToGroundTruth{
         input:
-            gtr_vcf = gtr_vcf,
-            gtr_vcf_index = gtr_vcf_index, 
-            gtr_highconf = gtr_highconf_intervals,
-            left_sample_name = sample_name_calls,
-            right_sample_name = sample_name_gtr,
+            truth_vcf = truth_vcf,
+            truth_vcf_index = truth_vcf_index,
+            truth_highconf = truth_highconf_intervals,
+            call_sample_name = call_sample_name,
+            truth_sample_name = truth_sample_name,
             input_vcf = FilterSymbolicAlleles.output_vcf,
             input_vcf_index = FilterSymbolicAlleles.output_vcf_index,
-            input_vcf_name = base_file_name,
+            base_file_name = base_file_name,
             
             ref_fasta = ref_fasta,
             ref_dict = ref_dict,
@@ -80,7 +81,7 @@ workflow ExtractOptimizeSingleSample {
             runs_file = runs_file,
             annotation_intervals = annotation_intervals,
 
-            disk_size = 2*(ceil(size(input_vcf, "GB") + size(gtr_vcf, "GB") + size(ref_fasta, "GB") + size(ref_fasta_sdf, "GB")))+10,
+            disk_size = 2*(ceil(size(input_vcf, "GB") + size(truth_vcf, "GB") + size(ref_fasta, "GB") + size(ref_fasta_sdf, "GB")))+10,
             flow_order = flow_order
 
     }
@@ -88,7 +89,7 @@ workflow ExtractOptimizeSingleSample {
     call EvaluateResults {
         input:
           h5_input = CompareToGroundTruth.compare_h5,
-          input_vcf_name = base_file_name,
+          base_file_name = base_file_name,
           disk_size = 10,
           score_key = score_key
     }
@@ -118,17 +119,13 @@ task ExtractSample {
         String sample_name
         File input_vcf
         File input_vcf_index
-        String docker = "gcr.io/terra-project-249020/jukebox_vc:test_jc_optimize_3d7509"
+        String docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.6-1.10.2-0.1.16-1659548257"
     }
     String output_vcf = basename(input_vcf, ".vcf.gz") + ".~{sample_name}.vcf.gz"
     command <<<
         set -eo pipefail
-        source ~/.bashrc
-        conda activate genomics.py3
-        bcftools view -s ~{sample_name} ~{input_vcf} -o  tmp.vcf.gz -O z 
-        bcftools index -t tmp.vcf.gz
-        bcftools view -h tmp.vcf.gz | sed 's/COMBINED_TREE_SCORE,Number=A,/COMBINED_TREE_SCORE,Number=\.,/g' > hdr.fixed.txt
-        bcftools reheader -h hdr.fixed.txt tmp.vcf.gz | bcftools view -Oz -o ~{output_vcf} - 
+
+        bcftools view -s ~{sample_name} ~{input_vcf} -o ~{output_vcf} -O z
         bcftools index -t ~{output_vcf}
     >>>
     output {
@@ -137,7 +134,7 @@ task ExtractSample {
     }
     runtime {
         memory: "8GB"
-        disks: "local-disk " + (ceil(size(input_vcf, "GB")) * 3 + 10) + " HDD"
+        disks: "local-disk " + (ceil(size(input_vcf, "GB")) * 2 + 10) + " HDD"
         docker: docker
         cpu: 1
     }
@@ -210,16 +207,16 @@ task FilterSymbolicAlleles {
 
 task CompareToGroundTruth {
   input {
-    String left_sample_name
-    String right_sample_name
+    String call_sample_name
+    String truth_sample_name
     File input_vcf
     File input_vcf_index
 
-    String input_vcf_name
+    String base_file_name
 
-    File gtr_vcf
-    File gtr_vcf_index
-    File gtr_highconf
+    File truth_vcf
+    File truth_vcf_index
+    File truth_highconf
 
     File? interval_list
     File runs_file
@@ -233,6 +230,7 @@ task CompareToGroundTruth {
   }
 
   String used_flow_order = (if flow_order=="" then "TACG" else flow_order)
+  String input_prefix = basename(basename(input_vcf, ".vcf"), ".vcf.gz")
 
   command <<<
     set -e
@@ -242,24 +240,27 @@ task CompareToGroundTruth {
 
     python -m tarfile -e ~{ref_fasta_sdf} ~{ref_fasta}.sdf
 
+    ln -s ~{input_vcf} .
+    ln -s ~{input_vcf_index} .
+
     run_comparison_pipeline.py \
             --n_parts 0 \
             --hpol_filter_length_dist 12 10 \
-            --input_prefix $(echo "~{input_vcf}" | sed 's/\(.vcf.gz\|.vcf\)$//') \
-            --output_file ~{input_vcf_name}.comp.h5 \
-            --gtr_vcf ~{gtr_vcf} \
-            --highconf_intervals ~{gtr_highconf} \
+            --input_prefix ~{input_prefix} \
+            --output_file ~{base_file_name}.comp.h5 \
+            --gtr_vcf ~{truth_vcf} \
+            --highconf_intervals ~{truth_highconf} \
             --runs_intervals ~{runs_file} \
             --reference ~{ref_fasta} \
             --reference_dict ~{ref_dict} \
-            --call_sample_name ~{left_sample_name} \
+            --call_sample_name ~{call_sample_name} \
             --ignore_filter_status \
             --flow_order ~{used_flow_order} \
-            --truth_sample_name ~{right_sample_name}\
+            --truth_sample_name ~{truth_sample_name}\
             --annotate_intervals ~{sep=" --annotate_intervals " annotation_intervals} \
             --n_jobs 8 \
             --output_suffix '' \
-            --output_interval interval_~{input_vcf_name}.comp.bed
+            --output_interval interval_~{base_file_name}.comp.bed
     >>>
   runtime {
     memory: "32 GB"
@@ -268,16 +269,16 @@ task CompareToGroundTruth {
     docker: docker
   }
   output {
-    File compare_h5 = "~{input_vcf_name}.comp.h5"
-    Array[File] comparison_beds = glob("~{input_vcf_name}.*.bed")
-    File output_interval = "interval_~{input_vcf_name}.comp.bed"
+    File compare_h5 = "~{base_file_name}.comp.h5"
+    Array[File] comparison_beds = glob("~{base_file_name}.*.bed")
+    File output_interval = "interval_~{base_file_name}.comp.bed"
   }
 }
 
 task EvaluateResults {
   input {
     File h5_input
-    String input_vcf_name
+    String base_file_name
     Int disk_size
     String docker = "gcr.io/terra-project-249020/jukebox_vc:test_jc_optimize_3d7509"
     String score_key
@@ -290,7 +291,7 @@ task EvaluateResults {
 
     evaluate_concordance.py \
             --input_file ~{h5_input} \
-            --output_prefix ~{input_vcf_name}.report \
+            --output_prefix ~{base_file_name}.report \
             --use_for_group_testing variant_type \
             --score_key ~{score_key}
 
@@ -301,8 +302,8 @@ task EvaluateResults {
     docker: docker
   }
   output {
-    File eval_report_h5 = "~{input_vcf_name}.report.h5"
-    File thresholds_report = "~{input_vcf_name}.report.thresholds.txt"
+    File eval_report_h5 = "~{base_file_name}.report.h5"
+    File thresholds_report = "~{base_file_name}.report.thresholds.txt"
   }
 }
 
@@ -319,12 +320,28 @@ task HardThresholdVCF {
 
   command <<<
     set -eo pipefail
-    
-    tail -n +2 ~{thresholds} > ~{thresholds}.body
-    cat ~{thresholds}.body | awk 'BEGIN { FS=","} \
-    {print "-filter \"VARIANT_TYPE == \047" $1 "\047 && ~{score_key} \
-     < "$2 "\" --filter-name LOW_SCORE_"$1 " "}' | tr '\n' ' ' > tmpfile
-    
+
+python <<CODE
+import csv
+
+#thresholds is a csv with two columns: the type of variant and the score to threshold on for each type
+with open('~{thresholds}', mode='r') as infile:
+    reader = csv.reader(infile)
+    header = next(reader)
+    data = {rows[0]:rows[1] for rows in reader}
+
+infile.close()
+
+args = []
+for key in data.keys():
+    args.append("-filter \"VARIANT_TYPE == '" + key + "' && ~{score_key} < " + data[key] + "\" --filter-name LOW_~{score_key}_" + key)
+
+args_for_gatk = ' '.join(args)
+params_file = open("tmpfile", "w")
+n = params_file.write(args_for_gatk)
+params_file.close()
+CODE
+
     echo "Contents of tmpfile"
     cat tmpfile
 
@@ -383,6 +400,3 @@ task AnnotateSampleVCF {
         File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
     }
 }
-
-
-
