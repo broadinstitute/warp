@@ -60,7 +60,8 @@ workflow BroadInternalImputation {
             workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
-            outputs_tsv             = FormatImputationOutputs.ingest_outputs_tsv
+            outputs_tsv             = FormatImputationOutputs.ingest_outputs_tsv,
+            prefix_column           = "last_modified_date"
     }
 
     call InternalImputationTasks.FormatImputationWideOutputs {
@@ -74,7 +75,8 @@ workflow BroadInternalImputation {
             workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = "ImputationWideOutputsTable",
-            outputs_tsv             = FormatImputationWideOutputs.ingest_outputs_wide_tsv
+            outputs_tsv             = FormatImputationWideOutputs.ingest_outputs_wide_tsv,
+            prefix_column           = "chip_well_barcode"
     }
 
     call InternalImputationTasks.TriggerPrsWithImputationTsv {

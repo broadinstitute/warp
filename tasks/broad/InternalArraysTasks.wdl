@@ -541,7 +541,7 @@ task FormatArraysOutputs {
     >>>
 
     runtime {
-        docker: "broadinstitute/horsefish:eMerge_05192022"
+        docker: "broadinstitute/horsefish:eMerge_08292022"
     }
 
     output {

@@ -81,7 +81,8 @@ workflow BroadInternalArrays {
             workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
-            outputs_tsv             = FormatArraysOutputs.ingest_outputs_tsv
+            outputs_tsv             = FormatArraysOutputs.ingest_outputs_tsv,
+            prefix_column           = "chip_well_barcode_output"
     }
 
     output {

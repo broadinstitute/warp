@@ -1,3 +1,8 @@
+# 1.0.9
+2022-08-29 (Date of Last Commit)
+
+* Updated call to IngestOutputsToTDR to pass in column names to be used for user action in command block. Python script in task was updated to a new version containing a new required command line parameter, "prefix_column"
+
 # 1.0.8
 2022-08-23 (Date of Last Commit)
 
