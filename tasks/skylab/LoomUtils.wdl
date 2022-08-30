@@ -380,3 +380,45 @@ task SingleNucleusSmartSeq2LoomOutput {
         Array[File] exon_intron_counts = glob("*exon_intron_counts.tsv")
     }
 }
+task SlideSeqLoomOutput {
+  input {
+    File bead_locations
+    File cell_metrics
+    File gene_metrics
+    File cell_id
+    File gene_id
+    File sparse_count_matrix
+    File annotation_file
+    String input_id
+    String pipeline_version
+
+    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.6-3"
+    Int disk_size_gb = 200
+    Int memory_mb = 18000
+    Int cpu = 4
+  }
+
+  command <<<
+    python3 /tools/create_loom_slide_seq.py \
+       --bead_locations ~{bead_locations} \
+       --annotation_file ~{annotation_file} \
+       --cell_metrics ~{cell_metrics} \
+       --gene_metrics ~{gene_metrics} \
+       --cell_id ~{cell_id} \
+       --gene_id  ~{gene_id} \
+       --output_path_for_loom "~{input_id}.loom" \
+       --input_id ~{input_id} \
+       --count_matrix ~{sparse_count_matrix} \
+       --pipeline_version ~{pipeline_version}
+  >>>
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+  }
+
+  output {
+    File loom_output = "~{input_id}.loom"  }
+}
