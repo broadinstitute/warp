@@ -433,3 +433,120 @@ task MergeStarOutput {
     File sparse_counts = "~{input_id}_sparse_counts.npz"
   }
 }
+
+task STARsoloFastqSlideSeq {
+  input {
+    Array[File] r1_fastq
+    Array[File] r2_fastq
+    File tar_star_reference
+    File white_list
+    String output_bam_basename
+    String read_structure
+    Boolean? count_exons
+
+    # runtime values
+    String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
+    Int machine_mem_mb = 64000
+    Int cpu = 8
+    # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
+    Int disk = ceil((size(tar_star_reference, "Gi") * 3)) + ceil(size(r1_fastq, "Gi") * 20) +  ceil(size(r2_fastq, "Gi") * 20)
+    # by default request non preemptible machine to make sure the slow star alignment step completes
+    Int preemptible = 3
+  }
+
+  command <<<
+    set -e
+    declare -a fastq1_files=(~{sep=' ' r1_fastq})
+    declare -a fastq2_files=(~{sep=' ' r2_fastq})
+
+    nums=$(echo ~{read_structure} | sed 's/[[:alpha:]]/ /g')
+    read -a arr_num <<< $nums
+
+    chars=$(echo ~{read_structure} | sed 's/[[:digit:]]/ /g')
+    read -a arr_char <<< $chars
+
+    UMILen=0
+    CBLen=0
+    for (( i=0; i<${#arr_char[@]}; ++i));
+      do
+        if [[ ${arr_char[$i]} == 'C' ]]
+        then
+          CBLen=$(( CBLen + arr_num[$i] ))
+        elif [[ ${arr_char[$i]} == 'M' ]]
+        then
+          UMILen=$(( UMILen + arr_num[$i] ))
+        fi
+    done;
+    UMIstart=$(( 1 + CBLen))
+
+    # If this argument is true, we will count reads aligned to exons in addition
+    COUNTING_MODE="GeneFull"
+    if ~{count_exons}
+    then
+      COUNTING_MODE="Gene GeneFull"
+    fi
+
+    # prepare reference
+    mkdir genome_reference
+    tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
+    rm "~{tar_star_reference}"
+
+    STAR \
+      --soloType Droplet \
+      --soloCBwhitelist ~{white_list} \
+      --soloFeatures $COUNTING_MODE \
+      --runThreadN ~{cpu} \
+      --genomeDir genome_reference \
+      --readFilesIn $fastq2_files $fastq1_files \
+      --readFilesCommand "gunzip -c" \
+      --soloInputSAMattrBarcodeSeq CR UR \
+      --soloInputSAMattrBarcodeQual CY UY \
+      --soloCBlen $CBLen \
+      --soloCBstart 1 \
+      --soloUMIlen $UMILen \
+      --soloUMIstart $UMIstart \
+      --outSAMtype BAM SortedByCoordinate \
+      --clip3pAdapterSeq AAAAAA \
+      --clip3pAdapterMMp 0.1 \
+      --outSAMattributes UB UR UY CR CB CY NH GX GN
+
+    touch barcodes_exon.tsv
+    touch features_exon.tsv
+    touch matrix_exon.mtx
+
+    mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
+    mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
+    mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+
+    if  ~{count_exons}
+    then
+      mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_exon.tsv
+      mv "Solo.out/Gene/raw/features.tsv"     features_exon.tsv
+      mv "Solo.out/Gene/raw/matrix.mtx"       matrix_exon.mtx
+    fi
+
+    mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
+
+  >>>
+
+  runtime {
+    docker: docker
+    memory: "~{machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
+    cpu: cpu
+    preemptible: preemptible
+  }
+
+  output {
+    File bam_output = "~{output_bam_basename}.bam"
+    File alignment_log = "Log.final.out"
+    File general_log = "Log.out"
+    File barcodes = "barcodes.tsv"
+    File features = "features.tsv"
+    File matrix = "matrix.mtx"
+    File barcodes_sn_rna = "barcodes_exon.tsv"
+    File features_sn_rna = "features_exon.tsv"
+    File matrix_sn_rna = "matrix_exon.mtx"
+
+  }
+}
