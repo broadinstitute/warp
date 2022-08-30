@@ -241,7 +241,7 @@ task BWAPairedEndAlignment {
     read_group_sample_name: "the read group sample to be added upon alignment"
     cpu: "the number of cpu cores to use during alignment"
     output_base_name: "basename to be used for the output of the task"
-    docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660758110)"
+    docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730)"
   }
 
   # runtime requirements based upon input file size
@@ -673,13 +673,13 @@ task MakeCompliantBAM {
   input {
     File bam_input
     String output_base_name
-    String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660758110"
+    String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
   }
 
   parameter_meta {
     bam_input: "the bam with barcodes in the read ids that need to be converted to barcodes in bam tags"
     output_base_name: "base name to be used for the output of the task"
-    docker_image: "the docker image using the python script to convert the bam barcodes/read ids (default: us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660758110)"
+    docker_image: "the docker image using the python script to convert the bam barcodes/read ids (default: us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730)"
   }
 
   Int disk_size = ceil(2.5 * (if size(bam_input, "GiB") < 1 then 1 else size(bam_input, "GiB")))
@@ -707,7 +707,7 @@ task MakeCompliantBAM {
 task BreakoutSnap {
     input {
         File snap_input
-        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1660758110"
+        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
         String bin_size_list
     }
     Int num_threads = 1
