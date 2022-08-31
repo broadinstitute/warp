@@ -109,6 +109,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "RNAWithUMIsPipeline",
         "/broad/rna_seq/"
       )
+  case object SlideSeq
+      extends PipelineTestType(
+        "TestSlideSeq",
+        "SlideSeq",
+        "/skylab/slideseq/"
+      )
   case object UltimaGenomicsJointGenotyping
       extends PipelineTestType(
         "TestUltimaGenomicsJointGenotyping",
