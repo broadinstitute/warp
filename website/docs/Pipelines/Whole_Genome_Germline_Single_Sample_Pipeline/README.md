@@ -371,7 +371,7 @@ The final CRAM files have base quality scores binned according to the [Functiona
 
 
 ## Contact us
-Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
  
 ## Licensing
  
