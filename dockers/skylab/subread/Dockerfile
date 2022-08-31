@@ -19,6 +19,7 @@ RUN set -eux; \
             bash \
             build-base \
             bzip2-dev \
+            coreutils \
             tini \
             wget \
             xz-dev \
