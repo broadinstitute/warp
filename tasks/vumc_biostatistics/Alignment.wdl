@@ -23,6 +23,7 @@ task FastqToBwaMemAndMba {
     File fastq_1
     File fastq_2
     String bwa_commandline
+    String sample_name
     String output_bam_basename
 
     # reference_fasta.ref_alt is the .alt file from bwa-kit
@@ -54,8 +55,8 @@ task FastqToBwaMemAndMba {
     bash_ref_fasta=~{reference_fasta.ref_fasta}
     # if reference_fasta.ref_alt has data in it or allow_empty_ref_alt is set
     if [ -s ~{reference_fasta.ref_alt} ] || ~{allow_empty_ref_alt}; then
-      /usr/gitc/~{bwa_commandline} -R "@RG\tID:1\tPU:~{output_bam_basename}\tLB:~{output_bam_basename}\tSM:~{output_bam_basename}\tPL:ILLUMINA" ~{fastq_1} ~{fastq_2} - 2> >(tee ~{output_bam_basename}.bwa.stderr.log >&2) | \
-      samtools view -bS -o ~{output_bam_basename}.unsorted.bam
+      /usr/gitc/~{bwa_commandline} ~{fastq_1} ~{fastq_2} 2> >(tee ~{output_bam_basename}.bwa.stderr.log >&2) | \
+      samtools view -bS -o ~{output_bam_basename}.bam
 
       if ~{!allow_empty_ref_alt}; then
         grep -m1 "read .* ALT contigs" ~{output_bam_basename}.bwa.stderr.log | \

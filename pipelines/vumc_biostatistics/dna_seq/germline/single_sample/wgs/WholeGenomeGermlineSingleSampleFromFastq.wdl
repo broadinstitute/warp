@@ -55,6 +55,7 @@ workflow WholeGenomeGermlineSingleSampleFromFastq {
     Boolean dragen_functional_equivalence_mode = false
     Boolean dragen_maximum_quality_mode = false
 
+    Boolean check_contaminant = true
     Boolean run_dragen_mode_variant_calling = false
     Boolean use_spanning_event_genotyping = true
     Boolean unmap_contaminant_reads = true
@@ -101,6 +102,7 @@ workflow WholeGenomeGermlineSingleSampleFromFastq {
       dragmap_reference           = dragmap_reference,
       papi_settings               = papi_settings,
 
+      check_contaminant = check_contaminant,
       contamination_sites_ud = references.contamination_sites_ud,
       contamination_sites_bed = references.contamination_sites_bed,
       contamination_sites_mu = references.contamination_sites_mu,
@@ -212,8 +214,8 @@ workflow WholeGenomeGermlineSingleSampleFromFastq {
 
     File? cross_check_fingerprints_metrics = FastqToAlignedBam.cross_check_fingerprints_metrics
 
-    File selfSM = FastqToAlignedBam.selfSM
-    Float contamination = FastqToAlignedBam.contamination
+    File? selfSM = FastqToAlignedBam.selfSM
+    Float? contamination = FastqToAlignedBam.contamination
 
     File calculate_read_group_checksum_md5 = AggregatedBamQC.calculate_read_group_checksum_md5
 

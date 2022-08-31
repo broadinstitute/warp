@@ -48,6 +48,7 @@ workflow FastqToAlignedBam {
     File haplotype_database_file
     Float lod_threshold
     String recalibrated_bam_basename
+    Boolean check_contaminant = true
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
     Boolean bin_base_qualities = true
@@ -59,7 +60,7 @@ workflow FastqToAlignedBam {
 
   Float cutoff_for_large_fastq_in_gb = 5.0
 
-  String bwa_commandline = "bwa mem -K 100000000 -p -v 3 -t 16 -Y $bash_ref_fasta"
+  String bwa_commandline = "bwa mem -K 100000000 -p -v 3 -t 16 -R \"@RG\\tID:1\\tPU:~{sample_and_fastqs.sample_name}\\tLB:~{sample_and_fastqs.sample_name}\\tSM:~{sample_and_fastqs.sample_name}\\tPL:ILLUMINA\" -Y $bash_ref_fasta"
 
   Int compression_level = 1
 
@@ -120,6 +121,7 @@ workflow FastqToAlignedBam {
         fastq_2 = new_fastq_2,
         bwa_commandline = bwa_commandline,
         output_bam_basename = fastq_basename + ".aligned.unsorted",
+        sample_name = sample_and_fastqs.base_file_name,
         reference_fasta = references.reference_fasta,
         compression_level = compression_level,
         preemptible_tries = papi_settings.preemptible_tries,
@@ -199,19 +201,21 @@ workflow FastqToAlignedBam {
       preemptible_tries = papi_settings.preemptible_tries
   }
 
-  # Estimate level of cross-sample contamination
-  call Processing.CheckContamination as CheckContamination {
-    input:
-      input_bam = SortSampleBam.output_bam,
-      input_bam_index = SortSampleBam.output_bam_index,
-      contamination_sites_ud = contamination_sites_ud,
-      contamination_sites_bed = contamination_sites_bed,
-      contamination_sites_mu = contamination_sites_mu,
-      ref_fasta = references.reference_fasta.ref_fasta,
-      ref_fasta_index = references.reference_fasta.ref_fasta_index,
-      output_prefix = sample_and_fastqs.base_file_name + ".preBqsr",
-      preemptible_tries = papi_settings.agg_preemptible_tries,
-      contamination_underestimation_factor = 0.75
+  if (check_contaminant) {
+    # Estimate level of cross-sample contamination
+    call Processing.CheckContamination as CheckContamination {
+      input:
+        input_bam = SortSampleBam.output_bam,
+        input_bam_index = SortSampleBam.output_bam_index,
+        contamination_sites_ud = contamination_sites_ud,
+        contamination_sites_bed = contamination_sites_bed,
+        contamination_sites_mu = contamination_sites_mu,
+        ref_fasta = references.reference_fasta.ref_fasta,
+        ref_fasta_index = references.reference_fasta.ref_fasta_index,
+        output_prefix = sample_and_fastqs.base_file_name + ".preBqsr",
+        preemptible_tries = papi_settings.agg_preemptible_tries,
+        contamination_underestimation_factor = 0.75
+    }
   }
 
   # We need disk to localize the sharded input and output due to the scatter for BQSR.
@@ -297,8 +301,8 @@ workflow FastqToAlignedBam {
 
     File? cross_check_fingerprints_metrics = CrossCheckFingerprints.cross_check_fingerprints_metrics
 
-    File selfSM = CheckContamination.selfSM
-    Float contamination = CheckContamination.contamination
+    File? selfSM = CheckContamination.selfSM
+    Float? contamination = CheckContamination.contamination
 
     File duplicate_metrics = MarkDuplicates.duplicate_metrics
     File? output_bqsr_reports = GatherBqsrReports.output_bqsr_report
