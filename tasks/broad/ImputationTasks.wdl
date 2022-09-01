@@ -493,6 +493,7 @@ task MergeSingleSampleVcfs {
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
+    bootDiskSizeGb: "20"
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
