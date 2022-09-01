@@ -18,12 +18,12 @@ workflow BroadInternalArrays {
         String tdr_target_table_name
 
         # required inputs to Arrays.wdl
-        String chip_well_barcode
-        String sample_alias
-        String sample_lsid
-        String reported_gender
-        File red_idat_cloud_path
-        File green_idat_cloud_path
+        Array[String] chip_well_barcode
+        Array[String] sample_alias
+        Array[String] sample_lsid
+        Array[String] reported_gender
+        Array[File] red_idat_cloud_path
+        Array[File] green_idat_cloud_path
         File ref_fasta
         File ref_fasta_index
         File ref_dict
@@ -37,26 +37,29 @@ workflow BroadInternalArrays {
         File vault_token_path
     }
 
-    call ArraysPipeline.Arrays {
-        input:
-            chip_well_barcode          = chip_well_barcode,
-            sample_alias               = sample_alias,
-            sample_lsid                = sample_lsid,
-            reported_gender            = reported_gender,
-            red_idat_cloud_path        = red_idat_cloud_path,
-            green_idat_cloud_path      = green_idat_cloud_path, 
-            ref_fasta                  = ref_fasta, 
-            ref_fasta_index            = ref_fasta_index, 
-            ref_dict                   = ref_dict, 
-            dbSNP_vcf                  = dbSNP_vcf, 
-            dbSNP_vcf_index            = dbSNP_vcf_index, 
-            haplotype_database_file    = haplotype_database_file,
-            variant_rsids_file         = variant_rsids_file, 
-            disk_size                  = disk_size, 
-            preemptible_tries          = preemptible_tries, 
-            environment                = environment, 
-            vault_token_path           = vault_token_path
+    scatter(idx in range(length(chip_well_barcode))) {
+        call ArraysPipeline.Arrays {
+            input:
+                chip_well_barcode          = chip_well_barcode[idx],
+                sample_alias               = sample_alias[idx],
+                sample_lsid                = sample_lsid[idx],
+                reported_gender            = reported_gender[idx],
+                red_idat_cloud_path        = red_idat_cloud_path[idx],
+                green_idat_cloud_path      = green_idat_cloud_path[idx],
+                ref_fasta                  = ref_fasta,
+                ref_fasta_index            = ref_fasta_index,
+                ref_dict                   = ref_dict,
+                dbSNP_vcf                  = dbSNP_vcf,
+                dbSNP_vcf_index            = dbSNP_vcf_index,
+                haplotype_database_file    = haplotype_database_file,
+                variant_rsids_file         = variant_rsids_file,
+                disk_size                  = disk_size,
+                preemptible_tries          = preemptible_tries,
+                environment                = environment,
+                vault_token_path           = vault_token_path
+        }
     }
+    # Array[String] barcodes = Arrays.chip_well_barcode_output
 
     call InternalArraysTasks.FormatArraysOutputs {
         input:
