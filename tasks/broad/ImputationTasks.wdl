@@ -468,7 +468,7 @@ task MergeSingleSampleVcfs {
     String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.6-1.10.2-0.1.16-1659548257"
     Int memory_mb = 2000
     Int cpu = 1
-    Int disk_size_gb = 3 * ceil(size(input_vcfs, "GiB") + size(input_vcf_indices, "GiB")) + 20
+    Int disk_size_gb = 5 * ceil(size(input_vcfs, "GiB") + size(input_vcf_indices, "GiB")) + 20
   }
   command <<<
     set -e -o pipefail

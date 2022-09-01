@@ -7,9 +7,10 @@ import "../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 workflow BroadInternalImputation {
     meta {
         description: "Push outputs of Imputation.wdl to TDR dataset table ImputationOutputsTable and split out Imputation arrays into ImputationWideOutputsTable."
+        allowNestedInputs: true
     }
     String pipeline_version = "1.0.7"
-    
+
     input {
         # inputs to wrapper task 
         String workspace_bucket
