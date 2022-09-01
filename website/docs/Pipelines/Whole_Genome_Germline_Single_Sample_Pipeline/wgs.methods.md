@@ -2,17 +2,17 @@
 sidebar_position: 2
 ---
 
-# Whole Genome Germline Single Sample v3.0.0 Methods (Default workflow)
+# Whole Genome Germline Single Sample v3.1.6 Methods (Default workflow)
 
 The following contains a detailed methods description outlining the pipeline’s process, software, and tools that can be modified for a publication methods section.
 
 ## Detailed methods for the default Whole Genome Germline Single Sample workflow
 
-Preprocessing and variant calling was performed using the WholeGenomeGermlineSingleSample 3.0.0 pipeline using Picard 2.23.8, GATK 4.2.2.0, and Samtools 1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline follows GATK Best Practices as previously described ([Van der Auwera & O'Connor, 2020](https://www.oreilly.com/library/view/genomics-in-the/9781491975183/)) as well as the Functional Equivalence specification ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)).
+Preprocessing and variant calling was performed using the WholeGenomeGermlineSingleSample v3.1.6 pipeline using Picard v2.26.10, GATK v4.2.6.1, and Samtools v1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline follows GATK Best Practices as previously described ([Van der Auwera & O'Connor, 2020](https://www.oreilly.com/library/view/genomics-in-the/9781491975183/)) as well as the Functional Equivalence specification ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)).
 
 ### Pre-processing and quality control metrics
 
-Whole genome paired-end reads in unmapped BAM (uBAM) format were first scattered to perform QC and alignment in parallel. Quality metrics were calculated using Picard CollectQualityYieldMetrics. uBAMs were converted to FASTQ using Picard SamToFastq and aligned to the Hg38 reference genome using BWA mem 0.7.15 with batch size set using -K 100000000. Metadata from the uBAMs was then merged with the aligned BAMs using Picard MergeBamAlignment with the parameters --SORT_ORDER="unsorted", allowing the data to be grouped by read name for efficient downstream marking of duplicates, and --UNMAP_CONTAMINANT_READS=true, to remove cross-species contamination.
+Whole genome paired-end reads in unmapped BAM (uBAM) format were first scattered to perform QC and alignment in parallel. Quality metrics were calculated using Picard CollectQualityYieldMetrics. uBAMs were converted to FASTQ using Picard SamToFastq and aligned to the Hg38 reference genome using BWA mem v0.7.15 with batch size set using -K 100000000. Metadata from the uBAMs was then merged with the aligned BAMs using Picard MergeBamAlignment with the parameters --SORT_ORDER="unsorted", allowing the data to be grouped by read name for efficient downstream marking of duplicates, and --UNMAP_CONTAMINANT_READS=true, to remove cross-species contamination.
 
 QC metrics (base distribution by cycle, insert size metrics, mean quality by cycle, and quality score distribution) were collected for the aligned, unsorted read-groups using Picard CollectMultipleMetrics. The read-group specific aligned BAMs were then aggregated and duplicate reads were flagged using Picard MarkDuplicates assuming queryname-sorted order and the parameter --OPTICAL_DUPLICATE_PIXEL_DISTANCE=2500, which is appropriate for patterned flowcells.
 
@@ -34,7 +34,7 @@ The pipeline’s final outputs included metrics, validation reports, an aligned 
 
 ## Detailed methods for the Functional Equivalence mode of the Whole Genome Germline Single Sample workflow
 
-Preprocessing and variant calling was performed using the WholeGenomeGermlineSingleSample 3.0.0 pipeline using Picard 2.23.8, GATK 4.2.2.0, and Samtools 1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline is functionally equivalent (as described in GATK Support: https://gatk.broadinstitute.org/hc/en-us/articles/4410456501915) to DRAGEN version 3.4.12. 
+Preprocessing and variant calling was performed using the WholeGenomeGermlineSingleSample v3.1.6 pipeline using v2.26.10, GATK v4.2.6.1, and Samtools v1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline is functionally equivalent (as described in GATK Support: https://gatk.broadinstitute.org/hc/en-us/articles/4410456501915) to DRAGEN v3.4.12. 
 
 ### Pre-processing and quality control metrics
 
@@ -57,5 +57,6 @@ Prior to variant calling, the DRAGEN STR model was calibrated using the Calibrat
 The pipeline’s final outputs included metrics, validation reports, an aligned CRAM with index, and a reblocked GVCF containing variant calls with an accompanying index.
 
 ## Previous methods documents
+- [WholeGenomeGermlineSingleSample_v3.0.0](https://github.com/broadinstitute/warp/blob/WholeGenomeGermlineSingleSample_v3.0.0/website/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/wgs.methods.md)
 - [WholeGenomeGermlineSingleSample_v2.5.0](https://github.com/broadinstitute/warp/blob/WholeGenomeGermlineSingleSample_v2.5.0/website/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/wgs.methods.md)
 - [WholeGenomeGermlineSingleSample_v2.3.7](https://github.com/broadinstitute/warp/blob/WholeGenomeGermlineSingleSample_v2.3.7/website/docs/Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/wgs.methods.md)
