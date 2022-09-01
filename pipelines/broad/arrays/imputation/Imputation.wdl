@@ -6,7 +6,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Imputation {
 
-  String pipeline_version = "1.1.3"
+  String pipeline_version = "1.1.4"
   meta {
     allowNestedInputs: true
   }

@@ -1,3 +1,8 @@
+# 1.0.8
+2022-09-01 (Date of Last Commit)
+
+* Allow nested inputs
+
 # 1.0.7
 2022-08-03 (Date of Last Commit)
 
