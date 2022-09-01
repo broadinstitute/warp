@@ -4,7 +4,7 @@
 
 Copy and paste to pull this image
 
-#### `docker pull us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1661959011`
+#### `docker pull us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1662044537`
 
 
 - __What is this image:__ This image is a lightweight alpine-based custom image for running the Subread sequencing data processing suite.
@@ -23,8 +23,8 @@ We keep track of all past versions in [docker_versions](docker_versions.tsv) wit
 You can see more information about the image, including the tool versions, by running the following command:
 
 ```bash
-$ docker pull us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1661959011
-$ docker inspect us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1661959011
+$ docker pull us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1662044537
+$ docker inspect us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1662044537
 ```
 
 ## Usage
@@ -34,5 +34,5 @@ To show the `featureCounts` help page, for example:
 
 ```bash
 $ docker run --rm -it \
-    us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1661959011 featureCounts
+    us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1662044537 featureCounts
 ```
