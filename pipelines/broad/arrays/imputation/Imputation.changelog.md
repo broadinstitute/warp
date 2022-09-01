@@ -1,6 +1,7 @@
 # 1.1.4
 2022-09-01 (Date of Last Commit)
 
+* Updated BCFTools/VCFTools docker image
 * Allow nested inputs
 
 # 1.1.3

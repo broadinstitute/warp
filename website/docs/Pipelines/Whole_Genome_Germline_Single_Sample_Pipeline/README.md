@@ -6,9 +6,9 @@ sidebar_position: 1
  
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| WholeGenomeGermlineSingleSample_v3.1.2 (see [releases page](https://github.com/broadinstitute/warp/releases)) | June, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| WholeGenomeGermlineSingleSample_v3.1.6 (see [releases page](https://github.com/broadinstitute/warp/releases)) | August, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
  
-## Introduction to the Whole Genome Germline Single Sample Pipeline 
+## Introduction to the Whole Genome Germline Single Sample Pipeline
 The Whole Genome Germline Single Sample (WGS) pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices for germline SNP and Indel discovery in human whole-genome sequencing data. It includes the DRAGEN-GATK mode, which makes the pipeline functionally equivalent to DRAGEN’s analysis pipeline (read more in this [DRAGEN-GATK blog](https://gatk.broadinstitute.org/hc/en-us/articles/360039984151)).
 
 
@@ -76,7 +76,7 @@ The latest release of the workflow, example data, and dependencies are available
 ### Input descriptions
 The tables below describe each of the WGS pipeline inputs and reference files. 
 
-Examples of how to specify each input can be found in the example [input configuration files (JSONs)](https://github.com/broadinstitute/warp/tree/develop/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files). 
+Examples of how to specify each input can be found in the example [input configuration files (JSONs)](https://github.com/broadinstitute/warp/tree/master/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files). 
  
 Multiple references are imported as part of a struct from the [DNASeqStruct WDL](https://github.com/broadinstitute/warp/blob/master/structs/dna_seq/DNASeqStructs.wdl), which is located in the WARP [structs library](https://github.com/broadinstitute/warp/tree/master/structs). For references that are part of a struct, the tables below list the relevant struct’s name. 
  
@@ -91,7 +91,7 @@ Overall, the workflow has the following input requirements:
 * Reference genome must be Hg38 with ALT contigs
  
 #### Struct inputs
-The following table describes the inputs imported from a struct. Although these are specified in the WGS workflow using the struct name, the actual inputs for each struct are specified in the [example configuration files](https://github.com/broadinstitute/warp/tree/develop/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files). 
+The following table describes the inputs imported from a struct. Although these are specified in the WGS workflow using the struct name, the actual inputs for each struct are specified in the [example configuration files](https://github.com/broadinstitute/warp/tree/master/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files). 
 
 
 | Input name | Struct name (alias) | Input description | Input type |
@@ -114,7 +114,7 @@ The following table describes the inputs imported from a struct. Although these 
 | agg_preemptible_tries |  PapiSettings (papi_settings) | Number of preemtible machine tries for the BamtoCram task. | Int |
  
 #### Additional inputs
-Additional inputs that are not contained in a struct are described in the table below. Similar to the struct inputs, these inputs are specified in the [example configuration files](https://github.com/broadinstitute/warp/tree/develop/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files) or, when noted, are hardcoded into the WDL workflow.
+Additional inputs that are not contained in a struct are described in the table below. Similar to the struct inputs, these inputs are specified in the [example configuration files](https://github.com/broadinstitute/warp/tree/master/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files) or, when noted, are hardcoded into the WDL workflow.
 
 * Optional inputs, like the fingerprint_genotypes_file, need to match your input samples. For example, the fingerprint file in the workflow's [test input configuration JSON](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files/WholeGenomeGermlineSingleSample.inputs.plumbing.masked_reference.json) is set up to check fingerprints for the NA12878 Plumbing sample. The sample name in the VCF matches the name used for the `sample_name` input.
 
@@ -318,7 +318,7 @@ As of November 2021, reblocking is a default task in the WGS pipeline. To skip r
 "WholeGenomeGermlineSingleSample.BamToGvcf.skip_reblocking": true
 ```
 
-The [Reblocking task](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/GermlineVariantDiscovery.wdl) uses the GATK ReblockGVCF tool with the arguments:
+The [Reblocking task](https://github.com/broadinstitute/warp/blob/master/tasks/broad/GermlineVariantDiscovery.wdl) uses the GATK ReblockGVCF tool with the arguments:
 
 ```WDL
 -do-qual-approx -floor-blocks -GQB 20 -GQB 30 -GQB 40 
@@ -371,7 +371,7 @@ The final CRAM files have base quality scores binned according to the [Functiona
 
 
 ## Contact us
-Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
  
 ## Licensing
  
