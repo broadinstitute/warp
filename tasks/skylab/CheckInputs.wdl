@@ -41,7 +41,7 @@ task checkInputArrays {
   }
 
   runtime {
-    docker: "ubuntu:18.04"
+    docker: "alpine:3.9"
     cpu: 1
     memory: "1 GiB"
     disks: "local-disk 1 HDD"
@@ -111,7 +111,7 @@ task checkOptimusInput {
   }
 
   runtime {
-    docker: "ubuntu:18.04"
+    docker: "alpine:3.9"
     cpu: cpu
     memory: "~{machine_mem_mb} GiB"
     disks: "local-disk ~{disk} HDD"
