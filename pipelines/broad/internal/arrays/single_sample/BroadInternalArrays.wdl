@@ -35,6 +35,15 @@ workflow BroadInternalArrays {
         Int preemptible_tries
         String environment
         File vault_token_path
+
+        # optional inputs to Arrays.wdl
+        Array[String]? bead_pool_manifest_filename 
+        Array[String]? cluster_filename
+        Array[String]? control_sample_name
+        Array[String]? product_type
+        Array[String]? regulatory_designation
+        Array[String]? research_project_id
+        Array[String]? sample_id
     }
 
     scatter(idx in range(length(chip_well_barcode))) {
@@ -46,6 +55,13 @@ workflow BroadInternalArrays {
                 reported_gender            = reported_gender[idx],
                 red_idat_cloud_path        = red_idat_cloud_path[idx],
                 green_idat_cloud_path      = green_idat_cloud_path[idx],
+                bead_pool_manifest_filename = bead_pool_manifest_filename[idx],
+                cluster_filename            = cluster_filename[idx],
+                control_sample_name         = control_sample_name[idx],
+                product_type                = product_type[idx],
+                regulatory_designation      = regulatory_designation[idx],
+                research_project_id         = research_project_id[idx],
+                sample_id                   = sample_id[idx],
                 ref_fasta                  = ref_fasta,
                 ref_fasta_index            = ref_fasta_index,
                 ref_dict                   = ref_dict,
