@@ -182,7 +182,6 @@ task IngestOutputsToTDR {
         String tdr_target_table_name
 
         File   outputs_tsv
-        String prefix_column
     }
 
     command {
@@ -190,8 +189,7 @@ task IngestOutputsToTDR {
         python3 /scripts/emerge/ingest_to_tdr.py -b ~{workspace_bucket} \
                                                  -d ~{tdr_dataset_id} \
                                                  -t ~{tdr_target_table_name} \
-                                                 -f ~{outputs_tsv} \
-                                                 -p ~{prefix_column}
+                                                 -f ~{outputs_tsv}
     }
 
     runtime {
