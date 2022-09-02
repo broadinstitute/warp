@@ -60,8 +60,6 @@ workflow BroadInternalArrays {
         }
     }
 
-    Array[File?] fingerprint_summary_metrics_files = Arrays.fingerprint_summary_metrics_file
-
     call InternalArraysTasks.FormatArraysOutputs {
         input:
             chip_well_barcode_output                            = Arrays.chip_well_barcode_output,
@@ -74,7 +72,7 @@ workflow BroadInternalArrays {
             arrays_variant_calling_summary_metrics_file         = Arrays.arrays_variant_calling_summary_metrics_file,
             arrays_variant_calling_control_metrics_file         = Arrays.arrays_variant_calling_control_metrics_file,
             fingerprint_detail_metrics_file                     = Arrays.fingerprint_detail_metrics_file,
-            fingerprint_summary_metrics_file                    = fingerprint_summary_metrics_files,
+            fingerprint_summary_metrics_file                    = Arrays.fingerprint_summary_metrics_file,
             genotype_concordance_summary_metrics_file           = Arrays.genotype_concordance_summary_metrics_file,
             genotype_concordance_detail_metrics_file            = Arrays.genotype_concordance_detail_metrics_file,
             genotype_concordance_contingency_metrics_file       = Arrays.genotype_concordance_contingency_metrics_file
@@ -85,24 +83,23 @@ workflow BroadInternalArrays {
             workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
-            outputs_tsv             = FormatArraysOutputs.ingest_outputs_tsv,
-            prefix_column           = "chip_well_barcode_output"
+            outputs_tsv             = FormatArraysOutputs.ingest_outputs_tsv
     }
 
     output {
-        String chip_well_barcode_output = Arrays.chip_well_barcode_output
-        Int analysis_version_number_output = Arrays.analysis_version_number_output
-        File gtc_file = Arrays.gtc_file
-        File? output_vcf = Arrays.output_vcf
-        File? output_vcf_index = Arrays.output_vcf_index
-        File? baf_regress_metrics_file = Arrays.baf_regress_metrics_file
-        File arrays_variant_calling_detail_metrics_file = Arrays.arrays_variant_calling_detail_metrics_file
-        File? arrays_variant_calling_summary_metrics_file = Arrays.arrays_variant_calling_summary_metrics_file
-        File? arrays_variant_calling_control_metrics_file = Arrays.arrays_variant_calling_control_metrics_file
-        File? fingerprint_detail_metrics_file = Arrays.fingerprint_detail_metrics_file
-        File? fingerprint_summary_metrics_file = Arrays.fingerprint_summary_metrics_file
-        File? genotype_concordance_summary_metrics_file = Arrays.genotype_concordance_summary_metrics_file
-        File? genotype_concordance_detail_metrics_file  = Arrays.genotype_concordance_detail_metrics_file
-        File? genotype_concordance_contingency_metrics_file = Arrays.genotype_concordance_contingency_metrics_file
+        Array[String] chip_well_barcode_output = Arrays.chip_well_barcode_output
+        Array[Int] analysis_version_number_output = Arrays.analysis_version_number_output
+        Array[File] gtc_file = Arrays.gtc_file
+        Array[File]? output_vcf = Arrays.output_vcf
+        Array[File]? output_vcf_index = Arrays.output_vcf_index
+        Array[File]? baf_regress_metrics_file = Arrays.baf_regress_metrics_file
+        Array[File]? arrays_variant_calling_detail_metrics_file = Arrays.arrays_variant_calling_detail_metrics_file
+        Array[File]? arrays_variant_calling_summary_metrics_file = Arrays.arrays_variant_calling_summary_metrics_file
+        Array[File]? arrays_variant_calling_control_metrics_file = Arrays.arrays_variant_calling_control_metrics_file
+        Array[File]? fingerprint_detail_metrics_file = Arrays.fingerprint_detail_metrics_file
+        Array[File]? fingerprint_summary_metrics_file = Arrays.fingerprint_summary_metrics_file
+        Array[File]? genotype_concordance_summary_metrics_file = Arrays.genotype_concordance_summary_metrics_file
+        Array[File]? genotype_concordance_detail_metrics_file  = Arrays.genotype_concordance_detail_metrics_file
+        Array[File]? genotype_concordance_contingency_metrics_file = Arrays.genotype_concordance_contingency_metrics_file
     }
 }
