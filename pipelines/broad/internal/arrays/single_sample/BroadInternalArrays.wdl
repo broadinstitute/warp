@@ -60,6 +60,8 @@ workflow BroadInternalArrays {
         }
     }
 
+    Array[File?] fingerprint_summary_metrics_files = Arrays.fingerprint_summary_metrics_file
+
     call InternalArraysTasks.FormatArraysOutputs {
         input:
             chip_well_barcode_output                            = Arrays.chip_well_barcode_output,
@@ -72,7 +74,7 @@ workflow BroadInternalArrays {
             arrays_variant_calling_summary_metrics_file         = Arrays.arrays_variant_calling_summary_metrics_file,
             arrays_variant_calling_control_metrics_file         = Arrays.arrays_variant_calling_control_metrics_file,
             fingerprint_detail_metrics_file                     = Arrays.fingerprint_detail_metrics_file,
-            fingerprint_summary_metrics_file                    = Arrays.fingerprint_summary_metrics_file,
+            fingerprint_summary_metrics_file                    = fingerprint_summary_metrics_files,
             genotype_concordance_summary_metrics_file           = Arrays.genotype_concordance_summary_metrics_file,
             genotype_concordance_detail_metrics_file            = Arrays.genotype_concordance_detail_metrics_file,
             genotype_concordance_contingency_metrics_file       = Arrays.genotype_concordance_contingency_metrics_file
