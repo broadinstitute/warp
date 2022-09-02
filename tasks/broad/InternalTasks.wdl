@@ -193,7 +193,7 @@ task IngestOutputsToTDR {
     }
 
     runtime {
-        docker: "broadinstitute/horsefish:eMerge_08292022"
+        docker: "broadinstitute/horsefish:eMerge_09022022"
     }
 
     output {
