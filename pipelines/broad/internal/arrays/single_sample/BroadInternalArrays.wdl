@@ -90,16 +90,16 @@ workflow BroadInternalArrays {
         Array[String] chip_well_barcode_output = Arrays.chip_well_barcode_output
         Array[Int] analysis_version_number_output = Arrays.analysis_version_number_output
         Array[File] gtc_file = Arrays.gtc_file
-        Array[File]? output_vcf = Arrays.output_vcf
-        Array[File]? output_vcf_index = Arrays.output_vcf_index
-        Array[File]? baf_regress_metrics_file = Arrays.baf_regress_metrics_file
-        Array[File]? arrays_variant_calling_detail_metrics_file = Arrays.arrays_variant_calling_detail_metrics_file
-        Array[File]? arrays_variant_calling_summary_metrics_file = Arrays.arrays_variant_calling_summary_metrics_file
-        Array[File]? arrays_variant_calling_control_metrics_file = Arrays.arrays_variant_calling_control_metrics_file
-        Array[File]? fingerprint_detail_metrics_file = Arrays.fingerprint_detail_metrics_file
-        Array[File]? fingerprint_summary_metrics_file = Arrays.fingerprint_summary_metrics_file
-        Array[File]? genotype_concordance_summary_metrics_file = Arrays.genotype_concordance_summary_metrics_file
-        Array[File]? genotype_concordance_detail_metrics_file  = Arrays.genotype_concordance_detail_metrics_file
-        Array[File]? genotype_concordance_contingency_metrics_file = Arrays.genotype_concordance_contingency_metrics_file
+        Array[File?] output_vcf = Arrays.output_vcf
+        Array[File?] output_vcf_index = Arrays.output_vcf_index
+        Array[File?] baf_regress_metrics_file = Arrays.baf_regress_metrics_file
+        Array[File?] arrays_variant_calling_detail_metrics_file = Arrays.arrays_variant_calling_detail_metrics_file
+        Array[File?] arrays_variant_calling_summary_metrics_file = Arrays.arrays_variant_calling_summary_metrics_file
+        Array[File?] arrays_variant_calling_control_metrics_file = Arrays.arrays_variant_calling_control_metrics_file
+        Array[File?] fingerprint_detail_metrics_file = Arrays.fingerprint_detail_metrics_file
+        Array[File?] fingerprint_summary_metrics_file = Arrays.fingerprint_summary_metrics_file
+        Array[File?] genotype_concordance_summary_metrics_file = Arrays.genotype_concordance_summary_metrics_file
+        Array[File?] genotype_concordance_detail_metrics_file  = Arrays.genotype_concordance_detail_metrics_file
+        Array[File?] genotype_concordance_contingency_metrics_file = Arrays.genotype_concordance_contingency_metrics_file
     }
 }
