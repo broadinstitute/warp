@@ -495,22 +495,22 @@ task FormatArraysOutputs {
     input {
         Array[String]  chip_well_barcode_output
         Array[Int]     analysis_version_number_output
-        Array[String]? baf_regress_metrics_file
-        Array[String]? gtc_file
+        Array[String?] baf_regress_metrics_file
+        Array[String?] gtc_file
 
-        Array[String]? output_vcf
-        Array[String]? output_vcf_index
+        Array[String?] output_vcf
+        Array[String?] output_vcf_index
 
-        Array[String]? arrays_variant_calling_detail_metrics_file
-        Array[String]? arrays_variant_calling_summary_metrics_file
-        Array[String]? arrays_variant_calling_control_metrics_file
+        Array[String?] arrays_variant_calling_detail_metrics_file
+        Array[String?] arrays_variant_calling_summary_metrics_file
+        Array[String?] arrays_variant_calling_control_metrics_file
 
-        Array[String]? fingerprint_detail_metrics_file
-        Array[String]? fingerprint_summary_metrics_file
+        Array[String?] fingerprint_detail_metrics_file
+        Array[String?] fingerprint_summary_metrics_file
 
-        Array[String]? genotype_concordance_summary_metrics_file
-        Array[String]? genotype_concordance_detail_metrics_file
-        Array[String]? genotype_concordance_contingency_metrics_file
+        Array[String?] genotype_concordance_summary_metrics_file
+        Array[String?] genotype_concordance_detail_metrics_file
+        Array[String?] genotype_concordance_contingency_metrics_file
 
     }
 
