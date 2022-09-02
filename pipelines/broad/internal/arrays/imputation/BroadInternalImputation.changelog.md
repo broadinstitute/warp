@@ -4,6 +4,10 @@
 * Updated call to IngestOutputsToTDR to remove "prefix_column". Python script has been updated and not longer requires this input parameter.
 * Update task IngestOutputsToTDR to not require "prefix_column". Python script has been updated and not longer requires this input parameter.
 
+* Update task FormatImputationOutputs with new docker tag.
+* Update task FormatImputationWideOutputs with new docker tag.
+* Update task IngestOutputsToTDR with new docker tag.
+
 # 1.0.9
 2022-08-29 (Date of Last Commit)
 
