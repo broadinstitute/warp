@@ -37,13 +37,13 @@ workflow BroadInternalArrays {
         File vault_token_path
 
         # optional inputs to Arrays.wdl
-        Array[String?] bead_pool_manifest_filename 
-        Array[String?] cluster_filename
-        Array[String?] control_sample_name
-        Array[String?] product_type
-        Array[String?] regulatory_designation
-        Array[String?] research_project_id
-        Array[String?] sample_id
+        Array[String] bead_pool_manifest_filename 
+        Array[String] cluster_filename
+        Array[String] control_sample_name
+        Array[String] product_type
+        Array[String] regulatory_designation
+        Array[String] research_project_id
+        Array[String] sample_id
     }
 
     scatter(idx in range(length(chip_well_barcode))) {
