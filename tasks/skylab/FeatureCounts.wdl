@@ -8,7 +8,7 @@ task CountAlignments {
     File annotation_gtf
 
     #runtime values
-    String docker = "quay.io/humancellatlas/snss2-featurecount:0.1.0"
+    String docker = "us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1662044537"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(aligned_bam_inputs,"Gi")*2) + 10
@@ -43,7 +43,7 @@ task CountAlignments {
           -g gene_id
 
        # create a new input bam where the alignemnts crossing intron-exon junctions are removed
-       python3 /tools/remove-reads-on-junctions.py --input-gtf  ~{annotation_gtf} \
+       python3 /usr/gitc/remove-reads-on-junctions.py --input-gtf  ~{annotation_gtf} \
         --input-bam "${bam_files[$i]}"  --output-bam "${output_prefix[$i]}.input.nojunc.bam"
 
        # counting the exons
