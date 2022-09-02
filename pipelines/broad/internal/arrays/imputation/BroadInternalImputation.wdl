@@ -8,7 +8,7 @@ workflow BroadInternalImputation {
     meta {
         description: "Push outputs of Imputation.wdl to TDR dataset table ImputationOutputsTable and split out Imputation arrays into ImputationWideOutputsTable."
     }
-    String pipeline_version = "1.0.9"
+    String pipeline_version = "1.1.0"
     
     input {
         # inputs to wrapper task 
@@ -60,8 +60,7 @@ workflow BroadInternalImputation {
             workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
-            outputs_tsv             = FormatImputationOutputs.ingest_outputs_tsv,
-            prefix_column           = "last_modified_date"
+            outputs_tsv             = FormatImputationOutputs.ingest_outputs_tsv
     }
 
     call InternalImputationTasks.FormatImputationWideOutputs {
@@ -75,8 +74,7 @@ workflow BroadInternalImputation {
             workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = "ImputationWideOutputsTable",
-            outputs_tsv             = FormatImputationWideOutputs.ingest_outputs_wide_tsv,
-            prefix_column           = "chip_well_barcode"
+            outputs_tsv             = FormatImputationWideOutputs.ingest_outputs_wide_tsv
     }
 
     call InternalImputationTasks.TriggerPrsWithImputationTsv {
