@@ -493,95 +493,49 @@ task ResolveMinorAlleleFrequencyFile {
 
 task FormatArraysOutputs {
     input {
-        Array[String]  chip_well_barcode_output
-        Array[Int]     analysis_version_number_output
-        Array[String?] baf_regress_metrics_file
-        Array[String?] gtc_file
+        String  chip_well_barcode_output
+        Int     analysis_version_number_output
+        String? baf_regress_metrics_file
+        String? gtc_file
 
-        Array[String?] output_vcf
-        Array[String?] output_vcf_index
+        String? output_vcf
+        String? output_vcf_index
 
-        Array[String?] arrays_variant_calling_detail_metrics_file
-        Array[String?] arrays_variant_calling_summary_metrics_file
-        Array[String?] arrays_variant_calling_control_metrics_file
+        String? arrays_variant_calling_detail_metrics_file
+        String? arrays_variant_calling_summary_metrics_file
+        String? arrays_variant_calling_control_metrics_file
 
-        Array[String?] fingerprint_detail_metrics_file
-        Array[String?] fingerprint_summary_metrics_file
+        String? fingerprint_detail_metrics_file
+        String? fingerprint_summary_metrics_file
 
-        Array[String?] genotype_concordance_summary_metrics_file
-        Array[String?] genotype_concordance_detail_metrics_file
-        Array[String?] genotype_concordance_contingency_metrics_file
+        String? genotype_concordance_summary_metrics_file
+        String? genotype_concordance_detail_metrics_file
+        String? genotype_concordance_contingency_metrics_file
 
     }
 
     command <<<
+        echo -e "chip_well_barcode_output\tanalysis_version_number_output\tbaf_regress_metrics_file\tgtc_file\t\
+        output_vcf\toutput_vcf_index\t\
+        arrays_variant_calling_detail_metrics_file\tarrays_variant_calling_summary_metrics_file\tarrays_variant_calling_control_metrics_file\t\
+        fingerprint_detail_metrics_file\tfingerprint_summary_metrics_file\t\
+        genotype_concordance_summary_metrics_file\tgenotype_concordance_detail_metrics_file\tgenotype_concordance_contingency_metrics_file" \
+        > ingestDataset_arrays_outputs.tsv
+
+        echo -e "~{chip_well_barcode_output}\t~{analysis_version_number_output}\t~{baf_regress_metrics_file}\t~{gtc_file}\t\
+        ~{output_vcf}\t~{output_vcf_index}\t\
+        ~{arrays_variant_calling_detail_metrics_file}\t~{arrays_variant_calling_summary_metrics_file}\t~{arrays_variant_calling_control_metrics_file}\t\
+        ~{fingerprint_detail_metrics_file}\t~{fingerprint_summary_metrics_file}\t\
+        ~{genotype_concordance_summary_metrics_file}\t~{genotype_concordance_detail_metrics_file}\t~{genotype_concordance_contingency_metrics_file}" \
+        >> ingestDataset_arrays_outputs.tsv
 
         python3 << CODE
         import pandas as pd
-        import os
 
-        chip_well_barcode_outputs = [ x for x in [ "~{sep='", "' chip_well_barcode_output}" ]  if x != "" ]
-        analysis_version_number_outputs = [ x for x in [ "~{sep='", "' analysis_version_number_output}" ]  if x != "" ]
-        baf_regress_metrics_files = [ x for x in [ "~{sep='", "' baf_regress_metrics_file}" ]  if x != "" ]
-        gtc_files = [ x for x in [ "~{sep='", "' gtc_file}" ]  if x != "" ]
+        tsv_df = pd.read_csv("ingestDataset_arrays_outputs.tsv", sep="\t")
+        tsv_df = tsv_df.dropna(axis=1, how="all")  # drop columns if no value (optional outputs etc)
 
-        output_vcfs = [ x for x in [ "~{sep='", "' output_vcf}" ]  if x != "" ]
-        output_vcf_indices = [ x for x in [ "~{sep='", "' output_vcf_index}" ]  if x != "" ]
-
-        avc_detail_metrics_files = [ x for x in [ "~{sep='", "' arrays_variant_calling_detail_metrics_file}" ]  if x != "" ]
-        avc_summary_metrics_files = [ x for x in [ "~{sep='", "' arrays_variant_calling_summary_metrics_file}" ]  if x != "" ]
-        avc_control_metrics_files = [ x for x in [ "~{sep='", "' arrays_variant_calling_control_metrics_file}" ]  if x != "" ]
-
-        fp_detail_metrics_files = [ x for x in [ "~{sep='", "' fingerprint_detail_metrics_file}" ]  if x != "" ]
-        fp_summary_metrics_files = [ x for x in [ "~{sep='", "' fingerprint_summary_metrics_file}" ]  if x != "" ]
-
-        gc_summary_metrics_files = [ x for x in [ "~{sep='", "' genotype_concordance_summary_metrics_file}" ]  if x != "" ]
-        gc_detail_metrics_files = [ x for x in [ "~{sep='", "' genotype_concordance_detail_metrics_file}" ]  if x != "" ]
-        gc_contingency_metrics_file = [ x for x in [ "~{sep='", "' genotype_concordance_contingency_metrics_file}" ]  if x != "" ]
-        print(gc_summary_metrics_files)
-        print(gc_detail_metrics_files)
-        print(gc_contingency_metrics_file)
-
-        print(output_vcfs)
-        print(output_vcf_indices)
-
-        print(chip_well_barcode_outputs)
-      
-        # print("creating dataframe")
-        # all_samples = []
-
-        # print("getting vcf + vcf index file names and paths and chipwell barcode")
-        # # for each file in list of imputed vcfs, get chip_well_barcode value
-        # for vcf in single_sample_vcfs:
-        #     sample_dict = {}
-        #     imputed_vcf_filename = vcf.split("/")[-1]
-        #     imputed_vcf_index_filename = imputed_vcf_filename + ".tbi"
-        #     chip_well_barcode = imputed_vcf_filename.split(".")[0]
-        #     imputed_vcf_path = vcf
-        #     imputed_vcf_index_path = [s for s in single_sample_vcf_indices if imputed_vcf_index_filename in s][0]
-
-        #     sample_dict["chip_well_barcode"] = chip_well_barcode
-        #     sample_dict["imputed_single_sample_vcf"] = imputed_vcf_path
-        #     sample_dict["imputed_single_sample_vcf_index"] = imputed_vcf_index_path
-
-        #     print("single vcf dictionary for vcf with name:" + imputed_vcf_filename)
-        #     print(sample_dict)
-
-        #     print("appending single vcf dict to dataframe")
-        #     all_samples.append(sample_dict)
-        #     print("list of dictionaries after adding" + chip_well_barcode)
-        #     print(all_samples)
-
-        # print("writing final dataframe to tsv and json file")
-        # tsv_df = pd.DataFrame(all_samples)
-        # print("dataframe after adding all imputation samples")
-        # tsv_df = tsv_df.dropna(axis=1, how="all")  # drop columns if no value (optional outputs etc)
-
-        # # write dataframe to tsv
-        # tsv_df.to_csv("ingestDataset_imputation_wide_outputs.tsv", index=False , sep="\t")
-        # print("finished writing dataframe of split out imputation outputs to tsv file")
-        # # write dataframe to json
-        # outputs = tsv_df.to_json("ingestDataset_imputation_wide_outputs.json", orient="records")  # write json file
+        outputs = tsv_df.to_json("ingestDataset_arrays_outputs.json", orient="records")  # write json file
 
         CODE
     >>>
