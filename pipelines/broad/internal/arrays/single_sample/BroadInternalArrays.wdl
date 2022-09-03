@@ -9,7 +9,7 @@ workflow BroadInternalArrays {
         description: "Push outputs of Arrays.wdl to TDR dataset table ArraysOutputsTable."
     }
 
-    String pipeline_version = "1.0.4"
+    String pipeline_version = "1.0.6"
 
     input {
         # inputs to wrapper task
@@ -18,12 +18,12 @@ workflow BroadInternalArrays {
         String tdr_target_table_name
 
         # required inputs to Arrays.wdl
-        String chip_well_barcode
-        String sample_alias
-        String sample_lsid
-        String reported_gender
-        File red_idat_cloud_path
-        File green_idat_cloud_path
+        Array[String] chip_well_barcode
+        Array[String] sample_alias
+        Array[String] sample_lsid
+        Array[String] reported_gender
+        Array[File] red_idat_cloud_path
+        Array[File] green_idat_cloud_path
         File ref_fasta
         File ref_fasta_index
         File ref_dict
@@ -35,27 +35,45 @@ workflow BroadInternalArrays {
         Int preemptible_tries
         String environment
         File vault_token_path
+
+        # optional inputs to Arrays.wdl
+        Array[String] bead_pool_manifest_filename 
+        Array[String] cluster_filename
+        Array[String] control_sample_name
+        Array[String] product_type
+        Array[String] regulatory_designation
+        Array[String] research_project_id
+        Array[String] sample_id
     }
 
-    call ArraysPipeline.Arrays {
-        input:
-            chip_well_barcode          = chip_well_barcode,
-            sample_alias               = sample_alias,
-            sample_lsid                = sample_lsid,
-            reported_gender            = reported_gender,
-            red_idat_cloud_path        = red_idat_cloud_path,
-            green_idat_cloud_path      = green_idat_cloud_path, 
-            ref_fasta                  = ref_fasta, 
-            ref_fasta_index            = ref_fasta_index, 
-            ref_dict                   = ref_dict, 
-            dbSNP_vcf                  = dbSNP_vcf, 
-            dbSNP_vcf_index            = dbSNP_vcf_index, 
-            haplotype_database_file    = haplotype_database_file,
-            variant_rsids_file         = variant_rsids_file, 
-            disk_size                  = disk_size, 
-            preemptible_tries          = preemptible_tries, 
-            environment                = environment, 
-            vault_token_path           = vault_token_path
+    scatter(idx in range(length(chip_well_barcode))) {
+        call ArraysPipeline.Arrays {
+            input:
+                chip_well_barcode          = chip_well_barcode[idx],
+                sample_alias               = sample_alias[idx],
+                sample_lsid                = sample_lsid[idx],
+                reported_gender            = reported_gender[idx],
+                red_idat_cloud_path        = red_idat_cloud_path[idx],
+                green_idat_cloud_path      = green_idat_cloud_path[idx],
+                bead_pool_manifest_filename = bead_pool_manifest_filename[idx],
+                cluster_filename            = cluster_filename[idx],
+                control_sample_name         = control_sample_name[idx],
+                product_type                = product_type[idx],
+                regulatory_designation      = regulatory_designation[idx],
+                research_project_id         = research_project_id[idx],
+                sample_id                   = sample_id[idx],
+                ref_fasta                  = ref_fasta,
+                ref_fasta_index            = ref_fasta_index,
+                ref_dict                   = ref_dict,
+                dbSNP_vcf                  = dbSNP_vcf,
+                dbSNP_vcf_index            = dbSNP_vcf_index,
+                haplotype_database_file    = haplotype_database_file,
+                variant_rsids_file         = variant_rsids_file,
+                disk_size                  = disk_size,
+                preemptible_tries          = preemptible_tries,
+                environment                = environment,
+                vault_token_path           = vault_token_path
+        }
     }
 
     call InternalArraysTasks.FormatArraysOutputs {
@@ -81,24 +99,23 @@ workflow BroadInternalArrays {
             workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
-            outputs_tsv             = FormatArraysOutputs.ingest_outputs_tsv,
-            prefix_column           = "chip_well_barcode_output"
+            outputs_tsv             = FormatArraysOutputs.ingest_outputs_tsv
     }
 
     output {
-        String chip_well_barcode_output = Arrays.chip_well_barcode_output
-        Int analysis_version_number_output = Arrays.analysis_version_number_output
-        File gtc_file = Arrays.gtc_file
-        File? output_vcf = Arrays.output_vcf
-        File? output_vcf_index = Arrays.output_vcf_index
-        File? baf_regress_metrics_file = Arrays.baf_regress_metrics_file
-        File arrays_variant_calling_detail_metrics_file = Arrays.arrays_variant_calling_detail_metrics_file
-        File? arrays_variant_calling_summary_metrics_file = Arrays.arrays_variant_calling_summary_metrics_file
-        File? arrays_variant_calling_control_metrics_file = Arrays.arrays_variant_calling_control_metrics_file
-        File? fingerprint_detail_metrics_file = Arrays.fingerprint_detail_metrics_file
-        File? fingerprint_summary_metrics_file = Arrays.fingerprint_summary_metrics_file
-        File? genotype_concordance_summary_metrics_file = Arrays.genotype_concordance_summary_metrics_file
-        File? genotype_concordance_detail_metrics_file  = Arrays.genotype_concordance_detail_metrics_file
-        File? genotype_concordance_contingency_metrics_file = Arrays.genotype_concordance_contingency_metrics_file
+        Array[String] chip_well_barcode_output = Arrays.chip_well_barcode_output
+        Array[Int] analysis_version_number_output = Arrays.analysis_version_number_output
+        Array[File] gtc_file = Arrays.gtc_file
+        Array[File?] output_vcf = Arrays.output_vcf
+        Array[File?] output_vcf_index = Arrays.output_vcf_index
+        Array[File?] baf_regress_metrics_file = Arrays.baf_regress_metrics_file
+        Array[File?] arrays_variant_calling_detail_metrics_file = Arrays.arrays_variant_calling_detail_metrics_file
+        Array[File?] arrays_variant_calling_summary_metrics_file = Arrays.arrays_variant_calling_summary_metrics_file
+        Array[File?] arrays_variant_calling_control_metrics_file = Arrays.arrays_variant_calling_control_metrics_file
+        Array[File?] fingerprint_detail_metrics_file = Arrays.fingerprint_detail_metrics_file
+        Array[File?] fingerprint_summary_metrics_file = Arrays.fingerprint_summary_metrics_file
+        Array[File?] genotype_concordance_summary_metrics_file = Arrays.genotype_concordance_summary_metrics_file
+        Array[File?] genotype_concordance_detail_metrics_file  = Arrays.genotype_concordance_detail_metrics_file
+        Array[File?] genotype_concordance_contingency_metrics_file = Arrays.genotype_concordance_contingency_metrics_file
     }
 }
