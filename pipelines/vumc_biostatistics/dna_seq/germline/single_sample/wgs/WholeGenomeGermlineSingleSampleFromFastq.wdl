@@ -34,7 +34,7 @@ import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 workflow WholeGenomeGermlineSingleSampleFromFastq {
 
 
-  String pipeline_version = "3.1.7"
+  String pipeline_version = "3.1.7.1.beta"
 
 
   input {
