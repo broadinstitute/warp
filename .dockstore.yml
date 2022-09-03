@@ -94,3 +94,7 @@ workflows:
   - name: WholeGenomeGermlineSingleSampleFromFastq
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSampleFromFastq.wdl
+
+  - name: FastqToAlignedBam
+    subclass: WDL
+    primaryDescriptorPath: /tasks/vumc_biostatistics/FastqToAlignedBam.wdl
