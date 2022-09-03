@@ -77,13 +77,13 @@ workflow BroadInternalImputation {
     #         outputs_tsv             = FormatImputationWideOutputs.ingest_outputs_wide_tsv
     # }
 
-    call InternalImputationTasks.TriggerPrsWithImputationTsv {
-        input:
-            run_task                = IngestToImputationWideOutputsTable.ingest_logs,
-            imputation_outputs_tsv  = FormatImputationOutputs.ingest_outputs_tsv,
-            trigger_bucket_path     = prs_cf_trigger_bucket_path,
-            timestamp               = timestamp
-    }
+    # call InternalImputationTasks.TriggerPrsWithImputationTsv {
+    #     input:
+    #         run_task                = IngestToImputationWideOutputsTable.ingest_logs,
+    #         imputation_outputs_tsv  = FormatImputationOutputs.ingest_outputs_tsv,
+    #         trigger_bucket_path     = prs_cf_trigger_bucket_path,
+    #         timestamp               = timestamp
+    # }
 
     output {
         File aggregated_imputation_metrics              = Imputation.aggregated_imputation_metrics
