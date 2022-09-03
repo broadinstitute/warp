@@ -40,14 +40,16 @@ workflow FastqToAlignedBam {
     DragmapReference? dragmap_reference
     PapiSettings papi_settings
 
-    File contamination_sites_ud
-    File contamination_sites_bed
-    File contamination_sites_mu
+    File contamination_sites_ud = references.contamination_sites_ud
+    File contamination_sites_bed = references.contamination_sites_bed
+    File contamination_sites_mu = references.contamination_sites_mu
 
-    String cross_check_fingerprints_by
-    File haplotype_database_file
-    Float lod_threshold
-    String recalibrated_bam_basename
+    File haplotype_database_file = references.haplotype_database_file
+
+    String cross_check_fingerprints_by = "READGROUP"
+    Float lod_threshold = -20.0
+    String recalibrated_bam_basename = sample_and_fastqs.base_file_name + ".aligned.duplicates_marked.recalibrated"
+
     Boolean check_contaminant = true
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
