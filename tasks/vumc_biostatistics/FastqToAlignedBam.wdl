@@ -192,15 +192,6 @@ workflow FastqToAlignedBam {
     File output_aligned_bam = FastqToBwaMemAndMba.output_bam
 
     Float mapped_bam_size = size(output_aligned_bam, "GiB")
-
-    # QC the aligned but unsorted readgroup BAM
-    # no reference as the input here is unsorted, providing a reference would cause an error
-    call QC.CollectUnsortedReadgroupBamQualityMetrics as CollectUnsortedReadgroupBamQualityMetrics {
-      input:
-        input_bam = output_aligned_bam,
-        output_bam_prefix = fastq_basename + ".readgroup",
-        preemptible_tries = papi_settings.preemptible_tries
-    }
   }
 
   # Sum the read group bam sizes to approximate the aggregated bam size
@@ -225,6 +216,15 @@ workflow FastqToAlignedBam {
       total_input_size = SumFloats.total_size,
       compression_level = compression_level,
       preemptible_tries = if data_too_large_for_preemptibles then 0 else papi_settings.agg_preemptible_tries
+  }
+
+  # QC the aligned but unsorted readgroup BAM
+  # no reference as the input here is unsorted, providing a reference would cause an error
+  call QC.CollectUnsortedReadgroupBamQualityMetrics as CollectUnsortedReadgroupBamQualityMetrics {
+    input:
+      input_bam = MarkDuplicates.output_bam,
+      output_bam_prefix = base_file_name,
+      preemptible_tries = papi_settings.preemptible_tries
   }
 
   # Sort aggregated+deduped BAM file and fix tags
@@ -349,14 +349,14 @@ workflow FastqToAlignedBam {
 
   # Outputs that will be retained when execution is complete
   output {
-    Array[File] unsorted_read_group_base_distribution_by_cycle_pdf = CollectUnsortedReadgroupBamQualityMetrics.base_distribution_by_cycle_pdf
-    Array[File] unsorted_read_group_base_distribution_by_cycle_metrics = CollectUnsortedReadgroupBamQualityMetrics.base_distribution_by_cycle_metrics
-    Array[File] unsorted_read_group_insert_size_histogram_pdf = CollectUnsortedReadgroupBamQualityMetrics.insert_size_histogram_pdf
-    Array[File] unsorted_read_group_insert_size_metrics = CollectUnsortedReadgroupBamQualityMetrics.insert_size_metrics
-    Array[File] unsorted_read_group_quality_by_cycle_pdf = CollectUnsortedReadgroupBamQualityMetrics.quality_by_cycle_pdf
-    Array[File] unsorted_read_group_quality_by_cycle_metrics = CollectUnsortedReadgroupBamQualityMetrics.quality_by_cycle_metrics
-    Array[File] unsorted_read_group_quality_distribution_pdf = CollectUnsortedReadgroupBamQualityMetrics.quality_distribution_pdf
-    Array[File] unsorted_read_group_quality_distribution_metrics = CollectUnsortedReadgroupBamQualityMetrics.quality_distribution_metrics
+    File unsorted_base_distribution_by_cycle_pdf = CollectUnsortedReadgroupBamQualityMetrics.base_distribution_by_cycle_pdf
+    File unsorted_base_distribution_by_cycle_metrics = CollectUnsortedReadgroupBamQualityMetrics.base_distribution_by_cycle_metrics
+    File unsorted_insert_size_histogram_pdf = CollectUnsortedReadgroupBamQualityMetrics.insert_size_histogram_pdf
+    File unsorted_insert_size_metrics = CollectUnsortedReadgroupBamQualityMetrics.insert_size_metrics
+    File unsorted_quality_by_cycle_pdf = CollectUnsortedReadgroupBamQualityMetrics.quality_by_cycle_pdf
+    File unsorted_quality_by_cycle_metrics = CollectUnsortedReadgroupBamQualityMetrics.quality_by_cycle_metrics
+    File unsorted_quality_distribution_pdf = CollectUnsortedReadgroupBamQualityMetrics.quality_distribution_pdf
+    File unsorted_quality_distribution_metrics = CollectUnsortedReadgroupBamQualityMetrics.quality_distribution_metrics
 
     File? cross_check_fingerprints_metrics = CrossCheckFingerprints.cross_check_fingerprints_metrics
 
