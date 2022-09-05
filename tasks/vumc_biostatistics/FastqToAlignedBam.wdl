@@ -119,7 +119,7 @@ workflow FastqToAlignedBam {
 
   String base_file_name = sample_name
 
-  String bwa_commandline = "bwa mem -K 100000000 -p -v 3 -t 16 -R \"@RG\\tID:1\\tPU:~{sample_name}\\tLB:~{sample_name}\\tSM:~{sample_name}\\tPL:ILLUMINA\" -Y $bash_ref_fasta"
+  String bwa_commandline = "bwa mem -K 100000000 -v 3 -t 16 -R \"@RG\\tID:1\\tPU:~{sample_name}\\tLB:~{sample_name}\\tSM:~{sample_name}\\tPL:ILLUMINA\" -Y $bash_ref_fasta"
 
   Int compression_level = 1
 
