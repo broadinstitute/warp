@@ -24,31 +24,49 @@ import "../../tasks/broad/BamProcessing.wdl" as Processing
 import "../../tasks/broad/Utilities.wdl" as Utils
 import "../../structs/dna_seq/DNASeqStructs.wdl" as Structs
 
-struct SampleAndFastq {
-  String base_file_name
-  String? final_gvcf_base_name
-  Array[File] fastq_1
-  Array[File] fastq_2
-  String sample_name
-}
-
 # WORKFLOW DEFINITION
 workflow FastqToAlignedBam {
   input {
-    SampleAndFastq sample_and_fastqs
-    DNASeqSingleSampleReferences references
-    DragmapReference? dragmap_reference
-    PapiSettings papi_settings
+    Array[File] fastq_1
+    Array[File] fastq_2
+    String sample_name
 
-    File contamination_sites_ud = references.contamination_sites_ud
-    File contamination_sites_bed = references.contamination_sites_bed
-    File contamination_sites_mu = references.contamination_sites_mu
+    File contamination_sites_ud
+    File contamination_sites_bed
+    File contamination_sites_mu
 
-    File haplotype_database_file = references.haplotype_database_file
+    File haplotype_database_file
+
+    File calling_interval_list
+
+    File ref_dict
+    File ref_fasta
+    File ref_fasta_index
+    File ref_alt
+    File ref_sa
+    File ref_amb
+    File ref_bwt
+    File ref_ann
+    File ref_pac
+    File? ref_str
+
+    Array[File] known_indels_sites_vcfs
+    Array[File] known_indels_sites_indices
+
+    File dbsnp_vcf
+    File dbsnp_vcf_index
+
+    File evaluation_interval_list
+
+    File haplotype_database_file
 
     String cross_check_fingerprints_by = "READGROUP"
     Float lod_threshold = -20.0
-    String recalibrated_bam_basename = sample_and_fastqs.base_file_name + ".aligned.duplicates_marked.recalibrated"
+
+    Int preemptible_tries
+    Int agg_preemptible_tries
+
+    Float cutoff_for_large_fastq_in_gb = 2.0
 
     Boolean check_contaminant = true
     Boolean hard_clip_reads = false
@@ -60,42 +78,81 @@ workflow FastqToAlignedBam {
     Boolean allow_empty_ref_alt = false
   }
 
-  Float cutoff_for_large_fastq_in_gb = 5.0
+  ReferenceFasta reference_fasta = object {
+    ref_dict: ref_dict,
+    ref_fasta: ref_fasta,
+    ref_fasta_index: ref_fasta_index,
+    ref_alt: ref_alt,
+    ref_sa: ref_sa,
+    ref_amb: ref_amb,
+    ref_bwt: ref_bwt,
+    ref_ann: ref_ann,
+    ref_pac: ref_pac,
+    ref_str: ref_str
+  }
 
-  String bwa_commandline = "bwa mem -K 100000000 -p -v 3 -t 16 -R \"@RG\\tID:1\\tPU:~{sample_and_fastqs.sample_name}\\tLB:~{sample_and_fastqs.sample_name}\\tSM:~{sample_and_fastqs.sample_name}\\tPL:ILLUMINA\" -Y $bash_ref_fasta"
+  DNASeqSingleSampleReferences references = object {
+    contamination_sites_ud: contamination_sites_ud,
+    contamination_sites_bed: contamination_sites_bed,
+    contamination_sites_mu: contamination_sites_mu,
+    calling_interval_list: calling_interval_list,
+
+    reference_fasta: reference_fasta,
+    
+    known_indels_sites_vcfs: known_indels_sites_vcfs,
+    known_indels_sites_indices: known_indels_sites_indices,
+
+    dbsnp_vcf: dbsnp_vcf,
+    dbsnp_vcf_index: dbsnp_vcf_index,
+
+    evaluation_interval_list: evaluation_interval_list,
+
+    haplotype_database_file: haplotype_database_file
+  }
+
+  PapiSettings papi_settings = object {
+    preemptible_tries: preemptible_tries,
+    agg_preemptible_tries: agg_preemptible_tries
+  }
+
+  String recalibrated_bam_basename = sample_name + ".aligned.duplicates_marked.recalibrated"
+
+  String base_file_name = sample_name
+
+  String bwa_commandline = "bwa mem -K 100000000 -p -v 3 -t 16 -R \"@RG\\tID:1\\tPU:~{sample_name}\\tLB:~{sample_name}\\tSM:~{sample_name}\\tPL:ILLUMINA\" -Y $bash_ref_fasta"
 
   Int compression_level = 1
 
   # Get the size of the standard reference files as well as the additional reference files needed for BWA
-  scatter (idx in range(length(sample_and_fastqs.fastq_1))) {
-    File old_fastq_1 = sample_and_fastqs.fastq_1[idx]
-    File old_fastq_2 = sample_and_fastqs.fastq_2[idx]
+  scatter (idx in range(length(fastq_1))) {
+    File old_fastq_1 = fastq_1[idx]
+    File old_fastq_2 = fastq_2[idx]
 
     Float fastq_size = size(old_fastq_1, "GiB")
     if (fastq_size > cutoff_for_large_fastq_in_gb) {
       Int n_files = ceil(fastq_size / cutoff_for_large_fastq_in_gb)
       scatter (fidx in range(n_files)) {
-        String out_file_idx_1 = sample_and_fastqs.base_file_name + "." + fidx + ".1.fq.gz"
-        String out_file_idx_2 = sample_and_fastqs.base_file_name + "." + fidx + ".2.fq.gz"
+        String out_file_idx_1 = base_file_name + "." + idx + "." + fidx + ".1.fq.gz"
+        String out_file_idx_2 = base_file_name + "." + idx + "." + fidx + ".2.fq.gz"
       }
       Array[String] out_files_1 = out_file_idx_1
       Array[String] out_files_2 = out_file_idx_2
 
-      call Alignment.FastqSplitter as read1 {
+      call Alignment.FastqSplitter as FastqSplitter_read1 {
         input:
           fastq = old_fastq_1,
           out_files = out_files_1,
           compression_level = 1
       }
-      Array[String] fastq_1_1_list = read1.split_fastqs
+      Array[String] fastq_1_1_list = FastqSplitter_read1.split_fastqs
 
-      call Alignment.FastqSplitter as read2 {
+      call Alignment.FastqSplitter as FastqSplitter_read2 {
         input:
           fastq = old_fastq_2,
           out_files = out_files_2,
           compression_level = 1
       }
-      Array[String] fastq_2_1_list = read2.split_fastqs
+      Array[String] fastq_2_1_list = FastqSplitter_read2.split_fastqs
     }
     
     if(fastq_size <= cutoff_for_large_fastq_in_gb) {
@@ -114,7 +171,7 @@ workflow FastqToAlignedBam {
     File new_fastq_1 = all_fastq_1[idx]
     File new_fastq_2 = all_fastq_2[idx]
 
-    String fastq_basename = sample_and_fastqs.base_file_name + "." + idx
+    String fastq_basename = base_file_name + "." + idx
 
     # Map reads to reference
     call Alignment.FastqToBwaMemAndMba as FastqToBwaMemAndMba {
@@ -123,7 +180,7 @@ workflow FastqToAlignedBam {
         fastq_2 = new_fastq_2,
         bwa_commandline = bwa_commandline,
         output_bam_basename = fastq_basename + ".aligned.unsorted",
-        sample_name = sample_and_fastqs.base_file_name,
+        sample_name = base_file_name,
         reference_fasta = references.reference_fasta,
         compression_level = compression_level,
         preemptible_tries = papi_settings.preemptible_tries,
@@ -163,8 +220,8 @@ workflow FastqToAlignedBam {
   call Processing.MarkDuplicates as MarkDuplicates {
     input:
       input_bams = output_aligned_bam,
-      output_bam_basename = sample_and_fastqs.base_file_name + ".aligned.unsorted.duplicates_marked",
-      metrics_filename = sample_and_fastqs.base_file_name + ".duplicate_metrics",
+      output_bam_basename = base_file_name + ".aligned.unsorted.duplicates_marked",
+      metrics_filename = base_file_name + ".duplicate_metrics",
       total_input_size = SumFloats.total_size,
       compression_level = compression_level,
       preemptible_tries = if data_too_large_for_preemptibles then 0 else papi_settings.agg_preemptible_tries
@@ -174,7 +231,7 @@ workflow FastqToAlignedBam {
   call Processing.SortSam as SortSampleBam {
     input:
       input_bam = MarkDuplicates.output_bam,
-      output_bam_basename = sample_and_fastqs.base_file_name + ".aligned.duplicate_marked.sorted",
+      output_bam_basename = base_file_name + ".aligned.duplicate_marked.sorted",
       compression_level = compression_level,
       preemptible_tries = if data_too_large_for_preemptibles then 0 else papi_settings.agg_preemptible_tries
   }
@@ -188,7 +245,7 @@ workflow FastqToAlignedBam {
         input_bams = [ SortSampleBam.output_bam ],
         input_bam_indexes = [SortSampleBam.output_bam_index],
         haplotype_database_file = haplotype_database_file,
-        metrics_filename = sample_and_fastqs.base_file_name + ".crosscheck",
+        metrics_filename = base_file_name + ".crosscheck",
         total_input_size = agg_bam_size,
         lod_threshold = lod_threshold,
         cross_check_by = cross_check_fingerprints_by,
@@ -214,7 +271,7 @@ workflow FastqToAlignedBam {
         contamination_sites_mu = contamination_sites_mu,
         ref_fasta = references.reference_fasta.ref_fasta,
         ref_fasta_index = references.reference_fasta.ref_fasta_index,
-        output_prefix = sample_and_fastqs.base_file_name + ".preBqsr",
+        output_prefix = base_file_name + ".preBqsr",
         preemptible_tries = papi_settings.agg_preemptible_tries,
         contamination_underestimation_factor = 0.75
     }
@@ -236,7 +293,7 @@ workflow FastqToAlignedBam {
         input:
           input_bam = SortSampleBam.output_bam,
           input_bam_index = SortSampleBam.output_bam_index,
-          recalibration_report_filename = sample_and_fastqs.base_file_name + ".recal_data.csv",
+          recalibration_report_filename = base_file_name + ".recal_data.csv",
           sequence_group_interval = subgroup,
           dbsnp_vcf = references.dbsnp_vcf,
           dbsnp_vcf_index = references.dbsnp_vcf_index,
@@ -255,7 +312,7 @@ workflow FastqToAlignedBam {
     call Processing.GatherBqsrReports as GatherBqsrReports {
       input:
         input_bqsr_reports = BaseRecalibrator.recalibration_report,
-        output_report_filename = sample_and_fastqs.base_file_name + ".recal_data.csv",
+        output_report_filename = base_file_name + ".recal_data.csv",
         preemptible_tries = papi_settings.preemptible_tries
     }
 
@@ -284,7 +341,7 @@ workflow FastqToAlignedBam {
   call Processing.GatherSortedBamFiles as GatherBamFiles {
     input:
       input_bams = select_first([ApplyBQSR.recalibrated_bam, [SortSampleBam.output_bam]]),
-      output_bam_basename = sample_and_fastqs.base_file_name,
+      output_bam_basename = base_file_name,
       total_input_size = agg_bam_size,
       compression_level = compression_level,
       preemptible_tries = papi_settings.agg_preemptible_tries
