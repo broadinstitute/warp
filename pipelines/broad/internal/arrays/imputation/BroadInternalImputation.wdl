@@ -55,13 +55,13 @@ workflow BroadInternalImputation {
             n_failed_chunks                     = Imputation.n_failed_chunks
     }
 
-    # call InternalTasks.IngestOutputsToTDR as IngestToImputationOutputsTable {
-    #     input:
-    #         workspace_bucket        = workspace_bucket,
-    #         tdr_dataset_id          = tdr_dataset_id,
-    #         tdr_target_table_name   = tdr_target_table_name,
-    #         outputs_tsv             = FormatImputationOutputs.ingest_outputs_tsv
-    # }
+    call InternalTasks.IngestOutputsToTDR as IngestToImputationOutputsTable {
+        input:
+            workspace_bucket        = workspace_bucket,
+            tdr_dataset_id          = tdr_dataset_id,
+            tdr_target_table_name   = tdr_target_table_name,
+            outputs_tsv             = FormatImputationOutputs.ingest_outputs_tsv
+    }
 
     call InternalImputationTasks.FormatImputationWideOutputs {
         input:
@@ -69,21 +69,21 @@ workflow BroadInternalImputation {
             imputed_single_sample_vcf_indices   = Imputation.imputed_single_sample_vcf_indices
     }
 
-    # call InternalTasks.IngestOutputsToTDR as IngestToImputationWideOutputsTable {
-    #     input:
-    #         workspace_bucket        = workspace_bucket,
-    #         tdr_dataset_id          = tdr_dataset_id,
-    #         tdr_target_table_name   = "ImputationWideOutputsTable",
-    #         outputs_tsv             = FormatImputationWideOutputs.ingest_outputs_wide_tsv
-    # }
+    call InternalTasks.IngestOutputsToTDR as IngestToImputationWideOutputsTable {
+        input:
+            workspace_bucket        = workspace_bucket,
+            tdr_dataset_id          = tdr_dataset_id,
+            tdr_target_table_name   = "ImputationWideOutputsTable",
+            outputs_tsv             = FormatImputationWideOutputs.ingest_outputs_wide_tsv
+    }
 
-    # call InternalImputationTasks.TriggerPrsWithImputationTsv {
-    #     input:
-    #         run_task                = IngestToImputationWideOutputsTable.ingest_logs,
-    #         imputation_outputs_tsv  = FormatImputationOutputs.ingest_outputs_tsv,
-    #         trigger_bucket_path     = prs_cf_trigger_bucket_path,
-    #         timestamp               = timestamp
-    # }
+    call InternalImputationTasks.TriggerPrsWithImputationTsv {
+        input:
+            run_task                = IngestToImputationWideOutputsTable.ingest_logs,
+            imputation_outputs_tsv  = FormatImputationOutputs.ingest_outputs_tsv,
+            trigger_bucket_path     = prs_cf_trigger_bucket_path,
+            timestamp               = timestamp
+    }
 
     output {
         File aggregated_imputation_metrics              = Imputation.aggregated_imputation_metrics

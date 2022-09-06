@@ -1,5 +1,5 @@
 # 1.1.0
-2022-09-02 (Date of Last Commit)
+2022-09-06 (Date of Last Commit)
 
 * Updated call to IngestOutputsToTDR to remove "prefix_column". Python script has been updated and not longer requires this input parameter.
 * Update task IngestOutputsToTDR to not require "prefix_column". Python script has been updated and not longer requires this input parameter.
