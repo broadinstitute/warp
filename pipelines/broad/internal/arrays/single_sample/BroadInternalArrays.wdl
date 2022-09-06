@@ -37,42 +37,46 @@ workflow BroadInternalArrays {
         File vault_token_path
 
         # optional inputs to Arrays.wdl
-        Array[String] bead_pool_manifest_filename 
-        Array[String] cluster_filename
-        Array[String] control_sample_name
-        Array[String] product_type
-        Array[String] regulatory_designation
-        Array[String] research_project_id
-        Array[String] sample_id
+        Array[String]? bead_pool_manifest_filename 
+        Array[String]? cluster_filename
+        Array[String]? control_sample_name
+        Array[String]? product_type
+        Array[String]? regulatory_designation
+        Array[String]? research_project_id
+        Array[String]? sample_id
+    }
+
+    if (false) {
+        String? none = "None"
     }
 
     scatter(idx in range(length(chip_well_barcode))) {
         call ArraysPipeline.Arrays {
             input:
-                chip_well_barcode          = chip_well_barcode[idx],
-                sample_alias               = sample_alias[idx],
-                sample_lsid                = sample_lsid[idx],
-                reported_gender            = reported_gender[idx],
-                red_idat_cloud_path        = red_idat_cloud_path[idx],
-                green_idat_cloud_path      = green_idat_cloud_path[idx],
-                bead_pool_manifest_filename = bead_pool_manifest_filename[idx],
-                cluster_filename            = cluster_filename[idx],
-                control_sample_name         = control_sample_name[idx],
-                product_type                = product_type[idx],
-                regulatory_designation      = regulatory_designation[idx],
-                research_project_id         = research_project_id[idx],
-                sample_id                   = sample_id[idx],
-                ref_fasta                  = ref_fasta,
-                ref_fasta_index            = ref_fasta_index,
-                ref_dict                   = ref_dict,
-                dbSNP_vcf                  = dbSNP_vcf,
-                dbSNP_vcf_index            = dbSNP_vcf_index,
-                haplotype_database_file    = haplotype_database_file,
-                variant_rsids_file         = variant_rsids_file,
-                disk_size                  = disk_size,
-                preemptible_tries          = preemptible_tries,
-                environment                = environment,
-                vault_token_path           = vault_token_path
+                chip_well_barcode           = chip_well_barcode[idx],
+                sample_alias                = sample_alias[idx],
+                sample_lsid                 = sample_lsid[idx],
+                reported_gender             = reported_gender[idx],
+                red_idat_cloud_path         = red_idat_cloud_path[idx],
+                green_idat_cloud_path       = green_idat_cloud_path[idx],
+                bead_pool_manifest_filename = if defined(bead_pool_manifest_filename) then select_first([bead_pool_manifest_filename])[idx] else none,
+                cluster_filename            = if defined(cluster_filename) then select_first([cluster_filename])[idx] else none,
+                control_sample_name         = if defined(control_sample_name) then select_first([control_sample_name])[idx] else none,
+                product_type                = if defined(product_type) then select_first([product_type])[idx] else none,
+                regulatory_designation      = if defined(regulatory_designation) then select_first([regulatory_designation])[idx] else none,
+                research_project_id         = if defined(research_project_id) then select_first([research_project_id])[idx] else none,
+                sample_id                   = if defined(sample_id) then select_first([sample_id])[idx] else none,
+                ref_fasta                   = ref_fasta,
+                ref_fasta_index             = ref_fasta_index,
+                ref_dict                    = ref_dict,
+                dbSNP_vcf                   = dbSNP_vcf,
+                dbSNP_vcf_index             = dbSNP_vcf_index,
+                haplotype_database_file     = haplotype_database_file,
+                variant_rsids_file          = variant_rsids_file,
+                disk_size                   = disk_size,
+                preemptible_tries           = preemptible_tries,
+                environment                 = environment,
+                vault_token_path            = vault_token_path
         }
     }
 
