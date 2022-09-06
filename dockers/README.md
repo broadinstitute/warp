@@ -236,4 +236,10 @@ ENTRYPOINT [ "/sbin/tini", "--" ]
 
 ## <a link="trouble"></a> Troubleshooting
 
+The file structure and tools in each image can be explored by instructing it to run a `bash` shell:
+
+```bash
+docker run -it --rm <docker url> bash
+```
+
 If you have any questions or would like some more guidance on writing Dockerfiles please file a [GitHub issue in WARP](https://github.com/broadinstitute/warp/issues/new).
