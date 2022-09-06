@@ -1,3 +1,8 @@
+# 5.5.4
+2022-09-01 (Date of Last Commit)
+
+* Update CheckInputs.wdl to use a lightweight alpine-bash image.
+
 # 5.5.3
 2022-08-23 (Date of Last Commit)
 
