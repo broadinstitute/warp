@@ -92,7 +92,7 @@ function pipeline_to_args() {
       if [[ "${test}" == "Scientific" ]]; then
         echo CloudWorkflow -p SmartSeq2SingleSample -e ${env} -t Plumbing -b ${truth} ${uncached}
       else
-        continue
+        echo CloudWorkflow -p SmartSeq2SingleSample ${common_args}
       fi;;
     TargetedSomaticSingleSample)
       continue;;
