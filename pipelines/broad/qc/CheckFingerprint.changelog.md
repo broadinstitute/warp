@@ -1,7 +1,8 @@
 # 1.0.8
-2022-07-15 (Date of Last Commit)
+2022-09-07 (Date of Last Commit)
 
 * Updated task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
 
 # 1.0.7
 2022-06-16 (Date of Last Commit)
