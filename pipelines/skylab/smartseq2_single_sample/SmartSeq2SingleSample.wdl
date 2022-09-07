@@ -11,7 +11,6 @@ workflow SmartSeq2SingleSample {
     description: "Process SmartSeq2 scRNA-Seq data, include reads alignment, QC metrics collection, and gene expression quantitication"
   }
 
-#comment
   input {
     # load annotation
     File genome_ref_fasta

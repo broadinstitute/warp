@@ -12,7 +12,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
     description: "The MultiSampleSmartSeq2SingleNucleus pipeline runs multiple snSS2 samples in a single pipeline invocation"
     allowNestedInputs: true
   }
-#comment
+
   input {
       # reference genome fasta
       File genome_ref_fasta
