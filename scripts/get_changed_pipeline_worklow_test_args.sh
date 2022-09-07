@@ -68,13 +68,13 @@ function pipeline_to_args() {
       if [[ "${test}" == "Scientific" ]]; then
         echo CloudWorkflow -p MultiSampleSmartSeq2 -e ${env} -t Plumbing -b ${truth} ${uncached}
       else
-        continue
+        echo CloudWorkflow -p MultiSampleSmartSeq2 ${common_args}
       fi;;
     MultiSampleSmartSeq2SingleNucleus)
       if [[ "${test}" == "Scientific" ]]; then
         echo CloudWorkflow -p MultiSampleSmartSeq2SingleNucleus -e ${env} -t Plumbing -b ${truth} ${uncached}
       else
-        continue
+        echo CloudWorkflow -p MultiSampleSmartSeq2SingleNucleus ${common_args}
       fi;;
     Optimus)
       echo CloudWorkflow -p Optimus ${common_args};;
@@ -86,7 +86,7 @@ function pipeline_to_args() {
       if [[ "${test}" == "Scientific" ]]; then
         echo CloudWorkflow -p scATAC -e ${env} -t Plumbing -b ${truth} ${uncached}
       else
-        continue
+        echo CloudWorkflow -p scATAC ${common_args}
       fi;;
     SmartSeq2SingleSample)
       if [[ "${test}" == "Scientific" ]]; then
@@ -102,7 +102,7 @@ function pipeline_to_args() {
       if [[ "${test}" == "Scientific" ]]; then
         echo CloudWorkflow -p VariantCalling -e ${env} -t Plumbing -b ${truth} ${uncached}
       else
-        continue
+         echo CloudWorkflow -p VariantCalling ${common_args}
       fi;;
     WholeGenomeGermlineSingleSample)
       echo CloudWorkflow -p WholeGenomeGermlineSingleSample ${common_args};;
