@@ -1,3 +1,8 @@
+# 5.5.5
+2022-09-07 (Date of Last Commit)
+
+* Update RunEmptyDrops.wdl to use an updated R utilities docker.
+
 # 5.5.4
 2022-09-01 (Date of Last Commit)
 

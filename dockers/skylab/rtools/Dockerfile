@@ -21,8 +21,9 @@ RUN set -eux; \
             build-essential \
             r-base \
             tini \
-            wget \
+            wget; \
         #apt-get build-dep -y r-base \
+    chmod -R +x /usr/gitc \
     ; \
     pip install numpy \
     ; \
@@ -34,7 +35,9 @@ RUN set -eux; \
     make install; \
     cd /usr/gitc; \
     rm -r R-3.5.1; \
-    rm R-3.5.1.tar.gz;
+    rm R-3.5.1.tar.gz; \
+    Rscript installRDeps.R; \
+    rm installRDeps.R;
 
 # Set tini as default entrypoint
 ENTRYPOINT ["/usr/bin/tini", "--"]
