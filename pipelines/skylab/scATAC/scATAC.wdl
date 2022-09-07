@@ -1,5 +1,5 @@
 version 1.0
-
+#comment
 workflow scATAC {
     meta {
       description: "Processing of single-cell ATAC-seq data with the scATAC pipeline."
