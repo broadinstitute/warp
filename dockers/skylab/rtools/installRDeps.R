@@ -7,7 +7,8 @@ local({r <- getOption("repos")
 })
 
 ## Install OptParse
-install.packages('optparse')
+install.packages('remotes')
+remotes::install_version('optparse', '1.6.6')
 
 ## Install DropletUtils
 if (!requireNamespace("BiocManager", quietly = TRUE))

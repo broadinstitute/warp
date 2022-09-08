@@ -14,15 +14,12 @@ COPY emptyDropsWrapper .
 COPY npz2rds .
 
 RUN set -eux; \
-        # Enable source repositories to install deps for R
-        #sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list; \
         apt-get update; \
         apt-get install -y \
             build-essential \
             r-base \
             tini \
             wget; \
-        #apt-get build-dep -y r-base \
     chmod -R +x /usr/gitc \
     ; \
     pip install numpy \

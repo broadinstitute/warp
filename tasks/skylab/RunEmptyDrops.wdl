@@ -16,7 +16,7 @@ task RunEmptyDrops {
         Int emptydrops_lower = 100
 
         # runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/rtools:1.0.0-1662558597"
+        String docker = "us.gcr.io/broad-gotc-prod/rtools:1.0.0-1662652632"
         Int machine_mem_mb = 16000
         Int cpu = 1
         Int disk = 20
