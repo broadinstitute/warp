@@ -16,6 +16,7 @@ COPY emptyDropsWrapper .
 COPY npz2rds .
 
 RUN set -eux; \
+        # Enable source repositories to install deps for R, update the apt-get list, and install other dependencies
         sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list; \
         apt-get update; \
         apt-get install -y \
@@ -25,8 +26,13 @@ RUN set -eux; \
             wget; \
         apt-get build-dep -y r-base \
     ; \
+# Add script execution permissions
+    chmod -R +x /usr/gitc \
+    ; \
+# Install numpy
     pip install numpy \
     ; \
+# Install R
     wget ${R_URL}; \
     tar xzf R-3.5.1.tar.gz; \
     cd "R-3.5.1"; \
@@ -36,6 +42,7 @@ RUN set -eux; \
     cd /usr/gitc; \
     rm -r R-3.5.1; \
     rm R-3.5.1.tar.gz; \
+# Install R packages
     Rscript installRDeps.R; \
     rm installRDeps.R \
     ; \
