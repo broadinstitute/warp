@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [MultiSampleSmartSeq2_v2.2.1](https://github.com/broadinstitute/warp/releases) | May, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [MultiSampleSmartSeq2_v2.2.1](https://github.com/broadinstitute/warp/releases) | May, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ## Introduction
 
@@ -104,9 +104,9 @@ Please identify the pipeline in your methods section using the Smart-seq2 Multi-
 ## Consortia Support 
 This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project. 
 
-If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org).
+If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org).
 
 ## Have Suggestions?
-Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
 
 
