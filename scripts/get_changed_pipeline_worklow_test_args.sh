@@ -63,7 +63,7 @@ function pipeline_to_args() {
     JointGenotypingByChromosomePartTwo)
       continue;;
     MultiSampleArrays)
-      echo CloudWorkflow -p Arrays ${common_args};;
+      echo CloudWorkflow -p MultiSampleArrays ${common_args};;
     MultiSampleSmartSeq2)
       if [[ "${test}" == "Scientific" ]]; then
         echo CloudWorkflow -p MultiSampleSmartSeq2 -e ${env} -t Plumbing -b ${truth} ${uncached}
@@ -94,7 +94,7 @@ function pipeline_to_args() {
       else
         echo CloudWorkflow -p SmartSeq2SingleSample ${common_args}
       fi;;
-    TargetedSomaticSingleSample)
+    TargetedSomaticSingleSample)ValidateChip
       continue;;
     ValidateChip)
       echo CloudWorkflow -p ValidateChip ${common_args};;
