@@ -7,7 +7,7 @@ Copy and paste to pull this image
 #### `docker pull us.gcr.io/broad-gotc-prod/hisat2:1.0.0-1662998171`
 
 - __What is this image:__ This image is an Ubuntu-based custom image that contains the HISAT2 alignment program.
-- __What is HISAT2:__ HISAT2 is a fast and sensitive spliced alignment program for mapping RNA-seq reads.
+- __What is HISAT2:__ HISAT2 is a fast and sensitive spliced alignment program for mapping RNA-seq reads, [more info](https://ccb.jhu.edu/software/hisat/manual.shtml#running-hisat).
 - __How to see tool version used in image:__ Please see below.
 
 ## Versioning
