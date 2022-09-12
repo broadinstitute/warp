@@ -1,3 +1,8 @@
+# 2.2.15
+2022-09-12 (Date of Last Commit)
+
+* Update HISAT2.wdl in the SmartSeq2SingleSample pipeline to use an updated HISAT2 docker image. This change does not affect the MultiSampleSmartSeq2 pipeline.
+
 # 2.2.14
 2022-08-23 (Date of Last Commit)
 

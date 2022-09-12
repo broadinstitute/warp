@@ -36,7 +36,7 @@ workflow SmartSeq2SingleSample {
   }
   
   # version of this pipeline
-  String pipeline_version = "5.1.13"
+  String pipeline_version = "5.1.14"
 
   parameter_meta {
     genome_ref_fasta: "Genome reference in fasta format"

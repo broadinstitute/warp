@@ -48,7 +48,8 @@ RUN set -eux; \
     make; \
     make install \
     ; \
-# Install gffread (gtf/gtt tools)
+# Install gffread (gtf/gtt tools) \
+    mkdir /usr/gitc/gffread; \
     cd /usr/gitc/gffread; \
     git clone https://github.com/gpertea/gclib; \
     git clone https://github.com/gpertea/gffread; \
@@ -57,8 +58,8 @@ RUN set -eux; \
     cp gffread /usr/local/bin/gffread \
     ; \
 # Install TINI
-    mkdir temp; \
-    cd temp; \
+    mkdir /usr/gitc/temp; \
+    cd /usr/gitc/temp; \
     wget https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -O /sbin/tini; \
     chmod +x /sbin/tini; \
     rm -r /usr/gitc/temp;
