@@ -1,3 +1,14 @@
+# 1.2.13
+
+2022-09-01 (Date of Last Commit)
+
+* Update CheckInputs.wdl to use a lightweight alpine-bash image.
+
+# 1.2.12
+2022-08-31 (Date of Last Commit)
+
+* Update CountAlignments to use an updated docker image.
+
 # 1.2.11
 2022-08-23 (Date of Last Commit)
 
