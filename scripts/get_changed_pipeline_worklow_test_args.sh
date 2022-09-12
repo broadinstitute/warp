@@ -17,76 +17,105 @@ function pipeline_to_args() {
 
   case ${pipeline} in
     AnnotationFiltration)
-      echo AnnotationFiltration -t ${test} --env ${env};;
+      continue;;
     Arrays)
-      echo Arrays -a Single ${common_args};;
-    MultiSampleArrays)
-      echo Arrays -a Multi ${common_args};;
+      echo CloudWorkflow -p Arrays ${common_args};;
     BroadInternalRNAWithUMIs)
-      echo BroadInternalRNAWithUMIs ${common_args};;
+      echo CloudWorkflow -p BroadInternalRNAWithUMIs ${common_args};;
     BroadInternalUltimaGenomics)
-      echo BroadInternalUltimaGenomics ${common_args};;
+      echo CloudWorkflow -p BroadInternalUltimaGenomics ${common_args};;
+    # CEMBA)
+    #   echo CloudWorkflow -p CEMBA ${common_args};;
     CheckFingerprint)
-      echo CheckFingerprint ${common_args};;
-    ExomeGermlineSingleSample)
-      echo GermlineSingleSample -d Exome ${common_args};;
-    ExomeReprocessing)
+      echo CloudWorkflow -p CheckFingerprint ${common_args};;
+    CramToUnmappedBams)
+      echo CloudWorkflow -p CramToUnmappedBams ${common_args};;
+    ExternalExomeReprocessing)
       if [[ "${test}" == "Scientific" ]]; then
-        echo Reprocessing -d Exome --env ${env} -t Plumbing -b ${truth} ${uncached}
+        echo CloudWorkflow -p ExternalExomeReprocessing --env ${env} -t Plumbing -b ${truth} ${uncached}
       else
         continue
       fi;;
-    JointGenotyping)
-      echo JointGenotyping -d Exome ${common_args} --papi-version PAPIv2;
-      echo JointGenotyping -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached} --papi-version PAPIv2;;
-    IlluminaGenotypingArray)
-      echo IlluminaGenotypingArray ${common_args};;
-    Imputation)
-      echo Imputation ${common_args};;
-    ExternalExomeReprocessing)
+    ExomeGermlineSingleSample)
+      echo CloudWorkflow -p ExomeGermlineSingleSample ${common_args};;
+    ExomeReprocessing)
       if [[ "${test}" == "Scientific" ]]; then
-        echo ExternalReprocessing -d Exome --env ${env} -t Plumbing -b ${truth} ${uncached}
+        echo CloudWorkflow -p ExomeReprocessing --env ${env} -t Plumbing -b ${truth} ${uncached}
       else
         continue
       fi;;
     ExternalWholeGenomeReprocessing)
       if [[ "${test}" == "Scientific" ]]; then
-        echo ExternalReprocessing -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached}
+        echo CloudWorkflow -p ExternalWholeGenomeReprocessing --env ${env} -t Plumbing -b ${truth} ${uncached}
       else
         continue
       fi;;
-    WholeGenomeGermlineSingleSample)
-      echo GermlineSingleSample -d WGS ${common_args};;
-    WholeGenomeReprocessing)
-      if [[ "${test}" == "Scientific" ]]; then
-        echo Reprocessing -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached}
-      else
-        continue
-      fi;;
-    ValidateChip)
-      echo ValidateChip ${common_args};;
-    ReblockGVCF)
-      echo ReblockGvcf -d Exome ${common_args};
-      echo ReblockGvcf -d WGS ${common_args};;
-    RNAWithUMIsPipeline)
-      echo RNAWithUMIs ${common_args};;
-    TargetedSomaticSingleSample)
-      echo SomaticSingleSample -d Targeted ${common_args};;
-    CramToUnmappedBams)
-      echo CramToUnmappedBams ${common_args};;
+    GDCWholeGenomeSomaticSingleSample)
+      echo CloudWorkflow -p GDCWholeGenomeSomaticSingleSample ${common_args};;
+    IlluminaGenotypingArray)
+      echo CloudWorkflow -p IlluminaGenotypingArray ${common_args};;
+    Imputation)
+      echo CloudWorkflow -p Imputation ${common_args};;
+    JointGenotyping)
+      echo CloudWorkflow -p JointGenotyping ${common_args};;
     JointGenotypingByChromosomePartOne)
       continue;;
     JointGenotypingByChromosomePartTwo)
       continue;;
-    UltimaGenomicsGermlineSingleSample)
-      echo UltimaGenomicsGermlineSingleSample ${common_args};;
-    UltimaGenomicsJointGenotyping)
-      echo UltimaGenomicsJointGenotyping ${common_args};;
-    GDCWholeGenomeSomaticSingleSample)
-      echo GDCWholeGenomeSomaticSingleSample -d WGS ${common_args};;
+    MultiSampleArrays)
+      echo CloudWorkflow -p Arrays ${common_args};;
+    MultiSampleSmartSeq2)
+      if [[ "${test}" == "Scientific" ]]; then
+        echo CloudWorkflow -p MultiSampleSmartSeq2 -e ${env} -t Plumbing -b ${truth} ${uncached}
+      else
+        echo CloudWorkflow -p MultiSampleSmartSeq2 ${common_args}
+      fi;;
+    MultiSampleSmartSeq2SingleNucleus)
+      if [[ "${test}" == "Scientific" ]]; then
+        echo CloudWorkflow -p MultiSampleSmartSeq2SingleNucleus -e ${env} -t Plumbing -b ${truth} ${uncached}
+      else
+        echo CloudWorkflow -p MultiSampleSmartSeq2SingleNucleus ${common_args}
+      fi;;
+    Optimus)
+      echo CloudWorkflow -p Optimus ${common_args};;
+    ReblockGVCF)
+      echo CloudWorkflow -p ReblockGvcf  ${common_args};;
+    RNAWithUMIsPipeline)
+      echo CloudWorkflow -p RNAWithUMIsPipeline ${common_args};;
+    scATAC)
+      if [[ "${test}" == "Scientific" ]]; then
+        echo CloudWorkflow -p scATAC -e ${env} -t Plumbing -b ${truth} ${uncached}
+      else
+        echo CloudWorkflow -p scATAC ${common_args}
+      fi;;
+    SmartSeq2SingleSample)
+      if [[ "${test}" == "Scientific" ]]; then
+        echo CloudWorkflow -p SmartSeq2SingleSample -e ${env} -t Plumbing -b ${truth} ${uncached}
+      else
+        echo CloudWorkflow -p SmartSeq2SingleSample ${common_args}
+      fi;;
+    TargetedSomaticSingleSample)
+      continue;;
+    ValidateChip)
+      echo CloudWorkflow -p ValidateChip ${common_args};;
     VariantCalling)
-      echo VariantCalling -d Exome -t Plumbing --env ${env} -b ${truth} ${uncached};
-      echo VariantCalling -d WGS -t Plumbing --env ${env} -b ${truth} ${uncached};;
+      if [[ "${test}" == "Scientific" ]]; then
+        echo CloudWorkflow -p VariantCalling -e ${env} -t Plumbing -b ${truth} ${uncached}
+      else
+         echo CloudWorkflow -p VariantCalling ${common_args}
+      fi;;
+    WholeGenomeGermlineSingleSample)
+      echo CloudWorkflow -p WholeGenomeGermlineSingleSample ${common_args};;
+    WholeGenomeReprocessing)
+      if [[ "${test}" == "Scientific" ]]; then
+        echo CloudWorkflow -p WholeGenomeReprocessing -d WGS --env ${env} -t Plumbing -b ${truth} ${uncached}
+      else
+        continue
+      fi;;
+    UltimaGenomicsWholeGenomeGermline)
+      echo CloudWorkflow -p UltimaGenomicsWholeGenomeGermline ${common_args};;
+    UltimaGenomicsJointGenotyping)
+      echo CloudWorkflow -p UltimaGenomicsJointGenotyping ${common_args};;
   esac
 }
 

@@ -16,7 +16,7 @@ This style guide provides formatting guidelines and best practices for writing D
   * [Proper process reaping](#process)
 * [Build Scripts and README](#build)
 * [Formatting](#formatting)
-* [Troubleshooting](#trouble)
+* [Troubleshooting and running standalone](#trouble)
 ## <a name="overview"></a> Overview
 
 WARP maintains a collection of docker images which are used as execution environments for various cloud-optimized data processing pipelines. Many of these image require specific sets of tools and dependencies to run and can be thought of as _custom_ images rather than traditional application images. 
@@ -234,6 +234,12 @@ RUN set -eux; \
 ENTRYPOINT [ "/sbin/tini", "--" ]
 ```
 
-## <a link="trouble"></a> Troubleshooting
+## <a link="trouble"></a> Troubleshooting and running standalone
+
+The WARP dockers are designed to be run from their respective WDL pipelines. However, if you need to run a Docker independent of a WDL for testing or troubleshooting, you'll likely need to explicity instruct it to run a `bash` shell in the `run` command. An example of this is shown in the terminal command below: 
+
+```bash
+docker run -it --rm <docker url> bash
+```
 
 If you have any questions or would like some more guidance on writing Dockerfiles please file a [GitHub issue in WARP](https://github.com/broadinstitute/warp/issues/new).

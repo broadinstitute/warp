@@ -15,7 +15,7 @@ workflow scATAC {
         String bin_size_list = "10000"
     }
 
-    String pipeline_version = "1.2.1"
+    String pipeline_version = "1.2.4"
 
     parameter_meta {
         input_fastq1: "read 1 input fastq, the read names must be tagged with the cellular barcodes"
@@ -84,7 +84,7 @@ task AlignPairedEnd {
         String reference_unpack_name = "genome/genome.fa"
         String output_bam
         Int min_cov = 0
-        String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
+        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
     }
 
     parameter_meta {
@@ -115,7 +115,7 @@ task AlignPairedEnd {
             --input-fastq2=~{input_fastq2} \
             --output-bam=~{output_bam} \
             --aligner=bwa \
-            --path-to-aligner=/tools/ \
+            --path-to-aligner=/usr/local/bin/ \
             --read-fastq-command=zcat \
             --min-cov=~{min_cov} \
             --num-threads=~{num_threads} \
@@ -142,7 +142,7 @@ task SnapPre {
         String output_snap_basename
         String genome_name
         String genome_size_file = "genome/chrom.sizes"
-        String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
+        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
         File input_reference
     }
 
@@ -198,7 +198,7 @@ task SnapCellByBin {
         File snap_input
         String bin_size_list
         String snap_output_name
-        String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
+        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
     }
 
     parameter_meta {
@@ -238,7 +238,7 @@ task MakeCompliantBAM {
     input {
         File input_bam
         String output_bam_filename
-        String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
+        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
     }
 
     parameter_meta {
@@ -253,7 +253,7 @@ task MakeCompliantBAM {
     command {
         set -euo pipefail
 
-        /tools/makeCompliantBAM.py --input-bam ~{input_bam} --output-bam ~{output_bam_filename}
+        /usr/gitc/makeCompliantBAM.py --input-bam ~{input_bam} --output-bam ~{output_bam_filename}
     }
 
     output {
@@ -271,7 +271,7 @@ task MakeCompliantBAM {
 task BreakoutSnap {
     input {
         File snap_input
-        String docker_image = "quay.io/humancellatlas/snap-breakout:0.0.1"
+        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
         String bin_size_list
         String input_id
     }
@@ -289,7 +289,7 @@ task BreakoutSnap {
     command {
         set -euo pipefail
         mkdir output
-        python3 /tools/breakoutSnap.py --input ~{snap_input} \
+        python3 /usr/gitc/breakoutSnap.py --input ~{snap_input} \
             --output-prefix output/~{input_id}_
     }
 

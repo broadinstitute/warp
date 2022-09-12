@@ -378,60 +378,6 @@ task STARsoloFastq {
   }
 }
 
-task ConvertStarOutput {
-
-  input {
-    File barcodes
-    File features
-    File matrix
-
-    #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-python3-scientific:0.1.12"
-    Int machine_mem_mb = 8250
-    Int cpu = 1
-    Int disk = ceil(size(matrix, "Gi") * 2) + 10
-    Int preemptible = 3
-  }
-
-  meta {
-    description: "Create three numpy formats for the barcodes, gene names and the count matrix from the STARSolo count matrix in mtx format."
-  }
-
-  parameter_meta {
-    docker: "(optional) the docker image containing the runtime environment for this task"
-    machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
-    cpu: "(optional) the number of cpus to provision for this task"
-    disk: "(optional) the amount of disk space (GiB) to provision for this task"
-    preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
-  }
-
-  command {
-    set -e
-
-   # create the  compresed raw count matrix with the counts, gene names and the barcodes
-    python3 /tools/create-npz-output.py \
-        --barcodes ~{barcodes} \
-        --features ~{features} \
-        --matrix ~{matrix}
-
-  }
-
-  runtime {
-    docker: docker
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ${disk} HDD"
-    cpu: cpu
-    preemptible: preemptible
-  }
-
-  output {
-    File row_index = "sparse_counts_row_index.npy"
-    File col_index = "sparse_counts_col_index.npy"
-    File sparse_counts = "sparse_counts.npz"
-  }
-}
-
-
 task MergeStarOutput {
 
   input {
@@ -441,7 +387,7 @@ task MergeStarOutput {
     String input_id
 
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:merge-star-outputs-v1.1.9"
+    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
@@ -466,7 +412,7 @@ task MergeStarOutput {
     declare -a matrix_files=(~{sep=' ' matrix})
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
-    python3 /tools/create-merged-npz-output.py \
+    python3 /usr/gitc/create-merged-npz-output.py \
         --barcodes ${barcodes_files[@]} \
         --features ${features_files[@]} \
         --matrix ${matrix_files[@]} \

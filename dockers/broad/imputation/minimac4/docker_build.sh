@@ -2,13 +2,13 @@
 set -e
 
 # Update version when changes to Dockerfile are made
-DOCKER_IMAGE_VERSION=1.0.5
+DOCKER_IMAGE_VERSION=1.0.6
 TIMESTAMP=$(date +"%s")
 DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
 GCR_URL="us.gcr.io/broad-gotc-prod/imputation-minimac4"
-QUAY_URL="quay.io/broadinstitute/gotc-prod-imputation_minimac"
+#QUAY_URL="quay.io/broadinstitute/gotc-prod-imputation_minimac"
 
 # Minimac4 version
 MINIMAC4_VERSION="1.0.2"
@@ -62,9 +62,9 @@ function main(){
         --no-cache $DIR   
     docker push "$GCR_URL:$IMAGE_TAG"
 
-    echo "tagging and pushing Quay Image"
-    docker tag "$GCR_URL:$IMAGE_TAG" "$QUAY_URL:$IMAGE_TAG"
-    docker push "$QUAY_URL:$IMAGE_TAG"
+#    echo "tagging and pushing Quay Image"
+#    docker tag "$GCR_URL:$IMAGE_TAG" "$QUAY_URL:$IMAGE_TAG"
+#    docker push "$QUAY_URL:$IMAGE_TAG"
 
     echo -e "$GCR_URL:$IMAGE_TAG" >> "$DIR/docker_versions.tsv"
     echo "done"
