@@ -12,7 +12,7 @@ Copy and paste to pull this image
 
 ## Versioning
 
-PyTools uses the following convention for versioning:
+HISAT2 uses the following convention for versioning:
 
 #### `us.gcr.io/broad-gotc-prod/hisat2:<image-version>-<unix-timestamp>`
 
