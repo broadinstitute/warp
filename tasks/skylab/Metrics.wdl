@@ -132,7 +132,7 @@ task FastqMetricsSlidSeq {
     Array[File] r1_fastq
     String read_structure
     String sample_id
-    String whitelist
+    File whitelist
 
 
     # Runtime attributes
@@ -156,12 +156,12 @@ task FastqMetricsSlidSeq {
   command <<<
     set -e
 
-
+    cut -f 1 -d ' ' ~{whitelist} > WhiteList.txt
     declare -a arr_fastqs=(~{sep=' ' r1_fastq})
     p=" --R1 "
     arr_fastqs=( "${arr_fastqs[@]/#/$p}" ) 
     fastq_metrics \
-    --white-list ~{whitelist} \
+    --white-list WhiteList.txt \
     --read-structure "~{read_structure}" \
     --sample-id "~{sample_id}" \
     ${arr_fastqs[@]}

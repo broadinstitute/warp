@@ -37,7 +37,6 @@ workflow SlideSeq {
         File tar_star_reference
         File annotations_gtf
 
-        String whitelist
         String output_bam_basename
         Boolean count_exons
         File bead_locations
@@ -57,7 +56,7 @@ workflow SlideSeq {
             r1_fastq = r1_fastq,
             read_structure = read_structure,
             sample_id = input_id,
-            whitelist = whitelist
+            whitelist = bead_locations
     }
     call FastqProcessing.FastqProcessingSlidSeq as SplitFastq {
         input:
@@ -72,7 +71,7 @@ workflow SlideSeq {
             input:
                 r1_fastq = [SplitFastq.fastq_R1_output_array[idx]],
                 r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
-                white_list = whitelist,
+                whitelist = bead_locations,
                 tar_star_reference = tar_star_reference,
                 output_bam_basename = output_bam_basename + "_" + idx,
                 read_structure = read_structure,

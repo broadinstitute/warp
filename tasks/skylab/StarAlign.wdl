@@ -439,7 +439,7 @@ task STARsoloFastqSlideSeq {
     Array[File] r1_fastq
     Array[File] r2_fastq
     File tar_star_reference
-    File white_list
+    File whitelist
     String output_bam_basename
     String read_structure
     Boolean? count_exons
@@ -458,6 +458,7 @@ task STARsoloFastqSlideSeq {
     set -e
     declare -a fastq1_files=(~{sep=' ' r1_fastq})
     declare -a fastq2_files=(~{sep=' ' r2_fastq})
+    cut -f 1 -d ' ' ~{whitelist} > WhiteList.txt
 
     nums=$(echo ~{read_structure} | sed 's/[[:alpha:]]/ /g')
     read -a arr_num <<< $nums
@@ -493,7 +494,7 @@ task STARsoloFastqSlideSeq {
 
     STAR \
       --soloType Droplet \
-      --soloCBwhitelist ~{white_list} \
+      --soloCBwhitelist WhiteList.txt \
       --soloFeatures $COUNTING_MODE \
       --runThreadN ~{cpu} \
       --genomeDir genome_reference \
