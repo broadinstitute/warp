@@ -1,62 +1,68 @@
-FROM ubuntu:16.04
-LABEL MAINTAINER="Jishu Xu <jishuxu@broadinstitute.org>"
-LABEL software="HISAT2"
-LABEL version="2-2.1.0"
-LABEL description="RNA-seq aligner"
-LABEL website="https://ccb.jhu.edu/software/hisat2/index.shtml"
+FROM --platform=linux/amd64 ubuntu:16.04
 
-RUN mkdir -p /opt/tools/
-WORKDIR /opt/tools
+ENV TERM=xterm-256color \
+        PATH="$PATH:/usr/gitc/hisat2-2.1.0" \
+        TINI_VERSION=v0.19.0
 
-RUN \
- apt update && \ 
- apt install -y \
-  liblzma-dev \
-  libbz2-dev \
-  cmake \
-  automake \
-  curl \
-  libboost-all-dev \
-  libcurl4-openssl-dev \
-  wget \
-  build-essential \	
-  gcc-multilib \
-  zlib1g-dev \
-  libxml2-dev \
-  libncurses5-dev \
-  zip unzip \
-  git \
-  r-base \
-  r-base-core \
-  r-base-dev
-  
-RUN \
-  wget -c ftp://ftp.ccb.jhu.edu/pub/infphilo/hisat2/downloads/hisat2-2.1.0-source.zip && \
-  unzip hisat2-2.1.0-source.zip && \
-  cd hisat2-2.1.0 && \
-  make && \
-  cp hisat2* /usr/local/bin
+LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org"
 
-COPY  ./*.sh hisat2-2.1.0/
-# set ENV PATH, run hisat2 by type 'HISAT2' from cmd
-ENV PATH="/opt/tools/hisat2-2.1.0:${PATH}"
+WORKDIR /usr/gitc
 
+RUN set -eux; \
+        apt update; \
+        apt install -y \
+            automake \
+            build-essential \
+            cmake \
+            curl \
+            git \
+            gcc-multilib \
+            liblzma-dev \
+            libbz2-dev \
+            libboost-all-dev \
+            libcurl4-openssl-dev \
+            libncurses5-dev \
+            libxml2-dev \
+            r-base \
+            r-base-core \
+            r-base-dev \
+            unzip \
+            wget \
+            zip \
+            zlib1g-dev \
+    ; \
+    wget -c ftp://ftp.ccb.jhu.edu/pub/infphilo/hisat2/downloads/hisat2-2.1.0-source.zip; \
+    unzip hisat2-2.1.0-source.zip; \
+    cd hisat2-2.1.0; \
+    make; \
+    cp hisat2* /usr/local/bin \
+    ; \
 # Install samtools
-WORKDIR /usr/local/samtools
-ADD https://github.com/samtools/samtools/releases/download/1.6/samtools-1.6.tar.bz2 .
+    mkdir /usr/local/samtools; \
+    cd /usr/local/samtools; \
+    wget https://github.com/samtools/samtools/releases/download/1.6/samtools-1.6.tar.bz2; \
+    tar -xvf samtools-1.6.tar.bz2; \
+    rm samtools-1.6.tar.bz2; \
+    cd samtools-1.6; \
+    ./configure --prefix=/usr; \
+    make; \
+    make install \
+    ; \
+# Install gffread (gtf/gtt tools) \
+    mkdir /usr/gitc/gffread; \
+    cd /usr/gitc/gffread; \
+    git clone https://github.com/gpertea/gclib; \
+    git clone https://github.com/gpertea/gffread; \
+    cd gffread; \
+    make; \
+    cp gffread /usr/local/bin/gffread \
+    ; \
+# Install TINI
+    mkdir /usr/gitc/temp; \
+    cd /usr/gitc/temp; \
+    wget https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -O /sbin/tini; \
+    chmod +x /sbin/tini; \
+    rm -r /usr/gitc/temp;
 
-RUN tar -xvf samtools-1.6.tar.bz2 && \
-    rm samtools-1.6.tar.bz2 && \
-    cd samtools-1.6 && \
-    ./configure --prefix=/usr && \
-    make && \
-    make install
-
-# gffread is gtf/gtt tools 
-WORKDIR /opt/tools/gffread
-RUN \
-  git clone https://github.com/gpertea/gclib && \
-  git clone https://github.com/gpertea/gffread && \
-  cd gffread && \
-  make && \ 
-  cp gffread /usr/local/bin/
+# Set tini as default entrypoint
+ENTRYPOINT ["/sbin/tini", "--"]
