@@ -136,7 +136,7 @@ task FastqMetricsSlidSeq {
 
 
     # Runtime attributes
-    String docker =  "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.14-rc1"
+    String docker =  "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.14-test2"
     Int cpu = 16
     Int machine_mb = 40000
     Int disk = ceil(size(r1_fastq, "GiB")*3)  + 50
