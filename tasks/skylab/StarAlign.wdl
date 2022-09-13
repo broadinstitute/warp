@@ -458,7 +458,7 @@ task STARsoloFastqSlideSeq {
     set -e
     declare -a fastq1_files=(~{sep=' ' r1_fastq})
     declare -a fastq2_files=(~{sep=' ' r2_fastq})
-    cut -f 1 -d ' ' ~{whitelist} > WhiteList.txt
+    cut -f 1 ~{whitelist} > WhiteList.txt
 
     nums=$(echo ~{read_structure} | sed 's/[[:alpha:]]/ /g')
     read -a arr_num <<< $nums

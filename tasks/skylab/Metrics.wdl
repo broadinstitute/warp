@@ -156,7 +156,7 @@ task FastqMetricsSlidSeq {
   command <<<
     set -e
 
-    cut -f 1 -d ' ' ~{whitelist} > WhiteList.txt
+    cut -f 1 ~{whitelist} > WhiteList.txt
     declare -a arr_fastqs=(~{sep=' ' r1_fastq})
     p=" --R1 "
     arr_fastqs=( "${arr_fastqs[@]/#/$p}" ) 

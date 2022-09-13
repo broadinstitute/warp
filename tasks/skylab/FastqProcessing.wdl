@@ -131,10 +131,11 @@ task FastqProcessingSlidSeq {
     Array[File]? i1_fastq
     String read_structure
     String sample_id
+    File whitelist
 
 
     # Runtime attributes
-    String docker =  "quay.io/humancellatlas/secondary-analysis-sctools:v0.4.0-test"
+    String docker =  "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.14-test2"
     Int cpu = 16
     Int machine_mb = 40000
     Int disk = ceil(size(r1_fastq, "GiB")*3 + size(r2_fastq, "GiB")*3) + 50
@@ -203,11 +204,12 @@ task FastqProcessingSlidSeq {
             optstring += " --I1 " + rename_file(fastq)
     print(optstring)
     CODE)
+    cut -f 1 ~{whitelist} > WhiteList.txt
 
 
     fastq_slideseq  \
       --bam-size 30.0 \
-      --white-list whitelist \
+      --white-list WhiteList.txt \
       --read-structure "~{read_structure}" \
       --sample-id "~{sample_id}" \
       --output-format FASTQ \
