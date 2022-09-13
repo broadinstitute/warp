@@ -1,3 +1,8 @@
+# 2.2.16
+2022-09-13 (Date of Last Commit)
+
+* Update RSEM.wdl in the SmartSeq2SingleSample pipeline to use an updated RSEM docker image. This change does not affect the MultiSampleSmartSeq2 pipeline.
+
 # 2.2.15
 2022-09-12 (Date of Last Commit)
 
