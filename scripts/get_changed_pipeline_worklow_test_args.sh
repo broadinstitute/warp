@@ -112,6 +112,8 @@ function pipeline_to_args() {
       else
         continue
       fi;;
+    UltimaGenomicsWholeGenomeCramOnly)
+      echo CloudWorkflow -p UltimaGenomicsWholeGenomeCramOnly ${common_args};;
     UltimaGenomicsWholeGenomeGermline)
       echo CloudWorkflow -p UltimaGenomicsWholeGenomeGermline ${common_args};;
     UltimaGenomicsJointGenotyping)
