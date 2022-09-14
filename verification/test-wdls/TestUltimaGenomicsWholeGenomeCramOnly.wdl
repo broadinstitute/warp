@@ -6,7 +6,7 @@ import "../../verification/VerifyUltimaGenomicsWholeGenomeCramOnly.wdl" as Verif
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 
-workflow TestUltimaGenomicsWholeGenomeGermlineCramOnly {
+workflow TestUltimaGenomicsWholeGenomeCramOnly {
 
     input {
       ContaminationSites contamination_sites
