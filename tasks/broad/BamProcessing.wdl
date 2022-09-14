@@ -15,6 +15,8 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
+## TEST new line to see if smart tests pick up changes to pipelines
+
 # Sort BAM file by coordinate order
 task SortSam {
   input {
