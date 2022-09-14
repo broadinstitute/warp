@@ -98,3 +98,7 @@ workflows:
   - name: FastqToAlignedBam
     subclass: WDL
     primaryDescriptorPath: /tasks/vumc_biostatistics/FastqToAlignedBam.wdl
+
+  - name: VUMCUnmappedBamToAlignedBam
+    subclass: WDL
+    primaryDescriptorPath: /tasks/vumc_biostatistics/VUMCUnmappedBamToAlignedBam.wdl    
