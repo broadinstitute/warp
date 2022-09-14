@@ -119,7 +119,7 @@ object PipelineTestType extends Enum[PipelineTestType] {
       extends PipelineTestType(
         "TestUltimaGenomicsWholeGenomeGermline",
         "UltimaGenomicsWholeGenomeGermline",
-        "/broad/dna_seq/germline/single_sample/UGWGS/"
+        "/broad/dna_seq/germline/single_sample/ugwgs/"
       )
   case object ValidateChip
       extends PipelineTestType(

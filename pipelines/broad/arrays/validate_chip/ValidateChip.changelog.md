@@ -1,3 +1,8 @@
+# 1.16.0
+2022-09-07 (Date of Last Commit)
+
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+
 # 1.15.9
 2022-06-15 (Date of Last Commit)
 
