@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [MultiSampleSmartSeq2SingleNuclei_v1.2.2](https://github.com/broadinstitute/warp/releases) | February, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [MultiSampleSmartSeq2SingleNuclei_v1.2.2](https://github.com/broadinstitute/warp/releases) | February, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![](./snSS2.png)
 
@@ -179,7 +179,7 @@ This pipeline is supported and used by the [BRAIN Initiative Cell Census Network
 
 Each consortia may use slightly different reference files for data analysis or have different post-processing steps. Learn more by reading the [Consortia Processing](./consortia-processing.md) overview.
 
-If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org).
+If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org).
 
 ## Feedback
-Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.

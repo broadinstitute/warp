@@ -1,7 +1,8 @@
 # 1.0.2
-2022-07-15 (Date of Last Commit)
+2022-09-07 (Date of Last Commit)
 
-* Increased disk space in the MakeOptionalOutputBam task in Utilities.wdl 
+* Increased disk space in the MakeOptionalOutputBam task in Utilities.wdl
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
 
 # 1.0.1
 2022-06-21 (Date of Last Commit)
