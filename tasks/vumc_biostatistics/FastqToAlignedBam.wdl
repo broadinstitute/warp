@@ -121,7 +121,7 @@ workflow FastqToAlignedBam {
 
   String bwa_commandline = "bwa mem -K 100000000 -v 3 -t 16 -R \"@RG\\tID:1\\tPU:~{sample_name}\\tLB:~{sample_name}\\tSM:~{sample_name}\\tPL:ILLUMINA\" -Y $bash_ref_fasta"
 
-  Int compression_level = 1
+  Int compression_level = 2
 
   # Get the size of the standard reference files as well as the additional reference files needed for BWA
   scatter (idx in range(length(fastq_1))) {
