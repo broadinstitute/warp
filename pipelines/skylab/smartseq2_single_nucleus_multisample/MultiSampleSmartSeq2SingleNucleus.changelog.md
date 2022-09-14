@@ -1,15 +1,43 @@
+# 1.2.13
+
+2022-09-01 (Date of Last Commit)
+
+* Update CheckInputs.wdl to use a lightweight alpine-bash image.
+
+# 1.2.12
+2022-08-31 (Date of Last Commit)
+
+* Update CountAlignments to use an updated docker image.
+
+# 1.2.11
+2022-08-23 (Date of Last Commit)
+
+* Remove an unused script in pytools docker image.
+
+# 1.2.10
+2022-08-16 (Date of Last Commit)
+
+* Update LoomUtils.wdl to use a consolidated python utilities docker image. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline.
+
+# 1.2.9
+2022-08-08 (Date of Last Commit)
+
+* Updated TrimAdapters runtime docker URL.
+
 # 1.2.8
 2022-07-21 (Date of Last Commit)
+
 * Updated STARsoloFastq runtime docker URL.
 
 # 1.2.7
 2022-05-18 (Date of Last Commit)
+
 * Updated merge npz docker in StarAlign.wdl
 
 # 1.2.6
 2022-04-22 (Date of Last Commit)
 
-* Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the SmartSeq2SingleSample pipeline.
+* Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline.
 
 # 1.2.5
 2022-04-19 (Date of Last Commit)

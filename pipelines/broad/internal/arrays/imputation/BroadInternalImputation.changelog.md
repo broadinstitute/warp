@@ -1,3 +1,28 @@
+# 1.1.0
+2022-09-06 (Date of Last Commit)
+
+* Updated call to IngestOutputsToTDR to remove 'prefix_column'. Python script has been updated and not longer requires this input parameter.
+* Update task IngestOutputsToTDR to not require 'prefix_column'. Python script has been updated and not longer requires this input parameter.
+
+* Update task FormatImputationOutputs with new docker tag.
+* Update task FormatImputationWideOutputs with new docker tag.
+* Update task IngestOutputsToTDR with new docker tag.
+
+# 1.0.9
+2022-08-29 (Date of Last Commit)
+
+* Updated call to IngestOutputsToTDR to pass in column names to be used for user action in command block. Python script in task was updated to a new version containing a new required command line parameter, 'prefix_column'
+
+# 1.0.8
+2022-08-23 (Date of Last Commit)
+
+* Updated BCFTools/VCFTools docker image
+
+# 1.0.7
+2022-08-03 (Date of Last Commit)
+
+* Updated BCFTools/VCFTools Minimac4 Docker images
+
 # 1.0.6
 2022-07-15 (Date of Last Commit)
 

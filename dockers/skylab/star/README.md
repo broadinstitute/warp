@@ -15,7 +15,7 @@ Copy and paste to pull this image
 
 STAR uses the following convention for versioning:
 
-#### `us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658334187:<image-version>-<star-version>-<unix-timestamp>`
+#### `us.gcr.io/broad-gotc-prod/star:<image-version>-<star-version>-<unix-timestamp>`
 
 
 We keep track of all past versions in [docker_versions](docker_versions.tsv) with the last image listed being the currently used version in WARP.
