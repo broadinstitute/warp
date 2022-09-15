@@ -1,7 +1,7 @@
-# Adding a platform tag to ensure that images built on ARM-based machines (ex. M-series macs) 
-#  won't cause issues with our automated PR test suite.
+# Adding a platform tag to ensure that images built on ARM-based machines (ex. M-series macs) won't cause issues with our automated PR test suite.
 # However, this is not relevant for automated builds in a CI/CD pipeline that is AMD-based.
-FROM --platform="linux/amd64" python:3.9-bullseye
+# Also upgraded to a more recent Debian version (Bullseye) so tini is part of apt.
+FROM --platform="linux/amd64" python:3.6-bullseye
 
 # Add metadata labels
 LABEL maintainer="Broad Institute DSDE <dsde-engineering@broadinstitute.org" \
@@ -19,6 +19,7 @@ COPY requirements.txt .
 RUN apt-get update -y --fix-missing && apt-get install -y \
   wget \
   tini && \
+  pip3 install --upgrade pip && \
   pip3 install -r requirements.txt && \
   wget https://github.com/alexdobin/STAR/archive/refs/tags/2.7.10a.tar.gz && \ 
   tar -xf 2.7.10a.tar.gz && chmod +x /usr/local/STAR-2.7.10a/bin/Linux_x86_64_static/STAR && \
