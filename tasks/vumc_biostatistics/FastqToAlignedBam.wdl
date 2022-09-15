@@ -16,7 +16,7 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../../tasks/vumc_biostatistics/Alignment.wdl" as Alignment
+import "../../tasks/vumc_biostatistics/VUMCAlignment.wdl" as Alignment
 import "../../tasks/broad/DragmapAlignment.wdl" as DragmapAlignment
 import "../../tasks/broad/SplitLargeReadGroup.wdl" as SplitRG
 import "../../tasks/broad/Qc.wdl" as QC
@@ -119,7 +119,7 @@ workflow FastqToAlignedBam {
 
   String base_file_name = sample_name
 
-  String bwa_commandline = "bwa mem -K 100000000 -v 3 -t 16 -R \"@RG\\tID:1\\tPU:~{sample_name}\\tLB:~{sample_name}\\tSM:~{sample_name}\\tPL:ILLUMINA\" -Y $bash_ref_fasta"
+  String bwa_commandline = "bwa mem -K 100000000 -v 3 -t 16 -R \"@RG\\tID:~{sample_name}\\tPU:~{sample_name}\\tLB:~{sample_name}\\tSM:~{sample_name}\\tPL:ILLUMINA\" -Y $bash_ref_fasta"
 
   Int compression_level = 2
 
@@ -253,13 +253,6 @@ workflow FastqToAlignedBam {
     }
   }
 
-  # Create list of sequences for scatter-gather parallelization
-  call Utils.CreateSequenceGroupingTSV as CreateSequenceGroupingTSV {
-    input:
-      ref_dict = references.reference_fasta.ref_dict,
-      preemptible_tries = papi_settings.preemptible_tries
-  }
-
   if (check_contaminant) {
     # Estimate level of cross-sample contamination
     call Processing.CheckContamination as CheckContamination {
@@ -277,16 +270,22 @@ workflow FastqToAlignedBam {
     }
   }
 
-  # We need disk to localize the sharded input and output due to the scatter for BQSR.
-  # If we take the number we are scattering by and reduce by 3 we will have enough disk space
-  # to account for the fact that the data is not split evenly.
-  Int num_of_bqsr_scatters = length(CreateSequenceGroupingTSV.sequence_grouping)
-  Int potential_bqsr_divisor = num_of_bqsr_scatters - 10
-  Int bqsr_divisor = if potential_bqsr_divisor > 1 then potential_bqsr_divisor else 1
-
-  # Perform Base Quality Score Recalibration (BQSR) on the sorted BAM in parallel
-
   if (perform_bqsr) {
+    # Create list of sequences for scatter-gather parallelization
+    call Utils.CreateSequenceGroupingTSV as CreateSequenceGroupingTSV {
+      input:
+        ref_dict = references.reference_fasta.ref_dict,
+        preemptible_tries = papi_settings.preemptible_tries
+    }
+
+    # We need disk to localize the sharded input and output due to the scatter for BQSR.
+    # If we take the number we are scattering by and reduce by 3 we will have enough disk space
+    # to account for the fact that the data is not split evenly.
+    Int num_of_bqsr_scatters = length(CreateSequenceGroupingTSV.sequence_grouping)
+    Int potential_bqsr_divisor = num_of_bqsr_scatters - 10
+    Int bqsr_divisor = if potential_bqsr_divisor > 1 then potential_bqsr_divisor else 1
+
+    # Perform Base Quality Score Recalibration (BQSR) on the sorted BAM in parallel
     scatter (subgroup in CreateSequenceGroupingTSV.sequence_grouping) {
       # Generate the recalibration model by interval
       call Processing.BaseRecalibrator as BaseRecalibrator {
