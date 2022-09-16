@@ -2,8 +2,10 @@ version: 1.3
 workflows:
   - name: VUMCFastqToAlignedBam
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/VUMCFastqToAlignedBam.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFastqToAlignedBam.wdl
 
   - name: VUMCUnmappedBamToAlignedBam
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/VUMCUnmappedBamToAlignedBam.wdl    
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCUnmappedBamToAlignedBam.wdl
+      testParameterFiles:
+        - /pipelines/vumc_biostatistics/preprocessing/VUMCUnmappedBamToAlignedBam.inputs.terra.json
