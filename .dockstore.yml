@@ -7,5 +7,3 @@ workflows:
   - name: VUMCUnmappedBamToAlignedBam
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCUnmappedBamToAlignedBam.wdl
-      testParameterFiles:
-        - /pipelines/vumc_biostatistics/preprocessing/VUMCUnmappedBamToAlignedBam.inputs.terra.json
