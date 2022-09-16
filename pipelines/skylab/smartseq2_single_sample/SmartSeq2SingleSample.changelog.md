@@ -1,3 +1,13 @@
+# 5.1.15
+2022-09-13 (Date of Last Commit)
+
+* Update RSEM.wdl to use an updated RSEM docker image. This change does not affect the SmartSeq2SingleSample pipeline.
+
+# 5.1.14
+2022-09-12 (Date of Last Commit)
+
+* Update HISAT2.wdl to use an updated HISAT2 docker image. This change does not affect the SmartSeq2SingleSample pipeline.
+
 # 5.1.13
 2022-08-23 (Date of Last Commit)
 
