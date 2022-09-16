@@ -8,14 +8,12 @@ TIMESTAMP=$(date +"%s")
 DIR=$(cd "$(dirname "$0")" && pwd)
 
 # Registries and tags
-#GCR_URL="quay.io/humancellatlas/build-indices" #replace with correct GCR_URL
-QUAY_URL="quay.io/humancellatlas/build-indices"
+GCR_URL="us.gcr.io/broad-gotc-prod/build-indices"
+#QUAY_URL="quay.io/humancellatlas/build-indices"
 #Image path before getting renamed: quay.io/humancellatlas/snss2-indices:1.2.0
-#"us.gcr.io/broad-gotc-prod/snaptools-bwa"
-#QUAY_URL="quay.io/broadinstitute/gotc-prod-snaptools-bwa" # Update and uncomment push block below after setting up quay repo
 
 #STAR version
-STAR_VERSION=2.7.10a
+STAR_VERSION="2.7.10a"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
