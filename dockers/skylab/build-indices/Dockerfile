@@ -3,6 +3,9 @@
 # Also upgraded to a more recent Debian version (Bullseye) so tini is part of apt.
 FROM --platform="linux/amd64" python:3.6-bullseye
 
+# Set parameters
+ARG STAR_VERSION=2.7.10a
+
 # Add metadata labels
 LABEL maintainer="Broad Institute DSDE <dsde-engineering@broadinstitute.org" \
       software="subread package" \
@@ -21,12 +24,12 @@ RUN apt-get update -y --fix-missing && apt-get install -y \
   tini && \
   pip3 install --upgrade pip && \
   pip3 install -r requirements.txt && \
-  wget https://github.com/alexdobin/STAR/archive/refs/tags/2.7.10a.tar.gz && \ 
-  tar -xf 2.7.10a.tar.gz && chmod +x /usr/local/STAR-2.7.10a/bin/Linux_x86_64_static/STAR && \
+  wget https://github.com/alexdobin/STAR/archive/refs/tags/${STAR_VERSION}.tar.gz && \ 
+  tar -xf ${STAR_VERSION}.tar.gz && chmod +x /usr/local/${STAR_VERSION}/bin/Linux_x86_64_static/STAR && \
   mkdir /script
 
 # Add STAR installation directory to PATH
-ENV PATH /usr/local/STAR-2.7.10a/bin/Linux_x86_64_static/:$PATH
+ENV PATH /usr/local/${STAR_VERSION}/bin/Linux_x86_64_static/:$PATH
 
 # Copy the script that removes alignments spanning intron-exon junctions
 WORKDIR /script
