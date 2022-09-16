@@ -25,7 +25,8 @@ RUN apt-get update -y --fix-missing && apt-get install -y \
   pip3 install --upgrade pip && \
   pip3 install -r requirements.txt && \
   wget https://github.com/alexdobin/STAR/archive/refs/tags/${STAR_VERSION}.tar.gz && \ 
-  tar -xf ${STAR_VERSION}.tar.gz && chmod +x /usr/local/${STAR_VERSION}/bin/Linux_x86_64_static/STAR && \
+  tar -xf ${STAR_VERSION}.tar.gz && \
+  chmod +x /usr/local/STAR-${STAR_VERSION}/bin/Linux_x86_64_static/STAR && \
   mkdir /script
 
 # Add STAR installation directory to PATH
