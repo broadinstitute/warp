@@ -3,9 +3,6 @@
 # Also upgraded to a more recent Debian version (Bullseye) so tini is part of apt.
 FROM --platform="linux/amd64" python:3.6-bullseye
 
-# Set parameters
-ARG STAR_VERSION=2.7.10a
-
 # Add metadata labels
 LABEL maintainer="Broad Institute DSDE <dsde-engineering@broadinstitute.org" \
       software="subread package" \
@@ -13,12 +10,15 @@ LABEL maintainer="Broad Institute DSDE <dsde-engineering@broadinstitute.org" \
       description="RNA-seq high-performance read alignment, quantification and mutation discovery" \
       website="http://subread.sourceforge.net/"
 
+# Set parameters
+ARG STAR_VERSION=2.7.10a
 
 # Go into the directory where STAR will be installed
 WORKDIR /usr/local/
 # Copy the requirements file for pip3
 COPY requirements.txt .
 # Install compiler, subread, and other prerequisite libraries
+# NOTE: && is used so it fails fast.
 RUN apt-get update -y --fix-missing && apt-get install -y \
   wget \
   tini && \
