@@ -1,0 +1,35 @@
+{
+  "VUMCUnmappedBamToAlignedBam.flowcell_unmapped_bams": ["/scratch/cqs/shengq2/test_data/P100.0.unmapped.bam", "/scratch/cqs/shengq2/test_data/P100.1.unmapped.bam"],
+  "VUMCUnmappedBamToAlignedBam.sample_name": "P100",
+  "VUMCUnmappedBamToAlignedBam.preemptible_tries": 3,
+  "VUMCUnmappedBamToAlignedBam.agg_preemptible_tries": 3,
+  "VUMCUnmappedBamToAlignedBam.contamination_sites_ud": "/data/cqs/references/broad/hg38/v0/contamination-resources/1000g/1000g.phase3.100k.b38.vcf.gz.dat.UD",
+  "VUMCUnmappedBamToAlignedBam.contamination_sites_bed": "/data/cqs/references/broad/hg38/v0/contamination-resources/1000g/1000g.phase3.100k.b38.vcf.gz.dat.bed",
+  "VUMCUnmappedBamToAlignedBam.contamination_sites_mu": "/data/cqs/references/broad/hg38/v0/contamination-resources/1000g/1000g.phase3.100k.b38.vcf.gz.dat.mu",
+  "VUMCUnmappedBamToAlignedBam.calling_interval_list": "/data/cqs/references/broad/hg38/v0/wgs_calling_regions.hg38.interval_list",
+  "VUMCUnmappedBamToAlignedBam.ref_dict": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.dict",
+  "VUMCUnmappedBamToAlignedBam.ref_fasta": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "VUMCUnmappedBamToAlignedBam.ref_fasta_index": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+  "VUMCUnmappedBamToAlignedBam.ref_sa": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.fasta.64.sa",
+  "VUMCUnmappedBamToAlignedBam.ref_alt": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.fasta.64.alt",
+  "VUMCUnmappedBamToAlignedBam.ref_amb": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.fasta.64.amb",
+  "VUMCUnmappedBamToAlignedBam.ref_bwt": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.fasta.64.bwt",
+  "VUMCUnmappedBamToAlignedBam.ref_ann": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.fasta.64.ann",
+  "VUMCUnmappedBamToAlignedBam.ref_pac": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.fasta.64.pac",
+  "VUMCUnmappedBamToAlignedBam.known_indels_sites_vcfs": [
+    "/data/cqs/references/broad/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz",
+    "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.known_indels.vcf.gz"
+  ],
+  "VUMCUnmappedBamToAlignedBam.known_indels_sites_indices": [
+    "/data/cqs/references/broad/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi",
+    "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.known_indels.vcf.gz.tbi"
+  ],
+  "VUMCUnmappedBamToAlignedBam.dbsnp_vcf": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf",
+  "VUMCUnmappedBamToAlignedBam.dbsnp_vcf_index": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx",
+  "VUMCUnmappedBamToAlignedBam.evaluation_interval_list": "/data/cqs/references/broad/hg38/v0/wgs_evaluation_regions.hg38.interval_list",
+  "VUMCUnmappedBamToAlignedBam.haplotype_database_file": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt",
+  "VUMCUnmappedBamToAlignedBam.cutoff_for_large_rg_in_gb": 10,
+  "VUMCUnmappedBamToAlignedBam.reads_per_file": 48000000,
+  "VUMCUnmappedBamToAlignedBam.check_contaminant": true
+}
+

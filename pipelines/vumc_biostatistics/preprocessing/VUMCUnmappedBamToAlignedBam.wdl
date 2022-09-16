@@ -16,26 +16,43 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../../tasks/vumc_biostatistics/VUMCAlignment.wdl" as Alignment
-import "../../tasks/broad/DragmapAlignment.wdl" as DragmapAlignment
-import "../../tasks/broad/SplitLargeReadGroup.wdl" as SplitRG
-import "../../tasks/broad/Qc.wdl" as QC
-import "../../tasks/broad/BamProcessing.wdl" as Processing
-import "../../tasks/broad/Utilities.wdl" as Utils
-import "../../structs/dna_seq/DNASeqStructs.wdl" as Structs
+import "../../../tasks/broad/Alignment.wdl" as Alignment
+import "../../../tasks/broad/Qc.wdl" as QC
+import "../../../tasks/broad/BamProcessing.wdl" as Processing
+import "../../../tasks/broad/Utilities.wdl" as Utils
+import "../../../structs/dna_seq/DNASeqStructs.wdl" as Structs
 
 # WORKFLOW DEFINITION
-workflow FastqToAlignedBam {
+workflow VUMCUnmappedBamToAlignedBam {
+
   input {
-    Array[File] fastq_1
-    Array[File] fastq_2
+    File contamination_sites_ud
+    File contamination_sites_bed
+    File contamination_sites_mu
+
+    String cross_check_fingerprints_by = "READGROUP"
+    Float lod_threshold = -20.0
+    File haplotype_database_file
+    Int preemptible_tries
+    Int agg_preemptible_tries
+
+    Float cutoff_for_large_rg_in_gb = 10.0
+    Int reads_per_file = 48000000
+
+    Boolean check_contaminant = true
+    Boolean hard_clip_reads = false
+    Boolean unmap_contaminant_reads = true
+    Boolean bin_base_qualities = true
+    Boolean somatic = false
+    Boolean perform_bqsr = true
+    Boolean allow_empty_ref_alt = false
+
+    Array[File] flowcell_unmapped_bams
     String sample_name
 
     File contamination_sites_ud
     File contamination_sites_bed
     File contamination_sites_mu
-
-    File haplotype_database_file
 
     File calling_interval_list
 
@@ -57,25 +74,25 @@ workflow FastqToAlignedBam {
     File dbsnp_vcf_index
 
     File evaluation_interval_list
+  }
 
-    File haplotype_database_file
+  String recalibrated_bam_basename = sample_name + ".aligned.duplicates_marked.recalibrated"
 
-    String cross_check_fingerprints_by = "READGROUP"
-    Float lod_threshold = -20.0
+  String base_file_name = sample_name
 
-    Int preemptible_tries
-    Int agg_preemptible_tries
+  #read group information has been put into the unmapped bam file, we should not add RG in bwa, 
+  #otherwise merging unmapped bam with mapped bam will throw error.
+  #remember to use -p option
+  String bwa_commandline = "bwa mem -K 100000000 -v 3 -t 16 -p -Y $bash_ref_fasta"
 
-    Float cutoff_for_large_fastq_in_gb = 2.0
+  Int compression_level = 2
 
-    Boolean check_contaminant = true
-    Boolean hard_clip_reads = false
-    Boolean unmap_contaminant_reads = true
-    Boolean bin_base_qualities = true
-    Boolean somatic = false
-    Boolean perform_bqsr = true
-    Boolean use_bwa_mem = true
-    Boolean allow_empty_ref_alt = false
+  SampleAndUnmappedBams sample_and_unmapped_bams = object {
+    base_file_name: base_file_name,
+    final_gvcf_base_name: base_file_name,
+    flowcell_unmapped_bams: flowcell_unmapped_bams,
+    sample_name: sample_name,
+    unmapped_bam_suffix: ".bam"
   }
 
   ReferenceFasta reference_fasta = object {
@@ -115,72 +132,41 @@ workflow FastqToAlignedBam {
     agg_preemptible_tries: agg_preemptible_tries
   }
 
-  String recalibrated_bam_basename = sample_name + ".aligned.duplicates_marked.recalibrated"
+  # Align flowcell-level unmapped input bams in parallel
+  scatter (unmapped_bam in sample_and_unmapped_bams.flowcell_unmapped_bams) {
+    Float unmapped_bam_size = size(unmapped_bam, "GiB")
+    String unmapped_bam_basename = basename(unmapped_bam, sample_and_unmapped_bams.unmapped_bam_suffix)
 
-  String base_file_name = sample_name
-
-  String bwa_commandline = "bwa mem -K 100000000 -v 3 -t 16 -R \"@RG\\tID:~{sample_name}\\tPU:~{sample_name}\\tLB:~{sample_name}\\tSM:~{sample_name}\\tPL:ILLUMINA\" -Y $bash_ref_fasta"
-
-  Int compression_level = 2
-
-  # Get the size of the standard reference files as well as the additional reference files needed for BWA
-  scatter (idx in range(length(fastq_1))) {
-    File old_fastq_1 = fastq_1[idx]
-    File old_fastq_2 = fastq_2[idx]
-
-    Float fastq_size = size(old_fastq_1, "GiB")
-    if (fastq_size > cutoff_for_large_fastq_in_gb) {
-      Int n_files = ceil(fastq_size / cutoff_for_large_fastq_in_gb)
-      scatter (fidx in range(n_files)) {
-        String out_file_idx_1 = base_file_name + "." + idx + "." + fidx + ".1.fq.gz"
-        String out_file_idx_2 = base_file_name + "." + idx + "." + fidx + ".2.fq.gz"
+    if (unmapped_bam_size > cutoff_for_large_rg_in_gb) {
+      call Alignment.SamSplitter as SamSplitter {
+        input :
+          input_bam = unmapped_bam,
+          n_reads = reads_per_file,
+          preemptible_tries = preemptible_tries,
+          compression_level = compression_level
       }
-      Array[String] out_files_1 = out_file_idx_1
-      Array[String] out_files_2 = out_file_idx_2
 
-      call Alignment.FastqSplitter as FastqSplitter_read1 {
-        input:
-          fastq = old_fastq_1,
-          out_files = out_files_1,
-          compression_level = 1
-      }
-      Array[String] fastq_1_1_list = FastqSplitter_read1.split_fastqs
-
-      call Alignment.FastqSplitter as FastqSplitter_read2 {
-        input:
-          fastq = old_fastq_2,
-          out_files = out_files_2,
-          compression_level = 1
-      }
-      Array[String] fastq_2_1_list = FastqSplitter_read2.split_fastqs
-    }
-    
-    if(fastq_size <= cutoff_for_large_fastq_in_gb) {
-      Array[String] fastq_1_0_list = [old_fastq_1]
-      Array[String] fastq_2_0_list = [old_fastq_2]
+      Array[String] unmapped_bam_ss_list = SamSplitter.split_bams
     }
 
-    Array[String] s_fastq_1_list = select_first([fastq_1_0_list, fastq_1_1_list])
-    Array[String] s_fastq_2_list = select_first([fastq_2_0_list, fastq_2_1_list])
+    if (unmapped_bam_size <= cutoff_for_large_rg_in_gb) {
+      Array[String] unmapped_bam_ns_list = [unmapped_bam]
+    }
+
+    Array[String] ubam_list = select_first([unmapped_bam_ss_list, unmapped_bam_ns_list])
   }
-  Array[String] all_fastq_1 = flatten(s_fastq_1_list)
-  Array[String] all_fastq_2 = flatten(s_fastq_2_list)
 
-  # Align flowcell-level fastq in parallel
-  scatter (idx in range(length(all_fastq_1))) {
-    File new_fastq_1 = all_fastq_1[idx]
-    File new_fastq_2 = all_fastq_2[idx]
+  Array[String] all_ubams=flatten(ubam_list)
 
-    String fastq_basename = base_file_name + "." + idx
+  scatter(unmapped_bam2 in all_ubams) {
+    String unmapped_bam_basename2 = basename(unmapped_bam2)
 
     # Map reads to reference
-    call Alignment.FastqToBwaMemAndMba as FastqToBwaMemAndMba {
+    call Alignment.SamToFastqAndBwaMemAndMba as SamToFastqAndBwaMemAndMba {
       input:
-        fastq_1 = new_fastq_1,
-        fastq_2 = new_fastq_2,
+        input_bam = unmapped_bam2,
         bwa_commandline = bwa_commandline,
-        output_bam_basename = fastq_basename + ".aligned.unsorted",
-        sample_name = base_file_name,
+        output_bam_basename = unmapped_bam_basename2 + ".aligned.unsorted",
         reference_fasta = references.reference_fasta,
         compression_level = compression_level,
         preemptible_tries = papi_settings.preemptible_tries,
@@ -189,10 +175,10 @@ workflow FastqToAlignedBam {
         allow_empty_ref_alt = allow_empty_ref_alt
     }
 
-    File output_aligned_bam = FastqToBwaMemAndMba.output_bam
-
+    File output_aligned_bam = SamToFastqAndBwaMemAndMba.output_bam
     Float mapped_bam_size = size(output_aligned_bam, "GiB")
   }
+
 
   # Sum the read group bam sizes to approximate the aggregated bam size
   call Utils.SumFloats as SumFloats {
