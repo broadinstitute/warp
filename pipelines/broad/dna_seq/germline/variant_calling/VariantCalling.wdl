@@ -183,7 +183,7 @@ workflow VariantCalling {
       calling_interval_list = calling_interval_list,
       is_gvcf = make_gvcf,
       extra_args = "--no-overlaps",
-      gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1",
+      gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745",
       preemptible_tries = agg_preemptible_tries
   }
 
