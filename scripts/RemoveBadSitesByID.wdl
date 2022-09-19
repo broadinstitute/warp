@@ -123,9 +123,9 @@ task SplitX {
 
     command <<<
         set -xeuo pipefail
-        gatk SelectVariants -V ~{input_vcf} -L X:1-~{par1_end} -select "vc.getEnd()<~{par1_end}" -O PAR1.~{name}.vcf.gz
-        gatk SelectVariants -V ~{input_vcf} -L X:~{par2_start}-~{par2_end} -select "vc.getStart()>=~{par2_start}" -O PAR2.~{name}.vcf.gz
-        gatk SelectVariants -V ~{input_vcf} -L X:~{par1_end + 1}-~{par2_start} -select "vc.getStart()>~{par1_end} && vc.getStart()<~{par2_start}" -O NON_PAR.~{name}.vcf.gz
+        /usr/gitc/gatk4/gatk SelectVariants -V ~{input_vcf} -L X:1-~{par1_end} -select "vc.getEnd()<~{par1_end}" -O PAR1.~{name}.vcf.gz
+        /usr/gitc/gatk4/gatk SelectVariants -V ~{input_vcf} -L X:~{par2_start}-~{par2_end} -select "vc.getStart()>=~{par2_start}" -O PAR2.~{name}.vcf.gz
+        /usr/gitc/gatk4/gatk SelectVariants -V ~{input_vcf} -L X:~{par1_end + 1}-~{par2_start} -select "vc.getStart()>~{par1_end} && vc.getStart()<~{par2_start}" -O NON_PAR.~{name}.vcf.gz
     >>>
 
     runtime {
@@ -211,7 +211,7 @@ task RemoveBadSitesFromVcf {
 
         cp ~{bad_sites_list} bad_sites.list
 
-        gatk SelectVariants -V ~{vcf} --exclude-ids bad_sites.list -O ~{basename}.cleaned.vcf.gz
+        /usr/gitc/gatk4/gatk SelectVariants -V ~{vcf} --exclude-ids bad_sites.list -O ~{basename}.cleaned.vcf.gz
     >>>
 
     runtime {

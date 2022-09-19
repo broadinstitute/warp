@@ -67,10 +67,10 @@ task RunValidation {
         files=(~{sep=" " vcf_files})
         names=(~{sep=" " vcf_names})
         for ((i=0;i<${#files[@]};++i)); do
-            gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" SelectVariants -V ${files[i]} -sn NA12878 --exclude-non-variants \
+        /usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" SelectVariants -V ${files[i]} -sn NA12878 --exclude-non-variants \
             --remove-unused-alternates -O ${names[i]}.NA12878.vcf.gz
 
-            gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" Concordance -eval ${names[i]}.NA12878.vcf.gz \
+        /usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" Concordance -eval ${names[i]}.NA12878.vcf.gz \
             --truth ~{truth_vcf} -L ~{truth_intervals} --summary ${names[i]}.summary.tsv
         done
     >>>

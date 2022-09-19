@@ -112,7 +112,7 @@ task AnnotateWithAF_t {
   Int disk_size = 400
 
   command <<<
-    gatk VariantAnnotator -R ~{ref_fasta} -V ~{vcf} -L ~{interval} -O ~{output_basename}.vcf.gz  \
+      /usr/gitc/gatk4/gatk VariantAnnotator -R ~{ref_fasta} -V ~{vcf} -L ~{interval} -O ~{output_basename}.vcf.gz  \
     --resource:gnomad ~{gnomad_vcf}  --expression ~{sep=" --expression " expressions} -LE
   >>>
 
@@ -141,7 +141,7 @@ task GatherVCFsCloud {
     }
 
     command <<<
-        gatk GatherVcfsCloud -I ~{sep=" -I " vcfs} --gather-type CONVENTIONAL -O merged.vcf.gz
+        /usr/gitc/gatk4/gatk GatherVcfsCloud -I ~{sep=" -I " vcfs} --gather-type CONVENTIONAL -O merged.vcf.gz
     >>>
 
     runtime {
@@ -165,7 +165,7 @@ task MakeSitesOnlyVcf {
     Int disk_size = ceil(2* size(vcf, "GB")) + 10
 
     command <<<
-        gatk MakeSitesOnlyVcf -I ~{vcf} -O sites_only.vcf.gz
+        /usr/gitc/gatk4/gatk MakeSitesOnlyVcf -I ~{vcf} -O sites_only.vcf.gz
     >>>
 
     runtime {
@@ -220,7 +220,7 @@ task VariantsToTable {
     Int disk_size = ceil(2 * size(vcf, "GB")) + 10
 
     command <<<
-        gatk VariantsToTable -V ~{vcf} -F CHROM -F POS -F ID -F ~{sep=" -F " infoFields} -O variants.tsv
+        /usr/gitc/gatk4/gatk VariantsToTable -V ~{vcf} -F CHROM -F POS -F ID -F ~{sep=" -F " infoFields} -O variants.tsv
     >>>
 
     runtime {
@@ -273,7 +273,7 @@ task RemoveSymbolicAlleles {
     Int disk_size = ceil(3*(size(original_vcf, "GB") + size(original_vcf_index, "GB")))
   }
   command {
-    gatk SelectVariants -V ~{original_vcf} -xl-select-type SYMBOLIC -O ~{output_basename}.vcf.gz
+      /usr/gitc/gatk4/gatk SelectVariants -V ~{original_vcf} -xl-select-type SYMBOLIC -O ~{output_basename}.vcf.gz
   }
   output {
     File output_vcf = "~{output_basename}.vcf.gz"

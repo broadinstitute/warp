@@ -286,7 +286,7 @@ task GetSampleName {
   }
 
   command <<<
-    gatk GetSampleName -I ~{bam} -O sample_name.txt
+    /usr/gitc/gatk4/gatk GetSampleName -I ~{bam} -O sample_name.txt
   >>>
 
   runtime {
@@ -843,7 +843,7 @@ task CalculateContamination {
 
   command <<<
     set -e
-    gatk --java-options "-Xmx4096m" GetPileupSummaries \
+    /usr/gitc/gatk4/gatk --java-options "-Xmx4096m" GetPileupSummaries \
     -R ~{ref_fasta} \
     -I ~{bam} \
     -V ~{population_vcf} \
@@ -852,7 +852,7 @@ task CalculateContamination {
     --disable-read-filter WellformedReadFilter \
     --disable-read-filter MappingQualityAvailableReadFilter
 
-    gatk --java-options "-Xmx4096m" CalculateContamination \
+    /usr/gitc/gatk4/gatk --java-options "-Xmx4096m" CalculateContamination \
     -I ~{base_name}_pileups.tsv \
     -O ~{base_name}_contamination.tsv
   

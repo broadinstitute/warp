@@ -71,7 +71,7 @@ task GenerateChunk {
   Int max_heap = memory_mb - 500
 
   command {
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants \
     -V ~{vcf} \
     --select-type-to-include SNP \
@@ -123,8 +123,8 @@ task CountVariantsInChunks {
   command <<<
     set -e -o pipefail
 
-    echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
-    echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_vcf}  | sed 's/Tool returned://') > var_in_reference
+    echo $(/usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
+    echo $(/usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_vcf}  | sed 's/Tool returned://') > var_in_reference
   >>>
   output {
     Int var_in_original = read_int("var_in_original")
@@ -277,13 +277,13 @@ task GatherVcfs {
   command <<<
     set -e -o pipefail
 
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     GatherVcfs \
     -I ~{sep=' -I ' input_vcfs} \
     --REORDER_INPUT_BY_FIRST_VARIANT \
     -O ~{output_vcf_basename}.vcf.gz
 
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     IndexFeatureFile -I ~{output_vcf_basename}.vcf.gz
 
   >>>
@@ -346,7 +346,7 @@ task UpdateHeader {
   command <<<
 
     ## update the header of the merged vcf
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     UpdateVCFSequenceDictionary \
     --source-dictionary ~{ref_dict} \
     --output ~{basename}.vcf.gz \
@@ -380,7 +380,7 @@ task RemoveSymbolicAlleles {
   Int max_heap = memory_mb - 500
 
   command {
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants -V ~{original_vcf} -xl-select-type SYMBOLIC -O ~{output_basename}.vcf.gz
   }
   output {
@@ -772,7 +772,7 @@ task SelectVariantsByIds {
     set -e -o pipefail
 
     cp ~{ids} sites.list
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants -V ~{vcf} --exclude-filtered --keep-ids sites.list -O ~{basename}.vcf.gz
   >>>
   runtime {
@@ -831,7 +831,7 @@ task InterleaveVariants {
   command <<<
     set -e -o pipefail
 
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     MergeVcfs -I ~{sep=" -I " vcfs} -O ~{basename}.vcf.gz
   >>>
   runtime {

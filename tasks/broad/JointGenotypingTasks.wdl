@@ -56,7 +56,7 @@ task SplitIntervalList {
   }
 
   command <<<
-    gatk --java-options "-Xms3000m -Xmx3250m" SplitIntervals \
+    /usr/gitc/gatk4/gatk --java-options "-Xms3000m -Xmx3250m" SplitIntervals \
       -L ~{interval_list} -O  scatterDir -scatter ~{scatter_count} -R ~{ref_fasta} \
       -mode ~{scatter_mode} --interval-merging-rule OVERLAPPING_ONLY
     >>>
@@ -105,7 +105,7 @@ task ImportGVCFs {
     # a significant amount of non-heap memory for native libraries.
     # Also, testing has shown that the multithreaded reader initialization
     # does not scale well beyond 5 threads, so don't increase beyond that.
-    gatk --java-options "-Xms8000m -Xmx25000m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms8000m -Xmx25000m" \
       GenomicsDBImport \
       --genomicsdb-workspace-path ~{workspace_dir_name} \
       --batch-size ~{batch_size} \
@@ -167,7 +167,7 @@ task GenotypeGVCFs {
     tar -xf ~{workspace_tar}
     WORKSPACE=$(basename ~{workspace_tar} .tar)
 
-    gatk --java-options "-Xms8000m -Xmx25000m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms8000m -Xmx25000m" \
       GenotypeGVCFs \
       -R ~{ref_fasta} \
       -O ~{output_vcf_filename} \
@@ -226,7 +226,7 @@ task GnarlyGenotyper {
     tar -xf ~{workspace_tar}
     WORKSPACE=$( basename ~{workspace_tar} .tar)
 
-    gatk --java-options "-Xms8000m -Xmx25000m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms8000m -Xmx25000m" \
       GnarlyGenotyper \
       -R ~{ref_fasta} \
       -O ~{output_vcf_filename} \
@@ -274,14 +274,14 @@ task HardFilterAndMakeSitesOnlyVcf {
   command <<<
     set -euo pipefail
 
-    gatk --java-options "-Xms3000m -Xmx3250m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms3000m -Xmx3250m" \
       VariantFiltration \
       --filter-expression "ExcessHet > ~{excess_het_threshold}" \
       --filter-name ExcessHet \
       -O ~{variant_filtered_vcf_filename} \
       -V ~{vcf}
 
-    gatk --java-options "-Xms3000m -Xmx3250m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms3000m -Xmx3250m" \
       MakeSitesOnlyVcf \
       -I ~{variant_filtered_vcf_filename} \
       -O ~{sites_only_vcf_filename}
@@ -332,7 +332,7 @@ task IndelsVariantRecalibrator {
   command <<<
     set -euo pipefail
 
-    gatk --java-options "-Xms24000m -Xmx25000m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms24000m -Xmx25000m" \
       VariantRecalibrator \
       -V ~{sites_only_variant_filtered_vcf} \
       -O ~{recalibration_filename} \
@@ -396,7 +396,7 @@ task SNPsVariantRecalibratorCreateModel {
   command <<<
     set -euo pipefail
 
-    gatk --java-options "-Xms100g -Xmx100g" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms100g -Xmx100g" \
       VariantRecalibrator \
       -V ~{sites_only_variant_filtered_vcf} \
       -O ~{recalibration_filename} \
@@ -477,7 +477,7 @@ task SNPsVariantRecalibrator {
 
     MODEL_REPORT=~{model_report}
 
-    gatk --java-options "-Xms~{java_mem}m -Xmx~{max_heap}m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms~{java_mem}m -Xmx~{max_heap}m" \
       VariantRecalibrator \
       -V ~{sites_only_variant_filtered_vcf} \
       -O ~{recalibration_filename} \
@@ -554,7 +554,7 @@ task GatherTranches {
 
     cat $tranches_fofn | rev | cut -d '/' -f 1 | rev | awk '{print "tranches/" $1}' > inputs.list
 
-    gatk --java-options "-Xmx6000m -Xmx7000m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xmx6000m -Xmx7000m" \
       GatherTranches \
       --input inputs.list \
       --mode ~{mode} \
@@ -597,7 +597,7 @@ task ApplyRecalibration {
   command <<<
     set -euo pipefail
 
-    gatk --java-options "-Xms5000m -Xmx6500m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms5000m -Xmx6500m" \
       ApplyVQSR \
       -O tmp.indel.recalibrated.vcf \
       -V ~{input_vcf} \
@@ -608,7 +608,7 @@ task ApplyRecalibration {
       --create-output-variant-index true \
       -mode INDEL
 
-    gatk --java-options "-Xms5000m -Xmx6500m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms5000m -Xmx6500m" \
       ApplyVQSR \
       -O ~{recalibrated_vcf_filename} \
       -V tmp.indel.recalibrated.vcf \
@@ -656,7 +656,7 @@ task GatherVcfs {
     # --ignore-safety-checks makes a big performance difference so we include it in our invocation.
     # This argument disables expensive checks that the file headers contain the same set of
     # genotyped samples and that files are in order by position of first record.
-    gatk --java-options "-Xms6000m -Xmx6500m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms6000m -Xmx6500m" \
       GatherVcfsCloud \
       --ignore-safety-checks \
       --gather-type BLOCK \
@@ -707,7 +707,7 @@ task SelectFingerprintSiteVariants {
 
     hdb_to_interval_list ~{haplotype_database} > hdb.interval_list
 
-    gatk --java-options "-Xms6000m -Xmx7000m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms6000m -Xmx7000m" \
       SelectVariants \
       --variant ~{input_vcf} \
       --intervals hdb.interval_list \
@@ -746,7 +746,7 @@ task CollectVariantCallingMetrics {
   command <<<
     set -euo pipefail
 
-    gatk --java-options "-Xms6000m -Xmx7000m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms6000m -Xmx7000m" \
       CollectVariantCallingMetrics \
       --INPUT ~{input_vcf} \
       --DBSNP ~{dbsnp_vcf} \
@@ -828,7 +828,7 @@ task GatherVariantCallingMetrics {
 
     INPUT=$(cat $input_details_fofn | rev | cut -d '/' -f 1 | rev | sed s/.variant_calling_detail_metrics//g | awk '{printf("--INPUT metrics/%s ", $1)}')
 
-    gatk --java-options "-Xms2000m -Xmx2500m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms2000m -Xmx2500m" \
       AccumulateVariantCallingMetrics \
       $INPUT \
       --OUTPUT ~{output_prefix}
@@ -890,7 +890,7 @@ task CrossCheckFingerprint {
     cp $gvcfInputsList gvcf_inputs.list
     cp $vcfInputsList vcf_inputs.list
 
-    gatk --java-options "-Xms~{java_mem}m -Xmx~{java_mem}m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms~{java_mem}m -Xmx~{java_mem}m" \
       CrosscheckFingerprints \
       --INPUT gvcf_inputs.list \
       --SECOND_INPUT vcf_inputs.list \
@@ -1020,7 +1020,7 @@ task GetFingerprintingIntervalIndices {
     hdb_to_interval_list ~{haplotype_database} > hdb.interval_list
 
     # find the intervals that overlap the haplotype_database
-    gatk --java-options "-Xms3000m -Xmx3250m" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms3000m -Xmx3250m" \
     IntervalListTools \
       -ACTION OVERLAPS \
       -O all.sorted.interval_list \
