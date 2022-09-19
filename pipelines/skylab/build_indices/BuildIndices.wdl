@@ -91,7 +91,7 @@ task BuildStarSingleNucleus {
     String organism
     String organism_prefix
     References references
-    String? biotypes
+    File biotypes
   }
 
   meta {
@@ -374,7 +374,7 @@ workflow BuildIndices {
     String organism_prefix
     String genome_short_string
     String dbsnp_version
-    String? biotypes
+    File biotypes
   }
 
   # version of this pipeline
