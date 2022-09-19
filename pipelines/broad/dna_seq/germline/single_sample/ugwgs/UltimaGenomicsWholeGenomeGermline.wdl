@@ -10,7 +10,7 @@ import "../../../../../../tasks/broad/Qc.wdl" as QC
 import "../../../../../../tasks/broad/UltimaGenomicsWholeGenomeGermlineQC.wdl" as UltimaGenomicsWholeGenomeGermlineQC
 import "../../../../../../structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl" as Structs
 import "../../../../../../pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl" as ReblockGVCF
-
+# Test change to trigger smart tests
 
 workflow UltimaGenomicsWholeGenomeGermline {
   input {
