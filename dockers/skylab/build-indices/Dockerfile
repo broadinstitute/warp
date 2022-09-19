@@ -30,7 +30,7 @@ RUN apt-get update -y --fix-missing && apt-get install -y \
   mkdir /script
 
 # Add STAR installation directory to PATH
-ENV PATH /usr/local/${STAR_VERSION}/bin/Linux_x86_64_static/:$PATH
+ENV PATH /usr/local/STAR-${STAR_VERSION}/bin/Linux_x86_64_static/:$PATH
 
 # Copy the script that removes alignments spanning intron-exon junctions
 WORKDIR /script
