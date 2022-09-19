@@ -110,7 +110,7 @@ function pipeline_to_args() {
         continue
       fi;;
     UltimaGenomicsWholeGenomeGermline)
-      echo UltimaGenomicsGermlineSingleSample ${common_args};;
+      echo UltimaGenomicsWholeGenomeGermline ${common_args};;
     UltimaGenomicsJointGenotyping)
       echo UltimaGenomicsJointGenotyping ${common_args};;
   esac
