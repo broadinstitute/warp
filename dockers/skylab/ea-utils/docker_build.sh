@@ -9,7 +9,7 @@ DIR=$(cd $(dirname $0) && pwd)
 
 # Registries and tags
 GCR_URL="us.gcr.io/broad-gotc-prod/ea-utils"
-#QUAY_URL="quay.io/humancellatlas/snss2-trim-adapters"
+#QUAY_URL="quay.io/humancellatlas/ea-utils"
 
 # ea-utils version
 EAUTILS_VERSION="1.04.807"
