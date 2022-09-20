@@ -99,7 +99,6 @@ task BuildStarSingleNucleus {
   }
   String ref_name = "star_primary_gencode_~{organism}_v~{gtf_version}"
   String star_index_name = "modified_~{ref_name}.tar"
-  String genome_fa_modified = "modified_GRC~{organism_prefix}38.primary_assembly.genome.fa"
   String annotation_gtf_modified = "modified_gencode.v~{gtf_version}.primary_assembly.annotation.gtf"
   String annotation_gtf_introns = "introns_modified_gencode.v~{gtf_version}.primary_assembly.annotation.gtf"
 
@@ -114,7 +113,7 @@ task BuildStarSingleNucleus {
     mkdir star
     STAR --runMode genomeGenerate \
     --genomeDir star \
-    --genomeFastaFiles ~{genome_fa_modified} \
+    --genomeFastaFiles ~{references.genome_fa} \
     --sjdbGTFfile ~{annotation_gtf_modified} \
     --sjdbOverhang 100 \
     --runThreadN 16
@@ -128,7 +127,7 @@ task BuildStarSingleNucleus {
     File star_index = star_index_name
     File annotation_gtf_modified_introns = annotation_gtf_introns
     References modified_references = object {
-             genome_fa: genome_fa_modified,
+             genome_fa: references.genome_fa,
              annotation_gtf: annotation_gtf_modified
            }
   }
