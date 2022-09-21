@@ -5,7 +5,6 @@
 Copy and paste to pull this image
 
 #### `docker pull us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658334187`
-`
 
 - __What is this image:__ This image is a lightweight alpine-based custom image for running the STAR aligner.
 - __What is STAR:__  STAR is a fast universal RNA-seq aligner, [more info](https://github.com/alexdobin/STAR).
