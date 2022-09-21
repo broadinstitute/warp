@@ -80,7 +80,7 @@ task RunValidation {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+        docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-42-g8c348aa-SNAPSHOT-1658941911"
 
         memory: machine_mem + " MiB"
         disks: "local-disk " + select_first([disk_space, 100]) + if use_ssd then " SSD" else " HDD"
