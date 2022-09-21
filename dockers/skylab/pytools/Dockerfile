@@ -26,4 +26,4 @@ RUN set -eux; \
     rm -r /usr/gitc/temp;
 
 # Set tini as default entrypoint
-ENTRYPOINT [ "/sbin/tini", "--"]
+ENTRYPOINT ["/sbin/tini", "--"]

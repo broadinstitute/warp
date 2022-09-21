@@ -47,8 +47,7 @@ function main(){
     IMAGE_TAG="$DOCKER_IMAGE_VERSION-$TIMESTAMP"
 
     echo "building and pushing GCR Image - $GCR_URL:$IMAGE_TAG"
-    docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" \
-        --build-arg STAR_VERSION="$STAR_VERSION" "$DIR"
+    docker build --no-cache -t "$GCR_URL:$IMAGE_TAG" "$DIR"
     docker push "$GCR_URL:$IMAGE_TAG"
 
 #    echo "tagging and pushing Quay Image"
