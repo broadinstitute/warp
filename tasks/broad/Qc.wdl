@@ -618,7 +618,7 @@ task ValidateVCF {
     Int preemptible_tries = 3
     Boolean is_gvcf = true
     String? extra_args
-    String gatk_docker = "us.gcr.io/us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-8c348aabba31a52d6b1f128084d3ff9fe3de2a18-4.2.6.1-42-g8c348aabb"
+    String gatk_docker = "broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-8c348aabba31a52d6b1f128084d3ff9fe3de2a18-4.2.6.1-42-g8c348aabb"
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
