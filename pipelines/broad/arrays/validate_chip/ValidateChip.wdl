@@ -324,7 +324,7 @@ task GenotypeConcordance {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    docker: "us.gcr.io/us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-8c348aabba31a52d6b1f128084d3ff9fe3de2a18-4.2.6.1-42-g8c348aabb"
     disks: "local-disk " + disk_size + " HDD"
     memory: "7000 MiB"
     preemptible: preemptible_tries
