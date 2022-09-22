@@ -117,7 +117,7 @@ task AnnotateWithAF_t {
   >>>
 
   runtime {
-    docker: "broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-8c348aabba31a52d6b1f128084d3ff9fe3de2a18-4.2.6.1-42-g8c348aabb"
+    docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-8c348aabba31a52d6b1f128084d3ff9fe3de2a18-4.2.6.1-42-g8c348aabb"
     disks: "local-disk " + disk_size + " HDD"
     memory: mem + " GB" # some of the gnomad vcfs are like 38 gigs so maybe need more ?
   }
@@ -145,7 +145,7 @@ task GatherVCFsCloud {
     >>>
 
     runtime {
-            docker: "broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-8c348aabba31a52d6b1f128084d3ff9fe3de2a18-4.2.6.1-42-g8c348aabb"
+            docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-8c348aabba31a52d6b1f128084d3ff9fe3de2a18-4.2.6.1-42-g8c348aabb"
             disks: "local-disk " + disk_size + " HDD"
             memory: "16 GB"
         }
@@ -169,7 +169,7 @@ task MakeSitesOnlyVcf {
     >>>
 
     runtime {
-        docker: "broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-8c348aabba31a52d6b1f128084d3ff9fe3de2a18-4.2.6.1-42-g8c348aabb"
+        docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-8c348aabba31a52d6b1f128084d3ff9fe3de2a18-4.2.6.1-42-g8c348aabb"
         disks: "local-disk " + disk_size + " HDD"
         memory: "16 GB"
     }
@@ -224,7 +224,7 @@ task VariantsToTable {
     >>>
 
     runtime {
-        docker: "broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-8c348aabba31a52d6b1f128084d3ff9fe3de2a18-4.2.6.1-42-g8c348aabb"
+        docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-8c348aabba31a52d6b1f128084d3ff9fe3de2a18-4.2.6.1-42-g8c348aabb"
         disks: "local-disk " + disk_size + " HDD"
         memory: "16 GB"
     }
@@ -280,7 +280,7 @@ task RemoveSymbolicAlleles {
     File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
   }
   runtime {
-    docker: "broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-8c348aabba31a52d6b1f128084d3ff9fe3de2a18-4.2.6.1-42-g8c348aabb"
+    docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-8c348aabba31a52d6b1f128084d3ff9fe3de2a18-4.2.6.1-42-g8c348aabb"
     disks: "local-disk " + disk_size + " HDD"
     memory: "4 GB"
   }

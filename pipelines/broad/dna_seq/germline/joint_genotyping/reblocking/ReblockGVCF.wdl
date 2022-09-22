@@ -45,7 +45,7 @@ workflow ReblockGVCF {
         calling_interval_list_index = gvcf_index,
         is_gvcf = true,
         extra_args = "--no-overlaps",
-        gatk_docker = "broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-8c348aabba31a52d6b1f128084d3ff9fe3de2a18-4.2.6.1-42-g8c348aabb"
+        gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-8c348aabba31a52d6b1f128084d3ff9fe3de2a18-4.2.6.1-42-g8c348aabb"
     }
 
   output {
