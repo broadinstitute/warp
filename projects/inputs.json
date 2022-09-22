@@ -1,0 +1,8 @@
+{
+  "DifferentSamples.mixed_research_and_clinical_sample": [
+    "gs://broad-gotc-test-storage/DifferentSamplesExampleWDL/inputs/sample1.txt",
+    "gs://broad-gotc-test-storage/DifferentSamplesExampleWDL/inputs/sample2.txt",
+    "gs://broad-gotc-test-storage/DifferentSamplesExampleWDL/inputs/sample1.clinical.txt"
+  ],
+  "DifferentSamples.ClinicalTask.disk_size_gb": "50"
+}
