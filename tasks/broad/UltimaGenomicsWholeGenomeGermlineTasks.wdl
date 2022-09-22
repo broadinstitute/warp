@@ -651,7 +651,7 @@ task FilterVCF {
         --flow_order ~{used_flow_order} \
         ~{true="--blacklist_cg_insertions" false="" filter_cg_insertions} \
         --annotate_intervals ~{sep=" --annotate_intervals " annotation_intervals} \
-        --output_file /cromwell_root/~{final_vcf_base_name}.filtered.vcf.gz
+        --output_file ~{final_vcf_base_name}.filtered.vcf.gz
   >>>
 
   runtime {
@@ -710,7 +710,7 @@ task TrainModel {
         ~{"--exome_weight " + exome_weight} \
         ~{"--exome_weight_annotation " + exome_weight_annotation} \
         --annotate_intervals ~{sep=" --annotate_intervals " annotation_intervals} \
-        --output_file_prefix /cromwell_root/~{input_vcf_name}.model
+        --output_file_prefix ~{input_vcf_name}.model
   >>>
 
   runtime {
