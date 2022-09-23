@@ -1,3 +1,8 @@
+# 3.1.9
+2022-09-23 (Date of Last Commit)
+
+* Updated Picard-Python Docker image in Utilities.wdl to fix vulnerabilities.
+
 # 3.1.8
 2022-07-15 (Date of Last Commit)
 

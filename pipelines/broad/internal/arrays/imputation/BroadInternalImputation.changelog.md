@@ -1,7 +1,7 @@
 # 1.1.1
 2022-09-23 (Date of Last Commit)
 
-* Updated BCFTools/VCFTools and Minimac4 Docker images to fix vulnerabilities.
+* Updated Picard-Python, BCFTools/VCFTools, and Minimac4 Docker images to fix vulnerabilities.
 
 # 1.1.0
 2022-09-06 (Date of Last Commit)
