@@ -1,4 +1,4 @@
-FROM python:3.8-alpine
+FROM --platform=linux/amd64 python:3.8-alpine
 
 ARG PICARD_PUBLIC_VERSION=2.26.10
 
@@ -13,7 +13,7 @@ WORKDIR /usr/gitc
 # Install dependencies
 RUN set -eux; \
         apk add --no-cache \
-            bash \ 
+            bash \
             gcompat \
             libc6-compat \
             openjdk8 \
