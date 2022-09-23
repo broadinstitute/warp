@@ -1,3 +1,8 @@
+# 1.0.4
+2022-09-20 (Date of Last Commit)
+
+* Removed /cromwell_root/ prefix for output file paths in FilterVCF and TrainModel tasks.
+
 # 1.0.3
 2022-09-07 (Date of Last Commit)
 
