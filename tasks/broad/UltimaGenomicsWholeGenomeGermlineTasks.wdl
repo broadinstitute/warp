@@ -56,7 +56,7 @@ task SplitCram {
     String base_file_name
     Int reads_per_file
 
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
     Int disk_size_gb = ceil(3 * size(input_cram_bam, "GiB") + 20)
     Int cpu = 1
     Int memory_gb = 10
@@ -66,7 +66,7 @@ task SplitCram {
 
   command <<<
     mkdir -p splitout
-    /usr/gitc/gatk4/gatk --java-options "-Xmx8g" \
+    gatk --java-options "-Xmx8g" \
       SplitCRAM -I ~{input_cram_bam} \
       -O splitout/~{base_file_name}-%04d.cram \
       --shard-records ~{reads_per_file}
@@ -268,7 +268,7 @@ task MarkDuplicatesSpark {
   input {
     Array[File] input_bams
     String output_bam_basename
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
     Int disk_size_gb
     Int cpu = 32
     Int memory_mb = if 4 * ceil(size(input_bams, "MB")) / 4000 > 600000 then 300000 else 208000
@@ -284,7 +284,7 @@ task MarkDuplicatesSpark {
   command <<<
     bams_dirname=$(echo "~{sep='\n'input_bams}" | tail -1 | xargs dirname)
 
-    /usr/gitc/gatk4/gatk --java-options "-Xmx190g" MarkDuplicatesSpark \
+    gatk --java-options "-Xmx190g" MarkDuplicatesSpark \
     --spark-master local[~{cpu - 8}] \
     --input ~{sep=" --input " input_bams} \
     --output ~{output_bam_basename}.bam \
@@ -473,7 +473,7 @@ task HaplotypeCaller {
     Boolean native_sw = false
     String? contamination_extra_args 
     
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
     Int disk_size_gb = ceil((size(input_bam_list, "GB")) + size(references.ref_fasta, "GB") + size(references.ref_fasta_index, "GB") + size(references.ref_dict, "GB") + 60)
     Int cpu = 2
     Int memory_mb = 12000
@@ -497,7 +497,7 @@ task HaplotypeCaller {
     touch realigned.bam
     touch realigned.bai
 
-    /usr/gitc/gatk4/gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms~{memory_mb-2000}m" \
+    gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms~{memory_mb-2000}m" \
       HaplotypeCaller \
       -R ~{references.ref_fasta} \
       -O ~{output_filename} \
@@ -584,7 +584,7 @@ task ConvertGVCFtoVCF {
     String output_vcf_name
     References references
 
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
     Int disk_size_gb = ceil(2 * size(input_gvcf, "GB") + size(references.ref_fasta, "GB") + size(input_gvcf_index, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 12000
@@ -593,7 +593,7 @@ task ConvertGVCFtoVCF {
   }
 
   command {
-    /usr/gitc/gatk4/gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m" \
+    gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m" \
     GenotypeGVCFs \
     -R ~{references.ref_fasta} \
     -V ~{input_gvcf} \
@@ -940,7 +940,7 @@ task AnnotateVCF {
     String flow_order
     String final_vcf_base_name
 
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
     Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + size(references.ref_fasta, "GB") + size(reference_dbsnp, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 15000
@@ -949,7 +949,7 @@ task AnnotateVCF {
   }
 
   command <<<
-    /usr/gitc/gatk4/gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m" \
+    gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms10000m" \
     VariantAnnotator \
     -R ~{references.ref_fasta} \
     -V ~{input_vcf} \

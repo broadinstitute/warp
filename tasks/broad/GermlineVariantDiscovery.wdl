@@ -44,7 +44,7 @@ task HaplotypeCaller_GATK35_GVCF {
   # Using PrintReads is a temporary solution until we update HaploypeCaller to use GATK4. Once that is done,
   # HaplotypeCaller can stream the required intervals directly from the cloud.
   command {
-    /usr/gitc/gatk4/gatk --java-options "-Xms2000m -Xmx9000m"\
+    gatk --java-options "-Xms2000m -Xmx9000m"\
       PrintReads \
       -I ~{input_bam} \
       --interval-padding 500 \
@@ -96,7 +96,7 @@ task HaplotypeCaller_GATK4_VCF {
     Boolean use_dragen_hard_filtering = false
     Boolean use_spanning_event_genotyping = true
     File? dragstr_model
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
     Int memory_multiplier = 1
   }
   
@@ -128,7 +128,7 @@ task HaplotypeCaller_GATK4_VCF {
     echo Total available memory: ${available_memory_mb} MB >&2
     echo Memory reserved for Java: ${java_memory_size_mb} MB >&2
 
-    /usr/gitc/gatk4/gatk --java-options "-Xmx${java_memory_size_mb}m -Xms${java_memory_size_mb}m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10" \
+    gatk --java-options "-Xmx${java_memory_size_mb}m -Xms${java_memory_size_mb}m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10" \
       HaplotypeCaller \
       -R ~{ref_fasta} \
       -I ~{input_bam} \
@@ -203,7 +203,7 @@ task Reblock {
     File ref_fasta
     File ref_fasta_index
     String output_vcf_filename
-    String docker_image = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String docker_image = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
     Int additional_disk = 20
     String? annotations_to_keep_command
     Float? tree_score_cutoff
@@ -214,7 +214,7 @@ task Reblock {
   command {
     set -e 
 
-    /usr/gitc/gatk4/gatk --java-options "-Xms3000m -Xmx3000m" \
+    gatk --java-options "-Xms3000m -Xmx3000m" \
       ReblockGVCF \
       -R ~{ref_fasta} \
       -V ~{gvcf} \
@@ -246,14 +246,14 @@ task HardFilterVcf {
     String vcf_basename
     File interval_list
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
   String output_vcf_name = vcf_basename + ".filtered.vcf.gz"
 
   command {
-    /usr/gitc/gatk4/gatk --java-options "-Xms2000m -Xmx2500m" \
+    gatk --java-options "-Xms2000m -Xmx2500m" \
       VariantFiltration \
       -V ~{input_vcf} \
       -L ~{interval_list} \
@@ -282,7 +282,7 @@ task DragenHardFilterVcf {
     Boolean make_gvcf
     String vcf_basename
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
@@ -291,7 +291,7 @@ task DragenHardFilterVcf {
   String output_vcf_name = vcf_basename + ".hard-filtered" + output_suffix
 
   command {
-     /usr/gitc/gatk4/gatk --java-options "-Xms2000m -Xmx2500m" \
+     gatk --java-options "-Xms2000m -Xmx2500m" \
       VariantFiltration \
       -V ~{input_vcf} \
       --filter-expression "QUAL < 10.4139" \
@@ -322,7 +322,7 @@ task CNNScoreVariants {
     File ref_fasta_index
     File ref_dict
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   Int disk_size = ceil(size(bamout, "GiB") + size(ref_fasta, "GiB") + (size(input_vcf, "GiB") * 2))
@@ -338,7 +338,7 @@ task CNNScoreVariants {
   String tensor_type = if defined(bamout) then "read-tensor" else "reference"
 
   command {
-     /usr/gitc/gatk4/gatk --java-options "-Xmx10000m" CNNScoreVariants \
+     gatk --java-options "-Xmx10000m" CNNScoreVariants \
        -V ~{input_vcf} \
        -R ~{ref_fasta} \
        -O ~{output_vcf} \
@@ -379,7 +379,7 @@ task FilterVariantTranches {
     File dbsnp_resource_vcf_index
     String info_key
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   Int disk_size = ceil(size(hapmap_resource_vcf, "GiB") +
@@ -391,7 +391,7 @@ task FilterVariantTranches {
 
   command {
 
-    /usr/gitc/gatk4/gatk --java-options "-Xmx6000m" FilterVariantTranches \
+    gatk --java-options "-Xmx6000m" FilterVariantTranches \
       -V ~{input_vcf} \
       -O ~{vcf_basename}.filtered.vcf.gz \
       ~{sep=" " prefix("--snp-tranche ", snp_tranches)} \

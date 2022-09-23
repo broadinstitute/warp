@@ -48,7 +48,7 @@
         "remove_low_tree_score_sites_cutoff": 0.2,
         "annotations_to_keep_command_for_reblocking": "--annotations-to-keep TREE_SCORE --annotations-to-keep ASSEMBLED_HAPS --annotations-to-keep FILTERED_HAPS"
     },
-    "BroadInternalUltimaGenomics.UltimaGenomicsWholeGenomeGermline.ReblockGVCF.Reblock.docker_image":"us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745",
+    "BroadInternalUltimaGenomics.UltimaGenomicsWholeGenomeGermline.ReblockGVCF.Reblock.docker_image":"us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae",
     "BroadInternalUltimaGenomics.collab_sample_id_run_id": "NA12878_004749",
     "BroadInternalUltimaGenomics.environment": "{ENV}",
     "BroadInternalUltimaGenomics.sample_lsid": "broadinstitute.org:bsp.prod.sample:LO5X1",

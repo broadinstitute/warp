@@ -46,7 +46,7 @@ task SplitIntervalList {
     Boolean sample_names_unique_done
     Int disk_size
     String scatter_mode = "BALANCING_WITHOUT_INTERVAL_SUBDIVISION_WITH_OVERFLOW"
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   parameter_meta {
@@ -56,7 +56,7 @@ task SplitIntervalList {
   }
 
   command <<<
-    /usr/gitc/gatk4/gatk --java-options "-Xms3000m -Xmx3250m" SplitIntervals \
+    gatk --java-options "-Xms3000m -Xmx3250m" SplitIntervals \
       -L ~{interval_list} -O  scatterDir -scatter ~{scatter_count} -R ~{ref_fasta} \
       -mode ~{scatter_mode} --interval-merging-rule OVERLAPPING_ONLY
     >>>
@@ -88,7 +88,7 @@ task ImportGVCFs {
     Int disk_size
     Int batch_size
 
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   command <<<
@@ -105,7 +105,7 @@ task ImportGVCFs {
     # a significant amount of non-heap memory for native libraries.
     # Also, testing has shown that the multithreaded reader initialization
     # does not scale well beyond 5 threads, so don't increase beyond that.
-    /usr/gitc/gatk4/gatk --java-options "-Xms8000m -Xmx25000m" \
+    gatk --java-options "-Xms8000m -Xmx25000m" \
       GenomicsDBImport \
       --genomicsdb-workspace-path ~{workspace_dir_name} \
       --batch-size ~{batch_size} \
@@ -152,7 +152,7 @@ task GenotypeGVCFs {
     Int disk_size
     # This is needed for gVCFs generated with GATK3 HaplotypeCaller
     Boolean allow_old_rms_mapping_quality_annotation_data = false
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   parameter_meta {
@@ -167,7 +167,7 @@ task GenotypeGVCFs {
     tar -xf ~{workspace_tar}
     WORKSPACE=$(basename ~{workspace_tar} .tar)
 
-    /usr/gitc/gatk4/gatk --java-options "-Xms8000m -Xmx25000m" \
+    gatk --java-options "-Xms8000m -Xmx25000m" \
       GenotypeGVCFs \
       -R ~{ref_fasta} \
       -O ~{output_vcf_filename} \
@@ -209,7 +209,7 @@ task GnarlyGenotyper {
     String dbsnp_vcf
     Boolean make_annotation_db = false
 
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   parameter_meta {
@@ -226,7 +226,7 @@ task GnarlyGenotyper {
     tar -xf ~{workspace_tar}
     WORKSPACE=$( basename ~{workspace_tar} .tar)
 
-    /usr/gitc/gatk4/gatk --java-options "-Xms8000m -Xmx25000m" \
+    gatk --java-options "-Xms8000m -Xmx25000m" \
       GnarlyGenotyper \
       -R ~{ref_fasta} \
       -O ~{output_vcf_filename} \
@@ -268,20 +268,20 @@ task HardFilterAndMakeSitesOnlyVcf {
     String sites_only_vcf_filename
 
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   command <<<
     set -euo pipefail
 
-    /usr/gitc/gatk4/gatk --java-options "-Xms3000m -Xmx3250m" \
+    gatk --java-options "-Xms3000m -Xmx3250m" \
       VariantFiltration \
       --filter-expression "ExcessHet > ~{excess_het_threshold}" \
       --filter-name ExcessHet \
       -O ~{variant_filtered_vcf_filename} \
       -V ~{vcf}
 
-    /usr/gitc/gatk4/gatk --java-options "-Xms3000m -Xmx3250m" \
+    gatk --java-options "-Xms3000m -Xmx3250m" \
       MakeSitesOnlyVcf \
       -I ~{variant_filtered_vcf_filename} \
       -O ~{sites_only_vcf_filename}
@@ -326,13 +326,13 @@ task IndelsVariantRecalibrator {
     Int max_gaussians = 4
 
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   command <<<
     set -euo pipefail
 
-    /usr/gitc/gatk4/gatk --java-options "-Xms24000m -Xmx25000m" \
+    gatk --java-options "-Xms24000m -Xmx25000m" \
       VariantRecalibrator \
       -V ~{sites_only_variant_filtered_vcf} \
       -O ~{recalibration_filename} \
@@ -390,13 +390,13 @@ task SNPsVariantRecalibratorCreateModel {
     Int max_gaussians = 6
 
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   command <<<
     set -euo pipefail
 
-    /usr/gitc/gatk4/gatk --java-options "-Xms100g -Xmx100g" \
+    gatk --java-options "-Xms100g -Xmx100g" \
       VariantRecalibrator \
       -V ~{sites_only_variant_filtered_vcf} \
       -O ~{recalibration_filename} \
@@ -454,7 +454,7 @@ task SNPsVariantRecalibrator {
     Int max_gaussians = 6
 
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
     Int? machine_mem_mb
 
   }
@@ -477,7 +477,7 @@ task SNPsVariantRecalibrator {
 
     MODEL_REPORT=~{model_report}
 
-    /usr/gitc/gatk4/gatk --java-options "-Xms~{java_mem}m -Xmx~{max_heap}m" \
+    gatk --java-options "-Xms~{java_mem}m -Xmx~{max_heap}m" \
       VariantRecalibrator \
       -V ~{sites_only_variant_filtered_vcf} \
       -O ~{recalibration_filename} \
@@ -518,7 +518,7 @@ task GatherTranches {
     String output_filename
     String mode
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   parameter_meta {
@@ -554,7 +554,7 @@ task GatherTranches {
 
     cat $tranches_fofn | rev | cut -d '/' -f 1 | rev | awk '{print "tranches/" $1}' > inputs.list
 
-    /usr/gitc/gatk4/gatk --java-options "-Xmx6000m -Xmx7000m" \
+    gatk --java-options "-Xmx6000m -Xmx7000m" \
       GatherTranches \
       --input inputs.list \
       --mode ~{mode} \
@@ -591,13 +591,13 @@ task ApplyRecalibration {
     Float snp_filter_level
     Boolean use_allele_specific_annotations
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   command <<<
     set -euo pipefail
 
-    /usr/gitc/gatk4/gatk --java-options "-Xms5000m -Xmx6500m" \
+    gatk --java-options "-Xms5000m -Xmx6500m" \
       ApplyVQSR \
       -O tmp.indel.recalibrated.vcf \
       -V ~{input_vcf} \
@@ -641,7 +641,7 @@ task GatherVcfs {
     Array[File] input_vcfs
     String output_vcf_name
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   parameter_meta {
@@ -656,7 +656,7 @@ task GatherVcfs {
     # --ignore-safety-checks makes a big performance difference so we include it in our invocation.
     # This argument disables expensive checks that the file headers contain the same set of
     # genotyped samples and that files are in order by position of first record.
-    /usr/gitc/gatk4/gatk --java-options "-Xms6000m -Xmx6500m" \
+    gatk --java-options "-Xms6000m -Xmx6500m" \
       GatherVcfsCloud \
       --ignore-safety-checks \
       --gather-type BLOCK \
@@ -688,7 +688,7 @@ task SelectFingerprintSiteVariants {
     File haplotype_database
     String base_output_name
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   parameter_meta {
@@ -707,7 +707,7 @@ task SelectFingerprintSiteVariants {
 
     hdb_to_interval_list ~{haplotype_database} > hdb.interval_list
 
-    /usr/gitc/gatk4/gatk --java-options "-Xms6000m -Xmx7000m" \
+    gatk --java-options "-Xms6000m -Xmx7000m" \
       SelectVariants \
       --variant ~{input_vcf} \
       --intervals hdb.interval_list \
@@ -740,13 +740,13 @@ task CollectVariantCallingMetrics {
     File interval_list
     File ref_dict
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   command <<<
     set -euo pipefail
 
-    /usr/gitc/gatk4/gatk --java-options "-Xms6000m -Xmx7000m" \
+    gatk --java-options "-Xms6000m -Xmx7000m" \
       CollectVariantCallingMetrics \
       --INPUT ~{input_vcf} \
       --DBSNP ~{dbsnp_vcf} \
@@ -778,7 +778,7 @@ task GatherVariantCallingMetrics {
     Array[File] input_summaries
     String output_prefix
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   parameter_meta {
@@ -828,7 +828,7 @@ task GatherVariantCallingMetrics {
 
     INPUT=$(cat $input_details_fofn | rev | cut -d '/' -f 1 | rev | sed s/.variant_calling_detail_metrics//g | awk '{printf("--INPUT metrics/%s ", $1)}')
 
-    /usr/gitc/gatk4/gatk --java-options "-Xms2000m -Xmx2500m" \
+    gatk --java-options "-Xms2000m -Xmx2500m" \
       AccumulateVariantCallingMetrics \
       $INPUT \
       --OUTPUT ~{output_prefix}
@@ -859,7 +859,7 @@ task CrossCheckFingerprint {
     String output_base_name
     Boolean scattered = false
     Array[String] expected_inconclusive_samples = []
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   parameter_meta {
@@ -890,7 +890,7 @@ task CrossCheckFingerprint {
     cp $gvcfInputsList gvcf_inputs.list
     cp $vcfInputsList vcf_inputs.list
 
-    /usr/gitc/gatk4/gatk --java-options "-Xms~{java_mem}m -Xmx~{java_mem}m" \
+    gatk --java-options "-Xms~{java_mem}m -Xmx~{java_mem}m" \
       CrosscheckFingerprints \
       --INPUT gvcf_inputs.list \
       --SECOND_INPUT vcf_inputs.list \
@@ -977,7 +977,7 @@ task GetFingerprintingIntervalIndices {
   input {
     Array[File] unpadded_intervals
     File haplotype_database
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   command <<<
@@ -1020,7 +1020,7 @@ task GetFingerprintingIntervalIndices {
     hdb_to_interval_list ~{haplotype_database} > hdb.interval_list
 
     # find the intervals that overlap the haplotype_database
-    /usr/gitc/gatk4/gatk --java-options "-Xms3000m -Xmx3250m" \
+    gatk --java-options "-Xms3000m -Xmx3250m" \
     IntervalListTools \
       -ACTION OVERLAPS \
       -O all.sorted.interval_list \

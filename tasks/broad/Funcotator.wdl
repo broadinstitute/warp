@@ -151,7 +151,7 @@ task Funcotate {
       tar -xzvf $DATA_SOURCES_FOLDER/gnomAD_genome.tar.gz -C $DATA_SOURCES_FOLDER/
     fi
 
-    /usr/gitc/gatk4/gatk --java-options "-Xmx~{command_memory}m" Funcotator \
+    gatk --java-options "-Xmx~{command_memory}m" Funcotator \
       --data-sources-path $DATA_SOURCES_FOLDER \
       --ref-version ~{reference_version} \
       --output-file-format ~{output_format} \

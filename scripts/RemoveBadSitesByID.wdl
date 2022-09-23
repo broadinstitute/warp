@@ -123,13 +123,13 @@ task SplitX {
 
     command <<<
         set -xeuo pipefail
-        /usr/gitc/gatk4/gatk SelectVariants -V ~{input_vcf} -L X:1-~{par1_end} -select "vc.getEnd()<~{par1_end}" -O PAR1.~{name}.vcf.gz
-        /usr/gitc/gatk4/gatk SelectVariants -V ~{input_vcf} -L X:~{par2_start}-~{par2_end} -select "vc.getStart()>=~{par2_start}" -O PAR2.~{name}.vcf.gz
-        /usr/gitc/gatk4/gatk SelectVariants -V ~{input_vcf} -L X:~{par1_end + 1}-~{par2_start} -select "vc.getStart()>~{par1_end} && vc.getStart()<~{par2_start}" -O NON_PAR.~{name}.vcf.gz
+        gatk SelectVariants -V ~{input_vcf} -L X:1-~{par1_end} -select "vc.getEnd()<~{par1_end}" -O PAR1.~{name}.vcf.gz
+        gatk SelectVariants -V ~{input_vcf} -L X:~{par2_start}-~{par2_end} -select "vc.getStart()>=~{par2_start}" -O PAR2.~{name}.vcf.gz
+        gatk SelectVariants -V ~{input_vcf} -L X:~{par1_end + 1}-~{par2_start} -select "vc.getStart()>~{par1_end} && vc.getStart()<~{par2_start}" -O NON_PAR.~{name}.vcf.gz
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+        docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
         disks: "local-disk " + disk_size + "  HDD"
         memory: "16 GB"
     }
@@ -211,11 +211,11 @@ task RemoveBadSitesFromVcf {
 
         cp ~{bad_sites_list} bad_sites.list
 
-        /usr/gitc/gatk4/gatk SelectVariants -V ~{vcf} --exclude-ids bad_sites.list -O ~{basename}.cleaned.vcf.gz
+        gatk SelectVariants -V ~{vcf} --exclude-ids bad_sites.list -O ~{basename}.cleaned.vcf.gz
     >>>
 
     runtime {
-                docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+                docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
         disks: "local-disk 100 HDD"
         memory: "16 GB"
     }

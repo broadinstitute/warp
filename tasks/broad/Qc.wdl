@@ -618,7 +618,7 @@ task ValidateVCF {
     Int preemptible_tries = 3
     Boolean is_gvcf = true
     String? extra_args
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:1.2.0-4.2.6.1-43-gf1e7265-SNAPSHOT-1658945745"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
@@ -626,7 +626,7 @@ task ValidateVCF {
 
   command {
     # Note that WGS needs a lot of memory to do the -L *.vcf if an interval file is not supplied
-    /usr/gitc/gatk4/gatk --java-options "-Xms6000m -Xmx6500m" \
+    gatk --java-options "-Xms6000m -Xmx6500m" \
       ValidateVariants \
       -V ~{input_vcf} \
       -R ~{ref_fasta} \
