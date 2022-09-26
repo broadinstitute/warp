@@ -201,7 +201,6 @@ task FilterSymbolicAlleles {
     output {
         File output_vcf = "~{output_vcf_name}"
         File output_vcf_index = "~{output_vcf_name}.tbi"
-        File monitoring_log = "monitoring.log"
     }
 }
 
