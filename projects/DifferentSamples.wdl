@@ -19,13 +19,14 @@ workflow DifferentSamples {
   # How to take a different pipeline path for samples in a single array based on sample name
   # Note this could call a task or a subworkflow
   scatter (sample in mixed_research_and_clinical_sample) {
-      if (sample == "*clinical*") {
+      String sample_name = basename(sample)
+      if (sample_name == "*clinical*") {
           call ClinicalTask {
               input:
                   clinical_input = sample
           }
       }
-      if (sample != "*clinical*") {
+      if (sample_name != "*clinical*") {
           call ResearchTask {
               input:
                   research_input = sample
