@@ -33,7 +33,7 @@ function make_release() {
   local -r outputVersionedPrefix=${outputPrefix}${version}
   
   # Strip the paths out of the root WDL imports
-  sed -E 's/import "(.*)\/(.*\'${WDL_SUFFIX}')"/import "\2"/g' ${rootWdl} > ${outputVersionedPrefix}${WDL_SUFFIX}
+  sed -E '/http/! s/import "(.*)\/(.*\'${WDL_SUFFIX}')"/import "\2"/g' ${rootWdl} > ${outputVersionedPrefix}${WDL_SUFFIX}
 
   write_options ${rootWdl} ${outputVersionedPrefix}
 
