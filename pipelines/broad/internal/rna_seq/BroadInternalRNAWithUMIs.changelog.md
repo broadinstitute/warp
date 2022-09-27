@@ -1,3 +1,8 @@
+# 1.0.19
+2022-09-27 (Date of Last Commit)
+
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
 # 1.0.18
 2022-09-30 (Date of Last Commit)
 
