@@ -20,13 +20,13 @@ workflow DifferentSamples {
   # Note this could call a task or a subworkflow
   scatter (sample in mixed_research_and_clinical_sample) {
       String sample_name = basename(sample)
-      if (sample_name == "*clinical*") {
+      if (sub(sample_name, "clinical", "") != sample_name)  {
           call ClinicalTask {
               input:
                   clinical_input = sample
           }
       }
-      if (sample_name != "*clinical*") {
+      if (sub(sample_name, "clinical", "") == sample_name) {
           call ResearchTask {
               input:
                   research_input = sample
