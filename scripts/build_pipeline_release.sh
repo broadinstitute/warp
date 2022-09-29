@@ -77,7 +77,7 @@ function write_dependencies_zip() {
 
   for file in ${dependencies[@]}; do
     flattened_name=$(basename ${file})
-    sed -E 's/import "(.*)\/(.*\'${WDL_SUFFIX}')"/import "\2"/g' ${file} > ${working_dir}/${flattened_name}
+    sed -E '/http/! s/import "(.*)\/(.*\'${WDL_SUFFIX}')"/import "\2"/g' ${file} > ${working_dir}/${flattened_name}
     zip -j ${versioned_dependencies_zip} ${working_dir}/${flattened_name}
   done
   rm -rf ${working_dir}
