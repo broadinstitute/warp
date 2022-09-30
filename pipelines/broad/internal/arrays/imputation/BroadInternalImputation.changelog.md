@@ -1,7 +1,8 @@
 # 1.1.1
-2022-09-23 (Date of Last Commit)
+2022-09-30 (Date of Last Commit)
 
 * Updated Picard-Python, BCFTools/VCFTools, and Minimac4 Docker images to fix vulnerabilities.
+* Updated tasks FormatImputationOutputs, FormatImputationWideOutputs, and IngestOutputsToTDR with GCR images instead of Dockerhub.
 
 # 1.1.0
 2022-09-20 (Date of Last Commit)

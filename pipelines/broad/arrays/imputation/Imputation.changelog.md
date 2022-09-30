@@ -1,7 +1,8 @@
 # 1.1.5
-2022-09-23 (Date of Last Commit)
+2022-09-30 (Date of Last Commit)
 
 * Updated BCFTools/VCFTools and Minimac4 Docker images to fix vulnerabilities.
+* Updated tasks FormatImputationOutputs, FormatImputationWideOutputs, and IngestOutputsToTDR with GCR images instead of Dockerhub.
 
 # 1.1.4
 2022-08-23 (Date of Last Commit)
