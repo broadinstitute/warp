@@ -1,7 +1,8 @@
 # 1.0.7
-2022-09-23 (Date of Last Commit)
+2022-09-30 (Date of Last Commit)
 
 * Updated Picard-Python Docker image in Utilities.wdl to fix vulnerabilities.
+* Updated tasks FormatArraysOutputs and IngestOutputsToTDR with GCR images instead of Dockerhub.
 
 # 1.0.6
 2022-09-20 (Date of Last Commit)
