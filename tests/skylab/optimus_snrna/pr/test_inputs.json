@@ -5,12 +5,12 @@
   "TestOptimusPR.expected_loom_file_checksum": "72124878c88f3a55e8fdf8a5c5b75bae",
   "TestOptimusPR.expected_bam": "gs://hca-dcp-sc-pipelines-test-data/optimus-test-data/optimus_snrna_V1.bam",
   "TestOptimusPR.r1_fastq": [
-      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/nuclei_900/nuclei_900_S1_L001_R1_001.filtered.fastq.gz",
-      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/nuclei_900/nuclei_900_S1_L002_R1_001.filtered.fastq.gz"
+      "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/nuclei_900/nuclei_900_S1_L001_R1_001.filtered.fastq.gz",
+      "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/nuclei_900/nuclei_900_S1_L002_R1_001.filtered.fastq.gz"
   ],
   "TestOptimusPR.r2_fastq": [
-    "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/nuclei_900/nuclei_900_S1_L001_R2_001.filtered.fastq.gz",
-    "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/nuclei_900/nuclei_900_S1_L002_R2_001.filtered.fastq.gz"
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/nuclei_900/nuclei_900_S1_L001_R2_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/nuclei_900/nuclei_900_S1_L002_R2_001.filtered.fastq.gz"
   ],
   "TestOptimusPR.chemistry": "tenX_v2",
   "TestOptimusPR.force_no_check": "false",
