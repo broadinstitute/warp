@@ -13,8 +13,6 @@
 * Update task IngestOutputsToTDR with new docker tag.
 * Update tasks FormatArraysOutputs and IngestOutputsToTDR with GCR image instead of DockerHub image.
 
-
-
 # 1.0.5
 2022-08-29 (Date of Last Commit)
 

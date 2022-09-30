@@ -1,7 +1,14 @@
 # 2.6.15
-2022-09-23 (Date of Last Commit)
+2022-09-30 (Date of Last Commit)
 
 * Updated Picard-Python Docker image in Utilities.wdl to fix vulnerabilities.
+
+* Updated call to IngestOutputsToTDR to remove 'prefix_column'. Python script has been updated and not longer requires this input parameter.
+* Update task IngestOutputsToTDR to not require 'prefix_column'. Python script has been updated and not longer requires this input parameter.
+
+* Update task FormatArraysOutputs with new docker tag.
+* Update task IngestOutputsToTDR with new docker tag.
+* Update tasks FormatArraysOutputs and IngestOutputsToTDR with GCR image instead of DockerHub image.
 
 # 2.6.14
 2022-09-07 (Date of Last Commit)
