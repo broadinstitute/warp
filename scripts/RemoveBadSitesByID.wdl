@@ -129,7 +129,7 @@ task SplitX {
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-gatk/us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
+        docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
         disks: "local-disk " + disk_size + "  HDD"
         memory: "16 GB"
     }
@@ -215,7 +215,7 @@ task RemoveBadSitesFromVcf {
     >>>
 
     runtime {
-                docker: "us.gcr.io/broad-gatk/us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
+                docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-f1e7265aebf480593809a01453db932beddc5cbd-4.2.6.1-43-gf1e7265ae"
         disks: "local-disk 100 HDD"
         memory: "16 GB"
     }
