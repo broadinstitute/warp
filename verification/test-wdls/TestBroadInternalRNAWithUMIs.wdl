@@ -23,7 +23,6 @@ workflow TestBroadInternalRNAWithUMIs {
       String sequencing_center = "BI"
       String? tdr_dataset_uuid
       String? tdr_sample_id
-      String? tdr_staging_bucket
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -55,7 +54,6 @@ workflow TestBroadInternalRNAWithUMIs {
         sequencing_center = sequencing_center,
         tdr_dataset_uuid = tdr_dataset_uuid,
         tdr_sample_id = tdr_sample_id,
-        tdr_staging_bucket = tdr_staging_bucket,
         environment = environment,
         vault_token_path = vault_token_path_arrays
   
@@ -76,7 +74,6 @@ workflow TestBroadInternalRNAWithUMIs {
                                     BroadInternalRNAWithUMIs.rnaseqc2_gene_tpm,
                                     BroadInternalRNAWithUMIs.output_bam_index,
                                     BroadInternalRNAWithUMIs.output_bam,
-                                    BroadInternalRNAWithUMIs.transcriptome_bam_index,
                                     BroadInternalRNAWithUMIs.transcriptome_bam,
                                     ],
                                     
