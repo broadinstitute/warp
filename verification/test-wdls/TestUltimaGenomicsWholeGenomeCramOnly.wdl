@@ -120,6 +120,13 @@ workflow TestUltimaGenomicsWholeGenomeCramOnly {
             truth_path = truth_path
         }
 
+        if (defined(UltimaGenomicsWholeGenomeCramOnly.output_bam) || defined(UltimaGenomicsWholeGenomeCramOnly.output_bam_index)) {
+          call Utilities.ErrorWithMessage as ErrorMessageBamsShouldBeNull {
+            input:
+              message = "Both output_bam and output_bam_index should be null"
+          }
+        }
+
       call VerifyUltimaGenomicsWholeGenomeCramOnly.VerifyUltimaGenomicsWholeGenomeCramOnly as Verify {
         input:
           truth_metrics = GetMetrics.truth_files, 
