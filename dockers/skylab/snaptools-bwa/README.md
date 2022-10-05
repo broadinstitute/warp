@@ -5,7 +5,6 @@
 Copy and paste to pull this image
 
 #### `docker pull us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602`
-`
 
 - __What is this image:__ This image is a Debian-based custom image for running Snaptools and BWA.
 - __What are Snaptools and BWA:__ BWA is a software package for mapping DNA sequences against a large reference genome, [more info](http://bio-bwa.sourceforge.net). Snaptools is a Python module for working with snap files, [more info](https://github.com/r3fang/SnapTools).
