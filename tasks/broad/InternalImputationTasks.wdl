@@ -48,7 +48,7 @@ task FormatImputationOutputs {
     >>>
 
     runtime {
-        docker: "broadinstitute/horsefish:eMerge_09022022"
+        docker: "gcr.io/emerge-production/emerge_wdls:emerge_09022022"
     }
 
     output {
@@ -115,7 +115,7 @@ task FormatImputationWideOutputs{
     >>>
 
     runtime {
-        docker: "broadinstitute/horsefish:eMerge_09022022"
+        docker: "gcr.io/emerge-production/emerge_wdls:emerge_09022022"
     }
 
     output {
