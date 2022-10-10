@@ -158,7 +158,7 @@ task SamToFastqAndBwaMemAndMba {
     References references
     File input_bam
 
-    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa@sha256:d547807dc8f4da3eecc3f3b5252a7e2c67645c033e0ae773f897fe5df8ea80f4"
     Int disk_size_gb = ceil(size(input_bam, "GB") +
                             size(references.ref_fasta, "GB") +
                             size(references.ref_fasta_index, "GB") +
@@ -543,7 +543,7 @@ task MergeBams {
     Array[File] input_bams
     String output_bam_name
 
-    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa@sha256:d547807dc8f4da3eecc3f3b5252a7e2c67645c033e0ae773f897fe5df8ea80f4"
     Int disk_size_gb = ceil(2 * size(input_bams,"GB") + 20)
     Int cpu = 1
     Int memory_mb = 10000
@@ -778,7 +778,7 @@ task CollectWgsMetrics {
     Int? read_length
     File? jar_override
 
-    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa@sha256:d547807dc8f4da3eecc3f3b5252a7e2c67645c033e0ae773f897fe5df8ea80f4"
     Int disk_size_gb = if ceil((size(input_bam, "GB")) +
                               size(references.ref_fasta, "GB") +
                               size(references.ref_fasta_index, "GB") +
@@ -831,7 +831,7 @@ task CollectRawWgsMetrics {
     References references
     Int? read_length
 
-    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa@sha256:d547807dc8f4da3eecc3f3b5252a7e2c67645c033e0ae773f897fe5df8ea80f4"
     Int disk_size_gb = if ceil((size(input_bam, "GB")) +
                               size(references.ref_fasta, "GB") +
                               size(references.ref_fasta_index, "GB") +
