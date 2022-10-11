@@ -1,3 +1,8 @@
+#1.0.10
+2022-10-11 (Date of Last Commit)
+
+* Force task rnaseqc2 to produce an empty fragment size file when rnaseqc2 does not produce this file due to insufficient data.
+
 # 1.0.9
 2022-09-27 (Date of Last Commit)
 
