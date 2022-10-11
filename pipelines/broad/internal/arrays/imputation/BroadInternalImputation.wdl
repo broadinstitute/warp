@@ -74,7 +74,8 @@ workflow BroadInternalImputation {
             workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = "ImputationWideOutputsTable",
-            outputs_tsv             = FormatImputationWideOutputs.ingest_outputs_wide_tsv
+            outputs_tsv             = FormatImputationWideOutputs.ingest_outputs_wide_tsv,
+            in_load_tag             = IngestToImputationOutputsTable.load_tag
     }
 
     call InternalImputationTasks.TriggerPrsWithImputationTsv {

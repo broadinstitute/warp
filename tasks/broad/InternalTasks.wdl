@@ -195,11 +195,11 @@ task IngestOutputsToTDR {
     }
 
     runtime {
-        docker: "gcr.io/emerge-production/emerge_wdls:emerge_09022022"
+        docker: "gcr.io/emerge-production/emerge_wdls:emerge_10042022"
     }
 
     output {
         File    ingest_logs = stdout()
-        String  load_tag = read_string("load_tag.txt")
+        String?  load_tag = read_string("load_tag.txt")
     }
 }
