@@ -13,8 +13,8 @@ function pipeline_to_args() {
   local -r common_args="${test}"
 
   case ${pipeline} in
-    AnnotationFiltration)
-      continue;;
+    #AnnotationFiltration)
+    #  continue;;
     Arrays)
       echo Arrays ${common_args};;
     BroadInternalRNAWithUMIs)
