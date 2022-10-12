@@ -91,7 +91,7 @@ groups:
       request: 2
     reviewers:
       users:
-        - ldgauthier # Laura Gauthier
+        - samuelklee # Samuel Lee
         - kachulis # Chris Kachulis
 
   scientific_owners_joint_genotyping:
@@ -108,7 +108,7 @@ groups:
       request_order: given
     reviewers:
       users:
-        - ldgauthier # Laura Gauthier
+        - samuelklee # Samuel Lee
 
   scientific_owners_somatic_single_sample:
     conditions:

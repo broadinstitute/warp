@@ -9,7 +9,7 @@ workflow BroadInternalArrays {
         description: "Push outputs of Arrays.wdl to TDR dataset table ArraysOutputsTable."
     }
 
-    String pipeline_version = "1.0.4"
+    String pipeline_version = "1.0.8"
 
     input {
         # inputs to wrapper task

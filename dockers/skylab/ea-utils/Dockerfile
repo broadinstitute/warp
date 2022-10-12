@@ -16,14 +16,14 @@ WORKDIR /usr/gitc
 RUN set -eux; \
     apt update; \
     apt install -y \
-       zlib1g-dev \
-       cmake \
        automake \
-       wget \
        build-essential \
+       cmake \
        libgsl0-dev \
+       wget \
+       zlib1g-dev \
     ; \
-# Install ea-utils  \
+# Install ea-utils
     wget ${EAUTILS_URL}; \
     tar -xzvf ${EAUTILS_VERSION}.tar.gz; \
     cd ea-utils-${EAUTILS_VERSION}/clipper; \
@@ -35,4 +35,4 @@ RUN set -eux; \
     chmod +x /sbin/tini
 
 # Set tini as default entrypoint
-ENTRYPOINT [ "/sbin/tini", "--"]
+ENTRYPOINT ["/sbin/tini", "--"]
