@@ -899,3 +899,30 @@ task SplitMultiSampleVcf {
     Array[File] single_sample_vcf_indices = glob("out_dir/*.vcf.gz.tbi")
   }
 }
+
+task LiftoverVcf {
+  input {
+    File vcf
+    File chain_file
+
+    Int disk_size_gb = ceil(3*size(vcf, "GiB")) + 100
+    String picard_docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
+    Int memory_mb = 7500
+  }
+
+  String out_name = basename(vcf, ".vcf.gz")
+
+  command <<<
+    java -jar /usr/picard/picard.jar LiftoverVcf -I ~{vcf} -C ~{chain_file} -O ~{out_name}.lifted_over.vcf.gz -REJECT rejected_variants.vcf.gz -RECOVER_SWAPPED_REF_ALT
+  >>>
+
+  runtime {
+    docker: picard_docker
+    disks: "local-disk " + disk_size_gb + " SSD"
+    memory: memory_mb + " MiB"
+  }
+  output {
+    File lifted_over_vcf = "~{out_name}.lifted_over.vcf.gz"
+    File lifted_over_vcf_index = "~{out_name}.lifted_over.vcf.gz.tbi"
+  }
+}

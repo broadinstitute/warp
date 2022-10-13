@@ -37,6 +37,8 @@ workflow Imputation {
     Float frac_above_maf_5_percent_well_imputed_threshold = 0.9 # require fraction of maf > 0.05 sites well imputed to be greater than this to pass
     Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
 
+    File? liftover_chain
+
     # file extensions used to find reference panel files
     String vcf_suffix = ".vcf.gz"
     String vcf_index_suffix = ".vcf.gz.tbi"
@@ -69,8 +71,16 @@ workflow Imputation {
     }
   }
 
-  File vcf_to_impute = select_first([multi_sample_vcf, MergeSingleSampleVcfs.output_vcf])
-  File vcf_index_to_impute = select_first([multi_sample_vcf_index, MergeSingleSampleVcfs.output_vcf_index])
+  if (defined(liftover_chain)) {
+    call tasks.LiftoverVcf {
+      input:
+        vcf = select_first([multi_sample_vcf, MergeSingleSampleVcfs.output_vcf]),
+        chain_file = select_first([liftover_chain])
+    }
+  }
+
+  File vcf_to_impute = select_first([LiftoverVcf.lifted_over_vcf, multi_sample_vcf, MergeSingleSampleVcfs.output_vcf])
+  File vcf_index_to_impute = select_first([LiftoverVcf.lifted_over_vcf_index, multi_sample_vcf_index, MergeSingleSampleVcfs.output_vcf_index])
 
   call tasks.CountSamples {
     input:
