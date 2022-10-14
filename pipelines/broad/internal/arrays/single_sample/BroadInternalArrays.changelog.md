@@ -1,7 +1,10 @@
 # 1.0.8
-2022-09-27 (Date of Last Commit)
+2022-10-12 (Date of Last Commit)
 
 * Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+* Added `in_load_tag` as optional input to task IngestOutputsToTDR. This update has no effect on this pipeline.
+
+* New GCR image tag in task FormatArraysOutputs and task IngestOutputsToTDR.
 
 # 1.0.7
 2022-09-30 (Date of Last Commit)
