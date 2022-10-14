@@ -6,15 +6,15 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [SlideSeq v.1.0.0](LINK) | July, 2022 | Elizabeth Kiernan & Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
+| [SlideSeq v1.0.0](LINK) | October, 2022 | Elizabeth Kiernan & Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![SlideSeq_diagram](./slide-seq_diagram.png)
 
 ## Introduction to the SlideSeq workflow
 
-The [SlideSeq workflow](LINK) is an open-source, cloud-optimized pipeline developed by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). It supports the processing of spatial transcriptomic data generated with the [Slide-seq assay](https://www.science.org/doi/10.1126/science.aaw1219).
+The [SlideSeq workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/slide_seq/SlideSeq.wdl) is an open-source, cloud-optimized pipeline developed by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). It supports the processing of spatial transcriptomic data generated with the [Slide-seq assay](https://www.science.org/doi/10.1126/science.aaw1219).
 
-Overall, the workflow corrects bead barcodes, aligns reads to the genome, generates a count matrix, calculates summary metrics for genes and beads, returns read outputs in BAM format. Additionally, it returns bead and gene counts as well as bead coordinates in numpy matrix and Loom file formats.
+Overall, the workflow corrects bead barcodes, aligns reads to the genome, generates a count matrix, calculates summary metrics for genes and beads, and returns read outputs in BAM format. Additionally, it returns bead and gene counts as well as bead coordinates in NumPy matrix and Loom file formats.
 
 <!--- add comment about validation of the pipeline --->
 
@@ -26,23 +26,23 @@ The following table provides a quick glance at the SlideSeq pipeline features:
 | Pipeline features | Description | Source |
 | --- | --- | --- |
 | Assay type | Slide-seq | [Rodriques et al. 2019](https://www.science.org/doi/10.1126/science.aaw1219)
-| Overall workflow | Quality control and transcriptome quantification module | Code available from [GitHub](LINK) |
+| Overall workflow | Quality control and transcriptome quantification module | Code available from [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/slide_seq/SlideSeq.wdl) |
 | Workflow language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
-| Genomic Reference Sequence | GRCh38 human genome primary sequence and M23 (GRCm38.p6) mouse genome primary sequence | GENCODE [human reference files](LINK) and [mouse reference files](https://www.gencodegenes.org/mouse/release_M23.html) |
-| Transcriptomic reference annotation | Modified V27 GENCODE human transcriptome and M23 mouse transcriptome built with the [BuildIndices workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/build_indices/BuildIndices.wdl) | GENCODE [human GTF](LINK) and [mouse GTF](https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M23/gencode.vM23.annotation.gtf.gz); modified versions available in Broad’s [public reference bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&prefix=&forceOnObjectsSortingFiltering=false) | 
+| Genomic Reference Sequence | V27 (GRCh38.p10) human genome primary sequence and M23 (GRCm38.p6) mouse genome primary sequence | GENCODE [human reference files](https://www.gencodegenes.org/human/release_27.html) and [mouse reference files](https://www.gencodegenes.org/mouse/release_M23.html) |
+| Transcriptomic reference annotation | Modified V27 GENCODE human transcriptome and M23 mouse transcriptome built with the [BuildIndices workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/build_indices/BuildIndices.wdl) | GENCODE [human GTF](https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_27/gencode.v27.annotation.gff3.gz) and [mouse GTF](https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M23/gencode.vM23.annotation.gff3.gz); modified versions available in Broad’s [public reference bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&prefix=&forceOnObjectsSortingFiltering=false) | 
 | Aligner and transcript quantification | STARsolo | [Kaminow et al. 2021](https://www.biorxiv.org/content/10.1101/2021.05.05.442755v1) |
 | Data input file format | File format in which sequencing data is provided | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) |
-| Data output file format | File formats in which SlideSeq output is provided | [BAM](http://samtools.github.io/hts-specs/) and Loom (generated with [Loompy)](http://loompy.org/) |
+| Data output file format | File formats in which SlideSeq output is provided | [BAM](http://samtools.github.io/hts-specs/), Python NumPy arrays, and Loom (generated with [Loompy)](http://loompy.org/) |
 
 ## Set-up
 
 ### SlideSeq installation
 
-To download the latest SlideSeq release, see the release tags prefixed with "SlideSeq" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All SlideSeq pipeline releases are documented in the [SlideSeq changelog](LINK). 
+To download the latest SlideSeq release, see the release tags prefixed with "SlideSeq" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All SlideSeq pipeline releases are documented in the [SlideSeq changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/slide_seq/SlideSeq.changelog.md). 
 
 To search releases of this and other pipelines, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
 
-If you’re running a SlideSeq workflow version prior to the latest release, the accompanying documentation for that release may be downloaded with the source code on the WARP [releases page](LINK) (see the source code folder `website/docs/Pipelines/Slide-seq_Pipeline`.
+If you’re running a SlideSeq workflow version prior to the latest release, the accompanying documentation for that release may be downloaded with the source code on the WARP [releases page](https://github.com/broadinstitute/warp/releases) (see the source code folder `website/docs/Pipelines/SlideSeq_Pipeline`.
 
 The SlideSeq pipeline can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. The workflow can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. 
 
@@ -76,7 +76,7 @@ The example SlideSeq reference files are created using the [BuildIndices pipelin
 
 ## SlideSeq tasks and tools
 
-The [SlideSeq workflow](LINK) imports individual "tasks," also written in WDL script, from the WARP [tasks folder](https://github.com/broadinstitute/warp/tree/master/tasks/skylab). 
+The [SlideSeq workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/slide_seq/SlideSeq.wdl) imports individual "tasks," also written in WDL script, from the WARP [tasks folder](https://github.com/broadinstitute/warp/tree/master/tasks/skylab). 
 
 Overall, the SlideSeq workflow:
 1. Calculates prealignment metrics.
@@ -92,14 +92,14 @@ To see specific tool parameters, select the task WDL link in the table; then fin
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | --- | 
-| [Metrics.FastqMetricsSlidSeq (alias = FastqMetrics)](LINK) | fastq_metrics | [sctools](https://github.com/HumanCellAtlas/sctools) | Calculates prealignment metrics from the input FASTQ files. Outputs metrics files including the bead barcode distribution, UMI distribution, number of reads per cell and number of UMIs per cell. |
+| [Metrics.FastqMetricsSlidSeq (alias = FastqMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | fastq_metrics | [sctools](https://github.com/HumanCellAtlas/sctools) | Calculates prealignment metrics from the input FASTQ files. Outputs metrics files including the bead barcode distribution, UMI distribution, number of reads per cell and number of UMIs per cell. |
 | [FastqProcessing.FastqProcessingSlidSeq (alias = SplitFastq)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) | fastq_slideseq | [sctools](https://github.com/HumanCellAtlas/sctools) | Filters reads, trims bead barcodes in read 1 to remove spacer sequences, and partitions the input FASTQ files by bead barcode to create an array of FASTQ files that are each ~ 30 GB. The function keeps all reads belonging to the same bead barcode in the same partitioned FASTQ file.| 
 | [StarAlign.STARsoloFastqSlideSeq (alias = STARsoloFastqSlideSeq)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | STAR | [Star](https://github.com/alexdobin/STAR) | For each of the partitioned FASTQ files, performs bead barcode correction, poly(A) tail trimming from adapters, alignment, gene annotation, and gene counting. Produces a count matrix and BAM file for each partition.|
 | [Merge.MergeSortBamFiles (alias= MergeBam)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/MergeSortBam.wdl) | MergeSamFiles | [Picard](https://broadinstitute.github.io/picard/) | Merges the array of BAM files into a single BAM and sorts in coordinate order. |
 | [Metrics.CalculateGeneMetrics (alias = GeneMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | [sctools](https://github.com/HumanCellAtlas/sctools) | Sorts the BAM file by gene using the bead barcode (CB), molecule barcode (UB), and gene ID (GX) tags and computes gene metrics. | 
 | [Metrics.CalculateCellMetrics (alias = CellMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | [sctools](https://github.com/HumanCellAtlas/sctools) | Sorts the BAM file by bead using the bead barcode (CB), molecule barcode (UB), and gene ID (GX) tags and computes bead metrics. |
-| [StarAlign.MergeStarOutput (alias = MergeStarOutputs)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | create-npz-output.py | [Python 3](https://www.python.org/) | Creates a compressed raw NPY or NPZ file containing the STARsolo output features (NPY), barcodes (NPZ) and counts (NPZ). | 
-|  [LoomUtils.SlideSeqLoomOutput (alias = SlideseqLoomGeneration)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | create_loom_slide_seq.py | Python3 | Merges the gene counts, bead metrics, and gene metrics data into a Loom formatted bead-by-gene matrix. By default, the Loom contains whole-gene counts. When `count_exons` is true, an additional layer is added to the Loom file containing exon counts. |
+| [StarAlign.MergeStarOutput (alias = MergeStarOutputs)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | create-npz-output.py | [Python 3](https://www.python.org/) | Creates a compressed raw NPY or NPZ file containing the STARsolo output features (NPY), barcodes (NPZ) and counts (NPZ). When `count_exons` is true, the task is run as `MergeStarOutputsExons`. | 
+| [LoomUtils.SlideSeqLoomOutput (alias = SlideseqLoomGeneration)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | create_loom_slide_seq.py | [Python 3](https://www.python.org/) | Merges the gene counts, bead metrics, and gene metrics data into a Loom formatted bead-by-gene matrix. By default, the Loom contains whole-gene counts. When `count_exons` is true, the task is run as `SlideseqLoomGenerationWithExons` and an additional layer is added to the Loom file containing exon counts. |
 
 #### 1. Calculating prealignment metrics
 The [FastqMetricsSlidSeq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) task calculates prealignment metrics from the input FASTQ files that might be useful for downstream analysis. These metrics include the bead barcode distribution,  UMI distribution, number of reads per cell and number of UMIs per cell. These metrics are included in the final outputs of the workflow. 
@@ -110,7 +110,7 @@ The [FastqMetricsSlidSeq](https://github.com/broadinstitute/warp/blob/master/tas
 
 Although the function of the bead barcodes is to identify the spatial location of gene expression in the tissue, barcode errors can arise during sequencing that make it difficult to assign reads to the proper location. 
 
-The [FastqProcessingSlidSeq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to evaluate barcode errors by comparing the Read 1 FASTQ sequences against a whitelist of barcodes created by sequencing prior to the mRNA transfer and library preparation steps of the [SlideSeq](https://www.science.org/doi/10.1126/science.aaw1219) protocol.
+The [FastqProcessingSlidSeq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to evaluate barcode errors by comparing the Read 1 FASTQ sequences against a whitelist of barcodes created by sequencing prior to the mRNA transfer and library preparation steps of the [Slide-Seq](https://www.science.org/doi/10.1126/science.aaw1219) protocol.
 
 Barcodes that are more than 1 edit distance ([Hamming distance](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5410656/)) from any of the barcode sequences in the whitelist are filtered at this step and not included in the output. However, the barcodes are corrected by the [STARsoloFastqSlideSeq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) task.
 
@@ -208,16 +208,14 @@ The following table lists the output files produced from the pipeline. For sampl
 | numReads_perCell | --- | Metric file containing the number of reads per barcode that were calculated prior to alignment. | File |
 | numReads_perUMI | --- | Metric file containing the number of reads per UMI that were calculated prior to alignment. |
 
-The Loom matrix is the default output. See the [create_loom_slide_seq.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) for the detailed code. This matrix contains the unnormalized (unfiltered) count matrices. 
-
-<!--- comment about count matrix overview ---> 
+The Loom matrix is the default output. See the [create_loom_slide_seq.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) script for the detailed code. This matrix contains the unnormalized (unfiltered) count matrices. 
 
 <!--- ## Validation section --->
 
 
 ## Versioning
 
-All SlideSeq pipeline releases are documented in the [SlideSeq changelog](LINK).
+All SlideSeq pipeline releases are documented in the [SlideSeq changelog](ttps://github.com/broadinstitute/warp/blob/master/pipelines/skylab/slide_seq/SlideSeq.changelog.md).
 
 
 <!--- ## Citing the SlideSeq Pipeline
@@ -228,7 +226,7 @@ Please identify the pipeline in your methods section using the Slide Pipeline's 
 ## Consortia Support
 This pipeline is supported by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
 
-If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting the [WARP team](mailto:warp-pipelines-help@broadinstitute.org).
+If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting the [WARP Pipelines team](mailto:warp-pipelines-help@broadinstitute.org).
 
 ## Feedback
 
