@@ -150,6 +150,8 @@ task FilterSampleVCF{
 
     command <<<
         set -e
+
+        # bashrc needed to setup conda
         source ~/.bashrc
         conda activate genomics.py3
         bcftools view -a -i 'GT[*]="alt"' ~{input_vcf} -o ~{output_vcf} -O z 
@@ -180,6 +182,8 @@ task FilterSymbolicAlleles {
     String output_vcf_name = "~{base_file_name}" + ".vcf.gz"
     command <<<
         set -e
+
+        # bashrc needed to setup conda
         source ~/.bashrc
         conda activate genomics.py3
         gatk --java-options "-Xmx10g"  SelectVariants \
@@ -234,6 +238,7 @@ task CompareToGroundTruth {
   command <<<
     set -e
 
+    # bashrc needed to setup conda
     source ~/.bashrc
     conda activate genomics.py3
 
@@ -285,6 +290,7 @@ task EvaluateResults {
   command <<<
     set -e
 
+    # bashrc needed to setup conda
     source ~/.bashrc
     conda activate genomics.py3
 
