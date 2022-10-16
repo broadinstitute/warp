@@ -26,7 +26,7 @@
 "UltimaGenomicsJointGenotyping.truth_vcf":"gs://broad-gotc-test-storage/tmp/jbx/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.broad-header.vcf.gz",
 "UltimaGenomicsJointGenotyping.truth_vcf_index":"gs://broad-gotc-test-storage/tmp/jbx/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_PGandRTGphasetransfer.broad-header.vcf.gz",
 "UltimaGenomicsJointGenotyping.truth_highconf_intervals": "gs://broad-gotc-test-storage/tmp/jbx/HG001_GRCh38_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-X_v.3.3.2_highconf_nosomaticdel_noCENorHET7.bed",
-"UltimaGenomicsJointGenotyping.call_sample_name_call": "NA12878",
+"UltimaGenomicsJointGenotyping.call_sample_name": "NA12878",
 "UltimaGenomicsJointGenotyping.truth_sample_name": "HG001",
 "UltimaGenomicsJointGenotyping.model_backend": "PYTHON_IFOREST"
 }

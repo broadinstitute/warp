@@ -1,7 +1,7 @@
 version 1.0
 
 import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
-import "https://raw.githubusercontent.com/broadinstitute/gatk/663dadcbde192df211cccb15174e7d78fbe1e207/scripts/vcf_site_level_filtering_wdl/JointVcfFiltering.wdl" as Filtering
+import "https://raw.githubusercontent.com/broadinstitute/gatk/4.3.0.0/scripts/vcf_site_level_filtering_wdl/JointVcfFiltering.wdl" as Filtering
 import "../../../../../../tasks/broad/UltimaGenomicsGermlineFilteringThreshold.wdl" as FilteringThreshold
 
 
@@ -165,7 +165,7 @@ workflow UltimaGenomicsJointGenotyping {
       model_backend = model_backend,
       use_allele_specific_annotations = use_allele_specific_annotations,
       basename = callset_name,
-      gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-05a76349aac401cc5d08ad0375c45fa9d4c7c864-4.2.6.1-48-g05a76349a"
+      gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   call FilteringThreshold.ExtractOptimizeSingleSample as FindFilteringThresholdAndFilter {
