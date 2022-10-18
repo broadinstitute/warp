@@ -90,3 +90,7 @@ workflows:
   - name: BroadInternalUltimaGenomics
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/internal/dna_seq/germline/single_sample/UltimaGenomics/BroadInternalUltimaGenomics.wdl
+
+  - name: UltimaGenomicsJointGenotyping
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/UltimaGenomicsJointGenotyping.wdl
