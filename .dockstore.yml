@@ -94,3 +94,7 @@ workflows:
   - name: UltimaGenomicsJointGenotyping
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/UltimaGenomicsJointGenotyping.wdl
+
+  - name: UltimaGenomicsWholeGenomeCramOnly
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl
