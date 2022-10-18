@@ -208,7 +208,7 @@ task CompareBams {
     set -e
     set -o pipefail
 
-    java -Xms3500m -Xmx14000m -jar /usr/picard/picard.jar \
+    java -Xms3500m -Xmx30000m -jar /usr/picard/picard.jar \
     CompareSAMs \
           ~{test_bam} \
           ~{truth_bam} \
