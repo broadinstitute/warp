@@ -247,7 +247,6 @@ task CompareTranscriptomeBams {
           O=comparison.tsv \
           LENIENT_HEADER=~{lenient_header} \
           LENIENT_LOW_MQ_ALIGNMENT=true \
-          LOW_MQ_THRESHOLD=1
   }
 
   runtime {
