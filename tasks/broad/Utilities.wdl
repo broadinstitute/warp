@@ -299,31 +299,3 @@ task GetValidationInputs {
   }
 
 }
-
-# If keep_inputs is true then this outputs the same file that was input, otherwise it outputs null.
-task MakeOptionalOutputBam {
-  input {
-    File bam_input
-    File bai_input
-    Boolean keep_inputs
-    Int preemptible_tries = 3
-  }
-    Int disk_size = ceil(size(bam_input, "GiB")) + 15
-    String basename = basename(bam_input, ".bam")
-  command<<<
-    if [ ~{keep_inputs} = "true" ]
-    then
-      ln -s ~{bam_input} ~{basename}.bam
-      ln -s ~{bai_input} ~{basename}.bai
-    fi
-  >>>
-  runtime {
-    docker: "ubuntu:20.04"
-    disks: "local-disk " + disk_size + " HDD"
-    preemptible: preemptible_tries
-  }
-  output {
-    File? optional_output_bam = "~{basename}.bam"
-    File? optional_output_bai = "~{basename}.bai"
-  }
-}
