@@ -1086,7 +1086,7 @@ task CalculateAverageAnnotations {
     File vcf
     Array[String] annotations_to_divide = ["ASSEMBLED_HAPS", "FILTERED_HAPS", "TREE_SCORE"]
 
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v4"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int disk_size_gb = ceil(size(vcf, "GB") + 50)
     Int memory_mb = 12000
     Int preemptible = 3
