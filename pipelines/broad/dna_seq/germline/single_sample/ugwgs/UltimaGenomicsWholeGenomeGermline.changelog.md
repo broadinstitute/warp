@@ -1,7 +1,13 @@
+# 1.0.5
+2022-09-27 (Date of Last Commit)
+
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update makes this pipeline more robust for large samples
+
 # 1.0.4
-2022-09-23 (Date of Last Commit)
+2022-09-30 (Date of Last Commit)
 
 * Updated Picard-Python Docker image in Utilities.wdl to fix vulnerabilities.
+* Updated task IngestOutputsToTDR with GCR images instead of Dockerhub.
 
 # 1.0.3
 2022-09-20 (Date of Last Commit)
