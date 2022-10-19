@@ -203,7 +203,7 @@ task Reblock {
     File ref_fasta
     File ref_fasta_index
     String output_vcf_filename
-    String docker_image = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String docker_image = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int additional_disk = 20
     String? annotations_to_keep_command
     Float? tree_score_cutoff
