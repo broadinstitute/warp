@@ -11,7 +11,7 @@
     "gs://hca-dcp-sc-pipelines-test-data/referenceData/fastq/chemistry_X10_V2/HCA_Immune_Cell_Atlas/a2d6d91e-2a2b-4589-8532-78ccc469758b/MantonCB2_HiSeq_1_S9_L003_I1_001.fastq.gz",
     "gs://hca-dcp-sc-pipelines-test-data/referenceData/fastq/chemistry_X10_V2/HCA_Immune_Cell_Atlas/328a5f97-95ae-45c9-8d83-76c97bb841ff/MantonCB2_HiSeq_1_S9_L004_I1_001.fastq.gz"
   ],
-  "Optimus.whitelist": "gs://hca-dcp-sc-pipelines-test-data/whitelists/737K-august-2016.txt",
+  "Optimus.whitelist": "gs://broad-gotc-test-storage/Optimus/truth/plumbing/master/inputs/737K-august-2016.txt",
   "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/hg38/v0/star/star_2.7.9a_primary_gencode_human_v27.tar", 
   "Optimus.input_id": "MantonCB2_HiSeq_1",
   "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/hg38/v0/gencode.v27.primary_assembly.annotation.gtf", 

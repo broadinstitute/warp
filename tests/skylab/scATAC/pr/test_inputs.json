@@ -4,7 +4,7 @@
   "TestScAtacPR.expected_bam_hash": "146415cac889920361f6fae7a48ba4ca",
   "TestScAtacPR.input_fastq1": "gs://broad-gotc-test-storage/scATAC/input/plumbing/readnames_preattached/test_500k.R1.fastq.gz",
   "TestScAtacPR.input_fastq2": "gs://broad-gotc-test-storage/scATAC/input/plumbing/readnames_preattached/test_500k.R2.fastq.gz",
-  "TestScAtacPR.input_reference": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/snapATAC_BWA/hg38/hg38.tar",
+  "TestScAtacPR.input_reference": "gs://broad-gotc-test-storage/scATAC/input/plumbing/reference/hg38/hg38.tar",
   "TestScAtacPR.output_bam": "output.bam",
   "TestScAtacPR.genome_name": "hg38",
   "TestScAtacPR.bin_size_list": "5000",
