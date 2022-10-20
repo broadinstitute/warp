@@ -63,10 +63,9 @@ The SlideSeq workflow inputs are specified in JSON configuration files. Example 
 | read_structure | Description of the UMI (M) and Barcode (C) positions in the Read 1 FASTQ. | String |
 | tar_star_reference | Cloud path to the TAR file containing a species-specific reference genome and GTF; generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_indices/BuildIndices.wdl). | File | 
 | annotations_gtf | Cloud path to the GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | File | 
-| whitelist | Cloud path to the list of bead barcodes created by sequencing prior to mRNA transfer and library preparation. | String |
+| whitelist | TSV file containing bead barcodes and XY coordinates on a single line for each bead; determined by sequencing prior to mRNA transfer and library preparation. | File |
 | output_bam_basename | Optional string used for the output BAM file basename; default is set to “input_id”. | String | 
 | count_exons | Optional boolean indicating if the workflow should calculate exon counts; default is set to “false” and produces a Loom file with whole-gene counts; when set to “true” an additional layer of the Loom file is produced with exon counts. | Boolean |
-| bead_locations | Locations (XY coordinates) of the sequenced beads on the puck. | File |
 
 #### Pseudogene handling
 
