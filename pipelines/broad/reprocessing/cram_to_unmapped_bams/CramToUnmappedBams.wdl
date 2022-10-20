@@ -123,7 +123,7 @@ task RevertSam {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
     preemptible: 3
@@ -284,7 +284,7 @@ task ValidateSamFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
     preemptible: 3
@@ -319,7 +319,7 @@ task SortSam {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
     preemptible: 3

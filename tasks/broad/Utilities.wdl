@@ -110,7 +110,7 @@ task ScatterIntervalList {
     Int interval_count = read_int(stdout())
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.27.3-1666103812"
+    docker: "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.27.4-1666284084"
     memory: "2000 MiB"
   }
 }
