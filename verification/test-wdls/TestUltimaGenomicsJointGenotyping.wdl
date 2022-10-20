@@ -24,6 +24,19 @@ workflow TestUltimaGenomicsJointGenotyping {
       File haplotype_database
       File eval_interval_list
       Float excess_het_threshold = 54.69
+      String truth_sample_name
+      File truth_vcf
+      File truth_vcf_index
+      File truth_highconf_intervals
+      String call_sample_name
+      File ref_fasta_sdf
+      File runs_file
+      Array[File] annotation_intervals
+      String flow_order
+      String snp_annotations
+      String indel_annotations
+      Boolean use_allele_specific_annotations
+      String model_backend
       Int? top_level_scatter_count
       Boolean? gather_vcfs
       Float unbounded_scatter_count_scale_factor = 0.15
@@ -59,6 +72,19 @@ workflow TestUltimaGenomicsJointGenotyping {
         haplotype_database = haplotype_database,
         eval_interval_list = eval_interval_list,
         excess_het_threshold = excess_het_threshold,
+        truth_sample_name = truth_sample_name,
+        truth_vcf = truth_vcf,
+        truth_vcf_index = truth_vcf_index,
+        truth_highconf_intervals = truth_highconf_intervals,
+        call_sample_name = call_sample_name,
+        ref_fasta_sdf = ref_fasta_sdf,
+        runs_file = runs_file,
+        annotation_intervals = annotation_intervals,
+        flow_order = flow_order,
+        snp_annotations = snp_annotations,
+        indel_annotations = indel_annotations,
+        use_allele_specific_annotations = use_allele_specific_annotations,
+        model_backend = model_backend,
         top_level_scatter_count = top_level_scatter_count,
         gather_vcfs = gather_vcfs,
         unbounded_scatter_count_scale_factor = unbounded_scatter_count_scale_factor,
@@ -71,14 +97,12 @@ workflow TestUltimaGenomicsJointGenotyping {
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
                                     [ # File outputs
-                                    UltimaGenomicsJointGenotyping.unfiltered_sites_only_vcf_index,
-                                    UltimaGenomicsJointGenotyping.unfiltered_sites_only_vcf,
                                     UltimaGenomicsJointGenotyping.crosscheck_fingerprint_check,
                                     ],
                                     # Array[File] outputs
                                     UltimaGenomicsJointGenotyping.output_intervals,
-                                    UltimaGenomicsJointGenotyping.unfiltered_output_vcf_indices,
-                                    UltimaGenomicsJointGenotyping.unfiltered_output_vcfs,
+                                    UltimaGenomicsJointGenotyping.output_vcf_indices,
+                                    UltimaGenomicsJointGenotyping.output_vcfs,
                                     
     ])
 
@@ -86,8 +110,8 @@ workflow TestUltimaGenomicsJointGenotyping {
     # Collect all of the pipeline metrics into single Array[String]
     Array[String] pipeline_metrics = flatten([
                                     [ # File outputs
-                                    UltimaGenomicsJointGenotyping.unfiltered_summary_metrics_file,
-                                    UltimaGenomicsJointGenotyping.unfiltered_detail_metrics_file,
+                                    UltimaGenomicsJointGenotyping.summary_metrics_file,
+                                    UltimaGenomicsJointGenotyping.detail_metrics_file,
                                     ],
                                     
     ])
@@ -116,13 +140,13 @@ workflow TestUltimaGenomicsJointGenotyping {
     if (!update_truth){
         call Utilities.GetValidationInputs as GetVcfs {
           input:
-            input_files = UltimaGenomicsJointGenotyping.unfiltered_output_vcfs,
+            input_files = UltimaGenomicsJointGenotyping.output_vcfs,
             results_path = results_path,
             truth_path = truth_path
         }
         call Utilities.GetValidationInputs as GetVcfIndexes {
           input:
-            input_files = UltimaGenomicsJointGenotyping.unfiltered_output_vcf_indices,
+            input_files = UltimaGenomicsJointGenotyping.output_vcf_indices,
             results_path = results_path,
             truth_path = truth_path
         }
