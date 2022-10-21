@@ -225,7 +225,7 @@ Please identify the pipeline in your methods section using the Slide Pipeline's 
 
 
 ## Consortia Support
-This pipeline is supported by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN) and [BRAIN Initiative Cell Atlas Network](https://www.braininitiative.org/funding-opportunity/brain-initiative-cell-atlas-network-bican-comprehensive-center-on-human-and-non-human-primate-brain-cell-atlases-um1-clinical-trial-not-allowed-2/) (BICAN). 
+This pipeline is supported by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN) and BRAIN Initiative Cell Atlas Network (BICAN). 
 
 If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting the [WARP Pipelines team](mailto:warp-pipelines-help@broadinstitute.org).
 
