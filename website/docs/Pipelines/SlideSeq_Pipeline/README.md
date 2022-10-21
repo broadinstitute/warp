@@ -42,7 +42,7 @@ To download the latest SlideSeq release, see the release tags prefixed with "Sli
 
 To search releases of this and other pipelines, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
 
-If you’re running a SlideSeq workflow version prior to the latest release, the accompanying documentation for that release may be downloaded with the source code on the WARP [releases page](https://github.com/broadinstitute/warp/releases) (see the source code folder `website/docs/Pipelines/SlideSeq_Pipeline`.
+If you’re running a SlideSeq workflow version prior to the latest release, the accompanying documentation for that release may be downloaded with the source code on the WARP [releases page](https://github.com/broadinstitute/warp/releases) (see the source code folder `website/pipelines/skylab/slideseq`.
 
 The SlideSeq pipeline can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. The workflow can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. 
 
@@ -61,10 +61,10 @@ The SlideSeq workflow inputs are specified in JSON configuration files. Example 
 | i1_fastq | Optional array of i1 (index) FASTQ files; index reads used for demultiplexing of multiple samples on one flow cell. | Array[File] | 
 | input_id | Name of sample matching this file; inserted into read group header. | String |
 | read_structure | Description of the UMI (M) and Barcode (C) positions in the Read 1 FASTQ. | String |
-| tar_star_reference | Cloud path to the TAR file containing a species-specific reference genome and GTF; generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_indices/BuildIndices.wdl). | File | 
-| annotations_gtf | Cloud path to the GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | File | 
+| tar_star_reference | TAR file containing a species-specific reference genome and GTF; generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_indices/BuildIndices.wdl). | File | 
+| annotations_gtf | GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | File | 
 | whitelist | TSV file containing bead barcodes and XY coordinates on a single line for each bead; determined by sequencing prior to mRNA transfer and library preparation. | File |
-| output_bam_basename | Optional string used for the output BAM file basename; default is set to “input_id”. | String | 
+| output_bam_basename | Optional string used for the output BAM file basename. | String | 
 | count_exons | Optional boolean indicating if the workflow should calculate exon counts; default is set to “false” and produces a Loom file with whole-gene counts; when set to “true” an additional layer of the Loom file is produced with exon counts. | Boolean |
 
 #### Pseudogene handling
@@ -96,9 +96,9 @@ To see specific tool parameters, select the task WDL link in the table; then fin
 | [StarAlign.STARsoloFastqSlideSeq (alias = STARsoloFastqSlideSeq)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | STAR | [Star](https://github.com/alexdobin/STAR) | For each of the partitioned FASTQ files, performs bead barcode correction, poly(A) tail trimming from adapters, alignment, gene annotation, and gene counting. Produces a count matrix and BAM file for each partition.|
 | [Merge.MergeSortBamFiles (alias= MergeBam)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/MergeSortBam.wdl) | MergeSamFiles | [Picard](https://broadinstitute.github.io/picard/) | Merges the array of BAM files into a single BAM and sorts in coordinate order. |
 | [Metrics.CalculateGeneMetrics (alias = GeneMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | [sctools](https://github.com/HumanCellAtlas/sctools) | Sorts the BAM file by gene using the bead barcode (CB), molecule barcode (UB), and gene ID (GX) tags and computes gene metrics. | 
-| [Metrics.CalculateCellMetrics (alias = CellMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | [sctools](https://github.com/HumanCellAtlas/sctools) | Sorts the BAM file by bead using the bead barcode (CB), molecule barcode (UB), and gene ID (GX) tags and computes bead metrics. |
+| [Metrics.CalculateCellMetrics (alias = CellMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | [sctools](https://github.com/HumanCellAtlas/sctools) | Sorts the BAM file by bead barcode (CB), molecule barcode (UB), and gene ID (GX) tags and computes bead barcode metrics. |
 | [StarAlign.MergeStarOutput (alias = MergeStarOutputs)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | create-npz-output.py | [Python 3](https://www.python.org/) | Creates a compressed raw NPY or NPZ file containing the STARsolo output features (NPY), barcodes (NPZ) and counts (NPZ). When `count_exons` is true, the task is run as `MergeStarOutputsExons` and additional NPY and NPZ files are output containing exon counts. | 
-| [LoomUtils.SlideSeqLoomOutput (alias = SlideseqLoomGeneration)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | create_loom_slide_seq.py | [Python 3](https://www.python.org/) | Merges the gene counts, bead metrics, and gene metrics data into a Loom formatted bead-by-gene matrix. By default, the Loom contains whole-gene counts. When `count_exons` is true, the task is run as `SlideseqLoomGenerationWithExons` and an additional layer is added to the Loom file containing exon counts. |
+| [LoomUtils.SlideSeqLoomOutput (alias = SlideseqLoomGeneration)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | create_loom_slide_seq.py | [Python 3](https://www.python.org/) | Merges the gene counts, bead barcode metrics, and gene metrics data into a Loom formatted bead-by-gene matrix. By default, the Loom contains whole-gene counts. When `count_exons` is true, the task is run as `SlideseqLoomGenerationWithExons` and an additional layer is added to the Loom file containing exon counts. |
 
 #### 1. Calculating prealignment metrics
 The [FastqMetricsSlidSeq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) task calculates prealignment metrics used for assessing data quality from the input FASTQ files. These metrics include the bead barcode distribution,  UMI distribution, number of reads per cell and number of UMIs per cell. These metrics are included in the final outputs of the workflow. 
@@ -195,17 +195,17 @@ The following table lists the output files produced from the pipeline. For sampl
 | Output Name | Filename, if applicable | Output Type | Output Format |
 | ------ | ------ | ------ | ------ |
 | pipeline_version | N/A | Version of the processing pipeline run on this data. | String |
-| bam | `<input_id>.bam` | Aligned BAM | BAM |
-| matrix | --- | Converted sparse matrix file from the MergeStarOutputs task. | NPZ |
-| matrix_row_index | sparse_counts_row_index.npy | Index of beads in count matrix. | NPY |
-| matrix_col_index | sparse_counts_col_index.npy | Index of genes in count matrix. | NPY |
-| cell_metrics | cell-metrics.csv.gz | Bead metrics | compressed csv | Matrix of metrics by beads. |
-| gene_metrics | gene-metrics.csv.gz | Gene metrics | compressed csv | Matrix of metrics by genes. |
+| bam | `<output_bam_basename>.bam` | Aligned BAM | BAM |
+| matrix | `<input_id>_sparse_counts.npz` | Converted sparse matrix file from the MergeStarOutputs task. | NPZ |
+| matrix_row_index | `<input_id>_sparse_counts_row_index.npy` | Index of beads in count matrix. | NPY |
+| matrix_col_index | `<input_id>_sparse_counts_col_index.npy` | Index of genes in count matrix. | NPY |
+| cell_metrics | `cell-metrics.csv.gz` | Bead metrics | compressed csv | Matrix of metrics by beads. |
+| gene_metrics | `gene-metrics.csv.gz` | Gene metrics | compressed csv | Matrix of metrics by genes. |
 | loom_output_file | `<input_id>.loom` | Loom file containing count data and metadata. | Loom |
-| barcode_distribution | --- | Metric file containing the distribution of reads per bead barcode that were calculated prior to alignment. | File |
-| umi_distribution | --- | Metric file containing the distribution of reads per UMI that were calculated prior to alignment. | File |
-| numReads_perCell | --- | Metric file containing the number of reads per barcode that were calculated prior to alignment. | File |
-| numReads_perUMI | --- | Metric file containing the number of reads per UMI that were calculated prior to alignment. | File | 
+| barcode_distribution | `<input_id>.barcode_distribution_XC.txt` | Metric file containing the distribution of reads per bead barcode that were calculated prior to alignment. | TXT |
+| umi_distribution | `<input_id>.barcode_distribution_XM.txt` | Metric file containing the distribution of reads per UMI that were calculated prior to alignment. | TXT |
+| numReads_perCell | `<input_id>.numReads_perCell_XC.txt` | Metric file containing the number of reads per barcode that were calculated prior to alignment. | TXT |
+| numReads_perUMI | `<input_id>.numReads_perCell_XM.txt` | Metric file containing the number of reads per UMI that were calculated prior to alignment. | TXT | 
 
 The Loom matrix is the default output. See the [create_loom_slide_seq.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) script for the detailed code. This matrix contains the unnormalized (unfiltered) count matrices. 
 
@@ -225,7 +225,7 @@ Please identify the pipeline in your methods section using the Slide Pipeline's 
 
 
 ## Consortia Support
-This pipeline is supported by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
+This pipeline is supported by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN) and [BRAIN Initiative Cell Atlas Network](https://www.braininitiative.org/funding-opportunity/brain-initiative-cell-atlas-network-bican-comprehensive-center-on-human-and-non-human-primate-brain-cell-atlases-um1-clinical-trial-not-allowed-2/) (BICAN). 
 
 If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting the [WARP Pipelines team](mailto:warp-pipelines-help@broadinstitute.org).
 
