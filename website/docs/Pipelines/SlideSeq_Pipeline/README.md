@@ -131,7 +131,7 @@ Corrected barcodes are those that fall within one edit distance ([Hamming distan
 
 **Read trimming**
 
-Poly(A) tails are trimmed from reads using the parameter `--clip3pAdapterSeq AAAAAA`.
+Poly(A) tails are trimmed from reads using the STARsolo parameter `--clip3pAdapterSeq AAAAAA`.
 
 **Alignment**
 
