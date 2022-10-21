@@ -82,7 +82,7 @@ Overall, the SlideSeq workflow:
 1. Filters, trims and splits reads into < 30 GB FASTQs with sctools.
 1. Corrects bead barcodes, aligns reads, and counts genes with STARsolo.
 1. Calculates metrics.
-1. Merges the Star outputs into NPY and NPZ arrays.
+1. Merges the STAR outputs into NPY and NPZ arrays.
 1. Merges gene counts, metrics, and bead locations into a Loom-formatted matrix.
 
 The tools each SlideSeq task employs are detailed in the table below. 
