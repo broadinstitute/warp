@@ -156,7 +156,7 @@ The [CalculateCellMetrics](https://github.com/broadinstitute/warp/blob/master/ta
 These metrics output from both tasks are included in the output Loom matrix.
 <!--- comment about count matrix overview? --->
 
-#### 5. Merging the Star outputs into NPY and NPZ arrays
+#### 5. Merging the STAR outputs into NPY and NPZ arrays
 
 The STARsolo output includes a features, barcodes, and matrix TSV for each of the partitioned FASTQ input files. The [MergeStarOutput task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) merges each respective TSV. It uses a custom python script to convert the merged matrix, features, and barcodes output from STARsolo into an NPY (features and barcodes)- and NPZ (the matrix)-formatted file.
 
