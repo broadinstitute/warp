@@ -162,7 +162,7 @@ The STARsolo output includes a features, barcodes, and matrix TSV for each of th
 
 #### 6. Merging counts and metrics data into Loom-formatted matrix
 
-The [SlideSeqLoomOutput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) task uses a custom python script to merge the converted STARsolo count matrix and the bead and gene metrics into a Loom-formatted bead-by-gene matrix. **These counts are raw and unfiltered.**
+The [SlideSeqLoomOutput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) task uses a custom python script to merge the converted STARsolo count matrix and the cell (bead) and gene metrics into a Loom-formatted bead-by-gene matrix. **These counts are raw and unfiltered.**
 
 <!--- comment about loom matrix overview doc --->
 
