@@ -268,12 +268,16 @@ task MarkDuplicatesSpark {
   input {
     Array[File] input_bams
     String output_bam_basename
+    Boolean save_bam_file
     String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v4"
     Int disk_size_gb
     Int cpu = 32
     Int memory_mb = if 4 * ceil(size(input_bams, "MB")) / 4000 > 600000 then 300000 else 208000
     Int preemptible = 0
   }
+
+  String dummy_file_name_for_optional_output_bam = if save_bam_file then output_bam_basename + ".bam" else "path_that_does_not_exist"
+  String dummy_file_name_for_optional_output_bai = if save_bam_file then output_bam_basename + ".bam.bai" else "path_that_does_not_exist"
 
   parameter_meta {
     input_bams: {
@@ -305,6 +309,8 @@ task MarkDuplicatesSpark {
   output {
     File output_bam = "~{output_bam_basename}.bam"
     File output_bam_index = "~{output_bam_basename}.bam.bai"
+    File? optional_output_bam = "~{dummy_file_name_for_optional_output_bam}"
+    File? optional_output_bam_index = "~{dummy_file_name_for_optional_output_bai}"
   }
 }
 
@@ -651,7 +657,7 @@ task FilterVCF {
         --flow_order ~{used_flow_order} \
         ~{true="--blacklist_cg_insertions" false="" filter_cg_insertions} \
         --annotate_intervals ~{sep=" --annotate_intervals " annotation_intervals} \
-        --output_file /cromwell_root/~{final_vcf_base_name}.filtered.vcf.gz
+        --output_file ~{final_vcf_base_name}.filtered.vcf.gz
   >>>
 
   runtime {
@@ -710,7 +716,7 @@ task TrainModel {
         ~{"--exome_weight " + exome_weight} \
         ~{"--exome_weight_annotation " + exome_weight_annotation} \
         --annotate_intervals ~{sep=" --annotate_intervals " annotation_intervals} \
-        --output_file_prefix /cromwell_root/~{input_vcf_name}.model
+        --output_file_prefix ~{input_vcf_name}.model
   >>>
 
   runtime {

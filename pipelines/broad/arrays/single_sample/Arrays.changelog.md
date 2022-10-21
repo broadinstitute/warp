@@ -1,7 +1,30 @@
+# 2.6.16
+2022-10-12 (Date of Last Commit)
+
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline.
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new optional input variable. This update has no effect on this pipeline.
+* Updated task FormatArraysOutputs in InternalArrraysTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+
+* New GCR image tag in task FormatImputationOutputs and task FormatImputationWideOutputs and task IngestOutputsToTDR.
+
+# 2.6.15
+2022-09-30 (Date of Last Commit)
+
+* Updated Picard-Python Docker image in Utilities.wdl to fix vulnerabilities.
+* Updated tasks FormatArraysOutputs and IngestOutputsToTDR with GCR images instead of Dockerhub.
+
+# 2.6.14
+2022-09-07 (Date of Last Commit)
+
+* Updated task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+* Updated task FormatArraysOutputs in InternalArrraysTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+
 # 2.6.13
 2022-06-21 (Date of Last Commit)
 
-* Changed QC.CheckFingerprint to QC.CheckMercuryFingerprint to avoid a naming conflict in the update scala tests, no effect on this pipeline
+* Changed QC.CheckFingerprint to QC.CheckFingerprintTask to avoid a naming conflict in the update scala tests, no effect on this pipeline
 
 # 2.6.12
 2022-06-01 (Date of Last Commit)

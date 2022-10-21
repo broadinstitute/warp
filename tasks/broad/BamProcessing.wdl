@@ -22,12 +22,13 @@ task SortSam {
     String output_bam_basename
     Int preemptible_tries
     Int compression_level
+    Int additional_disk = 20
     Int memory_multiplier = 1
   }
   # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
   # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
   Float sort_sam_disk_multiplier = 3.25
-  Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
+  Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + additional_disk
 
   Int machine_mem_mb = ceil(5000 * memory_multiplier)
   Int java_max_memory_mb = machine_mem_mb - 500
@@ -273,13 +274,18 @@ task GatherSortedBamFiles {
     Float total_input_size
     Int compression_level
     Int preemptible_tries
+    Int additional_disk = 20
+    Int memory_multiplier = 1
   }
 
   # Multiply the input bam size by two to account for the input and output
-  Int disk_size = ceil(2 * total_input_size) + 20
+  Int disk_size = ceil(2 * total_input_size) + additional_disk
+  Int machine_mem_mb = ceil(3000 * memory_multiplier)
+  Int java_max_memory_mb = machine_mem_mb - 500
+  Int java_inital_memory_mb = machine_mem_mb - 1000
 
   command {
-    java -Dsamjdk.compression_level=~{compression_level} -Xms2000m -Xmx2500m -jar /usr/picard/picard.jar \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms~{java_inital_memory_mb}m -Xmx~{java_max_memory_mb}m -jar /usr/picard/picard.jar \
       GatherBamFiles \
       INPUT=~{sep=' INPUT=' input_bams} \
       OUTPUT=~{output_bam_basename}.bam \
@@ -289,7 +295,7 @@ task GatherSortedBamFiles {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: preemptible_tries
-    memory: "3 GiB"
+    memory: "${machine_mem_mb} MiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {

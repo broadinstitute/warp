@@ -68,7 +68,10 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
 
   // All of our plumbing or scientific test inputs
   protected lazy val inputFileNames: Seq[String] =
-    workflowInputRoot.list.toSeq.map(_.name.toString)
+    workflowInputRoot.list
+      .filter(_.name.endsWith(".json"))
+      .toSeq
+      .map(_.name.toString)
 
   // plumbing or scientific
   protected val testTypeString: String =
@@ -129,7 +132,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     * Generate the run parameters for each testing sample
     */
   def generateRunParameters: Seq[WorkflowRunParameters] = {
-    workflowInputRoot.list.toSeq.map(_.name.toString).map { fileName =>
+    inputFileNames.map { fileName =>
       val inputsName = fileName.replace(".json", "")
       val resultsPath = resultsPrefix.resolve(s"$inputsName/")
       val truthPath = truthPrefix.resolve(s"$inputsName/")
@@ -160,7 +163,10 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     )
 
     val tokenPipelines =
-      List("Arrays", "BroadInternalRNAWithUMIs", "BroadInternalUltimaGenomics", "CheckFingerprint")
+      List("Arrays",
+           "BroadInternalRNAWithUMIs",
+           "BroadInternalUltimaGenomics",
+           "CheckFingerprint")
     val externalPipelines =
       List("ExternalWholeGenomeReprocessing", "ExternalExomeReprocessing")
 
@@ -184,8 +190,14 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       */
     val pattern = new Regex(s"($workflowName).([A-Z]\\w+).")
 
+    /** Find any instance of the pipeline followed by . and replace with wrapper workflow
+      * e.g.
+      * Arrays. -> TestArrays.
+      *
+      * This handles the case where the wrapper workflow is a substring of a nested input (CheckFingerprint CheckFingerprintTask)
+      */
     var inputsString = (workflowInputRoot / fileName).contentAsString
-      .replace(pipeline, workflowName)
+      .replace(s"$pipeline.", s"$workflowName.")
 
     // Replace all of the injected {} value in the test inputs file
     inputsString = inputsString
@@ -194,6 +206,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       .replaceAll("\\VAULT_TOKEN_PATH", vaultTokenPath)
       .replaceAll("\\GOOGLE_ACCOUNT_VAULT_PATH", googleAccountVaultPath)
 
+    // If wrapper workflow name is follow by [A-Z] then we know its a nested input
     inputsString = pattern.replaceAllIn(
       inputsString,
       m => s"$workflowName.$pipeline." + m.group(2) + ".")

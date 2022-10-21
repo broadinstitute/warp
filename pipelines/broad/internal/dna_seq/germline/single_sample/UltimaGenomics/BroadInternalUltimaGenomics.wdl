@@ -6,7 +6,7 @@ import "../../../../../../../pipelines/broad/qc/CheckFingerprint.wdl" as FP
 
 workflow BroadInternalUltimaGenomics {
 
-  String pipeline_version = "1.0.1"
+  String pipeline_version = "1.0.6"
 
   input {
   
@@ -18,8 +18,6 @@ workflow BroadInternalUltimaGenomics {
   File vault_token_path
   
   String? tdr_dataset_uuid
-  String? tdr_sample_id
-  String? tdr_staging_bucket
   
   # UltimaGenomics Pipeline Inputs
   ContaminationSites contamination_sites
@@ -54,7 +52,6 @@ workflow BroadInternalUltimaGenomics {
     vault_token_path: "The path to the vault token used for accessing the Mercury Fingerprint Store"
     output_basename: "String used as a prefix in workflow output files"
     tdr_dataset_uuid: "Optional String used to define the Terra Data Repo dataset to which outputs will be ingested, if populated"
-    tdr_staging_bucket: "Optional String defining the GCS bucket to use to stage files for loading to TDR. Workspace bucket is recommended"
   }
 
   call UltimaGenomicsWholeGenomeGermline.UltimaGenomicsWholeGenomeGermline {
@@ -104,7 +101,7 @@ workflow BroadInternalUltimaGenomics {
 
   # CALL TDR TASKS TO FORMAT JSON
   
-  if (defined(tdr_dataset_uuid) && defined(tdr_sample_id) && defined(tdr_staging_bucket)) {
+  if (defined(tdr_dataset_uuid)) {
     call formatPipelineOutputs {
       input:
         output_basename = output_basename,
@@ -148,9 +145,7 @@ workflow BroadInternalUltimaGenomics {
     call updateOutputsInTDR {
       input:
         tdr_dataset_uuid = select_first([tdr_dataset_uuid, ""]),
-        outputs_json = formatPipelineOutputs.pipeline_outputs_json,
-        primary_key = collab_sample_id_run_id,
-        staging_bucket = select_first([tdr_staging_bucket, ""])
+        outputs_json = formatPipelineOutputs.pipeline_outputs_json
     }
   }
 
@@ -345,7 +340,7 @@ task MergeMetrics {
       Int disk_size_gb = 10
     }
 
-    String outputs_json_file_name = "outputs_to_TDR_~{output_basename}.json"
+    String outputs_json_file_name = sub("outputs_to_TDR_~{output_basename}.json", " ", "")
 
     String outlier_data_string = if is_outlier_data then "True" else "False"
 
@@ -355,7 +350,7 @@ task MergeMetrics {
 
           outputs_dict = {}
 
-          outputs_dict["collab_sample_id_run_id"]="~{collab_sample_id_run_id}"       
+          outputs_dict["collab_sample_id_run_id"]="~{collab_sample_id_run_id}"
           outputs_dict["agg_alignment_summary_metrics"]="~{agg_alignment_summary_metrics}"
           outputs_dict["agg_alignment_summary_pdf"]="~{agg_alignment_summary_pdf}"
           outputs_dict["agg_gc_bias_detail_metrics"]="~{agg_gc_bias_detail_metrics}"
@@ -410,7 +405,7 @@ task MergeMetrics {
       >>>
 
     runtime {
-        docker: "broadinstitute/horsefish:tdr_import_v1.1"
+        docker: "broadinstitute/horsefish:tdr_import_v1.4"
         cpu: cpu
         memory: "${memory_mb} MiB"
         disks : "local-disk ${disk_size_gb} HDD"
@@ -423,10 +418,8 @@ task MergeMetrics {
 
   task updateOutputsInTDR {
     input {
-      String staging_bucket
       String tdr_dataset_uuid
       File outputs_json
-      String primary_key
 
       Int cpu = 1
       Int memory_mb = 2000
@@ -434,20 +427,16 @@ task MergeMetrics {
     }
 
     String tdr_target_table = "sample"
-    String primary_key_field = "collab_sample_id_run_id"
 
     command <<<
       python -u /scripts/export_pipeline_outputs_to_tdr.py \
         -d "~{tdr_dataset_uuid}" \
-        -b "~{staging_bucket}" \
         -t "~{tdr_target_table}" \
-        -o "~{outputs_json}" \
-        --primary_key_field "~{primary_key_field}" \
-        --primary_key_value "~{primary_key}"
+        -o "~{outputs_json}"
     >>>
 
     runtime {
-      docker: "broadinstitute/horsefish:tdr_import_v1.1"
+      docker: "broadinstitute/horsefish:tdr_import_v1.4"
       cpu: cpu
       memory: "~{memory_mb} MiB"
       disks: "local-disk ~{disk_size_gb} HDD"

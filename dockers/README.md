@@ -8,6 +8,7 @@ This style guide provides formatting guidelines and best practices for writing D
 * [Goals](#goals)
   * [Small images](#small) 
     * [Alpine base](#alpine)
+    * [Specifying image platform](#platform)
     * [Minimal RUN steps](#minimal-run)
   * [Publicly accessible](#publicly)
   * [Image scanning](#scanning)
@@ -15,7 +16,7 @@ This style guide provides formatting guidelines and best practices for writing D
   * [Proper process reaping](#process)
 * [Build Scripts and README](#build)
 * [Formatting](#formatting)
-* [Troubleshooting](#trouble)
+* [Troubleshooting and running standalone](#trouble)
 ## <a name="overview"></a> Overview
 
 WARP maintains a collection of docker images which are used as execution environments for various cloud-optimized data processing pipelines. Many of these image require specific sets of tools and dependencies to run and can be thought of as _custom_ images rather than traditional application images. 
@@ -35,7 +36,7 @@ The easiest way to have a small image is to use an [Alpine](https://alpinelinux.
 
 Along with being a small base, Alpine also has built in deletion of package index and provides [tini](https://github.com/krallin/tini) natively through APK.
 
-There are some instances where a Debian base image is unavoidable, specifically in the case where dependencies don't exists in APK. It is suggested that you only go to a Debian base as a last resort.
+There are some instances where a Debian base image is unavoidable, specifically in the case where dependencies don't exist in APK. It is suggested that you only go to a Debian base as a last resort.
 
 
 ##### :eyes: Example
@@ -62,12 +63,23 @@ RUN set -eux; \
             bash \
 ```
 
+#### <a name="platform"></a> Specifying image platform
+
+Docker images built on ARM-based machines such as the new M-series Macs may run into execution issues with our automated PR test suite.
+One way to avoid these issues is to use a `linux/amd64` base image by including the `--platform="linux/amd64` flag after the `FROM` keyword.
+
+##### :eyes: Example
+```dockerfile
+# Use the amd64 version of alpine
+FROM --platform="linux/amd64" alpine
+```
+
 #### <a name="minimal-run"></a> Minimal RUN steps
 
 Having minimal `RUN`steps (ideally one) is another highly effective way to reduce the size of your image. Each instruction in a Dockerfile creates a [layer](https://docs.docker.com/storage/storagedriver/) and these layers are what add up to build the final image.
-When you use multple `RUN` steps it creates additional unnecessary layers and bloats your image.
+When you use multiple `RUN` steps it creates additional unnecessary layers and bloats your image.
 
-An alternative to having a single `RUN` step is to use [multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/) which are effective when the application your are containerizing is just a statically linked binary. 
+An alternative to having a single `RUN` step is to use [multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/) which are effective when the application you are containerizing is just a statically linked binary. 
 Just to note, many of the images maintained in WARP require a handful of system-level dependencies and custom packages so multi-stages builds are typically not used.
 
 ##### :eyes: Example
@@ -84,7 +96,7 @@ RUN set -eux; \
         apk add --no-cache \
             curl \
             bash \
-    ; \ 
+    ; \
     wget https://www.somezipfile.com/zip; \
     unzip zip
 ```
@@ -96,22 +108,22 @@ The pipelines that we maintain in WARP are designed for public use, ideally we w
 * Anybody can pull our images
 * Anybody can build our images
 
-For anybody to be able to pull our images they must be hosted on a public container registry, we host all of our images in publics repos on GCR (our 'official' location) and Quay (for discoverability).
+For anybody to be able to pull our images they must be hosted on a public container registry, we host all of our images in public repos on GCR (our 'official' location) and Quay (for discoverability).
 
 * GCR - `us.gcr.io/broad-gotc-prod`
 * Quay - `quay.io/broadinstitute/broad-gotc-prod`
 
-For anybody to be able to build our images all of the functionality should be encapsulated in the Dockerfile. Any custom software packages, dependencies etc. have to be downloaded from public links within the Dockerfile, this obviously means that we should not be copying files from within the Broad network infrastucture into our images.
+For anybody to be able to build our images, all functionality should be encapsulated in the Dockerfile. Any custom software packages, dependencies etc. have to be downloaded from public links within the Dockerfile, this obviously means that we should not be copying files from within the Broad network infrastructure into our images.
 
 ### <a name="scanning"></a> Image scanning
 
 
-All of the images that we build are scanned for critical vulnerabilities on every pull request. For this we use a github-action that leverages [trivy](https://github.com/aquasecurity/trivy) for scanning. If you build a new image please add it to the action [here](../.github/workflows/trivy.yml).
+All images that we build are scanned for critical vulnerabilities on every pull request. For this we use a github-action that leverages [trivy](https://github.com/aquasecurity/trivy) for scanning. If you build a new image please add it to the action [here](../.github/workflows/trivy.yml).
 
 ### <a name="semantic"></a> Semantic tagging
 
 
-We recommend against using rolling tags like `master` or `latest` when building images. Rolling tags make it hard to track down versions of images since the underlying image hash and content could be different across the same tags. Instead we ask that you use a semantic tag that follows the convention below:
+We recommend against using rolling tags like `master` or `latest` when building images. Rolling tags make it hard to track down versions of images since the underlying image hash and content could be different across the same tags. Instead, we ask that you use a semantic tag that follows the convention below:
 
 ##### `us.gcr.io/broad-gotc-prod/samtools:<image-version>-<samtools-version>-<unix-timestamp>` 
 
@@ -120,7 +132,7 @@ This example is for an image we use containing `samtools`. The 'image-version' i
 ### <a name="process"></a> Proper process reaping
 
 
-Classic init systems like systemd are used to reap orphaned, zombie processes. Typically these orphaned processes are reattached to the process at PID 1 which will reap them when they die. In a container this responsibility falls to process at PID 1 which is by default `/bin/sh`...this obviously will not handle process reaping. Because of this you run the risk of expending excess memory or resources within your container. A simple solution to this is to use `tini` in all of our images, a lengthy explanation of what this package does can be found [here](https://github.com/krallin/tini/issues/8).
+Classic init systems like systemd are used to reap orphaned, zombie processes. Typically, these orphaned processes are reattached to the process at PID 1 which will reap them when they die. In a container this responsibility falls to process at PID 1 which is by default `/bin/sh`...this obviously will not handle process reaping. Because of this you run the risk of expending excess memory or resources within your container. A simple solution to this is to use `tini` in all of our images, a lengthy explanation of what this package does can be found [here](https://github.com/krallin/tini/issues/8).
 
 Luckily `tini` is available natively through APK so all you have to do is install it and set it as the default entrypoint!
 
@@ -129,7 +141,7 @@ Luckily `tini` is available natively through APK so all you have to do is instal
 
 FROM alpine:3.9
 
-RUN set -eux; 
+RUN set -eux; \
         apk add --no-cache \
             tini
 
@@ -146,7 +158,7 @@ See the examples for samtools([docker_build](./broad/samtools/docker_build.sh), 
 
 ## Formatting
 
-Formatting our Dockerfiles consistenty helps improve readability and eases maintenance headaches down the road. The following are a couple of tenants that we follow when writing our Dockerfiles:
+Formatting our Dockerfiles consistently helps improve readability and eases maintenance headaches down the road. The following are a couple of tenants that we follow when writing our Dockerfiles:
 
 * ARGS, ENV, LABEL in that order
 * Always add versions of tools in the LABEL
@@ -154,7 +166,7 @@ Formatting our Dockerfiles consistenty helps improve readability and eases maint
 * Alphabetize package install
 * Clean up package index cache
 * Use ; instead of && for line continuation
-* Logically seperate steps within RUN
+* Logically separate steps within RUN
 * Four spaces per tab indent
 * Short comments to describe each step
 * tini is always default entrypoint
@@ -180,13 +192,13 @@ WORKDIR /usr/gitc
 # Install dependencies
 RUN set -eux; \
         apt-get update; \
-        apt-get install -y \ 
+        apt-get install -y \
             autoconf \
             cmake \
             g++ \
             gcc \
             git \
-            libbz2-dev \        
+            libbz2-dev \
             libcurl4-openssl-dev \
             libhts-dev \
             libssl-dev  \
@@ -222,6 +234,12 @@ RUN set -eux; \
 ENTRYPOINT [ "/sbin/tini", "--" ]
 ```
 
-## <a link="trouble"></a> Troubleshooting
+## <a link="trouble"></a> Troubleshooting and running standalone
+
+The WARP dockers are designed to be run from their respective WDL pipelines. However, if you need to run a Docker independent of a WDL for testing or troubleshooting, you'll likely need to explicity instruct it to run a `bash` shell in the `run` command. An example of this is shown in the terminal command below: 
+
+```bash
+docker run -it --rm <docker url> bash
+```
 
 If you have any questions or would like some more guidance on writing Dockerfiles please file a [GitHub issue in WARP](https://github.com/broadinstitute/warp/issues/new).

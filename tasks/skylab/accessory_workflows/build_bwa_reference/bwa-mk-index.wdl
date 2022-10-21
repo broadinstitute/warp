@@ -40,7 +40,7 @@ task BuildBWAreference {
      >>>
 
      runtime {
-         docker: "quay.io/humancellatlas/snaptools:0.0.1"
+         docker: "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463"
 	 memory: "96GB"
 	 disks: "local-disk 100 HDD"
 	 cpu: "4"

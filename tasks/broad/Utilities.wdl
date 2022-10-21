@@ -110,7 +110,7 @@ task ScatterIntervalList {
     Int interval_count = read_int(stdout())
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.26.10-1647265026"
+    docker: "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.26.10-1663951039"
     memory: "2000 MiB"
   }
 }
@@ -298,32 +298,4 @@ task GetValidationInputs {
     Array[String] results_files = read_lines("results_files.txt")
   }
 
-}
-
-# If keep_inputs is true then this outputs the same file that was input, otherwise it outputs null.
-task MakeOptionalOutputBam {
-  input {
-    File bam_input
-    File bai_input
-    Boolean keep_inputs
-    Int preemptible_tries = 3
-  }
-    Int disk_size = ceil(size(bam_input, "GiB")) + 5
-    String basename = basename(bam_input, ".bam")
-  command<<<
-    if [ ~{keep_inputs} = "true" ]
-    then
-      ln -s ~{bam_input} ~{basename}.bam
-      ln -s ~{bai_input} ~{basename}.bai
-    fi
-  >>>
-  runtime {
-    docker: "ubuntu:20.04"
-    disks: "local-disk " + disk_size + " HDD"
-    preemptible: preemptible_tries
-  }
-  output {
-    File? optional_output_bam = "~{basename}.bam"
-    File? optional_output_bai = "~{basename}.bai"
-  }
 }

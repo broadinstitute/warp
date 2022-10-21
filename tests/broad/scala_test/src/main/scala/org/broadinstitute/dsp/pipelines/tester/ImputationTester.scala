@@ -87,8 +87,9 @@ class ImputationTester(testerConfig: ImputationConfig)(
           s"${outputBaseName}_aggregated_imputation_metrics.tsv")
       ),
       test_vcf = resultsCloudPath.resolve(s"$outputBaseName.vcf.gz"),
+      truth_vcf = truthCloudPath.resolve(s"$outputBaseName.vcf.gz"),
       test_vcf_index = resultsCloudPath.resolve(s"$outputBaseName.vcf.gz.tbi"),
-      truth_vcf = truthCloudPath.resolve(s"$outputBaseName.vcf.gz")
+      truth_vcf_index = truthCloudPath.resolve(s"$outputBaseName.vcf.gz.tbi")
     )
     ImputationValidationInputs
       .marshall(validationInputs)

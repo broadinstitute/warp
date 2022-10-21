@@ -1,3 +1,12 @@
+# 1.6.4
+2022-08-26 (Date of Last Commit)
+
+* Added task to JointGenotypingTasks.wdl for UltimaGenomicsJointGenotyping pipeline. This has no effect on this pipeline.
+
+# 1.6.3
+2022-06-27 (Date of Last Commit)
+
+* Renamed JointGenotyping input SNP_VQSR_downsampleFactor to snp_vqsr_downsampleFactor to allow proper regex match in scala tests. Only subworkflows should be capitalized, not top level inputs
 # 1.6.2
 2022-06-01 (Date of Last Commit)
 
