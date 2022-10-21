@@ -79,8 +79,8 @@ The [SlideSeq workflow](https://github.com/broadinstitute/warp/blob/master/pipel
 
 Overall, the SlideSeq workflow:
 1. Calculates prealignment metrics.
-1. Filters, trims and splits reads into < 30 GB FASTQs with sctools.
-1. Corrects bead barcodes, aligns reads, and counts genes with STARsolo.
+1. Uses sctools to filter, trim, and split reads into < 30 GB FASTQs.
+1. Uses STARsolo to correct bead barcodes, align reads, and count genes.
 1. Calculates metrics.
 1. Merges the STAR outputs into NPY and NPZ arrays.
 1. Merges gene counts, metrics, and bead locations into a Loom-formatted matrix.
@@ -111,7 +111,7 @@ Although the function of the bead barcodes is to identify the spatial location o
 
 The [FastqProcessingSlidSeq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to evaluate barcode errors by comparing the Read 1 FASTQ sequences against a whitelist of barcodes created by sequencing prior to the mRNA transfer and library preparation steps of the [Slide-Seq](https://www.science.org/doi/10.1126/science.aaw1219) protocol.
 
-Barcodes that are more than one edit distance ([Hamming distance](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5410656/)) from any of the barcode sequences in the whitelist are filtered at this step and not included in the output. However, the barcodes are corrected by the [STARsoloFastqSlideSeq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) task.
+Barcodes that are more than one edit distance ([Hamming distance](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5410656/)) from any of the barcode sequences in the whitelist are filtered at this step and not included in the output. The remaining barcodes are corrected by the [STARsoloFastqSlideSeq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) task.
 
 **Barcode trimming**
 
