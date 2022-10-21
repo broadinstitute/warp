@@ -199,8 +199,8 @@ The following table lists the output files produced from the pipeline. For sampl
 | matrix | `<input_id>_sparse_counts.npz` | Converted sparse matrix file from the MergeStarOutputs task. | NPZ |
 | matrix_row_index | `<input_id>_sparse_counts_row_index.npy` | Index of beads in count matrix. | NPY |
 | matrix_col_index | `<input_id>_sparse_counts_col_index.npy` | Index of genes in count matrix. | NPY |
-| cell_metrics | `cell-metrics.csv.gz` | Bead metrics | compressed csv | Matrix of metrics by beads. |
-| gene_metrics | `gene-metrics.csv.gz` | Gene metrics | compressed csv | Matrix of metrics by genes. |
+| cell_metrics | `cell-metrics.csv.gz` | Cell metrics based on bead barcodes | Compressed CSV |
+| gene_metrics | `gene-metrics.csv.gz` | Gene metrics | Compressed CSV |
 | loom_output_file | `<input_id>.loom` | Loom file containing count data and metadata. | Loom |
 | barcode_distribution | `<input_id>.barcode_distribution_XC.txt` | Metric file containing the distribution of reads per bead barcode that were calculated prior to alignment. | TXT |
 | umi_distribution | `<input_id>.barcode_distribution_XM.txt` | Metric file containing the distribution of reads per UMI that were calculated prior to alignment. | TXT |
