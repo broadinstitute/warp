@@ -1,12 +1,28 @@
+# 1.2.14
+2022-09-20 (Date of Last Commit)
+
+* Updated tasks in StarAlign.wdl to use an updated STAR docker image.
+
+# 1.2.13
+
+2022-09-01 (Date of Last Commit)
+
+* Updated CheckInputs.wdl to use a lightweight alpine-bash image.
+
+# 1.2.12
+2022-08-31 (Date of Last Commit)
+
+* Updated CountAlignments to use an updated docker image.
+
 # 1.2.11
 2022-08-23 (Date of Last Commit)
 
-* Remove an unused script in pytools docker image.
+* Removed an unused script in pytools docker image.
 
 # 1.2.10
 2022-08-16 (Date of Last Commit)
 
-* Update LoomUtils.wdl to use a consolidated python utilities docker image. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline.
+* Updated LoomUtils.wdl to use a consolidated python utilities docker image. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline.
 
 # 1.2.9
 2022-08-08 (Date of Last Commit)
