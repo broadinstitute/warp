@@ -135,7 +135,7 @@ Poly(A) tails are trimmed from reads using the STARsolo parameter `--clip3pAdapt
 
 **Alignment**
 
-STAR maps barcoded reads to the genome primary assembly reference (see the [Quickstart table](https://broadinstitute.github.io/warp/docs/Pipelines/Slide-seq_Pipeline/README#quickstart-table) above for version information). The example references for Slide-seq were generated using the [BuildIndices pipeline](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl).
+STAR maps barcoded reads to the genome primary assembly reference (see the [Quickstart table](https://broadinstitute.github.io/warp/docs/Pipelines/Slide-seq_Pipeline/README#quickstart-table) above for version information). The example references for the SlideSeq workflow were generated using the [BuildIndices pipeline](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl).
 
 **Gene annotation and counting**
 
