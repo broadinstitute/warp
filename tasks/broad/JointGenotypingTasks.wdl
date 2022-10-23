@@ -88,6 +88,8 @@ task ImportGVCFs {
     Int disk_size
     Int batch_size
 
+    String? project_for_requester_pays
+
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
   }
 
@@ -113,6 +115,7 @@ task ImportGVCFs {
       --sample-name-map ~{sample_name_map} \
       --reader-threads 5 \
       --merge-input-intervals \
+      ~{"--gcs-project-for-requester-pays " + project_for_requester_pays} \
       --consolidate
 
     tar -cf ~{workspace_dir_name}.tar ~{workspace_dir_name}
