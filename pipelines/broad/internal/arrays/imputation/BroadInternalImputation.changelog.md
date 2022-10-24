@@ -1,3 +1,11 @@
+# 1.1.3
+2022-10-12 (Date of Last Commit)
+
+* Added `in_load_tag` as optional input to task IngestOutputsToTDR.
+* Pass `in_load_tag` in the call to IngestToImputationWideOutputsTable (alias for IngestOutputsToTDR).
+
+* New GCR image tag in task FormatImputationOutputs and task FormatImputationWideOutputs.
+
 # 1.1.2
 2022-09-27 (Date of Last Commit)
 

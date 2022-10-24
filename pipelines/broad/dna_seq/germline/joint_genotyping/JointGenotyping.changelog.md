@@ -1,3 +1,8 @@
+# 1.6.4
+2022-08-26 (Date of Last Commit)
+
+* Added task to JointGenotypingTasks.wdl for UltimaGenomicsJointGenotyping pipeline. This has no effect on this pipeline.
+
 # 1.6.3
 2022-06-27 (Date of Last Commit)
 
