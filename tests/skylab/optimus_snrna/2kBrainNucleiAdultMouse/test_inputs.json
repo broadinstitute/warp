@@ -30,8 +30,8 @@
   "TestOptimusPR.whitelist": "gs://broad-gotc-test-storage/Optimus/truth/plumbing/master/inputs/737K-august-2016.txt",
   "TestOptimusPR.tar_star_reference": "gs://broad-gotc-test-storage/ATAC/inputs/mouse_reference/star_primary_gencode_mouse_vM21.tar",
   "TestOptimusPR.input_id": "brain_2k_adult_mouse_nuclei",
-  "TestOptimusPR.annotations_gtf": "gs://broad-dsde-mint-dev-teststorage/ajc-test/gencode.vM21.annotation.gtf.gz",
-  "TestOptimusPR.ref_genome_fasta": "gs://broad-dsde-mint-dev-teststorage/ajc-test/GRCm38.primary_assembly.genome.fa",
+  "TestOptimusPR.annotations_gtf": "gs://broad-gotc-test-storage/deprecated-skylab-optimus-test-data/gencode.vM21.annotation.gtf.gz",
+  "TestOptimusPR.ref_genome_fasta": "gs://broad-gotc-test-storage/deprecated-skylab-optimus-test-data/GRCm38.primary_assembly.genome.fa",
   "TestOptimusPR.counting_mode": "sn_rna"  
 }
 

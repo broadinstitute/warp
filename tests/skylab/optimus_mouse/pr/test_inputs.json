@@ -5,13 +5,13 @@
   "TestOptimusPR.expected_bam": "gs://broad-gotc-test-storage/Optimus/truth/plumbing/master/outputs/optimus_mouse_v1.bam",
   "TestOptimusPR.expected_loom_file_checksum": "f0f814d4f6705ed5c73d8c196b364c33",
   "TestOptimusPR.r1_fastq": [
-    "gs://broad-dsde-mint-dev-teststorage/ajc-test/heart_1k_v2_test_fastqs/heart_1k_test_v2_S1_L001_R1_001.fastq.gz"
+    "gs://broad-gotc-test-storage/deprecated-skylab-optimus-test-data/heart_1k_v2_test_fastqs/heart_1k_test_v2_S1_L001_R1_001.fastq.gz"
   ],
   "TestOptimusPR.r2_fastq": [
-    "gs://broad-dsde-mint-dev-teststorage/ajc-test/heart_1k_v2_test_fastqs/heart_1k_test_v2_S1_L001_R2_001.fastq.gz"
+    "gs://broad-gotc-test-storage/deprecated-skylab-optimus-test-data/heart_1k_v2_test_fastqs/heart_1k_test_v2_S1_L001_R2_001.fastq.gz"
   ],
   "TestOptimusPR.i1_fastq": [
-    "gs://broad-dsde-mint-dev-teststorage/ajc-test/heart_1k_v2_test_fastqs/heart_1k_test_v2_S1_L001_I1_001.fastq.gz"
+    "gs://broad-gotc-test-storage/deprecated-skylab-optimus-test-data/heart_1k_v2_test_fastqs/heart_1k_test_v2_S1_L001_I1_001.fastq.gz"
   ],
   "TestOptimusPR.whitelist": "gs://broad-gotc-test-storage/Optimus/truth/plumbing/master/inputs/737K-august-2016.txt",
   "TestOptimusPR.tar_star_reference": "gs://gcp-public-data--broad-references/mm10/v0/star/star_2.7.9a_primary_gencode_mouse_vM21.tar",
