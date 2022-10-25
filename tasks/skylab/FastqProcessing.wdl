@@ -10,7 +10,7 @@ task FastqProcessing {
     String sample_id
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.13"
+    String docker = "us.gcr.io/broad-gotc-prod/sctools:1.0.0-v0.3.15-1666706405"
 
     Int machine_mem_mb = 40000
     Int cpu = 16   
