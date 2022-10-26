@@ -128,15 +128,6 @@ class ConfigParser
                 config.germlineCloudConfig.copy(updateTruth = true)
             )
           },
-        opt[PapiVersion]("papi-version")
-          .text("The version of Pipelines API to use")
-          .optional()
-          .action { (papiVersion, config) =>
-            config.copy(
-              germlineCloudConfig =
-                config.germlineCloudConfig.copy(papiVersion = papiVersion)
-            )
-          },
         checkConfig(checkConfigBlock)
       )
   }
@@ -158,201 +149,6 @@ class ConfigParser
     },
     Some(GermlineCloudWorkflowConfig(papiVersion = PAPIv2))
   )
-
-  note("")
-  cmd(AnnotationFiltration.entryName)
-    .text("Test the WGS clinical annotation/filtration workflow")
-    .action { (_, config) =>
-      config.copy(test = AnnotationFiltration)
-    }
-    .children(
-      opt[WorkflowTestCategory]('t', "test")
-        .text("The type of test to run")
-        .required()
-        .action { (test, config) =>
-          config.copy(
-            annotationFiltrationConfig =
-              config.annotationFiltrationConfig.copy(category = test)
-          )
-        },
-      opt[CromwellEnvironment]('e', "env")
-        .text(
-          s"The environment that this should run in ${CromwellEnvironment.optionsString}"
-        )
-        .required()
-        .action { (env, config) =>
-          config.copy(
-            annotationFiltrationConfig =
-              config.annotationFiltrationConfig.copy(env = env)
-          )
-        }
-    )
-
-  note("")
-  cmd(Arrays.entryName)
-    .text("Test the Arrays (Single- or Multi-sample) workflow")
-    .action(
-      (_, config) =>
-        config.copy(
-          test = Arrays
-      )
-    )
-    .children(
-      opt[WorkflowTestCategory]('t', "test")
-        .text("The type of test to run")
-        .optional()
-        .action { (test, config) =>
-          config.copy(
-            arraysConfig = config.arraysConfig.copy(category = test)
-          )
-        },
-      opt[String]('b', "branch")
-        .text("The branch of truth data to test against (Defaults to master)")
-        .optional()
-        .action { (branch, config) =>
-          config.copy(
-            arraysConfig = config.arraysConfig.copy(truthBranch = branch)
-          )
-        },
-      opt[ArrayType]('a', "array-type")
-        .text(
-          s"The Array type of test to run ${ArrayType.values.mkString("[", ", ", "]")}"
-        )
-        .optional()
-        .action { (arrayType, config) =>
-          config.copy(
-            arraysConfig = config.arraysConfig.copy(arrayType = arrayType)
-          )
-        },
-      opt[CromwellEnvironment]('e', "env")
-        .text(
-          s"The environment that this should run in ${CromwellEnvironment.optionsString}"
-        )
-        .required()
-        .action { (env, config) =>
-          config.copy(
-            arraysConfig = config.arraysConfig.copy(env = env)
-          )
-        },
-      opt[Unit]("update-truth")
-        .text(
-          "Update the truth data with the results of this run."
-        )
-        .optional()
-        .action { (_, config) =>
-          config.copy(
-            arraysConfig = config.arraysConfig.copy(updateTruth = true)
-          )
-        },
-      opt[String]("use-timestamp")
-        .text(
-          "Do not run the workflows. Instead, just use a previous runs timestamp (yyyy-MM-dd-HH-mm-ss)"
-        )
-        .optional()
-        .action { (timestamp, config) =>
-          config.copy(
-            arraysConfig = config.arraysConfig
-              .copy(useTimestamp = Option(timestamp))
-          )
-        },
-      opt[Unit]('u', "uncached")
-        .text("Disable call-caching for the main workflow run")
-        .optional()
-        .action { (_, config) =>
-          config.copy(
-            arraysConfig = config.arraysConfig.copy(useCallCaching = false)
-          )
-        },
-      opt[PapiVersion]("papi-version")
-        .text("The version of Pipelines API to use")
-        .optional()
-        .action { (papiVersion, config) =>
-          config.copy(
-            arraysConfig = config.arraysConfig.copy(papiVersion = papiVersion)
-          )
-        }
-    )
-
-  note("")
-  cmd(IlluminaGenotypingArray.entryName)
-    .text("Test the IlluminaGenotypingArray workflow")
-    .action(
-      (_, config) =>
-        config.copy(
-          test = IlluminaGenotypingArray
-      )
-    )
-    .children(
-      opt[WorkflowTestCategory]('t', "test")
-        .text("The type of test to run")
-        .required()
-        .action { (test, config) =>
-          config.copy(
-            illuminaGenotypingArrayConfig =
-              config.illuminaGenotypingArrayConfig.copy(category = test)
-          )
-        },
-      opt[String]('b', "branch")
-        .text("The branch of truth data to test against (Defaults to master)")
-        .optional()
-        .action { (branch, config) =>
-          config.copy(
-            illuminaGenotypingArrayConfig =
-              config.illuminaGenotypingArrayConfig.copy(truthBranch = branch)
-          )
-        },
-      opt[CromwellEnvironment]('e', "env")
-        .text(
-          s"The environment that this should run in ${CromwellEnvironment.optionsString}"
-        )
-        .required()
-        .action { (env, config) =>
-          config.copy(
-            illuminaGenotypingArrayConfig =
-              config.illuminaGenotypingArrayConfig.copy(env = env)
-          )
-        },
-      opt[Unit]("update-truth")
-        .text(
-          "Update the truth data with the results of this run."
-        )
-        .optional()
-        .action { (_, config) =>
-          config.copy(
-            illuminaGenotypingArrayConfig =
-              config.illuminaGenotypingArrayConfig.copy(updateTruth = true)
-          )
-        },
-      opt[String]("use-timestamp")
-        .text(
-          "Do not run the workflows. Instead, just use a previous runs timestamp (yyyy-MM-dd-HH-mm-ss)"
-        )
-        .optional()
-        .action { (timestamp, config) =>
-          config.copy(
-            illuminaGenotypingArrayConfig = config.illuminaGenotypingArrayConfig
-              .copy(useTimestamp = Option(timestamp))
-          )
-        },
-      opt[Unit]('u', "uncached")
-        .text("Disable call-caching for the main workflow run")
-        .optional()
-        .action { (_, config) =>
-          config.copy(
-            illuminaGenotypingArrayConfig =
-              config.illuminaGenotypingArrayConfig.copy(useCallCaching = false)
-          )
-        },
-      opt[PapiVersion]("papi-version")
-        .text("The version of Pipelines API to use")
-        .optional()
-        .action { (papiVersion, config) =>
-          config.copy(
-            illuminaGenotypingArrayConfig = config.illuminaGenotypingArrayConfig
-              .copy(papiVersion = papiVersion)
-          )
-        }
-    )
 
   note("")
   cmd(Dummy.entryName)
@@ -622,15 +418,6 @@ class ConfigParser
             somaticCloudWorkflowConfig =
               config.somaticCloudWorkflowConfig.copy(useCallCaching = false)
           )
-        },
-      opt[PapiVersion]("papi-version")
-        .text("The version of Pipelines API to use")
-        .optional()
-        .action { (papiVersion, config) =>
-          config.copy(
-            somaticCloudWorkflowConfig =
-              config.somaticCloudWorkflowConfig.copy(papiVersion = papiVersion)
-          )
         }
     )
 
@@ -702,15 +489,6 @@ class ConfigParser
           config.copy(
             cramToUnmappedBamsConfig =
               config.cramToUnmappedBamsConfig.copy(useCallCaching = false)
-          )
-        },
-      opt[PapiVersion]("papi-version")
-        .text("The version of Pipelines API to use")
-        .optional()
-        .action { (papiVersion, config) =>
-          config.copy(
-            cramToUnmappedBamsConfig =
-              config.cramToUnmappedBamsConfig.copy(papiVersion = papiVersion)
           )
         }
     )
@@ -800,16 +578,6 @@ class ConfigParser
             gdcWholeGenomeSomaticSingleSampleConfig =
               config.gdcWholeGenomeSomaticSingleSampleConfig.copy(
                 useCallCaching = false)
-          )
-        },
-      opt[PapiVersion]("papi-version")
-        .text("The version of Pipelines API to use")
-        .optional()
-        .action { (papiVersion, config) =>
-          config.copy(
-            gdcWholeGenomeSomaticSingleSampleConfig =
-              config.gdcWholeGenomeSomaticSingleSampleConfig.copy(
-                papiVersion = papiVersion)
           )
         }
     )
@@ -976,15 +744,6 @@ class ConfigParser
           config.copy(
             imputationConfig =
               config.imputationConfig.copy(useCallCaching = false)
-          )
-        },
-      opt[PapiVersion]("papi-version")
-        .text("The version of Pipelines API to use")
-        .optional()
-        .action { (papiVersion, config) =>
-          config.copy(
-            imputationConfig =
-              config.imputationConfig.copy(papiVersion = papiVersion)
           )
         }
     )
