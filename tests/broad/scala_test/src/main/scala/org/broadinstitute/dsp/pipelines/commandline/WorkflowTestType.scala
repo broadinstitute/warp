@@ -10,7 +10,6 @@ object WorkflowTestType extends Enum[WorkflowTestType] {
 
   override val values: immutable.IndexedSeq[WorkflowTestType] = findValues
 
-  case object AllOfUs extends WorkflowTestType
   case object BroadInternalRNAWithUMIs extends WorkflowTestType
   case object BroadInternalUltimaGenomics extends WorkflowTestType
   case object CheckFingerprint extends WorkflowTestType
@@ -21,7 +20,6 @@ object WorkflowTestType extends Enum[WorkflowTestType] {
   case object GDCWholeGenomeSomaticSingleSample extends WorkflowTestType
   case object GenotypeConcordance extends WorkflowTestType
   case object GermlineSingleSample extends WorkflowTestType
-  case object IlluminaGenotypingArray extends WorkflowTestType
   case object Imputation extends WorkflowTestType
   case object JointGenotyping extends WorkflowTestType
   case object Reprocessing extends WorkflowTestType

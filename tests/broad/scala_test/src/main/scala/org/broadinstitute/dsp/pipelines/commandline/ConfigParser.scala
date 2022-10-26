@@ -5,10 +5,9 @@ import java.net.URL
 import better.files.File
 import enumeratum.{Enum, EnumEntry}
 import org.broadinstitute.dsp.pipelines.util.DataType
-import org.broadinstitute.dsp.pipelines.commandline.PapiVersion.PAPIv2
 import org.broadinstitute.dsp.pipelines.commandline.WorkflowTestType._
 import org.broadinstitute.dsp.pipelines.config.GermlineCloudWorkflowConfig
-import org.broadinstitute.dsp.pipelines.util.{ArrayType, WorkflowTestBuildInfo}
+import org.broadinstitute.dsp.pipelines.util.WorkflowTestBuildInfo
 import scopt.Read.reads
 import scopt.{OptionDef, OptionParser, Read, RenderingMode}
 
@@ -135,20 +134,6 @@ class ConfigParser
   // NOTE: All the `note("")`s are injecting newlines. Without them, scopt bunches everything
   // up and it's very hard to read.
   help("help").text("Show this output")
-
-  note("")
-  germlineCloudPipelineCommandLineConfig(
-    AllOfUs, { config =>
-      (config.test, config.germlineCloudConfig.category) match {
-        case (AllOfUs, WorkflowTestCategory.Load) =>
-          failure(
-            "The AllOfUs test is not configured to run load."
-          )
-        case _ => success
-      }
-    },
-    Some(GermlineCloudWorkflowConfig(papiVersion = PAPIv2))
-  )
 
   note("")
   cmd(Dummy.entryName)
@@ -676,7 +661,6 @@ class ConfigParser
         case _ => success
       }
     },
-    Some(GermlineCloudWorkflowConfig(papiVersion = PAPIv2))
   )
 
   note("")

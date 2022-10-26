@@ -65,10 +65,6 @@ object CromwellWorkflowTester {
     import WorkflowTestType._
 
     config.test match {
-      case AllOfUs =>
-        new AllOfUsTester(config.germlineCloudConfig)
-      case AnnotationFiltration =>
-        new AnnotationFiltrationTester(config.annotationFiltrationConfig)
       case BroadInternalRNAWithUMIs =>
         new BroadInternalRNAWithUMIsTester(
           config.broadInternalRNAWithUMIsConfig)
@@ -99,10 +95,6 @@ object CromwellWorkflowTester {
         new JointGenotypingTester(config.germlineCloudConfig)
       case ValidateChip =>
         new ValidateChipTester(config.validateChipConfig)
-      case Arrays =>
-        new ArraysTester(config.arraysConfig)
-      case IlluminaGenotypingArray =>
-        new IlluminaGenotypingArrayTester(config.illuminaGenotypingArrayConfig)
       case Imputation =>
         new ImputationTester(config.imputationConfig)
       case RNAWithUMIs =>
