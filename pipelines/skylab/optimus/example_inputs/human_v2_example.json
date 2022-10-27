@@ -1,17 +1,17 @@
 {
   "Optimus.r1_fastq": [
-      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L001_R1_001.filtered.filtered.fastq.gz",
-      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L002_R1_001.filtered.filtered.fastq.gz"
+      "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L001_R1_001.filtered.filtered.fastq.gz",
+      "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L002_R1_001.filtered.filtered.fastq.gz"
   ],
   "Optimus.r2_fastq": [
-      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L001_R2_001.filtered.filtered.fastq.gz",
-      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L002_R2_001.filtered.filtered.fastq.gz"
+      "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L001_R2_001.filtered.filtered.fastq.gz",
+      "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L002_R2_001.filtered.filtered.fastq.gz"
   ],
   "Optimus.i1_fastq": [
-      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L001_I1_001.filtered.filtered.fastq.gz",
-      "gs://hca-dcp-sc-pipelines-test-data/smallDatasets/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L002_I1_001.filtered.filtered.fastq.gz"
+      "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L001_I1_001.filtered.filtered.fastq.gz",
+      "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/pbmc4k_chr21_genic/pbmc4k_S1_L002_I1_001.filtered.filtered.fastq.gz"
   ],
-  "Optimus.whitelist": "gs://hca-dcp-sc-pipelines-test-data/whitelists/737K-august-2016.txt",
+  "Optimus.whitelist": "gs://broad-gotc-test-storage/Optimus/truth/plumbing/master/inputs/737K-august-2016.txt",
   "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/hg38/v0/star/star_2.7.9a_primary_gencode_human_v27.tar", 
   "Optimus.input_id": "pbmc4k_human",
   "Optimus.chemistry": "tenX_v2",
