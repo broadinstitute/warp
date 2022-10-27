@@ -2,16 +2,16 @@
   "TestSmartSeq2SingleNucleusPR.genome_ref_fasta": "gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_mm10.primary_assembly.genome.fa",
   "TestSmartSeq2SingleNucleusPR.tar_star_reference": "gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/star/modified_star_2.7.9a_primary_gencode_mouse_vM23.tar",
   "TestSmartSeq2SingleNucleusPR.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_gencode.vM23.primary_assembly.annotation.gtf",
-  "TestSmartSeq2SingleNucleusPR.adapter_list": "gs://hca-dcp-sc-pipelines-test-data/adapters/Illumina_adapters_list.fa",
+  "TestSmartSeq2SingleNucleusPR.adapter_list": "gs://broad-gotc-test-storage/MultiSampleSmartSeq2SingleNucleus/adapters/Illumina_adapters_list.fa",
   "TestSmartSeq2SingleNucleusPR.fastq1_input_files": [
-    "gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R1.fastq.gz",
-    "gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S117_E1-50_GCGTAGTA-AAGGAGTA_R1.fastq.gz",
-    "gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S118_E1-50_GCGTAGTA-CTAAGCCT_R1.fastq.gz"
+    "gs://broad-gotc-test-storage/MultiSampleSmartSeq2SingleNucleus/truth/plumbing/master/pr_test_truth/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R1.fastq.gz",
+    "gs://broad-gotc-test-storage/MultiSampleSmartSeq2SingleNucleus/truth/plumbing/master/pr_test_truth/SM-GE644_S117_E1-50_GCGTAGTA-AAGGAGTA_R1.fastq.gz",
+    "gs://broad-gotc-test-storage/MultiSampleSmartSeq2SingleNucleus/truth/plumbing/master/pr_test_truth/SM-GE644_S118_E1-50_GCGTAGTA-CTAAGCCT_R1.fastq.gz"
   ],
   "TestSmartSeq2SingleNucleusPR.fastq2_input_files": [
-    "gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R2.fastq.gz",
-    "gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S117_E1-50_GCGTAGTA-AAGGAGTA_R2.fastq.gz",
-    "gs://hca-dcp-mint-test-data/datasets/alleninstitute/SM-GE644_S118_E1-50_GCGTAGTA-CTAAGCCT_R2.fastq.gz"
+    "gs://broad-gotc-test-storage/MultiSampleSmartSeq2SingleNucleus/truth/plumbing/master/pr_test_truth/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT_R2.fastq.gz",
+    "gs://broad-gotc-test-storage/MultiSampleSmartSeq2SingleNucleus/truth/plumbing/master/pr_test_truth/SM-GE644_S117_E1-50_GCGTAGTA-AAGGAGTA_R2.fastq.gz",
+    "gs://broad-gotc-test-storage/MultiSampleSmartSeq2SingleNucleus/truth/plumbing/master/pr_test_truth/SM-GE644_S118_E1-50_GCGTAGTA-CTAAGCCT_R2.fastq.gz"
   ],
   "TestSmartSeq2SingleNucleusPR.input_ids": [
     "SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT",
@@ -24,8 +24,8 @@
     "d9ebc0815ea16114557d46668fe1adc6",
     "b12a79350977ec68337ba397e31b1654"],
   "TestSmartSeq2SingleNucleusPR.truth_bam":[
-    "gs://hca-dcp-sc-pipelines-test-data/single-nuclei-smart-seq4/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam",
-    "gs://hca-dcp-sc-pipelines-test-data/single-nuclei-smart-seq4/SM-GE644_S117_E1-50_GCGTAGTA-AAGGAGTA.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam",
-    "gs://hca-dcp-sc-pipelines-test-data/single-nuclei-smart-seq4/SM-GE644_S118_E1-50_GCGTAGTA-CTAAGCCT.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam"],
-  "TestSmartSeq2SingleNucleusPR.truth_loom": "gs://hca-dcp-sc-pipelines-test-data/single-nuclei-smart-seq4/SM-GE644.loom"
+    "gs://broad-gotc-test-storage/MultiSampleSmartSeq2SingleNucleus/truth/plumbing/master/pr_test_truth/input/SM-GE644_S110_E1-50_GGAGCTAC-CTAAGCCT.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam",
+    "gs://broad-gotc-test-storage/MultiSampleSmartSeq2SingleNucleus/truth/plumbing/master/pr_test_truth/input/SM-GE644_S117_E1-50_GCGTAGTA-AAGGAGTA.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam",
+    "gs://broad-gotc-test-storage/MultiSampleSmartSeq2SingleNucleus/truth/plumbing/master/pr_test_truth/input/SM-GE644_S118_E1-50_GCGTAGTA-CTAAGCCT.aligned_bam.DuplicatesRemoved.ReadgroupAdded.bam"],
+  "TestSmartSeq2SingleNucleusPR.truth_loom": "gs://broad-gotc-test-storage/MultiSampleSmartSeq2SingleNucleus/truth/plumbing/master/pr_test_truth/input/SM-GE644.loom"
 }
