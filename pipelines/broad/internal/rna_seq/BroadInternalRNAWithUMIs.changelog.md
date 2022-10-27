@@ -1,5 +1,5 @@
 # 1.0.19
-2022-10-12 (Date of Last Commit)
+2022-10-27 (Date of Last Commit)
 
 * Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
 * Fixied whitespace in the BroadInternalRNAWithUMIS.wdl, this has no functional effect on the pipeline
@@ -7,6 +7,7 @@
 * Updated task IngestOutputsToTDR in InternalTasks.wdl with new optional input variable. This update has no effect on this pipeline.
 * Updated task FormatArraysOutputs in InternalArrraysTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
 * Force task rnaseqc2 to produce an empty fragment size file when rnaseqc2 does not produce this file due to insufficient data.
+* Update rnaseqc2 version to address bias metric edge cases
 
 # 1.0.18
 2022-09-30 (Date of Last Commit)
