@@ -9,7 +9,7 @@ task MergeSortBamFiles {
     Int compression_level = 5
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
     Int machine_mem_mb = 18150
     Int cpu = 1
     # default to 500GiB of space

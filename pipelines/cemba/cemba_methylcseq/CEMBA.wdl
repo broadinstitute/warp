@@ -482,7 +482,7 @@ task CreateUnmappedBam {
 
   # use docker image for given tool cutadapat
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 2.25 * input file size
     disks: "local-disk " + ceil(2.25 * (if input_size < 1 then 1 else input_size)) + " HDD"
@@ -688,7 +688,7 @@ task AttachBarcodes {
 
   # use docker image for given tool cutadapat
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 2 * input file size
     disks: "local-disk " + ceil(2 * (if input_size < 1 then 1 else input_size)) + " HDD"
@@ -783,7 +783,7 @@ task Sort {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 3.25 * input file size
     disks: "local-disk " + ceil(3.25 * (if input_size < 1 then 1 else input_size)) + " HDD"
@@ -832,7 +832,7 @@ task FilterDuplicates {
   >>>
 
   runtime {
-     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
+     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
      # if the input size is less than 1 GB adjust to min input size of 1 GB
      # disks should be set to 2 * input file size
      disks: "local-disk " + ceil(2 * (if input_size < 1 then 1 else input_size)) + " HDD"

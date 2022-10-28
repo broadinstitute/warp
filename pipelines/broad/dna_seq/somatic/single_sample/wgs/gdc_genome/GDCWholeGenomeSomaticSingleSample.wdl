@@ -428,7 +428,7 @@ task picard_markduplicates {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
     preemptible: preemptible_tries
     memory: "~{memory_size} GiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -614,7 +614,7 @@ task collect_insert_size_metrics {
       HISTOGRAM_FILE=~{output_bam_prefix}.insert_size_histogram.pdf
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
     memory: mem + " MiB"
     disks: "local-disk " + disk_size + " HDD"
   }
