@@ -479,7 +479,7 @@ task HaplotypeCaller {
     Boolean native_sw = false
     String? contamination_extra_args 
     
-    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-c9bf2ed48e5381b2eb9bde74dec3dfd1a3a5c6bc-4.3.0.0-1-gc9bf2ed48"
     Int disk_size_gb = ceil((size(input_bam_list, "GB")) + size(references.ref_fasta, "GB") + size(references.ref_fasta_index, "GB") + size(references.ref_dict, "GB") + 60)
     Int cpu = 2
     Int memory_mb = 12000
