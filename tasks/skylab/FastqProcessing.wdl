@@ -10,7 +10,7 @@ task FastqProcessing {
     String sample_id
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/sctools:1.14"
+    String docker = "us.gcr.io/broad-gotc-prod/sctools:1.0.0-v0.3.15-1666924262"
 
     Int machine_mem_mb = 40000
     Int cpu = 16   
