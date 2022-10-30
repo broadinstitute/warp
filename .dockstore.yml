@@ -7,3 +7,7 @@ workflows:
   - name: VUMCUnmappedBamToAlignedBam
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCUnmappedBamToAlignedBam.wdl
+
+  - name: VUMCFastqQC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFastqQC.wdl

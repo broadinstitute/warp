@@ -1,0 +1,6 @@
+{
+  "VUMCFastqQC.fastq_1": ["/scratch/cqs/shengq2/test_data/S1-1_1.fq.gz", "/scratch/cqs/shengq2/test_data/S1-2_1.fq.gz"],
+  "VUMCFastqQC.fastq_2": ["/scratch/cqs/shengq2/test_data/S1-1_2.fq.gz", "/scratch/cqs/shengq2/test_data/S1-2_2.fq.gz"],
+  "VUMCFastqQC.sample_name": "S1"
+}
+
