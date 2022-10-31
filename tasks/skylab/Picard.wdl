@@ -6,7 +6,7 @@ task SortBam {
         String sort_order = "coordinate"
 
         # runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
+        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
         Int machine_mem_mb = 8250
         Int machine_overhead_mb = 500
         Int cpu = 1
@@ -48,7 +48,7 @@ task SortBamAndIndex {
         String sort_order = "coordinate"
 
         # runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
+        String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
         Int machine_mem_mb = 8250
         Int machine_overhead_mb = 500
         Int command_mem_mb = machine_mem_mb - machine_overhead_mb
@@ -93,7 +93,7 @@ task CollectMultipleMetrics {
     String output_basename
 
     # runtime values
-    String docker ="us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
+    String docker ="us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
     Int machine_mem_mb = 8250
     # give the command 1 GiB of overhead
     Int command_mem_mb = machine_mem_mb - 1000
@@ -173,7 +173,7 @@ task CollectMultipleMetricsMultiSample {
         Array[String] input_ids
 
         # runtime values
-        String docker ="us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
+        String docker ="us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
         Int machine_mem_mb = 8250
         # give the command 1 GiB of overhead
         Int command_mem_mb = machine_mem_mb - 1000
@@ -244,7 +244,7 @@ task CollectRnaMetrics {
     String stranded
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
     Int machine_mem_mb = 3850
     # give the command 500 MiB of overhead
     Int command_mem_mb = machine_mem_mb - 500
@@ -307,7 +307,7 @@ task CollectDuplicationMetrics {
     String output_basename
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
     Int machine_mem_mb = 32768
     # give the command 1 GiB of overhead
     Int command_mem_mb = machine_mem_mb - 1000
@@ -362,7 +362,7 @@ task RemoveDuplicatesFromBam {
     Array[String] input_ids
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
     Int machine_mem_mb = 32768
     # give the command 1 GiB of overhead
     Int command_mem_mb = machine_mem_mb - 1000

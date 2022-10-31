@@ -6,7 +6,7 @@ task FastqToUBam {
     String input_id
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.3"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
     Int machine_mem_mb = 3850
     Int cpu = 1
     # estimate that bam is approximately equal in size to fastq, add 20% buffer

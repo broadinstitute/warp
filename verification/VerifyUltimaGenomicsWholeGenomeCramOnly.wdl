@@ -103,7 +103,7 @@ task CompareOldMetricFiles {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:samtools_picard_bwa_snapshot_UG"
+    docker: "samtools-picard-bwa@sha256:33606e279ebca9f00de04587da0a581a608925d8bae724f3d4f6c6a0569d519a"
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
     preemptible: 3
