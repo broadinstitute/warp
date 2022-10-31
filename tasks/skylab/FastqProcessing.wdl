@@ -9,9 +9,9 @@ task FastqProcessing {
     String chemistry
     String sample_id
 
-    # runtime values
+    #using the latest build of sctools in GCR
     String docker = "us.gcr.io/broad-gotc-prod/sctools:1.0.0-v0.3.15-1666924262"
-
+    #runtime values
     Int machine_mem_mb = 40000
     Int cpu = 16   
     #TODO decided cpu
