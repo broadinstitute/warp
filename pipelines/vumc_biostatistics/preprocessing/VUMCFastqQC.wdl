@@ -20,6 +20,7 @@ workflow VUMCFastqQC {
   # Outputs that will be retained when execution is complete
   output {
     File qc_file = ValidatePairendFastq.qc_file
+    Int qc_failed = ValidatePairendFastq.qc_failed
   }
 }
 
@@ -33,6 +34,7 @@ task ValidatePairendFastq {
 
   Int disk_size = ceil(size(fastq_1, "GB") + size(fastq_2, "GB") + 10)
   String qc_file = sample_name + ".qc.txt"
+  String res_file = sample_name + ".res.txt"
 
   command <<<
 
@@ -172,7 +174,9 @@ def validate2(logger, input1str, input2str, output):
 logger = logging.getLogger('fastq_validator')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)-8s - %(message)s')
   
-validate2(logger, "~{sep="," fastq_1}", "~{sep="," fastq_2}", "~{qc_file}")
+res = validate2(logger, "~{sep="," fastq_1}", "~{sep="," fastq_2}", "~{qc_file}")
+with open("~{res_file}", "wt") as fout:
+  fout.write(f"{res}")
 
 CODE
 >>>
@@ -184,5 +188,6 @@ CODE
   }
   output {
     File qc_file = glob("~{qc_file}*")[0]
+    Int qc_failed = read_int("~{res_file}")
   }
 }
