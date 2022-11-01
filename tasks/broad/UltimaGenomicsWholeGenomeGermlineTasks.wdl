@@ -92,7 +92,7 @@ task ConvertCramOrBamToUBam {
     String base_file_name
     Float split_chunk_size
 
-    String docker = "samtools-picard-bwa@sha256:33606e279ebca9f00de04587da0a581a608925d8bae724f3d4f6c6a0569d519a"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa@sha256:33606e279ebca9f00de04587da0a581a608925d8bae724f3d4f6c6a0569d519a"
     Int disk_size_gb = ceil((2 * split_chunk_size) + 20)
     Int cpu = 2
     Int memory_mb = 13000
@@ -740,7 +740,7 @@ task CollectDuplicateMetrics {
     String metrics_filename
 
     
-    String docker = "samtools-picard-bwa@sha256:33606e279ebca9f00de04587da0a581a608925d8bae724f3d4f6c6a0569d519a"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa@sha256:33606e279ebca9f00de04587da0a581a608925d8bae724f3d4f6c6a0569d519a"
     Int disk_size_gb = if ceil((size(input_bam, "GB")) +
                                size(references.ref_fasta, "GB") +
                                size(references.ref_fasta_index, "GB") +
