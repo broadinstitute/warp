@@ -9,7 +9,7 @@
   "CheckFingerprint.fingerprint_genotypes_vcf": "gs://broad-gotc-test-storage/qc/check_fingerprint/inputs/fingerprint_vcfs/S8_N4B3GY.reference.fingerprint.vcf.gz",
   "CheckFingerprint.fingerprint_genotypes_vcf_index": "gs://broad-gotc-test-storage/qc/check_fingerprint/inputs/fingerprint_vcfs/S8_N4B3GY.reference.fingerprint.vcf.gz.tbi",
 
-  "CheckFingerprint.CheckFingerprint.genotype_lod_threshold": 1.9,
+  "CheckFingerprint.CheckFingerprintTask.genotype_lod_threshold": 1.9,
 
   "CheckFingerprint.ref_fasta": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",
   "CheckFingerprint.ref_fasta_index": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai",

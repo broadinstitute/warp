@@ -58,6 +58,10 @@ task CopyFilesFromCloudToCloud {
     fi
   }
 
+  output {
+    Boolean done = true
+  }
+
   # The 'noAddress' runtime parameter is set to false here because
   # Vault needs to talk to the Broad Vault server to get auth information.
   # In the future, we should store the extracted data in a GCS bucket so that
@@ -66,7 +70,7 @@ task CopyFilesFromCloudToCloud {
     memory: "2 GiB"
     cpu: "1"
     disks: "local-disk 20 HDD"
-    docker: "us.gcr.io/broad-gotc-prod/dsde-toolbox:dev"
+    docker: "us.gcr.io/broad-gotc-prod/dsde-toolbox:stable_04-18-2022"
     preemptible: 3
     noAddress: false
   }

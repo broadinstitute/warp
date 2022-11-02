@@ -1,4 +1,61 @@
-# 1.2.3 (Date of Last Commit)
+# 1.2.14
+2022-09-20 (Date of Last Commit)
+
+* Updated tasks in StarAlign.wdl to use an updated STAR docker image.
+
+# 1.2.13
+
+2022-09-01 (Date of Last Commit)
+
+* Updated CheckInputs.wdl to use a lightweight alpine-bash image.
+
+# 1.2.12
+2022-08-31 (Date of Last Commit)
+
+* Updated CountAlignments to use an updated docker image.
+
+# 1.2.11
+2022-08-23 (Date of Last Commit)
+
+* Removed an unused script in pytools docker image.
+
+# 1.2.10
+2022-08-16 (Date of Last Commit)
+
+* Updated LoomUtils.wdl to use a consolidated python utilities docker image. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline.
+
+# 1.2.9
+2022-08-08 (Date of Last Commit)
+
+* Updated TrimAdapters runtime docker URL.
+
+# 1.2.8
+2022-07-21 (Date of Last Commit)
+
+* Updated STARsoloFastq runtime docker URL.
+
+# 1.2.7
+2022-05-18 (Date of Last Commit)
+
+* Updated merge npz docker in StarAlign.wdl
+
+# 1.2.6
+2022-04-22 (Date of Last Commit)
+
+* Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline.
+
+# 1.2.5
+2022-04-19 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
+# 1.2.4
+
+2022-04-06 (Date of Last Commit)
+
+* Updated STARsoloFastq task in StarAlign.wdl; this change does not affect the Mutl-snSS2 workflow.
+
+# 1.2.3
 2022-02-25 (Date of Last Commit)
 
 * Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline.
@@ -6,7 +63,7 @@
 # 1.2.2
 2022-02-10 (Date of Last Commit)
 
-* Rebuilt a docker to merge outputs of STAR in in StarAlign.wdl task and moved it to a public location.
+* Rebuilt a docker to merge outputs of STAR in StarAlign.wdl task and moved it to a public location.
 
 # 1.2.1
 2022-02-07 (Date of Last Commit)

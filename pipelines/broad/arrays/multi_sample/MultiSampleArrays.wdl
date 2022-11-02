@@ -18,7 +18,7 @@ version 1.0
 
 workflow MultiSampleArrays {
 
-  String pipeline_version = "1.6.0"
+  String pipeline_version = "1.6.1"
 
   input {
     File samples_fofn
@@ -112,7 +112,7 @@ task CombineVCFs {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.4"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     memory: "26 GiB"
     preemptible: preemptible_tries

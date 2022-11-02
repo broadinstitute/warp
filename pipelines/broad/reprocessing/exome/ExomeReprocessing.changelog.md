@@ -1,3 +1,71 @@
+# 3.1.8
+2022-09-27 (Date of Last Commit)
+
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
+# 3.1.7
+2022-09-23 (Date of Last Commit)
+
+* Updated Picard-Python Docker image in Utilities.wdl to fix vulnerabilities.
+
+# 3.1.6
+2022-07-15 (Date of Last Commit)
+
+* Updated task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
+# 3.1.5
+2022-07-12 (Date of Last Commit)
+
+* Added additional_disk input to SortSam task in BamProcessing.wdl
+
+# 3.1.4
+2022-07-11 (Date of Last Commit)
+
+* Added memory_multiplier and additional_disk inputs to GatherSortedBamFiles task in BamProcessing.wdl
+
+# 3.1.3
+2022-06-21 (Date of Last Commit)
+
+* Changed QC.CheckFingerprint to QC.CheckFingerprintTask to avoid a naming conflict in the update scala tests, no effect on this pipeline
+
+# 3.1.2
+2022-06-01 (Date of Last Commit)
+
+* Updated tasks in the QC.wdl and VariantCalling.wdl, this update has no effect on this pipeline 
+
+# 3.1.1
+2022-04-21 (Date of Last Commit)
+
+* Fixed path to docker image in GermlineVariantDiscovery.wdl
+
+# 3.1.0
+2022-04-19 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+    * The following metrics were added to alignment summary and readgroup alignment summary metrics:
+        * AVG_POS_3PRIME_SOFTCLIP_LENGTH
+        * MAD_READ_LENGTH
+        * MAX_READ_LENGTH
+        * MIN_READ_LENGTH
+        * SD_READ_LENGTHMEDIAN_READ_LENGTH
+    * The following metrics were added to hybrid selection metrics:
+        * PCT_TARGET_BASES_100000X
+        * PCT_TARGET_BASES_1000X
+        * PCT_TARGET_BASES_25000X
+        * PCT_TARGET_BASES_2500X
+        * PCT_TARGET_BASES_250X
+        * PCT_TARGET_BASES_50000X
+        * PCT_TARGET_BASES_5000XPCT_TARGET_BASES_10000X
+        * PCT_TARGET_BASES_500X
+    * Small differences observed in PCT_SOFTCLIP in alignment summary metrics due to a bug fix in the way PCT_SOFTCLIP is calculated
+    * RAW_RankSum NaN to empty for NON_REF data 
+    * Reblocking fix to merge sites with missing DP into adjacent ref blocks
+
+# 3.0.7
+2022-04-15 (Date of Last Commit)
+
+* Updated task SortSam in BamProcessing.wdl to take an optional memory_multiplier
+
 # 3.0.6
 2022-04-04 (Date of Last Commit)
 

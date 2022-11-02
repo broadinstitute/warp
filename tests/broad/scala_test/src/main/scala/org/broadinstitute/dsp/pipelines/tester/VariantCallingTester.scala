@@ -28,7 +28,7 @@ class VariantCallingTester(testerConfig: GermlineCloudWorkflowConfig)(
   override protected val validationWorkflowName: String = s"VerifyGvcf"
 
   override protected def workflowInputRoot: File =
-    workflowDir / "test_inputs" / testerConfig.category.entryName / dataTypeString
+    workflowDir / "test_inputs" / dataTypeString / testerConfig.category.entryName
 
   protected val resultsPrefix: URI =
     URI.create(
@@ -69,7 +69,9 @@ class VariantCallingTester(testerConfig: GermlineCloudWorkflowConfig)(
 
     val validationInputs = VariantCallingValidationInputs(
       testGvcf = resultsCloudPath.resolve(s"$gvcfBasename.rb.g.vcf.gz"),
+      testGvcfIndex = resultsCloudPath.resolve(s"$gvcfBasename.rb.g.vcf.gz.tbi"),
       truthGvcf = truthCloudPath.resolve(s"$gvcfBasename.rb.g.vcf.gz"),
+      truthGvcfIndex = truthCloudPath.resolve(s"$gvcfBasename.rb.g.vcf.gz.tbi")
     )
     VariantCallingValidationInputs
       .marshall(validationInputs)

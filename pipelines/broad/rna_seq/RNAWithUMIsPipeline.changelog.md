@@ -1,10 +1,42 @@
+# 1.0.9
+2022-10-11 (Date of Last Commit)
+
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+* Force task rnaseqc2 to produce an empty fragment size file when rnaseqc2 does not produce this file due to insufficient data.
+
+# 1.0.8
+2022-07-29 (Date of Last Commit)
+
+* Specify the RSEM post-processed transcriptome bam as output
+* Dynamically allocate memory in Fastp task, increase fixed memory to 8gb in RNASeQC2, and increased fixed memory to 64gb in GroupByUMI
+* Remove transcriptome bam index from output
+* Add monitoring script to fastp and GroupByUMI tasks during soft-launch/continuous improvement
+* Add maxRestries to Fastp, GroupByUMI, and RNASeQC2. Multiplier = 2 is set elsewhere.
+
+
+# 1.0.7
+2022-04-26 (Date of Last Commit)
+
+* Remove rounding on some metrics outputs in RNAWithUMIsTasks.formatPipelineOutputs for TDR inputs
+* Handle missing file inputs to TDR
+
+# 1.0.6
+2022-04-21 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
+# 1.0.5
+2022-04-20 (Date of Last Commit)
+
+* Added memory unit to the PostprocessTranscriptomeForRSEM task in the RNAWithUMIsTasks.wdl
+
 # 1.0.4
 2022-04-08 (Date of Last Commit)
 
 * Clip adapter bases pre-alignment
 
 # 1.0.3
-2022-03-29 (Date of Last Commit)
+2022-04-14 (Date of Last Commit)
 
 * Added the contamination task to the workflow.
 

@@ -6,7 +6,7 @@ task StarAlignBamSingleEnd {
     File tar_star_reference
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:v0.2.2-2.5.3a-40ead6e"
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658781884"
     Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -72,7 +72,7 @@ task StarAlignFastqPairedEnd {
     File tar_star_reference
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658781884"
     Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -137,7 +137,7 @@ task StarAlignFastqMultisample {
     File tar_star_reference
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658781884"
     Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -221,7 +221,7 @@ task STARsoloFastq {
     Boolean? count_exons
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658781884"
     Int machine_mem_mb = 64000
     Int cpu = 8
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -265,7 +265,6 @@ task STARsoloFastq {
         exit 1;
     fi
 
-
     COUNTING_MODE=""
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
@@ -274,12 +273,7 @@ task STARsoloFastq {
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
     ## single nuclei
-      if [[ ~{count_exons} ]]
-      then
-        COUNTING_MODE="Gene GeneFull"
-      else
         COUNTING_MODE="GeneFull"
-      fi
     else
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
         exit 1;
@@ -291,7 +285,27 @@ task STARsoloFastq {
     rm "~{tar_star_reference}"
 
 
-    echo "UMI LEN " $UMILen 
+    echo "UMI LEN " $UMILen
+    if [[ ~{count_exons} ]]
+    then
+      STAR \
+      --soloType Droplet \
+      --soloStrand Unstranded \
+      --runThreadN ${cpu} \
+      --genomeDir genome_reference \
+      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
+      --readFilesCommand "gunzip -c" \
+      --soloCBwhitelist ~{white_list} \
+      --soloUMIlen $UMILen --soloCBlen $CBLen \
+      --soloFeatures "Gene" \
+      --clipAdapterType CellRanger4 \
+      --outFilterScoreMin 30  \
+      --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
+      --soloUMIdedup 1MM_Directional_UMItools \
+      --outSAMtype BAM SortedByCoordinate \
+      --outSAMattributes UB UR UY CR CB CY NH GX GN \
+      --soloBarcodeReadLength 0
+    fi
 
     STAR \
       --soloType Droplet \
@@ -364,75 +378,21 @@ task STARsoloFastq {
   }
 }
 
-task ConvertStarOutput {
-
-  input {
-    File barcodes
-    File features
-    File matrix
-
-    #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-python3-scientific:0.1.12"
-    Int machine_mem_mb = 8250
-    Int cpu = 1
-    Int disk = ceil(size(matrix, "Gi") * 2) + 10
-    Int preemptible = 3
-  }
-
-  meta {
-    description: "Create three numpy formats for the barcodes, gene names and the count matrix from the STARSolo count matrix in mtx format."
-  }
-
-  parameter_meta {
-    docker: "(optional) the docker image containing the runtime environment for this task"
-    machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
-    cpu: "(optional) the number of cpus to provision for this task"
-    disk: "(optional) the amount of disk space (GiB) to provision for this task"
-    preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
-  }
-
-  command {
-    set -e
-
-   # create the  compresed raw count matrix with the counts, gene names and the barcodes
-    python3 /tools/create-npz-output.py \
-        --barcodes ~{barcodes} \
-        --features ~{features} \
-        --matrix ~{matrix}
-
-  }
-
-  runtime {
-    docker: docker
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ${disk} HDD"
-    cpu: cpu
-    preemptible: preemptible
-  }
-
-  output {
-    File row_index = "sparse_counts_row_index.npy"
-    File col_index = "sparse_counts_col_index.npy"
-    File sparse_counts = "sparse_counts.npz"
-  }
-}
-
-
 task MergeStarOutput {
 
   input {
     Array[File] barcodes
     Array[File] features
     Array[File] matrix
+    String input_id
 
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:merge-star-outputs-v1.0.0"
+    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
     Int preemptible = 3
   }
-
   meta {
     description: "Create three files as .npy,  .npy and .npz for numpy array and scipy csr matrix for the barcodes, gene names and the count matrix by merging multiple  STARSolo count matrices (mtx format)."
   }
@@ -445,19 +405,19 @@ task MergeStarOutput {
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
-  command {
+  command <<<
     set -e
     declare -a barcodes_files=(~{sep=' ' barcodes})
     declare -a features_files=(~{sep=' ' features})
     declare -a matrix_files=(~{sep=' ' matrix})
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
-    python3 /tools/create-merged-npz-output.py \
-        --barcodes $barcodes_files \
-        --features $features_files \
-        --matrix $matrix_files
-
-  }
+    python3 /usr/gitc/create-merged-npz-output.py \
+        --barcodes ${barcodes_files[@]} \
+        --features ${features_files[@]} \
+        --matrix ${matrix_files[@]} \
+        --input_id ~{input_id}
+  >>>
 
   runtime {
     docker: docker
@@ -468,8 +428,8 @@ task MergeStarOutput {
   }
 
   output {
-    File row_index = "sparse_counts_row_index.npy"
-    File col_index = "sparse_counts_col_index.npy"
-    File sparse_counts = "sparse_counts.npz"
+    File row_index = "~{input_id}_sparse_counts_row_index.npy"
+    File col_index = "~{input_id}_sparse_counts_col_index.npy"
+    File sparse_counts = "~{input_id}_sparse_counts.npz"
   }
 }

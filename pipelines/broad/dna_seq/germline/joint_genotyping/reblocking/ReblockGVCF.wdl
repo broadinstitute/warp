@@ -5,7 +5,8 @@ import "../../../../../../tasks/broad/Qc.wdl" as QC
 
 workflow ReblockGVCF {
 
-  String pipeline_version = "2.0.5"
+  String pipeline_version = "2.1.3"
+
 
   input {
     File gvcf
@@ -14,6 +15,8 @@ workflow ReblockGVCF {
     File ref_dict
     File ref_fasta
     File ref_fasta_index
+    Float? tree_score_cutoff
+    String? annotations_to_keep_command
   }
 
   String gvcf_basename = basename(gvcf, ".g.vcf.gz")
@@ -25,6 +28,8 @@ workflow ReblockGVCF {
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,
       ref_dict = ref_dict,
+      tree_score_cutoff = tree_score_cutoff,
+      annotations_to_keep_command = annotations_to_keep_command,
       output_vcf_filename = gvcf_basename + ".rb.g.vcf.gz"
   }
 
@@ -40,7 +45,7 @@ workflow ReblockGVCF {
         calling_interval_list_index = gvcf_index,
         is_gvcf = true,
         extra_args = "--no-overlaps",
-        gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.2.0"
+        gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
     }
 
   output {
@@ -51,4 +56,3 @@ workflow ReblockGVCF {
     allowNestedInputs: true
   }
 }
-

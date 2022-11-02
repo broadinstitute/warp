@@ -1,7 +1,37 @@
+# 1.6.4
+2022-08-26 (Date of Last Commit)
+
+* Added task to JointGenotypingTasks.wdl for UltimaGenomicsJointGenotyping pipeline. This has no effect on this pipeline.
+
+# 1.6.3
+2022-06-27 (Date of Last Commit)
+
+* Renamed JointGenotyping input SNP_VQSR_downsampleFactor to snp_vqsr_downsampleFactor to allow proper regex match in scala tests. Only subworkflows should be capitalized, not top level inputs
+# 1.6.2
+2022-06-01 (Date of Last Commit)
+
+* Added inputs to the GenotypeGVCFs task to support the UltimaGenomicsJointGenotyping.wdl
+
+# 1.6.1
+2022-04-22 (Date of Last Commit)
+
+* Fixed syntax in changelog documentation 
+
+# 1.6.0
+2022-04-14 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+    * ExcessHet values change from removing mid-p correction; now PASS is zero 
+    * AS_*RankSum values change after a fix for Histogram::median() 
+    * AS_MQ, AS_FS, AS_SOR values change in some cases from GenomicsDB non-ref assignment fix
+    * * allele no longer gets annotation values
+    * Gnarly AN differences: Some ./. go to */*, but those agree with upstream deletions
+
 # 1.5.3
 2022-04-12
 
 * Remove annotationDB files from per chromosome in JointGenotyping
+
 # 1.5.2
 2021-11-10
 

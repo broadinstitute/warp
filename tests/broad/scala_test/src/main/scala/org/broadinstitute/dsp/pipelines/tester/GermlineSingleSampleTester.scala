@@ -80,9 +80,15 @@ class GermlineSingleSampleTester(testerConfig: GermlineCloudWorkflowConfig)(
     val testGvcfFileName = ioUtil
       .listGoogleObjects(resultsCloudPath)
       .filter(_.getPath.endsWith(".g.vcf.gz"))
+    val testGvcfIndexFileName = ioUtil
+      .listGoogleObjects(resultsCloudPath)
+      .filter(_.getPath.endsWith(".g.vcf.gz.tbi"))
     val truthGvcfFileName = ioUtil
       .listGoogleObjects(truthCloudPath)
       .filter(_.getPath.endsWith(".g.vcf.gz"))
+    val truthGvcfIndexFileName = ioUtil
+      .listGoogleObjects(truthCloudPath)
+      .filter(_.getPath.endsWith(".g.vcf.gz.tbi"))
     val validationInputs = GermlineSingleSampleValidationInputs(
       testMetrics = metricsFileNames.map(resultsCloudPath.resolve),
       truthMetrics = metricsFileNames.map(truthCloudPath.resolve),
@@ -91,7 +97,9 @@ class GermlineSingleSampleTester(testerConfig: GermlineCloudWorkflowConfig)(
       truthCram = truthCloudPath.resolve(s"$outputBaseName.cram"),
       truthCrai = truthCloudPath.resolve(s"$outputBaseName.cram.crai"),
       testGvcf = testGvcfFileName(0),
-      truthGvcf = truthGvcfFileName(0)
+      testGvcfIndex = testGvcfIndexFileName(0),
+      truthGvcf = truthGvcfFileName(0),
+      truthGvcfIndex = truthGvcfIndexFileName(0)
     )
     GermlineSingleSampleValidationInputs
       .marshall(validationInputs)

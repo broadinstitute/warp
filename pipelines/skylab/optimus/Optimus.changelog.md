@@ -1,7 +1,61 @@
-# 5.3.2
-2022-04-13 (Date of Last Commit)
+# 5.5.6
+2022-11-02 (Date of Last Commit)
 
 * Changed the Optimus WDL logic to skip splitting FASTQs if the total input size for read 1 and read 2 is smaller than 30 GB.
+
+# 5.5.5
+2022-09-20 (Date of Last Commit)
+
+* Updated tasks in StarAlign.wdl to use an updated STAR docker image. 
+
+# 5.5.4
+2022-09-01 (Date of Last Commit)
+
+* Updated CheckInputs.wdl to use a lightweight alpine-bash image.
+
+# 5.5.3
+2022-08-23 (Date of Last Commit)
+
+* Removed an unused script in pytools docker image and removed unused ConvertStarOutputs task.
+
+# 5.5.2
+2022-08-16 (Date of Last Commit)
+
+* Updated LoomUtils.wdl and StarAlign.wdl to use a rebuilt python utilities docker.
+
+# 5.5.1
+2022-07-21 (Date of Last Commit)
+
+* Updated STARsoloFastq runtime docker URL.
+
+# 5.5.0
+2022-05-18 (Date of Last Commit)
+
+* Updated merge npz docker in StarAlign.wdl to fix a bug in the output loom matrix where gene names were inapporpriately assigned to counts. Any data previously processed with Optimus version 5.0.0 and above should be re-analyzed.
+ 
+
+# 5.4.3
+2022-04-22 (Date of Last Commit)
+
+* Updated Optimus to not run emptydrop step in sn_rna mode.
+
+# 5.4.2
+2022-04-21 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
+# 5.4.1
+2022-04-21 (Date of Last Commit)
+
+* Fixing syntax in changelog documentation
+
+# 5.4.0
+2022-04-06 (Date of Last Commit)
+
+* Updated the STARsoloFastq task in StarAlign.wdl to run STARsolo independently with \"Gene\" COUNTING_MODE when the Optimus input parameter `count_exons` is set to true.
+* Updated the MergeStarOutput task in StarAlign.wdl to run an updated script for merging. The previous version included a bug where certain barcodes were getting zero counts after merging.
+* Changed the npz output names to include input_id as a prefix. All outputs are prefixed with input_id and are differentiated from run to run with different inputs.
+
 
 # 5.3.1
 2022-04-04 (Date of Last Commit)

@@ -1,5 +1,5 @@
 {
-  "TestOptimusPR.reference_matrix": "gs://hca-dcp-sc-pipelines-test-data/optimus-test-data/referenceMatrix.rds",
+  "TestOptimusPR.reference_matrix": "gs://broad-gotc-test-storage/Optimus/truth/plumbing/master/outputs/referenceMatrix.rds",
   "TestOptimusPR.expected_cell_metric_hash": "eb56bfec00cb35ea176c00cebc44c4e3",
   "TestOptimusPR.expected_gene_metric_hash": "f70fabd0562cb926f42df6eda143d717",
   "TestOptimusPR.expected_bam": "",
@@ -18,7 +18,7 @@
   ],
   "TestOptimusPR.chemistry": "tenX_v2",
   "TestOptimusPR.force_no_check": "false",
-  "TestOptimusPR.whitelist": "gs://hca-dcp-mint-test-data/10x/whitelist/737K-august-2016.txt",
+  "TestOptimusPR.whitelist": "gs://broad-gotc-test-storage/Optimus/truth/plumbing/master/inputs/737K-august-2016.txt",
   "TestOptimusPR.tar_star_reference": "gs://gcp-public-data--broad-references/hg38/v0/star/star_2.7.9a_primary_gencode_human_v27.tar", 
   "TestOptimusPR.input_id": "4k_pbmc",
   "TestOptimusPR.annotations_gtf": "gs://gcp-public-data--broad-references/hg38/v0/gencode.v27.primary_assembly.annotation.gtf", 

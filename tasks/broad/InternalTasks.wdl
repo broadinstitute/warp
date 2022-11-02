@@ -117,7 +117,7 @@ task DownloadGenotypes {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.2-1647866389"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.3-1652895718"
     memory: "3500 MiB"
     maxRetries: select_first([max_retries, 2])
     preemptible: select_first([preemptible_tries, 3])
@@ -168,9 +168,38 @@ task UploadFingerprintToMercury {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.2-1647866389"
+    docker: "us.gcr.io/broad-arrays-prod/arrays-picard-private:4.1.3-1652895718"
     memory: "3500 MiB"
     maxRetries: select_first([max_retries, 2])
     preemptible: select_first([preemptible_tries, 3])
   }
+}
+
+task IngestOutputsToTDR {
+    input {
+        String  workspace_bucket
+        String  tdr_dataset_id
+        String  tdr_target_table_name
+        String? in_load_tag
+
+        File   outputs_tsv
+    }
+
+    command {
+
+        python3 /scripts/emerge/ingest_to_tdr.py -b ~{workspace_bucket} \
+                                                 -d ~{tdr_dataset_id} \
+                                                 -t ~{tdr_target_table_name} \
+                                                 -f ~{outputs_tsv} \
+                                                 ~{"-l=" + in_load_tag}
+    }
+
+    runtime {
+        docker: "gcr.io/emerge-production/emerge_wdls:emerge_10042022"
+    }
+
+    output {
+        File    ingest_logs = stdout()
+        String?  load_tag = read_string("load_tag.txt")
+    }
 }

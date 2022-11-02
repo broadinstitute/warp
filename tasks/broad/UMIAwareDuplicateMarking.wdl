@@ -85,7 +85,8 @@ workflow UMIAwareDuplicateMarking {
     input:
       bam = SortSamByQueryNameBeforeDuplicateMarking.output_bam,
       output_basename = output_basename,
-      remove_duplicates = remove_duplicates
+      remove_duplicates = remove_duplicates,
+      use_umi = true
   }
 
   if (coordinate_sort_output){

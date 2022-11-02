@@ -27,6 +27,8 @@ workflow VerifyCheckFingerprint {
 
     File test_fingerprint_vcf
     File truth_fingerprint_vcf
+
+    Boolean? done
   }
 
   if (defined(test_metrics) && defined(truth_metrics)) {
@@ -37,7 +39,7 @@ workflow VerifyCheckFingerprint {
     }
   }
 
-  call Tasks.CompareVcfs as CompareOutputFingerprintVcfs {
+  call Tasks.CompareVcfsAllowingQualityDifferences as CompareOutputFingerprintVcfs {
     input:
       file1 = test_fingerprint_vcf,
       file2 = truth_fingerprint_vcf

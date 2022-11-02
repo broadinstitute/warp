@@ -25,3 +25,4 @@ RUN wget https://github.com/broadinstitute/picard/releases/download/${PICARD_VER
       mkdir picard-tools && \
       mv picard.jar picard-tools/
 
+# TODO: Testing with the cloud jar. If that works we can remove this from here and the build script

@@ -21,14 +21,28 @@ workflow VerifyJointGenotyping {
 
     File test_fingerprint
     File truth_fingerprint
+
+    Boolean? done
   }
 
   scatter (idx in range(length(truth_vcfs))) {
+    call VerifyTasks.CompareVCFsVerbosely {
+      input:
+        actual = test_vcfs[idx],
+        actual_index = test_vcf_indexes[idx],
+        expected = truth_vcfs[idx],
+        expected_index = truth_vcf_indexes[idx],
+        extra_args = "--ignore-attribute VQSLOD --ignore-attribute AS_VQSLOD --ignore-filters --ignore-attribute culprit "
+        + " --ignore-attribute AS_culprit --ignore-attribute AS_FilterStatus --ignore-attribute ExcessHet --ignore-attribute AS_SOR "
+        +"--ignore-attribute AS_FS --ignore-attribute AS_BaseQRankSum --ignore-attribute AS_ReadPosRankSum --ignore-attribute AS_MQRankSum"
+    }
+
     call GermlineVerification.CompareGvcfs {
       input:
         test_gvcf = test_vcfs[idx],
         truth_gvcf = truth_vcfs[idx]
     }
+
   }
 
   call MetricsVerification.VerifyMetrics {

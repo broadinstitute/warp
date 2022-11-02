@@ -1,6 +1,49 @@
-# 1.0.8
-2022-04-04 (Date of Last Commit)
+# 1.1.6
+2022-09-27 (Date of Last Commit)
 
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
+# 1.1.5
+2022-09-30 (Date of Last Commit)
+
+* Updated BCFTools/VCFTools and Minimac4 Docker images to fix vulnerabilities.
+* Updated tasks FormatImputationOutputs, FormatImputationWideOutputs, and IngestOutputsToTDR with GCR images instead of Dockerhub.
+
+# 1.1.4
+2022-08-23 (Date of Last Commit)
+
+* Updated BCFTools/VCFTools docker image
+
+# 1.1.3
+2022-08-03 (Date of Last Commit)
+
+* Updated BCFTools/VCFTools Minimac4 Docker images
+
+# 1.1.2
+2022-07-15 (Date of Last Commit)
+
+* Updated task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
+# 1.1.1
+2022-06-01 (Date of Last Commit)
+
+* Renamed the CompareVCFs task in VerifyImputation.wdl to CompareVcfsAllowingQualityDifferences, this update has no effect on this pipeline
+
+# 1.1.0 
+2022-04-21 (Date of Last Commit)
+
+* Update QC metrics calculation for Imputation pipeline to only evaluate sites with MAF
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
+# 1.0.9
+2022-04-14 (Date of Last Commit)
+
+* Security patch to bcftools-vcftools and minimac4 docker images
+
+# 1.0.8
+2022-04-08 (Date of Last Commit)
+
+* Fix Imputation scaling issue by moving problematic tasks inside of a scatter call
 * Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
 
 # 1.0.7
@@ -28,7 +71,7 @@
 
 * Security patch to bcftools-vcftools docker image used in Imputation pipeline
 # 1.0.2
-2021-11-15 (Date of Last Commit)
+∑2021-11-15 (Date of Last Commit)
 
 * Task wdls used by the Imputation pipeline were updated with changes that don't affect Imputation wdl
 

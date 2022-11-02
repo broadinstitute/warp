@@ -1,5 +1,34 @@
+# 1.16.1
+2022-10-13 (Date of Last Commit)
+
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new optional input variable. This update has no effect on this pipeline.
+* Updated task FormatArraysOutputs in InternalArrraysTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+
+
+# 1.16.0
+2022-09-30 (Date of Last Commit)
+
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+* Updated task IngestOutputsToTDR with GCR images instead of Dockerhub.
+
+# 1.15.9
+2022-06-15 (Date of Last Commit)
+
+* Added bead_pool_manifest file to the output section of ValidateChip.wdl
+
+# 1.15.8
+2022-05-19 (Date of Last Commit)
+
+* Patch security vulnerability in arrays-picard-private docker image
+* Update arrays internal tasks, this update has no effect on this pipeline
+
+# 1.15.7
+2022-04-19 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
 # 1.15.6
-2022-03-14 (Date of Last Commit)
+2022-04-14 (Date of Last Commit)
 
 * Update base image for picard-private docker image
 * Add gsutil to PATH in picard-private docker image

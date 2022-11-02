@@ -30,6 +30,7 @@ workflow VerifyImputation {
     File truth_vcf
     File test_vcf
     File test_vcf_index
+    File truth_vcf_index
 
     File? input_multi_sample_vcf
     File? input_multi_sample_vcf_index
@@ -38,10 +39,11 @@ workflow VerifyImputation {
 
     Array[File]? single_sample_truth_vcf
     Array[File]? single_sample_test_vcf
-    Array[File]? single_sample_test_vcf_indices
+
+    Boolean? done
   }
 
-  String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.4-1.10.2-0.1.16-1646091598"
+  String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.6-1.10.2-0.1.16-1663946207"
 
   scatter (idx in range(length(truth_metrics))) {
     call CompareImputationMetrics {
@@ -51,7 +53,7 @@ workflow VerifyImputation {
     }
   }
 
-  call Tasks.CompareVcfs as CompareOutputVcfs {
+  call Tasks.CompareVcfsAllowingQualityDifferences as CompareOutputVcfs {
     input:
       file1 = truth_vcf,
       file2 = test_vcf
@@ -59,7 +61,7 @@ workflow VerifyImputation {
 
   if (defined(single_sample_truth_vcf)) {
     scatter (idx in range(length(select_first([single_sample_truth_vcf])))) {
-      call Tasks.CompareVcfs as CompareSingleSampleOutputVcfs {
+      call Tasks.CompareVcfsAllowingQualityDifferences as CompareSingleSampleOutputVcfs {
         input:
           file1 = select_first([single_sample_test_vcf])[idx],
           file2 = select_first([single_sample_truth_vcf])[idx]
@@ -131,7 +133,7 @@ task CrosscheckFingerprints {
     Array[File] secondInputIndices
     String basename
     File haplotypeDatabase = "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt"
-    String picard_docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.6"
+    String picard_docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
   }
 
   Int disk_size = ceil(1.2*(size(firstInputs, "GiB") + size(secondInputs, "GiB") + size(haplotypeDatabase, "GiB"))) + 100

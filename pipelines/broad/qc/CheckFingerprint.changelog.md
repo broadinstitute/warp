@@ -1,8 +1,49 @@
+# 1.0.10
+2022-10-12 (Date of Last Commit)
+
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new optional input variable. This update has no effect on this pipeline.
+* Updated task FormatArraysOutputs in InternalArrraysTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+
+# 1.0.9
+2022-09-30 (Date of Last Commit)
+
+* Updated Picard-Python Docker image in Utilities.wdl to fix vulnerabilities.
+* Updated task IngestOutputsToTDR with GCR images instead of Dockerhub.
+
+# 1.0.8
+2022-09-07 (Date of Last Commit)
+
+* Updated task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+
+# 1.0.7
+2022-06-16 (Date of Last Commit)
+
+* Changed the name of the task QC.CheckFingerprint to QC.CheckFingerprintTask. This prevents a naming conflict in the updated scala tests.
+
+# 1.0.6
+2022-06-01 (Date of Last Commit)
+
+* Renamed the CompareVCFs task in VerifyCheckFingerprint.wdl to CompareVcfsAllowingQualityDifferences, this update has no effect on this pipeline
+
+# 1.0.5
+2022-05-19 (Date of Last Commit)
+
+* Patch security vulnerability in arrays-picard-private docker image
+* Update arrays internal tasks, this update has no effect on this pipeline
+
+# 1.0.4
+2022-04-19 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
 
 # 1.0.3
-2022-04-04 (Date of Last Commit)
+2022-04-14 (Date of Last Commit)
 
 * Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+
 # 1.0.2
 2022-03-24 (Date of Last Commit)
 
