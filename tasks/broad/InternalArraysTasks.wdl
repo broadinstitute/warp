@@ -541,7 +541,7 @@ task FormatArraysOutputs {
     >>>
 
     runtime {
-        docker: "gcr.io/emerge-production/emerge_wdls:emerge_10042022"
+        docker: "gcr.io/emerge-production/emerge_wdls:v.1.0"
     }
 
     output {
