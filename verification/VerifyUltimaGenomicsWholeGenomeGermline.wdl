@@ -162,7 +162,7 @@ task CompareOldMetricFiles {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa@sha256:33606e279ebca9f00de04587da0a581a608925d8bae724f3d4f6c6a0569d519a"
+    docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.27.5-1667410529"
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
     preemptible: 3

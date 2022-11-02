@@ -92,7 +92,7 @@ task ConvertCramOrBamToUBam {
     String base_file_name
     Float split_chunk_size
 
-    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa@sha256:33606e279ebca9f00de04587da0a581a608925d8bae724f3d4f6c6a0569d519a"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.27.5-1667410529"
     Int disk_size_gb = ceil((2 * split_chunk_size) + 20)
     Int cpu = 2
     Int memory_mb = 13000
@@ -158,7 +158,7 @@ task SamToFastqAndBwaMemAndMba {
     References references
     File input_bam
 
-    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa@sha256:33606e279ebca9f00de04587da0a581a608925d8bae724f3d4f6c6a0569d519a"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.27.5-1667410529"
     Int disk_size_gb = ceil(size(input_bam, "GB") +
                             size(references.ref_fasta, "GB") +
                             size(references.ref_fasta_index, "GB") +
@@ -549,7 +549,7 @@ task MergeBams {
     Array[File] input_bams
     String output_bam_name
 
-    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa@sha256:33606e279ebca9f00de04587da0a581a608925d8bae724f3d4f6c6a0569d519a"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.27.5-1667410529"
     Int disk_size_gb = ceil(2 * size(input_bams,"GB") + 20)
     Int cpu = 1
     Int memory_mb = 10000
@@ -740,7 +740,7 @@ task CollectDuplicateMetrics {
     String metrics_filename
 
     
-    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa@sha256:33606e279ebca9f00de04587da0a581a608925d8bae724f3d4f6c6a0569d519a"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.27.5-1667410529"
     Int disk_size_gb = if ceil((size(input_bam, "GB")) +
                                size(references.ref_fasta, "GB") +
                                size(references.ref_fasta_index, "GB") +
@@ -784,7 +784,7 @@ task CollectWgsMetrics {
     Int? read_length
     File? jar_override
 
-    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa@sha256:33606e279ebca9f00de04587da0a581a608925d8bae724f3d4f6c6a0569d519a"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.27.5-1667410529"
     Int disk_size_gb = if ceil((size(input_bam, "GB")) +
                               size(references.ref_fasta, "GB") +
                               size(references.ref_fasta_index, "GB") +
@@ -837,7 +837,7 @@ task CollectRawWgsMetrics {
     References references
     Int? read_length
 
-    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa@sha256:33606e279ebca9f00de04587da0a581a608925d8bae724f3d4f6c6a0569d519a"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.27.5-1667410529"
     Int disk_size_gb = if ceil((size(input_bam, "GB")) +
                               size(references.ref_fasta, "GB") +
                               size(references.ref_fasta_index, "GB") +
@@ -887,7 +887,7 @@ task CollectAggregationMetrics {
     String output_bam_prefix
     References references
     
-    String docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.3-1564508330"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.5"
     Int disk_size_gb = if ceil((size(input_bam, "GB")) +
                                size(references.ref_fasta, "GB") +
                                size(references.ref_fasta_index, "GB") +

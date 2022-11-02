@@ -46,7 +46,7 @@ task SortSam {
 
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.5"
     disks: "local-disk " + disk_size + " HDD"
     cpu: "1"
     memory: "${machine_mem_mb} MiB"
@@ -107,7 +107,7 @@ task MarkDuplicates {
       ADD_PG_TAG_TO_READS=false
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.5"
     preemptible: preemptible_tries
     memory: "~{memory_size} GiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -293,7 +293,7 @@ task GatherSortedBamFiles {
       CREATE_MD5_FILE=true
     }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.5"
     preemptible: preemptible_tries
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -328,7 +328,7 @@ task GatherUnsortedBamFiles {
       CREATE_MD5_FILE=false
     }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.5"
     preemptible: preemptible_tries
     memory: "3 GiB"
     disks: "local-disk " + disk_size + " HDD"

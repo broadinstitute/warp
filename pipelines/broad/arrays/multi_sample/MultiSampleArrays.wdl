@@ -112,7 +112,7 @@ task CombineVCFs {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.4"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.27.5"
     disks: "local-disk " + disk_size + " HDD"
     memory: "26 GiB"
     preemptible: preemptible_tries
