@@ -146,7 +146,8 @@ workflow Optimus {
     input:
       barcodes = [select_all([STARsoloFastqSingle.barcodes, STARsoloFastq.barcodes])[0]],
       features = [select_all([STARsoloFastqSingle.features, STARsoloFastq.features])[0]],
-      matrix =  [select_all([STARsoloFastqSingle.matrix, STARsoloFastq.matrix])[0]]
+      matrix =  [select_all([STARsoloFastqSingle.matrix, STARsoloFastq.matrix])[0]],
+      input_id = input_id
   }
   if (counting_mode == "sc_rna"){
     call RunEmptyDrops.RunEmptyDrops {
@@ -181,7 +182,8 @@ workflow Optimus {
       input:
         barcodes = [select_all([STARsoloFastqSingle.barcodes_sn_rna, STARsoloFastq.barcodes_sn_rna])[0]],
         features = [select_all([STARsoloFastqSingle.features_sn_rna, STARsoloFastq.features_sn_rna])[0]],
-        matrix = [select_all([STARsoloFastqSingle.matrix_sn_rna, STARsoloFastq.matrix_sn_rna])[0]]
+        matrix = [select_all([STARsoloFastqSingle.matrix_sn_rna, STARsoloFastq.matrix_sn_rna])[0]],
+        input_id = input_id
     }
     call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
       input:
