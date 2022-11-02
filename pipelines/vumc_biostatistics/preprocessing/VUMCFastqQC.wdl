@@ -21,6 +21,7 @@ workflow VUMCFastqQC {
   output {
     File qc_file = ValidatePairendFastq.qc_file
     Int qc_failed = ValidatePairendFastq.qc_failed
+    Int qc_gzip_failed = ValidatePairendFastq.qc_gzip_failed
   }
 }
 
@@ -35,11 +36,31 @@ task ValidatePairendFastq {
   Int disk_size = ceil(size(fastq_1, "GB") + size(fastq_2, "GB") + 10)
   String qc_file = sample_name + ".qc.txt"
   String res_file = sample_name + ".res.txt"
+  String gzip_file = sample_name + ".gzip.txt"
 
   command <<<
 
-    set -o pipefail
-    set -e
+    echo "0" > ~{gzip_file}
+    for f1 in ~{sep=" " fastq_1} 
+    do
+      gzip -t $f1
+      status=$?
+      if [[ $status != 0 ]]; then
+        echo "$status" > ~{gzip_file}
+        break
+      fi
+    done
+
+    for f2 in ~{sep=" " fastq_2} 
+    do
+      gzip -t $f2
+      status=$?
+      if [[ $status != 0 ]]; then
+        echo "$status" > ~{gzip_file}
+        break
+      fi
+    done
+
 
     python3 <<CODE
 
@@ -147,15 +168,12 @@ def validate2(logger, input1str, input2str, output):
       error_files.append(read1)
       error_files.append(read2)
 
-  error_file = output + ".error"
-  if os.path.exists(error_file):
-    os.remove(error_file)
+  if os.path.exists(output):
+    os.remove(output)
 
   if len(error_msgs) > 0:
     logger.error("failed : all error msgs:")
-    if os.path.exists(output):
-      os.remove(output)
-    with open(error_file, "wt") as fout:
+    with open(output, "wt") as fout:
       for error_msg in error_msgs:
         logger.error(error_msg)
         fout.write("ERROR: %s\n" % error_msg)
@@ -179,7 +197,11 @@ with open("~{res_file}", "wt") as fout:
   fout.write(f"{res}")
 
 CODE
+
+exit 0
+
 >>>
+
   runtime {
     docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     preemptible: preemptible_tries
@@ -189,5 +211,6 @@ CODE
   output {
     File qc_file = glob("~{qc_file}*")[0]
     Int qc_failed = read_int("~{res_file}")
+    Int qc_gzip_failed = read_int("~{gzip_file}")
   }
 }
