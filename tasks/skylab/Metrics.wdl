@@ -52,7 +52,7 @@ task CalculateCellMetrics {
     --temp-folder temp \
     --alignments-per-thread 1000000 \
     --nthreads ${cpu} \
-    --mitochondrial-gene-names-filename ~{mt_genes}
+    ~{"--mitochondrial-gene-names-filename " + mt_genes}
 
     gzip cell-metrics.csv
   }
@@ -111,7 +111,7 @@ task CalculateGeneMetrics {
     --temp-folder temp \
     --alignments-per-thread 1000000 \
     --nthreads ${cpu} \
-    --mitochondrial-gene-names-filename ~{mt_genes}
+    ~{"--mitochondrial-gene-names-filename " + mt_genes}
 
     gzip gene-metrics.csv
 
