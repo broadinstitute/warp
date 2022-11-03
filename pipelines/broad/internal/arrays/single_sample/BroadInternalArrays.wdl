@@ -19,7 +19,6 @@ workflow BroadInternalArrays {
 
         # required inputs to Arrays.wdl
         String  chip_well_barcode
-        String  lab_batch
         String  sample_alias
         String  sample_lsid
         String  reported_gender
@@ -74,8 +73,7 @@ workflow BroadInternalArrays {
             fingerprint_summary_metrics_file                    = Arrays.fingerprint_summary_metrics_file,
             genotype_concordance_summary_metrics_file           = Arrays.genotype_concordance_summary_metrics_file,
             genotype_concordance_detail_metrics_file            = Arrays.genotype_concordance_detail_metrics_file,
-            genotype_concordance_contingency_metrics_file       = Arrays.genotype_concordance_contingency_metrics_file,
-            lab_batch                                           = lab_batch
+            genotype_concordance_contingency_metrics_file       = Arrays.genotype_concordance_contingency_metrics_file
     }
 
     call InternalTasks.IngestOutputsToTDR {
