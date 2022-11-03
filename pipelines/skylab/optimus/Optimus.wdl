@@ -111,12 +111,7 @@ workflow Optimus {
           output_bam_basename = output_bam_basename + "_" + idx
       }
     }
-    call Merge.MergeSortBamFiles as MergeBam {
-      input:
-        bam_inputs = STARsoloFastq.bam_output,
-        output_bam_filename = output_bam_basename + ".bam",
-        sort_order = "coordinate"
-    }
+
   }
   if ( !split_fastqs ) {
     call StarAlign.STARsoloFastq as STARsoloFastqSingle {
@@ -130,6 +125,12 @@ workflow Optimus {
         count_exons = count_exons,
         output_bam_basename = output_bam_basename
     }
+  }
+  call Merge.MergeSortBamFiles as MergeBam {
+    input:
+      bam_inputs = select_first([STARsoloFastqSingle.bam_output, MergeBam.output_bam]),
+      output_bam_filename = output_bam_basename + ".bam",
+      sort_order = "coordinate"
   }
   call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
