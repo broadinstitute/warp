@@ -1,3 +1,8 @@
+# 1.0.6
+2022-11-04 (Date of Last Commit)
+
+* Updated GATK verison to 4.3.0.0 for MarkDuplicatesSpark.
+
 # 1.0.5
 2022-10-12 (Date of Last Commit)
 

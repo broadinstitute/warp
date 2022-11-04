@@ -1,3 +1,8 @@
+# 2.1.4
+2022-11-04 (Date of Last Commit)
+
+* Updated GATK verison to 4.3.0.0 for ReblockGVCFs.
+
 # 2.1.3
 2022-06-21 (Date of Last Commit)
 
