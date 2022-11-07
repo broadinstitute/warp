@@ -119,7 +119,7 @@ task ConvertCramOrBamToUBam {
     fi
 
     samtools view -b -F 2048 -h ~{input_file} | \
-    java -Xmx11g -jar /usr/gitc/picard.jar RevertSam -I /dev/stdin \
+    java -Xmx11g -jar /usr/gitc/picard.jar RevertSam -I ~{base_file_name}.bam \
     -O ~{base_file_name}.u.bam \
     --MAX_DISCARD_FRACTION 0.005 \
     --ATTRIBUTE_TO_CLEAR XT \
