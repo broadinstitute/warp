@@ -13,6 +13,8 @@ workflow VerifyGDCSomaticSingleSample {
     File truth_bai
     File test_bam
     File test_bai
+
+    Boolean? done
   }
 
   call MetricsVerification.VerifyMetrics as CompareMetrics {

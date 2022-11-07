@@ -1,3 +1,16 @@
+# 1.16.1
+2022-10-13 (Date of Last Commit)
+
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new optional input variable. This update has no effect on this pipeline.
+* Updated task FormatArraysOutputs in InternalArrraysTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+
+
+# 1.16.0
+2022-09-30 (Date of Last Commit)
+
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+* Updated task IngestOutputsToTDR with GCR images instead of Dockerhub.
+
 # 1.15.9
 2022-06-15 (Date of Last Commit)
 

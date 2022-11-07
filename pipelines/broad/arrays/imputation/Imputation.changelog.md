@@ -1,3 +1,29 @@
+# 1.1.6
+2022-09-27 (Date of Last Commit)
+
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
+# 1.1.5
+2022-09-30 (Date of Last Commit)
+
+* Updated BCFTools/VCFTools and Minimac4 Docker images to fix vulnerabilities.
+* Updated tasks FormatImputationOutputs, FormatImputationWideOutputs, and IngestOutputsToTDR with GCR images instead of Dockerhub.
+
+# 1.1.4
+2022-08-23 (Date of Last Commit)
+
+* Updated BCFTools/VCFTools docker image
+
+# 1.1.3
+2022-08-03 (Date of Last Commit)
+
+* Updated BCFTools/VCFTools Minimac4 Docker images
+
+# 1.1.2
+2022-07-15 (Date of Last Commit)
+
+* Updated task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
 # 1.1.1
 2022-06-01 (Date of Last Commit)
 

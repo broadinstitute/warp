@@ -1,14 +1,14 @@
 {
-  "ATAC.fastq_gzipped_input_read1": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/snaptools_test/demo.R1.fastq.gz",
-  "ATAC.fastq_gzipped_input_read2": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/snaptools_test/demo.R2.fastq.gz",
+  "ATAC.fastq_gzipped_input_read1": "gs://broad-gotc-test-storage/ATAC/inputs/snaptools_test/demo.R1.fastq.gz",
+  "ATAC.fastq_gzipped_input_read2": "gs://broad-gotc-test-storage/ATAC/inputs/snaptools_test/demo.R2.fastq.gz",
   "ATAC.adapter_seq_read2": "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG",
   "ATAC.min_map_quality": 30,
   "ATAC.quality_cutoff": 0,
   "ATAC.adapter_seq_read1": "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG",
   "ATAC.min_length": 10,
   "ATAC.output_base_name": "scATAC",
-  "ATAC.tar_bwa_reference": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/snapATAC_BWA/mm10/mm10.tar",
+  "ATAC.tar_bwa_reference": "gs://broad-gotc-test-storage/scATAC/input/plumbing/reference/mm10/mm10.tar",
   "ATAC.genome_name": "mm10",
-  "ATAC.genome_size_file": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/scATAC-seq/bwa_mm10/mm10.chrom.sizes",
+  "ATAC.genome_size_file": "gs://broad-gotc-test-storage/ATAC/inputs/scATAC-seq/bwa_mm10/mm10.chrom.sizes",
   "ATAC.max_fragment_length": 2000
 }

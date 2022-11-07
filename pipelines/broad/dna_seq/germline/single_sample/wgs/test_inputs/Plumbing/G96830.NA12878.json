@@ -46,8 +46,8 @@
     "break_bands_at_multiples_of": 100000
   },
 
-  "WholeGenomeGermlineSingleSample.fingerprint_genotypes_file": "gs://broad-gotc-test-storage/germline_single_sample/wgs/plumbing/bams/NA12878_PLUMBING.hg38.reference.fingerprint.vcf.gz",
-  "WholeGenomeGermlineSingleSample.fingerprint_genotypes_index": "gs://broad-gotc-test-storage/germline_single_sample/wgs/plumbing/bams/NA12878_PLUMBING.hg38.reference.fingerprint.vcf.gz.tbi",
+  "WholeGenomeGermlineSingleSample.fingerprint_genotypes_file": "gs://broad-public-datasets/NA12878_downsampled_for_testing/unmapped/NA12878_PLUMBING.hg38.reference.fingerprint.vcf.gz",
+  "WholeGenomeGermlineSingleSample.fingerprint_genotypes_index": "gs://broad-public-datasets/NA12878_downsampled_for_testing/unmapped/NA12878_PLUMBING.hg38.reference.fingerprint.vcf.gz.tbi",
 
   "WholeGenomeGermlineSingleSample.wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list",
 

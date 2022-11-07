@@ -177,9 +177,10 @@ task UploadFingerprintToMercury {
 
 task IngestOutputsToTDR {
     input {
-        String workspace_bucket
-        String tdr_dataset_id
-        String tdr_target_table_name
+        String  workspace_bucket
+        String  tdr_dataset_id
+        String  tdr_target_table_name
+        String? in_load_tag
 
         File   outputs_tsv
     }
@@ -189,14 +190,16 @@ task IngestOutputsToTDR {
         python3 /scripts/emerge/ingest_to_tdr.py -b ~{workspace_bucket} \
                                                  -d ~{tdr_dataset_id} \
                                                  -t ~{tdr_target_table_name} \
-                                                 -f ~{outputs_tsv}
+                                                 -f ~{outputs_tsv} \
+                                                 ~{"-l=" + in_load_tag}
     }
 
     runtime {
-        docker: "broadinstitute/horsefish:eMerge_05192022"
+        docker: "gcr.io/emerge-production/emerge_wdls:emerge_10042022"
     }
 
     output {
-        File ingest_logs = stdout()
+        File    ingest_logs = stdout()
+        String?  load_tag = read_string("load_tag.txt")
     }
 }

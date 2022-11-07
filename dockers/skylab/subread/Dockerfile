@@ -1,34 +1,38 @@
-FROM ubuntu:16.04
-LABEL maintainer=" Jishu Xu <jishuxu@broadinstitute.org>" \
-      software="subread package" \
-      version="1.6.0" \
-      description="RNA-seq high-performance read alignment, quantification and mutation discovery" \
-      website="http://subread.sourceforge.net/"
+FROM --platform=linux/amd64 python:3.6.2
 
-# Install compiler 
-RUN apt-get update --fix-missing && apt-get install -y \
-  build-essential \
-  gcc-multilib \
-  apt-utils \
-  zlib1g-dev \
-  libxml2-dev \
-  curl \
-  wget \
-  libbz2-dev \
-  cmake automake \
-  libboost-all-dev \
-  libncurses5-dev \
-  r-base \
-  r-base-core \
-  r-base-dev
-      
-# Install subread 
-WORKDIR /usr/local/ 
-ENV VERSION="1.6.0"
-RUN wget "https://downloads.sourceforge.net/project/subread/subread-${VERSION}/subread-${VERSION}-source.tar.gz"
-RUN tar -xzvf subread-${VERSION}-source.tar.gz
-WORKDIR /usr/local/subread-${VERSION}-source/src 
-RUN make -f Makefile.Linux 
-ENV PATH /usr/local/subread-${VERSION}-source/bin/:$PATH
-# Cleanup
-RUN apt-get clean
+ARG SUBREAD_VERSION="2.0.1"
+
+ENV TERM=xterm-256color \
+        SUBREAD_URL="https://downloads.sourceforge.net/project/subread/subread-${SUBREAD_VERSION}/subread-${SUBREAD_VERSION}-source.tar.gz" \
+        TINI_VERSION=v0.19.0 \
+        PATH=$PATH:/usr/gitc/subread-${SUBREAD_VERSION}-source/bin
+
+LABEL MAINTANER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>" \
+      SUBREAD_VERSION=${SUBREAD_VERSION}
+
+WORKDIR /usr/gitc
+
+COPY requirements.txt .
+COPY remove-reads-on-junctions.py .
+
+RUN set -eux; \
+        apt-get update --fix-missing; \
+        apt-get install -y wget; \
+        python3 -m pip install --upgrade pip; \
+        pip3 install -r requirements.txt \
+    ; \
+# Install subread
+    wget --no-check-certificate ${SUBREAD_URL}; \
+    tar -xzvf subread-${SUBREAD_VERSION}-source.tar.gz; \
+    cd /usr/gitc/subread-${SUBREAD_VERSION}-source/src; \
+    make -f Makefile.Linux; \
+# Install TINI \
+    cd /usr/gitc; \
+    mkdir temp; \
+    cd temp; \
+    wget https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -O /sbin/tini; \
+    chmod +x /sbin/tini; \
+    rm -r /usr/gitc/temp;
+
+# Set tini as default entrypoint
+ENTRYPOINT ["/sbin/tini", "--" ]
