@@ -128,7 +128,7 @@ workflow Optimus {
   }
   call Merge.MergeSortBamFiles as MergeBam {
     input:
-      bam_inputs = if split_fastqs then STARsoloFastq.bam_output else [STARsoloFastqSingle.bam_output],
+      bam_inputs = [select_first([STARsoloFastqSingle.bam_output, STARsoloFastq.bam_output])],
       output_bam_filename = output_bam_basename + ".bam",
       sort_order = "coordinate"
   }
@@ -145,9 +145,9 @@ workflow Optimus {
 
   call StarAlign.MergeStarOutput as MergeStarOutputs {
     input:
-      barcodes = if split_fastqs then STARsoloFastq.barcodes else [STARsoloFastqSingle.barcodes],
-      features = if split_fastqs then STARsoloFastq.features else [STARsoloFastqSingle.features],
-      matrix =   if split_fastqs then STARsoloFastq.matrix else [STARsoloFastqSingle.matrix],
+      barcodes = [select_all([STARsoloFastqSingle.barcodes, STARsoloFastq.barcodes])[0]],
+      features = [select_all([STARsoloFastqSingle.features, STARsoloFastq.features])[0]],
+      matrix =  [select_all([STARsoloFastqSingle.matrix, STARsoloFastq.matrix])[0]],
       input_id = input_id
   }
   if (counting_mode == "sc_rna"){
@@ -181,9 +181,9 @@ workflow Optimus {
   if (count_exons  && counting_mode=="sn_rna") {
     call StarAlign.MergeStarOutput as MergeStarOutputsExons {
       input:
-        barcodes = if split_fastqs then STARsoloFastq.barcodes_sn_rna else [STARsoloFastqSingle.barcodes_sn_rna],
-        features = if split_fastqs then STARsoloFastq.features_sn_rna else [STARsoloFastqSingle.features_sn_rna],
-        matrix = if split_fastqs then STARsoloFastq.matrix_sn_rna else [STARsoloFastqSingle.matrix_sn_rna],
+        barcodes = [select_all([STARsoloFastqSingle.barcodes_sn_rna, STARsoloFastq.barcodes_sn_rna])[0]],
+        features = [select_all([STARsoloFastqSingle.features_sn_rna, STARsoloFastq.features_sn_rna])[0]],
+        matrix = [select_all([STARsoloFastqSingle.matrix_sn_rna, STARsoloFastq.matrix_sn_rna])[0]],
         input_id = input_id
     }
     call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
@@ -213,7 +213,7 @@ workflow Optimus {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
 
-    File bam = MergeBam.output_bam
+    File bam = select_first([STARsoloFastqSingle.bam_output, MergeBam.output_bam])
     File matrix = MergeStarOutputs.sparse_counts
     File matrix_row_index = MergeStarOutputs.row_index
     File matrix_col_index = MergeStarOutputs.col_index
