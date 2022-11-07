@@ -118,7 +118,8 @@ task ConvertCramOrBamToUBam {
     sort_order_flag="--SO unsorted"
     fi
 
-    samtools view -b -F 2048 -h ~{input_file} | \
+    samtools view -b -F 2048 -h ~{input_file} >> ~{base_file_name}.bam
+
     java -Xmx11g -jar /usr/gitc/picard.jar RevertSam -I ~{base_file_name}.bam \
     -O ~{base_file_name}.u.bam \
     --MAX_DISCARD_FRACTION 0.005 \
