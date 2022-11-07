@@ -92,7 +92,7 @@ task ConvertCramOrBamToUBam {
     String base_file_name
     Float split_chunk_size
 
-    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.27.5-1667410529"
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-picard-bwa@sha256:98c8cb815536ef3e36320fa3720ec11cf0e4557d0c4993ca6815666756a20b28"
     Int disk_size_gb = ceil((2 * split_chunk_size) + 20)
     Int cpu = 2
     Int memory_mb = 13000
