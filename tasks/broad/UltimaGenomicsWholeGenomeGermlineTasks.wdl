@@ -903,7 +903,7 @@ task CollectAggregationMetrics {
 
 
   command {
-    java -Xms5000m -jar /usr/gitc/picard.jar \
+    java -Xms5000m -jar /usr/picard/picard.jar \
     CollectMultipleMetrics \
     INPUT=~{input_bam} \
     REFERENCE_SEQUENCE=~{references.ref_fasta} \
