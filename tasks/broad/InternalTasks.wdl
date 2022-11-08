@@ -177,18 +177,15 @@ task UploadFingerprintToMercury {
 
 task IngestOutputsToTDR {
     input {
-        String  workspace_bucket
         String  tdr_dataset_id
         String  tdr_target_table_name
         String? in_load_tag
-
         File   outputs_tsv
     }
 
     command {
 
-        python3 /scripts/emerge/ingest_to_tdr.py -b ~{workspace_bucket} \
-                                                 -d ~{tdr_dataset_id} \
+        python3 /scripts/emerge/ingest_to_tdr.py -d ~{tdr_dataset_id} \
                                                  -t ~{tdr_target_table_name} \
                                                  -f ~{outputs_tsv} \
                                                  ~{"-l=" + in_load_tag}
@@ -200,6 +197,6 @@ task IngestOutputsToTDR {
 
     output {
         File    ingest_logs = stdout()
-        String?  load_tag = read_string("load_tag.txt")
+        String  load_tag = read_string("load_tag.txt")
     }
 }
