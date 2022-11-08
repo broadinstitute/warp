@@ -12,7 +12,6 @@ workflow BroadInternalImputation {
     
     input {
         # inputs to wrapper task 
-        String workspace_bucket
         String tdr_dataset_id
         String tdr_target_table_name
         String prs_cf_trigger_bucket_path
@@ -57,7 +56,6 @@ workflow BroadInternalImputation {
 
     call InternalTasks.IngestOutputsToTDR as IngestToImputationOutputsTable {
         input:
-            workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
             outputs_tsv             = FormatImputationOutputs.ingest_outputs_tsv

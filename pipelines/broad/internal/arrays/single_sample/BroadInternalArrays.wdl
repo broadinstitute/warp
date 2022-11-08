@@ -13,7 +13,6 @@ workflow BroadInternalArrays {
 
     input {
         # inputs to wrapper task
-        String  workspace_bucket
         String  tdr_dataset_id
         String  tdr_target_table_name
 
@@ -78,7 +77,6 @@ workflow BroadInternalArrays {
 
     call InternalTasks.IngestOutputsToTDR {
         input:
-            workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
             outputs_tsv             = FormatArraysOutputs.ingest_outputs_tsv
