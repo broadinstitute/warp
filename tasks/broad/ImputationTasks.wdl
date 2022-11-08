@@ -65,7 +65,7 @@ task GenerateChunk {
     Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
     Int cpu = 1
     Int memory_mb = 8000
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
   Int command_mem = memory_mb - 1000
   Int max_heap = memory_mb - 500
@@ -112,7 +112,7 @@ task CountVariantsInChunks {
     File panel_vcf
     File panel_vcf_index
 
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB")) + 20
@@ -266,7 +266,7 @@ task GatherVcfs {
     Array[File] input_vcfs
     String output_vcf_basename
 
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3*size(input_vcfs, "GiB"))
@@ -336,7 +336,7 @@ task UpdateHeader {
     String basename
 
     Int disk_size_gb = ceil(4*(size(vcf, "GiB") + size(vcf_index, "GiB"))) + 20
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int cpu = 1
     Int memory_mb = 8000
   }
@@ -372,7 +372,7 @@ task RemoveSymbolicAlleles {
     String output_basename
 
     Int disk_size_gb = ceil(3*(size(original_vcf, "GiB") + size(original_vcf_index, "GiB")))
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int cpu = 1
     Int memory_mb = 4000
   }
@@ -754,7 +754,7 @@ task SelectVariantsByIds {
     File ids
     String basename
 
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = ceil(1.2*size(vcf, "GiB")) + 100
@@ -820,7 +820,7 @@ task InterleaveVariants {
     Array[File] vcfs
     String basename
 
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int cpu = 1
     Int memory_mb = 16000
     Int disk_size_gb = ceil(3.2*size(vcfs, "GiB")) + 100
