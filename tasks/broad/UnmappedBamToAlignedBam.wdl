@@ -30,7 +30,7 @@ workflow UnmappedBamToAlignedBam {
   input {
 #    SampleAndUnmappedBams sample_and_unmapped_bams
     File aligned_bam
-    File aligned_bam_suffix
+    String aligned_bam_suffix
     DNASeqSingleSampleReferences references
     DragmapReference? dragmap_reference
     PapiSettings papi_settings
