@@ -161,7 +161,7 @@ workflow UnmappedBamToAlignedBam {
   # Sum the read group bam sizes to approximate the aggregated bam size
   call Utils.SumFloats as SumFloats {
     input:
-      sizes = mapped_bam_size,
+      sizes = [mapped_bam_size],
       preemptible_tries = papi_settings.preemptible_tries
   }
 
