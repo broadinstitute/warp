@@ -1,7 +1,7 @@
 # 1.4.7
 2022-11-04 (Date of Last Commit)
 
-* Updated GATK verison to 4.3.0.0 for ImportGVCFs and GenotypeGVCFs.
+* Updated GATK verison to 4.3.0.0
 
 # 1.4.6
 2022-08-26 (Date of Last Commit)
