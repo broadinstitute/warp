@@ -110,7 +110,7 @@ task ScatterIntervalList {
     Int interval_count = read_int(stdout())
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.26.10-1647265026"
+    docker: "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.26.10-1663951039"
     memory: "2000 MiB"
   }
 }
@@ -308,7 +308,7 @@ task MakeOptionalOutputBam {
     Boolean keep_inputs
     Int preemptible_tries = 3
   }
-    Int disk_size = ceil(size(bam_input, "GiB")) + 5
+    Int disk_size = ceil(size(bam_input, "GiB")) + 15
     String basename = basename(bam_input, ".bam")
   command<<<
     if [ ~{keep_inputs} = "true" ]

@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [UltimaGenomicsWholeGenomeGermline_v1.0.0](https://github.com/broadinstitute/warp/releases) | June, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [UltimaGenomicsWholeGenomeGermline_v1.0.0](https://github.com/broadinstitute/warp/releases) | June, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [the wARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![UG_diagram](ug_diagram.png)
 
@@ -275,7 +275,7 @@ All UG_WGS pipeline releases are documented in the [pipeline changelog](https://
 
 ## Feedback
 
-Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
 
 <!--- FAQs will go here --->
 
