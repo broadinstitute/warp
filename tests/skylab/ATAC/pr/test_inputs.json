@@ -3,12 +3,12 @@
   "TestAtacPR.expected_snapqc_hash": "e843a7af98eaf1417800545bd796b0c2",
   "TestAtacPR.expected_bam_hash": "d8b67bd59f285bcb77089583a00bc2fb",
 
-  "TestAtacPR.input_fastq1": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/snaptools_test/demo.R1.fastq.gz",
-  "TestAtacPR.input_fastq2": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/snaptools_test/demo.R2.fastq.gz",
+  "TestAtacPR.input_fastq1": "gs://broad-gotc-test-storage/ATAC/inputs/snaptools_test/demo.R1.fastq.gz",
+  "TestAtacPR.input_fastq2": "gs://broad-gotc-test-storage/ATAC/inputs/snaptools_test/demo.R2.fastq.gz",
   "TestAtacPR.bin_size_list": "10000",
 
-  "TestAtacPR.input_reference": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/snapATAC_BWA/mm10/mm10.tar",
-  "TestAtacPR.genome_size_file": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/scATAC-seq/bwa_mm10/mm10.chrom.sizes",
+  "TestAtacPR.input_reference": "gs://broad-gotc-test-storage/scATAC/input/plumbing/reference/mm10/mm10.tar",
+  "TestAtacPR.genome_size_file": "gs://broad-gotc-test-storage/ATAC/inputs/scATAC-seq/bwa_mm10/mm10.chrom.sizes",
   "TestAtacPR.output_bam": "output.bam",
   "TestAtacPR.genome_name": "mm10"
 }

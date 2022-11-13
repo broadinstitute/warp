@@ -1,12 +1,22 @@
+# 5.5.5
+2022-09-20 (Date of Last Commit)
+
+* Updated tasks in StarAlign.wdl to use an updated STAR docker image. 
+
+# 5.5.4
+2022-09-01 (Date of Last Commit)
+
+* Updated CheckInputs.wdl to use a lightweight alpine-bash image.
+
 # 5.5.3
 2022-08-23 (Date of Last Commit)
 
-* Remove an unused script in pytools docker image and removed unused ConvertStarOutputs task.
+* Removed an unused script in pytools docker image and removed unused ConvertStarOutputs task.
 
 # 5.5.2
 2022-08-16 (Date of Last Commit)
 
-* Updated LoomUtils.wdl and StarAlign.wdl to use an updated python utilities docker.
+* Updated LoomUtils.wdl and StarAlign.wdl to use a rebuilt python utilities docker.
 
 # 5.5.1
 2022-07-21 (Date of Last Commit)

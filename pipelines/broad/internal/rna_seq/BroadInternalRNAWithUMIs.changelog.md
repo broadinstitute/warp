@@ -1,8 +1,25 @@
+# 1.0.19
+2022-10-12 (Date of Last Commit)
+
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+* Fixied whitespace in the BroadInternalRNAWithUMIS.wdl, this has no functional effect on the pipeline
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new optional input variable. This update has no effect on this pipeline.
+* Updated task FormatArraysOutputs in InternalArrraysTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+* Force task rnaseqc2 to produce an empty fragment size file when rnaseqc2 does not produce this file due to insufficient data.
+
+# 1.0.18
+2022-09-30 (Date of Last Commit)
+
+* Updated Picard-Python Docker image in Utilities.wdl to fix vulnerabilities.
+* Updated task IngestOutputsToTDR with GCR images instead of Dockerhub.
+
 # 1.0.17
-2022-07-28 (Date of Last Commit)
+2022-09-07 (Date of Last Commit)
 
 * Update TDR ingest script task and docker to remove staging bucket, specify timestamp fields, and use merge ingest strategy
 * Remove transcriptome bam index from output
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
 
 # 1.0.16
 2022-07-15 (Date of Last Commit)
