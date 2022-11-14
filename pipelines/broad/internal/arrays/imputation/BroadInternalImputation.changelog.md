@@ -4,8 +4,9 @@
 * remove workspace_bucket parameter from workflow inputs and IngestOutputsToTDR
 
 # 1.1.3
-2022-10-12 (Date of Last Commit)
+2022-11-10 (Date of Last Commit)
 
+* Added meta section to allowNestedInputs, this will allow task level inputs to be set in the inputs json
 * Added `in_load_tag` as optional input to task IngestOutputsToTDR.
 * Pass `in_load_tag` in the call to IngestToImputationWideOutputsTable (alias for IngestOutputsToTDR).
 
