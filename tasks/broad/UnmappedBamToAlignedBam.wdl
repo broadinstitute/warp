@@ -179,7 +179,8 @@ workflow UnmappedBamToAlignedBam {
       metrics_filename = aligned_bam_basename + ".duplicate_metrics",
       total_input_size = SumFloats.total_size,
       compression_level = compression_level,
-      preemptible_tries = if data_too_large_for_preemptibles then 0 else papi_settings.agg_preemptible_tries
+      preemptible_tries = if data_too_large_for_preemptibles then 0 else papi_settings.agg_preemptible_tries,
+      read_name_regex = "null"
   }
 
   # Sort aggregated+deduped BAM file and fix tags
