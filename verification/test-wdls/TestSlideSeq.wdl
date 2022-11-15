@@ -16,7 +16,6 @@ workflow TestSlideSeq {
       String read_structure
       File tar_star_reference
       File annotations_gtf
-      String whitelist
       String output_bam_basename
       Boolean count_exons
       File bead_locations
@@ -42,7 +41,6 @@ workflow TestSlideSeq {
         read_structure = read_structure,
         tar_star_reference = tar_star_reference,
         annotations_gtf = annotations_gtf,
-        whitelist = whitelist,
         output_bam_basename = output_bam_basename,
         count_exons = count_exons,
         bead_locations = bead_locations
