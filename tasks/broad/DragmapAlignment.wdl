@@ -31,7 +31,7 @@ task SamToFastqAndDragmapAndMba {
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
 
-    String docker = "us.gcr.io/broad-gotc-prod/dragmap@sha256:d155bf1dd17e9f23242a2b344ad0c05ea24e20eec8e71309a1009685969e6538"
+    String docker = "us.gcr.io/broad-gotc-prod/dragmap:1.1.2-1.2.1-2.27.5-1.11-1665750030"
     Int cpu = 16
     Float disk_multiplier = 8
     Int memory_mb = 40960
