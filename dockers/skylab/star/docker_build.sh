@@ -15,7 +15,7 @@ STAR_VERSION="2.7.9a"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)
-HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|tools] -- script to build the star image and push to GCR & Quay
+HELP="$(basename "$0") [-h|--help] [-v|--version] [-t|tools] -- script to build the star image and push to GCR
 where:
     -h|--help Show help text
     -v|--version Version of STAR to use (default: $STAR_VERSION)

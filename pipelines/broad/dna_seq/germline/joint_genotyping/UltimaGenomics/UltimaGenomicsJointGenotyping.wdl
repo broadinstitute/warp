@@ -1,12 +1,17 @@
 version 1.0
 
 import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
+import "https://raw.githubusercontent.com/broadinstitute/gatk/4.3.0.0/scripts/vcf_site_level_filtering_wdl/JointVcfFiltering.wdl" as Filtering
+import "../../../../../../tasks/broad/UltimaGenomicsGermlineFilteringThreshold.wdl" as FilteringThreshold
 
 
-# Joint Genotyping for hg38 Whole Genomes (has not been tested on hg19)
+# Joint Genotyping for hg38 Whole Genomes (has not been tested on hg19) sequenced with Ultima sequencer.
+# Joint genotyping performed with GenomicsDB, Filtering performed by GATK adaptable site level filtering pipeline.
+# Filtering thershold chosen with Ultima's variant calling package by maximizing F1 for a known truth sample.
+# For choosing a filtering threshold (where on the ROC curve to filter) a sample with truth data is required.
 workflow UltimaGenomicsJointGenotyping {
 
-  String pipeline_version = "1.0.0"
+  String pipeline_version = "1.1.0"
 
   input {
     File unpadded_intervals_file
@@ -33,6 +38,23 @@ workflow UltimaGenomicsJointGenotyping {
     # ExcessHet is a phred-scaled p-value. We want a cutoff of anything more extreme
     # than a z-score of -4.5 which is a p-value of 3.4e-06, which phred-scaled is 54.69
     Float excess_het_threshold = 54.69
+
+    #inputs for threshold filtering
+    String truth_sample_name
+    File truth_vcf
+    File truth_vcf_index
+    File truth_highconf_intervals
+    String call_sample_name
+    File ref_fasta_sdf
+    File runs_file
+    Array[File] annotation_intervals
+    String flow_order
+
+    #inputs for training and applying filter model
+    String snp_annotations
+    String indel_annotations
+    Boolean use_allele_specific_annotations
+    String model_backend
 
     Int? top_level_scatter_count
     Boolean? gather_vcfs
@@ -107,10 +129,17 @@ workflow UltimaGenomicsJointGenotyping {
           additional_annotation = "RawGtCount"
     }
 
-    call Tasks.HardFilterAndMakeSitesOnlyVcf {
+    #TODO: if this task becomes expensive or slow we should combine the functionality into GenotypeGVCFs in GATK
+    call Tasks.CalculateAverageAnnotations {
       input:
         vcf = GenotypeGVCFs.output_vcf,
-        vcf_index = GenotypeGVCFs.output_vcf_index,
+        vcf_index = GenotypeGVCFs.output_vcf_index
+    }
+
+    call Tasks.HardFilterAndMakeSitesOnlyVcf {
+      input:
+        vcf = CalculateAverageAnnotations.output_vcf,
+        vcf_index = CalculateAverageAnnotations.output_vcf_index,
         excess_het_threshold = excess_het_threshold,
         variant_filtered_vcf_filename = callset_name + "." + idx + ".variant_filtered.vcf.gz",
         sites_only_vcf_filename = callset_name + "." + idx + ".sites_only.variant_filtered.vcf.gz",
@@ -125,13 +154,47 @@ workflow UltimaGenomicsJointGenotyping {
       disk_size = medium_disk
   }
 
-  scatter (idx in range(length(HardFilterAndMakeSitesOnlyVcf.variant_filtered_vcf))) {
+  call Filtering.JointVcfFiltering as TrainAndApplyFilteringModel {
+    input:
+      vcf = CalculateAverageAnnotations.output_vcf,
+      vcf_index = CalculateAverageAnnotations.output_vcf_index,
+      sites_only_vcf = SitesOnlyGatherVcf.output_vcf,
+      sites_only_vcf_index = SitesOnlyGatherVcf.output_vcf_index,
+      snp_annotations = snp_annotations,
+      indel_annotations = indel_annotations,
+      model_backend = model_backend,
+      use_allele_specific_annotations = use_allele_specific_annotations,
+      basename = callset_name,
+      gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+  }
+
+  call FilteringThreshold.ExtractOptimizeSingleSample as FindFilteringThresholdAndFilter {
+    input:
+      input_vcf = TrainAndApplyFilteringModel.variant_scored_vcf,
+      input_vcf_index = TrainAndApplyFilteringModel.variant_scored_vcf_index,
+      base_file_name = callset_name,
+      call_sample_name = call_sample_name,
+      truth_vcf = truth_vcf,
+      truth_vcf_index = truth_vcf_index,
+      truth_highconf_intervals = truth_highconf_intervals,
+      truth_sample_name = truth_sample_name,
+      flow_order = flow_order,
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
+      ref_dict = ref_dict,
+      ref_fasta_sdf = ref_fasta_sdf,
+      runs_file = runs_file,
+      annotation_intervals = annotation_intervals,
+      medium_disk = medium_disk
+  }
+
+  scatter (idx in range(length(TrainAndApplyFilteringModel.variant_scored_vcf))) {
     # For large callsets we need to collect metrics from the shards and gather them later.
     if (!is_small_callset) {
       call Tasks.CollectVariantCallingMetrics as CollectMetricsSharded {
         input:
-          input_vcf = HardFilterAndMakeSitesOnlyVcf.variant_filtered_vcf[idx],
-          input_vcf_index = HardFilterAndMakeSitesOnlyVcf.variant_filtered_vcf_index[idx],
+          input_vcf = FindFilteringThresholdAndFilter.output_vcf[idx],
+          input_vcf_index = FindFilteringThresholdAndFilter.output_vcf_index[idx],
           metrics_filename_prefix = callset_name + "." + idx,
           dbsnp_vcf = dbsnp_vcf,
           dbsnp_vcf_index = dbsnp_vcf_index,
@@ -146,7 +209,7 @@ workflow UltimaGenomicsJointGenotyping {
   if (is_small_callset) {
     call Tasks.GatherVcfs as FinalGatherVcf {
       input:
-        input_vcfs = HardFilterAndMakeSitesOnlyVcf.variant_filtered_vcf,
+        input_vcfs = FindFilteringThresholdAndFilter.output_vcf,
         output_vcf_name = callset_name + ".vcf.gz",
         disk_size = huge_disk
     }
@@ -255,20 +318,16 @@ workflow UltimaGenomicsJointGenotyping {
   File output_summary_metrics_file = select_first([CollectMetricsOnFullVcf.summary_metrics_file, GatherVariantCallingMetrics.summary_metrics_file])
 
   # Get the VCFs from either code path
-  Array[File?] output_vcf_files = if defined(FinalGatherVcf.output_vcf) then [FinalGatherVcf.output_vcf] else HardFilterAndMakeSitesOnlyVcf.variant_filtered_vcf
-  Array[File?] output_vcf_index_files = if defined(FinalGatherVcf.output_vcf_index) then [FinalGatherVcf.output_vcf_index] else HardFilterAndMakeSitesOnlyVcf.variant_filtered_vcf_index
+  Array[File?] output_vcf_files = if defined(FinalGatherVcf.output_vcf) then [FinalGatherVcf.output_vcf] else FindFilteringThresholdAndFilter.output_vcf
+  Array[File?] output_vcf_index_files = if defined(FinalGatherVcf.output_vcf_index) then [FinalGatherVcf.output_vcf_index] else FindFilteringThresholdAndFilter.output_vcf_index
 
   output {
     # Metrics from either the small or large callset
-    File unfiltered_detail_metrics_file = output_detail_metrics_file
-    File unfiltered_summary_metrics_file = output_summary_metrics_file
+    File detail_metrics_file = output_detail_metrics_file
+    File summary_metrics_file = output_summary_metrics_file
 
-    # Outputs from the small callset path through the wdl.
-    Array[File] unfiltered_output_vcfs = select_all(output_vcf_files)
-    Array[File] unfiltered_output_vcf_indices = select_all(output_vcf_index_files)
-
-    File unfiltered_sites_only_vcf = SitesOnlyGatherVcf.output_vcf
-    File unfiltered_sites_only_vcf_index = SitesOnlyGatherVcf.output_vcf_index
+    Array[File] output_vcfs = select_all(output_vcf_files)
+    Array[File] output_vcf_indices = select_all(output_vcf_index_files)
 
     # Output the interval list generated/used by this run workflow.
     Array[File] output_intervals = SplitIntervalList.output_intervals

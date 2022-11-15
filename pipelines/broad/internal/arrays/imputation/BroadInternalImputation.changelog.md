@@ -1,5 +1,30 @@
+# 1.1.4
+2022-11-08 (Date of Last Commit)
+
+* remove workspace_bucket parameter from workflow inputs and IngestOutputsToTDR
+
+# 1.1.3
+2022-11-10 (Date of Last Commit)
+
+* Added meta section to allowNestedInputs, this will allow task level inputs to be set in the inputs json
+* Added `in_load_tag` as optional input to task IngestOutputsToTDR.
+* Pass `in_load_tag` in the call to IngestToImputationWideOutputsTable (alias for IngestOutputsToTDR).
+
+* New GCR image tag in task FormatImputationOutputs and task FormatImputationWideOutputs.
+
+# 1.1.2
+2022-09-27 (Date of Last Commit)
+
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
+# 1.1.1
+2022-09-30 (Date of Last Commit)
+
+* Updated Picard-Python, BCFTools/VCFTools, and Minimac4 Docker images to fix vulnerabilities.
+* Updated tasks FormatImputationOutputs, FormatImputationWideOutputs, and IngestOutputsToTDR with GCR images instead of Dockerhub.
+
 # 1.1.0
-2022-09-06 (Date of Last Commit)
+2022-09-20 (Date of Last Commit)
 
 * Updated call to IngestOutputsToTDR to remove 'prefix_column'. Python script has been updated and not longer requires this input parameter.
 * Update task IngestOutputsToTDR to not require 'prefix_column'. Python script has been updated and not longer requires this input parameter.
@@ -7,6 +32,7 @@
 * Update task FormatImputationOutputs with new docker tag.
 * Update task FormatImputationWideOutputs with new docker tag.
 * Update task IngestOutputsToTDR with new docker tag.
+* Update tasks FormatImputationOutputs, FormatImputationWideOutputs, and IngestOutputsToTDR with GCR image instead of DockerHub image.
 
 # 1.0.9
 2022-08-29 (Date of Last Commit)

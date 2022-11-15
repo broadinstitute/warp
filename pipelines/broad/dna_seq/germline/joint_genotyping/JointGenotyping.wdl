@@ -6,7 +6,7 @@ import "../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 # Joint Genotyping for hg38 Whole Genomes and Exomes (has not been tested on hg19)
 workflow JointGenotyping {
 
-  String pipeline_version = "1.6.3"
+  String pipeline_version = "1.6.4"
 
   input {
     File unpadded_intervals_file

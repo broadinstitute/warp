@@ -8,8 +8,8 @@
   "SmartSeq2SingleSample.gene_ref_flat": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.refflat.txt",
   "SmartSeq2SingleSample.hisat2_ref_name": "hisat2_primary_gencode_mouse_vM21",
   "SmartSeq2SingleSample.stranded":"NONE",
-  "SmartSeq2SingleSample.fastq1":"gs://hca-dcp-mint-test-data/datasets/sloan_sa_astrocytes/SRR5676728_1.fastq.gz",
-  "SmartSeq2SingleSample.fastq2":"gs://hca-dcp-mint-test-data/datasets/sloan_sa_astrocytes/SRR5676728_2.fastq.gz",
+  "SmartSeq2SingleSample.fastq1":"gs://broad-gotc-test-storage/MultiSampleSmartSeq2/truth/plumbing/master/pr_test_truth_fastq/SRR5676728_1.fastq.gz",
+  "SmartSeq2SingleSample.fastq2":"gs://broad-gotc-test-storage/MultiSampleSmartSeq2/truth/plumbing/master/pr_test_truth_fastq/SRR5676728_2.fastq.gz",
   "SmartSeq2SingleSample.input_id":"SRR5676728",
   "SmartSeq2SingleSample.output_name":"SRR5676728",
   "SmartSeq2SingleSample.paired_end":true
