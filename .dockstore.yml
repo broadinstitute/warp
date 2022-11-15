@@ -11,3 +11,7 @@ workflows:
   - name: VUMCFastqQC
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFastqQC.wdl
+
+  - name: VUMCCramQC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCCramQC.wdl
