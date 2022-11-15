@@ -376,4 +376,9 @@ workflow Imputation {
     File failed_chunks = StoreChunksInfo.failed_chunks
     File n_failed_chunks = StoreChunksInfo.n_failed_chunks
   }
+
+  meta {
+    allowNestedInputs: true
+  }
+
 }

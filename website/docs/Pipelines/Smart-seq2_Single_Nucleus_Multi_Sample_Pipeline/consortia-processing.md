@@ -21,7 +21,7 @@ All reference files are available in a public Google bucket (see table below) an
 | `annotations_gtf` | gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_gencode.vM23.primary_assembly.annotation.gtf | https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M23/gencode.vM23.annotation.gtf.gzf | Modified GENCODE GTF including intron annotations that can be used for intron counting with featureCounts. |
 | `genome_ref_fasta` | gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_mm10.primary_assembly.genome.fa | https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M23/GRCm38.p6.genome.fa.gz | FASTA file used to create the STAR reference files. |
 | `tar_star_reference` | gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/star/modified_star_2.7.9a_primary_gencode_mouse_vM23.tar | NA — built with the BuildIndices workflow. | Reference files used for alignment with STAR. |
-| `adapter_list` | gs://hca-dcp-sc-pipelines-test-data/adapters/Illumina_adapters_list.fa | See Illumina's overview on [adapter sequences](https://support.illumina.com/bulletins/2016/12/what-sequences-do-i-use-for-adapter-trimming.html). | List of adapter sequences used for trimming. |
+| `adapter_list` | gs://broad-gotc-test-storage/MultiSampleSmartSeq2SingleNucleus/adapters/Illumina_adapters_list.fa | See Illumina's overview on [adapter sequences](https://support.illumina.com/bulletins/2016/12/what-sequences-do-i-use-for-adapter-trimming.html). | List of adapter sequences used for trimming. |
 
 
 

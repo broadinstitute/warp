@@ -1,3 +1,8 @@
+# 1.0.9 
+2022-11-08 (Date of Last Commit)
+
+* remove workspace_bucket parameter from workflow inputs and IngestOutputsToTDR
+
 # 1.0.8
 2022-10-12 (Date of Last Commit)
 
