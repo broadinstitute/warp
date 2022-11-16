@@ -3,7 +3,7 @@ version 1.0
 #WORKFLOW DEFINITION   
 workflow VUMCCramQC {
     input {
-        File input_cram
+        Array[File] input_cram
 
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.0.0"
         String gatk_path = "/gatk/gatk"
