@@ -45,11 +45,13 @@ In the use case above, it makes sense to combine the bash operations and STAR. T
 
 Keep in mind there might be scenarios where splitting out more intensive bash operations might make sense. For example, if your bash operations are time intensive and your tool is not very reliable, you might want to save the outputs of your bash functions before moving on to running the tool. In this case, it would make sense to keep the bash commands and your tool in separate WDL tasks to avoid rerunning them both.
 
+Similarly, there are exceptions to modularization of tools. For example, if you're working with a lot of intermediate files, it might make sense to string two tools together in a single task if it helps avoid costly egress. Always keep in mind the reliability of your tools and remember that these tips are guidelines, not hard rules. 
+
 ## Tip 3: Avoid input/output timing costs (moving and loading lots of files)
 
 Just like starting a VM has some overhead cost, localizing files also has some downsides, including using more time in your VM. And the more time you spend, the more your cost will go up. Your VM needs to find all your cloud files in order to run them through your different tools. That means if you have thousands of files, you’ll have to run initialization steps for each of them, which can take a bit of time and networking. 
 
-Each time you move cloud files, you pay egress for the network transitions, so it’s important to find the balance in the number of files you decide to move. You have to weigh whether it costs more to move a large file vs. moving several smaller files. For example, you might find that it’s more cost-efficient to move a zipped ~100 GB file than to move 100, 1 GB files. After running a  test workflow, check your workflow logs to see what the timing is for localizing and moving files vs. running your tool. This might require trial and error when developing your workflow. 
+Each time you move cloud files, you pay egress for the network transitions, so it’s important to find the balance in the number of files you decide to move. You have to weigh whether it costs more to move a large file vs. moving several smaller files. For example, you might find that it’s more cost-efficient to move a zipped \~100 GB file than to move 100, 1 GB files. After running a  test workflow, check your workflow logs to see what the timing is for localizing and moving files vs. running your tool. This might require trial and error when developing your workflow. 
 
 ## Tip 4: Run files in parallel when possible 
 If you need to run multiple files through a tool, you’ll have to decide whether to scatter those files across multiple VMs (running the tool in parallel), or run the files sequentially through the tool in one VM. 
@@ -79,6 +81,8 @@ workflow ScatterGatherExample {
 ```
 
 If one of the BAM files in the array fails to run through HaplotypeCaller, the remaining files will still be stored. In consequence, you can rerun the WDL to analyze the failed file and not waste additional resources rerunning the files that already successfully ran through the task.
+
+Another consideration when running files in parallel is that to make sure that that files are split into roughly equal sized chunks. This is important if, for example, you have hard-coded values for memory and disk. In that case, each shard will get as much memory and disk as needed for your largest shard and the largest one can sometimes require a long time to run.
 
 As with the other tips, running in parallel might not be necessary for all use cases. If you’re running smaller and fewer files, you can save money by running sequentially through the task in a single VM. 
 
