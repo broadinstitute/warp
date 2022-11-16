@@ -20,7 +20,7 @@ workflow VUMCCramQC {
         input:
             input_cram = oneInput,
             sample_basename = sample_basename,
-            ref_fasta = ref_fasta
+            ref_fasta = ref_fasta,
             docker = gatk_docker,
             gatk_path = gatk_path
     }
