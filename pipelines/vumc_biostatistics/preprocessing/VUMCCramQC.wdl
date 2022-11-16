@@ -13,7 +13,7 @@ workflow VUMCCramQC {
       File validation_reports = ValidateCRAM.validation_report
     }
 
-  scatter oneInput in input_crams {
+  scatter (oneInput in input_crams) {
     String sample_basename = basename(oneInput, ".cram")
     call ValidateCRAM {
         input:
