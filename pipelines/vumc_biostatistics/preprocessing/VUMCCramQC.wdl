@@ -4,7 +4,7 @@ version 1.0
 workflow VUMCCramQC {
     input {
         Array[File] input_cram
-
+        String sample_name
         String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.0.0"
         String gatk_path = "/gatk/gatk"
     }
@@ -13,12 +13,10 @@ workflow VUMCCramQC {
       File validation_reports = ValidateCRAM.validation_report
     }
 
-    String sample_basename = basename(input_cram, ".cram")
-
     call ValidateCRAM {
         input:
             input_cram = input_cram,
-            sample_basename = sample_basename,
+            sample_basename = sample_name,
             docker = gatk_docker,
             gatk_path = gatk_path
     }
