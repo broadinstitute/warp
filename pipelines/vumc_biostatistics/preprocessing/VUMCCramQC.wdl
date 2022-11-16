@@ -4,6 +4,7 @@ version 1.0
 workflow VUMCCramQC {
     input {
         Array[File] input_crams
+        File ref_fasta
     }
   
   String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.0.0"
@@ -31,6 +32,7 @@ task ValidateCRAM {
   input {
     # Command parameters
     File input_cram
+    File ref_fasta
     String sample_basename
     String? validation_mode
     String gatk_path
@@ -50,6 +52,7 @@ task ValidateCRAM {
       --INPUT ${input_cram} \
       --OUTPUT ${output_name} \
       --MODE ${default="VERBOSE" validation_mode}
+      --REFERENCE_SEQUENCE ${ref_fasta}
   }
   runtime {
     docker: docker
