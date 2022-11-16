@@ -49,7 +49,7 @@ task ValidateCRAM {
       ValidateSamFile \
       --INPUT ${input_cram} \
       --OUTPUT ${output_name} \
-      --MODE ${default="SUMMARY" validation_mode}
+      --MODE ${default="VERBOSE" validation_mode}
   }
   runtime {
     docker: docker
