@@ -1,4 +1,5 @@
 version 1.0
+
 #WORKFLOW DEFINITION   
 workflow VUMCCramQC {
     input {
@@ -9,7 +10,7 @@ workflow VUMCCramQC {
     }
 
     output {
-    Array[File] validation_reports = ValidateCRAM.validation_report
+      File validation_reports = ValidateCRAM.validation_report
     }
 
     String sample_basename = basename(input_cram, ".cram")
@@ -39,7 +40,7 @@ task ValidateCRAM {
     Int addtional_disk_space_gb = 50
   }
     
-  Int disk_size = ceil(size(input_bam, "GB")) + addtional_disk_space_gb
+  Int disk_size = ceil(size(input_cram, "GB")) + addtional_disk_space_gb
   String output_name = "${sample_basename}_${validation_mode}.txt"
  
   command {
