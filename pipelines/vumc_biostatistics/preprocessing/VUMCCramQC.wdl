@@ -10,7 +10,7 @@ workflow VUMCCramQC {
   String gatk_path = "/gatk/gatk"
 
     output {
-      File validation_reports = ValidateCRAM.validation_report
+      Array[File] validation_reports = ValidateCRAM.validation_report
     }
 
   scatter (oneInput in input_crams) {
