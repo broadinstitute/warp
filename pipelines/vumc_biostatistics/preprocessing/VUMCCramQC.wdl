@@ -27,7 +27,7 @@ workflow VUMCCramQC {
 task ValidateCRAM {
   input {
     # Command parameters
-    File input_cram
+    Array[File] input_cram
     String sample_basename
     String? validation_mode
     String gatk_path
