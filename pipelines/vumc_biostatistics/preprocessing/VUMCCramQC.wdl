@@ -52,7 +52,7 @@ task ValidateCRAM {
       ValidateSamFile \
       --INPUT ${input_cram} \
       --OUTPUT ${output_name} \
-      --MODE ${default="VERBOSE" validation_mode}
+      --MODE ${default="VERBOSE" validation_mode} \
       --REFERENCE_SEQUENCE ${ref_fasta}
   }
   runtime {
