@@ -2,27 +2,25 @@ version 1.0
 
 #WORKFLOW DEFINITION   
 workflow VUMCCramQC {
-    input {
-        File input_cram
+  input {
+    Array[File] input_crams
+    String sample_name
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_path = "/gatk/gatk"
+  }
 
-        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
-        String gatk_path = "/gatk/gatk"
-    }
+  output {
+    File cram_qc_reports = ValidateCRAM.validation_report
+    Int cram_qc_failed = ValidateCRAM.cram_qc_failed
+  }
 
-    output {
-      File cram_qc_reports = ValidateCRAM.validation_report
-      Int cram_qc_failed = ValidateCRAM.cram_qc_failed
-    }
-
-    String sample_basename = basename(input_cram, ".cram")
-
-    call ValidateCRAM {
-        input:
-            input_cram = input_cram,
-            sample_basename = sample_basename,
-            docker = gatk_docker,
-            gatk_path = gatk_path
-    }
+  call ValidateCRAM {
+    input:
+      input_crams = input_crams,
+      sample_name = sample_name,
+      docker = gatk_docker,
+      gatk_path = gatk_path
+  }
 }
 
 # TASK DEFINITIONS
@@ -30,9 +28,9 @@ workflow VUMCCramQC {
 task ValidateCRAM {
   input {
     # Command parameters
-    File input_cram
-    String sample_basename
-    String? validation_mode
+    Array[File] input_crams
+    String sample_name
+    String validation_mode = "SUMMARY"
     String gatk_path
   
     # Runtime parameters
@@ -41,19 +39,36 @@ task ValidateCRAM {
     Int addtional_disk_space_gb = 50
   }
     
-  Int disk_size = ceil(size(input_cram, "GB")) + addtional_disk_space_gb
-  String output_name = "${sample_basename}_${validation_mode}.txt"
-  String res_file = "${sample_basename}_res.txt"
+  Int disk_size = ceil(size(input_crams, "GB")) + addtional_disk_space_gb
+  String output_name = "${sample_name}_${validation_mode}.txt"
+  String res_file = "${sample_name}_res.txt"
  
   command {
-    ${gatk_path} \
-      ValidateSamFile \
-      --INPUT ${input_cram} \
-      --OUTPUT ${output_name} \
-      --MODE ${default="SUMMARY" validation_mode}
+    echo "0" > ~{res_file}
 
-    status=$?
-    echo "$status" > ~{res_file}
+    for input_cram in ~{sep=" " input_crams}
+    do
+      f="$(basename -- $input_cram)"
+
+      ~{gatk_path} \
+        ValidateSamFile \
+        --INPUT $input_cram \
+        --OUTPUT validate.summary \
+        --MODE ~{validation_mode}
+
+      status=$?
+      if [[ $status != 0 ]]; then
+        echo "$status" > ~{res_file}
+      fi
+
+      echo "$f" >> ~{output_name}
+      if [[ -s validate.summary ]]; then
+        cat validate.summary >> ~{output_name}
+        rm -f validate.summary
+      else
+        echo "no summary genereated" >> ~{output_name}
+      fi
+    done
   }
   runtime {
     docker: docker
@@ -61,7 +76,7 @@ task ValidateCRAM {
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
-    File validation_report = "${output_name}"
+    File validation_report = "~{output_name}"
     Int cram_qc_failed = read_int("~{res_file}")
   }
 }

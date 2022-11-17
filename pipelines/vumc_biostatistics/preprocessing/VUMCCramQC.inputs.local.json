@@ -1,4 +1,5 @@
 {
-  "VUMCCramQC.input_cram": "/scratch/cqs/shengq2/smallrna_example/Water.cram"
+  "VUMCCramQC.input_crams": ["/scratch/cqs/shengq2/smallrna_example/Water.cram"],
+  "VUMCCramQC.sample_name": "Water"
 }
 
