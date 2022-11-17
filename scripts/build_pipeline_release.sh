@@ -33,7 +33,7 @@ function make_release() {
   local -r outputVersionedPrefix=${outputPrefix}${version}
   
   # Strip the paths out of the root WDL imports
-  sed -E 's/import "(.*)\/(.*\'${WDL_SUFFIX}')"/import "\2"/g' ${rootWdl} > ${outputVersionedPrefix}${WDL_SUFFIX}
+  sed -E '/http/! s/import "(.*)\/(.*\'${WDL_SUFFIX}')"/import "\2"/g' ${rootWdl} > ${outputVersionedPrefix}${WDL_SUFFIX}
 
   write_options ${rootWdl} ${outputVersionedPrefix}
 
@@ -77,7 +77,7 @@ function write_dependencies_zip() {
 
   for file in ${dependencies[@]}; do
     flattened_name=$(basename ${file})
-    sed -E 's/import "(.*)\/(.*\'${WDL_SUFFIX}')"/import "\2"/g' ${file} > ${working_dir}/${flattened_name}
+    sed -E '/http/! s/import "(.*)\/(.*\'${WDL_SUFFIX}')"/import "\2"/g' ${file} > ${working_dir}/${flattened_name}
     zip -j ${versioned_dependencies_zip} ${working_dir}/${flattened_name}
   done
   rm -rf ${working_dir}

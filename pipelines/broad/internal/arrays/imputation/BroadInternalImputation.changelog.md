@@ -1,3 +1,22 @@
+# 1.1.4
+2022-11-08 (Date of Last Commit)
+
+* remove workspace_bucket parameter from workflow inputs and IngestOutputsToTDR
+
+# 1.1.3
+2022-11-10 (Date of Last Commit)
+
+* Added meta section to allowNestedInputs, this will allow task level inputs to be set in the inputs json
+* Added `in_load_tag` as optional input to task IngestOutputsToTDR.
+* Pass `in_load_tag` in the call to IngestToImputationWideOutputsTable (alias for IngestOutputsToTDR).
+
+* New GCR image tag in task FormatImputationOutputs and task FormatImputationWideOutputs.
+
+# 1.1.2
+2022-09-27 (Date of Last Commit)
+
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
 # 1.1.1
 2022-09-30 (Date of Last Commit)
 

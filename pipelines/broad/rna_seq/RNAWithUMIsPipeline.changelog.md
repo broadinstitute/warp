@@ -1,3 +1,9 @@
+# 1.0.9
+2022-10-11 (Date of Last Commit)
+
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+* Force task rnaseqc2 to produce an empty fragment size file when rnaseqc2 does not produce this file due to insufficient data.
+
 # 1.0.8
 2022-07-29 (Date of Last Commit)
 
