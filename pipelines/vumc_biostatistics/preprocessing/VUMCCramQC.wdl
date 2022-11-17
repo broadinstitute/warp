@@ -5,12 +5,13 @@ workflow VUMCCramQC {
     input {
         File input_cram
 
-        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.0.0"
+        String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
         String gatk_path = "/gatk/gatk"
     }
 
     output {
-      File validation_reports = ValidateCRAM.validation_report
+      File cram_qc_reports = ValidateCRAM.validation_report
+      Int cram_qc_failed = ValidateCRAM.cram_qc_failed
     }
 
     String sample_basename = basename(input_cram, ".cram")
@@ -42,6 +43,7 @@ task ValidateCRAM {
     
   Int disk_size = ceil(size(input_cram, "GB")) + addtional_disk_space_gb
   String output_name = "${sample_basename}_${validation_mode}.txt"
+  String res_file = "${sample_basename}_res.txt"
  
   command {
     ${gatk_path} \
@@ -49,6 +51,9 @@ task ValidateCRAM {
       --INPUT ${input_cram} \
       --OUTPUT ${output_name} \
       --MODE ${default="SUMMARY" validation_mode}
+
+    status=$?
+    echo "$status" > ~{res_file}
   }
   runtime {
     docker: docker
@@ -57,5 +62,6 @@ task ValidateCRAM {
   }
   output {
     File validation_report = "${output_name}"
+    Int cram_qc_failed = read_int("~{res_file}")
   }
 }
