@@ -82,7 +82,7 @@ workflow ScatterGatherExample {
 
 If one of the BAM files in the array fails to run through HaplotypeCaller, the remaining files will still be stored. In consequence, you can rerun the WDL to analyze the failed file and not waste additional resources rerunning the files that already successfully ran through the task.
 
-Another consideration when running files in parallel is that to make sure that that files are split into roughly equal sized chunks. This is important if, for example, you have hard-coded values for memory and disk. In that case, each shard will get as much memory and disk as needed for your largest shard and the largest one can sometimes require a long time to run.
+Another consideration when running files in parallel is to make sure that files are split into roughly equal size chunks. This is important if, for example, you have hard-coded values for memory and disk. In that case, each shard will get as much memory and disk as needed for your largest shard and the largest one can sometimes require a long time to run.
 
 As with the other tips, running in parallel might not be necessary for all use cases. If you’re running smaller and fewer files, you can save money by running sequentially through the task in a single VM. 
 
