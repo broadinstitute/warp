@@ -12,7 +12,7 @@ workflow BroadInternalImputation {
     String pipeline_version = "1.1.4"
     
     input {
-        # inputs to wrapper task
+        # inputs to wrapper task 
         String tdr_dataset_id
         String tdr_target_table_name
         String prs_cf_trigger_bucket_path
