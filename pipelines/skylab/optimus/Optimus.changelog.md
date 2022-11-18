@@ -1,3 +1,8 @@
+# 5.5.6
+2022-11-18 (Date of Last Commit)
+
+* SlideSeq-specific changes to FastqProcessing.wdl, LoomUtils.wdl, Metrics.wdl, and StarAlign.wdl. This change does not affect the Optimus pipeline.
+
 # 5.5.5
 2022-09-20 (Date of Last Commit)
 
