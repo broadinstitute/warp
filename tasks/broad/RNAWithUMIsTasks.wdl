@@ -617,6 +617,14 @@ task GroupByUMIs {
   command <<<
     bash ~{monitoring_script} > monitoring.log &
 
+    # umi_tools has a bug which lead to using the order of elements in a set to determine tie-breakers in
+    # rare edge-cases.  Sets in python are unordered, so this leads to non-determinism.  Setting PYTHONHASHSEED
+    # to 0 means that hashes will be unsalted.  While it is not in any way gauranteed by the language that this
+    # will remove the non-determinism, in practice, due to implementation details of sets in cpython, this makes seemingly
+    # deterministic behavior much more likely
+
+    export PYTHONHASHSEED=0
+
     umi_tools group -I ~{bam} --paired --no-sort-output --output-bam --stdout ~{output_bam_basename}.bam --umi-tag-delimiter "-" \
     --extract-umi-method tag --umi-tag RX --unmapped-reads use
   >>>
