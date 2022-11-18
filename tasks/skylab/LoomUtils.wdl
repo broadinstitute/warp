@@ -392,14 +392,14 @@ task SlideSeqLoomOutput {
     String input_id
     String pipeline_version
 
-    String docker = "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.6-3"
+    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.1-1668787591"
     Int disk_size_gb = 200
     Int memory_mb = 18000
     Int cpu = 4
   }
 
   command <<<
-    python3 /tools/create_loom_slide_seq.py \
+    python3 /usr/gitc/create_loom_slide_seq.py \
        --bead_locations ~{bead_locations} \
        --annotation_file ~{annotation_file} \
        --cell_metrics ~{cell_metrics} \
