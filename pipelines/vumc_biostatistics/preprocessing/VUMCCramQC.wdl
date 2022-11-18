@@ -32,6 +32,7 @@ task ValidateCRAM {
     String sample_name
     String validation_mode = "SUMMARY"
     String gatk_path
+    File? reference_file
   
     # Runtime parameters
     String docker
@@ -49,12 +50,21 @@ task ValidateCRAM {
     for input_cram in ~{sep=" " input_crams}
     do
       f="$(basename -- $input_cram)"
-
-      ~{gatk_path} \
-        ValidateSamFile \
-        --INPUT $input_cram \
-        --OUTPUT validate.summary \
-        --MODE ~{validation_mode}
+      if [-s $reference_file]
+        then
+        ~{gatk_path} \
+          ValidateSamFile \
+          --INPUT $input_cram \
+          --OUTPUT validate.summary \
+          --MODE ~{validation_mode} \
+          --REFERENCE_SEQUENCE $reference_file
+        else
+        ~{gatk_path} \
+          ValidateSamFile \
+          --INPUT $input_cram \
+          --OUTPUT validate.summary \
+          --MODE ~{validation_mode} 
+      fi
 
       status=$?
       if [[ $status != 0 ]]; then
