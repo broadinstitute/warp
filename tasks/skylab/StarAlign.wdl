@@ -6,7 +6,7 @@ task StarAlignBamSingleEnd {
     File tar_star_reference
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:v0.2.2-2.5.3a-40ead6e"
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658781884"
     Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -72,7 +72,7 @@ task StarAlignFastqPairedEnd {
     File tar_star_reference
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658781884"
     Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.

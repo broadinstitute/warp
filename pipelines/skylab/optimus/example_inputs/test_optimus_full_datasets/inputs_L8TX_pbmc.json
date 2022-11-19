@@ -29,7 +29,7 @@
 "gs://hca-dcp-sc-pipelines-test-data/referenceData/fastq/chemistry_X10_V2/L8TX/L8TX_180221_01_F12_I1.fastq.gz",
 "gs://hca-dcp-sc-pipelines-test-data/referenceData/fastq/chemistry_X10_V2/L8TX/L8TX_180221_01_G12_I1.fastq.gz"
   ],
-  "Optimus.whitelist": "gs://hca-dcp-sc-pipelines-test-data/whitelists/737K-august-2016.txt",
+  "Optimus.whitelist": "gs://broad-gotc-test-storage/Optimus/truth/plumbing/master/inputs/737K-august-2016.txt",
   "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/hg38/v0/star/star_2.7.9a_primary_gencode_human_v27.tar", 
   "Optimus.input_id": "8k_pbmc",
   "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/hg38/v0/gencode.v27.primary_assembly.annotation.gtf", 

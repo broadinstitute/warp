@@ -16,7 +16,7 @@ task ValidateSnSmartSeq2 {
     set -eo pipefail
 
     #compare looms
-    python3 /tools/loomCompare.py --truth-loom ~{truth_loom} --check-loom ~{loom_output} --delta-cutoff 10
+    python3 /usr/gitc/loomCompare.py --truth-loom ~{truth_loom} --check-loom ~{loom_output} --delta-cutoff 10
 
     # calculate hashes; awk is used to extract the hash from the md5sum output that contains both
     # a hash and the filename that was passed. We parse the first 7 columns because a bug in RSEM
@@ -32,7 +32,7 @@ task ValidateSnSmartSeq2 {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3-fk-2"
+    docker: "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
     cpu: 1
     memory: "8 GB"
     disks: "local-disk 1${disk_size} HDD"

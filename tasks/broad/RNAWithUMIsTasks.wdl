@@ -316,6 +316,8 @@ task rnaseqc2 {
 
   command <<<
     set -euo pipefail
+    # force fragmentSizes histogram output file to exist (even if empty)
+    touch ~{sample_id}.fragmentSizes.txt
     echo $(date +"[%b %d %H:%M:%S] Running RNA-SeQC 2")
     rnaseqc ~{genes_gtf} ~{bam_file} . -s ~{sample_id} -v --bed ~{exon_bed}
     echo "  * compressing outputs"

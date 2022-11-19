@@ -43,7 +43,7 @@ workflow UltimaGenomicsWholeGenomeCramOnly {
     save_bam_file: "If true, then save intermeidate ouputs used by germline pipeline (such as the output BAM) otherwise they won't be kept as outputs."
   }
 
-  String pipeline_version = "1.0.2"
+  String pipeline_version = "1.0.5"
 
   References references = alignment_references.references
 
@@ -67,7 +67,8 @@ workflow UltimaGenomicsWholeGenomeCramOnly {
       reads_per_split               = reads_per_split,
       rsq_threshold                 = rsq_threshold,
       alignment_references          = alignment_references,
-      references                    = references
+      references                    = references,
+      save_bam_file                 = save_bam_file
   }
 
   # Convert the final merged recalibrated BAM file to CRAM format
@@ -117,13 +118,6 @@ workflow UltimaGenomicsWholeGenomeCramOnly {
       flow_order                            = ExtractSampleNameFlowOrder.flow_order
   }
 
-  call Utilities.MakeOptionalOutputBam {
-    input:
-      bam_input = AlignmentAndMarkDuplicates.output_bam,
-      bai_input = AlignmentAndMarkDuplicates.output_bam_index,
-      keep_inputs = save_bam_file
-  }
-
   # Outputs that will be retained when execution is complete
   output {
     File output_cram = ConvertToCram.output_cram
@@ -155,8 +149,8 @@ workflow UltimaGenomicsWholeGenomeCramOnly {
     String id = ExtractSampleNameFlowOrder.readgroup_id
 
     #Intermediate outputs required for germline pipeline
-    File? output_bam = MakeOptionalOutputBam.optional_output_bam
-    File? output_bam_index = MakeOptionalOutputBam.optional_output_bai
+    File? output_bam = AlignmentAndMarkDuplicates.optional_output_bam
+    File? output_bam_index = AlignmentAndMarkDuplicates.optional_output_bam_index
 
     String output_safe_name = MakeSafeFilename.output_safe_name
   }

@@ -5,7 +5,6 @@
 Copy and paste to pull this image
 
 #### `docker pull us.gcr.io/broad-gotc-prod/ea-utils:1.0.0-1.04.807-1659990665`
-`
 
 - __What is this image:__ This image is an Ubuntu-based custom image for running ea-utils.
 - __What is ea-utils:__  ea-utils includes tools for processing biological sequencing data, [more info](http://expressionanalysis.github.io/ea-utils/).
