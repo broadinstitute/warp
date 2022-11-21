@@ -9,7 +9,6 @@ workflow BroadInternalRNAWithUMIs {
 
   String pipeline_version = "1.0.19"
 
-
   input {
     # input needs to be either "hg19" or "hg38"
     String reference_build
