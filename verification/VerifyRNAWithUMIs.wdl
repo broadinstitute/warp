@@ -46,7 +46,8 @@ workflow VerifyRNAWithUMIs {
     input:
       test_bam = test_transcriptome_bam,
       truth_bam = truth_transcriptome_bam,
-      lenient_header = true
+      lenient_header = true,
+      lenient_low_mq = true
   }
 
   call VerifyTasks.CompareCompressedTextFiles as CompareGeneTpms {

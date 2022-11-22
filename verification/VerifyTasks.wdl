@@ -199,6 +199,7 @@ task CompareBams {
     File test_bam
     File truth_bam
     Boolean lenient_header = false
+    Boolean lenient_low_mq = false
   }
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
@@ -213,7 +214,8 @@ task CompareBams {
           ~{test_bam} \
           ~{truth_bam} \
           O=comparison.tsv \
-          LENIENT_HEADER=~{lenient_header}
+          LENIENT_HEADER=~{lenient_header} \
+          LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq}
   }
 
   runtime {
