@@ -8,6 +8,7 @@
 * Updated task FormatArraysOutputs in InternalArrraysTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
 * Force task rnaseqc2 to produce an empty fragment size file when rnaseqc2 does not produce this file due to insufficient data.
 * Removed workspace_bucket workflow parameter from BroadInternalArrays and BroadInternalImputation.
+* Update rnaseqc2 version to address bias metric edge cases
 * Turn off python hash salting in GroupByUMIs to mitigate non-determinism in umi_tools.
 
 # 1.0.18

@@ -3,6 +3,7 @@
 
 * Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
 * Force task rnaseqc2 to produce an empty fragment size file when rnaseqc2 does not produce this file due to insufficient data.
+* Update rnaseqc2 version to address bias metric edge cases
 * Turn off python hash salting in GroupByUMIs to mitigate non-determinism in umi_tools.
 
 # 1.0.8
