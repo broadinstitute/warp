@@ -148,6 +148,7 @@ jobs:
       - image: alpine:latest
     steps:
       - run:
+          name: CircleCI is deprecated! PR tests now use Smart Tests only.
           command: |
             echo "CircleCI is being deprecated in the WARP repo. Please refer to Smart Tests on Jenkins for PR test results."
 
