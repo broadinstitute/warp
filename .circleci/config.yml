@@ -143,12 +143,11 @@ jobs:
             ./tests/skylab/trigger_test.sh smartseq2_single_nucleus
           no_output_timeout: 3.0h
 
-  deprecation_message:
+  circleci_is_being_deprecated_check_smart_tests:
     docker:
       - image: alpine:latest
     steps:
       - run:
-          name: CircleCI is deprecated! PR tests now use Smart Tests only.
           command: |
             echo "CircleCI is being deprecated in the WARP repo. Please refer to Smart Tests on Jenkins for PR test results."
 
@@ -156,7 +155,7 @@ workflows:
   version: 2
   test_all:
     jobs:
-      - deprecation_message
+      - circleci_is_being_deprecated_check_smart_tests
       # - test_optimus
       # - test_optimus_snrna
       # #         - test_emptyDropsWrapper
