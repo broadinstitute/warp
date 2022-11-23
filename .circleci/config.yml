@@ -147,17 +147,17 @@ workflows:
     version: 2
     test_all:
         jobs:
-            - test_optimus
-            - test_optimus_snrna
-            #         - test_emptyDropsWrapper
-            - test_optimus_mouse
-            - test_smartseq2
-            - test_smartseq2_single_end
-            - test_smartseq2_single_nucleus
-            #         - test_npz2rds
-            - test_sc_atac
-            - test_atac
-            #         - test_bulk_rna
-            - test_optimus_v3
-            - test_smartseq2_multisample
-            - test_smartseq2_multisample_single_end
+            # - test_optimus
+            # - test_optimus_snrna
+            # #         - test_emptyDropsWrapper
+            # - test_optimus_mouse
+            # - test_smartseq2
+            # - test_smartseq2_single_end
+            # - test_smartseq2_single_nucleus
+            # #         - test_npz2rds
+            # - test_sc_atac
+            # - test_atac
+            # #         - test_bulk_rna
+            # - test_optimus_v3
+            # - test_smartseq2_multisample
+            # - test_smartseq2_multisample_single_end
