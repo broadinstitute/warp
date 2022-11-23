@@ -43,6 +43,7 @@ task BuildBWAreference {
          docker: "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463"
 	 memory: "96GB"
 	 disks: "local-disk 100 HDD"
+     disk: "100 GB" # TES
 	 cpu: "4"
      }
 

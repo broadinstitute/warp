@@ -45,6 +45,7 @@ task checkInputArrays {
     cpu: 1
     memory: "1 GiB"
     disks: "local-disk 1 HDD"
+    disk: disk + " GB" # TES
   }
 
 }
@@ -115,6 +116,7 @@ task checkOptimusInput {
     cpu: cpu
     memory: "~{machine_mem_mb} GiB"
     disks: "local-disk ~{disk} HDD"
+    disk: disk + " GB" # TES
   }
   
 }

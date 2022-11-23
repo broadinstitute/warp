@@ -10,6 +10,7 @@ task GetReferences {
     String gtf_version
     String organism
     String organism_prefix
+    Int disk = 10
   }
 
   meta {
@@ -41,7 +42,8 @@ task GetReferences {
 
   runtime {
     docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
-    disks: "local-disk 10 HDD"
+    disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
   }
 }
 
@@ -50,6 +52,7 @@ task BuildStar {
     String gtf_version
     String organism
     References references
+    Int disk = 100
   }
 
   meta {
@@ -80,7 +83,8 @@ task BuildStar {
   runtime {
     docker: "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
     memory: "50 GiB"
-    disks :"local-disk 100 HDD"
+    disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu:"16"
   }
 }
@@ -92,6 +96,7 @@ task BuildStarSingleNucleus {
     String organism_prefix
     References references
     File biotypes
+    Int disk = 100
   }
 
   meta {
@@ -135,7 +140,8 @@ task BuildStarSingleNucleus {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1663605340"
     memory: "50 GiB"
-    disks :"local-disk 100 HDD"
+    disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu:"16"
   }
 }
@@ -145,6 +151,7 @@ task BuildRsem {
     String gtf_version
     String organism
     References references
+    Int disk = 100
   }
 
   meta {
@@ -163,7 +170,8 @@ task BuildRsem {
   runtime {
     docker: "quay.io/humancellatlas/secondary-analysis-rsem:v0.2.2-1.3.0"
     memory: "10 GiB"
-    disks: "local-disk 100 HDD"
+    disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
   }
   output {
     File rsem_index = rsem_index_name
@@ -211,6 +219,7 @@ task BuildHisat2 {
     String gtf_version
     String organism
     File genome_fa
+    Int disk = 100
   }
 
   String ref_name = "hisat2_primary_gencode_~{organism}_v~{gtf_version}"
@@ -229,7 +238,8 @@ task BuildHisat2 {
   runtime {
     docker: "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
     memory: "64 GiB"
-    disks: "local-disk 100 HDD"
+    disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: "8"
   }
 
@@ -247,6 +257,7 @@ task BuildHisat2SnpHaplotypeSplicing {
 
     String gtf_version
     String dbsnp_version
+    Int disk = 100
   }
 
   String ref_name = "star_primary_gencode_~{organism}_v~{gtf_version}"
@@ -288,7 +299,8 @@ task BuildHisat2SnpHaplotypeSplicing {
   runtime {
     docker:"quay.io/humancellatlas/secondary-analysis-hisat2:v0.3.0-2-2.1.0"
     memory: "240 GiB"
-    disks: "local-disk 100 HDD"
+    disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: "16"
   }
   output {
@@ -299,6 +311,7 @@ task BuildHisat2SnpHaplotypeSplicing {
 task BuildPicardRefFlat {
   input {
     References references
+    Int disk = 100
   }
 
   String refflat_name = basename(references.annotation_gtf, ".gtf") + ".refflat.txt"
@@ -315,7 +328,8 @@ task BuildPicardRefFlat {
   runtime {
     docker: "quay.io/humancellatlas/gtf_to_genepred:v0.0.0"
     memory: "8 GiB"
-    disks: "local-disk 100 HDD"
+    disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: "8"
   }
 
@@ -327,6 +341,7 @@ task BuildPicardRefFlat {
 task BuildIntervalList {
   input {
     References references
+    Int disk = 100
   }
 
   String interval_list_name = basename(references.annotation_gtf, ".gtf") + ".interval_list"
@@ -356,7 +371,8 @@ task BuildIntervalList {
   runtime {
     docker: "quay.io/humancellatlas/secondary-analysis-umitools:0.0.1"
     memory: "8 GiB"
-    disks: "local-disk 100 HDD"
+    disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: "8"
   }
 

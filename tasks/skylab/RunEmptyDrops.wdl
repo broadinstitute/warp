@@ -20,6 +20,7 @@ task RunEmptyDrops {
         Int machine_mem_mb = 16000
         Int cpu = 1
         Int disk = 20
+        int disk_size = disk + 20
         Int preemptible = 3
     }
 
@@ -50,6 +51,7 @@ task RunEmptyDrops {
         docker: docker
         memory: "${machine_mem_mb} MiB"
         disks: "local-disk ${disk} HDD"
+        disk: disk_size + " GB" # TES
         cpu: cpu
         preemptible: preemptible
         bootDiskSizeGb: "20"
