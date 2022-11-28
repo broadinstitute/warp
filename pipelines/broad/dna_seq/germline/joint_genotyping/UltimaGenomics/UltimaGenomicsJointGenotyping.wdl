@@ -18,6 +18,8 @@ workflow UltimaGenomicsJointGenotyping {
 
     String callset_name
     File sample_name_map
+    File? input_index_map
+    File? second_input_index_map
 
     File ref_fasta
     File ref_fasta_index
@@ -283,6 +285,8 @@ workflow UltimaGenomicsJointGenotyping {
           gvcf_paths = files_in_partition,
           vcf_paths = vcfs_to_fingerprint,
           sample_name_map = sample_name_map,
+          input_index_map = input_index_map,
+          second_input_index_map = second_input_index_map,
           haplotype_database = haplotype_database,
           output_base_name = callset_name + "." + idx,
           scattered = true

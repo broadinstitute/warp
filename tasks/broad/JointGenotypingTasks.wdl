@@ -855,6 +855,8 @@ task CrossCheckFingerprint {
     Array[File] gvcf_paths
     Array[File] vcf_paths
     File sample_name_map
+    File? input_index_map
+    File? second_input_index_map
     File haplotype_database
     String output_base_name
     Boolean scattered = false
@@ -893,9 +895,12 @@ task CrossCheckFingerprint {
     gatk --java-options "-Xms~{java_mem}m -Xmx~{java_mem}m" \
       CrosscheckFingerprints \
       --INPUT gvcf_inputs.list \
+      ~{"--INPUT_INDEX_MAP" + input_index_map} \
       --SECOND_INPUT vcf_inputs.list \
+      ~{"--SECOND_INPUT_INDEX_MAP" + second_input_index_map} \
       --HAPLOTYPE_MAP ~{haplotype_database} \
       --INPUT_SAMPLE_FILE_MAP ~{sample_name_map} \
+      --REQUIRE_INDEX_FILES true \
       --CROSSCHECK_BY SAMPLE \
       --CROSSCHECK_MODE CHECK_SAME_SAMPLE \
       --NUM_THREADS ~{cpu} \
