@@ -12,16 +12,16 @@ In contrast, bash commands are primarily used to help (re)format, (re)name, and 
 
 The distinction between tools and bash commands becomes important when we discuss running one tool per WDL task in Tip 2. Before reading on, think about what tools vs. bash operations you currently use for your analysis. 
 
-## Tip 2: Run one software tool per task (modularize)
+## Tip 2: Modularize tools when possible
 
 When you run a WDL workflow in the cloud, you specify a docker for each task, which will be used to set up a virtual machine (VM). Initiating a VM with a docker comes with some overhead costs so it might be tempting to avoid these by running all of your software tools in a single task, using only a single VM and docker. 
 
 Unfortunately, the reality is that software tools aren’t 100% reliable, and when they fail, it means recreating a VM and rerunning your tools to successfully complete your workflow run. When you run multiple tools on a single VM or in a single task, it doesn’t matter if one tool fails or multiple tools fail, you’ll have to rerun everything that’s part of the WDL task. You’ll also have a hard time making updates to the code should you want to reuse one of the tools in a separate workflow later on.
 
 
-For these reasons, we recommend modularizing workflows when possible, using one software tool per task. When you modularize, you’ll be able to save your upstream analysis even if your tool fails, saving you the cost of time inside your VM. You’ll also be able to better customize the VM to meet the needs of the tools and run more efficiently.
+For these reasons, we recommend modularizing workflows when possible, limiting the number of software tools you run per task. For example, if you're software tool takes more than 10 minutes to run, it's probably a good idea to put the tool in it's own task. When you modularize tools, you’ll be able to save your upstream analysis even if your tool fails, saving you the cost of time inside your VM. You’ll also be able to better customize the VM to meet the needs of the tools and run more efficiently.
 
-In contrast to modularizing by using one tool per task, you don’t necessarily need to modularize by using one bash command per task. This is because many bash commands are quick steps that you use to prepare files for processing with your tool. If you’re using quick bash commands to prepare files for a tool, it makes sense to group the bash commands in the same task as you would your tool. 
+In addition to modularizing tools, you can also consider whether you want to modularize bash commands. Bash commands are often less time intensive because they are quick steps that you use to prepare files for processing with your software tool. In the case of quick bash commands, it makes sense to group the, in the same WDL task as you would your tool as opposed to separating them into their own task. 
 
 Let’s look at an example WDL task below where we first use bash commands to prepare sequencing data for genomic alignment with the STAR aligner, and then run the STAR tool:
 
@@ -45,7 +45,7 @@ In the use case above, it makes sense to combine the bash operations and STAR. T
 
 Keep in mind there might be scenarios where splitting out more intensive bash operations might make sense. For example, if your bash operations are time intensive and your tool is not very reliable, you might want to save the outputs of your bash functions before moving on to running the tool. In this case, it would make sense to keep the bash commands and your tool in separate WDL tasks to avoid rerunning them both.
 
-Similarly, there are exceptions to modularization of tools. For example, if you're working with a lot of intermediate files, it might make sense to string two tools together in a single task if it helps avoid costly egress. Always keep in mind the reliability of your tools and remember that these tips are guidelines, not hard rules. 
+Similarly, there are exceptions to modularization of tools. For example, if you're working with a lot of intermediate files, it might make sense to string two tools together in a single task if it helps avoid costly egress. Always keep in mind timing and the reliability of your tools; remember that these tips are guidelines, not hard rules. 
 
 ## Tip 3: Avoid input/output timing costs (moving and loading lots of files)
 
