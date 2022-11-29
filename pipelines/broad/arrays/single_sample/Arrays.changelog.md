@@ -1,5 +1,5 @@
 # 2.6.16
-2022-11-08 (Date of Last Commit)
+2022-11-29 (Date of Last Commit)
 
 * Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline.
 * Updated task IngestOutputsToTDR in InternalTasks.wdl with new optional input variable. This update has no effect on this pipeline.
@@ -8,6 +8,7 @@
 
 * New GCR image tag in task FormatImputationOutputs and task FormatImputationWideOutputs and task IngestOutputsToTDR.
 * Removed workspace_bucket workflow parameter from BroadInternalArrays and BroadInternalImputation.
+* Added `lab_batch` as input to BroadInternalArrays.
 
 # 2.6.15
 2022-09-30 (Date of Last Commit)
