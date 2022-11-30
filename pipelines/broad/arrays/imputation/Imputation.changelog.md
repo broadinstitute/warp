@@ -1,3 +1,9 @@
+# 1.1.6
+2022-11-10 (Date of Last Commit)
+
+* Added meta section to allowNestedInputs, this will allow task level inputs to be set in the inputs json
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
 # 1.1.5
 2022-09-30 (Date of Last Commit)
 

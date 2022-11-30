@@ -109,6 +109,8 @@ function pipeline_to_args() {
       else
         continue
       fi;;
+    UltimaGenomicsWholeGenomeCramOnly)
+      echo UltimaGenomicsWholeGenomeCramOnly ${common_args};;
     UltimaGenomicsWholeGenomeGermline)
       echo UltimaGenomicsWholeGenomeGermline ${common_args};;
     UltimaGenomicsJointGenotyping)

@@ -11,12 +11,12 @@
     "MultiSampleSmartSeq2.paired_end": true,
     "MultiSampleSmartSeq2.input_ids": ["SRR5676728", "SRR5676730"],
     "MultiSampleSmartSeq2.fastq1_input_files": [
-        "gs://hca-dcp-mint-test-data/datasets/sloan_sa_astrocytes/SRR5676728_1.fastq.gz",
-        "gs://hca-dcp-mint-test-data/datasets/sloan_sa_astrocytes/SRR5676730_1.fastq.gz"
+        "gs://broad-gotc-test-storage/MultiSampleSmartSeq2/truth/plumbing/master/pr_test_truth_fastq/SRR5676728_1.fastq.gz",
+        "gs://broad-gotc-test-storage/MultiSampleSmartSeq2/truth/plumbing/master/pr_test_truth_fastq/SRR5676730_1.fastq.gz"
     ],
     "MultiSampleSmartSeq2.fastq2_input_files": [
-        "gs://hca-dcp-mint-test-data/datasets/sloan_sa_astrocytes/SRR5676728_2.fastq.gz",
-        "gs://hca-dcp-mint-test-data/datasets/sloan_sa_astrocytes/SRR5676730_2.fastq.gz"
+        "gs://broad-gotc-test-storage/MultiSampleSmartSeq2/truth/plumbing/master/pr_test_truth_fastq/SRR5676728_2.fastq.gz",
+        "gs://broad-gotc-test-storage/MultiSampleSmartSeq2/truth/plumbing/master/pr_test_truth_fastq/SRR5676730_2.fastq.gz"
     ],
     "MultiSampleSmartSeq2.batch_id": "mouse_test"
 }
