@@ -86,8 +86,11 @@ workflow Optimus {
       count_exons = count_exons
   }
 
+  # Evaluate input to decide whether to scatter
   Int fastq_input_size = ceil(size(r1_fastq, "Gi") ) +  ceil(size(r2_fastq, "Gi"))
   Boolean split_fastqs = if ( fastq_input_size > 30 ) then true else false
+
+  # Input fastqs are large enough, so split them and scatter
   if ( split_fastqs ) {
     call FastqProcessing.FastqProcessing as SplitFastq {
       input:
@@ -111,8 +114,9 @@ workflow Optimus {
           output_bam_basename = output_bam_basename + "_" + idx
       }
     }
-
   }
+
+  # Input fastqs are small enough, so no need to split and scatter
   if ( !split_fastqs ) {
     call StarAlign.STARsoloFastq as STARsoloFastqSingle {
       input:
@@ -126,12 +130,14 @@ workflow Optimus {
         output_bam_basename = output_bam_basename
     }
   }
+
   call Merge.MergeSortBamFiles as MergeBam {
     input:
       bam_inputs = [select_first([STARsoloFastqSingle.bam_output, STARsoloFastq.bam_output])],
       output_bam_filename = output_bam_basename + ".bam",
       sort_order = "coordinate"
   }
+
   call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
       bam_input = select_first([STARsoloFastqSingle.bam_output, MergeBam.output_bam])
@@ -150,6 +156,7 @@ workflow Optimus {
       matrix =  [select_all([STARsoloFastqSingle.matrix, STARsoloFastq.matrix])[0]],
       input_id = input_id
   }
+
   if (counting_mode == "sc_rna"){
     call RunEmptyDrops.RunEmptyDrops {
       input:
