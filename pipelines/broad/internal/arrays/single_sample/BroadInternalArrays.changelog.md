@@ -2,6 +2,8 @@
 2022-11-09 (Date of Last Commit)
 
 * Updated to GATK version 4.3.0.0
+* remove workspace_bucket parameter from workflow inputs and IngestOutputsToTDR
+
 
 # 1.0.8
 2022-10-12 (Date of Last Commit)
