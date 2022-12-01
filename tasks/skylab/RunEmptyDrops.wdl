@@ -20,7 +20,7 @@ task RunEmptyDrops {
         Int machine_mem_mb = 16000
         Int cpu = 1
         Int disk = 20
-        int disk_size = disk + 20
+        Int disk_size = disk + 20
         Int preemptible = 3
     }
 
