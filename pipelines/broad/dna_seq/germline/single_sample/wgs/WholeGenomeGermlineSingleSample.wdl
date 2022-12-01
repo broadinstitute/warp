@@ -227,7 +227,7 @@ workflow WholeGenomeGermlineSingleSample {
     File read_group_gc_bias_pdf = AggregatedBamQC.read_group_gc_bias_pdf
     File read_group_gc_bias_summary_metrics = AggregatedBamQC.read_group_gc_bias_summary_metrics
 
-    File? cross_check_fingerprints_metrics = UnmappedBamToAlignedBam.cross_check_fingerprints_metrics
+#    File? cross_check_fingerprints_metrics = UnmappedBamToAlignedBam.cross_check_fingerprints_metrics
 
     File selfSM = UnmappedBamToAlignedBam.selfSM
     Float contamination = UnmappedBamToAlignedBam.contamination
@@ -248,8 +248,8 @@ workflow WholeGenomeGermlineSingleSample {
     File agg_quality_distribution_metrics = AggregatedBamQC.agg_quality_distribution_metrics
     File agg_error_summary_metrics = AggregatedBamQC.agg_error_summary_metrics
 
-    File? fingerprint_summary_metrics = AggregatedBamQC.fingerprint_summary_metrics
-    File? fingerprint_detail_metrics = AggregatedBamQC.fingerprint_detail_metrics
+#    File? fingerprint_summary_metrics = AggregatedBamQC.fingerprint_summary_metrics
+#    File? fingerprint_detail_metrics = AggregatedBamQC.fingerprint_detail_metrics
 
     File wgs_metrics = CollectWgsMetrics.metrics
     File raw_wgs_metrics = CollectRawWgsMetrics.metrics

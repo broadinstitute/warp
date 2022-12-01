@@ -194,20 +194,20 @@ workflow UnmappedBamToAlignedBam {
 
   Float agg_bam_size = size(SortSampleBam.output_bam, "GiB")
 
-  if (defined(haplotype_database_file)) {
-    # Check identity of fingerprints across readgroups
-    call QC.CrossCheckFingerprints as CrossCheckFingerprints {
-      input:
-        input_bams = [ SortSampleBam.output_bam ],
-        input_bam_indexes = [SortSampleBam.output_bam_index],
-        haplotype_database_file = haplotype_database_file,
-        metrics_filename = aligned_bam_basename + ".crosscheck",
-        total_input_size = agg_bam_size,
-        lod_threshold = lod_threshold,
-        cross_check_by = cross_check_fingerprints_by,
-        preemptible_tries = papi_settings.agg_preemptible_tries
-    }
-  }
+#  if (defined(haplotype_database_file)) {
+#    # Check identity of fingerprints across readgroups
+#    call QC.CrossCheckFingerprints as CrossCheckFingerprints {
+#      input:
+#        input_bams = [ SortSampleBam.output_bam ],
+#        input_bam_indexes = [SortSampleBam.output_bam_index],
+#        haplotype_database_file = haplotype_database_file,
+#        metrics_filename = sample_and_unmapped_bams.base_file_name + ".crosscheck",
+#        total_input_size = agg_bam_size,
+#        lod_threshold = lod_threshold,
+#        cross_check_by = cross_check_fingerprints_by,
+#        preemptible_tries = papi_settings.agg_preemptible_tries
+#    }
+#  }
 
   # Create list of sequences for scatter-gather parallelization
   call Utils.CreateSequenceGroupingTSV as CreateSequenceGroupingTSV {
@@ -314,7 +314,7 @@ workflow UnmappedBamToAlignedBam {
     Array[File] unsorted_read_group_quality_distribution_pdf = [CollectUnsortedReadgroupBamQualityMetrics.quality_distribution_pdf]
     Array[File] unsorted_read_group_quality_distribution_metrics = [CollectUnsortedReadgroupBamQualityMetrics.quality_distribution_metrics]
 
-    File? cross_check_fingerprints_metrics = CrossCheckFingerprints.cross_check_fingerprints_metrics
+#    File? cross_check_fingerprints_metrics = CrossCheckFingerprints.cross_check_fingerprints_metrics
 
     File selfSM = CheckContamination.selfSM
     Float contamination = CheckContamination.contamination
