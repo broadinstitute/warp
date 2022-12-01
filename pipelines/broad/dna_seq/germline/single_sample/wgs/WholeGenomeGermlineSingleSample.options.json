@@ -2,8 +2,5 @@
   "read_from_cache": true,
   "write_to_cache": true,
   "google_legacy_machine_selection": true,
-  "default_runtime_attributes": {
-    "zones": "us-central1-a us-central1-b us-east1-d us-central1-c us-central1-f us-east1-c"
-  },
   "monitoring_script": "gs://broad-gotc-test-storage/cromwell_monitoring_script.sh"
 }
