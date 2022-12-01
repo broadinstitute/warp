@@ -153,6 +153,7 @@ task STAR {
       --readFilesIn ~{bam} \
       --readFilesType SAM PE \
       --readFilesCommand samtools view -h \
+      --runRNGseed 12345 \
       --outSAMunmapped Within \
       --outFilterType BySJout \
       --outFilterMultimapNmax 20 \
