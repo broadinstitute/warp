@@ -144,6 +144,8 @@ task FilterSampleVCF{
     input{
         File input_vcf
         String docker = "gcr.io/terra-project-249020/jukebox_vc:test_jc_optimize_3d7509"
+
+        Int disk_size_gb = ceil((size(input_vcf, "GiB"))) + 30
     }
 
     String output_vcf = basename(input_vcf, ".vcf.gz") + ".filter_unused.vcf.gz"
@@ -165,7 +167,8 @@ task FilterSampleVCF{
 
     runtime {
         memory: "8GB"
-        disks: "local-disk " + (ceil(size(input_vcf, "GB")) *2 + 10) + " HDD"
+        disks: "local-disk " + disk_size_gb + " HDD"
+        bootDiskSizeGb: 20
         docker: docker
         cpu: 1
     }
@@ -200,6 +203,7 @@ task FilterSymbolicAlleles {
         memory: "12 GB"
         cpu: 1
         disks: "local-disk " + (ceil(size(input_vcf, "GB")) *4 +10) + " HDD"
+        bootDiskSizeGb: 20
         docker: docker
     }
     output {
@@ -270,6 +274,7 @@ task CompareToGroundTruth {
     memory: "32 GB"
     cpu: 16
     disks: "local-disk " + disk_size + " SSD"
+    bootDiskSizeGb: 20
     docker: docker
   }
   output {
@@ -304,6 +309,7 @@ task EvaluateResults {
   runtime {
     memory: "32 GB"
     disks: "local-disk " + disk_size + " HDD"
+    bootDiskSizeGb: 20
     docker: docker
   }
   output {
