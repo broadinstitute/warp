@@ -133,7 +133,7 @@ workflow Optimus {
 
   call Merge.MergeSortBamFiles as MergeBam {
     input:
-      bam_inputs = select_first([STARsoloFastqSingle.bam_output, [STARsoloFastq.bam_output]]),
+      bam_inputs = select_first([STARsoloFastqSingle.bam_output, STARsoloFastq.bam_output]),
       output_bam_filename = output_bam_basename + ".bam",
       sort_order = "coordinate"
   }
