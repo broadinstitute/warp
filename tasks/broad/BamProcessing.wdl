@@ -319,6 +319,8 @@ task GatherUnsortedBamFiles {
   # Multiply the input bam size by two to account for the input and output
   Int disk_size = ceil(2 * total_input_size) + 20
 
+  # Edited this command to work around this issue: https://github.com/broadinstitute/gatk/issues/6379
+  # Following David Benjamin's comments there on trying to sort before indexing
   command {
     java -Dsamjdk.compression_level=~{compression_level} -Xms2000m -Xmx2500m -jar /usr/picard/picard.jar \
       GatherBamFiles \
@@ -326,6 +328,16 @@ task GatherUnsortedBamFiles {
       OUTPUT=~{output_bam_basename}.bam \
       CREATE_INDEX=false \
       CREATE_MD5_FILE=false
+
+    java -Dsamjdk.compression_level=~{compression_level} -Xms2000m -Xmx2500m -jar /usr/picard/picard.jar \
+      SortSam \
+      I=~{output_bam_basename}.bam \
+      O=~{output_bam_basename}_sorted.bam \
+      SORT_ORDER=coordinate
+
+    java -Dsamjdk.compression_level=~{compression_level} -Xms2000m -Xmx2500m -jar /usr/picard/picard.jar \
+      BuildBamIndex \
+      I=~{output_bam_basename}_sorted.bam
     }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
@@ -334,7 +346,8 @@ task GatherUnsortedBamFiles {
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
-    File output_bam = "~{output_bam_basename}.bam"
+    File output_bam = "~{output_bam_basename}_sorted.bam"
+    File output_bam_index = "~{output_bam_basename}_sorted.bam.bai"
   }
 }
 
