@@ -341,13 +341,13 @@ task GatherUnsortedBamFiles {
     }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
-    preemptible: preemptible_tries
+    preemptible: 1
     memory: "3 GiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
     File output_bam = "~{output_bam_basename}_sorted.bam"
-    File output_bam_index = "~{output_bam_basename}_sorted.bam.bai"
+    File output_bam_index = "~{output_bam_basename}_sorted.bai"
   }
 }
 
