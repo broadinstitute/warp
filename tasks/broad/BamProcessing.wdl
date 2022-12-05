@@ -196,7 +196,7 @@ task ApplyBQSR {
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
   Int disk_size = ceil((size(input_bam, "GiB") * 3 / bqsr_scatter) + ref_size) + additional_disk
 
-  Int memory_size = ceil(3500 * memory_multiplier)
+  Int memory_size = ceil(5000 * memory_multiplier)
   Int java_memory_mb = memory_size - 500
 
   Boolean bin_somatic_base_qualities = bin_base_qualities && somatic
