@@ -155,6 +155,8 @@ task CompareCrams {
     File test_crai
     File truth_cram
     File truth_crai
+
+    Int disk_size_gb = ceil((size(test_cram, "GiB") + size(truth_cram, "GiB"))) + 50
   }
 
   command {
@@ -167,7 +169,7 @@ task CompareCrams {
   }
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 150 HDD"
+    disks: "local-disk " + disk_size_gb + " HDD"
     memory: "2 GiB"
     preemptible: 3
   }
