@@ -292,7 +292,7 @@ workflow UnmappedBamToAlignedBam {
   }
 
   # Merge the recalibrated BAM files resulting from by-interval recalibration
-  call Processing.GatherUnsortedBamFiles as GatherBamFiles {
+  call Processing.GatherSortedBamFiles as GatherBamFiles {
     input:
       input_bams = select_first([ApplyBQSR.recalibrated_bam, [SortSampleBam.output_bam]]),
       output_bam_basename = aligned_bam_basename,
