@@ -2,17 +2,14 @@ import argparse
 import gzip
 import re
 
-# This function parses a file with gene_type or transcript_type attributes from gencode or ensemble.org
-# If the biotype is marked as Y it includes it in the annotation.
 def get_biotypes(biotypes_file_path):
     allowable_biotypes= []
-    with open(biotypes_file_path, 'r', encoding='utf-8-sig') as biotypesFile:
+    with open(biotypes_file_path,'r',encoding='utf-8-sig') as biotypesFile:
         for line in biotypesFile:
-            if line.startswith("#"):
-                continue
-            fields = [x.strip() for x in line.strip().split("\t")]
-            if fields[1] == "Y" or fields[1] == "y":
-                allowable_biotypes.append(fields[0])
+            if not line.startswith("#"):
+                fields = [x.strip() for x in line.strip().split("\t")]
+                if fields[1] == "Y" or fields[1]=="y":
+                    allowable_biotypes.append(fields[0])
     return  allowable_biotypes
 
 def get_features(features):
@@ -24,7 +21,7 @@ def get_features(features):
             if key not in features_dic:
                 features_dic[key] = value
             else:
-                if type(features_dic[key]) == list:
+                if type(features_dic[key])==list:
                     features_dic[key].append(value)
                 else:
                     features_dic[key] = [features_dic[key]]
@@ -34,46 +31,41 @@ def get_features(features):
 def modify_attr(features_dic):
     modified_features = ""
     for key in features_dic:
-        if key in ["exon_id", "gene_id", "transcript_id"]:
-            features_dic[key] = features_dic[key].split(".", 1)[0]
+        if key in ["exon_id","gene_id","transcript_id"]:
+            features_dic[key] = features_dic[key].split(".",1)[0]
 
-        if type(features_dic[key]) != str and len(features_dic[key]) > 1:
+        if type(features_dic[key])!=str and len(features_dic[key])>1:
             for val in features_dic[key]:
                 modified_features = modified_features + key + " " + '"{}"'.format(val) + "; "
         elif features_dic[key].isnumeric():
-            modified_features = modified_features + key + " " + features_dic[key] + "; "
+            modified_features = modified_features + key + " "+ features_dic[key] + "; "
 
-        elif str(features_dic[key]).isspace() or type(features_dic[key]) == str:
-            modified_features = modified_features + key + " " + '"{}"'.format(features_dic[key]) + "; "
+        elif str(features_dic[key]).isspace() or type(features_dic[key])==str:
+            modified_features = modified_features + key + " "+ '"{}"'.format(features_dic[key]) + "; "
         else:
-            modified_features = modified_features + key + " " + features_dic[key] + "; "
+            modified_features = modified_features + key + " "+ features_dic[key] + "; "
     return modified_features
 
 def get_gene_ids(input_gtf,biotypes):
-    gene_ids = []
+    gene_ids =[]
     with open(input_gtf, 'r') as input_file:
         for line in input_file:
-            if line.startswith('#'):
-                continue
-            fields = [x.strip() for x in line.strip().split('\t')]
-            if fields[2] != 'transcript':
-                continue
-            features = re.sub('"', '', line.strip().split('\t')[8].strip())
-            features_dic = get_features(features)
+            if not line.startswith('#'):
+                fields = [x.strip() for x in line.strip().split('\t')]
+                if fields[2]=='transcript':
+                    features = re.sub('"', '', line.strip().split('\t')[8].strip())
+                    features_dic = get_features(features)
 
-            if (features_dic['gene_type'] not in biotypes) or (
-                features_dic['transcript_type'] not in biotypes):
-                continue
-            if 'tag' in features_dic:
-                if ('readthrough_transcript' not in features_dic['tag']) and (
-                    'PAR' not in features_dic['tag']):
-                    gene=features_dic['gene_id'].split('.', 1)[0]
-                    if gene not in gene_ids:
-                        gene_ids.append(gene)
-            else:
-                gene=features_dic['gene_id'].split('.', 1)[0]
-                if gene not in gene_ids:
-                    gene_ids.append(gene)
+                    if features_dic['gene_biotype'] in biotypes:
+                        if 'tag' in features_dic:
+                            if ('readthrough_transcript' not in features_dic['tag']) and ('PAR' not in features_dic['tag']):
+                                gene=features_dic['gene_id'].split('.',1)[0]
+                                if gene not in gene_ids:
+                                    gene_ids.append(gene)
+                        else:
+                            gene=features_dic['gene_id'].split('.',1)[0]
+                            if gene not in gene_ids:
+                                gene_ids.append(gene)
 
     input_file.close()
     return gene_ids
