@@ -161,7 +161,7 @@ task CollectAggregationMetrics {
       ~{output_bam_prefix}.insert_size_metrics \
       ~{output_bam_prefix}.insert_size_histogram.pdf
 
-    java -Xms5000m -Xmx6500m -jar /usr/picard/picard.jar \
+    java -Xms7000m -Xmx8500m -jar /usr/picard/picard.jar \
       CollectMultipleMetrics \
       INPUT=~{input_bam} \
       REFERENCE_SEQUENCE=~{ref_fasta} \
@@ -179,7 +179,7 @@ task CollectAggregationMetrics {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
-    memory: "7000 MiB"
+    memory: "9000 MiB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: preemptible_tries
   }
