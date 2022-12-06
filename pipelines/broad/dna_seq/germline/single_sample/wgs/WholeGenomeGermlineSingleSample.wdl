@@ -144,17 +144,17 @@ workflow WholeGenomeGermlineSingleSample {
       papi_settings = papi_settings
   }
 
-  call ToCram.BamToCram as BamToCram {
-    input:
-      input_bam = UnmappedBamToAlignedBam.output_bam,
-      ref_fasta = references.reference_fasta.ref_fasta,
-      ref_fasta_index = references.reference_fasta.ref_fasta_index,
-      ref_dict = references.reference_fasta.ref_dict,
-      duplication_metrics = UnmappedBamToAlignedBam.duplicate_metrics,
-      chimerism_metrics = AggregatedBamQC.agg_alignment_summary_metrics,
-      base_file_name = aligned_bam_basename,
-      agg_preemptible_tries = papi_settings.agg_preemptible_tries
-  }
+#  call ToCram.BamToCram as BamToCram {
+#    input:
+#      input_bam = UnmappedBamToAlignedBam.output_bam,
+#      ref_fasta = references.reference_fasta.ref_fasta,
+#      ref_fasta_index = references.reference_fasta.ref_fasta_index,
+#      ref_dict = references.reference_fasta.ref_dict,
+#      duplication_metrics = UnmappedBamToAlignedBam.duplicate_metrics,
+#      chimerism_metrics = AggregatedBamQC.agg_alignment_summary_metrics,
+#      base_file_name = aligned_bam_basename,
+#      agg_preemptible_tries = papi_settings.agg_preemptible_tries
+#  }
 
   # QC the sample WGS metrics (stringent thresholds)
   call QC.CollectWgsMetrics as CollectWgsMetrics {
@@ -263,11 +263,11 @@ workflow WholeGenomeGermlineSingleSample {
     File? output_bam = provided_output_bam
     File? output_bam_index = provided_output_bam_index
 
-    File output_cram = BamToCram.output_cram
-    File output_cram_index = BamToCram.output_cram_index
-    File output_cram_md5 = BamToCram.output_cram_md5
-
-    File validate_cram_file_report = BamToCram.validate_cram_file_report
+#    File output_cram = BamToCram.output_cram
+#    File output_cram_index = BamToCram.output_cram_index
+#    File output_cram_md5 = BamToCram.output_cram_md5
+#
+#    File validate_cram_file_report = BamToCram.validate_cram_file_report
 
     File output_vcf = BamToGvcf.output_vcf
     File output_vcf_index = BamToGvcf.output_vcf_index
