@@ -1,3 +1,13 @@
+# 1.1.5
+2022-12-01 (Date of Last Commit)
+
+* Updated BCFTools/VCFTools Docker image
+
+# 1.1.4
+2022-11-08 (Date of Last Commit)
+
+* remove workspace_bucket parameter from workflow inputs and IngestOutputsToTDR
+
 # 1.1.3
 2022-11-10 (Date of Last Commit)
 

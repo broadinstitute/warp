@@ -1,3 +1,8 @@
+# 1.1.1
+2022-11-29 (Date of Last Commit)
+
+* Added additional boot disk to 4 tasks in UltimaGenomicsGermlineFilteringThreshold.wdl.
+
 # 1.1.0
 2022-08-24 (Date of Last Commit)
 
