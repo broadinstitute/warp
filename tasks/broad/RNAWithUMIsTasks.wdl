@@ -101,6 +101,7 @@ task Fastp {
     Int memory_mb =  ceil(1.5*size(fastq1, "MiB")) + 8192 # Experimentally determined formula for memory allocation
     Int disk_size_gb = 5*ceil(size(fastq1, "GiB")) + 128
     File monitoring_script = "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh"
+    Int cpu=4
   }
 
   command {
@@ -109,13 +110,15 @@ task Fastp {
     fastp --in1 ~{fastq1} --in2 ~{fastq2} --out1 ~{output_prefix}_read1.fastq.gz --out2 ~{output_prefix}_read2.fastq.gz \
     --disable_quality_filtering \
     --disable_length_filtering \
-    --adapter_fasta ~{adapter_fasta}
+    --adapter_fasta ~{adapter_fasta} \
+    --thread ~{cpu}
   }
   
 
   runtime {
     docker: docker
     memory: "~{memory_mb} MiB"
+    cpu: cpu
     disks: "local-disk ~{disk_size_gb} HDD"
     preemptible: 0
     maxRetries: 2
