@@ -280,7 +280,7 @@ If your organization also uses this pipeline, we would like to list you! Please 
 
 ## Feedback
 
-Please help us make our tools better by contacting [the WAPR team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
 
 
 ## FAQs
@@ -340,7 +340,3 @@ Unlike Cell Ranger references, Optimus references are downloaded directly from G
 
 In the case of multi-mapped pseudogenes, Optimus and Cell Ranger will produce different results. Optimus does not count multi-mapped reads in the final count matrix, whereas Cell Ranger will keep potential multi-mapped reads because it does not identify the pseudogene reads.
 :::
-
-
-
-
