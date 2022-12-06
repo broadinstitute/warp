@@ -462,7 +462,10 @@ task MergeMetrics {
 
     for col in range(0, len(rows[0])):
       key = rows[0][col].lower()
-      print(f"{key}\t{rows[1][col]}")
+      value = rows[1][col]
+      if value == "?":
+        value = "NaN"
+      print(f"{key}\t{value}")
     EOF
 
     #
