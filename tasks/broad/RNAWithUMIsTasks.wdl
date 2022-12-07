@@ -467,6 +467,7 @@ task MergeMetrics {
         value = "NaN"
       if key in ["median_insert_size", "median_absolute_deviation", "median_read_length", "hq_median_mismatches"]:
         value = str(int(float(value)))
+      print(f"{key}\t{value}")
     EOF
 
     #
