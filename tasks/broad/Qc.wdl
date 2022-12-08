@@ -27,7 +27,7 @@ task CollectQualityYieldMetrics {
   Int disk_size = ceil(size(input_bam, "GiB")) + 20
 
   command {
-    java -Xms2000m -Xmx3000m -jar /usr/picard/picard.jar \
+    java -Xms6500m -Xmx7500m -jar /usr/picard/picard.jar \
       CollectQualityYieldMetrics \
       INPUT=~{input_bam} \
       OQ=true \
@@ -36,7 +36,7 @@ task CollectQualityYieldMetrics {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "3500 MiB"
+    memory: "8000 MiB"
     preemptible: preemptible_tries
   }
   output {
