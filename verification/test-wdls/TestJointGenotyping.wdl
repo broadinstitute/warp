@@ -123,9 +123,9 @@ workflow TestJointGenotyping {
                                     JointGenotyping.output_vcf_indices,
                                     JointGenotyping.output_vcfs,
                                     # File outputs
-                                    [
+                                    select_all([
                                     JointGenotyping.crosscheck_fingerprint_check,
-                                    ]              
+                                    ])
     ])
 
     
