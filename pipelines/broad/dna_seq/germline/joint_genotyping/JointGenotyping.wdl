@@ -62,7 +62,7 @@ workflow JointGenotyping {
     Int gnarly_scatter_count = 10
     Boolean use_gnarly_genotyper = false
     Boolean use_allele_specific_annotations = true
-    Boolean cross_check_fingerprints = true
+    Boolean cross_check_fingerprints = false
     Boolean scatter_cross_check_fingerprints = false
   }
 
@@ -421,13 +421,15 @@ workflow JointGenotyping {
       File gvcf_paths = line[1]
     }
 
-    call Tasks.CrossCheckFingerprint as CrossCheckFingerprintSolo {
-      input:
-        gvcf_paths = gvcf_paths,
-        vcf_paths = ApplyRecalibration.recalibrated_vcf,
-        sample_name_map = sample_name_map,
-        haplotype_database = haplotype_database,
-        output_base_name = callset_name
+    if (cross_check_fingerprints) {
+      call Tasks.CrossCheckFingerprint as CrossCheckFingerprintSolo {
+        input:
+          gvcf_paths = gvcf_paths,
+          vcf_paths = ApplyRecalibration.recalibrated_vcf,
+          sample_name_map = sample_name_map,
+          haplotype_database = haplotype_database,
+          output_base_name = callset_name
+      }
     }
   }
 
