@@ -123,4 +123,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMoveFile.wdl
 
+  - name: VUMCMoveFastqToBamResult
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMoveFastqToBamResult.wdl
+
+    
+
     
