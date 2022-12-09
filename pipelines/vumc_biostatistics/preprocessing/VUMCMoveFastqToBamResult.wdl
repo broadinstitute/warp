@@ -2,7 +2,8 @@ version 1.0
 
 workflow VUMCMoveFastqToBamResult {
   input {
-    String sample_name
+    String genoset
+    String GRID
 
     String unsorted_base_distribution_by_cycle_pdf
     String unsorted_base_distribution_by_cycle_metrics
@@ -28,7 +29,8 @@ workflow VUMCMoveFastqToBamResult {
 
   call MoveFastqToBamResult as mf {
     input:
-      sample_name = sample_name,
+      genoset = genoset,
+      GRID = GRID,
 
       unsorted_base_distribution_by_cycle_pdf = unsorted_base_distribution_by_cycle_pdf, 
       unsorted_base_distribution_by_cycle_metrics = unsorted_base_distribution_by_cycle_metrics,
@@ -76,7 +78,8 @@ workflow VUMCMoveFastqToBamResult {
 
 task MoveFastqToBamResult {
   input {
-    String sample_name
+    String genoset
+    String GRID
 
     String unsorted_base_distribution_by_cycle_pdf
     String unsorted_base_distribution_by_cycle_metrics
@@ -100,24 +103,24 @@ task MoveFastqToBamResult {
     String target_bucket
   }
 
-  String new_unsorted_base_distribution_by_cycle_pdf = "${target_bucket}/${sample_name}/${basename(unsorted_base_distribution_by_cycle_pdf)}"
-  String new_unsorted_base_distribution_by_cycle_metrics = "${target_bucket}/${sample_name}/${basename(unsorted_base_distribution_by_cycle_metrics)}"
-  String new_unsorted_insert_size_histogram_pdf = "${target_bucket}/${sample_name}/${basename(unsorted_insert_size_histogram_pdf)}"
-  String new_unsorted_insert_size_metrics = "${target_bucket}/${sample_name}/${basename(unsorted_insert_size_metrics)}"
-  String new_unsorted_quality_by_cycle_pdf = "${target_bucket}/${sample_name}/${basename(unsorted_quality_by_cycle_pdf)}"
-  String new_unsorted_quality_by_cycle_metrics = "${target_bucket}/${sample_name}/${basename(unsorted_quality_by_cycle_metrics)}"
-  String new_unsorted_quality_distribution_pdf = "${target_bucket}/${sample_name}/${basename(unsorted_quality_distribution_pdf)}"
-  String new_unsorted_quality_distribution_metrics = "${target_bucket}/${sample_name}/${basename(unsorted_quality_distribution_metrics)}"
+  String new_unsorted_base_distribution_by_cycle_pdf = "${target_bucket}/${genoset}/${GRID}/${basename(unsorted_base_distribution_by_cycle_pdf)}"
+  String new_unsorted_base_distribution_by_cycle_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(unsorted_base_distribution_by_cycle_metrics)}"
+  String new_unsorted_insert_size_histogram_pdf = "${target_bucket}/${genoset}/${GRID}/${basename(unsorted_insert_size_histogram_pdf)}"
+  String new_unsorted_insert_size_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(unsorted_insert_size_metrics)}"
+  String new_unsorted_quality_by_cycle_pdf = "${target_bucket}/${genoset}/${GRID}/${basename(unsorted_quality_by_cycle_pdf)}"
+  String new_unsorted_quality_by_cycle_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(unsorted_quality_by_cycle_metrics)}"
+  String new_unsorted_quality_distribution_pdf = "${target_bucket}/${genoset}/${GRID}/${basename(unsorted_quality_distribution_pdf)}"
+  String new_unsorted_quality_distribution_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(unsorted_quality_distribution_metrics)}"
 
-  String new_cross_check_fingerprints_metrics = "${target_bucket}/${sample_name}/${basename(cross_check_fingerprints_metrics)}"
+  String new_cross_check_fingerprints_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(cross_check_fingerprints_metrics)}"
 
-  String new_selfSM = "${target_bucket}/${sample_name}/${basename(selfSM)}"
+  String new_selfSM = "${target_bucket}/${genoset}/${GRID}/${basename(selfSM)}"
 
-  String new_duplicate_metrics = "${target_bucket}/${sample_name}/${basename(duplicate_metrics)}"
-  String new_output_bqsr_reports = "${target_bucket}/${sample_name}/${basename(output_bqsr_reports)}"
+  String new_duplicate_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(duplicate_metrics)}"
+  String new_output_bqsr_reports = "${target_bucket}/${genoset}/${GRID}/${basename(output_bqsr_reports)}"
 
-  String new_output_bam = "${target_bucket}/${sample_name}/${basename(output_bam)}"
-  String new_output_bam_index = "${target_bucket}/${sample_name}/${basename(output_bam_index)}"
+  String new_output_bam = "${target_bucket}/${genoset}/${GRID}/${basename(output_bam)}"
+  String new_output_bam_index = "${target_bucket}/${genoset}/${GRID}/${basename(output_bam_index)}"
 
   command <<<
   gsutil mv ~{unsorted_base_distribution_by_cycle_pdf} ~{new_unsorted_base_distribution_by_cycle_pdf}
