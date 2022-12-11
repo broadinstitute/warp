@@ -127,7 +127,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMoveFastqToBamResult.wdl
 
-  - name: VUMCMoveHyplotypecallerResult
+  - name: VUMCMoveHaplotypecallerResult
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCMoveHyplotypecallerResult.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCMoveHaplotypecallerResult.wdl
     

@@ -1,6 +1,6 @@
 version 1.0
 
-workflow VUMCMoveHyplotypecallerResult {
+workflow VUMCMoveHaplotypecallerResult {
   input {
     String genoset
     String GRID
@@ -11,7 +11,7 @@ workflow VUMCMoveHyplotypecallerResult {
     String target_bucket
   }
 
-  call MoveHyplotypecallerResult as mh {
+  call MoveHaplotypecallerResult as mh {
     input:
       genoset = genoset,
       GRID = GRID,
@@ -29,7 +29,7 @@ workflow VUMCMoveHyplotypecallerResult {
   }
 }
 
-task MoveHyplotypecallerResult {
+task MoveHaplotypecallerResult {
   input {
     String genoset
     String GRID
