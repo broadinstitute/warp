@@ -73,6 +73,8 @@ workflow VUMCMoveFastqToBamResult {
 
     String target_output_bam = mf.target_output_bam
     String target_output_bam_index = mf.target_output_bam_index
+
+    Int target_bam_moved = mf.target_bam_moved
   }
 }
 
@@ -169,6 +171,6 @@ task MoveFastqToBamResult {
     String target_output_bam = "~{new_output_bam}"
     String target_output_bam_index = "~{new_output_bam_index}"
 
-    Int bam_moved = 1
+    Int target_bam_moved = 1
   }
 }

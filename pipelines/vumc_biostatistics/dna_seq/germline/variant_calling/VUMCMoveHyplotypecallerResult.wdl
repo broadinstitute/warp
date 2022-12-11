@@ -25,6 +25,7 @@ workflow VUMCMoveHyplotypecallerResult {
   output {
     String target_output_vcf = mh.target_output_vcf
     String target_output_vcf_index = mh.target_output_vcf_index
+    Int target_vcf_moved=mh.target_vcf_moved
   }
 }
 
@@ -56,6 +57,6 @@ task MoveHyplotypecallerResult {
   output {
     String target_output_vcf = "~{new_output_vcf}"
     String target_output_vcf_index = "~{new_output_vcf_index}"
-    Int vcf_moved = 1
+    Int target_vcf_moved = 1
   }
 }
