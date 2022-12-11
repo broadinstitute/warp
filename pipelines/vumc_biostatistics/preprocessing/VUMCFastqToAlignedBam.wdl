@@ -365,6 +365,7 @@ workflow VUMCFastqToAlignedBam {
 
     File output_bam = GatherBamFiles.output_bam
     File output_bam_index = GatherBamFiles.output_bam_index
+    File output_bam_md5 = GatherBamFiles.output_bam_md5
   }
   meta {
     allowNestedInputs: true
