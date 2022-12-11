@@ -168,5 +168,7 @@ task MoveFastqToBamResult {
 
     String target_output_bam = "~{new_output_bam}"
     String target_output_bam_index = "~{new_output_bam_index}"
+
+    Int bam_moved = 1
   }
 }
