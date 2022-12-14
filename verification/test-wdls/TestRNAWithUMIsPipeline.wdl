@@ -198,7 +198,7 @@ workflow TestRNAWithUMIsPipeline {
         truth_gene_tpm            = GetGeneTpm.truth_file,
         truth_gene_counts         = GetGeneCounts.truth_file,
         truth_exon_counts         = GetExonCounts.truth_file,
-        truth_transcriptome_duplicate_metrics = GetTranscriptomeDuplicationMetrics.results_file.truth_file,
+        truth_transcriptome_duplicate_metrics = GetTranscriptomeDuplicationMetrics.truth_file,
         transcriptome_deterministic = transcriptome_deterministic,
         done                      = CopyToTestResults.done
     }
