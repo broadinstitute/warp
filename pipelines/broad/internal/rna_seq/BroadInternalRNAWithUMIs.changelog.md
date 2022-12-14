@@ -1,5 +1,5 @@
 # 1.0.19
-2022-11-18 (Date of Last Commit)
+2022-12-14 (Date of Last Commit)
 
 * Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
 * Fixied whitespace in the BroadInternalRNAWithUMIS.wdl, this has no functional effect on the pipeline
@@ -10,6 +10,7 @@
 * Removed workspace_bucket workflow parameter from BroadInternalArrays and BroadInternalImputation.
 * Update rnaseqc2 version to address bias metric edge cases
 * Turn off python hash salting in GroupByUMIs to mitigate non-determinism in umi_tools.
+* --use-jdk-deflater in PostProcessReadsForRSEM due to GKL compression bug in current GATK>=4.2.1.0
 
 # 1.0.18
 2022-09-30 (Date of Last Commit)

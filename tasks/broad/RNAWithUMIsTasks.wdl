@@ -990,7 +990,8 @@ task PostprocessTranscriptomeForRSEM {
   command {
     gatk PostProcessReadsForRSEM \
     -I ~{input_bam} \
-    -O ~{prefix}_RSEM_post_processed.bam
+    -O ~{prefix}_RSEM_post_processed.bam \
+    --use-jdk-deflater
   }
 
   output {
