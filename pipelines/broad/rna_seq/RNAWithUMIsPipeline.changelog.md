@@ -1,7 +1,12 @@
-# 1.0.10
-2022-11-09 (Date of Last Commit)
+# 1.0.11
+2022-12-15 (Date of Last Commit)
 
 * Updated to GATK version 4.3.0.0
+
+# 1.0.10
+2022-12-07 (Date of Last Commit)
+
+* (Imported but not called by this pipeline) In MergeMetrics task, convert \"?\" to \"NaN\" and round some median metrics to integers.
 
 # 1.0.9
 2022-10-11 (Date of Last Commit)
