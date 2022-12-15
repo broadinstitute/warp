@@ -1,3 +1,8 @@
+# 1.0.20
+2022-12-07 (Date of Last Commit)
+
+* In MergeMetrics task, convert \"?\" to \"NaN\" and round some median metrics to integers.
+
 # 1.0.19
 2022-12-14 (Date of Last Commit)
 
