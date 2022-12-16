@@ -136,6 +136,7 @@ workflow WholeGenomeGermlineSingleSample {
   }
 
   call ToCram.BamToCram as BamToCram {
+    # Add line for testing PR checks
     input:
       input_bam = UnmappedBamToAlignedBam.output_bam,
       ref_fasta = references.reference_fasta.ref_fasta,
