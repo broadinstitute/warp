@@ -39,7 +39,7 @@ def get_features(features):
             if key not in features_dic:
                 features_dic[key] = value
             else:
-                if type(features_dic[key])==list:
+                if type(features_dic[key]) == list:
                     features_dic[key].append(value)
                 else:
                     features_dic[key] = [features_dic[key]]
