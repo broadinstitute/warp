@@ -98,7 +98,7 @@ def get_gene_ids_Gencode(input_gtf, biotypes):
                 continue
             if 'tag' in features_dic:
                 if ('readthrough_transcript' not in features_dic['tag']) and (
-                        'PAR' not in features_dic['tag']):
+                    'PAR' not in features_dic['tag']):
                     gene=features_dic['gene_id'].split('.', 1)[0]
                     if gene not in gene_ids:
                         gene_ids.append(gene)
