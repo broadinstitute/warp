@@ -51,7 +51,7 @@ task BuildStarSingleNucleus {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1671132408"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1671490724"
     memory: "50 GiB"
     disks :"local-disk 100 HDD"
     cpu:"16"
