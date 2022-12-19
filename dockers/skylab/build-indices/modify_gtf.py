@@ -63,6 +63,8 @@ def modify_attr(features_dic):
         else:
             modified_features = modified_features + key + " "+ features_dic[key] + "; "
     return modified_features
+    
+    
 def get_gene_ids_Refseq(input_gtf, biotypes):
     gene_ids =[]
     with open(input_gtf, 'r') as input_file:
