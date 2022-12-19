@@ -18,6 +18,8 @@ def get_ref_source(input_gtf):
                 # don't continue the search if found at least one instance
                 break
     return reference_source
+    
+    
 def get_biotypes(biotypes_file_path):
     allowable_biotypes= []
     with open(biotypes_file_path,'r',encoding='utf-8-sig') as biotypesFile:
