@@ -3,7 +3,7 @@ sidebar_position: 3
 ---
 
 # Setting default values
-In WDL, default values are those that allow your workflow to run in the absence of a user-defined attribute. These include primary inputs that you’ve hardcoded to a value, but they can also include inputs that are assigned to dynamically calculated functions ([like autosizing functions for setting runtime parameters](./autosize.md)). If you’re wondering whether a parameter has a default value or not, just ask yourself, “Will the workflow run if I don’t specify an attribute in the WDL’s JSON?”
+In WDL, default values are those that allow your workflow to run in the absence of a user-defined attribute. These include primary inputs that you’ve hardcoded to a value, but they can also include inputs that are assigned to dynamically calculated functions ([like autosizing functions for setting runtime parameters](./autosize.md)). If you’re wondering whether a parameter has a default value or not, just ask yourself, “Will the workflow run if I don’t specify an attribute in the WDL’s input JSON?”
 
 ## Why set up defaults?
 Default values can be used for a variety of reasons. Perhaps you want to hardcode a value because you don’t want others changing parameters while running the workflow. Or maybe you have standard values, like reference files, that you apply consistently across workflow runs regardless of the data you analyze. Overall, defaults can help ensure a workflow won’t keel over across different runs and user hands. 
