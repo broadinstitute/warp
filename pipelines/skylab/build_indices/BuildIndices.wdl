@@ -19,8 +19,8 @@ task BuildStarSingleNucleus {
   }
   String ref_name = "star_primary_gencode_~{organism}_v~{gtf_version}"
   String star_index_name = "modified_~{ref_name}.tar"
-  String annotation_gtf_modified = "modified_gencode.v~{gtf_version}.primary_assembly.annotation.gtf"
-  String annotation_gtf_introns = "introns_modified_gencode.v~{gtf_version}.primary_assembly.annotation.gtf"
+  String annotation_gtf_modified = "modified_v~{gtf_version}.annotation.gtf"
+  String annotation_gtf_introns = "introns_modified_v~{gtf_version}.annotation.gtf"
 
   command <<<
     set -eo pipefail
@@ -64,7 +64,7 @@ workflow BuildIndices {
   input {
     File annotations_gtf
     File genome_fa
-    String gtf_version = "M31"
+    String gtf_version
     File biotypes
   }
 
