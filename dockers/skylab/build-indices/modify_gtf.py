@@ -82,7 +82,7 @@ def get_gene_ids_Refseq(input_gtf, biotypes):
     return gene_ids
 
 def get_gene_ids_Gencode(input_gtf, biotypes):
-    gene_ids = []
+    gene_ids = set()
     with open(input_gtf, 'r') as input_file:
         for line in input_file:
             if line.startswith('#'):
@@ -101,14 +101,14 @@ def get_gene_ids_Gencode(input_gtf, biotypes):
                     'PAR' not in features_dic['tag']):
                     gene=features_dic['gene_id'].split('.', 1)[0]
                     if gene not in gene_ids:
-                        gene_ids.append(gene)
+                        gene_ids.add(gene)
             else:
                 gene=features_dic['gene_id'].split('.', 1)[0]
                 if gene not in gene_ids:
-                    gene_ids.append(gene)
+                    gene_ids.add(gene)
 
     input_file.close()
-    return gene_ids
+    return list(gene_ids)
 
 
 def main():
