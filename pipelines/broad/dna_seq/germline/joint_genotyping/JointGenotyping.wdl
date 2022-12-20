@@ -430,6 +430,7 @@ workflow JointGenotyping {
           output_base_name = callset_name
       }
     }
+    File crosscheck_fingerprint_results = select_first([CrossCheckFingerprintSolo.crosscheck_metrics, GatherFingerprintingMetrics.gathered_metrics])
   }
 
 
@@ -454,7 +455,7 @@ workflow JointGenotyping {
     Array[File] output_intervals = SplitIntervalList.output_intervals
 
     # Output the metrics from crosschecking fingerprints.
-    File? crosscheck_fingerprint_check = select_first([CrossCheckFingerprintSolo.crosscheck_metrics, GatherFingerprintingMetrics.gathered_metrics])
+    File? crosscheck_fingerprint_check = crosscheck_fingerprint_results
   }
   meta {
     allowNestedInputs: true
