@@ -415,14 +415,11 @@ workflow JointGenotyping {
           disk_size = small_disk
       }
     }
-  }
+    if (!scatter_cross_check_fingerprints) {
 
-  if (!scatter_cross_check_fingerprints) {
-    if (cross_check_fingerprints) {
-
-    scatter (line in sample_name_map_lines) {
-      File gvcf_paths = line[1]
-    }
+      scatter (line in sample_name_map_lines) {
+        File gvcf_paths = line[1]
+      }
 
       call Tasks.CrossCheckFingerprint as CrossCheckFingerprintSolo {
         input:
@@ -432,8 +429,9 @@ workflow JointGenotyping {
           haplotype_database = haplotype_database,
           output_base_name = callset_name
       }
+    }
   }
-  }
+
 
   # Get the metrics from either code path
   File output_detail_metrics_file = select_first([CollectMetricsOnFullVcf.detail_metrics_file, GatherVariantCallingMetrics.detail_metrics_file])
@@ -456,7 +454,7 @@ workflow JointGenotyping {
     Array[File] output_intervals = SplitIntervalList.output_intervals
 
     # Output the metrics from crosschecking fingerprints.
-    File crosscheck_fingerprint_check = select_first([CrossCheckFingerprintSolo.crosscheck_metrics, GatherFingerprintingMetrics.gathered_metrics])
+    File? crosscheck_fingerprint_check = select_first([CrossCheckFingerprintSolo.crosscheck_metrics, GatherFingerprintingMetrics.gathered_metrics])
   }
   meta {
     allowNestedInputs: true
