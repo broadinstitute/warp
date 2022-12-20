@@ -1,3 +1,9 @@
+# 1.1.0
+2022-11-21 (Date of Last Commit)
+
+* add `lab_batch` as required input paramater to workflow BroadInternalArrays
+* add `lab_batch` to task FormatArraysOutputs
+
 # 1.0.9 
 2022-11-08 (Date of Last Commit)
 
