@@ -422,18 +422,17 @@ if (cross_check_fingerprints) {
       File gvcf_paths = line[1]
     }
 
-      call Tasks.CrossCheckFingerprint as CrossCheckFingerprintSolo {
-        input:
-          gvcf_paths = gvcf_paths,
-          vcf_paths = ApplyRecalibration.recalibrated_vcf,
-          sample_name_map = sample_name_map,
-          haplotype_database = haplotype_database,
-          output_base_name = callset_name
+    call Tasks.CrossCheckFingerprint as CrossCheckFingerprintSolo {
+      input:
+        gvcf_paths = gvcf_paths,
+        vcf_paths = ApplyRecalibration.recalibrated_vcf,
+        sample_name_map = sample_name_map,
+        haplotype_database = haplotype_database,
+        output_base_name = callset_name
       }
     }
     File crosscheck_fingerprint_results = select_first([CrossCheckFingerprintSolo.crosscheck_metrics, GatherFingerprintingMetrics.gathered_metrics])
   }
-
 
   # Get the metrics from either code path
   File output_detail_metrics_file = select_first([CollectMetricsOnFullVcf.detail_metrics_file, GatherVariantCallingMetrics.detail_metrics_file])
