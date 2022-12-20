@@ -1,10 +1,16 @@
-# 1.0.10
+# 1.1.1
 2022-12-16 (Date of Last Commit)
 
 * Updated to GATK version 4.3.0.0
 
-# 1.0.9
-2022-11-09 (Date of Last Commit)
+# 1.1.0
+2022-11-21 (Date of Last Commit)
+
+* add `lab_batch` as required input paramater to workflow BroadInternalArrays
+* add `lab_batch` to task FormatArraysOutputs
+
+# 1.0.9 
+2022-11-08 (Date of Last Commit)
 
 * remove workspace_bucket parameter from workflow inputs and IngestOutputsToTDR
 
