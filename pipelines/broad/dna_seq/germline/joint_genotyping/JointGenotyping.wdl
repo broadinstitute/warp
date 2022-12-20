@@ -62,7 +62,7 @@ workflow JointGenotyping {
     Int gnarly_scatter_count = 10
     Boolean use_gnarly_genotyper = false
     Boolean use_allele_specific_annotations = true
-    Boolean cross_check_fingerprints = false
+    Boolean cross_check_fingerprints = true
     Boolean scatter_cross_check_fingerprints = false
   }
 
@@ -358,70 +358,72 @@ workflow JointGenotyping {
 
   # CrossCheckFingerprints takes forever on large callsets.
   # We scatter over the input GVCFs to make things faster.
-  if (scatter_cross_check_fingerprints) {
-    call Tasks.GetFingerprintingIntervalIndices {
-      input:
-        unpadded_intervals = unpadded_intervals,
-        haplotype_database = haplotype_database
-    }
-
-    Array[Int] fingerprinting_indices = GetFingerprintingIntervalIndices.indices_to_fingerprint
-
-    scatter (idx in fingerprinting_indices) {
-      File vcfs_to_fingerprint = HardFilterAndMakeSitesOnlyVcf.variant_filtered_vcf[idx]
-    }
-
-    call Tasks.GatherVcfs as GatherFingerprintingVcfs {
-      input:
-        input_vcfs = vcfs_to_fingerprint,
-        output_vcf_name = callset_name + ".gathered.fingerprinting.vcf.gz",
-        disk_size = medium_disk
-    }
-
-    call Tasks.SelectFingerprintSiteVariants {
-      input:
-        input_vcf = GatherFingerprintingVcfs.output_vcf,
-        base_output_name = callset_name + ".fingerprinting",
-        haplotype_database = haplotype_database,
-        disk_size = medium_disk
-    }
-
-    call Tasks.PartitionSampleNameMap {
-      input:
-        sample_name_map = sample_name_map,
-        line_limit = 1000
-    }
-
-    scatter (idx in range(length(PartitionSampleNameMap.partitions))) {
-
-      Array[File] files_in_partition = read_lines(PartitionSampleNameMap.partitions[idx])
-
-      call Tasks.CrossCheckFingerprint as CrossCheckFingerprintsScattered {
+  if (cross_check_fingerprints) {
+    if (scatter_cross_check_fingerprints) {
+      call Tasks.GetFingerprintingIntervalIndices {
         input:
-          gvcf_paths = files_in_partition,
-          vcf_paths = vcfs_to_fingerprint,
-          sample_name_map = sample_name_map,
-          haplotype_database = haplotype_database,
-          output_base_name = callset_name + "." + idx,
-          scattered = true
+          unpadded_intervals = unpadded_intervals,
+          haplotype_database = haplotype_database
       }
-    }
 
-    call Tasks.GatherPicardMetrics as GatherFingerprintingMetrics {
-      input:
-        metrics_files = CrossCheckFingerprintsScattered.crosscheck_metrics,
-        output_file_name = callset_name + ".fingerprintcheck",
-        disk_size = small_disk
+      Array[Int] fingerprinting_indices = GetFingerprintingIntervalIndices.indices_to_fingerprint
+
+      scatter (idx in fingerprinting_indices) {
+        File vcfs_to_fingerprint = HardFilterAndMakeSitesOnlyVcf.variant_filtered_vcf[idx]
+      }
+
+      call Tasks.GatherVcfs as GatherFingerprintingVcfs {
+        input:
+          input_vcfs = vcfs_to_fingerprint,
+          output_vcf_name = callset_name + ".gathered.fingerprinting.vcf.gz",
+          disk_size = medium_disk
+      }
+
+      call Tasks.SelectFingerprintSiteVariants {
+        input:
+          input_vcf = GatherFingerprintingVcfs.output_vcf,
+          base_output_name = callset_name + ".fingerprinting",
+          haplotype_database = haplotype_database,
+          disk_size = medium_disk
+      }
+
+      call Tasks.PartitionSampleNameMap {
+        input:
+          sample_name_map = sample_name_map,
+          line_limit = 1000
+      }
+
+      scatter (idx in range(length(PartitionSampleNameMap.partitions))) {
+
+        Array[File] files_in_partition = read_lines(PartitionSampleNameMap.partitions[idx])
+
+        call Tasks.CrossCheckFingerprint as CrossCheckFingerprintsScattered {
+          input:
+            gvcf_paths = files_in_partition,
+            vcf_paths = vcfs_to_fingerprint,
+            sample_name_map = sample_name_map,
+            haplotype_database = haplotype_database,
+            output_base_name = callset_name + "." + idx,
+            scattered = true
+        }
+      }
+
+      call Tasks.GatherPicardMetrics as GatherFingerprintingMetrics {
+        input:
+          metrics_files = CrossCheckFingerprintsScattered.crosscheck_metrics,
+          output_file_name = callset_name + ".fingerprintcheck",
+          disk_size = small_disk
+      }
     }
   }
 
   if (!scatter_cross_check_fingerprints) {
+    if (cross_check_fingerprints) {
 
     scatter (line in sample_name_map_lines) {
       File gvcf_paths = line[1]
     }
 
-    if (cross_check_fingerprints) {
       call Tasks.CrossCheckFingerprint as CrossCheckFingerprintSolo {
         input:
           gvcf_paths = gvcf_paths,
@@ -430,7 +432,7 @@ workflow JointGenotyping {
           haplotype_database = haplotype_database,
           output_base_name = callset_name
       }
-    }
+  }
   }
 
   # Get the metrics from either code path
