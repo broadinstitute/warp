@@ -1,3 +1,8 @@
+# 2.6.17
+2022-11-29 (Date of Last Commit)
+
+* Updated InternalArraysTasks.wdl for BroadInternalArrays - adding `lab_batch` as workflow input.
+
 # 2.6.16
 2022-11-08 (Date of Last Commit)
 
