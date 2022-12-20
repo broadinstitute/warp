@@ -7,12 +7,12 @@ import "../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 workflow BroadInternalImputation {
     meta {
         description: "Push outputs of Imputation.wdl to TDR dataset table ImputationOutputsTable and split out Imputation arrays into ImputationWideOutputsTable."
+        allowNestedInputs: true
     }
-    String pipeline_version = "1.1.3"
+    String pipeline_version = "1.1.5"
     
     input {
         # inputs to wrapper task 
-        String workspace_bucket
         String tdr_dataset_id
         String tdr_target_table_name
         String prs_cf_trigger_bucket_path
@@ -57,7 +57,6 @@ workflow BroadInternalImputation {
 
     call InternalTasks.IngestOutputsToTDR as IngestToImputationOutputsTable {
         input:
-            workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
             outputs_tsv             = FormatImputationOutputs.ingest_outputs_tsv
@@ -71,7 +70,6 @@ workflow BroadInternalImputation {
 
     call InternalTasks.IngestOutputsToTDR as IngestToImputationWideOutputsTable {
         input:
-            workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = "ImputationWideOutputsTable",
             outputs_tsv             = FormatImputationWideOutputs.ingest_outputs_wide_tsv,
