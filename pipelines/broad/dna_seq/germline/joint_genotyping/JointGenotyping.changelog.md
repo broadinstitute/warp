@@ -1,3 +1,8 @@
+# 1.6.5
+2022-12-20 (Date of Last Commit)
+
+* Added logic that skips crosscheck if cross_check_fingerprints is set to false. 
+
 # 1.6.4
 2022-08-26 (Date of Last Commit)
 
