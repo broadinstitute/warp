@@ -1,6 +1,6 @@
-# Building References for HCA Pipelines
+# Building References for Single-Cell Pipelines
 
-The macaque and mouse reference files for the BICAN Optimus pipeline can be prepared by using 
+The macaque and mouse reference files for the Optimus pipeline (used by BICAN and HCA) can be prepared by using 
 the `BuildIndices.wdl` workflow. The WDL is self contained without any dependent WDL files. The references can be built
  by providing an input JSON file to the above WDL.
 
