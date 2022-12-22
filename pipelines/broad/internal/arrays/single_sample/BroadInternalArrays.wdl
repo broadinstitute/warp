@@ -9,7 +9,7 @@ workflow BroadInternalArrays {
         description: "Push outputs of Arrays.wdl to TDR dataset table ArraysOutputsTable."
     }
 
-    String pipeline_version = "1.0.9"
+    String pipeline_version = "1.1.1"
 
     input {
         # inputs to wrapper task
@@ -21,6 +21,7 @@ workflow BroadInternalArrays {
         String  sample_alias
         String  sample_lsid
         String  reported_gender
+        String  lab_batch
         File    red_idat_cloud_path
         File    green_idat_cloud_path
         File    ref_fasta
@@ -72,7 +73,8 @@ workflow BroadInternalArrays {
             fingerprint_summary_metrics_file                    = Arrays.fingerprint_summary_metrics_file,
             genotype_concordance_summary_metrics_file           = Arrays.genotype_concordance_summary_metrics_file,
             genotype_concordance_detail_metrics_file            = Arrays.genotype_concordance_detail_metrics_file,
-            genotype_concordance_contingency_metrics_file       = Arrays.genotype_concordance_contingency_metrics_file
+            genotype_concordance_contingency_metrics_file       = Arrays.genotype_concordance_contingency_metrics_file,
+            lab_batch                                           = lab_batch
     }
 
     call InternalTasks.IngestOutputsToTDR {
