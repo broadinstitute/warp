@@ -9,32 +9,32 @@ workflow BroadInternalArrays {
         description: "Push outputs of Arrays.wdl to TDR dataset table ArraysOutputsTable."
     }
 
-    String pipeline_version = "1.0.6"
+    String pipeline_version = "1.1.1"
 
     input {
         # inputs to wrapper task
-        String workspace_bucket
-        String tdr_dataset_id
-        String tdr_target_table_name
+        String  tdr_dataset_id
+        String  tdr_target_table_name
 
         # required inputs to Arrays.wdl
-        String chip_well_barcode
-        String sample_alias
-        String sample_lsid
-        String reported_gender
-        File red_idat_cloud_path
-        File green_idat_cloud_path
-        File ref_fasta
-        File ref_fasta_index
-        File ref_dict
-        File dbSNP_vcf
-        File dbSNP_vcf_index
-        File haplotype_database_file
-        File variant_rsids_file
-        Int disk_size
-        Int preemptible_tries
-        String environment
-        File vault_token_path
+        String  chip_well_barcode
+        String  sample_alias
+        String  sample_lsid
+        String  reported_gender
+        String  lab_batch
+        File    red_idat_cloud_path
+        File    green_idat_cloud_path
+        File    ref_fasta
+        File    ref_fasta_index
+        File    ref_dict
+        File    dbSNP_vcf
+        File    dbSNP_vcf_index
+        File    haplotype_database_file
+        File    variant_rsids_file
+        Int     disk_size
+        Int     preemptible_tries
+        String  environment
+        File    vault_token_path
     }
 
     call ArraysPipeline.Arrays {
@@ -73,12 +73,12 @@ workflow BroadInternalArrays {
             fingerprint_summary_metrics_file                    = Arrays.fingerprint_summary_metrics_file,
             genotype_concordance_summary_metrics_file           = Arrays.genotype_concordance_summary_metrics_file,
             genotype_concordance_detail_metrics_file            = Arrays.genotype_concordance_detail_metrics_file,
-            genotype_concordance_contingency_metrics_file       = Arrays.genotype_concordance_contingency_metrics_file
+            genotype_concordance_contingency_metrics_file       = Arrays.genotype_concordance_contingency_metrics_file,
+            lab_batch                                           = lab_batch
     }
 
     call InternalTasks.IngestOutputsToTDR {
         input:
-            workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
             outputs_tsv             = FormatArraysOutputs.ingest_outputs_tsv

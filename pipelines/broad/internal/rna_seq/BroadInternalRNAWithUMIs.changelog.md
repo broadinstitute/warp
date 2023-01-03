@@ -1,3 +1,30 @@
+# 1.0.21
+2022-12-16 (Date of Last Commit)
+
+* Updated to GATK version 4.3.0.0
+
+# 1.0.20
+2022-12-07 (Date of Last Commit)
+
+* In MergeMetrics task, convert \"?\" to \"NaN\" and round some median metrics to integers.
+
+# 1.0.19
+2022-11-08 (Date of Last Commit)
+
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+* Fixied whitespace in the BroadInternalRNAWithUMIS.wdl, this has no functional effect on the pipeline
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new optional input variable. This update has no effect on this pipeline.
+* Updated task FormatArraysOutputs in InternalArrraysTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+* Force task rnaseqc2 to produce an empty fragment size file when rnaseqc2 does not produce this file due to insufficient data.
+* Removed workspace_bucket workflow parameter from BroadInternalArrays and BroadInternalImputation.
+
+# 1.0.18
+2022-09-30 (Date of Last Commit)
+
+* Updated Picard-Python Docker image in Utilities.wdl to fix vulnerabilities.
+* Updated task IngestOutputsToTDR with GCR images instead of Dockerhub.
+
 # 1.0.17
 2022-09-07 (Date of Last Commit)
 

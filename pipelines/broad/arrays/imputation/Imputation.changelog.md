@@ -1,3 +1,25 @@
+# 1.1.8
+2022-12-16 (Date of Last Commit)
+
+* Updated to GATK version 4.3.0.0
+
+# 1.1.7
+2022-12-01 (Date of Last Commit)
+
+* Updated BCFTools/VCFTools Docker image
+
+# 1.1.6
+2022-11-10 (Date of Last Commit)
+
+* Added meta section to allowNestedInputs, this will allow task level inputs to be set in the inputs json
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
+# 1.1.5
+2022-09-30 (Date of Last Commit)
+
+* Updated BCFTools/VCFTools and Minimac4 Docker images to fix vulnerabilities.
+* Updated tasks FormatImputationOutputs, FormatImputationWideOutputs, and IngestOutputsToTDR with GCR images instead of Dockerhub.
+
 # 1.1.4
 2022-08-23 (Date of Last Commit)
 

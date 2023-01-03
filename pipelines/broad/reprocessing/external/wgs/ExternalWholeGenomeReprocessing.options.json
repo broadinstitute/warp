@@ -3,7 +3,6 @@
   "write_to_cache": true,
   "google_legacy_machine_selection": true,
   "default_runtime_attributes": {
-    "zones": "us-central1-a us-central1-b us-east1-d us-central1-c us-central1-f us-east1-c",
     "docker": "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.5.7-2021-06-09_16-47-48Z"
   },
   "backend": "PAPIv2"

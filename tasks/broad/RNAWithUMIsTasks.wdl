@@ -273,7 +273,7 @@ task GetSampleName {
   input {
     File bam
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
@@ -316,6 +316,8 @@ task rnaseqc2 {
 
   command <<<
     set -euo pipefail
+    # force fragmentSizes histogram output file to exist (even if empty)
+    touch ~{sample_id}.fragmentSizes.txt
     echo $(date +"[%b %d %H:%M:%S] Running RNA-SeQC 2")
     rnaseqc ~{genes_gtf} ~{bam_file} . -s ~{sample_id} -v --bed ~{exon_bed}
     echo "  * compressing outputs"
@@ -460,7 +462,12 @@ task MergeMetrics {
 
     for col in range(0, len(rows[0])):
       key = rows[0][col].lower()
-      print(f"{key}\t{rows[1][col]}")
+      value = rows[1][col]
+      if value == "?":
+        value = "NaN"
+      if key in ["median_insert_size", "median_absolute_deviation", "median_read_length", "hq_median_mismatches"]:
+        value = str(int(float(value)))
+      print(f"{key}\t{value}")
     EOF
 
     #
@@ -827,7 +834,7 @@ task CalculateContamination {
     File population_vcf
     File population_vcf_index
     # runtime
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int cpu = 1
     Int memory_mb = 8192
     Int disk_size_gb = 256

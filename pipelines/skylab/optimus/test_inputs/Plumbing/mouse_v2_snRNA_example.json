@@ -1,25 +1,25 @@
 {
   "Optimus.r1_fastq": [
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L001_R1_001.fastq.gz",
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L002_R1_001.fastq.gz",
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L003_R1_001.fastq.gz",
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L004_R1_001.fastq.gz",
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L005_R1_001.fastq.gz",
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L006_R1_001.fastq.gz",
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L007_R1_001.fastq.gz",
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L008_R1_001.fastq.gz"
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L001_R1_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L002_R1_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L003_R1_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L004_R1_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L005_R1_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L006_R1_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L007_R1_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L008_R1_001.fastq.gz"
   ],
   "Optimus.r2_fastq": [
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L001_R2_001.fastq.gz",
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L002_R2_001.fastq.gz",
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L003_R2_001.fastq.gz",
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L004_R2_001.fastq.gz",
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L005_R2_001.fastq.gz",
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L006_R2_001.fastq.gz",
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L007_R2_001.fastq.gz",
-    "gs://hca-dcp-mint-test-data/10x/mouse/2k_brain_nuclei_adult_mouse/nuclei_2k_S1_L008_R2_001.fastq.gz"
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L001_R2_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L002_R2_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L003_R2_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L004_R2_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L005_R2_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L006_R2_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L007_R2_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L008_R2_001.fastq.gz"
   ],
-  "Optimus.whitelist": "gs://hca-dcp-sc-pipelines-test-data/whitelists/737K-august-2016.txt",
+  "Optimus.whitelist": "gs://broad-gotc-test-storage/Optimus/truth/plumbing/master/inputs/737K-august-2016.txt",
   "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/mm10/v0/star/star_2.7.9a_primary_gencode_mouse_vM21.tar",
   "Optimus.input_id": "nuclei_2k_mouse",
   "Optimus.chemistry": "tenX_v2",
