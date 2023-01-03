@@ -1,8 +1,0 @@
-{
-  "BuildIndices.gtf_version": "M23",
-  "BuildIndices.organism": "mouse",
-  "BuildIndices.organism_prefix": "m",
-  "BuildIndices.genome_short_string": "mm10",
-  "BuildIndices.dbsnp_version": "150",
-  "BuildIndices.biotypes": "gs://hca-dcp-sc-pipelines-test-data/referenceData/Biotypes.tsv"
-}
