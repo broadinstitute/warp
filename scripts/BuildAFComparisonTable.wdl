@@ -117,7 +117,7 @@ task AnnotateWithAF_t {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     disks: "local-disk " + disk_size + " HDD"
     memory: mem + " GB" # some of the gnomad vcfs are like 38 gigs so maybe need more ?
   }
@@ -145,7 +145,7 @@ task GatherVCFsCloud {
     >>>
 
     runtime {
-            docker: "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+            docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
             disks: "local-disk " + disk_size + " HDD"
             memory: "16 GB"
         }
@@ -169,7 +169,7 @@ task MakeSitesOnlyVcf {
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+        docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
         disks: "local-disk " + disk_size + " HDD"
         memory: "16 GB"
     }
@@ -224,7 +224,7 @@ task VariantsToTable {
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+        docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
         disks: "local-disk " + disk_size + " HDD"
         memory: "16 GB"
     }
@@ -280,7 +280,7 @@ task RemoveSymbolicAlleles {
     File output_vcf_index = "~{output_basename}.vcf.gz.tbi"
   }
   runtime {
-    docker: "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     disks: "local-disk " + disk_size + " HDD"
     memory: "4 GB"
   }
