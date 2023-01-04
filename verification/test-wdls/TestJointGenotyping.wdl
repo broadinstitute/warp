@@ -200,7 +200,7 @@ workflow TestJointGenotyping {
           test_intervals = GetIntervals.results_files,
           truth_metrics = GetMetrics.truth_files, 
           test_metrics = GetMetrics.results_files,
-            #truth_fingerprint = GetFingerprint.truth_file,
+          truth_fingerprint = GetFingerprint.truth_file,
           test_fingerprint = GetFingerprint.results_file,
           done = CopyToTestResults.done
       }
