@@ -122,6 +122,7 @@ task CompareTranscriptomeBamWithTolerance {
     LENIENT_HEADER=true \
     LENIENT_LOW_MQ_ALIGNMENT=true
 
+    pip3 install pandas
     python3 << EOF
     import pandas as pd
     comp = pd.read_csv("comparison.tsv")
@@ -136,7 +137,7 @@ task CompareTranscriptomeBamWithTolerance {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.27.5-1667410556"
     disks: "local-disk " + disk_size + " HDD"
     cpu: 2
     memory: "7500 MiB"

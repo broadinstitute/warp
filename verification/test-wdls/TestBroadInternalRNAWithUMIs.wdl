@@ -182,6 +182,7 @@ workflow TestBroadInternalRNAWithUMIs {
           test_gene_counts = GetGeneCounts.results_file,
           truth_exon_counts = GetExonCounts.truth_file,
           test_exon_counts = GetExonCounts.results_file,
+          transcriptome_deterministic = false,
           done = CopyToTestResults.done
       }
   
