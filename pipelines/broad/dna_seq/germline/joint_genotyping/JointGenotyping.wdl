@@ -63,8 +63,15 @@ workflow JointGenotyping {
     Boolean use_gnarly_genotyper = false
     Boolean use_allele_specific_annotations = true
     Boolean cross_check_fingerprints = false
-    Boolean scatter_cross_check_fingerprints = true
+    Boolean scatter_cross_check_fingerprints = false
   }
+
+ # if (defined(cross_check_fingerprints) && defined(multi_sample_vcf)) {
+ #   call utils.ErrorWithMessage as ErrorMessageDoubleInput{
+ #     input:
+ #       message = "single_sample_vcfs and multi_sample_vcf cannot both be defined as input"
+ #   }
+ # }
 
   Boolean allele_specific_annotations = !use_gnarly_genotyper && use_allele_specific_annotations
 
