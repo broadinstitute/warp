@@ -19,8 +19,8 @@ workflow VerifyJointGenotyping {
     Array[File] test_metrics
     Array[File] truth_metrics
 
-    File test_fingerprint
-    File truth_fingerprint
+    File? test_fingerprint
+    File? truth_fingerprint
 
     Boolean? done
   }
@@ -57,10 +57,12 @@ workflow VerifyJointGenotyping {
       truth_text_files = truth_intervals
   }
 
-  call CompareFingerprints {
-    input:
-      test_fingerprint = test_fingerprint,
-      truth_fingerprint = truth_fingerprint
+  if (defined(test_fingerprint)){
+    call CompareFingerprints {
+      input:
+        test_fingerprint = select_first([test_fingerprint]),
+        truth_fingerprint = select_first([truth_fingerprint])
+    }
   }
 
   call VerifyNA12878.VerifyNA12878 {
