@@ -62,8 +62,8 @@ workflow JointGenotyping {
     Int gnarly_scatter_count = 10
     Boolean use_gnarly_genotyper = false
     Boolean use_allele_specific_annotations = true
-    Boolean cross_check_fingerprints = true
-    Boolean scatter_cross_check_fingerprints = false
+    Boolean cross_check_fingerprints = false
+    Boolean scatter_cross_check_fingerprints = true
   }
 
  # if (defined(cross_check_fingerprints) && defined(multi_sample_vcf)) {
