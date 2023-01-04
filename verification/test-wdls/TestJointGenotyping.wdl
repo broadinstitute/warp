@@ -51,7 +51,7 @@ workflow TestJointGenotyping {
       Int gnarly_scatter_count = 10
       Boolean use_gnarly_genotyper = false
       Boolean use_allele_specific_annotations = true
-      Boolean cross_check_fingerprints = false
+      Boolean cross_check_fingerprints = true
       Boolean scatter_cross_check_fingerprints = false
 
       # These values will be determined and injected into the inputs by the scala test framework
