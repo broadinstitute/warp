@@ -123,9 +123,7 @@ workflow TestJointGenotyping {
                                     JointGenotyping.output_vcf_indices,
                                     JointGenotyping.output_vcfs,
                                     # File outputs
-                                    [
-                                    JointGenotyping.crosscheck_fingerprint_check,
-                                    ]              
+                                    select_all([JointGenotyping.crosscheck_fingerprint_check,])
     ])
 
     
@@ -183,11 +181,13 @@ workflow TestJointGenotyping {
             results_path = results_path,
             truth_path = truth_path
         }
-        call Utilities.GetValidationInputs as GetFingerprint {
-          input:
-            input_file = JointGenotyping.crosscheck_fingerprint_check,
-            results_path = results_path,
-            truth_path = truth_path
+        if (cross_check_fingerprints){
+            call Utilities.GetValidationInputs as GetFingerprint {
+                input:
+                    input_file = JointGenotyping.crosscheck_fingerprint_check,
+                    results_path = results_path,
+                    truth_path = truth_path
+            }
         }
 
       call VerifyJointGenotyping.VerifyJointGenotyping as Verify {
@@ -200,7 +200,7 @@ workflow TestJointGenotyping {
           test_intervals = GetIntervals.results_files,
           truth_metrics = GetMetrics.truth_files, 
           test_metrics = GetMetrics.results_files,
-          truth_fingerprint = GetFingerprint.truth_file, 
+            truth_fingerprint = GetFingerprint.truth_file,
           test_fingerprint = GetFingerprint.results_file,
           done = CopyToTestResults.done
       }

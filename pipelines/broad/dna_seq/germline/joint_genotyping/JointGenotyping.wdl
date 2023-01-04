@@ -358,6 +358,7 @@ workflow JointGenotyping {
 
   # CrossCheckFingerprints takes forever on large callsets.
   # We scatter over the input GVCFs to make things faster.
+if (cross_check_fingerprints) {
   if (scatter_cross_check_fingerprints) {
     call Tasks.GetFingerprintingIntervalIndices {
       input:
@@ -429,6 +430,8 @@ workflow JointGenotyping {
         haplotype_database = haplotype_database,
         output_base_name = callset_name
     }
+    }
+  File crosscheck_fingerprint_results = select_first([CrossCheckFingerprintSolo.crosscheck_metrics, GatherFingerprintingMetrics.gathered_metrics])
   }
 
   # Get the metrics from either code path
@@ -452,7 +455,7 @@ workflow JointGenotyping {
     Array[File] output_intervals = SplitIntervalList.output_intervals
 
     # Output the metrics from crosschecking fingerprints.
-    File crosscheck_fingerprint_check = select_first([CrossCheckFingerprintSolo.crosscheck_metrics, GatherFingerprintingMetrics.gathered_metrics])
+    File? crosscheck_fingerprint_check = crosscheck_fingerprint_results
   }
   meta {
     allowNestedInputs: true
