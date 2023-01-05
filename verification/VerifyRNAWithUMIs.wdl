@@ -55,7 +55,7 @@ workflow VerifyRNAWithUMIs {
   }
 
   if (!transcriptome_deterministic) {
-    call CompareTranscriptomeBam {
+    call CompareTranscriptomeBamNonDeterministic {
       input:
         test_bam = test_transcriptome_bam,
         truth_bam = truth_transcriptome_bam
@@ -63,7 +63,7 @@ workflow VerifyRNAWithUMIs {
 
     call CheckTranscriptomeBamComparisonWithTolerance {
       input:
-        comparison = CompareTranscriptomeBam.comparison,
+        comparison = CompareTranscriptomeBamNonDeterministic.comparison,
         tolerance = 0.006
     }
   }
@@ -105,7 +105,7 @@ workflow VerifyRNAWithUMIs {
   }
 }
 
-task CompareTranscriptomeBam {
+task CompareTranscriptomeBamNonDeterministic {
   input {
     File test_bam
     File truth_bam
