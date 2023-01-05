@@ -55,10 +55,15 @@ workflow VerifyRNAWithUMIs {
   }
 
   if (!transcriptome_deterministic) {
-    call CompareTranscriptomeBamWithTolerance {
+    call CompareTranscriptomeBam {
       input:
         test_bam = test_transcriptome_bam,
-        truth_bam = truth_transcriptome_bam,
+        truth_bam = truth_transcriptome_bam
+    }
+
+    call CheckTranscriptomeBamComparisonWithTolerance {
+      input:
+        comparison = CompareTranscriptomeBam.comparison,
         tolerance = 0.006
     }
   }
@@ -100,11 +105,10 @@ workflow VerifyRNAWithUMIs {
   }
 }
 
-task CompareTranscriptomeBamWithTolerance {
+task CompareTranscriptomeBam {
   input {
     File test_bam
     File truth_bam
-    Float tolerance
   }
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
@@ -121,6 +125,31 @@ task CompareTranscriptomeBamWithTolerance {
     O=comparison.tsv \
     LENIENT_HEADER=true \
     LENIENT_LOW_MQ_ALIGNMENT=true
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.27.5-1667410556"
+    disks: "local-disk " + disk_size + " HDD"
+    cpu: 2
+    memory: "7500 MiB"
+    preemptible: 3
+    continueOnReturnCode: [0, 1]
+  }
+
+  output {
+    File comparison = "comparison.tsv"
+  }
+}
+
+task CheckTranscriptomeBamComparisonWithTolerance {
+  input {
+    File comparison
+    Float tolerance
+  }
+
+  command <<<
+    set -e
+    set -o pipefail
 
     pip3 install pandas
     python3 << EOF
@@ -137,14 +166,7 @@ task CompareTranscriptomeBamWithTolerance {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.27.5-1667410556"
-    disks: "local-disk " + disk_size + " HDD"
-    cpu: 2
-    memory: "7500 MiB"
+    docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     preemptible: 3
-  }
-
-  output {
-    File comparison = "comparison.tsv"
   }
 }
