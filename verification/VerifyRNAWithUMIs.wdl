@@ -114,7 +114,7 @@ task CompareTranscriptomeBamWithTolerance {
     set -e
     set -o pipefail
 
-    java -Xms3500m -Xmx7000m -jar /usr/picard/picard.jar \
+    java -Xms3500m -Xmx7000m -jar /usr/gitc/picard.jar \
     CompareSAMs \
     ~{test_bam} \
     ~{truth_bam} \
