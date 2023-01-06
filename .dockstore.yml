@@ -131,3 +131,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCMoveHaplotypecallerResult.wdl
     
+  - name: VUMCGunzippedMd5
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCGunzippedMd5.wdl
+    
