@@ -1,5 +1,9 @@
 version 1.0
 
+## Copyright VUMC, 2023
+##
+## This WDL pipeline calculates the md5sum of gunzipped file
+##
 workflow VUMCGunzippedMd5 {
   input {
     String gzipped_file
