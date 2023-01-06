@@ -38,6 +38,8 @@ workflow TestRNAWithUMIsPipeline {
       # if expected to be deterministic, transcriptome comparisons should be exact.
       # if not, tolerances should be included
       Boolean transcriptome_deterministic = false
+      Float? transcriptome_duplicate_metrics_small_tolerance
+      Float? transcriptome_duplicate_metrics_large_tolerance
   
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -200,6 +202,8 @@ workflow TestRNAWithUMIsPipeline {
         truth_exon_counts         = GetExonCounts.truth_file,
         truth_transcriptome_duplicate_metrics = GetTranscriptomeDuplicationMetrics.truth_file,
         transcriptome_deterministic = transcriptome_deterministic,
+        transcriptome_duplicate_metrics_small_tolerance = transcriptome_duplicate_metrics_small_tolerance,
+        transcriptome_duplicate_metrics_large_tolerance = transcriptome_duplicate_metrics_large_tolerance,
         done                      = CopyToTestResults.done
     }
   }
