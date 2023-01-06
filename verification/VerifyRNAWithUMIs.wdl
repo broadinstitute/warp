@@ -154,9 +154,9 @@ task CheckTranscriptomeBamComparisonWithTolerance {
     pip3 install pandas
     python3 << EOF
     import pandas as pd
-    comp = pd.read_csv("comparison.tsv")
+    comp = pd.read_csv("~{comparison}", header=5, sep="\t")
 
-    assert ((comp['MISSING_LEFT'] + comp['MISSING_RIGHT'])/comp['MAPPINGS_MATCH'])[0]<~{tolerance}, f'frac missing is ((comp['MISSING_LEFT'] + comp['MISSING_RIGHT'])/comp['MAPPINGS_MATCH'])[0] which is grater than tolerance of ~{tolerance}'
+    assert ((comp['MISSING_LEFT'] + comp['MISSING_RIGHT'])/comp['MAPPINGS_MATCH'])[0]<~{tolerance}, f'frac missing is {((comp["MISSING_LEFT"] + comp["MISSING_RIGHT"])/comp["MAPPINGS_MATCH"])[0]} which is greater than tolerance of ~{tolerance}'
     assert comp['MAPPINGS_DIFFER'][0]==0, f'{comp["MAPPINGS_DIFFER"][0]} mappings differ'
     assert comp['UNMAPPED_LEFT'][0]==0, f'{comp["UNMAPPED_LEFT"][0]} unmapped in left file'
     assert comp['UNMAPPED_RIGHT'][0]==0, f'{comp["UNMAPPED_RIGHT"][0]} unmapped in right file'
