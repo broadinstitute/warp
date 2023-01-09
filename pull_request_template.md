@@ -3,7 +3,7 @@
 _Give your PR a **concise** yet **descriptive** title._
 _Please explain the changes you made here._
 _Explain the **motivation** for making this change. What existing problem does the pull request solve?_
-_Mention any issues fixed, addressed or otherwise related to this pull request, including issue numbers or hard links for issues in other repos._
+_Mention any issues fixed, addressed, or otherwise related to this pull request, including issue numbers or hard links for issues in other repos._
 _You can delete these instructions once you have written your PR description._
 
 ----
