@@ -21,6 +21,6 @@
   "RNAWithUMIsPipeline.population_vcf": "gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz",
   "RNAWithUMIsPipeline.population_vcf_index": "gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz.tbi",
 
-  "RNAWithUMIsPipeline.transcriptome_duplicate_metrics_small_tolerance": 0.1,
-  "RNAWithUMIsPipeline.transcriptome_duplicate_metrics_large_tolerance": 0.01
+  "RNAWithUMIsPipeline.transcriptome_duplicate_metrics_small_tolerance": 0.01,
+  "RNAWithUMIsPipeline.transcriptome_duplicate_metrics_large_tolerance": 0.1
 }
