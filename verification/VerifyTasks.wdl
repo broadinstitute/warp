@@ -205,8 +205,7 @@ task CompareBams {
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
   Int disk_size = ceil(bam_size * 4) + 20
-  ##Int memory_mb = ceil(size(test_bam, "MiB") + size(truth_bam, "MiB") * 2) + 20000
-  Int memory_mb = 30000
+  Int memory_mb = 15000
   Int java_memory_size = memory_mb - 1000
   Int max_heap = memory_mb - 500
 
