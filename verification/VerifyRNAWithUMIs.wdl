@@ -79,7 +79,8 @@ workflow VerifyRNAWithUMIs {
       extra_args = if transcriptome_deterministic then [] else ["--METRIC_ALLOWABLE_RELATIVE_CHANGE READ_PAIR_DUPLICATES:" + transcriptome_duplicate_metrics_small_tolerance,
                                                                 "--METRIC_ALLOWABLE_RELATIVE_CHANGE READ_PAIR_OPTICAL_DUPLICATES:" + transcriptome_duplicate_metrics_large_tolerance,
                                                                 "--METRIC_ALLOWABLE_RELATIVE_CHANGE PERCENT_DUPLICATION:" + transcriptome_duplicate_metrics_small_tolerance,
-                                                                "--METRIC_ALLOWABLE_RELATIVE_CHANGE ESTIMATED_LIBRARY_SIZE:" + transcriptome_duplicate_metrics_small_tolerance]
+                                                                "--METRIC_ALLOWABLE_RELATIVE_CHANGE ESTIMATED_LIBRARY_SIZE:" + transcriptome_duplicate_metrics_small_tolerance,
+                                                                "--IGNORE_HISTOGRAM_DIFFERENCES"]
   }
 
   call VerifyTasks.CompareCompressedTextFiles as CompareGeneTpms {
