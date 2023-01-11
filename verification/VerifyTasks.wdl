@@ -215,10 +215,10 @@ task CompareBams {
 
     java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
     CompareSAMs \
-    ~{test_bam} \
-    ~{truth_bam} \
-    O=comparison.tsv \
-    LENIENT_HEADER=~{lenient_header}
+          ~{test_bam} \
+          ~{truth_bam} \
+          O=comparison.tsv \
+          LENIENT_HEADER=~{lenient_header}
   }
 
   runtime {
