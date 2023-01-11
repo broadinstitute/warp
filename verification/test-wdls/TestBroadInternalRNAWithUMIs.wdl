@@ -24,6 +24,11 @@ workflow TestBroadInternalRNAWithUMIs {
       String? tdr_dataset_uuid
       String? tdr_sample_id
 
+      # if there are very few duplicates, then relative change to duplication metrics can be high (0 vs 1), and some
+      # metrics can be null (ESTIMATED_LIBRARY_SIZE if 0 duplicates, for example).  In these cases, just don't compare
+      # transcriptome duplicate metrics
+      Boolean compare_transcriptome_dup_metrics = true
+
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
       String results_path
@@ -183,6 +188,7 @@ workflow TestBroadInternalRNAWithUMIs {
           truth_exon_counts = GetExonCounts.truth_file,
           test_exon_counts = GetExonCounts.results_file,
           transcriptome_deterministic = false,
+          compare_transcriptome_dup_metrics = compare_transcriptome_dup_metrics,
           done = CopyToTestResults.done
       }
   
