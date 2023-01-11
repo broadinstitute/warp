@@ -23,8 +23,7 @@ workflow VerifyRNAWithUMIs {
     File test_transcriptome_duplicate_metrics
     File truth_transcriptome_duplicate_metrics
     Boolean transcriptome_deterministic
-    Float transcriptome_duplicate_metrics_small_tolerance = 0.0005
-    Float transcriptome_duplicate_metrics_large_tolerance = 0.01
+    Boolean compare_transcriptome_dup_metrics
 
     Boolean? done
   }
@@ -71,16 +70,18 @@ workflow VerifyRNAWithUMIs {
     }
   }
 
-  call MetricsVerification.CompareMetricFiles as CompareTranscriptomeDuplicationMetrics {
-    input:
-      file1 = truth_transcriptome_duplicate_metrics,
-      file2 = test_transcriptome_duplicate_metrics,
-      output_file  = "transcriptome_duplication_metrics_comparison.txt",
-      extra_args = if transcriptome_deterministic then [] else ["--METRIC_ALLOWABLE_RELATIVE_CHANGE READ_PAIR_DUPLICATES:" + transcriptome_duplicate_metrics_small_tolerance,
-                                                                "--METRIC_ALLOWABLE_RELATIVE_CHANGE READ_PAIR_OPTICAL_DUPLICATES:" + transcriptome_duplicate_metrics_large_tolerance,
-                                                                "--METRIC_ALLOWABLE_RELATIVE_CHANGE PERCENT_DUPLICATION:" + transcriptome_duplicate_metrics_small_tolerance,
-                                                                "--METRIC_ALLOWABLE_RELATIVE_CHANGE ESTIMATED_LIBRARY_SIZE:" + transcriptome_duplicate_metrics_small_tolerance,
-                                                                "--IGNORE_HISTOGRAM_DIFFERENCES"]
+  if (compare_transcriptome_dup_metrics) {
+    call MetricsVerification.CompareMetricFiles as CompareTranscriptomeDuplicationMetrics {
+      input:
+        file1 = truth_transcriptome_duplicate_metrics,
+        file2 = test_transcriptome_duplicate_metrics,
+        output_file  = "transcriptome_duplication_metrics_comparison.txt",
+        extra_args = if transcriptome_deterministic then [] else ["--METRIC_ALLOWABLE_RELATIVE_CHANGE READ_PAIR_DUPLICATES: 0.0005",
+                                                                  "--METRIC_ALLOWABLE_RELATIVE_CHANGE READ_PAIR_OPTICAL_DUPLICATES: 0.01",
+                                                                  "--METRIC_ALLOWABLE_RELATIVE_CHANGE PERCENT_DUPLICATION: 0.0005",
+                                                                  "--METRIC_ALLOWABLE_RELATIVE_CHANGE ESTIMATED_LIBRARY_SIZE: 0.0005",
+                                                                  "--IGNORE_HISTOGRAM_DIFFERENCES"]
+    }
   }
 
   call VerifyTasks.CompareCompressedTextFiles as CompareGeneTpms {
