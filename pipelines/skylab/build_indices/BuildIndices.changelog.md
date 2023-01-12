@@ -1,3 +1,19 @@
+# 2.0.0
+
+2022-12-20 (Date of Last Commit)
+
+* Removed all tasks unrelated to Optimus
+* Updated modify_gtf.py script to support references from Refseq and Gencode
+* Updated the input files to accept gtf and fasta files directly
+* 
+# 1.0.1
+
+2022-09-21 (Date of Last Commit)
+
+* Docker image follows our guidelines
+* Changed the type of biotypes from String to File so it localizes properly
+* Changed the genome_fa to use the reference’s value instead of a modified_genome_fa that didn’t exist (which STAR was looking for and was then failing)
+
 # 1.0.0
 
 2022-02-01 (Date of Last Commit)

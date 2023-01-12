@@ -7,7 +7,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow BroadInternalRNAWithUMIs {
 
-  String pipeline_version = "1.0.11"
+  String pipeline_version = "1.0.21"
 
   input {
     # input needs to be either "hg19" or "hg38"
@@ -31,7 +31,6 @@ workflow BroadInternalRNAWithUMIs {
     # Terra Data Repo dataset information
     String? tdr_dataset_uuid
     String? tdr_sample_id
-    String? tdr_staging_bucket
 
     String environment
     File vault_token_path
@@ -65,8 +64,7 @@ workflow BroadInternalRNAWithUMIs {
     environment: "The environment (dev or prod) used for determining which service to use to retrieve Mercury fingerprints"
     vault_token_path: "The path to the vault token used for accessing the Mercury Fingerprint Store"
     tdr_dataset_uuid: "Optional string used to define the Terra Data Repo (TDR) dataset to which outputs will be ingested"
-    tdr_sample_id: "Optional string used to identify the sample being processed; this is the primary key in the TDR dataset"
-    tdr_staging_bucket: "Optional string defining the GCS bucket to use to stage files for loading to TDR; the workspace bucket is recommended"
+    tdr_sample_id: "Optional string used to identify the sample being processed; this must be the primary key in the TDR dataset"
   }
 
   # make sure either hg19 or hg38 is supplied as reference_build input
@@ -128,12 +126,11 @@ workflow BroadInternalRNAWithUMIs {
       output_basename = RNAWithUMIs.sample_name
   }
 
-  if (defined(tdr_dataset_uuid) && defined(tdr_sample_id) && defined(tdr_staging_bucket)) {
+  if (defined(tdr_dataset_uuid) && defined(tdr_sample_id)) {
     call tasks.formatPipelineOutputs {
       input:
         sample_id = select_first([tdr_sample_id, ""]),
         transcriptome_bam = RNAWithUMIs.transcriptome_bam,
-        transcriptome_bam_index = RNAWithUMIs.transcriptome_bam_index,
         transcriptome_duplicate_metrics = RNAWithUMIs.transcriptome_duplicate_metrics,
         output_bam = RNAWithUMIs.output_bam,
         output_bam_index = RNAWithUMIs.output_bam_index,
@@ -165,19 +162,18 @@ workflow BroadInternalRNAWithUMIs {
     call tasks.updateOutputsInTDR {
       input:
         tdr_dataset_uuid = select_first([tdr_dataset_uuid, ""]),
-        outputs_json = formatPipelineOutputs.pipeline_outputs_json,
-        sample_id = select_first([tdr_sample_id, ""]),
-        staging_bucket = select_first([tdr_staging_bucket, ""])
+        outputs_json = formatPipelineOutputs.pipeline_outputs_json
     }
   }
 
   output {
     File transcriptome_bam = RNAWithUMIs.transcriptome_bam
-    File transcriptome_bam_index = RNAWithUMIs.transcriptome_bam_index
-    File transcriptome_duplicate_metrics = RNAWithUMIs.transcriptome_duplicate_metrics
     File output_bam = RNAWithUMIs.output_bam
     File output_bam_index = RNAWithUMIs.output_bam_index
+
     File duplicate_metrics = RNAWithUMIs.duplicate_metrics
+    File transcriptome_duplicate_metrics = RNAWithUMIs.transcriptome_duplicate_metrics
+
     File rnaseqc2_gene_tpm = RNAWithUMIs.rnaseqc2_gene_tpm
     File rnaseqc2_gene_counts = RNAWithUMIs.rnaseqc2_gene_counts
     File rnaseqc2_exon_counts = RNAWithUMIs.rnaseqc2_exon_counts

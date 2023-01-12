@@ -20,7 +20,8 @@ task CollectQualityYieldMetrics {
   input {
     File input_bam
     String metrics_filename
-    Int preemptible_tries
+
+    Int preemptible_tries = 3
   }
 
   Int disk_size = ceil(size(input_bam, "GiB")) + 20
@@ -276,7 +277,7 @@ task CrossCheckFingerprints {
   }
 }
 
-task CheckFingerprint {
+task CheckFingerprintTask {
   input {
     File? input_bam
     File? input_bam_index
@@ -352,7 +353,8 @@ task CheckPreValidation {
     File chimerism_metrics
     Float max_duplication_in_reasonable_sample
     Float max_chimerism_in_reasonable_sample
-    Int preemptible_tries
+    
+    Int preemptible_tries = 3
   }
 
   command <<<
@@ -405,13 +407,15 @@ task ValidateSamFile {
     Int? max_output
     Array[String]? ignore
     Boolean? is_outlier_data
-    Int preemptible_tries
+    Int preemptible_tries = 0
     Int memory_multiplier = 1
     Int additional_disk = 20
-  }
 
-  Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
-  Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + additional_disk
+    Int disk_size = ceil(size(input_bam, "GiB") 
+                    + size(ref_fasta, "GiB") 
+                    + size(ref_fasta_index, "GiB")
+                    + size(ref_dict, "GiB")) + additional_disk
+  }
 
   Int memory_size = ceil(16000 * memory_multiplier)
   Int java_memory_size = memory_size - 1000
@@ -614,7 +618,7 @@ task ValidateVCF {
     Int preemptible_tries = 3
     Boolean is_gvcf = true
     String? extra_args
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")

@@ -30,6 +30,7 @@ workflow VerifyImputation {
     File truth_vcf
     File test_vcf
     File test_vcf_index
+    File truth_vcf_index
 
     File? input_multi_sample_vcf
     File? input_multi_sample_vcf_index
@@ -38,10 +39,11 @@ workflow VerifyImputation {
 
     Array[File]? single_sample_truth_vcf
     Array[File]? single_sample_test_vcf
-    Array[File]? single_sample_test_vcf_indices
+
+    Boolean? done
   }
 
-  String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.5-1.10.2-0.1.16-1649948623"
+  String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
 
   scatter (idx in range(length(truth_metrics))) {
     call CompareImputationMetrics {
@@ -51,7 +53,7 @@ workflow VerifyImputation {
     }
   }
 
-  call Tasks.CompareVcfs as CompareOutputVcfs {
+  call Tasks.CompareVcfsAllowingQualityDifferences as CompareOutputVcfs {
     input:
       file1 = truth_vcf,
       file2 = test_vcf
@@ -59,7 +61,7 @@ workflow VerifyImputation {
 
   if (defined(single_sample_truth_vcf)) {
     scatter (idx in range(length(select_first([single_sample_truth_vcf])))) {
-      call Tasks.CompareVcfs as CompareSingleSampleOutputVcfs {
+      call Tasks.CompareVcfsAllowingQualityDifferences as CompareSingleSampleOutputVcfs {
         input:
           file1 = select_first([single_sample_test_vcf])[idx],
           file2 = select_first([single_sample_truth_vcf])[idx]

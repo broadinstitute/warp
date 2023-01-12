@@ -4,7 +4,7 @@
 
 Copy and paste to pull this image
 
-#### `us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.5-1.10.2-0.1.16-1649948623`
+#### `us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889`
 
 - __What is this image:__ This image is a lightweight alpine-based image for running BCFtools and VCFtools for the [Imputation pipeline](../../../../pipelines/broad/arrays/imputation/Imputation.wdl).
 - __What are BFCtools and VCFtools:__ BCFtools and VCFtools are a suite of tools for variant calling and manipulating BCFs and VCFs. See [here](https://github.com/samtools/vcftools) and [here](https://vcftools.github.io/man_latest.html) more information.
@@ -21,8 +21,8 @@ We keep track of all past versions in [docker_versions](docker_versions.tsv) wit
 You can see more information about the image, including the tool versions, by running the following command:
 
 ```bash
-$ docker pull us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.5-1.10.2-0.1.16-1649948623
-$ docker inspect us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.5-1.10.2-0.1.16-1649948623
+$ docker pull us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889
+$ docker inspect us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889
 ```
 
 ## Usage
@@ -31,12 +31,12 @@ $ docker inspect us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.5-1.10.2-0.1.1
 
 ```bash
 $ docker run --rm -it \
-    us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.5-1.10.2-0.1.16-1649948623 bcftools
+    us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889 bcftools
 ```
 
 ### Display VCFtools default menu
 
 ```bash
 $ docker run --rm -it \
-    us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.5-1.10.2-0.1.16-1649948623 vcftools
+    us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889 vcftools
 ```

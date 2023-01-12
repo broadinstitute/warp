@@ -73,7 +73,6 @@ workflow TestRNAWithUMIsPipeline {
 
   Array[String] pipeline_outputs = select_all([
                                     RNAWithUMIsPipeline.transcriptome_bam,
-                                    RNAWithUMIsPipeline.transcriptome_bam_index,
                                     RNAWithUMIsPipeline.output_bam,
                                     RNAWithUMIsPipeline.output_bam_index,
                                     RNAWithUMIsPipeline.rnaseqc2_gene_tpm,

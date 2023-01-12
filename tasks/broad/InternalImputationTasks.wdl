@@ -48,7 +48,7 @@ task FormatImputationOutputs {
     >>>
 
     runtime {
-        docker: "broadinstitute/horsefish:eMerge_05192022"
+        docker: "gcr.io/emerge-production/emerge_wdls:v.1.0"
     }
 
     output {
@@ -115,7 +115,7 @@ task FormatImputationWideOutputs{
     >>>
 
     runtime {
-        docker: "broadinstitute/horsefish:eMerge_05192022"
+        docker: "gcr.io/emerge-production/emerge_wdls:v.1.0"
     }
 
     output {
@@ -126,12 +126,15 @@ task FormatImputationWideOutputs{
 
 task TriggerPrsWithImputationTsv {
     input {
+        File    run_task
         File    imputation_outputs_tsv
         String  trigger_bucket_path
+        String  timestamp
     }
 
     command {
-        gsutil cp ~{imputation_outputs_tsv} ~{trigger_bucket_path}
+        destination_file_name=~{timestamp}"_ingestDataset_imputation_outputs.tsv"
+        gsutil cp ~{imputation_outputs_tsv} ~{trigger_bucket_path}$destination_file_name
     }
 
     runtime {

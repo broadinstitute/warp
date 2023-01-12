@@ -3,8 +3,8 @@ version 1.0
 import "../../../../pipelines/broad/genotyping/illumina/IlluminaGenotypingArray.wdl" as IlluminaGenotyping
 import "../../../../tasks/broad/InternalArraysTasks.wdl" as InternalArraysTasks
 import "../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
-
 import "../../../../tasks/broad/Utilities.wdl" as utils
+
 ## Copyright Broad Institute, 2019
 ##
 ## This WDL pipeline implements data processing for Illumina Genotyping Arrays
@@ -23,7 +23,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Arrays {
 
-  String pipeline_version = "2.6.11"
+  String pipeline_version = "2.6.17"
 
   input {
     String chip_well_barcode

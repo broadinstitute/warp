@@ -1,4 +1,4 @@
-FROM python:3.8-alpine
+FROM --platform=linux/amd64 python:3.8-alpine
 
 ARG BCFTOOLS_VERSION=1.10.2 \
         VCFTOOLS_VERSION=0.1.16
@@ -23,7 +23,6 @@ RUN set -eux; \
             g++ \
             gcc \
             gsl-dev \
-            libressl-dev \
             make \
             musl-dev \
             perl \
@@ -70,7 +69,7 @@ RUN set -eux; \
     ./configure; \
     make; \
     make install; \
-    \ 
+    \
     cd ../..; \
     rm -r samtools-1.10; \
     rm samtools-1.10.tar.bz2

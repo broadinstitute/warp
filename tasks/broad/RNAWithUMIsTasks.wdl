@@ -98,11 +98,14 @@ task Fastp {
     File adapter_fasta = "gs://gcp-public-data--broad-references/RNA/resources/Illumina_adapters.fasta"
 
     String docker = "us.gcr.io/broad-gotc-prod/fastp:1.0.0-0.20.1-1649253500"
-    Int memory_mb =  "16384"
+    Int memory_mb =  ceil(1.5*size(fastq1, "MiB")) + 8192 # Experimentally determined formula for memory allocation
     Int disk_size_gb = 5*ceil(size(fastq1, "GiB")) + 128
+    File monitoring_script = "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh"
   }
 
   command {
+    bash ~{monitoring_script} > monitoring.log &
+
     fastp --in1 ~{fastq1} --in2 ~{fastq2} --out1 ~{output_prefix}_read1.fastq.gz --out2 ~{output_prefix}_read2.fastq.gz \
     --disable_quality_filtering \
     --disable_length_filtering \
@@ -115,9 +118,11 @@ task Fastp {
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
     preemptible: 0
+    maxRetries: 2
   }
 
   output {
+    File monitoring_log = "monitoring.log"
     File fastq1_clipped = output_prefix + "_read1.fastq.gz"
     File fastq2_clipped = output_prefix + "_read2.fastq.gz"
   }
@@ -268,7 +273,7 @@ task GetSampleName {
   input {
     File bam
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
@@ -305,12 +310,14 @@ task rnaseqc2 {
 
     String docker =  "us.gcr.io/broad-dsde-methods/ckachulis/rnaseqc:2.4.2"
     Int cpu = 1
-    Int memory_mb = 3500
+    Int memory_mb = 8000
     Int disk_size_gb = ceil(size(bam_file, 'GiB') + size(genes_gtf, 'GiB') + size(exon_bed, 'GiB')) + 50
   }
 
   command <<<
     set -euo pipefail
+    # force fragmentSizes histogram output file to exist (even if empty)
+    touch ~{sample_id}.fragmentSizes.txt
     echo $(date +"[%b %d %H:%M:%S] Running RNA-SeQC 2")
     rnaseqc ~{genes_gtf} ~{bam_file} . -s ~{sample_id} -v --bed ~{exon_bed}
     echo "  * compressing outputs"
@@ -331,6 +338,7 @@ task rnaseqc2 {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: 2
   }
 }
 
@@ -454,7 +462,12 @@ task MergeMetrics {
 
     for col in range(0, len(rows[0])):
       key = rows[0][col].lower()
-      print(f"{key}\t{rows[1][col]}")
+      value = rows[1][col]
+      if value == "?":
+        value = "NaN"
+      if key in ["median_insert_size", "median_absolute_deviation", "median_read_length", "hq_median_mismatches"]:
+        value = str(int(float(value)))
+      print(f"{key}\t{value}")
     EOF
 
     #
@@ -600,17 +613,22 @@ task GroupByUMIs {
 
     String docker = "us.gcr.io/broad-gotc-prod/umi_tools:1.0.0-1.1.1-1638821470"
     Int cpu = 2
-    Int memory_mb = 7500
+    Int memory_mb = 64000
     Int disk_size_gb = ceil(2.2 * size([bam, bam_index], "GiB")) + 100
+
+    File monitoring_script = "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh"
   }
 
   command <<<
+    bash ~{monitoring_script} > monitoring.log &
+
     umi_tools group -I ~{bam} --paired --no-sort-output --output-bam --stdout ~{output_bam_basename}.bam --umi-tag-delimiter "-" \
     --extract-umi-method tag --umi-tag RX --unmapped-reads use
   >>>
 
   output {
     File grouped_bam = "~{output_bam_basename}.bam"
+    File monitoring_log = "monitoring.log"
   }
 
   runtime {
@@ -618,6 +636,7 @@ task GroupByUMIs {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: 1
   }
 }
 
@@ -626,7 +645,7 @@ task MarkDuplicatesUMIAware {
     File bam
     String output_basename
     Boolean remove_duplicates
-
+    Boolean use_umi
 
     String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
@@ -641,8 +660,9 @@ task MarkDuplicatesUMIAware {
     INPUT=~{bam} \
     OUTPUT=~{output_bam_basename}.bam \
     METRICS_FILE=~{output_basename}.duplicate.metrics \
-    READ_ONE_BARCODE_TAG=BX \
-    REMOVE_DUPLICATES=~{remove_duplicates}
+    REMOVE_DUPLICATES=~{remove_duplicates} \
+    ~{true='READ_ONE_BARCODE_TAG=BX' false='' use_umi} \
+
   >>>
 
   output {
@@ -662,7 +682,6 @@ task formatPipelineOutputs {
   input {
     String sample_id
     String transcriptome_bam
-    String transcriptome_bam_index
     String transcriptome_duplicate_metrics
     String output_bam
     String output_bam_index
@@ -706,7 +725,6 @@ task formatPipelineOutputs {
     # NOTE: we rename some field names to match the TDR schema
     outputs_dict["sample_id"]="~{sample_id}" # primary key
     outputs_dict["transcriptome_bam"]="~{transcriptome_bam}"
-    outputs_dict["transcriptome_bam_index"]="~{transcriptome_bam_index}"
     outputs_dict["transcriptome_duplicate_metrics_file"]="~{transcriptome_duplicate_metrics}"
     outputs_dict["genome_bam"]="~{output_bam}"
     outputs_dict["genome_bam_index"]="~{output_bam_index}"
@@ -750,7 +768,7 @@ task formatPipelineOutputs {
   >>>
 
   runtime {
-    docker: "broadinstitute/horsefish:tdr_import_v1.1"
+    docker: "broadinstitute/horsefish:tdr_import_v1.4"
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
@@ -763,30 +781,30 @@ task formatPipelineOutputs {
 
 task updateOutputsInTDR {
   input {
-    String staging_bucket
     String tdr_dataset_uuid
     File outputs_json
-    String sample_id
 
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = 10
   }
 
-  String tdr_target_table = "sample"
-
   command <<<
+    # input args:
+    # -d dataset uuid
+    # -t target table in dataset
+    # -o json of data to ingest
+    # -f field to populate with timestamp at ingest (can have multiple)
     python -u /scripts/export_pipeline_outputs_to_tdr.py \
       -d "~{tdr_dataset_uuid}" \
-      -b "~{staging_bucket}" \
-      -t "~{tdr_target_table}" \
+      -t "sample" \
       -o "~{outputs_json}" \
-      -k "sample_id" \
-      -v "~{sample_id}"
+      -f "version_timestamp" \
+      -f "analysis_end_time"
   >>>
 
   runtime {
-    docker: "broadinstitute/horsefish:twisttcap_scripts"
+    docker: "broadinstitute/horsefish:tdr_import_v1.4"
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
@@ -816,7 +834,7 @@ task CalculateContamination {
     File population_vcf
     File population_vcf_index
     # runtime
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int cpu = 1
     Int memory_mb = 8192
     Int disk_size_gb = 256

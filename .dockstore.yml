@@ -82,3 +82,23 @@ workflows:
   - name: Imputation_TDR
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/internal/arrays/imputation/BroadInternalImputation.wdl
+
+  - name: UltimaGenomicsWholeGenomeGermline
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl
+
+  - name: BroadInternalUltimaGenomics
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/internal/dna_seq/germline/single_sample/UltimaGenomics/BroadInternalUltimaGenomics.wdl
+
+  - name: UltimaGenomicsJointGenotyping
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/UltimaGenomicsJointGenotyping.wdl
+
+  - name: UltimaGenomicsWholeGenomeCramOnly
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl
+
+  - name: BuildIndices
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/build_indices/BuildIndices.wdl

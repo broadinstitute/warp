@@ -1,18 +1,18 @@
 version 1.0
 
-import "../../../arrays/imputation/Imputation.wdl" as ImputationPipeline
+import "../../../../../pipelines/broad/arrays/imputation/Imputation.wdl" as ImputationPipeline
 import "../../../../../tasks/broad/InternalImputationTasks.wdl" as InternalImputationTasks
 import "../../../../../tasks/broad/InternalTasks.wdl" as InternalTasks
 
 workflow BroadInternalImputation {
     meta {
         description: "Push outputs of Imputation.wdl to TDR dataset table ImputationOutputsTable and split out Imputation arrays into ImputationWideOutputsTable."
+        allowNestedInputs: true
     }
-    String pipeline_version = "1.0.1"
+    String pipeline_version = "1.1.5"
     
     input {
         # inputs to wrapper task 
-        String workspace_bucket
         String tdr_dataset_id
         String tdr_target_table_name
         String prs_cf_trigger_bucket_path
@@ -28,6 +28,7 @@ workflow BroadInternalImputation {
         Array[File]     single_sample_vcfs
         Array[File]     single_sample_vcf_indices
         Array[String]   chip_well_barcodes
+        String          timestamp
     }
 
     call ImputationPipeline.Imputation {
@@ -56,7 +57,6 @@ workflow BroadInternalImputation {
 
     call InternalTasks.IngestOutputsToTDR as IngestToImputationOutputsTable {
         input:
-            workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = tdr_target_table_name,
             outputs_tsv             = FormatImputationOutputs.ingest_outputs_tsv
@@ -70,16 +70,18 @@ workflow BroadInternalImputation {
 
     call InternalTasks.IngestOutputsToTDR as IngestToImputationWideOutputsTable {
         input:
-            workspace_bucket        = workspace_bucket,
             tdr_dataset_id          = tdr_dataset_id,
             tdr_target_table_name   = "ImputationWideOutputsTable",
-            outputs_tsv             = FormatImputationWideOutputs.ingest_outputs_wide_tsv
+            outputs_tsv             = FormatImputationWideOutputs.ingest_outputs_wide_tsv,
+            in_load_tag             = IngestToImputationOutputsTable.load_tag
     }
 
     call InternalImputationTasks.TriggerPrsWithImputationTsv {
         input:
-            imputation_outputs_tsv = FormatImputationOutputs.ingest_outputs_tsv,
-            trigger_bucket_path = prs_cf_trigger_bucket_path
+            run_task                = IngestToImputationWideOutputsTable.ingest_logs,
+            imputation_outputs_tsv  = FormatImputationOutputs.ingest_outputs_tsv,
+            trigger_bucket_path     = prs_cf_trigger_bucket_path,
+            timestamp               = timestamp
     }
 
     output {

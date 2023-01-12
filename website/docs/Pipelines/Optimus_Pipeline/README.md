@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v5.4.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [optimus_v5.6.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | November, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![Optimus_diagram](Optimus_diagram.png)
 
@@ -82,19 +82,20 @@ The example configuration files also contain metadata for the reference files, d
 
 | Parameter name | Description | Optional strings (when applicable) |
 | --- | --- | --- |
-| whitelist | Cloud path to the list of known CBs from [10x Genomics](https://www.10xgenomics.com/) that corresponds to the v2 or v3 chemistry. | NA |
-| tar_star_reference | Cloud path to the TAR file containing a species-specific reference genome and GTF; it is generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_indices/BuildIndices.wdl). | NA |
-| input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | NA |
-| input_name | Optional string that can be used to further identify the original biological sample. | NA |
-| input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the input_id. | NA |
-| input_name_metadata_field | Optional string describing, when applicable, the metadata field containing the input_name. | NA |
-| annotations_gtf | Cloud path to the GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | NA |
-| chemistry | Optional string describing whether data was generated with 10x v2 or v3 chemistry. Optimus validates this string. If the string does not match one of the optional strings, the pipeline will fail. You can remove the checks by setting "force_no_check = true" in the input JSON | "tenX_v2" (default) or "tenX_v3". |
+| whitelist | List of known CBs from [10x Genomics](https://www.10xgenomics.com/) that corresponds to the v2 or v3 chemistry. | N/A |
+| tar_star_reference | TAR file containing a species-specific reference genome and GTF; it is generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_indices/BuildIndices.wdl). | N/A |
+| input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | N/A |
+| input_name | Optional string that can be used to further identify the original biological sample. | N/A |
+| input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the input_id. | N/A |
+| input_name_metadata_field | Optional string describing, when applicable, the metadata field containing the input_name. | N/A |
+| annotations_gtf | GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | N/A |
+| chemistry | Optional string describing whether data was generated with 10x v2 or v3 chemistry. Optimus validates this string. If the string does not match one of the optional strings, the pipeline will fail. You can remove the checks by setting "force_no_check = true" in the input JSON. | "tenX_v2" (default) or "tenX_v3" |
+| mt_genes | Optional file containing mitochondrial gene names for a specific species. This is used for calculating gene metrics. | N/A |
 | counting_mode | String describing whether data is single-cell or single-nucleus. Single-cell mode counts reads aligned to the gene transcript, whereas single-nucleus counts whole transcript to account for nuclear pre-mRNA. | "sc_rna" or "sn_rna" |
-| output_bam_basename | String used as a basename for output BAM file; the default is set to the string used for the `input_id` parameter. | NA |
+| output_bam_basename | String used as a basename for output BAM file; the default is set to the string used for the `input_id` parameter. | N/A |
 | use_strand_info | Optional string for reading stranded data. Default is "false"; set to "true" to count reads in stranded mode. | "true" or "false" (default) |
-| emptydrops_lower | UMI threshold for emptyDrops detection; default is 100. | NA |
-| count_exons | Boolean indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**. If true, this option will output an additional layer for the Loom file. By default, it it set to "false". If the parameter is true and used with sc_rna mode, the workflow will return an error. | "true" or "false" (default) |
+| emptydrops_lower | UMI threshold for emptyDrops detection; default is 100. | N/A |
+| count_exons | Boolean indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**. If true, this option will output an additional layer for the Loom file. By default, it is set to "false". If the parameter is true and used with sc_rnamode, the workflow will return an error. | "true" or "false" (default) |
 
 #### Pseudogene handling
 The example Optimus reference files are downloaded directly from GENCODE (see Quickstart table) and are not modified to remove pseudogenes. This is in contrast to the [references created for Cell Ranger](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/release-notes/references#header) which remove pseudogenes and small RNAs.
@@ -131,7 +132,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | [StarAlign.MergeStarOutput (alias = MergeStarOutputs)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | create-npz-output.py | Python3 | Creates a compressed raw NPY or NPZ file containing the STARsolo output features (NPY), barcodes (NPZ) and counts (NPZ). | 
 | [Metrics.CalculateGeneMetrics (alias = GeneMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | sctools | Sorts the BAM file by gene using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes gene metrics. | 
 | [Metrics.CalculateCellMetrics (alias = CellMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | sctools | Sorts the BAM file by cell using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes cell metrics. |
-| [RunEmptyDrops.RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) | npz2rds.sh, emptyDropsWrapper.R, emptyDrops | [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Runs custom scripts to convert the NPY and NPZ files to RDS and then uses emptyDrops to identify empty lipid droplets. |
+| [RunEmptyDrops.RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) | npz2rds.sh, emptyDropsWrapper.R, emptyDrops | [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Runs custom scripts to convert the NPY and NPZ files to RDS and then uses emptyDrops to identify empty lipid droplets. This step only runs when `counting_mode` = "sc_rna".|
 |  [LoomUtils.OptimusLoomGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | create_loom_optimus.py | Python3 | Merges the gene counts, cell metrics, gene metrics, and emptyDrops data into a Loom formatted cell-by-gene matrix. The Loom contains exon counts when using sc_rna mode, and whole-gene counts when running in sn_rna mode. It optionally contains an additional layer for exon counts when running sn_rna mode with `exon_counts` set to true. |
 
 
@@ -232,17 +233,17 @@ Output files of the pipeline include:
 
 The following table lists the output files produced from the pipeline. For samples that have sequenced over multiple lanes, the pipeline will output one merged version of each listed file.
 
-| Output Name | Filename, if applicable | Output Type |Output Format |
+| Output Variable Name | Filename, if applicable | Output Type |Output Format |
 | ------ |------ | ------ | ------ |
-| pipeline_version | N/A | Version of the processing pipeline run on this data. | String |
-| bam | <input_id>.bam | Aligned BAM | BAM |
-| matrix | <input_id>_sparse_counts.npz | Converted sparse matrix file from the MergeStarOutputs task. | NPZ |
-| matrix_row_index | <input_id>_sparse_counts_row_index.npy | Index of cells in count matrix. | NPY |
-| matrix_col_index | <input_id>_sparse_counts_col_index.npy | Index of genes in count matrix. | NPY |
-| cell_metrics | cell-metrics.csv.gz | Cell metrics | compressed csv | Matrix of metrics by cells. |
-| gene_metrics | gene-metrics.csv.gz | Gene metrics | compressed csv | Matrix of metrics by genes. |
+| pipeline_version_out | N/A | Version of the processing pipeline run on this data. | String |
+| bam | `<input_id>.bam` | Aligned BAM | BAM |
+| matrix | `<input_id>_sparse_counts.npz` | Converted sparse matrix file from the MergeStarOutputs task. | NPZ |
+| matrix_row_index | `<input_id>_sparse_counts_row_index.npy` | Index of cells in count matrix. | NPY |
+| matrix_col_index | `<input_id>_sparse_counts_col_index.npy` | Index of genes in count matrix. | NPY |
+| cell_metrics | cell-metrics.csv.gz | Cell metrics | Compressed CSV | Matrix of metrics by cells. |
+| gene_metrics | gene-metrics.csv.gz | Gene metrics | Compressed CSV | Matrix of metrics by genes. |
 | cell_calls | empty_drops_result.csv | emptyDrops results from the RunEmptyDrops task. | CSV |
-| loom_output_file | <input_id>.loom | Loom | Loom | Loom file with count data (exonic or whole transcript depending on the counting_mode) and metadata. | N/A |
+| loom_output_file | `<input_id>.loom` | Loom | Loom | Loom file with count data (exonic or whole transcript depending on the counting_mode) and metadata. | N/A |
 
 The Loom matrix is the default output. See the [create_loom_optimus.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) for the detailed code. This matrix contains the unnormalized (unfiltered), UMI-corrected count matrices, as well as the gene and cell metrics detailed in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
@@ -276,11 +277,11 @@ This pipeline is supported and used by the [Human Cell Atlas](https://www.humanc
 
 Each consortia may use slightly different reference files for data analysis or have different post-processing steps. Learn more by reading the [Consortia Processing](./consortia-processing.md) overview.
 
-If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org).
+If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org).
 
 ## Feedback
 
-Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
 
 
 ## FAQs
@@ -340,7 +341,4 @@ Unlike Cell Ranger references, Optimus references are downloaded directly from G
 
 In the case of multi-mapped pseudogenes, Optimus and Cell Ranger will produce different results. Optimus does not count multi-mapped reads in the final count matrix, whereas Cell Ranger will keep potential multi-mapped reads because it does not identify the pseudogene reads.
 :::
-
-
-
 

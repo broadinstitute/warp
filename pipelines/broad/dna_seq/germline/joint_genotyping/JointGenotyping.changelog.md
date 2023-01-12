@@ -1,3 +1,27 @@
+# 1.6.6
+2022-12-20 (Date of Last Commit)
+
+* Added logic that skips crosscheck if cross_check_fingerprints is set to false. 
+
+# 1.6.5
+2022-11-04 (Date of Last Commit)
+
+* Updated GATK verison to 4.3.0.0
+
+# 1.6.4
+2022-08-26 (Date of Last Commit)
+
+* Added task to JointGenotypingTasks.wdl for UltimaGenomicsJointGenotyping pipeline. This has no effect on this pipeline.
+
+# 1.6.3
+2022-06-27 (Date of Last Commit)
+
+* Renamed JointGenotyping input SNP_VQSR_downsampleFactor to snp_vqsr_downsampleFactor to allow proper regex match in scala tests. Only subworkflows should be capitalized, not top level inputs
+# 1.6.2
+2022-06-01 (Date of Last Commit)
+
+* Added inputs to the GenotypeGVCFs task to support the UltimaGenomicsJointGenotyping.wdl
+
 # 1.6.1
 2022-04-22 (Date of Last Commit)
 

@@ -1,18 +1,53 @@
+# 5.6.0
+2022-12-06 (Date of Last Commit)
+
+* Updated Metrics.wdl and Optimus.wdl to take an optional inputs for mitochondrial gene names.
+* Updated FastqProcessing.wdl and Metrics.wdl to use the warp-tools container.
+
+# 5.5.5
+2022-09-20 (Date of Last Commit)
+
+* Updated tasks in StarAlign.wdl to use an updated STAR docker image. 
+
+# 5.5.4
+2022-09-01 (Date of Last Commit)
+
+* Updated CheckInputs.wdl to use a lightweight alpine-bash image.
+
+# 5.5.3
+2022-08-23 (Date of Last Commit)
+
+* Removed an unused script in pytools docker image and removed unused ConvertStarOutputs task.
+
+# 5.5.2
+2022-08-16 (Date of Last Commit)
+
+* Updated LoomUtils.wdl and StarAlign.wdl to use a rebuilt python utilities docker.
+
+# 5.5.1
+2022-07-21 (Date of Last Commit)
+
+* Updated STARsoloFastq runtime docker URL.
+
 # 5.5.0
 2022-05-18 (Date of Last Commit)
+
 * Updated merge npz docker in StarAlign.wdl to fix a bug in the output loom matrix where gene names were inapporpriately assigned to counts. Any data previously processed with Optimus version 5.0.0 and above should be re-analyzed.
  
 
 # 5.4.3
 2022-04-22 (Date of Last Commit)
+
 * Updated Optimus to not run emptydrop step in sn_rna mode.
 
 # 5.4.2
 2022-04-21 (Date of Last Commit)
+
 * Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
 
 # 5.4.1
 2022-04-21 (Date of Last Commit)
+
 * Fixing syntax in changelog documentation
 
 # 5.4.0

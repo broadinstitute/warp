@@ -1,3 +1,27 @@
+# 1.16.2
+2022-11-29 (Date of Last Commit)
+
+* Updated InternalArraysTasks.wdl for BroadInternalArrays - adding `lab_batch` as workflow input.
+
+# 1.16.1
+
+2022-11-08 (Date of Last Commit)
+
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new optional input variable. This update has no effect on this pipeline.
+* Updated task FormatArraysOutputs in InternalArrraysTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+* Removed workspace_bucket workflow parameter from BroadInternalArrays and BroadInternalImputation.
+
+# 1.16.0
+2022-09-30 (Date of Last Commit)
+
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+* Updated task IngestOutputsToTDR with GCR images instead of Dockerhub.
+
+# 1.15.9
+2022-06-15 (Date of Last Commit)
+
+* Added bead_pool_manifest file to the output section of ValidateChip.wdl
+
 # 1.15.8
 2022-05-19 (Date of Last Commit)
 

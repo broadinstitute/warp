@@ -1,3 +1,28 @@
+# 5.1.15
+2022-09-13 (Date of Last Commit)
+
+* Update RSEM.wdl to use an updated RSEM docker image. This change does not affect the SmartSeq2SingleSample pipeline.
+
+# 5.1.14
+2022-09-12 (Date of Last Commit)
+
+* Update HISAT2.wdl to use an updated HISAT2 docker image. This change does not affect the SmartSeq2SingleSample pipeline.
+
+# 5.1.13
+2022-08-23 (Date of Last Commit)
+
+* Remove an unused script in pytools docker image.
+
+# 5.1.12
+2022-08-16 (Date of Last Commit)
+
+* Updated LoomUtils.wdl to use a consolidated python utilities docker image. This change does not affect the SmartSeq2SingleSample pipeline.
+
+# 5.1.11
+2022-06-21 (Date of Last Commit)
+
+* Updated main workflow name from SmartSeq2SingleCell to SmartSeq2SingleSample in the SS2 single sample pipeline. This allows the pipeline to run in the updated scala tests.
+
 # 5.1.10
 2022-04-22 (Date of Last Commit)
 

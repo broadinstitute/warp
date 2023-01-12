@@ -1,5 +1,5 @@
 # Minimac image uses bcftools
-FROM us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.5-1.10.2-0.1.16-1649948623
+FROM --platform=linux/amd64 us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.6-1.10.2-0.1.16-1663946207
 
 ARG MINIMAC4_VERSION=1.0.2
 
@@ -10,12 +10,9 @@ LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org>" \
 
 WORKDIR /usr/gitc
 
-# Install dependencies
-RUN set -eux; \
-        apk add --no-cache \
-            bash \
-    ; \
 # Install Minimac4
+RUN set -eux; \
+        apk upgrade; \
     wget https://github.com/statgen/Minimac4/releases/download/v${MINIMAC4_VERSION}/minimac4-${MINIMAC4_VERSION}-Linux.sh; \
     yes | bash minimac4-${MINIMAC4_VERSION}-Linux.sh --prefix=/usr/temp; \
     \
@@ -23,4 +20,4 @@ RUN set -eux; \
     rm minimac4-${MINIMAC4_VERSION}-Linux.sh
 
 # Set tini as default entrypoint
-ENTRYPOINT [ "/sbin/tini", "--" ]
+ENTRYPOINT ["/sbin/tini", "--" ]

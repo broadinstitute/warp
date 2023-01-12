@@ -1,0 +1,4 @@
+DOCKER_VERSION
+us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1663605340
+us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1671132408
+us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1671490724

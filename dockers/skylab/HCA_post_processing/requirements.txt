@@ -1,5 +1,0 @@
-numpy==1.21.0
-scipy==1.4.1
-pandas==1.0.3
-loompy==3.0.6
-h5py==2.10.0
