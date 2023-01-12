@@ -6,7 +6,7 @@ import "../../../../../../../pipelines/broad/qc/CheckFingerprint.wdl" as FP
 
 workflow BroadInternalUltimaGenomics {
 
-  String pipeline_version = "1.0.6"
+  String pipeline_version = "1.0.7"
 
   input {
   
