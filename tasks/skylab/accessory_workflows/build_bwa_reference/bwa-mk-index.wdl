@@ -29,6 +29,7 @@ task BuildBWAreference {
      command <<<
         mkdir genome
         mv ~{chrom_sizes_file} genome/chrom.sizes
+        file=~{reference_fasta}
         if [ ${file: -3} == ".gz" ]
         then
             gunzip -c ~{reference_fasta} > genome/genome.fa
@@ -36,7 +37,7 @@ task BuildBWAreference {
             mv ~{reference_fasta} genome/genome.fa
         fi
         bwa index genome/genome.fa
-        tar cvf - genome/ > ~{reference_fasta}.tar
+        tar --dereference -cvf - genome/ > ~{basename(reference_fasta)}.tar
      >>>
 
      runtime {
@@ -47,6 +48,6 @@ task BuildBWAreference {
      }
 
      output {
-     	    File referenceBundle = "~{reference_fasta}.tar"
+     	    File referenceBundle = "~{basename(reference_fasta)}.tar"
      }
 }
