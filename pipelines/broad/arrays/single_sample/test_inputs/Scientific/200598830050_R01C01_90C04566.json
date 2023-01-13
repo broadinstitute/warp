@@ -1,6 +1,5 @@
 {
   "Arrays.chip_well_barcode": "200598830050_R01C01",
-  "Arrays.analysis_version_number": 1,
 
   "Arrays.sample_alias": "90C04566",
   "Arrays.sample_id": "SM-CMPZK",
@@ -18,7 +17,6 @@
   "Arrays.research_project_id": "RP-48",
 
   "Arrays.call_rate_threshold": 0.98,
-  "Arrays.genotype_concordance_threshold": 0.98,
 
   "Arrays.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/PsychChip_v1-1_15073391_A1/idats/200598830050_R01C01/200598830050_R01C01_Grn.idat",
   "Arrays.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/PsychChip_v1-1_15073391_A1/idats/200598830050_R01C01/200598830050_R01C01_Red.idat",
@@ -34,7 +32,7 @@
   "Arrays.dbSNP_vcf": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz",
   "Arrays.dbSNP_vcf_index": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz.tbi",
   "Arrays.haplotype_database_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt",
-  "Arrays.variant_rsids_file": "gs://broad-references-private/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
+  "Arrays.variant_rsids_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
 
   "Arrays.disk_size": 100,
   "Arrays.preemptible_tries": 3,

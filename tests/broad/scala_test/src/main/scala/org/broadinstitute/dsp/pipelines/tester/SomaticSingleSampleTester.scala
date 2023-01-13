@@ -23,7 +23,7 @@ class SomaticSingleSampleTester(testerConfig: SomaticCloudWorkflowConfig)(
   override val workflowName: String = s"${dataTypePrefix}SomaticSingleSample"
 
   val workflowDir
-    : File = CromwellWorkflowTester.WarpRoot / "beta_pipelines" / "broad" / "somatic" / "single_sample" / dataTypeString
+    : File = CromwellWorkflowTester.WarpRoot / "beta-pipelines" / "broad" / "somatic" / "single_sample" / dataTypeString
 
   override protected val validationWorkflowName: String =
     "VerifySomaticSingleSample"

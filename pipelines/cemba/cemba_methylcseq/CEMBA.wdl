@@ -57,7 +57,7 @@ workflow CEMBA {
     }
 
     # version of this pipeline
-    String pipeline_version = "1.1.1"
+    String pipeline_version = "1.1.4"
 
   # trim off hardcoded sequence adapters
   call Trim as TrimAdapters {
@@ -474,7 +474,7 @@ task CreateUnmappedBam {
     fi
 
     # create an unmapped bam
-    java -jar /picard-tools/picard.jar FastqToSam \
+    java -Xmx3000m -jar /usr/picard/picard.jar FastqToSam \
       FASTQ=~{fastq_input} \
       SAMPLE_NAME=~{output_base_name} \
       OUTPUT=~{unmapped_bam_output_name}
@@ -482,12 +482,12 @@ task CreateUnmappedBam {
 
   # use docker image for given tool cutadapat
   runtime {
-    docker: "quay.io/broadinstitute/picard:2.18.23"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 2.25 * input file size
     disks: "local-disk " + ceil(2.25 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
-    memory: "3.5 GB"
+    memory: "3500 MiB"
   }
 
   output {
@@ -674,7 +674,7 @@ task AttachBarcodes {
     fi
 
     # create an unmapped bam
-    java -jar /picard-tools/picard.jar MergeBamAlignment \
+    java -Xmx3000m -jar /usr/picard/picard.jar MergeBamAlignment \
       SORT_ORDER="unsorted" \
       ADD_MATE_CIGAR=true \
       R1_TRIM=~{cut_length} R2_TRIM=~{cut_length} \
@@ -688,12 +688,12 @@ task AttachBarcodes {
 
   # use docker image for given tool cutadapat
   runtime {
-    docker: "quay.io/broadinstitute/picard:2.18.23"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 2 * input file size
     disks: "local-disk " + ceil(2 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
-    memory: "3.5 GB"
+    memory: "3500 MiB"
   }
 
   output {
@@ -775,7 +775,7 @@ task Sort {
       echo "No monitoring script given as input" > monitoring.log &
     fi
 
-    java -jar /picard-tools/picard.jar SortSam \
+    java -Xmx3000m -jar /usr/picard/picard.jar SortSam \
       INPUT=~{bam_input} \
       SORT_ORDER=coordinate \
       MAX_RECORDS_IN_RAM=300000 \
@@ -783,12 +783,12 @@ task Sort {
   >>>
 
   runtime {
-    docker: "quay.io/broadinstitute/picard:2.18.23"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 3.25 * input file size
     disks: "local-disk " + ceil(3.25 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
-    memory: "3.5 GB"
+    memory: "3500 MiB"
   }
 
   output {
@@ -824,7 +824,7 @@ task FilterDuplicates {
       echo "No monitoring script given as input" > monitoring.log &
     fi
 
-    java -jar /picard-tools/picard.jar MarkDuplicates \
+    java -Xmx3000m -jar /usr/picard/picard.jar MarkDuplicates \
       INPUT=~{bam_input} \
       OUTPUT=~{bam_remove_dup_output_name} \
       METRICS_FILE=~{metric_remove_dup_output_name} \
@@ -832,12 +832,12 @@ task FilterDuplicates {
   >>>
 
   runtime {
-     docker: "quay.io/broadinstitute/picard:2.18.23"
+     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
      # if the input size is less than 1 GB adjust to min input size of 1 GB
      # disks should be set to 2 * input file size
      disks: "local-disk " + ceil(2 * (if input_size < 1 then 1 else input_size)) + " HDD"
      cpu: 1
-     memory: "3.5 GB"
+     memory: "3500 MiB"
   }
 
   output {
@@ -997,7 +997,8 @@ task AddReadGroup {
       echo "No monitoring script given as input" > monitoring.log &
     fi
 
-    gatk AddOrReplaceReadGroups \
+    gatk --java-options "-Xms2500m -Xmx3000m" \
+    AddOrReplaceReadGroups \
       --INPUT ~{bam_input} \
       --RGLB ~{read_group_library_name} \
       --RGPL ~{read_group_platform_name} \
@@ -1012,7 +1013,7 @@ task AddReadGroup {
     # disks should be set to 2 * input file size
     disks: "local-disk " + ceil(2 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
-    memory: "3.5 GB"
+    memory: "3500 MiB"
   }
 
   output {
@@ -1053,7 +1054,8 @@ task MethylationTypeCaller {
       echo "No monitoring script given as input" > monitoring.log &
     fi
 
-    gatk MethylationTypeCaller \
+    gatk --java-options "-Xms2500m -Xmx3000m" \
+    MethylationTypeCaller \
       --input ~{bam_input} \
       --reference ~{reference_fasta} \
       --output ~{methylation_vcf_output_name} \
@@ -1065,7 +1067,7 @@ task MethylationTypeCaller {
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     disks: "local-disk " + ceil(4.5 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1
-    memory: "3.5 GB"
+    memory: "3500 MiB"
   }
 
   output {
@@ -1091,7 +1093,7 @@ task VCFtoALLC {
   command <<<
     set -euo pipefail
 
-    python /tools/convert-vcf-to-allc.py -i ~{methylation_vcf_output_name} -o ~{methylation_allc_output_name}
+    python3 /tools/convert-vcf-to-allc.py -i ~{methylation_vcf_output_name} -o ~{methylation_allc_output_name}
   >>>
 
   runtime {

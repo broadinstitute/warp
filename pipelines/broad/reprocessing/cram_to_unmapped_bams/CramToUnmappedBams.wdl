@@ -9,7 +9,7 @@ version 1.0
 # If the file is not provided, the output names of the unmapped bams will be the read_group_id<unmapped_bam_suffix>
 workflow CramToUnmappedBams {
 
-  String pipeline_version = "1.0.1"
+  String pipeline_version = "1.1.2"
 
   input {
     File? input_cram
@@ -105,9 +105,10 @@ task RevertSam {
   }
 
   Int java_mem = memory_in_MiB - 1000
+  Int max_heap = memory_in_MiB - 500
 
   command <<<
-    java -Xms~{java_mem}m -jar /usr/picard/picard.jar \
+    java -Xms~{java_mem}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
     RevertSam \
     --INPUT ~{input_bam} \
     --OUTPUT ~{output_bam_filename} \
@@ -122,7 +123,7 @@ task RevertSam {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
     preemptible: 3
@@ -158,7 +159,7 @@ task CramToBam {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
+    docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
     cpu: 3
     memory: "~{memory_in_MiB} MiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -194,7 +195,7 @@ task GenerateOutputMap {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
+    docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
     preemptible: 3
@@ -252,7 +253,7 @@ task SplitOutUbamByReadGroup {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
+    docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
     cpu: 2
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
@@ -269,10 +270,11 @@ task ValidateSamFile {
   }
 
   Int java_mem = memory_in_MiB - 1000
+  Int max_heap = memory_in_MiB - 500
 
   command <<<
 
-    java -Xms~{java_mem}m -jar /usr/picard/picard.jar \
+    java -Xms~{java_mem}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
       ValidateSamFile \
       --INPUT ~{input_bam} \
       --OUTPUT ~{report_filename} \
@@ -282,7 +284,7 @@ task ValidateSamFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
     preemptible: 3
@@ -304,9 +306,10 @@ task SortSam {
   # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
   Int disk_size = ceil(sort_sam_disk_multiplier * size(input_bam, "GiB")) + 20
   Int java_mem = memory_in_MiB - 1000
+  Int max_heap = memory_in_MiB - 500
 
   command <<<
-    java -Xms~{java_mem}m -jar /usr/picard/picard.jar \
+    java -Xms~{java_mem}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
     SortSam \
     --INPUT ~{input_bam} \
     --OUTPUT ~{output_bam_filename} \
@@ -316,7 +319,7 @@ task SortSam {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_in_MiB} MiB"
     preemptible: 3

@@ -1,3 +1,34 @@
+# 1.4.7
+2022-11-04 (Date of Last Commit)
+
+* Updated GATK verison to 4.3.0.0
+
+# 1.4.6
+2022-08-26 (Date of Last Commit)
+
+* Added task to JointGenotypingTasks.wdl for UltimaGenomicsJointGenotyping pipeline. This has no effect on this pipeline.
+
+# 1.4.5
+2022-06-01 (Date of Last Commit)
+
+* Added inputs to the GenotypeGVCFs task to support the UltimaGenomicsJointGenotyping.wdl
+
+# 1.4.4
+2022-04-19 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
+# 1.4.3
+2022-04-14 (Date of Last Commit)
+
+* Remove annotationDB files from per chromosome in JointGenotyping
+
+# 1.4.2
+2021-11-10
+
+* Task wdls used by JointGenotypingByChromosomePartTwo were updated with changes that don't affect JointGenotypingByChromosomePartTwo wdl
+* Added Xmx flag (maximum heap size) to all tasks with java commands
+
 # 1.4.1
 2020-12-16
 

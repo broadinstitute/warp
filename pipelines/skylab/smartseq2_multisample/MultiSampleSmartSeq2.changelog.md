@@ -1,3 +1,70 @@
+# 2.2.16
+2022-09-13 (Date of Last Commit)
+
+* Update RSEM.wdl in the SmartSeq2SingleSample pipeline to use an updated RSEM docker image. This change does not affect the MultiSampleSmartSeq2 pipeline.
+
+# 2.2.15
+2022-09-12 (Date of Last Commit)
+
+* Update HISAT2.wdl in the SmartSeq2SingleSample pipeline to use an updated HISAT2 docker image. This change does not affect the MultiSampleSmartSeq2 pipeline.
+
+# 2.2.14
+2022-08-23 (Date of Last Commit)
+
+* Remove an unused script in pytools docker image.
+
+# 2.2.13
+2022-08-16 (Date of Last Commit)
+
+* Update LoomUtils.wdl to use updated docker images. This change does not affect the MultiSampleSmartSeq2 pipeline.
+
+# 2.2.12
+2022-06-22 (Date of Last Commit)
+
+* Updated main workflow name from SmartSeq2SingleCell to SmartSeq2SingleSample in the SS2 single sample pipeline. This allows the pipeline to run in the updated scala tests.
+
+# 2.2.11
+2022-04-22 (Date of Last Commit)
+
+* Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the MultiSampleSmartSeq2 pipeline.
+
+# 2.2.10
+2022-04-14 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
+# 2.2.9
+2022-02-25 (Date of Last Commit)
+
+* Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the MultiSampleSmartSeq2 pipeline. 
+
+# 2.2.8
+2022-01-07 (Date of Last Commit)
+
+* Updated LoomUtils.wdl to fix a missing metadata issue in Single Nucleus SmartSeq2 pipeline
+
+# 2.2.7
+2021-11-10 (Date of Last Commit)
+
+* Added Xmx flag (maximum heap size) to all tasks with java commands
+
+# 2.2.6
+2021-09-13 (Date of Last Commit)
+
+* Updated Picard.wdl and LoomUtils.wdl for Single Nucleus SmartSeq2. These changes do not affect MultiSampleSmartSeq2
+
+# 2.2.5
+2021-09-02 (Date of Last Commit)
+
+* Removed a redundant task in Picard.wdl that was use in the previous  Optimus pipeline. However, 
+  that wdl also contains other Picard task that are used in the smartseq2 single sample. Therefore, 
+  the smartseq2 single sample is not expected to change. 
+
+# 2.2.4
+2021-08-02 (Date of Last Commit)
+
+* Increased the version number to make new release tag for Dockstore 
+
 # 2.2.3
 2021-07-19 (Date of Last Commit)
 

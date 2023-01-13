@@ -1,3 +1,118 @@
+# 5.6.0
+2022-12-06 (Date of Last Commit)
+
+* Updated Metrics.wdl and Optimus.wdl to take an optional inputs for mitochondrial gene names.
+* Updated FastqProcessing.wdl and Metrics.wdl to use the warp-tools container.
+
+# 5.5.5
+2022-09-20 (Date of Last Commit)
+
+* Updated tasks in StarAlign.wdl to use an updated STAR docker image. 
+
+# 5.5.4
+2022-09-01 (Date of Last Commit)
+
+* Updated CheckInputs.wdl to use a lightweight alpine-bash image.
+
+# 5.5.3
+2022-08-23 (Date of Last Commit)
+
+* Removed an unused script in pytools docker image and removed unused ConvertStarOutputs task.
+
+# 5.5.2
+2022-08-16 (Date of Last Commit)
+
+* Updated LoomUtils.wdl and StarAlign.wdl to use a rebuilt python utilities docker.
+
+# 5.5.1
+2022-07-21 (Date of Last Commit)
+
+* Updated STARsoloFastq runtime docker URL.
+
+# 5.5.0
+2022-05-18 (Date of Last Commit)
+
+* Updated merge npz docker in StarAlign.wdl to fix a bug in the output loom matrix where gene names were inapporpriately assigned to counts. Any data previously processed with Optimus version 5.0.0 and above should be re-analyzed.
+ 
+
+# 5.4.3
+2022-04-22 (Date of Last Commit)
+
+* Updated Optimus to not run emptydrop step in sn_rna mode.
+
+# 5.4.2
+2022-04-21 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+
+# 5.4.1
+2022-04-21 (Date of Last Commit)
+
+* Fixing syntax in changelog documentation
+
+# 5.4.0
+2022-04-06 (Date of Last Commit)
+
+* Updated the STARsoloFastq task in StarAlign.wdl to run STARsolo independently with \"Gene\" COUNTING_MODE when the Optimus input parameter `count_exons` is set to true.
+* Updated the MergeStarOutput task in StarAlign.wdl to run an updated script for merging. The previous version included a bug where certain barcodes were getting zero counts after merging.
+* Changed the npz output names to include input_id as a prefix. All outputs are prefixed with input_id and are differentiated from run to run with different inputs.
+
+# 5.3.1
+2022-04-04 (Date of Last Commit)
+
+* Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+
+# 5.3.0
+2022-02-22 (Date of Last Commit)
+
+* Added an optional flag count_exons as the Optimus workflow input with default value of false. 
+  If this flag is true, the pipeline adds two layers to the loom file: one for reads aligned to the
+  entire gene region, and the second layer is will be a count matrix of reads aligned to only exons.
+
+# 5.2.1
+2022-02-10 (Date of Last Commit)
+
+* Rebuilt a docker to merge outputs of STAR in in StarAlign.wdl task and moved it to a public location.
+
+# 5.2.0
+2022-01-07 (Date of Last Commit)
+
+* Updated the pipeline to split the fastq files and run parallel STARsolo jobs.
+* Added SplitFastq.wdl task to split fastq files by cell barcodes such that each shard gets all reads from the same cell.
+* Added MergeSortBam.wdl task to merge bam files from different shards
+
+# 5.1.3
+2022-01-07 (Date of Last Commit)
+
+* Updated LoomUtils.wdl to fix a missing metadata issue for the Smart-seq2 Single Nucleus Multi-Sample pipeline. This task update does not affect the Optimus pipeline
+
+# 5.1.2
+2021-11-19 (Date of Last Commit)
+
+* Updated STARsoloFastq to use 'output_bam_basename' to name the aligned bam. This is consistent with versions 4.2.7 and older
+
+# 5.1.1
+2021-09-13 (Date of Last Commit)
+
+* Updated Picard.wdl and LoomUtils.wdl for Single Nucleus SmartSeq2. These changes do not affect Optimus
+
+# 5.1.0
+2021-09-10 (Date of Last Commit)
+
+* Added the option "--soloBarcodeReadLength 0" to STARsoloFastq task to ignore Barcode + UBI read of incorrect length
+
+# 5.0.0
+2021-08-30 (Date of Last Commit)
+
+* Replaced STAR alignment with STARsolo and modified the structure of the WDL to utilize the UMI and barcode correction from STARsolo. In the new implementation of Optimus, STARsolo uses the FASTQ file as input and directly creates a count matrix file and a BAM file. No updates have been made to the inputs or outputs. The outputs for this version are identical to the outputs for the previous Optimus version. 
+* Updated GoTC base image to AppSec approved 
+* Updated BWA version for GoTC image from 0.7.15.r1140 to 0.7.15
+
+# 4.2.7
+2021-08-02 (Date of Last Commit)
+
+* Increased the version number to make new release tag for Dockstore 
+
 # 4.2.6
 2021-07-19 (Date of Last Commit)
 

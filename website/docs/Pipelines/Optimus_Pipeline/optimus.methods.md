@@ -2,62 +2,31 @@
 sidebar_position: 2
 ---
 
-# Optimus v4.2.4 Methods
+# Optimus v5.3.0 Methods
 
 Below we provide an example methods section for a publication, separated into single-cell or single-nucleus use cases. For the complete pipeline documentation, see the [Optimus Overview](./README.md).
 
 # Methods
 
 ## Single-cell (sc_rna mode)
-Data preprocessing and count matrix construction were performed using the Optimus v4.2.4 Pipeline (RRID:SCR_018908). Briefly, FASTQ files were converted to unaligned BAM (uBAM) using Picard v2.10.10 and reads were appended with raw UMI and corrected cell barcode sequences using Single Cell Tools (sctools) v0.3.12 and the 10x Genomics barcodes whitelist, allowing for up to one edit distance (Levenshtein distance).
+Data preprocessing and count matrix construction were performed using the Optimus v5.3.0 pipeline (RRID:SCR_018908). Briefly, FASTQ files were partitioned by barcodes using sctools v0.3.13. The files were then trimmed, aligned, UMI-corrected against the 10x Genomics barcodes whitelist, and converted to a raw count matrix using STAR v2.7.9a. CB correction was performed using the  `--soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts` parameter which allowed for multiple matches in the whitelist with 1 mismatched base, used posterior probability calculation to choose one of the matches, added pseudocounts of 1 to all whitelist barcodes, and allowed multi-matching of CBs with N-bases to the whitelist.  
 
-uBAMs were then aligned to GENCODE mouse (M21) or human (V27) references using STAR v2.5.3a with default parameters in addition to
+Reads were trimmed using the solo parameter `--clipAdapterType CellRanger4` and  `--outFilterScoreMin 30` which matches read trimming performed by CellRanger4. Reads were then aligned to GENCODE mouse (M21) or human (V27) references in unstranded mode. Genes were annotated using the STAR "Gene" COUNTING_MODE and UMIs were corrected with the `--soloUMIdedup 1MM_Directional_UMItoolsdirectional` parameter, which uses a directional correction method. The resulting BAM was then used for cell and gene metric correction using the sctools v0.3.13 TagSortBam tool. The STAR TSV outputs for gene counts, features, and barcodes were converted to numpy arrays for downstream empty droplet detection using DropletUtils v1.2.1 emptyDrops with the parameters
+```--fdr-cutoff 0.01 --emptydrops-niters 10000 --min-molecules 100 --emptydrops-lower 100```.
 
-```
---BAM unsorted --outSAMattributes all --outSAMunmapped --readFilestype SAM SE
-```
 
-Genes were annotated and reads were tagged with Drop-seq Tools v1.12 using the TagReadwithGeneExon function.
+All cell and gene metrics (alignment, mitochondrial, and other QC metrics), count matrices, and emptyDrops results were aggregated into a final Loom-formatted cell-by-gene matrix. The final outputs included the unfiltered Loom and unfiltered (but tagged) BAM file.
 
-UMIs were then corrected and duplicate reads marked using UMI-tools v0.0.1 with default parameters in addition to
-
-```
---extract-umi-method=tag --umi-tag UR --cell-tag CB --gene-tag GE --umi-group-tag UB --per-gene --per-cell --no-sort-output
-```
-
-All reads (UMI-corrected, duplicate, and untagged) were merged into a single BAM file and tagged. Gene and cell-specific metrics were calculated using the sctools v0.3.11 functions `CalculateGeneMetrics` and `CalculateCellMetrics`.
-
-Empty droplets were identified, but not removed to enable downstream filtering, using the DropletUtils v.1.2.1 with
-
-```
---fdr-cutoff 0.01 --emptydrops-niters 10000 --min-molecules 100 --emptydrops-lower 100
-```
-
-UMI-aware count matrices for exon-only alignments were produced using the sctools v0.3.11.
-All cell and gene metrics (alignment, mitochondrial, and other QC metrics), count matrices and DropletUtils results were then aggregated into a final Loom file for downstream processing. The final outputs included the unfiltered Loom and unfiltered (but tagged) BAM files.
-
-An example of the pipeline and outputs is available on the Terra HCA Optimus Pipeline Featured Workspace (https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline), and additional documentation is available on GitHub (https://github.com/HumanCellAtlas/skylab/blob/master/pipelines/optimus/README.md). Examples of genomic references, whitelists, and other inputs are available in the Skylab repository (see example JSONs).
+An example of the pipeline and outputs is available on the Terra HCA Optimus Pipeline Featured Workspace (https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline), and an additional pipeline overview is available in [WARP documentation](https://broadinstitute.github.io/warp/docs/Pipelines/Optimus_Pipeline/README). Examples of genomic references, whitelists, and other inputs are available in the WARP repository (see the [example inputs](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/optimus/example_inputs)).
 
 ## Single-nucleus (sn_rna mode)
 
-Data preprocessing and count matrix construction were performed using the Optimus v4.1.7 Pipeline (RRID:SCR_018908). Briefly, FASTQ files were converted to unaligned BAM (uBAM) using Picard v2.10.10 and reads were appended with raw UMI and corrected cell barcode sequences using Single Cell Tools (sctools) v0.3.11 and the 10x Genomics barcodes whitelist, allowing for up to one edit distance (Levenshtein distance).
+Data preprocessing and count matrix construction were performed using the Optimus v5.3.0 pipeline (RRID:SCR_018908). Briefly, FASTQ files were partitioned by barcodes using sctools v0.3.13. The files were then trimmed, aligned, UMI-corrected against the 10x Genomics barcodes whitelist, and converted to a raw count matrix using STAR v2.7.9a. CB correction was performed using the `--soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts` parameter which allowed for multiple matches in the whitelist with 1 mismatched base, used posterior probability calculation to choose one of the matches, added pseudocounts of 1 to all whitelist barcodes, and allowed multi-matching of CBs with N-bases to the whitelist.  
 
-uBAMs were aligned to GENCODE mouse (M21) or human (V27) references using STAR v2.5.3a with default parameters in addition to
+Reads were trimmed using the solo parameter `--clipAdapterType CellRanger4` and `--outFilterScoreMin 30` which matches read trimming performed by CellRanger4. Reads were then aligned to GENCODE mouse (M21) or human (V27) references in unstranded mode. Genes were annotated using the STAR "GeneFull" COUNTING_MODE and UMIs were corrected with the `--soloUMIdedup 1MM_Directional_UMItoolsdirectional` parameter, which uses a directional correction method. The resulting BAM was then used for cell and gene metric correction using the sctools v0.3.13 TagSortBam tool. The STAR TSV outputs for gene counts, features, and barcodes were converted to numpy arrays for downstream Loom conversion. 
 
-```
---BAM unsorted --outSAMattributes all --outSAMunmapped --readFilestype SAM SE
-```
+All cell and gene metrics (alignment, mitochondrial, and other QC metrics) and count matrices were aggregated into a final Loom-formatted cell-by-gene matrix. The final outputs included the unfiltered Loom and unfiltered (but tagged) BAM file.
 
-Genes were annotated and reads were tagged with Drop-seq Tools v2.3.0 using TagReadWithGeneFunction.
+An example of the pipeline and outputs is available on the [Terra HCA Optimus Pipeline Featured Workspace](https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline), and an additional pipeline overview is available in [WARP documentation](https://broadinstitute.github.io/warp/docs/Pipelines/Optimus_Pipeline/README). Examples of genomic references, whitelists, and other inputs are available in the WARP repository (see the [example inputs](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/optimus/example_inputs).
 
-UMIs were then corrected using UMI-tools v0.0.1 with default parameters in addition to
 
-```
---extract-umi-method=tag --umi-tag UR --cell-tag CB --gene-tag GE --umi-group-tag UB --per-gene --per-cell --no-sort-output
-```
-
-All reads (UMI-corrected, duplicate, and untagged) were merged into a single BAM file. Gene and cell-specific metrics were calculated using the sctools v0.3.11 functions `CalculateGeneMetrics` and `CalculateCellMetrics`. UMI-aware count matrices for all alignments (introns, exons, UTRs) were produced using the sctools v0.3.11.
-
-All cell and gene metrics (alignment, mitochondrial, and other QC metrics), annotations, and count matrices were aggregated into a final Loom file for downstream processing. The final outputs included the unfiltered Loom and unfiltered (but tagged) BAM files.
-
-An example of the pipeline and outputs is available on the [Terra HCA Optimus Pipeline Featured Workspace](https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline), and additional documentation is available on [GitHub](https://github.com/HumanCellAtlas/skylab/blob/master/pipelines/optimus/README.md). Examples of genomic references, whitelists, and other inputs are available in the Skylab repository (see the *_example.json files at [here](https://github.com/HumanCellAtlas/skylab/tree/master/pipelines/optimus).

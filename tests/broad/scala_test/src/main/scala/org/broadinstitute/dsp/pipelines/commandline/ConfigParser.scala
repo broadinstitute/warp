@@ -79,8 +79,7 @@ class ConfigParser
             )
           },
         opt[String]('b', "branch")
-          .text(
-            "The branch of truth data to test against (Defaults to develop)")
+          .text("The branch of truth data to test against (Defaults to master)")
           .optional()
           .action { (branch, config) =>
             config.copy(
@@ -208,7 +207,7 @@ class ConfigParser
           )
         },
       opt[String]('b', "branch")
-        .text("The branch of truth data to test against (Defaults to develop)")
+        .text("The branch of truth data to test against (Defaults to master)")
         .optional()
         .action { (branch, config) =>
           config.copy(
@@ -294,7 +293,7 @@ class ConfigParser
           )
         },
       opt[String]('b', "branch")
-        .text("The branch of truth data to test against (Defaults to develop)")
+        .text("The branch of truth data to test against (Defaults to master)")
         .optional()
         .action { (branch, config) =>
           config.copy(
@@ -493,7 +492,7 @@ class ConfigParser
           )
         },
       opt[String]('b', "branch")
-        .text("The branch of truth data to test against (Defaults to develop)")
+        .text("The branch of truth data to test against (Defaults to master)")
         .optional()
         .action { (branch, config) =>
           config.copy(
@@ -574,7 +573,7 @@ class ConfigParser
           )
         },
       opt[String]('b', "branch")
-        .text("The branch of truth data to test against (Defaults to develop)")
+        .text("The branch of truth data to test against (Defaults to master)")
         .optional()
         .action { (branch, config) =>
           config.copy(
@@ -655,7 +654,7 @@ class ConfigParser
           )
         },
       opt[String]('b', "branch")
-        .text("The branch of truth data to test against (Defaults to develop)")
+        .text("The branch of truth data to test against (Defaults to master)")
         .optional()
         .action { (branch, config) =>
           config.copy(
@@ -749,7 +748,7 @@ class ConfigParser
           )
         },
       opt[String]('b', "branch")
-        .text("The branch of truth data to test against (Defaults to develop)")
+        .text("The branch of truth data to test against (Defaults to master)")
         .optional()
         .action { (branch, config) =>
           config.copy(
@@ -814,6 +813,85 @@ class ConfigParser
           )
         }
     )
+  note("")
+  cmd(CloudWorkflow.entryName)
+    .text("Test a cloud workflow")
+    .action(
+      (_, config) =>
+        config.copy(
+          test = CloudWorkflow
+      )
+    )
+    .children(
+      opt[PipelineTestType]('p', "pipeline")
+        .text("The pipeline to test")
+        .required()
+        .action { (pipeline, config) =>
+          config.copy(
+            cloudWorkflowConfig =
+              config.cloudWorkflowConfig.copy(pipeline = pipeline)
+          )
+        },
+      opt[WorkflowTestCategory]('t', "test")
+        .text("The type of test to run")
+        .required()
+        .action { (test, config) =>
+          config.copy(
+            cloudWorkflowConfig =
+              config.cloudWorkflowConfig.copy(category = test)
+          )
+        },
+      opt[String]('b', "branch")
+        .text("The branch of truth data to test against (Defaults to develop)")
+        .optional()
+        .action { (branch, config) =>
+          config.copy(
+            cloudWorkflowConfig =
+              config.cloudWorkflowConfig.copy(truthBranch = branch)
+          )
+        },
+      opt[CromwellEnvironment]('e', "env")
+        .text(
+          s"The environment that this should run in ${CromwellEnvironment.optionsString}"
+        )
+        .required()
+        .action { (env, config) =>
+          config.copy(
+            cloudWorkflowConfig = config.cloudWorkflowConfig.copy(env = env)
+          )
+        },
+      opt[Unit]("update-truth")
+        .text(
+          "Update the truth data with the results of this run."
+        )
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            cloudWorkflowConfig =
+              config.cloudWorkflowConfig.copy(updateTruth = true)
+          )
+        },
+      opt[String]("use-timestamp")
+        .text(
+          "Do not run the workflows. Instead, just use a previous runs timestamp (yyyy-MM-dd-HH-mm-ss)"
+        )
+        .optional()
+        .action { (timestamp, config) =>
+          config.copy(
+            cloudWorkflowConfig = config.cloudWorkflowConfig
+              .copy(useTimestamp = Option(timestamp))
+          )
+        },
+      opt[Unit]('u', "uncached")
+        .text("Disable call-caching for the main workflow run")
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            cloudWorkflowConfig =
+              config.cloudWorkflowConfig.copy(useCallCaching = false)
+          )
+        }
+    )
 
   note("")
   germlineCloudPipelineCommandLineConfig(
@@ -832,4 +910,525 @@ class ConfigParser
     },
     Some(GermlineCloudWorkflowConfig(papiVersion = PAPIv2))
   )
+
+  note("")
+  cmd(Imputation.entryName)
+    .text("Test the Imputation workflow")
+    .action(
+      (_, config) =>
+        config.copy(
+          test = Imputation
+      )
+    )
+    .children(
+      opt[WorkflowTestCategory]('t', "test")
+        .text("The type of test to run")
+        .optional()
+        .action { (test, config) =>
+          config.copy(
+            imputationConfig = config.imputationConfig.copy(category = test)
+          )
+        },
+      opt[String]('b', "branch")
+        .text("The branch of truth data to test against (Defaults to master)")
+        .optional()
+        .action { (branch, config) =>
+          config.copy(
+            imputationConfig =
+              config.imputationConfig.copy(truthBranch = branch)
+          )
+        },
+      opt[CromwellEnvironment]('e', "env")
+        .text(
+          s"The environment that this should run in ${CromwellEnvironment.optionsString}"
+        )
+        .required()
+        .action { (env, config) =>
+          config.copy(
+            imputationConfig = config.imputationConfig.copy(env = env)
+          )
+        },
+      opt[Unit]("update-truth")
+        .text(
+          "Update the truth data with the results of this run."
+        )
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            imputationConfig = config.imputationConfig.copy(updateTruth = true)
+          )
+        },
+      opt[String]("use-timestamp")
+        .text(
+          "Do not run the workflows. Instead, just use a previous runs timestamp (yyyy-MM-dd-HH-mm-ss)"
+        )
+        .optional()
+        .action { (timestamp, config) =>
+          config.copy(
+            imputationConfig = config.imputationConfig
+              .copy(useTimestamp = Option(timestamp))
+          )
+        },
+      opt[Unit]('u', "uncached")
+        .text("Disable call-caching for the main workflow run")
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            imputationConfig =
+              config.imputationConfig.copy(useCallCaching = false)
+          )
+        },
+      opt[PapiVersion]("papi-version")
+        .text("The version of Pipelines API to use")
+        .optional()
+        .action { (papiVersion, config) =>
+          config.copy(
+            imputationConfig =
+              config.imputationConfig.copy(papiVersion = papiVersion)
+          )
+        }
+    )
+
+  note("")
+  cmd(RNAWithUMIs.entryName)
+    .text("Test the RNA with UMIs workflow")
+    .action(
+      (_, config) =>
+        config.copy(
+          test = RNAWithUMIs
+      )
+    )
+    .children(
+      opt[WorkflowTestCategory]('t', "test")
+        .text("The type of test to run")
+        .optional()
+        .action { (test, config) =>
+          config.copy(
+            rnaWithUMIsConfig = config.rnaWithUMIsConfig.copy(category = test)
+          )
+        },
+      opt[String]('b', "branch")
+        .text("The branch of truth data to test against (Defaults to master)")
+        .optional()
+        .action { (branch, config) =>
+          config.copy(
+            rnaWithUMIsConfig =
+              config.rnaWithUMIsConfig.copy(truthBranch = branch)
+          )
+        },
+      opt[CromwellEnvironment]('e', "env")
+        .text(
+          s"The environment that this should run in ${CromwellEnvironment.optionsString}"
+        )
+        .required()
+        .action { (env, config) =>
+          config.copy(
+            rnaWithUMIsConfig = config.rnaWithUMIsConfig.copy(env = env)
+          )
+        },
+      opt[Unit]("update-truth")
+        .text(
+          "Update the truth data with the results of this run."
+        )
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            rnaWithUMIsConfig =
+              config.rnaWithUMIsConfig.copy(updateTruth = true)
+          )
+        },
+      opt[String]("use-timestamp")
+        .text(
+          "Do not run the workflows. Instead, just use a previous runs timestamp (yyyy-MM-dd-HH-mm-ss)"
+        )
+        .optional()
+        .action { (timestamp, config) =>
+          config.copy(
+            rnaWithUMIsConfig = config.rnaWithUMIsConfig
+              .copy(useTimestamp = Option(timestamp))
+          )
+        },
+      opt[Unit]('u', "uncached")
+        .text("Disable call-caching for the main workflow run")
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            rnaWithUMIsConfig =
+              config.rnaWithUMIsConfig.copy(useCallCaching = false)
+          )
+        }
+    )
+
+  note("")
+  cmd(CheckFingerprint.entryName)
+    .text("Test the CheckFingerprint workflow")
+    .action(
+      (_, config) =>
+        config.copy(
+          test = CheckFingerprint
+      )
+    )
+    .children(
+      opt[WorkflowTestCategory]('t', "test")
+        .text("The type of test to run")
+        .optional()
+        .action { (test, config) =>
+          config.copy(
+            checkFingerprintConfig =
+              config.checkFingerprintConfig.copy(category = test)
+          )
+        },
+      opt[String]('b', "branch")
+        .text("The branch of truth data to test against (Defaults to master)")
+        .optional()
+        .action { (branch, config) =>
+          config.copy(
+            checkFingerprintConfig =
+              config.checkFingerprintConfig.copy(truthBranch = branch)
+          )
+        },
+      opt[CromwellEnvironment]('e', "env")
+        .text(
+          s"The environment that this should run in ${CromwellEnvironment.optionsString}"
+        )
+        .required()
+        .action { (env, config) =>
+          config.copy(
+            checkFingerprintConfig =
+              config.checkFingerprintConfig.copy(env = env)
+          )
+        },
+      opt[Unit]("update-truth")
+        .text(
+          "Update the truth data with the results of this run."
+        )
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            checkFingerprintConfig =
+              config.checkFingerprintConfig.copy(updateTruth = true)
+          )
+        },
+      opt[String]("use-timestamp")
+        .text(
+          "Do not run the workflows. Instead, just use a previous runs timestamp (yyyy-MM-dd-HH-mm-ss)"
+        )
+        .optional()
+        .action { (timestamp, config) =>
+          config.copy(
+            checkFingerprintConfig = config.checkFingerprintConfig
+              .copy(useTimestamp = Option(timestamp))
+          )
+        },
+      opt[Unit]('u', "uncached")
+        .text("Disable call-caching for the main workflow run")
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            checkFingerprintConfig =
+              config.checkFingerprintConfig.copy(useCallCaching = false)
+          )
+        }
+    )
+
+  note("")
+  cmd(BroadInternalRNAWithUMIs.entryName)
+    .text("Test the Broad Internal RNA with UMIs workflow")
+    .action(
+      (_, config) =>
+        config.copy(
+          test = BroadInternalRNAWithUMIs
+      )
+    )
+    .children(
+      opt[WorkflowTestCategory]('t', "test")
+        .text("The type of test to run")
+        .optional()
+        .action { (test, config) =>
+          config.copy(
+            broadInternalRNAWithUMIsConfig =
+              config.broadInternalRNAWithUMIsConfig.copy(category = test)
+          )
+        },
+      opt[String]('b', "branch")
+        .text("The branch of truth data to test against (Defaults to master)")
+        .optional()
+        .action { (branch, config) =>
+          config.copy(
+            broadInternalRNAWithUMIsConfig =
+              config.broadInternalRNAWithUMIsConfig.copy(truthBranch = branch)
+          )
+        },
+      opt[CromwellEnvironment]('e', "env")
+        .text(
+          s"The environment that this should run in ${CromwellEnvironment.optionsString}"
+        )
+        .required()
+        .action { (env, config) =>
+          config.copy(
+            broadInternalRNAWithUMIsConfig =
+              config.broadInternalRNAWithUMIsConfig.copy(env = env)
+          )
+        },
+      opt[Unit]("update-truth")
+        .text(
+          "Update the truth data with the results of this run."
+        )
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            broadInternalRNAWithUMIsConfig =
+              config.broadInternalRNAWithUMIsConfig.copy(updateTruth = true)
+          )
+        },
+      opt[String]("use-timestamp")
+        .text(
+          "Do not run the workflows. Instead, just use a previous runs timestamp (yyyy-MM-dd-HH-mm-ss)"
+        )
+        .optional()
+        .action { (timestamp, config) =>
+          config.copy(
+            broadInternalRNAWithUMIsConfig =
+              config.broadInternalRNAWithUMIsConfig
+                .copy(useTimestamp = Option(timestamp))
+          )
+        },
+      opt[Unit]('u', "uncached")
+        .text("Disable call-caching for the main workflow run")
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            broadInternalRNAWithUMIsConfig =
+              config.broadInternalRNAWithUMIsConfig.copy(useCallCaching = false)
+          )
+        }
+    )
+
+  note("")
+  cmd(UltimaGenomicsWholeGenomeGermline.entryName)
+    .text(s"Test the ${UltimaGenomicsWholeGenomeGermline.entryName} workflow")
+    .action(
+      (_, config) =>
+        config.copy(
+          test = UltimaGenomicsWholeGenomeGermline
+      )
+    )
+    .children(
+      opt[WorkflowTestCategory]('t', "test")
+        .text("The type of test to run")
+        .required()
+        .action { (test, config) =>
+          config.copy(
+            ultimaGenomicsWholeGenomeGermlineConfig =
+              config.ultimaGenomicsWholeGenomeGermlineConfig.copy(
+                category = test)
+          )
+        },
+      opt[String]('b', "branch")
+        .text("The branch of truth data to test against (Defaults to master)")
+        .optional()
+        .action { (branch, config) =>
+          config.copy(
+            ultimaGenomicsWholeGenomeGermlineConfig =
+              config.ultimaGenomicsWholeGenomeGermlineConfig.copy(
+                truthBranch = branch)
+          )
+        },
+      opt[CromwellEnvironment]('e', "env")
+        .text(
+          s"The environment that this should run in ${CromwellEnvironment.optionsString}"
+        )
+        .required()
+        .action { (env, config) =>
+          config.copy(
+            ultimaGenomicsWholeGenomeGermlineConfig =
+              config.ultimaGenomicsWholeGenomeGermlineConfig.copy(env = env)
+          )
+        },
+      opt[Unit]("update-truth")
+        .text(
+          "Update the truth data with the results of this run."
+        )
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            ultimaGenomicsWholeGenomeGermlineConfig =
+              config.ultimaGenomicsWholeGenomeGermlineConfig.copy(
+                updateTruth = true)
+          )
+        },
+      opt[String]("use-timestamp")
+        .text(
+          "Do not run the workflows. Instead, just use a previous runs timestamp (yyyy-MM-dd-HH-mm-ss)"
+        )
+        .optional()
+        .action { (timestamp, config) =>
+          config.copy(
+            ultimaGenomicsWholeGenomeGermlineConfig =
+              config.ultimaGenomicsWholeGenomeGermlineConfig
+                .copy(useTimestamp = Option(timestamp))
+          )
+        },
+      opt[Unit]('u', "uncached")
+        .text("Disable call-caching for the main workflow run")
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            ultimaGenomicsWholeGenomeGermlineConfig =
+              config.ultimaGenomicsWholeGenomeGermlineConfig.copy(
+                useCallCaching = false)
+          )
+        }
+    )
+
+  note("")
+  cmd(BroadInternalUltimaGenomics.entryName)
+    .text(s"Test the ${BroadInternalUltimaGenomics.entryName} workflow")
+    .action(
+      (_, config) =>
+        config.copy(
+          test = BroadInternalUltimaGenomics
+      )
+    )
+    .children(
+      opt[WorkflowTestCategory]('t', "test")
+        .text("The type of test to run")
+        .required()
+        .action { (test, config) =>
+          config.copy(
+            broadInternalUltimaGenomicsConfig =
+              config.broadInternalUltimaGenomicsConfig.copy(category = test)
+          )
+        },
+      opt[String]('b', "branch")
+        .text("The branch of truth data to test against (Defaults to master)")
+        .optional()
+        .action { (branch, config) =>
+          config.copy(
+            broadInternalUltimaGenomicsConfig =
+              config.broadInternalUltimaGenomicsConfig.copy(
+                truthBranch = branch)
+          )
+        },
+      opt[CromwellEnvironment]('e', "env")
+        .text(
+          s"The environment that this should run in ${CromwellEnvironment.optionsString}"
+        )
+        .required()
+        .action { (env, config) =>
+          config.copy(
+            broadInternalUltimaGenomicsConfig =
+              config.broadInternalUltimaGenomicsConfig.copy(env = env)
+          )
+        },
+      opt[Unit]("update-truth")
+        .text(
+          "Update the truth data with the results of this run."
+        )
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            broadInternalUltimaGenomicsConfig =
+              config.broadInternalUltimaGenomicsConfig.copy(updateTruth = true)
+          )
+        },
+      opt[String]("use-timestamp")
+        .text(
+          "Do not run the workflows. Instead, just use a previous runs timestamp (yyyy-MM-dd-HH-mm-ss)"
+        )
+        .optional()
+        .action { (timestamp, config) =>
+          config.copy(
+            ultimaGenomicsWholeGenomeGermlineConfig =
+              config.ultimaGenomicsWholeGenomeGermlineConfig
+                .copy(useTimestamp = Option(timestamp))
+          )
+        },
+      opt[Unit]('u', "uncached")
+        .text("Disable call-caching for the main workflow run")
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            broadInternalUltimaGenomicsConfig =
+              config.broadInternalUltimaGenomicsConfig.copy(
+                useCallCaching = false)
+          )
+        }
+    )
+
+  note("")
+  cmd(UltimaGenomicsJointGenotyping.entryName)
+    .text(s"Test the ${UltimaGenomicsJointGenotyping.entryName} workflow")
+    .action(
+      (_, config) =>
+        config.copy(
+          test = UltimaGenomicsJointGenotyping
+      )
+    )
+    .children(
+      opt[WorkflowTestCategory]('t', "test")
+        .text("The type of test to run")
+        .required()
+        .action { (test, config) =>
+          config.copy(
+            ultimaGenomicsJointGenotypingConfig =
+              config.ultimaGenomicsJointGenotypingConfig.copy(category = test)
+          )
+        },
+      opt[String]('b', "branch")
+        .text("The branch of truth data to test against (Defaults to master)")
+        .optional()
+        .action { (branch, config) =>
+          config.copy(
+            ultimaGenomicsJointGenotypingConfig =
+              config.ultimaGenomicsJointGenotypingConfig.copy(
+                truthBranch = branch)
+          )
+        },
+      opt[CromwellEnvironment]('e', "env")
+        .text(
+          s"The environment that this should run in ${CromwellEnvironment.optionsString}"
+        )
+        .required()
+        .action { (env, config) =>
+          config.copy(
+            ultimaGenomicsJointGenotypingConfig =
+              config.ultimaGenomicsJointGenotypingConfig.copy(env = env)
+          )
+        },
+      opt[Unit]("update-truth")
+        .text(
+          "Update the truth data with the results of this run."
+        )
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            ultimaGenomicsJointGenotypingConfig =
+              config.ultimaGenomicsJointGenotypingConfig.copy(
+                updateTruth = true)
+          )
+        },
+      opt[String]("use-timestamp")
+        .text(
+          "Do not run the workflows. Instead, just use a previous runs timestamp (yyyy-MM-dd-HH-mm-ss)"
+        )
+        .optional()
+        .action { (timestamp, config) =>
+          config.copy(
+            ultimaGenomicsJointGenotypingConfig =
+              config.ultimaGenomicsJointGenotypingConfig
+                .copy(useTimestamp = Option(timestamp))
+          )
+        },
+      opt[Unit]('u', "uncached")
+        .text("Disable call-caching for the main workflow run")
+        .optional()
+        .action { (_, config) =>
+          config.copy(
+            ultimaGenomicsJointGenotypingConfig =
+              config.ultimaGenomicsJointGenotypingConfig.copy(
+                useCallCaching = false)
+          )
+        }
+    )
 }

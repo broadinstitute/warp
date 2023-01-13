@@ -44,14 +44,14 @@ task HaplotypeCaller_GATK35_GVCF {
   # Using PrintReads is a temporary solution until we update HaploypeCaller to use GATK4. Once that is done,
   # HaplotypeCaller can stream the required intervals directly from the cloud.
   command {
-    /usr/gitc/gatk4/gatk --java-options "-Xms2g" \
+    /usr/gitc/gatk4/gatk --java-options "-Xms2000m -Xmx9000m"\
       PrintReads \
       -I ~{input_bam} \
       --interval-padding 500 \
       -L ~{interval_list} \
       -O local.sharded.bam \
     && \
-    java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms8000m \
+    java -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -Xms8000m -Xmx9000m\
       -jar /usr/gitc/GATK35.jar \
       -T HaplotypeCaller \
       -R ~{ref_fasta} \
@@ -66,9 +66,9 @@ task HaplotypeCaller_GATK35_GVCF {
       --read_filter OverclippedRead
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
+    docker: "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
     preemptible: preemptible_tries
-    memory: "10 GiB"
+    memory: "10000 MiB"
     cpu: "1"
     disks: "local-disk " + disk_size + " HDD"
   }
@@ -92,8 +92,15 @@ task HaplotypeCaller_GATK4_VCF {
     Boolean make_bamout
     Int preemptible_tries
     Int hc_scatter
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
+    Boolean run_dragen_mode_variant_calling = false
+    Boolean use_dragen_hard_filtering = false
+    Boolean use_spanning_event_genotyping = true
+    File? dragstr_model
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    Int memory_multiplier = 1
   }
+  
+  Int memory_size_mb = ceil(8000 * memory_multiplier)
 
   String output_suffix = if make_gvcf then ".g.vcf.gz" else ".vcf.gz"
   String output_file_name = vcf_basename + output_suffix
@@ -111,7 +118,17 @@ task HaplotypeCaller_GATK4_VCF {
 
   command <<<
     set -e
-    gatk --java-options "-Xms6000m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10" \
+    # We need at least 1 GB of available memory outside of the Java heap in order to execute native code, thus, limit
+    # Java's memory by the total memory minus 1 GB. We need to compute the total memory as it might differ from
+    # memory_size_gb because of Cromwell's retry with more memory feature.
+    # Note: In the future this should be done using Cromwell's ${MEM_SIZE} and ${MEM_UNIT} environment variables,
+    #       which do not rely on the output format of the `free` command.
+    available_memory_mb=$(free -m | awk '/^Mem/ {print $2}')
+    let java_memory_size_mb=available_memory_mb-1024
+    echo Total available memory: ${available_memory_mb} MB >&2
+    echo Memory reserved for Java: ${java_memory_size_mb} MB >&2
+
+    gatk --java-options "-Xmx${java_memory_size_mb}m -Xms${java_memory_size_mb}m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10" \
       HaplotypeCaller \
       -R ~{ref_fasta} \
       -I ~{input_bam} \
@@ -119,6 +136,9 @@ task HaplotypeCaller_GATK4_VCF {
       -O ~{output_file_name} \
       -contamination ~{default=0 contamination} \
       -G StandardAnnotation -G StandardHCAnnotation ~{true="-G AS_StandardAnnotation" false="" make_gvcf} \
+      ~{true="--dragen-mode" false="" run_dragen_mode_variant_calling} \
+      ~{false="--disable-spanning-event-genotyping" true="" use_spanning_event_genotyping} \
+      ~{if defined(dragstr_model) then "--dragstr-params-path " + dragstr_model else ""} \
       -GQB 10 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 -GQB 70 -GQB 80 -GQB 90 \
       ~{true="-ERC GVCF" false="" make_gvcf} \
       ~{bamout_arg}
@@ -130,7 +150,7 @@ task HaplotypeCaller_GATK4_VCF {
   runtime {
     docker: gatk_docker
     preemptible: preemptible_tries
-    memory: "6.5 GiB"
+    memory: "~{memory_size_mb} MiB"
     cpu: "2"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
@@ -149,7 +169,7 @@ task MergeVCFs {
     Array[File] input_vcfs
     Array[File] input_vcfs_indexes
     String output_vcf_name
-    Int preemptible_tries
+    Int preemptible_tries = 3
   }
 
   Int disk_size = ceil(size(input_vcfs, "GiB") * 2.5) + 10
@@ -157,20 +177,65 @@ task MergeVCFs {
   # Using MergeVcfs instead of GatherVcfs so we can create indices
   # See https://github.com/broadinstitute/picard/issues/789 for relevant GatherVcfs ticket
   command {
-    java -Xms2000m -jar /usr/picard/picard.jar \
+    java -Xms2000m -Xmx2500m -jar /usr/picard/picard.jar \
       MergeVcfs \
       INPUT=~{sep=' INPUT=' input_vcfs} \
       OUTPUT=~{output_vcf_name}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: preemptible_tries
-    memory: "3 GiB"
+    memory: "3000 MiB"
     disks: "local-disk ~{disk_size} HDD"
   }
   output {
     File output_vcf = "~{output_vcf_name}"
     File output_vcf_index = "~{output_vcf_name}.tbi"
+  }
+}
+
+task Reblock {
+
+  input {
+    File gvcf
+    File gvcf_index
+    File ref_dict
+    File ref_fasta
+    File ref_fasta_index
+    String output_vcf_filename
+    String docker_image = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    Int additional_disk = 20
+    String? annotations_to_keep_command
+    Float? tree_score_cutoff
+  }
+
+  Int disk_size = ceil((size(gvcf, "GiB")) * 4) + additional_disk
+
+  command {
+    set -e 
+
+    gatk --java-options "-Xms3000m -Xmx3000m" \
+      ReblockGVCF \
+      -R ~{ref_fasta} \
+      -V ~{gvcf} \
+      -do-qual-approx \
+      --floor-blocks -GQB 20 -GQB 30 -GQB 40 \
+      ~{annotations_to_keep_command} \
+      ~{"--tree-score-threshold-to-no-call " + tree_score_cutoff} \
+      -O ~{output_vcf_filename}
+  }
+
+  runtime {
+    memory: "3750 MiB"
+    disks: "local-disk " + disk_size + " HDD"
+    bootDiskSizeGb: 15
+    preemptible: 3
+    docker: docker_image
+  }
+
+  output {
+    File output_vcf = output_vcf_filename
+    File output_vcf_index = output_vcf_filename + ".tbi"
   }
 }
 
@@ -181,14 +246,14 @@ task HardFilterVcf {
     String vcf_basename
     File interval_list
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
   String output_vcf_name = vcf_basename + ".filtered.vcf.gz"
 
   command {
-     gatk --java-options "-Xms3000m" \
+    gatk --java-options "-Xms2000m -Xmx2500m" \
       VariantFiltration \
       -V ~{input_vcf} \
       -L ~{interval_list} \
@@ -203,7 +268,44 @@ task HardFilterVcf {
   runtime {
     docker: gatk_docker
     preemptible: preemptible_tries
-    memory: "3 GiB"
+    memory: "3000 MiB"
+    bootDiskSizeGb: 15
+    disks: "local-disk " + disk_size + " HDD"
+  }
+}
+
+# This hard filtering matches DRAGEN 3.4.12. For later DRAGEN versions, this needs to be updated.
+task DragenHardFilterVcf {
+  input {
+    File input_vcf
+    File input_vcf_index
+    Boolean make_gvcf
+    String vcf_basename
+    Int preemptible_tries
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+  }
+
+  Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
+
+  String output_suffix = if make_gvcf then ".g.vcf.gz" else ".vcf.gz"
+  String output_vcf_name = vcf_basename + ".hard-filtered" + output_suffix
+
+  command {
+     gatk --java-options "-Xms2000m -Xmx2500m" \
+      VariantFiltration \
+      -V ~{input_vcf} \
+      --filter-expression "QUAL < 10.4139" \
+      --filter-name "DRAGENHardQUAL" \
+      -O ~{output_vcf_name}
+  }
+  output {
+    File output_vcf = "~{output_vcf_name}"
+    File output_vcf_index = "~{output_vcf_name}.tbi"
+  }
+  runtime {
+    docker: gatk_docker
+    preemptible: preemptible_tries
+    memory: "3000 MiB"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
   }
@@ -220,7 +322,7 @@ task CNNScoreVariants {
     File ref_fasta_index
     File ref_dict
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   Int disk_size = ceil(size(bamout, "GiB") + size(ref_fasta, "GiB") + (size(input_vcf, "GiB") * 2))
@@ -236,7 +338,7 @@ task CNNScoreVariants {
   String tensor_type = if defined(bamout) then "read-tensor" else "reference"
 
   command {
-     gatk --java-options -Xmx10g CNNScoreVariants \
+     gatk --java-options "-Xmx10000m" CNNScoreVariants \
        -V ~{input_vcf} \
        -R ~{ref_fasta} \
        -O ~{output_vcf} \
@@ -252,7 +354,7 @@ task CNNScoreVariants {
   runtime {
     docker: gatk_docker
     preemptible: preemptible_tries
-    memory: "15 GiB"
+    memory: "15000 MiB"
     cpu: "2"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
@@ -277,7 +379,7 @@ task FilterVariantTranches {
     File dbsnp_resource_vcf_index
     String info_key
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   Int disk_size = ceil(size(hapmap_resource_vcf, "GiB") +
@@ -289,7 +391,7 @@ task FilterVariantTranches {
 
   command {
 
-    gatk --java-options -Xmx6g FilterVariantTranches \
+    gatk --java-options "-Xmx6000m" FilterVariantTranches \
       -V ~{input_vcf} \
       -O ~{vcf_basename}.filtered.vcf.gz \
       ~{sep=" " prefix("--snp-tranche ", snp_tranches)} \
@@ -308,7 +410,7 @@ task FilterVariantTranches {
   }
 
   runtime {
-    memory: "7 GiB"
+    memory: "7000 MiB"
     cpu: "2"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"

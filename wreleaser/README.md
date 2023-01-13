@@ -26,7 +26,7 @@ To reset your cache you can run `wreleaser reset`.
 Make sure you have Go installed ([download](https://jimkang.medium.com/install-go-on-mac-with-homebrew-5fa421fc55f5)). Then install _wreleaser_ with the `go get` command:
 
 ```bash
-go get -u github.com/broadinstitute/warp/wreleaser
+go install github.com/broadinstitute/warp/wreleaser@latest
 ```
 
 #### Option 2
@@ -46,7 +46,12 @@ $ wreleaser is a lightweight CLI to list, query and download various WARP releas
 Currently available pipelines:
         - AnnotationFiltration
         - Arrays
+        - BroadInternalRNAWithUMIs
+        - BroadInternalArrays
+        - BroadInternalImputation
+        - BroadInternalUltimaGenomics
         - CEMBA
+        - CheckFingerprint
         - CramToUnmappedBams
         - ExomeGermlineSingleSample
         - ExomeReprocessing
@@ -54,6 +59,7 @@ Currently available pipelines:
         - ExternalWholeGenomeReprocessing
         - GDCWholeGenomeSomaticSingleSample
         - IlluminaGenotypingArray
+        - Imputation
         - JointGenotyping
         - JointGenotypingByChromosomePartOne
         - JointGenotypingByChromosomePartTwo
@@ -62,8 +68,11 @@ Currently available pipelines:
         - MultiSampleSmartSeq2SingleNucleus
         - Optimus
         - ReblockGVCF
+        - RNAWithUMIsPipeline
         - SmartSeq2SingleNucleus
         - SmartSeq2SingleSample
+        - UltimaGenomicsWholeGenomeGermline
+        - UltimaGenomicsJointGenotyping
         - ValidateChip
         - VariantCalling
         - WholeGenomeGermlineSingleSample
@@ -131,6 +140,9 @@ $ wreleaser reset # Clears the cache at $HOME/.wreleaser/cache.json
 
 $ wreleaser reset --cachedir=/path/to/custom # Clears the cache at /path/to/custom
 ```
+
+## :boom: Troubleshooting
+If you have any questions about this tool or need some help configuring it please reach out at [dsde-engineer@broadinstitute.org](dsde-engineer@broadinstitute.org).
 
 
 

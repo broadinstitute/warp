@@ -40,7 +40,7 @@ workflow MultiSampleSmartSeq2 {
       Boolean paired_end
   }
   # Version of this pipeline
-  String pipeline_version = "2.2.3"
+  String pipeline_version = "2.2.16"
 
   if (false) {
      String? none = "None"
@@ -80,7 +80,7 @@ workflow MultiSampleSmartSeq2 {
   ### Execution starts here ###
   if (paired_end) {
     scatter(idx in range(length(input_ids))) {
-      call single_cell_run.SmartSeq2SingleCell as sc_pe {
+      call single_cell_run.SmartSeq2SingleSample as sc_pe {
         input:
           fastq1 = fastq1_input_files[idx],
           fastq2 = fastq2_input_files[idx],
@@ -104,7 +104,7 @@ workflow MultiSampleSmartSeq2 {
   }
   if (!paired_end) {
     scatter(idx in range(length(input_ids))) {
-      call single_cell_run.SmartSeq2SingleCell as sc_se {
+      call single_cell_run.SmartSeq2SingleSample as sc_se {
         input:
           fastq1 = fastq1_input_files[idx],
           stranded = stranded,

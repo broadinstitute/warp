@@ -25,7 +25,7 @@ task CreateSequenceGroupingTSV {
   # It outputs to stdout where it is parsed into a wdl Array[Array[String]]
   # e.g. [["1"], ["2"], ["3", "4"], ["5"], ["6", "7", "8"]]
   command <<<
-    python <<CODE
+    python3 <<CODE
     with open("~{ref_dict}", "r") as ref_dict_file:
         sequence_tuple_list = []
         longest_sequence = 0
@@ -62,7 +62,7 @@ task CreateSequenceGroupingTSV {
   >>>
   runtime {
     preemptible: preemptible_tries
-    docker: "us.gcr.io/broad-gotc-prod/python:2.7"
+    docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     memory: "2 GiB"
   }
   output {
@@ -84,7 +84,7 @@ task ScatterIntervalList {
   command <<<
     set -e
     mkdir out
-    java -Xms1g -jar /usr/gitc/picard.jar \
+    java -Xms1000m -Xmx1500m -jar /usr/gitc/picard.jar \
       IntervalListTools \
       SCATTER_COUNT=~{scatter_count} \
       SUBDIVISION_MODE=BALANCING_WITHOUT_INTERVAL_SUBDIVISION_WITH_OVERFLOW \
@@ -110,8 +110,8 @@ task ScatterIntervalList {
     Int interval_count = read_int(stdout())
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
-    memory: "2 GiB"
+    docker: "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.26.10-1663951039"
+    memory: "2000 MiB"
   }
 }
 
@@ -123,11 +123,10 @@ task ConvertToCram {
     File ref_fasta
     File ref_fasta_index
     String output_basename
-    Int preemptible_tries
-  }
+    Int preemptible_tries = 3
 
-  Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")
-  Int disk_size = ceil(2 * size(input_bam, "GiB") + ref_size) + 20
+    Int disk_size = ceil((2 * size(input_bam, "GiB")) + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")) + 20
+  }
 
   command <<<
     set -e
@@ -145,7 +144,7 @@ task ConvertToCram {
     samtools index ~{output_basename}.cram
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
+    docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
     preemptible: preemptible_tries
     memory: "3 GiB"
     cpu: "1"
@@ -176,7 +175,7 @@ task ConvertToBam {
     samtools index ~{output_basename}.bam
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
+    docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
     preemptible: 3
     memory: "3 GiB"
     cpu: "1"
@@ -196,13 +195,107 @@ task SumFloats {
   }
 
   command <<<
-    python -c "print ~{sep="+" sizes}"
+    python3 -c 'print(~{sep="+" sizes})'
   >>>
   output {
     Float total_size = read_float(stdout())
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/python:2.7"
+    docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     preemptible: preemptible_tries
   }
+}
+
+# Print given message to stderr and return an error
+task ErrorWithMessage {
+  input {
+    String message
+  }
+  command <<<
+    >&2 echo "Error: ~{message}"
+    exit 1
+  >>>
+
+  runtime {
+    docker: "ubuntu:20.04"
+  }
+}
+
+# This task is unused for now, going to keep it in here though if we need it in the future
+task GetValidationInputs {
+  input {
+    String results_path
+    String truth_path
+    Array[String]? input_files
+    String? input_file
+
+    String docker = "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
+    Int cpu = 1
+    Int memory_mb = 2000
+    Int disk_size_gb = 20
+  }
+
+  meta {
+    description: "Given either a file or list of files, output both the truth and results path"
+  }
+
+  command <<<
+    set -e
+
+    touch truth_file.txt
+    touch truth_files.txt
+    touch results_file.txt
+    touch results_files.txt
+
+    python3 <<CODE
+    import os.path
+
+
+
+    results_path = "~{results_path}"
+    truth_path = "~{truth_path}"
+    input_file = "~{input_file}"
+    input_files = [ x for x in [ "~{sep='", "' input_files}" ]  if x != "" ]
+
+    if input_file:
+      file = os.path.basename(input_file)
+      truth_file = os.path.join(truth_path, file)
+      results_file = os.path.join(results_path, file)
+
+      with open("truth_file.txt", "w") as f:
+        f.write(truth_file)
+      with open("results_file.txt", "w") as f:
+        f.write(results_file)
+
+    elif input_files:
+      truth_files, results_files = [], []
+
+      for input_file in input_files:
+        file = os.path.basename(input_file)
+        truth_files.append(os.path.join(truth_path, file))
+        results_files.append(os.path.join(results_path, file))
+
+      with open("truth_files.txt", "w") as f:
+        f.write("\n".join(truth_files))
+      with open("results_files.txt", "w") as f:
+        f.write("\n".join(results_files))
+
+
+    CODE
+  >>>
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+  }
+
+  output {
+    String truth_file = read_string("truth_file.txt")
+    String results_file = read_string("results_file.txt")
+    Array[String] truth_files = read_lines("truth_files.txt")
+    Array[String] results_files = read_lines("results_files.txt")
+  }
+
 }

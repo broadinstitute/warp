@@ -8,10 +8,10 @@
   "TestSmartSeq2SingleCellPR.gene_ref_flat": "gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_gencode.v27.refFlat.txt",
   "TestSmartSeq2SingleCellPR.hisat2_ref_name": "genome_snp_tran",
   "TestSmartSeq2SingleCellPR.stranded":"NONE",
-  "TestSmartSeq2SingleCellPR.fastq1":"gs://hca-dcp-mint-test-data/smartseq2_single_sample/patel_ap/SRR1294925_1",
-  "TestSmartSeq2SingleCellPR.fastq2":"gs://hca-dcp-mint-test-data/smartseq2_single_sample/patel_ap/SRR1294925_2",
+  "TestSmartSeq2SingleCellPR.fastq1":"gs://broad-gotc-test-storage/SmartSeq2SingleSample/input/plumbing/pr_test_inputs/SRR1294925_1",
+  "TestSmartSeq2SingleCellPR.fastq2":"gs://broad-gotc-test-storage/SmartSeq2SingleSample/input/plumbing/pr_test_inputs/SRR1294925_2",
   "TestSmartSeq2SingleCellPR.input_id":"SRR1294925",
   "TestSmartSeq2SingleCellPR.output_name":"SRR1294925",
   "TestSmartSeq2SingleCellPR.expected_counts_hash": "135a3fbb959583db17713dc8b9d7fe33",
-  "TestSmartSeq2SingleCellPR.expected_metrics_hash": "99bd9903ac8dc77eb1c047ffa8eb42ed"
+  "TestSmartSeq2SingleCellPR.expected_metrics_hash": "2e7add0754e22d71a72bc84c043f839b"
 }

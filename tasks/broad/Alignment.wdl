@@ -32,6 +32,8 @@ task SamToFastqAndBwaMemAndMba {
     Int compression_level
     Int preemptible_tries
     Boolean hard_clip_reads = false
+    Boolean unmap_contaminant_reads = true
+    Boolean allow_empty_ref_alt = false
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
@@ -60,8 +62,8 @@ task SamToFastqAndBwaMemAndMba {
 
     # set the bash variable needed for the command-line
     bash_ref_fasta=~{reference_fasta.ref_fasta}
-    # if reference_fasta.ref_alt has data in it,
-    if [ -s ~{reference_fasta.ref_alt} ]; then
+    # if reference_fasta.ref_alt has data in it or allow_empty_ref_alt is set
+    if [ -s ~{reference_fasta.ref_alt} ] || ~{allow_empty_ref_alt}; then
       java -Xms1000m -Xmx1000m -jar /usr/gitc/picard.jar \
         SamToFastq \
         INPUT=~{input_bam} \
@@ -96,19 +98,22 @@ task SamToFastqAndBwaMemAndMba {
         PROGRAM_GROUP_NAME="bwamem" \
         UNMAPPED_READ_STRATEGY=COPY_TO_TAG \
         ALIGNER_PROPER_PAIR_FLAGS=true \
-        UNMAP_CONTAMINANT_READS=true \
+        UNMAP_CONTAMINANT_READS=~{unmap_contaminant_reads} \
         ADD_PG_TAG_TO_READS=false
 
-      grep -m1 "read .* ALT contigs" ~{output_bam_basename}.bwa.stderr.log | \
-      grep -v "read 0 ALT contigs"
+      if ~{!allow_empty_ref_alt}; then
+        grep -m1 "read .* ALT contigs" ~{output_bam_basename}.bwa.stderr.log | \
+        grep -v "read 0 ALT contigs"
+      fi
 
     # else reference_fasta.ref_alt is empty or could not be found
     else
+      echo ref_alt input is empty or not provided. >&2
       exit 1;
     fi
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
+    docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
     preemptible: preemptible_tries
     memory: "14 GiB"
     cpu: "16"
@@ -124,8 +129,8 @@ task SamSplitter {
   input {
     File input_bam
     Int n_reads
-    Int preemptible_tries
     Int compression_level
+    Int preemptible_tries = 3
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
@@ -139,7 +144,7 @@ task SamSplitter {
 
     total_reads=$(samtools view -c ~{input_bam})
 
-    java -Dsamjdk.compression_level=~{compression_level} -Xms3000m -jar /usr/gitc/picard.jar SplitSamByNumberOfReads \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms3000m -Xmx3600m -jar /usr/gitc/picard.jar SplitSamByNumberOfReads \
       INPUT=~{input_bam} \
       OUTPUT=output_dir \
       SPLIT_TO_N_READS=~{n_reads} \
@@ -149,7 +154,7 @@ task SamSplitter {
     Array[File] split_bams = glob("output_dir/*.bam")
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
+    docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
     preemptible: preemptible_tries
     memory: "3.75 GiB"
     disks: "local-disk " + disk_size + " HDD"

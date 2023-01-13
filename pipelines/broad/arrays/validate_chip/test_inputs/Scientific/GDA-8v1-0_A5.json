@@ -9,14 +9,14 @@
   "ValidateChip.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GDA-8v1-0_A5/idats/204126290052_R01C01/204126290052_R01C01_Grn.idat",
   "ValidateChip.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GDA-8v1-0_A5/idats/204126290052_R01C01/204126290052_R01C01_Red.idat",
 
-  "ValidateChip.chip_manifest_csv_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.csv",
-  "ValidateChip.bead_pool_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.bpm",
-  "ValidateChip.cluster_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A1_ClusterFile.egt",
+  "ValidateChip.chip_manifest_csv_file": "gs://broad-public-datasets/IlluminaGenotypingArrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.csv",
+  "ValidateChip.bead_pool_manifest_file": "gs://broad-public-datasets/IlluminaGenotypingArrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.bpm",
+  "ValidateChip.cluster_file": "gs://broad-public-datasets/IlluminaGenotypingArrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A1_ClusterFile.egt",
 
+  "ValidateChip.control_sample_name" : "NA12878",
   "ValidateChip.control_sample_vcf_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf",
   "ValidateChip.control_sample_vcf_index_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.vcf.idx",
   "ValidateChip.control_sample_intervals_file" : "gs://broad-gotc-test-storage/arrays/controldata/NA12878_NIST.interval_list",
-  "ValidateChip.control_sample_name" : "NA12878",
 
   "ValidateChip.ref_fasta": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta",
   "ValidateChip.ref_fasta_index": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta.fai",

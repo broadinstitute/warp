@@ -10,7 +10,7 @@ import org.broadinstitute.dsp.pipelines.commandline.{
 
 case class SomaticCloudWorkflowConfig(
     category: WorkflowTestCategory = WorkflowTestCategory.Plumbing,
-    truthBranch: String = "develop",
+    truthBranch: String = "master",
     dataType: DataType = DataType.Targeted,
     useTimestamp: Option[String] = None,
     useCallCaching: Boolean = true,

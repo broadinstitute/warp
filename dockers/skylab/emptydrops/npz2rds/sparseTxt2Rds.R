@@ -83,10 +83,13 @@ cat('done\n')
 if(!matrixIsEmpty) {
     cat('Sorting elements...')
     ord1 <- unlist(lapply(1:(length(indptr)-1), function(i) {
-        rowStart <- indptr[i] + 1;
-        rowEnd <- indptr[i+1];
-        rowIndices <- indices[c(rowStart:rowEnd)]
-        rowElementOrder <- order(rowIndices) + rowStart - 1;
+        rowElementOrder<-vector(mode="list", length=0);
+        if (indptr[i]!=indptr[i+1]) {
+           rowStart <- indptr[i] + 1;
+           rowEnd <- indptr[i+1];
+           rowIndices <- indices[c(rowStart:rowEnd)]
+           rowElementOrder <- order(rowIndices) + rowStart - 1;
+        }
         rowElementOrder
     }))
     cat('done\n')
@@ -111,6 +114,9 @@ if (dimError) {
     stop('Dimension error');
 }
 
+cat('Lengths: ', 'indices=', length(indices),  '  ord1 = ', length(ord1), ' data = ', length(data),
+        ' indptr = ', length(indptr), 
+        ' shape = ', shape, ' row index = ', length(row_index), ' col index = ', length(col_index), '\n')
 ## Reorder the matrix (j and x values as per the ordering done above)
 ## and generate the dgRMatrix object
 cat('Generating matrix...')

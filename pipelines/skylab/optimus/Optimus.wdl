@@ -1,18 +1,12 @@
 version 1.0
 
 import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
-import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
-import "../../../tasks/skylab/CreateCountMatrix.wdl" as Count
-import "../../../tasks/skylab/StarAlign.wdl" as StarAlignBam
-import "../../../tasks/skylab/TagGeneExon.wdl" as TagGeneExon
-import "../../../tasks/skylab/SequenceDataWithMoleculeTagMetrics.wdl" as Metrics
-import "../../../tasks/skylab/TagSortBam.wdl" as TagSortBam
+import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
+import "../../../tasks/skylab/Metrics.wdl" as Metrics
 import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
-import "../../../tasks/skylab/Picard.wdl" as Picard
-import "../../../tasks/skylab/UmiCorrection.wdl" as UmiCorrection
-import "../../../tasks/skylab/ModifyGtf.wdl" as ModifyGtf
-import "../../../tasks/skylab/OptimusInputChecks.wdl" as OptimusInputChecks
+import "../../../tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
+import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 
 workflow Optimus {
   meta {
@@ -36,6 +30,7 @@ workflow Optimus {
     File tar_star_reference
     File annotations_gtf
     File ref_genome_fasta
+    File? mt_genes
 
     # 10x parameters
     File whitelist
@@ -50,6 +45,9 @@ workflow Optimus {
 
     # Set to true to count reads in stranded mode
     String use_strand_info = "false"
+    
+# Set to true to count reads aligned to exonic regions in sn_rna mode
+    Boolean count_exons = false
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
@@ -58,8 +56,8 @@ workflow Optimus {
   }
 
   # version of this pipeline
+  String pipeline_version = "5.6.0"
 
-  String pipeline_version = "4.2.6"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -85,10 +83,11 @@ workflow Optimus {
     input:
       force_no_check = force_no_check,
       chemistry = chemistry,
-      counting_mode = counting_mode
+      counting_mode = counting_mode,
+      count_exons = count_exons
   }
 
-  call FastqProcessing.FastqProcessing {
+  call FastqProcessing.FastqProcessing as SplitFastq {
     input:
       i1_fastq = i1_fastq,
       r1_fastq = r1_fastq,
@@ -98,149 +97,117 @@ workflow Optimus {
       sample_id = input_id
   }
 
-  call ModifyGtf.ReplaceGeneNameWithGeneID as ModifyGtf {
-    input:
-      original_gtf = annotations_gtf
-  }
-
-  scatter (bam in FastqProcessing.bam_output_array) {
-    call StarAlignBam.StarAlignBamSingleEnd as StarAlign {
+  scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
+    call StarAlign.STARsoloFastq as STARsoloFastq {
       input:
-        bam_input = bam,
-        tar_star_reference = tar_star_reference
-    }
-
-    if (counting_mode == "sc_rna") {
-      call TagGeneExon.TagGeneExon as TagGenes {
-        input:
-          bam_input = StarAlign.bam_output,
-          annotations_gtf = ModifyGtf.modified_gtf
-      }
-    }
-    if (counting_mode == "sn_rna") {
-      call TagGeneExon.TagReadWithGeneFunction as TagGeneFunction {
-        input:
-          bam_input = StarAlign.bam_output,
-          annotations_gtf = ModifyGtf.modified_gtf,
-          gene_name_tag = "GE",
-          gene_strand_tag = "GS",
-          gene_function_tag = "XF",
-          use_strand_info = use_strand_info
-      }
-    }
-
-    call Picard.SortBamAndIndex as PreUMISort {
-      input:
-        bam_input = select_first([TagGenes.bam_output, TagGeneFunction.bam_output])
-    }
-
-    call UmiCorrection.CorrectUMItools as CorrectUMItools {
-      input:
-        bam_input = PreUMISort.bam_output,
-        bam_index = PreUMISort.bam_index
-    }
-
-    call Picard.SortBamAndIndex as PreMergeSort {
-      input:
-        bam_input = CorrectUMItools.bam_output
-    }
-
-    call TagSortBam.GeneSortBam {
-      input:
-        bam_input = CorrectUMItools.bam_output
-    }
-
-    call TagSortBam.CellSortBam {
-      input:
-        bam_input = CorrectUMItools.bam_output
-    }
-
-    call Metrics.CalculateGeneMetrics {
-      input:
-        bam_input = GeneSortBam.bam_output
-    }
-
-    call Metrics.CalculateCellMetrics {
-      input:
-        bam_input = CellSortBam.bam_output,
-        original_gtf = annotations_gtf
-    }
-
-    call Picard.SortBam as PreCountSort {
-      input:
-        bam_input = CorrectUMItools.bam_output,
-        sort_order = "queryname"
-    }
-
-    call Count.CreateSparseCountMatrix {
-      input:
-        bam_input = PreCountSort.bam_output,
-        gtf_file = ModifyGtf.modified_gtf
+        r1_fastq = [SplitFastq.fastq_R1_output_array[idx]],
+        r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
+        white_list = whitelist,
+        tar_star_reference = tar_star_reference,
+        chemistry = chemistry,
+        counting_mode = counting_mode,
+        count_exons = count_exons,
+        output_bam_basename = output_bam_basename + "_" + idx
     }
   }
-
-  call Merge.MergeSortBamFiles as MergeSorted {
+  call Merge.MergeSortBamFiles as MergeBam {
     input:
-      bam_inputs = PreMergeSort.bam_output,
+      bam_inputs = STARsoloFastq.bam_output,
       output_bam_filename = output_bam_basename + ".bam",
       sort_order = "coordinate"
   }
-
-  call Metrics.MergeGeneMetrics {
+  call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
-      metric_files = CalculateGeneMetrics.gene_metrics
+      bam_input = MergeBam.output_bam,
+      mt_genes = mt_genes
   }
 
-  call Metrics.MergeCellMetrics {
+  call Metrics.CalculateCellMetrics as CellMetrics {
     input:
-      metric_files = CalculateCellMetrics.cell_metrics
+      bam_input = MergeBam.output_bam,
+      mt_genes = mt_genes,
+      original_gtf = annotations_gtf
   }
 
-  call Count.MergeCountFiles {
+  call StarAlign.MergeStarOutput as MergeStarOutputs {
     input:
-      sparse_count_matrices = CreateSparseCountMatrix.sparse_count_matrix,
-      row_indices = CreateSparseCountMatrix.row_index,
-      col_indices = CreateSparseCountMatrix.col_index
+      barcodes = STARsoloFastq.barcodes,
+      features = STARsoloFastq.features,
+      matrix = STARsoloFastq.matrix,
+      input_id = input_id
+  }
+  if (counting_mode == "sc_rna"){
+    call RunEmptyDrops.RunEmptyDrops {
+      input:
+        sparse_count_matrix = MergeStarOutputs.sparse_counts,
+        row_index = MergeStarOutputs.row_index,
+        col_index = MergeStarOutputs.col_index,
+        emptydrops_lower = emptydrops_lower
+    }
   }
 
-  call RunEmptyDrops.RunEmptyDrops {
-    input:
-      sparse_count_matrix = MergeCountFiles.sparse_count_matrix,
-      row_index = MergeCountFiles.row_index,
-      col_index = MergeCountFiles.col_index,
-      emptydrops_lower = emptydrops_lower
+  if (!count_exons) {
+    call LoomUtils.OptimusLoomGeneration{
+      input:
+        input_id = input_id,
+        input_name = input_name,
+        input_id_metadata_field = input_id_metadata_field,
+        input_name_metadata_field = input_name_metadata_field,
+        annotation_file = annotations_gtf,
+        cell_metrics = CellMetrics.cell_metrics,
+        gene_metrics = GeneMetrics.gene_metrics,
+        sparse_count_matrix = MergeStarOutputs.sparse_counts,
+        cell_id = MergeStarOutputs.row_index,
+        gene_id = MergeStarOutputs.col_index,
+        empty_drops_result = RunEmptyDrops.empty_drops_result,
+        counting_mode = counting_mode,
+        pipeline_version = "Optimus_v~{pipeline_version}"
+    }
+  }
+  if (count_exons  && counting_mode=="sn_rna") {
+    call StarAlign.MergeStarOutput as MergeStarOutputsExons {
+      input:
+        barcodes = STARsoloFastq.barcodes_sn_rna,
+        features = STARsoloFastq.features_sn_rna,
+        matrix = STARsoloFastq.matrix_sn_rna,
+        input_id = input_id
+    }
+    call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
+      input:
+        input_id = input_id,
+        input_name = input_name,
+        input_id_metadata_field = input_id_metadata_field,
+        input_name_metadata_field = input_name_metadata_field,
+        annotation_file = annotations_gtf,
+        cell_metrics = CellMetrics.cell_metrics,
+        gene_metrics = GeneMetrics.gene_metrics,
+        sparse_count_matrix = MergeStarOutputs.sparse_counts,
+        cell_id = MergeStarOutputs.row_index,
+        gene_id = MergeStarOutputs.col_index,
+        sparse_count_matrix_exon = MergeStarOutputsExons.sparse_counts,
+        cell_id_exon = MergeStarOutputsExons.row_index,
+        gene_id_exon = MergeStarOutputsExons.col_index,
+        pipeline_version = "Optimus_v~{pipeline_version}"
+    }
+
   }
 
-  call LoomUtils.OptimusLoomGeneration{
-    input:
-      input_id = input_id,
-      input_name = input_name,
-      input_id_metadata_field = input_id_metadata_field,
-      input_name_metadata_field = input_name_metadata_field,
-      annotation_file = annotations_gtf,
-      cell_metrics = MergeCellMetrics.cell_metrics,
-      gene_metrics = MergeGeneMetrics.gene_metrics,
-      sparse_count_matrix = MergeCountFiles.sparse_count_matrix,
-      cell_id = MergeCountFiles.row_index,
-      gene_id = MergeCountFiles.col_index,
-      empty_drops_result = RunEmptyDrops.empty_drops_result,
-      counting_mode = counting_mode,
-      pipeline_version = "Optimus_v~{pipeline_version}"
-  }
+  File final_loom_output = select_first([OptimusLoomGenerationWithExons.loom_output, OptimusLoomGeneration.loom_output])
+
 
   output {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
 
-    File bam = MergeSorted.output_bam
-    File matrix = MergeCountFiles.sparse_count_matrix
-    File matrix_row_index = MergeCountFiles.row_index
-    File matrix_col_index = MergeCountFiles.col_index
-    File cell_metrics = MergeCellMetrics.cell_metrics
-    File gene_metrics = MergeGeneMetrics.gene_metrics
-    File cell_calls = RunEmptyDrops.empty_drops_result
-
+    File bam = MergeBam.output_bam
+    File matrix = MergeStarOutputs.sparse_counts
+    File matrix_row_index = MergeStarOutputs.row_index
+    File matrix_col_index = MergeStarOutputs.col_index
+    File cell_metrics = CellMetrics.cell_metrics
+    File gene_metrics = GeneMetrics.gene_metrics
+    File? cell_calls = RunEmptyDrops.empty_drops_result
     # loom
-    File loom_output_file = OptimusLoomGeneration.loom_output
-  }
+    File loom_output_file = final_loom_output
+
+}
 }

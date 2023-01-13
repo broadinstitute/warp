@@ -1,3 +1,69 @@
+# 5.1.15
+2022-09-13 (Date of Last Commit)
+
+* Update RSEM.wdl to use an updated RSEM docker image. This change does not affect the SmartSeq2SingleSample pipeline.
+
+# 5.1.14
+2022-09-12 (Date of Last Commit)
+
+* Update HISAT2.wdl to use an updated HISAT2 docker image. This change does not affect the SmartSeq2SingleSample pipeline.
+
+# 5.1.13
+2022-08-23 (Date of Last Commit)
+
+* Remove an unused script in pytools docker image.
+
+# 5.1.12
+2022-08-16 (Date of Last Commit)
+
+* Updated LoomUtils.wdl to use a consolidated python utilities docker image. This change does not affect the SmartSeq2SingleSample pipeline.
+
+# 5.1.11
+2022-06-21 (Date of Last Commit)
+
+* Updated main workflow name from SmartSeq2SingleCell to SmartSeq2SingleSample in the SS2 single sample pipeline. This allows the pipeline to run in the updated scala tests.
+
+# 5.1.10
+2022-04-22 (Date of Last Commit)
+
+* Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the SmartSeq2SingleSample pipeline.
+
+# 5.1.9
+2022-04-14 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+    * Two new metrics added to insert size metrics: 
+        * MODE_INSERT_SIZE
+        * WIDTH_OF_95_PERCENT
+
+# 5.1.8
+2022-02-25 (Date of Last Commit)
+
+* Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the SmartSeq2SingleSample pipeline.
+# 5.1.7
+2022-01-07 (Date of Last Commit)
+
+* Updated LoomUtils.wdl to fix a missing metadata issue in Single Nucleus SmartSeq2 pipeline
+# 5.1.6
+2021-11-10 (Date of Last Commit)
+
+* Added Xmx flag (maximum heap size) to all tasks with java commands
+# 5.1.3
+2022-01-07 (Date of Last Commit)
+
+* Updated LoomUtils.wdl to fix a missing metadata issue in Single Nucleus SmartSeq2 pipeline
+# 5.1.5
+2021-09-13 (Date of Last Commit)
+
+* Updated Picard.wdl and LoomUtils.wdl for Single Nucleus SmartSeq2. These changes do not affect SmartSeq2SingleSample
+
+# 5.1.4
+2021-09-02 (Date of Last Commit)
+
+* Removed a redundant task in Picard.wdl that was use in the previous  Optimus pipeline. However, 
+  that wdl also contains other Picard task that are used in the smartseq2 single sample. Therefore, 
+  the smartseq2 single sample is not expected to change. 
+
 # 5.1.3
 2021-07-19 (Date of Last Commit)
 

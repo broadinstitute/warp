@@ -91,7 +91,7 @@ groups:
       request: 2
     reviewers:
       users:
-        - ldgauthier # Laura Gauthier
+        - samuelklee # Samuel Lee
         - kachulis # Chris Kachulis
 
   scientific_owners_joint_genotyping:
@@ -108,7 +108,7 @@ groups:
       request_order: given
     reviewers:
       users:
-        - ldgauthier # Laura Gauthier
+        - samuelklee # Samuel Lee
 
   scientific_owners_somatic_single_sample:
     conditions:
@@ -125,6 +125,22 @@ groups:
     reviewers:
       users:
         - fleharty # Mark Fleharty
+
+  scientific_owners_imputation:
+    conditions:
+      - "'eng-only' not in labels"
+      - "base.ref != 'master'"
+      - "base.ref != 'staging'"
+      - >
+        ${IMPUTATION_FILES}
+    reviews:
+      required: 1
+      author_value: 1
+      request: 1
+      request_order: given
+    reviewers:
+      users:
+        - kachulis # Chris Kachulis
 
 
   # Clinical reviews:

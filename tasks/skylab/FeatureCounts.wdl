@@ -3,14 +3,15 @@ version 1.0
 task CountAlignments {
 
   input {
-    File input_bam
+    Array[File] aligned_bam_inputs
+    Array[String] input_ids
     File annotation_gtf
 
     #runtime values
-    String docker = "quay.io/humancellatlas/snss2-featurecount:0.1.0"
+    String docker = "us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1662044537"
     Int machine_mem_mb = 8250
     Int cpu = 1
-    Int disk = ceil(size(input_bam, "Gi") * 2) + 10
+    Int disk = ceil(size(aligned_bam_inputs,"Gi")*2) + 10
     Int preemptible = 3
   }
 
@@ -26,28 +27,31 @@ task CountAlignments {
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
-  command {
+  command <<<
     set -e
+    declare -a bam_files=(~{sep=' ' aligned_bam_inputs})
+    declare -a output_prefix=(~{sep=' ' input_ids})
+    for (( i=0; i<${#bam_files[@]}; ++i));
+      do
+        # counting the introns
+        featureCounts -M -p "${bam_files[$i]}" \
+          -a ~{annotation_gtf} \
+          -F GTF \
+          -o "${output_prefix[$i]}.introns.counts" \
+          --minOverlap 3  \
+          -t intron  \
+          -g gene_id
 
-   # counting the introns
-   featureCounts -M -p ~{input_bam} \
-      -a ~{annotation_gtf} \
-      -F GTF \
-      -o introns.counts \
-      --minOverlap 3  \
-      -t intron  \
-      -g gene_id
+       # create a new input bam where the alignemnts crossing intron-exon junctions are removed
+       python3 /usr/gitc/remove-reads-on-junctions.py --input-gtf  ~{annotation_gtf} \
+        --input-bam "${bam_files[$i]}"  --output-bam "${output_prefix[$i]}.input.nojunc.bam"
 
-   # create a new input bam where the alignemnts crossing intron-exon junctions are removed
-   python /tools/remove-reads-on-junctions.py --input-gtf  ~{annotation_gtf} \
-    --input-bam ~{input_bam}  --output-bam input.nojunc.bam
-
-   # counting the exons
-   featureCounts -M -p input.nojunc.bam \
-    -a ~{annotation_gtf} -F GTF -o exons.counts  \
-    --minOverlap 1 -t exon  -g gene_id 
-
-  }
+       # counting the exons
+       featureCounts -M -p "${output_prefix[$i]}.input.nojunc.bam" \
+        -a ~{annotation_gtf} -F GTF -o "${output_prefix[$i]}.exons.counts"  \
+        --minOverlap 1 -t exon  -g gene_id
+      done;
+  >>>
 
   runtime {
     docker: docker
@@ -58,9 +62,9 @@ task CountAlignments {
   }
 
   output {
-    File intron_counts_out = "introns.counts"
-    File intron_counts_out_summary = "introns.counts.summary"
-    File exon_counts_out = "exons.counts"
-    File exon_counts_out_summary = "exons.counts.summary"
+    Array[File] intron_counts_out = glob("*.introns.counts")
+    Array[File] intron_counts_out_summary = glob("*introns.counts.summary")
+    Array[File] exon_counts_out = glob("*exons.counts")
+    Array[File] exon_counts_out_summary = glob("*.exons.counts.summary")
   }
 }

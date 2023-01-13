@@ -16,7 +16,7 @@ task RunEmptyDrops {
         Int emptydrops_lower = 100
 
         # runtime values
-        String docker = "quay.io/humancellatlas/secondary-analysis-dropletutils:0.1.4"
+        String docker = "quay.io/humancellatlas/secondary-analysis-dropletutils:0.1.5"
         Int machine_mem_mb = 16000
         Int cpu = 1
         Int disk = 20
@@ -37,8 +37,13 @@ task RunEmptyDrops {
     }
 
     command {
+        echo "Converting the npy, npz to RDS"
         npz2rds.sh -c ${col_index} -r ${row_index} -d ${sparse_count_matrix} -o temp_matrix.rds
+        echo "RDS file created"
+
+        echo "Running emptydrops"
         emptyDropsWrapper.R --transpose --verbose --input-rds temp_matrix.rds --output-csv empty_drops_result.csv --fdr-cutoff ${fdr_cutoff} --emptydrops-niters ${niters} --min-molecules ${min_molecules} --emptydrops-lower ${emptydrops_lower}
+        echo "Completed running emptydrops"
     }
 
     runtime {

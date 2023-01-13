@@ -18,8 +18,8 @@ workflow VerifyMetrics {
     call CompareMetricFiles {
       input:
         dependency_input = CompareNumberOfMetricFiles.output_file,
-        file1 = test_metrics[idx],
-        file2 = truth_metrics[idx],
+        file1 = truth_metrics[idx],
+        file2 = test_metrics[idx],
         output_file = "metric_~{idx}.txt",
         metrics_to_ignore = []
     }
@@ -78,7 +78,7 @@ task CompareMetricFiles {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
     preemptible: 3

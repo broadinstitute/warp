@@ -1,3 +1,143 @@
+# 3.1.9
+2022-11-04 (Date of Last Commit)
+
+* Updated GATK verison to 4.3.0.0
+
+# 3.1.8
+2022-09-27 (Date of Last Commit)
+
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
+# 3.1.7
+2022-09-23 (Date of Last Commit)
+
+* Updated Picard-Python Docker image in Utilities.wdl to fix vulnerabilities.
+
+# 3.1.6
+2022-07-15 (Date of Last Commit)
+
+* Updated task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+
+# 3.1.5
+2022-07-12 (Date of Last Commit)
+
+* Added additional_disk input to SortSam task in BamProcessing.wdl
+
+# 3.1.4
+2022-07-11 (Date of Last Commit)
+
+* Added memory_multiplier and additional_disk inputs to GatherSortedBamFiles task in BamProcessing.wdl
+
+# 3.1.3
+2022-06-21 (Date of Last Commit)
+
+* Changed QC.CheckFingerprint to QC.CheckFingerprintTask to avoid a naming conflict in the update scala tests, no effect on this pipeline
+
+# 3.1.2
+2022-06-01 (Date of Last Commit)
+
+* Updated tasks in the QC.wdl and VariantCalling.wdl, this update has no effect on this pipeline 
+
+# 3.1.1
+2022-04-21 (Date of Last Commit)
+
+* Fixed path to docker image in GermlineVariantDiscovery.wdl
+
+# 3.1.0
+2022-04-19 (Date of Last Commit)
+
+* Updated to Picard version 2.26.10 and GATK version 4.2.6.1 to address log4j vulnerabilities
+    * The following metrics were added to alignment summary and readgroup alignment summary metrics:
+        * AVG_POS_3PRIME_SOFTCLIP_LENGTH
+        * MAD_READ_LENGTH
+        * MAX_READ_LENGTH
+        * MIN_READ_LENGTH
+        * SD_READ_LENGTHMEDIAN_READ_LENGTH
+    * The following metrics were added to hybrid selection metrics:
+        * PCT_TARGET_BASES_100000X
+        * PCT_TARGET_BASES_1000X
+        * PCT_TARGET_BASES_25000X
+        * PCT_TARGET_BASES_2500X
+        * PCT_TARGET_BASES_250X
+        * PCT_TARGET_BASES_50000X
+        * PCT_TARGET_BASES_5000XPCT_TARGET_BASES_10000X
+        * PCT_TARGET_BASES_500X
+    * Small differences observed in PCT_SOFTCLIP in alignment summary metrics due to a bug fix in the way PCT_SOFTCLIP is calculated
+    * RAW_RankSum NaN to empty for NON_REF data 
+    * Reblocking fix to merge sites with missing DP into adjacent ref blocks
+
+# 3.0.7
+2022-04-15 (Date of Last Commit)
+
+* Updated task SortSam in BamProcessing.wdl to take an optional memory_multiplier
+
+# 3.0.6
+2022-04-04 (Date of Last Commit)
+
+* Update task CopyFilesFromCloudToCloud in Utilities.wdl, this update has no effect on this pipeline
+
+# 3.0.5
+2022-03-24 (Date of Last Commit)
+
+* Task wdls used by the ExomeReprocessing pipeline were updated with changes that don't affect the ExomeReprocessing pipeline itself
+
+# 3.0.4
+2022-02-02 (Date of Last Commit)
+
+* Changed dragmap base image from Centos to RockyLinux to comply with trivy scans
+# 3.0.3
+2022-02-01 (Date of Last Commit)
+
+* Increased the disk space in Reblock task
+* Increased the disk space in CalibrateDragstrModel task
+* Addressed memory usage in CheckFingerprint task to allow sufficient headroom for the VM
+
+# 3.0.2
+2022-01-14 (Date of Last Commmit)
+
+* Refactor to move CheckFingerprint functionality into new task
+
+# 3.0.1
+2021-12-09
+* Updated the base image for the Dragmap docker image
+* Updated broken dependency in VerifyBamID docker image
+
+# 3.0.0
+2021-11-15
+
+* Added an optional step to reblock gVCFs, this step is included by default
+    * The ExomeReprocessing pipeline now outputs reblocked gVCFs by default. To skip reblocking, add '\"ExomeReprocessing.ExomeGermlineSingleSample.BamToGvcf.skip_reblocking\": true' to the inputs
+* Added WGS plumbing tests for dragen_maximum_quality_mode and dragen_functional_equivalence_mode
+* Moved Dragmap docker to WARP and updated to follow repo's best practices
+* Added Xmx flag (maximum heap size) to all tasks with java commands
+* Added option to allow empty ref_alt file for running BWA mem with masked reference
+* Added plumbing input JSON for masked reference
+* Updated the SumFloats task used in ExomeGermlineSingleSample.wdl to use python3 instead of python2
+
+# 2.6.0
+2021-10-18
+* Updated GATK to v4.2.2.0 for variant calling
+    - In accordance with known improvements in GATK 4.1.9.0 and 4.2.0.0, sensitivity to phased variants is improved in a small number of cases and genotypes are more accurate in a very small number of cases involving indels and spanning deletions.
+* Added optional BQSR outputs
+
+# 2.5.0
+2021-10-06
+
+* Updated VerifyBamID to use AppSec base image
+* Changed GoTC image to Samtools specific image in CramToUnmappedBams and Utilities
+* Changed GoTC image to GATK specific image in GermlineVariantDiscovery
+* Changed GoTC image to SAMTOOLS/PICARD/BWA specific image in Alignment
+
+# 2.4.9
+2021-09-22
+
+* Updated Utilities.wdl task definitions to include a new ErrorWithMessage task that is NOT used in the ExomeReprocessing pipeline.
+
+# 2.4.8
+2021-08-02
+
+* Increased the version number to make new release tag for Dockstore 
+
 # 2.4.7
 2021-06-22
 

@@ -8,7 +8,6 @@ import "../../../../tests/skylab/optimus/pr/ValidateOptimus.wdl" as checker
 workflow TestOptimusPR {
   input {
     # output hashes
-    String expected_bam_hash
     String expected_gene_metric_hash
     String expected_cell_metric_hash
     String expected_loom_file_checksum
@@ -48,7 +47,6 @@ workflow TestOptimusPR {
 
   call checker.ValidateOptimus as checker {
     input:
-      bam = target.bam,
       matrix = target.matrix,
       matrix_row_index = target.matrix_row_index,
       matrix_col_index = target.matrix_col_index,
@@ -57,7 +55,6 @@ workflow TestOptimusPR {
       loom_file = select_first([target.loom_output_file]),
       
       reference_matrix = reference_matrix,
-      expected_bam_hash = expected_bam_hash,
       expected_cell_metric_hash = expected_cell_metric_hash,
       expected_gene_metric_hash = expected_gene_metric_hash,
       expected_loom_file_checksum = expected_loom_file_checksum

@@ -2,13 +2,13 @@
 sidebar_position: 2
 ---
 
-# Exome Germline Single Sample v2.4.4 Methods
+# Exome Germline Single Sample v3.0.0 Methods
 
 The following contains a detailed methods description outlining the pipeline’s process, software, and tools that can be modified for a publication methods section.
 
 ## Detailed Methods
 
-Preprocessing and variant calling was performed using the ExomeGermlineSingleSample 2.4.4 pipeline using Picard 2.23.8, GATK 4.1.8, and Samtools 1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline follows GATK Best Practices as previously described ([Van der Auwera & O'Connor, 2020](https://www.oreilly.com/library/view/genomics-in-the/9781491975183/)) as well as the Functional Equivalence specification ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)).
+Preprocessing and variant calling was performed using the ExomeGermlineSingleSample 3.0.0 pipeline using Picard 2.23.8, GATK 4.2.2.0, and Samtools 1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline follows GATK Best Practices as previously described ([Van der Auwera & O'Connor, 2020](https://www.oreilly.com/library/view/genomics-in-the/9781491975183/)) as well as the Functional Equivalence specification ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)).
 
 ### Pre-processing and QC
 
@@ -26,6 +26,9 @@ The final base-recalibrated BAM was converted to CRAM using Samtools view and va
 
 ### Variant Calling
 
-Prior to variant calling, the variant calling interval list was split to enable parallelization. Variant calling was performed using GATK HaplotypeCaller with the annotation parameters -G StandardAnnotation -G StandardHCAnnotation and -G AS_StandardAnnotation. Reference block genotype quality (GQ) bands were set using  -GQB 10 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 -GQB 70 -GQB 80 -GQB 90. The resulting GVCFs were merged using Picard MergeVcfs and the final VCF file was validated using GATK ValidateVariants. Variant metrics were calculated using Picard CollectVariantCallingMetrics.
+Prior to variant calling, the variant calling interval list was split to enable parallelization. Variant calling was performed using GATK HaplotypeCaller with the annotation parameters -G StandardAnnotation -G StandardHCAnnotation and -G AS_StandardAnnotation. Reference block genotype quality (GQ) bands were set using  -GQB 10 -GQB 20 -GQB 30 -GQB 40 -GQB 50 -GQB 60 -GQB 70 -GQB 80 -GQB 90. The resulting GVCFs were merged using Picard MergeVcfs and reblocked using GATK ReblockGVCF with -GQB 20 -GQB 30 -GQB 40. The final reblocked GVCF file was validated using GATK ValidateVariants. Variant metrics were calculated using Picard CollectVariantCallingMetrics.
 
-The pipeline’s final outputs included metrics, the ValidateSamFile validation reports, an aligned CRAM with index, and a GVCF containing variant calls with an accompanying index.
+The pipeline’s final outputs included metrics, the ValidateSamFile validation reports, an aligned CRAM with index, and a reblocked GVCF containing variant calls with an accompanying index.
+
+## Previous methods documents
+- [ExomeGermlineSingleSample_v2.4.4](https://github.com/broadinstitute/warp/blob/ExomeGermlineSingleSample_v2.6.0/website/docs/Pipelines/Exome_Germline_Single_Sample_Pipeline/exome.methods.md)

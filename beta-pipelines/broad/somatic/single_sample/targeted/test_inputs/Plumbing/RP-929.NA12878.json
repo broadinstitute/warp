@@ -51,5 +51,5 @@
 
   "TargetedSomaticSingleSample.hard_clip_reads": false,
   "TargetedSomaticSingleSample.bin_base_qualities": false,
-  "TargetedSomaticSingleSample.UnmappedBamToAlignedBam.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true
+  "TargetedSomaticSingleSample.UnmappedBamToAlignedBam.CheckContamination.disable_sanity_check": true
 }

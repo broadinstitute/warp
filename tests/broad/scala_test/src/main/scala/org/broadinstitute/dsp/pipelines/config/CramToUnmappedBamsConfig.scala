@@ -9,7 +9,7 @@ import org.broadinstitute.dsp.pipelines.commandline.{
 
 case class CramToUnmappedBamsConfig(
     category: WorkflowTestCategory = WorkflowTestCategory.Plumbing,
-    truthBranch: String = "develop",
+    truthBranch: String = "master",
     useTimestamp: Option[String] = None,
     useCallCaching: Boolean = true,
     updateTruth: Boolean = false,

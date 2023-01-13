@@ -1,5 +1,7 @@
 version 1.0
 
+import "../../../../verification/VerifyTasks.wdl" as VerifyTasks
+
 workflow ValidateOptimus {
      meta {
          description: "Validate Optimus Outputs"
@@ -7,26 +9,26 @@ workflow ValidateOptimus {
 
      input {
          # Optimus output files to be checked
-         File bam
          File matrix
          File matrix_row_index
          File matrix_col_index
          File cell_metrics
          File gene_metrics
+         File test_bam
+         File truth_bam
          File? loom_file
-
          # Reference data and checksums
          File reference_matrix
-         String expected_bam_hash
          String expected_cell_metric_hash
          String expected_gene_metric_hash
          String expected_loom_file_checksum
      }
 
-     call ValidateBam as ValidateBam {
+     call VerifyTasks.CompareBams as CompareBams {
          input:
-            bam = bam,
-            expected_checksum = expected_bam_hash
+             test_bam = test_bam,
+             truth_bam = truth_bam,
+             lenient_header = true
      }
 
      call ValidateMatrix as ValidateMatrix {
@@ -53,53 +55,12 @@ workflow ValidateOptimus {
 
      call GenerateReport as GenerateReport {
          input:
-             bam_validation_result = ValidateBam.result,
              matrix_validation_result = ValidateMatrix.result,
              metric_and_index_validation_result = ValidateMetrics.result,
              loom_validation_result = ValidateLoom.result
     }
-
     output {
 
-    }
-}
-
-task ValidateBam {
-    input {
-        File bam
-        String expected_checksum
-    }
-
-    Int required_disk = ceil(size(bam, "G") * 1.1)
-
-    command <<<
-        cacheInvalidationRandomString=4
-
-        echo Starting checksum generation...
-
-        # calculate hash for alignment positions only (a reduced bam hash)
-        calculated_checksum=$( samtools view -F 256 "~{bam}" | cut -f 1-11 | md5sum | awk '{print $1}' )
-        echo Reduced checksum generation complete
-
-        if [ "$calculated_checksum" == "~{expected_checksum}" ]
-        then
-             echo Computed and expected bam hashes match \( "$calculated_checksum" \)
-             printf PASS > result.txt
-        else
-             echo Computed \( "$calculated_checksum" \) and expected \( "~{expected_checksum}" \) bam file hashes do not match
-             printf FAIL > result.txt
-        fi
-    >>>
-
-    runtime {
-        docker: "quay.io/humancellatlas/secondary-analysis-samtools:v0.2.2-1.6"
-        cpu: 1
-        memory: "3.75 GB"
-        disks: "local-disk ${required_disk} HDD"
-    }
-
-    output {
-        String result = read_string("result.txt")
     }
 }
 
@@ -247,7 +208,6 @@ task ValidateMetrics {
 
 task GenerateReport {
   input {
-    String bam_validation_result
     String metric_and_index_validation_result
     String matrix_validation_result
     String loom_validation_result
@@ -263,11 +223,6 @@ task GenerateReport {
 
     # test each output for equality, echoing any failure states to stdout
     fail=false
-
-    echo Bam Validation: ~{bam_validation_result}
-    if [ "~{bam_validation_result}" == "FAIL" ]; then
-        fail=true
-    fi
 
     echo Metrics Validation: ~{metric_and_index_validation_result}
     if [ ~{metric_and_index_validation_result} == "FAIL" ]; then

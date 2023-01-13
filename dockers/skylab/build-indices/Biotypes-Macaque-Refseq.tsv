@@ -1,0 +1,15 @@
+C_region	N
+V_segment	N
+guide_RNA	N
+lncRNA	Y
+miRNA	N
+misc_RNA	N
+other	N
+protein_coding	Y
+pseudogene	N
+rRNA	N
+snRNA	N
+snoRNA	N
+tRNA	N
+telomerase_RNA	N
+transcribed_pseudogene	N

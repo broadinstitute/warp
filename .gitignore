@@ -6,3 +6,10 @@
 
 # R
 .Rhistory
+
+# VSCode project settings
+.vscode
+
+# python virtual environments
+venv/
+.flake8

@@ -1,0 +1,21 @@
+{
+  "Imputation.single_sample_vcfs": [
+    "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370027_R02C01.vcf.gz",
+    "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370027_R12C02.vcf.gz",
+    "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370134_R12C02.vcf.gz"
+  ],
+  "Imputation.single_sample_vcf_indices": [
+    "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370027_R02C01.vcf.gz.tbi",
+    "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370027_R12C02.vcf.gz.tbi",
+    "gs://broad-gotc-test-storage/imputation/plumbing/vcfs/101342370134_R12C02.vcf.gz.tbi"
+  ],
+  "Imputation.ref_dict": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.dict",
+  "Imputation.reference_panel_path": "gs://gcp-public-data--broad-references/hg19/v0/1000G_reference_panel/",
+  "Imputation.contigs": [ "21", "22" ],
+  "Imputation.genetic_maps_eagle": "gs://gcp-public-data--broad-references/hg19/v0/eagle_genetic_map_hg19_withX.txt.gz",
+  "Imputation.output_callset_name": "plumbing_test",
+  "Imputation.split_output_to_single_sample": false,
+  "Imputation.perform_extra_qc_steps": false,
+  "Imputation.optional_qc_max_missing": 0.05,
+  "Imputation.optional_qc_hwe": 0.000001
+}

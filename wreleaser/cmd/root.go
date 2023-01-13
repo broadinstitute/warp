@@ -31,6 +31,7 @@ Currently available pipelines:
 	- ExternalWholeGenomeReprocessing
 	- GDCWholeGenomeSomaticSingleSample
 	- IlluminaGenotypingArray
+        - Imputation
 	- JointGenotyping
         - JointGenotypingByChromosomePartOne
         - JointGenotypingByChromosomePartTwo
@@ -39,6 +40,7 @@ Currently available pipelines:
         - MultiSampleSmartSeq2SingleNucleus
         - Optimus
         - ReblockGVCF
+        - RNAWithUMIsPipeline
         - SmartSeq2SingleNucleus
         - SmartSeq2SingleSample
         - ValidateChip

@@ -56,6 +56,8 @@ object CromwellWorkflowTester {
 
   lazy val PipelineRoot: File = WarpRoot / "pipelines"
 
+  lazy val TestsRoot: File = WarpRoot / "verification" / "test-wdls"
+
   def apply(config: Config)(
       implicit system: ActorSystem,
       mat: ActorMaterializer
@@ -67,8 +69,18 @@ object CromwellWorkflowTester {
         new AllOfUsTester(config.germlineCloudConfig)
       case AnnotationFiltration =>
         new AnnotationFiltrationTester(config.annotationFiltrationConfig)
+      case BroadInternalRNAWithUMIs =>
+        new BroadInternalRNAWithUMIsTester(
+          config.broadInternalRNAWithUMIsConfig)
+      case BroadInternalUltimaGenomics =>
+        new BroadInternalUltimaGenomicsTester(
+          config.broadInternalUltimaGenomicsConfig)
+      case CheckFingerprint =>
+        new CheckFingerprintTester(config.checkFingerprintConfig)
       case CramToUnmappedBams =>
         new CramToUnmappedBamsTester(config.cramToUnmappedBamsConfig)
+      case CloudWorkflow =>
+        new CloudWorkflowTester(config.cloudWorkflowConfig)
       case Dummy => new DummyTester()
       case ExternalReprocessing =>
         new ExternalReprocessingTester(config.germlineCloudConfig)
@@ -91,8 +103,18 @@ object CromwellWorkflowTester {
         new ArraysTester(config.arraysConfig)
       case IlluminaGenotypingArray =>
         new IlluminaGenotypingArrayTester(config.illuminaGenotypingArrayConfig)
+      case Imputation =>
+        new ImputationTester(config.imputationConfig)
+      case RNAWithUMIs =>
+        new RNAWithUMIsTester(config.rnaWithUMIsConfig)
       case SomaticSingleSample =>
         new SomaticSingleSampleTester(config.somaticCloudWorkflowConfig)
+      case UltimaGenomicsJointGenotyping =>
+        new UltimaGenomicsJointGenotypingTester(
+          config.ultimaGenomicsJointGenotypingConfig)
+      case UltimaGenomicsWholeGenomeGermline =>
+        new UltimaGenomicsWholeGenomeGermlineTester(
+          config.ultimaGenomicsWholeGenomeGermlineConfig)
       case VariantCalling =>
         new VariantCallingTester(config.germlineCloudConfig)
     }
@@ -388,7 +410,8 @@ abstract class CromwellWorkflowTester(
             cromwellMetadata <- cromwellClient()
               .metadata(
                 finishedWorkflow.workflow.id,
-                Option(Map("expandSubWorkflows" -> List("true")))
+                Option(Map("includeKey" -> List("backendLogs"),
+                           "expandSubWorkflows" -> List("true")))
               )
               .value
               .unsafeToFuture()

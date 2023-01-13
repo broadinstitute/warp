@@ -403,7 +403,6 @@ task picard_markduplicates {
   }
   Float total_input_size = size(bams, "GiB")
   String metrics_filename = outbam + ".metrics"
-
   # The merged bam will be smaller than the sum of the parts so we need to account for the unmerged inputs and the merged output.
   # Mark Duplicates takes in as input readgroup bams and outputs a slightly smaller aggregated bam. Giving .25 as wiggleroom
   Float md_disk_multiplier = 3
@@ -428,11 +427,8 @@ task picard_markduplicates {
       ~{"READ_NAME_REGEX=" + read_name_regex}
   }
 
-  # We are using a non-standard docker image here because we currently run this WDL on Cromwell v52 which cannot support
-  # the custom entrypoint in the picard-cloud:2.18.11 docker image. Cromwell v53 and newer can support the
-  # us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11 docker image
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.18.11_NoCustomEntryPoint"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: preemptible_tries
     memory: "~{memory_size} GiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -510,6 +506,7 @@ task gatk_baserecalibrator {
     Float dbsnp_size = size([dbsnp_vcf, dbsnp_vcf_index], "GiB")
     Int mem = ceil(size(bam, "MiB")) + 6000 + additional_memory_mb
     Int jvm_mem = mem - 1000
+    Int max_heap = mem - 500
     Int disk_space = ceil(size(bam, "GiB") + ref_size + dbsnp_size) + 20 + additional_disk_gb
 
     parameter_meta {
@@ -524,12 +521,12 @@ task gatk_baserecalibrator {
     command {
         gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
             -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-            -Xloggc:gc_log.log -Xms~{jvm_mem}m" \
+            -Xloggc:gc_log.log -Xms~{jvm_mem}m -Xmx~{max_heap}m" \
             BaseRecalibrator \
                 --input ~{bam} \
                 --known-sites ~{dbsnp_vcf} \
                 --reference ~{ref_fasta} \
-                --TMP_DIR . \
+                --tmp-dir . \
                 --output ~{output_grp}
     }
 
@@ -538,7 +535,7 @@ task gatk_baserecalibrator {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.0.7.0"
+        docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
@@ -562,6 +559,7 @@ task gatk_applybqsr {
     String output_bai = basename(input_bam, ".bam") + ".bai"
     Int mem = ceil(size(input_bam, "MiB")) + 4000 + additional_memory_mb
     Int jvm_mem = mem - 1000
+    Int max_heap = mem - 500
     Int disk_space = ceil((size(input_bam, "GiB") * 3)) + 20 + additional_disk_gb
 
     parameter_meta {
@@ -571,12 +569,12 @@ task gatk_applybqsr {
     command {
         gatk --java-options "-XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -XX:+PrintFlagsFinal \
             -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
-            -Xloggc:gc_log.log -Xms~{jvm_mem}m" \
+            -Xloggc:gc_log.log -Xms~{jvm_mem}m -Xmx~{max_heap}m" \
             ApplyBQSR \
                 --input ~{input_bam} \
                 --bqsr-recal-file ~{bqsr_recal_file} \
                 --emit-original-quals ~{emit_original_quals} \
-                --TMP_DIR . \
+                --tmp-dir . \
                 --output ~{output_bam}
     }
 
@@ -586,7 +584,7 @@ task gatk_applybqsr {
     }
     
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.0.7.0"
+        docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
@@ -605,17 +603,18 @@ task collect_insert_size_metrics {
   }
   Int mem = ceil(size(input_bam, "GiB")) + 7000 + additional_memory_mb
   Int jvm_mem = mem - 1000
+  Int max_heap = mem - 500
   Int disk_size = ceil(size(input_bam, "GiB")) + 20 + additional_disk_gb
 
   command {
-    java -Xms~{jvm_mem}m -jar /usr/picard/picard.jar \
+    java -Xms~{jvm_mem}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
       CollectInsertSizeMetrics \
       INPUT=~{input_bam} \
       OUTPUT=~{output_bam_prefix}.insert_size_metrics \
       HISTOGRAM_FILE=~{output_bam_prefix}.insert_size_histogram.pdf
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.8"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     memory: mem + " MiB"
     disks: "local-disk " + disk_size + " HDD"
   }
@@ -628,7 +627,7 @@ task collect_insert_size_metrics {
 
 workflow GDCWholeGenomeSomaticSingleSample {
 
-    String pipeline_version = "1.1.0"
+    String pipeline_version = "1.3.0"
 
     input {
         File? input_cram

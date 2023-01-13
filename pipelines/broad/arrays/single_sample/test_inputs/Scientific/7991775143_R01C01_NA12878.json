@@ -3,7 +3,6 @@
   "Arrays.sample_lsid": "broadinstitute.org:bsp.prod.sample:3S2IV",
   "Arrays.analysis_version_number": 1,
   "Arrays.call_rate_threshold": 0.98,
-  "Arrays.genotype_concordance_threshold": 0.98,
   "Arrays.reported_gender": "Female",
   "Arrays.chip_well_barcode": "7991775143_R01C01",
 
@@ -28,7 +27,7 @@
   "Arrays.dbSNP_vcf": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz",
   "Arrays.dbSNP_vcf_index": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz.tbi",
   "Arrays.haplotype_database_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt",
-  "Arrays.variant_rsids_file": "gs://broad-references-private/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
+  "Arrays.variant_rsids_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
 
   "Arrays.disk_size": 100,
   "Arrays.preemptible_tries": 3,

@@ -58,19 +58,19 @@ function do_setup() {
 esac
 
   >&2 echo "Setting up shop in ${OLD_DIR}"
-  ln -fs ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/${dataType}/JointGenotypingByChromosomePartOne.template.input.json ${OLD_DIR}/JointGenotypingByChromosomePartOne.input.json
-  ln -fs ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/${dataType}/JointGenotypingByChromosomePartTwo.template.input.json ${OLD_DIR}/JointGenotypingByChromosomePartTwo.input.json
+  ln -fs ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/${dataType}/JointGenotypingByChromosomePartOne.template.input.json ${OLD_DIR}/JointGenotypingByChromosomePartOne.input.json
+  ln -fs ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/${dataType}/JointGenotypingByChromosomePartTwo.template.input.json ${OLD_DIR}/JointGenotypingByChromosomePartTwo.input.json
 
   cp \
-    ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.sh \
-    ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
+    ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.sh \
+    ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
 
-  sed -i.bak 's|{{DATA_TYPE}}|'${dataType}'|g' ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
-  sed -i.bak 's|{{COMPUTE_PROJECT_PREFIX}}|'${computeProjectPrefix}'|g' ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
-  sed -i.bak 's|{{PROJECT_NUMBER_RANGE_START}}|'${projectNumberRangeStart}'|g; s|{{PROJECT_NUMBER_RANGE_END}}|'${projectNumberRangeEnd}'|g' ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
-  ln -fs ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh ${OLD_DIR}/by_chromosome_client.sh
+  sed -i.bak 's|{{DATA_TYPE}}|'${dataType}'|g' ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
+  sed -i.bak 's|{{COMPUTE_PROJECT_PREFIX}}|'${computeProjectPrefix}'|g' ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
+  sed -i.bak 's|{{PROJECT_NUMBER_RANGE_START}}|'${projectNumberRangeStart}'|g; s|{{PROJECT_NUMBER_RANGE_END}}|'${projectNumberRangeEnd}'|g' ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh
+  ln -fs ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/by_chromosome_client.working.sh ${OLD_DIR}/by_chromosome_client.sh
 
-  rm ${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/*.bak
+  rm ${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/*.bak
 }
 
 if [[ ${1} == "setup" ]]; then
@@ -78,16 +78,16 @@ if [[ ${1} == "setup" ]]; then
   exit 0
 fi
 
-JOINT_GENOTYPING_PART_ONE_WDL=${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartOne.wdl
-JOINT_GENOTYPING_PART_TWO_WDL=${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartTwo.wdl
+JOINT_GENOTYPING_PART_ONE_WDL=${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartOne.wdl
+JOINT_GENOTYPING_PART_TWO_WDL=${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartTwo.wdl
 
-JOINT_GENOTYPING_PART_ONE_INPUTS_TEMPLATE=${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/${DATA_TYPE}/JointGenotypingByChromosomePartOne.template.input.json
-JOINT_GENOTYPING_PART_TWO_INPUTS_TEMPLATE=${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/${DATA_TYPE}/JointGenotypingByChromosomePartTwo.template.input.json
+JOINT_GENOTYPING_PART_ONE_INPUTS_TEMPLATE=${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/${DATA_TYPE}/JointGenotypingByChromosomePartOne.template.input.json
+JOINT_GENOTYPING_PART_TWO_INPUTS_TEMPLATE=${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/${DATA_TYPE}/JointGenotypingByChromosomePartTwo.template.input.json
 
-CROMWELL_OPTIONS_TEMPLATE=${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosome.template.options.json
+CROMWELL_OPTIONS_TEMPLATE=${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosome.template.options.json
 
 WORKFLOWS_CSV=${SCRIPT_DIR}/workflows.csv
-CHROMOSOME_SCATTER_CSV=${DSDE_PIPELINES_DIR}/pipelines/dna_seq/germline/joint_genotyping/by_chromosome/${DATA_TYPE}/chromosome_scatter_counts.csv
+CHROMOSOME_SCATTER_CSV=${DSDE_PIPELINES_DIR}/pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/${DATA_TYPE}/chromosome_scatter_counts.csv
 RELEASE_DIR=''
 
 KEYS_TO_INCLUDE="includeKey=executionStatus&includeKey=backendStatus&includeKey=status&includeKey=workflowName&includeKey=subWorkflowMetadata&includeKey=subWorkflowId&includeKey=id"
@@ -222,8 +222,8 @@ function submit_job() {
 function write_part_two_inputs_to_cloud() {
   local -r sitesOnlyVcfs=$(mktemp)
   local -r sitesOnlyVcfIndices=$(mktemp)
-  local -r annotationVcfs=$(mktemp)
-  local -r annotationVcfIndices=$(mktemp)
+  #local -r annotationVcfs=$(mktemp)
+  #local -r annotationVcfIndices=$(mktemp)
   local -r hardFilteredVcfs=$(mktemp)
   local -r hardFilteredVcfIndices=$(mktemp)
   local -r fingerprintingVcfs=$(mktemp)
@@ -235,8 +235,8 @@ function write_part_two_inputs_to_cloud() {
       gsutil ls "${OUTPUT_CLOUD_DIR}/${PART_ONE_OUTPUTS_SUBDIR}/${chromosome}/" > ${outputs}
       grep 'sites_only.vcf.gz$' ${outputs} >> ${sitesOnlyVcfs}
       grep 'sites_only.vcf.gz.tbi$' ${outputs} >> ${sitesOnlyVcfIndices}
-      grep 'annotationDB.vcf.gz$' ${outputs} >> ${annotationVcfs}
-      grep 'annotationDB.vcf.gz.tbi$' ${outputs} >> ${annotationVcfIndices}
+      #grep 'annotationDB.vcf.gz$' ${outputs} >> ${annotationVcfs}
+      #grep 'annotationDB.vcf.gz.tbi$' ${outputs} >> ${annotationVcfIndices}
       grep 'hard_filtered_with_genotypes.vcf.gz$' ${outputs} >> ${hardFilteredVcfs}
       grep 'hard_filtered_with_genotypes.vcf.gz.tbi$' ${outputs} >> ${hardFilteredVcfIndices}
       set +e
@@ -253,8 +253,8 @@ function write_part_two_inputs_to_cloud() {
 
   gsutil cp ${sitesOnlyVcfs} ${PART_ONE_FOFN_DIR}/sites_only_vcfs_fofn
   gsutil cp ${sitesOnlyVcfIndices} ${PART_ONE_FOFN_DIR}/sites_only_vcf_indices_fofn
-  gsutil cp ${annotationVcfs} ${PART_ONE_FOFN_DIR}/annotation_vcfs_fofn
-  gsutil cp ${annotationVcfIndices} ${PART_ONE_FOFN_DIR}/annotation_vcf_indices_fofn
+  #gsutil cp ${annotationVcfs} ${PART_ONE_FOFN_DIR}/annotation_vcfs_fofn
+  #gsutil cp ${annotationVcfIndices} ${PART_ONE_FOFN_DIR}/annotation_vcf_indices_fofn
   gsutil cp ${fingerprintingVcfs} ${PART_ONE_FOFN_DIR}/fingerprinting_vcfs_fofn
   gsutil cp ${fingerprintingVcfIndices} ${PART_ONE_FOFN_DIR}/fingerprinting_vcf_indices_fofn
   gsutil cp ${hardFilteredVcfs} ${PART_ONE_FOFN_DIR}/hard_filtered_with_genotypes_vcfs_fofn
@@ -262,8 +262,8 @@ function write_part_two_inputs_to_cloud() {
 
   rm ${sitesOnlyVcfs} \
     ${sitesOnlyVcfIndices} \
-    ${annotationVcfs} \
-    ${annotationVcfIndices} \
+    #${annotationVcfs} \
+    #${annotationVcfIndices} \
     ${fingerprintingVcfs} \
     ${fingerprintingVcfIndices} \
     ${hardFilteredVcfs} \
@@ -419,8 +419,8 @@ function copy_part_one_outputs_to_safe_location() {
       outputs=$(do_outputs ${chromosome})
       siteOnlyVcf=$(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartOne.output_vcf"]')
       sitesOnlyVcfIndex=$(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartOne.output_vcf_index"]')
-      annotationVcf=$(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartOne.annotation_db_vcf"]')
-      annotationVcfIndex=$(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartOne.annotation_db_vcf_index"]')
+      #annotationVcf=$(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartOne.annotation_db_vcf"]')
+      #annotationVcfIndex=$(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartOne.annotation_db_vcf_index"]')
       scatteredIntervals=($(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartOne.output_intervals"][]'))
       outputHardFilteredVcfs=($(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartOne.output_hard_filtered_vcfs"][]'))
       outputHardFilteredVcfIndices=($(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartOne.output_hard_filtered_vcf_indices"][]'))
@@ -462,6 +462,12 @@ function copy_part_one_outputs_to_safe_location() {
           continue
         else
           gsutil cp ${hardFilteredVcf} ${outputDir}${copyName}
+        fi
+        # Check hardFilteredVcf index separately
+        if grep -q "${copyName}.tbi$" ${existingFilesFile}; then
+          >&2 echo "Skipping copying of ${hardFilteredVcf}.tbi as it already exists in the destination directory"
+          continue
+        else
           gsutil cp ${hardFilteredVcf}.tbi ${outputDir}${copyName}.tbi
         fi
         ) &
@@ -502,8 +508,8 @@ function copy_part_two_outputs_to_safe_location() {
   local -r outputs=$(do_outputs "part-two")
   local -r -a outputVcfs=($(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartTwo.output_vcfs"][]'))
   local -r -a outputVcfIndices=($(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartTwo.output_vcf_indices"][]'))
-  local -r annotationVcf=$(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartTwo.annotation_db_vcf"]')
-  local -r annotationVcfIndex=$(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartTwo.annotation_db_vcf_index"]')
+  #local -r annotationVcf=$(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartTwo.annotation_db_vcf"]')
+  #local -r annotationVcfIndex=$(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartTwo.annotation_db_vcf_index"]')
   local -r summaryMetrics=$(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartTwo.summary_metrics_file"]')
   local -r detailMetrics=$(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartTwo.detail_metrics_file"]')
   local -r fingerprintMetrics=$(echo ${outputs} | jq -r '.["JointGenotypingByChromosomePartTwo.crosscheck_metrics"]')

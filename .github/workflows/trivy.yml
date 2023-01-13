@@ -1,0 +1,46 @@
+name: dsp-appsec-trivy
+on: [pull_request]
+
+jobs:
+  build-and-scan:
+    name: DSP AppSec Trivy check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        context:
+        - dockers/broad/arrays_picard_private
+        - dockers/broad/dragmap
+        - dockers/broad/gatk
+        - dockers/broad/illumina_iaap_autocall
+        - dockers/broad/picard_python
+        - dockers/broad/verify_bam_id
+        - dockers/broad/samtools
+        - dockers/broad/samtools_picard_bwa
+        - dockers/broad/samtools_star
+        - dockers/broad/zcall
+        - dockers/broad/imputation/bcftools_vcftools
+        - dockers/broad/imputation/eagle
+        - dockers/broad/imputation/minimac4
+        - dockers/broad/rna_seq/fgbio
+        - dockers/broad/rna_seq/umi_tools
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: broadinstitute/dsp-appsec-trivy-action@v1
+        with:
+          context: ${{ matrix.context }}
+
+
+  prebuilt-scan:
+    name: DSP AppSec Trivy check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+        - us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10
+    steps:
+      - uses: broadinstitute/dsp-appsec-trivy-action@v1
+        with:
+          image: ${{ matrix.image }}

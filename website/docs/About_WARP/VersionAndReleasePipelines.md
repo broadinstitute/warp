@@ -6,7 +6,10 @@ sidebar_position: 4
 
 WARP Pipelines are versioned semantically, allowing you to determine how and when your data was created (provenance). This promotes compatibility across datasets and ensures that analyses can be reproduced by the global scientific community. Semantic version numbers (written as major.minor.patch) are human readable and give immediate insight into the compatibility of pipeline outputs (see the [Versioning Guidelines](#versioning-guidelines) below).
 
-Versions of each pipeline are packaged into releases and published on GitHub (see the [WARP Release page](https://github.com/broadinstitute/warp/releases)). A published release of a pipeline version in GitHub has passed scientific tests (read more in [TestingPipelines](./TestingPipelines.md)) and is available to be used in production systems.
+Versions of each pipeline are packaged into releases and published on GitHub (see the WARP [releases page](https://github.com/broadinstitute/warp/releases)). A published release of a pipeline version in GitHub has passed scientific tests (read more in [TestingPipelines](./TestingPipelines.md)) and is available to be used in production systems.
+
+:::tip To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
+:::
 
 ## Versioning Requirements
 

@@ -70,8 +70,6 @@ class GermlineSingleSampleTester(testerConfig: GermlineCloudWorkflowConfig)(
     )
     val outputBaseName =
       germlineSingleSampleInputs.getBaseFileName(workflowName)
-    val gvcfBaseName =
-      germlineSingleSampleInputs.getFinalGvcfBaseName(workflowName)
     val resultsCloudPath =
       workflowTest.runParameters.resultsCloudPath
     val truthCloudPath = workflowTest.runParameters.truthCloudPath
@@ -79,6 +77,18 @@ class GermlineSingleSampleTester(testerConfig: GermlineCloudWorkflowConfig)(
       .listGoogleObjects(truthCloudPath)
       .filter(_.getPath.endsWith("metrics"))
       .map(uriToFilename)
+    val testGvcfFileName = ioUtil
+      .listGoogleObjects(resultsCloudPath)
+      .filter(_.getPath.endsWith(".g.vcf.gz"))
+    val testGvcfIndexFileName = ioUtil
+      .listGoogleObjects(resultsCloudPath)
+      .filter(_.getPath.endsWith(".g.vcf.gz.tbi"))
+    val truthGvcfFileName = ioUtil
+      .listGoogleObjects(truthCloudPath)
+      .filter(_.getPath.endsWith(".g.vcf.gz"))
+    val truthGvcfIndexFileName = ioUtil
+      .listGoogleObjects(truthCloudPath)
+      .filter(_.getPath.endsWith(".g.vcf.gz.tbi"))
     val validationInputs = GermlineSingleSampleValidationInputs(
       testMetrics = metricsFileNames.map(resultsCloudPath.resolve),
       truthMetrics = metricsFileNames.map(truthCloudPath.resolve),
@@ -86,8 +96,10 @@ class GermlineSingleSampleTester(testerConfig: GermlineCloudWorkflowConfig)(
       testCrai = resultsCloudPath.resolve(s"$outputBaseName.cram.crai"),
       truthCram = truthCloudPath.resolve(s"$outputBaseName.cram"),
       truthCrai = truthCloudPath.resolve(s"$outputBaseName.cram.crai"),
-      testGvcf = resultsCloudPath.resolve(s"$gvcfBaseName.g.vcf.gz"),
-      truthGvcf = truthCloudPath.resolve(s"$gvcfBaseName.g.vcf.gz")
+      testGvcf = testGvcfFileName(0),
+      testGvcfIndex = testGvcfIndexFileName(0),
+      truthGvcf = truthGvcfFileName(0),
+      truthGvcfIndex = truthGvcfIndexFileName(0)
     )
     GermlineSingleSampleValidationInputs
       .marshall(validationInputs)

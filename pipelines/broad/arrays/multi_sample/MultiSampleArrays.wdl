@@ -18,7 +18,7 @@ version 1.0
 
 workflow MultiSampleArrays {
 
-  String pipeline_version = "1.5.0"
+  String pipeline_version = "1.6.1"
 
   input {
     File samples_fofn
@@ -83,7 +83,7 @@ task SplitFoFnToListFoFn {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     memory: "1 GiB"
   }
 
@@ -112,7 +112,7 @@ task CombineVCFs {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.23.0"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     memory: "26 GiB"
     preemptible: preemptible_tries

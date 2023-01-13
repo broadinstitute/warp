@@ -12,10 +12,10 @@
 "gs://hca-dcp-sc-pipelines-test-data/referenceData/fastq/chemistry_X10_V2/HCA_Immune_Cell_Atlas/28315a5b-b2fd-4383-b001-9d2d7f2d6c31/MantonBM1_HiSeq_2_S2_L008_I1_001.fastq.gz"
 
   ],
-  "Optimus.whitelist": "gs://hca-dcp-sc-pipelines-test-data/whitelists/737K-august-2016.txt",
-  "Optimus.tar_star_reference": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/buildReference/output_bucket/star_primary_gencode_v27.tar",
+  "Optimus.whitelist": "gs://broad-gotc-test-storage/Optimus/truth/plumbing/master/inputs/737K-august-2016.txt",
+  "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/hg38/v0/star/star_2.7.9a_primary_gencode_human_v27.tar", 
   "Optimus.input_id": "MantonBM1_HiSeq_2",
-  "Optimus.annotations_gtf": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/gencode.v27.primary_assembly.annotation.gtf.gz",
-  "Optimus.ref_genome_fasta": "gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/GRCh38.primary_assembly.genome.fa",
+  "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/hg38/v0/gencode.v27.primary_assembly.annotation.gtf", 
+  "Optimus.ref_genome_fasta": "gs://gcp-public-data--broad-references/hg38/v0/GRCh38.primary_assembly.genome.fa",
   "Optimus.preemptible": 0
 }

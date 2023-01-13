@@ -5,7 +5,8 @@ import "../../../../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow ExternalWholeGenomeReprocessing {
 
-  String pipeline_version = "1.3.7"
+
+  String pipeline_version = "2.1.11"
 
   input {
     File? input_cram
@@ -73,7 +74,6 @@ workflow ExternalWholeGenomeReprocessing {
                           WholeGenomeReprocessing.agg_quality_distribution_pdf,
                           WholeGenomeReprocessing.agg_quality_distribution_metrics,
                           WholeGenomeReprocessing.duplicate_metrics,
-                          WholeGenomeReprocessing.output_bqsr_reports,
                           WholeGenomeReprocessing.gvcf_summary_metrics,
                           WholeGenomeReprocessing.gvcf_detail_metrics,
                           WholeGenomeReprocessing.wgs_metrics,
@@ -98,7 +98,8 @@ workflow ExternalWholeGenomeReprocessing {
                         # The File? outputs
                         select_all([WholeGenomeReprocessing.cross_check_fingerprints_metrics]),
                         select_all([WholeGenomeReprocessing.fingerprint_summary_metrics]),
-                        select_all([WholeGenomeReprocessing.fingerprint_detail_metrics])]),
+                        select_all([WholeGenomeReprocessing.fingerprint_detail_metrics]),
+                        select_all([WholeGenomeReprocessing.output_bqsr_reports])]),
         vault_token_path = vault_token_path,
         destination_cloud_path = destination_cloud_path,
         google_account_vault_path = google_account_vault_path,
@@ -153,7 +154,7 @@ workflow ExternalWholeGenomeReprocessing {
     File raw_wgs_metrics = WholeGenomeReprocessing.raw_wgs_metrics
 
     File duplicate_metrics = WholeGenomeReprocessing.duplicate_metrics
-    File output_bqsr_reports = WholeGenomeReprocessing.output_bqsr_reports
+    File? output_bqsr_reports = WholeGenomeReprocessing.output_bqsr_reports
 
     File gvcf_summary_metrics = WholeGenomeReprocessing.gvcf_summary_metrics
     File gvcf_detail_metrics = WholeGenomeReprocessing.gvcf_detail_metrics

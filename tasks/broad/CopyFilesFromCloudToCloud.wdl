@@ -22,7 +22,7 @@ task CopyFilesFromCloudToCloud {
     String vault_token_path
     String google_account_vault_path
     Float? contamination
-    String base_file_name
+    String base_file_name = "base_file"
   }
 
   command {
@@ -34,6 +34,7 @@ task CopyFilesFromCloudToCloud {
 
     vault read -format=json ~{google_account_vault_path} | jq .data > picard-account.pem
     /usr/local/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file=picard-account.pem
+
 
     echo ~{default='no_contamination' contamination} > contamination
 
@@ -57,6 +58,10 @@ task CopyFilesFromCloudToCloud {
     fi
   }
 
+  output {
+    Boolean done = true
+  }
+
   # The 'noAddress' runtime parameter is set to false here because
   # Vault needs to talk to the Broad Vault server to get auth information.
   # In the future, we should store the extracted data in a GCS bucket so that
@@ -65,7 +70,7 @@ task CopyFilesFromCloudToCloud {
     memory: "2 GiB"
     cpu: "1"
     disks: "local-disk 20 HDD"
-    docker: "us.gcr.io/broad-gotc-prod/dsde-toolbox:dev"
+    docker: "us.gcr.io/broad-gotc-prod/dsde-toolbox:stable_04-18-2022"
     preemptible: 3
     noAddress: false
   }

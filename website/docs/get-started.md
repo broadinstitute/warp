@@ -43,13 +43,14 @@ Pipelines that are in progress or have not yet been validated are in the [beta-p
 There are three ways to use WARP pipelines:
 ### 1. Download the workflow and run on a WDL-compatible execution engine
 
-WDL workflows run on multiple systems, including [Cromwell](https://cromwell.readthedocs.io/en/stable/), [miniWDL](https://github.com/chanzuckerberg/miniwdl), and [dxWDL](https://github.com/dnanexus/dxWDL) (see the [openwdl documentation](https://github.com/openwdl/wdl#execution-engines)). To run a pipeline’s latest release, first navigate to WARP [Releases](https://github.com/broadinstitute/warp/releases), search for your pipeline’s tag, and download the pipeline’s assets (the WDL workflow, the JSON, and the ZIP with accompanying dependencies; see Optimus example below).
+WDL workflows run on multiple systems, including [Cromwell](https://cromwell.readthedocs.io/en/stable/), [miniWDL](https://github.com/chanzuckerberg/miniwdl), and [dxWDL](https://github.com/dnanexus/dxWDL) (see the [openwdl documentation](https://github.com/openwdl/wdl#execution-engines)). 
+
+
+To run a pipeline’s latest release, first navigate to WARP [releases page](https://github.com/broadinstitute/warp/releases), search for your pipeline’s tag, and download the pipeline’s assets (the WDL workflow, the JSON, and the ZIP with accompanying dependencies; see Optimus example below).
 
 ![optimus_release](./images/optimus_release.png)
 
-You can also access a pipeline’s release page by selecting the pipeline version number at the top of the pipeline’s README.
-
-![optimus_readme_tag](./images/optimus_readme_tag.png)
+You can also discover and search releases using the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
 
 After downloading the pipeline’s assets, launch the workflow following your execution engine’s instructions.
 
@@ -75,6 +76,9 @@ To view all available pipelines, just search “warp” in the Dockstore search 
 
 Pipelines in WARP are versioned [semantically](https://semver.org/) to support reproducibility in scientific analysis and provide clearer analysis provenance. Version numbers allow researchers to confirm their data has all been processed in a compatible way. Semantic versioning gives immediate insight into the compatibility of pipeline outputs. Read more about [versioning and releasing](./About_WARP/VersionAndReleasePipelines.md) in WARP.
 
+:::tip To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
+:::
+
 ## Testing in WARP
 
 Each pipeline in WARP has accompanying continuous integration tests that run on each pull request (PR). These tests help ensure that no unexpected changes are made to each pipeline and confirm that each affected pipeline is tested with any changes to shared code. To support rapid development iteration, only the pipelines affected by a PR are tested and PRs to the `develop` branch run “plumbing” tests using small or downsampled inputs. When the `staging` branch is promoted to `master`, the updated pipelines will be tested more rigorously on a larger selection of data that covers more scientific test cases. Read more about our [testing process](./About_WARP/TestingPipelines.md).
@@ -87,11 +91,9 @@ Our planned upcoming improvements include:
 
 1. A unified testing infrastructure that eases the overhead for contribution
 2. Full contribution guidance
-3. Automated GitHub releases of pipelines after merge to master
-4. Improved Docker images and tracking of image tool versions
-5. Continued additions of pipeline documentation
-6. Pre-written methods sections and DOIs to enable easy publication citations
-7. More pipelines: Somatic genome alignment, bulk RNAseq processing, single nuclei support for SmartSeq2
+3. Continued additions of pipeline documentation
+4. Pre-written methods sections and DOIs to enable easy publication citations
+5. More pipelines: bulk RNAseq, SlideSeq, updates to joint genotyping
 
 ## Acknowledgements
 

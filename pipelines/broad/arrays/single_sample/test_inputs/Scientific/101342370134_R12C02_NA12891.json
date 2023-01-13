@@ -3,23 +3,14 @@
   "Arrays.analysis_version_number": 1,
 
   "Arrays.sample_alias": "NA12891",
-  "Arrays.sample_id": "SM-A2ZNU",
   "Arrays.sample_lsid": "broadinstitute.org:bsp.prod.sample:A2ZNU",
   "Arrays.reported_gender": "Male",
-  "Arrays.collaborator_participant_id": "NA12891",
-  "Arrays.participant_id": "PT-97GN",
 
-  "Arrays.lab_batch": "ARRAY-4222",
-  "Arrays.product_family": "Whole Genome Genotyping",
-  "Arrays.product_name": "Infinium Psych (High Volume >10,000 sample) Array Processing",
-  "Arrays.product_order_id": "PDO-6743",
-  "Arrays.product_part_number": "P-WG-0036",
   "Arrays.product_type": "",
   "Arrays.regulatory_designation": "RESEARCH_ONLY",
   "Arrays.research_project_id": "RP-1014",
 
   "Arrays.call_rate_threshold": 0.98,
-  "Arrays.genotype_concordance_threshold": 0.98,
 
   "Arrays.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/PsychChip_v1-1_15073391_A1/idats/101342370134_R12C02/101342370134_R12C02_Grn.idat",
   "Arrays.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/PsychChip_v1-1_15073391_A1/idats/101342370134_R12C02/101342370134_R12C02_Red.idat",
@@ -40,7 +31,7 @@
   "Arrays.dbSNP_vcf": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz",
   "Arrays.dbSNP_vcf_index": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz.tbi",
   "Arrays.haplotype_database_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt",
-  "Arrays.variant_rsids_file": "gs://broad-references-private/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
+  "Arrays.variant_rsids_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
 
   "Arrays.disk_size": 100,
   "Arrays.preemptible_tries": 3,

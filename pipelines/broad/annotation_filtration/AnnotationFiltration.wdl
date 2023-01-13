@@ -4,7 +4,7 @@ import "../../../tasks/broad/Funcotator.wdl" as Funcotator
 
 workflow AnnotationFiltration {
 
-  String pipeline_version = "1.2.0"
+  String pipeline_version = "1.2.4"
 
   input {
     Array[File] vcfs
@@ -15,7 +15,7 @@ workflow AnnotationFiltration {
     File ref_dict
     File? funcotator_interval_list
 
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.8.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     File? custom_data_source_tar_gz
   }
 
@@ -56,7 +56,7 @@ workflow AnnotationFiltration {
         use_gnomad_genome = true,
 
         gatk_docker = gatk_docker,
-        machine_memory = 4
+        memory_mb = 4000
     }
 
     call FilterFuncotations {
@@ -203,6 +203,6 @@ task GatherFiltrationReport {
   runtime {
     memory: "4 GiB"
     docker: "us.gcr.io/google-containers/alpine-with-bash:1.0"
-    disk: "10 HDD"
+    disks: "local-disk 10 HDD"
   }
 }

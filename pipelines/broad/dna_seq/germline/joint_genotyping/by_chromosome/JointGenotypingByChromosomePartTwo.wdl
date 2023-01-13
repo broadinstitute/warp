@@ -5,7 +5,7 @@ import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 # Joint Genotyping for hg38 Exomes and Whole Genomes (has not been tested on hg19)
 workflow JointGenotypingByChromosomePartTwo {
 
-  String pipeline_version = "1.4.1"
+  String pipeline_version = "1.4.7"
 
   input {
     String callset_name
@@ -27,8 +27,8 @@ workflow JointGenotypingByChromosomePartTwo {
     File sites_only_vcf_indices_fofn
     File hard_filtered_with_genotypes_vcfs_fofn
     File hard_filtered_with_genotypes_vcf_indices_fofn
-    File annotation_db_vcfs_fofn
-    File annotation_db_vcf_indices_fofn
+    File? annotation_db_vcfs_fofn
+    File? annotation_db_vcf_indices_fofn
     File fingerprinting_vcfs_fofn
     File fingerprinting_vcf_indices_fofn
 
@@ -65,13 +65,12 @@ workflow JointGenotypingByChromosomePartTwo {
   }
 
   Boolean allele_specific_annotations = !use_gnarly_genotyper && use_allele_specific_annotations
+  Boolean make_annotation_db = false
 
   Array[File] sites_only_vcfs = read_lines(sites_only_vcfs_fofn)
   Array[File] sites_only_vcf_indices = read_lines(sites_only_vcf_indices_fofn)
   Array[File] hard_filtered_with_genotypes_vcfs = read_lines(hard_filtered_with_genotypes_vcfs_fofn)
   Array[File] hard_filtered_with_genotypes_vcf_indices = read_lines(hard_filtered_with_genotypes_vcf_indices_fofn)
-  Array[File] annotation_db_vcfs = read_lines(annotation_db_vcfs_fofn)
-  Array[File] annotation_db_vcf_indices = read_lines(annotation_db_vcf_indices_fofn)
   Array[File] fingerprinting_vcfs = read_lines(fingerprinting_vcfs_fofn)
   Array[File] fingerprinting_vcf_indices = read_lines(fingerprinting_vcf_indices_fofn)
 
@@ -91,7 +90,9 @@ workflow JointGenotypingByChromosomePartTwo {
       disk_size = medium_disk
   }
 
-  if (use_gnarly_genotyper) {
+  if (use_gnarly_genotyper && make_annotation_db) {
+    Array[File] annotation_db_vcfs = read_lines(select_first([annotation_db_vcfs_fofn, ""]))
+    Array[File] annotation_db_vcf_indices = read_lines(select_first([annotation_db_vcf_indices_fofn, ""]))
     call Tasks.GatherVcfs as GatherAnnotationDBVcf {
       input:
         input_vcfs = annotation_db_vcfs,

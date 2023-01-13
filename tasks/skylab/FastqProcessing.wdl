@@ -9,9 +9,9 @@ task FastqProcessing {
     String chemistry
     String sample_id
 
-    # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.12"
-
+    #using the latest build of warp-tools in GCR
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1670337956"
+    #runtime values
     Int machine_mem_mb = 40000
     Int cpu = 16   
     #TODO decided cpu
@@ -42,7 +42,7 @@ task FastqProcessing {
   command {
     set -e
 
-    FASTQS=$(python <<CODE
+    FASTQS=$(python3 <<CODE
     def rename_file(filename):
         import shutil
         import gzip
@@ -62,7 +62,7 @@ task FastqProcessing {
             # if it is already compressed then add an extension .fastq.gz
             newname = basename + ".fastq.gz" 
         else: 
-            # otherwis, add just the .fastq extension
+            # otherwise, add just the .fastq extension
             newname = basename + ".fastq"
 
         if filename != newname:
@@ -100,12 +100,13 @@ task FastqProcessing {
     fi
 
     fastqprocess \
-        --bam-size 1.0 \
+        --bam-size 30.0 \
         --barcode-length 16 \
         --umi-length $UMILENGTH \
         --sample-id "~{sample_id}" \
         $FASTQS \
-        --white-list "~{whitelist}" 
+        --white-list "~{whitelist}" \
+        --output-format FASTQ
   }
   
   runtime {
@@ -117,6 +118,7 @@ task FastqProcessing {
   }
   
   output {
-    Array[File] bam_output_array = glob("subfile_*")
+    Array[File] fastq_R1_output_array = glob("fastq_R1_*")
+    Array[File] fastq_R2_output_array = glob("fastq_R2_*")
   }
 }

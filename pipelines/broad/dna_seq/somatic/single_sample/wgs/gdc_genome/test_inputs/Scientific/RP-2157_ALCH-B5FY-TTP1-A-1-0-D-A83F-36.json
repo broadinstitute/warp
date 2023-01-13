@@ -1,0 +1,18 @@
+{
+  "GDCWholeGenomeSomaticSingleSample.base_file_name":"ALCH-B5FY-TTP1-A-1-0-D-A83F-36",
+  "GDCWholeGenomeSomaticSingleSample.contamination_vcf":"gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz",
+  "GDCWholeGenomeSomaticSingleSample.contamination_vcf_index":"gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz.tbi",
+  "GDCWholeGenomeSomaticSingleSample.dbsnp_vcf":"gs://gcp-public-data--broad-references/hg38/v0/gdc/dbsnp_144.hg38.vcf.gz",
+  "GDCWholeGenomeSomaticSingleSample.dbsnp_vcf_index":"gs://gcp-public-data--broad-references/hg38/v0/gdc/dbsnp_144.hg38.vcf.gz.tbi",
+  "GDCWholeGenomeSomaticSingleSample.ref_amb":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa.amb",
+  "GDCWholeGenomeSomaticSingleSample.ref_ann":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa.ann",
+  "GDCWholeGenomeSomaticSingleSample.ref_bwt":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa.bwt",
+  "GDCWholeGenomeSomaticSingleSample.ref_dict":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.dict",
+  "GDCWholeGenomeSomaticSingleSample.ref_fai":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa.fai",
+  "GDCWholeGenomeSomaticSingleSample.cram_ref_fasta":"gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "GDCWholeGenomeSomaticSingleSample.cram_ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+  "GDCWholeGenomeSomaticSingleSample.ref_fasta":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa",
+  "GDCWholeGenomeSomaticSingleSample.ref_pac":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa.pac",
+  "GDCWholeGenomeSomaticSingleSample.ref_sa":"gs://gcp-public-data--broad-references/hg38/v0/gdc/GRCh38.d1.vd1.fa.sa",
+  "GDCWholeGenomeSomaticSingleSample.input_cram": "gs://broad-gotc-test-storage/somatic_single_sample/gdc/wgs/scientific/crams/RP-2157.ALCH-B5FY-TTP1-A-1-0-D-A83F-36/ALCH-B5FY-TTP1-A-1-0-D-A83F-36.cram"
+}

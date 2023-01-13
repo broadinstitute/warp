@@ -19,14 +19,16 @@
   "Arrays.research_project_id": "RP-1710",
 
   "Arrays.call_rate_threshold": 0.98,
-  "Arrays.genotype_concordance_threshold": 0.98,
 
   "Arrays.green_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GDA-8v1-0_A5/idats/204126290052_R01C01/204126290052_R01C01_Grn.idat",
   "Arrays.red_idat_cloud_path": "gs://broad-gotc-test-storage/arrays/GDA-8v1-0_A5/idats/204126290052_R01C01/204126290052_R01C01_Red.idat",
 
+  "Arrays.arrays_metadata_path": "gs://broad-gotc-test-storage/arrays/metadata/",
+
   "Arrays.bead_pool_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.bpm",
-  "Arrays.extended_chip_manifest_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.1.5.extended.csv",
   "Arrays.cluster_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A1_ClusterFile.egt",
+
+  "Arrays.minor_allele_frequency_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.MAF.txt",
 
   "Arrays.control_sample_name": "NA12878",
   "Arrays.control_sample_vcf_file": "gs://broad-gotc-test-storage/arrays/controldata/NA12878.vcf.gz",
@@ -39,8 +41,7 @@
   "Arrays.dbSNP_vcf": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz",
   "Arrays.dbSNP_vcf_index": "gs://gcp-public-data--broad-references/hg19/v0/dbsnp_138.b37.vcf.gz.tbi",
   "Arrays.haplotype_database_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.txt",
-  "Arrays.variant_rsids_file": "gs://broad-references-private/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
-  "Arrays.minor_allele_frequency_file": "gs://broad-gotc-test-storage/arrays/metadata/GDA-8v1-0_A5/GDA-8v1-0_A5.MAF.txt",
+  "Arrays.variant_rsids_file": "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.haplotype_database.snps.list",
 
   "Arrays.disk_size": 100,
   "Arrays.preemptible_tries": 3,

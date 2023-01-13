@@ -1,0 +1,9 @@
+DOCKER_VERSION
+us.gcr.io/broad-dsde-methods/imputation-minimac-docker:v1.0.0
+us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.0-1.0.2-1633700284
+us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.1-1.0.2-1637268830
+us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.2-1.0.2-1642621010
+us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.3-1.0.2-1644331595
+us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.4-1.0.2-1646143013
+us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.5-1.0.2-1649949471
+us.gcr.io/broad-gotc-prod/imputation-minimac4:1.0.6-1.0.2-1663948783
