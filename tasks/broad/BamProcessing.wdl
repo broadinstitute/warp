@@ -157,7 +157,8 @@ task BaseRecalibrator {
       -O ~{recalibration_report_filename} \
       --known-sites ~{dbsnp_vcf} \
       --known-sites ~{sep=" -known-sites " known_indels_sites_vcfs} \
-      -L ~{sep=" -L " sequence_group_interval}
+      -L ~{sep=" -L " sequence_group_interval} \
+      --default-platform illumina
   }
   runtime {
     docker: gatk_docker
