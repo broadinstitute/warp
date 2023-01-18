@@ -659,7 +659,7 @@ task SubsetVcfToRegion {
     Int disk_size_gb = ceil(2*size(vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
     Int cpu = 1
     Int memory_mb = 8000
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.1.9.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
   Int command_mem = memory_mb - 1000
   Int max_heap = memory_mb - 500
