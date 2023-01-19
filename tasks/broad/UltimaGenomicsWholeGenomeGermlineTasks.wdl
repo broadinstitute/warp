@@ -319,7 +319,7 @@ task ExtractSampleNameFlowOrder{
     File input_bam
     References references
     
-    String docker = "broadinstitute/gatk:4.1.4.1"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int disk_size_gb = ceil(size(input_bam, "GB") + size(references.ref_fasta, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 2000
