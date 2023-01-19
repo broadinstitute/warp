@@ -135,6 +135,7 @@ task AlignPairedEnd {
         docker: docker_image
         memory: "${machine_mem_mb} MiB"
         disks: "local-disk ${disk} HDD"
+        disk: disk + " GB" # TES
         cpu: cpu
         preemptible: preemptible
     }
@@ -198,6 +199,7 @@ task SnapPre {
         cpu: cpu
         memory: "${machine_mem_mb} MiB"
         disks: "local-disk ${disk} HDD"
+        disk: disk + " GB" # TES
         cpu: cpu
         preemptible: preemptible
     }
@@ -243,6 +245,7 @@ task SnapCellByBin {
         cpu: cpu
         memory: "${machine_mem_mb} MiB"
         disks: "local-disk ${disk} HDD"
+        disk: disk + " GB" # TES
         preemptible: preemptible
     }
 }
@@ -280,6 +283,7 @@ task MakeCompliantBAM {
         cpu: cpu
         memory: "${machine_mem_mb} MiB"
         disks: "local-disk ${disk} HDD"
+        disk: disk + " GB" # TES
         preemptible: preemptible
     }
 }
@@ -322,6 +326,7 @@ task BreakoutSnap {
         docker: docker_image
         memory: "${machine_mem_mb} MiB"
         disks: "local-disk ${disk} HDD"
+        disk: disk + " GB" # TES
         cpu: cpu
         preemptible: preemptible
     }
