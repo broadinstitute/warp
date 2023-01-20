@@ -9,3 +9,4 @@ if [ -z $tag ]; then
 fi
 
 docker build -t quay.io/humancellatlas/secondary-analysis-dropletutils:$tag .
+#docker build -t us.gcr.io/broad-gotc-prod/empty-drops:0.1 .
