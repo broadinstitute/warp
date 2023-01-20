@@ -93,7 +93,7 @@ task MarkDuplicates {
   # While query-grouped isn't actually query-sorted, it's good enough for MarkDuplicates with ASSUME_SORT_ORDER="queryname"
 
   command {
-    java -jar /usr/picard/picard.jar \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms~{java_memory_size}g -Xmx~{java_memory_size + 1}g -jar /usr/picard/picard.jar \
       SortSam \
       INPUT=~{sep=' INPUT=' input_bams} \
       OUTPUT=sorted_output.bam \
