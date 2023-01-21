@@ -83,7 +83,7 @@ task MarkDuplicates {
   # The merged bam will be smaller than the sum of the parts so we need to account for the unmerged inputs and the merged output.
   # Mark Duplicates takes in as input readgroup bams and outputs a slightly smaller aggregated bam. Giving .25 as wiggleroom
   Float md_disk_multiplier = 3
-  Int disk_size = ceil(md_disk_multiplier * total_input_size) + additional_disk
+  Int disk_size = ceil(2 * md_disk_multiplier * total_input_size) + additional_disk
 
   Float memory_size = 8 * memory_multiplier
   Int java_memory_size = (ceil(memory_size) - 2)

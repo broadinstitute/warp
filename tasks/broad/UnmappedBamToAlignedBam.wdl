@@ -151,12 +151,12 @@ workflow UnmappedBamToAlignedBam {
       preemptible_tries = papi_settings.preemptible_tries
   }
 
-  call QC.CollectUnsortedReadgroupBamQualityMetrics as CollectUnsortedReadgroupBamQualityMetrics {
-    input:
-      input_bam = aligned_bam,
-      output_bam_prefix = aligned_bam_basename + ".readgroup",
-      preemptible_tries = papi_settings.preemptible_tries
-  }
+#  call QC.CollectUnsortedReadgroupBamQualityMetrics as CollectUnsortedReadgroupBamQualityMetrics {
+#    input:
+#      input_bam = aligned_bam,
+#      output_bam_prefix = aligned_bam_basename + ".readgroup",
+#      preemptible_tries = papi_settings.preemptible_tries
+#  }
 
   # Sum the read group bam sizes to approximate the aggregated bam size
   call Utils.SumFloats as SumFloats {
@@ -305,14 +305,14 @@ workflow UnmappedBamToAlignedBam {
   output {
     Array[File] quality_yield_metrics = [CollectQualityYieldMetrics.quality_yield_metrics]
 
-    Array[File] unsorted_read_group_base_distribution_by_cycle_pdf = [CollectUnsortedReadgroupBamQualityMetrics.base_distribution_by_cycle_pdf]
-    Array[File] unsorted_read_group_base_distribution_by_cycle_metrics = [CollectUnsortedReadgroupBamQualityMetrics.base_distribution_by_cycle_metrics]
-    Array[File] unsorted_read_group_insert_size_histogram_pdf = [CollectUnsortedReadgroupBamQualityMetrics.insert_size_histogram_pdf]
-    Array[File] unsorted_read_group_insert_size_metrics = [CollectUnsortedReadgroupBamQualityMetrics.insert_size_metrics]
-    Array[File] unsorted_read_group_quality_by_cycle_pdf = [CollectUnsortedReadgroupBamQualityMetrics.quality_by_cycle_pdf]
-    Array[File] unsorted_read_group_quality_by_cycle_metrics = [CollectUnsortedReadgroupBamQualityMetrics.quality_by_cycle_metrics]
-    Array[File] unsorted_read_group_quality_distribution_pdf = [CollectUnsortedReadgroupBamQualityMetrics.quality_distribution_pdf]
-    Array[File] unsorted_read_group_quality_distribution_metrics = [CollectUnsortedReadgroupBamQualityMetrics.quality_distribution_metrics]
+#    Array[File] unsorted_read_group_base_distribution_by_cycle_pdf = [CollectUnsortedReadgroupBamQualityMetrics.base_distribution_by_cycle_pdf]
+#    Array[File] unsorted_read_group_base_distribution_by_cycle_metrics = [CollectUnsortedReadgroupBamQualityMetrics.base_distribution_by_cycle_metrics]
+#    Array[File] unsorted_read_group_insert_size_histogram_pdf = [CollectUnsortedReadgroupBamQualityMetrics.insert_size_histogram_pdf]
+#    Array[File] unsorted_read_group_insert_size_metrics = [CollectUnsortedReadgroupBamQualityMetrics.insert_size_metrics]
+#    Array[File] unsorted_read_group_quality_by_cycle_pdf = [CollectUnsortedReadgroupBamQualityMetrics.quality_by_cycle_pdf]
+#    Array[File] unsorted_read_group_quality_by_cycle_metrics = [CollectUnsortedReadgroupBamQualityMetrics.quality_by_cycle_metrics]
+#    Array[File] unsorted_read_group_quality_distribution_pdf = [CollectUnsortedReadgroupBamQualityMetrics.quality_distribution_pdf]
+#    Array[File] unsorted_read_group_quality_distribution_metrics = [CollectUnsortedReadgroupBamQualityMetrics.quality_distribution_metrics]
 
 #    File? cross_check_fingerprints_metrics = CrossCheckFingerprints.cross_check_fingerprints_metrics
 
