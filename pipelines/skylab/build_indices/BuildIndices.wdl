@@ -71,7 +71,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "2.0.0"
+  String pipeline_version = "2.0.1"
 
   parameter_meta {
     annotations_gtf: "the annotation file"
