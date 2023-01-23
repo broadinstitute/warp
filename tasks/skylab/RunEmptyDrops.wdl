@@ -16,7 +16,7 @@ task RunEmptyDrops {
         Int emptydrops_lower = 100
 
         # runtime values
-        String docker = "quay.io/humancellatlas/secondary-analysis-dropletutils:0.1.5"
+        String docker = "us.gcr.io/broad-gotc-prod/empty-drops:1.0.1-3.5-1674493240"
         Int machine_mem_mb = 16000
         Int cpu = 1
         Int disk = 20
