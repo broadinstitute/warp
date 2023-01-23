@@ -1,3 +1,8 @@
+# 5.6.2
+2023-01-23 (Date of Last Commit)
+
+* Updated LoomUtils.wdl to use MiB instead of GiB for machine_mem_mb.
+
 # 5.6.1
 2023-01-19 (Date of Last Commit)
 
