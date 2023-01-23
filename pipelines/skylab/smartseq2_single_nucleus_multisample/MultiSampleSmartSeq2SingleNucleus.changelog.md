@@ -1,7 +1,12 @@
-# 1.2.15
+# 1.2.16
 2022-11-18 (Date of Last Commit)
 
 * SlideSeq-specific changes to LoomUtils.wdl. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline.
+
+# 1.2.15
+2023-01-19 (Date of Last Commit)
+
+* Added "Disk" to task runtime sections to support running on Azure
 
 # 1.2.14
 2022-09-20 (Date of Last Commit)

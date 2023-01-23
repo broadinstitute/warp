@@ -155,6 +155,8 @@ task CompareCrams {
     File test_crai
     File truth_cram
     File truth_crai
+
+    Int disk_size_gb = ceil((size(test_cram, "GiB") + size(truth_cram, "GiB"))) + 50
   }
 
   command {
@@ -167,7 +169,7 @@ task CompareCrams {
   }
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 150 HDD"
+    disks: "local-disk " + disk_size_gb + " HDD"
     memory: "2 GiB"
     preemptible: 3
   }
@@ -203,12 +205,15 @@ task CompareBams {
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
   Int disk_size = ceil(bam_size * 4) + 20
+  Int memory_mb = 20000
+  Int java_memory_size = memory_mb - 1000
+  Int max_heap = memory_mb - 500
 
   command {
     set -e
     set -o pipefail
 
-    java -Xms3500m -Xmx7000m -jar /usr/picard/picard.jar \
+    java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
     CompareSAMs \
           ~{test_bam} \
           ~{truth_bam} \
@@ -220,7 +225,7 @@ task CompareBams {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     cpu: 2
-    memory: "7500 MiB"
+    memory: "${memory_mb} MiB"
     preemptible: 3
   }
 }
