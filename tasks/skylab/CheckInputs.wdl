@@ -12,6 +12,7 @@ task checkInputArrays {
   Int len_fastq1_input_files = length(fastq1_input_files)
   Int len_fastq2_input_files = length(fastq2_input_files)
   Int len_input_names = if defined(input_names) then length(select_first([input_names])) else 0
+  Int disk = 1
 
   meta {
     description: "checks input arrays to ensure that all arrays are the same length"
@@ -44,7 +45,8 @@ task checkInputArrays {
     docker: "bashell/alpine-bash:latest"
     cpu: 1
     memory: "1 GiB"
-    disks: "local-disk 1 HDD"
+    disks: "local-disk ~{disk} HDD"
+    disk: disk + " GB" # TES
   }
 
 }
@@ -115,6 +117,7 @@ task checkOptimusInput {
     cpu: cpu
     memory: "~{machine_mem_mb} GiB"
     disks: "local-disk ~{disk} HDD"
+    disk: disk + " GB" # TES
   }
   
 }
