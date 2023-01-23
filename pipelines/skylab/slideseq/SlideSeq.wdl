@@ -89,6 +89,10 @@ workflow SlideSeq {
         input:
             bam_input = MergeBam.output_bam
     }
+    call Metrics.CalculateUMIsMetrics as UMIsMetrics {
+        input:
+            bam_input = MergeBam.output_bam
+    }
 
     call Metrics.CalculateCellMetrics as CellMetrics {
         input:
@@ -154,6 +158,14 @@ workflow SlideSeq {
 
         File cell_metrics = CellMetrics.cell_metrics
         File gene_metrics = GeneMetrics.gene_metrics
+        File umi_metrics =  UMIsMetrics.gene_metrics
+
+        File fastq_barcode_distribution = FastqMetrics.barcode_distribution
+        File fastq_umi_distribution = FastqMetrics.umi_distribution
+        File fastq_reads_per_cell = FastqMetrics.numReads_perCell
+        File fastq_reads_per_umi = FastqMetrics.numReads_perUMI
+
+
         # loom
         File? loom_output_file = final_loom_output
 

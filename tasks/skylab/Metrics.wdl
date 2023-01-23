@@ -7,7 +7,7 @@ task CalculateCellMetrics {
     File? mt_genes
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1670337956"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1674487316"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
@@ -77,7 +77,7 @@ task CalculateGeneMetrics {
     File bam_input
     File? mt_genes
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1670337956"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1674487316"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 
@@ -131,6 +131,67 @@ task CalculateGeneMetrics {
     File gene_metrics = "gene-metrics.csv.gz"
   }
 }
+
+task CalculateUMIsMetrics {
+  input {
+    File bam_input
+    File? mt_genes
+    # runtime values
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1674487316"
+    Int machine_mem_mb = 16000
+    Int cpu = 8
+    Int disk = ceil(size(bam_input, "Gi") * 4)
+    Int preemptible = 3
+  }
+
+
+  meta {
+    description: "Sort bam_input by gene, then cell, then molecule."
+  }
+
+  parameter_meta {
+    bam_input: "Input bam file containing reads marked with tags for cell barcodes (CB), molecule barcodes (UB) and gene ids (GE)"
+    docker: "(optional) the docker image containing the runtime environment for this task"
+    machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
+    cpu: "(optional) the number of cpus to provision for this task"
+    disk: "(optional) the amount of disk space (GiB) to provision for this task"
+    preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
+  }
+
+  command {
+    set -e
+    mkdir temp
+
+    TagSort --bam-input ~{bam_input} \
+    --metric-output umi-metrics.csv \
+    --compute-metric \
+    --metric-type umi \
+    --gene-tag GX \
+    --barcode-tag CB \
+    --umi-tag UB \
+    --temp-folder temp \
+    --alignments-per-thread 1000000 \
+    --nthreads ${cpu} \
+    ~{"--mitochondrial-gene-names-filename " + mt_genes}
+
+    gzip umi-metrics.csv
+
+  }
+
+  runtime {
+    docker: docker
+    memory: "${machine_mem_mb} MiB"
+    disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
+    cpu: cpu
+    preemptible: preemptible
+  }
+
+  output {
+    File umi_metrics = "umi-metrics.csv.gz"
+  }
+}
+
 task FastqMetricsSlidSeq {
 
   input {
@@ -141,7 +202,7 @@ task FastqMetricsSlidSeq {
 
 
     # Runtime attributes
-    String docker =  "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.14-test2"
+    String docker =  "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1674487316"
     Int cpu = 16
     Int machine_mb = 40000
     Int disk = ceil(size(r1_fastq, "GiB")*3)  + 50
