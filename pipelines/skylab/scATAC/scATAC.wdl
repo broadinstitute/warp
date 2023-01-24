@@ -149,7 +149,7 @@ task SnapPre {
         String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
         File input_reference
         Int cpu = 1
-        Int machine_mem_mb = 64000
+        Int machine_mem_mb = 96000
         Int disk = 500
         Int preemptible = 3
     }
