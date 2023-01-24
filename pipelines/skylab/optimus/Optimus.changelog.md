@@ -1,3 +1,8 @@
+# 5.6.2
+2023-01-19 (Date of Last Commit)
+
+* Updated the emptyDrops container to address concerns outlined in #772 - avoiding the usage of the root directory inside the container. This also includes some optimizations: moved image to GCR instead of Quay, conformed to (most) of our docker style guideline, build time decreased to 1 hour from 1.5-2 hours, and the image size reduced to 1.5GB from 3GB.
+
 # 5.6.1
 2023-01-19 (Date of Last Commit)
 
