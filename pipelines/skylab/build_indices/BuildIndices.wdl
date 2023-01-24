@@ -13,6 +13,7 @@ task BuildStarSingleNucleus {
     File genome_fa
     File annotation_gtf
     File biotypes
+    Int disk = 100
   }
   meta {
     description: "Modify gtf files and build reference index files for STAR aligner"
@@ -53,7 +54,8 @@ task BuildStarSingleNucleus {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1671490724"
     memory: "50 GiB"
-    disks :"local-disk 100 HDD"
+    disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu:"16"
   }
 }
@@ -69,7 +71,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "2.0.0"
+  String pipeline_version = "2.0.1"
 
   parameter_meta {
     annotations_gtf: "the annotation file"
