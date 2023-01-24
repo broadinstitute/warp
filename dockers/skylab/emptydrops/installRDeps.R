@@ -7,7 +7,11 @@ local({r <- getOption("repos")
 })
 
 ## Install OptParse
-install.packages('optparse')
+install.packages('optparse', dependencies=TRUE, repos="http://R-Forge.R-project.org")
+
+if ( ! library('optparse', character.only=TRUE, logical.return=TRUE) ) {
+        quit(status=1, save='no')
+    }
 
 ## Install DropletUtils
 if (!requireNamespace("BiocManager", quietly = TRUE))

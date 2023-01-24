@@ -5,6 +5,9 @@ FROM --platform="linux/amd64" ubuntu:18.04
 # Avoid interaction during package install
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Set parameters
+ARG R_VERSION=${R_VERSION}
+
 # Image label
 LABEL maintainer="Broad Institute DSDE <dsde-engineering@broadinstitute.org" \
   software="DropletUtils" \
@@ -26,21 +29,23 @@ RUN sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list && apt-get update \
     python-pip \
     && apt-get build-dep -y r-base \
     && pip install numpy \
-    && wget https://cloud.r-project.org/src/base/R-3/R-3.5.1.tar.gz \
-    && tar xzf R-3.5.1.tar.gz \
-    && cd "R-3.5.1" \
-    && ./configure --prefix=/opt/R/3.5.1/ --enable-R-shlib --with-blas --with-lapack \
+    && wget https://cloud.r-project.org/src/base/R-3/R-${R_VERSION}.tar.gz \
+    && tar xzf R-${R_VERSION}.tar.gz \
+    && cd "R-${R_VERSION}" \
+    && ./configure --prefix=/opt/R/${R_VERSION}/ --enable-R-shlib --with-blas --with-lapack \
     && make \
     && make install \
     && cd /usr/local/ \
-    && rm -r R-3.5.1 \
-    && rm R-3.5.1.tar.gz \
-    && /opt/R/3.5.1/bin/Rscript /usr/local/installRDeps.R \
+    && rm -r R-${R_VERSION} \
+    && rm R-${R_VERSION}.tar.gz
+#Intentionally making this a new layer to save on build time as the previous step takes about an hour to complete
+#This will allow us to utilize caching in case this step fails
+RUN /opt/R/${R_VERSION}/bin/Rscript /usr/local/installRDeps.R \
     && rm installRDeps.R \
     && mkdir /usr/local/tools
 
 # Add R installation directory to path
-ENV PATH="/opt/R/3.5.1/bin/:$PATH"
+ENV PATH="/opt/R/${R_VERSION}/bin/:$PATH"
 
 # Add EmptyDrop scripts
 COPY emptyDropsWrapper ./tools/emptyDropsWrapper
