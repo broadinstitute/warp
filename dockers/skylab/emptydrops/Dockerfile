@@ -17,7 +17,7 @@ LABEL maintainer="Broad Institute DSDE <dsde-engineering@broadinstitute.org" \
 
 # Download and unzip R Build R and add to PATH
 WORKDIR /usr/local/
-COPY installRDeps.R /usr/local/
+
 # Enable source repositories to install deps for R and update the apt-get list
 # Install R dependencies, wget, Python and numpy. Cleanup afterwards.
 # NOTE: && is used to chain commands so it fails fast.
@@ -40,6 +40,7 @@ RUN sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list && apt-get update \
     && rm R-${R_VERSION}.tar.gz
 #Intentionally making this a new layer to save on build time as the previous step takes about an hour to complete
 #This will allow us to utilize caching in case this step fails
+COPY installRDeps.R /usr/local/
 RUN /opt/R/${R_VERSION}/bin/Rscript /usr/local/installRDeps.R \
     && rm installRDeps.R \
     && mkdir /usr/local/tools

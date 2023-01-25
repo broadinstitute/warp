@@ -16,4 +16,15 @@ if ( ! library('optparse', character.only=TRUE, logical.return=TRUE) ) {
 ## Install DropletUtils
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
+BiocManager::install(version = "3.8")
 BiocManager::install("DropletUtils", version = "3.8")
+# if (!require("BiocManager", quietly = TRUE))
+#     install.packages("BiocManager")
+# BiocManager::install(version = "3.8")
+
+library(BiocManager)
+BiocManager::valid()
+
+# if ( ! library('DropletUtils', character.only=TRUE, logical.return=TRUE) ) {
+#         quit(status=1, save='no')
+#     }
