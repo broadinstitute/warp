@@ -158,7 +158,7 @@ workflow SlideSeq {
 
         File cell_metrics = CellMetrics.cell_metrics
         File gene_metrics = GeneMetrics.gene_metrics
-        File umi_metrics =  UMIsMetrics.gene_metrics
+        File umi_metrics =  UMIsMetrics.umi_metrics
 
         File fastq_barcode_distribution = FastqMetrics.barcode_distribution
         File fastq_umi_distribution = FastqMetrics.umi_distribution
