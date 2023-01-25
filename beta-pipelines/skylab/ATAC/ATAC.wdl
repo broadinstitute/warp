@@ -468,14 +468,14 @@ task FilterMaxFragmentLength {
     File bam_input
     Int max_fragment_length
     String output_base_name
-    String docker_image = "broadinstitute/gatk:4.1.2.0"
+    String docker_image = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   parameter_meta {
     bam_input: "the bam to passed into gatk tools"
     max_fragment_length: "the maximum fragment length for filtering out reads by gatk (snaptools task)"
     output_base_name: "base name to be used for the output of the task"
-    docker_image: "the docker image using gatk to be used (default: broadinstitute/gatk:4.1.2.0)"
+    docker_image: "the docker image using gatk to be used (default: us.gcr.io/broad-gatk/gatk:4.3.0.0)"
   }
 
   # output name for filtered read

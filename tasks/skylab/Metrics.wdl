@@ -4,9 +4,10 @@ task CalculateCellMetrics {
   input {
     File bam_input
     File original_gtf
+    File? mt_genes
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/sctools:1.14"
+ docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1674487316"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
@@ -50,7 +51,8 @@ task CalculateCellMetrics {
     --gene-tag GX \
     --temp-folder temp \
     --alignments-per-thread 1000000 \
-    --nthreads ${cpu}
+    --nthreads ${cpu} \
+    ~{"--mitochondrial-gene-names-filename " + mt_genes}
 
     gzip cell-metrics.csv
   }
@@ -60,6 +62,7 @@ task CalculateCellMetrics {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -72,9 +75,10 @@ task CalculateCellMetrics {
 task CalculateGeneMetrics {
   input {
     File bam_input
-
+    File? mt_genes
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/sctools:1.14"
+
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1674487316"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 
@@ -108,7 +112,8 @@ task CalculateGeneMetrics {
     --umi-tag UB \
     --temp-folder temp \
     --alignments-per-thread 1000000 \
-    --nthreads ${cpu}
+    --nthreads ${cpu} \
+    ~{"--mitochondrial-gene-names-filename " + mt_genes}
 
     gzip gene-metrics.csv
 
@@ -118,6 +123,7 @@ task CalculateGeneMetrics {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD" 
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }

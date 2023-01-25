@@ -1,3 +1,14 @@
+# 5.6.1
+2023-01-19 (Date of Last Commit)
+
+* Added "Disk" to task runtime sections to support running on Azure
+
+# 5.6.0
+2022-12-06 (Date of Last Commit)
+
+* Updated Metrics.wdl and Optimus.wdl to take an optional inputs for mitochondrial gene names.
+* Updated FastqProcessing.wdl and Metrics.wdl to use the warp-tools container.
+
 # 5.5.5
 2022-09-20 (Date of Last Commit)
 

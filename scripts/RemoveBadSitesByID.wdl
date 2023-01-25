@@ -129,7 +129,7 @@ task SplitX {
     >>>
 
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+        docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
         disks: "local-disk " + disk_size + "  HDD"
         memory: "16 GB"
     }
@@ -215,7 +215,7 @@ task RemoveBadSitesFromVcf {
     >>>
 
     runtime {
-                docker: "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+                docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
         disks: "local-disk 100 HDD"
         memory: "16 GB"
     }

@@ -1,12 +1,19 @@
+# 1.1.6
+2023-01-13 (Date of Last Commit)
+
+* Updated to GATK version 4.3.0.0
+
 # 1.1.5
 2022-12-01 (Date of Last Commit)
 
 * Updated BCFTools/VCFTools Docker image
 
 # 1.1.4
-2022-11-08 (Date of Last Commit)
+2022-11-09 (Date of Last Commit)
 
-* remove workspace_bucket parameter from workflow inputs and IngestOutputsToTDR
+* Updated to GATK version 4.3.0.0
+* Remove workspace_bucket parameter from workflow inputs and IngestOutputsToTDR
+
 
 # 1.1.3
 2022-11-10 (Date of Last Commit)

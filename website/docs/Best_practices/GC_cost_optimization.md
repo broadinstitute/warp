@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # WDL cost optimization: Tips and tricks when working with Google Cloud in Terra
 
 Reducing the cost of your WDL workflow is always a priority. Below, the Broad Institute’s Pipelines team provides some tips and tricks for optimizing workflow costs for runs using Google Cloud virtual machines (VM) from the bioinformatics platform, [Terra](app.terra.bio). 

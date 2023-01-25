@@ -1,0 +1,6 @@
+{
+  "BuildIndices.annotations_gtf":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Macaque/genomic.gtf",
+  "BuildIndices.biotypes":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Biotypes.tsv",
+  "BuildIndices.genome_fa":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Macaque/GCF_003339765.1_Mmul_10_genomic.fna",
+  "BuildIndices.gtf_version":"GCF_003339765.1"
+}

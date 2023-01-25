@@ -9,9 +9,9 @@ task FastqProcessing {
     String chemistry
     String sample_id
 
-    # runtime values
-    String docker = "https://github.com/HumanCellAtlas/sctools/pull/105"
-
+    #using the latest build of warp-tools in GCR
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1674487316"
+    #runtime values
     Int machine_mem_mb = 40000
     Int cpu = 16   
     #TODO decided cpu
@@ -113,6 +113,7 @@ task FastqProcessing {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
