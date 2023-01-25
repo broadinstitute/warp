@@ -1,3 +1,8 @@
+# 2.2.17
+2023-01-19 (Date of Last Commit)
+
+* Added "Disk" to task runtime sections to support running on Azure
+
 # 2.2.16
 2022-09-13 (Date of Last Commit)
 

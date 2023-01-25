@@ -48,6 +48,7 @@ task SmartSeq2LoomOutput {
     cpu: cpu  # note that only 1 thread is supported by pseudobam
     memory: "~{machine_mem_mb} GiB"
     disks: "local-disk ~{disk} HDD"
+    disk: disk + " GB" # TES
     preemptible: preemptible
   }
 
@@ -143,6 +144,7 @@ task OptimusLoomGeneration {
     cpu: cpu  # note that only 1 thread is supported by pseudobam
     memory: "~{machine_mem_mb} GiB"
     disks: "local-disk ~{disk} HDD"
+    disk: disk + " GB" # TES
     preemptible: preemptible
   }
 
@@ -201,6 +203,7 @@ task AggregateSmartSeq2Loom {
       cpu: cpu
       memory: "~{machine_mem_mb} GiB"
       disks: "local-disk ~{disk} HDD"
+      disk: disk + " GB" # TES
       preemptible: 3
       maxRetries: 1
     }
@@ -280,6 +283,7 @@ task SingleNucleusOptimusLoomOutput {
         cpu: cpu  # note that only 1 thread is supported by pseudobam
         memory: "~{machine_mem_mb} GiB"
         disks: "local-disk ~{disk} HDD"
+        disk: disk + " GB" # TES
         preemptible: preemptible
     }
 
@@ -372,6 +376,7 @@ task SingleNucleusSmartSeq2LoomOutput {
         cpu: cpu
         memory: "~{machine_mem_mb} GiB"
         disks: "local-disk ~{disk} HDD"
+        disk: disk + " GB" # TES
         preemptible: preemptible
     }
 
