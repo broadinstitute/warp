@@ -127,7 +127,7 @@ ed_param_niters <- opt$ed_niters
 ed_param_test.ambient <- opt$ed_test_ambient
 ed_param_ignore <- opt$ed_ignore
 ed_param_alpha <- opt$ed_alpha
-ed_param_BPPARAM <- SerialParam() ## TODO: Allow serial or parallele, with ncore specification
+ed_param_BPPARAM <- MulticoreParam(1) ## TODO: Allow serial or parallele, with ncore specification - KP:Trying out muilticore since we get "cannot find function" on SerialParam for bioc 3.16
 min_molecules <- opt$min_molecules
 
 ## Read the input file
