@@ -60,7 +60,7 @@ Updates to pipeline code, Docker images, or reference files might require coordi
 
 #### 6. Make a pull request to the WARP **develop** branch. 
 
-When updates are ready, [make a pull request (PR)](https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) using WARP's **develop** branch as a base. In the comments section of the PR, notify the WARP team to review the PR and start the necessary repository [tests](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines). You can do this by typing `test and review @broadinstitute/warp-admins`.
+When updates are ready, [make a pull request (PR)](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) using WARP's **develop** branch as a base. In the comments section of the PR, notify the WARP team to review the PR and start the necessary repository [tests](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines). You can do this by typing `test and review @broadinstitute/warp-admins`.
 
 #### 7. Revise the PR as necessary for the [review process](#review-process). 
 

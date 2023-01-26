@@ -46,7 +46,7 @@ The UG_WGS pipeline can be deployed using [Cromwell](https://cromwell.readthedoc
 
 The UG_WGS workflow inputs are specified in JSON configuration files. An example configuration file can be found in the [input_files](https://github.com/broadinstitute/warp/tree/develop/pipelines/broad/dna_seq/germline/single_sample/ugwgs/input_files) folder in the WARP repository. 
 
-Multiple workflow inputs are in the form of structs, which are defined in [UG_WGS structs WDL](https://github.com/broadinstitute/warp/blob/develop/structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl). All structs are listed in the UltimaGenomicsWholeGenomeGermlineStructs WDL](https://github.com/broadinstitute/warp/develop/structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl).
+Multiple workflow inputs are in the form of structs, which are defined in [UG_WGS structs WDL](https://github.com/broadinstitute/warp/blob/develop/structs/dna_seq/UltimaGenomicsWholeGenomeGermlineStructs.wdl). 
 
 #### Input descriptions
 
@@ -150,7 +150,7 @@ The Picard tool MarkDuplicatesSpark has been adapted to handle ambiguity in the 
 
 ### 2. Convert BAM to CRAM and validate the CRAM
 
-**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/UltimaGenomics/UltimaGenomicsWholeGenomeCramOnly.wdl)
+**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl)
 
 The two tasks below are used to convert each duplicate-marked BAM to CRAM and validate the resulting files.
 
@@ -162,7 +162,7 @@ The two tasks below are used to convert each duplicate-marked BAM to CRAM and va
 
 ### 3. Extract nucleotide flow order
 
-**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/UltimaGenomics/UltimaGenomicsWholeGenomeCramOnly.wdl)
+**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl)
 
 The flow order is the order in which nucleotides are passed during sequencing. This information is captured in the header of the BAM and is extracted as a text file for downstream processing.
 
@@ -172,7 +172,7 @@ The flow order is the order in which nucleotides are passed during sequencing. T
 
 ### 4. Calculate quality control metrics
 
-**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/UltimaGenomics/UltimaGenomicsWholeGenomeCramOnly.wdl)
+**Sub-workflow name and link:** [UltimaGenomicsWholeGenomeCramOnly](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl)
 
  * **Nested task name and WDL link:**
 
