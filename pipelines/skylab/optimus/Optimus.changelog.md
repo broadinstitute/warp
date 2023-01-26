@@ -1,7 +1,8 @@
 # 5.6.1
-2023-01-19 (Date of Last Commit)
+2023-01-23 (Date of Last Commit)
 
 * Added "Disk" to task runtime sections to support running on Azure
+* Addressed mb/gb memory specification inconsistencies in LoomUtils and CheckInput
 
 # 5.6.0
 2022-12-06 (Date of Last Commit)
