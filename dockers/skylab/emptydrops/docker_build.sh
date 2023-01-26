@@ -13,7 +13,7 @@ CACHING=$2
 GCR_URL="us.gcr.io/broad-gotc-prod/empty-drops"
 
 #R Version
-R_VERSION="3.5.1"
+R_VERSION="4.2.2"
 
 # Necessary tools and help text
 TOOLS=(docker gcloud)

@@ -27,9 +27,10 @@ RUN sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list && apt-get update \
     wget \
     python \
     python-pip \
+   libpcre2-dev \
     && apt-get build-dep -y r-base \
     && pip install numpy \
-    && wget https://cloud.r-project.org/src/base/R-3/R-${R_VERSION}.tar.gz \
+    && wget https://cloud.r-project.org/src/base/R-4/R-${R_VERSION}.tar.gz \
     && tar xzf R-${R_VERSION}.tar.gz \
     && cd "R-${R_VERSION}" \
     && ./configure --prefix=/opt/R/${R_VERSION}/ --enable-R-shlib --with-blas --with-lapack \
