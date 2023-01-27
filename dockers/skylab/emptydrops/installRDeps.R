@@ -22,7 +22,9 @@ BiocManager::valid()
 if ( ! library('DropletUtils', character.only=TRUE, logical.return=TRUE) ) {
         quit(status=1, save='no')
     }
-
+if ( ! library('BiocParallel', character.only=TRUE, logical.return=TRUE) ) {
+        quit(status=1, save='no')
+    }
 
 
 ## Install OptParse
