@@ -104,7 +104,7 @@ The Illumina Genotyping Array workflow imports a series of tasks from the [Illum
 
 ### Tools
 
-The following table provides a summary of the WDL tasks and software tools called by the Illumina Array Genotyping workflow. Note that sometimes a task and tool have the same name. The task refers to the task listed in the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/master/blob/develop/tasks/broad/IlluminaGenotypingArrayTasks.wdl).
+The following table provides a summary of the WDL tasks and software tools called by the Illumina Array Genotyping workflow. Note that sometimes a task and tool have the same name. The task refers to the task listed in the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/broad/IlluminaGenotypingArrayTasks.wdl).
 
 | Task | Tool | Source |
 | --- | --- | --- |

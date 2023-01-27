@@ -40,7 +40,7 @@ The workflow can also be run on Terra using the [Methyl-c-seq_Pipeline workspace
 
 ## Inputs
 
-CEMBA pipeline inputs are detailed in the example human configuration file ([CEMBA.inputs.json](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/example_inputs/CEMBA.inputs.json)). Genomic reference files were built using the [BuildCembaReferencesWDL script](https://github.com/BICCN/CEMBA/blob/master/pipelines/build_cemba_references/BuildCembaReferences.wdl). See descriptions of all inputs in the tables below.
+CEMBA pipeline inputs are detailed in the example human configuration file ([CEMBA.inputs.json](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/example_inputs/CEMBA.inputs.json)). Genomic reference files were built using the [BuildCembaReferencesWDL script (private repository)](https://github.com/BICCN/CEMBA/blob/master/pipelines/build_cemba_references/BuildCembaReferences.wdl). See descriptions of all inputs in the tables below.
 
 ### Sample data input
 The pipeline accepts paired-end reads in the form of two compressed FASTQ files (fastq.gz). FASTQ files may represent a single cell sample or in the case of multiplexed samples, multiple cells.
