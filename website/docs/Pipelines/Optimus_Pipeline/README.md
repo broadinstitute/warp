@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v5.6.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | November, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [optimus_v5.6.1](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | November, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![Optimus_diagram](Optimus_diagram.png)
 
@@ -245,7 +245,7 @@ The following table lists the output files produced from the pipeline. For sampl
 | cell_calls | empty_drops_result.csv | emptyDrops results from the RunEmptyDrops task. | CSV |
 | loom_output_file | `<input_id>.loom` | Loom | Loom | Loom file with count data (exonic or whole transcript depending on the counting_mode) and metadata. | N/A |
 
-The Loom matrix is the default output. See the [create_loom_optimus.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) for the detailed code. This matrix contains the unnormalized (unfiltered), UMI-corrected count matrices, as well as the gene and cell metrics detailed in the [Optimus Count Matrix Overview](./Loom_schema.md).
+The Loom matrix is the default output. See the [create_loom_optimus.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/pytools/tools/create_loom_optimus.py) for the detailed code. This matrix contains the unnormalized (unfiltered), UMI-corrected count matrices, as well as the gene and cell metrics detailed in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
 #### Try the Optimus matrix with community tools
 The matrix is compatible with multiple downstream community analysis tools, including [Seurat](https://satijalab.org/seurat/index.html), [Scanpy](https://scanpy.readthedocs.io/en/stable/), [Cumulus](https://cumulus.readthedocs.io/en/latest/index.html), and [Pegasus](https://pegasus.readthedocs.io/en/stable/#). To try a tutorial using the Optimus matrix with these tools, register for the open-source platform [Terra](https://app.terra.bio) and then navigate to the public [Intro-to-HCA-data-on-Terra workspace](https://app.terra.bio/#workspaces/featured-workspaces-hca/Intro-to-HCA-data-on-Terra). You can also view the accompanying [step-by-step guide](https://support.terra.bio/hc/en-us/articles/360060041772) without registration.
