@@ -12,6 +12,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 # BiocManager::install(version = "3.8")
 # BiocManager::install("edgeR", version = "3.8")
 BiocManager::install("DropletUtils")
+BiocManager::install("BiocParallel")
 # if (!require("BiocManager", quietly = TRUE))
 #     install.packages("BiocManager")
 # BiocManager::install(version = "3.8")
@@ -26,7 +27,7 @@ if ( ! library('DropletUtils', character.only=TRUE, logical.return=TRUE) ) {
 
 
 ## Install OptParse
-install.packages('optparse', dependencies=TRUE, repos="http://R-Forge.R-project.org")
+install.packages('optparse', dependencies=TRUE)
 
 if ( ! library('optparse', character.only=TRUE, logical.return=TRUE) ) {
         quit(status=1, save='no')
