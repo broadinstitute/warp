@@ -59,7 +59,7 @@ task checkOptimusInput {
     Boolean force_no_check
     Boolean count_exons
     Int disk = 1
-    Int machine_mem_mb = 1
+    Int machine_mem_mb = 1000
     Int cpu = 1
   }  
 
@@ -115,7 +115,7 @@ task checkOptimusInput {
   runtime {
     docker: "bashell/alpine-bash:latest"
     cpu: cpu
-    memory: "~{machine_mem_mb} GiB"
+    memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
     disk: disk + " GB" # TES
   }
