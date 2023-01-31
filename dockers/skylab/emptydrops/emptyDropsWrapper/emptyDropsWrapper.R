@@ -105,7 +105,7 @@ if(is.null(opt$min_molecules)) errorExit("Minimum number of molecules is not spe
 
 ## Load the required libraries here
 ## NOTE: We do this after parsing arguments so that --help returns immediatedly
-pkgs <- c('DropletUtils','Matrix')
+pkgs <- c('DropletUtils','Matrix', 'BiocParallel')
 missing_pkgs <- pkgs[!pkgs %in% installed.packages()]
 if(length(missing_pkgs) > 0) {
     cat('Error the following package(s) are missing:', paste0(missing_pkgs, collapse=', '),'\n')
@@ -115,6 +115,7 @@ if(length(missing_pkgs) > 0) {
 ## Load the libs, suppressing warnings and other messages
 suppressWarnings(suppressPackageStartupMessages(library('DropletUtils',quietly=TRUE)))
 suppressWarnings(suppressPackageStartupMessages(library('Matrix',quietly=TRUE)))
+suppressWarnings(suppressPackageStartupMessages(library('BiocParallel',quietly=TRUE)))
 
 ## Set script parameters, this need to be done after package loading
 ## as SerialParam() is not otherwise availbale
