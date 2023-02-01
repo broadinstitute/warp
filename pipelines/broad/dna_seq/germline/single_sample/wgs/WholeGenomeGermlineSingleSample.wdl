@@ -72,6 +72,8 @@ workflow WholeGenomeGermlineSingleSample {
     Boolean use_bwa_mem = true
     Boolean allow_empty_ref_alt = false
     Boolean use_dragen_hard_filtering = false
+
+    Float? downsample_percent
   }
 
   if (dragen_functional_equivalence_mode && dragen_maximum_quality_mode) {
@@ -107,10 +109,18 @@ workflow WholeGenomeGermlineSingleSample {
 
   String final_gvcf_base_name = select_first([output_gvcf_name, aligned_bam_basename])
 
+  if (defined(downsample_percent)) {
+    call DownsampleBam {
+      input:
+        input_bam = aligned_bam,
+        downsample_percent = downsample_percent
+    }
+  }
+
   call ToBam.UnmappedBamToAlignedBam {
     input:
 #      sample_and_unmapped_bams    = sample_and_unmapped_bams,
-      aligned_bam                 = aligned_bam,
+      aligned_bam                 = select_first([DownsampleBam.downsampled_bam, aligned_bam]),
       aligned_bam_suffix          = aligned_bam_suffix,
       references                  = references,
       dragmap_reference           = dragmap_reference,
@@ -130,19 +140,19 @@ workflow WholeGenomeGermlineSingleSample {
       allow_empty_ref_alt         = allow_empty_ref_alt
   }
 
-  call AggregatedQC.AggregatedBamQC {
-    input:
-      base_recalibrated_bam = UnmappedBamToAlignedBam.output_bam,
-      base_recalibrated_bam_index = UnmappedBamToAlignedBam.output_bam_index,
-      base_name = aligned_bam_basename,
-      sample_name = sample_name,
-      recalibrated_bam_base_name = recalibrated_bam_basename,
-      haplotype_database_file = references.haplotype_database_file,
-      references = references,
-      fingerprint_genotypes_file = fingerprint_genotypes_file,
-      fingerprint_genotypes_index = fingerprint_genotypes_index,
-      papi_settings = papi_settings
-  }
+#  call AggregatedQC.AggregatedBamQC {
+#    input:
+#      base_recalibrated_bam = UnmappedBamToAlignedBam.output_bam,
+#      base_recalibrated_bam_index = UnmappedBamToAlignedBam.output_bam_index,
+#      base_name = aligned_bam_basename,
+#      sample_name = sample_name,
+#      recalibrated_bam_base_name = recalibrated_bam_basename,
+#      haplotype_database_file = references.haplotype_database_file,
+#      references = references,
+#      fingerprint_genotypes_file = fingerprint_genotypes_file,
+#      fingerprint_genotypes_index = fingerprint_genotypes_index,
+#      papi_settings = papi_settings
+#  }
 
 #  call ToCram.BamToCram as BamToCram {
 #    input:
@@ -222,31 +232,31 @@ workflow WholeGenomeGermlineSingleSample {
 #    Array[File] unsorted_read_group_quality_distribution_pdf = UnmappedBamToAlignedBam.unsorted_read_group_quality_distribution_pdf
 #    Array[File] unsorted_read_group_quality_distribution_metrics = UnmappedBamToAlignedBam.unsorted_read_group_quality_distribution_metrics
 
-    File read_group_alignment_summary_metrics = AggregatedBamQC.read_group_alignment_summary_metrics
-    File read_group_gc_bias_detail_metrics = AggregatedBamQC.read_group_gc_bias_detail_metrics
-    File read_group_gc_bias_pdf = AggregatedBamQC.read_group_gc_bias_pdf
-    File read_group_gc_bias_summary_metrics = AggregatedBamQC.read_group_gc_bias_summary_metrics
+#    File read_group_alignment_summary_metrics = AggregatedBamQC.read_group_alignment_summary_metrics
+#    File read_group_gc_bias_detail_metrics = AggregatedBamQC.read_group_gc_bias_detail_metrics
+#    File read_group_gc_bias_pdf = AggregatedBamQC.read_group_gc_bias_pdf
+#    File read_group_gc_bias_summary_metrics = AggregatedBamQC.read_group_gc_bias_summary_metrics
 
 #    File? cross_check_fingerprints_metrics = UnmappedBamToAlignedBam.cross_check_fingerprints_metrics
 
     File selfSM = UnmappedBamToAlignedBam.selfSM
     Float contamination = UnmappedBamToAlignedBam.contamination
 
-    File calculate_read_group_checksum_md5 = AggregatedBamQC.calculate_read_group_checksum_md5
+#    File calculate_read_group_checksum_md5 = AggregatedBamQC.calculate_read_group_checksum_md5
 
-    File agg_alignment_summary_metrics = AggregatedBamQC.agg_alignment_summary_metrics
-    File agg_bait_bias_detail_metrics = AggregatedBamQC.agg_bait_bias_detail_metrics
-    File agg_bait_bias_summary_metrics = AggregatedBamQC.agg_bait_bias_summary_metrics
-    File agg_gc_bias_detail_metrics = AggregatedBamQC.agg_gc_bias_detail_metrics
-    File agg_gc_bias_pdf = AggregatedBamQC.agg_gc_bias_pdf
-    File agg_gc_bias_summary_metrics = AggregatedBamQC.agg_gc_bias_summary_metrics
-    File agg_insert_size_histogram_pdf = AggregatedBamQC.agg_insert_size_histogram_pdf
-    File agg_insert_size_metrics = AggregatedBamQC.agg_insert_size_metrics
-    File agg_pre_adapter_detail_metrics = AggregatedBamQC.agg_pre_adapter_detail_metrics
-    File agg_pre_adapter_summary_metrics = AggregatedBamQC.agg_pre_adapter_summary_metrics
-    File agg_quality_distribution_pdf = AggregatedBamQC.agg_quality_distribution_pdf
-    File agg_quality_distribution_metrics = AggregatedBamQC.agg_quality_distribution_metrics
-    File agg_error_summary_metrics = AggregatedBamQC.agg_error_summary_metrics
+#    File agg_alignment_summary_metrics = AggregatedBamQC.agg_alignment_summary_metrics
+#    File agg_bait_bias_detail_metrics = AggregatedBamQC.agg_bait_bias_detail_metrics
+#    File agg_bait_bias_summary_metrics = AggregatedBamQC.agg_bait_bias_summary_metrics
+#    File agg_gc_bias_detail_metrics = AggregatedBamQC.agg_gc_bias_detail_metrics
+#    File agg_gc_bias_pdf = AggregatedBamQC.agg_gc_bias_pdf
+#    File agg_gc_bias_summary_metrics = AggregatedBamQC.agg_gc_bias_summary_metrics
+#    File agg_insert_size_histogram_pdf = AggregatedBamQC.agg_insert_size_histogram_pdf
+#    File agg_insert_size_metrics = AggregatedBamQC.agg_insert_size_metrics
+#    File agg_pre_adapter_detail_metrics = AggregatedBamQC.agg_pre_adapter_detail_metrics
+#    File agg_pre_adapter_summary_metrics = AggregatedBamQC.agg_pre_adapter_summary_metrics
+#    File agg_quality_distribution_pdf = AggregatedBamQC.agg_quality_distribution_pdf
+#    File agg_quality_distribution_metrics = AggregatedBamQC.agg_quality_distribution_metrics
+#    File agg_error_summary_metrics = AggregatedBamQC.agg_error_summary_metrics
 
 #    File? fingerprint_summary_metrics = AggregatedBamQC.fingerprint_summary_metrics
 #    File? fingerprint_detail_metrics = AggregatedBamQC.fingerprint_detail_metrics
@@ -274,5 +284,34 @@ workflow WholeGenomeGermlineSingleSample {
   }
   meta {
     allowNestedInputs: true
+  }
+}
+
+task DownsampleBam {
+  input {
+    File input_bam
+    Float downsample_percent
+  }
+
+  Int disk_size = ceil(size(input_bam, "GiB")) + 20
+
+  command <<<
+    java -Xms6500m -Xmx7500m -jar /usr/picard/picard.jar \
+      DownsampleSam \
+      I=input.bam \
+      O=downsampled.bam \
+      P=~{downsample_percent}
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "8000 MiB"
+    preemptible: 3
+  }
+
+  output {
+    File downsampled_bam = "downsampled.bam"
+#    File downsampled_bam_index = "downsampled.bam.bai"
   }
 }
