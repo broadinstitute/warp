@@ -290,7 +290,7 @@ workflow WholeGenomeGermlineSingleSample {
 task DownsampleBam {
   input {
     File input_bam
-    Float downsample_percent
+    Float? downsample_percent
   }
 
   Int disk_size = ceil(size(input_bam, "GiB")) + 20
