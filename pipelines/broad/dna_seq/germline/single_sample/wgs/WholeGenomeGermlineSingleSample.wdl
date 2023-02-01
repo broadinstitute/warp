@@ -298,7 +298,7 @@ task DownsampleBam {
   command <<<
     java -Xms6500m -Xmx7500m -jar /usr/picard/picard.jar \
       DownsampleSam \
-      I=input.bam \
+      I=~{input_bam} \
       O=downsampled.bam \
       P=~{downsample_percent}
   >>>
