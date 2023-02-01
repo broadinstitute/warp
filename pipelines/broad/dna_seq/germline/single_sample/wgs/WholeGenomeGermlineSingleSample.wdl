@@ -109,7 +109,7 @@ workflow WholeGenomeGermlineSingleSample {
 
   String final_gvcf_base_name = select_first([output_gvcf_name, aligned_bam_basename])
 
-  if (defined(downsample_percent) && (downsample_percent < 1.0)) {
+  if (defined(downsample_percent)) {
     call DownsampleBam {
       input:
         input_bam = aligned_bam,
@@ -301,13 +301,16 @@ task DownsampleBam {
       I=~{input_bam} \
       O=downsampled.bam \
       P=~{downsample_percent}
+
+    samtools view -s ~{downsample_percent} -@ 8 ~{input_bam} > downsampled.bam
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/samtools:latest"
     disks: "local-disk " + disk_size + " HDD"
     memory: "8000 MiB"
     preemptible: 3
+    cpu: 8
   }
 
   output {
