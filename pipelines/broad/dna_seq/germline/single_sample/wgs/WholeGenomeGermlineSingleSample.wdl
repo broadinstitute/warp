@@ -109,7 +109,7 @@ workflow WholeGenomeGermlineSingleSample {
 
   String final_gvcf_base_name = select_first([output_gvcf_name, aligned_bam_basename])
 
-  if (defined(downsample_percent)) {
+  if (defined(downsample_percent) && (downsample_percent < 1.0)) {
     call DownsampleBam {
       input:
         input_bam = aligned_bam,
