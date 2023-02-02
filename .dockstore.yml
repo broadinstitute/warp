@@ -102,3 +102,7 @@ workflows:
   - name: BuildIndices
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/build_indices/BuildIndices.wdl
+
+  - name: Slideseq
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/slideseq/SlideSeq.wdl

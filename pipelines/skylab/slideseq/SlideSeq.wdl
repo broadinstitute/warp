@@ -1,11 +1,11 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/broadinstitute/warp/fk_cloud_slideseq/tasks/skylab/StarAlign.wdl" as StarAlign
-import "https://raw.githubusercontent.com/broadinstitute/warp/fk_cloud_slideseq/tasks/skylab/FastqProcessing.wdl" as FastqProcessing
-import "https://raw.githubusercontent.com/broadinstitute/warp/fk_cloud_slideseq/tasks/skylab/Metrics.wdl" as Metrics
-import "https://raw.githubusercontent.com/broadinstitute/warp/fk_cloud_slideseq/tasks/skylab/LoomUtils.wdl" as LoomUtils
-import "https://raw.githubusercontent.com/broadinstitute/warp/fk_cloud_slideseq/tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
-import "https://raw.githubusercontent.com/broadinstitute/warp/fk_cloud_slideseq/tasks/skylab/MergeSortBam.wdl" as Merge
+import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
+import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
+import "../../../tasks/skylab/Metrics.wdl" as Metrics
+import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
+import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 
 ## Copyright Broad Institute, 2022
 ##
