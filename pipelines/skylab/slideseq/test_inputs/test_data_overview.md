@@ -8,7 +8,7 @@ All unmodified files are stored in a public Google bucket (gs://nemo-public/bicc
 
 * Puck_210817_11.human
 
-The plumbing input listed above was downsampled using a [custom python script](Plumbing/slideseq_downsample.py) to first crop the sample from 2500 to 4000 in the x-dimension and 1000 to 4200 in the y-dimension. Next, 10 random cells were sampled for each 30 by 30 region in the cropped sample. The list of sampled cells was then used to create new, downsampled FASTQ files using a second [custom script](https://github.com/broadinstitute/warp-tools/blob/master/fastqpreprocessing/src/samplefastq.cpp) from the [warp-tools GitHub repository](https://github.com/broadinstitute/warp-tools/tree/master). 
+The plumbing input FASTQ listed above was downsampled using a [custom python script](Plumbing/slideseq_downsample.py). First, a PDF image of the sample puck was examined and the XY coordinates for a region of interest were selected. A bead position TSV containing the XY coordinates for the puck's barcodes was used as input to the custom script and the TSV was cropped 2500 to 4000 in the x-dimension and 1000 to 4200 in the y-dimension. Next, 10 random cells were sampled for each 30 by 30 region in the cropped TSV. The barcodes for the 10 sampled cells were then used  as input to a second [custom script](https://github.com/broadinstitute/warp-tools/blob/master/fastqpreprocessing/src/samplefastq.cpp) from the [warp-tools GitHub repository](https://github.com/broadinstitute/warp-tools/tree/master). The output of this script was the new, downsampled FASTQ files.
 
 ## Scientific
 
