@@ -293,7 +293,7 @@ task DownsampleBam {
     Float? downsample_percent
   }
 
-  Int disk_size = ceil(size(input_bam, "GiB")) + 20
+  Int disk_size = 2*ceil(size(input_bam, "GiB")) + 50
 
   command <<<
     samtools view -s ~{downsample_percent} -@ 8 ~{input_bam} > downsampled.bam
