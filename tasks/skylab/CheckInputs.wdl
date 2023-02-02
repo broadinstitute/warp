@@ -8,6 +8,7 @@ task checkInputArrays {
     Array[String] fastq1_input_files
     Array[String] fastq2_input_files
   }
+
   Int len_input_ids = length(input_ids)
   Int len_fastq1_input_files = length(fastq1_input_files)
   Int len_fastq2_input_files = length(fastq2_input_files)
@@ -54,13 +55,15 @@ task checkInputArrays {
 
 task checkOptimusInput {
   input {
-    String chemistry
     String counting_mode
     Boolean force_no_check
     Boolean count_exons
     Int disk = 1
     Int machine_mem_mb = 1000
     Int cpu = 1
+    Int tenx_chemistry_version
+    String whitelist_v2
+    String whitelist_v3
   }  
 
   meta {
@@ -74,12 +77,6 @@ task checkOptimusInput {
     pass="true"
 
     ## Perform checks
-    if [[ ! ("${chemistry}" == "tenX_v2" || "${chemistry}" == "tenX_v3") ]]
-    then
-      pass="false"
-      echo "ERROR: Invalid value \"${chemistry}\" for input \"chemistry\""
-    fi
-
     if [[ ! ("${counting_mode}" == "sc_rna" || "${counting_mode}" == "sn_rna") ]]
     then
       pass="false"
@@ -100,6 +97,18 @@ task checkOptimusInput {
         echo "ERROR: Invalid value count_exons should not be used with \"${counting_mode}\" input."
       fi
     fi
+    if [[ ~{tenx_chemistry_version} == 2 ]]
+      then
+      WHITELIST=~{whitelist_v2}
+      echo $WHITELIST > whitelist.txt
+    elif [[ ~{tenx_chemistry_version} == 3 ]]
+      then
+      WHITELIST=~{whitelist_v3}
+      echo $WHITELIST > whitelist.txt
+    else
+      pass="false"
+      echo "ERROR: Chemistry version must be either 2 or 3"
+    fi
 
     ## fail if any tests failed, ignore if force_no_check is set
     if [[ $pass == "true" ]]
@@ -112,12 +121,14 @@ task checkOptimusInput {
     exit 0;
   }
 
+  output {
+    String whitelist_out = read_string("whitelist.txt")
+  }
   runtime {
     docker: "bashell/alpine-bash:latest"
     cpu: cpu
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
     disk: disk + " GB" # TES
-  }
-  
+  } 
 }
