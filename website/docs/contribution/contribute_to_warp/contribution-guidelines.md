@@ -88,4 +88,4 @@ All pipelines must pass syntax, scientific and Smart-tests, as described in the 
 To learn more about how to apply these contribution guidelines to an example small pipeline update, see the [Example Contribution](./contribution-tutorial.md).
 
 ## Still have questions?
-Contact us by [filing an issue](https://github.com/broadinstitute/warp/issues/new) or email [Kylee Degatano](mailto:kdegatano@broadinstitute.org). 
+Contact us by [filing an issue](https://github.com/broadinstitute/warp/issues/new) or email [the WARP team](mailto:warp-pipelines-help@broadinstitute.org). 
