@@ -2,7 +2,7 @@
 
 The following lists the data used for workflow validation, including workflow engineering (plumbing) tests and scientific validation tests.
 
-All unmodified files are stored in a public Google bucket (gs://nemo-public/biccn-unbundled/grant/rf1_macosko/macosko/spatial_transcriptome/cellgroup/Slide-seq/mouse/raw/) and can be identified using their sample ID (ex. Puck_210817_11).
+All unmodified FASTQ files are stored in a public Google bucket (gs://nemo-public/biccn-unbundled/grant/rf1_macosko/macosko/spatial_transcriptome/cellgroup/Slide-seq/mouse/raw/) and can be identified using their sample ID (ex. Puck_210817_11).
 
 ## Plumbing
 
