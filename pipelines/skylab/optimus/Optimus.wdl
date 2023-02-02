@@ -96,7 +96,7 @@ workflow Optimus {
       i1_fastq = i1_fastq,
       r1_fastq = r1_fastq,
       r2_fastq = r2_fastq,
-      whitelist = OptimusInputChecks.checkOptimusInput.whitelist_out,
+      whitelist = checkOptimusInput.whitelist_out,
       chemistry = tenx_chemistry_version,
       sample_id = input_id
   }
@@ -106,7 +106,7 @@ workflow Optimus {
       input:
         r1_fastq = [SplitFastq.fastq_R1_output_array[idx]],
         r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
-        white_list = OptimusInputChecks.checkOptimusInput.whitelist_out,
+        white_list = checkOptimusInput.whitelist_out,
         tar_star_reference = tar_star_reference,
         chemistry = tenx_chemistry_version,
         counting_mode = counting_mode,
