@@ -34,12 +34,15 @@ workflow Optimus {
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
+    File whitelist = checkOptimusInput.whitelist_out
 
     # Emptydrops lower cutoff
     Int emptydrops_lower = 100
 
     # Set to true to override input checks and allow pipeline to proceed with invalid input
     Boolean force_no_check = false
+    # Set to true if you expect that r1_read_length does not match length of UMIs/barcodes for 10x chemistry v2 (26) or v3 (28).
+    Boolean ignore_r1_read_length = false
 
     # Set to true to count reads in stranded mode
     String use_strand_info = "false"
@@ -62,7 +65,7 @@ workflow Optimus {
   # 10x parameters
   File whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
   File whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
-  File whitelist = checkOptimusInput.whitelist_out
+  File r1_single_fastq = r1_fastq[1]
 
   parameter_meta {
     r1_fastq: "forward read, contains cell barcodes and molecule barcodes"
@@ -89,6 +92,7 @@ workflow Optimus {
       whitelist_v2 = whitelist_v2,
       whitelist_v3 = whitelist_v3,
       tenx_chemistry_version = tenx_chemistry_version
+      r1_fastq = r1_single_fastq
   }
 
   call FastqProcessing.FastqProcessing as SplitFastq {
@@ -96,7 +100,7 @@ workflow Optimus {
       i1_fastq = i1_fastq,
       r1_fastq = r1_fastq,
       r2_fastq = r2_fastq,
-      whitelist = checkOptimusInput.whitelist_out,
+      whitelist = whitelist,
       chemistry = tenx_chemistry_version,
       sample_id = input_id
   }
@@ -106,7 +110,7 @@ workflow Optimus {
       input:
         r1_fastq = [SplitFastq.fastq_R1_output_array[idx]],
         r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
-        white_list = checkOptimusInput.whitelist_out,
+        white_list = whitelist,
         tar_star_reference = tar_star_reference,
         chemistry = tenx_chemistry_version,
         counting_mode = counting_mode,

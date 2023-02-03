@@ -55,6 +55,7 @@ task checkInputArrays {
 
 task checkOptimusInput {
   input {
+    File r1_fastq
     String counting_mode
     Boolean force_no_check
     Boolean count_exons
@@ -64,17 +65,20 @@ task checkOptimusInput {
     Int tenx_chemistry_version
     String whitelist_v2
     String whitelist_v3
+    Boolean ignore_r1_read_length
   }  
 
   meta {
     description: "checks optimus input values and fails the pipeline immediately"
   }
 
-  command {
+  command <<<
     set -e
 
     ## Set pass to true
     pass="true"
+    R1=$(awk 'NR==2' ~{r1_fastq})
+    COUNT=$(echo ${#R1})
 
     ## Perform checks
     if [[ ! ("${counting_mode}" == "sc_rna" || "${counting_mode}" == "sn_rna") ]]
@@ -83,13 +87,13 @@ task checkOptimusInput {
       echo "ERROR: Invalid value \"${counting_mode}\" for input \"counting_mode\""
     fi
 
-    if [[ ${force_no_check} == "true" ]]
+    if [[ ~{force_no_check} == "true" ]]
     then
        echo "force_no_check is set: Ignoring input checks"
        exit 0;
     fi
 
-    if [[ "${counting_mode}" == "sc_rna" ]]
+    if [[ "~{counting_mode}" == "sc_rna" ]]
     then
       if [[ ~{count_exons} == "true" ]]
       then
@@ -109,6 +113,16 @@ task checkOptimusInput {
       pass="false"
       echo "ERROR: Chemistry version must be either 2 or 3"
     fi
+    if [[ ! (~{tenx_chemistry_version} == 2 && $COUNT == 26 || ~{tenx_chemistry_version} == 3 && $COUNT == 28 && ~{ignore_r1_read_length} == "false") ]]
+      then
+      pass="false"
+      echo "WARNING: Chemistry does not match number of UMIs/barcodes in read1"
+    elif [[ ! (~{tenx_chemistry_version} == 2 && $COUNT == 26 || ~{tenx_chemistry_version} == 3 && $COUNT == 28 && ~{ignore_r1_read_length} == "true") ]]
+      then
+      pass="true"
+      echo "You are proceeding using mismatched chemistry and whitelist"
+    fi
+
 
     ## fail if any tests failed, ignore if force_no_check is set
     if [[ $pass == "true" ]]
@@ -119,7 +133,7 @@ task checkOptimusInput {
     fi
 
     exit 0;
-  }
+  >>>
 
   output {
     String whitelist_out = read_string("whitelist.txt")
