@@ -91,8 +91,9 @@ workflow Optimus {
       count_exons = count_exons,
       whitelist_v2 = whitelist_v2,
       whitelist_v3 = whitelist_v3,
-      tenx_chemistry_version = tenx_chemistry_version
-      r1_fastq = r1_single_fastq
+      tenx_chemistry_version = tenx_chemistry_version,
+      r1_fastq = r1_single_fastq,
+      ignore_r1_read_length = ignore_r1_read_length
   }
 
   call FastqProcessing.FastqProcessing as SplitFastq {
