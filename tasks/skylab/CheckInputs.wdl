@@ -77,11 +77,14 @@ task checkOptimusInput {
 
     ## Set pass to true
     pass="true"
-    R1=$(awk 'NR==2' ~{r1_fastq})
+    ## Need to gunzip the r1_fastq
+    gunzip ~{r1_fastq} > r1.fastq
+    FASTQ=r1.fastq
+    R1=$(awk 'NR==2' $FASTQ)
     COUNT=$(echo ${#R1})
 
     ## Perform checks
-    if [[ ! ("${counting_mode}" == "sc_rna" || "${counting_mode}" == "sn_rna") ]]
+    if [[ ! ("~{counting_mode}" == "sc_rna" || "~{counting_mode}" == "sn_rna") ]]
     then
       pass="false"
       echo "ERROR: Invalid value \"${counting_mode}\" for input \"counting_mode\""
