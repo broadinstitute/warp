@@ -104,6 +104,7 @@ task checkOptimusInput {
         echo "ERROR: Invalid value count_exons should not be used with \"${counting_mode}\" input."
       fi
     fi
+    
     if [[ ~{tenx_chemistry_version} == 2 ]]
       then
       WHITELIST=~{whitelist_v2}
@@ -116,13 +117,17 @@ task checkOptimusInput {
       pass="false"
       echo "ERROR: Chemistry version must be either 2 or 3"
     fi
-    if [[ ~{tenx_chemistry_version} == 2 && $COUNT != 26 && ~{ignore_r1_read_length} != "true" || ~{tenx_chemistry_version} == 3 && $COUNT != 28 && ~{ignore_r1_read_length} != "true" ]]
-      then
-      pass="false"
-      echo "WARNING: Chemistry does not match number of UMIs/barcodes in read1"
-    elif [[ ~{tenx_chemistry_version} == 2 && $COUNT != 26 && ~{ignore_r1_read_length} != "false" || ~{tenx_chemistry_version} == 3 && $COUNT != 28 && ~{ignore_r1_read_length} == "false" ]]
+    
+    if [[ ~{tenx_chemistry_version} == 2 && $COUNT == 26 && ~{ignore_r1_read_length} == "false" ]]
       then
       pass="true"
+      echo "Read1 matches chemistry"
+    elif [[ ~{tenx_chemistry_version} == 3 && $COUNT == 28 && ~{ignore_r1_read_length} == "false" ]]
+      then
+      pass="true"
+      echo "Read1 matches chemistry"
+    else
+      pass="false"
       echo "You are proceeding using mismatched chemistry and whitelist"
     fi
 
