@@ -77,11 +77,15 @@ task checkOptimusInput {
 
     ## Set pass to true
     pass="true"
+    
     ## Need to gunzip the r1_fastq
-    gunzip ~{r1_fastq} > r1.fastq
+    gunzip -c ~{r1_fastq} > r1.fastq
     FASTQ=r1.fastq
+    echo $FASTQ
     R1=$(awk 'NR==2' $FASTQ)
     COUNT=$(echo ${#R1})
+    echo $R1
+    echo $COUNT
 
     ## Perform checks
     if [[ ! ("~{counting_mode}" == "sc_rna" || "~{counting_mode}" == "sn_rna") ]]
@@ -118,17 +122,16 @@ task checkOptimusInput {
       echo "ERROR: Chemistry version must be either 2 or 3"
     fi
     
-    if [[ ~{tenx_chemistry_version} == 2 && $COUNT == 26 && ~{ignore_r1_read_length} == "false" ]]
+    if [[ ~{tenx_chemistry_version} == 2 && $COUNT != 26 && ~{ignore_r1_read_length} == "false" ]]
       then
-      pass="true"
-      echo "Read1 matches chemistry"
-    elif [[ ~{tenx_chemistry_version} == 3 && $COUNT == 28 && ~{ignore_r1_read_length} == "false" ]]
-      then
-      pass="true"
-      echo "Read1 matches chemistry"
-    else
       pass="false"
-      echo "You are proceeding using mismatched chemistry and whitelist"
+      echo "Read1 FASTQ does not match v2 chemistry"
+    elif [[ ~{tenx_chemistry_version} == 3 && $COUNT != 28 && ~{ignore_r1_read_length} == "false" ]]
+      then
+      pass="false"
+      echo "Read1 FASTQ does not match v3 chemistry"
+    else
+      pass="true"
     fi
 
 
