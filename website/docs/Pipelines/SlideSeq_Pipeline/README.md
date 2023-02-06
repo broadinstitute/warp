@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [SlideSeq v1.0.0](https://github.com/broadinstitute/warp/releases?q=slideseq&expanded=true) | October, 2022 | Elizabeth Kiernan & Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
+| [SlideSeq v1.0.0](https://github.com/broadinstitute/warp/releases?q=slideseq&expanded=true) | February, 2023 | Elizabeth Kiernan & Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![SlideSeq_diagram](./slide-seq_diagram.png)
 
@@ -214,9 +214,9 @@ The Loom matrix is the default output. See the [create_loom_slide_seq.py](https:
 SlideSeq has been validated for processing mouse spatial transcriptomic data generated with the Slide-seq assay. SlideSeq results are compared to those of an on-prem pipeline using BCL input files and python scripts. See the [validation report](https://docs.google.com/document/d/1cmfG3Y4uGvfJUJZV9MZvgN5Yw6-bFajpS7lonMKxdso/edit?usp=sharing) for more information.
 
 
-## Versioning
+## Versioning and testing
 
-All SlideSeq pipeline releases are documented in the [SlideSeq changelog](ttps://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/slide_seq/SlideSeq.changelog.md).
+All SlideSeq pipeline releases are documented in the [SlideSeq changelog](ttps://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/slide_seq/SlideSeq.changelog.md) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/blob/fk_cloud_slideseq/pipelines/skylab/slideseq/test_inputs/test_data_overview.md). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
 
 
 <!--- ## Citing the SlideSeq Pipeline
@@ -224,7 +224,7 @@ Please identify the pipeline in your methods section using the Slide Pipeline's 
 * Ex: *SlideSeq Pipeline (RRID:INSERT RRID)* --->
 
 
-## Consortia Support
+## Consortia support
 This pipeline is supported by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN) and BRAIN Initiative Cell Atlas Network (BICAN). 
 
 If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting the [WARP Pipelines team](mailto:warp-pipelines-help@broadinstitute.org).
