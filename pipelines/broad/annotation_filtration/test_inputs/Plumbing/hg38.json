@@ -10,6 +10,6 @@
   "AnnotationFiltration.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
   "AnnotationFiltration.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
 
-  "AnnotationFiltration.gatk_docker": "us.gcr.io/broad-gatk/gatk:4.2.6.1",
+  "AnnotationFiltration.gatk_docker": "us.gcr.io/broad-gatk/gatk:4.3.0.0",
   "AnnotationFiltration.custom_data_source_tar_gz": "gs://broad-public-datasets/funcotator/funcotator_dataSources.v1.6.20190124g.tar.gz"
 }

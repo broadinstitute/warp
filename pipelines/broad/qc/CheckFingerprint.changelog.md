@@ -1,10 +1,16 @@
+# 1.0.11
+2022-11-09 (Date of Last Commit)
+
+* Updated to GATK version 4.3.0.0
+
 # 1.0.10
-2022-10-12 (Date of Last Commit)
+2022-11-08 (Date of Last Commit)
 
 * Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
 * Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
 * Updated task IngestOutputsToTDR in InternalTasks.wdl with new optional input variable. This update has no effect on this pipeline.
 * Updated task FormatArraysOutputs in InternalArrraysTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+* Removed workspace_bucket workflow parameter from BroadInternalArrays and BroadInternalImputation.
 
 # 1.0.9
 2022-09-30 (Date of Last Commit)

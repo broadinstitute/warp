@@ -1,6 +1,24 @@
-# 1.1.3
-2022-10-12 (Date of Last Commit)
+# 1.1.6
+2023-01-13 (Date of Last Commit)
 
+* Updated to GATK version 4.3.0.0
+
+# 1.1.5
+2022-12-01 (Date of Last Commit)
+
+* Updated BCFTools/VCFTools Docker image
+
+# 1.1.4
+2022-11-09 (Date of Last Commit)
+
+* Updated to GATK version 4.3.0.0
+* Remove workspace_bucket parameter from workflow inputs and IngestOutputsToTDR
+
+
+# 1.1.3
+2022-11-10 (Date of Last Commit)
+
+* Added meta section to allowNestedInputs, this will allow task level inputs to be set in the inputs json
 * Added `in_load_tag` as optional input to task IngestOutputsToTDR.
 * Pass `in_load_tag` in the call to IngestToImputationWideOutputsTable (alias for IngestOutputsToTDR).
 

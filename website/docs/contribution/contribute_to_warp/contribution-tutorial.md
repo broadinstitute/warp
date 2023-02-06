@@ -83,4 +83,4 @@ Once our updates are merged to the **master** branch, the pipeline will be relea
 
 
 ## Have questions?
-Contact us by [filing an issue](https://github.com/broadinstitute/warp/issues/new) or email [Kylee Degatano](mailto:kdegatano@broadinstitute.org). 
+Contact us by [filing an issue](https://github.com/broadinstitute/warp/issues/new) or email [the WARP team](mailto:warp-pipelines-help@broadinstitute.org ). 
