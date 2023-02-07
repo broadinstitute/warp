@@ -56,7 +56,7 @@ workflow Optimus {
   }
 
   # version of this pipeline
-  String pipeline_version = "5.6.1"
+  String pipeline_version = "5.6.2"
 
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
@@ -119,14 +119,16 @@ workflow Optimus {
   call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
       bam_input = MergeBam.output_bam,
-      mt_genes = mt_genes
+      mt_genes = mt_genes,
+      input_id = input_id
   }
 
   call Metrics.CalculateCellMetrics as CellMetrics {
     input:
       bam_input = MergeBam.output_bam,
       mt_genes = mt_genes,
-      original_gtf = annotations_gtf
+      original_gtf = annotations_gtf,
+      input_id = input_id
   }
 
   call StarAlign.MergeStarOutput as MergeStarOutputs {

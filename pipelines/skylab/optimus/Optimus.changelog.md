@@ -1,3 +1,8 @@
+# 5.6.2
+2023-02-07 (Date of Last Commit)
+
+* Prepended the input_id to the name of the output file in both the CalculateCellMetrics and CalculateGeneMetrics tasks in the Metrics.wdl.
+
 # 5.6.1
 2023-01-23 (Date of Last Commit)
 
