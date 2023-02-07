@@ -44,7 +44,7 @@ task CalculateCellMetrics {
 
     TagSort --bam-input ~{bam_input} \
     --gtf-file annotation.gtf \
-    --metric-output cell-metrics.csv \
+    --metric-output "~{input_id}.cell-metrics.csv" \
     --compute-metric \
     --metric-type cell \
     --barcode-tag CB \
@@ -55,7 +55,7 @@ task CalculateCellMetrics {
     --nthreads ${cpu} \
     ~{"--mitochondrial-gene-names-filename " + mt_genes}
 
-    gzip cell-metrics.csv
+    gzip ~{input_id}.cell-metrics.csv
   }
 
 
@@ -105,7 +105,7 @@ task CalculateGeneMetrics {
     mkdir temp
 
     TagSort --bam-input ~{bam_input} \
-    --metric-output gene-metrics.csv \
+    --metric-output "~{input_id}.gene-metrics.csv" \
     --compute-metric \
     --metric-type gene \
     --gene-tag GX \
@@ -116,7 +116,7 @@ task CalculateGeneMetrics {
     --nthreads ${cpu} \
     ~{"--mitochondrial-gene-names-filename " + mt_genes}
 
-    gzip gene-metrics.csv
+    gzip ~{input_id}.gene-metrics.csv
 
   }
 
