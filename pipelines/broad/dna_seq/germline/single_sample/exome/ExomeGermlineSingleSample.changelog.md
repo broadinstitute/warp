@@ -1,4 +1,9 @@
-# 3.1.9
+# 3.1.10
+2023-01-18 (Date of Last Commit)
+
+* Updated task SamToFastqAndDragmapAndMba in DragmapAlignment.wdl, this update has no effect on this pipeline
+
+* # 3.1.9
 2022-11-04 (Date of Last Commit)
 
 * Updated GATK verison to 4.3.0.0

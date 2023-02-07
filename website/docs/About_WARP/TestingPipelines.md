@@ -27,4 +27,4 @@ A PR will initiate a pipeline test if it contains changes to the main workflow W
 
 ## Contact us with questions about testing
 
-If you have questions about the WARP testing process, please reach out to [Kylee Degatano](mailto:kdegatano@broadinstitute.org).
+If you have questions about the WARP testing process, please reach out to [the WARP team](mailto:warp-pipelines-help@broadinstitute.org).
