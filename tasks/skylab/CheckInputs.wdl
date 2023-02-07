@@ -125,11 +125,11 @@ task checkOptimusInput {
     if [[ ~{tenx_chemistry_version} == 2 && $COUNT != 26 && ~{ignore_r1_read_length} == "false" ]]
       then
       pass="false"
-      echo "Read1 FASTQ does not match v2 chemistry"
+      echo "Read1 FASTQ does not match v2 chemistry; to override set ignore_r1_read_length to true"
     elif [[ ~{tenx_chemistry_version} == 3 && $COUNT != 28 && ~{ignore_r1_read_length} == "false" ]]
       then
       pass="false"
-      echo "Read1 FASTQ does not match v3 chemistry"
+      echo "Read1 FASTQ does not match v3 chemistry; to override set ignore_r1_read_length to true"
     else
       pass="true"
     fi

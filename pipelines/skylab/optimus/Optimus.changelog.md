@@ -1,3 +1,11 @@
+# 5.7.0
+2023-02-07 (Date of Last Commit)
+
+* Changed the chemistry input to an int tenx_chemistry_version that accepts either 2 or 3.
+* Added new whitelist_v2 and whitelist_v3 inputs that are set to a public references and selected based on chemistry.
+* Added new checks to the checkOptimusInput task to verify that the chemistry is either v2 or v3.
+* Added new checks to the checkOptimusInput that verify the read1 FASTQ is the correct chemistry based on read length; these checks can be ignored with new boolean input ignore_r1_read_length. 
+
 # 5.6.1
 2023-01-23 (Date of Last Commit)
 

@@ -34,6 +34,7 @@ workflow Optimus {
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
+    # Whitelist is selected based on the input tenx_chemistry_version
     File whitelist = checkOptimusInput.whitelist_out
 
     # Emptydrops lower cutoff
@@ -41,7 +42,9 @@ workflow Optimus {
 
     # Set to true to override input checks and allow pipeline to proceed with invalid input
     Boolean force_no_check = false
-    # Set to true if you expect that r1_read_length does not match length of UMIs/barcodes for 10x chemistry v2 (26) or v3 (28).
+    
+    # Check that tenx_chemistry_version matches the length of the read 1 fastq;
+    # Set to true if you expect that r1_read_length does not match length of UMIs/barcodes for 10x chemistry v2 (26 bp) or v3 (28 bp).
     Boolean ignore_r1_read_length = false
 
     # Set to true to count reads in stranded mode
@@ -65,6 +68,7 @@ workflow Optimus {
   # 10x parameters
   File whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
   File whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
+  # Takes the first read1 FASTQ from the inputs to check for chemistry match
   File r1_single_fastq = r1_fastq[0]
 
   parameter_meta {

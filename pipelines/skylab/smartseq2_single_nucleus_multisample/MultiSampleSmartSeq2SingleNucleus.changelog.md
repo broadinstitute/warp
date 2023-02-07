@@ -1,3 +1,8 @@
+# 1.2.16
+2024-02-07 (Date of Last Commit)
+
+* Updated the input checks for the Optimus pipeline task; this has no effect on this pipeline.
+
 # 1.2.15
 2023-01-23 (Date of Last Commit)
 
