@@ -5,6 +5,7 @@ task CalculateCellMetrics {
     File bam_input
     File original_gtf
     File? mt_genes
+    String input_id
 
     # runtime values
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1670337956"
@@ -68,7 +69,7 @@ task CalculateCellMetrics {
   }
   
   output {
-    File cell_metrics = "cell-metrics.csv.gz"
+    File cell_metrics = "~{input_id}.cell-metrics.csv.gz"
   }
 }
 
@@ -76,6 +77,7 @@ task CalculateGeneMetrics {
   input {
     File bam_input
     File? mt_genes
+    String input_id
     # runtime values
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1670337956"
     Int machine_mem_mb = 8000
@@ -128,6 +130,6 @@ task CalculateGeneMetrics {
   }
 
   output {
-    File gene_metrics = "gene-metrics.csv.gz"
+    File gene_metrics = "~{input_id}.gene-metrics.csv.gz"
   }
 }
