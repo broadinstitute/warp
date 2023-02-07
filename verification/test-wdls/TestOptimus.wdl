@@ -30,7 +30,6 @@ workflow TestOptimus {
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version = 2
     # Whitelist is selected based on the input tenx_chemistry_version
-    File whitelist = checkOptimusInput.whitelist_out
 
     # Emptydrops lower cutoff
     Int emptydrops_lower = 100
@@ -80,12 +79,12 @@ workflow TestOptimus {
       tar_star_reference         = tar_star_reference,
       annotations_gtf            = annotations_gtf,
       ref_genome_fasta           = ref_genome_fasta,
-      whitelist                  = whitelist,
-      chemistry                  = chemistry,
+      tenx_chemistry_version     = tenx_chemistry_version,
       emptydrops_lower           = emptydrops_lower,
       force_no_check             = force_no_check,
       use_strand_info            = use_strand_info,
       count_exons                = count_exons,
+      ignore_r1_read_length      = ignore_r1_read_length,
   }
 
   # Collect all of the pipeling output into single Array
