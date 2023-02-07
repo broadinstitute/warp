@@ -205,7 +205,7 @@ task FastqToUbam {
     String read_group_name
     String sequencing_center
 
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
+    String docker = "us.gcr.io/broad-dsde-methods/ckachulis/picard-fastqtosam-empty-fastq"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2) + 50
@@ -227,7 +227,8 @@ task FastqToUbam {
       PU="~{platform_unit}" \
       RG="~{read_group_name}" \
       CN="~{sequencing_center}" \
-      O="~{unmapped_bam_output_name}"
+      O="~{unmapped_bam_output_name}" \
+      ALLOW_EMPTY_FASTQ=True
   >>>
 
   runtime {
