@@ -454,13 +454,18 @@ task CollectWgsMetrics {
     File ref_fasta_index
     Int read_length = 250
     Int preemptible_tries
+    Int memory_multiplier = 2
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")
-  Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 20
+  Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 50
+
+  Int memory_size = ceil(8 * memory_multiplier)
+  String java_memory_size = (memory_size - 1) * 1000
+  String java_xmx_size = java_memory_size + 500
 
   command {
-    java -Xms7000m -Xmx7500m -jar /usr/picard/picard.jar \
+    java -Xms~{java_memory_size}m -Xmx~{java_xmx_size}m -jar /usr/picard/picard.jar \
       CollectWgsMetrics \
       INPUT=~{input_bam} \
       VALIDATION_STRINGENCY=SILENT \
@@ -474,7 +479,7 @@ task CollectWgsMetrics {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: 1
-    memory: "8000 MiB"
+    memory: "~{memory_size} GiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
@@ -493,7 +498,7 @@ task CollectRawWgsMetrics {
     File ref_fasta_index
     Int read_length = 250
     Int preemptible_tries
-    Int memory_multiplier = 1
+    Int memory_multiplier = 2
     Int additional_disk = 20
   }
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")
