@@ -56,7 +56,7 @@ task SplitCram {
     String base_file_name
     Int reads_per_file
 
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v4"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int disk_size_gb = ceil(3 * size(input_cram_bam, "GiB") + 20)
     Int cpu = 1
     Int memory_gb = 10
@@ -270,7 +270,7 @@ task MarkDuplicatesSpark {
     Array[File] input_bams
     String output_bam_basename
     Boolean save_bam_file
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v4"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int disk_size_gb
     Int cpu = 32
     Int memory_mb = if 4 * ceil(size(input_bams, "MB")) / 4000 > 600000 then 300000 else 208000
@@ -320,7 +320,7 @@ task ExtractSampleNameFlowOrder{
     File input_bam
     References references
     
-    String docker = "broadinstitute/gatk:4.1.4.1"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int disk_size_gb = ceil(size(input_bam, "GB") + size(references.ref_fasta, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 2000
@@ -480,7 +480,7 @@ task HaplotypeCaller {
     Boolean native_sw = false
     String? contamination_extra_args 
     
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v4"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int disk_size_gb = ceil((size(input_bam_list, "GB")) + size(references.ref_fasta, "GB") + size(references.ref_fasta_index, "GB") + size(references.ref_dict, "GB") + 60)
     Int cpu = 2
     Int memory_mb = 12000
@@ -591,7 +591,7 @@ task ConvertGVCFtoVCF {
     String output_vcf_name
     References references
 
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v4"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int disk_size_gb = ceil(2 * size(input_gvcf, "GB") + size(references.ref_fasta, "GB") + size(input_gvcf_index, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 12000
@@ -606,7 +606,7 @@ task ConvertGVCFtoVCF {
     -V ~{input_gvcf} \
     -O ~{output_vcf_name} \
     -A  StrandBiasBySample \
-    -stand-call-conf 0 
+    -stand-call-conf 30 
   }
 
   runtime {
@@ -947,7 +947,7 @@ task AnnotateVCF {
     String flow_order
     String final_vcf_base_name
 
-    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v4"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + size(references.ref_fasta, "GB") + size(reference_dbsnp, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 15000

@@ -24,7 +24,8 @@
             "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/LCR-hs38.bed",
             "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/exome.twist.bed",
             "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/mappability.0.bed",
-            "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/hmers_7_and_higher.bed"
+            "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/hmers_7_and_higher.bed",
+            "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/ug_hcr.bed"
         ],
         "runs_file":"gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/runs.conservative.bed",
         "af_only_gnomad": "gs://gatk-best-practices/somatic-hg38/af-only-gnomad.hg38.vcf.gz",

@@ -50,6 +50,7 @@ task GroupQCOutputs {
     docker: docker
     memory: "${mem} GiB"
     disks: "local-disk ${disk_space} HDD"
+    disk: disk_space + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }

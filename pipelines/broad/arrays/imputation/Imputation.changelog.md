@@ -1,3 +1,18 @@
+# 1.1.9
+2023-01-13 (Date of Last Commit)
+
+* Updated remaining GATK uses to version 4.3.0.0
+
+# 1.1.8
+2022-12-16 (Date of Last Commit)
+
+* Updated to GATK version 4.3.0.0
+
+# 1.1.7
+2022-12-01 (Date of Last Commit)
+
+* Updated BCFTools/VCFTools Docker image
+
 # 1.1.6
 2022-11-10 (Date of Last Commit)
 
