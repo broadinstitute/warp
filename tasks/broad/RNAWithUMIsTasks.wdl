@@ -951,7 +951,7 @@ task FastQC {
   output {
     File fastqc_data = "~{bam_basename}_fastqc_data.txt"
     File fastqc_html = "~{bam_basename}_fastqc.html"
-    Float fastqc_percent_reads_with_adapter = read_float("~{bam_basename}_adapter_content.txt")
+    Float fastqc_percent_reads_with_adapter = if read_string("~{bam_basename}_adapter_content.txt") == "warn" then -1 else read_float("~{bam_basename}_adapter_content.txt")
   }
 }
 
