@@ -14,7 +14,7 @@ sidebar_position: 1
 
 The [SlideSeq workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/slide_seq/SlideSeq.wdl) is an open-source, cloud-optimized pipeline developed by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). It supports the processing of spatial transcriptomic data generated with the [Slide-seq assay](https://www.science.org/doi/10.1126/science.aaw1219).
 
-Overall, the workflow corrects bead barcodes, aligns reads to the genome, generates a count matrix, calculates summary metrics for genes and barcodes, and returns read outputs in BAM format.
+Overall, the workflow corrects bead barcodes, aligns reads to the genome, generates a count matrix, calculates summary metrics for genes, barcodes, and UMIs, and returns read outputs in BAM format.
 
 SlideSeq has been validated for analyzing mouse datasets generated with the Slide-seq assay. Learn more in the [validation section](#validation-against-on-prem-pipeline).
 
@@ -64,7 +64,7 @@ The SlideSeq workflow inputs are specified in JSON configuration files. Example 
 | tar_star_reference | TAR file containing a species-specific reference genome and GTF; generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl). | File | 
 | annotations_gtf | GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | File | 
 | whitelist | TSV file containing bead barcodes and XY coordinates on a single line for each bead; determined by sequencing prior to mRNA transfer and library preparation. | File |
-| output_bam_basename | Optional string used for the output BAM file basename. | String | 
+| output_bam_basename | Optional string used for the output BAM file basename. | String |
 | count_exons | Optional boolean indicating if the workflow should calculate exon counts; default is set to “false” and produces a Loom file with whole-gene counts; when set to “true” an additional layer of the Loom file is produced with exon counts. | Boolean |
 
 #### Pseudogene handling
@@ -91,12 +91,13 @@ To see specific tool parameters, select the task WDL link in the table; then fin
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | --- | 
-| [Metrics.FastqMetricsSlidSeq (alias = FastqMetrics)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/Metrics.wdl) | fastq_metrics | [sctools](https://github.com/HumanCellAtlas/sctools) | Calculates prealignment metrics from the input FASTQ files. Outputs metrics files including the bead barcode distribution, UMI distribution, number of reads per cell and number of UMIs per cell. |
-| [FastqProcessing.FastqProcessingSlidSeq (alias = SplitFastq)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/FastqProcessing.wdl) | fastq_slideseq | [sctools](https://github.com/HumanCellAtlas/sctools) | Filters reads, trims bead barcodes in read 1 to remove spacer sequences, and partitions the input FASTQ files by bead barcode to create an array of FASTQ files that are each ~ 30 GB. The function keeps all reads belonging to the same bead barcode in the same partitioned FASTQ file.| 
+| [Metrics.FastqMetricsSlidSeq (alias = FastqMetrics)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/Metrics.wdl) | fastq_metrics | [warp-tools](https://github.com/broadinstitute/warp-tools) | Calculates prealignment metrics from the input FASTQ files. Outputs metrics files including the bead barcode distribution, UMI distribution, number of reads per cell and number of UMIs per cell. |
+| [FastqProcessing.FastqProcessingSlidSeq (alias = SplitFastq)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/FastqProcessing.wdl) | fastq_slideseq | [warp-tools](https://github.com/broadinstitute/warp-tools) | Filters reads, trims bead barcodes in read 1 to remove spacer sequences, and partitions the input FASTQ files by bead barcode to create an array of FASTQ files that are each ~ 30 GB. The function keeps all reads belonging to the same bead barcode in the same partitioned FASTQ file.| 
 | [StarAlign.STARsoloFastqSlideSeq (alias = STARsoloFastqSlideSeq)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/StarAlign.wdl) | STAR | [Star](https://github.com/alexdobin/STAR) | For each of the partitioned FASTQ files, performs bead barcode correction, poly(A) tail trimming from adapters, alignment, gene annotation, and gene counting. Produces a count matrix and BAM file for each partition.|
 | [Merge.MergeSortBamFiles (alias= MergeBam)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/MergeSortBam.wdl) | MergeSamFiles | [Picard](https://broadinstitute.github.io/picard/) | Merges the array of BAM files into a single BAM and sorts in coordinate order. |
-| [Metrics.CalculateGeneMetrics (alias = GeneMetrics)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/Metrics.wdl) | TagSort | [sctools](https://github.com/HumanCellAtlas/sctools) | Sorts the BAM file by gene using the bead barcode (CB), molecule barcode (UB), and gene ID (GX) tags and computes gene metrics. | 
-| [Metrics.CalculateCellMetrics (alias = CellMetrics)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/Metrics.wdl) | TagSort | [sctools](https://github.com/HumanCellAtlas/sctools) | Sorts the BAM file by bead barcode (CB), molecule barcode (UB), and gene ID (GX) tags and computes bead barcode metrics. |
+| [Metrics.CalculateGeneMetrics (alias = GeneMetrics)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/Metrics.wdl) | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by gene using the bead barcode (CB), molecule barcode (UB), and gene ID (GX) tags and computes gene metrics. | 
+| [Metrics.CalculateUMIsMetrics (alias = UMIsMetrics)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/Metrics.wdl) | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by gene using the bead barcode (CB), molecule barcode (UB), and gene ID (GX) tags and computes gene metrics. | 
+| [Metrics.CalculateCellMetrics (alias = CellMetrics)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/Metrics.wdl) | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by bead barcode (CB), molecule barcode (UB), and gene ID (GX) tags and computes bead barcode metrics. |
 | [StarAlign.MergeStarOutput (alias = MergeStarOutputs)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/StarAlign.wdl) | create-npz-output.py | [Python 3](https://www.python.org/) | Creates a compressed raw NPY or NPZ file containing the STARsolo output features (NPY), barcodes (NPZ) and counts (NPZ). When `count_exons` is true, the task is run as `MergeStarOutputsExons` and additional NPY and NPZ files are output containing exon counts. | 
 | [LoomUtils.SlideSeqLoomOutput (alias = SlideseqLoomGeneration)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/LoomUtils.wdl) | create_loom_slide_seq.py | [Python 3](https://www.python.org/) | Merges the gene counts, bead barcode metrics, and gene metrics data into a Loom formatted bead-by-gene matrix. By default, the Loom contains whole-gene counts. When `count_exons` is true, the task is run as `SlideseqLoomGenerationWithExons` and an additional layer is added to the Loom file containing exon counts. |
 
@@ -149,9 +150,7 @@ The task’s output includes a coordinate-sorted BAM file containing the bead ba
 
 #### 4. Calculating metrics
 
-The [CalculateGeneMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/Metrics.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to calculate summary metrics that help assess the quality of the data output each time this pipeline is run. 
-
-The [CalculateCellMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/Metrics.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to calculate summary metrics that help assess the per-bead quality of the data output each time this pipeline is run. 
+The [CalculateGeneMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/Metrics.wdl), [CalculateUMIsMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/Metrics.wdl), and [CalculateCellMetrics](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/Metrics.wdl) tasks use [warp-tools](https://github.com/broadinstitute/warp-tools) to calculate summary metrics that help assess the per-bead and per-UMI quality of the data output each time this pipeline is run. 
 
 These metrics output from both tasks are included in the output Loom matrix.
 <!--- comment about count matrix overview? --->
@@ -201,11 +200,12 @@ The following table lists the output files produced from the pipeline. For sampl
 | matrix_col_index | `<input_id>_sparse_counts_col_index.npy` | Index of genes in count matrix. | NPY |
 | cell_metrics | `cell-metrics.csv.gz` | Cell metrics based on bead barcodes | Compressed CSV |
 | gene_metrics | `gene-metrics.csv.gz` | Gene metrics | Compressed CSV |
-| loom_output_file | `<input_id>.loom` | Loom file containing count data and metadata. | Loom |
-| barcode_distribution | `<input_id>.barcode_distribution_XC.txt` | Metric file containing the distribution of reads per bead barcode that were calculated prior to alignment. | TXT |
-| umi_distribution | `<input_id>.barcode_distribution_XM.txt` | Metric file containing the distribution of reads per UMI that were calculated prior to alignment. | TXT |
-| numReads_perCell | `<input_id>.numReads_perCell_XC.txt` | Metric file containing the number of reads per barcode that were calculated prior to alignment. | TXT |
-| numReads_perUMI | `<input_id>.numReads_perCell_XM.txt` | Metric file containing the number of reads per UMI that were calculated prior to alignment. | TXT | 
+| umi_metrics | `umi-metrics.csv.gz` | UMI metrics | Compressed CSV |
+| fastq_barcode_distribution | `<input_id>.barcode_distribution_XC.txt` | Metric file containing the distribution of reads per bead barcode that were calculated prior to alignment. | TXT |
+| fastq_umi_distribution | `<input_id>.barcode_distribution_XM.txt` | Metric file containing the distribution of reads per UMI that were calculated prior to alignment. | TXT |
+| fastq_reads_per_cell | `<input_id>.numReads_perCell_XC.txt` | Metric file containing the number of reads per barcode that were calculated prior to alignment. | TXT |
+| fastq_reads_per_umi | `<input_id>.numReads_perCell_XM.txt` | Metric file containing the number of reads per UMI that were calculated prior to alignment. | TXT |
+| loom_output_file | `<input_id>.loom` | Loom file containing count data and metadata. | Loom | 
 
 The Loom matrix is the default output. See the [create_loom_slide_seq.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/create_loom_optimus.py) script for the detailed code. This matrix contains the unnormalized (unfiltered) count matrices. 
 
