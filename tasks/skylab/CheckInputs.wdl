@@ -81,11 +81,11 @@ task checkOptimusInput {
     ## Need to gunzip the r1_fastq
     gunzip -c ~{r1_fastq} > r1.fastq
     FASTQ=r1.fastq
-    echo $FASTQ
+    echo 'this is the fastq:' $FASTQ
     R1=$(awk 'NR==2' $FASTQ)
     COUNT=$(echo ${#R1})
-    echo $R1
-    echo $COUNT
+    echo 'this is the read:' $R1
+    echo 'this is the UMI/barcode count:' $COUNT
 
     ## Perform checks
     if [[ ! ("~{counting_mode}" == "sc_rna" || "~{counting_mode}" == "sn_rna") ]]
