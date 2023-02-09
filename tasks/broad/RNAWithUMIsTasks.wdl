@@ -414,6 +414,7 @@ task CollectMultipleMetrics {
     touch ~{output_bam_prefix}.insert_size_metrics
     touch ~{output_bam_prefix}.base_distribution_by_cycle.pdf
     touch ~{output_bam_prefix}.quality_by_cycle.pdf
+    touch ~{output_bam_prefix}.quality_distribution.pdf
 
     java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar CollectMultipleMetrics \
       INPUT=~{input_bam} \
