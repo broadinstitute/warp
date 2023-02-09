@@ -409,11 +409,14 @@ task CollectMultipleMetrics {
   Int max_heap = memory_mb - 500
 
   command <<<
+    #plots will not be produced if there are no reads
+    touch ~{output_bam_prefix}.insert_size_histogram.pdf
+    touch ~{output_bam_prefix}.base_distribution_by_cycle.pdf
+    touch ~{output_bam_prefix}.quality_by_cycle.pdf
+
     java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar CollectMultipleMetrics \
       INPUT=~{input_bam} \
       OUTPUT=~{output_bam_prefix} \
-      PROGRAM=CollectInsertSizeMetrics \
-      PROGRAM=CollectAlignmentSummaryMetrics \
       REFERENCE_SEQUENCE=~{ref_fasta}
   >>>
 
