@@ -411,6 +411,7 @@ task CollectMultipleMetrics {
   command <<<
     #plots will not be produced if there are no reads
     touch ~{output_bam_prefix}.insert_size_histogram.pdf
+    touch ~{output_bam_prefix}.insert_size_metrics
     touch ~{output_bam_prefix}.base_distribution_by_cycle.pdf
     touch ~{output_bam_prefix}.quality_by_cycle.pdf
 
