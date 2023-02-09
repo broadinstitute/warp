@@ -960,7 +960,7 @@ task TransferReadTags {
     File aligned_bam
     File ubam
     String output_basename
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
+    String docker = "us.gcr.io/broad-dsde-methods/ckachulis/gatk-transferreadtags-empty-input"
     Int memory_mb = 16000
     Int disk_size_gb = ceil(2 * size(aligned_bam, "GiB")) + ceil(2 * size(ubam, "GiB")) + 128
   }
