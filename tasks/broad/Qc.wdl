@@ -327,7 +327,7 @@ task CheckFingerprintTask {
       --SUMMARY_OUTPUT ~{summary_metrics_location} \
       --DETAIL_OUTPUT ~{detail_metrics_location} \
       ~{"--REFERENCE_SEQUENCE " + ref_fasta} \
-      ~{true='EXIT_CODE_WHEN_NO_VALID_CHECKS=0' false='' allow_lod_zero}
+      ~{true='--EXIT_CODE_WHEN_NO_VALID_CHECKS 0' false='' allow_lod_zero}
 
     CONTENT_LINE=$(cat ~{summary_metrics_location} |
     grep -n "## METRICS CLASS\tpicard.analysis.FingerprintingSummaryMetrics" |
