@@ -167,28 +167,28 @@ workflow WholeGenomeGermlineSingleSample {
 #  }
 
   # QC the sample WGS metrics (stringent thresholds)
-  call QC.CollectWgsMetrics as CollectWgsMetrics {
-    input:
-      input_bam = UnmappedBamToAlignedBam.output_bam,
-      input_bam_index = UnmappedBamToAlignedBam.output_bam_index,
-      metrics_filename = aligned_bam_basename + ".wgs_metrics",
-      ref_fasta = references.reference_fasta.ref_fasta,
-      ref_fasta_index = references.reference_fasta.ref_fasta_index,
-      wgs_coverage_interval_list = wgs_coverage_interval_list,
-      preemptible_tries = papi_settings.agg_preemptible_tries
-  }
-
-  # QC the sample raw WGS metrics (common thresholds)
-  call QC.CollectRawWgsMetrics as CollectRawWgsMetrics {
-    input:
-      input_bam = UnmappedBamToAlignedBam.output_bam,
-      input_bam_index = UnmappedBamToAlignedBam.output_bam_index,
-      metrics_filename = aligned_bam_basename + ".raw_wgs_metrics",
-      ref_fasta = references.reference_fasta.ref_fasta,
-      ref_fasta_index = references.reference_fasta.ref_fasta_index,
-      wgs_coverage_interval_list = wgs_coverage_interval_list,
-      preemptible_tries = papi_settings.agg_preemptible_tries
-  }
+#  call QC.CollectWgsMetrics as CollectWgsMetrics {
+#    input:
+#      input_bam = UnmappedBamToAlignedBam.output_bam,
+#      input_bam_index = UnmappedBamToAlignedBam.output_bam_index,
+#      metrics_filename = aligned_bam_basename + ".wgs_metrics",
+#      ref_fasta = references.reference_fasta.ref_fasta,
+#      ref_fasta_index = references.reference_fasta.ref_fasta_index,
+#      wgs_coverage_interval_list = wgs_coverage_interval_list,
+#      preemptible_tries = papi_settings.agg_preemptible_tries
+#  }
+#
+#  # QC the sample raw WGS metrics (common thresholds)
+#  call QC.CollectRawWgsMetrics as CollectRawWgsMetrics {
+#    input:
+#      input_bam = UnmappedBamToAlignedBam.output_bam,
+#      input_bam_index = UnmappedBamToAlignedBam.output_bam_index,
+#      metrics_filename = aligned_bam_basename + ".raw_wgs_metrics",
+#      ref_fasta = references.reference_fasta.ref_fasta,
+#      ref_fasta_index = references.reference_fasta.ref_fasta_index,
+#      wgs_coverage_interval_list = wgs_coverage_interval_list,
+#      preemptible_tries = papi_settings.agg_preemptible_tries
+#  }
 
   call ToGvcf.VariantCalling as BamToGvcf {
     input:
@@ -261,8 +261,8 @@ workflow WholeGenomeGermlineSingleSample {
 #    File? fingerprint_summary_metrics = AggregatedBamQC.fingerprint_summary_metrics
 #    File? fingerprint_detail_metrics = AggregatedBamQC.fingerprint_detail_metrics
 
-    File wgs_metrics = CollectWgsMetrics.metrics
-    File raw_wgs_metrics = CollectRawWgsMetrics.metrics
+#    File wgs_metrics = CollectWgsMetrics.metrics
+#    File raw_wgs_metrics = CollectRawWgsMetrics.metrics
 
     File duplicate_metrics = UnmappedBamToAlignedBam.duplicate_metrics
     File? output_bqsr_reports = UnmappedBamToAlignedBam.output_bqsr_reports
