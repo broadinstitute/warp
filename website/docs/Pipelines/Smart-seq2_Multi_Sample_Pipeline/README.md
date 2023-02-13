@@ -59,11 +59,10 @@ The reference inputs are identical to those specified in the "Additional Referen
 
 ### Smart-seq2 Multi-Sample Task Summary
 
-The Multi-SS2 Pipeline calls three tasks:
+The Multi-SS2 Pipeline calls two tasks:
 
-1) [SmartSeq2SingleSample.wdl](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl): a task that runs the Smart-seq2 Single Sample workflow
-2) [SmartSeq2PlateAggregation.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/SmartSeq2PlateAggregation.wdl): the wrapper pipeline that checks the inputs, initiates per cell processing and aggregates the results
-3) [LoomUtils.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/LoomUtils.wdl): a task that produces the Loom matrix output containing raw counts and TPMs
+1) [SmartSeq2SingleSample](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl): a task that runs the Smart-seq2 Single Sample workflow
+2) [SmartSeq2PlateAggregation](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl): the wrapper pipeline that aggregates the results
 
 
 ### Outputs
