@@ -1,3 +1,8 @@
+# 3.1.12
+2023-01-18 (Date of Last Commit)
+
+* Updated task SamToFastqAndDragmapAndMba in DragmapAlignment.wdl, this update has no effect on this pipeline
+
 # 3.1.11
 2022-11-04 (Date of Last Commit)
 

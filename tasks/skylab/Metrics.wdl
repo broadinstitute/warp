@@ -5,6 +5,7 @@ task CalculateCellMetrics {
     File bam_input
     File original_gtf
     File? mt_genes
+    String input_id
 
     # runtime values
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1674487316"
@@ -43,7 +44,7 @@ task CalculateCellMetrics {
 
     TagSort --bam-input ~{bam_input} \
     --gtf-file annotation.gtf \
-    --metric-output cell-metrics.csv \
+    --metric-output "~{input_id}.cell-metrics.csv" \
     --compute-metric \
     --metric-type cell \
     --barcode-tag CB \
@@ -54,7 +55,7 @@ task CalculateCellMetrics {
     --nthreads ${cpu} \
     ~{"--mitochondrial-gene-names-filename " + mt_genes}
 
-    gzip cell-metrics.csv
+    gzip ~{input_id}.cell-metrics.csv
   }
 
 
@@ -68,7 +69,7 @@ task CalculateCellMetrics {
   }
   
   output {
-    File cell_metrics = "cell-metrics.csv.gz"
+    File cell_metrics = "~{input_id}.cell-metrics.csv.gz"
   }
 }
 
@@ -76,6 +77,7 @@ task CalculateGeneMetrics {
   input {
     File bam_input
     File? mt_genes
+    String input_id
     # runtime values
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1674487316"
     Int machine_mem_mb = 8000
@@ -103,7 +105,7 @@ task CalculateGeneMetrics {
     mkdir temp
 
     TagSort --bam-input ~{bam_input} \
-    --metric-output gene-metrics.csv \
+    --metric-output "~{input_id}.gene-metrics.csv" \
     --compute-metric \
     --metric-type gene \
     --gene-tag GX \
@@ -114,7 +116,7 @@ task CalculateGeneMetrics {
     --nthreads ${cpu} \
     ~{"--mitochondrial-gene-names-filename " + mt_genes}
 
-    gzip gene-metrics.csv
+    gzip ~{input_id}.gene-metrics.csv
 
   }
 
@@ -128,7 +130,7 @@ task CalculateGeneMetrics {
   }
 
   output {
-    File gene_metrics = "gene-metrics.csv.gz"
+    File gene_metrics = "~{input_id}.gene-metrics.csv.gz"
   }
 }
 
