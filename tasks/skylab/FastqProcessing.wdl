@@ -6,7 +6,7 @@ task FastqProcessing {
     Array[File] r2_fastq
     Array[File]? i1_fastq
     File whitelist
-    String chemistry
+    Int chemistry
     String sample_id
 
     #using the latest build of warp-tools in GCR
@@ -88,10 +88,10 @@ task FastqProcessing {
     CODE)
 
     # use the right UMI length depending on the chemistry
-    if [ "~{chemistry}" == "tenX_v2" ]; then
+    if [ "~{chemistry}" == "2" ]; then
         ## V2
         UMILENGTH=10
-    elif [ "~{chemistry}" == "tenX_v3" ]; then
+    elif [ "~{chemistry}" == "3" ]; then
         ## V3
         UMILENGTH=12
     else
