@@ -136,6 +136,7 @@ task CalculateUMIsMetrics {
   input {
     File bam_input
     File? mt_genes
+    String input_id
     # runtime values
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1674487316"
     Int machine_mem_mb = 16000
@@ -151,6 +152,7 @@ task CalculateUMIsMetrics {
 
   parameter_meta {
     bam_input: "Input bam file containing reads marked with tags for cell barcodes (CB), molecule barcodes (UB) and gene ids (GE)"
+    input_id: "Name of sample matching this file; inserted into read group header"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
@@ -163,7 +165,7 @@ task CalculateUMIsMetrics {
     mkdir temp
 
     TagSort --bam-input ~{bam_input} \
-    --metric-output umi-metrics.csv \
+    --metric-output "~{input_id}.umi-metrics.csv" \
     --compute-metric \
     --metric-type umi \
     --gene-tag GX \
@@ -174,7 +176,7 @@ task CalculateUMIsMetrics {
     --nthreads ${cpu} \
     ~{"--mitochondrial-gene-names-filename " + mt_genes}
 
-    gzip umi-metrics.csv
+    gzip ~{input_id}.umi-metrics.csv
 
   }
 
@@ -188,7 +190,7 @@ task CalculateUMIsMetrics {
   }
 
   output {
-    File umi_metrics = "umi-metrics.csv.gz"
+    File umi_metrics = "~{input_id}.umi-metrics.csv.gz"
   }
 }
 

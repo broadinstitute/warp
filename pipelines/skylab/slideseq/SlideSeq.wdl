@@ -91,7 +91,8 @@ workflow SlideSeq {
     }
     call Metrics.CalculateUMIsMetrics as UMIsMetrics {
         input:
-            bam_input = MergeBam.output_bam
+            bam_input = MergeBam.output_bam,
+            input_id = input_id
     }
 
     call Metrics.CalculateCellMetrics as CellMetrics {
