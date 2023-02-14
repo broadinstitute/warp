@@ -135,7 +135,7 @@ workflow TestSlideSeq {
           truth_cell_metrics = GetCellMetrics.truth_file, 
           test_cell_metrics = GetCellMetrics.results_file,
           truth_umi_metrics = GetUmiMetrics.truth_file,
-          truth_umi_metrics = GetUmiMetrics.results_file,
+          test_umi_metrics = GetUmiMetrics.results_file,
           done = CopyToTestResults.done
       }
     }
