@@ -17,6 +17,9 @@ workflow VerifySlideSeq {
     File test_cell_metrics
     File truth_cell_metrics
 
+    File test_umi_metrics
+    File truth_umi_metrics
+
     Boolean? done
   }
 
@@ -37,6 +40,12 @@ workflow VerifySlideSeq {
     input:
       test_zip  = test_cell_metrics,
       truth_zip = truth_cell_metrics
+  }
+
+  call VerifyTasks.CompareCompressedTextFiles as CompareUMIMetrics {
+    input:
+      test_zip  = test_umi_metrics,
+      truth_zip = truth_umi_metrics
   }
 
   call VerifyTasks.CompareLooms as CompareLooms{

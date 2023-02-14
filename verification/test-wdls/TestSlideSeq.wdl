@@ -117,6 +117,12 @@ workflow TestSlideSeq {
             results_path = results_path,
             truth_path = truth_path
         }
+        call Utilities.GetValidationInputs as GetUmiMetrics {
+            input:
+                input_file = SlideSeq.umi_metrics,
+                results_path = results_path,
+                truth_path = truth_path
+        }
 
       call VerifySlideSeq.VerifySlideSeq as Verify {
         input:
@@ -128,6 +134,8 @@ workflow TestSlideSeq {
           test_gene_metrics = GetGeneMetrics.results_file,
           truth_cell_metrics = GetCellMetrics.truth_file, 
           test_cell_metrics = GetCellMetrics.results_file,
+          truth_umi_metrics = GetUmiMetrics.truth_file,
+          truth_umi_metrics = GetUmiMetrics.results_file,
           done = CopyToTestResults.done
       }
     }
