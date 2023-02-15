@@ -23,10 +23,9 @@
       "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L005_I1_001.filtered.fastq.gz",
       "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L006_I1_001.filtered.fastq.gz"
   ],
-  "Optimus.whitelist": "gs://broad-gotc-test-storage/Optimus/truth/plumbing/master/inputs/737K-august-2016.txt",
   "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/mm10/v0/star/star_2.7.9a_primary_gencode_mouse_vM21.tar",
   "Optimus.input_id": "neurons2k_mouse",
-  "Optimus.chemistry": "tenX_v2",
+  "Optimus.tenx_chemistry_version": "2",
   "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.gtf",
   "Optimus.ref_genome_fasta": "gs://gcp-public-data--broad-references/mm10/v0/GRCm38.primary_assembly.genome.fa"
 }
