@@ -248,7 +248,7 @@ task STARsoloFastq {
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
-  command {
+  command <<<
     set -e
 
     UMILen=10
@@ -294,7 +294,7 @@ task STARsoloFastq {
     elif [[ $STRING == *"refseq"* ]]
     then  
       REFERENCE="Refseq"
-      VERSION=${STRING#*star_2.7.9a}
+      VERSION=${STRING('#*star_2.7.9a'}
       echo -e "$REFERENCE\n$VERSION" > reference_version.txt
     else
       REFERENCE="Unidentified reference type"
@@ -317,9 +317,9 @@ task STARsoloFastq {
       STAR \
       --soloType Droplet \
       --soloStrand Unstranded \
-      --runThreadN ${cpu} \
+      --runThreadN ~{cpu} \
       --genomeDir genome_reference \
-      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
+      --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
       --readFilesCommand "gunzip -c" \
       --soloCBwhitelist ~{white_list} \
       --soloUMIlen $UMILen --soloCBlen $CBLen \
@@ -336,9 +336,9 @@ task STARsoloFastq {
     STAR \
       --soloType Droplet \
       --soloStrand Unstranded \
-      --runThreadN ${cpu} \
+      --runThreadN ~{cpu} \
       --genomeDir genome_reference \
-      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
+      --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
       --readFilesCommand "gunzip -c" \
       --soloCBwhitelist ~{white_list} \
       --soloUMIlen $UMILen --soloCBlen $CBLen \
@@ -380,7 +380,7 @@ task STARsoloFastq {
     fi
     mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
 
-  }
+  >>>
 
   runtime {
     docker: docker
