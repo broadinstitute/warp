@@ -110,7 +110,7 @@ The [FastqMetricsSlidSeq](https://github.com/broadinstitute/warp/blob/develop/ta
 
 Although the function of the bead barcodes is to identify the spatial location of gene expression in the tissue, barcode errors can arise during sequencing that make it difficult to assign reads to the proper location. 
 
-The [FastqProcessingSlidSeq](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/FastqProcessing.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to evaluate barcode errors by comparing the Read 1 FASTQ sequences against a whitelist of barcodes created by sequencing prior to the mRNA transfer and library preparation steps of the [Slide-Seq](https://www.science.org/doi/10.1126/science.aaw1219) protocol.
+The [FastqProcessingSlidSeq](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/FastqProcessing.wdl) task uses [warp-tools](https://github.com/broadinstitute/warp-tools) to evaluate barcode errors by comparing the Read 1 FASTQ sequences against a whitelist of barcodes created by sequencing prior to the mRNA transfer and library preparation steps of the [Slide-Seq](https://www.science.org/doi/10.1126/science.aaw1219) protocol.
 
 Barcodes that are more than one edit distance ([Hamming distance](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5410656/)) from any of the barcode sequences in the whitelist are filtered at this step and not included in the output. The remaining barcodes are corrected by the [STARsoloFastqSlideSeq](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/StarAlign.wdl) task.
 
@@ -171,7 +171,7 @@ The x-y coordinates of the beads are stored as a column attribute (`cell_locatio
 
 **Gene counts**
 
-The type of gene counts in the Loom will vary depending on the value of the Slide-seq workflow input, `count_exons`. By default, `count_exons` is set to false and the output Loom will contain whole-gene counts. 
+The type of gene counts in the Loom will vary depending on the value of the SlideSeq workflow input, `count_exons`. By default, `count_exons` is set to false and the output Loom will contain whole-gene counts. 
 
 If the workflow is run with `count_exons` set to true, an additional layer will be created in the output Loom file containing exon counts. Using the `count_exons` parameter will cause the Loom matrix to have additional columns (bead barcodes) due to the difference in STARsolo counting mode.
 
@@ -216,7 +216,7 @@ SlideSeq has been validated for processing mouse spatial transcriptomic data gen
 
 ## Versioning and testing
 
-All SlideSeq pipeline releases are documented in the [SlideSeq changelog](ttps://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/slide_seq/SlideSeq.changelog.md) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/blob/fk_cloud_slideseq/pipelines/skylab/slideseq/test_inputs/test_data_overview.md). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
+All SlideSeq pipeline releases are documented in the [SlideSeq changelog](ttps://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/slide_seq/SlideSeq.changelog.md) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/slideseq/test_inputs/test_data_overview.md). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
 
 
 <!--- ## Citing the SlideSeq Pipeline
