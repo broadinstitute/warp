@@ -268,7 +268,7 @@ task CompareLooms {
 
   command <<<
   set -e
-  pip3 install matplotlib<3.7 scanpy loompy numpy pandas
+  pip3 install 'matplotlib<3.7' scanpy loompy numpy pandas
 
   python3 <<CODE
   import sys
