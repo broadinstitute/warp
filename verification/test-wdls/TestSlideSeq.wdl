@@ -67,6 +67,7 @@ workflow TestSlideSeq {
                                     [ # File outputs
                                     SlideSeq.gene_metrics,
                                     SlideSeq.cell_metrics,
+                                    SlideSeq.umi_metrics,
                                     ],
                                     
     ])
