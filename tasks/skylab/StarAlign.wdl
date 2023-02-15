@@ -282,6 +282,29 @@ task STARsoloFastq {
         exit 1;
     fi
 
+    # check genomic reference version and print to output txt file
+    STRING=~{tar_star_reference}
+    REFERENCE=""
+    VERSION=""
+    if [[ $STRING == *"gencode"* ]]
+    then
+      REFERENCE="Gencode"
+      VERSION=${STRING: -7: 3}
+      echo -e "$REFERENCE\n$VERSION" > reference_version.txt
+    elif [[ $STRING == *"refseq"* ]]
+    then  
+      REFERENCE="Refseq"
+      VERSION=${STRING#*star_2.7.9a}
+      echo -e "$REFERENCE\n$VERSION" > reference_version.txt
+    else
+      REFERENCE="Unidentified reference type"
+      VERSION="Unidentified reference version"
+      echo -e "$REFERENCE\n$VERSION" > reference_version.txt
+    fi
+
+    echo Reference is $REFERENCE
+    echo Version is $VERSION
+
     # prepare reference
     mkdir genome_reference
     tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
@@ -378,6 +401,7 @@ task STARsoloFastq {
     File barcodes_sn_rna = "barcodes_sn_rna.tsv"
     File features_sn_rna = "features_sn_rna.tsv"
     File matrix_sn_rna = "matrix_sn_rna.mtx"
+    File genomic_ref_version = "refenence_version.txt"
 
   }
 }
