@@ -27,6 +27,8 @@ workflow VerifyMetrics {
 
   output {
     Array[File] metric_comparison_report_files = CompareMetricFiles.report_file
+    #Consolidate failed_metrics to just one file:
+    File failed_metrics_file = write_lines(CompareMetricFiles.failed_metrics)
   }
   meta {
     allowNestedInputs: true
@@ -74,7 +76,20 @@ task CompareMetricFiles {
       --INPUT ~{file1} \
       --INPUT ~{file2} \
       --OUTPUT ~{output_file} \
-      ~{true="--METRICS_TO_IGNORE" false="" length(metrics_to_ignore) > 0} ~{default="" sep=" --METRICS_TO_IGNORE " metrics_to_ignore}
+      ~{true="--METRICS_TO_IGNORE" false="" length(metrics_to_ignore) > 0} ~{default="" sep=" --METRICS_TO_IGNORE " metrics_to_ignore};
+
+      #TODO: Check if file has the text "Metrics are NOT equal", if it does: create a file that contains just the first 3 lines fo the output file
+      #Add it as failed_metrics_file OR preferably as STRING, ex: failed_metrics_str, to consolidate later. If the text is not found, ie. metrics are equal, do nothing.
+
+      # Check output.txt for the string "Metrics are NOT equal"
+      if grep -q "Metrics are NOT equal" ~{output_file}
+      then
+          # If string exists, copy the first 3 lines of output.txt to failed_metrics_file.txt
+          head -n 3 ~{output_file} > failed_metrics_file.txt
+      else
+          # If string does not exist, create an empty file named failed_metrics_file.txt
+          touch failed_metrics_file.txt
+      fi
   >>>
 
   runtime {
@@ -85,5 +100,6 @@ task CompareMetricFiles {
   }
   output {
     File report_file = output_file
+    Array[String] failed_metrics = read_lines("failed_metrics_file.txt")
   }
 }
