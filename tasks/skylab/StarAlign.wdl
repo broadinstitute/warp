@@ -385,9 +385,9 @@ task STARsoloFastq {
 task MergeStarOutput {
 
   input {
-    Array[File] barcodes
-    Array[File] features
-    Array[File] matrix
+    Array[File]? barcodes
+    Array[File]? features
+    Array[File]? matrix
     String input_id
 
     #runtime values

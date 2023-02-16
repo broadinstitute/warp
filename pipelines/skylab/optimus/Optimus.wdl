@@ -101,6 +101,12 @@ workflow Optimus {
       ignore_r1_read_length = ignore_r1_read_length
   }
 
+# Evaluate input to decide whether to scatter
+Int fastq_input_size = ceil(size(r1_fastq, "Gi") ) +  ceil(size(r2_fastq, "Gi"))
+Boolean split_fastqs = if ( fastq_input_size > 30 ) then true else false
+
+# Input fastqs are large enough, so split them and scatter
+if (split_fastqs) {
   call FastqProcessing.FastqProcessing as SplitFastq {
     input:
       i1_fastq = i1_fastq,
@@ -124,9 +130,26 @@ workflow Optimus {
         output_bam_basename = output_bam_basename + "_" + idx
     }
   }
+}
+
+  # Input fastqs are small enough, so no need to split and scatter
+  if ( !split_fastqs ) {
+    call StarAlign.STARsoloFastq as STARsoloFastqSingle {
+      input:
+        r1_fastq = r1_fastq,
+        r2_fastq = r2_fastq,
+        white_list = whitelist,
+        tar_star_reference = tar_star_reference,
+        chemistry = tenx_chemistry_version,
+        counting_mode = counting_mode,
+        count_exons = count_exons,
+        output_bam_basename = output_bam_basename
+    }
+  }
+
   call Merge.MergeSortBamFiles as MergeBam {
     input:
-      bam_inputs = STARsoloFastq.bam_output,
+      bam_inputs = select_first([STARsoloFastq.bam_output, STARsoloFastqSingle.bam_output]),
       output_bam_filename = output_bam_basename + ".bam",
       sort_order = "coordinate"
   }
@@ -183,9 +206,9 @@ workflow Optimus {
   if (count_exons  && counting_mode=="sn_rna") {
     call StarAlign.MergeStarOutput as MergeStarOutputsExons {
       input:
-        barcodes = STARsoloFastq.barcodes_sn_rna,
-        features = STARsoloFastq.features_sn_rna,
-        matrix = STARsoloFastq.matrix_sn_rna,
+        barcodes = [select_all([STARsoloFastqSingle.barcodes, STARsoloFastq.barcodes])[0]],
+        features = [select_all([STARsoloFastqSingle.features, STARsoloFastq.features])[0]],
+        matrix = [select_all([STARsoloFastqSingle.matrix, STARsoloFastq.matrix])[0]],
         input_id = input_id
     }
     call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
