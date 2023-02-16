@@ -170,9 +170,9 @@ if (split_fastqs) {
 
   call StarAlign.MergeStarOutput as MergeStarOutputs {
     input:
-      barcodes = STARsoloFastq.barcodes,
-      features = STARsoloFastq.features,
-      matrix = STARsoloFastq.matrix,
+      barcodes = [select_all([STARsoloFastqSingle.barcodes, STARsoloFastq.barcodes])[0]],
+      features = [select_all([STARsoloFastqSingle.features, STARsoloFastq.features])[0]],
+      matrix = [select_all([STARsoloFastqSingle.matrix, STARsoloFastq.matrix])[0]],
       input_id = input_id
   }
   if (counting_mode == "sc_rna"){
