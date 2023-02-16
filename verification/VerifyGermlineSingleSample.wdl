@@ -59,6 +59,7 @@ workflow VerifyGermlineSingleSample {
 
   output {
     Array[File] metric_comparison_report_files = CompareMetrics.metric_comparison_report_files
+    File failed_metrics_file = CompareMetrics.failed_metrics_file
   }
   meta {
     allowNestedInputs: true

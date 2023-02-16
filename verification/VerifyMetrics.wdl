@@ -25,6 +25,11 @@ workflow VerifyMetrics {
     }
   }
 
+  # call ConsolidateErrors as ConsolidateErrors {
+  #   input:
+  #     error_files = CompareMetricFiles.report_file   
+  # }
+
   output {
     Array[File] metric_comparison_report_files = CompareMetricFiles.report_file
     #Consolidate failed_metrics to just one file:
@@ -84,8 +89,8 @@ task CompareMetricFiles {
       # Check for the string "Metrics are NOT equal"
       if grep -q "Metrics are NOT equal" ~{output_file}
       then
-          # If string exists, copy the first 3 lines of output_file to failed_metrics_file.txt
-          head -n 2 ~{output_file} > failed_metrics_file.txt
+          # If string exists, copy output_file to failed_metrics_file.txt
+          cat ~{output_file} > failed_metrics_file.txt
       else
           # If string does not exist, create an empty file named failed_metrics_file.txt
           touch failed_metrics_file.txt
