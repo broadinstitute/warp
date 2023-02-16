@@ -196,7 +196,7 @@ task CalculateUMIsMetrics {
   }
 }
 
-task FastqMetricsSlidSeq {
+task FastqMetricsSlideSeq {
 
   input {
     Array[File] r1_fastq

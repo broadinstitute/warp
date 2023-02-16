@@ -86,11 +86,7 @@ function pipeline_to_args() {
         echo scATAC ${common_args}
       fi;;
     SlideSeq)
-      if [[ "${test}" == "Scientific" ]]; then
-        echo SlideSeq Plumbing
-      else
-        echo SlideSeq ${common_args}
-      fi;;
+        echo SlideSeq ${common_args};;
     SmartSeq2SingleSample)
       if [[ "${test}" == "Scientific" ]]; then
         echo SmartSeq2SingleSample Plumbing

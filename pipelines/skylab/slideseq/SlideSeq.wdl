@@ -51,7 +51,7 @@ workflow SlideSeq {
         read_structure: "String used to specify the UMI (M) and Barcode (C) positions in the Read 1 FASTQ"
     }
 
-    call Metrics.FastqMetricsSlidSeq as FastqMetrics {
+    call Metrics.FastqMetricsSlideSeq as FastqMetrics {
         input:
             r1_fastq = r1_fastq,
             read_structure = read_structure,
