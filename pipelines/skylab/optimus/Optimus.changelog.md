@@ -6,6 +6,11 @@
 * Added new checks to the checkOptimusInput task to verify that the chemistry is either v2 or v3.
 * Added new checks to the checkOptimusInput that verify the read1 FASTQ is the correct chemistry based on read length; these checks can be ignored with new boolean input ignore_r1_read_length. 
 
+# 5.6.2
+2023-02-07 (Date of Last Commit)
+
+* Prepended the input_id to the name of the output file in both the CalculateCellMetrics and CalculateGeneMetrics tasks in the Metrics.wdl.
+
 # 5.6.1
 2023-01-23 (Date of Last Commit)
 
