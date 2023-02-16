@@ -33,7 +33,9 @@ workflow VerifyMetrics {
   output {
     Array[File] metric_comparison_report_files = CompareMetricFiles.report_file
     #Consolidate failed_metrics to just one file:
-    File failed_metrics_file = write_tsv(CompareMetricFiles.failed_metrics)
+    #this seems to be impossible in the current state of Terra and/or Cromwell in the GCP. See: https://support.terra.bio/hc/en-us/community/posts/360071465631-write-lines-write-map-write-tsv-write-json-fail-when-run-in-a-workflow-rather-than-in-a-task
+    #File failed_metrics_file = write_tsv(CompareMetricFiles.failed_metrics)
+    Array[File] failed_metrics_files = CompareMetricFiles.failed_metrics
   }
   meta {
     allowNestedInputs: true
@@ -105,6 +107,6 @@ task CompareMetricFiles {
   }
   output {
     File report_file = output_file
-    Array[String] failed_metrics = read_lines("failed_metrics_file.txt")
+    File failed_metrics = "failed_metrics_file.txt"
   }
 }
