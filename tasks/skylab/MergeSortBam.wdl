@@ -2,7 +2,7 @@ version 1.0
 
 task MergeSortBamFiles {
   input {
-    Array[File] bam_inputs
+    Array[File]? bam_inputs
     String sort_order
     String output_bam_filename
 
