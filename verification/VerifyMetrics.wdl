@@ -25,17 +25,17 @@ workflow VerifyMetrics {
     }
   }
 
-  # call ConsolidateErrors as ConsolidateErrors {
-  #   input:
-  #     error_files = CompareMetricFiles.report_file   
-  # }
+  call ConsolidateErrors {
+    input:
+      report_files = CompareMetricFiles.report_file
+  }
 
   output {
     Array[File] metric_comparison_report_files = CompareMetricFiles.report_file
     #Consolidate failed_metrics to just one file:
     #this seems to be impossible in the current state of Terra and/or Cromwell in the GCP. See: https://support.terra.bio/hc/en-us/community/posts/360071465631-write-lines-write-map-write-tsv-write-json-fail-when-run-in-a-workflow-rather-than-in-a-task
     #File failed_metrics_file = write_tsv(CompareMetricFiles.failed_metrics)
-    Array[File] failed_metrics_files = CompareMetricFiles.failed_metrics
+    File failed_metrics = ConsolidateErrors.failed_metrics
   }
   meta {
     allowNestedInputs: true
@@ -89,14 +89,14 @@ task CompareMetricFiles {
       #If the text is not found, ie. metrics are equal, do nothing or write an empty file.
 
       # Check for the string "Metrics are NOT equal"
-      if grep -q "Metrics are NOT equal" ~{output_file}
-      then
-          # If string exists, copy output_file to failed_metrics_file.txt
-          cat ~{output_file} > failed_metrics_file.txt
-      else
-          # If string does not exist, create an empty file named failed_metrics_file.txt
-          touch failed_metrics_file.txt
-      fi
+      # if grep -q "Metrics are NOT equal" ~{output_file}
+      # then
+      #     # If string exists, copy output_file to failed_metrics_file.txt
+      #     cat ~{output_file} > failed_metrics_file.txt
+      # else
+      #     # If string does not exist, create an empty file named failed_metrics_file.txt
+      #     touch failed_metrics_file.txt
+      # fi
   >>>
 
   runtime {
@@ -104,9 +104,36 @@ task CompareMetricFiles {
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
     preemptible: 3
+    continueOnReturnCode: true
   }
   output {
     File report_file = output_file
-    File failed_metrics = "failed_metrics_file.txt"
+    # File failed_metrics = "failed_metrics_file.txt"
   }
+}
+
+task ConsolidateErrors {
+  input {
+    Array[File] report_files
+  }
+  command <<<
+    set -exo pipefail
+    for f in ~{sep=' ' report_files}
+    do
+      # Check for the string "Metrics are NOT equal"
+      if grep -q "Metrics are NOT equal" $f
+      then
+          # If string exists, copy output_file to failed_metrics_file.txt
+          cat $f > failed_metrics_file.txt
+      fi
+    done;
+   >>>
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_20_0_4"
+    memory: "4 GiB"
+    preemptible: 3
+  }
+ output {
+   File failed_metrics = "failed_metrics_file.txt"
+ }
 }

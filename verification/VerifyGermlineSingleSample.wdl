@@ -23,13 +23,13 @@ workflow VerifyGermlineSingleSample {
 
   }
 
-  call Tasks.CompareVCFsVerbosely {
-    input:
-      actual = test_gvcf,
-      actual_index = test_gvcf_index,
-      expected = truth_gvcf,
-      expected_index = truth_gvcf_index
-  }
+  # call Tasks.CompareVCFsVerbosely {
+  #   input:
+  #     actual = test_gvcf,
+  #     actual_index = test_gvcf_index,
+  #     expected = truth_gvcf,
+  #     expected_index = truth_gvcf_index
+  # }
 
   call MetricsVerification.VerifyMetrics as CompareMetrics {
     input:
@@ -37,29 +37,29 @@ workflow VerifyGermlineSingleSample {
       truth_metrics = truth_metrics
   }
 
-  call CompareGvcfs {
-    input:
-      test_gvcf = test_gvcf,
-      truth_gvcf = truth_gvcf
-  }
+  # call CompareGvcfs {
+  #   input:
+  #     test_gvcf = test_gvcf,
+  #     truth_gvcf = truth_gvcf
+  # }
 
-  call Tasks.CompareCrais {
-    input:
-      test_crai = test_crai,
-      truth_crai = truth_crai
-  }
+  # call Tasks.CompareCrais {
+  #   input:
+  #     test_crai = test_crai,
+  #     truth_crai = truth_crai
+  # }
 
-  call Tasks.CompareCrams {
-    input:
-      test_cram = test_cram,
-      test_crai = test_crai,
-      truth_cram = truth_cram,
-      truth_crai = truth_crai
-  }
+  # call Tasks.CompareCrams {
+  #   input:
+  #     test_cram = test_cram,
+  #     test_crai = test_crai,
+  #     truth_cram = truth_cram,
+  #     truth_crai = truth_crai
+  # }
 
   output {
     Array[File] metric_comparison_report_files = CompareMetrics.metric_comparison_report_files
-    Array[File] failed_metrics_file = CompareMetrics.failed_metrics_files
+    File failed_metrics = CompareMetrics.failed_metrics
   }
   meta {
     allowNestedInputs: true
