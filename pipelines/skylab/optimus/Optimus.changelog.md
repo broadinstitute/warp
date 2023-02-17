@@ -4,12 +4,13 @@
 * SlideSeq-specific changes to FastqProcessing.wdl, LoomUtils.wdl, Metrics.wdl, and StarAlign.wdl. This change does not affect the Optimus pipeline.
 
 # 5.7.0
-2023-02-07 (Date of Last Commit)
+2023-02-16 (Date of Last Commit)
 
 * Changed the chemistry input to an int tenx_chemistry_version that accepts either 2 or 3.
 * Added new whitelist_v2 and whitelist_v3 inputs that are set to a public references and selected based on chemistry.
 * Added new checks to the checkOptimusInput task to verify that the chemistry is either v2 or v3.
 * Added new checks to the checkOptimusInput that verify the read1 FASTQ is the correct chemistry based on read length; these checks can be ignored with new boolean input ignore_r1_read_length. 
+* Updated warp-tools docker version in FastqProcessing.wdl and Metrics.wdl due to previous bug fix (broadinstitute/warp-tools#18). The issue was integer division that caused the percent of mitochondrial molecules to always be calculated as zero.
 
 # 5.6.2
 2023-02-07 (Date of Last Commit)

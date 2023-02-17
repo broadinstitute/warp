@@ -8,7 +8,8 @@ task CalculateCellMetrics {
     String input_id
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1674487316"
+
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1676307243"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
@@ -79,7 +80,8 @@ task CalculateGeneMetrics {
     File? mt_genes
     String input_id
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1674487316"
+
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1676307243"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 
