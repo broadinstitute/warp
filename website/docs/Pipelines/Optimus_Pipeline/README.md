@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v5.6.1](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | November, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [optimus_v5.7.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2023 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![Optimus_diagram](Optimus_diagram.png)
 
@@ -126,12 +126,12 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | ------------------------------------ | 
-| [FastqProcessing.FastqProcessing (alias = SplitFastq)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) | fastqprocess | sctools | Partitions the input FASTQ files by CB to create an array of FASTQ files that are each ~ 30 GB. This task is skipped if the input files are smaller than 30 GB. | 
+| [FastqProcessing.FastqProcessing (alias = SplitFastq)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) | fastqprocess | [warp-tools](https://github.com/broadinstitute/warp-tools) | Partitions the input FASTQ files by CB to create an array of FASTQ files that are each ~ 30 GB. This task is skipped if the input files are smaller than 30 GB. | 
 | [StarAlign.STARsoloFastq (alias = STARsoloFastq)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | STAR | [Star](https://github.com/alexdobin/STAR) | Uses the partitioned FASTQ files to perform CB correction, adaptor trimming, alignment, gene annotation, UMI correction, and gene counting. |
 | [Merge.MergeSortBamFiles (alias= MergeBam)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/MergeSortBam.wdl) | MergeSamFiles | Picard | Merges the array of BAM files into a single BAM and sorts in coordinate order. |
 | [StarAlign.MergeStarOutput (alias = MergeStarOutputs)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | create-npz-output.py | Python3 | Creates a compressed raw NPY or NPZ file containing the STARsolo output features (NPY), barcodes (NPZ) and counts (NPZ). | 
-| [Metrics.CalculateGeneMetrics (alias = GeneMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | sctools | Sorts the BAM file by gene using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes gene metrics. | 
-| [Metrics.CalculateCellMetrics (alias = CellMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | sctools | Sorts the BAM file by cell using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes cell metrics. |
+| [Metrics.CalculateGeneMetrics (alias = GeneMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by gene using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes gene metrics. | 
+| [Metrics.CalculateCellMetrics (alias = CellMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by cell using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes cell metrics. |
 | [RunEmptyDrops.RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) | npz2rds.sh, emptyDropsWrapper.R, emptyDrops | [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Runs custom scripts to convert the NPY and NPZ files to RDS and then uses emptyDrops to identify empty lipid droplets. This step only runs when `counting_mode` = "sc_rna".|
 |  [LoomUtils.OptimusLoomGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | create_loom_optimus.py | Python3 | Merges the gene counts, cell metrics, gene metrics, and emptyDrops data into a Loom formatted cell-by-gene matrix. The Loom contains exon counts when using sc_rna mode, and whole-gene counts when running in sn_rna mode. It optionally contains an additional layer for exon counts when running sn_rna mode with `exon_counts` set to true. |
 
@@ -189,11 +189,11 @@ The task’s output includes a merged, coordinate-sorted BAM file containing the
 
 #### 4. Calculate gene metrics
 
-The [CalculateGeneMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to calculate summary metrics that help assess the quality of the data output each time this pipeline is run. These metrics are included in the output Loom matrix. A detailed list of these metrics is found in the [Optimus Count Matrix Overview](./Loom_schema.md).
+The [CalculateGeneMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) task uses [warp-tools](https://github.com/broadinstitute/warp-tools) to calculate summary metrics that help assess the quality of the data output each time this pipeline is run. These metrics are included in the output Loom matrix. A detailed list of these metrics is found in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
 #### 5. Calculate cell metrics
 
-The [CalculateCellMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) task uses [sctools](https://github.com/HumanCellAtlas/sctools) to calculate summary metrics that help assess the per-cell quality of the data output each time this pipeline is run. These metrics are included in the output Loom matrix. A detailed list of these metrics is found in the [Optimus Count Matrix Overview](./Loom_schema.md).
+The [CalculateCellMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) task uses [warp-tools](https://github.com/broadinstitute/warp-tools) to calculate summary metrics that help assess the per-cell quality of the data output each time this pipeline is run. These metrics are included in the output Loom matrix. A detailed list of these metrics is found in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
 
 #### 6. Run emptyDrops
@@ -240,8 +240,8 @@ The following table lists the output files produced from the pipeline. For sampl
 | matrix | `<input_id>_sparse_counts.npz` | Converted sparse matrix file from the MergeStarOutputs task. | NPZ |
 | matrix_row_index | `<input_id>_sparse_counts_row_index.npy` | Index of cells in count matrix. | NPY |
 | matrix_col_index | `<input_id>_sparse_counts_col_index.npy` | Index of genes in count matrix. | NPY |
-| cell_metrics | cell-metrics.csv.gz | Cell metrics | Compressed CSV | Matrix of metrics by cells. |
-| gene_metrics | gene-metrics.csv.gz | Gene metrics | Compressed CSV | Matrix of metrics by genes. |
+| cell_metrics | `<input_id>.cell-metrics.csv.gz` | Cell metrics | Compressed CSV | Matrix of metrics by cells. |
+| gene_metrics | `<input_id>.gene-metrics.csv.gz` | Gene metrics | Compressed CSV | Matrix of metrics by genes. |
 | cell_calls | empty_drops_result.csv | emptyDrops results from the RunEmptyDrops task. | CSV |
 | loom_output_file | `<input_id>.loom` | Loom | Loom | Loom file with count data (exonic or whole transcript depending on the counting_mode) and metadata. | N/A |
 
