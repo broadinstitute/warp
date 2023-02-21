@@ -73,7 +73,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
     input:
       tar_star_reference = tar_star_reference
   }
-  
+
   call TrimAdapters.TrimAdapters as TrimAdapters {
        input:
          input_ids = input_ids,
@@ -145,6 +145,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   output {
     # loom output, exon/intron count tsv files and the aligned bam files
     File loom_output = AggregateLoom.loom_output_file
+    File genomic_reference_version = ReferenceCheck.genomic_ref_version
     Array[File] exon_intron_count_files = LoomOutput.exon_intron_counts
     Array[File] bam_files = RemoveDuplicatesFromBam.output_bam
     String pipeline_version_out = pipeline_version

@@ -440,7 +440,7 @@ task MergeStarOutput {
 
 task STARGenomeRefVersion {
   input {
-    File tar_star_reference
+    String tar_star_reference
     Int disk = 100
   }
 
