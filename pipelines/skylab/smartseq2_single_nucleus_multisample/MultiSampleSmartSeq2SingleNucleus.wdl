@@ -69,6 +69,11 @@ workflow MultiSampleSmartSeq2SingleNucleus {
          fastq2_input_files = fastq2_input_files,
          paired_end = true
   }
+  call StarAlign.STARGenomeRefVersion as ReferenceCheck {
+    input:
+      tar_star_reference = tar_star_reference
+  }
+  
   call TrimAdapters.TrimAdapters as TrimAdapters {
        input:
          input_ids = input_ids,
