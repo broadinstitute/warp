@@ -13,7 +13,8 @@ task BuildStarSingleNucleus {
     String genome_source
     # Genome build is the assembly accession (NCBI) or version (GENCODE)
     String genome_build
-    String organism = "Mouse"
+    # Organism can be Macaque, Mouse, Human, etc.
+    String organism
     File genome_fa
     File annotation_gtf
     File biotypes
