@@ -34,6 +34,9 @@ workflow BroadInternalRNAWithUMIs {
 
     String environment
     File vault_token_path
+
+    Int? group_by_umis_genome_mem_mb
+    Int? group_by_umis_transcriptome_mem_mb
   }
 
   File ref = if (reference_build == "hg19") then "gs://gcp-public-data--broad-references/hg19/v0/Homo_sapiens_assembly19.fasta" else "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta"
@@ -96,7 +99,9 @@ workflow BroadInternalRNAWithUMIs {
       ribosomalIntervals = ribosomalIntervals,
       exonBedFile = exonBedFile,
       population_vcf = population_vcf,
-      population_vcf_index = population_vcf_index
+      population_vcf_index = population_vcf_index,
+      group_by_umis_genome_mem_mb = group_by_umis_genome_mem_mb,
+      group_by_umis_transcriptome_mem_mb = group_by_umis_transcriptome_mem_mb
   }
 
   call FP.CheckFingerprint as CheckFingerprint {
