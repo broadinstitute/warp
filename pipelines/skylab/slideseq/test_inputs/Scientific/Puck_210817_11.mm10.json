@@ -15,5 +15,5 @@
   "SlideSeq.tar_star_reference": "gs://broad-gotc-test-storage/SlideSeq/inputs/scientific/Puck_210817_11/modified_star_2.7.9a_primary_gencode_mouse_vM23.tar",
   "SlideSeq.annotations_gtf": "gs://broad-gotc-test-storage/SlideSeq/inputs/scientific/Puck_210817_11/modified_gencode.vM23.primary_assembly.annotation.gtf",
   "SlideSeq.count_exons": true,
-  "SlideSeq.bead_locations": "gs://broad-gotc-test-storage/SlideSeq/inputs/scientific/Puck_210817_11/Puck_210817_11.tsv",
+  "SlideSeq.bead_locations": "gs://broad-gotc-test-storage/SlideSeq/inputs/scientific/Puck_210817_11/Puck_210817_11.tsv"
 }
