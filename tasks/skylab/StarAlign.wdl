@@ -495,8 +495,4 @@ task STARGenomeRefVersion {
     disk: disk + " GB" # TES
     cpu:"16"
   }
-
-  output {
-    File genomic_ref_version = "reference_version.txt"
-  }
 }
