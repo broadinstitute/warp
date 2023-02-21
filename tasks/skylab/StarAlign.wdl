@@ -464,14 +464,14 @@ task STARGenomeRefVersion {
     if [[ $STRING == *"GENCODE"* ]]
     then
       REFERENCE="GENCODE"
-      VERSION=$(echo basename $STRING| cut -d '_' -f 6)
-      ANNOTATION=$(echo basename $STRING| cut -d '_' -f 7)
+      VERSION=$(basename $STRING .tar| cut -d '_' -f 6)
+      ANNOTATION=$(basename $STRING .tar| cut -d '_' -f 7)
       echo -e "$REFERENCE\n$VERSION\n$ANNOTATION" > reference_version.txt
     elif [[ $STRING == *"NCBI"* ]]
     then  
       REFERENCE="NCBI"
-      VERSION=$(echo basename $STRING| cut -d '_' -f 6,7)
-      ANNOTATION=$(echo basename $STRING| cut -d '_' -f 8)
+      VERSION=$(basename $STRING .tar| cut -d '_' -f 6,7)
+      ANNOTATION=$(basename $STRING .tar| cut -d '_' -f 8)
       echo -e "$REFERENCE\n$VERSION\n$ANNOTATION" > reference_version.txt
     else
       REFERENCE="Unidentified reference type"
