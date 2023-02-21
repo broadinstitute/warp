@@ -378,8 +378,6 @@ task STARsoloFastq {
     File barcodes_sn_rna = "barcodes_sn_rna.tsv"
     File features_sn_rna = "features_sn_rna.tsv"
     File matrix_sn_rna = "matrix_sn_rna.mtx"
-    File genomic_ref_version = "reference_version.txt"
-
   }
 }
 
@@ -465,13 +463,14 @@ task STARGenomeRefVersion {
     if [[ $STRING == *"GENCODE"* ]]
     then
       REFERENCE="GENCODE"
-      VERSION=$(echo $STRING| cut -d '_' -f 4)
-      ANNOTATION=$(echo $STRING| cut -d '_' -f 5)
+      VERSION=$(echo $STRING| cut -d '_' -f 5)
+      ANNOTATION=$(echo $STRING| cut -d '_' -f 6)
       echo -e "$REFERENCE\n$VERSION\n$ANNOTATION" > reference_version.txt
     elif [[ $STRING == *"NCBI"* ]]
     then  
       REFERENCE="NCBI"
-      VERSION=${STRING('#*star_2.7.9a'}
+      VERSION=$(echo $STRING| cut -d '_' -f 5,6)
+      ANNOTATION=$(echo $STRING| cut -d '_' -f 7)
       echo -e "$REFERENCE\n$VERSION\n$ANNOTATION" > reference_version.txt
     else
       REFERENCE="Unidentified reference type"
@@ -484,6 +483,10 @@ task STARGenomeRefVersion {
     echo Version is $VERSION
 
   >>>
+
+  output {
+    File genomic_ref_version = "reference_version.txt"
+  }
 
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1671490724"

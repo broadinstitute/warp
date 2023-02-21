@@ -101,6 +101,11 @@ workflow Optimus {
       ignore_r1_read_length = ignore_r1_read_length
   }
 
+  call StarAlign.STARGenomeRefVersion as ReferenceCheck {
+    input:
+      tar_star_reference = tar_star_reference
+  }
+
   call FastqProcessing.FastqProcessing as SplitFastq {
     input:
       i1_fastq = i1_fastq,
@@ -214,6 +219,7 @@ workflow Optimus {
   output {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
+    File genomic_reference_version = ReferenceCheck.genomic_ref_version
     File bam = MergeBam.output_bam
     File matrix = MergeStarOutputs.sparse_counts
     File matrix_row_index = MergeStarOutputs.row_index
