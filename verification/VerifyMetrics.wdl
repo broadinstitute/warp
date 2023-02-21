@@ -118,13 +118,14 @@ task ConsolidateErrors {
   }
   command <<<
     set -exo pipefail
+    touch failed_metrics_file.txt
     for f in ~{sep=' ' report_files}
     do
       # Check for the string "Metrics are NOT equal"
       if grep -q "Metrics are NOT equal" $f
       then
           # If string exists, copy output_file to failed_metrics_file.txt
-          cat $f > failed_metrics_file.txt
+          cat $f >> failed_metrics_file.txt
       fi
     done;
    >>>
