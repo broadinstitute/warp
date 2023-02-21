@@ -282,29 +282,6 @@ task STARsoloFastq {
         exit 1;
     fi
 
-    # check genomic reference version and print to output txt file
-    STRING=~{tar_star_reference}
-    REFERENCE=""
-    VERSION=""
-    if [[ $STRING == *"gencode"* ]]
-    then
-      REFERENCE="Gencode"
-      VERSION=${STRING: -7: 3}
-      echo -e "$REFERENCE\n$VERSION" > reference_version.txt
-    elif [[ $STRING == *"refseq"* ]]
-    then  
-      REFERENCE="Refseq"
-      VERSION=${STRING('#*star_2.7.9a'}
-      echo -e "$REFERENCE\n$VERSION" > reference_version.txt
-    else
-      REFERENCE="Unidentified reference type"
-      VERSION="Unidentified reference version"
-      echo -e "$REFERENCE\n$VERSION" > reference_version.txt
-    fi
-
-    echo Reference is $REFERENCE
-    echo Version is $VERSION
-
     # prepare reference
     mkdir genome_reference
     tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
@@ -460,5 +437,63 @@ task MergeStarOutput {
     File row_index = "~{input_id}_sparse_counts_row_index.npy"
     File col_index = "~{input_id}_sparse_counts_col_index.npy"
     File sparse_counts = "~{input_id}_sparse_counts.npz"
+  }
+}
+
+task STARGenomeRefVersion {
+  input {
+    File tar_star_reference
+  }
+
+  meta {
+    description: "Reads the reference file name and outputs a txt file containing genome source, build, and annotation version"
+  }
+
+  parameter_meta {
+    tar_star_reference: "input STAR reference in TAR format"
+  }
+
+  command <<<
+    set -e
+    # check genomic reference version and print to output txt file
+    STRING=~{tar_star_reference}
+    REFERENCE=""
+    # Version is build version
+    VERSION=""
+    # Annotation is annotation version
+    ANNOTATION=""
+    if [[ $STRING == *"GENCODE"* ]]
+    then
+      REFERENCE="GENCODE"
+      VERSION=$(echo $STRING| cut -d '_' -f 4)
+      ANNOTATION=$(echo $STRING| cut -d '_' -f 5)
+      echo -e "$REFERENCE\n$VERSION\n$ANNOTATION" > reference_version.txt
+    elif [[ $STRING == *"NCBI"* ]]
+    then  
+      REFERENCE="NCBI"
+      VERSION=${STRING('#*star_2.7.9a'}
+      echo -e "$REFERENCE\n$VERSION\n$ANNOTATION" > reference_version.txt
+    else
+      REFERENCE="Unidentified reference type"
+      VERSION="Unidentified reference version"
+      ANNOTATION="Unidentified reference annotation"
+      echo -e "$REFERENCE\n$VERSION\n$ANNOTATION" > reference_version.txt
+    fi
+
+    echo Reference is $REFERENCE
+    echo Version is $VERSION
+
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1671490724"
+    memory: "50 GiB"
+    disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
+    cpu:"16"
+  }
+
+  output {
+    File genomic_ref_version = "reference_version.txt"
   }
 }
