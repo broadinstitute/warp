@@ -83,7 +83,7 @@ Overall, the SlideSeq workflow:
 1. Uses STARsolo to correct bead barcodes, align reads, and count genes.
 1. Calculates metrics.
 1. Merges the STAR outputs into NPY and NPZ arrays.
-1. Merges gene counts, metrics, and bead locations into a Loom-formatted matrix.
+1. Merges gene counts and metrics into a Loom-formatted matrix.
 
 The tools each SlideSeq task employs are detailed in the table below. 
 
@@ -165,10 +165,6 @@ The [SlideSeqLoomOutput](https://github.com/broadinstitute/warp/blob/develop/tas
 
 <!--- comment about loom matrix overview doc --->
 
-**Spatial coordinates**
-
-The x-y coordinates of the beads are stored as a column attribute (`cell_location`) in the output Loom file.
-
 **Gene counts**
 
 The type of gene counts in the Loom will vary depending on the value of the SlideSeq workflow input, `count_exons`. By default, `count_exons` is set to false and the output Loom will contain whole-gene counts. 
@@ -216,7 +212,7 @@ SlideSeq has been validated for processing mouse spatial transcriptomic data gen
 
 ## Versioning and testing
 
-All SlideSeq pipeline releases are documented in the [SlideSeq changelog](ttps://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/slide_seq/SlideSeq.changelog.md) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/slideseq/test_inputs/test_data_overview.md). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
+All SlideSeq pipeline releases are documented in the [SlideSeq changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/slide_seq/SlideSeq.changelog.md) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/slideseq/test_inputs/test_data_overview.md). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
 
 
 <!--- ## Citing the SlideSeq Pipeline
