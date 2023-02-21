@@ -441,6 +441,7 @@ task MergeStarOutput {
 task STARGenomeRefVersion {
   input {
     File tar_star_reference
+    Int disk = 100
   }
 
   meta {
@@ -483,6 +484,7 @@ task STARGenomeRefVersion {
     echo Version is $VERSION
 
   >>>
+
 # Output is TXT file containing reference source, build version and annotation version
   output {
     File genomic_ref_version = "reference_version.txt"
