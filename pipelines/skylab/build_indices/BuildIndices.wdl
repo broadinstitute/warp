@@ -7,23 +7,44 @@ struct References {
 
 task BuildStarSingleNucleus {
   input {
-    String gtf_version = "M31"
+    # GTF annotation version refers to the version (GENCODE) or release (NCBI) listed in the GTF
+    String gtf_annotation_version
+    # Genome source can be NCBI or GENCODE
+    String genome_source
+    # Genome build is the assembly accession (NCBI) or version (GENCODE)
+    String genome_build
     String organism = "Mouse"
-    String organism_prefix = "39"
     File genome_fa
     File annotation_gtf
     File biotypes
     Int disk = 100
   }
   meta {
-    description: "Modify gtf files and build reference index files for STAR aligner"
+    description: "Modify GTF files and build reference index files for STAR aligner"
   }
-  String ref_name = "star_primary_gencode_~{organism}_v~{gtf_version}"
+  String ref_name = "star_~{organism}_~{genome_source}_build_~{genome_build}_v~{gtf_annotation_version}"
   String star_index_name = "modified_~{ref_name}.tar"
-  String annotation_gtf_modified = "modified_v~{gtf_version}.annotation.gtf"
-  String annotation_gtf_introns = "introns_modified_v~{gtf_version}.annotation.gtf"
+  String annotation_gtf_modified = "modified_v~{gtf_annotation_version}.annotation.gtf"
+  String annotation_gtf_introns = "introns_modified_v~{gtf_annotation_version}.annotation.gtf"
 
   command <<<
+    # Check that input GTF files contain input genome source, genome build version, and annotation version
+    if head -10 ~{annotation_gtf} | grep -qi ~{genome_build}
+    then
+        echo Genome version found in the GTF file
+    else
+        echo Error: Input genome version does not match version in GTF file
+        exit 1;
+    fi
+    # Check that GTF file contains correct build source info in the first 10 lines of the GTF
+    if head -10 ~{annotation_gtf} | grep -qi ~{genome_build}
+    then
+        echo Source of genome build identified in the GTF file
+    else
+        echo Error: Source of genome build not identified in the GTF file
+        exit 1;
+    fi
+
     set -eo pipefail
 
     python3 /script/modify_gtf.py  \
@@ -64,14 +85,20 @@ task BuildStarSingleNucleus {
 
 workflow BuildIndices {
   input {
+    # Genome source can be NCBI or GENCODE
+    String genome_source
+    # GTF annotation version refers to the version or release listed in the GTF
+    String gtf_annotation_version
+    # Genome build is the assembly accession (NCBI) or version (GENCODE)
+    String genome_build
     File annotations_gtf
     File genome_fa
-    String gtf_version
+    String gtf_annotation_version
     File biotypes
   }
 
   # version of this pipeline
-  String pipeline_version = "2.0.1"
+  String pipeline_version = "2.2.0"
 
   parameter_meta {
     annotations_gtf: "the annotation file"
@@ -81,10 +108,12 @@ workflow BuildIndices {
 
   call BuildStarSingleNucleus {
     input:
-      gtf_version = gtf_version,
+      gtf_annotation_version = gtf_annotation_version,
       genome_fa = genome_fa,
       annotation_gtf = annotations_gtf,
-      biotypes = biotypes
+      biotypes = biotypes,
+      genome_build = genome_build,
+      genome_source = genome_source
   }
 
   output {
