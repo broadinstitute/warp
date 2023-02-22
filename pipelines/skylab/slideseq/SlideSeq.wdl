@@ -111,10 +111,9 @@ workflow SlideSeq {
             input_id = input_id
     }
     if ( !count_exons ) {
-        call LoomUtils.SlideSeqLoomOutput as SlideseqLoomGeneration{
+        call LoomUtils.OptimusLoomGeneration as SlideseqLoomGeneration{
             input:
                 input_id = input_id,
-                bead_locations = bead_locations,
                 annotation_file = annotations_gtf,
                 cell_metrics = CellMetrics.cell_metrics,
                 gene_metrics = GeneMetrics.gene_metrics,
