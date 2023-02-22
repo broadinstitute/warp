@@ -620,7 +620,7 @@ task GroupByUMIs {
   }
 
   command <<<
-    bash ~{monitoring_script} > monitoring.log &
+    bash ~{monitoring_script} >&2 &
 
     umi_tools group -I ~{bam} --paired --no-sort-output --output-bam --stdout ~{output_bam_basename}.bam --umi-tag-delimiter "-" \
     --extract-umi-method tag --umi-tag RX --unmapped-reads use
