@@ -13,7 +13,7 @@ task checkInputArrays {
   Int len_fastq1_input_files = length(fastq1_input_files)
   Int len_fastq2_input_files = length(fastq2_input_files)
   Int len_input_names = if defined(input_names) then length(select_first([input_names])) else 0
-  Int disk = 1
+  Int disk = 10
 
   meta {
     description: "checks input arrays to ensure that all arrays are the same length"
@@ -59,7 +59,7 @@ task checkOptimusInput {
     String counting_mode
     Boolean force_no_check
     Boolean count_exons
-    Int disk = 1
+    Int disk = ceil(size(r1_fastq, "GiB")) + 10
     Int machine_mem_mb = 1000
     Int cpu = 1
     Int tenx_chemistry_version
