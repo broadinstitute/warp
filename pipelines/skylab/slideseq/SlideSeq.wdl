@@ -19,7 +19,6 @@ import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 ## https://github.com/broadinstitute/wdl). Note however that the programs it calls may
 ## be subject to different licenses. Users are responsible for checking that they are
 ## authorized to run all programs before running this script. 
-## licensing information pertaining to the included programs.
 
 
 workflow SlideSeq {
