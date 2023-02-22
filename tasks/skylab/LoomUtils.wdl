@@ -62,7 +62,7 @@ task OptimusLoomGeneration {
 
   input {
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.1-1677091818"
     # name of the sample
     String input_id
     # user provided id
