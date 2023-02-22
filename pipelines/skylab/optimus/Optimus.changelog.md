@@ -11,6 +11,7 @@
 * Added new checks to the checkOptimusInput task to verify that the chemistry is either v2 or v3.
 * Added new checks to the checkOptimusInput that verify the read1 FASTQ is the correct chemistry based on read length; these checks can be ignored with new boolean input ignore_r1_read_length. 
 * Updated warp-tools docker version in FastqProcessing.wdl and Metrics.wdl due to previous bug fix (broadinstitute/warp-tools#18). The issue was integer division that caused the percent of mitochondrial molecules to always be calculated as zero.
+* Dynamically sized disk in the checkOptimusInput task
 
 # 5.6.2
 2023-02-07 (Date of Last Commit)
