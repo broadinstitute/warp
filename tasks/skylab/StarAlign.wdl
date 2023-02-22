@@ -55,6 +55,7 @@ task StarAlignBamSingleEnd {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} SSD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -119,6 +120,7 @@ task StarAlignFastqPairedEnd {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} SSD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -198,6 +200,7 @@ task StarAlignFastqMultisample {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} SSD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -215,7 +218,7 @@ task STARsoloFastq {
     Array[File] r2_fastq
     File tar_star_reference
     File white_list
-    String chemistry
+    Int chemistry
     String counting_mode
     String output_bam_basename
     Boolean? count_exons
@@ -250,12 +253,12 @@ task STARsoloFastq {
 
     UMILen=10
     CBLen=16
-    if [ "~{chemistry}" == "tenX_v2" ]
+    if [ "~{chemistry}" == 2 ]
     then
         ## V2
         UMILen=10
         CBLen=16
-    elif [ "~{chemistry}" == "tenX_v3" ]
+    elif [ "~{chemistry}" == 3 ]
     then
         ## V3
         UMILen=12
@@ -360,6 +363,7 @@ task STARsoloFastq {
     docker: docker
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -423,6 +427,7 @@ task MergeStarOutput {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }

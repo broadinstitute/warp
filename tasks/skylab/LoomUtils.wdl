@@ -17,7 +17,7 @@ task SmartSeq2LoomOutput {
     String pipeline_version
     Int preemptible = 3
     Int disk = 200
-    Int machine_mem_mb = 18
+    Int machine_mem_mb = 16000
     Int cpu = 4
   }
 
@@ -46,8 +46,9 @@ task SmartSeq2LoomOutput {
   runtime {
     docker: docker
     cpu: cpu  # note that only 1 thread is supported by pseudobam
-    memory: "~{machine_mem_mb} GiB"
+    memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
+    disk: disk + " GB" # TES
     preemptible: preemptible
   }
 
@@ -88,7 +89,7 @@ task OptimusLoomGeneration {
 
     Int preemptible = 3
     Int disk = 200
-    Int machine_mem_mb = 18
+    Int machine_mem_mb = 16000
     Int cpu = 4
   }
 
@@ -141,8 +142,9 @@ task OptimusLoomGeneration {
   runtime {
     docker: docker
     cpu: cpu  # note that only 1 thread is supported by pseudobam
-    memory: "~{machine_mem_mb} GiB"
+    memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
+    disk: disk + " GB" # TES
     preemptible: preemptible
   }
 
@@ -165,7 +167,7 @@ task AggregateSmartSeq2Loom {
         String pipeline_version
         String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
         Int disk = 200
-        Int machine_mem_mb = 4
+        Int machine_mem_mb = 4000
         Int cpu = 1
     }
 
@@ -199,8 +201,9 @@ task AggregateSmartSeq2Loom {
     runtime {
       docker: docker
       cpu: cpu
-      memory: "~{machine_mem_mb} GiB"
+      memory: "~{machine_mem_mb} MiB"
       disks: "local-disk ~{disk} HDD"
+      disk: disk + " GB" # TES
       preemptible: 3
       maxRetries: 1
     }
@@ -241,7 +244,7 @@ task SingleNucleusOptimusLoomOutput {
 
         Int preemptible = 3
         Int disk = 200
-        Int machine_mem_mb = 18
+        Int machine_mem_mb = 16000
         Int cpu = 4
     }
 
@@ -278,8 +281,9 @@ task SingleNucleusOptimusLoomOutput {
     runtime {
         docker: docker
         cpu: cpu  # note that only 1 thread is supported by pseudobam
-        memory: "~{machine_mem_mb} GiB"
+        memory: "~{machine_mem_mb} MiB"
         disks: "local-disk ~{disk} HDD"
+        disk: disk + " GB" # TES
         preemptible: preemptible
     }
 
@@ -313,7 +317,7 @@ task SingleNucleusSmartSeq2LoomOutput {
         String pipeline_version
         Int preemptible = 3
         Int disk = 200
-        Int machine_mem_mb = 8
+        Int machine_mem_mb = 8000
         Int cpu = 4
     }
 
@@ -370,8 +374,9 @@ task SingleNucleusSmartSeq2LoomOutput {
     runtime {
         docker: docker
         cpu: cpu
-        memory: "~{machine_mem_mb} GiB"
+        memory: "~{machine_mem_mb} MiB"
         disks: "local-disk ~{disk} HDD"
+        disk: disk + " GB" # TES
         preemptible: preemptible
     }
 

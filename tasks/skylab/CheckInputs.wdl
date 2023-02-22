@@ -8,10 +8,12 @@ task checkInputArrays {
     Array[String] fastq1_input_files
     Array[String] fastq2_input_files
   }
+
   Int len_input_ids = length(input_ids)
   Int len_fastq1_input_files = length(fastq1_input_files)
   Int len_fastq2_input_files = length(fastq2_input_files)
   Int len_input_names = if defined(input_names) then length(select_first([input_names])) else 0
+  Int disk = 1
 
   meta {
     description: "checks input arrays to ensure that all arrays are the same length"
@@ -44,7 +46,8 @@ task checkInputArrays {
     docker: "bashell/alpine-bash:latest"
     cpu: 1
     memory: "1 GiB"
-    disks: "local-disk 1 HDD"
+    disks: "local-disk ~{disk} HDD"
+    disk: disk + " GB" # TES
   }
 
 }
@@ -52,45 +55,52 @@ task checkInputArrays {
 
 task checkOptimusInput {
   input {
-    String chemistry
+    File r1_fastq
     String counting_mode
     Boolean force_no_check
     Boolean count_exons
     Int disk = 1
-    Int machine_mem_mb = 1
+    Int machine_mem_mb = 1000
     Int cpu = 1
+    Int tenx_chemistry_version
+    String whitelist_v2
+    String whitelist_v3
+    Boolean ignore_r1_read_length
   }  
 
   meta {
     description: "checks optimus input values and fails the pipeline immediately"
   }
 
-  command {
+  command <<<
     set -e
 
     ## Set pass to true
     pass="true"
+    
+    ## Need to gunzip the r1_fastq
+    gunzip -c ~{r1_fastq} > r1.fastq
+    FASTQ=r1.fastq
+    echo 'this is the fastq:' $FASTQ
+    R1=$(awk 'NR==2' $FASTQ)
+    COUNT=$(echo ${#R1})
+    echo 'this is the read:' $R1
+    echo 'this is the UMI/barcode count:' $COUNT
 
     ## Perform checks
-    if [[ ! ("${chemistry}" == "tenX_v2" || "${chemistry}" == "tenX_v3") ]]
-    then
-      pass="false"
-      echo "ERROR: Invalid value \"${chemistry}\" for input \"chemistry\""
-    fi
-
-    if [[ ! ("${counting_mode}" == "sc_rna" || "${counting_mode}" == "sn_rna") ]]
+    if [[ ! ("~{counting_mode}" == "sc_rna" || "~{counting_mode}" == "sn_rna") ]]
     then
       pass="false"
       echo "ERROR: Invalid value \"${counting_mode}\" for input \"counting_mode\""
     fi
 
-    if [[ ${force_no_check} == "true" ]]
+    if [[ ~{force_no_check} == "true" ]]
     then
        echo "force_no_check is set: Ignoring input checks"
        exit 0;
     fi
 
-    if [[ "${counting_mode}" == "sc_rna" ]]
+    if [[ "~{counting_mode}" == "sc_rna" ]]
     then
       if [[ ~{count_exons} == "true" ]]
       then
@@ -98,6 +108,32 @@ task checkOptimusInput {
         echo "ERROR: Invalid value count_exons should not be used with \"${counting_mode}\" input."
       fi
     fi
+    
+    if [[ ~{tenx_chemistry_version} == 2 ]]
+      then
+      WHITELIST=~{whitelist_v2}
+      echo $WHITELIST > whitelist.txt
+    elif [[ ~{tenx_chemistry_version} == 3 ]]
+      then
+      WHITELIST=~{whitelist_v3}
+      echo $WHITELIST > whitelist.txt
+    else
+      pass="false"
+      echo "ERROR: Chemistry version must be either 2 or 3"
+    fi
+    
+    if [[ ~{tenx_chemistry_version} == 2 && $COUNT != 26 && ~{ignore_r1_read_length} == "false" ]]
+      then
+      pass="false"
+      echo "Read1 FASTQ does not match v2 chemistry; to override set ignore_r1_read_length to true"
+    elif [[ ~{tenx_chemistry_version} == 3 && $COUNT != 28 && ~{ignore_r1_read_length} == "false" ]]
+      then
+      pass="false"
+      echo "Read1 FASTQ does not match v3 chemistry; to override set ignore_r1_read_length to true"
+    else
+      pass="true"
+    fi
+
 
     ## fail if any tests failed, ignore if force_no_check is set
     if [[ $pass == "true" ]]
@@ -108,13 +144,16 @@ task checkOptimusInput {
     fi
 
     exit 0;
-  }
+  >>>
 
+  output {
+    String whitelist_out = read_string("whitelist.txt")
+  }
   runtime {
     docker: "bashell/alpine-bash:latest"
     cpu: cpu
-    memory: "~{machine_mem_mb} GiB"
+    memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
-  }
-  
+    disk: disk + " GB" # TES
+  } 
 }

@@ -44,9 +44,9 @@ The global attributes in the Loom apply to the whole file, not any specific part
 | `ACCUMULATION_LEVEL` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
 | `ALIGNED_READS` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
 | `AT_DROPOUT` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
-| `Aligned 0 time` | [HISAT2](https://ccb.jhu.edu/software/hisat2/manual.shtml) | Number and percent reads aligned 0 times |
-| `Aligned 1 time` | [HISAT2](https://ccb.jhu.edu/software/hisat2/manual.shtml) | Number and percent reads aligned 1 time |
-| `Aligned >1 times` | [HISAT2](https://ccb.jhu.edu/software/hisat2/manual.shtml) | Number and percent reads aligned more than 1 time |
+| `Aligned 0 time` | [HISAT2](http://daehwankimlab.github.io/hisat2/manual/) | Number and percent reads aligned 0 times |
+| `Aligned 1 time` | [HISAT2](http://daehwankimlab.github.io/hisat2/manual/) | Number and percent reads aligned 1 time |
+| `Aligned >1 times` | [HISAT2](http://daehwankimlab.github.io/hisat2/manual/) | Number and percent reads aligned more than 1 time |
 | `BAD_CYCLES.UNPAIRED` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
 | `CODING_BASES` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
 | `CORRECT_STRAND_READS` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
@@ -69,7 +69,7 @@ The global attributes in the Loom apply to the whole file, not any specific part
 | `NUM_R1_TRANSCRIPT_STRAND_READS` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
 | `NUM_R2_TRANSCRIPT_STRAND_READS` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
 | `NUM_UNEXPLAINED_READS` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
-| `Overall alignment rate` | [HISAT2](https://ccb.jhu.edu/software/hisat2/manual.shtml) | Overall percent of reads that aligned |
+| `Overall alignment rate` | [HISAT2](http://daehwankimlab.github.io/hisat2/manual/) | Overall percent of reads that aligned |
 | `PCT_ADAPTER.UNPAIRED` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
 | `PCT_CHIMERAS.UNPAIRED` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
 | `PCT_CODING_BASES` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
@@ -111,7 +111,7 @@ The global attributes in the Loom apply to the whole file, not any specific part
 | `STRAND_BALANCE.UNPAIRED` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
 | `TOTAL_CLUSTERS` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
 | `TOTAL_READS.UNPAIRED` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
-| `Total reads` | [HISAT2](https://ccb.jhu.edu/software/hisat2/manual.shtml) | Total number of aligned reads |
+| `Total reads` | [HISAT2](http://daehwankimlab.github.io/hisat2/manual/) | Total number of aligned reads |
 | `UNMAPPED_READS` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
 | `UNPAIRED_READS_EXAMINED` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |
 | `UNPAIRED_READ_DUPLICATES` | [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) | See [Picard](https://broadinstitute.github.io/picard/picard-metric-definitions.html) documentation |

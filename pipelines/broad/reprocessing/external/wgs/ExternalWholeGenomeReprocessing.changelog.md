@@ -1,3 +1,8 @@
+# 2.1.12
+2023-01-18 (Date of Last Commit)
+
+* Updated task SamToFastqAndDragmapAndMba in DragmapAlignment.wdl to fix the non-determinism in the Dragmap aligner. 
+
 # 2.1.11
 2022-11-04 (Date of Last Commit)
 
