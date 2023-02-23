@@ -30,17 +30,22 @@ workflow Optimus {
     File tar_star_reference
     File annotations_gtf
     File ref_genome_fasta
+    File? mt_genes
 
-    # 10x parameters
-    File whitelist
-    # tenX_v2, tenX_v3
-    String chemistry = "tenX_v2" 
+    # Chemistry options include: 2 or 3
+    Int tenx_chemistry_version
+    # Whitelist is selected based on the input tenx_chemistry_version
+    File whitelist = checkOptimusInput.whitelist_out
 
     # Emptydrops lower cutoff
     Int emptydrops_lower = 100
 
     # Set to true to override input checks and allow pipeline to proceed with invalid input
     Boolean force_no_check = false
+    
+    # Check that tenx_chemistry_version matches the length of the read 1 fastq;
+    # Set to true if you expect that r1_read_length does not match length of UMIs/barcodes for 10x chemistry v2 (26 bp) or v3 (28 bp).
+    Boolean ignore_r1_read_length = false
 
     # Set to true to count reads in stranded mode
     String use_strand_info = "false"
@@ -55,11 +60,17 @@ workflow Optimus {
   }
 
   # version of this pipeline
-
-  String pipeline_version = "5.5.5"
+  
+  String pipeline_version = "5.7.0"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
+
+  # 10x parameters
+  File whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
+  File whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
+  # Takes the first read1 FASTQ from the inputs to check for chemistry match
+  File r1_single_fastq = r1_fastq[0]
 
   parameter_meta {
     r1_fastq: "forward read, contains cell barcodes and molecule barcodes"
@@ -73,7 +84,7 @@ workflow Optimus {
     annotations_gtf: "gtf containing annotations for gene tagging (must match star reference)"
     ref_genome_fasta: "genome fasta file (must match star reference)"
     whitelist: "10x genomics cell barcode whitelist"
-    tenX_v3_chemistry: "assume 10X Genomics v3 chemistry with 12bp UMI (in contrast to default v2 with 10bp UMI)"
+    tenx_chemistry_version: "10X Genomics v2 (10 bp UMI) or v3 chemistry (12bp UMI)"
     force_no_check: "Set to true to override input checks and allow pipeline to proceed with invalid input"
     use_strand_info: "Set to true to count reads in stranded mode"
   }
@@ -81,9 +92,13 @@ workflow Optimus {
   call OptimusInputChecks.checkOptimusInput {
     input:
       force_no_check = force_no_check,
-      chemistry = chemistry,
       counting_mode = counting_mode,
-      count_exons = count_exons
+      count_exons = count_exons,
+      whitelist_v2 = whitelist_v2,
+      whitelist_v3 = whitelist_v3,
+      tenx_chemistry_version = tenx_chemistry_version,
+      r1_fastq = r1_single_fastq,
+      ignore_r1_read_length = ignore_r1_read_length
   }
 
   call FastqProcessing.FastqProcessing as SplitFastq {
@@ -92,7 +107,7 @@ workflow Optimus {
       r1_fastq = r1_fastq,
       r2_fastq = r2_fastq,
       whitelist = whitelist,
-      chemistry = chemistry,
+      chemistry = tenx_chemistry_version,
       sample_id = input_id
   }
 
@@ -103,7 +118,7 @@ workflow Optimus {
         r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
         white_list = whitelist,
         tar_star_reference = tar_star_reference,
-        chemistry = chemistry,
+        chemistry = tenx_chemistry_version,
         counting_mode = counting_mode,
         count_exons = count_exons,
         output_bam_basename = output_bam_basename + "_" + idx
@@ -117,13 +132,17 @@ workflow Optimus {
   }
   call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
-      bam_input = MergeBam.output_bam
+      bam_input = MergeBam.output_bam,
+      mt_genes = mt_genes,
+      input_id = input_id
   }
 
   call Metrics.CalculateCellMetrics as CellMetrics {
     input:
       bam_input = MergeBam.output_bam,
-      original_gtf = annotations_gtf
+      mt_genes = mt_genes,
+      original_gtf = annotations_gtf,
+      input_id = input_id
   }
 
   call StarAlign.MergeStarOutput as MergeStarOutputs {
@@ -195,7 +214,6 @@ workflow Optimus {
   output {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
-
     File bam = MergeBam.output_bam
     File matrix = MergeStarOutputs.sparse_counts
     File matrix_row_index = MergeStarOutputs.row_index
@@ -205,6 +223,5 @@ workflow Optimus {
     File? cell_calls = RunEmptyDrops.empty_drops_result
     # loom
     File loom_output_file = final_loom_output
-
 }
 }

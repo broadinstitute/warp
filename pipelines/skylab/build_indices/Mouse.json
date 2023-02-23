@@ -1,0 +1,6 @@
+{
+"BuildIndices.annotations_gtf":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Mouse/gencode.vM31.primary_assembly.annotation.gtf",
+"BuildIndices.biotypes":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Biotypes.tsv",
+"BuildIndices.genome_fa":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Mouse/GRCm39.primary_assembly.genome.fa",
+"BuildIndices.gtf_version":"M31"
+}

@@ -6,12 +6,12 @@ task FastqProcessing {
     Array[File] r2_fastq
     Array[File]? i1_fastq
     File whitelist
-    String chemistry
+    Int chemistry
     String sample_id
 
-    # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.13"
-
+    #using the latest build of warp-tools in GCR
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1676307243"
+    #runtime values
     Int machine_mem_mb = 40000
     Int cpu = 16   
     #TODO decided cpu
@@ -88,10 +88,10 @@ task FastqProcessing {
     CODE)
 
     # use the right UMI length depending on the chemistry
-    if [ "~{chemistry}" == "tenX_v2" ]; then
+    if [ "~{chemistry}" == "2" ]; then
         ## V2
         UMILENGTH=10
-    elif [ "~{chemistry}" == "tenX_v3" ]; then
+    elif [ "~{chemistry}" == "3" ]; then
         ## V3
         UMILENGTH=12
     else
@@ -113,6 +113,7 @@ task FastqProcessing {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }

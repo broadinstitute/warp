@@ -1,10 +1,21 @@
+# 1.0.7
+2023-01-13 (Date of Last Commit)
+
+* Updated remaining uses of GATK to version 4.3.0.0
+
+# 1.0.6
+2022-11-04 (Date of Last Commit)
+
+* Updated GATK verison to 4.3.0.0 for MarkDuplicatesSpark.
+
 # 1.0.5
-2022-10-12 (Date of Last Commit)
+2022-11-08 (Date of Last Commit)
 
 * Removed task MakeOptionalOutputBam in Utilities.wdl, this update makes this pipeline more robust to large samples
 * Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
 * Updated task IngestOutputsToTDR in InternalTasks.wdl with new optional input variable. This update has no effect on this pipeline.
 * Updated task FormatArraysOutputs in InternalArrraysTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+* Removed workspace_bucket workflow parameter from BroadInternalArrays and BroadInternalImputation.
 
 # 1.0.4
 2022-09-30 (Date of Last Commit)

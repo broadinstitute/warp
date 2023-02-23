@@ -6,10 +6,30 @@ local({r <- getOption("repos")
     options(repos=r)
 })
 
-## Install OptParse
-install.packages('optparse')
-
 ## Install DropletUtils
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-BiocManager::install("DropletUtils", version = "3.8")
+BiocManager::install(version = "3.16")
+BiocManager::install("DropletUtils")
+BiocManager::install("BiocParallel")
+# if (!require("BiocManager", quietly = TRUE))
+#     install.packages("BiocManager")
+# BiocManager::install(version = "3.8")
+
+library(BiocManager)
+BiocManager::valid()
+
+if ( ! library('DropletUtils', character.only=TRUE, logical.return=TRUE) ) {
+        quit(status=1, save='no')
+    }
+if ( ! library('BiocParallel', character.only=TRUE, logical.return=TRUE) ) {
+        quit(status=1, save='no')
+    }
+
+
+## Install OptParse
+install.packages('optparse', dependencies=TRUE)
+
+if ( ! library('optparse', character.only=TRUE, logical.return=TRUE) ) {
+        quit(status=1, save='no')
+    }

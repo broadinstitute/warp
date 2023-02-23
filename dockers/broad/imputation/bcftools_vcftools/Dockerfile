@@ -23,7 +23,6 @@ RUN set -eux; \
             g++ \
             gcc \
             gsl-dev \
-            libressl-dev \
             make \
             musl-dev \
             perl \

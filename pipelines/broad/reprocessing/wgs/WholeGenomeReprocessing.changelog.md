@@ -1,3 +1,13 @@
+# 3.1.11
+2023-01-18 (Date of Last Commit)
+
+* Updated task SamToFastqAndDragmapAndMba in DragmapAlignment.wdl to fix the non-determinism in the Dragmap aligner. 
+
+# 3.1.10
+2022-11-04 (Date of Last Commit)
+
+* Updated GATK verison to 4.3.0.0
+
 # 3.1.9
 2022-09-27 (Date of Last Commit)
 
