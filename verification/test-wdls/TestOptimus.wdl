@@ -9,6 +9,7 @@ workflow TestOptimus {
 
   input {
     
+    # Mode for counting either "sc_rna" or "sn_rna"
     String counting_mode = "sc_rna"
 
     # Sequencing data inputs
@@ -24,13 +25,32 @@ workflow TestOptimus {
     File tar_star_reference
     File annotations_gtf
     File ref_genome_fasta
-    # additional parameters
-    File whitelist
-    String chemistry = "tenX_v2" 
+    File? mt_genes
+
+    # Chemistry options include: 2 or 3
+    Int tenx_chemistry_version = 2
+    # Whitelist is selected based on the input tenx_chemistry_version
+
+    # Emptydrops lower cutoff
     Int emptydrops_lower = 100
+
+    # Set to true to override input checks and allow pipeline to proceed with invalid input
     Boolean force_no_check = false
+    
+    # Check that tenx_chemistry_version matches the length of the read 1 fastq;
+    # Set to true if you expect that r1_read_length does not match length of UMIs/barcodes for 10x chemistry v2 (26 bp) or v3 (28 bp).
+    Boolean ignore_r1_read_length = false
+
+    # Set to true to count reads in stranded mode
     String use_strand_info = "false"
+    
+# Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
+
+    # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
+    # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
+    # for example: `"Optimus.StarAlign.preemptible": 3` will let the StarAlign task, which by default disables the
+    # usage of preemptible machines, attempt to request for preemptible instance up to 3 times. 
 
     # Injected from test framework
     String truth_path
@@ -59,12 +79,12 @@ workflow TestOptimus {
       tar_star_reference         = tar_star_reference,
       annotations_gtf            = annotations_gtf,
       ref_genome_fasta           = ref_genome_fasta,
-      whitelist                  = whitelist,
-      chemistry                  = chemistry,
+      tenx_chemistry_version     = tenx_chemistry_version,
       emptydrops_lower           = emptydrops_lower,
       force_no_check             = force_no_check,
       use_strand_info            = use_strand_info,
       count_exons                = count_exons,
+      ignore_r1_read_length      = ignore_r1_read_length,
   }
 
   # Collect all of the pipeling output into single Array
