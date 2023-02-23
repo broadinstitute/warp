@@ -118,6 +118,7 @@ workflow SlideSeq {
                 sparse_count_matrix = MergeStarOutputs.sparse_counts,
                 cell_id = MergeStarOutputs.row_index,
                 gene_id = MergeStarOutputs.col_index,
+                add_emptydrops_data = "no",
                 pipeline_version = "SlideSeq_v~{pipeline_version}"
         }
     }

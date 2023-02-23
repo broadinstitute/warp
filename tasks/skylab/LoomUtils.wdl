@@ -62,7 +62,7 @@ task OptimusLoomGeneration {
 
   input {
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.1-1677091818"
+    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
     # name of the sample
     String input_id
     # user provided id
@@ -84,6 +84,8 @@ task OptimusLoomGeneration {
     # emptydrops output metadata
     File? empty_drops_result
     String counting_mode = "sc_rna"
+    String add_emptydrops_data = "yes"
+
 
     String pipeline_version
 
@@ -104,10 +106,12 @@ task OptimusLoomGeneration {
   command <<<
     set -euo pipefail
 
+    touch empty_drops_result.csv
+
     if [ "~{counting_mode}" == "sc_rna" ]; then
         python3 /usr/gitc/create_loom_optimus.py \
           --empty_drops_file ~{empty_drops_result} \
-          --add_emptydrops_data "yes" \
+          --add_emptydrops_data ~{add_emptydrops_data} \
           --annotation_file ~{annotation_file} \
           --cell_metrics ~{cell_metrics} \
           --gene_metrics ~{gene_metrics} \

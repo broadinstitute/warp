@@ -374,7 +374,7 @@ def main():
     parser.add_argument(
         "--empty_drops_file",
         dest="empty_drops_file",
-        required=False,
+        required=True,
         help="A csv file with the output of the emptyDrops step in Optimus",
     )
 
