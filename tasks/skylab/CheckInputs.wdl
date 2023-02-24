@@ -79,7 +79,7 @@ task checkOptimusInput {
     pass="true"
     
     ## Need to gunzip the r1_fastq
-    gunzip -c ~{r1_fastq} > r1.fastq
+    zcat ~{r1_fastq} | head > r1.fastq
     FASTQ=r1.fastq
     echo 'this is the fastq:' $FASTQ
     R1=$(awk 'NR==2' $FASTQ)
