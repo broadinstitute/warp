@@ -65,7 +65,7 @@ The SlideSeq workflow inputs are specified in JSON configuration files. Example 
 | annotations_gtf | GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | File | 
 | whitelist | TSV file containing bead barcodes and XY coordinates on a single line for each bead; determined by sequencing prior to mRNA transfer and library preparation. | File |
 | output_bam_basename | Optional string used for the output BAM file basename. | String |
-| count_exons | Optional boolean indicating if the workflow should calculate exon counts; default is set to “false” and produces a Loom file with whole-gene counts; when set to “true” an additional layer of the Loom file is produced with exon counts. | Boolean |
+| count_exons | Optional boolean indicating if the workflow should calculate exon counts; default is set to “true” and produces a Loom file containing both whole-gene counts and exon counts in an additional layer; when set to “false”, a Loom file containing only whole-gene counts is produced. | Boolean |
 
 #### Pseudogene handling
 
@@ -98,8 +98,8 @@ To see specific tool parameters, select the task WDL link in the table; then fin
 | [Metrics.CalculateGeneMetrics (alias = GeneMetrics)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/Metrics.wdl)                  | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by gene using the bead barcode (CB), molecule barcode (UB), and gene ID (GX) tags and computes gene metrics. | 
 | [Metrics.CalculateUMIsMetrics (alias = UMIsMetrics)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/Metrics.wdl)                  | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by gene using the bead barcode (CB), molecule barcode (UB), and gene ID (GX) tags and computes gene metrics. | 
 | [Metrics.CalculateCellMetrics (alias = CellMetrics)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/Metrics.wdl)                  | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by bead barcode (CB), molecule barcode (UB), and gene ID (GX) tags and computes bead barcode metrics. |
-| [StarAlign.MergeStarOutput (alias = MergeStarOutputs)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/StarAlign.wdl)              | create-npz-output.py | [Python 3](https://www.python.org/) | Creates a compressed raw NPY or NPZ file containing the STARsolo output features (NPY), barcodes (NPZ) and counts (NPZ). When `count_exons` is true, the task is run as `MergeStarOutputsExons` and additional NPY and NPZ files are output containing exon counts. | 
-| [LoomUtils.SlideSeqLoomOutput (alias = SlideseqLoomGeneration)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/LoomUtils.wdl)     | create_loom_slide_seq.py | [Python 3](https://www.python.org/) | Merges the gene counts, bead barcode metrics, and gene metrics data into a Loom formatted bead-by-gene matrix. By default, the Loom contains whole-gene counts. When `count_exons` is true, the task is run as `SlideseqLoomGenerationWithExons` and an additional layer is added to the Loom file containing exon counts. |
+| [StarAlign.MergeStarOutput (alias = MergeStarOutputsExons)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/StarAlign.wdl)              | create-npz-output.py | [Python 3](https://www.python.org/) | Creates a compressed raw NPY or NPZ file containing the STARsolo output features (NPY), barcodes (NPZ) and counts (NPZ). By default, `count_exons` is true and exon counts are included in output files. When `count_exons` is false, exon counts are excluded. | 
+| [LoomUtils.SingleNucleusOptimusLoomOutput (alias = SlideseqLoomGenerationWithExons)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/LoomUtils.wdl)     | create_loom_slide_seq.py | [Python 3](https://www.python.org/) | Merges the gene counts, bead barcode metrics, and gene metrics data into a Loom formatted bead-by-gene matrix. By default, the Loom file contains whole-gene counts with exon counts in an additional layer. When `count_exons` is false, the task is run as `SlideseqLoomGeneration` and exon counts are excluded. |
 
 #### 1. Calculating prealignment metrics
 The [FastqMetricsSlideSeq](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/FastqProcessing.wdl) task calculates prealignment metrics used for assessing data quality from the input FASTQ files. These metrics include the bead barcode distribution,  UMI distribution, number of reads per cell and number of UMIs per cell. These metrics are included in the final outputs of the workflow. 
@@ -140,7 +140,7 @@ STAR maps barcoded reads to the genome primary assembly reference (see the [Quic
 
 **Gene annotation and counting**
 
-Prior to gene counting, STARsolo adds gene annotations which will vary depending on the value of `count_exons`. By default, `count_exons` is “false” and STARsolo will run with the parameter `--soloFeatures GeneFull` to produce whole-gene counts. If `count_exons` is true, STARsolo will run with the parameter `--soloFeatures Gene GeneFull` to produce both whole-gene and exon counts.
+Prior to gene counting, STARsolo adds gene annotations which will vary depending on the value of `count_exons`. By default, `count_exons` is true and STARsolo will run with the parameter `--soloFeatures Gene GeneFull` to produce both whole-gene and exon counts. If `count_exons` is false, STARsolo will run with the parameter `--soloFeatures GeneFull` to produce whole-gene counts.
 
 The resulting BAM files are merged together into a single BAM using the [MergeSortBamFiles](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/MergeSortBam.wdl) task.
 
@@ -167,9 +167,9 @@ The [SlideSeqLoomOutput](https://github.com/broadinstitute/warp/blob/develop/tas
 
 **Gene counts**
 
-The type of gene counts in the Loom will vary depending on the value of the SlideSeq workflow input, `count_exons`. By default, `count_exons` is set to false and the output Loom will contain whole-gene counts. 
+The type of gene counts in the Loom will vary depending on the value of the SlideSeq workflow input, `count_exons`. By default, `count_exons` is set to true and the output Loom will contain whole-gene counts with exon counts in an additional layer.
 
-If the workflow is run with `count_exons` set to true, an additional layer will be created in the output Loom file containing exon counts. Using the `count_exons` parameter will cause the Loom matrix to have additional columns (bead barcodes) due to the difference in STARsolo counting mode.
+If the workflow is run with `count_exons` set to false, the output Loom file will contain whole-gene counts. Running the workflow in this configuration will cause the Loom matrix to have fewer columns (bead barcodes) due to the difference in STARsolo counting mode.
 
 You can determine which type of counts are in the Loom by looking at the global attribute `expression_data_type`.
 
