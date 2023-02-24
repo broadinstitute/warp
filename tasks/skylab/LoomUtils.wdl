@@ -110,7 +110,7 @@ task OptimusLoomGeneration {
 
     if [ "~{counting_mode}" == "sc_rna" ]; then
         python3 /usr/gitc/create_loom_optimus.py \
-          --empty_drops_file ~{empty_drops_result} \
+          ~{if defined(empty_drops_result) then "--empty_drops_file  " + empty_drops_result  else "--empty_drops_file empty_drops_result.csv "  } \
           --add_emptydrops_data ~{add_emptydrops_data} \
           --annotation_file ~{annotation_file} \
           --cell_metrics ~{cell_metrics} \
