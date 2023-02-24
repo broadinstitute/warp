@@ -57,10 +57,20 @@ workflow VerifyRNAWithUMIs {
   }
 
   if (!transcriptome_deterministic) {
+    call RemoveMultiMappers as RemoveMultiMappersTestBam{
+      input:
+        bam = test_transcriptome_bam
+    }
+
+    call RemoveMultiMappers as RemoveMultiMappersTruthBam{
+      input:
+        bam = truth_transcriptome_bam
+    }
+
     call CompareTranscriptomeBamNonDeterministic {
       input:
-        test_bam = test_transcriptome_bam,
-        truth_bam = truth_transcriptome_bam
+        test_bam = RemoveMultiMappersTestBam.output_bam,
+        truth_bam = RemoveMultiMappersTruthBam.output_bam
     }
 
     call CheckTranscriptomeBamComparisonWithTolerance {
@@ -107,6 +117,32 @@ workflow VerifyRNAWithUMIs {
   }
   meta {
     allowNestedInputs: true
+  }
+}
+
+task RemoveMultiMappers {
+  input {
+    File bam
+  }
+
+  String basename = basename(bam, ".bam")
+  Int disk_size = 2*ceil(size(bam,"GB")) + 20
+
+  command <<<
+    set -e
+    set -o pipefail
+
+    samtools view --min-MQ 4 -bo ~{basename}.multimapper_removed.bam ~{bam}
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
+    preemptible: 3
+    disks: "local-disk " + disk_size + " HDD"
+  }
+
+  output {
+    File output_bam = "~{basename}.multimapper_removed.bam"
   }
 }
 
