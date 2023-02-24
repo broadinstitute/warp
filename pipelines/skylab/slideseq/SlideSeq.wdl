@@ -36,7 +36,7 @@ workflow SlideSeq {
         File annotations_gtf
 
         String output_bam_basename
-        Boolean count_exons = true
+        Boolean count_exons = false
         File bead_locations
 
     }
