@@ -127,6 +127,10 @@ task ConsolidateErrors {
           # If string exists, copy output_file to failed_metrics_file.txt
           cat $f >> failed_metrics_file.txt
       fi
+      if [ -s failed_metrics_file.txt ]; then
+        # The error file is not-empty, exit with an error code
+        exit 1
+      fi
     done;
    >>>
   runtime {
