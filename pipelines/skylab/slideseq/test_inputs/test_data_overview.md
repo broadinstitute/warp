@@ -1,4 +1,4 @@
-# Slideseq Test Data
+# SlideSeq Test Data
 
 The following lists the data used for workflow validation, including workflow engineering (plumbing) tests and scientific validation tests.
 
