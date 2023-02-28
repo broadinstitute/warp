@@ -132,7 +132,7 @@ task RemoveMultiMappers {
     set -e
     set -o pipefail
 
-    samtools view --min-MQ 4 -bo ~{basename}.multimapper_removed.bam ~{bam}
+    samtools view -q 4 -bo ~{basename}.multimapper_removed.bam ~{bam}
   >>>
 
   runtime {
