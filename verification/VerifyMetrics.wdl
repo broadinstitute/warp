@@ -84,19 +84,6 @@ task CompareMetricFiles {
       --INPUT ~{file2} \
       --OUTPUT ~{output_file} \
       ~{true="--METRICS_TO_IGNORE" false="" length(metrics_to_ignore) > 0} ~{default="" sep=" --METRICS_TO_IGNORE " metrics_to_ignore};
-
-      #TODO: Check if file has the text "Metrics are NOT equal", if it does: create a file that contains just the first 3 lines fo the output file
-      #If the text is not found, ie. metrics are equal, do nothing or write an empty file.
-
-      # Check for the string "Metrics are NOT equal"
-      # if grep -q "Metrics are NOT equal" ~{output_file}
-      # then
-      #     # If string exists, copy output_file to failed_metrics_file.txt
-      #     cat ~{output_file} > failed_metrics_file.txt
-      # else
-      #     # If string does not exist, create an empty file named failed_metrics_file.txt
-      #     touch failed_metrics_file.txt
-      # fi
   >>>
 
   runtime {
@@ -108,7 +95,6 @@ task CompareMetricFiles {
   }
   output {
     File report_file = output_file
-    # File failed_metrics = "failed_metrics_file.txt"
   }
 }
 
