@@ -59,7 +59,7 @@ task checkOptimusInput {
     String counting_mode
     Boolean force_no_check
     Boolean count_exons
-    Int disk = ceil(size(r1_fastq, "GiB")) + 10
+    Int disk = ceil(size(r1_fastq, "GiB")) + 50
     Int machine_mem_mb = 1000
     Int cpu = 1
     Int tenx_chemistry_version
@@ -79,7 +79,7 @@ task checkOptimusInput {
     pass="true"
     
     ## Need to gunzip the r1_fastq
-    gunzip -c ~{r1_fastq} > r1.fastq
+    zcat ~{r1_fastq} | head -n2 > r1.fastq
     FASTQ=r1.fastq
     echo 'this is the fastq:' $FASTQ
     R1=$(awk 'NR==2' $FASTQ)

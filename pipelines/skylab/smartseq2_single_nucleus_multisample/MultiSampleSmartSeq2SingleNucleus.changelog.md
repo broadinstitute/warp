@@ -2,7 +2,7 @@
 2023-02-22 (Date of Last Commit)
 
 * Updated the input checks for the Optimus pipeline task; this has no effect on this pipeline
-* Added disk to the checkInputArrays task
+* Added disk to the checkInputArrays task 
 
 # 1.2.15
 2023-01-23 (Date of Last Commit)
