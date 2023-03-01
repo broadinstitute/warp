@@ -26,10 +26,10 @@ workflow TestOptimus {
     File annotations_gtf
     File ref_genome_fasta
     File? mt_genes
-    Boolean is_multiome = true
+    Boolean is_multiome = false
 
     # Chemistry options include: 2 or 3
-    Int tenx_chemistry_version = 2
+    Int tenx_chemistry_version = 3
     # Whitelist is selected based on the input tenx_chemistry_version
 
     # Emptydrops lower cutoff
