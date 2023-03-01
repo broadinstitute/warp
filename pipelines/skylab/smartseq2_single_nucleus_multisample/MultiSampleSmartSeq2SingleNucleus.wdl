@@ -40,7 +40,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
       String? input_id_metadata_field
   }
   # Version of this pipeline
-  String pipeline_version = "1.2.17"
+  String pipeline_version = "1.2.18"
 
   if (false) {
      String? none = "None"
