@@ -65,6 +65,8 @@ task checkOptimusInput {
     Int tenx_chemistry_version
     String whitelist_v2
     String whitelist_v3
+    String whitelist_multiome_v1
+    Boolean is_multiome
     Boolean ignore_r1_read_length
   }  
 
@@ -108,16 +110,19 @@ task checkOptimusInput {
         echo "ERROR: Invalid value count_exons should not be used with \"${counting_mode}\" input."
       fi
     fi
-    
-    if [[ ~{tenx_chemistry_version} == 2 ]]
+
+    if [[ ~{is_multiome} == "true" ]]
       then
-      WHITELIST=~{whitelist_v2}
+      WHITELIST="cellrangerWhitelist"
       echo $WHITELIST > whitelist.txt
-    elif [[ ~{tenx_chemistry_version} == 3 ]]
+    elif [[ $is_multiome == "false" ]] && [[ $tenx_chemistry_version == 2 ]]
       then
-      WHITELIST=~{whitelist_v3}
+      WHITELIST="whitelistv2"
       echo $WHITELIST > whitelist.txt
-    else
+    elif [[ $is_multiome == "false" ]] && [[ $tenx_chemistry_version == 3 ]]
+      then
+      WHITELIST="whitelistv3"
+      echo $WHITELIST > whitelist.txt
       pass="false"
       echo "ERROR: Chemistry version must be either 2 or 3"
     fi

@@ -36,6 +36,7 @@ workflow Optimus {
     Int tenx_chemistry_version
     # Whitelist is selected based on the input tenx_chemistry_version
     File whitelist = checkOptimusInput.whitelist_out
+    Boolean assay
 
     # Emptydrops lower cutoff
     Int emptydrops_lower = 100
@@ -71,6 +72,9 @@ workflow Optimus {
   File whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
   # Takes the first read1 FASTQ from the inputs to check for chemistry match
   File r1_single_fastq = r1_fastq[0]
+
+  # this needs to be pointing to google public bucket
+  File whitelist_multiome_v1 = "gs://broad-gotc-test-storage/Optimus/input/737K-arc-v1.txt"
 
   parameter_meta {
     r1_fastq: "forward read, contains cell barcodes and molecule barcodes"
