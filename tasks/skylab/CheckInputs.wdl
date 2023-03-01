@@ -113,15 +113,15 @@ task checkOptimusInput {
 
     if [[ ~{is_multiome} == "true" ]]
       then
-      WHITELIST="cellrangerWhitelist"
+      WHITELIST=~{whitelist_multiome_v1}
       echo $WHITELIST > whitelist.txt
     elif [[ $is_multiome == "false" ]] && [[ $tenx_chemistry_version == 2 ]]
       then
-      WHITELIST="whitelistv2"
+      WHITELIST=~{whitelist_v2}
       echo $WHITELIST > whitelist.txt
     elif [[ $is_multiome == "false" ]] && [[ $tenx_chemistry_version == 3 ]]
       then
-      WHITELIST="whitelistv3"
+      WHITELIST=~{whitelist_v3}
       echo $WHITELIST > whitelist.txt
       pass="false"
       echo "ERROR: Chemistry version must be either 2 or 3"
