@@ -566,6 +566,9 @@ task STARGenomeRefVersion {
 
   parameter_meta {
     tar_star_reference: "input STAR reference in TAR format"
+  }
+
+  command <<<
     # check genomic reference version and print to output txt file
     STRING=~{tar_star_reference}
     REFERENCE=""
