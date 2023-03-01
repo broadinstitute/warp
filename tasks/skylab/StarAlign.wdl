@@ -558,7 +558,7 @@ task STARsoloFastqSlideSeq {
 task STARGenomeRefVersion {
   input {
     String tar_star_reference
-    Int disk = 100
+    Int disk = 10
   }
 
   meta {
@@ -572,32 +572,16 @@ task STARGenomeRefVersion {
   command <<<
     # check genomic reference version and print to output txt file
     STRING=~{tar_star_reference}
-    REFERENCE=""
-    # Version is build version
-    VERSION=""
-    # Annotation is annotation version
-    ANNOTATION=""
-    if [[ $STRING == *"GENCODE"* ]]
-    then
-      REFERENCE="GENCODE"
-      VERSION=$(basename $STRING .tar| cut -d '_' -f 6)
-      ANNOTATION=$(basename $STRING .tar| cut -d '_' -f 7)
-      echo -e "$REFERENCE\n$VERSION\n$ANNOTATION" > reference_version.txt
-    elif [[ $STRING == *"NCBI"* ]]
-    then  
-      REFERENCE="NCBI"
-      VERSION=$(basename $STRING .tar| cut -d '_' -f 6,7)
-      ANNOTATION=$(basename $STRING .tar| cut -d '_' -f 8)
-      echo -e "$REFERENCE\n$VERSION\n$ANNOTATION" > reference_version.txt
-    else
-      REFERENCE="Unidentified reference type"
-      VERSION="Unidentified reference version"
-      ANNOTATION="Unidentified reference annotation"
-      echo -e "$REFERENCE\n$VERSION\n$ANNOTATION" > reference_version.txt
-    fi
+    BASE=$(basename $STRING .tar)
+    IFS=' -' read -r -a array <<< $BASE
+    REFERENCE=${array[3]}
+    VERSION=${array[5]}
+    ANNOTATION=${array[6]}
 
+    echo -e "$REFERENCE\n$VERSION\n$ANNOTATION" > reference_version.txt
     echo Reference is $REFERENCE
     echo Version is $VERSION
+    echo Annotation is $ANNOTATION
 
   >>>
 
@@ -607,10 +591,10 @@ task STARGenomeRefVersion {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1671490724"
-    memory: "50 GiB"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    memory: "2 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
-    cpu:"16"
+    cpu:"1"
   }
 }
