@@ -455,6 +455,7 @@ task STARsoloFastqSlideSeq {
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
     Int disk = ceil((size(tar_star_reference, "Gi") * 3)) + ceil(size(r1_fastq, "Gi") * 20) +  ceil(size(r2_fastq, "Gi") * 20)
     # by default request non preemptible machine to make sure the slow star alignment step completes
+    Int preemptible = 3
   }
 
   command <<<
