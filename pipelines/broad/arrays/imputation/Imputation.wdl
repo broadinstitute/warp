@@ -361,7 +361,8 @@ workflow Imputation {
   if (split_output_to_single_sample) {
     call tasks.SplitMultiSampleVcf {
       input:
-        multiSampleVcf = GatherVcfs.output_vcf
+        multiSampleVcf = GatherVcfs.output_vcf,
+        nSamples = CountSamples.nSamples
     }
   }
 
