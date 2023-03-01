@@ -26,7 +26,7 @@ workflow TestOptimus {
     File annotations_gtf
     File ref_genome_fasta
     File? mt_genes
-    Boolean is_multiome
+    Boolean is_multiome = true
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version = 2
