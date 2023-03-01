@@ -36,7 +36,7 @@ workflow Optimus {
     Int tenx_chemistry_version
     # Whitelist is selected based on the input tenx_chemistry_version
     File whitelist = checkOptimusInput.whitelist_out
-    Boolean assay
+    Boolean is_multiome = true
 
     # Emptydrops lower cutoff
     Int emptydrops_lower = 100
@@ -100,6 +100,8 @@ workflow Optimus {
       count_exons = count_exons,
       whitelist_v2 = whitelist_v2,
       whitelist_v3 = whitelist_v3,
+      whitelist_multiome_v1 = whitelist_multiome_v1,
+      is_multiome=is_multiome,
       tenx_chemistry_version = tenx_chemistry_version,
       r1_fastq = r1_single_fastq,
       ignore_r1_read_length = ignore_r1_read_length
