@@ -1,5 +1,7 @@
 version 1.0
 
+import "../../../tasks/broad/Utilities.wdl" as Utils
+
 # WORKFLOW DEFINITION
 workflow VUMCFastqQC {
   input {
@@ -9,10 +11,25 @@ workflow VUMCFastqQC {
     Int preemptible_tries = 3
   }
 
+  scatter (idx in range(length(fastq_1))) {
+    File new_fastq_1 = fastq_1[idx]
+    File new_fastq_2 = fastq_2[idx]
+
+    Float fastq_size = size(new_fastq_1, "GiB") + size(new_fastq_2, "GiB")
+  }
+
+  # Sum the read group bam sizes to approximate the aggregated bam size
+  call Utils.SumFloats as SumFloats {
+    input:
+      sizes = fastq_size,
+      preemptible_tries = preemptible_tries
+  }
+
   call ValidatePairendFastq {
     input:
       fastq_1 = fastq_1,
       fastq_2 = fastq_2,
+      total_size = SumFloats.total_size,
       sample_name = sample_name,
       preemptible_tries = preemptible_tries
   }
@@ -31,9 +48,10 @@ task ValidatePairendFastq {
     Array[File] fastq_2
     Int preemptible_tries
     String sample_name
+    Float total_size
   }
 
-  Int disk_size = ceil(size(fastq_1, "GB") + size(fastq_2, "GB") + 10)
+  Int disk_size = ceil(total_size + 10)
   String qc_file = sample_name + ".qc.txt"
   String res_file = sample_name + ".res.txt"
   String gzip_file = sample_name + ".gzip.txt"
