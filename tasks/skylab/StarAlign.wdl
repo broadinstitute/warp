@@ -574,9 +574,9 @@ task STARGenomeRefVersion {
     STRING=~{tar_star_reference}
     BASE=$(basename $STRING .tar)
     IFS=' -' read -r -a array <<< $BASE
-    REFERENCE=${array[3]}
-    VERSION=${array[5]}
-    ANNOTATION=${array[6]}
+    REFERENCE=${array[2]}
+    VERSION=${array[4]}
+    ANNOTATION=${array[5]}
 
     echo -e "$REFERENCE\n$VERSION\n$ANNOTATION" > reference_version.txt
     echo Reference is $REFERENCE
