@@ -1,3 +1,8 @@
+# 2.1.0
+2023-02-28 (Date of Last Commit)
+* Added new inputs for reference genome source, build version, and annotation version
+* Added checks to make sure input genome info matches the specified GTF file
+
 # 2.0.1
 2023-01-19 (Date of Last Commit)
 
