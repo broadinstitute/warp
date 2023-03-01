@@ -14,8 +14,7 @@
   "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/hg38/v0/star/star_2.7.9a_primary_gencode_human_v27.tar",
   "Optimus.input_id": "8k_pbmc",
   "Optimus.tenx_chemistry_version": "2",
-  "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/hg38/v0/gencode.v27.primary_assembly.annotation.gtf", 
-  "Optimus.ref_genome_fasta": "gs://gcp-public-data--broad-references/hg38/v0/GRCh38.primary_assembly.genome.fa"
+  "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/hg38/v0/gencode.v27.primary_assembly.annotation.gtf"
 }
 
 

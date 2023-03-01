@@ -29,7 +29,6 @@ workflow Optimus {
     # organism reference parameters
     File tar_star_reference
     File annotations_gtf
-    File ref_genome_fasta
     File? mt_genes
 
     # Chemistry options include: 2 or 3
@@ -82,7 +81,6 @@ workflow Optimus {
     input_name_metadata_field: "String that describes the metadata field containing the input_name"
     tar_star_reference: "star genome reference"
     annotations_gtf: "gtf containing annotations for gene tagging (must match star reference)"
-    ref_genome_fasta: "genome fasta file (must match star reference)"
     whitelist: "10x genomics cell barcode whitelist"
     tenx_chemistry_version: "10X Genomics v2 (10 bp UMI) or v3 chemistry (12bp UMI)"
     force_no_check: "Set to true to override input checks and allow pipeline to proceed with invalid input"
