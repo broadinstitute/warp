@@ -1,3 +1,8 @@
+# 5.7.2
+2023-02-28 (Date of Last Commit)
+
+* Added a new task to the worklow that reads the tar_star_reference file to obtain the genomic reference source, build version, and annotation version and outputs the information as txt file.
+
 # 5.7.1
 2023-02-13 (Date of Last Commit)
 

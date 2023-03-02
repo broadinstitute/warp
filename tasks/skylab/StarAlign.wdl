@@ -248,7 +248,7 @@ task STARsoloFastq {
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
-  command {
+  command <<<
     set -e
 
     UMILen=10
@@ -294,9 +294,9 @@ task STARsoloFastq {
       STAR \
       --soloType Droplet \
       --soloStrand Unstranded \
-      --runThreadN ${cpu} \
+      --runThreadN ~{cpu} \
       --genomeDir genome_reference \
-      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
+      --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
       --readFilesCommand "gunzip -c" \
       --soloCBwhitelist ~{white_list} \
       --soloUMIlen $UMILen --soloCBlen $CBLen \
@@ -313,9 +313,9 @@ task STARsoloFastq {
     STAR \
       --soloType Droplet \
       --soloStrand Unstranded \
-      --runThreadN ${cpu} \
+      --runThreadN ~{cpu} \
       --genomeDir genome_reference \
-      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
+      --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
       --readFilesCommand "gunzip -c" \
       --soloCBwhitelist ~{white_list} \
       --soloUMIlen $UMILen --soloCBlen $CBLen \
@@ -357,7 +357,7 @@ task STARsoloFastq {
     fi
     mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
 
-  }
+  >>>
 
   runtime {
     docker: docker
@@ -378,7 +378,6 @@ task STARsoloFastq {
     File barcodes_sn_rna = "barcodes_sn_rna.tsv"
     File features_sn_rna = "features_sn_rna.tsv"
     File matrix_sn_rna = "matrix_sn_rna.mtx"
-
   }
 }
 
@@ -552,7 +551,50 @@ task STARsoloFastqSlideSeq {
     File matrix = "matrix.mtx"
     File barcodes_sn_rna = "barcodes_exon.tsv"
     File features_sn_rna = "features_exon.tsv"
-    File matrix_sn_rna = "matrix_exon.mtx"
+    File matrix_sn_rna = "matrix_exon.mtx"  
+  }
+}
 
+task STARGenomeRefVersion {
+  input {
+    String tar_star_reference
+    Int disk = 10
+  }
+
+  meta {
+    description: "Reads the reference file name and outputs a txt file containing genome source, build, and annotation version"
+  }
+
+  parameter_meta {
+    tar_star_reference: "input STAR reference in TAR format"
+  }
+
+  command <<<
+    # check genomic reference version and print to output txt file
+    STRING=~{tar_star_reference}
+    BASE=$(basename $STRING .tar)
+    IFS=' -' read -r -a array <<< $BASE
+    REFERENCE=${array[2]}
+    VERSION=${array[4]}
+    ANNOTATION=${array[5]}
+
+    echo -e "$REFERENCE\n$VERSION\n$ANNOTATION" > reference_version.txt
+    echo Reference is $REFERENCE
+    echo Version is $VERSION
+    echo Annotation is $ANNOTATION
+
+  >>>
+
+# Output is TXT file containing reference source, build version and annotation version
+  output {
+    File genomic_ref_version = "reference_version.txt"
+  }
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    memory: "2 GiB"
+    disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
+    cpu:"1"
   }
 }
