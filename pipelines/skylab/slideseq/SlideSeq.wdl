@@ -23,7 +23,7 @@ import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 
 workflow SlideSeq {
 
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.1"
 
     input {
         Array[File] r1_fastq
@@ -47,6 +47,11 @@ workflow SlideSeq {
         i1_fastq: "Optional array of i1 FASTQ files; index read used for demultiplexing of multiple samples on one flow cell"
         input_id: "Name of sample matching this file; inserted into read group header"
         read_structure: "String used to specify the UMI (M) and Barcode (C) positions in the Read 1 FASTQ"
+    }
+
+    call StarAlign.STARGenomeRefVersion as ReferenceCheck {
+    input:
+      tar_star_reference = tar_star_reference
     }
 
     call Metrics.FastqMetricsSlideSeq as FastqMetrics {
@@ -151,6 +156,7 @@ workflow SlideSeq {
 
     output {
         String pipeline_version_out = pipeline_version
+        File genomic_reference_version = ReferenceCheck.genomic_ref_version
         File bam = MergeBam.output_bam
         # sparse count matrix
         File matrix = MergeStarOutputs.sparse_counts
