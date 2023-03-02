@@ -123,6 +123,7 @@ task checkOptimusInput {
       then
       WHITELIST=~{whitelist_v3}
       echo $WHITELIST > whitelist.txt
+    else
       pass="false"
       echo "ERROR: Chemistry version must be either 2 or 3"
     fi
