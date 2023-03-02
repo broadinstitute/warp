@@ -115,11 +115,11 @@ task checkOptimusInput {
       then
       WHITELIST=~{whitelist_multiome_v1}
       echo $WHITELIST > whitelist.txt
-    elif [[ ~{is_multiome} == "false" ]] && [[ $tenx_chemistry_version == 2 ]]
+    elif [[ ~{is_multiome} == "false" ]] && [[ ~{tenx_chemistry_version} == 2 ]]
       then
       WHITELIST=~{whitelist_v2}
       echo $WHITELIST > whitelist.txt
-    elif [[ ~{is_multiome} == "false" ]] && [[ $tenx_chemistry_version == 3 ]]
+    elif [[ ~{is_multiome} == "false" ]] && [[ ~{tenx_chemistry_version} == 3 ]]
       then
       WHITELIST=~{whitelist_v3}
       echo $WHITELIST > whitelist.txt
