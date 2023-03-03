@@ -205,7 +205,7 @@ task FastqToUbam {
     String read_group_name
     String sequencing_center
 
-    String docker = "us.gcr.io/broad-dsde-methods/ckachulis/picard-fastqtosam-empty-fastq"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:3.0.0"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2) + 50
@@ -399,7 +399,7 @@ task CollectMultipleMetrics {
     File ref_fasta_index
 
 
-    String docker =  "us.gcr.io/broad-dsde-methods/ckachulis/picard-fastqtosam-empty-fastq"
+    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:3.0.0"
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
