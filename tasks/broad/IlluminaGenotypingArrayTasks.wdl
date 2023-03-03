@@ -404,7 +404,7 @@ task SelectVariants {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+    docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -441,7 +441,7 @@ task SelectIndels {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+    docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -577,7 +577,7 @@ task SubsetArrayVCF {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+    docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
@@ -676,7 +676,7 @@ task ValidateVariants {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+    docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
