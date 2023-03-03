@@ -1,7 +1,11 @@
-# 1.1.9
+# 1.1.10
 2023-03-03 (Date of Last Commit)
 
 * Adjusted disk size calculation in SplitMultiSampleVcf
+
+# 1.1.9
+2023-01-13 (Date of Last Commit)
+
 * Updated remaining GATK uses to version 4.3.0.0
 
 # 1.1.8
