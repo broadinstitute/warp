@@ -6,7 +6,7 @@
 # 5.1.16
 2023-01-23 (Date of Last Commit)
 
-* Added "Disk" to task runtime sections to support running on Azure
+* Added 'Disk' to task runtime sections to support running on Azure
 * Addressed mb/gb memory specification inconsistencies in LoomUtils and CheckInput
 
 # 5.1.15
