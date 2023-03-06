@@ -1,9 +1,53 @@
 version 1.0
 
-struct References {
-  File genome_fa
-  File annotation_gtf
+workflow BuildIndices {
+  input {
+    # Genome source can be NCBI or GENCODE
+    String genome_source
+    # GTF annotation version refers to the version or release listed in the GTF
+    String gtf_annotation_version
+    # Genome build is the assembly accession (NCBI) or version (GENCODE)
+    String genome_build
+    File annotations_gtf
+    File genome_fa
+    String gtf_annotation_version
+    File biotypes
+  }
+
+  # version of this pipeline
+  String pipeline_version = "2.1.0"
+
+  parameter_meta {
+    annotations_gtf: "the annotation file"
+    genome_fa: "the fasta file"
+    biotypes: "gene_biotype attributes to include in the gtf file"
+  }
+
+  call BuildStarSingleNucleus {
+    input:
+      gtf_annotation_version = gtf_annotation_version,
+      genome_fa = genome_fa,
+      annotation_gtf = annotations_gtf,
+      biotypes = biotypes,
+      genome_build = genome_build,
+      genome_source = genome_source
+  }
+
+  output {
+
+    File snSS2_star_index = BuildStarSingleNucleus.star_index
+    String pipeline_version_out = "BuildIndices_v~{pipeline_version}"
+    File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
+    File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
+  }
 }
+
+
+#do we need this?
+#struct References {
+#  File genome_fa
+#  File annotation_gtf
+#}
 
 task BuildStarSingleNucleus {
   input {
@@ -83,45 +127,3 @@ task BuildStarSingleNucleus {
 }
 
 
-
-workflow BuildIndices {
-  input {
-    # Genome source can be NCBI or GENCODE
-    String genome_source
-    # GTF annotation version refers to the version or release listed in the GTF
-    String gtf_annotation_version
-    # Genome build is the assembly accession (NCBI) or version (GENCODE)
-    String genome_build
-    File annotations_gtf
-    File genome_fa
-    String gtf_annotation_version
-    File biotypes
-  }
-
-  # version of this pipeline
-  String pipeline_version = "2.1.0"
-
-  parameter_meta {
-    annotations_gtf: "the annotation file"
-    genome_fa: "the fasta file"
-    biotypes: "gene_biotype attributes to include in the gtf file"
-  }
-
-  call BuildStarSingleNucleus {
-    input:
-      gtf_annotation_version = gtf_annotation_version,
-      genome_fa = genome_fa,
-      annotation_gtf = annotations_gtf,
-      biotypes = biotypes,
-      genome_build = genome_build,
-      genome_source = genome_source
-  }
-
-  output {
-
-    File snSS2_star_index = BuildStarSingleNucleus.star_index
-    String pipeline_version_out = "BuildIndices_v~{pipeline_version}"
-    File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
-    File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
-  }
-}
