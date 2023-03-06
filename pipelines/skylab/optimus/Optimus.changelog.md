@@ -26,7 +26,7 @@
 # 5.6.1
 2023-01-23 (Date of Last Commit)
 
-* Added "Disk" to task runtime sections to support running on Azure
+* Added 'Disk' to task runtime sections to support running on Azure
 * Updated the emptyDrops container to address concerns outlined in #772 - avoiding the usage of the root directory inside the container. This also includes some optimizations: moved image to GCR instead of Quay, conformed to (most) of our docker style guideline, build time decreased to 1 hour from 1.5-2 hours, and the image size reduced to 1.5GB from 3GB.
 * EmptyDrops container has been upgraded to use R 4.2.2 and BiocManager 3.16
 * Addressed mb/gb memory specification inconsistencies in LoomUtils and CheckInput
