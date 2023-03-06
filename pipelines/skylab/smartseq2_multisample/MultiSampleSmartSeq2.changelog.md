@@ -1,7 +1,12 @@
+# 2.2.18
+2022-11-18 (Date of Last Commit)
+
+* SlideSeq-specific changes to LoomUtils.wdl. This change does not affect the MultiSmartSeq2 pipeline.
+
 # 2.2.17
 2023-01-23 (Date of Last Commit)
 
-* Added "Disk" to task runtime sections to support running on Azure
+* Added 'Disk' to task runtime sections to support running on Azure
 * Addressed mb/gb memory specification inconsistencies in LoomUtils and CheckInput
 
 # 2.2.16

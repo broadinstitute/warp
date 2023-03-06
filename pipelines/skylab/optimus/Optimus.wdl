@@ -60,8 +60,8 @@ workflow Optimus {
   }
 
   # version of this pipeline
-  
-  String pipeline_version = "5.7.0"
+  String pipeline_version = "5.7.2"
+
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -99,6 +99,11 @@ workflow Optimus {
       tenx_chemistry_version = tenx_chemistry_version,
       r1_fastq = r1_single_fastq,
       ignore_r1_read_length = ignore_r1_read_length
+  }
+
+  call StarAlign.STARGenomeRefVersion as ReferenceCheck {
+    input:
+      tar_star_reference = tar_star_reference
   }
 
   call FastqProcessing.FastqProcessing as SplitFastq {
@@ -214,6 +219,7 @@ workflow Optimus {
   output {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
+    File genomic_reference_version = ReferenceCheck.genomic_ref_version
     File bam = MergeBam.output_bam
     File matrix = MergeStarOutputs.sparse_counts
     File matrix_row_index = MergeStarOutputs.row_index
