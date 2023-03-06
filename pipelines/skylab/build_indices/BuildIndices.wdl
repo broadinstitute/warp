@@ -16,7 +16,6 @@ workflow BuildIndices {
     Boolean use_STAR_references = true
 
     #BWA inputs
-    File? genome_fa
     File? chrom_sizes_file
   }
 
@@ -51,10 +50,11 @@ workflow BuildIndices {
 
   output {
 
-    File snSS2_star_index = BuildStarSingleNucleus.star_index
+    File? snSS2_star_index = BuildStarSingleNucleus.star_index
     String pipeline_version_out = "BuildIndices_v~{pipeline_version}"
-    File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
-    File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
+    File? snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
+    File? snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
+    File? reference_bundle = BuildBWAreference.reference_bundle
   }
 }
 
@@ -144,7 +144,7 @@ task BuildStarSingleNucleus {
 task BuildBWAreference {
   input {
     File genome_fa
-    File chrom_sizes_file
+    File? chrom_sizes_file
 
     # Organism can be Macaque, Mouse, Human, etc.
     String organism
