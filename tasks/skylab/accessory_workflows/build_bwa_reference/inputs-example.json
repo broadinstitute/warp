@@ -1,7 +1,6 @@
 {
   "BuildBWARef.reference_fasta": "File",
   "BuildBWARef.chrom_sizes_file": "File",
-  "BuildBWARef.organism":  "organism",
-  "BuildBWARef.genome_source": "genome_source"
+  "BuildBWARef.ref_name": "String"
 }
 
