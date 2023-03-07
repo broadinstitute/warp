@@ -58,11 +58,6 @@ workflow BuildIndices {
   }
 }
 
-struct References {
-  File genome_fa
-  File annotation_gtf
-}
-
 task CalculateChromosomeSizes {
   input {
     File genome_fa
