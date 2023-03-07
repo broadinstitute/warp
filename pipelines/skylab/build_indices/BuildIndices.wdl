@@ -9,6 +9,7 @@ workflow BuildIndices {
     # Genome build is the assembly accession (NCBI) or version (GENCODE)
     String genome_build
     String organism
+
     File annotations_gtf
     File genome_fa
     File biotypes
@@ -46,9 +47,7 @@ workflow BuildIndices {
         organism = organism
     }
 
-
   output {
-
     File snSS2_star_index = BuildStarSingleNucleus.star_index
     String pipeline_version_out = "BuildIndices_v~{pipeline_version}"
     File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
@@ -57,11 +56,11 @@ workflow BuildIndices {
   }
 }
 
-
 struct References {
   File genome_fa
   File annotation_gtf
 }
+
 task CalculateChromosomeSizes {
   input {
     File genome_fa
@@ -74,7 +73,7 @@ task CalculateChromosomeSizes {
     preemptible: 3
     memory: "3 GiB"
     cpu: "1"
-    disks: "local-disk 100 HDD"
+    disks: "local-disk 150 HDD"
   }
   output {
     File chrom_sizes = "chrom.sizes"
@@ -177,10 +176,10 @@ task BuildBWAreference {
     mv ~{chrom_sizes_file} genome/chrom.sizes
     file=~{genome_fa}
     if [ ${file: -3} == ".gz" ]
-    then
-    gunzip -c ~{genome_fa} > genome/genome.fa
+      then
+      gunzip -c ~{genome_fa} > genome/genome.fa
     else
-    mv ~{genome_fa} genome/genome.fa
+      mv ~{genome_fa} genome/genome.fa
     fi
     bwa index genome/genome.fa
     tar --dereference -cvf - genome/ > ~{reference_name}.tar
