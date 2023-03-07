@@ -19,7 +19,7 @@
 * Removed all tasks unrelated to Optimus
 * Updated modify_gtf.py script to support references from Refseq and Gencode
 * Updated the input files to accept gtf and fasta files directly
-* 
+
 # 1.0.1
 
 2022-09-21 (Date of Last Commit)
