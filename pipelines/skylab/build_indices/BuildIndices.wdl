@@ -73,7 +73,7 @@ task CalculateChromosomeSizes {
     preemptible: 3
     memory: "3 GiB"
     cpu: "1"
-    disks: "local-disk 150 HDD"
+    disks: "local-disk 50 HDD"
   }
   output {
     File chrom_sizes = "chrom.sizes"
