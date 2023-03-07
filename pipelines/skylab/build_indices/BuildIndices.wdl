@@ -44,6 +44,8 @@ workflow BuildIndices {
         genome_fa = genome_fa,
         chrom_sizes_file = CalculateChromosomeSizes.chrom_sizes,
         genome_source = genome_source,
+        genome_build = genome_build,
+        gtf_annotation_version = gtf_annotation_version,
         organism = organism
     }
 
@@ -162,14 +164,17 @@ task BuildBWAreference {
     File genome_fa
     File? chrom_sizes_file
 
-    # Organism can be Macaque, Mouse, Human, etc.
-    String organism
+    # GTF annotation version refers to the version (GENCODE) or release (NCBI) listed in the GTF
+    String gtf_annotation_version
     # Genome source can be NCBI or GENCODE
     String genome_source
+    # Genome build is the assembly accession (NCBI) or version (GENCODE)
+    String genome_build
+    # Organism can be Macaque, Mouse, Human, etc.
+    String organism
   }
 
-  String reference_name = "bwa0.7.17-~{organism}-~{genome_source}"
-  #String reference_bundle = "~{reference_name}.tar"
+  String reference_name = "bwa0.7.17-~{organism}-~{genome_source}-build-~{genome_build}-~{gtf_annotation_version}"
 
   command <<<
     mkdir genome
