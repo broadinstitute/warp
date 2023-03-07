@@ -1,66 +1,54 @@
 version 1.0
 
 workflow BuildBWARef {
-  input {
-      File genome_fa
-      File chrom_sizes_file
-      # Organism can be Macaque, Mouse, Human, etc.
-      String organism
-      # Genome source can be NCBI or GENCODE
-      String genome_source
-  }
-
-
-  call BuildBWAreference {
-     input:
-        genome_fa = genome_fa,
-        chrom_sizes_file = chrom_sizes_file,
-        organism = organism,
-        genome_source = genome_source
-	}
-
-	output {
-	  File reference_bundle = BuildBWAreference.reference_bundle
+    input {
+        String ref_name
+        File reference_fasta
+        File chrom_sizes_file
     }
-  }
+
+    call BuildBWAreference {
+        input:
+            ref_name = ref_name,
+            reference_fasta = reference_fasta,
+            chrom_sizes_file = chrom_sizes_file
+    }
+
+    output {
+        File referenceBundle = BuildBWAreference.referenceBundle
+    }
+}
 
 task BuildBWAreference {
-     input {
-        File genome_fa
+    input {
+        String ref_name ## name of the tar.bz2 files without the suffix
+        File reference_fasta
         File chrom_sizes_file
-
-        # Organism can be Macaque, Mouse, Human, etc.
-        String organism
-        # Genome source can be NCBI or GENCODE
-        String genome_source
     }
 
-    String reference_name = "bwa0.7.17-~{organism}-~{genome_source}"
-    String reference_bundle = "~{reference_name}.tar"
-
-     command <<<
+    command <<<
         mkdir genome
         mv ~{chrom_sizes_file} genome/chrom.sizes
-        file=~{genome_fa}
+        file=~{reference_fasta}
         if [ ${file: -3} == ".gz" ]
         then
-            gunzip -c ~{genome_fa} > genome/genome.fa
+        gunzip -c ~{reference_fasta} > genome/genome.fa
         else
-            mv ~{genome_fa} genome/genome.fa
+        mv ~{reference_fasta} genome/genome.fa
         fi
         bwa index genome/genome.fa
-        tar --dereference -cvf - genome/ > ~{reference_bundle}.tar
-     >>>
+        tar --dereference -cvf - genome/ > ~{basename(reference_fasta)}.tar
+    >>>
 
-     runtime {
-       docker: "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463"
-	   memory: "96GB"
-	   disks: "local-disk 100 HDD"
-       disk: "100 GB" # TES
-	   cpu: "4"
-     }
+    runtime {
+        docker: "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463"
+        memory: "96GB"
+        disks: "local-disk 100 HDD"
+        disk: "100 GB" # TES
+        cpu: "4"
+    }
 
-     output {
-       File reference_bundle = "~{reference_bundle}.tar"
-     }
+    output {
+        File referenceBundle = "~{basename(reference_fasta)}.tar"
+    }
 }

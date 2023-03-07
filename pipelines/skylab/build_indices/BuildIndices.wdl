@@ -8,19 +8,15 @@ workflow BuildIndices {
     String gtf_annotation_version
     # Genome build is the assembly accession (NCBI) or version (GENCODE)
     String genome_build
+    String organism
     File annotations_gtf
     File genome_fa
-    String gtf_annotation_version
     File biotypes
-
-    Boolean use_STAR_references = true
-
-    #BWA inputs
-    File? chrom_sizes_file
   }
 
   # version of this pipeline
   String pipeline_version = "2.1.0"
+
 
   parameter_meta {
     annotations_gtf: "the annotation file"
@@ -28,7 +24,6 @@ workflow BuildIndices {
     biotypes: "gene_biotype attributes to include in the gtf file"
   }
 
-  if (use_STAR_references) {
     call BuildStarSingleNucleus {
       input:
         gtf_annotation_version = gtf_annotation_version,
@@ -36,25 +31,29 @@ workflow BuildIndices {
         annotation_gtf = annotations_gtf,
         biotypes = biotypes,
         genome_build = genome_build,
-        genome_source = genome_source
+        genome_source = genome_source,
+        organism = organism
     }
-  }
-  if (!use_STAR_references) {
+    call CalculateChromosomeSizes {
+      input:
+        genome_fa = genome_fa
+    }
     call BuildBWAreference {
       input:
         genome_fa = genome_fa,
-        chrom_sizes_file = chrom_sizes_file,
-        genome_source = genome_source
+        chrom_sizes_file = CalculateChromosomeSizes.chrom_sizes,
+        genome_source = genome_source,
+        organism = organism
     }
-  }
+
 
   output {
 
-    File? snSS2_star_index = BuildStarSingleNucleus.star_index
+    File snSS2_star_index = BuildStarSingleNucleus.star_index
     String pipeline_version_out = "BuildIndices_v~{pipeline_version}"
-    File? snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
-    File? snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
-    File? reference_bundle = BuildBWAreference.reference_bundle
+    File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
+    File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
+    File reference_bundle = BuildBWAreference.reference_bundle
   }
 }
 
@@ -62,6 +61,24 @@ workflow BuildIndices {
 struct References {
   File genome_fa
   File annotation_gtf
+}
+task CalculateChromosomeSizes {
+  input {
+    File genome_fa
+  }
+  command <<<
+    samtools faidx ~{genome_fa} | cut -f1,2 > chrom.sizes
+  >>>
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
+    preemptible: 3
+    memory: "3 GiB"
+    cpu: "1"
+    disks: "local-disk 100 HDD"
+  }
+  output {
+    File chrom_sizes = "chrom.sizes"
+  }
 }
 
 task BuildStarSingleNucleus {
@@ -153,7 +170,7 @@ task BuildBWAreference {
   }
 
   String reference_name = "bwa0.7.17-~{organism}-~{genome_source}"
-  String reference_bundle = "~{reference_name}.tar"
+  #String reference_bundle = "~{reference_name}.tar"
 
   command <<<
     mkdir genome
@@ -166,7 +183,7 @@ task BuildBWAreference {
     mv ~{genome_fa} genome/genome.fa
     fi
     bwa index genome/genome.fa
-    tar --dereference -cvf - genome/ > ~{reference_bundle}.tar
+    tar --dereference -cvf - genome/ > ~{reference_name}.tar
   >>>
 
   runtime {
@@ -178,7 +195,7 @@ task BuildBWAreference {
   }
 
   output {
-    File reference_bundle = "~{reference_bundle}.tar"
+    File reference_bundle = "~{reference_name}.tar"
   }
 }
 
