@@ -169,7 +169,7 @@ task BuildBWAreference {
     String organism
   }
 
-  String reference_name = "bwa0.7.17-~{organism}-~{genome_source}-build-~{genome_build}-~{gtf_annotation_version}"
+String reference_name = "bwa0.7.17-~{organism}-~{genome_source}-build-~{genome_build}"
 
   command <<<
     mkdir genome
