@@ -1,6 +1,6 @@
 # 2.1.1
 2023-03-07 (Date of Last Commit)
-*  Added the BuildBWAreference task to create BWA references in addition to STAR references.  
+* Added the BuildBWAreference task to create BWA references in addition to STAR references
 
 # 2.1.0
 2023-02-28 (Date of Last Commit)
