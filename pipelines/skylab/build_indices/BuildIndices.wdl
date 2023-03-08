@@ -110,7 +110,7 @@ task BuildStarSingleNucleus {
         exit 1;
     fi
     # Check that GTF file contains correct build source info in the first 10 lines of the GTF
-    if head -10 ~{annotation_gtf} | grep -qi ~{genome_build}
+    if head -10 ~{annotation_gtf} | grep -qi ~{genome_source}
     then
         echo Source of genome build identified in the GTF file
     else
