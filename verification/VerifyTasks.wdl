@@ -205,7 +205,7 @@ task CompareBams {
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
   Int disk_size = ceil(bam_size * 4) + 20
-  Int memory_mb = 20000
+  Int memory_mb = 40000
   Int java_memory_size = memory_mb - 1000
   Int max_heap = memory_mb - 500
 
@@ -247,7 +247,7 @@ task CompareCompressedTextFiles {
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "3.5 GiB"
+    memory: "10 GiB"
     preemptible: 3
   }
 
