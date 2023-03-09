@@ -1,0 +1,20 @@
+{
+  "ATAC.fastq_gzipped_input_read1": "File",
+  "ATAC.trim_disk_size": "Int? (optional)",
+  "ATAC.quality_cutoff": "Int",
+  "ATAC.trim_mem_size": "Int (optional, default = 4)",
+  "ATAC.bwa_threads": "Int (optional, default = 16)",
+  "ATAC.fastq_gzipped_input_read2": "File",
+  "ATAC.bwa_disk_size": "Int? (optional)",
+  "ATAC.bwa_mem_size": "Int (optional, default = 8)",
+  "ATAC.adapter_seq_read2": "String",
+  "ATAC.adapter_seq_read1": "String",
+  "ATAC.BWAPairedEndAlignment.docker_image": "String (optional, default = \"us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463\")",
+  "ATAC.read_group_id": "String (optional, default = \"RG1\")",
+  "ATAC.min_length": "Int",
+  "ATAC.output_base_name": "String",
+  "ATAC.TrimAdapters.docker_image": "String (optional, default = \"quay.io/broadinstitute/cutadapt:1.18\")",
+  "ATAC.read_group_sample_name": "String (optional, default = \"RGSN1\")",
+  "ATAC.monitoring_script": "File",
+  "ATAC.tar_bwa_reference": "File"
+}
