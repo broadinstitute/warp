@@ -138,3 +138,7 @@ workflows:
   - name: VUMCMd5
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMd5.wdl
+    
+  - name: VUMCCopyFile
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCCopyFile.wdl
