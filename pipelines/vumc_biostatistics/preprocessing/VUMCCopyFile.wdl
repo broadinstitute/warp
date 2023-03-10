@@ -16,6 +16,7 @@ workflow VUMCCopyFile {
 
   output {
     String target_file = CopyFile.target_file
+    Array[String] target_file_array = [CopyFile.target_file]
   }
 }
 
