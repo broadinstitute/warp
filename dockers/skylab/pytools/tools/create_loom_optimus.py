@@ -135,7 +135,7 @@ def generate_col_attr(args):
     if metrics_df.shape[0] == 0 or metrics_df.shape[1] == 0:
         logging.error("Cell metrics table is not valid")
         raise ValueError()
-    metrics_df = metrics_df.rename(columns={"Unnamed: 0": "cell_id"})
+    metrics_df = metrics_df.rename(columns={"barcode": "cell_id"})
 
     add_emptydrops_results = args.add_emptydrops_results
     if add_emptydrops_results == 'yes':
@@ -154,9 +154,6 @@ def generate_col_attr(args):
         "n_reads",
         "noise_reads",
         "perfect_molecule_barcodes",
-        "reads_mapped_exonic",
-        "reads_mapped_intronic",
-        "reads_mapped_utr",
         "reads_mapped_uniquely",
         "reads_mapped_multiple",
         "duplicate_reads",
@@ -167,8 +164,6 @@ def generate_col_attr(args):
         "fragments_with_single_read_evidence",
         "molecules_with_single_read_evidence",
         "perfect_cell_barcodes",
-        "reads_mapped_intergenic",
-        "reads_unmapped",
         "reads_mapped_too_many_loci",
         "n_genes",
         "genes_detected_multiple_observations"
