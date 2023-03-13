@@ -81,6 +81,13 @@ task ValidateCRAM {
       else
         echo "no summary genereated" >> ~{output_name}
       fi
+
+      ~{gatk_path} \
+      samtools view -c -T $reference_file $input_cram > ~{mapped_file} 
+
+      ~{gatk_path} \
+      samtools flagstat $input_cram | cut -f1 -d' ' | head -n5 | tail -n1 > ~{unmapped_file}
+
     done
   >>>
 
@@ -92,5 +99,7 @@ task ValidateCRAM {
   output {
     File validation_report = "~{output_name}"
     Int cram_qc_failed = read_int("~{res_file}")
+    Int Number_mapped_reads = read_int("~{mapped_file}")
+    Int Number_unmapped_reads = read_int("~{unmapped_file}")
   }
 }
