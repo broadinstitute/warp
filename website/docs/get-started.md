@@ -85,7 +85,7 @@ Each pipeline in WARP has accompanying continuous integration tests that run on 
 
 ## Feedback
 
-WARP is always evolving! Please file any issues in GitHub or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) with suggestions, feedback, or questions. We are always excited to discuss cloud data processing, provenance and reproducibility in scientific analysis, new pipeline features, or potential collaborations. Don’t hesitate to reach out!
+WARP is always evolving! Please file any issues in GitHub or contact [the WARP Team](mailto:warp-pipelines-help@broadinstitute.org) with suggestions, feedback, or questions. We are always excited to discuss cloud data processing, provenance and reproducibility in scientific analysis, new pipeline features, or potential collaborations. Don’t hesitate to reach out!
 
 Our planned upcoming improvements include:
 
@@ -94,6 +94,11 @@ Our planned upcoming improvements include:
 3. Continued additions of pipeline documentation
 4. Pre-written methods sections and DOIs to enable easy publication citations
 5. More pipelines: bulk RNAseq, SlideSeq, updates to joint genotyping
+
+## Citing WARP
+When citing WARP, please use the following:
+
+Degatano K, Grant G, Khajouei F et al. Introducing WARP: A collection of cloud-optimized workflows for biological data processing and reproducible analysis [version 1; not peer reviewed]. F1000Research 2021, 10(ISCB Comm J):705 (slides) (doi: 10.7490/f1000research.1118678.1)
 
 ## Acknowledgements
 

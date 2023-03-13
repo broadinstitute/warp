@@ -29,7 +29,8 @@
             "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/LCR-hs38.bed",
             "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/exome.twist.bed",
             "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/mappability.0.bed",
-            "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/hmers_7_and_higher.bed"
+            "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/hmers_7_and_higher.bed",
+            "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/ug_hcr.bed"
         ],
         "runs_file":"gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/runs.conservative.bed",
         "af_only_gnomad": "gs://gcp-public-data--broad-references/hg38/v0/somatic-hg38/af-only-gnomad.hg38.vcf.gz",
@@ -47,6 +48,5 @@
         "wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list",
         "remove_low_tree_score_sites_cutoff": 0.2,
         "annotations_to_keep_command_for_reblocking": "--annotations-to-keep TREE_SCORE --annotations-to-keep ASSEMBLED_HAPS --annotations-to-keep FILTERED_HAPS"
-    },
-    "UltimaGenomicsWholeGenomeGermline.ReblockGVCF.Reblock.docker_image":"us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_feature_branch_v4"
+    }
 }

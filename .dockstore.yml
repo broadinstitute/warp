@@ -98,3 +98,11 @@ workflows:
   - name: UltimaGenomicsWholeGenomeCramOnly
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl
+
+  - name: BuildIndices
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/build_indices/BuildIndices.wdl
+
+  - name: SlideSeq
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/slideseq/SlideSeq.wdl

@@ -4,7 +4,7 @@
 
 Copy and paste to pull this image
 
-#### `docker pull us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730`
+#### `docker pull us.gcr.io/broad-gotc-prod/pytools:1.0.1-1668787591`
 
 - __What is this image:__ This image is a Debian-based custom image that contains Python scripts used in various WARP pipelines.
 - __How to see tool version used in image:__ Please see below.
@@ -21,15 +21,15 @@ We keep track of all past versions in [docker_versions](docker_versions.tsv) wit
 You can see more information about the image, including the tool versions, by running the following command:
 
 ```bash
-$ docker pull us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730
-$ docker inspect us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730
+$ docker pull us.gcr.io/broad-gotc-prod/pytools:1.0.1-1668787591
+$ docker inspect us.gcr.io/broad-gotc-prod/pytools:1.0.1-1668787591
 ```
 
 ## Usage
 
 ```bash
 $ docker run --rm -it \
-    us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730 <script.py>
+    us.gcr.io/broad-gotc-prod/pytools:1.0.1-1668787591 <script.py>
 ```
 
 ## Scripts
@@ -45,6 +45,7 @@ This image contains the following scripts:
 
 The following scripts create a loom file from counts, metadata, and metrics from each pipeline:
 * `create_loom_optimus.py` for Optimus pipeline
+* `create_loom_slide_seq.py` for SlideSeq pipeline
 * `create_loom_snss2.py` for Single Nucleus Smart-Seq2 pipeline
 * `create_snrna_optimus.py` for Optimus in `sn_rna` mode with `count_exons=false`
 * `create_snrna_optimus_counts.py` for Optimus in `sn_rna` mode with `count_exons=true`

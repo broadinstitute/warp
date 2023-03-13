@@ -1,3 +1,25 @@
+# 1.2.18
+2023-02-28 (Date of Last Commit)
+
+* Added a new task to the workflow that reads the tar_star_reference file to obtain the genomic reference source, build version, and annotation version and outputs the information as a txt file
+
+# 1.2.17
+2023-02-13 (Date of Last Commit)
+
+* SlideSeq-specific changes to LoomUtils.wdl. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline
+
+# 1.2.16
+2023-02-07 (Date of Last Commit)
+
+* Updated the input checks for the Optimus pipeline task; this has no effect on this pipeline
+* Added disk to the checkInputArrays task 
+
+# 1.2.15
+2023-01-23 (Date of Last Commit)
+
+* Added 'Disk' to task runtime sections to support running on Azure
+* Addressed mb/gb memory specification inconsistencies in LoomUtils and CheckInput
+
 # 1.2.14
 2022-09-20 (Date of Last Commit)
 
