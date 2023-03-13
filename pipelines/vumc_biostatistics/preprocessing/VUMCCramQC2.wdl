@@ -19,7 +19,7 @@ workflow VUMCCramQC2 {
     input:
       input_crams = input_crams,
       sample_name = sample_name,
-      samtools_docker = samtools_docker,
+      docker = samtools_docker,
       samtools_path = samtools_path,
       reference_file = reference_file,
       
