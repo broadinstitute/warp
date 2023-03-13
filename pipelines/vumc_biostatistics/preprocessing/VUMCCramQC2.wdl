@@ -1,7 +1,7 @@
 version 1.0
 
 #WORKFLOW DEFINITION   
-workflow VUMCCramQC {
+workflow VUMCCramQC2 {
   input {
     Array[File] input_crams
     String sample_name
