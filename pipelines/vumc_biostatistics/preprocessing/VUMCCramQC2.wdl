@@ -11,11 +11,11 @@ workflow VUMCCramQC2 {
   }
 
   output {
-    Int unmapped_reads = CRAM_unmapped_reads
-    Int mapped_reads = CRAM_mapped_reads
+    Int unmapped_reads = CountCRAM.NumberUnmappedReads
+    Int mapped_reads = CountCRAM.NumberMappedReads
   }
 
-  call ValidateCRAM {
+  call CountCRAM {
     input:
       input_crams = input_crams,
       sample_name = sample_name,
@@ -27,8 +27,8 @@ workflow VUMCCramQC2 {
 }
 
 # TASK DEFINITIONS
-# Validate a cram using Picard ValidateSamFile
-task ValidateCRAM {
+# Counting the number of mapped and unmapped reads in CRAM file using samtools
+task CountCRAM {
   input {
     # Command parameters
     Array[File] input_crams
