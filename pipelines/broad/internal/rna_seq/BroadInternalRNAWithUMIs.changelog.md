@@ -1,7 +1,8 @@
 # 1.0.21
-2022-12-16 (Date of Last Commit)
+2023-03-03 (Date of Last Commit)
 
 * Updated to GATK version 4.3.0.0
+* Improvements to determinism, along with tests passing without call caching
 
 # 1.0.20
 2022-12-07 (Date of Last Commit)
@@ -9,7 +10,7 @@
 * In MergeMetrics task, convert \"?\" to \"NaN\" and round some median metrics to integers.
 
 # 1.0.19
-2022-12-14 (Date of Last Commit)
+2022-11-08 (Date of Last Commit)
 
 * Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
 * Fixied whitespace in the BroadInternalRNAWithUMIS.wdl, this has no functional effect on the pipeline
@@ -18,9 +19,6 @@
 * Updated task FormatArraysOutputs in InternalArrraysTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
 * Force task rnaseqc2 to produce an empty fragment size file when rnaseqc2 does not produce this file due to insufficient data.
 * Removed workspace_bucket workflow parameter from BroadInternalArrays and BroadInternalImputation.
-* Update rnaseqc2 version to address bias metric edge cases
-* Turn off python hash salting in GroupByUMIs to mitigate non-determinism in umi_tools.
-* --use-jdk-deflater in PostProcessReadsForRSEM due to GKL compression bug in current GATK>=4.2.1.0
 
 # 1.0.18
 2022-09-30 (Date of Last Commit)
