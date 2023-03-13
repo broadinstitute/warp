@@ -142,3 +142,7 @@ workflows:
   - name: VUMCCopyFile
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCCopyFile.wdl
+ 
+  - name: VUMCCramQC2
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCCramQC2.wdl
