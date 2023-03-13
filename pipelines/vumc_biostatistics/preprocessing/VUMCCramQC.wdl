@@ -54,7 +54,9 @@ task ValidateCRAM {
   Int disk_size = ceil(size(input_crams, "GB")) + addtional_disk_space_gb
   String output_name = "${sample_name}_${validation_mode}.txt"
   String res_file = "${sample_name}_res.txt"
- 
+  String mapped_file = "${sample_name}_numMapped.txt"
+  String unmapped_file = "${sample_name}_numUnmapped.txt"
+
   command <<<
     echo "0" > ~{res_file}
 
