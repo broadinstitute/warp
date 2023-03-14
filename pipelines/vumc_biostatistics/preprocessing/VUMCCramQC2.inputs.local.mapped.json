@@ -1,0 +1,6 @@
+{
+    "VUMCCramQC.sample_name": "Test",
+    "VUMCCramQC.reference_file": "/data/cqs/references/gencode/GRCh38DH/GRCh38_full_analysis_set_plus_decoy_hla.fa",
+    "VUMCCramQC.input_crams": ["/scratch/cqs/shengq2/dnaseq/example_data/chr1.cram"]
+  }
+  
