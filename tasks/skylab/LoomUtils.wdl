@@ -109,7 +109,7 @@ task OptimusLoomGeneration {
     touch empty_drops_result.csv
 
     if [ "~{counting_mode}" == "sc_rna" ]; then
-        python3 /usr/gitc/create_loom_optimus.py \
+        python3 /warptools/scripts/create_loom_optimus.py \
           ~{if defined(empty_drops_result) then "--empty_drops_file  " + empty_drops_result  else "--empty_drops_file empty_drops_result.csv "  } \
           --add_emptydrops_data ~{add_emptydrops_data} \
           --annotation_file ~{annotation_file} \
@@ -126,7 +126,7 @@ task OptimusLoomGeneration {
           --expression_data_type "exonic" \
           --pipeline_version ~{pipeline_version}
     else
-        python3 /usr/gitc/create_snrna_optimus.py \
+        python3 /warptools/scripts/create_snrna_optimus.py \
           --annotation_file ~{annotation_file} \
           --cell_metrics ~{cell_metrics} \
           --gene_metrics ~{gene_metrics} \
@@ -263,7 +263,7 @@ task SingleNucleusOptimusLoomOutput {
     command {
         set -euo pipefail
 
-        python3 /usr/gitc/create_snrna_optimus_counts.py \
+        python3 /warptools/scripts/create_snrna_optimus_counts.py \
         --annotation_file ~{annotation_file} \
         --cell_metrics ~{cell_metrics} \
         --gene_metrics ~{gene_metrics} \
@@ -408,7 +408,7 @@ task SlideSeqLoomOutput {
   }
 
   command <<<
-    python3 /usr/gitc/create_loom_slide_seq.py \
+    python3 /warptools/scripts/create_loom_slide_seq.py \
        --bead_locations ~{bead_locations} \
        --annotation_file ~{annotation_file} \
        --cell_metrics ~{cell_metrics} \
