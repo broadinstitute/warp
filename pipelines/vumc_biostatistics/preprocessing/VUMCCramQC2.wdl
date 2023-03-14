@@ -5,8 +5,8 @@ workflow VUMCCramQC2 {
   input {
     Array[File] input_crams
     String sample_name
-    String samtools_docker = "registry.hub.docker.com/mgibio/samtools-cwl"
-    String samtools_path = "/samtools-cwl/"
+    String samtools_docker = "https://quay.io/organization/staphb/"
+    String samtools_path = "/staphb/samtools/"
     File reference_file
   }
 
