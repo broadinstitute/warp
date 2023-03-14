@@ -137,7 +137,7 @@ def generate_col_attr(barcode_1_path,barcode_2_path,cell_metrics_path):
     if metrics_df.shape[0] == 0 or metrics_df.shape[1] == 0:
         logging.error("Cell metrics table is not valid")
         raise ValueError()
-    metrics_df = metrics_df.rename(columns={"barcode": "cell_id"})
+    metrics_df = metrics_df.rename(columns={"CellId": "cell_id"})
 
     # Order the cells by merging with cell_ids
     cellorder_df = pd.DataFrame(data={"cell_id": cell_ids})

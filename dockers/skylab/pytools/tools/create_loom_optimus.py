@@ -23,7 +23,7 @@ def create_gene_id_name_map(gtf_file):
 
     # loop through the lines and find the gene_id and gene_name pairs
     with gzip.open(gtf_file, "rt") if gtf_file.endswith(".gz") else open(
-            gtf_file, "r"
+        gtf_file, "r"
     ) as fpin:
         for _line in fpin:
             line = _line.strip()
@@ -135,16 +135,16 @@ def generate_col_attr(args):
     if metrics_df.shape[0] == 0 or metrics_df.shape[1] == 0:
         logging.error("Cell metrics table is not valid")
         raise ValueError()
-    metrics_df = metrics_df.rename(columns={"barcode": "cell_id"})
+    metrics_df = metrics_df.rename(columns={"CellID": "cell_id"})
 
     add_emptydrops_results = args.add_emptydrops_results
     if add_emptydrops_results == 'yes':
-        emptydrops_df = pd.read_csv(args.empty_drops_file, dtype=str)
-        if emptydrops_df.shape[0] == 0 or emptydrops_df.shape[1] == 0:
-            logging.error("EmptyDrops table is not valid")
-            raise ValueError()
-        # Rename cell columns for both datasets to cell_id
-        emptydrops_df = emptydrops_df.rename(columns={"CellId": "cell_id"})
+       emptydrops_df = pd.read_csv(args.empty_drops_file, dtype=str)
+       if emptydrops_df.shape[0] == 0 or emptydrops_df.shape[1] == 0:
+           logging.error("EmptyDrops table is not valid")
+           raise ValueError()
+      # Rename cell columns for both datasets to cell_id
+       emptydrops_df = emptydrops_df.rename(columns={"CellId": "cell_id"})
 
     # Order the cells by merging with cell_ids
     cellorder_df = pd.DataFrame(data={"cell_id": cell_ids})
@@ -197,7 +197,7 @@ def generate_col_attr(args):
 
         emptydrops_df = emptydrops_df.rename(columns=namemap)
 
-        # Confirm that the emptydrops table is a subset of the cell metadata table, fail if not
+    # Confirm that the emptydrops table is a subset of the cell metadata table, fail if not
         if not emptydrops_df.cell_id.isin(metrics_df.cell_id).all():
             logging.error(
                 "Not all emptydrops cells can be found in the metrics table."
@@ -210,7 +210,7 @@ def generate_col_attr(args):
         final_df = cellorder_df.merge(merged_df, on="cell_id", how="left")
 
         ColumnNames = IntColumnNames + ["emptydrops_Total"] + FloatColumnNames + \
-                      [ "emptydrops_LogProb", "emptydrops_PValue", "emptydrops_FDR" ]
+            [ "emptydrops_LogProb", "emptydrops_PValue", "emptydrops_FDR" ]
         BoolColumnNames = ["emptydrops_Limited", "emptydrops_IsCell"]
 
     else:
