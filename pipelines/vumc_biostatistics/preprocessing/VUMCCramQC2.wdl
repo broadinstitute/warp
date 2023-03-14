@@ -5,8 +5,7 @@ workflow VUMCCramQC2 {
   input {
     Array[File] input_crams
     String sample_name
-    String samtools_docker = "https://quay.io/organization/staphb/"
-    String samtools_path = "/staphb/samtools/"
+    String samtools_docker = "staphb/samtools:latest"
     File reference_file
   }
 
@@ -20,7 +19,6 @@ workflow VUMCCramQC2 {
       input_crams = input_crams,
       sample_name = sample_name,
       docker = samtools_docker,
-      samtools_path = samtools_path,
       reference_file = reference_file,
       
   }
@@ -33,7 +31,6 @@ task CountCRAM {
     # Command parameters
     Array[File] input_crams
     String sample_name
-    String samtools_path
     File reference_file
 
   
@@ -46,6 +43,8 @@ task CountCRAM {
   Int disk_size = ceil(size(input_crams, "GB")) + addtional_disk_space_gb
   String NumUnmapped = "${sample_name}_Unmapped.txt"
   String NumMapped = "${sample_name}_Mapped.txt"
+  String FinalNumUnmapped = "${sample_name}_final_Unmapped.txt"
+  String FinalNumMapped = "${sample_name}_final_Mapped.txt"
 
   command <<<
     echo "0" > ~{NumUnmapped}
@@ -54,13 +53,17 @@ task CountCRAM {
     for input_cram in ~{sep=" " input_crams}
     do
     
-    ~{samtools_path} \
-        samtools flagstat $input_cram |cut -f1 -d' '|head -n3|tail -n1 > ~{NumMapped}
+        samtools flagstat $input_cram |cut -f1 -d' '|head -n3|tail -n1 >> ~{NumMapped}
 
-    ~{samtools_path} \
-        samtools view -c -T $reference_file $input_cram > ~{NumUnmapped}
+        samtools view -c -T $reference_file $input_cram >> ~{NumUnmapped}
 
     done
+
+    #command to sum the above
+    NumMapped=$(cat ~{NumMapped})
+    echo $NumMapped | sed 's/ /+/g'|bc > ~{FinalNumMapped}
+    NumUnmapped=$(cat ~{NumUnmapped})
+    echo $NumUnmapped | sed 's/ /+/g'|bc > ~{FinalNumUnmapped}
   >>>
 
   runtime {
@@ -69,7 +72,7 @@ task CountCRAM {
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
-    Int NumberUnmappedReads = read_int("~{NumMapped}")
-    Int NumberMappedReads = read_int("~{NumUnmapped}")
+    Int NumberUnmappedReads = read_int("~{FinalNumUnmapped}")
+    Int NumberMappedReads = read_int("~{FinalNumMapped}")
   }
 }
