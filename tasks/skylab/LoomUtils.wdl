@@ -62,7 +62,7 @@ task OptimusLoomGeneration {
 
   input {
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.1-1678797977"
     # name of the sample
     String input_id
     # user provided id
@@ -218,7 +218,7 @@ task SingleNucleusOptimusLoomOutput {
 
     input {
         #runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+        String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.1-1678797977"
         # name of the sample
         String input_id
         # user provided id
@@ -401,7 +401,7 @@ task SlideSeqLoomOutput {
     String input_id
     String pipeline_version
 
-    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.1-1668787591"
+    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.1-1678797977"
     Int disk_size_gb = 200
     Int memory_mb = 18000
     Int cpu = 4
