@@ -31,7 +31,6 @@ workflow ATAC {
       fastq_input_read2 = fastq_gzipped_input_read2,
       output_base_name = output_base_name,
       monitoring_script = monitoring_script
-
     }
 
   call BWAPairedEndAlignment {
@@ -40,9 +39,9 @@ workflow ATAC {
       fastq_input_read2 = TrimAdapters.fastq_trimmed_adapter_output_read2,
       output_base_name = output_base_name,
       monitoring_script = monitoring_script
-
     }
 }
+
   # trim read 1 and read 2 adapter sequeunce with cutadapt
   task TrimAdapters {
     input {
@@ -57,7 +56,6 @@ workflow ATAC {
       Int quality_cutoff
       String adapter_seq_read1
       String adapter_seq_read2
-
   }
 
    parameter_meta {
@@ -129,7 +127,6 @@ workflow ATAC {
       Int? disk_size = ceil(3.25 * (size(fastq_input_read1, "GiB") + size(fastq_input_read2, "GiB") + size(tar_bwa_reference, "GiB"))) + 200 
       Int nthreads = 16
       Int mem_size = 8
-
    }
 
     parameter_meta {
@@ -173,7 +170,6 @@ workflow ATAC {
         $REF_DIR/genome.fa \
         <(zcat ~{fastq_input_read1}) <(zcat ~{fastq_input_read2}) \
         > ~{sam_aligned_output_name}
-
     }
 
     runtime {
