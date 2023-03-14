@@ -56,7 +56,7 @@ task CalculateCellMetrics {
     --nthreads ${cpu} \
     ~{"--mitochondrial-gene-names-filename " + mt_genes}
 
-    # add the column header "barcode" to the first column in the .csv file
+    # add the column header "CellID" to the first column in the .csv file
     sed '1s/^/CellID/' ~{input_id}.cell-metrics.csv > updated.~{input_id}.cell-metrics.csv
     # remove the following columns: reads_unmapped 28, reads_mapped_exonic 5, reads_mapped_intronic 6, reads_mapped_utr 7 , reads_mapped_intergenic 27
     cut -d',' -f 1-4,8-26,29-36 updated.~{input_id}.cell-metrics.csv > ~{input_id}.cell-metrics.csv
