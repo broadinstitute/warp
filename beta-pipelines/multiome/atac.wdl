@@ -124,7 +124,7 @@ workflow ATAC {
       String output_base_name
       String docker_image = "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463"
       File monitoring_script
-      Int? disk_size = ceil(3.25 * (size(fastq_input_read1, "GiB") + size(fastq_input_read2, "GiB") + size(tar_bwa_reference, "GiB"))) + 200 
+      Int disk_size = ceil(3.25 * (size(fastq_input_read1, "GiB") + size(fastq_input_read2, "GiB") + size(tar_bwa_reference, "GiB"))) + 200 
       Int nthreads = 16
       Int mem_size = 8
    }
