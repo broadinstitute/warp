@@ -248,7 +248,7 @@ task SingleNucleusOptimusLoomOutput {
 
         Int preemptible = 3
         Int disk = 200
-        Int machine_mem_mb = 64000
+        Int machine_mem_mb = 80000
         Int cpu = 4
     }
 
