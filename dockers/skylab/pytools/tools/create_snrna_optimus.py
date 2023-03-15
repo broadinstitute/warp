@@ -218,7 +218,7 @@ def generate_col_attr(args):
 
 def generate_matrix(args):
 
-    # read .npz file expression counts and add it to the expression_counts dataset
+    # read .npz file expression counts and add it to the expression_counts dataset 
     exp_counts = np.load(args.count_matrix)
     # now convert it back to a csr_matrix object
     csr_exp_counts = sparse.csr_matrix(
