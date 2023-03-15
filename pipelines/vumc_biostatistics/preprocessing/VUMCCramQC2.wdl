@@ -26,8 +26,6 @@ workflow VUMCCramQC2 {
   
   call SumCounts {
     input:
-      mapped_counts = ~{NumMapped},
-      unmapped_counts = ~{NumUnmapped},
       docker = bash_docker
 
   }
@@ -67,32 +65,30 @@ task CountCRAM {
 
     done
   >>>
-
-  task SumCounts{
-    input{
-      Array[File] ~{NumMapped}
-      Array[File] ~{NumUnmapped}
-    }
-
-  String FinalNumUnmapped = "${sample_name}_final_Unmapped.txt"
-  String FinalNumMapped = "${sample_name}_final_Mapped.txt"
-    command <<<
-
-     NumMapped=$(cat ~{NumMapped})
-     echo $NumMapped | sed 's/ /+/g'|bc > ~{FinalNumMapped}
-
-     NumUnmapped=$(cat ~{NumUnmapped})
-     echo $NumUnmapped | sed 's/ /+/g'|bc > ~{FinalNumUnmapped}
-
-    >>>
-  }
-
   runtime {
     docker: docker
     memory: machine_mem_gb + " GB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
+    File Mapped_reads_report = "~{NumMapped}"
+    File Unmapped_reads_report = "~{NumUnmapped}"
+  }
+}
+
+task SumCounts{
+  
+  String FinalNumUnmapped = "${sample_name}_final_Unmapped.txt"
+  String FinalNumMapped = "${sample_name}_final_Mapped.txt"
+
+  command <<<
+    NumMapped=$(cat ~{NumMapped})
+    echo $NumMapped | sed 's/ /+/g'|bc > ~{FinalNumMapped}
+    NumUnmapped=$(cat ~{NumUnmapped})
+    echo $NumUnmapped | sed 's/ /+/g'|bc > ~{FinalNumUnmapped}
+    >>>
+
+    output {
     Int NumberUnmappedReads = read_int("~{FinalNumUnmapped}")
     Int NumberMappedReads = read_int("~{FinalNumMapped}")
   }
