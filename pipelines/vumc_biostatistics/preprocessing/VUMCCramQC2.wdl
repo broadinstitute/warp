@@ -5,7 +5,7 @@ workflow VUMCCramQC2 {
   input {
     Array[File] input_crams
     String sample_name
-    String samtools_docker = "staphb/samtools:latest"
+    String? samtools_docker = "staphb/samtools:latest"
     File reference_file
   }
 
@@ -59,7 +59,6 @@ task CountCRAM {
 
     done
 
-    #command to sum the above
     NumMapped=$(cat ~{NumMapped})
     echo $NumMapped | sed 's/ /+/g'|bc > ~{FinalNumMapped}
     NumUnmapped=$(cat ~{NumUnmapped})
