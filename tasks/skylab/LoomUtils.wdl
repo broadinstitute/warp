@@ -91,7 +91,7 @@ task OptimusLoomGeneration {
 
     Int preemptible = 3
     Int disk = 200
-    Int machine_mem_mb = 16000
+    Int machine_mem_mb = 32000
     Int cpu = 4
   }
 
