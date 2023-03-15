@@ -58,17 +58,17 @@ task CountCRAM {
         samtools view -c -T $reference_file $input_cram >> ~{NumUnmapped}
 
     done
+
+    NumMapped=$(cat ~{NumMapped})
+    echo $NumMapped | sed 's/ /+/g'|bc > $FinalNumMapped
+    NumUnmapped=$(cat ~{NumUnmapped})
+    echo $NumUnmapped | sed 's/ /+/g'|bc > $FinalNumUnmapped
+
   >>>
 
     String FinalNumUnmapped = "${sample_name}_final_Unmapped.txt"
     String FinalNumMapped = "${sample_name}_final_Mapped.txt"
 
-    command {
-     NumMapped=$(cat ~{NumMapped})
-     echo $NumMapped | sed 's/ /+/g'|bc > $FinalNumMapped
-     NumUnmapped=$(cat ~{NumUnmapped})
-     echo $NumUnmapped | sed 's/ /+/g'|bc > $FinalNumUnmapped
-    }
 
   runtime {
     docker: docker
