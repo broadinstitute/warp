@@ -77,7 +77,9 @@ task CountCRAM {
 }
 
 task SumCounts{
-  
+  input{
+    String sample_name
+  }
   String FinalNumUnmapped = "${sample_name}_final_Unmapped.txt"
   String FinalNumMapped = "${sample_name}_final_Mapped.txt"
 
