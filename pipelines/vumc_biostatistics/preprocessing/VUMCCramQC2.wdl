@@ -11,8 +11,8 @@ workflow VUMCCramQC2 {
   }
 
   output {
-    Int unmapped_reads = CountCRAM.FinalNumUnmapped
-    Int mapped_reads = CountCRAM.FinalNumMapped
+    Int unmapped_reads = CountCRAM.NumberUnmappedReads
+    Int mapped_reads = CountCRAM.NumberMappedReads
   }
 
   call CountCRAM {
