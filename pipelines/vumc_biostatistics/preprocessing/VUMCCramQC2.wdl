@@ -61,9 +61,9 @@ task CountCRAM {
     done
 
     NumMapped=$(cat ~{NumMapped})
-    echo "$NumMapped" | sed 's/ /+/g'|bc > ~{FinalNumMapped}
+    echo $NumMapped | sed 's/ /+/g'|bc > ~{FinalNumMapped}
     NumUnmapped=$(cat ~{NumUnmapped})
-    echo "$NumUnmapped" | sed 's/ /+/g'|bc > ~{FinalNumUnmapped}
+    echo $NumUnmapped | sed 's/ /+/g'|bc > ~{FinalNumUnmapped}
 
   >>>
 
