@@ -1,6 +1,5 @@
 {
-    "VUMCCramQC.sample_name": "Test",
-    "VUMCCramQC.reference_file": "/data/cqs/references/gencode/GRCh38DH/GRCh38_full_analysis_set_plus_decoy_hla.fa",
-    "VUMCCramQC.input_crams": ["/scratch/cqs/jstolze/terra/test_for_unmapped_H_XS-100669-0186761962.cram"]
-  }
-  
+  "VUMCCramQC2.sample_name": "Test",
+  "VUMCCramQC2.reference_file": "/scratch/cqs/jstolze/terra/GRCh38_full_analysis_set_plus_decoy_hla.fa",
+  "VUMCCramQC2.input_crams": ["/scratch/cqs/jstolze/test_for_unmapped_H_XS-100669-0186761962.cram"]
+}

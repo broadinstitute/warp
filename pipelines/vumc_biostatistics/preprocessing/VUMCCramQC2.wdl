@@ -1,11 +1,11 @@
 version 1.0
 
-#WORKFLOW DEFINITION   
+#WORKFLOW DEFINITION
 workflow VUMCCramQC2 {
   input {
     Array[File] input_crams
     String sample_name
-    String? samtools_docker = "staphb/samtools:latest"
+    String samtools_docker = "staphb/samtools:latest"
     File reference_file
   }
 
@@ -20,7 +20,7 @@ workflow VUMCCramQC2 {
       sample_name = sample_name,
       docker = samtools_docker,
       reference_file = reference_file,
-      
+
   }
 }
 
@@ -33,13 +33,13 @@ task CountCRAM {
     String sample_name
     File reference_file
 
-  
+
     # Runtime parameters
     String docker
     Int machine_mem_gb = 4
     Int addtional_disk_space_gb = 50
   }
-    
+
   Int disk_size = ceil(size(input_crams, "GB")) + addtional_disk_space_gb
   String NumUnmapped = "${sample_name}_Unmapped.txt"
   String NumMapped = "${sample_name}_Mapped.txt"
@@ -52,7 +52,7 @@ task CountCRAM {
 
     for input_cram in ~{sep=" " input_crams}
     do
-    
+
         samtools flagstat $input_cram |cut -f1 -d' '|head -n3|tail -n1 >> ~{NumMapped}
 
         samtools view -c -T $reference_file $input_cram >> ~{NumUnmapped}
