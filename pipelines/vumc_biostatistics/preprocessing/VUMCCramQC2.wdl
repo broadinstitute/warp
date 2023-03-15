@@ -6,6 +6,7 @@ workflow VUMCCramQC2 {
     Array[File] input_crams
     String sample_name
     String? samtools_docker = "staphb/samtools:latest"
+    String? bash_docker = "bash:latest"
     File reference_file
   }
 
@@ -20,6 +21,14 @@ workflow VUMCCramQC2 {
       sample_name = sample_name,
       docker = samtools_docker,
       reference_file = reference_file,
+
+  }
+  
+  call SumCounts {
+    input:
+      mapped_counts = ~{NumMapped},
+      unmapped_counts = ~{NumUnmapped},
+      docker = bash_docker
 
   }
 }
@@ -43,8 +52,7 @@ task CountCRAM {
   Int disk_size = ceil(size(input_crams, "GB")) + addtional_disk_space_gb
   String NumUnmapped = "${sample_name}_Unmapped.txt"
   String NumMapped = "${sample_name}_Mapped.txt"
-  String FinalNumUnmapped = "${sample_name}_final_Unmapped.txt"
-  String FinalNumMapped = "${sample_name}_final_Mapped.txt"
+  
 
   command <<<
     echo "0" > ~{NumUnmapped}
@@ -58,12 +66,26 @@ task CountCRAM {
         samtools view -c -T $reference_file $input_cram >> ~{NumUnmapped}
 
     done
-
-    NumMapped=$(cat ~{NumMapped})
-    echo $NumMapped | sed 's/ /+/g'|bc > ~{FinalNumMapped}
-    NumUnmapped=$(cat ~{NumUnmapped})
-    echo $NumUnmapped | sed 's/ /+/g'|bc > ~{FinalNumUnmapped}
   >>>
+
+  task SumCounts{
+    input{
+      Array[File] ~{NumMapped}
+      Array[File] ~{NumUnmapped}
+    }
+
+  String FinalNumUnmapped = "${sample_name}_final_Unmapped.txt"
+  String FinalNumMapped = "${sample_name}_final_Mapped.txt"
+    command <<<
+
+     NumMapped=$(cat ~{NumMapped})
+     echo $NumMapped | sed 's/ /+/g'|bc > ~{FinalNumMapped}
+
+     NumUnmapped=$(cat ~{NumUnmapped})
+     echo $NumUnmapped | sed 's/ /+/g'|bc > ~{FinalNumUnmapped}
+
+    >>>
+  }
 
   runtime {
     docker: docker
