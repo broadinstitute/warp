@@ -91,7 +91,7 @@ task OptimusLoomGeneration {
 
     Int preemptible = 3
     Int disk = 200
-    Int machine_mem_mb = 64000
+    Int machine_mem_mb = 16000
     Int cpu = 4
   }
 
@@ -248,7 +248,7 @@ task SingleNucleusOptimusLoomOutput {
 
         Int preemptible = 3
         Int disk = 200
-        Int machine_mem_mb = 120000
+        Int machine_mem_mb = 16000
         Int cpu = 4
     }
 
