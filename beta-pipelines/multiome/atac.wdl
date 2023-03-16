@@ -52,8 +52,8 @@ workflow ATAC {
       File monitoring_script
       Int disk_size = ceil(2 * ( size(fastq_input_read1, "GiB") + size(fastq_input_read2, "GiB") )) + 200
       Int mem_size = 4
-      Int min_length 
-      Int quality_cutoff
+      Int min_length = 10
+      Int quality_cutoff = 0
       String adapter_seq_read1
       String adapter_seq_read2
   }
