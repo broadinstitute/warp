@@ -26,13 +26,12 @@ workflow VUMCCramQC2 {
 
 # TASK DEFINITIONS
 # Counting the number of mapped and unmapped reads in CRAM file using samtools
-task CountCRAM {
-  input {
+task CountCRAM{
+  input{
     # Command parameters
     Array[File] input_crams
     String sample_name
     File reference_file
-
 
     # Runtime parameters
     String docker
@@ -50,31 +49,23 @@ task CountCRAM {
   command <<<
     echo "0" > ~{NumUnmapped}
     echo "0" > ~{NumMapped}
-
     for input_cram in ~{sep=" " input_crams}
     do
-
       samtools flagstat $input_cram |cut -f1 -d' '|head -n3|tail -n1 >> ~{NumMapped}
-
       samtools view -c -T ~{reference_file} $input_cram >> ~{NumUnmapped}
-
     done
-
     NumMapped=$(cat ~{NumMapped})
     echo $NumMapped | sed 's/ /+/g'|bc > ~{FinalNumMapped}
     NumUnmapped=$(cat ~{NumUnmapped})
     echo $NumUnmapped | sed 's/ /+/g'|bc > ~{FinalNumUnmapped}
-
   >>>
 
-    
-
-  runtime {
+  runtime{
     docker: docker
     memory: machine_mem_gb + " GB"
     disks: "local-disk " + disk_size + " HDD"
   }
-  output {
+  output{
     Int NumberUnmappedReads = read_int("~{FinalNumUnmapped}")
     Int NumberMappedReads = read_int("~{FinalNumMapped}")
   }
