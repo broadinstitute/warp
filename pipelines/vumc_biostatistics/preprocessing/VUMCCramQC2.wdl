@@ -54,9 +54,9 @@ task CountCRAM {
     for input_cram in ~{sep=" " input_crams}
     do
 
-        samtools flagstat $input_cram |cut -f1 -d' '|head -n3|tail -n1 >> ~{NumMapped}
+      samtools flagstat $input_cram |cut -f1 -d' '|head -n3|tail -n1 >> ~{NumMapped}
 
-        samtools view -c -T ~{reference_file} $input_cram >> ~{NumUnmapped}
+      samtools view -c -T ~{reference_file} $input_cram >> ~{NumUnmapped}
 
     done
 
