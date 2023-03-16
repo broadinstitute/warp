@@ -168,7 +168,7 @@ workflow ATAC {
         -R "@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}" \
         -t ~{nthreads} \
         $REF_DIR/genome.fa \
-        <(zcat ~{fastq_input_read1}) <(zcat ~{fastq_input_read2}) \
+        ~{fastq_input_read1} ~{fastq_input_read2} \
         > ~{sam_aligned_output_name}
     }
 
