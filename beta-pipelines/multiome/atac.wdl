@@ -122,7 +122,7 @@ workflow ATAC {
       String read_group_id = "RG1"
       String read_group_sample_name = "RGSN1"
       String output_base_name
-      String docker_image = "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463"
+      String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091"
       File monitoring_script
       Int disk_size = ceil(3.25 * (size(fastq_input_read1, "GiB") + size(fastq_input_read2, "GiB") + size(tar_bwa_reference, "GiB"))) + 200 
       Int nthreads = 16
@@ -139,13 +139,13 @@ workflow ATAC {
       mem_size: "the size of memory used during alignment"
       disk_size : "disk size used in bwa alignment step"
       output_base_name: "basename to be used for the output of the task"
-      docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730)"
+      docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091)"
       monitoring_script : "script to monitor resource comsumption of tasks"
     }
 
-    String sam_aligned_output_name = output_base_name + ".aligned.sam"
+    String bam_aligned_output_name = output_base_name + ".aligned.bam"
 
-    # sort with samtools
+    # bwa and call samtools to convert sam to bam
     command {
 
       set -euo pipefail
@@ -169,8 +169,8 @@ workflow ATAC {
         -t ~{nthreads} \
         $REF_DIR/genome.fa \
         ~{fastq_input_read1} ~{fastq_input_read2} \
-        > ~{sam_aligned_output_name}
-    }
+        | samtools view -bS - > ~{bam_aligned_output_name}    
+     }
 
     runtime {
       docker: docker_image
@@ -180,7 +180,7 @@ workflow ATAC {
     }
 
     output {
-      File sam_aligned_output = sam_aligned_output_name
+      File bam_aligned_output = bam_aligned_output_name
       File monitoring_log = "monitoring.log"
     }
   }
