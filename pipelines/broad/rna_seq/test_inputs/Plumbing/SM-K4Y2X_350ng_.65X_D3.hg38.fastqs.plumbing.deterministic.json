@@ -22,5 +22,7 @@
   "RNAWithUMIsPipeline.population_vcf": "gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz",
   "RNAWithUMIsPipeline.population_vcf_index": "gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz.tbi",
 
-  "RNAWithUMIsPipeline.compare_transcriptome_dup_metrics": false
+  "RNAWithUMIsPipeline.Fastp.cpu": 1,
+  "RNAWithUMIsPipeline.STAR.cpu": 1,
+  "RNAWithUMIsPipeline.transcriptome_deterministic": true
 }

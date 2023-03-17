@@ -1,6 +1,5 @@
 {
-  "RNAWithUMIsPipeline.r1_fastq": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/plumbing/inputs/SM-K4Y2X_350ng_.65X_D3_read1_plumbing.fastq",
-  "RNAWithUMIsPipeline.r2_fastq": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/plumbing/inputs/SM-K4Y2X_350ng_.65X_D3_read2_plumbing.fastq",
+  "RNAWithUMIsPipeline.bam": "gs://broad-gotc-test-storage/rna_seq/rna_with_umis/scientific/inputs/SM-K4Y2X_350ng_.65X_D3.u.bam",
   "RNAWithUMIsPipeline.read1Structure": "3M2S146T",
   "RNAWithUMIsPipeline.read2Structure": "3M2S146T",
 
@@ -22,5 +21,7 @@
   "RNAWithUMIsPipeline.population_vcf": "gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz",
   "RNAWithUMIsPipeline.population_vcf_index": "gs://gatk-best-practices/somatic-hg38/small_exac_common_3.hg38.vcf.gz.tbi",
 
-  "RNAWithUMIsPipeline.compare_transcriptome_dup_metrics": false
+  "RNAWithUMIsPipeline.Fastp.cpu": 1,
+  "RNAWithUMIsPipeline.STAR.cpu": 1,
+  "RNAWithUMIsPipeline.transcriptome_deterministic": true
 }
