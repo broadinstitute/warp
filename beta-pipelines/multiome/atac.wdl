@@ -40,6 +40,10 @@ workflow ATAC {
       output_base_name = output_base_name,
       monitoring_script = monitoring_script
     }
+    
+    output {
+      File bam_aligned_output = BWAPairedEndAlignment.bam_aligned_output
+   }   
 }
 
   # trim read 1 and read 2 adapter sequeunce with cutadapt
