@@ -41,4 +41,4 @@ $ docker run --rm -it \
 
 ### Samtools
 
-See Samtools README for [more info](../samtools/README.md)
+See Samtools README for [more info](../samtools/README.md).
