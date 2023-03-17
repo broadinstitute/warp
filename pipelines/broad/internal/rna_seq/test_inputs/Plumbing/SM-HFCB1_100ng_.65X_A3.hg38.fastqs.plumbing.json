@@ -13,6 +13,8 @@
   "BroadInternalRNAWithUMIs.platform_unit": "barcode1",
   "BroadInternalRNAWithUMIs.read_group_name": "RG1",
 
+  "BroadInternalRNAWithUMIs.compare_transcriptome_dup_metrics": false,
+
   "BroadInternalRNAWithUMIs.vault_token_path": "{VAULT_TOKEN_PATH}",
   "BroadInternalRNAWithUMIs.environment": "{ENV}"
 }
