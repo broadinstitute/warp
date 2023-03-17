@@ -1,3 +1,8 @@
+# 1.0.12
+2023-03-03 (Date of Last Commit)
+
+* Improvements to determinism, along with tests passing without call caching
+
 # 1.0.11
 2022-12-16 (Date of Last Commit)
 
