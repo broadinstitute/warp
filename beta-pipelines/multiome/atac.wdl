@@ -13,7 +13,10 @@ workflow ATAC {
 
     # Output prefix/base name for all intermediate files and pipeline outputs
     String output_base_name
-
+    
+    # BWA ref 
+    File tar_bwa_reference
+    
     # script for monitoring tasks 
     File monitoring_script
   }
@@ -23,6 +26,8 @@ workflow ATAC {
     fastq_gzipped_input_read2: "read 2 fastq file as input for the pipeline, the cellular barcodes must be the first part of the read name separated by colon"
     output_base_name: "base name to be used for the pipelines output and intermediate files"
     monitoring_script : "script to monitor resource comsumption of tasks"
+    tar_bwa_reference: "the pre built tar file containing the reference fasta and cooresponding reference files for the BWA aligner"
+
   }
 
   call TrimAdapters {
@@ -37,6 +42,7 @@ workflow ATAC {
     input:
       fastq_input_read1 = TrimAdapters.fastq_trimmed_adapter_output_read1,
       fastq_input_read2 = TrimAdapters.fastq_trimmed_adapter_output_read2,
+      tar_bwa_reference = tar_bwa_reference,
       output_base_name = output_base_name,
       monitoring_script = monitoring_script
     }
