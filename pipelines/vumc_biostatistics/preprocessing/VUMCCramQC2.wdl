@@ -54,10 +54,8 @@ task CountCRAM{
       samtools flagstat $input_cram |grep "mapped (" |cut -f1 -d' ' >> ~{NumMapped}
       samtools view -c -f4 -T ~{reference_file} $input_cram >> ~{NumUnmapped}
     done 
-    NumMapped=$(cat ~{NumMapped})
-    echo $NumMapped | sed 's/ /+/g'|bc > ~{FinalNumMapped}
-    NumUnmapped=$(cat ~{NumUnmapped})
-    echo $NumUnmapped | sed 's/ /+/g'|bc > ~{FinalNumUnmapped}
+    cat ~{NumMapped} | awk '{ sum += $1 } END { print sum }' > ~{FinalNumMapped}
+    cat ~{NumUnmapped} | awk '{ sum += $1 } END { print sum }' > ~{FinalNumUnmapped}
   >>>
 
   runtime{
