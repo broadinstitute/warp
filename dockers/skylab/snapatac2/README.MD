@@ -22,8 +22,8 @@ We keep track of all past versions in [docker_versions](docker_versions.tsv) wit
 You can see more information about the image, including the tool versions, by running the following command:
 
 ```bash
-$ docker pull us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091
-$ docker inspect us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091
+$ docker pull us.gcr.io/broad-gotc-prod/snapatac2:1.0.0-2.2.0-1679070508
+$ docker inspect us.gcr.io/broad-gotc-prod/snapatac2:1.0.0-2.2.0-1679070508
 ```
 
 ## Usage
@@ -33,7 +33,6 @@ $ docker inspect us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091
 ```bash
 $ docker run --rm -it \
     -v /files:/files \
-    us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091 /usr/gitc/bwa mem \
-    /bwa-files/ref.fa /bwa-files/reads.fq > /bwa-files/aln.sam
+    us.gcr.io/broad-gotc-prod/snapatac2:1.0.0-2.2.0-1679070508 bash
 ```
-
+Snapatac2 is a python module. To learn more about it, see the [Snapatac2 documentation](https://kzhang.org/SnapATAC2/). 
