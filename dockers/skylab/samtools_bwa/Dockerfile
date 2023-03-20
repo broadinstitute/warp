@@ -10,14 +10,6 @@ LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org" \
 
 WORKDIR /usr/gitc
 
-ENV TERM=xterm-256color \
-        BWA_URL=https://sourceforge.net/projects/bio-bwa/files/bwa-${BWA_VERSION}.tar.bz2/download
-
-LABEL MAINTAINER="Broad Institute DSDE <dsde-engineering@broadinstitute.org" \
-        BWA_VERSION=${BWA_VERSION}
-
-WORKDIR /usr/gitc
-
 RUN set -eux; \
         apk add --no-cache \
             gcompat \
