@@ -9,18 +9,26 @@ workflow VUMCCramQC2 {
     File reference_file
   }
 
-  output {
-    Int unmapped_reads = CountCRAM.NumberUnmappedReads
-    Int mapped_reads = CountCRAM.NumberMappedReads
-  }
-
+  
+ scatter (input_cram in input_crams){
   call CountCRAM {
     input:
-      input_crams = input_crams,
-      sample_name = sample_name,
+      input_cram = input_cram,
       docker = samtools_docker,
-      reference_file = reference_file,
+      reference_file = reference_file
+  }
+ }
 
+ call SumUp {
+  input: 
+   sample_name = sample_name,
+   mapped_reads = CountCRAM.mapped_reads,
+   unmapped_reads = CountCRAM.unmapped_reads,
+ }
+
+output {
+    Int unmapped_reads = SumUp.NumberUnmappedReads
+    Int mapped_reads = SumUp.NumberMappedReads
   }
 }
 
@@ -29,8 +37,7 @@ workflow VUMCCramQC2 {
 task CountCRAM{
   input{
     # Command parameters
-    Array[File] input_crams
-    String sample_name
+    File input_cram
     File reference_file
 
     # Runtime parameters
@@ -39,29 +46,51 @@ task CountCRAM{
     Int addtional_disk_space_gb = 50
   }
 
-  Int disk_size = ceil(size(input_crams, "GB")) + addtional_disk_space_gb
-  String NumUnmapped = "${sample_name}_Unmapped.txt"
-  String NumMapped = "${sample_name}_Mapped.txt"
-  String FinalNumUnmapped = "${sample_name}_final_Unmapped.txt"
-  String FinalNumMapped = "${sample_name}_final_Mapped.txt"
-
+  Int disk_size = ceil(size(input_cram, "GB")) + addtional_disk_space_gb
+  String NumUnmapped = "Unmapped.txt"
+  String NumMapped = "Mapped.txt"
 
   command <<<
-    echo "0" > ~{NumUnmapped}
-    echo "0" > ~{NumMapped}
-    for input_cram in ~{sep=" " input_crams}
-    do
-      samtools flagstat $input_cram |grep "mapped (" |cut -f1 -d' ' >> ~{NumMapped}
-      samtools view -c -f4 -T ~{reference_file} $input_cram >> ~{NumUnmapped}
-    done 
-    cat ~{NumMapped} | awk '{ sum += $1 } END { print sum }' > ~{FinalNumMapped}
-    cat ~{NumUnmapped} | awk '{ sum += $1 } END { print sum }' > ~{FinalNumUnmapped}
+    samtools flagstat $input_cram |grep "mapped (" |cut -f1 -d' ' >> ~{NumMapped}
+    samtools view -c -f4 -T ~{reference_file} $input_cram >> ~{NumUnmapped}
   >>>
 
   runtime{
     docker: docker
     memory: machine_mem_gb + " GB"
     disks: "local-disk " + disk_size + " HDD"
+  }
+
+  output{
+   File unmapped_reads = "~{NumUnmapped}"
+   File mapped_reads = "~{NumMapped}"
+  }
+  
+}
+
+task SumUp{
+  input{
+    # Command parameters
+     String sample_name
+     Array[File] unmapped_reads
+     Array[File] mapped_reads
+
+    # Runtime parameters
+    Int machine_mem_gb = 4
+    Int addtional_disk_space_gb = 50
+  }
+
+  String FinalNumUnmapped = "${sample_name}_final_Unmapped.txt"
+  String FinalNumMapped = "${sample_name}_final_Mapped.txt"
+
+  command <<<
+    cat ~{mapped_reads} | awk '{ sum += $1 } END { print sum }' > ~{FinalNumMapped}
+    cat ~{unmapped_reads} | awk '{ sum += $1 } END { print sum }' > ~{FinalNumUnmapped}
+  >>>
+
+  runtime{
+    memory: machine_mem_gb + " GB"
+    disks: "local-disk "
   }
   output{
     Int NumberUnmappedReads = read_int("~{FinalNumUnmapped}")
