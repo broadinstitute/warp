@@ -65,9 +65,9 @@ The Slide-seq workflow inputs are specified in JSON configuration files. Example
 | read_structure | Description of the UMI (M) and Barcode (C) positions in the Read 1 FASTQ; used to trim spacer sequences (X) for use by STARsolo; ex. "8C18X6C9M1X". | String |
 | tar_star_reference | TAR file containing a species-specific reference genome and GTF; generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl). | File | 
 | annotations_gtf | GTF containing gene annotations used for gene tagging (must match GTF in STAR reference). | File | 
-| whitelist | TSV file containing bead barcodes and XY coordinates on a single line for each bead; determined by sequencing prior to mRNA transfer and library preparation. | File |
 | output_bam_basename | Optional string used for the output BAM file basename. | String |
 | count_exons | Optional boolean indicating if the workflow should calculate exon counts; default is set to “true” and produces a Loom file containing both whole-gene counts and exon counts in an additional layer; when set to “false”, a Loom file containing only whole-gene counts is produced. | Boolean |
+| bead_locations | Whitelist TSV file containing bead barcodes and XY coordinates on a single line for each bead; determined by sequencing prior to mRNA transfer and library preparation. | File |
 
 #### Pseudogene handling
 
@@ -165,7 +165,7 @@ The STARsolo output includes a features, barcodes, and matrix TSV for each of th
 
 #### 6. Merging counts and metrics data into Loom-formatted matrix
 
-The [SlideSeqLoomOutput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) task uses a custom python script to merge the converted STARsolo count matrix and the cell (bead) and gene metrics into a Loom-formatted bead-by-gene matrix. **These counts are raw and unfiltered.**
+The [SingleNucleusOptimusLoomOutput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) task uses a custom python script to merge the converted STARsolo count matrix and the cell (bead) and gene metrics into a Loom-formatted bead-by-gene matrix. **These counts are raw and unfiltered.**
 
 <!--- comment about loom matrix overview doc --->
 
@@ -193,7 +193,8 @@ The following table lists the output files produced from the pipeline. For sampl
 
 | Output Name | Filename, if applicable | Output Type | Output Format |
 | ------ | ------ | ------ | ------ |
-| pipeline_version | N/A | Version of the processing pipeline run on this data. | String |
+| pipeline_version_out | N/A | Version of the processing pipeline run on this data. | String |
+| genomic_reference_version | `reference_version.txt` | File containing genomic reference source, build, and annotation versions. | TXT |
 | bam | `<output_bam_basename>.bam` | Aligned BAM | BAM |
 | matrix | `<input_id>_sparse_counts.npz` | Converted sparse matrix file from the MergeStarOutputs task. | NPZ |
 | matrix_row_index | `<input_id>_sparse_counts_row_index.npy` | Index of beads in count matrix. | NPY |
