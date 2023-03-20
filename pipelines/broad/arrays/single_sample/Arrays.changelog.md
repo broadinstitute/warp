@@ -1,7 +1,8 @@
 # 2.6.18
-2023-01-13 (Date of Last Commit)
+2023-03-20 (Date of Last Commit)
 
 * Updated remaining uses of GATK to version 4.3.0.0
+* CheckFingerprint can allow LOD 0
 
 # 2.6.17
 2022-11-29 (Date of Last Commit)
