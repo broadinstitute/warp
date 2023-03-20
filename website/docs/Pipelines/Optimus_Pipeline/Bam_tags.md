@@ -24,7 +24,6 @@ The Optimus Pipeline outputs a barcoded BAM file of aligned reads. There are mul
 | UG | Read group ID | [Umi-tools](https://github.com/CGATOxford/UMI-tools) |
 | UR | Chromium molecular barcode sequence as reported by the sequencer | [10X Genomics](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/output/bam) |
 | UY | Chromium molecular barcode read quality. Phred scores as reported by sequencer | [10X Genomics](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/output/bam) |
-| XF | Extra alignment flags | [10X Genomics](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/output/bam) |
 | jI | [jI:B:I,Start1,End1,Start2,End2,...] Start and End of introns for all junctions (1-based) | [STAR](https://github.com/alexdobin/STAR) |
 | jM | [jM:B:c,M1,M2,...] Intron motifs for all junctions (i.e. N in CIGAR)| [STAR](https://github.com/alexdobin/STAR) |
 | nM | The number of mismatches per (paired) alignment | [STAR](https://github.com/alexdobin/STAR) |
