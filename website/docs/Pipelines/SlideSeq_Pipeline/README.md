@@ -36,7 +36,7 @@ The following table provides a quick glance at the Slide-seq pipeline features:
 | Transcriptomic reference annotation | M23 mouse transcriptome built with the [BuildIndices workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/build_indices/BuildIndices.wdl) | GENCODE [mouse GTF](https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M23/gencode.vM23.annotation.gff3.gz); [modified version](https://console.cloud.google.com/storage/browser/_details/gcp-public-data--broad-references/mm10/v0/single_nucleus/star/modified_star_2.7.9a_primary_gencode_mouse_vM23.tar;tab=live_object) available in Broad’s public reference bucket | 
 | Aligner and transcript quantification | STARsolo | [Kaminow et al. 2021](https://www.biorxiv.org/content/10.1101/2021.05.05.442755v1) |
 | Data input file format | File format in which sequencing data is provided | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) |
-| Data output file format | File formats in which SlideSeq output is provided | [BAM](http://samtools.github.io/hts-specs/), Python NumPy arrays, and Loom (generated with [Loompy)](http://loompy.org/) |
+| Data output file format | File formats in which Slide-seq output is provided | [BAM](http://samtools.github.io/hts-specs/), Python NumPy arrays, and Loom (generated with [Loompy)](http://loompy.org/) |
 
 ## Set-up
 
