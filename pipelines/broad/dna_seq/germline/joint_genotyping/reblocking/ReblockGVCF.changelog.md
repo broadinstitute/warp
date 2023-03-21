@@ -1,8 +1,12 @@
-# 2.1.4
+# 2.1.5
 2023-03-20 (Date of Last Commit)
 
-* Updated GATK verison to 4.3.0.0
 * CheckFingerprint can allow LOD 0
+
+# 2.1.4
+2023-11-04 (Date of Last Commit)
+
+* Updated GATK verison to 4.3.0.0
 
 # 2.1.3
 2022-06-21 (Date of Last Commit)
