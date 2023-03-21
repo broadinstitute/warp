@@ -33,10 +33,10 @@ workflow ATAC {
 
   call AddBarcodes {
     input:
-      File read1_fastq = read1_fastq_gzipped,
-      File read3_fastq = read3_fastq_gzipped,
-      File barcodes_fastq = read2_fastq_gzipped,
-      String output_base_name = output_base_name
+      read1_fastq = read1_fastq_gzipped,
+      read3_fastq = read3_fastq_gzipped,
+      barcodes_fastq = read2_fastq_gzipped,
+      output_base_name = output_base_name
   }
   call TrimAdapters {
     input:
@@ -44,8 +44,7 @@ workflow ATAC {
       fastq_input_read3 = AddBarcodes.fastq_barcodes_output_read3,
       output_base_name = output_base_name,
       monitoring_script = monitoring_script
-    }
-
+   }
   call BWAPairedEndAlignment {
     input:
       fastq_input_read1 = TrimAdapters.fastq_trimmed_adapter_output_read1,
@@ -53,11 +52,11 @@ workflow ATAC {
       tar_bwa_reference = tar_bwa_reference,
       output_base_name = output_base_name,
       monitoring_script = monitoring_script
-    }
+  }
     
-    output {
-      File bam_aligned_output = BWAPairedEndAlignment.bam_aligned_output
-   }   
+  output {
+    File bam_aligned_output = BWAPairedEndAlignment.bam_aligned_output
+  }   
 }
 
   task AddBarcodes {
@@ -73,7 +72,6 @@ workflow ATAC {
    parameter_meta {
       output_base_name: "base name to be used for the output of the task"
       docker_image: "the docker image using cutadapt to be used (default: )"
-      mem_size: "the size of memory used during trimming adapters"
       disk_size : "disk size used in trimming adapters step"
   }
       
@@ -81,8 +79,8 @@ workflow ATAC {
     String fastq_barcodes_read1 = output_base_name + ".R1.barcodes.fastq"
     String fastq_barcodes_read3 = output_base_name + ".R3.barcodes.fastq"
    
-    # using cutadapt to trim off sequence adapters
-    command {
+    # Adding barcodes to read 1 and read 3 fastq
+    command <<<
       set -euo pipefail
       gunzip ~{read1_fastq} > r1.fastq
       gunzip ~{read3_fastq} > r3.fastq
@@ -90,18 +88,17 @@ workflow ATAC {
       python3 atac_barcodes.py -r1 r1.fastq -r3 r3.fastq -cb barcodes.fastq -out_r1 ~{fastq_barcodes_read1} -out_r3 ~{fastq_barcodes_read3}
       gzip ~{fastq_barcodes_read1}
       gzip ~{fastq_barcodes_read3}
-  }
+   >>>
 
     # use docker image for given tool cutadapat
     runtime {
       docker: docker_image
       disks: "local-disk ${disk_size} HDD"
-      memory: "${mem_size} GiB" 
-  }
+    }
 
     output {
-      File fastq_barcodes_output_read1 = fastq_input_read1
-      File fastq_barcodes_output_read3 = fastq_input_read3
+      File fastq_barcodes_output_read1 = fastq_barcodes_read1
+      File fastq_barcodes_output_read3 = fastq_barcodes_read3
     }
   }
   # trim read 1 and read 2 adapter sequeunce with cutadapt
@@ -139,7 +136,7 @@ workflow ATAC {
     String fastq_trimmed_adapter_output_name_read3 = output_base_name + ".R3.trimmed_adapters.fastq.gz"
    
     # using cutadapt to trim off sequence adapters
-    command {
+    command <<<
       set -euo pipefail
 
       if [ ! -z "~{monitoring_script}" ]; then
@@ -159,7 +156,7 @@ workflow ATAC {
         --output ~{fastq_trimmed_adapter_output_name_read1} \
         --paired-output ~{fastq_trimmed_adapter_output_name_read3} \
         ~{fastq_input_read1} ~{fastq_input_read3}
-  }
+  >>>
 
     # use docker image for given tool cutadapat
     runtime {
@@ -208,7 +205,7 @@ workflow ATAC {
     String bam_aligned_output_name = output_base_name + ".aligned.bam"
 
     # bwa and call samtools to convert sam to bam
-    command {
+    command <<<
 
       set -euo pipefail
 
@@ -232,7 +229,7 @@ workflow ATAC {
         $REF_DIR/genome.fa \
         ~{fastq_input_read1} ~{fastq_input_read3} \
         | samtools view -bS - > ~{bam_aligned_output_name}    
-     }
+     >>>
 
     runtime {
       docker: docker_image
