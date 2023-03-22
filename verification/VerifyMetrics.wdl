@@ -21,7 +21,8 @@ workflow VerifyMetrics {
         file1 = truth_metrics[idx],
         file2 = test_metrics[idx],
         output_file = "metric_~{idx}.txt",
-        metrics_to_ignore = ["MEAN_ALIGNED_READ_LENGTH"]
+        metrics_to_ignore = [],
+        extra_args = ["--METRICS_NOT_REQUIRED MEAN_ALIGNED_READ_LENGTH"]
     }
   }
 
