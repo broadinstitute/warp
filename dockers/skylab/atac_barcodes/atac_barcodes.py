@@ -14,20 +14,13 @@ def write_fastq(args):
             lines_R3=list(islice(R3, 4))
             if not lines_R1:
                 break
-            print("Printing lines")
-            print(lines_R1)
-            print(lines_R2)
             if lines_R1[0].startswith("@") and lines_R2[0].startswith("@") and lines_R3[0].startswith("@"):
                 if lines_R1[0].split(" ")[0]  == lines_R2[0].split(" ")[0] == lines_R3[0].split(" ")[0]:
                     barcode = lines_R2[1].strip()
                     new_header_r1 = "@" + barcode + ":" + lines_R1[0][1:].strip()
                     new_header_r3 = "@" + barcode + ":" + lines_R3[0][1:].strip()
-                    print(new_header_r1)
-                    print(new_header_r3)
                     w_r1.write(new_header_r1 + "\n" + lines_R1[1].strip() + "\n" + lines_R1[2].strip() + "\n" + lines_R1[3].strip() + "\n")
                     w_r3.write(new_header_r3 + "\n" + lines_R3[1].strip() + "\n" + lines_R3[2].strip() + "\n" + lines_R3[3].strip() + "\n")
-
-
     w_r1.close()
     w_r3.close()
 
