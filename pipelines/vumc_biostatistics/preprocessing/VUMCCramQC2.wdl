@@ -22,8 +22,8 @@ workflow VUMCCramQC2 {
  call SumUp {
   input: 
    sample_name = sample_name,
-   mapped_reads = CountCRAM.mapped_reads,
-   unmapped_reads = CountCRAM.unmapped_reads,
+   mapped_files = CountCRAM.mapped_reads,
+   unmapped_files = CountCRAM.unmapped_reads,
  }
 
 output {
@@ -51,8 +51,14 @@ task CountCRAM{
   String NumMapped = "Mapped.txt"
 
   command <<<
+  if [[ -a ~{NumMapped} ]]
+    then
     samtools flagstat $input_cram |grep "mapped (" |cut -f1 -d' ' >> ~{NumMapped}
-    samtools view -c -f4 -T ~{reference_file} $input_cram >> ~{NumUnmapped}
+    samtools view -c -f4 -T ~{reference_file} $input_cram >> ~{NumUnmapped}; 
+    else 
+    samtools flagstat $input_cram |grep "mapped (" |cut -f1 -d' ' > ~{NumMapped}
+    samtools view -c -f4 -T ~{reference_file} $input_cram > ~{NumUnmapped}
+    fi
   >>>
 
   runtime{
@@ -62,8 +68,8 @@ task CountCRAM{
   }
 
   output{
-   File unmapped_reads = "~{NumUnmapped}"
-   File mapped_reads = "~{NumMapped}"
+   File unmapped_file = "~{NumUnmapped}"
+   File mapped_file = "~{NumMapped}"
   }
   
 }
@@ -72,8 +78,8 @@ task SumUp{
   input{
     # Command parameters
      String sample_name
-     Array[File] unmapped_reads
-     Array[File] mapped_reads
+     Array[File] unmapped_files
+     Array[File] mapped_files
 
     # Runtime parameters
     Int machine_mem_gb = 4
