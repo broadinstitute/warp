@@ -18,6 +18,8 @@ RUN pip install cmake; \
     curl https://sh.rustup.rs -sSf | sh -s -- -y; \
     source "$HOME/.cargo/env"; \
     pip install snapatac2; \
+    # Install macs2
+    pip install macs2; \
     # Install TINI
     mkdir temp; \
     cd temp; \
