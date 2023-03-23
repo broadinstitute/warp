@@ -22,8 +22,8 @@ workflow VUMCCramQC2 {
  call SumUp {
   input: 
    sample_name = sample_name,
-   mapped_files = CountCRAM.mapped_reads,
-   unmapped_files = CountCRAM.unmapped_reads,
+   mapped_files = CountCRAM.mapped_file,
+   unmapped_files = CountCRAM.unmapped_file,
  }
 
 output {
@@ -51,14 +51,10 @@ task CountCRAM{
   String NumMapped = "Mapped.txt"
 
   command <<<
-  if [[ -a ~{NumMapped} ]]
-    then
+    echo "0"> ~{NumMapped}
+    echo "0"> ~{NumUnmapped}
     samtools flagstat $input_cram |grep "mapped (" |cut -f1 -d' ' >> ~{NumMapped}
-    samtools view -c -f4 -T ~{reference_file} $input_cram >> ~{NumUnmapped}; 
-    else 
-    samtools flagstat $input_cram |grep "mapped (" |cut -f1 -d' ' > ~{NumMapped}
-    samtools view -c -f4 -T ~{reference_file} $input_cram > ~{NumUnmapped}
-    fi
+    samtools view -c -f4 -T ~{reference_file} $input_cram >> ~{NumUnmapped}
   >>>
 
   runtime{
@@ -86,17 +82,18 @@ task SumUp{
     Int addtional_disk_space_gb = 50
   }
 
+  Int disk_size = ceil(size(mapped_files, "GB")) + addtional_disk_space_gb
   String FinalNumUnmapped = "${sample_name}_final_Unmapped.txt"
   String FinalNumMapped = "${sample_name}_final_Mapped.txt"
 
   command <<<
-    cat ~{mapped_reads} | awk '{ sum += $1 } END { print sum }' > ~{FinalNumMapped}
-    cat ~{unmapped_reads} | awk '{ sum += $1 } END { print sum }' > ~{FinalNumUnmapped}
+    cat ~{mapped_files} | awk '{ sum += $1 } END { print sum }' > ~{FinalNumMapped}
+    cat ~{unmapped_files} | awk '{ sum += $1 } END { print sum }' > ~{FinalNumUnmapped}
   >>>
 
   runtime{
     memory: machine_mem_gb + " GB"
-    disks: "local-disk "
+    disks: "local-disk " + disk_size + " HDD"
   }
   output{
     Int NumberUnmappedReads = read_int("~{FinalNumUnmapped}")
