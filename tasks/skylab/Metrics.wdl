@@ -59,8 +59,8 @@ task CalculateCellMetrics {
     # add the column header "CellID" to the first column in the .csv file
     sed '1s/^/CellID/' ~{input_id}.cell-metrics.csv > updated.~{input_id}.cell-metrics.csv
 
-    # remove the following columns: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, reads_mapped_intergenic
-    cut -d',' -f 1-4,8-26,29-36 updated.~{input_id}.cell-metrics.csv > ~{input_id}.cell-metrics.csv
+    # remove the following columns: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, duplicate_reads, reads_mapped_intergenic
+    cut -d',' -f 1-4,8-9,11-26,29-36 updated.~{input_id}.cell-metrics.csv > ~{input_id}.cell-metrics.csv
 
     gzip ~{input_id}.cell-metrics.csv
   }
@@ -122,6 +122,12 @@ task CalculateGeneMetrics {
     --alignments-per-thread 1000000 \
     --nthreads ${cpu} \
     ~{"--mitochondrial-gene-names-filename " + mt_genes}
+
+    # add the column header "ID" to the first column in the .csv file
+    sed '1s/^/GeneID/' ~{input_id}.gene-metrics.csv > updated.~{input_id}.gene-metrics.csv
+
+    # remove the following columns: reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, duplicate_reads
+    cut -d',' -f 1-4,8-9,11-27 updated.~{input_id}.gene-metrics.csv > ~{input_id}.gene-metrics.csv
 
     gzip ~{input_id}.gene-metrics.csv
 
