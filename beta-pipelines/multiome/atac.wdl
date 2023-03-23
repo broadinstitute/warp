@@ -65,7 +65,8 @@ workflow ATAC {
       File read3_fastq
       File barcodes_fastq
       String output_base_name
-      String docker_image = "us.gcr.io/broad-gotc-prod/atac_barcodes:1.0.2-1679423886"
+      Int mem_size = 200
+      String docker_image = "us.gcr.io/broad-gotc-prod/atac_barcodes:1.0.3-1679503564"
       Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 200
   }
 
@@ -82,23 +83,31 @@ workflow ATAC {
     # Adding barcodes to read 1 and read 3 fastq
     command <<<
       set -euo pipefail
-      gunzip ~{read1_fastq} > r1.fastq
-      gunzip ~{read3_fastq} > r3.fastq
-      gunzip ~{barcodes_fastq} > barcodes.fastq
-      python3 atac_barcodes.py -r1 r1.fastq -r3 r3.fastq -cb barcodes.fastq -out_r1 ~{fastq_barcodes_read1} -out_r3 ~{fastq_barcodes_read3}
+      mv ~{read1_fastq} r1.fastq.gz
+      mv ~{read3_fastq} r3.fastq.gz
+      mv ~{barcodes_fastq} barcodes.fastq.gz
+      gunzip r1.fastq.gz
+      gunzip r3.fastq.gz
+      gunzip barcodes.fastq.gz
+      python3 /usr/gitc/atac_barcodes.py -r1 r1.fastq -r3 r3.fastq -cb barcodes.fastq -out_r1 ~{fastq_barcodes_read1} -out_r3 ~{fastq_barcodes_read3}
+      echo these are the zipped files and sizes
+      ls -l
       gzip ~{fastq_barcodes_read1}
       gzip ~{fastq_barcodes_read3}
-   >>>
+      echo these are the zipped files
+      ls -l
+     >>>
 
     # use docker image for given tool cutadapat
     runtime {
       docker: docker_image
       disks: "local-disk ${disk_size} HDD"
+      memory: "${mem_size} GiB"
     }
 
     output {
-      File fastq_barcodes_output_read1 = fastq_barcodes_read1
-      File fastq_barcodes_output_read3 = fastq_barcodes_read3
+      File fastq_barcodes_output_read1 = "~{fastq_barcodes_read1}.gz"
+      File fastq_barcodes_output_read3 = "~{fastq_barcodes_read3}.gz"
     }
   }
   # trim read 1 and read 2 adapter sequeunce with cutadapt
