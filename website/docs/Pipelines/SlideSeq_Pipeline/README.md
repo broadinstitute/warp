@@ -222,9 +222,9 @@ Slide-seq has been validated for processing mouse spatial transcriptomic data ge
 All Slide-seq pipeline releases are documented in the [Slide-seq changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/slideseq/SlideSeq.changelog.md) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/slideseq/test_inputs/test_data_overview.md). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
 
 
-<!--- ## Citing the Slide-seq Pipeline
-Please identify the pipeline in your methods section using the Slide-seq Pipeline's [SciCrunch resource identifier](LINK).
-* Ex: *Slide-seq Pipeline (RRID:INSERT RRID)* --->
+## Citing the Slide-seq Pipeline
+Please identify the pipeline in your methods section using the Slide-seq Pipeline's [SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_023379/resolver?q=%22Slide-seq%22&l=%22Slide-seq%22&i=rrid:scr_023379).
+* Ex: *Slide-seq Pipeline (RRID:SCR_023379)*
 
 
 ## Consortia support
