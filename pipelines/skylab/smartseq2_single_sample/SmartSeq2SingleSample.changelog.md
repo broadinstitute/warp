@@ -1,3 +1,8 @@
+# 5.1.18
+2023-03-15 (Date of Last Commit)
+
+* SlideSeq-specific and Optimus-specific changes to Metrics.wdl. This change does not affect the SmartSeq2SingleSample pipeline.
+
 # 5.1.17
 2022-11-18 (Date of Last Commit)
 
