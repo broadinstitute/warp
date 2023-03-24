@@ -38,7 +38,6 @@ The bead barcode metrics below are computed using [TagSort](https://github.com/b
 |`cell_barcode_fraction_bases_above_30_mean`| The average fraction of base calls for the bead barcode sequences that are greater than 30, across molecules. |
 |`cell_barcode_fraction_bases_above_30_variance`| The variance of the fraction of  base calls for the bead barcode sequences that are greater than 30, across molecules. |
 |`cell_names` | The unique identifier for each bead based on bead barcodes; identical to `CellID`. |
-|`duplicate_reads`| The number of reads that are duplicates. |
 |`fragments_per_molecule`| The average number of fragments associated with each molecule in this entity. |
 |`fragments_with_single_read_evidence`| The number of fragments associated with this entity that are observed by only one read. |
 | `genes_detected_multiple_observations` | The number of genes that are observed by more than one read in this entity. |
@@ -75,7 +74,6 @@ The gene metrics below are computed using [TagSort](https://github.com/broadinst
 | ------------ | ------- |
 | `Gene` | The unique `gene_name` provided in the [GENCODE GTF](https://www.gencodegenes.org/); identical to the `gene_names` attribute. |
 |`antisense_reads`| The number of reads that are mapped to the antisense strand instead of the transcribed strand. |
-|`duplicate_reads`| The number of reads that are duplicates. |
 |`ensembl_ids` | The `gene_id` provided in the [GENCODE GTF](https://www.gencodegenes.org/). |
 |`fragments_per_molecule`| The average number of fragments associated with each molecule in this entity. |
 |`fragments_with_single_read_evidence`| The number of fragments associated with this entity that are observed by only one read. |
@@ -94,11 +92,8 @@ The gene metrics below are computed using [TagSort](https://github.com/broadinst
 |`number_cells_detected_multiple`| The number of bead barcodes which observe more than one read of this gene. |
 |`number_cells_expressing`| The number of bead barcodes that detect this gene. |
 |`perfect_molecule_barcodes`| The number of reads with molecule barcodes that have no errors. |
-|`reads_mapped_exonic`| The number of reads for this entity that are mapped to exons. |
-|`reads_mapped_intronic`| The number of reads for this entity that are mapped to introns. |
 |`reads_mapped_multiple`| The number of reads mapped to multiple genomic positions with equal confidence. |
 |`reads_mapped_uniquely`| The number of reads mapped to a single unambiguous location in the genome. |
-|`reads_mapped_utr`| The number of reads for this entity that are mapped to 3' untranslated regions (UTRs). |
 |`reads_per_fragment`|The average number of reads associated with each fragment in this entity. |
 |`reads_per_molecule`| The average number of reads associated with each molecule in this entity. |
 |`spliced_reads`| The number of reads that overlap splicing junctions. |
