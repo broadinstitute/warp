@@ -101,6 +101,7 @@ task Fastp {
     Int memory_mb =  ceil(1.5*size(fastq1, "MiB")) + 8192 # Experimentally determined formula for memory allocation
     Int disk_size_gb = 5*ceil(size(fastq1, "GiB")) + 128
     File monitoring_script = "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh"
+    Int cpu=4
   }
 
   command {
@@ -109,13 +110,15 @@ task Fastp {
     fastp --in1 ~{fastq1} --in2 ~{fastq2} --out1 ~{output_prefix}_read1.fastq.gz --out2 ~{output_prefix}_read2.fastq.gz \
     --disable_quality_filtering \
     --disable_length_filtering \
-    --adapter_fasta ~{adapter_fasta}
+    --adapter_fasta ~{adapter_fasta} \
+    --thread ~{cpu}
   }
   
 
   runtime {
     docker: docker
     memory: "~{memory_mb} MiB"
+    cpu: cpu
     disks: "local-disk ~{disk_size_gb} HDD"
     preemptible: 0
     maxRetries: 2
@@ -153,6 +156,7 @@ task STAR {
       --readFilesIn ~{bam} \
       --readFilesType SAM PE \
       --readFilesCommand samtools view -h \
+      --runRNGseed 12345 \
       --outSAMunmapped Within \
       --outFilterType BySJout \
       --outFilterMultimapNmax 20 \
@@ -273,7 +277,7 @@ task GetSampleName {
   input {
     File bam
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
@@ -308,7 +312,7 @@ task rnaseqc2 {
     String sample_id
     File exon_bed
 
-    String docker =  "us.gcr.io/broad-dsde-methods/ckachulis/rnaseqc:2.4.2"
+    String docker = "gcr.io/broad-cga-aarong-gtex/rnaseqc@sha256:627feb33609357a81b5d8aadfed562d60d1292fe364aaec8c86f4d39e1e11417"
     Int cpu = 1
     Int memory_mb = 8000
     Int disk_size_gb = ceil(size(bam_file, 'GiB') + size(genes_gtf, 'GiB') + size(exon_bed, 'GiB')) + 50
@@ -462,7 +466,12 @@ task MergeMetrics {
 
     for col in range(0, len(rows[0])):
       key = rows[0][col].lower()
-      print(f"{key}\t{rows[1][col]}")
+      value = rows[1][col]
+      if value == "?":
+        value = "NaN"
+      if key in ["median_insert_size", "median_absolute_deviation", "median_read_length", "hq_median_mismatches"]:
+        value = str(int(float(value)))
+      print(f"{key}\t{value}")
     EOF
 
     #
@@ -616,6 +625,14 @@ task GroupByUMIs {
 
   command <<<
     bash ~{monitoring_script} > monitoring.log &
+
+    # umi_tools has a bug which lead to using the order of elements in a set to determine tie-breakers in
+    # rare edge-cases.  Sets in python are unordered, so this leads to non-determinism.  Setting PYTHONHASHSEED
+    # to 0 means that hashes will be unsalted.  While it is not in any way gauranteed by the language that this
+    # will remove the non-determinism, in practice, due to implementation details of sets in cpython, this makes seemingly
+    # deterministic behavior much more likely
+
+    export PYTHONHASHSEED=0
 
     umi_tools group -I ~{bam} --paired --no-sort-output --output-bam --stdout ~{output_bam_basename}.bam --umi-tag-delimiter "-" \
     --extract-umi-method tag --umi-tag RX --unmapped-reads use
@@ -829,7 +846,7 @@ task CalculateContamination {
     File population_vcf
     File population_vcf_index
     # runtime
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int cpu = 1
     Int memory_mb = 8192
     Int disk_size_gb = 256
@@ -978,7 +995,8 @@ task PostprocessTranscriptomeForRSEM {
   command {
     gatk PostProcessReadsForRSEM \
     -I ~{input_bam} \
-    -O ~{prefix}_RSEM_post_processed.bam
+    -O ~{prefix}_RSEM_post_processed.bam \
+    --use-jdk-deflater
   }
 
   output {

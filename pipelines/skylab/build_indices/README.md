@@ -1,50 +1,36 @@
-# Building References for HCA Pipelines
+# Building References for Single-Cell Pipelines
 
-The human and mouse reference files for the HCA pipelines (HCA SS2 and HCA Optimus pipeline) can be prepared by using 
+The macaque and mouse reference files for the Optimus pipeline (used by BICAN and HCA) can be prepared by using 
 the `BuildIndices.wdl` workflow. The WDL is self contained without any dependent WDL files. The references can be built
  by providing an input JSON file to the above WDL.
 
 Here are two example input files for the above WDL:
 
-`mouse_inputs.json`:
+`Macaque.json`:
 ```json
 {
-  "BuildIndices.gtf_version": "M21",
-  "BuildIndices.organism": "mouse",
-  "BuildIndices.organism_prefix": "m",
-  "BuildIndices.genome_short_string": "mm10",
-  "BuildIndices.dbsnp_version": "150"
+ "BuildIndices.annotations_gtf":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Macaque/genomic.gtf",
+ "BuildIndices.biotypes":"gs://fc-df68cb43-8c48-401b-9ef1-7cbb3acc788d/Biotypes.tsv",
+ "BuildIndices.genome_fa":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Macaque/GCF_003339765.1_Mmul_10_genomic.fna",
+ "BuildIndices.gtf_version":"GCF_003339765.1",
+ "BuildIndices.organism":"Macaque",
+ "BuildIndices.organism_prefix":"Macaque"
 }
 ```
 
-`human_inputs.json`:
+`Mouse.json`:
 ```json
 {
-  "BuildIndices.gtf_version": "27",
-  "BuildIndices.organism": "human",
-  "BuildIndices.organism_prefix": "h",
-  "BuildIndices.genome_short_string": "hg38",
-  "BuildIndices.dbsnp_version": "150"
+ "BuildIndices.BuildStarSingleNucleus.organism":"Mouse",
+ "BuildIndices.BuildStarSingleNucleus.organism_prefix":"Mouse",
+ "BuildIndices.annotations_gtf":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Mouse/gencode.vM31.primary_assembly.annotation.gtf",
+ "BuildIndices.biotypes":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Biotypes.tsv",
+ "BuildIndices.genome_fa":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Mouse/GRCm39.primary_assembly.genome.fa",
+ "BuildIndices.gtf_version":"M31"
 }
+
 ```
 
-The workflow has several tasks:
-
-- `GetReference` - This task fetches the reference files: the annotation file and the genome file.
-
-- `BuildPicardRefFlat` - This step creates a flat file from the annotation file for Picard. (HCA SS2)
-
-- `BuilidHisat2SnpHaplotype` - Builds the HISAT2 reference with the SNP information. (HCA SS2)
-
-- `BuildIntervalList` - This step creates a text files with intervals of the chromosomes to be used with Picard. (HCA SS2)
-
-- `BuildHisat2` - Builds the HISAT2 references from the genomics reference. (HCA SS2)
-
-- `BuildRsem` - This step builds the RSEM references from the annotation and the genome file along with a Bowtie index.
-At this point, the Bowtie index is not used. (HCA SS2)
-
-- `BuildStar` - Builds the STAR reference for the Optimus pipeline. (HCA Optimus)
-
-- `BuildHisat2FromRsem` - Builds the reference for HISAT2 from the rsem transcripts sequences. (HCA SS2)
+The workflow has one task:
 
 - `BuildStarSingleNucleus` - Builds the reference for STAR aligner and creates a modified GTF for the Single Nucleus Smart-Seq2 Pipeline.

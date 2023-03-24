@@ -16,7 +16,7 @@ The appended reads were then aligned to the Hg38 genomic reference using BWA v0.
 
 The snap-add-bmat function was then used to add cell-by-bin matrices to the resulting Snap file. 10 kb was selected as the default value for the bin size based on the SnapTools recommendation for mid-size datasets. It can be changed by specifying the desired size as an input to this workflow.
 
-Custom python scripts were then used to make a [GA4GH-compliant BAM](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/makeCompliantBAM.py) and to export select Snap file metrics to [individual text files](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snap-breakout/breakoutSnap.py).
+Custom python scripts were then used to make a [GA4GH-compliant BAM](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/pytools/tools/makeCompliantBAM.py) and to export select Snap file metrics to [individual text files](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/pytools/tools/breakoutSnap.py).
 
 An example of the pipeline and its outputs is available on [Terra](https://app.terra.bio/#workspaces/brain-initiative-bcdc/SnapATAC_Pipeline) and more documentation can be found at [here](./README.md).
 Examples of genomic reference files and other inputs can be found in the pipeline’s [example JSON](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/scATAC/example_inputs/human_example.json).

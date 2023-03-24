@@ -25,8 +25,17 @@ workflow VerifyMetrics {
     }
   }
 
+  call ConsolidateErrors {
+    input:
+      report_files = CompareMetricFiles.report_file
+  }
+
   output {
     Array[File] metric_comparison_report_files = CompareMetricFiles.report_file
+    #Consolidate failed_metrics to just one file:
+    #this seems to be impossible in the current state of Terra and/or Cromwell in the GCP. See: https://support.terra.bio/hc/en-us/community/posts/360071465631-write-lines-write-map-write-tsv-write-json-fail-when-run-in-a-workflow-rather-than-in-a-task
+    #File failed_metrics_file = write_tsv(CompareMetricFiles.failed_metrics)
+    File failed_metrics = ConsolidateErrors.failed_metrics
   }
   meta {
     allowNestedInputs: true
@@ -65,7 +74,8 @@ task CompareMetricFiles {
     File file1
     File file2
     String output_file
-    Array[String] metrics_to_ignore
+    Array[String] metrics_to_ignore = []
+    Array[String] extra_args = []
   }
 
   command <<<
@@ -74,7 +84,8 @@ task CompareMetricFiles {
       --INPUT ~{file1} \
       --INPUT ~{file2} \
       --OUTPUT ~{output_file} \
-      ~{true="--METRICS_TO_IGNORE" false="" length(metrics_to_ignore) > 0} ~{default="" sep=" --METRICS_TO_IGNORE " metrics_to_ignore}
+      ~{true="--METRICS_TO_IGNORE" false="" length(metrics_to_ignore) > 0} ~{default="" sep=" --METRICS_TO_IGNORE " metrics_to_ignore} \
+      ~{sep=" " extra_args}
   >>>
 
   runtime {
@@ -82,8 +93,40 @@ task CompareMetricFiles {
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
     preemptible: 3
+    continueOnReturnCode: true
   }
   output {
     File report_file = output_file
   }
+}
+
+task ConsolidateErrors {
+  input {
+    Array[File] report_files
+  }
+  command <<<
+    set -exo pipefail
+    touch failed_metrics_file.txt
+    for f in ~{sep=' ' report_files}
+    do
+      # Check for the string "Metrics are NOT equal"
+      if grep -q "Metrics are NOT equal" $f
+      then
+          # If string exists, copy output_file to failed_metrics_file.txt
+          cat $f >> failed_metrics_file.txt
+      fi
+      if [ -s failed_metrics_file.txt ]; then
+        # The error file is not-empty, exit with an error code
+        exit 1
+      fi
+    done;
+   >>>
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_20_0_4"
+    memory: "4 GiB"
+    preemptible: 3
+  }
+ output {
+   File failed_metrics = "failed_metrics_file.txt"
+ }
 }

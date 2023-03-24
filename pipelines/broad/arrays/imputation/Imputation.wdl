@@ -6,7 +6,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Imputation {
 
-  String pipeline_version = "1.1.7"
+  String pipeline_version = "1.1.10"
 
   input {
     Int chunkLength = 25000000
@@ -361,7 +361,8 @@ workflow Imputation {
   if (split_output_to_single_sample) {
     call tasks.SplitMultiSampleVcf {
       input:
-        multiSampleVcf = GatherVcfs.output_vcf
+        multiSampleVcf = GatherVcfs.output_vcf,
+        nSamples = CountSamples.nSamples
     }
   }
 

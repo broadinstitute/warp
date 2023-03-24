@@ -143,7 +143,7 @@ task ExtractSample {
 task FilterSampleVCF{
     input{
         File input_vcf
-        String docker = "gcr.io/terra-project-249020/jukebox_vc:test_jc_optimize_3d7509"
+        String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_0.8.1_399932"
 
         Int disk_size_gb = ceil((size(input_vcf, "GiB"))) + 30
     }
@@ -179,7 +179,7 @@ task FilterSymbolicAlleles {
         String base_file_name
         File input_vcf
         File input_vcf_index
-        String docker = "gcr.io/terra-project-249020/jukebox_vc:test_jc_optimize_3d7509"
+        String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_0.8.1_399932"
     }
 
     String output_vcf_name = "~{base_file_name}" + ".vcf.gz"
@@ -233,7 +233,7 @@ task CompareToGroundTruth {
     String flow_order
     Array[File] annotation_intervals
     Int disk_size
-    String docker = "gcr.io/terra-project-249020/jukebox_vc:test_jc_optimize_3d7509"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_0.8.1_399932"
   }
 
   String used_flow_order = (if flow_order=="" then "TACG" else flow_order)
@@ -289,7 +289,7 @@ task EvaluateResults {
     File h5_input
     String base_file_name
     Int disk_size
-    String docker = "gcr.io/terra-project-249020/jukebox_vc:test_jc_optimize_3d7509"
+    String docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots:UG_vc_0.8.1_399932"
     String score_key
   }
   command <<<
@@ -314,7 +314,7 @@ task EvaluateResults {
   }
   output {
     File eval_report_h5 = "~{base_file_name}.report.h5"
-    File thresholds_report = "~{base_file_name}.report.thresholds.txt"
+    File thresholds_report = "~{base_file_name}.report.thresholds.csv"
   }
 }
 

@@ -201,28 +201,33 @@ task CompareBams {
     File test_bam
     File truth_bam
     Boolean lenient_header = false
+    Boolean lenient_low_mq = false
   }
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
   Int disk_size = ceil(bam_size * 4) + 20
+  Int memory_mb = 20000
+  Int java_memory_size = memory_mb - 1000
+  Int max_heap = memory_mb - 500
 
   command {
     set -e
     set -o pipefail
 
-    java -Xms3500m -Xmx7000m -jar /usr/picard/picard.jar \
+    java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
     CompareSAMs \
           ~{test_bam} \
           ~{truth_bam} \
           O=comparison.tsv \
-          LENIENT_HEADER=~{lenient_header}
+          LENIENT_HEADER=~{lenient_header} \
+          LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq}
   }
 
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     cpu: 2
-    memory: "7500 MiB"
+    memory: "${memory_mb} MiB"
     preemptible: 3
   }
 }
@@ -265,7 +270,7 @@ task CompareLooms {
 
   command <<<
   set -e
-  pip3 install scanpy loompy numpy pandas 
+  pip3 install 'matplotlib<3.7' scanpy loompy numpy pandas
 
   python3 <<CODE
   import sys

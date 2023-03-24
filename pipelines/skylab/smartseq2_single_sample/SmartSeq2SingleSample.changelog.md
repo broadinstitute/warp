@@ -1,3 +1,19 @@
+# 5.1.18
+2023-03-15 (Date of Last Commit)
+
+* SlideSeq-specific and Optimus-specific changes to Metrics.wdl. This change does not affect the SmartSeq2SingleSample pipeline.
+
+# 5.1.17
+2022-11-18 (Date of Last Commit)
+
+* SlideSeq-specific changes to LoomUtils.wdl. This change does not affect the SmartSeq2SingleSample pipeline. 
+
+# 5.1.16
+2023-01-23 (Date of Last Commit)
+
+* Added 'Disk' to task runtime sections to support running on Azure
+* Addressed mb/gb memory specification inconsistencies in LoomUtils and CheckInput
+
 # 5.1.15
 2022-09-13 (Date of Last Commit)
 

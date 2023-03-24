@@ -1,6 +1,13 @@
+# 1.1.2
+2023-03-01 (Date of Last Commit)
+
+* Updated version of Ultima's variant calling package which is used to choose a threshold for filtering by mesauring F1 against a truth set
+* Update includes a bug fix in concordance measurement that incorrectly discounted variants with wrong allele called
+
 # 1.1.1
 2022-11-29 (Date of Last Commit)
 
+* Updated version of GATK to 4.3.0.0.
 * Added additional boot disk to 4 tasks in UltimaGenomicsGermlineFilteringThreshold.wdl.
 
 # 1.1.0
