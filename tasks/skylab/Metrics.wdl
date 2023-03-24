@@ -9,7 +9,7 @@ task CalculateCellMetrics {
 
     # runtime values
 
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:np_test_1"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:np_test_2"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
@@ -86,7 +86,7 @@ task CalculateGeneMetrics {
     String input_id
     # runtime values
 
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:np_test_1"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:np_test_2"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 
