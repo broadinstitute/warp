@@ -4,7 +4,7 @@
 
 Copy and paste to pull this image
 
-#### `docker pull us.gcr.io/broad-gotc-prod/snapatac2:1.0.1-2.2.0-1679600051`
+#### `docker pull us.gcr.io/broad-gotc-prod/snapatac2:1.0.2-2.2.0-1679678908`
 
 
 - __What is this image:__ This image is a custom image for running SnapATAC2.
@@ -22,8 +22,8 @@ We keep track of all past versions in [docker_versions](docker_versions.tsv) wit
 You can see more information about the image, including the tool versions, by running the following command:
 
 ```bash
-$ docker pull us.gcr.io/broad-gotc-prod/snapatac2:1.0.1-2.2.0-1679600051
-$ docker inspect us.gcr.io/broad-gotc-prod/snapatac2:1.0.1-2.2.0-1679600051
+$ docker pull us.gcr.io/broad-gotc-prod/snapatac2:1.0.2-2.2.0-1679678908
+$ docker inspect us.gcr.io/broad-gotc-prod/snapatac2:1.0.2-2.2.0-1679678908
 ```
 
 ## Usage
@@ -33,6 +33,6 @@ $ docker inspect us.gcr.io/broad-gotc-prod/snapatac2:1.0.1-2.2.0-1679600051
 ```bash
 $ docker run --rm -it \
     -v /files:/files \
-    us.gcr.io/broad-gotc-prod/snapatac2:1.0.1-2.2.0-1679600051 bash
+    us.gcr.io/broad-gotc-prod/snapatac2:1.0.2-2.2.0-1679678908 bash
 ```
 Snapatac2 is a python module. To learn more about it, see the [Snapatac2 documentation](https://kzhang.org/SnapATAC2/). 
