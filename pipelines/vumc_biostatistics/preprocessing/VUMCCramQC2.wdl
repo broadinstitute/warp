@@ -6,7 +6,6 @@ workflow VUMCCramQC2 {
     Array[File] input_crams
     String sample_name
     String samtools_docker = "staphb/samtools:latest"
-    File reference_file
   }
 
   
@@ -15,7 +14,6 @@ workflow VUMCCramQC2 {
     input:
       input_cram = input_cram,
       docker = samtools_docker,
-      reference_file = reference_file
   }
  }
 
@@ -38,7 +36,6 @@ task CountCRAM{
   input{
     # Command parameters
     File input_cram
-    File reference_file
 
     # Runtime parameters
     String docker
@@ -51,10 +48,11 @@ task CountCRAM{
   String NumMapped = "Mapped.txt"
 
   command <<<
-    echo "0"> ~{NumMapped}
-    echo "0"> ~{NumUnmapped}
-    samtools flagstat $input_cram |grep "mapped (" |cut -f1 -d' ' >> ~{NumMapped}
-    samtools view -c -f4 -T ~{reference_file} $input_cram >> ~{NumUnmapped}
+    # new samtools will output primary mapped line, we need to ignore it
+    samtools flagstat ~{input_cram} | grep "mapped (" | grep -v "primary" | cut -f1 -d' ' > ~{NumMapped}
+
+    # We don't need reference file for counting unmapped reads
+    samtools view -c -f4 ~{input_cram} > ~{NumUnmapped}
   >>>
 
   runtime{
@@ -76,24 +74,20 @@ task SumUp{
      String sample_name
      Array[File] unmapped_files
      Array[File] mapped_files
-
-    # Runtime parameters
-    Int machine_mem_gb = 4
-    Int addtional_disk_space_gb = 50
   }
 
-  Int disk_size = ceil(size(mapped_files, "GB")) + addtional_disk_space_gb
   String FinalNumUnmapped = "${sample_name}_final_Unmapped.txt"
   String FinalNumMapped = "${sample_name}_final_Mapped.txt"
 
   command <<<
-    cat ~{mapped_files} | awk '{ sum += $1 } END { print sum }' > ~{FinalNumMapped}
-    cat ~{unmapped_files} | awk '{ sum += $1 } END { print sum }' > ~{FinalNumUnmapped}
+    # for array of file, we need to use sep to join them
+    cat ~{sep=" " mapped_files} | awk '{ sum += $1 } END { print sum }' > ~{FinalNumMapped}
+    cat ~{sep=" " unmapped_files} | awk '{ sum += $1 } END { print sum }' > ~{FinalNumUnmapped}
   >>>
 
   runtime{
-    memory: machine_mem_gb + " GB"
-    disks: "local-disk " + disk_size + " HDD"
+    memory: "2 GB"
+    disks: "local-disk 5 HDD"
   }
   output{
     Int NumberUnmappedReads = read_int("~{FinalNumUnmapped}")

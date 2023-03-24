@@ -1,0 +1,4 @@
+{
+  "VUMCCramQC2.sample_name": "small",
+  "VUMCCramQC2.input_crams": ["/scratch/cqs/shengq2/dnaseq/example_data/S1_L1.cram", "/scratch/cqs/shengq2/dnaseq/example_data/S1_L2.cram"]
+}
