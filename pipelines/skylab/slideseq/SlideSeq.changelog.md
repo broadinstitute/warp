@@ -1,3 +1,8 @@
+# 1.0.2
+2023-03-15 (Date of Last Commit)
+
+* Removed the following columns from the cell metrics csv and the Loom as the counts were empty/incorrect: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, reads_mapped_intergenic
+
 # 1.0.1
 2023-02-28 (Date of Last Commit)
 
