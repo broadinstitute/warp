@@ -1,3 +1,8 @@
+# 5.7.4
+2023-03-27 (Date of Last Commit)
+
+* Removed the following columns from the gene metrics csv and the Loom as the counts were empty/incorrect: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, reads_mapped_intergenic, duplicate_reads. We also removed duplicate_reads from the cell metrics csv and the Loom. 
+
 # 5.7.3
 2023-03-15 (Date of Last Commit)
 
