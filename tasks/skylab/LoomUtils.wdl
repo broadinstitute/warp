@@ -218,7 +218,7 @@ task SingleNucleusOptimusLoomOutput {
 
     input {
         #runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1678990890"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:np_test_2"
         # name of the sample
         String input_id
         # user provided id
