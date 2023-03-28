@@ -1,7 +1,7 @@
 # 2.2.20
 2023-03-27 (Date of Last Commit)
 
-* SlideSeq-specific and Optimus-specific changes to Metrics.wdl. This change does not affect the MultiSmartSeq2 pipeline.
+* SlideSeq-specific and Optimus-specific changes to Metrics.wdl. This change does not affect the MultiSmartSeq2 pipeline
 
 # 2.2.19
 2023-03-15 (Date of Last Commit)
