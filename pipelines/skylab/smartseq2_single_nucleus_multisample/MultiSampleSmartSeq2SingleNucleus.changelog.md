@@ -6,7 +6,7 @@
 * # 1.2.19
 2023-03-15 (Date of Last Commit)
 
-* SlideSeq-specific and Optimus-specific changes to Metrics.wdl. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline.
+* SlideSeq-specific and Optimus-specific changes to Metrics.wdl. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline
 * Updated warp-tools docker to support the Optimus and SlideSeq changes 
 
 # 1.2.18
