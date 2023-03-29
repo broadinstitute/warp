@@ -19,6 +19,8 @@ workflow ATAC {
     
     # script for monitoring tasks 
     File monitoring_script
+
+    Boolean barcodes_in_read_name
   }
 
   parameter_meta {
@@ -46,9 +48,16 @@ workflow ATAC {
       output_base_name = output_base_name,
       monitoring_script = monitoring_script
     }
+
+  call CreateFragmentFile {
+    input:
+      bam = BWAPairedEndAlignment.bam_aligned_output,
+      barcodes_in_read_name = barcodes_in_read_name,
+  }
     
     output {
       File bam_aligned_output = BWAPairedEndAlignment.bam_aligned_output
+      File fragment_file = CreateFragmentFile.fragment_file
    }   
 }
 
@@ -134,7 +143,7 @@ workflow ATAC {
       String output_base_name
       String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091"
       File monitoring_script
-      Int disk_size = ceil(3.25 * (size(fastq_input_read1, "GiB") + size(fastq_input_read2, "GiB") + size(tar_bwa_reference, "GiB"))) + 200 
+      Int disk_size = ceil(3.25 * (size(fastq_input_read1, "GiB") + size(fastq_input_read2, "GiB") + size(tar_bwa_reference, "GiB"))) + 200
       Int nthreads = 16
       Int mem_size = 8
    }
@@ -179,14 +188,14 @@ workflow ATAC {
         -t ~{nthreads} \
         $REF_DIR/genome.fa \
         ~{fastq_input_read1} ~{fastq_input_read2} \
-        | samtools view -bS - > ~{bam_aligned_output_name}    
+        | samtools view -bS - > ~{bam_aligned_output_name}
      }
 
     runtime {
       docker: docker_image
       disks: "local-disk ${disk_size} HDD"
       cpu: nthreads
-      memory: "${mem_size} GiB" 
+      memory: "${mem_size} GiB"
     }
 
     output {
@@ -194,3 +203,48 @@ workflow ATAC {
       File monitoring_log = "monitoring.log"
     }
   }
+
+# make fragment file
+task CreateFragmentFile {
+  input {
+    File bam
+    Boolean barcodes_in_read_name
+    Int disk_size = ceil(size(bam, "GiB") + 50)
+    Int mem_size = 10
+  }
+
+  String bam_base_name = basename(bam)
+
+  parameter_meta {
+    bam: "the aligned bam that is output of the BWAPairedEndAlignment task"
+  }
+
+  command <<<
+    set -e pipefail
+
+    # if barcodes are in the read name, then use barcode_regex to extract them. otherwise, use barcode_tag
+
+    if [ ~{barcodes_in_read_name} = true ]; then
+      python3 <<CODE
+      import snapatac2.preprocessing as pp
+      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_regex="([^:]*)")
+      CODE
+    else
+      python3 <<CODE
+      import snapatac2.preprocessing as pp
+      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
+      CODE
+    fi
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.2-2.2.0-1679678908"
+    disks: "local-disk ${disk_size} HDD"
+    cpu: 1
+    memory: "${mem_size} GiB"
+  }
+
+  output {
+    File fragment_file = "~{bam_base_name}.fragments.tsv"
+  }
+}
