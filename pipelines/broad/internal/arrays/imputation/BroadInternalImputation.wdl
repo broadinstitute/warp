@@ -28,6 +28,8 @@ workflow BroadInternalImputation {
         Array[File]     single_sample_vcfs
         Array[File]     single_sample_vcf_indices
         Array[String]   chip_well_barcodes
+
+        Array[String]   lab_batches
         String          timestamp
     }
 
@@ -81,7 +83,8 @@ workflow BroadInternalImputation {
             run_task                = IngestToImputationWideOutputsTable.ingest_logs,
             imputation_outputs_tsv  = FormatImputationOutputs.ingest_outputs_tsv,
             trigger_bucket_path     = prs_cf_trigger_bucket_path,
-            timestamp               = timestamp
+            timestamp               = timestamp,
+            lab_batches             = lab_batches
     }
 
     output {
