@@ -72,6 +72,10 @@ workflow ATAC {
   }
 
    parameter_meta {
+      read1_fastq: "Read 1 FASTQ with read 1 of paired reads"
+      read3_fastq: "Read 3 FASTQ with read 2 of paired reads"
+      barcodes_fastq: "Read 2 FASTQ with cellular barcodes"
+      mem_size: "Size of memory in GB"
       output_base_name: "base name to be used for the output of the task"
       docker_image: "the docker image using cutadapt to be used (default: )"
       disk_size : "disk size used in trimming adapters step"
