@@ -23,8 +23,9 @@ workflow ATAC {
   }
 
   parameter_meta {
-    read1_fastq_barcodes_gzipped: "read 1 fastq file as input for the pipeline, the cellular barcodes must be the first part of the read name seperated by colon"
-    read2_fastq_barcodes_gzipped: "read 2 fastq file as input for the pipeline, the cellular barcodes must be the first part of the read name separated by colon"
+    read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
+    read2_fastq_gzipped: "read 2 FASTQ file as input for the pipeline, contains the cellular barcodes corresponding to the reads in the read1 FASTQ and read 3 FASTQ"
+    read3_fastq_gzipped: "read 3 FASTQ file as input for the pipeline, contains read 2 of paired reads"
     output_base_name: "base name to be used for the pipelines output and intermediate files"
     monitoring_script : "script to monitor resource comsumption of tasks"
     tar_bwa_reference: "the pre built tar file containing the reference fasta and cooresponding reference files for the BWA aligner"
