@@ -98,7 +98,7 @@ gunzip r1.fastq.gz r3.fastq.gz barcodes.fastq.gz
       echo these are the zipped files and sizes
       ls -l
       gzip ~{fastq_barcodes_read1}
-      gzip ~{fastq_barcodes_read3}
+      gzip ~{fastq_barcodes_read1} ~{fastq_barcodes_read3}
       echo these are the zipped files
       ls -l
      >>>
