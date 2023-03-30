@@ -5,6 +5,15 @@ from argparse import ArgumentParser
 from itertools import islice
 
 def write_fastq(args):
+""" Appends barcodes from R2 to R1 and R3 ATAC fastq files. 
+
+    Args:
+        input_r1_fastq (str): input R1 ATAC fastq file.
+        input_r3_fastq (str): input R3 ATAC fastq file.
+        cb_fastq (str): input R2 ATAC fastq file which contains the cell barcodes.
+        out_r1_fastq (str): output file name for R1 fastq file with appended barcodes.   
+        out_r3_fastq (str): output file name for R3 fastq file with appended barcodes.  
+"""
     w_r1 = open(args.out_r1_fastq,"a+")
     w_r3 = open(args.out_r3_fastq, "a+")
     with open(args.input_r1_fastq, 'r+') as R1, open(args.cb_fastq, 'r+') as R2, open(args.input_r3_fastq, 'r+') as R3:
