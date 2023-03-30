@@ -93,7 +93,7 @@ workflow ATAC {
       mv ~{barcodes_fastq} barcodes.fastq.gz
       gunzip r1.fastq.gz
       gunzip r3.fastq.gz
-      gunzip barcodes.fastq.gz
+gunzip r1.fastq.gz r3.fastq.gz barcodes.fastq.gz
       python3 /usr/gitc/atac_barcodes.py -r1 r1.fastq -r3 r3.fastq -cb barcodes.fastq -out_r1 ~{fastq_barcodes_read1} -out_r3 ~{fastq_barcodes_read3}
       echo these are the zipped files and sizes
       ls -l
