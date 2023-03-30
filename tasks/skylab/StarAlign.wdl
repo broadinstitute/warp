@@ -312,7 +312,7 @@ task STARsoloFastq {
 
     STAR \
       --soloType Droplet \
-      --soloStrand Unstranded \
+      --soloStrand Forward \
       --runThreadN ~{cpu} \
       --genomeDir genome_reference \
       --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
