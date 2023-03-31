@@ -137,7 +137,6 @@ task TriggerPrsWithImputationTsv {
         # lab batches used to prefix outfile
         lab_batch_values='~{sep='_' lab_batches}'
         destination_file_name=${lab_batch_values}"_"~{timestamp}"_ingestDataset_imputation_outputs.tsv"
-        destination_file_name=~{timestamp}"_ingestDataset_imputation_outputs.tsv"
         
         # copy imputation outputs file to PRS bucket with new name - labeled with lab batches included
         echo $destination_file_name
