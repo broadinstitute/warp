@@ -86,7 +86,7 @@ The gene metrics below are computed using [TagSort](https://github.com/broadinst
 |`molecule_barcode_fraction_bases_above_30_variance`| The variance in the fraction of bases in molecule barcodes that receive quality scores greater than 30 across the reads of this entity. |
 |`molecules_with_single_read_evidence`| The number of molecules associated with this entity that are observed by only one read. |
 |`n_fragments`| Number of fragments corresponding to this entity. |
-|`n_molecules`| Number of molecules corresponding to this entity. |
+|`n_molecules`| Number of molecules corresponding to this entity (only reflects reads with CB and UB tags. |
 |`n_reads`| The number of reads associated with this entity. |
 |`noise_reads`| The number of reads that are categorized by 10x Genomics Cell Ranger as "noise". Refers to long polymers, or reads with high numbers of N (ambiguous) nucleotides. |
 |`number_cells_detected_multiple`| The number of bead barcodes which observe more than one read of this gene. |
