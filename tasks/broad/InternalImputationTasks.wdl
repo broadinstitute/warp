@@ -139,8 +139,10 @@ task TriggerPrsWithImputationTsv {
         destination_file_name=${lab_batch_values}"_"~{timestamp}"_ingestDataset_imputation_outputs.tsv"
         
         # copy imputation outputs file to PRS bucket with new name
-        echo $destination_file_name
         gsutil cp ~{imputation_outputs_tsv} ~{trigger_bucket_path}$destination_file_name
+
+        # capture file name as output
+        echo $destination_file_name
     >>>
 
     runtime {
@@ -148,6 +150,6 @@ task TriggerPrsWithImputationTsv {
     }
 
     output {
-        File trigger_prs_cf_log = stdout()
+        String trigger_prs_cf_outfile = stdout()
     }
 }
