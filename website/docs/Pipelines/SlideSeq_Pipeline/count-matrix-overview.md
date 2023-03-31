@@ -53,7 +53,7 @@ The bead barcode metrics below are computed using [TagSort](https://github.com/b
 | `n_genes` | The number of genes detected by this bead. |
 |`n_mitochondrial_genes`| The number of mitochondrial genes detected by this bead. |
 |`n_mitochondrial_molecules`| The number of molecules from mitochondrial genes detected for this bead. |
-|`n_molecules`| Number of molecules corresponding to this entity (only reflects reads with CB and UB tags. |
+|`n_molecules`| Number of molecules corresponding to this entity (only reflects reads with CB and UB tags). |
 |`n_reads`| The number of reads associated with this entity. n_reads, like all metrics, are calculated from the Optimus output BAM. Prior to alignment with STARsolo, reads are checked against the whitelist (1 hamming distance). These CB-corrected reads are the input to the STAR aligner. Then, the reads also get CB correction during STAR. For this reason, almost all reads in the aligned BAM have a CB tag and UB tag. Therefore, n_reads represents CB corrected reads, not all reads in the input FASTQ files. |
 |`noise_reads`| Number of reads that are categorized by 10x Genomics Cell Ranger as "noise". Refers to long polymers, or reads with high numbers of N (ambiguous) nucleotides. |
 |`pct_mitochondrial_molecules`| The percentage of molecules from mitochondrial genes detected for this bead. |
@@ -86,7 +86,7 @@ The gene metrics below are computed using [TagSort](https://github.com/broadinst
 |`molecule_barcode_fraction_bases_above_30_variance`| The variance in the fraction of bases in molecule barcodes that receive quality scores greater than 30 across the reads of this entity. |
 |`molecules_with_single_read_evidence`| The number of molecules associated with this entity that are observed by only one read. |
 |`n_fragments`| Number of fragments corresponding to this entity. |
-|`n_molecules`| Number of molecules corresponding to this entity (only reflects reads with CB and UB tags. |
+|`n_molecules`| Number of molecules corresponding to this entity (only reflects reads with CB and UB tags). |
 |`n_reads`| The number of reads associated with this entity. n_reads, like all metrics, are calculated from the Optimus output BAM. Prior to alignment with STARsolo, reads are checked against the whitelist (1 hamming distance). These CB-corrected reads are the input to the STAR aligner. Then, the reads also get CB correction during STAR. For this reason, almost all reads in the aligned BAM have a CB tag and UB tag. Therefore, n_reads represents CB corrected reads, not all reads in the input FASTQ files. |
 |`noise_reads`| The number of reads that are categorized by 10x Genomics Cell Ranger as "noise". Refers to long polymers, or reads with high numbers of N (ambiguous) nucleotides. |
 |`number_cells_detected_multiple`| The number of bead barcodes which observe more than one read of this gene. |
