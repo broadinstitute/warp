@@ -1,7 +1,13 @@
+# 5.7.4
+2023-03-27 (Date of Last Commit)
+
+* Removed the following columns from the gene metrics csv and the Loom as the counts were empty/incorrect: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, reads_mapped_intergenic, duplicate_reads. We also removed duplicate_reads from the cell metrics csv and the Loom
+
 # 5.7.3
 2023-03-15 (Date of Last Commit)
 
 * Removed the following columns from the cell metrics csv and the Loom as the counts were empty/incorrect: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, reads_mapped_intergenic
+* Updated warp-tools docker. The latest loom building script updates the optimus_output_schema_version from 1.0.0 to 1.0.1 to capture the metrics changes listed above 
 
 # 5.7.2
 2023-02-28 (Date of Last Commit)
