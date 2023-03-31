@@ -95,7 +95,7 @@ The global attributes in the Loom apply to the whole file, not any specific part
 |`genomic_reads_fraction_bases_quality_above_30_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The variance in the fraction of bases in the genomic read that receive quality scores greater than 30 across the reads of this entity (included for 10x Cell Ranger count comparison). |
 |`genomic_read_quality_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Average quality of Illumina base calls in the genomic reads corresponding to this entity. |
 |`genomic_read_quality_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Variance in quality of Illumina base calls in the genomic reads corresponding to this entity. |
-|`n_molecules`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Number of molecules corresponding to this entity. See README.md for the definition of a Molecule. |
+|`n_molecules`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Number of molecules corresponding to this entity (only reflects reads with CB and UB tags. |
 |`n_fragments`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Number of fragments corresponding to this entity. See README.md for the definition of a Fragment. |
 |`reads_per_molecule`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average number of reads associated with each molecule in this entity. |
 |`reads_per_fragment`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average number of reads associated with each fragment in this entity. |
