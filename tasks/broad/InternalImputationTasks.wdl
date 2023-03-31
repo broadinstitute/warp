@@ -150,6 +150,6 @@ task TriggerPrsWithImputationTsv {
     }
 
     output {
-        String trigger_prs_cf_outfile = read_string(stdout())
+        Array[String] trigger_prs_cf_outfile = read_lines(stdout())
     }
 }
