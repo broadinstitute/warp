@@ -54,7 +54,7 @@ The bead barcode metrics below are computed using [TagSort](https://github.com/b
 |`n_mitochondrial_genes`| The number of mitochondrial genes detected by this bead. |
 |`n_mitochondrial_molecules`| The number of molecules from mitochondrial genes detected for this bead. |
 |`n_molecules`| Number of molecules corresponding to this entity (only reflects reads with CB and UB tags. |
-|`n_reads`| The number of reads associated with this entity. |
+|`n_reads`| The number of reads associated with this entity. n_reads, like all metrics, are calculated from the Optimus output BAM. Prior to alignment with STARsolo, reads are checked against the whitelist (1 hamming distance). These CB-corrected reads are the input to the STAR aligner. Then, the reads also get CB correction during STAR. For this reason, almost all reads in the aligned BAM have a CB tag and UB tag. Therefore, n_reads represents CB corrected reads, not all reads in the input FASTQ files. |
 |`noise_reads`| Number of reads that are categorized by 10x Genomics Cell Ranger as "noise". Refers to long polymers, or reads with high numbers of N (ambiguous) nucleotides. |
 |`pct_mitochondrial_molecules`| The percentage of molecules from mitochondrial genes detected for this bead. |
 |`perfect_cell_barcodes`| The number of reads whose bead barcodes contain no errors. |
