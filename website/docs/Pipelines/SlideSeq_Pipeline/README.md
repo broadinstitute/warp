@@ -156,8 +156,7 @@ The task’s output includes a coordinate-sorted BAM file containing the bead ba
 
 The [CalculateGeneMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl), [CalculateUMIsMetrics](https://github.com/broadinstitute/warp/blob/develop/master/skylab/Metrics.wdl), and [CalculateCellMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) tasks use [warp-tools](https://github.com/broadinstitute/warp-tools) to calculate summary metrics that help assess the per-bead and per-UMI quality of the data output each time this pipeline is run. 
 
-These metrics output from both tasks are included in the output Loom matrix.
-<!--- comment about count matrix overview? --->
+These metrics output from both tasks are included in the output Loom matrix. A detailed list of these metrics is found in the [Slide-seq Count Matrix Overview](./count-matrix-overview.md).
 
 #### 5. Merging the STAR outputs into NPY and NPZ arrays
 
@@ -167,7 +166,7 @@ The STARsolo output includes a features, barcodes, and matrix TSV for each of th
 
 The [SingleNucleusOptimusLoomOutput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) task uses a custom python script to merge the converted STARsolo count matrix and the cell (bead) and gene metrics into a Loom-formatted bead-by-gene matrix. **These counts are raw and unfiltered.**
 
-<!--- comment about loom matrix overview doc --->
+Read full details for all the metrics in the [Slide-seq Count Matrix Overview](./count-matrix-overview.md).
 
 **Gene counts**
 
@@ -208,7 +207,7 @@ The following table lists the output files produced from the pipeline. For sampl
 | fastq_reads_per_umi | `<input_id>.numReads_perCell_XM.txt` | Metric file containing the number of reads per UMI that were calculated prior to alignment. | TXT |
 | loom_output_file | `<input_id>.loom` | Loom file containing count data and metadata. | Loom | 
 
-The Loom matrix is the default output. See the [create_loom_slide_seq.py](https://github.com/broadinstitute/warp-tools/blob/develop/scripts/create_loom_optimus.py) script for the detailed code. This matrix contains the unnormalized (unfiltered) count matrices. 
+The Loom matrix is the default output. See the [create_loom_slide_seq.py](https://github.com/broadinstitute/warp-tools/blob/develop/scripts/create_loom_optimus.py) script for the detailed code. This matrix contains the unnormalized (unfiltered) count matrices, as well as the gene and bead barcode metrics detailed in the [Slide-seq Count Matrix Overview](./count-matrix-overview.md).
 
 The output Loom matrix can be converted to an H5AD file for downstream processing using a [custom script](https://github.com/broadinstitute/warp-tools/blob/develop/scripts/loom_to_h5ad.py) available in the [warp-tools GitHub repository](https://github.com/broadinstitute/warp-tools).
 
@@ -222,9 +221,9 @@ Slide-seq has been validated for processing mouse spatial transcriptomic data ge
 All Slide-seq pipeline releases are documented in the [Slide-seq changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/slideseq/SlideSeq.changelog.md) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/slideseq/test_inputs/test_data_overview.md). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
 
 
-<!--- ## Citing the Slide-seq Pipeline
-Please identify the pipeline in your methods section using the Slide-seq Pipeline's [SciCrunch resource identifier](LINK).
-* Ex: *Slide-seq Pipeline (RRID:INSERT RRID)* --->
+## Citing the Slide-seq Pipeline
+Please identify the pipeline in your methods section using the Slide-seq Pipeline's [SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_023379/resolver?q=%22Slide-seq%22&l=%22Slide-seq%22&i=rrid:scr_023379).
+* Ex: *Slide-seq Pipeline (RRID:SCR_023379)*
 
 
 ## Consortia support
