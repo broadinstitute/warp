@@ -8,9 +8,9 @@ workflow ATAC {
 
   input {
     # Fastq inputs
-    File read1_fastq_gzipped
-    File read2_fastq_gzipped
-    File read3_fastq_gzipped
+    Array[File] read1_fastq_gzipped
+    Array[File] read2_fastq_gzipped
+    Array[File] read3_fastq_gzipped
 
     # Output prefix/base name for all intermediate files and pipeline outputs
     String output_base_name
@@ -62,9 +62,9 @@ workflow ATAC {
 
   task AddBarcodes {
     input {
-      File read1_fastq
-      File read3_fastq
-      File barcodes_fastq
+      Array[File] read1_fastq
+      Array[File] read3_fastq
+      Array[File] barcodes_fastq
       String output_base_name
       Int mem_size = 5
       String docker_image = "us.gcr.io/broad-gotc-prod/atac_barcodes:1.0.3-1679503564"
@@ -88,15 +88,20 @@ workflow ATAC {
     # Adding barcodes to read 1 and read 3 fastq
     command <<<
       set -euo pipefail
-      mv ~{read1_fastq} r1.fastq.gz
-      mv ~{read3_fastq} r3.fastq.gz
-      mv ~{barcodes_fastq} barcodes.fastq.gz
+      
+      # Cat files for each r1, r3 and barcodes together
+      cat ~{sep=' ' read1_fastq} > r1.fastq.gz
+      cat ~{sep=' ' read3_fastq} > r3.fastq.gz
+      cat ~{sep=' ' barcodes_fastq} > barcodes.fastq.gz
+      
       gunzip r1.fastq.gz r3.fastq.gz barcodes.fastq.gz
+      
+      # Add barcodes to the concatenated fastq files using python script
+      echo "Append barcodes to R1 and R3 fastq files." 
       python3 /usr/gitc/atac_barcodes.py -r1 r1.fastq -r3 r3.fastq -cb barcodes.fastq -out_r1 ~{fastq_barcodes_read1} -out_r3 ~{fastq_barcodes_read3}
-      echo these are the zipped files and sizes
-      ls -l
+      
       gzip ~{fastq_barcodes_read1} ~{fastq_barcodes_read3}
-      echo these are the zipped files
+      echo "These are the zipped files and sizes."
       ls -l
      >>>
 
