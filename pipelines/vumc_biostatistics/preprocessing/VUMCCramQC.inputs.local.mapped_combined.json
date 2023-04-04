@@ -1,0 +1,8 @@
+{
+  "VUMCCramQC.sample_name": "S1",
+  "VUMCCramQC.reference_file": "/nobackup/h_cqs/jstolze/cram_testing/GRCh38_full_analysis_set_plus_decoy_hla.fa",
+  "VUMCCramQC.reference_file_dict": "/nobackup/h_cqs/jstolze/cram_testing/GRCh38_full_analysis_set_plus_decoy_hla.dict",
+  "VUMCCramQC.reference_file_fai": "/nobackup/h_cqs/jstolze/cram_testing/GRCh38_full_analysis_set_plus_decoy_hla.fa.fai",
+  "VUMCCramQC.input_crams": ["/nobackup/h_cqs/shengq2/dnaseq/example_data/S1_L1.cram", "/nobackup/h_cqs/shengq2/dnaseq/example_data/S1_L2.cram"]
+}
+
