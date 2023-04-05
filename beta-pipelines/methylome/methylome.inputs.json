@@ -1,0 +1,5 @@
+{
+  "Methylome.fastq_input_read1": "gs://broad-gotc-test-storage/methylome/input/plumbing/fastqs/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L001_R1_001.fastq.gz",
+  "Methylome.fastq_input_read2": "gs://broad-gotc-test-storage/methylome/input/plumbing/fastqs/230117-AD3C-hs-snm3C_seq-NovaSeq-pe-150-PB-AD3C_BA17_2027_P1-1-B11_S1_L001_R2_001.fastq.gz",
+  "Methylome.random_primer_indexes": "gs://broad-gotc-test-storage/methylome/input/plumbing/fastqs/random_index_v2.fa"
+}
