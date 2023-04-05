@@ -1,6 +1,6 @@
 version 1.0
 
-workflow Methylome {
+workflow Demultiplexing {
     meta {
         description: ""
         allowNestedInputs: true
@@ -53,5 +53,6 @@ runtime {
 
 output {
     Array[File] output_fastqs = glob("*.fq.gz")
+    File stats = "stats.txt"
 }
 }
