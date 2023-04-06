@@ -20,6 +20,8 @@ workflow ATAC {
     
     # script for monitoring tasks 
     File monitoring_script
+
+    Boolean barcodes_in_read_name
   }
 
   parameter_meta {
@@ -53,11 +55,16 @@ workflow ATAC {
       tar_bwa_reference = tar_bwa_reference,
       output_base_name = output_base_name,
       monitoring_script = monitoring_script
+    }
+  call CreateFragmentFile {
+    input:
+      bam = BWAPairedEndAlignment.bam_aligned_output,
+      barcodes_in_read_name = barcodes_in_read_name,
   }
-    
   output {
     File bam_aligned_output = BWAPairedEndAlignment.bam_aligned_output
-  }   
+    File fragment_file = CreateFragmentFile.fragment_file
+  }
 }
 
   task AddBarcodes {
@@ -251,7 +258,7 @@ workflow ATAC {
       docker: docker_image
       disks: "local-disk ${disk_size} HDD"
       cpu: nthreads
-      memory: "${mem_size} GiB" 
+      memory: "${mem_size} GiB"
     }
 
 
@@ -260,3 +267,52 @@ workflow ATAC {
       File monitoring_log = "monitoring.log"
     }
   }
+
+# make fragment file
+task CreateFragmentFile {
+  input {
+    File bam
+    Boolean barcodes_in_read_name
+    Int disk_size = ceil(size(bam, "GiB") + 50)
+    Int mem_size = 10
+  }
+
+  String bam_base_name = basename(bam, ".bam")
+
+  parameter_meta {
+    bam: "the aligned bam that is output of the BWAPairedEndAlignment task"
+  }
+
+  command <<<
+    set -e pipefail
+
+    python3 <<CODE
+
+
+    barcodes_in_read_name = "~{barcodes_in_read_name}"
+    bam = "~{bam}"
+    bam_base_name = "~{bam_base_name}"
+
+    # if barcodes are in the read name, then use barcode_regex to extract them. otherwise, use barcode_tag
+
+    if barcodes_in_read_name=="true":
+      import snapatac2.preprocessing as pp
+      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_regex="([^:]*)")
+    elif barcodes_in_read_name=="false":
+      import snapatac2.preprocessing as pp
+      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
+
+    CODE
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.2-2.2.0-1679678908"
+    disks: "local-disk ${disk_size} HDD"
+    cpu: 1
+    memory: "${mem_size} GiB"
+  }
+
+  output {
+    File fragment_file = "~{bam_base_name}.fragments.tsv"
+  }
+}
