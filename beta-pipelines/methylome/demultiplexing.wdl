@@ -7,8 +7,8 @@ workflow Demultiplexing {
     }
 
     input {
-      File fastq_input_read1
-      File fastq_input_read2
+      Array[File] fastq_input_read1
+      Array[File] fastq_input_read2
       File random_primer_indexes
     }
 
@@ -22,6 +22,7 @@ workflow Demultiplexing {
 
     output {
         Array[File] output_fastqs = Demultiplex.output_fastqs
+        File stats = Demultiplex.stats
     }
 }
 
