@@ -61,7 +61,6 @@ workflow ATAC {
       bam = BWAPairedEndAlignment.bam_aligned_output,
       barcodes_in_read_name = barcodes_in_read_name,
   }
-
   output {
     File bam_aligned_output = BWAPairedEndAlignment.bam_aligned_output
     File fragment_file = CreateFragmentFile.fragment_file
