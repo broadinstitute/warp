@@ -313,7 +313,7 @@ task rnaseqc2 {
     String sample_id
     File exon_bed
 
-    String docker = "gcr.io/broad-cga-aarong-gtex/rnaseqc@sha256:627feb33609357a81b5d8aadfed562d60d1292fe364aaec8c86f4d39e1e11417"
+    String docker = "us.gcr.io/broad-dsde-methods/ckachulis/rnaseqc@sha256:a4bec726bb51df5fb8c8f640f7dec22fa28c8f7803ef9994b8ec39619b4514ca
     Int cpu = 1
     Int memory_mb = 8000
     Int disk_size_gb = ceil(size(bam_file, 'GiB') + size(genes_gtf, 'GiB') + size(exon_bed, 'GiB')) + 50
