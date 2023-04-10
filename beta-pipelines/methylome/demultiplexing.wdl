@@ -6,7 +6,7 @@ workflow Demultiplexing {
     Array[File] fastq_input_read1
     Array[File] fastq_input_read2
     File random_primer_indexes
-    String well_id
+    String plate_id
   }
 
 
@@ -16,7 +16,7 @@ workflow Demultiplexing {
       fastq_input_read1 = [fastq_input_read1[idx]],
       fastq_input_read2 = [fastq_input_read2[idx]],
       random_primer_indexes = random_primer_indexes,
-      well_id = well_id
+      plate_id = plate_id
    }
   }
   output {
@@ -29,7 +29,7 @@ workflow Demultiplexing {
       Array[File] fastq_input_read1
       Array[File] fastq_input_read2
       File random_primer_indexes
-      String well_id
+      String plate_id
 
       String docker_image = "ekiernan/yap_hisat:v4"
       Int disk_size = 50
@@ -43,17 +43,17 @@ workflow Demultiplexing {
 
     /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels \
     -g file:~{random_primer_indexes} \
-    -o ~{well_id}-{name}-R1.fq.gz \
-    -p ~{well_id}-{name}-R2.fq.gz \
+    -o ~{plate_id}-{name}-R1.fq.gz \
+    -p ~{plate_id}-{name}-R2.fq.gz \
     $fastq1_file \
     $fastq2_file \
-    > ~{well_id}.stats.txt
+    > ~{plate_id}.stats.txt
 
     # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
     rm *-unknown-R{1,2}.fq.gz
 
     # zip up all the output fq.gz files
-    tar -zcvf ~{well_id}.cutadapt_output_files.tar.gz *.fq.gz
+    tar -zcvf ~{plate_id}.cutadapt_output_files.tar.gz *.fq.gz
   >>>
 
   runtime {
@@ -64,7 +64,7 @@ workflow Demultiplexing {
   }
 
   output {
-    File output_fastqs = "~{well_id}.cutadapt_output_files.tar.gz"
-    File stats = "~{well_id}.stats.txt"
+    File output_fastqs = "~{plate_id}.cutadapt_output_files.tar.gz"
+    File stats = "~{plate_id}.stats.txt"
   }
  }
