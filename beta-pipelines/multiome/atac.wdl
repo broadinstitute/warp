@@ -8,9 +8,9 @@ workflow ATAC {
 
   input {
     # Fastq inputs
-    File read1_fastq_gzipped
-    File read2_fastq_gzipped
-    File read3_fastq_gzipped
+    Array[File] read1_fastq_gzipped
+    Array[File] read2_fastq_gzipped
+    Array[File] read3_fastq_gzipped
 
     # Output prefix/base name for all intermediate files and pipeline outputs
     String output_base_name
@@ -20,6 +20,8 @@ workflow ATAC {
     
     # script for monitoring tasks 
     File monitoring_script
+
+    Boolean barcodes_in_read_name
   }
 
   parameter_meta {
@@ -53,18 +55,23 @@ workflow ATAC {
       tar_bwa_reference = tar_bwa_reference,
       output_base_name = output_base_name,
       monitoring_script = monitoring_script
+    }
+  call CreateFragmentFile {
+    input:
+      bam = BWAPairedEndAlignment.bam_aligned_output,
+      barcodes_in_read_name = barcodes_in_read_name,
   }
-    
   output {
     File bam_aligned_output = BWAPairedEndAlignment.bam_aligned_output
-  }   
+    File fragment_file = CreateFragmentFile.fragment_file
+  }
 }
 
   task AddBarcodes {
     input {
-      File read1_fastq
-      File read3_fastq
-      File barcodes_fastq
+      Array[File] read1_fastq
+      Array[File] read3_fastq
+      Array[File] barcodes_fastq
       String output_base_name
       Int mem_size = 5
       String docker_image = "us.gcr.io/broad-gotc-prod/atac_barcodes:1.0.3-1679503564"
@@ -88,15 +95,20 @@ workflow ATAC {
     # Adding barcodes to read 1 and read 3 fastq
     command <<<
       set -euo pipefail
-      mv ~{read1_fastq} r1.fastq.gz
-      mv ~{read3_fastq} r3.fastq.gz
-      mv ~{barcodes_fastq} barcodes.fastq.gz
+      
+      # Cat files for each r1, r3 and barcodes together
+      cat ~{sep=' ' read1_fastq} > r1.fastq.gz
+      cat ~{sep=' ' read3_fastq} > r3.fastq.gz
+      cat ~{sep=' ' barcodes_fastq} > barcodes.fastq.gz
+      
       gunzip r1.fastq.gz r3.fastq.gz barcodes.fastq.gz
+      
+      # Add barcodes to the concatenated fastq files using python script
+      echo "Append barcodes to R1 and R3 fastq files." 
       python3 /usr/gitc/atac_barcodes.py -r1 r1.fastq -r3 r3.fastq -cb barcodes.fastq -out_r1 ~{fastq_barcodes_read1} -out_r3 ~{fastq_barcodes_read3}
-      echo these are the zipped files and sizes
-      ls -l
+      
       gzip ~{fastq_barcodes_read1} ~{fastq_barcodes_read3}
-      echo these are the zipped files
+      echo "These are the zipped files and sizes."
       ls -l
      >>>
 
@@ -246,7 +258,7 @@ workflow ATAC {
       docker: docker_image
       disks: "local-disk ${disk_size} HDD"
       cpu: nthreads
-      memory: "${mem_size} GiB" 
+      memory: "${mem_size} GiB"
     }
 
 
@@ -255,3 +267,52 @@ workflow ATAC {
       File monitoring_log = "monitoring.log"
     }
   }
+
+# make fragment file
+task CreateFragmentFile {
+  input {
+    File bam
+    Boolean barcodes_in_read_name
+    Int disk_size = ceil(size(bam, "GiB") + 50)
+    Int mem_size = 10
+  }
+
+  String bam_base_name = basename(bam, ".bam")
+
+  parameter_meta {
+    bam: "the aligned bam that is output of the BWAPairedEndAlignment task"
+  }
+
+  command <<<
+    set -e pipefail
+
+    python3 <<CODE
+
+
+    barcodes_in_read_name = "~{barcodes_in_read_name}"
+    bam = "~{bam}"
+    bam_base_name = "~{bam_base_name}"
+
+    # if barcodes are in the read name, then use barcode_regex to extract them. otherwise, use barcode_tag
+
+    if barcodes_in_read_name=="true":
+      import snapatac2.preprocessing as pp
+      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_regex="([^:]*)")
+    elif barcodes_in_read_name=="false":
+      import snapatac2.preprocessing as pp
+      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
+
+    CODE
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.2-2.2.0-1679678908"
+    disks: "local-disk ${disk_size} HDD"
+    cpu: 1
+    memory: "${mem_size} GiB"
+  }
+
+  output {
+    File fragment_file = "~{bam_base_name}.fragments.tsv"
+  }
+}
