@@ -121,6 +121,7 @@ workflow Optimus {
       input:
         r1_fastq = [SplitFastq.fastq_R1_output_array[idx]],
         r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
+        star_strand_mode = star_strand_mode,
         white_list = whitelist,
         tar_star_reference = tar_star_reference,
         chemistry = tenx_chemistry_version,
