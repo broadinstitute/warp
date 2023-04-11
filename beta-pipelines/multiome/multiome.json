@@ -26,5 +26,15 @@
   "Multiome.tar_star_reference": "gs://gcp-public-data--broad-references/mm10/v0/star/star_2.7.9a_primary_gencode_mouse_vM21.tar",
   "Multiome.input_id": "neurons2k_mouse",
   "Multiome.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.gtf",
-  "Multiome.ref_genome_fasta": "gs://gcp-public-data--broad-references/mm10/v0/GRCm38.primary_assembly.genome.fa"
+  "Multiome.ref_genome_fasta": "gs://gcp-public-data--broad-references/mm10/v0/GRCm38.primary_assembly.genome.fa",
+  "Multiome.fastq_gzipped_input_read1": "gs://fc-df397f36-b664-4312-a2cb-73647851e484/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac_S1_L004_R1_001.fastq.gz",
+  "Multiome.fastq_gzipped_input_read2": "gs://fc-df397f36-b664-4312-a2cb-73647851e484/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac_S1_L004_R3_001.fastq.gz",
+  "Multiome.adapter_seq_read1": "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG",
+  "Multiome.adapter_seq_read3": "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG",
+  "Multiome.output_base_name": "scATAC",
+  "Multiome.monitoring_script": "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh",
+  "Multiome.tar_bwa_reference": "gs://broad-gotc-test-storage/scATAC/input/plumbing/reference/mm10/mm10.tar",
+  "Multiome.barcodes_in_read_name": "true"
+}
+
 }

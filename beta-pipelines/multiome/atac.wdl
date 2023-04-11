@@ -22,6 +22,9 @@ workflow ATAC {
     File monitoring_script
 
     Boolean barcodes_in_read_name
+
+    String adapter_seq_read1
+    String adapter_seq_read3
   }
 
   parameter_meta {
@@ -46,7 +49,9 @@ workflow ATAC {
       fastq_input_read1 = AddBarcodes.fastq_barcodes_output_read1,
       fastq_input_read3 = AddBarcodes.fastq_barcodes_output_read3,
       output_base_name = output_base_name,
-      monitoring_script = monitoring_script
+      monitoring_script = monitoring_script,
+      adapter_seq_read1 = adapter_seq_read1,
+      adapter_seq_read3 = adapter_seq_read3
    }
   call BWAPairedEndAlignment {
     input:
