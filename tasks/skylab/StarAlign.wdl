@@ -219,6 +219,7 @@ task STARsoloFastq {
     File tar_star_reference
     File white_list
     Int chemistry
+    String star_strand_mode
     String counting_mode
     String output_bam_basename
     Boolean? count_exons
@@ -241,6 +242,7 @@ task STARsoloFastq {
     r1_fastq: "input FASTQ file array"
     r2_fastq: "array of forward read FASTQ files"
     tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
+    star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded'"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
@@ -282,6 +284,15 @@ task STARsoloFastq {
         exit 1;
     fi
 
+    if [[ "~{star_strand_mode}" == "Forward" ]] | [[ "~{star_strand_mode}" == "Reverse" ]] | [[ "~{star_strand_mode}" == "Unstranded" ]]
+    then
+        ## single cell or whole cell
+        echo STAR mode is assigned
+    else
+        echo Error: unknown STAR strand mode: "~{star_strand_mode}". Should be Forward, Reverse, or Unstranded.
+        exit 1;
+    fi
+
     # prepare reference
     mkdir genome_reference
     tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
@@ -293,7 +304,7 @@ task STARsoloFastq {
     then
       STAR \
       --soloType Droplet \
-      --soloStrand Forward \
+      --soloStrand ~{star_strand_mode} \
       --runThreadN ~{cpu} \
       --genomeDir genome_reference \
       --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
@@ -312,7 +323,7 @@ task STARsoloFastq {
 
     STAR \
       --soloType Droplet \
-      --soloStrand Forward \
+      --soloStrand ~{star_strand_mode} \
       --runThreadN ~{cpu} \
       --genomeDir genome_reference \
       --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \

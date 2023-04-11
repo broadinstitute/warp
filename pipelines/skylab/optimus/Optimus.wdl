@@ -48,7 +48,7 @@ workflow Optimus {
     Boolean ignore_r1_read_length = false
 
     # Set to true to count reads in stranded mode
-    String use_strand_info = "false"
+    String star_strand_mode = "Forward"
     
 # Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
@@ -86,7 +86,7 @@ workflow Optimus {
     whitelist: "10x genomics cell barcode whitelist"
     tenx_chemistry_version: "10X Genomics v2 (10 bp UMI) or v3 chemistry (12bp UMI)"
     force_no_check: "Set to true to override input checks and allow pipeline to proceed with invalid input"
-    use_strand_info: "Set to true to count reads in stranded mode"
+    star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded.' Default is Forward."
   }
 
   call OptimusInputChecks.checkOptimusInput {
