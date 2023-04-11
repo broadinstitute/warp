@@ -10,7 +10,7 @@ workflow Multiome {
 
   input {
       # Optimus Inputs
-      String counting_mode = "sc_rna"
+      String counting_mode = "sn_rna"
       Array[File] r1_fastq
       Array[File] r2_fastq
       Array[File]? i1_fastq
@@ -31,6 +31,7 @@ workflow Multiome {
 
       # ATAC inputs
       Array[File] read1_fastq_gzipped
+      #TODO is this just the r2 next to the r1 and r3 in the bucket?
       Array[File] read2_fastq_gzipped
       Array[File] read3_fastq_gzipped
       String output_base_name
