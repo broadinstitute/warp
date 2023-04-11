@@ -1,0 +1,30 @@
+{
+  "Multiome.r1_fastq": [
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L001_R1_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L002_R1_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L003_R1_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L004_R1_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L005_R1_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L006_R1_001.filtered.fastq.gz"
+  ],
+  "Multiome.r2_fastq": [
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L001_R2_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L002_R2_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L003_R2_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L004_R2_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L005_R2_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L006_R2_001.filtered.fastq.gz"
+  ],
+  "Multiome.i1_fastq": [
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L001_I1_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L002_I1_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L003_I1_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L004_I1_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L005_I1_001.filtered.fastq.gz",
+    "gs://broad-gotc-test-storage/Optimus/input/plumbing/chemistry_X10_V2/neuron6k_mouse_chr19_genic/neurons_2000_S1_L006_I1_001.filtered.fastq.gz"
+  ],
+  "Multiome.tar_star_reference": "gs://gcp-public-data--broad-references/mm10/v0/star/star_2.7.9a_primary_gencode_mouse_vM21.tar",
+  "Multiome.input_id": "neurons2k_mouse",
+  "Multiome.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.gtf",
+  "Multiome.ref_genome_fasta": "gs://gcp-public-data--broad-references/mm10/v0/GRCm38.primary_assembly.genome.fa"
+}
