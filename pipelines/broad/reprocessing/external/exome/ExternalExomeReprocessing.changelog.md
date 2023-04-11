@@ -1,3 +1,8 @@
+# 3.1.12
+2023-03-20 (Date of Last Commit)
+
+* CheckFingerprint can allow LOD 0
+
 # 3.1.11
 2022-11-04 (Date of Last Commit)
 

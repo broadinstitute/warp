@@ -205,7 +205,7 @@ task FastqToUbam {
     String read_group_name
     String sequencing_center
 
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:3.0.0"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2) + 50
@@ -227,7 +227,8 @@ task FastqToUbam {
       PU="~{platform_unit}" \
       RG="~{read_group_name}" \
       CN="~{sequencing_center}" \
-      O="~{unmapped_bam_output_name}"
+      O="~{unmapped_bam_output_name}" \
+      ALLOW_EMPTY_FASTQ=True
   >>>
 
   runtime {
@@ -398,7 +399,7 @@ task CollectMultipleMetrics {
     File ref_fasta_index
 
 
-    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
+    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:3.0.0"
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
@@ -408,11 +409,16 @@ task CollectMultipleMetrics {
   Int max_heap = memory_mb - 500
 
   command <<<
+    #plots will not be produced if there are no reads
+    touch ~{output_bam_prefix}.insert_size_histogram.pdf
+    touch ~{output_bam_prefix}.insert_size_metrics
+    touch ~{output_bam_prefix}.base_distribution_by_cycle.pdf
+    touch ~{output_bam_prefix}.quality_by_cycle.pdf
+    touch ~{output_bam_prefix}.quality_distribution.pdf
+
     java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar CollectMultipleMetrics \
       INPUT=~{input_bam} \
       OUTPUT=~{output_bam_prefix} \
-      PROGRAM=CollectInsertSizeMetrics \
-      PROGRAM=CollectAlignmentSummaryMetrics \
       REFERENCE_SEQUENCE=~{ref_fasta}
   >>>
 
@@ -950,7 +956,7 @@ task FastQC {
   output {
     File fastqc_data = "~{bam_basename}_fastqc_data.txt"
     File fastqc_html = "~{bam_basename}_fastqc.html"
-    Float fastqc_percent_reads_with_adapter = read_float("~{bam_basename}_adapter_content.txt")
+    Float fastqc_percent_reads_with_adapter = if read_string("~{bam_basename}_adapter_content.txt") == "warn" then -1 else read_float("~{bam_basename}_adapter_content.txt")
   }
 }
 
@@ -959,7 +965,7 @@ task TransferReadTags {
     File aligned_bam
     File ubam
     String output_basename
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.4.0.0"
     Int memory_mb = 16000
     Int disk_size_gb = ceil(2 * size(aligned_bam, "GiB")) + ceil(2 * size(ubam, "GiB")) + 128
   }
