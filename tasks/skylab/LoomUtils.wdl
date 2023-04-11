@@ -62,7 +62,7 @@ task OptimusLoomGeneration {
 
   input {
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679941323"
+    String docker = "us.gcr.io/broad-gotc-prod/np_patch_create_snrna_optimus_script"
     # name of the sample
     String input_id
     # user provided id
