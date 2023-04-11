@@ -284,7 +284,7 @@ task STARsoloFastq {
         exit 1;
     fi
 
-    if [[ "~{star_strand_mode}" == "Forward" ]] | [[ "~{star_strand_mode}" == "Reverse" ]] | [[ "~{star_strand_mode}" == "Unstranded" ]]
+    if [[ "~{star_strand_mode}" == "Forward" ]] || [[ "~{star_strand_mode}" == "Reverse" ]] || [[ "~{star_strand_mode}" == "Unstranded" ]]
     then
         ## single cell or whole cell
         echo STAR mode is assigned
