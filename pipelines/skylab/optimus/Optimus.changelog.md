@@ -1,3 +1,8 @@
+# 5.8.0
+2023-04-11 (Date of Last Commit)
+
+* Modified the stranded input parameter to be called "star_strand_mode"; the default is now set to Forward and the other options include "Unstranded" and "Reverse"
+
 # 5.7.3
 2023-03-15 (Date of Last Commit)
 
