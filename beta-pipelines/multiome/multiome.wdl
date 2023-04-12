@@ -26,7 +26,8 @@ workflow Multiome {
       #TODO check on this
       Boolean ignore_r1_read_length = true
       String use_strand_info = "false"
-      Boolean count_exons = false
+      # do we want this always to be true?
+      Boolean count_exons = true
       File whitelist= "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1.txt"
 
       # ATAC inputs
