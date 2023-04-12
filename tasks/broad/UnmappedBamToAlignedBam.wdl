@@ -38,7 +38,7 @@ workflow UnmappedBamToAlignedBam {
     File contamination_sites_mu
 
     String cross_check_fingerprints_by
-    File? haplotype_database_file
+    File haplotype_database_file
     Float lod_threshold
     String recalibrated_bam_basename
     Boolean hard_clip_reads = false
