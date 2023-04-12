@@ -56,9 +56,14 @@ workflow ATAC {
       output_base_name = output_base_name,
       monitoring_script = monitoring_script
     }
-  call CreateFragmentFile {
+  call AddCBtags {
     input:
       bam = BWAPairedEndAlignment.bam_aligned_output,
+      output_base_name = output_base_name
+  }
+  call CreateFragmentFile {
+    input:
+      bam = AddCBtags.sorted_cb_bam,
       barcodes_in_read_name = barcodes_in_read_name,
   }
   output {
@@ -280,7 +285,7 @@ task CreateFragmentFile {
   String bam_base_name = basename(bam, ".bam")
 
   parameter_meta {
-    bam: "the aligned bam that is output of the BWAPairedEndAlignment task"
+    bam: "the aligned bam with CB in CB tag; output of the AddCBtags task"
   }
 
   command <<<
@@ -314,5 +319,32 @@ task CreateFragmentFile {
 
   output {
     File fragment_file = "~{bam_base_name}.fragments.tsv"
+  }
+}
+
+task AddCBtags {
+  input {
+    String bam
+    String output_base_name
+    Int disk_size = ceil(size(bam, "GiB") + 50)
+    Int mem_size = 10
+  }
+  
+  String bam_cb_output_name = output_base_name + "cb.aligned.bam"
+  
+  command <<<
+    samtools view -h ~{bam} | head -n 100 | awk '{if ($0 ~ /^@/) {print $0} else {cb = substr($1, 1, index($1, ":")-1); print($0 "\tCB:Z:" cb "\tXC:Z:" cb "_" substr($1, index($1, ":")+1));}}' | \
+    samtools sort -o ~{bam_cb_output_name}
+  >>>
+
+  output {
+    File sorted_cb_bam = "~{bam_cb_output_name}"
+  }
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091"
+    disks: "local-disk ${disk_size} HDD"
+    cpu: 1
+    memory: "${mem_size} GiB"
   }
 }
