@@ -154,3 +154,7 @@ workflows:
   - name: VUMCCramQC2
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCCramQC2.wdl
+
+- name: VUMCCramQCCombined
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCCramQC_combined.wdl
