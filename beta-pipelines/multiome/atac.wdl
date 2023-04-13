@@ -23,8 +23,8 @@ workflow ATAC {
 
     Boolean barcodes_in_read_name
 
-    String adapter_seq_read1
-    String adapter_seq_read3
+    String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
+    String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
   parameter_meta {

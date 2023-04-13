@@ -23,26 +23,25 @@ workflow Multiome {
       Int tenx_chemistry_version = 3
       Int emptydrops_lower = 100
       Boolean force_no_check = false
-      #TODO check on this
-      Boolean ignore_r1_read_length = true
+      Boolean ignore_r1_read_length = false
       String use_strand_info = "false"
-      #TODO do we want this always to be something?
       Boolean count_exons = false
-      File whitelist= "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1.txt"
+      File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1.txt"
 
       # ATAC inputs
       Array[File] read1_fastq_gzipped
-      #TODO is this just the r2 next to the r1 and r3 in the bucket?
       Array[File] read2_fastq_gzipped
       Array[File] read3_fastq_gzipped
       String output_base_name
       File tar_bwa_reference
       File monitoring_script
       Boolean barcodes_in_read_name
-      #TODO how do i thread this through json?
-      String adapter_seq_read1
-      String adapter_seq_read3
-
+      String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
+      String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
+      # we are going to need an atac whitelist.
+      # for now it is on the slideSeq VM
+      # /mnt/disks/slideseqdata/multiome_ARC/cellranger-arc-2.0.2/lib/python/atac/barcodes/737K-arc-v1.txt.gz
+      # File atac_whitelist = ""
   }
 
 # Call the Optimus workflow
@@ -59,7 +58,7 @@ workflow Multiome {
     ref_genome_fasta = ref_genome_fasta,
     mt_genes = mt_genes,
     tenx_chemistry_version = tenx_chemistry_version,
-    whitelist = whitelist,
+    whitelist = gex_whitelist,
     emptydrops_lower = emptydrops_lower,
     force_no_check = force_no_check,
     ignore_r1_read_length = ignore_r1_read_length,
@@ -76,7 +75,6 @@ workflow Multiome {
     tar_bwa_reference = tar_bwa_reference,
     monitoring_script = monitoring_script,
     barcodes_in_read_name = barcodes_in_read_name,
-    #how do i pass these through json?
     adapter_seq_read1 = adapter_seq_read1,
     adapter_seq_read3 = adapter_seq_read3
   }
