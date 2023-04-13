@@ -26,8 +26,8 @@ workflow Multiome {
       #TODO check on this
       Boolean ignore_r1_read_length = true
       String use_strand_info = "false"
-      # do we want this always to be true?
-      Boolean count_exons = true
+      #TODO do we want this always to be something?
+      Boolean count_exons = false
       File whitelist= "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1.txt"
 
       # ATAC inputs
@@ -39,7 +39,7 @@ workflow Multiome {
       File tar_bwa_reference
       File monitoring_script
       Boolean barcodes_in_read_name
-      #how do i thread this through json?
+      #TODO how do i thread this through json?
       String adapter_seq_read1
       String adapter_seq_read3
 
@@ -85,10 +85,20 @@ workflow Multiome {
   }
 
   output {
-    File bam = Optimus.bam
+    # atac outputs
     File bam_aligned_output = Atac.bam_aligned_output
     File fragment_file = Atac.fragment_file
+
+    # optimus outputs
+    String pipeline_version_out = Optimus.pipeline_version_out
+    File genomic_reference_version = Optimus.genomic_reference_version
+    File bam = Optimus.bam
+    File matrix = Optimus.matrix
+    File matrix_row_index = Optimus.matrix_row_index
+    File matrix_col_index = Optimus.matrix_col_index
+    File cell_metrics = Optimus.cell_metrics
+    File gene_metrics = Optimus.gene_metrics
+    File? cell_calls = Optimus.cell_calls
+    File loom_output_file = Optimus.loom_output_file
   }
-
-
 }
