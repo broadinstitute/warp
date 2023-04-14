@@ -279,7 +279,7 @@ task CreateFragmentFile {
     File bam
     Boolean barcodes_in_read_name
     Int disk_size = ceil(size(bam, "GiB") + 50)
-    Int mem_size = 10
+    Int mem_size = 50
   }
 
   String bam_base_name = basename(bam, ".bam")
