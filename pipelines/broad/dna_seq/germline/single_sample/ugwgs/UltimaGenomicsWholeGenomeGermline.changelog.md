@@ -1,3 +1,6 @@
+# 1.0.8
+* CheckFingerprint can allow LOD 0
+
 # 1.0.7
 2023-01-13 (Date of Last Commit)
 

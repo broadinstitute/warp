@@ -162,3 +162,4 @@ workflows:
   - name: VUMCSamHeader
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCSamHeader.wdl
+    primaryDescriptorPath: /pipelines/skylab/slideseq/SlideSeq.wdl
