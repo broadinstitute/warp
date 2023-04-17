@@ -22,9 +22,12 @@ workflow VUMCSamHeader {
 # Validate a cram using Picard ValidateSamFile
 task SamHeader {
   input {
-    String input_cram
+    File input_cram
     String sample_name
+    Int machine_mem_gb = 4
+    Int addtional_disk_space_gb = 10
   }
+  Int disk_size = ceil(size(input_cram, "GB")) + addtional_disk_space_gb
 
   String output_name = "~{sample_name}.header.txt"
 
@@ -35,8 +38,8 @@ task SamHeader {
   runtime {
     docker: "staphb/samtools:1.17"
     preemptible: 3
-    memory: "10 GB"
-    disks: "local-disk 5 HDD"
+    memory: machine_mem_gb + " GB"
+    disks: "local-disk " + disk_size + " HDD"
   }
 
   output {
