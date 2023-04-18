@@ -193,6 +193,7 @@ task SumUp{
   >>>
 
   runtime{
+    docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     memory: "2 GB"
     disks: "local-disk 5 HDD"
   }
