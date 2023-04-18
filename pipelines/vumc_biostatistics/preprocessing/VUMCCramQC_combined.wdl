@@ -32,20 +32,20 @@ workflow VUMCCramQC {
       sample_name = sample_name,
   }
 
-if(SummerizeQC.qc_failed==0) {
-  scatter (input_cram in input_crams){
-   call CountCRAM {
-     input:
-       input_cram = input_cram,
-       docker = samtools_docker,
-  }
- }
+  if(SummerizeQC.qc_failed==0) {
+    scatter (input_cram in input_crams){
+      call CountCRAM {
+        input:
+          input_cram = input_cram,
+          docker = samtools_docker,
+      }
+    }
 
- call SumUp {
-  input: 
-   sample_name = sample_name,
-   mapped_files = CountCRAM.mapped_file,
-   unmapped_files = CountCRAM.unmapped_file,
+    call SumUp {
+      input: 
+        sample_name = sample_name,
+        mapped_files = CountCRAM.mapped_file,
+        unmapped_files = CountCRAM.unmapped_file,
     }
   }
 
@@ -170,17 +170,17 @@ task CountCRAM{
   }
 
   output{
-   File unmapped_file = "~{NumUnmapped}"
-   File mapped_file = "~{NumMapped}"
+    File unmapped_file = "~{NumUnmapped}"
+    File mapped_file = "~{NumMapped}"
   }
 }
 
 task SumUp{
   input{
     # Command parameters
-     String sample_name
-     Array[File]? unmapped_files
-     Array[File]? mapped_files
+    String sample_name
+    Array[File]? unmapped_files
+    Array[File]? mapped_files
   }
 
   String FinalNumUnmapped = "${sample_name}_final_Unmapped.txt"
