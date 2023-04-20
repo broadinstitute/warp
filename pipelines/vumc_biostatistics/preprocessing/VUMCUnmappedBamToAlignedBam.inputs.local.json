@@ -1,5 +1,5 @@
 {
-  "VUMCUnmappedBamToAlignedBam.flowcell_unmapped_bams": ["/scratch/cqs/shengq2/test_data/cromwell_finalOutputs/S1.0.unmapped.bam", "/scratch/cqs/shengq2/test_data/cromwell_finalOutputs/S1.1.unmapped.bam"],
+  "VUMCUnmappedBamToAlignedBam.flowcell_unmapped_bams": ["/nobackup/h_cqs/shengq2/test_data/S1.0.unmapped.bam", "/nobackup/h_cqs/shengq2/test_data/S1.1.unmapped.bam"],
   "VUMCUnmappedBamToAlignedBam.sample_name": "S1",
   "VUMCUnmappedBamToAlignedBam.preemptible_tries": 3,
   "VUMCUnmappedBamToAlignedBam.agg_preemptible_tries": 3,
