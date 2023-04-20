@@ -19,7 +19,7 @@ workflow ATAC {
     File tar_bwa_reference
     
     # script for monitoring tasks 
-    File monitoring_script
+    #File monitoring_script
 
     Boolean barcodes_in_read_name
 
@@ -32,7 +32,7 @@ workflow ATAC {
     read2_fastq_gzipped: "read 2 FASTQ file as input for the pipeline, contains the cellular barcodes corresponding to the reads in the read1 FASTQ and read 3 FASTQ"
     read3_fastq_gzipped: "read 3 FASTQ file as input for the pipeline, contains read 2 of paired reads"
     output_base_name: "base name to be used for the pipelines output and intermediate files"
-    monitoring_script : "script to monitor resource comsumption of tasks"
+    #monitoring_script : "script to monitor resource comsumption of tasks"
     tar_bwa_reference: "the pre built tar file containing the reference fasta and cooresponding reference files for the BWA aligner"
 
   }
@@ -49,7 +49,7 @@ workflow ATAC {
       fastq_input_read1 = AddBarcodes.fastq_barcodes_output_read1,
       fastq_input_read3 = AddBarcodes.fastq_barcodes_output_read3,
       output_base_name = output_base_name,
-      monitoring_script = monitoring_script,
+      #monitoring_script = monitoring_script,
       adapter_seq_read1 = adapter_seq_read1,
       adapter_seq_read3 = adapter_seq_read3
    }
@@ -58,8 +58,8 @@ workflow ATAC {
       fastq_input_read1 = TrimAdapters.fastq_trimmed_adapter_output_read1,
       fastq_input_read3 = TrimAdapters.fastq_trimmed_adapter_output_read3,
       tar_bwa_reference = tar_bwa_reference,
-      output_base_name = output_base_name,
-      monitoring_script = monitoring_script
+      output_base_name = output_base_name
+      #monitoring_script = monitoring_script
     }
   call CreateFragmentFile {
     input:
@@ -136,7 +136,7 @@ workflow ATAC {
       File fastq_input_read3
       String output_base_name
       String docker_image = "quay.io/broadinstitute/cutadapt:1.18"
-      File monitoring_script
+      #File monitoring_script
       Int disk_size = ceil(2 * ( size(fastq_input_read1, "GiB") + size(fastq_input_read3, "GiB") )) + 200
       Int mem_size = 4
       Int min_length = 10
@@ -154,7 +154,7 @@ workflow ATAC {
       adapter_seq_read3: "cutadapt option for the sequence adapter for read 3 fastq"
       output_base_name: "base name to be used for the output of the task"
       docker_image: "the docker image using cutadapt to be used (default: quay.io/broadinstitute/cutadapt:1.18)"
-      monitoring_script : "script to monitor resource consumption of tasks"
+      #monitoring_script : "script to monitor resource consumption of tasks"
       mem_size: "the size of memory used during trimming adapters"
       disk_size : "disk size used in trimming adapters step"
   }
@@ -167,12 +167,12 @@ workflow ATAC {
     command <<<
       set -euo pipefail
 
-      if [ ! -z "~{monitoring_script}" ]; then
-        chmod a+x ~{monitoring_script}
-        ~{monitoring_script} > monitoring.log &
-      else
-        echo "No monitoring script given as input" > monitoring.log &
-      fi
+
+
+
+
+
+
 
       # fastq's, "-f", -A for paired adapters read 2"
       cutadapt \
@@ -196,7 +196,7 @@ workflow ATAC {
     output {
       File fastq_trimmed_adapter_output_read1 = fastq_trimmed_adapter_output_name_read1
       File fastq_trimmed_adapter_output_read3 = fastq_trimmed_adapter_output_name_read3
-      File monitoring_log = "monitoring.log"
+      #File monitoring_log = "monitoring.log"
     }
   }
 
@@ -210,7 +210,7 @@ workflow ATAC {
       String read_group_sample_name = "RGSN1"
       String output_base_name
       String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091"
-      File monitoring_script
+      #File monitoring_script
       Int disk_size = ceil(3.25 * (size(fastq_input_read1, "GiB") + size(fastq_input_read3, "GiB") + size(tar_bwa_reference, "GiB"))) + 200 
       Int nthreads = 16
       Int mem_size = 8
@@ -227,7 +227,7 @@ workflow ATAC {
       disk_size : "disk size used in bwa alignment step"
       output_base_name: "basename to be used for the output of the task"
       docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091)"
-      monitoring_script : "script to monitor resource comsumption of tasks"
+      #monitoring_script : "script to monitor resource comsumption of tasks"
     }
 
     String bam_aligned_output_name = output_base_name + ".aligned.bam"
@@ -237,12 +237,12 @@ workflow ATAC {
 
       set -euo pipefail
 
-      if [ ! -z "~{monitoring_script}" ]; then
-        chmod a+x ~{monitoring_script}
-         ~{monitoring_script} > monitoring.log &
-      else
-        echo "No monitoring script given as input" > monitoring.log &
-      fi
+
+
+
+
+
+
 
       # prepare reference
       declare -r REF_DIR=$(mktemp -d genome_referenceXXXXXX)
@@ -269,7 +269,7 @@ workflow ATAC {
 
     output {
       File bam_aligned_output = bam_aligned_output_name
-      File monitoring_log = "monitoring.log"
+      #File monitoring_log = "monitoring.log"
     }
   }
 

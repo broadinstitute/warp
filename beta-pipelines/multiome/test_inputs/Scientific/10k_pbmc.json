@@ -1,0 +1,33 @@
+{
+"Multiome.annotations_gtf":"gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/introns_modified_gencode.vGencode_V43.primary_assembly.annotation.gtf",
+  "Multiome.barcodes_in_read_name":"true",
+  "Multiome.i1_fastq":[
+  "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L001_I1_001.fastq.gz",
+  "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L002_I1_001.fastq.gz"
+],
+  "Multiome.input_id":"10k_PBMC",
+  "Multiome.output_base_name":"scATAC",
+  "Multiome.r1_fastq":[
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L001_R1_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L002_R1_001.fastq.gz"
+  ],
+  "Multiome.r2_fastq":[
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L001_R2_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L002_R2_001.fastq.gz"
+  ],
+  "Multiome.read1_fastq_gzipped":[
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac_S1_L001_R1_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac_S1_L002_R1_001.fastq.gz"
+  ],
+  "Multiome.read2_fastq_gzipped":[
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac_S1_L001_R2_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac_S1_L002_R2_001.fastq.gz"
+  ],
+  "Multiome.read3_fastq_gzipped":[
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac_S1_L001_R3_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac_S1_L002_R3_001.fastq.gz"
+  ],
+  "Multiome.ref_genome_fasta":"gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/GRCh38.primary_assembly.genome.fa",
+  "Multiome.tar_bwa_reference":"gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/bwa0.7.17-Human-GENCODE-build-GRCh38.tar",
+  "Multiome.tar_star_reference":"gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/modified_star_primary_gencode_Human_vGencode_V43.tar"
+}

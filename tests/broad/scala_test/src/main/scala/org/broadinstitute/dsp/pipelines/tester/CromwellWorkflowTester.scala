@@ -54,7 +54,7 @@ object CromwellWorkflowTester {
 
   lazy val GotcRoot: File = WarpRoot / "genomes_in_the_cloud"
 
-  lazy val PipelineRoot: File = WarpRoot / "pipelines"
+  lazy val PipelineRoot: File = WarpRoot / "beta-pipelines"
 
   lazy val TestsRoot: File = WarpRoot / "verification" / "test-wdls"
 

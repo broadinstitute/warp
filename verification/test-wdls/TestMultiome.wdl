@@ -31,7 +31,7 @@ workflow TestMultiome {
       Array[File] read3_fastq_gzipped
       String output_base_name
       File tar_bwa_reference
-      File monitoring_script
+      #File monitoring_script
       Boolean barcodes_in_read_name
       String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
       String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
@@ -72,7 +72,7 @@ workflow TestMultiome {
         read3_fastq_gzipped = read3_fastq_gzipped,
         output_base_name = output_base_name,
         tar_bwa_reference = tar_bwa_reference,
-        monitoring_script = monitoring_script,
+        #monitoring_script = monitoring_script,
         barcodes_in_read_name = barcodes_in_read_name,
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3
