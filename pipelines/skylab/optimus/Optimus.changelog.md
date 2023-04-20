@@ -1,7 +1,7 @@
 # 5.7.5
 2023-04-19 (Date of Last Commit)
 
-* Updated warp-tools docker which included a fix for a small bug in create_snrna_optimus.py that was causing the script not to run. 
+* Updated warp-tools docker which included a fix for a small bug in create_snrna_optimus.py that was causing the script not to run
 
 # 5.7.4
 2023-03-27 (Date of Last Commit)
