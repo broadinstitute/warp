@@ -110,3 +110,40 @@ task FastqSplitter {
     disks: "local-disk " + disk_size + " HDD"
   }
 }
+
+task SamSplitter {
+  input {
+    File input_bam
+    Boolean is_cram = false
+    Int n_reads
+    Int compression_level
+    Int preemptible_tries = 3
+  }
+
+  Float unmapped_bam_size = size(input_bam, "GiB")
+  # Since the output bams are less compressed than the input bam we need a disk multiplier that's larger than 2.
+  Float disk_multiplier = 2.5
+  Int disk_size = ceil(disk_multiplier * unmapped_bam_size + 20)
+
+  command {
+    set -e
+    mkdir output_dir
+
+    total_reads=$(samtools view -c ~{input_bam})
+
+    java -Dsamjdk.compression_level=~{compression_level} -Xms3000m -Xmx3600m -jar /usr/gitc/picard.jar SplitSamByNumberOfReads \
+      INPUT=~{input_bam} \
+      OUTPUT=output_dir \
+      SPLIT_TO_N_READS=~{n_reads} \
+      TOTAL_READS_IN_INPUT=$total_reads
+  }
+  output {
+    Array[File] split_bams = if is_cram then glob("output_dir/*.cram") else glob("output_dir/*.bam")
+  }
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
+    preemptible: preemptible_tries
+    memory: "3.75 GiB"
+    disks: "local-disk " + disk_size + " HDD"
+  }
+}
