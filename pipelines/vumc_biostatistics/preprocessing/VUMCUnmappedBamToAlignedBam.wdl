@@ -21,6 +21,7 @@ import "../../../tasks/broad/Qc.wdl" as QC
 import "../../../tasks/broad/BamProcessing.wdl" as Processing
 import "../../../tasks/broad/Utilities.wdl" as Utils
 import "../../../structs/dna_seq/DNASeqStructs.wdl" as Structs
+import "../../../tasks/vumc_biostatistics/VUMCAlignment.wdl" as VUMCAlignment
 
 # WORKFLOW DEFINITION
 workflow VUMCUnmappedBamToAlignedBam {
@@ -49,6 +50,7 @@ workflow VUMCUnmappedBamToAlignedBam {
 
     Array[File] flowcell_unmapped_bams
     String sample_name
+    Boolean is_cram = false
 
     File contamination_sites_ud
     File contamination_sites_bed
@@ -138,9 +140,10 @@ workflow VUMCUnmappedBamToAlignedBam {
     String unmapped_bam_basename = basename(unmapped_bam, sample_and_unmapped_bams.unmapped_bam_suffix)
 
     if (unmapped_bam_size > cutoff_for_large_rg_in_gb) {
-      call Alignment.SamSplitter as SamSplitter {
+      call VUMCAlignment.SamSplitter as SamSplitter {
         input :
           input_bam = unmapped_bam,
+          is_cram = is_cram,
           n_reads = reads_per_file,
           preemptible_tries = preemptible_tries,
           compression_level = compression_level
