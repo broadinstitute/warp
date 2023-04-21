@@ -99,11 +99,24 @@ def get_gene_ids_Gencode(input_gtf, biotypes):
             if 'tag' in features_dic:
                 if ('readthrough_transcript' not in features_dic['tag']) and (
                     'PAR' not in features_dic['tag']):
-                    gene=features_dic['gene_id'].split('.', 1)[0]
+                    print("PAR not in tag")
+                    gene=features_dic['gene_id']#.split('.', 1)[0]
+                    print(gene)
                     if gene not in gene_ids:
                         gene_ids.add(gene)
+                else:
+                    print("PAR is in tag")
+                    gene=features_dic['gene_id']
+                    print(gene)
+           # if 'tag' in features_dic:
+            #    if ('readthrough_transcript' not in features_dic['tag']) and (
+             #       'PAR' not in features_dic['tag']):
+              #      gene=features_dic['gene_id'].split('.', 1)[0]
+               #     if gene not in gene_ids:
+                #        gene_ids.add(gene)
             else:
-                gene=features_dic['gene_id'].split('.', 1)[0]
+                print("tag is not in line that contains PAR")
+                gene=features_dic['gene_id']#.split('.', 1)[0]
                 if gene not in gene_ids:
                     gene_ids.add(gene)
 
@@ -161,11 +174,18 @@ def main():
                     output_gtf.write(line.strip() + "\n")
                 else:
                     fields = [x.strip() for x in line.strip().split("\t")]
+                    #LK printing fields
+                    #print(fields)
                     features = re.sub('"', '', line.strip().split('\t')[8].strip())
+                    #LK printing features
+                    #print(features)
                     features_dic = get_features(features)
-                    modified_fields = fields.copy()
-                    modified_fields[8] = modify_attr(features_dic)
+                    print(features_dic['gene_id'])
                     if features_dic['gene_id'] in gene_ids:
+                        #print(features_dic['gene_id'])
+                        #print(features_dic)
+                        modified_fields = fields.copy()
+                        modified_fields[8] = modify_attr(features_dic)
                         output_gtf.write("{}".format("\t".join(modified_fields)+ "\n"))
 
 if __name__ == "__main__":

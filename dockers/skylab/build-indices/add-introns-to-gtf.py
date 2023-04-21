@@ -7,6 +7,8 @@ from bisect import bisect_left, bisect_right
 
 def get_feature(line, feature):
     features = re.sub('"', "", line.strip().split("\t")[8].strip())
+    #print(features)
+    # For each feature in the features line, makes key value pair; will overwrite multiple tags
     features_dic = {x.split()[0]: x.split()[1] for x in features.split(";") if x}
 
     if feature in features_dic:
@@ -47,11 +49,23 @@ def main():
                 if fields[2] == "exon":
                     gene_id = get_feature(line.strip(), "gene_id")
                     exon_id = get_feature(line.strip(), "exon_id")
+                    print("Printing exon ids and exons")
+                    print(exon_id)
+                    # contig_id = chromosome
                     contig_id = fields[0]
+                    # locpair = chromosome start and stop of feature
                     locpair = (int(fields[3]), int(fields[4]))
+                    print("Printing contig ID and locpair")
+                    print(contig_id, locpair)
+                    # key exons on chromsomes; each chromosome will hvae entry in exons with chrom start and stops
                     if contig_id not in exons:
                         exons[contig_id] = []
+                    # Fix this by appending after creating your empty list. The problem for y chromosomes is that the ID is already
+                    # being added 
                     if exon_id not in exon_ids:
+                        if contig_id == "chrY":
+                            print("Chromosome Y in the house!")
+                            exit()
                         exons[contig_id].append(locpair)
                         exon_ids[exon_id] = True
                 elif fields[2] == "gene":
@@ -64,6 +78,16 @@ def main():
                         gene_locs[contig_id].append(locpair)
 
                         gene_locations[gene_id] = locpair
+    # print("Printing gene locations")
+    # print(gene_locations)
+    # print("Printing gene_locs")
+    # print(gene_locs)
+    # print("Printing exons")
+    # print(exons)
+    # print("Printing intron cands")
+    # print(intron_cands)
+    # print("Exon IDs")
+    # print(exon_ids)
 
     # sorted the gene locs by start
     for contig_id in gene_locs:
@@ -79,17 +103,32 @@ def main():
     # worrying about the inclusiveness of that base pair within the range
     # of a gene
     for contig_id in exons:
+        print("Printing contig_id")
+        print(contig_id)
         intron_cands[contig_id] = []
         last_exon_end = 0
+        print("Printing exons[contig_id]")
+        print(exons[contig_id])
         for exon_coor in exons[contig_id]:
+            print("Printing exon coor")
+            print(exon_coor)
             if exon_coor[0] > last_exon_end:
                 pair = (last_exon_end, exon_coor[0])
                 intron_cands[contig_id].append(pair)
+                #print("Printing pair")
+                #print(pair)
 
             last_exon_end = max(last_exon_end, exon_coor[1])
+            #print("This is last_exon_end")
+            #print(last_exon_end)
+            #print("This is exon coor 1")
+            #print(exon_coor[1])
+        
 
         # add the remaining last
         pair = (last_exon_end, 30000000000)
+        #print("This is the pair")
+        #print(pair)
         intron_cands[contig_id].append(pair)
 
     # global ordered (ascending) array of intronic start or end points
@@ -101,6 +140,12 @@ def main():
         for coor in intron_cands[contig_id]:
             intronic_points.append(coor[0])
             intronic_points.append(coor[1])
+            #print("This is working")
+            if coor[0] > coor[1]:
+                print("These are wrong coordinatates")
+                print(coor[0])
+                print(coor[1])
+                print(contig_id)
 
         for gene_loc in gene_locs[contig_id]:
             i = bisect_right(intronic_points, gene_loc[0], 0, len(intronic_points))
@@ -165,10 +210,12 @@ def main():
                                 mod_fields = fields.copy()
                                 mod_fields[2] = "intron"
                                 mod_fields[3] = str(intron[0])
+                                if str(intron[0]) == str("2752083"):
+                                    print("BAD ONe!")
+                                    print(gene_id)
+                                    exit()
                                 mod_fields[4] = str(intron[1])
-                                mod_fields[8] = mod_fields[
-                                    8
-                                ] + ' intron_id "{}"'.format(str(intron_no))
+                                mod_fields[8] = mod_fields[8] + ' intron_id "{}"'.format(str(intron_no))
                                 intron_no += 1
                                 if args.output_gtf.endswith(".gz"):
                                     output_gtf.write(
