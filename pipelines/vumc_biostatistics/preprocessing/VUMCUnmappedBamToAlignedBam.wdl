@@ -149,17 +149,17 @@ workflow VUMCUnmappedBamToAlignedBam {
           compression_level = compression_level
       }
 
-      Array[String] unmapped_bam_ss_list = SamSplitter.split_bams
+      Array[File] unmapped_bam_ss_list = SamSplitter.split_bams
     }
 
     if (unmapped_bam_size <= cutoff_for_large_rg_in_gb) {
-      Array[String] unmapped_bam_ns_list = [unmapped_bam]
+      Array[File] unmapped_bam_ns_list = [unmapped_bam]
     }
 
-    Array[String] ubam_list = select_first([unmapped_bam_ss_list, unmapped_bam_ns_list])
+    Array[File] ubam_list = select_first([unmapped_bam_ss_list, unmapped_bam_ns_list])
   }
 
-  Array[String] all_ubams=flatten(ubam_list)
+  Array[File] all_ubams=flatten(ubam_list)
 
   scatter(unmapped_bam2 in all_ubams) {
     String unmapped_bam_basename2 = basename(unmapped_bam2)
