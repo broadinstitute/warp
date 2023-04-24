@@ -346,7 +346,6 @@ task AddCBtags {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091"
     disks: "local-disk ${disk_size} HDD"
-    cpu: 1
     memory: "${mem_size} GiB"
   }
 }
