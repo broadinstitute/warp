@@ -278,8 +278,8 @@ task CreateFragmentFile {
   input {
     File bam
     Boolean barcodes_in_read_name
-    Int disk_size = ceil(size(bam, "GiB") + 50)
-    Int mem_size = 10
+    Int disk_size = ceil(size(bam, "GiB") + 200)
+    Int mem_size = 50
   }
 
   String bam_base_name = basename(bam, ".bam")
@@ -311,7 +311,7 @@ task CreateFragmentFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.2-2.2.0-1679678908"
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.3-2.3.0-1682089891"
     disks: "local-disk ${disk_size} HDD"
     cpu: 1
     memory: "${mem_size} GiB"
@@ -324,17 +324,19 @@ task CreateFragmentFile {
 
 task AddCBtags {
   input {
-    String bam
+    File bam
     String output_base_name
     Int disk_size = ceil(size(bam, "GiB") + 50)
     Int mem_size = 10
   }
   
-  String bam_cb_output_name = output_base_name + "cb.aligned.bam"
+  String bam_cb_output_name = output_base_name + ".cb.aligned.bam"
   
   command <<<
-    samtools view -h ~{bam} | head -n 100 | awk '{if ($0 ~ /^@/) {print $0} else {cb = substr($1, 1, index($1, ":")-1); print($0 "\tCB:Z:" cb "\tXC:Z:" cb "_" substr($1, index($1, ":")+1));}}' | \
-    samtools sort -o ~{bam_cb_output_name}
+    # We reused tags from Broad's Share-seq pipeline; XC tag is not currently needed by pipeline 
+    samtools view -h ~{bam} | awk '{if ($0 ~ /^@/) {print $0} else {cb = substr($1, 1, index($1, ":")-1); print($0 "\tCB:Z:" cb "\tXC:Z:" cb "_" substr($1, index($1, ":")+1));}}' | samtools view -b -o ~{bam_cb_output_name}
+    # Piping to samtools sort works, but isn't necessary for SnapATAC2
+    #| \ samtools sort -o ~{bam_cb_output_name}
   >>>
 
   output {
