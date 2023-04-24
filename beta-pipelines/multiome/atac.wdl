@@ -61,9 +61,14 @@ workflow ATAC {
       output_base_name = output_base_name,
       monitoring_script = monitoring_script
     }
-  call CreateFragmentFile {
+  call AddCBtags {
     input:
       bam = BWAPairedEndAlignment.bam_aligned_output,
+      output_base_name = output_base_name
+  }
+  call CreateFragmentFile {
+    input:
+      bam = AddCBtags.sorted_cb_bam,
       barcodes_in_read_name = barcodes_in_read_name,
   }
   output {
@@ -285,7 +290,7 @@ task CreateFragmentFile {
   String bam_base_name = basename(bam, ".bam")
 
   parameter_meta {
-    bam: "the aligned bam that is output of the BWAPairedEndAlignment task"
+    bam: "the aligned bam with CB in CB tag; output of the AddCBtags task"
   }
 
   command <<<
@@ -311,7 +316,7 @@ task CreateFragmentFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.2-2.2.0-1679678908"
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.3-2.3.0-1682089891"
     disks: "local-disk ${disk_size} HDD"
     cpu: 1
     memory: "${mem_size} GiB"
@@ -319,5 +324,33 @@ task CreateFragmentFile {
 
   output {
     File fragment_file = "~{bam_base_name}.fragments.tsv"
+  }
+}
+
+task AddCBtags {
+  input {
+    File bam
+    String output_base_name
+    Int disk_size = ceil(size(bam, "GiB") + 50)
+    Int mem_size = 10
+  }
+  
+  String bam_cb_output_name = output_base_name + ".cb.aligned.bam"
+  
+  command <<<
+    # We reused tags from Broad's Share-seq pipeline; XC tag is not currently needed by pipeline 
+    samtools view -h ~{bam} | awk '{if ($0 ~ /^@/) {print $0} else {cb = substr($1, 1, index($1, ":")-1); print($0 "\tCB:Z:" cb "\tXC:Z:" cb "_" substr($1, index($1, ":")+1));}}' | samtools view -b -o ~{bam_cb_output_name}
+    # Piping to samtools sort works, but isn't necessary for SnapATAC2
+    #| \ samtools sort -o ~{bam_cb_output_name}
+  >>>
+
+  output {
+    File sorted_cb_bam = "~{bam_cb_output_name}"
+  }
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091"
+    disks: "local-disk ${disk_size} HDD"
+    memory: "${mem_size} GiB"
   }
 }
