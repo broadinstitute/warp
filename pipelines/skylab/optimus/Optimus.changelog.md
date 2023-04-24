@@ -1,8 +1,13 @@
-
 # 5.8.0
-2023-04-11 (Date of Last Commit)
+2023-04-24 (Date of Last Commit)
 
 * Modified the stranded input parameter to be called star_strand_mode; the default is now set to Forward and the other options include Unstranded and Reverse
+
+# 5.7.5
+2023-04-19 (Date of Last Commit)
+
+* Updated warp-tools docker which included a fix for a small bug in create_snrna_optimus.py that was causing the script not to run
+
 
 # 5.7.4
 2023-03-27 (Date of Last Commit)

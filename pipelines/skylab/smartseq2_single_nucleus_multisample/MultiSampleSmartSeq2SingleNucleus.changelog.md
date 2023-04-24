@@ -1,6 +1,14 @@
-# 1.2.21
-2023-04-11 (Date of Last Commit)
+# 1.2.22
+
+2023-04-23 (Date of Last Commit)
+
 * Updated the STARalign task; does not affect this workflow
+
+# 1.2.21
+2023-04-19 (Date of Last Commit)
+
+* Updated warp-tools docker which included a fix for a small bug in create_snrna_optimus.py that was causing the script not to run
+
 
 # 1.2.20
 2023-03-27 (Date of Last Commit)
