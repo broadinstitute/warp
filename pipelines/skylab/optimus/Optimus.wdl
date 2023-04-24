@@ -47,7 +47,7 @@ workflow Optimus {
     # Set to true if you expect that r1_read_length does not match length of UMIs/barcodes for 10x chemistry v2 (26 bp) or v3 (28 bp).
     Boolean ignore_r1_read_length = false
 
-    # Set to true to count reads in stranded mode
+    # Set to Forward, Reverse, or Unstranded to account for stranded library preparations (per STARsolo documentation)
     String star_strand_mode = "Forward"
     
 # Set to true to count reads aligned to exonic regions in sn_rna mode
