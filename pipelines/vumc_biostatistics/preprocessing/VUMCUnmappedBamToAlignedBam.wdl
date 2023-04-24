@@ -50,7 +50,7 @@ workflow VUMCUnmappedBamToAlignedBam {
 
     Array[File] flowcell_unmapped_bams
     String sample_name
-    Boolean is_cram = false
+    Boolean is_cram
 
     File contamination_sites_ud
     File contamination_sites_bed
