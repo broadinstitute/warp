@@ -60,7 +60,7 @@ workflow Multiome {
     emptydrops_lower = emptydrops_lower,
     force_no_check = force_no_check,
     ignore_r1_read_length = ignore_r1_read_length,
-    use_strand_info = use_strand_info,
+    star_strand_mode = star_strand_mode,
     count_exons = count_exons
   }
 
