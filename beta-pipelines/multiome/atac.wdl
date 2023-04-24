@@ -22,6 +22,9 @@ workflow ATAC {
     File monitoring_script
 
     Boolean barcodes_in_read_name
+
+    String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
+    String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
   parameter_meta {
@@ -46,7 +49,9 @@ workflow ATAC {
       fastq_input_read1 = AddBarcodes.fastq_barcodes_output_read1,
       fastq_input_read3 = AddBarcodes.fastq_barcodes_output_read3,
       output_base_name = output_base_name,
-      monitoring_script = monitoring_script
+      monitoring_script = monitoring_script,
+      adapter_seq_read1 = adapter_seq_read1,
+      adapter_seq_read3 = adapter_seq_read3
    }
   call BWAPairedEndAlignment {
     input:
@@ -80,7 +85,7 @@ workflow ATAC {
       String output_base_name
       Int mem_size = 5
       String docker_image = "us.gcr.io/broad-gotc-prod/atac_barcodes:1.0.3-1679503564"
-      Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 200
+      Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
   }
 
    parameter_meta {
@@ -279,7 +284,6 @@ task CreateFragmentFile {
     File bam
     Boolean barcodes_in_read_name
     Int disk_size = ceil(size(bam, "GiB") + 200)
-    Int mem_size = 50
   }
 
   String bam_base_name = basename(bam, ".bam")
