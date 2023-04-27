@@ -1,7 +1,12 @@
-# 1.0.4
-2023-04-19
-* Updated warp-tools docker which included a fix for a small bug in create_snrna_optimus.py that was causing the script not to run
+# 1.0.5
+2023-04-23 (Date of Last Commit)
 
+* Updated the STARalign task; does not affect this workflow
+
+# 1.0.3
+2023-04-19
+
+* Updated warp-tools docker which included a fix for a small bug in create_snrna_optimus.py that was causing the script not to run
 
 # 1.0.3
 2023-03-27 (Date of Last Commit)
