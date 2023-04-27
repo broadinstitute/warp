@@ -23,7 +23,7 @@ workflow TestMultiome {
       Int emptydrops_lower = 100
       Boolean force_no_check = false
       Boolean ignore_r1_read_length = false
-      String use_strand_info = "false"
+      String star_strand_mode = "Forward"
       Boolean count_exons = false
       File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1.txt"
       Array[File] read1_fastq_gzipped
@@ -64,7 +64,7 @@ workflow TestMultiome {
         emptydrops_lower = emptydrops_lower,
         force_no_check = force_no_check,
         ignore_r1_read_length = ignore_r1_read_length,
-        use_strand_info = use_strand_info,
+        star_strand_mode = star_strand_mode,
         count_exons = count_exons,
         gex_whitelist = gex_whitelist,
         read1_fastq_gzipped = read1_fastq_gzipped,
