@@ -308,13 +308,13 @@ task CreateFragmentFile {
     if barcodes_in_read_name=="true":
       import snapatac2.preprocessing as pp
       import snapatac2 as snap
-      pp.make_fragment_file("~{bam}", "/cromwell_root/~{bam_base_name}.fragments.tsv", is_paired=True, barcode_regex="([^:]*)")
-      pp.import_data("/cromwell_root/~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", genome=snap.genome.hg38)
+      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_regex="([^:]*)")
+      pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", genome=snap.genome.hg38)
     elif barcodes_in_read_name=="false":
       import snapatac2.preprocessing as pp
       import snapatac2 as snap
-      pp.make_fragment_file("~{bam}", "/cromwell_root/~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
-      pp.import_data("/cromwell_root/~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", genome=snap.genome.hg38)
+      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
+      pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", genome=snap.genome.hg38)
 
     CODE
   >>>
