@@ -22,6 +22,8 @@ workflow ATAC {
     File monitoring_script
 
     Boolean barcodes_in_read_name
+    String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
+    String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
   parameter_meta {
