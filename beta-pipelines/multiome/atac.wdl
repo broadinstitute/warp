@@ -18,6 +18,9 @@ workflow ATAC {
     # BWA ref 
     File tar_bwa_reference
     
+    # GTF for SnapATAC2 to calculate TSS sites of fragment file
+    File atac_gtf
+    
     # script for monitoring tasks 
     File monitoring_script
 
@@ -69,6 +72,7 @@ workflow ATAC {
     input:
       bam = AddCBtags.sorted_cb_bam,
       barcodes_in_read_name = barcodes_in_read_name,
+      atac_gtf = atac_gtf
   }
   output {
     File bam_aligned_output = BWAPairedEndAlignment.bam_aligned_output
@@ -282,6 +286,7 @@ workflow ATAC {
 task CreateFragmentFile {
   input {
     File bam
+    File atac_gtf
     Boolean barcodes_in_read_name
     Int disk_size = ceil(size(bam, "GiB") + 200)
     Int mem_size = 50
@@ -299,6 +304,7 @@ task CreateFragmentFile {
     python3 <<CODE
 
 
+    atac_gtf = "~{atac_gtf}"
     barcodes_in_read_name = "~{barcodes_in_read_name}"
     bam = "~{bam}"
     bam_base_name = "~{bam_base_name}"
@@ -309,14 +315,19 @@ task CreateFragmentFile {
       import snapatac2.preprocessing as pp
       import snapatac2 as snap
       pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_regex="([^:]*)")
-      pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", genome=snap.genome.hg38)
+      pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", genome=snap.genome.hg38, gene_anno="~{atac_gtf}")
     elif barcodes_in_read_name=="false":
       import snapatac2.preprocessing as pp
       import snapatac2 as snap
       pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
-      pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", genome=snap.genome.hg38)
+      pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", genome=snap.genome.hg38, gene_anno="~{atac_gtf}")
 
     CODE
+    
+    echo printing directory
+    pwd
+    echo printing files
+    ls -l
   >>>
 
   runtime {
