@@ -1,3 +1,19 @@
+# 5.1.20
+2023-04-19 (Date of Last Commit)
+
+* Updated warp-tools docker which included a fix for a small bug in create_snrna_optimus.py that was causing the script not to run
+
+# 5.1.19
+2023-03-27 (Date of Last Commit)
+
+* SlideSeq-specific and Optimus-specific changes to Metrics.wdl. This change does not affect the SmartSeq2SingleSample pipeline
+
+# 5.1.18
+2023-03-15 (Date of Last Commit)
+
+* SlideSeq-specific and Optimus-specific changes to Metrics.wdl. This change does not affect the SmartSeq2SingleSample pipeline.
+* Updated warp-tools docker to support the Optimus and SlideSeq changes 
+
 # 5.1.17
 2022-11-18 (Date of Last Commit)
 

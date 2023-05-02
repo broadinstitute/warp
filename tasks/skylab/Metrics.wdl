@@ -9,7 +9,7 @@ task CalculateCellMetrics {
 
     # runtime values
 
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1676307243"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679941323"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
@@ -56,9 +56,14 @@ task CalculateCellMetrics {
     --nthreads ${cpu} \
     ~{"--mitochondrial-gene-names-filename " + mt_genes}
 
+    # add the column header "CellID" to the first column in the .csv file
+    sed '1s/^/CellID/' ~{input_id}.cell-metrics.csv > updated.~{input_id}.cell-metrics.csv
+
+    # remove the following columns: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, duplicate_reads, reads_mapped_intergenic
+    cut -d',' -f 1-4,8-9,11-26,29-36 updated.~{input_id}.cell-metrics.csv > ~{input_id}.cell-metrics.csv
+
     gzip ~{input_id}.cell-metrics.csv
   }
-
 
   runtime {
     docker: docker
@@ -81,7 +86,7 @@ task CalculateGeneMetrics {
     String input_id
     # runtime values
 
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1676307243"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679941323"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 
@@ -118,6 +123,12 @@ task CalculateGeneMetrics {
     --nthreads ${cpu} \
     ~{"--mitochondrial-gene-names-filename " + mt_genes}
 
+    # add the column header "ID" to the first column in the .csv file
+    sed '1s/^/GeneID/' ~{input_id}.gene-metrics.csv > updated.~{input_id}.gene-metrics.csv
+
+    # remove the following columns: reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, duplicate_reads
+    cut -d',' -f 1-4,8-9,11-27 updated.~{input_id}.gene-metrics.csv > ~{input_id}.gene-metrics.csv
+
     gzip ~{input_id}.gene-metrics.csv
 
   }
@@ -142,7 +153,7 @@ task CalculateUMIsMetrics {
     File? mt_genes
     String input_id
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1674487316"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679490798"
     Int machine_mem_mb = 16000
     Int cpu = 8
     Int disk = ceil(size(bam_input, "Gi") * 4)
@@ -208,7 +219,7 @@ task FastqMetricsSlideSeq {
 
 
     # Runtime attributes
-    String docker =  "us.gcr.io/broad-gotc-prod/warp-tools:1.0.0-v0.3.15-1674487316"
+    String docker =  "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679490798"
     Int cpu = 16
     Int machine_mb = 40000
     Int disk = ceil(size(r1_fastq, "GiB")*3)  + 50

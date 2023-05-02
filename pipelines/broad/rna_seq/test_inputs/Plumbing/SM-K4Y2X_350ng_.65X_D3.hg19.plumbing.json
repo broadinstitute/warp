@@ -19,5 +19,7 @@
   "RNAWithUMIsPipeline.ribosomalIntervals": "gs://gcp-public-data--broad-references/hg19/v0/annotation/Homo_sapiens_assembly19.rRNA.interval_list",
   "RNAWithUMIsPipeline.exonBedFile": "gs://gcp-public-data--broad-references/hg19/v0/annotation/gencode.v19.hg19.insert_size_intervals_geq1000bp.bed",
   "RNAWithUMIsPipeline.population_vcf": "gs://gatk-best-practices/somatic-b37/small_exac_common_3.vcf",
-  "RNAWithUMIsPipeline.population_vcf_index": "gs://gatk-best-practices/somatic-b37/small_exac_common_3.vcf.idx"
+  "RNAWithUMIsPipeline.population_vcf_index": "gs://gatk-best-practices/somatic-b37/small_exac_common_3.vcf.idx",
+
+  "RNAWithUMIsPipeline.compare_transcriptome_dup_metrics": false
 }

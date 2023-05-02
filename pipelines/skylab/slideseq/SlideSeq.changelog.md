@@ -1,3 +1,24 @@
+# 1.0.5
+2023-04-23 (Date of Last Commit)
+
+* Updated the STARalign task; does not affect this workflow
+
+# 1.0.3
+2023-04-19
+
+* Updated warp-tools docker which included a fix for a small bug in create_snrna_optimus.py that was causing the script not to run
+
+# 1.0.3
+2023-03-27 (Date of Last Commit)
+* Removed the following columns from the gene metrics csv and the Loom as the counts were empty/incorrect: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, reads_mapped_intergenic, duplicate_reads. We also removed duplicate_reads from the cell metrics csv and the Loom
+
+# 1.0.2
+2023-03-15 (Date of Last Commit)
+
+* Removed the following columns from the cell metrics csv and the Loom as the counts were empty/incorrect: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, reads_mapped_intergenic
+* Updated warp-tools docker. The latest loom building script updates the optimus_output_schema_version from 1.0.0 to 1.0.1 to capture the metrics changes listed above 
+
+
 # 1.0.1
 2023-02-28 (Date of Last Commit)
 
