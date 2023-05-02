@@ -315,6 +315,8 @@ task CreateFragmentFile {
     bam = "~{bam}"
     bam_base_name = "~{bam_base_name}"
     chrom_sizes = "~{chrom_sizes}"
+    import snapatac2.preprocessing as pp
+    import snapatac2 as snap
     
     # Calculate chrom size dictionary based on text file
     chrom_size_dict={}
@@ -326,22 +328,14 @@ task CreateFragmentFile {
     # if barcodes are in the read name, then use barcode_regex to extract them. otherwise, use barcode_tag
 
     if barcodes_in_read_name=="true":
-      import snapatac2.preprocessing as pp
-      import snapatac2 as snap
       pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_regex="([^:]*)")
-      pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_size=chrom_size_dict, gene_anno="~{atac_gtf}")
     elif barcodes_in_read_name=="false":
-      import snapatac2.preprocessing as pp
-      import snapatac2 as snap
       pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
-      pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_size=chrom_size_dict, gene_anno="~{atac_gtf}")
+    
+    # Calculate quality metrics
+    pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_size=chrom_size_dict, gene_anno="~{atac_gtf}")
 
     CODE
-    
-    echo printing directory
-    pwd
-    echo printing files
-    ls -l
   >>>
 
   runtime {
