@@ -7,6 +7,7 @@ from bisect import bisect_left, bisect_right
 
 def get_feature(line, feature):
     features = re.sub('"', "", line.strip().split("\t")[8].strip())
+    # For each feature in the features line, makes key value pair; will overwrite multiple tags
     features_dic = {x.split()[0]: x.split()[1] for x in features.split(";") if x}
 
     if feature in features_dic:
@@ -47,12 +48,15 @@ def main():
                 if fields[2] == "exon":
                     gene_id = get_feature(line.strip(), "gene_id")
                     exon_id = get_feature(line.strip(), "exon_id")
+                    # contig_id = chromosome
                     contig_id = fields[0]
+                    # locpair = chromosome start and stop of feature
                     locpair = (int(fields[3]), int(fields[4]))
+                    # key exons on chromsomes; each chromosome will hvae entry in exons with chrom start and stops
                     if contig_id not in exons:
                         exons[contig_id] = []
+                    exons[contig_id].append(locpair)
                     if exon_id not in exon_ids:
-                        exons[contig_id].append(locpair)
                         exon_ids[exon_id] = True
                 elif fields[2] == "gene":
                     gene_id = get_feature(line.strip(), "gene_id")
@@ -87,6 +91,7 @@ def main():
                 intron_cands[contig_id].append(pair)
 
             last_exon_end = max(last_exon_end, exon_coor[1])
+        
 
         # add the remaining last
         pair = (last_exon_end, 30000000000)
@@ -166,9 +171,7 @@ def main():
                                 mod_fields[2] = "intron"
                                 mod_fields[3] = str(intron[0])
                                 mod_fields[4] = str(intron[1])
-                                mod_fields[8] = mod_fields[
-                                    8
-                                ] + ' intron_id "{}"'.format(str(intron_no))
+                                mod_fields[8] = mod_fields[8] + ' intron_id "{}"'.format(str(intron_no))
                                 intron_no += 1
                                 if args.output_gtf.endswith(".gz"):
                                     output_gtf.write(
