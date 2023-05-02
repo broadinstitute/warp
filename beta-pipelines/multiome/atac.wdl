@@ -21,6 +21,10 @@ workflow ATAC {
     # GTF for SnapATAC2 to calculate TSS sites of fragment file
     File atac_gtf
     
+    # Text file containing chrom_sizes for genome build (i.e. hg38)
+    File chrom_sizes
+    
+    
     # script for monitoring tasks 
     File monitoring_script
 
@@ -71,6 +75,7 @@ workflow ATAC {
   call CreateFragmentFile {
     input:
       bam = AddCBtags.sorted_cb_bam,
+      chrom_sizes = chrom_sizes,
       barcodes_in_read_name = barcodes_in_read_name,
       atac_gtf = atac_gtf
   }
@@ -287,6 +292,7 @@ task CreateFragmentFile {
   input {
     File bam
     File atac_gtf
+    File chrom_sizes
     Boolean barcodes_in_read_name
     Int disk_size = ceil(size(bam, "GiB") + 200)
     Int mem_size = 50
@@ -308,6 +314,14 @@ task CreateFragmentFile {
     barcodes_in_read_name = "~{barcodes_in_read_name}"
     bam = "~{bam}"
     bam_base_name = "~{bam_base_name}"
+    chrom_sizes = "~{chrom_sizes}"
+    
+    # Calculate chrom size dictionary based on text file
+    chrom_size_dict={}
+    with open('~{chrom_sizes}', 'r') as f:
+        for line in f:
+            key, value = line.strip().split()
+            chrom_size_dict[str(key)] = int(value)
 
     # if barcodes are in the read name, then use barcode_regex to extract them. otherwise, use barcode_tag
 
@@ -315,12 +329,12 @@ task CreateFragmentFile {
       import snapatac2.preprocessing as pp
       import snapatac2 as snap
       pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_regex="([^:]*)")
-      pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", genome=snap.genome.hg38, gene_anno="~{atac_gtf}")
+      pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_size=chrom_size_dict, gene_anno="~{atac_gtf}")
     elif barcodes_in_read_name=="false":
       import snapatac2.preprocessing as pp
       import snapatac2 as snap
       pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
-      pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", genome=snap.genome.hg38, gene_anno="~{atac_gtf}")
+      pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_size=chrom_size_dict, gene_anno="~{atac_gtf}")
 
     CODE
     
