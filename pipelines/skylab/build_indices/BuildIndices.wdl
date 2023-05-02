@@ -55,6 +55,7 @@ workflow BuildIndices {
     File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
     File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
     File reference_bundle = BuildBWAreference.reference_bundle
+    File chromosome_sizes = CalculateChromosomeSizes.chrom_sizes
   }
 }
 
