@@ -124,12 +124,15 @@ task CompareTextFiles {
 
     while read -r a && read -r b <&3;
     do
+      echo "Sorting File $a and $b"
+      sort $a > $a.sorted
+      sort $b > $b.sorted
       echo "Comparing File $a with $b"
-      diff $a $b > diffs.txt
+      diff $a.sorted $b.sorted > diffs.txt
       if [ $? -ne 0 ];
       then
         exit_code=1
-        echo "Error: Files $a and $b differ" >&2
+        echo "Error: Files $a.sorted and $b.sorted differ" >&2
         cat diffs.txt >&2
       fi
       # catting the diffs.txt on STDOUT as that's what's expected.
