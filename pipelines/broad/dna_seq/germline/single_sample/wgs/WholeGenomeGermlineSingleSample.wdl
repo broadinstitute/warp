@@ -107,7 +107,7 @@ workflow WholeGenomeGermlineSingleSample {
       references                  = references,
       dragmap_reference           = dragmap_reference,
       papi_settings               = papi_settings,
-      cropsscheck_fingerprints    = crosscheck_fingerprints,
+      crosscheck_fingerprints    = crosscheck_fingerprints,
 
       contamination_sites_ud = references.contamination_sites_ud,
       contamination_sites_bed = references.contamination_sites_bed,
