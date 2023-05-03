@@ -84,35 +84,35 @@ task Demultiplex {
 }
 
 
-task hisat_build_methyl_index {
-  input {
-  File genome_fa
-  String genome_ver
-  Int memory = 50
-  Int disk = 1000
- # String hisat_command = "hisat-3n-build --base-change C,T --repeat-index"
-}
-command <<<
-  set -euo pipefail
-
-  /hisat-3n/hisat-3n-build --base-change C,T --repeat-index ~{genome_fa} ~{genome_ver}
-
->>>
-output {
-  Array[File] output_index_files = glob("hg38*")
-}
-runtime {
-  docker: "ekiernan/hisat3n-python:v1"
-  memory: memory + " GiB"
-  disks: "local-disk ~{disk} HDD"
-  disk: disk + " GB" # TES
-}
-}
+#task hisat_build_methyl_index {
+#  input {
+#  File genome_fa
+#  String genome_ver
+#  Int memory = 50
+#  Int disk = 1000
+# # String hisat_command = "hisat-3n-build --base-change C,T --repeat-index"
+#}
+#command <<<
+#  set -euo pipefail
+#
+#  /hisat-3n/hisat-3n-build --base-change C,T --repeat-index ~{genome_fa} ~{genome_ver}
+#
+#>>>
+#output {
+#  Array[File] output_index_files = glob("hg38*")
+#}
+#runtime {
+#  docker: "ekiernan/hisat3n-python:v1"
+#  memory: memory + " GiB"
+#  disks: "local-disk ~{disk} HDD"
+#  disk: disk + " GB" # TES
+#}
+#}
 
 task Mapping {
   input {
     Array[File] tarred_demultiplexed_fastqs
-    Array[File] index_files
+    File index_files
 
     File genome_fa
     String genome_ver
@@ -126,6 +126,8 @@ task Mapping {
   command <<<
     set -euo pipefail
 
+    # need to untar the index files
+    # need a group0 for config yml, etc,. within group0 we will need the fastqs fold that hold the samples.
     # /hisat-3n/hisat-3n-build --base-change C,T --repeat-index ~{genome_fa} ~{genome_ver}
 
     declare -a fastq_files=(~{sep=' ' tarred_demultiplexed_fastqs})
@@ -156,7 +158,7 @@ task Mapping {
     -t \
     --new-summary \
     --summary-file ${output_prefix}.stats \
-    --threads {threads} \
+    --threads 1 \
     | \
     samtools view \
     -b -q 0 -o ${output_bam}  # do not filter any reads in this step
