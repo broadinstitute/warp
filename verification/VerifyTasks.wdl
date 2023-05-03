@@ -127,16 +127,24 @@ task CompareTextFiles {
       echo "Sorting File $a and $b"
       sort $a > $a.sorted
       sort $b > $b.sorted
-      echo "Comparing File $a with $b"
-      diff $a.sorted $b.sorted > diffs.txt
-      if [ $? -ne 0 ];
-      then
+
+      echo "Calculating md5sums for $a and $b"
+      md5_a=$(md5sum $a.sorted | cut -d ' ' -f1)
+      md5_b=$(md5sum $b.sorted | cut -d ' ' -f1)
+
+      if [ $md5_a = $md5_b ]; then
+        echo "Files $a.sorted and $b.sorted have matching md5sums and are the same."
+      else
+        echo "Files $a.sorted and $b.sorted have different md5sums."
+        diff $a.sorted $b.sorted > diffs.txt
         exit_code=1
-        echo "Error: Files $a.sorted and $b.sorted differ" >&2
+        echo "Diff between $a.sorted and $b.sorted:" >&2
         cat diffs.txt >&2
       fi
+
       # catting the diffs.txt on STDOUT as that's what's expected.
       cat diffs.txt
+
     done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
 
     exit $exit_code
@@ -208,8 +216,8 @@ task CompareBams {
   }
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
-  Int disk_size = ceil(bam_size * 4) + 20
-  Int memory_mb = 10000
+  Int disk_size = ceil(bam_size * 4) + 80
+  Int memory_mb = 300000
   Int java_memory_size = memory_mb - 1000
   Int max_heap = memory_mb - 500
 
