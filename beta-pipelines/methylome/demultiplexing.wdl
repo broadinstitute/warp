@@ -21,16 +21,17 @@ workflow Demultiplexing {
         plate_id = plate_id
     }
   }
-  #call hisat_build_methyl_index {
-  #  input:
-  #    genome_fa = genome_fa,
-  #    genome_ver = genome_ver
-  #    }
+ call hisat_build_methyl_index {
+   input:
+     genome_fa = genome_fa,
+     genome_ver = genome_ver
+     }
   call Mapping {
     input:
       tarred_demultiplexed_fastqs = Demultiplex.output_fastqs,
       genome_fa = genome_fa,
-      genome_ver = genome_ver
+      genome_ver = genome_ver,
+      index_files = hisat_build_methyl_index.output_index_files
   }
   output {
     Array[File] output_fastqs = Demultiplex.output_fastqs
@@ -89,13 +90,12 @@ task hisat_build_methyl_index {
   String genome_ver
   Int memory = 50
   Int disk = 1000
-  String hisat_command = "/hisat-3n/hisat-3n-build --base-change C,T --repeat-index"
-  File monitoring = "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh"
+ # String hisat_command = "hisat-3n-build --base-change C,T --repeat-index"
 }
 command <<<
   set -euo pipefail
 
-  ~{hisat_command} ~{genome_fa} ~{genome_ver}
+  /hisat-3n/hisat-3n-build --base-change C,T --repeat-index ~{genome_fa} ~{genome_ver}
 
 >>>
 output {
@@ -112,12 +112,13 @@ runtime {
 task Mapping {
   input {
     Array[File] tarred_demultiplexed_fastqs
+    Array[File] index_files
 
     File genome_fa
     String genome_ver
-    String hisat_command = "hisat-3n-build --base-change C,T --repeat-index"
+    #String hisat_command = "hisat-3n-build --base-change C,T --repeat-index"
 
-    String docker_image = "ekiernan/yap_hisat:v4"
+    String docker_image = "ekiernan/hisat3n-python:v1"
     Int disk_size = 50
     Int mem_size = 500
   }
@@ -125,7 +126,7 @@ task Mapping {
   command <<<
     set -euo pipefail
 
-    ~{hisat_command} ~{genome_fa} ~{genome_ver}
+    # /hisat-3n/hisat-3n-build --base-change C,T --repeat-index ~{genome_fa} ~{genome_ver}
 
     declare -a fastq_files=(~{sep=' ' tarred_demultiplexed_fastqs})
 
@@ -142,7 +143,7 @@ task Mapping {
     output_prefix=${r1[$i]%%.*} # remove the .r1.fq.gz suffix
     output_bam=${output_prefix}.bam
 
-    hisat-3n \
+    /hisat-3n/hisat-3n \
     {config[hisat3n_dna_reference]} \
     -q \
     -1 ${r1[$i]} \
