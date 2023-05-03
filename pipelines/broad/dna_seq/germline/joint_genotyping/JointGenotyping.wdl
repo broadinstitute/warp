@@ -415,19 +415,21 @@ workflow JointGenotyping {
     }
   }
 
-  if (!scatter_cross_check_fingerprints) {
+  if (cross_check_fingerprints) {
+    if (!scatter_cross_check_fingerprints) {
 
-    scatter (line in sample_name_map_lines) {
-      File gvcf_paths = line[1]
-    }
+      scatter (line in sample_name_map_lines) {
+        File gvcf_paths = line[1]
+      }
 
-    call Tasks.CrossCheckFingerprint as CrossCheckFingerprintSolo {
-      input:
-        gvcf_paths = gvcf_paths,
-        vcf_paths = ApplyRecalibration.recalibrated_vcf,
-        sample_name_map = sample_name_map,
-        haplotype_database = haplotype_database,
-        output_base_name = callset_name
+      call Tasks.CrossCheckFingerprint as CrossCheckFingerprintSolo {
+        input:
+          gvcf_paths = gvcf_paths,
+          vcf_paths = ApplyRecalibration.recalibrated_vcf,
+          sample_name_map = sample_name_map,
+          haplotype_database = haplotype_database,
+          output_base_name = callset_name
+      }
     }
   }
 
