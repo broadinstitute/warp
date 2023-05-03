@@ -26,6 +26,7 @@ input {
     String base_name
     String sample_name
     String recalibrated_bam_base_name
+    Boolean crosscheck_fingerprints
     File haplotype_database_file
     DNASeqSingleSampleReferences references
     PapiSettings papi_settings
@@ -57,7 +58,7 @@ input {
       preemptible_tries = papi_settings.agg_preemptible_tries
   }
 
-  if (defined(haplotype_database_file) && defined(fingerprint_genotypes_file)) {
+  if (defined(haplotype_database_file) && defined(fingerprint_genotypes_file) && (crosscheck_fingerprints) ) {
     # Check the sample BAM fingerprint against the sample array
     call QC.CheckFingerprintTask as CheckFingerprintTask {
       input:

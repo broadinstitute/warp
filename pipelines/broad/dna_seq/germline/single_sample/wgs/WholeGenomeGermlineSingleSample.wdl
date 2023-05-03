@@ -68,6 +68,7 @@ workflow WholeGenomeGermlineSingleSample {
     Boolean use_bwa_mem = true
     Boolean allow_empty_ref_alt = false
     Boolean use_dragen_hard_filtering = false
+    Boolean crosscheck_fingerprints = true
   }
 
   if (dragen_functional_equivalence_mode && dragen_maximum_quality_mode) {
@@ -106,6 +107,7 @@ workflow WholeGenomeGermlineSingleSample {
       references                  = references,
       dragmap_reference           = dragmap_reference,
       papi_settings               = papi_settings,
+      cropsscheck_fingerprints    = crosscheck_fingerprints,
 
       contamination_sites_ud = references.contamination_sites_ud,
       contamination_sites_bed = references.contamination_sites_bed,
@@ -128,6 +130,7 @@ workflow WholeGenomeGermlineSingleSample {
       base_name = sample_and_unmapped_bams.base_file_name,
       sample_name = sample_and_unmapped_bams.sample_name,
       recalibrated_bam_base_name = recalibrated_bam_basename,
+      crosscheck_fingerprints = crosscheck_fingerprints,
       haplotype_database_file = references.haplotype_database_file,
       references = references,
       fingerprint_genotypes_file = fingerprint_genotypes_file,

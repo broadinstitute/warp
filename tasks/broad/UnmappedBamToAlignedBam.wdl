@@ -36,7 +36,7 @@ workflow UnmappedBamToAlignedBam {
     File contamination_sites_ud
     File contamination_sites_bed
     File contamination_sites_mu
-
+    Boolean crosscheck_fingerprints
     String cross_check_fingerprints_by
     File haplotype_database_file
     Float lod_threshold
@@ -172,7 +172,7 @@ workflow UnmappedBamToAlignedBam {
 
   Float agg_bam_size = size(SortSampleBam.output_bam, "GiB")
 
-  if (defined(haplotype_database_file)) {
+  if (crosscheck_fingerprints) {
     # Check identity of fingerprints across readgroups
     call QC.CrossCheckFingerprints as CrossCheckFingerprints {
       input:
