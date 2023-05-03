@@ -18,11 +18,17 @@ workflow ATAC {
     # BWA ref 
     File tar_bwa_reference
     
+    # GTF for SnapATAC2 to calculate TSS sites of fragment file
+    File atac_gtf
+    
+    # Text file containing chrom_sizes for genome build (i.e. hg38)
+    File chrom_sizes
+    
+    
     # script for monitoring tasks 
     File monitoring_script
 
     Boolean barcodes_in_read_name
-
     String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
@@ -69,11 +75,14 @@ workflow ATAC {
   call CreateFragmentFile {
     input:
       bam = AddCBtags.sorted_cb_bam,
+      chrom_sizes = chrom_sizes,
       barcodes_in_read_name = barcodes_in_read_name,
+      atac_gtf = atac_gtf
   }
   output {
     File bam_aligned_output = BWAPairedEndAlignment.bam_aligned_output
     File fragment_file = CreateFragmentFile.fragment_file
+    File snap_metrics = CreateFragmentFile.Snap_metrics
   }
 }
 
@@ -85,7 +94,7 @@ workflow ATAC {
       String output_base_name
       Int mem_size = 5
       String docker_image = "us.gcr.io/broad-gotc-prod/atac_barcodes:1.0.3-1679503564"
-      Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
+      Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 200
   }
 
    parameter_meta {
@@ -282,9 +291,11 @@ workflow ATAC {
 task CreateFragmentFile {
   input {
     File bam
+    File atac_gtf
+    File chrom_sizes
     Boolean barcodes_in_read_name
     Int disk_size = ceil(size(bam, "GiB") + 200)
-    Int mem_size = 100
+    Int mem_size = 50
   }
 
   String bam_base_name = basename(bam, ".bam")
@@ -299,18 +310,30 @@ task CreateFragmentFile {
     python3 <<CODE
 
 
+    atac_gtf = "~{atac_gtf}"
     barcodes_in_read_name = "~{barcodes_in_read_name}"
     bam = "~{bam}"
     bam_base_name = "~{bam_base_name}"
+    chrom_sizes = "~{chrom_sizes}"
+    import snapatac2.preprocessing as pp
+    import snapatac2 as snap
+    
+    # Calculate chrom size dictionary based on text file
+    chrom_size_dict={}
+    with open('~{chrom_sizes}', 'r') as f:
+        for line in f:
+            key, value = line.strip().split()
+            chrom_size_dict[str(key)] = int(value)
 
     # if barcodes are in the read name, then use barcode_regex to extract them. otherwise, use barcode_tag
 
     if barcodes_in_read_name=="true":
-      import snapatac2.preprocessing as pp
       pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_regex="([^:]*)")
     elif barcodes_in_read_name=="false":
-      import snapatac2.preprocessing as pp
       pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
+    
+    # Calculate quality metrics
+    pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_size=chrom_size_dict, gene_anno="~{atac_gtf}")
 
     CODE
   >>>
@@ -318,12 +341,12 @@ task CreateFragmentFile {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.3-2.3.0-1682089891"
     disks: "local-disk ${disk_size} HDD"
-    cpu: 1
     memory: "${mem_size} GiB"
   }
 
   output {
     File fragment_file = "~{bam_base_name}.fragments.tsv"
+    File Snap_metrics = "~{bam_base_name}.metrics.h5ad"
   }
 }
 
