@@ -453,8 +453,8 @@ workflow JointGenotyping {
     # Output the interval list generated/used by this run workflow.
     Array[File] output_intervals = SplitIntervalList.output_intervals
 
-    # Output the metrics from crosschecking fingerprints.
-    File? crosscheck_fingerprint_check = select_first([CrossCheckFingerprintSolo.crosscheck_metrics, GatherFingerprintingMetrics.gathered_metrics], default = null)
+    # Output the metrics from crosschecking fingerprints. If cross_check_fingerprints=false, then this will be null.
+    File? crosscheck_fingerprint_check = if (defined(CrossCheckFingerprintSolo.crosscheck_metrics)) then CrossCheckFingerprintSolo.crosscheck_metrics else if (defined(GatherFingerprintingMetrics.gathered_metrics)) then GatherFingerprintingMetrics.gathered_metrics else "null"
   }
   meta {
     allowNestedInputs: true
