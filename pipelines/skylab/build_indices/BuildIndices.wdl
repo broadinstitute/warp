@@ -16,7 +16,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "2.1.1"
+  String pipeline_version = "2.1.2"
 
 
   parameter_meta {
@@ -55,6 +55,7 @@ workflow BuildIndices {
     File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
     File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
     File reference_bundle = BuildBWAreference.reference_bundle
+    File chromosome_sizes = CalculateChromosomeSizes.chrom_sizes
   }
 }
 
@@ -146,7 +147,7 @@ task BuildStarSingleNucleus {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1671490724"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1683045573"
     memory: "50 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
