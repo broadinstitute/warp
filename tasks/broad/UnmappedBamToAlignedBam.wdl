@@ -193,20 +193,21 @@ workflow UnmappedBamToAlignedBam {
       ref_dict = references.reference_fasta.ref_dict,
       preemptible_tries = papi_settings.preemptible_tries
   }
-
-  # Estimate level of cross-sample contamination
-  call Processing.CheckContamination as CheckContamination {
-    input:
-      input_bam = SortSampleBam.output_bam,
-      input_bam_index = SortSampleBam.output_bam_index,
-      contamination_sites_ud = contamination_sites_ud,
-      contamination_sites_bed = contamination_sites_bed,
-      contamination_sites_mu = contamination_sites_mu,
-      ref_fasta = references.reference_fasta.ref_fasta,
-      ref_fasta_index = references.reference_fasta.ref_fasta_index,
-      output_prefix = sample_and_unmapped_bams.base_file_name + ".preBqsr",
-      preemptible_tries = papi_settings.agg_preemptible_tries,
-      contamination_underestimation_factor = 0.75
+  if (crosscheck_fingerprints) {
+    # Estimate level of cross-sample contamination
+    call Processing.CheckContamination as CheckContamination {
+      input:
+        input_bam = SortSampleBam.output_bam,
+        input_bam_index = SortSampleBam.output_bam_index,
+        contamination_sites_ud = contamination_sites_ud,
+        contamination_sites_bed = contamination_sites_bed,
+        contamination_sites_mu = contamination_sites_mu,
+        ref_fasta = references.reference_fasta.ref_fasta,
+        ref_fasta_index = references.reference_fasta.ref_fasta_index,
+        output_prefix = sample_and_unmapped_bams.base_file_name + ".preBqsr",
+        preemptible_tries = papi_settings.agg_preemptible_tries,
+        contamination_underestimation_factor = 0.75
+    }
   }
 
   # We need disk to localize the sharded input and output due to the scatter for BQSR.
@@ -294,8 +295,8 @@ workflow UnmappedBamToAlignedBam {
 
     File? cross_check_fingerprints_metrics = CrossCheckFingerprints.cross_check_fingerprints_metrics
 
-    File selfSM = CheckContamination.selfSM
-    Float contamination = CheckContamination.contamination
+    File? selfSM = CheckContamination.selfSM
+    Float? contamination = CheckContamination.contamination
 
     File duplicate_metrics = MarkDuplicates.duplicate_metrics
     File? output_bqsr_reports = GatherBqsrReports.output_bqsr_report
