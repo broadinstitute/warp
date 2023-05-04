@@ -173,29 +173,55 @@ workflow WholeGenomeGermlineSingleSample {
       wgs_coverage_interval_list = wgs_coverage_interval_list,
       preemptible_tries = papi_settings.agg_preemptible_tries
   }
-
-  call ToGvcf.VariantCalling as BamToGvcf {
-    input:
-      run_dragen_mode_variant_calling = run_dragen_mode_variant_calling_,
-      use_spanning_event_genotyping = use_spanning_event_genotyping_,
-      calling_interval_list = references.calling_interval_list,
-      evaluation_interval_list = references.evaluation_interval_list,
-      haplotype_scatter_count = scatter_settings.haplotype_scatter_count,
-      break_bands_at_multiples_of = scatter_settings.break_bands_at_multiples_of,
-      contamination = UnmappedBamToAlignedBam.contamination,
-      input_bam = UnmappedBamToAlignedBam.output_bam,
-      input_bam_index = UnmappedBamToAlignedBam.output_bam_index,
-      ref_fasta = references.reference_fasta.ref_fasta,
-      ref_fasta_index = references.reference_fasta.ref_fasta_index,
-      ref_dict = references.reference_fasta.ref_dict,
-      ref_str = references.reference_fasta.ref_str,
-      dbsnp_vcf = references.dbsnp_vcf,
-      dbsnp_vcf_index = references.dbsnp_vcf_index,
-      base_file_name = sample_and_unmapped_bams.base_file_name,
-      final_vcf_base_name = final_gvcf_base_name,
-      agg_preemptible_tries = papi_settings.agg_preemptible_tries,
-      use_gatk3_haplotype_caller = use_gatk3_haplotype_caller_,
-      use_dragen_hard_filtering = use_dragen_hard_filtering_
+  if (crosscheck_fingerprints) {
+    call ToGvcf.VariantCalling as BamToGvcf {
+      input:
+        run_dragen_mode_variant_calling = run_dragen_mode_variant_calling_,
+        use_spanning_event_genotyping = use_spanning_event_genotyping_,
+        calling_interval_list = references.calling_interval_list,
+        evaluation_interval_list = references.evaluation_interval_list,
+        haplotype_scatter_count = scatter_settings.haplotype_scatter_count,
+        break_bands_at_multiples_of = scatter_settings.break_bands_at_multiples_of,
+        contamination = UnmappedBamToAlignedBam.contamination,
+        input_bam = UnmappedBamToAlignedBam.output_bam,
+        input_bam_index = UnmappedBamToAlignedBam.output_bam_index,
+        ref_fasta = references.reference_fasta.ref_fasta,
+        ref_fasta_index = references.reference_fasta.ref_fasta_index,
+        ref_dict = references.reference_fasta.ref_dict,
+        ref_str = references.reference_fasta.ref_str,
+        dbsnp_vcf = references.dbsnp_vcf,
+        dbsnp_vcf_index = references.dbsnp_vcf_index,
+        base_file_name = sample_and_unmapped_bams.base_file_name,
+        final_vcf_base_name = final_gvcf_base_name,
+        agg_preemptible_tries = papi_settings.agg_preemptible_tries,
+        use_gatk3_haplotype_caller = use_gatk3_haplotype_caller_,
+        use_dragen_hard_filtering = use_dragen_hard_filtering_
+    }
+  }
+  if (!crosscheck_fingerprints) {
+    # Don't include contamination input
+    call ToGvcf.VariantCalling as BamToGvcf {
+      input:
+        run_dragen_mode_variant_calling = run_dragen_mode_variant_calling_,
+        use_spanning_event_genotyping = use_spanning_event_genotyping_,
+        calling_interval_list = references.calling_interval_list,
+        evaluation_interval_list = references.evaluation_interval_list,
+        haplotype_scatter_count = scatter_settings.haplotype_scatter_count,
+        break_bands_at_multiples_of = scatter_settings.break_bands_at_multiples_of,
+        input_bam = UnmappedBamToAlignedBam.output_bam,
+        input_bam_index = UnmappedBamToAlignedBam.output_bam_index,
+        ref_fasta = references.reference_fasta.ref_fasta,
+        ref_fasta_index = references.reference_fasta.ref_fasta_index,
+        ref_dict = references.reference_fasta.ref_dict,
+        ref_str = references.reference_fasta.ref_str,
+        dbsnp_vcf = references.dbsnp_vcf,
+        dbsnp_vcf_index = references.dbsnp_vcf_index,
+        base_file_name = sample_and_unmapped_bams.base_file_name,
+        final_vcf_base_name = final_gvcf_base_name,
+        agg_preemptible_tries = papi_settings.agg_preemptible_tries,
+        use_gatk3_haplotype_caller = use_gatk3_haplotype_caller_,
+        use_dragen_hard_filtering = use_dragen_hard_filtering_
+    }
   }
 
   if (provide_bam_output) {
