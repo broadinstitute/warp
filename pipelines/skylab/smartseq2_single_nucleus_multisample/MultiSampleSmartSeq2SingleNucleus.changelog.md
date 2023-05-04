@@ -1,4 +1,5 @@
-# 1.2.23 (Date of Last Commit)
+# 1.2.23 
+2023-05-04 (Date of Last Commit)
 
 * Updated the CheckInputs WDL for the Optimus workflow. This changes does impact snSS2
 
