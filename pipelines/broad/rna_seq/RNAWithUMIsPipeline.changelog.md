@@ -1,7 +1,7 @@
 # 1.0.13
 2022-05-02 (Date of Last Commit)
 
-* (Imported but not called by this pipeline) In MergeMetrics task, update list of metrics to round to integers.
+* (Imported but not called by this pipeline) In MergeMetrics task, updated the list of metrics to round to integers
 
 
 # 1.0.12
