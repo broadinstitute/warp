@@ -339,7 +339,7 @@ task BWAPairedEndAlignment {
     }
   }
 
-#add CB and CR tags to BAM file
+#add CB, CR and XC tags to BAM file
 task AddCBtags {
   input {
     File bam
