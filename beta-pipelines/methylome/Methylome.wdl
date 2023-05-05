@@ -100,32 +100,42 @@ task Mapping {
 
 
     String docker_image = "ekiernan/yap_hisat:v4"
-    Int disk_size = 80
+    Int disk_size = 200
     Int mem_size = 500
   }
 
   command <<<
     set -euo pipefail
 
-    mkdir group0
-    mkdir group0/reference/
-    mkdir group0/fastq/
+    echo "pwd is"
+    pwd
+    echo "ls is"
+    ls
+
+    mkdir /group0
+    mkdir /group0/reference/
+    mkdir /group0/fastq/
 
 
-    cp ~{tarred_index_files} group0/reference/
-    cp ~{chromosome_sizes} group0/reference/
-    cp ~{genome_fa} group0/reference/
-    cp ~{sep=' ' tarred_demultiplexed_fastqs} group0/fastq/
-    cp ~{mapping_yaml} group0/
-    cp ~{snakefile} group0/
+    cp ~{tarred_index_files} /group0/reference/
+    cp ~{chromosome_sizes} /group0/reference/
+    cp ~{genome_fa} /group0/reference/
+    cp ~{sep=' ' tarred_demultiplexed_fastqs} /group0/fastq/
+    cp ~{mapping_yaml} /group0/
+    cp ~{snakefile} /group0/
 
 
 
     # untar the index files
-    cd group0/reference/
+    cd /group0/reference/
     echo "Untarring the index files"
     tar -zxvf ~{tarred_index_files}
     rm ~{tarred_index_files}
+    echo "The current working directory is (for the reference dir):"
+    pwd
+    echo "here is the ls command (for the reference dir):"
+    ls
+
 
 
     # untar the demultiplexed fastq files
@@ -136,6 +146,11 @@ task Mapping {
 
     # run the snakemake command
     cd ../
+    echo "The current working directory is  (the snakemake command is being run here:"
+    pwd
+    echo "here is the ls command (for the snakemake command):"
+    ls
+
     /opt/conda/bin/snakemake --configfile mapping.yaml -j
 
   >>>
