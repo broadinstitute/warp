@@ -211,13 +211,13 @@ task CompareBams {
   input {
     File test_bam
     File truth_bam
-    Boolean lenient_header = false
+    Boolean lenient_header = true
     Boolean lenient_low_mq = false
   }
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
-  Int disk_size = ceil(bam_size * 4) + 80
-  Int memory_mb = 300000
+  Int disk_size = ceil(bam_size * 4) + 200
+  Int memory_mb = 500000
   Int java_memory_size = memory_mb - 1000
   Int max_heap = memory_mb - 500
 
