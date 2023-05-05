@@ -48,6 +48,7 @@ workflow RNAWithUMIsPipeline {
 
     File population_vcf
     File population_vcf_index
+    Int? group_by_umis_mem_mb
   }
 
   parameter_meta {
@@ -157,7 +158,8 @@ workflow RNAWithUMIsPipeline {
       unaligned_bam = ExtractUMIs.bam_umis_extracted,
       output_basename = output_basename,
       remove_duplicates = false,
-      coordinate_sort_output = true
+      coordinate_sort_output = true,
+      group_by_umis_mem_mb = group_by_umis_mem_mb
   }
 
   # Remove, rather than mark, duplicates reads from the transcriptome-aligned bam
@@ -168,7 +170,8 @@ workflow RNAWithUMIsPipeline {
       unaligned_bam = ExtractUMIs.bam_umis_extracted,
       output_basename = output_basename + ".transcriptome",
       remove_duplicates = true,
-      coordinate_sort_output = false
+      coordinate_sort_output = false,
+      group_by_umis_mem_mb = group_by_umis_mem_mb
   }
 
   call tasks.PostprocessTranscriptomeForRSEM {

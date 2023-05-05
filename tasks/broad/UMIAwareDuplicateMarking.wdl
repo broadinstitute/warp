@@ -25,6 +25,7 @@ workflow UMIAwareDuplicateMarking {
     String output_basename
     Boolean remove_duplicates
     Boolean coordinate_sort_output
+    Int? group_by_umis_mem_mb
   }
 
   parameter_meta {
@@ -72,7 +73,8 @@ workflow UMIAwareDuplicateMarking {
     input:
       bam = SortSamByCoordinateFirstPass.output_bam,
       bam_index = SortSamByCoordinateFirstPass.output_bam_index,
-      output_bam_basename = output_basename + ".grouped_by_UMI"
+      output_bam_basename = output_basename + ".grouped_by_UMI",
+      memory_mb = group_by_umis_mem_mb
   }
 
   call tasks.SortSamByQueryName as SortSamByQueryNameBeforeDuplicateMarking {
