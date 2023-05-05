@@ -352,8 +352,8 @@ task AddCBtags {
   
   command <<<
     # We reused tags from Broad's Share-seq pipeline; XC tag is not currently needed by pipeline 
-    samtools view -h ~{bam} 
-    | awk '{if ($0 ~ /^@/) {print $0} else {cr=substr($1, index($1, "CR:")+3); n=split($1, a,":CB:"); if (n == 2) {cb="CB:Z:"a[1]"\t";} else {cb="";} print($0 "\tCR:Z:" cr "\t" cb "XC:Z:" substr($1, index($1, "CB:")+3));}}' 
+    samtools view -h ~{bam} \
+    | awk '{if ($0 ~ /^@/) {print $0} else {cr=substr($1, index($1, "CR:")+3); n=split($1, a,":CB:"); if (n == 2) {cb="CB:Z:"a[1]"\t";} else {cb="";} print($0 "\tCR:Z:" cr "\t" cb "XC:Z:" substr($1, index($1, "CB:")+3));}}' \
     | samtools view -b -o ~{bam_cb_output_name}
     
     # samtools view -h ~{bam} \
