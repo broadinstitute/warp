@@ -21,6 +21,7 @@ workflow ATAC {
     # BWA ref 
     File tar_bwa_reference
     
+
     # CreateFragmentFile input variables 
     Boolean barcodes_in_read_name
     # GTF for SnapATAC2 to calculate TSS sites of fragment file
@@ -35,6 +36,7 @@ workflow ATAC {
     File whitelist
 
     # TrimAdapters input 
+
     String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
@@ -100,6 +102,7 @@ workflow ATAC {
       barcodes_in_read_name = barcodes_in_read_name,
       atac_gtf = atac_gtf
    }
+
 
   output {
     File bam_aligned_output = AddCBtags.output_cb_bam
