@@ -1,5 +1,8 @@
 {
-  "VUMCUnmappedBamToAlignedBam.flowcell_unmapped_bams": ["/nobackup/h_cqs/shengq2/test_data/P100.0.unmapped.bam", "/scratch/cqs/shengq2/test_data/P100.1.unmapped.bam"],
+  "VUMCUnmappedBamToAlignedBam.flowcell_unmapped_bams": [
+    "/nobackup/h_cqs/shengq2/test_data/P100.0.unmapped_0001_0001_0001.bam", 
+    "/nobackup/h_cqs/shengq2/test_data/P100.0.unmapped_0001_0001_0002.bam", 
+    "/nobackup/h_cqs/shengq2/test_data/P100.0.unmapped_0001_0002.bam"],
   "VUMCUnmappedBamToAlignedBam.sample_name": "P100",
   "VUMCUnmappedBamToAlignedBam.preemptible_tries": 3,
   "VUMCUnmappedBamToAlignedBam.agg_preemptible_tries": 3,
@@ -28,8 +31,8 @@
   "VUMCUnmappedBamToAlignedBam.dbsnp_vcf_index": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx",
   "VUMCUnmappedBamToAlignedBam.evaluation_interval_list": "/data/cqs/references/broad/hg38/v0/wgs_evaluation_regions.hg38.interval_list",
   "VUMCUnmappedBamToAlignedBam.haplotype_database_file": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt",
-  "VUMCUnmappedBamToAlignedBam.cutoff_for_large_rg_in_gb": 10,
-  "VUMCUnmappedBamToAlignedBam.reads_per_file": 48000000,
-  "VUMCUnmappedBamToAlignedBam.check_contaminant": true
+  "VUMCUnmappedBamToAlignedBam.cutoff_for_large_rg_in_gb": 0.2,
+  "VUMCUnmappedBamToAlignedBam.reads_per_file": 700000,
+  "VUMCUnmappedBamToAlignedBam.check_contaminant": false
 }
 
