@@ -104,7 +104,7 @@ workflow ATAC {
    }
 
   output {
-    File bam_aligned_output = MergeSortBamFiles.output_bam
+    File bam_aligned_output = MergeBam.output_bam
     File fragment_file = CreateFragmentFile.fragment_file
     File snap_metrics = CreateFragmentFile.Snap_metrics
   }
