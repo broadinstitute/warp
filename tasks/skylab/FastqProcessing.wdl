@@ -8,9 +8,10 @@ task FastqProcessing {
     File whitelist
     Int chemistry
     String sample_id
+    String read_struct
 
     #using the latest build of warp-tools in GCR
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679490798"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1683134506"
     #runtime values
     Int machine_mem_mb = 40000
     Int cpu = 16   
@@ -29,6 +30,7 @@ task FastqProcessing {
     r1_fastq: "input fastq file"
     r2_fastq: "input fastq file"
     i1_fastq: "(optional) input fastq file"
+    read_struct: "read structure for the 10x chemistry. This automatically selected in the checkInputs task"
     whitelist: "10x genomics cell barcode whitelist"
     chemistry: "chemistry employed, currently can be tenX_v2 or tenX_v3, the latter implies NO feature barcodes"
     sample_id: "name of sample matching this file, inserted into read group header"
@@ -101,11 +103,10 @@ task FastqProcessing {
 
     fastqprocess \
         --bam-size 30.0 \
-        --barcode-length 16 \
-        --umi-length $UMILENGTH \
         --sample-id "~{sample_id}" \
         $FASTQS \
         --white-list "~{whitelist}" \
+        --read-structure "~{read_struct}" \
         --output-format FASTQ
   }
   
