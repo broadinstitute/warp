@@ -87,7 +87,7 @@ workflow ATAC {
   
   } 
 
-    call MergeSortBamFiles {
+    call Merge.MergeSortBamFiles as MergeBam {
     input:
       bam_inputs = AddCBtags.output_cb_bam,
       output_bam_filename = output_base_name + ".bam",
@@ -97,7 +97,7 @@ workflow ATAC {
 
   call CreateFragmentFile {
     input:
-      bam = MergeSortBamFiles.output_bam,
+      bam = MergeBam.output_bam,
       chrom_sizes = chrom_sizes,
       barcodes_in_read_name = barcodes_in_read_name,
       atac_gtf = atac_gtf
