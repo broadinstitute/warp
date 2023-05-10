@@ -21,7 +21,6 @@ workflow ATAC {
     # BWA ref 
     File tar_bwa_reference
     
-
     # CreateFragmentFile input variables 
     Boolean barcodes_in_read_name
     # GTF for SnapATAC2 to calculate TSS sites of fragment file
@@ -36,7 +35,6 @@ workflow ATAC {
     File whitelist
 
     # TrimAdapters input 
-
     String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
@@ -80,32 +78,33 @@ workflow ATAC {
         output_base_name = output_base_name + "_" + idx,
         monitoring_script = monitoring_script
       }
+      
+    call AddCBtags {
+     input:
+       bam = BWAPairedEndAlignment.bam_aligned_output,
+       output_base_name = output_base_name
+   }  
+  
   } 
 
-  call Merge.MergeSortBamFiles as MergeBam {
+    call MergeSortBamFiles {
     input:
-      bam_inputs = BWAPairedEndAlignment.bam_aligned_output,
+      bam_inputs = AddCBtags.output_cb_bam,
       output_bam_filename = output_base_name + ".bam",
       sort_order = "coordinate"
   }
   
-  call AddCBtags {
-    input:
-      bam = MergeBam.output_bam,
-      output_base_name = output_base_name
-   }
 
   call CreateFragmentFile {
     input:
-      bam = AddCBtags.output_cb_bam,
+      bam = MergeSortBamFiles.output_bam,
       chrom_sizes = chrom_sizes,
       barcodes_in_read_name = barcodes_in_read_name,
       atac_gtf = atac_gtf
    }
 
-
   output {
-    File bam_aligned_output = AddCBtags.output_cb_bam
+    File bam_aligned_output = MergeSortBamFiles.output_bam
     File fragment_file = CreateFragmentFile.fragment_file
     File snap_metrics = CreateFragmentFile.Snap_metrics
   }
@@ -165,7 +164,7 @@ task FastqProcessing {
     # Call fastq process 
     # outputs fastq files where the corrected barcode is in the read name
     fastqprocess \
-        --bam-size 30.0 \
+        --bam-size 10.0 \
         --sample-id "~{output_base_name}" \
         --R1 barcodes.fastq.gz \
         --R2 r1.fastq.gz \
@@ -197,17 +196,17 @@ task TrimAdapters {
       File read1_fastq
       File read3_fastq
       String output_base_name
-
-	Int min_length = 10
+      
+      Int min_length = 10
       Int quality_cutoff = 0
       
-	String adapter_seq_read1
+      String adapter_seq_read1
       String adapter_seq_read3
-
-	# Runtime attributes/docker
+      
+      # Runtime attributes/docker
       Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") )) + 200
       Int mem_size = 4
-	String docker_image = "quay.io/broadinstitute/cutadapt:1.18"
+      String docker_image = "quay.io/broadinstitute/cutadapt:1.18"
       File monitoring_script
    }
 
@@ -277,11 +276,11 @@ task BWAPairedEndAlignment {
       String output_base_name
       String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091"
       
-	# script for monitoring tasks 
-	File monitoring_script
+      # script for monitoring tasks 
+      File monitoring_script
       
-	# Runtime attributes
-	Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 200 
+      # Runtime attributes
+      Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 200 
       Int nthreads = 16
       Int mem_size = 8
     }
@@ -342,7 +341,7 @@ task BWAPairedEndAlignment {
     }
   }
 
-#add CB, CR and XC tags to BAM file
+#add CB and CR tags to BAM file
 task AddCBtags {
   input {
     File bam
@@ -359,11 +358,6 @@ task AddCBtags {
     | awk '{if ($0 ~ /^@/) {print $0} else {cr=substr($1, index($1, "CR:")+3); n=split($1, a,":CB:"); if (n == 2) {cb="CB:Z:"a[1]"\t";} else {cb="";} print($0 "\tCR:Z:" cr "\t" cb "XC:Z:" substr($1, index($1, "CB:")+3));}}' \
     | samtools view -b -o ~{bam_cb_output_name}
     
-    # samtools view -h ~{bam} \
-    # | awk '{if ($1 ~ /CB/) {cb = substr($1, 1, index($1, ":")-1); print($0 "\tCB:Z:" cb);} else {print $0}}' \
-    # | awk '{if ($0 ~ /^@/) {print $0} else {cr=substr($1, index($1, "CR:")+3); print($0 "\tCR:Z:" cr "\tXC:Z:" substr($1, index($1, "CB:")+3));}}' \
-    # | samtools view -b -o ~{bam_cb_output_name}
-  
     # Piping to samtools sort works, but isn't necessary for SnapATAC2
     #| \ samtools sort -o ~{bam_cb_output_name}
   >>>
