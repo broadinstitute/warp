@@ -5,10 +5,11 @@
 
 
 # 1.0.12
-2023-03-20 (Date of Last Commit)
+2023-04-07 (Date of Last Commit)
 
 * Improvements to determinism, along with tests passing without call caching
 * Allow data with very few (or 0) reads to succeed through pipeline
+* Fix edge case in rnaseqc bias calculation leading to very large metrics value
 
 # 1.0.11
 2022-12-16 (Date of Last Commit)
