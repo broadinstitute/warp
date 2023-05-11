@@ -156,7 +156,7 @@ task FastqProcessing {
   
     set -euo pipefail
     
-    # Cat files for each r1, r3 and barcodes together [? is this a good idea or should we just do what optimus does]
+    # Cat files for each r1, r3 and barcodes together 
     cat ~{sep=' ' read1_fastq} > r1.fastq.gz
     cat ~{sep=' ' read3_fastq} > r3.fastq.gz
     cat ~{sep=' ' barcodes_fastq} > barcodes.fastq.gz
