@@ -126,22 +126,30 @@ task FormatImputationWideOutputs{
 
 task TriggerPrsWithImputationTsv {
     input {
-        File    run_task
-        File    imputation_outputs_tsv
-        String  trigger_bucket_path
-        String  timestamp
+        File            run_task
+        File            imputation_outputs_tsv
+        String          trigger_bucket_path
+        String          timestamp
+        Array[String]   lab_batches
     }
 
-    command {
-        destination_file_name=~{timestamp}"_ingestDataset_imputation_outputs.tsv"
+    command <<<
+        # lab batches concatenated as string to prefix outfile
+        lab_batch_values='~{sep='_' lab_batches}'
+        destination_file_name=${lab_batch_values}"_"~{timestamp}"_ingestDataset_imputation_outputs.tsv"
+        
+        # copy imputation outputs file to PRS bucket with new name
         gsutil cp ~{imputation_outputs_tsv} ~{trigger_bucket_path}$destination_file_name
-    }
+
+        # capture file name as output
+        echo $destination_file_name
+    >>>
 
     runtime {
         docker: "gcr.io/google.com/cloudsdktool/cloud-sdk:305.0.0"
     }
 
     output {
-        File trigger_prs_cf_log = stdout()
+        Array[String] trigger_prs_cf_outfile = read_lines(stdout())
     }
 }

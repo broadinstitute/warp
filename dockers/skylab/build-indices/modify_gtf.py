@@ -99,11 +99,19 @@ def get_gene_ids_Gencode(input_gtf, biotypes):
             if 'tag' in features_dic:
                 if ('readthrough_transcript' not in features_dic['tag']) and (
                     'PAR' not in features_dic['tag']):
-                    gene=features_dic['gene_id'].split('.', 1)[0]
+                    gene=features_dic['gene_id']#.split('.', 1)[0]
                     if gene not in gene_ids:
                         gene_ids.add(gene)
+
+           # Original code below for reference
+           #  if 'tag' in features_dic:
+            #    if ('readthrough_transcript' not in features_dic['tag']) and (
+             #       'PAR' not in features_dic['tag']):
+              #      gene=features_dic['gene_id'].split('.', 1)[0]
+               #     if gene not in gene_ids:
+                #        gene_ids.add(gene)
             else:
-                gene=features_dic['gene_id'].split('.', 1)[0]
+                gene=features_dic['gene_id']#.split('.', 1)[0]
                 if gene not in gene_ids:
                     gene_ids.add(gene)
 
@@ -163,9 +171,11 @@ def main():
                     fields = [x.strip() for x in line.strip().split("\t")]
                     features = re.sub('"', '', line.strip().split('\t')[8].strip())
                     features_dic = get_features(features)
-                    modified_fields = fields.copy()
-                    modified_fields[8] = modify_attr(features_dic)
                     if features_dic['gene_id'] in gene_ids:
+                        # The two lines below for modified filed were moved into this if statement
+                        # We want to find the valid genes first and then modify the GTF fields 
+                        modified_fields = fields.copy()
+                        modified_fields[8] = modify_attr(features_dic)
                         output_gtf.write("{}".format("\t".join(modified_fields)+ "\n"))
 
 if __name__ == "__main__":

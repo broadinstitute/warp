@@ -1,3 +1,8 @@
+# 1.0.23
+2023-05-02 (Date of Last Commit)
+
+* In MergeMetrics task, updated the list of metrics to round to integers
+
 # 1.0.22
 2023-04-07 (Date of Last Commit)
 
