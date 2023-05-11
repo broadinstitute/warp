@@ -99,7 +99,7 @@ task Mapping {
     File genome_fa
 
 
-    String docker_image = "ekiernan/yap_hisat:v4"
+    String docker_image = "nikellepetrillo/yap-hisat:v5"
     Int disk_size = 200
     Int mem_size = 500
   }
@@ -107,34 +107,36 @@ task Mapping {
   command <<<
     set -euo pipefail
 
-    echo "pwd is"
-    pwd
-    echo "ls is"
-    ls
+    #mkdir group0/
+    #cd group0/
+    #echo "pwd is"
+    #pwd
+    echo "call cutadapt"
+    cutadapt --version
 
-    mkdir /group0
-    mkdir /group0/reference/
-    mkdir /group0/fastq/
+    mkdir group0/
+    mkdir group0/fastq/
+    mkdir group0/reference/
 
-
-    cp ~{tarred_index_files} /group0/reference/
-    cp ~{chromosome_sizes} /group0/reference/
-    cp ~{genome_fa} /group0/reference/
-    cp ~{sep=' ' tarred_demultiplexed_fastqs} /group0/fastq/
-    cp ~{mapping_yaml} /group0/
-    cp ~{snakefile} /group0/
-
-
+    cp ~{tarred_index_files} group0/reference/
+    cp ~{chromosome_sizes} group0/reference/
+    cp ~{genome_fa} group0/reference/
+    cp ~{sep=' ' tarred_demultiplexed_fastqs} group0/fastq/
+    cp ~{mapping_yaml} group0/
+    cp ~{snakefile} group0/
 
     # untar the index files
-    cd /group0/reference/
+    cd group0/reference/
     echo "Untarring the index files"
     tar -zxvf ~{tarred_index_files}
     rm ~{tarred_index_files}
+    samtools faidx hg38.fa
     echo "The current working directory is (for the reference dir):"
     pwd
     echo "here is the ls command (for the reference dir):"
     ls
+    echo "echo the path"
+    echo $PATH
 
 
 
@@ -151,7 +153,7 @@ task Mapping {
     echo "here is the ls command (for the snakemake command):"
     ls
 
-    /opt/conda/bin/snakemake --configfile mapping.yaml -j
+    /opt/conda/bin/snakemake --verbose --configfile mapping.yaml -j
 
   >>>
 
