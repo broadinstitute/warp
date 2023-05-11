@@ -1,7 +1,6 @@
 version 1.0
 
 import "../../tasks/skylab/MergeSortBam.wdl" as Merge
-#import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 
 workflow ATAC {
   meta {
