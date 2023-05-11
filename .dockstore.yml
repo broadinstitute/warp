@@ -106,3 +106,8 @@ workflows:
   - name: SlideSeq
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/slideseq/SlideSeq.wdl
+    
+  - name: Multiome
+    subclass: WDL
+    primaryDescriptorPath: /beta-pipelines/multiome/multiome.wdl
+
