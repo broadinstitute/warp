@@ -1,3 +1,8 @@
+# 1.0.7
+2023-05-11 (Date of Last Commit)
+
+* Updated Docker image for FastqProcessing task to latest warp-tools.
+
 # 1.0.6
 2023-05-04 (Date of Last Commit)
 
