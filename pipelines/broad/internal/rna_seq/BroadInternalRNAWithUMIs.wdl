@@ -198,4 +198,8 @@ workflow BroadInternalRNAWithUMIs {
     File fastqc_html_report = RNAWithUMIs.fastqc_html_report
     Float fastqc_percent_reads_with_adapter = RNAWithUMIs.fastqc_percent_reads_with_adapter
   }
+
+  meta {
+    allowNestedInputs: true
+  }
 }
