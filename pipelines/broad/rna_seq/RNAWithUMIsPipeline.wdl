@@ -251,5 +251,9 @@ workflow RNAWithUMIsPipeline {
     File fastqc_html_report = FastQC.fastqc_html
     Float fastqc_percent_reads_with_adapter = FastQC.fastqc_percent_reads_with_adapter
   }
+
+  meta {
+    allowNestedInputs: true
+  }
 }
 
