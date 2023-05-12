@@ -9,6 +9,7 @@ import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 workflow TestMultiome {
 
     input {
+      # Optimus Inputs
       String counting_mode = "sn_rna"
       Array[File] r1_fastq
       Array[File] r2_fastq
@@ -25,16 +26,27 @@ workflow TestMultiome {
       Boolean ignore_r1_read_length = false
       String star_strand_mode = "Forward"
       Boolean count_exons = false
-      File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1.txt"
+      File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt"
+
+      # ATAC inputs
+      # Array of input fastq files
       Array[File] read1_fastq_gzipped
       Array[File] read2_fastq_gzipped
       Array[File] read3_fastq_gzipped
+
+      # Output name
       String output_base_name
+      # BWA input
       File tar_bwa_reference
-      #File monitoring_script
+      # CreateFragmentFile input
       Boolean barcodes_in_read_name
+      File atac_gtf
+      File chrom_sizes
+      # Trimadapters input
       String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
       String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
+      # Whitelist
+      File atac_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_atac.txt"
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -42,6 +54,8 @@ workflow TestMultiome {
       Boolean update_truth
       String vault_token_path
       String google_account_vault_path
+
+      File monitoring_script
     }
 
     meta {
@@ -72,10 +86,13 @@ workflow TestMultiome {
         read3_fastq_gzipped = read3_fastq_gzipped,
         output_base_name = output_base_name,
         tar_bwa_reference = tar_bwa_reference,
-        #monitoring_script = monitoring_script,
+        monitoring_script = monitoring_script,
         barcodes_in_read_name = barcodes_in_read_name,
         adapter_seq_read1 = adapter_seq_read1,
-        adapter_seq_read3 = adapter_seq_read3
+        adapter_seq_read3 = adapter_seq_read3,
+        atac_gtf = atac_gtf,
+        chrom_sizes = chrom_sizes,
+        atac_whitelist = atac_whitelist
   
     }
 
