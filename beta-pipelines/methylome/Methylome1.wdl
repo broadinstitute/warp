@@ -25,7 +25,13 @@ workflow Methylome {
     }
 
     output {
-        Array[File] outputs = Mapping.outputs
+        #File MappingSummary = Mapping.MappingSummary
+        #Array[file] allcFiles = Mapping.allcFiles
+        #Array[file] allc_CGNFiles = Mapping.allc_CGNFiles
+        #Array[file] bamFiles = Mapping.bamFiles
+        #Array[file] detail_statsFiles = Mapping.detail_statsFiles
+        #Array[file] hicFiles = Mapping.hicFiles
+
     }
 }
 
@@ -99,6 +105,7 @@ task Mapping {
 
         ls -l
 
+
     >>>
 
     runtime {
@@ -109,6 +116,17 @@ task Mapping {
     }
 
     output {
-        Array[File] outputs = glob("/cromwell_root/group0/*")
+        File MappingSummary = "/cromwell_root/group0/MappingSummary.csv.gz"
+        Array[File] allcFiles = glob("/cromwell_root/group0/allc/*")
+        Array[File] allc_CGNFiles = glob("/cromwell_root/group0/allc-CGN/*")
+        Array[File] bamFiles = glob("/cromwell_root/group0/bam/*")
+        Array[File] detail_statsFiles = glob("/cromwell_root/group0/detail_stats/*")
+        Array[File] hicFiles = glob("/cromwell_root/group0/hic/*")
+
+
+
+
+
+
     }
 }
