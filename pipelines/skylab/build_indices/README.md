@@ -10,24 +10,28 @@ Here are two example input files for the above WDL:
 ```json
 {
  "BuildIndices.annotations_gtf":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Macaque/genomic.gtf",
- "BuildIndices.biotypes":"gs://fc-df68cb43-8c48-401b-9ef1-7cbb3acc788d/Biotypes.tsv",
+ "BuildIndices.biotypes":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Biotypes.tsv",
  "BuildIndices.genome_fa":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Macaque/GCF_003339765.1_Mmul_10_genomic.fna",
- "BuildIndices.gtf_version":"GCF_003339765.1",
- "BuildIndices.organism":"Macaque",
- "BuildIndices.organism_prefix":"Macaque"
+ "BuildIndices.gtf_annotation_version":"103",
+ "BuildIndices.genome_source":"NCBI",
+ "BuildIndices.genome_build":"GCF_003339765.1",
+ "BuildIndices.organism":"Macaque"
 }
+
 ```
 
 `Mouse.json`:
 ```json
 {
- "BuildIndices.BuildStarSingleNucleus.organism":"Mouse",
- "BuildIndices.BuildStarSingleNucleus.organism_prefix":"Mouse",
- "BuildIndices.annotations_gtf":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Mouse/gencode.vM31.primary_assembly.annotation.gtf",
+ "BuildIndices.annotations_gtf":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Mouse/gencode.vM32.primary_assembly.annotation.gtf",
  "BuildIndices.biotypes":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Biotypes.tsv",
  "BuildIndices.genome_fa":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Mouse/GRCm39.primary_assembly.genome.fa",
- "BuildIndices.gtf_version":"M31"
+ "BuildIndices.gtf_annotation_version":"M32",
+ "BuildIndices.genome_source":"GENCODE",
+ "BuildIndices.genome_build":"GRCm39",
+ "BuildIndices.organism":"Mouse"
 }
+
 
 ```
 
