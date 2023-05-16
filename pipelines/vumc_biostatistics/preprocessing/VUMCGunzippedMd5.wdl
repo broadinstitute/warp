@@ -6,7 +6,7 @@ version 1.0
 ##
 workflow VUMCGunzippedMd5 {
   input {
-    String gzipped_file
+    File gzipped_file
   }
 
   call Md5File {
@@ -21,8 +21,9 @@ workflow VUMCGunzippedMd5 {
 
 task Md5File {
   input {
-    String gzipped_file
+    File gzipped_file
   }
+  Int disk_size = ceil(size(gzipped_file, "GB")) + 10
 
   String md5_file = "md5.txt"
 
@@ -33,7 +34,7 @@ gzip -d -c ~{gzipped_file} | md5sum | cut -d ' ' -f1 > ~{md5_file}
   runtime {
     docker: "ubuntu:latest"
     preemptible: 1
-    disks: "local-disk 10 HDD"
+    disks: "local-disk " + disk_size + " HDD"
     memory: "2 GiB"
   }
   output {

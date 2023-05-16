@@ -6,7 +6,7 @@ version 1.0
 ##
 workflow VUMCMd5 {
   input {
-    String input_file
+    File input_file
   }
 
   call Md5File {
@@ -21,10 +21,11 @@ workflow VUMCMd5 {
 
 task Md5File {
   input {
-    String input_file
+    File input_file
   }
 
   String md5_file = "md5.txt"
+  Int disk_size = ceil(size(input_file, "GB")) + 10
 
   command <<<
 md5sum ~{input_file} | cut -d ' ' -f1 > ~{md5_file}
@@ -33,7 +34,7 @@ md5sum ~{input_file} | cut -d ' ' -f1 > ~{md5_file}
   runtime {
     docker: "ubuntu:latest"
     preemptible: 1
-    disks: "local-disk 10 HDD"
+    disks: "local-disk " + disk_size + " HDD"
     memory: "2 GiB"
   }
   output {
