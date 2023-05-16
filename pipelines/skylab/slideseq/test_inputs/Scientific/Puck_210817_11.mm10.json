@@ -12,7 +12,7 @@
   "SlideSeq.read_structure": "8C18X6C9M1X",
   "SlideSeq.input_id": "210817_Puck_210817_11",
   "SlideSeq.output_bam_basename": "210817_Puck_210817_11",
-  "SlideSeq.tar_star_reference": "gs://gcp-public-data--broad-references/GRCm39/star/v2_7_10a/modified_star2.7.10a-Mouse-GENCODE-build-GRCm39-M32.tar",
+  "SlideSeq.tar_star_reference": "gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/star/modified_star_2.7.9a_primary_gencode_mouse_vM23.tar",
   "SlideSeq.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_gencode.vM23.primary_assembly.annotation.gtf",
   "SlideSeq.count_exons": true,
   "SlideSeq.bead_locations": "gs://broad-gotc-test-storage/SlideSeq/inputs/scientific/Puck_210817_11/Puck_210817_11.tsv"
