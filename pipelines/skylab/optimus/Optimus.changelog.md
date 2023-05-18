@@ -1,3 +1,8 @@
+# 5.8.2
+2023-05-11 (Date of Last Commit)
+
+* Updated the Docker image for Slideseq FastqProcessing. This update has no impact on the Optimus workflow
+
 # 5.8.1
 2023-05-04 (Date of Last Commit)
 
