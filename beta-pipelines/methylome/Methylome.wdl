@@ -8,6 +8,7 @@ workflow Methylome {
     Array[File] fastq_input_read2
     File random_primer_indexes
     String plate_id
+    String output_basename = plate_id
 
     # mapping inputs
     File tarred_index_files
@@ -24,22 +25,28 @@ workflow Methylome {
         fastq_input_read1 = [fastq_input_read1[idx]],
         fastq_input_read2 = [fastq_input_read2[idx]],
         random_primer_indexes = random_primer_indexes,
-        plate_id = plate_id
+        plate_id = plate_id,
+        output_basename = output_basename + "_shard" + idx
     }
   }
 
   call Mapping {
     input:
-      tarred_demultiplexed_fastqs = Demultiplexing.output_fastqs,
+      tarred_demultiplexed_fastqs = Demultiplexing.tarred_demultiplexed_fastqs,
       tarred_index_files = tarred_index_files,
       mapping_yaml = mapping_yaml,
       snakefile = snakefile,
       chromosome_sizes = chromosome_sizes,
-      genome_fa = genome_fa
-    }
-
+      genome_fa = genome_fa,
+  }
   output {
-    Array[File] output_fastqs = Demultiplexing.output_fastqs
+    File MappingSummary = Mapping.mappingSummary
+    Array[File] allcFiles = Mapping.allcFiles
+    Array[File] allc_CGNFiles = Mapping.allc_CGNFiles
+    Array[File] bamFiles = Mapping.bamFiles
+    Array[File] detail_statsFiles = Mapping.detail_statsFiles
+    Array[File] hicFiles = Mapping.hicFiles
+
   }
 }
 
@@ -49,6 +56,7 @@ task Demultiplexing {
     Array[File] fastq_input_read2
     File random_primer_indexes
     String plate_id
+    String output_basename
 
     String docker_image = "ekiernan/yap_hisat:v4"
     Int disk_size = 50
@@ -66,13 +74,13 @@ task Demultiplexing {
     -p ~{plate_id}-{name}-R2.fq.gz \
     $fastq1_file \
     $fastq2_file \
-    > ~{plate_id}.stats.txt
+    > ~{output_basename}.stats.txt
 
     # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
     rm *-unknown-R{1,2}.fq.gz
 
     # zip up all the output fq.gz files
-    tar -zcvf ~{plate_id}.cutadapt_output_files.tar.gz *.fq.gz
+    tar -zcvf ~{output_basename}.cutadapt_output_files.tar.gz *.fq.gz
   >>>
 
   runtime {
@@ -83,8 +91,9 @@ task Demultiplexing {
   }
 
   output {
-    File output_fastqs = "~{plate_id}.cutadapt_output_files.tar.gz"
-    File stats = "~{plate_id}.stats.txt"
+    File tarred_demultiplexed_fastqs = "~{output_basename}.cutadapt_output_files.tar.gz"
+    File stats = "~{output_basename}.stats.txt"
+    Array[File] demultiplexed_fastq_files = glob("*.fq.gz")
   }
 }
 
@@ -98,8 +107,7 @@ task Mapping {
     File chromosome_sizes
     File genome_fa
 
-
-    String docker_image = "nikellepetrillo/yap-hisat:v5"
+    String docker_image = "nikellepetrillo/yap-hisat:v8"
     Int disk_size = 200
     Int mem_size = 500
   }
@@ -107,20 +115,15 @@ task Mapping {
   command <<<
     set -euo pipefail
 
-    #mkdir group0/
-    #cd group0/
-    #echo "pwd is"
-    #pwd
-    echo "call cutadapt"
-    cutadapt --version
-
     mkdir group0/
     mkdir group0/fastq/
     mkdir group0/reference/
 
+    echo "copy tarred indec file to group0/reference/"
     cp ~{tarred_index_files} group0/reference/
     cp ~{chromosome_sizes} group0/reference/
     cp ~{genome_fa} group0/reference/
+    echo "copy tarred demulitplexed files to group0/fastq/"
     cp ~{sep=' ' tarred_demultiplexed_fastqs} group0/fastq/
     cp ~{mapping_yaml} group0/
     cp ~{snakefile} group0/
@@ -131,29 +134,44 @@ task Mapping {
     tar -zxvf ~{tarred_index_files}
     rm ~{tarred_index_files}
     samtools faidx hg38.fa
-    echo "The current working directory is (for the reference dir):"
-    pwd
-    echo "here is the ls command (for the reference dir):"
-    ls
-    echo "echo the path"
-    echo $PATH
-
-
 
     # untar the demultiplexed fastq files
     cd ../fastq/
     echo "Untarring the demultiplexed fastq files"
-    tar -zxvf ~{sep=' ' tarred_demultiplexed_fastqs}
+    echo ~{sep=' ' tarred_demultiplexed_fastqs}
+
+    # Array of .tar.gz files
+    tar_files=(~{sep=' ' tarred_demultiplexed_fastqs})
+    # Loop through the array
+    for file in "${tar_files[@]}"; do
+        # Untar the file
+         echo "Untarring $file"
+         tar -xzf "$file"
+    done
+
+    #THIS TAR COMMAND IS NOT WORKING
+    #tar -zxvf ~{sep=' ' tarred_demultiplexed_fastqs}
 
 
     # run the snakemake command
     cd ../
-    echo "The current working directory is  (the snakemake command is being run here:"
+    echo "The snakemake command is being run here:"
     pwd
-    echo "here is the ls command (for the snakemake command):"
-    ls
 
-    /opt/conda/bin/snakemake --verbose --configfile mapping.yaml -j
+    /opt/conda/bin/snakemake --configfile mapping.yaml -j
+
+    #ls a bunch of things so we can figure out what to grab as output of this task
+    ls -l
+    echo "ls /cromwell_root/group0/allc"
+    ls -l /cromwell_root/group0/allc
+    echo "ls /cromwell_root/group0/allc-CGN"
+    ls -l /cromwell_root/group0/allc-CGN
+    echo "ls /cromwell_root/group0/bam"
+    ls -l /cromwell_root/group0/bam
+    echo "ls /cromwell_root/group0/detail_stats"
+    ls -l /cromwell_root/group0/detail_stats
+    echo "ls /cromwell_root/group0/hic"
+    ls -l /cromwell_root/group0/hic
 
   >>>
 
@@ -165,6 +183,12 @@ task Mapping {
   }
 
   output {
-    Array[File] unsorted_bam_files = "output.bam"
+    File mappingSummary = "MappingSummary.csv.gz"
+    Array[File] allcFiles = glob("/cromwell_root/group0/allc/*")
+    Array[File] allc_CGNFiles = glob("/cromwell_root/group0/allc-CGN/*")
+    Array[File] bamFiles = glob("/cromwell_root/group0/bam/*")
+    Array[File] detail_statsFiles = glob("/cromwell_root/group0/detail_stats/*")
+    Array[File] hicFiles = glob("/cromwell_root/group0/hic/*")
+
   }
 }

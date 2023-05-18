@@ -4,7 +4,7 @@ channels:
   - bioconda
   - defaults
 dependencies:
- - python=3.8
+ - python=3.9
  - pip
  - jupyter
  - snakemake
@@ -15,12 +15,10 @@ dependencies:
  - samtools
  - picard
  - bedtools
- - htslib>=1.9
+ - htslib=1.15
  - pysam
  - pybedtools
  - pyBigWig
- - star=2.7.3a
- - subread=2.0
  - pip:
     - papermill
     - allcools
