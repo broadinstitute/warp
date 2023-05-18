@@ -70,8 +70,8 @@ task Demultiplexing {
 
     /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels \
     -g file:~{random_primer_indexes} \
-    -o ~{plate_id}-{name}-R1.fq.gz \
-    -p ~{plate_id}-{name}-R2.fq.gz \
+    -o ~{output_basename}-{name}-R1.fq.gz \
+    -p ~{output_basename}-{name}-R2.fq.gz \
     $fastq1_file \
     $fastq2_file \
     > ~{output_basename}.stats.txt
@@ -119,7 +119,6 @@ task Mapping {
     mkdir group0/fastq/
     mkdir group0/reference/
 
-    echo "copy tarred indec file to group0/reference/"
     cp ~{tarred_index_files} group0/reference/
     cp ~{chromosome_sizes} group0/reference/
     cp ~{genome_fa} group0/reference/
@@ -137,17 +136,23 @@ task Mapping {
 
     # untar the demultiplexed fastq files
     cd ../fastq/
-    echo "Untarring the demultiplexed fastq files"
-    echo ~{sep=' ' tarred_demultiplexed_fastqs}
 
-    # Array of .tar.gz files
+    # create array of .tar.gz files
     tar_files=(~{sep=' ' tarred_demultiplexed_fastqs})
-    # Loop through the array
+
+    # loop through the array and untar all the tar files
     for file in "${tar_files[@]}"; do
         # Untar the file
          echo "Untarring $file"
          tar -xzf "$file"
     done
+
+    # remove the tar files
+    rm *tar.gz
+
+    echo "here are all the files extracted from the tar files:"
+    ls -l
+
 
     #THIS TAR COMMAND IS NOT WORKING
     #tar -zxvf ~{sep=' ' tarred_demultiplexed_fastqs}
@@ -183,7 +188,7 @@ task Mapping {
   }
 
   output {
-    File mappingSummary = "MappingSummary.csv.gz"
+    File mappingSummary = "/cromwell_root/group0/MappingSummary.csv.gz"
     Array[File] allcFiles = glob("/cromwell_root/group0/allc/*")
     Array[File] allc_CGNFiles = glob("/cromwell_root/group0/allc-CGN/*")
     Array[File] bamFiles = glob("/cromwell_root/group0/bam/*")
