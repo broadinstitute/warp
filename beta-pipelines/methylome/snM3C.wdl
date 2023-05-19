@@ -18,7 +18,6 @@ workflow snM3C {
     File genome_fa
   }
 
-
   call Demultiplexing {
     input:
       fastq_input_read1 = fastq_input_read1,
@@ -93,7 +92,6 @@ task Demultiplexing {
     File stats = "~{plate_id}.stats.txt"}
 }
 
-
 task Mapping {
   input {
     File tarred_demultiplexed_fastqs
@@ -118,8 +116,7 @@ task Mapping {
     cp ~{tarred_index_files} group0/reference/
     cp ~{chromosome_sizes} group0/reference/
     cp ~{genome_fa} group0/reference/
-    echo "copy tarred demulitplexed files to group0/fastq/"
-    cp ~{sep=' ' tarred_demultiplexed_fastqs} group0/fastq/
+    cp ~{tarred_demultiplexed_fastqs} group0/fastq/
     cp ~{mapping_yaml} group0/
     cp ~{snakefile} group0/
 
@@ -132,27 +129,14 @@ task Mapping {
 
     # untar the demultiplexed fastq files
     cd ../fastq/
-
-    # create array of .tar.gz files
-    tar_files=(~{sep=' ' tarred_demultiplexed_fastqs})
-
-    # loop through the array and untar all the tar files
-    for file in "${tar_files[@]}"; do
-        # Untar the file
-         echo "Untarring $file"
-         tar -xzf "$file"
-    done
-
-    # remove the tar files
-    rm *tar.gz
+    tar -zxvf ~{tarred_demultiplexed_fastqs}
+    rm ~{tarred_demultiplexed_fastqs}
 
     # run the snakemake command
     cd ../
-    echo "The snakemake command is being run here:"
-    pwd
-
     /opt/conda/bin/snakemake --configfile mapping.yaml -j
 
+    # move outputs into /cromwell_root/
     mv /cromwell_root/group0/MappingSummary.csv.gz /cromwell_root/
 
     cd /cromwell_root/group0/allc
@@ -187,6 +171,5 @@ task Mapping {
     File bamFiles = "bam_files.tar.gz"
     File detail_statsFiles = "detail_stats_files.tar.gz"
     File hicFiles = "hic_files.tar.gz"
-
   }
 }
