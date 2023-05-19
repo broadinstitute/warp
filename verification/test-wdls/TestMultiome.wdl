@@ -1,7 +1,7 @@
 version 1.0
 
 
-import "../../beta-pipelines/multiome/multiome.wdl" as Multiome
+import "../../pipelines/skylab/multiome/multiome.wdl" as Multiome
 import "../../verification/VerifyMultiome.wdl" as VerifyMultiome
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
