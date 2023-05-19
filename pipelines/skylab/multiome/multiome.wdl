@@ -1,7 +1,7 @@
 version 1.0
 
-import "../../beta-pipelines/multiome/atac.wdl" as atac
-import "../../pipelines/skylab/optimus/Optimus.wdl" as optimus
+import "../../../pipelines/skylab/multiome/atac.wdl" as atac
+import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 
 workflow Multiome {
     String pipeline_version = "1.0.0"

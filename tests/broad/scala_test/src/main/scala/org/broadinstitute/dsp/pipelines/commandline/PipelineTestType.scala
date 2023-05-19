@@ -95,7 +95,7 @@ object PipelineTestType extends Enum[PipelineTestType] {
       extends PipelineTestType(
         "TestMultiome",
         "Multiome",
-        "/multiome/"
+        "/skylab/multiome/"
       )
   case object MultiSampleArrays
       extends PipelineTestType(
