@@ -329,6 +329,45 @@ task CompareLooms {
     memory: "${memory_mb} MiB"
     preemptible: 3
   }
-
 }
+
+task CompareH5adFiles {
+  input {
+    File truth_h5ad
+    File test_h5ad
+
+    Int cpu = 1
+    String docker = "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 20
+    Int memory_mb = ceil(size(truth_h5ad, "MiB") + size(test_h5ad, "MiB") * 2)
+  }
+
+  command <<<
+
+  set -eo pipefail
+
+  # calculate hashes
+
+  truth_h5ad_file=$(md5sum ~{truth_h5ad} | awk '{print $1}')
+  test_h5ad_file=$(md5sum ~{test_h5ad} | awk '{print $1}')
+
+   # compare hashes
+   if [ "$truth_h5ad_file" == "$test_h5ad_file" ]; then
+     echo "H5ad files are identical"
+   else
+     echo "H5ad files are NOT identical"
+     exit 1
+   fi
+>>>
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    preemptible: 3
+  }
+}
+
+
 

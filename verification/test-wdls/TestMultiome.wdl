@@ -108,6 +108,7 @@ workflow TestMultiome {
                                     Multiome.genomic_reference_version,
                                     Multiome.fragment_file,
                                     Multiome.bam_aligned_output,
+                                    Multiome.snap_metrics
                                     ],
                                     # File? outputs
                                     select_all([Multiome.cell_calls]),
@@ -182,6 +183,12 @@ workflow TestMultiome {
             results_path = results_path,
             truth_path = truth_path
         }
+        call Utilities.GetValidationInputs as GetSnapMetrics {
+          input:
+            input_file = Multiome.snap_metrics,
+            results_path = results_path,
+            truth_path = truth_path
+        }
 
       call VerifyMultiome.VerifyMultiome as Verify {
         input:
@@ -197,6 +204,8 @@ workflow TestMultiome {
           test_atac_bam = GetAtacBam.results_file,
           truth_fragment_file = GetFragmentFile.truth_file,
           test_fragment_file = GetFragmentFile.results_file,
+          truth_h5ad = GetSnapMetrics.truth_file,
+          test_h5ad = GetSnapMetrics.results_file,
           done = CopyToTestResults.done
       }
     }

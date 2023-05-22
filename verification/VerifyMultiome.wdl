@@ -23,6 +23,9 @@ workflow VerifyMultiome {
         File test_fragment_file
         File truth_fragment_file
 
+        File test_h5ad
+        File truth_h5ad
+
         Boolean? done
     }
 
@@ -62,5 +65,11 @@ workflow VerifyMultiome {
         input:
             test_text_files  = [test_fragment_file],
             truth_text_files = [truth_fragment_file]
+    }
+
+    call VerifyTasks.CompareH5adFiles as CompareH5adFiles {
+        input:
+            test_h5ad  = test_fragment_file,
+            truth_h5ad = truth_fragment_file
     }
 }
