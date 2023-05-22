@@ -148,14 +148,14 @@ task Mapping {
     tar -zcvf ~{plate_id}_allc-CGN_files.tar.gz *
     mv ~{plate_id}_allc-CGN_files.tar.gz /cromwell_root/
     cd ../bam
-    tar -zcvf bam_files.tar.gz *
-    mv bam_files.tar.gz /cromwell_root/
+    tar -zcvf ~{plate_id}_bam_files.tar.gz *
+    mv ~{plate_id}_bam_files.tar.gz /cromwell_root/
     cd ../detail_stats
-    tar -zcvf detail_stats_files.tar.gz *
-    mv detail_stats_files.tar.gz /cromwell_root/
+    tar -zcvf ~{plate_id}_detail_stats_files.tar.gz *
+    mv ~{plate_id}_detail_stats_files.tar.gz /cromwell_root/
     cd ../hic
-    tar -zcvf hic_files.tar.gz *
-    mv hic_files.tar.gz /cromwell_root/
+    tar -zcvf ~{plate_id}_hic_files.tar.gz *
+    mv ~{plate_id}_hic_files.tar.gz /cromwell_root/
 
   >>>
 
@@ -169,9 +169,9 @@ task Mapping {
   output {
     File mappingSummary = "~{plate_id}_MappingSummary.csv.gz"
     File allcFiles = "~{plate_id}_allc_files.tar.gz"
-    File allc_CGNFiles = "allc-CGN_files.tar.gz"
-    File bamFiles = "bam_files.tar.gz"
-    File detail_statsFiles = "detail_stats_files.tar.gz"
-    File hicFiles = "hic_files.tar.gz"
+    File allc_CGNFiles = "~{plate_id}_allc-CGN_files.tar.gz"
+    File bamFiles = "~{plate_id}bam_files.tar.gz"
+    File detail_statsFiles = "~{plate_id}detail_stats_files.tar.gz"
+    File hicFiles = "~{plate_id}hic_files.tar.gz"
   }
 }
