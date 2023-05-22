@@ -9,9 +9,9 @@ workflow Multiome {
   input {
       # Optimus Inputs
       String counting_mode = "sn_rna"
-      Array[File] r1_fastq
-      Array[File] r2_fastq
-      Array[File]? i1_fastq
+      Array[File] gex_r1_fastq
+      Array[File] gex_r2_fastq
+      Array[File]? gex_i1_fastq
       String input_id
       String output_bam_basename = input_id
       File tar_star_reference
@@ -24,31 +24,39 @@ workflow Multiome {
       Boolean ignore_r1_read_length = false
       String star_strand_mode = "Forward"
       Boolean count_exons = false
-      File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1.txt"
+      File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt"
 
       # ATAC inputs
-      Array[File] read1_fastq_gzipped
-      Array[File] read2_fastq_gzipped
-      Array[File] read3_fastq_gzipped
+      # Array of input fastq files 
+      Array[File] atac_r1_fastq
+      Array[File] atac_r2_fastq
+      Array[File] atac_r3_fastq
+      # Output name 
       String output_base_name
+      # BWA input
       File tar_bwa_reference
-      File monitoring_script
+      # CreateFragmentFile input  
       Boolean barcodes_in_read_name
+      File atac_gtf
+      File chrom_sizes
+      # Trimadapters input
       String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
       String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
-      # we are going to need an atac whitelist.
-      # for now it is on the slideSeq VM
-      # /mnt/disks/slideseqdata/multiome_ARC/cellranger-arc-2.0.2/lib/python/atac/barcodes/737K-arc-v1.txt.gz
-      # File atac_whitelist = ""
+      # Whitelist
+      File atac_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_atac.txt"
+
+      # script for monitoring tasks 
+      File monitoring_script
+
   }
 
 # Call the Optimus workflow
   call optimus.Optimus as Optimus {
     input:
     counting_mode = counting_mode,
-    r1_fastq = r1_fastq,
-    r2_fastq = r2_fastq,
-    i1_fastq = i1_fastq,
+    r1_fastq = gex_r1_fastq,
+    r2_fastq = gex_r2_fastq,
+    i1_fastq = gex_i1_fastq,
     input_id = input_id,
     output_bam_basename = output_bam_basename,
     tar_star_reference = tar_star_reference,
@@ -64,15 +72,19 @@ workflow Multiome {
     count_exons = count_exons
   }
 
+# Call the ATAC workflow
   call atac.ATAC as Atac {
     input:
-    read1_fastq_gzipped = read1_fastq_gzipped,
-    read2_fastq_gzipped = read2_fastq_gzipped,
-    read3_fastq_gzipped = read3_fastq_gzipped,
+    read1_fastq_gzipped = atac_r1_fastq,
+    read2_fastq_gzipped = atac_r2_fastq,
+    read3_fastq_gzipped = atac_r3_fastq,
     output_base_name = output_base_name,
     tar_bwa_reference = tar_bwa_reference,
     monitoring_script = monitoring_script,
     barcodes_in_read_name = barcodes_in_read_name,
+    atac_gtf = atac_gtf,
+    chrom_sizes = chrom_sizes,
+    whitelist = atac_whitelist,
     adapter_seq_read1 = adapter_seq_read1,
     adapter_seq_read3 = adapter_seq_read3
   }
@@ -84,6 +96,7 @@ workflow Multiome {
     # atac outputs
     File bam_aligned_output = Atac.bam_aligned_output
     File fragment_file = Atac.fragment_file
+    File snap_metrics = Atac.snap_metrics
 
     # optimus outputs
     String pipeline_version_out = Optimus.pipeline_version_out
