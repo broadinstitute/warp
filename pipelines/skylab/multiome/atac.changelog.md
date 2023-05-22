@@ -1,4 +1,4 @@
-# 1.0
+# 1.0.0
 
 2023-05-22 (Date of Last Commit)
 
