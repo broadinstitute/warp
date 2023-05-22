@@ -33,7 +33,8 @@ workflow snM3C {
       mapping_yaml = mapping_yaml,
       snakefile = snakefile,
       chromosome_sizes = chromosome_sizes,
-      genome_fa = genome_fa
+      genome_fa = genome_fa,
+      plate_id = plate_id
     }
 
   output {
