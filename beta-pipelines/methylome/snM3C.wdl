@@ -170,8 +170,8 @@ task Mapping {
     File mappingSummary = "~{plate_id}_MappingSummary.csv.gz"
     File allcFiles = "~{plate_id}_allc_files.tar.gz"
     File allc_CGNFiles = "~{plate_id}_allc-CGN_files.tar.gz"
-    File bamFiles = "~{plate_id}bam_files.tar.gz"
-    File detail_statsFiles = "~{plate_id}detail_stats_files.tar.gz"
-    File hicFiles = "~{plate_id}hic_files.tar.gz"
+    File bamFiles = "~{plate_id}_bam_files.tar.gz"
+    File detail_statsFiles = "~{plate_id}_detail_stats_files.tar.gz"
+    File hicFiles = "~{plate_id}_hic_files.tar.gz"
   }
 }
