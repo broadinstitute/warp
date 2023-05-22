@@ -69,7 +69,7 @@ workflow VerifyMultiome {
 
     call VerifyTasks.CompareH5adFiles as CompareH5adFiles {
         input:
-            test_h5ad  = test_fragment_file,
-            truth_h5ad = truth_fragment_file
+            test_h5ad  = test_h5ad,
+            truth_h5ad = truth_h5ad
     }
 }

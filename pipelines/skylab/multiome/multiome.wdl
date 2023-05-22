@@ -50,6 +50,8 @@ workflow Multiome {
 
     }
 
+    String pipeline_version = "1.0.0"
+
     # Call the Optimus workflow
     call optimus.Optimus as Optimus {
         input:
