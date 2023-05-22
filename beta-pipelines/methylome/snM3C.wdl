@@ -100,6 +100,7 @@ task Mapping {
     File snakefile
     File chromosome_sizes
     File genome_fa
+    File plate_id
 
     String docker_image = "nikellepetrillo/yap-hisat:v8"
     Int disk_size = 200
@@ -137,23 +138,23 @@ task Mapping {
     /opt/conda/bin/snakemake --configfile mapping.yaml -j
 
     # move outputs into /cromwell_root/
-    mv /cromwell_root/group0/MappingSummary.csv.gz /cromwell_root/
+    mv /cromwell_root/group0/MappingSummary.csv.gz /cromwell_root/~{plate_id}_MappingSummary.csv.gz
 
     cd /cromwell_root/group0/allc
-    tar -zcvf allc_files.tar.gz *
-    mv allc_files.tar.gz /cromwell_root/
+    tar -zcvf ~{plate_id}_allc_files.tar.gz *
+    mv ~{plate_id}_allc_files.tar.gz /cromwell_root/
     cd ../allc-CGN
-    tar -zcvf allc-CGN_files.tar.gz *
-    mv allc-CGN_files.tar.gz /cromwell_root/
+    tar -zcvf ~{plate_id}_allc-CGN_files.tar.gz *
+    mv ~{plate_id}_allc-CGN_files.tar.gz /cromwell_root/
     cd ../bam
-    tar -zcvf bam_files.tar.gz *
-    mv bam_files.tar.gz /cromwell_root/
+    tar -zcvf ~{plate_id}_bam_files.tar.gz *
+    mv ~{plate_id}_bam_files.tar.gz /cromwell_root/
     cd ../detail_stats
-    tar -zcvf detail_stats_files.tar.gz *
-    mv detail_stats_files.tar.gz /cromwell_root/
+    tar -zcvf ~{plate_id}_detail_stats_files.tar.gz *
+    mv ~{plate_id}_detail_stats_files.tar.gz /cromwell_root/
     cd ../hic
-    tar -zcvf hic_files.tar.gz *
-    mv hic_files.tar.gz /cromwell_root/
+    tar -zcvf ~{plate_id}_hic_files.tar.gz *
+    mv ~{plate_id}_hic_files.tar.gz /cromwell_root/
 
   >>>
 
@@ -165,11 +166,11 @@ task Mapping {
   }
 
   output {
-    File mappingSummary = "MappingSummary.csv.gz"
-    File allcFiles = "allc_files.tar.gz"
-    File allc_CGNFiles = "allc-CGN_files.tar.gz"
-    File bamFiles = "bam_files.tar.gz"
-    File detail_statsFiles = "detail_stats_files.tar.gz"
-    File hicFiles = "hic_files.tar.gz"
+    File mappingSummary = "~{plate_id}_MappingSummary.csv.gz"
+    File allcFiles = "~{plate_id}_allc_files.tar.gz"
+    File allc_CGNFiles = "~{plate_id}_allc-CGN_files.tar.gz"
+    File bamFiles = "~{plate_id}_bam_files.tar.gz"
+    File detail_statsFiles = "~{plate_id}_detail_stats_files.tar.gz"
+    File hicFiles = "~{plate_id}_hic_files.tar.gz"
   }
 }
