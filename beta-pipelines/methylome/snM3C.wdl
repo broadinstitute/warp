@@ -101,7 +101,7 @@ task Mapping {
     File snakefile
     File chromosome_sizes
     File genome_fa
-    File plate_id
+    String plate_id
 
     String docker_image = "nikellepetrillo/yap-hisat:v8"
     Int disk_size = 200
