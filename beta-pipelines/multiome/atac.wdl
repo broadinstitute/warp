@@ -422,8 +422,9 @@ task CreateFragmentFile {
     elif barcodes_in_read_name=="false":
       pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
     
-    # calculate quality metrics
-    pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_size=chrom_size_dict, gene_anno="~{atac_gtf}")
+    # calculate quality metrics; note min_num_fragments and min_tsse are set to 0 instead of default
+    # those settings allow us to retain all barcodes
+    pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_size=chrom_size_dict, gene_anno="~{atac_gtf}", min_num_fragments=0, min_tsse=0)
 
     CODE
   >>>
