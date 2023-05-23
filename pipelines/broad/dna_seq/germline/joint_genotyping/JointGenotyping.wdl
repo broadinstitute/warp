@@ -97,7 +97,7 @@ workflow JointGenotyping {
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,
       ref_dict = ref_dict,
-      disk_size = small_disk,
+      disk_size_gb = small_disk,
       sample_names_unique_done = CheckSamplesUnique.samples_unique
   }
 
@@ -116,7 +116,7 @@ workflow JointGenotyping {
         ref_fasta_index = ref_fasta_index,
         ref_dict = ref_dict,
         workspace_dir_name = "genomicsdb",
-        disk_size = medium_disk,
+        disk_size_gb = medium_disk,
         batch_size = 50
     }
 
@@ -129,7 +129,7 @@ workflow JointGenotyping {
           ref_fasta = ref_fasta,
           ref_fasta_index = ref_fasta_index,
           ref_dict = ref_dict,
-          disk_size = small_disk,
+          disk_size_gb = small_disk,
           sample_names_unique_done = CheckSamplesUnique.samples_unique
       }
 
@@ -154,7 +154,7 @@ workflow JointGenotyping {
         input:
           input_vcfs = gnarly_gvcfs,
           output_vcf_name = callset_name + "." + idx + ".gnarly.vcf.gz",
-          disk_size = large_disk
+          disk_size_gb = large_disk
       }
     }
 
@@ -168,7 +168,7 @@ workflow JointGenotyping {
           ref_fasta_index = ref_fasta_index,
           ref_dict = ref_dict,
           dbsnp_vcf = dbsnp_vcf,
-          disk_size = medium_disk
+          disk_size_gb = medium_disk
       }
     }
 
@@ -182,7 +182,7 @@ workflow JointGenotyping {
         excess_het_threshold = excess_het_threshold,
         variant_filtered_vcf_filename = callset_name + "." + idx + ".variant_filtered.vcf.gz",
         sites_only_vcf_filename = callset_name + "." + idx + ".sites_only.variant_filtered.vcf.gz",
-        disk_size = medium_disk
+        disk_size_gb = medium_disk
     }
   }
 
@@ -190,7 +190,7 @@ workflow JointGenotyping {
     input:
       input_vcfs = HardFilterAndMakeSitesOnlyVcf.sites_only_vcf,
       output_vcf_name = callset_name + ".sites_only.vcf.gz",
-      disk_size = medium_disk
+      disk_size_gb = medium_disk
   }
 
   call Tasks.IndelsVariantRecalibrator {
@@ -208,7 +208,7 @@ workflow JointGenotyping {
       dbsnp_resource_vcf = dbsnp_resource_vcf,
       dbsnp_resource_vcf_index = dbsnp_resource_vcf_index,
       use_allele_specific_annotations = allele_specific_annotations,
-      disk_size = small_disk
+      disk_size_gb = small_disk
   }
 
   if (num_gvcfs > snps_variant_recalibration_threshold) {
@@ -231,7 +231,7 @@ workflow JointGenotyping {
         dbsnp_resource_vcf = dbsnp_resource_vcf,
         dbsnp_resource_vcf_index = dbsnp_resource_vcf_index,
         use_allele_specific_annotations = allele_specific_annotations,
-        disk_size = small_disk
+        disk_size_gb = small_disk
     }
 
     scatter (idx in range(length(HardFilterAndMakeSitesOnlyVcf.sites_only_vcf))) {
@@ -253,7 +253,7 @@ workflow JointGenotyping {
           dbsnp_resource_vcf = dbsnp_resource_vcf,
           dbsnp_resource_vcf_index = dbsnp_resource_vcf_index,
           use_allele_specific_annotations = allele_specific_annotations,
-          disk_size = small_disk
+          disk_size_gb = small_disk
         }
     }
 
@@ -262,7 +262,7 @@ workflow JointGenotyping {
         tranches = SNPsVariantRecalibratorScattered.tranches,
         output_filename = callset_name + ".snps.gathered.tranches",
         mode = "SNP",
-        disk_size = small_disk
+        disk_size_gb = small_disk
     }
   }
 
@@ -284,7 +284,7 @@ workflow JointGenotyping {
         dbsnp_resource_vcf = dbsnp_resource_vcf,
         dbsnp_resource_vcf_index = dbsnp_resource_vcf_index,
         use_allele_specific_annotations = allele_specific_annotations,
-        disk_size = small_disk
+        disk_size_gb = small_disk
     }
   }
 
@@ -304,7 +304,7 @@ workflow JointGenotyping {
         indel_filter_level = indel_filter_level,
         snp_filter_level = snp_filter_level,
         use_allele_specific_annotations = allele_specific_annotations,
-        disk_size = medium_disk
+        disk_size_gb = medium_disk
     }
 
     # For large callsets we need to collect metrics from the shards and gather them later.
@@ -318,7 +318,7 @@ workflow JointGenotyping {
           dbsnp_vcf_index = dbsnp_vcf_index,
           interval_list = eval_interval_list,
           ref_dict = ref_dict,
-          disk_size = medium_disk
+          disk_size_gb = medium_disk
       }
     }
   }
@@ -329,7 +329,7 @@ workflow JointGenotyping {
       input:
         input_vcfs = ApplyRecalibration.recalibrated_vcf,
         output_vcf_name = callset_name + ".vcf.gz",
-        disk_size = huge_disk
+        disk_size_gb = huge_disk
     }
 
     call Tasks.CollectVariantCallingMetrics as CollectMetricsOnFullVcf {
@@ -341,7 +341,7 @@ workflow JointGenotyping {
         dbsnp_vcf_index = dbsnp_vcf_index,
         interval_list = eval_interval_list,
         ref_dict = ref_dict,
-        disk_size = large_disk
+        disk_size_gb = large_disk
     }
   }
 
@@ -352,7 +352,7 @@ workflow JointGenotyping {
         input_details = select_all(CollectMetricsSharded.detail_metrics_file),
         input_summaries = select_all(CollectMetricsSharded.summary_metrics_file),
         output_prefix = callset_name,
-        disk_size = medium_disk
+        disk_size_gb = medium_disk
     }
   }
 
@@ -376,7 +376,7 @@ if (cross_check_fingerprints) {
       input:
         input_vcfs = vcfs_to_fingerprint,
         output_vcf_name = callset_name + ".gathered.fingerprinting.vcf.gz",
-        disk_size = medium_disk
+        disk_size_gb = medium_disk
     }
 
     call Tasks.SelectFingerprintSiteVariants {
@@ -384,7 +384,7 @@ if (cross_check_fingerprints) {
         input_vcf = GatherFingerprintingVcfs.output_vcf,
         base_output_name = callset_name + ".fingerprinting",
         haplotype_database = haplotype_database,
-        disk_size = medium_disk
+        disk_size_gb = medium_disk
     }
 
     call Tasks.PartitionSampleNameMap {
@@ -412,7 +412,7 @@ if (cross_check_fingerprints) {
       input:
         metrics_files = CrossCheckFingerprintsScattered.crosscheck_metrics,
         output_file_name = callset_name + ".fingerprintcheck",
-        disk_size = small_disk
+        disk_size_gb = small_disk
     }
   }
 
