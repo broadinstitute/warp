@@ -49,7 +49,7 @@ workflow ExtractOptimizeSingleSample {
         input:
             input_vcfs = ExtractSample.output_vcf_file,
             output_vcf_name = base_file_name + ".extracted.vcf.gz",
-            disk_size = medium_disk
+            disk_size_gb = medium_disk
     }
 
     call FilterSampleVCF{
