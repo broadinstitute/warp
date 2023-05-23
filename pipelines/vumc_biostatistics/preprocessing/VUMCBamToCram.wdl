@@ -18,6 +18,7 @@ workflow VUMCBamToCram {
   output {
     File output_cram = BamToCram.output_cram
     File output_crai = BamToCram.output_crai
+    File output_cram_md5 = BamToCram.output_cram_md5
   }
 }
 
@@ -36,6 +37,7 @@ task BamToCram {
   command <<<
     samtools view -T ~{ref_fasta} -C -o ~{output_name} ~{input_bam}
     samtools index ~{output_name}
+    md5sum ~{output_name} > ~{output_name}.md5
   >>>
 
   runtime {
@@ -48,5 +50,6 @@ task BamToCram {
   output {
     File output_cram = "~{output_name}"
     File output_crai = "~{output_name}.crai"
+    File output_cram_md5 = "~{output_name}.md5"
   }
 }
