@@ -166,3 +166,7 @@ workflows:
   - name: VUMCDeleteFiles
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCDeleteFiles.wdl
+
+  - name: VUMCBamToCram
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCBamToCram.wdl

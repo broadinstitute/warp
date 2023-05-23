@@ -1,0 +1,6 @@
+{
+  "VUMCBamToCram.input_bam": "/nobackup/h_cqs/pipeline_example/rnaseq_example_bam/S1_Aligned.sortedByCoord.out.bam",
+  "VUMCBamToCram.ref_fasta": "/data/cqs/references/gencode/GRCh38.p13/GRCh38.primary_assembly.genome.fa",
+  "VUMCBamToCram.sample_name": "S1"
+}
+
