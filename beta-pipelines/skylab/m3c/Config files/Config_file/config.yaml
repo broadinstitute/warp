@@ -1,8 +1,0 @@
-# Path to hisat3n
-hisat3n_dna_reference: /tmp/docker_m3c/reference/hg38
-
-# Path to genome fasta
-reference_fasta: /tmp/docker_m3c/reference/hg38.fa 
-
-# Path to chrom sizes
-chrom_size_path: /tmp/docker_m3c/reference/hg38.chrom.sizes
