@@ -110,3 +110,8 @@ workflows:
   - name: snM3C
     subclass: WDL
     primaryDescriptorPath: /beta-pipelines/methylome/snM3C.wdl
+    
+  - name: Multiome
+    subclass: WDL
+    primaryDescriptorPath: /beta-pipelines/multiome/multiome.wdl
+
