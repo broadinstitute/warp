@@ -875,14 +875,6 @@ task CrossCheckFingerprint {
     Boolean scattered = false
     Array[String] expected_inconclusive_samples = []
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
-    Int disk_size_gb = 100
-    Int num_gvcfs = length(gvcf_paths)
-    Int cpu = if num_gvcfs < 32 then num_gvcfs else 32
-    # Compute memory to use based on the CPU count, following the pattern of
-    # 3.75GiB / cpu used by GCP's pricing: https://cloud.google.com/compute/pricing
-    Int machine_mem_mb = round(cpu * 3.75 * 1024)
-    Int java_mem = machine_mem_mb - 512
-
   }
 
   parameter_meta {
@@ -893,6 +885,14 @@ task CrossCheckFingerprint {
       localization_optional: true
     }
   }
+
+  Int num_gvcfs = length(gvcf_paths)
+  Int cpu = if num_gvcfs < 32 then num_gvcfs else 32
+  # Compute memory to use based on the CPU count, following the pattern of
+  # 3.75GiB / cpu used by GCP's pricing: https://cloud.google.com/compute/pricing
+  Int memMb = round(cpu * 3.75 * 1024)
+  Int java_mem = memMb - 512
+  Int disk = 100
 
   String output_name = output_base_name + ".fingerprintcheck"
 
@@ -942,8 +942,8 @@ task CrossCheckFingerprint {
   >>>
 
   runtime {
-    memory: machine_mem_mb + " MiB"
-    disks: "local-disk " + disk_size_gb + " HDD"
+    memory: memMb + " MiB"
+    disks: "local-disk " + disk + " HDD"
     preemptible: 0
     docker: gatk_docker
   }
