@@ -29,7 +29,6 @@ task CountAlignments {
 
   command <<<
     set -e
-    # move the input files to
 
     declare -a bam_file_paths=(~{sep=' ' aligned_bam_inputs})
     declare -a output_prefix=(~{sep=' ' input_ids})
