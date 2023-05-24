@@ -211,7 +211,7 @@ task CompareBams {
   input {
     File test_bam
     File truth_bam
-    Boolean lenient_header = true
+    Boolean lenient_header = false
     Boolean lenient_low_mq = false
   }
 
