@@ -37,6 +37,9 @@ workflow Optimus {
     # Whitelist is selected based on the input tenx_chemistry_version
     File whitelist = checkOptimusInput.whitelist_out
 
+    # read_structure is based on v2 or v3 chemistry
+    String read_struct = checkOptimusInput.read_struct_out
+
     # Emptydrops lower cutoff
     Int emptydrops_lower = 100
 
@@ -61,7 +64,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "5.8.0"
+  String pipeline_version = "5.8.2"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -113,7 +116,8 @@ workflow Optimus {
       r2_fastq = r2_fastq,
       whitelist = whitelist,
       chemistry = tenx_chemistry_version,
-      sample_id = input_id
+      sample_id = input_id,
+      read_struct = read_struct
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {

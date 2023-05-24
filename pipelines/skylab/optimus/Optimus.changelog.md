@@ -1,3 +1,13 @@
+# 5.8.2
+2023-05-11 (Date of Last Commit)
+
+* Updated the Docker image for Slideseq FastqProcessing. This update has no impact on the Optimus workflow
+
+# 5.8.1
+2023-05-04 (Date of Last Commit)
+
+* Updated inputs for the FastqProcessing task, which now requires read structure. This is dynamically calculated from the CheckInputs task
+
 # 5.8.0
 2023-04-24 (Date of Last Commit)
 
