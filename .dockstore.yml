@@ -174,3 +174,11 @@ workflows:
   - name: VUMCFastqToAlignedCram
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFastqToAlignedCram.wdl
+
+  - name: VUMCMoveCram
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMoveCram.wdl
+
+  - name: VUMCDeleteBam
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCDeleteBam.wdl
