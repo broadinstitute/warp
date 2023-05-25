@@ -144,7 +144,7 @@ task ConvertToCram {
     samtools index ~{output_basename}.cram
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
+    docker: "staphb/samtools:1.17"
     preemptible: preemptible_tries
     memory: "3 GiB"
     cpu: "1"
