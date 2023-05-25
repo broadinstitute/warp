@@ -109,7 +109,7 @@ workflows:
 
   - name: snM3C
     subclass: WDL
-    primaryDescriptorPath: /beta-pipelines/methylome/snM3C.wdl
+    primaryDescriptorPath: /beta-pipelines/skylab/m3c/snM3C.wdl
     
   - name: Multiome
     subclass: WDL
