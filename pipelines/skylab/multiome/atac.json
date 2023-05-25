@@ -4,7 +4,7 @@
   "ATAC.TrimAdapters.adapter_seq_read1": "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG",
   "ATAC.TrimAdapters.adapter_seq_read2": "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG",
   "ATAC.output_base_name": "scATAC",
-  //"ATAC.monitoring_script": "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh",
+  "ATAC.monitoring_script": "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh",
   "ATAC.tar_bwa_reference": "gs://broad-gotc-test-storage/scATAC/input/plumbing/reference/mm10/mm10.tar",
   "ATAC.barcodes_in_read_name": "true"
 }

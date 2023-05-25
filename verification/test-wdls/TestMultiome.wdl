@@ -11,9 +11,9 @@ workflow TestMultiome {
     input {
       # Optimus Inputs
       String counting_mode = "sn_rna"
-      Array[File] r1_fastq
-      Array[File] r2_fastq
-      Array[File]? i1_fastq
+      Array[File] gex_r1_fastq
+      Array[File] gex_r2_fastq
+      Array[File]? gex_i1_fastq
       String input_id
       String output_bam_basename = input_id
       File tar_star_reference
@@ -30,10 +30,9 @@ workflow TestMultiome {
 
       # ATAC inputs
       # Array of input fastq files
-      Array[File] read1_fastq_gzipped
-      Array[File] read2_fastq_gzipped
-      Array[File] read3_fastq_gzipped
-
+      Array[File] atac_r1_fastq
+      Array[File] atac_r2_fastq
+      Array[File] atac_r3_fastq
       # Output name
       String output_base_name
       # BWA input
@@ -48,6 +47,9 @@ workflow TestMultiome {
       # Whitelist
       File atac_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_atac.txt"
 
+      # script for monitoring tasks
+      File monitoring_script
+
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
       String results_path
@@ -55,7 +57,6 @@ workflow TestMultiome {
       String vault_token_path
       String google_account_vault_path
 
-      File monitoring_script
     }
 
     meta {
@@ -65,9 +66,9 @@ workflow TestMultiome {
     call Multiome.Multiome {
       input:
         counting_mode = counting_mode,
-        r1_fastq = r1_fastq,
-        r2_fastq = r2_fastq,
-        i1_fastq = i1_fastq,
+        gex_r1_fastq = gex_r1_fastq,
+        gex_r2_fastq = gex_r2_fastq,
+        gex_i1_fastq = gex_i1_fastq,
         input_id = input_id,
         output_bam_basename = output_bam_basename,
         tar_star_reference = tar_star_reference,
@@ -81,9 +82,9 @@ workflow TestMultiome {
         star_strand_mode = star_strand_mode,
         count_exons = count_exons,
         gex_whitelist = gex_whitelist,
-        read1_fastq_gzipped = read1_fastq_gzipped,
-        read2_fastq_gzipped = read2_fastq_gzipped,
-        read3_fastq_gzipped = read3_fastq_gzipped,
+        atac_r1_fastq = atac_r1_fastq,
+        atac_r2_fastq = atac_r2_fastq,
+        atac_r3_fastq = atac_r3_fastq,
         output_base_name = output_base_name,
         tar_bwa_reference = tar_bwa_reference,
         monitoring_script = monitoring_script,
