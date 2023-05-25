@@ -51,10 +51,7 @@ task MoveCram {
 
   command <<<
 
-if [[ ! gsutil mv ~{output_cram} ~{new_output_cram} ]] ; then
-  exit 1
-fi
-
+gsutil mv ~{output_cram} ~{new_output_cram}
 gsutil mv ~{output_crai} ~{new_output_crai}
 gsutil mv ~{output_cram_md5} ~{new_output_cram_md5}
 >>>

@@ -30,12 +30,7 @@ task DeleteBam {
 
   command <<<
 
-if [[ ! gsutil rm ~{output_bam} ]] ; then
-  exit 1
-fi
-
-gsutil rm ~{output_bam_index}
-gsutil rm ~{output_bam_md5} 
+gsutil rm ~{output_bam} ~{output_bam_index} ~{output_bam_md5} 
 >>>
 
   runtime {
