@@ -54,7 +54,7 @@ task Demultiplexing {
     File random_primer_indexes
     String plate_id
 
-    String docker_image = "ekiernan/yap_hisat:v4"
+    String docker_image = "nikellepetrillo/yap-hisat:v8"
     Int disk_size = 50
     Int mem_size = 10
   }
