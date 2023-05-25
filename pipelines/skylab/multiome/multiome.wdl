@@ -9,9 +9,9 @@ workflow Multiome {
     input {
         # Optimus Inputs
         String counting_mode = "sn_rna"
-        Array[File] r1_fastq
-        Array[File] r2_fastq
-        Array[File]? i1_fastq
+        Array[File] gex_r1_fastq
+        Array[File] gex_r2_fastq
+        Array[File]? gex_i1_fastq
         String input_id
         String output_bam_basename = input_id
         File tar_star_reference
@@ -28,9 +28,9 @@ workflow Multiome {
 
         # ATAC inputs
         # Array of input fastq files
-        Array[File] read1_fastq_gzipped
-        Array[File] read2_fastq_gzipped
-        Array[File] read3_fastq_gzipped
+        Array[File] atac_r1_fastq
+        Array[File] atac_r2_fastq
+        Array[File] atac_r3_fastq
         # Output name
         String output_base_name
         # BWA input
@@ -50,15 +50,13 @@ workflow Multiome {
 
     }
 
-    String pipeline_version = "1.0.0"
-
     # Call the Optimus workflow
     call optimus.Optimus as Optimus {
         input:
             counting_mode = counting_mode,
-            r1_fastq = r1_fastq,
-            r2_fastq = r2_fastq,
-            i1_fastq = i1_fastq,
+            r1_fastq = gex_r1_fastq,
+            r2_fastq = gex_r2_fastq,
+            i1_fastq = gex_i1_fastq,
             input_id = input_id,
             output_bam_basename = output_bam_basename,
             tar_star_reference = tar_star_reference,
@@ -77,9 +75,9 @@ workflow Multiome {
     # Call the ATAC workflow
     call atac.ATAC as Atac {
         input:
-            read1_fastq_gzipped = read1_fastq_gzipped,
-            read2_fastq_gzipped = read2_fastq_gzipped,
-            read3_fastq_gzipped = read3_fastq_gzipped,
+            read1_fastq_gzipped = atac_r1_fastq,
+            read2_fastq_gzipped = atac_r2_fastq,
+            read3_fastq_gzipped = atac_r3_fastq,
             output_base_name = output_base_name,
             tar_bwa_reference = tar_bwa_reference,
             monitoring_script = monitoring_script,

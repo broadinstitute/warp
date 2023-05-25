@@ -441,5 +441,3 @@ task CreateFragmentFile {
     File Snap_metrics = "~{bam_base_name}.metrics.h5ad"
   }
 }
-
-
