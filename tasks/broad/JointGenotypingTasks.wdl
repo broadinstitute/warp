@@ -875,6 +875,8 @@ task CrossCheckFingerprint {
     Boolean scattered = false
     Array[String] expected_inconclusive_samples = []
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    Int? machine_mem_mb
+    Int disk = 100
   }
 
   parameter_meta {
@@ -890,9 +892,8 @@ task CrossCheckFingerprint {
   Int cpu = if num_gvcfs < 32 then num_gvcfs else 32
   # Compute memory to use based on the CPU count, following the pattern of
   # 3.75GiB / cpu used by GCP's pricing: https://cloud.google.com/compute/pricing
-  Int memMb = round(cpu * 3.75 * 1024)
-  Int java_mem = memMb - 512
-  Int disk = 100
+  Int memory = if defined(machine_mem_mb) then machine_mem_mb else round(cpu * 3.75 * 1024)
+  Int java_mem = memory - 512
 
   String output_name = output_base_name + ".fingerprintcheck"
 
@@ -942,7 +943,7 @@ task CrossCheckFingerprint {
   >>>
 
   runtime {
-    memory: memMb + " MiB"
+    memory: "~{memory} MiB"
     disks: "local-disk " + disk + " HDD"
     preemptible: 0
     docker: gatk_docker
@@ -952,6 +953,7 @@ task CrossCheckFingerprint {
     File crosscheck_metrics = output_name
   }
 }
+
 
 task GatherPicardMetrics {
 
