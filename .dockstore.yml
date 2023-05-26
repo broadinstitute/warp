@@ -115,7 +115,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /beta-pipelines/multiome/multiome.wdl
     
-  - name: scATAC_Multiome
+  - name: atac
     subclass: WDL
     primaryDescriptorPath: /beta-pipelines/multiome/atac.wdl
 
