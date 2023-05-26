@@ -373,7 +373,7 @@ workflow VUMCFastqToAlignedCram {
     File? output_bqsr_reports = GatherBqsrReports.output_bqsr_report
 
     File output_cram = ConvertToCram.output_cram
-    File output_crai = ConvertToCram.output_crai
+    File output_crai = ConvertToCram.output_cram_index
     File output_cram_md5 = ConvertToCram.output_cram_md5
   }
   meta {
