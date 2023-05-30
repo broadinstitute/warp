@@ -273,8 +273,7 @@ task BWAPairedEndAlignment {
       String read_group_id = "RG1"
       String read_group_sample_name = "RGSN1"
       String output_base_name
-      String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685040811"
-      #"us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091"
+      String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504"
       
       # script for monitoring tasks 
       File monitoring_script
@@ -321,8 +320,8 @@ task BWAPairedEndAlignment {
       # index reference -- do I need to rebuild reference
       # ./bwa-mem2 index $REF_DIR/genome.fa
       
-      # align w/ bwa-mem2: -t for number of cores -- need to change name -- not sure why its not changing when creating docker
-      bwa-mem2.sse42 \
+      # align w/ bwa-mem2: -t for number of cores
+      bwa-mem2 \
         mem \
         -R "@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}" \
         -t ~{nthreads} \
