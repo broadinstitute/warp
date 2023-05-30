@@ -78,13 +78,26 @@ task Demultiplexing {
     rm *-unknown-R{1,2}.fq.gz
 
     # count the number of reads in each fastq file and remove if over 10,000,000 reads. Also, remove its mate.
-    for file in ~{plate_id}-*.fq.gz; do
+    for file in AD3C_*.fq.gz; do
       num_reads=$(($(cat $file | wc -l) / 4))
-      if [ $num_reads -gt 10 ]; then
+      if [ $num_reads -gt 40 ]; then
         echo "Removing $file with $num_reads reads"
-        rm ${file/-R1./-R2.};
+        rm $file
+
+      # Remove the mate fastq file
+      mate_file=${file/-R1./-R2.}
+      if [ -e $mate_file ]; then
+        echo "Removing $mate_file"
+        rm $mate_file
+      else
+        mate_file=${file/-R2./-R1.}
+        if [ -e $mate_file ]; then
+          echo "Removing $mate_file"
+          rm $mate_file
+        fi
       fi
-    done
+    fi
+  done
 
 
     # zip up all the output fq.gz files
