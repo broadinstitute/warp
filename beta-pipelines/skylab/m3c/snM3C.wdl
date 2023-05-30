@@ -77,10 +77,10 @@ task Demultiplexing {
     # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
     rm *-unknown-R{1,2}.fq.gz
 
-    # count the number of reads in each fastq file and remove if over 10,000,000 reads. Also, remove its mate.
-    for file in AD3C_*.fq.gz; do
+    # Count the number of reads in each fastq file and remove if over 10,000,000 reads. Also, remove its mate.
+    for file in ~{plate_id}-*.fq.gz; do
       num_reads=$(($(cat $file | wc -l) / 4))
-      if [ $num_reads -gt 40 ]; then
+      if [ $num_reads -gt 10000000 ]; then
         echo "Removing $file with $num_reads reads"
         rm $file
 
@@ -88,16 +88,21 @@ task Demultiplexing {
       mate_file=${file/-R1./-R2.}
       if [ -e $mate_file ]; then
         echo "Removing $mate_file"
+        set +euo pipefail  # Disable the set -euo pipefail option temporarily
         rm $mate_file
+        set -euo pipefail  # Enable the set -euo pipefail option again
       else
         mate_file=${file/-R2./-R1.}
         if [ -e $mate_file ]; then
           echo "Removing $mate_file"
+          set +euo pipefail  # Disable the set -euo pipefail option temporarily
           rm $mate_file
+          set -euo pipefail  # Enable the set -euo pipefail option again
         fi
       fi
     fi
   done
+
 
 
     # zip up all the output fq.gz files
