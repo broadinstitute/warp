@@ -1,3 +1,8 @@
+# 1.0.14
+2022-05-24 (Date of Last Commit)
+
+* Set meta parameter `allowNestedInputs` to allow Terra users to set input parameters for heavily nested tasks.
+
 # 1.0.13
 2022-05-02 (Date of Last Commit)
 
