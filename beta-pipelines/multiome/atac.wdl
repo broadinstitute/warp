@@ -321,8 +321,8 @@ task BWAPairedEndAlignment {
       # index reference -- do I need to rebuild reference
       # ./bwa-mem2 index $REF_DIR/genome.fa
       
-      # align w/ bwa-mem2: -t for number of cores
-      ./bwa-mem2 \
+      # align w/ bwa-mem2: -t for number of cores -- need to change name -- not sure why its not changing when creating docker
+      bwa-mem2.sse42 \
         mem \
         -R "@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}" \
         -t ~{nthreads} \
