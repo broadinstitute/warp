@@ -77,6 +77,16 @@ task Demultiplexing {
     # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
     rm *-unknown-R{1,2}.fq.gz
 
+    # count the number of reads in each fastq file and remove if over 10,000,000 reads
+    for file in ~{plate_id}-*.fq.gz; do
+      num_reads=$(($(cat $file | wc -l) / 4))
+      if [ $num_reads -gt 10000000 ]; then
+        echo "Removing $file with $num_reads reads"
+        rm $file
+      fi
+    done
+
+
     # zip up all the output fq.gz files
     tar -zcvf ~{plate_id}.cutadapt_output_files.tar.gz *.fq.gz
   >>>
