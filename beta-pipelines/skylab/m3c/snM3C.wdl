@@ -80,7 +80,7 @@ task Demultiplexing {
     # Count the number of reads in each fastq file and remove if over 10,000,000 reads. Also, remove its mate.
     for file in ~{plate_id}-*.fq.gz; do
       num_reads=$(($(cat $file | wc -l) / 4))
-      if [ $num_reads -gt 10000000 ]; then
+      if [ $num_reads -gt 20 ]; then
         echo "Removing $file with $num_reads reads"
         rm $file
 
