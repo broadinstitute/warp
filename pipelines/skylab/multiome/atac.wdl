@@ -1,6 +1,7 @@
 version 1.0
 
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
+import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 
 workflow ATAC {
   meta {
@@ -20,10 +21,8 @@ workflow ATAC {
     # BWA ref
     File tar_bwa_reference
 
-    # CreateFragmentFile input variables
-    Boolean barcodes_in_read_name
     # GTF for SnapATAC2 to calculate TSS sites of fragment file
-    File atac_gtf
+    File annotations_gtf
     # Text file containing chrom_sizes for genome build (i.e. hg38)
     File chrom_sizes
 
@@ -50,7 +49,7 @@ workflow ATAC {
 
   }
 
-  call FastqProcessing as SplitFastq {
+  call FastqProcessing.FastqProcessATAC as SplitFastq {
     input:
       read1_fastq = read1_fastq_gzipped,
       read3_fastq = read3_fastq_gzipped,
@@ -100,94 +99,13 @@ workflow ATAC {
     input:
       bam = MergeBam.output_bam,
       chrom_sizes = chrom_sizes,
-      barcodes_in_read_name = barcodes_in_read_name,
-      atac_gtf = atac_gtf
+      annotations_gtf = annotations_gtf,
   }
 
   output {
     File bam_aligned_output = MergeBam.output_bam
     File fragment_file = CreateFragmentFile.fragment_file
     File snap_metrics = CreateFragmentFile.Snap_metrics
-  }
-}
-
-task FastqProcessing {
-
-  input {
-    Array[File] read1_fastq
-    Array[File] read3_fastq
-    Array[File] barcodes_fastq
-    String read_structure = "16C"
-    String barcode_orientation = "FIRST_BP_RC"
-    String output_base_name
-    File whitelist
-
-    # [?] copied from corresponding optimus wdl for fastqprocessing
-    # using the latest build of warp-tools in GCR
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1682971351"
-    # Runtime attributes [?]
-    Int mem_size = 5
-    Int cpu = 16
-    # TODO decided cpu
-    # estimate that bam is approximately equal in size to fastq, add 20% buffer
-    Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
-    Int preemptible = 3
-  }
-
-  meta {
-    description: "Converts a set of fastq files to unaligned bam file/fastq file, also corrects barcodes and partitions the alignments by barcodes. Allows for variable barcode and umi lengths as input, if applicable."
-  }
-
-  parameter_meta {
-    read1_fastq: "Array of read 1 FASTQ files of paired reads -- forward reads"
-    read3_fastq: "Array of read 3 FASTQ files of paired reads -- reverse reads"
-    barcodes_fastq: "Array of read 2 FASTQ files which contains the cellular barcodes"
-    output_base_name: "Name of sample matching this file, inserted into read group header"
-    read_structure: "A string that specifies the barcode (C) positions in the Read 2 fastq"
-    barcode_orientation: "A string that specifies the orientation of barcode needed for scATAC data. The default is FIRST_BP. Other options include LAST_BP, FIRST_BP_RC or LAST_BP_RC."
-    whitelist: "10x genomics cell barcode whitelist for scATAC"
-    docker: "(optional) the docker image containing the runtime environment for this task"
-    mem_size: "(optional) the amount of memory (MiB) to provision for this task"
-    cpu: "(optional) the number of cpus to provision for this task"
-    disk_size: "(optional) the amount of disk space (GiB) to provision for this task"
-    preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
-  }
-
-  command <<<
-
-    set -euo pipefail
-
-    # Cat files for each r1, r3 and barcodes together
-    cat ~{sep=' ' read1_fastq} > r1.fastq.gz
-    cat ~{sep=' ' read3_fastq} > r3.fastq.gz
-    cat ~{sep=' ' barcodes_fastq} > barcodes.fastq.gz
-
-    # Call fastq process
-    # outputs fastq files where the corrected barcode is in the read name
-    fastqprocess \
-    --bam-size 10.0 \
-    --sample-id "~{output_base_name}" \
-    --R1 barcodes.fastq.gz \
-    --R2 r1.fastq.gz \
-    --R3 r3.fastq.gz \
-    --white-list "~{whitelist}" \
-    --output-format "FASTQ" \
-    --barcode-orientation "~{barcode_orientation}" \
-    --read-structure "~{read_structure}"
-
-  >>>
-
-  runtime {
-    docker: docker
-    cpu: cpu
-    memory: "${mem_size} MiB"
-    disks: "local-disk ${disk_size} HDD"
-    preemptible: preemptible
-  }
-
-  output {
-    Array[File] fastq_R1_output_array = glob("fastq_R1_*")
-    Array[File] fastq_R3_output_array = glob("fastq_R3_*")
   }
 }
 
@@ -377,9 +295,8 @@ task AddCBtags {
 task CreateFragmentFile {
   input {
     File bam
-    File atac_gtf
+    File annotations_gtf
     File chrom_sizes
-    Boolean barcodes_in_read_name
     Int disk_size = ceil(size(bam, "GiB") + 200)
     Int mem_size = 50
   }
@@ -388,9 +305,8 @@ task CreateFragmentFile {
 
   parameter_meta {
     bam: "Aligned bam with CB in CB tag. This is the output of the AddCBtags task."
-    atac_gtf: "GTF for SnapATAC2 to calculate TSS sites of fragment file."
+    annotations_gtf: "GTF for SnapATAC2 to calculate TSS sites of fragment file."
     chrom_sizes: "Text file containing chrom_sizes for genome build (i.e. hg38)."
-    barcodes_in_read_name: "Set to True if barcodes are in the read names, and False otherwise. "
     disk_size: "Disk size used in create fragment file step."
     mem_size: "The size of memory used in create fragment file."
   }
@@ -401,8 +317,7 @@ task CreateFragmentFile {
     python3 <<CODE
 
     # set parameters
-    atac_gtf = "~{atac_gtf}"
-    barcodes_in_read_name = "~{barcodes_in_read_name}"
+    atac_gtf = "~{annotations_gtf}"
     bam = "~{bam}"
     bam_base_name = "~{bam_base_name}"
     chrom_sizes = "~{chrom_sizes}"
@@ -418,14 +333,12 @@ task CreateFragmentFile {
     import snapatac2.preprocessing as pp
     import snapatac2 as snap
 
-    # if barcodes are in the read name, then use barcode_regex to extract them. otherwise, use barcode_tag
-    if barcodes_in_read_name=="true":
-      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_regex="([^:]*)")
-    elif barcodes_in_read_name=="false":
-      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
+    # extract CB tag from bam file to create fragment file
+    pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
 
-    # calculate quality metrics
-    pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_size=chrom_size_dict, gene_anno="~{atac_gtf}")
+    # calculate quality metrics; note min_num_fragments and min_tsse are set to 0 instead of default
+    # those settings allow us to retain all barcodes
+    pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_size=chrom_size_dict, gene_anno="~{annotations_gtf}", min_num_fragments=0, min_tsse=0)
 
     CODE
   >>>

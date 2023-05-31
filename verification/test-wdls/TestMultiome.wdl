@@ -38,8 +38,7 @@ workflow TestMultiome {
       # BWA input
       File tar_bwa_reference
       # CreateFragmentFile input
-      Boolean barcodes_in_read_name
-      File atac_gtf
+      File annotations_gtf
       File chrom_sizes
       # Trimadapters input
       String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
@@ -88,10 +87,8 @@ workflow TestMultiome {
         output_base_name = output_base_name,
         tar_bwa_reference = tar_bwa_reference,
         monitoring_script = monitoring_script,
-        barcodes_in_read_name = barcodes_in_read_name,
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3,
-        atac_gtf = atac_gtf,
         chrom_sizes = chrom_sizes,
         atac_whitelist = atac_whitelist
   
