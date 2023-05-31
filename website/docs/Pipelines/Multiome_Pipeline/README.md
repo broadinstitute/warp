@@ -11,7 +11,11 @@ sidebar_position: 1
 ![Multiome_diagram]()
 
 ## Introduction to the Multiome workflow
+Multiome is an open-source, cloud-optimized pipeline developed in collaboration with members of the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN), including the Allen Institute, NeMO, Kai Zhang (SnapATAC2), and Alex Dobin. It supports the processing of 10x 3' single-cell and single-nucleus count data generated with the [10x Genomics Multiome assay](https://www.10xgenomics.com/products/single-cell-multiome-atac-plus-gene-expression).
 
+The pipeline consists of two subworkflows: the Optimus workflow for GEX data and the ATAC workflow for single-cell ATAC data. The GEX component performs barcode and UMI correction, aligns reads to the genome, and produces both quality metrics per barcode and gene and a raw cell-by-gene count matrix. The ATAC component corrects cell barcodes, aligns reads to the genome, and producesa fragment file as well as per barcode metrics. 
+
+Read more about the GEX workflow in the Optimus overview for the ATAC workflow in the ATAC workflow. 
 
 
 ## Quickstart table
@@ -19,14 +23,15 @@ The following table provides a quick glance at the Multiome pipeline features:
 
 | Pipeline features | Description | Source |
 |--- | --- | --- |
-| Assay type | 10x single cell or single nucleus gene expression and ATAC | [10x Genomics](https://www.10xgenomics.com)
-| Overall workflow  | --- |
+| Assay type | 10x single cell or single nucleus gene expression (GEX) and ATAC | [10x Genomics](https://www.10xgenomics.com)
+| Overall workflow  | Barcode correction, read alignment, gene and fragment quanitification |
 | Workflow language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
-| Genomic Reference Sequence | GRCh38 human genome primary sequence | GENCODE 
-| Transcriptomic reference annotation | --- |
-| Aligner and transcript quantification | STARsolo | [Dobin, et al.,2021](https://www.biorxiv.org/content/10.1101/2021.05.05.442755v1) |
+| Genomic Reference Sequence | GRCh38 human genome primary sequence | GENCODE |
+| Gene annotation reference (GTF) | Reference containing gene annotations | Gencode |
+| Aligners | STARsolo (GEX), BWA-mem (ATAC) | [Dobin, et al.,2021](https://www.biorxiv.org/content/10.1101/2021.05.05.442755v1) |
+| Transcript and fragment quantification | STARsolo (GEX), SnapATAC2 (ATAC)
 | Data input file format | File format in which sequencing data is provided | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) |
-| Data output file format | File formats in which Multiome output is provided | --- |
+| Data output file format | File formats in which Multiome output is provided | BAM, h5ad |
 
 ## Set-up
 
