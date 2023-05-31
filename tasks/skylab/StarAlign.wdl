@@ -225,7 +225,7 @@ task STARsoloFastq {
     Boolean? count_exons
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658781884"
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.10b-1685556218"
     Int machine_mem_mb = 64000
     Int cpu = 8
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
