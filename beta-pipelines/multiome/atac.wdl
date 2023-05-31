@@ -163,7 +163,7 @@ task FastqProcessing {
     # Call fastq process 
     # outputs fastq files where the corrected barcode is in the read name
     fastqprocess \
-        --bam-size 10.0 \
+        --bam-size 30.0 \
         --sample-id "~{output_base_name}" \
         --R1 barcodes.fastq.gz \
         --R2 r1.fastq.gz \
@@ -318,7 +318,7 @@ task BWAPairedEndAlignment {
       rm "~{tar_bwa_reference}"
       
       # index reference -- do I need to rebuild reference
-      # ./bwa-mem2 index $REF_DIR/genome.fa
+      bwa-mem2 index $REF_DIR/genome.fa
       
       # align w/ bwa-mem2: -t for number of cores
       bwa-mem2 \
