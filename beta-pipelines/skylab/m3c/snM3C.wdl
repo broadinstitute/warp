@@ -79,22 +79,24 @@ task Demultiplexing {
 
     # Count the number of reads in each fastq file and remove if over 10,000,000 reads. Also, remove its mate.
     for file in ~{plate_id}-*.fq.gz; do
-      num_reads=$(($(cat $file | wc -l) / 4))
-      if [ $num_reads -gt 20 ]; then
-        echo "Removing $file with $num_reads reads"
-        rm $file
+      if [ -f $file ]; then
+        num_reads=$(($(cat $file | wc -l) / 4))
+        if [ $num_reads -gt 20 ]; then
+          echo "Removing $file with $num_reads reads"
+          rm $file
 
-      # Remove the mate fastq file
-        mate_file=${file/-R1./-R2.}
-        if [ -f $mate_file ]; then
-          echo "Removing the first $mate_file"
-          ls -l $mate_file
-          rm $mate_file
-        else
-          mate_file=${file/-R2./-R1.}
+        # Remove the mate fastq file
+          mate_file=${file/-R1./-R2.}
           if [ -f $mate_file ]; then
-            echo "Removing $mate_file"
+            echo "Removing the first $mate_file"
+            ls -l $mate_file
             rm $mate_file
+          else
+            mate_file=${file/-R2./-R1.}
+            if [ -f $mate_file ]; then
+              echo "Removing $mate_file"
+              rm $mate_file
+            fi
           fi
         fi
       fi
