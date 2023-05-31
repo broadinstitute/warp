@@ -317,9 +317,6 @@ task BWAPairedEndAlignment {
       tar -xf "~{tar_bwa_reference}" -C $REF_DIR --strip-components 1
       rm "~{tar_bwa_reference}"
       
-      # index reference -- do I need to rebuild reference
-      bwa-mem2 index $REF_DIR/genome.fa
-      
       # align w/ bwa-mem2: -t for number of cores
       bwa-mem2 \
         mem \
