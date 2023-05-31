@@ -136,6 +136,7 @@ task STAR {
   input {
     File bam
     File starIndex
+    File twopassMode = "Basic"
 
     String docker = "us.gcr.io/broad-gotc-prod/samtools-star:1.0.0-1.11-2.7.10a-1642556627"
     Int cpu = 8
@@ -174,7 +175,7 @@ task STAR {
       --chimMainSegmentMultNmax 1 \
       --chimOutType WithinBAM SoftClip \
       --chimOutJunctionFormat 0 \
-      --twopassMode Basic \
+      ~{"--twopassMode " + twopassMode} \
       --quantMode TranscriptomeSAM \
       --quantTranscriptomeBan IndelSoftclipSingleend \
       --alignEndsProtrude 20 ConcordantPair
