@@ -81,7 +81,7 @@ task Demultiplexing {
     for file in ~{plate_id}-*.fq.gz; do
       if [ -f $file ]; then
         num_reads=$(($(cat $file | wc -l) / 4))
-        if [ $num_reads -gt 20 ]; then
+        if [ $num_reads -gt 10000000 ]; then
           echo "Removing $file with $num_reads reads"
           rm $file
 
