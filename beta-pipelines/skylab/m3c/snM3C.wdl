@@ -86,8 +86,9 @@ task Demultiplexing {
 
       # Remove the mate fastq file
         mate_file=${file/-R1./-R2.}
-        if [ -e $mate_file ]; then
-          echo "Removing $mate_file"
+        if [ -ef $mate_file ]; then
+          ls -l $mate_file
+          echo "Removing the first $mate_file"
           rm $mate_file
         else
           mate_file=${file/-R2./-R1.}
