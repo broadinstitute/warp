@@ -4,7 +4,7 @@ import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 
 workflow Multiome {
-    String pipeline_version = "1.0.0"
+    String pipeline_version = "1.0.1"
 
     input {
         # Optimus Inputs
@@ -35,9 +35,7 @@ workflow Multiome {
         String output_base_name
         # BWA input
         File tar_bwa_reference
-        # CreateFragmentFile input
-        Boolean barcodes_in_read_name
-        File atac_gtf
+
         File chrom_sizes
         # Trimadapters input
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
@@ -81,8 +79,7 @@ workflow Multiome {
             output_base_name = output_base_name,
             tar_bwa_reference = tar_bwa_reference,
             monitoring_script = monitoring_script,
-            barcodes_in_read_name = barcodes_in_read_name,
-            atac_gtf = atac_gtf,
+            annotations_gtf = annotations_gtf,
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,

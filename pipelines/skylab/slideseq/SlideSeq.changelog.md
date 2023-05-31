@@ -1,3 +1,8 @@
+# 1.0.8
+2023-05-31 (Date of Last Commit)
+
+* Updated the FastqProcessing.wdl. This update has no impact on the SlideSeq workflow.
+
 # 1.0.7
 2023-05-11 (Date of Last Commit)
 
