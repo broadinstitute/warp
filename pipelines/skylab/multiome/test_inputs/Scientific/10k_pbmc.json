@@ -1,6 +1,6 @@
 {
 "Multiome.annotations_gtf":"gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/introns_modified_gencode.vGencode_V43.primary_assembly.annotation.gtf",
-  "Multiome.barcodes_in_read_name":"true",
+  "Multiome.barcodes_in_read_name":"false",
   "Multiome.gex_i1_fastq":[
   "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L001_I1_001.fastq.gz",
   "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L002_I1_001.fastq.gz"
