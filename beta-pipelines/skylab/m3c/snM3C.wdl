@@ -101,8 +101,6 @@ task Demultiplexing {
       fi
     done
 
-
-
     # zip up all the output fq.gz files
     tar -zcvf ~{plate_id}.cutadapt_output_files.tar.gz *.fq.gz
   >>>
