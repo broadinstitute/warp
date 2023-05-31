@@ -90,7 +90,7 @@ task ImportGVCFs {
     String workspace_dir_name
 
     Int disk_size_gb
-    Int machine_mem_mb = 26000
+    Int machine_mem_mb = 30000
     Int batch_size
 
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
