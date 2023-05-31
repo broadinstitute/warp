@@ -89,7 +89,6 @@ task Demultiplexing {
           mate_file=${file/-R1./-R2.}
           if [ -f $mate_file ]; then
             echo "Removing the first $mate_file"
-            ls -l $mate_file
             rm $mate_file
           else
             mate_file=${file/-R2./-R1.}
