@@ -278,7 +278,7 @@ task STARsoloFastq {
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
     ## single nuclei
-        COUNTING_MODE="GeneFull"
+        COUNTING_MODE="GeneFull_Ex50pAS"
     else
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
         exit 1;
@@ -352,13 +352,13 @@ task STARsoloFastq {
     then
       if ! [[ ~{count_exons} ]]
       then
-        mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
-        mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
-        mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+        mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
       else
-        mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
-        mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
-        mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+        mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
         mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_sn_rna.tsv
         mv "Solo.out/Gene/raw/features.tsv"     features_sn_rna.tsv
         mv "Solo.out/Gene/raw/matrix.mtx"       matrix_sn_rna.mtx
