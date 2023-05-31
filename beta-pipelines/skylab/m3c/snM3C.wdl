@@ -85,13 +85,14 @@ task Demultiplexing {
         rm $file
 
       # Remove the mate fastq file
-      mate_file=${file/-R1./-R2.}
-      if [ -e $mate_file ]; then
-        echo "Removing $mate_file"
-        set +euo pipefail  # Disable the set -euo pipefail option temporarily
-        rm $mate_file
-        set -euo pipefail  # Enable the set -euo pipefail option again
-      else
+        mate_file=${file/-R1./-R2.}
+        if [ -e $mate_file ]; then
+          echo "Removing $mate_file"
+          set +euo pipefail  # Disable the set -euo pipefail option temporarily
+          rm $mate_file
+          set -euo pipefail  # Enable the set -euo pipefail option again
+        fi
+
         mate_file=${file/-R2./-R1.}
         if [ -e $mate_file ]; then
           echo "Removing $mate_file"
@@ -100,8 +101,7 @@ task Demultiplexing {
           set -euo pipefail  # Enable the set -euo pipefail option again
         fi
       fi
-    fi
-  done
+    done
 
 
 
