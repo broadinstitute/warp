@@ -20,7 +20,7 @@ import "../../../tasks/broad/RNAWithUMIsTasks.wdl" as tasks
 
 workflow RNAWithUMIsPipeline {
 
-  String pipeline_version = "1.0.11"
+  String pipeline_version = "1.0.14"
 
   input {
     File? bam
@@ -250,6 +250,10 @@ workflow RNAWithUMIsPipeline {
     Float contamination_error = CalculateContamination.contamination_error
     File fastqc_html_report = FastQC.fastqc_html
     Float fastqc_percent_reads_with_adapter = FastQC.fastqc_percent_reads_with_adapter
+  }
+
+  meta {
+    allowNestedInputs: true
   }
 }
 

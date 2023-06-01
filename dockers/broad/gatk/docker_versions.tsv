@@ -1,8 +1,0 @@
-DOCKER_VERSION
-
-us.gcr.io/broad-gotc-prod/gatk:1.0.0-1625076597
-us.gcr.io/broad-gotc-prod/gatk:1.0.0-4.1.8.0-1626439571
-us.gcr.io/broad-gotc-prod/gatk:1.1.0-4.2.4.0-1639667271
-us.gcr.io/broad-gotc-prod/gatk:1.1.0-4.2.5.0-1644253189
-us.gcr.io/broad-gotc-prod/gatk:1.2.0-4.2.6.0-1649467214
-us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384
