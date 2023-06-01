@@ -10,7 +10,7 @@ task HISAT2PairedEnd {
     String input_id
 
   # runtime values
-  String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
+  String docker = "us.gcr.io/broad-gotc-prod/hisat2:1.0.0-1662998171"
   Int machine_mem_mb = 16500
   Int cpu = 4
   # Using (fastq1 + fastq2) x 100 gives factor of a few buffer. BAM can be up to ~5 x (fastq1 + fastq2).
@@ -114,6 +114,7 @@ task HISAT2PairedEnd {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -136,7 +137,7 @@ task HISAT2RSEM {
     String input_id
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
+    String docker = "us.gcr.io/broad-gotc-prod/hisat2:1.0.0-1662998171"
     Int machine_mem_mb = 16500
     Int cpu = 4
     # Using (fastq1 + fastq2) x 100 gives factor of a few buffer. BAM can be up to ~5 x (fastq1 + fastq2).
@@ -247,6 +248,7 @@ task HISAT2RSEM {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -267,7 +269,7 @@ input {
   String input_id
 
   # runtime values
-  String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
+  String docker = "us.gcr.io/broad-gotc-prod/hisat2:1.0.0-1662998171"
   Int machine_mem_mb = 16500
   Int cpu = 4
   # Using fastq x 100 gives factor of a few buffer. BAM can be up to ~5 x fastq.
@@ -341,6 +343,7 @@ input {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -359,7 +362,7 @@ task HISAT2InspectIndex {
     String ref_name
 
     # runtime values
-    String docker =  "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
+    String docker =  "us.gcr.io/broad-gotc-prod/hisat2:1.0.0-1662998171"
     Int machine_mem_mb = 3850
     Int cpu = 1
     # use provided disk number or dynamically size on our own, with 200GiB of additional disk
@@ -392,6 +395,7 @@ task HISAT2InspectIndex {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -410,7 +414,7 @@ task HISAT2RSEMSingleEnd {
     String input_id
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0"
+    String docker = "us.gcr.io/broad-gotc-prod/hisat2:1.0.0-1662998171"
     Int machine_mem_mb = 15000
     Int cpu = 4
     Int disk = ceil((size(fastq, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 200)
@@ -497,6 +501,7 @@ task HISAT2RSEMSingleEnd {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }

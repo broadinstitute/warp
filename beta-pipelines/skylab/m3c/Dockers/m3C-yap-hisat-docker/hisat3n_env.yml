@@ -1,0 +1,25 @@
+name: base
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+ - python=3.9
+ - pip
+ - jupyter
+ - snakemake
+ - pytables
+ - seaborn
+ - yaml
+ - cutadapt
+ - samtools
+ - picard
+ - bedtools
+ - htslib=1.15
+ - pysam
+ - pybedtools
+ - pyBigWig
+ - pip:
+    - papermill
+    - allcools
+    - cemba_data

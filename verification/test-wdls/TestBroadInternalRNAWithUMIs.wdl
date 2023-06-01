@@ -24,6 +24,11 @@ workflow TestBroadInternalRNAWithUMIs {
       String? tdr_dataset_uuid
       String? tdr_sample_id
 
+      # if there are very few duplicates, then relative change to duplication metrics can be high (0 vs 1), and some
+      # metrics can be null (ESTIMATED_LIBRARY_SIZE if 0 duplicates, for example).  In these cases, just don't compare
+      # transcriptome duplicate metrics
+      Boolean compare_transcriptome_dup_metrics = true
+
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
       String results_path
@@ -75,6 +80,7 @@ workflow TestBroadInternalRNAWithUMIs {
                                     BroadInternalRNAWithUMIs.output_bam_index,
                                     BroadInternalRNAWithUMIs.output_bam,
                                     BroadInternalRNAWithUMIs.transcriptome_bam,
+                                    BroadInternalRNAWithUMIs.transcriptome_duplicate_metrics
                                     ],
                                     
     ])
@@ -89,8 +95,7 @@ workflow TestBroadInternalRNAWithUMIs {
                                     BroadInternalRNAWithUMIs.picard_insert_size_metrics,
                                     BroadInternalRNAWithUMIs.picard_alignment_summary_metrics,
                                     BroadInternalRNAWithUMIs.picard_rna_metrics,
-                                    BroadInternalRNAWithUMIs.duplicate_metrics,
-                                    BroadInternalRNAWithUMIs.transcriptome_duplicate_metrics,
+                                    BroadInternalRNAWithUMIs.duplicate_metrics
                                     ],
                                     # File? outputs
                                     select_all([BroadInternalRNAWithUMIs.picard_fingerprint_detail_metrics]),
@@ -113,7 +118,7 @@ workflow TestBroadInternalRNAWithUMIs {
     if (update_truth){
       call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
         input: 
-          files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
+          files_to_copy             = flatten([pipeline_outputs, pipeline_metrics, pipeline_text_metrics]),
           vault_token_path          = vault_token_path,
           google_account_vault_path = google_account_vault_path,
           destination_cloud_path    = truth_path
@@ -147,6 +152,12 @@ workflow TestBroadInternalRNAWithUMIs {
             results_path = results_path,
             truth_path = truth_path
         }
+      call Utilities.GetValidationInputs as GetTranscriptomeDuplicationMetrics {
+        input:
+          input_file = BroadInternalRNAWithUMIs.transcriptome_duplicate_metrics,
+          results_path  = results_path,
+          truth_path    = truth_path
+      }
         call Utilities.GetValidationInputs as GetGeneTpm {
           input:
             input_file = BroadInternalRNAWithUMIs.rnaseqc2_gene_tpm,
@@ -176,12 +187,16 @@ workflow TestBroadInternalRNAWithUMIs {
           test_output_bam = GetOutputBam.results_file,
           truth_transcriptome_bam = GetTranscriptomeBam.truth_file, 
           test_transcriptome_bam = GetTranscriptomeBam.results_file,
+          test_transcriptome_duplicate_metrics = GetTranscriptomeDuplicationMetrics.results_file,
+          truth_transcriptome_duplicate_metrics = GetTranscriptomeDuplicationMetrics.truth_file,
           truth_gene_tpm = GetGeneTpm.truth_file, 
           test_gene_tpm = GetGeneTpm.results_file,
           truth_gene_counts = GetGeneCounts.truth_file, 
           test_gene_counts = GetGeneCounts.results_file,
           truth_exon_counts = GetExonCounts.truth_file,
           test_exon_counts = GetExonCounts.results_file,
+          transcriptome_deterministic = false,
+          compare_transcriptome_dup_metrics = compare_transcriptome_dup_metrics,
           done = CopyToTestResults.done
       }
   

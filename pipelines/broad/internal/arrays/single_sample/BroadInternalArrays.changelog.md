@@ -1,12 +1,52 @@
+# 1.1.3
+2023-03-20 (Date of Last Commit)
+
+* CheckFingerprint can allow LOD 0
+
+# 1.1.2
+2023-01-13 (Date of Last Commit)
+
+* Updated remaining uses of GATK to version 4.3.0.0
+
+# 1.1.1
+2022-12-16 (Date of Last Commit)
+
+* Updated to GATK version 4.3.0.0
+
+# 1.1.0
+2022-11-21 (Date of Last Commit)
+
+* add `lab_batch` as required input paramater to workflow BroadInternalArrays
+* add `lab_batch` to task FormatArraysOutputs
+
+# 1.0.9 
+2022-11-08 (Date of Last Commit)
+
+* remove workspace_bucket parameter from workflow inputs and IngestOutputsToTDR
+
+# 1.0.8
+2022-10-12 (Date of Last Commit)
+
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+* Added `in_load_tag` as optional input to task IngestOutputsToTDR. This update has no effect on this pipeline.
+
+* New GCR image tag in task FormatArraysOutputs and task IngestOutputsToTDR.
+
+# 1.0.7
+2022-09-30 (Date of Last Commit)
+
+* Updated Picard-Python Docker image in Utilities.wdl to fix vulnerabilities.
+* Updated tasks FormatArraysOutputs and IngestOutputsToTDR with GCR images instead of Dockerhub.
+
 # 1.0.6
-2022-09-02 (Date of Last Commit)
+2022-09-20 (Date of Last Commit)
 
 * Updated call to IngestOutputsToTDR to remove 'prefix_column'. Python script has been updated and not longer requires this input parameter.
 * Update task IngestOutputsToTDR to not require 'prefix_column'. Python script has been updated and not longer requires this input parameter.
 
 * Update task FormatArraysOutputs with new docker tag.
 * Update task IngestOutputsToTDR with new docker tag.
-
+* Update tasks FormatArraysOutputs and IngestOutputsToTDR with GCR image instead of DockerHub image.
 
 # 1.0.5
 2022-08-29 (Date of Last Commit)

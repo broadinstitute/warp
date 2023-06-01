@@ -40,7 +40,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
       String? input_id_metadata_field
   }
   # Version of this pipeline
-  String pipeline_version = "1.2.13"
+  String pipeline_version = "1.2.24"
 
   if (false) {
      String? none = "None"
@@ -69,6 +69,12 @@ workflow MultiSampleSmartSeq2SingleNucleus {
          fastq2_input_files = fastq2_input_files,
          paired_end = true
   }
+  
+  call StarAlign.STARGenomeRefVersion as ReferenceCheck {
+    input:
+      tar_star_reference = tar_star_reference
+  }
+
   call TrimAdapters.TrimAdapters as TrimAdapters {
        input:
          input_ids = input_ids,
@@ -140,6 +146,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   output {
     # loom output, exon/intron count tsv files and the aligned bam files
     File loom_output = AggregateLoom.loom_output_file
+    File genomic_reference_version = ReferenceCheck.genomic_ref_version
     Array[File] exon_intron_count_files = LoomOutput.exon_intron_counts
     Array[File] bam_files = RemoveDuplicatesFromBam.output_bam
     String pipeline_version_out = pipeline_version

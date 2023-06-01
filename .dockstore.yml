@@ -90,3 +90,32 @@ workflows:
   - name: BroadInternalUltimaGenomics
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/internal/dna_seq/germline/single_sample/UltimaGenomics/BroadInternalUltimaGenomics.wdl
+
+  - name: UltimaGenomicsJointGenotyping
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/UltimaGenomicsJointGenotyping.wdl
+
+  - name: UltimaGenomicsWholeGenomeCramOnly
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl
+
+  - name: BuildIndices
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/build_indices/BuildIndices.wdl
+
+  - name: SlideSeq
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/slideseq/SlideSeq.wdl
+
+  - name: snM3C
+    subclass: WDL
+    primaryDescriptorPath: /beta-pipelines/skylab/m3c/snM3C.wdl
+    
+  - name: Multiome
+    subclass: WDL
+    primaryDescriptorPath: /beta-pipelines/multiome/multiome.wdl
+    
+  - name: atac
+    subclass: WDL
+    primaryDescriptorPath: /beta-pipelines/multiome/atac.wdl
+

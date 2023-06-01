@@ -298,6 +298,8 @@ task CheckFingerprintTask {
 
     Int memory_size = 2500
     Int preemptible_tries = 3
+
+    Boolean allow_lod_zero = false
   }
 
   Int java_memory_size = memory_size - 1000
@@ -324,7 +326,8 @@ task CheckFingerprintTask {
       --GENOTYPE_LOD_THRESHOLD ~{genotype_lod_threshold} \
       --SUMMARY_OUTPUT ~{summary_metrics_location} \
       --DETAIL_OUTPUT ~{detail_metrics_location} \
-      ~{"--REFERENCE_SEQUENCE " + ref_fasta}
+      ~{"--REFERENCE_SEQUENCE " + ref_fasta} \
+      ~{true='--EXIT_CODE_WHEN_NO_VALID_CHECKS 0' false='' allow_lod_zero}
 
     CONTENT_LINE=$(cat ~{summary_metrics_location} |
     grep -n "## METRICS CLASS\tpicard.analysis.FingerprintingSummaryMetrics" |
@@ -618,7 +621,7 @@ task ValidateVCF {
     Int preemptible_tries = 3
     Boolean is_gvcf = true
     String? extra_args
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")

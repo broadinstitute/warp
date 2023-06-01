@@ -24,7 +24,7 @@ import "../../../tasks/broad/Qc.wdl" as Qc
 
 workflow CheckFingerprint {
 
-  String pipeline_version = "1.0.8"
+  String pipeline_version = "1.0.12"
 
   input {
     File? input_vcf
@@ -51,6 +51,7 @@ workflow CheckFingerprint {
     File ref_dict
 
     File haplotype_database_file
+    Boolean allow_lod_zero = false
 
     String? environment
     File? vault_token_path
@@ -110,7 +111,8 @@ workflow CheckFingerprint {
         output_basename = output_basename,
         haplotype_database_file = haplotype_database_file,
         ref_fasta = ref_fasta,
-        ref_fasta_index = ref_fasta_index
+        ref_fasta_index = ref_fasta_index,
+        allow_lod_zero = allow_lod_zero
     }
   }
 

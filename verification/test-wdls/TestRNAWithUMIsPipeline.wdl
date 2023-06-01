@@ -33,6 +33,16 @@ workflow TestRNAWithUMIsPipeline {
   
       File population_vcf
       File population_vcf_index
+
+      # transcriptome results will only be deterministic in both Fastp and STAR are run single threaded.
+      # if expected to be deterministic, transcriptome comparisons should be exact.
+      # if not, tolerances should be included
+      Boolean transcriptome_deterministic = false
+
+      # if there are very few duplicates, then relative change to duplication metrics can be high (0 vs 1), and some
+      # metrics can be null (ESTIMATED_LIBRARY_SIZE if 0 duplicates, for example).  In these cases, just don't compare
+      # transcriptome duplicate metrics
+      Boolean compare_transcriptome_dup_metrics = true
   
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -73,6 +83,7 @@ workflow TestRNAWithUMIsPipeline {
 
   Array[String] pipeline_outputs = select_all([
                                     RNAWithUMIsPipeline.transcriptome_bam,
+                                    RNAWithUMIsPipeline.transcriptome_duplicate_metrics,
                                     RNAWithUMIsPipeline.output_bam,
                                     RNAWithUMIsPipeline.output_bam_index,
                                     RNAWithUMIsPipeline.rnaseqc2_gene_tpm,
@@ -87,7 +98,6 @@ workflow TestRNAWithUMIsPipeline {
   ])
 
   Array[String] pipeline_metrics = select_all([
-                                    RNAWithUMIsPipeline.transcriptome_duplicate_metrics,
                                     RNAWithUMIsPipeline.duplicate_metrics,
                                     RNAWithUMIsPipeline.picard_rna_metrics,
                                     RNAWithUMIsPipeline.picard_alignment_summary_metrics,
@@ -148,6 +158,13 @@ workflow TestRNAWithUMIsPipeline {
         truth_path    = truth_path
     }
 
+    call Utilities.GetValidationInputs as GetTranscriptomeDuplicationMetrics {
+      input:
+        input_file = RNAWithUMIsPipeline.transcriptome_duplicate_metrics,
+        results_path  = results_path,
+        truth_path    = truth_path
+    }
+
     call Utilities.GetValidationInputs as GetGeneTpm {
       input:
         input_file   = RNAWithUMIsPipeline.rnaseqc2_gene_tpm,
@@ -178,6 +195,7 @@ workflow TestRNAWithUMIsPipeline {
         test_gene_tpm             = GetGeneTpm.results_file,
         test_gene_counts          = GetGeneCounts.results_file,
         test_exon_counts          = GetExonCounts.results_file,
+        test_transcriptome_duplicate_metrics = GetTranscriptomeDuplicationMetrics.results_file,
         truth_metrics             = GetMetricsInputs.truth_files,
         truth_text_metrics        = GetTextMetricsInputs.truth_files,
         truth_output_bam          = GetBam.truth_file,
@@ -185,6 +203,9 @@ workflow TestRNAWithUMIsPipeline {
         truth_gene_tpm            = GetGeneTpm.truth_file,
         truth_gene_counts         = GetGeneCounts.truth_file,
         truth_exon_counts         = GetExonCounts.truth_file,
+        truth_transcriptome_duplicate_metrics = GetTranscriptomeDuplicationMetrics.truth_file,
+        transcriptome_deterministic = transcriptome_deterministic,
+        compare_transcriptome_dup_metrics = compare_transcriptome_dup_metrics,
         done                      = CopyToTestResults.done
     }
   }

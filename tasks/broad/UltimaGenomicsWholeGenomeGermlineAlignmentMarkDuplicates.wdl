@@ -14,6 +14,7 @@ workflow AlignmentAndMarkDuplicates {
     Float rsq_threshold
     Int reads_per_split
     String base_file_name_sub
+    Boolean save_bam_file
   }
 
   Int compression_level = 2
@@ -69,11 +70,14 @@ workflow AlignmentAndMarkDuplicates {
     input:
       input_bams          = SamToFastqAndBwaMemAndMba.output_bam,
       output_bam_basename = base_file_name_sub + ".aligned.sorted.duplicates_marked",
+      save_bam_file       = save_bam_file,
       disk_size_gb        = mapped_bam_size_local_ssd
   }
 
   output {
     File output_bam = MarkDuplicatesSpark.output_bam
     File output_bam_index = MarkDuplicatesSpark.output_bam_index
+    File? optional_output_bam = MarkDuplicatesSpark.optional_output_bam
+    File? optional_output_bam_index = MarkDuplicatesSpark.optional_output_bam_index
   }
 }

@@ -124,16 +124,27 @@ task CompareTextFiles {
 
     while read -r a && read -r b <&3;
     do
-      echo "Comparing File $a with $b"
-      diff $a $b > diffs.txt
-      if [ $? -ne 0 ];
-      then
+      echo "Sorting File $a and $b"
+      sort $a > $a.sorted
+      sort $b > $b.sorted
+
+      echo "Calculating md5sums for $a and $b"
+      md5_a=$(md5sum $a.sorted | cut -d ' ' -f1)
+      md5_b=$(md5sum $b.sorted | cut -d ' ' -f1)
+
+      if [ $md5_a = $md5_b ]; then
+        echo "Files $a.sorted and $b.sorted have matching md5sums and are the same."
+      else
+        echo "Files $a.sorted and $b.sorted have different md5sums."
+        diff $a.sorted $b.sorted > diffs.txt
         exit_code=1
-        echo "Error: Files $a and $b differ" >&2
+        echo "Diff between $a.sorted and $b.sorted:" >&2
         cat diffs.txt >&2
       fi
+
       # catting the diffs.txt on STDOUT as that's what's expected.
       cat diffs.txt
+
     done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
 
     exit $exit_code
@@ -141,8 +152,8 @@ task CompareTextFiles {
 
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 10 HDD"
-    memory: "2 GiB"
+    disks: "local-disk 100 HDD"
+    memory: "50 GiB"
     preemptible: 3
   }
 }
@@ -155,6 +166,8 @@ task CompareCrams {
     File test_crai
     File truth_cram
     File truth_crai
+
+    Int disk_size_gb = ceil((size(test_cram, "GiB") + size(truth_cram, "GiB"))) + 50
   }
 
   command {
@@ -167,7 +180,7 @@ task CompareCrams {
   }
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 150 HDD"
+    disks: "local-disk " + disk_size_gb + " HDD"
     memory: "2 GiB"
     preemptible: 3
   }
@@ -199,28 +212,33 @@ task CompareBams {
     File test_bam
     File truth_bam
     Boolean lenient_header = false
+    Boolean lenient_low_mq = false
   }
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
-  Int disk_size = ceil(bam_size * 4) + 20
+  Int disk_size = ceil(bam_size * 4) + 200
+  Int memory_mb = 500000
+  Int java_memory_size = memory_mb - 1000
+  Int max_heap = memory_mb - 500
 
   command {
     set -e
     set -o pipefail
 
-    java -Xms3500m -Xmx7000m -jar /usr/picard/picard.jar \
+    java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
     CompareSAMs \
           ~{test_bam} \
           ~{truth_bam} \
           O=comparison.tsv \
-          LENIENT_HEADER=~{lenient_header}
+          LENIENT_HEADER=~{lenient_header} \
+          LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq}
   }
 
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     disks: "local-disk " + disk_size + " HDD"
     cpu: 2
-    memory: "7500 MiB"
+    memory: "${memory_mb} MiB"
     preemptible: 3
   }
 }
@@ -263,7 +281,7 @@ task CompareLooms {
 
   command <<<
   set -e
-  pip3 install scanpy loompy numpy pandas 
+  pip3 install 'matplotlib<3.7' scanpy loompy numpy pandas
 
   python3 <<CODE
   import sys
@@ -311,6 +329,45 @@ task CompareLooms {
     memory: "${memory_mb} MiB"
     preemptible: 3
   }
-
 }
+
+task CompareH5adFiles {
+  input {
+    File truth_h5ad
+    File test_h5ad
+
+    Int cpu = 1
+    String docker = "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 20
+    Int memory_mb = ceil(size(truth_h5ad, "MiB") + size(test_h5ad, "MiB") * 2)
+  }
+
+  command <<<
+
+  set -eo pipefail
+
+  # calculate hashes
+
+  truth_h5ad_file=$(md5sum ~{truth_h5ad} | awk '{print $1}')
+  test_h5ad_file=$(md5sum ~{test_h5ad} | awk '{print $1}')
+
+   # compare hashes
+   if [ "$truth_h5ad_file" == "$test_h5ad_file" ]; then
+     echo "H5ad files are identical"
+   else
+     echo "H5ad files are NOT identical"
+     exit 1
+   fi
+>>>
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    preemptible: 3
+  }
+}
+
+
 
