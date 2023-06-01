@@ -1,0 +1,1 @@
+{"BuildIndexHisat3n.disk":"${1000}","BuildIndexHisat3n.genome_fa":"gs://fc-02ddd1e3-c887-4da8-a965-1ce0222bd810/hg38.fa","BuildIndexHisat3n.genome_ver":"hg38","BuildIndexHisat3n.hisat_command":"/hisat-3n/hisat-3n-build --base-change C,T --repeat-index","BuildIndexHisat3n.memory":"${500}"}

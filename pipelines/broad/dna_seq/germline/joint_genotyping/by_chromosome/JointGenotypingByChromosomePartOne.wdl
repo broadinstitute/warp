@@ -5,7 +5,7 @@ import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 # Joint Genotyping for hg38 Exomes and Whole Genomes (has not been tested on hg19)
 workflow JointGenotypingByChromosomePartOne {
 
-  String pipeline_version = "1.4.7"
+  String pipeline_version = "1.4.8"
 
   input {
     File unpadded_intervals_file
@@ -205,8 +205,8 @@ workflow JointGenotypingByChromosomePartOne {
       haplotype_database = haplotype_database
   }
 
-  # The result of GetFingerprintingIntervalIndices with no indices is [""]
-  if (GetFingerprintingIntervalIndices.indices_to_fingerprint[0] != "") {
+  # The result of GetFingerprintingIntervalIndices with no indices is []
+  if (length(GetFingerprintingIntervalIndices.indices_to_fingerprint) > 0) {
     Array[Int] fingerprinting_indices = GetFingerprintingIntervalIndices.indices_to_fingerprint
 
     scatter (idx in fingerprinting_indices) {

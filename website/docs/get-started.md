@@ -31,13 +31,16 @@ Try our pipelines in [Terra](https://app.terra.bio/#workspaces?tagsFilter%5B0%5D
 
 ## Navigating WARP
 
-All versioned and released pipelines are in one of the three [pipelines](https://github.com/broadinstitute/warp/tree/master/pipelines) subdirectories: broad (pipelines for the Broad Institute’s Genomics Platform), cemba (pipelines for the BRAIN Initiative) or skylab (pipelines for the Human Cell Atlas Project).
+All versioned and released pipelines are in one of the three [pipelines](https://github.com/broadinstitute/warp/tree/master/pipelines) subdirectories: broad (pipelines for the Broad Institute’s Genomics Platform), cemba (pipelines for the BRAIN Initiative) or skylab (pipelines for the BRAIN Initiative and Human Cell Atlas Project).
 
 Each pipeline directory hosts a main workflow WDL that includes a pipeline version number and a corresponding changelog file.
 
 Workflows may call additional WDLs, referred to as tasks, that are located in the [tasks](https://github.com/broadinstitute/warp/tree/master/tasks) directory.
 
 Pipelines that are in progress or have not yet been validated are in the [beta-pipelines](https://github.com/broadinstitute/warp/tree/master/beta-pipelines) folder.
+
+## Dockers and custom tools maintained in warp-tools repository
+Each WARP workflow uses Docker images that contain the necessary software for the workflow's commands. All Docker images, build scripts for Docker images, and custom tools are maintained in a separate repository, [warp-tools](https://github.com/broadinstitute/warp-tools).
 
 ## Using WARP
 There are three ways to use WARP pipelines:
@@ -85,7 +88,7 @@ Each pipeline in WARP has accompanying continuous integration tests that run on 
 
 ## Feedback
 
-WARP is always evolving! Please file any issues in GitHub or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) with suggestions, feedback, or questions. We are always excited to discuss cloud data processing, provenance and reproducibility in scientific analysis, new pipeline features, or potential collaborations. Don’t hesitate to reach out!
+WARP is always evolving! Please file any issues in GitHub or contact [the WARP Team](mailto:warp-pipelines-help@broadinstitute.org) with suggestions, feedback, or questions. We are always excited to discuss cloud data processing, provenance and reproducibility in scientific analysis, new pipeline features, or potential collaborations. Don’t hesitate to reach out!
 
 Our planned upcoming improvements include:
 
@@ -94,6 +97,11 @@ Our planned upcoming improvements include:
 3. Continued additions of pipeline documentation
 4. Pre-written methods sections and DOIs to enable easy publication citations
 5. More pipelines: bulk RNAseq, SlideSeq, updates to joint genotyping
+
+## Citing WARP
+When citing WARP, please use the following:
+
+Degatano K, Grant G, Khajouei F et al. Introducing WARP: A collection of cloud-optimized workflows for biological data processing and reproducible analysis [version 1; not peer reviewed]. F1000Research 2021, 10(ISCB Comm J):705 (slides) (doi: 10.7490/f1000research.1118678.1)
 
 ## Acknowledgements
 
