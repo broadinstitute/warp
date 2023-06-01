@@ -136,7 +136,7 @@ task STAR {
   input {
     File bam
     File starIndex
-    File twopassMode = "Basic"
+    String twopassMode = "Basic"
 
     String docker = "us.gcr.io/broad-gotc-prod/samtools-star:1.0.0-1.11-2.7.10a-1642556627"
     Int cpu = 8
