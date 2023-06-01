@@ -113,9 +113,9 @@ workflows:
     
   - name: Multiome
     subclass: WDL
-    primaryDescriptorPath: /beta-pipelines/multiome/multiome.wdl
+    primaryDescriptorPath: /pipelines/skylab/multiome/Multiome.wdl
     
   - name: atac
     subclass: WDL
-    primaryDescriptorPath: /beta-pipelines/multiome/atac.wdl
+    primaryDescriptorPath: /pipelines/skylab/multiome/atac.wdl
 
