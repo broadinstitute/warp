@@ -42,7 +42,7 @@ workflow TestOptimus {
     Boolean ignore_r1_read_length = false
 
     # Set to true to count reads in stranded mode
-    String use_strand_info = "false"
+    String star_strand_mode = "Unstranded"
     
 # Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
@@ -82,7 +82,7 @@ workflow TestOptimus {
       tenx_chemistry_version     = tenx_chemistry_version,
       emptydrops_lower           = emptydrops_lower,
       force_no_check             = force_no_check,
-      use_strand_info            = use_strand_info,
+      star_strand_mode           = star_strand_mode,
       count_exons                = count_exons,
       ignore_r1_read_length      = ignore_r1_read_length,
   }

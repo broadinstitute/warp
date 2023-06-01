@@ -1,0 +1,8 @@
+# Path to hisat3n
+hisat3n_dna_reference: /cromwell_root/group0/reference/hg38
+
+# Path to genome fasta
+reference_fasta: /cromwell_root/group0/reference/hg38.fa
+
+# Path to chrom sizes
+chrom_size_path: /cromwell_root/group0/reference/hg38.chrom.sizes

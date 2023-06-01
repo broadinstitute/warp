@@ -91,6 +91,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "JointGenotyping",
         "/broad/dna_seq/germline/joint_genotyping/"
       )
+  case object Multiome
+      extends PipelineTestType(
+        "TestMultiome",
+        "Multiome",
+        "/skylab/multiome/"
+      )
   case object MultiSampleArrays
       extends PipelineTestType(
         "TestMultiSampleArrays",
@@ -108,6 +114,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "TestRNAWithUMIsPipeline",
         "RNAWithUMIsPipeline",
         "/broad/rna_seq/"
+      )
+  case object SlideSeq
+      extends PipelineTestType(
+        "TestSlideSeq",
+        "SlideSeq",
+        "/skylab/slideseq/"
       )
   case object UltimaGenomicsJointGenotyping
       extends PipelineTestType(
