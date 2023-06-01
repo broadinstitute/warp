@@ -1,3 +1,8 @@
+# 1.4.8
+2023-04-05 (Date of Last Commit)
+
+* Updated a check for an empty file produced in the GetFingerprintingIntervalIndices task
+
 # 1.4.7
 2022-11-04 (Date of Last Commit)
 

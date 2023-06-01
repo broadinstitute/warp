@@ -1,3 +1,8 @@
+# 2.1.2
+2023-05-02 (Date of Last Commit)
+* Updated the modify-gtf and add-intron scripts in the build indices docker so that PAR genes are removed from the GTF
+* Added the chromosome sizes file as a pipeline output
+
 # 2.1.1
 2023-03-07 (Date of Last Commit)
 * Added the BuildBWAreference task to create BWA references in addition to STAR references
