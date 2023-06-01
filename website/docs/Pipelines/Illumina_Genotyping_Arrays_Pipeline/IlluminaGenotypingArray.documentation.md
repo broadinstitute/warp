@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Version 1.11.6](https://github.com/broadinstitute/warp/releases) | October, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [Version 1.11.6](https://github.com/broadinstitute/warp/releases) | October, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![The Illumina Genotyping Array Pipeline](./IlluminaGenotyping.png)
 
@@ -104,7 +104,7 @@ The Illumina Genotyping Array workflow imports a series of tasks from the [Illum
 
 ### Tools
 
-The following table provides a summary of the WDL tasks and software tools called by the Illumina Array Genotyping workflow. Note that sometimes a task and tool have the same name. The task refers to the task listed in the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/master/blob/develop/tasks/broad/IlluminaGenotypingArrayTasks.wdl).
+The following table provides a summary of the WDL tasks and software tools called by the Illumina Array Genotyping workflow. Note that sometimes a task and tool have the same name. The task refers to the task listed in the [IlluminaGenotypingArrayTasks.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/broad/IlluminaGenotypingArrayTasks.wdl).
 
 | Task | Tool | Source |
 | --- | --- | --- |
@@ -238,7 +238,7 @@ The Illumina Genotyping Array Pipeline is available on the cloud-based platform 
 
 ## Feedback and questions
 
-Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
 
 
 

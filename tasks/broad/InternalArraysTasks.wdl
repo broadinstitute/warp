@@ -512,17 +512,18 @@ task FormatArraysOutputs {
         String? genotype_concordance_detail_metrics_file
         String? genotype_concordance_contingency_metrics_file
 
+        String  lab_batch
     }
 
     command <<<
-        echo -e "chip_well_barcode_output\tanalysis_version_number_output\tbaf_regress_metrics_file\tgtc_file\t\
+        echo -e "chip_well_barcode_output\tanalysis_version_number_output\tlab_batch\tbaf_regress_metrics_file\tgtc_file\t\
         output_vcf\toutput_vcf_index\t\
         arrays_variant_calling_detail_metrics_file\tarrays_variant_calling_summary_metrics_file\tarrays_variant_calling_control_metrics_file\t\
         fingerprint_detail_metrics_file\tfingerprint_summary_metrics_file\t\
         genotype_concordance_summary_metrics_file\tgenotype_concordance_detail_metrics_file\tgenotype_concordance_contingency_metrics_file" \
         > ingestDataset_arrays_outputs.tsv
 
-        echo -e "~{chip_well_barcode_output}\t~{analysis_version_number_output}\t~{baf_regress_metrics_file}\t~{gtc_file}\t\
+        echo -e "~{chip_well_barcode_output}\t~{analysis_version_number_output}\t~{lab_batch}\t~{baf_regress_metrics_file}\t~{gtc_file}\t\
         ~{output_vcf}\t~{output_vcf_index}\t\
         ~{arrays_variant_calling_detail_metrics_file}\t~{arrays_variant_calling_summary_metrics_file}\t~{arrays_variant_calling_control_metrics_file}\t\
         ~{fingerprint_detail_metrics_file}\t~{fingerprint_summary_metrics_file}\t\
@@ -541,7 +542,7 @@ task FormatArraysOutputs {
     >>>
 
     runtime {
-        docker: "broadinstitute/horsefish:eMerge_05192022"
+        docker: "gcr.io/emerge-production/emerge_wdls:v.1.0"
     }
 
     output {

@@ -8,7 +8,7 @@ task RSEMExpression {
     Boolean is_paired
   
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-rsem:v0.2.2-1.3.0"
+    String docker = "us.gcr.io/broad-gotc-prod/rsem:1.0.0-1663016024"
     Int machine_mem_mb = 32768
     Int cpu = 4
     # use provided disk number or dynamically size on our own, with 200GiB of additional disk
@@ -51,6 +51,7 @@ task RSEMExpression {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }

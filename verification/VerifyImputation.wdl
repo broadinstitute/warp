@@ -43,7 +43,7 @@ workflow VerifyImputation {
     Boolean? done
   }
 
-  String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.6-1.10.2-0.1.16-1661278921"
+  String bcftools_docker_tag = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
 
   scatter (idx in range(length(truth_metrics))) {
     call CompareImputationMetrics {
@@ -79,10 +79,15 @@ workflow VerifyImputation {
   }
 
   if (split_output_to_single_sample) {
+    call ImputationTasks.CountSamples {
+      input:
+        vcf = test_vcf
+    }
     call ImputationTasks.SplitMultiSampleVcf {
       input:
         multiSampleVcf = test_vcf,
-        bcftools_docker = bcftools_docker_tag
+        bcftools_docker = bcftools_docker_tag,
+        nSamples = CountSamples.nSamples
     }
 
     call CrosscheckFingerprints as CrosscheckFingerprintsSplit {

@@ -16,10 +16,11 @@ task RunEmptyDrops {
         Int emptydrops_lower = 100
 
         # runtime values
-        String docker = "quay.io/humancellatlas/secondary-analysis-dropletutils:0.1.5"
+        String docker = "us.gcr.io/broad-gotc-prod/empty-drops:1.0.1-4.2"
         Int machine_mem_mb = 16000
         Int cpu = 1
         Int disk = 20
+        Int disk_size = disk + 20
         Int preemptible = 3
     }
 
@@ -50,6 +51,7 @@ task RunEmptyDrops {
         docker: docker
         memory: "${machine_mem_mb} MiB"
         disks: "local-disk ${disk} HDD"
+        disk: disk_size + " GB" # TES
         cpu: cpu
         preemptible: preemptible
         bootDiskSizeGb: "20"

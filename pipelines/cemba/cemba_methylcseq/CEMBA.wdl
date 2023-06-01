@@ -57,7 +57,7 @@ workflow CEMBA {
     }
 
     # version of this pipeline
-    String pipeline_version = "1.1.4"
+    String pipeline_version = "1.1.5"
 
   # trim off hardcoded sequence adapters
   call Trim as TrimAdapters {
@@ -1008,7 +1008,7 @@ task AddReadGroup {
   >>>
 
   runtime {
-    docker: "broadinstitute/gatk:4.1.2.0"
+    docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     # disks should be set to 2 * input file size
     disks: "local-disk " + ceil(2 * (if input_size < 1 then 1 else input_size)) + " HDD"
@@ -1063,7 +1063,7 @@ task MethylationTypeCaller {
   >>>
 
   runtime {
-    docker: "broadinstitute/gatk:4.1.2.0"
+    docker: "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     # if the input size is less than 1 GB adjust to min input size of 1 GB
     disks: "local-disk " + ceil(4.5 * (if input_size < 1 then 1 else input_size)) + " HDD"
     cpu: 1

@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [MultiSampleSmartSeq2SingleNuclei_v1.2.2](https://github.com/broadinstitute/warp/releases) | February, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [MultiSampleSmartSeq2SingleNuclei_v1.2.14](https://github.com/broadinstitute/warp/releases) | November, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![](./snSS2.png)
 
@@ -58,9 +58,9 @@ There is an [example configuration (JSON) file](https://github.com/broadinstitut
 The table below details the Multi-snSS2 inputs. The pipeline is designed to take in an array of paired-end reads in the form of two FASTQ files per cell. 
 
 * The example mouse reference inputs are created using the [BuildIndices Pipeline](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices).
-* The pipeline modifies a given GTF downloaded from GENCODE to only include biotypes that are listed in a tab separated file ([biotypes.tsv](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/snss2-build-indices/Biotypes.tsv)). 
+* The pipeline modifies a given GTF downloaded from GENCODE to only include biotypes that are listed in a tab separated file ([biotypes.tsv](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/build-indices/Biotypes.tsv)).
 * The example references do not include the pseudogene biotype. Learn more about Ensembl biotypes in the [Ensembl overview](https://m.ensembl.org/info/genome/genebuild/biotypes.html).
-* To enable intron counting, the workflow calls a [python script](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/snss2-build-indices/add-introns-to-gtf.py) to create a custom GTF with intron annotations. Introns are considered any part of a contig that is not exonic nor intergenic. 
+* To enable intron counting, the workflow calls a [python script](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/build-indices/add-introns-to-gtf.py) to create a custom GTF with intron annotations. Introns are considered any part of a contig that is not exonic nor intergenic. 
 
 | Input Name | Input Description | Input Format |
 | --- | --- | --- |
@@ -106,8 +106,8 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | [Picard.RemoveDuplicatesFromBam](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/Picard.wdl) | MarkDuplicates, AddOrReplaceReadGroups | [Picard](https://broadinstitute.github.io/picard/) | Removes duplicate reads, producing a new BAM output; adds regroups to deduplicated BAM. |
 | [Picard.CollectMultipleMetricsMultiSample](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/Picard.wdl) | CollectMultipleMetrics | [Picard](https://broadinstitute.github.io/picard/) | Collects QC metrics on the deduplicated BAM files. |
 | [CountAlignments.CountAlignments](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/FeatureCounts.wdl) | FeatureCounts | [Subread](http://subread.sourceforge.net/), Python 3 | Uses a custom GTF with featureCounts and Python to mark introns, create a BAM that has alignments spanning intron-exon junctions removed, and counts exons using the custom BAM and by excluding intron tags. |
-| [LoomUtils.SingleNucleusSmartSeq2LoomOutput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | Custom script: [ss2_loom_merge.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/ss2_loom_merge.py) | Python 3 | Creates the matrix files (Loom format) for each sample. |
-| [LoomUtils.AggregateSmartSeq2Loom](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | Custom script: [ss2_loom_merge.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/ss2_loom_merge.py) | Python 3 | Aggregates the matrix files (Loom format) for each sample to produce one final Loom output. |
+| [LoomUtils.SingleNucleusSmartSeq2LoomOutput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | Custom script: [ss2_loom_merge.py](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/pytools/tools/ss2_loom_merge.py) | Python 3 | Creates the matrix files (Loom format) for each sample. |
+| [LoomUtils.AggregateSmartSeq2Loom](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | Custom script: [ss2_loom_merge.py](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/pytools/tools/ss2_loom_merge.py) | Python 3 | Aggregates the matrix files (Loom format) for each sample to produce one final Loom output. |
 
 #### 1. Trimming adapters
 The TrimAdapters task uses the adapter list reference file to run the [fastq-mcf](https://github.com/ExpressionAnalysis/ea-utils/tree/master/clipper) tool. This tool identifies the adapters in the input FASTQ files and performs clipping by using a subsampling parameter of 200,000 reads. The task outputs the trimmed FASTQ files which are then used for alignment. 
@@ -179,7 +179,7 @@ This pipeline is supported and used by the [BRAIN Initiative Cell Census Network
 
 Each consortia may use slightly different reference files for data analysis or have different post-processing steps. Learn more by reading the [Consortia Processing](./consortia-processing.md) overview.
 
-If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org).
+If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org).
 
 ## Feedback
-Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.

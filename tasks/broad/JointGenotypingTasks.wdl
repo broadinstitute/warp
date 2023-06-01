@@ -46,7 +46,7 @@ task SplitIntervalList {
     Boolean sample_names_unique_done
     Int disk_size
     String scatter_mode = "BALANCING_WITHOUT_INTERVAL_SUBDIVISION_WITH_OVERFLOW"
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   parameter_meta {
@@ -88,7 +88,7 @@ task ImportGVCFs {
     Int disk_size
     Int batch_size
 
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   command <<<
@@ -152,7 +152,7 @@ task GenotypeGVCFs {
     Int disk_size
     # This is needed for gVCFs generated with GATK3 HaplotypeCaller
     Boolean allow_old_rms_mapping_quality_annotation_data = false
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   parameter_meta {
@@ -209,7 +209,7 @@ task GnarlyGenotyper {
     String dbsnp_vcf
     Boolean make_annotation_db = false
 
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   parameter_meta {
@@ -268,7 +268,7 @@ task HardFilterAndMakeSitesOnlyVcf {
     String sites_only_vcf_filename
 
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   command <<<
@@ -326,7 +326,7 @@ task IndelsVariantRecalibrator {
     Int max_gaussians = 4
 
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   command <<<
@@ -390,7 +390,7 @@ task SNPsVariantRecalibratorCreateModel {
     Int max_gaussians = 6
 
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   command <<<
@@ -454,7 +454,7 @@ task SNPsVariantRecalibrator {
     Int max_gaussians = 6
 
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int? machine_mem_mb
 
   }
@@ -518,7 +518,7 @@ task GatherTranches {
     String output_filename
     String mode
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   parameter_meta {
@@ -591,7 +591,7 @@ task ApplyRecalibration {
     Float snp_filter_level
     Boolean use_allele_specific_annotations
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   command <<<
@@ -641,7 +641,7 @@ task GatherVcfs {
     Array[File] input_vcfs
     String output_vcf_name
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   parameter_meta {
@@ -688,7 +688,7 @@ task SelectFingerprintSiteVariants {
     File haplotype_database
     String base_output_name
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   parameter_meta {
@@ -740,7 +740,7 @@ task CollectVariantCallingMetrics {
     File interval_list
     File ref_dict
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   command <<<
@@ -778,7 +778,7 @@ task GatherVariantCallingMetrics {
     Array[File] input_summaries
     String output_prefix
     Int disk_size
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   parameter_meta {
@@ -859,7 +859,7 @@ task CrossCheckFingerprint {
     String output_base_name
     Boolean scattered = false
     Array[String] expected_inconclusive_samples = []
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   parameter_meta {
@@ -977,7 +977,7 @@ task GetFingerprintingIntervalIndices {
   input {
     Array[File] unpadded_intervals
     File haplotype_database
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   command <<<
@@ -1076,5 +1076,42 @@ task PartitionSampleNameMap {
     preemptible: 1
     disks: "local-disk 10 HDD"
     docker: "us.gcr.io/broad-gotc-prod/python:2.7"
+  }
+}
+
+# Task used to divide annotations that were summed by GenomicsDB to get average values.
+task CalculateAverageAnnotations {
+  input {
+    File vcf_index
+    File vcf
+    Array[String] annotations_to_divide = ["ASSEMBLED_HAPS", "FILTERED_HAPS", "TREE_SCORE"]
+
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    Int disk_size_gb = ceil(size(vcf, "GB") + 50)
+    Int memory_mb = 12000
+    Int preemptible = 3
+    Int max_retries = 1
+  }
+  String basename = basename(vcf, ".vcf.gz")
+  parameter_meta {
+    vcf: {localization_optional: true}
+  }
+  command {
+    gatk --java-options "-Xms~{memory_mb-2000}m" \
+      CalculateAverageCombinedAnnotations \
+      -V ~{vcf} \
+      --summed-annotation-to-divide ~{sep=" --summed-annotation-to-divide " annotations_to_divide} \
+      -O ~{basename}.avg.vcf.gz
+  }
+  output {
+    File output_vcf = "~{basename}.avg.vcf.gz"
+    File output_vcf_index = "~{basename}.avg.vcf.gz.tbi"
+  }
+  runtime {
+    docker: docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    preemptible: preemptible
+    maxRetries : max_retries
   }
 }

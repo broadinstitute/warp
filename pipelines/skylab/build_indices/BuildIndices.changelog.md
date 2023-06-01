@@ -1,3 +1,38 @@
+# 2.1.2
+2023-05-02 (Date of Last Commit)
+* Updated the modify-gtf and add-intron scripts in the build indices docker so that PAR genes are removed from the GTF
+* Added the chromosome sizes file as a pipeline output
+
+# 2.1.1
+2023-03-07 (Date of Last Commit)
+* Added the BuildBWAreference task to create BWA references in addition to STAR references
+
+# 2.1.0
+2023-02-28 (Date of Last Commit)
+* Added new inputs for reference genome source, build version, and annotation version
+* Added checks to make sure input genome info matches the specified GTF file
+
+# 2.0.1
+2023-01-19 (Date of Last Commit)
+
+* Added 'Disk' to task runtime sections to support running on Azure
+
+# 2.0.0
+
+2022-12-20 (Date of Last Commit)
+
+* Removed all tasks unrelated to Optimus
+* Updated modify_gtf.py script to support references from Refseq and Gencode
+* Updated the input files to accept gtf and fasta files directly
+
+# 1.0.1
+
+2022-09-21 (Date of Last Commit)
+
+* Docker image follows our guidelines
+* Changed the type of biotypes from String to File so it localizes properly
+* Changed the genome_fa to use the reference’s value instead of a modified_genome_fa that didn’t exist (which STAR was looking for and was then failing)
+
 # 1.0.0
 
 2022-02-01 (Date of Last Commit)

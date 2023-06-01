@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [MultiSampleSmartSeq2_v2.2.1](https://github.com/broadinstitute/warp/releases) | May, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [MultiSampleSmartSeq2_v2.2.1](https://github.com/broadinstitute/warp/releases) | May, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ## Introduction
 
@@ -59,11 +59,10 @@ The reference inputs are identical to those specified in the "Additional Referen
 
 ### Smart-seq2 Multi-Sample Task Summary
 
-The Multi-SS2 Pipeline calls three tasks:
+The Multi-SS2 Pipeline calls two tasks:
 
-1) [SmartSeq2SingleSample.wdl](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl): a task that runs the Smart-seq2 Single Sample workflow
-2) [SmartSeq2PlateAggregation.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/SmartSeq2PlateAggregation.wdl): the wrapper pipeline that checks the inputs, initiates per cell processing and aggregates the results
-3) [LoomUtils.wdl](https://github.com/broadinstitute/warp/blob/master/tasks/LoomUtils.wdl): a task that produces the Loom matrix output containing raw counts and TPMs
+1) [SmartSeq2SingleSample](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.wdl): a task that runs the Smart-seq2 Single Sample workflow
+2) [SmartSeq2PlateAggregation](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl): the wrapper pipeline that aggregates the results
 
 
 ### Outputs
@@ -104,9 +103,9 @@ Please identify the pipeline in your methods section using the Smart-seq2 Multi-
 ## Consortia Support 
 This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project. 
 
-If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org).
+If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org).
 
 ## Have Suggestions?
-Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
 
 
