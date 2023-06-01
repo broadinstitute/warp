@@ -1,3 +1,13 @@
+# 1.2.24
+2023-05-24 (Date of Last Commit)
+
+* Added a move command to work around a maximum file path length in featureCounts
+
+# 1.2.23 
+2023-05-04 (Date of Last Commit)
+
+* Updated the CheckInputs WDL for the Optimus workflow. This changes does impact snSS2
+
 # 1.2.22
 
 2023-04-23 (Date of Last Commit)
