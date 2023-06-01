@@ -1,3 +1,13 @@
+# 1.1.8
+2023-03-31 (Date of Last Commit)
+
+* Added Array[String] `lab_batch` as workflow level input - value used as prefix for output filename in task TriggerPrsWithImputationTsv.
+
+# 1.1.7
+2023-01-13 (Date of Last Commit)
+
+* Adjusted disk size calculation in SplitMultiSampleVcf
+
 # 1.1.6
 2023-01-13 (Date of Last Commit)
 

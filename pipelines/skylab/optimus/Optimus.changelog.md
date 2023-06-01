@@ -1,3 +1,46 @@
+# 5.8.2
+2023-05-11 (Date of Last Commit)
+
+* Updated the Docker image for Slideseq FastqProcessing. This update has no impact on the Optimus workflow
+
+# 5.8.1
+2023-05-04 (Date of Last Commit)
+
+* Updated inputs for the FastqProcessing task, which now requires read structure. This is dynamically calculated from the CheckInputs task
+
+# 5.8.0
+2023-04-24 (Date of Last Commit)
+
+* Modified the stranded input parameter to be called star_strand_mode; the default is now set to Forward and the other options include Unstranded and Reverse
+
+# 5.7.5
+2023-04-19 (Date of Last Commit)
+
+* Updated warp-tools docker which included a fix for a small bug in create_snrna_optimus.py that was causing the script not to run
+
+
+# 5.7.4
+2023-03-27 (Date of Last Commit)
+
+* Removed the following columns from the gene metrics csv and the Loom as the counts were empty/incorrect: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, reads_mapped_intergenic, duplicate_reads. We also removed duplicate_reads from the cell metrics csv and the Loom
+
+
+# 5.7.3
+2023-03-15 (Date of Last Commit)
+
+* Removed the following columns from the cell metrics csv and the Loom as the counts were empty/incorrect: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, reads_mapped_intergenic
+* Updated warp-tools docker. The latest loom building script updates the optimus_output_schema_version from 1.0.0 to 1.0.1 to capture the metrics changes listed above 
+
+# 5.7.2
+2023-02-28 (Date of Last Commit)
+
+* Added a new task to the worklow that reads the tar_star_reference file to obtain the genomic reference source, build version, and annotation version and outputs the information as txt file.
+
+# 5.7.1
+2023-02-13 (Date of Last Commit)
+
+* SlideSeq-specific changes to FastqProcessing.wdl, LoomUtils.wdl, Metrics.wdl, and StarAlign.wdl. This change does not affect the Optimus pipeline.
+
 # 5.7.0
 2023-02-16 (Date of Last Commit)
 
@@ -6,7 +49,7 @@
 * Added new checks to the checkOptimusInput task to verify that the chemistry is either v2 or v3.
 * Added new checks to the checkOptimusInput that verify the read1 FASTQ is the correct chemistry based on read length; these checks can be ignored with new boolean input ignore_r1_read_length. 
 * Updated warp-tools docker version in FastqProcessing.wdl and Metrics.wdl due to previous bug fix (broadinstitute/warp-tools#18). The issue was integer division that caused the percent of mitochondrial molecules to always be calculated as zero.
-* Dynamically sized disk in the checkOptimusInput task
+* Dynamically sized disk in the checkOptimusInput task 
 
 # 5.6.2
 2023-02-07 (Date of Last Commit)
@@ -16,7 +59,7 @@
 # 5.6.1
 2023-01-23 (Date of Last Commit)
 
-* Added "Disk" to task runtime sections to support running on Azure
+* Added 'Disk' to task runtime sections to support running on Azure
 * Updated the emptyDrops container to address concerns outlined in #772 - avoiding the usage of the root directory inside the container. This also includes some optimizations: moved image to GCR instead of Quay, conformed to (most) of our docker style guideline, build time decreased to 1 hour from 1.5-2 hours, and the image size reduced to 1.5GB from 3GB.
 * EmptyDrops container has been upgraded to use R 4.2.2 and BiocManager 3.16
 * Addressed mb/gb memory specification inconsistencies in LoomUtils and CheckInput

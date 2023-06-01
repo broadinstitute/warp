@@ -1,13 +1,56 @@
+# 1.2.24
+2023-05-24 (Date of Last Commit)
+
+* Added a move command to work around a maximum file path length in featureCounts
+
+# 1.2.23 
+2023-05-04 (Date of Last Commit)
+
+* Updated the CheckInputs WDL for the Optimus workflow. This changes does impact snSS2
+
+# 1.2.22
+
+2023-04-23 (Date of Last Commit)
+
+* Updated the STARalign task; does not affect this workflow
+
+# 1.2.21
+2023-04-19 (Date of Last Commit)
+
+* Updated warp-tools docker which included a fix for a small bug in create_snrna_optimus.py that was causing the script not to run
+
+
+# 1.2.20
+2023-03-27 (Date of Last Commit)
+
+* SlideSeq-specific and Optimus-specific changes to Metrics.wdl. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline
+
+# 1.2.19
+2023-03-15 (Date of Last Commit)
+
+* SlideSeq-specific and Optimus-specific changes to Metrics.wdl. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline
+* Updated warp-tools docker to support the Optimus and SlideSeq changes 
+
+# 1.2.18
+2023-02-28 (Date of Last Commit)
+
+* Added a new task to the workflow that reads the tar_star_reference file to obtain the genomic reference source, build version, and annotation version and outputs the information as a txt file
+
+# 1.2.17
+2023-02-13 (Date of Last Commit)
+
+* SlideSeq-specific changes to LoomUtils.wdl. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline
+
 # 1.2.16
-2023-02-22 (Date of Last Commit)
+2023-02-07 (Date of Last Commit)
 
 * Updated the input checks for the Optimus pipeline task; this has no effect on this pipeline
-* Added disk to the checkInputArrays task
+* Added disk to the checkInputArrays task 
 
 # 1.2.15
 2023-01-23 (Date of Last Commit)
 
-* Added "Disk" to task runtime sections to support running on Azure
+* Added 'Disk' to task runtime sections to support running on Azure
 * Addressed mb/gb memory specification inconsistencies in LoomUtils and CheckInput
 
 # 1.2.14

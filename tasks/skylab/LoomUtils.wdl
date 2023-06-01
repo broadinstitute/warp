@@ -62,7 +62,7 @@ task OptimusLoomGeneration {
 
   input {
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1681406657"
     # name of the sample
     String input_id
     # user provided id
@@ -84,6 +84,8 @@ task OptimusLoomGeneration {
     # emptydrops output metadata
     File? empty_drops_result
     String counting_mode = "sc_rna"
+    String add_emptydrops_data = "yes"
+
 
     String pipeline_version
 
@@ -104,10 +106,12 @@ task OptimusLoomGeneration {
   command <<<
     set -euo pipefail
 
+    touch empty_drops_result.csv
+
     if [ "~{counting_mode}" == "sc_rna" ]; then
-        python3 /usr/gitc/create_loom_optimus.py \
-          --empty_drops_file ~{empty_drops_result} \
-          --add_emptydrops_data "yes" \
+        python3 /warptools/scripts/create_loom_optimus.py \
+          ~{if defined(empty_drops_result) then "--empty_drops_file  " + empty_drops_result  else "--empty_drops_file empty_drops_result.csv "  } \
+          --add_emptydrops_data ~{add_emptydrops_data} \
           --annotation_file ~{annotation_file} \
           --cell_metrics ~{cell_metrics} \
           --gene_metrics ~{gene_metrics} \
@@ -122,7 +126,7 @@ task OptimusLoomGeneration {
           --expression_data_type "exonic" \
           --pipeline_version ~{pipeline_version}
     else
-        python3 /usr/gitc/create_snrna_optimus.py \
+        python3 /warptools/scripts/create_snrna_optimus.py \
           --annotation_file ~{annotation_file} \
           --cell_metrics ~{cell_metrics} \
           --gene_metrics ~{gene_metrics} \
@@ -214,7 +218,7 @@ task SingleNucleusOptimusLoomOutput {
 
     input {
         #runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1681406657"
         # name of the sample
         String input_id
         # user provided id
@@ -259,7 +263,7 @@ task SingleNucleusOptimusLoomOutput {
     command {
         set -euo pipefail
 
-        python3 /usr/gitc/create_snrna_optimus_counts.py \
+        python3 /warptools/scripts/create_snrna_optimus_counts.py \
         --annotation_file ~{annotation_file} \
         --cell_metrics ~{cell_metrics} \
         --gene_metrics ~{gene_metrics} \
@@ -384,4 +388,46 @@ task SingleNucleusSmartSeq2LoomOutput {
         Array[File] loom_output = glob("*.loom")
         Array[File] exon_intron_counts = glob("*exon_intron_counts.tsv")
     }
+}
+task SlideSeqLoomOutput {
+  input {
+    File bead_locations
+    File cell_metrics
+    File gene_metrics
+    File cell_id
+    File gene_id
+    File sparse_count_matrix
+    File annotation_file
+    String input_id
+    String pipeline_version
+
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1681406657"
+    Int disk_size_gb = 200
+    Int memory_mb = 18000
+    Int cpu = 4
+  }
+
+  command <<<
+    python3 /warptools/scripts/create_loom_slide_seq.py \
+       --bead_locations ~{bead_locations} \
+       --annotation_file ~{annotation_file} \
+       --cell_metrics ~{cell_metrics} \
+       --gene_metrics ~{gene_metrics} \
+       --cell_id ~{cell_id} \
+       --gene_id  ~{gene_id} \
+       --output_path_for_loom "~{input_id}.loom" \
+       --input_id ~{input_id} \
+       --count_matrix ~{sparse_count_matrix} \
+       --pipeline_version ~{pipeline_version}
+  >>>
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    memory: "~{memory_mb} MiB"
+    disks: "local-disk ~{disk_size_gb} HDD"
+  }
+
+  output {
+    File loom_output = "~{input_id}.loom"  }
 }
