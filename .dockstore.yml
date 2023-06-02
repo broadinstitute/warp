@@ -1,5 +1,12 @@
 version: 1.2
 workflows:
+  - name: JointGenotypingByChromosomePartOne
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartOne.wdl
+
+  - name: JointGenotypingByChromosomePartTwo
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartTwo.wdl
 
   - name: VUMCFastqToAlignedBam
     subclass: WDL
