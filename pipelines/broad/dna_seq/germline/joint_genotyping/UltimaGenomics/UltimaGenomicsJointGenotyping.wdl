@@ -11,7 +11,7 @@ import "../../../../../../tasks/broad/UltimaGenomicsGermlineFilteringThreshold.w
 # For choosing a filtering threshold (where on the ROC curve to filter) a sample with truth data is required.
 workflow UltimaGenomicsJointGenotyping {
 
-  String pipeline_version = "1.1.2"
+  String pipeline_version = "1.1.3"
 
   input {
     File unpadded_intervals_file
@@ -92,7 +92,7 @@ workflow UltimaGenomicsJointGenotyping {
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,
       ref_dict = ref_dict,
-      disk_size = small_disk,
+      disk_size_gb = small_disk,
       sample_names_unique_done = CheckSamplesUnique.samples_unique
   }
 
@@ -111,7 +111,7 @@ workflow UltimaGenomicsJointGenotyping {
         ref_fasta_index = ref_fasta_index,
         ref_dict = ref_dict,
         workspace_dir_name = "genomicsdb",
-        disk_size = medium_disk,
+        disk_size_gb = medium_disk,
         batch_size = 50
     }
 
@@ -124,7 +124,7 @@ workflow UltimaGenomicsJointGenotyping {
           ref_fasta_index = ref_fasta_index,
           ref_dict = ref_dict,
           dbsnp_vcf = dbsnp_vcf,
-          disk_size = medium_disk,
+          disk_size_gb = medium_disk,
           keep_combined_raw_annotations = true,
           additional_annotation = "RawGtCount"
     }
@@ -143,7 +143,7 @@ workflow UltimaGenomicsJointGenotyping {
         excess_het_threshold = excess_het_threshold,
         variant_filtered_vcf_filename = callset_name + "." + idx + ".variant_filtered.vcf.gz",
         sites_only_vcf_filename = callset_name + "." + idx + ".sites_only.variant_filtered.vcf.gz",
-        disk_size = medium_disk
+        disk_size_gb = medium_disk
     }
   }
 
@@ -151,7 +151,7 @@ workflow UltimaGenomicsJointGenotyping {
     input:
       input_vcfs = HardFilterAndMakeSitesOnlyVcf.sites_only_vcf,
       output_vcf_name = callset_name + ".sites_only.vcf.gz",
-      disk_size = medium_disk
+      disk_size_gb = medium_disk
   }
 
   call Filtering.JointVcfFiltering as TrainAndApplyFilteringModel {
@@ -200,7 +200,7 @@ workflow UltimaGenomicsJointGenotyping {
           dbsnp_vcf_index = dbsnp_vcf_index,
           interval_list = eval_interval_list,
           ref_dict = ref_dict,
-          disk_size = medium_disk
+          disk_size_gb = medium_disk
       }
     }
   }
@@ -211,7 +211,7 @@ workflow UltimaGenomicsJointGenotyping {
       input:
         input_vcfs = FindFilteringThresholdAndFilter.output_vcf,
         output_vcf_name = callset_name + ".vcf.gz",
-        disk_size = huge_disk
+        disk_size_gb = huge_disk
     }
 
     call Tasks.CollectVariantCallingMetrics as CollectMetricsOnFullVcf {
@@ -223,7 +223,7 @@ workflow UltimaGenomicsJointGenotyping {
         dbsnp_vcf_index = dbsnp_vcf_index,
         interval_list = eval_interval_list,
         ref_dict = ref_dict,
-        disk_size = large_disk
+        disk_size_gb = large_disk
     }
   }
 
@@ -234,7 +234,7 @@ workflow UltimaGenomicsJointGenotyping {
         input_details = select_all(CollectMetricsSharded.detail_metrics_file),
         input_summaries = select_all(CollectMetricsSharded.summary_metrics_file),
         output_prefix = callset_name,
-        disk_size = medium_disk
+        disk_size_gb = medium_disk
     }
   }
 
@@ -257,7 +257,7 @@ workflow UltimaGenomicsJointGenotyping {
       input:
         input_vcfs = vcfs_to_fingerprint,
         output_vcf_name = callset_name + ".gathered.fingerprinting.vcf.gz",
-        disk_size = medium_disk
+        disk_size_gb = medium_disk
     }
 
     call Tasks.SelectFingerprintSiteVariants {
@@ -265,7 +265,7 @@ workflow UltimaGenomicsJointGenotyping {
         input_vcf = GatherFingerprintingVcfs.output_vcf,
         base_output_name = callset_name + ".fingerprinting",
         haplotype_database = haplotype_database,
-        disk_size = medium_disk
+        disk_size_gb = medium_disk
     }
 
     call Tasks.PartitionSampleNameMap {
@@ -293,7 +293,7 @@ workflow UltimaGenomicsJointGenotyping {
       input:
         metrics_files = CrossCheckFingerprintsScattered.crosscheck_metrics,
         output_file_name = callset_name + ".fingerprintcheck",
-        disk_size = small_disk
+        disk_size_gb = small_disk
     }
   }
 
