@@ -187,7 +187,7 @@ task BuildStarSingleNucleus {
 
     # Filter the GTF file based on the gene allowlist
 
-    gtf_filtered="$(basename ~{annotation_gtf}).filtered"
+    gtf_filtered="~{annotation_gtf_modified}"
 
     # Copy header lines beginning with "#"
 
