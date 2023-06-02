@@ -132,7 +132,7 @@ task BuildStarSingleNucleus {
     # Output FASTA:
     #   >chr1 1
 
-    fasta_modified="$(basename "~{genome_fa}).modified"
+    fasta_modified="$(basename ~{genome_fa}).modified"
 
     # sed commands:
     # 1. Replace metadata after space with original contig name, as in GENCODE
