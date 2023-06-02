@@ -293,14 +293,20 @@ task FastqProcessATAC {
         gcloud storage cp $read2_fastq_files .
         gcloud storage cp $read3_fastq_files .
 
+        read1_fastq_basename=`echo ${FASTQ1_ARRAY[@]} |  xargs -n1 basename | tr '\n' ' '`
+        read2_fastq_basename=`echo ${FASTQ2_ARRAY[@]} |  xargs -n1 basename | tr '\n' ' '`
+        read3_fastq_basename=`echo ${FASTQ3_ARRAY[@]} |  xargs -n1 basename | tr '\n' ' '`
+        
+        echo $read3_fastq_basename
+
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
         fastqprocess \
         --bam-size 30.0 \
         --sample-id "~{output_base_name}" \
-        --R1 $read1_fastq_files \
-        --R2 $read2_fastq_files\
-        --R3 $read3_fastq_files \
+        --R1 $read1_fastq_basename \
+        --R2 $read2_fastq_basename\
+        --R3 $read3_fastq_basename \
         --white-list "~{whitelist}" \
         --output-format "FASTQ" \
         --barcode-orientation "~{barcode_orientation}" \
