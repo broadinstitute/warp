@@ -235,9 +235,9 @@ task FastqProcessingSlidSeq {
 task FastqProcessATAC {
 
     input {
-        Array[File] read1_fastq
-        Array[File] read3_fastq
-        Array[File] barcodes_fastq
+        Array[String] read1_fastq
+        Array[String] read3_fastq
+        Array[String] barcodes_fastq
         String read_structure = "16C"
         String barcode_orientation = "FIRST_BP_RC"
         String output_base_name
@@ -245,7 +245,8 @@ task FastqProcessATAC {
 
         # [?] copied from corresponding optimus wdl for fastqprocessing
         # using the latest build of warp-tools in GCR
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1682971351"
+        # needs to change
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:aa-gcloud-docker"
         # Runtime attributes [?]
         Int mem_size = 5
         Int cpu = 16
@@ -278,19 +279,28 @@ task FastqProcessATAC {
 
         set -euo pipefail
 
-        # Cat files for each r1, r3 and barcodes together
-        cat ~{sep=' ' read1_fastq} > r1.fastq.gz
-        cat ~{sep=' ' read3_fastq} > r3.fastq.gz
-        cat ~{sep=' ' barcodes_fastq} > barcodes.fastq.gz
+        declare -a FASTQ1_ARRAY=(~{sep=' ' barcodes_fastq})
+        declare -a FASTQ2_ARRAY=(~{sep=' ' read1_fastq})
+        declare -a FASTQ3_ARRAY=(~{sep=' ' read3_fastq})
+
+        read1_fastq_files=`printf '%s ' "${FASTQ1_ARRAY[@]}"; echo`
+        read2_fastq_files=`printf '%s ' "${FASTQ2_ARRAY[@]}"; echo`
+        read3_fastq_files=`printf '%s ' "${FASTQ3_ARRAY[@]}"; echo`
+
+        echo $read1_fastq_files
+
+        gcloud storage cp $read1_fastq_files .
+        gcloud storage cp $read2_fastq_files .
+        gcloud storage cp $read3_fastq_files .
 
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
         fastqprocess \
-        --bam-size 10.0 \
+        --bam-size 30.0 \
         --sample-id "~{output_base_name}" \
-        --R1 barcodes.fastq.gz \
-        --R2 r1.fastq.gz \
-        --R3 r3.fastq.gz \
+        --R1 $read1_fastq_files \
+        --R2 $read2_fastq_files\
+        --R3 $read3_fastq_files \
         --white-list "~{whitelist}" \
         --output-format "FASTQ" \
         --barcode-orientation "~{barcode_orientation}" \
