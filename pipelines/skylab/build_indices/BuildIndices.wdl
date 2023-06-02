@@ -121,30 +121,6 @@ task BuildStarSingleNucleus {
 
     set -eo pipefail
 
-
-    # Modify sequence headers in the Ensembl FASTA to match the file
-    # "GRCh38.primary_assembly.genome.fa" from GENCODE. Unplaced and unlocalized
-    # sequences such as "KI270728.1" have the same names in both versions.
-    #
-    # Input FASTA:
-    #   >1 dna:chromosome chromosome:GRCh38:1:1:248956422:1 REF
-    #
-    # Output FASTA:
-    #   >chr1 1
-
-    fasta_modified="$(basename ~{genome_fa}).modified"
-
-    # sed commands:
-    # 1. Replace metadata after space with original contig name, as in GENCODE
-    # 2. Add "chr" to names of autosomes and sex chromosomes
-    # 3. Handle the mitochrondrial chromosome
-
-    cat ~{genome_fa} \
-        | sed -E 's/^>(\S+).*/>\1 \1/' \
-        | sed -E 's/^>([0-9]+|[XY]) />chr\1 /' \
-        | sed -E 's/^>MT />chrM /' \
-        > "$fasta_modified"
-
     # Remove version suffix from transcript, gene, and exon IDs in order to match
     # previous Cell Ranger reference packages
     #
@@ -220,6 +196,7 @@ task BuildStarSingleNucleus {
     # Filter to the gene allowlist
 
     grep -Ff "gene_allowlist" "$gtf_modified" >> "$gtf_filtered"
+    ls -lh *
 
 
     python3  /script/add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_introns}
