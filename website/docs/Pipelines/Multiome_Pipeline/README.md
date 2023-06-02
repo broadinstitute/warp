@@ -13,10 +13,11 @@ sidebar_position: 1
 ## Introduction to the Multiome workflow
 Multiome is an open-source, cloud-optimized pipeline developed in collaboration with members of the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN), including the Allen Institute, NeMO, Kai Zhang (SnapATAC2), and Alex Dobin. It supports the processing of 10x 3' single-cell and single-nucleus count data generated with the [10x Genomics Multiome assay](https://www.10xgenomics.com/products/single-cell-multiome-atac-plus-gene-expression).
 
-The pipeline consists of two subworkflows: the Optimus workflow for GEX data and the ATAC workflow for single-cell ATAC data. The GEX component performs barcode and UMI correction, aligns reads to the genome, and produces both quality metrics per barcode and gene and a raw cell-by-gene count matrix. The ATAC component corrects cell barcodes, aligns reads to the genome, and producesa fragment file as well as per barcode metrics. 
+The workflow is a wrapper WDL script that consists of two subworkflows: the Optimus workflow for GEX data and the ATAC workflow for single-cell ATAC data. The GEX component performs barcode and UMI correction, aligns reads to the genome, and produces both quality metrics per barcode and gene and a raw cell-by-gene count matrix. The ATAC component corrects cell barcodes, aligns reads to the genome, and producesa fragment file as well as per barcode metrics. 
 
 Read more about the GEX workflow in the Optimus overview for the ATAC workflow in the ATAC workflow. 
 
+The wrapper WDL is available in the WARP repository (see the [code here](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/Multiome.wdl)).
 
 ## Quickstart table
 The following table provides a quick glance at the Multiome pipeline features:
@@ -37,43 +38,49 @@ The following table provides a quick glance at the Multiome pipeline features:
 
 ### Multiome installation
 
-To download the latest Multiome release, see the release tags prefixed with "Multiome" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All Multiome pipeline releases are documented in the [Multiome changelog](). 
+To download the latest Multiome release, see the release tags prefixed with "Multiome" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All Multiome pipeline releases are documented in the [Multiome changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/Multiome.changelog.md). 
 
 To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
 
 If you’re running an ultiomeus workflow version prior to the latest release, the accompanying documentation for that release may be downloaded with the source code on the WARP [releases page](https://github.com/broadinstitute/warp/releases) (see the source code folder).
 
 Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. The workflow can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. 
+## Input variables
+
+| Variable name | Description | Optional attributes (when applicable) |
+| --- | --- | --- |
+| counting_mode | Optional string that demarcates whether the pipeline should be run in single-cell mode (sc_rna) or single-nucleus mode (sn_rna) | "sn_rna" is set by default. |
+| gex_r1_fastq | Array of read 1 FASTQ files representing a single 10x library. |
+| gex_r2_fastq | Array of read 2 FASTQ files representing a single 10x library.| N.A. |
+| gex_i1_fastq | Array of index FASTQ files representing a single 10x library. The pipeline does not currently support multiplexed samples, but the file can be optionally passed through. | N.A. |
+| input_id | String demarcating the sampe ID or name; used to name the GEX output files. | N.A. |
+| output_bam_basename | String demarcating the sample ID or name used to name the output BAM file | Set to input_id by default. |
+| tar_star_reference | Tar file containing reference index files for STARsolo alignment. | N.A. |
+| annotations_gtf | A GTF file with gene annotations to use for GEX cell metric calculation and ATAC fragment metrics. This GTF should match the GTF used to build the STAR aligner. | N.A. |
+| ref_genome_fasta | Genome FASTA file used for building the indices. | N.A. |
+| mt_genes | Optional file that lists mitochondria genes to be used for cell metric calculation. | Default assumes 'mt' prefix in GTF (case insensitive). |
+| tenx_chemistry_version | Integer specifying the 10x barcode read structure. Multiome uses same barcode readstructure as 10x v3. | Set to 3 by default because 10x Multiome data uses same barcode read structure as v3. |
+| emptydrops_lower | A threshold for number of UMIs empty drops tool should consider for determining cell. Returns a 'yes' or 'no' value, but does not remove data.  | Default is set to 100. |
+| force_no_check | Boolean indicating if the pipeline should performs checks. | Default is set to false |
+| ignore_r1_read_length | Boolean to indicate whether to ignore checks for barcode chemistry | Default set to false |
+| star_strand_mode | String indicating which strand option to use for STARsolo alginment. This should match the parameters specified in STAR documentation. | Default is set "Forward" to match 10x chemistry|
+| count_exons | Boolean to indicate whether to run STAR in both gene_full and gene modes. | Default is set to false. |
+| gex_whitelist | File containing list of valid barcodes for 10x multiome gene expression data. | "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt" |
+| atac_r1_fastq | Array[File] | N.A. |
+| atac_r2_fastq | Array[File] | N.A. |
+| atac_r3_fastq | Array[File] | N.A. |
+| output_base_name | String | N.A. |
+| tar_bwa_reference | File | N.A. |
+| chrom_sizes | File | N.A. |
+| adapter_seq_read1 | String | "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG" |
+| adapter_seq_read3 | String | "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG" |
+| atac_whitelist | File containing list of valid barcodes for 10x multiome ATAC adata. | "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_atac.txt" |
 
 
-### Single Cell ATAC Inputs
-
-
-
-
-
-# Workflow: ATAC
-
-**Version:** 1.0
-
-**Description:** Processing for single-cell ATAC-seq data from the level of raw fastq reads. This is the first step of the multiome pipeline. ATAC-seq (Assay for Transposase-Accessible Chromatin using sequencing) is a technique used in molecular biology to assess genome-wide chromatin accessibility. This pipeline processes 10x Genomics Multiome ATAC FASTQ files.
-
-## Input Variables
-
-| Variable Name              | Description                                                                                          |
-|---------------------------|------------------------------------------------------------------------------------------------------|
-| read1_fastq_gzipped       | Fastq inputs (array of compressed read 1 FASTQ files)                                                |
-| read2_fastq_gzipped       | Fastq inputs (array of compressed read 2 FASTQ files containing cellular barcodes)                   |
-| read3_fastq_gzipped       | Fastq inputs (array of compressed read 3 FASTQ files)                                                |
-| output_base_name          | Output prefix/base name for all intermediate files and pipeline outputs                              |
-| tar_bwa_reference         | BWA reference (tar file containing reference fasta and corresponding files)                          |
-| barcodes_in_read_name     | CreateFragmentFile input variable: Boolean indicating whether barcodes are in read names             |
-| atac_gtf                  | CreateFragmentFile input variable: GTF file for SnapATAC2 to calculate TSS sites of fragment file    |
-| chrom_sizes               | CreateFragmentFile input variable: Text file containing chrom_sizes for genome build (i.e., hg38)    |
-| monitoring_script         | Script for monitoring tasks                                                                           |
-| whitelist                 | Whitelist file for cellular barcodes                                                                 |
-| adapter_seq_read1         | TrimAdapters input: Sequence adapter for read 1 fastq                                                |
-| adapter_seq_read3         | TrimAdapters input: Sequence adapter for read 3 fastq                                                |
+## Tasks
+| Task name and WDL link | Tool | Software | Description | 
+| --- | --- | --- | --- | 
+| 
 
 ## Output Variables
 
