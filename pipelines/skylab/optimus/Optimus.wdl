@@ -37,6 +37,9 @@ workflow Optimus {
     # Whitelist is selected based on the input tenx_chemistry_version
     File whitelist = checkOptimusInput.whitelist_out
 
+    # read_structure is based on v2 or v3 chemistry
+    String read_struct = checkOptimusInput.read_struct_out
+
     # Emptydrops lower cutoff
     Int emptydrops_lower = 100
 
@@ -47,8 +50,8 @@ workflow Optimus {
     # Set to true if you expect that r1_read_length does not match length of UMIs/barcodes for 10x chemistry v2 (26 bp) or v3 (28 bp).
     Boolean ignore_r1_read_length = false
 
-    # Set to true to count reads in stranded mode
-    String use_strand_info = "false"
+    # Set to Forward, Reverse, or Unstranded to account for stranded library preparations (per STARsolo documentation)
+    String star_strand_mode = "Forward"
     
 # Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
@@ -60,8 +63,8 @@ workflow Optimus {
   }
 
   # version of this pipeline
-  String pipeline_version = "5.7.4"
 
+  String pipeline_version = "5.8.3"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -86,7 +89,7 @@ workflow Optimus {
     whitelist: "10x genomics cell barcode whitelist"
     tenx_chemistry_version: "10X Genomics v2 (10 bp UMI) or v3 chemistry (12bp UMI)"
     force_no_check: "Set to true to override input checks and allow pipeline to proceed with invalid input"
-    use_strand_info: "Set to true to count reads in stranded mode"
+    star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded.' Default is Forward."
   }
 
   call OptimusInputChecks.checkOptimusInput {
@@ -113,7 +116,8 @@ workflow Optimus {
       r2_fastq = r2_fastq,
       whitelist = whitelist,
       chemistry = tenx_chemistry_version,
-      sample_id = input_id
+      sample_id = input_id,
+      read_struct = read_struct
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
@@ -121,6 +125,7 @@ workflow Optimus {
       input:
         r1_fastq = [SplitFastq.fastq_R1_output_array[idx]],
         r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
+        star_strand_mode = star_strand_mode,
         white_list = whitelist,
         tar_star_reference = tar_star_reference,
         chemistry = tenx_chemistry_version,

@@ -1,7 +1,34 @@
+# 5.8.3
+2023-05-31 (Date of Last Commit)
+
+* Updated the FastqProcessing.wdl. This update has no impact on the Optimus workflow.
+
+# 5.8.2
+2023-05-11 (Date of Last Commit)
+
+* Updated the Docker image for Slideseq FastqProcessing. This update has no impact on the Optimus workflow
+
+# 5.8.1
+2023-05-04 (Date of Last Commit)
+
+* Updated inputs for the FastqProcessing task, which now requires read structure. This is dynamically calculated from the CheckInputs task
+
+# 5.8.0
+2023-04-24 (Date of Last Commit)
+
+* Modified the stranded input parameter to be called star_strand_mode; the default is now set to Forward and the other options include Unstranded and Reverse
+
+# 5.7.5
+2023-04-19 (Date of Last Commit)
+
+* Updated warp-tools docker which included a fix for a small bug in create_snrna_optimus.py that was causing the script not to run
+
+
 # 5.7.4
 2023-03-27 (Date of Last Commit)
 
 * Removed the following columns from the gene metrics csv and the Loom as the counts were empty/incorrect: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, reads_mapped_intergenic, duplicate_reads. We also removed duplicate_reads from the cell metrics csv and the Loom
+
 
 # 5.7.3
 2023-03-15 (Date of Last Commit)

@@ -1,9 +1,31 @@
+# 1.2.24
+2023-05-24 (Date of Last Commit)
+
+* Added a move command to work around a maximum file path length in featureCounts
+
+# 1.2.23 
+2023-05-04 (Date of Last Commit)
+
+* Updated the CheckInputs WDL for the Optimus workflow. This changes does impact snSS2
+
+# 1.2.22
+
+2023-04-23 (Date of Last Commit)
+
+* Updated the STARalign task; does not affect this workflow
+
+# 1.2.21
+2023-04-19 (Date of Last Commit)
+
+* Updated warp-tools docker which included a fix for a small bug in create_snrna_optimus.py that was causing the script not to run
+
+
 # 1.2.20
 2023-03-27 (Date of Last Commit)
 
 * SlideSeq-specific and Optimus-specific changes to Metrics.wdl. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline
 
-* # 1.2.19
+# 1.2.19
 2023-03-15 (Date of Last Commit)
 
 * SlideSeq-specific and Optimus-specific changes to Metrics.wdl. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline
