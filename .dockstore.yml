@@ -182,3 +182,7 @@ workflows:
   - name: VUMCDeleteBam
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCDeleteBam.wdl
+
+  - name: VUMCHaplotypeCaller
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/haplotypecaller-gvcf-gatk4.wdl

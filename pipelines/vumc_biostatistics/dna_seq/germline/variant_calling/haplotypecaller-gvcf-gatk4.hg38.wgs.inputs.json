@@ -1,0 +1,10 @@
+{
+  "HaplotypeCallerGvcf_GATK4.input_bam": "gs://broad-public-datasets/NA12878/NA12878.cram",
+  "HaplotypeCallerGvcf_GATK4.input_bam_index": "gs://broad-public-datasets/NA12878/NA12878.cram.crai",
+
+  "HaplotypeCallerGvcf_GATK4.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+  "HaplotypeCallerGvcf_GATK4.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "HaplotypeCallerGvcf_GATK4.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+
+  "HaplotypeCallerGvcf_GATK4.scattered_calling_intervals_list": "gs://gatk-test-data/intervals/hg38_wgs_scattered_calling_intervals.txt"
+}
