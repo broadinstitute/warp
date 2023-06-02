@@ -66,26 +66,47 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | star_strand_mode | String indicating which strand option to use for STARsolo alginment. This should match the parameters specified in STAR documentation. | Default is set "Forward" to match 10x chemistry|
 | count_exons | Boolean to indicate whether to run STAR in both gene_full and gene modes. | Default is set to false. |
 | gex_whitelist | File containing list of valid barcodes for 10x multiome gene expression data. | "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt" |
-| atac_r1_fastq | Array[File] | N.A. |
-| atac_r2_fastq | Array[File] | N.A. |
-| atac_r3_fastq | Array[File] | N.A. |
-| output_base_name | String | N.A. |
-| tar_bwa_reference | File | N.A. |
-| chrom_sizes | File | N.A. |
-| adapter_seq_read1 | String | "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG" |
-| adapter_seq_read3 | String | "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG" |
+| atac_r1_fastq | Array of read 1 paired-end FASTQ files representing one 10x multiome ATAC library. | N.A. |
+| atac_r2_fastq | Array of barcodes FASTQ files representing one 10x multiome ATAC library. | N.A. |
+| atac_r3_fastq | Array of read 2 paired-end FASTQ files representing one 10x multiome ATAC library. | N.A. |
+| output_base_name | String used to name the output ATAC files. | N.A. |
+| tar_bwa_reference | Tar file containing the reference index files for BWA-mem alignment. | N.A. |
+| chrom_sizes | File containing the genome chromosome sizes; used to calculate ATAC fragment file metrics. | N.A. |
+| adapter_seq_read1 | String with adatapor sequences for ATAC read 1 paired-end reads to be used during adaptor trimming with Cutadapt. | "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG" |
+| adapter_seq_read3 | String with the adaptor sequences for ATAC read 2 paired-end reads to be used during adataptor trimming with Cuadapt.  | "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG" |
 | atac_whitelist | File containing list of valid barcodes for 10x multiome ATAC adata. | "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_atac.txt" |
 
 
 ## Tasks
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | --- | 
-| 
+| [Atac](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) | Atac pipeline | fastqprocess, bwa-mem, SnapATAC2 | Workflow to analyze 10x single-cell ATAC data. |
+| [Optimus(https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.wdl)] | Gene expression pipeline | fastqprocess, STARsolo, Emptydrops | Workflow to analyze 10x single-cell gene expression data. | 
+
+## ATAC subtasks
+| Task name | Description of task | Software called by task  |
+| --- | --- | --- |
+| FastqProcessing.FastqProcessATAC as SplitFastq | Split FASTQ files into smaller chunks \| fastqprocess |
+| TrimAdapters | Trim read 1 and read 2 adapter sequence with cutadapt | cutadapt |
+| BWAPairedEndAlignment  Align the two trimmed FASTQ files as paired-end data using BWA | BWA, samtools |
+| AddCBtags | Add CB and CR tags to BAM file | samtools |
+| MergeSortBamFiles | Merge and sort BAM files | samtools |
+| CreateFragmentFile | Make fragment file | SnapATAC2, python3, snapatac |
 
 ## Output Variables
 
-| Variable Name         | Description                                    |
-|----------------------|------------------------------------------------|
-| bam_aligned_output    | Aligned BAM file                               |
-| fragment_file         | Fragment file                                  |
-| snap_metrics          | Snap metrics file                              |
+| Variable name | Description |
+|--- |--- |
+| bam_aligned_output | File |
+| fragment_file | File |
+| snap_metrics | File |
+| pipeline_version_out | String |
+| genomic_reference_version | File |
+| bam | File |
+| matrix | File |
+| matrix_row_index | File |
+| matrix_col_index | File |
+| cell_metrics | File |
+| gene_metrics | File |
+| cell_calls | File? |
+| loom_output_file | File |
