@@ -121,10 +121,6 @@ task BuildStarSingleNucleus {
 
     set -eo pipefail
 
-    #python3 /script/modify_gtf.py  \
-    #--input-gtf ~{annotation_gtf} \
-    #--output-gtf ~{annotation_gtf_modified} \
-    #--biotypes ~{biotypes}
 
     # Modify sequence headers in the Ensembl FASTA to match the file
     # "GRCh38.primary_assembly.genome.fa" from GENCODE. Unplaced and unlocalized
@@ -135,16 +131,19 @@ task BuildStarSingleNucleus {
     #
     # Output FASTA:
     #   >chr1 1
-    fasta_modified="$build/$(basename "$fasta_in").modified"
+
+    fasta_modified="$(basename "~{genome_fa}).modified"
+
     # sed commands:
     # 1. Replace metadata after space with original contig name, as in GENCODE
     # 2. Add "chr" to names of autosomes and sex chromosomes
     # 3. Handle the mitochrondrial chromosome
-    cat "$fasta_in" \
-    | sed -E 's/^>(\S+).*/>\1 \1/' \
-    | sed -E 's/^>([0-9]+|[XY]) />chr\1 /' \
-    | sed -E 's/^>MT />chrM /' \
-    > "$fasta_modified"
+
+    cat ~{genome_fa} \
+        | sed -E 's/^>(\S+).*/>\1 \1/' \
+        | sed -E 's/^>([0-9]+|[XY]) />chr\1 /' \
+        | sed -E 's/^>MT />chrM /' \
+        > "$fasta_modified"
 
     # Remove version suffix from transcript, gene, and exon IDs in order to match
     # previous Cell Ranger reference packages
@@ -153,14 +152,15 @@ task BuildStarSingleNucleus {
     #     ... gene_id "ENSG00000223972.5"; ...
     # Output GTF:
     #     ... gene_id "ENSG00000223972"; gene_version "5"; ...
-    gtf_modified="$build/$(basename "$gtf_in").modified"
+
+    gtf_modified="$(basename ~{annotation_gtf}).modified"
     # Pattern matches Ensembl gene, transcript, and exon IDs for human or mouse:
     ID="(ENS(MUS)?[GTE][0-9]+)\.([0-9]+)"
-    cat "$gtf_in" \
-    | sed -E 's/gene_id "'"$ID"'";/gene_id "\1"; gene_version "\3";/' \
-    | sed -E 's/transcript_id "'"$ID"'";/transcript_id "\1"; transcript_version "\3";/' \
-    | sed -E 's/exon_id "'"$ID"'";/exon_id "\1"; exon_version "\3";/' \
-    > "$gtf_modified"
+    cat ~{annotation_gtf} \
+        | sed -E 's/gene_id "'"$ID"'";/gene_id "\1"; gene_version "\3";/' \
+        | sed -E 's/transcript_id "'"$ID"'";/transcript_id "\1"; transcript_version "\3";/' \
+        | sed -E 's/exon_id "'"$ID"'";/exon_id "\1"; exon_version "\3";/' \
+        > "$gtf_modified"
 
 
     # Define string patterns for GTF tags
@@ -175,6 +175,7 @@ task BuildStarSingleNucleus {
     #     "readthrough_transcript" tag.
     #   - Only the X chromosome versions of genes in the pseudoautosomal regions
     #     are present, so there is no "PAR" tag.
+
     BIOTYPE_PATTERN=\
     "(protein_coding|lncRNA|\
     IG_C_gene|IG_D_gene|IG_J_gene|IG_LV_gene|IG_V_gene|\
@@ -195,26 +196,30 @@ task BuildStarSingleNucleus {
     #   - no "readthrough_transcript" tag
     # We then collect the list of gene IDs that have at least one associated
     # transcript passing the filters.
+
     cat "$gtf_modified" \
-    | awk '$3 == "transcript"' \
-    | grep -E "$GENE_PATTERN" \
-    | grep -E "$TX_PATTERN" \
-    | grep -Ev "$READTHROUGH_PATTERN" \
-    | grep -Ev "$PAR_PATTERN" \
-    | sed -E 's/.*(gene_id "[^"]+").*/\1/' \
-    | sort \
-    | uniq \
-    > "${build}/gene_allowlist"
+        | awk '$3 == "transcript"' \
+        | grep -E "$GENE_PATTERN" \
+        | grep -E "$TX_PATTERN" \
+        | grep -Ev "$READTHROUGH_PATTERN" \
+        | grep -Ev "$PAR_PATTERN" \
+        | sed -E 's/.*(gene_id "[^"]+").*/\1/' \
+        | sort \
+        | uniq \
+        > "gene_allowlist"
 
 
     # Filter the GTF file based on the gene allowlist
-    gtf_filtered="${build}/$(basename "$gtf_in").filtered"
-    # Copy header lines beginning with "#"
-    grep -E "^#" "$gtf_modified" > "$gtf_filtered"
-    # Filter to the gene allowlist
-    grep -Ff "${build}/gene_allowlist" "$gtf_modified" \
-    >> "$gtf_filtered"
 
+    gtf_filtered="$(basename ~{annotation_gtf}).filtered"
+
+    # Copy header lines beginning with "#"
+
+    grep -E "^#" "$gtf_modified" > "$gtf_filtered"
+
+    # Filter to the gene allowlist
+
+    grep -Ff "gene_allowlist" "$gtf_modified" >> "$gtf_filtered"
 
 
     python3  /script/add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_introns}
