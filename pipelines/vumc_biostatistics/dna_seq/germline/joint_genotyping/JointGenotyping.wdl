@@ -54,6 +54,7 @@ workflow JointGenotyping {
     Float indel_filter_level
     Int snp_vqsr_downsampleFactor
 
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.4.0.0"
     Int? top_level_scatter_count
     Boolean? gather_vcfs
     Int snps_variant_recalibration_threshold = 500000
@@ -92,6 +93,7 @@ workflow JointGenotyping {
 
   call Tasks.SplitIntervalList {
     input:
+      gatk_docker = gatk_docker,
       interval_list = unpadded_intervals_file,
       scatter_count = scatter_count,
       ref_fasta = ref_fasta,
@@ -110,6 +112,7 @@ workflow JointGenotyping {
     # the Hellbender (GATK engine) team!
     call Tasks.ImportGVCFs {
       input:
+        gatk_docker = gatk_docker,
         sample_name_map = sample_name_map,
         interval = unpadded_intervals[idx],
         ref_fasta = ref_fasta,
@@ -124,6 +127,7 @@ workflow JointGenotyping {
 
       call Tasks.SplitIntervalList as GnarlyIntervalScatterDude {
         input:
+          gatk_docker = gatk_docker,
           interval_list = unpadded_intervals[idx],
           scatter_count = gnarly_scatter_count,
           ref_fasta = ref_fasta,
@@ -138,6 +142,7 @@ workflow JointGenotyping {
       scatter (gnarly_idx in range(length(gnarly_intervals))) {
         call Tasks.GnarlyGenotyper {
           input:
+            gatk_docker = gatk_docker,
             workspace_tar = ImportGVCFs.output_genomicsdb,
             interval = gnarly_intervals[gnarly_idx],
             output_vcf_filename = callset_name + "." + idx + "." + gnarly_idx + ".vcf.gz",
@@ -152,6 +157,7 @@ workflow JointGenotyping {
 
       call Tasks.GatherVcfs as TotallyRadicalGatherVcfs {
         input:
+          gatk_docker = gatk_docker,
           input_vcfs = gnarly_gvcfs,
           output_vcf_name = callset_name + "." + idx + ".gnarly.vcf.gz",
           disk_size_gb = large_disk
@@ -161,6 +167,7 @@ workflow JointGenotyping {
     if (!use_gnarly_genotyper) {
       call Tasks.GenotypeGVCFs {
         input:
+          gatk_docker = gatk_docker,
           workspace_tar = ImportGVCFs.output_genomicsdb,
           interval = unpadded_intervals[idx],
           output_vcf_filename = callset_name + "." + idx + ".vcf.gz",
@@ -177,6 +184,7 @@ workflow JointGenotyping {
 
     call Tasks.HardFilterAndMakeSitesOnlyVcf {
       input:
+        gatk_docker = gatk_docker,
         vcf = genotyped_vcf,
         vcf_index = genotyped_vcf_index,
         excess_het_threshold = excess_het_threshold,
@@ -188,6 +196,7 @@ workflow JointGenotyping {
 
   call Tasks.GatherVcfs as SitesOnlyGatherVcf {
     input:
+      gatk_docker = gatk_docker,
       input_vcfs = HardFilterAndMakeSitesOnlyVcf.sites_only_vcf,
       output_vcf_name = callset_name + ".sites_only.vcf.gz",
       disk_size_gb = medium_disk
@@ -195,6 +204,7 @@ workflow JointGenotyping {
 
   call Tasks.IndelsVariantRecalibrator {
     input:
+      gatk_docker = gatk_docker,
       sites_only_variant_filtered_vcf = SitesOnlyGatherVcf.output_vcf,
       sites_only_variant_filtered_vcf_index = SitesOnlyGatherVcf.output_vcf_index,
       recalibration_filename = callset_name + ".indels.recal.vcf.gz",
@@ -214,6 +224,7 @@ workflow JointGenotyping {
   if (num_gvcfs > snps_variant_recalibration_threshold) {
     call Tasks.SNPsVariantRecalibratorCreateModel {
       input:
+        gatk_docker = gatk_docker,
         sites_only_variant_filtered_vcf = SitesOnlyGatherVcf.output_vcf,
         sites_only_variant_filtered_vcf_index = SitesOnlyGatherVcf.output_vcf_index,
         recalibration_filename = callset_name + ".snps.recal.vcf.gz",
@@ -237,6 +248,7 @@ workflow JointGenotyping {
     scatter (idx in range(length(HardFilterAndMakeSitesOnlyVcf.sites_only_vcf))) {
       call Tasks.SNPsVariantRecalibrator as SNPsVariantRecalibratorScattered {
         input:
+          gatk_docker = gatk_docker,
           sites_only_variant_filtered_vcf = HardFilterAndMakeSitesOnlyVcf.sites_only_vcf[idx],
           sites_only_variant_filtered_vcf_index = HardFilterAndMakeSitesOnlyVcf.sites_only_vcf_index[idx],
           recalibration_filename = callset_name + ".snps." + idx + ".recal.vcf.gz",
@@ -259,6 +271,7 @@ workflow JointGenotyping {
 
     call Tasks.GatherTranches as SNPGatherTranches {
       input:
+        gatk_docker = gatk_docker,
         tranches = SNPsVariantRecalibratorScattered.tranches,
         output_filename = callset_name + ".snps.gathered.tranches",
         mode = "SNP",
@@ -269,6 +282,7 @@ workflow JointGenotyping {
   if (num_gvcfs <= snps_variant_recalibration_threshold) {
     call Tasks.SNPsVariantRecalibrator as SNPsVariantRecalibratorClassic {
       input:
+        gatk_docker = gatk_docker,
         sites_only_variant_filtered_vcf = SitesOnlyGatherVcf.output_vcf,
         sites_only_variant_filtered_vcf_index = SitesOnlyGatherVcf.output_vcf_index,
         recalibration_filename = callset_name + ".snps.recal.vcf.gz",
@@ -292,6 +306,7 @@ workflow JointGenotyping {
     #for really large callsets we give to friends, just apply filters to the sites-only
     call Tasks.ApplyRecalibration {
       input:
+        gatk_docker = gatk_docker,
         recalibrated_vcf_filename = callset_name + ".filtered." + idx + ".vcf.gz",
         input_vcf = HardFilterAndMakeSitesOnlyVcf.variant_filtered_vcf[idx],
         input_vcf_index = HardFilterAndMakeSitesOnlyVcf.variant_filtered_vcf_index[idx],
@@ -311,6 +326,7 @@ workflow JointGenotyping {
     if (!is_small_callset) {
       call Tasks.CollectVariantCallingMetrics as CollectMetricsSharded {
         input:
+          gatk_docker = gatk_docker,
           input_vcf = ApplyRecalibration.recalibrated_vcf,
           input_vcf_index = ApplyRecalibration.recalibrated_vcf_index,
           metrics_filename_prefix = callset_name + "." + idx,
@@ -327,6 +343,7 @@ workflow JointGenotyping {
   if (is_small_callset) {
     call Tasks.GatherVcfs as FinalGatherVcf {
       input:
+        gatk_docker = gatk_docker,
         input_vcfs = ApplyRecalibration.recalibrated_vcf,
         output_vcf_name = callset_name + ".vcf.gz",
         disk_size_gb = huge_disk
@@ -334,6 +351,7 @@ workflow JointGenotyping {
 
     call Tasks.CollectVariantCallingMetrics as CollectMetricsOnFullVcf {
       input:
+        gatk_docker = gatk_docker,
         input_vcf = FinalGatherVcf.output_vcf,
         input_vcf_index = FinalGatherVcf.output_vcf_index,
         metrics_filename_prefix = callset_name,
@@ -349,6 +367,7 @@ workflow JointGenotyping {
     # For large callsets we still need to gather the sharded metrics.
     call Tasks.GatherVariantCallingMetrics {
       input:
+        gatk_docker = gatk_docker,
         input_details = select_all(CollectMetricsSharded.detail_metrics_file),
         input_summaries = select_all(CollectMetricsSharded.summary_metrics_file),
         output_prefix = callset_name,
@@ -362,6 +381,7 @@ if (cross_check_fingerprints) {
   if (scatter_cross_check_fingerprints) {
     call Tasks.GetFingerprintingIntervalIndices {
       input:
+        gatk_docker = gatk_docker,
         unpadded_intervals = unpadded_intervals,
         haplotype_database = haplotype_database
     }
@@ -374,6 +394,7 @@ if (cross_check_fingerprints) {
 
     call Tasks.GatherVcfs as GatherFingerprintingVcfs {
       input:
+        gatk_docker = gatk_docker,
         input_vcfs = vcfs_to_fingerprint,
         output_vcf_name = callset_name + ".gathered.fingerprinting.vcf.gz",
         disk_size_gb = medium_disk
@@ -381,6 +402,7 @@ if (cross_check_fingerprints) {
 
     call Tasks.SelectFingerprintSiteVariants {
       input:
+        gatk_docker = gatk_docker,
         input_vcf = GatherFingerprintingVcfs.output_vcf,
         base_output_name = callset_name + ".fingerprinting",
         haplotype_database = haplotype_database,
@@ -399,6 +421,7 @@ if (cross_check_fingerprints) {
 
       call Tasks.CrossCheckFingerprint as CrossCheckFingerprintsScattered {
         input:
+          gatk_docker = gatk_docker,
           gvcf_paths = files_in_partition,
           vcf_paths = vcfs_to_fingerprint,
           sample_name_map = sample_name_map,
@@ -424,6 +447,7 @@ if (cross_check_fingerprints) {
 
     call Tasks.CrossCheckFingerprint as CrossCheckFingerprintSolo {
       input:
+        gatk_docker = gatk_docker,
         gvcf_paths = gvcf_paths,
         vcf_paths = ApplyRecalibration.recalibrated_vcf,
         sample_name_map = sample_name_map,
