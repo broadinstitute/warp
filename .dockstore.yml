@@ -87,3 +87,7 @@ workflows:
   - name: VUMCHaplotypeCaller
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/haplotypecaller-gvcf-gatk4.wdl
+
+  - name: VUMCJointGenotyping
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/joint_genotyping/JointGenotyping.wdl
