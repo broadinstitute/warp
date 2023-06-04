@@ -280,6 +280,8 @@ workflow JointGenotyping {
   }
 
   if (num_gvcfs <= snps_variant_recalibration_threshold) {
+    #unexpected exit status 137 was not ignored, need to increase memory. 
+    #Modified Tasks.SNPsVariantRecalibrator at 20230603 to add memory_factor with default as 3.
     call Tasks.SNPsVariantRecalibrator as SNPsVariantRecalibratorClassic {
       input:
         gatk_docker = gatk_docker,
