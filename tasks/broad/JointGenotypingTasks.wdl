@@ -469,9 +469,10 @@ task SNPsVariantRecalibrator {
     Int? machine_mem_mb
 
     Int preemptible = 3
+    Int memory_factor = 3 #use 2 failed in test even only 10 samples. use 3 for safety.
   }
 
-  Int auto_mem = ceil(2 * size([sites_only_variant_filtered_vcf,
+  Int auto_mem = ceil(memory_factor * size([sites_only_variant_filtered_vcf,
                               hapmap_resource_vcf,
                               omni_resource_vcf,
                               one_thousand_genomes_resource_vcf,
@@ -512,7 +513,7 @@ task SNPsVariantRecalibrator {
     cpu: 2
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size_gb + " HDD"
-    preemptible: 1
+    preemptible: preemptible
     docker: gatk_docker
   }
 
