@@ -469,7 +469,10 @@ task SNPsVariantRecalibrator {
     Int? machine_mem_mb
 
     Int preemptible = 3
-    Int memory_factor = 3 #use 2 failed in test even only 10 samples. use 3 for safety.
+
+    #use 2 failed in test even only 10 samples. 
+    #Since original workflow used 100g and size of total vcf is around 20g, we use 6 times of size of total vcf as default.
+    Int memory_factor = 6 
   }
 
   Int auto_mem = ceil(memory_factor * size([sites_only_variant_filtered_vcf,
