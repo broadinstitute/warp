@@ -71,7 +71,8 @@ task CompareGvcfs {
   input {
     File test_gvcf
     File truth_gvcf
-    Int memory_mb = ceil(size(test_gvcf, "MiB") + size(truth_gvcf, "MiB") * 5) + 25000
+    #Int memory_mb = ceil(size(test_gvcf, "MiB") + size(truth_gvcf, "MiB") * 5) + 25000
+    Int memory_mb = 200000
   }
 
   command {
