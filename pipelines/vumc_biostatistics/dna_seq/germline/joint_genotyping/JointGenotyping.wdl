@@ -468,6 +468,8 @@ if (cross_check_fingerprints) {
   Array[File?] output_vcf_files = if defined(FinalGatherVcf.output_vcf) then [FinalGatherVcf.output_vcf] else ApplyRecalibration.recalibrated_vcf
   Array[File?] output_vcf_index_files = if defined(FinalGatherVcf.output_vcf_index) then [FinalGatherVcf.output_vcf_index] else ApplyRecalibration.recalibrated_vcf_index
 
+  Float vcf_file_size = size(output_vcf_files, "GiB")
+
   output {
     # Metrics from either the small or large callset
     File detail_metrics_file = output_detail_metrics_file
@@ -482,6 +484,8 @@ if (cross_check_fingerprints) {
 
     # Output the metrics from crosschecking fingerprints.
     File? crosscheck_fingerprint_check = crosscheck_fingerprint_results
+
+    Float output_vcfs_size = vcf_file_size
   }
   meta {
     allowNestedInputs: true
