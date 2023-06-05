@@ -60,7 +60,11 @@ function pipeline_to_args() {
     JointGenotypingByChromosomePartTwo)
       continue;;
     Multiome)
-          echo Multiome ${common_args};;
+      if [[ "${test}" == "Scientific" ]]; then
+        echo Multiome Plumbing
+      else
+        echo Multiome ${common_args}
+      fi;;
     MultiSampleArrays)
       echo MultiSampleArrays ${common_args};;
     MultiSampleSmartSeq2)
