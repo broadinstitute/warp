@@ -158,10 +158,10 @@ task BuildStarSingleNucleus {
     IG_V_pseudogene|IG_J_pseudogene|IG_C_pseudogene|\
     TR_C_gene|TR_D_gene|TR_J_gene|TR_V_gene|\
     TR_V_pseudogene|TR_J_pseudogene)"
-    GENE_PATTERN="gene_type \"${BIOTYPE_PATTERN}\""
-    TX_PATTERN="transcript_type \"${BIOTYPE_PATTERN}\""
-    READTHROUGH_PATTERN="tag \"readthrough_transcript\""
-    PAR_PATTERN="tag \"PAR\""
+    GENE_PATTERN="gene_biotype \"${BIOTYPE_PATTERN}\""
+    TX_PATTERN="transcript_biotype \"${BIOTYPE_PATTERN}\""
+    #READTHROUGH_PATTERN="tag \"readthrough_transcript\""
+    #PAR_PATTERN="tag \"PAR\""
 
 
     # Construct the gene ID allowlist. We filter the list of all transcripts
@@ -177,8 +177,8 @@ task BuildStarSingleNucleus {
         | awk '$3 == "transcript"' \
         | grep -E "$GENE_PATTERN" \
         | grep -E "$TX_PATTERN" \
-        | grep -Ev "$READTHROUGH_PATTERN" \
-        | grep -Ev "$PAR_PATTERN" \
+        #| grep -Ev "$READTHROUGH_PATTERN" \
+        #| grep -Ev "$PAR_PATTERN" \
         | sed -E 's/.*(gene_id "[^"]+").*/\1/' \
         | sort \
         | uniq \
