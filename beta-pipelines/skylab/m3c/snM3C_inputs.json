@@ -17,5 +17,6 @@
   "snM3C.mapping_yaml":"gs://broad-gotc-test-storage/methylome/input/plumbing/config_files/mapping.yaml",
   "snM3C.snakefile": "gs://broad-gotc-test-storage/methylome/input/plumbing/config_files/Snakefile",
   "snM3C.chromosome_sizes": "gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38.chrom.sizes",
-  "snM3C.genome_fa": "gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38.fa"
+  "snM3C.genome_fa": "gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38.fa",
+  "snM3c.monitoring_script": "gs://fc-f62be246-9bf6-42a8-9123-7bd1c52894a7/cromwell_monitoring_script2.sh"
 }

@@ -16,6 +16,9 @@ workflow snM3C {
     File snakefile
     File chromosome_sizes
     File genome_fa
+
+    # script for monitoring tasks
+    File monitoring_script
   }
 
   call Demultiplexing {
@@ -23,7 +26,8 @@ workflow snM3C {
       fastq_input_read1 = fastq_input_read1,
       fastq_input_read2 = fastq_input_read2,
       random_primer_indexes = random_primer_indexes,
-      plate_id = plate_id
+      plate_id = plate_id,
+      monitoring_script = monitoring_script
     }
 
   call Mapping {
@@ -34,7 +38,8 @@ workflow snM3C {
       snakefile = snakefile,
       chromosome_sizes = chromosome_sizes,
       genome_fa = genome_fa,
-      plate_id = plate_id
+      plate_id = plate_id,
+      monitoring_script = monitoring_script
     }
 
   output {
@@ -57,10 +62,20 @@ task Demultiplexing {
     String docker_image = "nikellepetrillo/yap-hisat:v8"
     Int disk_size = 50
     Int mem_size = 10
+
+    # script for monitoring tasks
+    File monitoring_script
   }
 
   command <<<
     set -euo pipefail
+
+    if [ ! -z "~{monitoring_script}" ]; then
+    chmod a+x ~{monitoring_script}
+    ~{monitoring_script} > monitoring.log &
+    else
+    echo "No monitoring script given as input" > monitoring.log &
+    fi
 
     # Cat files for each r1, r2
     cat ~{sep=' ' fastq_input_read1} > r1.fastq.gz
@@ -102,6 +117,8 @@ task Mapping {
     File chromosome_sizes
     File genome_fa
     String plate_id
+    # script for monitoring tasks
+    File monitoring_script
 
     String docker_image = "nikellepetrillo/yap-hisat:v8"
     Int disk_size = 200
@@ -110,6 +127,13 @@ task Mapping {
 
   command <<<
     set -euo pipefail
+
+    if [ ! -z "~{monitoring_script}" ]; then
+    chmod a+x ~{monitoring_script}
+    ~{monitoring_script} > monitoring.log &
+    else
+    echo "No monitoring script given as input" > monitoring.log &
+    fi
 
     mkdir group0/
     mkdir group0/fastq/
