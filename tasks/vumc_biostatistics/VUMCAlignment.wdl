@@ -36,6 +36,8 @@ task FastqToBwaMemAndMba {
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
     Boolean allow_empty_ref_alt = false
+    Int bwa_mem = 30
+    Int bwa_cpu = 16
   }
 
   Float fastq_size = size(fastq_1, "GiB") + size(fastq_2, "GiB")
@@ -72,8 +74,8 @@ task FastqToBwaMemAndMba {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
     preemptible: preemptible_tries
-    memory: "14 GiB"
-    cpu: "16"
+    memory: "~{bwa_mem} GiB"
+    cpu: "~{bwa_cpu}"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
