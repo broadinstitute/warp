@@ -60,8 +60,8 @@ function pipeline_to_args() {
     JointGenotypingByChromosomePartTwo)
       continue;;
     Multiome)
-      if [[ "${test}" == "Scientific" ]]; then
-        echo Multiome Plumbing
+      if [[ "${test}" == "Plumbing" ]]; then
+        echo Multiome Scientific
       else
         echo Multiome ${common_args}
       fi;;
