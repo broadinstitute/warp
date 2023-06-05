@@ -158,9 +158,8 @@ task TrimAdapters {
     echo "No monitoring script given as input" > monitoring.log &
     fi
 
-    # fastq's, "-f", -A for paired adapters read 2"
+    # -A for paired adapters read 2
     cutadapt \
-    -f fastq \
     --minimum-length ~{min_length} \
     --quality-cutoff ~{quality_cutoff} \
     --adapter ~{adapter_seq_read1} \
