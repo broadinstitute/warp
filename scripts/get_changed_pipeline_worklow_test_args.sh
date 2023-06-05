@@ -59,6 +59,8 @@ function pipeline_to_args() {
       continue;;
     JointGenotypingByChromosomePartTwo)
       continue;;
+    Multiome)
+          echo Multiome ${common_args};;
     MultiSampleArrays)
       echo MultiSampleArrays ${common_args};;
     MultiSampleSmartSeq2)
