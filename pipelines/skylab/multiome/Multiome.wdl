@@ -18,7 +18,7 @@ workflow Multiome {
         File annotations_gtf
         File ref_genome_fasta
         File? mt_genes
-        Int tenx_chemistry_version = 3
+        Int tenx_chemistry_version = 2
         Int emptydrops_lower = 100
         Boolean force_no_check = false
         Boolean ignore_r1_read_length = false
