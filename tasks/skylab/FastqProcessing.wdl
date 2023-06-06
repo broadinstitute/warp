@@ -277,7 +277,7 @@ task FastqProcessATAC {
 
     command <<<
 
-        set -euo pipefail
+        set -e
 
         # declare -a FASTQ1_ARRAY=(~{sep=' ' read1_fastq})
         # declare -a FASTQ2_ARRAY=(~{sep=' ' barcodes_fastq})
@@ -295,38 +295,9 @@ task FastqProcessATAC {
 
         # copied from fastqprocess from optimus 
         FASTQS=$(python3 <<CODE
-        
-        def rename_file(filename):
-            import shutil
-            import gzip
-            import re
-            
-            iscompressed = True
-            with gzip.open(filename, 'rt') as fin:
-                try:
-                    _ = fin.readline()
-                except:
-                    iscompressed = False
-
-            basename = re.sub(r'.gz$', '', filename)
-            basename = re.sub(r'.fastq$', '', basename)
-    
-            if iscompressed:
-                # if it is already compressed then add an extension .fastq.gz
-                newname = basename + ".fastq.gz" 
-            else: 
-                # otherwise, add just the .fastq extension
-                newname = basename + ".fastq"
-
-            if filename != newname:
-                # safe to rename since the old and the new names are different
-                shutil.move(filename, newname)
-
-            return newname
-        
+      
         optstring = ""
      
-        print("${read1_fastq}")
         read1_fastqs = [ "${sep='", "' read1_fastq}" ]
         read3_fastqs = [ "${sep='", "' read3_fastq}" ]
         barcodes_fastqs = [ "${sep='", "' barcodes_fastq}" ]
