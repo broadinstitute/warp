@@ -324,16 +324,16 @@ task FastqProcessATAC {
 
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
-        # fastqprocess \
-        # --bam-size 30.0 \
-        # --sample-id "~{output_base_name}" \
-        # $R1_FILES_CONCAT \
-        # $R2_FILES_CONCAT \
-        # $R3_FILES_CONCAT \
-        # --white-list "~{whitelist}" \
-        # --output-format "FASTQ" \
-        # --barcode-orientation "~{barcode_orientation}" \
-        # --read-structure "~{read_structure}"
+        fastqprocess \
+        --bam-size 30.0 \
+        --sample-id "~{output_base_name}" \
+        $R1_FILES_CONCAT \
+        $R2_FILES_CONCAT \
+        $R3_FILES_CONCAT \
+        --white-list "~{whitelist}" \
+        --output-format "FASTQ" \
+        --barcode-orientation "~{barcode_orientation}" \
+        --read-structure "~{read_structure}"
 
     >>>
 
