@@ -297,8 +297,18 @@ task FastqProcessATAC {
         read2_fastq_basename=`echo ${FASTQ2_ARRAY[@]} |  xargs -n1 basename | tr '\n' ' '`
         read3_fastq_basename=`echo ${FASTQ3_ARRAY[@]} |  xargs -n1 basename | tr '\n' ' '`
         
+        echo READ 3
         echo $read3_fastq_basename
-
+        echo END READ 3
+  
+        echo READ 1
+        echo $read1_fastq_basename
+        echo END READ 1
+  
+        echo READ 2
+        echo $read2_fastq_basename
+        echo END READ 2
+  
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
         fastqprocess \
