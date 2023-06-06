@@ -300,7 +300,6 @@ task FastqProcessATAC {
             import shutil
             import gzip
             import re
-            import os
             
             iscompressed = True
             with gzip.open(filename, 'rt') as fin:
@@ -332,13 +331,13 @@ task FastqProcessATAC {
         barcodes_fastqs = [ "${sep='", "' barcodes_fastq}" ]
         for fastq in barcodes_fastqs:
             if fastq.strip():
-                optstring += " --R1 " + rename_file(os.path.basename(fastq))
+                optstring += " --R1 " + rename_file(fastq.split("/")[len(fastq.split("/"))-1])
         for fastq in read1_fastqs:
             if fastq.strip():
-                optstring += " --R2 " + rename_file(os.path.basename(fastq))
+                optstring += " --R2 " + rename_file(fastq.split("/")[len(fastq.split("/"))-1])
         for fastq in read3_fastqs:
             if fastq.strip():
-                optstring += " --R3 " + rename_file(os.path.basename(fastq))
+                optstring += " --R3 " + rename_file(fastq.split("/")[len(fastq.split("/"))-1])
         print(optstring)
         CODE)  
   
