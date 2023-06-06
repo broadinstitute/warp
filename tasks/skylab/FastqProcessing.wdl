@@ -293,30 +293,63 @@ task FastqProcessATAC {
         gcloud storage cp $read2_fastq_files .
         gcloud storage cp $read3_fastq_files .
 
-        read1_fastq_basename=`echo ${FASTQ1_ARRAY[@]} |  xargs -n1 basename | tr '\n' ' '`
-        read2_fastq_basename=`echo ${FASTQ2_ARRAY[@]} |  xargs -n1 basename | tr '\n' ' '`
-        read3_fastq_basename=`echo ${FASTQ3_ARRAY[@]} |  xargs -n1 basename | tr '\n' ' '`
+        # copied from fastqprocess from optimus 
+        FASTQS=$(python3 <<CODE
+        def rename_file(filename):
+            import shutil
+            import gzip
+            import re
+            from pathlib import Path         
+            
+            iscompressed = True
+            with gzip.open(filename, 'rt') as fin:
+            try:
+                _ = fin.readline()
+            except:
+                iscompressed = False
+
+            basename = re.sub(r'.gz$', '', filename)
+            basename = re.sub(r'.fastq$', '', basename)
+    
+            if iscompressed:
+                # if it is already compressed then add an extension .fastq.gz
+                newname = basename + ".fastq.gz" 
+            else: 
+                # otherwise, add just the .fastq extension
+                newname = basename + ".fastq"
+
+            if filename != newname:
+                # safe to rename since the old and the new names are different
+                shutil.move(filename, newname)
+
+            return newname
         
-        echo READ 3
-        echo $read3_fastq_basename
-        echo END READ 3
-  
-        echo READ 1
-        echo $read1_fastq_basename
-        echo END READ 1
-  
-        echo READ 2
-        echo $read2_fastq_basename
-        echo END READ 2
+        optstring = ""
+     
+        read1_fastqs = [ "${sep='", "' read1_fastq}" ]
+        read3_fastqs = [ "${sep='", "' read3_fastq}" ]
+        barcodes_fastqs = [ "${sep='", "' barcodes_fastq}" ]
+        for fastq in read1_fastqs:
+            if fastq.strip(): 
+                print(Path(fastq).stem)
+                optstring += " --R2 " + rename_file(Path(fastq).stem)
+        for fastq in barcodes_fastqs:
+            if fastq.strip(): 
+                print(Path(fastq).stem)
+                optstring += " --R1 " + rename_file(Path(fastq).stem)
+        for fastq in read3_fastqs:
+            if fastq.strip(): 
+                print(Path(fastq).stem)
+                optstring += " --R3 " + rename_file(Path(fastq).stem)
+        print(optstring)
+        CODE)  
   
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
         fastqprocess \
         --bam-size 30.0 \
         --sample-id "~{output_base_name}" \
-        --R1 $read1_fastq_basename \
-        --R2 $read2_fastq_basename\
-        --R3 $read3_fastq_basename \
+        $FASTQS \
         --white-list "~{whitelist}" \
         --output-format "FASTQ" \
         --barcode-orientation "~{barcode_orientation}" \
