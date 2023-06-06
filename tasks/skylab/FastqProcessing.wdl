@@ -279,9 +279,9 @@ task FastqProcessATAC {
 
         set -e
 
-        # declare -a FASTQ1_ARRAY=(~{sep=' ' read1_fastq})
-        # declare -a FASTQ2_ARRAY=(~{sep=' ' barcodes_fastq})
-        # declare -a FASTQ3_ARRAY=(~{sep=' ' read3_fastq})
+        declare -a FASTQ1_ARRAY=(~{sep=' ' read1_fastq})
+        declare -a FASTQ2_ARRAY=(~{sep=' ' barcodes_fastq})
+        declare -a FASTQ3_ARRAY=(~{sep=' ' read3_fastq})
 
         # read1_fastq_files=`printf '%s ' "${FASTQ1_ARRAY[@]}"; echo`
         # read2_fastq_files=`printf '%s ' "${FASTQ2_ARRAY[@]}"; echo`
