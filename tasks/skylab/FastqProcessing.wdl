@@ -330,7 +330,11 @@ task FastqProcessATAC {
         read3_fastqs = [ "${sep='", "' read3_fastq}" ]
         barcodes_fastqs = [ "${sep='", "' barcodes_fastq}" ]
         for fastq in barcodes_fastqs:
+            print(fastq)
+
+        for fastq in barcodes_fastqs:
             if fastq.strip():
+                print(fastq)
                 optstring += " --R1 " + rename_file(fastq.split("/")[len(fastq.split("/"))-1])
         for fastq in read1_fastqs:
             if fastq.strip():
