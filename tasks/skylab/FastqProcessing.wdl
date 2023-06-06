@@ -301,6 +301,7 @@ task FastqProcessATAC {
         read1_fastqs = [ "${sep='", "' read1_fastq}" ]
         read3_fastqs = [ "${sep='", "' read3_fastq}" ]
         barcodes_fastqs = [ "${sep='", "' barcodes_fastq}" ]
+        print("FASTQS PRINT")
         for fastq in barcodes_fastqs:
             print(fastq)
 
@@ -322,14 +323,14 @@ task FastqProcessATAC {
   
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
-        fastqprocess \
-        --bam-size 30.0 \
-        --sample-id "~{output_base_name}" \
-        $FASTQS \
-        --white-list "~{whitelist}" \
-        --output-format "FASTQ" \
-        --barcode-orientation "~{barcode_orientation}" \
-        --read-structure "~{read_structure}"
+        # fastqprocess \
+        # --bam-size 30.0 \
+        # --sample-id "~{output_base_name}" \
+        # $FASTQS \
+        # --white-list "~{whitelist}" \
+        # --output-format "FASTQ" \
+        # --barcode-orientation "~{barcode_orientation}" \
+        # --read-structure "~{read_structure}"
 
     >>>
 
