@@ -333,13 +333,16 @@ task FastqProcessATAC {
             print(fastq)
 
         for fastq in barcodes_fastqs:
+            print("barcodes")
             if fastq.strip():
                 print(fastq)
                 optstring += " --R1 " + rename_file(fastq.split("/")[len(fastq.split("/"))-1])
         for fastq in read1_fastqs:
+            print("read1")
             if fastq.strip():
                 optstring += " --R2 " + rename_file(fastq.split("/")[len(fastq.split("/"))-1])
         for fastq in read3_fastqs:
+            print("read3")
             if fastq.strip():
                 optstring += " --R3 " + rename_file(fastq.split("/")[len(fastq.split("/"))-1])
         print(optstring)
