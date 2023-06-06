@@ -293,40 +293,43 @@ task FastqProcessATAC {
         # gcloud storage cp $read2_fastq_files .
         # gcloud storage cp $read3_fastq_files .
 
-        # copied from fastqprocess from optimus 
-        FASTQS=$(python3 <<CODE
-      
-        optstring = ""
-     
-        read1_fastqs = [ "${sep='", "' read1_fastq}" ]
-        read3_fastqs = [ "${sep='", "' read3_fastq}" ]
-        barcodes_fastqs = [ "${sep='", "' barcodes_fastq}" ]
-        print("FASTQS PRINT")
-        for fastq in barcodes_fastqs:
-            print(fastq)
+        # barcodes R2
+        for fastq in "${FASTQ2_ARRAY[@]}"
+        do
+            BASE=`basename $fastq`
+            BASE=`echo --R1 $BASE`
+            R1_FILES_CONCAT+=( "$BASE" )
+        done
 
-        # for fastq in barcodes_fastqs:
-        #     print("barcodes")
-        #     if fastq.strip():
-        #         print(fastq)
-        #         optstring += " --R1 " + rename_file(fastq.split("/")[len(fastq.split("/"))-1])
-        # for fastq in read1_fastqs:
-        #     print("read1")
-        #     if fastq.strip():
-        #         optstring += " --R2 " + rename_file(fastq.split("/")[len(fastq.split("/"))-1])
-        # for fastq in read3_fastqs:
-        #     print("read3")
-        #     if fastq.strip():
-        #         optstring += " --R3 " + rename_file(fastq.split("/")[len(fastq.split("/"))-1])
-        print(optstring)
-        CODE)  
-  
+        echo $R1_FILES_CONCAT
+
+        # R1
+        for fastq in "${FASTQ1_ARRAY[@]}"
+        do
+            BASE=`basename $fastq`
+            BASE=`echo --R2 $BASE`
+            R2_FILES_CONCAT+=( "$BASE" )
+        done
+
+        echo $R2_FILES_CONCAT
+
+        for fastq in "${FASTQ3_ARRAY[@]}"
+        do
+            BASE=`basename $fastq`
+            BASE=`echo --R3 $BASE`
+            R3_FILES_CONCAT+=( "$BASE" )
+        done
+
+        echo $R3_FILES_CONCAT
+
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
         # fastqprocess \
         # --bam-size 30.0 \
         # --sample-id "~{output_base_name}" \
-        # $FASTQS \
+        # $R1_FILES_CONCAT \
+        # $R2_FILES_CONCAT \
+        # $R3_FILES_CONCAT \
         # --white-list "~{whitelist}" \
         # --output-format "FASTQ" \
         # --barcode-orientation "~{barcode_orientation}" \
