@@ -287,7 +287,7 @@ task FastqProcessATAC {
         read2_fastq_files=`printf '%s ' "${FASTQ2_ARRAY[@]}"; echo`
         read3_fastq_files=`printf '%s ' "${FASTQ3_ARRAY[@]}"; echo`
 
-        # echo $read1_fastq_files
+        echo $read1_fastq_files
 
         # gcloud storage cp $read1_fastq_files .
         # gcloud storage cp $read2_fastq_files .
@@ -295,6 +295,8 @@ task FastqProcessATAC {
 
         # barcodes R2
         FASTQ2_ARRAY=( $read2_fastq_files )
+        echo "${FASTQ2_ARRAY[@]}"
+
         for fastq in "${FASTQ2_ARRAY[@]}"
         do
             BASE=`basename $fastq`
