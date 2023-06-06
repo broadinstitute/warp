@@ -279,8 +279,8 @@ task FastqProcessATAC {
 
         set -euo pipefail
 
-        declare -a FASTQ1_ARRAY=(~{sep=' ' barcodes_fastq})
-        declare -a FASTQ2_ARRAY=(~{sep=' ' read1_fastq})
+        declare -a FASTQ1_ARRAY=(~{sep=' ' read1_fastq})
+        declare -a FASTQ2_ARRAY=(~{sep=' ' barcodes_fastq})
         declare -a FASTQ3_ARRAY=(~{sep=' ' read3_fastq})
 
         read1_fastq_files=`printf '%s ' "${FASTQ1_ARRAY[@]}"; echo`
@@ -295,6 +295,7 @@ task FastqProcessATAC {
 
         # copied from fastqprocess from optimus 
         FASTQS=$(python3 <<CODE
+        
         def rename_file(filename):
             import shutil
             import gzip
@@ -303,10 +304,10 @@ task FastqProcessATAC {
             
             iscompressed = True
             with gzip.open(filename, 'rt') as fin:
-            try:
-                _ = fin.readline()
-            except:
-                iscompressed = False
+                try:
+                    _ = fin.readline()
+                except:
+                    iscompressed = False
 
             basename = re.sub(r'.gz$', '', filename)
             basename = re.sub(r'.fastq$', '', basename)
@@ -329,17 +330,14 @@ task FastqProcessATAC {
         read1_fastqs = [ "${sep='", "' read1_fastq}" ]
         read3_fastqs = [ "${sep='", "' read3_fastq}" ]
         barcodes_fastqs = [ "${sep='", "' barcodes_fastq}" ]
-        for fastq in read1_fastqs:
-            if fastq.strip(): 
-                print(Path(fastq).stem)
-                optstring += " --R2 " + rename_file(Path(fastq).stem)
         for fastq in barcodes_fastqs:
-            if fastq.strip(): 
-                print(Path(fastq).stem)
+            if fastq.strip():
                 optstring += " --R1 " + rename_file(Path(fastq).stem)
+        for fastq in read1_fastqs:
+            if fastq.strip():
+                optstring += " --R2 " + rename_file(Path(fastq).stem)
         for fastq in read3_fastqs:
-            if fastq.strip(): 
-                print(Path(fastq).stem)
+            if fastq.strip():
                 optstring += " --R3 " + rename_file(Path(fastq).stem)
         print(optstring)
         CODE)  
