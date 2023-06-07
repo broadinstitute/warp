@@ -129,8 +129,8 @@ task BuildStarSingleNucleus {
     # Output GTF:
     #     ... gene_id "ENSG00000223972"; gene_version "5"; ...
 
-    gtf_modified="$(basename ~{annotation_gtf}).modified"
-    echo $gtf_modified
+    #gtf_modified="$(basename ~{annotation_gtf}).modified"
+
     # Pattern matches Ensembl gene, transcript, and exon IDs for human or mouse:
     #ID="(ENS(MUS)?[GTE][0-9]+)\.([0-9]+)"
     #cat ~{annotation_gtf} \
@@ -172,7 +172,7 @@ task BuildStarSingleNucleus {
     # We then collect the list of gene IDs that have at least one associated
     # transcript passing the filters.
     echo "Constructing gene ID allowlist..."
-    cat "$gtf_modified" \
+    cat ~{annotation_gtf} \
         | awk '$3 == "transcript" || $3 == "gene" || $3 == "exon"' \
         | grep -E "($GENE_PATTERN|$TX_PATTERN)" \
         | sed -E 's/.*(gene_id "[^"]+").*/\1/' \
