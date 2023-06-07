@@ -211,6 +211,7 @@ task BuildStarSingleNucleus {
 
   output {
     File star_index = star_index_name
+    File modifed_gtf = "modified_v103.annotation.gtf"
     File annotation_gtf_modified_introns = annotation_gtf_introns
     File modified_annotation_gtf = annotation_gtf_modified
   }
