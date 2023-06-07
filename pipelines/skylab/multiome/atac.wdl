@@ -161,6 +161,7 @@ task TrimAdapters {
     # -A for paired adapters read 2
     cutadapt \
     -Z \
+    --cores 0 \
     --minimum-length ~{min_length} \
     --quality-cutoff ~{quality_cutoff} \
     --adapter ~{adapter_seq_read1} \
