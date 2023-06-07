@@ -294,39 +294,34 @@ task FastqProcessATAC {
         # gcloud storage cp $read3_fastq_files .
 
         # barcodes R2
-        #FASTQ2_ARRAY=( $read2_fastq_files )
-        eval "FASTQ2_ARRAY=($read2_fastq_files)" 
-        echo "${FASTQ2_ARRAY[@]}"
+        R1_FILES_CONCAT=""
         for fastq in "${FASTQ2_ARRAY[@]}"
         do
             BASE=`basename $fastq`
             BASE=`echo --R1 $BASE`
-            R1_FILES_CONCAT+=( "$BASE" )
+            R1_FILES_CONCAT+="$BASE "
         done
 
         echo $R1_FILES_CONCAT
 
         # R1
-        #FASTQ1_ARRAY=( $read1_fastq_files )
-        eval "FASTQ1_ARRAY=($read1_fastq_files)" 
+        R2_FILES_CONCAT=""
         for fastq in "${FASTQ1_ARRAY[@]}"
         do
             BASE=`basename $fastq`
             BASE=`echo --R2 $BASE`
-            R2_FILES_CONCAT+=( "$BASE" )
+            R2_FILES_CONCAT+="$BASE "
         done
 
         echo $R2_FILES_CONCAT
 
         # R3
-        #FASTQ3_ARRAY=( $read3_fastq_files )
-        eval "FASTQ3_ARRAY=($read3_fastq_files)" 
-
+        R3_FILES_CONCAT=""
         for fastq in "${FASTQ3_ARRAY[@]}"
         do
             BASE=`basename $fastq`
             BASE=`echo --R3 $BASE`
-            R3_FILES_CONCAT+=( "$BASE" )
+            R3_FILES_CONCAT+="$BASE "
         done
 
         echo $R3_FILES_CONCAT
