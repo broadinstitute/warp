@@ -47,8 +47,8 @@ ATAC can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/
 
 ## Input Variables
 
-| Variable Name              | Description                                                                                          |
-|---------------------------|------------------------------------------------------------------------------------------------------|
+| Variable name | Description |
+| --- | --- |
 | read1_fastq_gzipped       | Fastq inputs (array of compressed read 1 FASTQ files)                                                |
 | read2_fastq_gzipped       | Fastq inputs (array of compressed read 2 FASTQ files containing cellular barcodes)                   |
 | read3_fastq_gzipped       | Fastq inputs (array of compressed read 3 FASTQ files)                                                |
