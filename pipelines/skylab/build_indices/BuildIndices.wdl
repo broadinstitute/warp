@@ -131,12 +131,12 @@ task BuildStarSingleNucleus {
 
     gtf_modified="$(basename ~{annotation_gtf}).modified"
     # Pattern matches Ensembl gene, transcript, and exon IDs for human or mouse:
-    ID="(ENS(MUS)?[GTE][0-9]+)\.([0-9]+)"
-    cat ~{annotation_gtf} \
-        | sed -E 's/gene_id "'"$ID"'";/gene_id "\1"; gene_version "\3";/' \
-        | sed -E 's/transcript_id "'"$ID"'";/transcript_id "\1"; transcript_version "\3";/' \
-        | sed -E 's/exon_id "'"$ID"'";/exon_id "\1"; exon_version "\3";/' \
-        > "$gtf_modified"
+    #ID="(ENS(MUS)?[GTE][0-9]+)\.([0-9]+)"
+    #cat ~{annotation_gtf} \
+    #    | sed -E 's/gene_id "'"$ID"'";/gene_id "\1"; gene_version "\3";/' \
+    #    | sed -E 's/transcript_id "'"$ID"'";/transcript_id "\1"; transcript_version "\3";/' \
+    #    | sed -E 's/exon_id "'"$ID"'";/exon_id "\1"; exon_version "\3";/' \
+    #    > "$gtf_modified"
 
 
     # Define string patterns for GTF tags
@@ -157,7 +157,7 @@ task BuildStarSingleNucleus {
     IG_C_gene|IG_D_gene|IG_J_gene|IG_LV_gene|IG_V_gene|\
     IG_V_pseudogene|IG_J_pseudogene|IG_C_pseudogene|\
     TR_C_gene|TR_D_gene|TR_J_gene|TR_V_gene|\
-    TR_V_pseudogene|TR_J_pseudogene)"
+    TR_V_pseudogene|TR_J_pseudogene|lnc_RNA)"
     GENE_PATTERN="gene_biotype \"${BIOTYPE_PATTERN}\""
     TX_PATTERN="transcript_biotype \"${BIOTYPE_PATTERN}\""
 
@@ -172,9 +172,8 @@ task BuildStarSingleNucleus {
     # transcript passing the filters.
 
     cat "$gtf_modified" \
-        | awk '$3 == "transcript"' \
-        | grep -E "$GENE_PATTERN" \
-        | grep -E "$TX_PATTERN" \
+        | awk '$3 == "transcript" || $3 == "gene" || $3 == "exon"' \
+        | grep -E "($GENE_PATTERN|$TX_PATTERN)" \
         | sed -E 's/.*(gene_id "[^"]+").*/\1/' \
         | sort \
         | uniq \
