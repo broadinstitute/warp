@@ -121,25 +121,6 @@ task BuildStarSingleNucleus {
 
     set -eo pipefail
 
-    # Remove version suffix from transcript, gene, and exon IDs in order to match
-    # previous Cell Ranger reference packages
-    #
-    # Input GTF:
-    #     ... gene_id "ENSG00000223972.5"; ...
-    # Output GTF:
-    #     ... gene_id "ENSG00000223972"; gene_version "5"; ...
-
-    #gtf_modified="$(basename ~{annotation_gtf}).modified"
-
-    # Pattern matches Ensembl gene, transcript, and exon IDs for human or mouse:
-    #ID="(ENS(MUS)?[GTE][0-9]+)\.([0-9]+)"
-    #cat ~{annotation_gtf} \
-    #    | sed -E 's/gene_id "'"$ID"'";/gene_id "\1"; gene_version "\3";/' \
-    #    | sed -E 's/transcript_id "'"$ID"'";/transcript_id "\1"; transcript_version "\3";/' \
-    #    | sed -E 's/exon_id "'"$ID"'";/exon_id "\1"; exon_version "\3";/' \
-    #    > "$gtf_modified"
-
-
     # Define string patterns for GTF tags
     # NOTES:
     # - Since GENCODE release 31/M22 (Ensembl 97), the "lincRNA" and "antisense"
@@ -153,13 +134,16 @@ task BuildStarSingleNucleus {
     #   - Only the X chromosome versions of genes in the pseudoautosomal regions
     #     are present, so there is no "PAR" tag.
 
+    # I added lnc_RNA to the biotype pattern, but I'm not sure if that's correct
     BIOTYPE_PATTERN=\
     "(protein_coding|lncRNA|\
     IG_C_gene|IG_D_gene|IG_J_gene|IG_LV_gene|IG_V_gene|\
     IG_V_pseudogene|IG_J_pseudogene|IG_C_pseudogene|\
     TR_C_gene|TR_D_gene|TR_J_gene|TR_V_gene|\
     TR_V_pseudogene|TR_J_pseudogene|lnc_RNA)"
+
     GENE_PATTERN="gene_biotype \"${BIOTYPE_PATTERN}\""
+
     TX_PATTERN="transcript_biotype \"${BIOTYPE_PATTERN}\""
 
 
@@ -171,6 +155,8 @@ task BuildStarSingleNucleus {
     #   - no "readthrough_transcript" tag
     # We then collect the list of gene IDs that have at least one associated
     # transcript passing the filters.
+
+    # I added transcript and exon to the awk command, but I'm not sure if that's correct
     echo "Constructing gene ID allowlist..."
     cat ~{annotation_gtf} \
         | awk '$3 == "transcript" || $3 == "gene" || $3 == "exon"' \
@@ -191,7 +177,7 @@ task BuildStarSingleNucleus {
 
     # Filter to the gene allowlist
 
-    grep -Ff "gene_allowlist"  ~{annotation_gtf} >> "$gtf_filtered"
+    grep -Ff "gene_allowlist" ~{annotation_gtf} >> ~{annotation_gtf_modified}
     ls -lh *
 
 
@@ -211,7 +197,6 @@ task BuildStarSingleNucleus {
 
   output {
     File star_index = star_index_name
-    File modifed_gtf = "modified_v103.annotation.gtf"
     File annotation_gtf_modified_introns = annotation_gtf_introns
     File modified_annotation_gtf = annotation_gtf_modified
   }
