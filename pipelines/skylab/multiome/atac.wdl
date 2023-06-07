@@ -124,7 +124,7 @@ task TrimAdapters {
 
     # Runtime attributes/docker
     Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") )) + 300
-    Int mem_size = 4
+    Int mem_size = 15
     String docker_image = "quay.io/broadinstitute/cutadapt:1.18"
     File monitoring_script
   }
@@ -161,7 +161,6 @@ task TrimAdapters {
     # -A for paired adapters read 2
     cutadapt \
     -Z \
-    --cores 0 \
     --minimum-length ~{min_length} \
     --quality-cutoff ~{quality_cutoff} \
     --adapter ~{adapter_seq_read1} \
