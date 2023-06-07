@@ -289,9 +289,9 @@ task FastqProcessATAC {
 
         echo $read1_fastq_files
 
-        # gcloud storage cp $read1_fastq_files .
-        # gcloud storage cp $read2_fastq_files .
-        # gcloud storage cp $read3_fastq_files .
+        gcloud storage cp $read1_fastq_files .
+        gcloud storage cp $read2_fastq_files .
+        gcloud storage cp $read3_fastq_files .
 
         # barcodes R2
         R1_FILES_CONCAT=""
