@@ -318,14 +318,16 @@ task rnaseqc2 {
     Int cpu = 1
     Int memory_mb = 8000
     Int disk_size_gb = ceil(size(bam_file, 'GiB') + size(genes_gtf, 'GiB') + size(exon_bed, 'GiB')) + 50
+    File monitoring_script = "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh"
   }
 
   command <<<
     set -euo pipefail
+    bash ~{monitoring_script} &
     # force fragmentSizes histogram output file to exist (even if empty)
     touch ~{sample_id}.fragmentSizes.txt
     echo $(date +"[%b %d %H:%M:%S] Running RNA-SeQC 2")
-    rnaseqc ~{genes_gtf} ~{bam_file} . -s ~{sample_id} -v --bed ~{exon_bed}
+    rnaseqc ~{genes_gtf} ~{bam_file} . -s ~{sample_id} -vv --bed ~{exon_bed}
     echo "  * compressing outputs"
     gzip *.gct
     echo $(date +"[%b %d %H:%M:%S] done")
