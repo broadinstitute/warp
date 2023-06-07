@@ -187,11 +187,11 @@ task BuildStarSingleNucleus {
 
     # Copy header lines beginning with "#"
 
-    grep -E "^#" "$gtf_modified" > "$gtf_filtered"
+    grep -E "^#"  ~{annotation_gtf} > "$gtf_filtered"
 
     # Filter to the gene allowlist
 
-    grep -Ff "gene_allowlist" "$gtf_modified" >> "$gtf_filtered"
+    grep -Ff "gene_allowlist"  ~{annotation_gtf} >> "$gtf_filtered"
     ls -lh *
 
 
