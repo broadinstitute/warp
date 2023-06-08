@@ -53,7 +53,7 @@ task OptimusH5adGeneration {
     touch empty_drops_result.csv
 
     if [ "~{counting_mode}" == "sc_rna" ]; then
-        python3 /warptools/tools/scripts/create_h5ad_optimus.py \
+        python3 /warptools/scripts/create_h5ad_optimus.py \
           ~{if defined(empty_drops_result) then "--empty_drops_file  " + empty_drops_result  else "--empty_drops_file empty_drops_result.csv "  } \
           --add_emptydrops_data ~{add_emptydrops_data} \
           --annotation_file ~{annotation_file} \
@@ -150,7 +150,7 @@ task SingleNucleusOptimusH5adOutput {
     command {
         set -euo pipefail
 
-        python3 /warptools/tools/scripts/create_snrna_optimus_exon_h5ad.py \
+        python3 warptools/scripts/create_snrna_optimus_exon_h5ad.py \
         --annotation_file ~{annotation_file} \
         --cell_metrics ~{cell_metrics} \
         --gene_metrics ~{gene_metrics} \
