@@ -265,8 +265,8 @@ task AddCBtags {
   input {
     File bam
     String output_base_name
-    Int disk_size = ceil(size(bam, "GiB") + 50)
-    Int mem_size = 10
+    Int disk_size = ceil(size(bam, "GiB") + 500)
+    Int mem_size = 30
   }
 
   String bam_cb_output_name = output_base_name + ".cb.aligned.bam"
