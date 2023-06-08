@@ -150,7 +150,7 @@ task SingleNucleusOptimusH5adOutput {
     command {
         set -euo pipefail
 
-        python3 /warptools/scripts/create_snrna_optimus_exon_h5ad.py \
+        python3 /warptools/scripts/create_snrna_optimus_exons_h5ad.py \
         --annotation_file ~{annotation_file} \
         --cell_metrics ~{cell_metrics} \
         --gene_metrics ~{gene_metrics} \
