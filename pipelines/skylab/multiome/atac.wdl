@@ -82,7 +82,9 @@ workflow ATAC {
     call AddCBtags {
       input:
         bam = BWAPairedEndAlignment.bam_aligned_output,
-        output_base_name = output_base_name
+        output_base_name = output_base_name,
+        monitoring_script = monitoring_script,
+
     }
 
   }
@@ -267,11 +269,24 @@ task AddCBtags {
     String output_base_name
     Int disk_size = ceil(size(bam, "GiB") + 500)
     Int mem_size = 30
+    
+    # script for monitoring tasks
+    File monitoring_script
   }
 
   String bam_cb_output_name = output_base_name + ".cb.aligned.bam"
 
   command <<<
+  
+    set -euo pipefail
+
+    if [ ! -z "~{monitoring_script}" ]; then
+    chmod a+x ~{monitoring_script}
+    ~{monitoring_script} > monitoring.log &
+    else
+    echo "No monitoring script given as input" > monitoring.log &
+    fi
+    
     # We reused tags from Broad's Share-seq pipeline; XC tag is not currently needed by pipeline
     samtools view -h ~{bam} \
     | awk '{if ($0 ~ /^@/) {print $0} else {cr=substr($1, index($1, "CR:")+3); n=split($1, a,":CB:"); if (n == 2) {cb="CB:Z:"a[1]"\t";} else {cb="";} print($0 "\tCR:Z:" cr "\t" cb "XC:Z:" substr($1, index($1, "CB:")+3));}}' \
@@ -283,6 +298,8 @@ task AddCBtags {
 
   output {
     File output_cb_bam = "~{bam_cb_output_name}"
+    File monitoring_log = "monitoring.log"
+
   }
 
   runtime {
