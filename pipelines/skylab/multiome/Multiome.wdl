@@ -10,6 +10,7 @@ workflow Multiome {
         # Optimus Inputs
         String counting_mode = "sn_rna"
         Array[File] gex_r1_fastq
+        #small change
         Array[File] gex_r2_fastq
         Array[File]? gex_i1_fastq
         String input_id
