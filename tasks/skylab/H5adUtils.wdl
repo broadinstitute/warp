@@ -61,7 +61,7 @@ task OptimusH5adGeneration {
           --gene_metrics ~{gene_metrics} \
           --cell_id ~{cell_id} \
           --gene_id  ~{gene_id} \
-          --output_path_for_h5ad "~{input_id}.h5ad" \
+          --output_path_for_h5ad "~{input_id}" \
           --input_id ~{input_id} \
           ~{"--input_name " + input_name} \
           ~{"--input_id_metadata_field " + input_id_metadata_field} \
@@ -76,7 +76,7 @@ task OptimusH5adGeneration {
           --gene_metrics ~{gene_metrics} \
           --cell_id ~{cell_id} \
           --gene_id  ~{gene_id} \
-          --output_path_for_h5ad "~{input_id}.h5ad" \
+          --output_path_for_h5ad "~{input_id}" \
           --input_id ~{input_id} \
           ~{"--input_name " + input_name} \
           ~{"--input_id_metadata_field " + input_id_metadata_field} \
@@ -160,7 +160,7 @@ task SingleNucleusOptimusH5adOutput {
         --count_matrix_2 ~{sparse_count_matrix_exon} \
         --cell_id_2 ~{cell_id_exon} \
         --gene_id_2  ~{gene_id_exon} \
-        --output_path_for_h5ad "~{input_id}.h5ad" \
+        --output_path_for_h5ad "~{input_id}" \
         --input_id ~{input_id} \
         ~{"--input_name " + input_name} \
         ~{"--input_id_metadata_field " + input_id_metadata_field} \
