@@ -6,7 +6,7 @@ task OptimusH5adGeneration {
 
   input {
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686246774"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686253441"
     # name of the sample
     String input_id
     # user provided id
@@ -105,7 +105,7 @@ task SingleNucleusOptimusH5adOutput {
 
     input {
         #runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686246774"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686253441"
         # name of the sample
         String input_id
         # user provided id
@@ -150,7 +150,7 @@ task SingleNucleusOptimusH5adOutput {
     command {
         set -euo pipefail
 
-        python3 warptools/scripts/create_snrna_optimus_exon_h5ad.py \
+        python3 /warptools/scripts/create_snrna_optimus_exon_h5ad.py \
         --annotation_file ~{annotation_file} \
         --cell_metrics ~{cell_metrics} \
         --gene_metrics ~{gene_metrics} \
