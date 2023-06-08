@@ -7,6 +7,7 @@ import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 import "../../../tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
+import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 
 workflow Optimus {
   meta {
