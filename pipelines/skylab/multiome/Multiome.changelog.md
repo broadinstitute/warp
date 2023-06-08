@@ -1,3 +1,8 @@
+# 1.0.2
+2023-06-08 (Date of Last Commit)
+
+* Added h5ad as a format option for the cell by gene matrix output
+
 # 1.0.1
 
 2023-05-31 (Date of Last Commit)

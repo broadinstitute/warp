@@ -4,7 +4,7 @@ import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 
 workflow Multiome {
-    String pipeline_version = "1.0.1"
+    String pipeline_version = "1.0.2"
 
     input {
         # Optimus Inputs
@@ -106,5 +106,6 @@ workflow Multiome {
         File gene_metrics = Optimus.gene_metrics
         File? cell_calls = Optimus.cell_calls
         File loom_output_file = Optimus.loom_output_file
+        File h5ad_output_file = Optimus.h5ad_output_file
     }
 }
