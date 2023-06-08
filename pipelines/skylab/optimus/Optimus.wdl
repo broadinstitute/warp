@@ -248,7 +248,6 @@ workflow Optimus {
         gene_id_exon = MergeStarOutputsExons.col_index,
         pipeline_version = "Optimus_v~{pipeline_version}"
     }
-
   }
 
   File final_loom_output = select_first([OptimusLoomGenerationWithExons.loom_output, OptimusLoomGeneration.loom_output])
@@ -269,5 +268,5 @@ workflow Optimus {
     # loom
     File loom_output_file = final_loom_output
     File h5ad_output_file = final_h5ad_output
-}
+  }
 }
