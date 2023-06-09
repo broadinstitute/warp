@@ -162,7 +162,7 @@ The table below details the final outputs of the Multi-snSS2 workflow.
 | bam_files | Array of genome-aligned BAM files (one for each cell) generated with STAR.  | Array [BAM]|
 | pipeline_version_out | Version of the processing pipeline run on this data. | String |
 
-The Loom matrix is the default output. See the [reate_loom_snss2.py](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/create_loom_snss2.py) script for the detailed code. This matrix contains the count matrices, as well as the gene and cell metrics detailed in the [Multi-snSS2 Count Matrix Overview](./count-matrix-overview.md).
+The Loom matrix is the default output. See the [create_loom_snss2.py](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/create_loom_snss2.py) script for the detailed code. This matrix contains the count matrices, as well as the gene and cell metrics detailed in the [Multi-snSS2 Count Matrix Overview](./count-matrix-overview.md).
 
 To facilitate downstream analysis, the output Loom file contains both gene names and gene IDs.
 
