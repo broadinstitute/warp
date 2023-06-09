@@ -166,7 +166,7 @@ The Loom matrix is the default output. See the [create_loom_snss2.py](https://gi
 
 To facilitate downstream analysis, the output Loom file contains both gene names and gene IDs.
 
-The output Loom matrix can be converted to an H5AD file using a [custom script](https://github.com/broadinstitute/warp-tools/blob/develop/scripts/loom_to_h5ad.py) available in the [warp-tools GitHub repository](https://github.com/broadinstitute/warp-tools).
+The output Loom matrix can be converted to an H5AD file using a [custom script](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/loom_to_h5ad.py) available in the [warp-tools GitHub repository](https://github.com/broadinstitute/warp-tools).
 
 ## Validation
 The Multi-snSS2 pipeline was scientifically validated by the BRAIN Initiatives Cell Census Network (BICCN) 2.0 Whole Mouse Brain Working Group. 
