@@ -8,7 +8,7 @@ sidebar_position: 1
 | :----: | :---: | :----: | :--------------: |
 | [not release](https://github.com/broadinstitute/warp/releases) | May, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
-![Multiome_diagram]()
+![ATAC_diagram]()
 
 ## Introduction to the ATAC workflow
 ATAC is an open-source, cloud-optimized pipeline developed in collaboration with members of the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and BICAN), including the [Allen Institute for Brain Science](https://alleninstitute.org/division/brain-science/), [Neuroscience MultiOmic Archive](https://nemoarchive.org/), Kai Zhang ([SnapATAC2](https://kzhang.org/SnapATAC2/index.html)), and Alex Dobin ([STARsolo](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md)). It supports the processing of 10x single-nucleus data generated with 10x Multiome [ATAC-seq (Assay for Transposase-Accessible Chromatin using sequencing)](https://www.10xgenomics.com/products/single-cell-multiome-atac-plus-gene-expression), a technique used in molecular biology to assess genome-wide chromatin accessibility. 
@@ -17,7 +17,7 @@ This workflow is the ATAC component of the [Mutiome workflow](../Multiome_Pipeli
 
 
 ## Quickstart table
-The following table provides a quick glance at the Multiome pipeline features:
+The following table provides a quick glance at the ATAC pipeline features:
 
 | Pipeline features | Description | Source |
 |--- | --- | --- |
@@ -34,7 +34,7 @@ The following table provides a quick glance at the Multiome pipeline features:
 
 ### ATAC installation
 
-To download the latest ATAC release, see the release tags prefixed with "Multiome" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All Multiome pipeline releases are documented in the [Multiome changelog](). 
+To download the latest ATAC release, see the release tags prefixed with "Multiome" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All ATAC pipeline releases are documented in the [ATAC changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.changelog.md). 
 
 To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
 
@@ -45,6 +45,7 @@ ATAC can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/
 
 ## Input Variables
 The following describes the inputs of the ATAC workflow. For more details on how inputs are set by default for the Multiome workflow, see the [Multiome overview](../Multiome_Pipeline/README).
+
 | Variable name | Description |
 | --- | --- |
 | read1_fastq_gzipped | Fastq inputs (array of compressed read 1 FASTQ files) |
@@ -61,7 +62,7 @@ The following describes the inputs of the ATAC workflow. For more details on how
 
 ## ATAC tasks and tools
 
-Overall, the Optimus workflow:
+Overall, the ATAC workflow:
 1. Corrects CBs and partitions FASTQs by CB.
 1. Aligns reads.
 1. Merges aligned BAMs
