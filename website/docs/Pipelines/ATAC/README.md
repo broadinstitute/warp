@@ -6,14 +6,14 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [not release](https://github.com/broadinstitute/warp/releases) | May, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [not released](https://github.com/broadinstitute/warp/releases) | May, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![ATAC_diagram]()
 
 ## Introduction to the ATAC workflow
-ATAC is an open-source, cloud-optimized pipeline developed in collaboration with members of the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and BICAN), including the [Allen Institute for Brain Science](https://alleninstitute.org/division/brain-science/), [Neuroscience MultiOmic Archive](https://nemoarchive.org/), Kai Zhang ([SnapATAC2](https://kzhang.org/SnapATAC2/index.html)), and Alex Dobin ([STARsolo](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md)). It supports the processing of 10x single-nucleus data generated with 10x Multiome [ATAC-seq (Assay for Transposase-Accessible Chromatin using sequencing)](https://www.10xgenomics.com/products/single-cell-multiome-atac-plus-gene-expression), a technique used in molecular biology to assess genome-wide chromatin accessibility. 
+ATAC is an open-source, cloud-optimized pipeline developed in collaboration with members of the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and BICAN), including the [Allen Institute for Brain Science](https://alleninstitute.org/division/brain-science/), [Neuroscience MultiOmic Archive](https://nemoarchive.org/), Kai Zhang ([SnapATAC2](https://kzhang.org/SnapATAC2/index.html)), and Alex Dobin ([STARsolo](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md)). It supports the processing of 10x single-nucleus data generated with 10x Multiome [ATAC-seq (Assay for Transposase-Accessible Chromatin)](https://www.10xgenomics.com/products/single-cell-multiome-atac-plus-gene-expression), a technique used in molecular biology to assess genome-wide chromatin accessibility. 
 
-This workflow is the ATAC component of the [Mutiome workflow](../Multiome_Pipeline/README). It corrects cell barcodes, aligns reads to the genome, and producesa fragment file as well as per barcode metrics. 
+This workflow is the ATAC component of the [Mutiome wrapper workflow](../Multiome_Pipeline/README). It corrects cell barcodes (CBs), aligns reads to the genome, and produces a fragment file as well as per barcode metrics. 
 
 
 ## Quickstart table
@@ -21,7 +21,7 @@ The following table provides a quick glance at the ATAC pipeline features:
 
 | Pipeline features | Description | Source |
 |--- | --- | --- |
-| Assay type | 10x single cell or single nucleus gene expression (GEX) and ATAC | [10x Genomics](https://www.10xgenomics.com)
+| Assay type | 10x single cell or single nucleus ATAC | [10x Genomics](https://www.10xgenomics.com)
 | Overall workflow  | Barcode correction, read alignment, and fragment quanitification |
 | Workflow language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence | GRCh38 human genome primary sequence | GENCODE |
@@ -38,27 +38,24 @@ To download the latest ATAC release, see the release tags prefixed with "Multiom
 
 To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
 
-
 ATAC can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. The workflow can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. 
 
-
-
 ## Input Variables
-The following describes the inputs of the ATAC workflow. For more details on how inputs are set by default for the Multiome workflow, see the [Multiome overview](../Multiome_Pipeline/README).
+The following describes the inputs of the ATAC workflow. For more details on how default inputs are set for the Multiome workflow, see the [Multiome overview](../Multiome_Pipeline/README).
 
 | Variable name | Description |
 | --- | --- |
-| read1_fastq_gzipped | Fastq inputs (array of compressed read 1 FASTQ files) |
-| read2_fastq_gzipped | Fastq inputs (array of compressed read 2 FASTQ files containing cellular barcodes) |
-| read3_fastq_gzipped | Fastq inputs (array of compressed read 3 FASTQ files) |
-| output_base_name | Output prefix/base name for all intermediate files and pipeline outputs |
-| tar_bwa_reference | BWA reference (tar file containing reference fasta and corresponding files) |
-| barcodes_in_read_name | CreateFragmentFile input variable: Boolean indicating whether barcodes are in read names |
-| atac_gtf | CreateFragmentFile input variable: GTF file for SnapATAC2 to calculate TSS sites of fragment file |
+| read1_fastq_gzipped | Fastq inputs (array of compressed read 1 FASTQ files). |
+| read2_fastq_gzipped | Fastq inputs (array of compressed read 2 FASTQ files containing cellular barcodes). |
+| read3_fastq_gzipped | Fastq inputs (array of compressed read 3 FASTQ files). |
+| output_base_name | Output prefix/base name for all intermediate files and pipeline outputs. |
+| tar_bwa_reference | BWA reference (tar file containing reference fasta and corresponding files). |
+| barcodes_in_read_name | CreateFragmentFile input variable: Boolean indicating whether barcodes are in read names. |
+| atac_gtf | CreateFragmentFile input variable: GTF file for SnapATAC2 to calculate TSS sites of fragment file .|
 | chrom_sizes | CreateFragmentFile input variable: Text file containing chrom_sizes for genome build (i.e., hg38) |
-| whitelist | Whitelist file for ATAC cellular barcodes |
-| adapter_seq_read1 | TrimAdapters input: Sequence adapter for read 1 fastq |
-| adapter_seq_read3 | TrimAdapters input: Sequence adapter for read 3 fastq |
+| whitelist | Whitelist file for ATAC cellular barcodes. |
+| adapter_seq_read1 | TrimAdapters input: Sequence adapter for read 1 fastq. |
+| adapter_seq_read3 | TrimAdapters input: Sequence adapter for read 3 fastq. |
 
 ## ATAC tasks and tools
 
@@ -68,7 +65,6 @@ Overall, the ATAC workflow:
 1. Merges aligned BAMs
 1. Generates a fragment file
 1. Calculates per cell barcode fragment metrics.
-
 
 The tools each ATAC task employs are detailed in the table below. 
 
