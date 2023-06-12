@@ -160,6 +160,7 @@ task TrimAdapters {
 
     # fastq's, "-f", -A for paired adapters read 2"
     cutadapt \
+    -Z \
     -f fastq \
     --minimum-length ~{min_length} \
     --quality-cutoff ~{quality_cutoff} \
