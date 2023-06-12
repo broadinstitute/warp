@@ -80,7 +80,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | [CreateFragmentFile](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) | make_fragment_file, import_data | SnapATAC2 | Generates a fragment file from the final aligned BAM and outputs quality metrics in h5ad. |
 
 
-## Output Variables
+## Output variables
 
 | Output variable name | Filename, if applicable | Output format and description |
 |--- | --- | --- | 

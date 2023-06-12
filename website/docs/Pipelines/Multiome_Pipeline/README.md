@@ -11,7 +11,7 @@ sidebar_position: 1
 ![Multiome_diagram]()
 
 ## Introduction to the Multiome workflow
-Multiome is an open-source, cloud-optimized pipeline developed in collaboration with members of the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and BICAN), including the [Allen Institute for Brain Science](https://alleninstitute.org/division/brain-science/), [Neuroscience MultiOmic Archive](https://nemoarchive.org/), Kai Zhang ([SnapATAC2](https://kzhang.org/SnapATAC2/index.html)), and Alex Dobin ([STARsolo](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md)). It supports the processing of 10x 3' single-cell and single-nucleus count data generated with the [10x Genomics Multiome assay](https://www.10xgenomics.com/products/single-cell-multiome-atac-plus-gene-expression).
+Multiome is an open-source, cloud-optimized pipeline developed in collaboration with members of the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and BICAN), including the [Allen Institute for Brain Science](https://alleninstitute.org/division/brain-science/), [Neuroscience MultiOmic Archive](https://nemoarchive.org/), Kai Zhang ([SnapATAC2](https://kzhang.org/SnapATAC2/index.html)), and Alex Dobin ([STARsolo](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md)). It supports the processing of 10x 3' single-cell and single-nucleus gene expression (GEX) and ATAC data generated with the [10x Genomics Multiome assay](https://www.10xgenomics.com/products/single-cell-multiome-atac-plus-gene-expression).
 
 The workflow is a wrapper WDL script that consists of two subworkflows: the [Optimus workflow](../Optimus_Pipeline/README) for GEX data and the [ATAC workflow](../ATAC/README) for single-cell ATAC data. The GEX component performs barcode and UMI correction, aligns reads to the genome, and produces both quality metrics per barcode and gene and a raw cell-by-gene count matrix. The ATAC component corrects cell barcodes, aligns reads to the genome, and producesa fragment file as well as per barcode metrics. 
 
@@ -78,8 +78,8 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 ## Tasks
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | --- | 
-| [Atac](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) | Atac pipeline | fastqprocess, bwa-mem, SnapATAC2 | Workflow to analyze 10x single-cell ATAC data. |
-| [Optimus(https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.wdl)] | Gene expression pipeline | fastqprocess, STARsolo, Emptydrops | Workflow to analyze 10x single-cell gene expression data. | 
+| [Atac](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) | ATAC workflow | fastqprocess, bwa-mem, SnapATAC2 | Workflow to analyze 10x single-cell ATAC data. |
+| [Optimus(https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.wdl)] | Gene expression workflow | fastqprocess, STARsolo, Emptydrops | Workflow to analyze 10x single-cell gene expression data. | 
 
 ## Output Variables
 
