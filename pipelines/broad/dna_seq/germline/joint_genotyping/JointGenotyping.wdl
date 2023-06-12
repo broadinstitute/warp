@@ -117,7 +117,7 @@ workflow JointGenotyping {
         ref_dict = ref_dict,
         workspace_dir_name = "genomicsdb",
         disk_size_gb = medium_disk,
-        batch_size = 50
+        batch_size = 30
     }
 
     if (use_gnarly_genotyper) {
