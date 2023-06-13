@@ -94,7 +94,6 @@ workflow TestOptimus {
                                       Optimus.matrix_row_index,
                                       Optimus.matrix_col_index,
                                       Optimus.cell_calls,
-                                      Optimus.loom_output_file,
                                       Optimus.h5ad_output_file,
   ])
 
@@ -125,13 +124,6 @@ workflow TestOptimus {
 
   # If not updating truth then gather the inputs and call verification wdl
   if (!update_truth) {
-    call Utilities.GetValidationInputs as GetLoomInputs {
-      input:
-        input_file   = Optimus.loom_output_file,
-        results_path = results_path,
-        truth_path   = truth_path
-    }
-
     call Utilities.GetValidationInputs as GetH5adInputs {
       input:
         input_file   = Optimus.h5ad_output_file,
