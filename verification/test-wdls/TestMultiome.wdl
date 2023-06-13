@@ -191,7 +191,7 @@ workflow TestMultiome {
       call VerifyMultiome.VerifyMultiome as Verify {
         input:
           truth_optimus_h5ad = GetOptimusH5ad.truth_file,
-          test_optimus_h5ad =GetOptimusH5ad.results_file
+          test_optimus_h5ad = GetOptimusH5ad.results_file,
           truth_optimus_bam = GetOptimusBam.truth_file, 
           test_optimus_bam = GetOptimusBam.results_file,
           truth_gene_metrics = GetGeneMetrics.truth_file, 

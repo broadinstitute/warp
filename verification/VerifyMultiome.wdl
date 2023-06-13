@@ -66,12 +66,12 @@ workflow VerifyMultiome {
 
     call VerifyTasks.CompareH5adFiles as CompareH5adFilesATAC {
         input:
-            test_atac_h5ad  = test_atac_h5ad,
-            truth_atac_h5ad = truth_atac_h5ad
+            test_h5ad  = test_atac_h5ad,
+            truth_h5ad = truth_atac_h5ad
     }
     call VerifyTasks.CompareH5adFiles as CompareH5adFilesOptimus {
         input:
-            test_optimus_h5ad  = test_optimus_h5ad,
-            truth_optimus_h5ad = truth_optimus_h5ad
+            test_h5ad  = test_optimus_h5ad,
+            truth_h5ad = truth_optimus_h5ad
     }
 }
