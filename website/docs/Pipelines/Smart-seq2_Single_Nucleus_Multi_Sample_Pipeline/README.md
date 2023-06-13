@@ -119,7 +119,7 @@ The StarAlignFastq task runs the STAR aligner on the trimmed FASTQ files. The ST
 The RemoveDuplicatesFromBam task removes multi-mapped reads, optical duplicates, and PCR duplicates from the aligned BAM. It then adds readgroup information and creates a new, coordinate-sorted aligned BAM output.
 
 #### 4. Collecting metrics
-The CollectMultipleMetrics task uses the Picard tool CollectMultipleMetrics to perform QC on the deduplicated BAM file. These metrics are copied to the final cell-by-gene matrix output (Loom file). A detailed list of thesse metrics can be found in the [Multi-snSS2 Count Matrix Overview](./count-matrix-overview.md).
+The CollectMultipleMetrics task uses the Picard tool CollectMultipleMetrics to perform QC on the deduplicated BAM file. These metrics are copied to the final cell-by-gene matrix output (Loom file). A detailed list of these metrics can be found in the [Multi-snSS2 Count Matrix Overview](./count-matrix-overview.md).
 
 #### 5. Counting genes
 The CountAlignments task uses the featureCounts package to count introns and exons. First, the featureCounts tool counts intronic alignments in the deduplicated BAM using a custom GTF with annotated introns. The tool flags intronic alignments if they overlap an annotated intron by a minimum of 3 bp. 
