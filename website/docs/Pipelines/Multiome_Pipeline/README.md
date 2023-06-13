@@ -27,7 +27,7 @@ The following table provides a quick glance at the Multiome pipeline features:
 | Workflow language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence | GRCh38 human genome primary sequence | GENCODE |
 | Gene annotation reference (GTF) | Reference containing gene annotations | Gencode |
-| Aligners | STARsolo (GEX), BWA-mem (ATAC) | [Dobin, et al.,2021](https://www.biorxiv.org/content/10.1101/2021.05.05.442755v1) |
+| Aligners | STARsolo (GEX), BWA-mem2 (ATAC) | [Dobin, et al.,2021](https://www.biorxiv.org/content/10.1101/2021.05.05.442755v1) |
 | Transcript and fragment quantification | STARsolo (GEX), SnapATAC2 (ATAC) |
 | Data input file format | File format in which sequencing data is provided | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) |
 | Data output file format | File formats in which Multiome output is provided | BAM, h5ad |
