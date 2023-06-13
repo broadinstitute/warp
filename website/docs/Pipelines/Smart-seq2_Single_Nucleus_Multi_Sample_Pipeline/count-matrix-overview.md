@@ -6,7 +6,9 @@ sidebar_position: 3
 
 The Smart-seq2 Single Nucleus Multi-Sample (Multi-snSS2) pipeline's default count matrix output is a Loom file, an HDF5 file generated using [Loompy v.3.0.6](http://loompy.org/). It contains the raw cell-by-gene intron and exon counts.
 
-The matrix also contains multiple metrics for both individual cells (the columns of the matrix; [Table 2](#table-2-column-attributes-cell-metrics)) and individual genes (the rows of the matrix; [Table 3](#table-3-row-attributes-gene-metrics)). 
+The matrix also contains multiple metrics for both individual cells (the columns of the matrix; [Table 2](#table-2-column-attributes-cell-metrics)) and individual genes (the rows of the matrix; [Table 3](#table-3-row-attributes-gene-metrics)).
+
+Additional details for each metric are provided in the JAVA source code for [Picard's AlignmentSummaryMetrics](https://github.com/broadinstitute/picard/blob/4527d6de2f33f98f80e32e3acd32b09633529bd0/src/main/java/picard/analysis/AlignmentSummaryMetrics.java).
 
 ## Table 1. Global attributes
 
