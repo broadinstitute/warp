@@ -246,7 +246,7 @@ task FastqProcessATAC {
         # [?] copied from corresponding optimus wdl for fastqprocessing
         # using the latest build of warp-tools in GCR
         # needs to change
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:aa-gcloud-docker"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686671920"
         # Runtime attributes [?]
         Int mem_size = 5
         Int cpu = 16

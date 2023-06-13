@@ -243,6 +243,7 @@ task BWAPairedEndAlignment {
     bwa-mem2 \
     mem \
     -R "@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}" \
+    -C \
     -t ~{nthreads} \
     $REF_DIR/genome.fa \
     ~{read1_fastq} ~{read3_fastq} \
