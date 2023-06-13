@@ -8,7 +8,7 @@ The Smart-seq2 Single Nucleus Multi-Sample (Multi-snSS2) pipeline's default coun
 
 The matrix also contains multiple metrics for both individual cells (the columns of the matrix; [Table 2](#table-2-column-attributes-cell-metrics)) and individual genes (the rows of the matrix; [Table 3](#table-3-row-attributes-gene-metrics)).
 
-Additional details for each metric are provided in the JAVA source code for [Picard's AlignmentSummaryMetrics](https://github.com/broadinstitute/picard/blob/4527d6de2f33f98f80e32e3acd32b09633529bd0/src/main/java/picard/analysis/AlignmentSummaryMetrics.java).
+Additional details for each metric are provided in the JAVA source code for Picard's [AlignmentSummaryMetrics](https://github.com/broadinstitute/picard/blob/4527d6de2f33f98f80e32e3acd32b09633529bd0/src/main/java/picard/analysis/AlignmentSummaryMetrics.java), [GcBiasSummaryMetrics](https://github.com/broadinstitute/picard/blob/4527d6de2f33f98f80e32e3acd32b09633529bd0/src/main/java/picard/analysis/GcBiasSummaryMetrics.java), and [DuplicationMetrics](https://github.com/broadinstitute/picard/blob/4527d6de2f33f98f80e32e3acd32b09633529bd0/src/main/java/picard/sam/DuplicationMetrics.java).
 
 ## Table 1. Global attributes
 
