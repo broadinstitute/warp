@@ -5,9 +5,6 @@ import "../verification/VerifyTasks.wdl" as VerifyTasks
 workflow VerifyMultiome {
 
     input {
-        File test_loom
-        File truth_loom
-
         File test_optimus_h5ad
         File truth_optimus_h5ad
 

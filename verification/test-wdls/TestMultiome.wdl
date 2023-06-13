@@ -98,7 +98,7 @@ workflow TestMultiome {
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
                                     [ # File outputs
-                                    Multiome.loom_output_file,
+                                    Multiome.h5ad_output_file,
                                     Multiome.matrix_col_index,
                                     Multiome.matrix_row_index,
                                     Multiome.matrix,
