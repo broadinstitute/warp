@@ -51,12 +51,6 @@ workflow VerifyMultiome {
             truth_zip = truth_cell_metrics
     }
 
-    call VerifyTasks.CompareLooms as CompareLooms {
-        input:
-            test_loom  = test_loom,
-            truth_loom = truth_loom
-    }
-
     call VerifyTasks.CompareBams as CompareAtacBams {
         input:
             test_bam       = test_atac_bam,

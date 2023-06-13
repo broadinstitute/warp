@@ -41,12 +41,6 @@ workflow VerifyOptimus {
       test_zip  = test_cell_metrics,
       truth_zip = truth_cell_metrics
   }
-
-  call VerifyTasks.CompareLooms as CompareLooms{
-    input:
-      test_loom  = test_loom,
-      truth_loom = truth_loom
-  }
   
   call VerifyTasks.CompareH5adFiles as CompareH5adFilesOptimus {
         input:

@@ -105,7 +105,6 @@ workflow Multiome {
         File cell_metrics = Optimus.cell_metrics
         File gene_metrics = Optimus.gene_metrics
         File? cell_calls = Optimus.cell_calls
-        File loom_output_file = Optimus.loom_output_file
         File h5ad_output_file = Optimus.h5ad_output_file
     }
 }

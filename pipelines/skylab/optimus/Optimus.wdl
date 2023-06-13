@@ -174,22 +174,6 @@ workflow Optimus {
   }
 
   if (!count_exons) {
-    call LoomUtils.OptimusLoomGeneration{
-      input:
-        input_id = input_id,
-        input_name = input_name,
-        input_id_metadata_field = input_id_metadata_field,
-        input_name_metadata_field = input_name_metadata_field,
-        annotation_file = annotations_gtf,
-        cell_metrics = CellMetrics.cell_metrics,
-        gene_metrics = GeneMetrics.gene_metrics,
-        sparse_count_matrix = MergeStarOutputs.sparse_counts,
-        cell_id = MergeStarOutputs.row_index,
-        gene_id = MergeStarOutputs.col_index,
-        empty_drops_result = RunEmptyDrops.empty_drops_result,
-        counting_mode = counting_mode,
-        pipeline_version = "Optimus_v~{pipeline_version}"
-    }
     call H5adUtils.OptimusH5adGeneration{
       input:
         input_id = input_id,
@@ -215,23 +199,6 @@ workflow Optimus {
         matrix = STARsoloFastq.matrix_sn_rna,
         input_id = input_id
     }
-    call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
-      input:
-        input_id = input_id,
-        input_name = input_name,
-        input_id_metadata_field = input_id_metadata_field,
-        input_name_metadata_field = input_name_metadata_field,
-        annotation_file = annotations_gtf,
-        cell_metrics = CellMetrics.cell_metrics,
-        gene_metrics = GeneMetrics.gene_metrics,
-        sparse_count_matrix = MergeStarOutputs.sparse_counts,
-        cell_id = MergeStarOutputs.row_index,
-        gene_id = MergeStarOutputs.col_index,
-        sparse_count_matrix_exon = MergeStarOutputsExons.sparse_counts,
-        cell_id_exon = MergeStarOutputsExons.row_index,
-        gene_id_exon = MergeStarOutputsExons.col_index,
-        pipeline_version = "Optimus_v~{pipeline_version}"
-    }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:
         input_id = input_id,
@@ -251,7 +218,6 @@ workflow Optimus {
     }
   }
 
-  File final_loom_output = select_first([OptimusLoomGenerationWithExons.loom_output, OptimusLoomGeneration.loom_output])
   File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, OptimusH5adGeneration.h5ad_output])
 
 
@@ -266,8 +232,7 @@ workflow Optimus {
     File cell_metrics = CellMetrics.cell_metrics
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
-    # loom
-    File loom_output_file = final_loom_output
+    # h5ad
     File h5ad_output_file = final_h5ad_output
   }
 }
