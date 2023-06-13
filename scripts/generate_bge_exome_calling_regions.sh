@@ -32,7 +32,7 @@ rm tmp.interval_list
 # =============== mirbase.v22.interval_list ================
 # ==========================================================
 
-wget -nc -O mirbase.v22.gff https://www.mirbase.org/ftp/22/genomes/hsa.gff3
+wget -nc --no-check-certificate -O mirbase.v22.gff https://www.mirbase.org/ftp/22/genomes/hsa.gff3
 
 cp $hg38/Homo_sapiens_assembly38.dict tmp.interval_list
 cat mirbase.v22.gff | awk '$3 == "miRNA_primary_transcript" {sub(/.*Name=/, "", $9); print $1,$4,$5,$7,$9}' | tr ' ' '\t' >> tmp.interval_list
@@ -107,6 +107,17 @@ java -jar $picard IntervalListTools -UNIQUE \
 
 #Produced 296381 intervals totalling 165239993 bases.
 
+#Limit intervals to chr1-22,chrX,chrY (remove alts and chrM)
+echo "chrY	1	57227415	+	." > chrY.tmp
+cat /seq/references/Homo_sapiens_assembly38/v0/resources/wholegenome.interval_list chrY.tmp > main_wholegenome.interval_list
+
+java -jar $picard IntervalListTools -ACTION INTERSECT \
+	-I bge_exome_calling_regions.v1.interval_list \
+	-I main_wholegenome.interval_list \
+	-O bge_exome_calling_regions.v1.1.interval_list
+
+#Produced 296328 intervals totalling 165207924 bases
+
 #convert to bed for Dragen
-java -jar $picard IntervalListToBed -I bge_exome_calling_regions.v1.interval_list \
-  -O bge_exome_calling_regions.v1.bed
+java -jar $picard IntervalListToBed -I bge_exome_calling_regions.v1.1.interval_list \
+  -O bge_exome_calling_regions.v1.1.bed
