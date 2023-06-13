@@ -8,6 +8,9 @@ workflow VerifyOptimus {
     File test_loom
     File truth_loom
 
+    File test_h5ad
+    File truth_h5ad
+
     File test_bam
     File truth_bam
 
@@ -44,5 +47,11 @@ workflow VerifyOptimus {
       test_loom  = test_loom,
       truth_loom = truth_loom
   }
+  
+  call VerifyTasks.CompareH5adFiles as CompareH5adFilesOptimus {
+        input:
+            test_h5ad  = test_h5ad,
+            truth_h5ad = truth_h5ad
+    }
 
 }

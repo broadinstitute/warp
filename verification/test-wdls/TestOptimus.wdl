@@ -95,6 +95,7 @@ workflow TestOptimus {
                                       Optimus.matrix_col_index,
                                       Optimus.cell_calls,
                                       Optimus.loom_output_file,
+                                      Optimus.h5ad_output_file,
   ])
 
   # Collect all of the pipeline metrics into a single Array
@@ -131,6 +132,13 @@ workflow TestOptimus {
         truth_path   = truth_path
     }
 
+    call Utilities.GetValidationInputs as GetH5adInputs {
+      input:
+        input_file   = Optimus.h5ad_output_file,
+        results_path = results_path,
+        truth_path   = truth_path
+    }
+
     call Utilities.GetValidationInputs as GetBamInputs {
       input:
         input_file   = Optimus.bam,
@@ -155,10 +163,12 @@ workflow TestOptimus {
     call VerifyOptimus.VerifyOptimus as Verify {
       input:
         test_loom          = GetLoomInputs.results_file,
+        test_h5ad          = GetH5adInputs.results_file,
         test_bam           = GetBamInputs.results_file,
         test_gene_metrics  = GetGeneMetrics.results_file,
         test_cell_metrics  = GetCellMetrics.results_file,
         truth_loom         = GetLoomInputs.truth_file,
+        truth_h5ad         = GetH5adInputs.truth_file,
         truth_bam          = GetBamInputs.truth_file,
         truth_gene_metrics = GetGeneMetrics.truth_file,
         truth_cell_metrics = GetCellMetrics.truth_file,
