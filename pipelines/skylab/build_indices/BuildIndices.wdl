@@ -52,7 +52,7 @@ workflow BuildIndices {
   output {
     File snSS2_star_index = BuildStarSingleNucleus.star_index
     String pipeline_version_out = "BuildIndices_v~{pipeline_version}"
-    File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
+    #File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
     File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
     File reference_bundle = BuildBWAreference.reference_bundle
     File chromosome_sizes = CalculateChromosomeSizes.chrom_sizes
@@ -197,7 +197,7 @@ task BuildStarSingleNucleus {
 
   output {
     File star_index = star_index_name
-    File annotation_gtf_modified_introns = annotation_gtf_introns
+    #File annotation_gtf_modified_introns = annotation_gtf_introns
     File modified_annotation_gtf = annotation_gtf_modified
   }
 
