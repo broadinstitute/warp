@@ -3,7 +3,7 @@
 2023-06-12 (Date of Last Commit)
 
 * Updated cutadapt v1.8 to cutadapt v4.4 in the TrimAdapters task to speed up the task and reduce cost
-* Added Dropseq cell metrics to Multiome and Optimus workflpws 
+* Added Dropseq cell metrics to Multiome and Optimus workflows 
 
 # 1.0.1
 2023-05-31 (Date of Last Commit)
