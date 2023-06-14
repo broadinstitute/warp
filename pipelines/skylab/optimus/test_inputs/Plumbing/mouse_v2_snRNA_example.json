@@ -23,7 +23,7 @@
   "Optimus.input_id": "nuclei_2k_mouse",
   "Optimus.tenx_chemistry_version": "2",
   "Optimus.star_strand_mode": "Unstranded",
-  "Optimus.mt_sequence": "ChrM",
+  "Optimus.mt_sequence": "chrM",
   "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.gtf",
   "Optimus.ref_genome_fasta": "gs://gcp-public-data--broad-references/mm10/v0/GRCm38.primary_assembly.genome.fa",
   "Optimus.counting_mode": "sn_rna",
