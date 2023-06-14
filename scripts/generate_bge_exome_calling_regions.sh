@@ -32,7 +32,7 @@ rm tmp.interval_list
 # =============== mirbase.v22.interval_list ================
 # ==========================================================
 
-wget -nc --no-check-certificate -O mirbase.v22.gff https://www.mirbase.org/ftp/22/genomes/hsa.gff3
+wget -nc -O mirbase.v22.gff https://www.mirbase.org/ftp/22/genomes/hsa.gff3
 
 cp $hg38/Homo_sapiens_assembly38.dict tmp.interval_list
 cat mirbase.v22.gff | awk '$3 == "miRNA_primary_transcript" {sub(/.*Name=/, "", $9); print $1,$4,$5,$7,$9}' | tr ' ' '\t' >> tmp.interval_list
@@ -103,7 +103,7 @@ java -jar $picard IntervalListTools -UNIQUE \
 	-I clinvar_20230121_noncoding_non_long_deletion_pathogenic_named.interval_list \
 	-I TwistAllianceClinicalResearchExome_Covered_Targets_hg38_named.interval_list \
 	-PADDING 50 \
-	-O bge_exome_calling_regions.v1.interval_list
+	-O merged_all_lists.interval_list
 
 #Produced 296381 intervals totalling 165239993 bases.
 
@@ -112,7 +112,7 @@ echo "chrY	1	57227415	+	." > chrY.tmp
 cat /seq/references/Homo_sapiens_assembly38/v0/resources/wholegenome.interval_list chrY.tmp > main_wholegenome.interval_list
 
 java -jar $picard IntervalListTools -ACTION INTERSECT \
-	-I bge_exome_calling_regions.v1.interval_list \
+	-I merged_all_lists.interval_list \
 	-I main_wholegenome.interval_list \
 	-O bge_exome_calling_regions.v1.1.interval_list
 
