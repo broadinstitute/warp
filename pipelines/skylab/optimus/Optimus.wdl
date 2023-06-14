@@ -33,7 +33,7 @@ workflow Optimus {
     File? mt_genes
     
     #Chromosome in GTF with mitochondrial genes (example for human is "ChrM") for Picard metrics
-    String mt_sequence
+    String? mt_sequence
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
@@ -158,12 +158,14 @@ workflow Optimus {
       input_id = input_id
   }
 
-  call Metrics.DropseqMetrics {
-    input:
-      input_bam = MergeBam.output_bam,
-      annotation_gtf = annotations_gtf,
-      output_name = input_id + ".picard.gex.metrics.tsv",
-      mt_sequence = mt_sequence
+  if (defined(mt_sequence)) {
+    call Metrics.DropseqMetrics {
+      input:
+        input_bam = MergeBam.output_bam,
+        annotation_gtf = annotations_gtf,
+        output_name = input_id + ".picard.gex.metrics.tsv",
+        mt_sequence = mt_sequence
+    }
   }
 
   call StarAlign.MergeStarOutput as MergeStarOutputs {
@@ -243,7 +245,7 @@ workflow Optimus {
     File cell_metrics = CellMetrics.cell_metrics
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
-    File picard_metrics = DropseqMetrics.metric_output
+    File? picard_metrics = DropseqMetrics.metric_output
     # loom
     File loom_output_file = final_loom_output
 }
