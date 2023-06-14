@@ -297,7 +297,7 @@ task DropseqMetrics {
     
   >>>
   runtime {
-	docker: "ekiernan/samtools-picard:v1"
+	docker: "1.0.0-2.5.3-1686757901"
     disks: "local-disk ${disk_size} HDD"
     memory: "${mem_size} GiB"
   }
