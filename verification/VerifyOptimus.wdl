@@ -5,9 +5,6 @@ import "../verification/VerifyTasks.wdl" as VerifyTasks
 workflow VerifyOptimus {
   
   input {
-    File test_loom
-    File truth_loom
-
     File test_h5ad
     File truth_h5ad
 
