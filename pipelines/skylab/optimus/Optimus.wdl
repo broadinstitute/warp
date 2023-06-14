@@ -4,7 +4,6 @@ import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
 import "../../../tasks/skylab/Metrics.wdl" as Metrics
 import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 import "../../../tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
