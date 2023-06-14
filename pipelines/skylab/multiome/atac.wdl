@@ -37,7 +37,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "1.0.1"
+  String pipeline_version = "1.0.2"
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
@@ -125,7 +125,7 @@ task TrimAdapters {
     # Runtime attributes/docker
     Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") )) + 200
     Int mem_size = 4
-    String docker_image = "quay.io/broadinstitute/cutadapt:1.18"
+    String docker_image = "us.gcr.io/broad-gotc-prod/cutadapt:1.0.0-4.4-1686752919"
     File monitoring_script
   }
 
@@ -137,7 +137,7 @@ task TrimAdapters {
     adapter_seq_read1: "cutadapt option for the sequence adapter for read 1 fastq"
     adapter_seq_read3: "cutadapt option for the sequence adapter for read 3 fastq"
     output_base_name: "base name to be used for the output of the task"
-    docker_image: "the docker image using cutadapt to be used (default: quay.io/broadinstitute/cutadapt:1.18)"
+    docker_image: "the docker image using cutadapt to be used (default:us.gcr.io/broad-gotc-prod/cutadapt:1.0.0-4.4-1686752919)"
     monitoring_script : "script to monitor resource consumption of tasks"
     mem_size: "the size of memory used during trimming adapters"
     disk_size : "disk size used in trimming adapters step"
@@ -160,7 +160,7 @@ task TrimAdapters {
 
     # fastq's, "-f", -A for paired adapters read 2"
     cutadapt \
-    -f fastq \
+    -Z \
     --minimum-length ~{min_length} \
     --quality-cutoff ~{quality_cutoff} \
     --adapter ~{adapter_seq_read1} \
