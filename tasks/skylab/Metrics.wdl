@@ -271,7 +271,7 @@ task DropseqMetrics {
     File input_bam
     File annotation_gtf
     String output_name
-    String mt_sequence
+    String? mt_sequence
     Int disk_size = ceil(size(input_bam, "GiB") + 50)
     Int mem_size = 25
   }
