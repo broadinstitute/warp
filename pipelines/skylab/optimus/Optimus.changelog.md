@@ -1,7 +1,12 @@
+# 5.8.4
+2023-06013 (Date of Last Commit)
+
+* Added Dropseq cell metrics to Multiome and Optimus workflows
+
 # 5.8.3
 2023-05-31 (Date of Last Commit)
 
-* Updated the FastqProcessing.wdl. This update has no impact on the Optimus workflow.
+* Updated the FastqProcessing.wdl. This update has no impact on the Optimus workflow
 
 # 5.8.2
 2023-05-11 (Date of Last Commit)
