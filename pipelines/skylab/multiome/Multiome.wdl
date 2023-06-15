@@ -6,7 +6,6 @@ import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 workflow Multiome {
     String pipeline_version = "1.0.2"
 
-
     input {
         # Optimus Inputs
         String counting_mode = "sn_rna"
