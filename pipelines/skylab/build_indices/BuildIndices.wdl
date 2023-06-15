@@ -180,7 +180,7 @@ task BuildStarSingleNucleus {
     grep -Ff "gene_allowlist" ~{annotation_gtf} >> ~{annotation_gtf_modified}
     ls -lh *
 
-    sed -i -e ’s/ gene / gene_name /g' ~{annotation_gtf_modified}
+    sed -i -e 's/ gene / gene_name /g' ~{annotation_gtf_modified}
 
     #python3  /script/add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_introns}
 
