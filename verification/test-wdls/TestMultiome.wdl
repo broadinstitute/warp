@@ -98,7 +98,7 @@ workflow TestMultiome {
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
                                     [ # File outputs
-                                    Multiome.loom_output_file,
+                                    Multiome.h5ad_output_file,
                                     Multiome.matrix_col_index,
                                     Multiome.matrix_row_index,
                                     Multiome.matrix,
@@ -145,9 +145,9 @@ workflow TestMultiome {
 
     # This is achieved by passing each desired file/array[files] to GetValidationInputs
     if (!update_truth){
-        call Utilities.GetValidationInputs as GetLoom {
+        call Utilities.GetValidationInputs as GetOptimusH5ad {
           input:
-            input_file = Multiome.loom_output_file,
+            input_file = Multiome.h5ad_output_file,
             results_path = results_path,
             truth_path = truth_path
         }
@@ -190,8 +190,8 @@ workflow TestMultiome {
 
       call VerifyMultiome.VerifyMultiome as Verify {
         input:
-          truth_loom = GetLoom.truth_file, 
-          test_loom = GetLoom.results_file,
+          truth_optimus_h5ad = GetOptimusH5ad.truth_file,
+          test_optimus_h5ad = GetOptimusH5ad.results_file,
           truth_optimus_bam = GetOptimusBam.truth_file, 
           test_optimus_bam = GetOptimusBam.results_file,
           truth_gene_metrics = GetGeneMetrics.truth_file, 
@@ -202,8 +202,8 @@ workflow TestMultiome {
           test_atac_bam = GetAtacBam.results_file,
           truth_fragment_file = GetFragmentFile.truth_file,
           test_fragment_file = GetFragmentFile.results_file,
-          truth_h5ad = GetSnapMetrics.truth_file,
-          test_h5ad = GetSnapMetrics.results_file,
+          truth_atac_h5ad = GetSnapMetrics.truth_file,
+          test_atac_h5ad = GetSnapMetrics.results_file,
           done = CopyToTestResults.done
       }
     }
