@@ -290,10 +290,7 @@ task DropseqMetrics {
     --CELL_BARCODE_TAG CB \
     --TMP_DIR /cromwell_root/tmp \
     --VALIDATION_STRINGENCY LENIENT
-    
-    echo "listing directory"
-    ls
-    pwd
+   
     
   >>>
   runtime {
