@@ -1,13 +1,10 @@
 
-2023-06-08 (Date of Last commit)
-
-* Added h5ad as a format option for the cell by gene matrix output. The h5ad has the same layers and global attributes (unstructured data in h5ad) as the previous Loom output
-* Added Dropseq cell metrics to Multiome and Optimus workflows
-
 # 5.8.3
-2023-05-31 (Date of Last Commit)
+2023-06-15 (Date of Last Commit)
 
 * Updated the FastqProcessing.wdl. This update has no impact on the Optimus workflow
+* Added h5ad as a format option for the cell by gene matrix output. The h5ad has the same layers and global attributes (unstructured data in h5ad) as the previous Loom output
+* Added Dropseq cell metrics to Multiome and Optimus workflows
 
 # 5.8.2
 2023-05-11 (Date of Last Commit)
