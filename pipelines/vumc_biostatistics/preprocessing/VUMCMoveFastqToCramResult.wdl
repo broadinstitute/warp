@@ -177,6 +177,6 @@ task MoveFastqToCramResult {
     String target_output_cram_index = "~{new_output_cram_index}"
     String target_output_cram_md5 = "~{new_output_cram_index}"
 
-    Int target_bam_moved = 1
+    Int target_cram_moved = 1
   }
 }
