@@ -26,7 +26,6 @@
   "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/mm10/v0/star/star_2.7.9a_primary_gencode_mouse_vM21.tar",
   "Optimus.input_id": "neurons2k_mouse",
   "Optimus.tenx_chemistry_version": "2",
-  "Optimus.mt_sequence": "chrM",
   "Optimus.star_strand_mode": "Unstranded",
   "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.gtf",
   "Optimus.ref_genome_fasta": "gs://gcp-public-data--broad-references/mm10/v0/GRCm38.primary_assembly.genome.fa"

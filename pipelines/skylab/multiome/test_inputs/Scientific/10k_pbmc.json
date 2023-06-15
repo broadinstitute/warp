@@ -30,6 +30,5 @@
   "Multiome.tar_bwa_reference":"gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/bwa0.7.17-Human-GENCODE-build-GRCh38.tar",
   "Multiome.tar_star_reference":"gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/modified_star_primary_gencode_Human_vGencode_V43.tar",
   "Multiome.chrom_sizes":"gs://broad-gotc-test-storage/Multiome/input/hg38.chrom.sizes",
-  "Multiome.mt_sequence":"chrM",
   "Multiome.monitoring_script":"gs://broad-gotc-test-storage/Multiome/input/cromwell_monitoring_script2.sh"
 }

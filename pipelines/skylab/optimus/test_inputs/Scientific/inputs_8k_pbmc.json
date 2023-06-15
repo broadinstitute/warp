@@ -13,7 +13,6 @@
   ],
   "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/hg38/v0/star/star_2.7.9a_primary_gencode_human_v27.tar",
   "Optimus.input_id": "8k_pbmc",
-  "Optimus.mt_sequence": "chrM",
   "Optimus.tenx_chemistry_version": "2",
   "Optimus.star_strand_mode": "Unstranded",
   "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/hg38/v0/gencode.v27.primary_assembly.annotation.gtf", 
