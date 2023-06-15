@@ -1,6 +1,8 @@
 # 1.0.2
-2023-06-02 (Date of Last Commit)
+2023-06-12 (Date of Last Commit)
 
+* Updated cutadapt v1.8 to cutadapt v4.4 in the TrimAdapters task to speed up the task and reduce cost. 
+* Added h5ad as a format option for the cell-by-gene matrix output
 * Replaced bwa-mem with bwa-mem2 in BWAPairedEndAlignment task. 
 
 # 1.0.1
