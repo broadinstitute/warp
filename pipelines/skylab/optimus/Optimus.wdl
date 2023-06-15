@@ -4,9 +4,9 @@ import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
 import "../../../tasks/skylab/Metrics.wdl" as Metrics
 import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 import "../../../tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
+import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 
 workflow Optimus {
   meta {
@@ -64,7 +64,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "5.8.3"
+  String pipeline_version = "5.9.0"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -173,7 +173,7 @@ workflow Optimus {
   }
 
   if (!count_exons) {
-    call LoomUtils.OptimusLoomGeneration{
+    call H5adUtils.OptimusH5adGeneration{
       input:
         input_id = input_id,
         input_name = input_name,
@@ -198,7 +198,7 @@ workflow Optimus {
         matrix = STARsoloFastq.matrix_sn_rna,
         input_id = input_id
     }
-    call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
+    call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:
         input_id = input_id,
         input_name = input_name,
@@ -215,10 +215,9 @@ workflow Optimus {
         gene_id_exon = MergeStarOutputsExons.col_index,
         pipeline_version = "Optimus_v~{pipeline_version}"
     }
-
   }
 
-  File final_loom_output = select_first([OptimusLoomGenerationWithExons.loom_output, OptimusLoomGeneration.loom_output])
+  File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, OptimusH5adGeneration.h5ad_output])
 
 
   output {
@@ -232,7 +231,7 @@ workflow Optimus {
     File cell_metrics = CellMetrics.cell_metrics
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
-    # loom
-    File loom_output_file = final_loom_output
-}
+    # h5ad
+    File h5ad_output_file = final_h5ad_output
+  }
 }
