@@ -1,6 +1,7 @@
-# 5.8.4
-2023-06013 (Date of Last Commit)
 
+2023-06-08 (Date of Last commit)
+
+* Added h5ad as a format option for the cell by gene matrix output. The h5ad has the same layers and global attributes (unstructured data in h5ad) as the previous Loom output
 * Added Dropseq cell metrics to Multiome and Optimus workflows
 
 # 5.8.3
