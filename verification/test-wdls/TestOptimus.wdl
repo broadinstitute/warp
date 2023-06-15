@@ -28,7 +28,7 @@ workflow TestOptimus {
     File? mt_genes
 
     # Chromosome for mitochondria genes
-    String mt_sequence
+    String? mt_sequence
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version = 2
@@ -88,7 +88,7 @@ workflow TestOptimus {
       star_strand_mode           = star_strand_mode,
       count_exons                = count_exons,
       ignore_r1_read_length      = ignore_r1_read_length,
-      mt_sequence                = mt_sequence
+      mt_sequence                = mt_sequence,
   }
 
   # Collect all of the pipeling output into single Array

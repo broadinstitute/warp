@@ -344,20 +344,20 @@ task CompareH5adFiles {
 
   command <<<
 
-  set -eo pipefail
+    set -eo pipefail
 
-  # calculate file sizes
+    # calculate file sizes
 
-  TRUTHSIZE=$(stat -c%s ~(truth_h5ad))
-  TESTSIZE=$(stat -c%s ~(test_h5ad))
+    TRUTHSIZE=$(stat -c%s ~(truth_h5ad))
+    TESTSIZE=$(stat -c%s ~(test_h5ad))
 
-   if [ "$TRUTHSIZE" == "$TESTSIZE" ]; then
-     echo "H5ad file sizes are identical"
-   else
-     echo "H5ad file sizes are NOT identical"
-     exit 1
-   fi
->>>
+    if [ "$TRUTHSIZE" == "$TESTSIZE" ]; then
+      echo "H5ad file sizes are identical"
+    else
+      echo "H5ad file sizes are NOT identical"
+      exit 1
+    fi
+  >>>
 
   runtime {
     docker: docker
