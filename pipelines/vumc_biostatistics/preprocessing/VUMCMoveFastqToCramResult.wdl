@@ -75,8 +75,9 @@ workflow VUMCMoveFastqToCramResult {
 
     String target_output_cram = mf.target_output_cram
     String target_output_cram_index = mf.target_output_cram_index
+    String target_output_cram_md5 = mf.target_output_cram_md5
 
-    Int target_bam_moved = mf.target_bam_moved
+    Int target_cram_moved = mf.target_cram_moved
   }
 }
 
