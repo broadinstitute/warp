@@ -6,7 +6,7 @@
     "gs://broad-gotc-test-storage/Multiome/input/plumbing/fastq_R1_gex.fastq.gz"
   ],
   "Multiome.gex_r2_fastq":[
-    "gs://broad-gotc-test-storage/Multiome/input/plumbing/fastq_R1_gex.fastq.gz"
+    "gs://broad-gotc-test-storage/Multiome/input/plumbing/fastq_R2_gex.fastq.gz"
   ],
   "Multiome.atac_r1_fastq":[
     "gs://broad-gotc-test-storage/Multiome/input/plumbing/fastq_R1_atac.fastq.gz"
