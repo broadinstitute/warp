@@ -36,6 +36,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMoveFastqToBamResult.wdl
 
+  - name: VUMCMoveFastqToCramResult
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMoveFastqToCramResult.wdl
+
   - name: VUMCMoveHaplotypecallerResult
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCMoveHaplotypecallerResult.wdl
