@@ -6,7 +6,7 @@ workflow VUMCMoveCram {
     String GRID
 
     String output_cram
-    String output_crai
+    String output_cram_index
     String output_cram_md5
 
     String target_bucket
@@ -18,7 +18,7 @@ workflow VUMCMoveCram {
       GRID = GRID,
 
       output_cram = output_cram,
-      output_crai = output_crai,
+      output_cram_index = output_cram_index,
       output_cram_md5 = output_cram_md5,
 
       target_bucket = target_bucket
@@ -26,7 +26,7 @@ workflow VUMCMoveCram {
 
   output {
     String target_output_cram = mf.target_output_cram
-    String target_output_crai = mf.target_output_crai
+    String target_output_cram_index = mf.target_output_cram_index
     String target_output_cram_md5 = mf.target_output_cram_md5
 
     Int target_cram_moved = mf.target_cram_moved
@@ -39,21 +39,21 @@ task MoveCram {
     String GRID
 
     String output_cram
-    String output_crai
+    String output_cram_index
     String output_cram_md5
 
     String target_bucket
   }
 
   String new_output_cram = "${target_bucket}/${genoset}/${GRID}/${basename(output_cram)}"
-  String new_output_crai = "${target_bucket}/${genoset}/${GRID}/${basename(output_crai)}"
+  String new_output_cram_index = "${target_bucket}/${genoset}/${GRID}/${basename(output_cram_index)}"
   String new_output_cram_md5 = "${target_bucket}/${genoset}/${GRID}/${basename(output_cram_md5)}"
 
   command <<<
 
-gsutil mv ~{output_cram} ~{new_output_cram}
-gsutil mv ~{output_crai} ~{new_output_crai}
+gsutil mv ~{output_cram_index} ~{new_output_cram_index}
 gsutil mv ~{output_cram_md5} ~{new_output_cram_md5}
+gsutil mv ~{output_cram} ~{new_output_cram}
 >>>
 
   runtime {
@@ -64,7 +64,7 @@ gsutil mv ~{output_cram_md5} ~{new_output_cram_md5}
   }
   output {
     String target_output_cram = "~{new_output_cram}"
-    String target_output_crai = "~{new_output_crai}"
+    String target_output_cram_index = "~{new_output_cram_index}"
     String target_output_cram_md5 = "~{new_output_cram_md5}"
 
     Int target_cram_moved = 1

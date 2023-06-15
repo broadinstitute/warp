@@ -17,7 +17,7 @@ workflow VUMCBamToCram {
 
   output {
     File output_cram = BamToCram.output_cram
-    File output_crai = BamToCram.output_crai
+    File output_cram_index = BamToCram.output_cram_index
     File output_cram_md5 = BamToCram.output_cram_md5
   }
 }
@@ -49,7 +49,7 @@ task BamToCram {
 
   output {
     File output_cram = "~{output_name}"
-    File output_crai = "~{output_name}.crai"
+    File output_cram_index = "~{output_name}.crai"
     File output_cram_md5 = "~{output_name}.md5"
   }
 }
