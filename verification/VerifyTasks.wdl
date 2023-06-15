@@ -348,8 +348,8 @@ task CompareH5adFiles {
 
     # calculate file sizes
 
-    TRUTHSIZE=$(stat -c%s ~(truth_h5ad))
-    TESTSIZE=$(stat -c%s ~(test_h5ad))
+    TRUTHSIZE=$(stat -c%s ~{truth_h5ad})
+    TESTSIZE=$(stat -c%s ~{test_h5ad})
 
     if [ "$TRUTHSIZE" == "$TESTSIZE" ]; then
       echo "H5ad file sizes are identical"
