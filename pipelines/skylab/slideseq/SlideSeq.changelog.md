@@ -2,7 +2,7 @@
 2023-06-14 (Date of Last Commit)
 
 * Updated the Metrics task WDL for adding a Dropseq task to Optimus; this has no impact on the Slide-seq workflow
-* Updated the FastqProcessing.wdl for ATAC. This update has no impact on the Optimus workflow 
+* Updated the FastqProcessing.wdl for ATAC. This update has no impact on the SlideSeq workflow 
 
 
 # 1.0.8
