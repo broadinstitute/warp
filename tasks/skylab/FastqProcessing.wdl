@@ -283,14 +283,49 @@ task FastqProcessATAC {
         gcloud storage cp ~{sep=' ' barcodes_fastq} .
         gcloud storage cp ~{sep=' ' read3_fastq} .
 
+        declare -a FASTQ1_ARRAY=(~{sep=' ' read1_fastq})
+        declare -a FASTQ2_ARRAY=(~{sep=' ' barcodes_fastq})
+        declare -a FASTQ3_ARRAY=(~{sep=' ' read3_fastq})
+
+        # barcodes R2
+        R1_FILES_CONCAT=""
+        for fastq in "${FASTQ2_ARRAY[@]}"
+        do
+            BASE=`basename $fastq`
+            BASE=`echo --R1 $BASE`
+            R1_FILES_CONCAT+="$BASE "
+        done
+
+        echo $R1_FILES_CONCAT
+
+        # R1
+        R2_FILES_CONCAT=""
+        for fastq in "${FASTQ1_ARRAY[@]}"
+        do
+            BASE=`basename $fastq`
+            BASE=`echo --R2 $BASE`
+            R2_FILES_CONCAT+="$BASE "
+        done
+        echo $R2_FILES_CONCAT
+        
+            # R3
+        R3_FILES_CONCAT=""
+        for fastq in "${FASTQ3_ARRAY[@]}"
+        do
+            BASE=`basename $fastq`
+            BASE=`echo --R3 $BASE`
+            R3_FILES_CONCAT+="$BASE "
+        done
+        echo $R3_FILES_CONCAT
+
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
         fastqprocess \
         --bam-size 30.0 \
         --sample-id "~{output_base_name}" \
-        --R1 ~{sep=' --R1 ' basename(barcodes_fastq)} \
-        --R2 ~{sep=' --R2 ' basename(read1_fastq)} \
-        --R3 ~{sep=' --R3 ' basename(read3_fastq)} \
+        $R1_FILES_CONCAT \
+        $R2_FILES_CONCAT \
+        $R3_FILES_CONCAT \
         --white-list "~{whitelist}" \
         --output-format "FASTQ" \
         --barcode-orientation "~{barcode_orientation}" \
