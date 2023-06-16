@@ -16,7 +16,7 @@ workflow ATAC {
     Array[File] read3_fastq_gzipped
 
     # Output prefix/base name for all intermediate files and pipeline outputs
-    String output_base_name
+    String input_id
 
     # BWA ref
     File tar_bwa_reference
@@ -54,7 +54,7 @@ workflow ATAC {
       read1_fastq = read1_fastq_gzipped,
       read3_fastq = read3_fastq_gzipped,
       barcodes_fastq = read2_fastq_gzipped,
-      output_base_name = output_base_name,
+      output_base_name = input_id,
       whitelist = whitelist
   }
 
@@ -64,7 +64,7 @@ workflow ATAC {
       input:
         read1_fastq = SplitFastq.fastq_R1_output_array[idx],
         read3_fastq = SplitFastq.fastq_R3_output_array[idx],
-        output_base_name = output_base_name + "_" + idx,
+        output_base_name = input_id + "_" + idx,
         monitoring_script = monitoring_script,
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3
@@ -75,14 +75,14 @@ workflow ATAC {
         read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
         read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
         tar_bwa_reference = tar_bwa_reference,
-        output_base_name = output_base_name + "_" + idx,
+        output_base_name = input_id + "_" + idx,
         monitoring_script = monitoring_script
     }
 
     call AddCBtags {
       input:
         bam = BWAPairedEndAlignment.bam_aligned_output,
-        output_base_name = output_base_name
+        output_base_name = input_id
     }
 
   }
@@ -90,7 +90,7 @@ workflow ATAC {
   call Merge.MergeSortBamFiles as MergeBam {
     input:
       bam_inputs = AddCBtags.output_cb_bam,
-      output_bam_filename = output_base_name + ".bam",
+      output_bam_filename = input_id + ".bam",
       sort_order = "coordinate"
   }
 

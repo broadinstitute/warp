@@ -1,7 +1,6 @@
 {
   "Multiome.annotations_gtf":"gs://broad-gotc-test-storage/Multiome/input/plumbing/modified_v43.annotation.gtf",
   "Multiome.input_id":"10k_PBMC_downsampled",
-  "Multiome.output_base_name":"scATAC",
   "Multiome.gex_r1_fastq":[
     "gs://broad-gotc-test-storage/Multiome/input/plumbing/fastq_R1_gex.fastq.gz"
   ],
