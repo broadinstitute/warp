@@ -5,5 +5,5 @@
   "ATAC.TrimAdapters.adapter_seq_read2": "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG",
   "ATAC.output_base_name": "scATAC",
   "ATAC.monitoring_script": "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh",
-  "ATAC.tar_bwa_reference": "gs://broad-gotc-test-storage/scATAC/input/plumbing/reference/mm10/mm10.tar"
+  "ATAC.tar_bwa_reference": "gs://fc-dd55e131-ef49-4d02-aa2a-20640daaae1e/submissions/8f0dd71a-b42f-4503-b839-3f146941758a/IndexRef/53a91851-1f6c-4ab9-af66-b338ffb28b5a/call-BwaMem2Index/GRCh38.primary_assembly.genome.bwamem2.fa.tar"
 }
