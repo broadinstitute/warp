@@ -280,7 +280,7 @@ task FastqProcessATAC {
         set -e
 
         gcloud storage cp ~{sep=' ' read1_fastq} .
-        gcloud storage cp ~{sep=' ' read2_fastq} .
+        gcloud storage cp ~{sep=' ' barcodes_fastq} .
         gcloud storage cp ~{sep=' ' read3_fastq} .
 
         # Call fastq process
@@ -288,7 +288,7 @@ task FastqProcessATAC {
         fastqprocess \
         --bam-size 30.0 \
         --sample-id "~{output_base_name}" \
-        --R1 ~{sep=' --R1 ' basename(read2_fastq)} \
+        --R1 ~{sep=' --R1 ' basename(barcodes_fastq)} \
         --R2 ~{sep=' --R2 ' basename(read1_fastq)} \
         --R3 ~{sep=' --R3 ' basename(read3_fastq)} \
         --white-list "~{whitelist}" \
