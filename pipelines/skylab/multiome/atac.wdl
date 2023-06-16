@@ -37,7 +37,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "1.0.1"
+  String pipeline_version = "1.0.2"
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
@@ -125,7 +125,7 @@ task TrimAdapters {
     # Runtime attributes/docker
     Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") )) + 200
     Int mem_size = 4
-    String docker_image = "quay.io/broadinstitute/cutadapt:1.18"
+    String docker_image = "us.gcr.io/broad-gotc-prod/cutadapt:1.0.0-4.4-1686752919"
     File monitoring_script
   }
 
@@ -137,7 +137,7 @@ task TrimAdapters {
     adapter_seq_read1: "cutadapt option for the sequence adapter for read 1 fastq"
     adapter_seq_read3: "cutadapt option for the sequence adapter for read 3 fastq"
     output_base_name: "base name to be used for the output of the task"
-    docker_image: "the docker image using cutadapt to be used (default: quay.io/broadinstitute/cutadapt:1.18)"
+    docker_image: "the docker image using cutadapt to be used (default:us.gcr.io/broad-gotc-prod/cutadapt:1.0.0-4.4-1686752919)"
     monitoring_script : "script to monitor resource consumption of tasks"
     mem_size: "the size of memory used during trimming adapters"
     disk_size : "disk size used in trimming adapters step"
@@ -160,7 +160,7 @@ task TrimAdapters {
 
     # fastq's, "-f", -A for paired adapters read 2"
     cutadapt \
-    -f fastq \
+    -Z \
     --minimum-length ~{min_length} \
     --quality-cutoff ~{quality_cutoff} \
     --adapter ~{adapter_seq_read1} \
@@ -193,15 +193,15 @@ task BWAPairedEndAlignment {
     String read_group_id = "RG1"
     String read_group_sample_name = "RGSN1"
     String output_base_name
-    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091"
+    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504"
 
     # script for monitoring tasks
     File monitoring_script
 
     # Runtime attributes
-    Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 200
+    Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 400
     Int nthreads = 16
-    Int mem_size = 8
+    Int mem_size = 40
   }
 
   parameter_meta {
@@ -214,7 +214,7 @@ task BWAPairedEndAlignment {
     mem_size: "the size of memory used during alignment"
     disk_size : "disk size used in bwa alignment step"
     output_base_name: "basename to be used for the output of the task"
-    docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091)"
+    docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504)"
     monitoring_script : "script to monitor resource comsumption of tasks"
   }
 
@@ -238,7 +238,7 @@ task BWAPairedEndAlignment {
     rm "~{tar_bwa_reference}"
 
     # align w/ BWA: -t for number of cores
-    bwa \
+    bwa-mem2 \
     mem \
     -R "@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}" \
     -t ~{nthreads} \

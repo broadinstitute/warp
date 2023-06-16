@@ -4,7 +4,7 @@ import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 
 workflow Multiome {
-    String pipeline_version = "1.0.1"
+    String pipeline_version = "1.0.2"
 
     input {
         # Optimus Inputs
@@ -25,6 +25,7 @@ workflow Multiome {
         String star_strand_mode = "Forward"
         Boolean count_exons = false
         File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt"
+        String? mt_sequence
 
         # ATAC inputs
         # Array of input fastq files
@@ -67,7 +68,8 @@ workflow Multiome {
             force_no_check = force_no_check,
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
-            count_exons = count_exons
+            count_exons = count_exons,
+            mt_sequence = mt_sequence
     }
 
     # Call the ATAC workflow
@@ -105,6 +107,7 @@ workflow Multiome {
         File cell_metrics = Optimus.cell_metrics
         File gene_metrics = Optimus.gene_metrics
         File? cell_calls = Optimus.cell_calls
-        File loom_output_file = Optimus.loom_output_file
+        File? picard_metrics = Optimus.picard_metrics
+        File h5ad_output_file = Optimus.h5ad_output_file
     }
 }
