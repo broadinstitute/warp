@@ -288,20 +288,20 @@ task FastqProcessATAC {
         read3_fastq_files=`printf '%s ' "${FASTQ3_ARRAY[@]}"; echo`
 
         echo $read1_fastq_files
-
-        gcloud storage cp $read1_fastq_files .
-        gcloud storage cp $read2_fastq_files .
-        gcloud storage cp $read3_fastq_files .
+        
+        mkdir input_fastq
+        gcloud storage cp $read1_fastq_files input_fastq
+        gcloud storage cp $read2_fastq_files input_fastq
+        gcloud storage cp $read3_fastq_files input_fastq
 
         # barcodes R2
         R1_FILES_CONCAT=""
         for fastq in "${FASTQ2_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R1 $BASE`
+            BASE=`echo --R1 input_fastq/$BASE`
             R1_FILES_CONCAT+="$BASE "
         done
-
         echo $R1_FILES_CONCAT
 
         # R1
@@ -309,7 +309,7 @@ task FastqProcessATAC {
         for fastq in "${FASTQ1_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R2 $BASE`
+            BASE=`echo --R2 input_fastq/$BASE`
             R2_FILES_CONCAT+="$BASE "
         done
         echo $R2_FILES_CONCAT
@@ -319,7 +319,7 @@ task FastqProcessATAC {
         for fastq in "${FASTQ3_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R3 $BASE`
+            BASE=`echo --R3 input_fastq/$BASE`
             R3_FILES_CONCAT+="$BASE "
         done
         echo $R3_FILES_CONCAT
