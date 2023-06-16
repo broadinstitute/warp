@@ -11,9 +11,9 @@ workflow ATAC {
 
   input {
     # Fastq inputs
-    Array[String] read1_fastq_gzipped
-    Array[String] read2_fastq_gzipped
-    Array[String] read3_fastq_gzipped
+    Array[File] read1_fastq_gzipped
+    Array[File] read2_fastq_gzipped
+    Array[File] read3_fastq_gzipped
 
     # Output prefix/base name for all intermediate files and pipeline outputs
     String output_base_name
@@ -192,7 +192,7 @@ task BWAPairedEndAlignment {
     File monitoring_script
 
     # Runtime attributes
-    Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 200
+    Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 400
     Int nthreads = 16
     Int mem_size = 40
   }
