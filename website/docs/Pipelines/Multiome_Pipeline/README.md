@@ -6,9 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Multiome v1.0.1](https://github.com/broadinstitute/warp/releases) | June, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org) |
-
-![Multiome_diagram]()
+| [Multiome v1.0.0](https://github.com/broadinstitute/warp/releases) | June, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ## Introduction to the Multiome workflow
 
