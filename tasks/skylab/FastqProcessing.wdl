@@ -279,61 +279,18 @@ task FastqProcessATAC {
 
         set -e
 
-        declare -a FASTQ1_ARRAY=(~{sep=' ' read1_fastq})
-        declare -a FASTQ2_ARRAY=(~{sep=' ' barcodes_fastq})
-        declare -a FASTQ3_ARRAY=(~{sep=' ' read3_fastq})
-
-        read1_fastq_files=`printf '%s ' "${FASTQ1_ARRAY[@]}"; echo`
-        read2_fastq_files=`printf '%s ' "${FASTQ2_ARRAY[@]}"; echo`
-        read3_fastq_files=`printf '%s ' "${FASTQ3_ARRAY[@]}"; echo`
-
-        echo $read1_fastq_files
-
-        gcloud storage cp $read1_fastq_files .
-        gcloud storage cp $read2_fastq_files .
-        gcloud storage cp $read3_fastq_files .
-
-        # barcodes R2
-        R1_FILES_CONCAT=""
-        for fastq in "${FASTQ2_ARRAY[@]}"
-        do
-            BASE=`basename $fastq`
-            BASE=`echo --R1 $BASE`
-            R1_FILES_CONCAT+="$BASE "
-        done
-
-        echo $R1_FILES_CONCAT
-
-        # R1
-        R2_FILES_CONCAT=""
-        for fastq in "${FASTQ1_ARRAY[@]}"
-        do
-            BASE=`basename $fastq`
-            BASE=`echo --R2 $BASE`
-            R2_FILES_CONCAT+="$BASE "
-        done
-
-        echo $R2_FILES_CONCAT
-
-        # R3
-        R3_FILES_CONCAT=""
-        for fastq in "${FASTQ3_ARRAY[@]}"
-        do
-            BASE=`basename $fastq`
-            BASE=`echo --R3 $BASE`
-            R3_FILES_CONCAT+="$BASE "
-        done
-
-        echo $R3_FILES_CONCAT
+        gcloud storage cp ~{sep=' ' read1_fastq} .
+        gcloud storage cp ~{sep=' ' read2_fastq} .
+        gcloud storage cp ~{sep=' ' read3_fastq} .
 
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
         fastqprocess \
         --bam-size 30.0 \
         --sample-id "~{output_base_name}" \
-        $R1_FILES_CONCAT \
-        $R2_FILES_CONCAT \
-        $R3_FILES_CONCAT \
+        --R1 ~{sep=' --R1 ' read2_fastq} \
+        --R2 ~{sep=' --R2 ' read1_fastq} \
+        --R3 ~{sep=' --R3 ' read3_fastq} \
         --white-list "~{whitelist}" \
         --output-format "FASTQ" \
         --barcode-orientation "~{barcode_orientation}" \
