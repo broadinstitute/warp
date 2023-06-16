@@ -61,9 +61,7 @@ workflow TestExomeGermlineSingleSample {
                             ExomeGermlineSingleSample.output_cram,
                             ExomeGermlineSingleSample.output_cram_index,
                             ExomeGermlineSingleSample.output_cram_md5,
-                            ExomeGermlineSingleSample.validate_cram_file_report,
-                            ExomeGermlineSingleSample.output_vcf,
-                            ExomeGermlineSingleSample.output_vcf_index
+                            ExomeGermlineSingleSample.validate_cram_file_report
                             ], # Array[File] outputs
                             ExomeGermlineSingleSample.unsorted_read_group_base_distribution_by_cycle_pdf,
                             ExomeGermlineSingleSample.unsorted_read_group_insert_size_histogram_pdf,
@@ -88,8 +86,6 @@ workflow TestExomeGermlineSingleSample {
                               ExomeGermlineSingleSample.agg_quality_distribution_metrics,
                               ExomeGermlineSingleSample.agg_error_summary_metrics,
                               ExomeGermlineSingleSample.duplicate_metrics,
-                              ExomeGermlineSingleSample.gvcf_summary_metrics,
-                              ExomeGermlineSingleSample.gvcf_detail_metrics,
                               ExomeGermlineSingleSample.hybrid_selection_metrics,
                               ], # Array[File] outputs
                               ExomeGermlineSingleSample.quality_yield_metrics,
