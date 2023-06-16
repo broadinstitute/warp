@@ -326,6 +326,9 @@ task FastqProcessATAC {
 
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
+        mkdir output_fastq
+        cd output_fastq
+
         fastqprocess \
         --bam-size 30.0 \
         --sample-id "~{output_base_name}" \
@@ -348,8 +351,8 @@ task FastqProcessATAC {
     }
 
     output {
-        Array[File] fastq_R1_output_array = glob("fastq_R1_*")
-        Array[File] fastq_R3_output_array = glob("fastq_R3_*")
+        Array[File] fastq_R1_output_array = glob("output_fastq/fastq_R1_*")
+        Array[File] fastq_R3_output_array = glob("output_fastq/fastq_R3_*")
     }
 }
 
