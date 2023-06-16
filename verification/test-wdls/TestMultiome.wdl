@@ -34,8 +34,7 @@ workflow TestMultiome {
       Array[File] atac_r1_fastq
       Array[File] atac_r2_fastq
       Array[File] atac_r3_fastq
-      # Output name
-      String output_base_name
+
       # BWA input
       File tar_bwa_reference
       # CreateFragmentFile input
