@@ -2,8 +2,7 @@ version 1.0
 
 ## Copyright Broad Institute, 2018
 ##
-## This WDL pipeline implements data pre-processing and initial variant calling (GVCF
-## generation) according to the GATK Best Practices (June 2016) for germline SNP and
+## This WDL pipeline implements data pre-processing according to the GATK Best Practices (June 2016) for germline SNP and
 ## Indel discovery in human exome sequencing data.
 ##
 ## Requirements/expectations :
@@ -14,7 +13,6 @@ version 1.0
 ## - - files must pass validation by ValidateSamFile
 ## - - reads are provided in query-sorted order
 ## - - all reads must have an RG tag
-## - GVCF output names must end in ".g.vcf.gz"
 ## - Reference genome must be Hg38 with ALT contigs
 ##
 ## Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
@@ -33,7 +31,6 @@ import "../../../../../../tasks/broad/AggregatedBamQC.wdl" as AggregatedQC
 import "../../../../../../tasks/broad/Qc.wdl" as QC
 import "../../../../../../tasks/broad/BamProcessing.wdl" as Processing
 import "../../../../../../tasks/broad/BamToCram.wdl" as ToCram
-import "../../../../../../pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
 import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 # WORKFLOW DEFINITION
@@ -62,9 +59,6 @@ workflow ExomeGermlineSingleSample {
   Float lod_threshold = -10.0
   String cross_check_fingerprints_by = "READGROUP"
   String recalibrated_bam_basename = sample_and_unmapped_bams.base_file_name + ".aligned.duplicates_marked.recalibrated"
-
-  String final_gvcf_base_name = select_first([sample_and_unmapped_bams.final_gvcf_base_name, sample_and_unmapped_bams.base_file_name])
-
 
   call Processing.GenerateSubsettedContaminationResources {
     input:
@@ -115,25 +109,6 @@ workflow ExomeGermlineSingleSample {
       duplication_metrics = UnmappedBamToAlignedBam.duplicate_metrics,
       chimerism_metrics = AggregatedBamQC.agg_alignment_summary_metrics,
       base_file_name = sample_and_unmapped_bams.base_file_name,
-      agg_preemptible_tries = papi_settings.agg_preemptible_tries
-  }
-
-  call ToGvcf.VariantCalling as BamToGvcf {
-    input:
-      calling_interval_list = references.calling_interval_list,
-      evaluation_interval_list = references.evaluation_interval_list,
-      haplotype_scatter_count = scatter_settings.haplotype_scatter_count,
-      break_bands_at_multiples_of = scatter_settings.break_bands_at_multiples_of,
-      contamination = UnmappedBamToAlignedBam.contamination,
-      input_bam = UnmappedBamToAlignedBam.output_bam,
-      input_bam_index = UnmappedBamToAlignedBam.output_bam_index,
-      ref_fasta = references.reference_fasta.ref_fasta,
-      ref_fasta_index = references.reference_fasta.ref_fasta_index,
-      ref_dict = references.reference_fasta.ref_dict,
-      dbsnp_vcf = references.dbsnp_vcf,
-      dbsnp_vcf_index = references.dbsnp_vcf_index,
-      base_file_name = sample_and_unmapped_bams.base_file_name,
-      final_vcf_base_name = final_gvcf_base_name,
       agg_preemptible_tries = papi_settings.agg_preemptible_tries
   }
 
@@ -193,9 +168,6 @@ workflow ExomeGermlineSingleSample {
     File duplicate_metrics = UnmappedBamToAlignedBam.duplicate_metrics
     File? output_bqsr_reports = UnmappedBamToAlignedBam.output_bqsr_reports
 
-    File gvcf_summary_metrics = BamToGvcf.vcf_summary_metrics
-    File gvcf_detail_metrics = BamToGvcf.vcf_detail_metrics
-
     File hybrid_selection_metrics = CollectHsMetrics.metrics
 
     File? output_bam = provided_output_bam
@@ -206,9 +178,6 @@ workflow ExomeGermlineSingleSample {
     File output_cram_md5 = BamToCram.output_cram_md5
 
     File validate_cram_file_report = BamToCram.validate_cram_file_report
-
-    File output_vcf = BamToGvcf.output_vcf
-    File output_vcf_index = BamToGvcf.output_vcf_index
   }
   meta {
     allowNestedInputs: true

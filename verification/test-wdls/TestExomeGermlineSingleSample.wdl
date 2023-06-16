@@ -148,20 +148,6 @@ workflow TestExomeGermlineSingleSample {
         results_path = results_path,
         truth_path   = truth_path
     }
-
-    call Utilities.GetValidationInputs as GetGVCFs {
-      input:
-        input_file   = ExomeGermlineSingleSample.output_vcf,
-        results_path = results_path,
-        truth_path   = truth_path
-    }
-
-    call Utilities.GetValidationInputs as GetGVCFIndexes {
-      input:
-        input_file    = ExomeGermlineSingleSample.output_vcf_index,
-        results_path  = results_path,
-        truth_path    = truth_path
-    }
     
     # done is dummy input to force copy completion before verification
     call VerifyGermlineSingleSample.VerifyGermlineSingleSample as Verify {
@@ -169,13 +155,9 @@ workflow TestExomeGermlineSingleSample {
         truth_metrics    = GetMetricsInputs.truth_files,
         truth_cram       = GetCrams.truth_file,
         truth_crai       = GetCrais.truth_file,
-        truth_gvcf       = GetGVCFs.truth_file,
-        truth_gvcf_index = GetGVCFIndexes.truth_file,
         test_metrics     = GetMetricsInputs.results_files,
         test_cram        = GetCrams.results_file,
         test_crai        = GetCrais.results_file,
-        test_gvcf        = GetGVCFs.results_file,
-        test_gvcf_index  = GetGVCFIndexes.results_file,
         done             = CopyToTestResults.done
     }
   }
