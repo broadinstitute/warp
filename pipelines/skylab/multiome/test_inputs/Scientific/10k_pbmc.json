@@ -1,0 +1,34 @@
+{
+"Multiome.annotations_gtf":"gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/introns_modified_gencode.vGencode_V43.primary_assembly.annotation.gtf",
+  "Multiome.gex_i1_fastq":[
+  "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L001_I1_001.fastq.gz",
+  "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L002_I1_001.fastq.gz"
+],
+  "Multiome.input_id":"10k_PBMC",
+  "Multiome.output_base_name":"scATAC",
+  "Multiome.gex_r1_fastq":[
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L001_R1_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L002_R1_001.fastq.gz"
+  ],
+  "Multiome.gex_r2_fastq":[
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L001_R2_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L002_R2_001.fastq.gz"
+  ],
+  "Multiome.atac_r1_fastq":[
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac_S1_L001_R1_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac_S1_L002_R1_001.fastq.gz"
+  ],
+  "Multiome.atac_r2_fastq":[
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac_S1_L001_R2_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac_S1_L002_R2_001.fastq.gz"
+  ],
+  "Multiome.atac_r3_fastq":[
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac_S1_L001_R3_001.fastq.gz",
+    "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac_S1_L002_R3_001.fastq.gz"
+  ],
+  "Multiome.ref_genome_fasta":"gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/GRCh38.primary_assembly.genome.fa",
+  "Multiome.tar_bwa_reference":"gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/GRCh38.primary_assembly.genome.bwamem2.fa.tar",
+  "Multiome.tar_star_reference":"gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/modified_star_primary_gencode_Human_vGencode_V43.tar",
+  "Multiome.chrom_sizes":"gs://broad-gotc-test-storage/Multiome/input/hg38.chrom.sizes",
+  "Multiome.monitoring_script":"gs://broad-gotc-test-storage/Multiome/input/cromwell_monitoring_script2.sh"
+}

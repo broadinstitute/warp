@@ -7,7 +7,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow BroadInternalRNAWithUMIs {
 
-  String pipeline_version = "1.0.21"
+  String pipeline_version = "1.0.24"
 
   input {
     # input needs to be either "hg19" or "hg38"
@@ -112,7 +112,8 @@ workflow BroadInternalRNAWithUMIs {
       read_fingerprint_from_mercury = true,
       haplotype_database_file = haplotype_database_file,
       environment = environment,
-      vault_token_path = vault_token_path
+      vault_token_path = vault_token_path,
+      allow_lod_zero = true
   }
 
   call tasks.MergeMetrics {
@@ -196,5 +197,9 @@ workflow BroadInternalRNAWithUMIs {
     Float contamination_error = RNAWithUMIs.contamination_error
     File fastqc_html_report = RNAWithUMIs.fastqc_html_report
     Float fastqc_percent_reads_with_adapter = RNAWithUMIs.fastqc_percent_reads_with_adapter
+  }
+
+  meta {
+    allowNestedInputs: true
   }
 }

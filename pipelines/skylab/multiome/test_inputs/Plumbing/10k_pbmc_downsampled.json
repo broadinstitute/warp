@@ -1,0 +1,25 @@
+{
+  "Multiome.annotations_gtf":"gs://broad-gotc-test-storage/Multiome/input/plumbing/modified_v43.annotation.gtf",
+  "Multiome.input_id":"10k_PBMC_downsampled",
+  "Multiome.output_base_name":"scATAC",
+  "Multiome.gex_r1_fastq":[
+    "gs://broad-gotc-test-storage/Multiome/input/plumbing/fastq_R1_gex.fastq.gz"
+  ],
+  "Multiome.gex_r2_fastq":[
+    "gs://broad-gotc-test-storage/Multiome/input/plumbing/fastq_R2_gex.fastq.gz"
+  ],
+  "Multiome.atac_r1_fastq":[
+    "gs://broad-gotc-test-storage/Multiome/input/plumbing/fastq_R1_atac.fastq.gz"
+  ],
+  "Multiome.atac_r2_fastq":[
+    "gs://broad-gotc-test-storage/Multiome/input/plumbing/fastq_R2_atac.fastq.gz"
+  ],
+  "Multiome.atac_r3_fastq":[
+    "gs://broad-gotc-test-storage/Multiome/input/plumbing/fastq_R3_atac.fastq.gz"
+  ],
+  "Multiome.ref_genome_fasta":"gs://gcp-public-data--broad-references/hg38/v0/GRCh38.primary_assembly.genome.fa",
+  "Multiome.tar_bwa_reference":"gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/GRCh38.primary_assembly.genome.bwamem2.fa.tar",
+  "Multiome.tar_star_reference":"gs://broad-gotc-test-storage/Multiome/input/plumbing/modified_star2.7.10a-Human-GENCODE-build-GRCh38-43.tar",
+  "Multiome.chrom_sizes":"gs://broad-gotc-test-storage/Multiome/input/hg38.chrom.sizes",
+  "Multiome.monitoring_script":"gs://broad-gotc-test-storage/Multiome/input/cromwell_monitoring_script2.sh"
+}

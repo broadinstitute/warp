@@ -74,7 +74,8 @@ task CompareMetricFiles {
     File file1
     File file2
     String output_file
-    Array[String] metrics_to_ignore
+    Array[String] metrics_to_ignore = []
+    Array[String] extra_args = []
   }
 
   command <<<
@@ -83,11 +84,12 @@ task CompareMetricFiles {
       --INPUT ~{file1} \
       --INPUT ~{file2} \
       --OUTPUT ~{output_file} \
-      ~{true="--METRICS_TO_IGNORE" false="" length(metrics_to_ignore) > 0} ~{default="" sep=" --METRICS_TO_IGNORE " metrics_to_ignore};
+      ~{true="--METRICS_TO_IGNORE" false="" length(metrics_to_ignore) > 0} ~{default="" sep=" --METRICS_TO_IGNORE " metrics_to_ignore} \
+      ~{sep=" " extra_args}
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:3.0.0"
     disks: "local-disk 10 HDD"
     memory: "3.5 GiB"
     preemptible: 3
