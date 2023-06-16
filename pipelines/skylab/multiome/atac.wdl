@@ -11,9 +11,9 @@ workflow ATAC {
 
   input {
     # Fastq inputs
-    Array[File] read1_fastq_gzipped
-    Array[File] read2_fastq_gzipped
-    Array[File] read3_fastq_gzipped
+    Array[String] read1_fastq_gzipped
+    Array[String] read2_fastq_gzipped
+    Array[String] read3_fastq_gzipped
 
     # Output prefix/base name for all intermediate files and pipeline outputs
     String output_base_name
@@ -78,18 +78,11 @@ workflow ATAC {
         output_base_name = output_base_name + "_" + idx,
         monitoring_script = monitoring_script
     }
-
-    call AddCBtags {
-      input:
-        bam = BWAPairedEndAlignment.bam_aligned_output,
-        output_base_name = output_base_name
-    }
-
   }
 
   call Merge.MergeSortBamFiles as MergeBam {
     input:
-      bam_inputs = AddCBtags.output_cb_bam,
+      bam_inputs = BWAPairedEndAlignment.bam_aligned_output,
       output_bam_filename = output_base_name + ".bam",
       sort_order = "coordinate"
   }
@@ -199,7 +192,7 @@ task BWAPairedEndAlignment {
     File monitoring_script
 
     # Runtime attributes
-    Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 400
+    Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 200
     Int nthreads = 16
     Int mem_size = 40
   }
@@ -241,6 +234,7 @@ task BWAPairedEndAlignment {
     bwa-mem2 \
     mem \
     -R "@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}" \
+    -C \
     -t ~{nthreads} \
     $REF_DIR/genome.fa \
     ~{read1_fastq} ~{read3_fastq} \
@@ -260,37 +254,6 @@ task BWAPairedEndAlignment {
   }
 }
 
-#add CB and CR tags to BAM file
-task AddCBtags {
-  input {
-    File bam
-    String output_base_name
-    Int disk_size = ceil(size(bam, "GiB") + 50)
-    Int mem_size = 10
-  }
-
-  String bam_cb_output_name = output_base_name + ".cb.aligned.bam"
-
-  command <<<
-    # We reused tags from Broad's Share-seq pipeline; XC tag is not currently needed by pipeline
-    samtools view -h ~{bam} \
-    | awk '{if ($0 ~ /^@/) {print $0} else {cr=substr($1, index($1, "CR:")+3); n=split($1, a,":CB:"); if (n == 2) {cb="CB:Z:"a[1]"\t";} else {cb="";} print($0 "\tCR:Z:" cr "\t" cb "XC:Z:" substr($1, index($1, "CB:")+3));}}' \
-    | samtools view -b -o ~{bam_cb_output_name}
-
-    # Piping to samtools sort works, but isn't necessary for SnapATAC2
-    #| \ samtools sort -o ~{bam_cb_output_name}
-  >>>
-
-  output {
-    File output_cb_bam = "~{bam_cb_output_name}"
-  }
-
-  runtime {
-    docker: "us.gcr.io/broad-gotc-prod/samtools-bwa:1.0.0-0.7.17-1678998091"
-    disks: "local-disk ${disk_size} HDD"
-    memory: "${mem_size} GiB"
-  }
-}
 # make fragment file
 task CreateFragmentFile {
   input {
@@ -304,7 +267,7 @@ task CreateFragmentFile {
   String bam_base_name = basename(bam, ".bam")
 
   parameter_meta {
-    bam: "Aligned bam with CB in CB tag. This is the output of the AddCBtags task."
+    bam: "Aligned bam with CB in CB tag. This is the output of the BWAPairedEndAlignment task."
     annotations_gtf: "GTF for SnapATAC2 to calculate TSS sites of fragment file."
     chrom_sizes: "Text file containing chrom_sizes for genome build (i.e. hg38)."
     disk_size: "Disk size used in create fragment file step."
