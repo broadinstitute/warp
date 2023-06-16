@@ -288,9 +288,9 @@ task FastqProcessATAC {
         fastqprocess \
         --bam-size 30.0 \
         --sample-id "~{output_base_name}" \
-        --R1 ~{sep=' --R1 ' read2_fastq} \
-        --R2 ~{sep=' --R2 ' read1_fastq} \
-        --R3 ~{sep=' --R3 ' read3_fastq} \
+        --R1 ~{sep=' --R1 ' basename(read2_fastq)} \
+        --R2 ~{sep=' --R2 ' basename(read1_fastq)} \
+        --R3 ~{sep=' --R3 ' basename(read3_fastq)} \
         --white-list "~{whitelist}" \
         --output-format "FASTQ" \
         --barcode-orientation "~{barcode_orientation}" \
