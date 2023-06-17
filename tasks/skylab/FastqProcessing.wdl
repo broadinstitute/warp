@@ -289,17 +289,17 @@ task FastqProcessATAC {
 
         echo $read1_fastq_files
         
-        mkdir input_fastq
-        gcloud storage cp $read1_fastq_files input_fastq
-        gcloud storage cp $read2_fastq_files input_fastq
-        gcloud storage cp $read3_fastq_files input_fastq
+        mkdir /cromwell_root/input_fastq
+        gcloud storage cp $read1_fastq_files /cromwell_root/input_fastq
+        gcloud storage cp $read2_fastq_files /cromwell_root/input_fastq
+        gcloud storage cp $read3_fastq_files /cromwell_root/input_fastq
 
         # barcodes R2
         R1_FILES_CONCAT=""
         for fastq in "${FASTQ2_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R1 input_fastq/$BASE`
+            BASE=`echo --R1 /cromwell_root/input_fastq/$BASE`
             R1_FILES_CONCAT+="$BASE "
         done
         echo $R1_FILES_CONCAT
@@ -309,7 +309,7 @@ task FastqProcessATAC {
         for fastq in "${FASTQ1_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R2 input_fastq/$BASE`
+            BASE=`echo --R2 /cromwell_root/input_fastq/$BASE`
             R2_FILES_CONCAT+="$BASE "
         done
         echo $R2_FILES_CONCAT
@@ -319,15 +319,15 @@ task FastqProcessATAC {
         for fastq in "${FASTQ3_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R3 input_fastq/$BASE`
+            BASE=`echo --R3 /cromwell_root/input_fastq/$BASE`
             R3_FILES_CONCAT+="$BASE "
         done
         echo $R3_FILES_CONCAT
 
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
-        mkdir output_fastq
-        cd output_fastq
+        mkdir /cromwell_root/output_fastq
+        cd /cromwell_root/output_fastq
 
         fastqprocess \
         --bam-size 30.0 \
@@ -351,8 +351,8 @@ task FastqProcessATAC {
     }
 
     output {
-        Array[File] fastq_R1_output_array = glob("output_fastq/fastq_R1_*")
-        Array[File] fastq_R3_output_array = glob("output_fastq/fastq_R3_*")
+        Array[File] fastq_R1_output_array = glob("/cromwell_root/output_fastq/fastq_R1_*")
+        Array[File] fastq_R3_output_array = glob("/cromwell_root/output_fastq/fastq_R3_*")
     }
 }
 
