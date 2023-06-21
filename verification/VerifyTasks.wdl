@@ -331,32 +331,45 @@ task CompareLooms {
   }
 }
 
-task CompareH5adFiles {
+task CompareH5adFilesATAC {
   input {
     File truth_h5ad
     File test_h5ad
-
-    Int cpu = 1
-    String docker = "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 20
-    Int memory_mb = ceil(size(truth_h5ad, "MiB") + size(test_h5ad, "MiB") * 2)
+    String docker = "python:3.10.0-buster"
+    Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 200
+    Int memory_mb = ceil(size(truth_h5ad, "MiB") + size(test_h5ad, "MiB") * 5)
   }
 
   command <<<
 
     set -eo pipefail
 
-    # calculate file sizes
-
-    TRUTHSIZE=$(stat -c%s ~{truth_h5ad})
-    TESTSIZE=$(stat -c%s ~{test_h5ad})
-
-    if [ "$TRUTHSIZE" == "$TESTSIZE" ]; then
-      echo "H5ad file sizes are identical"
-    else
-      echo "H5ad file sizes are NOT identical"
-      exit 1
-    fi
+    pip3 install anndata
+    
+    python3 <<CODE
+    
+    import anndata as ad
+    import numpy as np
+    import pandas as pd
+    
+    truth_h5ad = "~{truth_h5ad}"
+    test_h5ad = "~{test_h5ad}"
+    truth = ad.read_h5ad(truth_h5ad)
+    test = ad.read_h5ad(test_h5ad)
+    
+    truth_obs = pd.DataFrame(truth.obs)
+    test_obs = pd.DataFrame(test.obs)
+    
+    print("Now running obs equivalence check")
+    
+    if truth_obs.equals(test_obs)==True:
+        print("true")
+    else:
+        exit("Files are not identical")
+    
+    print("Done running matrix equivalence check")
+    
+    CODE 
   >>>
 
   runtime {
@@ -368,5 +381,59 @@ task CompareH5adFiles {
   }
 }
 
+task CompareH5adFilesGEX {
+  input {
+    File truth_h5ad
+    File test_h5ad
+    String docker = "python:3.10.0-buster"
+    Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 200
+    Int memory_mb = ceil(size(truth_h5ad, "MiB") + size(test_h5ad, "MiB") * 5)
+  }
 
+  command <<<
+
+    set -eo pipefail
+
+    pip3 install anndata
+    
+    python3 <<CODE
+    
+    import anndata as ad
+    import numpy as np
+    import pandas as pd
+    
+    truth_h5ad = "~{truth_h5ad}"
+    test_h5ad = "~{test_h5ad}"
+    truth = ad.read_h5ad(truth_h5ad)
+    test = ad.read_h5ad(test_h5ad)
+    
+    truth_obs = pd.DataFrame(truth.obs)
+    test_obs = pd.DataFrame(test.obs)
+    
+    truth_var = pd.DataFrame(truth.var)
+    test_var = pd.DataFrame(test.var)
+    
+    truth_sum = truth.X.sum()
+    test_sum = test.X.sum()
+    
+    print("Now running equivalence check")
+    
+    if truth_obs.equals(test_obs)==True and truth_var.equals(test_var)==True and truth_sum==test_sum:
+        print("true")
+    else:
+        exit("Files are not identical")
+    
+    print("Done running matrix equivalence check")
+    
+    CODE 
+  >>>
+
+  runtime {
+    docker: docker
+    cpu: cpu
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    preemptible: 3
+  }
+}
 
