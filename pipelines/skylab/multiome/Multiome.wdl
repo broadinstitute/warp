@@ -44,9 +44,6 @@ workflow Multiome {
         # Whitelist
         File atac_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_atac.txt"
 
-        # script for monitoring tasks
-        File monitoring_script
-
     }
 
     # Call the Optimus workflow
@@ -80,7 +77,6 @@ workflow Multiome {
             read3_fastq_gzipped = atac_r3_fastq,
             output_base_name = output_base_name,
             tar_bwa_reference = tar_bwa_reference,
-            monitoring_script = monitoring_script,
             annotations_gtf = annotations_gtf,
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
