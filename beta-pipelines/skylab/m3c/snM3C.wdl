@@ -77,29 +77,36 @@ task Demultiplexing {
     # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
     rm *-unknown-R{1,2}.fq.gz
 
-    # Count the number of reads in each fastq file and remove if over 10,000,000 reads. Also, remove its mate.
-    for file in ~{plate_id}-*.fq.gz; do
-      if [ -f $file ]; then
-        num_reads=$(($(cat $file | wc -l) / 4))
-        if [ $num_reads -gt 10000000 ]; then
-          echo "Removing $file with $num_reads reads"
-          rm $file
+    python3 <<CODE
+    import re
+    import os
 
-        # Remove the mate fastq file
-          mate_file=${file/-R1./-R2.}
-          if [ -f $mate_file ]; then
-            echo "Removing the first $mate_file"
-            rm $mate_file
-          else
-            mate_file=${file/-R2./-R1.}
-            if [ -f $mate_file ]; then
-              echo "Removing $mate_file"
-              rm $mate_file
-            fi
-          fi
-        fi
-      fi
-    done
+    # Parsing stats.txt file
+    stats_file_path = '/cromwell_root/~{plate_id}.stats.txt'
+    adapter_counts = {}
+    with open(stats_file_path, 'r') as file:
+        content = file.read()
+
+    adapter_matches = re.findall(r'=== First read: Adapter (\w+) ===\n\nSequence: .+; Type: .+; Length: \d+; Trimmed: (\d+) times', content)
+    for adapter_match in adapter_matches:
+        adapter_name = adapter_match[0]
+        trimmed_count = int(adapter_match[1])
+        adapter_counts[adapter_name] = trimmed_count
+
+    # Removing fastq files with trimmed reads greater than 30
+    directory_path = '/cromwell_root'
+    threshold = 30
+
+    for filename in os.listdir(directory_path):
+        if filename.endswith('.fq.gz'):
+            file_path = os.path.join(directory_path, filename)
+            adapter_name = re.search(r'A(\d+)-R', filename)
+            if adapter_name:
+                adapter_name = 'A' + adapter_name.group(1)
+                if adapter_name in adapter_counts and adapter_counts[adapter_name] > threshold:
+                    os.remove(file_path)
+                    print(f'Removed file: {filename}')
+    CODE
 
     # zip up all the output fq.gz files
     tar -zcvf ~{plate_id}.cutadapt_output_files.tar.gz *.fq.gz
