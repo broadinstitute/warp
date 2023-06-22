@@ -5,7 +5,7 @@
 * Added Dropseq cell metrics to Multiome and Optimus workflows 
 * Added h5ad as a format option for the cell-by-gene matrix output
 * Replaced bwa-mem with bwa-mem2 in BWAPairedEndAlignment task. 
-
+* Changed the way files are read.
 
 # 1.0.1
 2023-05-31 (Date of Last Commit)
