@@ -26,7 +26,23 @@ task MoveFile {
   String target_url = "${target_bucket}/${basename(source_file)}"
 
   command <<<
-  gsutil mv ~{source_file} ~{target_url}
+move_file(){
+  SOURCE_FILE=$1
+  TARGET_FILE=$2
+
+  if [ $SOURCE_FILE != $TARGET_FILE ]; then
+    gsutil -q stat $TARGET_FILE
+    status=$?
+    if [ $status -eq 0 ]; then
+      echo "Target file exists, skipping move: $TARGET_FILE"
+      return 0
+    fi
+
+    gsutil mv $SOURCE_FILE $TARGET_FILE
+  fi
+}
+
+move_file ~{source_file} ~{target_url}
 >>>
 
   runtime {

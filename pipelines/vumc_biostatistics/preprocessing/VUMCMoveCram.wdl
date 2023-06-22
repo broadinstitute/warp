@@ -51,9 +51,25 @@ task MoveCram {
 
   command <<<
 
-gsutil mv ~{output_cram_index} ~{new_output_cram_index}
-gsutil mv ~{output_cram_md5} ~{new_output_cram_md5}
-gsutil mv ~{output_cram} ~{new_output_cram}
+move_file(){
+  SOURCE_FILE=$1
+  TARGET_FILE=$2
+
+  if [ $SOURCE_FILE != $TARGET_FILE ]; then
+    gsutil -q stat $TARGET_FILE
+    status=$?
+    if [ $status -eq 0 ]; then
+      echo "Target file exists, skipping move: $TARGET_FILE"
+      return 0
+    fi
+
+    gsutil mv $SOURCE_FILE $TARGET_FILE
+  fi
+}
+
+move_file ~{output_cram_index} ~{new_output_cram_index}
+move_file ~{output_cram_md5} ~{new_output_cram_md5}
+move_file ~{output_cram} ~{new_output_cram}
 >>>
 
   runtime {

@@ -23,6 +23,7 @@ workflow VUMCMoveFastqToBamResult {
 
     String output_bam
     String output_bam_index
+    String output_bam_md5
 
     String target_bucket
   }
@@ -50,6 +51,7 @@ workflow VUMCMoveFastqToBamResult {
 
       output_bam = output_bam,
       output_bam_index = output_bam_index,
+      output_bam_md5 = output_bam_md5,
 
       target_bucket = target_bucket
   }
@@ -73,6 +75,7 @@ workflow VUMCMoveFastqToBamResult {
 
     String target_output_bam = mf.target_output_bam
     String target_output_bam_index = mf.target_output_bam_index
+    String target_output_bam_md5 = mf.target_output_bam_md5
 
     Int target_bam_moved = mf.target_bam_moved
   }
@@ -101,6 +104,7 @@ task MoveFastqToBamResult {
 
     String output_bam
     String output_bam_index
+    String output_bam_md5
 
     String target_bucket
   }
@@ -123,26 +127,42 @@ task MoveFastqToBamResult {
 
   String new_output_bam = "${target_bucket}/${genoset}/${GRID}/${basename(output_bam)}"
   String new_output_bam_index = "${target_bucket}/${genoset}/${GRID}/${basename(output_bam_index)}"
+  String new_output_bam_md5 = "${target_bucket}/${genoset}/${GRID}/${basename(output_bam_md5)}"
 
   command <<<
-  gsutil mv ~{unsorted_base_distribution_by_cycle_pdf} ~{new_unsorted_base_distribution_by_cycle_pdf}
-  gsutil mv ~{unsorted_base_distribution_by_cycle_metrics} ~{new_unsorted_base_distribution_by_cycle_metrics}
-  gsutil mv ~{unsorted_insert_size_histogram_pdf} ~{new_unsorted_insert_size_histogram_pdf}
-  gsutil mv ~{unsorted_insert_size_metrics} ~{new_unsorted_insert_size_metrics}
-  gsutil mv ~{unsorted_quality_by_cycle_pdf} ~{new_unsorted_quality_by_cycle_pdf}
-  gsutil mv ~{unsorted_quality_by_cycle_metrics} ~{new_unsorted_quality_by_cycle_metrics}
-  gsutil mv ~{unsorted_quality_distribution_pdf} ~{new_unsorted_quality_distribution_pdf}
-  gsutil mv ~{unsorted_quality_distribution_metrics} ~{new_unsorted_quality_distribution_metrics}
 
-  gsutil mv ~{cross_check_fingerprints_metrics} ~{new_cross_check_fingerprints_metrics}
+move_file(){
+  SOURCE_FILE=$1
+  TARGET_FILE=$2
 
-  gsutil mv ~{selfSM} ~{new_selfSM}
+  if [ $SOURCE_FILE != $TARGET_FILE ]; then
+    gsutil -q stat $TARGET_FILE
+    status=$?
+    if [ $status -eq 0 ]; then
+      echo "Target file exists, skipping move: $TARGET_FILE"
+      return 0
+    fi
 
-  gsutil mv ~{duplicate_metrics} ~{new_duplicate_metrics}
-  gsutil mv ~{output_bqsr_reports} ~{new_output_bqsr_reports}
+    gsutil mv $SOURCE_FILE $TARGET_FILE
+  fi
+}
 
-  gsutil mv ~{output_bam} ~{new_output_bam}
-  gsutil mv ~{output_bam_index} ~{new_output_bam_index}
+move_file ~{unsorted_base_distribution_by_cycle_pdf} ~{new_unsorted_base_distribution_by_cycle_pdf} 
+move_file ~{unsorted_base_distribution_by_cycle_metrics} ~{new_unsorted_base_distribution_by_cycle_metrics} 
+move_file ~{unsorted_insert_size_histogram_pdf} ~{new_unsorted_insert_size_histogram_pdf}
+move_file ~{unsorted_insert_size_metrics} ~{new_unsorted_insert_size_metrics}
+move_file ~{unsorted_quality_by_cycle_pdf} ~{new_unsorted_quality_by_cycle_pdf}
+move_file ~{unsorted_quality_by_cycle_metrics} ~{new_unsorted_quality_by_cycle_metrics}
+move_file ~{unsorted_quality_distribution_pdf} ~{new_unsorted_quality_distribution_pdf}
+move_file ~{unsorted_quality_distribution_metrics} ~{new_unsorted_quality_distribution_metrics}
+move_file ~{cross_check_fingerprints_metrics} ~{new_cross_check_fingerprints_metrics}
+move_file ~{selfSM} ~{new_selfSM}
+move_file ~{duplicate_metrics} ~{new_duplicate_metrics}
+move_file ~{output_bqsr_reports} ~{new_output_bqsr_reports}
+move_file ~{output_bam} ~{new_output_bam}
+move_file ~{output_bam_index} ~{new_output_bam_index}
+move_file ~{output_bam_md5} ~{new_output_bam_md5}
+
 >>>
 
   runtime {
@@ -170,6 +190,7 @@ task MoveFastqToBamResult {
 
     String target_output_bam = "~{new_output_bam}"
     String target_output_bam_index = "~{new_output_bam_index}"
+    String target_output_bam_md5 = "~{new_output_bam_md5}"
 
     Int target_bam_moved = 1
   }
