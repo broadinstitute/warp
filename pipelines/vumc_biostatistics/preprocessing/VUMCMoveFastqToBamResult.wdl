@@ -131,6 +131,8 @@ task MoveFastqToBamResult {
 
   command <<<
 
+set -e
+
 move_file(){
   SOURCE_FILE=$1
   TARGET_FILE=$2
@@ -143,6 +145,7 @@ move_file(){
       return 0
     fi
 
+    echo "Moving $SOURCE_FILE to $TARGET_FILE"
     gsutil mv $SOURCE_FILE $TARGET_FILE
     status=$?
     return $status    

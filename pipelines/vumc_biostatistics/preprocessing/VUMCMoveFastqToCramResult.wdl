@@ -130,6 +130,7 @@ task MoveFastqToCramResult {
   String new_output_cram_md5 = "${target_bucket}/${genoset}/${GRID}/${basename(output_cram_md5)}"
 
   command <<<
+  
 set -e
 
 move_file(){
@@ -144,6 +145,7 @@ move_file(){
       return 0
     fi
 
+    echo "Moving $SOURCE_FILE to $TARGET_FILE"
     gsutil mv $SOURCE_FILE $TARGET_FILE
     status=$?
     return $status

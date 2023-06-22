@@ -51,6 +51,8 @@ task MoveCram {
 
   command <<<
 
+set -e
+
 move_file(){
   SOURCE_FILE=$1
   TARGET_FILE=$2
@@ -63,6 +65,7 @@ move_file(){
       return 0
     fi
 
+    echo "Moving $SOURCE_FILE to $TARGET_FILE"
     gsutil mv $SOURCE_FILE $TARGET_FILE
     status=$?
     return $status
@@ -72,6 +75,7 @@ move_file(){
 move_file ~{output_cram_index} ~{new_output_cram_index}
 move_file ~{output_cram_md5} ~{new_output_cram_md5}
 move_file ~{output_cram} ~{new_output_cram}
+
 >>>
 
   runtime {
