@@ -11,9 +11,9 @@ workflow ATAC {
 
   input {
     # Fastq inputs
-    Array[File] read1_fastq_gzipped
-    Array[File] read2_fastq_gzipped
-    Array[File] read3_fastq_gzipped
+    Array[String] read1_fastq_gzipped
+    Array[String] read2_fastq_gzipped
+    Array[String] read3_fastq_gzipped
 
     # Output prefix/base name for all intermediate files and pipeline outputs
     String output_base_name
@@ -25,9 +25,6 @@ workflow ATAC {
     File annotations_gtf
     # Text file containing chrom_sizes for genome build (i.e. hg38)
     File chrom_sizes
-
-    # script for monitoring tasks
-    File monitoring_script
 
     # Whitelist
     File whitelist
@@ -44,7 +41,6 @@ workflow ATAC {
     read2_fastq_gzipped: "read 2 FASTQ file as input for the pipeline, contains the cellular barcodes corresponding to the reads in the read1 FASTQ and read 3 FASTQ"
     read3_fastq_gzipped: "read 3 FASTQ file as input for the pipeline, contains read 2 of paired reads"
     output_base_name: "base name to be used for the pipelines output and intermediate files"
-    monitoring_script : "script to monitor resource comsumption of tasks"
     tar_bwa_reference: "the pre built tar file containing the reference fasta and cooresponding reference files for the BWA aligner"
 
   }
@@ -65,7 +61,6 @@ workflow ATAC {
         read1_fastq = SplitFastq.fastq_R1_output_array[idx],
         read3_fastq = SplitFastq.fastq_R3_output_array[idx],
         output_base_name = output_base_name + "_" + idx,
-        monitoring_script = monitoring_script,
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3
     }
@@ -76,7 +71,6 @@ workflow ATAC {
         read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
         tar_bwa_reference = tar_bwa_reference,
         output_base_name = output_base_name + "_" + idx,
-        monitoring_script = monitoring_script
     }
 
     call AddCBtags {
@@ -126,7 +120,6 @@ task TrimAdapters {
     Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") )) + 200
     Int mem_size = 4
     String docker_image = "us.gcr.io/broad-gotc-prod/cutadapt:1.0.0-4.4-1686752919"
-    File monitoring_script
   }
 
   parameter_meta {
@@ -138,7 +131,6 @@ task TrimAdapters {
     adapter_seq_read3: "cutadapt option for the sequence adapter for read 3 fastq"
     output_base_name: "base name to be used for the output of the task"
     docker_image: "the docker image using cutadapt to be used (default:us.gcr.io/broad-gotc-prod/cutadapt:1.0.0-4.4-1686752919)"
-    monitoring_script : "script to monitor resource consumption of tasks"
     mem_size: "the size of memory used during trimming adapters"
     disk_size : "disk size used in trimming adapters step"
   }
@@ -150,13 +142,6 @@ task TrimAdapters {
   # using cutadapt to trim off sequence adapters
   command <<<
     set -euo pipefail
-
-    if [ ! -z "~{monitoring_script}" ]; then
-    chmod a+x ~{monitoring_script}
-    ~{monitoring_script} > monitoring.log &
-    else
-    echo "No monitoring script given as input" > monitoring.log &
-    fi
 
     # fastq's, "-f", -A for paired adapters read 2"
     cutadapt \
@@ -180,7 +165,6 @@ task TrimAdapters {
   output {
     File fastq_trimmed_adapter_output_read1 = fastq_trimmed_adapter_output_name_read1
     File fastq_trimmed_adapter_output_read3 = fastq_trimmed_adapter_output_name_read3
-    File monitoring_log = "monitoring.log"
   }
 }
 
@@ -194,9 +178,6 @@ task BWAPairedEndAlignment {
     String read_group_sample_name = "RGSN1"
     String output_base_name
     String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504"
-
-    # script for monitoring tasks
-    File monitoring_script
 
     # Runtime attributes
     Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 400
@@ -215,7 +196,6 @@ task BWAPairedEndAlignment {
     disk_size : "disk size used in bwa alignment step"
     output_base_name: "basename to be used for the output of the task"
     docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504)"
-    monitoring_script : "script to monitor resource comsumption of tasks"
   }
 
   String bam_aligned_output_name = output_base_name + ".aligned.bam"
@@ -224,13 +204,6 @@ task BWAPairedEndAlignment {
   command <<<
 
     set -euo pipefail
-
-    if [ ! -z "~{monitoring_script}" ]; then
-    chmod a+x ~{monitoring_script}
-    ~{monitoring_script} > monitoring.log &
-    else
-    echo "No monitoring script given as input" > monitoring.log &
-    fi
 
     # prepare reference
     declare -r REF_DIR=$(mktemp -d genome_referenceXXXXXX)
@@ -256,7 +229,6 @@ task BWAPairedEndAlignment {
 
   output {
     File bam_aligned_output = bam_aligned_output_name
-    File monitoring_log = "monitoring.log"
   }
 }
 
@@ -265,13 +237,17 @@ task AddCBtags {
   input {
     File bam
     String output_base_name
-    Int disk_size = ceil(size(bam, "GiB") + 50)
-    Int mem_size = 10
+    Int disk_size = ceil(size(bam, "GiB") + 500)
+    Int mem_size = 30
+    
   }
 
   String bam_cb_output_name = output_base_name + ".cb.aligned.bam"
 
   command <<<
+  
+    set -euo pipefail
+    
     # We reused tags from Broad's Share-seq pipeline; XC tag is not currently needed by pipeline
     samtools view -h ~{bam} \
     | awk '{if ($0 ~ /^@/) {print $0} else {cr=substr($1, index($1, "CR:")+3); n=split($1, a,":CB:"); if (n == 2) {cb="CB:Z:"a[1]"\t";} else {cb="";} print($0 "\tCR:Z:" cr "\t" cb "XC:Z:" substr($1, index($1, "CB:")+3));}}' \
@@ -283,6 +259,7 @@ task AddCBtags {
 
   output {
     File output_cb_bam = "~{bam_cb_output_name}"
+
   }
 
   runtime {

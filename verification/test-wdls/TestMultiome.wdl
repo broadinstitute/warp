@@ -47,9 +47,6 @@ workflow TestMultiome {
       # Whitelist
       File atac_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_atac.txt"
 
-      # script for monitoring tasks
-      File monitoring_script
-
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
       String results_path
@@ -88,7 +85,6 @@ workflow TestMultiome {
         atac_r3_fastq = atac_r3_fastq,
         output_base_name = output_base_name,
         tar_bwa_reference = tar_bwa_reference,
-        monitoring_script = monitoring_script,
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3,
         chrom_sizes = chrom_sizes,
