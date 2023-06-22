@@ -95,3 +95,9 @@ workflows:
   - name: VUMCJointGenotyping
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/joint_genotyping/JointGenotyping.wdl
+
+  - name: VUMCRealignCram
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCRealignCram.wdl
+
+

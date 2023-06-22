@@ -24,7 +24,7 @@ import "../../../structs/dna_seq/DNASeqStructs.wdl" as Structs
 import "../../../tasks/vumc_biostatistics/VUMCAlignment.wdl" as VUMCAlignment
 
 # WORKFLOW DEFINITION
-workflow VUMCRealignedCram {
+workflow VUMCRealignCram {
 
   input {
     File input_cram
