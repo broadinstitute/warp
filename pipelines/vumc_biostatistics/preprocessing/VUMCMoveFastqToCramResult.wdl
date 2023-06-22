@@ -130,65 +130,39 @@ task MoveFastqToCramResult {
   String new_output_cram_md5 = "${target_bucket}/${genoset}/${GRID}/${basename(output_cram_md5)}"
 
   command <<<
-  if [ ~{unsorted_base_distribution_by_cycle_pdf} != ~{new_unsorted_base_distribution_by_cycle_pdf} ]; then
-    gsutil mv ~{unsorted_base_distribution_by_cycle_pdf} ~{new_unsorted_base_distribution_by_cycle_pdf}
-  fi
-  
-  if [ ~{unsorted_base_distribution_by_cycle_metrics} != ~{new_unsorted_base_distribution_by_cycle_metrics} ]; then
-    gsutil mv ~{unsorted_base_distribution_by_cycle_metrics} ~{new_unsorted_base_distribution_by_cycle_metrics}
-  fi
-  
-  if [ ~{unsorted_insert_size_histogram_pdf} != ~{new_unsorted_insert_size_histogram_pdf} ]; then
-    gsutil mv ~{unsorted_insert_size_histogram_pdf} ~{new_unsorted_insert_size_histogram_pdf}
-  fi
 
-  if [ ~{unsorted_insert_size_metrics} != ~{new_unsorted_insert_size_metrics} ]; then
-    gsutil mv ~{unsorted_insert_size_metrics} ~{new_unsorted_insert_size_metrics}
-  fi
+move_file(){
+  SOURCE_FILE=$1
+  TARGET_FILE=$2
 
-  if [ ~{unsorted_quality_by_cycle_pdf} != ~{new_unsorted_quality_by_cycle_pdf} ]; then
-    gsutil mv ~{unsorted_quality_by_cycle_pdf} ~{new_unsorted_quality_by_cycle_pdf}
-  fi
+  if [ $SOURCE_FILE != $TARGET_FILE ]; then
+    gsutil -q stat $TARGET_FILE
+    status=$?
+    if [ $status -eq 0 ]; then
+      echo "Target file exists, skipping move: $TARGET_FILE"
+      return 0
+    fi
 
-  if [ ~{unsorted_quality_by_cycle_metrics} != ~{new_unsorted_quality_by_cycle_metrics} ]; then
-    gsutil mv ~{unsorted_quality_by_cycle_metrics} ~{new_unsorted_quality_by_cycle_metrics}
+    gsutil mv $SOURCE_FILE $TARGET_FILE
   fi
+}
 
-  if [ ~{unsorted_quality_distribution_pdf} != ~{new_unsorted_quality_distribution_pdf} ]; then
-    gsutil mv ~{unsorted_quality_distribution_pdf} ~{new_unsorted_quality_distribution_pdf}
-  fi
+move_file ~{unsorted_base_distribution_by_cycle_pdf} ~{new_unsorted_base_distribution_by_cycle_pdf} 
+move_file ~{unsorted_base_distribution_by_cycle_metrics} ~{new_unsorted_base_distribution_by_cycle_metrics} 
+move_file ~{unsorted_insert_size_histogram_pdf} ~{new_unsorted_insert_size_histogram_pdf}
+move_file ~{unsorted_insert_size_metrics} ~{new_unsorted_insert_size_metrics}
+move_file ~{unsorted_quality_by_cycle_pdf} ~{new_unsorted_quality_by_cycle_pdf}
+move_file ~{unsorted_quality_by_cycle_metrics} ~{new_unsorted_quality_by_cycle_metrics}
+move_file ~{unsorted_quality_distribution_pdf} ~{new_unsorted_quality_distribution_pdf}
+move_file ~{unsorted_quality_distribution_metrics} ~{new_unsorted_quality_distribution_metrics}
+move_file ~{cross_check_fingerprints_metrics} ~{new_cross_check_fingerprints_metrics}
+move_file ~{selfSM} ~{new_selfSM}
+move_file ~{duplicate_metrics} ~{new_duplicate_metrics}
+move_file ~{output_bqsr_reports} ~{new_output_bqsr_reports}
+move_file ~{output_cram} ~{new_output_cram}
+move_file ~{output_cram_index} ~{new_output_cram_index}
+move_file ~{output_cram_md5} ~{new_output_cram_md5}
 
-  if [ ~{unsorted_quality_distribution_metrics} != ~{new_unsorted_quality_distribution_metrics} ]; then
-    gsutil mv ~{unsorted_quality_distribution_metrics} ~{new_unsorted_quality_distribution_metrics}
-  fi
-
-  if [ ~{cross_check_fingerprints_metrics} != ~{new_cross_check_fingerprints_metrics} ]; then
-    gsutil mv ~{cross_check_fingerprints_metrics} ~{new_cross_check_fingerprints_metrics}
-  fi
-
-  if [ ~{selfSM} != ~{new_selfSM} ]; then
-    gsutil mv ~{selfSM} ~{new_selfSM}
-  fi
-
-  if [ ~{duplicate_metrics} != ~{new_duplicate_metrics} ]; then
-    gsutil mv ~{duplicate_metrics} ~{new_duplicate_metrics}
-  fi
-  
-  if [ ~{output_bqsr_reports} != ~{new_output_bqsr_reports} ]; then
-    gsutil mv ~{output_bqsr_reports} ~{new_output_bqsr_reports}
-  fi
-
-  if [ ~{output_cram} != ~{new_output_cram} ]; then
-    gsutil mv ~{output_cram} ~{new_output_cram}
-  fi
-
-  if [ ~{output_cram_index} != ~{new_output_cram_index} ]; then
-    gsutil mv ~{output_cram_index} ~{new_output_cram_index}
-  fi
-
-  if [ ~{output_cram_md5} != ~{new_output_cram_md5} ]; then
-    gsutil mv ~{output_cram_md5} ~{new_output_cram_md5}
-  fi
 >>>
 
   runtime {
