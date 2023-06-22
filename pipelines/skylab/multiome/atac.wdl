@@ -16,7 +16,7 @@ workflow ATAC {
     Array[String] read3_fastq_gzipped
 
     # Output prefix/base name for all intermediate files and pipeline outputs
-    String output_base_name
+    String input_id
 
     # BWA ref
     File tar_bwa_reference
@@ -34,7 +34,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "1.0.2"
+  String pipeline_version = "1.0.0"
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
@@ -42,7 +42,6 @@ workflow ATAC {
     read3_fastq_gzipped: "read 3 FASTQ file as input for the pipeline, contains read 2 of paired reads"
     output_base_name: "base name to be used for the pipelines output and intermediate files"
     tar_bwa_reference: "the pre built tar file containing the reference fasta and cooresponding reference files for the BWA aligner"
-
   }
 
   call FastqProcessing.FastqProcessATAC as SplitFastq {
@@ -50,7 +49,7 @@ workflow ATAC {
       read1_fastq = read1_fastq_gzipped,
       read3_fastq = read3_fastq_gzipped,
       barcodes_fastq = read2_fastq_gzipped,
-      output_base_name = output_base_name,
+      output_base_name = input_id,
       whitelist = whitelist
   }
 
@@ -60,7 +59,7 @@ workflow ATAC {
       input:
         read1_fastq = SplitFastq.fastq_R1_output_array[idx],
         read3_fastq = SplitFastq.fastq_R3_output_array[idx],
-        output_base_name = output_base_name + "_" + idx,
+        output_base_name = input_id + "_" + idx,
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3
     }
@@ -70,14 +69,14 @@ workflow ATAC {
         read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
         read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
         tar_bwa_reference = tar_bwa_reference,
-        output_base_name = output_base_name + "_" + idx,
+        output_base_name = input_id + "_" + idx
     }
   }
 
   call Merge.MergeSortBamFiles as MergeBam {
     input:
+      output_bam_filename = input_id + ".bam",
       bam_inputs = BWAPairedEndAlignment.bam_aligned_output,
-      output_bam_filename = output_base_name + ".bam",
       sort_order = "coordinate"
   }
 
@@ -86,7 +85,7 @@ workflow ATAC {
     input:
       bam = MergeBam.output_bam,
       chrom_sizes = chrom_sizes,
-      annotations_gtf = annotations_gtf,
+      annotations_gtf = annotations_gtf
   }
 
   output {
