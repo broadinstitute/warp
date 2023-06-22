@@ -39,6 +39,8 @@ move_file(){
     fi
 
     gsutil mv $SOURCE_FILE $TARGET_FILE
+    status=$?
+    return $status
   fi
 }
 
