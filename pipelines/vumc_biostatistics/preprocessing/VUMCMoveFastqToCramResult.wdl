@@ -190,7 +190,7 @@ move_file ~{output_cram_md5} ~{new_output_cram_md5}
 
     String target_output_cram = "~{new_output_cram}"
     String target_output_cram_index = "~{new_output_cram_index}"
-    String target_output_cram_md5 = "~{new_output_cram_index}"
+    String target_output_cram_md5 = "~{new_output_cram_md5}"
 
     Int target_cram_moved = 1
   }
