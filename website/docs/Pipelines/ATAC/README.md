@@ -81,5 +81,5 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | Output variable name | Filename, if applicable | Output format and description |
 |--- | --- | --- | 
 | bam_aligned_output | `<input_id>`.bam | BAM containing aligned reads from ATAC workflow. |
-| fragment_file | `<input_id>`.fragments.tsv | TSV containing fragment start and stop coordinates per barcode | 
+| fragment_file | `<input_id>`.fragments.tsv | TSV containing fragment start and stop coordinates per barcode. | 
 | snap_metrics | `<input_id`.metrics.h5ad | h5ad (Anndata) containing per barcode metrics from SnapATAC2. |
