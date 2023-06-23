@@ -53,27 +53,27 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 
 | Input name | Description | Type |
 | --- | --- | --- |
-| counting_mode | Optional string that determines whether the pipeline should be run in single-cell mode (sc_rna) or single-nucleus mode (sn_rna); default is "sn_rna". | String |
-| gex_r1_fastq | Array of read 1 FASTQ files representing a single 10x library. | Array[File] |
-| gex_r2_fastq | Array of read 2 FASTQ files representing a single 10x library.| Array[File] |
-| gex_i1_fastq | Optional array of index FASTQ files representing a single 10x library; multiplexed samples are not currently supported, but the file may be passed to the pipeline. | Array[File] |
 | input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | String |
-| tar_star_reference | TAR file containing a species-specific reference genome and GTF. | File | 
 | annotations_gtf | GTF file containing gene annotations used for GEX cell metric calculation and ATAC fragment metrics; must match the GTF used to build the STAR aligner. | File |
+| gex_r1_fastq | Array of read 1 FASTQ files representing a single GEX 10x library. | Array[File] |
+| gex_r2_fastq | Array of read 2 FASTQ files representing a single GEX 10x library.| Array[File] |
+| gex_i1_fastq | Optional array of index FASTQ files representing a single GEX 10x library; multiplexed samples are not currently supported, but the file may be passed to the pipeline. | Array[File] |
+| tar_star_reference | TAR file containing a species-specific reference genome and GTF for Optimus (GEX) pipeline. | File | 
 | ref_genome_fasta | Genome FASTA file used for building the indices. | File |
-| mt_genes | Optional file containing mitochondrial gene names used for metric calculation; default assumes 'mt' prefix in GTF (case insensitive). | File |
-| mt_sequence | Optional string specifying the chromosome listed in the GTF that contains mitrochondrial genes. For example, when using human and mouse GENCODE GTFs, this should be set to "chrM". If no mt_sequence is provided, Dropseq metrics will not run. | String |
-| tenx_chemistry_version | Optional integer specifying the 10x version chemistry the data was generated with; validated by examination of the first read 1 FASTQ file read structure; default is "3". | Integer |
-| emptydrops_lower | Optional threshold for UMIs that empty drops tool should consider for determining cell; data below threshold is not removed; default is "100". | Integer |
-| force_no_check | Optional boolean indicating if the pipeline should perform checks; default is "false". | Boolean |
-| ignore_r1_read_length | Optional boolean indicating if the pipeline should ignore barcode chemistry check; if "true", the workflow will not ensure the `10x_chemistry_version` input matches the chemistry in the read 1 FASTQ; default is "false". | Boolean |
-| star_strand_mode | Optional string for performing STARsolo alignment on forward stranded, reverse stranded, or unstranded data; default is "Forward". | String |
-| count_exons | Optional boolean indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**; if "true" in sc_rna mode, the workflow will return an error; default is "false". | Boolean |
+| mt_genes | Optional file for the Optimus (GEX) pipeline containing mitochondrial gene names used for metric calculation; default assumes 'mt' prefix in GTF (case insensitive). | File |
+| mt_sequence | Optional string for the Optimus (GEX) pipeline specifying the chromosome listed in the GTF that contains mitrochondrial genes. For example, when using human and mouse GENCODE GTFs, this should be set to "chrM". If no mt_sequence is provided, Dropseq metrics will not run. | String |
+| counting_mode | Optional string that determines whether the Optimus (GEX) pipeline should be run in single-cell mode (sc_rna) or single-nucleus mode (sn_rna); default is "sn_rna". | String |
+| tenx_chemistry_version | Optional integer for the Optimus (GEX) pipeline specifying the 10x version chemistry the data was generated with; validated by examination of the first read 1 FASTQ file read structure; default is "3". | Integer |
+| emptydrops_lower | Optional threshold for UMIs for the Optimus (GEX) pipeline that empty drops tool should consider for determining cell; data below threshold is not removed; default is "100". | Integer |
+| force_no_check | Optional boolean for the Optimus (GEX) pipeline indicating if the pipeline should perform checks; default is "false". | Boolean |
+| ignore_r1_read_length | Optional boolean for the Optimus (GEX) pipeline indicating if the pipeline should ignore barcode chemistry check; if "true", the workflow will not ensure the `10x_chemistry_version` input matches the chemistry in the read 1 FASTQ; default is "false". | Boolean |
+| star_strand_mode | Optional string for the Optimus (GEX) pipeline for performing STARsolo alignment on forward stranded, reverse stranded, or unstranded data; default is "Forward". | String |
+| count_exons | Optional boolean for the Optimus (GEX) pipeline indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**; if "true" in sc_rna mode, the workflow will return an error; default is "false". | Boolean |
 | gex_whitelist | Optional file containing the list of valid barcodes for 10x multiome GEX data; default is "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt". | File |
 | atac_r1_fastq | Array of read 1 paired-end FASTQ files representing a single 10x multiome ATAC library. | Array[File] |
 | atac_r2_fastq | Array of barcodes FASTQ files representing a single 10x multiome ATAC library. | Array[File] |
 | atac_r3_fastq | Array of read 2 paired-end FASTQ files representing a single 10x multiome ATAC library. | Array[File] |
-| tar_bwa_reference | TAR file containing the reference index files for BWA-mem alignment. | File | 
+| tar_bwa_reference | TAR file containing the reference index files for BWA-mem alignment for the ATAC pipeline . | File | 
 | chrom_sizes | File containing the genome chromosome sizes; used to calculate ATAC fragment file metrics. | File |
 | adapter_seq_read1 | Optional string describing the adapter sequence for ATAC read 1 paired-end reads to be used during adapter trimming with Cutadapt; default is "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG". | String |
 | adapter_seq_read3 | Optional string describing the adapter sequence for ATAC read 2 paired-end reads to be used during adapter trimming with Cutadapt; default is "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG". | String |
