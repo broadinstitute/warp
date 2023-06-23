@@ -1,3 +1,8 @@
+# 1.4.9
+2023-05-23 (Date of Last Commit)
+
+* Made disk and memory available as inputs to the JointGenotypingTasks.wdl.
+
 # 1.4.8
 2023-04-05 (Date of Last Commit)
 
