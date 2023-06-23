@@ -14,7 +14,7 @@ sidebar_position: 1
 
 Multiome is an open-source, cloud-optimized pipeline developed in collaboration with members of the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and BICAN), including the [Allen Institute for Brain Science](https://alleninstitute.org/division/brain-science/), [Neuroscience MultiOmic Archive](https://nemoarchive.org/), Kai Zhang ([SnapATAC2](https://kzhang.org/SnapATAC2/index.html)), and Alex Dobin ([STARsolo](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md)). It supports the processing of 10x 3' single-cell and single-nucleus gene expression (GEX) and chromatin accessibility (ATAC) data generated with the [10x Genomics Multiome assay](https://www.10xgenomics.com/products/single-cell-multiome-atac-plus-gene-expression).
 
-The workflow is a wrapper WDL script that calls two subworkflows: the [Optimus workflow](../Optimus_Pipeline/README) for GEX data and the [ATAC workflow](../ATAC/README) for single-cell ATAC data. 
+The workflow is a wrapper WDL script that calls two subworkflows: the [Optimus workflow](../Optimus_Pipeline/README) for single-cell GEX data and the [ATAC workflow](../ATAC/README) for single-cell ATAC data. 
 
 The GEX component corrects cell barcodes (CBs) and Unique Molecular Identifiers (UMIs), aligns reads to the genome, calculates per-barcode and per-gene quality metrics, and produces a raw cell-by-gene count matrix. 
 
@@ -57,8 +57,7 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | gex_r1_fastq | Array of read 1 FASTQ files representing a single 10x library. | Array[File] |
 | gex_r2_fastq | Array of read 2 FASTQ files representing a single 10x library.| Array[File] |
 | gex_i1_fastq | Optional array of index FASTQ files representing a single 10x library; multiplexed samples are not currently supported, but the file may be passed to the pipeline. | Array[File] |
-| input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID; used to name the GEX output files. | String |
-| output_bam_basename | Used as basename for output BAM file; default is `input_id`. | String |
+| input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | String |
 | tar_star_reference | TAR file containing a species-specific reference genome and GTF. | File | 
 | annotations_gtf | GTF file containing gene annotations used for GEX cell metric calculation and ATAC fragment metrics; must match the GTF used to build the STAR aligner. | File |
 | ref_genome_fasta | Genome FASTA file used for building the indices. | File |
