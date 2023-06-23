@@ -62,6 +62,7 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | annotations_gtf | GTF file containing gene annotations used for GEX cell metric calculation and ATAC fragment metrics; must match the GTF used to build the STAR aligner. | File |
 | ref_genome_fasta | Genome FASTA file used for building the indices. | File |
 | mt_genes | Optional file containing mitochondrial gene names used for metric calculation; default assumes 'mt' prefix in GTF (case insensitive). | File |
+| mt_sequence | Optional string specifying the chromosome listed in the GTF that contains mitrochondrial genes. For example, when using human and mouse GENCODE GTFs, this should be set to "chrM". If no mt_sequence is provided, Dropseq metrics will not run. | String |
 | tenx_chemistry_version | Optional integer specifying the 10x version chemistry the data was generated with; validated by examination of the first read 1 FASTQ file read structure; default is "3". | Integer |
 | emptydrops_lower | Optional threshold for UMIs that empty drops tool should consider for determining cell; data below threshold is not removed; default is "100". | Integer |
 | force_no_check | Optional boolean indicating if the pipeline should perform checks; default is "false". | Boolean |
@@ -93,19 +94,20 @@ The Multiome workflow calls two subworkflows, which are described briefly in the
 
 | Output variable name | Filename, if applicable | Output format and description |
 |--- | --- | --- | 
-| bam_aligned_output | `<input_id>.bam` | BAM file containing aligned reads from ATAC workflow. |
-| fragment_file | `<input_id>.fragments.tsv` | TSV file containing fragment start and stop coordinates per barcode. | 
-| snap_metrics | `<input_id>.metrics.h5ad` | h5ad (Anndata) file containing per-barcode metrics from SnapATAC2. |
+| bam_aligned_output_atac | `<input_id>_atac.bam` | BAM file containing aligned reads from ATAC workflow. |
+| fragment_file_atac | `<input_id>_atac.fragments.tsv` | TSV file containing fragment start and stop coordinates per barcode. | 
+| snap_metrics_atac | `<input_id>_atac.metrics.h5ad` | h5ad (Anndata) file containing per-barcode metrics from SnapATAC2. |
 | pipeline_version_out | N.A. | String describing the Optimus pipeline version used. |
 | genomic_reference_version | `<reference_version>.txt` | File containing the Genome build, source and GTF annotation version. |
-| bam | `<input_id>.bam` | BAM file containing aligned reads from Optimus workflow. |
-| matrix | `<input_id>_sparse_counts.npz` | NPZ file containing raw gene by cell counts. |
-| matrix_row_index | `<input_id>_sparse_counts_row_index.npy` | NPY file containing the row indices. |
-| matrix_col_index | `<input_id>_sparse_counts_col_index.npy` | NPY file containing the column indices. |
-| cell_metrics | `<input_id>.cell_metrics.csv.gz` | CSV file containing the per-cell (barcode) metrics. |
-| gene_metrics | `<input_id>.gene_metrics.csv.gz` | CSV file containing the per-gene metrics. |
-| cell_calls | `<input_id>.emptyDrops` | TSV file containing the EmptyDrops results when the Optimus workflow is run in sc_rna mode. |
-| h5ad_output_file | `<input_id>.h5ad` | h5ad (Anndata) file containing the raw cell-by-gene count matrix, gene metrics, cell metrics, and global attributes. |
+| bam_gex | `<input_id>_gex.bam` | BAM file containing aligned reads from Optimus workflow. |
+| matrix_gex | `<input_id>_gex_sparse_counts.npz` | NPZ file containing raw gene by cell counts. |
+| matrix_row_index_gex | `<input_id>_gex_sparse_counts_row_index.npy` | NPY file containing the row indices. |
+| matrix_col_index_gex | `<input_id>_gex_sparse_counts_col_index.npy` | NPY file containing the column indices. |
+| cell_metrics_gex | `<input_id>_gex.cell_metrics.csv.gz` | CSV file containing the per-cell (barcode) metrics. |
+| gene_metrics_gex | `<input_id>_gex.gene_metrics.csv.gz` | CSV file containing the per-gene metrics. |
+| cell_calls_gex | `<input_id>_gex.emptyDrops` | TSV file containing the EmptyDrops results when the Optimus workflow is run in sc_rna mode. |
+| picard_metrics_gex | `<input_id>_gex.tsv` | Cell barcode-specific metrics generated using Dropseq tool's [SingleCellRnaSeqMetricsCollector](https://github.com/broadinstitute/Drop-seq/blob/master/src/java/org/broadinstitute/dropseqrna/barnyard/SingleCellRnaSeqMetricsCollector.java).|
+| h5ad_output_file_gex | `<input_id>_gex.h5ad` | h5ad (Anndata) file containing the raw cell-by-gene count matrix, gene metrics, cell metrics, and global attributes. |
 
 ## Versioning and testing
 
