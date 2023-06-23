@@ -57,8 +57,7 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | gex_r1_fastq | Array of read 1 FASTQ files representing a single 10x library. | Array[File] |
 | gex_r2_fastq | Array of read 2 FASTQ files representing a single 10x library.| Array[File] |
 | gex_i1_fastq | Optional array of index FASTQ files representing a single 10x library; multiplexed samples are not currently supported, but the file may be passed to the pipeline. | Array[File] |
-| input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID; used to name the GEX output files. | String |
-| output_bam_basename | Used as basename for output BAM file; default is `input_id`. | String |
+| input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | String |
 | tar_star_reference | TAR file containing a species-specific reference genome and GTF. | File | 
 | annotations_gtf | GTF file containing gene annotations used for GEX cell metric calculation and ATAC fragment metrics; must match the GTF used to build the STAR aligner. | File |
 | ref_genome_fasta | Genome FASTA file used for building the indices. | File |
