@@ -337,7 +337,7 @@ task CompareH5adFilesATAC {
     File test_h5ad
     String docker = "python:3.10.0-buster"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 200
-    Int memory_gb = 20
+    Int memory_gb = 32
   }
 
   command <<<
@@ -363,7 +363,7 @@ task CompareH5adFilesATAC {
     print("Now running obs equivalence check")
     
     if truth_obs.equals(test_obs)==True:
-        print("true")
+        print("pass")
     else:
         exit("Files are not identical")
     
@@ -386,7 +386,7 @@ task CompareH5adFilesGEX {
     File test_h5ad
     String docker = "python:3.10.0-buster"
     Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 200
-    Int memory_mb = ceil(size(truth_h5ad, "MiB") + size(test_h5ad, "MiB") * 5)
+    Int memory_gb = 32
   }
 
   command <<<
@@ -418,7 +418,7 @@ task CompareH5adFilesGEX {
     print("Now running equivalence check")
     
     if truth_obs.equals(test_obs)==True and truth_var.equals(test_var)==True and truth_sum==test_sum:
-        print("true")
+        print("pass")
     else:
         exit("Files are not identical")
     
@@ -430,7 +430,7 @@ task CompareH5adFilesGEX {
   runtime {
     docker: docker
     disks: "local-disk ${disk_size_gb} HDD"
-    memory: "${memory_mb} MiB"
+    memory: "${memory_gb} GiB"
     preemptible: 3
   }
 }
