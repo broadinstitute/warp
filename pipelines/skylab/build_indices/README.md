@@ -23,9 +23,9 @@ Here are two example input files for the above WDL:
 `Mouse.json`:
 ```json
 {
- "BuildIndices.annotations_gtf":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Mouse/gencode.vM32.primary_assembly.annotation.gtf",
+ "BuildIndices.annotations_gtf":"gs://fc-e7f669fe-5a5c-4a8c-ad02-3b69105d0378/mouse/gencode.vM32.primary_assembly.annotation.gtf",
  "BuildIndices.biotypes":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Biotypes.tsv",
- "BuildIndices.genome_fa":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Mouse/GRCm39.primary_assembly.genome.fa",
+ "BuildIndices.genome_fa":"gs://fc-e7f669fe-5a5c-4a8c-ad02-3b69105d0378/mouse/GRCm39.primary_assembly.genome.fa",
  "BuildIndices.gtf_annotation_version":"M32",
  "BuildIndices.genome_source":"GENCODE",
  "BuildIndices.genome_build":"GRCm39",
