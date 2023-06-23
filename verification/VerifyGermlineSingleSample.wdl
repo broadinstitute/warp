@@ -23,18 +23,23 @@ workflow VerifyGermlineSingleSample {
   }
 
   if (defined(test_gvcf)) {
+    File truth__gvcf = select_first([truth_gvcf])
+    File test__gvcf = select_first([test_gvcf])
+    File truth__gvcf_index = select_first([truth_gvcf_index])
+    File test__gvcf_index = select_first([test_gvcf_index])
+
     call Tasks.CompareVCFsVerbosely {
       input:
-        actual = test_gvcf,
-        actual_index = test_gvcf_index,
-        expected = truth_gvcf,
-        expected_index = truth_gvcf_index
+        actual = test__gvcf,
+        actual_index = test__gvcf_index,
+        expected = truth__gvcf,
+        expected_index = truth__gvcf_index
     }
 
     call CompareGvcfs {
       input:
-        test_gvcf = test_gvcf,
-        truth_gvcf = truth_gvcf
+        test_gvcf = test__gvcf,
+        truth_gvcf = truth__gvcf
     }
   }
 
