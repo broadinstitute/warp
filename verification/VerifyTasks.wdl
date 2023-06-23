@@ -374,7 +374,6 @@ task CompareH5adFilesATAC {
 
   runtime {
     docker: docker
-    cpu: cpu
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_gb} GiB"
     preemptible: 3
@@ -430,7 +429,6 @@ task CompareH5adFilesGEX {
 
   runtime {
     docker: docker
-    cpu: cpu
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     preemptible: 3
