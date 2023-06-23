@@ -48,7 +48,7 @@ The following describes the inputs of the ATAC workflow. For more details on how
 | read3_fastq_gzipped | Fastq inputs (array of compressed read 3 FASTQ files). |
 | output_base_name | Output prefix/base name for all intermediate files and pipeline outputs. |
 | tar_bwa_reference | BWA reference (tar file containing reference fasta and corresponding files). |
-| atac_gtf | CreateFragmentFile input variable: GTF file for SnapATAC2 to calculate TSS sites of fragment file .|
+| atac_gtf | CreateFragmentFile input variable: GTF file for SnapATAC2 to calculate TSS sites of fragment file.|
 | chrom_sizes | CreateFragmentFile input variable: Text file containing chrom_sizes for genome build (i.e., hg38) |
 | whitelist | Whitelist file for ATAC cellular barcodes. |
 | adapter_seq_read1 | TrimAdapters input: Sequence adapter for read 1 fastq. |
