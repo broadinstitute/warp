@@ -1,7 +1,9 @@
 # 1.2.24
-2023-05-24 (Date of Last Commit)
+2023-06-23 (Date of Last Commit)
 
 * Added a move command to work around a maximum file path length in featureCounts
+* Updated STARsolo version to v2.7.10b for the StarsoloFastq task; does not impact this workflow
+* Updated STARsolo argument for counting mode to GeneFull_Ex50pAS; does not impact this workflow
 
 # 1.2.23 
 2023-05-04 (Date of Last Commit)
