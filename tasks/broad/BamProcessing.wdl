@@ -74,7 +74,7 @@ task MarkDuplicates {
     # Sometimes we wish to supply "null" in order to turn off optical duplicate detection
     # This can be desirable if you don't mind the estimated library size being wrong and optical duplicate detection is taking >7 days and failing
     String? read_name_regex
-    Int memory_multiplier = 1
+    Int memory_multiplier = 5
     Int additional_disk = 20
 
     Float? sorting_collection_size_ratio
