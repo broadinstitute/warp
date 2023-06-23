@@ -88,7 +88,7 @@ module.exports = {
       copyright: `Copyright © ${new Date().getFullYear()} Copyright © Data Sciences Platform, Broad Institute.`,
     },
     googleAnalytics: {
-      trackingID: 'UA-181048107-1',
+      trackingID: 'G-NZ4BLRHQYS',
       // the Google Analytics Tracking ID
       anonymizeIP: true, // Should IPs be anonymized?
     },
