@@ -74,10 +74,11 @@ task MarkDuplicates {
     # Sometimes we wish to supply "null" in order to turn off optical duplicate detection
     # This can be desirable if you don't mind the estimated library size being wrong and optical duplicate detection is taking >7 days and failing
     String? read_name_regex
-    Int memory_multiplier = 5
+    Int memory_multiplier = 2
     Int additional_disk = 20
 
-    Float? sorting_collection_size_ratio
+    # Default is 0.25, however, it causes memory issue in Terra. Setting it to 0.1 to avoid memory issue.
+    Float? sorting_collection_size_ratio = 0.1
   }
 
   # The merged bam will be smaller than the sum of the parts so we need to account for the unmerged inputs and the merged output.
