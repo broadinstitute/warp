@@ -31,6 +31,9 @@ workflow Optimus {
     File annotations_gtf
     File ref_genome_fasta
     File? mt_genes
+    
+    #Chromosome in GTF with mitochondrial genes (example for human is "ChrM") for Picard metrics
+    String? mt_sequence
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
@@ -64,7 +67,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "5.9.0"
+  String pipeline_version = "5.8.3"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -155,6 +158,16 @@ workflow Optimus {
       input_id = input_id
   }
 
+  if (defined(mt_sequence)) {
+    call Metrics.DropseqMetrics {
+      input:
+        input_bam = MergeBam.output_bam,
+        annotation_gtf = annotations_gtf,
+        output_name = input_id + ".picard.gex.metrics.tsv",
+        mt_sequence = mt_sequence
+    }
+  }
+
   call StarAlign.MergeStarOutput as MergeStarOutputs {
     input:
       barcodes = STARsoloFastq.barcodes,
@@ -231,6 +244,7 @@ workflow Optimus {
     File cell_metrics = CellMetrics.cell_metrics
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
+    File? picard_metrics = DropseqMetrics.metric_output
     # h5ad
     File h5ad_output_file = final_h5ad_output
   }
