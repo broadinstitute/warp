@@ -3,7 +3,7 @@ version 1.0
 task SmartSeq2LoomOutput {
   input {
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686932671"
     # the gene count file "<input_id>_rsem.genes.results" in the task results folder call-RSEMExpression
     File rsem_gene_results
     # file named "<input_id>_QCs.csv" in the folder  "call-GroupQCOutputs/glob-*" of the the SS2  output
@@ -169,7 +169,7 @@ task AggregateSmartSeq2Loom {
         String? species
         String? organ
         String pipeline_version
-        String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686932671"
         Int disk = 200
         Int machine_mem_mb = 4000
         Int cpu = 1
@@ -300,7 +300,7 @@ task SingleNucleusOptimusLoomOutput {
 task SingleNucleusSmartSeq2LoomOutput {
     input {
         #runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686932671"
 
         Array[File] alignment_summary_metrics
         Array[File] dedup_metrics

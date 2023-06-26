@@ -32,7 +32,7 @@ task ValidateSnSmartSeq2 {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+    docker: "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686932671"
     cpu: 1
     memory: "8 GB"
     disks: "local-disk 1${disk_size} HDD"
