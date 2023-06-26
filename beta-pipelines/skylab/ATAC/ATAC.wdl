@@ -241,7 +241,7 @@ task BWAPairedEndAlignment {
     read_group_sample_name: "the read group sample to be added upon alignment"
     cpu: "the number of cpu cores to use during alignment"
     output_base_name: "basename to be used for the output of the task"
-    docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686932671)"
+    docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463)"
   }
 
   # runtime requirements based upon input file size
@@ -687,7 +687,7 @@ task MakeCompliantBAM {
   String compliant_bam_output_name = output_base_name + ".compliant.bam"
 
   command {
-    /usr/gitc/makeCompliantBAM.py \
+    /warptools/scripts/makeCompliantBAM.py \
       --input-bam ~{bam_input} \
       --output-bam ~{compliant_bam_output_name}
   }
@@ -715,7 +715,7 @@ task BreakoutSnap {
     command {
         set -euo pipefail
         mkdir output
-        /usr/gitc/breakoutSnap.py --input ~{snap_input} \
+        /warptools/scripts/breakoutSnap.py --input ~{snap_input} \
             --output-prefix output/
     }
     output {
