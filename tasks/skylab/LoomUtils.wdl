@@ -32,7 +32,7 @@ task SmartSeq2LoomOutput {
   command {
     set -euo pipefail
 
-    python3 /usr/gitc/create_loom_ss2.py \
+    python3 /warptools/scripts/create_loom_ss2.py \
        --qc_files ~{sep=' ' smartseq_qc_files} \
        --rsem_genes_results  ~{rsem_gene_results} \
        --output_loom_path  "~{input_id}.loom" \
@@ -183,7 +183,7 @@ task AggregateSmartSeq2Loom {
       set -e
       
       # Merge the loom files
-      python3 /usr/gitc/ss2_loom_merge.py \
+      python3 /warptools/scripts/ss2_loom_merge.py \
       --input-loom-files ~{sep=' ' loom_input} \
       --output-loom-file "~{batch_id}.loom" \
       --batch_id ~{batch_id} \
@@ -347,7 +347,7 @@ task SingleNucleusSmartSeq2LoomOutput {
         do
         # creates a table with gene_id, gene_name, intron and exon counts
         echo "Running create_snss2_counts_csv."
-        python /usr/gitc/create_snss2_counts_csv.py \
+        python /warptools/scripts/create_snss2_counts_csv.py \
         --in-gtf ~{annotation_introns_added_gtf} \
         --intron-counts ${introns_counts_files[$i]} \
         --exon-counts ${exons_counts_files[$i]}  \
@@ -362,7 +362,7 @@ task SingleNucleusSmartSeq2LoomOutput {
 
         # create the loom file
         echo "Running create_loom_snss2."
-        python3 /usr/gitc/create_loom_snss2.py \
+        python3 /warptools/scripts/create_loom_snss2.py \
         --qc_files "${output_prefix[$i]}.Picard_group.csv" \
         --count_results  "${output_prefix[$i]}.exon_intron_counts.tsv" \
         --output_loom_path "${output_prefix[$i]}.loom" \

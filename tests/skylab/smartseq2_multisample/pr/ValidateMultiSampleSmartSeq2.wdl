@@ -13,7 +13,7 @@ task ValidateSmartSeq2Plate {
     # catch intermittent failures
     set -eo pipefail
 
-   python3 /usr/gitc/loomCompare.py --truth-loom ~{truth_loom} --check-loom ~{loom_output} --delta-cutoff 10
+   python3 /warptools/scripts/loomCompare.py --truth-loom ~{truth_loom} --check-loom ~{loom_output} --delta-cutoff 10
 
   >>>
   

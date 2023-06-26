@@ -16,7 +16,7 @@ task ValidateSnSmartSeq2 {
     set -eo pipefail
 
     #compare looms
-    python3 /usr/gitc/loomCompare.py --truth-loom ~{truth_loom} --check-loom ~{loom_output} --delta-cutoff 10
+    python3 /warptools/scripts/loomCompare.py --truth-loom ~{truth_loom} --check-loom ~{loom_output} --delta-cutoff 10
 
     # calculate hashes; awk is used to extract the hash from the md5sum output that contains both
     # a hash and the filename that was passed. We parse the first 7 columns because a bug in RSEM
