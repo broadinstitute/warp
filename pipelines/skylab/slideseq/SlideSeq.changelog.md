@@ -2,7 +2,9 @@
 2023-06-14 (Date of Last Commit)
 
 * Updated the Metrics task WDL for adding a Dropseq task to Optimus; this has no impact on the Slide-seq workflow
-* Updated the FastqProcessing.wdl for ATAC. This update has no impact on the SlideSeq workflow 
+* Updated the FastqProcessing.wdl for ATAC. This update has no impact on the SlideSeq workflow
+* Updated STARsolo version to v2.7.10b for the StarsoloFastq task; this change does not impact this workflow
+* Updated STARsolo argument for counting mode to GeneFull_Ex50pAS; this change does not impact this workflow 
 
 
 # 1.0.8
