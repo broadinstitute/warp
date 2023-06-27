@@ -44,8 +44,49 @@ task MoveHaplotypecallerResult {
   String new_output_vcf_index = "${target_bucket}/${genoset}/${GRID}/${basename(output_vcf_index)}"
 
   command <<<
-  gsutil mv ~{output_vcf} ~{new_output_vcf}
-  gsutil mv ~{output_vcf_index} ~{new_output_vcf_index}
+
+move_file(){
+  set +e
+
+  SOURCE_FILE=$1
+  TARGET_FILE=$2
+
+  echo "Moving $SOURCE_FILE to $TARGET_FILE"
+
+  if [[ $SOURCE_FILE == $TARGET_FILE ]]; then
+    echo "Target file equals to source file, skipping move: $TARGET_FILE"
+    return 0
+  fi
+
+  echo "Checking if target file exists: $TARGET_FILE"
+
+  gsutil -q stat $TARGET_FILE
+  status=$?
+  if [[ $status -eq 0 ]]; then
+    echo "Target file exists, skipping move: $TARGET_FILE"
+    return 0
+  fi
+
+  echo gsutil mv $SOURCE_FILE $TARGET_FILE
+
+  gsutil mv $SOURCE_FILE $TARGET_FILE
+  status=$?
+  if [[ $status -eq 0 ]]; then
+    echo "Moving succeed."
+  else
+    echo "Moving failed with status: $status"
+  fi
+
+  set -e
+  return $status
+}
+
+set -e
+
+move_file ~{output_vcf} ~{new_output_vcf}
+
+move_file ~{output_vcf_index} ~{new_output_vcf_index}
+
 >>>
 
   runtime {

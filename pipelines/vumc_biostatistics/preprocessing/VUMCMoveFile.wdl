@@ -27,26 +27,43 @@ task MoveFile {
 
   command <<<
 
-set -e
-
 move_file(){
+  set +e
+
   SOURCE_FILE=$1
   TARGET_FILE=$2
 
-  if [ $SOURCE_FILE != $TARGET_FILE ]; then
-    gsutil -q stat $TARGET_FILE
-    status=$?
-    if [ $status -eq 0 ]; then
-      echo "Target file exists, skipping move: $TARGET_FILE"
-      return 0
-    fi
+  echo "Moving $SOURCE_FILE to $TARGET_FILE"
 
-    echo "Moving $SOURCE_FILE to $TARGET_FILE"
-    gsutil mv $SOURCE_FILE $TARGET_FILE
-    status=$?
-    return $status
+  if [[ $SOURCE_FILE == $TARGET_FILE ]]; then
+    echo "Target file equals to source file, skipping move: $TARGET_FILE"
+    return 0
   fi
+
+  echo "Checking if target file exists: $TARGET_FILE"
+
+  gsutil -q stat $TARGET_FILE
+  status=$?
+  if [[ $status -eq 0 ]]; then
+    echo "Target file exists, skipping move: $TARGET_FILE"
+    return 0
+  fi
+
+  echo gsutil mv $SOURCE_FILE $TARGET_FILE
+
+  gsutil mv $SOURCE_FILE $TARGET_FILE
+  status=$?
+  if [[ $status -eq 0 ]]; then
+    echo "Moving succeed."
+  else
+    echo "Moving failed with status: $status"
+  fi
+
+  set -e
+  return $status
 }
+
+set -e
 
 move_file ~{source_file} ~{target_url}
 
