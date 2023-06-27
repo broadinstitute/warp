@@ -131,7 +131,10 @@ task MoveFastqToCramResult {
 
   command <<<
   
+
 move_file(){
+  set +e
+
   SOURCE_FILE=$1
   TARGET_FILE=$2
 
@@ -143,6 +146,7 @@ move_file(){
   fi
 
   echo "Checking if target file exists: $TARGET_FILE"
+
   gsutil -q stat $TARGET_FILE
   status=$?
   if [[ $status -eq 0 ]]; then
@@ -151,14 +155,16 @@ move_file(){
   fi
 
   echo gsutil mv $SOURCE_FILE $TARGET_FILE
+
   gsutil mv $SOURCE_FILE $TARGET_FILE
   status=$?
   if [[ $status -eq 0 ]]; then
     echo "Moving succeed."
   else
-    echo "Moving failed with status $status"
+    echo "Moving failed with status: $status"
   fi
 
+  set -e
   return $status
 }
 
