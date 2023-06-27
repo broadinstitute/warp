@@ -219,12 +219,13 @@ task STARsoloFastq {
     File tar_star_reference
     File white_list
     Int chemistry
+    String star_strand_mode
     String counting_mode
     String output_bam_basename
     Boolean? count_exons
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658781884"
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.10b-1685556218"
     Int machine_mem_mb = 64000
     Int cpu = 8
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -241,6 +242,7 @@ task STARsoloFastq {
     r1_fastq: "input FASTQ file array"
     r2_fastq: "array of forward read FASTQ files"
     tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
+    star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded'"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
@@ -276,9 +278,18 @@ task STARsoloFastq {
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
     ## single nuclei
-        COUNTING_MODE="GeneFull"
+        COUNTING_MODE="GeneFull_Ex50pAS"
     else
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
+        exit 1;
+    fi
+# Check that the star strand mode matches STARsolo aligner options
+    if [[ "~{star_strand_mode}" == "Forward" ]] || [[ "~{star_strand_mode}" == "Reverse" ]] || [[ "~{star_strand_mode}" == "Unstranded" ]]
+    then
+        ## single cell or whole cell
+        echo STAR mode is assigned
+    else
+        echo Error: unknown STAR strand mode: "~{star_strand_mode}". Should be Forward, Reverse, or Unstranded.
         exit 1;
     fi
 
@@ -293,7 +304,7 @@ task STARsoloFastq {
     then
       STAR \
       --soloType Droplet \
-      --soloStrand Unstranded \
+      --soloStrand ~{star_strand_mode} \
       --runThreadN ~{cpu} \
       --genomeDir genome_reference \
       --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
@@ -312,7 +323,7 @@ task STARsoloFastq {
 
     STAR \
       --soloType Droplet \
-      --soloStrand Unstranded \
+      --soloStrand ~{star_strand_mode} \
       --runThreadN ~{cpu} \
       --genomeDir genome_reference \
       --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
@@ -341,13 +352,13 @@ task STARsoloFastq {
     then
       if ! [[ ~{count_exons} ]]
       then
-        mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
-        mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
-        mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+        mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
       else
-        mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
-        mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
-        mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+        mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
         mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_sn_rna.tsv
         mv "Solo.out/Gene/raw/features.tsv"     features_sn_rna.tsv
         mv "Solo.out/Gene/raw/matrix.mtx"       matrix_sn_rna.mtx
