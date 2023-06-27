@@ -108,11 +108,11 @@ The SnapCellByBin task uses the Snap file to create cell-by-bin count matrices i
 
 #### MakeCompliantBAM
 
-The MakeCompliantBAM task uses a [custom python script (here)](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/pytools/tools/makeCompliantBAM.py) to make a GA4GH compliant BAM by moving the cellular barcodes in the read names to the CB tag.
+The MakeCompliantBAM task uses a [custom python script (here)](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/makeCompliantBAM.py) to make a GA4GH compliant BAM by moving the cellular barcodes in the read names to the CB tag.
 
 #### BreakoutSnap
 
-The BreakoutSnap task extracts data from the Snap file and exports it to individual CSVs. These CSV outputs are listed in the table in the Outputs section below. The code is available [here](https://github.com/broadinstitute/warp/tree/master/dockers/skylab/snap-breakout/breakoutSnap.py).
+The BreakoutSnap task extracts data from the Snap file and exports it to individual CSVs. These CSV outputs are listed in the table in the Outputs section below. The code is available [here](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/breakoutSnap.py).
 
 ## Outputs
 

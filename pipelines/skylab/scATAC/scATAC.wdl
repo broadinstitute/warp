@@ -271,7 +271,7 @@ task MakeCompliantBAM {
     command {
         set -euo pipefail
 
-        /warptools/scripts//makeCompliantBAM.py --input-bam ~{input_bam} --output-bam ~{output_bam_filename}
+        /warptools/scripts/makeCompliantBAM.py --input-bam ~{input_bam} --output-bam ~{output_bam_filename}
     }
 
     output {
