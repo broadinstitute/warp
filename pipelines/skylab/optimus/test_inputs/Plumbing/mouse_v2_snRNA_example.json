@@ -19,11 +19,11 @@
     "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L007_R2_001.fastq.gz",
     "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L008_R2_001.fastq.gz"
   ],
-  "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/mm10/v0/star/star_2.7.9a_primary_gencode_mouse_vM21.tar",
+  "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/GRCm39/star/v2_7_10a/modified_star2.7.10a-Mouse-GENCODE-build-GRCm39-M32.tar",
   "Optimus.input_id": "nuclei_2k_mouse",
   "Optimus.tenx_chemistry_version": "2",
   "Optimus.star_strand_mode": "Unstranded",
-  "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.gtf",
+  "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/GRCm39/star/v2_7_10a/modified_vM32.annotation.gtf",
   "Optimus.ref_genome_fasta": "gs://gcp-public-data--broad-references/mm10/v0/GRCm38.primary_assembly.genome.fa",
   "Optimus.counting_mode": "sn_rna",
   "Optimus.count_exons": true
