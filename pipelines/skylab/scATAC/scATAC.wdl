@@ -15,7 +15,7 @@ workflow scATAC {
         String bin_size_list = "10000"
     }
 
-    String pipeline_version = "1.2.1"
+    String pipeline_version = "1.3.1"
 
     parameter_meta {
         input_fastq1: "read 1 input fastq, the read names must be tagged with the cellular barcodes"
@@ -72,6 +72,7 @@ workflow scATAC {
         File breakout_binCoordinates = BreakoutSnap.binCoordinates
         File breakout_binCounts = BreakoutSnap.binCounts
         File breakout_barcodesSection = BreakoutSnap.barcodesSection
+        String output_pipeline_version = pipeline_version
     }
 
 }
@@ -84,7 +85,11 @@ task AlignPairedEnd {
         String reference_unpack_name = "genome/genome.fa"
         String output_bam
         Int min_cov = 0
-        String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
+        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
+        Int machine_mem_mb = 16000
+        Int cpu = 16
+        Int disk = ceil(2*(size(input_fastq1, "GiB") + size(input_fastq2, "GiB") + size(input_reference, "GiB"))) + 100
+        Int preemptible = 3
     }
 
     parameter_meta {
@@ -96,8 +101,6 @@ task AlignPairedEnd {
       min_cov: "--min-cov parameter for snaptools align-paired-end (default: 0)"
     }
 
-    Int num_threads = 16
-    Float input_size = size(input_fastq1, "GiB") + size(input_fastq2, "GiB") + size(input_reference, "GiB")
 
     command {
         set -euo pipefail
@@ -115,10 +118,10 @@ task AlignPairedEnd {
             --input-fastq2=~{input_fastq2} \
             --output-bam=~{output_bam} \
             --aligner=bwa \
-            --path-to-aligner=/tools/ \
+            --path-to-aligner=/usr/local/bin/ \
             --read-fastq-command=zcat \
             --min-cov=~{min_cov} \
-            --num-threads=~{num_threads} \
+            --num-threads=~{cpu} \
             --tmp-folder=$TEMP_DIR \
             --overwrite=TRUE \
             --if-sort=True
@@ -130,9 +133,11 @@ task AlignPairedEnd {
 
     runtime {
         docker: docker_image
-        cpu: num_threads
-        memory: "16 GB"
-        disks: "local-disk " + ceil(10 * (if input_size < 1 then 1 else input_size )) + " HDD"
+        memory: "${machine_mem_mb} MiB"
+        disks: "local-disk ${disk} HDD"
+        disk: disk + " GB" # TES
+        cpu: cpu
+        preemptible: preemptible
     }
 }
 
@@ -142,8 +147,12 @@ task SnapPre {
         String output_snap_basename
         String genome_name
         String genome_size_file = "genome/chrom.sizes"
-        String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
+        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
         File input_reference
+        Int cpu = 1
+        Int machine_mem_mb = 16000
+        Int disk = 500
+        Int preemptible = 3
     }
 
     parameter_meta {
@@ -155,7 +164,7 @@ task SnapPre {
        input_reference: "input reference tar file"
     }
 
-    Int num_threads = 1
+
 
     command {
         set -euo pipefail
@@ -187,9 +196,12 @@ task SnapPre {
 
     runtime {
         docker: docker_image
-        cpu: num_threads
-        memory: "16 GB"
-        disks: "local-disk 150 HDD"
+        cpu: cpu
+        memory: "${machine_mem_mb} MiB"
+        disks: "local-disk ${disk} HDD"
+        disk: disk + " GB" # TES
+        cpu: cpu
+        preemptible: preemptible
     }
 }
 
@@ -198,7 +210,11 @@ task SnapCellByBin {
         File snap_input
         String bin_size_list
         String snap_output_name
-        String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
+        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
+        Int cpu = 1
+        Int machine_mem_mb = 16000
+        Int disk = 500
+        Int preemptible = 3
     }
 
     parameter_meta {
@@ -207,8 +223,6 @@ task SnapCellByBin {
        snap_output_name: "name of the output snap file"
        docker_image: "docker image to use"
     }
-
-    Int num_threads = 1
 
     command {
         set -euo pipefail
@@ -228,9 +242,11 @@ task SnapCellByBin {
 
     runtime {
         docker: docker_image
-        cpu: num_threads
-        memory: "16 GB"
-        disks: "local-disk 150 HDD"
+        cpu: cpu
+        memory: "${machine_mem_mb} MiB"
+        disks: "local-disk ${disk} HDD"
+        disk: disk + " GB" # TES
+        preemptible: preemptible
     }
 }
 
@@ -238,7 +254,12 @@ task MakeCompliantBAM {
     input {
         File input_bam
         String output_bam_filename
-        String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
+        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+        Int cpu = 1
+        Int disk =  ceil(3 * (size(input_bam, "GiB"))) + 100
+        Int machine_mem_mb = 4000
+        Int preemptible = 3
+
     }
 
     parameter_meta {
@@ -247,13 +268,10 @@ task MakeCompliantBAM {
         docker_image: "docker image to use"
     }
 
-    Int num_threads = 1
-    Float input_size = size(input_bam, "GiB")
-
     command {
         set -euo pipefail
 
-        /tools/makeCompliantBAM.py --input-bam ~{input_bam} --output-bam ~{output_bam_filename}
+        /usr/gitc/makeCompliantBAM.py --input-bam ~{input_bam} --output-bam ~{output_bam_filename}
     }
 
     output {
@@ -262,18 +280,24 @@ task MakeCompliantBAM {
 
     runtime {
         docker: docker_image
-        cpu: num_threads
-        memory: "4 GB"
-        disks: "local-disk " + ceil(2.5 * (if input_size < 1 then 1 else input_size )) + " HDD"
+        cpu: cpu
+        memory: "${machine_mem_mb} MiB"
+        disks: "local-disk ${disk} HDD"
+        disk: disk + " GB" # TES
+        preemptible: preemptible
     }
 }
 
 task BreakoutSnap {
     input {
         File snap_input
-        String docker_image = "quay.io/humancellatlas/snap-breakout:0.0.1"
+        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
         String bin_size_list
         String input_id
+        Int preemptible = 3
+        Int disk =  ceil(10 * (if size(snap_input, "GiB") < 1 then 1 else size(snap_input, "GiB") )) + 100
+        Int machine_mem_mb = 16000
+        Int cpu = 1
     }
 
     parameter_meta {
@@ -283,13 +307,10 @@ task BreakoutSnap {
         input_id : "name of the sample, used to name the outputs"
     }
 
-    Int num_threads = 1
-    Float input_size = size(snap_input, "GiB")
-
     command {
         set -euo pipefail
         mkdir output
-        python3 /tools/breakoutSnap.py --input ~{snap_input} \
+        python3 /usr/gitc/breakoutSnap.py --input ~{snap_input} \
             --output-prefix output/~{input_id}_
     }
 
@@ -303,8 +324,10 @@ task BreakoutSnap {
 
     runtime {
         docker: docker_image
-        cpu: num_threads
-        memory: "16 GB"
-        disks: "local-disk " + ceil(10 * (if input_size < 1 then 1 else input_size )) + " HDD"
+        memory: "${machine_mem_mb} MiB"
+        disks: "local-disk ${disk} HDD"
+        disk: disk + " GB" # TES
+        cpu: cpu
+        preemptible: preemptible
     }
 }

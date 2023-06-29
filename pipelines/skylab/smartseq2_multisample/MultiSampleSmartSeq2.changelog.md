@@ -1,7 +1,59 @@
+# 2.2.21
+2023-04-19 (Date of Last Commit)
+
+* Updated warp-tools docker which included a fix for a small bug in create_snrna_optimus.py that was causing the script not to run
+
+# 2.2.20
+2023-03-27 (Date of Last Commit)
+
+* SlideSeq-specific and Optimus-specific changes to Metrics.wdl. This change does not affect the MultiSmartSeq2 pipeline
+
+# 2.2.19
+2023-03-15 (Date of Last Commit)
+
+* SlideSeq-specific and Optimus-specific changes to Metrics.wdl. This change does not affect the MultiSmartSeq2 pipeline.
+* Updated warp-tools docker to support the Optimus and SlideSeq changes 
+
+# 2.2.18
+2022-11-18 (Date of Last Commit)
+
+* SlideSeq-specific changes to LoomUtils.wdl. This change does not affect the MultiSmartSeq2 pipeline.
+
+# 2.2.17
+2023-01-23 (Date of Last Commit)
+
+* Added 'Disk' to task runtime sections to support running on Azure
+* Addressed mb/gb memory specification inconsistencies in LoomUtils and CheckInput
+
+# 2.2.16
+2022-09-13 (Date of Last Commit)
+
+* Update RSEM.wdl in the SmartSeq2SingleSample pipeline to use an updated RSEM docker image. This change does not affect the MultiSampleSmartSeq2 pipeline.
+
+# 2.2.15
+2022-09-12 (Date of Last Commit)
+
+* Update HISAT2.wdl in the SmartSeq2SingleSample pipeline to use an updated HISAT2 docker image. This change does not affect the MultiSampleSmartSeq2 pipeline.
+
+# 2.2.14
+2022-08-23 (Date of Last Commit)
+
+* Remove an unused script in pytools docker image.
+
+# 2.2.13
+2022-08-16 (Date of Last Commit)
+
+* Update LoomUtils.wdl to use updated docker images. This change does not affect the MultiSampleSmartSeq2 pipeline.
+
+# 2.2.12
+2022-06-22 (Date of Last Commit)
+
+* Updated main workflow name from SmartSeq2SingleCell to SmartSeq2SingleSample in the SS2 single sample pipeline. This allows the pipeline to run in the updated scala tests.
+
 # 2.2.11
 2022-04-22 (Date of Last Commit)
 
-* Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the SmartSeq2SingleSample pipeline.
+* Updated LoomUtils.wdl for a task in the Optimus pipeline. This change does not affect the MultiSampleSmartSeq2 pipeline.
 
 # 2.2.10
 2022-04-14 (Date of Last Commit)

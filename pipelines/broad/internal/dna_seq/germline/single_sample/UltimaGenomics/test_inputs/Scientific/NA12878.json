@@ -1,0 +1,56 @@
+{
+    "BroadInternalUltimaGenomics.input_cram_list": ["gs://broad-gotc-test-storage/germline_single_sample/ugwgs/scientific/crams/NA12878.cram"],
+    "BroadInternalUltimaGenomics.base_file_name": "NA12878",
+    "BroadInternalUltimaGenomics.contamination_sites": {
+        "contamination_sites_vcf": "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/verify_bam_id/Homo_sapiens_assembly38.contam_fixed.vcf",
+        "contamination_sites_vcf_index":"gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/verify_bam_id/Homo_sapiens_assembly38.contam_fixed.vcf.idx",
+        "contamination_sites_path": "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/verify_bam_id/Homo_sapiens_assembly38.contam.cskp."
+    },
+    "BroadInternalUltimaGenomics.alignment_references": {
+        "references": {
+            "ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+            "ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+            "ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict"
+        },
+        "ref_alt": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.alt",
+        "ref_amb": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.amb",
+        "ref_ann": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.ann",
+        "ref_bwt": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.bwt",
+        "ref_pac": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.pac",
+        "ref_sa": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.sa"
+    },
+    "BroadInternalUltimaGenomics.variant_calling_settings": {
+        "wgs_calling_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_calling_regions.hg38.interval_list",
+        "break_bands_at_multiples_of": "100000",
+        "haplotype_scatter_count": "200"
+    },
+    "BroadInternalUltimaGenomics.vcf_post_processing": {
+        "annotation_intervals": [
+            "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/LCR-hs38.bed",
+            "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/exome.twist.bed",
+            "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/mappability.0.bed",
+            "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/hmers_7_and_higher.bed"
+        ],
+        "runs_file":"gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/interval_lists/runs.conservative.bed",
+        "af_only_gnomad": "gs://gcp-public-data--broad-references/hg38/v0/somatic-hg38/af-only-gnomad.hg38.vcf.gz",
+        "af_only_gnomad_index": "gs://gcp-public-data--broad-references/hg38/v0/somatic-hg38/af-only-gnomad.hg38.vcf.gz.tbi",
+        "filter_cg_insertions": "true",
+        "filtering_blocklist_file": "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/filtering_models/blacklist_0.5.1.pkl",
+        "training_blocklist_file": "gs://gcp-public-data--broad-references/hg38/v0/ultima_genomics/filtering_models/blacklist_ua_good_old_blacklist.h5",
+        "exome_weight": 100,
+        "exome_weight_annotation": "exome.twist",
+        "max_duplication_in_reasonable_sample": "0.3",
+        "max_chimerism_in_reasonable_sample": "0.05",
+        "make_gvcf_override": "true",
+        "ref_dbsnp": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf",
+        "ref_dbsnp_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx",
+        "wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list",
+        "remove_low_tree_score_sites_cutoff": 0.2,
+        "annotations_to_keep_command_for_reblocking": "--annotations-to-keep TREE_SCORE --annotations-to-keep ASSEMBLED_HAPS --annotations-to-keep FILTERED_HAPS"
+    },
+    "BroadInternalUltimaGenomics.collab_sample_id_run_id": "NA12878_004749",
+    "BroadInternalUltimaGenomics.environment": "{ENV}",
+    "BroadInternalUltimaGenomics.sample_lsid": "broadinstitute.org:bsp.prod.sample:LO5X1",
+    "BroadInternalUltimaGenomics.output_basename": "NA12878",
+    "BroadInternalUltimaGenomics.vault_token_path": "{VAULT_TOKEN_PATH}"
+}

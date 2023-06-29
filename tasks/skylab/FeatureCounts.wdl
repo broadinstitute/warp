@@ -8,7 +8,7 @@ task CountAlignments {
     File annotation_gtf
 
     #runtime values
-    String docker = "quay.io/humancellatlas/snss2-featurecount:0.1.0"
+    String docker = "us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1662044537"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(aligned_bam_inputs,"Gi")*2) + 10
@@ -29,8 +29,19 @@ task CountAlignments {
 
   command <<<
     set -e
-    declare -a bam_files=(~{sep=' ' aligned_bam_inputs})
+
+    declare -a bam_file_paths=(~{sep=' ' aligned_bam_inputs})
     declare -a output_prefix=(~{sep=' ' input_ids})
+
+    # move the bam files to get around the issue of long file paths causing a segfault in featureCounts
+    declare -a bam_files
+    for filepath in ${bam_file_paths[@]};
+      do
+        filename="$(basename $filepath)"
+        mv $filepath $filename
+        bam_files+=("$filename")
+      done;
+
     for (( i=0; i<${#bam_files[@]}; ++i));
       do
         # counting the introns
@@ -43,7 +54,7 @@ task CountAlignments {
           -g gene_id
 
        # create a new input bam where the alignemnts crossing intron-exon junctions are removed
-       python3 /tools/remove-reads-on-junctions.py --input-gtf  ~{annotation_gtf} \
+       python3 /usr/gitc/remove-reads-on-junctions.py --input-gtf  ~{annotation_gtf} \
         --input-bam "${bam_files[$i]}"  --output-bam "${output_prefix[$i]}.input.nojunc.bam"
 
        # counting the exons
@@ -57,6 +68,7 @@ task CountAlignments {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }

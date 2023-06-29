@@ -9,7 +9,7 @@ task TrimAdapters {
     Array[String] input_ids
 
     #runtime values
-    String docker = "quay.io/humancellatlas/snss2-trim-adapters:0.1.0"
+    String docker = "us.gcr.io/broad-gotc-prod/ea-utils:1.0.0-1.04.807-1659990665"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(2*(size(fastq1_input_files, "Gi") + size(fastq2_input_files, "Gi"))) + 10
@@ -52,6 +52,7 @@ task TrimAdapters {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }

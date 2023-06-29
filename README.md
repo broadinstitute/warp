@@ -8,6 +8,8 @@ WARP provides robust, standardized data analysis for the Broad Institute Genomic
 ### Pipeline releases
 All pipeline releases are listed on the WARP [releases page](https://github.com/broadinstitute/warp/releases). To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
 
+### WARP Dockers and custom tools in warp-tools repository
+All Dockers and custom tools used for WARP's WDL Workflows are maintained in a separate repository, [warp-tools](https://github.com/broadinstitute/warp-tools). 
 
 ### WARP documentation
 

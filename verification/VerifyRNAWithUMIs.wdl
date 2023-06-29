@@ -20,6 +20,12 @@ workflow VerifyRNAWithUMIs {
     File truth_gene_counts
     File test_exon_counts
     File truth_exon_counts
+    File test_transcriptome_duplicate_metrics
+    File truth_transcriptome_duplicate_metrics
+    Boolean transcriptome_deterministic
+    Boolean compare_transcriptome_dup_metrics
+
+    Boolean? done
   }
 
   call MetricsVerification.VerifyMetrics as CompareMetrics {
@@ -41,11 +47,51 @@ workflow VerifyRNAWithUMIs {
       lenient_header = true
   }
 
-  call VerifyTasks.CompareBams as CompareTranscriptomeBam {
-    input:
-      test_bam = test_transcriptome_bam,
-      truth_bam = truth_transcriptome_bam,
-      lenient_header = true
+  if (transcriptome_deterministic) {
+    call VerifyTasks.CompareBams as CompareTranscriptomeBam {
+      input:
+        test_bam = test_transcriptome_bam,
+        truth_bam = truth_transcriptome_bam,
+        lenient_header = true
+    }
+  }
+
+  if (!transcriptome_deterministic) {
+    call RemoveMultiMappers as RemoveMultiMappersTestBam{
+      input:
+        bam = test_transcriptome_bam
+    }
+
+    call RemoveMultiMappers as RemoveMultiMappersTruthBam{
+      input:
+        bam = truth_transcriptome_bam
+    }
+
+    call CompareTranscriptomeBamNonDeterministic {
+      input:
+        test_bam = RemoveMultiMappersTestBam.output_bam,
+        truth_bam = RemoveMultiMappersTruthBam.output_bam
+    }
+
+    call CheckTranscriptomeBamComparisonWithTolerance {
+      input:
+        comparison = CompareTranscriptomeBamNonDeterministic.comparison,
+        tolerance = 0.006
+    }
+  }
+
+  if (compare_transcriptome_dup_metrics) {
+    call MetricsVerification.CompareMetricFiles as CompareTranscriptomeDuplicationMetrics {
+      input:
+        file1 = truth_transcriptome_duplicate_metrics,
+        file2 = test_transcriptome_duplicate_metrics,
+        output_file  = "transcriptome_duplication_metrics_comparison.txt",
+        extra_args = if transcriptome_deterministic then [] else ["--METRIC_ALLOWABLE_RELATIVE_CHANGE READ_PAIR_DUPLICATES:0.005",
+                                                                  "--METRIC_ALLOWABLE_RELATIVE_CHANGE READ_PAIR_OPTICAL_DUPLICATES:0.01",
+                                                                  "--METRIC_ALLOWABLE_RELATIVE_CHANGE PERCENT_DUPLICATION:0.005",
+                                                                  "--METRIC_ALLOWABLE_RELATIVE_CHANGE ESTIMATED_LIBRARY_SIZE:0.005",
+                                                                  "--IGNORE_HISTOGRAM_DIFFERENCES"]
+    }
   }
 
   call VerifyTasks.CompareCompressedTextFiles as CompareGeneTpms {
@@ -71,5 +117,97 @@ workflow VerifyRNAWithUMIs {
   }
   meta {
     allowNestedInputs: true
+  }
+}
+
+task RemoveMultiMappers {
+  input {
+    File bam
+  }
+
+  String basename = basename(bam, ".bam")
+  Int disk_size = 2*ceil(size(bam,"GB")) + 20
+
+  command <<<
+    set -e
+    set -o pipefail
+
+    samtools view -q 4 -bo ~{basename}.multimapper_removed.bam ~{bam}
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
+    preemptible: 3
+    disks: "local-disk " + disk_size + " HDD"
+  }
+
+  output {
+    File output_bam = "~{basename}.multimapper_removed.bam"
+  }
+}
+
+task CompareTranscriptomeBamNonDeterministic {
+  input {
+    File test_bam
+    File truth_bam
+  }
+
+  Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
+  Int disk_size = ceil(bam_size * 4) + 20
+
+  command <<<
+    set -e
+    set -o pipefail
+
+    java -Xms3500m -Xmx7000m -jar /usr/gitc/picard.jar \
+    CompareSAMs \
+    ~{test_bam} \
+    ~{truth_bam} \
+    O=comparison.tsv \
+    LENIENT_HEADER=true \
+    LENIENT_LOW_MQ_ALIGNMENT=true
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.27.5-1667410556"
+    disks: "local-disk " + disk_size + " HDD"
+    cpu: 2
+    memory: "7500 MiB"
+    preemptible: 3
+    continueOnReturnCode: [0, 1]
+  }
+
+  output {
+    File comparison = "comparison.tsv"
+  }
+}
+
+task CheckTranscriptomeBamComparisonWithTolerance {
+  input {
+    File comparison
+    Float tolerance
+  }
+
+  command <<<
+    set -e
+    set -o pipefail
+
+    pip3 install pandas
+    python3 << EOF
+    import pandas as pd
+    comp = pd.read_csv("~{comparison}", header=5, sep="\t")
+
+    assert ((comp['MISSING_LEFT'] + comp['MISSING_RIGHT'])/comp['MAPPINGS_MATCH'])[0]<~{tolerance}, f'frac missing is {((comp["MISSING_LEFT"] + comp["MISSING_RIGHT"])/comp["MAPPINGS_MATCH"])[0]} which is greater than tolerance of ~{tolerance}'
+    assert comp['MAPPINGS_DIFFER'][0]==0, f'{comp["MAPPINGS_DIFFER"][0]} mappings differ'
+    assert comp['UNMAPPED_LEFT'][0]==0, f'{comp["UNMAPPED_LEFT"][0]} unmapped in left file'
+    assert comp['UNMAPPED_RIGHT'][0]==0, f'{comp["UNMAPPED_RIGHT"][0]} unmapped in right file'
+    assert comp['DUPLICATE_MARKINGS_DIFFER'][0]==0, f'{comp["DUPLICATE_MARKINGS_DIFFER"][0]} duplicate markings differ (all duplicates should have been removed)'
+
+    EOF
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
+    preemptible: 3
   }
 }

@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [GDCWholeGenomeSomaticSingleSample_v1.0.1](https://github.com/broadinstitute/warp/releases) | January, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [GDCWholeGenomeSomaticSingleSample_v1.0.1](https://github.com/broadinstitute/warp/releases) | January, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 
 ## Introduction to the GDC Whole Genome Somatic Single Sample pipeline
@@ -24,7 +24,7 @@ Overall, the pipeline converts reads (CRAM or BAM) to FASTQ and (re)aligns them 
 
 The workflow is written in the Workflow Description Language WDL and can be downloaded by cloning the [warp repository](https://github.com/broadinstitute/warp/tree/master) in GitHub. The workflow can be deployed using [Cromwell](https://github.com/broadinstitute/cromwell), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms.
 
-For the latest workflow version and release notes, please see the [changelog](https://github.com/broadinstitute/warp/blob/master/beta-pipelines/broad/somatic/single_sample/wgs/gdc_genome/GDCWholeGenomeSomaticSingleSample.changelog.md).
+For the latest workflow version and release notes, please see the [changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/somatic/single_sample/wgs/gdc_genome/GDCWholeGenomeSomaticSingleSample.changelog.md).
 
 ### Software version requirements
 
@@ -42,7 +42,7 @@ For the latest workflow version and release notes, please see the [changelog](ht
 
 The table below describes each of the GDC pipeline inputs. The workflow requires a **single** aligned CRAM or BAM file, or a **single** unmapped BAM (uBAM) as input, and is set up to run on samples with reads greater than 75 bp.
 
-For examples of how to specify each input as well as cloud locations for different example input files, see the [input configuration file (JSON)](https://github.com/broadinstitute/warp/blob/master/beta-pipelines/broad/somatic/single_sample/wgs/gdc_genome/input_files/GDCWholeGenomeSomaticSingleSample.inputs.json).
+For examples of how to specify each input as well as cloud locations for different example input files, see the [input configuration file (JSON)](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/somatic/single_sample/wgs/gdc_genome/input_files/GDCWholeGenomeSomaticSingleSample.inputs.json).
 
 | Input name | Description | Type |
 | --- | --- | --- |
@@ -75,11 +75,11 @@ The reference files required for the GDC workflow are hosted in a [public Google
 
 ## Workflow tasks and tools
 
-The [workflow](https://github.com/broadinstitute/warp/blob/develop/beta-pipelines/broad/somatic/single_sample/wgs/gdc_genome/GDCWholeGenomeSomaticSingleSample.wdl) imports a series of tasks either from the Workflow script or the Broad [tasks library](https://github.com/broadinstitute/warp/tree/master/tasks/broad).
+The [workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/somatic/single_sample/wgs/gdc_genome/GDCWholeGenomeSomaticSingleSample.wdl) imports a series of tasks either from the Workflow script or the Broad [tasks library](https://github.com/broadinstitute/warp/tree/master/tasks/broad).
 
 | Task name in WDL | Tool | Software | Description |
 | --- | --- | --- | --- |
-| [CramToUnmappedBams](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/cram_to_unmapped_bams/CramToUnmappedBams.wdl) | view, index, RevertSam, ValidateSamFile, SortSam | [SamTools](http://www.htslib.org/terms/) and [Picard](https://broadinstitute.github.io/picard/) | If a CRAM file is used as input, the task converts to uBAM and generates an output map that is then used to split the uBAM by readgroup. The resulting BAM is sorted by query name using Picard. |
+| [CramToUnmappedBams](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/reprocessing/cram_to_unmapped_bams/CramToUnmappedBams.wdl) | view, index, RevertSam, ValidateSamFile, SortSam | [SamTools](http://www.htslib.org/terms/) and [Picard](https://broadinstitute.github.io/picard/) | If a CRAM file is used as input, the task converts to uBAM and generates an output map that is then used to split the uBAM by readgroup. The resulting BAM is sorted by query name using Picard. |
 | bam_readgroup_to_contents | view | [Samtools](http://www.htslib.org) | Extracts all the readgroups from the BAM header and returns a WDL array where each row is a readgroup. |
 | biobambam_bamtofastq | bamtofastq | [biobambam2](https://gitlab.com/german.tischler/biobambam2) | Converts the uBAMs to FASTQ. |
 | emit_pe_records/emit_se_records | --- | --- | Associates the fasta file(s) generated by biobambam_bamtofastq with their respective readgroup; creates an array of structs to be used as input for alignment. |
@@ -114,7 +114,7 @@ Alternatively, Cromwell allows you to specify an output directory using an optio
 - Please visit the [GATK Technical Documentation](https://gatk.broadinstitute.org/hc/en-us/categories/360002310591) site for further documentation on GATK-related workflows and tools.
 
 ## Contact us
-Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
 
 ## Licensing
 

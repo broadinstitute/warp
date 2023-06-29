@@ -110,7 +110,7 @@ task ScatterIntervalList {
     Int interval_count = read_int(stdout())
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.26.10-1647265026"
+    docker: "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.26.10-1663951039"
     memory: "2000 MiB"
   }
 }
@@ -123,11 +123,10 @@ task ConvertToCram {
     File ref_fasta
     File ref_fasta_index
     String output_basename
-    Int preemptible_tries
-  }
+    Int preemptible_tries = 3
 
-  Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")
-  Int disk_size = ceil(2 * size(input_bam, "GiB") + ref_size) + 20
+    Int disk_size = ceil((2 * size(input_bam, "GiB")) + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")) + 20
+  }
 
   command <<<
     set -e
@@ -208,7 +207,7 @@ task SumFloats {
 }
 
 # Print given message to stderr and return an error
-task ErrorWithMessage{
+task ErrorWithMessage {
   input {
     String message
   }
@@ -247,11 +246,11 @@ task GetValidationInputs {
     touch truth_files.txt
     touch results_file.txt
     touch results_files.txt
-    
+
     python3 <<CODE
     import os.path
 
-  
+
 
     results_path = "~{results_path}"
     truth_path = "~{truth_path}"
@@ -298,5 +297,5 @@ task GetValidationInputs {
     Array[String] truth_files = read_lines("truth_files.txt")
     Array[String] results_files = read_lines("results_files.txt")
   }
-  
+
 }

@@ -6,7 +6,7 @@ sidebar_position: 1
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [CEMBA_v1.1.0](https://github.com/broadinstitute/warp/releases) | February, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| [CEMBA_v1.1.0](https://github.com/broadinstitute/warp/releases) | February, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![CEMBA](./CEMBA.png)
 
@@ -40,7 +40,7 @@ The workflow can also be run on Terra using the [Methyl-c-seq_Pipeline workspace
 
 ## Inputs
 
-CEMBA pipeline inputs are detailed in the example human configuration file ([CEMBA.inputs.json](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/example_inputs/CEMBA.inputs.json)). Genomic reference files were built using the [BuildCembaReferencesWDL script](https://github.com/BICCN/CEMBA/blob/master/pipelines/build_cemba_references/BuildCembaReferences.wdl). See descriptions of all inputs in the tables below.
+CEMBA pipeline inputs are detailed in the example human configuration file ([CEMBA.inputs.json](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/example_inputs/CEMBA.inputs.json)). Genomic reference files were built using the [BuildCembaReferencesWDL script (private repository)](https://github.com/BICCN/CEMBA/blob/master/pipelines/build_cemba_references/BuildCembaReferences.wdl). See descriptions of all inputs in the tables below.
 
 ### Sample data input
 The pipeline accepts paired-end reads in the form of two compressed FASTQ files (fastq.gz). FASTQ files may represent a single cell sample or in the case of multiplexed samples, multiple cells.
@@ -104,10 +104,10 @@ The table and summary sections below detail the tasks and tools of the CEMBA pip
 | GetMethylationReport | [Bismark v0.21.0](https://www.bioinformatics.babraham.ac.uk/projects/bismark/)  | Produce methylation report for reads above map quality and below map quality | quay.io/broadinstitute/bismark:0.21.0 |
 | AttachBarcodes |  [Picard v2.18.23](https://broadinstitute.github.io/picard/)  | Add barcodes from the tagged uBAM to the aligned BAM | quay.io/broadinstitute/picard:2.18.23 |
 | MergeBams |  [Samtools v.19](http://www.htslib.org/)  | Merge R1 and R2 BAM files into single BAM | quay.io/broadinstitute/samtools:1.9 |
-| AddReadGroup |  [GATK v4.1.2.0](https://gatk.broadinstitute.org/hc/en-us)  | Add read groups to the merged BAM | broadinstitute/gatk:4.1.2.0 |
+| AddReadGroup |  [GATK v4.1.2.0](https://gatk.broadinstitute.org/hc/en-us)  | Add read groups to the merged BAM | us.gcr.io/broad-gatk/gatk:4.3.0.0 |
 | Sort | [Picard v2.18.23](https://broadinstitute.github.io/picard/) | Sort in coordinate order after adding read group | quay.io/broadinstitute/picard:2.18.23 |
 | IndexBam |  [Samtools v1.9](http://www.htslib.org/)  | Index the output BAM | quay.io/broadinstitute/samtools:1.9 |
-| MethylationTypeCaller | [GATK v4.1.2.0](https://gatk.broadinstitute.org/hc/en-us)  | Produce a  VCF with locus-specific methylation information | broadinstitute/gatk:4.1.2.0 |
+| MethylationTypeCaller | [GATK v4.1.2.0](https://gatk.broadinstitute.org/hc/en-us)  | Produce a  VCF with locus-specific methylation information | us.gcr.io/broad-gatk/gatk:4.3.0.0 |
 | VCFtoALLC | Python | Creates an [ALLC](https://github.com/yupenghe/methylpy#output-format) file from the VCF produced with MethylationTypeCaller | quay.io/cemba/vcftoallc:v0.0.1 |
 | ComputeCoverageDepth | [Samtools v1.9](http://www.htslib.org/)  | Compute number of sites with coverage greater than 1 | quay.io/broadinstitute/samtools:1.9 |
 
@@ -183,11 +183,11 @@ Please identify the pipeline in your methods section using the CEMBA Pipeline's 
 ## Consortia Support 
 This pipeline is supported and used by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
 
-If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org).
+If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org).
 
 
 ## Have Suggestions?
 
-Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
 
 

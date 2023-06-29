@@ -5,7 +5,7 @@ import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 # Joint Genotyping for hg38 Exomes and Whole Genomes (has not been tested on hg19)
 workflow JointGenotypingByChromosomePartOne {
 
-  String pipeline_version = "1.4.4"
+  String pipeline_version = "1.4.9"
 
   input {
     File unpadded_intervals_file
@@ -74,7 +74,7 @@ workflow JointGenotypingByChromosomePartOne {
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,
       ref_dict = ref_dict,
-      disk_size = small_disk,
+      disk_size_gb = small_disk,
       sample_names_unique_done = CheckSamplesUnique.samples_unique
   }
 
@@ -102,7 +102,7 @@ workflow JointGenotypingByChromosomePartOne {
           ref_fasta_index = ref_fasta_index,
           ref_dict = ref_dict,
           workspace_dir_name = "genomicsdb",
-          disk_size = medium_disk,
+          disk_size_gb = medium_disk,
           batch_size = 50
       }
     }
@@ -119,7 +119,7 @@ workflow JointGenotypingByChromosomePartOne {
           ref_fasta = ref_fasta,
           ref_fasta_index = ref_fasta_index,
           ref_dict = ref_dict,
-          disk_size = small_disk,
+          disk_size_gb = small_disk,
           sample_names_unique_done = CheckSamplesUnique.samples_unique
       }
 
@@ -158,7 +158,7 @@ workflow JointGenotypingByChromosomePartOne {
         input:
           input_vcfs = gnarly_vcfs,
           output_vcf_name = callset_name + "." + idx + ".gnarly.vcf.gz",
-          disk_size = large_disk
+          disk_size_gb = large_disk
       }
   }
 
@@ -173,7 +173,7 @@ workflow JointGenotypingByChromosomePartOne {
           ref_fasta_index = ref_fasta_index,
           ref_dict = ref_dict,
           dbsnp_vcf = dbsnp_vcf,
-          disk_size = medium_disk
+          disk_size_gb = medium_disk
       }
     }
 
@@ -187,7 +187,7 @@ workflow JointGenotypingByChromosomePartOne {
         excess_het_threshold = excess_het_threshold,
         variant_filtered_vcf_filename = callset_name + "." + idx + ".variant_filtered.vcf.gz",
         sites_only_vcf_filename = callset_name + "." + idx + ".sites_only.variant_filtered.vcf.gz",
-        disk_size = medium_disk
+        disk_size_gb = medium_disk
     }
   }
 
@@ -195,7 +195,7 @@ workflow JointGenotypingByChromosomePartOne {
     input:
       input_vcfs = HardFilterAndMakeSitesOnlyVcf.sites_only_vcf,
       output_vcf_name = callset_name + ".sites_only.vcf.gz",
-      disk_size = medium_disk
+      disk_size_gb = medium_disk
   }
 
 
@@ -205,8 +205,8 @@ workflow JointGenotypingByChromosomePartOne {
       haplotype_database = haplotype_database
   }
 
-  # The result of GetFingerprintingIntervalIndices with no indices is [""]
-  if (GetFingerprintingIntervalIndices.indices_to_fingerprint[0] != "") {
+  # The result of GetFingerprintingIntervalIndices with no indices is []
+  if (length(GetFingerprintingIntervalIndices.indices_to_fingerprint) > 0) {
     Array[Int] fingerprinting_indices = GetFingerprintingIntervalIndices.indices_to_fingerprint
 
     scatter (idx in fingerprinting_indices) {
@@ -217,7 +217,7 @@ workflow JointGenotypingByChromosomePartOne {
       input:
         input_vcfs = vcfs_to_fingerprint,
         output_vcf_name = callset_name + ".gathered.fingerprinting.vcf.gz",
-        disk_size = medium_disk
+        disk_size_gb = medium_disk
     }
 
     call Tasks.SelectFingerprintSiteVariants {
@@ -225,7 +225,7 @@ workflow JointGenotypingByChromosomePartOne {
         input_vcf = GatherFingerprintingVcfs.output_vcf,
         base_output_name = callset_name + ".fingerprinting",
         haplotype_database = haplotype_database,
-        disk_size = medium_disk
+        disk_size_gb = medium_disk
     }
   }
 

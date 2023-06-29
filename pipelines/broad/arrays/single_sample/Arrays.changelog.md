@@ -1,3 +1,63 @@
+# 2.6.19
+2023-03-20 (Date of Last Commit)
+
+* CheckFingerprint can allow LOD 0
+
+# 2.6.18
+2023-01-13 (Date of Last Commit)
+
+* Updated remaining uses of GATK to version 4.3.0.0
+
+# 2.6.17
+2022-11-29 (Date of Last Commit)
+
+* Updated InternalArraysTasks.wdl for BroadInternalArrays - adding `lab_batch` as workflow input.
+* Updated to GATK version 4.3.0.0
+
+# 2.6.16
+2022-11-08 (Date of Last Commit)
+
+* Removed task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline.
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new optional input variable. This update has no effect on this pipeline.
+* Updated task FormatArraysOutputs in InternalArrraysTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+
+* New GCR image tag in task FormatImputationOutputs and task FormatImputationWideOutputs and task IngestOutputsToTDR.
+* Removed workspace_bucket workflow parameter from BroadInternalArrays and BroadInternalImputation.
+
+# 2.6.15
+2022-09-30 (Date of Last Commit)
+
+* Updated Picard-Python Docker image in Utilities.wdl to fix vulnerabilities.
+* Updated tasks FormatArraysOutputs and IngestOutputsToTDR with GCR images instead of Dockerhub.
+
+# 2.6.14
+2022-09-07 (Date of Last Commit)
+
+* Updated task MakeOptionalOutputBam in Utilities.wdl, this update has no effect on this pipeline
+* Updated task FormatArraysOutputs in InternalArrraysTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+* Updated task IngestOutputsToTDR in InternalTasks.wdl with new docker tag to accommodate changes for BroadInternalArrays pipeline. Change has no effect on this pipeline.
+
+# 2.6.13
+2022-06-21 (Date of Last Commit)
+
+* Changed QC.CheckFingerprint to QC.CheckFingerprintTask to avoid a naming conflict in the update scala tests, no effect on this pipeline
+
+# 2.6.12
+2022-06-01 (Date of Last Commit)
+
+* Renamed the CompareVCFs task in VerifyIlluminaGenotypingArray.wdl to CompareVcfsAllowingQualityDifferences, this update has no effect on this pipeline
+
+# 2.6.11
+2022-05-19 (Date of Last Commit)
+
+* Patch security vulnerability in arrays-picard-private docker image
+* Update arrays internal tasks, this update has no effect on this pipeline
+
+# 2.6.10
+2022-05-05 (Date of Last Commit)
+* Update Arrays.wdl to output bead_pool_manifest_file so it can be used in new test wdls
+
 # 2.6.9
 2022-04-19 (Date of Last Commit)
 * Updated to GATK version 4.2.6.1 to address log4j vulnerabilities

@@ -1,0 +1,15 @@
+{
+  "SmartSeq2SingleSample.hisat2_ref_trans_name": "gencode_v27_trans_rsem",
+  "SmartSeq2SingleSample.rrna_intervals": "gs://gcp-public-data--broad-references/hg38/v0/gencode.v27.rRNA.interval_list",
+  "SmartSeq2SingleSample.hisat2_ref_index": "gs://gcp-public-data--broad-references/hg38/v0/genome_snp_tran.tar.gz",
+  "SmartSeq2SingleSample.genome_ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/GRCh38.primary_assembly.genome.fa",
+  "SmartSeq2SingleSample.hisat2_ref_trans_index": "gs://gcp-public-data--broad-references/hg38/v0/gencode_v27_trans_rsem.tar.gz",
+  "SmartSeq2SingleSample.rsem_ref_index": "gs://gcp-public-data--broad-references/hg38/v0/gencode_v27_primary.tar",
+  "SmartSeq2SingleSample.gene_ref_flat": "gs://gcp-public-data--broad-references/hg38/v0/GRCh38_gencode.v27.refFlat.txt",
+  "SmartSeq2SingleSample.hisat2_ref_name": "genome_snp_tran",
+  "SmartSeq2SingleSample.stranded":"NONE",
+  "SmartSeq2SingleSample.fastq1":"gs://broad-gotc-test-storage/MultiSampleSmartSeq2/truth/plumbing/master/human_single_example/fastq/SRR6258249_1.fastq.gz",
+  "SmartSeq2SingleSample.input_id":"SRR6258249",
+  "SmartSeq2SingleSample.output_name":"SRR6258249",
+  "SmartSeq2SingleSample.paired_end":false
+}

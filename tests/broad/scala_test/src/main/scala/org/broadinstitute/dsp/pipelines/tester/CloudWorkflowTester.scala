@@ -68,7 +68,10 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
 
   // All of our plumbing or scientific test inputs
   protected lazy val inputFileNames: Seq[String] =
-    workflowInputRoot.list.toSeq.map(_.name.toString)
+    workflowInputRoot.list
+      .filter(_.name.endsWith(".json"))
+      .toSeq
+      .map(_.name.toString)
 
   // plumbing or scientific
   protected val testTypeString: String =
@@ -88,11 +91,27 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
   override lazy val wdlContents: String =
     readWdlFromReleaseDir(releaseDir, workflowName)
 
+  // ExternalWholeGenomeReprocessing destination
+  protected val destinationCloudPathWGS: String =
+    s"gs://broad-gotc-$envString/external_reprocessing/WGS/$testTypeString/$timestamp/copied/"
+
+  // ExternalExomeReprocessing destination
+  protected val destinationCloudPathExome: String =
+    s"gs://broad-gotc-$envString/external_reprocessing/Exome/$testTypeString/$timestamp/copied/"
+
+  // Final destination for external reprocessing copy step
+  val destinationCloudPath =
+    if (pipeline.contains("Exome")) destinationCloudPathExome
+    else destinationCloudPathWGS
+
   // Values below are needed so we can auth as picard service account to copy output files
   protected val vaultTokenPath: String =
     s"gs://broad-dsp-gotc-$envString-tokens/picardsa.token"
   protected val googleAccountVaultPath: String =
     s"secret/dsde/gotc/$envString/picard/picard-account.pem"
+  // Specific to arrays workflows to allow Arrays authenticate with Vault
+  protected val vaultTokenPathArrays: String =
+    s"gs://broad-dsp-gotc-arrays-$envString-tokens/arrayswdl.token"
 
   // Always run in broad-exomes-dev1 google project
   protected lazy val googleProject: String = {
@@ -113,7 +132,7 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
     * Generate the run parameters for each testing sample
     */
   def generateRunParameters: Seq[WorkflowRunParameters] = {
-    workflowInputRoot.list.toSeq.map(_.name.toString).map { fileName =>
+    inputFileNames.map { fileName =>
       val inputsName = fileName.replace(".json", "")
       val resultsPath = resultsPrefix.resolve(s"$inputsName/")
       val truthPath = truthPrefix.resolve(s"$inputsName/")
@@ -135,13 +154,33 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
   def getInputContents(fileName: String,
                        resultsPath: URI,
                        truthPath: URI): String = {
-    val defaultInputs = Array(
+    var defaultInputs = Array(
       workflowName + ".truth_path" -> truthPath.asJson,
       workflowName + ".results_path" -> resultsPath.asJson,
       workflowName + ".update_truth" -> updateTruth.asJson,
       workflowName + ".vault_token_path" -> vaultTokenPath.asJson,
-      workflowName + ".google_account_vault_path" -> googleAccountVaultPath.asJson
+      workflowName + ".google_account_vault_path" -> googleAccountVaultPath.asJson,
     )
+
+    val tokenPipelines =
+      List("Arrays",
+           "BroadInternalRNAWithUMIs",
+           "BroadInternalUltimaGenomics",
+           "CheckFingerprint")
+    val externalPipelines =
+      List("ExternalWholeGenomeReprocessing", "ExternalExomeReprocessing")
+
+    // Only add the vault token for the pipelines above
+    // These allow these pipelines to auth with vault/gcp
+    if (tokenPipelines.contains(pipeline)) {
+      defaultInputs = defaultInputs :+ workflowName + ".vault_token_path_arrays" -> vaultTokenPathArrays.asJson
+      defaultInputs = defaultInputs :+ workflowName + ".environment" -> envString.asJson
+    }
+
+    // Only add the destinationCloudPath for the external pipelines
+    if (externalPipelines.contains(pipeline)) {
+      defaultInputs = defaultInputs :+ workflowName + ".destination_cloud_path" -> destinationCloudPath.asJson
+    }
 
     /**
       * If we have nested inputs in our test inputs we need to push them down a level
@@ -151,9 +190,23 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
       */
     val pattern = new Regex(s"($workflowName).([A-Z]\\w+).")
 
+    /** Find any instance of the pipeline followed by . and replace with wrapper workflow
+      * e.g.
+      * Arrays. -> TestArrays.
+      *
+      * This handles the case where the wrapper workflow is a substring of a nested input (CheckFingerprint CheckFingerprintTask)
+      */
     var inputsString = (workflowInputRoot / fileName).contentAsString
-      .replace(pipeline, workflowName)
+      .replace(s"$pipeline.", s"$workflowName.")
 
+    // Replace all of the injected {} value in the test inputs file
+    inputsString = inputsString
+      .replaceAll("\\{TRUTH_BRANCH}", testerConfig.truthBranch)
+      .replaceAll("\\DESTINATION_CLOUD_PATH", destinationCloudPath)
+      .replaceAll("\\VAULT_TOKEN_PATH", vaultTokenPath)
+      .replaceAll("\\GOOGLE_ACCOUNT_VAULT_PATH", googleAccountVaultPath)
+
+    // If wrapper workflow name is follow by [A-Z] then we know its a nested input
     inputsString = pattern.replaceAllIn(
       inputsString,
       m => s"$workflowName.$pipeline." + m.group(2) + ".")

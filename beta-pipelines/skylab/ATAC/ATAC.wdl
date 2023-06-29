@@ -230,7 +230,7 @@ task BWAPairedEndAlignment {
     String read_group_sample_name
     Int cpu
     String output_base_name
-    String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
+    String docker_image = "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463"
   }
 
   parameter_meta {
@@ -241,7 +241,7 @@ task BWAPairedEndAlignment {
     read_group_sample_name: "the read group sample to be added upon alignment"
     cpu: "the number of cpu cores to use during alignment"
     output_base_name: "basename to be used for the output of the task"
-    docker_image: "the docker image using BWA to be used (default: quay.io/humancellatlas/snaptools:0.0.1)"
+    docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730)"
   }
 
   # runtime requirements based upon input file size
@@ -468,14 +468,14 @@ task FilterMaxFragmentLength {
     File bam_input
     Int max_fragment_length
     String output_base_name
-    String docker_image = "broadinstitute/gatk:4.1.2.0"
+    String docker_image = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
   parameter_meta {
     bam_input: "the bam to passed into gatk tools"
     max_fragment_length: "the maximum fragment length for filtering out reads by gatk (snaptools task)"
     output_base_name: "base name to be used for the output of the task"
-    docker_image: "the docker image using gatk to be used (default: broadinstitute/gatk:4.1.2.0)"
+    docker_image: "the docker image using gatk to be used (default: us.gcr.io/broad-gatk/gatk:4.3.0.0)"
   }
 
   # output name for filtered read
@@ -580,7 +580,7 @@ task SnapPre {
     String genome_name
     Int max_fragment_length
     File genome_size_file
-    String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
+    String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
   }
 
   parameter_meta {
@@ -589,7 +589,7 @@ task SnapPre {
     genome_name: "the name of the genome being analyzed"
     max_fragment_length: "the maximum fragment length for filtering out reads by snap-pre (snaptools task)"
     genome_size_file: "size for the chromoomes for the genome; ex: mm10.chrom.size"
-    docker_image: "the docker image using snaptools to be used (default: quay.io/humancellatlas/snaptools:0.0.1)"
+    docker_image: "the docker image using snaptools to be used (default: us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602)"
   }
 
   String snap_file_output_name = output_base_name + ".snap"
@@ -635,14 +635,14 @@ task SnapCellByBin {
     File snap_input
     String bin_size_list
     String snap_output_name = "output.snap"
-    String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
+    String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
   }
 
   parameter_meta {
     snap_input: "the bam to passed into snaptools tools"
     bin_size_list: "space separated list of bins to generate"
     snap_output_name: "output.snap"
-    docker_image: "the docker image to be used (default: quay.io/humancellatlas/snaptools:0.0.1)"
+    docker_image: "the docker image to be used (default: us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602)"
   }
  
   Int num_threads = 1
@@ -673,13 +673,13 @@ task MakeCompliantBAM {
   input {
     File bam_input
     String output_base_name
-    String docker_image = "quay.io/humancellatlas/snaptools:0.0.1"
+    String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
   }
 
   parameter_meta {
     bam_input: "the bam with barcodes in the read ids that need to be converted to barcodes in bam tags"
     output_base_name: "base name to be used for the output of the task"
-    docker_image: "the docker image using the python script to convert the bam barcodes/read ids (default: quay.io/humancellatlas/snaptools:0.0.1)"
+    docker_image: "the docker image using the python script to convert the bam barcodes/read ids (default: us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730)"
   }
 
   Int disk_size = ceil(2.5 * (if size(bam_input, "GiB") < 1 then 1 else size(bam_input, "GiB")))
@@ -687,7 +687,7 @@ task MakeCompliantBAM {
   String compliant_bam_output_name = output_base_name + ".compliant.bam"
 
   command {
-    makeCompliantBAM.py \
+    /usr/gitc/makeCompliantBAM.py \
       --input-bam ~{bam_input} \
       --output-bam ~{compliant_bam_output_name}
   }
@@ -707,7 +707,7 @@ task MakeCompliantBAM {
 task BreakoutSnap {
     input {
         File snap_input
-        String docker_image = "quay.io/humancellatlas/snap-breakout:0.0.1"
+        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
         String bin_size_list
     }
     Int num_threads = 1
@@ -715,7 +715,7 @@ task BreakoutSnap {
     command {
         set -euo pipefail
         mkdir output
-        breakoutSnap.py --input ~{snap_input} \
+        /usr/gitc/breakoutSnap.py --input ~{snap_input} \
             --output-prefix output/
     }
     output {

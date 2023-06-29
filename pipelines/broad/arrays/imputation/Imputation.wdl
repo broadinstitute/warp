@@ -6,7 +6,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Imputation {
 
-  String pipeline_version = "1.1.0"
+  String pipeline_version = "1.1.10"
 
   input {
     Int chunkLength = 25000000
@@ -361,7 +361,8 @@ workflow Imputation {
   if (split_output_to_single_sample) {
     call tasks.SplitMultiSampleVcf {
       input:
-        multiSampleVcf = GatherVcfs.output_vcf
+        multiSampleVcf = GatherVcfs.output_vcf,
+        nSamples = CountSamples.nSamples
     }
   }
 
@@ -376,4 +377,9 @@ workflow Imputation {
     File failed_chunks = StoreChunksInfo.failed_chunks
     File n_failed_chunks = StoreChunksInfo.n_failed_chunks
   }
+
+  meta {
+    allowNestedInputs: true
+  }
+
 }

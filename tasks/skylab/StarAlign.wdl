@@ -6,7 +6,7 @@ task StarAlignBamSingleEnd {
     File tar_star_reference
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:v0.2.2-2.5.3a-40ead6e"
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658781884"
     Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -55,6 +55,7 @@ task StarAlignBamSingleEnd {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} SSD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -72,7 +73,7 @@ task StarAlignFastqPairedEnd {
     File tar_star_reference
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658781884"
     Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -119,6 +120,7 @@ task StarAlignFastqPairedEnd {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} SSD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -137,7 +139,7 @@ task StarAlignFastqMultisample {
     File tar_star_reference
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658781884"
     Int machine_mem_mb = ceil((size(tar_star_reference, "Gi")) + 6) * 1100
     Int cpu = 16
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -198,6 +200,7 @@ task StarAlignFastqMultisample {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} SSD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -215,13 +218,14 @@ task STARsoloFastq {
     Array[File] r2_fastq
     File tar_star_reference
     File white_list
-    String chemistry
+    Int chemistry
+    String star_strand_mode
     String counting_mode
     String output_bam_basename
     Boolean? count_exons
 
     # runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:v2.7.9a"
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.10b-1685556218"
     Int machine_mem_mb = 64000
     Int cpu = 8
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -238,6 +242,7 @@ task STARsoloFastq {
     r1_fastq: "input FASTQ file array"
     r2_fastq: "array of forward read FASTQ files"
     tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
+    star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded'"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
@@ -245,17 +250,17 @@ task STARsoloFastq {
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
 
-  command {
+  command <<<
     set -e
 
     UMILen=10
     CBLen=16
-    if [ "~{chemistry}" == "tenX_v2" ]
+    if [ "~{chemistry}" == 2 ]
     then
         ## V2
         UMILen=10
         CBLen=16
-    elif [ "~{chemistry}" == "tenX_v3" ]
+    elif [ "~{chemistry}" == 3 ]
     then
         ## V3
         UMILen=12
@@ -273,9 +278,18 @@ task STARsoloFastq {
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
     ## single nuclei
-        COUNTING_MODE="GeneFull"
+        COUNTING_MODE="GeneFull_Ex50pAS"
     else
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
+        exit 1;
+    fi
+# Check that the star strand mode matches STARsolo aligner options
+    if [[ "~{star_strand_mode}" == "Forward" ]] || [[ "~{star_strand_mode}" == "Reverse" ]] || [[ "~{star_strand_mode}" == "Unstranded" ]]
+    then
+        ## single cell or whole cell
+        echo STAR mode is assigned
+    else
+        echo Error: unknown STAR strand mode: "~{star_strand_mode}". Should be Forward, Reverse, or Unstranded.
         exit 1;
     fi
 
@@ -290,10 +304,10 @@ task STARsoloFastq {
     then
       STAR \
       --soloType Droplet \
-      --soloStrand Unstranded \
-      --runThreadN ${cpu} \
+      --soloStrand ~{star_strand_mode} \
+      --runThreadN ~{cpu} \
       --genomeDir genome_reference \
-      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
+      --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
       --readFilesCommand "gunzip -c" \
       --soloCBwhitelist ~{white_list} \
       --soloUMIlen $UMILen --soloCBlen $CBLen \
@@ -309,10 +323,10 @@ task STARsoloFastq {
 
     STAR \
       --soloType Droplet \
-      --soloStrand Unstranded \
-      --runThreadN ${cpu} \
+      --soloStrand ~{star_strand_mode} \
+      --runThreadN ~{cpu} \
       --genomeDir genome_reference \
-      --readFilesIn "${sep=',' r2_fastq}" "${sep=',' r1_fastq}" \
+      --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
       --readFilesCommand "gunzip -c" \
       --soloCBwhitelist ~{white_list} \
       --soloUMIlen $UMILen --soloCBlen $CBLen \
@@ -338,13 +352,13 @@ task STARsoloFastq {
     then
       if ! [[ ~{count_exons} ]]
       then
-        mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
-        mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
-        mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+        mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
       else
-        mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
-        mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
-        mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+        mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
         mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_sn_rna.tsv
         mv "Solo.out/Gene/raw/features.tsv"     features_sn_rna.tsv
         mv "Solo.out/Gene/raw/matrix.mtx"       matrix_sn_rna.mtx
@@ -354,12 +368,13 @@ task STARsoloFastq {
     fi
     mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
 
-  }
+  >>>
 
   runtime {
     docker: docker
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -374,63 +389,8 @@ task STARsoloFastq {
     File barcodes_sn_rna = "barcodes_sn_rna.tsv"
     File features_sn_rna = "features_sn_rna.tsv"
     File matrix_sn_rna = "matrix_sn_rna.mtx"
-
   }
 }
-
-task ConvertStarOutput {
-
-  input {
-    File barcodes
-    File features
-    File matrix
-
-    #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-python3-scientific:0.1.12"
-    Int machine_mem_mb = 8250
-    Int cpu = 1
-    Int disk = ceil(size(matrix, "Gi") * 2) + 10
-    Int preemptible = 3
-  }
-
-  meta {
-    description: "Create three numpy formats for the barcodes, gene names and the count matrix from the STARSolo count matrix in mtx format."
-  }
-
-  parameter_meta {
-    docker: "(optional) the docker image containing the runtime environment for this task"
-    machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
-    cpu: "(optional) the number of cpus to provision for this task"
-    disk: "(optional) the amount of disk space (GiB) to provision for this task"
-    preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
-  }
-
-  command {
-    set -e
-
-   # create the  compresed raw count matrix with the counts, gene names and the barcodes
-    python3 /tools/create-npz-output.py \
-        --barcodes ~{barcodes} \
-        --features ~{features} \
-        --matrix ~{matrix}
-
-  }
-
-  runtime {
-    docker: docker
-    memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ${disk} HDD"
-    cpu: cpu
-    preemptible: preemptible
-  }
-
-  output {
-    File row_index = "sparse_counts_row_index.npy"
-    File col_index = "sparse_counts_col_index.npy"
-    File sparse_counts = "sparse_counts.npz"
-  }
-}
-
 
 task MergeStarOutput {
 
@@ -441,7 +401,7 @@ task MergeStarOutput {
     String input_id
 
     #runtime values
-    String docker = "quay.io/humancellatlas/secondary-analysis-star:merge-star-outputs-v1.1.7"
+    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
@@ -466,7 +426,7 @@ task MergeStarOutput {
     declare -a matrix_files=(~{sep=' ' matrix})
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
-    python3 /tools/create-merged-npz-output.py \
+    python3 /usr/gitc/create-merged-npz-output.py \
         --barcodes ${barcodes_files[@]} \
         --features ${features_files[@]} \
         --matrix ${matrix_files[@]} \
@@ -477,6 +437,7 @@ task MergeStarOutput {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -485,5 +446,166 @@ task MergeStarOutput {
     File row_index = "~{input_id}_sparse_counts_row_index.npy"
     File col_index = "~{input_id}_sparse_counts_col_index.npy"
     File sparse_counts = "~{input_id}_sparse_counts.npz"
+  }
+}
+
+task STARsoloFastqSlideSeq {
+  input {
+    Array[File] r1_fastq
+    Array[File] r2_fastq
+    File tar_star_reference
+    File whitelist
+    String output_bam_basename
+    String read_structure
+    Boolean? count_exons
+
+    # runtime values
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658781884"
+    Int machine_mem_mb = 64000
+    Int cpu = 8
+    # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
+    Int disk = ceil((size(tar_star_reference, "Gi") * 3)) + ceil(size(r1_fastq, "Gi") * 20) +  ceil(size(r2_fastq, "Gi") * 20)
+    # by default request non preemptible machine to make sure the slow star alignment step completes
+    Int preemptible = 3
+  }
+
+  command <<<
+    set -e
+    declare -a fastq1_files=(~{sep=' ' r1_fastq})
+    declare -a fastq2_files=(~{sep=' ' r2_fastq})
+    cut -f 1 ~{whitelist} > WhiteList.txt
+
+    nums=$(echo ~{read_structure} | sed 's/[[:alpha:]]/ /g')
+    read -a arr_num <<< $nums
+
+    chars=$(echo ~{read_structure} | sed 's/[[:digit:]]/ /g')
+    read -a arr_char <<< $chars
+
+    UMILen=0
+    CBLen=0
+    for (( i=0; i<${#arr_char[@]}; ++i));
+      do
+        if [[ ${arr_char[$i]} == 'C' ]]
+        then
+          CBLen=$(( CBLen + arr_num[$i] ))
+        elif [[ ${arr_char[$i]} == 'M' ]]
+        then
+          UMILen=$(( UMILen + arr_num[$i] ))
+        fi
+    done;
+    UMIstart=$(( 1 + CBLen))
+
+    # If this argument is true, we will count reads aligned to exons in addition
+    COUNTING_MODE="GeneFull"
+    if ~{count_exons}
+    then
+      COUNTING_MODE="Gene GeneFull"
+    fi
+
+    # prepare reference
+    mkdir genome_reference
+    tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
+    rm "~{tar_star_reference}"
+
+    STAR \
+      --soloType Droplet \
+      --soloCBwhitelist WhiteList.txt \
+      --soloFeatures $COUNTING_MODE \
+      --runThreadN ~{cpu} \
+      --genomeDir genome_reference \
+      --readFilesIn $fastq2_files $fastq1_files \
+      --readFilesCommand "gunzip -c" \
+      --soloInputSAMattrBarcodeSeq CR UR \
+      --soloInputSAMattrBarcodeQual CY UY \
+      --soloCBlen $CBLen \
+      --soloCBstart 1 \
+      --soloUMIlen $UMILen \
+      --soloUMIstart $UMIstart \
+      --outSAMtype BAM SortedByCoordinate \
+      --clip3pAdapterSeq AAAAAA \
+      --clip3pAdapterMMp 0.1 \
+      --outSAMattributes UB UR UY CR CB CY NH GX GN
+
+    touch barcodes_exon.tsv
+    touch features_exon.tsv
+    touch matrix_exon.mtx
+
+    mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
+    mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
+    mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+
+    if  ~{count_exons}
+    then
+      mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_exon.tsv
+      mv "Solo.out/Gene/raw/features.tsv"     features_exon.tsv
+      mv "Solo.out/Gene/raw/matrix.mtx"       matrix_exon.mtx
+    fi
+
+    mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
+
+  >>>
+
+  runtime {
+    docker: docker
+    memory: "~{machine_mem_mb} MiB"
+    disks: "local-disk ~{disk} HDD"
+    cpu: cpu
+    preemptible: preemptible
+  }
+
+  output {
+    File bam_output = "~{output_bam_basename}.bam"
+    File alignment_log = "Log.final.out"
+    File general_log = "Log.out"
+    File barcodes = "barcodes.tsv"
+    File features = "features.tsv"
+    File matrix = "matrix.mtx"
+    File barcodes_sn_rna = "barcodes_exon.tsv"
+    File features_sn_rna = "features_exon.tsv"
+    File matrix_sn_rna = "matrix_exon.mtx"  
+  }
+}
+
+task STARGenomeRefVersion {
+  input {
+    String tar_star_reference
+    Int disk = 10
+  }
+
+  meta {
+    description: "Reads the reference file name and outputs a txt file containing genome source, build, and annotation version"
+  }
+
+  parameter_meta {
+    tar_star_reference: "input STAR reference in TAR format"
+  }
+
+  command <<<
+    # check genomic reference version and print to output txt file
+    STRING=~{tar_star_reference}
+    BASE=$(basename $STRING .tar)
+    IFS=' -' read -r -a array <<< $BASE
+    REFERENCE=${array[2]}
+    VERSION=${array[4]}
+    ANNOTATION=${array[5]}
+
+    echo -e "$REFERENCE\n$VERSION\n$ANNOTATION" > reference_version.txt
+    echo Reference is $REFERENCE
+    echo Version is $VERSION
+    echo Annotation is $ANNOTATION
+
+  >>>
+
+# Output is TXT file containing reference source, build version and annotation version
+  output {
+    File genomic_ref_version = "reference_version.txt"
+  }
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    memory: "2 GiB"
+    disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
+    cpu:"1"
   }
 }

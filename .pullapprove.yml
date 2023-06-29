@@ -47,6 +47,7 @@ groups:
         'tasks/broad/IlluminaGenotypingArrayTasks.wdl' in files or
         'tasks/broad/InternalArraysTasks.wdl' in files or
         'tasks/broad/InternalTasks.wdl' in files or
+        'tasks/broad/Qc.wdl' in files or
         'tasks/broad/Utilities.wdl' in files or
         'verification/VerifyArrays.wdl' in files or
         'verification/VerifyIlluminaGenotypingArray.wdl' in files or
@@ -138,6 +139,8 @@ groups:
         'tasks/broad/BamProcessing.wdl' in files or
         'tasks/broad/BamToCram.wdl' in files or
         'tasks/broad/CopyFilesFromCloudToCloud.wdl' in files or
+        'tasks/broad/DragenTasks.wdl' in files or
+        'tasks/broad/DragmapAlignment.wdl' in files or
         'tasks/broad/GermlineVariantDiscovery.wdl' in files or
         'tasks/broad/Qc.wdl' in files or
         'tasks/broad/SplitLargeReadGroup.wdl' in files or
@@ -148,6 +151,7 @@ groups:
         'verification/VerifyReprocessing.wdl' in files or
         'verification/VerifyTasks.wdl' in files or
         'pipelines/broad/dna_seq/germline/single_sample/exome' in files or
+        'pipelines/broad/dna_seq/germline/single_sample/ugwgs' in files or
         'pipelines/broad/dna_seq/germline/single_sample/wgs' in files or
         'pipelines/broad/reprocessing/cram_to_unmapped_bams' in files or
         'pipelines/broad/reprocessing/exome' in files or
@@ -160,7 +164,7 @@ groups:
       request: 2
     reviewers:
       users:
-        - ldgauthier # Laura Gauthier
+        - samuelklee # Samuel Lee
         - kachulis # Chris Kachulis
 
   scientific_owners_joint_genotyping:
@@ -173,13 +177,19 @@ groups:
         'pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartOne.wdl' in files or
         'pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartTwo.wdl' in files or
         'pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl' in files or
+        'tasks/broad/GermlineVariantDiscovery.wdl' in files or
         'tasks/broad/JointGenotypingTasks.wdl' in files or
+        'tasks/broad/Qc.wdl' in files or
         'pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.changelog.md' in files or
         'pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.options.json' in files or
         'pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.wdl' in files or
+        'pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotypingOnReblockedValidate.md' in files or
+        'pipelines/broad/dna_seq/germline/joint_genotyping/UltimaGenomics' in files or
         'pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome' in files or
         'pipelines/broad/dna_seq/germline/joint_genotyping/exome' in files or
         'pipelines/broad/dna_seq/germline/joint_genotyping/reblocking' in files or
+        'pipelines/broad/dna_seq/germline/joint_genotyping/test_data_overview.md' in files or
+        'pipelines/broad/dna_seq/germline/joint_genotyping/test_inputs' in files or
         'pipelines/broad/dna_seq/germline/joint_genotyping/wgs' in files
         
     reviews:
@@ -189,7 +199,7 @@ groups:
       request_order: given
     reviewers:
       users:
-        - ldgauthier # Laura Gauthier
+        - samuelklee # Samuel Lee
 
   scientific_owners_somatic_single_sample:
     conditions:
@@ -203,6 +213,7 @@ groups:
         'tasks/broad/Alignment.wdl' in files or
         'tasks/broad/BamProcessing.wdl' in files or
         'tasks/broad/BamToCram.wdl' in files or
+        'tasks/broad/DragmapAlignment.wdl' in files or
         'tasks/broad/Qc.wdl' in files or
         'tasks/broad/SplitLargeReadGroup.wdl' in files or
         'tasks/broad/UnmappedBamToAlignedBam.wdl' in files or
@@ -235,7 +246,8 @@ groups:
         'pipelines/broad/arrays/imputation/Imputation.changelog.md' in files or
         'pipelines/broad/arrays/imputation/Imputation.options.json' in files or
         'pipelines/broad/arrays/imputation/Imputation.wdl' in files or
-        'pipelines/broad/arrays/imputation/example_inputs.json' in files
+        'pipelines/broad/arrays/imputation/example_inputs.json' in files or
+        'pipelines/broad/arrays/imputation/test_inputs' in files
         
     reviews:
       required: 1
@@ -262,6 +274,8 @@ groups:
         'tasks/broad/Alignment.wdl' in files or
         'tasks/broad/BamProcessing.wdl' in files or
         'tasks/broad/BamToCram.wdl' in files or
+        'tasks/broad/DragenTasks.wdl' in files or
+        'tasks/broad/DragmapAlignment.wdl' in files or
         'tasks/broad/GermlineVariantDiscovery.wdl' in files or
         'tasks/broad/Qc.wdl' in files or
         'tasks/broad/SplitLargeReadGroup.wdl' in files or

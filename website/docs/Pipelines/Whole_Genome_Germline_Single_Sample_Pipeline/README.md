@@ -6,7 +6,7 @@ sidebar_position: 1
  
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| WholeGenomeGermlineSingleSample_v3.0.0 (see [releases page](https://github.com/broadinstitute/warp/releases)) | November, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [Kylee Degatano](mailto:kdegatano@broadinstitute.org) |
+| WholeGenomeGermlineSingleSample_v3.1.6 (see [releases page](https://github.com/broadinstitute/warp/releases)) | August, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
  
 ## Introduction to the Whole Genome Germline Single Sample Pipeline
 The Whole Genome Germline Single Sample (WGS) pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices for germline SNP and Indel discovery in human whole-genome sequencing data. It includes the DRAGEN-GATK mode, which makes the pipeline functionally equivalent to DRAGEN’s analysis pipeline (read more in this [DRAGEN-GATK blog](https://gatk.broadinstitute.org/hc/en-us/articles/360039984151)).
@@ -62,7 +62,7 @@ The **dragen_maximum_quality_mode** runs the pipeline using the DRAGMAP aligner 
 1. `dragen_mode_hard_filter` is true.
 
 
-When the workflow applies the DRAGMAP aligner, it calls reference files specific to the aligner. These files are located in a [public Google bucket](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/) and described in the [Input descriptions](#input-descriptions). See the [reference README](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/README_dragen_gatk_resources.txt) for details on recreating DRAGEN references.
+When the workflow applies the DRAGMAP aligner, it calls reference files specific to the aligner. These files are located in a [public Google bucket](gs://gcp-public-data--broad-references/hg38/v0/) and described in the [Input descriptions](#input-descriptions). See the [reference README](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/README_dragen_gatk_resources.txt) for details on recreating DRAGEN references.
  
 ## Set-up
  
@@ -76,7 +76,7 @@ The latest release of the workflow, example data, and dependencies are available
 ### Input descriptions
 The tables below describe each of the WGS pipeline inputs and reference files. 
 
-Examples of how to specify each input can be found in the example [input configuration files (JSONs)](https://github.com/broadinstitute/warp/tree/develop/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files). 
+Examples of how to specify each input can be found in the example [input configuration files (JSONs)](https://github.com/broadinstitute/warp/tree/master/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files). 
  
 Multiple references are imported as part of a struct from the [DNASeqStruct WDL](https://github.com/broadinstitute/warp/blob/master/structs/dna_seq/DNASeqStructs.wdl), which is located in the WARP [structs library](https://github.com/broadinstitute/warp/tree/master/structs). For references that are part of a struct, the tables below list the relevant struct’s name. 
  
@@ -91,7 +91,7 @@ Overall, the workflow has the following input requirements:
 * Reference genome must be Hg38 with ALT contigs
  
 #### Struct inputs
-The following table describes the inputs imported from a struct. Although these are specified in the WGS workflow using the struct name, the actual inputs for each struct are specified in the [example configuration files](https://github.com/broadinstitute/warp/tree/develop/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files). 
+The following table describes the inputs imported from a struct. Although these are specified in the WGS workflow using the struct name, the actual inputs for each struct are specified in the [example configuration files](https://github.com/broadinstitute/warp/tree/master/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files). 
 
 
 | Input name | Struct name (alias) | Input description | Input type |
@@ -114,12 +114,15 @@ The following table describes the inputs imported from a struct. Although these 
 | agg_preemptible_tries |  PapiSettings (papi_settings) | Number of preemtible machine tries for the BamtoCram task. | Int |
  
 #### Additional inputs
-Additional inputs that are not contained in a struct are described in the table below. Similar to the struct inputs, these inputs are specified in the [example configuration files](https://github.com/broadinstitute/warp/tree/develop/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files) or, when noted, are hardcoded into the WDL workflow.
+Additional inputs that are not contained in a struct are described in the table below. Similar to the struct inputs, these inputs are specified in the [example configuration files](https://github.com/broadinstitute/warp/tree/master/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files) or, when noted, are hardcoded into the WDL workflow.
+
+* Optional inputs, like the fingerprint_genotypes_file, need to match your input samples. For example, the fingerprint file in the workflow's [test input configuration JSON](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/single_sample/wgs/input_files/WholeGenomeGermlineSingleSample.inputs.plumbing.masked_reference.json) is set up to check fingerprints for the NA12878 Plumbing sample. The sample name in the VCF matches the name used for the `sample_name` input.
+
 
 
 | Input name | Input description | Input type |
 | --- | --- | --- |
-| fingerprint_genotypes_file | Genotype VCF if optionally performing fingerprinting.  | File |
+| fingerprint_genotypes_file | Genotype VCF if optionally performing fingerprinting. For the CheckFingerprint task (below), the sample name specified in the sample_and_unmapped_bams variable must match the sample name in the fingerprint_genoptyes_file (VCF format). | File |
 | fingerprint_genotypes_index | Optional index for the fingerprinting VCF. | File |
 | wgs_coverage_interval_list | Interval list for the CollectWgsMetrics tool. | File |
 | provide_bam_output | If set to true, provides the aligned BAM and index as workflow output; default set to false. | Boolean |
@@ -168,7 +171,7 @@ The table below details the subtasks called by the UnmappedBamToAlignedBam task,
 | [Processing.SortSam](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | SortSam | Picard | Sorts the aggregated BAM by coordinate sort order. |
 | [QC.CrossCheckFingerprints (CrossCheckFingerprints)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CrosscheckFingerprints | Picard | Optionally checks fingerprints if haplotype database is provided. |
 | [Utils.CreateSequenceGroupingTSV (CreateSequenceGroupingTSV)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Utilities.wdl) | --- | python | Creates the sequencing groupings used for BQSR and PrintReads Scatter. |
-| [Processing.CheckContamination](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | VerifyBamID | --- | Checks cross-sample contamination prior to variant calling. |
+| [Processing.CheckContamination](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | VerifyBamID2 | --- | Checks cross-sample contamination prior to variant calling. |
 | [Processing.BaseRecalibrator (BaseRecalibrator)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | BaseRecalibrator | GATK | If `perform_bqsr` is true, performs base recalibration by interval. When using the DRAGEN-GATK mode, `perform_bqsr` is optionally false as base calling errors are corrected in the DRAGEN variant calling step.|
 | [Processing.GatherBqsrReports (GatherBqsrReports)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | GatherBQSRReports | GATK | Merges the BQSR reports resulting from by-interval calibration. |
 | [Processing.ApplyBQSR (ApplyBQSR)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | ApplyBQSR | GATK | Applies the BQSR base recalibration model by interval. |
@@ -273,7 +276,7 @@ The table below describes the final workflow outputs. If running the workflow on
 | read_group_gc_bias_pdf | PDF of the GC bias by readgroup for the aggregated BAM. | File |
 | read_group_gc_bias_summary_metrics | GC bias summary metrics by readgroup for the aggregated BAM. | File |
 | cross_check_fingerprints_metrics | Fingerprint metrics file if optional fingerprinting is performed. | File |
-| selfSM | Contamination estimate from VerifyBamID. | File |
+| selfSM | Contamination estimate from VerifyBamID2. | File |
 | contamination | Estimated contamination from the CheckContamination task. | Float |
 | calculate_read_group_checksum_md5 | MD5 checksum for aggregated BAM. | File |
 | agg_alignment_summary_metrics | Alignment summary metrics for the aggregated BAM. | File |
@@ -315,7 +318,7 @@ As of November 2021, reblocking is a default task in the WGS pipeline. To skip r
 "WholeGenomeGermlineSingleSample.BamToGvcf.skip_reblocking": true
 ```
 
-The [Reblocking task](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/GermlineVariantDiscovery.wdl) uses the GATK ReblockGVCF tool with the arguments:
+The [Reblocking task](https://github.com/broadinstitute/warp/blob/master/tasks/broad/GermlineVariantDiscovery.wdl) uses the GATK ReblockGVCF tool with the arguments:
 
 ```WDL
 -do-qual-approx -floor-blocks -GQB 20 -GQB 30 -GQB 40 
@@ -368,7 +371,7 @@ The final CRAM files have base quality scores binned according to the [Functiona
 
 
 ## Contact us
-Please help us make our tools better by contacting [Kylee Degatano](mailto:kdegatano@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
  
 ## Licensing
  

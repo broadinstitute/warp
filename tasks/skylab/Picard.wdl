@@ -33,6 +33,7 @@ task SortBam {
         docker: docker
         memory: "${machine_mem_mb} MiB"
         disks: "local-disk ${disk} HDD"
+        disk: disk + " GB" # TES
         cpu: cpu
         preemptible: preemptible
     }
@@ -76,6 +77,7 @@ task SortBamAndIndex {
         docker: docker
         memory: "${machine_mem_mb} MiB"
         disks: "local-disk ${disk} HDD"
+        disk: disk + " GB" # TES
         cpu: cpu
         preemptible: preemptible
     }
@@ -225,6 +227,7 @@ task CollectMultipleMetricsMultiSample {
         docker: docker
         memory: "${machine_mem_mb} MiB"
         disks: "local-disk ${disk} HDD"
+        disk: disk + " GB" # TES
         cpu: cpu
         preemptible: preemptible
     }
@@ -290,6 +293,7 @@ task CollectRnaMetrics {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -346,6 +350,7 @@ task CollectDuplicationMetrics {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
@@ -416,6 +421,7 @@ task RemoveDuplicatesFromBam {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }

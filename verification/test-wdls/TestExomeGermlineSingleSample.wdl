@@ -116,13 +116,13 @@ workflow TestExomeGermlineSingleSample {
   # If updating truth then copy pipeline results to truth bucket
   if (update_truth){
     call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
-    input:
-      files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
-      vault_token_path          = vault_token_path,
-      google_account_vault_path = google_account_vault_path,
-      contamination             = ExomeGermlineSingleSample.contamination,
-      destination_cloud_path    = truth_path
-    }
+      input:
+        files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
+        vault_token_path          = vault_token_path,
+        google_account_vault_path = google_account_vault_path,
+        contamination             = ExomeGermlineSingleSample.contamination,
+        destination_cloud_path    = truth_path
+      }
   }
 
   # If not updating truth then we need to collect all input for the validation WDL

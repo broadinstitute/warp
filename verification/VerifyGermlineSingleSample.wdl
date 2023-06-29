@@ -59,6 +59,7 @@ workflow VerifyGermlineSingleSample {
 
   output {
     Array[File] metric_comparison_report_files = CompareMetrics.metric_comparison_report_files
+    File failed_metrics = CompareMetrics.failed_metrics
   }
   meta {
     allowNestedInputs: true
@@ -70,7 +71,7 @@ task CompareGvcfs {
   input {
     File test_gvcf
     File truth_gvcf
-
+    Int memory_mb = ceil(size(test_gvcf, "MiB") + size(truth_gvcf, "MiB") * 5) + 40000
   }
 
   command {
@@ -90,8 +91,8 @@ task CompareGvcfs {
 
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 70 HDD"
-    memory: "2 GiB"
+    disks: "local-disk 300 HDD"
+    memory: "${memory_mb} MiB"
     preemptible: 3
   }
   

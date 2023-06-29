@@ -74,3 +74,48 @@ workflows:
   - name: BroadInternalRNAWithUMIs
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/internal/rna_seq/BroadInternalRNAWithUMIs.wdl
+
+  - name: Arrays_TDR
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/internal/arrays/single_sample/BroadInternalArrays.wdl
+
+  - name: Imputation_TDR
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/internal/arrays/imputation/BroadInternalImputation.wdl
+
+  - name: UltimaGenomicsWholeGenomeGermline
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.wdl
+
+  - name: BroadInternalUltimaGenomics
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/internal/dna_seq/germline/single_sample/UltimaGenomics/BroadInternalUltimaGenomics.wdl
+
+  - name: UltimaGenomicsJointGenotyping
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/UltimaGenomics/UltimaGenomicsJointGenotyping.wdl
+
+  - name: UltimaGenomicsWholeGenomeCramOnly
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/somatic/single_sample/ugwgs/UltimaGenomicsWholeGenomeCramOnly.wdl
+
+  - name: BuildIndices
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/build_indices/BuildIndices.wdl
+
+  - name: SlideSeq
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/slideseq/SlideSeq.wdl
+
+  - name: snM3C
+    subclass: WDL
+    primaryDescriptorPath: /beta-pipelines/skylab/m3c/snM3C.wdl
+    
+  - name: Multiome
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/multiome/Multiome.wdl
+    
+  - name: atac
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/multiome/atac.wdl
+

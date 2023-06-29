@@ -1,15 +1,15 @@
 {
-  "SmartSeq2SingleCell.hisat2_ref_trans_name": "gencode_v27_trans_rsem",
-  "SmartSeq2SingleCell.rrna_intervals": "gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/gencode.v27.rRNA.interval_list",
-  "SmartSeq2SingleCell.star_ref_index": "gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_GencodeV27_Primary.tar",
-  "SmartSeq2SingleCell.hisat2_ref_index": "gs://hca-dcp-mint-test-data/reference/HISAT2/genome_snp_tran.tar.gz",
-  "SmartSeq2SingleCell.genome_ref_fasta": "gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38.primary_assembly.genome.fa",
-  "SmartSeq2SingleCell.hisat2_ref_trans_index": "gs://hca-dcp-mint-test-data/reference/HISAT2/gencode_v27_trans_rsem.tar.gz",
-  "SmartSeq2SingleCell.rsem_ref_index": "gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/gencode_v27_primary.tar",
-  "SmartSeq2SingleCell.gene_ref_flat": "gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_gencode.v27.refFlat.txt",
-  "SmartSeq2SingleCell.hisat2_ref_name": "genome_snp_tran",
-  "SmartSeq2SingleCell.stranded":"NONE",
-  "SmartSeq2SingleCell.fastq1":"gs://hca-dcp-mint-test-data/ss2/human/single-read/CD4_cytotoxic_renamed/SRR6258249_1.fastq.gz",
-  "SmartSeq2SingleCell.input_id":"SRR6258249",
-  "SmartSeq2SingleCell.output_name":"SRR6258249"
+  "SmartSeq2SingleSample.hisat2_ref_trans_name": "gencode_v27_trans_rsem",
+  "SmartSeq2SingleSample.rrna_intervals": "gs://gcp-public-data--broad-references/hg38/v0/gencode.v27.rRNA.interval_list",
+  "SmartSeq2SingleSample.star_ref_index": "gs://broad-gotc-test-storage/reference/GRCh38_Gencode/GRCh38_GencodeV27_Primary.tar",
+  "SmartSeq2SingleSample.hisat2_ref_index": "gs://gcp-public-data--broad-references/hg38/v0/genome_snp_tran.tar.gz",
+  "SmartSeq2SingleSample.genome_ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/GRCh38.primary_assembly.genome.fa",
+  "SmartSeq2SingleSample.hisat2_ref_trans_index": "gs://gcp-public-data--broad-references/hg38/v0/gencode_v27_trans_rsem.tar.gz",
+  "SmartSeq2SingleSample.rsem_ref_index": "gs://gcp-public-data--broad-references/hg38/v0/gencode_v27_primary.tar",
+  "SmartSeq2SingleSample.gene_ref_flat": "gs://gcp-public-data--broad-references/hg38/v0/GRCh38_gencode.v27.refFlat.txt",
+  "SmartSeq2SingleSample.hisat2_ref_name": "genome_snp_tran",
+  "SmartSeq2SingleSample.stranded":"NONE",
+  "SmartSeq2SingleSample.fastq1":"gs://broad-gotc-test-storage/MultiSampleSmartSeq2/truth/plumbing/master/human_single_example/fastq/SRR6258249_1.fastq.gz",
+  "SmartSeq2SingleSample.input_id":"SRR6258249",
+  "SmartSeq2SingleSample.output_name":"SRR6258249"
 }

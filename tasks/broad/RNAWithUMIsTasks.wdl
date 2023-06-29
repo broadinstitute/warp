@@ -98,26 +98,34 @@ task Fastp {
     File adapter_fasta = "gs://gcp-public-data--broad-references/RNA/resources/Illumina_adapters.fasta"
 
     String docker = "us.gcr.io/broad-gotc-prod/fastp:1.0.0-0.20.1-1649253500"
-    Int memory_mb =  "16384"
+    Int memory_mb =  ceil(1.5*size(fastq1, "MiB")) + 8192 # Experimentally determined formula for memory allocation
     Int disk_size_gb = 5*ceil(size(fastq1, "GiB")) + 128
+    File monitoring_script = "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh"
+    Int cpu=4
   }
 
   command {
+    bash ~{monitoring_script} > monitoring.log &
+
     fastp --in1 ~{fastq1} --in2 ~{fastq2} --out1 ~{output_prefix}_read1.fastq.gz --out2 ~{output_prefix}_read2.fastq.gz \
     --disable_quality_filtering \
     --disable_length_filtering \
-    --adapter_fasta ~{adapter_fasta}
+    --adapter_fasta ~{adapter_fasta} \
+    --thread ~{cpu}
   }
   
 
   runtime {
     docker: docker
     memory: "~{memory_mb} MiB"
+    cpu: cpu
     disks: "local-disk ~{disk_size_gb} HDD"
     preemptible: 0
+    maxRetries: 2
   }
 
   output {
+    File monitoring_log = "monitoring.log"
     File fastq1_clipped = output_prefix + "_read1.fastq.gz"
     File fastq2_clipped = output_prefix + "_read2.fastq.gz"
   }
@@ -148,6 +156,7 @@ task STAR {
       --readFilesIn ~{bam} \
       --readFilesType SAM PE \
       --readFilesCommand samtools view -h \
+      --runRNGseed 12345 \
       --outSAMunmapped Within \
       --outFilterType BySJout \
       --outFilterMultimapNmax 20 \
@@ -196,7 +205,7 @@ task FastqToUbam {
     String read_group_name
     String sequencing_center
 
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:3.0.0"
     Int cpu = 1
     Int memory_mb = 4000
     Int disk_size_gb = ceil(size(r1_fastq, "GiB")*2.2 + size(r2_fastq, "GiB")*2.2) + 50
@@ -218,7 +227,8 @@ task FastqToUbam {
       PU="~{platform_unit}" \
       RG="~{read_group_name}" \
       CN="~{sequencing_center}" \
-      O="~{unmapped_bam_output_name}"
+      O="~{unmapped_bam_output_name}" \
+      ALLOW_EMPTY_FASTQ=True
   >>>
 
   runtime {
@@ -268,7 +278,7 @@ task GetSampleName {
   input {
     File bam
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int cpu = 1
     Int memory_mb = 1000
     Int disk_size_gb = ceil(2.0 * size(bam, "GiB")) + 10
@@ -303,14 +313,16 @@ task rnaseqc2 {
     String sample_id
     File exon_bed
 
-    String docker =  "us.gcr.io/broad-dsde-methods/ckachulis/rnaseqc:2.4.2"
+    String docker = "us.gcr.io/broad-dsde-methods/ckachulis/rnaseqc@sha256:a4bec726bb51df5fb8c8f640f7dec22fa28c8f7803ef9994b8ec39619b4514ca"
     Int cpu = 1
-    Int memory_mb = 3500
+    Int memory_mb = 8000
     Int disk_size_gb = ceil(size(bam_file, 'GiB') + size(genes_gtf, 'GiB') + size(exon_bed, 'GiB')) + 50
   }
 
   command <<<
     set -euo pipefail
+    # force fragmentSizes histogram output file to exist (even if empty)
+    touch ~{sample_id}.fragmentSizes.txt
     echo $(date +"[%b %d %H:%M:%S] Running RNA-SeQC 2")
     rnaseqc ~{genes_gtf} ~{bam_file} . -s ~{sample_id} -v --bed ~{exon_bed}
     echo "  * compressing outputs"
@@ -331,6 +343,7 @@ task rnaseqc2 {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: 2
   }
 }
 
@@ -386,7 +399,7 @@ task CollectMultipleMetrics {
     File ref_fasta_index
 
 
-    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
+    String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:3.0.0"
     Int cpu = 1
     Int memory_mb = 7500
     Int disk_size_gb = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")) + 20
@@ -396,11 +409,16 @@ task CollectMultipleMetrics {
   Int max_heap = memory_mb - 500
 
   command <<<
+    #plots will not be produced if there are no reads
+    touch ~{output_bam_prefix}.insert_size_histogram.pdf
+    touch ~{output_bam_prefix}.insert_size_metrics
+    touch ~{output_bam_prefix}.base_distribution_by_cycle.pdf
+    touch ~{output_bam_prefix}.quality_by_cycle.pdf
+    touch ~{output_bam_prefix}.quality_distribution.pdf
+
     java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar CollectMultipleMetrics \
       INPUT=~{input_bam} \
       OUTPUT=~{output_bam_prefix} \
-      PROGRAM=CollectInsertSizeMetrics \
-      PROGRAM=CollectAlignmentSummaryMetrics \
       REFERENCE_SEQUENCE=~{ref_fasta}
   >>>
 
@@ -454,7 +472,12 @@ task MergeMetrics {
 
     for col in range(0, len(rows[0])):
       key = rows[0][col].lower()
-      print(f"{key}\t{rows[1][col]}")
+      value = rows[1][col]
+      if value == "?":
+        value = "NaN"
+      if key in ["median_insert_size", "median_absolute_deviation", "median_read_length", "mad_read_length", "pf_hq_median_mismatches"]:
+        value = str(int(float(value)))
+      print(f"{key}\t{value}")
     EOF
 
     #
@@ -600,17 +623,30 @@ task GroupByUMIs {
 
     String docker = "us.gcr.io/broad-gotc-prod/umi_tools:1.0.0-1.1.1-1638821470"
     Int cpu = 2
-    Int memory_mb = 7500
+    Int memory_mb = 64000
     Int disk_size_gb = ceil(2.2 * size([bam, bam_index], "GiB")) + 100
+
+    File monitoring_script = "gs://broad-dsde-methods-monitoring/cromwell_monitoring_script.sh"
   }
 
   command <<<
+    bash ~{monitoring_script} > monitoring.log &
+
+    # umi_tools has a bug which lead to using the order of elements in a set to determine tie-breakers in
+    # rare edge-cases.  Sets in python are unordered, so this leads to non-determinism.  Setting PYTHONHASHSEED
+    # to 0 means that hashes will be unsalted.  While it is not in any way gauranteed by the language that this
+    # will remove the non-determinism, in practice, due to implementation details of sets in cpython, this makes seemingly
+    # deterministic behavior much more likely
+
+    export PYTHONHASHSEED=0
+
     umi_tools group -I ~{bam} --paired --no-sort-output --output-bam --stdout ~{output_bam_basename}.bam --umi-tag-delimiter "-" \
     --extract-umi-method tag --umi-tag RX --unmapped-reads use
   >>>
 
   output {
     File grouped_bam = "~{output_bam_basename}.bam"
+    File monitoring_log = "monitoring.log"
   }
 
   runtime {
@@ -618,6 +654,7 @@ task GroupByUMIs {
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
+    maxRetries: 1
   }
 }
 
@@ -626,7 +663,7 @@ task MarkDuplicatesUMIAware {
     File bam
     String output_basename
     Boolean remove_duplicates
-
+    Boolean use_umi
 
     String docker =  "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.11"
     Int cpu = 1
@@ -641,8 +678,9 @@ task MarkDuplicatesUMIAware {
     INPUT=~{bam} \
     OUTPUT=~{output_bam_basename}.bam \
     METRICS_FILE=~{output_basename}.duplicate.metrics \
-    READ_ONE_BARCODE_TAG=BX \
-    REMOVE_DUPLICATES=~{remove_duplicates}
+    REMOVE_DUPLICATES=~{remove_duplicates} \
+    ~{true='READ_ONE_BARCODE_TAG=BX' false='' use_umi} \
+
   >>>
 
   output {
@@ -662,7 +700,6 @@ task formatPipelineOutputs {
   input {
     String sample_id
     String transcriptome_bam
-    String transcriptome_bam_index
     String transcriptome_duplicate_metrics
     String output_bam
     String output_bam_index
@@ -706,7 +743,6 @@ task formatPipelineOutputs {
     # NOTE: we rename some field names to match the TDR schema
     outputs_dict["sample_id"]="~{sample_id}" # primary key
     outputs_dict["transcriptome_bam"]="~{transcriptome_bam}"
-    outputs_dict["transcriptome_bam_index"]="~{transcriptome_bam_index}"
     outputs_dict["transcriptome_duplicate_metrics_file"]="~{transcriptome_duplicate_metrics}"
     outputs_dict["genome_bam"]="~{output_bam}"
     outputs_dict["genome_bam_index"]="~{output_bam_index}"
@@ -729,11 +765,9 @@ task formatPipelineOutputs {
     outputs_dict["fp_summary_metrics_file"]="~{picard_fingerprint_summary_metrics}"
     outputs_dict["fp_detail_metrics_file"]="~{picard_fingerprint_detail_metrics}"
     outputs_dict["fastqc_html_report"]="~{fastqc_html_report}"
-
-    # truncate to 5 digits
-    outputs_dict["fastqc_percent_reads_with_adapter"]='%.5f'%(~{fastqc_percent_reads_with_adapter})
-    outputs_dict["contamination"]='%.5f'%(~{contamination})
-    outputs_dict["contamination_error"]='%.5f'%(~{contamination_error})
+    outputs_dict["fastqc_percent_reads_with_adapter"]="~{fastqc_percent_reads_with_adapter}"
+    outputs_dict["contamination"]="~{contamination}"
+    outputs_dict["contamination_error"]="~{contamination_error}"
 
     # explode unified metrics file
     with open("~{unified_metrics}", "r") as infile:
@@ -744,7 +778,7 @@ task formatPipelineOutputs {
     # write full outputs to file
     with open("~{outputs_json_file_name}", 'w') as outputs_file:
       for key, value in outputs_dict.items():
-        if value == "None":
+        if value == "None" or value == "":
           outputs_dict[key] = None
       outputs_file.write(json.dumps(outputs_dict))
       outputs_file.write("\n")
@@ -752,7 +786,7 @@ task formatPipelineOutputs {
   >>>
 
   runtime {
-    docker: "broadinstitute/horsefish:tdr_import_v1.1"
+    docker: "broadinstitute/horsefish:tdr_import_v1.4"
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
@@ -765,30 +799,30 @@ task formatPipelineOutputs {
 
 task updateOutputsInTDR {
   input {
-    String staging_bucket
     String tdr_dataset_uuid
     File outputs_json
-    String sample_id
 
     Int cpu = 1
     Int memory_mb = 2000
     Int disk_size_gb = 10
   }
 
-  String tdr_target_table = "sample"
-
   command <<<
+    # input args:
+    # -d dataset uuid
+    # -t target table in dataset
+    # -o json of data to ingest
+    # -f field to populate with timestamp at ingest (can have multiple)
     python -u /scripts/export_pipeline_outputs_to_tdr.py \
       -d "~{tdr_dataset_uuid}" \
-      -b "~{staging_bucket}" \
-      -t "~{tdr_target_table}" \
+      -t "sample" \
       -o "~{outputs_json}" \
-      -k "sample_id" \
-      -v "~{sample_id}"
+      -f "version_timestamp" \
+      -f "analysis_end_time"
   >>>
 
   runtime {
-    docker: "broadinstitute/horsefish:twisttcap_scripts"
+    docker: "broadinstitute/horsefish:tdr_import_v1.4"
     cpu: cpu
     memory: "~{memory_mb} MiB"
     disks: "local-disk ~{disk_size_gb} HDD"
@@ -818,7 +852,7 @@ task CalculateContamination {
     File population_vcf
     File population_vcf_index
     # runtime
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     Int cpu = 1
     Int memory_mb = 8192
     Int disk_size_gb = 256
@@ -922,7 +956,7 @@ task FastQC {
   output {
     File fastqc_data = "~{bam_basename}_fastqc_data.txt"
     File fastqc_html = "~{bam_basename}_fastqc.html"
-    Float fastqc_percent_reads_with_adapter = read_float("~{bam_basename}_adapter_content.txt")
+    Float fastqc_percent_reads_with_adapter = if read_string("~{bam_basename}_adapter_content.txt") == "warn" then -1 else read_float("~{bam_basename}_adapter_content.txt")
   }
 }
 
@@ -931,7 +965,7 @@ task TransferReadTags {
     File aligned_bam
     File ubam
     String output_basename
-    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.4.0.0"
     Int memory_mb = 16000
     Int disk_size_gb = ceil(2 * size(aligned_bam, "GiB")) + ceil(2 * size(ubam, "GiB")) + 128
   }
@@ -967,7 +1001,8 @@ task PostprocessTranscriptomeForRSEM {
   command {
     gatk PostProcessReadsForRSEM \
     -I ~{input_bam} \
-    -O ~{prefix}_RSEM_post_processed.bam
+    -O ~{prefix}_RSEM_post_processed.bam \
+    --use-jdk-deflater
   }
 
   output {

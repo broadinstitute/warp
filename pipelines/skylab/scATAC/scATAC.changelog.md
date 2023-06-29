@@ -1,3 +1,28 @@
+# 1.3.1
+2023-01-19 (Date of Last Commit)
+
+* Added 'Disk' to task runtime sections to support running on Azure
+
+# 1.3.0
+2022-09-23 (Date of Last Commit)
+
+* Added disk, memory and cpu as task inputs. Added pipeline version as a string output.
+
+# 1.2.4
+2022-08-23 (Date of Last Commit)
+
+* Remove an unused script in pytools docker image.
+
+# 1.2.3
+2022-08-18 (Date of Last Commit)
+
+* Update AlignPairedEnd, SnapPre, SnapCellByBin tasks to use rebuilt snaptools docker image.
+
+# 1.2.2
+2022-08-16 (Date of Last Commit)
+
+* Update MakeCompliantBAM and BreakoutSnap tasks to use a consolidated python utilities docker image.
+
 # 1.2.1
 
 2021-11-15 (Date of Last Commit)
