@@ -100,4 +100,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCRealignCram.wdl
 
-
+  - name: WholeGenomeGermlineSingleSampleFromCram
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSampleFromCram.wdl
