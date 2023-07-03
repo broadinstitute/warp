@@ -47,12 +47,10 @@ workflow VUMCSplitLargeReadGroup {
     Boolean allow_empty_ref_alt = false
   }
 
-  Boolean is_cram = input_bam_suffix == ".cram"
-
   call VUMCAlignment.SamSplitter as SamSplitter {
     input :
       input_bam = input_bam,
-      is_cram = is_cram,
+      input_bam_suffix = input_bam_suffix,
       n_reads = reads_per_file,
       preemptible_tries = preemptible_tries,
       compression_level = compression_level
