@@ -235,9 +235,9 @@ task FastqProcessingSlidSeq {
 task FastqProcessATAC {
 
     input {
-        Array[String] read1_fastq
-        Array[String] read3_fastq
-        Array[String] barcodes_fastq
+        Array[File] read1_fastq
+        Array[File] read3_fastq
+        Array[File] barcodes_fastq
         String read_structure = "16C"
         String barcode_orientation = "FIRST_BP_RC"
         String output_base_name
@@ -283,23 +283,12 @@ task FastqProcessATAC {
         declare -a FASTQ2_ARRAY=(~{sep=' ' barcodes_fastq})
         declare -a FASTQ3_ARRAY=(~{sep=' ' read3_fastq})
 
-        read1_fastq_files=`printf '%s ' "${FASTQ1_ARRAY[@]}"; echo`
-        read2_fastq_files=`printf '%s ' "${FASTQ2_ARRAY[@]}"; echo`
-        read3_fastq_files=`printf '%s ' "${FASTQ3_ARRAY[@]}"; echo`
-
-        echo $read1_fastq_files
-        
-        mkdir /cromwell_root/input_fastq
-        gcloud storage cp $read1_fastq_files /cromwell_root/input_fastq
-        gcloud storage cp $read2_fastq_files /cromwell_root/input_fastq
-        gcloud storage cp $read3_fastq_files /cromwell_root/input_fastq
-
         # barcodes R2
         R1_FILES_CONCAT=""
         for fastq in "${FASTQ2_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R1 /cromwell_root/input_fastq/$BASE`
+            BASE=`echo --R1 $BASE`
             R1_FILES_CONCAT+="$BASE "
         done
         echo $R1_FILES_CONCAT
@@ -309,7 +298,7 @@ task FastqProcessATAC {
         for fastq in "${FASTQ1_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R2 /cromwell_root/input_fastq/$BASE`
+            BASE=`echo --R2 $BASE`
             R2_FILES_CONCAT+="$BASE "
         done
         echo $R2_FILES_CONCAT
@@ -319,7 +308,7 @@ task FastqProcessATAC {
         for fastq in "${FASTQ3_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R3 /cromwell_root/input_fastq/$BASE`
+            BASE=`echo --R3 $BASE`
             R3_FILES_CONCAT+="$BASE "
         done
         echo $R3_FILES_CONCAT
