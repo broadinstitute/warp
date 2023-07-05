@@ -41,7 +41,7 @@ workflow ATAC {
     read2_fastq_gzipped: "read 2 FASTQ file as input for the pipeline, contains the cellular barcodes corresponding to the reads in the read1 FASTQ and read 3 FASTQ"
     read3_fastq_gzipped: "read 3 FASTQ file as input for the pipeline, contains read 2 of paired reads"
     output_base_name: "base name to be used for the pipelines output and intermediate files"
-    tar_bwa_reference: "the pre built tar file containing the reference fasta and cooresponding reference files for the BWA aligner"
+    tar_bwa_reference: "the pre built tar file containing the reference fasta and corresponding reference files for the BWA aligner"
   }
 
   call FastqProcessing.FastqProcessATAC as SplitFastq {
@@ -111,7 +111,7 @@ task TrimAdapters {
     # Runtime attributes/docker
     Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") )) + 200
     Int mem_size = 4
-    String docker_image = "us.gcr.io/broad-gotc-prod/cutadapt:1.0.0-4.4-1686752919"
+    String docker_image = "dsppipelinedev.azurecr.io/cutadapt:1.0.0-4.4-1686752919"
   }
 
   parameter_meta {
@@ -122,7 +122,7 @@ task TrimAdapters {
     adapter_seq_read1: "cutadapt option for the sequence adapter for read 1 fastq"
     adapter_seq_read3: "cutadapt option for the sequence adapter for read 3 fastq"
     output_base_name: "base name to be used for the output of the task"
-    docker_image: "the docker image using cutadapt to be used (default:us.gcr.io/broad-gotc-prod/cutadapt:1.0.0-4.4-1686752919)"
+    docker_image: "the docker image using cutadapt to be used (default: dsppipelinedev.azurecr.io/cutadapt:1.0.0-4.4-1686752919)"
     mem_size: "the size of memory used during trimming adapters"
     disk_size : "disk size used in trimming adapters step"
   }
@@ -169,7 +169,7 @@ task BWAPairedEndAlignment {
     String read_group_id = "RG1"
     String read_group_sample_name = "RGSN1"
     String output_base_name
-    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504"
+    String docker_image = "dsppipelinedev.azurecr.io/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504"
 
     # Runtime attributes
     Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 400
@@ -187,7 +187,7 @@ task BWAPairedEndAlignment {
     mem_size: "the size of memory used during alignment"
     disk_size : "disk size used in bwa alignment step"
     output_base_name: "basename to be used for the output of the task"
-    docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504)"
+    docker_image: "the docker image using BWA to be used (default: dsppipelinedev.azurecr.io/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504)"
   }
 
   String bam_aligned_output_name = output_base_name + ".aligned.bam"
