@@ -28,6 +28,7 @@ workflow VUMCRealignCram {
 
   input {
     File input_cram
+    String input_cram_suffix = ".cram"
 
     File contamination_sites_ud
     File contamination_sites_bed
@@ -51,7 +52,6 @@ workflow VUMCRealignCram {
     Boolean allow_empty_ref_alt = false
 
     String sample_name
-    Boolean is_cram=true
 
     File contamination_sites_ud
     File contamination_sites_bed
@@ -97,6 +97,7 @@ workflow VUMCRealignCram {
   call RevertSam {
     input:
       input_cram = input_cram,
+      input_cram_suffix = input_cram_suffix,
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,
       ref_dict = ref_dict,
@@ -104,13 +105,13 @@ workflow VUMCRealignCram {
   }
 
   scatter (unmapped_cram in RevertSam.unmapped_crams) {
-    String output_basename = basename(unmapped_cram, ".cram")
+    String output_basename = basename(unmapped_cram, input_cram_suffix)
     Float unmapped_cram_size = size(unmapped_cram, "GB")
 
     call SortSam {
       input:
         input_cram = unmapped_cram,
-        sorted_cram_name = output_basename + ".unmapped.cram",
+        sorted_cram_name = output_basename + ".unmapped" + input_cram_suffix,
         disk_size = ceil(unmapped_cram_size * 6) + additional_disk_size
     }
   }
@@ -120,7 +121,7 @@ workflow VUMCRealignCram {
     final_gvcf_base_name: base_file_name,
     flowcell_unmapped_bams: SortSam.sorted_cram,
     sample_name: sample_name,
-    unmapped_bam_suffix: ".bam"
+    unmapped_bam_suffix: input_cram_suffix
   }
 
   ReferenceFasta reference_fasta = object {
@@ -169,7 +170,7 @@ workflow VUMCRealignCram {
       call VUMCAlignment.SamSplitter as SamSplitter {
         input :
           input_bam = unmapped_bam,
-          is_cram = is_cram,
+          input_bam_suffix = input_cram_suffix,
           n_reads = reads_per_file,
           preemptible_tries = preemptible_tries,
           compression_level = compression_level
@@ -403,6 +404,8 @@ task RevertSam {
   input {
     #Command parameters
     File input_cram
+    String input_cram_suffix
+
     File ref_fasta
     File ref_fasta_index
     File ref_dict
@@ -436,7 +439,7 @@ task RevertSam {
     preemptible: preemptible_attempts
   }
   output {
-    Array[File] unmapped_crams = glob("*.cram")
+    Array[File] unmapped_crams = glob("*" + input_cram_suffix)
   }
 }
 
