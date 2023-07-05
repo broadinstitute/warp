@@ -1,6 +1,6 @@
 ## Announcing a new site for WARP documentation!
 
-Multiome documentation has moved! Read more about the Multiome Pipeline on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
+Multiome documentation has moved! Read more about the Multiome Pipeline (and the ATAC subworkflow) on the new [WARP documentation site](https://broadinstitute.github.io/warp/)!
 
 ### Multiome summary
 
