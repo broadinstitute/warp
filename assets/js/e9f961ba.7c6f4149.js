@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkwebsite_2=self.webpackChunkwebsite_2||[]).push([[6980],{4304:function(a){a.exports=JSON.parse('{"allTagsPath":"/warp/blog/tags","slug":"/warp/blog/tags/warp","name":"warp","count":1,"permalink":"/warp/blog/tags/warp"}')}}]);

@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkwebsite_2=self.webpackChunkwebsite_2||[]).push([[8087],{9583:function(a){a.exports=JSON.parse('{"allTagsPath":"/warp/blog/tags","slug":"/warp/blog/tags/wdl","name":"WDL","count":1,"permalink":"/warp/blog/tags/wdl"}')}}]);

@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwebsite_2=self.webpackChunkwebsite_2||[]).push([[7519],{2937:function(a){a.exports=JSON.parse('{"label":"joint calling","permalink":"/warp/blog/tags/joint-calling","allTagsPath":"/warp/blog/tags","count":1}')}}]);

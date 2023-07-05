@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwebsite_2=self.webpackChunkwebsite_2||[]).push([[2401],{2378:function(e){e.exports=JSON.parse('{"label":"genomes","permalink":"/warp/blog/tags/genomes","allTagsPath":"/warp/blog/tags","count":1}')}}]);
