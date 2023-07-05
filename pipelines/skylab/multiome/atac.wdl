@@ -11,9 +11,9 @@ workflow ATAC {
 
   input {
     # Fastq inputs
-    Array[String] read1_fastq_gzipped
-    Array[String] read2_fastq_gzipped
-    Array[String] read3_fastq_gzipped
+    Array[File] read1_fastq_gzipped
+    Array[File] read2_fastq_gzipped
+    Array[File] read3_fastq_gzipped
 
     # Output prefix/base name for all intermediate files and pipeline outputs
     String input_id
