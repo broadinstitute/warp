@@ -47,7 +47,7 @@ workflow VUMCUnmappedCramToAlignedBam {
     Boolean somatic = false
     Boolean perform_bqsr = true
     Boolean use_bwa_mem = true
-    Boolean allow_empty_ref_alt = false
+    Boolean allow_empty_ref_alt = true
   }
 
   Float cutoff_for_large_rg_in_gb = 20.0

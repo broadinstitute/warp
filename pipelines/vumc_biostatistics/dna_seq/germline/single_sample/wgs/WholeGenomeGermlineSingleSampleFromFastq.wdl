@@ -61,7 +61,7 @@ workflow WholeGenomeGermlineSingleSampleFromFastq {
     Boolean unmap_contaminant_reads = true
     Boolean perform_bqsr = true
     Boolean use_bwa_mem = true
-    Boolean allow_empty_ref_alt = false
+    Boolean allow_empty_ref_alt = true
     Boolean use_dragen_hard_filtering = false
   }
 

@@ -33,7 +33,7 @@ task SamToFastqAndBwaMemAndMba {
     Int preemptible_tries
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
-    Boolean allow_empty_ref_alt = false
+    Boolean allow_empty_ref_alt = true
     # if input is cram, we will need to increase the disk multiplier to 5
     Float disk_multiplier = 5
   }

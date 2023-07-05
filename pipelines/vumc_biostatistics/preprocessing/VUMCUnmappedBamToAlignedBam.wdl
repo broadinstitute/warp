@@ -46,7 +46,7 @@ workflow VUMCUnmappedBamToAlignedBam {
     Boolean bin_base_qualities = true
     Boolean somatic = false
     Boolean perform_bqsr = true
-    Boolean allow_empty_ref_alt = false
+    Boolean allow_empty_ref_alt = true
 
     Array[File] flowcell_unmapped_bams
     String sample_name

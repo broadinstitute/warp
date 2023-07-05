@@ -44,7 +44,7 @@ workflow VUMCSplitLargeReadGroup {
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
     Boolean use_bwa_mem = true
-    Boolean allow_empty_ref_alt = false
+    Boolean allow_empty_ref_alt = true
   }
 
   call VUMCAlignment.SamSplitter as SamSplitter {
