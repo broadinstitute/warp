@@ -9,7 +9,7 @@ task CalculateCellMetrics {
 
     # runtime values
 
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679941323"
+    String docker = "dsppipelinedev.azurecr.io/warp-tools:1.0.3"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
@@ -86,7 +86,7 @@ task CalculateGeneMetrics {
     String input_id
     # runtime values
 
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679941323"
+    String docker = "dsppipelinedev.azurecr.io/warp-tools:1.0.3"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 
@@ -153,7 +153,7 @@ task CalculateUMIsMetrics {
     File? mt_genes
     String input_id
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679490798"
+    String docker = "dsppipelinedev.azurecr.io/warp-tools:1.0.3"
     Int machine_mem_mb = 16000
     Int cpu = 8
     Int disk = ceil(size(bam_input, "Gi") * 4)
@@ -219,7 +219,7 @@ task FastqMetricsSlideSeq {
 
 
     # Runtime attributes
-    String docker =  "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679490798"
+    String docker =  "dsppipelinedev.azurecr.io/warp-tools:1.0.3"
     Int cpu = 16
     Int machine_mb = 40000
     Int disk = ceil(size(r1_fastq, "GiB")*3)  + 50
@@ -294,7 +294,7 @@ task DropseqMetrics {
     
   >>>
   runtime {
-	docker: "us.gcr.io/broad-gotc-prod/dropseq-picard:1.0.0-2.5.3-1686757901"
+	docker: "dsppipelinedev.azurecr.io/dropseq-picard:1.0.0-2.5.3-1686757901"
     disks: "local-disk ${disk_size} HDD"
     memory: "${mem_size} GiB"
   }
