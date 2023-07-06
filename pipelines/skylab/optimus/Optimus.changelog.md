@@ -1,7 +1,14 @@
-# 5.8.3
-2023-05-31 (Date of Last Commit)
 
-* Updated the FastqProcessing.wdl. This update has no impact on the Optimus workflow.
+# 5.8.3
+2023-06-23 (Date of Last Commit)
+
+* Updated STARsolo version to v2.7.10b for the StarsoloFastq task
+* Updated STARsolo argument for counting mode to GeneFull_Ex50pAS 
+* Updated the FastqProcessing.wdl. This update has no impact on the Optimus workflow
+* Added h5ad as a format option for the cell by gene matrix output. The h5ad has the same layers and global attributes (unstructured data in h5ad) as the previous Loom output
+* Added Dropseq cell metrics to Multiome and Optimus workflows
+* Updated the FastqProcessing.wdl for ATAC. This update has no impact on the Optimus workflow 
+
 
 # 5.8.2
 2023-05-11 (Date of Last Commit)

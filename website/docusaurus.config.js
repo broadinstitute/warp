@@ -15,7 +15,8 @@ module.exports = {
     path.resolve(__dirname, 'plugins/docusaurus-plugin-hotjar')
   ],
   themeConfig: {
-    hideableSidebar: true,
+   // docs:
+    //  sidebar.hideable: true,
     navbar: {
       title: 'WARP Pipelines',
       // logo: {
@@ -87,21 +88,20 @@ module.exports = {
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Copyright © Data Sciences Platform, Broad Institute.`,
     },
-    googleAnalytics: {
-      trackingID: 'UA-181048107-1',
-      // the Google Analytics Tracking ID
-      anonymizeIP: true, // Should IPs be anonymized?
-    },
-    algolia: {
-      apiKey: '57c6f6f64593f4fbec4c87a98d80f7e8',
-      indexName: 'broadinstitute',
-      contextualSearch: false,
-    },
+    //algolia: {
+     // apiKey: '57c6f6f64593f4fbec4c87a98d80f7e8',
+      //indexName: 'broadinstitute',
+      //contextualSearch: false,
+    //},
   },
   presets: [
     [
       '@docusaurus/preset-classic',
       {
+        gtag: {
+          trackingID: 'G-NZ4BLRHQYS',
+          anonymizeIP: true,
+        },
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
