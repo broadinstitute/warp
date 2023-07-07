@@ -319,6 +319,7 @@ task STARsoloFastq {
       --outSAMtype BAM SortedByCoordinate \
       --outSAMattributes UB UR UY CR CB CY NH GX GN \
       --soloBarcodeReadLength 0
+      --soloCellReadStats Standard
     fi
 
     STAR \
@@ -338,6 +339,7 @@ task STARsoloFastq {
       --outSAMtype BAM SortedByCoordinate \
       --outSAMattributes UB UR UY CR CB CY NH GX GN \
       --soloBarcodeReadLength 0
+      --soloCellReadStats Standard
 
     touch barcodes_sn_rna.tsv
     touch features_sn_rna.tsv
