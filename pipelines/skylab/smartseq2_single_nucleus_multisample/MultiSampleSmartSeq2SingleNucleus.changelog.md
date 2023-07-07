@@ -1,3 +1,8 @@
+# 1.2.25
+2023-07-07 (Date of Last Commit)
+
+* Changed Pytools container to Warp-tools in LoomUtils, and updated command paths accordingly
+
 # 1.2.24
 2023-06-23 (Date of Last Commit)
 
