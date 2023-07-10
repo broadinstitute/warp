@@ -54,7 +54,7 @@ task Demultiplexing {
     File random_primer_indexes
     String plate_id
 
-    String docker_image = "nikellepetrillo/yap-hisat:v8"
+    String docker_image = "us.gcr.io/broad-gotc-prod/hisat3n:1.0.0-2.2.1"
     Int disk_size = 50
     Int mem_size = 10
   }
@@ -134,7 +134,7 @@ task Mapping {
     File genome_fa
     String plate_id
 
-    String docker_image = "nikellepetrillo/yap-hisat:v8"
+    String docker_image = "us.gcr.io/broad-gotc-prod/hisat3n:1.0.0-2.2.1"
     Int disk_size = 200
     Int mem_size = 500
   }
