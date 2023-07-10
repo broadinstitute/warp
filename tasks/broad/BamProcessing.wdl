@@ -74,7 +74,8 @@ task MarkDuplicates {
     # Sometimes we wish to supply "null" in order to turn off optical duplicate detection
     # This can be desirable if you don't mind the estimated library size being wrong and optical duplicate detection is taking >7 days and failing
     String? read_name_regex
-    Int memory_multiplier = 2
+    #SQH: don't increate memory_multiplier
+    Int memory_multiplier = 1 
     Int additional_disk = 20
 
     # Default is 0.25, however, it causes memory issue in Terra. Setting it to 0.1 to avoid memory issue.
@@ -94,7 +95,7 @@ task MarkDuplicates {
   # While query-grouped isn't actually query-sorted, it's good enough for MarkDuplicates with ASSUME_SORT_ORDER="queryname"
 
   command {
-    java -Dsamjdk.compression_level=~{compression_level} -Xms~{java_memory_size}g -jar /usr/picard/picard.jar \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms~{java_memory_size}g  -Xmx~{java_memory_size}g -jar /usr/picard/picard.jar \
       MarkDuplicates \
       INPUT=~{sep=' INPUT=' input_bams} \
       OUTPUT=~{output_bam_basename}.bam \
