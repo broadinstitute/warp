@@ -318,7 +318,7 @@ task STARsoloFastq {
       --soloUMIdedup 1MM_Directional_UMItools \
       --outSAMtype BAM SortedByCoordinate \
       --outSAMattributes UB UR UY CR CB CY NH GX GN \
-      --soloBarcodeReadLength 0
+      --soloBarcodeReadLength 0 \
       --soloCellReadStats Standard
     fi
 
@@ -338,7 +338,7 @@ task STARsoloFastq {
       --soloUMIdedup 1MM_Directional_UMItools \
       --outSAMtype BAM SortedByCoordinate \
       --outSAMattributes UB UR UY CR CB CY NH GX GN \
-      --soloBarcodeReadLength 0
+      --soloBarcodeReadLength 0 \
       --soloCellReadStats Standard
 
     touch barcodes_sn_rna.tsv
@@ -369,6 +369,8 @@ task STARsoloFastq {
       echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
     fi
     mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
+    # print contents
+    ls
 
   >>>
 
