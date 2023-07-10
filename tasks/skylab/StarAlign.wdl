@@ -371,6 +371,8 @@ task STARsoloFastq {
     mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
     # print contents
     ls
+    ls Solo.out/GeneFull_Ex50pAS/raw/
+    ls Solo.out/GeneFull_Ex50pAS/
 
   >>>
 
