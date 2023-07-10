@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/Optimus_Pipeline/README
 ---
 
 # Optimus Overview
