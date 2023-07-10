@@ -52,7 +52,7 @@ workflow BuildIndices {
   output {
     File snSS2_star_index = BuildStarSingleNucleus.star_index
     String pipeline_version_out = "BuildIndices_v~{pipeline_version}"
-    #File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
+    File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
     File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
     File reference_bundle = BuildBWAreference.reference_bundle
     File chromosome_sizes = CalculateChromosomeSizes.chrom_sizes
@@ -121,6 +121,24 @@ task BuildStarSingleNucleus {
 
     set -eo pipefail
 
+    # Remove version suffix from transcript, gene, and exon IDs in order to match
+    # previous Cell Ranger reference packages
+    #
+    # Input GTF:
+    #     ... gene_id "ENSG00000223972.5"; ...
+    # Output GTF:
+    #     ... gene_id "ENSG00000223972"; gene_version "5"; ...
+
+    gtf_modified="$(basename ~{annotation_gtf}).modified"
+    # Pattern matches Ensembl gene, transcript, and exon IDs for human or mouse:
+    ID="(ENS(MUS)?[GTE][0-9]+)\.([0-9]+)"
+    cat ~{annotation_gtf} \
+        | sed -E 's/gene_id "'"$ID"'";/gene_id "\1"; gene_version "\3";/' \
+        | sed -E 's/transcript_id "'"$ID"'";/transcript_id "\1"; transcript_version "\3";/' \
+        | sed -E 's/exon_id "'"$ID"'";/exon_id "\1"; exon_version "\3";/' \
+        > "$gtf_modified"
+
+
     # Define string patterns for GTF tags
     # NOTES:
     # - Since GENCODE release 31/M22 (Ensembl 97), the "lincRNA" and "antisense"
@@ -134,17 +152,16 @@ task BuildStarSingleNucleus {
     #   - Only the X chromosome versions of genes in the pseudoautosomal regions
     #     are present, so there is no "PAR" tag.
 
-    # I added lnc_RNA to the biotype pattern, but I'm not sure if that's correct
     BIOTYPE_PATTERN=\
     "(protein_coding|lncRNA|\
     IG_C_gene|IG_D_gene|IG_J_gene|IG_LV_gene|IG_V_gene|\
     IG_V_pseudogene|IG_J_pseudogene|IG_C_pseudogene|\
     TR_C_gene|TR_D_gene|TR_J_gene|TR_V_gene|\
-    TR_V_pseudogene|TR_J_pseudogene|lnc_RNA)"
-
-    GENE_PATTERN="gene_biotype \"${BIOTYPE_PATTERN}\""
-
-    TX_PATTERN="transcript_biotype \"${BIOTYPE_PATTERN}\""
+    TR_V_pseudogene|TR_J_pseudogene)"
+    GENE_PATTERN="gene_type \"${BIOTYPE_PATTERN}\""
+    TX_PATTERN="transcript_type \"${BIOTYPE_PATTERN}\""
+    READTHROUGH_PATTERN="tag \"readthrough_transcript\""
+    PAR_PATTERN="tag \"PAR\""
 
 
     # Construct the gene ID allowlist. We filter the list of all transcripts
@@ -156,11 +173,12 @@ task BuildStarSingleNucleus {
     # We then collect the list of gene IDs that have at least one associated
     # transcript passing the filters.
 
-    # I added transcript and exon to the awk command, but I'm not sure if that's correct
-    echo "Constructing gene ID allowlist..."
-    cat ~{annotation_gtf} \
-        | awk '$3 == "transcript" || $3 == "gene" || $3 == "exon"' \
-        | grep -E "($GENE_PATTERN|$TX_PATTERN)" \
+    cat "$gtf_modified" \
+        | awk '$3 == "transcript"' \
+        | grep -E "$GENE_PATTERN" \
+        | grep -E "$TX_PATTERN" \
+        | grep -Ev "$READTHROUGH_PATTERN" \
+        | grep -Ev "$PAR_PATTERN" \
         | sed -E 's/.*(gene_id "[^"]+").*/\1/' \
         | sort \
         | uniq \
@@ -173,16 +191,15 @@ task BuildStarSingleNucleus {
 
     # Copy header lines beginning with "#"
 
-    grep -E "^#"  ~{annotation_gtf} > "$gtf_filtered"
+    grep -E "^#" "$gtf_modified" > "$gtf_filtered"
 
     # Filter to the gene allowlist
 
-    grep -Ff "gene_allowlist" ~{annotation_gtf} >> ~{annotation_gtf_modified}
+    grep -Ff "gene_allowlist" "$gtf_modified" >> "$gtf_filtered"
     ls -lh *
 
-    sed -i -e 's/ gene / gene_name /g' ~{annotation_gtf_modified}
 
-    #python3  /script/add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_introns}
+    python3  /script/add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_introns}
 
     mkdir star
     STAR --runMode genomeGenerate \
@@ -198,7 +215,7 @@ task BuildStarSingleNucleus {
 
   output {
     File star_index = star_index_name
-    #File annotation_gtf_modified_introns = annotation_gtf_introns
+    File annotation_gtf_modified_introns = annotation_gtf_introns
     File modified_annotation_gtf = annotation_gtf_modified
   }
 
@@ -226,7 +243,7 @@ task BuildBWAreference {
     String organism
   }
 
-String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{genome_build}"
+    String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{genome_build}"
 
   command <<<
     mkdir genome
@@ -254,5 +271,3 @@ String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{gen
     File reference_bundle = "~{reference_name}.tar"
   }
 }
-
-
