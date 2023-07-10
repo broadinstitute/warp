@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/SlideSeq_Pipeline/README
 ---
 
 # Slide-seq Overview
