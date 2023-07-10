@@ -225,7 +225,7 @@ task STARsoloFastq {
     Boolean? count_exons
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.10b-1685556218"
+    String docker = "us.gcr.io/broad-gotc-prod/star:lk-star-solo-2.7.10b-alpha"
     Int machine_mem_mb = 64000
     Int cpu = 8
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -317,7 +317,7 @@ task STARsoloFastq {
       --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
       --soloUMIdedup 1MM_Directional_UMItools \
       --outSAMtype BAM SortedByCoordinate \
-      --outSAMattributes UB UR UY CR CB CY NH GX GN \
+      --outSAMattributes UB UR UY CR CB CY NH GX GN sF\
       --soloBarcodeReadLength 0
     fi
 
@@ -336,7 +336,7 @@ task STARsoloFastq {
       --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
       --soloUMIdedup 1MM_Directional_UMItools \
       --outSAMtype BAM SortedByCoordinate \
-      --outSAMattributes UB UR UY CR CB CY NH GX GN \
+      --outSAMattributes UB UR UY CR CB CY NH GX GN sF\
       --soloBarcodeReadLength 0
 
     touch barcodes_sn_rna.tsv
