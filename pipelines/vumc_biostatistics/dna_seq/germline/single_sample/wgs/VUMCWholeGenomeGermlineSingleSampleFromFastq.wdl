@@ -36,11 +36,11 @@ workflow VUMCWholeGenomeGermlineSingleSampleFromFastq {
     String fastq_1 
     String fastq_2 
     String readgroup_name 
-    String library_name 
-    String platform_unit 
-    String run_date 
-    String platform_name 
-    String sequencing_center 
+    String? library_name 
+    String? platform_unit 
+    String? run_date 
+    String? platform_name 
+    String? sequencing_center 
 
     # Optional for BROAD pipeline
     DNASeqSingleSampleReferences references
@@ -189,11 +189,11 @@ task PairedFastQsToUnmappedBAM {
     File fastq_1
     File fastq_2
     String readgroup_name
-    String library_name
-    String platform_unit
-    String run_date
-    String platform_name
-    String sequencing_center
+    String? library_name 
+    String? platform_unit 
+    String? run_date 
+    String? platform_name 
+    String? sequencing_center 
 
     # Runtime parameters
     Int addtional_disk_space_gb = 100
@@ -216,13 +216,13 @@ task PairedFastQsToUnmappedBAM {
       --FASTQ ~{fastq_1} \
       --FASTQ2 ~{fastq_2} \
       --OUTPUT ~{sample_name}.unmapped.bam \
-      --READ_GROUP_NAME ~{readgroup_name} \
       --SAMPLE_NAME ~{sample_name} \
-      --LIBRARY_NAME ~{library_name} \
-      --PLATFORM_UNIT ~{platform_unit} \
-      --RUN_DATE ~{run_date} \
-      --PLATFORM ~{platform_name} \
-      --SEQUENCING_CENTER ~{sequencing_center} 
+      ~{"--LIBRARY_NAME " + library_name} \
+      ~{"--PLATFORM_UNIT " + platform_unit} \
+      ~{"--RUN_DATE " + run_date} \
+      ~{"--PLATFORM " + platform_name} \
+      ~{"--SEQUENCING_CENTER " + sequencing_center} \
+      --READ_GROUP_NAME ~{readgroup_name}
   }
   runtime {
     docker: docker
