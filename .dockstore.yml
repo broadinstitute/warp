@@ -103,3 +103,7 @@ workflows:
   - name: WholeGenomeGermlineSingleSampleFromCram
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSampleFromCram.wdl
+
+  - name: VUMCWholeGenomeGermlineSingleSampleFromFastq
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCWholeGenomeGermlineSingleSampleFromFastq.wdl
