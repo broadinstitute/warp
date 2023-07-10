@@ -30,10 +30,6 @@ workflow VUMCRealignCram {
     File input_cram
     String input_cram_suffix = ".cram"
 
-    File contamination_sites_ud
-    File contamination_sites_bed
-    File contamination_sites_mu
-
     String cross_check_fingerprints_by = "READGROUP"
     Float lod_threshold = -20.0
     File haplotype_database_file

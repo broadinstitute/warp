@@ -199,12 +199,12 @@ task RevertSam {
     Int preemptible_attempts = 3
 
     Float disk_multiplier = 3
-    Float additional_disk_size = 10
+    Int additional_disk_size = 10
 
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
-  
-  Int disk_size = size(input_cram, "GB") * disk_multiplier + additional_disk_size
+
+  Int disk_size = ceil(size(input_cram, "GB") * disk_multiplier + additional_disk_size)
   Int command_mem_gb = machine_mem_gb - 1    ####Needs to occur after machine_mem_gb is set 
 
   command { 
@@ -238,15 +238,15 @@ task SortSam {
     String sorted_bam_name
 
     #Runtime parameters
-    Int machine_mem_gb = 4
+    Int machine_mem_gb = 10
     Int preemptible_attempts = 3
 
-    Float disk_multiplier = 5
-    Float additional_disk_size = 10
+    Float disk_multiplier = 6
+    Int additional_disk_size = 10
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
 
-  Int disk_size = size(input_cram, "GB") * disk_multiplier + additional_disk_size
+  Int disk_size = ceil(size(input_cram, "GB") * disk_multiplier + additional_disk_size)
   Int command_mem_gb = machine_mem_gb - 1    ####Needs to occur after machine_mem_gb is set 
 
   command {

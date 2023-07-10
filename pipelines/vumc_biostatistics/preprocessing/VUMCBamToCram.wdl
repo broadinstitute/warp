@@ -29,10 +29,10 @@ task BamToCram {
     File ref_fasta
     String sample_name
     Int machine_mem_gb = 4
-    Float additional_disk_size = 20
+    Int additional_disk_size = 20
     Float disk_multiplier = 2.5
   }
-  Int disk_size = ceil(size(input_bam, "GB")) * disk_multiplier + additional_disk_size
+  Int disk_size = ceil(size(input_bam, "GB") * disk_multiplier + additional_disk_size)
 
   String output_name = "~{sample_name}.cram"
 
