@@ -19,10 +19,10 @@
     "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L007_R2_001.fastq.gz",
     "gs://broad-gotc-test-storage/Optimus/input/plumbing/mouse_v2/nuclei_2k_S1_L008_R2_001.fastq.gz"
   ],
-  "Optimus.whitelist": "gs://broad-gotc-test-storage/Optimus/truth/plumbing/master/inputs/737K-august-2016.txt",
   "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/mm10/v0/star/star_2.7.9a_primary_gencode_mouse_vM21.tar",
   "Optimus.input_id": "nuclei_2k_mouse",
-  "Optimus.chemistry": "tenX_v2",
+  "Optimus.tenx_chemistry_version": "2",
+  "Optimus.star_strand_mode": "Unstranded",
   "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.gtf",
   "Optimus.ref_genome_fasta": "gs://gcp-public-data--broad-references/mm10/v0/GRCm38.primary_assembly.genome.fa",
   "Optimus.counting_mode": "sn_rna",

@@ -1,3 +1,19 @@
+# 2.6.19
+2023-03-20 (Date of Last Commit)
+
+* CheckFingerprint can allow LOD 0
+
+# 2.6.18
+2023-01-13 (Date of Last Commit)
+
+* Updated remaining uses of GATK to version 4.3.0.0
+
+# 2.6.17
+2022-11-29 (Date of Last Commit)
+
+* Updated InternalArraysTasks.wdl for BroadInternalArrays - adding `lab_batch` as workflow input.
+* Updated to GATK version 4.3.0.0
+
 # 2.6.16
 2022-11-08 (Date of Last Commit)
 

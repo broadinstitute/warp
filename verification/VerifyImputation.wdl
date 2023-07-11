@@ -79,10 +79,15 @@ workflow VerifyImputation {
   }
 
   if (split_output_to_single_sample) {
+    call ImputationTasks.CountSamples {
+      input:
+        vcf = test_vcf
+    }
     call ImputationTasks.SplitMultiSampleVcf {
       input:
         multiSampleVcf = test_vcf,
-        bcftools_docker = bcftools_docker_tag
+        bcftools_docker = bcftools_docker_tag,
+        nSamples = CountSamples.nSamples
     }
 
     call CrosscheckFingerprints as CrosscheckFingerprintsSplit {

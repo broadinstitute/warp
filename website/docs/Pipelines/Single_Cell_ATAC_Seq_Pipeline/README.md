@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/Single_Cell_ATAC_Seq_Pipeline/README
 ---
 
 # scATAC Overview
@@ -75,7 +76,7 @@ The [scATAC workflow](https://github.com/broadinstitute/warp/blob/master/pipelin
 | AlignPairedEnd | Align the modified FASTQ files to the genome | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
 | SnapPre | Initial generation of snap file | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
 | SnapCellByBin | Binning of data by genomic bins | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
-| MakeCompliantBAM | Generation of a GA4GH compliant BAM | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [Code](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/makeCompliantBAM.py) |
+| MakeCompliantBAM | Generation of a GA4GH compliant BAM | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [Code](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/pytools/tools/makeCompliantBAM.py) |
 | BreakoutSnap | Extraction of tables from snap file into text format (for testing and user availability) | [snap-breakout:0.0.1](https://github.com/broadinstitute/warp/tree/master/dockers/skylab/snap-breakout) | [Code](https://github.com/broadinstitute/warp/tree/master/dockers/skylab/snap-breakout/breakoutSnap.py) |
 
 ### Task Summary
@@ -108,7 +109,7 @@ The SnapCellByBin task uses the Snap file to create cell-by-bin count matrices i
 
 #### MakeCompliantBAM
 
-The MakeCompliantBAM task uses a [custom python script (here)](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/makeCompliantBAM.py) to make a GA4GH compliant BAM by moving the cellular barcodes in the read names to the CB tag.
+The MakeCompliantBAM task uses a [custom python script (here)](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/pytools/tools/makeCompliantBAM.py) to make a GA4GH compliant BAM by moving the cellular barcodes in the read names to the CB tag.
 
 #### BreakoutSnap
 

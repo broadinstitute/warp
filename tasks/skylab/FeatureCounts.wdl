@@ -29,8 +29,19 @@ task CountAlignments {
 
   command <<<
     set -e
-    declare -a bam_files=(~{sep=' ' aligned_bam_inputs})
+
+    declare -a bam_file_paths=(~{sep=' ' aligned_bam_inputs})
     declare -a output_prefix=(~{sep=' ' input_ids})
+
+    # move the bam files to get around the issue of long file paths causing a segfault in featureCounts
+    declare -a bam_files
+    for filepath in ${bam_file_paths[@]};
+      do
+        filename="$(basename $filepath)"
+        mv $filepath $filename
+        bam_files+=("$filename")
+      done;
+
     for (( i=0; i<${#bam_files[@]}; ++i));
       do
         # counting the introns
@@ -57,6 +68,7 @@ task CountAlignments {
     docker: docker
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
+    disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }

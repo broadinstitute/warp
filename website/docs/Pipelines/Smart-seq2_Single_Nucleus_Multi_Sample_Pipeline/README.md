@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/Smart-seq2_Single_Nucleus_Multi_Sample_Pipeline/README
 ---
 
 # Smart-seq2 Single Nucleus Multi-Sample Overview
@@ -106,8 +107,8 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | [Picard.RemoveDuplicatesFromBam](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/Picard.wdl) | MarkDuplicates, AddOrReplaceReadGroups | [Picard](https://broadinstitute.github.io/picard/) | Removes duplicate reads, producing a new BAM output; adds regroups to deduplicated BAM. |
 | [Picard.CollectMultipleMetricsMultiSample](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/Picard.wdl) | CollectMultipleMetrics | [Picard](https://broadinstitute.github.io/picard/) | Collects QC metrics on the deduplicated BAM files. |
 | [CountAlignments.CountAlignments](https://github.com/broadinstitute/warp/tree/master/tasks/skylab/FeatureCounts.wdl) | FeatureCounts | [Subread](http://subread.sourceforge.net/), Python 3 | Uses a custom GTF with featureCounts and Python to mark introns, create a BAM that has alignments spanning intron-exon junctions removed, and counts exons using the custom BAM and by excluding intron tags. |
-| [LoomUtils.SingleNucleusSmartSeq2LoomOutput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | Custom script: [ss2_loom_merge.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/ss2_loom_merge.py) | Python 3 | Creates the matrix files (Loom format) for each sample. |
-| [LoomUtils.AggregateSmartSeq2Loom](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | Custom script: [ss2_loom_merge.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/loom-output/ss2_loom_merge.py) | Python 3 | Aggregates the matrix files (Loom format) for each sample to produce one final Loom output. |
+| [LoomUtils.SingleNucleusSmartSeq2LoomOutput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | Custom script: [ss2_loom_merge.py](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/pytools/tools/ss2_loom_merge.py) | Python 3 | Creates the matrix files (Loom format) for each sample. |
+| [LoomUtils.AggregateSmartSeq2Loom](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | Custom script: [ss2_loom_merge.py](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/pytools/tools/ss2_loom_merge.py) | Python 3 | Aggregates the matrix files (Loom format) for each sample to produce one final Loom output. |
 
 #### 1. Trimming adapters
 The TrimAdapters task uses the adapter list reference file to run the [fastq-mcf](https://github.com/ExpressionAnalysis/ea-utils/tree/master/clipper) tool. This tool identifies the adapters in the input FASTQ files and performs clipping by using a subsampling parameter of 200,000 reads. The task outputs the trimmed FASTQ files which are then used for alignment. 
@@ -119,7 +120,7 @@ The StarAlignFastq task runs the STAR aligner on the trimmed FASTQ files. The ST
 The RemoveDuplicatesFromBam task removes multi-mapped reads, optical duplicates, and PCR duplicates from the aligned BAM. It then adds readgroup information and creates a new, coordinate-sorted aligned BAM output.
 
 #### 4. Collecting metrics
-The CollectMultipleMetrics task uses the Picard tool CollectMultipleMetrics to perform QC on the deduplicated BAM file. These metrics are copied to the final cell-by-gene matrix output (Loom file).
+The CollectMultipleMetrics task uses the Picard tool CollectMultipleMetrics to perform QC on the deduplicated BAM file. These metrics are copied to the final cell-by-gene matrix output (Loom file). A detailed list of these metrics can be found in the [Multi-snSS2 Count Matrix Overview](./count-matrix-overview.md).
 
 #### 5. Counting genes
 The CountAlignments task uses the featureCounts package to count introns and exons. First, the featureCounts tool counts intronic alignments in the deduplicated BAM using a custom GTF with annotated introns. The tool flags intronic alignments if they overlap an annotated intron by a minimum of 3 bp. 
@@ -130,6 +131,8 @@ Lastly, featureCounts uses the intermediate BAM with junctions removed to count 
 
 #### 6. Creating the Loom cell by gene matrix
 The LoomUtils task combines the Picard metrics (alignment_summary_metrics, deduplication metrics, and the G/C bias summary metrics) with the featureCount exon and intron counts to create a Loom formatted cell-by-gene count matrix. 
+
+Read full details for all the metrics in the [Multi-snSS2 Count Matrix Overview](./count-matrix-overview.md).
 
 The cell-by-gene matrix can be examined using [Loompy software](https://linnarssonlab.org/loompy/index.html). Exonic counts are stored in the main Loom matrix which is unnamed by default. They are the default return value of the `loompy.connect()` command. Intronic counts are stored in the Loom as an additional layer which is named `intron_counts`.
 
@@ -160,7 +163,11 @@ The table below details the final outputs of the Multi-snSS2 workflow.
 | bam_files | Array of genome-aligned BAM files (one for each cell) generated with STAR.  | Array [BAM]|
 | pipeline_version_out | Version of the processing pipeline run on this data. | String |
 
+The Loom matrix is the default output. See the [create_loom_snss2.py](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/create_loom_snss2.py) script for the detailed code. This matrix contains the count matrices, as well as the gene and cell metrics detailed in the [Multi-snSS2 Count Matrix Overview](./count-matrix-overview.md).
+
 To facilitate downstream analysis, the output Loom file contains both gene names and gene IDs.
+
+The output Loom matrix can be converted to an H5AD file using a [custom script](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/loom_to_h5ad.py) available in the [warp-tools GitHub repository](https://github.com/broadinstitute/warp-tools).
 
 ## Validation
 The Multi-snSS2 pipeline was scientifically validated by the BRAIN Initiatives Cell Census Network (BICCN) 2.0 Whole Mouse Brain Working Group. 
@@ -179,7 +186,7 @@ This pipeline is supported and used by the [BRAIN Initiative Cell Census Network
 
 Each consortia may use slightly different reference files for data analysis or have different post-processing steps. Learn more by reading the [Consortia Processing](./consortia-processing.md) overview.
 
-If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org).
+If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org).
 
 ## Feedback
-Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
+Please help us make our tools better by contacting the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.

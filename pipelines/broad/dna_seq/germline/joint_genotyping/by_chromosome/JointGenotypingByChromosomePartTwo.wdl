@@ -5,7 +5,7 @@ import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 # Joint Genotyping for hg38 Exomes and Whole Genomes (has not been tested on hg19)
 workflow JointGenotypingByChromosomePartTwo {
 
-  String pipeline_version = "1.4.6"
+  String pipeline_version = "1.4.9"
 
   input {
     String callset_name
@@ -87,7 +87,7 @@ workflow JointGenotypingByChromosomePartTwo {
     input:
       input_vcfs = sites_only_vcfs,
       output_vcf_name = callset_name + ".sites_only.vcf.gz",
-      disk_size = medium_disk
+      disk_size_gb = medium_disk
   }
 
   if (use_gnarly_genotyper && make_annotation_db) {
@@ -97,7 +97,7 @@ workflow JointGenotypingByChromosomePartTwo {
       input:
         input_vcfs = annotation_db_vcfs,
         output_vcf_name = callset_name + ".annotationDB.vcf.gz",
-        disk_size = medium_disk
+        disk_size_gb = medium_disk
     }
   }
 
@@ -116,7 +116,7 @@ workflow JointGenotypingByChromosomePartTwo {
       dbsnp_resource_vcf = dbsnp_resource_vcf,
       dbsnp_resource_vcf_index = dbsnp_resource_vcf_index,
       use_allele_specific_annotations = allele_specific_annotations,
-      disk_size = small_disk
+      disk_size_gb = small_disk
   }
 
   call Tasks.SNPsVariantRecalibrator as SNPsVariantRecalibratorClassic {
@@ -136,7 +136,7 @@ workflow JointGenotypingByChromosomePartTwo {
       dbsnp_resource_vcf = dbsnp_resource_vcf,
       dbsnp_resource_vcf_index = dbsnp_resource_vcf_index,
       use_allele_specific_annotations = allele_specific_annotations,
-      disk_size = small_disk
+      disk_size_gb = small_disk
   }
 
   scatter (idx in range(length(sites_only_vcfs))) {
@@ -155,7 +155,7 @@ workflow JointGenotypingByChromosomePartTwo {
         indel_filter_level = indel_filter_level,
         snp_filter_level = snp_filter_level,
         use_allele_specific_annotations = allele_specific_annotations,
-        disk_size = medium_disk
+        disk_size_gb = medium_disk
     }
   }
 
@@ -170,7 +170,7 @@ workflow JointGenotypingByChromosomePartTwo {
         dbsnp_vcf_index = dbsnp_vcf_index,
         interval_list = eval_interval_list,
         ref_dict = ref_dict,
-        disk_size = medium_disk
+        disk_size_gb = medium_disk
     }
   }
 
@@ -179,7 +179,7 @@ workflow JointGenotypingByChromosomePartTwo {
       input_details = CollectMetricsSharded.detail_metrics_file,
       input_summaries = CollectMetricsSharded.summary_metrics_file,
       output_prefix = callset_name,
-      disk_size = medium_disk
+      disk_size_gb = medium_disk
   }
 
   call Tasks.PartitionSampleNameMap {
@@ -207,7 +207,7 @@ workflow JointGenotypingByChromosomePartTwo {
     input:
       metrics_files = CrossCheckFingerprintsScattered.crosscheck_metrics,
       output_file_name = callset_name + ".fingerprintcheck",
-      disk_size = small_disk
+      disk_size_gb = small_disk
   }
 
   output {

@@ -59,6 +59,8 @@ function pipeline_to_args() {
       continue;;
     JointGenotypingByChromosomePartTwo)
       continue;;
+    Multiome)
+      echo Multiome ${common_args};;
     MultiSampleArrays)
       echo MultiSampleArrays ${common_args};;
     MultiSampleSmartSeq2)
@@ -85,6 +87,8 @@ function pipeline_to_args() {
       else
         echo scATAC ${common_args}
       fi;;
+    SlideSeq)
+        echo SlideSeq ${common_args};;
     SmartSeq2SingleSample)
       if [[ "${test}" == "Scientific" ]]; then
         echo SmartSeq2SingleSample Plumbing

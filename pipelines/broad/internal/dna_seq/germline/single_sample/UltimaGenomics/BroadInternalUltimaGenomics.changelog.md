@@ -1,3 +1,20 @@
+# 1.0.9
+2023-03-20 (Date of Last Commit)
+
+* CheckFingerprint can allow LOD 0
+
+# 1.0.8
+2023-01-13 (Date of Last Commit)
+
+* Updated remaining uses of GATK to version 4.3.0.0
+
+# 1.0.7
+2022-11-04 (Date of Last Commit)
+
+* Updated GATK verison to 4.3.0.0. This includes several bug fixes in HaplotypeCaller.
+* Added UG High Quality interval list to single sample random forest filtering
+* Changed cutoff QUAL value in GVCF->VCF conversion from 0 to 30. This removes lower quality sites from single sample random forest filtering and from the final VCF since sites that aren't scored by the random forest are removed in ReblockGVCFs.
+
 # 1.0.6
 2022-11-08 (Date of Last Commit)
 

@@ -1,3 +1,23 @@
+# 1.4.10
+2023-06-29 (Date of Last Commit)
+
+* Added extra_args input to the SplitIntervalList task to support the JointGenotypingTasks.wdl
+
+# 1.4.9
+2023-05-23 (Date of Last Commit)
+
+* Made disk and memory available as inputs to the JointGenotypingTasks.wdl.
+
+# 1.4.8
+2023-04-05 (Date of Last Commit)
+
+* Updated a check for an empty file produced in the GetFingerprintingIntervalIndices task
+
+# 1.4.7
+2022-11-04 (Date of Last Commit)
+
+* Updated GATK verison to 4.3.0.0
+
 # 1.4.6
 2022-08-26 (Date of Last Commit)
 

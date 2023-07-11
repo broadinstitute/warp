@@ -1,3 +1,24 @@
+# 1.1.3
+2023-03-20 (Date of Last Commit)
+
+* CheckFingerprint can allow LOD 0
+
+# 1.1.2
+2023-01-13 (Date of Last Commit)
+
+* Updated remaining uses of GATK to version 4.3.0.0
+
+# 1.1.1
+2022-12-16 (Date of Last Commit)
+
+* Updated to GATK version 4.3.0.0
+
+# 1.1.0
+2022-11-21 (Date of Last Commit)
+
+* add `lab_batch` as required input paramater to workflow BroadInternalArrays
+* add `lab_batch` to task FormatArraysOutputs
+
 # 1.0.9 
 2022-11-08 (Date of Last Commit)
 

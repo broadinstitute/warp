@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/README
 ---
  
 # Whole Genome Germline Single Sample Overview
@@ -62,7 +63,7 @@ The **dragen_maximum_quality_mode** runs the pipeline using the DRAGMAP aligner 
 1. `dragen_mode_hard_filter` is true.
 
 
-When the workflow applies the DRAGMAP aligner, it calls reference files specific to the aligner. These files are located in a [public Google bucket](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/) and described in the [Input descriptions](#input-descriptions). See the [reference README](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/README_dragen_gatk_resources.txt) for details on recreating DRAGEN references.
+When the workflow applies the DRAGMAP aligner, it calls reference files specific to the aligner. These files are located in a [public Google bucket](gs://gcp-public-data--broad-references/hg38/v0/) and described in the [Input descriptions](#input-descriptions). See the [reference README](https://storage.googleapis.com/gcp-public-data--broad-references/hg38/v0/README_dragen_gatk_resources.txt) for details on recreating DRAGEN references.
  
 ## Set-up
  
