@@ -15,7 +15,12 @@ module.exports = {
     path.resolve(__dirname, 'plugins/docusaurus-plugin-hotjar')
   ],
   themeConfig: {
-    hideableSidebar: true,
+    docs: {
+      sidebar: {
+        hideable: true,
+      },
+    },
+    //  sidebar.hideable: true,
     navbar: {
       title: 'WARP Pipelines',
       // logo: {
@@ -87,11 +92,11 @@ module.exports = {
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Copyright © Data Sciences Platform, Broad Institute.`,
     },
-    algolia: {
-      apiKey: '57c6f6f64593f4fbec4c87a98d80f7e8',
-      indexName: 'broadinstitute',
-      contextualSearch: false,
-    },
+    //algolia: {
+     // apiKey: '57c6f6f64593f4fbec4c87a98d80f7e8',
+      //indexName: 'broadinstitute',
+      //contextualSearch: false,
+    //},
   },
   presets: [
     [

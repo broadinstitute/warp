@@ -103,10 +103,21 @@ java -jar $picard IntervalListTools -UNIQUE \
 	-I clinvar_20230121_noncoding_non_long_deletion_pathogenic_named.interval_list \
 	-I TwistAllianceClinicalResearchExome_Covered_Targets_hg38_named.interval_list \
 	-PADDING 50 \
-	-O bge_exome_calling_regions.v1.interval_list
+	-O merged_all_lists.interval_list
 
 #Produced 296381 intervals totalling 165239993 bases.
 
+#Limit intervals to chr1-22,chrX,chrY (remove alts and chrM)
+echo "chrY	1	57227415	+	." > chrY.tmp
+cat /seq/references/Homo_sapiens_assembly38/v0/resources/wholegenome.interval_list chrY.tmp > main_wholegenome.interval_list
+
+java -jar $picard IntervalListTools -ACTION INTERSECT \
+	-I merged_all_lists.interval_list \
+	-I main_wholegenome.interval_list \
+	-O bge_exome_calling_regions.v1.1.interval_list
+
+#Produced 296328 intervals totalling 165207924 bases
+
 #convert to bed for Dragen
-java -jar $picard IntervalListToBed -I bge_exome_calling_regions.v1.interval_list \
-  -O bge_exome_calling_regions.v1.bed
+java -jar $picard IntervalListToBed -I bge_exome_calling_regions.v1.1.interval_list \
+  -O bge_exome_calling_regions.v1.1.bed
