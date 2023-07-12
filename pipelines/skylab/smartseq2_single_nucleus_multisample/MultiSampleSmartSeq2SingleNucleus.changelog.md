@@ -1,7 +1,7 @@
 # 1.2.25
 2023-07-11 (Date of Last Commit)
 
-* Updated the CountAlignments task in the FeatureCounts.wdl to use a new docker image. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline.
+* Updated the CountAlignments task in the FeatureCounts.wdl to use a new docker image. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline
 
 # 1.2.24
 2023-06-23 (Date of Last Commit)
