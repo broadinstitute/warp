@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/README
 ---
  
 # Whole Genome Germline Single Sample Overview
