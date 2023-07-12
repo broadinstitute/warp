@@ -140,23 +140,6 @@ class ConfigParser
     .text("Run a dummy test to check the plumbing of the test harness")
     .action((_, config) => config.copy(test = Dummy))
 
-  note("")
-  germlineCloudPipelineCommandLineConfig(
-    ExternalReprocessing, { config =>
-      (config.test, config.germlineCloudConfig.category) match {
-        case (ExternalReprocessing, WorkflowTestCategory.Load) =>
-          failure(
-            "The external reprocessing test is not configured to run load."
-          )
-        case (ExternalReprocessing, WorkflowTestCategory.Scientific) =>
-          failure(
-            "The external reprocessing test is not configured to run scientific."
-          )
-        case _ => success
-      }
-    }
-  )
-
 
   note("")
   cmd(CloudWorkflow.entryName)
