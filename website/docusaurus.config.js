@@ -93,7 +93,7 @@ module.exports = {
       copyright: `Copyright © ${new Date().getFullYear()} Copyright © Data Sciences Platform, Broad Institute.`,
     },
     algolia: {
-      appId: '57c6f6f64593f4fbec4c87a98d80f7e8',
+      appId: 'BX0CVVQ6KQ',
       indexName: 'broadinstitute',
       apiKey: 'a724a683820e05c85cbec97fcd24819d',
       contextualSearch: false,
