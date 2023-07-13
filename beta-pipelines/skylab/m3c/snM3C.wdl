@@ -54,7 +54,7 @@ task Demultiplexing {
     File random_primer_indexes
     String plate_id
 
-    String docker_image = "nikellepetrillo/yap-hisat:v8"
+    String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
     Int disk_size = 50
     Int mem_size = 10
   }
@@ -95,7 +95,7 @@ task Demultiplexing {
 
     # Removing fastq files with trimmed reads greater than 30
     directory_path = '/cromwell_root'
-    threshold = 10000000
+    threshold = 30
 
     for filename in os.listdir(directory_path):
         if filename.endswith('.fq.gz'):
@@ -134,7 +134,7 @@ task Mapping {
     File genome_fa
     String plate_id
 
-    String docker_image = "nikellepetrillo/yap-hisat:v8"
+    String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
     Int disk_size = 200
     Int mem_size = 500
   }
