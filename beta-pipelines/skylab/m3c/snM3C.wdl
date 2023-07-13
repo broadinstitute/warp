@@ -95,7 +95,7 @@ task Demultiplexing {
 
     # Removing fastq files with trimmed reads greater than 30
     directory_path = '/cromwell_root'
-    threshold = 30
+    threshold = 10000000
 
     for filename in os.listdir(directory_path):
         if filename.endswith('.fq.gz'):
