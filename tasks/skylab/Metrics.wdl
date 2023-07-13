@@ -266,3 +266,39 @@ task FastqMetricsSlideSeq {
   }
 }
 
+task DropseqMetrics {
+  input {
+    File input_bam
+    File annotation_gtf
+    String output_name
+    String? mt_sequence
+    Int disk_size = ceil(size(input_bam, "GiB") + 50)
+    Int mem_size = 25
+  }
+  command <<<
+    # Using Drop-seq tools version of Picard's CollectRNAseqMetrics.
+    # GENCODE v43 GTF is missing gene_version, which is why we're using LENIENT
+    # validation stringency.
+    mkdir /cromwell_root/tmp
+    
+    /usr/gitc/Drop-seq_tools-2.5.3/SingleCellRnaSeqMetricsCollector \
+    --ANNOTATIONS_FILE ~{annotation_gtf} \
+    --INPUT ~{input_bam} \
+    --NUM_CORE_BARCODES 40000 \
+    --OUTPUT ~{output_name} \
+    --MT_SEQUENCE ~{mt_sequence} \
+    --CELL_BARCODE_TAG CB \
+    --TMP_DIR /cromwell_root/tmp \
+    --VALIDATION_STRINGENCY LENIENT
+   
+    
+  >>>
+  runtime {
+	docker: "us.gcr.io/broad-gotc-prod/dropseq-picard:1.0.0-2.5.3-1686757901"
+    disks: "local-disk ${disk_size} HDD"
+    memory: "${mem_size} GiB"
+  }
+  output {
+    File metric_output = "~{output_name}"
+  }
+}

@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/Smart-seq2_Single_Sample_Pipeline/README
 ---
 
 # Smart-seq2 Single Sample Overview

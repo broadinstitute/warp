@@ -8,7 +8,7 @@ task CountAlignments {
     File annotation_gtf
 
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1662044537"
+    String docker = "us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1689097353"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(aligned_bam_inputs,"Gi")*2) + 10
@@ -29,8 +29,19 @@ task CountAlignments {
 
   command <<<
     set -e
-    declare -a bam_files=(~{sep=' ' aligned_bam_inputs})
+
+    declare -a bam_file_paths=(~{sep=' ' aligned_bam_inputs})
     declare -a output_prefix=(~{sep=' ' input_ids})
+
+    # move the bam files to get around the issue of long file paths causing a segfault in featureCounts
+    declare -a bam_files
+    for filepath in ${bam_file_paths[@]};
+      do
+        filename="$(basename $filepath)"
+        mv $filepath $filename
+        bam_files+=("$filename")
+      done;
+
     for (( i=0; i<${#bam_files[@]}; ++i));
       do
         # counting the introns

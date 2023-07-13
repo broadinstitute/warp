@@ -1,20 +1,21 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/Optimus_Pipeline/README
 ---
 
 # Optimus Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v5.7.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2023 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [optimus_v5.8.3](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | May, 2023 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![Optimus_diagram](Optimus_diagram.png)
 
 ## Introduction to the Optimus workflow
 
-Optimus is an open-source, cloud-optimized pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/) as well as the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). It supports the processing of any 3' single-cell and single-nucleus count data generated with the [10x Genomics v2 or v3 assay](https://www.10xgenomics.com/solutions/single-cell/).
+Optimus is an open-source, cloud-optimized pipeline developed by the Data Coordination Platform (DCP) of the [Human Cell Atlas (HCA) Project](https://data.humancellatlas.org/) as well as the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN; see [Acknowledgements](#acknowledgements) below). It supports the processing of any 3' single-cell and single-nucleus count data generated with the [10x Genomics v2 or v3 assay](https://www.10xgenomics.com/solutions/single-cell/).
 
-It is an alignment and transcriptome quantification pipeline that corrects cell barcodes (CBs), aligns reads to the genome, corrects Unique Molecular Identifiers (UMIs), generates a count matrix in a UMI-aware manner, calculates summary metrics for genes and cells, detects empty droplets, returns read outputs in BAM format, and returns cell gene counts in numpy matrix and Loom file formats.
+It is an alignment and transcriptome quantification pipeline that corrects cell barcodes (CBs), aligns reads to the genome, corrects Unique Molecular Identifiers (UMIs), generates a count matrix in a UMI-aware manner, calculates summary metrics for genes and cells, detects empty droplets, returns read outputs in BAM format, and returns cell gene counts in numpy matrix and h5ad file formats.
 
 In addition to providing commonly used metrics such as empty drop detection and mitochondrial reads, Optimus takes special care to **keep all reads in the output BAM that may be useful to the downstream user**, such as unaligned reads or reads with uncorrectable barcodes. This design provides flexibility to the downstream user and allows for alternative filtering or leveraging the data for novel methodological development. 
 
@@ -36,7 +37,7 @@ The following table provides a quick glance at the Optimus pipeline features:
 | Transcriptomic reference annotation | V27 GENCODE human transcriptome and M21 mouse transcriptome | GENCODE [human GTF](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_27/gencode.v27.annotation.gtf.gz) and [mouse GTF](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M21/gencode.vM21.annotation.gff3.gz) |
 | Aligner and transcript quantification | STARsolo | [Dobin, et al.,2021](https://www.biorxiv.org/content/10.1101/2021.05.05.442755v1) |
 | Data input file format | File format in which sequencing data is provided | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) |
-| Data output file format | File formats in which Optimus output is provided | [BAM](http://samtools.github.io/hts-specs/), Python numpy arrays (internal), Loom (generated with [Loompy v.3.0.6)](http://loompy.org/) |
+| Data output file format | File formats in which Optimus output is provided | [BAM](http://samtools.github.io/hts-specs/), Python numpy arrays (internal), h5ad |
 
 ## Set-up
 
@@ -83,6 +84,7 @@ The example configuration files also contain metadata for the reference files, d
 | Parameter name | Description | Optional attributes (when applicable) |
 | --- | --- | --- |
 | whitelist |  List of known CBs; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) whitelist that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom whitelist can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom whitelist, set the input `ignore_r1_read_length` to "true". | N/A |
+| read_struct | String describing the structure of reads; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) read structure that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom read structure can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom read structure, set the input `force_no_check` to "true". | N/A |
 | tar_star_reference | TAR file containing a species-specific reference genome and GTF; it is generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_indices/BuildIndices.wdl). | N/A |
 | input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | N/A |
 | input_name | Optional string that can be used to further identify the original biological sample. | N/A |
@@ -93,10 +95,10 @@ The example configuration files also contain metadata for the reference files, d
 | mt_genes | Optional file containing mitochondrial gene names for a specific species. This is used for calculating gene metrics. | N/A |
 | counting_mode | String describing whether data is single-cell or single-nucleus. Single-cell mode counts reads aligned to the gene transcript, whereas single-nucleus counts whole transcript to account for nuclear pre-mRNA. | "sc_rna" or "sn_rna" |
 | output_bam_basename | String used as a basename for output BAM file; the default is set to the string used for the `input_id` parameter. | N/A |
-| use_strand_info | Optional string for reading stranded data. Default is "false"; set to "true" to count reads in stranded mode. | "true" or "false" (default) |
+| star_strand_mode | Optional string for running the workflow on forward stranded, reverse stranded, or unstranded data; default is "Forward". | "Forward" (default), "Reverse", and "Unstranded" |
 | ignore_r1_read_length | Boolean that overrides a check on the 10x chemistry. Default is set to false. If true, the workflow will not ensure that the 10x_chemistry_version input matches the chemistry in the read 1 FASTQ. | "true" or "false" (default) | 
 | emptydrops_lower | UMI threshold for emptyDrops detection; default is 100. | N/A |
-| count_exons | Boolean indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**. If true, this option will output an additional layer for the Loom file. By default, it is set to "false". If the parameter is true and used with sc_rnamode, the workflow will return an error. | "true" or "false" (default) |
+| count_exons | Boolean indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**. If true, this option will output an additional layer for the h5ad file. By default, it is set to "false". If the parameter is true and used with sc_rnamode, the workflow will return an error. | "true" or "false" (default) |
 
 #### Pseudogene handling
 The example Optimus reference files are downloaded directly from GENCODE (see Quickstart table) and are not modified to remove pseudogenes. This is in contrast to the [references created for Cell Ranger](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/release-notes/references#header) which remove pseudogenes and small RNAs.
@@ -119,7 +121,7 @@ Overall, the Optimus workflow:
 1. Calculates gene metrics.
 1. Calculates cell metrics.
 1. Runs emptyDrops.
-1. Merges gene counts, metrics, and emptyDrops data into a Loom-formatted matrix.
+1. Merges gene counts, metrics, and emptyDrops data into a h5ad-formatted matrix.
 
 
 The tools each Optimus task employs are detailed in the table below. 
@@ -136,7 +138,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | [Metrics.CalculateGeneMetrics (alias = GeneMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by gene using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes gene metrics. | 
 | [Metrics.CalculateCellMetrics (alias = CellMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by cell using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes cell metrics. |
 | [RunEmptyDrops.RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) | npz2rds.sh, emptyDropsWrapper.R, emptyDrops | [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Runs custom scripts to convert the NPY and NPZ files to RDS and then uses emptyDrops to identify empty lipid droplets. This step only runs when `counting_mode` = "sc_rna".|
-|  [LoomUtils.OptimusLoomGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) | create_loom_optimus.py | Python3 | Merges the gene counts, cell metrics, gene metrics, and emptyDrops data into a Loom formatted cell-by-gene matrix. The Loom contains exon counts when using sc_rna mode, and whole-gene counts when running in sn_rna mode. It optionally contains an additional layer for exon counts when running sn_rna mode with `exon_counts` set to true. |
+|  H5adUtils.OptimusH5adGeneration](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/H5adUtils.wdl) | create_h5ad_optimus.py | Python3 | Merges the gene counts, cell metrics, gene metrics, and emptyDrops data into a h5ad formatted cell-by-gene matrix. The h5ad contains exon counts when using sc_rna mode, and whole-gene counts when running in sn_rna mode. It optionally contains an additional layer for exon counts when running sn_rna mode with `exon_counts` set to true. |
 
 
 More information about the different tags used to flag the data can be found in the [Bam_tags documentation](./Bam_tags.md).
@@ -168,7 +170,7 @@ STAR maps barcoded reads to the genome primary assembly reference (see the Quick
 
 **Gene annotation**
 
-Prior to gene counting, STARsolo adds gene annotations which will vary depending on the counting_mode ("sc_rna" or "sn_rna") specified in the Optimus workflow. With `sc_rna`, STARsolo runs with the “Gene” COUNTING_MODE, which is specific to exons.  With the `sn_rna` mode, STARsolo runs the “GeneFull” COUNTING_MODE and has the additional option to run the "Gene" mode when the input parameter `count_exons` is set to "true". 
+Prior to gene counting, STARsolo adds gene annotations which will vary depending on the counting_mode ("sc_rna" or "sn_rna") specified in the Optimus workflow. With `sc_rna`, STARsolo runs with the “Gene” COUNTING_MODE, which is specific to exons.  With the `sn_rna` mode, STARsolo runs the “GeneFull_Ex50pAS” COUNTING_MODE and has the additional option to run the "Gene" mode when the input parameter `count_exons` is set to "true". 
 
 Genes that overlap an alignment are stored with the GX BAM tag; for sc_rna mode, this will include the gene that corresponds to an exon or UTR, whereas for sn_rna mode, this will include the gene corresponding to an exon, UTR, and intron.
 
@@ -186,62 +188,63 @@ Deduplicated UMIs are counted towards their assigned gene/cells, producing a raw
 
 #### 4. Merge STARsolo count matrices
 
-The STARsolo output will include a features, barcodes, and matrix TSV for each of the partitioned FASTQ input. The [MergeStarOutput task](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/StarAlign.wdl) merges each respective TSV. It uses a custom python script to convert the merged matrix, features, and barcodes output from STARsolo into an NPY (features and barcodes)- and NPZ (the matrix)-formatted file for downstream empty drops detection and Loom matrix generation. 
+The STARsolo output will include a features, barcodes, and matrix TSV for each of the partitioned FASTQ input. The [MergeStarOutput task](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/StarAlign.wdl) merges each respective TSV. It uses a custom python script to convert the merged matrix, features, and barcodes output from STARsolo into an NPY (features and barcodes)- and NPZ (the matrix)-formatted file for downstream empty drops detection and h5ad matrix generation. 
 
 **STARsolo outputs**
 
-The task’s output includes a merged, coordinate-sorted BAM file containing the CB-corrected reads and SAM attributes UB UR UY CR CB CY NH GX GN. Additionally, after counting, the task outputs three intermediate TSV files (features, barcodes, and matrix) used for downstream empty droplet detection and Loom matrix generation. 
+The task’s output includes a merged, coordinate-sorted BAM file containing the CB-corrected reads and SAM attributes UB UR UY CR CB CY NH GX GN. Additionally, after counting, the task outputs three intermediate TSV files (features, barcodes, and matrix) used for downstream empty droplet detection and h5ad matrix generation. 
 
 
 #### 5. Calculate gene metrics
 
-The [CalculateGeneMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) task uses [warp-tools](https://github.com/broadinstitute/warp-tools) to calculate summary metrics that help assess the quality of the data output each time this pipeline is run. These metrics are included in the output Loom matrix. A detailed list of these metrics is found in the [Optimus Count Matrix Overview](./Loom_schema.md).
+The [CalculateGeneMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) task uses [warp-tools](https://github.com/broadinstitute/warp-tools) to calculate summary metrics that help assess the quality of the data output each time this pipeline is run. These metrics are included in the output h5ad matrix. A detailed list of these metrics is found in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
 #### 6. Calculate cell metrics
 
-The [CalculateCellMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) task uses [warp-tools](https://github.com/broadinstitute/warp-tools) to calculate summary metrics that help assess the per-cell quality of the data output each time this pipeline is run. These metrics are included in the output Loom matrix. A detailed list of these metrics is found in the [Optimus Count Matrix Overview](./Loom_schema.md).
+The [CalculateCellMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) task uses [warp-tools](https://github.com/broadinstitute/warp-tools) to calculate summary metrics that help assess the per-cell quality of the data output each time this pipeline is run. These metrics are included in the output h5ad matrix. A detailed list of these metrics is found in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
 
 #### 7. Run emptyDrops
 
 Empty droplets are lipid droplets that did not encapsulate a cell during 10x sequencing, but instead acquired cell-free RNA (secreted RNA or RNA released during cell lysis) from the solution in which the cells resided ([Lun, et al., 2018](https://www.ncbi.nlm.nih.gov/pubmed/?term=30902100). This ambient RNA can serve as a substrate for reverse transcription, leading to a small number of background reads. The Optimus pipeline calls the [RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) task which uses the [DropletUtils](http://bioconductor.org/packages/release/bioc/html/DropletUtils.html) R package to flag CBs that represent empty droplets rather than cells. A cell will be flagged if it contains fewer than 100 molecules.
-emptyDrops metrics for single-cell data (not single-nucleus; see note below) are stored in the columns of the output Loom matrix.  Read full details for all the metrics in the [Optimus Matrix Overview](./Loom_schema.md).
+emptyDrops metrics for single-cell data (not single-nucleus; see note below) are stored in the columns of the output h5ad matrix.  Read full details for all the metrics in the [Optimus Matrix Overview](./Loom_schema.md).
 
-EmptyDrops relies on a visual knee point inflection (described in [Lun et al. (2019)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y)) to differentiate ambient-like cells from empty droplets. **If the single-cell data (counting mode set to `sc_rna`) does not produce a knee point inflection when running emptyDrops, the Loom columns for emptyDrops data will contain "NA"s.**
+EmptyDrops relies on a visual knee point inflection (described in [Lun et al. (2019)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1662-y)) to differentiate ambient-like cells from empty droplets. **If the single-cell data (counting mode set to `sc_rna`) does not produce a knee point inflection when running emptyDrops, the h5ad columns for emptyDrops data will contain "NA"s.**
 
 :::warning RunEmptyDrops output not included for single-nucleus data
-Often snRNAseq data does not produce a visual knee point inflection when running emptyDrops and the tool can not accurately distinguish ambient-like cells from empty droplets. For this reason, emptyDrops is not used if Optimus counting_mode is set to `sn_rna`, and the output Loom matrix will not contain emptyDrops metrics.
+Often snRNAseq data does not produce a visual knee point inflection when running emptyDrops and the tool can not accurately distinguish ambient-like cells from empty droplets. For this reason, emptyDrops is not used if Optimus counting_mode is set to `sn_rna`, and the output h5ad matrix will not contain emptyDrops metrics.
 :::
 
 #### 8.  Matrix construction
 
-The [OptimusLoomGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/LoomUtils.wdl) task uses a custom python script to merge the converted STARsolo count matrix, the emptyDrops results, and the cell and gene metrics into a Loom-formatted cell-by-gene matrix. **These counts are raw and unfiltered.**
+The [OptimusH5adGeneration](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/H5adUtils.wdl) task uses a custom python script to merge the converted STARsolo count matrix, the emptyDrops results, and the cell and gene metrics into an h5ad-formatted cell-by-gene matrix. **These counts are raw and unfiltered.**
 
 Read full details for all the metrics in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
-The type of gene counts in the Loom will vary depending on the Optimus workflow counting_mode. If running single-cell data (sc_rna mode), the counts will include only exonic gene counts. 
+The type of gene counts in the h5ad will vary depending on the Optimus workflow counting_mode. If running single-cell data (sc_rna mode), the counts will include only exonic gene counts. 
 
-If running single-nucleus data (sn_rna mode), the counts in the main matrix will be whole transcript and, when `count_exons` is set to true, the counts in an additional layer will be exonic. Using the `count_exons` parameter will cause the Loom matrix to have additional columns (cell barcodes) due to the difference in STARsolo counting mode.
+If running single-nucleus data (sn_rna mode), the counts in the main matrix will be whole transcript and, when `count_exons` is set to true, the counts in an additional layer will be exonic. Using the `count_exons` parameter will cause the h5ad matrix to have additional columns (cell barcodes) due to the difference in STARsolo counting mode.
 
-You can determine which type of counts are in the loom by looking at the global attribute `expression_data_type`.
+You can determine which type of counts are in the h5ad by looking at the global attribute `expression_data_type`.
 
-For sn_rna mode, you can also access whole transcript and exonic counts using Loompy's `layers()` method. For example, `loompy.connect.layers[“”]` will return the whole transcript counts from the output Loom file. Similarly, `loompy.connect.layers[“exon_counts”]` will return the exonic counts from the output Loom. 
+For sn_rna mode, you can also access whole transcript and exonic counts using AnnData alyers `layers()` method. For example, adata.layers[“exon_counts”]` will return the exonic counts from the output h5ad. 
 
 
 #### 9. Outputs
 
 Output files of the pipeline include:
 
-1. Cell x Gene unnormalized, but UMI-corrected, count matrices in Loom format.
+1. Cell x Gene unnormalized, but UMI-corrected, count matrices in h5ad format.
 2. Unfiltered, sorted BAM file with barcode and downstream analysis [tags](./Bam_tags.md).
 3. Cell metadata, including cell metrics.
 4. Gene metadata, including gene metrics.
 
 The following table lists the output files produced from the pipeline. For samples that have sequenced over multiple lanes, the pipeline will output one merged version of each listed file.
 
-| Output Variable Name | Filename, if applicable | Output Type |Output Format |
+| Output Variable Name | Filename, if applicable | Output Type | Output Format |
 | ------ |------ | ------ | ------ |
 | pipeline_version_out | N/A | Version of the processing pipeline run on this data. | String |
+| genomic_reference_version | reference_version.txt | Genomic reference version | TXT |
 | bam | `<input_id>.bam` | Aligned BAM | BAM |
 | matrix | `<input_id>_sparse_counts.npz` | Converted sparse matrix file from the MergeStarOutputs task. | NPZ |
 | matrix_row_index | `<input_id>_sparse_counts_row_index.npy` | Index of cells in count matrix. | NPY |
@@ -249,9 +252,9 @@ The following table lists the output files produced from the pipeline. For sampl
 | cell_metrics | `<input_id>.cell-metrics.csv.gz` | Cell metrics | Compressed CSV | Matrix of metrics by cells. |
 | gene_metrics | `<input_id>.gene-metrics.csv.gz` | Gene metrics | Compressed CSV | Matrix of metrics by genes. |
 | cell_calls | empty_drops_result.csv | emptyDrops results from the RunEmptyDrops task. | CSV |
-| loom_output_file | `<input_id>.loom` | Loom | Loom | Loom file with count data (exonic or whole transcript depending on the counting_mode) and metadata. | N/A |
+| h5ad_output_file | `<input_id>.h5ad` | h5ad | h5ad | h5ad file with count data (exonic or whole transcript depending on the counting_mode) and metadata. | N/A |
 
-The Loom matrix is the default output. See the [create_loom_optimus.py](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/pytools/tools/create_loom_optimus.py) for the detailed code. This matrix contains the unnormalized (unfiltered), UMI-corrected count matrices, as well as the gene and cell metrics detailed in the [Optimus Count Matrix Overview](./Loom_schema.md).
+The h5ad matrix is the default output. This matrix contains the unnormalized (unfiltered), UMI-corrected count matrices, as well as the gene and cell metrics detailed in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
 #### Try the Optimus matrix with community tools
 The matrix is compatible with multiple downstream community analysis tools, including [Seurat](https://satijalab.org/seurat/index.html), [Scanpy](https://scanpy.readthedocs.io/en/stable/), [Cumulus](https://cumulus.readthedocs.io/en/latest/index.html), and [Pegasus](https://pegasus.readthedocs.io/en/stable/#). To try a tutorial using the Optimus matrix with these tools, register for the open-source platform [Terra](https://app.terra.bio) and then navigate to the public [Intro-to-HCA-data-on-Terra workspace](https://app.terra.bio/#workspaces/featured-workspaces-hca/Intro-to-HCA-data-on-Terra). You can also view the accompanying [step-by-step guide](https://support.terra.bio/hc/en-us/articles/360060041772) without registration.
@@ -289,6 +292,8 @@ If your organization also uses this pipeline, we would like to list you! Please 
 
 Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.
 
+## Acknowledgements
+We are immensely grateful to the members of the [Human Cell Atlas Data Coordination Platform](https://data.humancellatlas.org/),  BRAIN Initiative ([BICAN](https://brainblog.nih.gov/brain-blog/brain-issues-suite-funding-opportunities-advance-brain-cell-atlases-through-centers) Sequencing Working Group) and [SCORCH](https://nida.nih.gov/about-nida/organization/divisions/division-neuroscience-behavior-dnb/basic-research-hiv-substance-use-disorder/scorch-program) for their invaluable and exceptional contributions to this pipeline. Our heartfelt appreciation goes to Alex Dobin, Aparna Bhaduri, Alec Wysoker, Anish Chakka, Brian Herb, Daofeng Li, Fenna Krienen, Guo-Long Zuo, Jeff Goldy, Kai Zhang, Khalid Shakir, Bo Li, Mariano Gabitto, Michael DeBerardine, Mengyi Song, Melissa Goldman, Nelson Johansen, James Nemesh, and Theresa Hodges for their unwavering dedication and remarkable efforts. 
 
 ## FAQs
 
@@ -314,7 +319,7 @@ There are four example configuration JSON files available for you to test the pi
 
 :::note Question What outputs are expected if my sample has been sequenced over multiple lanes?
 
-The Optimus pipeline is a single sample pipeline, but it can accept multiple FASTQ files if a sample is sequenced across lanes. In this case, the pipeline will merge the results from each lane into single output files. There will only be one merged file for each output type (i.e one Loom, etc.). If you would like to view an example configuration file for a multi-lane dataset, please see the [mouse_v2_example.json](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/mouse_v2_example.json).  Additionally, you can view sample outputs in the Optimus featured workspace on [Terra](https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline).
+The Optimus pipeline is a single sample pipeline, but it can accept multiple FASTQ files if a sample is sequenced across lanes. In this case, the pipeline will merge the results from each lane into single output files. There will only be one merged file for each output type (i.e one h5ad matrix, etc.). If you would like to view an example configuration file for a multi-lane dataset, please see the [mouse_v2_example.json](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/mouse_v2_example.json).  Additionally, you can view sample outputs in the Optimus featured workspace on [Terra](https://app.terra.bio/#workspaces/featured-workspaces-hca/HCA_Optimus_Pipeline).
 :::
 
 :::note Question How do I find which parameters and Docker images were used for the different tasks (i.e. STAR alignment, emptyDrops, etc.)
