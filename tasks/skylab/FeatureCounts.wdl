@@ -8,7 +8,7 @@ task CountAlignments {
     File annotation_gtf
 
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1662044537"
+    String docker = "us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1689097353"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(aligned_bam_inputs,"Gi")*2) + 10
