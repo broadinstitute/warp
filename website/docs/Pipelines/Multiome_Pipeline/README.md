@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/Multiome_Pipeline/README
 ---
 
 # Multiome Overview
