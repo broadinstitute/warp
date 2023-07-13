@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/Exome_Germline_Single_Sample_Pipeline/README
 ---
 
 # Exome Germline Single Sample Overview
