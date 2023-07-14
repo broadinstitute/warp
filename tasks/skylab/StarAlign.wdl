@@ -344,12 +344,20 @@ task STARsoloFastq {
     touch barcodes_sn_rna.tsv
     touch features_sn_rna.tsv
     touch matrix_sn_rna.mtx
+    touch CellReads_sn_rna.stats
+    touch Features_sn_rna.stats
+    touch Summary_sn_rna.stats
+    touch UMIperCellSorted_sn_rna.txt
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
       mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
       mv "Solo.out/Gene/raw/features.tsv" features.tsv
       mv "Solo.out/Gene/raw/matrix.mtx"   matrix.mtx
+      mv "Solo.out/Gene/CellReads.stats" CellReads.stats
+      mv "Solo.out/Gene/Features.stats" Features.stats
+      mv "Solo.out/Gene/Summary.csv" Summary.csv
+      mv "Solo.out/Gene/UMIperCellSorted.txt" UMIperCellSorted.txt
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
       if ! [[ ~{count_exons} ]]
@@ -357,22 +365,31 @@ task STARsoloFastq {
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
+        mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
+        mv "Solo.out/GeneFull_Ex50pAS/Features.stats" Features.stats
+        mv "Solo.out/GeneFull_Ex50pAS/Summary.csv" Summary.csv
+        mv "Solo.out/GeneFull_Ex50pAS/UMIperCellSorted.txt" UMIperCellSorted.txt
       else
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
+        mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
+        mv "Solo.out/GeneFull_Ex50pAS/Features.stats" Features.stats
+        mv "Solo.out/GeneFull_Ex50pAS/Summary.csv" Summary.csv
+        mv "Solo.out/GeneFull_Ex50pAS/UMIperCellSorted.txt" UMIperCellSorted.txt
         mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_sn_rna.tsv
         mv "Solo.out/Gene/raw/features.tsv"     features_sn_rna.tsv
         mv "Solo.out/Gene/raw/matrix.mtx"       matrix_sn_rna.mtx
+        mv "Solo.out/Gene/CellReads.stats" CellReads_sn_rna.stats
+        mv "Solo.out/Gene/Features.stats" Features_sn_rna.stats
+        mv "Solo.out/Gene/Summary.csv" Summary_sn_rna.csv
+        mv "Solo.out/Gene/UMIperCellSorted.txt" UMIperCellSorted_sn_rna.txt
       fi
     else
       echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
     fi
     mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
-    # print contents
-    ls
-    ls Solo.out/GeneFull_Ex50pAS/raw/
-    ls Solo.out/GeneFull_Ex50pAS/
+    tar -zcvf ~{output_bam_basename}.star_metrics.tar *.stats *.txt *.csv
 
   >>>
 
@@ -395,6 +412,7 @@ task STARsoloFastq {
     File barcodes_sn_rna = "barcodes_sn_rna.tsv"
     File features_sn_rna = "features_sn_rna.tsv"
     File matrix_sn_rna = "matrix_sn_rna.mtx"
+    File aligner_metrics = "~{output_bam_basename}.star_metrics.tar"
   }
 }
 
