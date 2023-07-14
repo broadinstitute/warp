@@ -1,3 +1,13 @@
+# 1.6.8
+2023-06-29 (Date of Last Commit)
+
+* Added extra_args input to the SplitIntervalList task to support the JointGenotypingTasks.wdl
+
+# 1.6.7
+2023-05-23 (Date of Last Commit)
+
+* Made disk and memory available as inputs to the JointGenotypingTasks.wdl. 
+
 # 1.6.6
 2022-12-20 (Date of Last Commit)
 

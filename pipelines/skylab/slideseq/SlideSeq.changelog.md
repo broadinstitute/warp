@@ -1,7 +1,21 @@
+# 1.0.9
+2023-06-14 (Date of Last Commit)
+
+* Updated the Metrics task WDL for adding a Dropseq task to Optimus; this has no impact on the Slide-seq workflow
+* Updated the FastqProcessing.wdl for ATAC. This update has no impact on the SlideSeq workflow
+* Updated STARsolo version to v2.7.10b for the StarsoloFastq task; this change does not impact this workflow
+* Updated STARsolo argument for counting mode to GeneFull_Ex50pAS; this change does not impact this workflow 
+
+
+# 1.0.8
+2023-05-31 (Date of Last Commit)
+
+* Updated the FastqProcessing.wdl. This update has no impact on the SlideSeq workflow
+
 # 1.0.7
 2023-05-11 (Date of Last Commit)
 
-* Updated Docker image for FastqProcessing task to latest warp-tools.
+* Updated Docker image for FastqProcessing task to latest warp-tools
 
 # 1.0.6
 2023-05-04 (Date of Last Commit)
