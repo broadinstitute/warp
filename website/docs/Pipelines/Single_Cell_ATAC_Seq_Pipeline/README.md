@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/Single_Cell_ATAC_Seq_Pipeline/README
 ---
 
 # scATAC Overview

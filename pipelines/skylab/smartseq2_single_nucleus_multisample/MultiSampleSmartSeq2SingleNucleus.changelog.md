@@ -1,7 +1,9 @@
 # 1.2.25
-2023-07-07 (Date of Last Commit)
+2023-07-11 (Date of Last Commit)
 
 * Changed Pytools container to Warp-tools in LoomUtils, and updated command paths accordingly
+* Updated the CountAlignments task in the FeatureCounts.wdl to use a new docker image. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline
+
 
 # 1.2.24
 2023-06-23 (Date of Last Commit)
