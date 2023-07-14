@@ -1,7 +1,7 @@
 {
   "BuildIndices.annotations_gtf":"gs://fc-e7f669fe-5a5c-4a8c-ad02-3b69105d0378/human/gencode.v43.primary_assembly.annotation.gtf",
   "BuildIndices.biotypes":"gs://fc-c40ec8a8-d60f-42f7-be36-3986b475190a/Biotypes.tsv",
-  "BuildIndices.genome_fa":"gs://fc-e7f669fe-5a5c-4a8c-ad02-3b69105d0378/human/GRCh38.primary_assembly.genome.fa",
+  "BuildIndices.genome_fa":"gs://gcp-public-data--broad-references/hg38/v0/GRCh38.primary_assembly.genome.fa",
   "BuildIndices.gtf_annotation_version":"43",
   "BuildIndices.genome_source":"GENCODE",
   "BuildIndices.genome_build":"GRCh38",
