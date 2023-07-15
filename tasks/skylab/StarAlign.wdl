@@ -346,7 +346,7 @@ task STARsoloFastq {
     touch matrix_sn_rna.mtx
     touch CellReads_sn_rna.stats
     touch Features_sn_rna.stats
-    touch Summary_sn_rna.stats
+    touch Summary_sn_rna.csv
     touch UMIperCellSorted_sn_rna.txt
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
@@ -389,7 +389,7 @@ task STARsoloFastq {
       echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
     fi
     mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
-    tar -zcvf ~{output_bam_basename}.star_metrics.tar *.stats *.txt *.csv
+    #tar -zcvf ~{output_bam_basename}.star_metrics.tar *.stats *.txt *.csv
 
   >>>
 
@@ -412,7 +412,15 @@ task STARsoloFastq {
     File barcodes_sn_rna = "barcodes_sn_rna.tsv"
     File features_sn_rna = "features_sn_rna.tsv"
     File matrix_sn_rna = "matrix_sn_rna.mtx"
-    File aligner_metrics = "~{output_bam_basename}.star_metrics.tar"
+    File CellReads = "CellReads.stats"
+    File Features = "Features.stats"
+    File summary = "Summary.csv"
+    File umipercell = "UMIperCellSorted.txt"
+    File CellReads_sn_rna = "CellReads_sn_rna.stats"
+    File Features_sn_rna = "Features_sn_rna.stats"
+    File summary_sn_rna = "Summary_sn_rna.csv"
+    File umipercell_sn_rna = "UMIperCellSorted_sn_rna.txt"
+    #File aligner_metrics = "~{output_bam_basename}.star_metrics.tar"
   }
 }
 
@@ -422,6 +430,7 @@ task MergeStarOutput {
     Array[File] barcodes
     Array[File] features
     Array[File] matrix
+  
     String input_id
 
     #runtime values
