@@ -461,10 +461,12 @@ task MergeStarOutput {
 
     $cell_reads=(~{cell_reads})
 
-    if [ -f "$cell_reads" ]; then
-      declare -a cell_reads_files=(~{sep= ' ' cell_reads})
-      cat ${cell_reads_files[@]} > ~{input_id}_cell_reads.txt 
-    fi
+    for cell_read in "${cell_reads[@]}"; do
+      if [ -f "$cell_read" ]; then
+        cat "$cell_read" >> "~{input_id}_cell_reads.txt"
+      fi
+    done
+
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
     python3 /usr/gitc/create-merged-npz-output.py \
