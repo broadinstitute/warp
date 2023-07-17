@@ -16,6 +16,9 @@ workflow snM3C {
     File snakefile
     File chromosome_sizes
     File genome_fa
+
+    # script for monitoring tasks
+    File monitoring_script
   }
 
   call Demultiplexing {
@@ -23,7 +26,8 @@ workflow snM3C {
       fastq_input_read1 = fastq_input_read1,
       fastq_input_read2 = fastq_input_read2,
       random_primer_indexes = random_primer_indexes,
-      plate_id = plate_id
+      plate_id = plate_id,
+      monitoring_script = monitoring_script
     }
 
   call Mapping {
@@ -34,7 +38,8 @@ workflow snM3C {
       snakefile = snakefile,
       chromosome_sizes = chromosome_sizes,
       genome_fa = genome_fa,
-      plate_id = plate_id
+      plate_id = plate_id,
+      monitoring_script = monitoring_script
     }
 
   output {
@@ -54,13 +59,23 @@ task Demultiplexing {
     File random_primer_indexes
     String plate_id
 
-    String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+    String docker_image = "nikellepetrillo/yap-hisat:v8"
     Int disk_size = 50
     Int mem_size = 10
+
+    # script for monitoring tasks
+    File monitoring_script
   }
 
   command <<<
     set -euo pipefail
+
+    if [ ! -z "~{monitoring_script}" ]; then
+    chmod a+x ~{monitoring_script}
+    ~{monitoring_script} > monitoring.log &
+    else
+    echo "No monitoring script given as input" > monitoring.log &
+    fi
 
     # Cat files for each r1, r2
     cat ~{sep=' ' fastq_input_read1} > r1.fastq.gz
@@ -77,36 +92,29 @@ task Demultiplexing {
     # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
     rm *-unknown-R{1,2}.fq.gz
 
-    python3 <<CODE
-    import re
-    import os
+    # Count the number of reads in each fastq file and remove if over 10,000,000 reads. Also, remove its mate.
+    for file in ~{plate_id}-*.fq.gz; do
+      if [ -f $file ]; then
+        num_reads=$(($(cat $file | wc -l) / 4))
+        if [ $num_reads -gt 10000000 ]; then
+          echo "Removing $file with $num_reads reads"
+          rm $file
 
-    # Parsing stats.txt file
-    stats_file_path = '/cromwell_root/~{plate_id}.stats.txt'
-    adapter_counts = {}
-    with open(stats_file_path, 'r') as file:
-        content = file.read()
-
-    adapter_matches = re.findall(r'=== First read: Adapter (\w+) ===\n\nSequence: .+; Type: .+; Length: \d+; Trimmed: (\d+) times', content)
-    for adapter_match in adapter_matches:
-        adapter_name = adapter_match[0]
-        trimmed_count = int(adapter_match[1])
-        adapter_counts[adapter_name] = trimmed_count
-
-    # Removing fastq files with trimmed reads greater than 30
-    directory_path = '/cromwell_root'
-    threshold = 10000000
-
-    for filename in os.listdir(directory_path):
-        if filename.endswith('.fq.gz'):
-            file_path = os.path.join(directory_path, filename)
-            adapter_name = re.search(r'A(\d+)-R', filename)
-            if adapter_name:
-                adapter_name = 'A' + adapter_name.group(1)
-                if adapter_name in adapter_counts and adapter_counts[adapter_name] > threshold:
-                    os.remove(file_path)
-                    print(f'Removed file: {filename}')
-    CODE
+         # Remove the mate fastq file
+          mate_file=${file/-R1./-R2.}
+          if [ -f $mate_file ]; then
+            echo "Removing the first $mate_file"
+            rm $mate_file
+          else
+            mate_file=${file/-R2./-R1.}
+            if [ -f $mate_file ]; then
+              echo "Removing $mate_file"
+              rm $mate_file
+            fi
+          fi
+        fi
+      fi
+    done
 
     # zip up all the output fq.gz files
     tar -zcvf ~{plate_id}.cutadapt_output_files.tar.gz *.fq.gz
@@ -133,14 +141,23 @@ task Mapping {
     File chromosome_sizes
     File genome_fa
     String plate_id
+    # script for monitoring tasks
+    File monitoring_script
 
-    String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+    String docker_image = "nikellepetrillo/yap-hisat:v8"
     Int disk_size = 200
     Int mem_size = 500
   }
 
   command <<<
     set -euo pipefail
+
+    if [ ! -z "~{monitoring_script}" ]; then
+    chmod a+x ~{monitoring_script}
+    ~{monitoring_script} > monitoring.log &
+    else
+    echo "No monitoring script given as input" > monitoring.log &
+    fi
 
     mkdir group0/
     mkdir group0/fastq/
