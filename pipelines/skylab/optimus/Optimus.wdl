@@ -173,7 +173,7 @@ workflow Optimus {
       barcodes = STARsoloFastq.barcodes,
       features = STARsoloFastq.features,
       matrix = STARsoloFastq.matrix,
-      cell_reads = STARsoloFastq.cell_reads
+      cell_reads = STARsoloFastq.cell_reads,
       input_id = input_id
   }
   if (counting_mode == "sc_rna"){
@@ -210,7 +210,7 @@ workflow Optimus {
         barcodes = STARsoloFastq.barcodes_sn_rna,
         features = STARsoloFastq.features_sn_rna,
         matrix = STARsoloFastq.matrix_sn_rna,
-        cell_reads = STARsoloFastq.cell_reads_sn_rna
+        cell_reads = STARsoloFastq.cell_reads_sn_rna,
         input_id = input_id
     }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
