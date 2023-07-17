@@ -173,6 +173,7 @@ workflow Optimus {
       barcodes = STARsoloFastq.barcodes,
       features = STARsoloFastq.features,
       matrix = STARsoloFastq.matrix,
+      cell_reads = STARsoloFastq.cell_reads
       input_id = input_id
   }
   if (counting_mode == "sc_rna"){
