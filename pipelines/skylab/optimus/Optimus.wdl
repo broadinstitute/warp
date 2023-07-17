@@ -247,8 +247,8 @@ workflow Optimus {
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
     File? picard_metrics = DropseqMetrics.metric_output
+    File aligner_metrics = MergeStarOutputs.cell_reads_out
     # h5ad
     File h5ad_output_file = final_h5ad_output
-    # File aligner_metrics = 
   }
 }
