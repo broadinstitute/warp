@@ -24,7 +24,7 @@ workflow Multiome {
         Boolean ignore_r1_read_length = false
         String star_strand_mode = "Forward"
         Boolean count_exons = false
-        File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt"
+        File gex_whitelist = "https://pipelinedevdd2772249d.blob.core.windows.net/inputs/multiome/737K-arc-v1_gex.txt"
         String? mt_sequence
 
         # ATAC inputs
@@ -39,7 +39,7 @@ workflow Multiome {
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
         # Whitelist
-        File atac_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_atac.txt"
+        File atac_whitelist = "https://pipelinedevdd2772249d.blob.core.windows.net/inputs/multiome/737K-arc-v1_atac.txt"
 
     }
 
