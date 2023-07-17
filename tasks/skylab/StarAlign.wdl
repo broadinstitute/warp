@@ -460,7 +460,7 @@ task MergeStarOutput {
     declare -a matrix_files=(~{sep=' ' matrix})
     declare -a cell_reads_files=(~{sep=' ' cell_reads})
 
-    cat $(cell_reads_files[@]) > cell_reads.txt
+    cat $(cell_reads_files[@]) > ~{input_id}_cell_reads.txt
 
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
