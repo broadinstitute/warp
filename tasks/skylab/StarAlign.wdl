@@ -430,8 +430,8 @@ task MergeStarOutput {
     Array[File] barcodes
     Array[File] features
     Array[File] matrix
-    Array[File] cell_reads
-  
+    Array[File]? cell_reads
+    
     String input_id
 
     #runtime values
@@ -458,10 +458,15 @@ task MergeStarOutput {
     declare -a barcodes_files=(~{sep=' ' barcodes})
     declare -a features_files=(~{sep=' ' features})
     declare -a matrix_files=(~{sep=' ' matrix})
-    declare -a cell_reads_files=(~{sep=' ' cell_reads})
+    # optional cell_reads
+  
+    ~{if defined(cell_reads) then "declare -a cell_reads_files=(~{sep= ' ' cell_reads})" else ""}
+    ~{if defined(cell_reads) then "cat ${cell_reads_files[@]} > ~{input_id}_cell_reads.txt" else ""}
 
-    cat ${cell_reads_files[@]} > ~{input_id}_cell_reads.txt
-
+   
+    
+    #cat ${cell_reads_files[@]} > ~{input_id}_cell_reads.txt
+ 
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
     python3 /usr/gitc/create-merged-npz-output.py \
@@ -484,7 +489,7 @@ task MergeStarOutput {
     File row_index = "~{input_id}_sparse_counts_row_index.npy"
     File col_index = "~{input_id}_sparse_counts_col_index.npy"
     File sparse_counts = "~{input_id}_sparse_counts.npz"
-    File cell_reads_out = "~{input_id}_cell_reads.txt"
+    File? cell_reads_out = "~{input_id}_cell_reads.txt"
   }
 }
 
