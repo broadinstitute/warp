@@ -247,5 +247,6 @@ workflow Optimus {
     File? picard_metrics = DropseqMetrics.metric_output
     # h5ad
     File h5ad_output_file = final_h5ad_output
+    # File aligner_metrics = 
   }
 }
