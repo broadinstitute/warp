@@ -458,10 +458,9 @@ task MergeStarOutput {
     declare -a barcodes_files=(~{sep=' ' barcodes})
     declare -a features_files=(~{sep=' ' features})
     declare -a matrix_files=(~{sep=' ' matrix})
+    decalire -a cell_reads_files=(~{sep=' ' cell_reads})
 
-    $cell_reads=(~{cell_reads})
-
-    for cell_read in "${cell_reads[@]}"; do
+    for cell_read in "${cell_reads_files[@]}"; do
       if [ -f "$cell_read" ]; then
         cat "$cell_read" >> "~{input_id}_cell_reads.txt"
       fi
