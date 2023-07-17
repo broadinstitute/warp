@@ -397,47 +397,47 @@ task share_atac_align {
 
     # Aligning and adding the cell barcode to the CB tag and the barcodes plus pkr in the XC tag.
     bowtie2 -X2000 \
-    -p ~{cpus} \
-    ~{if defined(multimappers) then "-k ~{multimappers}" else ""} --rg-id ~{prefix + "."}atac \
-    --rg "SM:None" \
-    --rg "LB:None" \
-    --rg "PL:Illumina" \
-    ~{if "~{chemistry}" != "shareseq" then "--sam-append-comment" else ""} \
-    -x $genome_prefix \
-    -1 ~{fastq_R1} \
-    -2 ~{fastq_R2} 2> ~{alignment_log} | \
-    samtools view \
-    -b \
-    -S \
-    -@ ~{samtools_threads} \
-    - \
-    -o ~{unsorted_bam}
+        -p ~{cpus} \
+        ~{if defined(multimappers) then "-k ~{multimappers}" else ""} --rg-id ~{prefix + "."}atac \
+        --rg "SM:None" \
+        --rg "LB:None" \
+        --rg "PL:Illumina" \
+        ~{if "~{chemistry}" != "shareseq" then "--sam-append-comment" else ""} \
+        -x $genome_prefix \
+        -1 ~{fastq_R1} \
+        -2 ~{fastq_R2} 2> ~{alignment_log} | \
+        samtools view \
+            -b \
+            -S \
+            -@ ~{samtools_threads} \
+            - \
+            -o ~{unsorted_bam}
 
 
-    if [ '~{chemistry}' != 'shareseq' ]; then
-    samtools sort \
-    -@ ~{samtools_threads} \
-    -m ~{samtools_memory_per_thread}M \
-    ~{unsorted_bam} \
-    -o ~{sorted_bam}
-    else
-    # Splitting the read name to ge the cell barcode and adding it to the CB tag in the BAM file.
-    samtools view -h ~{unsorted_bam} | \
-    awk '{if ($0 ~ /^@/) {print $0} else {split($1,a,"[,_]"); print($0 "\tCB:Z:" a[2]a[3]a[4] "\tXC:Z:" a[2]a[3]a[4] "_" a[5]);}}' | \
-    samtools sort \
-    -@ ~{samtools_threads} \
-    -m ~{samtools_memory_per_thread}M \
-    - \
-    -o ~{sorted_bam}
-    fi
+    #if [ '~{chemistry}' != 'shareseq' ]; then
+    #    samtools sort \
+    #        -@ ~{samtools_threads} \
+    #        -m ~{samtools_memory_per_thread}M \
+    #        ~{unsorted_bam} \
+    #        -o ~{sorted_bam}
+    #else
+    #    # Splitting the read name to ge the cell barcode and adding it to the CB tag in the BAM file.
+    #    samtools view -h ~{unsorted_bam} | \
+    #    awk '{if ($0 ~ /^@/) {print $0} else {split($1,a,"[,_]"); print($0 "\tCB:Z:" a[2]a[3]a[4] "\tXC:Z:" a[2]a[3]a[4] "_" a[5]);}}' | \
+    #    samtools sort \
+    #        -@ ~{samtools_threads} \
+    #        -m ~{samtools_memory_per_thread}M \
+    #        - \
+    #        -o ~{sorted_bam}
+    #fi
 
-    samtools index -@ ~{cpus} ~{sorted_bam}
+    #samtools index -@ ~{cpus} ~{sorted_bam}
 
   >>>
 
   output {
-    File atac_alignment = sorted_bam
-    File atac_alignment_index = sorted_bai
+    File atac_alignment = unsorted_bam
+    #File atac_alignment_index = sorted_bai
     File atac_alignment_log = alignment_log
   }
 
