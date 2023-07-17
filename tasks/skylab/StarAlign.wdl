@@ -412,11 +412,11 @@ task STARsoloFastq {
     File barcodes_sn_rna = "barcodes_sn_rna.tsv"
     File features_sn_rna = "features_sn_rna.tsv"
     File matrix_sn_rna = "matrix_sn_rna.mtx"
-    File CellReads = "CellReads.stats"
+    File cell_reads = "CellReads.stats"
     File align_features = "Features.stats"
     File summary = "Summary.csv"
     File umipercell = "UMIperCellSorted.txt"
-    File CellReads_sn_rna = "CellReads_sn_rna.stats"
+    File cell_reads_sn_rna = "CellReads_sn_rna.stats"
     File align_features_sn_rna = "Features_sn_rna.stats"
     File summary_sn_rna = "Summary_sn_rna.csv"
     File umipercell_sn_rna = "UMIperCellSorted_sn_rna.txt"
@@ -430,6 +430,7 @@ task MergeStarOutput {
     Array[File] barcodes
     Array[File] features
     Array[File] matrix
+    Array[File] cell_reads
   
     String input_id
 
@@ -457,6 +458,10 @@ task MergeStarOutput {
     declare -a barcodes_files=(~{sep=' ' barcodes})
     declare -a features_files=(~{sep=' ' features})
     declare -a matrix_files=(~{sep=' ' matrix})
+    declare -a cell_reads_files=(~(sep=' ' cell_reads))
+
+    cat $(cell_reads_files[@]) > cell_reads.txt
+
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
     python3 /usr/gitc/create-merged-npz-output.py \
@@ -479,6 +484,7 @@ task MergeStarOutput {
     File row_index = "~{input_id}_sparse_counts_row_index.npy"
     File col_index = "~{input_id}_sparse_counts_col_index.npy"
     File sparse_counts = "~{input_id}_sparse_counts.npz"
+    File cell_reads_out = "~{input_id}_cell_reads.txt"
   }
 }
 
