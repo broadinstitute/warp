@@ -458,17 +458,13 @@ task MergeStarOutput {
     declare -a barcodes_files=(~{sep=' ' barcodes})
     declare -a features_files=(~{sep=' ' features})
     declare -a matrix_files=(~{sep=' ' matrix})
-    # optional cell_reads
-    $DECLARE=(declare -a cell_reads_files=(~{sep= ' ' cell_reads}))
-    $CAT=(cat ${cell_reads_files[@]} > ~{input_id}_cell_reads.txt)
-    
-    ~{if defined(cell_reads) then "$DECLARE" else ""}
-    ~{if defined(cell_reads) then "$CAT" else ""}
 
-   
-    
-    #cat ${cell_reads_files[@]} > ~{input_id}_cell_reads.txt
- 
+    $cell_reads=(~{cell_reads})
+
+    if [ -f "$cell_reads" ]; then
+      declare -a cell_reads_files=(~{sep= ' ' cell_reads})
+      cat ${cell_reads_files[@]} > ~{input_id}_cell_reads.txt 
+    fi
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
     python3 /usr/gitc/create-merged-npz-output.py \
