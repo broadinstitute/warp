@@ -459,9 +459,11 @@ task MergeStarOutput {
     declare -a features_files=(~{sep=' ' features})
     declare -a matrix_files=(~{sep=' ' matrix})
     # optional cell_reads
-  
-    ~{if defined(cell_reads) then "declare -a cell_reads_files=(~{sep= ' ' cell_reads})" else ""}
-    ~{if defined(cell_reads) then "cat ${cell_reads_files[@]} > ~{input_id}_cell_reads.txt" else ""}
+    $DECLARE=(declare -a cell_reads_files=(~{sep= ' ' cell_reads}))
+    $CAT=(cat ${cell_reads_files[@]} > ~{input_id}_cell_reads.txt)
+    
+    ~{if defined(cell_reads) then "$DECLARE" else ""}
+    ~{if defined(cell_reads) then "$CAT" else ""}
 
    
     
