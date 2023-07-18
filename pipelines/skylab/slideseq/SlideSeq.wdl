@@ -23,7 +23,7 @@ import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 
 workflow SlideSeq {
 
-    String pipeline_version = "1.0.9"
+    String pipeline_version = "1.0.10"
 
     input {
         Array[File] r1_fastq
