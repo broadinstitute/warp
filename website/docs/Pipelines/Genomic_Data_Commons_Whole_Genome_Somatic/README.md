@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/Genomic_Data_Commons_Whole_Genome_Somatic/README
 ---
 
 # Genomic Data Commons (GDC) Whole Genome Somatic Single Sample Overview

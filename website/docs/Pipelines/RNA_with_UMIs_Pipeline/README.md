@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/RNA_with_UMIs_Pipeline/README
 ---
 
 # RNA with UMIs Overview
