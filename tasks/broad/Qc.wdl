@@ -503,10 +503,24 @@ task CollectRawWgsMetrics {
   Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + additional_disk
 
   Int memory_size = ceil((if (disk_size < 110) then 5 else 7) * memory_multiplier)
-  String java_memory_size = (memory_size - 1) * 1000
+  #String java_memory_size = (memory_size - 1) * 1000
 
-  command {
-    java -Xms~{java_memory_size}m -jar /usr/picard/picard.jar \
+  command <<<
+    set -e
+    # copied the following code from HaplotypeCaller_GATK4_VCF in GermlineVariantDiscovery
+    # Quanhu Sheng, 20230719 
+    #
+    # We need at least 1 GB of available memory outside of the Java heap in order to execute native code, thus, limit
+    # Java's memory by the total memory minus 1 GB. We need to compute the total memory as it might differ from
+    # memory_size_gb because of Cromwell's retry with more memory feature.
+    # Note: In the future this should be done using Cromwell's ${MEM_SIZE} and ${MEM_UNIT} environment variables,
+    #       which do not rely on the output format of the `free` command.
+    available_memory_mb=$(free -m | awk '/^Mem/ {print $2}')
+    let java_memory_size_mb=available_memory_mb-1024
+    echo Total available memory: ${available_memory_mb} MB >&2
+    echo Memory reserved for Java: ${java_memory_size_mb} MB >&2
+
+    java -Xms{java_memory_size_mb}m -Xmx{java_memory_size_mb}m  -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -jar /usr/picard/picard.jar \
       CollectRawWgsMetrics \
       INPUT=~{input_bam} \
       VALIDATION_STRINGENCY=SILENT \
@@ -516,7 +530,8 @@ task CollectRawWgsMetrics {
       OUTPUT=~{metrics_filename} \
       USE_FAST_ALGORITHM=true \
       READ_LENGTH=~{read_length}
-  }
+  >>>
+
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: preemptible_tries
