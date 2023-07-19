@@ -1,3 +1,8 @@
+# 1.0.10
+2023-07-07 (Date of Last Commit)
+
+* Changed Pytools container to Warp-tools in StarAlign and LoomUtils, and updated command paths accordingly
+
 # 1.0.9
 2023-06-14 (Date of Last Commit)
 

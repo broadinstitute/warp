@@ -1,3 +1,8 @@
+# 1.3.2
+2023-07-07 (Date of Last Commit)
+
+* Changed Pytools container to Warp-tools and updated command paths accordingly
+
 # 1.3.1
 2023-01-19 (Date of Last Commit)
 

@@ -13,12 +13,12 @@ task ValidateSmartSeq2Plate {
     # catch intermittent failures
     set -eo pipefail
 
-   python3 /usr/gitc/loomCompare.py --truth-loom ~{truth_loom} --check-loom ~{loom_output} --delta-cutoff 10
+   python3 /warptools/scripts/loomCompare.py --truth-loom ~{truth_loom} --check-loom ~{loom_output} --delta-cutoff 10
 
   >>>
   
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+    docker: "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686932671"
     cpu: 1
     memory: "8 GiB"
     disks: "local-disk 1${disk_size} HDD"

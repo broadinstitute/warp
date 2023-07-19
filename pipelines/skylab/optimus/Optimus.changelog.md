@@ -1,3 +1,7 @@
+# 5.8.4
+2023-07-07 (Date of Last Commit)
+
+* Changed Pytools container to Warp-tools in StarAlign and updated command paths accordingly
 
 # 5.8.3
 2023-06-23 (Date of Last Commit)

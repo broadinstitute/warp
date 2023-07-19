@@ -401,7 +401,7 @@ task MergeStarOutput {
     String input_id
 
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686932671"
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
@@ -426,7 +426,7 @@ task MergeStarOutput {
     declare -a matrix_files=(~{sep=' ' matrix})
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
-    python3 /usr/gitc/create-merged-npz-output.py \
+    python3 /warptools/scripts/create-merged-npz-output.py \
         --barcodes ${barcodes_files[@]} \
         --features ${features_files[@]} \
         --matrix ${matrix_files[@]} \
