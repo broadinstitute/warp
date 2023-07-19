@@ -1,6 +1,6 @@
 {
-  "VariantCalling.input_bam": "gs://broad-gotc-test-storage/variant_calling/exome/plumbing/bams/RP-929.NA12878/NA12878_PLUMBING.bam",
-  "VariantCalling.input_bam_index": "gs://broad-gotc-test-storage/variant_calling/exome/plumbing/bams/RP-929.NA12878/NA12878_PLUMBING.bai",
+  "VariantCalling.input_bam": "gs://broad-gotc-test-storage/ExomeGermlineSingleSample/truth/scientific/master/D5327.NA12878/NA12878.cram",
+  "VariantCalling.input_bam_index": "gs://broad-gotc-test-storage/ExomeGermlineSingleSample/truth/scientific/master/D5327.NA12878/NA12878.cram.crai",
   "VariantCalling.base_file_name": "NA12878_PLUMBING",
   "VariantCalling.final_vcf_base_name": "NA12878_PLUMBING",
 
