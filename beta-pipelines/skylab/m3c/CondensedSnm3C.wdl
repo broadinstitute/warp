@@ -29,25 +29,15 @@ workflow NewAndImprovedsn3MC {
             unmapped_fastq = separate_unmapped_reads.unmapped_fastq
     }
 
-    call hisat_3n_single_end_r1_mapping_dna_mode {
+    call hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
         input:
-            split_r1 = split_unmapped_reads.split_r1_fq
-    }
-
-    call hisat_3n_single_end_r2_mapping_dna_mode {
-        input:
+            split_r1 = split_unmapped_reads.split_r1_fq,
             split_r2 = split_unmapped_reads.split_r2_fq
-    }
-
-    call merge_and_sort_split_reads_by_name {
-        input:
-            r1_hisat3n_bam = hisat_3n_single_end_r1_mapping_dna_mode.r1_hisat3n_bam,
-            r2_hisat3n_bam = hisat_3n_single_end_r2_mapping_dna_mode.r2_hisat3n_bam
     }
 
     call remove_overlap_read_parts {
         input:
-            bam = merge_and_sort_split_reads_by_name.bam
+            bam = hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam
     }
 
     call merge_original_and_split_bam {
@@ -191,9 +181,10 @@ task split_unmapped_reads {
     }
 }
 
-task hisat_3n_single_end_r1_mapping_dna_mode {
+task hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
     input {
         File split_r1
+        File split_r2
     }
     command <<<
     >>>
@@ -206,42 +197,9 @@ task hisat_3n_single_end_r1_mapping_dna_mode {
     output {
         File r1_hisat3n_bam = ""
         File r1_hisat3n_stats = ""
-    }
-}
-
-task hisat_3n_single_end_r2_mapping_dna_mode {
-    input {
-        File split_r2
-    }
-    command <<<
-    >>>
-    runtime {
-        docker: "fill_in"
-        disks: "local-disk ${disk_size} HDD"
-        cpu: 1
-        memory: "${mem_size} GiB"
-    }
-    output {
         File r2_hisat3n_bam = ""
         File r2_hisat3n_stats = ""
-    }
-}
-
-task merge_and_sort_split_reads_by_name {
-    input {
-        File r1_hisat3n_bam
-        File r2_hisat3n_bam
-    }
-    command <<<
-    >>>
-    runtime {
-        docker: "fill_in"
-        disks: "local-disk ${disk_size} HDD"
-        cpu: 1
-        memory: "${mem_size} GiB"
-    }
-    output {
-        File bam = ""
+        File merge_sorted_bam = ""
     }
 }
 
@@ -262,7 +220,7 @@ task remove_overlap_read_parts {
     }
 }
 
-task merge_original_and_split_bam {
+task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
     input {
         File bam
         File split_bam
@@ -276,7 +234,9 @@ task merge_original_and_split_bam {
         memory: "${mem_size} GiB"
     }
     output {
-        File bam = ""
+        File unsorted_bam = ""
+        File name_sorted_bam = ""
+        File position_sorted_bam = ""
     }
 }
 
