@@ -117,11 +117,11 @@ workflow Original_snm3C {
 
   output {
     File MappingSummary = summary.MappingSummary
-    #File allcFiles
-    #File allc_CGNFiles
-    #File bamFiles
-    #File detail_statsFiles =
-    #File hicFiles
+    File allcFiles = unique_reads_allc.
+    File allc_CGNFiles = unique_reads_cgn_extraction.
+    File bamFiles = merge_and_sort_split_reads_by_name.bam
+    File detail_statsFiles =
+    File hicFiles = call_chromatin_contacts.chromatin_contact_stats
   }
 }
 

@@ -82,11 +82,12 @@ workflow Condensed_snm3C {
 
     output {
         File MappingSummary = summary.MappingSummary
-        #File allcFiles
-        #File allc_CGNFiles
-        #File bamFiles
-        #File detail_statsFiles =
-        #File hicFiles
+        File allcFiles = unique_reads_allc.
+        File allc_CGNFiles = unique_reads_cgn_extraction.
+        File bamFiles = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
+        File UniqueAlign_cell_parser_picard_dedup = dedup_unique_bam_and_index_unique_bam.dedup_stats
+        File SplitReads_cell_parser_hisat_summary = "?"
+        File hicFiles = call_chromatin_contacts.chromatin_contact_stats
     }
 }
 
