@@ -1,22 +1,26 @@
 version 1.0
 
-workflow NewAndImprovedsn3MC {
+workflow Original_snm3C {
 
   input {
     Array[File] fastq_input_read1
     Array[File] fastq_input_read2
   }
 
-  call sort_r1_and_r2 {
+  call sort_r1 {
     input:
       r1 = fastq_input_read1,
+  }
+
+  call sort_r2 {
+    input:
       r2 = fastq_input_read2
   }
 
   call trim {
     input:
-     r1_sorted = sort_r1_and_r2.r1_sorted_fq,
-     r2_sorted = sort_r1_and_r2.r2_sorted_fq
+     r1_sorted = sort_r1.r1_sorted_fq,
+     r2_sorted = sort_r2.r2_sorted_fq
   }
 
   call  hisat_3n_pair_end_mapping_dna_mode {
@@ -122,10 +126,9 @@ workflow NewAndImprovedsn3MC {
 }
 
 
-task sort_r1_and_r2 {
+task sort_r1{
     input {
         File r1
-        File r2
     }
 
     command <<<
@@ -140,6 +143,26 @@ task sort_r1_and_r2 {
 
     output {
         File r1_sorted_fq = ""
+    }
+}
+
+
+task sort_r2 {
+    input {
+        File r2
+    }
+
+    command <<<
+    >>>
+
+    runtime {
+        docker: "fill_in"
+        disks: "local-disk ${disk_size} HDD"
+        cpu: 1
+        memory: "${mem_size} GiB"
+    }
+
+    output {
         File r2_sorted_fq = ""
     }
 }
