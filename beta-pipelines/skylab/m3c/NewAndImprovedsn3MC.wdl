@@ -58,7 +58,7 @@ workflow NewAndImprovedsn3MC {
 
   call merge_original_and_split_bam {
     input:
-      original_bam = separate_unmapped_reads.unique_bam,
+      bam = separate_unmapped_reads.unique_bam,
       split_bam = remove_overlap_read_parts.bam
   }
 
@@ -132,15 +132,15 @@ task sort_r1_and_r2 {
     >>>
 
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
 
     output {
-        File r1_sorted
-        File r2_sorted
+        File r1_sorted = ""
+        File r2_sorted = ""
     }
 }
 
@@ -152,15 +152,15 @@ task trim {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-        File r1_trimmed
-        File r2_trimmed
-        File trim_stats
+        File r1_trimmed = ""
+        File r2_trimmed = ""
+        File trim_stats = ""
     }
 }
 
@@ -172,14 +172,14 @@ task hisat_3n_pair_end_mapping_dna_mode{
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-    File hisat3n_bam
-    File hisat3n_stats
+    File hisat3n_bam = ""
+    File hisat3n_stats = ""
     }
 }
 
@@ -190,15 +190,15 @@ task separate_unmapped_reads {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-        File unique_bam
-        File multi_bam
-        File unmapped_fastq
+        File unique_bam = ""
+        File multi_bam = ""
+        File unmapped_fastq = ""
     }
 }
 
@@ -209,14 +209,14 @@ task split_unmapped_reads {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-           File split_r1
-           File split_r2
+           File split_r1 = ""
+           File split_r2 = ""
     }
 }
 
@@ -227,14 +227,14 @@ task hisat_3n_single_end_r1_mapping_dna_mode {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-        File r1_hisat3n_bam
-        File r1_hisat3n_stats
+        File r1_hisat3n_bam = ""
+        File r1_hisat3n_stats = ""
     }
 }
 
@@ -245,14 +245,14 @@ task hisat_3n_single_end_r2_mapping_dna_mode {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-        File r2_hisat3n_bam
-        File r2_hisat3n_stats
+        File r2_hisat3n_bam = ""
+        File r2_hisat3n_stats = ""
     }
 }
 
@@ -264,13 +264,13 @@ task merge_and_sort_split_reads_by_name {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-        File bam
+        File bam = ""
     }
 }
 
@@ -281,13 +281,13 @@ task remove_overlap_read_parts {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-        File bam
+        File bam = ""
     }
 }
 
@@ -299,13 +299,13 @@ task merge_original_and_split_bam {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-        File bam
+        File bam = ""
     }
 }
 
@@ -316,13 +316,13 @@ task sort_all_reads_by_name {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-        File bam
+        File bam = ""
     }
 }
 
@@ -333,13 +333,13 @@ task call_chromatin_contacts {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-        File chromatin_contact_stats
+        File chromatin_contact_stats = ""
     }
 }
 
@@ -350,13 +350,13 @@ task sort_bam {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-        File bam
+        File bam = ""
     }
 }
 
@@ -367,14 +367,14 @@ task dedup_unique_bam {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-        File bam
-        File dedup_stats
+        File bam = ""
+        File dedup_stats = ""
     }
 }
 
@@ -385,13 +385,13 @@ task index_unique_bam_dna_reads {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-        File bai
+        File bai = ""
     }
 }
 
@@ -403,15 +403,15 @@ task unique_reads_allc {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-        File allc
-        File tbi
-        File allc_uniq_reads_stats
+        File allc = ""
+        File tbi = ""
+        File allc_uniq_reads_stats = ""
     }
 }
 
@@ -423,14 +423,14 @@ task unique_reads_cgn_extraction {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-        File unique_reads_cgn_extraction_allc
-        File unique_reads_cgn_extraction_tbi
+        File unique_reads_cgn_extraction_allc = ""
+        File unique_reads_cgn_extraction_tbi = ""
     }
 }
 
@@ -448,13 +448,13 @@ task summary {
     command <<<
     >>>
     runtime {
-        docker:
+        docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
     output {
-        File mapping_summary
+        File mapping_summary = ""
     }
 }
 
