@@ -109,7 +109,7 @@ task MarkDuplicates {
     echo Total available memory: ${available_memory_mb} MB >&2
     echo Memory reserved for Java: ${java_memory_size_mb} MB >&2
 
-    java -Dsamjdk.compression_level=~{compression_level} -Xms{java_memory_size_mb}m -Xmx{java_memory_size_mb}m  -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -jar /usr/picard/picard.jar \
+    java -Dsamjdk.compression_level=~{compression_level} -Xms${java_memory_size_mb}m -Xmx${java_memory_size_mb}m  -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -jar /usr/picard/picard.jar \
       MarkDuplicates \
       INPUT=~{sep=' INPUT=' input_bams} \
       OUTPUT=~{output_bam_basename}.bam \

@@ -520,7 +520,7 @@ task CollectRawWgsMetrics {
     echo Total available memory: ${available_memory_mb} MB >&2
     echo Memory reserved for Java: ${java_memory_size_mb} MB >&2
 
-    java -Xms{java_memory_size_mb}m -Xmx{java_memory_size_mb}m  -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -jar /usr/picard/picard.jar \
+    java -Xms${java_memory_size_mb}m -Xmx${java_memory_size_mb}m  -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -jar /usr/picard/picard.jar \
       CollectRawWgsMetrics \
       INPUT=~{input_bam} \
       VALIDATION_STRINGENCY=SILENT \
