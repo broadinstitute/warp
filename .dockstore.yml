@@ -119,3 +119,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/multiome/atac.wdl
 
+  - name: VariantCalling
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl
