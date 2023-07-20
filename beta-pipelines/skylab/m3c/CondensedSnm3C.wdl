@@ -40,41 +40,26 @@ workflow NewAndImprovedsn3MC {
             bam = hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam
     }
 
-    call merge_original_and_split_bam {
+    call merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
         input:
-            bam = separate_unmapped_reads.unique_bam,
+            unique_bam = separate_unmapped_reads.unique_bam,
             split_bam = remove_overlap_read_parts.remove_overlap_bam
-    }
-
-    call sort_all_reads_by_name {
-        input:
-            bam = merge_original_and_split_bam.bam
     }
 
     call call_chromatin_contacts {
         input:
-            bam = sort_all_reads_by_name.bam
+            bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
     }
 
-    call sort_bam {
+    call dedup_unique_bam_and_index_unique_bam {
         input:
-            bam = sort_all_reads_by_name.bam
-    }
-
-    call dedup_unique_bam {
-        input:
-            bam = sort_bam.bam
-    }
-
-    call index_unique_bam_dna_reads {
-        input:
-            bam = dedup_unique_bam.dedup_bam
+            bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
     }
 
     call unique_reads_allc {
         input:
-            bam = dedup_unique_bam.dedup_bam,
-            bai = index_unique_bam_dna_reads.bai
+            bam = dedup_unique_bam_and_index_unique_bam.dedup_bam,
+            bai = dedup_unique_bam_and_index_unique_bam.dedup_bai
     }
 
     call unique_reads_cgn_extraction {
@@ -87,9 +72,9 @@ workflow NewAndImprovedsn3MC {
         input:
             trimmed_stats = sort_and_trim_r1_and_r2.trim_stats,
             hisat3n_stats = hisat_3n_pair_end_mapping_dna_mode.hisat3n_stats,
-            r1_hisat3n_stats = hisat_3n_single_end_r1_mapping_dna_mode.r1_hisat3n_stats,
-            r2_hisat3n_stats = hisat_3n_single_end_r2_mapping_dna_mode.r2_hisat3n_stats,
-            dedup_stats = dedup_unique_bam.dedup_stats,
+            r1_hisat3n_stats = hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.r1_hisat3n_stats,
+            r2_hisat3n_stats = hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.r2_hisat3n_stats,
+            dedup_stats = dedup_unique_bam_and_index_unique_bam.dedup_stats,
             chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats,
             allc_uniq_reads_stats = unique_reads_allc.allc_uniq_reads_stats,
             unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.unique_reads_cgn_extraction_tbi
@@ -222,7 +207,7 @@ task remove_overlap_read_parts {
 
 task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
     input {
-        File bam
+        File unique_bam
         File split_bam
     }
     command <<<
@@ -234,26 +219,8 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
         memory: "${mem_size} GiB"
     }
     output {
-        File unsorted_bam = ""
         File name_sorted_bam = ""
         File position_sorted_bam = ""
-    }
-}
-
-task sort_all_reads_by_name {
-    input {
-        File bam
-    }
-    command <<<
-    >>>
-    runtime {
-        docker: "fill_in"
-        disks: "local-disk ${disk_size} HDD"
-        cpu: 1
-        memory: "${mem_size} GiB"
-    }
-    output {
-        File bam = ""
     }
 }
 
@@ -274,24 +241,7 @@ task call_chromatin_contacts {
     }
 }
 
-task sort_bam {
-    input {
-        File bam
-    }
-    command <<<
-    >>>
-    runtime {
-        docker: "fill_in"
-        disks: "local-disk ${disk_size} HDD"
-        cpu: 1
-        memory: "${mem_size} GiB"
-    }
-    output {
-        File bam = ""
-    }
-}
-
-task dedup_unique_bam {
+task dedup_unique_bam_and_index_unique_bam {
     input {
         File bam
     }
@@ -306,23 +256,7 @@ task dedup_unique_bam {
     output {
         File dedup_bam = ""
         File dedup_stats = ""
-    }
-}
-
-task index_unique_bam_dna_reads {
-    input {
-        File bam
-    }
-    command <<<
-    >>>
-    runtime {
-        docker: "fill_in"
-        disks: "local-disk ${disk_size} HDD"
-        cpu: 1
-        memory: "${mem_size} GiB"
-    }
-    output {
-        File bai = ""
+        File dedup_bai = ""
     }
 }
 
@@ -388,4 +322,3 @@ task summary {
         File mapping_summary = "MappingSummary.csv.gz"
     }
 }
-

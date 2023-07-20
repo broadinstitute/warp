@@ -457,4 +457,3 @@ task summary {
         File mapping_summary = "MappingSummary.csv.gz"
     }
 }
-
