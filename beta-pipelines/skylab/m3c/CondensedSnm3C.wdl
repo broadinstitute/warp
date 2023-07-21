@@ -5,6 +5,16 @@ workflow Condensed_snm3C {
     input {
         Array[File] fastq_input_read1
         Array[File] fastq_input_read2
+        File random_primer_indexes
+        String plate_id
+    }
+
+    call demultiplexing {
+        input:
+            r1 = fastq_input_read1,
+            r2 = fastq_input_read2,
+            random_primer_indexes = random_primer_indexes,
+            plate_id = plate_id
     }
 
     call sort_and_trim_r1_and_r2 {
@@ -91,10 +101,86 @@ workflow Condensed_snm3C {
     }
 }
 
+task Demultiplexing {
+  input {
+    Array[File] fastq_input_read1
+    Array[File] fastq_input_read2
+    File random_primer_indexes
+    String plate_id
+
+    String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+    Int disk_size = 50
+    Int mem_size = 10
+  }
+
+  command <<<
+    set -euo pipefail
+
+    # Cat files for each r1, r2
+    cat ~{sep=' ' fastq_input_read1} > r1.fastq.gz
+    cat ~{sep=' ' fastq_input_read2} > r2.fastq.gz
+
+    /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels \
+    -g file:~{random_primer_indexes} \
+    -o ~{plate_id}-{name}-R1.fq.gz \
+    -p ~{plate_id}-{name}-R2.fq.gz \
+    r1.fastq.gz \
+    r2.fastq.gz \
+    > ~{plate_id}.stats.txt
+
+    # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
+    rm *-unknown-R{1,2}.fq.gz
+
+    python3 <<CODE
+    import re
+    import os
+
+    # Parsing stats.txt file
+    stats_file_path = '/cromwell_root/~{plate_id}.stats.txt'
+    adapter_counts = {}
+    with open(stats_file_path, 'r') as file:
+        content = file.read()
+
+    adapter_matches = re.findall(r'=== First read: Adapter (\w+) ===\n\nSequence: .+; Type: .+; Length: \d+; Trimmed: (\d+) times', content)
+    for adapter_match in adapter_matches:
+        adapter_name = adapter_match[0]
+        trimmed_count = int(adapter_match[1])
+        adapter_counts[adapter_name] = trimmed_count
+
+    # Removing fastq files with trimmed reads greater than 30
+    directory_path = '/cromwell_root'
+    threshold = 10000000
+
+    for filename in os.listdir(directory_path):
+        if filename.endswith('.fq.gz'):
+            file_path = os.path.join(directory_path, filename)
+            adapter_name = re.search(r'A(\d+)-R', filename)
+            if adapter_name:
+                adapter_name = 'A' + adapter_name.group(1)
+                if adapter_name in adapter_counts and adapter_counts[adapter_name] > threshold:
+                    os.remove(file_path)
+                    print(f'Removed file: {filename}')
+    CODE
+
+    # zip up all the output fq.gz files
+    tar -zcvf ~{plate_id}.cutadapt_output_files.tar.gz *.fq.gz
+  >>>
+
+  runtime {
+    docker: docker_image
+    disks: "local-disk ${disk_size} HDD"
+    cpu: 1
+    memory: "${mem_size} GiB"
+  }
+
+  output {
+    File tarred_demultiplexed_fastqs = "~{plate_id}.cutadapt_output_files.tar.gz"
+    File stats = "~{plate_id}.stats.txt"}
+}
+
 task sort_and_trim_r1_and_r2 {
     input {
-        File r1
-        File r2
+        File tarred_demultiplexed_fastqs
     }
     command <<<
     >>>
