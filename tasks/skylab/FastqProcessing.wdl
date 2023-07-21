@@ -239,7 +239,7 @@ task FastqProcessATAC {
         Array[String] read3_fastq
         Array[String] barcodes_fastq
         String read_structure = "16C"
-        String barcode_orientation = "FIRST_BP_RC"
+        String barcode_orientation = "LAST_BP"
         String output_base_name
         File whitelist
 
