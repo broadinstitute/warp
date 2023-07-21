@@ -1,7 +1,9 @@
 # 1.2.25
-2023-07-11 (Date of Last Commit)
+2023-07-18 (Date of Last Commit)
 
+* Added STARsolo v2.7.10b metric outputs as an optional pipeline output and an output of the STARalign and MergeSTAR tasks. This does not impact the snSS2 pipeline
 * Updated the CountAlignments task in the FeatureCounts.wdl to use a new docker image. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline
+
 
 # 1.2.24
 2023-06-23 (Date of Last Commit)
