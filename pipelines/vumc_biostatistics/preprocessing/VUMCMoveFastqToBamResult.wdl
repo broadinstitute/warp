@@ -129,6 +129,8 @@ task MoveFastqToBamResult {
   String new_output_bam_index = "${target_bucket}/${genoset}/${GRID}/${basename(output_bam_index)}"
   String new_output_bam_md5 = "${target_bucket}/${genoset}/${GRID}/${basename(output_bam_md5)}"
 
+  command <<<
+
 move_file(){
   set +e
 
