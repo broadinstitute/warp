@@ -429,6 +429,9 @@ task MergeStarOutput {
     Array[File] features
     Array[File] matrix
     Array[File]? cell_reads
+    Array[File]? summary
+    Array[File]? align_features
+    Array[File]? umipercell
     
     String input_id
 
@@ -457,13 +460,46 @@ task MergeStarOutput {
     declare -a features_files=(~{sep=' ' features})
     declare -a matrix_files=(~{sep=' ' matrix})
     declare -a cell_reads_files=(~{sep=' ' cell_reads})
+    declare -a summary_files=(~{sep=' ' summary})
+    declare -a align_features_files=(~{sep=' ' align_features})
+    declare -a umipercell_files=(~{sep=' ' umipercell})
 
     for cell_read in "${cell_reads_files[@]}"; do
       if [ -f "$cell_read" ]; then
         cat "$cell_read" >> "~{input_id}_cell_reads.txt"
       fi
     done
+    
+    for summary in "${summary_files[@]}"; do
+      if [ -f "$summary" ]; then
+        cat "$summary" >> "~{input_id}_summary.txt"
+      fi
+    done
+    
+    for align_feature in "${align_features_files[@]}"; do
+      if [ -f "$align_feature" ]; then
+        cat "$align_feature" >> "~{input_id}_align_features.txt"
+      fi
+    done
+ 
+    for umipercell in "${umipercell_files[@]}"; do
+      if [ -f "$umipercell" ]; then
+        cat "$umipercell" >> "~{input_id}_umipercell.txt"
+      fi
+    done
 
+    for umipercell in "${umipercell_files[@]}"; do
+      if [ -f "$umipercell" ]; then
+        cat "$umipercell" >> "~{input_id}_umipercell.txt"
+      fi
+    done
+    
+    # If text files are present, create a tar archive with them
+    if ls *.txt 1> /dev/null 2>&1; then
+      tar -zcvf ~{input_id}.star_metrics.tar *.txt
+    else
+      echo "No text files found in the folder."
+    fi
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
     python3 /usr/gitc/create-merged-npz-output.py \
@@ -486,7 +522,7 @@ task MergeStarOutput {
     File row_index = "~{input_id}_sparse_counts_row_index.npy"
     File col_index = "~{input_id}_sparse_counts_col_index.npy"
     File sparse_counts = "~{input_id}_sparse_counts.npz"
-    File? cell_reads_out = "~{input_id}_cell_reads.txt"
+    File? cell_reads_out = "~{input_id}.star_metrics.tar"
   }
 }
 

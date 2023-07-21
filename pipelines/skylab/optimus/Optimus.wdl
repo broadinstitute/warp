@@ -174,6 +174,9 @@ workflow Optimus {
       features = STARsoloFastq.features,
       matrix = STARsoloFastq.matrix,
       cell_reads = STARsoloFastq.cell_reads,
+      summary = STARsoloFastq.summary,
+      align_features = STARsoloFastq.align_features,
+      umipercell = STARsoloFastq.umipercell,
       input_id = input_id
   }
   if (counting_mode == "sc_rna"){
