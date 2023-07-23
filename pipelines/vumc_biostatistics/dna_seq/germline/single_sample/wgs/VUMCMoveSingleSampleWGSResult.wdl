@@ -198,7 +198,9 @@ task MoveSingleSampleWGSResult {
   String new_read_group_gc_bias_pdf = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(read_group_gc_bias_pdf)}"
   String new_read_group_gc_bias_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(read_group_gc_bias_summary_metrics)}"
 
-  String new_cross_check_fingerprints_metrics = if "~{cross_check_fingerprints_metrics}" == "" then "" else "~{target_bucket}/~{genoset}/~{GRID}/~{basename(cross_check_fingerprints_metrics)}"
+  #basename cannot take optional input
+  String old_cross_check_fingerprints_metrics = "~{cross_check_fingerprints_metrics}"
+  String new_cross_check_fingerprints_metrics = if old_cross_check_fingerprints_metrics == "" then "" else "~{target_bucket}/~{genoset}/~{GRID}/~{basename(old_cross_check_fingerprints_metrics)}"
 
   String new_selfSM = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(selfSM)}"
 
@@ -221,7 +223,8 @@ task MoveSingleSampleWGSResult {
 
   String new_duplicate_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(duplicate_metrics)}"
 
-  String new_output_bqsr_reports = if "~{output_bqsr_reports}" == "" then "" else "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_bqsr_reports)}"
+  String old_output_bqsr_reports = "~{output_bqsr_reports}"
+  String new_output_bqsr_reports = if old_output_bqsr_reports == "" then "" else "~{target_bucket}/~{genoset}/~{GRID}/~{basename(old_output_bqsr_reports)}"
 
   String new_output_cram = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram)}"
   String new_output_cram_index = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram_index)}"
