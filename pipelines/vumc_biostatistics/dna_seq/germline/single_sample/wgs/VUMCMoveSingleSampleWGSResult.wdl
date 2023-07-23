@@ -193,50 +193,50 @@ task MoveSingleSampleWGSResult {
     String target_bucket
   }
 
-  String new_read_group_alignment_summary_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(read_group_alignment_summary_metrics)}"
-  String new_read_group_gc_bias_detail_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(read_group_gc_bias_detail_metrics)}"
-  String new_read_group_gc_bias_pdf = "${target_bucket}/${genoset}/${GRID}/${basename(read_group_gc_bias_pdf)}"
-  String new_read_group_gc_bias_summary_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(read_group_gc_bias_summary_metrics)}"
+  String new_read_group_alignment_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(read_group_alignment_summary_metrics)}"
+  String new_read_group_gc_bias_detail_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(read_group_gc_bias_detail_metrics)}"
+  String new_read_group_gc_bias_pdf = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(read_group_gc_bias_pdf)}"
+  String new_read_group_gc_bias_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(read_group_gc_bias_summary_metrics)}"
 
-  String? new_cross_check_fingerprints_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(cross_check_fingerprints_metrics)}"
+  String? new_cross_check_fingerprints_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(cross_check_fingerprints_metrics)}"
 
-  String? move_cross_check_fingerprints_metrics = "move_file ${cross_check_fingerprints_metrics} ${new_cross_check_fingerprints_metrics}"
+  String move_cross_check_fingerprints_metrics = "move_file ~{cross_check_fingerprints_metrics} ~{new_cross_check_fingerprints_metrics}"
 
-  String new_selfSM = "${target_bucket}/${genoset}/${GRID}/${basename(selfSM)}"
+  String new_selfSM = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(selfSM)}"
 
-  String new_agg_alignment_summary_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(agg_alignment_summary_metrics)}"
-  String new_agg_bait_bias_detail_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(agg_bait_bias_detail_metrics)}"
-  String new_agg_bait_bias_summary_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(agg_bait_bias_summary_metrics)}"
-  String new_agg_gc_bias_detail_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(agg_gc_bias_detail_metrics)}"
-  String new_agg_gc_bias_pdf = "${target_bucket}/${genoset}/${GRID}/${basename(agg_gc_bias_pdf)}"
-  String new_agg_gc_bias_summary_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(agg_gc_bias_summary_metrics)}"
-  String new_agg_insert_size_histogram_pdf = "${target_bucket}/${genoset}/${GRID}/${basename(agg_insert_size_histogram_pdf)}"
-  String new_agg_insert_size_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(agg_insert_size_metrics)}"
-  String new_agg_pre_adapter_detail_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(agg_pre_adapter_detail_metrics)}"
-  String new_agg_pre_adapter_summary_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(agg_pre_adapter_summary_metrics)}"
-  String new_agg_quality_distribution_pdf = "${target_bucket}/${genoset}/${GRID}/${basename(agg_quality_distribution_pdf)}"
-  String new_agg_quality_distribution_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(agg_quality_distribution_metrics)}"
-  String new_agg_error_summary_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(agg_error_summary_metrics)}"
+  String new_agg_alignment_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_alignment_summary_metrics)}"
+  String new_agg_bait_bias_detail_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_bait_bias_detail_metrics)}"
+  String new_agg_bait_bias_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_bait_bias_summary_metrics)}"
+  String new_agg_gc_bias_detail_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_gc_bias_detail_metrics)}"
+  String new_agg_gc_bias_pdf = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_gc_bias_pdf)}"
+  String new_agg_gc_bias_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_gc_bias_summary_metrics)}"
+  String new_agg_insert_size_histogram_pdf = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_insert_size_histogram_pdf)}"
+  String new_agg_insert_size_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_insert_size_metrics)}"
+  String new_agg_pre_adapter_detail_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_pre_adapter_detail_metrics)}"
+  String new_agg_pre_adapter_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_pre_adapter_summary_metrics)}"
+  String new_agg_quality_distribution_pdf = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_quality_distribution_pdf)}"
+  String new_agg_quality_distribution_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_quality_distribution_metrics)}"
+  String new_agg_error_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_error_summary_metrics)}"
 
-  String new_wgs_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(wgs_metrics)}"
-  String new_raw_wgs_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(raw_wgs_metrics)}"
+  String new_wgs_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(wgs_metrics)}"
+  String new_raw_wgs_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(raw_wgs_metrics)}"
 
-  String new_duplicate_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(duplicate_metrics)}"
-  String? new_output_bqsr_reports = "${target_bucket}/${genoset}/${GRID}/${basename(output_bqsr_reports)}"
+  String new_duplicate_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(duplicate_metrics)}"
+  String? new_output_bqsr_reports = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_bqsr_reports)}"
 
-  String? move_output_bqsr_reports = "move_file ${output_bqsr_reports} ${new_output_bqsr_reports}"
+  String move_output_bqsr_reports = "move_file ~{output_bqsr_reports} ~{new_output_bqsr_reports}"
 
-  String new_output_cram = "${target_bucket}/${genoset}/${GRID}/${basename(output_cram)}"
-  String new_output_cram_index = "${target_bucket}/${genoset}/${GRID}/${basename(output_cram_index)}"
-  String new_output_cram_md5 = "${target_bucket}/${genoset}/${GRID}/${basename(output_cram_md5)}"
+  String new_output_cram = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram)}"
+  String new_output_cram_index = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram_index)}"
+  String new_output_cram_md5 = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram_md5)}"
 
-  String new_validate_cram_file_report = "${target_bucket}/${genoset}/${GRID}/${basename(validate_cram_file_report)}"
+  String new_validate_cram_file_report = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(validate_cram_file_report)}"
 
-  String new_output_vcf = "${target_bucket}/${genoset}/${GRID}/${basename(output_vcf)}"
-  String new_output_vcf_index = "${target_bucket}/${genoset}/${GRID}/${basename(output_vcf_index)}"
+  String new_output_vcf = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_vcf)}"
+  String new_output_vcf_index = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_vcf_index)}"
   
-  String new_gvcf_summary_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(gvcf_summary_metrics)}"
-  String new_gvcf_detail_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(gvcf_detail_metrics)}"
+  String new_gvcf_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(gvcf_summary_metrics)}"
+  String new_gvcf_detail_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(gvcf_detail_metrics)}"
 
   command <<<
 
