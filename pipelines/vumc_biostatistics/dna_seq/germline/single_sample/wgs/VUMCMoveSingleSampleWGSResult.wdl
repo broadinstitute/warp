@@ -200,6 +200,8 @@ task MoveSingleSampleWGSResult {
 
   String? new_cross_check_fingerprints_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(cross_check_fingerprints_metrics)}"
 
+  String? move_cross_check_fingerprints_metrics = "move_file ${cross_check_fingerprints_metrics} ${new_cross_check_fingerprints_metrics}"
+
   String new_selfSM = "${target_bucket}/${genoset}/${GRID}/${basename(selfSM)}"
 
   String new_agg_alignment_summary_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(agg_alignment_summary_metrics)}"
@@ -221,6 +223,8 @@ task MoveSingleSampleWGSResult {
 
   String new_duplicate_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(duplicate_metrics)}"
   String? new_output_bqsr_reports = "${target_bucket}/${genoset}/${GRID}/${basename(output_bqsr_reports)}"
+
+  String? move_output_bqsr_reports = "move_file ${output_bqsr_reports} ${new_output_bqsr_reports}"
 
   String new_output_cram = "${target_bucket}/${genoset}/${GRID}/${basename(output_cram)}"
   String new_output_cram_index = "${target_bucket}/${genoset}/${GRID}/${basename(output_cram_index)}"
@@ -279,7 +283,7 @@ move_file ~{read_group_gc_bias_detail_metrics} ~{new_read_group_gc_bias_detail_m
 move_file ~{read_group_gc_bias_pdf} ~{new_read_group_gc_bias_pdf}
 move_file ~{read_group_gc_bias_summary_metrics} ~{new_read_group_gc_bias_summary_metrics}
 
-~{if defined(cross_check_fingerprints_metrics) then "move_file " + cross_check_fingerprints_metrics + " " + new_cross_check_fingerprints_metrics else ""}
+"~{move_cross_check_fingerprints_metrics}"
 
 move_file ~{selfSM} ~{new_selfSM}
 
@@ -301,7 +305,8 @@ move_file ~{wgs_metrics} ~{new_wgs_metrics}
 move_file ~{raw_wgs_metrics} ~{new_raw_wgs_metrics}
 
 move_file ~{duplicate_metrics} ~{new_duplicate_metrics}
-~{if defined(output_bqsr_reports) then "move_file " + output_bqsr_reports + " " + new_output_bqsr_reports else ""}
+
+"~{move_output_bqsr_reports}"
 
 move_file ~{output_cram} ~{new_output_cram}
 move_file ~{output_cram_index} ~{new_output_cram_index}
