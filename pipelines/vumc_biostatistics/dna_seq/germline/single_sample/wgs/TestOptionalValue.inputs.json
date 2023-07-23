@@ -1,0 +1,5 @@
+{
+  "TestOptionalValue.duplicate_metrics": "gs://test/test.duplicate_metrics",
+  "TestOptionalValue.output_bqsr_reports": ""
+}
+
