@@ -283,7 +283,7 @@ move_file ~{read_group_gc_bias_detail_metrics} ~{new_read_group_gc_bias_detail_m
 move_file ~{read_group_gc_bias_pdf} ~{new_read_group_gc_bias_pdf}
 move_file ~{read_group_gc_bias_summary_metrics} ~{new_read_group_gc_bias_summary_metrics}
 
-"~{move_cross_check_fingerprints_metrics}"
+~{move_cross_check_fingerprints_metrics}
 
 move_file ~{selfSM} ~{new_selfSM}
 
@@ -306,7 +306,7 @@ move_file ~{raw_wgs_metrics} ~{new_raw_wgs_metrics}
 
 move_file ~{duplicate_metrics} ~{new_duplicate_metrics}
 
-"~{move_output_bqsr_reports}"
+~{move_output_bqsr_reports}
 
 move_file ~{output_cram} ~{new_output_cram}
 move_file ~{output_cram_index} ~{new_output_cram_index}
