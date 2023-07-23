@@ -198,9 +198,7 @@ task MoveSingleSampleWGSResult {
   String new_read_group_gc_bias_pdf = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(read_group_gc_bias_pdf)}"
   String new_read_group_gc_bias_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(read_group_gc_bias_summary_metrics)}"
 
-  String? new_cross_check_fingerprints_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(cross_check_fingerprints_metrics)}"
-
-  String move_cross_check_fingerprints_metrics = "move_file ~{cross_check_fingerprints_metrics} ~{new_cross_check_fingerprints_metrics}"
+  String new_cross_check_fingerprints_metrics = if "~{cross_check_fingerprints_metrics}" == "" then "" else "~{target_bucket}/~{genoset}/~{GRID}/~{basename(cross_check_fingerprints_metrics)}"
 
   String new_selfSM = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(selfSM)}"
 
@@ -222,9 +220,8 @@ task MoveSingleSampleWGSResult {
   String new_raw_wgs_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(raw_wgs_metrics)}"
 
   String new_duplicate_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(duplicate_metrics)}"
-  String? new_output_bqsr_reports = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_bqsr_reports)}"
 
-  String move_output_bqsr_reports = "move_file ~{output_bqsr_reports} ~{new_output_bqsr_reports}"
+  String new_output_bqsr_reports = if "~{output_bqsr_reports}" == "" then "" else "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_bqsr_reports)}"
 
   String new_output_cram = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram)}"
   String new_output_cram_index = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram_index)}"
@@ -243,6 +240,11 @@ task MoveSingleSampleWGSResult {
 move_file(){
   set +e
 
+  if [[ $# == 0 ]]; then
+    echo "No arguments provided, skipping move."
+    return 0
+  fi
+  
   SOURCE_FILE=$1
   TARGET_FILE=$2
 
@@ -283,7 +285,7 @@ move_file ~{read_group_gc_bias_detail_metrics} ~{new_read_group_gc_bias_detail_m
 move_file ~{read_group_gc_bias_pdf} ~{new_read_group_gc_bias_pdf}
 move_file ~{read_group_gc_bias_summary_metrics} ~{new_read_group_gc_bias_summary_metrics}
 
-~{move_cross_check_fingerprints_metrics}
+move_file ~{cross_check_fingerprints_metrics} ~{new_cross_check_fingerprints_metrics}
 
 move_file ~{selfSM} ~{new_selfSM}
 
@@ -306,7 +308,7 @@ move_file ~{raw_wgs_metrics} ~{new_raw_wgs_metrics}
 
 move_file ~{duplicate_metrics} ~{new_duplicate_metrics}
 
-~{move_output_bqsr_reports}
+move_file ~{output_bqsr_reports} ~{new_output_bqsr_reports}
 
 move_file ~{output_cram} ~{new_output_cram}
 move_file ~{output_cram_index} ~{new_output_cram_index}
@@ -334,7 +336,7 @@ move_file ~{gvcf_detail_metrics} ~{new_gvcf_detail_metrics}
     String target_read_group_gc_bias_pdf = "~{new_read_group_gc_bias_pdf}"
     String target_read_group_gc_bias_summary_metrics = "~{new_read_group_gc_bias_summary_metrics}"
 
-    String? target_cross_check_fingerprints_metrics = "~{new_cross_check_fingerprints_metrics}"
+    String target_cross_check_fingerprints_metrics = "~{new_cross_check_fingerprints_metrics}"
 
     String target_selfSM = "~{new_selfSM}"
 
@@ -356,7 +358,7 @@ move_file ~{gvcf_detail_metrics} ~{new_gvcf_detail_metrics}
     String target_raw_wgs_metrics = "~{new_raw_wgs_metrics}"
 
     String target_duplicate_metrics = "~{new_duplicate_metrics}"
-    String? target_output_bqsr_reports = "~{new_output_bqsr_reports}"
+    String target_output_bqsr_reports = "~{new_output_bqsr_reports}"
 
     String target_output_cram = "~{new_output_cram}"
     String target_output_cram_index = "~{new_output_cram_index}"
