@@ -198,7 +198,7 @@ task MoveSingleSampleWGSResult {
   String new_read_group_gc_bias_pdf = "${target_bucket}/${genoset}/${GRID}/${basename(read_group_gc_bias_pdf)}"
   String new_read_group_gc_bias_summary_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(read_group_gc_bias_summary_metrics)}"
 
-  String new_cross_check_fingerprints_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(cross_check_fingerprints_metrics)}"
+  String? new_cross_check_fingerprints_metrics = "${target_bucket}/${genoset}/${GRID}/${basename(cross_check_fingerprints_metrics)}"
 
   String new_selfSM = "${target_bucket}/${genoset}/${GRID}/${basename(selfSM)}"
 
