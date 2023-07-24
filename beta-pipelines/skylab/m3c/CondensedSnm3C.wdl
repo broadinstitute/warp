@@ -183,7 +183,59 @@ task sort_and_trim_r1_and_r2 {
         File tarred_demultiplexed_fastqs
     }
     command <<<
-    >>>
+    tar -xvf ~{tarred_demultiplexed_fastqs}
+
+    # define list of r1 fq files
+    R1_files = list.files(pattern = "_R1.fq.gz")
+
+    # define list of r2 fq files
+    R2_files = list.files(pattern = "_R2.fq.gz")
+
+    # Loop over R1 and R2 files and sort them
+    for (i in range(length(R1_files))) {
+      sample_id = basename(R1_files[i], ".fq.gz")
+      zcat ${R1_files[i]} | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > ${sample_id}_R1_sorted.fq
+      zcat ${R2_files[i]} | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > ${sample_id}_R2_sorted.fq
+    }
+
+    # Trim and process sorted files
+    for (i in range(length(R1_files))) {
+      sample_id = basename(R1_files[i], ".fq.gz")
+      cutadapt \
+        -a R1Adapter='AGATCGGAAGAGCACACGTCTGAAC' \
+        -A R2Adapter='AGATCGGAAGAGCGTCGTGTAGGGA' \
+        --report=minimal \
+        -O 6 \
+        -q 20 \
+        -u 10 \
+        -u -10 \
+        -U 10 \
+        -U 10 \
+        -Z \
+        -m 30:30 \
+        --pair-filter 'both' \
+        -o ${sample_id}_R1_trimmed.fq.gz \
+        -p ${sample_id}_R2_trimmed.fq.gz \
+        ${sample_id}_R1_sorted.fq ${sample_id}_R2_sorted.fq \
+        > ${sample_id}.trimmed.stats.txt
+
+    }
+
+    # tar up the trimmed r1 files
+    tar -zcvf R1_trimmed_files.tar.gz *_R1_trimmed.fq.gz
+    # tar up the trimmed r2 files
+    tar -zcvf R2_trimmed_files.tar.gz *_R2_trimmed.fq.gz
+    # tar up the stats files
+    tar -zcvf trimmed_stats_files.tar.gz *.trimmed.stats.txt
+
+    # Move the trimmed and stats files to the output directory
+    #mv *_R1_trimmed.fq.gz ../R1_trimmed_files
+    #mv *_R2_trimmed.fq.gz ../R2_trimmed_files
+    #mv *.trimmed.stats.txt ../stats_files
+
+  }
+}
+>>>
     runtime {
         docker: "fill_in"
         disks: "local-disk ${disk_size} HDD"
@@ -191,9 +243,9 @@ task sort_and_trim_r1_and_r2 {
         memory: "${mem_size} GiB"
     }
     output {
-        File r1_trimmed_fq = ""
-        File r2_trimmed_fq = ""
-        File trim_stats = ""
+        File r1_trimmed_fq = "R1_trimmed_files.tar.gz"
+        File r2_trimmed_fq = "R2_trimmed_files.tar.gz"
+        File trim_stats = "trimmed_stats_files.tar.gz"
     }
 }
 
