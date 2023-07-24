@@ -222,10 +222,10 @@ task VerifyIDIntensity {
   }
 
   command {
-    /usr/gitc/VerifyBamID -m ~{num_markers} -n ~{num_samples} -i ~{input_adpc_file} -v -p > ~{output_filename}
+    /usr/gitc/verifyIDintensity -m ~{num_markers} -n ~{num_samples} -i ~{input_adpc_file} -v -p > ~{output_filename}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/verify-bam-id:1.0.1-c1cba76e979904eb69c31520a0d7f5be63c72253-1690198124"
+    docker: "us.gcr.io/broad-gotc-prod/verify-id-intensity:e6354872834fe4262354a6b27bfe85ecc1323677-1561566044"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3.5 GiB"
     preemptible: preemptible_tries
