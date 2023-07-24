@@ -6,6 +6,10 @@ version 1.0
 ## generation) according to the GATK Best Practices (June 2016) for germline SNP and
 ## Indel discovery in human exome sequencing data.
 ##
+## NOTE: "Reblocking" of the output GVCF, which reduces hom-ref genotype quality resolution
+## is now the default, which may affect de novo calling in trios. See 
+## https://broadinstitute.github.io/warp/docs/Pipelines/Exome_Germline_Single_Sample_Pipeline/README/ for more details. 
+##
 ## Requirements/expectations :
 ## - Human exome sequencing data in unmapped BAM (uBAM) format
 ## - One or more read groups, one per uBAM file, all belonging to a single sample (SM)
