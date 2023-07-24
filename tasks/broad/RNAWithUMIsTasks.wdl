@@ -866,9 +866,11 @@ task CalculateContamination {
     ref_dict: { localization_optional: true }
   }
 
+  Int java_mem = ceil(memory_mb*0.75)
+
   command <<<
     set -e
-    gatk --java-options "-Xmx4096m" GetPileupSummaries \
+    gatk --java-options "-Xmx~{java_mem}m" GetPileupSummaries \
     -R ~{ref_fasta} \
     -I ~{bam} \
     -V ~{population_vcf} \
@@ -877,7 +879,7 @@ task CalculateContamination {
     --disable-read-filter WellformedReadFilter \
     --disable-read-filter MappingQualityAvailableReadFilter
 
-    gatk --java-options "-Xmx4096m" CalculateContamination \
+    gatk --java-options "-Xmx~{java_mem}m" CalculateContamination \
     -I ~{base_name}_pileups.tsv \
     -O ~{base_name}_contamination.tsv
   
