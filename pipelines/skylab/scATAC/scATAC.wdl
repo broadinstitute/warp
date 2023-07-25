@@ -85,7 +85,7 @@ task AlignPairedEnd {
         String reference_unpack_name = "genome/genome.fa"
         String output_bam
         Int min_cov = 0
-        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
+        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1690310027"
         Int machine_mem_mb = 16000
         Int cpu = 16
         Int disk = ceil(2*(size(input_fastq1, "GiB") + size(input_fastq2, "GiB") + size(input_reference, "GiB"))) + 100
@@ -147,7 +147,7 @@ task SnapPre {
         String output_snap_basename
         String genome_name
         String genome_size_file = "genome/chrom.sizes"
-        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
+        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1690310027"
         File input_reference
         Int cpu = 1
         Int machine_mem_mb = 16000
@@ -210,7 +210,7 @@ task SnapCellByBin {
         File snap_input
         String bin_size_list
         String snap_output_name
-        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
+        String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1690310027"
         Int cpu = 1
         Int machine_mem_mb = 16000
         Int disk = 500
