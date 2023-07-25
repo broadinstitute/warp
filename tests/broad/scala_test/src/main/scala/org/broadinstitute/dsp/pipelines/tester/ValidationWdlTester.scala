@@ -31,14 +31,14 @@ import scala.collection.immutable.Iterable
 import scala.concurrent.Future
 
 abstract class ValidationWdlTester(testerConfig: BaseConfig)(
-    implicit am: ActorMaterializer,
-    as: ActorSystem
+  implicit am: ActorMaterializer,
+  as: ActorSystem
 ) extends CromwellWorkflowTester {
 
   protected def validationWorkflowName: String
 
   protected def buildValidationWdlInputs(
-      cloudWorkflowTest: WorkflowTest): String
+                                          cloudWorkflowTest: WorkflowTest): String
 
   protected val resultsPrefix: URI
   protected val truthPrefix: URI
@@ -77,17 +77,17 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
       .map(_.name.toString)
 
   /**
-    * If we're not updating the truth data, just validate the runs.
-    * Else, use the provided run data as new truth data
-    *
-    * @param finishedRuns Completed workflow test runs
-    * @return A Future of the work
-    */
+   * If we're not updating the truth data, just validate the runs.
+   * Else, use the provided run data as new truth data
+   *
+   * @param finishedRuns Completed workflow test runs
+   * @return A Future of the work
+   */
   def validateRunsOrUpdateTruth(
-      finishedRuns: Seq[WorkflowTest],
-      updateTruth: Boolean,
-      testCategory: WorkflowTestCategory
-  ): Future[Unit] = {
+                                 finishedRuns: Seq[WorkflowTest],
+                                 updateTruth: Boolean,
+                                 testCategory: WorkflowTestCategory
+                               ): Future[Unit] = {
     if (updateTruth) {
       logger.info("Updating truth data instead of running validation")
       updateTruthData(finishedRuns)
@@ -104,7 +104,7 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
           Option(validationWdlOptions),
           buildValidationWdlInputs,
           zippedImports = dependenciesZipFromReleaseDir(validationReleaseDir,
-                                                        validationWorkflowName)
+            validationWorkflowName)
         )
         _ <- awaitBatchCromwellWorkflowCompletion(submittedValidationRuns)
       } yield ()
@@ -127,25 +127,25 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
         "write_to_cache" -> true.asJson,
         "monitoring_script" -> "gs://broad-gotc-test-storage/cromwell_monitoring_script.sh".asJson)
         ++ parse(
-          readTestOptions(
-            releaseDir,
-            env
-          )
-        ).toOption
-          .flatMap(_.asObject)
-          .flatMap(_("google_project"))
-          .map(project => "google_project" -> project)
-          .toSeq
+        readTestOptions(
+          releaseDir,
+          env
+        )
+      ).toOption
+        .flatMap(_.asObject)
+        .flatMap(_("google_project"))
+        .map(project => "google_project" -> project)
+        .toSeq
         ++ env.environmentOptions: _*
     )
     .noSpaces
 
   /**
-    * Update the truth data by deleting the old truth data and putting the new run data in its place
-    *
-    * @param tests the test runs to use as new truth
-    * @return A future of the operation
-    */
+   * Update the truth data by deleting the old truth data and putting the new run data in its place
+   *
+   * @param tests the test runs to use as new truth
+   * @return A future of the operation
+   */
   def updateTruthData(tests: Seq[WorkflowTest]): Future[Unit] = {
     val parallelism = 8
     Source(Iterable(tests: _*))
@@ -180,7 +180,7 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
                     else Iterator(uri)
                 )
               )
-              // Shove all the new files into the truth location
+                // Shove all the new files into the truth location
                 .flatMapMerge(
                   parallelism, { result =>
                     Source.single(
@@ -242,8 +242,8 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
   }
 
   /**
-    * Run the full tests. This is the normal mode of operation.
-    */
+   * Run the full tests. This is the normal mode of operation.
+   */
   private def runFullTest(samples: Seq[WorkflowRunParameters]): Future[Unit] = {
     for {
       submittedSamples <- submitBatchWorkflows(
@@ -263,11 +263,11 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
   }
 
   /**
-    * Run only the validation portion of the tests. This is triggered by providing a "validation" timestamp input
-    * as a command line argument.
-    */
+   * Run only the validation portion of the tests. This is triggered by providing a "validation" timestamp input
+   * as a command line argument.
+   */
   private def usePreviousRun(
-      samples: Seq[WorkflowRunParameters]): Future[Unit] = {
+                              samples: Seq[WorkflowRunParameters]): Future[Unit] = {
     testerConfig.useTimestamp.foreach { timestamp =>
       logger.info(
         s"Only running validation workflows with timestamp $timestamp"
@@ -281,17 +281,17 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
             WorkflowId(UUID.randomUUID()),
             env.cromwellUrl,
             WorkflowSingleSubmission(None,
-                                     None,
-                                     None,
-                                     None,
-                                     None,
-                                     None,
-                                     None,
-                                     None,
-                                     None)
+              None,
+              None,
+              None,
+              None,
+              None,
+              None,
+              None,
+              None)
           ),
           workflowStatus = Succeeded
-      )
+        )
     )
     validateRunsOrUpdateTruth(
       validationRuns,
@@ -304,7 +304,6 @@ abstract class ValidationWdlTester(testerConfig: BaseConfig)(
                       environment: CromwellEnvironment): String = {
     val defaultOptions = Array(
       "read_from_cache" -> testerConfig.useCallCaching.asJson,
-      "backend" -> testerConfig.papiVersion.entryName.asJson,
       "monitoring_script" -> "gs://broad-gotc-test-storage/cromwell_monitoring_script.sh".asJson,
       "google_project" -> googleProject.asJson
     )
