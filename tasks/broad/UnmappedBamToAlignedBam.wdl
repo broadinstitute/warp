@@ -38,7 +38,7 @@ workflow UnmappedBamToAlignedBam {
     File contamination_sites_mu
 
     String cross_check_fingerprints_by
-    File haplotype_database_file
+    File? haplotype_database_file
     Float lod_threshold
     String recalibrated_bam_basename
     Boolean hard_clip_reads = false
@@ -178,7 +178,7 @@ workflow UnmappedBamToAlignedBam {
       input:
         input_bams = [ SortSampleBam.output_bam ],
         input_bam_indexes = [SortSampleBam.output_bam_index],
-        haplotype_database_file = haplotype_database_file,
+        haplotype_database_file = select_first([haplotype_database_file]),
         metrics_filename = sample_and_unmapped_bams.base_file_name + ".crosscheck",
         total_input_size = agg_bam_size,
         lod_threshold = lod_threshold,
