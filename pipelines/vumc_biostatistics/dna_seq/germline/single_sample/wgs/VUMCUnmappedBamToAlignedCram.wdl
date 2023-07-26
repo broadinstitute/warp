@@ -32,18 +32,13 @@ workflow VUMCUnmappedBamToAlignedCram {
     File? fingerprint_genotypes_file
     File? fingerprint_genotypes_index
 
-    File wgs_coverage_interval_list
-
-    Boolean provide_bam_output = false
-    Boolean use_gatk3_haplotype_caller = true
-
     Boolean dragen_functional_equivalence_mode = false
     Boolean dragen_maximum_quality_mode = false
 
     Boolean unmap_contaminant_reads = true
     Boolean perform_bqsr = true
     Boolean use_bwa_mem = true
-    Boolean allow_empty_ref_alt = false
+    Boolean allow_empty_ref_alt = true
   }
 
   if (dragen_functional_equivalence_mode && dragen_maximum_quality_mode) {
@@ -81,9 +76,9 @@ workflow VUMCUnmappedBamToAlignedCram {
       
       lod_threshold               = lod_threshold,
       recalibrated_bam_basename   = recalibrated_bam_basename,
-      perform_bqsr                = perform_bqsr,
-      use_bwa_mem                 = use_bwa_mem,
-      unmap_contaminant_reads     = unmap_contaminant_reads,
+      perform_bqsr                = perform_bqsr_,
+      use_bwa_mem                 = use_bwa_mem_,
+      unmap_contaminant_reads     = unmap_contaminant_reads_,
       allow_empty_ref_alt         = allow_empty_ref_alt
   }
 
