@@ -18,109 +18,49 @@ version 1.0
 
 import "../../../../../../tasks/broad/UnmappedBamToAlignedBam.wdl" as ToBam
 import "../../../../../../tasks/broad/AggregatedBamQC.wdl" as AggregatedQC
-import "../../../../../../tasks/broad/Utilities.wdl" as Utils
+import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
 
 # WORKFLOW DEFINITION
 workflow VUMCUnmappedBamToAlignedCram {
   input {
-    File contamination_sites_ud
-    File contamination_sites_bed
-    File contamination_sites_mu
-
+    SampleAndUnmappedBams sample_and_unmapped_bams
+    DNASeqSingleSampleReferences references
     DragmapReference? dragmap_reference
+    VariantCallingScatterSettings scatter_settings
+    PapiSettings papi_settings
 
-    String cross_check_fingerprints_by = "READGROUP"
-    Float lod_threshold = -20.0
-    File haplotype_database_file
-    Int preemptible_tries
-    Int agg_preemptible_tries
+    File? fingerprint_genotypes_file
+    File? fingerprint_genotypes_index
 
-    Float cutoff_for_large_rg_in_gb = 10.0
-    Int reads_per_file = 48000000
+    File wgs_coverage_interval_list
 
-    Boolean check_contaminant = true
-    Boolean hard_clip_reads = false
+    Boolean provide_bam_output = false
+    Boolean use_gatk3_haplotype_caller = true
+
+    Boolean dragen_functional_equivalence_mode = false
+    Boolean dragen_maximum_quality_mode = false
+
     Boolean unmap_contaminant_reads = true
-    Boolean bin_base_qualities = true
-    Boolean somatic = false
-    Boolean use_bwa_mem = true
     Boolean perform_bqsr = true
-    Boolean allow_empty_ref_alt = true
-
-    Array[File] flowcell_unmapped_bams
-    String sample_name
-
-    File contamination_sites_ud
-    File contamination_sites_bed
-    File contamination_sites_mu
-
-    File calling_interval_list
-
-    File ref_dict
-    File ref_fasta
-    File ref_fasta_index
-    File ref_alt
-    File ref_sa
-    File ref_amb
-    File ref_bwt
-    File ref_ann
-    File ref_pac
-    File? ref_str
-
-    Array[File] known_indels_sites_vcfs
-    Array[File] known_indels_sites_indices
-
-    File dbsnp_vcf
-    File dbsnp_vcf_index
-
-    File evaluation_interval_list
+    Boolean use_bwa_mem = true
+    Boolean allow_empty_ref_alt = false
   }
 
-  SampleAndUnmappedBams sample_and_unmapped_bams = object {
-    base_file_name: sample_name,
-    final_gvcf_base_name: sample_name,
-    flowcell_unmapped_bams: flowcell_unmapped_bams,
-    sample_name: sample_name,
-    unmapped_bam_suffix: ".bam"
+  if (dragen_functional_equivalence_mode && dragen_maximum_quality_mode) {
+    call Utilities.ErrorWithMessage as PresetArgumentsError {
+      input:
+        message = "Both dragen_functional_equivalence_mode and dragen_maximum_quality_mode have been set to true, however, they are mutually exclusive. You can set either of them to true, or set them both to false and adjust the arguments individually."
+    }
   }
 
-  ReferenceFasta reference_fasta = object {
-    ref_dict: ref_dict,
-    ref_fasta: ref_fasta,
-    ref_fasta_index: ref_fasta_index,
-    ref_alt: ref_alt,
-    ref_sa: ref_sa,
-    ref_amb: ref_amb,
-    ref_bwt: ref_bwt,
-    ref_ann: ref_ann,
-    ref_pac: ref_pac,
-    ref_str: ref_str
-  }
+  # Set DRAGEN-related arguments according to the preset arguments
+  Boolean unmap_contaminant_reads_ = if dragen_functional_equivalence_mode then false else (if dragen_maximum_quality_mode then true else unmap_contaminant_reads)
+  Boolean perform_bqsr_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then false else perform_bqsr
+  Boolean use_bwa_mem_ = if (dragen_functional_equivalence_mode || dragen_maximum_quality_mode) then false else use_bwa_mem
 
-  DNASeqSingleSampleReferences references = object {
-    contamination_sites_ud: contamination_sites_ud,
-    contamination_sites_bed: contamination_sites_bed,
-    contamination_sites_mu: contamination_sites_mu,
-    calling_interval_list: calling_interval_list,
-
-    reference_fasta: reference_fasta,
-    
-    known_indels_sites_vcfs: known_indels_sites_vcfs,
-    known_indels_sites_indices: known_indels_sites_indices,
-
-    dbsnp_vcf: dbsnp_vcf,
-    dbsnp_vcf_index: dbsnp_vcf_index,
-
-    evaluation_interval_list: evaluation_interval_list,
-
-    haplotype_database_file: haplotype_database_file
-  }
-
-  PapiSettings papi_settings = object {
-    preemptible_tries: preemptible_tries,
-    agg_preemptible_tries: agg_preemptible_tries
-  }
-
+  # Not overridable:
+  Float lod_threshold = -20.0
+  String cross_check_fingerprints_by = "READGROUP"
   String recalibrated_bam_basename = sample_and_unmapped_bams.base_file_name + ".aligned.duplicates_marked.recalibrated"
 
   call ToBam.UnmappedBamToAlignedBam {
@@ -156,16 +96,18 @@ workflow VUMCUnmappedBamToAlignedCram {
       recalibrated_bam_base_name = recalibrated_bam_basename,
       haplotype_database_file = references.haplotype_database_file,
       references = references,
+      fingerprint_genotypes_file = fingerprint_genotypes_file,
+      fingerprint_genotypes_index = fingerprint_genotypes_index,
       papi_settings = papi_settings
   }
 
-  call Utils.ConvertToCram as ConvertToCram {
+  call Utilities.ConvertToCram as ConvertToCram {
     input:
       input_bam = UnmappedBamToAlignedBam.output_bam,
-      ref_fasta = ref_fasta,
-      ref_fasta_index = ref_fasta_index,
-      output_basename = sample_name,
-      preemptible_tries = agg_preemptible_tries
+      ref_fasta = references.reference_fasta.ref_fasta,
+      ref_fasta_index = references.reference_fasta.ref_fasta_index,
+      output_basename = sample_and_unmapped_bams.base_file_name,
+      preemptible_tries = papi_settings.agg_preemptible_tries
   }
 
   # Outputs that will be retained when execution is complete
