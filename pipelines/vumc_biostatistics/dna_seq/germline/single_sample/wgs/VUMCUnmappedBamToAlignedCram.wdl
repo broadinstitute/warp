@@ -26,7 +26,6 @@ workflow VUMCUnmappedBamToAlignedCram {
     SampleAndUnmappedBams sample_and_unmapped_bams
     DNASeqSingleSampleReferences references
     DragmapReference? dragmap_reference
-    VariantCallingScatterSettings scatter_settings
     PapiSettings papi_settings
 
     File? fingerprint_genotypes_file
