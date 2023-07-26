@@ -6,8 +6,8 @@ version 1.0
 ## generation) according to the GATK Best Practices (June 2016) for germline SNP and
 ## Indel discovery in human exome sequencing data.
 ##
-## NOTE: "Reblocking" of the output GVCF, which reduces hom-ref genotype quality resolution
-## is now the default, which may affect de novo calling in trios. See 
+## NOTE: "Reblocking" of the output GVCF is now done by default. This reduces the genomic resolution of hom-ref genotype qualities,
+## which may affect de novo calling in trios. See 
 ## https://broadinstitute.github.io/warp/docs/Pipelines/Exome_Germline_Single_Sample_Pipeline/README/ for more details. 
 ##
 ## Requirements/expectations :
