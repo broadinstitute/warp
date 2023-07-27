@@ -254,7 +254,7 @@ task MakeCompliantBAM {
     input {
         File input_bam
         String output_bam_filename
-        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+        String docker_image = "us.gcr.io/broad-gotc-prod/warp-tools:aa-decode-fragChrom"
         Int cpu = 1
         Int disk =  ceil(3 * (size(input_bam, "GiB"))) + 100
         Int machine_mem_mb = 4000
@@ -291,7 +291,7 @@ task MakeCompliantBAM {
 task BreakoutSnap {
     input {
         File snap_input
-        String docker_image = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+        String docker_image = "us.gcr.io/broad-gotc-prod/warp-tools:aa-decode-fragChrom"
         String bin_size_list
         String input_id
         Int preemptible = 3
