@@ -60,7 +60,8 @@ workflow scATAC {
         input:
             snap_input = SnapCellByBin.output_snap,
             bin_size_list = bin_size_list,
-            input_id = input_id
+            input_id = input_id,
+            cache_invalidate = "yes"
     }
 
     output {
@@ -298,6 +299,7 @@ task BreakoutSnap {
         Int disk =  ceil(10 * (if size(snap_input, "GiB") < 1 then 1 else size(snap_input, "GiB") )) + 100
         Int machine_mem_mb = 16000
         Int cpu = 1
+        String? cache_invalidate
     }
 
     parameter_meta {
