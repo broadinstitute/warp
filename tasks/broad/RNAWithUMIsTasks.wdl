@@ -621,7 +621,7 @@ task GroupByUMIs {
     File bam_index
     String output_bam_basename
 
-    String docker = "us.gcr.io/broad-gotc-prod/umi_tools:1.0.0-1.1.1-1690198330"
+    String docker = "us.gcr.io/broad-gotc-prod/umi_tools:1.0.0-1.1.1-1638821470"
     Int cpu = 2
     Int memory_mb = 64000
     Int disk_size_gb = ceil(2.2 * size([bam, bam_index], "GiB")) + 100
