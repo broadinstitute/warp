@@ -64,7 +64,8 @@ task CalculateChromosomeSizes {
     File genome_fa
   }
   command <<<
-    samtools faidx ~{genome_fa} | cut -f1,2 > chrom.sizes
+    samtools faidx ~{genome_fa}
+    cut -f1,2 "~{genome_fa}.fai" > chrom.sizes
   >>>
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
