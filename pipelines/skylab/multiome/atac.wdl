@@ -217,6 +217,7 @@ task BWAPairedEndAlignment {
     docker: docker_image
     disks: "local-disk ${disk_size} HDD"
     cpu: nthreads
+    cpuPlatform: "Intel Sapphire Rapids"
     memory: "${mem_size} GiB"
   }
 
