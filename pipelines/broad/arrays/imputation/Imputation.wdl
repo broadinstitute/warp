@@ -305,18 +305,20 @@ workflow Imputation {
           vcf = SetIDsMissingContigs.output_vcf,
           basename = "unimputed_contigs_" + missing_contig +"_"+ i_missing_contig + "_annotations_removed"
       }
-
-      call tasks.ReplaceHeader {
-        input:
-          vcf_to_replace_header = RemoveAnnotationsMissingContigs.output_vcf,
-          vcf_with_new_header = phased_vcfs[0]
-      }
     }
   }
 
-  Array[String] missing_contig_vcfs = flatten(ReplaceHeader.output_vcf)
+  Array[String] missing_remove_annotation_vcfs = flatten(RemoveAnnotationsMissingContigs.output_vcf)
 
+  scatter(missing_remove_annotation_vcf in missing_remove_annotation_vcfs){
+    call tasks.ReplaceHeader {
+      input:
+        vcf_to_replace_header = missing_remove_annotation_vcf,
+        vcf_with_new_header = phased_vcfs[0]
+    }
+  }
 
+  Array[String] missing_contig_vcfs = ReplaceHeader.output_vcf
   Array[String] unsorted_vcfs = flatten([phased_vcfs, missing_contig_vcfs])
 
   call tasks.GatherVcfs {
