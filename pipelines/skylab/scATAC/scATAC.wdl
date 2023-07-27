@@ -60,8 +60,7 @@ workflow scATAC {
         input:
             snap_input = SnapCellByBin.output_snap,
             bin_size_list = bin_size_list,
-            input_id = input_id,
-            cache_invalidate = "yes"
+            input_id = input_id
     }
 
     output {
@@ -272,7 +271,7 @@ task MakeCompliantBAM {
     command {
         set -euo pipefail
 
-        /usr/gitc/makeCompliantBAM.py --input-bam ~{input_bam} --output-bam ~{output_bam_filename}
+        /warptools/scripts/makeCompliantBAM.py --input-bam ~{input_bam} --output-bam ~{output_bam_filename}
     }
 
     output {
@@ -299,7 +298,6 @@ task BreakoutSnap {
         Int disk =  ceil(10 * (if size(snap_input, "GiB") < 1 then 1 else size(snap_input, "GiB") )) + 100
         Int machine_mem_mb = 16000
         Int cpu = 1
-        String? cache_invalidate
     }
 
     parameter_meta {
@@ -312,7 +310,7 @@ task BreakoutSnap {
     command {
         set -euo pipefail
         mkdir output
-        python3 /usr/gitc/breakoutSnap.py --input ~{snap_input} \
+        python3 /warptools/scripts/breakoutSnap.py --input ~{snap_input} \
             --output-prefix output/~{input_id}_
     }
 
