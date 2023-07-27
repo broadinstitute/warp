@@ -1,3 +1,8 @@
+# 1.1.9
+2023-07-27 (Date of Last Commit)
+
+* Updated Eagle docker to address security vulnerabilities, this has no effect on this pipeline
+
 # 1.1.8
 2023-03-31 (Date of Last Commit)
 
