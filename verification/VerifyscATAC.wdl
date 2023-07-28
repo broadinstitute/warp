@@ -19,7 +19,7 @@ workflow VerifyscATAC {
       lenient_header = true
   }
 
-	call VerifyTasks.CompareTextFiles as CompareSnapTextFiles{
+	call VerifyTasks.CompareSnapTextFiles as CompareSnapTextFiles{
 		input:
 			test_text_files  = test_matrix_files,
 			truth_text_files = truth_matrix_files
