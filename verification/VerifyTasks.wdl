@@ -446,42 +446,14 @@ task CompareSnapTextFiles {
 
     test_files_length=~{length(test_text_files)}
     truth_files_length=~{length(truth_text_files)}
-    if [ $test_files_length -ne $truth_files_length ]; then
-      exit_code=1
-      echo "Error: Different number of input files ($test_files_length vs. $truth_files_length). This is really not OK"
-    fi
 
-    # Helper function to sort CSV files based on the specified keys
-    function sort_csv {
-      local file="$1"
-      sort -t ',' -k2,2n -k3,3n -k4,4n "$file" > "$file.sorted"
-    }
+    while read -r a && read -r b <&3;
+      do
+        echo "Sorting File $a and $b"
+        sort $a_fragments.csv > $a_fragments.sorted.csv
+        sort $b_fragments.csv > $b_fragments.sorted.csv
 
-    for i in range(length(test_text_files)) {
-      if test_text_files[i].basename == "fragments.csv" && truth_text_files[i].basename == "fragments.csv" {
-        echo "Sorting File ${test_text_files[i]} and ${truth_text_files[i]}"
-        sort_csv "${test_text_files[i]}"
-        sort_csv "${truth_text_files[i]}"
-
-        echo "Calculating md5sums for ${test_text_files[i]} and ${truth_text_files[i]}"
-        md5_a=$(md5sum "${test_text_files[i]}.sorted" | cut -d ' ' -f1)
-        md5_b=$(md5sum "${truth_text_files[i]}.sorted" | cut -d ' ' -f1)
-
-        if [ $md5_a = $md5_b ]; then
-          echo "Files ${test_text_files[i]}.sorted and ${truth_text_files[i]}.sorted have matching md5sums and are the same."
-        else
-          echo "Files ${test_text_files[i]}.sorted and ${truth_text_files[i]}.sorted have different md5sums."
-          diff "${test_text_files[i]}.sorted" "${truth_text_files[i]}.sorted" > diffs.txt
-          exit_code=1
-          echo "Diff between ${test_text_files[i]}.sorted and ${truth_text_files[i]}.sorted:" >&2
-          cat diffs.txt >&2
-        fi
-
-        # catting the diffs.txt on STDOUT as that's what's expected.
-        cat diffs.txt
-      }
-    }
-
+      done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
     exit $exit_code
   >>>
 
