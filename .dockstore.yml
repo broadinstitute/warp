@@ -74,3 +74,7 @@ workflows:
   - name: BroadInternalRNAWithUMIs
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/internal/rna_seq/BroadInternalRNAWithUMIs.wdl
+
+  - name: VariantCalling
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl
