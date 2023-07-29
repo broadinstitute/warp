@@ -46,8 +46,6 @@ task Plink2Filter {
       String? docker = "hkim298/plink_1.9_2.0:20230116_20230707"
   }
 
-  String source_prefix = basename(source_bed, ".bed")
-
   Int disk_size = ceil(size(source_bed, "GB") * 2) + 2
 
   String output_bed = "${target_prefix}.bed"
@@ -57,7 +55,9 @@ task Plink2Filter {
   command <<<
 
 plink2 \
-  --bfile ~{source_prefix} \
+  --bed ~{source_bed} \
+  --bim ~{source_bim} \
+  --fam ~{source_fam} \
   --keep ~{sample_file} \
   --make-bed \
   --out ~{target_prefix}
