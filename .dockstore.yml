@@ -127,3 +127,8 @@ workflows:
   - name: VUMCUnmappedBamToAlignedCramMoveResult
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCUnmappedBamToAlignedCramMoveResult.wdl
+
+  - name: VUMCPlink2FilterSample
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2FilterSample.wdl
+
