@@ -10,7 +10,7 @@ workflow VUMCPlink2FilterSample {
 
     String target_prefix
 
-    String? docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
   }
 
   call Plink2Filter {
@@ -43,7 +43,7 @@ task Plink2Filter {
 
       String target_prefix
 
-      String? docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+      String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
   }
 
   Int disk_size = ceil(size(source_bed, "GB") * 2) + 2
