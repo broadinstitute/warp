@@ -9,6 +9,8 @@ workflow VUMCPlink2FilterSample {
     File sample_file
 
     String target_prefix
+
+    String? docker = "hkim298/plink_1.9_2.0:20230116_20230707"
   }
 
   call Plink2Filter {
@@ -19,7 +21,9 @@ workflow VUMCPlink2FilterSample {
 
       sample_file = sample_file,
 
-      target_prefix = target_prefix
+      target_prefix = target_prefix,
+
+      docker = docker
   }
 
   output {
@@ -38,6 +42,8 @@ task Plink2Filter {
       File sample_file
 
       String target_prefix
+
+      String? docker = "hkim298/plink_1.9_2.0:20230116_20230707"
   }
 
   String source_prefix = basename(source_bed, ".bed")
@@ -59,7 +65,7 @@ plink2 \
 >>>
 
   runtime {
-    docker: "hkim298/plink_1.9_2.0"
+    docker: docker
     preemptible: 1
     disks: "local-disk " + disk_size + " HDD"
     memory: "2 GiB"
