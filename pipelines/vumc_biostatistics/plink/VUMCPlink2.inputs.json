@@ -1,0 +1,9 @@
+{
+  "VUMCPlink2.source_bed": "/nobackup/h_cqs/shengq2/biovu/megaex/small_test.bed",
+  "VUMCPlink2.source_bim": "/nobackup/h_cqs/shengq2/biovu/megaex/small_test.bim",
+  "VUMCPlink2.source_fam": "/nobackup/h_cqs/shengq2/biovu/megaex/small_test.fam",
+  "VUMCPlink2.plink_option": "--export bgen-1.2",
+  "VUMCPlink2.suffix_list": [".bgen", ".sample"],
+  "VUMCPlink2.target_prefix": "small_test"
+}
+
