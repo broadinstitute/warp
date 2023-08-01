@@ -17,7 +17,8 @@ workflow snM3C {
     File chromosome_sizes
     File genome_fa
   }
-
+  # version of the pipeline
+  String pipeline_version = "1.0.0"
   call Demultiplexing {
     input:
       fastq_input_read1 = fastq_input_read1,
