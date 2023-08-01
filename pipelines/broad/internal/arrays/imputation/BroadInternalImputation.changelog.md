@@ -1,7 +1,7 @@
 # 1.1.9
 2023-08-01 (Date of Last Commit)
 
-* Moved ReplaceHeader to its own scatter to remove dependency between the two nested scatter to help with wall clock time
+* Moved ReplaceHeader to its own scatter to remove dependency between the two nested scatters to help with wall clock time
 
 # 1.1.8
 2023-03-31 (Date of Last Commit)
