@@ -449,10 +449,13 @@ task CompareSnapTextFiles {
 
     while read -r a && read -r b <&3;
       do
-        echo "Sorting File $a and $b"
-        sort $a_fragments.csv > $a_fragments.sorted.csv
-        sort $b_fragments.csv > $b_fragments.sorted.csv
-
+        if [[ "$a" == *_fragments.csv && "$b" == *_fragments.csv ]]; then
+          echo "Sorting File $a and $b"
+          sort "$a" > "${a%.csv}.sorted.csv"
+          sort "$b" > "${b%.csv}.sorted.csv"
+        else
+          echo "Skipping files $a and $b (not ending in _fragments.csv)"
+        fi
       done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
     exit $exit_code
   >>>
