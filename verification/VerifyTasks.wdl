@@ -459,7 +459,7 @@ task CompareSnapTextFiles {
           md5_a=$(md5sum ${a%.csv}.sorted.cut.csv | cut -d ' ' -f1)
           md5_b=$(md5sum ${a%.csv}.sorted.cut.csv | cut -d ' ' -f1)
             if [[ "$md5_a" == "$md5_b" ]]; then
-                echo "Files $a and $b are identical"
+                echo "Files $a and $b are identical (The md5sum for ${a%.csv}.sorted.cut.csv is $md5_a and the md5sum for ${b%.csv}.sorted.cut.csv is $md5_b)"
             else
                 echo "Files $a and $b are NOT identical"
                 exit_code=1
