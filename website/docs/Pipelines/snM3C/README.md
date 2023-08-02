@@ -6,7 +6,7 @@ slug: /Pipelines/snM3C/README
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [snM3C_v1.0.0](https://github.com/yourusername/snM3C/releases) | August, 2023 | [Kaylee Mathews](mailto:warp-pipelines-help@broadinsitute.org) | Please file GitHub issues in the [WARP repository](https://github.com/broadinstitute/warp/issues) |
+| [snM3C_v1.0.0](https://github.com/broadinstitute/warp/releases) | August, 2023 | [Kaylee Mathews](mailto:warp-pipelines-help@broadinsitute.org) | Please file GitHub issues in the [WARP repository](https://github.com/broadinstitute/warp/issues) |
 
 
 ## Introduction to snM3C
@@ -75,7 +75,7 @@ The snM3C workflow produces the following main outputs:
 
 ## Versioning
 
-All snM3C pipeline releases are documented in the [pipeline changelog](https://github.com/yourusername/snM3C/blob/main/changelog.md).
+All snM3C pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/skylab/snM3C/snM3C.changelog.md).
 
 <!--- Citing the pipeline will go here --->
 
