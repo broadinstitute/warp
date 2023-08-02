@@ -9,7 +9,7 @@ workflow BroadInternalImputation {
         description: "Push outputs of Imputation.wdl to TDR dataset table ImputationOutputsTable and split out Imputation arrays into ImputationWideOutputsTable."
         allowNestedInputs: true
     }
-    String pipeline_version = "1.1.8"
+    String pipeline_version = "1.1.9"
     
     input {
         # inputs to wrapper task 
