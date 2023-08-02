@@ -451,31 +451,30 @@ task CompareSnapTextFiles {
       do
        if [[ "$a" == *_fragments.csv && "$b" == *_fragments.csv ]] || [[ "$a" == *_binCounts_10000.csv && "$b" == *_binCounts_10000.csv ]]; then
          echo "Sorting File $a and $b"
-          sort -t ',' -k2,2 -k3,3n -k4,4n "$a" > "${a%.csv}.sorted.csv"
-          sort -t ',' -k2,2 -k3,3n -k4,4n "$b" > "${b%.csv}.sorted.csv"
-          cut -d',' -f2,3,4 "${a%.csv}.sorted.csv" > "${a%.csv}.sorted.cut.csv"
-          cut -d',' -f2,3,4 "${b%.csv}.sorted.csv" > "${b%.csv}.sorted.cut.csv"
+          sort -t ',' -k2,2 -k3,3n -k4,4n "$a" | cut -d',' -f2,3,4 > "${a%.csv}.sorted.csv"
+          sort -t ',' -k2,2 -k3,3n -k4,4n "$b" | cut -d',' -f2,3,4 > "${b%.csv}.sorted.csv"
+
           echo "Calculating md5sums for $a and $b"
-          md5_a=$(md5sum ${a%.csv}.sorted.cut.csv | cut -d ' ' -f1)
-          md5_b=$(md5sum ${a%.csv}.sorted.cut.csv | cut -d ' ' -f1)
+          md5_a=$(md5sum ${a%.csv}.sorted.csv | cut -d ' ' -f1)
+          md5_b=$(md5sum ${a%.csv}.sorted.csv | cut -d ' ' -f1)
             if [[ "$md5_a" == "$md5_b" ]]; then
-                echo "Files $a and $b are identical (The md5sum for ${a%.csv}.sorted.cut.csv is $md5_a and the md5sum for ${b%.csv}.sorted.cut.csv is $md5_b)"
+                echo "Files $a and $b are identical"
             else
                 echo "Files $a and $b are NOT identical"
-                diff ${a%.csv}.sorted.cut.csv ${b%.csv}.sorted.cut.csv > diffs.txt
+                diff ${a%.csv}.sorted.csv ${b%.csv}.sorted.csv > diffs.txt
                 exit_code=1
-                echo "Diff between ${a%.csv}.sorted.cut.csv  and ${b%.csv}.sorted.cut.csv :" >&2
+                echo "Diff between ${a%.csv}.sorted.csv  and ${b%.csv}.sorted.csv :" >&2
                 cat diffs.txt >&2
             fi
         else
-          echo "Sorting other files not ending in _fragments.csv nor _binCounts_10000.csv"
           sort "$a" > "${a%.csv}.sorted.csv"
           sort "$b" > "${b%.csv}.sorted.csv"
+
           echo "Calculating md5sums for ${a%.csv}.sorted.csv and ${b%.csv}.sorted.csv"
           md5_a=$(md5sum ${a%.csv}.sorted.csv | cut -d ' ' -f1)
           md5_b=$(md5sum ${b%.csv}.sorted.csv | cut -d ' ' -f1)
             if [ $md5_a = $md5_b ]; then
-              echo "Files $a and $b are identical (The md5sum for ${a%.csv}.sorted.csv is $md5_a and the md5sum for ${b%.csv}.sorted.csv is $md5_b)"
+              echo "Files $a and $b are identical"
             else
               echo "Files ${a%.csv}.sorted.csv and ${b%.csv}.sorted.csv have different md5sums."
               diff ${a%.csv}.sorted.csv ${b%.csv}.sorted.csv > diffs.txt
