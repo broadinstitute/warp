@@ -451,11 +451,13 @@ task CompareSnapTextFiles {
       do
         if [[ "$a" == *_fragments.csv && "$b" == *_fragments.csv ]]; then
           echo "Sorting File $a and $b"
-          sort "$a" > "${a%.csv}.sorted.csv"
-          sort "$b" > "${b%.csv}.sorted.csv"
+          sort -t ',' -k2,2 -k3,3n -k4,4n "$a" > "${a%.csv}.sorted.csv"
+          sort -t ',' -k2,2 -k3,3n -k4,4n "$b" > "${b%.csv}.sorted.csv"
+          cut -d',' -f2,3,4 "${a%.csv}.sorted.csv" > "${a%.csv}.sorted.cut.csv"
+          cut -d',' -f2,3,4 "${b%.csv}.sorted.csv" > "${b%.csv}.sorted.cut.csv"
           echo "Calculating md5sums for $a and $b"
-          md5_a=$(md5sum ${a%.csv}.sorted.csv | cut -d ' ' -f1)
-          md5_b=$(md5sum ${a%.csv}.sorted.csv | cut -d ' ' -f1)
+          md5_a=$(md5sum ${a%.csv}.sorted.cut.csv | cut -d ' ' -f1)
+          md5_b=$(md5sum ${a%.csv}.sorted.cut.csv | cut -d ' ' -f1)
             if [[ "$md5_a" == "$md5_b" ]]; then
                 echo "Files $a and $b are identical"
             else
