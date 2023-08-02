@@ -462,8 +462,8 @@ task CompareSnapTextFiles {
          sort_files "$b"
 
          echo "Calculating md5sums for $a and $b"
-         md5_a=$calc_md5 "${a%.csv}.sorted.csv")
-         md5_b=$calc_md5 "${b%.csv}.sorted.csv")
+         md5_a=$(calc_md5 "${a%.csv}.sorted.csv")
+         md5_b=$(calc_md5 "${b%.csv}.sorted.csv")
 
          if [[ "$md5_a" == "$md5_b" ]]; then
              echo "Files $a and $b are identical"
@@ -480,8 +480,8 @@ task CompareSnapTextFiles {
          sort "$b" > "${b%.csv}.sorted.csv"
 
          echo "Calculating md5sums for ${a%.csv}.sorted.csv and ${b%.csv}.sorted.csv"
-         md5_a=$calc_md5 "${a%.csv}.sorted.csv")
-         md5_b=$calc_md5 "${b%.csv}.sorted.csv")
+         md5_a=$(calc_md5 "${a%.csv}.sorted.csv")
+         md5_b=$(calc_md5 "${b%.csv}.sorted.csv")
 
          if [ $md5_a = $md5_b ]; then
            echo "Files $a and $b are identical"
