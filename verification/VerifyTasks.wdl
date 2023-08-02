@@ -464,7 +464,7 @@ task CompareSnapTextFiles {
                 echo "Files $a and $b are NOT identical"
                 exit_code=1
             fi
-        elif [[ "$a" == *_binCounts_10000.csvv && "$b" == *_binCounts_10000.csv ]]; then
+        if [[ "$a" == *_binCounts_10000.csvv && "$b" == *_binCounts_10000.csv ]]; then
           echo "Sorting File $a and $b"
           sort -t ',' -k2,2n -k3,3n -k4,4n "$a" > "${a%.csv}.sorted.csv"
           sort -t ',' -k2,2n -k3,3n -k4,4n "$b" > "${b%.csv}.sorted.csv"
