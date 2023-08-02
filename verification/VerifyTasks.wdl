@@ -449,8 +449,8 @@ task CompareSnapTextFiles {
 
     while read -r a && read -r b <&3;
       do
-        if [[ "$a" == *_fragments.csv && "$b" == *_fragments.csv ]]; then
-          echo "Sorting File $a and $b"
+       if [[ "$a" == *_fragments.csv && "$b" == *_fragments.csv ]] || [[ "$a" == *_binCounts_10000.csv && "$b" == *_binCounts_10000.csv ]]; then
+         echo "Sorting File $a and $b"
           sort -t ',' -k2,2 -k3,3n -k4,4n "$a" > "${a%.csv}.sorted.csv"
           sort -t ',' -k2,2 -k3,3n -k4,4n "$b" > "${b%.csv}.sorted.csv"
           cut -d',' -f2,3,4 "${a%.csv}.sorted.csv" > "${a%.csv}.sorted.cut.csv"
@@ -463,21 +463,6 @@ task CompareSnapTextFiles {
             else
                 echo "Files $a and $b are NOT identical"
                 exit_code=1
-            fi
-        if [[ "$a" == *_binCounts_10000.csvv && "$b" == *_binCounts_10000.csv ]]; then
-          echo "Sorting File $a and $b"
-          sort -t ',' -k2,2n -k3,3n -k4,4n "$a" > "${a%.csv}.sorted.csv"
-          sort -t ',' -k2,2n -k3,3n -k4,4n "$b" > "${b%.csv}.sorted.csv"
-          cut -d',' -f2,3,4 "${a%.csv}.sorted.csv" > "${a%.csv}.sorted.cut.csv"
-          cut -d',' -f2,3,4 "${b%.csv}.sorted.csv" > "${b%.csv}.sorted.cut.csv"
-          echo "Calculating md5sums for $a and $b"
-          md5_a=$(md5sum ${a%.csv}.sorted.cut.csv | cut -d ' ' -f1)
-          md5_b=$(md5sum ${a%.csv}.sorted.cut.csv | cut -d ' ' -f1)
-            if [[ "$md5_a" == "$md5_b" ]]; then
-              echo "Files $a and $b are identical"
-            else
-              echo "Files $a and $b are NOT identical"
-              exit_code=1
             fi
         else
           echo "Skipping files $a and $b (not ending in _fragments.csv nor _binCounts_10000.csv)"
