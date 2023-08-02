@@ -462,10 +462,27 @@ task CompareSnapTextFiles {
                 echo "Files $a and $b are identical (The md5sum for ${a%.csv}.sorted.cut.csv is $md5_a and the md5sum for ${b%.csv}.sorted.cut.csv is $md5_b)"
             else
                 echo "Files $a and $b are NOT identical"
+                diff ${a%.csv}.sorted.cut.csv ${b%.csv}.sorted.cut.csv > diffs.txt
                 exit_code=1
+                echo "Diff between ${a%.csv}.sorted.cut.csv  and ${b%.csv}.sorted.cut.csv :" >&2
+                cat diffs.txt >&2
             fi
         else
-          echo "Skipping files $a and $b (not ending in _fragments.csv nor _binCounts_10000.csv)"
+          echo "Sorting other files not ending in _fragments.csv nor _binCounts_10000.csv"
+          sort "$a" > "${a%.csv}.sorted.csv"
+          sort "$b" > "${b%.csv}.sorted.csv"
+          echo "Calculating md5sums for ${a%.csv}.sorted.csv and ${b%.csv}.sorted.csv"
+          md5_a=$(md5sum ${a%.csv}.sorted.csv | cut -d ' ' -f1)
+          md5_b=$(md5sum ${b%.csv}.sorted.csv | cut -d ' ' -f1)
+            if [ $md5_a = $md5_b ]; then
+              echo "Files $a and $b are identical (The md5sum for ${a%.csv}.sorted.csv is $md5_a and the md5sum for ${b%.csv}.sorted.csv is $md5_b)"
+            else
+              echo "Files ${a%.csv}.sorted.csv and ${b%.csv}.sorted.csv have different md5sums."
+              diff ${a%.csv}.sorted.csv ${b%.csv}.sorted.csv > diffs.txt
+              exit_code=1
+              echo "Diff between ${a%.csv}.sorted.csv and ${b%.csv}.sorted.csv:" >&2
+              cat diffs.txt >&2
+            fi
         fi
       done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
     exit $exit_code
