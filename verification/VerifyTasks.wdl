@@ -500,8 +500,8 @@ task CompareSnapTextFiles {
 
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 100 HDD"
-    memory: "50 GiB"
+    disks: "local-disk 50 HDD"
+    memory: "25 GiB"
     preemptible: 3
   }
 }
