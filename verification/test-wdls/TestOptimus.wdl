@@ -44,8 +44,8 @@ workflow TestOptimus {
     # Set to true if you expect that r1_read_length does not match length of UMIs/barcodes for 10x chemistry v2 (26 bp) or v3 (28 bp).
     Boolean ignore_r1_read_length = false
 
-    # Set to true to count reads in stranded mode
-    String star_strand_mode = "Unstranded"
+    # Set to Forward by default to count reads in 10x stranded mode
+    String star_strand_mode
     
 # Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
