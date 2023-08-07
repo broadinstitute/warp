@@ -580,7 +580,7 @@ task SnapPre {
     String genome_name
     Int max_fragment_length
     File genome_size_file
-    String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
+    String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1690310027"
   }
 
   parameter_meta {
@@ -589,7 +589,7 @@ task SnapPre {
     genome_name: "the name of the genome being analyzed"
     max_fragment_length: "the maximum fragment length for filtering out reads by snap-pre (snaptools task)"
     genome_size_file: "size for the chromoomes for the genome; ex: mm10.chrom.size"
-    docker_image: "the docker image using snaptools to be used (default: us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602)"
+    docker_image: "the docker image using snaptools to be used (default: us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1690310027)"
   }
 
   String snap_file_output_name = output_base_name + ".snap"
@@ -635,14 +635,14 @@ task SnapCellByBin {
     File snap_input
     String bin_size_list
     String snap_output_name = "output.snap"
-    String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602"
+    String docker_image = "us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1690310027"
   }
 
   parameter_meta {
     snap_input: "the bam to passed into snaptools tools"
     bin_size_list: "space separated list of bins to generate"
     snap_output_name: "output.snap"
-    docker_image: "the docker image to be used (default: us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1660844602)"
+    docker_image: "the docker image to be used (default: us.gcr.io/broad-gotc-prod/snaptools-bwa:1.0.0-1.4.8-0.7.17-1690310027)"
   }
  
   Int num_threads = 1
