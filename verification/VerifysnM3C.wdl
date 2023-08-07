@@ -11,7 +11,7 @@ workflow VerifysnM3C {
         Boolean? done
     }
 
-    call VerifyTasks.CompareCompressedTextFiles as CompareCellMetrics {
+    call VerifyTasks.CompareCompressedTextFiles as CompareMappingSummaryMetrics {
         input:
             test_zip  = test_mapping_summary,
             truth_zip = truth_mapping_summary
