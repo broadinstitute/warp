@@ -93,9 +93,10 @@ task CollectMultipleMetrics {
     File aligned_bam
     File genome_ref_fasta
     String output_basename
+    String picard_docker_path
 
     # runtime values
-    String docker ="us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    #String docker ="us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     Int machine_mem_mb = 8250
     # give the command 1 GiB of overhead
     Int command_mem_mb = machine_mem_mb - 1000
@@ -113,7 +114,7 @@ task CollectMultipleMetrics {
     aligned_bam: "input aligned bam"
     genome_ref_fasta: "genome reference fasta"
     output_basename: "basename used for output files"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    picard_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -141,7 +142,7 @@ task CollectMultipleMetrics {
   }
   
   runtime {
-    docker: docker
+    docker: picard_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     cpu: cpu
@@ -245,9 +246,10 @@ task CollectRnaMetrics {
     File rrna_intervals
     String output_basename
     String stranded
+    String picard_docker_path
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    #String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     Int machine_mem_mb = 3850
     # give the command 500 MiB of overhead
     Int command_mem_mb = machine_mem_mb - 500
@@ -268,7 +270,7 @@ task CollectRnaMetrics {
     rrna_intervals: "ribosomal intervals"
     output_basename: "basename used for output files"
     stranded: "whether or not to use strand specificity"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    picard_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -290,7 +292,7 @@ task CollectRnaMetrics {
   }
   
   runtime {
-    docker: docker
+    docker: picard_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
@@ -309,9 +311,10 @@ task CollectDuplicationMetrics {
   input {
     File aligned_bam
     String output_basename
+    String picard_docker_path
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    #String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     Int machine_mem_mb = 32768
     # give the command 1 GiB of overhead
     Int command_mem_mb = machine_mem_mb - 1000
@@ -329,7 +332,7 @@ task CollectDuplicationMetrics {
   parameter_meta {
     aligned_bam: "input aligned bam"
     output_basename: "basename used for output files"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    picard_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -347,7 +350,7 @@ task CollectDuplicationMetrics {
   }
   
   runtime {
-    docker: docker
+    docker: picard_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES

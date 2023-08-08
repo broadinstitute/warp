@@ -6,9 +6,10 @@ task RSEMExpression {
     File rsem_genome
     String output_basename
     Boolean is_paired
+    String rsem_docker_path
   
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/rsem:1.0.0-1663016024"
+    #String docker = "us.gcr.io/broad-gotc-prod/rsem:1.0.0-1663016024"
     Int machine_mem_mb = 32768
     Int cpu = 4
     # use provided disk number or dynamically size on our own, with 200GiB of additional disk
@@ -24,7 +25,7 @@ task RSEMExpression {
     trans_aligned_bam: "input transcriptome aligned bam"
     rsem_genome: "tar'd RSEM genome"
     output_basename: "basename used for output files"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    rsem_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -48,7 +49,7 @@ task RSEMExpression {
   }
 
   runtime {
-    docker: docker
+    docker: rsem_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES

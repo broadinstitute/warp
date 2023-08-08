@@ -35,8 +35,9 @@ workflow SmartSeq2SingleSample {
         Boolean paired_end
         # cloud provider
         String cloud_provider
+
         # need this for line 51 if we decide to go that route
-        Boolean gcp_cloud_provider
+        # Boolean gcp_cloud_provider
     }
 
     # version of this pipeline
@@ -45,75 +46,78 @@ workflow SmartSeq2SingleSample {
     # choose the correct dockers based on cloud_provider.
     #How can we do this in WDL? Do we need a task for this?
     # Could do either of the following?
-    # option 1, figure out if this is even possible in wdl. i dont think it is possinble in a clean way
-    String docker = if cloud_provider == "gcp" then gcr_docker else acr_docker
+    # option 1
+    String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
     #  option 2, not crazy about this because we need to make sure users can't set both gcp_cloud_provider and acr_cloud_provider to true
-    String gcr_docker = if gcp_cloud_provider then gcr_docker else acr_docker
+    #String gcr_docker = if gcp_cloud_provider then gcr_docker else acr_docker
 
     # option 3, create a task
-  task ChooseDocker {
-    input {
-      String cloud_provider
-    }
-    command <<<
-      cloud_provider = $(~{cloud_provider})
+ #task ChooseDocker {
+ #  input {
+ #    String cloud_provider
+ #  }
+ #  command <<<
+ #    cloud_provider = $(~{cloud_provider})
 
-      if [[ "$cloud_provider" == "gcp" ]]
-      then
-       docker_prefix="us.gcr.io/broad-gotc-prod/"
-      elif [[ "$cloud_provider" == "azure"  ]]
-      then
-      docker_prefix="us.acr.io/broad-gotc-prod/"
-      else
-       echo "cloud_provider should only be gcp or azure"
-       exit 1;
-    fi
+ #    if [[ "$cloud_provider" == "gcp" ]]
+ #    then
+ #     docker_prefix="us.gcr.io/broad-gotc-prod/"
+ #    elif [[ "$cloud_provider" == "azure"  ]]
+ #    then
+ #    docker_prefix="us.acr.io/broad-gotc-prod/"
+ #    else
+ #     echo "cloud_provider should only be gcp or azure"
+ #     exit 1;
+ #  fi
 
-    >>>
+ #  >>>
 
-    runtime {
-      docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-      disks: "local-disk 10 HDD"
-      memory: "10 GiB"
-    }
+ #  runtime {
+ #    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+ #    disks: "local-disk 10 HDD"
+ #    memory: "10 GiB"
+ #  }
 
-    output {
-      File fragment_file = "~{bam_base_name}.fragments.tsv"
-      File Snap_metrics = "~{bam_base_name}.metrics.h5ad"
-    }
-  }
+ #  output {
+ #    String docker_prefix = ""
+ #  }
+ #}
 
 
     String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
     String acr_docker_prefix = "us.acr.io/broad-gotc-prod/"
 
     String hisat2_docker = "hisat2:1.0.0-1662998171"
-    String picard_docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
-    String rsem_docker = "us.gcr.io/broad-gotc-prod/rsem:1.0.0-1663016024"
+    String picard_docker = "picard-cloud:2.26.10"
+    String rsem_docker = "rsem:1.0.0-1663016024"
     String group_qcs_docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.4"
-    String pytools_dockers = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+    String pytools_dockers = "pytools:1.0.0-1661263730"
 
+    String hisat2_docker_path = docker_prefix + hisat2_docker
+    String picard_docker_path = docker_prefix + picard_docker
+    String rsem_docker_path = docker_prefix + rsem_docker
+    String group_qcs_docker_path = group_qcs_docker
+    String pytools_dockers_path = docker_prefix + pytools_dockers
 
-
-    parameter_meta {
-        genome_ref_fasta: "Genome reference in fasta format"
-        rrna_intervals: "rRNA interval file required by Picard"
-        gene_ref_flat: "Gene refflat file required by Picard"
-        hisat2_ref_index: "HISAT2 reference index file in tarball"
-        hisat2_ref_trans_index: "HISAT2 transcriptome index file in tarball"
-        rsem_ref_index: "RSEM reference index file in tarball"
-        hisat2_ref_name: "HISAT2 reference index name"
-        hisat2_ref_trans_name: "HISAT2 transcriptome index file name"
-        stranded: "Library strand information example values: FR RF NONE"
-        input_id: "Sample name or cell_names"
-        input_id_metadata_field: "String that describes the metadata field containing the input_id"
-        input_name: "User provided sample name or cell_names"
-        input_name_metadata_field: "String that describes the metadata field containing input_name"
-        output_name: "Output name, can include path"
-        fastq1: "R1 in paired end reads"
-        fastq2: "R2 in paired end reads"
-        paired_end: "Boolean flag denoting if the sample is paired end or not"
-    }
+    #parameter_meta {
+    #    genome_ref_fasta: "Genome reference in fasta format"
+    #    rrna_intervals: "rRNA interval file required by Picard"
+    #    gene_ref_flat: "Gene refflat file required by Picard"
+    #    hisat2_ref_index: "HISAT2 reference index file in tarball"
+    #    hisat2_ref_trans_index: "HISAT2 transcriptome index file in tarball"
+    #    rsem_ref_index: "RSEM reference index file in tarball"
+    #    hisat2_ref_name: "HISAT2 reference index name"
+    #    hisat2_ref_trans_name: "HISAT2 transcriptome index file name"
+    #    stranded: "Library strand information example values: FR RF NONE"
+    #    input_id: "Sample name or cell_names"
+    #    input_id_metadata_field: "String that describes the metadata field containing the input_id"
+    #    input_name: "User provided sample name or cell_names"
+    #    input_name_metadata_field: "String that describes the metadata field containing input_name"
+    #    output_name: "Output name, can include path"
+    #    fastq1: "R1 in paired end reads"
+    #    fastq2: "R2 in paired end reads"
+    #    paired_end: "Boolean flag denoting if the sample is paired end or not"
+    #}
 
     String quality_control_output_basename = output_name + "_qc"
 
@@ -126,6 +130,7 @@ workflow SmartSeq2SingleSample {
                 ref_name = hisat2_ref_name,
                 input_id = input_id,
                 output_basename = quality_control_output_basename,
+                hisat2_docker_path = hisat2_docker_path
         }
     }
     if( !paired_end ) {
@@ -136,6 +141,7 @@ workflow SmartSeq2SingleSample {
                 ref_name = hisat2_ref_name,
                 input_id = input_id,
                 output_basename = quality_control_output_basename,
+                hisat2_docker_path = hisat2_docker_path
         }
     }
 
@@ -148,6 +154,7 @@ workflow SmartSeq2SingleSample {
             aligned_bam = HISAT2_output_bam,
             genome_ref_fasta = genome_ref_fasta,
             output_basename = quality_control_output_basename,
+            picard_docker_path = picard_docker_path
     }
 
     call Picard.CollectRnaMetrics {
@@ -157,12 +164,14 @@ workflow SmartSeq2SingleSample {
             rrna_intervals = rrna_intervals,
             output_basename = quality_control_output_basename,
             stranded = stranded,
+            picard_docker_path = picard_docker_path
     }
 
     call Picard.CollectDuplicationMetrics {
         input:
             aligned_bam = HISAT2_output_bam,
             output_basename = quality_control_output_basename,
+            picard_docker_path = picard_docker_path
     }
 
     String data_output_basename = output_name + "_rsem"
@@ -176,6 +185,8 @@ workflow SmartSeq2SingleSample {
                 ref_name = hisat2_ref_trans_name,
                 input_id = input_id,
                 output_basename = data_output_basename,
+                hisat2_docker_path = hisat2_docker_path
+
         }
     }
 
@@ -187,6 +198,7 @@ workflow SmartSeq2SingleSample {
                 ref_name = hisat2_ref_trans_name,
                 input_id = input_id,
                 output_basename = data_output_basename,
+                hisat2_docker_path = hisat2_docker_path
         }
     }
 
@@ -198,7 +210,8 @@ workflow SmartSeq2SingleSample {
             trans_aligned_bam = HISAT2RSEM_output_bam,
             rsem_genome = rsem_ref_index,
             output_basename = data_output_basename,
-            is_paired = paired_end
+            is_paired = paired_end,
+            rsem_docker_path = rsem_docker_path
     }
 
     Array[File] picard_row_outputs = [CollectMultipleMetrics.alignment_summary_metrics,CollectDuplicationMetrics.dedup_metrics,CollectRnaMetrics.rna_metrics,CollectMultipleMetrics.gc_bias_summary_metrics]
@@ -225,7 +238,8 @@ workflow SmartSeq2SingleSample {
             hisat2_stats = HISAT2_log_file,
             hisat2_trans_stats = HISAT2RSEM_log_file,
             rsem_stats = RSEMExpression.rsem_cnt,
-            output_name = output_name
+            output_name = output_name,
+            group_qcs_docker_path = group_qcs_docker_path
     }
 
     call LoomUtils.SmartSeq2LoomOutput {
@@ -236,7 +250,8 @@ workflow SmartSeq2SingleSample {
             input_name = input_name,
             pipeline_version = "SmartSeq2SingleSample_v~{pipeline_version}",
             input_id_metadata_field = input_id_metadata_field,
-            input_name_metadata_field = input_name_metadata_field
+            input_name_metadata_field = input_name_metadata_field,
+            pytools_dockers_path = pytools_dockers_path
     }
 
     output {

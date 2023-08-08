@@ -8,9 +8,10 @@ task HISAT2PairedEnd {
     String ref_name
     String output_basename
     String input_id
+    String hisat2_docker_path
 
   # runtime values
-  String docker = "us.gcr.io/broad-gotc-prod/hisat2:1.0.0-1662998171"
+  #String docker = "us.gcr.io/broad-gotc-prod/hisat2:1.0.0-1662998171"
   Int machine_mem_mb = 16500
   Int cpu = 4
   # Using (fastq1 + fastq2) x 100 gives factor of a few buffer. BAM can be up to ~5 x (fastq1 + fastq2).
@@ -29,7 +30,7 @@ task HISAT2PairedEnd {
     ref_name: "the basename of the index for the reference genome"
     output_basename: "basename used for output files"
     input_id: "sample name of input"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    hisat2_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -111,7 +112,7 @@ task HISAT2PairedEnd {
   }
 
   runtime {
-    docker: docker
+    docker: hisat2_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
@@ -135,9 +136,10 @@ task HISAT2RSEM {
     String ref_name
     String output_basename
     String input_id
+    String hisat2_docker_path
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/hisat2:1.0.0-1662998171"
+    #String docker = "us.gcr.io/broad-gotc-prod/hisat2:1.0.0-1662998171"
     Int machine_mem_mb = 16500
     Int cpu = 4
     # Using (fastq1 + fastq2) x 100 gives factor of a few buffer. BAM can be up to ~5 x (fastq1 + fastq2).
@@ -157,7 +159,7 @@ task HISAT2RSEM {
     ref_name: "the basename of the index for the reference genome"
     output_basename: "basename used for output files"
     input_id: "sample name of input"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    hisat2_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -245,7 +247,7 @@ task HISAT2RSEM {
   }
 
   runtime {
-    docker: docker
+    docker: hisat2_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
@@ -267,9 +269,10 @@ input {
   String ref_name
   String output_basename
   String input_id
+  String hisat2_docker_path
 
   # runtime values
-  String docker = "us.gcr.io/broad-gotc-prod/hisat2:1.0.0-1662998171"
+  #String docker = "us.gcr.io/broad-gotc-prod/hisat2:1.0.0-1662998171"
   Int machine_mem_mb = 16500
   Int cpu = 4
   # Using fastq x 100 gives factor of a few buffer. BAM can be up to ~5 x fastq.
@@ -287,7 +290,7 @@ input {
     ref_name: "the basename of the index for the reference genome"
     output_basename: "basename used for output files"
     input_id: "sample name of input"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    hisat2_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -340,7 +343,7 @@ input {
   }
 
   runtime {
-    docker: docker
+    docker: hisat2_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
@@ -412,9 +415,10 @@ task HISAT2RSEMSingleEnd {
     String ref_name
     String output_basename
     String input_id
+    String hisat2_docker_path
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/hisat2:1.0.0-1662998171"
+    #String docker = "us.gcr.io/broad-gotc-prod/hisat2:1.0.0-1662998171"
     Int machine_mem_mb = 15000
     Int cpu = 4
     Int disk = ceil((size(fastq, "GiB")) * 100 + size(hisat2_ref, "GiB") * 2 + 200)
@@ -431,7 +435,7 @@ task HISAT2RSEMSingleEnd {
     ref_name: "the basename of the index for the reference genome"
     output_basename: "basename used for output files"
     input_id: "sample name of input"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    hisat2_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -498,7 +502,7 @@ task HISAT2RSEMSingleEnd {
   }
 
   runtime {
-    docker: docker
+    docker: hisat2_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES

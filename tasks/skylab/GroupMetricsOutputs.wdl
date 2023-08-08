@@ -9,8 +9,9 @@ task GroupQCOutputs {
     File hisat2_trans_stats
     File rsem_stats
     String output_name
+    String group_qcs_docker_path
     # Runtime
-    String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.4"
+    #String docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.4"
     Int mem = 3
     Int cpu = 1
     Int disk_space = 20
@@ -27,7 +28,7 @@ task GroupQCOutputs {
     hisat2_trans_stats:"statistics output of hisat2 transcriptome alignment"
     rsem_stats: "statistics output of rsem "
     output_name: "name output files"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    group_qcs_docker_path: "(optional) the docker image containing the runtime environment for this task"
     mem: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk_space: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -47,7 +48,7 @@ task GroupQCOutputs {
     Array[File] group_files = glob("${output_name}_*.csv")
   }
   runtime {
-    docker: docker
+    docker: group_qcs_docker_path
     memory: "${mem} GiB"
     disks: "local-disk ${disk_space} HDD"
     disk: disk_space + " GB" # TES

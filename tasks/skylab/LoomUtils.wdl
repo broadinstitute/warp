@@ -3,7 +3,8 @@ version 1.0
 task SmartSeq2LoomOutput {
   input {
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+    #String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+    String pytools_dockers_path
     # the gene count file "<input_id>_rsem.genes.results" in the task results folder call-RSEMExpression
     File rsem_gene_results
     # file named "<input_id>_QCs.csv" in the folder  "call-GroupQCOutputs/glob-*" of the the SS2  output
@@ -44,7 +45,7 @@ task SmartSeq2LoomOutput {
   }
 
   runtime {
-    docker: docker
+    docker: pytools_dockers_path
     cpu: cpu  # note that only 1 thread is supported by pseudobam
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
