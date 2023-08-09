@@ -43,7 +43,7 @@ workflow VUMCMergeFastqWithCram {
     Boolean allow_empty_ref_alt = false
   }
 
-  call PairedFastQsToUnmappedBAM as ToUnmappedBam {
+  call PairedFastQsToUnmappedBAM as FastqToUnmappedBam {
     input:
       fastq_1 = fastq_1,
       fastq_2 = fastq_2,
@@ -56,7 +56,7 @@ workflow VUMCMergeFastqWithCram {
       sequencing_center = sequencing_center,
   }
 
-  call Utilities.ConvertToBam as ToBam {
+  call Utilities.ConvertToBam as CramToBam {
     input:
       input_cram = mapped_cram,
       ref_fasta = ref_fasta,
@@ -66,10 +66,10 @@ workflow VUMCMergeFastqWithCram {
 
   call MergeBamAlignment {
     input:
-      input_bam = ToBam.output_bam,
-      input_bam_index = ToBam.output_bam_index,
+      input_bam = CramToBam.output_bam,
+      input_bam_index = CramToBam.output_bam_index,
 
-      unmapped_bam = ToUnmappedBam.output_unmapped_bam,
+      unmapped_bam = FastqToUnmappedBam.output_unmapped_bam,
 
       sample_name = sample_name,
 
@@ -78,7 +78,7 @@ workflow VUMCMergeFastqWithCram {
       ref_dict = ref_dict
   }
 
-  call Utilities.ConvertToCram as ToCram {
+  call Utilities.ConvertToCram as MergedBamToCram {
     input:
       input_bam = MergeBamAlignment.output_bam,
       ref_fasta = ref_fasta,
@@ -87,9 +87,9 @@ workflow VUMCMergeFastqWithCram {
   }
 
   output {
-    File output_cram = ToCram.output_cram
-    File output_cram_index = ToCram.output_cram_index
-    File output_cram_md5 = ToCram.output_cram_md5
+    File output_cram = MergedBamToCram.output_cram
+    File output_cram_index = MergedBamToCram.output_cram_index
+    File output_cram_md5 = MergedBamToCram.output_cram_md5
   }
 }
 
