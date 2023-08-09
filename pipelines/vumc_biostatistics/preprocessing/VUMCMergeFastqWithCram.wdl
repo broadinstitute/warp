@@ -38,8 +38,6 @@ workflow VUMCMergeFastqWithCram {
     File mapped_cram
     File mapped_cram_index
 
-    Int compression_level
-    Int preemptible_tries
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
     Boolean allow_empty_ref_alt = false
