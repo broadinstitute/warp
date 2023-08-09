@@ -135,3 +135,7 @@ workflows:
   - name: VUMCPlink2
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2.wdl
+
+  - name: VUMCMergeFastqWithCram
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMergeFastqWithCram.wdl
