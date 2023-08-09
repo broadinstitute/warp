@@ -645,7 +645,7 @@ task ValidateVCF {
 
   Int memory_size = ceil(7000 * memory_multiplier)
 
-  command {
+  command <<<
     # copied the following code from HaplotypeCaller_GATK4_VCF in GermlineVariantDiscovery
     # Quanhu Sheng, 20230809 
     #
@@ -669,7 +669,8 @@ task ValidateVCF {
       --validation-type-to-exclude ALLELES \
       ~{"--dbsnp " + dbsnp_vcf} \
       ~{extra_args}
-  }
+  >>>
+
   runtime {
     docker: gatk_docker
     preemptible: preemptible_tries
