@@ -112,10 +112,11 @@ task PairedFastQsToUnmappedBAM {
     Int machine_mem_gb = 7
     Int preemptible_attempts = 3
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.4.0.0"
+    Float disk_multiplier = 3.0
   }
 
   Int command_mem_gb = machine_mem_gb - 1
-  Int disk_space_gb = ceil((size(fastq_1, "GB") + size(fastq_2, "GB")) * 2 ) + addtional_disk_space_gb
+  Int disk_space_gb = ceil((size(fastq_1, "GB") + size(fastq_2, "GB")) * disk_multiplier ) + addtional_disk_space_gb
 
   command <<<
     gatk --java-options "-Xms~{command_mem_gb}g -Xmx~{command_mem_gb}g" \
