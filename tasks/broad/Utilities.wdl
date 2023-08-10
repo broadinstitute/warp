@@ -164,7 +164,10 @@ task ConvertToBam {
     File ref_fasta
     File ref_fasta_index
     String output_basename
+    Float disk_multiplier = 5.0
   }
+
+  Int disk_size = ceil(((disk_multiplier + 1) * size(input_cram, "GiB")) + size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")) + 20
 
   command <<<
     set -e
@@ -174,12 +177,13 @@ task ConvertToBam {
 
     samtools index ~{output_basename}.bam
   >>>
+  
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
     preemptible: 3
     memory: "3 GiB"
     cpu: "1"
-    disks: "local-disk 200 HDD"
+    disks: "local-disk " + disk_size + " HDD"
   }
   output {
     File output_bam = "~{output_basename}.bam"

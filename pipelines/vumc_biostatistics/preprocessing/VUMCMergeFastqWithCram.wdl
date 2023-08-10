@@ -160,7 +160,7 @@ task MergeBamAlignment {
     Boolean unmap_contaminant_reads = true
 
     Float memory_multiplier = 1.0
-    Float disk_multiplier = 2.0
+    Float disk_multiplier = 2.5
     Int preemptible_tries = 3
   }
 
