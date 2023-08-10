@@ -7,24 +7,23 @@ workflow VUMCCramQC2 {
     String sample_name
     String samtools_docker = "staphb/samtools:latest"
   }
-
   
- scatter (input_cram in input_crams){
-  call CountCRAM {
-    input:
-      input_cram = input_cram,
-      docker = samtools_docker,
+  scatter (input_cram in input_crams){
+    call CountCRAM {
+      input:
+        input_cram = input_cram,
+        docker = samtools_docker,
+    }
   }
- }
 
- call SumUp {
-  input: 
-   sample_name = sample_name,
-   mapped_files = CountCRAM.mapped_file,
-   unmapped_files = CountCRAM.unmapped_file,
- }
+  call SumUp {
+    input: 
+    sample_name = sample_name,
+    mapped_files = CountCRAM.mapped_file,
+    unmapped_files = CountCRAM.unmapped_file,
+  }
 
-output {
+  output {
     Int unmapped_reads = SumUp.NumberUnmappedReads
     Int mapped_reads = SumUp.NumberMappedReads
   }
@@ -71,9 +70,9 @@ task CountCRAM{
 task SumUp{
   input{
     # Command parameters
-     String sample_name
-     Array[File] unmapped_files
-     Array[File] mapped_files
+    String sample_name
+    Array[File] unmapped_files
+    Array[File] mapped_files
   }
 
   String FinalNumUnmapped = "${sample_name}_final_Unmapped.txt"
@@ -86,6 +85,7 @@ task SumUp{
   >>>
 
   runtime{
+    docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     memory: "2 GB"
     disks: "local-disk 5 HDD"
   }
