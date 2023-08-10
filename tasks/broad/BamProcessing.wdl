@@ -464,7 +464,7 @@ task CheckContamination {
     preemptible: preemptible_tries
     memory: "7.5 GiB"
     disks: "local-disk " + disk_size + " HDD"
-    docker: "us.gcr.io/broad-gotc-prod/verify-bam-id:1.0.1-83a1c936ef2e1a8c9e78ed2d2e2d328adf0c6447-1690296105"
+    docker: "us.gcr.io/broad-gotc-prod/verify-bam-id:1.0.1-c1cba76e979904eb69c31520a0d7f5be63c72253-1691679541"
     cpu: 2
   }
   output {
