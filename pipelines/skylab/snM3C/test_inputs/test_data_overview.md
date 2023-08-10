@@ -3,6 +3,9 @@ The following lists the data sets used for workflow validation, including workfl
 
 * WARP tests for snM3C use data downsampled to two cells (M16 barcode and G13 barcode) using the Utility WDL [sample_fastq](./Utility_wdl/sample_fastq.14.wdl). 
 
+  * The whitelist used for the downsampling workflow is "gs://fc-f62be246-9bf6-42a8-9123-7bd1c52894a7/downsampled/M16_G13_whitelist.txt", which is simply a list of the M16 and G13 barcodes.
+  * The read structure for downsample is "8C148M."
+
 * To ensure tests run quickly, the barcode list has been subsetted to the barcodes for these two cells.
 
 * Both original data sets (FASTQs) were provided courtesy of Dr. Hanqing Liu.
