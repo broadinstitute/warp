@@ -23,7 +23,7 @@ To use the latest release of the snM3C pipeline, visit the [WARP releases page](
 
 ### Running the Workflow
 
-To download the latest release of the snM3C pipeline, see the release tags prefixed with "snM3C" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All releases of the snM3C pipeline are documented in the [snM3C changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/skylab/snM3C/snM3C.changelog.md). 
+To download the latest release of the snM3C pipeline, see the release tags prefixed with "snM3C" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All releases of the snM3C pipeline are documented in the [snM3C changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snM3C/snM3C.changelog.md). 
 
 To search releases of this and other pipelines, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
 
@@ -33,7 +33,7 @@ The snM3C pipeline can be deployed using [Cromwell](https://cromwell.readthedocs
 
 ### Inputs
 
-The snM3C workflow requires a JSON configuration file specifying the input files and parameters for the analysis. An example configuration file can be found in the [snM3C direcotry](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snM3C/snM3C_inputs.json).
+The snM3C workflow requires a JSON configuration file specifying the input files and parameters for the analysis. An example configuration file can be found in the [snM3C directory](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snM3C/snM3C_inputs.json).
 
 The main input files and parameters include:
 
@@ -75,7 +75,7 @@ The snM3C workflow produces the following main outputs:
 
 ## Versioning
 
-All snM3C pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/skylab/snM3C/snM3C.changelog.md).
+All snM3C pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snM3C/snM3C.changelog.md).
 
 <!--- Citing the pipeline will go here --->
 
