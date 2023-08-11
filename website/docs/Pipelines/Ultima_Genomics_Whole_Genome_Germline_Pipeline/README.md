@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/Ultima_Genomics_Whole_Genome_Germline_Pipeline/README
 ---
 
 # Ultima Genomics Whole Genome Germline Overview

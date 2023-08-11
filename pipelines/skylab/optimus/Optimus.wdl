@@ -67,7 +67,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "5.8.3"
+  String pipeline_version = "5.8.4"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -173,6 +173,10 @@ workflow Optimus {
       barcodes = STARsoloFastq.barcodes,
       features = STARsoloFastq.features,
       matrix = STARsoloFastq.matrix,
+      cell_reads = STARsoloFastq.cell_reads,
+      summary = STARsoloFastq.summary,
+      align_features = STARsoloFastq.align_features,
+      umipercell = STARsoloFastq.umipercell,
       input_id = input_id
   }
   if (counting_mode == "sc_rna"){
@@ -209,6 +213,7 @@ workflow Optimus {
         barcodes = STARsoloFastq.barcodes_sn_rna,
         features = STARsoloFastq.features_sn_rna,
         matrix = STARsoloFastq.matrix_sn_rna,
+        cell_reads = STARsoloFastq.cell_reads_sn_rna,
         input_id = input_id
     }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
@@ -245,6 +250,7 @@ workflow Optimus {
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
     File? picard_metrics = DropseqMetrics.metric_output
+    File? aligner_metrics = MergeStarOutputs.cell_reads_out
     # h5ad
     File h5ad_output_file = final_h5ad_output
   }
