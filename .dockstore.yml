@@ -136,6 +136,12 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2.wdl
 
-  - name: VUMCMergeFastqWithCram
+  # it always fails in fastq to unmapped bam. I decided to generate unmapped bam as independent step.
+  # - name: VUMCMergeFastqWithCram
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMergeFastqWithCram.wdl
+
+  - name: VUMCMergeUnmappedBamWithCram
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMergeFastqWithCram.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMergeUnmappedBamWithCram.wdl
+    
