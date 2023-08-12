@@ -91,6 +91,7 @@ task MergeBamAlignment {
     Float memory_multiplier = 1.0
     Float disk_multiplier = 2.5
     Int preemptible_tries = 3
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.4.0.0"
   }
 
   Float unmapped_bam_size = size(unmapped_bam, "GiB")
@@ -118,7 +119,7 @@ task MergeBamAlignment {
     echo Total available memory: ${available_memory_mb} MB >&2
     echo Memory reserved for Java: ${java_memory_size_mb} MB >&2
 
-    gatk --java-options "-Xms${java_memory_size_mb}m -Xmx${java_memory_size_mb}m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10" \
+    java -Dsamjdk.compression_level=1 -Xms${java_memory_size_mb}m -Xmx${java_memory_size_mb}m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -jar /usr/gitc/picard.jar \
       MergeBamAlignment \
       VALIDATION_STRINGENCY=SILENT \
       EXPECTED_ORIENTATIONS=FR \
@@ -149,7 +150,7 @@ task MergeBamAlignment {
     docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
     preemptible: preemptible_tries
     memory: memory_size_gb + " GiB"
-    cpu: "16"
+    cpu: "1"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
