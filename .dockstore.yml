@@ -145,3 +145,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMergeUnmappedBamWithCram.wdl
     
+  - name: VUMCMoveSingleSampleWESResult
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wes/VUMCMoveSingleSampleWESResult.wdl
