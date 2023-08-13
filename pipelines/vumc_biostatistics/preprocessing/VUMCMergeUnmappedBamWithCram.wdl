@@ -89,7 +89,8 @@ task MergeBamAlignment {
     Boolean unmap_contaminant_reads = true
 
     Float memory_multiplier = 1.0
-    Float disk_multiplier = 2.5
+    Float disk_multiplier = 4.0
+    Float additional_disk_size = 20.0
     Int preemptible_tries = 3
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.4.0.0"
   }
@@ -98,7 +99,7 @@ task MergeBamAlignment {
   Float input_bam_size = size(input_bam, "GiB")
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
 
-  Int disk_size = ceil(ref_size + input_bam_size + disk_multiplier * unmapped_bam_size + 20)
+  Int disk_size = ceil(ref_size + input_bam_size + disk_multiplier * unmapped_bam_size + additional_disk_size)
 
   Int memory_size_gb = ceil(14 * memory_multiplier)
 
