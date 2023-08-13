@@ -23,9 +23,9 @@ workflow VUMCMergeUnmappedBamWithCram {
 
     String sample_name
 
-    String ref_fasta
-    String ref_fasta_index
-    String ref_dict
+    File ref_fasta
+    File ref_fasta_index
+    File ref_dict
 
     File mapped_cram
     File mapped_cram_index
@@ -81,9 +81,9 @@ task MergeBamAlignment {
 
     String sample_name
 
-    String ref_fasta
-    String ref_fasta_index
-    String ref_dict
+    File ref_fasta
+    File ref_fasta_index
+    File ref_dict
 
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
