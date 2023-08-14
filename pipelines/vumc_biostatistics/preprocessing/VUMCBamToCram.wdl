@@ -4,6 +4,7 @@ version 1.0
 workflow VUMCBamToCram {
   input {
     File input_bam
+    File? input_bam_index
 
     File? old_ref_fasta
     File? old_ref_fasta_index
@@ -17,6 +18,7 @@ workflow VUMCBamToCram {
   call BamToCram {
     input:
       input_bam = input_bam,
+      input_bam_index = input_bam_index,
       old_ref_fasta = old_ref_fasta,
       old_ref_fasta_index = old_ref_fasta_index,
       ref_fasta = ref_fasta,
@@ -35,11 +37,16 @@ workflow VUMCBamToCram {
 task BamToCram {
   input {
     File input_bam
+    File? input_bam_index
+
     File? old_ref_fasta
     File? old_ref_fasta_index
+
     File ref_fasta
     File ref_fasta_index
+
     String sample_name
+
     Int machine_mem_gb = 4
     Int additional_disk_size = 20
     Float disk_multiplier = 2.5
