@@ -7,6 +7,10 @@ workflows:
     testParameterFiles:
           -  /warp/pipelines/skylab/optimus/example_inputs/human_v3_example.json
 
+  - name: snM3C
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/snM3C/snM3C.wdl
+
   - name: Smartseq2_Multisample
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/smartseq2_multisample/MultiSampleSmartSeq2.wdl
@@ -106,10 +110,6 @@ workflows:
   - name: SlideSeq
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/slideseq/SlideSeq.wdl
-
-  - name: snM3C
-    subclass: WDL
-    primaryDescriptorPath: /beta-pipelines/skylab/m3c/snM3C.wdl
     
   - name: Multiome
     subclass: WDL
