@@ -35,18 +35,11 @@ workflow VUMCMergeUnmappedBamWithCram {
     Boolean allow_empty_ref_alt = false
   }
 
-  call Utilities.ConvertToBam as CramToBam {
-    input:
-      input_cram = mapped_cram,
-      ref_fasta = ref_fasta,
-      ref_fasta_index = ref_fasta_index,
-      output_basename = sample_name
-  }
-
+  #MergeBamAlignment can read cram file, so we don't need to convert cram back to bam for merging.
   call MergeBamAlignment {
     input:
-      input_bam = CramToBam.output_bam,
-      input_bam_index = CramToBam.output_bam_index,
+      input_bam = mapped_cram,
+      input_bam_index = mapped_cram_index,
 
       unmapped_bam = unmapped_bam,
 
@@ -57,18 +50,10 @@ workflow VUMCMergeUnmappedBamWithCram {
       ref_dict = ref_dict
   }
 
-  call Utilities.ConvertToCram as MergedBamToCram {
-    input:
-      input_bam = MergeBamAlignment.output_bam,
-      ref_fasta = ref_fasta,
-      ref_fasta_index = ref_fasta_index,
-      output_basename = sample_name
-  }
-
   output {
-    File output_cram = MergedBamToCram.output_cram
-    File output_cram_index = MergedBamToCram.output_cram_index
-    File output_cram_md5 = MergedBamToCram.output_cram_md5
+    File output_cram = MergeBamAlignment.output_cram
+    File output_cram_index = MergeBamAlignment.output_cram_index
+    File output_cram_md5 = MergeBamAlignment.output_cram_md5
   }
 }
 
@@ -104,57 +89,64 @@ task MergeBamAlignment {
   Int memory_size_gb = ceil(14 * memory_multiplier)
 
   command <<<
-    set -o pipefail
-    set -e
 
-    # copied the following code from HaplotypeCaller_GATK4_VCF in GermlineVariantDiscovery
-    # Quanhu Sheng, 20230809 
-    #
-    # We need at least 1 GB of available memory outside of the Java heap in order to execute native code, thus, limit
-    # Java's memory by the total memory minus 1 GB. We need to compute the total memory as it might differ from
-    # memory_size because of Cromwell's retry with more memory feature.
-    # Note: In the future this should be done using Cromwell's ${MEM_SIZE} and ${MEM_UNIT} environment variables,
-    #       which do not rely on the output format of the `free` command.
-    available_memory_mb=$(free -m | awk '/^Mem/ {print $2}')
-    let java_memory_size_mb=available_memory_mb-1024
-    echo Total available memory: ${available_memory_mb} MB >&2
-    echo Memory reserved for Java: ${java_memory_size_mb} MB >&2
+set -o pipefail
+set -e
 
-    java -Dsamjdk.compression_level=1 -Xms${java_memory_size_mb}m -Xmx${java_memory_size_mb}m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -jar /usr/gitc/picard.jar \
-      MergeBamAlignment \
-      VALIDATION_STRINGENCY=SILENT \
-      EXPECTED_ORIENTATIONS=FR \
-      ATTRIBUTES_TO_RETAIN=X0 \
-      ATTRIBUTES_TO_REMOVE=NM \
-      ATTRIBUTES_TO_REMOVE=MD \
-      ALIGNED_BAM=~{input_bam} \
-      UNMAPPED_BAM=~{unmapped_bam} \
-      OUTPUT=~{sample_name}.bam \
-      REFERENCE_SEQUENCE=~{ref_fasta} \
-      SORT_ORDER="coordinate" \
-      IS_BISULFITE_SEQUENCE=false \
-      ALIGNED_READS_ONLY=false \
-      CLIP_ADAPTERS=false \
-      ~{true='CLIP_OVERLAPPING_READS=true' false="" hard_clip_reads} \
-      ~{true='CLIP_OVERLAPPING_READS_OPERATOR=H' false="" hard_clip_reads} \
-      MAX_RECORDS_IN_RAM=2000000 \
-      ADD_MATE_CIGAR=true \
-      MAX_INSERTIONS_OR_DELETIONS=-1 \
-      PRIMARY_ALIGNMENT_STRATEGY=MostDistant \
-      UNMAPPED_READ_STRATEGY=COPY_TO_TAG \
-      ALIGNER_PROPER_PAIR_FLAGS=true \
-      UNMAP_CONTAMINANT_READS=~{unmap_contaminant_reads} \
-      ADD_PG_TAG_TO_READS=false
+# copied the following code from HaplotypeCaller_GATK4_VCF in GermlineVariantDiscovery
+# Quanhu Sheng, 20230809 
+#
+# We need at least 1 GB of available memory outside of the Java heap in order to execute native code, thus, limit
+# Java's memory by the total memory minus 1 GB. We need to compute the total memory as it might differ from
+# memory_size because of Cromwell's retry with more memory feature.
+# Note: In the future this should be done using Cromwell's ${MEM_SIZE} and ${MEM_UNIT} environment variables,
+#       which do not rely on the output format of the `free` command.
+available_memory_mb=$(free -m | awk '/^Mem/ {print $2}')
+let java_memory_size_mb=available_memory_mb-1024
+echo Total available memory: ${available_memory_mb} MB >&2
+echo Memory reserved for Java: ${java_memory_size_mb} MB >&2
+
+gatk --java-options "-Xms${java_memory_size_mb}m -Xmx${java_memory_size_mb}m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10" \
+  MergeBamAlignment \
+  VALIDATION_STRINGENCY=SILENT \
+  EXPECTED_ORIENTATIONS=FR \
+  ATTRIBUTES_TO_RETAIN=X0 \
+  ATTRIBUTES_TO_REMOVE=NM \
+  ATTRIBUTES_TO_REMOVE=MD \
+  ALIGNED_BAM=~{input_bam} \
+  UNMAPPED_BAM=~{unmapped_bam} \
+  OUTPUT=~{sample_name}.cram \
+  REFERENCE_SEQUENCE=~{ref_fasta} \
+  SORT_ORDER="coordinate" \
+  CREATE_INDEX=false \
+  CREATE_MD5_FILE=true \
+  IS_BISULFITE_SEQUENCE=false \
+  ALIGNED_READS_ONLY=false \
+  CLIP_ADAPTERS=false \
+  ~{true='CLIP_OVERLAPPING_READS=true' false="" hard_clip_reads} \
+  ~{true='CLIP_OVERLAPPING_READS_OPERATOR=H' false="" hard_clip_reads} \
+  MAX_RECORDS_IN_RAM=2000000 \
+  ADD_MATE_CIGAR=true \
+  MAX_INSERTIONS_OR_DELETIONS=-1 \
+  PRIMARY_ALIGNMENT_STRATEGY=MostDistant \
+  UNMAPPED_READ_STRATEGY=COPY_TO_TAG \
+  ALIGNER_PROPER_PAIR_FLAGS=true \
+  UNMAP_CONTAMINANT_READS=~{unmap_contaminant_reads} \
+  ADD_PG_TAG_TO_READS=false
+
+samtools index ~{sample_name}.cram
 
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
+    docker: gatk_docker
     preemptible: preemptible_tries
     memory: memory_size_gb + " GiB"
     cpu: "1"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
-    File output_bam = "~{sample_name}.bam"
+    File output_cram = "~{sample_name}.cram"
+    File output_cram_index = "~{sample_name}.cram.crai"
+    File output_cram_md5 = "~{sample_name}.cram.md5"
   }
 }
