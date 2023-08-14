@@ -1,3 +1,8 @@
+# 2.1.6
+2023-08-14 (Date of Last Commit)
+
+* Re-releasing the pipeline
+
 # 2.1.5
 2023-03-20 (Date of Last Commit)
 

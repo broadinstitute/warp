@@ -1,5 +1,11 @@
+# 3.1.12
+2023-08-14 (Date of Last Commit)
+
+* Re-releasing the pipeline
+
 # 3.1.11
 2023-03-20 (Date of Last Commit)
+
 * CheckFingerprint can allow LOD 0
 
 # 3.1.10
