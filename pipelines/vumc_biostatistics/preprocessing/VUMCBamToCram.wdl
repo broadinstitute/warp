@@ -4,8 +4,13 @@ version 1.0
 workflow VUMCBamToCram {
   input {
     File input_bam
+
     File? old_ref_fasta
+    File? old_ref_fasta_index
+
     File ref_fasta
+    File ref_fasta_index
+
     String sample_name
   }
 
@@ -13,7 +18,9 @@ workflow VUMCBamToCram {
     input:
       input_bam = input_bam,
       old_ref_fasta = old_ref_fasta,
+      old_ref_fasta_index = old_ref_fasta_index,
       ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
       sample_name = sample_name,
   }
 
@@ -29,7 +36,9 @@ task BamToCram {
   input {
     File input_bam
     File? old_ref_fasta
+    File? old_ref_fasta_index
     File ref_fasta
+    File ref_fasta_index
     String sample_name
     Int machine_mem_gb = 4
     Int additional_disk_size = 20
@@ -40,13 +49,13 @@ task BamToCram {
   String output_name = "~{sample_name}.cram"
 
   command <<<
-    samtools view ~{"-T " + old_ref_fasta} ~{input_bam} | samtools view -T ~{ref_fasta} -C -o ~{output_name} -
+    samtools view -h ~{"-T " + old_ref_fasta} ~{input_bam} | samtools view -T ~{ref_fasta} -C --no-PG -o ~{output_name} -
     samtools index ~{output_name}
     md5sum ~{output_name} > ~{output_name}.md5.txt
   >>>
 
   runtime {
-    docker: "staphb/samtools:1.17"
+    docker: "evolbioinfo/samtools:v1.18"
     preemptible: 3
     memory: machine_mem_gb + " GB"
     disks: "local-disk " + disk_size + " HDD"
