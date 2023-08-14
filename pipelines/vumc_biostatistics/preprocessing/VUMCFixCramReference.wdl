@@ -57,7 +57,7 @@ task BamToCram {
 
   command <<<
     samtools view -h ~{"-T " + old_ref_fasta} ~{input_bam} | \
-      samtools view -T ~{ref_fasta} -C --output-fmt-option embed_ref=2 --no-PG - \
+      samtools view -h -T ~{ref_fasta} -C --output-fmt-option embed_ref=2 --no-PG - | \
       samtools view -T ~{ref_fasta} -C --no-PG -o ~{output_name} -
     samtools index ~{output_name}
     md5sum ~{output_name} > ~{output_name}.md5.txt
