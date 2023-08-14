@@ -1,0 +1,23 @@
+{
+  "SmartSeq2SingleSample.hisat2_ref_trans_name": "hisat2_from_rsem_star_primary_gencode_mouse_vM21",
+  "SmartSeq2SingleSample.rrna_intervals": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.interval_list",
+  "SmartSeq2SingleSample.hisat2_ref_index": "gs://gcp-public-data--broad-references/mm10/v0/hisat2_primary_gencode_mouse_vM21.tar.gz",
+  "SmartSeq2SingleSample.genome_ref_fasta": "gs://gcp-public-data--broad-references/mm10/v0/GRCm38.primary_assembly.genome.fa",
+  "SmartSeq2SingleSample.hisat2_ref_trans_index": "gs://gcp-public-data--broad-references/mm10/v0/hisat2_from_rsem_star_primary_gencode_mouse_vM21.tar.gz",
+  "SmartSeq2SingleSample.rsem_ref_index": "gs://gcp-public-data--broad-references/mm10/v0/rsem_primary_gencode_mouse_vM21.tar",
+  "SmartSeq2SingleSample.gene_ref_flat": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.refflat.txt",
+  "SmartSeq2SingleSample.hisat2_ref_name": "hisat2_primary_gencode_mouse_vM21",
+  "SmartSeq2SingleSample.stranded": "NONE",
+  "SmartSeq2SingleSample.fastq1": "gs://broad-gotc-test-storage/MultiSampleSmartSeq2/truth/plumbing/master/pr_test_truth_fastq/SRR5676728_1.fastq.gz",
+  "SmartSeq2SingleSample.fastq2": "gs://broad-gotc-test-storage/MultiSampleSmartSeq2/truth/plumbing/master/pr_test_truth_fastq/SRR5676728_2.fastq.gz",
+  "SmartSeq2SingleSample.input_id": "SRR5676728",
+  "SmartSeq2SingleSample.output_name": "SRR5676728",
+  "SmartSeq2SingleSample.paired_end": true,
+  "SmartSeq2SingleSample.dockers": {
+    "hisat2_docker_path": "us.gcr.io/broad-gotc-prod/hisat2:1.0.0-1662998171",
+    "picard_docker_path": "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10",
+    "rsem_docker_path": "us.gcr.io/broad-gotc-prod/rsem:1.0.0-1663016024",
+    "group_qcs_docker_path": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.4",
+    "pytools_dockers_path": "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+  }
+}
