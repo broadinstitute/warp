@@ -4,6 +4,7 @@ version 1.0
 workflow VUMCBamToCram {
   input {
     File input_bam
+    File? old_ref_fasta
     File ref_fasta
     String sample_name
   }
@@ -11,6 +12,7 @@ workflow VUMCBamToCram {
   call BamToCram {
     input:
       input_bam = input_bam,
+      old_ref_fasta = old_ref_fasta,
       ref_fasta = ref_fasta,
       sample_name = sample_name,
   }
@@ -26,6 +28,7 @@ workflow VUMCBamToCram {
 task BamToCram {
   input {
     File input_bam
+    File? old_ref_fasta
     File ref_fasta
     String sample_name
     Int machine_mem_gb = 4
@@ -37,9 +40,9 @@ task BamToCram {
   String output_name = "~{sample_name}.cram"
 
   command <<<
-    samtools view -T ~{ref_fasta} -C -o ~{output_name} ~{input_bam}
+    samtools view ~{"-T " + old_ref_fasta} ~{input_bam} | samtools view -T ~{ref_fasta} -C -o ~{output_name} -
     samtools index ~{output_name}
-    md5sum ~{output_name} > ~{output_name}.md5
+    md5sum ~{output_name} > ~{output_name}.md5.txt
   >>>
 
   runtime {
@@ -52,6 +55,6 @@ task BamToCram {
   output {
     File output_cram = "~{output_name}"
     File output_cram_index = "~{output_name}.crai"
-    File output_cram_md5 = "~{output_name}.md5"
+    File output_cram_md5 = "~{output_name}.md5.txt"
   }
 }
