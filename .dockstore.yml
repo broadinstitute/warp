@@ -148,3 +148,7 @@ workflows:
   - name: VUMCMoveSingleSampleWESResult
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wes/VUMCMoveSingleSampleWESResult.wdl
+
+  - name: VUMCFixCramReference
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFixCramReference.wdl
