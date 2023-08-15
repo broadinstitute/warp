@@ -20,7 +20,19 @@ import "../../../../../../tasks/broad/UnmappedBamToAlignedBam.wdl" as ToBam
 import "../../../../../../tasks/broad/AggregatedBamQC.wdl" as AggregatedQC
 import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
 
-# WORKFLOW DEFINITION
+## Important notes by Quanhu Sheng, 20230815
+## Higly recommended to use the following preset arguments:
+## ConvertToCram:
+##   disk_size = 100
+## GatherBamFiles:
+##   additional_disk = 100
+## MarkDuplicates:
+##   additional_disk = 200
+##   memory_multiplier = 2
+##   sorting_collection_size_ratio = 0.05
+## SortSampleBam:
+##   additional_disk = 100
+
 workflow VUMCUnmappedBamToAlignedCram {
   input {
     SampleAndUnmappedBams sample_and_unmapped_bams
