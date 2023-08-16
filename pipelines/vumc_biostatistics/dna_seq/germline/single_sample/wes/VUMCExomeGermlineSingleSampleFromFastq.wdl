@@ -169,7 +169,7 @@ task PairedFastQsToUnmappedBAM {
     String? sequencing_center 
 
     # Runtime parameters
-    Int addtional_disk_space_gb = 100
+    Int addtional_disk_space_gb = 10
     Int machine_mem_gb = 7
     Int preemptible_attempts = 3
 
