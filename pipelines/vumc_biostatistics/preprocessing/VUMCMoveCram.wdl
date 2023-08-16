@@ -3,6 +3,7 @@ version 1.0
 workflow VUMCMoveCram {
   input {
     String target_bucket
+    String? project_id
 
     String genoset
     String GRID
@@ -19,6 +20,7 @@ workflow VUMCMoveCram {
   call MoveCram as mf {
     input:
       target_bucket = target_bucket,
+      project_id = project_id,
 
       genoset = genoset,
       GRID = GRID,
@@ -40,7 +42,8 @@ workflow VUMCMoveCram {
 task MoveCram {
   input {
     String target_bucket
-    
+    String? project_id
+
     String genoset
     String GRID
 
@@ -53,7 +56,7 @@ task MoveCram {
 
 set -e
 
-gsutil -m \
+gsutil -m ~{"-u " + project_id} mv \
   ~{output_cram} \
   ~{output_cram_index} \
   ~{output_cram_md5} \
