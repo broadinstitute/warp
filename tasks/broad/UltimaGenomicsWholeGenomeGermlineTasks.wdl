@@ -390,7 +390,9 @@ task CheckContamination {
     References references
     String output_prefix
 
-    String docker = "us.gcr.io/broad-gotc-prod/verify-bam-id:1.0.1-83a1c936ef2e1a8c9e78ed2d2e2d328adf0c6447-1692119047"
+    # this docker image was built using the commit hash f6cb51761861e57c43879aa262df5cf8e670cf7c (v2.0.1) from the VerifyBamID repo
+    # https://github.com/Griffan/VerifyBamID/commit/f6cb51761861e57c43879aa262df5cf8e670cf7c
+    String docker = "us.gcr.io/broad-gotc-prod/verify-bam-id:1.0.1-f6cb51761861e57c43879aa262df5cf8e670cf7c-1692214793"
     Int disk_size_gb = ceil(if ceil((size(input_bam, "GB")) +
                             (size(references.ref_fasta, "GB") +
                             size(references.ref_fasta_index, "GB") +
