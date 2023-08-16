@@ -152,3 +152,9 @@ workflows:
   - name: VUMCFixCramReference
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFixCramReference.wdl
+
+  - name: VUMCUnmappedBamToAlignedCramNoBamQC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCUnmappedBamToAlignedCramNoBamQC.wdl
+
+  
