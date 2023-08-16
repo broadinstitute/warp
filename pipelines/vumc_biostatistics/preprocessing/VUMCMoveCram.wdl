@@ -2,32 +2,36 @@ version 1.0
 
 workflow VUMCMoveCram {
   input {
+    String target_bucket
+
     String genoset
     String GRID
 
     String output_cram
     String output_cram_index
     String output_cram_md5
-
-    String target_bucket
   }
+
+  String moved_output_cram = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram)}"
+  String moved_output_cram_index = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram_index)}"
+  String moved_output_cram_md5 = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram_md5)}"
 
   call MoveCram as mf {
     input:
+      target_bucket = target_bucket,
+
       genoset = genoset,
       GRID = GRID,
 
       output_cram = output_cram,
       output_cram_index = output_cram_index,
-      output_cram_md5 = output_cram_md5,
-
-      target_bucket = target_bucket
+      output_cram_md5 = output_cram_md5
   }
 
   output {
-    String target_output_cram = mf.target_output_cram
-    String target_output_cram_index = mf.target_output_cram_index
-    String target_output_cram_md5 = mf.target_output_cram_md5
+    String target_output_cram = moved_output_cram
+    String target_output_cram_index = moved_output_cram_index
+    String target_output_cram_md5 = moved_output_cram_md5
 
     Int target_cram_moved = mf.target_cram_moved
   }
@@ -35,63 +39,25 @@ workflow VUMCMoveCram {
 
 task MoveCram {
   input {
+    String target_bucket
+    
     String genoset
     String GRID
 
     String output_cram
     String output_cram_index
     String output_cram_md5
-
-    String target_bucket
   }
-
-  String new_output_cram = "${target_bucket}/${genoset}/${GRID}/${basename(output_cram)}"
-  String new_output_cram_index = "${target_bucket}/${genoset}/${GRID}/${basename(output_cram_index)}"
-  String new_output_cram_md5 = "${target_bucket}/${genoset}/${GRID}/${basename(output_cram_md5)}"
 
   command <<<
 
-move_file(){
-  set +e
-
-  SOURCE_FILE=$1
-  TARGET_FILE=$2
-
-  echo "Moving $SOURCE_FILE to $TARGET_FILE"
-
-  if [[ $SOURCE_FILE == $TARGET_FILE ]]; then
-    echo "Target file equals to source file, skipping move: $TARGET_FILE"
-    return 0
-  fi
-
-  echo "Checking if target file exists: $TARGET_FILE"
-
-  gsutil -q stat $TARGET_FILE
-  status=$?
-  if [[ $status -eq 0 ]]; then
-    echo "Target file exists, skipping move: $TARGET_FILE"
-    return 0
-  fi
-
-  echo gsutil mv $SOURCE_FILE $TARGET_FILE
-
-  gsutil mv $SOURCE_FILE $TARGET_FILE
-  status=$?
-  if [[ $status -eq 0 ]]; then
-    echo "Moving succeed."
-  else
-    echo "Moving failed with status: $status"
-  fi
-
-  set -e
-  return $status
-}
-
 set -e
 
-move_file ~{output_cram_index} ~{new_output_cram_index}
-move_file ~{output_cram_md5} ~{new_output_cram_md5}
-move_file ~{output_cram} ~{new_output_cram}
+gsutil -m \
+  ~{output_cram} \
+  ~{output_cram_index} \
+  ~{output_cram_md5} \
+  ~{target_bucket}/~{genoset}/~{GRID}/
 
 >>>
 
@@ -102,10 +68,6 @@ move_file ~{output_cram} ~{new_output_cram}
     memory: "2 GiB"
   }
   output {
-    String target_output_cram = "~{new_output_cram}"
-    String target_output_cram_index = "~{new_output_cram_index}"
-    String target_output_cram_md5 = "~{new_output_cram_md5}"
-
     Int target_cram_moved = 1
   }
 }
