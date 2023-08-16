@@ -8,9 +8,10 @@ task FastqProcessing {
     File whitelist
     Int chemistry
     String sample_id
+    String read_struct
 
     #using the latest build of warp-tools in GCR
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679490798"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686932671"
     #runtime values
     Int machine_mem_mb = 40000
     Int cpu = 16   
@@ -29,6 +30,7 @@ task FastqProcessing {
     r1_fastq: "input fastq file"
     r2_fastq: "input fastq file"
     i1_fastq: "(optional) input fastq file"
+    read_struct: "read structure for the 10x chemistry. This automatically selected in the checkInputs task"
     whitelist: "10x genomics cell barcode whitelist"
     chemistry: "chemistry employed, currently can be tenX_v2 or tenX_v3, the latter implies NO feature barcodes"
     sample_id: "name of sample matching this file, inserted into read group header"
@@ -101,11 +103,10 @@ task FastqProcessing {
 
     fastqprocess \
         --bam-size 30.0 \
-        --barcode-length 16 \
-        --umi-length $UMILENGTH \
         --sample-id "~{sample_id}" \
         $FASTQS \
         --white-list "~{whitelist}" \
+        --read-structure "~{read_struct}" \
         --output-format FASTQ
   }
   
@@ -136,7 +137,7 @@ task FastqProcessingSlidSeq {
 
 
     # Runtime attributes
-    String docker =  "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.14-test2"
+    String docker =  "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686932671"
     Int cpu = 16
     Int machine_mb = 40000
     Int disk = ceil(size(r1_fastq, "GiB")*3 + size(r2_fastq, "GiB")*3) + 50
@@ -229,5 +230,129 @@ task FastqProcessingSlidSeq {
     Array[File] fastq_R1_output_array = glob("fastq_R1_*")
     Array[File] fastq_R2_output_array = glob("fastq_R2_*")
   }
+}
+
+task FastqProcessATAC {
+
+    input {
+        Array[String] read1_fastq
+        Array[String] read3_fastq
+        Array[String] barcodes_fastq
+        String read_structure = "16C"
+        String barcode_orientation = "FIRST_BP_RC"
+        String output_base_name
+        File whitelist
+
+        # [?] copied from corresponding optimus wdl for fastqprocessing
+        # using the latest build of warp-tools in GCR
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:aa_updatefastqprocess_cbtag"
+
+        # Runtime attributes [?]
+        Int mem_size = 5
+        Int cpu = 16
+        # TODO decided cpu
+        # estimate that bam is approximately equal in size to fastq, add 20% buffer
+        Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
+        Int preemptible = 3
+    }
+
+    meta {
+        description: "Converts a set of fastq files to unaligned bam file/fastq file, also corrects barcodes and partitions the alignments by barcodes. Allows for variable barcode and umi lengths as input, if applicable."
+    }
+
+    parameter_meta {
+        read1_fastq: "Array of read 1 FASTQ files of paired reads -- forward reads"
+        read3_fastq: "Array of read 3 FASTQ files of paired reads -- reverse reads"
+        barcodes_fastq: "Array of read 2 FASTQ files which contains the cellular barcodes"
+        output_base_name: "Name of sample matching this file, inserted into read group header"
+        read_structure: "A string that specifies the barcode (C) positions in the Read 2 fastq"
+        barcode_orientation: "A string that specifies the orientation of barcode needed for scATAC data. The default is FIRST_BP. Other options include LAST_BP, FIRST_BP_RC or LAST_BP_RC."
+        whitelist: "10x genomics cell barcode whitelist for scATAC"
+        docker: "(optional) the docker image containing the runtime environment for this task"
+        mem_size: "(optional) the amount of memory (MiB) to provision for this task"
+        cpu: "(optional) the number of cpus to provision for this task"
+        disk_size: "(optional) the amount of disk space (GiB) to provision for this task"
+        preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
+    }
+
+    command <<<
+
+        set -e
+
+        declare -a FASTQ1_ARRAY=(~{sep=' ' read1_fastq})
+        declare -a FASTQ2_ARRAY=(~{sep=' ' barcodes_fastq})
+        declare -a FASTQ3_ARRAY=(~{sep=' ' read3_fastq})
+
+        read1_fastq_files=`printf '%s ' "${FASTQ1_ARRAY[@]}"; echo`
+        read2_fastq_files=`printf '%s ' "${FASTQ2_ARRAY[@]}"; echo`
+        read3_fastq_files=`printf '%s ' "${FASTQ3_ARRAY[@]}"; echo`
+
+        echo $read1_fastq_files
+        
+        mkdir /cromwell_root/input_fastq
+        gcloud storage cp $read1_fastq_files /cromwell_root/input_fastq
+        gcloud storage cp $read2_fastq_files /cromwell_root/input_fastq
+        gcloud storage cp $read3_fastq_files /cromwell_root/input_fastq
+
+        # barcodes R2
+        R1_FILES_CONCAT=""
+        for fastq in "${FASTQ2_ARRAY[@]}"
+        do
+            BASE=`basename $fastq`
+            BASE=`echo --R1 /cromwell_root/input_fastq/$BASE`
+            R1_FILES_CONCAT+="$BASE "
+        done
+        echo $R1_FILES_CONCAT
+
+        # R1
+        R2_FILES_CONCAT=""
+        for fastq in "${FASTQ1_ARRAY[@]}"
+        do
+            BASE=`basename $fastq`
+            BASE=`echo --R2 /cromwell_root/input_fastq/$BASE`
+            R2_FILES_CONCAT+="$BASE "
+        done
+        echo $R2_FILES_CONCAT
+        
+        # R3
+        R3_FILES_CONCAT=""
+        for fastq in "${FASTQ3_ARRAY[@]}"
+        do
+            BASE=`basename $fastq`
+            BASE=`echo --R3 /cromwell_root/input_fastq/$BASE`
+            R3_FILES_CONCAT+="$BASE "
+        done
+        echo $R3_FILES_CONCAT
+
+        # Call fastq process
+        # outputs fastq files where the corrected barcode is in the read name
+        mkdir /cromwell_root/output_fastq
+        cd /cromwell_root/output_fastq
+
+        fastqprocess \
+        --bam-size 30.0 \
+        --sample-id "~{output_base_name}" \
+        $R1_FILES_CONCAT \
+        $R2_FILES_CONCAT \
+        $R3_FILES_CONCAT \
+        --white-list "~{whitelist}" \
+        --output-format "FASTQ" \
+        --barcode-orientation "~{barcode_orientation}" \
+        --read-structure "~{read_structure}"
+
+    >>>
+
+    runtime {
+        docker: docker
+        cpu: cpu
+        memory: "${mem_size} MiB"
+        disks: "local-disk ${disk_size} HDD"
+        preemptible: preemptible
+    }
+
+    output {
+        Array[File] fastq_R1_output_array = glob("/cromwell_root/output_fastq/fastq_R1_*")
+        Array[File] fastq_R3_output_array = glob("/cromwell_root/output_fastq/fastq_R3_*")
+    }
 }
 

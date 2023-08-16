@@ -65,58 +65,11 @@ object CromwellWorkflowTester {
     import WorkflowTestType._
 
     config.test match {
-      case AllOfUs =>
-        new AllOfUsTester(config.germlineCloudConfig)
-      case AnnotationFiltration =>
-        new AnnotationFiltrationTester(config.annotationFiltrationConfig)
-      case BroadInternalRNAWithUMIs =>
-        new BroadInternalRNAWithUMIsTester(
-          config.broadInternalRNAWithUMIsConfig)
-      case BroadInternalUltimaGenomics =>
-        new BroadInternalUltimaGenomicsTester(
-          config.broadInternalUltimaGenomicsConfig)
-      case CheckFingerprint =>
-        new CheckFingerprintTester(config.checkFingerprintConfig)
-      case CramToUnmappedBams =>
-        new CramToUnmappedBamsTester(config.cramToUnmappedBamsConfig)
       case CloudWorkflow =>
         new CloudWorkflowTester(config.cloudWorkflowConfig)
       case Dummy => new DummyTester()
-      case ExternalReprocessing =>
-        new ExternalReprocessingTester(config.germlineCloudConfig)
-      case GDCWholeGenomeSomaticSingleSample =>
-        new GDCWholeGenomeSomaticSingleSampleTester(
-          config.gdcWholeGenomeSomaticSingleSampleConfig)
-      case GenotypeConcordance =>
-        new GenotypeConcordanceTester(config.genotypeConcordanceConfig)
       case GermlineSingleSample =>
         new GermlineSingleSampleTester(config.germlineCloudConfig)
-      case ReblockGvcf =>
-        new ReblockGvcfTester(config.germlineCloudConfig)
-      case Reprocessing =>
-        new ReprocessingTester(config.germlineCloudConfig)
-      case JointGenotyping =>
-        new JointGenotypingTester(config.germlineCloudConfig)
-      case ValidateChip =>
-        new ValidateChipTester(config.validateChipConfig)
-      case Arrays =>
-        new ArraysTester(config.arraysConfig)
-      case IlluminaGenotypingArray =>
-        new IlluminaGenotypingArrayTester(config.illuminaGenotypingArrayConfig)
-      case Imputation =>
-        new ImputationTester(config.imputationConfig)
-      case RNAWithUMIs =>
-        new RNAWithUMIsTester(config.rnaWithUMIsConfig)
-      case SomaticSingleSample =>
-        new SomaticSingleSampleTester(config.somaticCloudWorkflowConfig)
-      case UltimaGenomicsJointGenotyping =>
-        new UltimaGenomicsJointGenotypingTester(
-          config.ultimaGenomicsJointGenotypingConfig)
-      case UltimaGenomicsWholeGenomeGermline =>
-        new UltimaGenomicsWholeGenomeGermlineTester(
-          config.ultimaGenomicsWholeGenomeGermlineConfig)
-      case VariantCalling =>
-        new VariantCallingTester(config.germlineCloudConfig)
     }
   }
 

@@ -40,7 +40,7 @@ workflow MultiSampleSmartSeq2 {
       Boolean paired_end
   }
   # Version of this pipeline
-  String pipeline_version = "2.2.20"
+  String pipeline_version = "2.2.21"
 
   if (false) {
      String? none = "None"

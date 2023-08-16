@@ -219,12 +219,13 @@ task STARsoloFastq {
     File tar_star_reference
     File white_list
     Int chemistry
+    String star_strand_mode
     String counting_mode
     String output_bam_basename
     Boolean? count_exons
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658781884"
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.10b-1685556218"
     Int machine_mem_mb = 64000
     Int cpu = 8
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -241,6 +242,7 @@ task STARsoloFastq {
     r1_fastq: "input FASTQ file array"
     r2_fastq: "array of forward read FASTQ files"
     tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
+    star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded'"
     docker: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
@@ -276,9 +278,18 @@ task STARsoloFastq {
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
     ## single nuclei
-        COUNTING_MODE="GeneFull"
+        COUNTING_MODE="GeneFull_Ex50pAS"
     else
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
+        exit 1;
+    fi
+# Check that the star strand mode matches STARsolo aligner options
+    if [[ "~{star_strand_mode}" == "Forward" ]] || [[ "~{star_strand_mode}" == "Reverse" ]] || [[ "~{star_strand_mode}" == "Unstranded" ]]
+    then
+        ## single cell or whole cell
+        echo STAR mode is assigned
+    else
+        echo Error: unknown STAR strand mode: "~{star_strand_mode}". Should be Forward, Reverse, or Unstranded.
         exit 1;
     fi
 
@@ -293,7 +304,7 @@ task STARsoloFastq {
     then
       STAR \
       --soloType Droplet \
-      --soloStrand Unstranded \
+      --soloStrand ~{star_strand_mode} \
       --runThreadN ~{cpu} \
       --genomeDir genome_reference \
       --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
@@ -307,12 +318,13 @@ task STARsoloFastq {
       --soloUMIdedup 1MM_Directional_UMItools \
       --outSAMtype BAM SortedByCoordinate \
       --outSAMattributes UB UR UY CR CB CY NH GX GN \
-      --soloBarcodeReadLength 0
+      --soloBarcodeReadLength 0 \
+      --soloCellReadStats Standard
     fi
 
     STAR \
       --soloType Droplet \
-      --soloStrand Unstranded \
+      --soloStrand ~{star_strand_mode} \
       --runThreadN ~{cpu} \
       --genomeDir genome_reference \
       --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
@@ -326,31 +338,52 @@ task STARsoloFastq {
       --soloUMIdedup 1MM_Directional_UMItools \
       --outSAMtype BAM SortedByCoordinate \
       --outSAMattributes UB UR UY CR CB CY NH GX GN \
-      --soloBarcodeReadLength 0
+      --soloBarcodeReadLength 0 \
+      --soloCellReadStats Standard
 
     touch barcodes_sn_rna.tsv
     touch features_sn_rna.tsv
     touch matrix_sn_rna.mtx
+    touch CellReads_sn_rna.stats
+    touch Features_sn_rna.stats
+    touch Summary_sn_rna.csv
+    touch UMIperCellSorted_sn_rna.txt
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
       mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
       mv "Solo.out/Gene/raw/features.tsv" features.tsv
       mv "Solo.out/Gene/raw/matrix.mtx"   matrix.mtx
+      mv "Solo.out/Gene/CellReads.stats" CellReads.stats
+      mv "Solo.out/Gene/Features.stats" Features.stats
+      mv "Solo.out/Gene/Summary.csv" Summary.csv
+      mv "Solo.out/Gene/UMIperCellSorted.txt" UMIperCellSorted.txt
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
       if ! [[ ~{count_exons} ]]
       then
-        mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
-        mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
-        mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+        mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
+        mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
+        mv "Solo.out/GeneFull_Ex50pAS/Features.stats" Features.stats
+        mv "Solo.out/GeneFull_Ex50pAS/Summary.csv" Summary.csv
+        mv "Solo.out/GeneFull_Ex50pAS/UMIperCellSorted.txt" UMIperCellSorted.txt
       else
-        mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
-        mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
-        mv "Solo.out/GeneFull/raw/matrix.mtx"   matrix.mtx
+        mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
+        mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
+        mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
+        mv "Solo.out/GeneFull_Ex50pAS/Features.stats" Features.stats
+        mv "Solo.out/GeneFull_Ex50pAS/Summary.csv" Summary.csv
+        mv "Solo.out/GeneFull_Ex50pAS/UMIperCellSorted.txt" UMIperCellSorted.txt
         mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_sn_rna.tsv
         mv "Solo.out/Gene/raw/features.tsv"     features_sn_rna.tsv
         mv "Solo.out/Gene/raw/matrix.mtx"       matrix_sn_rna.mtx
+        mv "Solo.out/Gene/CellReads.stats" CellReads_sn_rna.stats
+        mv "Solo.out/Gene/Features.stats" Features_sn_rna.stats
+        mv "Solo.out/Gene/Summary.csv" Summary_sn_rna.csv
+        mv "Solo.out/Gene/UMIperCellSorted.txt" UMIperCellSorted_sn_rna.txt
       fi
     else
       echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
@@ -378,6 +411,14 @@ task STARsoloFastq {
     File barcodes_sn_rna = "barcodes_sn_rna.tsv"
     File features_sn_rna = "features_sn_rna.tsv"
     File matrix_sn_rna = "matrix_sn_rna.mtx"
+    File cell_reads = "CellReads.stats"
+    File align_features = "Features.stats"
+    File summary = "Summary.csv"
+    File umipercell = "UMIperCellSorted.txt"
+    File cell_reads_sn_rna = "CellReads_sn_rna.stats"
+    File align_features_sn_rna = "Features_sn_rna.stats"
+    File summary_sn_rna = "Summary_sn_rna.csv"
+    File umipercell_sn_rna = "UMIperCellSorted_sn_rna.txt"
   }
 }
 
@@ -387,6 +428,11 @@ task MergeStarOutput {
     Array[File] barcodes
     Array[File] features
     Array[File] matrix
+    Array[File]? cell_reads
+    Array[File]? summary
+    Array[File]? align_features
+    Array[File]? umipercell
+    
     String input_id
 
     #runtime values
@@ -413,6 +459,47 @@ task MergeStarOutput {
     declare -a barcodes_files=(~{sep=' ' barcodes})
     declare -a features_files=(~{sep=' ' features})
     declare -a matrix_files=(~{sep=' ' matrix})
+    declare -a cell_reads_files=(~{sep=' ' cell_reads})
+    declare -a summary_files=(~{sep=' ' summary})
+    declare -a align_features_files=(~{sep=' ' align_features})
+    declare -a umipercell_files=(~{sep=' ' umipercell})
+
+    for cell_read in "${cell_reads_files[@]}"; do
+      if [ -f "$cell_read" ]; then
+        cat "$cell_read" >> "~{input_id}_cell_reads.txt"
+      fi
+    done
+    
+    for summary in "${summary_files[@]}"; do
+      if [ -f "$summary" ]; then
+        cat "$summary" >> "~{input_id}_summary.txt"
+      fi
+    done
+    
+    for align_feature in "${align_features_files[@]}"; do
+      if [ -f "$align_feature" ]; then
+        cat "$align_feature" >> "~{input_id}_align_features.txt"
+      fi
+    done
+ 
+    for umipercell in "${umipercell_files[@]}"; do
+      if [ -f "$umipercell" ]; then
+        cat "$umipercell" >> "~{input_id}_umipercell.txt"
+      fi
+    done
+
+    for umipercell in "${umipercell_files[@]}"; do
+      if [ -f "$umipercell" ]; then
+        cat "$umipercell" >> "~{input_id}_umipercell.txt"
+      fi
+    done
+    
+    # If text files are present, create a tar archive with them
+    if ls *.txt 1> /dev/null 2>&1; then
+      tar -zcvf ~{input_id}.star_metrics.tar *.txt
+    else
+      echo "No text files found in the folder."
+    fi
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
     python3 /usr/gitc/create-merged-npz-output.py \
@@ -435,6 +522,7 @@ task MergeStarOutput {
     File row_index = "~{input_id}_sparse_counts_row_index.npy"
     File col_index = "~{input_id}_sparse_counts_col_index.npy"
     File sparse_counts = "~{input_id}_sparse_counts.npz"
+    File? cell_reads_out = "~{input_id}.star_metrics.tar"
   }
 }
 

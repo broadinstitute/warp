@@ -4,9 +4,9 @@ import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
 import "../../../tasks/skylab/Metrics.wdl" as Metrics
 import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
 import "../../../tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
+import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 
 workflow Optimus {
   meta {
@@ -31,11 +31,17 @@ workflow Optimus {
     File annotations_gtf
     File ref_genome_fasta
     File? mt_genes
+    
+    #Chromosome in GTF with mitochondrial genes (example for human is "ChrM") for Picard metrics
+    String? mt_sequence
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
     # Whitelist is selected based on the input tenx_chemistry_version
     File whitelist = checkOptimusInput.whitelist_out
+
+    # read_structure is based on v2 or v3 chemistry
+    String read_struct = checkOptimusInput.read_struct_out
 
     # Emptydrops lower cutoff
     Int emptydrops_lower = 100
@@ -47,8 +53,8 @@ workflow Optimus {
     # Set to true if you expect that r1_read_length does not match length of UMIs/barcodes for 10x chemistry v2 (26 bp) or v3 (28 bp).
     Boolean ignore_r1_read_length = false
 
-    # Set to true to count reads in stranded mode
-    String use_strand_info = "false"
+    # Set to Forward, Reverse, or Unstranded to account for stranded library preparations (per STARsolo documentation)
+    String star_strand_mode = "Forward"
     
 # Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
@@ -60,8 +66,8 @@ workflow Optimus {
   }
 
   # version of this pipeline
-  String pipeline_version = "5.7.4"
 
+  String pipeline_version = "5.8.4"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -86,7 +92,7 @@ workflow Optimus {
     whitelist: "10x genomics cell barcode whitelist"
     tenx_chemistry_version: "10X Genomics v2 (10 bp UMI) or v3 chemistry (12bp UMI)"
     force_no_check: "Set to true to override input checks and allow pipeline to proceed with invalid input"
-    use_strand_info: "Set to true to count reads in stranded mode"
+    star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded.' Default is Forward."
   }
 
   call OptimusInputChecks.checkOptimusInput {
@@ -113,7 +119,8 @@ workflow Optimus {
       r2_fastq = r2_fastq,
       whitelist = whitelist,
       chemistry = tenx_chemistry_version,
-      sample_id = input_id
+      sample_id = input_id,
+      read_struct = read_struct
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
@@ -121,6 +128,7 @@ workflow Optimus {
       input:
         r1_fastq = [SplitFastq.fastq_R1_output_array[idx]],
         r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
+        star_strand_mode = star_strand_mode,
         white_list = whitelist,
         tar_star_reference = tar_star_reference,
         chemistry = tenx_chemistry_version,
@@ -150,11 +158,25 @@ workflow Optimus {
       input_id = input_id
   }
 
+  if (defined(mt_sequence)) {
+    call Metrics.DropseqMetrics {
+      input:
+        input_bam = MergeBam.output_bam,
+        annotation_gtf = annotations_gtf,
+        output_name = input_id + ".picard.gex.metrics.tsv",
+        mt_sequence = mt_sequence
+    }
+  }
+
   call StarAlign.MergeStarOutput as MergeStarOutputs {
     input:
       barcodes = STARsoloFastq.barcodes,
       features = STARsoloFastq.features,
       matrix = STARsoloFastq.matrix,
+      cell_reads = STARsoloFastq.cell_reads,
+      summary = STARsoloFastq.summary,
+      align_features = STARsoloFastq.align_features,
+      umipercell = STARsoloFastq.umipercell,
       input_id = input_id
   }
   if (counting_mode == "sc_rna"){
@@ -168,7 +190,7 @@ workflow Optimus {
   }
 
   if (!count_exons) {
-    call LoomUtils.OptimusLoomGeneration{
+    call H5adUtils.OptimusH5adGeneration{
       input:
         input_id = input_id,
         input_name = input_name,
@@ -191,9 +213,10 @@ workflow Optimus {
         barcodes = STARsoloFastq.barcodes_sn_rna,
         features = STARsoloFastq.features_sn_rna,
         matrix = STARsoloFastq.matrix_sn_rna,
+        cell_reads = STARsoloFastq.cell_reads_sn_rna,
         input_id = input_id
     }
-    call LoomUtils.SingleNucleusOptimusLoomOutput as OptimusLoomGenerationWithExons{
+    call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:
         input_id = input_id,
         input_name = input_name,
@@ -210,10 +233,9 @@ workflow Optimus {
         gene_id_exon = MergeStarOutputsExons.col_index,
         pipeline_version = "Optimus_v~{pipeline_version}"
     }
-
   }
 
-  File final_loom_output = select_first([OptimusLoomGenerationWithExons.loom_output, OptimusLoomGeneration.loom_output])
+  File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, OptimusH5adGeneration.h5ad_output])
 
 
   output {
@@ -227,7 +249,9 @@ workflow Optimus {
     File cell_metrics = CellMetrics.cell_metrics
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
-    # loom
-    File loom_output_file = final_loom_output
-}
+    File? picard_metrics = DropseqMetrics.metric_output
+    File? aligner_metrics = MergeStarOutputs.cell_reads_out
+    # h5ad
+    File h5ad_output_file = final_h5ad_output
+  }
 }

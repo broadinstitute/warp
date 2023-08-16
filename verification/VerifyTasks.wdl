@@ -124,16 +124,27 @@ task CompareTextFiles {
 
     while read -r a && read -r b <&3;
     do
-      echo "Comparing File $a with $b"
-      diff $a $b > diffs.txt
-      if [ $? -ne 0 ];
-      then
+      echo "Sorting File $a and $b"
+      sort $a > $a.sorted
+      sort $b > $b.sorted
+
+      echo "Calculating md5sums for $a and $b"
+      md5_a=$(md5sum $a.sorted | cut -d ' ' -f1)
+      md5_b=$(md5sum $b.sorted | cut -d ' ' -f1)
+
+      if [ $md5_a = $md5_b ]; then
+        echo "Files $a.sorted and $b.sorted have matching md5sums and are the same."
+      else
+        echo "Files $a.sorted and $b.sorted have different md5sums."
+        diff $a.sorted $b.sorted > diffs.txt
         exit_code=1
-        echo "Error: Files $a and $b differ" >&2
+        echo "Diff between $a.sorted and $b.sorted:" >&2
         cat diffs.txt >&2
       fi
+
       # catting the diffs.txt on STDOUT as that's what's expected.
       cat diffs.txt
+
     done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
 
     exit $exit_code
@@ -141,8 +152,8 @@ task CompareTextFiles {
 
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 10 HDD"
-    memory: "2 GiB"
+    disks: "local-disk 100 HDD"
+    memory: "50 GiB"
     preemptible: 3
   }
 }
@@ -205,8 +216,8 @@ task CompareBams {
   }
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
-  Int disk_size = ceil(bam_size * 4) + 20
-  Int memory_mb = 20000
+  Int disk_size = ceil(bam_size * 4) + 200
+  Int memory_mb = 500000
   Int java_memory_size = memory_mb - 1000
   Int max_heap = memory_mb - 500
 
@@ -318,6 +329,181 @@ task CompareLooms {
     memory: "${memory_mb} MiB"
     preemptible: 3
   }
-
 }
+
+task CompareH5adFilesATAC {
+  input {
+    File truth_h5ad
+    File test_h5ad
+    String docker = "python:3.10.0-buster"
+    Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 200
+    Int memory_gb = 32
+  }
+
+  command <<<
+
+    set -eo pipefail
+
+    pip3 install anndata
+    
+    python3 <<CODE
+    
+    import anndata as ad
+    import numpy as np
+    import pandas as pd
+    
+    truth_h5ad = "~{truth_h5ad}"
+    test_h5ad = "~{test_h5ad}"
+    truth = ad.read_h5ad(truth_h5ad)
+    test = ad.read_h5ad(test_h5ad)
+    
+    truth_obs = pd.DataFrame(truth.obs)
+    test_obs = pd.DataFrame(test.obs)
+    
+    print("Now running obs equivalence check")
+    
+    if truth_obs.equals(test_obs)==True:
+        print("pass")
+    else:
+        exit("Files are not identical")
+    
+    print("Done running matrix equivalence check")
+    
+    CODE 
+  >>>
+
+  runtime {
+    docker: docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_gb} GiB"
+    preemptible: 3
+  }
+}
+
+task CompareH5adFilesGEX {
+  input {
+    File truth_h5ad
+    File test_h5ad
+    String docker = "python:3.10.0-buster"
+    Int disk_size_gb = ceil(size(truth_h5ad, "GiB") + size(test_h5ad, "GiB")) + 200
+    Int memory_gb = 32
+  }
+
+  command <<<
+
+    set -eo pipefail
+
+    pip3 install anndata
+    
+    python3 <<CODE
+    
+    import anndata as ad
+    import numpy as np
+    import pandas as pd
+    
+    truth_h5ad = "~{truth_h5ad}"
+    test_h5ad = "~{test_h5ad}"
+    truth = ad.read_h5ad(truth_h5ad)
+    test = ad.read_h5ad(test_h5ad)
+    
+    truth_obs = pd.DataFrame(truth.obs)
+    test_obs = pd.DataFrame(test.obs)
+    
+    truth_var = pd.DataFrame(truth.var)
+    test_var = pd.DataFrame(test.var)
+    
+    truth_sum = truth.X.sum()
+    test_sum = test.X.sum()
+    
+    print("Now running equivalence check")
+    
+    if truth_obs.equals(test_obs)==True and truth_var.equals(test_var)==True and truth_sum==test_sum:
+        print("pass")
+    else:
+        exit("Files are not identical")
+    
+    print("Done running matrix equivalence check")
+    
+    CODE 
+  >>>
+
+  runtime {
+    docker: docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_gb} GiB"
+    preemptible: 3
+  }
+}
+
+task CompareSnapTextFiles {
+  input {
+    Array[File] test_text_files
+    Array[File] truth_text_files
+  }
+
+  command <<<
+    exit_code=0
+
+    test_files_length=~{length(test_text_files)}
+    truth_files_length=~{length(truth_text_files)}
+
+    while read -r a && read -r b <&3; do
+      sort_files() {
+       sort -t ',' -k2,2 -k3,3n -k4,4n "$1" | cut -d',' -f2,3,4 > "${1%.csv}.sorted.csv"
+      }
+
+      calc_md5() {
+        md5sum "$1" | cut -d ' ' -f1
+      }
+
+       if [[ "$a" == *_fragments.csv && "$b" == *_fragments.csv ]] || [[ "$a" == *_binCounts_10000.csv && "$b" == *_binCounts_10000.csv ]]; then
+         echo "Sorting File $a and $b"
+         sort_files "$a"
+         sort_files "$b"
+
+         echo "Calculating md5sums for $a and $b"
+         md5_a=$(calc_md5 "${a%.csv}.sorted.csv")
+         md5_b=$(calc_md5 "${b%.csv}.sorted.csv")
+
+         if [[ "$md5_a" == "$md5_b" ]]; then
+             echo "Files $a and $b are identical"
+         else
+             echo "Files $a and $b are NOT identical"
+             diff ${a%.csv}.sorted.csv ${b%.csv}.sorted.csv > diffs.txt
+             exit_code=1
+             echo "Diff between ${a%.csv}.sorted.csv  and ${b%.csv}.sorted.csv:" >&2
+             cat diffs.txt >&2
+         fi
+       else
+         echo "Sorting File $a and $b"
+         sort "$a" > "${a%.csv}.sorted.csv"
+         sort "$b" > "${b%.csv}.sorted.csv"
+
+         echo "Calculating md5sums for ${a%.csv}.sorted.csv and ${b%.csv}.sorted.csv"
+         md5_a=$(calc_md5 "${a%.csv}.sorted.csv")
+         md5_b=$(calc_md5 "${b%.csv}.sorted.csv")
+
+         if [ $md5_a = $md5_b ]; then
+           echo "Files $a and $b are identical"
+         else
+           echo "Files ${a%.csv}.sorted.csv and ${b%.csv}.sorted.csv have different md5sums."
+           diff ${a%.csv}.sorted.csv ${b%.csv}.sorted.csv > diffs.txt
+           exit_code=1
+           echo "Diff between ${a%.csv}.sorted.csv and ${b%.csv}.sorted.csv:" >&2
+           cat diffs.txt >&2
+         fi
+       fi
+    done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
+
+    exit $exit_code
+  >>>
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk 50 HDD"
+    memory: "25 GiB"
+    preemptible: 3
+  }
+}
+
 

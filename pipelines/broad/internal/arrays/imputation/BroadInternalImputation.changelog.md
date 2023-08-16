@@ -1,3 +1,9 @@
+# 1.1.9
+2023-08-01 (Date of Last Commit)
+
+* Moved ReplaceHeader to its own scatter to remove dependency between the two nested scatters to help with wall clock time
+* Updated Eagle docker to address security vulnerabilities, this has no effect on this pipeline
+
 # 1.1.8
 2023-03-31 (Date of Last Commit)
 

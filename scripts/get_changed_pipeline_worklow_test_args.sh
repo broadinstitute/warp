@@ -59,6 +59,8 @@ function pipeline_to_args() {
       continue;;
     JointGenotypingByChromosomePartTwo)
       continue;;
+    Multiome)
+      echo Multiome ${common_args};;
     MultiSampleArrays)
       echo MultiSampleArrays ${common_args};;
     MultiSampleSmartSeq2)
@@ -93,6 +95,8 @@ function pipeline_to_args() {
       else
         echo SmartSeq2SingleSample ${common_args}
       fi;;
+    snM3C)
+      echo snM3C ${common_args};;
     TargetedSomaticSingleSample)ValidateChip
       continue;;
     ValidateChip)

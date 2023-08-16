@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/Imputation_Pipeline/README
 ---
  
 # Imputation Overview

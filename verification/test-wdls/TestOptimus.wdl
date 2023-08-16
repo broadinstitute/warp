@@ -27,6 +27,9 @@ workflow TestOptimus {
     File ref_genome_fasta
     File? mt_genes
 
+    # Chromosome for mitochondria genes
+    String? mt_sequence
+
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version = 2
     # Whitelist is selected based on the input tenx_chemistry_version
@@ -41,8 +44,8 @@ workflow TestOptimus {
     # Set to true if you expect that r1_read_length does not match length of UMIs/barcodes for 10x chemistry v2 (26 bp) or v3 (28 bp).
     Boolean ignore_r1_read_length = false
 
-    # Set to true to count reads in stranded mode
-    String use_strand_info = "false"
+    # Set to Forward by default to count reads in 10x stranded mode
+    String star_strand_mode
     
 # Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
@@ -82,9 +85,10 @@ workflow TestOptimus {
       tenx_chemistry_version     = tenx_chemistry_version,
       emptydrops_lower           = emptydrops_lower,
       force_no_check             = force_no_check,
-      use_strand_info            = use_strand_info,
+      star_strand_mode           = star_strand_mode,
       count_exons                = count_exons,
       ignore_r1_read_length      = ignore_r1_read_length,
+      mt_sequence                = mt_sequence,
   }
 
   # Collect all of the pipeling output into single Array
@@ -94,7 +98,7 @@ workflow TestOptimus {
                                       Optimus.matrix_row_index,
                                       Optimus.matrix_col_index,
                                       Optimus.cell_calls,
-                                      Optimus.loom_output_file,
+                                      Optimus.h5ad_output_file,
   ])
 
   # Collect all of the pipeline metrics into a single Array
@@ -124,9 +128,9 @@ workflow TestOptimus {
 
   # If not updating truth then gather the inputs and call verification wdl
   if (!update_truth) {
-    call Utilities.GetValidationInputs as GetLoomInputs {
+    call Utilities.GetValidationInputs as GetH5adInputs {
       input:
-        input_file   = Optimus.loom_output_file,
+        input_file   = Optimus.h5ad_output_file,
         results_path = results_path,
         truth_path   = truth_path
     }
@@ -154,11 +158,11 @@ workflow TestOptimus {
 
     call VerifyOptimus.VerifyOptimus as Verify {
       input:
-        test_loom          = GetLoomInputs.results_file,
+        test_h5ad          = GetH5adInputs.results_file,
         test_bam           = GetBamInputs.results_file,
         test_gene_metrics  = GetGeneMetrics.results_file,
         test_cell_metrics  = GetCellMetrics.results_file,
-        truth_loom         = GetLoomInputs.truth_file,
+        truth_h5ad         = GetH5adInputs.truth_file,
         truth_bam          = GetBamInputs.truth_file,
         truth_gene_metrics = GetGeneMetrics.truth_file,
         truth_cell_metrics = GetCellMetrics.truth_file,

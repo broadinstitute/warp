@@ -7,7 +7,7 @@ import "../../../../tasks/broad/Utilities.wdl" as utils
 
 workflow BroadInternalRNAWithUMIs {
 
-  String pipeline_version = "1.0.22"
+  String pipeline_version = "1.0.25"
 
   input {
     # input needs to be either "hg19" or "hg38"
@@ -197,5 +197,9 @@ workflow BroadInternalRNAWithUMIs {
     Float contamination_error = RNAWithUMIs.contamination_error
     File fastqc_html_report = RNAWithUMIs.fastqc_html_report
     Float fastqc_percent_reads_with_adapter = RNAWithUMIs.fastqc_percent_reads_with_adapter
+  }
+
+  meta {
+    allowNestedInputs: true
   }
 }

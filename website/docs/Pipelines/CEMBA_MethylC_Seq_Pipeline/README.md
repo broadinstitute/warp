@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/CEMBA_MethylC_Seq_Pipeline/README
 ---
 
 # CEMBA Overview
