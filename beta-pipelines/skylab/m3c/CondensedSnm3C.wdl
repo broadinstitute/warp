@@ -17,15 +17,15 @@ workflow Condensed_snm3C {
             plate_id = plate_id
     }
 
-    call sort_and_trim_r1_and_r2 {
+    call Sort_and_trim_r1_and_r2 {
         input:
             tarred_demultiplexed_fastqs = Demultiplexing.tarred_demultiplexed_fastqs
     }
 
    # call hisat_3n_pair_end_mapping_dna_mode {
    #     input:
-   #         r1_trimmed = sort_and_trim_r1_and_r2.r1_trimmed_fq,
-   #         r2_trimmed = sort_and_trim_r1_and_r2.r2_trimmed_fq
+   #         r1_trimmed = Sort_and_trim_r1_and_r2.r1_trimmed_fq,
+   #         r2_trimmed = Sort_and_trim_r1_and_r2.r2_trimmed_fq
    # }
 #
    # call separate_unmapped_reads {
@@ -79,7 +79,7 @@ workflow Condensed_snm3C {
 #
    # call summary {
    #     input:
-   #         trimmed_stats = sort_and_trim_r1_and_r2.trim_stats,
+   #         trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats,
    #         hisat3n_stats = hisat_3n_pair_end_mapping_dna_mode.hisat3n_stats,
    #         r1_hisat3n_stats = hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.r1_hisat3n_stats,
    #         r2_hisat3n_stats = hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.r2_hisat3n_stats,
@@ -97,9 +97,9 @@ workflow Condensed_snm3C {
         #File UniqueAlign_cell_parser_picard_dedup = dedup_unique_bam_and_index_unique_bam.dedup_stats
         #File SplitReads_cell_parser_hisat_summary = "?"
         #File hicFiles = call_chromatin_contacts.chromatin_contact_stats
-        File trimmed_stats = sort_and_trim_r1_and_r2.trim_stats
-        File r1_trimmed_fq = sort_and_trim_r1_and_r2.r1_trimmed_fq
-        File r2_trimmed_fq = sort_and_trim_r1_and_r2.r2_trimmed_fq
+        File trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats
+        File r1_trimmed_fq = Sort_and_trim_r1_and_r2.r1_trimmed_fq
+        File r2_trimmed_fq = Sort_and_trim_r1_and_r2.r2_trimmed_fq
     }
 }
 
@@ -181,7 +181,7 @@ task Demultiplexing {
     }
 }
 
-task sort_and_trim_r1_and_r2 {
+task Sort_and_trim_r1_and_r2 {
     input {
         File tarred_demultiplexed_fastqs
         Int disk_size = 50
