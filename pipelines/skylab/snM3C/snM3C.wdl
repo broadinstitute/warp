@@ -87,27 +87,27 @@ task Demultiplexing {
     stats_file_path = '/cromwell_root/~{plate_id}.stats.txt'
     adapter_counts = {}
     with open(stats_file_path, 'r') as file:
-    content = file.read()
+      content = file.read()
 
     adapter_matches = re.findall(r'=== First read: Adapter (\w+) ===\n\nSequence: .+; Type: .+; Length: \d+; Trimmed: (\d+) times', content)
     for adapter_match in adapter_matches:
-    adapter_name = adapter_match[0]
-    trimmed_count = int(adapter_match[1])
-    adapter_counts[adapter_name] = trimmed_count
+      adapter_name = adapter_match[0]
+      trimmed_count = int(adapter_match[1])
+      adapter_counts[adapter_name] = trimmed_count
 
     # Removing fastq files with trimmed reads greater than 30
     directory_path = '/cromwell_root'
     threshold = 10000000
 
     for filename in os.listdir(directory_path):
-    if filename.endswith('.fq.gz'):
-    file_path = os.path.join(directory_path, filename)
-    adapter_name = re.search(r'A(\d+)-R', filename)
-    if adapter_name:
-    adapter_name = 'A' + adapter_name.group(1)
-    if adapter_name in adapter_counts and adapter_counts[adapter_name] > threshold:
-    os.remove(file_path)
-    print(f'Removed file: {filename}')
+      if filename.endswith('.fq.gz'):
+        file_path = os.path.join(directory_path, filename)
+        adapter_name = re.search(r'A(\d+)-R', filename)
+        if adapter_name:
+          adapter_name = 'A' + adapter_name.group(1)
+          if adapter_name in adapter_counts and adapter_counts[adapter_name] > threshold:
+            os.remove(file_path)
+            print(f'Removed file: {filename}')
     CODE
 
     # zip up all the output fq.gz files
