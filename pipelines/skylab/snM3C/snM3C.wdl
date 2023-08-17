@@ -40,7 +40,7 @@ workflow snM3C {
   }
 
   output {
-    File MappingSummary = Mapping.mappingSummary
+    #File MappingSummary = Mapping.stats_files
     File MappingFiles = Mapping.trimmed_files
     #File allcFiles = Mapping.allcFiles
     #File allc_CGNFiles = Mapping.allc_CGNFiles
@@ -207,8 +207,9 @@ task Mapping {
   }
 
   output {
-    File mappingSummary = "~{plate_id}_MappingSummary.csv.gz"
+    #File mappingSummary = "~{plate_id}_MappingSummary.csv.gz"
     File trimmed_files = "~{plate_id}.trimmed.fq.gz.tar"
+    #File stats_files = "~{plate_id}.trimmed.stats.txt"
     #File allcFiles = "~{plate_id}_allc_files.tar.gz"
     #File allc_CGNFiles = "~{plate_id}_allc-CGN_files.tar.gz"
     #File bamFiles = "~{plate_id}_bam_files.tar.gz"
