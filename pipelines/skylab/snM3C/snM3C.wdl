@@ -19,14 +19,14 @@ workflow snM3C {
   }
   # version of the pipeline
   String pipeline_version = "1.0.0"
-  
+
   call Demultiplexing {
     input:
       fastq_input_read1 = fastq_input_read1,
       fastq_input_read2 = fastq_input_read2,
       random_primer_indexes = random_primer_indexes,
       plate_id = plate_id
-    }
+  }
 
   call Mapping {
     input:
@@ -37,7 +37,7 @@ workflow snM3C {
       chromosome_sizes = chromosome_sizes,
       genome_fa = genome_fa,
       plate_id = plate_id
-    }
+  }
 
   output {
     File MappingSummary = Mapping.mappingSummary
@@ -87,27 +87,27 @@ task Demultiplexing {
     stats_file_path = '/cromwell_root/~{plate_id}.stats.txt'
     adapter_counts = {}
     with open(stats_file_path, 'r') as file:
-        content = file.read()
+    content = file.read()
 
     adapter_matches = re.findall(r'=== First read: Adapter (\w+) ===\n\nSequence: .+; Type: .+; Length: \d+; Trimmed: (\d+) times', content)
     for adapter_match in adapter_matches:
-        adapter_name = adapter_match[0]
-        trimmed_count = int(adapter_match[1])
-        adapter_counts[adapter_name] = trimmed_count
+    adapter_name = adapter_match[0]
+    trimmed_count = int(adapter_match[1])
+    adapter_counts[adapter_name] = trimmed_count
 
     # Removing fastq files with trimmed reads greater than 30
     directory_path = '/cromwell_root'
     threshold = 10000000
 
     for filename in os.listdir(directory_path):
-        if filename.endswith('.fq.gz'):
-            file_path = os.path.join(directory_path, filename)
-            adapter_name = re.search(r'A(\d+)-R', filename)
-            if adapter_name:
-                adapter_name = 'A' + adapter_name.group(1)
-                if adapter_name in adapter_counts and adapter_counts[adapter_name] > threshold:
-                    os.remove(file_path)
-                    print(f'Removed file: {filename}')
+    if filename.endswith('.fq.gz'):
+    file_path = os.path.join(directory_path, filename)
+    adapter_name = re.search(r'A(\d+)-R', filename)
+    if adapter_name:
+    adapter_name = 'A' + adapter_name.group(1)
+    if adapter_name in adapter_counts and adapter_counts[adapter_name] > threshold:
+    os.remove(file_path)
+    print(f'Removed file: {filename}')
     CODE
 
     # zip up all the output fq.gz files
@@ -171,24 +171,27 @@ task Mapping {
     cd ../
     /opt/conda/bin/snakemake --configfile mapping.yaml -j
 
-    # move outputs into /cromwell_root/
-    mv /cromwell_root/group0/MappingSummary.csv.gz /cromwell_root/~{plate_id}_MappingSummary.csv.gz
+    echo "list out everything"
+    ls -lR
 
-    cd /cromwell_root/group0/allc
-    tar -zcvf ~{plate_id}_allc_files.tar.gz *
-    mv ~{plate_id}_allc_files.tar.gz /cromwell_root/
-    cd ../allc-CGN
-    tar -zcvf ~{plate_id}_allc-CGN_files.tar.gz *
-    mv ~{plate_id}_allc-CGN_files.tar.gz /cromwell_root/
-    cd ../bam
-    tar -zcvf ~{plate_id}_bam_files.tar.gz *
-    mv ~{plate_id}_bam_files.tar.gz /cromwell_root/
-    cd ../detail_stats
-    tar -zcvf ~{plate_id}_detail_stats_files.tar.gz *
-    mv ~{plate_id}_detail_stats_files.tar.gz /cromwell_root/
-    cd ../hic
-    tar -zcvf ~{plate_id}_hic_files.tar.gz *
-    mv ~{plate_id}_hic_files.tar.gz /cromwell_root/
+    # move outputs into /cromwell_root/
+    #mv /cromwell_root/group0/MappingSummary.csv.gz /cromwell_root/~{plate_id}_MappingSummary.csv.gz
+
+    #cd /cromwell_root/group0/allc
+    #tar -zcvf ~{plate_id}_allc_files.tar.gz *
+    #mv ~{plate_id}_allc_files.tar.gz /cromwell_root/
+    #cd ../allc-CGN
+    #tar -zcvf ~{plate_id}_allc-CGN_files.tar.gz *
+    #mv ~{plate_id}_allc-CGN_files.tar.gz /cromwell_root/
+    #cd ../bam
+    #tar -zcvf ~{plate_id}_bam_files.tar.gz *
+    #mv ~{plate_id}_bam_files.tar.gz /cromwell_root/
+    #cd ../detail_stats
+    #tar -zcvf ~{plate_id}_detail_stats_files.tar.gz *
+    #mv ~{plate_id}_detail_stats_files.tar.gz /cromwell_root/
+    #cd ../hic
+    #tar -zcvf ~{plate_id}_hic_files.tar.gz *
+    #mv ~{plate_id}_hic_files.tar.gz /cromwell_root/
 
   >>>
 
