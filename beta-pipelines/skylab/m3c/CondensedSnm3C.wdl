@@ -193,6 +193,7 @@ task sort_and_trim_r1_and_r2 {
     command <<<
     set -euo pipefail
 
+    # untar the demultiplexed fastqs
     tar -xf ~{tarred_demultiplexed_fastqs}
 
     # define lists of r1 and r2 fq files
@@ -206,6 +207,7 @@ task sort_and_trim_r1_and_r2 {
       gunzip -c "$file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R1_sorted.fq"
       gunzip -c "$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R2_sorted.fq"
     done
+
 
     echo "Starting to trim with Cutadapt"
     sorted_R1_files=($(ls | grep "\-R1_sorted.fq"))
