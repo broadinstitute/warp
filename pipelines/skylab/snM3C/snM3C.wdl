@@ -153,7 +153,7 @@ task Mapping {
     cp ~{genome_fa} group0/reference/
     cp ~{tarred_demultiplexed_fastqs} group0/fastq/
     cp ~{mapping_yaml} group0/
-    cp ~{snakefile} group0/
+    cp ~{snakefile} group0/Snakefile
 
     # untar the index files
     cd group0/reference/
