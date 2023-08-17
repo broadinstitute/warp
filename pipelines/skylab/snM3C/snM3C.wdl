@@ -41,11 +41,12 @@ workflow snM3C {
 
   output {
     File MappingSummary = Mapping.mappingSummary
-    File allcFiles = Mapping.allcFiles
-    File allc_CGNFiles = Mapping.allc_CGNFiles
-    File bamFiles = Mapping.bamFiles
-    File detail_statsFiles = Mapping.detail_statsFiles
-    File hicFiles = Mapping.hicFiles
+    File MappingFiles = Mapping.trimmed_files
+    #File allcFiles = Mapping.allcFiles
+    #File allc_CGNFiles = Mapping.allc_CGNFiles
+    #File bamFiles = Mapping.bamFiles
+    #File detail_statsFiles = Mapping.detail_statsFiles
+    #File hicFiles = Mapping.hicFiles
   }
 }
 
