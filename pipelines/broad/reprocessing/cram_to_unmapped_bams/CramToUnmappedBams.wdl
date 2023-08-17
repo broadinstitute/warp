@@ -102,6 +102,7 @@ task RevertSam {
     String output_bam_filename
     Int disk_size
     Int memory_in_MiB = 3000
+    Boolean restore_hardclips = true
   }
 
   Int java_mem = memory_in_MiB - 1000
@@ -118,7 +119,8 @@ task RevertSam {
     --ATTRIBUTE_TO_CLEAR PA \
     --ATTRIBUTE_TO_CLEAR OA \
     --ATTRIBUTE_TO_CLEAR XA \
-    --SORT_ORDER coordinate
+    --SORT_ORDER coordinate \
+    --RESTORE_HARDCLIPS ~{restore_hardclips}
 
   >>>
 
