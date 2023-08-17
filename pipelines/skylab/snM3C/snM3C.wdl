@@ -171,24 +171,27 @@ task Mapping {
     cd ../
     /opt/conda/bin/snakemake --configfile mapping.yaml -j
 
-    # move outputs into /cromwell_root/
-    mv /cromwell_root/group0/MappingSummary.csv.gz /cromwell_root/~{plate_id}_MappingSummary.csv.gz
+    echo "list out everything"
+    ls -lR
 
-    cd /cromwell_root/group0/allc
-    tar -zcvf ~{plate_id}_allc_files.tar.gz *
-    mv ~{plate_id}_allc_files.tar.gz /cromwell_root/
-    cd ../allc-CGN
-    tar -zcvf ~{plate_id}_allc-CGN_files.tar.gz *
-    mv ~{plate_id}_allc-CGN_files.tar.gz /cromwell_root/
-    cd ../bam
-    tar -zcvf ~{plate_id}_bam_files.tar.gz *
-    mv ~{plate_id}_bam_files.tar.gz /cromwell_root/
-    cd ../detail_stats
-    tar -zcvf ~{plate_id}_detail_stats_files.tar.gz *
-    mv ~{plate_id}_detail_stats_files.tar.gz /cromwell_root/
-    cd ../hic
-    tar -zcvf ~{plate_id}_hic_files.tar.gz *
-    mv ~{plate_id}_hic_files.tar.gz /cromwell_root/
+    # move outputs into /cromwell_root/
+    #mv /cromwell_root/group0/MappingSummary.csv.gz /cromwell_root/~{plate_id}_MappingSummary.csv.gz
+
+    #cd /cromwell_root/group0/allc
+    #tar -zcvf ~{plate_id}_allc_files.tar.gz *
+    #mv ~{plate_id}_allc_files.tar.gz /cromwell_root/
+    #cd ../allc-CGN
+    #tar -zcvf ~{plate_id}_allc-CGN_files.tar.gz *
+    #mv ~{plate_id}_allc-CGN_files.tar.gz /cromwell_root/
+    #cd ../bam
+    #tar -zcvf ~{plate_id}_bam_files.tar.gz *
+    #mv ~{plate_id}_bam_files.tar.gz /cromwell_root/
+    #cd ../detail_stats
+    #tar -zcvf ~{plate_id}_detail_stats_files.tar.gz *
+    #mv ~{plate_id}_detail_stats_files.tar.gz /cromwell_root/
+    #cd ../hic
+    #tar -zcvf ~{plate_id}_hic_files.tar.gz *
+    #mv ~{plate_id}_hic_files.tar.gz /cromwell_root/
 
   >>>
 
