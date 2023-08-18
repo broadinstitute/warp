@@ -1,3 +1,8 @@
+# 1.0.10
+2023-08-16 (Date of Last Commit)
+
+* Updated VerifyBamID docker image in UltimaGenomicsWholeGenomeGermlineTasks.wdl to fix security vulnerabilities, this update has no effect on this pipeline.
+
 # 1.0.9
 2023-03-20 (Date of Last Commit)
 

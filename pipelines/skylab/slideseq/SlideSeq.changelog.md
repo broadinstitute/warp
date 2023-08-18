@@ -1,3 +1,8 @@
+# 1.0.10
+2023-07-18 (Date of Last Commit)
+
+* Added STARsolo v2.7.10b metric outputs as an optional pipeline output and an output of the STARalign and MergeSTAR tasks. This does not impact the Slideseq pipeline
+
 # 1.0.9
 2023-06-14 (Date of Last Commit)
 
