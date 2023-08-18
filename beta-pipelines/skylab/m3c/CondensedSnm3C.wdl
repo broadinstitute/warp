@@ -1,6 +1,6 @@
 version 1.0
 
-workflow Condensed_snm3C {
+workflow WDLized_snm3C {
 
     input {
         Array[File] fastq_input_read1
