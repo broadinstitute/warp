@@ -94,11 +94,12 @@ task checkOptimusInput {
       echo "ERROR: Invalid value \"${counting_mode}\" for input \"counting_mode\""
     fi
 
-    if [[ ~{force_no_check} == "true" ]]
-    then
-       echo "force_no_check is set: Ignoring input checks"
-       exit 0;
-    fi
+    # commented out to see if it works for paired tag as when set to true whitelist is not set?
+    # if [[ ~{force_no_check} == "true" ]]
+    # then
+    #    echo "force_no_check is set: Ignoring input checks"
+    #    exit 0;
+    # fi
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
@@ -160,3 +161,4 @@ task checkOptimusInput {
     disk: disk + " GB" # TES
   } 
 }
+
