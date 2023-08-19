@@ -157,6 +157,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCUnmappedBamToAlignedCramNoBamQC.wdl
 
+  - name: VUMCUnmappedBamToAlignedCramNoBamQCMoveResult
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCUnmappedBamToAlignedCramNoBamQCMoveResult.wdl
+
   - name: VUMCFastqToUnmappedCram
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFastqToUnmappedCram.wdl
