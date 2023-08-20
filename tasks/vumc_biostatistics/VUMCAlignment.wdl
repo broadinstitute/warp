@@ -51,8 +51,16 @@ task FastqToBwaMemAndMba {
 
   command <<<
 
+    BWA_VERSION=$(/usr/gitc/bwa 2>&1 | \
+    grep -e '^Version' | \
+    sed 's/Version: //')
+
     set -o pipefail
     set -e
+
+    if [ -z ${BWA_VERSION} ]; then
+        exit 1;
+    fi
 
     # set the bash variable needed for the command-line
     bash_ref_fasta=~{reference_fasta.ref_fasta}
