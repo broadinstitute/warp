@@ -17,7 +17,8 @@ version 1.0
 ## licensing information pertaining to the included programs.
 
 import "../../../../../../tasks/vumc_biostatistics/PairedFastQsToUnmappedBAM.wdl" as ToUnmappedBam
-import "../../../../../../tasks/vumc_biostatistics/VUMCAlignment.wdl" as Alignment
+import "../../../../../../tasks/vumc_biostatistics/VUMCAlignment.wdl" as VUMCAlignment
+import "../../../../../../tasks/broad/Alignment.wdl" as Alignment
 import "../../../../../../tasks/broad/DragmapAlignment.wdl" as DragmapAlignment
 import "../../../../../../tasks/broad/Qc.wdl" as QC
 import "../../../../../../tasks/broad/BamProcessing.wdl" as Processing
@@ -78,7 +79,7 @@ workflow VUMCFastqToAlignedCramNoBamQCFast {
       Array[String] out_files_1 = out_file_idx_1
       Array[String] out_files_2 = out_file_idx_2
 
-      call Alignment.FastqSplitter as FastqSplitter_read1 {
+      call VUMCAlignment.FastqSplitter as FastqSplitter_read1 {
         input:
           fastq = old_fastq_1,
           out_files = out_files_1,
@@ -86,7 +87,7 @@ workflow VUMCFastqToAlignedCramNoBamQCFast {
       }
       Array[File] fastq_1_1_list = FastqSplitter_read1.split_fastqs
 
-      call Alignment.FastqSplitter as FastqSplitter_read2 {
+      call VUMCAlignment.FastqSplitter as FastqSplitter_read2 {
         input:
           fastq = old_fastq_2,
           out_files = out_files_2,
@@ -116,10 +117,11 @@ workflow VUMCFastqToAlignedCramNoBamQCFast {
     #all unmapped reads should have same readgroup (sample_name) but different file name
     call ToUnmappedBam.PairedFastQsToUnmappedBAM as ToUnmappedBam {
       input:
-        sample_name = fastq_basename,
+        sample_name = sample_name,
         fastq_1 = new_fastq_1,
         fastq_2 = new_fastq_2,
         readgroup_name = readgroup_name,
+        output_bam_basename = fastq_basename,
         library_name = library_name,
         platform_unit = platform_unit,
         run_date = run_date,
@@ -137,11 +139,9 @@ workflow VUMCFastqToAlignedCramNoBamQCFast {
 
     # Map reads to reference
     if (use_bwa_mem) {
-      call Alignment.FastqToBwaMemAndMba as FastqToBwaMemAndMba {
+      call Alignment.SamToFastqAndBwaMemAndMba as SamToFastqAndBwaMemAndMba {
         input:
-          fastq_1 = new_fastq_1,
-          fastq_2 = new_fastq_2,
-          unmapped_bam = ToUnmappedBam.output_unmapped_bam,
+          input_bam = ToUnmappedBam.output_unmapped_bam,
           bwa_commandline = bwa_commandline,
           output_bam_basename = fastq_basename + ".aligned.unsorted",
           reference_fasta = references.reference_fasta,
@@ -166,7 +166,7 @@ workflow VUMCFastqToAlignedCramNoBamQCFast {
       }
     }
 
-    File output_aligned_bam = select_first([FastqToBwaMemAndMba.output_bam, SamToFastqAndDragmapAndMba.output_bam])
+    File output_aligned_bam = select_first([SamToFastqAndBwaMemAndMba.output_bam, SamToFastqAndDragmapAndMba.output_bam])
 
     Float mapped_bam_size = size(output_aligned_bam, "GiB")
   }
