@@ -8,6 +8,8 @@ task PairedFastQsToUnmappedBAM {
     File fastq_1
     File fastq_2
     String readgroup_name
+    String? output_bam_basename
+
     String? library_name 
     String? platform_unit 
     String? run_date 
@@ -26,6 +28,8 @@ task PairedFastQsToUnmappedBAM {
     String docker = "broadinstitute/gatk:latest"
     String gatk_path = "/gatk/gatk"
   }
+
+  String output_file = select_first([output_bam_basename, sample_name]) + ".unmapped.bam"
   Int command_mem_gb = machine_mem_gb - 1
   Float fastq_size = size(fastq_1, "GB") + size(fastq_2, "GB")
   Int disk_space_gb = ceil(fastq_size + (fastq_size * disk_multiplier ) + addtional_disk_space_gb)
@@ -34,8 +38,8 @@ task PairedFastQsToUnmappedBAM {
       FastqToSam \
       --FASTQ ~{fastq_1} \
       --FASTQ2 ~{fastq_2} \
-      --OUTPUT ~{sample_name}.unmapped.bam \
-      --SAMPLE_NAME ~{sample_name} \
+      --OUTPUT ~{output_file} \
+      --SAMPLE_NAME ~{readgroup_name} \
       ~{"--LIBRARY_NAME " + library_name} \
       ~{"--PLATFORM_UNIT " + platform_unit} \
       ~{"--RUN_DATE " + run_date} \
@@ -50,6 +54,6 @@ task PairedFastQsToUnmappedBAM {
     preemptible: preemptible_attempts
   }
   output {
-    File output_unmapped_bam = "~{sample_name}.unmapped.bam"
+    File output_unmapped_bam = "~{output_file}"
   }
 }
