@@ -41,12 +41,13 @@ task FastqToBwaMemAndMba {
   }
 
   Float fastq_size = size(fastq_1, "GiB") + size(fastq_2, "GiB")
+  Float unmapped_bam_size = size(unmapped_bam, "GiB") 
   Float ref_size = size(reference_fasta.ref_fasta, "GiB") + size(reference_fasta.ref_fasta_index, "GiB") + size(reference_fasta.ref_dict, "GiB")
   Float bwa_ref_size = ref_size + size(reference_fasta.ref_alt, "GiB") + size(reference_fasta.ref_amb, "GiB") + size(reference_fasta.ref_ann, "GiB") + size(reference_fasta.ref_bwt, "GiB") + size(reference_fasta.ref_pac, "GiB") + size(reference_fasta.ref_sa, "GiB")
   # Sometimes the output is larger than the input, or a task can spill to disk.
   # In these cases we need to account for the input (1) and the output (1.5) or the input(1), the output(1), and spillage (.5).
   Float disk_multiplier = 2.5
-  Int disk_size = ceil(fastq_size + bwa_ref_size + (disk_multiplier * fastq_size) + 20)
+  Int disk_size = ceil(fastq_size + unmapped_bam_size + bwa_ref_size + (disk_multiplier * fastq_size) + 20)
 
   command <<<
 
@@ -57,7 +58,7 @@ task FastqToBwaMemAndMba {
     bash_ref_fasta=~{reference_fasta.ref_fasta}
     # if reference_fasta.ref_alt has data in it or allow_empty_ref_alt is set
     if [ -s ~{reference_fasta.ref_alt} ] || ~{allow_empty_ref_alt}; then
-      /usr/gitc/~{bwa_commandline} ~{fastq_1} ~{fastq_2} 2> >(tee ~{output_bam_basename}.bwa.stderr.log >&2) | \
+      /usr/gitc/~{bwa_commandline} -o stdout ~{fastq_1} ~{fastq_2} 2> >(tee ~{output_bam_basename}.bwa.stderr.log >&2) | \
       java -Dsamjdk.compression_level=~{compression_level} -Xms1000m -Xmx1000m -jar /usr/gitc/picard.jar \
         MergeBamAlignment \
         VALIDATION_STRINGENCY=SILENT \
