@@ -1,4 +1,9 @@
 
+# 5.8.4
+2023-07-18 (Date of Last Commit)
+
+* Added STARsolo v2.7.10b metric outputs as an optional pipeline output and an output of the STARalign and MergeSTAR tasks
+
 # 5.8.3
 2023-06-23 (Date of Last Commit)
 

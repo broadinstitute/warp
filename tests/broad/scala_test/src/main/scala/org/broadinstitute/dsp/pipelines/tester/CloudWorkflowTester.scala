@@ -249,7 +249,6 @@ class CloudWorkflowTester(testerConfig: CloudWorkflowConfig)(
                       environment: CromwellEnvironment): String = {
     val defaultOptions = Array(
       "read_from_cache" -> testerConfig.useCallCaching.asJson,
-      "backend" -> testerConfig.papiVersion.entryName.asJson,
       "monitoring_script" -> "gs://broad-gotc-test-storage/cromwell_monitoring_script.sh".asJson,
       "google_project" -> googleProject.asJson
     )

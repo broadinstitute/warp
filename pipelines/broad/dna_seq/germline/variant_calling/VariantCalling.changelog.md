@@ -1,3 +1,8 @@
+# 2.1.11
+2023-08-16 (Date of Last Commit)
+
+* Updated VerifyBamID docker image in BamProcessing.wdl to fix security vulnerabilities, this update has no effect on this pipeline.
+
 # 2.1.10
 2023-03-20 (Date of Last Commit)
 
