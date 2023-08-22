@@ -35,9 +35,9 @@ workflow VUMCFastqToAlignedCramNoBamQCFast {
     String readgroup_name 
     String library_name 
     String platform_unit 
-    String? run_date 
     String platform_name 
-    String sequencing_center 
+    String? run_date 
+    String? sequencing_center 
 
     # Optional for BROAD pipeline
     DNASeqSingleSampleReferences references

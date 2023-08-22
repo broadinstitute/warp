@@ -10,10 +10,10 @@ task PairedFastQsToUnmappedBAM {
     String readgroup_name
     String? output_bam_basename
 
-    String? library_name 
-    String? platform_unit 
+    String library_name 
+    String platform_unit 
+    String platform_name 
     String? run_date 
-    String? platform_name 
     String? sequencing_center 
 
     # Runtime parameters

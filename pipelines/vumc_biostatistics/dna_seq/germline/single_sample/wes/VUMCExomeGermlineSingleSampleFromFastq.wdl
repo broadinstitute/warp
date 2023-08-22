@@ -22,6 +22,7 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
+import "../../../../../../tasks/vumc_biostatistics/PairedFastQsToUnmappedBAM.wdl" as ToUnmappedBam
 import "../../../../../../pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl" as BroadPipeline
 import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 
@@ -36,10 +37,10 @@ workflow VUMCExomeGermlineSingleSampleFromFastq {
     String fastq_1 
     String fastq_2 
     String readgroup_name 
-    String? library_name 
-    String? platform_unit 
+    String library_name 
+    String platform_unit 
+    String platform_name 
     String? run_date 
-    String? platform_name 
     String? sequencing_center 
 
     # Optional for BROAD pipeline
@@ -58,7 +59,7 @@ workflow VUMCExomeGermlineSingleSampleFromFastq {
   }
 
   # Convert pair of FASTQs to uBAM
-  call PairedFastQsToUnmappedBAM {
+  call ToUnmappedBam.PairedFastQsToUnmappedBAM {
     input:
       sample_name = sample_name,
       fastq_1 = fastq_1,
@@ -154,56 +155,3 @@ workflow VUMCExomeGermlineSingleSampleFromFastq {
   }
 }
 
-# Convert a pair of FASTQs to uBAM
-task PairedFastQsToUnmappedBAM {
-  input {
-    # Command parameters
-    String sample_name
-    File fastq_1
-    File fastq_2
-    String readgroup_name
-    String? library_name 
-    String? platform_unit 
-    String? run_date 
-    String? platform_name 
-    String? sequencing_center 
-
-    # Runtime parameters
-    Int addtional_disk_space_gb = 10
-    Int machine_mem_gb = 7
-    Int preemptible_attempts = 3
-
-    # Sometimes the output is larger than the input, or a task can spill to disk.
-    # In these cases we need to account for the input (1) and the output (1.5) or the input(1), the output(1), and spillage (.5).
-    Float disk_multiplier = 2.5
-
-    String docker = "broadinstitute/gatk:latest"
-    String gatk_path = "/gatk/gatk"
-  }
-  Int command_mem_gb = machine_mem_gb - 1
-  Float fastq_size = size(fastq_1, "GB") + size(fastq_2, "GB")
-  Int disk_space_gb = ceil(fastq_size + (fastq_size * disk_multiplier ) + addtional_disk_space_gb)
-  command {
-    ~{gatk_path} --java-options "-Xmx~{command_mem_gb}g" \
-      FastqToSam \
-      --FASTQ ~{fastq_1} \
-      --FASTQ2 ~{fastq_2} \
-      --OUTPUT ~{sample_name}.unmapped.bam \
-      --SAMPLE_NAME ~{sample_name} \
-      ~{"--LIBRARY_NAME " + library_name} \
-      ~{"--PLATFORM_UNIT " + platform_unit} \
-      ~{"--RUN_DATE " + run_date} \
-      ~{"--PLATFORM " + platform_name} \
-      ~{"--SEQUENCING_CENTER " + sequencing_center} \
-      --READ_GROUP_NAME ~{readgroup_name}
-  }
-  runtime {
-    docker: docker
-    memory: machine_mem_gb + " GB"
-    disks: "local-disk " + disk_space_gb + " HDD"
-    preemptible: preemptible_attempts
-  }
-  output {
-    File output_unmapped_bam = "~{sample_name}.unmapped.bam"
-  }
-}

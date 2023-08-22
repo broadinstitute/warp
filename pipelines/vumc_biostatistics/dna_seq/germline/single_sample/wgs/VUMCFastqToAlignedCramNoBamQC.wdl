@@ -39,10 +39,10 @@ workflow VUMCFastqToAlignedCramNoBamQC {
     String fastq_1 
     String fastq_2 
     String readgroup_name 
-    String? library_name 
-    String? platform_unit 
+    String library_name 
+    String platform_unit 
+    String platform_name 
     String? run_date 
-    String? platform_name 
     String? sequencing_center 
 
     # Optional for BROAD pipeline
