@@ -1,3 +1,11 @@
+# 1.0.11
+2023-08-22 (Date of Last Commit)
+
+* Updated Optimus pipeline to include STARsolo v2.7.11a; does not impact slide-seq pipeline
+* Added sF tag to STARsolo aligner parameters for Optimus; does not impact slide-seq
+* Updated TagSort tool for Optimus Metrics task to calculate metrics based on the sF tag; does not impact slide-seq
+* Modified H5adUtils task to include new metrics in the final Optimus h5ad; does not impact slide-seq
+
 # 1.0.10
 2023-07-18 (Date of Last Commit)
 
