@@ -33,11 +33,11 @@ workflow VUMCFastqToAlignedCramNoBamQCFast {
     Array[File] fastq_1 
     Array[File] fastq_2 
     String readgroup_name 
-    String? library_name 
-    String? platform_unit 
+    String library_name 
+    String platform_unit 
     String? run_date 
-    String? platform_name 
-    String? sequencing_center 
+    String platform_name 
+    String sequencing_center 
 
     # Optional for BROAD pipeline
     DNASeqSingleSampleReferences references
