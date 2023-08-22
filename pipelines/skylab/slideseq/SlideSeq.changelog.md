@@ -1,4 +1,4 @@
-# 1.0.11
+# 2.0.0
 2023-08-22 (Date of Last Commit)
 
 * Updated Optimus and Slideseq pipelines to include STARsolo v2.7.11a
