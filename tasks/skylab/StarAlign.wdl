@@ -317,8 +317,8 @@ task STARsoloFastq {
       --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
       --soloUMIdedup 1MM_Directional_UMItools \
       --outSAMtype BAM SortedByCoordinate \
-      --outSAMattributes UB UR UY CR CB CY NH GX GN sF\
-      --soloBarcodeReadLength 0
+      --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
+      --soloBarcodeReadLength 0 \
       --soloCellReadStats Standard
     fi
 
@@ -337,8 +337,8 @@ task STARsoloFastq {
       --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
       --soloUMIdedup 1MM_Directional_UMItools \
       --outSAMtype BAM SortedByCoordinate \
-      --outSAMattributes UB UR UY CR CB CY NH GX GN sF\
-      --soloBarcodeReadLength 0
+      --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
+      --soloBarcodeReadLength 0 \
       --soloCellReadStats Standard
 
 
