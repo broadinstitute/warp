@@ -17,6 +17,8 @@ workflow ReblockGVCF {
     File ref_fasta_index
     Float? tree_score_cutoff
     String? annotations_to_keep_command
+    String? annotations_to_remove_comand
+    Boolean? move_filters_to_genotypes
   }
 
   String gvcf_basename = basename(gvcf, ".g.vcf.gz")
@@ -30,6 +32,8 @@ workflow ReblockGVCF {
       ref_dict = ref_dict,
       tree_score_cutoff = tree_score_cutoff,
       annotations_to_keep_command = annotations_to_keep_command,
+      annotations_to_remove_comand = annotations_to_remove_comand,
+      move_filters_to_genotypes = move_filters_to_genotypes,
       output_vcf_filename = gvcf_basename + ".rb.g.vcf.gz"
   }
 

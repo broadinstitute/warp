@@ -203,10 +203,12 @@ task Reblock {
     File ref_fasta
     File ref_fasta_index
     String output_vcf_filename
-    String docker_image = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String docker_image = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-de371aa9578dad3a6de5a44785db6de07074062c-4.4.0.0-60-gde371aa95"
     Int additional_disk = 20
     String? annotations_to_keep_command
+    String? annotations_to_remove_comand
     Float? tree_score_cutoff
+    Boolean move_filters_to_genotypes = false
   }
 
   Int disk_size = ceil((size(gvcf, "GiB")) * 4) + additional_disk
@@ -227,7 +229,9 @@ task Reblock {
       -do-qual-approx \
       --floor-blocks -GQB 20 -GQB 30 -GQB 40 \
       ~{annotations_to_keep_command} \
+      ~{annotations_to_remove_comand} \
       ~{"--tree-score-threshold-to-no-call " + tree_score_cutoff} \
+      ~{if move_filters_to_genotypes then "--add-site-filters-to-genotype" else ""} \
       -O ~{output_vcf_filename}
   }
 
