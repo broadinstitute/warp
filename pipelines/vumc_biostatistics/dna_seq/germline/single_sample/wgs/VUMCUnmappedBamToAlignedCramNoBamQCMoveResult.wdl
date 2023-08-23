@@ -86,7 +86,7 @@ task MoveResult {
 
 set -e
 
-gsutil -m ~{"-u " + project_id} mv ~{sep="" quality_yield_metrics} \
+gsutil -m ~{"-u " + project_id} mv ~{sep=" " quality_yield_metrics} \
   ~{duplicate_metrics} \
   ~{output_bqsr_reports} \
   ~{output_cram} \
