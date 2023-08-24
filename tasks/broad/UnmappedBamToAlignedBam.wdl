@@ -156,7 +156,7 @@ workflow UnmappedBamToAlignedBam {
       input_bams = output_aligned_bam,
       output_bam_basename = sample_and_unmapped_bams.base_file_name + ".aligned.unsorted.duplicates_marked",
       metrics_filename = sample_and_unmapped_bams.base_file_name + ".duplicate_metrics",
-      total_input_size = SumFloats.total_size,
+      total_input_size = size(output_aligned_bam, "GiB"),
       compression_level = compression_level,
       preemptible_tries = if data_too_large_for_preemptibles then 0 else papi_settings.agg_preemptible_tries
   }
