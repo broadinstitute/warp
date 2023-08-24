@@ -108,6 +108,8 @@ workflow WDLized_snm3C {
         File trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar
         File r1_trimmed_fq = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar
         File r2_trimmed_fq = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar
+        File hisat3n_stats_tar = hisat_3n_pair_end_mapping_dna_mode.hisat3n_stats_tar
+        File hisat3n_bam_tar = hisat_3n_pair_end_mapping_dna_mode.hisat3n_bam_tar
     }
 }
 
@@ -269,7 +271,7 @@ task hisat_3n_pair_end_mapping_dna_mode{
         String plate_id
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 100
-        Int mem_size = 50
+        Int mem_size = 100
     }
     command <<<
         mkdir group0/
@@ -288,16 +290,19 @@ task hisat_3n_pair_end_mapping_dna_mode{
         tar -zxvf ~{tarred_index_files}
         rm ~{tarred_index_files}
         samtools faidx hg38.fa
+        ls -lh
 
         # untar the demultiplexed fastq files
         cd ../fastq/
         tar -zxvf ~{r1_trimmed_tar}
+        echo "removing ~{r1_trimmed_tar}"
         rm ~{r1_trimmed_tar}
+        echo "removing ~{r2_trimmed_tar}"
         tar -zxvf ~{r2_trimmed_tar}
         rm ~{r2_trimmed_tar}
 
         # define lists of r1 and r2 fq files
-        R1_files=($(ls | grep "-R1_trimmed.fq.gz"))
+        R1_files=($(ls | grep "\-R1_trimmed.fq.gz"))
         R2_files=($(ls | grep "\-R2_trimmed.fq.gz"))
 
         echo "doing an LS"
@@ -306,23 +311,36 @@ task hisat_3n_pair_end_mapping_dna_mode{
         echo "check arrays"
         echo "${R1_files[@]}"
 
+
         for file in "${R1_files[@]}"; do
           sample_id=$(basename "$file" "-R1_trimmed.fq.gz")
-          hisat-3n \
-          /cromwell_root/group0/reference/hg38 \
+          hisat-3n /cromwell_root/group0/reference/hg38 \
           -q \
           -1 ${sample_id}-R1_trimmed.fq.gz \
-          -2 ${sample_id}-R1_trimmed.fq.gz \
-          --directional-mapping-reverse \ # this can speed up 2X as the snmC reads are directional
+          -2 ${sample_id}-R2_trimmed.fq.gz \
+          --directional-mapping-reverse \
           --base-change C,T \
-          --no-repeat-index \ # TODO check with Hanqing to make sure this is always true
-          --no-spliced-alignment \ # this is important for DNA mapping
+          --no-repeat-index \
+          --no-spliced-alignment \
           --no-temp-splicesite \
           -t \
           --new-summary \
           --summary-file ${sample_id}.hisat3n_dna_summary.txt \
-          --threads 11 | samtools view -b -q 0 -o "${sample_id}.bam"  # do not filter any reads in this step
+          --threads 11 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
         done
+
+        echo "ls the files"
+        ls -lh
+
+        # tar up the bam files and stats files
+        tar -zcvf hisat3n_bam_files.tar.gz *.bam
+        tar -zcvf hisat3n_stats_files.tar.gz *.hisat3n_dna_summary.txt
+
+        mv hisat3n_bam_files.tar.gz ../../
+        mv hisat3n_stats_files.tar.gz ../../
+
+        echo "ls the files"
+        ls -lh
     >>>
     runtime {
         docker: docker
@@ -331,8 +349,8 @@ task hisat_3n_pair_end_mapping_dna_mode{
         memory: "${mem_size} GiB"
     }
     output {
-        File hisat3n_bam = "~{plate_id}.bam"
-        File hisat3n_stats = "~{plate_id}.hisat3n_dna_summary.txt"
+        File hisat3n_bam_tar = "hisat3n_bam_files.tar.gz"
+        File hisat3n_stats_tar = "hisat3n_stats_files.tar.gz"
                                                          }
 }
 
