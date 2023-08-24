@@ -44,23 +44,17 @@ workflow SmartSeq2SingleSample {
 
     # choose the correct dockers based on cloud_provider.
     # option 1
-    String hisat2_docker = "hisat2:1.0.0-1662998171"
-    String picard_docker = "picard-cloud:2.26.10"
-    String rsem_docker = "rsem:1.0.0-1663016024"
-    # TODO: this is something to think about. Do we need to move this out of quay? Do we not need to move it if azure can pull from quay?
+    String hisat2_docker = "/broad-gotc-prod/hisat2:1.0.0-1662998171"
+    String picard_docker = "/picard-cloud:2.26.10"
+    String rsem_docker = "/rsem:1.0.0-1663016024"
     String group_qcs_docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.4"
-    String pytools_dockers = "pytools:1.0.0-1661263730"
+    String pytools_dockers = "/pytools:1.0.0-1661263730"
 
     String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
-    String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
-    String acr_docker_prefix = "us.acr.io/broad-gotc-prod/"
+    String gcr_docker_prefix = "us.gcr.io"
+    String acr_docker_prefix = "us.acr.io"
 
-    String hisat2_docker_path = docker_prefix + hisat2_docker
-    String picard_docker_path = docker_prefix + picard_docker
-    String rsem_docker_path = docker_prefix + rsem_docker
-    String group_qcs_docker_path = group_qcs_docker
-    String pytools_dockers_path = docker_prefix + pytools_dockers
 
 
     if( paired_end ) {
@@ -72,7 +66,7 @@ workflow SmartSeq2SingleSample {
                 ref_name = hisat2_ref_name,
                 input_id = input_id,
                 output_basename = quality_control_output_basename,
-                hisat2_docker_path = hisat2_docker_path
+                hisat2_docker_path = docker_prefix + hisat2_docker
         }
     }
     if( !paired_end ) {
