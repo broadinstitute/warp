@@ -168,3 +168,7 @@ workflows:
   - name: VUMCReprocessAlignedCramNoBamQC
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCReprocessAlignedCramNoBamQC.wdl
+
+  - name: VUMCFileSize
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFileSize.wdl
