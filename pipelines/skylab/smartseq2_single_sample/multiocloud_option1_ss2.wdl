@@ -42,20 +42,26 @@ workflow SmartSeq2SingleSample {
 
     String quality_control_output_basename = output_name + "_qc"
 
-    # choose the correct dockers based on cloud_provider.
-    # option 1
+    # docker images
     String hisat2_docker = "/broad-gotc-prod/hisat2:1.0.0-1662998171"
-    String picard_docker = "/picard-cloud:2.26.10"
-    String rsem_docker = "/rsem:1.0.0-1663016024"
+    String picard_docker = "/broad-gotc-prod/picard-cloud:2.26.10"
+    String rsem_docker = "/broad-gotc-prod/rsem:1.0.0-1663016024"
     String group_qcs_docker = "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.4"
-    String pytools_dockers = "/pytools:1.0.0-1661263730"
-
-    String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
+    String pytools_dockers = "/broad-gotc-prod/pytools:1.0.0-1661263730"
 
     String gcr_docker_prefix = "us.gcr.io"
     String acr_docker_prefix = "us.acr.io"
 
+    # choose docker prefix based on cloud provider
+    String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
+    # make sure either gcp or azr is supplied as cloud_provider input
+    if ((cloud_provider != "gcp") && (cloud_provider != "azr")) {
+        call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+            input:
+                message = "cloud_provider must be supplied with either 'gcp' or 'azr'."
+        }
+    }
 
     if( paired_end ) {
         call HISAT2.HISAT2PairedEnd {
@@ -77,7 +83,7 @@ workflow SmartSeq2SingleSample {
                 ref_name = hisat2_ref_name,
                 input_id = input_id,
                 output_basename = quality_control_output_basename,
-                hisat2_docker_path = hisat2_docker_path
+                hisat2_docker_path = docker_prefix + hisat2_docker
         }
     }
 
@@ -90,7 +96,7 @@ workflow SmartSeq2SingleSample {
             aligned_bam = HISAT2_output_bam,
             genome_ref_fasta = genome_ref_fasta,
             output_basename = quality_control_output_basename,
-            picard_docker_path = picard_docker_path
+            picard_docker_path = docker_prefix + picard_docker
     }
 
     call Picard.CollectRnaMetrics {
@@ -100,14 +106,14 @@ workflow SmartSeq2SingleSample {
             rrna_intervals = rrna_intervals,
             output_basename = quality_control_output_basename,
             stranded = stranded,
-            picard_docker_path = picard_docker_path
+            picard_docker_path = docker_prefix + picard_docker
     }
 
     call Picard.CollectDuplicationMetrics {
         input:
             aligned_bam = HISAT2_output_bam,
             output_basename = quality_control_output_basename,
-            picard_docker_path = picard_docker_path
+            picard_docker_path = docker_prefix + picard_docker
     }
 
     String data_output_basename = output_name + "_rsem"
@@ -121,7 +127,7 @@ workflow SmartSeq2SingleSample {
                 ref_name = hisat2_ref_trans_name,
                 input_id = input_id,
                 output_basename = data_output_basename,
-                hisat2_docker_path = hisat2_docker_path
+                hisat2_docker_path = docker_prefix + hisat2_docker
 
         }
     }
@@ -134,7 +140,7 @@ workflow SmartSeq2SingleSample {
                 ref_name = hisat2_ref_trans_name,
                 input_id = input_id,
                 output_basename = data_output_basename,
-                hisat2_docker_path = hisat2_docker_path
+                hisat2_docker_path = docker_prefix + hisat2_docker
         }
     }
 
@@ -147,7 +153,7 @@ workflow SmartSeq2SingleSample {
             rsem_genome = rsem_ref_index,
             output_basename = data_output_basename,
             is_paired = paired_end,
-            rsem_docker_path = rsem_docker_path
+            rsem_docker_path = docker_prefix + rsem_docker
     }
 
     Array[File] picard_row_outputs = [CollectMultipleMetrics.alignment_summary_metrics,CollectDuplicationMetrics.dedup_metrics,CollectRnaMetrics.rna_metrics,CollectMultipleMetrics.gc_bias_summary_metrics]
@@ -175,7 +181,7 @@ workflow SmartSeq2SingleSample {
             hisat2_trans_stats = HISAT2RSEM_log_file,
             rsem_stats = RSEMExpression.rsem_cnt,
             output_name = output_name,
-            group_qcs_docker_path = group_qcs_docker_path
+            group_qcs_docker_path = group_qcs_docker
     }
 
     call LoomUtils.SmartSeq2LoomOutput {
@@ -187,7 +193,7 @@ workflow SmartSeq2SingleSample {
             pipeline_version = "SmartSeq2SingleSample_v~{pipeline_version}",
             input_id_metadata_field = input_id_metadata_field,
             input_name_metadata_field = input_name_metadata_field,
-            pytools_dockers_path = pytools_dockers_path
+            pytools_dockers_path = docker_prefix + pytools_dockers
     }
 
     output {
