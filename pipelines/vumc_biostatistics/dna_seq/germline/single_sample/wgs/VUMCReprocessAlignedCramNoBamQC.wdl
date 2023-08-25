@@ -47,7 +47,6 @@ workflow VUMCReprocessAlignedCramNoBamQC {
     # Optional for BROAD pipeline
     DNASeqSingleSampleReferences references
     DragmapReference? dragmap_reference
-    VariantCallingScatterSettings scatter_settings
     PapiSettings papi_settings
 
     Boolean dragen_functional_equivalence_mode = false
