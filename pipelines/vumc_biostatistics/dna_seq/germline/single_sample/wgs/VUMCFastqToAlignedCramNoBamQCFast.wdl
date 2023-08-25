@@ -60,7 +60,6 @@ workflow VUMCFastqToAlignedCramNoBamQCFast {
 
   String recalibrated_bam_basename = sample_name + ".aligned.duplicates_marked.recalibrated"
 
-  #String bwa_commandline = "bwa mem -K 100000000 -v 3 -t 16 -R \"@RG\\tID:~{sample_name}\\tPU:~{sample_name}\\tLB:~{sample_name}\\tSM:~{sample_name}\\tPL:ILLUMINA\" -Y $bash_ref_fasta"
   String bwa_commandline = "bwa mem -K 100000000 -p -v 3 -t 16 -Y $bash_ref_fasta"
 
   Int compression_level = 2
