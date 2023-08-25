@@ -46,6 +46,10 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 |`n_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads associated with this entity. n_reads, like all metrics, are calculated from the Optimus output BAM. Prior to alignment with STARsolo, reads are checked against the whitelist (1 hamming distance). These CB-corrected reads are the input to the STAR aligner. Then, the reads also get CB correction during STAR. For this reason, almost all reads in the aligned BAM have a CB tag and UB tag. Therefore, n_reads represents CB corrected reads, not all reads in the input FASTQ files. |
 |`noise_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Number of reads that are categorized by 10x Genomics Cell Ranger as "noise". Refers to long polymers, or reads with high numbers of N (ambiguous) nucleotides. |
 |`perfect_molecule_barcodes`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads with molecule barcodes that have no errors. |
+| `reads_mapped_exonic` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as exon; counted when sF tag of BAM is assigned to 1 or 3. |
+| `reads_mapped_exonic_as` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as exon in the antisense direction; counted when sF tag of BAM is assigned to a 2 or 4. |
+| `reads_mapped_intronic` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as intron; counted when sF tag of BAM is assigned to a 5. | 
+| `reads_mapped_intronic_as` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as intron in the antisense direction; counted when sF tag of BAM is assigned to a 6. |
 |`n_mitochondrial_genes`| [warp-tools](https://github.com/broadinstitute/warp-tools)| The number of mitochondrial genes detected by this cell. |
 |`n_mitochondrial_molecules`| [warp-tools](https://github.com/broadinstitute/warp-tools)| The number of molecules from mitochondrial genes detected for this cell. |
 |`pct_mitochondrial_molecules`| [warp-tools](https://github.com/broadinstitute/warp-tools)| The percentage of molecules from mitochondrial genes detected for this cell. |
@@ -77,6 +81,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 |`emptydrops_LogProb` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | The log-probability of observing the barcode’s count vector under the null model; single-cell data will read "NA" if the task is unable to detect knee point inflection. Column is not included for data run in the sn_rna mode  |
 | `emptydrops_PValue` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Numeric, the Monte Carlo p-value against the null model; single-cell data will read "NA" if task is unable to detect knee point inflection. Column is not included for data run in the sn_rna mode  |
 | `emptydrops_Total` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Numeric, the total read counts for each barcode; single-cell data will read "NA" if task is unable to detect knee point inflection. Column is not included for data run in the sn_rna mode  |
+| `reads_mapped_intergenic` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as intergenic; counted when sF tag of BAM is assigned to a 7. |
 
 ## Table 3. Gene metrics
 
@@ -88,6 +93,10 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 |`n_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads associated with this entity. |
 |`noise_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads that are categorized by 10x Genomics Cell Ranger as "noise". Refers to long polymers, or reads with high numbers of N (ambiguous) nucleotides. |
 |`perfect_molecule_barcodes`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads with molecule barcodes that have no errors. |
+| `reads_mapped_exonic` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as exon; counted when sF tag of BAM is assigned to 1 or 3. |
+| `reads_mapped_exonic_as` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as exon in the antisense direction; counted when sF tag of BAM is assigned to a 2 or 4. |
+| `reads_mapped_intronic` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as intron; counted when sF tag of BAM is assigned to a 5. | 
+| `reads_mapped_intronic_as` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as intron in the antisense direction; counted when sF tag of BAM is assigned to a 6. |
 |`reads_mapped_uniquely`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads mapped to a single unambiguous location in the genome. |
 |`reads_mapped_multiple`|[warp-tools](https://github.com/broadinstitute/warp-tools)|The number of reads mapped to multiple genomic positions with equal confidence. |
 |`spliced_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads that overlap splicing junctions. |
