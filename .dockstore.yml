@@ -1,20 +1,12 @@
 version: 1.2
 workflows:
-  - name: JointGenotypingByChromosomePartOne
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartOne.wdl
+  # - name: VUMCFastqToAlignedBam
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFastqToAlignedBam.wdl
 
-  - name: JointGenotypingByChromosomePartTwo
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/broad/dna_seq/germline/joint_genotyping/by_chromosome/JointGenotypingByChromosomePartTwo.wdl
-
-  - name: VUMCFastqToAlignedBam
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFastqToAlignedBam.wdl
-
-  - name: VUMCUnmappedBamToAlignedBam
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCUnmappedBamToAlignedBam.wdl
+  # - name: VUMCUnmappedBamToAlignedBam
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCUnmappedBamToAlignedBam.wdl
 
   - name: VUMCFastqQC
     subclass: WDL
@@ -24,17 +16,17 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCCramQC.wdl
 
-  - name: VUMCCopyBamFile
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCCopyBamFile.wdl
+  # - name: VUMCCopyBamFile
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCCopyBamFile.wdl
 
   - name: VUMCMoveFile
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMoveFile.wdl
 
-  - name: VUMCMoveFastqToBamResult
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMoveFastqToBamResult.wdl
+  # - name: VUMCMoveFastqToBamResult
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMoveFastqToBamResult.wdl
 
   - name: VUMCMoveFastqToCramResult
     subclass: WDL
@@ -76,9 +68,9 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCBamToCram.wdl
 
-  - name: VUMCFastqToAlignedCram
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFastqToAlignedCram.wdl
+  # - name: VUMCFastqToAlignedCram
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFastqToAlignedCram.wdl
 
   - name: VUMCMoveCram
     subclass: WDL
@@ -88,21 +80,21 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCDeleteBam.wdl
 
-  - name: VUMCHaplotypeCaller
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/haplotypecaller-gvcf-gatk4.wdl
+  # - name: VUMCHaplotypeCaller
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/haplotypecaller-gvcf-gatk4.wdl
 
-  - name: VUMCJointGenotyping
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/joint_genotyping/JointGenotyping.wdl
+  # - name: VUMCJointGenotyping
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/joint_genotyping/JointGenotyping.wdl
 
-  - name: VUMCRealignCram
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCRealignCram.wdl
+  # - name: VUMCRealignCram
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCRealignCram.wdl
 
-  - name: WholeGenomeGermlineSingleSampleFromCram
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSampleFromCram.wdl
+  # - name: WholeGenomeGermlineSingleSampleFromCram
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSampleFromCram.wdl
 
   - name: VUMCWholeGenomeGermlineSingleSampleFromFastq
     subclass: WDL
@@ -141,9 +133,9 @@ workflows:
   #   subclass: WDL
   #   primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMergeFastqWithCram.wdl
 
-  - name: VUMCMergeUnmappedBamWithCram
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMergeUnmappedBamWithCram.wdl
+  # - name: VUMCMergeUnmappedBamWithCram
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMergeUnmappedBamWithCram.wdl
     
   - name: VUMCMoveSingleSampleWESResult
     subclass: WDL
@@ -161,14 +153,18 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCUnmappedBamToAlignedCramNoBamQCMoveResult.wdl
 
-  - name: VUMCFastqToAlignedCramNoBamQC
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCFastqToAlignedCramNoBamQC.wdl
+  # - name: VUMCFastqToAlignedCramNoBamQC
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCFastqToAlignedCramNoBamQC.wdl
 
   - name: VUMCFastqToAlignedCramNoBamQCFast
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCFastqToAlignedCramNoBamQCFast.wdl
 
-  - name: VUMCFastqToUnmappedCram
+  # - name: VUMCFastqToUnmappedCram
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFastqToUnmappedCram.wdl
+
+  - name: VUMCReprocessAlignedCramNoBamQC
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFastqToUnmappedCram.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCReprocessAlignedCramNoBamQC.wdl
