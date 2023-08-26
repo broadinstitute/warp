@@ -108,6 +108,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wes/VUMCExomeGermlineSingleSampleFromFastq.wdl
 
+  - name: VUMCExomeReprocessAlignedCram
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wes/VUMCExomeReprocessAlignedCram.wdl
+
   - name: VUMCMoveSingleSampleWGSResult
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCMoveSingleSampleWGSResult.wdl
