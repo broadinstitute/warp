@@ -326,7 +326,7 @@ task hisat_3n_pair_end_mapping_dna_mode{
           -t \
           --new-summary \
           --summary-file ${sample_id}.hisat3n_dna_summary.txt \
-          --threads 11 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
+          --threads 11
         done
 
         echo "ls the files"
