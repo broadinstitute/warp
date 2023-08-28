@@ -242,11 +242,22 @@ task Sort_and_trim_r1_and_r2 {
         > ${sample_id}.trimmed.stats.txt
     done
 
+    echo "ls everything"
+    ls -lh
+
     echo "Tarring up the trimmed files and stats files"
 
     tar -zcvf R1_trimmed_files.tar.gz *-R1_trimmed.fq.gz
     tar -zcvf R2_trimmed_files.tar.gz *-R2_trimmed.fq.gz
     tar -zcvf trimmed_stats_files.tar.gz *.trimmed.stats.txt
+
+    echo " untar "
+    tar -zxvf R1_trimmed_files.tar.gz
+    tar -zxvf R2_trimmed_files.tar.gz
+
+    echo "ls everything after the untar"
+
+    ls -lh
 >>>
     runtime {
         docker: docker
