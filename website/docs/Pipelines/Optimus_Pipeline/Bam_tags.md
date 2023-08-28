@@ -27,4 +27,4 @@ The Optimus Pipeline outputs a barcoded BAM file of aligned reads. There are mul
 | jI | [jI:B:I,Start1,End1,Start2,End2,...] Start and End of introns for all junctions (1-based) | [STAR](https://github.com/alexdobin/STAR) |
 | jM | [jM:B:c,M1,M2,...] Intron motifs for all junctions (i.e. N in CIGAR)| [STAR](https://github.com/alexdobin/STAR) |
 | nM | The number of mismatches per (paired) alignment | [STAR](https://github.com/alexdobin/STAR) |
-| sF |Tthe feature type and number of genes for each read | [STAR v2.7.11a and later](https://github.com/alexdobin/STAR/releases)
+| sF |The feature type and number of genes for each read | [STAR v2.7.11a and later](https://github.com/alexdobin/STAR/releases)
