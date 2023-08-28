@@ -1,3 +1,11 @@
+# 1.2.26
+2023-08-22 (Date of Last Commit)
+
+* Updated Optimus pipeline to include STARsolo v2.7.11a; does not impact snSS2
+* Added sF tag to STARsolo aligner parameters; does not impact snSS2
+* Updated TagSort tool for Optimus Metrics task to calculate metrics based on the sF tag; does not impact snSS2
+* Modified H5adUtils task to include new metrics in the final Optimus h5ad; does not impact snSS2
+
 # 1.2.25
 2023-07-18 (Date of Last Commit)
 
