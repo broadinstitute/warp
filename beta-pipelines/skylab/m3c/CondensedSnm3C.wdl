@@ -289,7 +289,7 @@ task hisat_3n_pair_end_mapping_dna_mode{
         echo "Untarring the index files"
         tar -zxvf ~{tarred_index_files}
         rm ~{tarred_index_files}
-        samtools faidx hg38.fa
+        samtools faidx hg38.fa # this could be its own task
         ls -lh
 
         # untar the demultiplexed fastq files
@@ -326,7 +326,7 @@ task hisat_3n_pair_end_mapping_dna_mode{
           -t \
           --new-summary \
           --summary-file ${sample_id}.hisat3n_dna_summary.txt \
-          --threads 11
+          --threads 11 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
         done
 
         echo "ls the files"
