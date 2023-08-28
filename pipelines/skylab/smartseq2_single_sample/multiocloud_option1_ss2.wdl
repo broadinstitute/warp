@@ -5,6 +5,7 @@ import "../../../tasks/skylab/Picard.wdl" as Picard
 import "../../../tasks/skylab/RSEM.wdl" as RSEM
 import "../../../tasks/skylab/GroupMetricsOutputs.wdl" as GroupQCs
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow SmartSeq2SingleSample {
     meta {
