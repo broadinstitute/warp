@@ -50,6 +50,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 | `reads_mapped_exonic_as` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as exon in the antisense direction; counted when sF tag of BAM is assigned to a 2 or 4. |
 | `reads_mapped_intronic` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as intron; counted when sF tag of BAM is assigned to a 5. | 
 | `reads_mapped_intronic_as` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as intron in the antisense direction; counted when sF tag of BAM is assigned to a 6. |
+| `duplicate_reads` | [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of duplicate reads. |
 |`n_mitochondrial_genes`| [warp-tools](https://github.com/broadinstitute/warp-tools)| The number of mitochondrial genes detected by this cell. |
 |`n_mitochondrial_molecules`| [warp-tools](https://github.com/broadinstitute/warp-tools)| The number of molecules from mitochondrial genes detected for this cell. |
 |`pct_mitochondrial_molecules`| [warp-tools](https://github.com/broadinstitute/warp-tools)| The percentage of molecules from mitochondrial genes detected for this cell. |
@@ -75,13 +76,15 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 |`cell_barcode_fraction_bases_above_30_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average fraction of Illumina base calls for the cell barcode sequences that are greater than 30, across molecules. |
 |`n_genes`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of genes detected by this cell. |
 |`genes_detected_multiple_observations`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of genes that are observed by more than one read in this cell. |
-| `emptydrops_FDR` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | False Discovery Rate (FDR) for being a non-empty droplet; single-cell data will read "NA" if task is unable to detect knee point inflection. Column is not included for data run in the sn_rna mode |
+| `emptydrops_FDR` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | False Discovery Rate (FDR) for being a non-empty droplet; single-cell data will read "NA" if task is unable to detect knee point inflection. Column is not included for data run in the sn_rna mode. |
 | `emptydrops_IsCell` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Binarized call of cell/background based on predefined FDR cutoff; single-cell data will read "NA" if task is unable to detect knee point inflection. Column is not included for data run in the sn_rna mode |
-| `emptydrops_Limited` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Indicates whether a lower p-value could be obtained by increasing the number of iterations; single-cell data will read "NA" if task is unable to detect knee point inflection. Column is not included for data run in the sn_rna mode  |
-|`emptydrops_LogProb` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | The log-probability of observing the barcode’s count vector under the null model; single-cell data will read "NA" if the task is unable to detect knee point inflection. Column is not included for data run in the sn_rna mode  |
+| `emptydrops_Limited` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Indicates whether a lower p-value could be obtained by increasing the number of iterations; single-cell data will read "NA" if task is unable to detect knee point inflection. Column is not included for data run in the sn_rna mode.  |
+|`emptydrops_LogProb` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | The log-probability of observing the barcode’s count vector under the null model; single-cell data will read "NA" if the task is unable to detect knee point inflection. Column is not included for data run in the sn_rna mode.  |
 | `emptydrops_PValue` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Numeric, the Monte Carlo p-value against the null model; single-cell data will read "NA" if task is unable to detect knee point inflection. Column is not included for data run in the sn_rna mode  |
-| `emptydrops_Total` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Numeric, the total read counts for each barcode; single-cell data will read "NA" if task is unable to detect knee point inflection. Column is not included for data run in the sn_rna mode  |
+| `emptydrops_Total` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Numeric, the total read counts for each barcode; single-cell data will read "NA" if task is unable to detect knee point inflection. Column is not included for data run in the sn_rna mode.  |
 | `reads_mapped_intergenic` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as intergenic; counted when sF tag of BAM is assigned to a 7. |
+| `reads_unmapped` | [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads that are unmapped. |
+|`reads_per_molecule`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average number of reads associated with each molecule in this entity. |
 
 ## Table 3. Gene metrics
 
@@ -101,6 +104,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 |`reads_mapped_multiple`|[warp-tools](https://github.com/broadinstitute/warp-tools)|The number of reads mapped to multiple genomic positions with equal confidence. |
 |`spliced_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads that overlap splicing junctions. |
 |`antisense_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads that are mapped to the antisense strand instead of the transcribed strand. |
+| `duplicate_reads` | [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of duplicate reads. |
 |`molecule_barcode_fraction_bases_above_30_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average fraction of bases in molecule barcodes that receive quality scores greater than 30 across the reads of this entity. |
 |`molecule_barcode_fraction_bases_above_30_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The variance in the fraction of bases in molecule barcodes that receive quality scores greater than 30 across the reads of this entity. |
 |`genomic_reads_fraction_bases_quality_above_30_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average fraction of bases in the genomic read that receive quality scores greater than 30 across the reads of this entity (included for 10x Cell Ranger count comparison). |
