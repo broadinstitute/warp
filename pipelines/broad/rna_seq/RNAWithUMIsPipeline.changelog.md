@@ -1,3 +1,8 @@
+# 1.0.15
+2023-07-27 (Date of Last Commit)
+
+* Updated UMI tools docker to address security vulnerabilities, this has no effect on this pipeline
+
 # 1.0.14
 2022-05-24 (Date of Last Commit)
 
