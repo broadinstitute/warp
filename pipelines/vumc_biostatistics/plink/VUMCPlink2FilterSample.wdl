@@ -10,6 +10,8 @@ workflow VUMCPlink2FilterSample {
 
     String target_prefix
 
+    String? plink2_option = "--chr-set 22 no-xy"
+
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
   }
 
@@ -18,6 +20,8 @@ workflow VUMCPlink2FilterSample {
       source_bed = source_bed,
       source_bim = source_bim,
       source_fam = source_fam,
+
+      plink2_option = plink2_option,
 
       sample_file = sample_file,
 
@@ -39,6 +43,8 @@ task Plink2Filter {
       File source_bim
       File source_fam
 
+      String? plink2_option
+
       File sample_file
 
       String target_prefix
@@ -54,7 +60,7 @@ task Plink2Filter {
 
   command <<<
 
-plink2 \
+plink2 ~{plink2_option} \
   --bed ~{source_bed} \
   --bim ~{source_bim} \
   --fam ~{source_fam} \
