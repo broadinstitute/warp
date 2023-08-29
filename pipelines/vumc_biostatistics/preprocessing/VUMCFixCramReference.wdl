@@ -63,7 +63,7 @@ samtools view -T ~{ref_fasta} -C --no-PG -o ~{output_name} -
 
 samtools index ~{output_name}
 
-md5sum ~{output_name} > ~{output_name}.md5.txt
+md5sum ~{output_name} > ~{output_name}.md5
 
   >>>
 
@@ -77,6 +77,6 @@ md5sum ~{output_name} > ~{output_name}.md5.txt
   output {
     File output_cram = "~{output_name}"
     File output_cram_index = "~{output_name}.crai"
-    File output_cram_md5 = "~{output_name}.md5.txt"
+    File output_cram_md5 = "~{output_name}.md5"
   }
 }
