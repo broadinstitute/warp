@@ -138,7 +138,7 @@ workflow VUMCFastqToAlignedCramNoBamQCFast {
 
     # Map reads to reference
     if (use_bwa_mem) {
-      call Alignment.SamToFastqAndBwaMemAndMba as SamToFastqAndBwaMemAndMba {
+      call VUMCAlignment.SamToFastqAndBwaMemAndMba as SamToFastqAndBwaMemAndMba {
         input:
           input_bam = ToUnmappedBam.output_unmapped_bam,
           bwa_commandline = bwa_commandline,
