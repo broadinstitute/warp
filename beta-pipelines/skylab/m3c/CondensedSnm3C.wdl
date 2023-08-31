@@ -110,6 +110,8 @@ workflow WDLized_snm3C {
         File r2_trimmed_fq = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar
         File hisat3n_stats_tar = hisat_3n_pair_end_mapping_dna_mode.hisat3n_stats_tar
         File hisat3n_bam_tar = hisat_3n_pair_end_mapping_dna_mode.hisat3n_bam_tar
+        File r1_sorted_fq_tar = Sort_and_trim_r1_and_r2.r1_sorted_fq_tar
+        File r2_sorted_fq_tar = Sort_and_trim_r1_and_r2.r2_sorted_fq_tar
     }
 }
 
@@ -214,8 +216,8 @@ task Sort_and_trim_r1_and_r2 {
     for file in "${R1_files[@]}"; do
       sample_id=$(basename "$file" "-R1.fq.gz")
       r2_file="${sample_id}-R2.fq.gz"
-      gunzip -c "$file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R1_sorted.fq"
-      gunzip -c "$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R2_sorted.fq"
+      zcat "$file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R1_sorted.fq"
+      zcat "$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R2_sorted.fq"
     done
 
 
@@ -250,6 +252,8 @@ task Sort_and_trim_r1_and_r2 {
     tar -zcvf R1_trimmed_files.tar.gz *-R1_trimmed.fq.gz
     tar -zcvf R2_trimmed_files.tar.gz *-R2_trimmed.fq.gz
     tar -zcvf trimmed_stats_files.tar.gz *.trimmed.stats.txt
+    tar -zcvf R1_sorted_files.tar.gz *-R1_sorted.fq
+    tar -zcvf R2_sorted_files.tar.gz *-R2_sorted.fq
 
     echo " untar "
     tar -zxvf R1_trimmed_files.tar.gz
@@ -269,6 +273,8 @@ task Sort_and_trim_r1_and_r2 {
         File r1_trimmed_fq_tar = "R1_trimmed_files.tar.gz"
         File r2_trimmed_fq_tar = "R2_trimmed_files.tar.gz"
         File trim_stats_tar = "trimmed_stats_files.tar.gz"
+        File r1_sorted_fq_tar = "R1_sorted_files.tar.gz"
+        File r2_sorted_fq_tar = "R2_sorted_files.tar.gz"
     }
 }
 
