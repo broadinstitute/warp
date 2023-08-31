@@ -5,6 +5,7 @@
 * Added sF tag to STARsolo aligner parameters
 * Updated TagSort tool for Optimus Metrics task to calculate metrics based on the sF tag
 * Modified H5adUtils task to include new metrics in the final Optimus h5ad
+* Removed the Dropseq metrics task
  
 # 1.0.1 
 2023-07-23 (Date of Last Commit)
