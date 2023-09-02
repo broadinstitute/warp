@@ -34,6 +34,9 @@ task SamToFastqAndBwaMemAndMba {
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
     Boolean allow_empty_ref_alt = false
+    Int bwa_mem = 30
+    Int bwa_cpu = 16
+    Float disk_multiplier = 2.5
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
@@ -41,7 +44,6 @@ task SamToFastqAndBwaMemAndMba {
   Float bwa_ref_size = ref_size + size(reference_fasta.ref_alt, "GiB") + size(reference_fasta.ref_amb, "GiB") + size(reference_fasta.ref_ann, "GiB") + size(reference_fasta.ref_bwt, "GiB") + size(reference_fasta.ref_pac, "GiB") + size(reference_fasta.ref_sa, "GiB")
   # Sometimes the output is larger than the input, or a task can spill to disk.
   # In these cases we need to account for the input (1) and the output (1.5) or the input(1), the output(1), and spillage (.5).
-  Float disk_multiplier = 2.5
   Int disk_size = ceil(unmapped_bam_size + bwa_ref_size + (disk_multiplier * unmapped_bam_size) + 20)
 
   command <<<
@@ -115,8 +117,8 @@ task SamToFastqAndBwaMemAndMba {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
     preemptible: preemptible_tries
-    memory: "14 GiB"
-    cpu: "16"
+    memory: "~{bwa_mem} GiB"
+    cpu: "~{bwa_cpu}"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
