@@ -67,7 +67,7 @@ task CalculateChromosomeSizes {
     samtools faidx ~{genome_fa} | cut -f1,2 > chrom.sizes
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
+    docker: "dsppipelinedev.azurecr.io/build-indices:1.0.0-2.7.10a-1671490724"
     preemptible: 3
     memory: "3 GiB"
     cpu: "1"
