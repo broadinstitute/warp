@@ -32,8 +32,7 @@ workflow WDLized_snm3C {
             r2_trimmed_tar = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar,
             tarred_index_files = tarred_index_files,
             genome_fa = genome_fa,
-            chromosome_sizes = chromosome_sizes,
-            plate_id = plate_id
+            chromosome_sizes = chromosome_sizes
     }
 
    # call separate_unmapped_reads {
@@ -272,7 +271,6 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         File tarred_index_files
         File genome_fa
         File chromosome_sizes
-        String plate_id
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 100
         Int mem_size = 100
