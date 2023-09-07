@@ -180,3 +180,7 @@ workflows:
   - name: VUMCVcfExcludeSamples
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfExcludeSamples.wdl
+
+  - name: VUMCVcfIncludeSamples
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfIncludeSamples.wdl

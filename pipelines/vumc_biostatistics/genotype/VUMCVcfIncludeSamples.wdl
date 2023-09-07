@@ -2,11 +2,11 @@ version 1.0
 
 import "./Utils.wdl" as Utils
 
-workflow VUMCVcfExcludeSamples {
+workflow VUMCVcfIncludeSamples {
   input {
     File input_vcf
     File input_vcf_index
-    File exclude_samples
+    File include_samples
     String target_prefix
     String target_suffix = ".vcf.gz"
     String docker = "staphb/bcftools"
@@ -16,11 +16,11 @@ workflow VUMCVcfExcludeSamples {
     String? genoset
   }
 
-  call BcftoolsExcludeSamples {
+  call BcftoolsIncludeSamples {
     input:
       input_vcf = input_vcf,
       input_vcf_index = input_vcf_index,
-      exclude_samples = exclude_samples,
+      include_samples = include_samples,
       target_prefix = target_prefix,
       target_suffix = target_suffix,
       docker = docker
@@ -29,8 +29,8 @@ workflow VUMCVcfExcludeSamples {
   if(defined(target_bucket)){
     call Utils.CopyVcfFile {
       input:
-        input_vcf = BcftoolsExcludeSamples.output_vcf,
-        input_vcf_index = BcftoolsExcludeSamples.output_vcf_index,
+        input_vcf = BcftoolsIncludeSamples.output_vcf,
+        input_vcf_index = BcftoolsIncludeSamples.output_vcf_index,
         project_id = project_id,
         target_bucket = select_first([target_bucket]),
         genoset = select_first([genoset]),
@@ -38,16 +38,16 @@ workflow VUMCVcfExcludeSamples {
   }
 
   output {
-    File output_vcf = select_first([CopyVcfFile.output_vcf, BcftoolsExcludeSamples.output_vcf])
-    File output_vcf_index = select_first([CopyVcfFile.output_vcf_index, BcftoolsExcludeSamples.output_vcf_index])
+    File output_vcf = select_first([CopyVcfFile.output_vcf, BcftoolsIncludeSamples.output_vcf])
+    File output_vcf_index = select_first([CopyVcfFile.output_vcf_index, BcftoolsIncludeSamples.output_vcf_index])
   }
 }
 
-task BcftoolsExcludeSamples {
+task BcftoolsIncludeSamples {
   input {
     File input_vcf
     File input_vcf_index
-    File exclude_samples
+    File include_samples
     String target_prefix
     String target_suffix = ".vcf.gz"
     String docker = "staphb/bcftools"
@@ -60,9 +60,9 @@ task BcftoolsExcludeSamples {
 
 bcftools query -l ~{input_vcf} > all.id.txt
 
-sort all.id.txt ~{exclude_samples} | uniq -d > remove.id.txt
+sort all.id.txt ~{include_samples} | uniq -d > keep.id.txt
 
-bcftools view -S ^remove.id.txt -o ~{new_vcf} ~{input_vcf}
+bcftools view -S keep.id.txt -o ~{new_vcf} ~{input_vcf}
 
 bcftools index -t ~{new_vcf}
 
@@ -79,4 +79,3 @@ bcftools index -t ~{new_vcf}
     File output_vcf_index = "~{new_vcf}.tbi"
   }
 }
-
