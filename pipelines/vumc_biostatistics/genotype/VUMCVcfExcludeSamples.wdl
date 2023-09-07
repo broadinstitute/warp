@@ -11,6 +11,7 @@ workflow VUMCVcfExcludeSamples {
 
     String? project_id
     String? target_bucket
+    String? genoset
   }
 
   call BcftoolsExcludeSamples {
@@ -29,7 +30,8 @@ workflow VUMCVcfExcludeSamples {
         input_vcf = BcftoolsExcludeSamples.output_vcf,
         input_vcf_index = BcftoolsExcludeSamples.output_vcf_index,
         project_id = project_id,
-        target_bucket = select_first([target_bucket])
+        target_bucket = select_first([target_bucket]),
+        genoset = select_first([genoset]),
     }
   }
 
@@ -83,10 +85,11 @@ task CopyVcfFile {
 
     String? project_id
     String target_bucket
+    String genoset
   }
 
-  String new_vcf = "~{target_bucket}/~{basename(input_vcf)}"
-  String new_vcf_index = "~{target_bucket}/~{basename(input_vcf_index)}"
+  String new_vcf = "~{target_bucket}/~{genoset}/~{basename(input_vcf)}"
+  String new_vcf_index = "~{target_bucket}/~{genoset}/~{basename(input_vcf_index)}"
 
   command <<<
 
@@ -94,7 +97,7 @@ set -e
 
 gsutil -m ~{"-u " + project_id} cp ~{input_vcf} \
   ~{input_vcf_index} \
-  ~{target_bucket}/
+  ~{target_bucket}/~{genoset + "/"}
 
 >>>
 
