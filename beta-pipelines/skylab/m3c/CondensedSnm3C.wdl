@@ -26,7 +26,7 @@ workflow WDLized_snm3C {
             tarred_demultiplexed_fastqs = Demultiplexing.tarred_demultiplexed_fastqs
     }
 
-    call hisat_3n_pair_end_mapping_dna_mode {
+    call Hisat_3n_pair_end_mapping_dna_mode {
         input:
             r1_trimmed_tar = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar,
             r2_trimmed_tar = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar,
@@ -38,7 +38,7 @@ workflow WDLized_snm3C {
 
    # call separate_unmapped_reads {
    #     input:
-   #         hisat3n_bam = hisat_3n_pair_end_mapping_dna_mode.hisat3n_bam
+   #         hisat3n_bam = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_bam
    # }
 #
    # call split_unmapped_reads {
@@ -88,7 +88,7 @@ workflow WDLized_snm3C {
    # call summary {
    #     input:
    #         trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats,
-   #         hisat3n_stats = hisat_3n_pair_end_mapping_dna_mode.hisat3n_stats,
+   #         hisat3n_stats = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_stats,
    #         r1_hisat3n_stats = hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.r1_hisat3n_stats,
    #         r2_hisat3n_stats = hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.r2_hisat3n_stats,
    #         dedup_stats = dedup_unique_bam_and_index_unique_bam.dedup_stats,
@@ -108,10 +108,8 @@ workflow WDLized_snm3C {
         File trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar
         File r1_trimmed_fq = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar
         File r2_trimmed_fq = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar
-        File hisat3n_stats_tar = hisat_3n_pair_end_mapping_dna_mode.hisat3n_stats_tar
-        File hisat3n_bam_tar = hisat_3n_pair_end_mapping_dna_mode.hisat3n_bam_tar
-        File r1_sorted_fq_tar = Sort_and_trim_r1_and_r2.r1_sorted_fq_tar
-        File r2_sorted_fq_tar = Sort_and_trim_r1_and_r2.r2_sorted_fq_tar
+        File hisat3n_stats_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_stats_tar
+        File hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
     }
 }
 
@@ -244,9 +242,6 @@ task Sort_and_trim_r1_and_r2 {
         > ${sample_id}.trimmed.stats.txt
     done
 
-    echo "ls everything"
-    ls -lh
-
     echo "Tarring up the trimmed files and stats files"
 
     tar -zcvf R1_trimmed_files.tar.gz *-R1_trimmed.fq.gz
@@ -254,14 +249,6 @@ task Sort_and_trim_r1_and_r2 {
     tar -zcvf trimmed_stats_files.tar.gz *.trimmed.stats.txt
     tar -zcvf R1_sorted_files.tar.gz *-R1_sorted.fq
     tar -zcvf R2_sorted_files.tar.gz *-R2_sorted.fq
-
-    echo " untar "
-    tar -zxvf R1_trimmed_files.tar.gz
-    tar -zxvf R2_trimmed_files.tar.gz
-
-    echo "ls everything after the untar"
-
-    ls -lh
 >>>
     runtime {
         docker: docker
@@ -278,7 +265,7 @@ task Sort_and_trim_r1_and_r2 {
     }
 }
 
-task hisat_3n_pair_end_mapping_dna_mode{
+task Hisat_3n_pair_end_mapping_dna_mode{
     input {
         File r1_trimmed_tar
         File r2_trimmed_tar
@@ -291,47 +278,39 @@ task hisat_3n_pair_end_mapping_dna_mode{
         Int mem_size = 100
     }
     command <<<
-        mkdir group0/
-        mkdir group0/reference/
-        mkdir group0/fastq/
+        set -euo pipefail
 
-        cp ~{tarred_index_files} group0/reference/
-        cp ~{genome_fa} group0/reference/
-        cp ~{chromosome_sizes} group0/reference/
-        cp ~{r1_trimmed_tar} group0/fastq/
-        cp ~{r2_trimmed_tar} group0/fastq/
+        mkdir reference/
+        mkdir fastq/
+
+        cp ~{tarred_index_files} reference/
+        cp ~{genome_fa} reference/
+        cp ~{chromosome_sizes} reference/
+        cp ~{r1_trimmed_tar} fastq/
+        cp ~{r2_trimmed_tar} fastq/
 
         # untar the index files
-        cd group0/reference/
+        cd reference/
         echo "Untarring the index files"
         tar -zxvf ~{tarred_index_files}
         rm ~{tarred_index_files}
-        samtools faidx hg38.fa # this could be its own task
-        ls -lh
+        samtools faidx hg38.fa
 
         # untar the demultiplexed fastq files
         cd ../fastq/
+        echo "Untarring the fastq files"
         tar -zxvf ~{r1_trimmed_tar}
-        echo "removing ~{r1_trimmed_tar}"
-        rm ~{r1_trimmed_tar}
-        echo "removing ~{r2_trimmed_tar}"
         tar -zxvf ~{r2_trimmed_tar}
+        rm ~{r1_trimmed_tar}
         rm ~{r2_trimmed_tar}
 
         # define lists of r1 and r2 fq files
         R1_files=($(ls | grep "\-R1_trimmed.fq.gz"))
         R2_files=($(ls | grep "\-R2_trimmed.fq.gz"))
 
-        echo "doing an LS"
-        ls -lh
-
-        echo "check arrays"
-        echo "${R1_files[@]}"
-
-
         for file in "${R1_files[@]}"; do
           sample_id=$(basename "$file" "-R1_trimmed.fq.gz")
-          hisat-3n /cromwell_root/group0/reference/hg38 \
+          hisat-3n /cromwell_root/reference/hg38 \
           -q \
           -1 ${sample_id}-R1_trimmed.fq.gz \
           -2 ${sample_id}-R2_trimmed.fq.gz \
@@ -346,18 +325,13 @@ task hisat_3n_pair_end_mapping_dna_mode{
           --threads 11 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
         done
 
-        echo "ls the files"
-        ls -lh
-
         # tar up the bam files and stats files
-        tar -zcvf hisat3n_bam_files.tar.gz *.bam
-        tar -zcvf hisat3n_stats_files.tar.gz *.hisat3n_dna_summary.txt
+        tar -zcvf hisat3n_paired_end_bam_files.tar.gz *.bam
+        tar -zcvf hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
 
-        mv hisat3n_bam_files.tar.gz ../../
-        mv hisat3n_stats_files.tar.gz ../../
+        mv hisat3n_paired_end_bam_files.tar.gz ../
+        mv hisat3n_paired_end_stats_files.tar.gz ../
 
-        echo "ls the files"
-        ls -lh
     >>>
     runtime {
         docker: docker
@@ -366,8 +340,8 @@ task hisat_3n_pair_end_mapping_dna_mode{
         memory: "${mem_size} GiB"
     }
     output {
-        File hisat3n_bam_tar = "hisat3n_bam_files.tar.gz"
-        File hisat3n_stats_tar = "hisat3n_stats_files.tar.gz"
+        File hisat3n_paired_end_bam_tar = "hisat3n_paired_end_bam_files.tar.gz"
+        File hisat3n_paired_end_stats_tar = "hisat3n_paired_end_stats_files.tar.gz"
                                                          }
 }
 
