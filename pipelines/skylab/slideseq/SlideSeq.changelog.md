@@ -5,6 +5,7 @@
 * Added sF tag to STARsolo aligner parameters
 * Updated TagSort tool for Optimus Metrics task to calculate metrics based on the sF tag; does not impact slide-seq
 * Modified H5adUtils task to include new metrics in the final Optimus h5ad; does not impact slide-seq
+* Removed the Dropseq metrics task; this change does not impact the Slideseq workflow
 
 # 1.0.10
 2023-07-18 (Date of Last Commit)

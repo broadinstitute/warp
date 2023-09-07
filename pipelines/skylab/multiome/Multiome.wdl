@@ -25,7 +25,6 @@ workflow Multiome {
         String star_strand_mode = "Forward"
         Boolean count_exons = false
         File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt"
-        String? mt_sequence
 
         # ATAC inputs
         # Array of input fastq files
@@ -63,7 +62,6 @@ workflow Multiome {
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
-            mt_sequence = mt_sequence
     }
 
     # Call the ATAC workflow
@@ -102,7 +100,6 @@ workflow Multiome {
         File cell_metrics_gex = Optimus.cell_metrics
         File gene_metrics_gex = Optimus.gene_metrics
         File? cell_calls_gex = Optimus.cell_calls
-        File? picard_metrics_gex = Optimus.picard_metrics
         File h5ad_output_file_gex = Optimus.h5ad_output_file
     }
 }
