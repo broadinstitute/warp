@@ -246,8 +246,6 @@ task Sort_and_trim_r1_and_r2 {
     tar -zcvf R1_trimmed_files.tar.gz *-R1_trimmed.fq.gz
     tar -zcvf R2_trimmed_files.tar.gz *-R2_trimmed.fq.gz
     tar -zcvf trimmed_stats_files.tar.gz *.trimmed.stats.txt
-    tar -zcvf R1_sorted_files.tar.gz *-R1_sorted.fq
-    tar -zcvf R2_sorted_files.tar.gz *-R2_sorted.fq
 >>>
     runtime {
         docker: docker
@@ -259,8 +257,6 @@ task Sort_and_trim_r1_and_r2 {
         File r1_trimmed_fq_tar = "R1_trimmed_files.tar.gz"
         File r2_trimmed_fq_tar = "R2_trimmed_files.tar.gz"
         File trim_stats_tar = "trimmed_stats_files.tar.gz"
-        File r1_sorted_fq_tar = "R1_sorted_files.tar.gz"
-        File r2_sorted_fq_tar = "R2_sorted_files.tar.gz"
     }
 }
 
@@ -271,6 +267,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         File tarred_index_files
         File genome_fa
         File chromosome_sizes
+
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 100
         Int mem_size = 100
