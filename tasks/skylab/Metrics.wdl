@@ -9,7 +9,7 @@ task CalculateCellMetrics {
 
     # runtime values
 
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679941323"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.6-1692962087"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
@@ -59,8 +59,7 @@ task CalculateCellMetrics {
     # add the column header "CellID" to the first column in the .csv file
     sed '1s/^/CellID/' ~{input_id}.cell-metrics.csv > updated.~{input_id}.cell-metrics.csv
 
-    # remove the following columns: reads_unmapped, reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, duplicate_reads, reads_mapped_intergenic
-    cut -d',' -f 1-4,8-9,11-26,29-36 updated.~{input_id}.cell-metrics.csv > ~{input_id}.cell-metrics.csv
+    mv updated.~{input_id}.cell-metrics.csv ~{input_id}.cell-metrics.csv
 
     gzip ~{input_id}.cell-metrics.csv
   }
@@ -86,7 +85,7 @@ task CalculateGeneMetrics {
     String input_id
     # runtime values
 
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679941323"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.5-1692706846"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 
@@ -126,8 +125,7 @@ task CalculateGeneMetrics {
     # add the column header "ID" to the first column in the .csv file
     sed '1s/^/GeneID/' ~{input_id}.gene-metrics.csv > updated.~{input_id}.gene-metrics.csv
 
-    # remove the following columns: reads_mapped_exonic, reads_mapped_intronic, reads_mapped_utr, duplicate_reads
-    cut -d',' -f 1-4,8-9,11-27 updated.~{input_id}.gene-metrics.csv > ~{input_id}.gene-metrics.csv
+    mv updated.~{input_id}.gene-metrics.csv ~{input_id}.gene-metrics.csv
 
     gzip ~{input_id}.gene-metrics.csv
 
@@ -263,42 +261,5 @@ task FastqMetricsSlideSeq {
     File umi_distribution = "~{sample_id}.barcode_distribution_XM.txt"
     File numReads_perCell = "~{sample_id}.numReads_perCell_XC.txt"
     File numReads_perUMI = "~{sample_id}.numReads_perCell_XM.txt"
-  }
-}
-
-task DropseqMetrics {
-  input {
-    File input_bam
-    File annotation_gtf
-    String output_name
-    String? mt_sequence
-    Int disk_size = ceil(size(input_bam, "GiB") + 50)
-    Int mem_size = 25
-  }
-  command <<<
-    # Using Drop-seq tools version of Picard's CollectRNAseqMetrics.
-    # GENCODE v43 GTF is missing gene_version, which is why we're using LENIENT
-    # validation stringency.
-    mkdir /cromwell_root/tmp
-    
-    /usr/gitc/Drop-seq_tools-2.5.3/SingleCellRnaSeqMetricsCollector \
-    --ANNOTATIONS_FILE ~{annotation_gtf} \
-    --INPUT ~{input_bam} \
-    --NUM_CORE_BARCODES 40000 \
-    --OUTPUT ~{output_name} \
-    --MT_SEQUENCE ~{mt_sequence} \
-    --CELL_BARCODE_TAG CB \
-    --TMP_DIR /cromwell_root/tmp \
-    --VALIDATION_STRINGENCY LENIENT
-   
-    
-  >>>
-  runtime {
-	docker: "us.gcr.io/broad-gotc-prod/dropseq-picard:1.0.0-2.5.3-1686757901"
-    disks: "local-disk ${disk_size} HDD"
-    memory: "${mem_size} GiB"
-  }
-  output {
-    File metric_output = "~{output_name}"
   }
 }

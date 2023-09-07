@@ -1,7 +1,8 @@
 # 2.1.13
-2023-08-16 (Date of Last Commit)
+2023-08-23 (Date of Last Commit)
 
 * Updated VerifyBamID docker image in BamProcessing.wdl to fix security vulnerabilities, this update has no effect on this pipeline.
+* Updated the VCF validation step to only use \"--no-overlaps\" argument for reblocked vcfs
 
 # 2.1.12
 2023-03-20 (Date of Last Commit)
