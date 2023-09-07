@@ -225,7 +225,7 @@ task STARsoloFastq {
     Boolean? count_exons
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.10b-1685556218"
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.1-2.7.11a-1692706072"
     Int machine_mem_mb = 64000
     Int cpu = 8
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -317,7 +317,7 @@ task STARsoloFastq {
       --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
       --soloUMIdedup 1MM_Directional_UMItools \
       --outSAMtype BAM SortedByCoordinate \
-      --outSAMattributes UB UR UY CR CB CY NH GX GN \
+      --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
       --soloBarcodeReadLength 0 \
       --soloCellReadStats Standard
     fi
@@ -337,9 +337,10 @@ task STARsoloFastq {
       --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
       --soloUMIdedup 1MM_Directional_UMItools \
       --outSAMtype BAM SortedByCoordinate \
-      --outSAMattributes UB UR UY CR CB CY NH GX GN \
+      --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
       --soloBarcodeReadLength 0 \
       --soloCellReadStats Standard
+
 
     touch barcodes_sn_rna.tsv
     touch features_sn_rna.tsv
@@ -537,7 +538,7 @@ task STARsoloFastqSlideSeq {
     Boolean? count_exons
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.0-2.7.9a-1658781884"
+    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.1-2.7.11a-1692706072"
     Int machine_mem_mb = 64000
     Int cpu = 8
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -601,7 +602,7 @@ task STARsoloFastqSlideSeq {
       --outSAMtype BAM SortedByCoordinate \
       --clip3pAdapterSeq AAAAAA \
       --clip3pAdapterMMp 0.1 \
-      --outSAMattributes UB UR UY CR CB CY NH GX GN
+      --outSAMattributes UB UR UY CR CB CY NH GX GN sF
 
     touch barcodes_exon.tsv
     touch features_exon.tsv
