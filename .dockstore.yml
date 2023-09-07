@@ -176,3 +176,7 @@ workflows:
   - name: VUMCFileSize
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFileSize.wdl
+
+  - name: VUMCVcfExcludeSamples
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfExcludeSamples.wdl
