@@ -7,10 +7,10 @@ workflow WDLized_snm3C {
         Array[File] fastq_input_read2
         File random_primer_indexes
         String plate_id
+        # mapping inputs
         File tarred_index_files
         File genome_fa
         File chromosome_sizes
-        String output_basename = plate_id
     }
 
     call Demultiplexing {
