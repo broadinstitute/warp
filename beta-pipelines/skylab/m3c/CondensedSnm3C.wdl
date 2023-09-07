@@ -337,7 +337,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
     output {
         File hisat3n_paired_end_bam_tar = "hisat3n_paired_end_bam_files.tar.gz"
         File hisat3n_paired_end_stats_tar = "hisat3n_paired_end_stats_files.tar.gz"
-                                                         }
+    }
 }
 
 #task separate_unmapped_reads {
