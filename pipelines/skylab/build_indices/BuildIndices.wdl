@@ -147,7 +147,7 @@ task BuildStarSingleNucleus {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1683045573"
+    docker: "dsppipelinedev.azurecr.io/build-indices:1.0.0-2.7.10a-1683045573"
     memory: "50 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
@@ -187,7 +187,7 @@ String reference_name = "bwa0.7.17-~{organism}-~{genome_source}-build-~{genome_b
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463"
+    docker: "dsppipelinedev.azurecr.io/build-indices:1.0.0-0.7.17-1660770463"
     memory: "96GB"
     disks: "local-disk 100 HDD"
     disk: "100 GB" # TES
