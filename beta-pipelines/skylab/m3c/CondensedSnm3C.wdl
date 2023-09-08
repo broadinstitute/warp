@@ -28,11 +28,11 @@ workflow WDLized_snm3C {
    #         r2_trimmed = Sort_and_trim_r1_and_r2.r2_trimmed_fq
    # }
 #
-   # call separate_unmapped_reads {
-   #     input:
-   #         hisat3n_bam = hisat_3n_pair_end_mapping_dna_mode.hisat3n_bam
-   # }
-#
+ call separate_unmapped_reads {
+     input:
+         hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
+ }
+
    # call split_unmapped_reads {
    #     input:
    #         unmapped_fastq = separate_unmapped_reads.unmapped_fastq
@@ -270,24 +270,47 @@ task Sort_and_trim_r1_and_r2 {
 #    }
 #}
 
-#task separate_unmapped_reads {
-#    input {
-#        File hisat3n_bam
-#    }
-#    command <<<
-#    >>>
-#    runtime {
-#        docker: "fill_in"
-#        disks: "local-disk ${disk_size} HDD"
-#        cpu: 1
-#        memory: "${mem_size} GiB"
-#    }
-#    output {
-#        File unique_bam = ""
-#        File multi_bam = ""
-#        File unmapped_fastq = ""
-#    }
-#}
+task separate_unmapped_reads {
+    input {
+        File hisat3n_bam_tar
+
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        Int disk_size = 50
+        Int mem_size = 10
+
+    }
+    command <<<
+
+    set -euo pipefail
+
+    #untar the hisat3n bam files
+    tar -xf ~{hisat3n_bam_tar}
+
+    # define lists of bam files
+    bam_files=($(ls | grep "\.hisat3n_dna.unsort.bam"))
+
+    for file in "${bam_files[@]}"; do
+      sample_id=$(basename "$file" ".hisat3n_dna.unsort.bam")
+        separate_unique_and_multi_align_reads(in_bam_path=${sample_id}.hisat3n_dna.unsort.bam,
+                                          out_unique_path=${sample_id}.hisat3n_dna.unique_aligned.bam,
+                                          out_multi_path=${sample_id}.hisat3n_dna.multi_aligned.bam,
+                                          out_unmappable_path=${sample_id}.hisat3n_dna.unmapped.fastq,
+                                          unmappable_format='fastq',
+                                          mapq_cutoff=10,
+                                          qlen_cutoff=30)
+    >>>
+    runtime {
+        docker: "fill_in"
+        disks: "local-disk ${disk_size} HDD"
+        cpu: 1
+        memory: "${mem_size} GiB"
+    }
+    output {
+        File unique_bam = ""
+        File multi_bam = ""
+        File unmapped_fastq = ""
+    }
+}
 
 #task split_unmapped_reads {
 #    input {
