@@ -1,3 +1,8 @@
+# 1.1.5
+2023-09-08 (Date of Last Commit)
+
+* Added option to hard filter sites outside of provided interval list to HardFilterAndMakeSitesOnlyVcf task
+
 # 1.1.4
 2023-06-29 (Date of Last Commit)
 

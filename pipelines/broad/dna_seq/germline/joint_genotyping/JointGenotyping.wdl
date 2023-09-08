@@ -7,7 +7,7 @@ import "https://raw.githubusercontent.com/broadinstitute/gatk/4.4.0.0/scripts/vc
 # Joint Genotyping for hg38 Whole Genomes and Exomes (has not been tested on hg19)
 workflow JointGenotyping {
 
-  String pipeline_version = "1.6.8"
+  String pipeline_version = "1.6.9"
 
   input {
     File unpadded_intervals_file

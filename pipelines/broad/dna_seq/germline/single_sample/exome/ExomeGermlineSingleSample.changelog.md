@@ -1,3 +1,10 @@
+# 3.1.12
+2023-12-14 (Date of Last Commit)
+
+* Updated GATK for Reblock task to version FILL_IN
+* Added options to Reblock task to remove annotations and move filters to genotype level
+
+
 # 3.1.16
 2023-12-08 (Date of Last Commit)
 
