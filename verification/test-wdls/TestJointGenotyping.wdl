@@ -21,10 +21,10 @@ workflow TestJointGenotyping {
       Int medium_disk
       Int large_disk
       Int huge_disk
-      Array[String] snp_recalibration_tranche_values
+      Array[String]? snp_recalibration_tranche_values
       Array[String] snp_recalibration_annotation_values
-      Array[String] indel_recalibration_tranche_values
-      Array[String] indel_recalibration_annotation_values
+      Array[String]? indel_recalibration_tranche_values
+      Array[String]? indel_recalibration_annotation_values
       File haplotype_database
       File eval_interval_list
       File hapmap_resource_vcf
@@ -40,9 +40,9 @@ workflow TestJointGenotyping {
       File dbsnp_resource_vcf = dbsnp_vcf
       File dbsnp_resource_vcf_index = dbsnp_vcf_index
       Float excess_het_threshold = 54.69
-      Float snp_filter_level
-      Float indel_filter_level
-      Int snp_vqsr_downsampleFactor
+      Float? vqsr_snp_filter_level
+      Float? vqsr_indel_filter_level
+      Int? snp_vqsr_downsampleFactor
       Int? top_level_scatter_count
       Boolean? gather_vcfs
       Int snps_variant_recalibration_threshold = 500000
@@ -99,8 +99,8 @@ workflow TestJointGenotyping {
         dbsnp_resource_vcf = dbsnp_resource_vcf,
         dbsnp_resource_vcf_index = dbsnp_resource_vcf_index,
         excess_het_threshold = excess_het_threshold,
-        vqsr_snp_filter_level = snp_filter_level,
-        vqsr_indel_filter_level = indel_filter_level,
+        vqsr_snp_filter_level = vqsr_snp_filter_level,
+        vqsr_indel_filter_level = vqsr_indel_filter_level,
         snp_vqsr_downsampleFactor = snp_vqsr_downsampleFactor,
         top_level_scatter_count = top_level_scatter_count,
         gather_vcfs = gather_vcfs,
