@@ -19,9 +19,10 @@ workflow ReblockGVCF {
     String? annotations_to_keep_command
     String? annotations_to_remove_comand
     Boolean? move_filters_to_genotypes
+    String gvcf_file_extension = ".g.vcf.gz"
   }
 
-  String gvcf_basename = basename(gvcf, ".g.vcf.gz")
+  String gvcf_basename = basename(gvcf, gvcf_file_extension)
 
   call Calling.Reblock as Reblock {
     input:
