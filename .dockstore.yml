@@ -184,3 +184,7 @@ workflows:
   - name: VUMCVcfIncludeSamples
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfIncludeSamples.wdl
+
+  - name: CombineGvsChromosome
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/joint_genotyping/CombineGvsChromosome.wdl
