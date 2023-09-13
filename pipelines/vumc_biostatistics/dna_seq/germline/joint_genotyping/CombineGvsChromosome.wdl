@@ -88,8 +88,8 @@ exit 0
 task CombineGvsChromosome {
   input {
     String chromosome
-    Array[String] vcf_files
-    
+    Array[File] vcf_files
+
     String docker = "staphb/bcftools"
     Int preemptible_tries=3
   }
