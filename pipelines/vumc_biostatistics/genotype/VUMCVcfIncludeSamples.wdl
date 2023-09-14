@@ -5,7 +5,6 @@ import "./Utils.wdl" as Utils
 workflow VUMCVcfIncludeSamples {
   input {
     File input_vcf
-    File input_vcf_index
     File include_samples
     String target_prefix
     String target_suffix = ".vcf.gz"
@@ -19,7 +18,6 @@ workflow VUMCVcfIncludeSamples {
   call BcftoolsIncludeSamples {
     input:
       input_vcf = input_vcf,
-      input_vcf_index = input_vcf_index,
       include_samples = include_samples,
       target_prefix = target_prefix,
       target_suffix = target_suffix,
@@ -46,7 +44,6 @@ workflow VUMCVcfIncludeSamples {
 task BcftoolsIncludeSamples {
   input {
     File input_vcf
-    File input_vcf_index
     File include_samples
     String target_prefix
     String target_suffix = ".vcf.gz"
@@ -62,7 +59,31 @@ bcftools query -l ~{input_vcf} > all.id.txt
 
 sort all.id.txt ~{include_samples} | uniq -d > keep.id.txt
 
-bcftools view -S keep.id.txt -o ~{new_vcf} ~{input_vcf}
+bcftools head ~{input_vcf} > header.txt
+zcat ~{input_vcf} | grep -v "^#" | cut -f 1-8 | head -n 1 > data.txt
+if grep -Fq "Imputed" data.txt
+then
+  if grep -Fq "Imputed" header.txt
+  then
+    is_header_wrong=false
+  else
+    is_header_wrong=true
+  fi
+else
+  is_header_wrong=false
+fi
+
+echo is_header_wrong = $is_header_wrong
+
+if [ "$is_header_wrong" = "true" ];
+then
+  #there is error in merged imputation vcf files. The header has IMPUTED instead of Imputed.
+  bcftools head ~{input_vcf} > header.txt
+  awk '/^#CHROM/ {printf("##INFO=<ID=Imputed,Number=0,Type=Flag,Description=\"Marker was imputed but NOT genotyped\">\n##INFO=<ID=Genotyped,Number=0,Type=Flag,Description=\"Marker was genotyped\">\n");} {print}' header.txt > new_header.txt
+  bcftools reheader -h new_header.txt ~{input_vcf} | bcftools view -S keep.id.txt -o ~{new_vcf} -
+else
+  bcftools view -S keep.id.txt -o ~{new_vcf} ~{input_vcf}
+fi
 
 bcftools index -t ~{new_vcf}
 
