@@ -53,6 +53,7 @@ workflow ATAC {
       whitelist = whitelist
   }
 
+  # set size to 100GB with fastqproces so no sharding of files happens
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
 
     call TrimAdapters {
@@ -73,23 +74,16 @@ workflow ATAC {
     }
   }
 
-  call Merge.MergeSortBamFiles as MergeBam {
-    input:
-      output_bam_filename = input_id + ".bam",
-      bam_inputs = BWAPairedEndAlignment.bam_aligned_output,
-      sort_order = "coordinate"
-  }
-
 
   call CreateFragmentFile {
     input:
-      bam = MergeBam.output_bam,
+      bam = BWAPairedEndAlignment.bam_aligned_output[0],
       chrom_sizes = chrom_sizes,
       annotations_gtf = annotations_gtf
   }
 
   output {
-    File bam_aligned_output = MergeBam.output_bam
+    File bam_aligned_output = BWAPairedEndAlignment.bam_aligned_output[0]
     File fragment_file = CreateFragmentFile.fragment_file
     File snap_metrics = CreateFragmentFile.Snap_metrics
   }
@@ -169,12 +163,12 @@ task BWAPairedEndAlignment {
     String read_group_id = "RG1"
     String read_group_sample_name = "RGSN1"
     String output_base_name
-    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504"
+    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa-debian:aa-debian-samtools-bwa"
 
     # Runtime attributes
-    Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 400
-    Int nthreads = 16
-    Int mem_size = 40
+    Int disk_size = 1000     
+    Int nthreads = 80
+    Int mem_size = 320
   }
 
   parameter_meta {
@@ -201,22 +195,25 @@ task BWAPairedEndAlignment {
     declare -r REF_DIR=$(mktemp -d genome_referenceXXXXXX)
     tar -xf "~{tar_bwa_reference}" -C $REF_DIR --strip-components 1
     rm "~{tar_bwa_reference}"
-
-    # align w/ BWA: -t for number of cores
+    
+    # align with bwa-mem2
     bwa-mem2 \
     mem \
-    -R "@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}" \
+    -R "@RG\tID:RG1\tSM:RGSN1" \
     -C \
-    -t ~{nthreads} \
-    $REF_DIR/genome.fa \
-    ~{read1_fastq} ~{read3_fastq} \
-    | samtools view -bS - > ~{bam_aligned_output_name}
+    -t 76 \
+    $REF_DIR/genome.fa ~{read1_fastq} ~{read3_fastq} > aligned_output.sam
+   
+    # sort sam and convert to bam 
+    samtools sort -@10 -m20g aligned_output.sam -o ~{bam_aligned_output_name}
+
   >>>
 
   runtime {
     docker: docker_image
-    disks: "local-disk ${disk_size} HDD"
+    disks: "local-disk ${disk_size} SSD"
     cpu: nthreads
+    cpuPlatform: "Intel Cascade Lake"
     memory: "${mem_size} GiB"
   }
 
