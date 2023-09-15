@@ -329,8 +329,9 @@ task FastqProcessATAC {
         mkdir /cromwell_root/output_fastq
         cd /cromwell_root/output_fastq
 
+        # changed to 100 
         fastqprocess \
-        --bam-size 30.0 \
+        --bam-size 100.0 \
         --sample-id "~{output_base_name}" \
         $R1_FILES_CONCAT \
         $R2_FILES_CONCAT \
