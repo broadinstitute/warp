@@ -57,7 +57,7 @@ task BcftoolsIncludeSamples {
 
 bcftools query -l ~{input_vcf} > all.id.txt
 
-sort all.id.txt ~{include_samples} | uniq -d > keep.id.txt
+grep -Fxf all.id.txt ~{include_samples} | sort | uniq > keep.id.txt
 
 bcftools head ~{input_vcf} > header.txt
 zcat ~{input_vcf} | grep -v "^#" | cut -f 1-8 | head -n 1 > data.txt

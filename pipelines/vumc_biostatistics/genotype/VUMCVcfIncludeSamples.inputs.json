@@ -1,7 +1,7 @@
 {
-  "VUMCVcfIncludeSamples.target_prefix": "chr22",
-  "VUMCVcfIncludeSamples.include_samples": "/nobackup/h_cqs/shengq2/biovu/data/inelg_all.txt",
-  "VUMCVcfIncludeSamples.input_vcf": "/nobackup/h_cqs/shengq2/biovu/megaex1.1/TOPMed_imputed/EUR/merged_chr22.vcf.gz",
-  "VUMCVcfIncludeSamples.target_suffix": ".ineligible.vcf.gz"
+  "VUMCVcfIncludeSamples.target_prefix": "chr21",
+  "VUMCVcfIncludeSamples.include_samples": "/nobackup/h_cqs/shengq2/biovu/data/elig_v1-1.csv",
+  "VUMCVcfIncludeSamples.input_vcf": "/nobackup/h_cqs/shengq2/biovu/megaex1.1/TOPMed_imputed/SAS/chr21.dose.vcf.gz",
+  "VUMCVcfIncludeSamples.target_suffix": ".eligible1-1.dose.vcf.gz"
 }
 
