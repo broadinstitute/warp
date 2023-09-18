@@ -43,7 +43,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 |`CellID` | [warp-tools](https://github.com/broadinstitute/warp-tools) | The unique identifier for each cell based on cell barcodes; identical to `cell_names`. |
 |`cell_names` |  [warp-tools](https://github.com/broadinstitute/warp-tools) | The unique identifier for each cell based on cell barcodes; identical to `CellID`. |
 | `input_id` | Provided as pipeline input | The sample or cell id listed in the pipeline configuration file. This can be any string, but we recommend it be consistent with any sample metadata. |
-|`n_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads associated with this entity. n_reads, like all metrics, are calculated from the Optimus output BAM. Prior to alignment with STARsolo, reads are checked against the whitelist (1 hamming distance). These CB-corrected reads are the input to the STAR aligner. Then, the reads also get CB correction during STAR. For this reason, almost all reads in the aligned BAM have a CB tag and UB tag. Therefore, n_reads represents CB corrected reads, not all reads in the input FASTQ files. |
+|`n_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads associated with the cell. n_reads, like all metrics, are calculated from the Optimus output BAM. Prior to alignment with STARsolo, reads are checked against the whitelist (1 hamming distance). These CB-corrected reads are the input to the STAR aligner. Then, the reads also get CB correction during STAR. For this reason, almost all reads in the aligned BAM have a CB tag and UB tag. Therefore, n_reads represents CB corrected reads, not all reads in the input FASTQ files. |
 |`noise_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Number of reads that are categorized by 10x Genomics Cell Ranger as "noise". Refers to long polymers, or reads with high numbers of N (ambiguous) nucleotides. |
 |`perfect_molecule_barcodes`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads with molecule barcodes that have no errors. |
 | `reads_mapped_exonic` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as exon; counted when sF tag of BAM is assigned to 1 or 3. |
@@ -58,18 +58,18 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 |`reads_mapped_multiple`|[warp-tools](https://github.com/broadinstitute/warp-tools)|The number of reads mapped to multiple genomic positions with equal confidence. |
 |`spliced_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads that overlap splicing junctions. |
 |`antisense_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads that are mapped to the antisense strand instead of the transcribed strand. |
-|`molecule_barcode_fraction_bases_above_30_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average fraction of bases in molecule barcodes that receive quality scores greater than 30 across the reads of this entity. |
-|`molecule_barcode_fraction_bases_above_30_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The variance in the fraction of bases in molecule barcodes that receive quality scores greater than 30 across the reads of this entity. |
-|`genomic_reads_fraction_bases_quality_above_30_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average fraction of bases in the genomic read that receive quality scores greater than 30 across the reads of this entity (included for 10x Cell Ranger count comparison). |
-|`genomic_reads_fraction_bases_quality_above_30_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The variance in the fraction of bases in the genomic read that receive quality scores greater than 30 across the reads of this entity (included for 10x Cell Ranger count comparison). |
-|`genomic_read_quality_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Average quality of Illumina base calls in the genomic reads corresponding to this entity. |
-|`genomic_read_quality_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)|Variance in quality of Illumina base calls in the genomic reads corresponding to this entity. |
-|`n_molecules`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Number of molecules corresponding to this entity (only reflects reads with CB and UB tags). |
-|`n_fragments`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Number of fragments corresponding to this entity. See README.md for the definition of a Fragment. |
-|`reads_per_fragment`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average number of reads associated with each fragment in this entity. |
-|`fragments_per_molecule`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average number of fragments associated with each molecule in this entity. |
-|`fragments_with_single_read_evidence`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of fragments associated with this entity that are observed by only one read. |
-|`molecules_with_single_read_evidence`|[warp-tools](https://github.com/broadinstitute/warp-tools)|The number of molecules associated with this entity that are observed by only one read. |
+|`molecule_barcode_fraction_bases_above_30_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average fraction of bases in molecule barcodes that receive quality scores greater than 30 across the reads of the cell. |
+|`molecule_barcode_fraction_bases_above_30_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The variance in the fraction of bases in molecule barcodes that receive quality scores greater than 30 across the reads of the cell. |
+|`genomic_reads_fraction_bases_quality_above_30_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average fraction of bases in the genomic read that receive quality scores greater than 30 across the reads of the cell (included for 10x Cell Ranger count comparison). |
+|`genomic_reads_fraction_bases_quality_above_30_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The variance in the fraction of bases in the genomic read that receive quality scores greater than 30 across the reads of the cell (included for 10x Cell Ranger count comparison). |
+|`genomic_read_quality_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Average quality of Illumina base calls in the genomic reads corresponding to the cell. |
+|`genomic_read_quality_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)|Variance in quality of Illumina base calls in the genomic reads corresponding to the cell. |
+|`n_molecules`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Number of molecules corresponding to the cell (only reflects reads with CB and UB tags). |
+|`n_fragments`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Number of fragments (distinct segments of reads that align to a specific location on the reference genome), corresponding to the cell barcode. Learn more in the [Definitions](#definitions) below. |
+|`reads_per_fragment`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average number of reads associated with each fragment in the cell. |
+|`fragments_per_molecule`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average number of fragments associated with each molecule in the cell. |
+|`fragments_with_single_read_evidence`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of fragments associated with the cell that are observed by only one read. |
+|`molecules_with_single_read_evidence`|[warp-tools](https://github.com/broadinstitute/warp-tools)|The number of molecules associated with the cell that are observed by only one read. |
 |`perfect_cell_barcodes`|[warp-tools](https://github.com/broadinstitute/warp-tools)|The number of reads whose cell barcodes contain no error. |
 |`reads_mapped_too_many_loci`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads that were mapped to too many loci across the genome and as a consequence, are reported unmapped by the aligner. |
 |`cell_barcode_fraction_bases_above_30_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The variance of the fraction of Illumina base calls for the cell barcode sequence that are greater than 30, across molecules. |
@@ -84,7 +84,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 | `emptydrops_Total` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Numeric, the total read counts for each barcode; single-cell data will read "NA" if task is unable to detect knee point inflection. Column is not included for data run in the sn_rna mode.  |
 | `reads_mapped_intergenic` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as intergenic; counted when sF tag of BAM is assigned to a 7. |
 | `reads_unmapped` | [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads that are unmapped. |
-|`reads_per_molecule`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average number of reads associated with each molecule in this entity. |
+|`reads_per_molecule`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average number of reads associated with each molecule in the cell. |
 
 ## Table 3. Gene metrics
 
@@ -93,7 +93,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 |`ensembl_ids` | [GENCODE GTF](https://www.gencodegenes.org/) | The gene_id listed in the GENCODE GTF. |
 | `Gene` | [GENCODE GTF](https://www.gencodegenes.org/) | The unique gene_name provided in the GENCODE GTF; identical to the `gene_names` attribute. |
 |`gene_names` | [GENCODE GTF](https://www.gencodegenes.org/) | The unique gene_name provided in the GENCODE GTF; identical to the `Gene` attribute. |
-|`n_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads associated with this entity. |
+|`n_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads associated with this gene. |
 |`noise_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads that are categorized by 10x Genomics Cell Ranger as "noise". Refers to long polymers, or reads with high numbers of N (ambiguous) nucleotides. |
 |`perfect_molecule_barcodes`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads with molecule barcodes that have no errors. |
 | `reads_mapped_exonic` | STARsolo and [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of reads counted as exon; counted when sF tag of BAM is assigned to 1 or 3. |
@@ -105,18 +105,21 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 |`spliced_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads that overlap splicing junctions. |
 |`antisense_reads`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of reads that are mapped to the antisense strand instead of the transcribed strand. |
 | `duplicate_reads` | [warp-tools](https://github.com/broadinstitute/warp-tools) | The number of duplicate reads. |
-|`molecule_barcode_fraction_bases_above_30_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average fraction of bases in molecule barcodes that receive quality scores greater than 30 across the reads of this entity. |
-|`molecule_barcode_fraction_bases_above_30_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The variance in the fraction of bases in molecule barcodes that receive quality scores greater than 30 across the reads of this entity. |
-|`genomic_reads_fraction_bases_quality_above_30_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average fraction of bases in the genomic read that receive quality scores greater than 30 across the reads of this entity (included for 10x Cell Ranger count comparison). |
-|`genomic_reads_fraction_bases_quality_above_30_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The variance in the fraction of bases in the genomic read that receive quality scores greater than 30 across the reads of this entity (included for 10x Cell Ranger count comparison). |
-|`genomic_read_quality_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Average quality of Illumina base calls in the genomic reads corresponding to this entity. |
-|`genomic_read_quality_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Variance in quality of Illumina base calls in the genomic reads corresponding to this entity. |
-|`n_molecules`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Number of molecules corresponding to this entity (only reflects reads with CB and UB tags). |
-|`n_fragments`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Number of fragments corresponding to this entity. See README.md for the definition of a Fragment. |
-|`reads_per_molecule`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average number of reads associated with each molecule in this entity. |
-|`reads_per_fragment`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average number of reads associated with each fragment in this entity. |
-|`fragments_per_molecule`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average number of fragments associated with each molecule in this entity. |
-|`fragments_with_single_read_evidence`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of fragments associated with this entity that are observed by only one read. |
-|`molecules_with_single_read_evidence`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of molecules associated with this entity that are observed by only one read. |
-|`number_cells_detected_multiple`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of cells which observe more than one read of this gene. |
-|`number_cells_expressing`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of cells that detect this gene. |
+|`molecule_barcode_fraction_bases_above_30_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average fraction of bases in molecule barcodes that receive quality scores greater than 30 across the reads of the gene. |
+|`molecule_barcode_fraction_bases_above_30_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The variance in the fraction of bases in molecule barcodes that receive quality scores greater than 30 across the reads of the gene. |
+|`genomic_reads_fraction_bases_quality_above_30_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average fraction of bases in the genomic read that receive quality scores greater than 30 across the reads of the gene (included for 10x Cell Ranger count comparison). |
+|`genomic_reads_fraction_bases_quality_above_30_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The variance in the fraction of bases in the genomic read that receive quality scores greater than 30 across the reads of the gene (included for 10x Cell Ranger count comparison). |
+|`genomic_read_quality_mean`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Average quality of Illumina base calls in the genomic reads corresponding to the gene. |
+|`genomic_read_quality_variance`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Variance in quality of Illumina base calls in the genomic reads corresponding to the gene. |
+|`n_molecules`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Number of molecules corresponding to the gene (only reflects reads with CB and UB tags). |
+|`n_fragments`|[warp-tools](https://github.com/broadinstitute/warp-tools)| Number of fragments (distinct segments of reads that align to a specific location on the reference genome), corresponding to the gene. Learn more in the [Definitions](#definitions) below. |
+|`reads_per_molecule`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average number of reads associated with each molecule in the gene. |
+|`reads_per_fragment`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average number of reads associated with each fragment in the gene. |
+|`fragments_per_molecule`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The average number of fragments associated with each molecule in the gene. |
+|`fragments_with_single_read_evidence`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of fragments associated with the gene that are observed by only one read. |
+|`molecules_with_single_read_evidence`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of molecules associated with the gene that are observed by only one read. |
+|`number_cells_detected_multiple`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of cells which observe more than one read of the gene. |
+|`number_cells_expressing`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of cells that detect the gene. |
+
+## Definitions
+* Fragment: A distinct segment of a read that aligns to a specific location on the reference genome. The TagSort function defines fragments based on:  1) the presence of a combined UMI/GX/CB tag, 2) the reference (Chr1, Chr2, etc.), 3) the nuleotide position, and 4) the strand. While some cells may have more  n_fragments than n_reads (like when an RNA read overlaps a an exon-exon junction), some barcodes may have fewer fragments than reads, like if the cell has multiple reads that overlap.
