@@ -156,6 +156,8 @@ task Mapping {
     cp ~{mapping_yaml} group0/
     cp ~{snakefile} group0/Snakefile
 
+    cat group0/Snakefile
+
     # untar the index files
     cd group0/reference/
     echo "Untarring the index files"
