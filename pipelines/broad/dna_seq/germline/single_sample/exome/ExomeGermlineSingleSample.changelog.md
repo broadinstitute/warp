@@ -1,3 +1,8 @@
+# 3.1.12
+2023-09-18 (Date of Last Commit)
+
+* ReblockGVCFs can now take in GVCFs that are not in the same location as their index file, this update has no effect on this pipeline.
+
 # 3.1.11
 2023-08-23 (Date of Last Commit)
 * Updated VerifyBamID docker image in BamProcessing.wdl to fix security vulnerabilities, this update has no effect on this pipeline.  
