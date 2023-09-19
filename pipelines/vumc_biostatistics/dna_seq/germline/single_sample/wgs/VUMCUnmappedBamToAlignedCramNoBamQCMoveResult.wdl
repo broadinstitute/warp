@@ -1,5 +1,7 @@
 version 1.0
 
+import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
+
 workflow VUMCUnmappedBamToAlignedCramNoBamQCMoveResult {
   input {
     String genoset
@@ -32,21 +34,37 @@ workflow VUMCUnmappedBamToAlignedCramNoBamQCMoveResult {
   String moved_output_cram_index = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram_index)}"
   String moved_output_cram_md5 = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram_md5)}"
 
-  call MoveResult as mf {
-    input:
-      genoset = genoset,
-      GRID = GRID,
-      target_bucket = target_bucket,
-      project_id = project_id,
+  Float output_cram_size = size(output_cram, "GB")
+  if(output_cram_size == 0){# has been moved?
+    Float cram_size = size(moved_output_cram, "GB")
+    if(cram_size == 0){
+      call Utilities.ErrorWithMessage as PresetArgumentsError {
+        input:
+          message = "No cram file found in source and target bucket."
+      }
+    }
+    if(cram_size > 0){
+      Int target_file_has_moved = 1
+    }
+  }
+  
+  if(output_cram_size > 0){
+    call MoveResult as mf {
+      input:
+        genoset = genoset,
+        GRID = GRID,
+        target_bucket = target_bucket,
+        project_id = project_id,
 
-      quality_yield_metrics = quality_yield_metrics,
+        quality_yield_metrics = quality_yield_metrics,
 
-      duplicate_metrics = duplicate_metrics,
-      output_bqsr_reports = output_bqsr_reports,
+        duplicate_metrics = duplicate_metrics,
+        output_bqsr_reports = output_bqsr_reports,
 
-      output_cram = output_cram,
-      output_cram_index = output_cram_index,
-      output_cram_md5 = output_cram_md5
+        output_cram = output_cram,
+        output_cram_index = output_cram_index,
+        output_cram_md5 = output_cram_md5
+    }
   }
 
   output {
@@ -60,7 +78,7 @@ workflow VUMCUnmappedBamToAlignedCramNoBamQCMoveResult {
     String target_output_cram_index = moved_output_cram_index
     String target_output_cram_md5 = moved_output_cram_md5
 
-    Int target_file_moved = mf.target_file_moved
+    Int target_file_moved = select_first([target_file_has_moved, mf.target_file_moved])
   }
 }
 
