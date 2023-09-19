@@ -1,5 +1,5 @@
 {
-  "CramToUnmappedBams.input_cram": "gs://broad-gotc-test-storage/ExomeGermlineSingleSample/truth/plumbing/master/RP-929.NA12878",
+  "CramToUnmappedBams.input_cram": "gs://broad-gotc-test-storage/ExomeGermlineSingleSample/truth/plumbing/master/RP-929.NA12878/NA12878_PLUMBING.cram",
   "CramToUnmappedBams.output_map": "gs://broad-gotc-test-storage/germline_single_sample/exome/plumbing/bams/RP-929.NA12878/readgroupid_to_bamfilename_map.txt",
   "CramToUnmappedBams.base_file_name": "RP-929.NA12878.Exome",
   "CramToUnmappedBams.unmapped_bam_suffix": ".unmapped.bam",
