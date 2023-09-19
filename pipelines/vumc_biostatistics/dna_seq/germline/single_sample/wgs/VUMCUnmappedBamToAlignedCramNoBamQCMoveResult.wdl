@@ -110,10 +110,10 @@ else
   result=$(gsutil -q stat ~{moved_output_cram} || echo 1)
   if [[ $result != 1 ]]; then
     echo "Target cram file exists, return"
-    return 0
+    exit 0
   else
     echo "Target cram file does not exist, error"
-    return 1
+    exit 1
   fi
 fi
 
