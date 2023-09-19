@@ -63,7 +63,9 @@ workflow VUMCUnmappedBamToAlignedCramNoBamQCMoveResult {
 
         output_cram = output_cram,
         output_cram_index = output_cram_index,
-        output_cram_md5 = output_cram_md5
+        output_cram_md5 = output_cram_md5,
+
+        moved_output_cram = moved_output_cram
     }
   }
 
@@ -97,20 +99,39 @@ task MoveResult {
     String output_cram
     String output_cram_index
     String output_cram_md5
+
+    String moved_output_cram
   }
   
 
   command <<<
+set +e
 
-set -e
+result=$(gsutil -q stat ~{output_cram} || echo 1)
+if [[ $result != 1 ]]; then
+  echo "Source cram file exists, moving to target bucket ..."
 
-gsutil -m ~{"-u " + project_id} mv ~{sep=" " quality_yield_metrics} \
-  ~{duplicate_metrics} \
-  ~{output_bqsr_reports} \
-  ~{output_cram} \
-  ~{output_cram_index} \
-  ~{output_cram_md5} \
-  ~{target_bucket}/~{genoset}/~{GRID}/
+  set -e
+
+  gsutil -m ~{"-u " + project_id} mv ~{sep=" " quality_yield_metrics} \
+    ~{duplicate_metrics} \
+    ~{output_bqsr_reports} \
+    ~{output_cram} \
+    ~{output_cram_index} \
+    ~{output_cram_md5} \
+    ~{target_bucket}/~{genoset}/~{GRID}/
+else
+  echo "Source cram file does not exist, checking target cram file ..."
+
+  result=$(gsutil -q stat ~{moved_output_cram} || echo 1)
+  if [[ $result != 1 ]]; then
+    echo "Target cram file exists, return"
+    return 0
+  else
+    echo "Target cram file does not exist, error"
+    return 1
+  fi
+fi
 
 >>>
 
