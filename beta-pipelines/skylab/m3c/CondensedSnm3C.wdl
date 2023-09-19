@@ -361,10 +361,10 @@ task Separate_unmapped_reads {
         rm ~{hisat3n_bam_tar}
 
         python3 <<CODE
+
         from cemba_data.hisat3n import separate_unique_and_multi_align_reads
         import os
         import glob
-        import subprocess
 
         pattern = "*.hisat3n_dna.unsort.bam"
         bam_files = glob.glob(os.path.join('/cromwell_root/', pattern))
