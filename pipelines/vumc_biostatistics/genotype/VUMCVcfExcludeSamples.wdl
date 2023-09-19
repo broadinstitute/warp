@@ -57,7 +57,7 @@ task BcftoolsExcludeSamples {
 
 bcftools query -l ~{input_vcf} > all.id.txt
 
-sort all.id.txt ~{exclude_samples} | uniq -d > remove.id.txt
+grep -Fxf all.id.txt ~{exclude_samples} | sort | uniq > remove.id.txt
 
 bcftools head ~{input_vcf} > header.txt
 zcat ~{input_vcf} | grep -v "^#" | cut -f 1-8 | head -n 1 > data.txt
