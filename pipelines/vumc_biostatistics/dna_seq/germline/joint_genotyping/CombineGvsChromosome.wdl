@@ -1,5 +1,10 @@
 version 1.0
 
+struct ChromomsomeFiles {
+  String chromosome
+  Array[File] vcf_files
+}
+
 workflow CombineGvsChromosome {
 
   String pipeline_version = "1.0.0"
@@ -18,8 +23,8 @@ workflow CombineGvsChromosome {
   scatter(chrom_vcf in GetChromosomeVcfMap.chrom_vcf_array) {
     call CombineGvsChromosome {
       input:
-        chromosome = chrom_vcf.left,
-        vcf_files = chrom_vcf.right
+        chromosome = chrom_vcf.chromosome,
+        vcf_files = chrom_vcf.vcf_files
     }
   }
 
@@ -75,13 +80,13 @@ exit 0
 >>>
 
   runtime {
-    docker: "pandas/pandas:mamba-minimal"
+    docker: "shengqh/cqs_scrnaseq:20230721"
     preemptible: preemptible_tries
     disks: "local-disk " + disk_size + " HDD"
     memory: "2 GiB"
   }
   output {
-    Array[Pair[String, Array[String]]] chrom_vcf_array = read_json("vcf_map.json")
+    Array[ChromomsomeFiles] chrom_vcf_array = read_json("vcf_map.json")
   }
 }
 
