@@ -1,3 +1,13 @@
+# 1.0.10
+2023-09-18 (Date of Last Commit)
+
+* ReblockGVCFs can now take in GVCFs that are not in the same location as their index file, this update has no effect on this pipeline.
+
+# 1.0.9
+2023-08-16 (Date of Last Commit)
+
+* Updated VerifyBamID docker image in UltimaGenomicsWholeGenomeGermlineTasks.wdl to fix security vulnerabilities, this update has no effect on this pipeline.
+
 # 1.0.8
 * CheckFingerprint can allow LOD 0
 

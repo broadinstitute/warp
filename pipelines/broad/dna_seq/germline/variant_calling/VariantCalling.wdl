@@ -9,7 +9,7 @@ import "../../../../../tasks/broad/DragenTasks.wdl" as DragenTasks
 workflow VariantCalling {
 
 
-  String pipeline_version = "2.1.10"
+  String pipeline_version = "2.1.12"
 
 
   input {
@@ -182,7 +182,7 @@ workflow VariantCalling {
       ref_dict = ref_dict,
       calling_interval_list = calling_interval_list,
       is_gvcf = make_gvcf,
-      extra_args = "--no-overlaps",
+      extra_args = if (skip_reblocking == false) then "--no-overlaps" else "",
       gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0",
       preemptible_tries = agg_preemptible_tries
   }

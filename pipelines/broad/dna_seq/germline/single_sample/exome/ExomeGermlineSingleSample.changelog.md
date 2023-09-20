@@ -1,3 +1,15 @@
+# 3.1.12
+2023-09-18 (Date of Last Commit)
+
+* ReblockGVCFs can now take in GVCFs that are not in the same location as their index file, this update has no effect on this pipeline.
+
+# 3.1.11
+2023-08-23 (Date of Last Commit)
+* Updated VerifyBamID docker image in BamProcessing.wdl to fix security vulnerabilities, this update has no effect on this pipeline.  
+* Updated the VCF validation step to only use \"--no-overlaps\" argument for reblocked vcfs
+* Added skip_reblocking as a top level input in ExomeGermlineSingleSample. The default is 'false'
+* Added a note to the top of ExomeGermlineSingleSample to remind users that results are reblocked by default
+
 # 3.1.10
 2023-03-20 (Date of Last Commit)
 * CheckFingerprint can allow LOD 0

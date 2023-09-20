@@ -1,3 +1,9 @@
+# 1.3.2
+2023-08-03 (Date of Last Commit)
+
+* Updated MakeCompliantBAM to decode the fragChrom column in the fragments.csv file 
+* Updated the us.gcr.io/broad-gotc-prod/snaptools-bwa docker image throughout the scATAC pipeline to patch a security vulnerability
+
 # 1.3.1
 2023-01-19 (Date of Last Commit)
 
