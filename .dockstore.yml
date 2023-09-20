@@ -80,10 +80,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCDeleteBam.wdl
 
-  # - name: VUMCHaplotypeCaller
-  #   subclass: WDL
-  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/haplotypecaller-gvcf-gatk4.wdl
-
   # - name: VUMCJointGenotyping
   #   subclass: WDL
   #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/joint_genotyping/JointGenotyping.wdl
@@ -96,13 +92,13 @@ workflows:
   #   subclass: WDL
   #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSampleFromCram.wdl
 
-  - name: VUMCWholeGenomeGermlineSingleSampleFromFastq
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCWholeGenomeGermlineSingleSampleFromFastq.wdl
+  # - name: VUMCWholeGenomeGermlineSingleSampleFromFastq
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCWholeGenomeGermlineSingleSampleFromFastq.wdl
 
-  - name: VUMCWholeGenomeGermlineSingleSampleFromMappedCram
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCWholeGenomeGermlineSingleSampleFromMappedCram.wdl
+  # - name: VUMCWholeGenomeGermlineSingleSampleFromMappedCram
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCWholeGenomeGermlineSingleSampleFromMappedCram.wdl
 
   - name: VUMCExomeGermlineSingleSampleFromFastq
     subclass: WDL
@@ -188,3 +184,12 @@ workflows:
   - name: CombineGvsChromosome
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/joint_genotyping/CombineGvsChromosome.wdl
+
+  - name: VUMCHaplotypecallerReblock
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCHaplotypecallerReblock.wdl
+
+  - name: VUMCHaplotypecallerReblockMoveResult
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCHaplotypecallerReblockMoveResult.wdl
+

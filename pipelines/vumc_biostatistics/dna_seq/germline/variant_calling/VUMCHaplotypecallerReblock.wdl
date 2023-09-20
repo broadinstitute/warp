@@ -27,8 +27,10 @@ version 1.0
 ## authorized to run all programs before running this script. Please see the dockers
 ## for detailed licensing information pertaining to the included programs.
 
+import "../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as Calling
+
 # WORKFLOW DEFINITION 
-workflow HaplotypeCallerGvcf_GATK4 {
+workflow VUMCHaplotypecallerReblock {
   input {
     File input_bam
     File input_bam_index
@@ -38,10 +40,8 @@ workflow HaplotypeCallerGvcf_GATK4 {
     File scattered_calling_intervals_list
   
     Boolean make_gvcf = true
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.4.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     String gatk_path = "/gatk/gatk"
-    String gitc_docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
-    String samtools_path = "samtools"
   }  
 
   Array[File] scattered_calling_intervals = read_lines(scattered_calling_intervals_list)
@@ -90,10 +90,23 @@ workflow HaplotypeCallerGvcf_GATK4 {
       gatk_path = gatk_path
   }
 
+  String gvcf_basename = basename(MergeGVCFs.output_vcf, ".g.vcf.gz")
+
+  call Calling.Reblock as Reblock {
+    input:
+      gvcf = MergeGVCFs.output_vcf,
+      gvcf_index = MergeGVCFs.output_vcf_index,
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
+      ref_dict = ref_dict,
+      output_vcf_filename = gvcf_basename + ".rb.g.vcf.gz",
+      docker_image = gatk_docker
+  }
+
   # Outputs that will be retained when execution is complete
   output {
-    File output_vcf = MergeGVCFs.output_vcf
-    File output_vcf_index = MergeGVCFs.output_vcf_index
+    File output_vcf = Reblock.output_vcf
+    File output_vcf_index = Reblock.output_vcf_index
   }
 }
 
