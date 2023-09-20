@@ -193,3 +193,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCHaplotypecallerReblockMoveResult.wdl
 
+  - name: VUMCMappedCramQC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCMappedCramQC.wdl
