@@ -279,6 +279,7 @@ task FastqProcessATAC {
 
         set -e
 
+        zcat ~{barcodes_fastq[0]} | head -n 1000 | sed -n '2~4p' > downsample.fq
         declare -a FASTQ1_ARRAY=(~{sep=' ' read1_fastq})
         declare -a FASTQ2_ARRAY=(~{sep=' ' barcodes_fastq})
         declare -a FASTQ3_ARRAY=(~{sep=' ' read3_fastq})
@@ -289,7 +290,6 @@ task FastqProcessATAC {
 
         echo $read1_fastq_files
         # Make downsample fq for barcode orientation check of R2 barcodes
-        zcat "${FASTQ2_ARRAY[0]}" | head -n 1000 | sed -n '2~4p' > downsample.fq
         mkdir /cromwell_root/input_fastq
         gcloud storage cp $read1_fastq_files /cromwell_root/input_fastq
         gcloud storage cp $read2_fastq_files /cromwell_root/input_fastq
@@ -406,6 +406,11 @@ task FastqProcessATAC {
             count_forward_end,
             count_reverse_comp_end
         ) = count_matching_barcodes(input_file, whitelist_file)
+
+        print("Number of Forward Matches (Start 16 bp):", count_forward_start)
+        print("Number of Reverse Complement Matches (Start 16 bp):", count_reverse_comp_start)
+        print("Number of Forward Matches (End 16 bp):", count_forward_end)
+        print("Number of Reverse Complement Matches (End 16 bp):", count_reverse_comp_end)
 
         best_matching_method = determine_best_matching_method(
             count_forward_start,
