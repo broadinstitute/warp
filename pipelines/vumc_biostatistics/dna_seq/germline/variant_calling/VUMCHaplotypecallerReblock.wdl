@@ -29,7 +29,6 @@ version 1.0
 
 import "../../../../../tasks/broad/Utilities.wdl" as Utilities
 import "../../../../broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl" as Reblock
-import "../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as Calling
 import "./VUMCHaplotypecallerReblockMoveResult.wdl" as Utils
 
 # WORKFLOW DEFINITION 
