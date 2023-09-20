@@ -325,7 +325,7 @@ task FastqProcessATAC {
         done
         echo $R3_FILES_CONCAT
 
-        BEST_MATCH=$(python3 <<CODE
+        python3 <<CODE
         def read_whitelist(whitelist_file):
             # Read and return the whitelist from a file (one barcode per line)
             with open(whitelist_file, 'r') as file:
@@ -413,10 +413,13 @@ task FastqProcessATAC {
             count_forward_end,
             count_reverse_comp_end
         )
-        print(best_matching_method)       
-        CODE)
-        #cat best_match.txt
-        #barcode_orientation=$(<best_match.txt)
+        print(best_matching_method)
+
+        with open(output_file, 'w') as outfile:
+            outfile.write(best_matching_method)        
+        CODE
+        cat best_match.txt
+        barcode_choice=$(<best_match.txt)
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
         mkdir /cromwell_root/output_fastq
@@ -430,7 +433,7 @@ task FastqProcessATAC {
         $R3_FILES_CONCAT \
         --white-list "~{whitelist}" \
         --output-format "FASTQ" \
-        --barcode-orientation $BEST_MATCH \
+        --barcode-orientation $barcode_choice \
         --read-structure "~{read_structure}"
 
     >>>
