@@ -279,7 +279,6 @@ task FastqProcessATAC {
 
         set -e
 
-        zcat ~{barcodes_fastq[0]} | head -n 1000 | sed -n '2~4p' > downsample.fq
         declare -a FASTQ1_ARRAY=(~{sep=' ' read1_fastq})
         declare -a FASTQ2_ARRAY=(~{sep=' ' barcodes_fastq})
         declare -a FASTQ3_ARRAY=(~{sep=' ' read3_fastq})
@@ -295,6 +294,10 @@ task FastqProcessATAC {
         gcloud storage cp $read2_fastq_files /cromwell_root/input_fastq
         gcloud storage cp $read3_fastq_files /cromwell_root/input_fastq
 
+        path="/cromwell_root/input_fastq/"
+        file="${path}${read2_fastq_files[0]}"
+        zcat "$file" | head -n 1000 | sed -n '2~4p' > downsample.fq
+        head -n 1 downsample.fq
         # barcodes R2
         R1_FILES_CONCAT=""
         for fastq in "${FASTQ2_ARRAY[@]}"
