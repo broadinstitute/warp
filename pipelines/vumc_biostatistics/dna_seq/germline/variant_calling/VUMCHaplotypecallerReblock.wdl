@@ -27,8 +27,9 @@ version 1.0
 ## authorized to run all programs before running this script. Please see the dockers
 ## for detailed licensing information pertaining to the included programs.
 
+import "../../../../../tasks/broad/Utilities.wdl" as Utilities
 import "../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as Calling
-import "../../../genotype/Utils.wdl" as Utils
+import "./VUMCHaplotypecallerReblockMoveResult.wdl" as Utils
 
 # WORKFLOW DEFINITION 
 workflow VUMCHaplotypecallerReblock {
@@ -43,6 +44,7 @@ workflow VUMCHaplotypecallerReblock {
     String? project_id
     String? target_bucket
     String? genoset
+    String? GRID
 
     Boolean make_gvcf = true
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
@@ -109,19 +111,32 @@ workflow VUMCHaplotypecallerReblock {
   }
 
   if(defined(target_bucket)){
-    call Utils.CopyVcfFile {
+    if(!defined(genoset)){
+      call Utilities.ErrorWithMessage as NoGenosetError {
+        input:
+          message = "genoset is missing when target bucket is set."
+      }
+    }
+    if(!defined(GRID)){
+      call Utilities.ErrorWithMessage as GRIDError {
+        input:
+          message = "GRID is missing when target bucket is set."
+      }
+    }
+    call Utils.MoveVcf {
       input:
-        input_vcf = Reblock.output_vcf,
-        input_vcf_index = Reblock.output_vcf_index,
+        output_vcf = Reblock.output_vcf,
+        output_vcf_index = Reblock.output_vcf_index,
         project_id = project_id,
         target_bucket = select_first([target_bucket]),
         genoset = select_first([genoset]),
+        GRID = select_first([GRID])
     }
   }
 
   output {
-    File output_vcf = select_first([CopyVcfFile.output_vcf, Reblock.output_vcf])
-    File output_vcf_index = select_first([CopyVcfFile.output_vcf_index, Reblock.output_vcf_index])
+    File output_vcf = select_first([MoveVcf.target_output_vcf, Reblock.output_vcf])
+    File output_vcf_index = select_first([MoveVcf.target_output_vcf_index, Reblock.output_vcf_index])
   }
 }
 
