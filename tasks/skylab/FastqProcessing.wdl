@@ -323,8 +323,8 @@ task FastqProcessATAC {
             R3_FILES_CONCAT+="$BASE "
         done
         echo $R3_FILES_CONCAT
-        # Check barcode orientation of R2 barcodes in R1_FILES_CONCAT
-        cat $R1_FILES_CONCAT | head -n 1000 | sed -n '2~4p' > downsample.fq
+        # Check barcode orientation of R2 barcodes
+        zcat "${FASTQ2_ARRAY[0]}" | head -n 1000 | sed -n '2~4p' > downsample.fq
 
         python3 <<CODE
         def read_whitelist(whitelist_file):
