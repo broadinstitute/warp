@@ -425,7 +425,6 @@ task FastqProcessATAC {
         # outputs fastq files where the corrected barcode is in the read name
         mkdir /cromwell_root/output_fastq
         cd /cromwell_root/output_fastq
-        cat $BEST_MATCH
 
         fastqprocess \
         --bam-size 30.0 \
