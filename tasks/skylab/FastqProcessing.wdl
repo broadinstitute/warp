@@ -242,6 +242,7 @@ task FastqProcessATAC {
         String barcode_orientation = "FIRST_BP_RC"
         String output_base_name
         File whitelist
+        String barcode_index1 = basename(barcodes_fastq[0])
 
         # [?] copied from corresponding optimus wdl for fastqprocessing
         # using the latest build of warp-tools in GCR
@@ -295,7 +296,8 @@ task FastqProcessATAC {
         gcloud storage cp $read3_fastq_files /cromwell_root/input_fastq
 
         path="/cromwell_root/input_fastq/"
-        file="${path}${read2_fastq_files[0]}"
+        barcode_index="~{barcode_index1}"
+        file="${path}${barcode_index}"
         zcat "$file" | head -n 1000 | sed -n '2~4p' > downsample.fq
         head -n 1 downsample.fq
         # barcodes R2
