@@ -28,6 +28,7 @@ version 1.0
 ## for detailed licensing information pertaining to the included programs.
 
 import "../../../../../tasks/broad/Utilities.wdl" as Utilities
+import "../../../../broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl" as Reblock
 import "../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as Calling
 import "./VUMCHaplotypecallerReblockMoveResult.wdl" as Utils
 
@@ -50,6 +51,21 @@ workflow VUMCHaplotypecallerReblock {
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     String gatk_path = "/gatk/gatk"
   }  
+
+  if(defined(target_bucket)){
+    if(!defined(genoset)){
+      call Utilities.ErrorWithMessage as NoGenosetError {
+        input:
+          message = "genoset is missing when target bucket is set."
+      }
+    }
+    if(!defined(GRID)){
+      call Utilities.ErrorWithMessage as GRIDError {
+        input:
+          message = "GRID is missing when target bucket is set."
+      }
+    }
+  }
 
   Array[File] scattered_calling_intervals = read_lines(scattered_calling_intervals_list)
 
@@ -97,32 +113,17 @@ workflow VUMCHaplotypecallerReblock {
       gatk_path = gatk_path
   }
 
-  String gvcf_basename = basename(MergeGVCFs.output_vcf, ".g.vcf.gz")
-
-  call Calling.Reblock as Reblock {
+  call Reblock.ReblockGVCF as Reblock {
     input:
       gvcf = MergeGVCFs.output_vcf,
       gvcf_index = MergeGVCFs.output_vcf_index,
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,
       ref_dict = ref_dict,
-      output_vcf_filename = gvcf_basename + ".rb.g.vcf.gz",
-      docker_image = gatk_docker
+      calling_interval_list = scattered_calling_intervals_list
   }
 
   if(defined(target_bucket)){
-    if(!defined(genoset)){
-      call Utilities.ErrorWithMessage as NoGenosetError {
-        input:
-          message = "genoset is missing when target bucket is set."
-      }
-    }
-    if(!defined(GRID)){
-      call Utilities.ErrorWithMessage as GRIDError {
-        input:
-          message = "GRID is missing when target bucket is set."
-      }
-    }
     call Utils.MoveVcf {
       input:
         output_vcf = Reblock.output_vcf,
