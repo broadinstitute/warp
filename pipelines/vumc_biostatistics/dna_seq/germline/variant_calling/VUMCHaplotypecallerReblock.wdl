@@ -28,6 +28,7 @@ version 1.0
 ## for detailed licensing information pertaining to the included programs.
 
 import "../../../../../tasks/broad/GermlineVariantDiscovery.wdl" as Calling
+import "../../../genotype/Utils.wdl" as Utils
 
 # WORKFLOW DEFINITION 
 workflow VUMCHaplotypecallerReblock {
@@ -38,7 +39,11 @@ workflow VUMCHaplotypecallerReblock {
     File ref_fasta
     File ref_fasta_index
     File scattered_calling_intervals_list
-  
+
+    String? project_id
+    String? target_bucket
+    String? genoset
+
     Boolean make_gvcf = true
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     String gatk_path = "/gatk/gatk"
@@ -103,10 +108,20 @@ workflow VUMCHaplotypecallerReblock {
       docker_image = gatk_docker
   }
 
-  # Outputs that will be retained when execution is complete
+  if(defined(target_bucket)){
+    call Utils.CopyVcfFile {
+      input:
+        input_vcf = Reblock.output_vcf,
+        input_vcf_index = Reblock.output_vcf_index,
+        project_id = project_id,
+        target_bucket = select_first([target_bucket]),
+        genoset = select_first([genoset]),
+    }
+  }
+
   output {
-    File output_vcf = Reblock.output_vcf
-    File output_vcf_index = Reblock.output_vcf_index
+    File output_vcf = select_first([CopyVcfFile.output_vcf, Reblock.output_vcf])
+    File output_vcf_index = select_first([CopyVcfFile.output_vcf_index, Reblock.output_vcf_index])
   }
 }
 
