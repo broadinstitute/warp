@@ -325,7 +325,7 @@ task FastqProcessATAC {
         done
         echo $R3_FILES_CONCAT
 
-        BEST_MATCH=python3 <<CODE
+        BEST_MATCH=$(python3 <<CODE
         def read_whitelist(whitelist_file):
             # Read and return the whitelist from a file (one barcode per line)
             with open(whitelist_file, 'r') as file:
@@ -418,7 +418,7 @@ task FastqProcessATAC {
         #with open(output_file, 'w') as outfile:
          #   outfile.write(best_matching_method)
         
-        CODE
+        CODE)
         #cat best_match.txt
         #barcode_orientation=$(<best_match.txt)
         # Call fastq process
