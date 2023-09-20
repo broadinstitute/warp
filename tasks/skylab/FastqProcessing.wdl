@@ -413,11 +413,7 @@ task FastqProcessATAC {
             count_forward_end,
             count_reverse_comp_end
         )
-        print(best_matching_method)
-
-        #with open(output_file, 'w') as outfile:
-         #   outfile.write(best_matching_method)
-        
+        print(best_matching_method)       
         CODE)
         #cat best_match.txt
         #barcode_orientation=$(<best_match.txt)
