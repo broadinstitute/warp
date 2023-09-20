@@ -51,6 +51,9 @@ workflow VUMCHaplotypecallerReblock {
     String gatk_path = "/gatk/gatk"
   }  
 
+  # We don't need to check it. If GRID is not defined, it would failed directly at select_first([GRID]) of Utils.MoveVcf 
+  # before the workflow is executed.
+  #
   # if(defined(target_bucket)){
   #   if(!defined(genoset)){
   #     call Utilities.ErrorWithMessage as NoGenosetError {
