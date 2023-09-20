@@ -51,20 +51,20 @@ workflow VUMCHaplotypecallerReblock {
     String gatk_path = "/gatk/gatk"
   }  
 
-  if(defined(target_bucket)){
-    if(!defined(genoset)){
-      call Utilities.ErrorWithMessage as NoGenosetError {
-        input:
-          message = "genoset is missing when target bucket is set."
-      }
-    }
-    if(!defined(GRID)){
-      call Utilities.ErrorWithMessage as GRIDError {
-        input:
-          message = "GRID is missing when target bucket is set."
-      }
-    }
-  }
+  # if(defined(target_bucket)){
+  #   if(!defined(genoset)){
+  #     call Utilities.ErrorWithMessage as NoGenosetError {
+  #       input:
+  #         message = "genoset is missing when target bucket is set."
+  #     }
+  #   }
+  #   if(!defined(GRID)){
+  #     call Utilities.ErrorWithMessage as GRIDError {
+  #       input:
+  #         message = "GRID is missing when target bucket is set."
+  #     }
+  #   }
+  # }
 
   Array[File] scattered_calling_intervals = read_lines(scattered_calling_intervals_list)
 
