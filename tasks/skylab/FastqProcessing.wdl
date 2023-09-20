@@ -288,7 +288,8 @@ task FastqProcessATAC {
         read3_fastq_files=`printf '%s ' "${FASTQ3_ARRAY[@]}"; echo`
 
         echo $read1_fastq_files
-        
+        # Make downsample fq for barcode orientation check of R2 barcodes
+        zcat "${FASTQ2_ARRAY[0]}" | head -n 1000 | sed -n '2~4p' > downsample.fq
         mkdir /cromwell_root/input_fastq
         gcloud storage cp $read1_fastq_files /cromwell_root/input_fastq
         gcloud storage cp $read2_fastq_files /cromwell_root/input_fastq
@@ -323,8 +324,6 @@ task FastqProcessATAC {
             R3_FILES_CONCAT+="$BASE "
         done
         echo $R3_FILES_CONCAT
-        # Check barcode orientation of R2 barcodes
-        zcat "${FASTQ2_ARRAY[0]}" | head -n 1000 | sed -n '2~4p' > downsample.fq
 
         python3 <<CODE
         def read_whitelist(whitelist_file):
