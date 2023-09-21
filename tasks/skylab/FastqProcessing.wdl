@@ -430,6 +430,7 @@ task FastqProcessATAC {
         CODE
         cat best_match.txt
         barcode_choice=$(<best_match.txt)
+        echo $barcode_choice
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
         mkdir /cromwell_root/output_fastq
@@ -443,7 +444,7 @@ task FastqProcessATAC {
         $R3_FILES_CONCAT \
         --white-list "~{whitelist}" \
         --output-format "FASTQ" \
-        --barcode-orientation $barcode_choice \
+        --barcode-orientation LAST_BP_RC \
         --read-structure "~{read_structure}"
 
     >>>
