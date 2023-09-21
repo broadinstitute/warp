@@ -197,7 +197,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCMappedCramQC.wdl
 
-
   - name: VUMCPlinkIncludeSamples
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCPlinkIncludeSamples.wdl
+
+  - name: VUMCContamination
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCContamination.wdl
