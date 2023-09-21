@@ -1,14 +1,18 @@
 version 1.0
 
-task CopyVcfFile {
+task MoveOrCopyVcfFile {
   input {
     String input_vcf
     String input_vcf_index
+
+    Boolean is_move_file = true
 
     String? project_id
     String target_bucket
     String genoset
   }
+
+  String action = if (is_move_file) then "mv" else "cp"
 
   String new_vcf = "~{target_bucket}/~{genoset}/~{basename(input_vcf)}"
   String new_vcf_index = "~{target_bucket}/~{genoset}/~{basename(input_vcf_index)}"
@@ -17,7 +21,7 @@ task CopyVcfFile {
 
 set -e
 
-gsutil -m ~{"-u " + project_id} cp ~{input_vcf} \
+gsutil -m ~{"-u " + project_id} ~{action} ~{input_vcf} \
   ~{input_vcf_index} \
   ~{target_bucket}/~{genoset + "/"}
 
@@ -37,15 +41,17 @@ gsutil -m ~{"-u " + project_id} cp ~{input_vcf} \
 
 task MoveOrCopyPlinkFile {
   input {
-    File source_bed
-    File source_bim
-    File source_fam
+    String source_bed
+    String source_bim
+    String source_fam
 
-    String action = "mv" #set to cp for copy
+    Boolean is_move_file = true
 
     String? project_id
     String target_bucket
   }
+
+  String action = if (is_move_file) then "mv" else "cp"
 
   String new_bed = "~{target_bucket}/~{basename(source_bed)}"
   String new_bim = "~{target_bucket}/~{basename(source_bim)}"
@@ -69,8 +75,8 @@ gsutil -m ~{"-u " + project_id} ~{action} ~{source_bed} \
     memory: "2 GiB"
   }
   output {
-    File output_bed = new_bed
-    File output_bim = new_bim
-    File output_fam = new_fam
+    String output_bed = new_bed
+    String output_bim = new_bim
+    String output_fam = new_fam
   }
 }
