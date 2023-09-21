@@ -25,10 +25,11 @@ workflow VUMCVcfIncludeSamples {
   }
 
   if(defined(target_bucket)){
-    call Utils.CopyVcfFile {
+    call Utils.MoveOrCopyVcfFile {
       input:
         input_vcf = BcftoolsIncludeSamples.output_vcf,
         input_vcf_index = BcftoolsIncludeSamples.output_vcf_index,
+        is_move_file = true,
         project_id = project_id,
         target_bucket = select_first([target_bucket]),
         genoset = select_first([genoset]),
@@ -36,8 +37,8 @@ workflow VUMCVcfIncludeSamples {
   }
 
   output {
-    File output_vcf = select_first([CopyVcfFile.output_vcf, BcftoolsIncludeSamples.output_vcf])
-    File output_vcf_index = select_first([CopyVcfFile.output_vcf_index, BcftoolsIncludeSamples.output_vcf_index])
+    File output_vcf = select_first([MoveOrCopyVcfFile.output_vcf, BcftoolsIncludeSamples.output_vcf])
+    File output_vcf_index = select_first([MoveOrCopyVcfFile.output_vcf_index, BcftoolsIncludeSamples.output_vcf_index])
   }
 }
 
