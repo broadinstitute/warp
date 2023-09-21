@@ -46,16 +46,31 @@ workflow VUMCMappedCramQC {
 
   String recalibrated_bam_basename = sample_name + ".aligned.duplicates_marked.recalibrated"
 
-  call AggregatedQC.AggregatedBamQC {
+  # Estimate level of cross-sample contamination
+  call Processing.CheckContamination as CheckContamination {
     input:
-      base_recalibrated_bam = input_cram,
-      base_recalibrated_bam_index = input_cram_index,
-      base_name = sample_name,
-      sample_name = sample_name,
-      recalibrated_bam_base_name = recalibrated_bam_basename,
-      haplotype_database_file = references.haplotype_database_file,
-      references = references,
-      papi_settings = papi_settings
+      input_bam = input_cram,
+      input_bam_index = input_cram_index,
+      contamination_sites_ud = references.contamination_sites_ud,
+      contamination_sites_bed = references.contamination_sites_bed,
+      contamination_sites_mu = references.contamination_sites_mu,
+      ref_fasta = references.reference_fasta.ref_fasta,
+      ref_fasta_index = references.reference_fasta.ref_fasta_index,
+      output_prefix = sample_name,
+      preemptible_tries = papi_settings.agg_preemptible_tries,
+      contamination_underestimation_factor = 0.75
+  }
+
+  # QC the final BAM
+  call QC.CollectAggregationMetrics as CollectAggregationMetrics {
+    input:
+      input_bam = input_cram,
+      input_bam_index = input_cram_index,
+      output_bam_prefix = sample_name,
+      ref_dict = references.reference_fasta.ref_dict,
+      ref_fasta = references.reference_fasta.ref_fasta,
+      ref_fasta_index = references.reference_fasta.ref_fasta_index,
+      preemptible_tries = papi_settings.agg_preemptible_tries
   }
 
   # QC the sample WGS metrics (stringent thresholds)
@@ -84,27 +99,27 @@ workflow VUMCMappedCramQC {
 
   # Outputs that will be retained when execution is complete
   output {
-    File read_group_alignment_summary_metrics = AggregatedBamQC.read_group_alignment_summary_metrics
-    File read_group_gc_bias_detail_metrics = AggregatedBamQC.read_group_gc_bias_detail_metrics
-    File read_group_gc_bias_pdf = AggregatedBamQC.read_group_gc_bias_pdf
-    File read_group_gc_bias_summary_metrics = AggregatedBamQC.read_group_gc_bias_summary_metrics
+    File selfSM = CheckContamination.selfSM
+    Float contamination = CheckContamination.contamination
 
-    File agg_alignment_summary_metrics = AggregatedBamQC.agg_alignment_summary_metrics
-    File agg_bait_bias_detail_metrics = AggregatedBamQC.agg_bait_bias_detail_metrics
-    File agg_bait_bias_summary_metrics = AggregatedBamQC.agg_bait_bias_summary_metrics
-    File agg_gc_bias_detail_metrics = AggregatedBamQC.agg_gc_bias_detail_metrics
-    File agg_gc_bias_pdf = AggregatedBamQC.agg_gc_bias_pdf
-    File agg_gc_bias_summary_metrics = AggregatedBamQC.agg_gc_bias_summary_metrics
-    File agg_insert_size_histogram_pdf = AggregatedBamQC.agg_insert_size_histogram_pdf
-    File agg_insert_size_metrics = AggregatedBamQC.agg_insert_size_metrics
-    File agg_pre_adapter_detail_metrics = AggregatedBamQC.agg_pre_adapter_detail_metrics
-    File agg_pre_adapter_summary_metrics = AggregatedBamQC.agg_pre_adapter_summary_metrics
-    File agg_quality_distribution_pdf = AggregatedBamQC.agg_quality_distribution_pdf
-    File agg_quality_distribution_metrics = AggregatedBamQC.agg_quality_distribution_metrics
-    File agg_error_summary_metrics = AggregatedBamQC.agg_error_summary_metrics
+    File agg_alignment_summary_metrics = CollectAggregationMetrics.alignment_summary_metrics
+    File agg_bait_bias_detail_metrics = CollectAggregationMetrics.bait_bias_detail_metrics
+    File agg_bait_bias_summary_metrics = CollectAggregationMetrics.bait_bias_summary_metrics
+    File agg_gc_bias_detail_metrics = CollectAggregationMetrics.gc_bias_detail_metrics
+    File agg_gc_bias_pdf = CollectAggregationMetrics.gc_bias_pdf
+    File agg_gc_bias_summary_metrics = CollectAggregationMetrics.gc_bias_summary_metrics
+    File agg_insert_size_histogram_pdf = CollectAggregationMetrics.insert_size_histogram_pdf
+    File agg_insert_size_metrics = CollectAggregationMetrics.insert_size_metrics
+    File agg_pre_adapter_detail_metrics = CollectAggregationMetrics.pre_adapter_detail_metrics
+    File agg_pre_adapter_summary_metrics = CollectAggregationMetrics.pre_adapter_summary_metrics
+    File agg_quality_distribution_pdf = CollectAggregationMetrics.quality_distribution_pdf
+    File agg_quality_distribution_metrics = CollectAggregationMetrics.quality_distribution_metrics
+    File agg_error_summary_metrics = CollectAggregationMetrics.error_summary_metrics
 
     File wgs_metrics = CollectWgsMetrics.metrics
     File raw_wgs_metrics = CollectRawWgsMetrics.metrics
+
+  
   }
   meta {
     allowNestedInputs: true
