@@ -39,9 +39,9 @@ workflow VUMCPlinkIncludeSamples {
         source_bed = PlinkIncludeSamples.output_bed,
         source_bim = PlinkIncludeSamples.output_bim,
         source_fam = PlinkIncludeSamples.output_fam,
+        is_move_file = true,
         project_id = project_id,
-        target_bucket = select_first([target_bucket]),
-        action = "mv"
+        target_bucket = select_first([target_bucket])
     }
   }
 
