@@ -355,13 +355,16 @@ task FastqProcessATAC {
                 barcodes = [line.strip() for line in file.readlines()]
                 
                 for barcode in barcodes:
+                    # Get reverse complement of entire barcode sequence
+                    reverseComplement = reverse_complement(barcode)
+                    
                     # Match the first 16 base pairs in the forward direction
                     start_forward = barcode[:16]
                     if start_forward in whitelist:
                         count_forward_start += 1
                     
                     # Match the first 16 base pairs in the reverse complement direction
-                    start_reverse_comp = reverse_complement(barcode[:16])
+                    start_reverse_comp = reverseComplement[:16]
                     if start_reverse_comp in whitelist:
                         count_reverse_comp_start += 1
                     
@@ -371,7 +374,7 @@ task FastqProcessATAC {
                         count_forward_end += 1
                     
                     # Match the last 16 base pairs in the reverse complement direction
-                    end_reverse_comp = reverse_complement(barcode[-16:])
+                    end_reverse_comp = reverseComplement[-16:]
                     if end_reverse_comp in whitelist:
                         count_reverse_comp_end += 1
             
@@ -444,7 +447,7 @@ task FastqProcessATAC {
         $R3_FILES_CONCAT \
         --white-list "~{whitelist}" \
         --output-format "FASTQ" \
-        --barcode-orientation LAST_BP_RC \
+        --barcode-orientation $barcode_choice \
         --read-structure "~{read_structure}"
 
     >>>
