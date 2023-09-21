@@ -3,7 +3,7 @@
   "JointGenotyping.callset_name": "bge_joint_genotyping_plumbing",
   "JointGenotyping.run_vets": true,
 
-  "JointGenotyping.unpadded_intervals_file": "",
+  "JointGenotyping.unpadded_intervals_file": "gs://gcp-public-data--broad-references/hg38/v0/bge_exome_calling_regions.v1.1.interval_list",
   "JointGenotyping.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
   "JointGenotyping.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
   "JointGenotyping.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
@@ -26,7 +26,7 @@
 
   "JointGenotyping.snp_recalibration_annotation_values": ["QD", "MQRankSum", "ReadPosRankSum", "FS", "MQ", "SOR", "DP"],
   
-  "JointGenotyping.use_allele_specific_annotations": true,
+  "JointGenotyping.use_allele_specific_annotations": false,
 
 
   "JointGenotyping.small_disk": 100,

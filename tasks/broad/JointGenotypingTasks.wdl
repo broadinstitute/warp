@@ -273,7 +273,7 @@ task HardFilterAndMakeSitesOnlyVcf {
 
     String variant_filtered_vcf_filename
     String sites_only_vcf_filename
-    File? targets_interval_list # filters out all variants outside of the targets interval list for targetted sequencing
+    File? targets_interval_list # filters out all variants outside of the targets interval list for targeted sequencing
 
     Int disk_size_gb
     Int machine_mem_mb = 3750
