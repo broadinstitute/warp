@@ -298,7 +298,7 @@ task FastqProcessATAC {
         path="/cromwell_root/input_fastq/"
         barcode_index="~{barcode_index1}"
         file="${path}${barcode_index}"
-        zcat "$file" | head -n 1000 | sed -n '2~4p' > downsample.fq
+        zcat "$file" | sed -n '2~4p' | shuffle -n 1000 > downsample.fq
         head -n 1 downsample.fq
         # barcodes R2
         R1_FILES_CONCAT=""
