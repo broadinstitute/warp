@@ -400,7 +400,8 @@ task FastqProcessATAC {
             
             # Find the matching method with the highest count
             best_match, highest_count = max(counts, key=lambda x: x[1])
-            
+            if highest_count < 50:
+                raise Exception("Less than one percent of barcodes match whitelist")
             return best_match
 
         # Define input and output files here
