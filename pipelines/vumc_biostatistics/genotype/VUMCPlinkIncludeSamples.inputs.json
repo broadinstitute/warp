@@ -1,0 +1,8 @@
+{
+  "VUMCPlinkIncludeSamples.include_samples": "/nobackup/h_cqs/shengq2/biovu/data/elig_v1-1.1000.csv",
+  "VUMCPlinkIncludeSamples.target_prefix": "megaex_BestOfMultipleCalls_v1.1-N1000",
+  "VUMCPlinkIncludeSamples.source_bed": "/nobackup/h_cqs/shengq2/biovu/megaex/redeposit_megaex_001_BestOfMultipleCalls_v1_202306.bed",
+  "VUMCPlinkIncludeSamples.source_fam": "/nobackup/h_cqs/shengq2/biovu/megaex/redeposit_megaex_001_BestOfMultipleCalls_v1_202306.fam",
+  "VUMCPlinkIncludeSamples.source_bim": "/nobackup/h_cqs/shengq2/biovu/megaex/redeposit_megaex_001_BestOfMultipleCalls_v1_202306.bim"
+}
+
