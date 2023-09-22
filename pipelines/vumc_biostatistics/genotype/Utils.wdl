@@ -10,12 +10,14 @@ task MoveOrCopyVcfFile {
     String? project_id
     String target_bucket
     String genoset
+    String? GRID
   }
 
   String action = if (is_move_file) then "mv" else "cp"
 
-  String new_vcf = "~{target_bucket}/~{genoset}/~{basename(input_vcf)}"
-  String new_vcf_index = "~{target_bucket}/~{genoset}/~{basename(input_vcf_index)}"
+  String target_folder = if(defined(GRID)) then "~{target_bucket}/~{genoset}/~{GRID}" else "~{target_bucket}/~{genoset}"
+  String new_vcf = "~{target_folder}/~{basename(input_vcf)}"
+  String new_vcf_index = "~{target_folder}/~{basename(input_vcf_index)}"
 
   command <<<
 
@@ -23,7 +25,7 @@ set -e
 
 gsutil -m ~{"-u " + project_id} ~{action} ~{input_vcf} \
   ~{input_vcf_index} \
-  ~{target_bucket}/~{genoset + "/"}
+  ~{target_folder}/
 
 >>>
 
