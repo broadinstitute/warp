@@ -27,16 +27,16 @@ version 1.0
 ## authorized to run all programs before running this script. Please see the dockers
 ## for detailed licensing information pertaining to the included programs.
 
-import "./VUMCHaplotypecallerReblockMoveResult.wdl" as Utils
 import "../../../../../structs/dna_seq/DNASeqStructs.wdl"
 import "../../../../../tasks/broad/BamProcessing.wdl" as Processing
 import "../../../../broad/dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
+import "./VUMCVariantCallingMoveResult.wdl" as Utils
 
 # WORKFLOW DEFINITION 
 workflow VUMCVariantCalling {
   input {
-    File input_bam
-    File input_bam_index
+    File input_cram
+    File input_cram_index
 
     DNASeqSingleSampleReferences references
     VariantCallingScatterSettings scatter_settings
@@ -57,7 +57,7 @@ workflow VUMCVariantCalling {
     String? genoset
     String? GRID
   }  
-  
+
   call ToGvcf.VariantCalling as BamToGvcf {
     input:
       use_spanning_event_genotyping = use_spanning_event_genotyping,
@@ -66,8 +66,8 @@ workflow VUMCVariantCalling {
       haplotype_scatter_count = scatter_settings.haplotype_scatter_count,
       break_bands_at_multiples_of = scatter_settings.break_bands_at_multiples_of,
       contamination = contamination,
-      input_bam = input_bam,
-      input_bam_index = input_bam_index,
+      input_bam = input_cram,
+      input_bam_index = input_cram_index,
       ref_fasta = references.reference_fasta.ref_fasta,
       ref_fasta_index = references.reference_fasta.ref_fasta_index,
       ref_dict = references.reference_fasta.ref_dict,
@@ -83,22 +83,25 @@ workflow VUMCVariantCalling {
   }
 
   if(defined(target_bucket)){
-    call Utils.MoveVcf {
+    call Utils.CopyOrMoveResult as MoveResult {
       input:
-        output_vcf = BamToGvcf.output_vcf,
-        output_vcf_index = BamToGvcf.output_vcf_index,
+        input_vcf_summary_metrics = BamToGvcf.vcf_summary_metrics,
+        input_vcf_detail_metrics = BamToGvcf.vcf_detail_metrics,
+        input_vcf = BamToGvcf.output_vcf,
+        input_vcf_index = BamToGvcf.output_vcf_index,
         project_id = project_id,
         target_bucket = select_first([target_bucket]),
         genoset = select_first([genoset]),
-        GRID = select_first([GRID])
+        GRID = select_first([GRID]),
+        is_move_file = true
     }
   }
 
   output {
-    File vcf_summary_metrics = BamToGvcf.vcf_summary_metrics
-    File vcf_detail_metrics = BamToGvcf.vcf_detail_metrics
-    File output_vcf = select_first([MoveVcf.target_output_vcf, BamToGvcf.output_vcf])
-    File output_vcf_index = select_first([MoveVcf.target_output_vcf_index, BamToGvcf.output_vcf_index])
+    File vcf_summary_metrics = select_first([MoveResult.vcf_summary_metrics, BamToGvcf.vcf_summary_metrics]) 
+    File vcf_detail_metrics = select_first([MoveResult.vcf_detail_metrics, BamToGvcf.vcf_detail_metrics])
+    File output_vcf = select_first([MoveResult.output_vcf, BamToGvcf.output_vcf])
+    File output_vcf_index = select_first([MoveResult.output_vcf_index, BamToGvcf.output_vcf_index])
   }
 }
 
