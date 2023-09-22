@@ -1,3 +1,7 @@
+# 2.2.0
+2023-09-22
+* Updated modify-gtf to handle refseq gtfs
+
 # 2.1.2
 2023-05-02 (Date of Last Commit)
 * Updated the modify-gtf and add-intron scripts in the build indices docker so that PAR genes are removed from the GTF
