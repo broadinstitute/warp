@@ -5,8 +5,8 @@ workflow Nikelle_azure_test {
    # File atac_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_atac.txt"
    # File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt"
     String cloud_provider
-    File atac_whitelist
-    File gex_whitelist
+    File atac_whitelist = ""
+    File gex_whitelist = ""
     }
 
 String atac_whitelist_filename = "737K-arc-v1_atac.txt"
@@ -27,10 +27,10 @@ String cloud_prefix = if cloud_provider == "gcp" then gcr_prefix else acr_prefix
           whitelist = cloud_prefix + gex_whitelist_filename,
     }
 
-      output {
-          File outputFile = catThePaths_atac.outPutFile
-          File outputFile = catThePaths_gex.outPutFile
-       }
+    output {
+        File outputFile_atac = catThePaths_atac.outPutFile
+        File outputFile_gex = catThePaths_gex.outPutFile
+    }
 }
 
 
@@ -38,7 +38,7 @@ String cloud_prefix = if cloud_provider == "gcp" then gcr_prefix else acr_prefix
 task catThePaths {
     input{
         File whitelist
-        String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+        String docker = "dsppipelinedev.azurecr.io/gatk:4.3.0.0"
     }
 
 
@@ -53,7 +53,7 @@ task catThePaths {
         docker: docker
         cpu : 1
         memory : "50 MiB"
-        disks : "local-disk 10 HDD"
+        disks : "local-disk 50 HDD"
     }
 
     output {
