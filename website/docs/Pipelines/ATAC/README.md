@@ -71,7 +71,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | ------------------------------------ | 
-| [FastqProcessing as SplitFastq](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/FastqProcessing.wdl) | fastqprocess | custom | Corrects cell barcodes and splits fastqs into 30 GB FASTQs that are grouped by cell barcode with each read having the corrected (CB) and raw barcode (CR) in the read name. |
+| [FastqProcessing as SplitFastq](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/FastqProcessing.wdl) | fastqprocess | custom | Dynamically selects the correct barcode orientation, corrects cell barcodes and splits FASTQs into 30 GB FASTQs that are grouped by cell barcode with each read having the corrected (CB) and raw barcode (CR) in the read name. |
 | [TrimAdapters](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) | Cutadapt v4.4 | cutadapt | Trims adaptor sequences. |
 | [BWAPairedEndAlignment](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) | bwa-mem2 | mem | Aligns reads from each set of partitioned FASTQ files to the genome and outputs a BAM with ATAC barcodes in the CB:Z tag. |
 | [Merge.MergeSortBamFiles as MergeBam](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/MergeSortBam.wdl) | MergeSamFiles | Picard | Merges each BAM into a final aligned BAM with corrected cell barcodes in the CB tag. |
