@@ -330,7 +330,8 @@ task FastqProcessATAC {
         done
         echo $R3_FILES_CONCAT
 
-        python3 /warptools/scripts/dyanmic-barcode-orientation.py downsample.fq ~{whitelist} best_match.txt
+        python3 /warptools/scripts/dynamic-barcode-orientation.py downsample.fq ~{whitelist} best_match.txt
+        
         cat best_match.txt
         barcode_choice=$(<best_match.txt)
         echo $barcode_choice
