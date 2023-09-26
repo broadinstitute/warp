@@ -59,15 +59,33 @@ task CopyOrMoveResult {
   String new_vcf_index = "~{target_folder}/~{basename(input_vcf_index)}"
 
   command <<<
+set +e
 
-set -e
+result=$(gsutil -q stat ~{input_vcf} || echo 1)
+if [[ $result != 1 ]]; then
+  echo "Source vcf file exists, moving to target bucket ..."
 
-gsutil -m ~{"-u " + project_id} ~{action} \
-  ~{input_vcf_summary_metrics} \
-  ~{input_vcf_detail_metrics} \
-  ~{input_vcf} \
-  ~{input_vcf_index} \
-  ~{target_folder}/
+  set -e
+
+  gsutil -m ~{"-u " + project_id} ~{action} \
+    ~{input_vcf_summary_metrics} \
+    ~{input_vcf_detail_metrics} \
+    ~{input_vcf} \
+    ~{input_vcf_index} \
+    ~{target_folder}/
+
+else
+  echo "Source vcf file does not exist, checking target vcf file ..."
+
+  result=$(gsutil -q stat ~{new_vcf} || echo 1)
+  if [[ $result != 1 ]]; then
+    echo "Target vcf file exists, return"
+    exit 0
+  else
+    echo "Target vcf file does not exist, error"
+    exit 1
+  fi
+fi
 
 >>>
 
