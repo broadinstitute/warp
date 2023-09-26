@@ -47,10 +47,30 @@ task MoveVcf {
   String new_output_vcf_index = "${target_bucket}/${genoset}/${GRID}/${basename(output_vcf_index)}"
 
   command <<<
+set +e
 
-gsutil -m ~{"-u " + project_id} mv ~{output_vcf} \
-  ~{output_vcf_index} \
-  ~{target_bucket}/~{genoset}/~{GRID}/
+result=$(gsutil -q stat ~{output_vcf} || echo 1)
+if [[ $result != 1 ]]; then
+  echo "Source vcf file exists, moving to target bucket ..."
+
+  set -e
+    
+  gsutil -m ~{"-u " + project_id} mv ~{output_vcf} \
+    ~{output_vcf_index} \
+    ~{target_bucket}/~{genoset}/~{GRID}/
+
+else
+  echo "Source vcf file does not exist, checking target vcf file ..."
+
+  result=$(gsutil -q stat ~{new_output_vcf} || echo 1)
+  if [[ $result != 1 ]]; then
+    echo "Target vcf file exists, return"
+    exit 0
+  else
+    echo "Target vcf file does not exist, error"
+    exit 1
+  fi
+fi
 
 >>>
 
