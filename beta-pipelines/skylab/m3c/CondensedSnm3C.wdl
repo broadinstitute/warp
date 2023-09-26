@@ -456,7 +456,6 @@ task Split_unmapped_reads {
         tar -zcvf hisat3n_paired_end_split_fastq_files.tar.gz *
 
 
-
     >>>
     runtime {
         docker: docker

@@ -1,4 +1,7 @@
 
+# 6.1.0
+2023-09-21 (Date of Last Commit)
+* Added dynamic barcode orientation selection to ATAC workflow FastqProcess task; this has no impact on Optimus
 # 6.0.0
 2023-08-22 (Date of Last Commit)
 
