@@ -40,11 +40,11 @@ workflow WDLized_snm3C {
             hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
     }
 
-   # call split_unmapped_reads {
-   #     input:
-   #         unmapped_fastq = separate_unmapped_reads.unmapped_fastq
-   # }
-#
+    call Split_unmapped_reads {
+        input:
+            unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
+    }
+
    # call hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
    #     input:
    #         split_r1 = split_unmapped_reads.split_r1_fq,
@@ -112,6 +112,7 @@ workflow WDLized_snm3C {
         File unique_bam_tar = Separate_unmapped_reads.unique_bam_tar
         File multi_bam_tar = Separate_unmapped_reads.multi_bam_tar
         File unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
+        File split_fq_tar = Split_unmapped_reads.split_fq_tar
     }
 }
 
@@ -412,23 +413,60 @@ task Separate_unmapped_reads {
         File unmapped_fastq_tar = "hisat3n_paired_end_unmapped_fastq_files.tar.gz"
     }
 }
-#task split_unmapped_reads {
-#    input {
-#        File unmapped_fastq
-#    }
-#    command <<<
-#    >>>
-#    runtime {
-#        docker: "fill_in"
-#        disks: "local-disk ${disk_size} HDD"
-#        cpu: 1
-#        memory: "${mem_size} GiB"
-#    }
-#    output {
-#        File split_r1_fq = ""
-#        File split_r2_fq = ""
-#    }
-#}
+
+task Split_unmapped_reads {
+    input {
+        File unmapped_fastq_tar
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        Int disk_size = 50
+        Int mem_size = 10
+    }
+    command <<<
+
+        set -euo pipefail
+
+        # untar the unmapped fastq files
+        tar -xf ~{unmapped_fastq_tar}
+        rm ~{unmapped_fastq_tar}
+
+        python3 <<CODE
+
+        from cemba_data.hisat3n import *
+        import os
+        import glob
+
+        pattern = "*.hisat3n_dna.unmapped.fastq"
+        fastq_files = glob.glob(os.path.join('/cromwell_root/', pattern))
+
+        for file in fastq_files:
+          full_filename = os.path.basename(file)
+          sample_id = full_filename.replace(".hisat3n_dna.unmapped.fastq", "")
+          fastq_path = f"{sample_id}.hisat3n_dna.unmapped.fastq"
+          output_prefix = f"{sample_id}.hisat3n_dna.split_reads"
+
+          split_hisat3n_unmapped_reads(
+            fastq_path=fastq_path,
+            output_prefix=output_prefix,
+            min_length=30
+          )
+
+        CODE
+
+        # tar up the split fastq files
+        tar -zcvf hisat3n_paired_end_split_fastq_files.tar.gz *
+
+
+    >>>
+    runtime {
+        docker: docker
+        disks: "local-disk ${disk_size} HDD"
+        cpu: 1
+        memory: "${mem_size} GiB"
+    }
+    output {
+        File split_fq_tar = "hisat3n_paired_end_split_fastq_files.tar.gz"
+    }
+}
 
 #task hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
 #    input {
