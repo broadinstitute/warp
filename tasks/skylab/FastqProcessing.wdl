@@ -249,6 +249,7 @@ task FastqProcessATAC {
 
         # Runtime attributes [?]
         Int mem_size = 5
+        Int bam_size = 30 # setting to 30 for 10kpbmc to divide data into two, for mouse need to divide it 50
         Int cpu = 16
         # TODO decided cpu
         # estimate that bam is approximately equal in size to fastq, add 20% buffer
@@ -330,7 +331,7 @@ task FastqProcessATAC {
         cd /cromwell_root/output_fastq
 
         fastqprocess \
-        --bam-size 30.0 \
+        --bam-size "~{bam_size}" \
         --sample-id "~{output_base_name}" \
         $R1_FILES_CONCAT \
         $R2_FILES_CONCAT \
