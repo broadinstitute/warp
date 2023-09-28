@@ -11,7 +11,7 @@ task FastqProcessing {
     String read_struct
 
     #using the latest build of warp-tools in GCR
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686932671"
+    String warp_tools_docker_path
     #runtime values
     Int machine_mem_mb = 40000
     Int cpu = 16   
@@ -111,7 +111,7 @@ task FastqProcessing {
   }
   
   runtime {
-    docker: docker
+    docker: warp_tools_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES

@@ -16,7 +16,7 @@ task RunEmptyDrops {
         Int emptydrops_lower = 100
 
         # runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/empty-drops:1.0.1-4.2"
+        String empty_drops_docker_path
         Int machine_mem_mb = 16000
         Int cpu = 1
         Int disk = 20
@@ -48,7 +48,7 @@ task RunEmptyDrops {
     }
 
     runtime {
-        docker: docker
+        docker: empty_drops_docker_path
         memory: "${machine_mem_mb} MiB"
         disks: "local-disk ${disk} HDD"
         disk: disk_size + " GB" # TES
