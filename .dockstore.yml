@@ -54,7 +54,7 @@ workflows:
 
   - name: VUMCCramQCCombined
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCCramQC_combined.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCCramQCCombined.wdl
 
   - name: VUMCSamHeader
     subclass: WDL
