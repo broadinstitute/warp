@@ -73,8 +73,11 @@ workflow Optimus {
   Array[Int] indices = range(length(r1_fastq))
 
   # 10x parameters
-  File whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
-  File whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
+  File gcp_whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
+  File gcp_whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
+  File azure_whitelist_v2 = "https://dsppipelinedev.blob.core.windows.net/optimus/737k-august-2016.txt"
+  File azure_whitelist_v3 = "https://dsppipelinedev.blob.core.windows.net/optimus/3M-febrary-2018.txt"
+
   # Takes the first read1 FASTQ from the inputs to check for chemistry match
   File r1_single_fastq = r1_fastq[0]
 
@@ -123,8 +126,10 @@ workflow Optimus {
       force_no_check = force_no_check,
       counting_mode = counting_mode,
       count_exons = count_exons,
-      whitelist_v2 = whitelist_v2,
-      whitelist_v3 = whitelist_v3,
+      gcp_whitelist_v2 = gcp_whitelist_v2,
+      gcp_whitelist_v3 = gcp_whitelist_v3,
+      azure_whitelist_v2 = azure_whitelist_v2,
+      azure_whitelist_v3 = azure_whitelist_v3,
       tenx_chemistry_version = tenx_chemistry_version,
       r1_fastq = r1_single_fastq,
       ignore_r1_read_length = ignore_r1_read_length,

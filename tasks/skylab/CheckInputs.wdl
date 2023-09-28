@@ -64,8 +64,10 @@ task checkOptimusInput {
     Int machine_mem_mb = 1000
     Int cpu = 1
     Int tenx_chemistry_version
-    String whitelist_v2
-    String whitelist_v3
+    String gcp_whitelist_v2
+    String gcp_whitelist_v3
+    String azure_whitelist_v2
+    String azure_whitelist_v3
     Boolean ignore_r1_read_length
   }  
 
@@ -109,15 +111,34 @@ task checkOptimusInput {
         echo "ERROR: Invalid value count_exons should not be used with \"${counting_mode}\" input."
       fi
     fi
+
     # Check for chemistry version to produce read structure and whitelist
     if [[ ~{tenx_chemistry_version} == 2 ]]
       then
-      WHITELIST=~{whitelist_v2}
+      if [[ "~{cloud_provider}" == "gcp" ]]
+      then
+        WHITELIST=~{gcp_whitelist_v2}
+      elif [[ "~{cloud_provider}" == "azure" ]]
+      then
+        WHITELIST=~{azure_whitelist_v2}
+      else
+        pass="false"
+        echo "ERROR: Cloud provider must be either gcp or azure"
+      fi
       echo $WHITELIST > whitelist.txt
       echo 16C10M > read_struct.txt
     elif [[ ~{tenx_chemistry_version} == 3 ]]
       then
-      WHITELIST=~{whitelist_v3}
+      if [[ "~{cloud_provider}" == "gcp" ]]
+      then
+        WHITELIST=~{gcp_whitelist_v3}
+      elif [[ "~{cloud_provider}" == "azure" ]]
+      then
+        WHITELIST=~{azure_whitelist_v3}
+      else
+        pass="false"
+        echo "ERROR: Cloud provider must be either gcp or azure"
+      fi
       echo $WHITELIST > whitelist.txt
       echo 16C12M > read_struct.txt
     else
