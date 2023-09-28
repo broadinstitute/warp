@@ -28,7 +28,7 @@ task MergeSortBamFiles {
   parameter_meta {
     bam_inputs: "Merges Sam/Bam files"
     sort_order: "sort order of output bam"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    picard_cloud_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
