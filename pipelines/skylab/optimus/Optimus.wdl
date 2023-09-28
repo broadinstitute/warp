@@ -127,7 +127,8 @@ workflow Optimus {
       whitelist_v3 = whitelist_v3,
       tenx_chemistry_version = tenx_chemistry_version,
       r1_fastq = r1_single_fastq,
-      ignore_r1_read_length = ignore_r1_read_length
+      ignore_r1_read_length = ignore_r1_read_length,
+      cloud_provider = cloud_provider
   }
 
   call StarAlign.STARGenomeRefVersion as ReferenceCheck {
