@@ -213,27 +213,29 @@ task BWAPairedEndAlignment {
     cpu3n1=${cpu_numbers[2]}
     cpu4n1=$((cpu_numbers[3]+2))
     cpu5n1=${cpu_numbers[4]}
-    n_threadsn1=$(($((cpu2n1-cpu1n1)) + $((cpu4n1-cpu3n1)) + 2))
+    n_threadsn1=$(($((cpu5n1-cpu4n1)) + $((cpu3n1-cpu2n1)) + 2))
 
     # run two instances of bwa-mem2 
-    taskset -c 0-1,$cpu1n0-$cpu2n0,$cpu3n0-$cpu4n0 -m 0 \
+    taskset -c 0-1,$cpu1n0-$cpu2n0,$cpu3n0-$cpu4n0 \
     bwa-mem2 \
     mem \
     -R "@RG\tID:RG1\tSM:RGSN1" \
-    -C -t $n_threadsn0 $REF $R1_p1 $R3_p1 > aligned_output_p1.sam &   
+    -C -t $n_threadsn0 $REF_DIR/genome.fa "~{read1_fastq[0]}" "~{read3_fastq[0]}" > aligned_output_p1.sam &   
    
-    taskset -c $cpu0n1-$cpu1n1,$cpu2n1-$cpu3n1,$cpu4n1-$cpu5n1 -m 1 \
+    taskset -c $cpu0n1-$cpu1n1,$cpu2n1-$cpu3n1,$cpu4n1-$cpu5n1 \
     bwa-mem2 \
     mem \
     -R "@RG\tID:RG1\tSM:RGSN1" \
-    -C -t $n_threadsn1 $REF $R1_p1 $R3_p1 > aligned_output_p1.sam &  
+    -C -t $n_threadsn1 $REF_DIR/genome.fa "~{read1_fastq[1]}" "~{read3_fastq[1]}" > aligned_output_p2.sam &  
+
+    wait 
 
     # samtools sort 
     samtools sort -@10 -m20g aligned_output_p1.sam -o bam_aligned_output_p1.bam
     samtools sort -@10 -m20g aligned_output_p2.sam -o bam_aligned_output_p2.bam
 
     # samtools merge
-    samtools merge -@10 -m20g ~{bam_aligned_output_name} bam_aligned_output_p1.bam bam_aligned_output_p2.bam
+    samtools merge -o ~{bam_aligned_output_name} bam_aligned_output_p1.bam bam_aligned_output_p2.bam -@20 
   >>>
 
   runtime {
