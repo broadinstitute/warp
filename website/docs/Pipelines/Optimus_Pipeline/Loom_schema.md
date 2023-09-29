@@ -119,7 +119,4 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 |`number_cells_expressing`|[warp-tools](https://github.com/broadinstitute/warp-tools)| The number of cells that detect the gene. |
 
 ## Definitions
-* Fragment: A distinct segment of a read that aligns to a specific location on the reference genome. The TagSort function defines fragments based on:  1) the presence of a combined UMI/GX/
-
-
-tag, 2) the reference (Chr1, Chr2, etc.), 3) the nuleotide position, and 4) the strand. While some cells may have more  n_fragments than n_reads (like when an RNA read overlaps a an exon-exon junction), some barcodes may have fewer fragments than reads, like if the cell has multiple reads that overlap.
+* Fragment: A distinct segment of a read that aligns to a specific location on the reference genome. The TagSort function defines fragments based on:  1) the presence of a combined `UMI/GX/CB` tag, 2) the reference (Chr1, Chr2, etc.), 3) the nuleotide position, and 4) the strand. While some cells may have more  `n_fragments` than `n_reads` (like when an RNA read overlaps an exon-exon junction), some barcodes may have fewer fragments than reads, like if the cell has multiple reads that overlap.
