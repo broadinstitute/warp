@@ -151,7 +151,7 @@ workflow Optimus {
   call StarAlign.STARGenomeRefVersion as ReferenceCheck {
     input:
       tar_star_reference = tar_star_reference,
-      ubuntu_docker_path = ubuntu_docker_prefix + ubuntu_docker
+      alpine_docker_path = alpine_docker_prefix + alpine_docker
   }
 
   call FastqProcessing.FastqProcessing as SplitFastq {
