@@ -89,6 +89,16 @@ workflow Optimus {
   String warp_tools_docker_1_0_1 = "warp-tools:1.0.1-1686932671"
   String warp_tools_docker_1_0_5 = "warp-tools:1.0.5-1692706846"
   String warp_tools_docker_1_0_6 ="warp-tools:1.0.6-1692962087"
+  #TODO how do we handle these?
+  String alpine_docker = "alpine-bash:latest"
+  String gcp_alpine_docker_prefix = "bashell/"
+  String acr_alpine_docker_prefix = "dsppipelinedev.azurecr.io/"
+  String alpine_docker_prefix = if cloud_provider == "gcp" then gcp_alpine_docker_prefix else acr_alpine_docker_prefix
+
+  String ubuntu_docker = "ubuntu_16_0_4:latest"
+  String gcp_ubuntu_docker_prefix = "gcr.io/gcp-runtimes/"
+  String acr_ubuntu_docker_prefix = "dsppipelinedev.azurecr.io/"
+  String ubuntu_docker_prefix = if cloud_provider == "gcp" then gcp_ubuntu_docker_prefix else acr_ubuntu_docker_prefix
 
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
   String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
@@ -100,7 +110,8 @@ workflow Optimus {
   if ((cloud_provider != "gcp") && (cloud_provider != "azr")) {
     call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
       input:
-        message = "cloud_provider must be supplied with either 'gcp' or 'azr'."
+        message = "cloud_provider must be supplied with either 'gcp' or 'azr'.",
+        ubuntu_docker_path = ubuntu_docker_prefix + ubuntu_docker
     }
   }
 
@@ -133,12 +144,14 @@ workflow Optimus {
       tenx_chemistry_version = tenx_chemistry_version,
       r1_fastq = r1_single_fastq,
       ignore_r1_read_length = ignore_r1_read_length,
-      cloud_provider = cloud_provider
+      cloud_provider = cloud_provider,
+      alpine_docker_path = alpine_docker_prefix + alpine_docker
   }
 
   call StarAlign.STARGenomeRefVersion as ReferenceCheck {
     input:
-      tar_star_reference = tar_star_reference
+      tar_star_reference = tar_star_reference,
+      ubuntu_docker_path = ubuntu_docker_prefix + ubuntu_docker
   }
 
   call FastqProcessing.FastqProcessing as SplitFastq {

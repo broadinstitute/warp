@@ -69,6 +69,7 @@ task checkOptimusInput {
     String azure_whitelist_v2
     String azure_whitelist_v3
     Boolean ignore_r1_read_length
+    String alpine_docker_path
   }  
 
   meta {
@@ -175,7 +176,7 @@ task checkOptimusInput {
     String read_struct_out = read_string("read_struct.txt")
   }
   runtime {
-    docker: "bashell/alpine-bash:latest"
+    docker: alpine_docker_path
     cpu: cpu
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"

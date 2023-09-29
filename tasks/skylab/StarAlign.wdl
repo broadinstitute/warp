@@ -648,6 +648,7 @@ task STARGenomeRefVersion {
   input {
     String tar_star_reference
     Int disk = 10
+    String ubuntu_docker_path
   }
 
   meta {
@@ -680,7 +681,7 @@ task STARGenomeRefVersion {
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: ubuntu_docker_path
     memory: "2 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
