@@ -107,10 +107,10 @@ workflow Optimus {
   String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
   # make sure either gcp or azr is supplied as cloud_provider input
-  if ((cloud_provider != "gcp") && (cloud_provider != "azr")) {
+  if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
     call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
       input:
-        message = "cloud_provider must be supplied with either 'gcp' or 'azr'.",
+        message = "cloud_provider must be supplied with either 'gcp' or 'azure'.",
         alpine_docker_path = alpine_docker_prefix + alpine_docker
     }
   }
