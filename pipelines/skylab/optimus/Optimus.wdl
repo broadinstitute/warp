@@ -111,7 +111,7 @@ workflow Optimus {
     call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
       input:
         message = "cloud_provider must be supplied with either 'gcp' or 'azr'.",
-        ubuntu_docker_path = ubuntu_docker_prefix + ubuntu_docker
+        alpine_docker_path = alpine_docker_prefix + alpine_docker
     }
   }
 
