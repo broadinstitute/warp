@@ -242,10 +242,11 @@ task FastqProcessATAC {
         String barcode_orientation = "FIRST_BP_RC"
         String output_base_name
         File whitelist
+        String barcode_index1 = basename(barcodes_fastq[0])
 
         # [?] copied from corresponding optimus wdl for fastqprocessing
         # using the latest build of warp-tools in GCR
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:aa_updatefastqprocess_cbtag"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.7-1695393479"
 
         # Runtime attributes [?]
         Int mem_size = 5
@@ -288,12 +289,17 @@ task FastqProcessATAC {
         read3_fastq_files=`printf '%s ' "${FASTQ3_ARRAY[@]}"; echo`
 
         echo $read1_fastq_files
-        
+        # Make downsample fq for barcode orientation check of R2 barcodes
         mkdir /cromwell_root/input_fastq
         gcloud storage cp $read1_fastq_files /cromwell_root/input_fastq
         gcloud storage cp $read2_fastq_files /cromwell_root/input_fastq
         gcloud storage cp $read3_fastq_files /cromwell_root/input_fastq
 
+        path="/cromwell_root/input_fastq/"
+        barcode_index="~{barcode_index1}"
+        file="${path}${barcode_index}"
+        zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
+        head -n 1 downsample.fq
         # barcodes R2
         R1_FILES_CONCAT=""
         for fastq in "${FASTQ2_ARRAY[@]}"
@@ -324,6 +330,11 @@ task FastqProcessATAC {
         done
         echo $R3_FILES_CONCAT
 
+        python3 /warptools/scripts/dynamic-barcode-orientation.py downsample.fq ~{whitelist} best_match.txt
+        
+        cat best_match.txt
+        barcode_choice=$(<best_match.txt)
+        echo $barcode_choice
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
         mkdir /cromwell_root/output_fastq
@@ -337,7 +348,7 @@ task FastqProcessATAC {
         $R3_FILES_CONCAT \
         --white-list "~{whitelist}" \
         --output-format "FASTQ" \
-        --barcode-orientation "~{barcode_orientation}" \
+        --barcode-orientation $barcode_choice \
         --read-structure "~{read_structure}"
 
     >>>
