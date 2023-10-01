@@ -66,9 +66,15 @@ workflow VUMCCollectWgsMetrics {
       target_bucket = target_bucket
   } 
 
+  call GetIlluminaCoverage {
+    input:
+      wgs_metrics = MoveFile.output_file
+  }
+
   # Outputs that will be retained when execution is complete
   output {
     File wgs_metrics = MoveFile.output_file
+    Float illumina_coverage = GetIlluminaCoverage.illumina_coverage
   }
   meta {
     allowNestedInputs: true
@@ -123,5 +129,29 @@ fi
   }
   output {
     String output_file = "~{new_file}"
+  }
+}
+
+task GetIlluminaCoverage {
+  input {
+    File wgs_metrics
+  }
+
+  #https://www.illumina.com/content/dam/illumina-marketing/documents/products/technotes/hiseq-x-30x-coverage-technical-note-770-2014-042.pdf
+  command <<<
+
+  R --vanilla <<RSCRIPT
+
+library(data.table)
+dat=fread(~{wgs_metrics})
+tdat=t(dat)
+coverage=tdat["MEAN_COVERAGE",1] * (1- tdat["PCT_EXC_DUPE",1]-tdat["PCT_EXC_OVERLAP",1])/(1-tdat["PCT_EXC_TOTAL",1])
+writeLines(as.character(coverage), "coverage.txt")
+
+RSCRIPT
+
+>>>
+  output {
+    Float illumina_coverage = read_float("coverage.txt")
   }
 }
