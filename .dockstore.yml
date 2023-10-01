@@ -212,3 +212,9 @@ workflows:
   - name: VUMCVariantCallingMoveResult
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCVariantCallingMoveResult.wdl
+
+  - name: VUMCCollectWgsMetrics
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCCollectWgsMetrics.wdl
+
+
