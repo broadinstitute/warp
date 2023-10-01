@@ -185,7 +185,7 @@ task CombineGvsChromosome {
     String chromosome
     Array[File] vcf_files
 
-    String docker = "staphb/bcftools"
+    String docker = "shengqh/cqs_exomeseq:20220719"
     Int preemptible_tries=3
   }
 
