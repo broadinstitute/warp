@@ -32,9 +32,9 @@ task GetIlluminaCoverage {
 R --vanilla <<RSCRIPT
 
 library(data.table)
-dat=fread(~{wgs_metrics})
+dat=fread("~{wgs_metrics}")
 tdat=t(dat)
-coverage=tdat["MEAN_COVERAGE",1] * (1- tdat["PCT_EXC_DUPE",1]-tdat["PCT_EXC_OVERLAP",1])/(1-tdat["PCT_EXC_TOTAL",1])
+coverage=tdat["MEAN_COVERAGE",1] * (1 - tdat["PCT_EXC_DUPE",1] - tdat["PCT_EXC_OVERLAP",1]) / (1 - tdat["PCT_EXC_TOTAL",1])
 writeLines(as.character(coverage), "coverage.txt")
 
 RSCRIPT
