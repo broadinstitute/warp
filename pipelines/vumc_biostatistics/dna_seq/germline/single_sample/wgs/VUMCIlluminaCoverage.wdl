@@ -29,12 +29,17 @@ task GetIlluminaCoverage {
   #https://www.illumina.com/content/dam/illumina-marketing/documents/products/technotes/hiseq-x-30x-coverage-technical-note-770-2014-042.pdf
   command <<<
 
+grep -A 1 GENOME_TERRITORY ~{wgs_metrics} > test.tsv
+
 R --vanilla <<RSCRIPT
 
-library(data.table)
-dat=fread("~{wgs_metrics}")
+dat=read.table("test.tsv", header=T, sep="\t")
 tdat=t(dat)
-coverage=tdat["MEAN_COVERAGE",1] * (1 - tdat["PCT_EXC_DUPE",1] - tdat["PCT_EXC_OVERLAP",1]) / (1 - tdat["PCT_EXC_TOTAL",1])
+
+tn=as.numeric(tdat)
+names(tn) = rownames(tdat)
+
+coverage=tn["MEAN_COVERAGE"] * (1 - tn["PCT_EXC_DUPE"] - tn["PCT_EXC_OVERLAP"]) / (1 - tn["PCT_EXC_TOTAL"])
 writeLines(as.character(coverage), "coverage.txt")
 
 RSCRIPT
@@ -42,7 +47,7 @@ RSCRIPT
 >>>
 
   runtime {
-    docker: "shengqh/cqs_scrnaseq:20230721"
+    docker: "r-base:4.3.1"
     preemptible: 1
     disks: "local-disk 10 HDD"
     memory: "2 GiB"
