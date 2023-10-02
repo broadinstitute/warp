@@ -57,7 +57,7 @@ workflow VUMCCollectWgsMetrics {
       preemptible_tries = papi_settings.agg_preemptible_tries
   }
 
-  call MoveFile {
+  call CopyFile {
     input:
       genoset = genoset,
       GRID = GRID,
@@ -81,7 +81,7 @@ workflow VUMCCollectWgsMetrics {
   }
 }
 
-task MoveFile {
+task CopyFile {
   input {
     String genoset
     String GRID
@@ -99,11 +99,11 @@ set +e
 
 result=$(gsutil -q stat ~{input_file} || echo 1)
 if [[ $result != 1 ]]; then
-  echo "Source file exists, moving to target bucket ..."
+  echo "Source file exists, copying to target bucket ..."
 
   set -e
     
-  gsutil -m ~{"-u " + project_id} mv ~{input_file} \
+  gsutil -m ~{"-u " + project_id} cp ~{input_file} \
     ~{target_bucket}/~{genoset}/~{GRID}/
 
 else
@@ -140,7 +140,7 @@ task GetIlluminaCoverage {
   #https://www.illumina.com/content/dam/illumina-marketing/documents/products/technotes/hiseq-x-30x-coverage-technical-note-770-2014-042.pdf
   command <<<
 
-  R --vanilla <<RSCRIPT
+R --vanilla <<RSCRIPT
 
 library(data.table)
 dat=fread(~{wgs_metrics})
