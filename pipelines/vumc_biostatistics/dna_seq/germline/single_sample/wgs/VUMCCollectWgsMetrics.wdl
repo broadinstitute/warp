@@ -151,6 +151,13 @@ writeLines(as.character(coverage), "coverage.txt")
 RSCRIPT
 
 >>>
+
+  runtime {
+    docker: "shengqh/cqs_scrnaseq:20230721"
+    preemptible: 1
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+  }
   output {
     Float illumina_coverage = read_float("coverage.txt")
   }
