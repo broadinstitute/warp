@@ -47,7 +47,7 @@ RSCRIPT
 >>>
 
   runtime {
-    docker: "r-base:4.3.1"
+    docker: "r-base:4.1.2"
     preemptible: 1
     disks: "local-disk 10 HDD"
     memory: "2 GiB"
