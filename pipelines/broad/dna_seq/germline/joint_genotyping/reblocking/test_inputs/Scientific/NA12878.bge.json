@@ -1,6 +1,6 @@
 {
-  "ReblockGVCF.gvcf": "fill-in",
-  "ReblockGVCF.gvcf_index": "fill-in",
+  "ReblockGVCF.gvcf": "gs://broad-gotc-test-storage/ReblockGVCF/input/scientific/NA12878.bge/NA12878.hard-filtered.gvcf.gz",
+  "ReblockGVCF.gvcf_index": "gs://broad-gotc-test-storage/ReblockGVCF/input/scientific/NA12878.bge/NA12878.hard-filtered.gvcf.gz.tbi",
   "ReblockGVCF.calling_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/bge_exome_calling_regions.v1.1.interval_list",
   "ReblockGVCF.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
   "ReblockGVCF.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
