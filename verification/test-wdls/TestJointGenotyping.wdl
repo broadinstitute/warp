@@ -42,9 +42,11 @@ workflow TestJointGenotyping {
       Float excess_het_threshold = 54.69
       Float? vqsr_snp_filter_level
       Float? vqsr_indel_filter_level
+      File? targets_interval_list
       Int? snp_vqsr_downsampleFactor
       Int? top_level_scatter_count
       Boolean? gather_vcfs
+      Boolean? run_vets
       Int snps_variant_recalibration_threshold = 500000
       Boolean rename_gvcf_samples = true
       Float unbounded_scatter_count_scale_factor = 0.15
@@ -102,8 +104,10 @@ workflow TestJointGenotyping {
         vqsr_snp_filter_level = vqsr_snp_filter_level,
         vqsr_indel_filter_level = vqsr_indel_filter_level,
         snp_vqsr_downsampleFactor = snp_vqsr_downsampleFactor,
+        targets_interval_list = targets_interval_list,
         top_level_scatter_count = top_level_scatter_count,
         gather_vcfs = gather_vcfs,
+        run_vets = run_vets,
         snps_variant_recalibration_threshold = snps_variant_recalibration_threshold,
         rename_gvcf_samples = rename_gvcf_samples,
         unbounded_scatter_count_scale_factor = unbounded_scatter_count_scale_factor,
