@@ -217,4 +217,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCCollectWgsMetrics.wdl
 
-
+  - name: VUMCIlluminaCoverage
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCIlluminaCoverage.wdl
