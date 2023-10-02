@@ -648,7 +648,7 @@ task STARGenomeRefVersion {
   input {
     String tar_star_reference
     Int disk = 10
-    String alpine_docker_path
+    String ubuntu_docker_path
   }
 
   meta {
@@ -681,7 +681,7 @@ task STARGenomeRefVersion {
   }
 
   runtime {
-    docker: alpine_docker_path
+    docker: ubuntu_docker_path
     memory: "2 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
