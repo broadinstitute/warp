@@ -1,29 +1,8 @@
 version 1.0
 
-## Copyright Broad Institute/VUMC, 2018/2022
-##
-## This WDL pipeline implements data pre-processing and initial variant calling (GVCF
-## generation) according to the GATK Best Practices (June 2016) for germline SNP and
-## Indel discovery in human whole-genome data.
-##
-## Requirements/expectations :
-## - Human whole-genome pair-end sequencing data in FASTQ format
-## - GVCF output names must end in ".g.vcf.gz"
-## - Reference genome must be Hg38 with ALT contigs
-##
-## Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
-## For program versions, see docker containers.
-##
-## LICENSING :
-## This script is released under the WDL source code license (BSD-3) (see LICENSE in
-## https://github.com/broadinstitute/wdl). Note however that the programs it calls may
-## be subject to different licenses. Users are responsible for checking that they are
-## authorized to run all programs before running this script. Please see the docker
-## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
-## licensing information pertaining to the included programs.
-
 import "../../../../../../tasks/broad/Qc.wdl" as QC
 import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
+import "./VUMCIlluminaCoverage.wdl" as VUMCIlluminaCoverage
 
 # WORKFLOW DEFINITION
 workflow VUMCCollectWgsMetrics {
@@ -66,14 +45,14 @@ workflow VUMCCollectWgsMetrics {
       target_bucket = target_bucket
   } 
 
-  call GetIlluminaCoverage {
+  call VUMCIlluminaCoverage.GetIlluminaCoverage {
     input:
-      wgs_metrics = MoveFile.output_file
+      wgs_metrics = CopyFile.output_file
   }
 
   # Outputs that will be retained when execution is complete
   output {
-    File wgs_metrics = MoveFile.output_file
+    File wgs_metrics = CopyFile.output_file
     Float illumina_coverage = GetIlluminaCoverage.illumina_coverage
   }
   meta {
@@ -129,36 +108,5 @@ fi
   }
   output {
     String output_file = "~{new_file}"
-  }
-}
-
-task GetIlluminaCoverage {
-  input {
-    File wgs_metrics
-  }
-
-  #https://www.illumina.com/content/dam/illumina-marketing/documents/products/technotes/hiseq-x-30x-coverage-technical-note-770-2014-042.pdf
-  command <<<
-
-R --vanilla <<RSCRIPT
-
-library(data.table)
-dat=fread(~{wgs_metrics})
-tdat=t(dat)
-coverage=tdat["MEAN_COVERAGE",1] * (1- tdat["PCT_EXC_DUPE",1]-tdat["PCT_EXC_OVERLAP",1])/(1-tdat["PCT_EXC_TOTAL",1])
-writeLines(as.character(coverage), "coverage.txt")
-
-RSCRIPT
-
->>>
-
-  runtime {
-    docker: "shengqh/cqs_scrnaseq:20230721"
-    preemptible: 1
-    disks: "local-disk 10 HDD"
-    memory: "2 GiB"
-  }
-  output {
-    Float illumina_coverage = read_float("coverage.txt")
   }
 }
