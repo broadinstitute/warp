@@ -210,7 +210,6 @@ task SumFloats {
 task ErrorWithMessage {
   input {
     String message
-    String alpine_docker_path
   }
   command <<<
     >&2 echo "Error: ~{message}"
@@ -218,7 +217,7 @@ task ErrorWithMessage {
   >>>
 
   runtime {
-    docker: alpine_docker_path
+    docker: "ubuntu:20.04"
   }
 }
 

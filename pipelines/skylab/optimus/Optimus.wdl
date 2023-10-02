@@ -110,8 +110,7 @@ workflow Optimus {
   if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
     call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
       input:
-        message = "cloud_provider must be supplied with either 'gcp' or 'azure'.",
-        alpine_docker_path = alpine_docker_prefix + alpine_docker
+        message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
     }
   }
 
