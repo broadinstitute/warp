@@ -36,7 +36,7 @@ workflow VUMCCollectWgsMetrics {
       preemptible_tries = papi_settings.agg_preemptible_tries
   }
 
-  call CopyFile {
+  call CopyFileNoOverwrite as CopyFile {
     input:
       genoset = genoset,
       GRID = GRID,
@@ -60,7 +60,7 @@ workflow VUMCCollectWgsMetrics {
   }
 }
 
-task CopyFile {
+task CopyFileNoOverwrite {
   input {
     String genoset
     String GRID
@@ -76,24 +76,22 @@ task CopyFile {
   command <<<
 set +e
 
-result=$(gsutil -q stat ~{input_file} || echo 1)
+result=$(gsutil -q stat ~{new_file} || echo 1)
 if [[ $result != 1 ]]; then
-  echo "Source file exists, copying to target bucket ..."
+  echo "Target file exists, return"
+  exit 0
 
-  set -e
-    
-  gsutil -m ~{"-u " + project_id} cp ~{input_file} \
-    ~{target_bucket}/~{genoset}/~{GRID}/
-
-else
-  echo "Source file does not exist, checking target file ..."
-
-  result=$(gsutil -q stat ~{new_file} || echo 1)
+  result=$(gsutil -q stat ~{input_file} || echo 1)
   if [[ $result != 1 ]]; then
-    echo "Target file exists, return"
-    exit 0
+    echo "Source file exists, copying to target bucket ..."
+
+    set -e
+      
+    gsutil -m ~{"-u " + project_id} cp ~{input_file} \
+      ~{target_bucket}/~{genoset}/~{GRID}/
+
   else
-    echo "Target file does not exist, error"
+    echo "Both source file and target file does not exist, error ..."
     exit 1
   fi
 fi
