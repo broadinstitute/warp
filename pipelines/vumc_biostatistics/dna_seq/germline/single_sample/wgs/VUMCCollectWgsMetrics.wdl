@@ -85,8 +85,9 @@ if [[ $result != 1 ]]; then
   if [[ $result != 1 ]]; then
     echo "Source file exists, copying to target bucket ..."
 
+    set -o pipefail
     set -e
-      
+     
     gsutil -m ~{"-u " + project_id} cp ~{input_file} \
       ~{target_bucket}/~{genoset}/~{GRID}/
 
