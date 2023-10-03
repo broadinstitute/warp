@@ -76,12 +76,12 @@ task CopyFileNoOverwrite {
   command <<<
 set +e
 
-result=$(gsutil -q stat ~{new_file} || echo 1)
+result=$(gsutil ~{"-u " + project_id} -q stat ~{new_file} || echo 1)
 if [[ $result != 1 ]]; then
   echo "Target file exists, return"
   exit 0
 
-  result=$(gsutil -q stat ~{input_file} || echo 1)
+  result=$(gsutil ~{"-u " + project_id} -q stat ~{input_file} || echo 1)
   if [[ $result != 1 ]]; then
     echo "Source file exists, copying to target bucket ..."
 
