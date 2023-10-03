@@ -47,7 +47,7 @@ workflow VUMCCollectWgsMetrics {
 
   call VUMCIlluminaCoverage.GetIlluminaCoverage {
     input:
-      wgs_metrics = CopyFile.output_file
+      wgs_metrics = CollectWgsMetrics.metrics
   }
 
   # Outputs that will be retained when execution is complete
