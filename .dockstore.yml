@@ -220,3 +220,7 @@ workflows:
   - name: VUMCIlluminaCoverage
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCIlluminaCoverage.wdl
+
+  - name: VUMCVcfInfo
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfInfo.wdl
