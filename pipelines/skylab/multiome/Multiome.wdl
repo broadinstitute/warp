@@ -96,7 +96,7 @@ workflow Multiome {
         # atac outputs
         File bam_aligned_output_atac = Atac.bam_aligned_output
         File fragment_file_atac = Atac.fragment_file
-        File snap_metrics_atac = JoinBarcodes.atac_h5ad
+        File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
@@ -107,6 +107,6 @@ workflow Multiome {
         File cell_metrics_gex = Optimus.cell_metrics
         File gene_metrics_gex = Optimus.gene_metrics
         File? cell_calls_gex = Optimus.cell_calls
-        File h5ad_output_file_gex = JoinBarcodes.gex_h5ad
+        File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
     }
 }
