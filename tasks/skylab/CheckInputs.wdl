@@ -140,7 +140,7 @@ task checkOptimusInput {
         pass="false"
         echo "ERROR: Cloud provider must be either gcp or azure"
       fi
-      echo $WHITELIST > whitelist.txt
+      echo $WHITELIST
       echo 16C12M > read_struct.txt
     else
       pass="false"
