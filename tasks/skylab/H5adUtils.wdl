@@ -182,3 +182,94 @@ task SingleNucleusOptimusH5adOutput {
         File h5ad_output = "~{input_id}.h5ad"
     }
 }
+
+task JoinMultiomeBarcodes {
+    input {
+    File atac_h5ad
+    File gex_h5ad
+    File gex_whitelist
+    File atac_whitelist
+    Int disk_size = 500
+    Int mem_size = 16
+    Int nthreads = 1
+    String cpuPlatform = "Intel Cascade Lake"
+  }
+
+  String atac_base_name = basename(atac_h5ad, ".h5ad")
+  String gex_base_name = basename(gex_h5ad, ".h5ad")
+
+  parameter_meta {
+    atac_h5ad: "The resulting h5ad from the ATAC workflow."
+    gex_h5ad: "The resulting h5ad from the Optimus workflow."
+    gex_whitelist: "Whitelist used for gene expression barcodes."
+    atac_whitelist: "Whitelist used for ATAC barcodes."
+    disk_size: "Disk size used in create fragment file step."
+    mem_size: "The size of memory used in create fragment file."
+  }
+
+  command <<<
+    set -e pipefail
+
+    python3 <<CODE
+
+    # set parameters
+    atac_gtf = "~{annotations_gtf}"
+    bam = "~{bam}"
+    atac_base_name = "~{atac_base_name}"
+    gex_base_name = "~{gex_base_name}"
+    gex_whitelist = "~{gex_whitelist}"
+    atac_whitelist = "~{atac_whitelist}"
+
+
+    # import anndata to manipulate h5ad files
+    import anndata as ad
+    import pandas as pd
+    atac_data = ad.read_h5ad("~{atac_base_name}.h5ad")
+    gex_data = ad.read_h5ad("~{gex_base_name}.h5ad")
+    whitelist_gex = pd.read_csv("~{gex_whitelist}", header=None, names=["gex_barcodes"])
+    whitelist_atac = pd.read_csv("~{atac_whitelist}", header=None, names=["atac_barcodes"])
+
+    # get dataframes
+    df_atac = atac_data.obs
+    df_gex = gex_data.obs
+    print(df_atac)
+
+    # Idenitfy the barcodes in the whitelist that match barcodes in datasets
+    whitelist_atac["MATCH_ATAC"] = whitelist_atac.isin(df_atac.index).astype(int)
+    whitelist_gex["MATCH_GEX"] = whitelist_gex.isin(df_gex.index).astype(int)
+
+    print("Printing whitelist_gex")
+    print(whitelist_gex[1:10])
+
+    df_all = pd.concat([whitelist_gex,whitelist_atac], axis=1)
+    df_common = df_all.loc[(df_all['MATCH_GEX'] == 1) & (df_all['MATCH_ATAC'] == 1)]
+    df_both = df_all.copy()
+    df_both.set_index("atac_barcodes", inplace=True)
+    df_both.drop(["MATCH_GEX", "MATCH_ATAC"], axis=1, inplace=True)
+
+    df_atac = atac_data.obs.join(df_both).dropna()
+    df_gex = gex_data.obs.join(df_both).dropna()
+    # set atac_data.obs to new dataframe
+    atac_data.obs = df_atac
+    #rename ATAC matrix 'index' to atac_barcodes
+    atac_data.obs.index.name = 'atac_barcodes'
+    # set gene_data.obs to new dataframe
+    gex_data.obs = df_gex
+    # write out the files
+    gex_data.write("~{gex_base_name}.h5ad")
+    atac_data.write_h5ad("~{atac_base_name}.h5ad")
+    CODE
+  >>>
+
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1"
+    disks: "local-disk ${disk_size} SSD"
+    memory: "${mem_size} GiB"
+    cpu: nthreads
+  }
+
+  output {
+    File gex_h5ad_file = "~{gex_base_name}.h5ad"
+    File atac_h5ad_file = "~{atac_base_name}.h5ad"
+  }
+}
