@@ -208,7 +208,7 @@ The following table lists the output files produced from the pipeline. For sampl
 | fastq_reads_per_umi | `<input_id>.numReads_perCell_XM.txt` | Metric file containing the number of reads per UMI that were calculated prior to alignment. | TXT |
 | loom_output_file | `<input_id>.loom` | Loom file containing count data and metadata. | Loom | 
 
-The Loom matrix is the default output. See the [create_loom_slide_seq.py](https://github.com/broadinstitute/warp-tools/blob/develop/scripts/create_loom_optimus.py) script for the detailed code. This matrix contains the unnormalized (unfiltered) count matrices, as well as the gene and bead barcode metrics detailed in the [Slide-seq Count Matrix Overview](./count-matrix-overview.md).
+The Loom matrix is the default output. See the [create_loom_slide_seq.py](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/create_loom_optimus.py) script for the detailed code. This matrix contains the unnormalized (unfiltered) count matrices, as well as the gene and bead barcode metrics detailed in the [Slide-seq Count Matrix Overview](./count-matrix-overview.md).
 
 The output Loom matrix can be converted to an H5AD file for downstream processing using a [custom script](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/loom_to_h5ad.py) available in the [warp-tools GitHub repository](https://github.com/broadinstitute/warp-tools).
 
