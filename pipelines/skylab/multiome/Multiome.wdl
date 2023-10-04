@@ -80,10 +80,10 @@ workflow Multiome {
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
-                File atac_h5ad = Optimus.h5ad_output_file,
-                File gex_h5ad = Atac.snap_metrics,
-                File gex_whitelist = gex_whitelist,
-                File atac_whitelist = atac_whitelist
+            atac_h5ad = Optimus.h5ad_output_file,
+            gex_h5ad = Atac.snap_metrics,
+            gex_whitelist = gex_whitelist,
+            atac_whitelist = atac_whitelist
     }
     meta {
         allowNestedInputs: true
