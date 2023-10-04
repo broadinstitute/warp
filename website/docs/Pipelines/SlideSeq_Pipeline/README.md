@@ -141,7 +141,7 @@ Poly(A) tails are trimmed from reads using the STARsolo parameter `--clip3pAdapt
 
 **Alignment**
 
-STAR maps barcoded reads to the genome primary assembly reference (see the [Quickstart table](https://broadinstitute.github.io/warp/docs/Pipelines/Slide-seq_Pipeline/README#quickstart-table) above for version information). The example references for the Slide-seq workflow were generated using the [BuildIndices pipeline](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl).
+STAR maps barcoded reads to the genome primary assembly reference (see the [Quickstart table](#quickstart-table) above for version information). The example references for the Slide-seq workflow were generated using the [BuildIndices pipeline](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl).
 
 **Gene annotation and counting**
 
@@ -155,7 +155,7 @@ The task’s output includes a coordinate-sorted BAM file containing the bead ba
 
 #### 4. Calculating metrics
 
-The [CalculateGeneMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl), [CalculateUMIsMetrics](https://github.com/broadinstitute/warp/blob/develop/master/skylab/Metrics.wdl), and [CalculateCellMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) tasks use [warp-tools](https://github.com/broadinstitute/warp-tools) to calculate summary metrics that help assess the per-bead and per-UMI quality of the data output each time this pipeline is run. 
+The [CalculateGeneMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl), [CalculateUMIsMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl), and [CalculateCellMetrics](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) tasks use [warp-tools](https://github.com/broadinstitute/warp-tools) to calculate summary metrics that help assess the per-bead and per-UMI quality of the data output each time this pipeline is run. 
 
 These metrics output from both tasks are included in the output Loom matrix. A detailed list of these metrics is found in the [Slide-seq Count Matrix Overview](./count-matrix-overview.md).
 
