@@ -213,8 +213,6 @@ task JoinMultiomeBarcodes {
     python3 <<CODE
 
     # set parameters
-    atac_gtf = "~{annotations_gtf}"
-    bam = "~{bam}"
     atac_base_name = "~{atac_base_name}"
     gex_base_name = "~{gex_base_name}"
     gex_whitelist = "~{gex_whitelist}"
