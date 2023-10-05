@@ -194,10 +194,8 @@ task JoinMultiomeBarcodes {
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
   }
-
-  String atac_base_name = basename(atac_h5ad, ".h5ad")
-  String gex_base_name = basename(gex_h5ad, ".h5ad")
-
+    String gex_base_name = basename(gex_h5ad, ".h5ad")
+    String atac_base_name = basename(atac_h5ad, ".h5ad")
   parameter_meta {
     atac_h5ad: "The resulting h5ad from the ATAC workflow."
     gex_h5ad: "The resulting h5ad from the Optimus workflow."
@@ -213,17 +211,18 @@ task JoinMultiomeBarcodes {
     python3 <<CODE
 
     # set parameters
-    atac_base_name = "~{atac_base_name}"
-    gex_base_name = "~{gex_base_name}"
+    atac_h5ad = "~{atac_h5ad}"
+    gex_h5ad = "~{gex_h5ad}"
     gex_whitelist = "~{gex_whitelist}"
     atac_whitelist = "~{atac_whitelist}"
+    h5ad_base_name = "~{h5ad_base_name}"
 
 
     # import anndata to manipulate h5ad files
     import anndata as ad
     import pandas as pd
-    atac_data = ad.read_h5ad("~{atac_base_name}.h5ad")
-    gex_data = ad.read_h5ad("~{gex_base_name}.h5ad")
+    atac_data = ad.read_h5ad("~{atac_h5ad}")
+    gex_data = ad.read_h5ad("~{gex_h5ad}")
     whitelist_gex = pd.read_csv("~{gex_whitelist}", header=None, names=["gex_barcodes"])
     whitelist_atac = pd.read_csv("~{atac_whitelist}", header=None, names=["atac_barcodes"])
 
