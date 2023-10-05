@@ -1,3 +1,7 @@
+# 1.1.0
+2023-09-21 (Date of Last Commit)
+* Added dynamic barcode selection to the ATAC FastqProcess task
+
 # 1.0.1
 2023-09-05
 

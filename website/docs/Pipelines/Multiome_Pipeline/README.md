@@ -7,7 +7,7 @@ slug: /Pipelines/Multiome_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Multiome v1.0.0](https://github.com/broadinstitute/warp/releases) | June, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [Multiome v2.1.0](https://github.com/broadinstitute/warp/releases) | September, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![Multiome_diagram](./multiome_diagram.png)
 
@@ -110,6 +110,10 @@ The Multiome workflow calls two subworkflows, which are described briefly in the
 ## Versioning and testing
 
 All Multiome pipeline releases are documented in the [Multiome changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/Multiome.changelog.md) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/test_inputs/test_data_overview.md). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
+
+## Citing the Multiome Pipeline
+Please identify the pipeline in your methods section using the Multiome Pipeline's [SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_024217/resolver?q=SCR_024217&l=SCR_024217&i=rrid:scr_024217).
+* Ex: *Multiome Pipeline (RRID:SCR_024217)*
 
 ## Consortia support
 This pipeline is supported by the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and BICAN). 
