@@ -1,13 +1,13 @@
 version 1.0
 
-import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
-import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
-import "../../../tasks/skylab/Metrics.wdl" as Metrics
-import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
-import "../../../tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
-import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
-import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
-import "../../../tasks/broad/Utilities.wdl" as utils
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/skylab/FastqProcessing.wdl" as FastqProcessing
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/skylab/StarAlign.wdl" as StarAlign
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/skylab/Metrics.wdl" as Metrics
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/skylab/MergeSortBam.wdl" as Merge
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/skylab/H5adUtils.wdl" as H5adUtils
+import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/broad/Utilities.wdl" as utils
 
 workflow Optimus {
   meta {
