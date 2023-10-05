@@ -28,7 +28,6 @@ workflow ATAC {
 
     # Whitelist
     File whitelist
-    File whitelist_gex = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt"
 
     # TrimAdapters input
     String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
@@ -86,9 +85,7 @@ workflow ATAC {
     input:
       bam = MergeBam.output_bam,
       chrom_sizes = chrom_sizes,
-      annotations_gtf = annotations_gtf,
-      gex_whitelist = whitelist_gex,
-      atac_whitelist = whitelist
+      annotations_gtf = annotations_gtf
   }
 
   output {
@@ -234,8 +231,6 @@ task CreateFragmentFile {
     File bam
     File annotations_gtf
     File chrom_sizes
-    File gex_whitelist
-    File atac_whitelist
     Int disk_size = 500
     Int mem_size = 16
     Int nthreads = 1
@@ -262,8 +257,6 @@ task CreateFragmentFile {
     bam = "~{bam}"
     bam_base_name = "~{bam_base_name}"
     chrom_sizes = "~{chrom_sizes}"
-    gex_whitelist = "~{gex_whitelist}"
-    atac_whitelist = "~{atac_whitelist}"
 
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
@@ -282,6 +275,7 @@ task CreateFragmentFile {
     # calculate quality metrics; note min_num_fragments and min_tsse are set to 0 instead of default
     # those settings allow us to retain all barcodes
     pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_size=chrom_size_dict, gene_anno="~{annotations_gtf}", min_num_fragments=0, min_tsse=0)
+
     CODE
   >>>
 
