@@ -215,8 +215,6 @@ task JoinMultiomeBarcodes {
     gex_h5ad = "~{gex_h5ad}"
     gex_whitelist = "~{gex_whitelist}"
     atac_whitelist = "~{atac_whitelist}"
-    h5ad_base_name = "~{h5ad_base_name}"
-
 
     # import anndata to manipulate h5ad files
     import anndata as ad
