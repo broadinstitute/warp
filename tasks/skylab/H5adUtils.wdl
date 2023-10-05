@@ -219,6 +219,10 @@ task JoinMultiomeBarcodes {
     # import anndata to manipulate h5ad files
     import anndata as ad
     import pandas as pd
+    print("Reading ATAC h5ad:")
+    print("~{atac_h5ad}")
+    print("Reading Optimus h5ad:")
+    print("~{gex_h5ad}")
     atac_data = ad.read_h5ad("~{atac_h5ad}")
     gex_data = ad.read_h5ad("~{gex_h5ad}")
     whitelist_gex = pd.read_csv("~{gex_whitelist}", header=None, names=["gex_barcodes"])
@@ -228,6 +232,7 @@ task JoinMultiomeBarcodes {
     df_atac = atac_data.obs
     df_gex = gex_data.obs
     print(df_atac)
+    print(df_gex)
 
     # Idenitfy the barcodes in the whitelist that match barcodes in datasets
     whitelist_atac["MATCH_ATAC"] = whitelist_atac.isin(df_atac.index).astype(int)
@@ -246,10 +251,12 @@ task JoinMultiomeBarcodes {
     df_atac = atac_data.obs.join(df_both_atac).dropna()
     df_gex = gex_data.obs.join(df_both_gex).dropna()
     # set atac_data.obs to new dataframe
+    print("Setting ATAC obs to new dataframe")
     atac_data.obs = df_atac
     #rename ATAC matrix 'index' to atac_barcodes
     atac_data.obs.index.name = 'atac_barcodes'
     # set gene_data.obs to new dataframe
+    print("Setting Optimus obs to new dataframe")
     gex_data.obs = df_gex
     # write out the files
     gex_data.write("~{gex_base_name}.h5ad")
