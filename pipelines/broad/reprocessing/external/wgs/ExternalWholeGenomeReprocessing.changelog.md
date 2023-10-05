@@ -1,3 +1,8 @@
+# 2.1.14
+2023-09-18 (Date of Last Commit)
+
+* ReblockGVCFs can now take in GVCFs that are not in the same location as their index file, this update has no effect on this pipeline.
+
 # 2.1.13
 2023-08-23 (Date of Last Commit)
 

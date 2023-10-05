@@ -43,7 +43,7 @@ workflow UltimaGenomicsWholeGenomeCramOnly {
     save_bam_file: "If true, then save intermeidate ouputs used by germline pipeline (such as the output BAM) otherwise they won't be kept as outputs."
   }
 
-  String pipeline_version = "1.0.9"
+  String pipeline_version = "1.0.10"
 
   References references = alignment_references.references
 

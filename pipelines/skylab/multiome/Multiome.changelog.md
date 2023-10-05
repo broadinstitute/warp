@@ -1,3 +1,7 @@
+# 2.1.0
+2023-09-21 (Date of Last Commit)
+* Added dynamic barcode orientation selection to the ATAC workflow FastqProcess task
+
 # 2.0.0
 2023-09-05 (Date of Last Commit)
 
