@@ -4,7 +4,7 @@ import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 workflow Multiome {
-    String pipeline_version = "2.1.0"
+    String pipeline_version = "2.2.0"
 
     input {
         String input_id
