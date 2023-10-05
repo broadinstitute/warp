@@ -237,13 +237,14 @@ task JoinMultiomeBarcodes {
     print(whitelist_gex[1:10])
 
     df_all = pd.concat([whitelist_gex,whitelist_atac], axis=1)
-    df_common = df_all.loc[(df_all['MATCH_GEX'] == 1) & (df_all['MATCH_ATAC'] == 1)]
-    df_both = df_all.copy()
-    df_both.set_index("atac_barcodes", inplace=True)
-    df_both.drop(["MATCH_GEX", "MATCH_ATAC"], axis=1, inplace=True)
-
-    df_atac = atac_data.obs.join(df_both).dropna()
-    df_gex = gex_data.obs.join(df_both).dropna()
+    df_both_gex = df_all.copy()
+    df_both_atac = df_all.copy()
+    df_both_atac.set_index("atac_barcodes", inplace=True)
+    df_both_gex.set_index("gex_barcodes", inplace=True)
+    df_both_gex.drop(["MATCH_GEX", "MATCH_ATAC"], axis=1, inplace=True)
+    df_both_atac.drop(["MATCH_GEX", "MATCH_ATAC"], axis=1, inplace=True)
+    df_atac = atac_data.obs.join(df_both_atac).dropna()
+    df_gex = gex_data.obs.join(df_both_gex).dropna()
     # set atac_data.obs to new dataframe
     atac_data.obs = df_atac
     #rename ATAC matrix 'index' to atac_barcodes
