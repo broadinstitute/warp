@@ -482,8 +482,8 @@ task hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
         File tarred_index_files
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 50
-        Int mem_size = 10
+        Int disk_size = 80
+        Int mem_size = 20
     }
     command <<<
         set -euo pipefail
@@ -495,75 +495,44 @@ task hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
 
         # untar the tarred index files
         cd reference/
-        tar -xf ~{tarred_index_files}
+        tar -xvf ~{tarred_index_files}
         rm ~{tarred_index_files}
+        samtools faidx hg38.fa
 
         # untar the unmapped fastq files
-        tar -xf ~{split_fq_tar}
+        tar -xvf ~{split_fq_tar}
         rm ~{split_fq_tar}
 
         # define lists of r1 and r2 fq files
         R1_files=($(ls | grep "\.hisat3n_dna.split_reads.R1.fastq"))
         R2_files=($(ls | grep "\.hisat3n_dna.split_reads.R2.fastq"))
 
-
         for file in "${R1_files[@]}"; do
           sample_id=$(basename "$file" ".hisat3n_dna.split_reads.R1.fastq")
-          hisat-3n \
-          /cromwell_root/reference/hg38 \
-          -q \
-          -U ${sample_id}.hisat3n_dna.split_reads.R1.fastq \
-          --directional-mapping-reverse \  # map R1 in pbat mode
-          --base-change C,T \
-          --no-repeat-index \
-          --no-spliced-alignment \  # this is important for DNA mapping
-          --no-temp-splicesite
-          -t
-          --new-summary \
-          --summary-file ${sample_id}.hisat3n_dna_split_reads_summary.R1.txt \
-          --threads 11 \
-          | \
-          samtools view \
-          -b -q 10 -o ${sample_id}.hisat3n_dna.split_reads.R1.bam  # only take the unique aligned reads
+          hisat-3n /cromwell_root/reference/hg38 -q -U ${sample_id}.hisat3n_dna.split_reads.R1.fastq --directional-mapping-reverse --base-change C,T --no-repeat-index --no-spliced-alignment --no-temp-splicesite -t --new-summary --summary-file ${sample_id}.hisat3n_dna_split_reads_summary.R1.txt --threads 11 | samtools view -b -q 10 -o "${sample_id}.hisat3n_dna.split_reads.R1.bam"
         done
 
-        for file in "${R2_files[@]}"; do
-          sample_id=$(basename "$file" ".hisat3n_dna.split_reads.R2.fastq")
-          hisat-3n \
-          /cromwell_root/reference/hg38 \
-          -q \
-          -U ${sample_id}.hisat3n_dna.split_reads.R2.fastq \
-          --directional-mapping \  # map R2 in normal mode
-          --base-change C,T \
-          --no-repeat-index \
-          --no-spliced-alignment \  # this is important for DNA mapping
-          --no-temp-splicesite \
-          -t \
-          --new-summary \
-          --summary-file ${sample_id}.hisat3n_dna_split_reads_summary.R2.txt \
-          --threads 11 \
-          | \
-          samtools view \
-          -b -q 10 -o ${sample_id}.hisat3n_dna.split_reads.R2.bam  # only take the unique aligned reads
-        done
+       for file in "${R2_files[@]}"; do
+         sample_id=$(basename "$file" ".hisat3n_dna.split_reads.R2.fastq")
+         hisat-3n /cromwell_root/reference/hg38 -q -U ${sample_id}.hisat3n_dna.split_reads.R2.fastq --directional-mapping --base-change C,T --no-repeat-index --no-spliced-alignment --no-temp-splicesite -t --new-summary --summary-file ${sample_id}.hisat3n_dna_split_reads_summary.R2.txt --threads 11 | samtools view -b -q 10 -o "${sample_id}.hisat3n_dna.split_reads.R2.bam"
+       done
 
-        samtools merge -o - {input.r1_bam} {input.r2_bam} | samtools sort -n -o {output.bam} -
 
-        # define lists of r1 and r2 bam files
-        R1_bams=($(ls | grep "\.hisat3n_dna.split_reads.R1.bam"))
-        R2_bams=($(ls | grep "\.hisat3n_dna.split_reads.R2.bam"))
+       # define lists of r1 and r2 bam files
+       R1_bams=($(ls | grep "\.hisat3n_dna.split_reads.R1.bam"))
+       R2_bams=($(ls | grep "\.hisat3n_dna.split_reads.R2.bam"))
 
-        # Loop through the R1 BAM files
-        for r1_bam in "${R1_bams[@]}"; do
-          # Extract the corresponding R2 BAM file
-          r2_bam="${r1_bam/.hisat3n_dna.split_reads.R1.bam/.hisat3n_dna.split_reads.R2.bam}"
+       # Loop through the R1 BAM files
+       for r1_bam in "${R1_bams[@]}"; do
+         # Extract the corresponding R2 BAM file
+         r2_bam="${r1_bam/.hisat3n_dna.split_reads.R1.bam/.hisat3n_dna.split_reads.R2.bam}"
 
-          # Define the output BAM file name
-          output_bam="$(basename ${r1_bam/_R1.bam/.hisat3n_dna.split_reads.name_sort.bam})"
+         # Define the output BAM file name
+         output_bam="$(basename ${r1_bam/_R1.bam/.hisat3n_dna.split_reads.name_sort.bam})"
 
-          # Perform the samtools merge and sort commands
-          samtools merge -o - "$r1_bam" "$r2_bam" | samtools sort -n -o "$output_bam" -
-        done
+         # Perform the samtools merge and sort commands
+         samtools merge -o - "$r1_bam" "$r2_bam" | samtools sort -n -o "$output_bam" -
+       done
 
         #tar up the r1 bam files and stats
         tar -zcvf hisat3n_single_end_r1_bam_files.tar.gz *.hisat3n_dna.split_reads.R1.bam
@@ -584,7 +553,7 @@ task hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
         memory: "${mem_size} GiB"
     }
     output {
-        File r1_hisat3n_bam_tar = "hisat3n_single_end_r1_bam_files.tar.g"
+        File r1_hisat3n_bam_tar = "hisat3n_single_end_r1_bam_files.tar.gz"
         File r1_hisat3n_stats_tar = "hisat3n_single_end_r1_stats_files.tar.gz"
         File r2_hisat3n_bam_tar = "hisat3n_single_end_r2_bam_files.tar.gz"
         File r2_hisat3n_stats_tar = "hisat3n_single_end_r2_stats_files.tar.gz"
