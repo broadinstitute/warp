@@ -1,5 +1,5 @@
 
-# 6.2.0
+# 6.1.1
 2023-10-05 (Date of Last Commit)
 
 * Added a new task to the H5adUtils WDL to combine Multiome barcodes in h5ad outputs; this does not impact the individual Optimus workflow
