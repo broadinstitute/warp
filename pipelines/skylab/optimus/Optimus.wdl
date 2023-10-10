@@ -73,10 +73,10 @@ workflow Optimus {
   Array[Int] indices = range(length(r1_fastq))
 
   # 10x parameters
-  File gcp_whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
-  File gcp_whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
-  File azure_whitelist_v2 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/737k-august-2016.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
-  File azure_whitelist_v3 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/3M-febrary-2018.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
+  String gcp_whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
+  String gcp_whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
+  String azure_whitelist_v2 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/737k-august-2016.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
+  String azure_whitelist_v3 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/3M-febrary-2018.txt?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
   #File azure_whitelist_v2 = "https://lz88a1ce71eb2a5df44002f0.blob.core.windows.net/sc-8cd592d9-613a-4744-9e9e-ee0df34384ac/737k-august-2016.txt"
   #File azure_whitelist_v3 = "https://lz88a1ce71eb2a5df44002f0.blob.core.windows.net/sc-8cd592d9-613a-4744-9e9e-ee0df34384ac/3M-febrary-2018.txt"
   #File azure_whitelist_v2 = "https://dsppipelinedev.blob.core.windows.net/optimus/737k-august-2016.txt"
