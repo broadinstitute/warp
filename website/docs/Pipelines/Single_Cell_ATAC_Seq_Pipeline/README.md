@@ -73,10 +73,10 @@ The [scATAC workflow](https://github.com/broadinstitute/warp/blob/master/pipelin
 
 | Task | Task Description | Tool Docker Image | Parameter Descriptions or Code |
 |--- | --- | --- | --- |
-| AlignPairedEnd | Align the modified FASTQ files to the genome | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
-| SnapPre | Initial generation of snap file | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
-| SnapCellByBin | Binning of data by genomic bins | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
-| MakeCompliantBAM | Generation of a GA4GH compliant BAM | [snaptools:0.0.1](https://github.com/broadinstitute/warp/blob/master/dockers/skylab/snaptools/Dockerfile) | [Code](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/pytools/tools/makeCompliantBAM.py) |
+| AlignPairedEnd | Align the modified FASTQ files to the genome | [snaptools-bwa:1.0.0-1.4.8-0.7.17-1690310027](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/snaptools-bwa/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
+| SnapPre | Initial generation of snap file | [snaptools-bwa:1.0.0-1.4.8-0.7.17-1690310027](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/snaptools-bwa/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
+| SnapCellByBin | Binning of data by genomic bins | [snaptools-bwa:1.0.0-1.4.8-0.7.17-1690310027](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/snaptools-bwa/Dockerfile) | [SnapTools documentation](https://github.com/r3fang/SnapTools) |
+| MakeCompliantBAM | Generation of a GA4GH compliant BAM | [warp-tools:1.0.1-1690997141](https://github.com/broadinstitute/warp-tools/blob/develop/tools/Dockerfile) | [Code](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/makeCompliantBAM.py) |
 | BreakoutSnap | Extraction of tables from snap file into text format (for testing and user availability) | [snap-breakout:0.0.1](https://github.com/broadinstitute/warp/tree/master/dockers/skylab/snap-breakout) | [Code](https://github.com/broadinstitute/warp/tree/master/dockers/skylab/snap-breakout/breakoutSnap.py) |
 
 ### Task Summary
@@ -109,7 +109,7 @@ The SnapCellByBin task uses the Snap file to create cell-by-bin count matrices i
 
 #### MakeCompliantBAM
 
-The MakeCompliantBAM task uses a [custom python script (here)](https://github.com/broadinstitute/warp/blob/develop/dockers/skylab/pytools/tools/makeCompliantBAM.py) to make a GA4GH compliant BAM by moving the cellular barcodes in the read names to the CB tag.
+The MakeCompliantBAM task uses a [custom python script](https://github.com/broadinstitute/warp-tools/blob/develop/tools/scripts/makeCompliantBAM.py) to make a GA4GH compliant BAM by moving the cellular barcodes in the read names to the CB tag.
 
 #### BreakoutSnap
 
@@ -160,7 +160,7 @@ All scATAC workflow releases are documented in the [scATAC changelog](https://gi
 Please identify the pipeline in your methods section using the scATAC Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_018919/resolver?q=SCR_018919&l=SCR_018919).
 * Ex: *scATAC Pipeline (RRID:SCR_018919)*
 
-## Consortia Support 
+## Consortia Support
 This pipeline is supported and used by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
 
 If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org).
