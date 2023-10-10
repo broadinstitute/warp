@@ -45,7 +45,7 @@ workflow WDLized_snm3C {
             unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
     }
 
-    call hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
+    call Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
         input:
             split_fq_tar = Split_unmapped_reads.split_fq_tar,
             tarred_index_files = tarred_index_files,
@@ -114,6 +114,7 @@ workflow WDLized_snm3C {
         File multi_bam_tar = Separate_unmapped_reads.multi_bam_tar
         File unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
         File split_fq_tar = Split_unmapped_reads.split_fq_tar
+        File merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
     }
 }
 
@@ -475,7 +476,7 @@ task Split_unmapped_reads {
     }
 }
 
-task hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
+task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
     input {
         File split_fq_tar
         File genome_fa
@@ -517,7 +518,6 @@ task hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
          hisat-3n /cromwell_root/reference/hg38 -q -U ${sample_id}.hisat3n_dna.split_reads.R2.fastq --directional-mapping --base-change C,T --no-repeat-index --no-spliced-alignment --no-temp-splicesite -t --new-summary --summary-file ${sample_id}.hisat3n_dna_split_reads_summary.R2.txt --threads 11 | samtools view -b -q 10 -o "${sample_id}.hisat3n_dna.split_reads.R2.bam"
        done
 
-
        # define lists of r1 and r2 bam files
        R1_bams=($(ls | grep "\.hisat3n_dna.split_reads.R1.bam"))
        R2_bams=($(ls | grep "\.hisat3n_dna.split_reads.R2.bam"))
@@ -528,22 +528,14 @@ task hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
          r2_bam="${r1_bam/.hisat3n_dna.split_reads.R1.bam/.hisat3n_dna.split_reads.R2.bam}"
 
          # Define the output BAM file name
-         output_bam="$(basename ${r1_bam/_R1.bam/.hisat3n_dna.split_reads.name_sort.bam})"
+         output_bam="$(basename ${r1_bam/.hisat3n_dna.split_reads.R1.bam/.hisat3n_dna.split_reads.name_sort.bam})"
 
          # Perform the samtools merge and sort commands
          samtools merge -o - "$r1_bam" "$r2_bam" | samtools sort -n -o "$output_bam" -
        done
 
-        #tar up the r1 bam files and stats
-        tar -zcvf hisat3n_single_end_r1_bam_files.tar.gz *.hisat3n_dna.split_reads.R1.bam
-        tar -zcvf hisat3n_single_end_r1_stats_files.tar.gz *.hisat3n_dna_split_reads_summary.R1.txt
-
-        #tar up the r2 bam files and stats
-        tar -zcvf hisat3n_single_end_r2_bam_files.tar.gz *.hisat3n_dna.split_reads.R2.bam
-        tar -zcvf hisat3n_single_end_r2_stats_files.tar.gz *.hisat3n_dna_split_reads_summary.R2.txt
-
-        #tar up the merged bam files
-        tar -zcvf merged_bam_files.tar.gz *.hisat3n_dna.split_reads.name_sort.bam
+       #tar up the merged bam files
+       tar -zcvf ../hisat3n_dna.split_reads.name_sort.bam.tar.gz *.hisat3n_dna.split_reads.name_sort.bam
 
     >>>
     runtime {
@@ -553,11 +545,7 @@ task hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
         memory: "${mem_size} GiB"
     }
     output {
-        File r1_hisat3n_bam_tar = "hisat3n_single_end_r1_bam_files.tar.gz"
-        File r1_hisat3n_stats_tar = "hisat3n_single_end_r1_stats_files.tar.gz"
-        File r2_hisat3n_bam_tar = "hisat3n_single_end_r2_bam_files.tar.gz"
-        File r2_hisat3n_stats_tar = "hisat3n_single_end_r2_stats_files.tar.gz"
-        File merge_sorted_bam_tar = "merged_bam_files.tar.gz"
+        File merge_sorted_bam_tar = "hisat3n_dna.split_reads.name_sort.bam.tar.gz"
     }
 }
 
