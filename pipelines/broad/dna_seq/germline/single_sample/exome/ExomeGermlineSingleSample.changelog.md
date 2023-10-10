@@ -1,3 +1,8 @@
+# 3.1.3
+2023-10-10 (Date of Last Commit)
+
+* Removed the SumFloats task from SplitLargeReadGroup.wdl; this does not affect the outputs
+
 # 3.1.12
 2023-09-18 (Date of Last Commit)
 
