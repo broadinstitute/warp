@@ -507,12 +507,29 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
 
         for file in "${R1_files[@]}"; do
           sample_id=$(basename "$file" ".hisat3n_dna.split_reads.R1.fastq")
-          hisat-3n /cromwell_root/reference/hg38 -q -U ${sample_id}.hisat3n_dna.split_reads.R1.fastq --directional-mapping-reverse --base-change C,T --no-repeat-index --no-spliced-alignment --no-temp-splicesite -t --new-summary --summary-file ${sample_id}.hisat3n_dna_split_reads_summary.R1.txt --threads 11 | samtools view -b -q 10 -o "${sample_id}.hisat3n_dna.split_reads.R1.bam"
+          hisat-3n /cromwell_root/reference/hg38 -q -U ${sample_id}.hisat3n_dna.split_reads.R1.fastq \
+          --directional-mapping-reverse \
+          --base-change C,T \
+          --no-repeat-index \
+          --no-spliced-alignment \
+          --no-temp-splicesite \
+          -t \
+          --new-summary \
+          --summary-file ${sample_id}.hisat3n_dna_split_reads_summary.R1.txt \
+          --threads 11 | samtools view -b -q 10 -o "${sample_id}.hisat3n_dna.split_reads.R1.bam"
         done
 
        for file in "${R2_files[@]}"; do
          sample_id=$(basename "$file" ".hisat3n_dna.split_reads.R2.fastq")
-         hisat-3n /cromwell_root/reference/hg38 -q -U ${sample_id}.hisat3n_dna.split_reads.R2.fastq --directional-mapping --base-change C,T --no-repeat-index --no-spliced-alignment --no-temp-splicesite -t --new-summary --summary-file ${sample_id}.hisat3n_dna_split_reads_summary.R2.txt --threads 11 | samtools view -b -q 10 -o "${sample_id}.hisat3n_dna.split_reads.R2.bam"
+         hisat-3n /cromwell_root/reference/hg38 -q -U ${sample_id}.hisat3n_dna.split_reads.R2.fastq \
+         --directional-mapping \
+         --base-change C,T \
+         --no-repeat-index \
+         --no-spliced-alignment \
+         --no-temp-splicesite \
+         -t --new-summary \
+         --summary-file ${sample_id}.hisat3n_dna_split_reads_summary.R2.txt \
+         --threads 11 | samtools view -b -q 10 -o "${sample_id}.hisat3n_dna.split_reads.R2.bam"
        done
 
        # define lists of r1 and r2 bam files
