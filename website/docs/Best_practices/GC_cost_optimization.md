@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # WDL cost optimization: Tips and tricks when working with Google Cloud in Terra
 
-Reducing the cost of your WDL workflow is always a priority. Below, the Broad Institute’s Pipelines team provides some tips and tricks for optimizing workflow costs for runs using Google Cloud virtual machines (VM) from the bioinformatics platform, [Terra](app.terra.bio). 
+Reducing the cost of your WDL workflow is always a priority. Below, the Broad Institute’s Pipelines team provides some tips and tricks for optimizing workflow costs for runs using Google Cloud virtual machines (VM) from the bioinformatics platform, [Terra](https://app.terra.bio/). 
 
 Overall, the majority of optimization comes down to understanding the size of your VM and how long you use it. Keep this in mind as you read the tips below and remember: one size does not necessarily fit all when it comes to optimizing your workflow.
 
@@ -57,7 +57,7 @@ Just like starting a VM has some overhead cost, localizing files also has some d
 
 Each time you move cloud files, you pay egress for the network transitions, so it’s important to find the balance in the number of files you decide to move. You have to weigh whether it costs more to move a large file vs. moving several smaller files. For example, you might find that it’s more cost-efficient to move a zipped \~100 GB file than to move 100, 1 GB files. After running a  test workflow, check your workflow logs to see what the timing is for localizing and moving files vs. running your tool. This might require trial and error when developing your workflow. 
 
-## Tip 4: Run files in parallel when possible 
+## Tip 4: Run files in parallel when possible
 If you need to run multiple files through a tool, you’ll have to decide whether to scatter those files across multiple VMs (running the tool in parallel), or run the files sequentially through the tool in one VM. 
 
 Similar to the problem of running multiple tools per VM, running multiple files per VM also comes with the risk of rerunning your tool if a file should fail. If you’re running files that are large or prone to transient failures, it’s best to scatter them across VMs in parallel. 
