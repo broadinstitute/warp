@@ -453,12 +453,9 @@ task Split_unmapped_reads {
           )
 
         CODE
-        ls -lh
 
-        #wait 15 seconds for the files to be written
+        # wait 15 seconds for the files to be written
         sleep 15
-
-        ls -lh
 
         # tar up the split fastq files
         tar -zcvf hisat3n_paired_end_split_fastq_files.tar.gz *.split_reads*.fastq
