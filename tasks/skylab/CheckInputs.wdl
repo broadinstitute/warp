@@ -126,6 +126,7 @@ task checkOptimusInput {
         pass="false"
         echo "ERROR: Cloud provider must be either gcp or azure"
       fi
+      echo "WHITELIST:" $WHITELIST
       echo $WHITELIST > whitelist.txt
       echo 16C10M > read_struct.txt
     elif [[ ~{tenx_chemistry_version} == 3 ]]
@@ -140,6 +141,7 @@ task checkOptimusInput {
         pass="false"
         echo "ERROR: Cloud provider must be either gcp or azure"
       fi
+      echo "WHITELIST:" $WHITELIST
       echo $WHITELIST > whitelist.txt
       echo 16C12M > read_struct.txt
     else
