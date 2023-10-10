@@ -33,7 +33,7 @@ The snM3C pipeline can be deployed using [Cromwell](https://cromwell.readthedocs
 
 ### Inputs
 
-The snM3C workflow requires a JSON configuration file specifying the input files and parameters for the analysis. An example configuration file can be found in the [snM3C directory](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snM3C/snM3C_inputs.json).
+The snM3C workflow requires a JSON configuration file specifying the input files and parameters for the analysis. Example configuration files can be found in the [snM3C `test_inputs` directory](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/snM3C/test_inputs) in the WARP repository.
 
 The main input files and parameters include:
 
