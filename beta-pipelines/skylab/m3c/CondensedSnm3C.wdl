@@ -45,12 +45,13 @@ workflow WDLized_snm3C {
             unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
     }
 
-   # call hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
-   #     input:
-   #         split_r1 = split_unmapped_reads.split_r1_fq,
-   #         split_r2 = split_unmapped_reads.split_r2_fq
-   # }
-#
+    call Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
+        input:
+            split_fq_tar = Split_unmapped_reads.split_fq_tar,
+            tarred_index_files = tarred_index_files,
+            genome_fa = genome_fa
+    }
+
    # call remove_overlap_read_parts {
    #     input:
    #         bam = hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam
@@ -113,6 +114,7 @@ workflow WDLized_snm3C {
         File multi_bam_tar = Separate_unmapped_reads.multi_bam_tar
         File unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
         File split_fq_tar = Split_unmapped_reads.split_fq_tar
+        File merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
     }
 }
 
@@ -452,8 +454,11 @@ task Split_unmapped_reads {
 
         CODE
 
+        # wait 15 seconds for the files to be written
+        sleep 15
+
         # tar up the split fastq files
-        tar -zcvf hisat3n_paired_end_split_fastq_files.tar.gz *
+        tar -zcvf hisat3n_paired_end_split_fastq_files.tar.gz *.split_reads*.fastq
 
 
     >>>
@@ -468,27 +473,99 @@ task Split_unmapped_reads {
     }
 }
 
-#task hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
-#    input {
-#        File split_r1
-#        File split_r2
-#    }
-#    command <<<
-#    >>>
-#    runtime {
-#        docker: "fill_in"
-#        disks: "local-disk ${disk_size} HDD"
-#        cpu: 1
-#        memory: "${mem_size} GiB"
-#    }
-#    output {
-#        File r1_hisat3n_bam = ""
-#        File r1_hisat3n_stats = ""
-#        File r2_hisat3n_bam = ""
-#        File r2_hisat3n_stats = ""
-#        File merge_sorted_bam = ""
-#    }
-#}
+task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
+    input {
+        File split_fq_tar
+        File genome_fa
+        File tarred_index_files
+
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        Int disk_size = 80
+        Int mem_size = 20
+    }
+    command <<<
+        set -euo pipefail
+
+        mkdir reference/
+
+        cp ~{tarred_index_files} reference/
+        cp ~{genome_fa} reference/
+
+        # untar the tarred index files
+        cd reference/
+        tar -xvf ~{tarred_index_files}
+        rm ~{tarred_index_files}
+        samtools faidx hg38.fa
+
+        # untar the unmapped fastq files
+        tar -xvf ~{split_fq_tar}
+        rm ~{split_fq_tar}
+
+        # define lists of r1 and r2 fq files
+        R1_files=($(ls | grep "\.hisat3n_dna.split_reads.R1.fastq"))
+        R2_files=($(ls | grep "\.hisat3n_dna.split_reads.R2.fastq"))
+
+        for file in "${R1_files[@]}"; do
+          sample_id=$(basename "$file" ".hisat3n_dna.split_reads.R1.fastq")
+          hisat-3n /cromwell_root/reference/hg38 \
+          -q \
+          -U ${sample_id}.hisat3n_dna.split_reads.R1.fastq \
+          --directional-mapping-reverse \
+          --base-change C,T \
+          --no-repeat-index \
+          --no-spliced-alignment \
+          --no-temp-splicesite \
+          -t \
+          --new-summary \
+          --summary-file ${sample_id}.hisat3n_dna_split_reads_summary.R1.txt \
+          --threads 11 | samtools view -b -q 10 -o "${sample_id}.hisat3n_dna.split_reads.R1.bam"
+        done
+
+       for file in "${R2_files[@]}"; do
+         sample_id=$(basename "$file" ".hisat3n_dna.split_reads.R2.fastq")
+         hisat-3n /cromwell_root/reference/hg38 \
+         -q \
+         -U ${sample_id}.hisat3n_dna.split_reads.R2.fastq \
+         --directional-mapping \
+         --base-change C,T \
+         --no-repeat-index \
+         --no-spliced-alignment \
+         --no-temp-splicesite \
+         -t --new-summary \
+         --summary-file ${sample_id}.hisat3n_dna_split_reads_summary.R2.txt \
+         --threads 11 | samtools view -b -q 10 -o "${sample_id}.hisat3n_dna.split_reads.R2.bam"
+       done
+
+       # define lists of r1 and r2 bam files
+       R1_bams=($(ls | grep "\.hisat3n_dna.split_reads.R1.bam"))
+       R2_bams=($(ls | grep "\.hisat3n_dna.split_reads.R2.bam"))
+
+       # Loop through the R1 BAM files
+       for r1_bam in "${R1_bams[@]}"; do
+         # Extract the corresponding R2 BAM file
+         r2_bam="${r1_bam/.hisat3n_dna.split_reads.R1.bam/.hisat3n_dna.split_reads.R2.bam}"
+
+         # Define the output BAM file name
+         output_bam="$(basename ${r1_bam/.hisat3n_dna.split_reads.R1.bam/.hisat3n_dna.split_reads.name_sort.bam})"
+
+         # Perform the samtools merge and sort commands
+         samtools merge -o - "$r1_bam" "$r2_bam" | samtools sort -n -o "$output_bam" -
+       done
+
+       #tar up the merged bam files
+       tar -zcvf ../hisat3n_dna.split_reads.name_sort.bam.tar.gz *.hisat3n_dna.split_reads.name_sort.bam
+
+    >>>
+    runtime {
+        docker: docker
+        disks: "local-disk ${disk_size} HDD"
+        cpu: 1
+        memory: "${mem_size} GiB"
+    }
+    output {
+        File merge_sorted_bam_tar = "hisat3n_dna.split_reads.name_sort.bam.tar.gz"
+    }
+}
 
 #task remove_overlap_read_parts {
 #    input {
