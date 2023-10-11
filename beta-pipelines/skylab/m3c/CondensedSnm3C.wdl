@@ -52,11 +52,11 @@ workflow WDLized_snm3C {
             genome_fa = genome_fa
     }
 
-   # call remove_overlap_read_parts {
-   #     input:
-   #         bam = hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam
-   # }
-#
+   call remove_overlap_read_parts {
+       input:
+           bam = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
+   }
+
    # call merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
    #     input:
    #         unique_bam = separate_unmapped_reads.unique_bam,
@@ -567,22 +567,32 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
     }
 }
 
-#task remove_overlap_read_parts {
-#    input {
-#        File bam
-#    }
-#    command <<<
-#    >>>
-#    runtime {
-#        docker: "fill_in"
-#        disks: "local-disk ${disk_size} HDD"
-#        cpu: 1
-#        memory: "${mem_size} GiB"
-#    }
-#    output {
-#        File remove_overlap_bam = ""
-#    }
-#}
+task remove_overlap_read_parts {
+   input {
+       File bam
+       String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+       Int disk_size = 80
+       Int mem_size = 20  
+   }
+   String output_bam = "output_bam"
+   command <<<
+   $(python3 <<CODE
+        from cemba_data.hisat3n import *
+        remove_overlap_read_parts(in_bam_path=bam, out_bam_path=~{output_bam})
+   CODE)
+   pwd
+   ls
+   >>>
+   runtime {
+       docker: docker
+       disks: "local-disk ${disk_size} HDD"
+       cpu: 1
+       memory: "${mem_size} GiB"
+   }
+   output {
+       File remove_overlap_bam = output_bam
+   }
+}
 
 #task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
 #    input {
