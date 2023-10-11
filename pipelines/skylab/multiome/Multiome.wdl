@@ -2,9 +2,9 @@ version 1.0
 
 import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
-
+import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 workflow Multiome {
-    String pipeline_version = "2.1.0"
+    String pipeline_version = "2.2.0"
 
     input {
         String input_id
@@ -78,6 +78,13 @@ workflow Multiome {
             adapter_seq_read1 = adapter_seq_read1,
             adapter_seq_read3 = adapter_seq_read3
     }
+    call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
+        input:
+            atac_h5ad = Atac.snap_metrics,
+            gex_h5ad = Optimus.h5ad_output_file,
+            gex_whitelist = gex_whitelist,
+            atac_whitelist = atac_whitelist
+    }
     meta {
         allowNestedInputs: true
     }
@@ -89,7 +96,7 @@ workflow Multiome {
         # atac outputs
         File bam_aligned_output_atac = Atac.bam_aligned_output
         File fragment_file_atac = Atac.fragment_file
-        File snap_metrics_atac = Atac.snap_metrics
+        File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
@@ -100,6 +107,6 @@ workflow Multiome {
         File cell_metrics_gex = Optimus.cell_metrics
         File gene_metrics_gex = Optimus.gene_metrics
         File? cell_calls_gex = Optimus.cell_calls
-        File h5ad_output_file_gex = Optimus.h5ad_output_file
+        File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
     }
 }
