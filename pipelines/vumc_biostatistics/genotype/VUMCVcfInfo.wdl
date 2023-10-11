@@ -15,6 +15,7 @@ workflow VUMCVcfInfo {
   }
 
   output {
+    File sample_file = BcftoolsVcfInfo.sample_file
     Int num_samples = BcftoolsVcfInfo.num_samples
     Int num_variants = BcftoolsVcfInfo.num_variants
   }
@@ -28,10 +29,13 @@ task BcftoolsVcfInfo {
   }
 
   Int disk_size = ceil(size(input_vcf, "GB")) + 2
+  String output_sample_file = basename(input_vcf) + ".samples.txt"
 
   command <<<
 
-bcftools query -l ~{input_vcf} | wc -l > num_samples.txt
+bcftools query -l ~{input_vcf} > ~{output_sample_file}
+
+cat ~{output_sample_file} | wc -l > num_samples.txt
 
 bcftools index -n ~{input_vcf} > num_variants.txt
 
@@ -44,6 +48,7 @@ bcftools index -n ~{input_vcf} > num_variants.txt
     memory: "2 GiB"
   }
   output {
+    File sample_file = "~{output_sample_file}"
     Int num_samples = read_int("num_samples.txt")
     Int num_variants = read_int("num_variants.txt")
   }
