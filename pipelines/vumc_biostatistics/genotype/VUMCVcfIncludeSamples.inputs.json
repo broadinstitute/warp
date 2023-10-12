@@ -1,7 +1,0 @@
-{
-  "VUMCVcfIncludeSamples.target_prefix": "chr2",
-  "VUMCVcfIncludeSamples.include_samples": "/nobackup/h_cqs/shengq2/biovu/data/elig_v1-1.csv",
-  "VUMCVcfIncludeSamples.input_vcf": "/nobackup/h_vangard_1/shengq2/biovu/merged_chr2.vcf.gz",
-  "VUMCVcfIncludeSamples.target_suffix": ".eligible1-1.dose.vcf.gz"
-}
-
