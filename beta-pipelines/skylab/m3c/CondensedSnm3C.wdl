@@ -585,24 +585,22 @@ task remove_overlap_read_parts {
        # create output dir
        mkdir /cromwell_root/output_bams
        echo "samtools sort"
-       for f in *.bam; do  samtools sort $f -o ${f/.bam/sorted.bam}; done
+       for f in *.bam; do  samtools sort $f -o ${f/.bam/sorted.bam}; samtools index ${f/.bam/sorted.bam}; done
        rm *sort.bam
        echo "samtools index"
        bams=($(ls | grep "sorted.bam$"))
-       for file in "${bams[@]}"; do samtools index $file; done
        ls
        echo "grep"
        echo "PYTHON"
+
        # loop through bams and run python script on each bam 
        #pass bam file to python script
        python3 <<CODE
        from cemba_data.hisat3n import *
        import os
-       
        print(os.getcwd())
        print(os.listdir())
        bams="${bams}"
-       
        for bam in bams.split(" "):
             print(bam)
             remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", bam))
