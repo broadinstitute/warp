@@ -115,6 +115,7 @@ workflow WDLized_snm3C {
         File unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
         File split_fq_tar = Split_unmapped_reads.split_fq_tar
         File merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
+        File remove_overlap_read_parts_bam_tar = remove_overlap_read_parts.output_bam_tar
     }
 }
 
@@ -574,14 +575,43 @@ task remove_overlap_read_parts {
        Int disk_size = 80
        Int mem_size = 20  
    }
-   String output_bam = "output_bam"
+
    command <<<
-   $(python3 <<CODE
-        from cemba_data.hisat3n import *
-        remove_overlap_read_parts(in_bam_path=bam, out_bam_path=~{output_bam})
-   CODE)
-   pwd
-   ls
+       #unzip bam file
+       tar -xf ~{bam}
+       rm ~{bam}
+       pwd
+       ls
+       # create output dir
+       mkdir /cromwell_root/output_bams
+       echo "samtools sort"
+       for f in *.bam; do  samtools sort $f -o ${f/.bam/sorted.bam}; done
+       rm *sort.bam
+       echo "samtools index"
+       bams=($(ls | grep "sorted.bam$"))
+       for file in "${bams[@]}"; do samtools index $file; done
+       ls
+       echo "grep"
+       echo "PYTHON"
+       # loop through bams and run python script on each bam 
+       #pass bam file to python script
+       python3 <<CODE
+       from cemba_data.hisat3n import *
+       import os
+       
+       print(os.getcwd())
+       print(os.listdir())
+       bams="${bams}"
+       
+       for bam in bams.split(" "):
+            print(bam)
+            remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", bam))
+       CODE
+       
+       cd /cromwell_root
+       #tar up the merged bam files
+       tar -zcvf remove_overlap_read_parts.tar.gz output_bams
+       ls
    >>>
    runtime {
        docker: docker
@@ -590,8 +620,9 @@ task remove_overlap_read_parts {
        memory: "${mem_size} GiB"
    }
    output {
-       File remove_overlap_bam = output_bam
-   }
+        File output_bam_tar = "remove_overlap_read_parts.tar.gz"
+    }
+
 }
 
 #task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
