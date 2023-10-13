@@ -584,13 +584,16 @@ task remove_overlap_read_parts {
        ls
        # create output dir
        mkdir /cromwell_root/output_bams
+       #sort and indexing can be optimizing 
+       #scatter instead of for loop to optimize
        echo "samtools sort/index"
        for f in *.bam; do  samtools sort $f -o ${f/.bam/sorted.bam}; samtools index ${f/.bam/sorted.bam}; done
        rm *sort.bam
        bams=($(ls | grep "sorted.bam$"))
        ls
 
-       # loop through bams and run python script on each bam 
+       #loop through bams and run python script on each bam 
+       #scatter instead of for loop to optimize
        #pass bam file to python script
        python3 <<CODE
        from cemba_data.hisat3n import *
