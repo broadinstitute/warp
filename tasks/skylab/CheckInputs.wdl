@@ -56,7 +56,6 @@ task checkInputArrays {
 task checkOptimusInput {
   input {
     String cloud_provider
-    String SAS_token
     File r1_fastq
     String counting_mode
     Boolean force_no_check
