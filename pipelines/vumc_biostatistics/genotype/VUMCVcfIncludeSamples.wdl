@@ -59,21 +59,23 @@ task BcftoolsIncludeSamples {
 
   command <<<
 
-bcftools view ~{input_vcf} | head -n 100 > temp.vcf
+bcftools head ~{input_vcf} > temp.vcf
+zcat ~{input_vcf} | grep '^#CHROM' -m 1 -A 2 | grep -v '^#CHROM' >> temp.vcf
 
 if [[ "-s ~{replace_samples}" = "" ]]; then
-  bcftools head temp.vcf > header.txt
-  bcftools query -l temp.vcf > all.id.txt
+  echo "no replace_samples"
 else
-  echo "has replace_samples, replace names first, then get all.id.txt"
+  #we need to get the header after replacing secondary grid with primary grid
+  echo "has replace_samples, replace sample names in header"
   mv temp.vcf temp0.vcf
   bcftools reheader -s ~{replace_samples} temp0.vcf > temp.vcf
-
-  #we need to get the header after replacing secondary grid with primary grid
-  bcftools head temp.vcf > header.txt
-  bcftools query -l temp.vcf > all.id.txt
 fi
 
+echo "get all samples in original VCF"
+bcftools head temp.vcf > header.txt
+bcftools query -l temp.vcf > all.id.txt
+
+echo "get included samples"
 grep -Fxf all.id.txt ~{include_samples} | sort | uniq > keep.id.txt
 
 zcat ~{input_vcf} | grep -v "^#" | cut -f 1-8 | head -n 10 > data.txt
@@ -93,17 +95,24 @@ echo is_header_wrong = $is_header_wrong
 
 if [ "$is_header_wrong" = "true" ];
 then
+  echo "header is wrong, need to add Imputed/Genotyped INFO in header"
   #there is error in merged imputation vcf files. The header has IMPUTED instead of Imputed.
   awk '/^#CHROM/ {printf("##INFO=<ID=Imputed,Number=0,Type=Flag,Description=\"Marker was imputed but NOT genotyped\">\n##INFO=<ID=Genotyped,Number=0,Type=Flag,Description=\"Marker was genotyped\">\n");} {print}' header.txt > new_header.txt
   bcftools reheader -h new_header.txt ~{input_vcf} | bcftools view -S keep.id.txt -o ~{new_vcf} -
 else
+  echo "header is correct"
   if [[ "-s ~{replace_samples}" = "" ]]; then
+    echo "no replace_samples"
+    echo bcftools view -S keep.id.txt -o ~{new_vcf} ~{input_vcf}
     bcftools view -S keep.id.txt -o ~{new_vcf} ~{input_vcf}
   else
+    echo "has replace_samples"
+    echo bcftools reheader -s ~{replace_samples} ~{input_vcf} | bcftools view -S keep.id.txt -o ~{new_vcf}
     bcftools reheader -s ~{replace_samples} ~{input_vcf} | bcftools view -S keep.id.txt -o ~{new_vcf}
   fi
 fi
 
+echo "build index"
 bcftools index -t ~{new_vcf}
 
 >>>
