@@ -34,21 +34,21 @@ workflow VUMCPlinkIncludeSamples {
   }
 
   if(defined(target_bucket)){
-    call Utils.MoveOrCopyPlinkFile {
+    call Utils.MoveOrCopyPlinkFile as CopyFile {
       input:
         source_bed = PlinkIncludeSamples.output_bed,
         source_bim = PlinkIncludeSamples.output_bim,
         source_fam = PlinkIncludeSamples.output_fam,
-        is_move_file = true,
+        is_move_file = false,
         project_id = project_id,
         target_bucket = select_first([target_bucket])
     }
   }
 
   output {
-    File output_bed = select_first([MoveOrCopyPlinkFile.output_bed, PlinkIncludeSamples.output_bed])
-    File output_bim = select_first([MoveOrCopyPlinkFile.output_bim, PlinkIncludeSamples.output_bim])
-    File output_fam = select_first([MoveOrCopyPlinkFile.output_fam, PlinkIncludeSamples.output_fam])
+    File output_bed = select_first([CopyFile.output_bed, PlinkIncludeSamples.output_bed])
+    File output_bim = select_first([CopyFile.output_bim, PlinkIncludeSamples.output_bim])
+    File output_fam = select_first([CopyFile.output_fam, PlinkIncludeSamples.output_fam])
   }
 }
 
