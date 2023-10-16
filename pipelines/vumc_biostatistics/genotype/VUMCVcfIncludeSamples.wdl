@@ -56,13 +56,14 @@ task BcftoolsIncludeSamples {
 
   Int disk_size = ceil(size(input_vcf, "GB") * 2) + 2
   String new_vcf = target_prefix + target_suffix
+  Boolean has_replace_samples = "~{replace_samples}" != ""
 
   command <<<
 
 bcftools head ~{input_vcf} > temp.vcf
 zcat ~{input_vcf} | grep '^#CHROM' -m 1 -A 2 | grep -v '^#CHROM' >> temp.vcf
 
-if [[ "-s ~{replace_samples}" = "" ]]; then
+if [[ "~{has_replace_samples}" = "false" ]]; then
   echo "no replace_samples"
 else
   #we need to get the header after replacing secondary grid with primary grid
@@ -101,7 +102,7 @@ then
   bcftools reheader -h new_header.txt ~{input_vcf} | bcftools view -S keep.id.txt -o ~{new_vcf} -
 else
   echo "header is correct"
-  if [[ "-s ~{replace_samples}" = "" ]]; then
+  if [[ "~{has_replace_samples}" = "false" ]]; then
     echo "no replace_samples"
     echo bcftools view -S keep.id.txt -o ~{new_vcf} ~{input_vcf}
     bcftools view -S keep.id.txt -o ~{new_vcf} ~{input_vcf}
