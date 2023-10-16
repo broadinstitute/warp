@@ -598,7 +598,7 @@ task remove_overlap_read_parts {
        python3 <<CODE
        from cemba_data.hisat3n import *
        import os
-       bams="${bams}"
+       bams="${bams[@]}"
        for bam in bams.split(" "):
             print(bam)
             remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", bam))
