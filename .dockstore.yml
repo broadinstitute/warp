@@ -122,3 +122,7 @@ workflows:
   - name: VariantCalling
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl
+
+  - name: BamToCram
+    subclass: WDL
+    primaryDescriptorPath: /tasks/broad/BamToCram.wdl
