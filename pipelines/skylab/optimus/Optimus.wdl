@@ -1,13 +1,13 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/skylab/FastqProcessing.wdl" as FastqProcessing
-import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/skylab/StarAlign.wdl" as StarAlign
-import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/skylab/Metrics.wdl" as Metrics
-import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
-import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
-import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/skylab/MergeSortBam.wdl" as Merge
-import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/skylab/H5adUtils.wdl" as H5adUtils
-import "https://raw.githubusercontent.com/broadinstitute/warp/np_pd-2368_optimus_runs_on_ToA/tasks/broad/Utilities.wdl" as utils
+import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
+import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
+import "../../../tasks/skylab/Metrics.wdl" as Metrics
+import "../../../tasks/skylab/RunEmptyDrops.wdl" as RunEmptyDrops
+import "../../../tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
+import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
+import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
+import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Optimus {
   meta {
@@ -73,12 +73,12 @@ workflow Optimus {
   Array[Int] indices = range(length(r1_fastq))
 
   # 10x parameters
-  File gcp_whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
-  File gcp_whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
-  File azure_whitelist_v2 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/737k-august-2016.txt"
-  File azure_whitelist_v3 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/3M-febrary-2018.txt"
-  File azure_whitelist_v2 = "https://lz88a1ce71eb2a5df44002f0.blob.core.windows.net/sc-8cd592d9-613a-4744-9e9e-ee0df34384ac/737k-august-2016.txt"
-  File azure_whitelist_v3 = "https://lz88a1ce71eb2a5df44002f0.blob.core.windows.net/sc-8cd592d9-613a-4744-9e9e-ee0df34384ac/3M-febrary-2018.txt"
+  String gcp_whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
+  String gcp_whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
+  #File azure_whitelist_v2 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/737k-august-2016.txt"
+  #File azure_whitelist_v3 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/3M-febrary-2018.txt"
+  String azure_whitelist_v2 = "https://lz88a1ce71eb2a5df44002f0.blob.core.windows.net/sc-8cd592d9-613a-4744-9e9e-ee0df34384ac/737k-august-2016.txt"
+  String azure_whitelist_v3 = "https://lz88a1ce71eb2a5df44002f0.blob.core.windows.net/sc-8cd592d9-613a-4744-9e9e-ee0df34384ac/3M-febrary-2018.txt"
   #File azure_whitelist_v2 = "https://dsppipelinedev.blob.core.windows.net/optimus/737k-august-2016.txt"
   #File azure_whitelist_v3 = "https://dsppipelinedev.blob.core.windows.net/optimus/3M-febrary-2018.txt"
 
