@@ -1,3 +1,16 @@
+# 2.2.1
+2023-10-13 (Date of Last Commit)
+
+* Updated path to Multiome whitelists to reflect location in public storage.
+
+# 2.2.0
+2023-10-05 (Date of Last Commit)
+* Added a JoinMultiomeBarcodes task to the H5adUtils that adds a column in the ATAC and Optimus output h5ad linking gene expression and ATAC barcodes
+
+# 2.1.0
+2023-09-21 (Date of Last Commit)
+* Added dynamic barcode orientation selection to the ATAC workflow FastqProcess task
+
 # 2.0.0
 2023-09-05 (Date of Last Commit)
 

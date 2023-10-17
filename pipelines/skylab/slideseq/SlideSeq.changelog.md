@@ -1,3 +1,7 @@
+# 2.0.1
+2023-09-21 (Date of Last Commit)
+* Added dynamic barcode orientation selection to the ATAC workflow FastqProcess task; this does not impact Slideseq
+
 # 2.0.0
 2023-08-22 (Date of Last Commit)
 
