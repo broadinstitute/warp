@@ -56,6 +56,7 @@ task checkInputArrays {
 task checkOptimusInput {
   input {
     String cloud_provider
+    String SAS_TOKEN
     File r1_fastq
     String counting_mode
     Boolean force_no_check
@@ -78,6 +79,8 @@ task checkOptimusInput {
 
   command <<<
     set -e
+
+    export AZURE_STORAGE_SAS_TOKEN="~{SAS_TOKEN}"
 
     ## Set pass to true
     pass="true"
