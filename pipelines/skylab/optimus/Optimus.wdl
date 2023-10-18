@@ -151,7 +151,8 @@ workflow Optimus {
       r1_fastq = r1_single_fastq,
       ignore_r1_read_length = ignore_r1_read_length,
       cloud_provider = cloud_provider,
-      alpine_docker_path = alpine_docker_prefix + alpine_docker
+      alpine_docker_path = alpine_docker_prefix + alpine_docker,
+      SAS_TOKEN = SAS_TOKEN
   }
 
   call StarAlign.STARGenomeRefVersion as ReferenceCheck {
