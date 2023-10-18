@@ -16,7 +16,7 @@ workflow Optimus {
 
   input {
     String cloud_provider
-    String SAS_TOKEN = "?sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
+    String SAS_TOKEN = "sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
 
     # Mode for counting either "sc_rna" or "sn_rna"
     String counting_mode = "sc_rna"
