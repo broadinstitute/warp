@@ -325,7 +325,7 @@ The Optimus pipeline is a single sample pipeline, but it can accept multiple FAS
 
 :::note Question How do I find which parameters and Docker images were used for the different tasks (i.e. STAR alignment, emptyDrops, etc.)
 
-Parameters are listed in each task WDL. For a list of the tasks, see the table in the [Task Summary Section](#optimus-task-summary). Select the link for the task of interest and then view the parameters in the task WDL "command {}" section. For the task Docker image, see task WDL "# runtime values" section; the Docker is listed as "String docker =  ". If you want to learn more about all the different parameters available for a software tool, please select the relevant link in the table's "Tool" column.
+Parameters are listed in each task WDL. For a list of the tasks, see the table in the [Tasks and Tools Section](#optimus-tasks-and-tools). Select the link for the task of interest and then view the parameters in the task WDL "command {}" section. For the task Docker image, see task WDL "# runtime values" section; the Docker is listed as "String docker =  ". If you want to learn more about all the different parameters available for a software tool, please select the relevant link in the table's "Tool" column.
 :::
 
 :::note Question Does Optimus have any read length requirements?
