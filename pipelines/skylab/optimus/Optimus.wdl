@@ -16,7 +16,6 @@ workflow Optimus {
 
   input {
     String cloud_provider
-    String SAS_TOKEN = "sv=2020-04-08&si=prod&sr=c&sig=DQxmjB4D1lAfOW9AxIWbXwZx6ksbwjlNkixw597JnvQ%3D"
 
     # Mode for counting either "sc_rna" or "sn_rna"
     String counting_mode = "sc_rna"
@@ -49,21 +48,21 @@ workflow Optimus {
 
     # Set to true to override input checks and allow pipeline to proceed with invalid input
     Boolean force_no_check = false
-    
+
     # Check that tenx_chemistry_version matches the length of the read 1 fastq;
     # Set to true if you expect that r1_read_length does not match length of UMIs/barcodes for 10x chemistry v2 (26 bp) or v3 (28 bp).
     Boolean ignore_r1_read_length = false
 
     # Set to Forward, Reverse, or Unstranded to account for stranded library preparations (per STARsolo documentation)
     String star_strand_mode = "Forward"
-    
-# Set to true to count reads aligned to exonic regions in sn_rna mode
+
+    # Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
     # you could override the tasklevel preemptible settings by passing it as one of the workflows inputs
     # for example: `"Optimus.StarAlign.preemptible": 3` will let the StarAlign task, which by default disables the
-    # usage of preemptible machines, attempt to request for preemptible instance up to 3 times. 
+    # usage of preemptible machines, attempt to request for preemptible instance up to 3 times.
   }
 
   # version of this pipeline
@@ -74,16 +73,14 @@ workflow Optimus {
   Array[Int] indices = range(length(r1_fastq))
 
   # 10x parameters
-  String gcp_whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
-  String gcp_whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
-  String azure_whitelist_v2 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/737k-august-2016.txt"
-  String azure_whitelist_v3 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/3M-febrary-2018.txt"
-  #String azure_whitelist_v2 = "https://lz88a1ce71eb2a5df44002f0.blob.core.windows.net/sc-8cd592d9-613a-4744-9e9e-ee0df34384ac/737k-august-2016.txt"
-  #String azure_whitelist_v3 = "https://lz88a1ce71eb2a5df44002f0.blob.core.windows.net/sc-8cd592d9-613a-4744-9e9e-ee0df34384ac/3M-febrary-2018.txt"
+  File gcp_whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
+  File gcp_whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
+  #File azure_whitelist_v2 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/737k-august-2016.txt"
+  #File azure_whitelist_v3 = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/3M-febrary-2018.txt"
+  File azure_whitelist_v2 = "https://lz88a1ce71eb2a5df44002f0.blob.core.windows.net/sc-8cd592d9-613a-4744-9e9e-ee0df34384ac/737k-august-2016.txt"
+  File azure_whitelist_v3 = "https://lz88a1ce71eb2a5df44002f0.blob.core.windows.net/sc-8cd592d9-613a-4744-9e9e-ee0df34384ac/3M-febrary-2018.txt"
   #File azure_whitelist_v2 = "https://dsppipelinedev.blob.core.windows.net/optimus/737k-august-2016.txt"
   #File azure_whitelist_v3 = "https://dsppipelinedev.blob.core.windows.net/optimus/3M-febrary-2018.txt"
-  #String azure_whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
-  #String azure_whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
 
   # Takes the first read1 FASTQ from the inputs to check for chemistry match
   File r1_single_fastq = r1_fastq[0]
@@ -151,8 +148,7 @@ workflow Optimus {
       r1_fastq = r1_single_fastq,
       ignore_r1_read_length = ignore_r1_read_length,
       cloud_provider = cloud_provider,
-      alpine_docker_path = alpine_docker_prefix + alpine_docker,
-      SAS_TOKEN = SAS_TOKEN
+      alpine_docker_path = alpine_docker_prefix + alpine_docker
   }
 
   call StarAlign.STARGenomeRefVersion as ReferenceCheck {
