@@ -1,5 +1,7 @@
-# 2.2.1
-2023-10-13 (Date of Last Commit)
+# 2.2.2
+2023-10-20 (Date of Last Commit)
+
+* Removed Dropna from JoinBarcodes subtask of the H5adUtils task, which was causing the JoinBarcodes to fail for some gene expression matrices
 
 * Updated path to Multiome whitelists to reflect location in public storage.
 
