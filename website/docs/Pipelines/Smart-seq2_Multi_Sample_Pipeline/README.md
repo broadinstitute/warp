@@ -55,7 +55,7 @@ The workflow processes both single- and paired-end samples; however, these sampl
 
 ### Additional Input
 
-The reference inputs are identical to those specified in the "Additional Reference Inputs" section of the [Smart-seq2 Single Sample Overview](https://broadinstitute.github.io/warp/documentation/Pipelines/Smart-seq2_Single_Sample_Pipeline/#inputs).
+The reference inputs are identical to those specified in the "Additional Reference Inputs" section of the [Smart-seq2 Single Sample Overview](https://broadinstitute.github.io/warp/docs/Pipelines/Smart-seq2_Single_Sample_Pipeline/README#inputs).
 
 
 ### Smart-seq2 Multi-Sample Task Summary
