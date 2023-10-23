@@ -8,7 +8,7 @@ slug: /Pipelines/ATAC/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [1.1.0](https://github.com/broadinstitute/warp/releases) | September, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [1.1.1](https://github.com/broadinstitute/warp/releases) | October, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ## Introduction to the ATAC workflow
 ATAC is an open-source, cloud-optimized pipeline developed collaboration with members of the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and [BICAN](https://brainblog.nih.gov/brain-blog/brain-issues-suite-funding-opportunities-advance-brain-cell-atlases-through-centers) Sequencing Working Group) and [SCORCH](https://nida.nih.gov/about-nida/organization/divisions/division-neuroscience-behavior-dnb/basic-research-hiv-substance-use-disorder/scorch-program) (see [Acknowledgements](#acknowledgements) below). It supports the processing of 10x single-nucleus data generated with 10x Multiome [ATAC-seq (Assay for Transposase-Accessible Chromatin)](https://www.10xgenomics.com/products/single-cell-multiome-atac-plus-gene-expression), a technique used in molecular biology to assess genome-wide chromatin accessibility. 
