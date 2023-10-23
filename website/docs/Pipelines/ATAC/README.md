@@ -8,7 +8,7 @@ slug: /Pipelines/ATAC/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [1.1.0](https://github.com/broadinstitute/warp/releases) | September, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [1.1.0](https://github.com/broadinstitute/warp/releases) | October, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ## Introduction to the ATAC workflow
 ATAC is an open-source, cloud-optimized pipeline developed collaboration with members of the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and [BICAN](https://brainblog.nih.gov/brain-blog/brain-issues-suite-funding-opportunities-advance-brain-cell-atlases-through-centers) Sequencing Working Group) and [SCORCH](https://nida.nih.gov/about-nida/organization/divisions/division-neuroscience-behavior-dnb/basic-research-hiv-substance-use-disorder/scorch-program) (see [Acknowledgements](#acknowledgements) below). It supports the processing of 10x single-nucleus data generated with 10x Multiome [ATAC-seq (Assay for Transposase-Accessible Chromatin)](https://www.10xgenomics.com/products/single-cell-multiome-atac-plus-gene-expression), a technique used in molecular biology to assess genome-wide chromatin accessibility. 
@@ -75,7 +75,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | [TrimAdapters](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) | Cutadapt v4.4 | cutadapt | Trims adaptor sequences. |
 | [BWAPairedEndAlignment](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) | bwa-mem2 | mem | Aligns reads from each set of partitioned FASTQ files to the genome and outputs a BAM with ATAC barcodes in the CB:Z tag. |
 | [Merge.MergeSortBamFiles as MergeBam](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/MergeSortBam.wdl) | MergeSamFiles | Picard | Merges each BAM into a final aligned BAM with corrected cell barcodes in the CB tag. |
-| [CreateFragmentFile](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) | make_fragment_file, import_data | SnapATAC2 | Generates a fragment file from the final aligned BAM and outputs per barcode quality metrics in h5ad. |
+| [CreateFragmentFile](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) | make_fragment_file, import_data | SnapATAC2 | Generates a fragment file from the final aligned BAM and outputs per barcode quality metrics in h5ad. A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
 
 
 ## Output variables
@@ -84,7 +84,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 |--- | --- | --- | 
 | bam_aligned_output | `<input_id>`.bam | BAM containing aligned reads from ATAC workflow. |
 | fragment_file | `<input_id>`.fragments.tsv | TSV containing fragment start and stop coordinates per barcode. | 
-| snap_metrics | `<input_id`.metrics.h5ad | h5ad (Anndata) containing per barcode metrics from SnapATAC2. |
+| snap_metrics | `<input_id`.metrics.h5ad | h5ad (Anndata) containing per barcode metrics from [SnapATAC2](https://github.com/kaizhang/SnapATAC2). A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
 
 ## Acknowledgements
 
