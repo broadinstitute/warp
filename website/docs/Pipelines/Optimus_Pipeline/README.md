@@ -60,7 +60,7 @@ Optimus pipeline inputs are detailed in JSON format configuration files. There a
 *  [mouse_v2_example](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/mouse_v2_example.json): An example mouse 10x v2 single-cell dataset
 *  [mouse_v2_snRNA_example](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/example_inputs/mouse_v2_snRNA_example.json): An example mouse v2 single-nucleus dataset
 
-Additionally, there are multiple full-size example datasets available in the [test_optimus_full_datasets](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/optimus/example_inputs/test_optimus_full_datasets) folder. Unlike the example configuration files above, the full-size configuration files may not reflect updated Optimus parameters. However, you can still access the FASTQ files for each dataset at the Google bucket locations listed in the dataset configuration files.
+Additionally, there are multiple full-size example datasets available in the Optimus [`example_inputs`](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/optimus/example_inputs) folder. Unlike the example configuration files above, the full-size configuration files may not reflect updated Optimus parameters. However, you can still access the FASTQ files for each dataset at the Google bucket locations listed in the dataset configuration files.
 
 #### Sample data input
 
@@ -325,7 +325,7 @@ The Optimus pipeline is a single sample pipeline, but it can accept multiple FAS
 
 :::note Question How do I find which parameters and Docker images were used for the different tasks (i.e. STAR alignment, emptyDrops, etc.)
 
-Parameters are listed in each task WDL. For a list of the tasks, see the table in the [Task Summary Section](#optimus-task-summary). Select the link for the task of interest and then view the parameters in the task WDL "command {}" section. For the task Docker image, see task WDL "# runtime values" section; the Docker is listed as "String docker =  ". If you want to learn more about all the different parameters available for a software tool, please select the relevant link in the table's "Tool" column.
+Parameters are listed in each task WDL. For a list of the tasks, see the table in the [Tasks and Tools Section](#optimus-tasks-and-tools). Select the link for the task of interest and then view the parameters in the task WDL "command {}" section. For the task Docker image, see task WDL "# runtime values" section; the Docker is listed as "String docker =  ". If you want to learn more about all the different parameters available for a software tool, please select the relevant link in the table's "Tool" column.
 :::
 
 :::note Question Does Optimus have any read length requirements?

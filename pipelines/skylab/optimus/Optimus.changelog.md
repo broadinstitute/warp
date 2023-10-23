@@ -1,7 +1,8 @@
 
-# 6.1.1
-2023-10-05 (Date of Last Commit)
+# 6.1.2
+2023-10-20 (Date of Last Commit)
 
+* Removed the dropna from the H5adUtils WDL for the JoinBarcodes task; this change does not impact Optimus outputs
 * Added a new task to the H5adUtils WDL to combine Multiome barcodes in h5ad outputs; this does not impact the individual Optimus workflow
 
 # 6.1.0

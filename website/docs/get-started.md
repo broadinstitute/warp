@@ -25,7 +25,7 @@ Our pipelines are written as “workflows” using the [Workflow Description Lan
 | Somatic Alignment (beta) | Exomes |
 
 :::tip
-Try our pipelines in [Terra](https://app.terra.bio/#workspaces?tagsFilter%5B0%5D=warp-pipelines&tab=public), a platform for collaborative cloud analysis! Learn how  in the [Using WARP](#_2-run-the-pipeline-in-terra) section.
+Try our pipelines in [Terra](https://app.terra.bio/#workspaces?tagsFilter%5B0%5D=warp-pipelines&tab=public), a platform for collaborative cloud analysis! Learn how  in the [Using WARP](#2-run-the-pipeline-in-terra) section.
 :::
 
 
