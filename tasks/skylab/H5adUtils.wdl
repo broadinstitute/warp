@@ -235,9 +235,6 @@ task JoinMultiomeBarcodes {
     print(df_gex)
 
     # Idenitfy the barcodes in the whitelist that match barcodes in datasets
-    whitelist_atac["MATCH_ATAC"] = whitelist_atac.isin(df_atac.index).astype(int)
-    whitelist_gex["MATCH_GEX"] = whitelist_gex.isin(df_gex.index).astype(int)
-
     print("Printing whitelist_gex")
     print(whitelist_gex[1:10])
 
@@ -246,10 +243,8 @@ task JoinMultiomeBarcodes {
     df_both_atac = df_all.copy()
     df_both_atac.set_index("atac_barcodes", inplace=True)
     df_both_gex.set_index("gex_barcodes", inplace=True)
-    df_both_gex.drop(["MATCH_GEX", "MATCH_ATAC"], axis=1, inplace=True)
-    df_both_atac.drop(["MATCH_GEX", "MATCH_ATAC"], axis=1, inplace=True)
-    df_atac = atac_data.obs.join(df_both_atac).dropna()
-    df_gex = gex_data.obs.join(df_both_gex).dropna()
+    df_atac = atac_data.obs.join(df_both_atac)
+    df_gex = gex_data.obs.join(df_both_gex)
     # set atac_data.obs to new dataframe
     print("Setting ATAC obs to new dataframe")
     atac_data.obs = df_atac
