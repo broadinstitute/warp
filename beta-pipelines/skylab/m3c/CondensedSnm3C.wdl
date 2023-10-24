@@ -586,7 +586,7 @@ task remove_overlap_read_parts {
        mkdir /cromwell_root/output_bams
 
        # get bams
-       bams=($(ls | grep "sorted.bam$"))
+       bams=($(ls | grep "sort.bam$"))
 
        # loop through bams and run python script on each bam 
        # scatter instead of for loop to optimize
