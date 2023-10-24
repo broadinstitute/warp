@@ -577,6 +577,7 @@ task remove_overlap_read_parts {
    }
 
    command <<<
+       set -euo pipefail
        # unzip bam file
        tar -xf ~{bam}
        rm ~{bam}
