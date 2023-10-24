@@ -595,8 +595,8 @@ task remove_overlap_read_parts {
        import os
        bams="${bams[@]}"
        for bam in bams.split(" "):
-            name=`echo $bam | cut -d. -f1,2,3`
-            remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", $name.read_overlap.bam))
+            name=".".join(bam.split(".")[:3])+".read_overlap.bam"
+            remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", name))
        CODE
        
        cd /cromwell_root/output_bams
