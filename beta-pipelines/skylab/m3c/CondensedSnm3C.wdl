@@ -598,9 +598,10 @@ task remove_overlap_read_parts {
             remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", $name.read_overlap.bam))
        CODE
        
-       cd /cromwell_root
-       # tar up the merged bam files
-       tar -zcvf remove_overlap_read_parts.tar.gz output_bams
+       cd /cromwell_root/output_bams
+       
+       #tar up the merged bam files
+       tar -zcvf ../remove_overlap_read_parts.tar.gz *bam
        
    >>>
    runtime {
