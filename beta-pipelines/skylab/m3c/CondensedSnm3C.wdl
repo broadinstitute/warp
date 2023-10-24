@@ -577,37 +577,31 @@ task remove_overlap_read_parts {
    }
 
    command <<<
-       #unzip bam file
+       # unzip bam file
        tar -xf ~{bam}
        rm ~{bam}
-       pwd
-       ls
+
        # create output dir
        mkdir /cromwell_root/output_bams
-       #sort and indexing can be optimizing 
-       #scatter instead of for loop to optimize
-       echo "samtools sort/index"
-       for f in *.bam; do  samtools sort $f -o ${f/.bam/sorted.bam}; samtools index ${f/.bam/sorted.bam}; done
-       rm *sort.bam
-       bams=($(ls | grep "sorted.bam$"))
-       ls
 
-       #loop through bams and run python script on each bam 
-       #scatter instead of for loop to optimize
-       #pass bam file to python script
+       # get bams
+       bams=($(ls | grep "sorted.bam$"))
+
+       # loop through bams and run python script on each bam 
+       # scatter instead of for loop to optimize
        python3 <<CODE
        from cemba_data.hisat3n import *
        import os
        bams="${bams[@]}"
        for bam in bams.split(" "):
-            print(bam)
-            remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", bam))
+            name=`echo $bam | cut -d. -f1,2,3`
+            remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", $name.read_overlap.bam))
        CODE
        
        cd /cromwell_root
-       #tar up the merged bam files
+       # tar up the merged bam files
        tar -zcvf remove_overlap_read_parts.tar.gz output_bams
-       ls
+       
    >>>
    runtime {
        docker: docker
