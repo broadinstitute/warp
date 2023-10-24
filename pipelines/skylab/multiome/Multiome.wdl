@@ -4,7 +4,7 @@ import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 workflow Multiome {
-    String pipeline_version = "2.2.0"
+    String pipeline_version = "2.2.2"
 
     input {
         String input_id
@@ -24,7 +24,7 @@ workflow Multiome {
         Boolean ignore_r1_read_length = false
         String star_strand_mode = "Forward"
         Boolean count_exons = false
-        File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt"
+        File gex_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt"
 
         # ATAC inputs
         # Array of input fastq files
@@ -38,7 +38,7 @@ workflow Multiome {
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
         # Whitelist
-        File atac_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_atac.txt"
+        File atac_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
 
     }
 
