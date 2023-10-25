@@ -27,7 +27,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 | `tsse` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Transcription start site enrichment (TSSe) score; lower scores suggest poor data quality. Learn more about TSSe in the [Definitions section](#definitions) below. |
 | `n_fragment` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Number of unique fragments corresponding to the ATAC cell barcode. Fragments are stored in the `h5ad.obsm` property of the output h5ad file. Learn more about cell barcodes and fragments in the [Definitions section](#definitions) below. |
 | `frac_dup` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Fraction of reads associated with the cell barcode that are duplicates. |
-| `frac_mito` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Fraction of reads associated with the cell barcode that mitochondrial. |
+| `frac_mito` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Fraction of reads associated with the cell barcode that are mitochondrial. |
 | `gex_barcodes` | [AnnData](https://anndata.readthedocs.io/en/latest/index.html) | Gene expression barcode associated with each ATAC cell barcode. |
 
 
