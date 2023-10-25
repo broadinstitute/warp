@@ -628,13 +628,13 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
     command <<<
       set -euo pipefail
       #unzip bam file
-      pwd
+      echo "Listing files"
       ls
       tar -xf ~{bam}
       tar -xf ~{split_bam}
       rm ~{bam}
       rm ~{split_bam}
-      pwd
+      echo "Listing files after unzipping"
       ls
     echo "samtools merge and sort"
     # define lists of r1 and r2 fq files
@@ -648,11 +648,10 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
         samtools sort -O BAM -o "${sample_id}.hisat3n_dna.all_reads.pos_sort.bam" "${sample_id}.hisat3n_dna.all_reads.name_sort.bam"
       done
        
-      echo "Tar files"
+      echo "Zip files"
       #tar up the merged bam files
       tar -zcvf hisat3n_dna.all_reads.pos_sort.tar.gz *.hisat3n_dna.all_reads.pos_sort.bam
-      tar -zcvf hisat3n_dna.all_reads.name_sort.tar.gz *.hisat3n_dna.all_reads.name_sort.bam
-      ls        
+      tar -zcvf hisat3n_dna.all_reads.name_sort.tar.gz *.hisat3n_dna.all_reads.name_sort.bam        
     >>>
     runtime {
         docker: docker
