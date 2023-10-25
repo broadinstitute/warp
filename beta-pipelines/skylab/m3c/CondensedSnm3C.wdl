@@ -67,12 +67,12 @@ workflow WDLized_snm3C {
    #     input:
    #         bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
    # }
-#
-   # call dedup_unique_bam_and_index_unique_bam {
-   #     input:
-   #         bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
-   # }
-#
+
+   call dedup_unique_bam_and_index_unique_bam {
+       input:
+           bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
+    }
+
    # call unique_reads_allc {
    #     input:
    #         bam = dedup_unique_bam_and_index_unique_bam.dedup_bam,
@@ -117,6 +117,7 @@ workflow WDLized_snm3C {
         File name_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
         File pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
         File remove_overlap_read_parts_bam_tar = remove_overlap_read_parts.output_bam_tar
+        File dedup_unique_bam_and_index_unique_bam_tar = dedup_unique_bam_and_index_unique_bam.output_tar
     }
 }
 
@@ -682,24 +683,55 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
 #    }
 #}
 
-#task dedup_unique_bam_and_index_unique_bam {
-#    input {
-#        File bam
-#    }
-#    command <<<
-#    >>>
-#    runtime {
-#        docker: "fill_in"
-#        disks: "local-disk ${disk_size} HDD"
-#        cpu: 1
-#        memory: "${mem_size} GiB"
-#    }
-#    output {
-#        File dedup_bam = ""
-#        File dedup_stats = ""
-#        File dedup_bai = ""
-#    }
-#}
+task dedup_unique_bam_and_index_unique_bam {
+    input {
+       File bam
+       String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+       Int disk_size = 80
+       Int mem_size = 20         
+    }
+
+   command <<<
+       set -euo pipefail
+       
+       # unzip files
+       tar -xf ~{bam}
+       rm ~{bam}
+       
+       # create output dir
+       mkdir /cromwell_root/output_bams
+       mkdir /cromwell_root/temp
+       
+       # name : AD3C_BA17_2027_P1-1-B11-G13.hisat3n_dna.all_reads.pos_sort.bam
+       for file in *.bam
+       do
+         name=`echo $file | cut -d. -f1`
+         name=$name.hisat3n_dna.all_reads.deduped
+         echo $name 
+         echo "Call Picard"
+         picard MarkDuplicates I=$file O=/cromwell_root/output_bams/$name.bam \
+         M=/cromwell_root/output_bams/$name.matrix.stats \
+         REMOVE_DUPLICATES=true TMP_DIR=/cromwell_root/temp
+         echo "Call samtools index"
+         samtools index /cromwell_root/output_bams/$name.bam
+       done
+       
+       cd /cromwell_root
+       
+       #tar up the output files
+       tar -zcvf dedup_unique_bam_and_index_unique_bam.tar.gz output_bams
+  
+   >>>
+   runtime {
+        docker: docker
+        disks: "local-disk ${disk_size} HDD"
+        cpu: 1
+        memory: "${mem_size} GiB"
+   }
+   output {
+        File output_tar = "dedup_unique_bam_and_index_unique_bam.tar.gz"
+   }
+}
 
 #task unique_reads_allc {
 #    input {
