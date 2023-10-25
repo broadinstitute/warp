@@ -52,11 +52,11 @@ workflow WDLized_snm3C {
             genome_fa = genome_fa
     }
 
-   # call remove_overlap_read_parts {
-   #     input:
-   #         bam = hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam
-   # }
-#
+   call remove_overlap_read_parts {
+       input:
+           bam = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
+   }
+
    # call merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
    #     input:
    #         unique_bam = separate_unmapped_reads.unique_bam,
@@ -115,6 +115,7 @@ workflow WDLized_snm3C {
         File unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
         File split_fq_tar = Split_unmapped_reads.split_fq_tar
         File merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
+        File remove_overlap_read_parts_bam_tar = remove_overlap_read_parts.output_bam_tar
     }
 }
 
@@ -567,22 +568,54 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
     }
 }
 
-#task remove_overlap_read_parts {
-#    input {
-#        File bam
-#    }
-#    command <<<
-#    >>>
-#    runtime {
-#        docker: "fill_in"
-#        disks: "local-disk ${disk_size} HDD"
-#        cpu: 1
-#        memory: "${mem_size} GiB"
-#    }
-#    output {
-#        File remove_overlap_bam = ""
-#    }
-#}
+task remove_overlap_read_parts {
+   input {
+       File bam
+       String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+       Int disk_size = 80
+       Int mem_size = 20  
+   }
+
+   command <<<
+       set -euo pipefail
+       # unzip bam file
+       tar -xf ~{bam}
+       rm ~{bam}
+
+       # create output dir
+       mkdir /cromwell_root/output_bams
+
+       # get bams
+       bams=($(ls | grep "sort.bam$"))
+
+       # loop through bams and run python script on each bam 
+       # scatter instead of for loop to optimize
+       python3 <<CODE
+       from cemba_data.hisat3n import *
+       import os
+       bams="${bams[@]}"
+       for bam in bams.split(" "):
+            name=".".join(bam.split(".")[:3])+".read_overlap.bam"
+            remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", name))
+       CODE
+       
+       cd /cromwell_root/output_bams
+       
+       #tar up the merged bam files
+       tar -zcvf ../remove_overlap_read_parts.tar.gz *bam
+       
+   >>>
+   runtime {
+       docker: docker
+       disks: "local-disk ${disk_size} HDD"
+       cpu: 1
+       memory: "${mem_size} GiB"
+   }
+   output {
+        File output_bam_tar = "remove_overlap_read_parts.tar.gz"
+    }
+
+}
 
 #task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
 #    input {
