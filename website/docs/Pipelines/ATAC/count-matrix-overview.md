@@ -6,16 +6,18 @@ sidebar_position: 2
 
 The ATAC pipeline's default count matrix output is a h5ad file generated using [SnapATAC2](https://github.com/kaizhang/SnapATAC2) and [AnnData](https://anndata.readthedocs.io/en/latest/index.html). 
 
-The h5ad file contains unstructured metadata (`h5ad.uns`; [Table 1](#table-1-global-attributes)) as well as per-barcode quality metrics (`h5ad.obs`; [Table 2](#table-2-cell-metrics)). It also contains an equivalent gene expression barcode for each ATAC barcode. The h5ad file does not contain per-gene metrics, meaning the variables/features data frame (`h5ad.var`) is empty.
+The h5ad file contains unstructured metadata (`h5ad.uns`; [Table 1](#table-1-global-attributes)) as well as per-barcode quality metrics (`h5ad.obs`; [Table 2](#table-2-cell-metrics)). It also contains an equivalent gene expression barcode for each ATAC barcode. Raw fragments are stored in the `h5ad.obsm['insertion']` property of the h5ad file.
+
+The h5ad file does not contain per-gene metrics, meaning the variables/features data frame (`h5ad.var`) is empty.
 
 
 ## Table 1. Global attributes
 
 The global attributes (unstuctured metadata) in the h5ad apply to the whole file, not any specific part. 
 
-| Attribute | Details |
-| --- | --- |
-| `reference_sequences` | Data frame containing the chromosome sizes for the genome build (i.e., hg38); created using the `chrom_sizes` pipeline input. |
+| Attribute | Program | Details |
+| --- | --- | --- |
+| `reference_sequences` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Data frame containing the chromosome sizes for the genome build (i.e., hg38); created using the `chrom_sizes` pipeline input. |
 
 
 ## Table 2. Cell metrics
