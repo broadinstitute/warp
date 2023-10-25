@@ -52,16 +52,16 @@ workflow WDLized_snm3C {
             genome_fa = genome_fa
     }
 
-   call remove_overlap_read_parts {
-       input:
-           bam = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
-   }
+    call remove_overlap_read_parts {
+        input:
+            bam = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
+    }
 
-   # call merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
-   #     input:
-   #         unique_bam = separate_unmapped_reads.unique_bam,
-   #         split_bam = remove_overlap_read_parts.remove_overlap_bam
-   # }
+    call merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
+        input:
+            bam = Separate_unmapped_reads.unique_bam_tar,
+            split_bam = remove_overlap_read_parts.output_bam_tar
+    }
 #
    # call call_chromatin_contacts {
    #     input:
@@ -101,7 +101,6 @@ workflow WDLized_snm3C {
         #File MappingSummary = summary.MappingSummary
         #File allcFiles = unique_reads_allc.
         #File allc_CGNFiles = unique_reads_cgn_extraction.
-        #File bamFiles = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
         #File UniqueAlign_cell_parser_picard_dedup = dedup_unique_bam_and_index_unique_bam.dedup_stats
         #File SplitReads_cell_parser_hisat_summary = "?"
         #File hicFiles = call_chromatin_contacts.chromatin_contact_stats
@@ -115,6 +114,8 @@ workflow WDLized_snm3C {
         File unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
         File split_fq_tar = Split_unmapped_reads.split_fq_tar
         File merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
+        File name_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
+        File pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
         File remove_overlap_read_parts_bam_tar = remove_overlap_read_parts.output_bam_tar
     }
 }
@@ -569,72 +570,101 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
 }
 
 task remove_overlap_read_parts {
-   input {
-       File bam
-       String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-       Int disk_size = 80
-       Int mem_size = 20  
-   }
-
-   command <<<
-       set -euo pipefail
-       # unzip bam file
-       tar -xf ~{bam}
-       rm ~{bam}
-
-       # create output dir
-       mkdir /cromwell_root/output_bams
-
-       # get bams
-       bams=($(ls | grep "sort.bam$"))
-
-       # loop through bams and run python script on each bam 
-       # scatter instead of for loop to optimize
-       python3 <<CODE
-       from cemba_data.hisat3n import *
-       import os
-       bams="${bams[@]}"
-       for bam in bams.split(" "):
-            name=".".join(bam.split(".")[:3])+".read_overlap.bam"
-            remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", name))
-       CODE
-       
-       cd /cromwell_root/output_bams
-       
-       #tar up the merged bam files
-       tar -zcvf ../remove_overlap_read_parts.tar.gz *bam
-       
-   >>>
-   runtime {
-       docker: docker
-       disks: "local-disk ${disk_size} HDD"
-       cpu: 1
-       memory: "${mem_size} GiB"
-   }
-   output {
-        File output_bam_tar = "remove_overlap_read_parts.tar.gz"
+    input {
+        File bam
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        Int disk_size = 80
+        Int mem_size = 20  
     }
 
+    command <<<
+        set -euo pipefail
+        # unzip bam file
+        tar -xf ~{bam}
+        rm ~{bam}
+
+        # create output dir
+        mkdir /cromwell_root/output_bams
+
+        # get bams
+        bams=($(ls | grep "sort.bam$"))
+
+        # loop through bams and run python script on each bam 
+        # scatter instead of for loop to optimize
+        python3 <<CODE
+        from cemba_data.hisat3n import *
+        import os
+        bams="${bams[@]}"
+        for bam in bams.split(" "):
+            name=".".join(bam.split(".")[:3])+".read_overlap.bam"
+            remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", name))
+        CODE
+       
+        cd /cromwell_root/output_bams
+       
+        #tar up the merged bam files
+        tar -zcvf ../remove_overlap_read_parts.tar.gz *bam
+       
+    >>>
+    runtime {
+        docker: docker
+        disks: "local-disk ${disk_size} HDD"
+        cpu: 1
+        memory: "${mem_size} GiB"
+    }
+    output {
+        File output_bam_tar = "remove_overlap_read_parts.tar.gz"
+    }
 }
 
-#task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
-#    input {
-#        File unique_bam
-#        File split_bam
-#    }
-#    command <<<
-#    >>>
-#    runtime {
-#        docker: "fill_in"
-#        disks: "local-disk ${disk_size} HDD"
-#        cpu: 1
-#        memory: "${mem_size} GiB"
-#    }
-#    output {
-#        File name_sorted_bam = ""
-#        File position_sorted_bam = ""
-#    }
-#}
+task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
+    input {
+        File bam
+        File split_bam
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        Int disk_size = 80
+        Int mem_size = 20
+    }
+    command <<<
+      set -euo pipefail
+      #unzip bam file
+      pwd
+      ls
+      tar -xf ~{bam}
+      tar -xf ~{split_bam}
+      rm ~{bam}
+      rm ~{split_bam}
+      pwd
+      ls
+    echo "samtools merge and sort"
+    # define lists of r1 and r2 fq files
+      UNIQUE_BAMS=($(ls | grep "\.hisat3n_dna.unique_aligned.bam"))
+      SPLIT_BAMS=($(ls | grep "\.hisat3n_dna.split_reads.read_overlap.bam"))
+
+      for file in "${UNIQUE_BAMS[@]}"; do
+        sample_id=$(basename "$file" ".hisat3n_dna.unique_aligned.bam")
+        samtools merge -f "${sample_id}.hisat3n_dna.all_reads.bam" "${sample_id}.hisat3n_dna.unique_aligned.bam" "${sample_id}.hisat3n_dna.split_reads.read_overlap.bam"      
+        samtools sort -n -o "${sample_id}.hisat3n_dna.all_reads.name_sort.bam" "${sample_id}.hisat3n_dna.all_reads.bam"
+        samtools sort -O BAM -o "${sample_id}.hisat3n_dna.all_reads.pos_sort.bam" "${sample_id}.hisat3n_dna.all_reads.name_sort.bam"
+      done
+       
+      echo "Tar files"
+      #tar up the merged bam files
+      tar -zcvf hisat3n_dna.all_reads.pos_sort.tar.gz *.hisat3n_dna.all_reads.pos_sort.bam
+      tar -zcvf hisat3n_dna.all_reads.name_sort.tar.gz *.hisat3n_dna.all_reads.name_sort.bam
+      ls        
+    >>>
+    runtime {
+        docker: docker
+        disks: "local-disk ${disk_size} HDD"
+        cpu: 1
+        memory: "${mem_size} GiB"
+    }
+    output {
+        File name_sorted_bam = "hisat3n_dna.all_reads.name_sort.tar.gz"
+        File position_sorted_bam = "hisat3n_dna.all_reads.pos_sort.tar.gz"
+    }
+}
 
 #task call_chromatin_contacts {
 #    input {
