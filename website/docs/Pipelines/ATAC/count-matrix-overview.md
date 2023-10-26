@@ -17,7 +17,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 
 | Attribute | Program | Details |
 | --- | --- | --- |
-| `reference_sequences` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Data frame containing the chromosome sizes for the genome build (i.e., hg38); created using the `chrom_sizes` pipeline input. |
+| `reference_sequences` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Data frame containing the chromosome sizes for the genome build (i.e., hg38); created using the [`chrom_sizes` pipeline input](README.md). |
 
 
 ## Table 2. Cell metrics
