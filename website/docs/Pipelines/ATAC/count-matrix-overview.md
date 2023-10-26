@@ -28,7 +28,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 | `n_fragment` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Number of unique fragments corresponding to the ATAC cell barcode. Fragments are stored in the `h5ad.obsm` property of the output h5ad file. Learn more about cell barcodes and fragments in the [Definitions section](#definitions) below. |
 | `frac_dup` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Fraction of reads associated with the cell barcode that are duplicates. |
 | `frac_mito` | [SnapATAC2](https://github.com/kaizhang/SnapATAC2) | Fraction of reads associated with the cell barcode that are mitochondrial. |
-| `gex_barcodes` | [AnnData](https://anndata.readthedocs.io/en/latest/index.html) | Gene expression barcode associated with each ATAC cell barcode. |
+| `gex_barcodes` | [AnnData](https://anndata.readthedocs.io/en/latest/index.html) | Gene expression barcode associated with each ATAC cell barcode. This column is only produced when ATAC is run as part of the Multiome pipeline. |
 
 
 ## Definitions
