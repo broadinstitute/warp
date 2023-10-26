@@ -6,7 +6,7 @@ sidebar_position: 2
 
 The ATAC pipeline's default count matrix output is a h5ad file generated using [SnapATAC2](https://github.com/kaizhang/SnapATAC2) and [AnnData](https://anndata.readthedocs.io/en/latest/index.html). 
 
-The h5ad file contains unstructured metadata (`h5ad.uns`; [Table 1](#table-1-global-attributes)) as well as per-barcode quality metrics (`h5ad.obs`; [Table 2](#table-2-cell-metrics)). It also contains an equivalent gene expression barcode for each ATAC barcode. Raw fragments are stored in the `h5ad.obsm['insertion']` property of the h5ad file. For more information, see the [`import_data` function](https://kzhang.org/SnapATAC2/api/_autosummary/snapatac2.pp.import_data.html#snapatac2.pp.import_data) in the SnapATAC2 documentation
+The h5ad file contains unstructured metadata (`h5ad.uns`; [Table 1](#table-1-global-attributes)) as well as per-barcode quality metrics (`h5ad.obs`; [Table 2](#table-2-cell-metrics)). It also contains an equivalent gene expression barcode for each ATAC barcode. Raw fragments are stored in the `h5ad.obsm['insertion']` property of the h5ad file. For more information, see the [`import_data` function](https://kzhang.org/SnapATAC2/api/_autosummary/snapatac2.pp.import_data.html#snapatac2.pp.import_data) in the SnapATAC2 documentation.
 
 The h5ad file does not contain per-gene metrics, meaning the variables/features data frame (`h5ad.var`) is empty.
 
