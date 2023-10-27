@@ -9,6 +9,7 @@ import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 workflow TestMultiSampleSmartSeq2SingleNucleus {
 
     input {
+      File cloud_provider
       File genome_ref_fasta
       File tar_star_reference
       File annotations_gtf
@@ -41,6 +42,7 @@ workflow TestMultiSampleSmartSeq2SingleNucleus {
   
     call MultiSampleSmartSeq2SingleNucleus.MultiSampleSmartSeq2SingleNucleus {
       input:
+        cloud_provider = cloud_provider,
         genome_ref_fasta = genome_ref_fasta,
         tar_star_reference = tar_star_reference,
         annotations_gtf = annotations_gtf,
