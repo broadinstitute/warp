@@ -8,7 +8,7 @@ task CountAlignments {
     File annotation_gtf
 
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/subread:1.0.0-2.0.1-1689097353"
+    String subread_docker_path
     Int machine_mem_mb = 8250
     Int cpu = 1
     Int disk = ceil(size(aligned_bam_inputs,"Gi")*2) + 10
@@ -20,7 +20,7 @@ task CountAlignments {
   }
 
   parameter_meta {
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    subread_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -65,7 +65,7 @@ task CountAlignments {
   >>>
 
   runtime {
-    docker: docker
+    docker: subread_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES

@@ -6,6 +6,8 @@ import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
 import "../../../tasks/skylab/Picard.wdl" as Picard
 import "../../../tasks/skylab/FeatureCounts.wdl" as CountAlignments
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/broad/Utilities.wdl" as Utils
+
 
 workflow MultiSampleSmartSeq2SingleNucleus {
   meta {
@@ -14,6 +16,9 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   }
 
   input {
+      # Cloud provider
+      String cloud_provider = "gcp"
+
       # reference genome fasta
       File genome_ref_fasta
 
@@ -28,7 +33,7 @@ workflow MultiSampleSmartSeq2SingleNucleus {
       Array[String] input_ids
       Array[String]? input_names
       Array[String] fastq1_input_files
-      Array[String] fastq2_input_files 
+      Array[String] fastq2_input_files
       String batch_id
       String? batch_name
       Array[String]? project_id
@@ -40,9 +45,43 @@ workflow MultiSampleSmartSeq2SingleNucleus {
       String? input_id_metadata_field
   }
   # Version of this pipeline
-  String pipeline_version = "1.2.26"
+  String pipeline_version = "1.2.25"
 
-  if (false) {
+  # Docker images
+  String picard_cloud_docker = "picard-cloud:2.26.10"
+  String alpine_docker = "alpine-bash:latest"
+  String ubuntu_docker = "ubuntu_16_0_4:latest"
+  String ea_utils_docker = "ea-utils:1.0.0-1.04.807-1659990665"
+  String star_docker = "star:1.0.0-2.7.9a-1658781884"
+  String subread_docker = "subread:1.0.0-2.0.1-1689097353"
+  String pytools_docker = "pytools:1.0.0-1661263730"
+
+  #TODO how do we handle these?
+  String gcp_alpine_docker_prefix = "bashell/"
+  String acr_alpine_docker_prefix = "dsppipelinedev.azurecr.io/"
+  String alpine_docker_prefix = if cloud_provider == "gcp" then gcp_alpine_docker_prefix else acr_alpine_docker_prefix
+
+  String ubuntu_docker = "ubuntu_16_0_4:latest"
+  String gcp_ubuntu_docker_prefix = "gcr.io/gcp-runtimes/"
+  String acr_ubuntu_docker_prefix = "dsppipelinedev.azurecr.io/"
+  String ubuntu_docker_prefix = if cloud_provider == "gcp" then gcp_ubuntu_docker_prefix else acr_ubuntu_docker_prefix
+
+
+  String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
+  String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
+
+  # choose docker prefix based on cloud provider
+  String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
+
+  # make sure either gcp or azr is supplied as cloud_provider input
+  if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+      call Utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+          input:
+              message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+      }
+  }
+
+    if (false) {
      String? none = "None"
   }
 
@@ -67,12 +106,15 @@ workflow MultiSampleSmartSeq2SingleNucleus {
          input_names = input_names,
          fastq1_input_files = fastq1_input_files,
          fastq2_input_files = fastq2_input_files,
-         paired_end = true
+         paired_end = true,
+         alpine_docker_path = alpine_docker_prefix + alpine_docker
+
   }
-  
+
   call StarAlign.STARGenomeRefVersion as ReferenceCheck {
     input:
-      tar_star_reference = tar_star_reference
+      tar_star_reference = tar_star_reference,
+      ubuntu_docker_path = ubuntu_docker_prefix + ubuntu_docker
   }
 
   call TrimAdapters.TrimAdapters as TrimAdapters {
@@ -80,7 +122,8 @@ workflow MultiSampleSmartSeq2SingleNucleus {
          input_ids = input_ids,
          fastq1_input_files = fastq1_input_files,
          fastq2_input_files = fastq2_input_files,
-         adapter_list = adapter_list
+         adapter_list = adapter_list,
+         ea_utils_docker_path = docker_prefix + ea_utils_docker
    }
 
    call StarAlign.StarAlignFastqMultisample as StarAlign {
@@ -88,27 +131,32 @@ workflow MultiSampleSmartSeq2SingleNucleus {
         input_ids = input_ids,
         fastq1_input_files = TrimAdapters.trimmed_fastq1_files,
         fastq2_input_files = TrimAdapters.trimmed_fastq2_files,
-        tar_star_reference = tar_star_reference
+        tar_star_reference = tar_star_reference,
+        star_docker_path = docker_prefix + star_docker
+
    }
 
     call Picard.RemoveDuplicatesFromBam as RemoveDuplicatesFromBam {
         input:
             input_ids = input_ids,
-            aligned_bam_inputs = StarAlign.output_bam
+            aligned_bam_inputs = StarAlign.output_bam,
+            picard_docker_path = docker_prefix + picard_cloud_docker
     }
 
     call Picard.CollectMultipleMetricsMultiSample {
         input:
             aligned_bam_inputs = RemoveDuplicatesFromBam.output_bam,
             genome_ref_fasta = genome_ref_fasta,
-            input_ids = input_ids
+            input_ids = input_ids,
+            picard_docker_path = docker_prefix + picard_cloud_docker
     }
 
     call CountAlignments.CountAlignments as CountAlignments {
         input:
             input_ids = input_ids,
             aligned_bam_inputs = RemoveDuplicatesFromBam.output_bam,
-            annotation_gtf = annotations_gtf
+            annotation_gtf = annotations_gtf,
+            subread_docker_path = docker_prefix + subread_docker
     }
 
     call LoomUtils.SingleNucleusSmartSeq2LoomOutput as LoomOutput {
@@ -123,7 +171,8 @@ workflow MultiSampleSmartSeq2SingleNucleus {
             gc_bias_summary_metrics = CollectMultipleMetricsMultiSample.gc_bias_summary_metrics,
             introns_counts = CountAlignments.intron_counts_out,
             exons_counts = CountAlignments.exon_counts_out,
-            annotation_introns_added_gtf = annotations_gtf
+            annotation_introns_added_gtf = annotations_gtf,
+            pytools_docker_path = docker_prefix + pytools_docker
     }
 
   ### Aggregate the Loom Files Directly ###
@@ -137,7 +186,8 @@ workflow MultiSampleSmartSeq2SingleNucleus {
       library = if defined(library) then select_first([library])[0] else none,
       species = if defined(species) then select_first([species])[0] else none,
       organ = if defined(organ) then select_first([organ])[0] else none,
-      pipeline_version = "MultiSampleSmartSeq2SingleNucleus_v~{pipeline_version}"
+      pipeline_version = "MultiSampleSmartSeq2SingleNucleus_v~{pipeline_version}",
+      pytools_docker_path = docker_prefix + pytools_docker
   }
 
 

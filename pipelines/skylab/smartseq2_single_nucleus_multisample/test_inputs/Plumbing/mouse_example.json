@@ -1,4 +1,5 @@
 {
+  "MultiSampleSmartSeq2SingleNucleus.cloud_provider": "gcp",
   "MultiSampleSmartSeq2SingleNucleus.genome_ref_fasta": "gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_mm10.primary_assembly.genome.fa",
   "MultiSampleSmartSeq2SingleNucleus.tar_star_reference": "gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/star/modified_star_2.7.9a_primary_gencode_mouse_vM23.tar",
   "MultiSampleSmartSeq2SingleNucleus.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/single_nucleus/modified_gencode.vM23.primary_assembly.annotation.gtf",

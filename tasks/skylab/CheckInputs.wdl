@@ -7,6 +7,7 @@ task checkInputArrays {
     Array[String]? input_names
     Array[String] fastq1_input_files
     Array[String] fastq2_input_files
+    String alpine_docker_path
   }
 
   Int len_input_ids = length(input_ids)
@@ -43,7 +44,7 @@ task checkInputArrays {
   }
 
   runtime {
-    docker: "bashell/alpine-bash:latest"
+    docker: alpine_docker_path
     cpu: 1
     memory: "1 GiB"
     disks: "local-disk ~{disk} HDD"
@@ -66,7 +67,7 @@ task checkOptimusInput {
     String whitelist_v2
     String whitelist_v3
     Boolean ignore_r1_read_length
-  }  
+  }
 
   meta {
     description: "checks optimus input values and fails the pipeline immediately"
@@ -77,7 +78,7 @@ task checkOptimusInput {
 
     ## Set pass to true
     pass="true"
-    
+
     ## Need to gunzip the r1_fastq
     zcat ~{r1_fastq} | head -n2 > r1.fastq
     FASTQ=r1.fastq
@@ -123,7 +124,7 @@ task checkOptimusInput {
       pass="false"
       echo "ERROR: Chemistry version must be either 2 or 3"
     fi
-    
+
     if [[ ~{tenx_chemistry_version} == 2 && $COUNT != 26 && ~{ignore_r1_read_length} == "false" ]]
       then
       pass="false"
@@ -158,5 +159,5 @@ task checkOptimusInput {
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
     disk: disk + " GB" # TES
-  } 
+  }
 }
