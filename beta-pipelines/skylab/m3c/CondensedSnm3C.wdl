@@ -68,16 +68,16 @@ workflow WDLized_snm3C {
    #         bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
    # }
 
-   call dedup_unique_bam_and_index_unique_bam {
-       input:
-           bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
+    call dedup_unique_bam_and_index_unique_bam {
+        input:
+            bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
     }
 
-   # call unique_reads_allc {
-   #     input:
-   #         bam = dedup_unique_bam_and_index_unique_bam.dedup_bam,
-   #         bai = dedup_unique_bam_and_index_unique_bam.dedup_bai
-   # }
+    call unique_reads_allc {
+        input:
+            bam_and_index_tar = dedup_unique_bam_and_index_unique_bam.output_tar,
+            genome_fa = genome_fa
+    }
 #
    # call unique_reads_cgn_extraction {
    #     input:
@@ -637,8 +637,8 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
       rm ~{split_bam}
       echo "Listing files after unzipping"
       ls
-    echo "samtools merge and sort"
-    # define lists of r1 and r2 fq files
+      echo "samtools merge and sort"
+      # define lists of r1 and r2 fq files
       UNIQUE_BAMS=($(ls | grep "\.hisat3n_dna.unique_aligned.bam"))
       SPLIT_BAMS=($(ls | grep "\.hisat3n_dna.split_reads.read_overlap.bam"))
 
@@ -691,67 +691,101 @@ task dedup_unique_bam_and_index_unique_bam {
        Int mem_size = 20         
     }
 
-   command <<<
-       set -euo pipefail
+    command <<<
+        set -euo pipefail
        
-       # unzip files
-       tar -xf ~{bam}
-       rm ~{bam}
+        # unzip files
+        tar -xf ~{bam}
+        rm ~{bam}
        
-       # create output dir
-       mkdir /cromwell_root/output_bams
-       mkdir /cromwell_root/temp
+        # create output dir
+        mkdir /cromwell_root/output_bams
+        mkdir /cromwell_root/temp
        
-       # name : AD3C_BA17_2027_P1-1-B11-G13.hisat3n_dna.all_reads.pos_sort.bam
-       for file in *.bam
-       do
-         name=`echo $file | cut -d. -f1`
-         name=$name.hisat3n_dna.all_reads.deduped
-         echo $name 
-         echo "Call Picard"
-         picard MarkDuplicates I=$file O=/cromwell_root/output_bams/$name.bam \
-         M=/cromwell_root/output_bams/$name.matrix.stats \
-         REMOVE_DUPLICATES=true TMP_DIR=/cromwell_root/temp
-         echo "Call samtools index"
-         samtools index /cromwell_root/output_bams/$name.bam
-       done
+        # name : AD3C_BA17_2027_P1-1-B11-G13.hisat3n_dna.all_reads.pos_sort.bam
+        for file in *.bam
+        do
+          name=`echo $file | cut -d. -f1`
+          name=$name.hisat3n_dna.all_reads.deduped
+          echo $name 
+          echo "Call Picard"
+          picard MarkDuplicates I=$file O=/cromwell_root/output_bams/$name.bam \
+          M=/cromwell_root/output_bams/$name.matrix.stats \
+          REMOVE_DUPLICATES=true TMP_DIR=/cromwell_root/temp
+          echo "Call samtools index"
+          samtools index /cromwell_root/output_bams/$name.bam
+        done
        
-       cd /cromwell_root
+        cd /cromwell_root
        
-       #tar up the output files
-       tar -zcvf dedup_unique_bam_and_index_unique_bam.tar.gz output_bams
+        #tar up the output files
+        tar -zcvf dedup_unique_bam_and_index_unique_bam.tar.gz output_bams
   
-   >>>
-   runtime {
+    >>>
+    runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
-   }
-   output {
+    }
+    output {
         File output_tar = "dedup_unique_bam_and_index_unique_bam.tar.gz"
-   }
+    }
 }
 
-#task unique_reads_allc {
-#    input {
-#        File bam
-#        File bai
-#    }
-#    command <<<
-#    >>>
-#    runtime {
-#        docker: "fill_in"
-#        disks: "local-disk ${disk_size} HDD"
-#        cpu: 1
-#        memory: "${mem_size} GiB"
-#    }
-#    output {
-#        File allc = ""
-#        File tbi = ""
-#        File allc_uniq_reads_stats = ""
-#    }
-#}
+task unique_reads_allc {
+    input {
+        File bam_and_index_tar
+        File genome_fa
+        Int disk_size = 80
+        Int mem_size = 20
+        String genome_base = basename(genome_fa)
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+    }
+    command <<<
+        set -euo pipefail
+        # unzip files
+        tar -xf ~{bam_and_index_tar}
+        rm ~{bam_and_index_tar}
+        mkdir reference
+        cp ~{genome_fa} reference
+        cd reference
+        samtools faidx *.fa
+        cd ../output_bams
+        echo "Starting allcools"
+        bam_files=($(ls | grep "\.hisat3n_dna.all_reads.deduped.bam$"))
+        echo ${bam_files[@]}
+        for file in "${bam_files[@]}"; do
+          sample_id=$(basename "$file" ".hisat3n_dna.all_reads.deduped.bam")
+          /opt/conda/bin/allcools bam-to-allc \
+          --bam_path "$file" \
+          --reference_fasta /cromwell_root/reference/~{genome_base} \
+          --output_path "${sample_id}.allc.tsv.gz" \
+          --num_upstr_bases 0 \
+          --num_downstr_bases 2 \
+          --compress_level 5 \
+          --save_count_df \
+          --convert_bam_strandness
+        done
+        echo "Zipping files"
+        tar -zcvf ../allc.tsv.tar.gz *.allc.tsv.gz
+        tar -zcvf ../allc.tbi.tar.gz *.allc.tsv.gz.tbi
+        tar -zcvf ../allc.count.tar.gz *.allc.tsv.gz.count.csv
+
+
+    >>>
+    runtime {
+        docker: docker
+        disks: "local-disk ${disk_size} HDD"
+        cpu: 1
+        memory: "${mem_size} GiB"
+    }
+    output {
+        File allc = "allc.tsv.tar.gz"
+        File tbi = "allc.tbi.tar.gz"
+        File allc_uniq_reads_stats = "allc.count.tar.gz"
+    }
+}
 
 #task unique_reads_cgn_extraction {
 #    input {
