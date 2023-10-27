@@ -750,6 +750,8 @@ task unique_reads_allc {
         mkdir reference
         cp ~{genome_fa} reference
         cd reference
+        # index the fasta
+        echo "Indexing FASTA"
         samtools faidx *.fa
         cd ../output_bams
         echo "Starting allcools"
