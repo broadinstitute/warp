@@ -120,6 +120,9 @@ workflow WDLized_snm3C {
         File pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
         File remove_overlap_read_parts_bam_tar = remove_overlap_read_parts.output_bam_tar
         File dedup_unique_bam_and_index_unique_bam_tar = dedup_unique_bam_and_index_unique_bam.output_tar
+        File unique_reads_cgn_extraction_allc = unique_reads_cgn_extraction.output_allc_tar
+        File unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.output_tbi_tar
+
     }
 }
 
