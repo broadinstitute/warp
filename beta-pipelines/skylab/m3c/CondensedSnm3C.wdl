@@ -851,7 +851,7 @@ task unique_reads_cgn_extraction {
     }
     
     output {
-		File output_allc_tar = "output_allc_tar.tar.gz"
+        File output_allc_tar = "output_allc_tar.tar.gz"
         File output_tbi_tar = "output_tbi_tar.tar.gz"
     }
 }
