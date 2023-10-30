@@ -11,6 +11,7 @@ workflow WDLized_snm3C {
         File tarred_index_files
         File genome_fa
         File chromosome_sizes
+
     }
 
     call Demultiplexing {
@@ -78,13 +79,14 @@ workflow WDLized_snm3C {
             bam_and_index_tar = dedup_unique_bam_and_index_unique_bam.output_tar,
             genome_fa = genome_fa
     }
-#
-   # call unique_reads_cgn_extraction {
-   #     input:
-   #         allc = unique_reads_allc.allc,
-   #         tbi = unique_reads_allc.tbi
-   # }
-#
+
+   call unique_reads_cgn_extraction {
+       input:
+          allc_tar = unique_reads_allc.allc,
+          tbi_tar = unique_reads_allc.tbi,
+          chrom_size_path = chromosome_sizes
+   }
+
    # call summary {
    #     input:
    #         trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats,
@@ -789,24 +791,71 @@ task unique_reads_allc {
     }
 }
 
-#task unique_reads_cgn_extraction {
-#    input {
-#        File allc
-#        File tbi
-#    }
-#    command <<<
-#    >>>
-#    runtime {
-#        docker: "fill_in"
-#        disks: "local-disk ${disk_size} HDD"
-#        cpu: 1
-#        memory: "${mem_size} GiB"
-#    }
-#    output {
-#        File unique_reads_cgn_extraction_allc = ""
-#        File unique_reads_cgn_extraction_tbi = ""
-#    }
-#}
+
+task unique_reads_cgn_extraction {
+    input {
+       File allc_tar
+       File tbi_tar
+       File chrom_size_path
+       String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+       Int disk_size = 80
+       Int mem_size = 20
+       Int num_upstr_bases = 0
+    }
+    
+    command <<<
+       set -euo pipefail
+
+       tar -xf ~{allc_tar}
+       rm ~{allc_tar}
+       
+       tar -xf ~{tbi_tar}
+       rm ~{tbi_tar}
+     
+       # prefix="allc-{mcg_context}/{cell_id}"
+       if [ ~{num_upstr_bases} -eq 0 ]; then
+          mcg_context=CGN
+       else
+          mcg_context=HCGN
+       fi
+              
+       # create output dir
+       mkdir /cromwell_root/allc-${mcg_context}
+       outputdir=/cromwell_root/allc-${mcg_context}
+       
+       #AD3C_BA17_2027_P1-1-B11-G13.allc.tsv.gz.tbi
+       #AD3C_BA17_2027_P1-1-B11-G13.allc.tsv.gz
+       for gzfile in *.gz
+       do
+            name=`echo $gzfile | cut -d. -f1`
+            echo $name
+            allcools extract-allc --strandness merge --allc_path $gzfile \
+            --output_prefix $outputdir/$name \
+            --mc_contexts ${mcg_context} \
+            --chrom_size_path ~{chrom_size_path}        
+       done
+          
+       cd /cromwell_root
+       
+       #AD3C_BA17_2027_P1-1-B11-G13.CGN-Merge.allc.tsv.gz, AD3C_BA17_2027_P1-1-B11-G13.CGN-Merge.allc.tsv.gz.tbi
+       tar -zcvf output_allc_tar.tar.gz $outputdir/*.gz
+       tar -zcvf output_tbi_tar.tar.gz $outputdir/*.tbi
+       
+    >>>
+    
+    runtime {
+        docker: docker
+        disks: "local-disk ${disk_size} HDD"
+        cpu: 1
+        memory: "${mem_size} GiB"
+    }
+    
+    output {
+		File output_allc_tar = "output_allc_tar.tar.gz"
+        File output_tbi_tar = "output_tbi_tar.tar.gz"
+    }
+}
+
 
 #task summary {
 #    input {
