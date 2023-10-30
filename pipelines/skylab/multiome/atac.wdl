@@ -75,7 +75,7 @@ workflow ATAC {
         read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
         read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
         tar_bwa_reference = tar_bwa_reference,
-        output_base_name = input_id + "_" + idx
+        output_base_name = input_id + "_" + idx,
         monitoring_script = monitoring_script
     }
   }
