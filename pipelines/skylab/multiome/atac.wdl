@@ -32,6 +32,9 @@ workflow ATAC {
     # TrimAdapters input
     String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
+
+    # Monitoring script
+    File monitoring_script = "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh"
   }
 
   String pipeline_version = "1.1.1"
@@ -50,7 +53,8 @@ workflow ATAC {
       read3_fastq = read3_fastq_gzipped,
       barcodes_fastq = read2_fastq_gzipped,
       output_base_name = input_id,
-      whitelist = whitelist
+      whitelist = whitelist,
+      monitoring_script = monitoring_script
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
@@ -61,7 +65,9 @@ workflow ATAC {
         read3_fastq = SplitFastq.fastq_R3_output_array[idx],
         output_base_name = input_id + "_" + idx,
         adapter_seq_read1 = adapter_seq_read1,
-        adapter_seq_read3 = adapter_seq_read3
+        adapter_seq_read3 = adapter_seq_read3,      
+        monitoring_script = monitoring_script
+        
     }
 
     call BWAPairedEndAlignment {
@@ -70,6 +76,7 @@ workflow ATAC {
         read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
         tar_bwa_reference = tar_bwa_reference,
         output_base_name = input_id + "_" + idx
+        monitoring_script = monitoring_script
     }
   }
 
@@ -77,15 +84,16 @@ workflow ATAC {
     input:
       output_bam_filename = input_id + ".bam",
       bam_inputs = BWAPairedEndAlignment.bam_aligned_output,
-      sort_order = "coordinate"
+      sort_order = "coordinate",
+      monitoring_script = monitoring_script
   }
-
 
   call CreateFragmentFile {
     input:
       bam = MergeBam.output_bam,
       chrom_sizes = chrom_sizes,
-      annotations_gtf = annotations_gtf
+      annotations_gtf = annotations_gtf,
+      monitoring_script = monitoring_script
   }
 
   output {
@@ -112,6 +120,9 @@ task TrimAdapters {
     Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") )) + 200
     Int mem_size = 4
     String docker_image = "us.gcr.io/broad-gotc-prod/cutadapt:1.0.0-4.4-1686752919"
+
+    # Monitoring script
+    File monitoring_script
   }
 
   parameter_meta {
@@ -134,6 +145,13 @@ task TrimAdapters {
   # using cutadapt to trim off sequence adapters
   command <<<
     set -euo pipefail
+    
+    if [ ! -z "~{monitoring_script}" ]; then
+        chmod a+x ~{monitoring_script}
+        ~{monitoring_script} > monitoring.log &
+    else
+        echo "No monitoring script given as input" > monitoring.log &
+    fi
 
     # fastq's, "-f", -A for paired adapters read 2"
     cutadapt \
@@ -175,6 +193,9 @@ task BWAPairedEndAlignment {
     Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 400
     Int nthreads = 16
     Int mem_size = 40
+
+    # Monitoring script
+    File monitoring_script  
   }
 
   parameter_meta {
@@ -196,7 +217,14 @@ task BWAPairedEndAlignment {
   command <<<
 
     set -euo pipefail
-
+    
+    if [ ! -z "~{monitoring_script}" ]; then
+        chmod a+x ~{monitoring_script}
+        ~{monitoring_script} > monitoring.log &
+    else
+        echo "No monitoring script given as input" > monitoring.log &
+    fi
+    
     # prepare reference
     declare -r REF_DIR=$(mktemp -d genome_referenceXXXXXX)
     tar -xf "~{tar_bwa_reference}" -C $REF_DIR --strip-components 1
@@ -235,6 +263,9 @@ task CreateFragmentFile {
     Int mem_size = 16
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
+    
+    # Monitoring script
+    File monitoring_script 
   }
 
   String bam_base_name = basename(bam, ".bam")
@@ -249,6 +280,13 @@ task CreateFragmentFile {
 
   command <<<
     set -e pipefail
+
+    if [ ! -z "~{monitoring_script}" ]; then
+        chmod a+x ~{monitoring_script}
+        ~{monitoring_script} > monitoring.log &
+    else
+        echo "No monitoring script given as input" > monitoring.log &
+    fi
 
     python3 <<CODE
 
