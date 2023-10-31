@@ -64,7 +64,8 @@ workflow Multiome {
             force_no_check = force_no_check,
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
-            count_exons = count_exons
+            count_exons = count_exons,
+            monitoring_script = monitoring_script
     }
 
     # Call the ATAC workflow

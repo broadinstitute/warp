@@ -83,7 +83,8 @@ workflow ATAC {
     input:
       output_bam_filename = input_id + ".bam",
       bam_inputs = BWAPairedEndAlignment.bam_aligned_output,
-      sort_order = "coordinate"
+      sort_order = "coordinate",
+      monitoring_script = monitoring_script
   }
 
 
