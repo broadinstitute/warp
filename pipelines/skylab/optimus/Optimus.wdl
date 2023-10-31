@@ -16,6 +16,9 @@ workflow Optimus {
   input {
     # Mode for counting either "sc_rna" or "sn_rna"
     String counting_mode = "sc_rna"
+  
+    # Monitoring script
+    File monitoring_script
 
     # Sequencing data inputs
     Array[File] r1_fastq
@@ -53,7 +56,7 @@ workflow Optimus {
     # Set to Forward, Reverse, or Unstranded to account for stranded library preparations (per STARsolo documentation)
     String star_strand_mode = "Forward"
     
-# Set to true to count reads aligned to exonic regions in sn_rna mode
+    # Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
@@ -117,7 +120,8 @@ workflow Optimus {
       whitelist = whitelist,
       chemistry = tenx_chemistry_version,
       sample_id = input_id,
-      read_struct = read_struct
+      read_struct = read_struct,
+      monitoring_script = monitoring_script
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
@@ -131,14 +135,16 @@ workflow Optimus {
         chemistry = tenx_chemistry_version,
         counting_mode = counting_mode,
         count_exons = count_exons,
-        output_bam_basename = output_bam_basename + "_" + idx
+        output_bam_basename = output_bam_basename + "_" + idx,
+        monitoring_script = monitoring_script
     }
   }
   call Merge.MergeSortBamFiles as MergeBam {
     input:
       bam_inputs = STARsoloFastq.bam_output,
       output_bam_filename = output_bam_basename + ".bam",
-      sort_order = "coordinate"
+      sort_order = "coordinate",
+      monitoring_script = monitoring_script
   }
   call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
