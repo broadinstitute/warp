@@ -1,13 +1,14 @@
 version 1.0
 
-import "../../../pipelines/skylab/multiome/atac.wdl" as atac
-import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
+import "atac.wdl" as atac
+import "../optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 workflow Multiome {
     String pipeline_version = "2.2.2"
 
     input {
         String input_id
+        File monitoring_script = "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh"
 
         # Optimus Inputs
         String counting_mode = "sn_rna"
@@ -39,7 +40,6 @@ workflow Multiome {
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
         # Whitelist
         File atac_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
-
     }
 
     # Call the Optimus workflow
@@ -61,7 +61,7 @@ workflow Multiome {
             force_no_check = force_no_check,
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
-            count_exons = count_exons,
+            count_exons = count_exons
     }
 
     # Call the ATAC workflow
@@ -76,7 +76,8 @@ workflow Multiome {
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
-            adapter_seq_read3 = adapter_seq_read3
+            adapter_seq_read3 = adapter_seq_read3,
+            monitoring_script = monitoring_script
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:

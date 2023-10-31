@@ -32,9 +32,9 @@ workflow ATAC {
     # TrimAdapters input
     String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
-
+    
     # Monitoring script
-    File monitoring_script = "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh"
+    File monitoring_script
   }
 
   String pipeline_version = "1.1.1"
@@ -175,6 +175,7 @@ task TrimAdapters {
   output {
     File fastq_trimmed_adapter_output_read1 = fastq_trimmed_adapter_output_name_read1
     File fastq_trimmed_adapter_output_read3 = fastq_trimmed_adapter_output_name_read3
+    File monitoring_log = "monitoring.log"
   }
 }
 
@@ -250,6 +251,7 @@ task BWAPairedEndAlignment {
 
   output {
     File bam_aligned_output = bam_aligned_output_name
+    File monitoring_log = "monitoring.log"
   }
 }
 
@@ -328,5 +330,6 @@ task CreateFragmentFile {
   output {
     File fragment_file = "~{bam_base_name}.fragments.tsv"
     File Snap_metrics = "~{bam_base_name}.metrics.h5ad"
+    File monitoring_log = "monitoring.log"
   }
 }

@@ -20,6 +20,9 @@ task FastqProcessing {
     Int disk = ceil(size(r1_fastq, "GiB")*3 + size(r2_fastq, "GiB")*3) + 500
 
     Int preemptible = 3
+
+    # Monitoring script
+    #File monitoring_script
   }
 
   meta {
@@ -42,8 +45,8 @@ task FastqProcessing {
   }
 
   command {
-    set -e
-
+    set -e pipefail
+    
     FASTQS=$(python3 <<CODE
     def rename_file(filename):
         import shutil
@@ -374,6 +377,7 @@ task FastqProcessATAC {
     output {
         Array[File] fastq_R1_output_array = glob("/cromwell_root/output_fastq/fastq_R1_*")
         Array[File] fastq_R3_output_array = glob("/cromwell_root/output_fastq/fastq_R3_*")
+        File monitoring_log = "monitoring.log"
     }
 }
 
