@@ -12,6 +12,9 @@ workflow TestOptimus {
     # Mode for counting either "sc_rna" or "sn_rna"
     String counting_mode = "sc_rna"
 
+    # Monitoring script
+    File monitoring_script
+
     # Sequencing data inputs
     Array[File] r1_fastq
     Array[File] r2_fastq
@@ -84,7 +87,8 @@ workflow TestOptimus {
       force_no_check             = force_no_check,
       star_strand_mode           = star_strand_mode,
       count_exons                = count_exons,
-      ignore_r1_read_length      = ignore_r1_read_length
+      ignore_r1_read_length      = ignore_r1_read_length,
+      monitoring_script          = monitoring_script
   }
 
   # Collect all of the pipeling output into single Array
