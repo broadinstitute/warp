@@ -79,7 +79,7 @@ workflow ATAC {
     }
   }
 
-  call Merge.MergeSortBamFiles as MergeBam {
+  call Merge.MergeSortBamFiles_monitor as MergeBam {
     input:
       output_bam_filename = input_id + ".bam",
       bam_inputs = BWAPairedEndAlignment.bam_aligned_output,
