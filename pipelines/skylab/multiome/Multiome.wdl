@@ -8,6 +8,9 @@ workflow Multiome {
 
     input {
         String input_id
+        
+        # Monitoring script
+        File monitoring_script = "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh"
 
         # Optimus Inputs
         String counting_mode = "sn_rna"
@@ -76,7 +79,8 @@ workflow Multiome {
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
-            adapter_seq_read3 = adapter_seq_read3
+            adapter_seq_read3 = adapter_seq_read3,
+            monitoring_script = monitoring_script
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:

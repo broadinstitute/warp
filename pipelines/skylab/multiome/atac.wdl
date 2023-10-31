@@ -29,6 +29,9 @@ workflow ATAC {
     # Whitelist
     File whitelist
 
+    # Monitoring script
+    File monitoring_script
+
     # TrimAdapters input
     String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
@@ -61,7 +64,8 @@ workflow ATAC {
         read3_fastq = SplitFastq.fastq_R3_output_array[idx],
         output_base_name = input_id + "_" + idx,
         adapter_seq_read1 = adapter_seq_read1,
-        adapter_seq_read3 = adapter_seq_read3
+        adapter_seq_read3 = adapter_seq_read3,
+        monitoring_script = monitoring_script
     }
 
     call BWAPairedEndAlignment {
@@ -69,7 +73,8 @@ workflow ATAC {
         read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
         read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
         tar_bwa_reference = tar_bwa_reference,
-        output_base_name = input_id + "_" + idx
+        output_base_name = input_id + "_" + idx,
+        monitoring_script = monitoring_script
     }
   }
 
@@ -85,7 +90,8 @@ workflow ATAC {
     input:
       bam = MergeBam.output_bam,
       chrom_sizes = chrom_sizes,
-      annotations_gtf = annotations_gtf
+      annotations_gtf = annotations_gtf,
+      monitoring_script = monitoring_script
   }
 
   output {
@@ -112,6 +118,9 @@ task TrimAdapters {
     Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") )) + 200
     Int mem_size = 4
     String docker_image = "us.gcr.io/broad-gotc-prod/cutadapt:1.0.0-4.4-1686752919"
+
+    # Monitoring script
+    File monitoring_script
   }
 
   parameter_meta {
@@ -135,6 +144,13 @@ task TrimAdapters {
   command <<<
     set -euo pipefail
 
+    if [ ! -z "~{monitoring_script}" ]; then
+        chmod a+x ~{monitoring_script}
+        ~{monitoring_script} > monitoring.log &
+    else
+        echo "No monitoring script given as input" > monitoring.log &
+    fi
+
     # fastq's, "-f", -A for paired adapters read 2"
     cutadapt \
     -Z \
@@ -157,6 +173,7 @@ task TrimAdapters {
   output {
     File fastq_trimmed_adapter_output_read1 = fastq_trimmed_adapter_output_name_read1
     File fastq_trimmed_adapter_output_read3 = fastq_trimmed_adapter_output_name_read3
+    File monitoring_log = "monitoring.log"
   }
 }
 
@@ -170,6 +187,9 @@ task BWAPairedEndAlignment {
     String read_group_sample_name = "RGSN1"
     String output_base_name
     String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504"
+
+    # Monitoring script
+    File monitoring_script
 
     # Runtime attributes
     Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 400
@@ -197,6 +217,13 @@ task BWAPairedEndAlignment {
 
     set -euo pipefail
 
+    if [ ! -z "~{monitoring_script}" ]; then
+        chmod a+x ~{monitoring_script}
+        ~{monitoring_script} > monitoring.log &
+    else
+        echo "No monitoring script given as input" > monitoring.log &
+    fi
+
     # prepare reference
     declare -r REF_DIR=$(mktemp -d genome_referenceXXXXXX)
     tar -xf "~{tar_bwa_reference}" -C $REF_DIR --strip-components 1
@@ -222,6 +249,7 @@ task BWAPairedEndAlignment {
 
   output {
     File bam_aligned_output = bam_aligned_output_name
+    File monitoring_log = "monitoring.log"
   }
 }
 
@@ -235,6 +263,7 @@ task CreateFragmentFile {
     Int mem_size = 16
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
+    File monitoring_script
   }
 
   String bam_base_name = basename(bam, ".bam")
@@ -249,6 +278,13 @@ task CreateFragmentFile {
 
   command <<<
     set -e pipefail
+    
+    if [ ! -z "~{monitoring_script}" ]; then
+        chmod a+x ~{monitoring_script}
+        ~{monitoring_script} > monitoring.log &
+    else
+        echo "No monitoring script given as input" > monitoring.log &
+    fi
 
     python3 <<CODE
 
@@ -290,5 +326,6 @@ task CreateFragmentFile {
   output {
     File fragment_file = "~{bam_base_name}.fragments.tsv"
     File Snap_metrics = "~{bam_base_name}.metrics.h5ad"
+    File monitoring_log = "monitoring.log"
   }
 }
