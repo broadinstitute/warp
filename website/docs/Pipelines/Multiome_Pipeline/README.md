@@ -73,7 +73,7 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | atac_r1_fastq | Array of read 1 paired-end FASTQ files representing a single 10x multiome ATAC library. | Array[File] |
 | atac_r2_fastq | Array of barcodes FASTQ files representing a single 10x multiome ATAC library. | Array[File] |
 | atac_r3_fastq | Array of read 2 paired-end FASTQ files representing a single 10x multiome ATAC library. | Array[File] |
-| tar_bwa_reference | TAR file containing the reference index files for BWA-mem alignment for the ATAC pipeline . | File | 
+| tar_bwa_reference | TAR file containing the reference index files for BWA-mem alignment for the ATAC pipeline. | File | 
 | chrom_sizes | File containing the genome chromosome sizes; used to calculate ATAC fragment file metrics. | File |
 | adapter_seq_read1 | Optional string describing the adapter sequence for ATAC read 1 paired-end reads to be used during adapter trimming with Cutadapt; default is "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG". | String |
 | adapter_seq_read3 | Optional string describing the adapter sequence for ATAC read 2 paired-end reads to be used during adapter trimming with Cutadapt; default is "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG". | String |
@@ -94,10 +94,10 @@ The Multiome workflow calls two subworkflows, which are described briefly in the
 
 | Output variable name | Filename, if applicable | Output format and description |
 |--- | --- | --- | 
+| multiome_pipeline_version_out | N.A. | String describing the version of the Multiome pipeline used. |
 | bam_aligned_output_atac | `<input_id>_atac.bam` | BAM file containing aligned reads from ATAC workflow. |
 | fragment_file_atac | `<input_id>_atac.fragments.tsv` | TSV file containing fragment start and stop coordinates per barcode. | 
 | snap_metrics_atac | `<input_id>_atac.metrics.h5ad` | h5ad (Anndata) file containing per-barcode metrics from SnapATAC2. Also contains the equivalent gene expression barcode for each ATAC barcode in the `gex_barcodes` column of the `h5ad.obs` property. |
-| pipeline_version_out | N.A. | String describing the Optimus pipeline version used. |
 | genomic_reference_version_gex | `<reference_version>.txt` | File containing the Genome build, source and GTF annotation version. |
 | bam_gex | `<input_id>_gex.bam` | BAM file containing aligned reads from Optimus workflow. |
 | matrix_gex | `<input_id>_gex_sparse_counts.npz` | NPZ file containing raw gene by cell counts. |
