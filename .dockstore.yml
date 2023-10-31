@@ -126,3 +126,7 @@ workflows:
   - name: CramToBam
     subclass: WDL
     primaryDescriptorPath: /tasks/broad/CramToBam.wdl
+
+  - name: BamToCram
+    subclass: WDL
+    primaryDescriptorPath: /tasks/broad/BamToCram.wdl

@@ -1,5 +1,6 @@
 version 1.0
 
+# excised from https://github.com/broadinstitute/warp/blob/848b3a7c2d9b9e1b525e8276809f29d2b60e63af/tasks/broad/Utilities.wdl
 workflow CramToBam {
 
   input {
@@ -9,7 +10,6 @@ workflow CramToBam {
     String  output_basename
   }
 
-  # Convert the final merged recalibrated BAM file to CRAM format
   call ConvertToBam {
     input:
       input_cram      = input_cram,
