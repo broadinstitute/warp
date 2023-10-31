@@ -7,7 +7,7 @@ slug: /Pipelines/Optimus_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v6.1.1](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | October, 2023 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [optimus_v6.1.2](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | October, 2023 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![Optimus_diagram](Optimus_diagram.png)
 
@@ -43,7 +43,7 @@ The following table provides a quick glance at the Optimus pipeline features:
 
 ### Optimus installation
 
-To download the latest Optimus release, see the release tags prefixed with "Optimus" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All Optimus pipeline releases are documented in the [Optimus changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.changelog.md). 
+To download the latest Optimus release, see the release tags prefixed with "Optimus" on the WARP [releases page](https://github.com/broadinstitute/warp/releases). All Optimus pipeline releases are documented in the [Optimus changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.changelog.md). 
 
 To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
 
@@ -85,7 +85,7 @@ The example configuration files also contain metadata for the reference files, d
 | --- | --- | --- |
 | whitelist |  List of known CBs; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) whitelist that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom whitelist can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom whitelist, set the input `ignore_r1_read_length` to "true". | N/A |
 | read_struct | String describing the structure of reads; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) read structure that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom read structure can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom read structure, set the input `force_no_check` to "true". | N/A |
-| tar_star_reference | TAR file containing a species-specific reference genome and GTF; it is generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_indices/BuildIndices.wdl). | N/A |
+| tar_star_reference | TAR file containing a species-specific reference genome and GTF; it is generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl). | N/A |
 | input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | N/A |
 | input_name | Optional string that can be used to further identify the original biological sample. | N/A |
 | input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the input_id. | N/A |
@@ -130,7 +130,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | ------------------------------------ | 
-| [OptimusInputChecks.checkOptimusInput](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/CheckInputs.wdl) | Custom script | Bash | Validates the tenx_chemistry_version and counting_mode inputs. For the tenx_chemistry_version, the script verifies that the length of the CBs and UMIs in the first read1 FASTQ file matches the length expected by 10x Genomics v2 and v3 chemistry. It then selects and outputs the appropriate whitelist to use for analysis in the rest of the workflow. |
+| [OptimusInputChecks.checkOptimusInput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CheckInputs.wdl) | Custom script | Bash | Validates the tenx_chemistry_version and counting_mode inputs. For the tenx_chemistry_version, the script verifies that the length of the CBs and UMIs in the first read1 FASTQ file matches the length expected by 10x Genomics v2 and v3 chemistry. It then selects and outputs the appropriate whitelist to use for analysis in the rest of the workflow. |
 | [FastqProcessing.FastqProcessing (alias = SplitFastq)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) | fastqprocess | [warp-tools](https://github.com/broadinstitute/warp-tools) | Partitions the input FASTQ files by CB to create an array of FASTQ files that are each ~ 30 GB. This task is skipped if the input files are smaller than 30 GB. | 
 | [StarAlign.STARsoloFastq (alias = STARsoloFastq)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) | STAR | [Star](https://github.com/alexdobin/STAR) | Uses the partitioned FASTQ files to perform CB correction, adaptor trimming, alignment, gene annotation, UMI correction, and gene counting. |
 | [Merge.MergeSortBamFiles (alias= MergeBam)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/MergeSortBam.wdl) | MergeSamFiles | Picard | Merges the array of BAM files into a single BAM and sorts in coordinate order. |
@@ -138,13 +138,13 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | [Metrics.CalculateGeneMetrics (alias = GeneMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by gene using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes gene metrics. | 
 | [Metrics.CalculateCellMetrics (alias = CellMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Metrics.wdl) | TagSort | [warp-tools](https://github.com/broadinstitute/warp-tools) | Sorts the BAM file by cell using the cell barcode (CB), molecule barcode (UB) and gene ID (GX) tags and computes cell metrics. |
 | [RunEmptyDrops.RunEmptyDrops](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/RunEmptyDrops.wdl) | npz2rds.sh, emptyDropsWrapper.R, emptyDrops | [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | Runs custom scripts to convert the NPY and NPZ files to RDS and then uses emptyDrops to identify empty lipid droplets. This step only runs when `counting_mode` = "sc_rna".|
-|  H5adUtils.OptimusH5adGeneration](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/H5adUtils.wdl) | create_h5ad_optimus.py | Python3 | Merges the gene counts, cell metrics, gene metrics, and emptyDrops data into a h5ad formatted cell-by-gene matrix. The h5ad contains exon counts when using sc_rna mode, and whole-gene counts when running in sn_rna mode. It optionally contains an additional layer for exon counts when running sn_rna mode with `exon_counts` set to true. |
+|  [H5adUtils.OptimusH5adGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/H5adUtils.wdl) | create_h5ad_optimus.py | Python3 | Merges the gene counts, cell metrics, gene metrics, and emptyDrops data into a h5ad formatted cell-by-gene matrix. The h5ad contains exon counts when using sc_rna mode, and whole-gene counts when running in sn_rna mode. It optionally contains an additional layer for exon counts when running sn_rna mode with `exon_counts` set to true. |
 
 
 More information about the different tags used to flag the data can be found in the [Bam_tags documentation](./Bam_tags.md).
 
 #### 1. Checks inputs
-The [checkOptimusInput](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/CheckInputs.wdl) task validates the `tenx_chemistry_version` and `counting_mode` inputs to ensure that the attributes are selected. For the `tenx_chemistry_version`, the script verifies that the length of the CBs and UMIs in the first read1 FASTQ file matches the length expected by 10x Genomics v2 and v3 chemistry. It then selects and outputs the appropriate whitelist to use for analysis in the rest of the workflow. For the `counting_mode` input, the task verifies that the input is set to either the string "sc_rna" or "sn_rna". If these checks fail, the workflow will fail. 
+The [checkOptimusInput](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/CheckInputs.wdl) task validates the `tenx_chemistry_version` and `counting_mode` inputs to ensure that the attributes are selected. For the `tenx_chemistry_version`, the script verifies that the length of the CBs and UMIs in the first read1 FASTQ file matches the length expected by 10x Genomics v2 and v3 chemistry. It then selects and outputs the appropriate whitelist to use for analysis in the rest of the workflow. For the `counting_mode` input, the task verifies that the input is set to either the string "sc_rna" or "sn_rna". If these checks fail, the workflow will fail. 
 
 #### 2. Partition CBs
 To optimally scale for large files, the workflow first uses the [FastqProcessing task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) to partition the input array of forward and reverse read FASTQ files by uncorrected CBs. The resulting array contains FASTQ files that are \~30 GB in size. If the input files are smaller than 30 GB, this task is omitted.
@@ -166,7 +166,7 @@ Read trimming removes Illumina adapter sequences. This is set to match the read 
 
 **Alignment**
 
-STAR maps barcoded reads to the genome primary assembly reference (see the Quickstart table above for version information). The example references for Optimus were generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/build_indices/BuildIndices.wdl). The strandedness for alignment is specified in STAR with the `--soloStrand` parameter, which is set to unstranded by default. 
+STAR maps barcoded reads to the genome primary assembly reference (see the Quickstart table above for version information). The example references for Optimus were generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl). The strandedness for alignment is specified in STAR with the `--soloStrand` parameter, which is set to unstranded by default. 
 
 **Gene annotation**
 
@@ -176,7 +176,7 @@ Genes that overlap an alignment are stored with the GX BAM tag; for sc_rna mode,
 
 All tags are detailed in the pipeline's [BAM_tag documentation](./Bam_tags.md).
 
-The resulting BAM files are merged together into a single BAM using the [MergeSortBamFiles (alias= MergeBam)](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/MergeSortBam.wdl).
+The resulting BAM files are merged together into a single BAM using the [MergeSortBamFiles (alias= MergeBam)](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/MergeSortBam.wdl).
 
 **UMI correction and gene counting**
 
@@ -188,7 +188,7 @@ Deduplicated UMIs are counted towards their assigned gene/cells, producing a raw
 
 #### 4. Merge STARsolo count matrices
 
-The STARsolo output will include a features, barcodes, and matrix TSV for each of the partitioned FASTQ input. The [MergeStarOutput task](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/StarAlign.wdl) merges each respective TSV. It uses a custom python script to convert the merged matrix, features, and barcodes output from STARsolo into an NPY (features and barcodes)- and NPZ (the matrix)-formatted file for downstream empty drops detection and h5ad matrix generation. 
+The STARsolo output will include a features, barcodes, and matrix TSV for each of the partitioned FASTQ input. The [MergeStarOutput task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/StarAlign.wdl) merges each respective TSV. It uses a custom python script to convert the merged matrix, features, and barcodes output from STARsolo into an NPY (features and barcodes)- and NPZ (the matrix)-formatted file for downstream empty drops detection and h5ad matrix generation. 
 
 **STARsolo outputs**
 
@@ -217,7 +217,7 @@ Often snRNAseq data does not produce a visual knee point inflection when running
 
 #### 8.  Matrix construction
 
-The [OptimusH5adGeneration](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/H5adUtils.wdl) task uses a custom python script to merge the converted STARsolo count matrix, the emptyDrops results, and the cell and gene metrics into an h5ad-formatted cell-by-gene matrix. **These counts are raw and unfiltered.**
+The [OptimusH5adGeneration](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/H5adUtils.wdl) task uses a custom python script to merge the converted STARsolo count matrix, the emptyDrops results, and the cell and gene metrics into an h5ad-formatted cell-by-gene matrix. **These counts are raw and unfiltered.**
 
 Read full details for all the metrics in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
@@ -275,7 +275,7 @@ Optimus has been validated for processing both human and mouse single-cell and s
 
 ## Versioning
 
-All Optimus pipeline releases are documented in the [Optimus changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.changelog.md).
+All Optimus pipeline releases are documented in the [Optimus changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.changelog.md).
 
 
 ## Citing the Optimus pipeline
