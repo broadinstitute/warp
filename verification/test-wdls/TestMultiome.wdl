@@ -10,6 +10,9 @@ workflow TestMultiome {
 
     input {
       String input_id
+      
+      # Monitoring script
+      File monitoring_script = "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh"
 
       # Optimus Inputs
       String counting_mode = "sn_rna"
@@ -82,8 +85,8 @@ workflow TestMultiome {
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3,
         chrom_sizes = chrom_sizes,
-        atac_whitelist = atac_whitelist
-  
+        atac_whitelist = atac_whitelist,
+        monitoring_script = monitoring_script
     }
 
     
