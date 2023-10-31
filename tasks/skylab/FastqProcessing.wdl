@@ -20,6 +20,9 @@ task FastqProcessing {
     Int disk = ceil(size(r1_fastq, "GiB")*3 + size(r2_fastq, "GiB")*3) + 500
 
     Int preemptible = 3
+    
+    # Monitoring script
+    File monitoring_script
   }
 
   meta {
@@ -42,7 +45,14 @@ task FastqProcessing {
   }
 
   command {
-    set -e
+    set -euo pipefail
+
+    if [ ! -z "~{monitoring_script}" ]; then
+        chmod a+x ~{monitoring_script}
+        ~{monitoring_script} > monitoring.log &
+    else
+        echo "No monitoring script given as input" > monitoring.log &
+    fi
 
     FASTQS=$(python3 <<CODE
     def rename_file(filename):
@@ -122,6 +132,7 @@ task FastqProcessing {
   output {
     Array[File] fastq_R1_output_array = glob("fastq_R1_*")
     Array[File] fastq_R2_output_array = glob("fastq_R2_*")
+    File monitoring_log = "monitoring.log"
   }
 }
 

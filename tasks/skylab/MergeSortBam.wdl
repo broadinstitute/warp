@@ -16,6 +16,9 @@ task MergeSortBamFiles {
     Int disk = 500
     # by default request non preemptible machine to make sure the slow mergsort step completes
     Int preemptible = 0
+    
+    # Monitoring script
+    File monitoring_script
   }
 
   # give the command 500MiB of overhead
@@ -36,7 +39,14 @@ task MergeSortBamFiles {
   }
 
   command {
-    set -e
+    set -euo pipefail
+
+    if [ ! -z "~{monitoring_script}" ]; then
+        chmod a+x ~{monitoring_script}
+        ~{monitoring_script} > monitoring.log &
+    else
+        echo "No monitoring script given as input" > monitoring.log &
+    fi
 
     java -Dsamjdk.compression_level=${compression_level} -Xms${command_mem_mb}m -Xmx${command_mem_mb}m -jar /usr/picard/picard.jar \
       MergeSamFiles \
@@ -56,6 +66,7 @@ task MergeSortBamFiles {
   }
   output {
     File output_bam = output_bam_filename
+    File monitoring_log = "monitoring.log"
   }
 }
 

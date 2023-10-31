@@ -232,6 +232,9 @@ task STARsoloFastq {
     Int disk = ceil((size(tar_star_reference, "Gi") * 3)) + ceil(size(r1_fastq, "Gi") * 20) +  ceil(size(r2_fastq, "Gi") * 20)
     # by default request non preemptible machine to make sure the slow star alignment step completes
     Int preemptible = 3
+    
+    # Monitoring script
+    File monitoring_script
   }
 
   meta {
@@ -251,7 +254,14 @@ task STARsoloFastq {
   }
 
   command <<<
-    set -e
+    set -euo pipefail
+
+    if [ ! -z "~{monitoring_script}" ]; then
+        chmod a+x ~{monitoring_script}
+        ~{monitoring_script} > monitoring.log &
+    else
+        echo "No monitoring script given as input" > monitoring.log &
+    fi
 
     UMILen=10
     CBLen=16
@@ -283,7 +293,7 @@ task STARsoloFastq {
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
         exit 1;
     fi
-# Check that the star strand mode matches STARsolo aligner options
+    # Check that the star strand mode matches STARsolo aligner options
     if [[ "~{star_strand_mode}" == "Forward" ]] || [[ "~{star_strand_mode}" == "Reverse" ]] || [[ "~{star_strand_mode}" == "Unstranded" ]]
     then
         ## single cell or whole cell
@@ -420,6 +430,7 @@ task STARsoloFastq {
     File align_features_sn_rna = "Features_sn_rna.stats"
     File summary_sn_rna = "Summary_sn_rna.csv"
     File umipercell_sn_rna = "UMIperCellSorted_sn_rna.txt"
+    File monitoring_log = "monitoring.log"
   }
 }
 
