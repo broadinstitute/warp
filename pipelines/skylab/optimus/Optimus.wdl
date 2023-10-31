@@ -139,7 +139,7 @@ workflow Optimus {
         monitoring_script = monitoring_script
     }
   }
-  call Merge.MergeSortBamFiles as MergeBam {
+  call Merge.MergeSortBamFiles_monitor as MergeBam {
     input:
       bam_inputs = STARsoloFastq.bam_output,
       output_bam_filename = output_bam_basename + ".bam",
