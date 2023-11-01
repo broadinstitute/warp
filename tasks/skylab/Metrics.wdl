@@ -8,6 +8,7 @@ task CalculateCellMetrics {
     String input_id
 
     # runtime values
+    # docker needs to be updated
 
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:lk-PD-2373-updateTagSort"
     Int machine_mem_mb = 8000
