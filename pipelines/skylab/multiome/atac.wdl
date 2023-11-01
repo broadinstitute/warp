@@ -53,46 +53,46 @@ workflow ATAC {
       whitelist = whitelist
   }
 
-  scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
+  # scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
 
-    call TrimAdapters {
-      input:
-        read1_fastq = SplitFastq.fastq_R1_output_array[idx],
-        read3_fastq = SplitFastq.fastq_R3_output_array[idx],
-        output_base_name = input_id + "_" + idx,
-        adapter_seq_read1 = adapter_seq_read1,
-        adapter_seq_read3 = adapter_seq_read3
-    }
+  #   call TrimAdapters {
+  #     input:
+  #       read1_fastq = SplitFastq.fastq_R1_output_array[idx],
+  #       read3_fastq = SplitFastq.fastq_R3_output_array[idx],
+  #       output_base_name = input_id + "_" + idx,
+  #       adapter_seq_read1 = adapter_seq_read1,
+  #       adapter_seq_read3 = adapter_seq_read3
+  #   }
 
-    call BWAPairedEndAlignment {
-      input:
-        read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
-        read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
-        tar_bwa_reference = tar_bwa_reference,
-        output_base_name = input_id + "_" + idx
-    }
-  }
+  #   call BWAPairedEndAlignment {
+  #     input:
+  #       read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
+  #       read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
+  #       tar_bwa_reference = tar_bwa_reference,
+  #       output_base_name = input_id + "_" + idx
+  #   }
+  # }
 
-  call Merge.MergeSortBamFiles as MergeBam {
-    input:
-      output_bam_filename = input_id + ".bam",
-      bam_inputs = BWAPairedEndAlignment.bam_aligned_output,
-      sort_order = "coordinate"
-  }
+  # call Merge.MergeSortBamFiles as MergeBam {
+  #   input:
+  #     output_bam_filename = input_id + ".bam",
+  #     bam_inputs = BWAPairedEndAlignment.bam_aligned_output,
+  #     sort_order = "coordinate"
+  # }
 
 
-  call CreateFragmentFile {
-    input:
-      bam = MergeBam.output_bam,
-      chrom_sizes = chrom_sizes,
-      annotations_gtf = annotations_gtf
-  }
+  # call CreateFragmentFile {
+  #   input:
+  #     bam = MergeBam.output_bam,
+  #     chrom_sizes = chrom_sizes,
+  #     annotations_gtf = annotations_gtf
+  # }
 
-  output {
-    File bam_aligned_output = MergeBam.output_bam
-    File fragment_file = CreateFragmentFile.fragment_file
-    File snap_metrics = CreateFragmentFile.Snap_metrics
-  }
+  # output {
+  #   File bam_aligned_output = MergeBam.output_bam
+  #   File fragment_file = CreateFragmentFile.fragment_file
+  #   File snap_metrics = CreateFragmentFile.Snap_metrics
+  # }
 }
 
 # trim read 1 and read 2 adapter sequeunce with cutadapt
