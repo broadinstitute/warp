@@ -256,6 +256,9 @@ task FastqProcessATAC {
         #Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
         Int disk_size = 2000
         Int preemptible = 3
+        
+        # Monitoring script
+        File monitoring_script = "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh"
     }
 
     meta {
@@ -281,6 +284,13 @@ task FastqProcessATAC {
 
         set -euo pipefail
 
+        if [ ! -z "~{monitoring_script}" ]; then
+            chmod a+x ~{monitoring_script}
+            ~{monitoring_script} > monitoring.log &
+        else
+            echo "No monitoring script given as input" > monitoring.log &
+        fi
+        
         declare -a FASTQ1_ARRAY=(~{sep=' ' read1_fastq})
         declare -a FASTQ2_ARRAY=(~{sep=' ' barcodes_fastq})
         declare -a FASTQ3_ARRAY=(~{sep=' ' read3_fastq})
@@ -365,6 +375,7 @@ task FastqProcessATAC {
     output {
         Array[File] fastq_R1_output_array = glob("/cromwell_root/output_fastq/fastq_R1_*")
         Array[File] fastq_R3_output_array = glob("/cromwell_root/output_fastq/fastq_R3_*")
+        File monitoring_log = "monitoring.log"
     }
 }
 
