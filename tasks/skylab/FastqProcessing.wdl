@@ -250,7 +250,7 @@ task FastqProcessATAC {
 
         # Runtime attributes [?]
         Int mem_size = 100
-        # Int cpu = 16
+        Int cpu = 16
         # TODO decided cpu
         # estimate that bam is approximately equal in size to fastq, add 20% buffer
         #Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
