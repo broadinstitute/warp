@@ -249,11 +249,12 @@ task FastqProcessATAC {
         String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.7-1695393479"
 
         # Runtime attributes [?]
-        Int mem_size = 5
-        Int cpu = 16
+        Int mem_size = 100
+        # Int cpu = 16
         # TODO decided cpu
         # estimate that bam is approximately equal in size to fastq, add 20% buffer
-        Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
+        #Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
+        Int disk_size = 2000
         Int preemptible = 3
     }
 
@@ -278,7 +279,7 @@ task FastqProcessATAC {
 
     command <<<
 
-        set -e
+        set -euo pipefail
 
         declare -a FASTQ1_ARRAY=(~{sep=' ' read1_fastq})
         declare -a FASTQ2_ARRAY=(~{sep=' ' barcodes_fastq})
@@ -355,10 +356,10 @@ task FastqProcessATAC {
 
     runtime {
         docker: docker
-        cpu: cpu
         memory: "${mem_size} MiB"
-        disks: "local-disk ${disk_size} HDD"
-        preemptible: preemptible
+        disks: "local-disk ${disk_size} SSD"
+        cpuPlatform: "Intel Cascade Lake"
+        #preemptible: preemptible
     }
 
     output {
