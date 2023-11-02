@@ -67,7 +67,7 @@ task CalculateChromosomeSizes {
     samtools faidx ~{genome_fa} | cut -f1,2 > chrom.sizes
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1698880351"
     preemptible: 3
     memory: "3 GiB"
     cpu: "1"
@@ -147,7 +147,7 @@ task BuildStarSingleNucleus {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1695390888"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1698880351"
     memory: "50 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
@@ -187,7 +187,7 @@ String reference_name = "bwa0.7.17-~{organism}-~{genome_source}-build-~{genome_b
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1698880351"
     memory: "96GB"
     disks: "local-disk 100 HDD"
     disk: "100 GB" # TES
