@@ -7,7 +7,7 @@ slug: /Pipelines/Whole_Genome_Germline_Single_Sample_Pipeline/README
  
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| WholeGenomeGermlineSingleSample_v3.1.6 (see [releases page](https://github.com/broadinstitute/warp/releases)) | August, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| WholeGenomeGermlineSingleSample_v3.1.14 (see [releases page](https://github.com/broadinstitute/warp/releases)) | August, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
  
 ## Introduction to the Whole Genome Germline Single Sample Pipeline
 The Whole Genome Germline Single Sample (WGS) pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices for germline SNP and Indel discovery in human whole-genome sequencing data. It includes the DRAGEN-GATK mode, which makes the pipeline functionally equivalent to DRAGEN’s analysis pipeline (read more in this [DRAGEN-GATK blog](https://gatk.broadinstitute.org/hc/en-us/articles/360039984151)).
@@ -167,7 +167,6 @@ The table below details the subtasks called by the UnmappedBamToAlignedBam task,
 | [Alignment.SamToFastqAndBwaMemAndMba (SamToFastqAndBwaMemAndMba)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Alignment.wdl) | SamToFastq; MergeBamAlignment | BWA mem, Picard | When `use_bwa_mem` = true, aligns using BWA mem; if `use_bwa_mem` = false, aligns with DRAGMAP aligner in the DragmapAlignment.SamToFastqAndDragmapAndMba task below. |
 | [DragmapAlignment.SamToFastqAndDragmapAndMba (SamToFastqAndDragmapAndMba)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/DragmapAlignment.wdl) | dragen-os, MergeBamAlignment | Dragmap, Picard | When `use_bwa_mem` = false, aligns with the DRAGMAP aligner. |
 | [QC.CollectUnsortedReadgroupBamQualityMetrics (CollectUnsortedReadgroupBamQualityMetrics)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CollectMultipleMetrics | Picard | Performs QC on the aligned BAMs with unsorted readgroups. | 
-| [Utils.SumFloats (SumFloats)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Utilities.wdl) | --- | python | Sum the individual readgroup BAM sizes to approximate the aggregated BAM size. |
 | [Processing.MarkDuplicates (MarkDuplicates)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | MarkDuplicates | Picard | Marks duplicate reads. |
 | [Processing.SortSam](https://github.com/broadinstitute/warp/blob/master/tasks/broad/BamProcessing.wdl) | SortSam | Picard | Sorts the aggregated BAM by coordinate sort order. |
 | [QC.CrossCheckFingerprints (CrossCheckFingerprints)](https://github.com/broadinstitute/warp/blob/master/tasks/broad/Qc.wdl) | CrosscheckFingerprints | Picard | Optionally checks fingerprints if haplotype database is provided. |

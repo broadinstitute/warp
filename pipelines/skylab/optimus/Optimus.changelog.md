@@ -1,4 +1,15 @@
 
+# 6.1.2
+2023-10-20 (Date of Last Commit)
+
+* Removed the dropna from the H5adUtils WDL for the JoinBarcodes task; this change does not impact Optimus outputs
+* Added a new task to the H5adUtils WDL to combine Multiome barcodes in h5ad outputs; this does not impact the individual Optimus workflow
+
+# 6.1.0
+2023-09-21 (Date of Last Commit)
+
+* Added dynamic barcode orientation selection to ATAC workflow FastqProcess task; this has no impact on Optimus
+
 # 6.0.0
 2023-08-22 (Date of Last Commit)
 
