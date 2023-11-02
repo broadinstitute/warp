@@ -449,10 +449,13 @@ task MergeStarOutput {
 
     #runtime values
     String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
-    Int machine_mem_mb = 8250
+    Int machine_mem_mb = 10
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
     Int preemptible = 3
+
+    # Monitoring script
+    File monitoring_script
   }
   meta {
     description: "Create three files as .npy,  .npy and .npz for numpy array and scipy csr matrix for the barcodes, gene names and the count matrix by merging multiple  STARSolo count matrices (mtx format)."
@@ -468,6 +471,13 @@ task MergeStarOutput {
 
   command <<<
     set -e
+    if [ ! -z "~{monitoring_script}" ]; then
+        chmod a+x ~{monitoring_script}
+        ~{monitoring_script} > monitoring.log &
+    else
+        echo "No monitoring script given as input" > monitoring.log &
+    fi
+
     declare -a barcodes_files=(~{sep=' ' barcodes})
     declare -a features_files=(~{sep=' ' features})
     declare -a matrix_files=(~{sep=' ' matrix})
@@ -523,7 +533,7 @@ task MergeStarOutput {
 
   runtime {
     docker: docker
-    memory: "${machine_mem_mb} MiB"
+    memory: "${machine_mem_mb} GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
     cpu: cpu
@@ -535,6 +545,7 @@ task MergeStarOutput {
     File col_index = "~{input_id}_sparse_counts_col_index.npy"
     File sparse_counts = "~{input_id}_sparse_counts.npz"
     File? cell_reads_out = "~{input_id}.star_metrics.tar"
+    File monitoring_log = "monitoring.log"
   }
 }
 
