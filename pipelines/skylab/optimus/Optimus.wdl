@@ -170,7 +170,8 @@ workflow Optimus {
       summary = STARsoloFastq.summary,
       align_features = STARsoloFastq.align_features,
       umipercell = STARsoloFastq.umipercell,
-      input_id = input_id
+      input_id = input_id,
+      monitoring_script = monitoring_script
   }
   if (counting_mode == "sc_rna"){
     call RunEmptyDrops.RunEmptyDrops {
