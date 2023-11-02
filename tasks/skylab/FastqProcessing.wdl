@@ -255,6 +255,8 @@ task FastqProcessATAC {
         # estimate that bam is approximately equal in size to fastq, add 20% buffer
         Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
         Int preemptible = 3
+
+        File monitoring_script
     }
 
     meta {
