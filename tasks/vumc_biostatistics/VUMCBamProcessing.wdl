@@ -59,6 +59,8 @@ task RevertSamByReadGroup {
     File ref_fasta_index
     File ref_dict
 
+    Boolean restore_hardclips = true
+
     #Runtime parameters
     Int machine_mem_gb = 10
     Int preemptible_attempts = 3
@@ -79,6 +81,7 @@ task RevertSamByReadGroup {
     --INPUT ~{input_cram} \
     --REFERENCE_SEQUENCE ~{ref_fasta} \
     --OUTPUT ./ \
+    --RESTORE_HARDCLIPS ~{restore_hardclips} \
     --OUTPUT_BY_READGROUP true \
     --VALIDATION_STRINGENCY LENIENT \
     --ATTRIBUTE_TO_CLEAR FT \
