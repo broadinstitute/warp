@@ -32,6 +32,9 @@ workflow ATAC {
     # TrimAdapters input
     String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
+    
+    # Monitoring script
+    File monitoring_script
   }
 
   String pipeline_version = "1.1.1"
@@ -50,7 +53,8 @@ workflow ATAC {
       read3_fastq = read3_fastq_gzipped,
       barcodes_fastq = read2_fastq_gzipped,
       output_base_name = input_id,
-      whitelist = whitelist
+      whitelist = whitelist,
+      monitoring_script = monitoring_script
   }
 
   # scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
