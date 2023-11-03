@@ -279,8 +279,14 @@ task FastqProcessATAC {
     }
 
     command <<<
+        set -euo pipefail
 
-        set -e
+        if [ ! -z "~{monitoring_script}" ]; then
+        chmod a+x ~{monitoring_script}
+        ~{monitoring_script} > monitoring.log &
+        else
+        echo "No monitoring script given as input" > monitoring.log &
+        fi
 
         declare -a FASTQ1_ARRAY=(~{sep=' ' read1_fastq})
         declare -a FASTQ2_ARRAY=(~{sep=' ' barcodes_fastq})
@@ -366,6 +372,7 @@ task FastqProcessATAC {
     output {
         Array[File] fastq_R1_output_array = glob("/cromwell_root/output_fastq/fastq_R1_*")
         Array[File] fastq_R3_output_array = glob("/cromwell_root/output_fastq/fastq_R3_*")
+        File monitoring_log = "monitoring.log"
     }
 }
 
