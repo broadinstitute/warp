@@ -7,7 +7,7 @@ slug: /Pipelines/Optimus_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v6.1.2](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | October, 2023 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [optimus_v6.2.-](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | November, 2023 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![Optimus_diagram](Optimus_diagram.png)
 
