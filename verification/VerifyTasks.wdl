@@ -231,7 +231,8 @@ task CompareBams {
           ~{truth_bam} \
           O=comparison.tsv \
           LENIENT_HEADER=~{lenient_header} \
-          LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq}
+          LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq} \
+          --VERBOSITY INFO
   }
 
   runtime {
