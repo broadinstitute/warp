@@ -3,6 +3,8 @@ version 1.0
 import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
+import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.1/wdl/cellbender_remove_background.wdl" as CellBender
+
 workflow Multiome {
     String pipeline_version = "2.2.2"
 
@@ -39,6 +41,9 @@ workflow Multiome {
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
         # Whitelist
         File atac_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
+
+        # CellBender
+        Boolean run_cellbender = false
 
     }
 
@@ -85,6 +90,50 @@ workflow Multiome {
             gex_whitelist = gex_whitelist,
             atac_whitelist = atac_whitelist
     }
+
+    # Call CellBender
+    if (run_cellbender) {
+        call CellBender.run_cellbender_remove_background_gpu as CellBender {
+            input:
+                sample_name = sample_name,
+                input_file_unfiltered = input_file_unfiltered,
+                barcodes_file = barcodes_file,
+                genes_file = genes_file,
+                checkpoint_file = checkpoint_file,
+                truth_file = truth_file,
+                output_bucket_base_directory = output_bucket_base_directory,
+                docker_image = "us.gcr.io/broad-dsde-methods/cellbender:0.3.0",
+                dev_git_hash__ =  dev_git_hash__,
+                expected_cells = expected_cells,
+                total_droplets_included = total_droplets_included,
+                force_cell_umi_prior = force_cell_umi_prior,
+                force_empty_umi_prior = force_empty_umi_prior,
+                model = model,
+                low_count_threshold = low_count_threshold,
+                fpr = fpr,
+                epochs = epochs,
+                z_dim = z_dim,
+                z_layers = z_layers,
+                empty_drop_training_fraction = empty_drop_training_fraction,
+                learning_rate = learning_rate,
+                exclude_feature_types = exclude_feature_types,
+                ignore_features = ignore_features,
+                projected_ambient_count_threshold = projected_ambient_count_threshold,
+                checkpoint_mins = checkpoint_mins,
+                final_elbo_fail_fraction = final_elbo_fail_fraction,
+                epoch_elbo_fail_fraction = epoch_elbo_fail_fraction,
+                num_training_tries = num_training_tries,
+                learning_rate_retry_mult = learning_rate_retry_mult,
+                posterior_batch_size = posterior_batch_size,
+                estimator_multiple_cpu = estimator_multiple_cpu,
+                constant_learning_rate = constant_learning_rate,
+                debug = debug,
+                hardware_zones = "us-east1-d us-east1-c us-central1-a us-central1-c us-west1-b",
+                hardware_disk_size_GB = 50,
+                hardware_boot_disk_size_GB = 20
+        }
+    }
+
     meta {
         allowNestedInputs: true
     }
