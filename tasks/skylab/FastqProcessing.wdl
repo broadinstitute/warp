@@ -249,7 +249,7 @@ task FastqProcessATAC {
         String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.7-1695393479"
 
         # Runtime attributes [?]
-        Int mem_size = 5
+        Int mem_size = 20
         Int cpu = 16
         # TODO decided cpu
         # estimate that bam is approximately equal in size to fastq, add 20% buffer
@@ -364,8 +364,9 @@ task FastqProcessATAC {
     runtime {
         docker: docker
         cpu: cpu
-        memory: "${mem_size} MiB"
-        disks: "local-disk ${disk_size} HDD"
+        cpuPlatform: "Intel Cascade Lake"
+        memory: "${mem_size} GiB"
+        disks: "local-disk ${disk_size} SSD"
         preemptible: preemptible
     }
 
