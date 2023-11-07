@@ -80,7 +80,7 @@ The global attributes (unstuctured metadata) in the h5ad apply to the whole file
 | `emptydrops_PValue` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | The Monte Carlo p-value against the null model; single-cell data will read `NA` if task is unable to detect knee point inflection. Column is not included for data run in the `sn_rna` mode  |
 | `emptydrops_Total` | [dropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) | The total read counts for each barcode; single-cell data will read `NA` if task is unable to detect knee point inflection. Column is not included for data run in the `sn_rna` mode.  |
 | `reads_mapped_intergenic` | STARsolo and [TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort) | The number of reads counted as intergenic; counted when the BAM file's `sF` tag is assigned to a `7` and the `NH:i` tag is `1`. |
-| `reads_unmapped` | [TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort) | The total number of reads that are unmapped, counted when the `sF` tag is `0`. |
+| `reads_unmapped` | [TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort) | The total number of reads that are unmapped; counted when the BAM file's`sF` tag is `0`. |
 |`reads_per_molecule`|[TagSort](https://github.com/broadinstitute/warp-tools/tree/develop/tools/TagSort)| The average number of reads associated with each molecule in the cell. |
 
 ## Table 3. Gene metrics
