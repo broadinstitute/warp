@@ -132,5 +132,15 @@ workflow Multiome {
         File gene_metrics_gex = Optimus.gene_metrics
         File? cell_calls_gex = Optimus.cell_calls
         File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
+
+        # cellbender outputs
+        File? cell_barcodes_csv = CellBender.cell_csv
+        File? checkpoint_file = CellBender.ckpt_file
+        Array[File]? h5_array = CellBender.h5_array
+        Array[File]? html_report_array = CellBender.report_array
+        File? log = CellBender.log
+        Array[File]? metrics_csv_array = CellBender.metrics_array
+        String? output_directory = CellBender.output_dir
+        File? summary_pdf = CellBender.pdf
     }
 }
