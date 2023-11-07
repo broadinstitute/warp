@@ -97,6 +97,15 @@ workflow Multiome {
             input:
                 sample_name = input_id,
                 input_file_unfiltered = Optimus.h5ad_output_file,
+                hardware_boot_disk_size_GB = 20,
+                hardware_cpu_count = 4,
+                hardware_disk_size_GB = 50,
+                hardware_gpu_type = "nvidia-tesla-t4",
+                hardware_memory_GB = 32,
+                hardware_preemptible_tries = 2,
+                hardware_zones = "us-central1-a us-central1-c",
+                nvidia_driver_version = "470.82.01"
+
         }
     }
 
