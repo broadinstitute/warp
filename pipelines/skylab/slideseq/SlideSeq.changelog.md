@@ -10,9 +10,9 @@
 # 2.0.0
 2023-08-22 (Date of Last Commit)
 
-* Updated Slideseq pipeline to include STARsolo v2.7.11a
+* Updated Slideseq pipeline to include STARsolo v2.7.11a; this impacts the UMI metrics CSV for unassigned genes
 * Added sF tag to STARsolo aligner parameters
-* Updated TagSort tool for Optimus Metrics task to calculate metrics based on the sF tag; does not impact slide-seq
+* Updated TagSort tool for Metrics task to calculate metrics based on the sF tag
 * Modified H5adUtils task to include new metrics in the final Optimus h5ad; does not impact slide-seq
 * Removed the Dropseq metrics task; this change does not impact the Slideseq workflow
 
