@@ -90,6 +90,9 @@ task CalculateGeneMetrics {
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 
     Int preemptible = 3
+    
+    # Monitoring script
+    File monitoring_script    
   }
   
 
@@ -108,6 +111,14 @@ task CalculateGeneMetrics {
 
   command {
     set -e
+
+    if [ ! -z "~{monitoring_script}" ]; then
+      chmod a+x ~{monitoring_script}
+      ~{monitoring_script} > monitoring.log &
+    else
+      echo "No monitoring script given as input" > monitoring.log &
+    fi
+
     mkdir temp
 
     TagSort --bam-input ~{bam_input} \
@@ -142,6 +153,7 @@ task CalculateGeneMetrics {
 
   output {
     File gene_metrics = "~{input_id}.gene-metrics.csv.gz"
+    File monitoring_log = "monitoring.log"
   }
 }
 
