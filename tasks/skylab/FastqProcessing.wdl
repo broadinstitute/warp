@@ -363,7 +363,6 @@ task FastqProcessATAC {
 
     runtime {
         docker: docker
-        cpu: cpu
         cpuPlatform: "Intel Cascade Lake"
         memory: "${mem_size} GiB"
         disks: "local-disk ${disk_size} SSD"
