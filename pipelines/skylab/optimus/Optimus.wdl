@@ -179,7 +179,8 @@ workflow Optimus {
         sparse_count_matrix = MergeStarOutputs.sparse_counts,
         row_index = MergeStarOutputs.row_index,
         col_index = MergeStarOutputs.col_index,
-        emptydrops_lower = emptydrops_lower
+        emptydrops_lower = emptydrops_lower,
+        monitoring_script = monitoring_script
     }
   }
 
@@ -198,7 +199,8 @@ workflow Optimus {
         gene_id = MergeStarOutputs.col_index,
         empty_drops_result = RunEmptyDrops.empty_drops_result,
         counting_mode = counting_mode,
-        pipeline_version = "Optimus_v~{pipeline_version}"
+        pipeline_version = "Optimus_v~{pipeline_version}",
+        monitoring_script = monitoring_script
     }
   }
   if (count_exons  && counting_mode=="sn_rna") {
@@ -208,7 +210,8 @@ workflow Optimus {
         features = STARsoloFastq.features_sn_rna,
         matrix = STARsoloFastq.matrix_sn_rna,
         cell_reads = STARsoloFastq.cell_reads_sn_rna,
-        input_id = input_id
+        input_id = input_id,
+        monitoring_script = monitoring_script
     }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:
