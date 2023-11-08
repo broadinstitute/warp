@@ -37,6 +37,9 @@ task OptimusH5adGeneration {
     Int disk = 200
     Int machine_mem_mb = 32000
     Int cpu = 4
+
+    # Monitoring script
+    File monitoring_script
   }
 
   meta {
@@ -49,7 +52,14 @@ task OptimusH5adGeneration {
 
   command <<<
     set -euo pipefail
-
+    
+    if [ ! -z "~{monitoring_script}" ]; then
+        chmod a+x ~{monitoring_script}
+        ~{monitoring_script} > monitoring.log &
+    else
+        echo "No monitoring script given as input" > monitoring.log &
+    fi
+    
     touch empty_drops_result.csv
 
     if [ "~{counting_mode}" == "sc_rna" ]; then
@@ -98,6 +108,7 @@ task OptimusH5adGeneration {
 
   output {
     File h5ad_output = "~{input_id}.h5ad"
+    File monitoring_log = "monitoring.log"
   }
 }
 
