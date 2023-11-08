@@ -22,6 +22,9 @@ task RunEmptyDrops {
         Int disk = 20
         Int disk_size = disk + 20
         Int preemptible = 3
+
+        # Monitoring script
+        File monitoring_script
     }
 
     meta {
@@ -38,6 +41,13 @@ task RunEmptyDrops {
     }
 
     command {
+        if [ ! -z "~{monitoring_script}" ]; then
+           chmod a+x ~{monitoring_script}
+           ~{monitoring_script} > monitoring.log &
+        else
+           echo "No monitoring script given as input" > monitoring.log &
+        fi
+        
         echo "Converting the npy, npz to RDS"
         npz2rds.sh -c ${col_index} -r ${row_index} -d ${sparse_count_matrix} -o temp_matrix.rds
         echo "RDS file created"
@@ -59,5 +69,6 @@ task RunEmptyDrops {
 
     output {
         File empty_drops_result = "empty_drops_result.csv"
+        File monitoring_log = "monitoring.log"
     }
 }
