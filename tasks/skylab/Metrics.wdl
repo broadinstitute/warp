@@ -86,7 +86,7 @@ task CalculateGeneMetrics {
     # runtime values
 
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.5-1692706846"
-    Int machine_mem_mb = 8000
+    Int machine_mem_mb = 16000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 
     Int preemptible = 3
