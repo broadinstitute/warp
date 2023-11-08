@@ -150,7 +150,8 @@ workflow Optimus {
     input:
       bam_input = MergeBam.output_bam,
       mt_genes = mt_genes,
-      input_id = input_id
+      input_id = input_id,
+      monitoring_script = monitoring_script
   }
 
   call Metrics.CalculateCellMetrics as CellMetrics {
