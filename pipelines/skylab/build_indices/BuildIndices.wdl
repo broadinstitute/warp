@@ -39,22 +39,22 @@ workflow BuildIndices {
       input:
         genome_fa = genome_fa
     }
-    call BuildBWAreference {
-      input:
-        genome_fa = genome_fa,
-        chrom_sizes_file = CalculateChromosomeSizes.chrom_sizes,
-        genome_source = genome_source,
-        genome_build = genome_build,
-        gtf_annotation_version = gtf_annotation_version,
-        organism = organism
-    }
+    # call BuildBWAreference {
+    #   input:
+    #     genome_fa = genome_fa,
+    #     chrom_sizes_file = CalculateChromosomeSizes.chrom_sizes,
+    #     genome_source = genome_source,
+    #     genome_build = genome_build,
+    #     gtf_annotation_version = gtf_annotation_version,
+    #     organism = organism
+    # }
 
   output {
     File snSS2_star_index = BuildStarSingleNucleus.star_index
     String pipeline_version_out = "BuildIndices_v~{pipeline_version}"
     File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
     File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
-    File reference_bundle = BuildBWAreference.reference_bundle
+    #File reference_bundle = BuildBWAreference.reference_bundle
     File chromosome_sizes = CalculateChromosomeSizes.chrom_sizes
   }
 }
@@ -155,48 +155,48 @@ task BuildStarSingleNucleus {
   }
 }
 
-task BuildBWAreference {
-  input {
-    File genome_fa
-    File? chrom_sizes_file
+# task BuildBWAreference {
+#   input {
+#     File genome_fa
+#     File? chrom_sizes_file
 
-    # GTF annotation version refers to the version (GENCODE) or release (NCBI) listed in the GTF
-    String gtf_annotation_version
-    # Genome source can be NCBI or GENCODE
-    String genome_source
-    # Genome build is the assembly accession (NCBI) or version (GENCODE)
-    String genome_build
-    # Organism can be Macaque, Mouse, Human, etc.
-    String organism
-  }
+#     # GTF annotation version refers to the version (GENCODE) or release (NCBI) listed in the GTF
+#     String gtf_annotation_version
+#     # Genome source can be NCBI or GENCODE
+#     String genome_source
+#     # Genome build is the assembly accession (NCBI) or version (GENCODE)
+#     String genome_build
+#     # Organism can be Macaque, Mouse, Human, etc.
+#     String organism
+#   }
 
-String reference_name = "bwa0.7.17-~{organism}-~{genome_source}-build-~{genome_build}"
+# String reference_name = "bwa0.7.17-~{organism}-~{genome_source}-build-~{genome_build}"
 
-  command <<<
-    mkdir genome
-    mv ~{chrom_sizes_file} genome/chrom.sizes
-    file=~{genome_fa}
-    if [ ${file: -3} == ".gz" ]
-      then
-      gunzip -c ~{genome_fa} > genome/genome.fa
-    else
-      mv ~{genome_fa} genome/genome.fa
-    fi
-    bwa index genome/genome.fa
-    tar --dereference -cvf - genome/ > ~{reference_name}.tar
-  >>>
+#   command <<<
+#     mkdir genome
+#     mv ~{chrom_sizes_file} genome/chrom.sizes
+#     file=~{genome_fa}
+#     if [ ${file: -3} == ".gz" ]
+#       then
+#       gunzip -c ~{genome_fa} > genome/genome.fa
+#     else
+#       mv ~{genome_fa} genome/genome.fa
+#     fi
+#     bwa index genome/genome.fa
+#     tar --dereference -cvf - genome/ > ~{reference_name}.tar
+#   >>>
 
-  runtime {
-    docker: "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463"
-    memory: "96GB"
-    disks: "local-disk 100 HDD"
-    disk: "100 GB" # TES
-    cpu: "4"
-  }
+#   runtime {
+#     docker: "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463"
+#     memory: "96GB"
+#     disks: "local-disk 100 HDD"
+#     disk: "100 GB" # TES
+#     cpu: "4"
+#   }
 
-  output {
-    File reference_bundle = "~{reference_name}.tar"
-  }
-}
+#   output {
+#     File reference_bundle = "~{reference_name}.tar"
+#   }
+# }
 
 
