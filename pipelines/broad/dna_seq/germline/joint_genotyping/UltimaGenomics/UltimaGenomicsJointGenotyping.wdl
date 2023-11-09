@@ -1,7 +1,7 @@
 version 1.0
 
 import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
-import "https://raw.githubusercontent.com/broadinstitute/gatk/4.3.0.0/scripts/vcf_site_level_filtering_wdl/JointVcfFiltering.wdl" as Filtering
+import "https://raw.githubusercontent.com/broadinstitute/gatk/master/scripts/vcf_site_level_filtering_wdl/JointVcfFiltering.wdl" as Filtering
 import "../../../../../../tasks/broad/UltimaGenomicsGermlineFilteringThreshold.wdl" as FilteringThreshold
 
 
@@ -11,7 +11,7 @@ import "../../../../../../tasks/broad/UltimaGenomicsGermlineFilteringThreshold.w
 # For choosing a filtering threshold (where on the ROC curve to filter) a sample with truth data is required.
 workflow UltimaGenomicsJointGenotyping {
 
-  String pipeline_version = "1.1.4"
+  String pipeline_version = "1.1.5"
 
   input {
     File unpadded_intervals_file
@@ -51,9 +51,8 @@ workflow UltimaGenomicsJointGenotyping {
     String flow_order
 
     #inputs for training and applying filter model
-    String snp_annotations
-    String indel_annotations
-    Boolean use_allele_specific_annotations
+    Array[String] snp_annotations
+    Array[String] indel_annotations
     String model_backend
 
     Int? top_level_scatter_count
@@ -154,24 +153,34 @@ workflow UltimaGenomicsJointGenotyping {
       disk_size_gb = medium_disk
   }
 
-  call Filtering.JointVcfFiltering as TrainAndApplyFilteringModel {
+  call Filtering.JointVcfFiltering as TrainAndApplyFilteringModelSNPs {
     input:
-      vcf = CalculateAverageAnnotations.output_vcf,
-      vcf_index = CalculateAverageAnnotations.output_vcf_index,
+      input_vcfs = CalculateAverageAnnotations.output_vcf,
+      input_vcf_idxs = CalculateAverageAnnotations.output_vcf_index,
       sites_only_vcf = SitesOnlyGatherVcf.output_vcf,
-      sites_only_vcf_index = SitesOnlyGatherVcf.output_vcf_index,
-      snp_annotations = snp_annotations,
-      indel_annotations = indel_annotations,
+      sites_only_vcf_idx = SitesOnlyGatherVcf.output_vcf_index,
+      annotations = snp_annotations,
       model_backend = model_backend,
-      use_allele_specific_annotations = use_allele_specific_annotations,
-      basename = callset_name,
-      gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+      output_prefix = callset_name,
+      gatk_docker = "us.gcr.io/broad-gatk/gatk:4.4.0.0"
+  }
+
+  call Filtering.JointVcfFiltering as TrainAndApplyFilteringModelINDELs {
+    input:
+      input_vcfs = TrainAndApplyFilteringModelSNPs.scored_vcfs,
+      input_vcf_idxs = TrainAndApplyFilteringModelSNPs.scored_vcf_idxs,
+      sites_only_vcf = SitesOnlyGatherVcf.output_vcf,
+      sites_only_vcf_idx = SitesOnlyGatherVcf.output_vcf_index,
+      annotations = indel_annotations,
+      model_backend = model_backend,
+      output_prefix = callset_name,
+      gatk_docker = "us.gcr.io/broad-gatk/gatk:4.4.0.0"
   }
 
   call FilteringThreshold.ExtractOptimizeSingleSample as FindFilteringThresholdAndFilter {
     input:
-      input_vcf = TrainAndApplyFilteringModel.variant_scored_vcf,
-      input_vcf_index = TrainAndApplyFilteringModel.variant_scored_vcf_index,
+      input_vcf = TrainAndApplyFilteringModelINDELs.scored_vcfs,
+      input_vcf_index = TrainAndApplyFilteringModelINDELs.scored_vcf_idxs,
       base_file_name = callset_name,
       call_sample_name = call_sample_name,
       truth_vcf = truth_vcf,
@@ -188,7 +197,7 @@ workflow UltimaGenomicsJointGenotyping {
       medium_disk = medium_disk
   }
 
-  scatter (idx in range(length(TrainAndApplyFilteringModel.variant_scored_vcf))) {
+  scatter (idx in range(length(TrainAndApplyFilteringModelINDELs.scored_vcfs))) {
     # For large callsets we need to collect metrics from the shards and gather them later.
     if (!is_small_callset) {
       call Tasks.CollectVariantCallingMetrics as CollectMetricsSharded {
