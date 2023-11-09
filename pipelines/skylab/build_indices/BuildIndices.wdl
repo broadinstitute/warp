@@ -126,7 +126,7 @@ task BuildStarSingleNucleus {
     --output-gtf ~{annotation_gtf_modified} \
     --biotypes ~{biotypes}
 
-    python3  /script/add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_introns}
+    #python3  /script/add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_introns}
 
     mkdir star
     STAR --runMode genomeGenerate \
