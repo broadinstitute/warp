@@ -99,7 +99,6 @@ task BuildStarSingleNucleus {
   String ref_name = "star2.7.10a-~{organism}-~{genome_source}-build-~{genome_build}-~{gtf_annotation_version}"
   String star_index_name = "modified_~{ref_name}.tar"
   String annotation_gtf_modified = "modified_v~{gtf_annotation_version}.annotation.gtf"
-  String annotation_gtf_introns = "introns_modified_v~{gtf_annotation_version}.annotation.gtf"
 
   command <<<
     # Check that input GTF files contain input genome source, genome build version, and annotation version
@@ -140,7 +139,6 @@ task BuildStarSingleNucleus {
 
   output {
     File star_index = star_index_name
-    File annotation_gtf_modified_introns = annotation_gtf_introns
     File modified_annotation_gtf = annotation_gtf_modified
   }
 
