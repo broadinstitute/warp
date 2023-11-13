@@ -63,11 +63,11 @@ workflow WDLized_snm3C {
             bam = Separate_unmapped_reads.unique_bam_tar,
             split_bam = remove_overlap_read_parts.output_bam_tar
     }
-#
-   # call call_chromatin_contacts {
-   #     input:
-   #         bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
-   # }
+
+    call call_chromatin_contacts {
+        input:
+            name_sorted_bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
+    }
 
     call dedup_unique_bam_and_index_unique_bam {
         input:
@@ -671,22 +671,58 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
     }
 }
 
-#task call_chromatin_contacts {
-#    input {
-#        File bam
-#    }
-#    command <<<
-#    >>>
-#    runtime {
-#        docker: "fill_in"
-#        disks: "local-disk ${disk_size} HDD"
-#        cpu: 1
-#        memory: "${mem_size} GiB"
-#    }
-#    output {
-#        File chromatin_contact_stats = ""
-#    }
-#}
+task call_chromatin_contacts {
+    input {
+        File name_sorted_bam
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        Int disk_size = 80
+        Int mem_size = 20
+    }
+    command <<<
+        set -euo pipefail
+
+        # untar the name sorted bam files
+        tar -xf ~{name_sorted_bam}
+        rm ~{name_sorted_bam}
+
+        python3 <<CODE
+
+        from cemba_data.hisat3n import *
+        import os
+        import glob
+
+        pattern = "*.hisat3n_dna.all_reads.name_sort.bam"
+        bam_files = glob.glob(os.path.join('/cromwell_root/', pattern))
+
+        for file in bam_files:
+            full_filename = os.path.basename(file)
+            sample_id = full_filename.replace(".hisat3n_dna.all_reads.name_sort.bam", "")
+            bam_path = f"{sample_id}.hisat3n_dna.all_reads.name_sort.bam"
+            output_prefix = f"{sample_id}.hisat3n_dna.split_reads"
+
+
+            call_chromatin_contacts(
+                bam_path=bam_path,
+                contact_prefix=params.output_prefix,
+                save_raw=False,
+                save_hic_format=True
+            )
+
+        CODE
+
+        #tar up the chromatin contact files
+        tar -zcvf chromatin_contact_stats.tar.gz *
+    >>>
+    runtime {
+        docker: "docker"
+        disks: "local-disk ${disk_size} HDD"
+        cpu: 1
+        memory: "${mem_size} GiB"
+    }
+    output {
+        File chromatin_contact_stats = "chromatin_contact_stats.tar.gz"
+    }
+}
 
 task dedup_unique_bam_and_index_unique_bam {
     input {
