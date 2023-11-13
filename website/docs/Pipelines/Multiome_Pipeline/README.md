@@ -7,7 +7,7 @@ slug: /Pipelines/Multiome_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Multiome v2.2.2](https://github.com/broadinstitute/warp/releases) | November, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [Multiome v2.3.0](https://github.com/broadinstitute/warp/releases) | November, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![Multiome_diagram](./multiome_diagram.png)
 
