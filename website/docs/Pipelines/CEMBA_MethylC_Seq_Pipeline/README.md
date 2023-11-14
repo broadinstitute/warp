@@ -88,7 +88,7 @@ The [CEMBA.wdl](https://github.com/broadinstitute/warp/blob/develop/pipelines/ce
 
 ## CEMBA Task Summary
 
-The table and summary sections below detail the tasks and tools of the CEMBA pipeline; [the code](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.wdl) is available through GitHub. Each task can be found in the [CEMBA WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.wdl) If you are looking for the specific parameters of each task/tool, please see the  `command {}` section of the WDL script.
+The table and summary sections below detail the tasks and tools of the CEMBA pipeline; [the code](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.wdl) is available through GitHub. Each task can be found in the [CEMBA WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.wdl). If you are looking for the specific parameters of each task/tool, please see the  `command {}` section of the WDL script.
 
 | Task | Tool(s) | Purpose | Docker |
 | :-- | :-- | :-- | :-- |
@@ -181,7 +181,7 @@ All CEMBA pipeline releases are documented in the [CEMBA changelog](https://gith
 Please identify the pipeline in your methods section using the CEMBA Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_021219/resolver?q=CEMBA&l=CEMBA).
 * Ex: *CEMBA MethylC Seq Pipeline (RRID:SCR_021219)*
 
-## Consortia Support 
+## Consortia Support
 This pipeline is supported and used by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
 
 If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org).
