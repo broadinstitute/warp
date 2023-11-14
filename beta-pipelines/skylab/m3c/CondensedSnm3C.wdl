@@ -101,9 +101,6 @@ workflow WDLized_snm3C {
 
     output {
         #File MappingSummary = summary.MappingSummary
-        #File allcFiles = unique_reads_allc.
-        #File allc_CGNFiles = unique_reads_cgn_extraction.
-        #File UniqueAlign_cell_parser_picard_dedup = dedup_unique_bam_and_index_unique_bam.dedup_stats
         #File SplitReads_cell_parser_hisat_summary = "?"
         #File hicFiles = call_chromatin_contacts.chromatin_contact_stats
         File trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar
@@ -120,9 +117,15 @@ workflow WDLized_snm3C {
         File pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
         File remove_overlap_read_parts_bam_tar = remove_overlap_read_parts.output_bam_tar
         File dedup_unique_bam_and_index_unique_bam_tar = dedup_unique_bam_and_index_unique_bam.output_tar
-        File unique_reads_cgn_extraction_allc = unique_reads_cgn_extraction.output_allc_tar
-        File unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.output_tbi_tar
-
+        
+        # unique_reads_allc outputs
+        File allcFiles = unique_reads_allc.allc
+        File tbiFiles = unique_reads_allc.tbi
+        File allc_uniq_reads_stats = unique_reads_allc.allc_uniq_reads_stats
+       
+        # unique_reads_cgn_extraction outputs
+        File allc_CGNFiles = unique_reads_cgn_extraction.output_allc_tar
+        File tbi_CGNFiles = unique_reads_cgn_extraction.output_tbi_tar
     }
 }
 
@@ -794,7 +797,6 @@ task unique_reads_allc {
     }
 }
 
-
 task unique_reads_cgn_extraction {
     input {
        File allc_tar
@@ -858,7 +860,6 @@ task unique_reads_cgn_extraction {
         File output_tbi_tar = "output_tbi_tar.tar.gz"
     }
 }
-
 
 #task summary {
 #    input {
