@@ -46,7 +46,7 @@ workflow snM3C {
     #File allc_CGNFiles = Mapping.allc_CGNFiles
     File bamFiles = Mapping.bamFiles
     #File detail_statsFiles = Mapping.detail_statsFiles
-    #File hicFiles = Mapping.hicFiles
+    File hicFiles = Mapping.hicFiles
   }
 }
 
@@ -184,6 +184,10 @@ task Mapping {
     tar -zcvf ~{plate_id}.bam_files.tar.gz *
     mv ~{plate_id}.bam_files.tar.gz /cromwell_root/
 
+    cd /cromwell_root/group0/hic
+    tar -zcvf ~{plate_id}.hic.tar.gz *
+    mv ~{plate_id}.hic.tar.gz /cromwell_root/
+
     # move outputs into /cromwell_root/
     #mv /cromwell_root/group0/MappingSummary.csv.gz /cromwell_root/~{plate_id}_MappingSummary.csv.gz
 
@@ -220,6 +224,6 @@ task Mapping {
     #File allc_CGNFiles = "~{plate_id}_allc-CGN_files.tar.gz"
     File bamFiles = "~{plate_id}.bam_files.tar.gz"
     #File detail_statsFiles = "~{plate_id}_detail_stats_files.tar.gz"
-    #File hicFiles = "~{plate_id}_hic_files.tar.gz"
+    File hicFiles = "~{plate_id}.hic.tar.gz"
   }
 }
