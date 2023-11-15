@@ -95,7 +95,7 @@ workflow Multiome {
     if (run_cellbender) {
         call CellBender.run_cellbender_remove_background_gpu as CellBender {
             input:
-                sample_name = input_id,
+                sample_name = "2023-05-18_v1_pilot_10X_multiome_FACS_DFC_18d_rxn1",
                 input_file_unfiltered = "gs://broad-gotc-test-storage/nikelle_testing/2023-05-18_v1_pilot_10X_multiome_FACS_DFC_18d_rxn1_gex.h5ad",
                 hardware_boot_disk_size_GB = 20,
                 hardware_cpu_count = 4,
