@@ -65,8 +65,8 @@ task RevertSamByReadGroup {
     Int machine_mem_gb = 10
     Int preemptible_attempts = 3
 
-    Float disk_multiplier = 3
-    Int additional_disk_size = 10
+    Float disk_multiplier = 6
+    Int additional_disk_size = 20
 
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
   }
