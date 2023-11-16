@@ -63,11 +63,11 @@ workflow WDLized_snm3C {
             bam = Separate_unmapped_reads.unique_bam_tar,
             split_bam = remove_overlap_read_parts.output_bam_tar
     }
-#
-   # call call_chromatin_contacts {
-   #     input:
-   #         bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
-   # }
+
+    call call_chromatin_contacts {
+        input:
+            name_sorted_bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
+    }
 
     call dedup_unique_bam_and_index_unique_bam {
         input:
@@ -122,6 +122,7 @@ workflow WDLized_snm3C {
         File dedup_unique_bam_and_index_unique_bam_tar = dedup_unique_bam_and_index_unique_bam.output_tar
         File unique_reads_cgn_extraction_allc = unique_reads_cgn_extraction.output_allc_tar
         File unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.output_tbi_tar
+        File chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats
 
     }
 }
@@ -580,7 +581,7 @@ task remove_overlap_read_parts {
         File bam
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
-        Int mem_size = 20  
+        Int mem_size = 20
     }
 
     command <<<
@@ -595,7 +596,7 @@ task remove_overlap_read_parts {
         # get bams
         bams=($(ls | grep "sort.bam$"))
 
-        # loop through bams and run python script on each bam 
+        # loop through bams and run python script on each bam
         # scatter instead of for loop to optimize
         python3 <<CODE
         from cemba_data.hisat3n import *
@@ -605,12 +606,12 @@ task remove_overlap_read_parts {
             name=".".join(bam.split(".")[:3])+".read_overlap.bam"
             remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", name))
         CODE
-       
+
         cd /cromwell_root/output_bams
-       
+
         #tar up the merged bam files
         tar -zcvf ../remove_overlap_read_parts.tar.gz *bam
-       
+
     >>>
     runtime {
         docker: docker
@@ -634,14 +635,11 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
     command <<<
       set -euo pipefail
       #unzip bam file
-      echo "Listing files"
-      ls
       tar -xf ~{bam}
       tar -xf ~{split_bam}
       rm ~{bam}
       rm ~{split_bam}
-      echo "Listing files after unzipping"
-      ls
+
       echo "samtools merge and sort"
       # define lists of r1 and r2 fq files
       UNIQUE_BAMS=($(ls | grep "\.hisat3n_dna.unique_aligned.bam"))
@@ -649,15 +647,15 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
 
       for file in "${UNIQUE_BAMS[@]}"; do
         sample_id=$(basename "$file" ".hisat3n_dna.unique_aligned.bam")
-        samtools merge -f "${sample_id}.hisat3n_dna.all_reads.bam" "${sample_id}.hisat3n_dna.unique_aligned.bam" "${sample_id}.hisat3n_dna.split_reads.read_overlap.bam"      
+        samtools merge -f "${sample_id}.hisat3n_dna.all_reads.bam" "${sample_id}.hisat3n_dna.unique_aligned.bam" "${sample_id}.hisat3n_dna.split_reads.read_overlap.bam"
         samtools sort -n -o "${sample_id}.hisat3n_dna.all_reads.name_sort.bam" "${sample_id}.hisat3n_dna.all_reads.bam"
         samtools sort -O BAM -o "${sample_id}.hisat3n_dna.all_reads.pos_sort.bam" "${sample_id}.hisat3n_dna.all_reads.name_sort.bam"
       done
-       
+
       echo "Zip files"
       #tar up the merged bam files
       tar -zcvf hisat3n_dna.all_reads.pos_sort.tar.gz *.hisat3n_dna.all_reads.pos_sort.bam
-      tar -zcvf hisat3n_dna.all_reads.name_sort.tar.gz *.hisat3n_dna.all_reads.name_sort.bam        
+      tar -zcvf hisat3n_dna.all_reads.name_sort.tar.gz *.hisat3n_dna.all_reads.name_sort.bam
     >>>
     runtime {
         docker: docker
@@ -671,48 +669,83 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
     }
 }
 
-#task call_chromatin_contacts {
-#    input {
-#        File bam
-#    }
-#    command <<<
-#    >>>
-#    runtime {
-#        docker: "fill_in"
-#        disks: "local-disk ${disk_size} HDD"
-#        cpu: 1
-#        memory: "${mem_size} GiB"
-#    }
-#    output {
-#        File chromatin_contact_stats = ""
-#    }
-#}
+task call_chromatin_contacts {
+    input {
+        File name_sorted_bam
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        Int disk_size = 80
+        Int mem_size = 20
+    }
+    command <<<
+        set -euo pipefail
+
+        # untar the name sorted bam files
+        tar -xf ~{name_sorted_bam}
+        rm ~{name_sorted_bam}
+
+        python3 <<CODE
+
+        from cemba_data.hisat3n import *
+        import os
+        import glob
+
+        pattern = "*.hisat3n_dna.all_reads.name_sort.bam"
+        bam_files = glob.glob(os.path.join('/cromwell_root/', pattern))
+
+        for file in bam_files:
+            full_filename = os.path.basename(file)
+            sample_id = full_filename.replace(".hisat3n_dna.all_reads.name_sort.bam", "")
+            bam_path = f"{sample_id}.hisat3n_dna.all_reads.name_sort.bam"
+            output_prefix = f"{sample_id}.hisat3n_dna.all_reads"
+
+            call_chromatin_contacts(
+                bam_path=bam_path,
+                contact_prefix=output_prefix,
+                save_raw=False,
+                save_hic_format=True
+            )
+
+        CODE
+
+        #tar up the chromatin contact files
+        tar -zcvf chromatin_contact_stats.tar.gz *.hisat3n_dna.all_reads.contact_stats.csv
+    >>>
+    runtime {
+        docker: docker
+        disks: "local-disk ${disk_size} HDD"
+        cpu: 1
+        memory: "${mem_size} GiB"
+    }
+    output {
+        File chromatin_contact_stats = "chromatin_contact_stats.tar.gz"
+    }
+}
 
 task dedup_unique_bam_and_index_unique_bam {
     input {
        File bam
        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
        Int disk_size = 80
-       Int mem_size = 20         
+       Int mem_size = 20
     }
 
     command <<<
         set -euo pipefail
-       
+
         # unzip files
         tar -xf ~{bam}
         rm ~{bam}
-       
+
         # create output dir
         mkdir /cromwell_root/output_bams
         mkdir /cromwell_root/temp
-       
+
         # name : AD3C_BA17_2027_P1-1-B11-G13.hisat3n_dna.all_reads.pos_sort.bam
         for file in *.bam
         do
           name=`echo $file | cut -d. -f1`
           name=$name.hisat3n_dna.all_reads.deduped
-          echo $name 
+          echo $name
           echo "Call Picard"
           picard MarkDuplicates I=$file O=/cromwell_root/output_bams/$name.bam \
           M=/cromwell_root/output_bams/$name.matrix.stats \
@@ -720,12 +753,12 @@ task dedup_unique_bam_and_index_unique_bam {
           echo "Call samtools index"
           samtools index /cromwell_root/output_bams/$name.bam
         done
-       
+
         cd /cromwell_root
-       
+
         #tar up the output files
         tar -zcvf dedup_unique_bam_and_index_unique_bam.tar.gz output_bams
-  
+
     >>>
     runtime {
         docker: docker
@@ -805,27 +838,27 @@ task unique_reads_cgn_extraction {
        Int mem_size = 20
        Int num_upstr_bases = 0
     }
-    
+
     command <<<
        set -euo pipefail
 
        tar -xf ~{allc_tar}
        rm ~{allc_tar}
-       
+
        tar -xf ~{tbi_tar}
        rm ~{tbi_tar}
-     
+
        # prefix="allc-{mcg_context}/{cell_id}"
        if [ ~{num_upstr_bases} -eq 0 ]; then
           mcg_context=CGN
        else
           mcg_context=HCGN
        fi
-              
+
        # create output dir
        mkdir /cromwell_root/allc-${mcg_context}
        outputdir=/cromwell_root/allc-${mcg_context}
-       
+
        #AD3C_BA17_2027_P1-1-B11-G13.allc.tsv.gz.tbi
        #AD3C_BA17_2027_P1-1-B11-G13.allc.tsv.gz
        for gzfile in *.gz
@@ -835,24 +868,24 @@ task unique_reads_cgn_extraction {
             allcools extract-allc --strandness merge --allc_path $gzfile \
             --output_prefix $outputdir/$name \
             --mc_contexts ${mcg_context} \
-            --chrom_size_path ~{chrom_size_path}        
+            --chrom_size_path ~{chrom_size_path}
        done
-          
+
        cd /cromwell_root
-       
+
        #AD3C_BA17_2027_P1-1-B11-G13.CGN-Merge.allc.tsv.gz, AD3C_BA17_2027_P1-1-B11-G13.CGN-Merge.allc.tsv.gz.tbi
        tar -zcvf output_allc_tar.tar.gz $outputdir/*.gz
        tar -zcvf output_tbi_tar.tar.gz $outputdir/*.tbi
-       
+
     >>>
-    
+
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
         cpu: 1
         memory: "${mem_size} GiB"
     }
-    
+
     output {
         File output_allc_tar = "output_allc_tar.tar.gz"
         File output_tbi_tar = "output_tbi_tar.tar.gz"
