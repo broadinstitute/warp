@@ -926,31 +926,46 @@ task summary {
         mkdir /cromwell_root/allc
         mkdir /cromwell_root/hic
 
-        tar -xf ~{trimmed_stats}
-        rm ~{trimmed_stats}
-        tar -xf ~{hisat3n_stats}
-        rm ~{hisat3n_stats}
-        tar -xf ~{r1_hisat3n_stats}
-        rm ~{r1_hisat3n_stats}
-        tar -xf ~{r2_hisat3n_stats}
-        rm ~{r2_hisat3n_stats}
-        tar -xf ~{dedup_stats}
-        rm ~{dedup_stats}
-        tar -xf ~{chromatin_contact_stats}
-        rm ~{chromatin_contact_stats}
-        tar -xf ~{allc_uniq_reads_stats}
-        rm ~{allc_uniq_reads_stats}
-        tar -xf ~{unique_reads_cgn_extraction_tbi}
-        rm ~{unique_reads_cgn_extraction_tbi}
+        #extract and remove the tar files
+        extract_and_remove() {
+            local tarFile=$1
+            tar -xf "$tarFile"
+            rm "$tarFile"
+        }
 
-        mv *.trimmed.stats.txt /cromwell_root/fastq
-        mv *.hisat3n_dna_summary.txt /cromwell_root/bam
-        mv *.hisat3n_dna_split_reads_summary.R1.txt /cromwell_root/bam
-        mv *.hisat3n_dna_split_reads_summary.R2.txt /cromwell_root/bam
+        extract_and_remove ~{trimmed_stats}
+        extract_and_remove ~{hisat3n_stats}
+        extract_and_remove ~{r1_hisat3n_stats}
+        extract_and_remove ~{r2_hisat3n_stats}
+        extract_and_remove ~{dedup_stats}
+        extract_and_remove ~{chromatin_contact_stats}
+        extract_and_remove ~{allc_uniq_reads_stats}
+        extract_and_remove ~{unique_reads_cgn_extraction_tbi}
+
+        #tar -xf ~{trimmed_stats}
+        #rm ~{trimmed_stats}
+        #tar -xf ~{hisat3n_stats}
+        #rm ~{hisat3n_stats}
+        #tar -xf ~{r1_hisat3n_stats}
+        #rm ~{r1_hisat3n_stats}
+        #tar -xf ~{r2_hisat3n_stats}
+        #rm ~{r2_hisat3n_stats}
+        #tar -xf ~{dedup_stats}
+        #rm ~{dedup_stats}
+        #tar -xf ~{chromatin_contact_stats}
+        #rm ~{chromatin_contact_stats}
+        #tar -xf ~{allc_uniq_reads_stats}
+        #rm ~{allc_uniq_reads_stats}
+        #tar -xf ~{unique_reads_cgn_extraction_tbi}
+        #rm ~{unique_reads_cgn_extraction_tbi}
+
+        #move the files into the appropraite folders so snm3c_summary can find them
+        mv *.trimmed.stats.txt *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt /cromwell_root/bam
         mv output_bams/*.hisat3n_dna.all_reads.deduped.matrix.txt /cromwell_root/bam
         mv *.hisat3n_dna.all_reads.contact_stats.csv /cromwell_root/hic
         mv *.allc.tsv.gz.count.csv /cromwell_root/allc
         mv cromwell_root/allc-CGN/*.allc.tsv.gz.tbi /cromwell_root/allc
+
 
         python3 <<CODE
         from cemba_data.hisat3n import *
