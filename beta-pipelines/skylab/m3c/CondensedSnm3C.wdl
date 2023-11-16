@@ -911,33 +911,18 @@ task summary {
         File allc_uniq_reads_stats
         File unique_reads_cgn_extraction_tbi
         String plate_id
+
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
     }
     command <<<
         set -euo pipefail
+
         mkdir /cromwell_root/fastq
         mkdir /cromwell_root/bam
         mkdir /cromwell_root/allc
         mkdir /cromwell_root/hic
-
-        #tar -xf ~{trimmed_stats}
-        #rm ~{trimmed_stats}
-        #tar -xf ~{hisat3n_stats}
-        #rm ~{hisat3n_stats}
-        #tar -xf ~{r1_hisat3n_stats}
-        #rm ~{r1_hisat3n_stats}
-        #tar -xf ~{r2_hisat3n_stats}
-        #rm ~{r2_hisat3n_stats}
-        #tar -xf ~{dedup_stats}
-        #rm ~{dedup_stats}
-        #tar -xf ~{chromatin_contact_stats}
-        #rm ~{chromatin_contact_stats}
-        #tar -xf ~{allc_uniq_reads_stats}
-        #rm ~{allc_uniq_reads_stats}
-        #tar -xf ~{unique_reads_cgn_extraction_tbi}
-        #rm ~{unique_reads_cgn_extraction_tbi}
 
         extract_and_remove() {
             local tarFile=$1
