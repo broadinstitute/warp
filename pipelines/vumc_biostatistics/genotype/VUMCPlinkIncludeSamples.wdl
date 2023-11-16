@@ -159,9 +159,10 @@ task PlinkIncludeSamples {
     String target_prefix
     
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    Int memory_gb = 20
   }
 
-  Int disk_size = ceil(size([source_bed, source_bim, source_fam], "GB")  * 2) + 10
+  Int disk_size = ceil(size([source_bed, source_bim, source_fam], "GB")  * 2) + 20
 
   String new_bed = target_prefix + ".bed"
   String new_bim = target_prefix + ".bim"
@@ -182,7 +183,7 @@ plink2 \
     docker: docker
     preemptible: 1
     disks: "local-disk " + disk_size + " HDD"
-    memory: "2 GiB"
+    memory: memory_gb + " GiB"
   }
   output {
     File output_bed = new_bed
