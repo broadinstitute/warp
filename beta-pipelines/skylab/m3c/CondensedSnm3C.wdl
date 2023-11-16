@@ -134,7 +134,7 @@ task Demultiplexing {
     File random_primer_indexes
     String plate_id
 
-    String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+    String docker_image = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
     Int disk_size = 50
     Int mem_size = 10
   }
@@ -211,7 +211,7 @@ task Sort_and_trim_r1_and_r2 {
         Int disk_size = 50
         Int mem_size = 10
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
 
     }
     command <<<
@@ -283,7 +283,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         File genome_fa
         File chromosome_sizes
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 100
         Int mem_size = 100
     }
@@ -359,7 +359,7 @@ task Separate_unmapped_reads {
     input {
         File hisat3n_bam_tar
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 50
         Int mem_size = 10
 
@@ -428,7 +428,7 @@ task Separate_unmapped_reads {
 task Split_unmapped_reads {
     input {
         File unmapped_fastq_tar
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 50
         Int mem_size = 10
     }
@@ -488,7 +488,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
         File genome_fa
         File tarred_index_files
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
     }
@@ -579,7 +579,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
 task remove_overlap_read_parts {
     input {
         File bam
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
     }
@@ -628,7 +628,7 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
     input {
         File bam
         File split_bam
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
     }
@@ -672,7 +672,7 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
 task call_chromatin_contacts {
     input {
         File name_sorted_bam
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
     }
@@ -724,7 +724,7 @@ task call_chromatin_contacts {
 task dedup_unique_bam_and_index_unique_bam {
     input {
        File bam
-       String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+       String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
        Int disk_size = 80
        Int mem_size = 20
     }
@@ -778,7 +778,7 @@ task unique_reads_allc {
         Int disk_size = 80
         Int mem_size = 20
         String genome_base = basename(genome_fa)
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
     }
     command <<<
         set -euo pipefail
@@ -833,7 +833,7 @@ task unique_reads_cgn_extraction {
        File allc_tar
        File tbi_tar
        File chrom_size_path
-       String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+       String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
        Int disk_size = 80
        Int mem_size = 20
        Int num_upstr_bases = 0
