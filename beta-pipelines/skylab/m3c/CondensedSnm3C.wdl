@@ -920,6 +920,7 @@ task summary {
     }
     command <<<
         set -euo pipefail
+
         mkdir /cromwell_root/fastq
         mkdir /cromwell_root/bam
         mkdir /cromwell_root/allc
