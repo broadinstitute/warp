@@ -17,7 +17,10 @@ task RunEmptyDrops {
 
         # runtime values
         String docker = "us.gcr.io/broad-gotc-prod/empty-drops:1.0.1-4.2"
-        Int machine_mem_mb = 32000
+        #Int machine_mem_mb = 32000
+        #input_size/10 * 2
+        Int machine_mem_mb = floor(size(sparse_count_matrix, "Gi")/10) * 2
+
         Int cpu = 1
         Int disk = 20
         Int disk_size = disk + 20
@@ -59,7 +62,7 @@ task RunEmptyDrops {
 
     runtime {
         docker: docker
-        memory: "${machine_mem_mb} MiB"
+        memory: "${machine_mem_mb} GiB"
         disks: "local-disk ${disk} HDD"
         disk: disk_size + " GB" # TES
         cpu: cpu
