@@ -13,13 +13,23 @@ workflow VUMCPlinkIncludeSamples {
 
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
 
+    File? id_map_file
+
     String? project_id
     String? target_bucket
   }
 
+  if(defined(id_map_file)){
+    call ReplaceIdFam{
+      input:
+        source_fam = source_fam,
+        id_map_file = select_first([id_map_file])
+    }
+  }
+
   call CreateIncludeFam {
     input:
-      source_fam = source_fam,
+      source_fam = select_first([ReplaceIdFam.replaced_fam, source_fam]),
       include_samples = include_samples,
   }
 
@@ -27,7 +37,7 @@ workflow VUMCPlinkIncludeSamples {
     input:
       source_bed = source_bed,
       source_bim = source_bim,
-      source_fam = source_fam,
+      source_fam = select_first([ReplaceIdFam.replaced_fam, source_fam]),
       keep_id_fam = CreateIncludeFam.keep_id_fam,
       target_prefix = target_prefix,
       docker = docker
@@ -49,6 +59,56 @@ workflow VUMCPlinkIncludeSamples {
     File output_bed = select_first([CopyFile.output_bed, PlinkIncludeSamples.output_bed])
     File output_bim = select_first([CopyFile.output_bim, PlinkIncludeSamples.output_bim])
     File output_fam = select_first([CopyFile.output_fam, PlinkIncludeSamples.output_fam])
+  }
+}
+
+task ReplaceIdFam {
+  input {
+    File source_fam
+    File id_map_file
+  }
+
+  command <<<
+
+python3 <<CODE
+
+import gzip
+import io
+
+if "~{id_map_file}".endswith(".gz"):
+  fin = gzip.open("~{id_map_file}", "rt")
+else:
+  fin = open("~{id_map_file}", "rt")
+
+with fin:
+  id_map = {}
+  for line in fin:
+    parts = line.strip().split('\t')
+    id_map[parts[1]] = parts[0]
+
+with open("~{source_fam}", "rt") as fin:
+  with open("replaced.fam", "wt") as fout:
+    for line in fin:
+      parts = line.strip().split(' ')
+      if parts[1] in id_map:
+        grid = id_map[parts[1]]
+        parts[1] = grid
+
+      newline = ' '.join(parts)
+      fout.write(f"{newline}\n")
+
+CODE
+
+>>>
+
+  runtime {
+    docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
+    preemptible: 1
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+  }
+  output {
+    File replaced_fam = "replaced.fam"
   }
 }
 
