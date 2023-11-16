@@ -7,7 +7,7 @@ slug: /Pipelines/Multiome_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Multiome v2.3.0](https://github.com/broadinstitute/warp/releases) | November, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [Multiome v2.3.1](https://github.com/broadinstitute/warp/releases) | November, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![Multiome_diagram](./multiome_diagram.png)
 
@@ -78,6 +78,7 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | adapter_seq_read1 | Optional string describing the adapter sequence for ATAC read 1 paired-end reads to be used during adapter trimming with Cutadapt; default is "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG". | String |
 | adapter_seq_read3 | Optional string describing the adapter sequence for ATAC read 2 paired-end reads to be used during adapter trimming with Cutadapt; default is "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG". | String |
 | atac_whitelist | Optional file containing the list of valid barcodes for 10x multiome ATAC adata; default is "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt". | File |
+| run_cellbender | Optional boolean to determine if Optimus should run CellBender on the output gene expression h5ad. | Boolean |
 
 #### Sample inputs for analyses in a Terra Workspace
 
@@ -93,6 +94,7 @@ The Multiome workflow calls two subworkflows, which are described briefly in the
 | ATAC ([WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) and [documentation](../ATAC/README)) | fastqprocess, bwa-mem, SnapATAC2 | Workflow used to analyze 10x single-cell ATAC data. |
 | Optimus ([WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.wdl) and [documentation](../Optimus_Pipeline/README)) | fastqprocess, STARsolo, Emptydrops | Workflow used to analyze 10x single-cell GEX data. |
 | JoinMultiomeBarcodes as JoinBarcodes ([WDL](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/H5adUtils.wdl)) | Python3 | Task that adds an extra column to the Optimus metrics `h5ad.obs` property that lists the respective ATAC barcodes for each gene expression barcode. It also adds an extra column to the ATAC metrics `h5ad.obs` property to link ATAC barcodes to gene expression barcodes. | 
+| CellBender.run_cellbender_remove_background_gpu as CellBender ([WDL](https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.1/wdl/cellbender_remove_background.wdl))| CellBender | Optional task that runs CellBender's remove_background WDL directly from the CellBender GitHub repository. |
 
 ## Outputs
 
@@ -111,6 +113,16 @@ The Multiome workflow calls two subworkflows, which are described briefly in the
 | gene_metrics_gex | `<input_id>_gex.gene_metrics.csv.gz` | CSV file containing the per-gene metrics. |
 | cell_calls_gex | `<input_id>_gex.emptyDrops` | TSV file containing the EmptyDrops results when the Optimus workflow is run in sc_rna mode. |
 | h5ad_output_file_gex | `<input_id>_gex.h5ad` | h5ad (Anndata) file containing the raw cell-by-gene count matrix, gene metrics, cell metrics, and global attributes. Also contains equivalent ATAC barcode for each gene expression barcode in the `atac_barcodes` column of the `h5ad.obs` property. See the [Optimus Count Matrix Overview](../Optimus_Pipeline/Loom_schema.md) for more details. |
+| cell_barcodes_csv | Optional output. See [CellBender documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html). | See [CellBender documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html). |
+| checkpoint_file | Optional output. See [CellBender documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html). | See [CellBender documentaion](https://cellbender.readthedocs.io/en/latest/usage/index.html). |
+| h5_array |  Optional output. See [CellBender documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html). | See [CellBender documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html). |
+| html_report_array |  Optional output. See [CellBender documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html). | See [CellBender documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html). |
+| log |  Optional output. See [CellBender documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html). | See [CellBender documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html). |
+| metrics_csv_array |  Optional output. See [CellBender documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html). | See [CellBender documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html). |
+| output_directory |  Optional output. See [CellBender documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html). | See [CellBender documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html). |
+| summary_pdf |  Optional output. See [CellBender documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html). | See [CellBender documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html). |
+
+
 
 ## Versioning and testing
 
