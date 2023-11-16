@@ -449,7 +449,11 @@ task MergeStarOutput {
 
     #runtime values
     String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
-    Int machine_mem_mb = 20
+    # Int machine_mem_mb = 20
+    # dynamically set memory 
+    # Less than 150, memory 10 – more than 150, memory is floor(input_size/8). Eg 160/8 = 20
+    Int machine_mem_mb = if (size(matrix, "Gi") < 150 ) then 10 
+                   else floor(size(matrix, "Gi")/8)
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
     Int preemptible = 3
