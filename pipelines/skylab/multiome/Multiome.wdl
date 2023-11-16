@@ -43,7 +43,7 @@ workflow Multiome {
         File atac_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
 
         # CellBender
-        Boolean run_cellbender = true
+        Boolean run_cellbender = false
 
     }
 
