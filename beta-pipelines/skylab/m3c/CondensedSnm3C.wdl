@@ -96,16 +96,12 @@ workflow WDLized_snm3C {
             dedup_stats = dedup_unique_bam_and_index_unique_bam.dedup_stats_tar,
             chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats,
             allc_uniq_reads_stats = unique_reads_allc.allc_uniq_reads_stats,
-            unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.output_tbi_tar
+            unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.output_tbi_tar,
+            plate_id = plate_id
     }
 
     output {
         File MappingSummary = summary.mapping_summary
-        #File allcFiles = unique_reads_allc.
-        #File allc_CGNFiles = unique_reads_cgn_extraction.
-        #File UniqueAlign_cell_parser_picard_dedup = dedup_unique_bam_and_index_unique_bam.dedup_stats
-        #File SplitReads_cell_parser_hisat_summary = "?"
-        #File hicFiles = call_chromatin_contacts.chromatin_contact_stats
         File trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar
         File r1_trimmed_fq = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar
         File r2_trimmed_fq = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar
@@ -914,6 +910,7 @@ task summary {
         File chromatin_contact_stats
         File allc_uniq_reads_stats
         File unique_reads_cgn_extraction_tbi
+        String plate_id
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
@@ -925,27 +922,40 @@ task summary {
         mkdir /cromwell_root/allc
         mkdir /cromwell_root/hic
 
-        tar -xf ~{trimmed_stats}
-        rm ~{trimmed_stats}
-        tar -xf ~{hisat3n_stats}
-        rm ~{hisat3n_stats}
-        tar -xf ~{r1_hisat3n_stats}
-        rm ~{r1_hisat3n_stats}
-        tar -xf ~{r2_hisat3n_stats}
-        rm ~{r2_hisat3n_stats}
-        tar -xf ~{dedup_stats}
-        rm ~{dedup_stats}
-        tar -xf ~{chromatin_contact_stats}
-        rm ~{chromatin_contact_stats}
-        tar -xf ~{allc_uniq_reads_stats}
-        rm ~{allc_uniq_reads_stats}
-        tar -xf ~{unique_reads_cgn_extraction_tbi}
-        rm ~{unique_reads_cgn_extraction_tbi}
+        #tar -xf ~{trimmed_stats}
+        #rm ~{trimmed_stats}
+        #tar -xf ~{hisat3n_stats}
+        #rm ~{hisat3n_stats}
+        #tar -xf ~{r1_hisat3n_stats}
+        #rm ~{r1_hisat3n_stats}
+        #tar -xf ~{r2_hisat3n_stats}
+        #rm ~{r2_hisat3n_stats}
+        #tar -xf ~{dedup_stats}
+        #rm ~{dedup_stats}
+        #tar -xf ~{chromatin_contact_stats}
+        #rm ~{chromatin_contact_stats}
+        #tar -xf ~{allc_uniq_reads_stats}
+        #rm ~{allc_uniq_reads_stats}
+        #tar -xf ~{unique_reads_cgn_extraction_tbi}
+        #rm ~{unique_reads_cgn_extraction_tbi}
+
+        extract_and_remove() {
+            local tarFile=$1
+            tar -xf "$tarFile"
+            rm "$tarFile"
+        }
+
+        extract_and_remove ~{trimmed_stats}
+        extract_and_remove ~{hisat3n_stats}
+        extract_and_remove ~{r1_hisat3n_stats}
+        extract_and_remove ~{r2_hisat3n_stats}
+        extract_and_remove ~{dedup_stats}
+        extract_and_remove ~{chromatin_contact_stats}
+        extract_and_remove ~{allc_uniq_reads_stats}
+        extract_and_remove ~{unique_reads_cgn_extraction_tbi}
 
         mv *.trimmed.stats.txt /cromwell_root/fastq
-        mv *.hisat3n_dna_summary.txt /cromwell_root/bam
-        mv *.hisat3n_dna_split_reads_summary.R1.txt /cromwell_root/bam
-        mv *.hisat3n_dna_split_reads_summary.R2.txt /cromwell_root/bam
+        mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt /cromwell_root/bam
         mv output_bams/*.hisat3n_dna.all_reads.deduped.matrix.txt /cromwell_root/bam
         mv *.hisat3n_dna.all_reads.contact_stats.csv /cromwell_root/hic
         mv *.allc.tsv.gz.count.csv /cromwell_root/allc
@@ -956,6 +966,8 @@ task summary {
         snm3c_summary()
         CODE
 
+        mv MappingSummary.csv.gz ~{plate_id}_MappingSummary.csv.gz
+
        >>>
     runtime {
         docker: docker
@@ -964,6 +976,6 @@ task summary {
         memory: "${mem_size} GiB"
     }
     output {
-        File mapping_summary = "MappingSummary.csv.gz"
+        File mapping_summary = "~{plate_id}_MappingSummary.csv.gz"
     }
 }
