@@ -124,7 +124,7 @@ It's worth mentioning that [Tables Generator](https://www.tablesgenerator.com/ma
 
 ## 3. Cross-reference and anchor
 
-To link to another section within the same article, you would use `[Return to ## 1. Insert code blocks](#_1-insert-code-blocks)`: [Return to ## 1. Insert code blocks](#_1-insert-code-blocks).
+To link to another section within the same article, you would use `[Return to ## 1. Insert code blocks](#1-insert-code-blocks)`: [Return to ## 1. Insert code blocks](#1-insert-code-blocks).
 
 To link to sections in other articles, use the following syntax (note the relative paths):
 

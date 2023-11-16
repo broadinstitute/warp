@@ -1,5 +1,6 @@
-# 1.1.0
-2023-09-21 (Date of Last Commit)
+# 1.1.1
+2023-10-20 (Date of Last Commit)
+* Removed the dropna from the JoinBarcodes subtask of the H5adUtils WDL; this change does not impact ATAC outputs
 * Added dynamic barcode selection to the ATAC FastqProcess task
 
 # 1.0.1
