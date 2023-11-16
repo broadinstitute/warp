@@ -475,6 +475,9 @@ task MergeStarOutput {
 
   command <<<
     set -e
+    echo "Memory"
+    echo ~{machine_mem_mb}
+    
     if [ ! -z "~{monitoring_script}" ]; then
         chmod a+x ~{monitoring_script}
         ~{monitoring_script} > monitoring.log &
