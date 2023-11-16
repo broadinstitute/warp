@@ -35,7 +35,9 @@ task OptimusH5adGeneration {
 
     Int preemptible = 3
     Int disk = 200
-    Int machine_mem_mb = 32000
+    #Int machine_mem_mb = 32000
+    Int machine_mem_mb = floor(size(sparse_count_matrix, "Gi")/10) * 2
+
     Int cpu = 4
 
     # Monitoring script
@@ -100,7 +102,7 @@ task OptimusH5adGeneration {
   runtime {
     docker: docker
     cpu: cpu  # note that only 1 thread is supported by pseudobam
-    memory: "~{machine_mem_mb} MiB"
+    memory: "~{machine_mem_mb} GiB"
     disks: "local-disk ~{disk} HDD"
     disk: disk + " GB" # TES
     preemptible: preemptible
