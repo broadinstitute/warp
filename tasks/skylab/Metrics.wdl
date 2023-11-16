@@ -86,7 +86,11 @@ task CalculateGeneMetrics {
     # runtime values
 
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.5-1692706846"
-    Int machine_mem_mb = 16000
+    #Int machine_mem_mb = 16000
+    #GeneMetrics: Less than 150, memory 10 – more than 150, memory is floor(input_size/10)
+    Int machine_mem_mb = if (size(bam_input, "Gi") < 150 ) then 10 
+                   else floor(size(bam_input, "Gi")/10)
+  
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 
     Int preemptible = 3
@@ -111,14 +115,16 @@ task CalculateGeneMetrics {
 
   command {
     set -e
-
+    echo "Memory"
+    echo ~{machine_mem_mb}
+    
     if [ ! -z "~{monitoring_script}" ]; then
       chmod a+x ~{monitoring_script}
       ~{monitoring_script} > monitoring.log &
     else
       echo "No monitoring script given as input" > monitoring.log &
     fi
-
+    
     mkdir temp
 
     TagSort --bam-input ~{bam_input} \
@@ -144,7 +150,7 @@ task CalculateGeneMetrics {
 
   runtime {
     docker: docker
-    memory: "${machine_mem_mb} MiB"
+    memory: "${machine_mem_mb} GiB"
     disks: "local-disk ${disk} HDD" 
     disk: disk + " GB" # TES
     cpu: cpu
