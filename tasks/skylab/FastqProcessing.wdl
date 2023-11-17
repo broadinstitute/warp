@@ -255,6 +255,10 @@ task FastqProcessATAC {
         # estimate that bam is approximately equal in size to fastq, add 20% buffer
         Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
         Int preemptible = 3
+
+        # Additional parameters for fastqprocess
+        Int num_output_files = 4
+        Int bam_size = 1
     }
 
     meta {
@@ -273,6 +277,8 @@ task FastqProcessATAC {
         mem_size: "(optional) the amount of memory (MiB) to provision for this task"
         cpu: "(optional) the number of cpus to provision for this task"
         disk_size: "(optional) the amount of disk space (GiB) to provision for this task"
+        num_output_files: "(optional) the number of output fastq file shards to produce. if this is set to > 0, bam_size is ignored."
+        bam_size: "(optional) the size of each fastq file produced. this is taken into account if num_output_files == 0."
         preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
     }
 
@@ -341,7 +347,8 @@ task FastqProcessATAC {
         cd /cromwell_root/output_fastq
 
         fastqprocess \
-        --bam-size 30.0 \
+        --bam-size ~{bam_size} \
+        --num-output-files ~{num_output_files} \
         --sample-id "~{output_base_name}" \
         $R1_FILES_CONCAT \
         $R2_FILES_CONCAT \
