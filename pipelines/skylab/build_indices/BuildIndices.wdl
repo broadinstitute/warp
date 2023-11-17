@@ -16,7 +16,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "2.1.2"
+  String pipeline_version = "2.2.0"
 
 
   parameter_meta {
@@ -52,7 +52,6 @@ workflow BuildIndices {
   output {
     File snSS2_star_index = BuildStarSingleNucleus.star_index
     String pipeline_version_out = "BuildIndices_v~{pipeline_version}"
-    File snSS2_annotation_gtf_introns = BuildStarSingleNucleus.annotation_gtf_modified_introns
     File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
     File reference_bundle = BuildBWAreference.reference_bundle
     File chromosome_sizes = CalculateChromosomeSizes.chrom_sizes
@@ -99,7 +98,6 @@ task BuildStarSingleNucleus {
   String ref_name = "star2.7.10a-~{organism}-~{genome_source}-build-~{genome_build}-~{gtf_annotation_version}"
   String star_index_name = "modified_~{ref_name}.tar"
   String annotation_gtf_modified = "modified_v~{gtf_annotation_version}.annotation.gtf"
-  String annotation_gtf_introns = "introns_modified_v~{gtf_annotation_version}.annotation.gtf"
 
   command <<<
     # Check that input GTF files contain input genome source, genome build version, and annotation version
@@ -126,8 +124,6 @@ task BuildStarSingleNucleus {
     --output-gtf ~{annotation_gtf_modified} \
     --biotypes ~{biotypes}
 
-    python3  /script/add-introns-to-gtf.py   --input-gtf ~{annotation_gtf_modified}  --output-gtf ~{annotation_gtf_introns}
-
     mkdir star
     STAR --runMode genomeGenerate \
     --genomeDir star \
@@ -142,12 +138,11 @@ task BuildStarSingleNucleus {
 
   output {
     File star_index = star_index_name
-    File annotation_gtf_modified_introns = annotation_gtf_introns
     File modified_annotation_gtf = annotation_gtf_modified
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:1.0.0-2.7.10a-1683045573"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:2.0.0"
     memory: "50 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
