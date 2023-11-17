@@ -1,8 +1,9 @@
-# 2.2.0
+# 2.2.1
 2023-11-17 (Date of Last Commit)
 * Updated the modify-gtf script to make it compatible with REFSEQ and GENCODE GTFs
 * Added gene_versions to resulting modified GTFs
 * Remove the add-introns script from the pipeline
+* Removed pipe from chrom sizes task
 
 # 2.1.2
 2023-05-02 (Date of Last Commit)
