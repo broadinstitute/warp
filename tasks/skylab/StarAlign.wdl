@@ -477,6 +477,10 @@ task MergeStarOutput {
     set -e
     echo "Memory"
     echo ~{machine_mem_mb}
+    echo "Size of matrix"
+    echo size(matrix, "Gi")
+    echo size(barcodes, "Gi")
+    echo size(features, "Gi")
     
     if [ ! -z "~{monitoring_script}" ]; then
         chmod a+x ~{monitoring_script}
