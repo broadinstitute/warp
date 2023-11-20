@@ -36,7 +36,8 @@ task OptimusH5adGeneration {
     Int preemptible = 3
     Int disk = 200
     #Int machine_mem_mb = 32000
-    Int machine_mem_mb = floor(size(sparse_count_matrix, "Gi")/10) * 2
+    Int all_gb = ceil(size(sparse_count_matrix, "Gi"))
+    Int machine_mem_mb = ceil(size(sparse_count_matrix, "Gi")*2) + 10
 
     Int cpu = 4
 
@@ -54,7 +55,12 @@ task OptimusH5adGeneration {
 
   command <<<
     set -euo pipefail
-    
+    echo "Memory"
+    echo ~{machine_mem_mb}
+    echo ~{all_gb}
+    ls
+    du -ch * | tail -1
+
     if [ ! -z "~{monitoring_script}" ]; then
         chmod a+x ~{monitoring_script}
         ~{monitoring_script} > monitoring.log &
