@@ -87,25 +87,21 @@ workflow WDLized_snm3C {
           chrom_size_path = chromosome_sizes
    }
 
-   # call summary {
-   #     input:
-   #         trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats,
-   #         hisat3n_stats = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_stats,
-   #         r1_hisat3n_stats = hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.r1_hisat3n_stats,
-   #         r2_hisat3n_stats = hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.r2_hisat3n_stats,
-   #         dedup_stats = dedup_unique_bam_and_index_unique_bam.dedup_stats,
-   #         chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats,
-   #         allc_uniq_reads_stats = unique_reads_allc.allc_uniq_reads_stats,
-   #         unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.unique_reads_cgn_extraction_tbi
-   # }
+    call summary {
+        input:
+            trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar,
+            hisat3n_stats = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_stats_tar,
+            r1_hisat3n_stats = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.hisat3n_dna_split_reads_summary_R1_tar,
+            r2_hisat3n_stats = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.hisat3n_dna_split_reads_summary_R2_tar,
+            dedup_stats = dedup_unique_bam_and_index_unique_bam.dedup_stats_tar,
+            chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats,
+            allc_uniq_reads_stats = unique_reads_allc.allc_uniq_reads_stats,
+            unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.output_tbi_tar,
+            plate_id = plate_id
+    }
 
     output {
-        #File MappingSummary = summary.MappingSummary
-        #File allcFiles = unique_reads_allc.
-        #File allc_CGNFiles = unique_reads_cgn_extraction.
-        #File UniqueAlign_cell_parser_picard_dedup = dedup_unique_bam_and_index_unique_bam.dedup_stats
-        #File SplitReads_cell_parser_hisat_summary = "?"
-        #File hicFiles = call_chromatin_contacts.chromatin_contact_stats
+        File MappingSummary = summary.mapping_summary
         File trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar
         File r1_trimmed_fq = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar
         File r2_trimmed_fq = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar
@@ -545,6 +541,11 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
          --threads 11 | samtools view -b -q 10 -o "${sample_id}.hisat3n_dna.split_reads.R2.bam"
        done
 
+       # tar up the r1 and r2 stats files
+       tar -zcvf ../hisat3n_dna_split_reads_summary.R1.tar.gz *.hisat3n_dna_split_reads_summary.R1.txt
+       tar -zcvf ../hisat3n_dna_split_reads_summary.R2.tar.gz *.hisat3n_dna_split_reads_summary.R2.txt
+
+
        # define lists of r1 and r2 bam files
        R1_bams=($(ls | grep "\.hisat3n_dna.split_reads.R1.bam"))
        R2_bams=($(ls | grep "\.hisat3n_dna.split_reads.R2.bam"))
@@ -573,6 +574,8 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
     }
     output {
         File merge_sorted_bam_tar = "hisat3n_dna.split_reads.name_sort.bam.tar.gz"
+        File hisat3n_dna_split_reads_summary_R1_tar = "hisat3n_dna_split_reads_summary.R1.tar.gz"
+        File hisat3n_dna_split_reads_summary_R2_tar = "hisat3n_dna_split_reads_summary.R2.tar.gz"
     }
 }
 
@@ -748,7 +751,7 @@ task dedup_unique_bam_and_index_unique_bam {
           echo $name
           echo "Call Picard"
           picard MarkDuplicates I=$file O=/cromwell_root/output_bams/$name.bam \
-          M=/cromwell_root/output_bams/$name.matrix.stats \
+          M=/cromwell_root/output_bams/$name.matrix.txt \
           REMOVE_DUPLICATES=true TMP_DIR=/cromwell_root/temp
           echo "Call samtools index"
           samtools index /cromwell_root/output_bams/$name.bam
@@ -759,6 +762,9 @@ task dedup_unique_bam_and_index_unique_bam {
         #tar up the output files
         tar -zcvf dedup_unique_bam_and_index_unique_bam.tar.gz output_bams
 
+        #tar up the stats files
+        tar -zcvf dedup_unique_bam_and_index_unique_bam_stats.tar.gz output_bams/*.matrix.txt
+
     >>>
     runtime {
         docker: docker
@@ -768,6 +774,7 @@ task dedup_unique_bam_and_index_unique_bam {
     }
     output {
         File output_tar = "dedup_unique_bam_and_index_unique_bam.tar.gz"
+        File dedup_stats_tar = "dedup_unique_bam_and_index_unique_bam_stats.tar.gz"
     }
 }
 
@@ -893,26 +900,67 @@ task unique_reads_cgn_extraction {
 }
 
 
-#task summary {
-#    input {
-#        File trimmed_stats
-#        File hisat3n_stats
-#        File r1_hisat3n_stats
-#        File r2_hisat3n_stats
-#        File dedup_stats
-#        File chromatin_contact_stats
-#        File allc_uniq_reads_stats
-#        File unique_reads_cgn_extraction_tbi
-#    }
-#    command <<<
-#    >>>
-#    runtime {
-#        docker: "fill_in"
-#        disks: "local-disk ${disk_size} HDD"
-#        cpu: 1
-#        memory: "${mem_size} GiB"
-#    }
-#    output {
-#        File mapping_summary = "MappingSummary.csv.gz"
-#    }
-#}
+task summary {
+    input {
+        File trimmed_stats
+        File hisat3n_stats
+        File r1_hisat3n_stats
+        File r2_hisat3n_stats
+        File dedup_stats
+        File chromatin_contact_stats
+        File allc_uniq_reads_stats
+        File unique_reads_cgn_extraction_tbi
+        String plate_id
+
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        Int disk_size = 80
+        Int mem_size = 20
+    }
+    command <<<
+        set -euo pipefail
+
+        mkdir /cromwell_root/fastq
+        mkdir /cromwell_root/bam
+        mkdir /cromwell_root/allc
+        mkdir /cromwell_root/hic
+
+        extract_and_remove() {
+            local tarFile=$1
+            tar -xf "$tarFile"
+            rm "$tarFile"
+        }
+
+        extract_and_remove ~{trimmed_stats}
+        extract_and_remove ~{hisat3n_stats}
+        extract_and_remove ~{r1_hisat3n_stats}
+        extract_and_remove ~{r2_hisat3n_stats}
+        extract_and_remove ~{dedup_stats}
+        extract_and_remove ~{chromatin_contact_stats}
+        extract_and_remove ~{allc_uniq_reads_stats}
+        extract_and_remove ~{unique_reads_cgn_extraction_tbi}
+
+        mv *.trimmed.stats.txt /cromwell_root/fastq
+        mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt /cromwell_root/bam
+        mv output_bams/*.hisat3n_dna.all_reads.deduped.matrix.txt /cromwell_root/bam
+        mv *.hisat3n_dna.all_reads.contact_stats.csv /cromwell_root/hic
+        mv *.allc.tsv.gz.count.csv /cromwell_root/allc
+        mv cromwell_root/allc-CGN/*.allc.tsv.gz.tbi /cromwell_root/allc
+
+        python3 <<CODE
+        from cemba_data.hisat3n import *
+        snm3c_summary()
+        CODE
+
+        mv MappingSummary.csv.gz ~{plate_id}_MappingSummary.csv.gz
+
+       >>>
+    runtime {
+        docker: docker
+        disks: "local-disk ${disk_size} HDD"
+        cpu: 1
+        memory: "${mem_size} GiB"
+    }
+    output {
+        File mapping_summary = "~{plate_id}_MappingSummary.csv.gz"
+    }
+}
