@@ -6,7 +6,7 @@ import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.1/wdl/cellbender_remove_background.wdl" as CellBender
 
 workflow Multiome {
-    String pipeline_version = "2.3.1"
+    String pipeline_version = "2.3.2"
 
     input {
         String input_id
