@@ -1,3 +1,8 @@
+# 2.3.1
+2023-11-20 (Date of Last Commit)
+
+* Added the latest warp-tools docker to the Metrics task; this allows use of REFSEQ references
+
 # 2.3.0
 2023-11-03 (Date of Last Commit)
 
