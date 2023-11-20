@@ -452,8 +452,9 @@ task MergeStarOutput {
     # Int machine_mem_mb = 20
     # dynamically set memory 
     # Less than 150, memory 10 – more than 150, memory is floor(input_size/8). Eg 160/8 = 20
-    Int machine_mem_mb = if (size(matrix, "Gi") < 150 ) then 10 
-                   else floor(size(matrix, "Gi")/8)
+    Int all_gb_space = ceil(size(matrix, "Gi") + size(features, "Gi") + size(barcodes, "Gi"))
+    Int gb_space = ceil(size(matrix, "Gi"))
+    Int machine_mem_mb = ceil(size(matrix, "Gi") * 2) + 10
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
     Int preemptible = 3
@@ -477,11 +478,11 @@ task MergeStarOutput {
     set -e
     echo "Memory"
     echo ~{machine_mem_mb}
-    echo "Size of matrix"
-    echo size(matrix, "Gi")
-    echo size(barcodes, "Gi")
-    echo size(features, "Gi")
-    
+    echo ~{all_gb_space}
+    echo ~{gb_space}
+    ls
+    du -h *
+
     if [ ! -z "~{monitoring_script}" ]; then
         chmod a+x ~{monitoring_script}
         ~{monitoring_script} > monitoring.log &
