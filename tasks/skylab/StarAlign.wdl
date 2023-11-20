@@ -454,7 +454,7 @@ task MergeStarOutput {
     # Less than 150, memory 10 – more than 150, memory is floor(input_size/8). Eg 160/8 = 20
     Int all_gb_space = ceil(size(matrix, "Gi") + size(features, "Gi") + size(barcodes, "Gi"))
     Int gb_space = ceil(size(matrix, "Gi"))
-    Int machine_mem_mb = ceil(size(matrix, "Gi") * 2) + 10
+    Int machine_mem_mb = ceil((size(matrix, "Gi") + size(features, "Gi") + size(barcodes, "Gi")) * 2) + 10
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
     Int preemptible = 3
