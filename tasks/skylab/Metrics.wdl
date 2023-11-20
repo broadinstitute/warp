@@ -88,6 +88,7 @@ task CalculateGeneMetrics {
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.5-1692706846"
     #Int machine_mem_mb = 16000
     #GeneMetrics: Less than 150, memory 10 – more than 150, memory is floor(input_size/10)
+    Int all_gb = ceil(size(bam_input, "Gi"))
     Int machine_mem_mb = if (size(bam_input, "Gi") < 150 ) then 10 
                    else floor(size(bam_input, "Gi")/10)
   
@@ -117,7 +118,10 @@ task CalculateGeneMetrics {
     set -e
     echo "Memory"
     echo ~{machine_mem_mb}
-    
+    echo ~{all_gb}
+    ls
+    du -ch * | tail -1
+
     if [ ! -z "~{monitoring_script}" ]; then
       chmod a+x ~{monitoring_script}
       ~{monitoring_script} > monitoring.log &
