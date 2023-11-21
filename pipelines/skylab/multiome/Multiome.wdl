@@ -83,7 +83,8 @@ workflow Multiome {
             atac_h5ad = Atac.snap_metrics,
             gex_h5ad = Optimus.h5ad_output_file,
             gex_whitelist = gex_whitelist,
-            atac_whitelist = atac_whitelist
+            atac_whitelist = atac_whitelist,
+            atac_fragment = Atac.fragment_file
     }
     meta {
         allowNestedInputs: true
@@ -95,7 +96,7 @@ workflow Multiome {
 
         # atac outputs
         File bam_aligned_output_atac = Atac.bam_aligned_output
-        File fragment_file_atac = Atac.fragment_file
+        File fragment_file_atac = JoinBarcodes.atac_fragment_tsv
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
 
         # optimus outputs
