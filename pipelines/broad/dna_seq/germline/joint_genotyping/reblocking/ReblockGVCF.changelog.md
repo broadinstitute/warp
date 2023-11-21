@@ -1,3 +1,8 @@
+# 2.1.7
+2023-11-21 (Date of Last Commit)
+
+* Fixes bug so now ReblockGVCFs can take in GVCFs that are not in the same location as their index file
+
 # 2.1.6
 2023-09-18 (Date of Last Commit)
 

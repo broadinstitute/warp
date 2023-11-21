@@ -1,3 +1,8 @@
+# 3.1.15
+2023-11-21 (Date of Last Commit)
+
+* Fixed bug in ReblockGVCFs; this does not affect this pipeline.
+
 # 3.1.14 
 2023-10-10 (Date of Last Commit)
 
