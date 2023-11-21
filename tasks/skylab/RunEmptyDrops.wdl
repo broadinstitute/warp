@@ -18,9 +18,8 @@ task RunEmptyDrops {
         # runtime values
         String docker = "us.gcr.io/broad-gotc-prod/empty-drops:1.0.1-4.2"
         #Int machine_mem_mb = 32000
-        #input_size/10 * 2
-        Int all_gb =  ceil(size(sparse_count_matrix, "Gi"))
-        Int machine_mem_mb = ceil(size(sparse_count_matrix, "Gi")*2) + 10
+        Int all_input =  ceil(size(sparse_count_matrix, "Gi") + size(col_index, "Gi") + size(row_index, "Gi"))
+        Int machine_mem_mb = all_input*2 + 20 
 
         Int cpu = 1
         Int disk = 20
@@ -48,7 +47,7 @@ task RunEmptyDrops {
         set -e
         echo "Memory"
         echo ~{machine_mem_mb}
-        echo ~{all_gb}
+        echo ~{all_input}
         ls
         du -ch * | tail -1  
         
