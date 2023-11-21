@@ -267,10 +267,14 @@ task JoinMultiomeBarcodes {
     df_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False)
     CODE
 
+    sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
+    bgzip "~{atac_fragment_base}.sorted.tsv"
+    tabix -s 1 -b 2 -e 3 "~{atac_fragment_base}.sorted.tsv.gz"
+
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1"
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
     disks: "local-disk ${disk_size} SSD"
     memory: "${mem_size} GiB"
     cpu: nthreads
@@ -279,6 +283,7 @@ task JoinMultiomeBarcodes {
   output {
     File gex_h5ad_file = "~{gex_base_name}.h5ad"
     File atac_h5ad_file = "~{atac_base_name}.h5ad"
-    File atac_fragment_tsv = "~{atac_fragment_base}.tsv"
+    File atac_fragment_tsv = "~{atac_fragment_base}.tsv.gz"
+    File atac_fragment_tsv_tbi = "~{atac_fragment_base}.tsv.gz.tbi"
   }
 }
