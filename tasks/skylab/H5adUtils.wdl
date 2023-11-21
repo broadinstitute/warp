@@ -36,8 +36,8 @@ task OptimusH5adGeneration {
     Int preemptible = 3
     Int disk = 200
     #Int machine_mem_mb = 32000
-    Int all_gb = ceil(size(sparse_count_matrix, "Gi"))
-    Int machine_mem_mb = ceil(size(sparse_count_matrix, "Gi")*2) + 10
+    Int all_gb = ceil(size(sparse_count_matrix, "Gi") + size(cell_metrics, "Gi") + size(gene_metrics, "Gi"))
+    Int machine_mem_mb = ceil(size(sparse_count_matrix, "Gi")+ size(cell_metrics, "Gi") + size(gene_metrics, "Gi"))*2 + 20
 
     Int cpu = 4
 
