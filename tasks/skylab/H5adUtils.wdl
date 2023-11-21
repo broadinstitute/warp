@@ -37,7 +37,9 @@ task OptimusH5adGeneration {
     Int disk = 200
     #Int machine_mem_mb = 32000
     Int all_gb = ceil(size(sparse_count_matrix, "Gi") + size(cell_metrics, "Gi") + size(gene_metrics, "Gi"))
-    Int machine_mem_mb = ceil(size(sparse_count_matrix, "Gi")+ size(cell_metrics, "Gi") + size(gene_metrics, "Gi"))*2 + 20
+    #Int machine_mem_mb = ceil(size(sparse_count_matrix, "Gi")+ size(cell_metrics, "Gi") + size(gene_metrics, "Gi"))*2 + 20
+    Int machine_mem_mb = if( (ceil(size(sparse_count_matrix, "Gi")+ size(cell_metrics, "Gi") + size(gene_metrics, "Gi"))*2 + 20) > 100) then 100
+                              else (ceil(size(sparse_count_matrix, "Gi")+ size(cell_metrics, "Gi") + size(gene_metrics, "Gi"))*2 + 20)
 
     Int cpu = 4
 
