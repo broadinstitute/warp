@@ -152,8 +152,8 @@ task CalculateUMIsMetrics {
     File? mt_genes
     String input_id
     # runtime values
-    #String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.9-1700252065"
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.0"
+    # Did not update docker image as this task uses loom which does not play nice with the changes
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.9-1700252065"
     Int machine_mem_mb = 16000
     Int cpu = 8
     Int disk = ceil(size(bam_input, "Gi") * 4)
