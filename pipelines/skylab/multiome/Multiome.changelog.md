@@ -1,3 +1,17 @@
+# 2.3.2
+2023-11-20 (Date of Last Commit)
+* Added an optional task to the Multiome.wdl that will run CellBender on the Optimus output h5ad file
+
+# 2.3.1
+2023-11-20 (Date of Last Commit)
+
+* Added the latest warp-tools docker to the Metrics task; this allows use of REFSEQ references
+
+# 2.3.0
+2023-11-03 (Date of Last Commit)
+
+* Updated the Metrics task so that Cell Metrics and Gene Metrics now calculate intronic, intronic_as, exonic, exonic_as, and intergenic metrics from unique reads only using the NH:i:1 tag in the BAM
+
 # 2.2.2
 2023-10-20 (Date of Last Commit)
 
