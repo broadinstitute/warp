@@ -89,8 +89,7 @@ task CalculateGeneMetrics {
     #Int machine_mem_mb = 16000
     #GeneMetrics: Less than 150, memory 10 – more than 150, memory is floor(input_size/10)
     Int all_gb = ceil(size(bam_input, "Gi"))
-    Int machine_mem_mb = if (size(bam_input, "Gi") < 150 ) then 10 
-                   else floor(size(bam_input, "Gi")/10)
+    Int machine_mem_mb = floor(size(bam_input, "Gi")/10)
   
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 
