@@ -264,11 +264,14 @@ task JoinMultiomeBarcodes {
     # write out the files
     gex_data.write("~{gex_base_name}.h5ad")
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
-    df_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False)
+    df_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
     CODE
-
+    # sorting the file
+    echo "Sorting file"
     sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
+    echo "Starting bgzip"
     bgzip "~{atac_fragment_base}.sorted.tsv"
+    echo "Starting tabix"
     tabix -s 1 -b 2 -e 3 "~{atac_fragment_base}.sorted.tsv.gz"
 
   >>>
