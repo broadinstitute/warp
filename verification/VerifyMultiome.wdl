@@ -54,7 +54,11 @@ workflow VerifyMultiome {
             truth_bam      = truth_atac_bam,
             lenient_header = true
     }
-
+    call VerifyTasks.CompareTabix as CompareFragment {
+        input:
+            test_fragment_file  = test_fragment_file,
+            truth_fragment_file = truth_fragment_file          
+    }
     call VerifyTasks.CompareH5adFilesATAC as CompareH5adFilesATAC {
         input:
             test_h5ad  = test_atac_h5ad,

@@ -106,6 +106,23 @@ task CompareGtcs {
   }
 }
 
+task CompareTabix {
+  input {
+    File test_fragment_file
+    File truth_fragment_file
+  }
+  command {
+    a="md5sum ~{test_fragment_file}"
+    b="md5sum ~{truth_fragment_file}"
+    if [[ a = b ]]; then 
+      echo equal 
+    else 
+      echo different
+      exit_code=1
+    fi
+
+  }
+}
 task CompareTextFiles {
   input {
     Array[File] test_text_files
