@@ -286,7 +286,7 @@ task JoinMultiomeBarcodes {
   output {
     File gex_h5ad_file = "~{gex_base_name}.h5ad"
     File atac_h5ad_file = "~{atac_base_name}.h5ad"
-    File atac_fragment_tsv = "~{atac_fragment_base}.tsv.gz"
-    File atac_fragment_tsv_tbi = "~{atac_fragment_base}.tsv.gz.tbi"
+    File atac_fragment_tsv = "~{atac_fragment_base}.sorted.tsv.gz"
+    File atac_fragment_tsv_tbi = "~{atac_fragment_base}.sorted.tsv.gz.tbi"
   }
 }
