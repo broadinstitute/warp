@@ -1,3 +1,10 @@
+# 3.0.0
+2023-11-22 (Date of Last Commit)
+
+* Added gene expression barcodes to the Multiome ATAC fragment file
+* Updated the JoinBarcodes task to bgzip and tabix the final ATAC fragment file
+* Added the tabix index file as an output to Multiome
+
 # 2.3.0
 2023-11-03 (Date of Last Commit)
 

@@ -4,7 +4,7 @@ import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 workflow Multiome {
-    String pipeline_version = "2.3.0"
+    String pipeline_version = "3.0.0"
 
     input {
         String input_id
@@ -97,6 +97,7 @@ workflow Multiome {
         # atac outputs
         File bam_aligned_output_atac = Atac.bam_aligned_output
         File fragment_file_atac = JoinBarcodes.atac_fragment_tsv
+        File fragment_file_index = JoinBarcodes.atac_fragment_tsv_tbi
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
 
         # optimus outputs
