@@ -5,6 +5,15 @@
 * Updated the JoinBarcodes task to bgzip and tabix the final ATAC fragment file
 * Added the tabix index file as an output to Multiome
 
+# 2.3.2
+2023-11-20 (Date of Last Commit)
+* Added an optional task to the Multiome.wdl that will run CellBender on the Optimus output h5ad file
+
+# 2.3.1
+2023-11-20 (Date of Last Commit)
+
+* Added the latest warp-tools docker to the Metrics task; this allows use of REFSEQ references
+
 # 2.3.0
 2023-11-03 (Date of Last Commit)
 
