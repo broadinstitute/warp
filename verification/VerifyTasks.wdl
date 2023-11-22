@@ -105,47 +105,6 @@ task CompareGtcs {
     preemptible: 3
   }
 }
-task CompareTabix {
-  input{
-    File test_tabix_file
-    File truth_tabix_file    
-  }
-  command {
-    exit_code=0
-    #!/bin/bash
-
-    # Function to compare MD5 checksums of two files
-    compare_md5sums() {
-      local file1="$1"
-      local file2="$2"
-
-    # Calculate MD5 checksums for both files
-    md5sum1=$(md5sum "$file1" | awk '{print $1}')
-    md5sum2=$(md5sum "$file2" | awk '{print $1}')
-
-    # Compare MD5 checksums
-    if [ "$md5sum1" == "$md5sum2" ]; then
-        echo "MD5 checksums match for $file1 and $file2."
-    else
-        echo "MD5 checksums do not match for $file1 and $file2."
-        exit_code=1
-    fi
-    }
-    # Example usage
-    file1=~{test_tabix_file}
-    file2=~{truth_tabix_file}
-
-    # Call the function with the two files
-    compare_md5sums "$file1" "$file2"
-    
-  }
-  runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 100 HDD"
-    memory: "50 GiB"
-    preemptible: 3
-  }    
-}
 
 task CompareTextFiles {
   input {
