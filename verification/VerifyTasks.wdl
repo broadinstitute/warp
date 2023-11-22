@@ -128,6 +128,7 @@ task CompareTabix {
         echo "MD5 checksums match for $file1 and $file2."
     else
         echo "MD5 checksums do not match for $file1 and $file2."
+        exit_code=1
     fi
     }
     # Example usage
