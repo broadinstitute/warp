@@ -1,4 +1,14 @@
 
+# 6.2.1
+2023-11-20 (Date of Last Commit)
+
+* Added the latest warp-tools docker to the Metrics task; this allows use of REFSEQ references
+
+# 6.2.0
+2023-11-03 (Date of Last Commit)
+
+* Updated the Metrics task so that Cell Metrics and Gene Metrics now calculate intronic, intronic_as, exonic, exonic_as, and intergenic metrics from unique reads only using the NH:i:1 tag in the BAM
+
 # 6.1.2
 2023-10-20 (Date of Last Commit)
 

@@ -1,3 +1,13 @@
+# 2.1.1
+2023-11-20 (Date of Last Commit)
+
+* Added the latest warp-tools docker to the Metrics task; this allows use of REFSEQ references
+
+# 2.1.0
+2023-11-03 (Date of Last Commit)
+
+* Updated the Metrics task so that Cell Metrics and Gene Metrics now calculate intronic, intronic_as, exonic, exonic_as, and intergenic metrics from unique reads only using the NH:i:1 tag in the BAM
+
 # 2.0.1
 2023-09-21 (Date of Last Commit)
 * Added dynamic barcode orientation selection to the ATAC workflow FastqProcess task; this does not impact Slideseq
@@ -5,9 +15,9 @@
 # 2.0.0
 2023-08-22 (Date of Last Commit)
 
-* Updated Slideseq pipeline to include STARsolo v2.7.11a
+* Updated Slideseq pipeline to include STARsolo v2.7.11a; this impacts the UMI metrics CSV for unassigned genes
 * Added sF tag to STARsolo aligner parameters
-* Updated TagSort tool for Optimus Metrics task to calculate metrics based on the sF tag; does not impact slide-seq
+* Updated TagSort tool for Metrics task to calculate metrics based on the sF tag
 * Modified H5adUtils task to include new metrics in the final Optimus h5ad; does not impact slide-seq
 * Removed the Dropseq metrics task; this change does not impact the Slideseq workflow
 
