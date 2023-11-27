@@ -257,7 +257,7 @@ task FastqProcessATAC {
         Int preemptible = 3
 
         # Additional parameters for fastqprocess
-        Int num_output_files = 4
+        Int num_output_files = 2
         Int bam_size = 1
     }
 
