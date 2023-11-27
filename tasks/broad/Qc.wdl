@@ -454,11 +454,12 @@ task CollectWgsMetrics {
     File ref_fasta_index
     Int read_length = 250
     Int preemptible_tries
+    Int memory_multiplier = 1
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")
   Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 20
-
+  Int memory_size = 3000 * memory_multiplier
   command {
     java -Xms2000m -Xmx2500m -jar /usr/picard/picard.jar \
       CollectWgsMetrics \
@@ -474,7 +475,7 @@ task CollectWgsMetrics {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: preemptible_tries
-    memory: "3000 MiB"
+    memory: "~{memory_size} MiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
