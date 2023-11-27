@@ -20,11 +20,7 @@ task RunEmptyDrops {
         #Int machine_mem_mb = 32000
         Int all_input =  ceil(size(sparse_count_matrix, "Gi") + size(col_index, "Gi") + size(row_index, "Gi"))
         # make sure to cap off memory so that it doesnt exceed 100 
-        Int machine_mem_mb =  if( (ceil(size(sparse_count_matrix, "Gi") + size(col_index, "Gi") + size(row_index, "Gi"))*2 + 20) > 100) then 100
-                              else (ceil(size(sparse_count_matrix, "Gi") + size(col_index, "Gi") + size(row_index, "Gi"))*2 + 20)
-
-        # Int machine_mem_mb = if (size(bam_input, "Gi") < 150 ) then 10 
-        #                else floor(size(bam_input, "Gi")/10)
+        Int machine_mem_mb = 32
 
         Int cpu = 1
         Int disk = 20
