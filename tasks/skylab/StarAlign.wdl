@@ -281,10 +281,10 @@ task STARsoloFastq {
         if [[ ~{count_exons} == false ]]
         then
             COUNTING_MODE="GeneFull_Ex50pAS"
-            echo "count exons is false and Counting mode is GeneFull_Ex50pAS"
+            echo "count exons is false and Counting mode is GeneFull_Ex50pAS. variable is $COUNTING_MODE "
         else
             COUNTING_MODE="Gene GeneFull_Ex50pAS"
-            echo "count exons is true and Counting mode is Gene GeneFull_Ex50pAS"
+            echo "count exons is true and Counting mode is Gene GeneFull_Ex50pAS.  variable is $COUNTING_MODE"
         fi
     else
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
