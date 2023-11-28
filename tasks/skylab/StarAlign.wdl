@@ -278,11 +278,11 @@ task STARsoloFastq {
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
         ## single nuclei
-        if [[ ~{count_exons} ]]
+        if [[ ~{count_exons} == false ]]
         then
-            COUNTING_MODE="Gene GeneFull_Ex50pAS"
-        else
             COUNTING_MODE="GeneFull_Ex50pAS"
+        else
+            COUNTING_MODE="Gene GeneFull_Ex50pAS"
         fi
     else
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
