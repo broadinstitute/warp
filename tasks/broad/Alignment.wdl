@@ -38,18 +38,13 @@ task SamToFastqAndBwaMemAndMba {
 
   Float unmapped_bam_size = size(input_bam, "GiB")
   Float ref_size = size(reference_fasta.ref_fasta, "GiB") + size(reference_fasta.ref_fasta_index, "GiB") + size(reference_fasta.ref_dict, "GiB")
-  Float test1 = size(reference_fasta.ref_alt, "GiB")
-  Float test2 = size(reference_fasta.ref_amb, "GiB")
-  Float test3 = size(reference_fasta.ref_ann, "GiB")
-  Float test4 = size(reference_fasta.ref_bwt, "GiB")
-  Float test5 = size(reference_fasta.ref_pac, "GiB")
-  Float test6 = size(reference_fasta.ref_sa, "GiB")
   Float bwa_ref_size = ref_size + size(reference_fasta.ref_alt, "GiB") + size(reference_fasta.ref_amb, "GiB") + size(reference_fasta.ref_ann, "GiB") + size(reference_fasta.ref_bwt, "GiB") + size(reference_fasta.ref_pac, "GiB") + size(reference_fasta.ref_sa, "GiB")
   # Sometimes the output is larger than the input, or a task can spill to disk.
   # In these cases we need to account for the input (1) and the output (1.5) or the input(1), the output(1), and spillage (.5).
   Float disk_multiplier = 2.5
+  Float mem_multiplier = 1.0
   Int disk_size = ceil(unmapped_bam_size + bwa_ref_size + (disk_multiplier * unmapped_bam_size) + 20)
-
+  Int memory_gb = 14 * mem_multiplier
   command <<<
 
 
@@ -121,7 +116,7 @@ task SamToFastqAndBwaMemAndMba {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
     preemptible: preemptible_tries
-    memory: "14 GiB"
+    memory: "~{memory_gb} GiB"
     cpu: "16"
     disks: "local-disk " + disk_size + " HDD"
   }
@@ -142,6 +137,8 @@ task SamSplitter {
   Float unmapped_bam_size = size(input_bam, "GiB")
   # Since the output bams are less compressed than the input bam we need a disk multiplier that's larger than 2.
   Float disk_multiplier = 2.5
+  Float mem_multiplier = 1
+  Float mem_gb = 3.75 * mem_multiplier
   Int disk_size = ceil(disk_multiplier * unmapped_bam_size + 20)
 
   command {
@@ -162,7 +159,7 @@ task SamSplitter {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
     preemptible: preemptible_tries
-    memory: "3.75 GiB"
+    memory: "~{memory_gb} GiB"
     disks: "local-disk " + disk_size + " HDD"
   }
 }
