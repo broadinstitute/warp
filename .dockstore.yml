@@ -224,3 +224,7 @@ workflows:
   - name: VUMCVcfInfo
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfInfo.wdl
+
+  - name: VUMCPlink2BedToPgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCPlink2BedToPgen.wdl
