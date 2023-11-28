@@ -34,6 +34,7 @@ task SamToFastqAndBwaMemAndMba {
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
     Boolean allow_empty_ref_alt = false
+    Float mem_multiplier = 1.0
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
@@ -42,7 +43,7 @@ task SamToFastqAndBwaMemAndMba {
   # Sometimes the output is larger than the input, or a task can spill to disk.
   # In these cases we need to account for the input (1) and the output (1.5) or the input(1), the output(1), and spillage (.5).
   Float disk_multiplier = 2.5
-  Float mem_multiplier = 1.0
+
   Int disk_size = ceil(unmapped_bam_size + bwa_ref_size + (disk_multiplier * unmapped_bam_size) + 20)
   Int memory_gb = 14 * mem_multiplier
   command <<<
@@ -132,12 +133,12 @@ task SamSplitter {
     Int n_reads
     Int compression_level
     Int preemptible_tries = 3
+    Float mem_multiplier = 1.0
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
   # Since the output bams are less compressed than the input bam we need a disk multiplier that's larger than 2.
   Float disk_multiplier = 2.5
-  Float mem_multiplier = 1
   Float mem_gb = 3.75 * mem_multiplier
   Int disk_size = ceil(disk_multiplier * unmapped_bam_size + 20)
 
