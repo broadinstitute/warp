@@ -45,7 +45,7 @@ task SamToFastqAndBwaMemAndMba {
   Float disk_multiplier = 2.5
 
   Int disk_size = ceil(unmapped_bam_size + bwa_ref_size + (disk_multiplier * unmapped_bam_size) + 20)
-  Int memory_gb = 14 * mem_multiplier
+  Int memory_gb = ceil(14 * mem_multiplier)
   command <<<
 
 
@@ -139,7 +139,7 @@ task SamSplitter {
   Float unmapped_bam_size = size(input_bam, "GiB")
   # Since the output bams are less compressed than the input bam we need a disk multiplier that's larger than 2.
   Float disk_multiplier = 2.5
-  Float mem_gb = 3.75 * mem_multiplier
+  Int mem_gb = ceil(3.75 * mem_multiplier)
   Int disk_size = ceil(disk_multiplier * unmapped_bam_size + 20)
 
   command {
