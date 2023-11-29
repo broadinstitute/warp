@@ -2,7 +2,7 @@
 2023-11-29 (Date of Last Commit)
 
 * Fixed bug in ReblockGVCFs; this does not affect this pipeline.
-* Reverted the VerifyBamID docker image back to the 3.1.2 WholeGenomeGermlineSingleSample pipeline version
+* Reverted the VerifyBamID docker image back to the 3.1.11 WholeGenomeGermlineSingleSample pipeline version
 
 # 3.1.14 
 2023-10-10 (Date of Last Commit)
