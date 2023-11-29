@@ -125,7 +125,8 @@ task CompareTabix {
     docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
     disks: "local-disk 100 HDD"
     memory: "50 GiB"
-    preemptible: 3  
+    preemptible: 3
+  }   
 }
 task CompareTextFiles {
   input {
