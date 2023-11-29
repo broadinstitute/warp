@@ -1,3 +1,8 @@
+# 3.1.15
+2023-11-29 (Date of Last Commit)
+
+* ValidateVcfs can now take in VCF as calling_interval_list that is in a separate location from its index; this does not affect this pipeline
+
 # 3.1.14
 2023-11-21 (Date of Last Commit)
 
