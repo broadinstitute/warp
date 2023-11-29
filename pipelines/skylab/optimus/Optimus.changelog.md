@@ -1,3 +1,7 @@
+# 6.2.2
+2023-11-21 (Date of Last Commit)
+
+* Added the latest warp-tools docker to tasks in the Metrics, FastqProcessing and H5adUtils wdls; this incorporates new input parameter for number of output fastq files to fastqprocess
 
 # 6.2.2
 2023-11-29 (Date of Last Commit)

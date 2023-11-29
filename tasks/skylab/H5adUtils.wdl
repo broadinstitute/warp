@@ -6,7 +6,8 @@ task OptimusH5adGeneration {
 
   input {
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.6-1692962087"
+    #String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.6-1692962087"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.0"
     # name of the sample
     String input_id
     # user provided id
@@ -105,7 +106,8 @@ task SingleNucleusOptimusH5adOutput {
 
     input {
         #runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.6-1692962087"
+        #String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.6-1692962087"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.0"
         # name of the sample
         String input_id
         # user provided id
