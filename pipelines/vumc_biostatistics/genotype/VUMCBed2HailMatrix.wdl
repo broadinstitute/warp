@@ -62,8 +62,6 @@ task Bed2HailMatrix {
 
   command <<<
 
-pip install pyspark
-
 python3 <<CODE
 
 import hail as hl
