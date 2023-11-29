@@ -1,5 +1,76 @@
 version 1.0
 
+task MoveOrCopyOneFile {
+  input {
+    String source_file
+
+    Boolean is_move_file = true
+
+    String? project_id
+    String target_bucket
+  }
+
+  String action = if (is_move_file) then "mv" else "cp"
+
+  String new_file = "~{target_bucket}/~{basename(source_file)}"
+
+  command <<<
+
+set -e
+
+gsutil -m ~{"-u " + project_id} ~{action} ~{source_file} ~{target_bucket}/
+
+>>>
+
+  runtime {
+    docker: "google/cloud-sdk"
+    preemptible: 1
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+  }
+  output {
+    String output_file = new_file
+  }
+}
+
+task MoveOrCopyTwoFiles {
+  input {
+    String source_file1
+    String source_file2
+
+    Boolean is_move_file = true
+
+    String? project_id
+    String target_bucket
+  }
+
+  String action = if (is_move_file) then "mv" else "cp"
+
+  String new_file1 = "~{target_bucket}/~{basename(source_file1)}"
+  String new_file2 = "~{target_bucket}/~{basename(source_file2)}"
+
+  command <<<
+
+set -e
+
+gsutil -m ~{"-u " + project_id} ~{action} ~{source_file1} ~{source_file2} ~{target_bucket}/
+
+>>>
+
+  runtime {
+    docker: "google/cloud-sdk"
+    preemptible: 1
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+  }
+  output {
+    String output_file1 = new_file1
+    String output_file2 = new_file2
+  }
+}
+
+
+
 task MoveOrCopyVcfFile {
   input {
     String input_vcf
