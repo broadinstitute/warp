@@ -87,7 +87,7 @@ tar czf ~{target_prefix}.tar.gz ~{target_prefix}
     docker: "~{docker}"
     preemptible: 1
     disks: "local-disk ~{disk_size} HDD"
-    memory: "~{total_memory_gb}g GiB"
+    memory: "~{total_memory_gb} GiB"
   }
   output {
     File hail_matrix_tar = "~{target_prefix}.tar.gz"
