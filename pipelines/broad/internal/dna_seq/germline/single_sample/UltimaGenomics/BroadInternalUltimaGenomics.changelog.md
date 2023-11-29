@@ -2,6 +2,7 @@
 2023-11-21 (Date of Last Commit)
 
 * Fixed bug in ReblockGVCFs; this does not affect this pipeline.
+* Reverted the VerifyBamID docker image back to the 1.0.9 BroadInternalUltimaGenomics pipeline version
 
 # 1.0.11
 2023-09-18 (Date of Last Commit)

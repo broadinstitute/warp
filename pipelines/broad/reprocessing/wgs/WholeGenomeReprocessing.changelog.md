@@ -1,7 +1,8 @@
 # 3.1.15
-2023-11-21 (Date of Last Commit)
+2023-11-29 (Date of Last Commit)
 
 * Fixed bug in ReblockGVCFs; this does not affect this pipeline.
+* Reverted the VerifyBamID docker image back to the 3.1.11 WholeGenomeReprocessing pipeline version
 
 # 3.1.14
 2023-10-10 (Date of Last Commit)
