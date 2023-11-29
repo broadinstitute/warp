@@ -275,6 +275,25 @@ task STARsoloFastq {
     then
         ## single cell or whole cell
         COUNTING_MODE="Gene"
+        echo "Counting mode is Gene. variable is $COUNTING_MODE. We are in ~{counting_mode}"
+        STAR \
+        --soloType Droplet \
+        --soloStrand ~{star_strand_mode} \
+        --runThreadN ~{cpu} \
+        --genomeDir genome_reference \
+        --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
+        --readFilesCommand "gunzip -c" \
+        --soloCBwhitelist ~{white_list} \
+        --soloUMIlen $UMILen --soloCBlen $CBLen \
+        --soloFeatures $COUNTING_MODE \
+        --clipAdapterType CellRanger4 \
+        --outFilterScoreMin 30  \
+        --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
+        --soloUMIdedup 1MM_Directional_UMItools \
+        --outSAMtype BAM SortedByCoordinate \
+        --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
+        --soloBarcodeReadLength 0 \
+        --soloCellReadStats Standard
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
         ## single nuclei
@@ -282,9 +301,45 @@ task STARsoloFastq {
         then
             COUNTING_MODE="GeneFull_Ex50pAS"
             echo "count exons is false and Counting mode is GeneFull_Ex50pAS. variable is $COUNTING_MODE "
+            STAR \
+            --soloType Droplet \
+            --soloStrand ~{star_strand_mode} \
+            --runThreadN ~{cpu} \
+            --genomeDir genome_reference \
+            --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
+            --readFilesCommand "gunzip -c" \
+            --soloCBwhitelist ~{white_list} \
+            --soloUMIlen $UMILen --soloCBlen $CBLen \
+            --soloFeatures $COUNTING_MODE  \
+            --clipAdapterType CellRanger4 \
+            --outFilterScoreMin 30  \
+            --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
+            --soloUMIdedup 1MM_Directional_UMItools \
+            --outSAMtype BAM SortedByCoordinate \
+            --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
+            --soloBarcodeReadLength 0 \
+            --soloCellReadStats Standard
         else
             COUNTING_MODE="Gene GeneFull_Ex50pAS"
             echo "count exons is true and Counting mode is Gene GeneFull_Ex50pAS.  variable is $COUNTING_MODE"
+            STAR \
+            --soloType Droplet \
+            --soloStrand ~{star_strand_mode} \
+            --runThreadN ~{cpu} \
+            --genomeDir genome_reference \
+            --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
+            --readFilesCommand "gunzip -c" \
+            --soloCBwhitelist ~{white_list} \
+            --soloUMIlen $UMILen --soloCBlen $CBLen \
+            --soloFeatures $COUNTING_MODE \
+            --clipAdapterType CellRanger4 \
+            --outFilterScoreMin 30  \
+            --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
+            --soloUMIdedup 1MM_Directional_UMItools \
+            --outSAMtype BAM SortedByCoordinate \
+            --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
+            --soloBarcodeReadLength 0 \
+            --soloCellReadStats Standard
         fi
     else
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
@@ -306,50 +361,11 @@ task STARsoloFastq {
     tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
     rm "~{tar_star_reference}"
 
+    echo "listing out everything"
+    ls -lh
+
 
     echo "UMI LEN " $UMILen
-    if [[ ~{count_exons} ]]
-    then
-      echo "apparantly, count exons is true. variable is ~{count_exons}. variable for counting mode is $COUNTING_MODE"
-      STAR \
-      --soloType Droplet \
-      --soloStrand ~{star_strand_mode} \
-      --runThreadN ~{cpu} \
-      --genomeDir genome_reference \
-      --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
-      --readFilesCommand "gunzip -c" \
-      --soloCBwhitelist ~{white_list} \
-      --soloUMIlen $UMILen --soloCBlen $CBLen \
-      --soloFeatures "Gene" \
-      --clipAdapterType CellRanger4 \
-      --outFilterScoreMin 30  \
-      --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
-      --soloUMIdedup 1MM_Directional_UMItools \
-      --outSAMtype BAM SortedByCoordinate \
-      --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
-      --soloBarcodeReadLength 0 \
-      --soloCellReadStats Standard
-    fi
-
-    STAR \
-      --soloType Droplet \
-      --soloStrand ~{star_strand_mode} \
-      --runThreadN ~{cpu} \
-      --genomeDir genome_reference \
-      --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
-      --readFilesCommand "gunzip -c" \
-      --soloCBwhitelist ~{white_list} \
-      --soloUMIlen $UMILen --soloCBlen $CBLen \
-      --soloFeatures $COUNTING_MODE \
-      --clipAdapterType CellRanger4 \
-      --outFilterScoreMin 30  \
-      --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
-      --soloUMIdedup 1MM_Directional_UMItools \
-      --outSAMtype BAM SortedByCoordinate \
-      --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
-      --soloBarcodeReadLength 0 \
-      --soloCellReadStats Standard
-
 
     touch barcodes_sn_rna.tsv
     touch features_sn_rna.tsv
