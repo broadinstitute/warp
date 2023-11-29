@@ -1,8 +1,9 @@
 
-# 6.2.1
-2023-11-20 (Date of Last Commit)
+# 6.2.2
+2023-11-29 (Date of Last Commit)
 
 * Added the latest warp-tools docker to the Metrics task; this allows use of REFSEQ references
+* Updated the h5ad utils WDL for the Multiome JoinBarcodes task; this does affect the Optimus workflow
 
 # 6.2.0
 2023-11-03 (Date of Last Commit)
