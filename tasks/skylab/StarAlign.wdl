@@ -310,6 +310,7 @@ task STARsoloFastq {
     echo "UMI LEN " $UMILen
     if [[ ~{count_exons} ]]
     then
+      echo "apparantly, count exons is true. variable is ~{count_exons}. variable for counting mode is $COUNTING_MODE"
       STAR \
       --soloType Droplet \
       --soloStrand ~{star_strand_mode} \
