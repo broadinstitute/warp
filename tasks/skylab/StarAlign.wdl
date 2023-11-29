@@ -270,6 +270,21 @@ task STARsoloFastq {
         exit 1;
     fi
 
+    # Check that the star strand mode matches STARsolo aligner options
+    if [[ "~{star_strand_mode}" == "Forward" ]] || [[ "~{star_strand_mode}" == "Reverse" ]] || [[ "~{star_strand_mode}" == "Unstranded" ]]
+    then
+        ## single cell or whole cell
+        echo STAR mode is assigned
+    else
+        echo Error: unknown STAR strand mode: "~{star_strand_mode}". Should be Forward, Reverse, or Unstranded.
+        exit 1;
+    fi
+
+    # prepare reference
+    mkdir genome_reference
+    tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
+    rm "~{tar_star_reference}"
+
     COUNTING_MODE=""
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
@@ -346,20 +361,6 @@ task STARsoloFastq {
         exit 1;
     fi
 
-# Check that the star strand mode matches STARsolo aligner options
-    if [[ "~{star_strand_mode}" == "Forward" ]] || [[ "~{star_strand_mode}" == "Reverse" ]] || [[ "~{star_strand_mode}" == "Unstranded" ]]
-    then
-        ## single cell or whole cell
-        echo STAR mode is assigned
-    else
-        echo Error: unknown STAR strand mode: "~{star_strand_mode}". Should be Forward, Reverse, or Unstranded.
-        exit 1;
-    fi
-
-    # prepare reference
-    mkdir genome_reference
-    tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
-    rm "~{tar_star_reference}"
 
     echo "listing out everything"
     ls -lh
