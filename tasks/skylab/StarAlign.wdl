@@ -335,7 +335,7 @@ task STARsoloFastq {
             --soloBarcodeReadLength 0 \
             --soloCellReadStats Standard
         else
-            COUNTING_MODE="Gene GeneFull_Ex50pAS"
+            COUNTING_MODE="GeneFull_Ex50pAS Gene"
             echo "count exons is true and Counting mode is Gene GeneFull_Ex50pAS.  variable is $COUNTING_MODE"
             STAR \
             --soloType Droplet \
