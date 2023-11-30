@@ -389,7 +389,7 @@ task STARsoloFastq {
       mv "Solo.out/Gene/UMIperCellSorted.txt" UMIperCellSorted.txt
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
-      if ! [[ ~{count_exons} ]]
+      if [[ "~{count_exons}" == "false" ]]
       then
         echo " i am in the counting mode is snrna block and count exons is false?? line 393 in wdl"
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
@@ -400,6 +400,7 @@ task STARsoloFastq {
         mv "Solo.out/GeneFull_Ex50pAS/Summary.csv" Summary.csv
         mv "Solo.out/GeneFull_Ex50pAS/UMIperCellSorted.txt" UMIperCellSorted.txt
       else
+        echo " i am in the counting mode is snrna block and count exons is true?? line 393 in wdl"
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
