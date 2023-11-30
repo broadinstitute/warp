@@ -456,13 +456,16 @@ task CollectWgsMetrics {
     Int read_length = 250
     Int preemptible_tries
     Int memory_multiplier = 1
+
   }
 
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB")
   Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 20
   Int memory_size = 3000 * memory_multiplier
+  Int java_memory_size = memory_size - 1000
+  Int max_heap = memory_size - 500
   command {
-    java -Xms2000m -Xmx2500m -jar /usr/picard/picard.jar \
+    java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
       CollectWgsMetrics \
       INPUT=~{input_bam} \
       VALIDATION_STRINGENCY=SILENT \
