@@ -45,6 +45,9 @@ workflow Multiome {
         # CellBender
         Boolean run_cellbender = false
 
+        # PairedTag
+        Boolean paired_tag = false
+        Boolean paired_tag_preindex = false
     }
 
     # Call the Optimus workflow
@@ -70,6 +73,12 @@ workflow Multiome {
     }
 
     # Call the ATAC workflow
+    if (paired_tag_preindex) {
+        call paired_tag_demultiplex {
+            input:
+              
+        }
+    } 
     call atac.ATAC as Atac {
         input:
             read1_fastq_gzipped = atac_r1_fastq,
