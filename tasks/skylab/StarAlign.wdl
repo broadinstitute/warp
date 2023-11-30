@@ -362,8 +362,6 @@ task STARsoloFastq {
     fi
 
 
-    echo "listing out everything"
-    ls -lh
 
 
     echo "UMI LEN " $UMILen
@@ -376,8 +374,12 @@ task STARsoloFastq {
     touch Summary_sn_rna.csv
     touch UMIperCellSorted_sn_rna.txt
 
+      echo "listing out everything"
+      ls -lrh
+
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
+      echo " i am in the counting mode is scrna block line 381 in wdl"
       mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
       mv "Solo.out/Gene/raw/features.tsv" features.tsv
       mv "Solo.out/Gene/raw/matrix.mtx"   matrix.mtx
@@ -389,6 +391,7 @@ task STARsoloFastq {
     then
       if ! [[ ~{count_exons} ]]
       then
+        echo " i am in the counting mode is snrna block and count exons is false?? line 393 in wdl"
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
