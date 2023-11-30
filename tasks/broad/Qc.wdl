@@ -148,8 +148,9 @@ task CollectAggregationMetrics {
     File ref_fasta_index
     Boolean collect_gc_bias_metrics = true
     Int preemptible_tries
+    Float mem_multiplier = 1.0
   }
-
+  Int mem_mb = ceil(7000 * mem_multiplier)
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
   Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + 20
 
@@ -179,7 +180,7 @@ task CollectAggregationMetrics {
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
-    memory: "7000 MiB"
+    memory: "~{mem_mb} MiB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: preemptible_tries
   }
