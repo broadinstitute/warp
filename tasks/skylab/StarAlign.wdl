@@ -400,7 +400,7 @@ task STARsoloFastq {
         mv "Solo.out/GeneFull_Ex50pAS/Summary.csv" Summary.csv
         mv "Solo.out/GeneFull_Ex50pAS/UMIperCellSorted.txt" UMIperCellSorted.txt
       else
-        echo " i am in the counting mode is snrna block and count exons is true?? line 393 in wdl"
+        echo " i am in the counting mode is snrna block and count exons is true?? line 403 in wdl"
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx

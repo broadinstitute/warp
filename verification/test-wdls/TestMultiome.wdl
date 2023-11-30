@@ -25,7 +25,7 @@ workflow TestMultiome {
       Boolean force_no_check = false
       Boolean ignore_r1_read_length = false
       String star_strand_mode = "Forward"
-      Boolean count_exons = false
+      Boolean count_exons = true
       File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt"
 
       # ATAC inputs
