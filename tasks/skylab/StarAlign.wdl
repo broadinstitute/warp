@@ -375,7 +375,7 @@ task STARsoloFastq {
     touch UMIperCellSorted_sn_rna.txt
 
       echo "listing out everything"
-      ls -lrh
+      ls -lRh
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
