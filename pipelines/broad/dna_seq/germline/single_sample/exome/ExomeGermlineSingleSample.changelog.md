@@ -4,9 +4,10 @@
 * ValidateVcfs can now take in VCF as calling_interval_list that is in a separate location from its index; this does not affect this pipeline
 
 # 3.1.14
-2023-11-21 (Date of Last Commit)
+2023-11-29 (Date of Last Commit)
 
 * Fixed bug in ReblockGVCFs; this does not affect this pipeline.
+* Reverted the VerifyBamID docker image back to the 3.1.10 ExomeGermlineSingleSample pipeline version
 
 # 3.1.13
 2023-10-10 (Date of Last Commit)
