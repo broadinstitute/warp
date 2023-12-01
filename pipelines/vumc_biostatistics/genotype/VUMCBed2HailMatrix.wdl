@@ -8,7 +8,7 @@ workflow VUMCBed2HailMatrix {
     File source_bim
     File source_fam
 
-    String reference_genome = "GRCh37"
+    String reference_genome = "GRCh38"
 
     String target_prefix
 
