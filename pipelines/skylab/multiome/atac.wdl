@@ -25,7 +25,8 @@ workflow ATAC {
     File annotations_gtf
     # Text file containing chrom_sizes for genome build (i.e. hg38)
     File chrom_sizes
-
+    # Number of fastq files for fastqprocess
+    Int num_output_files = 4
     # Whitelist
     File whitelist
 
@@ -50,6 +51,7 @@ workflow ATAC {
       read3_fastq = read3_fastq_gzipped,
       barcodes_fastq = read2_fastq_gzipped,
       output_base_name = input_id,
+      num_output_files = num_output_files,
       whitelist = whitelist
   }
 
@@ -63,33 +65,25 @@ workflow ATAC {
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3
     }
+  }
 
-    call BWAPairedEndAlignment {
+  call BWAPairedEndAlignment {
       input:
         read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
         read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
         tar_bwa_reference = tar_bwa_reference,
-        output_base_name = input_id + "_" + idx
-    }
+        output_base_name = input_id
   }
-
-  call Merge.MergeSortBamFiles as MergeBam {
-    input:
-      output_bam_filename = input_id + ".bam",
-      bam_inputs = BWAPairedEndAlignment.bam_aligned_output,
-      sort_order = "coordinate"
-  }
-
 
   call CreateFragmentFile {
     input:
-      bam = MergeBam.output_bam,
+      bam = BWAPairedEndAlignment.bam_aligned_output,
       chrom_sizes = chrom_sizes,
       annotations_gtf = annotations_gtf
   }
 
   output {
-    File bam_aligned_output = MergeBam.output_bam
+    File bam_aligned_output = BWAPairedEndAlignment.bam_aligned_output
     File fragment_file = CreateFragmentFile.fragment_file
     File snap_metrics = CreateFragmentFile.Snap_metrics
   }
@@ -160,21 +154,23 @@ task TrimAdapters {
   }
 }
 
+
 # align the two trimmed fastq as paired end data using BWA
 task BWAPairedEndAlignment {
   input {
-    File read1_fastq
-    File read3_fastq
+    Array[File] read1_fastq
+    Array[File] read3_fastq
     File tar_bwa_reference
     String read_group_id = "RG1"
     String read_group_sample_name = "RGSN1"
     String output_base_name
-    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504"
+    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa-debian:aa-debian-samtools-bwa"
+    File monitoring = "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh"
 
     # Runtime attributes
-    Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 400
-    Int nthreads = 16
-    Int mem_size = 40
+    Int disk_size = 2000
+    Int nthreads = 128
+    Int mem_size = 512
   }
 
   parameter_meta {
@@ -190,38 +186,139 @@ task BWAPairedEndAlignment {
     docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504)"
   }
 
-  String bam_aligned_output_name = output_base_name + ".aligned.bam"
+  String aligned_output = output_base_name + ".aligned.bam"
 
   # bwa and call samtools to convert sam to bam
   command <<<
 
-    set -euo pipefail
+    set -euo pipefail    
+    lscpu
+    # if the WDL/task contains a monitoring script as input
+    if [ ! -z "~{monitoring}" ]; then
+      chmod a+x ~{monitoring}
+      ~{monitoring} > monitoring.log &
+    else
+      echo "No monitoring script given as input" > monitoring.log &
+    fi
 
     # prepare reference
     declare -r REF_DIR=$(mktemp -d genome_referenceXXXXXX)
     tar -xf "~{tar_bwa_reference}" -C $REF_DIR --strip-components 1
     rm "~{tar_bwa_reference}"
+    
+    # NUMA node0 CPU(s): 0-31,64-95
+    # each bwa-mem2 instance run on 30 threads? 
+    #2-15, 66-79, 
+    #18-31, 81-95
+    cpuinfo=`lscpu | grep "NUMA node0 CPU(s): "`
+    cpu_numbers=($(echo "$cpuinfo" | awk -F'[:, -]+' '{for (i=3; i<=NF; i++) print $i}'))
+    for cpu in "${cpu_numbers[@]}"; do   echo "CPU: $cpu"; done
 
-    # align w/ BWA: -t for number of cores
+    step=$(( (${cpu_numbers[2]} - ${cpu_numbers[1]}) / 2 ))
+    echo $step  
+
+    cpu0n1=$((cpu_numbers[1])) #0
+    cpu1n1=$((cpu_numbers[1] + 1)) #1
+    cpu2n1=$((cpu_numbers[1] + 2)) #2
+    cpu3n1=$((cpu_numbers[1] + $step)) #15
+    cpu4n1=$((cpu_numbers[3] + 2)) #66
+    cpu5n1=$((cpu_numbers[3] + $step)) #79
+    n_threadsn1=$(($((cpu5n1-cpu4n1)) + $((cpu3n1-cpu2n1)) + 2))
+    
+    echo $cpu0n1, $cpu1n1, $cpu2n1, $cpu3n1, $cpu4n1, $cpu5n1
+    echo $n_threadsn1
+
+    cpu0n2=$((cpu3n1 + 1)) #16
+    cpu1n2=$((cpu3n1 + 2)) #17
+    cpu2n2=$((cpu3n1 + 3)) #18
+    cpu3n2=$((cpu0n2 + $step)) #31
+    cpu4n2=$((cpu5n1 + 2)) #81
+    cpu5n2=$((cpu4n2 + $step - 1)) #95
+    n_threadsn2=$(($((cpu5n2-cpu4n2)) + $((cpu3n2-cpu2n2)) + 2))
+
+    echo $cpu0n2, $cpu1n2, $cpu2n2, $cpu3n2, $cpu4n2, $cpu5n2
+    echo $n_threadsn2
+
+    # second numa node 
+    # NUMA node1 CPU(s): 32-63,96-127
+    cpuinfo=`lscpu | grep "NUMA node1 CPU(s): "`
+    cpu_numbers=($(echo "$cpuinfo" | awk -F'[:, -]+' '{for (i=3; i<=NF; i++) print $i}'))
+    for cpu in "${cpu_numbers[@]}"; do   echo "CPU: $cpu"; done
+    cpu0n3=$((cpu_numbers[1])) #32
+    cpu1n3=$((cpu_numbers[1] + 1)) #33
+    cpu2n3=$((cpu_numbers[1] + 2)) #34
+    cpu3n3=$((cpu_numbers[1] + $step)) #
+    cpu4n3=$((cpu_numbers[3] + 2)) #96
+    cpu5n3=$((cpu_numbers[3] + $step)) #111
+    n_threadsn3=$(($((cpu5n3-cpu4n3)) + $((cpu3n3-cpu2n3)) + 2))
+    
+    echo $cpu0n3, $cpu1n3, $cpu2n3, $cpu3n3, $cpu4n3, $cpu5n3
+    echo $n_threadsn3
+
+    cpu0n4=$((cpu3n3 + 1)) #16
+    cpu1n4=$((cpu3n3 + 2)) #17
+    cpu2n4=$((cpu3n3 + 3)) #18
+    cpu3n4=$((cpu0n4 + $step)) #31
+    cpu4n4=$((cpu5n3 + 2)) #81
+    cpu5n4=$((cpu4n4 + $step - 1)) #95
+    n_threadsn4=$(($((cpu5n4-cpu4n4)) + $((cpu3n4-cpu2n4)) + 2))
+
+    echo $cpu0n4, $cpu1n4, $cpu2n4, $cpu3n4, $cpu4n4, $cpu5n4
+    echo $n_threadsn4
+
+    # run four instances of bwa-mem2 
+    taskset -c cpu0n1-cpu1n1,$cpu2n1-$cpu3n1,$cpu4n1-$cpu5n1 \
     bwa-mem2 \
     mem \
-    -R "@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}" \
-    -C \
-    -t ~{nthreads} \
-    $REF_DIR/genome.fa \
-    ~{read1_fastq} ~{read3_fastq} \
-    | samtools view -bS - > ~{bam_aligned_output_name}
+    -R "@RG\tID:RG1\tSM:RGSN1" \
+    -C -t $n_threadsn1 $REF_DIR/genome.fa "~{read1_fastq[0]}" "~{read3_fastq[0]}" > aligned_output_p1.sam &   
+   
+    taskset -c $cpu0n2-$cpu1n2,$cpu2n2-$cpu3n2,$cpu4n2-$cpu5n2 \
+    bwa-mem2 \
+    mem \
+    -R "@RG\tID:RG1\tSM:RGSN1" \
+    -C -t $n_threadsn2 $REF_DIR/genome.fa "~{read1_fastq[1]}" "~{read3_fastq[1]}" > aligned_output_p2.sam &  
+
+    taskset -c $cpu0n3-$cpu1n3,$cpu2n3-$cpu3n3,$cpu4n3-$cpu5n3 \
+    bwa-mem2 \
+    mem \
+    -R "@RG\tID:RG1\tSM:RGSN1" \
+    -C -t $n_threadsn3 $REF_DIR/genome.fa "~{read1_fastq[2]}" "~{read3_fastq[2]}" > aligned_output_p3.sam &  
+
+    taskset -c $cpu0n4-$cpu1n4,$cpu2n4-$cpu3n4,$cpu4n4-$cpu5n4 \
+    bwa-mem2 \
+    mem \
+    -R "@RG\tID:RG1\tSM:RGSN1" \
+    -C -t $n_threadsn4 $REF_DIR/genome.fa "~{read1_fastq[3]}" "~{read3_fastq[3]}" > aligned_output_p4.sam &  
+
+    wait
+
+        
+    # samtools sort 
+    echo "samtools sort"
+    samtools sort -@300 -m1g aligned_output_p1.sam -o bam_aligned_output_p1.bam
+    samtools sort -@300 -m1g aligned_output_p2.sam -o bam_aligned_output_p2.bam
+    samtools sort -@300 -m1g aligned_output_p3.sam -o bam_aligned_output_p3.bam
+    samtools sort -@300 -m1g aligned_output_p4.sam -o bam_aligned_output_p4.bam
+
+    # samtools merge
+    echo "samtools merge"
+    samtools merge -o ~{aligned_output} bam_aligned_output_p1.bam bam_aligned_output_p2.bam bam_aligned_output_p3.bam bam_aligned_output_p4.bam -@50 
+     
   >>>
 
   runtime {
     docker: docker_image
-    disks: "local-disk ${disk_size} HDD"
+    disks: "local-disk ${disk_size} SSD"
     cpu: nthreads
+    cpuPlatform: "Intel Ice Lake"
     memory: "${mem_size} GiB"
   }
 
   output {
-    File bam_aligned_output = bam_aligned_output_name
+    File bam_aligned_output = aligned_output
+    File monitoring_out = "monitoring.log"
+
   }
 }
 
