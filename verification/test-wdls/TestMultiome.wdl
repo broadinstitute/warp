@@ -12,7 +12,7 @@ workflow TestMultiome {
       String input_id
 
       # Optimus Inputs
-      String counting_mode = "sn_rna"
+      String counting_mode = "sc_rna"
       Array[File] gex_r1_fastq
       Array[File] gex_r2_fastq
       Array[File]? gex_i1_fastq
