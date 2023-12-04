@@ -417,9 +417,7 @@ task CheckContamination {
     Float contamination_underestimation_factor
     Boolean disable_sanity_check = false
 
-    # this docker image was built using the commit hash c1cba76e979904eb69c31520a0d7f5be63c72253 (v1.0.6)from the VerifyBamID repo
-    # https://github.com/Griffan/VerifyBamID/commit/c1cba76e979904eb69c31520a0d7f5be63c72253
-    String docker = "us.gcr.io/broad-gotc-prod/verify-bam-id:1.0.1-c1cba76e979904eb69c31520a0d7f5be63c72253-1692099985"
+     String docker = "us.gcr.io/broad-gotc-prod/verify-bam-id:1.0.1-c1cba76e979904eb69c31520a0d7f5be63c72253-1639071840"
   }
 
   Int disk_size = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB")) + 30
@@ -468,8 +466,6 @@ task CheckContamination {
     preemptible: preemptible_tries
     memory: "7.5 GiB"
     disks: "local-disk " + disk_size + " HDD"
-    # this docker image was built using the commit hash c1cba76e979904eb69c31520a0d7f5be63c72253 from the VerifyBamID repo
-    # https://github.com/Griffan/VerifyBamID/commit/c1cba76e979904eb69c31520a0d7f5be63c72253
     docker: docker
     cpu: 2
   }
