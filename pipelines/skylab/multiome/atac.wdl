@@ -296,10 +296,10 @@ task BWAPairedEndAlignment {
         
     # samtools sort 
     echo "samtools sort"
-    samtools sort -@30 -m1g aligned_output_p1.sam -o bam_aligned_output_p1.bam
-    samtools sort -@30 -m1g aligned_output_p2.sam -o bam_aligned_output_p2.bam
-    samtools sort -@30 -m1g aligned_output_p3.sam -o bam_aligned_output_p3.bam
-    samtools sort -@30 -m1g aligned_output_p4.sam -o bam_aligned_output_p4.bam
+    samtools sort -@10 -m20g aligned_output_p1.sam -o bam_aligned_output_p1.bam
+    samtools sort -@10 -m20g aligned_output_p2.sam -o bam_aligned_output_p2.bam
+    samtools sort -@10 -m20g aligned_output_p3.sam -o bam_aligned_output_p3.bam
+    samtools sort -@10 -m20g aligned_output_p4.sam -o bam_aligned_output_p4.bam
 
     # samtools merge
     echo "samtools merge"
