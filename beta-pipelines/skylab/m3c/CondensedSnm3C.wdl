@@ -300,7 +300,10 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         echo "Untarring the index files"
         tar -zxvf ~{tarred_index_files}
         rm ~{tarred_index_files}
-        samtools faidx hg38.fa
+
+        #get the basename of the genome_fa file
+        genome_fa_basename=$(basename ~{genome_fa} .fa)
+        samtools faidx $genome_fa_basename.fa
 
         # untar the demultiplexed fastq files
         cd ../fastq/
@@ -316,7 +319,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
 
         for file in "${R1_files[@]}"; do
           sample_id=$(basename "$file" "-R1_trimmed.fq.gz")
-          hisat-3n /cromwell_root/reference/hg38 \
+          hisat-3n /cromwell_root/reference/$genome_fa_basename.fa \
           -q \
           -1 ${sample_id}-R1_trimmed.fq.gz \
           -2 ${sample_id}-R2_trimmed.fq.gz \
@@ -500,7 +503,10 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
         cd reference/
         tar -xvf ~{tarred_index_files}
         rm ~{tarred_index_files}
-        samtools faidx hg38.fa
+
+        #get the basename of the genome_fa file
+        genome_fa_basename=$(basename ~{genome_fa} .fa)
+        samtools faidx $genome_fa_basename.fa
 
         # untar the unmapped fastq files
         tar -xvf ~{split_fq_tar}
@@ -512,7 +518,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
 
         for file in "${R1_files[@]}"; do
           sample_id=$(basename "$file" ".hisat3n_dna.split_reads.R1.fastq")
-          hisat-3n /cromwell_root/reference/hg38 \
+          hisat-3n /cromwell_root/reference/$genome_fa_basename.fa \
           -q \
           -U ${sample_id}.hisat3n_dna.split_reads.R1.fastq \
           --directional-mapping-reverse \
@@ -528,7 +534,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
 
        for file in "${R2_files[@]}"; do
          sample_id=$(basename "$file" ".hisat3n_dna.split_reads.R2.fastq")
-         hisat-3n /cromwell_root/reference/hg38 \
+         hisat-3n /cromwell_root/reference/$genome_fa_basename.fa \
          -q \
          -U ${sample_id}.hisat3n_dna.split_reads.R2.fastq \
          --directional-mapping \
