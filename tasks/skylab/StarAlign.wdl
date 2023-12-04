@@ -290,7 +290,7 @@ task STARsoloFastq {
     then
         ## single cell or whole cell
         COUNTING_MODE="Gene"
-        echo "Counting mode is Gene. variable is $COUNTING_MODE. We are in ~{counting_mode}"
+        echo "Running in ~{counting_mode} mode. The Star parameter --soloFeatures will be set to $COUNTING_MODE"
         STAR \
         --soloType Droplet \
         --soloStrand ~{star_strand_mode} \
@@ -315,7 +315,7 @@ task STARsoloFastq {
         if [[ ~{count_exons} == false ]]
         then
             COUNTING_MODE="GeneFull_Ex50pAS"
-            echo "count exons is false and Counting mode is GeneFull_Ex50pAS. variable is $COUNTING_MODE "
+            echo "Running in ~{counting_mode} mode. Count_exons is false and the Star parameter --soloFeatures will be set to $COUNTING_MODE"
             STAR \
             --soloType Droplet \
             --soloStrand ~{star_strand_mode} \
@@ -336,7 +336,7 @@ task STARsoloFastq {
             --soloCellReadStats Standard
         else
             COUNTING_MODE="GeneFull_Ex50pAS Gene"
-            echo "count exons is true and Counting mode is Gene GeneFull_Ex50pAS.  variable is $COUNTING_MODE"
+            echo "Running in ~{counting_mode} mode. Count_exons is true and the Star parameter --soloFeatures will be set to $COUNTING_MODE"
             STAR \
             --soloType Droplet \
             --soloStrand ~{star_strand_mode} \
@@ -374,12 +374,11 @@ task STARsoloFastq {
     touch Summary_sn_rna.csv
     touch UMIperCellSorted_sn_rna.txt
 
-      echo "listing out everything"
-      ls -lRh
+    echo "listing out everything"
+    ls -lRh
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
-      echo " i am in the counting mode is scrna block line 381 in wdl"
       mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
       mv "Solo.out/Gene/raw/features.tsv" features.tsv
       mv "Solo.out/Gene/raw/matrix.mtx"   matrix.mtx
@@ -391,7 +390,6 @@ task STARsoloFastq {
     then
       if [[ "~{count_exons}" == "false" ]]
       then
-        echo " i am in the counting mode is snrna block and count exons is false?? line 393 in wdl"
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
@@ -400,7 +398,6 @@ task STARsoloFastq {
         mv "Solo.out/GeneFull_Ex50pAS/Summary.csv" Summary.csv
         mv "Solo.out/GeneFull_Ex50pAS/UMIperCellSorted.txt" UMIperCellSorted.txt
       else
-        echo " i am in the counting mode is snrna block and count exons is true?? line 403 in wdl"
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
