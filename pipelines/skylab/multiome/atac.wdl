@@ -267,7 +267,7 @@ task BWAPairedEndAlignment {
     echo $n_threadsn4
 
     # run four instances of bwa-mem2 
-    taskset -c cpu0n1-cpu1n1,$cpu2n1-$cpu3n1,$cpu4n1-$cpu5n1 \
+    taskset -c $cpu0n1-$cpu1n1,$cpu2n1-$cpu3n1,$cpu4n1-$cpu5n1 \
     bwa-mem2 \
     mem \
     -R "@RG\tID:RG1\tSM:RGSN1" \
