@@ -1,7 +1,13 @@
+# 1.0.12
+2023-11-29 (Date of Last Commit)
+
+* ValidateVcfs can now take in VCF as calling_interval_list that is in a separate location from its index; this does not affect this pipeline
+
 # 1.0.11
 2023-11-21 (Date of Last Commit)
 
 * Fixed bug in ReblockGVCFs; this does not affect this pipeline.
+* Reverted the VerifyBamID docker image back to the 1.0.9 UltimaGenomicsWholeGenomeGermline pipeline version
 
 # 1.0.10
 2023-09-18 (Date of Last Commit)
