@@ -1,3 +1,12 @@
+# 2.3.3
+2023-11-21 (Date of Last Commit)
+
+* Added the latest warp-tools docker to tasks in the Metrics, FastqProcessing and H5adUtils wdls; this incorporates new input parameter for number of output fastq files to fastqprocess
+
+# 2.3.2
+2023-11-20 (Date of Last Commit)
+* Added an optional task to the Multiome.wdl that will run CellBender on the Optimus output h5ad file
+
 # 2.3.1
 2023-11-20 (Date of Last Commit)
 

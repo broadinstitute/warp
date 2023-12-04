@@ -223,7 +223,7 @@ task Reblock {
     gatk --java-options "-Xms3000m -Xmx3000m" \
       ReblockGVCF \
       -R ~{ref_fasta} \
-      -V ~{gvcf} \
+      -V ~{gvcf_basename} \
       -do-qual-approx \
       --floor-blocks -GQB 20 -GQB 30 -GQB 40 \
       ~{annotations_to_keep_command} \
