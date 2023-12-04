@@ -232,7 +232,7 @@ task BWAPairedEndAlignment {
     cpu1n2=$((cpu3n1 + 2)) #17
     cpu2n2=$((cpu3n1 + 3)) #18
     cpu3n2=$((cpu0n2 + $step)) #31
-    cpu4n2=$((cpu5n1 + 2)) #81
+    cpu4n2=$((cpu5n1 + 3)) #81
     cpu5n2=$((cpu4n2 + $step - 1)) #95
     n_threadsn2=$(($((cpu5n2-cpu4n2)) + $((cpu3n2-cpu2n2)) + 2))
 
@@ -259,7 +259,7 @@ task BWAPairedEndAlignment {
     cpu1n4=$((cpu3n3 + 2)) #17
     cpu2n4=$((cpu3n3 + 3)) #18
     cpu3n4=$((cpu0n4 + $step)) #31
-    cpu4n4=$((cpu5n3 + 2)) #81
+    cpu4n4=$((cpu5n3 + 3)) #81
     cpu5n4=$((cpu4n4 + $step - 1)) #95
     n_threadsn4=$(($((cpu5n4-cpu4n4)) + $((cpu3n4-cpu2n4)) + 2))
 
@@ -296,14 +296,14 @@ task BWAPairedEndAlignment {
         
     # samtools sort 
     echo "samtools sort"
-    samtools sort -@300 -m1g aligned_output_p1.sam -o bam_aligned_output_p1.bam
-    samtools sort -@300 -m1g aligned_output_p2.sam -o bam_aligned_output_p2.bam
-    samtools sort -@300 -m1g aligned_output_p3.sam -o bam_aligned_output_p3.bam
-    samtools sort -@300 -m1g aligned_output_p4.sam -o bam_aligned_output_p4.bam
+    samtools sort -@30 -m1g aligned_output_p1.sam -o bam_aligned_output_p1.bam
+    samtools sort -@30 -m1g aligned_output_p2.sam -o bam_aligned_output_p2.bam
+    samtools sort -@30 -m1g aligned_output_p3.sam -o bam_aligned_output_p3.bam
+    samtools sort -@30 -m1g aligned_output_p4.sam -o bam_aligned_output_p4.bam
 
     # samtools merge
     echo "samtools merge"
-    samtools merge -o ~{aligned_output} bam_aligned_output_p1.bam bam_aligned_output_p2.bam bam_aligned_output_p3.bam bam_aligned_output_p4.bam -@50 
+    samtools merge -o ~{aligned_output} bam_aligned_output_p1.bam bam_aligned_output_p2.bam bam_aligned_output_p3.bam bam_aligned_output_p4.bam -@100 
      
   >>>
 
