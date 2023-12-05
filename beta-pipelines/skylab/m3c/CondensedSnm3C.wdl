@@ -153,7 +153,7 @@ workflow WDLized_snm3C {
         File unique_reads_cgn_extraction_allc = unique_reads_cgn_extraction.output_allc_tar
         File unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.output_tbi_tar
         File chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats
-
+        File reference_version = Hisat_3n_pair_end_mapping_dna_mode.reference_version
     }
 }
 
@@ -329,6 +329,12 @@ task Hisat_3n_pair_end_mapping_dna_mode{
     command <<<
         set -euo pipefail
 
+        # check genomic reference version and print to output txt file
+        STRING=~{genome_fa}
+        BASE=$(basename $STRING .fa)
+
+        echo "The reference is $BASE" > ~{plate_id}.reference_version.txt
+
         mkdir reference/
         mkdir fastq/
 
@@ -396,6 +402,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
     output {
         File hisat3n_paired_end_bam_tar = "~{plate_id}.hisat3n_paired_end_bam_files.tar.gz"
         File hisat3n_paired_end_stats_tar = "~{plate_id}.hisat3n_paired_end_stats_files.tar.gz"
+        File reference_version = "~{plate_id}.reference_version.txt"
     }
 }
 
