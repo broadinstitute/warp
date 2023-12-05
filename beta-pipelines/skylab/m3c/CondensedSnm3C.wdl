@@ -12,6 +12,17 @@ workflow WDLized_snm3C {
         File genome_fa
         File chromosome_sizes
 
+        String r1_adapter = "AGATCGGAAGAGCACACGTCTGAAC"
+        String r2_adapter = "AGATCGGAAGAGCGTCGTGTAGGGA"
+        Int r1_left_cut = 10
+        Int r1_right_cut = 10
+        Int r2_left_cut = 10
+        Int r2_right_cut = 10
+        Int min_read_length = 30
+        Int num_upstr_bases = 0
+        Int num_downstr_bases = 2
+        Int compress_level = 5
+
     }
 
     call Demultiplexing {
@@ -24,7 +35,15 @@ workflow WDLized_snm3C {
 
     call Sort_and_trim_r1_and_r2 {
         input:
-            tarred_demultiplexed_fastqs = Demultiplexing.tarred_demultiplexed_fastqs
+            tarred_demultiplexed_fastqs = Demultiplexing.tarred_demultiplexed_fastqs,
+            r1_adapter = r1_adapter,
+            r2_adapter = r2_adapter,
+            r1_left_cut = r1_left_cut,
+            r1_right_cut = r1_right_cut,
+            r2_left_cut = r2_left_cut,
+            r2_right_cut = r2_right_cut,
+            min_read_length = min_read_length,
+            plate_id = plate_id
     }
 
     call Hisat_3n_pair_end_mapping_dna_mode {
@@ -33,58 +52,73 @@ workflow WDLized_snm3C {
             r2_trimmed_tar = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar,
             tarred_index_files = tarred_index_files,
             genome_fa = genome_fa,
-            chromosome_sizes = chromosome_sizes
+            chromosome_sizes = chromosome_sizes,
+            plate_id = plate_id
     }
 
     call Separate_unmapped_reads {
         input:
-            hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
+            hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar,
+            min_read_length = min_read_length,
+            plate_id = plate_id
     }
 
     call Split_unmapped_reads {
         input:
-            unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
+            unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar,
+            min_read_length = min_read_length,
+            plate_id = plate_id
     }
 
     call Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
         input:
             split_fq_tar = Split_unmapped_reads.split_fq_tar,
             tarred_index_files = tarred_index_files,
-            genome_fa = genome_fa
+            genome_fa = genome_fa,
+            plate_id = plate_id
     }
 
     call remove_overlap_read_parts {
         input:
-            bam = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
+            bam = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar,
+            plate_id = plate_id
     }
 
     call merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
         input:
             bam = Separate_unmapped_reads.unique_bam_tar,
-            split_bam = remove_overlap_read_parts.output_bam_tar
+            split_bam = remove_overlap_read_parts.output_bam_tar,
+            plate_id = plate_id
     }
 
     call call_chromatin_contacts {
         input:
-            name_sorted_bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
+            name_sorted_bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam,
+            plate_id = plate_id
     }
 
     call dedup_unique_bam_and_index_unique_bam {
         input:
-            bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
+            bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam,
+            plate_id = plate_id
     }
 
     call unique_reads_allc {
         input:
             bam_and_index_tar = dedup_unique_bam_and_index_unique_bam.output_tar,
-            genome_fa = genome_fa
+            genome_fa = genome_fa,
+            num_upstr_bases = num_upstr_bases,
+            num_downstr_bases = num_downstr_bases,
+            compress_level = compress_level,
+            plate_id = plate_id
     }
 
    call unique_reads_cgn_extraction {
        input:
           allc_tar = unique_reads_allc.allc,
           tbi_tar = unique_reads_allc.tbi,
-          chrom_size_path = chromosome_sizes
+          chrom_size_path = chromosome_sizes,
+          plate_id = plate_id
    }
 
     call summary {
@@ -204,9 +238,17 @@ task Demultiplexing {
 task Sort_and_trim_r1_and_r2 {
     input {
         File tarred_demultiplexed_fastqs
+        String plate_id
+        String r1_adapter
+        String r2_adapter
+        Int r1_left_cut
+        Int r1_right_cut
+        Int r2_left_cut
+        Int r2_right_cut
+        Int min_read_length
+
         Int disk_size = 50
         Int mem_size = 10
-
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
 
     }
@@ -234,17 +276,17 @@ task Sort_and_trim_r1_and_r2 {
     for file in "${sorted_R1_files[@]}"; do
       sample_id=$(basename "$file" "-R1_sorted.fq")
         /opt/conda/bin/cutadapt \
-        -a R1Adapter='AGATCGGAAGAGCACACGTCTGAAC' \
-        -A R2Adapter='AGATCGGAAGAGCGTCGTGTAGGGA' \
+        -a R1Adapter=~{r1_adapter} \
+        -A R2Adapter=~{r2_adapter} \
         --report=minimal \
         -O 6 \
         -q 20 \
-        -u 10 \
-        -u -10 \
-        -U 10 \
-        -U -10 \
+        -u ~{r1_left_cut} \
+        -u -~{r1_right_cut} \
+        -U ~{r2_left_cut} \
+        -U -~{r2_right_cut} \
         -Z \
-        -m 30:30 \
+        -m ~{min_read_length}:~{min_read_length} \
         --pair-filter 'both' \
         -o ${sample_id}-R1_trimmed.fq.gz \
         -p ${sample_id}-R2_trimmed.fq.gz \
@@ -254,9 +296,9 @@ task Sort_and_trim_r1_and_r2 {
 
     echo "Tarring up the trimmed files and stats files"
 
-    tar -zcvf R1_trimmed_files.tar.gz *-R1_trimmed.fq.gz
-    tar -zcvf R2_trimmed_files.tar.gz *-R2_trimmed.fq.gz
-    tar -zcvf trimmed_stats_files.tar.gz *.trimmed.stats.txt
+    tar -zcvf ~{plate_id}.R1_trimmed_files.tar.gz *-R1_trimmed.fq.gz
+    tar -zcvf ~{plate_id}.R2_trimmed_files.tar.gz *-R2_trimmed.fq.gz
+    tar -zcvf ~{plate_id}.trimmed_stats_files.tar.gz *.trimmed.stats.txt
 >>>
     runtime {
         docker: docker
@@ -265,9 +307,9 @@ task Sort_and_trim_r1_and_r2 {
         memory: "${mem_size} GiB"
     }
     output {
-        File r1_trimmed_fq_tar = "R1_trimmed_files.tar.gz"
-        File r2_trimmed_fq_tar = "R2_trimmed_files.tar.gz"
-        File trim_stats_tar = "trimmed_stats_files.tar.gz"
+        File r1_trimmed_fq_tar = "~{plate_id}.R1_trimmed_files.tar.gz"
+        File r2_trimmed_fq_tar = "~{plate_id}.R2_trimmed_files.tar.gz"
+        File trim_stats_tar = "~{plate_id}.trimmed_stats_files.tar.gz"
     }
 }
 
@@ -278,6 +320,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         File tarred_index_files
         File genome_fa
         File chromosome_sizes
+        String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 100
@@ -303,7 +346,9 @@ task Hisat_3n_pair_end_mapping_dna_mode{
 
         #get the basename of the genome_fa file
         genome_fa_basename=$(basename ~{genome_fa} .fa)
+        echo "samtools faidx $genome_fa_basename.fa"
         samtools faidx $genome_fa_basename.fa
+        ls -lh /cromwell_root/reference/$genome_fa_basename.fa
 
         # untar the demultiplexed fastq files
         cd ../fastq/
@@ -319,7 +364,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
 
         for file in "${R1_files[@]}"; do
           sample_id=$(basename "$file" "-R1_trimmed.fq.gz")
-          hisat-3n /cromwell_root/reference/$genome_fa_basename.fa \
+          hisat-3n /cromwell_root/reference/$genome_fa_basename \
           -q \
           -1 ${sample_id}-R1_trimmed.fq.gz \
           -2 ${sample_id}-R2_trimmed.fq.gz \
@@ -335,11 +380,11 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         done
 
         # tar up the bam files and stats files
-        tar -zcvf hisat3n_paired_end_bam_files.tar.gz *.bam
-        tar -zcvf hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
+        tar -zcvf ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz *.bam
+        tar -zcvf ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
 
-        mv hisat3n_paired_end_bam_files.tar.gz ../
-        mv hisat3n_paired_end_stats_files.tar.gz ../
+        mv ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz ../
+        mv ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz ../
 
     >>>
     runtime {
@@ -349,14 +394,16 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         memory: "${mem_size} GiB"
     }
     output {
-        File hisat3n_paired_end_bam_tar = "hisat3n_paired_end_bam_files.tar.gz"
-        File hisat3n_paired_end_stats_tar = "hisat3n_paired_end_stats_files.tar.gz"
+        File hisat3n_paired_end_bam_tar = "~{plate_id}.hisat3n_paired_end_bam_files.tar.gz"
+        File hisat3n_paired_end_stats_tar = "~{plate_id}.hisat3n_paired_end_stats_files.tar.gz"
     }
 }
 
 task Separate_unmapped_reads {
     input {
         File hisat3n_bam_tar
+        Int min_read_length
+        String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 50
@@ -396,19 +443,19 @@ task Separate_unmapped_reads {
                 out_unmappable_path=out_unmappable_path,
                 unmappable_format='fastq',
                 mapq_cutoff=10,
-                qlen_cutoff=30
+                qlen_cutoff=~{min_read_length}
             )
 
         CODE
 
         # tar up the uniqe bams
-        tar -zcvf hisat3n_paired_end_unique_bam_files.tar.gz *.hisat3n_dna.unique_aligned.bam
+        tar -zcvf ~{plate_id}.hisat3n_paired_end_unique_bam_files.tar.gz *.hisat3n_dna.unique_aligned.bam
 
         # tar up the multi bams
-        tar -zcvf hisat3n_paired_end_multi_bam_files.tar.gz *.hisat3n_dna.multi_aligned.bam
+        tar -zcvf ~{plate_id}.hisat3n_paired_end_multi_bam_files.tar.gz *.hisat3n_dna.multi_aligned.bam
 
         # tar up the unmapped fastq files
-        tar -zcvf hisat3n_paired_end_unmapped_fastq_files.tar.gz *.hisat3n_dna.unmapped.fastq
+        tar -zcvf ~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz *.hisat3n_dna.unmapped.fastq
 
     >>>
     runtime {
@@ -418,15 +465,18 @@ task Separate_unmapped_reads {
         memory: "${mem_size} GiB"
     }
     output {
-        File unique_bam_tar = "hisat3n_paired_end_unique_bam_files.tar.gz"
-        File multi_bam_tar = "hisat3n_paired_end_multi_bam_files.tar.gz"
-        File unmapped_fastq_tar = "hisat3n_paired_end_unmapped_fastq_files.tar.gz"
+        File unique_bam_tar = "~{plate_id}.hisat3n_paired_end_unique_bam_files.tar.gz"
+        File multi_bam_tar = "~{plate_id}.hisat3n_paired_end_multi_bam_files.tar.gz"
+        File unmapped_fastq_tar = "~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz"
     }
 }
 
 task Split_unmapped_reads {
     input {
         File unmapped_fastq_tar
+        Int min_read_length
+        String plate_id
+
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 50
         Int mem_size = 10
@@ -457,7 +507,7 @@ task Split_unmapped_reads {
           split_hisat3n_unmapped_reads(
             fastq_path=fastq_path,
             output_prefix=output_prefix,
-            min_length=30
+            min_length=~{min_read_length}
           )
 
         CODE
@@ -466,7 +516,7 @@ task Split_unmapped_reads {
         sleep 15
 
         # tar up the split fastq files
-        tar -zcvf hisat3n_paired_end_split_fastq_files.tar.gz *.split_reads*.fastq
+        tar -zcvf ~{plate_id}.hisat3n_paired_end_split_fastq_files.tar.gz *.split_reads*.fastq
 
 
     >>>
@@ -477,7 +527,7 @@ task Split_unmapped_reads {
         memory: "${mem_size} GiB"
     }
     output {
-        File split_fq_tar = "hisat3n_paired_end_split_fastq_files.tar.gz"
+        File split_fq_tar = "~{plate_id}.hisat3n_paired_end_split_fastq_files.tar.gz"
     }
 }
 
@@ -486,6 +536,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
         File split_fq_tar
         File genome_fa
         File tarred_index_files
+        String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
@@ -518,7 +569,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
 
         for file in "${R1_files[@]}"; do
           sample_id=$(basename "$file" ".hisat3n_dna.split_reads.R1.fastq")
-          hisat-3n /cromwell_root/reference/$genome_fa_basename.fa \
+          hisat-3n /cromwell_root/reference/$genome_fa_basename \
           -q \
           -U ${sample_id}.hisat3n_dna.split_reads.R1.fastq \
           --directional-mapping-reverse \
@@ -534,7 +585,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
 
        for file in "${R2_files[@]}"; do
          sample_id=$(basename "$file" ".hisat3n_dna.split_reads.R2.fastq")
-         hisat-3n /cromwell_root/reference/$genome_fa_basename.fa \
+         hisat-3n /cromwell_root/reference/$genome_fa_basename \
          -q \
          -U ${sample_id}.hisat3n_dna.split_reads.R2.fastq \
          --directional-mapping \
@@ -548,8 +599,8 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
        done
 
        # tar up the r1 and r2 stats files
-       tar -zcvf ../hisat3n_dna_split_reads_summary.R1.tar.gz *.hisat3n_dna_split_reads_summary.R1.txt
-       tar -zcvf ../hisat3n_dna_split_reads_summary.R2.tar.gz *.hisat3n_dna_split_reads_summary.R2.txt
+       tar -zcvf ../~{plate_id}.hisat3n_dna_split_reads_summary.R1.tar.gz *.hisat3n_dna_split_reads_summary.R1.txt
+       tar -zcvf ../~{plate_id}.hisat3n_dna_split_reads_summary.R2.tar.gz *.hisat3n_dna_split_reads_summary.R2.txt
 
 
        # define lists of r1 and r2 bam files
@@ -569,7 +620,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
        done
 
        #tar up the merged bam files
-       tar -zcvf ../hisat3n_dna.split_reads.name_sort.bam.tar.gz *.hisat3n_dna.split_reads.name_sort.bam
+       tar -zcvf ../~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz *.hisat3n_dna.split_reads.name_sort.bam
 
     >>>
     runtime {
@@ -579,15 +630,17 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
         memory: "${mem_size} GiB"
     }
     output {
-        File merge_sorted_bam_tar = "hisat3n_dna.split_reads.name_sort.bam.tar.gz"
-        File hisat3n_dna_split_reads_summary_R1_tar = "hisat3n_dna_split_reads_summary.R1.tar.gz"
-        File hisat3n_dna_split_reads_summary_R2_tar = "hisat3n_dna_split_reads_summary.R2.tar.gz"
+        File merge_sorted_bam_tar = "~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz"
+        File hisat3n_dna_split_reads_summary_R1_tar = "~{plate_id}.hisat3n_dna_split_reads_summary.R1.tar.gz"
+        File hisat3n_dna_split_reads_summary_R2_tar = "~{plate_id}.hisat3n_dna_split_reads_summary.R2.tar.gz"
     }
 }
 
 task remove_overlap_read_parts {
     input {
         File bam
+        String plate_id
+
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
@@ -619,7 +672,7 @@ task remove_overlap_read_parts {
         cd /cromwell_root/output_bams
 
         #tar up the merged bam files
-        tar -zcvf ../remove_overlap_read_parts.tar.gz *bam
+        tar -zcvf ../~{plate_id}.remove_overlap_read_parts.tar.gz *bam
 
     >>>
     runtime {
@@ -629,7 +682,7 @@ task remove_overlap_read_parts {
         memory: "${mem_size} GiB"
     }
     output {
-        File output_bam_tar = "remove_overlap_read_parts.tar.gz"
+        File output_bam_tar = "~{plate_id}.remove_overlap_read_parts.tar.gz"
     }
 }
 
@@ -637,6 +690,8 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
     input {
         File bam
         File split_bam
+        String plate_id
+
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
@@ -663,8 +718,8 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
 
       echo "Zip files"
       #tar up the merged bam files
-      tar -zcvf hisat3n_dna.all_reads.pos_sort.tar.gz *.hisat3n_dna.all_reads.pos_sort.bam
-      tar -zcvf hisat3n_dna.all_reads.name_sort.tar.gz *.hisat3n_dna.all_reads.name_sort.bam
+      tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.pos_sort.tar.gz *.hisat3n_dna.all_reads.pos_sort.bam
+      tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz *.hisat3n_dna.all_reads.name_sort.bam
     >>>
     runtime {
         docker: docker
@@ -673,14 +728,16 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
         memory: "${mem_size} GiB"
     }
     output {
-        File name_sorted_bam = "hisat3n_dna.all_reads.name_sort.tar.gz"
-        File position_sorted_bam = "hisat3n_dna.all_reads.pos_sort.tar.gz"
+        File name_sorted_bam = "~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz"
+        File position_sorted_bam = "~{plate_id}.hisat3n_dna.all_reads.pos_sort.tar.gz"
     }
 }
 
 task call_chromatin_contacts {
     input {
         File name_sorted_bam
+        String plate_id
+
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
@@ -717,7 +774,7 @@ task call_chromatin_contacts {
         CODE
 
         #tar up the chromatin contact files
-        tar -zcvf chromatin_contact_stats.tar.gz *.hisat3n_dna.all_reads.contact_stats.csv
+        tar -zcvf ~{plate_id}.chromatin_contact_stats.tar.gz *.hisat3n_dna.all_reads.contact_stats.csv
     >>>
     runtime {
         docker: docker
@@ -726,13 +783,15 @@ task call_chromatin_contacts {
         memory: "${mem_size} GiB"
     }
     output {
-        File chromatin_contact_stats = "chromatin_contact_stats.tar.gz"
+        File chromatin_contact_stats = "~{plate_id}.chromatin_contact_stats.tar.gz"
     }
 }
 
 task dedup_unique_bam_and_index_unique_bam {
     input {
        File bam
+       String plate_id
+
        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
        Int disk_size = 80
        Int mem_size = 20
@@ -766,10 +825,10 @@ task dedup_unique_bam_and_index_unique_bam {
         cd /cromwell_root
 
         #tar up the output files
-        tar -zcvf dedup_unique_bam_and_index_unique_bam.tar.gz output_bams
+        tar -zcvf ~{plate_id}.dedup_unique_bam_and_index_unique_bam.tar.gz output_bams
 
         #tar up the stats files
-        tar -zcvf dedup_unique_bam_and_index_unique_bam_stats.tar.gz output_bams/*.matrix.txt
+        tar -zcvf ~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz output_bams/*.matrix.txt
 
     >>>
     runtime {
@@ -779,8 +838,8 @@ task dedup_unique_bam_and_index_unique_bam {
         memory: "${mem_size} GiB"
     }
     output {
-        File output_tar = "dedup_unique_bam_and_index_unique_bam.tar.gz"
-        File dedup_stats_tar = "dedup_unique_bam_and_index_unique_bam_stats.tar.gz"
+        File output_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam.tar.gz"
+        File dedup_stats_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz"
     }
 }
 
@@ -788,6 +847,11 @@ task unique_reads_allc {
     input {
         File bam_and_index_tar
         File genome_fa
+        String plate_id
+        Int num_upstr_bases
+        Int num_downstr_bases
+        Int compress_level
+
         Int disk_size = 80
         Int mem_size = 20
         String genome_base = basename(genome_fa)
@@ -814,16 +878,16 @@ task unique_reads_allc {
           --bam_path "$file" \
           --reference_fasta /cromwell_root/reference/~{genome_base} \
           --output_path "${sample_id}.allc.tsv.gz" \
-          --num_upstr_bases 0 \
-          --num_downstr_bases 2 \
-          --compress_level 5 \
+          --num_upstr_bases ~{num_upstr_bases} \
+          --num_downstr_bases ~{num_downstr_bases} \
+          --compress_level ~{compress_level} \
           --save_count_df \
           --convert_bam_strandness
         done
         echo "Zipping files"
-        tar -zcvf ../allc.tsv.tar.gz *.allc.tsv.gz
-        tar -zcvf ../allc.tbi.tar.gz *.allc.tsv.gz.tbi
-        tar -zcvf ../allc.count.tar.gz *.allc.tsv.gz.count.csv
+        tar -zcvf ../~{plate_id}.allc.tsv.tar.gz *.allc.tsv.gz
+        tar -zcvf ../~{plate_id}.allc.tbi.tar.gz *.allc.tsv.gz.tbi
+        tar -zcvf ../~{plate_id}.allc.count.tar.gz *.allc.tsv.gz.count.csv
 
 
     >>>
@@ -834,9 +898,9 @@ task unique_reads_allc {
         memory: "${mem_size} GiB"
     }
     output {
-        File allc = "allc.tsv.tar.gz"
-        File tbi = "allc.tbi.tar.gz"
-        File allc_uniq_reads_stats = "allc.count.tar.gz"
+        File allc = "~{plate_id}.allc.tsv.tar.gz"
+        File tbi = "~{plate_id}.allc.tbi.tar.gz"
+        File allc_uniq_reads_stats = "~{plate_id}.allc.count.tar.gz"
     }
 }
 
@@ -846,6 +910,8 @@ task unique_reads_cgn_extraction {
        File allc_tar
        File tbi_tar
        File chrom_size_path
+       String plate_id
+
        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
        Int disk_size = 80
        Int mem_size = 20
@@ -872,8 +938,6 @@ task unique_reads_cgn_extraction {
        mkdir /cromwell_root/allc-${mcg_context}
        outputdir=/cromwell_root/allc-${mcg_context}
 
-       #AD3C_BA17_2027_P1-1-B11-G13.allc.tsv.gz.tbi
-       #AD3C_BA17_2027_P1-1-B11-G13.allc.tsv.gz
        for gzfile in *.gz
        do
             name=`echo $gzfile | cut -d. -f1`
@@ -886,9 +950,8 @@ task unique_reads_cgn_extraction {
 
        cd /cromwell_root
 
-       #AD3C_BA17_2027_P1-1-B11-G13.CGN-Merge.allc.tsv.gz, AD3C_BA17_2027_P1-1-B11-G13.CGN-Merge.allc.tsv.gz.tbi
-       tar -zcvf output_allc_tar.tar.gz $outputdir/*.gz
-       tar -zcvf output_tbi_tar.tar.gz $outputdir/*.tbi
+       tar -zcvf ~{plate_id}.output_allc_tar.tar.gz $outputdir/*.gz
+       tar -zcvf ~{plate_id}.output_tbi_tar.tar.gz $outputdir/*.tbi
 
     >>>
 
@@ -900,8 +963,8 @@ task unique_reads_cgn_extraction {
     }
 
     output {
-        File output_allc_tar = "output_allc_tar.tar.gz"
-        File output_tbi_tar = "output_tbi_tar.tar.gz"
+        File output_allc_tar = "~{plate_id}.output_allc_tar.tar.gz"
+        File output_tbi_tar = "~{plate_id}.output_tbi_tar.tar.gz"
     }
 }
 
