@@ -1,13 +1,12 @@
-# 6.2.2
-2023-11-21 (Date of Last Commit)
+# 6.3.0
+2023-12-04 (Date of Last Commit)
 
-* Added the latest warp-tools docker to tasks in the Metrics, FastqProcessing and H5adUtils wdls; this incorporates new input parameter for number of output fastq files to fastqprocess
+* Updated the h5ad utils WDL for the Multiome JoinBarcodes task; this does affect the Optimus workflow
 
 # 6.2.2
 2023-11-29 (Date of Last Commit)
 
-* Added the latest warp-tools docker to the Metrics task; this allows use of REFSEQ references
-* Updated the h5ad utils WDL for the Multiome JoinBarcodes task; this does affect the Optimus workflow
+* Added the latest warp-tools docker to tasks in the Metrics, FastqProcessing and H5adUtils wdls; this incorporates new input parameter for number of output fastq files to fastqprocess and allows use of REFSEQ references
 
 # 6.2.0
 2023-11-03 (Date of Last Commit)
