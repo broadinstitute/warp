@@ -8,7 +8,7 @@ slug: /Pipelines/ATAC/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [1.1.1](https://github.com/broadinstitute/warp/releases) | October, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [1.1.2](https://github.com/broadinstitute/warp/releases) | December, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ## Introduction to the ATAC workflow
 ATAC is an open-source, cloud-optimized pipeline developed collaboration with members of the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and [BICAN](https://brainblog.nih.gov/brain-blog/brain-issues-suite-funding-opportunities-advance-brain-cell-atlases-through-centers) Sequencing Working Group) and [SCORCH](https://nida.nih.gov/about-nida/organization/divisions/division-neuroscience-behavior-dnb/basic-research-hiv-substance-use-disorder/scorch-program) (see [Acknowledgements](#acknowledgements) below). It supports the processing of 10x single-nucleus data generated with 10x Multiome [ATAC-seq (Assay for Transposase-Accessible Chromatin)](https://www.10xgenomics.com/products/single-cell-multiome-atac-plus-gene-expression), a technique used in molecular biology to assess genome-wide chromatin accessibility. 
@@ -71,7 +71,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | ------------------------------------ | 
-| [FastqProcessing as SplitFastq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) | fastqprocess | custom | Dynamically selects the correct barcode orientation, corrects cell barcodes and splits FASTQs into smaller FASTQs. The number of files output depends on either the bam_size parameter, which determines the size of the output FASTQs produced, or the num_output_files parameter, which determines the number of FASTQS that should be output. The smaller FASTQs are grouped by cell barcode with each read having the corrected (CB) and raw barcode (CR) in the read name. |
+| [FastqProcessing as SplitFastq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) | fastqprocess | custom | Dynamically selects the correct barcode orientation, corrects cell barcodes, and splits FASTQ files. The number of files output depends on either the `bam_size` parameter, which determines the size of the output FASTQ files produced, or the `num_output_files` parameter, which determines the number of FASTQ files that should be output. The smaller FASTQ files are grouped by cell barcode with each read having the corrected (CB) and raw barcode (CR) in the read name. |
 | [TrimAdapters](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) | Cutadapt v4.4 | cutadapt | Trims adaptor sequences. |
 | [BWAPairedEndAlignment](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) | bwa-mem2 | mem | Aligns reads from each set of partitioned FASTQ files to the genome and outputs a BAM with ATAC barcodes in the CB:Z tag. |
 | [Merge.MergeSortBamFiles as MergeBam](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/MergeSortBam.wdl) | MergeSamFiles | Picard | Merges each BAM into a final aligned BAM with corrected cell barcodes in the CB tag. |
