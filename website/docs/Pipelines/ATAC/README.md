@@ -83,7 +83,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 | Output variable name | Filename, if applicable | Output format and description |
 |--- | --- | --- | 
 | bam_aligned_output | `<input_id>`.bam | BAM containing aligned reads from ATAC workflow. |
-| fragment_file | `<input_id>`.fragments.tsv | TSV containing fragment start and stop coordinates per barcode. | 
+| fragment_file | `<input_id>`.fragments.tsv | TSV containing fragment start and stop coordinates per barcode. In order, the columns are "Chromosome", "Start", "Stop", "ATAC Barcode", and "Number Reads". | 
 | snap_metrics | `<input_id`.metrics.h5ad | h5ad (Anndata) containing per barcode metrics from [SnapATAC2](https://github.com/kaizhang/SnapATAC2). A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
 
 ## Versioning and testing
