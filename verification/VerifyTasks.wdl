@@ -106,6 +106,28 @@ task CompareGtcs {
   }
 }
 
+task CompareTabix {
+  input {
+    File test_fragment_file
+    File truth_fragment_file
+  }
+  command {
+    a="md5sum ~{test_fragment_file}"
+    b="md5sum ~{truth_fragment_file}"
+    if [[ a = b ]]; then 
+      echo equal 
+    else 
+      echo different
+      exit_code=1
+    fi
+  }
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
+    disks: "local-disk 100 HDD"
+    memory: "50 GiB"
+    preemptible: 3
+  }   
+}
 task CompareTextFiles {
   input {
     Array[File] test_text_files
