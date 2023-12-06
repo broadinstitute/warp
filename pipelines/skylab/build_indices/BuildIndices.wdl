@@ -16,7 +16,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "2.2.1"
+  String pipeline_version = "3.0.0"
 
 
   parameter_meta {
@@ -166,7 +166,7 @@ task BuildBWAreference {
     String organism
   }
 
-String reference_name = "bwa0.7.17-~{organism}-~{genome_source}-build-~{genome_build}"
+String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{genome_build}"
 
   command <<<
     mkdir genome
@@ -178,12 +178,12 @@ String reference_name = "bwa0.7.17-~{organism}-~{genome_source}-build-~{genome_b
     else
       mv ~{genome_fa} genome/genome.fa
     fi
-    bwa index genome/genome.fa
+    bwa-mem2 index genome/genome.fa
     tar --dereference -cvf - genome/ > ~{reference_name}.tar
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/bwa:1.0.0-0.7.17-1660770463"
+    docker: "us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504"
     memory: "96GB"
     disks: "local-disk 100 HDD"
     disk: "100 GB" # TES
@@ -194,5 +194,4 @@ String reference_name = "bwa0.7.17-~{organism}-~{genome_source}-build-~{genome_b
     File reference_bundle = "~{reference_name}.tar"
   }
 }
-
 
