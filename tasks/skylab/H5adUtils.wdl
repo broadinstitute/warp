@@ -192,7 +192,7 @@ task JoinMultiomeBarcodes {
     File gex_whitelist
     File atac_whitelist
     Int disk_size = 500
-    Int mem_size = 16
+    Int mem_size = 32
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
   }
