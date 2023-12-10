@@ -262,8 +262,9 @@ task BWAPairedEndAlignment {
 
   runtime {
     docker: docker_image
-    disks: "local-disk ${disk_size} HDD"
+    disks: "local-disk ${disk_size} SSD"
     cpu: nthreads
+    cpuPlatform: "Intel Ice Lake"
     memory: "${mem_size} GiB"
   }
 
