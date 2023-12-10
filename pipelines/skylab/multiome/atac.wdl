@@ -83,7 +83,7 @@ workflow ATAC {
   }
 
   output {
-    File bam_aligned_output = BWAPairedEndAlignment.bam_aligned_output_name
+    File bam_aligned_output = BWAPairedEndAlignment.bam_aligned_output
     File fragment_file = CreateFragmentFile.fragment_file
     File snap_metrics = CreateFragmentFile.Snap_metrics
   }
