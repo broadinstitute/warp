@@ -25,7 +25,8 @@ workflow ATAC {
     File annotations_gtf
     # Text file containing chrom_sizes for genome build (i.e. hg38)
     File chrom_sizes
-
+    # Number of fastq files for fastqprocess
+    Int num_output_files = 4
     # Whitelist
     File whitelist
 
@@ -50,6 +51,7 @@ workflow ATAC {
       read3_fastq = read3_fastq_gzipped,
       barcodes_fastq = read2_fastq_gzipped,
       output_base_name = input_id,
+      num_output_files = num_output_files,
       whitelist = whitelist
   }
 
@@ -63,33 +65,25 @@ workflow ATAC {
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3
     }
+  }
 
-    call BWAPairedEndAlignment {
-      input:
+  call BWAPairedEndAlignment {
+    input:
         read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
         read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
         tar_bwa_reference = tar_bwa_reference,
         output_base_name = input_id + "_" + idx
-    }
   }
-
-  call Merge.MergeSortBamFiles as MergeBam {
-    input:
-      output_bam_filename = input_id + ".bam",
-      bam_inputs = BWAPairedEndAlignment.bam_aligned_output,
-      sort_order = "coordinate"
-  }
-
 
   call CreateFragmentFile {
     input:
-      bam = MergeBam.output_bam,
+      bam = BWAPairedEndAlignment.bam_aligned_output_name,
       chrom_sizes = chrom_sizes,
       annotations_gtf = annotations_gtf
   }
 
   output {
-    File bam_aligned_output = MergeBam.output_bam
+    File bam_aligned_output = BWAPairedEndAlignment.bam_aligned_output_name
     File fragment_file = CreateFragmentFile.fragment_file
     File snap_metrics = CreateFragmentFile.Snap_metrics
   }
@@ -163,18 +157,20 @@ task TrimAdapters {
 # align the two trimmed fastq as paired end data using BWA
 task BWAPairedEndAlignment {
   input {
-    File read1_fastq
-    File read3_fastq
+    Array[File] read1_fastq
+    Array[File] read3_fastq
     File tar_bwa_reference
     String read_group_id = "RG1"
     String read_group_sample_name = "RGSN1"
+    String suffix = "trimmed_adapters.fastq.gz"
     String output_base_name
-    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504"
+    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:aa-dist-bwa-"
+    File monitoring = "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh"
 
     # Runtime attributes
-    Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 400
-    Int nthreads = 16
-    Int mem_size = 40
+    Int disk_size = 2000 #ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 400
+    Int nthreads = 128
+    Int mem_size = 512
   }
 
   parameter_meta {
@@ -195,33 +191,137 @@ task BWAPairedEndAlignment {
   # bwa and call samtools to convert sam to bam
   command <<<
 
-    set -euo pipefail
+    set -euo pipefail    
+    lscpu
+    # if the WDL/task contains a monitoring script as input
+    if [ ! -z "~{monitoring}" ]; then
+      chmod a+x ~{monitoring}
+      ~{monitoring} > monitoring.log &
+    else
+      echo "No monitoring script given as input" > monitoring.log &
+    fi
 
     # prepare reference
     declare -r REF_DIR=$(mktemp -d genome_referenceXXXXXX)
     tar -xf "~{tar_bwa_reference}" -C $REF_DIR --strip-components 1
     rm "~{tar_bwa_reference}"
+    REF_PAR_DIR=$(basename "$(dirname "$REF_DIR/genome.fa")")
+    echo $REF_PAR_DIR
 
-    # align w/ BWA: -t for number of cores
-    bwa-mem2 \
-    mem \
-    -R "@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}" \
-    -C \
-    -t ~{nthreads} \
-    $REF_DIR/genome.fa \
-    ~{read1_fastq} ~{read3_fastq} \
-    | samtools view -bS - > ~{bam_aligned_output_name}
+    declare -a R1_ARRAY=(~{sep=' ' read1_fastq})
+    declare -a R3_ARRAY=(~{sep=' ' read3_fastq})
+   
+    echo "LIST"
+    ls
+    echo "PWD"
+    pwd
+    
+    file_path=`pwd`
+    echo $file_path
+    echo "MAKE DIR"
+    mkdir "output_dir"
+    mkdir "input_dir"
+    echo "END MAKE DIR"
+    ls
+
+    echo "MOVE"
+    R1=""
+    echo "R1"
+    for fastq in "${R1_ARRAY[@]}"; do mv "$fastq" input_dir; R1+=`basename $fastq`" "; done
+    echo $R1
+    R3=""
+    echo "R3"
+    for fastq in "${R3_ARRAY[@]}"; do mv "$fastq" input_dir; R3+=`basename $fastq`" "; done
+    echo $R3
+
+    mv $REF_DIR input_dir
+    echo "END MOVE"
+
+    pwd
+    ls
+    ls input_dir
+    
+    #multiome-practice-may15_arcgtf, trimmed_adapters.fastq.gz
+    PREFIX=~{output_base_name}
+    SUFFIX=~{suffix}
+
+    I1=""
+    R2=""
+    
+    echo "REF_PAR_DIR:" $REF_PAR_DIR
+    REF=$REF_PAR_DIR/genome.fa
+    
+    PARAMS='+R "@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}" +C'
+    
+    INPUT_DIR=$file_path/input_dir
+    OUTPUT_DIR=$file_path/output_dir
+    
+    echo "START INPUT CONFIG"
+    input_to_config="INPUT_DIR=\"${INPUT_DIR}\"\nOUTPUT_DIR=\"${OUTPUT_DIR}\"\nPREFIX=\"${PREFIX}\"\nSUFFIX=\"${SUFFIX}\"\n"
+    other_to_add="R1=\"${R1}\"\nR2=\"${R2}\"\nR3=\"${R3}\"\nI1=\"${I1}\"\nREF=\"${REF}\"\n"
+    params="PARAMS=\'${PARAMS}\'"
+    
+    printf "%b" "$input_to_config"
+    printf "%b" "$other_to_add"
+    echo $params
+    echo "END INPUT CONFIG"
+    
+    # cd into fq2sortedbam
+    cd /usr/temp/Open-Omics-Acceleration-Framework/pipelines/fq2sortedbam
+    # remove the first part of config
+    tail -10 config > config
+    # add inputs to config file (this file is needed to run bwa-mem2 in this specific code"
+    printf "%b" "$input_to_config" | tee -a config
+    printf "%b" "$other_to_add" | tee -a config
+    echo $params | tee -a config
+    echo "CATTING CONFIG"
+    cat config
+    # run bwa-mem2
+    echo "Run distributed BWA-MEM2"
+    ./run_bwa.sh multifq
+    echo "Done running distributed BWA-MEM2"
+    
+    ls
+    pwd
+    
+    ls $OUTPUT_DIR
+    du -h $OUTPUT_DIR
+    cd $OUTPUT_DIR
+    
+    # remove all files except for final and text file 
+    ls | grep -xv final.sorted.bam | grep -v .txt$ | xargs rm
+
+    ls
+    du -h *
+    
+    # rename file to this
+    mv final.sorted.bam ~{bam_aligned_output_name}
+    ls
+    pwd
+    
+    # save output logs for bwa-mem2
+    mkdir output_logs
+    mv *txt output_logs
+    tar -zcvf /cromwell_root/output_distbwa_log.tar.gz output_logs  
+    
+    # move bam file to /cromwell_root
+    mv ~{bam_aligned_output_name} /cromwell_root
+    ls /cromwell_root
+
   >>>
 
   runtime {
     docker: docker_image
-    disks: "local-disk ${disk_size} HDD"
+    disks: "local-disk ${disk_size} SSD"
     cpu: nthreads
+    cpuPlatform: "Intel Ice Lake"
     memory: "${mem_size} GiB"
   }
 
   output {
     File bam_aligned_output = bam_aligned_output_name
+    File monitoring_out = "monitoring.log"
+    File output_distbwa_log_tar = "output_distbwa_log.tar.gz"
   }
 }
 
