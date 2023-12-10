@@ -72,12 +72,12 @@ workflow ATAC {
         read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
         read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
         tar_bwa_reference = tar_bwa_reference,
-        output_base_name = input_id + "_" + idx
+        output_base_name = input_id
   }
 
   call CreateFragmentFile {
     input:
-      bam = BWAPairedEndAlignment.bam_aligned_output_name,
+      bam = BWAPairedEndAlignment.bam_aligned_output,
       chrom_sizes = chrom_sizes,
       annotations_gtf = annotations_gtf
   }
