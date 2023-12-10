@@ -6,7 +6,7 @@ import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
 
 workflow Multiome {
-    String pipeline_version = "2.3.3"
+    String pipeline_version = "3.0.0"
 
     input {
         String input_id
@@ -88,7 +88,8 @@ workflow Multiome {
             atac_h5ad = Atac.snap_metrics,
             gex_h5ad = Optimus.h5ad_output_file,
             gex_whitelist = gex_whitelist,
-            atac_whitelist = atac_whitelist
+            atac_whitelist = atac_whitelist,
+            atac_fragment = Atac.fragment_file
     }
 
     # Call CellBender
@@ -119,7 +120,8 @@ workflow Multiome {
 
         # atac outputs
         File bam_aligned_output_atac = Atac.bam_aligned_output
-        File fragment_file_atac = Atac.fragment_file
+        File fragment_file_atac = JoinBarcodes.atac_fragment_tsv
+        File fragment_file_index = JoinBarcodes.atac_fragment_tsv_tbi
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
 
         # optimus outputs
