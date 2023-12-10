@@ -3,7 +3,7 @@ version 1.0
 import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
-import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.1/wdl/cellbender_remove_background.wdl" as CellBender
+import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
 
 workflow Multiome {
     String pipeline_version = "2.3.3"
