@@ -282,7 +282,7 @@ task CompareCompressedTextFiles {
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "3.5 GiB"
+    memory: "10 GiB"
     preemptible: 3
   }
 
