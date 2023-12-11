@@ -3,7 +3,7 @@ version 1.0
 import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
-import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.1/wdl/cellbender_remove_background.wdl" as CellBender
+#import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.1/wdl/cellbender_remove_background.wdl" as CellBender
 
 workflow Multiome {
     String pipeline_version = "3.0.0"
@@ -93,22 +93,22 @@ workflow Multiome {
     }
 
     # Call CellBender
-    if (run_cellbender) {
-        call CellBender.run_cellbender_remove_background_gpu as CellBender {
-            input:
-                sample_name = input_id,
-                input_file_unfiltered = Optimus.h5ad_output_file,
-                hardware_boot_disk_size_GB = 20,
-                hardware_cpu_count = 4,
-                hardware_disk_size_GB = 50,
-                hardware_gpu_type = "nvidia-tesla-t4",
-                hardware_memory_GB = 32,
-                hardware_preemptible_tries = 2,
-                hardware_zones = "us-central1-a us-central1-c",
-                nvidia_driver_version = "470.82.01"
-
-        }
-    }
+    #if (run_cellbender) {
+    #    call CellBender.run_cellbender_remove_background_gpu as CellBender {
+    #        input:
+    #            sample_name = input_id,
+    #            input_file_unfiltered = Optimus.h5ad_output_file,
+    #            hardware_boot_disk_size_GB = 20,
+    #            hardware_cpu_count = 4,
+    #            hardware_disk_size_GB = 50,
+    #            hardware_gpu_type = "nvidia-tesla-t4",
+    #            hardware_memory_GB = 32,
+    #            hardware_preemptible_tries = 2,
+    #            hardware_zones = "us-central1-a us-central1-c",
+    #            nvidia_driver_version = "470.82.01"
+#
+    #    }
+    #}
 
     meta {
         allowNestedInputs: true
@@ -136,13 +136,13 @@ workflow Multiome {
         File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
 
         # cellbender outputs
-        File? cell_barcodes_csv = CellBender.cell_csv
-        File? checkpoint_file = CellBender.ckpt_file
-        Array[File]? h5_array = CellBender.h5_array
-        Array[File]? html_report_array = CellBender.report_array
-        File? log = CellBender.log
-        Array[File]? metrics_csv_array = CellBender.metrics_array
-        String? output_directory = CellBender.output_dir
-        File? summary_pdf = CellBender.pdf
+        #File? cell_barcodes_csv = CellBender.cell_csv
+        #File? checkpoint_file = CellBender.ckpt_file
+        #Array[File]? h5_array = CellBender.h5_array
+        #Array[File]? html_report_array = CellBender.report_array
+        #File? log = CellBender.log
+        #Array[File]? metrics_csv_array = CellBender.metrics_array
+        #String? output_directory = CellBender.output_dir
+        #File? summary_pdf = CellBender.pdf
     }
 }
