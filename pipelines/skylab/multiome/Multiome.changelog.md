@@ -1,3 +1,7 @@
+# 3.0.1
+2023-12-12 (Date of Last Commit)
+* Downgraded Cell Bender from v3.0.1 to v3.0.0
+  
 # 3.0.0
 2023-11-22 (Date of Last Commit)
 
