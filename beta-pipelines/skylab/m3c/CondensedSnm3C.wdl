@@ -865,16 +865,20 @@ task unique_reads_allc {
     }
     command <<<
         set -euo pipefail
+
         # unzip files
         tar -xf ~{bam_and_index_tar}
         rm ~{bam_and_index_tar}
+
         mkdir reference
         cp ~{genome_fa} reference
         cd reference
+
         # index the fasta
         echo "Indexing FASTA"
         samtools faidx *.fa
         cd ../output_bams
+
         echo "Starting allcools"
         bam_files=($(ls | grep "\.hisat3n_dna.all_reads.deduped.bam$"))
         echo ${bam_files[@]}
@@ -891,6 +895,7 @@ task unique_reads_allc {
           --convert_bam_strandness
         done
         echo "Zipping files"
+
         tar -zcvf ../~{plate_id}.allc.tsv.tar.gz *.allc.tsv.gz
         tar -zcvf ../~{plate_id}.allc.tbi.tar.gz *.allc.tsv.gz.tbi
         tar -zcvf ../~{plate_id}.allc.count.tar.gz *.allc.tsv.gz.count.csv
