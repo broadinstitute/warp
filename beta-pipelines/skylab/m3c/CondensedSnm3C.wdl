@@ -354,7 +354,6 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         genome_fa_basename=$(basename ~{genome_fa} .fa)
         echo "samtools faidx $genome_fa_basename.fa"
         samtools faidx $genome_fa_basename.fa
-        ls -lh /cromwell_root/reference/$genome_fa_basename.fa
 
         # untar the demultiplexed fastq files
         cd ../fastq/
