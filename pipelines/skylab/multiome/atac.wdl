@@ -165,7 +165,6 @@ task BWAPairedEndAlignment {
     String read_group_sample_name = "RGSN1"
     String output_base_name
     String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa-debian:aa-debian-samtools-bwa"
-    File monitoring = "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh"
     
     # Runtime attributes
     Int disk_size = 2000
@@ -193,14 +192,6 @@ task BWAPairedEndAlignment {
 
     set -euo pipefail
     lscpu
-
-    # if the WDL/task contains a monitoring script as input
-    if [ ! -z "~{monitoring}" ]; then
-      chmod a+x ~{monitoring}
-      ~{monitoring} > monitoring.log &
-    else
-      echo "No monitoring script given as input" > monitoring.log &
-    fi
    
     # prepare reference
     declare -r REF_DIR=$(mktemp -d genome_referenceXXXXXX)
