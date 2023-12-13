@@ -168,7 +168,7 @@ task BWAPairedEndAlignment {
     File monitoring = "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh"
 
     # Runtime attributes
-    Int disk_size = 2000 #ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 400
+    Int disk_size = 2000
     Int nthreads = 128
     Int mem_size = 512
   }
@@ -192,7 +192,12 @@ task BWAPairedEndAlignment {
   command <<<
 
     set -euo pipefail    
+
+    # print lscpu  
+    echo "lscpu output"
     lscpu
+    echo "end of lscpu output"
+
     # if the WDL/task contains a monitoring script as input
     if [ ! -z "~{monitoring}" ]; then
       chmod a+x ~{monitoring}
@@ -208,23 +213,18 @@ task BWAPairedEndAlignment {
     REF_PAR_DIR=$(basename "$(dirname "$REF_DIR/genome.fa")")
     echo $REF_PAR_DIR
 
+    # make read1_fastq and read3_fastq into arrays 
     declare -a R1_ARRAY=(~{sep=' ' read1_fastq})
     declare -a R3_ARRAY=(~{sep=' ' read3_fastq})
-   
-    echo "LIST"
-    ls
-    echo "PWD"
-    pwd
     
     file_path=`pwd`
-    echo $file_path
-    echo "MAKE DIR"
+    echo "The current working directory is" $file_path
+
+    # make input and output directories needed for distributed bwamem2 code
     mkdir "output_dir"
     mkdir "input_dir"
-    echo "END MAKE DIR"
-    ls
-
-    echo "MOVE"
+    
+    echo "Move R1, R3 and reference files to input directory."
     R1=""
     echo "R1"
     for fastq in "${R1_ARRAY[@]}"; do mv "$fastq" input_dir; R1+=`basename $fastq`" "; done
@@ -235,13 +235,11 @@ task BWAPairedEndAlignment {
     echo $R3
 
     mv $REF_DIR input_dir
-    echo "END MOVE"
 
-    pwd
-    ls
+    echo "List of files in input directory"
     ls input_dir
     
-    #multiome-practice-may15_arcgtf, trimmed_adapters.fastq.gz
+    # multiome-practice-may15_arcgtf, trimmed_adapters.fastq.gz
     PREFIX=~{output_base_name}
     SUFFIX=~{suffix}
 
@@ -256,7 +254,6 @@ task BWAPairedEndAlignment {
     INPUT_DIR=$file_path/input_dir
     OUTPUT_DIR=$file_path/output_dir
     
-    echo "START INPUT CONFIG"
     input_to_config="INPUT_DIR=\"${INPUT_DIR}\"\nOUTPUT_DIR=\"${OUTPUT_DIR}\"\nPREFIX=\"${PREFIX}\"\nSUFFIX=\"${SUFFIX}\"\n"
     other_to_add="R1=\"${R1}\"\nR2=\"${R2}\"\nR3=\"${R3}\"\nI1=\"${I1}\"\nREF=\"${REF}\"\n"
     params="PARAMS=\'${PARAMS}\'"
@@ -264,7 +261,6 @@ task BWAPairedEndAlignment {
     printf "%b" "$input_to_config"
     printf "%b" "$other_to_add"
     echo $params
-    echo "END INPUT CONFIG"
     
     # cd into fq2sortedbam
     cd /usr/temp/Open-Omics-Acceleration-Framework/pipelines/fq2sortedbam
@@ -274,31 +270,26 @@ task BWAPairedEndAlignment {
     printf "%b" "$input_to_config" | tee -a config
     printf "%b" "$other_to_add" | tee -a config
     echo $params | tee -a config
-    echo "CATTING CONFIG"
+    echo "CONFIG"
     cat config
     # run bwa-mem2
     echo "Run distributed BWA-MEM2"
     ./run_bwa.sh multifq
     echo "Done running distributed BWA-MEM2"
-    
-    ls
-    pwd
-    
+    echo "List of files in output directory"
     ls $OUTPUT_DIR
-    du -h $OUTPUT_DIR
     cd $OUTPUT_DIR
     
     # remove all files except for final and text file 
+    echo "Remove all files except for final bam file and log files"
     ls | grep -xv final.sorted.bam | grep -v .txt$ | xargs rm
 
+    echo "List of files in output directory after removal"
     ls
-    du -h *
     
     # rename file to this
     mv final.sorted.bam ~{bam_aligned_output_name}
-    ls
-    pwd
-    
+        
     # save output logs for bwa-mem2
     mkdir output_logs
     mv *txt output_logs
