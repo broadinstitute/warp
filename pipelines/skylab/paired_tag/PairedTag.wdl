@@ -3,10 +3,9 @@ version 1.0
 import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
-import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.1/wdl/cellbender_remove_background.wdl" as CellBender
-
-workflow Multiome {
-    String pipeline_version = "2.3.3"
+import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
+workflow PairedTag {
+    String pipeline_version = "0.0.1"
 
     input {
         String input_id
@@ -42,10 +41,9 @@ workflow Multiome {
         # Whitelist
         File atac_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
 
-        # CellBender
-        Boolean run_cellbender = false
+        # PairedTag
+        Boolean preindex = true
     }
-
     # Call the Optimus workflow
     call optimus.Optimus as Optimus {
         input:
@@ -68,6 +66,48 @@ workflow Multiome {
             count_exons = count_exons,
     }
 
+    # Call the ATAC workflow
+        # Call the ATAC workflow
+    if (preindex) {
+        scatter (idx in range(length(read1_fastqs))) {
+            call Demultiplexing.PairedTagDemultiplex {
+              input:
+                read1_fastq = atac_r1_fastq[idx],
+                read3_fastq = atac_r3_fastq[idx],
+                barcodes_fastq = atac_r2_fastq[idx],
+                input_id = input_id
+            }
+        }
+        call atac.ATAC as Atac {
+          input:
+            read1_fastq_gzipped = atac_r1_fastq,
+            read2_fastq_gzipped = atac_r2_fastq,
+            read3_fastq_gzipped = atac_r3_fastq,
+            input_id = input_id + "_atac",
+            tar_bwa_reference = tar_bwa_reference,
+            annotations_gtf = annotations_gtf,
+            chrom_sizes = chrom_sizes,
+            whitelist = atac_whitelist,
+            adapter_seq_read1 = adapter_seq_read1,
+            adapter_seq_read3 = adapter_seq_read3
+        }         
+    }
+    } 
+    if (!preindex) {
+      call atac.ATAC as Atac {
+        input:
+            read1_fastq_gzipped = atac_r1_fastq,
+            read2_fastq_gzipped = atac_r2_fastq,
+            read3_fastq_gzipped = atac_r3_fastq,
+            input_id = input_id + "_atac",
+            tar_bwa_reference = tar_bwa_reference,
+            annotations_gtf = annotations_gtf,
+            chrom_sizes = chrom_sizes,
+            whitelist = atac_whitelist,
+            adapter_seq_read1 = adapter_seq_read1,
+            adapter_seq_read3 = adapter_seq_read3
+        }
+    } 
     call atac.ATAC as Atac {
         input:
             read1_fastq_gzipped = atac_r1_fastq,
@@ -89,31 +129,13 @@ workflow Multiome {
             atac_whitelist = atac_whitelist
     }
 
-    # Call CellBender
-    if (run_cellbender) {
-        call CellBender.run_cellbender_remove_background_gpu as CellBender {
-            input:
-                sample_name = input_id,
-                input_file_unfiltered = Optimus.h5ad_output_file,
-                hardware_boot_disk_size_GB = 20,
-                hardware_cpu_count = 4,
-                hardware_disk_size_GB = 50,
-                hardware_gpu_type = "nvidia-tesla-t4",
-                hardware_memory_GB = 32,
-                hardware_preemptible_tries = 2,
-                hardware_zones = "us-central1-a us-central1-c",
-                nvidia_driver_version = "470.82.01"
-
-        }
-    }
-
     meta {
         allowNestedInputs: true
     }
 
     output {
         
-        String multiome_pipeline_version_out = pipeline_version
+        String pairedtag_pipeline_version_out = pipeline_version
 
         # atac outputs
         File bam_aligned_output_atac = Atac.bam_aligned_output
@@ -130,15 +152,5 @@ workflow Multiome {
         File gene_metrics_gex = Optimus.gene_metrics
         File? cell_calls_gex = Optimus.cell_calls
         File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
-
-        # cellbender outputs
-        File? cell_barcodes_csv = CellBender.cell_csv
-        File? checkpoint_file = CellBender.ckpt_file
-        Array[File]? h5_array = CellBender.h5_array
-        Array[File]? html_report_array = CellBender.report_array
-        File? log = CellBender.log
-        Array[File]? metrics_csv_array = CellBender.metrics_array
-        String? output_directory = CellBender.output_dir
-        File? summary_pdf = CellBender.pdf
     }
 }

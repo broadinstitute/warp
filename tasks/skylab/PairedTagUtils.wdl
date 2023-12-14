@@ -1,101 +1,66 @@
 version 1.0
 
 task PairedTagDemultiplex {
+    input {
+        File read1_fastq
+        File read3_fastq
+        File barcodes_fastq
+        String input_id
 
-  input {
-    #runtime values
-    #String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.6-1692962087"
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.0"
-    # name of the sample
-    String input_id
-    # user provided id
-    String? input_name
-    String? input_id_metadata_field
-    String? input_name_metadata_field
-    # gene annotation file in GTF format
-    File annotation_file
-    # the file "merged-cell-metrics.csv.gz" that contains the cellwise metrics
-    File cell_metrics
-    # the file "merged-gene-metrics.csv.gz" that contains the  genwise metrics
-    File gene_metrics
-    # file (.npz)  that contains the count matrix
-    File sparse_count_matrix
-    # file (.npy) that contains the array of cell barcodes
-    File cell_id
-    # file (.npy) that contains the array of gene names
-    File gene_id
-    # emptydrops output metadata
-    File? empty_drops_result
-    String counting_mode = "sc_rna"
-    String add_emptydrops_data = "yes"
+        # using the latest build of upstools docker in GCR
+        String docker = "us.gcr.io/broad-gotc-prod/upstools:1.0.0-2023.03.03-1701813153"
 
+        # Runtime attributes
+        Int mem_size = 5
+        Int cpu = 16
+        # TODO decided cpu
+        # estimate that bam is approximately equal in size to fastq, add 20% buffer
+        Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
+        Int preemptible = 3
+    }
 
-    String pipeline_version
+    meta {
+        description: "Demultiplexes paired-tag ATAC fastq files that have a 3 bp preindex and adds the index to readnames."
+    }
 
-    Int preemptible = 3
-    Int disk = 200
-    Int machine_mem_mb = 16000
-    Int cpu = 4
-  }
+    parameter_meta {
+        read1_fastq: "read 1 FASTQ files of paired reads -- forward reads"
+        read3_fastq: "read 3 FASTQ files of paired reads -- reverse reads"
+        barcodes_fastq: "read 2 FASTQ files which contains the cellular barcodes"
+        docker: "(optional) the docker image containing the runtime environment for this task"
+        mem_size: "(optional) the amount of memory (MiB) to provision for this task"
+        cpu: "(optional) the number of cpus to provision for this task"
+        disk_size: "(optional) the amount of disk space (GiB) to provision for this task"
+        preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
+    }
 
-  meta {
-    description: "This task will converts some of the outputs of Optimus pipeline into a h5ad file"
-  }
+    command <<<
 
-  parameter_meta {
-    preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
-  }
+        set -e
+        echo ~{read1_fastq}
+        echo ~{barcodes_fastq}
+        echo ~{read3_fastq}
+        echo Renaming files
+        mv ~{read1_fastq} "~{input_id}_R1.fq.gz"
+        mv ~{barcodes_fastq} "~{input_id}_R2.fq.gz"
+        mv ~{read3_fastq} "~{input_id}_R3.fq.gz"
 
-  command <<<
-    set -euo pipefail
+        upstools sepType_DPT ~{input_id} 3
+        echo Listing files
+        ls
+    >>>
 
-    touch empty_drops_result.csv
+    runtime {
+        docker: docker
+        cpu: cpu
+        memory: "${mem_size} MiB"
+        disks: "local-disk ${disk_size} HDD"
+        preemptible: preemptible
+    }
 
-    if [ "~{counting_mode}" == "sc_rna" ]; then
-        python3 /warptools/scripts/create_h5ad_optimus.py \
-          ~{if defined(empty_drops_result) then "--empty_drops_file  " + empty_drops_result  else "--empty_drops_file empty_drops_result.csv "  } \
-          --add_emptydrops_data ~{add_emptydrops_data} \
-          --annotation_file ~{annotation_file} \
-          --cell_metrics ~{cell_metrics} \
-          --gene_metrics ~{gene_metrics} \
-          --cell_id ~{cell_id} \
-          --gene_id  ~{gene_id} \
-          --output_path_for_h5ad "~{input_id}" \
-          --input_id ~{input_id} \
-          ~{"--input_name " + input_name} \
-          ~{"--input_id_metadata_field " + input_id_metadata_field} \
-          ~{"--input_name_metadata_field " + input_name_metadata_field} \
-          --count_matrix ~{sparse_count_matrix} \
-          --expression_data_type "exonic" \
-          --pipeline_version ~{pipeline_version}
-    else
-        python3 /warptools/scripts/create_snrna_optimus_full_h5ad.py \
-          --annotation_file ~{annotation_file} \
-          --cell_metrics ~{cell_metrics} \
-          --gene_metrics ~{gene_metrics} \
-          --cell_id ~{cell_id} \
-          --gene_id  ~{gene_id} \
-          --output_path_for_h5ad "~{input_id}" \
-          --input_id ~{input_id} \
-          ~{"--input_name " + input_name} \
-          ~{"--input_id_metadata_field " + input_id_metadata_field} \
-          ~{"--input_name_metadata_field " + input_name_metadata_field} \
-          --count_matrix ~{sparse_count_matrix} \
-          --expression_data_type "whole_transcript"\
-          --pipeline_version ~{pipeline_version}
-    fi
-  >>>
-
-  runtime {
-    docker: docker
-    cpu: cpu  # note that only 1 thread is supported by pseudobam
-    memory: "~{machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
-    disk: disk + " GB" # TES
-    preemptible: preemptible
-  }
-
-  output {
-    File h5ad_output = "~{input_id}.h5ad"
-  }
+    output {
+        File fastq1 = "~{input_id}_R1_prefix.fq.gz"
+        File barcodes = "~{input_id}_R2_prefix.fq.gz"
+        File fastq3 = "~{input_id}_R3_prefix.fq.gz"
+    }
 }
