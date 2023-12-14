@@ -1,7 +1,7 @@
 version 1.0
 
 import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
-import "https://raw.githubusercontent.com/broadinstitute/gatk/master/scripts/vcf_site_level_filtering_wdl/JointVcfFiltering.wdl" as Filtering
+import "https://raw.githubusercontent.com/broadinstitute/gatk/4.5.0.0/scripts/vcf_site_level_filtering_wdl/JointVcfFiltering.wdl" as Filtering
 import "../../../../../../tasks/broad/UltimaGenomicsGermlineFilteringThreshold.wdl" as FilteringThreshold
 
 
@@ -168,7 +168,7 @@ workflow UltimaGenomicsJointGenotyping {
       extract_extra_args = "--mode SNP",
       train_extra_args = "--mode SNP",
       score_extra_args = "--mode SNP",
-      gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-e6e4deae3bd6d303a9e6b6ed849213744b3245a6-4.4.0.0-68-ge6e4deae3"
+      gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   }
 
   call Filtering.JointVcfFiltering as TrainAndApplyFilteringModelINDELs {
@@ -184,7 +184,7 @@ workflow UltimaGenomicsJointGenotyping {
       extract_extra_args = "--mode INDEL",
       train_extra_args = "--mode INDEL",
       score_extra_args = "--mode INDEL",
-      gatk_docker = "us.gcr.io/broad-dsde-methods/broad-gatk-snapshots/gatk-remote-builds:mshand-e6e4deae3bd6d303a9e6b6ed849213744b3245a6-4.4.0.0-68-ge6e4deae3"
+      gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   }
 
   call FilteringThreshold.ExtractOptimizeSingleSample as FindFilteringThresholdAndFilter {
