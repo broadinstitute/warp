@@ -1,7 +1,7 @@
 version 1.0
 
 import "../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
-import "https://raw.githubusercontent.com/broadinstitute/gatk/4.4.0.0/scripts/vcf_site_level_filtering_wdl/JointVcfFiltering.wdl" as Filtering
+import "https://raw.githubusercontent.com/broadinstitute/gatk/4.5.0.0/scripts/vcf_site_level_filtering_wdl/JointVcfFiltering.wdl" as Filtering
 
 
 # Joint Genotyping for hg38 Whole Genomes and Exomes (has not been tested on hg19)
