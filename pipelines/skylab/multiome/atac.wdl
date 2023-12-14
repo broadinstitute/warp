@@ -263,28 +263,28 @@ task BWAPairedEndAlignment {
     bwa-mem2 \
     mem \
     -R "@RG\tID:RG1\tSM:RGSN1" \
-    -C -t $n_threadsn1 $REF_DIR/genome.fa "~{read1_fastq[0]}" "~{read3_fastq[0]}" > aligned_output_p1.sam 2> aligned_output_p1.log &   
+    -C -t $n_threadsn1 $REF_DIR/genome.fa "~{read1_fastq[0]}" "~{read3_fastq[0]}" > aligned_output_p1.sam &   
    
     taskset -c $cpu0n2-$cpu1n2,$cpu2n2-$cpu3n2,$cpu4n2-$cpu5n2 \
     bwa-mem2 \
     mem \
     -R "@RG\tID:RG1\tSM:RGSN1" \
-    -C -t $n_threadsn2 $REF_DIR/genome.fa "~{read1_fastq[1]}" "~{read3_fastq[1]}" > aligned_output_p2.sam 2> aligned_output_p2.log &    
+    -C -t $n_threadsn2 $REF_DIR/genome.fa "~{read1_fastq[1]}" "~{read3_fastq[1]}" > aligned_output_p2.sam &    
 
     taskset -c $cpu0n3-$cpu1n3,$cpu2n3-$cpu3n3,$cpu4n3-$cpu5n3 \
     bwa-mem2 \
     mem \
     -R "@RG\tID:RG1\tSM:RGSN1" \
-    -C -t $n_threadsn3 $REF_DIR/genome.fa "~{read1_fastq[2]}" "~{read3_fastq[2]}" > aligned_output_p3.sam 2> aligned_output_p3.log &    
+    -C -t $n_threadsn3 $REF_DIR/genome.fa "~{read1_fastq[2]}" "~{read3_fastq[2]}" > aligned_output_p3.sam &    
 
     taskset -c $cpu0n4-$cpu1n4,$cpu2n4-$cpu3n4,$cpu4n4-$cpu5n4 \
     bwa-mem2 \
     mem \
     -R "@RG\tID:RG1\tSM:RGSN1" \
-    -C -t $n_threadsn4 $REF_DIR/genome.fa "~{read1_fastq[3]}" "~{read3_fastq[3]}" > aligned_output_p4.sam 2> aligned_output_p4.log &
+    -C -t $n_threadsn4 $REF_DIR/genome.fa "~{read1_fastq[3]}" "~{read3_fastq[3]}" > aligned_output_p4.sam &
 
     wait
-
+    ls
     # samtools sort 
     echo "samtools sort"
     samtools sort -@10 -m20g aligned_output_p1.sam -o bam_aligned_output_p1.bam
@@ -293,14 +293,12 @@ task BWAPairedEndAlignment {
     samtools sort -@10 -m20g aligned_output_p4.sam -o bam_aligned_output_p4.bam
 
     # remove sam files
-    rm aligned_output_p1.sam aligned_output_p2.sam aligned_output_p3.sam aligned_output_p4.sam
     
     # samtools merge
     echo "samtools merge"
     samtools merge -o ~{aligned_output} bam_aligned_output_p1.bam bam_aligned_output_p2.bam bam_aligned_output_p3.bam bam_aligned_output_p4.bam -@100 
 
     # remove partial bam files
-    rm aligned_output_p1.bam aligned_output_p2.bam aligned_output_p3.bam aligned_output_p4.bam
     
     ls
 
