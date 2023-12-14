@@ -26,6 +26,6 @@
 "UltimaGenomicsJointGenotyping.call_sample_name": "NA12878",
 "UltimaGenomicsJointGenotyping.truth_sample_name": "HG001",
 "UltimaGenomicsJointGenotyping.model_backend": "PYTHON_IFOREST",
-"UltimaGenomicsJointGenotyping.TrainAndApplyFilteringModelSNPs.extract_runtime_attributes": {"command_mem_gb":13},
-"UltimaGenomicsJointGenotyping.TrainAndApplyFilteringModelSNPs.train_runtime_attributes": {"command_mem_gb":13}
+"UltimaGenomicsJointGenotyping.TrainAndApplyFilteringModelSNPs.extract_runtime_attributes": {"command_mem_gb":13, "additional_mem_gb":2},
+"UltimaGenomicsJointGenotyping.TrainAndApplyFilteringModelSNPs.train_runtime_attributes": {"command_mem_gb":13, "additional_mem_gb":2}
 }
