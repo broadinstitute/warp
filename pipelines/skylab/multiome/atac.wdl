@@ -165,7 +165,6 @@ task BWAPairedEndAlignment {
     String read_group_sample_name = "RGSN1"
     String output_base_name
     String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa-debian:aa-debian-samtools-bwa"
-    File monitoring = "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh"
 
     # Runtime attributes
     Int disk_size = 2000
@@ -193,13 +192,6 @@ task BWAPairedEndAlignment {
 
     set -euo pipefail    
     lscpu
-    # if the WDL/task contains a monitoring script as input
-    if [ ! -z "~{monitoring}" ]; then
-      chmod a+x ~{monitoring}
-      ~{monitoring} > monitoring.log &
-    else
-      echo "No monitoring script given as input" > monitoring.log &
-    fi
 
     # prepare reference
     declare -r REF_DIR=$(mktemp -d genome_referenceXXXXXX)
@@ -223,7 +215,7 @@ task BWAPairedEndAlignment {
     cpu3n1=$((cpu_numbers[1] + $step)) #15
     cpu4n1=$((cpu_numbers[3] + 2)) #66
     cpu5n1=$((cpu_numbers[3] + $step)) #79
-    n_threadsn1=$(($((cpu5n1-cpu4n1)) + $((cpu3n1-cpu2n1)) + 2))
+    n_threadsn1=$(($((cpu5n1-cpu4n1)) + $((cpu3n1-cpu2n1)) + 2)) #28
     
     echo $cpu0n1, $cpu1n1, $cpu2n1, $cpu3n1, $cpu4n1, $cpu5n1
     echo $n_threadsn1
@@ -232,9 +224,9 @@ task BWAPairedEndAlignment {
     cpu1n2=$((cpu3n1 + 2)) #17
     cpu2n2=$((cpu3n1 + 3)) #18
     cpu3n2=$((cpu0n2 + $step)) #31
-    cpu4n2=$((cpu5n1 + 3)) #81
-    cpu5n2=$((cpu4n2 + $step - 1)) #95
-    n_threadsn2=$(($((cpu5n2-cpu4n2)) + $((cpu3n2-cpu2n2)) + 2))
+    cpu4n2=$((cpu5n1 + 3)) #82
+    cpu5n2=$((cpu4n2 + $step - 2)) #95
+    n_threadsn2=$(($((cpu5n2-cpu4n2)) + $((cpu3n2-cpu2n2)) + 2)) #28
 
     echo $cpu0n2, $cpu1n2, $cpu2n2, $cpu3n2, $cpu4n2, $cpu5n2
     echo $n_threadsn2
@@ -247,21 +239,21 @@ task BWAPairedEndAlignment {
     cpu0n3=$((cpu_numbers[1])) #32
     cpu1n3=$((cpu_numbers[1] + 1)) #33
     cpu2n3=$((cpu_numbers[1] + 2)) #34
-    cpu3n3=$((cpu_numbers[1] + $step)) #
-    cpu4n3=$((cpu_numbers[3] + 2)) #96
+    cpu3n3=$((cpu_numbers[1] + $step)) #47
+    cpu4n3=$((cpu_numbers[3] + 2)) #98
     cpu5n3=$((cpu_numbers[3] + $step)) #111
-    n_threadsn3=$(($((cpu5n3-cpu4n3)) + $((cpu3n3-cpu2n3)) + 2))
+    n_threadsn3=$(($((cpu5n3-cpu4n3)) + $((cpu3n3-cpu2n3)) + 2)) #28
     
     echo $cpu0n3, $cpu1n3, $cpu2n3, $cpu3n3, $cpu4n3, $cpu5n3
     echo $n_threadsn3
 
-    cpu0n4=$((cpu3n3 + 1)) #16
-    cpu1n4=$((cpu3n3 + 2)) #17
-    cpu2n4=$((cpu3n3 + 3)) #18
-    cpu3n4=$((cpu0n4 + $step)) #31
-    cpu4n4=$((cpu5n3 + 3)) #81
-    cpu5n4=$((cpu4n4 + $step - 1)) #95
-    n_threadsn4=$(($((cpu5n4-cpu4n4)) + $((cpu3n4-cpu2n4)) + 2))
+    cpu0n4=$((cpu3n3 + 1)) #48
+    cpu1n4=$((cpu3n3 + 2)) #49
+    cpu2n4=$((cpu3n3 + 3)) #50
+    cpu3n4=$((cpu0n4 + $step)) #63
+    cpu4n4=$((cpu5n3 + 3)) #114
+    cpu5n4=$((cpu4n4 + $step - 2)) #127
+    n_threadsn4=$(($((cpu5n4-cpu4n4)) + $((cpu3n4-cpu2n4)) + 2)) #28
 
     echo $cpu0n4, $cpu1n4, $cpu2n4, $cpu3n4, $cpu4n4, $cpu5n4
     echo $n_threadsn4
@@ -271,29 +263,28 @@ task BWAPairedEndAlignment {
     bwa-mem2 \
     mem \
     -R "@RG\tID:RG1\tSM:RGSN1" \
-    -C -t $n_threadsn1 $REF_DIR/genome.fa "~{read1_fastq[0]}" "~{read3_fastq[0]}" > aligned_output_p1.sam &   
+    -C -t $n_threadsn1 $REF_DIR/genome.fa "~{read1_fastq[0]}" "~{read3_fastq[0]}" > aligned_output_p1.sam 2> aligned_output_p1.log &   
    
     taskset -c $cpu0n2-$cpu1n2,$cpu2n2-$cpu3n2,$cpu4n2-$cpu5n2 \
     bwa-mem2 \
     mem \
     -R "@RG\tID:RG1\tSM:RGSN1" \
-    -C -t $n_threadsn2 $REF_DIR/genome.fa "~{read1_fastq[1]}" "~{read3_fastq[1]}" > aligned_output_p2.sam &  
+    -C -t $n_threadsn2 $REF_DIR/genome.fa "~{read1_fastq[1]}" "~{read3_fastq[1]}" > aligned_output_p2.sam 2> aligned_output_p2.log &    
 
     taskset -c $cpu0n3-$cpu1n3,$cpu2n3-$cpu3n3,$cpu4n3-$cpu5n3 \
     bwa-mem2 \
     mem \
     -R "@RG\tID:RG1\tSM:RGSN1" \
-    -C -t $n_threadsn3 $REF_DIR/genome.fa "~{read1_fastq[2]}" "~{read3_fastq[2]}" > aligned_output_p3.sam &  
+    -C -t $n_threadsn3 $REF_DIR/genome.fa "~{read1_fastq[2]}" "~{read3_fastq[2]}" > aligned_output_p3.sam 2> aligned_output_p3.log &    
 
     taskset -c $cpu0n4-$cpu1n4,$cpu2n4-$cpu3n4,$cpu4n4-$cpu5n4 \
     bwa-mem2 \
     mem \
     -R "@RG\tID:RG1\tSM:RGSN1" \
-    -C -t $n_threadsn4 $REF_DIR/genome.fa "~{read1_fastq[3]}" "~{read3_fastq[3]}" > aligned_output_p4.sam &  
+    -C -t $n_threadsn4 $REF_DIR/genome.fa "~{read1_fastq[3]}" "~{read3_fastq[3]}" > aligned_output_p4.sam 2> aligned_output_p4.log &
 
     wait
 
-        
     # samtools sort 
     echo "samtools sort"
     samtools sort -@10 -m20g aligned_output_p1.sam -o bam_aligned_output_p1.bam
@@ -301,10 +292,18 @@ task BWAPairedEndAlignment {
     samtools sort -@10 -m20g aligned_output_p3.sam -o bam_aligned_output_p3.bam
     samtools sort -@10 -m20g aligned_output_p4.sam -o bam_aligned_output_p4.bam
 
+    # remove sam files
+    rm aligned_output_p1.sam aligned_output_p2.sam aligned_output_p3.sam aligned_output_p4.sam
+    
     # samtools merge
     echo "samtools merge"
     samtools merge -o ~{aligned_output} bam_aligned_output_p1.bam bam_aligned_output_p2.bam bam_aligned_output_p3.bam bam_aligned_output_p4.bam -@100 
-     
+
+    # remove partial bam files
+    rm aligned_output_p1.bam aligned_output_p2.bam aligned_output_p3.bam aligned_output_p4.bam
+    
+    ls
+
   >>>
 
   runtime {
@@ -317,7 +316,6 @@ task BWAPairedEndAlignment {
 
   output {
     File bam_aligned_output = aligned_output
-    File monitoring_out = "monitoring.log"
 
   }
 }
