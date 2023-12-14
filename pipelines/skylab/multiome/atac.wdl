@@ -165,7 +165,6 @@ task BWAPairedEndAlignment {
     String suffix = "trimmed_adapters.fastq.gz"
     String output_base_name
     String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:aa-dist-bwa-"
-    File monitoring = "gs://fc-51792410-8543-49ba-ad3f-9e274900879f/cromwell_monitoring_script2.sh"
 
     # Runtime attributes
     Int disk_size = 2000
@@ -198,14 +197,6 @@ task BWAPairedEndAlignment {
     echo "lscpu output"
     lscpu
     echo "end of lscpu output"
-
-    # if the WDL/task contains a monitoring script as input
-    if [ ! -z "~{monitoring}" ]; then
-      chmod a+x ~{monitoring}
-      ~{monitoring} > monitoring.log &
-    else
-      echo "No monitoring script given as input" > monitoring.log &
-    fi
 
     # prepare reference
     declare -r REF_DIR=$(mktemp -d genome_referenceXXXXXX)
@@ -312,7 +303,6 @@ task BWAPairedEndAlignment {
 
   output {
     File bam_aligned_output = bam_aligned_output_name
-    File monitoring_out = "monitoring.log"
     File output_distbwa_log_tar = "output_distbwa_log.tar.gz"
   }
 }
