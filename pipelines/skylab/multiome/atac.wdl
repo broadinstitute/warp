@@ -186,7 +186,7 @@ task BWAPairedEndAlignment {
     docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504)"
   }
 
-  String bam_aligned_output_name = output_base_name + ".aligned.bam"
+  String bam_aligned_output_name = output_base_name + ".bam"
 
   # bwa and call samtools to convert sam to bam
   command <<<
