@@ -1,3 +1,8 @@
+# 2.1.9
+2023-12-08 (Date of Last Commit)
+
+* ValidateVcfs now has optional memory parameter
+
 # 2.1.8
 2023-11-29 (Date of Last Commit)
 
