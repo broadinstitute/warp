@@ -171,6 +171,7 @@ task BWAPairedEndAlignment {
     Int disk_size = 2000
     Int nthreads = 128
     Int mem_size = 512
+    String cpu_platform = "Intel Ice Lake"
   }
 
   parameter_meta {
@@ -305,7 +306,7 @@ task BWAPairedEndAlignment {
     docker: docker_image
     disks: "local-disk ${disk_size} SSD"
     cpu: nthreads
-    cpuPlatform: "Intel Ice Lake"
+    cpuPlatform: cpu_platform
     memory: "${mem_size} GiB"
   }
 
