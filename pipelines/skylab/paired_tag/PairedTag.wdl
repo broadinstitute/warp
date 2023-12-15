@@ -109,6 +109,8 @@ workflow PairedTag {
     } 
    
     File atac_h5ad = select_first([Atac_preindex.snap_metrics,Atac.snap_metrics])
+    File atac_fragment = select_first([Atac_preindex.fragment_file, Atac.fragment_file])
+    File bam_atac_output = select_first([Atac_preindex.bam_aligned_output, Atac.bam_aligned_output])
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
             atac_h5ad = atac_h5ad,
@@ -120,14 +122,14 @@ workflow PairedTag {
     meta {
         allowNestedInputs: true
     }
-
+    
     output {
         
         String pairedtag_pipeline_version_out = pipeline_version
 
         # atac outputs
-        File bam_aligned_output_atac = Atac.bam_aligned_output
-        File fragment_file_atac = Atac.fragment_file
+        File bam_aligned_output_atac = bam_atac_output
+        File fragment_file_atac = atac_fragment
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
 
         # optimus outputs
