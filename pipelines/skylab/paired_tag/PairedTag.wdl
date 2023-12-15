@@ -116,7 +116,8 @@ workflow PairedTag {
             atac_h5ad = atac_h5ad,
             gex_h5ad = Optimus.h5ad_output_file,
             gex_whitelist = gex_whitelist,
-            atac_whitelist = atac_whitelist
+            atac_whitelist = atac_whitelist,
+            atac_fragment = atac_fragment
     }
 
     meta {
