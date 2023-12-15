@@ -78,7 +78,7 @@ workflow PairedTag {
                 input_id = input_id
             }
         }
-        call atac.ATAC as Atac {
+        call atac.ATAC as Atac_preindex {
           input:
             read1_fastq_gzipped = demultiplex.fastq1,
             read2_fastq_gzipped = demultiplex.barcodes,
@@ -108,9 +108,10 @@ workflow PairedTag {
         }
     } 
    
+    File atac_h5ad = select_first([Atac_preindex.snap_metrics,Atac.snap_metrics])
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
-            atac_h5ad = Atac.snap_metrics,
+            atac_h5ad = atac_h5ad,
             gex_h5ad = Optimus.h5ad_output_file,
             gex_whitelist = gex_whitelist,
             atac_whitelist = atac_whitelist
