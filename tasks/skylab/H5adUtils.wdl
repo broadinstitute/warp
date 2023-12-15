@@ -193,9 +193,10 @@ task JoinMultiomeBarcodes {
     File gex_whitelist
     File atac_whitelist
     Int disk_size = 1000
-    Int mem_size = 64
-    Int nthreads = 16
+    Int mem_size = 128
+    Int nthreads = 32
     String cpuPlatform = "Intel Cascade Lake"
+    File monitoring = "gs://broad-gotc-test-storage/cromwell_monitoring_script2.sh"
   }
     String gex_base_name = basename(gex_h5ad, ".h5ad")
     String atac_base_name = basename(atac_h5ad, ".h5ad")
@@ -212,6 +213,13 @@ task JoinMultiomeBarcodes {
 
   command <<<
     set -e pipefail
+    # if the WDL/task contains a monitoring script as input
+    if [ ! -z "~{monitoring}" ]; then
+      chmod a+x ~{monitoring}
+      ~{monitoring} > monitoring.log &
+    else
+      echo "No monitoring script given as input" > monitoring.log &
+    fi
 
     python3 <<CODE
 
@@ -290,5 +298,6 @@ task JoinMultiomeBarcodes {
     File atac_h5ad_file = "~{atac_base_name}.h5ad"
     File atac_fragment_tsv = "~{atac_fragment_base}.sorted.tsv.gz"
     File atac_fragment_tsv_tbi = "~{atac_fragment_base}.sorted.tsv.gz.tbi"
+    File monitoring_out = "monitoring.log"
   }
 }
