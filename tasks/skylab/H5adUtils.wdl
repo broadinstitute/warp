@@ -192,10 +192,9 @@ task JoinMultiomeBarcodes {
     File gex_h5ad
     File gex_whitelist
     File atac_whitelist
-    Int disk_size = 500
-    Int mem_size = 16
-    Int nthreads = 1
-    String cpuPlatform = "Intel Cascade Lake"
+    Int disk_size = 1000
+    Int mem_size = 128
+    Int nthreads = 32
   }
     String gex_base_name = basename(gex_h5ad, ".h5ad")
     String atac_base_name = basename(atac_h5ad, ".h5ad")
