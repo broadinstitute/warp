@@ -69,7 +69,7 @@ workflow PairedTag {
     # Call the ATAC workflow
         # Call the ATAC workflow
     if (preindex) {
-        scatter (idx in range(length(read1_fastqs))) {
+        scatter (idx in range(length(atac_r1_fastq))) {
             call Demultiplexing.PairedTagDemultiplex as demultiplex {
               input:
                 read1_fastq = atac_r1_fastq[idx],
