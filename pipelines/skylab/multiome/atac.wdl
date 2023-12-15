@@ -248,7 +248,7 @@ task BWAPairedEndAlignment {
     
     input_to_config="INPUT_DIR=\"${INPUT_DIR}\"\nOUTPUT_DIR=\"${OUTPUT_DIR}\"\nPREFIX=\"${PREFIX}\"\nSUFFIX=\"${SUFFIX}\"\n"
     other_to_add="R1=\"${R1}\"\nR2=\"${R2}\"\nR3=\"${R3}\"\nI1=\"${I1}\"\nREF=\"${REF}\"\n"
-    params="PARAMS=\'${PARAMS}\'"
+    params="PARAMS='${PARAMS}'"
     
     printf "%b" "$input_to_config"
     printf "%b" "$other_to_add"
