@@ -241,7 +241,7 @@ task BWAPairedEndAlignment {
     echo "REF_PAR_DIR:" $REF_PAR_DIR
     REF=$REF_PAR_DIR/genome.fa
     
-    PARAMS='+R "@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}" +C'
+    PARAMS="+R '@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}' +C"
     
     INPUT_DIR=$file_path/input_dir
     OUTPUT_DIR=$file_path/output_dir
