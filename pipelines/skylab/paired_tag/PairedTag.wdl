@@ -70,7 +70,7 @@ workflow PairedTag {
         # Call the ATAC workflow
     if (preindex) {
         scatter (idx in range(length(read1_fastqs))) {
-            call Demultiplexing.PairedTagDemultiplex {
+            call Demultiplexing.PairedTagDemultiplex as demultiplex {
               input:
                 read1_fastq = atac_r1_fastq[idx],
                 read3_fastq = atac_r3_fastq[idx],
@@ -80,9 +80,9 @@ workflow PairedTag {
         }
         call atac.ATAC as Atac {
           input:
-            read1_fastq_gzipped = Demultiplexing.fastq1,
-            read2_fastq_gzipped = Demultiplexing.barcodes,
-            read3_fastq_gzipped = Demultiplexing.fastq3,
+            read1_fastq_gzipped = demultiplex.fastq1,
+            read2_fastq_gzipped = demultiplex.barcodes,
+            read3_fastq_gzipped = demultiplex.fastq3,
             input_id = input_id + "_atac",
             tar_bwa_reference = tar_bwa_reference,
             annotations_gtf = annotations_gtf,
