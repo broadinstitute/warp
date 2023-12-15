@@ -195,7 +195,6 @@ task JoinMultiomeBarcodes {
     Int disk_size = 1000
     Int mem_size = 128
     Int nthreads = 32
-    String cpuPlatform = "Intel Cascade Lake"
     File monitoring = "gs://broad-gotc-test-storage/cromwell_monitoring_script2.sh"
   }
     String gex_base_name = basename(gex_h5ad, ".h5ad")
