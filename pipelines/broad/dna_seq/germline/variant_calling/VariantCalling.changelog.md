@@ -1,3 +1,8 @@
+# 2.1.16
+2023-12-18 (Date of Last Commit)
+
+* Updated to GATK version 4.5.0.0. Header documentation change for RAW_GT_COUNT annotation.
+
 # 2.1.15
 2023-12-08 (Date of Last Commit)
 

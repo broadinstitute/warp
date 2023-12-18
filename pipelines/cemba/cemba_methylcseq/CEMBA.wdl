@@ -57,7 +57,7 @@ workflow CEMBA {
     }
 
     # version of this pipeline
-    String pipeline_version = "1.1.5"
+    String pipeline_version = "1.1.6"
 
   # trim off hardcoded sequence adapters
   call Trim as TrimAdapters {
