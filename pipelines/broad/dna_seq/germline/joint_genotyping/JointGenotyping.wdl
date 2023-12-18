@@ -216,7 +216,7 @@ workflow JointGenotyping {
         score_extra_args = allele_specific_extra_args,
         resource_args = resource_args,
         output_prefix = callset_name,
-        gatk_docker = "us.gcr.io/broad-gatk/gatk:4.4.0.0"
+        gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     }
   } 
   if (!run_vets) {
