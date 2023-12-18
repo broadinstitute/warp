@@ -438,7 +438,7 @@ task MergeStarOutput {
 
     #runtime values
     String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
-    Int machine_mem = 20
+    Int machine_mem_mb = 20
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
     Int preemptible = 3
@@ -512,7 +512,7 @@ task MergeStarOutput {
 
   runtime {
     docker: docker
-    memory: "${machine_mem} GiB"
+    memory: "${machine_mem_mb} GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
     cpu: cpu
