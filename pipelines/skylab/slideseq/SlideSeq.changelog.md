@@ -1,3 +1,9 @@
+# 2.1.3
+2023-12-17 (Date of Last Commit)
+
+* Updated the ATAC WDL for the Multiome BWAPairedEndAlignment and MergedBAM tasks; this does affect the SlideSeq workflow
+  
+
 # 2.1.2
 2023-11-21 (Date of Last Commit)
 
