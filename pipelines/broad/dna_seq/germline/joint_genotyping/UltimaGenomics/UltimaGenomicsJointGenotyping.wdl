@@ -11,7 +11,7 @@ import "../../../../../../tasks/broad/UltimaGenomicsGermlineFilteringThreshold.w
 # For choosing a filtering threshold (where on the ROC curve to filter) a sample with truth data is required.
 workflow UltimaGenomicsJointGenotyping {
 
-  String pipeline_version = "1.1.4"
+  String pipeline_version = "1.1.5"
 
   input {
     File unpadded_intervals_file
