@@ -1,9 +1,10 @@
 # 3.0.2
 2023-12-17 (Date of Last Commit)
 * Added updated docker to BWAPairedEndAlignment ATAC task to use updated code for distributed bwa-mem2 from Intel
-* Removed MergedBAM ATAC and moved BWAPairedEndAlignment ATAC outside of the for loop.
+* Removed MergedBAM ATAC and moved BWAPairedEndAlignment ATAC outside of the for loop
 * Changed CPU platform to Ice Lake for BWAPairedEndAlignment ATAC task
-* Added input parameter input_output_parameter to the Multiome ATAC wdl 
+* Added input parameter input_output_parameter to the Multiome ATAC wdl
+* Increased memory for JoinMultiomeBarcodes in H5adUtils 
 
 # 3.0.1
 2023-12-12 (Date of Last Commit)
