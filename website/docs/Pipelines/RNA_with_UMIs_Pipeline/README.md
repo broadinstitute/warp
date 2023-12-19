@@ -7,7 +7,7 @@ slug: /Pipelines/RNA_with_UMIs_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [RNAWithUMIsPipeline_v1.0.6](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | April, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [RNAWithUMIsPipeline_v1.0.15](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | December, 2023 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![RNAWithUMIs_diagram](rna-with-umis_diagram.png)
 
@@ -235,8 +235,7 @@ Workflow outputs are described in the table below.
 | Output variable name | Description | Type | 
 | ------ | ------ | ------ |
 | sample_name | Sample name extracted from the input unmapped BAM file header. | String
-| transcriptome_bam | Duplicate-marked BAM file containing alignments from STAR translated into transcriptome coordinates. | BAM |
-| transcriptome_bam_index | Index file for the transcriptome_bam output. | BAM Index |
+| transcriptome_bam | Duplicate-marked BAM file containing alignments from STAR translated into transcriptome coordinates and postprocessed for RSEM. | BAM |
 | transcriptome_duplicate_metrics | File containing duplication metrics. | TXT | 
 | output_bam | Duplicate-marked BAM file containing alignments from STAR translated into genome coordinates. | BAM |
 | output_bam_index | Index file for the output_bam output. | BAM Index |
