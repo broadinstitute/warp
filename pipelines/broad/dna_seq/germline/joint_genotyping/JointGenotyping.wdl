@@ -63,7 +63,7 @@ workflow JointGenotyping {
     Float unbounded_scatter_count_scale_factor = 0.15
     Int gnarly_scatter_count = 10
     Boolean use_gnarly_genotyper = false
-    Boolean use_allele_specific_annotations = true
+    Boolean use_allele_specific_annotations = true # only applicabale to VQSR
     Boolean cross_check_fingerprints = true
     Boolean scatter_cross_check_fingerprints = false
     Boolean run_vets = false
@@ -198,7 +198,6 @@ workflow JointGenotyping {
   }
   
   if (run_vets) {
-    String allele_specific_extra_args = if allele_specific_annotations then " --use-allele-specific-annotations " else ""
     String resource_args = " --resource:hapmap,training=true,calibration=true " + hapmap_resource_vcf + 
       " --resource:omni,training=true,calibration=true " + omni_resource_vcf + 
       " --resource:1000G,training=true " + one_thousand_genomes_resource_vcf +
@@ -212,8 +211,7 @@ workflow JointGenotyping {
         sites_only_vcf = SitesOnlyGatherVcf.output_vcf,
         sites_only_vcf_idx = SitesOnlyGatherVcf.output_vcf_index,
         annotations = snp_recalibration_annotation_values, #the snp list here is a superset of  the indel list
-        extract_extra_args = allele_specific_extra_args + extract_extra_args,
-        score_extra_args = allele_specific_extra_args,
+        extract_extra_args = extract_extra_args,
         resource_args = resource_args,
         output_prefix = callset_name,
         gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
