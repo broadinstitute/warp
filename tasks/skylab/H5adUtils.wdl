@@ -208,8 +208,6 @@ task JoinMultiomeBarcodes {
     gex_h5ad: "The resulting h5ad from the Optimus workflow."
     gex_whitelist: "Whitelist used for gene expression barcodes."
     atac_whitelist: "Whitelist used for ATAC barcodes."
-    disk: "Disk size used in create fragment file step."
-    machine_mem_mb: "The size of memory used in create fragment file."
   }
 
   command <<<
