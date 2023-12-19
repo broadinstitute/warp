@@ -188,6 +188,7 @@ task SingleNucleusOptimusH5adOutput {
 task JoinMultiomeBarcodes {
     input {
     File atac_h5ad
+    File atac_fragment
     File gex_h5ad
     File gex_whitelist
     File atac_whitelist
@@ -198,8 +199,10 @@ task JoinMultiomeBarcodes {
   }
     String gex_base_name = basename(gex_h5ad, ".h5ad")
     String atac_base_name = basename(atac_h5ad, ".h5ad")
+    String atac_fragment_base = basename(atac_fragment, ".tsv")
   parameter_meta {
     atac_h5ad: "The resulting h5ad from the ATAC workflow."
+    atac_fragment: "The resulting fragment TSV from the ATAC workflow."
     gex_h5ad: "The resulting h5ad from the Optimus workflow."
     gex_whitelist: "Whitelist used for gene expression barcodes."
     atac_whitelist: "Whitelist used for ATAC barcodes."
@@ -214,6 +217,7 @@ task JoinMultiomeBarcodes {
 
     # set parameters
     atac_h5ad = "~{atac_h5ad}"
+    atac_fragment = "~{atac_fragment}"
     gex_h5ad = "~{gex_h5ad}"
     gex_whitelist = "~{gex_whitelist}"
     atac_whitelist = "~{atac_whitelist}"
@@ -223,10 +227,13 @@ task JoinMultiomeBarcodes {
     import pandas as pd
     print("Reading ATAC h5ad:")
     print("~{atac_h5ad}")
+    print("Read ATAC fragment file:")
+    print("~{atac_fragment}")
     print("Reading Optimus h5ad:")
     print("~{gex_h5ad}")
     atac_data = ad.read_h5ad("~{atac_h5ad}")
     gex_data = ad.read_h5ad("~{gex_h5ad}")
+    atac_tsv = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
     whitelist_gex = pd.read_csv("~{gex_whitelist}", header=None, names=["gex_barcodes"])
     whitelist_atac = pd.read_csv("~{atac_whitelist}", header=None, names=["atac_barcodes"])
 
@@ -247,6 +254,7 @@ task JoinMultiomeBarcodes {
     df_both_gex.set_index("gex_barcodes", inplace=True)
     df_atac = atac_data.obs.join(df_both_atac)
     df_gex = gex_data.obs.join(df_both_gex)
+    df_fragment = pd.merge(atac_tsv, df_both_atac, left_on='barcode', right_index=True, how='left')
     # set atac_data.obs to new dataframe
     print("Setting ATAC obs to new dataframe")
     atac_data.obs = df_atac
@@ -258,11 +266,20 @@ task JoinMultiomeBarcodes {
     # write out the files
     gex_data.write("~{gex_base_name}.h5ad")
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
+    df_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
     CODE
+    # sorting the file
+    echo "Sorting file"
+    sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
+    echo "Starting bgzip"
+    bgzip "~{atac_fragment_base}.sorted.tsv"
+    echo "Starting tabix"
+    tabix -s 1 -b 2 -e 3 "~{atac_fragment_base}.sorted.tsv.gz"
+
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1"
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
     disks: "local-disk ${disk_size} SSD"
     memory: "${mem_size} GiB"
     cpu: nthreads
@@ -271,5 +288,7 @@ task JoinMultiomeBarcodes {
   output {
     File gex_h5ad_file = "~{gex_base_name}.h5ad"
     File atac_h5ad_file = "~{atac_base_name}.h5ad"
+    File atac_fragment_tsv = "~{atac_fragment_base}.sorted.tsv.gz"
+    File atac_fragment_tsv_tbi = "~{atac_fragment_base}.sorted.tsv.gz.tbi"
   }
 }

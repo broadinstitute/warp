@@ -1,3 +1,15 @@
+# 3.0.1
+2023-12-12 (Date of Last Commit)
+* ValidateVcfs now has optional memory parameter; this does not affect this pipeline
+* Downgraded Cell Bender from v0.3.1 to v0.3.0
+
+# 3.0.0
+2023-11-22 (Date of Last Commit)
+
+* Added gene expression barcodes to the Multiome ATAC fragment file
+* Updated the JoinBarcodes task to bgzip and tabix the final ATAC fragment file
+* Added the tabix index file as an output to Multiome
+
 # 2.3.3
 2023-11-21 (Date of Last Commit)
 

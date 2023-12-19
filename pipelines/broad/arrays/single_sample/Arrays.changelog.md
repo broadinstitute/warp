@@ -1,3 +1,8 @@
+# 2.6.21
+2023-12-08 (Date of Last Commit)
+
+* ValidateVcfs now has optional memory parameter; this does not affect this pipeline
+
 # 2.6.20
 2023-11-29 (Date of Last Commit)
 
