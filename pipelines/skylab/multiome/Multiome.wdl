@@ -44,7 +44,7 @@ workflow Multiome {
 
         # CellBender
         Boolean run_cellbender = false
-        
+
     }
 
     # Call the Optimus workflow
@@ -68,7 +68,8 @@ workflow Multiome {
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
     }
-   # Call the ATAC workflow
+
+    # Call the ATAC workflow
     call atac.ATAC as Atac {
         input:
             read1_fastq_gzipped = atac_r1_fastq,
