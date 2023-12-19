@@ -11,7 +11,7 @@ task FastqProcessing {
     String read_struct
 
     #using the latest build of warp-tools in GCR
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686932671"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.0"
     #runtime values
     Int machine_mem_mb = 40000
     Int cpu = 16   
@@ -137,7 +137,7 @@ task FastqProcessingSlidSeq {
 
 
     # Runtime attributes
-    String docker =  "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1686932671"
+    String docker =  "us.gcr.io/broad-gotc-prod/warp-tools:2.0.0"
     Int cpu = 16
     Int machine_mb = 40000
     Int disk = ceil(size(r1_fastq, "GiB")*3 + size(r2_fastq, "GiB")*3) + 50
@@ -242,10 +242,11 @@ task FastqProcessATAC {
         String barcode_orientation = "FIRST_BP_RC"
         String output_base_name
         File whitelist
+        String barcode_index1 = basename(barcodes_fastq[0])
 
         # [?] copied from corresponding optimus wdl for fastqprocessing
         # using the latest build of warp-tools in GCR
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:aa_updatefastqprocess_cbtag"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.0"
 
         # Runtime attributes [?]
         Int mem_size = 5
@@ -254,6 +255,10 @@ task FastqProcessATAC {
         # estimate that bam is approximately equal in size to fastq, add 20% buffer
         Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
         Int preemptible = 3
+
+        # Additional parameters for fastqprocess
+        Int num_output_files = 1
+        Int bam_size = 1
     }
 
     meta {
@@ -272,6 +277,8 @@ task FastqProcessATAC {
         mem_size: "(optional) the amount of memory (MiB) to provision for this task"
         cpu: "(optional) the number of cpus to provision for this task"
         disk_size: "(optional) the amount of disk space (GiB) to provision for this task"
+        num_output_files: "(optional) the number of output fastq file shards to produce. if this is set to > 0, bam_size is ignored."
+        bam_size: "(optional) the size of each fastq file produced. this is taken into account if num_output_files == 0."
         preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
     }
 
@@ -288,12 +295,17 @@ task FastqProcessATAC {
         read3_fastq_files=`printf '%s ' "${FASTQ3_ARRAY[@]}"; echo`
 
         echo $read1_fastq_files
-        
+        # Make downsample fq for barcode orientation check of R2 barcodes
         mkdir /cromwell_root/input_fastq
         gcloud storage cp $read1_fastq_files /cromwell_root/input_fastq
         gcloud storage cp $read2_fastq_files /cromwell_root/input_fastq
         gcloud storage cp $read3_fastq_files /cromwell_root/input_fastq
 
+        path="/cromwell_root/input_fastq/"
+        barcode_index="~{barcode_index1}"
+        file="${path}${barcode_index}"
+        zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
+        head -n 1 downsample.fq
         # barcodes R2
         R1_FILES_CONCAT=""
         for fastq in "${FASTQ2_ARRAY[@]}"
@@ -324,20 +336,26 @@ task FastqProcessATAC {
         done
         echo $R3_FILES_CONCAT
 
+        python3 /warptools/scripts/dynamic-barcode-orientation.py downsample.fq ~{whitelist} best_match.txt
+        
+        cat best_match.txt
+        barcode_choice=$(<best_match.txt)
+        echo $barcode_choice
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
         mkdir /cromwell_root/output_fastq
         cd /cromwell_root/output_fastq
 
         fastqprocess \
-        --bam-size 30.0 \
+        --bam-size ~{bam_size} \
+        --num-output-files ~{num_output_files} \
         --sample-id "~{output_base_name}" \
         $R1_FILES_CONCAT \
         $R2_FILES_CONCAT \
         $R3_FILES_CONCAT \
         --white-list "~{whitelist}" \
         --output-format "FASTQ" \
-        --barcode-orientation "~{barcode_orientation}" \
+        --barcode-orientation $barcode_choice \
         --read-structure "~{read_structure}"
 
     >>>

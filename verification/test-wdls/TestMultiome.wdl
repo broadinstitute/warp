@@ -27,7 +27,6 @@ workflow TestMultiome {
       String star_strand_mode = "Forward"
       Boolean count_exons = false
       File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt"
-      String? mt_sequence
 
       # ATAC inputs
       # Array of input fastq files
@@ -51,6 +50,7 @@ workflow TestMultiome {
       Boolean update_truth
       String vault_token_path
       String google_account_vault_path
+      Boolean run_cellbender = false
 
     }
 
@@ -69,7 +69,6 @@ workflow TestMultiome {
         annotations_gtf = annotations_gtf,
         ref_genome_fasta = ref_genome_fasta,
         mt_genes = mt_genes,
-        mt_sequence = mt_sequence,
         tenx_chemistry_version = tenx_chemistry_version,
         emptydrops_lower = emptydrops_lower,
         force_no_check = force_no_check,
@@ -84,7 +83,8 @@ workflow TestMultiome {
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3,
         chrom_sizes = chrom_sizes,
-        atac_whitelist = atac_whitelist
+        atac_whitelist = atac_whitelist,
+        run_cellbender = run_cellbender
   
     }
 

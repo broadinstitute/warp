@@ -416,6 +416,8 @@ task CheckContamination {
     Int preemptible_tries
     Float contamination_underestimation_factor
     Boolean disable_sanity_check = false
+
+     String docker = "us.gcr.io/broad-gotc-prod/verify-bam-id:1.0.1-c1cba76e979904eb69c31520a0d7f5be63c72253-1639071840"
   }
 
   Int disk_size = ceil(size(input_bam, "GiB") + size(ref_fasta, "GiB")) + 30
@@ -464,7 +466,7 @@ task CheckContamination {
     preemptible: preemptible_tries
     memory: "7.5 GiB"
     disks: "local-disk " + disk_size + " HDD"
-    docker: "us.gcr.io/broad-gotc-prod/verify-bam-id:1.0.1-c1cba76e979904eb69c31520a0d7f5be63c72253-1639071840"
+    docker: docker
     cpu: 2
   }
   output {

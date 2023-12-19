@@ -41,7 +41,7 @@ If you **do not** have WARP permissions (i.e. you can’t make a branch off of t
 
 ![](fork.png)
 
-#### 4. Make your updates on your WARP branch or fork. 
+#### 4. Make your updates on your WARP branch or fork.
 As your work progresses, make commits to your WARP branch or fork. 
 
 #### 5. Assess and make updates to accompanying pipeline files.
@@ -50,7 +50,7 @@ Updates to pipeline code, Docker images, or reference files might require coordi
 
 * All changes that affect pipeline workflows must be recorded in the pipeline(s) changelog(s) using semantic versioning. An explanation of this can be found in the [changelog style guide](https://broadinstitute.github.io/warp/docs/contribution/contribute_to_warp/changelog_style). 
 
-* When you update the changelog, the pipeline’s WDL workflow version number must also match the changelog entry to ensure the updates pass the WARP testing process (this is shown in the [Example Contribution](#example-contribution-process)).
+* When you update the changelog, the pipeline’s WDL workflow version number must also match the changelog entry to ensure the updates pass the WARP testing process (this is shown in the [Example Contribution](./contribution-tutorial.md)).
 
 * If you make any changes to files hosted in cloud repositories, like pipeline Docker images or reference files, coordinate with the WARP team during or before the review process to push the updated files to cloud storage. 
 
@@ -58,13 +58,13 @@ Updates to pipeline code, Docker images, or reference files might require coordi
 
     * If you’re updating WARP documentation, read the [documentation style guide](https://broadinstitute.github.io/warp/docs/contribution/contribute_to_warp_docs/doc_style) for helpful formatting tips.
 
-#### 6. Make a pull request to the WARP **develop** branch. 
+#### 6. Make a pull request to the WARP **develop** branch.
 
 When updates are ready, [make a pull request (PR)](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) using WARP's **develop** branch as a base. In the comments section of the PR, notify the WARP team to review the PR and start the necessary repository [tests](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines). You can do this by typing `test and review @broadinstitute/warp-admins`.
 
-#### 7. Revise the PR as necessary for the [review process](#review-process). 
+#### 7. Revise the PR as necessary for the [review process](#review-process).
 
-#### 8. Merge updates to the WARP **develop** branch. 
+#### 8. Merge updates to the WARP **develop** branch.
 
 If you have permission to merge to the WARP repository, you can merge the PR once it's approved. You’ll receive a reminder to perform a [“squash merge”](https://docs.github.com/en/github/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-pull-request-commits). Please delete individual commit comments and make one summary comment for all commits. 
 

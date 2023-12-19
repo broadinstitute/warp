@@ -1,6 +1,6 @@
 ---
 sidebar_position: 1
-slug: Pipelines/Imputation_Pipeline/README
+slug: /Pipelines/Imputation_Pipeline/README
 ---
  
 # Imputation Overview
@@ -93,7 +93,7 @@ The [Imputation workflow](https://github.com/broadinstitute/warp/blob/develop/pi
 | CountVariantsInChunks | CountVariants | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Counts variants in the filtered VCF file; Returns the number of chunks in the array and in the reference file.  | 
 | CheckChunks | convert, index  | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Confirms that there are no chunks where less than 3 sites or less than 50% of the sites in the array are also in the reference panel; if valid, creates a new VCF output. |
 | PhaseVariantsEagle | eagle | [Eagle2](https://alkesgroup.broadinstitute.org/Eagle/Eagle_manual.html) | Performs phasing on the filtered, validated VCF using the phased reference panel; allows for REF/ALT swaps |
-| Minimac4 | Minimac4 | [minimac4](https://genome.sph.umich.edu/wiki/Minimac4_Documentation), [bcftools]([bcftools](http://samtools.github.io/bcftools/bcftools.html)) | Performs imputation on the prephased VCF; parameterized to include variants that were genotyped but NOT in the reference panel and to specify a minRatio of 0.00001. |
+| Minimac4 | Minimac4 | [minimac4](https://genome.sph.umich.edu/wiki/Minimac4_Documentation), [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Performs imputation on the prephased VCF; parameterized to include variants that were genotyped but NOT in the reference panel and to specify a minRatio of 0.00001. |
 | AggregateImputationQCMetrics | --- | R | Uses an R script to take calculate metrics from minimac4 output info file, including total sites, total sites with variants, and sites with an [R2 metric](https://genome.sph.umich.edu/wiki/Minimac3_Info_File) of 0.3 (total_sites_r2_gt_0.3); adds the metrics to a new TSV output. |
 | UpdateHeader | UpdateVCFSequenceDictionary | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Updates the header of the imputed VCF; adds contig lengths |
 | SeparateMultiallelics | norm | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Splits multiallelic sites in the imputed VCF into biallelic records. |

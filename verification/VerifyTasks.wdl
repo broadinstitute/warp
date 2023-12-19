@@ -106,6 +106,28 @@ task CompareGtcs {
   }
 }
 
+task CompareTabix {
+  input {
+    File test_fragment_file
+    File truth_fragment_file
+  }
+  command {
+    a="md5sum ~{test_fragment_file}"
+    b="md5sum ~{truth_fragment_file}"
+    if [[ a = b ]]; then 
+      echo equal 
+    else 
+      echo different
+      exit_code=1
+    fi
+  }
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
+    disks: "local-disk 100 HDD"
+    memory: "50 GiB"
+    preemptible: 3
+  }   
+}
 task CompareTextFiles {
   input {
     Array[File] test_text_files
@@ -434,4 +456,76 @@ task CompareH5adFilesGEX {
     preemptible: 3
   }
 }
+
+task CompareSnapTextFiles {
+  input {
+    Array[File] test_text_files
+    Array[File] truth_text_files
+  }
+
+  command <<<
+    exit_code=0
+
+    test_files_length=~{length(test_text_files)}
+    truth_files_length=~{length(truth_text_files)}
+
+    while read -r a && read -r b <&3; do
+      sort_files() {
+       sort -t ',' -k2,2 -k3,3n -k4,4n "$1" | cut -d',' -f2,3,4 > "${1%.csv}.sorted.csv"
+      }
+
+      calc_md5() {
+        md5sum "$1" | cut -d ' ' -f1
+      }
+
+       if [[ "$a" == *_fragments.csv && "$b" == *_fragments.csv ]] || [[ "$a" == *_binCounts_10000.csv && "$b" == *_binCounts_10000.csv ]]; then
+         echo "Sorting File $a and $b"
+         sort_files "$a"
+         sort_files "$b"
+
+         echo "Calculating md5sums for $a and $b"
+         md5_a=$(calc_md5 "${a%.csv}.sorted.csv")
+         md5_b=$(calc_md5 "${b%.csv}.sorted.csv")
+
+         if [[ "$md5_a" == "$md5_b" ]]; then
+             echo "Files $a and $b are identical"
+         else
+             echo "Files $a and $b are NOT identical"
+             diff ${a%.csv}.sorted.csv ${b%.csv}.sorted.csv > diffs.txt
+             exit_code=1
+             echo "Diff between ${a%.csv}.sorted.csv  and ${b%.csv}.sorted.csv:" >&2
+             cat diffs.txt >&2
+         fi
+       else
+         echo "Sorting File $a and $b"
+         sort "$a" > "${a%.csv}.sorted.csv"
+         sort "$b" > "${b%.csv}.sorted.csv"
+
+         echo "Calculating md5sums for ${a%.csv}.sorted.csv and ${b%.csv}.sorted.csv"
+         md5_a=$(calc_md5 "${a%.csv}.sorted.csv")
+         md5_b=$(calc_md5 "${b%.csv}.sorted.csv")
+
+         if [ $md5_a = $md5_b ]; then
+           echo "Files $a and $b are identical"
+         else
+           echo "Files ${a%.csv}.sorted.csv and ${b%.csv}.sorted.csv have different md5sums."
+           diff ${a%.csv}.sorted.csv ${b%.csv}.sorted.csv > diffs.txt
+           exit_code=1
+           echo "Diff between ${a%.csv}.sorted.csv and ${b%.csv}.sorted.csv:" >&2
+           cat diffs.txt >&2
+         fi
+       fi
+    done < ~{write_lines(test_text_files)} 3<~{write_lines(truth_text_files)}
+
+    exit $exit_code
+  >>>
+
+  runtime {
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    disks: "local-disk 50 HDD"
+    memory: "25 GiB"
+    preemptible: 3
+  }
+}
+
 

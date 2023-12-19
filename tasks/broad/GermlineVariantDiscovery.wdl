@@ -210,14 +210,20 @@ task Reblock {
   }
 
   Int disk_size = ceil((size(gvcf, "GiB")) * 4) + additional_disk
+  String gvcf_basename = basename(gvcf)
+  String gvcf_index_basename = basename(gvcf_index)
 
   command {
     set -e 
 
+    # We can't always assume the index was located with the gvcf, so make a link so that the paths look the same
+    ln -s ~{gvcf} ~{gvcf_basename}
+    ln -s ~{gvcf_index} ~{gvcf_index_basename}
+
     gatk --java-options "-Xms3000m -Xmx3000m" \
       ReblockGVCF \
       -R ~{ref_fasta} \
-      -V ~{gvcf} \
+      -V ~{gvcf_basename} \
       -do-qual-approx \
       --floor-blocks -GQB 20 -GQB 30 -GQB 40 \
       ~{annotations_to_keep_command} \

@@ -34,7 +34,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "1.0.0"
+  String pipeline_version = "1.1.2"
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
@@ -231,8 +231,10 @@ task CreateFragmentFile {
     File bam
     File annotations_gtf
     File chrom_sizes
-    Int disk_size = ceil(size(bam, "GiB") + 200)
-    Int mem_size = 50
+    Int disk_size = 500
+    Int mem_size = 16
+    Int nthreads = 1
+    String cpuPlatform = "Intel Cascade Lake"
   }
 
   String bam_base_name = basename(bam, ".bam")
@@ -279,8 +281,10 @@ task CreateFragmentFile {
 
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1"
-    disks: "local-disk ${disk_size} HDD"
+    disks: "local-disk ${disk_size} SSD"
     memory: "${mem_size} GiB"
+    cpu: nthreads
+    cpuPlatform: cpuPlatform
   }
 
   output {
