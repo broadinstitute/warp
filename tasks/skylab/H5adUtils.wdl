@@ -192,14 +192,16 @@ task JoinMultiomeBarcodes {
     File gex_h5ad
     File gex_whitelist
     File atac_whitelist
-    Int disk_size = 500
-    Int mem_size = 16
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
   }
     String gex_base_name = basename(gex_h5ad, ".h5ad")
     String atac_base_name = basename(atac_h5ad, ".h5ad")
     String atac_fragment_base = basename(atac_fragment, ".tsv")
+
+    Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(gex_h5ad, "MiB") + size(atac_fragment, "MiB")) * 2) + 10
+    Int disk_space =  ceil((size(atac_h5ad, "MiB") + size(gex_h5ad, "MiB") + size(atac_fragment, "MiB")) * 5) + 10
+
   parameter_meta {
     atac_h5ad: "The resulting h5ad from the ATAC workflow."
     atac_fragment: "The resulting fragment TSV from the ATAC workflow."
@@ -280,8 +282,8 @@ task JoinMultiomeBarcodes {
 
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
-    disks: "local-disk ${disk_size} SSD"
-    memory: "${mem_size} GiB"
+    disks: "local-disk ${disk_space} SSD"
+    memory: "${machine_mem_mb} GiB"
     cpu: nthreads
   }
 
