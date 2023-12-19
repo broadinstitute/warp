@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/Illumina_Genotyping_Arrays_Pipeline/README
 ---
 
 # Illumina Genotyping Array Overview
