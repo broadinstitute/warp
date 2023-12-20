@@ -7,7 +7,7 @@ slug: /Pipelines/Smart-seq2_Multi_Sample_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [MultiSampleSmartSeq2_v2.2.1](https://github.com/broadinstitute/warp/releases) | May, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [MultiSampleSmartSeq2_v2.2.21](https://github.com/broadinstitute/warp/releases) | December, 2023 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ## Introduction
 
