@@ -12,7 +12,7 @@ task PairedTagDemultiplex {
 
         # Runtime attributes
         Int mem_size = 5
-        Int cpu = 16
+        Int cpu = 1
         # TODO decided cpu
         # estimate that bam is approximately equal in size to fastq, add 20% buffer
         Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
@@ -45,9 +45,8 @@ task PairedTagDemultiplex {
         mv ~{barcodes_fastq} "~{input_id}_R2.fq.gz"
         mv ~{read3_fastq} "~{input_id}_R3.fq.gz"
 
+        echo Running UPStools
         upstools sepType_DPT ~{input_id} 3
-        echo Listing files
-        ls
     >>>
 
     runtime {
