@@ -1,3 +1,12 @@
+# 3.0.2
+2023-12-20 (Date of Last Commit)
+* JoinMultiomeBarcodes now has dynamic memory and disk allocation
+
+# 3.0.1
+2023-12-12 (Date of Last Commit)
+* ValidateVcfs now has optional memory parameter; this does not affect this pipeline
+* Downgraded Cell Bender from v0.3.1 to v0.3.0
+
 # 3.0.0
 2023-11-22 (Date of Last Commit)
 

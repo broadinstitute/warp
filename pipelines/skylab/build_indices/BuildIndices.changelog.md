@@ -1,3 +1,8 @@
+# 3.0.0
+2023-12-06 (Date of Last Commit)
+
+* Updated BuildIndices to use bwa-mem2
+
 # 2.2.1
 2023-11-17 (Date of Last Commit)
 * Updated the modify-gtf script to make it compatible with REFSEQ and GENCODE GTFs
