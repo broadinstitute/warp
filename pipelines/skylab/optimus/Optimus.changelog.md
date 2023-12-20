@@ -1,3 +1,8 @@
+# 6.3.1
+2023-12-20 (Date of Last Commit)
+
+* JoinMultiomeBarcodes now has dynamic memory and disk allocation; this does affect the Optimus workflow
+
 # 6.3.0
 2023-12-04 (Date of Last Commit)
 
