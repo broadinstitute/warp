@@ -210,11 +210,11 @@ The SS2 pipeline has been validated for processing human and mouse, stranded or 
 ## Versioning
 All SS2 release notes are documented in the [Smartseq2 Single Sample changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.changelog.md).
 
-## ## Citing the Smart-seq2 Single Sample Pipeline
+## Citing the Smart-seq2 Single Sample Pipeline
 Please identify the SS2 pipeline in your methods section using the Smart-seq2 Single Sample Pipeline's [SciCrunch resource identifier](https://scicrunch.org/browse/resourcedashboard).
 * Ex: *Smart-seq2 Single Sample Pipeline (RRID:SCR_021228)*
 
-## Consortia Support 
+## Consortia Support
 This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project. 
 
 If your organization also uses this pipeline, we would love to list you! Please reach out to us by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org).
