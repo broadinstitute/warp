@@ -84,7 +84,7 @@ The BuildStarSingleNucleus task reads the input GTF file and verifies that the `
 
 **Modify reference files and create STAR index**
 
-The BuildStarSingleNucleus task uses a custom python script, `[modify_gtf.py](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/modify_gtf.py)`, and a list of biotypes ([example](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/Biotypes.tsv)) to filter the input GTF file for only the biotypes indicated in the list with the value “Y” in the second column. The defaults in the custom code produce reference outputs that are similar to those built with 10x Genomics reference scripts.
+The BuildStarSingleNucleus task uses a custom python script, [`modify_gtf.py`](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/modify_gtf.py), and a list of biotypes ([example](https://github.com/broadinstitute/warp-tools/blob/develop/3rd-party-tools/build-indices/Biotypes.tsv)) to filter the input GTF file for only the biotypes indicated in the list with the value “Y” in the second column. The defaults in the custom code produce reference outputs that are similar to those built with 10x Genomics reference scripts.
 
 The task uses the filtered GTF file and STAR `--runMode genomeGenerate` to generate the index file for the STAR aligner. Outputs of the task include the modified GTF and compressed STAR index files.
 
