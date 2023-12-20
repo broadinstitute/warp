@@ -1,7 +1,7 @@
 # 6.3.2
 2023-12-20 (Date of Last Commit)
 * Updated the ATAC WDL for the Multiome BWAPairedEndAlignment and MergedBAM tasks; this does affect the Optimus workflow
-* 
+  
 # 6.3.1
 2023-12-20 (Date of Last Commit)
 * JoinMultiomeBarcodes now has dynamic memory and disk allocation; this does affect the Optimus workflow
