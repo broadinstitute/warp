@@ -164,7 +164,7 @@ task BWAPairedEndAlignment {
     String read_group_sample_name = "RGSN1"
     String suffix = "trimmed_adapters.fastq.gz"
     String output_base_name
-    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:aa-dist-bwa-"
+    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:1.0.0"
 
     # Runtime attributes
     Int disk_size = 2000
@@ -289,8 +289,6 @@ task BWAPairedEndAlignment {
     
     # move bam file to /cromwell_root
     mv ~{bam_aligned_output_name} /cromwell_root
-    ls /cromwell_root
-
   >>>
 
   runtime {
