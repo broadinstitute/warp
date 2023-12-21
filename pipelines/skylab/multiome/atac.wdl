@@ -87,7 +87,7 @@ workflow ATAC {
     }
     call CreateFragmentFile as BB_fragment {
       input:
-        bam = BBTag.bam,
+        bam = BBTag.bb_bam,
         chrom_sizes = chrom_sizes,
         annotations_gtf = annotations_gtf,
         preindex = preindex
