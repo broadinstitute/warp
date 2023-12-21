@@ -20,7 +20,7 @@ workflow ATAC {
     String input_id
 
     # Option for running files with preindex
-    Boolean prindex = false
+    Boolean preindex = false
     
     # BWA ref
     File tar_bwa_reference
