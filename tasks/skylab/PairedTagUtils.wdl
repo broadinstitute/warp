@@ -103,6 +103,10 @@ task AddBBTag {
         
         echo Running UPStools
         python3 /upstools/pyscripts/scifi.preindex_CB_to_BB.py --in ~{bam}
+        echo "listing files in root"
+        ls
+        echo "listing files in upstools"
+        ls /upstools/pyscripts/
     >>>
 
     runtime {
