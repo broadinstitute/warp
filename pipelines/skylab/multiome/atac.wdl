@@ -89,7 +89,7 @@ workflow ATAC {
       input:
         bam = BBTag.bam,
         chrom_sizes = chrom_sizes,
-        annotations_gtf = annotations_gtf
+        annotations_gtf = annotations_gtf,
         preindex = preindex
     }
   }
