@@ -90,6 +90,7 @@ workflow ATAC {
         bam = BBTag.bam,
         chrom_sizes = chrom_sizes,
         annotations_gtf = annotations_gtf
+        preindex = preindex
     }
   }
   if (!preindex) {
@@ -97,7 +98,9 @@ workflow ATAC {
       input:
         bam = BWAPairedEndAlignment.bam_aligned_output,
         chrom_sizes = chrom_sizes,
-        annotations_gtf = annotations_gtf
+        annotations_gtf = annotations_gtf,
+        preindex = preindex
+
     }
   }
   File bam_aligned_output = select_first([BBTag.bb_bam, BWAPairedEndAlignment.bam_aligned_output])
