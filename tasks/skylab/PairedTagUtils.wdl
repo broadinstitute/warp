@@ -77,7 +77,7 @@ task AddBBTag {
         Int cpu = 1
         # TODO decided cpu
         # estimate that bam is approximately equal in size to fastq, add 20% buffer
-        Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
+        Int disk_size = ceil(2 * ( size(bam, "GiB"))) + 400
         Int preemptible = 3
     }
 
@@ -87,7 +87,7 @@ task AddBBTag {
 
     parameter_meta {
         bam: "BAM with aligned reads and barcode in the CB tag"
-        input_id: "read 3 FASTQ files of paired reads -- reverse reads"
+        input_id: "input ID"
         docker: "(optional) the docker image containing the runtime environment for this task"
         mem_size: "(optional) the amount of memory (MiB) to provision for this task"
         cpu: "(optional) the number of cpus to provision for this task"
