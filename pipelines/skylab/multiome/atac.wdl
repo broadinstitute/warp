@@ -103,14 +103,14 @@ workflow ATAC {
 
     }
   }
-  File bam_aligned_output = select_first([BBTag.bb_bam, BWAPairedEndAlignment.bam_aligned_output])
-  File fragment_file = select_first([BB_fragment.fragment_file, CreateFragmentFile.fragment_file])
-  File snap_metrics = select_first([BB_fragment.Snap_metrics,CreateFragmentFile.Snap_metrics])
+  File bam_aligned_output_atac = select_first([BBTag.bb_bam, BWAPairedEndAlignment.bam_aligned_output])
+  File fragment_file_atac = select_first([BB_fragment.fragment_file, CreateFragmentFile.fragment_file])
+  File snap_metrics_atac = select_first([BB_fragment.Snap_metrics,CreateFragmentFile.Snap_metrics])
 
   output {
-    File bam_aligned_output = bam_aligned_output
-    File fragment_file = fragment_file
-    File snap_metrics = snap_metrics
+    File bam_aligned_output = bam_aligned_output_atac
+    File fragment_file = fragment_file_atac
+    File snap_metrics = snap_metrics_atac
   }
 }
 
