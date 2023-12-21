@@ -105,7 +105,7 @@ workflow PairedTag {
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
-            adapter_seq_read3 = adapter_seq_read3
+            adapter_seq_read3 = adapter_seq_read3,
             preindex = preindex
         }
     } 
