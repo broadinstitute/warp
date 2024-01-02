@@ -1,5 +1,11 @@
+# 1.1.4
+2024-01-02 (Date of Last Commit)
+
+* Added functionality for using the ATAC pipeline with paired-tag data, including the option for SnapATAC task to pull cell barcodes the BB tag of the BAM
+
 # 1.1.3
 2023-12-17 (Date of Last Commit)
+
 * Added updated docker to BWAPairedEndAlignment ATAC task to use updated code for distributed bwa-mem2 from Intel
 * Removed MergedBAM ATAC and moved BWAPairedEndAlignment ATAC outside of the for loop
 * Changed CPU platform to Ice Lake for BWAPairedEndAlignment ATAC task
