@@ -42,10 +42,20 @@ workflow VUMCPlinkFilterRegion {
     }
   }
 
+  File final_bed = select_first([CopyFile.output_bed, PlinkFilterRegion.output_bed])
+  File final_bim = select_first([CopyFile.output_bim, PlinkFilterRegion.output_bim])
+  File final_fam = select_first([CopyFile.output_fam, PlinkFilterRegion.output_fam])
+  Float final_bed_size = size(final_bed)
+  Float final_bim_size = size(final_bim)
+  Float final_fam_size = size(final_fam)
+
   output {
     File output_bed = select_first([CopyFile.output_bed, PlinkFilterRegion.output_bed])
     File output_bim = select_first([CopyFile.output_bim, PlinkFilterRegion.output_bim])
     File output_fam = select_first([CopyFile.output_fam, PlinkFilterRegion.output_fam])
+    Float output_bed_size = final_bed_size
+    Float output_bim_size = final_bim_size
+    Float output_fam_size = final_fam_size
   }
 }
 
