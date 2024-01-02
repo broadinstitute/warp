@@ -1,7 +1,7 @@
 # 1.1.4
 2024-01-02 (Date of Last Commit)
 
-* Added functionality for using the ATAC pipeline with paired-tag data, including the option for SnapATAC task to pull cell barcodes the BB tag of the BAM
+* Added functionality for using the ATAC pipeline with paired-tag data, including the option for SnapATAC task to pull cell barcodes from the BB tag of the BAM
 
 # 1.1.3
 2023-12-17 (Date of Last Commit)
