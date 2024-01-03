@@ -3,8 +3,10 @@ version 1.0
 import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
+import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
+
 workflow Multiome {
-    String pipeline_version = "2.2.2"
+    String pipeline_version = "3.0.3"
 
     input {
         String input_id
@@ -39,6 +41,9 @@ workflow Multiome {
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
         # Whitelist
         File atac_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
+
+        # CellBender
+        Boolean run_cellbender = false
 
     }
 
@@ -83,8 +88,28 @@ workflow Multiome {
             atac_h5ad = Atac.snap_metrics,
             gex_h5ad = Optimus.h5ad_output_file,
             gex_whitelist = gex_whitelist,
-            atac_whitelist = atac_whitelist
+            atac_whitelist = atac_whitelist,
+            atac_fragment = Atac.fragment_file
     }
+
+    # Call CellBender
+    if (run_cellbender) {
+        call CellBender.run_cellbender_remove_background_gpu as CellBender {
+            input:
+                sample_name = input_id,
+                input_file_unfiltered = Optimus.h5ad_output_file,
+                hardware_boot_disk_size_GB = 20,
+                hardware_cpu_count = 4,
+                hardware_disk_size_GB = 50,
+                hardware_gpu_type = "nvidia-tesla-t4",
+                hardware_memory_GB = 32,
+                hardware_preemptible_tries = 2,
+                hardware_zones = "us-central1-a us-central1-c",
+                nvidia_driver_version = "470.82.01"
+
+        }
+    }
+
     meta {
         allowNestedInputs: true
     }
@@ -95,7 +120,8 @@ workflow Multiome {
 
         # atac outputs
         File bam_aligned_output_atac = Atac.bam_aligned_output
-        File fragment_file_atac = Atac.fragment_file
+        File fragment_file_atac = JoinBarcodes.atac_fragment_tsv
+        File fragment_file_index = JoinBarcodes.atac_fragment_tsv_tbi
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
 
         # optimus outputs
@@ -108,5 +134,15 @@ workflow Multiome {
         File gene_metrics_gex = Optimus.gene_metrics
         File? cell_calls_gex = Optimus.cell_calls
         File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
+
+        # cellbender outputs
+        File? cell_barcodes_csv = CellBender.cell_csv
+        File? checkpoint_file = CellBender.ckpt_file
+        Array[File]? h5_array = CellBender.h5_array
+        Array[File]? html_report_array = CellBender.report_array
+        File? log = CellBender.log
+        Array[File]? metrics_csv_array = CellBender.metrics_array
+        String? output_directory = CellBender.output_dir
+        File? summary_pdf = CellBender.pdf
     }
 }

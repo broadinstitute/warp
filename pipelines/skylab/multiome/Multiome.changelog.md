@@ -1,3 +1,45 @@
+# 3.0.3
+2023-12-20 (Date of Last Commit)
+* Added updated docker to BWAPairedEndAlignment ATAC task to use updated code for distributed bwa-mem2 from Intel
+* Removed MergedBAM ATAC and moved BWAPairedEndAlignment ATAC outside of the for loop
+* Changed CPU platform to Ice Lake for BWAPairedEndAlignment ATAC task
+* Added input parameter input_output_parameter to the Multiome ATAC wdl
+
+# 3.0.2
+2023-12-20 (Date of Last Commit)
+* JoinMultiomeBarcodes now has dynamic memory and disk allocation
+
+# 3.0.1
+2023-12-12 (Date of Last Commit)
+* ValidateVcfs now has optional memory parameter; this does not affect this pipeline
+* Downgraded Cell Bender from v0.3.1 to v0.3.0
+
+# 3.0.0
+2023-11-22 (Date of Last Commit)
+
+* Added gene expression barcodes to the Multiome ATAC fragment file
+* Updated the JoinBarcodes task to bgzip and tabix the final ATAC fragment file
+* Added the tabix index file as an output to Multiome
+
+# 2.3.3
+2023-11-21 (Date of Last Commit)
+
+* Added the latest warp-tools docker to tasks in the Metrics, FastqProcessing and H5adUtils wdls; this incorporates new input parameter for number of output fastq files to fastqprocess
+
+# 2.3.2
+2023-11-20 (Date of Last Commit)
+* Added an optional task to the Multiome.wdl that will run CellBender on the Optimus output h5ad file
+
+# 2.3.1
+2023-11-20 (Date of Last Commit)
+
+* Added the latest warp-tools docker to the Metrics task; this allows use of REFSEQ references
+
+# 2.3.0
+2023-11-03 (Date of Last Commit)
+
+* Updated the Metrics task so that Cell Metrics and Gene Metrics now calculate intronic, intronic_as, exonic, exonic_as, and intergenic metrics from unique reads only using the NH:i:1 tag in the BAM
+
 # 2.2.2
 2023-10-20 (Date of Last Commit)
 

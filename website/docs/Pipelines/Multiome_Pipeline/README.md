@@ -7,7 +7,7 @@ slug: /Pipelines/Multiome_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Multiome v2.2.1](https://github.com/broadinstitute/warp/releases) | October, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [Multiome v3.0.3](https://github.com/broadinstitute/warp/releases) | December, 2023 | Kaylee Mathews | Please file GitHub issues in warp or contact the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![Multiome_diagram](./multiome_diagram.png)
 
@@ -48,7 +48,7 @@ To discover and search releases, use the WARP command-line tool [Wreleaser](http
 
 If you’re running a Multiome workflow version prior to the latest release, the accompanying documentation for that release may be downloaded with the source code on the WARP [releases page](https://github.com/broadinstitute/warp/releases) (see the source code folder).
 
-Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. The workflow can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. 
+Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. The workflow can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. The [Multiome public workspace](https://app.terra.bio/#workspaces/warp-pipelines/Multiome) on Terra contains the Multiome workflow, workflow configuration, required reference data and other inputs, and example testing data.
 
 ## Inputs
 
@@ -69,35 +69,42 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | ignore_r1_read_length | Optional boolean for the Optimus (GEX) pipeline indicating if the pipeline should ignore barcode chemistry check; if "true", the workflow will not ensure the `10x_chemistry_version` input matches the chemistry in the read 1 FASTQ; default is "false". | Boolean |
 | star_strand_mode | Optional string for the Optimus (GEX) pipeline for performing STARsolo alignment on forward stranded, reverse stranded, or unstranded data; default is "Forward". | String |
 | count_exons | Optional boolean for the Optimus (GEX) pipeline indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**; if "true" in sc_rna mode, the workflow will return an error; default is "false". | Boolean |
-| gex_whitelist | Optional file containing the list of valid barcodes for 10x multiome GEX data; default is "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt". | File |
+| gex_whitelist | Optional file containing the list of valid barcodes for 10x multiome GEX data; default is "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt". | File |
 | atac_r1_fastq | Array of read 1 paired-end FASTQ files representing a single 10x multiome ATAC library. | Array[File] |
 | atac_r2_fastq | Array of barcodes FASTQ files representing a single 10x multiome ATAC library. | Array[File] |
 | atac_r3_fastq | Array of read 2 paired-end FASTQ files representing a single 10x multiome ATAC library. | Array[File] |
-| tar_bwa_reference | TAR file containing the reference index files for BWA-mem alignment for the ATAC pipeline . | File | 
+| tar_bwa_reference | TAR file containing the reference index files for BWA-mem alignment for the ATAC pipeline. | File | 
 | chrom_sizes | File containing the genome chromosome sizes; used to calculate ATAC fragment file metrics. | File |
 | adapter_seq_read1 | Optional string describing the adapter sequence for ATAC read 1 paired-end reads to be used during adapter trimming with Cutadapt; default is "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG". | String |
 | adapter_seq_read3 | Optional string describing the adapter sequence for ATAC read 2 paired-end reads to be used during adapter trimming with Cutadapt; default is "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG". | String |
-| atac_whitelist | Optional file containing the list of valid barcodes for 10x multiome ATAC adata; default is "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_atac.txt". | File |
+| atac_whitelist | Optional file containing the list of valid barcodes for 10x multiome ATAC adata; default is "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt". | File |
+| run_cellbender | Optional boolean used to determine if the Optimus (GEX) pipeline should run CellBender on the output gene expression h5ad file, `h5ad_output_file_gex`; default is "false". | Boolean |
+
+#### Sample inputs for analyses in a Terra Workspace
+
+The Multiome pipeline is currently available on the cloud-based platform Terra. After registering, you can access the [Multiome public workspace](https://app.terra.bio/#workspaces/warp-pipelines/Multiome) which is preloaded with instructions and sample data. Please view the [Support Center](https://support.terra.bio/hc/en-us) for more information on using the Terra platform.
 
 
 ## Tasks
 
-The Multiome workflow calls two subworkflows, which are described briefly in the table below. For more details on each subworkflow, including the tasks that they call, see the documentation linked in the table.
+The Multiome workflow calls two WARP subworkflows, one external subworkflow (optional), and an additional task, which are described briefly in the table below. For more details on each subworkflow and task, see the documentation and WDL scripts linked in the table.
 
 | Subworkflow | Software | Description | 
 | ----------- | -------- | ----------- |
 | ATAC ([WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) and [documentation](../ATAC/README)) | fastqprocess, bwa-mem, SnapATAC2 | Workflow used to analyze 10x single-cell ATAC data. |
 | Optimus ([WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.wdl) and [documentation](../Optimus_Pipeline/README)) | fastqprocess, STARsolo, Emptydrops | Workflow used to analyze 10x single-cell GEX data. |
 | JoinMultiomeBarcodes as JoinBarcodes ([WDL](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/H5adUtils.wdl)) | Python3 | Task that adds an extra column to the Optimus metrics `h5ad.obs` property that lists the respective ATAC barcodes for each gene expression barcode. It also adds an extra column to the ATAC metrics `h5ad.obs` property to link ATAC barcodes to gene expression barcodes. | 
+| CellBender.run_cellbender_remove_background_gpu as CellBender ([WDL](https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl))| CellBender | Optional task that runs the `cellbender_remove_background.wdl` WDL script directly from the [CellBender GitHub repository](https://github.com/broadinstitute/CellBender/tree/master), depending on whether the input `run_cellbender` is "true" or "false". |
 
 ## Outputs
 
 | Output variable name | Filename, if applicable | Output format and description |
 |--- | --- | --- | 
+| multiome_pipeline_version_out | N.A. | String describing the version of the Multiome pipeline used. |
 | bam_aligned_output_atac | `<input_id>_atac.bam` | BAM file containing aligned reads from ATAC workflow. |
-| fragment_file_atac | `<input_id>_atac.fragments.tsv` | TSV file containing fragment start and stop coordinates per barcode. | 
-| snap_metrics_atac | `<input_id>_atac.metrics.h5ad` | h5ad (Anndata) file containing per-barcode metrics from SnapATAC2. Also contains the equivalent gene expression barcode for each ATAC barcode. |
-| pipeline_version_out | N.A. | String describing the Optimus pipeline version used. |
+| fragment_file_atac | `<input_id>_atac.fragments.sorted.tsv.gz` | Sorted and bgzipped TSV file containing fragment start and stop coordinates per barcode. The columns are "Chromosome", "Start", "Stop", "ATAC Barcode", "Number of reads", and "GEX Barcode". | 
+| fragment_file_index |  `<input_id>_atac.fragments.sorted.tsv.gz.tbi` | tabix index file for the fragment file. |
+| snap_metrics_atac | `<input_id>_atac.metrics.h5ad` | h5ad (Anndata) file containing per-barcode metrics from SnapATAC2. Also contains the equivalent gene expression barcode for each ATAC barcode in the `gex_barcodes` column of the `h5ad.obs` property. See the [ATAC Count Matrix Overview](../ATAC/count-matrix-overview.md) for more details. |
 | genomic_reference_version_gex | `<reference_version>.txt` | File containing the Genome build, source and GTF annotation version. |
 | bam_gex | `<input_id>_gex.bam` | BAM file containing aligned reads from Optimus workflow. |
 | matrix_gex | `<input_id>_gex_sparse_counts.npz` | NPZ file containing raw gene by cell counts. |
@@ -106,7 +113,17 @@ The Multiome workflow calls two subworkflows, which are described briefly in the
 | cell_metrics_gex | `<input_id>_gex.cell_metrics.csv.gz` | CSV file containing the per-cell (barcode) metrics. |
 | gene_metrics_gex | `<input_id>_gex.gene_metrics.csv.gz` | CSV file containing the per-gene metrics. |
 | cell_calls_gex | `<input_id>_gex.emptyDrops` | TSV file containing the EmptyDrops results when the Optimus workflow is run in sc_rna mode. |
-| h5ad_output_file_gex | `<input_id>_gex.h5ad` | h5ad (Anndata) file containing the raw cell-by-gene count matrix, gene metrics, cell metrics, and global attributes. Also contains equivalent ATAC barcode for each gene expression barcode. |
+| h5ad_output_file_gex | `<input_id>_gex.h5ad` | h5ad (Anndata) file containing the raw cell-by-gene count matrix, gene metrics, cell metrics, and global attributes. Also contains equivalent ATAC barcode for each gene expression barcode in the `atac_barcodes` column of the `h5ad.obs` property. See the [Optimus Count Matrix Overview](../Optimus_Pipeline/Loom_schema.md) for more details. |
+| cell_barcodes_csv | `<cell_csv>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
+| checkpoint_file | `<ckpt_file>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
+| h5_array | `<h5_array>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
+| html_report_array | `<report_array>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
+| log | `<log>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
+| metrics_csv_array | `<metrics_array>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
+| output_directory | `<output_dir>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
+| summary_pdf | `<pdf>` | Optional output produced when `run_cellbender` is "true"; see CellBender [documentation](https://cellbender.readthedocs.io/en/latest/usage/index.html) and [GitHub repository](https://github.com/broadinstitute/CellBender/tree/master) for more information. |
+
+
 
 ## Versioning and testing
 

@@ -1,3 +1,13 @@
+# 1.0.14
+2023-12-08 (Date of Last Commit)
+
+* ValidateVcfs now has optional memory parameter; this does not affect this pipeline
+
+# 1.0.13
+2023-11-29 (Date of Last Commit)
+
+* ValidateVcfs can now take in VCF as calling_interval_list that is in a separate location from its index; this does not affect this pipeline
+
 # 1.0.12
 2023-03-30 (Date of Last Commit)
 * CheckFingerprint can allow LOD 0

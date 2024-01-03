@@ -1,3 +1,13 @@
+# 1.1.5
+2023-12-08 (Date of Last Commit)
+
+* ValidateVcfs now has optional memory parameter; this does not affect this pipeline
+
+# 1.1.4
+2023-11-29 (Date of Last Commit)
+
+* ValidateVcfs can now take in VCF as calling_interval_list that is in a separate location from its index; this does not affect this pipeline
+
 # 1.1.3
 2023-03-20 (Date of Last Commit)
 
