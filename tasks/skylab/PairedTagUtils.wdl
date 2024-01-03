@@ -11,7 +11,7 @@ task PairedTagDemultiplex {
         String docker = "us.gcr.io/broad-gotc-prod/upstools:1.0.0-2023.03.03-1703173526"
 
         # Runtime attributes
-        Int mem_size = 5
+        Int mem_size = 8
         Int cpu = 1
         # TODO decided cpu
         # estimate that bam is approximately equal in size to fastq, add 20% buffer
@@ -52,7 +52,7 @@ task PairedTagDemultiplex {
     runtime {
         docker: docker
         cpu: cpu
-        memory: "${mem_size} MiB"
+        memory: "${mem_size} GiB"
         disks: "local-disk ${disk_size} HDD"
         preemptible: preemptible
     }
@@ -70,7 +70,7 @@ task AddBBTag {
         String input_id
 
         # using the latest build of upstools docker in GCR
-        String docker = "us.gcr.io/broad-gotc-prod/upstools:1.0.0-2023.03.03-1703173526"
+        String docker = "us.gcr.io/broad-gotc-prod/upstools:1.0.0-2023.03.03-1704300311"
 
         # Runtime attributes
         Int mem_size = 8
