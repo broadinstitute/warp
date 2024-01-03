@@ -192,6 +192,7 @@ task JoinMultiomeBarcodes {
     File gex_h5ad
     File gex_whitelist
     File atac_whitelist
+
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
   }
