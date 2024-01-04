@@ -2,6 +2,7 @@ version 1.0
 
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
+import "../../../tasks/skylab/PairedTagUtils.wdl" as AddBB
 
 workflow ATAC {
   meta {
@@ -18,6 +19,9 @@ workflow ATAC {
     # Output prefix/base name for all intermediate files and pipeline outputs
     String input_id
 
+    # Option for running files with preindex
+    Boolean preindex = false
+    
     # BWA ref
     File tar_bwa_reference
 
@@ -35,7 +39,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "1.1.3"
+  String pipeline_version = "1.1.4"
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
@@ -75,17 +79,38 @@ workflow ATAC {
         output_base_name = input_id
   }
 
-  call CreateFragmentFile {
-    input:
-      bam = BWAPairedEndAlignment.bam_aligned_output,
-      chrom_sizes = chrom_sizes,
-      annotations_gtf = annotations_gtf
+  if (preindex) {
+    call AddBB.AddBBTag as BBTag {
+      input:
+        bam = BWAPairedEndAlignment.bam_aligned_output,
+        input_id = input_id
+    }
+    call CreateFragmentFile as BB_fragment {
+      input:
+        bam = BBTag.bb_bam,
+        chrom_sizes = chrom_sizes,
+        annotations_gtf = annotations_gtf,
+        preindex = preindex
+    }
   }
+  if (!preindex) {
+    call CreateFragmentFile {
+      input:
+        bam = BWAPairedEndAlignment.bam_aligned_output,
+        chrom_sizes = chrom_sizes,
+        annotations_gtf = annotations_gtf,
+        preindex = preindex
+
+    }
+  }
+  File bam_aligned_output_atac = select_first([BBTag.bb_bam, BWAPairedEndAlignment.bam_aligned_output])
+  File fragment_file_atac = select_first([BB_fragment.fragment_file, CreateFragmentFile.fragment_file])
+  File snap_metrics_atac = select_first([BB_fragment.Snap_metrics,CreateFragmentFile.Snap_metrics])
 
   output {
-    File bam_aligned_output = BWAPairedEndAlignment.bam_aligned_output
-    File fragment_file = CreateFragmentFile.fragment_file
-    File snap_metrics = CreateFragmentFile.Snap_metrics
+    File bam_aligned_output = bam_aligned_output_atac
+    File fragment_file = fragment_file_atac
+    File snap_metrics = snap_metrics_atac
   }
 }
 
@@ -311,6 +336,7 @@ task CreateFragmentFile {
     File bam
     File annotations_gtf
     File chrom_sizes
+    Boolean preindex
     Int disk_size = 500
     Int mem_size = 16
     Int nthreads = 1
@@ -337,6 +363,7 @@ task CreateFragmentFile {
     bam = "~{bam}"
     bam_base_name = "~{bam_base_name}"
     chrom_sizes = "~{chrom_sizes}"
+    preindex = "~{preindex}"
 
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
@@ -349,8 +376,12 @@ task CreateFragmentFile {
     import snapatac2.preprocessing as pp
     import snapatac2 as snap
 
-    # extract CB tag from bam file to create fragment file
-    pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
+    # extract CB or BB (if preindex is true) tag from bam file to create fragment file
+    if preindex == "true":
+      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="BB")
+    elif preindex == "false":
+      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
+      
 
     # calculate quality metrics; note min_num_fragments and min_tsse are set to 0 instead of default
     # those settings allow us to retain all barcodes
