@@ -77,7 +77,7 @@ task AddBBTag {
         Int cpu = 1
         # TODO decided cpu
         # estimate that bam is approximately equal in size to fastq, add 20% buffer
-        Int disk_size = ceil(2 * ( size(bam, "GiB"))) + 400
+        Int disk_size = ceil(2 * ( size(bam, "GiB"))) + 100
         Int preemptible = 3
     }
 
