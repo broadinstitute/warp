@@ -374,8 +374,6 @@ task STARsoloFastq {
     touch Summary_sn_rna.csv
     touch UMIperCellSorted_sn_rna.txt
 
-    echo "listing out everything"
-    ls -lRh
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
@@ -634,8 +632,6 @@ task STARsoloFastqSlideSeq {
     touch barcodes_exon.tsv
     touch features_exon.tsv
     touch matrix_exon.mtx
-
-    ls
 
     mv "Solo.out/GeneFull/raw/barcodes.tsv" barcodes.tsv
     mv "Solo.out/GeneFull/raw/features.tsv" features.tsv
