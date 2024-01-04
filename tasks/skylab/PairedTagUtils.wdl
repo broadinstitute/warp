@@ -1,5 +1,58 @@
 version 1.0
 
+task ReadLengthCheck {
+    input {
+        File read1_fastq
+        File read3_fastq
+        File barcodes_fastq
+        String input_id
+        Boolean preindex
+        # Runtime attributes
+        String docker = ""
+        Int mem_size
+        Int cpu = 1
+        Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
+        Int preemptible = 3
+        Int mem_size = 8
+
+    }
+    meta {
+        description: "Checks read2 FASTQ length and orientation and performs trimming."
+    }
+    parameter_meta {
+        read1_fastq: "read 1 FASTQ files of paired reads -- forward reads"
+        read3_fastq: "read 3 FASTQ files of paired reads -- reverse reads"
+        barcodes_fastq: "read 2 FASTQ files which contains the cellular barcodes"
+        docker: "(optional) the docker image containing the runtime environment for this task"
+        mem_size: "(optional) the amount of memory (MiB) to provision for this task"
+        cpu: "(optional) the number of cpus to provision for this task"
+        disk_size: "(optional) the amount of disk space (GiB) to provision for this task"
+        preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"        
+    }
+    command <<<
+      set -e
+      ## Need to gunzip the r1_fastq
+      zcat ~{barcodes_fastq} | head -n2 > r2.fastq
+      FASTQ=r2.fastq
+      echo 'this is the fastq:' $FASTQ
+      R2=$(awk 'NR==2' $FASTQ)
+      COUNT=$(echo ${#R2})
+      echo 'this is the read:' $R2
+      echo 'this is the UMI/barcode count:' $COUNT
+
+    if [[$COUNT == 27 && ~{preindex} == "false" ]]
+      then
+      pass="true"
+      echo "Read1 FASTQ does not match v2 chemistry; to override set ignore_r1_read_length to true"
+    elif [[ ~{tenx_chemistry_version} == 3 && $COUNT != 28 && ~{ignore_r1_read_length} == "false" ]]
+      then
+      pass="false"
+      echo "Read1 FASTQ does not match v3 chemistry; to override set ignore_r1_read_length to true"
+    else
+      pass="true"
+    fi      
+    >>>
+}
 task PairedTagDemultiplex {
     input {
         File read1_fastq
