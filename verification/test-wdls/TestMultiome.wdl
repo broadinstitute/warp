@@ -50,6 +50,7 @@ workflow TestMultiome {
       Boolean update_truth
       String vault_token_path
       String google_account_vault_path
+      Boolean run_cellbender = false
 
     }
 
@@ -82,7 +83,8 @@ workflow TestMultiome {
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3,
         chrom_sizes = chrom_sizes,
-        atac_whitelist = atac_whitelist
+        atac_whitelist = atac_whitelist,
+        run_cellbender = run_cellbender
   
     }
 

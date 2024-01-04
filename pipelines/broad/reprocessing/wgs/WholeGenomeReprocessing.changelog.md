@@ -1,3 +1,24 @@
+# 3.1.17
+2023-12-08 (Date of Last Commit)
+
+* ValidateVcfs now has optional memory parameter; this does not affect this pipeline
+
+# 3.1.16
+2023-11-29 (Date of Last Commit)
+
+* ValidateVcfs can now take in VCF as calling_interval_list that is in a separate location from its index; this does not affect this pipeline
+
+# 3.1.15
+2023-11-29 (Date of Last Commit)
+
+* Fixed bug in ReblockGVCFs; this does not affect this pipeline.
+* Reverted the VerifyBamID docker image back to the 3.1.11 WholeGenomeReprocessing pipeline version
+
+# 3.1.14
+2023-10-10 (Date of Last Commit)
+
+* Removed the SumFloats task from SplitLargeReadGroup.wdl; this does not affect the outputs
+
 # 3.1.13
 2023-09-18 (Date of Last Commit)
 
