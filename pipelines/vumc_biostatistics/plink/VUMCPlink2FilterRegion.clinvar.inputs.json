@@ -1,0 +1,9 @@
+{
+  "VUMCPlink2FilterRegion.region_bed": "/nobackup/h_cqs/shengq2/biovu/20231214_agd_35k_small_callsets/clinvar.converted.bed",
+  "VUMCPlink2FilterRegion.target_prefix": "chrY",
+  "VUMCPlink2FilterRegion.target_suffix": "_clinvar",
+  "VUMCPlink2FilterRegion.source_bed": "/nobackup/h_cqs/shengq2/biovu/agd35k/ICA-AGD/chrY.bed",
+  "VUMCPlink2FilterRegion.source_fam": "/nobackup/h_cqs/shengq2/biovu/agd35k/ICA-AGD/chrY.fam",
+  "VUMCPlink2FilterRegion.source_bim": "/nobackup/h_cqs/shengq2/biovu/agd35k/ICA-AGD/chrY.bim"
+}
+

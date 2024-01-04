@@ -1,8 +1,0 @@
-{
-  "VUMCPlinkFilterRegion.region_bed": "/nobackup/h_cqs/shengq2/biovu/20231214_agd_35k_small_callsets/exome.converted.bed",
-  "VUMCPlinkFilterRegion.target_prefix": "chrM_exome",
-  "VUMCPlinkFilterRegion.source_bed": "/nobackup/h_cqs/shengq2/biovu/agd35k/ICA-AGD/chrM.bed",
-  "VUMCPlinkFilterRegion.source_fam": "/nobackup/h_cqs/shengq2/biovu/agd35k/ICA-AGD/chrM.fam",
-  "VUMCPlinkFilterRegion.source_bim": "/nobackup/h_cqs/shengq2/biovu/agd35k/ICA-AGD/chrM.bim"
-}
-

@@ -1,8 +1,8 @@
 version 1.0
 
-import "./Utils.wdl" as Utils
+import "../genotype/Utils.wdl" as Utils
 
-workflow VUMCPlinkFilterRegion {
+workflow VUMCPlink2FilterRegion {
   input {
     File source_bed
     File source_bim
@@ -20,7 +20,7 @@ workflow VUMCPlinkFilterRegion {
 
   String file_prefix=target_prefix + select_first([target_suffix, ""])
 
-  call PlinkFilterRegion {
+  call Plink2FilterRegion {
     input:
       source_bed = source_bed,
       source_bim = source_bim,
@@ -33,33 +33,33 @@ workflow VUMCPlinkFilterRegion {
   if(defined(target_bucket)){
     call Utils.MoveOrCopyPlinkFile as CopyFile {
       input:
-        source_bed = PlinkFilterRegion.output_bed,
-        source_bim = PlinkFilterRegion.output_bim,
-        source_fam = PlinkFilterRegion.output_fam,
+        source_bed = Plink2FilterRegion.output_bed,
+        source_bim = Plink2FilterRegion.output_bim,
+        source_fam = Plink2FilterRegion.output_fam,
         is_move_file = false,
         project_id = project_id,
         target_bucket = select_first([target_bucket])
     }
   }
 
-  File final_bed = select_first([CopyFile.output_bed, PlinkFilterRegion.output_bed])
-  File final_bim = select_first([CopyFile.output_bim, PlinkFilterRegion.output_bim])
-  File final_fam = select_first([CopyFile.output_fam, PlinkFilterRegion.output_fam])
+  File final_bed = select_first([CopyFile.output_bed, Plink2FilterRegion.output_bed])
+  File final_bim = select_first([CopyFile.output_bim, Plink2FilterRegion.output_bim])
+  File final_fam = select_first([CopyFile.output_fam, Plink2FilterRegion.output_fam])
   Float final_bed_size = size(final_bed)
   Float final_bim_size = size(final_bim)
   Float final_fam_size = size(final_fam)
 
   output {
-    File output_bed = select_first([CopyFile.output_bed, PlinkFilterRegion.output_bed])
-    File output_bim = select_first([CopyFile.output_bim, PlinkFilterRegion.output_bim])
-    File output_fam = select_first([CopyFile.output_fam, PlinkFilterRegion.output_fam])
+    File output_bed = select_first([CopyFile.output_bed, Plink2FilterRegion.output_bed])
+    File output_bim = select_first([CopyFile.output_bim, Plink2FilterRegion.output_bim])
+    File output_fam = select_first([CopyFile.output_fam, Plink2FilterRegion.output_fam])
     Float output_bed_size = final_bed_size
     Float output_bim_size = final_bim_size
     Float output_fam_size = final_fam_size
   }
 }
 
-task PlinkFilterRegion {
+task Plink2FilterRegion {
   input {
     File source_bed
     File source_bim

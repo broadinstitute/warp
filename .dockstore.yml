@@ -237,6 +237,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCBed2HailMatrix.wdl
 
-  - name: VUMCPlinkFilterRegion
+  - name: VUMCPlink2FilterRegion
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCPlinkFilterRegion.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2FilterRegion.wdl
