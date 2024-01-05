@@ -1,4 +1,8 @@
 # 1.2.26
+2024-01-05 (Date of Last Commit)
+* Modified the STARsoloFastq task in the StarAlign.wdl so STARsolo can run different types of alignments in a single STARsolo command depending on the counting_mode; this does affect the MultiSampleSmartSeq2SingleNucleus workflow.
+
+# 1.2.26
 2023-08-22 (Date of Last Commit)
 
 * Updated Optimus pipeline to include STARsolo v2.7.11a; does not impact snSS2

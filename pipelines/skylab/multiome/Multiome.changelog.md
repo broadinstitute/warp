@@ -1,3 +1,7 @@
+# 3.0.4
+2023-12-20 (Date of Last Commit)
+* Modified the STARsoloFastq task in the StarAlign.wdl so STARsolo can run different types of alignments in a single STARsolo command depending on the counting_mode.  
+
 # 3.0.3
 2023-12-20 (Date of Last Commit)
 * Added updated docker to BWAPairedEndAlignment ATAC task to use updated code for distributed bwa-mem2 from Intel
