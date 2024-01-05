@@ -89,7 +89,8 @@ workflow PairedTag {
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
-            adapter_seq_read3 = adapter_seq_read3
+            adapter_seq_read3 = adapter_seq_read3,
+            preindex = preindex
         }
     }        
     if (!preindex) {
@@ -104,21 +105,14 @@ workflow PairedTag {
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
-            adapter_seq_read3 = adapter_seq_read3
+            adapter_seq_read3 = adapter_seq_read3,
+            preindex = preindex
         }
     } 
    
     File atac_h5ad = select_first([Atac_preindex.snap_metrics,Atac.snap_metrics])
     File atac_fragment = select_first([Atac_preindex.fragment_file, Atac.fragment_file])
     File bam_atac_output = select_first([Atac_preindex.bam_aligned_output, Atac.bam_aligned_output])
-    call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
-        input:
-            atac_h5ad = atac_h5ad,
-            gex_h5ad = Optimus.h5ad_output_file,
-            gex_whitelist = gex_whitelist,
-            atac_whitelist = atac_whitelist,
-            atac_fragment = atac_fragment
-    }
 
     meta {
         allowNestedInputs: true
@@ -131,7 +125,7 @@ workflow PairedTag {
         # atac outputs
         File bam_aligned_output_atac = bam_atac_output
         File fragment_file_atac = atac_fragment
-        File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
+        File snap_metrics_atac = atac_h5ad
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
@@ -142,6 +136,6 @@ workflow PairedTag {
         File cell_metrics_gex = Optimus.cell_metrics
         File gene_metrics_gex = Optimus.gene_metrics
         File? cell_calls_gex = Optimus.cell_calls
-        File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
+        File h5ad_output_file_gex = Optimus.h5ad_output_file
     }
 }
