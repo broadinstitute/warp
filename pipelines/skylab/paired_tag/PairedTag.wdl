@@ -112,20 +112,21 @@ workflow PairedTag {
                 input_id = input_id,
                 whitelist = whitelist,
                 preindex = preindex
-            }        
-      call atac.ATAC as Atac {
-        input:
-            read1_fastq_gzipped = atac_r1_fastq,
-            read2_fastq_gzipped = atac_r2_fastq,
-            read3_fastq_gzipped = atac_r3_fastq,
-            input_id = input_id + "_atac",
-            tar_bwa_reference = tar_bwa_reference,
-            annotations_gtf = annotations_gtf,
-            chrom_sizes = chrom_sizes,
-            whitelist = atac_whitelist,
-            adapter_seq_read1 = adapter_seq_read1,
-            adapter_seq_read3 = adapter_seq_read3,
-            preindex = preindex
+            }
+        }        
+        call atac.ATAC as Atac {
+          input:
+              read1_fastq_gzipped = atac_r1_fastq,
+              read2_fastq_gzipped = atac_r2_fastq,
+              read3_fastq_gzipped = atac_r3_fastq,
+              input_id = input_id + "_atac",
+              tar_bwa_reference = tar_bwa_reference,
+              annotations_gtf = annotations_gtf,
+              chrom_sizes = chrom_sizes,
+              whitelist = atac_whitelist,
+              adapter_seq_read1 = adapter_seq_read1,
+              adapter_seq_read3 = adapter_seq_read3,
+              preindex = preindex
         }
     } 
    
