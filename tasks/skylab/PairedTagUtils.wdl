@@ -46,13 +46,11 @@ task ReadLengthCheck {
         echo ~{barcodes_fastq}
         echo ~{read3_fastq}
         echo Renaming files
-        mv ~{read1_fastq} "~{input_id}_R1.fq.gz"
         mv ~{barcodes_fastq} "~{input_id}_R2.fq.gz"
-        mv ~{read3_fastq} "~{input_id}_R3.fq.gz"
         echo "Running UPStools"
         upstools trimfq ~{input_id}_R2.fq.gz 4 26
         echo "Running orientation check"
-        file="~{barcodes_fastq}"
+        file="~{input_id}_R2.trim.fq.gz"
         zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
         head -n 1 downsample.fq
         python3 /upstools/pyscripts/dynamic-barcode-orientation.py downsample.fq ~{whitelist} best_match.txt
