@@ -75,7 +75,7 @@ workflow PairedTag {
               read3_fastq = atac_r3_fastq[idx],
               barcodes_fastq = atac_r2_fastq[idx],
               input_id = input_id,
-              whitelist = whitelist,
+              whitelist = atac_whitelist,
               preindex = preindex
         }
     }      
