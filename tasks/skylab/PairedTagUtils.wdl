@@ -15,7 +15,6 @@ task ReadLengthCheck {
         Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
         Int preemptible = 3
         Int mem_size = 8
-
     }
     meta {
         description: "Checks read2 FASTQ length and orientation and performs trimming."
@@ -92,6 +91,7 @@ task ReadLengthCheck {
         preemptible: preemptible        
     }
 }
+
 task PairedTagDemultiplex {
     input {
         File read1_fastq
