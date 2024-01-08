@@ -38,12 +38,13 @@ task ReadLengthCheck {
       R2=$(awk 'NR==2' $FASTQ)
       COUNT=$(echo ${#R2})
       echo 'this is the read:' $R2
-      echo 'this is the UMI/barcode count:' $COUNT
+      echo 'this is the barcode count:' $COUNT
 
     if [[$COUNT == 27 && ~{preindex} == "false" ]]
       then
       pass="true"
-      echo "Read1 FASTQ does not match v2 chemistry; to override set ignore_r1_read_length to true"
+      echo "Preindex is false and length is 27 bp; performing trimming of first 3 bp"
+
     elif [[ ~{tenx_chemistry_version} == 3 && $COUNT != 28 && ~{ignore_r1_read_length} == "false" ]]
       then
       pass="false"
