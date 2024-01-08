@@ -37,7 +37,7 @@ task ReadLengthCheck {
       echo 'this is the read:' $R2
       echo 'this is the barcode count:' $COUNT
 
-      if [[$COUNT == 27 && ~{preindex} == "false" ]]
+      if [[ $COUNT == 27 && ~{preindex} == "false" ]]
         then
         pass="true"
         echo "Preindex is false and length is 27 bp; performing trimming of first 3 bp"
@@ -60,11 +60,11 @@ task ReadLengthCheck {
         barcode_choice=$(<best_match.txt)
         echo "Barcode choice is: "
         echo $barcode_choice
-      elif [[$COUNT == 27 && ~{preindex} == "true" ]]
+      elif [[ $COUNT == 27 && ~{preindex} == "true" ]]
         then
         pass="true"
         echo "Count is 27 bp because of preindex"
-      elif [[$COUNT == 24 && ~{preindex} == "false" ]]
+      elif [[ $COUNT == 24 && ~{preindex} == "false" ]]
         then
         pass="true"
         echo "FASTQ has correct index length"
