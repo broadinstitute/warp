@@ -7,6 +7,7 @@ task ReadLengthCheck {
         File barcodes_fastq
         String input_id
         Boolean preindex
+        String whitelist
         # Runtime attributes
         String docker = ""
         Int mem_size
@@ -40,18 +41,48 @@ task ReadLengthCheck {
       echo 'this is the read:' $R2
       echo 'this is the barcode count:' $COUNT
 
-    if [[$COUNT == 27 && ~{preindex} == "false" ]]
-      then
-      pass="true"
-      echo "Preindex is false and length is 27 bp; performing trimming of first 3 bp"
-
-    elif [[ ~{tenx_chemistry_version} == 3 && $COUNT != 28 && ~{ignore_r1_read_length} == "false" ]]
-      then
-      pass="false"
-      echo "Read1 FASTQ does not match v3 chemistry; to override set ignore_r1_read_length to true"
-    else
-      pass="true"
-    fi      
+      if [[$COUNT == 27 && ~{preindex} == "false" ]]
+        then
+        pass="true"
+        echo "Preindex is false and length is 27 bp; performing trimming of first 3 bp"
+        echo "modifying filenames to run UPStools"
+        echo ~{read1_fastq}
+        echo ~{barcodes_fastq}
+        echo ~{read3_fastq}
+        echo Renaming files
+        mv ~{read1_fastq} "~{input_id}_R1.fq.gz"
+        mv ~{barcodes_fastq} "~{input_id}_R2.fq.gz"
+        mv ~{read3_fastq} "~{input_id}_R3.fq.gz"
+        echo "Running UPStools"
+        upstools trimfq ~{input_id}_R2.fq.gz 4 26
+        echo "Running orientation check"
+        file="~{barcodes_fastq}"
+        zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
+        head -n 1 downsample.fq
+        python3 /upstools/pyscripts/dynamic-barcode-orientation.py downsample.fq ~{whitelist} best_match.txt
+        cat best_match.txt
+        barcode_choice=$(<best_match.txt)
+        echo "Barcode choice is: "
+        echo $barcode_choice
+      elif [[$COUNT == 27 && ~{preindex} == "true" ]]
+        then
+        pass="true"
+        echo "Count is 27 bp because of preindex"
+      elif [[$COUNT == 24 && ~{preindex} == "false" ]]
+        then
+        pass="true"
+        echo "FASTQ has correct index length"
+      else
+        pass="false"
+      fi
+    ## fail if any tests failed, ignore if force_no_check is set
+      if [[ $pass == "true" ]]
+        then
+        exit 0;
+      else
+        exit 1;
+      fi
+      exit 0;      
     >>>
 }
 task PairedTagDemultiplex {
