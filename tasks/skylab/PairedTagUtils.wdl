@@ -1,5 +1,4 @@
 version 1.0
-
 task ReadLengthCheck {
     input {
         File read1_fastq
@@ -8,11 +7,9 @@ task ReadLengthCheck {
         String input_id
         Boolean preindex
         String whitelist
-        # Runtime attributes
         String docker = "us.gcr.io/broad-gotc-prod/upstools:1.2.0-2023.03.03-1704723060"
-        Int mem_size
         Int cpu = 1
-        Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
+        Int disk_size = ceil(2 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
         Int preemptible = 3
         Int mem_size = 8
     }
@@ -83,12 +80,17 @@ task ReadLengthCheck {
       fi
       exit 0;      
     >>>
+    
     runtime {
         docker: docker
         cpu: cpu
         memory: "${mem_size} GiB"
         disks: "local-disk ${disk_size} HDD"
         preemptible: preemptible        
+    }
+
+    output {
+    String read2check_out = "Success"
     }
 }
 
