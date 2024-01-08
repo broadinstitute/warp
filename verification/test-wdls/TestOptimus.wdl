@@ -26,6 +26,7 @@ workflow TestOptimus {
     File annotations_gtf
     File ref_genome_fasta
     File? mt_genes
+    String? soloMultiMappers
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version = 2
@@ -84,7 +85,8 @@ workflow TestOptimus {
       force_no_check             = force_no_check,
       star_strand_mode           = star_strand_mode,
       count_exons                = count_exons,
-      ignore_r1_read_length      = ignore_r1_read_length
+      ignore_r1_read_length      = ignore_r1_read_length,
+      soloMultiMappers           = soloMultiMappers
   }
 
   # Collect all of the pipeling output into single Array
