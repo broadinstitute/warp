@@ -28,5 +28,6 @@
   "PairedTag.ref_genome_fasta":"gs://gcp-public-data--broad-references/hg38/v0/GRCh38.primary_assembly.genome.fa",
   "PairedTag.tar_bwa_reference":"gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/bwa-mem2-2.2.1-Human-GENCODE-build-GRCh38.tar",
   "PairedTag.tar_star_reference":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_star2.7.10a-Human-GENCODE-build-GRCh38-43.tar",
-  "PairedTag.chrom_sizes":"gs://broad-gotc-test-storage/Multiome/input/hg38.chrom.sizes"
+  "PairedTag.chrom_sizes":"gs://broad-gotc-test-storage/Multiome/input/hg38.chrom.sizes",
+  "PairedTag.preindex":"false"
 }
