@@ -84,6 +84,13 @@ task ReadLengthCheck {
       fi
       exit 0;      
     >>>
+    runtime {
+        docker: docker
+        cpu: cpu
+        memory: "${mem_size} GiB"
+        disks: "local-disk ${disk_size} HDD"
+        preemptible: preemptible        
+    }
 }
 task PairedTagDemultiplex {
     input {
