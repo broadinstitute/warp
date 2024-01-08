@@ -379,7 +379,8 @@ task STARsoloFastq {
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
       SoloDirectory="Solo.out/Gene/raw"
-      find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
+      find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | echo xargs -0 -I{} mv {} /cromwell_root/
+      find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | echo xargs -0 -I{} mv {} /cromwell_root/
       mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
       mv "Solo.out/Gene/raw/features.tsv" features.tsv
       #mv "Solo.out/Gene/raw/matrix.mtx"   Ithinkicandeletehismatrix.mtx
@@ -392,7 +393,8 @@ task STARsoloFastq {
       if [[ "~{count_exons}" == "false" ]]
       then
         SoloDirectory="Solo.out/GeneFull_Ex50pAS/raw"
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
+        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | echo xargs -0 -I{} mv {} /cromwell_root/
+        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | echo xargs -0 -I{} mv {} /cromwell_root/
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         #mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   Ithinkicandeletehismatrix.mtx
@@ -402,9 +404,11 @@ task STARsoloFastq {
         mv "Solo.out/GeneFull_Ex50pAS/UMIperCellSorted.txt" UMIperCellSorted.txt
       else
         SoloDirectory="Solo.out/GeneFull_Ex50pAS/raw"
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
+        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | echo xargs -0 -I{} mv {} /cromwell_root/
+        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | echo xargs -0 -I{} mv {} /cromwell_root/
         SoloDirectory="Solo.out/Gene/raw"
-        find "$directory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; mv {} "/cromwell_root/$new_name"'
+        find "$directory" -maxdepth 1 -type f -name "*.mtx" -print0 | echo xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; mv {} "/cromwell_root/$new_name"'
+        find "$directory" -maxdepth 1 -type f -name "*.mtx" -print0 | echo xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; mv {} "/cromwell_root/$new_name"'
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         #mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
