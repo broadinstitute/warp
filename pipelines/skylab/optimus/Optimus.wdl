@@ -31,6 +31,7 @@ workflow Optimus {
     File annotations_gtf
     File ref_genome_fasta
     File? mt_genes
+    String? soloMultiMappers
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
@@ -131,7 +132,8 @@ workflow Optimus {
         chemistry = tenx_chemistry_version,
         counting_mode = counting_mode,
         count_exons = count_exons,
-        output_bam_basename = output_bam_basename + "_" + idx
+        output_bam_basename = output_bam_basename + "_" + idx,
+        soloMultiMappers = soloMultiMappers
     }
   }
   call Merge.MergeSortBamFiles as MergeBam {

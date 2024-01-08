@@ -223,6 +223,7 @@ task STARsoloFastq {
     String counting_mode # when counting_mode = sn_rna, runs Gene and GeneFullEx50pAS in single alignments
     String output_bam_basename
     Boolean? count_exons
+    String? soloMultiMappers
 
     # runtime values
     String docker = "us.gcr.io/broad-gotc-prod/star:1.0.1-2.7.11a-1692706072"
@@ -308,7 +309,8 @@ task STARsoloFastq {
         --outSAMtype BAM SortedByCoordinate \
         --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
         --soloBarcodeReadLength 0 \
-        --soloCellReadStats Standard
+        --soloCellReadStats Standard \
+        ~{"--soloMultiMappers " + soloMultiMappers}
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
         ## single nuclei
@@ -333,7 +335,8 @@ task STARsoloFastq {
             --outSAMtype BAM SortedByCoordinate \
             --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
             --soloBarcodeReadLength 0 \
-            --soloCellReadStats Standard
+            --soloCellReadStats Standard \
+            ~{"--soloMultiMappers " + soloMultiMappers}
         else
             COUNTING_MODE="GeneFull_Ex50pAS Gene"
             echo "Running in ~{counting_mode} mode. Count_exons is true and the Star parameter --soloFeatures will be set to $COUNTING_MODE"
@@ -354,15 +357,13 @@ task STARsoloFastq {
             --outSAMtype BAM SortedByCoordinate \
             --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
             --soloBarcodeReadLength 0 \
-            --soloCellReadStats Standard
+            --soloCellReadStats Standard \
+            ~{"--soloMultiMappers " + soloMultiMappers}
         fi
     else
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
         exit 1;
     fi
-
-
-
 
     echo "UMI LEN " $UMILen
 
@@ -377,9 +378,11 @@ task STARsoloFastq {
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
+      SoloDirectory="Solo.out/Gene/raw"
+      find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
       mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
       mv "Solo.out/Gene/raw/features.tsv" features.tsv
-      mv "Solo.out/Gene/raw/matrix.mtx"   matrix.mtx
+      #mv "Solo.out/Gene/raw/matrix.mtx"   Ithinkicandeletehismatrix.mtx
       mv "Solo.out/Gene/CellReads.stats" CellReads.stats
       mv "Solo.out/Gene/Features.stats" Features.stats
       mv "Solo.out/Gene/Summary.csv" Summary.csv
@@ -388,24 +391,30 @@ task STARsoloFastq {
     then
       if [[ "~{count_exons}" == "false" ]]
       then
+        SoloDirectory="Solo.out/GeneFull_Ex50pAS/raw"
+        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
-        mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
+        #mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   Ithinkicandeletehismatrix.mtx
         mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
         mv "Solo.out/GeneFull_Ex50pAS/Features.stats" Features.stats
         mv "Solo.out/GeneFull_Ex50pAS/Summary.csv" Summary.csv
         mv "Solo.out/GeneFull_Ex50pAS/UMIperCellSorted.txt" UMIperCellSorted.txt
       else
+        SoloDirectory="Solo.out/GeneFull_Ex50pAS/raw"
+        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
+        SoloDirectory="Solo.out/Gene/raw"
+        find "$directory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; mv {} "/cromwell_root/$new_name"'
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
-        mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
+        #mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx"   matrix.mtx
         mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
         mv "Solo.out/GeneFull_Ex50pAS/Features.stats" Features.stats
         mv "Solo.out/GeneFull_Ex50pAS/Summary.csv" Summary.csv
         mv "Solo.out/GeneFull_Ex50pAS/UMIperCellSorted.txt" UMIperCellSorted.txt
         mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_sn_rna.tsv
         mv "Solo.out/Gene/raw/features.tsv"     features_sn_rna.tsv
-        mv "Solo.out/Gene/raw/matrix.mtx"       matrix_sn_rna.mtx
+        #mv "Solo.out/Gene/raw/matrix.mtx"       matrix_sn_rna.mtx
         mv "Solo.out/Gene/CellReads.stats" CellReads_sn_rna.stats
         mv "Solo.out/Gene/Features.stats" Features_sn_rna.stats
         mv "Solo.out/Gene/Summary.csv" Summary_sn_rna.csv

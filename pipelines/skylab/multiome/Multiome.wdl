@@ -27,6 +27,7 @@ workflow Multiome {
         String star_strand_mode = "Forward"
         Boolean count_exons = false
         File gex_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt"
+        String? soloMultiMappers
 
         # ATAC inputs
         # Array of input fastq files
@@ -67,6 +68,7 @@ workflow Multiome {
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
+            soloMultiMappers = soloMultiMappers
     }
 
     # Call the ATAC workflow
