@@ -54,25 +54,23 @@ The snM3C workflow requires a JSON configuration file specifying the input files
 
 | Parameter | Description |
 | ---| --- |
-<!--- need more detail
 | fastq_input_read1 | Array of multiplexed FASTQ files for read 1. |
 | fastq_input_read2 | Array of multiplexed FASTQ files for read 2. |
 | random_primer_indexes | File containing random primer indexes. |
 | plate_id | String specifying the plate ID. |
 | tarred_index_files | File containing tarred index files for hisat-3 mapping. |
 | genome_fa | File containing the reference genome in FASTA format. | 
-| chromosome_sizes | File containing chromosome sizes information. |
-| r1_adapter | String "AGATCGGAAGAGCACACGTCTGAAC". |
-| r2_adapter | String "AGATCGGAAGAGCGTCGTGTAGGGA". |
-| r1_left_cut | Int 10. |
-| r1_right_cut | Int 10. |
-| r2_left_cut | Int 10. |
-| r2_right_cut | Int 10. |
-| min_read_length | Int 30. |
-| num_upstr_bases | Int 0. |
-| num_downstr_bases | Int 2. |
-| compress_level | Int 5. |
---->
+| chromosome_sizes | File containing the genome chromosome sizes. |
+| r1_adapter | Optional string describing the adapter sequence for read 1 paired-end reads to be used during adapter trimming with Cutadapt; default is "AGATCGGAAGAGCACACGTCTGAAC". |
+| r2_adapter | Optional string describing the adapter sequence for read 2 paired-end reads to be used during adapter trimming with Cutadapt; default is  "AGATCGGAAGAGCGTCGTGTAGGGA". |
+| r1_left_cut | Optional integer describing the number of bases to be trimmed from the beginning of read 1 with Cutadapt; default is 10. |
+| r1_right_cut | Optional integer describing the number of bases to be trimmed from the end of read 1 with Cutadapt; default is 10. |
+| r2_left_cut | Optional integer describing the number of bases to be trimmed from the beginning of read 2 with Cutadapt; default is 10. |
+| r2_right_cut | Optional integer describing the number of bases to be trimmed from the end of read 2 with Cutadapt; default is 10. |
+| min_read_length | Optional integer; if a read length is smaller than `min_read_length`, both paired-end reads will be discarded; default is 30.  |
+| num_upstr_bases | Optional integer describing the number of bases upstream of the C base to include in ALLC file context column created using ALLCools; default is 0. |
+| num_downstr_bases | Optional integer describing the number of bases upstream of the C base to include in ALLC file context column created using ALLCools; default is 2. |
+| compress_level | Optional integer describing the compression level for the output ALLC file; default is 5. |
 
 
 ## snM3C tasks and tools
@@ -89,20 +87,21 @@ To see specific tool parameters, select the [workflow WDL link](https://github.c
 
 | Task name | Tool | Software | Description |
 | --- | --- | --- | --- |
+| Demultiplexing | Cutadapt | [Cutadapt](https://cutadapt.readthedocs.io/en/stable/) | Performs demultiplexing to cell-level FASTQ files. |
+| Sort_and_trim_r1_and_r2 | Cutadapt | [Cutadapt](https://cutadapt.readthedocs.io/en/stable/) | Sorts, filters, and trims reads. |
+| Hisat_3n_pair_end_mapping_dna_mode | HISAT-3N | [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/) | Performs paired-end read alignment. |
 <!--- need more detail
-| Demultiplexing | cutadapt | cutadapt | Performs demultiplexing to cell-level FASTQ files |
-| Sort_and_trim_r1_and_r2 | tool | software | description |
-| Hisat_3n_pair_end_mapping_dna_mode | tool | software | description |
 | Separate_unmapped_reads | tool | software | description |
 | Split_unmapped_reads | tool | software | description |
-| Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name | tool | software | description |
-| remove_overlap_read_parts | tool | software | description |
+| Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name | HISAT-3N | [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/) | Performs paired-end read alignment. |
+| remove_overlap_read_parts | python3 | python3 | description |
 | merge_original_and_split_bam_and_sort_all_reads_by_name_and_position | tool | software | description |
 | call_chromatin_contacts | tool | software | description |
 | dedup_unique_bam_and_index_unique_bam | tool | software | description |
-| unique_reads_allc | tool | software | description |
-| unique_reads_cgn_extraction | tool | software | description |
+| unique_reads_allc | bam-to-allc | ALLCools | description |
+| unique_reads_cgn_extraction | extract-allc | ALLCools | description |
 | summary | tool | software | description |
+
 | Mapping | hisat-3 | hisat-3 | Performs trimming, alignment and calling chromatin contacts with a [custom snakemake](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snM3C/Config%20files/Snakemake-file/Snakefile) file developed by Hanqing Liu. |
 --->
 
