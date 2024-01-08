@@ -9,7 +9,7 @@ task ReadLengthCheck {
         Boolean preindex
         String whitelist
         # Runtime attributes
-        String docker = ""
+        String docker = "us.gcr.io/broad-gotc-prod/upstools:1.2.0-2023.03.03-1704723060"
         Int mem_size
         Int cpu = 1
         Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
