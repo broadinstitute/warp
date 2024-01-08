@@ -1,3 +1,7 @@
+# 2.1.4
+2024-01-05 (Date of Last Commit)
+* Modified the STARsoloFastq task in the StarAlign.wdl so STARsolo can run different types of alignments in a single STARsolo command depending on the counting_mode; this does affect the SlideSeq workflow
+
 # 2.1.3
 2023-12-17 (Date of Last Commit)
 
