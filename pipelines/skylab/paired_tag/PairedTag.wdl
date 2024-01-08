@@ -75,8 +75,8 @@ workflow PairedTag {
                 read1_fastq = atac_r1_fastq[idx],
                 read3_fastq = atac_r3_fastq[idx],
                 barcodes_fastq = atac_r2_fastq[idx],
-                input_id = input_id
-                whitelist = whitelist
+                input_id = input_id,
+                whitelist = whitelist,
                 preindex = preindex
             } 
             call Demultiplexing.PairedTagDemultiplex as demultiplex {
@@ -109,8 +109,8 @@ workflow PairedTag {
                 read1_fastq = atac_r1_fastq[idx],
                 read3_fastq = atac_r3_fastq[idx],
                 barcodes_fastq = atac_r2_fastq[idx],
-                input_id = input_id
-                whitelist = whitelist
+                input_id = input_id,
+                whitelist = whitelist,
                 preindex = preindex
             }        
       call atac.ATAC as Atac {
