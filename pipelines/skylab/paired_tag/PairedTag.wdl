@@ -70,6 +70,15 @@ workflow PairedTag {
         # Call the ATAC workflow
     if (preindex) {
         scatter (idx in range(length(atac_r1_fastq))) {
+            call Demultiplexing.ReadLengthCheck as Readcheck {
+              input:
+                read1_fastq = atac_r1_fastq[idx],
+                read3_fastq = atac_r3_fastq[idx],
+                barcodes_fastq = atac_r2_fastq[idx],
+                input_id = input_id
+                whitelist = whitelist
+                preindex = preindex
+            } 
             call Demultiplexing.PairedTagDemultiplex as demultiplex {
               input:
                 read1_fastq = atac_r1_fastq[idx],
@@ -94,6 +103,16 @@ workflow PairedTag {
         }
     }        
     if (!preindex) {
+        scatter (idx in range(length(atac_r1_fastq))) {
+            call Demultiplexing.ReadLengthCheck as Readcheck {
+              input:
+                read1_fastq = atac_r1_fastq[idx],
+                read3_fastq = atac_r3_fastq[idx],
+                barcodes_fastq = atac_r2_fastq[idx],
+                input_id = input_id
+                whitelist = whitelist
+                preindex = preindex
+            }        
       call atac.ATAC as Atac {
         input:
             read1_fastq_gzipped = atac_r1_fastq,
