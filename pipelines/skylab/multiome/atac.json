@@ -4,5 +4,6 @@
   "ATAC.TrimAdapters.adapter_seq_read1": "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG",
   "ATAC.TrimAdapters.adapter_seq_read2": "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG",
   "ATAC.input_id": "scATAC",
-  "ATAC.tar_bwa_reference": "gs://fc-dd55e131-ef49-4d02-aa2a-20640daaae1e/submissions/8f0dd71a-b42f-4503-b839-3f146941758a/IndexRef/53a91851-1f6c-4ab9-af66-b338ffb28b5a/call-BwaMem2Index/GRCh38.primary_assembly.genome.bwamem2.fa.tar"
+  "ATAC.tar_bwa_reference": "gs://fc-dd55e131-ef49-4d02-aa2a-20640daaae1e/submissions/8f0dd71a-b42f-4503-b839-3f146941758a/IndexRef/53a91851-1f6c-4ab9-af66-b338ffb28b5a/call-BwaMem2Index/GRCh38.primary_assembly.genome.bwamem2.fa.tar",
+  "ATAC.preindex": "false"
 }
