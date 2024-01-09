@@ -45,8 +45,6 @@ task PairedTagDemultiplex {
         mv ~{barcodes_fastq} "~{input_id}_R2.fq.gz"
         echo "Running UPStools"
         upstools trimfq ~{input_id}_R2.fq.gz 4 26
-        echo "Listing files"
-        ls
         echo "Running orientation check"
         file="~{input_id}_R2_trim.fq.gz"
         zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
@@ -77,7 +75,7 @@ task PairedTagDemultiplex {
         # Create empty files
         touch "~{input_id}_R1_prefix.fq.gz" "~{input_id}_R2_prefix.fq.gz" "~{input_id}_R3_prefix.fq.gz" 
         echo renaming barcodes fastq to trim.fq.gz
-        mv ~{barcodes_fastq} "~{input_id}_21_trim.fq.gz"
+        mv ~{barcodes_fastq} "~{input_id}_R2_trim.fq.gz"
       else
         echo "Length of read2 is not expected length; ending pipeline run"
         pass="false"
