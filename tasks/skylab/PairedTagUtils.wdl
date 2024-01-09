@@ -48,7 +48,7 @@ task PairedTagDemultiplex {
         echo "Listing files"
         ls
         echo "Running orientation check"
-        file="~{input_id}_R2.trim.fq.gz"
+        file="~{input_id}_R2_trim.fq.gz"
         zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
         head -n 1 downsample.fq
         python3 /upstools/pyscripts/dynamic-barcode-orientation.py downsample.fq ~{whitelist} best_match.txt
