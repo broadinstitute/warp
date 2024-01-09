@@ -92,12 +92,16 @@ task PairedTagDemultiplex {
         disks: "local-disk ${disk_size} HDD"
         preemptible: preemptible        
     }
+    File pre_fastq1 = select_first(["~{input_id}_R1_prefix.fq.gz", "~{read1_fastq}"])
+    File pre_barcodes = select_first(["~{input_id}_R2_prefix.fq.gz", "~{barcodes_fastq}"])
+    File pre_fastq3 = select_first(["~{input_id}_R3_prefix.fq.gz", "~{input_id}_R3.fq.gz"])
+    File pre_fastq2_trim = select_first(["~{input_id}_R2_trim.fq.gz", "~{barcodes_fastq}"])
 
     output {
-    File fastq1 = select_first(["~{input_id}_R1_prefix.fq.gz", "~{read1_fastq}"])
-    File barcodes = select_first(["~{input_id}_R2_prefix.fq.gz", "~{barcodes_fastq}"])
-    File fastq3 = select_first(["~{input_id}_R3_prefix.fq.gz", "~{input_id}_R3.fq.gz"])
-    File fastq2_trim = select_first(["~{input_id}_R2_trim.fq.gz", "~{barcodes_fastq}"])
+    File fastq1 = pre_fastq1
+    File barcodes = pre_barcodes
+    File fastq3 = pre_fastq3
+    File fastq2_trim = pre_fastq2_trim
     }
 }
 
