@@ -56,6 +56,7 @@ task PairedTagDemultiplex {
         barcode_choice=$(<best_match.txt)
         echo "Barcode choice is: "
         echo $barcode_choice
+        touch "~{input_id}_R1_prefix.fq.gz" "~{input_id}_R2_prefix.fq.gz" "~{input_id}_R3_prefix.fq.gz"
       elif [[ $COUNT == 27 && ~{preindex} == "true" ]]
         then
         pass="true"
@@ -64,6 +65,8 @@ task PairedTagDemultiplex {
         mv ~{read1_fastq} "~{input_id}_R1.fq.gz"
         mv ~{barcodes_fastq} "~{input_id}_R2.fq.gz"
         mv ~{read3_fastq} "~{input_id}_R3.fq.gz"
+        # Make an empty file for outputs
+        touch "~{input_id}_R2_trim.fq.gz"
         echo "Running demultiplexing with UPStools"
         upstools sepType_DPT ~{input_id} 3
 
@@ -71,6 +74,10 @@ task PairedTagDemultiplex {
         then
         pass="true"
         echo "FASTQ has correct index length, no modification necessary"
+        # Create empty files
+        touch "~{input_id}_R1_prefix.fq.gz" "~{input_id}_R2_prefix.fq.gz" "~{input_id}_R3_prefix.fq.gz" 
+        echo renaming barcodes fastq to trim.fq.gz
+        mv ~{barcodes_fastq} "~{input_id}_21_trim.fq.gz"
       else
         echo "Length of read2 is not expected length; ending pipeline run"
         pass="false"
@@ -92,16 +99,12 @@ task PairedTagDemultiplex {
         disks: "local-disk ${disk_size} HDD"
         preemptible: preemptible        
     }
-    File pre_fastq1 = select_first(["~{input_id}_R1_prefix.fq.gz", "~{read1_fastq}"])
-    File pre_barcodes = select_first(["~{input_id}_R2_prefix.fq.gz", "~{barcodes_fastq}"])
-    File pre_fastq3 = select_first(["~{input_id}_R3_prefix.fq.gz", "~{input_id}_R3.fq.gz"])
-    File pre_fastq2_trim = select_first(["~{input_id}_R2_trim.fq.gz", "~{barcodes_fastq}"])
 
     output {
-    File fastq1 = pre_fastq1
-    File barcodes = pre_barcodes
-    File fastq3 = pre_fastq3
-    File fastq2_trim = pre_fastq2_trim
+    File fastq1 = select_first(["~{input_id}_R1_prefix.fq.gz", "~{read1_fastq}"])
+    File barcodes = select_first(["~{input_id}_R2_prefix.fq.gz", "~{barcodes_fastq}"])
+    File fastq3 = select_first(["~{input_id}_R3_prefix.fq.gz", "~{input_id}_R3.fq.gz"])
+    File fastq2_trim = select_first(["~{input_id}_R2_trim.fq.gz", "~{barcodes_fastq}"])
     }
 }
 
