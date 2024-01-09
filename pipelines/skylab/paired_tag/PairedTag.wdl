@@ -42,7 +42,7 @@ workflow PairedTag {
         File atac_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
 
         # PairedTag
-        Boolean preindex = true
+        Boolean preindex
     }
     # Call the Optimus workflow
     call optimus.Optimus as Optimus {
