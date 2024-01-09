@@ -40,15 +40,13 @@ task PairedTagDemultiplex {
       if [[ $COUNT == 27 && ~{preindex} == "false" ]]
         then
         pass="true"
-        echo "Preindex is false and length is 27 bp; performing trimming of first 3 bp"
-        echo "modifying filenames to run UPStools"
-        echo ~{read1_fastq}
-        echo ~{barcodes_fastq}
-        echo ~{read3_fastq}
-        echo Renaming files
+        echo "Preindex is false and length is 27 bp"
+        echo "Modifying filenames to run UPStools for trimming"
         mv ~{barcodes_fastq} "~{input_id}_R2.fq.gz"
         echo "Running UPStools"
         upstools trimfq ~{input_id}_R2.fq.gz 4 26
+        echo "Listing files"
+        ls
         echo "Running orientation check"
         file="~{input_id}_R2.trim.fq.gz"
         zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
