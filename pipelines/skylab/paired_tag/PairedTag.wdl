@@ -95,11 +95,12 @@ workflow PairedTag {
             preindex = preindex
         }
     }        
+    Array[File]? fasqtrim = demultiplex.fastq2_trim
     if (!preindex) {
         call atac.ATAC as Atac {
           input:
               read1_fastq_gzipped = atac_r1_fastq,
-              read2_fastq_gzipped = select_first([demultiplex.fastq2_trim,atac_r2_fastq]},
+              read2_fastq_gzipped = select_first([fastqtrim,atac_r2_fastq]),
               read3_fastq_gzipped = atac_r3_fastq,
               input_id = input_id + "_atac",
               tar_bwa_reference = tar_bwa_reference,
