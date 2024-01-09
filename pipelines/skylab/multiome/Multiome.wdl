@@ -136,6 +136,11 @@ workflow Multiome {
         File gene_metrics_gex = Optimus.gene_metrics
         File? cell_calls_gex = Optimus.cell_calls
         File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
+        Array[File] soloMultiMappers = Optimus.soloMultiMappers
+        Array[File?] multimappers_EM_matrix = Optimus.multimappers_EM_matrix
+        Array[File?] multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
+        Array[File?] multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
+        Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
 
         # cellbender outputs
         File? cell_barcodes_csv = CellBender.cell_csv
