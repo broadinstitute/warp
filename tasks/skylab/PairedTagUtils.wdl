@@ -54,6 +54,12 @@ task PairedTagDemultiplex {
         barcode_choice=$(<best_match.txt)
         echo "Barcode choice is: "
         echo $barcode_choice
+        if [[ $barcode_choice == "FIRST_BP_RC" ]]
+          then
+          pass="true"
+          else
+            pass="false"
+            echo "Incorrect barcode orientation"
         touch "~{input_id}_R1_prefix.fq.gz" "~{input_id}_R2_prefix.fq.gz" "~{input_id}_R3_prefix.fq.gz"
       elif [[ $COUNT == 27 && ~{preindex} == "true" ]]
         then
@@ -67,6 +73,21 @@ task PairedTagDemultiplex {
         touch "~{input_id}_R2_trim.fq.gz"
         echo "Running demultiplexing with UPStools"
         upstools sepType_DPT ~{input_id} 3
+        echo "Running orientation check"
+        file="~{input_id}_R2_prefix.fq.gz"
+        zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
+        head -n 1 downsample.fq
+        python3 /upstools/pyscripts/dynamic-barcode-orientation.py downsample.fq ~{whitelist} best_match.txt
+        cat best_match.txt
+        barcode_choice=$(<best_match.txt)
+        echo "Barcode choice is: "
+        echo $barcode_choice
+        if [[ $barcode_choice == "FIRST_BP_RC" ]]
+          then
+          pass="true"
+          else
+            pass="false"
+            echo "Incorrect barcode orientation"
 
       elif [[ $COUNT == 24 && ~{preindex} == "false" ]]
         then
