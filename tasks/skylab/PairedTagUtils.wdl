@@ -54,12 +54,12 @@ task PairedTagDemultiplex {
         barcode_choice=$(<best_match.txt)
         echo "Barcode choice is: "
         echo $barcode_choice
-        if [[ $barcode_choice == "FIRST_BP_RC" ]]
-          then
+        if [[ $barcode_choice == "FIRST_BP_RC" ]]; then
           pass="true"
-          else
-            pass="false"
-            echo "Incorrect barcode orientation"
+        else
+          pass="false"
+          echo "Incorrect barcode orientation"
+        fi
         touch "~{input_id}_R1_prefix.fq.gz" "~{input_id}_R2_prefix.fq.gz" "~{input_id}_R3_prefix.fq.gz"
       elif [[ $COUNT == 27 && ~{preindex} == "true" ]]
         then
@@ -82,13 +82,12 @@ task PairedTagDemultiplex {
         barcode_choice=$(<best_match.txt)
         echo "Barcode choice is: "
         echo $barcode_choice
-        if [[ $barcode_choice == "FIRST_BP_RC" ]]
-          then
+        if [[ $barcode_choice == "FIRST_BP_RC" ]]; then
           pass="true"
-          else
-            pass="false"
-            echo "Incorrect barcode orientation"
-
+        else
+          pass="false"
+          echo "Incorrect barcode orientation"
+        fi
       elif [[ $COUNT == 24 && ~{preindex} == "false" ]]
         then
         pass="true"
