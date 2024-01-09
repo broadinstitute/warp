@@ -96,10 +96,10 @@ task PairedTagDemultiplex {
     }
 
     output {
-    File? fastq1 = "~{input_id}_R1_prefix.fq.gz"
-    File? barcodes = "~{input_id}_R2_prefix.fq.gz"
-    File? fastq3 = "~{input_id}_R3_prefix.fq.gz"
-    File? fastq2_trim = "~{input_id}_R2_trim.fq.gz"
+    File fastq1 = select_first(["~{input_id}_R1_prefix.fq.gz", "~{read1_fastq}"])
+    File barcodes = select_first(["~{input_id}_R2_prefix.fq.gz", "~{barcodes_fastq}"])
+    File fastq3 = select_first(["~{input_id}_R3_prefix.fq.gz","~{read3_fastq}"])
+    File fastq2_trim = select_first(["~{input_id}_R2_trim.fq.gz","~{barcodes_fastq}"])
     }
 }
 

@@ -96,7 +96,7 @@ workflow PairedTag {
         }
     }        
     if (!preindex) {
-        Array[File]? fastqtrim = demultiplex.fastq2_trim
+        Array[File] fastqtrim = demultiplex.fastq2_trim
         call atac.ATAC as Atac {
           input:
               read1_fastq_gzipped = atac_r1_fastq,
