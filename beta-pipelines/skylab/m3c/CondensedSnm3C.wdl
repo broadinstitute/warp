@@ -220,21 +220,24 @@ task Demultiplexing {
                     print(f'Removed file: {filename}')
     CODE
 
-    # Batch the fastq files into TAR files with 64 cells each
+    # Batch the fastq files into max 6 TAR files with 64 cells each
     # Counter for the TAR file names
-    counter=1
-    # Loop through the FASTQ files and create TAR files
+    mkdir batch1 batch2 batch3 batch4 batch5 and batch6
+    # Counter for the folder index
+    folder_index=1
+    # Distribute the FASTQ files and create TAR files
     for file in ./*.fq.gz; do
-        # Create a new TAR file every 64 files
-        if [ $((counter % 64)) -eq 1 ]; then
-            tar -cvzf "~{plate_id}_batch_$((counter/64)).tar.gz" "$file"
-        else
-            tar -rvzf "~{plate_id}_batch_$((counter/64)).tar.gz" "$file"
-        fi
-
+        mv $file batch$((folder_index))/$file
         # Increment the counter
-        ((counter++))
+        folder_index=$(( (folder_index % 6) + 1 ))
     done
+    echo "TAR files"
+    tar -zcvf ~{plate_id}.1.cutadapt_output_files.tar.gz batch1/*.fq.gz
+    tar -zcvf ~{plate_id}.2.cutadapt_output_files.tar.gz batch2/*.fq.gz
+    tar -zcvf ~{plate_id}.3.cutadapt_output_files.tar.gz batch3/*.fq.gz
+    tar -zcvf ~{plate_id}.4.cutadapt_output_files.tar.gz batch4/*.fq.gz
+    tar -zcvf ~{plate_id}.5.cutadapt_output_files.tar.gz batch5/*.fq.gz
+    tar -zcvf ~{plate_id}.6.cutadapt_output_files.tar.gz batch6/*.fq.gz
 
     echo "TAR files created successfully."        
   >>>
