@@ -30,82 +30,82 @@ task PairedTagDemultiplex {
         preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"        
     }
     command <<<
-      set -e
-      ## Need to gunzip the r1_fastq
-      zcat ~{barcodes_fastq} | head -n2 > r2.fastq
-      FASTQ=r2.fastq
-      echo 'this is the fastq:' $FASTQ
-      R2=$(awk 'NR==2' $FASTQ)
-      COUNT=$(echo ${#R2})
-      echo 'this is the read:' $R2
-      echo 'this is the barcode count:' $COUNT
-      echo "Renaming files for UPS tools"
-      mv ~{read1_fastq} "~{input_id}_R1.fq.gz"
-      mv ~{barcodes_fastq} "~{input_id}_R2.fq.gz"
-      mv ~{read3_fastq} "~{input_id}_R3.fq.gz"
-      echo performing read2 length and orientation checks 
-      if [[ $COUNT == 27 && ~{preindex} == "false" ]]
-        then
-        pass="true"
-        echo "Preindex is false and length is 27 bp"
-        echo "Trimming first 3 bp with UPStools"
-        upstools trimfq ~{input_id}_R2.fq.gz 4 26
-        echo "Running orientation check"
-        file="~{input_id}_R2_trim.fq.gz"
-        zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
-        head -n 1 downsample.fq
-        python3 /upstools/pyscripts/dynamic-barcode-orientation.py downsample.fq ~{whitelist} best_match.txt
-        cat best_match.txt
-        barcode_choice=$(<best_match.txt)
-        echo "Barcode choice is: "
-        echo $barcode_choice
-        if [[ $barcode_choice == "FIRST_BP_RC" ]]; then
+        set -e
+        ## Need to gunzip the r1_fastq
+        zcat ~{barcodes_fastq} | head -n2 > r2.fastq
+        FASTQ=r2.fastq
+        echo 'this is the fastq:' $FASTQ
+        R2=$(awk 'NR==2' $FASTQ)
+        COUNT=$(echo ${#R2})
+        echo 'this is the read:' $R2
+        echo 'this is the barcode count:' $COUNT
+        echo "Renaming files for UPS tools"
+        mv ~{read1_fastq} "~{input_id}_R1.fq.gz"
+        mv ~{barcodes_fastq} "~{input_id}_R2.fq.gz"
+        mv ~{read3_fastq} "~{input_id}_R3.fq.gz"
+        echo performing read2 length and orientation checks 
+        if [[ $COUNT == 27 && ~{preindex} == "false" ]]
+          then
           pass="true"
-        else
-          pass="false"
-          echo "Incorrect barcode orientation"
-        fi
-        mv "~{input_id}_R2_trim.fq.gz" "~{input_id}_R2.fq.gz"
+          echo "Preindex is false and length is 27 bp"
+          echo "Trimming first 3 bp with UPStools"
+          upstools trimfq ~{input_id}_R2.fq.gz 4 26
+          echo "Running orientation check"
+          file="~{input_id}_R2_trim.fq.gz"
+          zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
+          head -n 1 downsample.fq
+          python3 /upstools/pyscripts/dynamic-barcode-orientation.py downsample.fq ~{whitelist} best_match.txt
+          cat best_match.txt
+          barcode_choice=$(<best_match.txt)
+          echo "Barcode choice is: "
+          echo $barcode_choice
+          if [[ $barcode_choice == "FIRST_BP_RC" ]]; then
+            pass="true"
+          else
+            pass="false"
+            echo "Incorrect barcode orientation"
+          fi
+          mv "~{input_id}_R2_trim.fq.gz" "~{input_id}_R2.fq.gz"
 
-      elif [[ $COUNT == 27 && ~{preindex} == "true" ]]
-        then
-        echo "Count is 27 bp because of preindex"
-        echo "Running demultiplexing with UPStools"
-        upstools sepType_DPT ~{input_id} 3
-        echo "Running orientation check"
-        file="~{input_id}_R2_prefix.fq.gz"
-        zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
-        head -n 1 downsample.fq
-        python3 /upstools/pyscripts/dynamic-barcode-orientation.py downsample.fq ~{whitelist} best_match.txt
-        cat best_match.txt
-        barcode_choice=$(<best_match.txt)
-        echo "Barcode choice is: "
-        echo $barcode_choice
-        if [[ $barcode_choice == "FIRST_BP_RC" ]]; then
+        elif [[ $COUNT == 27 && ~{preindex} == "true" ]]
+          then
+          echo "Count is 27 bp because of preindex"
+          echo "Running demultiplexing with UPStools"
+          upstools sepType_DPT ~{input_id} 3
+          echo "Running orientation check"
+          file="~{input_id}_R2_prefix.fq.gz"
+          zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
+          head -n 1 downsample.fq
+          python3 /upstools/pyscripts/dynamic-barcode-orientation.py downsample.fq ~{whitelist} best_match.txt
+          cat best_match.txt
+          barcode_choice=$(<best_match.txt)
+          echo "Barcode choice is: "
+          echo $barcode_choice
+          if [[ $barcode_choice == "FIRST_BP_RC" ]]; then
+            pass="true"
+          else
+            pass="false"
+            echo "Incorrect barcode orientation"
+          fi
+          # rename files to original name
+          mv "~{input_id}_R2_prefix.fq.gz" "~{input_id}_R2.fq.gz"
+          mv "~{input_id}_R1_prefix.fq.gz" "~{input_id}_R1.fq.gz"
+          mv "~{input_id}_R3_prefix.fq.gz" "~{input_id}_R3.fq.gz"
+        elif [[ $COUNT == 24 && ~{preindex} == "false" ]]
+          then
           pass="true"
-        else
-          pass="false"
-          echo "Incorrect barcode orientation"
-        fi
-        # rename files to original name
-        mv "~{input_id}_R2_prefix.fq.gz" "~{input_id}_R2.fq.gz"
-        mv "~{input_id}_R1_prefix.fq.gz" "~{input_id}_R1.fq.gz"
-        mv "~{input_id}_R3_prefix.fq.gz" "~{input_id}_R3.fq.gz"
-      elif [[ $COUNT == 24 && ~{preindex} == "false" ]]
-        then
-        pass="true"
         echo "FASTQ has correct index length, no modification necessary"
-      else
-        echo "Length of read2 is not expected length; ending pipeline run"
-        pass="false"
-      fi
-      if [[ $pass == "true" ]]
-        then
-        exit 0;
-      else
-        exit 1;
-      fi
-      exit 0;      
+        else
+          echo "Length of read2 is not expected length; ending pipeline run"
+          pass="false"
+        fi
+        if [[ $pass == "true" ]]
+          then
+          exit 0;
+        else
+          exit 1;
+        fi
+        exit 0;      
     >>>
     
     runtime {
@@ -117,9 +117,9 @@ task PairedTagDemultiplex {
     }
 
     output {
-    File fastq1 = "~{input_id}_R1.fq.gz"
-    File barcodes = "~{input_id}_R2.fq.gz"
-    File fastq3 = "~{input_id}_R3.fq.gz"
+        File fastq1 = "~{input_id}_R1.fq.gz"
+        File barcodes = "~{input_id}_R2.fq.gz"
+        File fastq3 = "~{input_id}_R3.fq.gz"
     }
 }
 
