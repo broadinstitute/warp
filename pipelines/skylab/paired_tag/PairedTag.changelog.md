@@ -1,3 +1,8 @@
+# 0.0.4
+2024-01-10 (Date of Last Commit)
+
+* Added a check of read2 length and barcode orientation to the demultiplexing step of the pipeline; this task now checks read2 length, performs demultiplexing or trimming if necessary, and checks barcode orientation
+
 # 0.0.3
 2024-01-02 (Date of Last Commit)
 

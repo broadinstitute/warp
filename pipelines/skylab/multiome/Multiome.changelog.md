@@ -1,3 +1,8 @@
+# 3.0.5 
+2024-01-10 (Date of Last Commit)
+
+* Added a check of read2 length to the paired-tag pipeline; this does not affect the Multiome workflow
+
 # 3.0.4
 2024-01-02 (Date of Last Commit)
 
