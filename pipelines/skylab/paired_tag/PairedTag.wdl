@@ -99,7 +99,7 @@ workflow PairedTag {
         call atac.ATAC as Atac {
           input:
               read1_fastq_gzipped = atac_r1_fastq,
-              read2_fastq_gzipped = demultiplex.fastq2_trim,
+              read2_fastq_gzipped = demultiplex.barcodes,
               read3_fastq_gzipped = atac_r3_fastq,
               input_id = input_id + "_atac",
               tar_bwa_reference = tar_bwa_reference,

@@ -20,6 +20,9 @@ task PairedTagDemultiplex {
         read1_fastq: "read 1 FASTQ files of paired reads -- forward reads"
         read3_fastq: "read 3 FASTQ files of paired reads -- reverse reads"
         barcodes_fastq: "read 2 FASTQ files which contains the cellular barcodes"
+        preindex: "Boolean for whether data has a sample barcode that needs to be demultiplexed"
+        whitelist: "Atac whitelist for 10x multiome data"
+        input_id: "Input ID to demarcate sample"
         docker: "(optional) the docker image containing the runtime environment for this task"
         mem_size: "(optional) the amount of memory (MiB) to provision for this task"
         cpu: "(optional) the number of cpus to provision for this task"
@@ -36,14 +39,16 @@ task PairedTagDemultiplex {
       COUNT=$(echo ${#R2})
       echo 'this is the read:' $R2
       echo 'this is the barcode count:' $COUNT
-
+      echo "Renaming files for UPS tools"
+      mv ~{read1_fastq} "~{input_id}_R1.fq.gz"
+      mv ~{barcodes_fastq} "~{input_id}_R2.fq.gz"
+      mv ~{read3_fastq} "~{input_id}_R3.fq.gz"
+      echo performing read2 length and orientation checks 
       if [[ $COUNT == 27 && ~{preindex} == "false" ]]
         then
         pass="true"
         echo "Preindex is false and length is 27 bp"
-        echo "Modifying filenames to run UPStools for trimming"
-        mv ~{barcodes_fastq} "~{input_id}_R2.fq.gz"
-        echo "Running UPStools"
+        echo "Trimming first 3 bp with UPStools"
         upstools trimfq ~{input_id}_R2.fq.gz 4 26
         echo "Running orientation check"
         file="~{input_id}_R2_trim.fq.gz"
@@ -60,17 +65,11 @@ task PairedTagDemultiplex {
           pass="false"
           echo "Incorrect barcode orientation"
         fi
-        touch "~{input_id}_R1_prefix.fq.gz" "~{input_id}_R2_prefix.fq.gz" "~{input_id}_R3_prefix.fq.gz"
+        mv "~{input_id}_R2_trim.fq.gz" "~{input_id}_R2.fq.gz"
+
       elif [[ $COUNT == 27 && ~{preindex} == "true" ]]
         then
-        pass="true"
         echo "Count is 27 bp because of preindex"
-        echo "Renaming files for UPS tools"
-        mv ~{read1_fastq} "~{input_id}_R1.fq.gz"
-        mv ~{barcodes_fastq} "~{input_id}_R2.fq.gz"
-        mv ~{read3_fastq} "~{input_id}_R3.fq.gz"
-        # Make an empty file for outputs
-        touch "~{input_id}_R2_trim.fq.gz"
         echo "Running demultiplexing with UPStools"
         upstools sepType_DPT ~{input_id} 3
         echo "Running orientation check"
@@ -88,19 +87,18 @@ task PairedTagDemultiplex {
           pass="false"
           echo "Incorrect barcode orientation"
         fi
+        # rename files to original name
+        mv "~{input_id}_R2_prefix.fq.gz" "~{input_id}_R2.fq.gz"
+        mv "~{input_id}_R1_prefix.fq.gz" "~{input_id}_R1.fq.gz"
+        mv "~{input_id}_R3_prefix.fq.gz" "~{input_id}_R3.fq.gz"
       elif [[ $COUNT == 24 && ~{preindex} == "false" ]]
         then
         pass="true"
         echo "FASTQ has correct index length, no modification necessary"
-        # Create empty files
-        touch "~{input_id}_R1_prefix.fq.gz" "~{input_id}_R2_prefix.fq.gz" "~{input_id}_R3_prefix.fq.gz" 
-        echo renaming barcodes fastq to trim.fq.gz
-        mv ~{barcodes_fastq} "~{input_id}_R2_trim.fq.gz"
       else
         echo "Length of read2 is not expected length; ending pipeline run"
         pass="false"
       fi
-    ## fail if any tests failed, ignore if force_no_check is set
       if [[ $pass == "true" ]]
         then
         exit 0;
@@ -119,10 +117,9 @@ task PairedTagDemultiplex {
     }
 
     output {
-    File fastq1 = select_first(["~{input_id}_R1_prefix.fq.gz", "~{read1_fastq}"])
-    File barcodes = select_first(["~{input_id}_R2_prefix.fq.gz", "~{barcodes_fastq}"])
-    File fastq3 = select_first(["~{input_id}_R3_prefix.fq.gz", "~{input_id}_R3.fq.gz"])
-    File fastq2_trim = select_first(["~{input_id}_R2_trim.fq.gz", "~{barcodes_fastq}"])
+    File fastq1 = "~{input_id}_R1.fq.gz"
+    File barcodes = "~{input_id}_R2.fq.gz"
+    File fastq3 = "~{input_id}_R3.fq.gz"
     }
 }
 
