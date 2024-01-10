@@ -4,7 +4,7 @@
 * Added a new option for the preindex boolean to add cell barcodes and preindex sample barcode to the BB tag of the BAM
 * Added new functionality for the ATAC workflow to use BB tag of BAM for SnapATAC2
 * Modified the STARsoloFastq task in the StarAlign.wdl so STARsolo can run different types of alignments in a single STARsolo command depending on the counting_mode
-* Increased memory for MergeStarOutputs, RunEmptyDrops, OptimusH5ad and GeneMetrics in Optimus
+* Increased memory for MergeStarOutputs in StarAlign.wdl, RunEmptyDrops in RunEmptyDrops.wdl, OptimusH5ad in H5adUtils.wdl and GeneMetrics in Metrics.wdl
 
 # 0.0.2
 2023-12-20 (Date of Last Commit)
