@@ -4,9 +4,10 @@
 * Added a check of read2 length to the paired-tag pipeline; this does not affect the Multiome workflow
 
 # 3.0.4
-2024-01-02 (Date of Last Commit)
+2024-01-05 (Date of Last Commit)
 
 * Added new functionality to the ATAC workflow for paired-tag data, including the option for SnapATAC to pull cell barcodes from the BB tag of the BAM
+* Modified the STARsoloFastq task in the StarAlign.wdl so STARsolo can run different types of alignments in a single STARsolo command depending on the counting_mode
 
 # 3.0.3
 2023-12-20 (Date of Last Commit)
