@@ -55,7 +55,8 @@ The following describes the inputs of the ATAC workflow. For more details on how
 | whitelist | Whitelist file for ATAC cellular barcodes. |
 | adapter_seq_read1 | TrimAdapters input: Sequence adapter for read 1 fastq. |
 | adapter_seq_read3 | TrimAdapters input: Sequence adapter for read 3 fastq. |
-| num_output_files | FastqProcessATAC input: Number of output fastq files. | 
+| num_output_files | FastqProcessATAC input: Number of output fastq files. |
+| preindex | Boolean used for paired-tag data and not applicable to ATAC data types; default is set to false. | 
 
 ## ATAC tasks and tools
 
