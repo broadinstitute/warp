@@ -33,93 +33,95 @@ workflow WDLized_snm3C {
             plate_id = plate_id
     }
 
-    call Sort_and_trim_r1_and_r2 {
-        input:
-            tarred_demultiplexed_fastqs = Demultiplexing.tarred_demultiplexed_fastqs,
-            r1_adapter = r1_adapter,
-            r2_adapter = r2_adapter,
-            r1_left_cut = r1_left_cut,
-            r1_right_cut = r1_right_cut,
-            r2_left_cut = r2_left_cut,
-            r2_right_cut = r2_right_cut,
-            min_read_length = min_read_length,
-            plate_id = plate_id
-    }
+    scatter(tar in Demultiplexing.tarred_demultiplexed_fastqs) {
+        call Sort_and_trim_r1_and_r2 {
+            input:
+                tarred_demultiplexed_fastqs = tar,
+                r1_adapter = r1_adapter,
+                r2_adapter = r2_adapter,
+                r1_left_cut = r1_left_cut,
+                r1_right_cut = r1_right_cut,
+                r2_left_cut = r2_left_cut,
+                r2_right_cut = r2_right_cut,
+                min_read_length = min_read_length,
+                plate_id = plate_id
+        }
+        
+        call Hisat_3n_pair_end_mapping_dna_mode {
+            input:
+                r1_trimmed_tar = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar,
+                r2_trimmed_tar = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar,
+                tarred_index_files = tarred_index_files,
+                genome_fa = genome_fa,
+                chromosome_sizes = chromosome_sizes,
+                plate_id = plate_id
+        }
 
-    call Hisat_3n_pair_end_mapping_dna_mode {
-        input:
-            r1_trimmed_tar = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar,
-            r2_trimmed_tar = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar,
-            tarred_index_files = tarred_index_files,
-            genome_fa = genome_fa,
-            chromosome_sizes = chromosome_sizes,
-            plate_id = plate_id
-    }
+        call Separate_unmapped_reads {
+            input:
+                hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar,
+                min_read_length = min_read_length,
+                plate_id = plate_id
+        }
 
-    call Separate_unmapped_reads {
-        input:
-            hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar,
-            min_read_length = min_read_length,
-            plate_id = plate_id
-    }
+        call Split_unmapped_reads {
+            input:
+                unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar,
+                min_read_length = min_read_length,
+                plate_id = plate_id
+        }
 
-    call Split_unmapped_reads {
-        input:
-            unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar,
-            min_read_length = min_read_length,
-            plate_id = plate_id
-    }
+        call Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
+            input:
+                split_fq_tar = Split_unmapped_reads.split_fq_tar,
+                tarred_index_files = tarred_index_files,
+                genome_fa = genome_fa,
+                plate_id = plate_id
+        }
 
-    call Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
-        input:
-            split_fq_tar = Split_unmapped_reads.split_fq_tar,
-            tarred_index_files = tarred_index_files,
-            genome_fa = genome_fa,
-            plate_id = plate_id
-    }
+        call remove_overlap_read_parts {
+            input:
+                bam = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar,
+                plate_id = plate_id
+        }
 
-    call remove_overlap_read_parts {
-        input:
-            bam = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar,
-            plate_id = plate_id
-    }
+        call merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
+            input:
+                bam = Separate_unmapped_reads.unique_bam_tar,
+                split_bam = remove_overlap_read_parts.output_bam_tar,
+                plate_id = plate_id
+        }
 
-    call merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
-        input:
-            bam = Separate_unmapped_reads.unique_bam_tar,
-            split_bam = remove_overlap_read_parts.output_bam_tar,
-            plate_id = plate_id
-    }
+        call call_chromatin_contacts {
+            input:
+                name_sorted_bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam,
+                plate_id = plate_id
+        }
 
-    call call_chromatin_contacts {
-        input:
-            name_sorted_bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam,
-            plate_id = plate_id
-    }
+        call dedup_unique_bam_and_index_unique_bam {
+            input:
+                bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam,
+                plate_id = plate_id
+        }
 
-    call dedup_unique_bam_and_index_unique_bam {
-        input:
-            bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam,
-            plate_id = plate_id
-    }
+        call unique_reads_allc {
+            input:
+                bam_and_index_tar = dedup_unique_bam_and_index_unique_bam.output_tar,
+                genome_fa = genome_fa,
+                num_upstr_bases = num_upstr_bases,
+                num_downstr_bases = num_downstr_bases,
+                compress_level = compress_level,
+                plate_id = plate_id
+        }
 
-    call unique_reads_allc {
-        input:
-            bam_and_index_tar = dedup_unique_bam_and_index_unique_bam.output_tar,
-            genome_fa = genome_fa,
-            num_upstr_bases = num_upstr_bases,
-            num_downstr_bases = num_downstr_bases,
-            compress_level = compress_level,
-            plate_id = plate_id
+        call unique_reads_cgn_extraction {
+            input:
+                allc_tar = unique_reads_allc.allc,
+                tbi_tar = unique_reads_allc.tbi,
+                chrom_size_path = chromosome_sizes,
+                plate_id = plate_id
+        }
     }
-
-   call unique_reads_cgn_extraction {
-       input:
-          allc_tar = unique_reads_allc.allc,
-          tbi_tar = unique_reads_allc.tbi,
-          chrom_size_path = chromosome_sizes,
-          plate_id = plate_id
-   }
 
     call summary {
         input:
@@ -136,24 +138,24 @@ workflow WDLized_snm3C {
 
     output {
         File MappingSummary = summary.mapping_summary
-        File trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar
-        File r1_trimmed_fq = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar
-        File r2_trimmed_fq = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar
-        File hisat3n_stats_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_stats_tar
-        File hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
-        File unique_bam_tar = Separate_unmapped_reads.unique_bam_tar
-        File multi_bam_tar = Separate_unmapped_reads.multi_bam_tar
-        File unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
-        File split_fq_tar = Split_unmapped_reads.split_fq_tar
-        File merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
-        File name_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
-        File pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
-        File remove_overlap_read_parts_bam_tar = remove_overlap_read_parts.output_bam_tar
-        File dedup_unique_bam_and_index_unique_bam_tar = dedup_unique_bam_and_index_unique_bam.output_tar
-        File unique_reads_cgn_extraction_allc = unique_reads_cgn_extraction.output_allc_tar
-        File unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.output_tbi_tar
-        File chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats
-        File reference_version = Hisat_3n_pair_end_mapping_dna_mode.reference_version
+        Array[File] trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar
+        Array[File] r1_trimmed_fq = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar
+        Array[File] r2_trimmed_fq = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar
+        Array[File] hisat3n_stats_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_stats_tar
+        Array[File] hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
+        Array[File] unique_bam_tar = Separate_unmapped_reads.unique_bam_tar
+        Array[File] multi_bam_tar = Separate_unmapped_reads.multi_bam_tar
+        Array[File] unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
+        Array[File] split_fq_tar = Split_unmapped_reads.split_fq_tar
+        Array[File] merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
+        Array[File] name_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
+        Array[File] pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
+        Array[File] remove_overlap_read_parts_bam_tar = remove_overlap_read_parts.output_bam_tar
+        Array[File] dedup_unique_bam_and_index_unique_bam_tar = dedup_unique_bam_and_index_unique_bam.output_tar
+        Array[File] unique_reads_cgn_extraction_allc = unique_reads_cgn_extraction.output_allc_tar
+        Array[File] unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.output_tbi_tar
+        Array[File] chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats
+        Array[File] reference_version = Hisat_3n_pair_end_mapping_dna_mode.reference_version
     }
 }
 
@@ -218,8 +220,23 @@ task Demultiplexing {
                     print(f'Removed file: {filename}')
     CODE
 
-    # zip up all the output fq.gz files
-    tar -zcvf ~{plate_id}.cutadapt_output_files.tar.gz *.fq.gz
+    # Batch the fastq files into TAR files with 64 cells each
+    # Counter for the TAR file names
+    counter=1
+    # Loop through the FASTQ files and create TAR files
+    for file in ./*.fq.gz; do
+        # Create a new TAR file every 64 files
+        if [ $((counter % 64)) -eq 1 ]; then
+            tar -cvzf "~{plate_id}_batch_$((counter/64)).tar.gz" "$file"
+        else
+            tar -rvzf "~{plate_id}_batch_$((counter/64)).tar.gz" "$file"
+        fi
+
+        # Increment the counter
+        ((counter++))
+    done
+
+    echo "TAR files created successfully."        
   >>>
 
   runtime {
@@ -230,7 +247,7 @@ task Demultiplexing {
   }
 
   output {
-    File tarred_demultiplexed_fastqs = "~{plate_id}.cutadapt_output_files.tar.gz"
+    Array[File] tarred_demultiplexed_fastqs = glob("*.tar.gz")
     File stats = "~{plate_id}.stats.txt"
     }
 }
@@ -982,14 +999,14 @@ task unique_reads_cgn_extraction {
 
 task summary {
     input {
-        File trimmed_stats
-        File hisat3n_stats
-        File r1_hisat3n_stats
-        File r2_hisat3n_stats
-        File dedup_stats
-        File chromatin_contact_stats
-        File allc_uniq_reads_stats
-        File unique_reads_cgn_extraction_tbi
+        Array[File] trimmed_stats
+        Array[File] hisat3n_stats
+        Array[File] r1_hisat3n_stats
+        Array[File] r2_hisat3n_stats
+        Array[File] dedup_stats
+        Array[File] chromatin_contact_stats
+        Array[File] allc_uniq_reads_stats
+        Array[File] unique_reads_cgn_extraction_tbi
         String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
