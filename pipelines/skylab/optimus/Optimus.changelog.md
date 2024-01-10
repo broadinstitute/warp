@@ -1,8 +1,8 @@
 # 6.3.3
 2024-01-10 (Date of Last Commit)
 * Modified the STARsoloFastq task in the StarAlign.wdl so STARsolo can run different types of alignments in a single STARsolo command depending on the counting_mode
-* Increased memory for MergeStarOutputs, RunEmptyDrops, OptimusH5ad and GeneMetrics
-
+* Increased memory for MergeStarOutputs in StarAlign.wdl, RunEmptyDrops in RunEmptyDrops.wdl, OptimusH5ad in H5adUtils.wdl and GeneMetrics in Metrics.wdl
+  
 # 6.3.2
 2023-12-20 (Date of Last Commit)
 * Updated the ATAC WDL for the Multiome BWAPairedEndAlignment and MergedBAM tasks; this does affect the Optimus workflow
