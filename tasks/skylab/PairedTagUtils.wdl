@@ -32,6 +32,7 @@ task PairedTagDemultiplex {
     command <<<
         set -e
         ## Need to gunzip the r1_fastq
+        pass="true"
         zcat ~{barcodes_fastq} | head -n2 > r2.fastq
         FASTQ=r2.fastq
         echo 'this is the fastq:' $FASTQ
@@ -46,7 +47,6 @@ task PairedTagDemultiplex {
         echo performing read2 length and orientation checks 
         if [[ $COUNT == 27 && ~{preindex} == "false" ]]
           then
-          pass="true"
           echo "Preindex is false and length is 27 bp"
           echo "Trimming first 3 bp with UPStools"
           upstools trimfq ~{input_id}_R2.fq.gz 4 26
@@ -60,7 +60,7 @@ task PairedTagDemultiplex {
           echo "Barcode choice is: "
           echo $barcode_choice
           if [[ $barcode_choice == "FIRST_BP_RC" ]]; then
-            pass="true"
+            echo "Correct barcode orientation"
           else
             pass="false"
             echo "Incorrect barcode orientation"
@@ -82,7 +82,7 @@ task PairedTagDemultiplex {
           echo "Barcode choice is: "
           echo $barcode_choice
           if [[ $barcode_choice == "FIRST_BP_RC" ]]; then
-            pass="true"
+            echo "Correct barcode orientation"
           else
             pass="false"
             echo "Incorrect barcode orientation"
@@ -93,8 +93,7 @@ task PairedTagDemultiplex {
           mv "~{input_id}_R3_prefix.fq.gz" "~{input_id}_R3.fq.gz"
         elif [[ $COUNT == 24 && ~{preindex} == "false" ]]
           then
-          pass="true"
-        echo "FASTQ has correct index length, no modification necessary"
+          echo "FASTQ has correct index length, no modification necessary"
         else
           echo "Length of read2 is not expected length; ending pipeline run"
           pass="false"
