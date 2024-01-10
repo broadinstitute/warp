@@ -1,6 +1,7 @@
 # 6.3.3
-2024-01-05 (Date of Last Commit)
+2024-01-10 (Date of Last Commit)
 * Modified the STARsoloFastq task in the StarAlign.wdl so STARsolo can run different types of alignments in a single STARsolo command depending on the counting_mode
+* Increased memory for MergeStarOutputs, RunEmptyDrops, OptimusH5ad and GeneMetrics
 
 # 6.3.2
 2023-12-20 (Date of Last Commit)
