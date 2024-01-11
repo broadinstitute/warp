@@ -175,7 +175,9 @@ plink2 \
   --bim ~{source_bim} \
   --fam ~{source_fam} \
   --keep ~{keep_id_fam} \
-  --make-bed --out ~{target_prefix}
+  --make-bed \
+  --output-chr M \
+  --out ~{target_prefix}
 
 >>>
 
