@@ -71,7 +71,11 @@ hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g"})
 dsplink = hl.import_plink(bed="~{source_bed}",
                           bim="~{source_bim}",
                           fam="~{source_fam}",
-                          reference_genome="~{reference_genome}")
+                          reference_genome="~{reference_genome}",
+                          contig_recoding={
+                            'X': 'chrX',
+                            'Y': 'chrY',
+                            'MT': 'chrM'})
 
 dsplink.write("~{target_prefix}", overwrite=True)
 
