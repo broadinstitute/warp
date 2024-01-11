@@ -1,3 +1,8 @@
+# 1.3.1
+2024-01-11 (Date of Last Commit)
+
+* Updated to GATK version 4.5.0.0 in gatk_baserecalibrator and gatk_applybqsr
+
 # 1.3.0
 2022-05-24 (Date of Last Commit)
 

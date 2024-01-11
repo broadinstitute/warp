@@ -627,7 +627,7 @@ task collect_insert_size_metrics {
 
 workflow GDCWholeGenomeSomaticSingleSample {
 
-    String pipeline_version = "1.3.0"
+    String pipeline_version = "1.3.1"
 
     input {
         File? input_cram
