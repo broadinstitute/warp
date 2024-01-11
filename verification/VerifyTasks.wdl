@@ -112,6 +112,7 @@ task CompareTabix {
     File truth_fragment_file
   }
   command {
+    exit_code = 0
     a="md5sum ~{test_fragment_file}"
     b="md5sum ~{truth_fragment_file}"
     if [[ a = b ]]; then 
@@ -120,6 +121,7 @@ task CompareTabix {
       echo different
       exit_code=1
     fi
+    exit $exit_code
   }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
