@@ -225,9 +225,17 @@ task Demultiplexing {
     mkdir batch1 batch2 batch3 batch4 batch5 and batch6
     # Counter for the folder index
     folder_index=1
+    
+    # Define lists of r1 and r2 fq files
+    R1_files=($(ls | grep "\-R1.fq.gz"))
+    R2_files=($(ls | grep "\-R2.fq.gz"))
+
     # Distribute the FASTQ files and create TAR files
-    for file in ./*.fq.gz; do
+    for file in "${R1_files[@]}"; do
+        sample_id=$(basename "$file" "-R1.fq.gz")
+        r2_file="${sample_id}-R2.fq.gz"
         mv $file batch$((folder_index))/$file
+        mv $r2_file batch$((folder_index))/$r2_file
         # Increment the counter
         folder_index=$(( (folder_index % 6) + 1 ))
     done
@@ -278,6 +286,8 @@ task Sort_and_trim_r1_and_r2 {
     # untar the demultiplexed fastqs
     tar -xf ~{tarred_demultiplexed_fastqs}
 
+    #change into batch subfolder
+    cd batch*
     # define lists of r1 and r2 fq files
     R1_files=($(ls | grep "\-R1.fq.gz"))
     R2_files=($(ls | grep "\-R2.fq.gz"))
@@ -319,6 +329,10 @@ task Sort_and_trim_r1_and_r2 {
     tar -zcvf ~{plate_id}.R1_trimmed_files.tar.gz *-R1_trimmed.fq.gz
     tar -zcvf ~{plate_id}.R2_trimmed_files.tar.gz *-R2_trimmed.fq.gz
     tar -zcvf ~{plate_id}.trimmed_stats_files.tar.gz *.trimmed.stats.txt
+    # move files back to root
+    mv ~{plate_id}.R1_trimmed_files.tar.gz ../~{plate_id}.R1_trimmed_files.tar.gz
+    mv ~{plate_id}.R2_trimmed_files.tar.gz ../~{plate_id}.R2_trimmed_files.tar.gz
+    mv ~{plate_id}.trimmed_stats_files.tar.gz ../~{plate_id}.trimmed_stats_files.tar.gz
 >>>
     runtime {
         docker: docker
