@@ -535,7 +535,7 @@ task gatk_baserecalibrator {
     }
 
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+        docker: "us.gcr.io/broad-gatk/gatk:4.5.0.0"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
@@ -584,7 +584,7 @@ task gatk_applybqsr {
     }
     
     runtime {
-        docker: "us.gcr.io/broad-gatk/gatk:4.2.4.1"
+        docker: "us.gcr.io/broad-gatk/gatk:4.5.0.0"
         memory: mem + " MiB"
         disks: "local-disk " + disk_space + " HDD"
         preemptible: preemptible
