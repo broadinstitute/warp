@@ -1,3 +1,8 @@
+# 3.0.5
+2024-01-11 (Date of Last Commit)
+
+* Added the --soloMultiMappers flag as an optional input to the StarSoloFastq task in the StarAlign.wdl
+
 # 3.0.4
 2024-01-05 (Date of Last Commit)
 
