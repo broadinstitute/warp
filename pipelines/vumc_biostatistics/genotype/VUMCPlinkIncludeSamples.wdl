@@ -8,6 +8,9 @@ workflow VUMCPlinkIncludeSamples {
     File source_bim
     File source_fam
 
+    #plink2 default is MT
+    String output_chr = "MT"
+
     File include_samples
     String target_prefix
 
@@ -38,6 +41,7 @@ workflow VUMCPlinkIncludeSamples {
       source_bed = source_bed,
       source_bim = source_bim,
       source_fam = select_first([ReplaceIdFam.replaced_fam, source_fam]),
+      output_chr = output_chr,
       keep_id_fam = CreateIncludeFam.keep_id_fam,
       target_prefix = target_prefix,
       docker = docker
@@ -156,6 +160,8 @@ task PlinkIncludeSamples {
 
     File keep_id_fam
     
+    String output_chr = "MT"
+
     String target_prefix
     
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
@@ -176,7 +182,7 @@ plink2 \
   --fam ~{source_fam} \
   --keep ~{keep_id_fam} \
   --make-bed \
-  --output-chr M \
+  --output-chr ~{output_chr} \
   --out ~{target_prefix}
 
 >>>
