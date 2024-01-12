@@ -111,9 +111,9 @@ task CompareTabix {
     File test_fragment_file
     File truth_fragment_file
   }
-  command {
+  command <<<
     exit_code = 0
-    a=$(md5sum ~{test_fragment_file} | awk '{ print $1 }')
+    a=$(md5sum "~{test_fragment_file}" | awk '{ print $1 }')
     b=$(md5sum ~{truth_fragment_file} | awk '{ print $1 }')
     if [[ a = b ]]; then 
       echo equal 
@@ -129,7 +129,7 @@ task CompareTabix {
     memory: "50 GiB"
     preemptible: 3
   }   
-}
+>>>
 task CompareTextFiles {
   input {
     Array[File] test_text_files
