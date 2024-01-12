@@ -239,7 +239,7 @@ workflow Optimus {
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
     File? aligner_metrics = MergeStarOutputs.cell_reads_out
-    Array[File] soloMultiMappers = STARsoloFastq.matrix_sn_rna
+    Array[File?] soloMultiMappers = STARsoloFastq.matrix_sn_rna
     Array[File?] multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
     Array[File?] multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
     Array[File?] multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
