@@ -165,6 +165,7 @@ task Demultiplexing {
     Array[File] fastq_input_read2
     File random_primer_indexes
     String plate_id
+    Int batch_number = 6
 
     String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
     Int disk_size = 50
@@ -220,9 +221,12 @@ task Demultiplexing {
                     print(f'Removed file: {filename}')
     CODE
 
-    # Batch the fastq files into max 6 TAR files with 64 cells each
-    # Counter for the TAR file names
-    mkdir batch1 batch2 batch3 batch4 batch5 and batch6
+    # Batch the fastq files into folders of batch_number size
+    batch_number=~{batch_number}
+    for i in $(seq 1 "${batch_number}"); do  # Use seq for reliable brace expansion
+        mkdir -p "batch${i}"  # Combine batch and i, use -p to create parent dirs
+    done
+    
     # Counter for the folder index
     folder_index=1
     
@@ -237,15 +241,13 @@ task Demultiplexing {
         mv $file batch$((folder_index))/$file
         mv $r2_file batch$((folder_index))/$r2_file
         # Increment the counter
-        folder_index=$(( (folder_index % 6) + 1 ))
+        folder_index=$(( (folder_index % $batch_number) + 1 ))
     done
     echo "TAR files"
-    tar -zcvf ~{plate_id}.1.cutadapt_output_files.tar.gz batch1/*.fq.gz
-    tar -zcvf ~{plate_id}.2.cutadapt_output_files.tar.gz batch2/*.fq.gz
-    tar -zcvf ~{plate_id}.3.cutadapt_output_files.tar.gz batch3/*.fq.gz
-    tar -zcvf ~{plate_id}.4.cutadapt_output_files.tar.gz batch4/*.fq.gz
-    tar -zcvf ~{plate_id}.5.cutadapt_output_files.tar.gz batch5/*.fq.gz
-    tar -zcvf ~{plate_id}.6.cutadapt_output_files.tar.gz batch6/*.fq.gz
+    for i in $(seq 1 "${batch_number}"); do
+        tar -zcvf "~{plate_id}.${i}.cutadapt_output_files.tar.gz" batch${i}/*.fq.gz
+    done
+
 
     echo "TAR files created successfully."        
   >>>
@@ -1039,19 +1041,25 @@ task summary {
         mkdir /cromwell_root/hic
 
         extract_and_remove() {
-            local tarFile=$1
-            tar -xf "$tarFile"
-            rm "$tarFile"
+            if [ $# -eq 0 ];
+                then
+                    echo "No files exist"
+                    return
+            fi
+            for tar in "${@}"; do
+                tar -xf "$tar"
+                rm "$tar"
+            done
         }
 
-        extract_and_remove ~{trimmed_stats}
-        extract_and_remove ~{hisat3n_stats}
-        extract_and_remove ~{r1_hisat3n_stats}
-        extract_and_remove ~{r2_hisat3n_stats}
-        extract_and_remove ~{dedup_stats}
-        extract_and_remove ~{chromatin_contact_stats}
-        extract_and_remove ~{allc_uniq_reads_stats}
-        extract_and_remove ~{unique_reads_cgn_extraction_tbi}
+        extract_and_remove ~{sep=' ' trimmed_stats}
+        extract_and_remove ~{sep=' ' hisat3n_stats}
+        extract_and_remove ~{sep=' ' r1_hisat3n_stats}
+        extract_and_remove ~{sep=' ' r2_hisat3n_stats}
+        extract_and_remove ~{sep=' ' dedup_stats}
+        extract_and_remove ~{sep=' ' chromatin_contact_stats}
+        extract_and_remove ~{sep=' ' allc_uniq_reads_stats}
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
 
         mv *.trimmed.stats.txt /cromwell_root/fastq
         mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt /cromwell_root/bam
@@ -1067,7 +1075,7 @@ task summary {
 
         mv MappingSummary.csv.gz ~{plate_id}_MappingSummary.csv.gz
 
-       >>>
+    >>>
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
