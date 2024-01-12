@@ -253,7 +253,6 @@ The following table lists the output files produced from the pipeline. For sampl
 | cell_metrics | `<input_id>.cell-metrics.csv.gz` | Matrix of metrics by cells. | Compressed CSV |
 | gene_metrics | `<input_id>.gene-metrics.csv.gz` |  Matrix of metrics by genes. | Compressed CSV |
 | aligner_metrics | `<input_id>.cell_reads.txt` | Per barcode metrics (CellReads.stats) produced by the STARsolo aligner. | TXT |
-| soloMultiMappers |
 | multimappers_EM_matrix | UniqueAndMult-EM.mtx |
 | multimappers_Uniform_matrix | UniqueAndMult-Uniform.mtx |
 | multimappers_Rescue_matrix | UniqueAndMult-Rescue.mtx |

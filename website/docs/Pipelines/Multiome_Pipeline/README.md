@@ -115,7 +115,6 @@ The Multiome workflow calls two WARP subworkflows, one external subworkflow (opt
 | gene_metrics_gex | `<input_id>_gex.gene_metrics.csv.gz` | CSV file containing the per-gene metrics. |
 | cell_calls_gex | `<input_id>_gex.emptyDrops` | TSV file containing the EmptyDrops results when the Optimus workflow is run in sc_rna mode. |
 | h5ad_output_file_gex | `<input_id>_gex.h5ad` | h5ad (Anndata) file containing the raw cell-by-gene count matrix, gene metrics, cell metrics, and global attributes. Also contains equivalent ATAC barcode for each gene expression barcode in the `atac_barcodes` column of the `h5ad.obs` property. See the [Optimus Count Matrix Overview](../Optimus_Pipeline/Loom_schema.md) for more details. |
-| soloMultiMappers | 
 | multimappers_EM_matrix | UniqueAndMult-EM.mtx |
 | multimappers_Uniform_matrix | UniqueAndMult-Uniform.mtx |
 | multimappers_Rescue_matrix | UniqueAndMult-Rescue.mtx |
