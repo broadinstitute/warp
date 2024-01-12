@@ -113,8 +113,8 @@ task CompareTabix {
   }
   command {
     exit_code = 0
-    a="md5sum ~{test_fragment_file}"
-    b="md5sum ~{truth_fragment_file}"
+    a=$(md5sum ~{test_fragment_file} | awk '{ print $1 }')
+    b=$(md5sum ~{truth_fragment_file} | awk '{ print $1 }')
     if [[ a = b ]]; then 
       echo equal 
     else 
