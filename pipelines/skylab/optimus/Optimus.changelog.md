@@ -1,3 +1,28 @@
+# 6.3.4
+2024-01-10 (Date of Last Commit)
+* Increased memory for MergeStarOutputs in StarAlign.wdl, RunEmptyDrops in RunEmptyDrops.wdl, OptimusH5ad in H5adUtils.wdl and GeneMetrics in Metrics.wdl
+  
+# 6.3.3
+2024-01-05 (Date of Last Commit)
+* Modified the STARsoloFastq task in the StarAlign.wdl so STARsolo can run different types of alignments in a single STARsolo command depending on the counting_mode
+
+# 6.3.2
+2023-12-20 (Date of Last Commit)
+* Updated the ATAC WDL for the Multiome BWAPairedEndAlignment and MergedBAM tasks; this does affect the Optimus workflow
+  
+# 6.3.1
+2023-12-20 (Date of Last Commit)
+* JoinMultiomeBarcodes now has dynamic memory and disk allocation; this does affect the Optimus workflow
+
+# 6.3.0
+2023-12-04 (Date of Last Commit)
+
+* Updated the h5ad utils WDL for the Multiome JoinBarcodes task; this does affect the Optimus workflow
+
+# 6.2.2
+2023-11-29 (Date of Last Commit)
+
+* Added the latest warp-tools docker to tasks in the Metrics, FastqProcessing and H5adUtils wdls; this incorporates new input parameter for number of output fastq files to fastqprocess and allows use of REFSEQ references
 
 # 6.2.0
 2023-11-03 (Date of Last Commit)
