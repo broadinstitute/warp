@@ -2,6 +2,7 @@ version 1.0
 
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
+import "../../../tasks/skylab/PairedTagUtils.wdl" as AddBB
 
 workflow ATAC {
   meta {
@@ -18,6 +19,9 @@ workflow ATAC {
     # Output prefix/base name for all intermediate files and pipeline outputs
     String input_id
 
+    # Option for running files with preindex
+    Boolean preindex = false
+    
     # BWA ref
     File tar_bwa_reference
 
@@ -25,7 +29,8 @@ workflow ATAC {
     File annotations_gtf
     # Text file containing chrom_sizes for genome build (i.e. hg38)
     File chrom_sizes
-
+    # Number of fastq files for fastqprocess
+    Int num_output_files = 4
     # Whitelist
     File whitelist
 
@@ -34,7 +39,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "1.1.2"
+  String pipeline_version = "1.1.4"
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
@@ -50,6 +55,7 @@ workflow ATAC {
       read3_fastq = read3_fastq_gzipped,
       barcodes_fastq = read2_fastq_gzipped,
       output_base_name = input_id,
+      num_output_files = num_output_files,
       whitelist = whitelist
   }
 
@@ -63,35 +69,48 @@ workflow ATAC {
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3
     }
+  }
 
-    call BWAPairedEndAlignment {
-      input:
+  call BWAPairedEndAlignment {
+    input:
         read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
         read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
         tar_bwa_reference = tar_bwa_reference,
-        output_base_name = input_id + "_" + idx
+        output_base_name = input_id
+  }
+
+  if (preindex) {
+    call AddBB.AddBBTag as BBTag {
+      input:
+        bam = BWAPairedEndAlignment.bam_aligned_output,
+        input_id = input_id
+    }
+    call CreateFragmentFile as BB_fragment {
+      input:
+        bam = BBTag.bb_bam,
+        chrom_sizes = chrom_sizes,
+        annotations_gtf = annotations_gtf,
+        preindex = preindex
     }
   }
+  if (!preindex) {
+    call CreateFragmentFile {
+      input:
+        bam = BWAPairedEndAlignment.bam_aligned_output,
+        chrom_sizes = chrom_sizes,
+        annotations_gtf = annotations_gtf,
+        preindex = preindex
 
-  call Merge.MergeSortBamFiles as MergeBam {
-    input:
-      output_bam_filename = input_id + ".bam",
-      bam_inputs = BWAPairedEndAlignment.bam_aligned_output,
-      sort_order = "coordinate"
+    }
   }
-
-
-  call CreateFragmentFile {
-    input:
-      bam = MergeBam.output_bam,
-      chrom_sizes = chrom_sizes,
-      annotations_gtf = annotations_gtf
-  }
+  File bam_aligned_output_atac = select_first([BBTag.bb_bam, BWAPairedEndAlignment.bam_aligned_output])
+  File fragment_file_atac = select_first([BB_fragment.fragment_file, CreateFragmentFile.fragment_file])
+  File snap_metrics_atac = select_first([BB_fragment.Snap_metrics,CreateFragmentFile.Snap_metrics])
 
   output {
-    File bam_aligned_output = MergeBam.output_bam
-    File fragment_file = CreateFragmentFile.fragment_file
-    File snap_metrics = CreateFragmentFile.Snap_metrics
+    File bam_aligned_output = bam_aligned_output_atac
+    File fragment_file = fragment_file_atac
+    File snap_metrics = snap_metrics_atac
   }
 }
 
@@ -163,18 +182,20 @@ task TrimAdapters {
 # align the two trimmed fastq as paired end data using BWA
 task BWAPairedEndAlignment {
   input {
-    File read1_fastq
-    File read3_fastq
+    Array[File] read1_fastq
+    Array[File] read3_fastq
     File tar_bwa_reference
     String read_group_id = "RG1"
     String read_group_sample_name = "RGSN1"
+    String suffix = "trimmed_adapters.fastq.gz"
     String output_base_name
-    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504"
+    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:1.0.0"
 
     # Runtime attributes
-    Int disk_size = ceil(3.25 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(tar_bwa_reference, "GiB"))) + 400
-    Int nthreads = 16
-    Int mem_size = 40
+    Int disk_size = 2000
+    Int nthreads = 128
+    Int mem_size = 512
+    String cpu_platform = "Intel Ice Lake"
   }
 
   parameter_meta {
@@ -190,38 +211,122 @@ task BWAPairedEndAlignment {
     docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504)"
   }
 
-  String bam_aligned_output_name = output_base_name + ".aligned.bam"
+  String bam_aligned_output_name = output_base_name + ".bam"
 
   # bwa and call samtools to convert sam to bam
   command <<<
 
-    set -euo pipefail
+    set -euo pipefail    
+
+    # print lscpu  
+    echo "lscpu output"
+    lscpu
+    echo "end of lscpu output"
 
     # prepare reference
     declare -r REF_DIR=$(mktemp -d genome_referenceXXXXXX)
     tar -xf "~{tar_bwa_reference}" -C $REF_DIR --strip-components 1
     rm "~{tar_bwa_reference}"
+    REF_PAR_DIR=$(basename "$(dirname "$REF_DIR/genome.fa")")
+    echo $REF_PAR_DIR
 
-    # align w/ BWA: -t for number of cores
-    bwa-mem2 \
-    mem \
-    -R "@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}" \
-    -C \
-    -t ~{nthreads} \
-    $REF_DIR/genome.fa \
-    ~{read1_fastq} ~{read3_fastq} \
-    | samtools view -bS - > ~{bam_aligned_output_name}
+    # make read1_fastq and read3_fastq into arrays 
+    declare -a R1_ARRAY=(~{sep=' ' read1_fastq})
+    declare -a R3_ARRAY=(~{sep=' ' read3_fastq})
+    
+    file_path=`pwd`
+    echo "The current working directory is" $file_path
+
+    # make input and output directories needed for distributed bwamem2 code
+    mkdir "output_dir"
+    mkdir "input_dir"
+    
+    echo "Move R1, R3 and reference files to input directory."
+    R1=""
+    echo "R1"
+    for fastq in "${R1_ARRAY[@]}"; do mv "$fastq" input_dir; R1+=`basename $fastq`" "; done
+    echo $R1
+    R3=""
+    echo "R3"
+    for fastq in "${R3_ARRAY[@]}"; do mv "$fastq" input_dir; R3+=`basename $fastq`" "; done
+    echo $R3
+
+    mv $REF_DIR input_dir
+
+    echo "List of files in input directory"
+    ls input_dir
+    
+    # multiome-practice-may15_arcgtf, trimmed_adapters.fastq.gz
+    PREFIX=~{output_base_name}
+    SUFFIX=~{suffix}
+
+    I1=""
+    R2=""
+    
+    echo "REF_PAR_DIR:" $REF_PAR_DIR
+    REF=$REF_PAR_DIR/genome.fa
+    
+    PARAMS="+R '@RG\tID:~{read_group_id}\tSM:~{read_group_sample_name}' +C"
+    
+    INPUT_DIR=$file_path/input_dir
+    OUTPUT_DIR=$file_path/output_dir
+    
+    input_to_config="INPUT_DIR=\"${INPUT_DIR}\"\nOUTPUT_DIR=\"${OUTPUT_DIR}\"\nPREFIX=\"${PREFIX}\"\nSUFFIX=\"${SUFFIX}\"\n"
+    other_to_add="R1=\"${R1}\"\nR2=\"${R2}\"\nR3=\"${R3}\"\nI1=\"${I1}\"\nREF=\"${REF}\"\n"
+    params="PARAMS=\"${PARAMS}\""
+    
+    printf "%b" "$input_to_config"
+    printf "%b" "$other_to_add"
+    echo $params
+    
+    # cd into fq2sortedbam
+    cd /usr/temp/Open-Omics-Acceleration-Framework/pipelines/fq2sortedbam
+    # remove the first part of config
+    tail -10 config > config
+    # add inputs to config file (this file is needed to run bwa-mem2 in this specific code"
+    printf "%b" "$input_to_config" | tee -a config
+    printf "%b" "$other_to_add" | tee -a config
+    echo $params | tee -a config
+    echo "CONFIG"
+    cat config
+    # run bwa-mem2
+    echo "Run distributed BWA-MEM2"
+    ./run_bwa.sh multifq
+    echo "Done running distributed BWA-MEM2"
+    echo "List of files in output directory"
+    ls $OUTPUT_DIR
+    cd $OUTPUT_DIR
+    
+    # remove all files except for final and text file 
+    echo "Remove all files except for final bam file and log files"
+    ls | grep -xv final.sorted.bam | grep -v .txt$ | xargs rm
+
+    echo "List of files in output directory after removal"
+    ls
+    
+    # rename file to this
+    mv final.sorted.bam ~{bam_aligned_output_name}
+        
+    # save output logs for bwa-mem2
+    mkdir output_logs
+    mv *txt output_logs
+    tar -zcvf /cromwell_root/output_distbwa_log.tar.gz output_logs  
+    
+    # move bam file to /cromwell_root
+    mv ~{bam_aligned_output_name} /cromwell_root
   >>>
 
   runtime {
     docker: docker_image
-    disks: "local-disk ${disk_size} HDD"
+    disks: "local-disk ${disk_size} SSD"
     cpu: nthreads
+    cpuPlatform: cpu_platform
     memory: "${mem_size} GiB"
   }
 
   output {
     File bam_aligned_output = bam_aligned_output_name
+    File output_distbwa_log_tar = "output_distbwa_log.tar.gz"
   }
 }
 
@@ -231,6 +336,7 @@ task CreateFragmentFile {
     File bam
     File annotations_gtf
     File chrom_sizes
+    Boolean preindex
     Int disk_size = 500
     Int mem_size = 16
     Int nthreads = 1
@@ -257,6 +363,7 @@ task CreateFragmentFile {
     bam = "~{bam}"
     bam_base_name = "~{bam_base_name}"
     chrom_sizes = "~{chrom_sizes}"
+    preindex = "~{preindex}"
 
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
@@ -269,8 +376,12 @@ task CreateFragmentFile {
     import snapatac2.preprocessing as pp
     import snapatac2 as snap
 
-    # extract CB tag from bam file to create fragment file
-    pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
+    # extract CB or BB (if preindex is true) tag from bam file to create fragment file
+    if preindex == "true":
+      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="BB")
+    elif preindex == "false":
+      pp.make_fragment_file("~{bam}", "~{bam_base_name}.fragments.tsv", is_paired=True, barcode_tag="CB")
+      
 
     # calculate quality metrics; note min_num_fragments and min_tsse are set to 0 instead of default
     # those settings allow us to retain all barcodes

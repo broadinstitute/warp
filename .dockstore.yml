@@ -114,6 +114,10 @@ workflows:
   - name: Multiome
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/multiome/Multiome.wdl
+  
+  - name: PairedTag
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/skylab/paired_tag/PairedTag.wdl
     
   - name: atac
     subclass: WDL

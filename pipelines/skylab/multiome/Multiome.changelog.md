@@ -1,5 +1,30 @@
+# 3.0.5
+2024-01-10 (Date of Last Commit)
+
+* Increased memory for MergeStarOutputs in StarAlign.wdl, RunEmptyDrops in RunEmptyDrops.wdl, OptimusH5ad in H5adUtils.wdl and GeneMetrics in Metrics.wdl
+  
+# 3.0.4
+2024-01-05 (Date of Last Commit)
+
+* Added new functionality to the ATAC workflow for paired-tag data, including the option for SnapATAC to pull cell barcodes from the BB tag of the BAM
+* Modified the STARsoloFastq task in the StarAlign.wdl so STARsolo can run different types of alignments in a single STARsolo command depending on the counting_mode
+
+# 3.0.3
+2023-12-20 (Date of Last Commit)
+
+* Added updated docker to BWAPairedEndAlignment ATAC task to use updated code for distributed bwa-mem2 from Intel
+* Removed MergedBAM ATAC and moved BWAPairedEndAlignment ATAC outside of the for loop
+* Changed CPU platform to Ice Lake for BWAPairedEndAlignment ATAC task
+* Added input parameter input_output_parameter to the Multiome ATAC wdl
+
+# 3.0.2
+2023-12-20 (Date of Last Commit)
+
+* JoinMultiomeBarcodes now has dynamic memory and disk allocation
+
 # 3.0.1
 2023-12-12 (Date of Last Commit)
+
 * ValidateVcfs now has optional memory parameter; this does not affect this pipeline
 * Downgraded Cell Bender from v0.3.1 to v0.3.0
 
@@ -17,6 +42,7 @@
 
 # 2.3.2
 2023-11-20 (Date of Last Commit)
+
 * Added an optional task to the Multiome.wdl that will run CellBender on the Optimus output h5ad file
 
 # 2.3.1
