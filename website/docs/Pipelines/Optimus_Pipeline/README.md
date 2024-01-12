@@ -254,10 +254,10 @@ The following table lists the output files produced from the pipeline. For sampl
 | gene_metrics | `<input_id>.gene-metrics.csv.gz` |  Matrix of metrics by genes. | Compressed CSV |
 | aligner_metrics | `<input_id>.cell_reads.txt` | Per barcode metrics (CellReads.stats) produced by the STARsolo aligner. | TXT |
 | soloMultiMappers |
-| multimappers_EM_matrix |
-| multimappers_Uniform_matrix |
-| multimappers_Rescue_matrix |
-| multimappers_PropUnique_matrix |
+| multimappers_EM_matrix | UniqueAndMult-EM.mtx |
+| multimappers_Uniform_matrix | UniqueAndMult-Uniform.mtx |
+| multimappers_Rescue_matrix | UniqueAndMult-Rescue.mtx |
+| multimappers_PropUnique_matrix | UniqueAndMult-PropUnique.mtx |
 | cell_calls | empty_drops_result.csv | emptyDrops results from the RunEmptyDrops task. | CSV |
 | h5ad_output_file | `<input_id>.h5ad` | h5ad file with count data (exonic or whole transcript depending on the counting_mode) and metadata. | H5AD |
 

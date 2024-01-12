@@ -419,7 +419,6 @@ task STARsoloFastq {
         mv "Solo.out/GeneFull_Ex50pAS/UMIperCellSorted.txt" UMIperCellSorted.txt
         mv "Solo.out/Gene/raw/barcodes.tsv"     barcodes_sn_rna.tsv
         mv "Solo.out/Gene/raw/features.tsv"     features_sn_rna.tsv
-        #mv "Solo.out/Gene/raw/matrix.mtx"       matrix_sn_rna.mtx
         mv "Solo.out/Gene/CellReads.stats" CellReads_sn_rna.stats
         mv "Solo.out/Gene/Features.stats" Features_sn_rna.stats
         mv "Solo.out/Gene/Summary.csv" Summary_sn_rna.csv
