@@ -1,9 +1,12 @@
 # 1.2.28
 2024-01-11 (Date of Last Commit)
-* Added the --soloMultiMappers flag as an optional input to the StarSoloFastq task in the StarAlign.wdl; this does affect the MultiSampleSmartSeq2SingleNucleus workflow
 
+* Increased memory for MergeStarOutputs in StarAlign.wdl, RunEmptyDrops in RunEmptyDrops.wdl, OptimusH5ad in H5adUtils.wdl and GeneMetrics in Metrics.wdl
+* Added the --soloMultiMappers flag as an optional input to the StarSoloFastq task in the StarAlign.wdl; this does affect the MultiSampleSmartSeq2SingleNucleus workflow
+ 
 # 1.2.27
 2024-01-05 (Date of Last Commit)
+
 * Modified the STARsoloFastq task in the StarAlign.wdl so STARsolo can run different types of alignments in a single STARsolo command depending on the counting_mode; this does affect the MultiSampleSmartSeq2SingleNucleus workflow
 
 # 1.2.26

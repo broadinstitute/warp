@@ -481,7 +481,7 @@ task MergeStarOutput {
 
     #runtime values
     String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
-    Int machine_mem_mb = 8250
+    Int machine_mem_gb = 20
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
     Int preemptible = 3
@@ -492,7 +492,7 @@ task MergeStarOutput {
 
   parameter_meta {
     docker: "(optional) the docker image containing the runtime environment for this task"
-    machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
+    machine_mem_gb: "(optional) the amount of memory (GiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
@@ -555,7 +555,7 @@ task MergeStarOutput {
 
   runtime {
     docker: docker
-    memory: "${machine_mem_mb} MiB"
+    memory: "${machine_mem_gb} GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
     cpu: cpu
