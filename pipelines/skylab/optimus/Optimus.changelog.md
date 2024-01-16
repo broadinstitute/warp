@@ -1,3 +1,7 @@
+# 6.3.4
+2024-01-10 (Date of Last Commit)
+* Increased memory for MergeStarOutputs in StarAlign.wdl, RunEmptyDrops in RunEmptyDrops.wdl, OptimusH5ad in H5adUtils.wdl and GeneMetrics in Metrics.wdl
+  
 # 6.3.3
 2024-01-05 (Date of Last Commit)
 * Modified the STARsoloFastq task in the StarAlign.wdl so STARsolo can run different types of alignments in a single STARsolo command depending on the counting_mode

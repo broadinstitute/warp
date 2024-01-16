@@ -1,3 +1,8 @@
+# 3.0.5
+2024-01-10 (Date of Last Commit)
+
+* Increased memory for MergeStarOutputs in StarAlign.wdl, RunEmptyDrops in RunEmptyDrops.wdl, OptimusH5ad in H5adUtils.wdl and GeneMetrics in Metrics.wdl
+  
 # 3.0.4
 2024-01-05 (Date of Last Commit)
 
