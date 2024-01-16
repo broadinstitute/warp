@@ -335,7 +335,7 @@ task Sort_and_trim_r1_and_r2 {
     mv ~{plate_id}.R1_trimmed_files.tar.gz ../~{plate_id}.R1_trimmed_files.tar.gz
     mv ~{plate_id}.R2_trimmed_files.tar.gz ../~{plate_id}.R2_trimmed_files.tar.gz
     mv ~{plate_id}.trimmed_stats_files.tar.gz ../~{plate_id}.trimmed_stats_files.tar.gz
->>>
+    >>>
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
