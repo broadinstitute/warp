@@ -322,6 +322,8 @@ task BWAPairedEndAlignment {
     cpu: nthreads
     cpuPlatform: cpu_platform
     memory: "${mem_size} GiB"
+    zones: "us-central1-c us-central1-a us-central1-b us-central1-f us-east1-c us-east1-b"
+
   }
 
   output {
