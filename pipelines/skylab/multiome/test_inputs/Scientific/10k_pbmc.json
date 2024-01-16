@@ -30,6 +30,6 @@
   "Multiome.tar_star_reference":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_star2.7.10a-Human-GENCODE-build-GRCh38-43.tar",
   "Multiome.chrom_sizes":"gs://broad-gotc-test-storage/Multiome/input/hg38.chrom.sizes",
   "Multiome.Atac.BWAPairedEndAlignment.cpu_platform":"Intel Cascade Lake",
-  "Multiome.Atac.BWAPairedEndAlignment.mem_size":"300",
-  "Multiome.Atac.BWAPairedEndAlignment.nthreads":"75"
+  "Multiome.Atac.BWAPairedEndAlignment.mem_size":"250",
+  "Multiome.Atac.BWAPairedEndAlignment.nthreads":"60"
 }
