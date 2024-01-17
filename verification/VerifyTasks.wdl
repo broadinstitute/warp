@@ -111,16 +111,18 @@ task CompareTabix {
     File test_fragment_file
     File truth_fragment_file
   }
-  command {
-    a="md5sum ~{test_fragment_file}"
-    b="md5sum ~{truth_fragment_file}"
-    if [[ a = b ]]; then 
+  command <<<
+    exit_code = 0
+    a=$(md5sum "~{test_fragment_file}" | awk '{ print $1 }')
+    b=$(md5sum ~{truth_fragment_file} | awk '{ print $1 }')
+    if [[ $a = $b ]]; then 
       echo equal 
     else 
       echo different
       exit_code=1
     fi
-  }
+    exit $exit_code
+  >>>
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
     disks: "local-disk 100 HDD"
@@ -128,6 +130,7 @@ task CompareTabix {
     preemptible: 3
   }   
 }
+
 task CompareTextFiles {
   input {
     Array[File] test_text_files
@@ -239,7 +242,7 @@ task CompareBams {
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
   Int disk_size = ceil(bam_size * 4) + 200
-  Int memory_mb = 500000
+  Int memory_mb = 600000
   Int java_memory_size = memory_mb - 1000
   Int max_heap = memory_mb - 500
 
