@@ -96,7 +96,7 @@ task PairedTagDemultiplex {
           echo "FASTQ has correct index length, no modification necessary"
         elif [[ $COUNT == 24 && ~{preindex} == "true" ]]
           then
-          pass="fase"
+          pass="false"
           echo "FASTQ does not have correct length for preindexing option"        
         else
           echo "Length of read2 is not expected length; ending pipeline run"
