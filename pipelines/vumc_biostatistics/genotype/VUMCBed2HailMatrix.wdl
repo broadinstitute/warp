@@ -12,7 +12,7 @@ workflow VUMCBed2HailMatrix {
 
     String target_prefix
 
-    String docker = "hailgenetics/hail:0.2.126-py3.11"
+    String docker = "hailgenetics/hail:0.2.127-py3.11"
 
     Int memory_gb = 20
 
