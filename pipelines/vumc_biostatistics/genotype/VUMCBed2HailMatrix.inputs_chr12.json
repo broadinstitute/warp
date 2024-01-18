@@ -1,5 +1,6 @@
 {
   "VUMCBed2HailMatrix.target_prefix": "agd35k_chr12",
+  "VUMCBed2HailMatrix.memory_gb": "100",
   "VUMCBed2HailMatrix.source_bed": "/nobackup/h_cqs/shengq2/biovu/agd35k/ICA-AGD/chr12.bed",
   "VUMCBed2HailMatrix.source_fam": "/nobackup/h_cqs/shengq2/biovu/agd35k/ICA-AGD/chr12.fam",
   "VUMCBed2HailMatrix.source_bim": "/nobackup/h_cqs/shengq2/biovu/agd35k/ICA-AGD/chr12.bim"
