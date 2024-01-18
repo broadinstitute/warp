@@ -154,36 +154,24 @@ The following table lists the output variables and files produced by the pipelin
 | Output name | Filename, if applicable | Output format and description |
 | ------ | ------ | ------ |
 | MappingSummary | `<plate_id>_MappingSummary.csv.gz` | Mapping summary file in CSV format. |
-
-<!--- describe outputs --->
-
-        
-
-| allcFiles | Tarred file containing allc files |
-| allc_CGNFiles| Tarred file containing CGN context-specific allc files | 
-| bamFiles | Tarred file containing cell-level aligned BAM files |
-| detail_statsFiles | Tarred file containing detail stats files | 
-| hicFiles | Tarred file containing Hi-C files |
-
-        File trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar
-        File r1_trimmed_fq = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar
-        File r2_trimmed_fq = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar
-        File hisat3n_stats_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_stats_tar
-        File hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
-        File unique_bam_tar = Separate_unmapped_reads.unique_bam_tar
-        File multi_bam_tar = Separate_unmapped_reads.multi_bam_tar
-        File unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
-        File split_fq_tar = Split_unmapped_reads.split_fq_tar
-        File merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
-        File name_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
-        File pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
-        File remove_overlap_read_parts_bam_tar = remove_overlap_read_parts.output_bam_tar
-        File dedup_unique_bam_and_index_unique_bam_tar = dedup_unique_bam_and_index_unique_bam.output_tar
-        File unique_reads_cgn_extraction_allc = unique_reads_cgn_extraction.output_allc_tar
-        File unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.output_tbi_tar
-        File chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats
-        File reference_version = Hisat_3n_pair_end_mapping_dna_mode.reference_version
-
+| trimmed_stats | `<plate_id>.trimmed_stats_files.tar.gz` | Tarred file containing trimming stats files; for more information, see the [Cutadapt documentation](https://cutadapt.readthedocs.io/en/stable/guide.html#reporting). |
+| r1_trimmed_fq | `<plate_id>.R1_trimmed_files.tar.gz` | Tarred file containing trimmed R1 FASTQ files. |
+| r2_trimmed_fq | `<plate_id>.R2_trimmed_files.tar.gz` | Tarred file containing trimmed R2 FASTQ files. |
+| hisat3n_stats_tar | `<plate_id>.hisat3n_paired_end_stats_files.tar.gz` | Tarred file containing paired-end alignment summary files; see the [HISAT2 alignment summary documentation](https://daehwankimlab.github.io/hisat2/manual/) for more information. |
+| hisat3n_bam_tar | `<plate_id>.hisat3n_paired_end_bam_files.tar.gz` | Tarred file containing BAM files from paired-end alignment. |
+| unique_bam_tar | `<plate_id>.hisat3n_paired_end_unique_bam_files.tar.gz` | Tarred file containing BAM files with uniquely aligned reads from paired-end alignment. |
+| multi_bam_tar | `<plate_id>.hisat3n_paired_end_multi_bam_files.tar.gz` | Tarred file containing BAM files with multi-aligned reads from paired-end alignment. | 
+| unmapped_fastq_tar | `<plate_id>.hisat3n_paired_end_unmapped_fastq_files.tar.gz` | Tarred file containing FASTQ files with unmapped reads from paired-end alignment. |
+| split_fq_tar | `<plate_id>.hisat3n_paired_end_split_fastq_files.tar.gz` | Tarred file containing FASTQ files with unmapped reads split by possible enzyme cut sites. |
+| merge_sorted_bam_tar | `<plate_id>.hisat3n_dna.split_reads.name_sort.bam.tar.gz` | Tarred file containing BAM files from single-end alignment. |
+| name_sorted_bams | `<plate_id>.hisat3n_dna.all_reads.name_sort.tar.gz` | Tarred file containing name-sorted, merged BAM files. |
+| pos_sorted_bams | `<plate_id>.hisat3n_dna.all_reads.pos_sort.tar.gz` | Tarred file containing position-sorted, merged BAM files. |
+| remove_overlap_read_parts_bam_tar | `<plate_id>.remove_overlap_read_parts.tar.gz` | Tarred file containing BAM files from single-end alignment with overlapping reads removed. |
+| dedup_unique_bam_and_index_unique_bam_tar | `<plate_id>.dedup_unique_bam_and_index_unique_bam.tar.gz` | Tarred file containing deduplicated, position-sorted BAM files. |
+| unique_reads_cgn_extraction_allc | `<plate_id>.output_allc_tar.tar.gz` | Tarred file containing CGN context-specific ALLC files that can be used to generate an [MCDS file](https://github.com/lhqing/allcools_doc/blob/master/tech-background/file-formats.md#mcds-file). |
+| unique_reads_cgn_extraction_tbi | `<plate_id>.output_tbi_tar.tar.gz` | Tarred file containing ALLC index files. |
+| chromatin_contact_stats | `<plate_id>.chromatin_contact_stats.tar.gz` | Tarred file containing chromatin contact files. |
+| reference_version | `<plate_id>.reference_version.txt` | Text file containing the genomic reference version used. |
 
 ## Versioning
 
