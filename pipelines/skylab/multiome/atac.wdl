@@ -168,7 +168,7 @@ task GetNumSplits {
     echo "Number of CPUs: $num_cpus_all_node"
 
     num_physical_cores_all_nodes=`expr ${num_cpus_all_node} / ~{threads_per_core}`
-    num_physical_cores_per_nodes=`expr ${num_cpus_per_node} / ~{threads_per_core}`
+    num_physical_cores_per_nodes=`expr  ~{num_cpus_per_node} / ~{threads_per_core}`
     num_physical_cores_per_socket=`expr ${num_physical_cores_all_nodes} / ~{num_sockets}`
     num_physical_cores_per_numa=`expr ${num_physical_cores_all_nodes} / ~{num_numa}`
     echo "Number physical cores: "$num_physical_cores_per_nodes
@@ -189,7 +189,7 @@ task GetNumSplits {
     num_physical_cores_per_rank=$num_physical_cores_per_nodes
     total_num_ranks=`expr ${num_physical_cores_all_nodes} / ${num_physical_cores_per_rank}`
 
-    ranks_per_node=`expr ${total_num_ranks} / ${num_nodes}`
+    ranks_per_node=`expr ${total_num_ranks} / ~{num_nodes}`
     echo "Number of MPI ranks: "${total_num_ranks}
     echo "Number of cores per MPI rank: "$num_physical_cores_per_nodes
     echo "#############################################"
