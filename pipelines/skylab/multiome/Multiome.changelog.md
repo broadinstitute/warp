@@ -1,8 +1,9 @@
-# 3.0.5
-2024-01-11 (Date of Last Commit)
+# 3.0.5 
+2024-01-18 (Date of Last Commit)
 
 * Increased memory for MergeStarOutputs in StarAlign.wdl, RunEmptyDrops in RunEmptyDrops.wdl, OptimusH5ad in H5adUtils.wdl and GeneMetrics in Metrics.wdl
 * Added the --soloMultiMappers flag as an optional input to the StarSoloFastq task in the StarAlign.wdl
+* Added a check of read2 length to the paired-tag pipeline; this does not affect the Multiome workflow
 
 # 3.0.4
 2024-01-05 (Date of Last Commit)
