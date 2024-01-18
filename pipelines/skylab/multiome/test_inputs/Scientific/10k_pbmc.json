@@ -31,5 +31,5 @@
   "Multiome.chrom_sizes":"gs://broad-gotc-test-storage/Multiome/input/hg38.chrom.sizes",
   "Multiome.Atac.BWAPairedEndAlignment.cpu_platform":"Intel Cascade Lake",
   "Multiome.Atac.BWAPairedEndAlignment.mem_size":"250",
-  "Multiome.Atac.BWAPairedEndAlignment.nthreads":"60"
+  "Multiome.Atac.BWAPairedEndAlignment.nthreads":"24"
 }
