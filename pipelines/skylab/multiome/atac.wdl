@@ -25,11 +25,11 @@ workflow ATAC {
     # BWA ref
     File tar_bwa_reference
     # BWA machine type
-    Int num_cpus_per_node_bwa
-    Int num_sockets_bwa
-    Int num_numa_bwa
-    Int threads_per_core_bwa
-    Int num_nodes_bwa
+    Int num_cpus_per_node_bwa = 128
+    Int num_sockets_bwa = 2
+    Int num_numa_bwa = 2
+    Int threads_per_core_bwa = 2
+    Int num_nodes_bwa = 1
 
     # GTF for SnapATAC2 to calculate TSS sites of fragment file
     File annotations_gtf
