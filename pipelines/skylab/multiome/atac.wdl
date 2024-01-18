@@ -192,7 +192,7 @@ task BWAPairedEndAlignment {
     String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:1.0.0"
 
     # Runtime attributes
-    Int disk_size = 1000
+    Int disk_size = 2000
     Int nthreads = 128
     Int mem_size = 512
     String cpu_platform = "Intel Ice Lake"
