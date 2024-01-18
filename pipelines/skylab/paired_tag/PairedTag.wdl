@@ -79,9 +79,8 @@ workflow PairedTag {
               preindex = preindex
         }
     }      
-    if (preindex) {
-        call atac.ATAC as Atac_preindex {
-          input:
+    call atac.ATAC as Atac_preindex {
+        input:
             read1_fastq_gzipped = demultiplex.fastq1,
             read2_fastq_gzipped = demultiplex.barcodes,
             read3_fastq_gzipped = demultiplex.fastq3,
@@ -93,28 +92,7 @@ workflow PairedTag {
             adapter_seq_read1 = adapter_seq_read1,
             adapter_seq_read3 = adapter_seq_read3,
             preindex = preindex
-        }
-    }        
-    if (!preindex) {
-        call atac.ATAC as Atac {
-          input:
-              read1_fastq_gzipped = atac_r1_fastq,
-              read2_fastq_gzipped = demultiplex.barcodes,
-              read3_fastq_gzipped = atac_r3_fastq,
-              input_id = input_id + "_atac",
-              tar_bwa_reference = tar_bwa_reference,
-              annotations_gtf = annotations_gtf,
-              chrom_sizes = chrom_sizes,
-              whitelist = atac_whitelist,
-              adapter_seq_read1 = adapter_seq_read1,
-              adapter_seq_read3 = adapter_seq_read3,
-              preindex = preindex
-        }
-    } 
-   
-    File atac_h5ad = select_first([Atac_preindex.snap_metrics,Atac.snap_metrics])
-    File atac_fragment = select_first([Atac_preindex.fragment_file, Atac.fragment_file])
-    File bam_atac_output = select_first([Atac_preindex.bam_aligned_output, Atac.bam_aligned_output])
+    }      
 
     meta {
         allowNestedInputs: true
@@ -125,9 +103,9 @@ workflow PairedTag {
         String pairedtag_pipeline_version_out = pipeline_version
 
         # atac outputs
-        File bam_aligned_output_atac = bam_atac_output
-        File fragment_file_atac = atac_fragment
-        File snap_metrics_atac = atac_h5ad
+        File bam_aligned_output_atac = Atac_preindex.bam_aligned_output
+        File fragment_file_atac = Atac_preindex.fragment_file
+        File snap_metrics_atac = Atac_preindex.snap_metrics
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
