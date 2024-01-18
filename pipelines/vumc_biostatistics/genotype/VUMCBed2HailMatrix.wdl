@@ -62,6 +62,10 @@ task Bed2HailMatrix {
 
   command <<<
 
+#https://discuss.hail.is/t/i-get-a-negativearraysizeexception-when-loading-a-plink-file/899
+
+export PYSPARK_SUBMIT_ARGS="--driver-java-options '-XX:hashCode=0' --conf 'spark.executor.extraJavaOptions=-XX:hashCode=0' pyspark-shell"
+
 python3 <<CODE
 
 import hail as hl
