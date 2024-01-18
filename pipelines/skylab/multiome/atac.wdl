@@ -24,6 +24,12 @@ workflow ATAC {
     
     # BWA ref
     File tar_bwa_reference
+    # BWA machine type
+    Int num_cpus_per_node_bwa
+    Int num_sockets_bwa
+    Int num_numa_bwa
+    Int threads_per_core_bwa
+    Int num_nodes_bwa
 
     # GTF for SnapATAC2 to calculate TSS sites of fragment file
     File annotations_gtf
@@ -47,6 +53,20 @@ workflow ATAC {
     read3_fastq_gzipped: "read 3 FASTQ file as input for the pipeline, contains read 2 of paired reads"
     output_base_name: "base name to be used for the pipelines output and intermediate files"
     tar_bwa_reference: "the pre built tar file containing the reference fasta and cooresponding reference files for the BWA aligner"
+    num_cpus_per_node_bwa: "Number of CPUs per node for bwa-mem2 task (default: 128)"
+    num_sockets_bwa : "Number of sockets for bwa-mem2 task (default: 2)"
+    num_numa_bwa : "Number of NUMA nodes for bwa-mem2 task (default: 2)"
+    threads_per_core_bwa : "Number of threads per core for bwa-mem2 task (default: 2)"
+    num_nodes_bwa : "Number of nodes for bwa-mem2 task (default: 1)"
+ }
+
+  call GetNumSplits {
+    input:
+      num_cpus_per_node = num_cpus_per_node_bwa,
+      num_sockets = num_sockets_bwa, 
+      num_numa = num_numa_bwa,
+      threads_per_core = threads_per_core_bwa,
+      num_nodes = num_nodes_bwa
   }
 
   call FastqProcessing.FastqProcessATAC as SplitFastq {
@@ -55,7 +75,7 @@ workflow ATAC {
       read3_fastq = read3_fastq_gzipped,
       barcodes_fastq = read2_fastq_gzipped,
       output_base_name = input_id,
-      num_output_files = num_output_files,
+      num_output_files = GetNumSplits.ranks_per_node_out,
       whitelist = whitelist
   }
 
@@ -113,6 +133,86 @@ workflow ATAC {
     File snap_metrics = snap_metrics_atac
   }
 }
+
+# get number of splits
+task GetNumSplits {
+  input {
+    Int num_cpus_per_node = 128
+    Int num_sockets = 2 
+    Int num_numa = 2 
+    Int threads_per_core = 2
+    Int num_nodes = 1
+    String docker_image = "ubuntu:latest"
+  }
+
+  parameter_meta {
+    docker_image: "the ubuntu docker image (default: ubuntu:latest)"
+    num_cpus_per_node: "Number of CPUs per node (default: 128)"
+    num_sockets : "Number of sockets (default: 2)"
+    num_numa : "Number of NUMA nodes (default: 2)"
+    threads_per_core : "Number of threads per core (default: 2)"
+    num_nodes : "Number of nodes (default: 1)"
+  }
+
+  command <<<
+    set -euo pipefail
+    
+    # steps taken from https://github.com/IntelLabs/Open-Omics-Acceleration-Framework/blob/main/pipelines/fq2sortedbam/print_config.sh
+    echo "#############################################"
+    echo "Number of threads: " ~{num_cpus_per_node}
+    echo "Number of sockets: " ~{num_sockets}
+    echo "Number of NUMA domains: "~{num_numa}
+    echo "Number of threads per core: "~{threads_per_core}
+    
+    num_cpus_all_node=`expr ~{num_cpus_per_node} \* ~{num_nodes}`
+    echo "Number of CPUs: $num_cpus_all_node"
+
+    num_physical_cores_all_nodes=`expr ${num_cpus_all_node} / ~{threads_per_core}`
+    num_physical_cores_per_nodes=`expr ${num_cpus_per_node} / ~{threads_per_core}`
+    num_physical_cores_per_socket=`expr ${num_physical_cores_all_nodes} / ~{num_sockets}`
+    num_physical_cores_per_numa=`expr ${num_physical_cores_all_nodes} / ~{num_numa}`
+    echo "Number physical cores: "$num_physical_cores_per_nodes
+    echo "Number physical cores per socket: "$num_physical_cores_per_socket
+    echo "Number physical cores per numa: "$num_physical_cores_per_numa
+
+    th=`expr ${num_physical_cores_per_numa} / 2` 
+    if [ $th -le 10 ]
+    then
+        th=${num_physical_cores_per_numa}
+    fi
+
+    while [ $num_physical_cores_per_nodes -gt $th ]
+    do
+        num_physical_cores_per_nodes=`expr $num_physical_cores_per_nodes / 2`
+    done
+
+    num_physical_cores_per_rank=$num_physical_cores_per_nodes
+    total_num_ranks=`expr ${num_physical_cores_all_nodes} / ${num_physical_cores_per_rank}`
+
+    ranks_per_node=`expr ${total_num_ranks} / ${num_nodes}`
+    echo "Number of MPI ranks: "${total_num_ranks}
+    echo "Number of cores per MPI rank: "$num_physical_cores_per_nodes
+    echo "#############################################"
+    #echo "Note: Each MPI rank runs a bwa-mem2 process on its input fastq files produced by fqprocess. Please ensure that the number of files created due to bam_size parameter to fqprocess (in config file) creates number of fastq files equal to ${total_num_ranks}"
+    echo "Please set bam_size such that fastqprocess creates ${total_num_ranks} splits of input fastq files"
+    echo "#############################################"
+
+    echo $total_num_ranks > total_num_ranks.txt
+    echo $ranks_per_node > ranks_per_node.txt
+
+  >>>
+
+  # use docker image for given tool 
+  runtime {
+    docker: docker_image
+  }
+
+  output {
+    String total_num_ranks_out = read_string("total_num_ranks.txt")
+    String ranks_per_node_out = read_string("ranks_per_node.txt")
+  }
+}
+
 
 # trim read 1 and read 2 adapter sequeunce with cutadapt
 task TrimAdapters {
