@@ -257,7 +257,7 @@ task FastqProcessATAC {
         Int preemptible = 3
 
         # Additional parameters for fastqprocess
-        String num_output_files = "4"
+        String num_output_files
         Int bam_size = 1
     }
 
