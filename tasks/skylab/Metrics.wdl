@@ -8,7 +8,6 @@ task CalculateCellMetrics {
     String input_id
 
     # runtime values
-    #String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.9-1700252065"
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:aa-mt-tagsort"
     Int machine_mem_mb = 8000
     Int cpu = 4
@@ -81,6 +80,7 @@ task CalculateCellMetrics {
 task CalculateGeneMetrics {
   input {
     File bam_input
+    File original_gtf
     File? mt_genes
     String input_id
     # runtime values
@@ -109,9 +109,21 @@ task CalculateGeneMetrics {
 
   command {
     set -e
-    mkdir temp
 
+     # create the tmp folder
+    mkdir temp
+    
+    # if GTF file in compressed then uncompress
+    if [[ ~{original_gtf} =~ \.gz$ ]]
+    then
+        gunzip -c ~{original_gtf} > annotation.gtf
+    else
+        mv  ~{original_gtf}  annotation.gtf
+    fi
+
+    # call TagSort with gene as metric type
     TagSort --bam-input ~{bam_input} \
+    --gtf-file annotation.gtf \
     --metric-output "~{input_id}.gene-metrics.csv" \
     --compute-metric \
     --metric-type gene \
