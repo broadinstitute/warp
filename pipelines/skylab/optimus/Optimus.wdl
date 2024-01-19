@@ -146,6 +146,7 @@ workflow Optimus {
     input:
       bam_input = MergeBam.output_bam,
       mt_genes = mt_genes,
+      original_gtf = annotations_gtf,
       input_id = input_id
   }
 
