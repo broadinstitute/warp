@@ -24,12 +24,14 @@ workflow ATAC {
     
     # BWA ref
     File tar_bwa_reference
-    # BWA machine type
+    # BWA machine type -- to select number of splits 
     Int num_cpus_per_node_bwa = 128
     Int num_sockets_bwa = 2
     Int num_numa_bwa = 2
     Int threads_per_core_bwa = 2
     Int num_nodes_bwa = 1
+    Int mem_size_bwa = 512
+    String cpu_platform_bwa = "Intel Ice Lake"
 
     # GTF for SnapATAC2 to calculate TSS sites of fragment file
     File annotations_gtf
@@ -66,7 +68,9 @@ workflow ATAC {
       num_sockets = num_sockets_bwa, 
       num_numa = num_numa_bwa,
       threads_per_core = threads_per_core_bwa,
-      num_nodes = num_nodes_bwa
+      num_nodes = num_nodes_bwa,
+      mem_size = mem_size_bwa,
+      cpu_platform = cpu_platform_bwa
   }
 
   call FastqProcessing.FastqProcessATAC as SplitFastq {
@@ -96,7 +100,10 @@ workflow ATAC {
         read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
         read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
         tar_bwa_reference = tar_bwa_reference,
-        output_base_name = input_id
+        output_base_name = input_id,
+        nthreads = num_cpus_per_node_bwa, 
+        mem_size = mem_size_bwa,
+        cpu_platform = cpu_platform_bwa
   }
 
   if (preindex) {
@@ -137,12 +144,18 @@ workflow ATAC {
 # get number of splits
 task GetNumSplits {
   input {
+    # machine specs for bwa-mem2 task 
     Int num_cpus_per_node = 128
     Int num_sockets = 2 
     Int num_numa = 2 
     Int threads_per_core = 2
     Int num_nodes = 1
+    
+    # additional specs not necessarily used to determine number of splits  
+    Int mem_size = 512
+    String cpu_platform = "Intel Ice Lake"
     String docker_image = "ubuntu:latest"
+
   }
 
   parameter_meta {
@@ -289,7 +302,8 @@ task BWAPairedEndAlignment {
     String read_group_sample_name = "RGSN1"
     String suffix = "trimmed_adapters.fastq.gz"
     String output_base_name
-    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:1.0.0"
+    #String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:1.0.0"
+    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:aa-distbwa"
 
     # Runtime attributes
     Int disk_size = 2000
