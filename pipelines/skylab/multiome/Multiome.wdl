@@ -34,8 +34,17 @@ workflow Multiome {
         Array[File] atac_r1_fastq
         Array[File] atac_r2_fastq
         Array[File] atac_r3_fastq
-        # BWA input
+        
+        # BWA tar reference
         File tar_bwa_reference
+        # BWA machine type
+        Int num_cpus_per_node_bwa_atac = 128
+        Int num_sockets_bwa_atac = 2
+        Int num_numa_bwa_atac = 2
+        Int threads_per_core_bwa_atac = 2
+        Int num_nodes_bwa_atac = 1
+        
+        # Chromosone sizes 
         File chrom_sizes
         # Trimadapters input
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
@@ -83,7 +92,12 @@ workflow Multiome {
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
-            adapter_seq_read3 = adapter_seq_read3
+            adapter_seq_read3 = adapter_seq_read3,
+            num_cpus_per_node_bwa = num_cpus_per_node_bwa_atac,
+            num_sockets_bwa = num_sockets_bwa_atac, 
+            num_numa_bwa = num_numa_bwa_atac,
+            threads_per_core_bwa = threads_per_core_bwa_atac,
+            num_nodes_bwa = num_nodes_bwa_atac
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
