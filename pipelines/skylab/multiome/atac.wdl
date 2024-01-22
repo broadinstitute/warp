@@ -38,7 +38,7 @@ workflow ATAC {
     # Text file containing chrom_sizes for genome build (i.e. hg38)
     File chrom_sizes
     # Number of fastq files for fastqprocess
-    Int num_output_files = 4
+    Int num_output_files
     # Whitelist
     File whitelist
 
