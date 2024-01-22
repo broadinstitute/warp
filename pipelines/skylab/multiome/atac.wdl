@@ -219,9 +219,8 @@ task GetNumSplits {
   }
 
   output {
-    String ranks_per_node_out = "2"
     String total_num_ranks_out = read_string("total_num_ranks.txt")
-    #String ranks_per_node_out = read_string("ranks_per_node.txt")
+    String ranks_per_node_out = read_string("ranks_per_node.txt")
   }
 }
 
@@ -301,7 +300,6 @@ task BWAPairedEndAlignment {
     String read_group_sample_name = "RGSN1"
     String suffix = "trimmed_adapters.fastq.gz"
     String output_base_name
-    #String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:1.0.0"
     String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:aa-distbwa"
 
     # Runtime attributes
