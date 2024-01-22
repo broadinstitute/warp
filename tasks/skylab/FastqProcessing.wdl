@@ -285,7 +285,9 @@ task FastqProcessATAC {
     command <<<
 
         set -e
-
+        echo "Num of output files"
+        echo ~{num_output_files} 
+        
         declare -a FASTQ1_ARRAY=(~{sep=' ' read1_fastq})
         declare -a FASTQ2_ARRAY=(~{sep=' ' barcodes_fastq})
         declare -a FASTQ3_ARRAY=(~{sep=' ' read3_fastq})
@@ -341,6 +343,7 @@ task FastqProcessATAC {
         cat best_match.txt
         barcode_choice=$(<best_match.txt)
         echo $barcode_choice
+
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
         mkdir /cromwell_root/output_fastq
