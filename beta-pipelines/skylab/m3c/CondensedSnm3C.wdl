@@ -170,6 +170,8 @@ task Demultiplexing {
     String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
     Int disk_size = 50
     Int mem_size = 10
+    Int preemptible_tries = 3
+    Int cpu = 1
   }
 
   command <<<
@@ -255,8 +257,9 @@ task Demultiplexing {
   runtime {
     docker: docker_image
     disks: "local-disk ${disk_size} HDD"
-    cpu: 1
+    cpu: cpu
     memory: "${mem_size} GiB"
+    preemptible: preemptible_tries
   }
 
   output {
@@ -280,6 +283,8 @@ task Sort_and_trim_r1_and_r2 {
         Int disk_size = 50
         Int mem_size = 10
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        Int preemptible_tries = 3
+        Int cpu = 1
 
     }
     command <<<
@@ -339,8 +344,9 @@ task Sort_and_trim_r1_and_r2 {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File r1_trimmed_fq_tar = "~{plate_id}.R1_trimmed_files.tar.gz"
@@ -359,8 +365,10 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 100
-        Int mem_size = 100
+        Int disk_size = 1000
+        Int mem_size = 64
+        Int preemptible_tries = 3
+        Int cpu = 16
     }
     command <<<
         set -euo pipefail
@@ -431,8 +439,9 @@ task Hisat_3n_pair_end_mapping_dna_mode{
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File hisat3n_paired_end_bam_tar = "~{plate_id}.hisat3n_paired_end_bam_files.tar.gz"
@@ -450,6 +459,8 @@ task Separate_unmapped_reads {
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 50
         Int mem_size = 10
+        Int preemptible_tries = 3
+        Int cpu = 1
 
     }
     command <<<
@@ -503,8 +514,9 @@ task Separate_unmapped_reads {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File unique_bam_tar = "~{plate_id}.hisat3n_paired_end_unique_bam_files.tar.gz"
@@ -522,6 +534,8 @@ task Split_unmapped_reads {
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 50
         Int mem_size = 10
+        Int preemptible_tries = 3
+        Int cpu = 1
     }
     command <<<
 
@@ -565,8 +579,9 @@ task Split_unmapped_reads {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File split_fq_tar = "~{plate_id}.hisat3n_paired_end_split_fastq_files.tar.gz"
@@ -581,8 +596,10 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
         String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 80
-        Int mem_size = 20
+        Int disk_size = 500
+        Int mem_size = 64
+        Int preemptible_tries = 3
+        Int cpu = 16
     }
     command <<<
         set -euo pipefail
@@ -668,8 +685,9 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File merge_sorted_bam_tar = "~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz"
@@ -686,6 +704,8 @@ task remove_overlap_read_parts {
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
+        Int preemptible_tries = 3
+        Int cpu = 1
     }
 
     command <<<
@@ -720,8 +740,9 @@ task remove_overlap_read_parts {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File output_bam_tar = "~{plate_id}.remove_overlap_read_parts.tar.gz"
@@ -737,6 +758,8 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
+        Int preemptible_tries = 3
+        Int cpu = 1
     }
     command <<<
       set -euo pipefail
@@ -766,8 +789,9 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File name_sorted_bam = "~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz"
@@ -783,6 +807,8 @@ task call_chromatin_contacts {
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
+        Int preemptible_tries = 3
+        Int cpu = 1
     }
     command <<<
         set -euo pipefail
@@ -821,8 +847,9 @@ task call_chromatin_contacts {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File chromatin_contact_stats = "~{plate_id}.chromatin_contact_stats.tar.gz"
@@ -837,6 +864,8 @@ task dedup_unique_bam_and_index_unique_bam {
        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
        Int disk_size = 80
        Int mem_size = 20
+       Int preemptible_tries = 3
+       Int cpu = 1
     }
 
     command <<<
@@ -876,8 +905,9 @@ task dedup_unique_bam_and_index_unique_bam {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File output_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam.tar.gz"
@@ -898,6 +928,8 @@ task unique_reads_allc {
         Int mem_size = 20
         String genome_base = basename(genome_fa)
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        Int preemptible_tries = 3
+        Int cpu = 1
     }
     command <<<
         set -euo pipefail
@@ -941,8 +973,9 @@ task unique_reads_allc {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File allc = "~{plate_id}.allc.tsv.tar.gz"
@@ -963,6 +996,8 @@ task unique_reads_cgn_extraction {
        Int disk_size = 80
        Int mem_size = 20
        Int num_upstr_bases = 0
+       Int preemptible_tries = 3
+       Int cpu = 1
     }
 
     command <<<
@@ -1005,8 +1040,9 @@ task unique_reads_cgn_extraction {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
 
     output {
@@ -1031,6 +1067,8 @@ task summary {
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
+        Int preemptible_tries = 3
+        Int cpu = 1
     }
     command <<<
         set -euo pipefail
@@ -1079,8 +1117,9 @@ task summary {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File mapping_summary = "~{plate_id}_MappingSummary.csv.gz"
