@@ -242,7 +242,7 @@ task CompareBams {
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
   Int disk_size = ceil(bam_size * 4) + 200
-  Int memory_mb = 725000
+  Int memory_mb = 600000
   Int java_memory_size = memory_mb - 1000
   Int max_heap = memory_mb - 500
 
@@ -256,7 +256,8 @@ task CompareBams {
           ~{truth_bam} \
           O=comparison.tsv \
           LENIENT_HEADER=~{lenient_header} \
-          LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq}
+          LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq} \
+          MAX_RECORDS_IN_RAM=300000
   }
 
   runtime {
