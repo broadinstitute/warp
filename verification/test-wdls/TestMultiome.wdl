@@ -91,6 +91,7 @@ workflow TestMultiome {
         num_numa_bwa_atac = num_numa_bwa_atac,
         threads_per_core_bwa_atac = threads_per_core_bwa_atac,
         num_nodes_bwa_atac = num_nodes_bwa_atac,
+        cpu_platform_bwa = cpu_platform_bwa_atac,
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3,
         chrom_sizes = chrom_sizes,
