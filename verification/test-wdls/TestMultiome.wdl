@@ -42,6 +42,7 @@ workflow TestMultiome {
       Int num_numa_bwa_atac = 2
       Int threads_per_core_bwa_atac = 2
       Int num_nodes_bwa_atac = 1
+      String cpu_platform_bwa_atac = "Intel Ice Lake"
       
       # CreateFragmentFile input
       File chrom_sizes
