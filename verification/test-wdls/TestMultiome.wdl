@@ -37,6 +37,12 @@ workflow TestMultiome {
 
       # BWA input
       File tar_bwa_reference
+      Int num_cpus_per_node_bwa_atac = 128
+      Int num_sockets_bwa_atac = 2
+      Int num_numa_bwa_atac = 2
+      Int threads_per_core_bwa_atac = 2
+      Int num_nodes_bwa_atac = 1
+      
       # CreateFragmentFile input
       File chrom_sizes
       # Trimadapters input
@@ -81,6 +87,10 @@ workflow TestMultiome {
         atac_r2_fastq = atac_r2_fastq,
         atac_r3_fastq = atac_r3_fastq,
         tar_bwa_reference = tar_bwa_reference,
+        num_sockets_bwa_atac = num_sockets_bwa_atac, 
+        num_numa_bwa_atac = num_numa_bwa_atac,
+        threads_per_core_bwa_atac = threads_per_core_bwa_atac,
+        num_nodes_bwa_atac = num_nodes_bwa_atac,
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3,
         chrom_sizes = chrom_sizes,
