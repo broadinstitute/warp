@@ -118,4 +118,91 @@ task AddBBTag {
         File bb_bam = "~{input_id}.bam.BB.bam"
     }
 }
+task ParseBarcodes {
+    input {
+        File atac_h5ad
+        File atac_fragment
+        Int nthreads = 1
+        String cpuPlatform = "Intel Cascade Lake"
+    }
 
+    String atac_base_name = basename(atac_h5ad, ".h5ad")
+    String atac_fragment_base = basename(atac_fragment, ".tsv")
+
+    Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(gex_h5ad, "MiB") + size(atac_fragment, "MiB")) * 3) + 10000
+    Int disk =  ceil((size(atac_h5ad, "GiB") + size(gex_h5ad, "GiB") + size(atac_fragment, "GiB")) * 5) + 10
+
+  parameter_meta {
+      atac_h5ad: "The resulting h5ad from the ATAC workflow."
+      atac_fragment: "The resulting fragment TSV from the ATAC workflow."
+  }
+
+  command <<<
+      set -e pipefail
+
+      python3 <<CODE
+
+      # set parameters
+      atac_h5ad = "~{atac_h5ad}"
+      atac_fragment = "~{atac_fragment}"
+
+    # import anndata to manipulate h5ad files
+      import anndata as ad
+      import pandas as pd
+      print("Reading ATAC h5ad:")
+      print("~{atac_h5ad}")
+      print("Read ATAC fragment file:")
+      print("~{atac_fragment}")
+    
+      atac_data = ad.read_h5ad("~{atac_h5ad}")
+      atac_tsv = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
+      whitelist_atac = pd.read_csv("~{atac_whitelist}", header=None, names=["atac_barcodes"])
+
+      # Separate out CB and preindex in the h5ad
+      print("Creating CB and preindex columns")
+      for x in range(len(atac_data.obs.index)):
+        CB = atac_data.obs.index[x][3:]
+        preindex = atac_data.obs.index[x][:3]
+        atac_data.obs.loc[atac_data.obs.index[x], 'CB'] = CB
+        atac_data.obs.loc[atac_data.obs.index[x], 'preindex'] = preindex
+      
+      # Indentify sample barcodes assigned to more than one cell barcode
+      print("Identifying sample barcodes asigned to multiple cell barcodes in h5ad")
+      list = []
+      for preindex in atac_data.obs.preindex:
+        if preindex not in list:
+          list.append(preindex)
+          CB = atac_data.obs.loc[atac_data.obs['preindex'] == preindex, "CB"]
+          if len(CB)>1:
+            atac_data.obs.loc[atac_data.obs['preindex'] == preindex, "Duplicates"] = '1'
+          else:
+            atac_data.obs.loc[atac_data.obs['preindex'] == preindex, "Duplicates"] = '0'
+
+      # Idenitfy the barcodes in the whitelist that match barcodes in datasets
+      atac_data.write_h5ad("~{atac_base_name}.h5ad")
+      df_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
+      CODE
+      
+      # sorting the file
+      echo "Sorting file"
+      sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
+      echo "Starting bgzip"
+      bgzip "~{atac_fragment_base}.sorted.tsv"
+      echo "Starting tabix"
+      tabix -s 1 -b 2 -e 3 "~{atac_fragment_base}.sorted.tsv.gz"
+
+  >>>
+
+  runtime {
+      docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
+      disks: "local-disk ~{disk} HDD"
+      memory: "${machine_mem_mb} MiB"
+      cpu: nthreads
+  }
+
+  output {
+      File atac_h5ad_file = "~{atac_base_name}.h5ad"
+      File atac_fragment_tsv = "~{atac_fragment_base}.sorted.tsv.gz"
+      File atac_fragment_tsv_tbi = "~{atac_fragment_base}.sorted.tsv.gz.tbi"
+  }
+}
