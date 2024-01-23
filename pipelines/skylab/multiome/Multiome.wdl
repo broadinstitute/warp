@@ -43,6 +43,7 @@ workflow Multiome {
         Int num_numa_bwa_atac = 2
         Int threads_per_core_bwa_atac = 2
         Int num_nodes_bwa_atac = 1
+        String cpu_platform_bwa_atac = "Intel Ice Lake"
         
         # Chromosone sizes 
         File chrom_sizes
@@ -97,7 +98,8 @@ workflow Multiome {
             num_sockets_bwa = num_sockets_bwa_atac, 
             num_numa_bwa = num_numa_bwa_atac,
             threads_per_core_bwa = threads_per_core_bwa_atac,
-            num_nodes_bwa = num_nodes_bwa_atac
+            num_nodes_bwa = num_nodes_bwa_atac,
+            cpu_platform_bwa = cpu_platform_bwa_atac
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
