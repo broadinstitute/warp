@@ -45,7 +45,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "1.1.5"
+  String pipeline_version = "1.1.6"
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
