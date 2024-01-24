@@ -1,8 +1,8 @@
 # 2.1.5
 2024-01-24 (Date of Last Commit)
 
-* Added task GetNumSplits before FastqProcess task to determine the number of splits based on the bwa-mem2 machine specs; this does affect the SlideSeq workflow
-* Added error message the BWAPairedEndAlignment task to ensure that the number of splits equals to number of ranks; this does affect the SlideSeq workflow
+* Added task GetNumSplits before FastqProcess ATAC task to determine the number of splits based on the bwa-mem2 machine specs; this does affect the SlideSeq workflow
+* Added error message the BWAPairedEndAlignment ATAC task to ensure that the number of splits equals to number of ranks; this does affect the SlideSeq workflow
   
 # 2.1.4
 2024-01-05 (Date of Last Commit)
