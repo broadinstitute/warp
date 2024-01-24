@@ -1,3 +1,8 @@
+# 6.3.5
+2024-01-24 (Date of Last Commit)
+* Added task GetNumSplits before FastqProcess task to determine the number of splits based on the bwa-mem2 machine specs
+* Added error message the BWAPairedEndAlignment task to ensure that the number of splits equals to number of ranks
+
 # 6.3.4
 2024-01-11 (Date of Last Commit)
 * Increased memory for MergeStarOutputs in StarAlign.wdl, RunEmptyDrops in RunEmptyDrops.wdl, OptimusH5ad in H5adUtils.wdl and GeneMetrics in Metrics.wdl
