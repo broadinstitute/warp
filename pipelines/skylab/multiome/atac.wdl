@@ -300,7 +300,7 @@ task BWAPairedEndAlignment {
     String read_group_sample_name = "RGSN1"
     String suffix = "trimmed_adapters.fastq.gz"
     String output_base_name
-    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:aa-distbwa"
+    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:2.0.0"
 
     # Runtime attributes
     Int disk_size = 2000
