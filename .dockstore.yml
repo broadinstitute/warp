@@ -240,3 +240,7 @@ workflows:
   - name: VUMCPlink2FilterRegion
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2FilterRegion.wdl
+
+  - name: VUMCVcfRenameSamples
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfRenameSamples.wdl
