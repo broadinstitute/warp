@@ -91,11 +91,13 @@ workflow SlideSeq {
     call Metrics.CalculateGeneMetrics as GeneMetrics {
         input:
             bam_input = MergeBam.output_bam,
+            original_gtf = annotations_gtf,
             input_id = input_id
     }
     call Metrics.CalculateUMIsMetrics as UMIsMetrics {
         input:
             bam_input = MergeBam.output_bam,
+            original_gtf = annotations_gtf,
             input_id = input_id
     }
 
