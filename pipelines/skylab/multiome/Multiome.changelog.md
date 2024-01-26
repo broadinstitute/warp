@@ -3,6 +3,7 @@
 
 * Added task GetNumSplits before FastqProcess ATAC task to determine the number of splits based on the bwa-mem2 machine specs
 * Added an error message to the BWAPairedEndAlignment ATAC task to ensure that the number of splits equal the number of ranks
+* Added an error message to the BWAPairedEndAlignment ATAC task to ensure that the number of R1s equals to the number of R3s
 
 # 3.0.5 
 2024-01-18 (Date of Last Commit)
