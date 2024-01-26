@@ -82,7 +82,6 @@ workflow ATAC {
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
-
     call TrimAdapters {
       input:
         read1_fastq = SplitFastq.fastq_R1_output_array[idx],
@@ -150,8 +149,8 @@ task GetNumSplits {
     Int num_nodes = 1
     
     # additional specs not necessarily used to determine number of splits  
-    Int mem_size = 512
-    String cpu_platform = "Intel Ice Lake"
+    Int mem_size
+    String cpu_platform
     String docker_image = "ubuntu:latest"
 
   }
@@ -213,7 +212,6 @@ task GetNumSplits {
 
   >>>
 
-  # use docker image for given tool 
   runtime {
     docker: docker_image
   }
@@ -304,9 +302,9 @@ task BWAPairedEndAlignment {
 
     # Runtime attributes
     Int disk_size = 2000
-    Int nthreads = 128
-    Int mem_size = 512
-    String cpu_platform = "Intel Ice Lake"
+    Int nthreads
+    Int mem_size
+    String cpu_platform 
   }
 
   parameter_meta {
