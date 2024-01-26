@@ -161,8 +161,10 @@ task CalculateGeneMetrics {
 task CalculateUMIsMetrics {
   input {
     File bam_input
+    File original_gtf
     File? mt_genes
     String input_id
+    
     # runtime values
     # Did not update docker image as this task uses loom which does not play nice with the changes
     String docker = "us.gcr.io/broad-gotc-prod/warp-tools:aa-mt-tagsort"
@@ -191,7 +193,16 @@ task CalculateUMIsMetrics {
     set -e
     mkdir temp
 
+    # if GTF file in compressed then uncompress
+    if [[ ~{original_gtf} =~ \.gz$ ]]
+    then
+        gunzip -c ~{original_gtf} > annotation.gtf
+    else
+        mv  ~{original_gtf}  annotation.gtf
+    fi
+
     TagSort --bam-input ~{bam_input} \
+    --gtf-file annotation.gtf \
     --metric-output "~{input_id}.umi-metrics.csv" \
     --compute-metric \
     --metric-type umi \
