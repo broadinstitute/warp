@@ -50,13 +50,13 @@ The following describes the inputs of the ATAC workflow. For more details on how
 | read3_fastq_gzipped | Fastq inputs (array of compressed read 3 FASTQ files). |
 | output_base_name | Output prefix/base name for all intermediate files and pipeline outputs. |
 | tar_bwa_reference | BWA reference (tar file containing reference fasta and corresponding files). |
-| num_cpus_per_node_bwa | Number of CPUs per node for the BWA-mem alignment task (default: 128) | Integer |
-| num_sockets_bwa | Number of sockets for the BWA-mem alignment task (default: 2)  | Integer |
-| num_numa_bwa | Number of NUMA nodes for the BWA-mem alignment task (default: 2) | Integer |
-| threads_per_core_bwa | Number of threads per core for the BWA-mem alignment task (default: 2) | Integer |
-| num_nodes_bwa | Number of nodes for the BWA-mem alignment task (default: 1) | Integer |
-| mem_size_bwa | Memory size for the BWA-mem alignment task (default: 512 GB) | Integer |
-| cpu_platform_bwa | CPU platform for the BWA-mem alignment task (default: "Intel Ice Lake") | String |
+| num_cpus_per_node_bwa | Number of CPUs per node for the BWA-mem alignment task (default: 128). | Integer |
+| num_sockets_bwa | Number of sockets for the BWA-mem alignment task (default: 2).  | Integer |
+| num_numa_bwa | Number of NUMA nodes for the BWA-mem alignment task (default: 2). | Integer |
+| threads_per_core_bwa | Number of threads per core for the BWA-mem alignment task (default: 2). | Integer |
+| num_nodes_bwa | Number of nodes for the BWA-mem alignment task (default: 1). | Integer |
+| mem_size_bwa | Memory size for the BWA-mem alignment task (default: 512 GB). | Integer |
+| cpu_platform_bwa | CPU platform for the BWA-mem alignment task (default: "Intel Ice Lake"). | String |
 | atac_gtf | CreateFragmentFile input variable: GTF file for SnapATAC2 to calculate TSS sites of fragment file.|
 | chrom_sizes | CreateFragmentFile input variable: Text file containing chrom_sizes for genome build (i.e., hg38) |
 | whitelist | Whitelist file for ATAC cellular barcodes. |
