@@ -50,6 +50,13 @@ The following describes the inputs of the ATAC workflow. For more details on how
 | read3_fastq_gzipped | Fastq inputs (array of compressed read 3 FASTQ files). |
 | output_base_name | Output prefix/base name for all intermediate files and pipeline outputs. |
 | tar_bwa_reference | BWA reference (tar file containing reference fasta and corresponding files). |
+| num_cpus_per_node_bwa | Number of CPUs per node for the BWA-mem alignment task (default: 128) | Integer |
+| num_sockets_bwa | Number of sockets for the BWA-mem alignment task (default: 2)  | Integer |
+| num_numa_bwa | Number of NUMA nodes for the BWA-mem alignment task (default: 2) | Integer |
+| threads_per_core_bwa | Number of threads per core for the BWA-mem alignment task (default: 2) | Integer |
+| num_nodes_bwa | Number of nodes for the BWA-mem alignment task (default: 1) | Integer |
+| mem_size_bwa | Memory size for the BWA-mem alignment task (default: 512 GB) | Integer |
+| cpu_platform_bwa | CPU platform for the BWA-mem alignment task (default: "Intel Ice Lake") | String |
 | atac_gtf | CreateFragmentFile input variable: GTF file for SnapATAC2 to calculate TSS sites of fragment file.|
 | chrom_sizes | CreateFragmentFile input variable: Text file containing chrom_sizes for genome build (i.e., hg38) |
 | whitelist | Whitelist file for ATAC cellular barcodes. |
@@ -61,6 +68,7 @@ The following describes the inputs of the ATAC workflow. For more details on how
 ## ATAC tasks and tools
 
 Overall, the ATAC workflow:
+1. Finds the number of splits. 
 1. Corrects CBs and partitions FASTQs by CB.
 1. Aligns reads.
 1. Generates a fragment file.
@@ -72,6 +80,7 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | ------------------------------------ | 
+| [GetNumSplits](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) | Custom script | Bash | In the next step (FastqProcessing task), we divide the FASTQ files into smaller FASTQ files. In this task, we determine how many smaller FASTQ files we want (which we call number of splits). The number of splits depends on the machine used for the BWA-mem alignment task. |
 | [FastqProcessing as SplitFastq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) | fastqprocess | custom | Dynamically selects the correct barcode orientation, corrects cell barcodes, and splits FASTQ files. The number of files output depends on either the `bam_size` parameter, which determines the size of the output FASTQ files produced, or the `num_output_files` parameter, which determines the number of FASTQ files that should be output. The smaller FASTQ files are grouped by cell barcode with each read having the corrected (CB) and raw barcode (CR) in the read name. |
 | [TrimAdapters](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) | Cutadapt v4.4 | cutadapt | Trims adaptor sequences. |
 | [BWAPairedEndAlignment](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) | bwa-mem2 | mem | Aligns reads from each set of partitioned FASTQ files to the genome and outputs a BAM with ATAC barcodes in the CB:Z tag. |
