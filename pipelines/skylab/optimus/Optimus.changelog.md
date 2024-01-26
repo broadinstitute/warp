@@ -1,7 +1,7 @@
 # 6.3.5
 2024-01-24 (Date of Last Commit)
 * Added task GetNumSplits before FastqProcess ATAC task to determine the number of splits based on the bwa-mem2 machine specs
-* Added error message the BWAPairedEndAlignment ATAC task to ensure that the number of splits equals to number of ranks
+* Added an error message to the BWAPairedEndAlignment ATAC task to ensure that the number of splits equals the number of ranks
 
 # 6.3.4
 2024-01-11 (Date of Last Commit)
