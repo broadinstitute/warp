@@ -76,12 +76,12 @@ Multiome can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/sta
 | atac_r3_fastq | Array of read 2 paired-end FASTQ files representing a single 10x multiome ATAC library. | Array[File] |
 | tar_bwa_reference | TAR file containing the reference index files for BWA-mem alignment for the ATAC pipeline. | File | 
 | num_cpus_per_node_bwa_atac | Number of CPUs per node for the BWA-mem alignment task for the ATAC pipeline (default: 128) | Integer |
-| num_sockets_bwa | Number of sockets for the BWA-mem alignment task for the ATAC pipeline (default: 2)  | Integer |
-| num_numa_bwa | Number of NUMA nodes for the BWA-mem alignment task for the ATAC pipeline (default: 2) | Integer |
-| threads_per_core_bwa | Number of threads per core for the BWA-mem alignment task for the ATAC pipeline (default: 2) | Integer |
-| num_nodes_bwa | Number of nodes for the BWA-mem alignment task for the ATAC pipeline (default: 1) | Integer |
-| mem_size_bwa | Memory size for the BWA-mem alignment task for the ATAC pipeline (default: 512 GB) | Integer |
-| cpu_platform_bwa | CPU platform for the BWA-mem alignment task for the ATAC pipeline (default: "Intel Ice Lake") | String |
+| num_sockets_bwa_atac | Number of sockets for the BWA-mem alignment task for the ATAC pipeline (default: 2)  | Integer |
+| num_numa_bwa_atac | Number of NUMA nodes for the BWA-mem alignment task for the ATAC pipeline (default: 2) | Integer |
+| threads_per_core_bwa_atac | Number of threads per core for the BWA-mem alignment task for the ATAC pipeline (default: 2) | Integer |
+| num_nodes_bwa_atac | Number of nodes for the BWA-mem alignment task for the ATAC pipeline (default: 1) | Integer |
+| mem_size_bwa_atac | Memory size for the BWA-mem alignment task for the ATAC pipeline (default: 512 GB) | Integer |
+| cpu_platform_bwa_atac | CPU platform for the BWA-mem alignment task for the ATAC pipeline (default: "Intel Ice Lake") | String |
 | chrom_sizes | File containing the genome chromosome sizes; used to calculate ATAC fragment file metrics. | File |
 | adapter_seq_read1 | Optional string describing the adapter sequence for ATAC read 1 paired-end reads to be used during adapter trimming with Cutadapt; default is "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG". | String |
 | adapter_seq_read3 | Optional string describing the adapter sequence for ATAC read 2 paired-end reads to be used during adapter trimming with Cutadapt; default is "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG". | String |
