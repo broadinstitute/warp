@@ -49,9 +49,10 @@ task BcftoolsReplaceHeader {
     String target_prefix
     String target_suffix = ".vcf.gz"
     String docker = "staphb/bcftools"
+    Float disk_factor = 3.0
   }
 
-  Int disk_size = ceil(size(input_vcf, "GB") * 2) + 2
+  Int disk_size = ceil(size(input_vcf, "GB") * disk_factor) + 2
   String new_vcf = target_prefix + target_suffix
 
   command <<<
