@@ -217,8 +217,7 @@ task GetNumSplits {
   }
 
   output {
-    String total_num_ranks_out = read_string("total_num_ranks.txt")
-    String ranks_per_node_out = read_string("ranks_per_node.txt")
+    Int ranks_per_node_out = read_int("ranks_per_node.txt")
   }
 }
 
