@@ -30,5 +30,6 @@
   "Multiome.tar_star_reference":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_star2.7.10a-Human-GENCODE-build-GRCh38-43.tar",
   "Multiome.chrom_sizes":"gs://broad-gotc-test-storage/Multiome/input/hg38.chrom.sizes",
   "Multiome.cpu_platform_bwa_atac":"Intel Cascade Lake",
-  "Multiome.num_cpus_per_node_bwa_atac":"16"
+  "Multiome.num_cpus_per_node_bwa_atac":"16",
+  "Multiome.Atac.mem_size_bwa":"175"
 }
