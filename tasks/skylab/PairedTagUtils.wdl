@@ -192,8 +192,8 @@ task ParseBarcodes {
     String atac_base_name = basename(atac_h5ad, ".h5ad")
     String atac_fragment_base = basename(atac_fragment, ".tsv")
 
-    Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(gex_h5ad, "MiB") + size(atac_fragment, "MiB")) * 3) + 10000
-    Int disk =  ceil((size(atac_h5ad, "GiB") + size(gex_h5ad, "GiB") + size(atac_fragment, "GiB")) * 5) + 10
+    Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(atac_fragment, "MiB")) * 3) + 10000
+    Int disk =  ceil((size(atac_h5ad, "GiB") + size(atac_fragment, "GiB")) * 5) + 10
 
   parameter_meta {
       atac_h5ad: "The resulting h5ad from the ATAC workflow."
@@ -218,32 +218,33 @@ task ParseBarcodes {
       print("~{atac_fragment}")
     
       atac_data = ad.read_h5ad("~{atac_h5ad}")
-      atac_tsv = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
-      whitelist_atac = pd.read_csv("~{atac_whitelist}", header=None, names=["atac_barcodes"])
-
-      # Separate out CB and preindex in the h5ad
-      print("Creating CB and preindex columns")
-      for x in range(len(atac_data.obs.index)):
-        CB = atac_data.obs.index[x][3:]
-        preindex = atac_data.obs.index[x][:3]
-        atac_data.obs.loc[atac_data.obs.index[x], 'CB'] = CB
-        atac_data.obs.loc[atac_data.obs.index[x], 'preindex'] = preindex
+      test_fragment = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
       
-      # Indentify sample barcodes assigned to more than one cell barcode
-      print("Identifying sample barcodes asigned to multiple cell barcodes in h5ad")
-      list = []
-      for preindex in atac_data.obs.preindex:
-        if preindex not in list:
-          list.append(preindex)
-          CB = atac_data.obs.loc[atac_data.obs['preindex'] == preindex, "CB"]
-          if len(CB)>1:
-            atac_data.obs.loc[atac_data.obs['preindex'] == preindex, "Duplicates"] = '1'
-          else:
-            atac_data.obs.loc[atac_data.obs['preindex'] == preindex, "Duplicates"] = '0'
+
+      # Separate out CB and preindex in the h5ad and identify sample barcodes assigned to more than one cell barcode
+      df_h5ad = atac_data.obs
+      df_h5ad["preindex"] = df_h5ad.index.str[:3]
+      df_h5ad["CB"] = df_h5ad.index.str[3:]
+      df_h5ad["Duplicates"] = df_h5ad.preindex.duplicated(keep=False).astype(int)
+
+
+
+      
+      # Separate out CB and preindex in the fragment file
+      test_fragment["preindex"] = test_fragment[3].str[:3]
+      test_fragment["CB"] = test_fragment[3].str[3:]
+      # Create a new column 'duplicates' initialized with 0
+      test_fragment['duplicates'] = 0
+
+      # Group by 'preindex' and count the number of unique 'cell barcode' values for each group
+      barcode_counts = test_fragment.groupby('preindex')['CB'].nunique()
+
+      # Update the 'duplicates' column for rows with more than one unique 'cell barcode' for a 'preindex'
+      test_fragment.loc[test_fragment['preindex'].isin(barcode_counts[barcode_counts > 1].index), 'duplicates'] = 1
 
       # Idenitfy the barcodes in the whitelist that match barcodes in datasets
       atac_data.write_h5ad("~{atac_base_name}.h5ad")
-      df_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
+      test_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
       CODE
       
       # sorting the file
