@@ -23,5 +23,6 @@
   "Multiome.run_cellbender":"false",
   "Multiome.cpu_platform_bwa_atac":"Intel Cascade Lake",
   "Multiome.num_cpus_per_node_bwa_atac":"16",
+  "Multiome.Atac.mem_size_bwa":"100", 
   "Multiome.soloMultiMappers":"Uniform"
 }
