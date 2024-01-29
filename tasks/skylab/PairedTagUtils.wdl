@@ -245,8 +245,7 @@ task ParseBarcodes {
       # Idenitfy the barcodes in the whitelist that match barcodes in datasets
       atac_data.write_h5ad("~{atac_base_name}.h5ad")
       test_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
-      CODE
-      
+      CODE 
       # sorting the file
       echo "Sorting file"
       sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
