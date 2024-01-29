@@ -1,3 +1,8 @@
+# 1.1.5 
+2024-01-10 (Date of Last Commit)
+
+* Added a check of read2 length to the paired-tag pipeline; this does not affect the ATAC workfow
+
 # 1.1.4
 2024-01-02 (Date of Last Commit)
 
