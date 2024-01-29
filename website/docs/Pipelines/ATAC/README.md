@@ -8,10 +8,10 @@ slug: /Pipelines/ATAC/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [1.1.5](https://github.com/broadinstitute/warp/releases) | January, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [1.1.6](https://github.com/broadinstitute/warp/releases) | January, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ## Introduction to the ATAC workflow
-ATAC is an open-source, cloud-optimized pipeline developed collaboration with members of the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and [BICAN](https://brainblog.nih.gov/brain-blog/brain-issues-suite-funding-opportunities-advance-brain-cell-atlases-through-centers) Sequencing Working Group) and [SCORCH](https://nida.nih.gov/about-nida/organization/divisions/division-neuroscience-behavior-dnb/basic-research-hiv-substance-use-disorder/scorch-program) (see [Acknowledgements](#acknowledgements) below). It supports the processing of 10x single-nucleus data generated with 10x Multiome [ATAC-seq (Assay for Transposase-Accessible Chromatin)](https://www.10xgenomics.com/products/single-cell-multiome-atac-plus-gene-expression), a technique used in molecular biology to assess genome-wide chromatin accessibility. 
+ATAC is an open-source, cloud-optimized pipeline developed in collaboration with members of the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and [BICAN](https://brainblog.nih.gov/brain-blog/brain-issues-suite-funding-opportunities-advance-brain-cell-atlases-through-centers) Sequencing Working Group) and [SCORCH](https://nida.nih.gov/about-nida/organization/divisions/division-neuroscience-behavior-dnb/basic-research-hiv-substance-use-disorder/scorch-program) (see [Acknowledgements](#acknowledgements) below). It supports the processing of 10x single-nucleus data generated with 10x Multiome [ATAC-seq (Assay for Transposase-Accessible Chromatin)](https://www.10xgenomics.com/products/single-cell-multiome-atac-plus-gene-expression), a technique used in molecular biology to assess genome-wide chromatin accessibility. 
 
 This workflow is the ATAC component of the [Mutiome wrapper workflow](../Multiome_Pipeline/README). It corrects cell barcodes (CBs), aligns reads to the genome, and produces a fragment file as well as per barcode metrics. 
 
@@ -22,7 +22,7 @@ The following table provides a quick glance at the ATAC pipeline features:
 | Pipeline features | Description | Source |
 |--- | --- | --- |
 | Assay type | 10x single cell or single nucleus ATAC | [10x Genomics](https://www.10xgenomics.com)
-| Overall workflow  | Barcode correction, read alignment, and fragment quanitification |
+| Overall workflow  | Barcode correction, read alignment, and fragment quantification | Code available from [GitHub](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl)
 | Workflow language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence | GRCh38 human genome primary sequence | GENCODE |
 | Aligner | bwa-mem2 | [Li H. and Durbin R., 2009](http://www.ncbi.nlm.nih.gov/pubmed/19451168) |
@@ -38,7 +38,7 @@ To download the latest ATAC release, see the release tags prefixed with "Multiom
 
 To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/master/wreleaser).
 
-ATAC can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH compliant, flexible workflow management system that supports multiple computing platforms. The workflow can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. 
+ATAC can be deployed using [Cromwell](https://cromwell.readthedocs.io/en/stable/), a GA4GH-compliant, flexible workflow management system that supports multiple computing platforms. The workflow can also be run in [Terra](https://app.terra.bio), a cloud-based analysis platform. 
 
 ## Input Variables
 The following describes the inputs of the ATAC workflow. For more details on how default inputs are set for the Multiome workflow, see the [Multiome overview](../Multiome_Pipeline/README).
@@ -48,27 +48,26 @@ The following describes the inputs of the ATAC workflow. For more details on how
 | read1_fastq_gzipped | Fastq inputs (array of compressed read 1 FASTQ files). |
 | read2_fastq_gzipped | Fastq inputs (array of compressed read 2 FASTQ files containing cellular barcodes). |
 | read3_fastq_gzipped | Fastq inputs (array of compressed read 3 FASTQ files). |
-| output_base_name | Output prefix/base name for all intermediate files and pipeline outputs. |
+| input_id | Output prefix/base name for all intermediate files and pipeline outputs. |
+| preindex | Boolean used for paired-tag data and not applicable to ATAC data types; default is set to false. | 
 | tar_bwa_reference | BWA reference (tar file containing reference fasta and corresponding files). |
-| num_cpus_per_node_bwa | Number of CPUs per node for the BWA-mem alignment task (default: 128). | Integer |
-| num_sockets_bwa | Number of sockets for the BWA-mem alignment task (default: 2).  | Integer |
-| num_numa_bwa | Number of NUMA nodes for the BWA-mem alignment task (default: 2). | Integer |
-| threads_per_core_bwa | Number of threads per core for the BWA-mem alignment task (default: 2). | Integer |
-| num_nodes_bwa | Number of nodes for the BWA-mem alignment task (default: 1). | Integer |
-| mem_size_bwa | Memory size for the BWA-mem alignment task (default: 512 GB). | Integer |
-| cpu_platform_bwa | CPU platform for the BWA-mem alignment task (default: "Intel Ice Lake"). | String |
-| atac_gtf | CreateFragmentFile input variable: GTF file for SnapATAC2 to calculate TSS sites of fragment file.|
+| num_cpus_per_node_bwa | Optional integer defining the number of CPUs per node for the BWA-mem alignment task (default: 128). |
+| num_sockets_bwa | Optional integer defining the number of sockets for the BWA-mem alignment task (default: 2).  |
+| num_numa_bwa | Optional integer defining the number of NUMA nodes for the BWA-mem alignment task (default: 2). |
+| threads_per_core_bwa | Optional integer defining the number of threads per core for the BWA-mem alignment task (default: 2). |
+| num_nodes_bwa | Optional integer defining the number of nodes for the BWA-mem alignment task (default: 1). |
+| mem_size_bwa | Optional integer defining the memory size for the BWA-mem alignment task in GB (default: 512). |
+| cpu_platform_bwa | Optional string defining the CPU platform for the BWA-mem alignment task (default: "Intel Ice Lake"). |
+| annotations_gtf | CreateFragmentFile input variable: GTF file for SnapATAC2 to calculate TSS sites of fragment file.|
 | chrom_sizes | CreateFragmentFile input variable: Text file containing chrom_sizes for genome build (i.e., hg38) |
 | whitelist | Whitelist file for ATAC cellular barcodes. |
 | adapter_seq_read1 | TrimAdapters input: Sequence adapter for read 1 fastq. |
 | adapter_seq_read3 | TrimAdapters input: Sequence adapter for read 3 fastq. |
-| num_output_files | FastqProcessATAC input: Number of output fastq files. |
-| preindex | Boolean used for paired-tag data and not applicable to ATAC data types; default is set to false. | 
 
 ## ATAC tasks and tools
 
 Overall, the ATAC workflow:
-1. Finds the number of splits. 
+1. Identifies optimal parameters for performing CB correction and alignment. 
 1. Corrects CBs and partitions FASTQs by CB.
 1. Aligns reads.
 1. Generates a fragment file.
@@ -80,8 +79,8 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 
 | Task name and WDL link | Tool | Software | Description | 
 | --- | --- | --- | ------------------------------------ | 
-| [GetNumSplits](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) | Custom script | Bash | Uses the virtual machine type to determine an optimal number of FASTQ files for performing the BWA-mem alignment step. This allows BWA-mem to run in parallel on multiple FASTQ files in the subsequent workflow steps. |
-| [FastqProcessing as SplitFastq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) | fastqprocess | custom | Dynamically selects the correct barcode orientation, corrects cell barcodes, and splits FASTQ files. The number of files output depends on either the `bam_size` parameter, which determines the size of the output FASTQ files produced, or the `num_output_files` parameter, which determines the number of FASTQ files that should be output. The smaller FASTQ files are grouped by cell barcode with each read having the corrected (CB) and raw barcode (CR) in the read name. |
+| [GetNumSplits](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) | Bash | Bash | Uses the virtual machine type to determine the optimal number of FASTQ files for performing the BWA-mem alignment step. This allows BWA-mem to run in parallel on multiple FASTQ files in the subsequent workflow steps. |
+| [FastqProcessing as SplitFastq](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/FastqProcessing.wdl) | fastqprocess | custom | Dynamically selects the correct barcode orientation, corrects cell barcodes, and splits FASTQ files by the number determined in the [GetNumSplits](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) task. The number of output files is determined by the number of ranks calculated in the [GetNumSplits](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) task. The smaller FASTQ files are grouped by cell barcode with each read having the corrected (CB) and raw barcode (CR) in the read name. |
 | [TrimAdapters](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) | Cutadapt v4.4 | cutadapt | Trims adaptor sequences. |
 | [BWAPairedEndAlignment](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) | bwa-mem2 | mem | Aligns reads from each set of partitioned FASTQ files to the genome and outputs a BAM with ATAC barcodes in the CB:Z tag. |
 | [CreateFragmentFile](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.wdl) | make_fragment_file, import_data | SnapATAC2 | Generates a fragment file from the final aligned BAM and outputs per barcode quality metrics in h5ad. A detailed list of these metrics is found in the [ATAC Count Matrix Overview](./count-matrix-overview.md). |
