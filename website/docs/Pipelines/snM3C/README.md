@@ -65,7 +65,7 @@ The snM3C workflow requires a JSON configuration file specifying the input files
 | r2_right_cut | Optional integer describing the number of bases to be trimmed from the end of read 2 with Cutadapt; default is 10. |
 | min_read_length | Optional integer; if a read length is smaller than `min_read_length`, both paired-end reads will be discarded; default is 30.  |
 | num_upstr_bases | Optional integer describing the number of bases upstream of the C base to include in ALLC file context column created using ALLCools; default is 0. |
-| num_downstr_bases | Optional integer describing the number of bases upstream of the C base to include in ALLC file context column created using ALLCools; default is 2. |
+| num_downstr_bases | Optional integer describing the number of bases downstream of the C base to include in ALLC file context column created using ALLCools; default is 2. |
 | compress_level | Optional integer describing the compression level for the output ALLC file; default is 5. |
 
 
