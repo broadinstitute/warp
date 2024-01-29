@@ -33,93 +33,95 @@ workflow WDLized_snm3C {
             plate_id = plate_id
     }
 
-    call Sort_and_trim_r1_and_r2 {
-        input:
-            tarred_demultiplexed_fastqs = Demultiplexing.tarred_demultiplexed_fastqs,
-            r1_adapter = r1_adapter,
-            r2_adapter = r2_adapter,
-            r1_left_cut = r1_left_cut,
-            r1_right_cut = r1_right_cut,
-            r2_left_cut = r2_left_cut,
-            r2_right_cut = r2_right_cut,
-            min_read_length = min_read_length,
-            plate_id = plate_id
-    }
+    scatter(tar in Demultiplexing.tarred_demultiplexed_fastqs) {
+        call Sort_and_trim_r1_and_r2 {
+            input:
+                tarred_demultiplexed_fastqs = tar,
+                r1_adapter = r1_adapter,
+                r2_adapter = r2_adapter,
+                r1_left_cut = r1_left_cut,
+                r1_right_cut = r1_right_cut,
+                r2_left_cut = r2_left_cut,
+                r2_right_cut = r2_right_cut,
+                min_read_length = min_read_length,
+                plate_id = plate_id
+        }
+        
+        call Hisat_3n_pair_end_mapping_dna_mode {
+            input:
+                r1_trimmed_tar = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar,
+                r2_trimmed_tar = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar,
+                tarred_index_files = tarred_index_files,
+                genome_fa = genome_fa,
+                chromosome_sizes = chromosome_sizes,
+                plate_id = plate_id
+        }
 
-    call Hisat_3n_pair_end_mapping_dna_mode {
-        input:
-            r1_trimmed_tar = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar,
-            r2_trimmed_tar = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar,
-            tarred_index_files = tarred_index_files,
-            genome_fa = genome_fa,
-            chromosome_sizes = chromosome_sizes,
-            plate_id = plate_id
-    }
+        call Separate_unmapped_reads {
+            input:
+                hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar,
+                min_read_length = min_read_length,
+                plate_id = plate_id
+        }
 
-    call Separate_unmapped_reads {
-        input:
-            hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar,
-            min_read_length = min_read_length,
-            plate_id = plate_id
-    }
+        call Split_unmapped_reads {
+            input:
+                unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar,
+                min_read_length = min_read_length,
+                plate_id = plate_id
+        }
 
-    call Split_unmapped_reads {
-        input:
-            unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar,
-            min_read_length = min_read_length,
-            plate_id = plate_id
-    }
+        call Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
+            input:
+                split_fq_tar = Split_unmapped_reads.split_fq_tar,
+                tarred_index_files = tarred_index_files,
+                genome_fa = genome_fa,
+                plate_id = plate_id
+        }
 
-    call Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
-        input:
-            split_fq_tar = Split_unmapped_reads.split_fq_tar,
-            tarred_index_files = tarred_index_files,
-            genome_fa = genome_fa,
-            plate_id = plate_id
-    }
+        call remove_overlap_read_parts {
+            input:
+                bam = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar,
+                plate_id = plate_id
+        }
 
-    call remove_overlap_read_parts {
-        input:
-            bam = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar,
-            plate_id = plate_id
-    }
+        call merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
+            input:
+                bam = Separate_unmapped_reads.unique_bam_tar,
+                split_bam = remove_overlap_read_parts.output_bam_tar,
+                plate_id = plate_id
+        }
 
-    call merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
-        input:
-            bam = Separate_unmapped_reads.unique_bam_tar,
-            split_bam = remove_overlap_read_parts.output_bam_tar,
-            plate_id = plate_id
-    }
+        call call_chromatin_contacts {
+            input:
+                name_sorted_bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam,
+                plate_id = plate_id
+        }
 
-    call call_chromatin_contacts {
-        input:
-            name_sorted_bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam,
-            plate_id = plate_id
-    }
+        call dedup_unique_bam_and_index_unique_bam {
+            input:
+                bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam,
+                plate_id = plate_id
+        }
 
-    call dedup_unique_bam_and_index_unique_bam {
-        input:
-            bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam,
-            plate_id = plate_id
-    }
+        call unique_reads_allc {
+            input:
+                bam_and_index_tar = dedup_unique_bam_and_index_unique_bam.output_tar,
+                genome_fa = genome_fa,
+                num_upstr_bases = num_upstr_bases,
+                num_downstr_bases = num_downstr_bases,
+                compress_level = compress_level,
+                plate_id = plate_id
+        }
 
-    call unique_reads_allc {
-        input:
-            bam_and_index_tar = dedup_unique_bam_and_index_unique_bam.output_tar,
-            genome_fa = genome_fa,
-            num_upstr_bases = num_upstr_bases,
-            num_downstr_bases = num_downstr_bases,
-            compress_level = compress_level,
-            plate_id = plate_id
+        call unique_reads_cgn_extraction {
+            input:
+                allc_tar = unique_reads_allc.allc,
+                tbi_tar = unique_reads_allc.tbi,
+                chrom_size_path = chromosome_sizes,
+                plate_id = plate_id
+        }
     }
-
-   call unique_reads_cgn_extraction {
-       input:
-          allc_tar = unique_reads_allc.allc,
-          tbi_tar = unique_reads_allc.tbi,
-          chrom_size_path = chromosome_sizes,
-          plate_id = plate_id
-   }
 
     call summary {
         input:
@@ -136,24 +138,24 @@ workflow WDLized_snm3C {
 
     output {
         File MappingSummary = summary.mapping_summary
-        File trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar
-        File r1_trimmed_fq = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar
-        File r2_trimmed_fq = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar
-        File hisat3n_stats_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_stats_tar
-        File hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
-        File unique_bam_tar = Separate_unmapped_reads.unique_bam_tar
-        File multi_bam_tar = Separate_unmapped_reads.multi_bam_tar
-        File unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
-        File split_fq_tar = Split_unmapped_reads.split_fq_tar
-        File merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
-        File name_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
-        File pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
-        File remove_overlap_read_parts_bam_tar = remove_overlap_read_parts.output_bam_tar
-        File dedup_unique_bam_and_index_unique_bam_tar = dedup_unique_bam_and_index_unique_bam.output_tar
-        File unique_reads_cgn_extraction_allc = unique_reads_cgn_extraction.output_allc_tar
-        File unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.output_tbi_tar
-        File chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats
-        File reference_version = Hisat_3n_pair_end_mapping_dna_mode.reference_version
+        Array[File] trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar
+        Array[File] r1_trimmed_fq = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar
+        Array[File] r2_trimmed_fq = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar
+        Array[File] hisat3n_stats_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_stats_tar
+        Array[File] hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
+        Array[File] unique_bam_tar = Separate_unmapped_reads.unique_bam_tar
+        Array[File] multi_bam_tar = Separate_unmapped_reads.multi_bam_tar
+        Array[File] unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
+        Array[File] split_fq_tar = Split_unmapped_reads.split_fq_tar
+        Array[File] merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
+        Array[File] name_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
+        Array[File] pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
+        Array[File] remove_overlap_read_parts_bam_tar = remove_overlap_read_parts.output_bam_tar
+        Array[File] dedup_unique_bam_and_index_unique_bam_tar = dedup_unique_bam_and_index_unique_bam.output_tar
+        Array[File] unique_reads_cgn_extraction_allc = unique_reads_cgn_extraction.output_allc_tar
+        Array[File] unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.output_tbi_tar
+        Array[File] chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats
+        Array[File] reference_version = Hisat_3n_pair_end_mapping_dna_mode.reference_version
     }
 }
 
@@ -163,10 +165,13 @@ task Demultiplexing {
     Array[File] fastq_input_read2
     File random_primer_indexes
     String plate_id
+    Int batch_number = 6
 
     String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
     Int disk_size = 50
     Int mem_size = 10
+    Int preemptible_tries = 3
+    Int cpu = 1
   }
 
   command <<<
@@ -218,19 +223,47 @@ task Demultiplexing {
                     print(f'Removed file: {filename}')
     CODE
 
-    # zip up all the output fq.gz files
-    tar -zcvf ~{plate_id}.cutadapt_output_files.tar.gz *.fq.gz
+    # Batch the fastq files into folders of batch_number size
+    batch_number=~{batch_number}
+    for i in $(seq 1 "${batch_number}"); do  # Use seq for reliable brace expansion
+        mkdir -p "batch${i}"  # Combine batch and i, use -p to create parent dirs
+    done
+    
+    # Counter for the folder index
+    folder_index=1
+    
+    # Define lists of r1 and r2 fq files
+    R1_files=($(ls | grep "\-R1.fq.gz"))
+    R2_files=($(ls | grep "\-R2.fq.gz"))
+
+    # Distribute the FASTQ files and create TAR files
+    for file in "${R1_files[@]}"; do
+        sample_id=$(basename "$file" "-R1.fq.gz")
+        r2_file="${sample_id}-R2.fq.gz"
+        mv $file batch$((folder_index))/$file
+        mv $r2_file batch$((folder_index))/$r2_file
+        # Increment the counter
+        folder_index=$(( (folder_index % $batch_number) + 1 ))
+    done
+    echo "TAR files"
+    for i in $(seq 1 "${batch_number}"); do
+        tar -zcvf "~{plate_id}.${i}.cutadapt_output_files.tar.gz" batch${i}/*.fq.gz
+    done
+
+
+    echo "TAR files created successfully."        
   >>>
 
   runtime {
     docker: docker_image
     disks: "local-disk ${disk_size} HDD"
-    cpu: 1
+    cpu: cpu
     memory: "${mem_size} GiB"
+    preemptible: preemptible_tries
   }
 
   output {
-    File tarred_demultiplexed_fastqs = "~{plate_id}.cutadapt_output_files.tar.gz"
+    Array[File] tarred_demultiplexed_fastqs = glob("*.tar.gz")
     File stats = "~{plate_id}.stats.txt"
     }
 }
@@ -250,6 +283,8 @@ task Sort_and_trim_r1_and_r2 {
         Int disk_size = 50
         Int mem_size = 10
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        Int preemptible_tries = 3
+        Int cpu = 1
 
     }
     command <<<
@@ -258,6 +293,8 @@ task Sort_and_trim_r1_and_r2 {
     # untar the demultiplexed fastqs
     tar -xf ~{tarred_demultiplexed_fastqs}
 
+    #change into batch subfolder
+    cd batch*
     # define lists of r1 and r2 fq files
     R1_files=($(ls | grep "\-R1.fq.gz"))
     R2_files=($(ls | grep "\-R2.fq.gz"))
@@ -299,12 +336,17 @@ task Sort_and_trim_r1_and_r2 {
     tar -zcvf ~{plate_id}.R1_trimmed_files.tar.gz *-R1_trimmed.fq.gz
     tar -zcvf ~{plate_id}.R2_trimmed_files.tar.gz *-R2_trimmed.fq.gz
     tar -zcvf ~{plate_id}.trimmed_stats_files.tar.gz *.trimmed.stats.txt
->>>
+    # move files back to root
+    mv ~{plate_id}.R1_trimmed_files.tar.gz ../~{plate_id}.R1_trimmed_files.tar.gz
+    mv ~{plate_id}.R2_trimmed_files.tar.gz ../~{plate_id}.R2_trimmed_files.tar.gz
+    mv ~{plate_id}.trimmed_stats_files.tar.gz ../~{plate_id}.trimmed_stats_files.tar.gz
+    >>>
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File r1_trimmed_fq_tar = "~{plate_id}.R1_trimmed_files.tar.gz"
@@ -323,8 +365,10 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 100
-        Int mem_size = 100
+        Int disk_size = 1000
+        Int mem_size = 64
+        Int preemptible_tries = 3
+        Int cpu = 16
     }
     command <<<
         set -euo pipefail
@@ -395,8 +439,9 @@ task Hisat_3n_pair_end_mapping_dna_mode{
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File hisat3n_paired_end_bam_tar = "~{plate_id}.hisat3n_paired_end_bam_files.tar.gz"
@@ -414,6 +459,8 @@ task Separate_unmapped_reads {
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 50
         Int mem_size = 10
+        Int preemptible_tries = 3
+        Int cpu = 1
 
     }
     command <<<
@@ -467,8 +514,9 @@ task Separate_unmapped_reads {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File unique_bam_tar = "~{plate_id}.hisat3n_paired_end_unique_bam_files.tar.gz"
@@ -486,6 +534,8 @@ task Split_unmapped_reads {
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 50
         Int mem_size = 10
+        Int preemptible_tries = 3
+        Int cpu = 1
     }
     command <<<
 
@@ -529,8 +579,9 @@ task Split_unmapped_reads {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File split_fq_tar = "~{plate_id}.hisat3n_paired_end_split_fastq_files.tar.gz"
@@ -545,8 +596,10 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
         String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 80
-        Int mem_size = 20
+        Int disk_size = 500
+        Int mem_size = 64
+        Int preemptible_tries = 3
+        Int cpu = 16
     }
     command <<<
         set -euo pipefail
@@ -632,8 +685,9 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File merge_sorted_bam_tar = "~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz"
@@ -650,6 +704,8 @@ task remove_overlap_read_parts {
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
+        Int preemptible_tries = 3
+        Int cpu = 1
     }
 
     command <<<
@@ -684,8 +740,9 @@ task remove_overlap_read_parts {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File output_bam_tar = "~{plate_id}.remove_overlap_read_parts.tar.gz"
@@ -701,6 +758,8 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
+        Int preemptible_tries = 3
+        Int cpu = 1
     }
     command <<<
       set -euo pipefail
@@ -730,8 +789,9 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File name_sorted_bam = "~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz"
@@ -747,6 +807,8 @@ task call_chromatin_contacts {
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
+        Int preemptible_tries = 3
+        Int cpu = 1
     }
     command <<<
         set -euo pipefail
@@ -785,8 +847,9 @@ task call_chromatin_contacts {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File chromatin_contact_stats = "~{plate_id}.chromatin_contact_stats.tar.gz"
@@ -801,6 +864,8 @@ task dedup_unique_bam_and_index_unique_bam {
        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
        Int disk_size = 80
        Int mem_size = 20
+       Int preemptible_tries = 3
+       Int cpu = 1
     }
 
     command <<<
@@ -840,8 +905,9 @@ task dedup_unique_bam_and_index_unique_bam {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File output_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam.tar.gz"
@@ -862,6 +928,8 @@ task unique_reads_allc {
         Int mem_size = 20
         String genome_base = basename(genome_fa)
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        Int preemptible_tries = 3
+        Int cpu = 1
     }
     command <<<
         set -euo pipefail
@@ -905,8 +973,9 @@ task unique_reads_allc {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File allc = "~{plate_id}.allc.tsv.tar.gz"
@@ -927,6 +996,8 @@ task unique_reads_cgn_extraction {
        Int disk_size = 80
        Int mem_size = 20
        Int num_upstr_bases = 0
+       Int preemptible_tries = 3
+       Int cpu = 1
     }
 
     command <<<
@@ -969,8 +1040,9 @@ task unique_reads_cgn_extraction {
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
 
     output {
@@ -982,19 +1054,21 @@ task unique_reads_cgn_extraction {
 
 task summary {
     input {
-        File trimmed_stats
-        File hisat3n_stats
-        File r1_hisat3n_stats
-        File r2_hisat3n_stats
-        File dedup_stats
-        File chromatin_contact_stats
-        File allc_uniq_reads_stats
-        File unique_reads_cgn_extraction_tbi
+        Array[File] trimmed_stats
+        Array[File] hisat3n_stats
+        Array[File] r1_hisat3n_stats
+        Array[File] r2_hisat3n_stats
+        Array[File] dedup_stats
+        Array[File] chromatin_contact_stats
+        Array[File] allc_uniq_reads_stats
+        Array[File] unique_reads_cgn_extraction_tbi
         String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
+        Int preemptible_tries = 3
+        Int cpu = 1
     }
     command <<<
         set -euo pipefail
@@ -1005,19 +1079,25 @@ task summary {
         mkdir /cromwell_root/hic
 
         extract_and_remove() {
-            local tarFile=$1
-            tar -xf "$tarFile"
-            rm "$tarFile"
+            if [ $# -eq 0 ];
+                then
+                    echo "No files exist"
+                    return
+            fi
+            for tar in "${@}"; do
+                tar -xf "$tar"
+                rm "$tar"
+            done
         }
 
-        extract_and_remove ~{trimmed_stats}
-        extract_and_remove ~{hisat3n_stats}
-        extract_and_remove ~{r1_hisat3n_stats}
-        extract_and_remove ~{r2_hisat3n_stats}
-        extract_and_remove ~{dedup_stats}
-        extract_and_remove ~{chromatin_contact_stats}
-        extract_and_remove ~{allc_uniq_reads_stats}
-        extract_and_remove ~{unique_reads_cgn_extraction_tbi}
+        extract_and_remove ~{sep=' ' trimmed_stats}
+        extract_and_remove ~{sep=' ' hisat3n_stats}
+        extract_and_remove ~{sep=' ' r1_hisat3n_stats}
+        extract_and_remove ~{sep=' ' r2_hisat3n_stats}
+        extract_and_remove ~{sep=' ' dedup_stats}
+        extract_and_remove ~{sep=' ' chromatin_contact_stats}
+        extract_and_remove ~{sep=' ' allc_uniq_reads_stats}
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
 
         mv *.trimmed.stats.txt /cromwell_root/fastq
         mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt /cromwell_root/bam
@@ -1033,12 +1113,13 @@ task summary {
 
         mv MappingSummary.csv.gz ~{plate_id}_MappingSummary.csv.gz
 
-       >>>
+    >>>
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
-        cpu: 1
+        cpu: cpu
         memory: "${mem_size} GiB"
+        preemptible: preemptible_tries
     }
     output {
         File mapping_summary = "~{plate_id}_MappingSummary.csv.gz"
