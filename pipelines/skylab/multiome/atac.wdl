@@ -49,11 +49,10 @@ workflow ATAC {
     read3_fastq_gzipped: "read 3 FASTQ file as input for the pipeline, contains read 2 of paired reads"
     output_base_name: "base name to be used for the pipelines output and intermediate files"
     tar_bwa_reference: "the pre built tar file containing the reference fasta and cooresponding reference files for the BWA aligner"
-    num_cpus_per_node_bwa: "Number of CPUs per node for bwa-mem2 task (default: 128)"
-    num_sockets_bwa : "Number of sockets for bwa-mem2 task (default: 2)"
-    num_numa_bwa : "Number of NUMA nodes for bwa-mem2 task (default: 2)"
-    threads_per_core_bwa : "Number of threads per core for bwa-mem2 task (default: 2)"
-    num_nodes_bwa : "Number of nodes for bwa-mem2 task (default: 1)"
+    num_threads_bwa: "Number of threads for bwa-mem2 task (default: 128)"
+    mem_size_bwa: "Memory size in GB for bwa-mem2 task (default: 512)"
+    cpu_platform_bwa: "CPU platform for bwa-mem2 task (default: Intel Ice Lake)"
+  
  }
 
   call GetNumSplits {
@@ -190,7 +189,7 @@ task GetNumSplits {
     num_physical_cores_per_rank=$num_physical_cores_per_nodes
     total_num_ranks=`expr ${num_physical_cores_all_nodes} / ${num_physical_cores_per_rank}`
 
-    ranks_per_node=`expr ${total_num_ranks} / ~{num_nodes}`
+    ranks_per_node=`expr ${total_num_ranks} / ${num_nodes}`
     echo "Number of MPI ranks: "${total_num_ranks}
     echo "Number of cores per MPI rank: "$num_physical_cores_per_nodes
     echo "#############################################"
