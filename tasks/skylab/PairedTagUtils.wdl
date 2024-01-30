@@ -222,7 +222,9 @@ task ParseBarcodes {
     df_h5ad = atac_data.obs
     df_h5ad["preindex"] = df_h5ad.index.str[:3]
     df_h5ad["CB"] = df_h5ad.index.str[3:]
-    df_h5ad["Duplicates"] = df_h5ad.preindex.duplicated(keep=False).astype(int)
+    df_h5ad["duplicates"] = 0
+    preindex_counts = df_h5ad.groupby('CB')['preindex'].nunique()
+    df_h5ad.loc[df_h5ad['CB'].isin(preindex_counts[preindex_counts > 1].index), 'duplicates'] = 1
       
     # Separate out CB and preindex in the fragment file
     print("Setting preindex and CB columns in fragment file")
@@ -232,11 +234,11 @@ task ParseBarcodes {
     # Create a new column 'duplicates' initialized with 0
     test_fragment['duplicates'] = 0
       
-    # Group by 'preindex' and count the number of unique 'cell barcode' values for each group
-    barcode_counts = test_fragment.groupby('preindex')['CB'].nunique()
+    # Group by 'CB' and count the number of unique 'preindex' values for each group
+    preindex_counts = test_fragment.groupby('CB')['preindex'].nunique()
       
-    # Update the 'duplicates' column for rows with more than one unique 'cell barcode' for a 'preindex'
-    test_fragment.loc[test_fragment['preindex'].isin(barcode_counts[barcode_counts > 1].index), 'duplicates'] = 1
+    # Update the 'duplicates' column for rows with more than one unique 'preindex' for a 'CB'
+    test_fragment.loc[test_fragment['CB'].isin(preindex_counts[barcode_counts > 1].index), 'duplicates'] = 1
       
     # Idenitfy the barcodes in the whitelist that match barcodes in datasets
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
