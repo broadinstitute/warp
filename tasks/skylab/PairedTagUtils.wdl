@@ -238,7 +238,7 @@ task ParseBarcodes {
     preindex_counts = test_fragment.groupby('CB')['preindex'].nunique()
       
     # Update the 'duplicates' column for rows with more than one unique 'preindex' for a 'CB'
-    test_fragment.loc[test_fragment['CB'].isin(preindex_counts[barcode_counts > 1].index), 'duplicates'] = 1
+    test_fragment.loc[test_fragment['CB'].isin(preindex_counts[preindex_counts > 1].index), 'duplicates'] = 1
       
     # Idenitfy the barcodes in the whitelist that match barcodes in datasets
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
