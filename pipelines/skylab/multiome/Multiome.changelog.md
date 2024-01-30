@@ -1,3 +1,7 @@
+# 3.1.0
+2024-01-24 (Date of Last Commit)
+* Promote aligner_metrics from Optimus task level outputs to Multiome pipeline level outputs
+
 # 3.0.5 
 2024-01-18 (Date of Last Commit)
 
