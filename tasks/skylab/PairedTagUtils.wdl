@@ -213,21 +213,21 @@ task ParseBarcodes {
     import anndata as ad
     import pandas as pd
     print("Reading ATAC h5ad:")
-    print("~{atac_h5ad}")
-    print("Read ATAC fragment file:")
-    print("~{atac_fragment}")
     atac_data = ad.read_h5ad("~{atac_h5ad}")
+    print("Reading ATAC fragment file:")
     test_fragment = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
       
     # Separate out CB and preindex in the h5ad and identify sample barcodes assigned to more than one cell barcode
+    print("Setting preindex and CB columns in h5ad")
     df_h5ad = atac_data.obs
     df_h5ad["preindex"] = df_h5ad.index.str[:3]
     df_h5ad["CB"] = df_h5ad.index.str[3:]
     df_h5ad["Duplicates"] = df_h5ad.preindex.duplicated(keep=False).astype(int)
       
     # Separate out CB and preindex in the fragment file
-    test_fragment["preindex"] = test_fragment[3].str[:3]
-    test_fragment["CB"] = test_fragment[3].str[3:]
+    print("Setting preindex and CB columns in fragment file")
+    test_fragment["preindex"] = test_fragment["barcode"].str[:3]
+    test_fragment["CB"] = test_fragment["barcode"].str[3:]
       
     # Create a new column 'duplicates' initialized with 0
     test_fragment['duplicates'] = 0
