@@ -51,11 +51,7 @@ The following describes the inputs of the ATAC workflow. For more details on how
 | input_id | Output prefix/base name for all intermediate files and pipeline outputs. |
 | preindex | Boolean used for paired-tag data and not applicable to ATAC data types; default is set to false. | 
 | tar_bwa_reference | BWA reference (tar file containing reference fasta and corresponding files). |
-| num_cpus_per_node_bwa | Optional integer defining the number of CPUs per node for the BWA-mem alignment task (default: 128). |
-| num_sockets_bwa | Optional integer defining the number of sockets for the BWA-mem alignment task (default: 2).  |
-| num_numa_bwa | Optional integer defining the number of NUMA nodes for the BWA-mem alignment task (default: 2). |
-| threads_per_core_bwa | Optional integer defining the number of threads per core for the BWA-mem alignment task (default: 2). |
-| num_nodes_bwa | Optional integer defining the number of nodes for the BWA-mem alignment task (default: 1). |
+| num_threads_bwa | Optional integer defining the number of CPUs per node for the BWA-mem alignment task (default: 128). |
 | mem_size_bwa | Optional integer defining the memory size for the BWA-mem alignment task in GB (default: 512). |
 | cpu_platform_bwa | Optional string defining the CPU platform for the BWA-mem alignment task (default: "Intel Ice Lake"). |
 | annotations_gtf | CreateFragmentFile input variable: GTF file for SnapATAC2 to calculate TSS sites of fragment file.|
