@@ -154,7 +154,7 @@ task GetNumSplits {
     lscpu > compute_config
     
     num_cpus_per_node=$(cat compute_config | grep -E '^CPU\(s\)' | awk  '{print $2}')
-    num_socket=$(cat compute_config | grep -E '^Socket'| awk  '{print $2}')
+    num_sockets=$(cat compute_config | grep -E '^Socket'| awk  '{print $2}')
     num_numa=$(cat compute_config | grep '^NUMA node(s)' | awk '{print $3}')
     num_cpus_all_node=`expr ${num_cpus_per_node} \* ${num_nodes}`
     threads_per_core=$(cat compute_config | grep -E '^Thread' | awk  '{print $4}')
