@@ -201,54 +201,56 @@ task ParseBarcodes {
   }
 
   command <<<
-      set -e pipefail
+    set -e pipefail
 
-      python3 <<CODE
+    python3 <<CODE
 
-      # set parameters
-      atac_h5ad = "~{atac_h5ad}"
-      atac_fragment = "~{atac_fragment}"
+    # set parameters
+    atac_h5ad = "~{atac_h5ad}"
+    atac_fragment = "~{atac_fragment}"
 
-      # import anndata to manipulate h5ad files
-      import anndata as ad
-      import pandas as pd
-      print("Reading ATAC h5ad:")
-      print("~{atac_h5ad}")
-      print("Read ATAC fragment file:")
-      print("~{atac_fragment}")
-      atac_data = ad.read_h5ad("~{atac_h5ad}")
-      test_fragment = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
+    # import anndata to manipulate h5ad files
+    import anndata as ad
+    import pandas as pd
+    print("Reading ATAC h5ad:")
+    print("~{atac_h5ad}")
+    print("Read ATAC fragment file:")
+    print("~{atac_fragment}")
+    atac_data = ad.read_h5ad("~{atac_h5ad}")
+    test_fragment = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
       
-      # Separate out CB and preindex in the h5ad and identify sample barcodes assigned to more than one cell barcode
-      df_h5ad = atac_data.obs
-      df_h5ad["preindex"] = df_h5ad.index.str[:3]
-      df_h5ad["CB"] = df_h5ad.index.str[3:]
-      df_h5ad["Duplicates"] = df_h5ad.preindex.duplicated(keep=False).astype(int)
+    # Separate out CB and preindex in the h5ad and identify sample barcodes assigned to more than one cell barcode
+    df_h5ad = atac_data.obs
+    df_h5ad["preindex"] = df_h5ad.index.str[:3]
+    df_h5ad["CB"] = df_h5ad.index.str[3:]
+    df_h5ad["Duplicates"] = df_h5ad.preindex.duplicated(keep=False).astype(int)
       
-      # Separate out CB and preindex in the fragment file
-      test_fragment["preindex"] = test_fragment[3].str[:3]
-      test_fragment["CB"] = test_fragment[3].str[3:]
+    # Separate out CB and preindex in the fragment file
+    test_fragment["preindex"] = test_fragment[3].str[:3]
+    test_fragment["CB"] = test_fragment[3].str[3:]
       
-      # Create a new column 'duplicates' initialized with 0
-      test_fragment['duplicates'] = 0
+    # Create a new column 'duplicates' initialized with 0
+    test_fragment['duplicates'] = 0
       
-      # Group by 'preindex' and count the number of unique 'cell barcode' values for each group
-      barcode_counts = test_fragment.groupby('preindex')['CB'].nunique()
+    # Group by 'preindex' and count the number of unique 'cell barcode' values for each group
+    barcode_counts = test_fragment.groupby('preindex')['CB'].nunique()
       
-      # Update the 'duplicates' column for rows with more than one unique 'cell barcode' for a 'preindex'
-      test_fragment.loc[test_fragment['preindex'].isin(barcode_counts[barcode_counts > 1].index), 'duplicates'] = 1
+    # Update the 'duplicates' column for rows with more than one unique 'cell barcode' for a 'preindex'
+    test_fragment.loc[test_fragment['preindex'].isin(barcode_counts[barcode_counts > 1].index), 'duplicates'] = 1
       
-      # Idenitfy the barcodes in the whitelist that match barcodes in datasets
-      atac_data.write_h5ad("~{atac_base_name}.h5ad")
-      test_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
-      CODE 
-      # sorting the file
-      echo "Sorting file"
-      sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
-      echo "Starting bgzip"
-      bgzip "~{atac_fragment_base}.sorted.tsv"
-      echo "Starting tabix"
-      tabix -s 1 -b 2 -e 3 "~{atac_fragment_base}.sorted.tsv.gz"
+    # Idenitfy the barcodes in the whitelist that match barcodes in datasets
+    atac_data.write_h5ad("~{atac_base_name}.h5ad")
+    test_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
+    CODE
+    
+    # sorting the file
+    echo "Sorting file"
+    sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
+    echo "Starting bgzip"
+    bgzip "~{atac_fragment_base}.sorted.tsv"
+    echo "Starting tabix"
+    tabix -s 1 -b 2 -e 3 "~{atac_fragment_base}.sorted.tsv.gz"
+
   >>>
 
   runtime {
