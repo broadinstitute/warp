@@ -25,11 +25,7 @@ workflow ATAC {
     # BWA ref
     File tar_bwa_reference
     # BWA machine type -- to select number of splits 
-    Int num_cpus_per_node_bwa = 128
-    Int num_sockets_bwa = 2
-    Int num_numa_bwa = 2
-    Int threads_per_core_bwa = 2
-    Int num_nodes_bwa = 1
+    Int num_threads_bwa = 128
     Int mem_size_bwa = 512
     String cpu_platform_bwa = "Intel Ice Lake"
 
@@ -62,13 +58,9 @@ workflow ATAC {
 
   call GetNumSplits {
     input:
-      num_cpus_per_node = num_cpus_per_node_bwa,
-      num_sockets = num_sockets_bwa, 
-      num_numa = num_numa_bwa,
-      threads_per_core = threads_per_core_bwa,
-      num_nodes = num_nodes_bwa,
-      mem_size = mem_size_bwa,
-      cpu_platform = cpu_platform_bwa
+       nthreads = num_threads_bwa, 
+       mem_size = mem_size_bwa,
+       cpu_platform = cpu_platform_bwa
   }
 
   call FastqProcessing.FastqProcessATAC as SplitFastq {
@@ -98,7 +90,7 @@ workflow ATAC {
         read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
         tar_bwa_reference = tar_bwa_reference,
         output_base_name = input_id,
-        nthreads = num_cpus_per_node_bwa, 
+        nthreads = num_threads_bwa, 
         mem_size = mem_size_bwa,
         cpu_platform = cpu_platform_bwa
   }
@@ -142,45 +134,44 @@ workflow ATAC {
 task GetNumSplits {
   input {
     # machine specs for bwa-mem2 task 
-    Int num_cpus_per_node = 128
-    Int num_sockets = 2 
-    Int num_numa = 2 
-    Int threads_per_core = 2
-    Int num_nodes = 1
-    
-    # additional specs not necessarily used to determine number of splits  
+    Int nthreads
     Int mem_size
-    String cpu_platform
+    String cpu_platform 
     String docker_image = "ubuntu:latest"
-
   }
 
   parameter_meta {
     docker_image: "the ubuntu docker image (default: ubuntu:latest)"
-    num_cpus_per_node: "Number of CPUs per node (default: 128)"
-    num_sockets : "Number of sockets (default: 2)"
-    num_numa : "Number of NUMA nodes (default: 2)"
-    threads_per_core : "Number of threads per core (default: 2)"
-    num_nodes : "Number of nodes (default: 1)"
+    nthreads: "Number of threads per node (default: 128)"
+    mem_size: "the size of memory used during alignment"
   }
 
   command <<<
     set -euo pipefail
     
     # steps taken from https://github.com/IntelLabs/Open-Omics-Acceleration-Framework/blob/main/pipelines/fq2sortedbam/print_config.sh
-    echo "#############################################"
-    echo "Number of threads: " ~{num_cpus_per_node}
-    echo "Number of sockets: " ~{num_sockets}
-    echo "Number of NUMA domains: "~{num_numa}
-    echo "Number of threads per core: "~{threads_per_core}
+    num_nodes=1
+    lscpu
+    lscpu > compute_config
     
-    num_cpus_all_node=`expr ~{num_cpus_per_node} \* ~{num_nodes}`
+    num_cpus_per_node=$(cat compute_config | grep -E '^CPU\(s\)' | awk  '{print $2}')
+    num_socket=$(cat compute_config | grep -E '^Socket'| awk  '{print $2}')
+    num_numa=$(cat compute_config | grep '^NUMA node(s)' | awk '{print $3}')
+    num_cpus_all_node=`expr ${num_cpus_per_node} \* ${num_nodes}`
+    threads_per_core=$(cat compute_config | grep -E '^Thread' | awk  '{print $4}')
+    
+    num_cpus_all_node=`expr ${num_cpus_per_node} \* ${num_nodes}`
+
+    echo "Number of threads: " $num_cpus_per_node
+    echo "Number of sockets: " $num_sockets
+    echo "Number of NUMA domains: "$num_numa
+    echo "Number of threads per core: "$threads_per_core
     echo "Number of CPUs: $num_cpus_all_node"
 
-    num_physical_cores_all_nodes=`expr ${num_cpus_all_node} / ~{threads_per_core}`
-    num_physical_cores_per_nodes=`expr  ~{num_cpus_per_node} / ~{threads_per_core}`
-    num_physical_cores_per_socket=`expr ${num_physical_cores_all_nodes} / ~{num_sockets}`
-    num_physical_cores_per_numa=`expr ${num_physical_cores_all_nodes} / ~{num_numa}`
+    num_physical_cores_all_nodes=`expr ${num_cpus_all_node} / ${threads_per_core}`
+    num_physical_cores_per_nodes=`expr  ${num_cpus_per_node} / ${threads_per_core}`
+    num_physical_cores_per_socket=`expr ${num_physical_cores_all_nodes} / ${num_sockets}`
+    num_physical_cores_per_numa=`expr ${num_physical_cores_all_nodes} / ${num_numa}`
     echo "Number physical cores: "$num_physical_cores_per_nodes
     echo "Number physical cores per socket: "$num_physical_cores_per_socket
     echo "Number physical cores per numa: "$num_physical_cores_per_numa
@@ -214,6 +205,9 @@ task GetNumSplits {
 
   runtime {
     docker: docker_image
+    cpu: nthreads
+    cpuPlatform: cpu_platform
+    memory: "${mem_size} GiB"
   }
 
   output {
