@@ -379,20 +379,13 @@ task Hisat_3n_pair_end_mapping_dna_mode{
 
         echo "The reference is $BASE" > ~{plate_id}.reference_version.txt
 
-        mkdir reference/
-        mkdir fastq/
-
-        cp ~{tarred_index_files} reference/
-        cp ~{genome_fa} reference/
-        cp ~{chromosome_sizes} reference/
-        cp ~{r1_trimmed_tar} fastq/
-        cp ~{r2_trimmed_tar} fastq/
-
         # untar the index files
-        cd reference/
         echo "Untarring the index files"
         tar -zxvf ~{tarred_index_files}
         rm ~{tarred_index_files}
+
+        cp ~{genome_fa} .
+        ls -lhR
 
         #get the basename of the genome_fa file
         genome_fa_basename=$(basename ~{genome_fa} .fa)
@@ -400,7 +393,6 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         samtools faidx $genome_fa_basename.fa
 
         # untar the demultiplexed fastq files
-        cd ../fastq/
         echo "Untarring the fastq files"
         tar -zxvf ~{r1_trimmed_tar}
         tar -zxvf ~{r2_trimmed_tar}
@@ -413,7 +405,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
 
         for file in "${R1_files[@]}"; do
           sample_id=$(basename "$file" "-R1_trimmed.fq.gz")
-          hisat-3n /cromwell_root/reference/$genome_fa_basename \
+          hisat-3n /cromwell_root/$genome_fa_basename \
           -q \
           -1 ${sample_id}-R1_trimmed.fq.gz \
           -2 ${sample_id}-R2_trimmed.fq.gz \
@@ -428,12 +420,13 @@ task Hisat_3n_pair_end_mapping_dna_mode{
           --threads 11 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
         done
 
+        echo "ls the dir"
+        ls
+
         # tar up the bam files and stats files
         tar -zcvf ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz *.bam
         tar -zcvf ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
 
-        mv ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz ../
-        mv ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz ../
 
     >>>
     runtime {
@@ -604,15 +597,12 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
     command <<<
         set -euo pipefail
 
-        mkdir reference/
-
-        cp ~{tarred_index_files} reference/
-        cp ~{genome_fa} reference/
 
         # untar the tarred index files
-        cd reference/
         tar -xvf ~{tarred_index_files}
         rm ~{tarred_index_files}
+
+        cp ~{genome_fa} .
 
         #get the basename of the genome_fa file
         genome_fa_basename=$(basename ~{genome_fa} .fa)
@@ -628,7 +618,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
 
         for file in "${R1_files[@]}"; do
           sample_id=$(basename "$file" ".hisat3n_dna.split_reads.R1.fastq")
-          hisat-3n /cromwell_root/reference/$genome_fa_basename \
+          hisat-3n /cromwell_root/$genome_fa_basename \
           -q \
           -U ${sample_id}.hisat3n_dna.split_reads.R1.fastq \
           --directional-mapping-reverse \
@@ -644,7 +634,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
 
        for file in "${R2_files[@]}"; do
          sample_id=$(basename "$file" ".hisat3n_dna.split_reads.R2.fastq")
-         hisat-3n /cromwell_root/reference/$genome_fa_basename \
+         hisat-3n /cromwell_root/$genome_fa_basename \
          -q \
          -U ${sample_id}.hisat3n_dna.split_reads.R2.fastq \
          --directional-mapping \
@@ -657,9 +647,12 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
          --threads 11 | samtools view -b -q 10 -o "${sample_id}.hisat3n_dna.split_reads.R2.bam"
        done
 
+       echo "ls the dir"
+       ls
+
        # tar up the r1 and r2 stats files
-       tar -zcvf ../~{plate_id}.hisat3n_dna_split_reads_summary.R1.tar.gz *.hisat3n_dna_split_reads_summary.R1.txt
-       tar -zcvf ../~{plate_id}.hisat3n_dna_split_reads_summary.R2.tar.gz *.hisat3n_dna_split_reads_summary.R2.txt
+       tar -zcvf ~{plate_id}.hisat3n_dna_split_reads_summary.R1.tar.gz *.hisat3n_dna_split_reads_summary.R1.txt
+       tar -zcvf ~{plate_id}.hisat3n_dna_split_reads_summary.R2.tar.gz *.hisat3n_dna_split_reads_summary.R2.txt
 
 
        # define lists of r1 and r2 bam files
@@ -679,7 +672,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
        done
 
        #tar up the merged bam files
-       tar -zcvf ../~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz *.hisat3n_dna.split_reads.name_sort.bam
+       tar -zcvf ~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz *.hisat3n_dna.split_reads.name_sort.bam
 
     >>>
     runtime {
