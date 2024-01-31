@@ -18,6 +18,7 @@ workflow TestsnM3C {
       File chromosome_sizes
       String r1_adapter = "AGATCGGAAGAGCACACGTCTGAAC"
       String r2_adapter = "AGATCGGAAGAGCGTCGTGTAGGGA"
+      Int batch_number
       Int r1_left_cut = 10
       Int r1_right_cut = 10
       Int r2_left_cut = 10
@@ -57,7 +58,8 @@ workflow TestsnM3C {
         min_read_length = min_read_length,
         num_upstr_bases = num_upstr_bases,
         num_downstr_bases = num_downstr_bases,
-        compress_level = compress_level
+        compress_level = compress_level,
+        batch_number = batch_number
   
     }
 
