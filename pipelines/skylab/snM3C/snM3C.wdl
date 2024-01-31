@@ -26,6 +26,9 @@ workflow snM3C {
 
     }
 
+    # version of the pipeline
+    String pipeline_version = "1.0.1"
+
     call Demultiplexing {
         input:
             fastq_input_read1 = fastq_input_read1,
