@@ -37,6 +37,7 @@ workflow TestMultiome {
 
       # BWA input
       File tar_bwa_reference
+
       # CreateFragmentFile input
       File chrom_sizes
       # Trimadapters input

@@ -258,7 +258,6 @@ task FastqProcessATAC {
 
         # Additional parameters for fastqprocess
         Int num_output_files
-        Int bam_size = 1
     }
 
     meta {
@@ -278,14 +277,15 @@ task FastqProcessATAC {
         cpu: "(optional) the number of cpus to provision for this task"
         disk_size: "(optional) the amount of disk space (GiB) to provision for this task"
         num_output_files: "(optional) the number of output fastq file shards to produce. if this is set to > 0, bam_size is ignored."
-        bam_size: "(optional) the size of each fastq file produced. this is taken into account if num_output_files == 0."
         preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
     }
 
     command <<<
 
         set -e
-
+        echo "Num of output files"
+        echo ~{num_output_files} 
+        
         declare -a FASTQ1_ARRAY=(~{sep=' ' read1_fastq})
         declare -a FASTQ2_ARRAY=(~{sep=' ' barcodes_fastq})
         declare -a FASTQ3_ARRAY=(~{sep=' ' read3_fastq})
@@ -341,13 +341,13 @@ task FastqProcessATAC {
         cat best_match.txt
         barcode_choice=$(<best_match.txt)
         echo $barcode_choice
+
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
         mkdir /cromwell_root/output_fastq
         cd /cromwell_root/output_fastq
 
         fastqprocess \
-        --bam-size ~{bam_size} \
         --num-output-files ~{num_output_files} \
         --sample-id "~{output_base_name}" \
         $R1_FILES_CONCAT \
