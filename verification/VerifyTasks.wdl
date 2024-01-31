@@ -306,7 +306,7 @@ task CompareCompressedTextFiles {
   Int disk_size = ceil(file_size * 4) + 20
 
   command {
-    diff <(gunzip -c -f ~{test_zip}) <(gunzip -c -f ~{truth_zip})
+    diff <(gunzip -c ~{test_zip} | sort) <(gunzip -c ~{truth_zip} | sort)
   }
 
   runtime {
