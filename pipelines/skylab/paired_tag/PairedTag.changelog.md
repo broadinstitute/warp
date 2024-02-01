@@ -1,3 +1,8 @@
+# 0.0.6
+2024-02-01 (Date of Last Commit)
+
+* Add new paired-tag task to parse sample barcodes from cell barcodes when preindexing is set to true
+
 # 0.0.5
 2024-01-30 (Date of Last Commit)
 
