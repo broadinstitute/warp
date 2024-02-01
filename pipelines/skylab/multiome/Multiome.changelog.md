@@ -1,3 +1,7 @@
+# 3.1.2
+2024-02-01 (Date of Last Commit)
+* Removed ref_genome_fasta input from Multiome WDL and JSON
+
 # 3.1.1 
 2024-01-30 (Date of Last Commit)
 
