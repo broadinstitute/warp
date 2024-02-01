@@ -22,6 +22,7 @@ workflow snM3C {
         Int num_upstr_bases = 0
         Int num_downstr_bases = 2
         Int compress_level = 5
+        Int batch_number
 
     }
 
@@ -33,7 +34,8 @@ workflow snM3C {
             fastq_input_read1 = fastq_input_read1,
             fastq_input_read2 = fastq_input_read2,
             random_primer_indexes = random_primer_indexes,
-            plate_id = plate_id
+            plate_id = plate_id,
+            batch_number = batch_number
     }
 
     scatter(tar in Demultiplexing.tarred_demultiplexed_fastqs) {
@@ -168,7 +170,7 @@ task Demultiplexing {
     Array[File] fastq_input_read2
     File random_primer_indexes
     String plate_id
-    Int batch_number = 6
+    Int batch_number
 
     String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
     Int disk_size = 50
