@@ -34,7 +34,7 @@ task SamToFastqAndBwaMemAndMba {
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
     Boolean allow_empty_ref_alt = false
-    Float mem_multiplier = 1.0
+    Float mem_multiplier = 2.0
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
