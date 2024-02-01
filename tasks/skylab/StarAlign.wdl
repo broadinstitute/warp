@@ -214,8 +214,8 @@ task StarAlignFastqMultisample {
 
 task STARsoloFastq_Test {
   input {
-    File r1_fastq
-    File r2_fastq
+    Array[File] r1_fastq
+    Array[File] r2_fastq
     File tar_star_reference
     File white_list
     Int chemistry
@@ -250,6 +250,10 @@ task STARsoloFastq_Test {
 
   command <<<
     set -e
+
+    cat ~{sep=" " r1_fastq} > r1.fastq
+    cat ~{sep=" " r2_fastq} > r2.fastq
+    du -h *
 
     UMILen=10
     CBLen=16
@@ -312,7 +316,7 @@ task STARsoloFastq_Test {
         --soloStrand ~{star_strand_mode} \
         --runThreadN ~{nthreads} \
         --genomeDir genome_reference \
-        --readFilesIn "~{r2_fastq}" "~{r1_fastq}" \
+        --readFilesIn r2.fastq r1.fastq \
         --readFilesCommand "gunzip -c" \
         --soloCBwhitelist ~{white_list} \
         --soloUMIlen $UMILen --soloCBlen $CBLen \
