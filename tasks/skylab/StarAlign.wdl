@@ -390,6 +390,7 @@ task STARsoloFastq_Test {
       echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
     fi
     mv Aligned.sortedByCoord.out.bam ~{output_bam_basename}.bam
+    ls
 
   >>>
 

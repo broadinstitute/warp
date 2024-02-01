@@ -54,7 +54,7 @@ workflow Optimus {
     # Set to Forward, Reverse, or Unstranded to account for stranded library preparations (per STARsolo documentation)
     String star_strand_mode = "Forward"
     
-# Set to true to count reads aligned to exonic regions in sn_rna mode
+    # Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
@@ -139,94 +139,10 @@ workflow Optimus {
       input_id = input_id
   }
 
-  # call StarAlign.MergeStarOutput as MergeStarOutputs {
-  #   input:
-  #     barcodes = STARsoloFastq.barcodes,
-  #     features = STARsoloFastq.features,
-  #     matrix = STARsoloFastq.matrix,
-  #     cell_reads = STARsoloFastq.cell_reads,
-  #     summary = STARsoloFastq.summary,
-  #     align_features = STARsoloFastq.align_features,
-  #     umipercell = STARsoloFastq.umipercell,
-  #     input_id = input_id
-  # }
-  # if (counting_mode == "sc_rna"){
-  #   call RunEmptyDrops.RunEmptyDrops {
-  #     input:
-  #       sparse_count_matrix = STARsoloFastq.sparse_counts,
-  #       row_index = STARsoloFastq.row_index,
-  #       col_index = STARsoloFastq.col_index,
-  #       emptydrops_lower = emptydrops_lower
-  #   }
-  # }
-
-  # if (!count_exons) {
-  #   call H5adUtils.OptimusH5adGeneration{
-  #     input:
-  #       input_id = input_id,
-  #       input_name = input_name,
-  #       input_id_metadata_field = input_id_metadata_field,
-  #       input_name_metadata_field = input_name_metadata_field,
-  #       annotation_file = annotations_gtf,
-  #       cell_metrics = CellMetrics.cell_metrics,
-  #       gene_metrics = GeneMetrics.gene_metrics,
-  #       sparse_count_matrix = MergeStarOutputs.sparse_counts,
-  #       cell_id = MergeStarOutputs.row_index,
-  #       gene_id = MergeStarOutputs.col_index,
-  #       empty_drops_result = RunEmptyDrops.empty_drops_result,
-  #       counting_mode = counting_mode,
-  #       pipeline_version = "Optimus_v~{pipeline_version}"
-  #   }
-  # }
-  # if (count_exons  && counting_mode=="sn_rna") {
-  #   call StarAlign.MergeStarOutput as MergeStarOutputsExons {
-  #     input:
-  #       barcodes = STARsoloFastq.barcodes_sn_rna,
-  #       features = STARsoloFastq.features_sn_rna,
-  #       matrix = STARsoloFastq.matrix_sn_rna,
-  #       cell_reads = STARsoloFastq.cell_reads_sn_rna,
-  #       input_id = input_id
-  #   }
-    # call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
-    #   input:
-    #     input_id = input_id,
-    #     input_name = input_name,
-    #     input_id_metadata_field = input_id_metadata_field,
-    #     input_name_metadata_field = input_name_metadata_field,
-    #     annotation_file = annotations_gtf,
-    #     cell_metrics = CellMetrics.cell_metrics,
-    #     gene_metrics = GeneMetrics.gene_metrics,
-    #     sparse_count_matrix = MergeStarOutputs.sparse_counts,
-    #     cell_id = MergeStarOutputs.row_index,
-    #     gene_id = MergeStarOutputs.col_index,
-    #     sparse_count_matrix_exon = MergeStarOutputsExons.sparse_counts,
-    #     cell_id_exon = MergeStarOutputsExons.row_index,
-    #     gene_id_exon = MergeStarOutputsExons.col_index,
-    #     pipeline_version = "Optimus_v~{pipeline_version}"
-    # }
-  }
-
-  File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, OptimusH5adGeneration.h5ad_output])
-
-
   output {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
-    File bam = MergeBam.output_bam
-    File matrix = MergeStarOutputs.sparse_counts
-    File matrix_row_index = MergeStarOutputs.row_index
-    File matrix_col_index = MergeStarOutputs.col_index
-    File cell_metrics = CellMetrics.cell_metrics
-    File gene_metrics = GeneMetrics.gene_metrics
-    File? cell_calls = RunEmptyDrops.empty_drops_result
-    File? aligner_metrics = MergeStarOutputs.cell_reads_out
-    Array[File?] multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
-    Array[File?] multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
-    Array[File?] multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
-    Array[File?] multimappers_PropUnique_matrix = STARsoloFastq.multimappers_PropUnique_matrix
-
-    # h5ad
-    File h5ad_output_file = final_h5ad_output
+    File bam = STARsoloFastq.bam_output
   }
 }
