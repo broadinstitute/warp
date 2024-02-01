@@ -110,7 +110,7 @@ workflow Optimus {
       tar_star_reference = tar_star_reference
   }
 
-  call StarAlign.STARsoloFastq_Test as STARsoloFastq {
+  call StarAlign.STARsoloFastqTest as STARsoloFastq {
     input:
         r1_fastq = r1_fastq,
         r2_fastq = r2_fastq,
