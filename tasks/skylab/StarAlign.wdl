@@ -227,12 +227,10 @@ task STARsoloFastq {
 
     # runtime values
     String docker = "us.gcr.io/broad-gotc-prod/star:1.0.1-2.7.11a-1692706072"
-    Int machine_mem_mb = 64000
-    Int cpu = 8
-    # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
-    Int disk = ceil((size(tar_star_reference, "Gi") * 3)) + ceil(size(r1_fastq, "Gi") * 20) +  ceil(size(r2_fastq, "Gi") * 20)
-    # by default request non preemptible machine to make sure the slow star alignment step completes
-    Int preemptible = 3
+    Int disk_size = 2000
+    Int nthreads = 128
+    Int mem_size = 512
+    String cpu_platform = "Intel Ice Lake"
   }
 
   meta {
@@ -286,16 +284,34 @@ task STARsoloFastq {
     tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
     rm "~{tar_star_reference}"
 
+    # set correct counting mode
     COUNTING_MODE=""
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
         ## single cell or whole cell
         COUNTING_MODE="Gene"
         echo "Running in ~{counting_mode} mode. The Star parameter --soloFeatures will be set to $COUNTING_MODE"
-        STAR \
+    elif [[ "~{counting_mode}" == "sn_rna" ]]
+    then
+        ## single nuclei
+        if [[ ~{count_exons} == false ]]
+        then
+            COUNTING_MODE="GeneFull_Ex50pAS"
+            echo "Running in ~{counting_mode} mode. Count_exons is false and the Star parameter --soloFeatures will be set to $COUNTING_MODE"          
+        else
+            COUNTING_MODE="GeneFull_Ex50pAS Gene"
+            echo "Running in ~{counting_mode} mode. Count_exons is true and the Star parameter --soloFeatures will be set to $COUNTING_MODE"
+        fi
+    else
+        echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
+        exit 1;
+    fi
+
+    # call starsolo
+    STAR \
         --soloType Droplet \
         --soloStrand ~{star_strand_mode} \
-        --runThreadN ~{cpu} \
+        --runThreadN ~{nthreads} \
         --genomeDir genome_reference \
         --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
         --readFilesCommand "gunzip -c" \
@@ -311,70 +327,17 @@ task STARsoloFastq {
         --soloBarcodeReadLength 0 \
         --soloCellReadStats Standard \
         ~{"--soloMultiMappers " + soloMultiMappers}
-    elif [[ "~{counting_mode}" == "sn_rna" ]]
-    then
-        ## single nuclei
-        if [[ ~{count_exons} == false ]]
-        then
-            COUNTING_MODE="GeneFull_Ex50pAS"
-            echo "Running in ~{counting_mode} mode. Count_exons is false and the Star parameter --soloFeatures will be set to $COUNTING_MODE"
-            STAR \
-            --soloType Droplet \
-            --soloStrand ~{star_strand_mode} \
-            --runThreadN ~{cpu} \
-            --genomeDir genome_reference \
-            --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
-            --readFilesCommand "gunzip -c" \
-            --soloCBwhitelist ~{white_list} \
-            --soloUMIlen $UMILen --soloCBlen $CBLen \
-            --soloFeatures $COUNTING_MODE  \
-            --clipAdapterType CellRanger4 \
-            --outFilterScoreMin 30  \
-            --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
-            --soloUMIdedup 1MM_Directional_UMItools \
-            --outSAMtype BAM SortedByCoordinate \
-            --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
-            --soloBarcodeReadLength 0 \
-            --soloCellReadStats Standard \
-            ~{"--soloMultiMappers " + soloMultiMappers}
-        else
-            COUNTING_MODE="GeneFull_Ex50pAS Gene"
-            echo "Running in ~{counting_mode} mode. Count_exons is true and the Star parameter --soloFeatures will be set to $COUNTING_MODE"
-            STAR \
-            --soloType Droplet \
-            --soloStrand ~{star_strand_mode} \
-            --runThreadN ~{cpu} \
-            --genomeDir genome_reference \
-            --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
-            --readFilesCommand "gunzip -c" \
-            --soloCBwhitelist ~{white_list} \
-            --soloUMIlen $UMILen --soloCBlen $CBLen \
-            --soloFeatures $COUNTING_MODE \
-            --clipAdapterType CellRanger4 \
-            --outFilterScoreMin 30  \
-            --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
-            --soloUMIdedup 1MM_Directional_UMItools \
-            --outSAMtype BAM SortedByCoordinate \
-            --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
-            --soloBarcodeReadLength 0 \
-            --soloCellReadStats Standard \
-            ~{"--soloMultiMappers " + soloMultiMappers}
-        fi
-    else
-        echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
-        exit 1;
-    fi
 
     echo "UMI LEN " $UMILen
-
-    touch barcodes_sn_rna.tsv
-    touch features_sn_rna.tsv
-    touch matrix_sn_rna.mtx
-    touch CellReads_sn_rna.stats
-    touch Features_sn_rna.stats
-    touch Summary_sn_rna.csv
-    touch UMIperCellSorted_sn_rna.txt
-
+    
+    # why are we making these here? 
+    # touch barcodes_sn_rna.tsv
+    # touch features_sn_rna.tsv
+    # touch matrix_sn_rna.mtx
+    # touch CellReads_sn_rna.stats
+    # touch Features_sn_rna.stats
+    # touch Summary_sn_rna.csv
+    # touch UMIperCellSorted_sn_rna.txt
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
@@ -433,11 +396,12 @@ task STARsoloFastq {
 
   runtime {
     docker: docker
-    memory: "~{machine_mem_mb} MiB"
-    disks: "local-disk ~{disk} HDD"
-    disk: disk + " GB" # TES
-    cpu: cpu
-    preemptible: preemptible
+    memory: "${mem_size} GiB"
+    disks: "local-disk ${disk_size} SSD"
+    disk: disk_size + " GB" # TES
+    cpu: nthreads
+    cpuPlatform: cpu_platform
+
   }
 
   output {
