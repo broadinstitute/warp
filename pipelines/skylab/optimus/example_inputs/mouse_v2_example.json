@@ -28,5 +28,4 @@
   "Optimus.input_id": "neurons2k_mouse",
   "Optimus.chemistry": "tenX_v2",
   "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.gtf",
-  "Optimus.ref_genome_fasta": "gs://gcp-public-data--broad-references/mm10/v0/GRCm38.primary_assembly.genome.fa"
 }
