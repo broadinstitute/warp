@@ -1,3 +1,8 @@
+# 1.1.7
+2024-02-01 (Date of Last Commit)
+
+* Add new paired-tag task to parse sample barcodes from cell barcodes when preindexing is set to true; this does not affect the ATAC workflow
+
 # 1.1.6
 2024-01-24 (Date of Last Commit)
 
