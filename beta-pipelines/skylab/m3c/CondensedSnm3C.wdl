@@ -365,7 +365,6 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         rm ~{tarred_index_files}
 
         cp ~{genome_fa} .
-        ls -lhR
 
         #get the basename of the genome_fa file
         genome_fa_basename=$(basename ~{genome_fa} .fa)
@@ -399,9 +398,6 @@ task Hisat_3n_pair_end_mapping_dna_mode{
           --summary-file ${sample_id}.hisat3n_dna_summary.txt \
           --threads 11 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
         done
-
-        echo "ls the dir"
-        ls
 
         # tar up the bam files and stats files
         tar -zcvf ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz *.bam
@@ -596,9 +592,6 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
          --summary-file ${sample_id}.hisat3n_dna_split_reads_summary.R2.txt \
          --threads 11 | samtools view -b -q 10 -o "${sample_id}.hisat3n_dna.split_reads.R2.bam"
        done
-
-       echo "ls the dir"
-       ls
 
        # tar up the r1 and r2 stats files
        tar -zcvf ~{plate_id}.hisat3n_dna_split_reads_summary.R1.tar.gz *.hisat3n_dna_split_reads_summary.R1.txt
