@@ -214,8 +214,8 @@ task StarAlignFastqMultisample {
 
 task STARsoloFastq {
   input {
-    Array[File] r1_fastq
-    Array[File] r2_fastq
+    File r1_fastq
+    File r2_fastq
     File tar_star_reference
     File white_list
     Int chemistry
@@ -238,8 +238,8 @@ task STARsoloFastq {
   }
 
   parameter_meta {
-    r1_fastq: "input FASTQ file array"
-    r2_fastq: "array of forward read FASTQ files"
+    r1_fastq: "R1 FASTQ file array"
+    r2_fastq: "R2 FASTQ forward read FASTQ files"
     tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
     star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded'"
     docker: "(optional) the docker image containing the runtime environment for this task"
@@ -313,7 +313,7 @@ task STARsoloFastq {
         --soloStrand ~{star_strand_mode} \
         --runThreadN ~{nthreads} \
         --genomeDir genome_reference \
-        --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
+        --readFilesIn "~{r2_fastq}" "~{r1_fastq}" \
         --readFilesCommand "gunzip -c" \
         --soloCBwhitelist ~{white_list} \
         --soloUMIlen $UMILen --soloCBlen $CBLen \
