@@ -5,7 +5,7 @@ import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
 workflow PairedTag {
-    String pipeline_version = "0.0.5"
+    String pipeline_version = "0.0.6"
 
     input {
         String input_id
