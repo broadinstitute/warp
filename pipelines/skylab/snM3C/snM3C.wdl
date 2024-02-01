@@ -11,7 +11,6 @@ workflow snM3C {
         File tarred_index_files
         File genome_fa
         File chromosome_sizes
-        Int batch_number
 
         String r1_adapter = "AGATCGGAAGAGCACACGTCTGAAC"
         String r2_adapter = "AGATCGGAAGAGCGTCGTGTAGGGA"
@@ -34,8 +33,7 @@ workflow snM3C {
             fastq_input_read1 = fastq_input_read1,
             fastq_input_read2 = fastq_input_read2,
             random_primer_indexes = random_primer_indexes,
-            plate_id = plate_id,
-            batch_number = batch_number
+            plate_id = plate_id
     }
 
     scatter(tar in Demultiplexing.tarred_demultiplexed_fastqs) {
@@ -170,7 +168,7 @@ task Demultiplexing {
     Array[File] fastq_input_read2
     File random_primer_indexes
     String plate_id
-    Int batch_number
+    Int batch_number = 6
 
     String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
     Int disk_size = 50
