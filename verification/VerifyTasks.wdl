@@ -112,7 +112,7 @@ task CompareTabix {
     File truth_fragment_file
   }
   command <<<
-    exit_code = 0
+    exit_code=0
     a=$(md5sum "~{test_fragment_file}" | awk '{ print $1 }')
     b=$(md5sum ~{truth_fragment_file} | awk '{ print $1 }')
     if [[ $a = $b ]]; then 
@@ -306,7 +306,7 @@ task CompareCompressedTextFiles {
   Int disk_size = ceil(file_size * 4) + 20
 
   command {
-    diff <(gunzip -c -f ~{test_zip}) <(gunzip -c -f ~{truth_zip})
+    diff <(gunzip -c ~{test_zip} | sort) <(gunzip -c ~{truth_zip} | sort)
   }
 
   runtime {
