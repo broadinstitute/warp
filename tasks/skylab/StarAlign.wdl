@@ -212,7 +212,7 @@ task StarAlignFastqMultisample {
 }
 
 
-task STARsoloFastq_Test {
+task STARsoloFastqTest {
   input {
     Array[File] r1_fastq
     Array[File] r2_fastq
