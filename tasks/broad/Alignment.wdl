@@ -34,7 +34,7 @@ task SamToFastqAndBwaMemAndMba {
     Boolean hard_clip_reads = false
     Boolean unmap_contaminant_reads = true
     Boolean allow_empty_ref_alt = false
-    Float mem_multiplier = 2.0
+    Float mem_multiplier = 3.0
   }
 
   Float unmapped_bam_size = size(input_bam, "GiB")
@@ -66,14 +66,14 @@ task SamToFastqAndBwaMemAndMba {
     bash_ref_fasta=~{reference_fasta.ref_fasta}
     # if reference_fasta.ref_alt has data in it or allow_empty_ref_alt is set
     if [ -s ~{reference_fasta.ref_alt} ] || ~{allow_empty_ref_alt}; then
-      java -Xms1000m -Xmx1000m -jar /usr/gitc/picard.jar \
+      java -Xms1000m -Xmx4000m -jar /usr/gitc/picard.jar \
         SamToFastq \
         INPUT=~{input_bam} \
         FASTQ=/dev/stdout \
         INTERLEAVE=true \
         NON_PF=true | \
       /usr/gitc/~{bwa_commandline} /dev/stdin - 2> >(tee ~{output_bam_basename}.bwa.stderr.log >&2) | \
-      java -Dsamjdk.compression_level=~{compression_level} -Xms1000m -Xmx1000m -jar /usr/gitc/picard.jar \
+      java -Dsamjdk.compression_level=~{compression_level} -Xms1000m -Xmx4000m -jar /usr/gitc/picard.jar \
         MergeBamAlignment \
         VALIDATION_STRINGENCY=SILENT \
         EXPECTED_ORIENTATIONS=FR \
@@ -118,7 +118,7 @@ task SamToFastqAndBwaMemAndMba {
     docker: "us.gcr.io/broad-gotc-prod/samtools-picard-bwa:1.0.2-0.7.15-2.26.10-1643840748"
     preemptible: preemptible_tries
     memory: "~{memory_gb} GiB"
-    cpu: "16"
+    cpu: "32"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
