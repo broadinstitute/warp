@@ -78,7 +78,13 @@ bcftools head temp.vcf > header.txt
 bcftools query -l temp.vcf > all.id.txt
 
 echo "get included samples"
-grep -Fxf all.id.txt ~{include_samples} | sort | uniq > keep.id.txt
+tr -d '\r' < ~{include_samples} > filter.id.txt
+grep -Fxf all.id.txt filter.id.txt | sort | uniq > keep.id.txt
+
+if [[ ! -s keep.id.txt ]]; then
+  echo "ERROR: no samples to keep"
+  exit 1
+fi
 
 zcat ~{input_vcf} | grep -v "^#" | cut -f 1-8 | head -n 10 > data.txt
 if grep -Fq "Imputed" data.txt
