@@ -120,12 +120,12 @@ workflow PairedTag {
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
         File bam_gex = Optimus.bam
-        File matrix_gex = Optimus.matrix
-        File matrix_row_index_gex = Optimus.matrix_row_index
-        File matrix_col_index_gex = Optimus.matrix_col_index
-        File cell_metrics_gex = Optimus.cell_metrics
-        File gene_metrics_gex = Optimus.gene_metrics
-        File? cell_calls_gex = Optimus.cell_calls
-        File h5ad_output_file_gex = Optimus.h5ad_output_file
+        # File matrix_gex = Optimus.matrix
+        # File matrix_row_index_gex = Optimus.matrix_row_index
+        # File matrix_col_index_gex = Optimus.matrix_col_index
+        # File cell_metrics_gex = Optimus.cell_metrics
+        # File gene_metrics_gex = Optimus.gene_metrics
+        # File? cell_calls_gex = Optimus.cell_calls
+        # File h5ad_output_file_gex = Optimus.h5ad_output_file
     }
 }

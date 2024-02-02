@@ -131,18 +131,18 @@ workflow Multiome {
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
         File bam_gex = Optimus.bam
-        File matrix_gex = Optimus.matrix
-        File matrix_row_index_gex = Optimus.matrix_row_index
-        File matrix_col_index_gex = Optimus.matrix_col_index
-        File cell_metrics_gex = Optimus.cell_metrics
-        File gene_metrics_gex = Optimus.gene_metrics
-        File? cell_calls_gex = Optimus.cell_calls
-        File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
-        Array[File?] multimappers_EM_matrix = Optimus.multimappers_EM_matrix
-        Array[File?] multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
-        Array[File?] multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
-        Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
-        File? gex_aligner_metrics = Optimus.aligner_metrics
+        # File matrix_gex = Optimus.matrix
+        # File matrix_row_index_gex = Optimus.matrix_row_index
+        # File matrix_col_index_gex = Optimus.matrix_col_index
+        # File cell_metrics_gex = Optimus.cell_metrics
+        # File gene_metrics_gex = Optimus.gene_metrics
+        # File? cell_calls_gex = Optimus.cell_calls
+        # File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
+        # Array[File?] multimappers_EM_matrix = Optimus.multimappers_EM_matrix
+        # Array[File?] multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
+        # Array[File?] multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
+        # Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
+        # File? gex_aligner_metrics = Optimus.aligner_metrics
 
         # cellbender outputs
         File? cell_barcodes_csv = CellBender.cell_csv
