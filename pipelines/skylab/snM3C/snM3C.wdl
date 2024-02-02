@@ -26,9 +26,6 @@ workflow snM3C {
 
     }
 
-    # version of the pipeline
-    String pipeline_version = "1.0.1"
-
     call Demultiplexing {
         input:
             fastq_input_read1 = fastq_input_read1,
@@ -51,7 +48,7 @@ workflow snM3C {
                 min_read_length = min_read_length,
                 plate_id = plate_id
         }
-        
+
         call Hisat_3n_pair_end_mapping_dna_mode {
             input:
                 r1_trimmed_tar = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar,
@@ -62,23 +59,16 @@ workflow snM3C {
                 plate_id = plate_id
         }
 
-        call Separate_unmapped_reads {
+        call Separate_and_split_unmapped_reads {
             input:
                 hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar,
                 min_read_length = min_read_length,
-                plate_id = plate_id
-        }
-
-        call Split_unmapped_reads {
-            input:
-                unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar,
-                min_read_length = min_read_length,
-                plate_id = plate_id
+                plate_id = plate_id,
         }
 
         call Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
             input:
-                split_fq_tar = Split_unmapped_reads.split_fq_tar,
+                split_fq_tar = Separate_and_split_unmapped_reads.split_fq_tar,
                 tarred_index_files = tarred_index_files,
                 genome_fa = genome_fa,
                 plate_id = plate_id
@@ -90,41 +80,28 @@ workflow snM3C {
                 plate_id = plate_id
         }
 
-        call merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
+        call merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate {
             input:
-                bam = Separate_unmapped_reads.unique_bam_tar,
+                bam = Separate_and_split_unmapped_reads.unique_bam_tar,
                 split_bam = remove_overlap_read_parts.output_bam_tar,
                 plate_id = plate_id
         }
 
         call call_chromatin_contacts {
             input:
-                name_sorted_bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam,
+                name_sorted_bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.name_sorted_bam,
                 plate_id = plate_id
         }
 
-        call dedup_unique_bam_and_index_unique_bam {
+        call unique_reads_allc_and_cgn_extraction {
             input:
-                bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam,
-                plate_id = plate_id
-        }
-
-        call unique_reads_allc {
-            input:
-                bam_and_index_tar = dedup_unique_bam_and_index_unique_bam.output_tar,
+                bam_and_index_tar = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.dedup_output_bam_tar,
                 genome_fa = genome_fa,
                 num_upstr_bases = num_upstr_bases,
                 num_downstr_bases = num_downstr_bases,
                 compress_level = compress_level,
-                plate_id = plate_id
-        }
-
-        call unique_reads_cgn_extraction {
-            input:
-                allc_tar = unique_reads_allc.allc,
-                tbi_tar = unique_reads_allc.tbi,
-                chrom_size_path = chromosome_sizes,
-                plate_id = plate_id
+                plate_id = plate_id,
+                chromosome_sizes = chromosome_sizes
         }
     }
 
@@ -134,10 +111,10 @@ workflow snM3C {
             hisat3n_stats = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_stats_tar,
             r1_hisat3n_stats = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.hisat3n_dna_split_reads_summary_R1_tar,
             r2_hisat3n_stats = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.hisat3n_dna_split_reads_summary_R2_tar,
-            dedup_stats = dedup_unique_bam_and_index_unique_bam.dedup_stats_tar,
+            dedup_stats = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.dedup_stats_tar,
             chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats,
-            allc_uniq_reads_stats = unique_reads_allc.allc_uniq_reads_stats,
-            unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.output_tbi_tar,
+            allc_uniq_reads_stats = unique_reads_allc_and_cgn_extraction.allc_uniq_reads_stats,
+            unique_reads_cgn_extraction_tbi = unique_reads_allc_and_cgn_extraction.output_tbi_tar,
             plate_id = plate_id
     }
 
@@ -148,17 +125,17 @@ workflow snM3C {
         Array[File] r2_trimmed_fq = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar
         Array[File] hisat3n_stats_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_stats_tar
         Array[File] hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
-        Array[File] unique_bam_tar = Separate_unmapped_reads.unique_bam_tar
-        Array[File] multi_bam_tar = Separate_unmapped_reads.multi_bam_tar
-        Array[File] unmapped_fastq_tar = Separate_unmapped_reads.unmapped_fastq_tar
-        Array[File] split_fq_tar = Split_unmapped_reads.split_fq_tar
+        Array[File] unique_bam_tar = Separate_and_split_unmapped_reads.unique_bam_tar
+        Array[File] multi_bam_tar = Separate_and_split_unmapped_reads.multi_bam_tar
+        #Array[File] unmapped_fastq_tar = Separate_and_split_unmapped_reads.unmapped_fastq_tar
+        Array[File] split_fq_tar = Separate_and_split_unmapped_reads.split_fq_tar
         Array[File] merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
-        Array[File] name_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.name_sorted_bam
-        Array[File] pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position.position_sorted_bam
+        Array[File] name_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.name_sorted_bam
+        #Array[File] pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.position_sorted_bam
         Array[File] remove_overlap_read_parts_bam_tar = remove_overlap_read_parts.output_bam_tar
-        Array[File] dedup_unique_bam_and_index_unique_bam_tar = dedup_unique_bam_and_index_unique_bam.output_tar
-        Array[File] unique_reads_cgn_extraction_allc = unique_reads_cgn_extraction.output_allc_tar
-        Array[File] unique_reads_cgn_extraction_tbi = unique_reads_cgn_extraction.output_tbi_tar
+        Array[File] dedup_unique_bam_and_index_unique_bam_tar = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.dedup_output_bam_tar
+        Array[File] unique_reads_cgn_extraction_allc = unique_reads_allc_and_cgn_extraction.output_allc_tar
+        Array[File] unique_reads_cgn_extraction_tbi = unique_reads_allc_and_cgn_extraction.output_tbi_tar
         Array[File] chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats
         Array[File] reference_version = Hisat_3n_pair_end_mapping_dna_mode.reference_version
     }
@@ -233,10 +210,10 @@ task Demultiplexing {
     for i in $(seq 1 "${batch_number}"); do  # Use seq for reliable brace expansion
         mkdir -p "batch${i}"  # Combine batch and i, use -p to create parent dirs
     done
-    
+
     # Counter for the folder index
     folder_index=1
-    
+
     # Define lists of r1 and r2 fq files
     R1_files=($(ls | grep "\-R1.fq.gz"))
     R2_files=($(ls | grep "\-R2.fq.gz"))
@@ -256,7 +233,7 @@ task Demultiplexing {
     done
 
 
-    echo "TAR files created successfully."        
+    echo "TAR files created successfully."
   >>>
 
   runtime {
@@ -384,20 +361,12 @@ task Hisat_3n_pair_end_mapping_dna_mode{
 
         echo "The reference is $BASE" > ~{plate_id}.reference_version.txt
 
-        mkdir reference/
-        mkdir fastq/
-
-        cp ~{tarred_index_files} reference/
-        cp ~{genome_fa} reference/
-        cp ~{chromosome_sizes} reference/
-        cp ~{r1_trimmed_tar} fastq/
-        cp ~{r2_trimmed_tar} fastq/
-
         # untar the index files
-        cd reference/
         echo "Untarring the index files"
         tar -zxvf ~{tarred_index_files}
         rm ~{tarred_index_files}
+
+        cp ~{genome_fa} .
 
         #get the basename of the genome_fa file
         genome_fa_basename=$(basename ~{genome_fa} .fa)
@@ -405,7 +374,6 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         samtools faidx $genome_fa_basename.fa
 
         # untar the demultiplexed fastq files
-        cd ../fastq/
         echo "Untarring the fastq files"
         tar -zxvf ~{r1_trimmed_tar}
         tar -zxvf ~{r2_trimmed_tar}
@@ -418,7 +386,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
 
         for file in "${R1_files[@]}"; do
           sample_id=$(basename "$file" "-R1_trimmed.fq.gz")
-          hisat-3n /cromwell_root/reference/$genome_fa_basename \
+          hisat-3n /cromwell_root/$genome_fa_basename \
           -q \
           -1 ${sample_id}-R1_trimmed.fq.gz \
           -2 ${sample_id}-R2_trimmed.fq.gz \
@@ -437,8 +405,6 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         tar -zcvf ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz *.bam
         tar -zcvf ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
 
-        mv ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz ../
-        mv ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz ../
 
     >>>
     runtime {
@@ -455,7 +421,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
     }
 }
 
-task Separate_unmapped_reads {
+task Separate_and_split_unmapped_reads {
     input {
         File hisat3n_bam_tar
         Int min_read_length
@@ -515,40 +481,9 @@ task Separate_unmapped_reads {
         # tar up the unmapped fastq files
         tar -zcvf ~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz *.hisat3n_dna.unmapped.fastq
 
-    >>>
-    runtime {
-        docker: docker
-        disks: "local-disk ${disk_size} HDD"
-        cpu: cpu
-        memory: "${mem_size} GiB"
-        preemptible: preemptible_tries
-    }
-    output {
-        File unique_bam_tar = "~{plate_id}.hisat3n_paired_end_unique_bam_files.tar.gz"
-        File multi_bam_tar = "~{plate_id}.hisat3n_paired_end_multi_bam_files.tar.gz"
-        File unmapped_fastq_tar = "~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz"
-    }
-}
-
-task Split_unmapped_reads {
-    input {
-        File unmapped_fastq_tar
-        Int min_read_length
-        String plate_id
-
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 50
-        Int mem_size = 10
-        Int preemptible_tries = 3
-        Int cpu = 1
-    }
-    command <<<
-
-        set -euo pipefail
-
         # untar the unmapped fastq files
-        tar -xf ~{unmapped_fastq_tar}
-        rm ~{unmapped_fastq_tar}
+        tar -xf ~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz
+        rm ~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz
 
         python3 <<CODE
 
@@ -579,7 +514,6 @@ task Split_unmapped_reads {
         # tar up the split fastq files
         tar -zcvf ~{plate_id}.hisat3n_paired_end_split_fastq_files.tar.gz *.split_reads*.fastq
 
-
     >>>
     runtime {
         docker: docker
@@ -589,6 +523,8 @@ task Split_unmapped_reads {
         preemptible: preemptible_tries
     }
     output {
+        File unique_bam_tar = "~{plate_id}.hisat3n_paired_end_unique_bam_files.tar.gz"
+        File multi_bam_tar = "~{plate_id}.hisat3n_paired_end_multi_bam_files.tar.gz"
         File split_fq_tar = "~{plate_id}.hisat3n_paired_end_split_fastq_files.tar.gz"
     }
 }
@@ -609,15 +545,12 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
     command <<<
         set -euo pipefail
 
-        mkdir reference/
-
-        cp ~{tarred_index_files} reference/
-        cp ~{genome_fa} reference/
 
         # untar the tarred index files
-        cd reference/
         tar -xvf ~{tarred_index_files}
         rm ~{tarred_index_files}
+
+        cp ~{genome_fa} .
 
         #get the basename of the genome_fa file
         genome_fa_basename=$(basename ~{genome_fa} .fa)
@@ -633,7 +566,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
 
         for file in "${R1_files[@]}"; do
           sample_id=$(basename "$file" ".hisat3n_dna.split_reads.R1.fastq")
-          hisat-3n /cromwell_root/reference/$genome_fa_basename \
+          hisat-3n /cromwell_root/$genome_fa_basename \
           -q \
           -U ${sample_id}.hisat3n_dna.split_reads.R1.fastq \
           --directional-mapping-reverse \
@@ -649,7 +582,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
 
        for file in "${R2_files[@]}"; do
          sample_id=$(basename "$file" ".hisat3n_dna.split_reads.R2.fastq")
-         hisat-3n /cromwell_root/reference/$genome_fa_basename \
+         hisat-3n /cromwell_root/$genome_fa_basename \
          -q \
          -U ${sample_id}.hisat3n_dna.split_reads.R2.fastq \
          --directional-mapping \
@@ -663,8 +596,8 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
        done
 
        # tar up the r1 and r2 stats files
-       tar -zcvf ../~{plate_id}.hisat3n_dna_split_reads_summary.R1.tar.gz *.hisat3n_dna_split_reads_summary.R1.txt
-       tar -zcvf ../~{plate_id}.hisat3n_dna_split_reads_summary.R2.tar.gz *.hisat3n_dna_split_reads_summary.R2.txt
+       tar -zcvf ~{plate_id}.hisat3n_dna_split_reads_summary.R1.tar.gz *.hisat3n_dna_split_reads_summary.R1.txt
+       tar -zcvf ~{plate_id}.hisat3n_dna_split_reads_summary.R2.tar.gz *.hisat3n_dna_split_reads_summary.R2.txt
 
 
        # define lists of r1 and r2 bam files
@@ -684,7 +617,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
        done
 
        #tar up the merged bam files
-       tar -zcvf ../~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz *.hisat3n_dna.split_reads.name_sort.bam
+       tar -zcvf ~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz *.hisat3n_dna.split_reads.name_sort.bam
 
     >>>
     runtime {
@@ -754,7 +687,7 @@ task remove_overlap_read_parts {
     }
 }
 
-task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
+task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate {
     input {
         File bam
         File split_bam
@@ -790,6 +723,38 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
       #tar up the merged bam files
       tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.pos_sort.tar.gz *.hisat3n_dna.all_reads.pos_sort.bam
       tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz *.hisat3n_dna.all_reads.name_sort.bam
+
+
+      # unzip files
+      tar -xf ~{plate_id}.hisat3n_dna.all_reads.pos_sort.tar.gz
+      rm ~{plate_id}.hisat3n_dna.all_reads.pos_sort.tar.gz
+
+      # create output dir
+      mkdir /cromwell_root/output_bams
+      mkdir /cromwell_root/temp
+
+      # name : AD3C_BA17_2027_P1-1-B11-G13.hisat3n_dna.all_reads.pos_sort.bam
+      for file in *.pos_sort.bam
+      do
+        name=`echo $file | cut -d. -f1`
+        name=$name.hisat3n_dna.all_reads.deduped
+        echo $name
+        echo "Call Picard"
+        picard MarkDuplicates I=$file O=/cromwell_root/output_bams/$name.bam \
+        M=/cromwell_root/output_bams/$name.matrix.txt \
+        REMOVE_DUPLICATES=true TMP_DIR=/cromwell_root/temp
+        echo "Call samtools index"
+        samtools index /cromwell_root/output_bams/$name.bam
+      done
+
+      cd /cromwell_root
+
+      #tar up the output files
+      tar -zcvf ~{plate_id}.dedup_unique_bam_and_index_unique_bam.tar.gz output_bams
+
+      #tar up the stats files
+      tar -zcvf ~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz output_bams/*.matrix.txt
+
     >>>
     runtime {
         docker: docker
@@ -800,7 +765,9 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
     }
     output {
         File name_sorted_bam = "~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz"
-        File position_sorted_bam = "~{plate_id}.hisat3n_dna.all_reads.pos_sort.tar.gz"
+        #File position_sorted_bam = "~{plate_id}.hisat3n_dna.all_reads.pos_sort.tar.gz"
+        File dedup_output_bam_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam.tar.gz"
+        File dedup_stats_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz"
     }
 }
 
@@ -861,66 +828,7 @@ task call_chromatin_contacts {
     }
 }
 
-task dedup_unique_bam_and_index_unique_bam {
-    input {
-       File bam
-       String plate_id
-
-       String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-       Int disk_size = 80
-       Int mem_size = 20
-       Int preemptible_tries = 3
-       Int cpu = 1
-    }
-
-    command <<<
-        set -euo pipefail
-
-        # unzip files
-        tar -xf ~{bam}
-        rm ~{bam}
-
-        # create output dir
-        mkdir /cromwell_root/output_bams
-        mkdir /cromwell_root/temp
-
-        # name : AD3C_BA17_2027_P1-1-B11-G13.hisat3n_dna.all_reads.pos_sort.bam
-        for file in *.bam
-        do
-          name=`echo $file | cut -d. -f1`
-          name=$name.hisat3n_dna.all_reads.deduped
-          echo $name
-          echo "Call Picard"
-          picard MarkDuplicates I=$file O=/cromwell_root/output_bams/$name.bam \
-          M=/cromwell_root/output_bams/$name.matrix.txt \
-          REMOVE_DUPLICATES=true TMP_DIR=/cromwell_root/temp
-          echo "Call samtools index"
-          samtools index /cromwell_root/output_bams/$name.bam
-        done
-
-        cd /cromwell_root
-
-        #tar up the output files
-        tar -zcvf ~{plate_id}.dedup_unique_bam_and_index_unique_bam.tar.gz output_bams
-
-        #tar up the stats files
-        tar -zcvf ~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz output_bams/*.matrix.txt
-
-    >>>
-    runtime {
-        docker: docker
-        disks: "local-disk ${disk_size} HDD"
-        cpu: cpu
-        memory: "${mem_size} GiB"
-        preemptible: preemptible_tries
-    }
-    output {
-        File output_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam.tar.gz"
-        File dedup_stats_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz"
-    }
-}
-
-task unique_reads_allc {
+task unique_reads_allc_and_cgn_extraction {
     input {
         File bam_and_index_tar
         File genome_fa
@@ -928,6 +836,7 @@ task unique_reads_allc {
         Int num_upstr_bases
         Int num_downstr_bases
         Int compress_level
+        File chromosome_sizes
 
         Int disk_size = 80
         Int mem_size = 20
@@ -971,8 +880,38 @@ task unique_reads_allc {
 
         tar -zcvf ../~{plate_id}.allc.tsv.tar.gz *.allc.tsv.gz
         tar -zcvf ../~{plate_id}.allc.tbi.tar.gz *.allc.tsv.gz.tbi
-        tar -zcvf ../~{plate_id}.allc.count.tar.gz *.allc.tsv.gz.count.csv
+        tar -zcvf ~{plate_id}.allc.count.tar.gz *.allc.tsv.gz.count.csv
 
+        cd ../
+        tar -xf ~{plate_id}.allc.tsv.tar.gz
+        rm ~{plate_id}.allc.tsv.tar.gz
+        tar -xf ~{plate_id}.allc.tbi.tar.gz
+        rm ~{plate_id}.allc.tbi.tar.gz
+
+        # prefix="allc-{mcg_context}/{cell_id}"
+        if [ ~{num_upstr_bases} -eq 0 ]; then
+           mcg_context=CGN
+        else
+           mcg_context=HCGN
+        fi
+        # create output dir
+        mkdir /cromwell_root/allc-${mcg_context}
+        outputdir=/cromwell_root/allc-${mcg_context}
+        for gzfile in *.gz
+        do
+             name=`echo $gzfile | cut -d. -f1`
+             echo $name
+             allcools extract-allc --strandness merge --allc_path $gzfile \
+             --output_prefix $outputdir/$name \
+             --mc_contexts ${mcg_context} \
+             --chrom_size_path ~{chromosome_sizes}
+        done
+
+        mv output_bams/~{plate_id}.allc.count.tar.gz /cromwell_root
+
+        cd /cromwell_root
+        tar -zcvf ~{plate_id}.output_allc_tar.tar.gz $outputdir/*.gz
+        tar -zcvf ~{plate_id}.output_tbi_tar.tar.gz $outputdir/*.tbi
 
     >>>
     runtime {
@@ -983,79 +922,14 @@ task unique_reads_allc {
         preemptible: preemptible_tries
     }
     output {
-        File allc = "~{plate_id}.allc.tsv.tar.gz"
-        File tbi = "~{plate_id}.allc.tbi.tar.gz"
+        #File allc = "~{plate_id}.allc.tsv.tar.gz"
+        #File tbi = "~{plate_id}.allc.tbi.tar.gz"
         File allc_uniq_reads_stats = "~{plate_id}.allc.count.tar.gz"
-    }
-}
-
-
-task unique_reads_cgn_extraction {
-    input {
-       File allc_tar
-       File tbi_tar
-       File chrom_size_path
-       String plate_id
-
-       String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-       Int disk_size = 80
-       Int mem_size = 20
-       Int num_upstr_bases = 0
-       Int preemptible_tries = 3
-       Int cpu = 1
-    }
-
-    command <<<
-       set -euo pipefail
-
-       tar -xf ~{allc_tar}
-       rm ~{allc_tar}
-
-       tar -xf ~{tbi_tar}
-       rm ~{tbi_tar}
-
-       # prefix="allc-{mcg_context}/{cell_id}"
-       if [ ~{num_upstr_bases} -eq 0 ]; then
-          mcg_context=CGN
-       else
-          mcg_context=HCGN
-       fi
-
-       # create output dir
-       mkdir /cromwell_root/allc-${mcg_context}
-       outputdir=/cromwell_root/allc-${mcg_context}
-
-       for gzfile in *.gz
-       do
-            name=`echo $gzfile | cut -d. -f1`
-            echo $name
-            allcools extract-allc --strandness merge --allc_path $gzfile \
-            --output_prefix $outputdir/$name \
-            --mc_contexts ${mcg_context} \
-            --chrom_size_path ~{chrom_size_path}
-       done
-
-       cd /cromwell_root
-
-       tar -zcvf ~{plate_id}.output_allc_tar.tar.gz $outputdir/*.gz
-       tar -zcvf ~{plate_id}.output_tbi_tar.tar.gz $outputdir/*.tbi
-
-    >>>
-
-    runtime {
-        docker: docker
-        disks: "local-disk ${disk_size} HDD"
-        cpu: cpu
-        memory: "${mem_size} GiB"
-        preemptible: preemptible_tries
-    }
-
-    output {
         File output_allc_tar = "~{plate_id}.output_allc_tar.tar.gz"
         File output_tbi_tar = "~{plate_id}.output_tbi_tar.tar.gz"
+
     }
 }
-
 
 task summary {
     input {
