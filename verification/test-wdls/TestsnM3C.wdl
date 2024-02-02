@@ -27,6 +27,7 @@ workflow TestsnM3C {
       Int num_upstr_bases = 0
       Int num_downstr_bases = 2
       Int compress_level = 5
+      Int batch_number
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -58,7 +59,8 @@ workflow TestsnM3C {
         min_read_length = min_read_length,
         num_upstr_bases = num_upstr_bases,
         num_downstr_bases = num_downstr_bases,
-        compress_level = compress_level
+        compress_level = compress_level,
+        batch_number = batch_number
 
     }
 
@@ -87,7 +89,7 @@ workflow TestsnM3C {
                                     snM3C.r2_trimmed_fq,
                                     snM3C.r1_trimmed_fq,
                                     snM3C.trimmed_stats,
-                                    
+
     ])
 
     
