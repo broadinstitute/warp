@@ -26,6 +26,9 @@ workflow snM3C {
 
     }
 
+    # version of the pipeline
+    String pipeline_version = "1.0.1"
+
     call Demultiplexing {
         input:
             fastq_input_read1 = fastq_input_read1,
@@ -914,6 +917,7 @@ task unique_reads_allc_and_cgn_extraction {
         tar -zcvf ~{plate_id}.output_tbi_tar.tar.gz $outputdir/*.tbi
 
     >>>
+
     runtime {
         docker: docker
         disks: "local-disk ${disk_size} HDD"
@@ -927,7 +931,6 @@ task unique_reads_allc_and_cgn_extraction {
         File allc_uniq_reads_stats = "~{plate_id}.allc.count.tar.gz"
         File output_allc_tar = "~{plate_id}.output_allc_tar.tar.gz"
         File output_tbi_tar = "~{plate_id}.output_tbi_tar.tar.gz"
-
     }
 }
 
