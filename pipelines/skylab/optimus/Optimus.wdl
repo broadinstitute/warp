@@ -110,70 +110,53 @@ workflow Optimus {
       tar_star_reference = tar_star_reference
   }
 
-  call FastqProcessing.FastqProcessing as SplitFastq {
-    input:
-      i1_fastq = i1_fastq,
-      r1_fastq = r1_fastq,
-      r2_fastq = r2_fastq,
-      whitelist = whitelist,
-      chemistry = tenx_chemistry_version,
-      sample_id = input_id,
-      read_struct = read_struct
-  }
-
-  scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
-    call StarAlign.STARsoloFastq as STARsoloFastq {
+  call StarAlign.STARsoloFastq as STARsoloFastq {
       input:
-        r1_fastq = [SplitFastq.fastq_R1_output_array[idx]],
-        r2_fastq = [SplitFastq.fastq_R2_output_array[idx]],
+        r1_fastq = r1_fastq,
+        r2_fastq = r2_fastq,
         star_strand_mode = star_strand_mode,
         white_list = whitelist,
         tar_star_reference = tar_star_reference,
         chemistry = tenx_chemistry_version,
         counting_mode = counting_mode,
         count_exons = count_exons,
-        output_bam_basename = output_bam_basename + "_" + idx,
+        output_bam_basename = output_bam_basename,
         soloMultiMappers = soloMultiMappers
     }
-  }
-  call Merge.MergeSortBamFiles as MergeBam {
-    input:
-      bam_inputs = STARsoloFastq.bam_output,
-      output_bam_filename = output_bam_basename + ".bam",
-      sort_order = "coordinate"
-  }
+  
+
   call Metrics.CalculateGeneMetrics as GeneMetrics {
     input:
-      bam_input = MergeBam.output_bam,
+      bam_input = STARsoloFastq.bam_output,
       mt_genes = mt_genes,
       input_id = input_id
   }
 
   call Metrics.CalculateCellMetrics as CellMetrics {
     input:
-      bam_input = MergeBam.output_bam,
+      bam_input = STARsoloFastq.bam_output,
       mt_genes = mt_genes,
       original_gtf = annotations_gtf,
       input_id = input_id
   }
 
-  call StarAlign.MergeStarOutput as MergeStarOutputs {
-    input:
-      barcodes = STARsoloFastq.barcodes,
-      features = STARsoloFastq.features,
-      matrix = STARsoloFastq.matrix,
-      cell_reads = STARsoloFastq.cell_reads,
-      summary = STARsoloFastq.summary,
-      align_features = STARsoloFastq.align_features,
-      umipercell = STARsoloFastq.umipercell,
-      input_id = input_id
-  }
+  # call StarAlign.MergeStarOutput as MergeStarOutputs {
+  #   input:
+  #     barcodes = STARsoloFastq.barcodes,
+  #     features = STARsoloFastq.features,
+  #     matrix = STARsoloFastq.matrix,
+  #     cell_reads = STARsoloFastq.cell_reads,
+  #     summary = STARsoloFastq.summary,
+  #     align_features = STARsoloFastq.align_features,
+  #     umipercell = STARsoloFastq.umipercell,
+  #     input_id = input_id
+  # }
   if (counting_mode == "sc_rna"){
     call RunEmptyDrops.RunEmptyDrops {
       input:
-        sparse_count_matrix = MergeStarOutputs.sparse_counts,
-        row_index = MergeStarOutputs.row_index,
-        col_index = MergeStarOutputs.col_index,
+        sparse_count_matrix = STARsoloFastq.matrix,
+        row_index = STARsoloFastq.barcodes,
+        col_index = STARsoloFastq.features,
         emptydrops_lower = emptydrops_lower
     }
   }
@@ -188,23 +171,23 @@ workflow Optimus {
         annotation_file = annotations_gtf,
         cell_metrics = CellMetrics.cell_metrics,
         gene_metrics = GeneMetrics.gene_metrics,
-        sparse_count_matrix = MergeStarOutputs.sparse_counts,
-        cell_id = MergeStarOutputs.row_index,
-        gene_id = MergeStarOutputs.col_index,
+        sparse_count_matrix = STARsoloFastq.matrix,
+        cell_id = STARsoloFastq.barcodes,
+        gene_id = STARsoloFastq.features,
         empty_drops_result = RunEmptyDrops.empty_drops_result,
         counting_mode = counting_mode,
         pipeline_version = "Optimus_v~{pipeline_version}"
     }
   }
   if (count_exons  && counting_mode=="sn_rna") {
-    call StarAlign.MergeStarOutput as MergeStarOutputsExons {
-      input:
-        barcodes = STARsoloFastq.barcodes_sn_rna,
-        features = STARsoloFastq.features_sn_rna,
-        matrix = STARsoloFastq.matrix_sn_rna,
-        cell_reads = STARsoloFastq.cell_reads_sn_rna,
-        input_id = input_id
-    }
+    # call StarAlign.MergeStarOutput as MergeStarOutputsExons {
+    #   input:
+    #     barcodes = STARsoloFastq.barcodes_sn_rna,
+    #     features = STARsoloFastq.features_sn_rna,
+    #     matrix = STARsoloFastq.matrix_sn_rna,
+    #     cell_reads = STARsoloFastq.cell_reads_sn_rna,
+    #     input_id = input_id
+    # }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:
         input_id = input_id,
@@ -214,12 +197,12 @@ workflow Optimus {
         annotation_file = annotations_gtf,
         cell_metrics = CellMetrics.cell_metrics,
         gene_metrics = GeneMetrics.gene_metrics,
-        sparse_count_matrix = MergeStarOutputs.sparse_counts,
-        cell_id = MergeStarOutputs.row_index,
-        gene_id = MergeStarOutputs.col_index,
-        sparse_count_matrix_exon = MergeStarOutputsExons.sparse_counts,
-        cell_id_exon = MergeStarOutputsExons.row_index,
-        gene_id_exon = MergeStarOutputsExons.col_index,
+        sparse_count_matrix = STARsoloFastq.matrix,
+        cell_id = STARsoloFastq.barcodes,
+        gene_id = STARsoloFastq.features,
+        sparse_count_matrix_exon = STARsoloFastq.matrix_sn_rna,
+        cell_id_exon = STARsoloFastq.barcodes_sn_rna,
+        gene_id_exon = STARsoloFastq.features_sn_rna,
         pipeline_version = "Optimus_v~{pipeline_version}"
     }
   }
@@ -231,18 +214,18 @@ workflow Optimus {
     # version of this pipeline
     String pipeline_version_out = pipeline_version
     File genomic_reference_version = ReferenceCheck.genomic_ref_version
-    File bam = MergeBam.output_bam
-    File matrix = MergeStarOutputs.sparse_counts
-    File matrix_row_index = MergeStarOutputs.row_index
-    File matrix_col_index = MergeStarOutputs.col_index
+    File bam = STARsoloFastq.bam_output
+    File matrix = STARsoloFastq.matrix
+    File matrix_row_index = STARsoloFastq.barcodes
+    File matrix_col_index = STARsoloFastq.features
     File cell_metrics = CellMetrics.cell_metrics
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
-    File? aligner_metrics = MergeStarOutputs.cell_reads_out
-    Array[File?] multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
-    Array[File?] multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
-    Array[File?] multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
-    Array[File?] multimappers_PropUnique_matrix = STARsoloFastq.multimappers_PropUnique_matrix
+    File? aligner_metrics = STARsoloFastq.align_features
+    File? multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
+    File? multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
+    File? multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
+    File? multimappers_PropUnique_matrix = STARsoloFastq.multimappers_PropUnique_matrix
 
     # h5ad
     File h5ad_output_file = final_h5ad_output
