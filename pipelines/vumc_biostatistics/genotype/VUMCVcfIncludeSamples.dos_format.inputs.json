@@ -1,0 +1,7 @@
+{
+  "VUMCVcfIncludeSamples.target_prefix": "EAS_chr20",
+  "VUMCVcfIncludeSamples.include_samples": "/nobackup/h_cqs/shengq2/biovu/agd35k/overlap_828/To_upload_overlapping_GRIDs.dos.txt",
+  "VUMCVcfIncludeSamples.input_vcf": "/nobackup/h_vangard_1/shengq2/biovu/EAS_chr20.n100.vcf.gz",
+  "VUMCVcfIncludeSamples.target_suffix": ".eligible1-1.primary_grid.vcf.gz"
+}
+
