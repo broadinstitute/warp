@@ -230,6 +230,7 @@ task STARsoloFastq {
 
     String cpu_platform = "Intel Ice Lake"
     Int machine_mem_mb = 512000
+    Int mem_size = 512
     Int cpu = 128
     Int disk = 2000
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -400,7 +401,7 @@ task STARsoloFastq {
 
   runtime {
     docker: docker
-    memory: "~{machine_mem_mb} MiB"
+    memory: "~{mem_size} GiB"
     disks: "local-disk ~{disk} SSD"
     disk: disk + " GB" # TES
     cpu: cpu
