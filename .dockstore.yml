@@ -244,3 +244,7 @@ workflows:
   - name: VUMCVcfRenameSamples
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfRenameSamples.wdl
+
+  - name: VUMCBed2GDS
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCBed2GDS.wdl
