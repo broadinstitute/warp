@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Documentation Style Guide
 
-This guide provides some examples about how to add new documentation that can be properly rendered on this website. Please note most of the Github flavored [Markdown](https://github.github.com/gfm/) syntax should work natrually, this guide just tries to elaboratethe extension syntax to it.
+This guide provides some examples about how to add new documentation that can be properly rendered on this website. Please note most of the Github flavored [Markdown](https://github.github.com/gfm/) syntax should work naturally, this guide just tries to elaborate the extension syntax to it.
 
 ## 1. Insert code blocks
 

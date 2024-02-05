@@ -1,3 +1,27 @@
+# 2.1.6
+2024-01-30 (Date of Last Commit)
+
+* Added task GetNumSplits before FastqProcess ATAC task to determine the number of splits based on the bwa-mem2 machine specs; this does affect the SlideSeq workflow
+* Added an error message to the BWAPairedEndAlignment ATAC task to ensure that the number of splits equals the number of ranks; this does affect the SlideSeq workflow
+* Added an error message to the BWAPairedEndAlignment ATAC task to ensure that the number of R1s equals to the number of R3s; this does affect the SlideSeq workflow
+
+# 2.1.5
+2024-01-11 (Date of Last Commit)
+
+* Increased memory for MergeStarOutputs in StarAlign.wdl, RunEmptyDrops in RunEmptyDrops.wdl, OptimusH5ad in H5adUtils.wdl and GeneMetrics in Metrics.wdl
+* Added the --soloMultiMappers flag as an optional input to the StarSoloFastq task in the StarAlign.wdl; this does affect the SlideSeq workflow
+  
+# 2.1.4
+2024-01-05 (Date of Last Commit)
+
+* Modified the STARsoloFastq task in the StarAlign.wdl so STARsolo can run different types of alignments in a single STARsolo command depending on the counting_mode; this does affect the SlideSeq workflow
+
+# 2.1.3
+2023-12-17 (Date of Last Commit)
+
+* Updated the ATAC WDL for the Multiome BWAPairedEndAlignment and MergedBAM tasks; this does affect the SlideSeq workflow
+  
+
 # 2.1.2
 2023-11-21 (Date of Last Commit)
 

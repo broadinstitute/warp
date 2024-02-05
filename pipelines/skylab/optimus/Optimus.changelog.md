@@ -1,3 +1,26 @@
+# 6.3.5
+2024-01-30 (Date of Last Commit)
+* Added task GetNumSplits before FastqProcess ATAC task to determine the number of splits based on the bwa-mem2 machine specs
+* Added an error message to the BWAPairedEndAlignment ATAC task to ensure that the number of splits equals the number of ranks
+* Added an error message to the BWAPairedEndAlignment ATAC task to ensure that the number of R1s equals to the number of R3s
+
+# 6.3.4
+2024-01-11 (Date of Last Commit)
+* Increased memory for MergeStarOutputs in StarAlign.wdl, RunEmptyDrops in RunEmptyDrops.wdl, OptimusH5ad in H5adUtils.wdl and GeneMetrics in Metrics.wdl
+* Added the --soloMultiMappers flag as an optional input to the StarSoloFastq task in the StarAlign.wdl
+
+# 6.3.3
+2024-01-05 (Date of Last Commit)
+* Modified the STARsoloFastq task in the StarAlign.wdl so STARsolo can run different types of alignments in a single STARsolo command depending on the counting_mode
+
+# 6.3.2
+2023-12-20 (Date of Last Commit)
+* Updated the ATAC WDL for the Multiome BWAPairedEndAlignment and MergedBAM tasks; this does affect the Optimus workflow
+  
+# 6.3.1
+2023-12-20 (Date of Last Commit)
+* JoinMultiomeBarcodes now has dynamic memory and disk allocation; this does affect the Optimus workflow
+
 # 6.3.0
 2023-12-04 (Date of Last Commit)
 

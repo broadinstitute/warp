@@ -1,5 +1,48 @@
+# 3.1.2
+2024-02-01 (Date of Last Commit)
+
+* Add new paired-tag task to parse sample barcodes from cell barcodes when preindexing is set to true; this does not affect the Multiome pipeline
+
+# 3.1.1 
+2024-01-30 (Date of Last Commit)
+
+* Added task GetNumSplits before FastqProcess ATAC task to determine the number of splits based on the bwa-mem2 machine specs
+* Added an error message to the BWAPairedEndAlignment ATAC task to ensure that the number of splits equal the number of ranks
+* Added an error message to the BWAPairedEndAlignment ATAC task to ensure that the number of R1s equals to the number of R3s
+
+# 3.1.0
+2024-01-24 (Date of Last Commit)
+* Promote aligner_metrics from Optimus task level outputs to Multiome pipeline level outputs
+
+# 3.0.5 
+2024-01-18 (Date of Last Commit)
+
+* Increased memory for MergeStarOutputs in StarAlign.wdl, RunEmptyDrops in RunEmptyDrops.wdl, OptimusH5ad in H5adUtils.wdl and GeneMetrics in Metrics.wdl
+* Added the --soloMultiMappers flag as an optional input to the StarSoloFastq task in the StarAlign.wdl
+* Added a check of read2 length to the paired-tag pipeline; this does not affect the Multiome workflow
+
+# 3.0.4
+2024-01-05 (Date of Last Commit)
+
+* Added new functionality to the ATAC workflow for paired-tag data, including the option for SnapATAC to pull cell barcodes from the BB tag of the BAM
+* Modified the STARsoloFastq task in the StarAlign.wdl so STARsolo can run different types of alignments in a single STARsolo command depending on the counting_mode
+
+# 3.0.3
+2023-12-20 (Date of Last Commit)
+
+* Added updated docker to BWAPairedEndAlignment ATAC task to use updated code for distributed bwa-mem2 from Intel
+* Removed MergedBAM ATAC and moved BWAPairedEndAlignment ATAC outside of the for loop
+* Changed CPU platform to Ice Lake for BWAPairedEndAlignment ATAC task
+* Added input parameter input_output_parameter to the Multiome ATAC wdl
+
+# 3.0.2
+2023-12-20 (Date of Last Commit)
+
+* JoinMultiomeBarcodes now has dynamic memory and disk allocation
+
 # 3.0.1
 2023-12-12 (Date of Last Commit)
+
 * ValidateVcfs now has optional memory parameter; this does not affect this pipeline
 * Downgraded Cell Bender from v0.3.1 to v0.3.0
 
@@ -17,6 +60,7 @@
 
 # 2.3.2
 2023-11-20 (Date of Last Commit)
+
 * Added an optional task to the Multiome.wdl that will run CellBender on the Optimus output h5ad file
 
 # 2.3.1
