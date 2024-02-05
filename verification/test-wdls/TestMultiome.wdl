@@ -27,6 +27,7 @@ workflow TestMultiome {
       String star_strand_mode = "Forward"
       Boolean count_exons = false
       File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt"
+      String? soloMultiMappers
 
       # ATAC inputs
       # Array of input fastq files
@@ -36,6 +37,7 @@ workflow TestMultiome {
 
       # BWA input
       File tar_bwa_reference
+
       # CreateFragmentFile input
       File chrom_sizes
       # Trimadapters input
@@ -84,7 +86,8 @@ workflow TestMultiome {
         adapter_seq_read3 = adapter_seq_read3,
         chrom_sizes = chrom_sizes,
         atac_whitelist = atac_whitelist,
-        run_cellbender = run_cellbender
+        run_cellbender = run_cellbender,
+        soloMultiMappers = soloMultiMappers
   
     }
 

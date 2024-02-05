@@ -36,7 +36,7 @@ task OptimusH5adGeneration {
 
     Int preemptible = 3
     Int disk = 200
-    Int machine_mem_mb = 16000
+    Int machine_mem_mb = 32000
     Int cpu = 4
   }
 
@@ -192,6 +192,7 @@ task JoinMultiomeBarcodes {
     File gex_h5ad
     File gex_whitelist
     File atac_whitelist
+
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
   }
