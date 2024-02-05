@@ -69,7 +69,7 @@ workflow snM3C {
                 plate_id = plate_id,
         }
 
-        call Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
+        call Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap {
             input:
                 split_fq_tar = Separate_and_split_unmapped_reads.split_fq_tar,
                 tarred_index_files = tarred_index_files,
@@ -77,16 +77,16 @@ workflow snM3C {
                 plate_id = plate_id
         }
 
-        call remove_overlap_read_parts {
-            input:
-                bam = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar,
-                plate_id = plate_id
-        }
+        #call remove_overlap_read_parts {
+        #    input:
+        #        bam = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar,
+        #        plate_id = plate_id
+        #}
 
         call merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate {
             input:
                 bam = Separate_and_split_unmapped_reads.unique_bam_tar,
-                split_bam = remove_overlap_read_parts.output_bam_tar,
+                split_bam = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap.remove_overlaps_output_bam_tar,
                 plate_id = plate_id
         }
 
@@ -112,8 +112,8 @@ workflow snM3C {
         input:
             trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar,
             hisat3n_stats = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_stats_tar,
-            r1_hisat3n_stats = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.hisat3n_dna_split_reads_summary_R1_tar,
-            r2_hisat3n_stats = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.hisat3n_dna_split_reads_summary_R2_tar,
+            r1_hisat3n_stats = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap.hisat3n_dna_split_reads_summary_R1_tar,
+            r2_hisat3n_stats = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap.hisat3n_dna_split_reads_summary_R2_tar,
             dedup_stats = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.dedup_stats_tar,
             chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats,
             allc_uniq_reads_stats = unique_reads_allc_and_cgn_extraction.allc_uniq_reads_stats,
@@ -132,10 +132,10 @@ workflow snM3C {
         Array[File] multi_bam_tar = Separate_and_split_unmapped_reads.multi_bam_tar
         #Array[File] unmapped_fastq_tar = Separate_and_split_unmapped_reads.unmapped_fastq_tar
         Array[File] split_fq_tar = Separate_and_split_unmapped_reads.split_fq_tar
-        Array[File] merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar
+        Array[File] merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap.merge_sorted_bam_tar
         Array[File] name_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.name_sorted_bam
         #Array[File] pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.position_sorted_bam
-        Array[File] remove_overlap_read_parts_bam_tar = remove_overlap_read_parts.output_bam_tar
+        Array[File] remove_overlap_read_parts_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap.remove_overlaps_output_bam_tar
         Array[File] dedup_unique_bam_and_index_unique_bam_tar = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.dedup_output_bam_tar
         Array[File] unique_reads_cgn_extraction_allc = unique_reads_allc_and_cgn_extraction.output_allc_tar
         Array[File] unique_reads_cgn_extraction_tbi = unique_reads_allc_and_cgn_extraction.output_tbi_tar
@@ -532,7 +532,7 @@ task Separate_and_split_unmapped_reads {
     }
 }
 
-task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name {
+task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap {
     input {
         File split_fq_tar
         File genome_fa
@@ -622,6 +622,31 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
        #tar up the merged bam files
        tar -zcvf ~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz *.hisat3n_dna.split_reads.name_sort.bam
 
+       # unzip bam file
+       tar -xf  ~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz
+       rm  ~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz
+
+       # create output dir
+       mkdir /cromwell_root/output_bams
+       # get bams
+       bams=($(ls | grep "sort.bam$"))
+
+       # loop through bams and run python script on each bam
+       # scatter instead of for loop to optimize
+       python3 <<CODE
+       from cemba_data.hisat3n import *
+       import os
+       bams="${bams[@]}"
+       for bam in bams.split(" "):
+           name=".".join(bam.split(".")[:3])+".read_overlap.bam"
+           remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", name))
+       CODE
+
+       cd /cromwell_root/output_bams
+
+       #tar up the merged bam files
+       tar -zcvf ../~{plate_id}.remove_overlap_read_parts.tar.gz *bam
+
     >>>
     runtime {
         docker: docker
@@ -634,61 +659,62 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
         File merge_sorted_bam_tar = "~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz"
         File hisat3n_dna_split_reads_summary_R1_tar = "~{plate_id}.hisat3n_dna_split_reads_summary.R1.tar.gz"
         File hisat3n_dna_split_reads_summary_R2_tar = "~{plate_id}.hisat3n_dna_split_reads_summary.R2.tar.gz"
+        File remove_overlaps_output_bam_tar = "~{plate_id}.remove_overlap_read_parts.tar.gz"
     }
 }
 
-task remove_overlap_read_parts {
-    input {
-        File bam
-        String plate_id
-
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 80
-        Int mem_size = 20
-        Int preemptible_tries = 3
-        Int cpu = 1
-    }
-
-    command <<<
-        set -euo pipefail
-        # unzip bam file
-        tar -xf ~{bam}
-        rm ~{bam}
-
-        # create output dir
-        mkdir /cromwell_root/output_bams
-
-        # get bams
-        bams=($(ls | grep "sort.bam$"))
-
-        # loop through bams and run python script on each bam
-        # scatter instead of for loop to optimize
-        python3 <<CODE
-        from cemba_data.hisat3n import *
-        import os
-        bams="${bams[@]}"
-        for bam in bams.split(" "):
-            name=".".join(bam.split(".")[:3])+".read_overlap.bam"
-            remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", name))
-        CODE
-
-        cd /cromwell_root/output_bams
-
-        #tar up the merged bam files
-        tar -zcvf ../~{plate_id}.remove_overlap_read_parts.tar.gz *bam
-
-    >>>
-    runtime {
-        docker: docker
-        disks: "local-disk ${disk_size} HDD"
-        cpu: cpu
-        memory: "${mem_size} GiB"
-        preemptible: preemptible_tries
-    }
-    output {
-        File output_bam_tar = "~{plate_id}.remove_overlap_read_parts.tar.gz"
-    }
-}
+#task remove_overlap_read_parts {
+#    input {
+#        File bam
+#        String plate_id
+#
+#        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+#        Int disk_size = 80
+#        Int mem_size = 20
+#        Int preemptible_tries = 3
+#        Int cpu = 1
+#    }
+#
+#    command <<<
+#        set -euo pipefail
+#        # unzip bam file
+#        tar -xf ~{bam}
+#        rm ~{bam}
+#
+#        # create output dir
+#        mkdir /cromwell_root/output_bams
+#
+#        # get bams
+#        bams=($(ls | grep "sort.bam$"))
+#
+#        # loop through bams and run python script on each bam
+#        # scatter instead of for loop to optimize
+#        python3 <<CODE
+#        from cemba_data.hisat3n import *
+#        import os
+#        bams="${bams[@]}"
+#        for bam in bams.split(" "):
+#            name=".".join(bam.split(".")[:3])+".read_overlap.bam"
+#            remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", name))
+#        CODE
+#
+#        cd /cromwell_root/output_bams
+#
+#        #tar up the merged bam files
+#        tar -zcvf ../~{plate_id}.remove_overlap_read_parts.tar.gz *bam
+#
+#    >>>
+#    runtime {
+#        docker: docker
+#        disks: "local-disk ${disk_size} HDD"
+#        cpu: cpu
+#        memory: "${mem_size} GiB"
+#        preemptible: preemptible_tries
+#    }
+#    output {
+#        File output_bam_tar = "~{plate_id}.remove_overlap_read_parts.tar.gz"
+#    }
+#}
 
 task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate {
     input {
