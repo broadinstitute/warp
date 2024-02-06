@@ -1,0 +1,11 @@
+{
+  "ReblockGVCF.gvcf": "gs://broad-gotc-test-storage/ReblockGVCF/input/scientific/NA12878.bge/NA12878.hard-filtered.gvcf.gz",
+  "ReblockGVCF.gvcf_index": "gs://broad-gotc-test-storage/ReblockGVCF/input/scientific/NA12878.bge/NA12878.hard-filtered.gvcf.gz.tbi",
+  "ReblockGVCF.calling_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/bge_exome_calling_regions.v1.1.interval_list",
+  "ReblockGVCF.ref_fasta": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "ReblockGVCF.ref_fasta_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+  "ReblockGVCF.ref_dict": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dict",
+  "ReblockGVCF.annotations_to_remove_command": "--format-annotations-to-remove PRI",
+  "ReblockGVCF.move_filters_to_genotypes": true,
+  "ReblockGVCF.gvcf_file_extension": ".gvcf.gz"
+}
