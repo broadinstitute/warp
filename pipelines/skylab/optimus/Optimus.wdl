@@ -31,6 +31,7 @@ workflow Optimus {
     File annotations_gtf
     File ref_genome_fasta
     File? mt_genes
+    String? soloMultiMappers
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
@@ -64,7 +65,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "6.3.4"
+  String pipeline_version = "6.3.5"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -131,7 +132,8 @@ workflow Optimus {
         chemistry = tenx_chemistry_version,
         counting_mode = counting_mode,
         count_exons = count_exons,
-        output_bam_basename = output_bam_basename + "_" + idx
+        output_bam_basename = output_bam_basename + "_" + idx,
+        soloMultiMappers = soloMultiMappers
     }
   }
   call Merge.MergeSortBamFiles as MergeBam {
@@ -237,6 +239,11 @@ workflow Optimus {
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
     File? aligner_metrics = MergeStarOutputs.cell_reads_out
+    Array[File?] multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
+    Array[File?] multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
+    Array[File?] multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
+    Array[File?] multimappers_PropUnique_matrix = STARsoloFastq.multimappers_PropUnique_matrix
+
     # h5ad
     File h5ad_output_file = final_h5ad_output
   }

@@ -24,13 +24,15 @@ workflow ATAC {
     
     # BWA ref
     File tar_bwa_reference
+    # BWA machine type -- to select number of splits 
+    Int num_threads_bwa = 128
+    Int mem_size_bwa = 512
+    String cpu_platform_bwa = "Intel Ice Lake"
 
     # GTF for SnapATAC2 to calculate TSS sites of fragment file
     File annotations_gtf
     # Text file containing chrom_sizes for genome build (i.e. hg38)
     File chrom_sizes
-    # Number of fastq files for fastqprocess
-    Int num_output_files = 4
     # Whitelist
     File whitelist
 
@@ -39,7 +41,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "1.1.4"
+  String pipeline_version = "1.1.7"
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
@@ -47,6 +49,17 @@ workflow ATAC {
     read3_fastq_gzipped: "read 3 FASTQ file as input for the pipeline, contains read 2 of paired reads"
     output_base_name: "base name to be used for the pipelines output and intermediate files"
     tar_bwa_reference: "the pre built tar file containing the reference fasta and cooresponding reference files for the BWA aligner"
+    num_threads_bwa: "Number of threads for bwa-mem2 task (default: 128)"
+    mem_size_bwa: "Memory size in GB for bwa-mem2 task (default: 512)"
+    cpu_platform_bwa: "CPU platform for bwa-mem2 task (default: Intel Ice Lake)"
+  
+ }
+
+  call GetNumSplits {
+    input:
+       nthreads = num_threads_bwa, 
+       mem_size = mem_size_bwa,
+       cpu_platform = cpu_platform_bwa
   }
 
   call FastqProcessing.FastqProcessATAC as SplitFastq {
@@ -55,12 +68,11 @@ workflow ATAC {
       read3_fastq = read3_fastq_gzipped,
       barcodes_fastq = read2_fastq_gzipped,
       output_base_name = input_id,
-      num_output_files = num_output_files,
+      num_output_files = GetNumSplits.ranks_per_node_out,
       whitelist = whitelist
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
-
     call TrimAdapters {
       input:
         read1_fastq = SplitFastq.fastq_R1_output_array[idx],
@@ -76,7 +88,10 @@ workflow ATAC {
         read1_fastq = TrimAdapters.fastq_trimmed_adapter_output_read1,
         read3_fastq = TrimAdapters.fastq_trimmed_adapter_output_read3,
         tar_bwa_reference = tar_bwa_reference,
-        output_base_name = input_id
+        output_base_name = input_id,
+        nthreads = num_threads_bwa, 
+        mem_size = mem_size_bwa,
+        cpu_platform = cpu_platform_bwa
   }
 
   if (preindex) {
@@ -113,6 +128,92 @@ workflow ATAC {
     File snap_metrics = snap_metrics_atac
   }
 }
+
+# get number of splits
+task GetNumSplits {
+  input {
+    # machine specs for bwa-mem2 task 
+    Int nthreads
+    Int mem_size
+    String cpu_platform 
+    String docker_image = "ubuntu:latest"
+  }
+
+  parameter_meta {
+    docker_image: "the ubuntu docker image (default: ubuntu:latest)"
+    nthreads: "Number of threads per node (default: 128)"
+    mem_size: "the size of memory used during alignment"
+  }
+
+  command <<<
+    set -euo pipefail
+    
+    # steps taken from https://github.com/IntelLabs/Open-Omics-Acceleration-Framework/blob/main/pipelines/fq2sortedbam/print_config.sh
+    num_nodes=1
+    lscpu
+    lscpu > compute_config
+    
+    num_cpus_per_node=$(cat compute_config | grep -E '^CPU\(s\)' | awk  '{print $2}')
+    num_sockets=$(cat compute_config | grep -E '^Socket'| awk  '{print $2}')
+    num_numa=$(cat compute_config | grep '^NUMA node(s)' | awk '{print $3}')
+    num_cpus_all_node=`expr ${num_cpus_per_node} \* ${num_nodes}`
+    threads_per_core=$(cat compute_config | grep -E '^Thread' | awk  '{print $4}')
+    
+    num_cpus_all_node=`expr ${num_cpus_per_node} \* ${num_nodes}`
+
+    echo "Number of threads: " $num_cpus_per_node
+    echo "Number of sockets: " $num_sockets
+    echo "Number of NUMA domains: "$num_numa
+    echo "Number of threads per core: "$threads_per_core
+    echo "Number of CPUs: $num_cpus_all_node"
+
+    num_physical_cores_all_nodes=`expr ${num_cpus_all_node} / ${threads_per_core}`
+    num_physical_cores_per_nodes=`expr  ${num_cpus_per_node} / ${threads_per_core}`
+    num_physical_cores_per_socket=`expr ${num_physical_cores_all_nodes} / ${num_sockets}`
+    num_physical_cores_per_numa=`expr ${num_physical_cores_all_nodes} / ${num_numa}`
+    echo "Number physical cores: "$num_physical_cores_per_nodes
+    echo "Number physical cores per socket: "$num_physical_cores_per_socket
+    echo "Number physical cores per numa: "$num_physical_cores_per_numa
+
+    th=`expr ${num_physical_cores_per_numa} / 2` 
+    if [ $th -le 10 ]
+    then
+        th=${num_physical_cores_per_numa}
+    fi
+
+    while [ $num_physical_cores_per_nodes -gt $th ]
+    do
+        num_physical_cores_per_nodes=`expr $num_physical_cores_per_nodes / 2`
+    done
+
+    num_physical_cores_per_rank=$num_physical_cores_per_nodes
+    total_num_ranks=`expr ${num_physical_cores_all_nodes} / ${num_physical_cores_per_rank}`
+
+    ranks_per_node=`expr ${total_num_ranks} / ${num_nodes}`
+    echo "Number of MPI ranks: "${total_num_ranks}
+    echo "Number of cores per MPI rank: "$num_physical_cores_per_nodes
+    echo "#############################################"
+    #echo "Note: Each MPI rank runs a bwa-mem2 process on its input fastq files produced by fqprocess. Please ensure that the number of files created due to bam_size parameter to fqprocess (in config file) creates number of fastq files equal to ${total_num_ranks}"
+    echo "Please set bam_size such that fastqprocess creates ${total_num_ranks} splits of input fastq files"
+    echo "#############################################"
+
+    echo $total_num_ranks > total_num_ranks.txt
+    echo $ranks_per_node > ranks_per_node.txt
+
+  >>>
+
+  runtime {
+    docker: docker_image
+    cpu: nthreads
+    cpuPlatform: cpu_platform
+    memory: "${mem_size} GiB"
+  }
+
+  output {
+    Int ranks_per_node_out = read_int("ranks_per_node.txt")
+  }
+}
+
 
 # trim read 1 and read 2 adapter sequeunce with cutadapt
 task TrimAdapters {
@@ -189,13 +290,13 @@ task BWAPairedEndAlignment {
     String read_group_sample_name = "RGSN1"
     String suffix = "trimmed_adapters.fastq.gz"
     String output_base_name
-    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:1.0.0"
+    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:2.0.0"
 
     # Runtime attributes
     Int disk_size = 2000
-    Int nthreads = 128
-    Int mem_size = 512
-    String cpu_platform = "Intel Ice Lake"
+    Int nthreads
+    Int mem_size
+    String cpu_platform 
   }
 
   parameter_meta {
