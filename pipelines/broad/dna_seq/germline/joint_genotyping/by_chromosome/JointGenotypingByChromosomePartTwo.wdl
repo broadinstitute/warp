@@ -5,7 +5,7 @@ import "../../../../../../tasks/broad/JointGenotypingTasks.wdl" as Tasks
 # Joint Genotyping for hg38 Exomes and Whole Genomes (has not been tested on hg19)
 workflow JointGenotypingByChromosomePartTwo {
 
-  String pipeline_version = "1.4.9"
+  String pipeline_version = "1.4.10"
 
   input {
     String callset_name

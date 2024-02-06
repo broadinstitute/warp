@@ -5,7 +5,7 @@ import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
 workflow PairedTag {
-    String pipeline_version = "0.0.4"
+    String pipeline_version = "0.0.6"
 
     input {
         String input_id
@@ -42,7 +42,7 @@ workflow PairedTag {
         File atac_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
 
         # PairedTag
-        Boolean preindex = true
+        Boolean preindex
     }
     # Call the Optimus workflow
     call optimus.Optimus as Optimus {
@@ -68,18 +68,19 @@ workflow PairedTag {
 
     # Call the ATAC workflow
         # Call the ATAC workflow
-    if (preindex) {
-        scatter (idx in range(length(atac_r1_fastq))) {
-            call Demultiplexing.PairedTagDemultiplex as demultiplex {
-              input:
-                read1_fastq = atac_r1_fastq[idx],
-                read3_fastq = atac_r3_fastq[idx],
-                barcodes_fastq = atac_r2_fastq[idx],
-                input_id = input_id
-            }
+    scatter (idx in range(length(atac_r1_fastq))) {
+        call Demultiplexing.PairedTagDemultiplex as demultiplex {
+            input:
+              read1_fastq = atac_r1_fastq[idx],
+              read3_fastq = atac_r3_fastq[idx],
+              barcodes_fastq = atac_r2_fastq[idx],
+              input_id = input_id,
+              whitelist = atac_whitelist,
+              preindex = preindex
         }
-        call atac.ATAC as Atac_preindex {
-          input:
+    }      
+    call atac.ATAC as Atac_preindex {
+        input:
             read1_fastq_gzipped = demultiplex.fastq1,
             read2_fastq_gzipped = demultiplex.barcodes,
             read3_fastq_gzipped = demultiplex.fastq3,
@@ -91,41 +92,30 @@ workflow PairedTag {
             adapter_seq_read1 = adapter_seq_read1,
             adapter_seq_read3 = adapter_seq_read3,
             preindex = preindex
+    }
+
+    if (preindex) {
+        call Demultiplexing.ParseBarcodes as ParseBarcodes {
+            input:
+              atac_h5ad = Atac_preindex.snap_metrics,
+              atac_fragment = Atac_preindex.fragment_file
         }
-    }        
-    if (!preindex) {
-      call atac.ATAC as Atac {
-        input:
-            read1_fastq_gzipped = atac_r1_fastq,
-            read2_fastq_gzipped = atac_r2_fastq,
-            read3_fastq_gzipped = atac_r3_fastq,
-            input_id = input_id + "_atac",
-            tar_bwa_reference = tar_bwa_reference,
-            annotations_gtf = annotations_gtf,
-            chrom_sizes = chrom_sizes,
-            whitelist = atac_whitelist,
-            adapter_seq_read1 = adapter_seq_read1,
-            adapter_seq_read3 = adapter_seq_read3,
-            preindex = preindex
-        }
-    } 
-   
-    File atac_h5ad = select_first([Atac_preindex.snap_metrics,Atac.snap_metrics])
-    File atac_fragment = select_first([Atac_preindex.fragment_file, Atac.fragment_file])
-    File bam_atac_output = select_first([Atac_preindex.bam_aligned_output, Atac.bam_aligned_output])
+    }      
 
     meta {
         allowNestedInputs: true
     }
     
+    File atac_fragment_out = select_first([ParseBarcodes.atac_fragment_tsv,Atac_preindex.fragment_file])
+    File atac_h5ad_out = select_first([ParseBarcodes.atac_h5ad_file, Atac_preindex.snap_metrics])
     output {
         
         String pairedtag_pipeline_version_out = pipeline_version
 
         # atac outputs
-        File bam_aligned_output_atac = bam_atac_output
-        File fragment_file_atac = atac_fragment
-        File snap_metrics_atac = atac_h5ad
+        File bam_aligned_output_atac = Atac_preindex.bam_aligned_output
+        File fragment_file_atac = atac_fragment_out
+        File snap_metrics_atac = atac_h5ad_out
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version

@@ -4,7 +4,7 @@
 * Updated VETS filtering pipeline to GATK version 4.5.0.0. Does not affect outputs.
 
 # 1.1.5
-2023-12-14 (Date of Last Commit)
+2023-09-08 (Date of Last Commit)
 
 * Added option to hard filter sites outside of provided interval list to HardFilterAndMakeSitesOnlyVcf task
 
