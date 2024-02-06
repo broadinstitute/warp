@@ -1,6 +1,6 @@
 ---
 sidebar_position: 1
-slug: /Pipelines/JointGenotyping/README
+slug: /Pipelines/JointGenotyping_Pipeline/README
 ---
 
 # JointGenotyping Overview
@@ -55,27 +55,27 @@ The table below describes the pipeline inputs that apply when the pipeline is ru
 | ref_dict | Reference dictionary file used for joint calling; must agree with reference for `unpadded_intervals_file`. | File |
 | dbsnp_vcf | Resource VCF file containing common SNPs and indels used for annotating the VCF file after joint calling. | File |
 | dbsnp_vcf_index | Index for `dbsnp_vcf`. | File |
-| snp_recalibration_tranche_values | Set of sensitivity levels used when running the pipeline using VQSR; value should match truth sensitivity; filter cutoff based on sensitivity to common variants (more sensitivity = more false positives); required when `run_vets` is “false”. | Array[String] |
+| snp_recalibration_tranche_values | Set of sensitivity levels used when running the pipeline using VQSR; value should match estimated sensitivity of truth resource passed as `hapmap_resource_vcf` to the [SNPsVariantRecalibratorCreateModel](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/JointGenotypingTasks.wdl) and [SNPsVariantRecalibrator as SNPsVariantRecalibratorScattered](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/JointGenotypingTasks.wdl) tasks; filter cutoff based on sensitivity to common variants (more sensitivity = more false positives); required when `run_vets` is “false”. | Array[String] |
 | snp_recalibration_annotation_values | Features used for filtering model (annotations in VCF file); all allele-specific versions. | Array[String] |
-| indel_recalibration_tranche_values | Set of sensitivity levels used when running the pipeline using VQSR; value should match truth sensitivity; filter cutoff based on sensitivity to common variants (more sensitivity = more false positives); required when `run_vets` is “false”. | Array[String] |
+| indel_recalibration_tranche_values | Set of sensitivity levels used when running the pipeline using VQSR; value should match estimated sensitivity of truth resource passed as `mills_resource_vcf` to the [IndelsVariantRecalibrator](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/JointGenotypingTasks.wdl) task; filter cutoff based on sensitivity to common variants (more sensitivity = more false positives); required when `run_vets` is “false”. | Array[String] |
 | indel_recalibration_annotation_values | Features used for filtering model when running the pipeline using VQSR; required when `run_vets` is “false”. | Array[String] |
 | eval_interval_list | Subset of the unpadded intervals file used for metrics.  | File |
-| hapmap_resource_vcf | Used for SNP variant recalibration. | File |
-| hapmap_resource_vcf_index | Used for SNP variant recalibration. | File |
-| omni_resource_vcf | Used for SNP recalibration. | File |
-| omni_resource_vcf_index | Used for SNP recalibration. | File | 
-| one_thousand_genomes_resource_vcf | Used for SNP recalibration. | File |
-| one_thousand_genomes_resource_vcf_index | Used for SNP recalibration. | File |
-| mills_resource_vcf | Used for indel variant recalibration. | File |
-| mills_resource_vcf_index | Used for indel variant recalibration. | File |
-| axiomPoly_resource_vcf | Used for indel variant recalibration. | File |
-| axiomPoly_resource_vcf_index | Used for indel variant recalibration. | File |
-| dbsnp_resource_vcf | Optional file used for SNP/indel variant recalibration; set to `dbsnp_vcf` by default. | File |
-| dbsnp_resource_vcf_index | Optional file used for SNP/indel variant recalibration; set to `dbsnp_vcf_index` by default. | File |
+| hapmap_resource_vcf | Used for SNP variant recalibration; see the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811) for more information. | File |
+| hapmap_resource_vcf_index | Used for SNP variant recalibration; see the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811) for more information. | File |
+| omni_resource_vcf | Used for SNP recalibration; see the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811) for more information. | File |
+| omni_resource_vcf_index | Used for SNP recalibration; see the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811) for more information. | File | 
+| one_thousand_genomes_resource_vcf | Used for SNP recalibration; see the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811) for more information. | File |
+| one_thousand_genomes_resource_vcf_index | Used for SNP recalibration; see the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811) for more information. | File |
+| mills_resource_vcf | Used for indel variant recalibration; see the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811) for more information. | File |
+| mills_resource_vcf_index | Used for indel variant recalibration; see the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811) for more information. | File |
+| axiomPoly_resource_vcf | Used for indel variant recalibration; see the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811) for more information. | File |
+| axiomPoly_resource_vcf_index | Used for indel variant recalibration; see the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811) for more information. | File |
+| dbsnp_resource_vcf | Optional file used for SNP/indel variant recalibration; set to `dbsnp_vcf` by default; see the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811) for more information. | File |
+| dbsnp_resource_vcf_index | Optional file used for SNP/indel variant recalibration; set to `dbsnp_vcf_index` by default; see the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811) for more information. | File |
 | excess_het_threshold | Optional float used for hard filtering joint calls; phred-scaled p-value; set to `54.69` by default to cut off quality scores greater than a z-score of -4.5 (p-value of 3.4e-06). | Float |
 | vqsr_snp_filter_level | Used for applying the recalibration model when running the pipeline using VQSR; required when `run_vets` is “false”. | Float |
 | vqsr_indel_filter_level | Used for applying the recalibration model when running the pipeline using VQSR; required when `run_vets` is “false”. | Float |
-| snp_vqsr_downsampleFactor | The downsample factor used for SNP variant recalibration if the number of GVCF files is greater than the `snps_variant_recalibration_threshold` when running the pipeline using VQSR; required when `run_vets` is “false”. | Int |
+| snp_vqsr_downsampleFactor | The downsample factor used for SNP variant recalibration if the number of GVCF files is greater than the ` snps_variant_recalibration_threshold` when running the pipeline using VQSR; required when `run_vets` is “false”. | Int |
 | top_level_scatter_count | Optional integer used to determine how many files the input interval list should be split into; default will split the interval list into 2 files. | Int |
 | gather_vcfs | Optional boolean; “true” is used for small callsets containing less than 100,000 GVCF files. | Boolean |
 | snps_variant_recalibration_threshold | Optional integer that sets the threshold for the number of callset VCF files used to perform recalibration on a single file; if the number of VCF files exceeds the threshold, variants will be downsampled to enable parallelization; default is “500000”. | Int | 
@@ -154,7 +154,7 @@ To see specific tool parameters, select the task WDL link in the table; then fin
 | [GenotypeGVCFs](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/JointGenotypingTasks.wdl) | GenotypeGVCFs | [GATK](https://gatk.broadinstitute.org/hc/en-us) | If `use_gnarly_genotyper` is “false” (default is “false”), performs joint genotyping on GVCF files stored in GenomicsDB; otherwise this task is skipped. |
 | [HardFilterAndMakeSitesOnlyVcf](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/JointGenotypingTasks.wdl) | VariantFiltration, MakeSitesOnlyVcf | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Uses the VCF files to hard filter the variant calls; outputs a VCF file with the site-specific (but not genotype) information. | 
 | [GatherVcfs as SitesOnlyGatherVcf](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/JointGenotypingTasks.wdl) | GatherVcfsCloud | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Compiles the site-specific VCF files generated for each interval into one VCF output file and index. | 
-| [JointVcfFiltering as TrainAndApplyVETS](https://github.com/broadinstitute/gatk/blob/master/scripts/vcf_site_level_filtering_wdl/JointVcfFiltering.wdl) | ExtractVariantAnnotations, TrainVariantAnnotationsModel, ScoreVariantAnnotations | [GATK](https://gatk.broadinstitute.org/hc/en-us) | If `run_vets` is “true” (default is “false”), calls the `JointVcfFiltering.wdl` subworkflow to extract variant-level annotations, trains a model for variant scoring, and scores variants; otherwise, this task is skipped. | 
+| [JointVcfFiltering as TrainAndApplyVETS]https://github.com/broadinstitute/gatk/blob/master/scripts/vcf_site_level_filtering_wdl/JointVcfFiltering.wdl) | ExtractVariantAnnotations, TrainVariantAnnotationsModel, ScoreVariantAnnotations | [GATK](https://gatk.broadinstitute.org/hc/en-us) | If `run_vets` is “true” (default is “false”), calls the `JointVcfFiltering.wdl` subworkflow to extract variant-level annotations, trains a model for variant scoring, and scores variants; otherwise, this task is skipped. | 
 | [IndelsVariantRecalibrator](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/JointGenotypingTasks.wdl) | VariantRecalibrator | [GATK](https://gatk.broadinstitute.org/hc/en-us) | If `run_vets` is “false” (default is “false”), uses the compiled VCF file to build a recalibration model to score indel variant quality; produces a recalibration table. | 
 | [SNPsVariantRecalibratorCreateModel](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/JointGenotypingTasks.wdl) | VariantRecalibrator | [GATK](https://gatk.broadinstitute.org/hc/en-us) | If `run_vets` is “false” (default is “false”) and the number of input GVCF files is greater than `snps_variant_recalibration_threshold`, builds a recalibration model to score variant quality; otherwise this task is skipped. | 
 | [SNPsVariantRecalibrator as SNPsVariantRecalibratorScattered](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/JointGenotypingTasks.wdl) | VariantRecalibrator | [GATK](https://gatk.broadinstitute.org/hc/en-us) | If `run_vets` is “false” (default is “false”) and the number of input GVCF files is greater than `snps_variant_recalibration_threshold`, builds a scattered recalibration model to score variant quality; otherwise this task is skipped. | 
