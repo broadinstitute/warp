@@ -471,10 +471,10 @@ task MergeStarOutput {
     Array[File] barcodes
     Array[File] features
     Array[File] matrix
-    Array[File] cell_reads
-    Array[File] summary
-    Array[File] align_features
-    Array[File] umipercell
+    Array[File]? cell_reads
+    Array[File]? summary
+    Array[File]? align_features
+    Array[File]? umipercell
     
     String input_id
 
