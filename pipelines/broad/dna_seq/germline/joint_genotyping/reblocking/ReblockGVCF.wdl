@@ -5,7 +5,7 @@ import "../../../../../../tasks/broad/Qc.wdl" as QC
 
 workflow ReblockGVCF {
 
-  String pipeline_version = "2.1.9"
+  String pipeline_version = "2.1.10"
 
 
   input {
@@ -17,9 +17,12 @@ workflow ReblockGVCF {
     File ref_fasta_index
     Float? tree_score_cutoff
     String? annotations_to_keep_command
+    String? annotations_to_remove_command
+    Boolean? move_filters_to_genotypes
+    String gvcf_file_extension = ".g.vcf.gz"
   }
 
-  String gvcf_basename = basename(gvcf, ".g.vcf.gz")
+  String gvcf_basename = basename(gvcf, gvcf_file_extension)
 
   call Calling.Reblock as Reblock {
     input:
@@ -30,6 +33,8 @@ workflow ReblockGVCF {
       ref_dict = ref_dict,
       tree_score_cutoff = tree_score_cutoff,
       annotations_to_keep_command = annotations_to_keep_command,
+      annotations_to_remove_command = annotations_to_remove_command,
+      move_filters_to_genotypes = move_filters_to_genotypes,
       output_vcf_filename = gvcf_basename + ".rb.g.vcf.gz"
   }
 
