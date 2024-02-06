@@ -16,5 +16,8 @@
   "Optimus.tenx_chemistry_version": "3",
   "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf",
   "Optimus.star_strand_mode": "Forward",
-  "Optimus.ref_genome_fasta": "gs://gcp-public-data--broad-references/hg38/v0/GRCh38.primary_assembly.genome.fa"
+  "Optimus.ref_genome_fasta": "gs://gcp-public-data--broad-references/hg38/v0/GRCh38.primary_assembly.genome.fa",
+  "Optimus.STARsoloFastq.cpu_platform":"Intel Cascade Lake",
+  "Optimus.STARsoloFastq.cpu":"16",
+  "Optimus.STARsoloFastq.mem_size":"64" 
 }
