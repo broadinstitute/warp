@@ -29,6 +29,7 @@
   "Multiome.tar_bwa_reference":"gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/bwa-mem2-2.2.1-Human-GENCODE-build-GRCh38.tar",
   "Multiome.tar_star_reference":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_star2.7.10a-Human-GENCODE-build-GRCh38-43.tar",
   "Multiome.chrom_sizes":"gs://broad-gotc-test-storage/Multiome/input/hg38.chrom.sizes",
-  "Multiome.Atac.BWAPairedEndAlignment.mem_size":"64",
-  "Multiome.Atac.BWAPairedEndAlignment.nthreads":"16"
+  "Multiome.Atac.cpu_platform_bwa":"Intel Cascade Lake",
+  "Multiome.Atac.num_threads_bwa":"24",
+  "Multiome.Atac.mem_size_bwa":"175"
 }

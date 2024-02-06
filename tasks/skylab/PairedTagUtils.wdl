@@ -180,3 +180,91 @@ task AddBBTag {
         File bb_bam = "~{input_id}.bam.BB.bam"
     }
 }
+
+task ParseBarcodes {
+    input {
+        File atac_h5ad
+        File atac_fragment
+        Int nthreads = 1
+        String cpuPlatform = "Intel Cascade Lake"
+    }
+
+    String atac_base_name = basename(atac_h5ad, ".h5ad")
+    String atac_fragment_base = basename(atac_fragment, ".tsv")
+
+    Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(atac_fragment, "MiB")) * 3) + 10000
+    Int disk =  ceil((size(atac_h5ad, "GiB") + size(atac_fragment, "GiB")) * 5) + 10
+
+  parameter_meta {
+      atac_h5ad: "The resulting h5ad from the ATAC workflow."
+      atac_fragment: "The resulting fragment TSV from the ATAC workflow."
+  }
+
+  command <<<
+    set -e pipefail
+
+    python3 <<CODE
+
+    # set parameters
+    atac_h5ad = "~{atac_h5ad}"
+    atac_fragment = "~{atac_fragment}"
+
+    # import anndata to manipulate h5ad files
+    import anndata as ad
+    import pandas as pd
+    print("Reading ATAC h5ad:")
+    atac_data = ad.read_h5ad("~{atac_h5ad}")
+    print("Reading ATAC fragment file:")
+    test_fragment = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
+      
+    # Separate out CB and preindex in the h5ad and identify sample barcodes assigned to more than one cell barcode
+    print("Setting preindex and CB columns in h5ad")
+    df_h5ad = atac_data.obs
+    df_h5ad["preindex"] = df_h5ad.index.str[:3]
+    df_h5ad["CB"] = df_h5ad.index.str[3:]
+    df_h5ad["duplicates"] = 0
+    preindex_counts = df_h5ad.groupby('CB')['preindex'].nunique()
+    df_h5ad.loc[df_h5ad['CB'].isin(preindex_counts[preindex_counts > 1].index), 'duplicates'] = 1
+      
+    # Separate out CB and preindex in the fragment file
+    print("Setting preindex and CB columns in fragment file")
+    test_fragment["preindex"] = test_fragment["barcode"].str[:3]
+    test_fragment["CB"] = test_fragment["barcode"].str[3:]
+      
+    # Create a new column 'duplicates' initialized with 0
+    test_fragment['duplicates'] = 0
+      
+    # Group by 'CB' and count the number of unique 'preindex' values for each group
+    preindex_counts = test_fragment.groupby('CB')['preindex'].nunique()
+      
+    # Update the 'duplicates' column for rows with more than one unique 'preindex' for a 'CB'
+    test_fragment.loc[test_fragment['CB'].isin(preindex_counts[preindex_counts > 1].index), 'duplicates'] = 1
+      
+    # Idenitfy the barcodes in the whitelist that match barcodes in datasets
+    atac_data.write_h5ad("~{atac_base_name}.h5ad")
+    test_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
+    CODE
+    
+    # sorting the file
+    echo "Sorting file"
+    sort -k1,1V -k2,2n "~{atac_fragment_base}.tsv" > "~{atac_fragment_base}.sorted.tsv"
+    echo "Starting bgzip"
+    bgzip "~{atac_fragment_base}.sorted.tsv"
+    echo "Starting tabix"
+    tabix -s 1 -b 2 -e 3 "~{atac_fragment_base}.sorted.tsv.gz"
+
+  >>>
+
+  runtime {
+      docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
+      disks: "local-disk ~{disk} HDD"
+      memory: "${machine_mem_mb} MiB"
+      cpu: nthreads
+  }
+
+  output {
+      File atac_h5ad_file = "~{atac_base_name}.h5ad"
+      File atac_fragment_tsv = "~{atac_fragment_base}.sorted.tsv.gz"
+      File atac_fragment_tsv_tbi = "~{atac_fragment_base}.sorted.tsv.gz.tbi"
+  }
+}
