@@ -132,7 +132,7 @@ workflow snM3C {
         Array[File] multi_bam_tar = Separate_and_split_unmapped_reads.multi_bam_tar
         #Array[File] unmapped_fastq_tar = Separate_and_split_unmapped_reads.unmapped_fastq_tar
         Array[File] split_fq_tar = Separate_and_split_unmapped_reads.split_fq_tar
-        Array[File] merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap.merge_sorted_bam_tar
+        #Array[File] merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap.merge_sorted_bam_tar
         Array[File] name_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.name_sorted_bam
         #Array[File] pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.position_sorted_bam
         Array[File] remove_overlap_read_parts_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap.remove_overlaps_output_bam_tar
@@ -656,7 +656,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_
         preemptible: preemptible_tries
     }
     output {
-        File merge_sorted_bam_tar = "~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz"
+        #File merge_sorted_bam_tar = "~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz"
         File hisat3n_dna_split_reads_summary_R1_tar = "~{plate_id}.hisat3n_dna_split_reads_summary.R1.tar.gz"
         File hisat3n_dna_split_reads_summary_R2_tar = "~{plate_id}.hisat3n_dna_split_reads_summary.R2.tar.gz"
         File remove_overlaps_output_bam_tar = "~{plate_id}.remove_overlap_read_parts.tar.gz"
