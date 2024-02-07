@@ -1,0 +1,8 @@
+{
+  "VUMCPlink2Filter.source_bed": "/nobackup/h_cqs/shengq2/biovu/agd35k/ICA-AGD/chrM.bed",
+  "VUMCPlink2Filter.source_fam": "/nobackup/h_cqs/shengq2/biovu/agd35k/ICA-AGD/chrM.fam",
+  "VUMCPlink2Filter.source_bim": "/nobackup/h_cqs/shengq2/biovu/agd35k/ICA-AGD/chrM.bim",
+  "VUMCPlink2Filter.plink2_filter_option": "--geno 0.05 --maf 0.05",
+  "VUMCPlink2Filter.target_prefix": "small_test"
+}
+

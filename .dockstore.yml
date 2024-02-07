@@ -248,3 +248,9 @@ workflows:
   - name: VUMCBed2GDS
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCBed2GDS.wdl
+
+  - name: VUMCPlink2Filter
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2Filter.wdl
+
+
