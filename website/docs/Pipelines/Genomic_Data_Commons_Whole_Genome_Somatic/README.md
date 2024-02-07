@@ -30,7 +30,7 @@ For the latest workflow version and release notes, please see the [changelog](ht
 ### Software version requirements
 
 * GATK 4.5.0.0
-* Picard 2.26.10 (Custom Docker is used to run software on Cromwell 52)
+* Picard 2.26.10
 * Samtools 1.11
 * Python 3.0
 * Cromwell version support
