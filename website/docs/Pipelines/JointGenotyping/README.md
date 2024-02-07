@@ -120,10 +120,10 @@ The table below describes the pipeline inputs used for setting runtime parameter
 
 | Parameter name | Description | Type |
 | --- | --- | --- |
-| small_disk | Disk size; dependent on cohort size. | Int |
-| medium_disk | Disk size; dependent on cohort size. | Int |
-| large_disk | Disk size; dependent on cohort size. | Int | 
-| huge_disk | Disk size; dependent on cohort size. | Int |
+| small_disk | Disk size; dependent on cohort size; requires user input; see example JSON configuration files found in the WARP [test_inputs](https://github.com/broadinstitute/warp/tree/master/pipelines/broad/dna_seq/germline/joint_genotyping/test_inputs) folder for recommendations. | Int |
+| medium_disk | Disk size; dependent on cohort size; requires user input; see example JSON configuration files found in the WARP [test_inputs](https://github.com/broadinstitute/warp/tree/master/pipelines/broad/dna_seq/germline/joint_genotyping/test_inputs) folder for recommendations. | Int |
+| large_disk | Disk size; dependent on cohort size; requires user input; see example JSON configuration files found in the WARP [test_inputs](https://github.com/broadinstitute/warp/tree/master/pipelines/broad/dna_seq/germline/joint_genotyping/test_inputs) folder for recommendations. | Int | 
+| huge_disk | Disk size; dependent on cohort size; requires user input; see example JSON configuration files found in the WARP [test_inputs](https://github.com/broadinstitute/warp/tree/master/pipelines/broad/dna_seq/germline/joint_genotyping/test_inputs) folder for recommendations. | Int |
 
 
 ## JointGenotyping tasks and tools
