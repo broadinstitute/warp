@@ -115,7 +115,7 @@ task CompareTabix {
     exit_code=0
     a=$(md5sum "~{test_fragment_file}" | awk '{ print $1 }')
     b=$(md5sum ~{truth_fragment_file} | awk '{ print $1 }')
-    if [[ $a = $b ]]; then 
+    if [[ $a = $b ]]; then
       echo equal 
     else 
       echo different
@@ -272,8 +272,8 @@ task CompareBams {
     if [ "$abs_size_difference_mb" -gt 200 ]; then
         echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Exiting."
         exit 1
-    elif [ "$abs_size_difference_mb" -gt 1 ]; then
-        echo "WARNING: BAM file sizes differ by more than 1 MB but less than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Proceeding to CompareSAMs:"
+    else
+        echo "WARNING: BAM file sizes differ by more than 0 MB but less than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Proceeding to CompareSAMs:"
 
         java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
         CompareSAMs \
