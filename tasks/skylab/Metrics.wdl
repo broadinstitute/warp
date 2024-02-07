@@ -8,7 +8,7 @@ task CalculateCellMetrics {
     String input_id
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:aa-mt-tagsort"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
@@ -85,8 +85,7 @@ task CalculateGeneMetrics {
     String input_id
     # runtime values
 
-    #String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.9-1700252065"
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:aa-mt-tagsort"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
     Int machine_mem_mb = 32000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) 
@@ -167,7 +166,7 @@ task CalculateUMIsMetrics {
     
     # runtime values
     # Did not update docker image as this task uses loom which does not play nice with the changes
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:aa-mt-tagsort"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
     Int machine_mem_mb = 16000
     Int cpu = 8
     Int disk = ceil(size(bam_input, "Gi") * 4)
