@@ -241,8 +241,7 @@ task FastqMetricsSlideSeq {
 
 
     # Runtime attributes
-    #String docker =  "us.gcr.io/broad-gotc-prod/warp-tools:1.0.9-1700252065"
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:aa-mt-tagsort"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
     Int cpu = 16
     Int machine_mb = 40000
     Int disk = ceil(size(r1_fastq, "GiB")*3)  + 50
