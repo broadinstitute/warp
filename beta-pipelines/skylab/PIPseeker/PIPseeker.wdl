@@ -80,9 +80,9 @@ task PIPseeker_full {
 
   runtime {
     docker: docker_image
-    disk: "local-disk 1600 HDD" # "local-disk ${disk_size} HDD"
+    disk: "1600 GiB" # "local-disk ${disk_size} HDD"
     cpu: 64 # cpu
-    memory: 432 # "${mem_size} GiB"
+    memory: "432 GiB"# "${mem_size} GiB"
     preemptible: preemptible_tries
     vm_size: "Standard_E64_v3"
   }
