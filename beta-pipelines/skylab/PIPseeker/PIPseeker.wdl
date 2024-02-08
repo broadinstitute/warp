@@ -64,7 +64,7 @@ task PIPseeker_full {
     mkdir results
 
     # Run PIPseeker
-    pipseeker-v3.1.2 full  \
+      /app/pipseeker full  \
       --fastq FASTQS/. \
       --id ~{id} \
       --verbosity 2 \
