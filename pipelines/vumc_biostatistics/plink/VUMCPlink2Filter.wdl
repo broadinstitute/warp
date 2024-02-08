@@ -19,6 +19,9 @@ workflow VUMCPlink2Filter {
 
     String? project_id
     String? target_bucket
+
+    Int? preemptible=1
+    Int? memory_size=10
   }
 
   call Plink2Filter {
@@ -32,7 +35,9 @@ workflow VUMCPlink2Filter {
 
       target_prefix = target_prefix,
 
-      docker = docker
+      docker = docker,
+      preemptible = preemptible,
+      memory_size = memory_size
   }
 
   if(defined(target_bucket)){
@@ -66,6 +71,8 @@ task Plink2Filter {
       String target_prefix
 
       String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+      Int preemptible=1
+      Int memory_size=10
   }
 
   Int disk_size = ceil(size(source_bed, "GB") * 2) + 2
@@ -89,9 +96,9 @@ plink2 \
 
   runtime {
     docker: docker
-    preemptible: 1
+    preemptible: preemptible
     disks: "local-disk " + disk_size + " HDD"
-    memory: "2 GiB"
+    memory: memory_size + " GiB"
   }
   output {
     File output_bed = new_bed
