@@ -172,7 +172,7 @@ task Demultiplexing {
     String plate_id
     Int batch_number
 
-    String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+    String docker_image = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
     Int disk_size = 50
     Int mem_size = 10
     Int preemptible_tries = 3
@@ -287,7 +287,7 @@ task Sort_and_trim_r1_and_r2 {
 
         Int disk_size = 50
         Int mem_size = 10
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int preemptible_tries = 3
         Int cpu = 1
 
@@ -369,7 +369,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         File chromosome_sizes
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 1000
         Int mem_size = 64
         Int preemptible_tries = 3
@@ -461,7 +461,7 @@ task Separate_unmapped_reads {
         Int min_read_length
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 50
         Int mem_size = 10
         Int preemptible_tries = 3
@@ -536,7 +536,7 @@ task Split_unmapped_reads {
         Int min_read_length
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 50
         Int mem_size = 10
         Int preemptible_tries = 3
@@ -600,7 +600,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name 
         File tarred_index_files
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 500
         Int mem_size = 64
         Int preemptible_tries = 3
@@ -706,7 +706,7 @@ task remove_overlap_read_parts {
         File bam
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
         Int preemptible_tries = 3
@@ -760,7 +760,7 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position {
         File split_bam
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
         Int preemptible_tries = 3
@@ -809,7 +809,7 @@ task call_chromatin_contacts {
         File name_sorted_bam
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
         Int preemptible_tries = 3
@@ -866,7 +866,7 @@ task dedup_unique_bam_and_index_unique_bam {
        File bam
        String plate_id
 
-       String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+       String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
        Int disk_size = 80
        Int mem_size = 20
        Int preemptible_tries = 3
@@ -932,7 +932,7 @@ task unique_reads_allc {
         Int disk_size = 80
         Int mem_size = 20
         String genome_base = basename(genome_fa)
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int preemptible_tries = 3
         Int cpu = 1
     }
@@ -997,7 +997,7 @@ task unique_reads_cgn_extraction {
        File chrom_size_path
        String plate_id
 
-       String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+       String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
        Int disk_size = 80
        Int mem_size = 20
        Int num_upstr_bases = 0
@@ -1069,7 +1069,7 @@ task summary {
         Array[File] unique_reads_cgn_extraction_tbi
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 20
         Int preemptible_tries = 3
