@@ -525,9 +525,12 @@ task MergeStarOutput {
       fi
     done
  
+ counter=0
     for umipercell in "${umipercell_files[@]}"; do
       if [ -f "$umipercell" ]; then
+        awk -v var="$counter" '{print $0, var}' "$umipercell" > "$umipercell"
         cat "$umipercell" >> "~{input_id}_umipercell.txt"
+        let counter=counter+1
       fi
     done
     
