@@ -36,7 +36,7 @@ task PIPseeker_full {
     Array[File] refernce_files
 
     Int num_threads = 64
-    String docker_image = "public.ecr.aws/w3e1n2j6/fluent-pipseeker:3.1.2"
+    String docker_image = "dsppipelinedev.azurecr.io/fluent-pipseeker:3.1.2"
     Int mem_size = ceil(size(fastqs, "GiB") + size(snt_fastqs, "GiB")) + (3 * num_threads) #1GB for every 1GB fastq input in gz format + 3GB of ram for every additional processing thread
     Int disk_size = ceil((size(fastqs, "GiB") + size(snt_fastqs, "GiB")) * 2.5) + (3 * num_threads) #2.5GB for every 1GB fastq input in gz format + uncompressed size of ref genome
     Int preemptible_tries = 3

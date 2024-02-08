@@ -164,7 +164,6 @@ workflow snM3C {
     }
 }
 
-
 task Demultiplexing {
   input {
     Array[File] fastq_input_read1
@@ -173,7 +172,7 @@ task Demultiplexing {
     String plate_id
     Int batch_number
 
-    String docker_image = "dsppipelinedev.azurecr.io/fluent-pipseeker:3.1.2"
+    String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
     Int disk_size = 50
     Int mem_size = 10
     Int preemptible_tries = 3
