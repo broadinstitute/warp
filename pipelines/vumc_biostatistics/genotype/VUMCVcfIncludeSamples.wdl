@@ -14,6 +14,8 @@ workflow VUMCVcfIncludeSamples {
     String? project_id
     String? target_bucket
     String? genoset
+
+    Int preemptible = 1
   }
 
   call BcftoolsIncludeSamples {
@@ -23,7 +25,8 @@ workflow VUMCVcfIncludeSamples {
       replace_samples = replace_samples,
       target_prefix = target_prefix,
       target_suffix = target_suffix,
-      docker = docker
+      docker = docker,
+      preemptible = preemptible
   }
 
   if(defined(target_bucket)){
@@ -53,6 +56,7 @@ task BcftoolsIncludeSamples {
     String target_suffix = ".vcf.gz"
     String docker = "staphb/bcftools"
     Float disk_factor = 3.0
+    Int preemptible = 1
   }
 
   Int disk_size = ceil(size(input_vcf, "GB") * disk_factor) + 2
@@ -127,7 +131,7 @@ bcftools index -t ~{new_vcf}
 
   runtime {
     docker: docker
-    preemptible: 1
+    preemptible: preemptible
     disks: "local-disk " + disk_size + " HDD"
     memory: "2 GiB"
   }
