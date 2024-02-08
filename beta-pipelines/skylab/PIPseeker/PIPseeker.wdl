@@ -7,7 +7,7 @@ workflow PIPseeker {
         Array[File] fastqs
         Array[File] snt_fastqs
         File snt_tags
-        File refernce_tar
+        Array[File] refernce_files
     }
 
     # version of the pipeline
@@ -19,7 +19,7 @@ workflow PIPseeker {
             fastqs = fastqs,
             snt_fastqs = snt_fastqs,
             snt_tags = snt_tags,
-            refernce_tar = refernce_tar
+            refernce_files = refernce_files
     }
 
     output {
@@ -33,7 +33,7 @@ task PIPseeker_full {
     Array[File] fastqs
     Array[File] snt_fastqs
     File snt_tags
-    File refernce_tar
+    Array[File] refernce_files
 
     Int num_threads = 64
     String docker_image = "public.ecr.aws/w3e1n2j6/fluent-pipseeker:3.1.2"
@@ -41,8 +41,6 @@ task PIPseeker_full {
     Int disk_size = ceil((size(fastqs, "GiB") + size(snt_fastqs, "GiB")) * 2.5) + (3 * num_threads) #2.5GB for every 1GB fastq input in gz format + uncompressed size of ref genome
     Int preemptible_tries = 3
   }
-
-  String refernce_dir = basename(refernce_tar, ".tar.gz")
 
   command <<<
     set -euo pipefail
@@ -58,8 +56,10 @@ task PIPseeker_full {
     declare -a SNT_FASTQ_ARRAY=(~{sep=' ' snt_fastqs})
     for f in "${SNT_FASTQ_ARRAY[@]}"; do mv $f SNT_FASTQS; done
 
-    # untar the reference file and update the directory name
-    tar -zxvf ~{refernce_tar}
+    # ensure the the snt-fastq files all begin with a common prefix
+    mkdir REFERNCE
+    declare -a REF_ARRAY=(~{sep=' ' refernce_files})
+    for f in "${REF_ARRAY[@]}"; do mv $f REFERNCE; done
 
     mkdir results
 
@@ -69,7 +69,7 @@ task PIPseeker_full {
       --id ~{id} \
       --verbosity 2 \
       --skip-preflight \
-      --star-index-path ~{refernce_dir} \
+      --star-index-path REFERNCE \
       --threads ~{num_threads} \
       --monitor 10 \
       --chemistry v4  \
