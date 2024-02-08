@@ -525,7 +525,7 @@ task MergeStarOutput {
       fi
     done
  
- counter=0
+ counter=0 # note that the counter might not correspond to the shard number, it is just the order of files in bash (e.g. 10 before 2)
     for umipercell in "${umipercell_files[@]}"; do
       if [ -f "$umipercell" ]; then
         awk -v var="$counter" '{print $0, var}' "$umipercell" > "$umipercell"
