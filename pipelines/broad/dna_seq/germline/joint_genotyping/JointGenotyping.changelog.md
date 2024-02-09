@@ -1,7 +1,13 @@
-# 1.6.9
+# 1.6.10
 2023-12-18 (Date of Last Commit)
 
 * Updated to GATK version 4.5.0.0
+
+# 1.6.9
+2023-09-08 (Date of Last Commit)
+
+* Added option to run VETS instead of VQSR for filtering
+* Added option to hard filter sites outside of provided interval list
 
 # 1.6.8
 2023-06-29 (Date of Last Commit)

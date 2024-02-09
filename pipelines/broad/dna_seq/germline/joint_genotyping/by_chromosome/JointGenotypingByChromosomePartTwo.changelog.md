@@ -1,7 +1,12 @@
-# 1.4.10
+# 1.4.11
 2023-12-18 (Date of Last Commit)
 
 * Updated to GATK version 4.5.0.0
+
+# 1.4.10
+2023-09-08 (Date of Last Commit)
+
+* Added option to hard filter sites outside of provided interval list to HardFilterAndMakeSitesOnlyVcf task
 
 # 1.4.9
 2023-06-29 (Date of Last Commit)

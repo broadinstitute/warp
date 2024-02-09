@@ -1,7 +1,13 @@
-# 1.0.15
+# 1.0.16
 2023-12-18 (Date of Last Commit)
 
 * Updated to GATK version 4.5.0.0.
+* 
+# 1.0.15
+2023-12-14 (Date of Last Commit)
+
+* Updated GATK for Reblock task to version 4.5.0.0
+* Added options to Reblock task to remove annotations and move filters to genotype level
 
 # 1.0.14
 2023-12-08 (Date of Last Commit)

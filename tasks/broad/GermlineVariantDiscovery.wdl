@@ -206,7 +206,9 @@ task Reblock {
     String docker_image = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int additional_disk = 20
     String? annotations_to_keep_command
+    String? annotations_to_remove_command
     Float? tree_score_cutoff
+    Boolean move_filters_to_genotypes = false
   }
 
   Int disk_size = ceil((size(gvcf, "GiB")) * 4) + additional_disk
@@ -227,7 +229,9 @@ task Reblock {
       -do-qual-approx \
       --floor-blocks -GQB 20 -GQB 30 -GQB 40 \
       ~{annotations_to_keep_command} \
+      ~{annotations_to_remove_command} \
       ~{"--tree-score-threshold-to-no-call " + tree_score_cutoff} \
+      ~{if move_filters_to_genotypes then "--add-site-filters-to-genotype" else ""} \
       -O ~{output_vcf_filename}
   }
 
