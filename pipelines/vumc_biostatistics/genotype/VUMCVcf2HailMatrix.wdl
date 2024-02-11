@@ -31,7 +31,7 @@ workflow VUMCVcf2HailMatrix {
     String? project_id
     String target_bucket
 
-    String docker = "hailgenetics/hail:0.2.127-py3.11"
+    String docker = "hailgenetics/hail:0.2.127"
     Int memory_gb = 64
     Int preemptible = 1
   }
