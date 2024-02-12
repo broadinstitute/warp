@@ -63,7 +63,8 @@ import pandas as pd
 eligible_samples = pd.read_csv("~{include_samples}", header=None, names=['s'])['s'].tolist()
 print(f"There are {len(eligible_samples)} eligible samples.")
 
-hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g"}, default_reference="~{reference_genome}", idempotent=True)
+hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g"}, idempotent=True)
+hl.default_reference("~{reference_genome}")
 
 mt = hl.read_matrix_table("~{input_hail_mt_path}")
 
