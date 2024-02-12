@@ -124,11 +124,14 @@ workflow snM3C {
         Array[File] hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
         Array[File] unique_bam_tar = Separate_and_split_unmapped_reads.unique_bam_tar
         Array[File] multi_bam_tar = Separate_and_split_unmapped_reads.multi_bam_tar
-        #Array[File] unmapped_fastq_tar = Separate_and_split_unmapped_reads.unmapped_fastq_tar
+        #TODO would be nice to be able to get rid of this if not needed
+        Array[File] unmapped_fastq_tar = Separate_and_split_unmapped_reads.unmapped_fastq_tar
         Array[File] split_fq_tar = Separate_and_split_unmapped_reads.split_fq_tar
-        #Array[File] merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap.merge_sorted_bam_tar
+        #TODO would be nice to be able to get rid of this if not needed
+        Array[File] merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap.merge_sorted_bam_tar
         Array[File] name_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.name_sorted_bam
-        #Array[File] pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.position_sorted_bam
+        #TODO would be nice to be able to get rid of this if not needed
+        Array[File] pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.position_sorted_bam
         Array[File] remove_overlap_read_parts_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap.remove_overlaps_output_bam_tar
         Array[File] dedup_unique_bam_and_index_unique_bam_tar = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.dedup_output_bam_tar
         Array[File] unique_reads_cgn_extraction_allc = unique_reads_allc_and_cgn_extraction.output_allc_tar
@@ -523,7 +526,9 @@ task Separate_and_split_unmapped_reads {
         File unique_bam_tar = "~{plate_id}.hisat3n_paired_end_unique_bam_files.tar.gz"
         File multi_bam_tar = "~{plate_id}.hisat3n_paired_end_multi_bam_files.tar.gz"
         File split_fq_tar = "~{plate_id}.hisat3n_paired_end_split_fastq_files.tar.gz"
-    }
+        #TODO would be nice to be able to get rid of this if not needed
+        File unmapped_fastq_tar = "~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz"
+                                }
 }
 
 task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap {
@@ -618,7 +623,8 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_
 
        # unzip bam file
        tar -xf  ~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz
-       rm  ~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz
+       #TODO would be nice to be able to get rid of this if not needed
+       #rm  ~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz
 
        # create output dir
        mkdir /cromwell_root/output_bams
@@ -650,7 +656,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_
         preemptible: preemptible_tries
     }
     output {
-        #File merge_sorted_bam_tar = "~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz"
+        File merge_sorted_bam_tar = "~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz"
         File hisat3n_dna_split_reads_summary_R1_tar = "~{plate_id}.hisat3n_dna_split_reads_summary.R1.tar.gz"
         File hisat3n_dna_split_reads_summary_R2_tar = "~{plate_id}.hisat3n_dna_split_reads_summary.R2.tar.gz"
         File remove_overlaps_output_bam_tar = "~{plate_id}.remove_overlap_read_parts.tar.gz"
@@ -697,7 +703,8 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_de
 
       # unzip files
       tar -xf ~{plate_id}.hisat3n_dna.all_reads.pos_sort.tar.gz
-      rm ~{plate_id}.hisat3n_dna.all_reads.pos_sort.tar.gz
+      #TODO would be nice to be able to remove the tar file
+      #rm ~{plate_id}.hisat3n_dna.all_reads.pos_sort.tar.gz
 
       # create output dir
       mkdir /cromwell_root/output_bams
@@ -735,7 +742,8 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_de
     }
     output {
         File name_sorted_bam = "~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz"
-        #File position_sorted_bam = "~{plate_id}.hisat3n_dna.all_reads.pos_sort.tar.gz"
+        #TODO would be nice to be able to get rid of this if not needed
+        File position_sorted_bam = "~{plate_id}.hisat3n_dna.all_reads.pos_sort.tar.gz"
         File dedup_output_bam_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam.tar.gz"
         File dedup_stats_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz"
     }
@@ -854,9 +862,11 @@ task unique_reads_allc_and_cgn_extraction {
 
         cd ../
         tar -xf ~{plate_id}.allc.tsv.tar.gz
-        rm ~{plate_id}.allc.tsv.tar.gz
+        #TODO would be nice to be able to get rid of this if not needed
+        #rm ~{plate_id}.allc.tsv.tar.gz
         tar -xf ~{plate_id}.allc.tbi.tar.gz
-        rm ~{plate_id}.allc.tbi.tar.gz
+        #TODO would be nice to be able to get rid of this if not needed
+        #rm ~{plate_id}.allc.tbi.tar.gz
 
         # prefix="allc-{mcg_context}/{cell_id}"
         if [ ~{num_upstr_bases} -eq 0 ]; then
@@ -893,8 +903,10 @@ task unique_reads_allc_and_cgn_extraction {
         preemptible: preemptible_tries
     }
     output {
-        #File allc = "~{plate_id}.allc.tsv.tar.gz"
-        #File tbi = "~{plate_id}.allc.tbi.tar.gz"
+        #TODO would be nice to be able to get rid of this if not needed
+        File allc = "~{plate_id}.allc.tsv.tar.gz"
+        #TODO would be nice to be able to get rid of this if not needed
+        File tbi = "~{plate_id}.allc.tbi.tar.gz"
         File allc_uniq_reads_stats = "~{plate_id}.allc.count.tar.gz"
         File output_allc_tar = "~{plate_id}.output_allc_tar.tar.gz"
         File output_tbi_tar = "~{plate_id}.output_tbi_tar.tar.gz"
