@@ -63,7 +63,7 @@ hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g"}, default_reference="
 
 mt = hl.read_matrix_table("~{input_hail_mt_path}")
 single_mt = mt.filter_cols(mt.s == 'R200013600')
-single_mt.write(gcs_output_path, overwrite=True)
+single_mt.write("~{gcs_output_path}", overwrite=True)
 
 CODE
 
