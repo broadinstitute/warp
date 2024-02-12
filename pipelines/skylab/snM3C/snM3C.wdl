@@ -77,12 +77,6 @@ workflow snM3C {
                 plate_id = plate_id
         }
 
-        #call remove_overlap_read_parts {
-        #    input:
-        #        bam = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name.merge_sorted_bam_tar,
-        #        plate_id = plate_id
-        #}
-
         call merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate {
             input:
                 bam = Separate_and_split_unmapped_reads.unique_bam_tar,
@@ -662,59 +656,6 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_
         File remove_overlaps_output_bam_tar = "~{plate_id}.remove_overlap_read_parts.tar.gz"
     }
 }
-
-#task remove_overlap_read_parts {
-#    input {
-#        File bam
-#        String plate_id
-#
-#        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-#        Int disk_size = 80
-#        Int mem_size = 20
-#        Int preemptible_tries = 3
-#        Int cpu = 1
-#    }
-#
-#    command <<<
-#        set -euo pipefail
-#        # unzip bam file
-#        tar -xf ~{bam}
-#        rm ~{bam}
-#
-#        # create output dir
-#        mkdir /cromwell_root/output_bams
-#
-#        # get bams
-#        bams=($(ls | grep "sort.bam$"))
-#
-#        # loop through bams and run python script on each bam
-#        # scatter instead of for loop to optimize
-#        python3 <<CODE
-#        from cemba_data.hisat3n import *
-#        import os
-#        bams="${bams[@]}"
-#        for bam in bams.split(" "):
-#            name=".".join(bam.split(".")[:3])+".read_overlap.bam"
-#            remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep, "cromwell_root", bam), out_bam_path=os.path.join(os.path.sep, "cromwell_root", "output_bams", name))
-#        CODE
-#
-#        cd /cromwell_root/output_bams
-#
-#        #tar up the merged bam files
-#        tar -zcvf ../~{plate_id}.remove_overlap_read_parts.tar.gz *bam
-#
-#    >>>
-#    runtime {
-#        docker: docker
-#        disks: "local-disk ${disk_size} HDD"
-#        cpu: cpu
-#        memory: "${mem_size} GiB"
-#        preemptible: preemptible_tries
-#    }
-#    output {
-#        File output_bam_tar = "~{plate_id}.remove_overlap_read_parts.tar.gz"
-#    }
-#}
 
 task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate {
     input {
