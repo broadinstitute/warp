@@ -2,24 +2,7 @@ version 1.0
 
 workflow VUMCVcf2HailMatrix {
   #modified based on https://dockstore.org/workflows/github.com/broadinstitute/long-read-pipelines/ConvertToHailMTT2T:hangsu_phasing?tab=files
-  meta {
-    description: "Convert a .vcf.bgz file to a Hail MatrixTable and copy it to a final gs:// URL."
-  }
-
-  parameter_meta {
-    source_vcf: "The input .vcf.bgz file."
-    source_vcf_index: "The input .vcf.bgz.tbi file."
-    reference: "The reference genome to use.  Currently only GRCh38 is supported."
-    target_prefix: "The prefix to use for the output MatrixTable."
-
-    project_id: "The GCP project to use for gsutil."
-    target_bucket: "The output GCP directory to copy the MatrixTable to."
-
-    docker: "The docker image to use for this task."
-    memory_gb: "The amount of memory to use for this task."
-    preemptible: "Number of preemptible tries to use for this task."
-  }  
-  
+ 
   input {
     File source_vcf
     File source_vcf_index
@@ -29,11 +12,7 @@ workflow VUMCVcf2HailMatrix {
     String target_prefix
 
     String? project_id
-    String target_bucket
-
-    String docker = "shengqh/hail_gcp:20240211"
-    Int memory_gb = 64
-    Int preemptible = 1
+    String target_gcp_folder
   }
 
   call Vcf2HailMatrix {
@@ -42,11 +21,8 @@ workflow VUMCVcf2HailMatrix {
       source_vcf_index = source_vcf_index,
       reference_genome = reference_genome,
       target_prefix = target_prefix,
-      docker = docker,
-      memory_gb = memory_gb,
       project_id = project_id,
-      target_bucket = target_bucket,
-      preemptible = preemptible
+      target_gcp_folder = target_gcp_folder,
   }
 
   output {
@@ -55,20 +31,45 @@ workflow VUMCVcf2HailMatrix {
 }
 
 task Vcf2HailMatrix {
+  meta {
+    description: "Convert a .vcf.bgz file to a Hail MatrixTable and copy it to a final gs:// URL."
+  }
+
+  parameter_meta {
+    source_vcf: "The input .vcf.bgz file."
+    source_vcf_index: "The input .vcf.bgz.tbi file."
+    reference_genome: "The reference genome to use.  Currently only GRCh38 is supported."
+    target_prefix: "The prefix to use for the output MatrixTable."
+
+    project_id: "The GCP project to use for gsutil."
+    target_gcp_folder: "The output GCP directory to copy the MatrixTable to."
+
+    docker: "The docker image to use for this task."
+    memory_gb: "The amount of memory to use for this task."
+    preemptible: "Number of preemptible tries to use for this task."
+  }  
+
   input {
     File source_vcf
     File source_vcf_index
     String reference_genome
     String target_prefix
-    String docker
-    Int memory_gb
+
     String? project_id
-    String target_bucket
-    Int preemptible
+    String target_gcp_folder
+
+    String docker = "shengqh/hail_gcp:20240211"
+    Int memory_gb = 64
+    Int preemptible = 1
+    Int cpu = 4
+    Int boot_disk_gb = 10
   }
 
   Int disk_size = 100 + 3*ceil(size(source_vcf, "GB"))
   Int total_memory_gb = memory_gb + 2
+
+  String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
+  String gcs_output_path = gcs_output_dir + "/" + target_prefix
 
   command <<<
 
@@ -90,17 +91,19 @@ callset.write("~{target_prefix}", overwrite=True)
 
 CODE
 
-gsutil ~{"-u " + project_id} -m rsync -Cr ~{target_prefix} ~{target_bucket}/~{target_prefix}
+gsutil ~{"-u " + project_id} -m rsync -Cr ~{target_prefix} ~{gcs_output_path}
 
 >>>
 
   runtime {
+    cpu: cpu
     docker: "~{docker}"
     preemptible: preemptible
     disks: "local-disk ~{disk_size} HDD"
     memory: "~{total_memory_gb} GiB"
+    bootDiskSizeGb: boot_disk_gb
   }
   output {
-    String gcs_path = "~{target_bucket}/~{target_prefix}"
+    String gcs_path = "~{gcs_output_path}"
   }
 }
