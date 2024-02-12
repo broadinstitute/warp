@@ -3,6 +3,7 @@ version 1.0
 workflow VUMCHailMTIncludeSamples {
   input {
     String input_hail_mt_path
+    Float input_hail_mt_size #almost equals to the size of corresponding vcf.gz file
     File include_samples
 
     String reference_genome = "GRCh38"
@@ -16,6 +17,7 @@ workflow VUMCHailMTIncludeSamples {
   call HailMTIncludeSamples {
     input:
       input_hail_mt_path = input_hail_mt_path,
+      input_hail_mt_size = input_hail_mt_size,
       reference_genome = reference_genome,
       include_samples = include_samples,
       target_prefix = target_prefix,
@@ -31,6 +33,7 @@ workflow VUMCHailMTIncludeSamples {
 task HailMTIncludeSamples {
   input {
     String input_hail_mt_path
+    Float input_hail_mt_size
     String reference_genome
     File include_samples
     String target_prefix
@@ -44,7 +47,7 @@ task HailMTIncludeSamples {
     Int boot_disk_gb = 10  
   }
 
-  Int disk_size = 20
+  Int disk_size = ceil(input_hail_mt_size / 1024 / 1024 / 1024) + 20
   Int total_memory_gb = memory_gb + 2
 
   String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
@@ -72,9 +75,11 @@ idx = [i for i, s in enumerate(mt.s.collect()) if s in eligible_samples]
 mt_eligible = mt.choose_cols(idx)
 print(f"Find {mt_eligible.count_cols()} samples in HailMatrix table.")
 
-mt_eligible.write("~{gcs_output_path}", overwrite=True)
+mt_eligible.write("~{target_prefix}", overwrite=True)
 
 CODE
+
+gsutil ~{"-u " + project_id} -m rsync -Cr ~{target_prefix} ~{gcs_output_path}
 
 >>>
 
