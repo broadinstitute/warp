@@ -513,9 +513,11 @@ task MergeStarOutput {
       fi
     done
     
+    counter=0
     for summary in "${summary_files[@]}"; do
       if [ -f "$summary" ]; then
-        cat "$summary" >> "~{input_id}_summary.txt"
+        awk -v var=",$counter" '{print $0 var}' "$summary" >> "~{input_id}_summary.txt"
+        let counter=counter+1
       fi
     done
     
