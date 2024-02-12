@@ -256,3 +256,7 @@ workflows:
   - name: VUMCVcf2HailMatrix
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcf2HailMatrix.wdl
+
+  - name: VUMCHailMTIncludeSamples
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCHailMTIncludeSamples.wdl
