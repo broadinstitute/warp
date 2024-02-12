@@ -483,7 +483,8 @@ task Separate_and_split_unmapped_reads {
 
         # untar the unmapped fastq files
         tar -xf ~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz
-        rm ~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz
+        #TODO would be nice to be able to get rid of this if not needed
+        #rm ~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz
 
         python3 <<CODE
 
@@ -528,7 +529,7 @@ task Separate_and_split_unmapped_reads {
         File split_fq_tar = "~{plate_id}.hisat3n_paired_end_split_fastq_files.tar.gz"
         #TODO would be nice to be able to get rid of this if not needed
         File unmapped_fastq_tar = "~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz"
-                                }
+    }
 }
 
 task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap {
