@@ -1,6 +1,6 @@
 version 1.0
 
-workflow VUMCHailMTIncludeSamples {
+workflow VUMCHailMatrixExtractSamples {
   input {
     String input_hail_mt_path
     Float input_hail_mt_size #almost equals to the size of corresponding vcf.gz file
@@ -14,7 +14,7 @@ workflow VUMCHailMTIncludeSamples {
     String target_gcp_folder
   }
 
-  call HailMTIncludeSamples {
+  call HailMatrixExtractSamples {
     input:
       input_hail_mt_path = input_hail_mt_path,
       input_hail_mt_size = input_hail_mt_size,
@@ -26,11 +26,11 @@ workflow VUMCHailMTIncludeSamples {
   }
 
   output {
-    String output_hail_mt_path = HailMTIncludeSamples.output_hail_mt_path
+    String output_hail_mt_path = HailMatrixExtractSamples.output_hail_mt_path
   }
 }
 
-task HailMTIncludeSamples {
+task HailMatrixExtractSamples {
   input {
     String input_hail_mt_path
     Float input_hail_mt_size
