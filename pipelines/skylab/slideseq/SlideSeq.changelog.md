@@ -1,3 +1,8 @@
+# 2.1.7
+2024-02-12 (Date of Last Commit)
+
+* Updated the SlideSeq WDL output to utilize the h5ad format in place of Loom
+
 # 2.1.6
 2024-01-30 (Date of Last Commit)
 

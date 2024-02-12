@@ -5,8 +5,8 @@ import "../verification/VerifyTasks.wdl" as VerifyTasks
 workflow VerifySlideSeq {
 
   input {
-    File test_loom
-    File truth_loom
+    File test_h5ad
+    File truth_h5ad
 
     File test_bam
     File truth_bam
@@ -48,10 +48,10 @@ workflow VerifySlideSeq {
       truth_zip = truth_umi_metrics
   }
 
-  call VerifyTasks.CompareLooms as CompareLooms{
+  call VerifyTasks.CompareH5adFiles as CompareH5adFilesOptimus {
     input:
-      test_loom  = test_loom,
-      truth_loom = truth_loom
+      test_h5ad  = test_h5ad,
+      truth_h5ad = truth_h5ad
   }
 
 }
