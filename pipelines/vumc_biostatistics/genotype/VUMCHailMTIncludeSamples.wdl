@@ -58,12 +58,20 @@ export PYSPARK_SUBMIT_ARGS="--driver-java-options '-XX:hashCode=0' --conf 'spark
 python3 <<CODE
 
 import hail as hl
+import pandas as pd
+
+eligible_samples = pd.read_csv("~{include_samples}", header=None, names=['s'])['s'].tolist()
+print(f"There are {len(eligible_samples)} eligible samples.")
 
 hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g"}, default_reference="~{reference_genome}", idempotent=True)
 
 mt = hl.read_matrix_table("~{input_hail_mt_path}")
-single_mt = mt.filter_cols(mt.s == 'R200013600')
-single_mt.write("~{gcs_output_path}", overwrite=True)
+
+idx = [i for i, s in enumerate(mt.s.collect()) if s in eligible_samples]
+mt_eligible = mt.choose_cols(idx)
+print(f"Find {mt_eligible.count_cols()} samples in HailMatrix table.")
+
+mt_eligible.write("~{gcs_output_path}", overwrite=True)
 
 CODE
 
