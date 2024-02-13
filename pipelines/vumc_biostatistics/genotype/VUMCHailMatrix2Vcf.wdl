@@ -119,5 +119,8 @@ gsutil ~{"-u " + project_id} -m cp ~{target_sample_file} ~{gcs_output_sample_fil
   output {
     String output_vcf = "~{gcs_output_vcf}"
     String output_vcf_tbi = "~{gcs_output_vcf_tbi}"
+    String output_vcf_sample = "~{gcs_output_sample_file}"
+    Int output_vcf_num_samples = read_int("num_samples.txt")
+    Int output_vcf_num_variants = read_int("num_variants.txt")
   }
 }
