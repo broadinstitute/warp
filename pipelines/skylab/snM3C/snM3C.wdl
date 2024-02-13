@@ -27,7 +27,7 @@ workflow snM3C {
     }
 
     # version of the pipeline
-    String pipeline_version = "1.0.2"
+    String pipeline_version = "2.0.0"
 
     call Demultiplexing {
         input:
@@ -111,33 +111,20 @@ workflow snM3C {
             dedup_stats = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.dedup_stats_tar,
             chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats,
             allc_uniq_reads_stats = unique_reads_allc_and_cgn_extraction.allc_uniq_reads_stats,
-            unique_reads_cgn_extraction_tbi = unique_reads_allc_and_cgn_extraction.output_tbi_tar,
+            unique_reads_cgn_extraction_tbi = unique_reads_allc_and_cgn_extraction.extract_allc_output_tbi_tar,
             plate_id = plate_id
     }
 
     output {
         File MappingSummary = summary.mapping_summary
-        #Array[File] trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar
-        #Array[File] r1_trimmed_fq = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar
-        #Array[File] r2_trimmed_fq = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar
-        #Array[File] hisat3n_stats_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_stats_tar
-        #Array[File] hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
-        #Array[File] unique_bam_tar = Separate_and_split_unmapped_reads.unique_bam_tar
-        #Array[File] multi_bam_tar = Separate_and_split_unmapped_reads.multi_bam_tar
-        #TODO would be nice to be able to get rid of this if not needed
-        #Array[File] unmapped_fastq_tar = Separate_and_split_unmapped_reads.unmapped_fastq_tar
-        #Array[File] split_fq_tar = Separate_and_split_unmapped_reads.split_fq_tar
-        #TODO would be nice to be able to get rid of this if not needed
-        #Array[File] merge_sorted_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap.merge_sorted_bam_tar
         Array[File] name_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.name_sorted_bam
-        #TODO would be nice to be able to get rid of this if not needed
-        #Array[File] pos_sorted_bams = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.position_sorted_bam
-        #Array[File] remove_overlap_read_parts_bam_tar = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap.remove_overlaps_output_bam_tar
-        #Array[File] dedup_unique_bam_and_index_unique_bam_tar = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.dedup_output_bam_tar
-        Array[File] unique_reads_cgn_extraction_allc = unique_reads_allc_and_cgn_extraction.output_allc_tar
-        Array[File] unique_reads_cgn_extraction_tbi = unique_reads_allc_and_cgn_extraction.output_tbi_tar
-        #Array[File] chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats
+        Array[File] unique_reads_cgn_extraction_allc= unique_reads_allc_and_cgn_extraction.allc
+        Array[File] unique_reads_cgn_extraction_tbi = unique_reads_allc_and_cgn_extraction.tbi
+        Array[File] unique_reads_cgn_extraction_allc_extract = unique_reads_allc_and_cgn_extraction.extract_allc_output_allc_tar
+        Array[File] unique_reads_cgn_extraction_tbi_extract = unique_reads_allc_and_cgn_extraction.extract_allc_output_tbi_tar
         Array[File] reference_version = Hisat_3n_pair_end_mapping_dna_mode.reference_version
+        Array[File] chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats
+
     }
 }
 
@@ -475,17 +462,11 @@ task Separate_and_split_unmapped_reads {
         # tar up the uniqe bams
         tar -zcvf ~{plate_id}.hisat3n_paired_end_unique_bam_files.tar.gz *.hisat3n_dna.unique_aligned.bam
 
-        #TODO i think we can remove this
-        # tar up the multi bams
-        #tar -zcvf ~{plate_id}.hisat3n_paired_end_multi_bam_files.tar.gz *.hisat3n_dna.multi_aligned.bam
-
         # tar up the unmapped fastq files
         tar -zcvf ~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz *.hisat3n_dna.unmapped.fastq
 
         # untar the unmapped fastq files
         tar -xf ~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz
-        #TODO would be nice to be able to get rid of this if not needed
-        #rm ~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz
 
         python3 <<CODE
 
@@ -526,10 +507,7 @@ task Separate_and_split_unmapped_reads {
     }
     output {
         File unique_bam_tar = "~{plate_id}.hisat3n_paired_end_unique_bam_files.tar.gz"
-        #File multi_bam_tar = "~{plate_id}.hisat3n_paired_end_multi_bam_files.tar.gz"
         File split_fq_tar = "~{plate_id}.hisat3n_paired_end_split_fastq_files.tar.gz"
-        #TODO would be nice to be able to get rid of this if not needed
-        #File unmapped_fastq_tar = "~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz"
     }
 }
 
@@ -625,8 +603,6 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_
 
        # unzip bam file
        tar -xf  ~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz
-       #TODO would be nice to be able to get rid of this if not needed
-       #rm  ~{plate_id}.hisat3n_dna.split_reads.name_sort.bam.tar.gz
 
        # create output dir
        mkdir /cromwell_root/output_bams
@@ -705,8 +681,6 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_de
 
       # unzip files
       tar -xf ~{plate_id}.hisat3n_dna.all_reads.pos_sort.tar.gz
-      #TODO would be nice to be able to remove the tar file
-      #rm ~{plate_id}.hisat3n_dna.all_reads.pos_sort.tar.gz
 
       # create output dir
       mkdir /cromwell_root/output_bams
@@ -744,8 +718,6 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_de
     }
     output {
         File name_sorted_bam = "~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz"
-        #TODO would be nice to be able to get rid of this if not needed
-        #File position_sorted_bam = "~{plate_id}.hisat3n_dna.all_reads.pos_sort.tar.gz"
         File dedup_output_bam_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam.tar.gz"
         File dedup_stats_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz"
     }
@@ -864,11 +836,7 @@ task unique_reads_allc_and_cgn_extraction {
 
         cd ../
         tar -xf ~{plate_id}.allc.tsv.tar.gz
-        #TODO would be nice to be able to get rid of this if not needed
-        #rm ~{plate_id}.allc.tsv.tar.gz
         tar -xf ~{plate_id}.allc.tbi.tar.gz
-        #TODO would be nice to be able to get rid of this if not needed
-        #rm ~{plate_id}.allc.tbi.tar.gz
 
         # prefix="allc-{mcg_context}/{cell_id}"
         if [ ~{num_upstr_bases} -eq 0 ]; then
@@ -879,7 +847,8 @@ task unique_reads_allc_and_cgn_extraction {
         # create output dir
         mkdir /cromwell_root/allc-${mcg_context}
         outputdir=/cromwell_root/allc-${mcg_context}
-        for gzfile in *.gz
+
+        for gzfile in *.allc.tsv.gz
         do
              name=`echo $gzfile | cut -d. -f1`
              echo $name
@@ -892,8 +861,8 @@ task unique_reads_allc_and_cgn_extraction {
         mv output_bams/~{plate_id}.allc.count.tar.gz /cromwell_root
 
         cd /cromwell_root
-        tar -zcvf ~{plate_id}.output_allc_tar.tar.gz $outputdir/*.gz
-        tar -zcvf ~{plate_id}.output_tbi_tar.tar.gz $outputdir/*.tbi
+        tar -zcvf ~{plate_id}.extract-allc.tar.gz $outputdir/*.gz
+        tar -zcvf ~{plate_id}.extract-allc_tbi.tar.gz $outputdir/*.tbi
 
     >>>
 
@@ -905,13 +874,11 @@ task unique_reads_allc_and_cgn_extraction {
         preemptible: preemptible_tries
     }
     output {
-        #TODO would be nice to be able to get rid of this if not needed
         File allc = "~{plate_id}.allc.tsv.tar.gz"
-        #TODO would be nice to be able to get rid of this if not needed
         File tbi = "~{plate_id}.allc.tbi.tar.gz"
         File allc_uniq_reads_stats = "~{plate_id}.allc.count.tar.gz"
-        File output_allc_tar = "~{plate_id}.output_allc_tar.tar.gz"
-        File output_tbi_tar = "~{plate_id}.output_tbi_tar.tar.gz"
+        File extract_allc_output_allc_tar = "~{plate_id}.extract-allc.tar.gz"
+        File extract_allc_output_tbi_tar = "~{plate_id}.extract-allc_tbi.tar.gz"
     }
 }
 
