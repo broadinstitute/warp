@@ -26,6 +26,9 @@ workflow VUMCHailMatrix2Vcf {
   output {
     String output_vcf = HailMatrix2Vcf.output_vcf
     String output_vcf_tbi = HailMatrix2Vcf.output_vcf_tbi
+    String output_vcf_sample = HailMatrix2Vcf.output_vcf_sample
+    Int output_vcf_num_samples = HailMatrix2Vcf.output_vcf_num_samples
+    Int output_vcf_num_variants = HailMatrix2Vcf.output_vcf_num_variants
   }
 }
 
