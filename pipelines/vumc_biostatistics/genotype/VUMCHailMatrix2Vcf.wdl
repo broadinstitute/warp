@@ -38,7 +38,7 @@ task HailMatrix2Vcf {
     String? project_id
     String target_gcp_folder
 
-    String docker = "shengqh/hail_gcp:20240211"
+    String docker = "shengqh/hail_gcp:20240213"
     Int memory_gb = 64
     Int preemptible = 1
     Int cpu = 4
@@ -77,9 +77,13 @@ hl.init(spark_conf={
 hl.default_reference("~{reference_genome}")
 
 mt = hl.read_matrix_table("~{input_hail_mt_path}")
-hl.export_vcf(mt, "~{target_vcf}", tabix = True)
+hl.export_vcf(mt, "~{target_vcf}", tabix = False)
 
 CODE
+
+#bcftools cannot query number of records based on hail index file.
+#We use bcftools index to generate tbi file
+bcftools index -t ~{target_vcf} --threads ~{cpu} -o ~{target_vcf_tbi}
 
 gsutil ~{"-u " + project_id} -m cp ~{target_vcf} ~{gcs_output_vcf}
 gsutil ~{"-u " + project_id} -m cp ~{target_vcf_tbi} ~{gcs_output_vcf_tbi}
