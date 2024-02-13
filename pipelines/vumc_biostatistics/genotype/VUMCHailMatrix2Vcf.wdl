@@ -25,7 +25,7 @@ workflow VUMCHailMatrix2Vcf {
 
   output {
     String output_vcf = HailMatrix2Vcf.output_vcf
-    String output_vcf_tbi = HailMatrix2Vcf.output_vcf_tbi
+    String output_vcf_index = HailMatrix2Vcf.output_vcf_index
     String output_vcf_sample = HailMatrix2Vcf.output_vcf_sample
     Int output_vcf_num_samples = HailMatrix2Vcf.output_vcf_num_samples
     Int output_vcf_num_variants = HailMatrix2Vcf.output_vcf_num_variants
@@ -58,12 +58,12 @@ task HailMatrix2Vcf {
   #in order to be consistent with the original VCF file, we use .vcf.gz as the output suffix
   String target_vcf = target_prefix + ".vcf.gz"
 
-  String target_vcf_tbi = target_vcf + ".tbi"
+  String target_vcf_index = target_vcf + ".tbi"
   String target_sample_file = target_vcf + ".samples.txt"
   
   String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
   String gcs_output_vcf = gcs_output_dir + "/" + target_vcf
-  String gcs_output_vcf_tbi = gcs_output_vcf + ".tbi"
+  String gcs_output_vcf_index = gcs_output_vcf + ".tbi"
   String gcs_output_sample_file = gcs_output_vcf + ".samples.txt"
 
   command <<<
@@ -95,7 +95,7 @@ mv ~{hail_vcf} ~{target_vcf}
 
 #bcftools cannot query number of records based on hail index file.
 #We use bcftools index to generate tbi file
-bcftools index -t ~{target_vcf} --threads ~{cpu} -o ~{target_vcf_tbi}
+bcftools index -t ~{target_vcf} --threads ~{cpu} -o ~{target_vcf_index}
 
 bcftools query -l ~{target_vcf} > ~{target_sample_file}
 
@@ -105,7 +105,7 @@ bcftools index -n ~{target_vcf} > num_variants.txt
 
 gsutil ~{"-u " + project_id} -m cp ~{target_vcf} ~{gcs_output_vcf}
 
-gsutil ~{"-u " + project_id} -m cp ~{target_vcf_tbi} ~{gcs_output_vcf_tbi}
+gsutil ~{"-u " + project_id} -m cp ~{target_vcf_index} ~{gcs_output_vcf_index}
 
 gsutil ~{"-u " + project_id} -m cp ~{target_sample_file} ~{gcs_output_sample_file}
 
@@ -121,7 +121,7 @@ gsutil ~{"-u " + project_id} -m cp ~{target_sample_file} ~{gcs_output_sample_fil
   }
   output {
     String output_vcf = "~{gcs_output_vcf}"
-    String output_vcf_tbi = "~{gcs_output_vcf_tbi}"
+    String output_vcf_index = "~{gcs_output_vcf_index}"
     String output_vcf_sample = "~{gcs_output_sample_file}"
     Int output_vcf_num_samples = read_int("num_samples.txt")
     Int output_vcf_num_variants = read_int("num_variants.txt")
