@@ -49,12 +49,19 @@ task HailMatrix2Vcf {
   Int disk_size = ceil(expect_vcf_size / 1024 / 1024 / 1024 * disk_size_factor) + 20
   Int total_memory_gb = memory_gb + 2
 
+  #for hail export, we have to use .bgz as the output suffix
+  String hail_vcf = target_prefix + ".vcf.bgz"
+
+  #in order to be consistent with the original VCF file, we use .vcf.gz as the output suffix
   String target_vcf = target_prefix + ".vcf.gz"
+
   String target_vcf_tbi = target_vcf + ".tbi"
+  String target_sample_file = target_vcf + ".samples.txt"
   
   String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
   String gcs_output_vcf = gcs_output_dir + "/" + target_vcf
   String gcs_output_vcf_tbi = gcs_output_vcf + ".tbi"
+  String gcs_output_sample_file = gcs_output_vcf + ".samples.txt"
 
   command <<<
 
@@ -77,16 +84,27 @@ hl.init(spark_conf={
 hl.default_reference("~{reference_genome}")
 
 mt = hl.read_matrix_table("~{input_hail_mt_path}")
-hl.export_vcf(mt, "~{target_vcf}", tabix = False)
+hl.export_vcf(mt, "~{hail_vcf}", tabix = False)
 
 CODE
+
+mv ~{hail_vcf} ~{target_vcf}
 
 #bcftools cannot query number of records based on hail index file.
 #We use bcftools index to generate tbi file
 bcftools index -t ~{target_vcf} --threads ~{cpu} -o ~{target_vcf_tbi}
 
+bcftools query -l ~{target_vcf} > ~{target_sample_file}
+
+cat ~{target_sample_file} | wc -l > num_samples.txt
+
+bcftools index -n ~{target_vcf} > num_variants.txt
+
 gsutil ~{"-u " + project_id} -m cp ~{target_vcf} ~{gcs_output_vcf}
+
 gsutil ~{"-u " + project_id} -m cp ~{target_vcf_tbi} ~{gcs_output_vcf_tbi}
+
+gsutil ~{"-u " + project_id} -m cp ~{target_sample_file} ~{gcs_output_sample_file}
 
 >>>
 
