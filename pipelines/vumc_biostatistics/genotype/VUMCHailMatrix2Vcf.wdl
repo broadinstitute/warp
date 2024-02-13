@@ -43,9 +43,10 @@ task HailMatrix2Vcf {
     Int preemptible = 1
     Int cpu = 4
     Int boot_disk_gb = 10  
+    Float disk_size_factor = 3
   }
 
-  Int disk_size = 2 * ceil(expect_vcf_size / 1024 / 1024 / 1024) + 20
+  Int disk_size = ceil(expect_vcf_size / 1024 / 1024 / 1024 * disk_size_factor) + 20
   Int total_memory_gb = memory_gb + 2
 
   String target_vcf = target_prefix + ".vcf.bgz"
