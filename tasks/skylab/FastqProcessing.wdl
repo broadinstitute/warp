@@ -18,8 +18,10 @@ task FastqProcessing {
     #TODO decided cpu
     # estimate that bam is approximately equal in size to fastq, add 20% buffer
     Int disk = ceil(size(r1_fastq, "GiB")*3 + size(r2_fastq, "GiB")*3) + 500
-
     Int preemptible = 3
+
+    # Additional parameters for fastqprocess
+    Int num_output_files
   }
 
   meta {
@@ -43,7 +45,9 @@ task FastqProcessing {
 
   command {
     set -e
-
+    echo "Num of output files"
+    echo ~{num_output_files} 
+    
     FASTQS=$(python3 <<CODE
     def rename_file(filename):
         import shutil
@@ -102,7 +106,7 @@ task FastqProcessing {
     fi
 
     fastqprocess \
-        --bam-size 30.0 \
+        --num-output-files ~{num_output_files} \
         --sample-id "~{sample_id}" \
         $FASTQS \
         --white-list "~{whitelist}" \
