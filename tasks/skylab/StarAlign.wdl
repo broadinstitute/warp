@@ -211,6 +211,194 @@ task StarAlignFastqMultisample {
 
 }
 
+task STARsoloFastqTest {
+  input {
+    Array[File] r1_fastq
+    Array[File] r2_fastq
+    File tar_star_reference
+    File white_list
+    Int chemistry
+    String star_strand_mode
+    String counting_mode
+    String output_bam_basename
+    Boolean? count_exons
+    String soloMultiMappers = "Unique" # added this as a default 
+
+    # runtime values
+    String docker = "us.gcr.io/broad-gotc-prod/samtools-dist-star:aa-dist-star"
+    Int disk_size = 2000
+    Int nthreads
+    Int mem_size 
+    String cpu_platform 
+  }
+
+  meta {
+    description: "Aligns reads in bam_input to the reference genome in tar_star_reference"
+  }
+
+  parameter_meta {
+    r1_fastq: "R1 FASTQ file array"
+    r2_fastq: "R2 FASTQ forward read FASTQ files"
+    tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
+    star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded'"
+    docker: "(optional) the docker image containing the runtime environment for this task"
+  }
+  
+  String bam_aligned_output_name = output_bam_basename + ".bam"
+  command <<<
+    set -euo pipefail  
+    
+    # print lscpu  
+    echo "lscpu output"
+    lscpu
+    echo "end of lscpu output"
+
+    # print UMILen and CBLen
+    UMILen=10
+    CBLen=16
+    if [ "~{chemistry}" == 2 ]
+    then
+        ## V2
+        UMILen=10
+        CBLen=16
+    elif [ "~{chemistry}" == 3 ]
+    then
+        ## V3
+        UMILen=12
+        CBLen=16
+    else
+        echo Error: unknown chemistry value: "$chemistry". Should be one of "tenX_v2" or "texX_v3".
+        exit 1;
+    fi
+
+    # Check that the star strand mode matches STARsolo aligner options
+    if [[ "~{star_strand_mode}" == "Forward" ]] || [[ "~{star_strand_mode}" == "Reverse" ]] || [[ "~{star_strand_mode}" == "Unstranded" ]]
+    then
+        ## single cell or whole cell
+        echo STAR mode is assigned
+    else
+        echo Error: unknown STAR strand mode: "~{star_strand_mode}". Should be Forward, Reverse, or Unstranded.
+        exit 1;
+    fi
+
+    # prepare reference
+    mkdir genome_reference
+    tar -xf "~{tar_star_reference}" -C genome_reference --strip-components 1
+    rm "~{tar_star_reference}"
+
+    # set correct counting mode
+    COUNTING_MODE=""
+    if [[ "~{counting_mode}" == "sc_rna" ]]
+    then
+        ## single cell or whole cell
+        COUNTING_MODE="Gene"
+        echo "Running in ~{counting_mode} mode. The Star parameter --soloFeatures will be set to $COUNTING_MODE"
+    elif [[ "~{counting_mode}" == "sn_rna" ]]
+    then
+        ## single nuclei
+        if [[ ~{count_exons} == false ]]
+        then
+            COUNTING_MODE="GeneFull_Ex50pAS"
+            echo "Running in ~{counting_mode} mode. Count_exons is false and the Star parameter --soloFeatures will be set to $COUNTING_MODE"          
+        else
+            COUNTING_MODE="GeneFull_Ex50pAS Gene"
+            echo "Running in ~{counting_mode} mode. Count_exons is true and the Star parameter --soloFeatures will be set to $COUNTING_MODE"
+        fi
+    else
+        echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
+        exit 1;
+    fi
+
+    # make read1_fastq and read3_fastq into arrays 
+    declare -a R1_ARRAY=(~{sep=' ' r1_fastq})
+    declare -a R2_ARRAY=(~{sep=' ' r2_fastq})
+    
+    file_path=`pwd`
+    echo "The current working directory is" $file_path
+
+    # make input and output directories needed for distributed bwamem2 code
+    mkdir "output_dir"
+    mkdir "input_dir"
+
+    echo "Move R1, R3 and reference files to input directory."
+    R1=""
+    echo "R1"
+    for fastq in "${R1_ARRAY[@]}"; do mv "$fastq" input_dir; R1+=`basename $fastq`" "; done
+    echo $R1
+    R2=""
+    echo "R2"
+    for fastq in "${R2_ARRAY[@]}"; do mv "$fastq" input_dir; R2+=`basename $fastq`" "; done
+    echo $R2
+    
+    WHITELIST=`basename $~{white_list}`
+    mv genome_reference input_dir
+    mv ~{white_list} input_dir
+
+    echo "List of files in input directory"
+    ls input_dir
+
+    INPUT_DIR=$file_path/input_dir
+    OUTPUT_DIR=$file_path/output_dir
+
+    # set prefix and suffix of files 
+    R1PREFIX="fastq_R1"    ## prefix for R1 
+    R2PREFIX="fastq_R2"    ## prefix for R2
+    SUFFIX="fastq.gz"    ## suffix of both
+
+    input_to_config="INPUT_DIR=\"${INPUT_DIR}\"\nOUTPUT_DIR=\"${OUTPUT_DIR}\"\nR1PREFIX=\"${R1PREFIX}\"\nR2PREFIX=\"${R2PREFIX}\"\nSUFFIX=\"${SUFFIX}\"\n"
+    other_to_add="R1=\"${R1}\"\nR2=\"${R2}\"\nREF=genome_reference\nWHITELIST=$WHITELIST\n"
+    PARAMS="star_strand_mode=~{star_strand_mode}\nsoloUMIlen=$UMILen\nsoloCBlen=$CBLen\nsoloFeatures=$COUNTING_MODE\nsoloMultiMappers=~{soloMultiMappers}\n"
+    
+    printf "%b" "$input_to_config"
+    printf "%b" "$other_to_add"
+    printf "%b" "$PARAMS"
+    
+    # cd into fq2sortedbam
+    cd /usr/temp/Open-Omics-Acceleration-Framework/pipelines/optimus_starsolo
+    cat config
+    # remove the first part of config
+    tail -9 config > config
+    # add inputs to config file (this file is needed to run bwa-mem2 in this specific code"
+    printf "%b" "$input_to_config" | tee -a config
+    printf "%b" "$other_to_add" | tee -a config
+    printf "%b" "$PARAMS" | tee -a config
+    echo "CONFIG"
+    cat config
+    echo "END CONFIG"
+    # run star
+    echo "Run distributed STAR"
+    ./run_starsolo.sh
+    echo "Done running distributed STAR"
+    echo "List of files in output directory"
+    ls $OUTPUT_DIR
+    
+    # tar output logs of star
+    tar -zcvf /cromwell_root/output_diststar_log.tar.gz $OUTPUT_DIR  
+  
+    # cd to output directory
+    cd $OUTPUT_DIR
+    # rename file to this
+    mv final.sorted.bam ~{bam_aligned_output_name}
+    # move bam file to /cromwell_root
+    mv ~{bam_aligned_output_name} /cromwell_root
+    ls
+  
+  >>>
+
+  runtime {
+    docker: docker
+    memory: "${mem_size} GiB"
+    disks: "local-disk ${disk_size} SSD"
+    disk: disk_size + " GB" # TES
+    cpu: nthreads
+    cpuPlatform: cpu_platform
+  }
+  
+  output {
+    File bam_aligned_output = bam_aligned_output_name
+    File output_diststar_log_tar = "output_diststar_log.tar.gz"
+  }
+}
 
 task STARsoloFastq {
   input {
