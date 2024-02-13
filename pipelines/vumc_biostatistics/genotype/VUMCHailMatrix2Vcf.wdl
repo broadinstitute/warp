@@ -49,7 +49,7 @@ task HailMatrix2Vcf {
   Int disk_size = ceil(expect_vcf_size / 1024 / 1024 / 1024 * disk_size_factor) + 20
   Int total_memory_gb = memory_gb + 2
 
-  String target_vcf = target_prefix + ".vcf.bgz"
+  String target_vcf = target_prefix + ".vcf.gz"
   String target_vcf_tbi = target_vcf + ".tbi"
   
   String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
