@@ -1,4 +1,4 @@
-# 6.3.6
+# 6.4.0
 2024-02-01 (Date of Last Commit)
 * Removed ref_genome_fasta input from Optimus WDL and JSON
 
