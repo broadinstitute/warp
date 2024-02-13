@@ -1,9 +1,9 @@
-# 2.1.8
-2024-02-07 (Date of Last Commit)
+# 3.0.1
+2024-02-13 (Date of Last Commit)
 
 * Updated the Metrics tasks to exclude mitochondrial genes from reads_mapped_uniquely, reads_mapped_multiple and reads_mapped_exonic, reads_mapped_exonic_as and reads_mapped_intergenic; this does affect the SlideSeq workflow
 
-# 2.1.7
+# 3.0.0
 2024-02-12 (Date of Last Commit)
 
 * Updated the SlideSeq WDL output to utilize the h5ad format in place of Loom
