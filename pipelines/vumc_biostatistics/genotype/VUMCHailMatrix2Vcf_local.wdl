@@ -4,19 +4,21 @@ workflow VUMCHailMatrix2Vcf {
   input {
     String input_hail_mt_path
     Float expect_vcf_size #almost equals to the size of corresponding vcf.gz file
+    String tmp_dir 
 
     String reference_genome = "GRCh38"
 
     String target_prefix
 
     String? project_id
-    String target_gcp_folder
+    String? target_gcp_folder
   }
 
   call HailMatrix2Vcf {
     input:
       input_hail_mt_path = input_hail_mt_path,
       expect_vcf_size = expect_vcf_size,
+      tmp_dir = tmp_dir,
       reference_genome = reference_genome,
       target_prefix = target_prefix,
       project_id = project_id,
@@ -33,10 +35,12 @@ task HailMatrix2Vcf {
   input {
     String input_hail_mt_path
     Float expect_vcf_size
+    String tmp_dir
+
     String reference_genome
     String target_prefix
     String? project_id
-    String target_gcp_folder
+    String? target_gcp_folder
 
     String docker = "shengqh/hail_gcp:20240211"
     Int memory_gb = 64
@@ -45,15 +49,23 @@ task HailMatrix2Vcf {
     Int boot_disk_gb = 10  
   }
 
-  Int disk_size = 2 * ceil(expect_vcf_size / 1024 / 1024 / 1024) + 20
+  Int disk_size = ceil(expect_vcf_size / 1024 / 1024 / 1024) + 20
   Int total_memory_gb = memory_gb + 2
 
   String target_vcf = target_prefix + ".vcf.bgz"
   String target_vcf_tbi = target_vcf + ".tbi"
   
-  String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
-  String gcs_output_vcf = gcs_output_dir + "/" + target_vcf
-  String gcs_output_vcf_tbi = gcs_output_vcf + ".tbi"
+  # if(defined(target_gcp_folder)){
+  #   # String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
+  #   # String gcs_output_vcf = gcs_output_dir + "/" + target_vcf
+  #   # String gcs_output_vcf_tbi = gcs_output_vcf + ".tbi"
+  # }
+
+  # String final_vcf = select_first([gcs_output_vcf, target_vcf])
+  # String final_vcf_tbi = select_first([gcs_output_vcf_tbi, target_vcf_tbi])
+
+  String final_vcf = select_first([ target_vcf])
+  String final_vcf_tbi = select_first([ target_vcf_tbi])
 
   command <<<
 
@@ -65,8 +77,11 @@ python3 <<CODE
 import hail as hl
 
 hl.init(spark_conf={
-    "spark.driver.memory": "~{memory_gb}g"
+    "spark.driver.memory": "~{memory_gb}g",
+    "spark.local.dir": "~{tmp_dir}"
   }, 
+  tmp_dir="~{tmp_dir}",
+  local_tmpdir="~{tmp_dir}",
   idempotent=True)
 hl.default_reference("~{reference_genome}")
 
@@ -74,9 +89,6 @@ mt = hl.read_matrix_table("~{input_hail_mt_path}")
 hl.export_vcf(mt, "~{target_vcf}", tabix = True)
 
 CODE
-
-gsutil ~{"-u " + project_id} -m cp ~{target_vcf} ~{gcs_output_vcf}
-gsutil ~{"-u " + project_id} -m cp ~{target_vcf_tbi} ~{gcs_output_vcf_tbi}
 
 >>>
 
@@ -89,7 +101,7 @@ gsutil ~{"-u " + project_id} -m cp ~{target_vcf_tbi} ~{gcs_output_vcf_tbi}
     bootDiskSizeGb: boot_disk_gb
   }
   output {
-    String output_vcf = "~{gcs_output_vcf}"
-    String output_vcf_tbi = "~{gcs_output_vcf_tbi}"
+    String output_vcf = "~{final_vcf}"
+    String output_vcf_tbi = "~{final_vcf_tbi}"
   }
 }

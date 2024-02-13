@@ -1,0 +1,7 @@
+{
+  "VUMCHailMatrix2Vcf.target_prefix": "agd35k_chrM",
+  "VUMCHailMatrix2Vcf.input_hail_mt_path": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/chrM.mt",
+  "VUMCHailMatrix2Vcf.expect_vcf_size": 1405096655,
+  "VUMCHailMatrix2Vcf.tmp_dir": "/workspace/shengq2/temp"
+}
+
