@@ -507,11 +507,6 @@ task MergeStarOutput {
     declare -a align_features_files=(~{sep=' ' align_features})
     declare -a umipercell_files=(~{sep=' ' umipercell})
 
-    # for cell_read in "${cell_reads_files[@]}"; do
-    #   if [ -f "$cell_read" ]; then
-    #     cat "$cell_read" >> "~{input_id}_cell_reads.txt"
-    #   fi
-    # done
     # Destination file for cell reads
     dest="~{input_id}_cell_reads.txt"
     # first create the header from the first file in the list, and add a column header for the shard id
@@ -535,7 +530,6 @@ task MergeStarOutput {
     # add the matrix to the destination file, then delete the matrix file
     cat "matrix.txt" >> "$dest"
     rm "matrix.txt"
-
     
     counter=0
     for summary in "${summary_files[@]}"; do
