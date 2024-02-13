@@ -34,7 +34,7 @@ workflow VUMCPlink2BedToBgen {
         source_file2 = Plink2BedToBgen.output_sample,
         is_move_file = false,
         project_id = project_id,
-        target_bucket = select_first([target_bucket])
+        target_gcp_folder = select_first([target_bucket])
     }
   }
 

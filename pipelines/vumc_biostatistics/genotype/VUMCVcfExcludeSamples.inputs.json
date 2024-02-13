@@ -1,7 +1,7 @@
 {
-  "VUMCVcfExcludeSamples.target_prefix": "chr22",
-  "VUMCVcfExcludeSamples.exclude_samples": "/nobackup/h_cqs/shengq2/biovu/data/inelg_all.txt",
-  "VUMCVcfExcludeSamples.input_vcf": "/nobackup/h_cqs/shengq2/biovu/megaex1.1/TOPMed_imputed/EUR/merged_chr22.vcf.gz",
+  "VUMCVcfExcludeSamples.target_prefix": "chrM",
+  "VUMCVcfExcludeSamples.exclude_samples": "/nobackup/h_cqs/shengq2/biovu/20240202_agd35k_whitelist_v2/agd35k_ineligible.v2.txt",
+  "VUMCVcfExcludeSamples.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/chrM.primary_grid_v2.vcf.gz",
   "VUMCVcfExcludeSamples.target_suffix": ".eligible.vcf.gz"
 }
 

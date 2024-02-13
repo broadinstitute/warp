@@ -41,13 +41,15 @@ task MoveOrCopyTwoFiles {
     Boolean is_move_file = true
 
     String? project_id
-    String target_bucket
+    String target_gcp_folder
   }
 
   String action = if (is_move_file) then "mv" else "cp"
 
-  String new_file1 = "~{target_bucket}/~{basename(source_file1)}"
-  String new_file2 = "~{target_bucket}/~{basename(source_file2)}"
+  String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
+
+  String new_file1 = "~{gcs_output_dir}/~{basename(source_file1)}"
+  String new_file2 = "~{gcs_output_dir}/~{basename(source_file2)}"
 
   command <<<
 
@@ -68,8 +70,6 @@ gsutil -m ~{"-u " + project_id} ~{action} ~{source_file1} ~{source_file2} ~{targ
     String output_file2 = new_file2
   }
 }
-
-
 
 task MoveOrCopyVcfFile {
   input {

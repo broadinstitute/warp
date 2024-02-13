@@ -11,8 +11,7 @@ workflow VUMCVcfExcludeSamples {
     String docker = "staphb/bcftools"
 
     String? project_id
-    String? target_bucket
-    String? genoset
+    String? target_gcp_folder
   }
 
   call BcftoolsExcludeSamples {
@@ -24,21 +23,20 @@ workflow VUMCVcfExcludeSamples {
       docker = docker
   }
 
-  if(defined(target_bucket)){
-    call Utils.MoveOrCopyVcfFile {
+  if(defined(target_gcp_folder)){
+    call Utils.MoveOrCopyTwoFiles as CopyVCF {
       input:
-        input_vcf = BcftoolsExcludeSamples.output_vcf,
-        input_vcf_index = BcftoolsExcludeSamples.output_vcf_index,
-        is_move_file = true,
+        source_file1 = BcftoolsExcludeSamples.output_vcf,
+        source_file2 = BcftoolsExcludeSamples.output_vcf_index,
+        is_move_file = false,
         project_id = project_id,
-        target_bucket = select_first([target_bucket]),
-        genoset = select_first([genoset]),
+        target_gcp_folder = select_first([target_gcp_folder]),
     }
   }
 
   output {
-    File output_vcf = select_first([MoveOrCopyVcfFile.output_vcf, BcftoolsExcludeSamples.output_vcf])
-    File output_vcf_index = select_first([MoveOrCopyVcfFile.output_vcf_index, BcftoolsExcludeSamples.output_vcf_index])
+    File output_vcf = select_first([CopyVCF.output_file1, BcftoolsExcludeSamples.output_vcf])
+    File output_vcf_index = select_first([CopyVCF.output_file2, BcftoolsExcludeSamples.output_vcf_index])
   }
 }
 
@@ -47,7 +45,7 @@ task BcftoolsExcludeSamples {
     File input_vcf
     File exclude_samples
     String target_prefix
-    String target_suffix = ".vcf.gz"
+    String target_suffix = ".vcf.bgz"
     String docker = "staphb/bcftools"
   }
 
@@ -60,31 +58,7 @@ bcftools query -l ~{input_vcf} > all.id.txt
 
 grep -Fxf all.id.txt ~{exclude_samples} | sort | uniq > remove.id.txt
 
-bcftools head ~{input_vcf} > header.txt
-zcat ~{input_vcf} | grep -v "^#" | cut -f 1-8 | head -n 1 > data.txt
-if grep -Fq "Imputed" data.txt
-then
-  if grep -Fq "Imputed" header.txt
-  then
-    is_header_wrong=false
-  else
-    is_header_wrong=true
-  fi
-else
-  is_header_wrong=false
-fi
-
-echo is_header_wrong = $is_header_wrong
-
-if [ "$is_header_wrong" = "true" ];
-then
-  #there is error in merged imputation vcf files. The header has IMPUTED instead of Imputed.
-  bcftools head ~{input_vcf} > header.txt
-  awk '/^#CHROM/ {printf("##INFO=<ID=Imputed,Number=0,Type=Flag,Description=\"Marker was imputed but NOT genotyped\">\n##INFO=<ID=Genotyped,Number=0,Type=Flag,Description=\"Marker was genotyped\">\n");} {print}' header.txt > new_header.txt
-  bcftools reheader -h new_header.txt ~{input_vcf} | bcftools view -S ^remove.id.txt -o ~{new_vcf} -
-else
-  bcftools view -S ^remove.id.txt -o ~{new_vcf} ~{input_vcf}
-fi
+bcftools view -S ^remove.id.txt -o ~{new_vcf} ~{input_vcf}
 
 bcftools index -t ~{new_vcf}
 
