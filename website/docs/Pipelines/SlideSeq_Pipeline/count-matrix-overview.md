@@ -40,12 +40,12 @@ The bead barcode metrics below are computed using [TagSort](https://github.com/b
 |`n_reads`| The number of reads associated with this entity. n_reads, like all metrics, are calculated from the Slide-Seq output BAM. Prior to alignment with STARsolo, reads are checked against the whitelist (1 hamming distance). These CB-corrected reads are the input to the STAR aligner. Then, the reads also get CB correction during STAR. For this reason, almost all reads in the aligned BAM have a CB tag and UB tag. Therefore, n_reads represents CB corrected reads, not all reads in the input FASTQ files. |
 |`noise_reads`| Number of reads that are categorized by 10x Genomics Cell Ranger as "noise". Refers to long polymers, or reads with high numbers of N (ambiguous) nucleotides. |
 |`perfect_molecule_barcodes`| The number of reads whose molecule barcodes contain no errors. |
-| `reads_mapped_exonic` | The number of unique reads counted as exon; counted when BAM file's `sF` tag is assigned to `1` or `3` and the `NH:i` tag is `1`. |
-| `reads_mapped_exonic_as` | The number of reads counted as exon in the antisense direction; counted when the BAM file's `sF` tag is assigned to a `2` or `4` and the `NH:i` tag is `1`. |
-| `reads_mapped_intronic` | The number of reads counted as intron; counted when the BAM file's `sF` tag is assigned to a `5` and the `NH:i` tag is `1`. | 
-| `reads_mapped_intronic_as` | The number of reads counted as intron in the antisense direction; counted when the BAM file's `sF` tag is assigned to a `6` and the `NH:i` tag is `1`. |
-|`reads_mapped_uniquely`| The number of reads mapped to a single unambiguous location in the genome. |
-|`reads_mapped_multiple`| The number of reads mapped to multiple genomic positions with equal confidence. |
+| `reads_mapped_exonic` | The number of unique reads counted as exon; counted when BAM file's `sF` tag is assigned to `1` or `3` and the `NH:i` tag is `1`; mitochondrial reads are excluded. |
+| `reads_mapped_exonic_as` | The number of reads counted as exon in the antisense direction; counted when the BAM file's `sF` tag is assigned to a `2` or `4` and the `NH:i` tag is `1`; mitochondrial reads are excluded. |
+| `reads_mapped_intronic` | The number of reads counted as intron; counted when the BAM file's `sF` tag is assigned to a `5` and the `NH:i` tag is `1`; mitochondrial reads are excluded. | 
+| `reads_mapped_intronic_as` | The number of reads counted as intron in the antisense direction; counted when the BAM file's `sF` tag is assigned to a `6` and the `NH:i` tag is `1`; mitochondrial reads are excluded. |
+|`reads_mapped_uniquely`| The number of reads mapped to a single unambiguous location in the genome; mitochondrial reads are excluded. |
+|`reads_mapped_multiple`| The number of reads mapped to multiple genomic positions with equal confidence; mitochondrial reads are excluded. |
 | `duplicate_reads` | The number of duplicate reads. |
 |`spliced_reads`| The number of reads that overlap splicing junctions. |
 |`antisense_reads`| The number of reads that are mapped to the antisense strand instead of the transcribed strand. |
@@ -88,12 +88,12 @@ The gene metrics below are computed using [TagSort](https://github.com/broadinst
 |`n_reads`| The number of reads associated with this entity. n_reads, like all metrics, are calculated from the Slide-Seq output BAM. Prior to alignment with STARsolo, reads are checked against the whitelist (1 hamming distance). These CB-corrected reads are the input to the STAR aligner. Then, the reads also get CB correction during STAR. For this reason, almost all reads in the aligned BAM have a CB tag and UB tag. Therefore, n_reads represents CB corrected reads, not all reads in the input FASTQ files. |
 |`noise_reads`| The number of reads that are categorized by 10x Genomics Cell Ranger as "noise". Refers to long polymers, or reads with high numbers of N (ambiguous) nucleotides. |
 |`perfect_molecule_barcodes`| The number of reads with molecule barcodes that have no errors. |
-| `reads_mapped_exonic` | The number of unique reads counted as exon; counted when BAM file's `sF` tag is assigned to `1` or `3` and the `NH:i` tag is `1`. |
-| `reads_mapped_exonic_as` | The number of reads counted as exon in the antisense direction; counted when the BAM file's `sF` tag is assigned to a `2` or `4` and the `NH:i` tag is `1`. |
-| `reads_mapped_intronic` | The number of reads counted as intron; counted when the BAM file's `sF` tag is assigned to a `5` and the `NH:i` tag is `1`. | 
-| `reads_mapped_intronic_as` | The number of reads counted as intron in the antisense direction; counted when the BAM file's `sF` tag is assigned to a `6` and the `NH:i` tag is `1`. |
-|`reads_mapped_uniquely`| The number of reads mapped to a single unambiguous location in the genome. |
-|`reads_mapped_multiple`| The number of reads mapped to multiple genomic positions with equal confidence. |
+| `reads_mapped_exonic` | The number of unique reads counted as exon; counted when BAM file's `sF` tag is assigned to `1` or `3` and the `NH:i` tag is `1`; mitochondrial reads are excluded. |
+| `reads_mapped_exonic_as` | The number of reads counted as exon in the antisense direction; counted when the BAM file's `sF` tag is assigned to a `2` or `4` and the `NH:i` tag is `1`; mitochondrial reads are excluded. |
+| `reads_mapped_intronic` | The number of reads counted as intron; counted when the BAM file's `sF` tag is assigned to a `5` and the `NH:i` tag is `1`; mitochondrial reads are excluded. | 
+| `reads_mapped_intronic_as` | The number of reads counted as intron in the antisense direction; counted when the BAM file's `sF` tag is assigned to a `6` and the `NH:i` tag is `1`; mitochondrial reads are excluded. |
+|`reads_mapped_uniquely`| The number of reads mapped to a single unambiguous location in the genome; mitochondrial reads are excluded. |
+|`reads_mapped_multiple`| The number of reads mapped to multiple genomic positions with equal confidence; mitochondrial reads are excluded. |
 | `duplicate_reads` | The number of duplicate reads. |
 |`spliced_reads`| The number of reads that overlap splicing junctions. |
 |`antisense_reads`| The number of reads that are mapped to the antisense strand instead of the transcribed strand. |
@@ -112,3 +112,6 @@ The gene metrics below are computed using [TagSort](https://github.com/broadinst
 |`molecules_with_single_read_evidence`| The number of molecules associated with this entity that are observed by only one read. |
 |`number_cells_detected_multiple`| The number of bead barcodes which observe more than one read of this gene. |
 |`number_cells_expressing`| The number of bead barcodes that detect this gene. |
+
+## Definitions
+* Bead Barcode: Short nucleotide sequence used to label and distinguish which reads come from each unique bead, allowing for tracking of many beads simultaneously.
