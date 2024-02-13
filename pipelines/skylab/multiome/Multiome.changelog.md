@@ -1,6 +1,13 @@
+# 3.2.0
+2024-02-13 (Date of Last Commit)
+
+* Removed ref_genome_fasta input from Multiome WDL and JSON
+
 # 3.1.2
 2024-02-01 (Date of Last Commit)
-* Removed ref_genome_fasta input from Multiome WDL and JSON
+
+* Add new paired-tag task to parse sample barcodes from cell barcodes when preindexing is set to true; this does not affect the Multiome pipeline
+
 
 # 3.1.1 
 2024-01-30 (Date of Last Commit)
