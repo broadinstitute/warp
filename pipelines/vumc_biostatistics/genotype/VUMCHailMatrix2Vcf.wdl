@@ -61,13 +61,18 @@ task HailMatrix2Vcf {
 #https://discuss.hail.is/t/i-get-a-negativearraysizeexception-when-loading-a-plink-file/899
 export PYSPARK_SUBMIT_ARGS="--driver-java-options '-XX:hashCode=0' --conf 'spark.executor.extraJavaOptions=-XX:hashCode=0' pyspark-shell"
 
+mkdir -p ./tmp
+
 python3 <<CODE
 
 import hail as hl
 
 hl.init(spark_conf={
-    "spark.driver.memory": "~{memory_gb}g"
-  }, 
+    "spark.driver.memory": "~{memory_gb}g",
+    "spark.local.dir": "./tmp"
+  },
+  tmp_dir="./tmp",
+  local_tmpdir="./tmp",
   idempotent=True)
 hl.default_reference("~{reference_genome}")
 
