@@ -4,21 +4,23 @@ task MoveOrCopyOneFile {
   input {
     String source_file
 
-    Boolean is_move_file = true
+    Boolean is_move_file = false
 
     String? project_id
-    String target_bucket
+    String target_gcp_folder
   }
 
   String action = if (is_move_file) then "mv" else "cp"
 
-  String new_file = "~{target_bucket}/~{basename(source_file)}"
+  String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
+
+  String new_file = "~{gcs_output_dir}/~{basename(source_file)}"
 
   command <<<
 
 set -e
 
-gsutil -m ~{"-u " + project_id} ~{action} ~{source_file} ~{target_bucket}/
+gsutil -m ~{"-u " + project_id} ~{action} ~{source_file} ~{gcs_output_dir}/
 
 >>>
 
@@ -38,7 +40,7 @@ task MoveOrCopyTwoFiles {
     String source_file1
     String source_file2
 
-    Boolean is_move_file = true
+    Boolean is_move_file = false
 
     String? project_id
     String target_gcp_folder
@@ -55,7 +57,7 @@ task MoveOrCopyTwoFiles {
 
 set -e
 
-gsutil -m ~{"-u " + project_id} ~{action} ~{source_file1} ~{source_file2} ~{target_bucket}/
+gsutil -m ~{"-u " + project_id} ~{action} ~{source_file1} ~{source_file2} ~{gcs_output_dir}/
 
 >>>
 
@@ -71,12 +73,54 @@ gsutil -m ~{"-u " + project_id} ~{action} ~{source_file1} ~{source_file2} ~{targ
   }
 }
 
+
+task MoveOrCopyThreeFiles {
+  input {
+    String source_file1
+    String source_file2
+    String source_file3
+
+    Boolean is_move_file = false
+
+    String? project_id
+    String target_gcp_folder
+  }
+
+  String action = if (is_move_file) then "mv" else "cp"
+
+  String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
+
+  String new_file1 = "~{gcs_output_dir}/~{basename(source_file1)}"
+  String new_file2 = "~{gcs_output_dir}/~{basename(source_file2)}"
+  String new_file3 = "~{gcs_output_dir}/~{basename(source_file3)}"
+
+  command <<<
+
+set -e
+
+gsutil -m ~{"-u " + project_id} ~{action} ~{source_file1} ~{source_file2} ~{source_file3} ~{gcs_output_dir}/
+
+>>>
+
+  runtime {
+    docker: "google/cloud-sdk"
+    preemptible: 1
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+  }
+  output {
+    String output_file1 = new_file1
+    String output_file2 = new_file2
+    String output_file3 = new_file3
+  }
+}
+
 task MoveOrCopyVcfFile {
   input {
     String input_vcf
     String input_vcf_index
 
-    Boolean is_move_file = true
+    Boolean is_move_file = false
 
     String? project_id
     String target_bucket
@@ -118,7 +162,7 @@ task MoveOrCopyPlinkFile {
     String source_bim
     String source_fam
 
-    Boolean is_move_file = true
+    Boolean is_move_file = false
 
     String? project_id
     String target_bucket

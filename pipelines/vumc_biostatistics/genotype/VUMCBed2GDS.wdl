@@ -17,7 +17,7 @@ workflow VUMCBed2GDS {
     Int memory_gb = 20
 
     String? project_id
-    String? target_bucket
+    String? target_gcp_folder
   }
 
   call Bed2GDS {
@@ -30,13 +30,13 @@ workflow VUMCBed2GDS {
       memory_gb = memory_gb
   }
 
-  if(defined(target_bucket)){
+  if(defined(target_gcp_folder)){
     call Utils.MoveOrCopyOneFile as CopyFile {
       input:
         source_file = Bed2GDS.gds_file,
         is_move_file = false,
         project_id = project_id,
-        target_bucket = select_first([target_bucket])
+        target_gcp_folder = select_first([target_gcp_folder])
     }
   }
 
