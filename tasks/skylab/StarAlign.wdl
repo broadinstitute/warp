@@ -510,10 +510,10 @@ task MergeStarOutput {
     # Destination file for cell reads
     dest="~{input_id}_cell_reads.txt"
     # first create the header from the first file in the list, and add a column header for the shard id
-    head -n 1 "${cell_reads[0]}" | awk '{print $0 "\tshard_number"}' > "$dest"
+    head -n 1 "${cell_reads_files[0]}" | awk '{print $0 "\tshard_number"}' > "$dest"
     # Loop through the array and add the second row with shard number to a temp file notinpasslist.txt
-    for index in "${!cell_reads[@]}"; do
-      secondLine=$(sed -n '2p' "${cell_reads[$index]}")
+    for index in "${!cell_reads_files[@]}"; do
+      secondLine=$(sed -n '2p' "${cell_reads_files[$index]}")
       echo -e "$secondLine\t$index" >> "notinpasslist.txt"
     done
     # add notinpasslist.txt to the destination file and delete the notinpasslist.txt
@@ -521,7 +521,7 @@ task MergeStarOutput {
     rm notinpasslist.txt
     # now add the shard id to the matrix in a temporary matrix file, and skip the first two lines
     counter=0
-    for cell_read in "${cell_reads[@]}"; do
+    for cell_read in "${cell_reads_files[@]}"; do
       if [ -f "$cell_read" ]; then
         awk -v var="$counter" 'NR>2 {print $0 "\t" var}' "$cell_read" >> "matrix.txt" 
         let counter=counter+1
