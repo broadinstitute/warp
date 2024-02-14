@@ -1,3 +1,7 @@
+# 6.3.6
+2024-02-07 (Date of Last Commit)
+* Updated the Metrics tasks to exclude mitochondrial genes from reads_mapped_uniquely, reads_mapped_multiple and reads_mapped_exonic, reads_mapped_exonic_as and reads_mapped_intergenic
+
 # 6.3.5
 2024-01-30 (Date of Last Commit)
 * Added task GetNumSplits before FastqProcess ATAC task to determine the number of splits based on the bwa-mem2 machine specs

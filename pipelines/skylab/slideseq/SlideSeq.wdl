@@ -23,7 +23,7 @@ import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 
 workflow SlideSeq {
 
-    String pipeline_version = "3.0.0"
+    String pipeline_version = "3.0.1"
 
     input {
         Array[File] r1_fastq
@@ -91,11 +91,13 @@ workflow SlideSeq {
     call Metrics.CalculateGeneMetrics as GeneMetrics {
         input:
             bam_input = MergeBam.output_bam,
+            original_gtf = annotations_gtf,
             input_id = input_id
     }
     call Metrics.CalculateUMIsMetrics as UMIsMetrics {
         input:
             bam_input = MergeBam.output_bam,
+            original_gtf = annotations_gtf,
             input_id = input_id
     }
 
