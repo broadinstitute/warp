@@ -26,11 +26,11 @@
 
   "JointGenotyping.snp_vqsr_downsampleFactor": 10,
   "JointGenotyping.snps_variant_recalibration_threshold": 20000,
-  "JointGenotyping.snp_filter_level": 99.7,
+  "JointGenotyping.vqsr_snp_filter_level": 99.7,
   "JointGenotyping.snp_recalibration_annotation_values": ["QD", "MQRankSum", "ReadPosRankSum", "FS", "MQ", "SOR", "DP"],
   "JointGenotyping.snp_recalibration_tranche_values": ["100.0", "99.95", "99.9", "99.8", "99.6", "99.5", "99.4", "99.3", "99.0", "98.0", "97.0", "90.0" ],
 
-  "JointGenotyping.indel_filter_level": 99.0,
+  "JointGenotyping.vqsr_indel_filter_level": 99.0,
   "JointGenotyping.indel_recalibration_annotation_values": ["FS", "ReadPosRankSum", "MQRankSum", "QD", "SOR", "DP"],
   "JointGenotyping.indel_recalibration_tranche_values": ["100.0", "99.95", "99.9", "99.5", "99.0", "97.0", "96.0", "95.0", "94.0", "93.5", "93.0", "92.0", "91.0", "90.0"],
 
