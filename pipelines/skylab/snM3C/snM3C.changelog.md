@@ -1,7 +1,7 @@
 # 2.0.0
 2024-2-13 (Date of Last Commit)
 
-* Merged several tasks in snM3C.wdl to reduce the cost of running this pipeline.
+* Merged several tasks in snM3C.wdl to reduce the cost of running this pipeline
 * Removed several final outputs from snM3C.wdl 
 
 # 1.0.1
