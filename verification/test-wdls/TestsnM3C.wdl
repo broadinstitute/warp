@@ -76,8 +76,9 @@ workflow TestsnM3C {
                                     snM3C.unique_reads_cgn_extraction_tbi,
                                     snM3C.unique_reads_cgn_extraction_allc_extract,
                                     snM3C.unique_reads_cgn_extraction_tbi_extract,
-                                    snM3C.chromatin_contact_stats,
-                                    snM3C.name_sorted_bams
+                                    snM3C.name_sorted_bams,
+                                    snM3C.all_reads_dedup_contacts,
+                                    snM3C.all_reads_3C_contacts,
     ])
 
     

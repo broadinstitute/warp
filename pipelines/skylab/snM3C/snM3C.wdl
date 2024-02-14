@@ -124,7 +124,8 @@ workflow snM3C {
         Array[File] unique_reads_cgn_extraction_tbi_extract = unique_reads_allc_and_cgn_extraction.extract_allc_output_tbi_tar
         Array[File] reference_version = Hisat_3n_pair_end_mapping_dna_mode.reference_version
         Array[File] chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats
-
+        Array[File] all_reads_dedup_contacts = call_chromatin_contacts.all_reads_dedup_contacts
+        Array[File] all_reads_3C_contacts = call_chromatin_contacts.all_reads_3C_contacts
     }
 }
 
@@ -765,8 +766,12 @@ task call_chromatin_contacts {
 
         CODE
 
-        #tar up the chromatin contact files
+        #tar up the all_reads.contact_stats.csv files
         tar -zcvf ~{plate_id}.chromatin_contact_stats.tar.gz *.hisat3n_dna.all_reads.contact_stats.csv
+        #tar up the .hisat3n_dna.all_reads.dedup_contacts.tsv files
+        tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.dedup_contacts.tar.gz *.hisat3n_dna.all_reads.dedup_contacts.tsv.gz
+        #tar up the .hisat3n_dna.all_reads.3C.contact.tsv.gz files
+        tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.3C.contact.tar.gz *.hisat3n_dna.all_reads.3C.contact.tsv.gz
     >>>
     runtime {
         docker: docker
@@ -777,6 +782,8 @@ task call_chromatin_contacts {
     }
     output {
         File chromatin_contact_stats = "~{plate_id}.chromatin_contact_stats.tar.gz"
+        File all_reads_dedup_contacts = "~{plate_id}.hisat3n_dna.all_reads.dedup_contacts.tar.gz"
+        File all_reads_3C_contacts = "~{plate_id}.hisat3n_dna.all_reads.3C.contact.tar.gz"
     }
 }
 
