@@ -540,7 +540,7 @@ task MergeStarOutput {
     done
     
     counter=0
-    for align_feature in "${align_features[@]}"; do
+    for align_feature in "${align_features_files[@]}"; do
       if [ -f "$align_feature" ]; then
         awk -v var="$counter" '{print $0 " " var}' "$align_feature" >> "~{input_id}_align_features.txt"
         let counter=counter+1
