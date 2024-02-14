@@ -96,12 +96,15 @@ bcftools index -n ~{target_vcf} > num_variants.txt
 if [[ "~{gcs_output_dir}" != "" ]]; then
   echo gsutil ~{"-u " + project_id} -m cp ~{target_vcf} ~{gcs_output_vcf}
   gsutil ~{"-u " + project_id} -m cp ~{target_vcf} ~{gcs_output_vcf}
+  rm -f ~{target_vcf}
 
   echo gsutil ~{"-u " + project_id} -m cp ~{target_vcf_index} ~{gcs_output_vcf_index}
   gsutil ~{"-u " + project_id} -m cp ~{target_vcf_index} ~{gcs_output_vcf_index}
+  rm -f ~{target_vcf_index}
 
   echo gsutil ~{"-u " + project_id} -m cp ~{target_sample_file} ~{gcs_output_sample_file}
   gsutil ~{"-u " + project_id} -m cp ~{target_sample_file} ~{gcs_output_sample_file}
+  rm -f ~{target_sample_file}
 fi
 
 echo final_vcf=~{final_vcf}
