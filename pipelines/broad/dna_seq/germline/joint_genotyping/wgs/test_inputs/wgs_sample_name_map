@@ -1,4 +1,4 @@
-CHM1_CHM13_WGS2	gs://broad-gotc-test-storage/germline_single_sample/wgs/load/truth/develop/CHM1_CHM13_WGS2/CHM1_CHM13_WGS2.g.vcf.gz
+CHM1_CHM13_WGS2	gs://broad-gotc-test-storage/WholeGenomeGermlineSingleSample/truth/scientific/master/G94794.CHMI_CHMI3_WGS2/CHMI_CHMI3_WGS2.f6c39eb5-0716-4f02-9be8-47b343c5830e.rb.g.vcf.gz
 HG00623	gs://broad-gotc-test-storage/germline_single_sample/wgs/load/truth/develop/HG00623/HG00623.g.vcf.gz
 HG01967	gs://broad-gotc-test-storage/germline_single_sample/wgs/load/truth/develop/HG01967/HG01967.g.vcf.gz
 NA12877	gs://broad-gotc-test-storage/germline_single_sample/wgs/load/truth/develop/NA12877/NA12877.g.vcf.gz
