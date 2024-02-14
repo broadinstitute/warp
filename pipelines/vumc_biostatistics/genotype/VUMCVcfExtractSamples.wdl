@@ -5,25 +5,23 @@ import "./Utils.wdl" as Utils
 workflow VUMCVcfExtractSamples {
   input {
     File input_vcf
+    File input_vcf_index
     File include_samples
+
     String target_prefix
     String target_suffix = ".vcf.gz"
-    String docker = "staphb/bcftools"
 
     String? project_id
     String? target_gcp_folder
-
-    Int preemptible = 1
   }
 
   call BcftoolsExtractSamples {
     input:
       input_vcf = input_vcf,
+      input_vcf_index = input_vcf_index,
       include_samples = include_samples,
       target_prefix = target_prefix,
       target_suffix = target_suffix,
-      docker = docker,
-      preemptible = preemptible,
       project_id = project_id,
       target_gcp_folder = target_gcp_folder
   }
@@ -40,14 +38,18 @@ workflow VUMCVcfExtractSamples {
 task BcftoolsExtractSamples {
   input {
     File input_vcf
+    File input_vcf_index
     File include_samples
+
     String target_prefix
-    String target_suffix = ".vcf.gz"
+    String target_suffix
+    
+    String? project_id
+    String? target_gcp_folder
+
     String docker = "shengqh/hail_gcp:20240213"
     Float disk_factor = 3.0
     Int preemptible = 1
-    String? project_id
-    String? target_gcp_folder
   }
 
   Int disk_size = ceil(size(input_vcf, "GB") * disk_factor) + 2
