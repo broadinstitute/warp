@@ -21,8 +21,8 @@ workflow snM3C {
         Int compress_level = 5
         Int batch_number
 
-        Array[File] r1_trimmed_tar
-        Array[File] r2_trimmed_tar
+        File r1_trimmed_tar
+        File r2_trimmed_tar
     }
 
     # version of the pipeline
@@ -39,7 +39,7 @@ workflow snM3C {
     }
 
     output {
-        Array[File] hisat3n_paired_end_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
+        File hisat3n_paired_end_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
     }
 }
 
@@ -47,8 +47,8 @@ workflow snM3C {
 
 task Hisat_3n_pair_end_mapping_dna_mode{
     input {
-        Array[File] r1_trimmed_tar
-        Array[File] r2_trimmed_tar
+        File r1_trimmed_tar
+        File r2_trimmed_tar
         File tarred_index_files
         File genome_fa
         File chromosome_sizes
@@ -123,8 +123,8 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         preemptible: preemptible_tries
     }
     output {
-        Array[File] hisat3n_paired_end_bam_tar = "~{plate_id}.hisat3n_paired_end_bam_files.tar.gz"
-        Array[File] hisat3n_paired_end_stats_tar = "~{plate_id}.hisat3n_paired_end_stats_files.tar.gz"
+        File hisat3n_paired_end_bam_tar = "~{plate_id}.hisat3n_paired_end_bam_files.tar.gz"
+        File hisat3n_paired_end_stats_tar = "~{plate_id}.hisat3n_paired_end_stats_files.tar.gz"
         File reference_version = "~{plate_id}.reference_version.txt"
     }
 }
