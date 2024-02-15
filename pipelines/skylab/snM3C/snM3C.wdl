@@ -58,7 +58,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         Int disk_size = 2000
         Int mem_size = 512
         Int preemptible_tries = 3
-        Int cpu = 4
+        Int cpu = 128
         String cpuPlatform = "Intel Ice Lake"
     }
     command <<<
@@ -103,6 +103,18 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         R1_files=($(ls | grep "\-R1_trimmed.fq.gz"))
         R2_files=($(ls | grep "\-R2_trimmed.fq.gz"))
 
+        #echo the r1_files array
+        echo "R1 files:"
+        for file in "${R1_files[@]}"; do
+            echo "$file"
+        done
+
+        #echo the r2_files array
+        echo "R2 files:"
+        for file in "${R2_files[@]}"; do
+            echo "$file"
+        done
+
         # check to make sure these arrays are the same length
         #if [ ${#R1_files[@]} -ne ${#R2_files[@]} ]; then
         #  echo "The number of R1 and R2 files are not the same"
@@ -124,7 +136,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
 
 
         for file in "${R1_files[@]}"; do
-            sample_id=$(basename "$file" "-R1_trimed.fq.gz")
+            sample_id=$(basename "$file" "-R1_trimmed.fq.gz")
             hisat-3n /cromwell_root/$genome_fa_basename \
             -q \
             -1 ${sample_id}-R1_trimmed.fq.gz \
