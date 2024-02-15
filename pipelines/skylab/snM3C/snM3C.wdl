@@ -59,6 +59,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         Int mem_size = 512
         Int preemptible_tries = 3
         Int cpu = 128
+        Int cpuPlatform = "Intel Ice Lake"
     }
     command <<<
         set -euo pipefail
