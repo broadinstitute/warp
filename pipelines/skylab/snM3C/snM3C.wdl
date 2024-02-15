@@ -100,24 +100,34 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         R1_files=($(ls | grep "\-R1_trimmed.fq.gz"))
         R2_files=($(ls | grep "\-R2_trimmed.fq.gz"))
 
+        # check to make sure these arrays are the same length
+        if [ ${#R1_files[@]} -ne ${#R2_files[@]} ]; then
+          echo "The number of R1 and R2 files are not the same"
+          exit 1
+        fi
+
+        #turn the arrays into comma separated strings
+        R1_files_string=$(IFS=,; echo "${R1_files[*]}")
+        R2_files_string=$(IFS=,; echo "${R2_files[*]}")
+
+
         echo "starting hisat"
         date
-        for file in "${R1_files[@]}"; do
-          sample_id=$(basename "$file" "-R1_trimmed.fq.gz")
-          hisat-3n /cromwell_root/$genome_fa_basename \
-          -q \
-          -1 ${sample_id}-R1_trimmed.fq.gz \
-          -2 ${sample_id}-R2_trimmed.fq.gz \
-          --directional-mapping-reverse \
-          --base-change C,T \
-          --no-repeat-index \
-          --no-spliced-alignment \
-          --no-temp-splicesite \
-          -t \
-          --new-summary \
-          --summary-file ${sample_id}.hisat3n_dna_summary.txt \
-          --threads 11 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
-        done
+
+        hisat-3n /cromwell_root/$genome_fa_basename \
+        -q \
+        -1 ${R1_files_string} \
+        -2 ${R2_files_string} \
+        --directional-mapping-reverse \
+        --base-change C,T \
+        --no-repeat-index \
+        --no-spliced-alignment \
+        --no-temp-splicesite \
+        -t \
+        --new-summary \
+        --summary-file ${sample_id}.hisat3n_dna_summary.txt \
+        --threads 11 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
+
         echo "done hisat"
         date
 
