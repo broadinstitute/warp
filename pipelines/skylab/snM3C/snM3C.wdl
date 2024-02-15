@@ -71,10 +71,16 @@ task Hisat_3n_pair_end_mapping_dna_mode{
 
         # untar the index files
         echo "Untarring the index files"
+        date
         tar -zxvf ~{tarred_index_files}
         rm ~{tarred_index_files}
+        echo "tarring has finished"
+        date
 
+        echo "copying genome"
         cp ~{genome_fa} .
+        echo "done copying genome"
+        date
 
         #get the basename of the genome_fa file
         genome_fa_basename=$(basename ~{genome_fa} .fa)
@@ -87,11 +93,15 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         tar -zxvf ~{r2_trimmed_tar}
         rm ~{r1_trimmed_tar}
         rm ~{r2_trimmed_tar}
+        echo "done tarring the fastq files"
+        date
 
         # define lists of r1 and r2 fq files
         R1_files=($(ls | grep "\-R1_trimmed.fq.gz"))
         R2_files=($(ls | grep "\-R2_trimmed.fq.gz"))
 
+        echo "starting hisat"
+        date
         for file in "${R1_files[@]}"; do
           sample_id=$(basename "$file" "-R1_trimmed.fq.gz")
           hisat-3n /cromwell_root/$genome_fa_basename \
@@ -108,11 +118,16 @@ task Hisat_3n_pair_end_mapping_dna_mode{
           --summary-file ${sample_id}.hisat3n_dna_summary.txt \
           --threads 11 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
         done
+        echo "done hisat"
+        date
 
+        echo "tarring up the outputs"
+        date
         # tar up the bam files and stats files
         tar -zcvf ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz *.bam
         tar -zcvf ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
-
+        echo "tarring up the outputs"
+        date
 
     >>>
     runtime {
