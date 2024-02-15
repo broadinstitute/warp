@@ -103,18 +103,6 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         R1_files=($(ls | grep "\-R1_trimmed.fq.gz"))
         R2_files=($(ls | grep "\-R2_trimmed.fq.gz"))
 
-        #echo the r1_files array
-        echo "R1 files:"
-        for file in "${R1_files[@]}"; do
-            echo "$file"
-        done
-
-        #echo the r2_files array
-        echo "R2 files:"
-        for file in "${R2_files[@]}"; do
-            echo "$file"
-        done
-
         # check to make sure these arrays are the same length
         #if [ ${#R1_files[@]} -ne ${#R2_files[@]} ]; then
         #  echo "The number of R1 and R2 files are not the same"
