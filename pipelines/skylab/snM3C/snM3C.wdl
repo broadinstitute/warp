@@ -55,10 +55,10 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 1000
-        Int mem_size = 64
+        Int disk_size = 2000
+        Int mem_size = 512
         Int preemptible_tries = 3
-        Int cpu = 16
+        Int cpu = 128
     }
     command <<<
         set -euo pipefail
@@ -78,6 +78,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         date
 
         echo "copying genome"
+        date
         cp ~{genome_fa} .
         echo "done copying genome"
         date
@@ -89,6 +90,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
 
         # untar the demultiplexed fastq files
         echo "Untarring the fastq files"
+        date
         tar -zxvf ~{r1_trimmed_tar}
         tar -zxvf ~{r2_trimmed_tar}
         rm ~{r1_trimmed_tar}
@@ -101,32 +103,44 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         R2_files=($(ls | grep "\-R2_trimmed.fq.gz"))
 
         # check to make sure these arrays are the same length
-        if [ ${#R1_files[@]} -ne ${#R2_files[@]} ]; then
-          echo "The number of R1 and R2 files are not the same"
-          exit 1
-        fi
+        #if [ ${#R1_files[@]} -ne ${#R2_files[@]} ]; then
+        #  echo "The number of R1 and R2 files are not the same"
+        #  exit 1
+        #fi
 
         #turn the arrays into comma separated strings
-        R1_files_string=$(IFS=,; echo "${R1_files[*]}")
-        R2_files_string=$(IFS=,; echo "${R2_files[*]}")
-
+        #R1_files_string=$(IFS=,; echo "${R1_files[*]}")
+        #R2_files_string=$(IFS=,; echo "${R2_files[*]}")
 
         echo "starting hisat"
         date
 
-        hisat-3n /cromwell_root/$genome_fa_basename \
-        -q \
-        -1 ${R1_files_string} \
-        -2 ${R2_files_string} \
-        --directional-mapping-reverse \
-        --base-change C,T \
-        --no-repeat-index \
-        --no-spliced-alignment \
-        --no-temp-splicesite \
-        -t \
-        --new-summary \
-        --summary-file ${sample_id}.hisat3n_dna_summary.txt \
-        --threads 11 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
+        # Print the list of sample IDs
+        #echo "List of Sample IDs:"
+        #for id in "${sample_ids[@]}"; do
+            #echo "$id"
+        #done
+
+
+        for file in "${R1_files[@]}"; do
+            sample_id=$(basename "$file" "-R1_trimed.fq.gz")
+            hisat-3n /cromwell_root/$genome_fa_basename \
+            -q \
+            -1 ${sample_id}-R1_trimmed.fq.gz \
+            -2 ${sample_id}-R2_trimmed.fq.gz \
+            --directional-mapping-reverse \
+            --base-change C,T \
+            --no-repeat-index \
+            --no-spliced-alignment \
+            --no-temp-splicesite \
+            -t \
+            --new-summary \
+            --summary-file ${sample_id}.hisat3n_dna_summary.txt \
+            --threads 4 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam" &
+        done
+
+        # Wait for all background jobs to finish before continuing
+        wait
 
         echo "done hisat"
         date
