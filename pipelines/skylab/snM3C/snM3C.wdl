@@ -138,10 +138,10 @@ task Demultiplexing {
     Int batch_number
 
     String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-    Int disk_size = 50
+    Int disk_size = 1000
     Int mem_size = 10
     Int preemptible_tries = 3
-    Int cpu = 1
+    Int cpu = 8
   }
 
   command <<<
@@ -250,11 +250,11 @@ task Sort_and_trim_r1_and_r2 {
         Int r2_right_cut
         Int min_read_length
 
-        Int disk_size = 50
-        Int mem_size = 10
+        Int disk_size = 500
+        Int mem_size = 16
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int preemptible_tries = 3
-        Int cpu = 1
+        Int cpu = 4
 
     }
     command <<<
@@ -416,10 +416,10 @@ task Separate_and_split_unmapped_reads {
         String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 50
+        Int disk_size = 200
         Int mem_size = 10
         Int preemptible_tries = 3
-        Int cpu = 1
+        Int cpu = 8
 
     }
     command <<<
@@ -649,10 +649,10 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_de
         String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 80
-        Int mem_size = 20
+        Int disk_size = 1000
+        Int mem_size = 50
         Int preemptible_tries = 3
-        Int cpu = 1
+        Int cpu = 8
     }
     command <<<
       set -euo pipefail
@@ -730,10 +730,10 @@ task call_chromatin_contacts {
         String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 80
-        Int mem_size = 20
+        Int disk_size = 500
+        Int mem_size = 32
         Int preemptible_tries = 3
-        Int cpu = 1
+        Int cpu = 8
     }
     command <<<
         set -euo pipefail
@@ -797,12 +797,12 @@ task unique_reads_allc_and_cgn_extraction {
         Int compress_level
         File chromosome_sizes
 
-        Int disk_size = 80
+        Int disk_size = 200
         Int mem_size = 20
         String genome_base = basename(genome_fa)
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int preemptible_tries = 3
-        Int cpu = 1
+        Int cpu = 8
     }
     command <<<
         set -euo pipefail
@@ -903,9 +903,9 @@ task summary {
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
-        Int mem_size = 20
+        Int mem_size = 5
         Int preemptible_tries = 3
-        Int cpu = 1
+        Int cpu = 4
     }
     command <<<
         set -euo pipefail
