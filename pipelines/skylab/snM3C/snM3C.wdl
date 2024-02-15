@@ -338,7 +338,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         Int disk_size = 2000
         Int mem_size = 512
         Int preemptible_tries = 3
-        Int cpu = 4
+        Int cpu = 128
         String cpuPlatform = "Intel Ice Lake"
     }
     command <<<
