@@ -416,7 +416,7 @@ task Separate_and_split_unmapped_reads {
         String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 200
+        Int disk_size = 1000
         Int mem_size = 10
         Int preemptible_tries = 3
         Int cpu = 8
