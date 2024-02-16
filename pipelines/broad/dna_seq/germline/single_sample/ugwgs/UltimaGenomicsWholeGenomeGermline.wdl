@@ -50,7 +50,7 @@ workflow UltimaGenomicsWholeGenomeGermline {
     filtering_model_no_gt_name: "String describing the optional filtering model; default set to rf_model_ignore_gt_incl_hpol_runs"
   }
 
-  String pipeline_version = "1.0.14"
+  String pipeline_version = "1.0.15"
 
 
   References references = alignment_references.references
