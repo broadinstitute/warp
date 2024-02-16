@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# CEMBA_v1.1.5 Publication Methods
+# CEMBA_v1.1.6 Publication Methods
 
 Below we provide a sample methods section for a publication. For the complete pipeline documentation, see the [CEMBA README](./README.md).
 
@@ -20,7 +20,7 @@ The trimmed R1 and R2 reads were then aligned to mouse (mm10) or human (hg19) ge
 
 After alignment, the output R1 and R2 BAMs were sorted in coordinate order and duplicates removed using the Picard MarkDuplicates REMOVE_DUPLICATE option. Samtools 1.9 was used to further filter BAMs with a minimum map quality of 30 using the parameter `-bhq 30`.
 
-Methylation reports were produced for the filtered BAMs using Bismark. The barcodes from the R1 uBAM were then attached to the aligned, filtered R1 BAM with Picard. The R1 and R2 BAMs were merged with Samtools. Readnames were added to the merged BAM and a methylated VCF created using MethylationTypeCaller in GATK 4.3.0.0. The VCF was then converted to an additional ALLC file using a custom python script.
+Methylation reports were produced for the filtered BAMs using Bismark. The barcodes from the R1 uBAM were then attached to the aligned, filtered R1 BAM with Picard. The R1 and R2 BAMs were merged with Samtools. Readnames were added to the merged BAM and a methylated VCF created using MethylationTypeCaller in GATK 4.5.0.0. The VCF was then converted to an additional ALLC file using a custom python script.
 
 Samtools was then used to calculate coverage depth for sites with coverage greater than 1 and to create BAM index files. The final outputs included the barcoded aligned BAM, BAM index, a VCF with locus-specific methylation information, VCF index, ALLC file, and methylation reports.
 

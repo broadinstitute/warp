@@ -13,12 +13,21 @@ workflow TestsnM3C {
       Array[File] fastq_input_read2
       File random_primer_indexes
       String plate_id
-      String output_basename = plate_id
       File tarred_index_files
-      File mapping_yaml
-      File snakefile
-      File chromosome_sizes
       File genome_fa
+      File chromosome_sizes
+      String r1_adapter = "AGATCGGAAGAGCACACGTCTGAAC"
+      String r2_adapter = "AGATCGGAAGAGCGTCGTGTAGGGA"
+      #Int batch_number
+      Int r1_left_cut = 10
+      Int r1_right_cut = 10
+      Int r2_left_cut = 10
+      Int r2_right_cut = 10
+      Int min_read_length = 30
+      Int num_upstr_bases = 0
+      Int num_downstr_bases = 2
+      Int compress_level = 5
+      Int batch_number
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -38,27 +47,38 @@ workflow TestsnM3C {
         fastq_input_read2 = fastq_input_read2,
         random_primer_indexes = random_primer_indexes,
         plate_id = plate_id,
-        output_basename = output_basename,
         tarred_index_files = tarred_index_files,
-        mapping_yaml = mapping_yaml,
-        snakefile = snakefile,
+        genome_fa = genome_fa,
         chromosome_sizes = chromosome_sizes,
-        genome_fa = genome_fa
-  
+        r1_adapter = r1_adapter,
+        r2_adapter = r2_adapter,
+        r1_left_cut = r1_left_cut,
+        r1_right_cut = r1_right_cut,
+        r2_left_cut = r2_left_cut,
+        r2_right_cut = r2_right_cut,
+        min_read_length = min_read_length,
+        num_upstr_bases = num_upstr_bases,
+        num_downstr_bases = num_downstr_bases,
+        compress_level = compress_level,
+        batch_number = batch_number
+
     }
 
     
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
                                     [ # File outputs
-                                    snM3C.hicFiles,
-                                    snM3C.detail_statsFiles,
-                                    snM3C.bamFiles,
-                                    snM3C.allc_CGNFiles,
-                                    snM3C.allcFiles,
                                     snM3C.MappingSummary,
                                     ],
-                                    
+                                    # Array[File] outputs
+                                    snM3C.reference_version,
+                                    snM3C.unique_reads_cgn_extraction_allc,
+                                    snM3C.unique_reads_cgn_extraction_tbi,
+                                    snM3C.unique_reads_cgn_extraction_allc_extract,
+                                    snM3C.unique_reads_cgn_extraction_tbi_extract,
+                                    snM3C.name_sorted_bams,
+                                    snM3C.all_reads_dedup_contacts,
+                                    snM3C.all_reads_3C_contacts,
     ])
 
     

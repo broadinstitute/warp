@@ -20,7 +20,7 @@ task CompareVcfs {
 
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 50 HDD"
+    disks: "local-disk 70 HDD"
     memory: "32 GiB"
     preemptible: 3
   }
@@ -112,10 +112,10 @@ task CompareTabix {
     File truth_fragment_file
   }
   command <<<
-    exit_code = 0
+    exit_code=0
     a=$(md5sum "~{test_fragment_file}" | awk '{ print $1 }')
     b=$(md5sum ~{truth_fragment_file} | awk '{ print $1 }')
-    if [[ $a = $b ]]; then 
+    if [[ $a = $b ]]; then
       echo equal 
     else 
       echo different
@@ -272,8 +272,8 @@ task CompareBams {
     if [ "$abs_size_difference_mb" -gt 200 ]; then
         echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Exiting."
         exit 1
-    elif [ "$abs_size_difference_mb" -gt 1 ]; then
-        echo "WARNING: BAM file sizes differ by more than 1 MB but less than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Proceeding to CompareSAMs:"
+    else
+        echo "WARNING: BAM file sizes differ by more than 0 MB but less than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Proceeding to CompareSAMs:"
 
         java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
         CompareSAMs \
@@ -306,7 +306,7 @@ task CompareCompressedTextFiles {
   Int disk_size = ceil(file_size * 4) + 20
 
   command {
-    diff <(gunzip -c -f ~{test_zip}) <(gunzip -c -f ~{truth_zip})
+    diff <(gunzip -c ~{test_zip} | sort) <(gunzip -c ~{truth_zip} | sort)
   }
 
   runtime {

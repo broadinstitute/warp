@@ -5,7 +5,7 @@ import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
 workflow PairedTag {
-    String pipeline_version = "0.0.4"
+    String pipeline_version = "0.0.7"
 
     input {
         String input_id
@@ -92,20 +92,30 @@ workflow PairedTag {
             adapter_seq_read1 = adapter_seq_read1,
             adapter_seq_read3 = adapter_seq_read3,
             preindex = preindex
+    }
+
+    if (preindex) {
+        call Demultiplexing.ParseBarcodes as ParseBarcodes {
+            input:
+              atac_h5ad = Atac_preindex.snap_metrics,
+              atac_fragment = Atac_preindex.fragment_file
+        }
     }      
 
     meta {
         allowNestedInputs: true
     }
     
+    File atac_fragment_out = select_first([ParseBarcodes.atac_fragment_tsv,Atac_preindex.fragment_file])
+    File atac_h5ad_out = select_first([ParseBarcodes.atac_h5ad_file, Atac_preindex.snap_metrics])
     output {
         
         String pairedtag_pipeline_version_out = pipeline_version
 
         # atac outputs
         File bam_aligned_output_atac = Atac_preindex.bam_aligned_output
-        File fragment_file_atac = Atac_preindex.fragment_file
-        File snap_metrics_atac = Atac_preindex.snap_metrics
+        File fragment_file_atac = atac_fragment_out
+        File snap_metrics_atac = atac_h5ad_out
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version

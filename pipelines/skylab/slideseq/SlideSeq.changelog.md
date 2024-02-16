@@ -1,3 +1,21 @@
+# 3.0.1
+2024-02-13 (Date of Last Commit)
+
+* Updated the Metrics tasks to exclude mitochondrial genes from reads_mapped_uniquely, reads_mapped_multiple and reads_mapped_exonic, reads_mapped_exonic_as and reads_mapped_intergenic; this does affect the SlideSeq workflow
+
+# 3.0.0
+2024-02-12 (Date of Last Commit)
+
+* Updated the SlideSeq WDL output to utilize the h5ad format in place of Loom
+
+
+# 2.1.6
+2024-01-30 (Date of Last Commit)
+
+* Added task GetNumSplits before FastqProcess ATAC task to determine the number of splits based on the bwa-mem2 machine specs; this does affect the SlideSeq workflow
+* Added an error message to the BWAPairedEndAlignment ATAC task to ensure that the number of splits equals the number of ranks; this does affect the SlideSeq workflow
+* Added an error message to the BWAPairedEndAlignment ATAC task to ensure that the number of R1s equals to the number of R3s; this does affect the SlideSeq workflow
+
 # 2.1.5
 2024-01-11 (Date of Last Commit)
 

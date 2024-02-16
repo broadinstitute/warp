@@ -1,3 +1,20 @@
+# 1.1.8
+2024-02-07 (Date of Last Commit)
+
+* Updated the Metrics tasks to exclude mitochondrial genes from reads_mapped_uniquely, reads_mapped_multiple and reads_mapped_exonic, reads_mapped_exonic_as and reads_mapped_intergenic
+
+# 1.1.7
+2024-02-01 (Date of Last Commit)
+
+* Add new paired-tag task to parse sample barcodes from cell barcodes when preindexing is set to true; this does not affect the ATAC workflow
+
+# 1.1.6
+2024-01-24 (Date of Last Commit)
+
+* Added task GetNumSplits before FastqProcess task to determine the number of splits based on the bwa-mem2 machine specs
+* Added an error message to the BWAPairedEndAlignment task to ensure that the number of splits equals the number of ranks
+* Added an error message to the BWAPairedEndAlignment task to ensure that the number of R1s equals to the number of R3s
+
 # 1.1.5 
 2024-01-10 (Date of Last Commit)
 

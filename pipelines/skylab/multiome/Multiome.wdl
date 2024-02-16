@@ -6,7 +6,7 @@ import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
 
 workflow Multiome {
-    String pipeline_version = "3.0.5"
+    String pipeline_version = "3.1.3"
 
     input {
         String input_id
@@ -34,8 +34,10 @@ workflow Multiome {
         Array[File] atac_r1_fastq
         Array[File] atac_r2_fastq
         Array[File] atac_r3_fastq
-        # BWA input
+        
+        # BWA tar reference
         File tar_bwa_reference
+        # Chromosone sizes 
         File chrom_sizes
         # Trimadapters input
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
@@ -140,6 +142,7 @@ workflow Multiome {
         Array[File?] multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
         Array[File?] multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
         Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
+        File? gex_aligner_metrics = Optimus.aligner_metrics
 
         # cellbender outputs
         File? cell_barcodes_csv = CellBender.cell_csv

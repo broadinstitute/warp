@@ -41,5 +41,6 @@
         "ref_dbsnp": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf",
         "ref_dbsnp_index": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx",
         "wgs_coverage_interval_list": "gs://gcp-public-data--broad-references/hg38/v0/wgs_coverage_regions.hg38.interval_list"
-    }
+    },
+    "UltimaGenomicsWholeGenomeCramOnly.AlignmentAndMarkDuplicates.MarkDuplicatesSpark.memory_mb":300000
 }
