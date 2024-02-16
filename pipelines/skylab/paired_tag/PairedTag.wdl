@@ -55,7 +55,6 @@ workflow PairedTag {
             output_bam_basename = input_id + "_gex",
             tar_star_reference = tar_star_reference,
             annotations_gtf = annotations_gtf,
-            ref_genome_fasta = ref_genome_fasta,
             mt_genes = mt_genes,
             tenx_chemistry_version = tenx_chemistry_version,
             whitelist = gex_whitelist,
