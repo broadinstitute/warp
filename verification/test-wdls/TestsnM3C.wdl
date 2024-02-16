@@ -72,24 +72,13 @@ workflow TestsnM3C {
                                     ],
                                     # Array[File] outputs
                                     snM3C.reference_version,
-                                    snM3C.chromatin_contact_stats,
-                                    snM3C.unique_reads_cgn_extraction_tbi,
                                     snM3C.unique_reads_cgn_extraction_allc,
-                                    snM3C.dedup_unique_bam_and_index_unique_bam_tar,
-                                    snM3C.remove_overlap_read_parts_bam_tar,
-                                    snM3C.pos_sorted_bams,
+                                    snM3C.unique_reads_cgn_extraction_tbi,
+                                    snM3C.unique_reads_cgn_extraction_allc_extract,
+                                    snM3C.unique_reads_cgn_extraction_tbi_extract,
                                     snM3C.name_sorted_bams,
-                                    snM3C.merge_sorted_bam_tar,
-                                    snM3C.split_fq_tar,
-                                    snM3C.unmapped_fastq_tar,
-                                    snM3C.multi_bam_tar,
-                                    snM3C.unique_bam_tar,
-                                    snM3C.hisat3n_bam_tar,
-                                    snM3C.hisat3n_stats_tar,
-                                    snM3C.r2_trimmed_fq,
-                                    snM3C.r1_trimmed_fq,
-                                    snM3C.trimmed_stats,
-
+                                    snM3C.all_reads_dedup_contacts,
+                                    snM3C.all_reads_3C_contacts,
     ])
 
     
