@@ -55,10 +55,10 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 1000
+        Int disk_size = 2000
         Int mem_size = 512
         Int preemptible_tries = 3
-        Int cpu = 4
+        Int cpu = 80
         String cpuPlatform = "Intel Ice Lake"
     }
     command <<<
@@ -137,7 +137,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
             -t \
             --new-summary \
             --summary-file ${sample_id}.hisat3n_dna_summary.txt \
-            --threads 11 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
+            --threads 4 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam" &
         done
 
         # Wait for all background jobs to finish before continuing
