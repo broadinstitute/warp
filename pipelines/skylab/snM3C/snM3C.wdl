@@ -58,7 +58,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         Int disk_size = 2000
         Int mem_size = 512
         Int preemptible_tries = 3
-        Int cpu = 80
+        Int cpu = 128
         String cpuPlatform = "Intel Ice Lake"
     }
     command <<<
@@ -137,7 +137,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
             -t \
             --new-summary \
             --summary-file ${sample_id}.hisat3n_dna_summary.txt \
-            --threads 4 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam" &
+            --threads 126 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam" &
         done
 
         # Wait for all background jobs to finish before continuing
