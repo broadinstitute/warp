@@ -55,10 +55,10 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 2000
+        Int disk_size = 1000
         Int mem_size = 512
         Int preemptible_tries = 3
-        Int cpu = 80
+        Int cpu = 4
         String cpuPlatform = "Intel Ice Lake"
     }
     command <<<
