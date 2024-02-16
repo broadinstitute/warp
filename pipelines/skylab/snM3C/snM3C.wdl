@@ -55,11 +55,11 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 1000
-        Int mem_size = 64
+        Int disk_size = 2000
+        Int mem_size = 512
         Int preemptible_tries = 3
-        Int cpu = 16
-        #String cpuPlatform = "Intel Ice Lake"
+        Int cpu = 80
+        String cpuPlatform = "Intel Ice Lake"
     }
     command <<<
         set -euo pipefail
@@ -161,7 +161,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         cpu: cpu
         memory: "${mem_size} GiB"
         preemptible: preemptible_tries
-        #cpuPlatform: cpuPlatform
+        cpuPlatform: cpuPlatform
     }
     output {
         File hisat3n_paired_end_bam_tar = "~{plate_id}.hisat3n_paired_end_bam_files.tar.gz"
