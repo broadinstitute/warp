@@ -7,7 +7,7 @@ slug: /Pipelines/JointGenotyping_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [JointGenotyping_v1.6.9](https://github.com/broadinstitute/warp/releases) | February, 2024 | Elizabeth Kiernan & Kaylee Mathews | Please file GitHub issues in WARP or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
+| [JointGenotyping_v1.6.10](https://github.com/broadinstitute/warp/releases) | February, 2024 | Elizabeth Kiernan & Kaylee Mathews | Please file GitHub issues in WARP or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ## Introduction to the JointGenotyping workflow
 

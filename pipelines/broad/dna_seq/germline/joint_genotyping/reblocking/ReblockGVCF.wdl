@@ -5,7 +5,7 @@ import "../../../../../../tasks/broad/Qc.wdl" as QC
 
 workflow ReblockGVCF {
 
-  String pipeline_version = "2.1.10"
+  String pipeline_version = "2.1.11"
 
 
   input {
@@ -50,7 +50,7 @@ workflow ReblockGVCF {
         calling_interval_list_index = gvcf_index,
         is_gvcf = true,
         extra_args = "--no-overlaps",
-        gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+        gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     }
 
   output {
