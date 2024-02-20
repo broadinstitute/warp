@@ -1,5 +1,7 @@
 version 1.0
 
+import "../../../tasks/broad/Utilities.wdl" as utils
+
 workflow snM3C {
 
     input {
