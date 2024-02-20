@@ -1,7 +1,7 @@
 # 2.0.2
 2024-2-20 (Date of Last Commit)
 
-* Updated the snM3C to be multi-cloud friendly
+* Updated the snM3C.wdl to be multi-cloud friendly
 
 # 2.0.1
 2024-2-15 (Date of Last Commit)
