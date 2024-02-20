@@ -3,7 +3,7 @@ version 1.0
 import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
 import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/Metrics.wdl" as Metrics
-import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/skylab/CheckInputs.wdl" as OptimusInputChecks
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 
@@ -23,7 +23,7 @@ import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 
 workflow SlideSeq {
 
-    String pipeline_version = "2.1.6"
+    String pipeline_version = "3.0.1"
 
     input {
         Array[File] r1_fastq
@@ -50,8 +50,8 @@ workflow SlideSeq {
     }
 
     call StarAlign.STARGenomeRefVersion as ReferenceCheck {
-    input:
-      tar_star_reference = tar_star_reference
+        input:
+          tar_star_reference = tar_star_reference
     }
 
     call Metrics.FastqMetricsSlideSeq as FastqMetrics {
@@ -91,11 +91,13 @@ workflow SlideSeq {
     call Metrics.CalculateGeneMetrics as GeneMetrics {
         input:
             bam_input = MergeBam.output_bam,
+            original_gtf = annotations_gtf,
             input_id = input_id
     }
     call Metrics.CalculateUMIsMetrics as UMIsMetrics {
         input:
             bam_input = MergeBam.output_bam,
+            original_gtf = annotations_gtf,
             input_id = input_id
     }
 
@@ -114,7 +116,7 @@ workflow SlideSeq {
             input_id = input_id
     }
     if ( !count_exons ) {
-        call LoomUtils.OptimusLoomGeneration as SlideseqLoomGeneration{
+        call H5adUtils.OptimusH5adGeneration as SlideseqH5adGeneration{
             input:
                 input_id = input_id,
                 annotation_file = annotations_gtf,
@@ -135,7 +137,7 @@ workflow SlideSeq {
                 matrix = STARsoloFastqSlideSeq.matrix_sn_rna,
                 input_id = input_id
         }
-        call LoomUtils.SingleNucleusOptimusLoomOutput as SlideseqLoomGenerationWithExons{
+        call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
             input:
                 input_id = input_id,
                 annotation_file = annotations_gtf,
@@ -149,10 +151,9 @@ workflow SlideSeq {
                 gene_id_exon = MergeStarOutputsExons.col_index,
                 pipeline_version = "SlideSeq_v~{pipeline_version}"
         }
-
     }
 
-    File final_loom_output = select_first([SlideseqLoomGenerationWithExons.loom_output, SlideseqLoomGeneration.loom_output])
+    File final_h5ad_output = select_first([OptimusH5adGenerationWithExons.h5ad_output, SlideseqH5adGeneration.h5ad_output])
 
     output {
         String pipeline_version_out = pipeline_version
@@ -173,8 +174,7 @@ workflow SlideSeq {
         File fastq_reads_per_umi = FastqMetrics.numReads_perUMI
 
 
-        # loom
-        File? loom_output_file = final_loom_output
-
+        # h5ad
+        File? h5ad_output_file = final_h5ad_output
     }
 }
