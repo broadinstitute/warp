@@ -24,10 +24,28 @@ workflow snM3C {
         Int compress_level = 5
         Int batch_number
 
+        String cloud_provider
+
     }
 
     # version of the pipeline
     String pipeline_version = "2.0.1"
+
+    String snM3C_docker = "m3c-yap-hisat:1.0.0-2.2.1"
+
+    String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
+    String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
+
+    # choose docker prefix based on cloud_provider input
+    String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
+
+    # make sure either gcp or azure is supplied as cloud_provider input
+    if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+        call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+            input:
+                message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+        }
+    }
 
     call Demultiplexing {
         input:
@@ -35,7 +53,8 @@ workflow snM3C {
             fastq_input_read2 = fastq_input_read2,
             random_primer_indexes = random_primer_indexes,
             plate_id = plate_id,
-            batch_number = batch_number
+            batch_number = batch_number,
+            docker_path = docker_prefix + snM3C_docker
     }
 
     scatter(tar in Demultiplexing.tarred_demultiplexed_fastqs) {
@@ -49,7 +68,8 @@ workflow snM3C {
                 r2_left_cut = r2_left_cut,
                 r2_right_cut = r2_right_cut,
                 min_read_length = min_read_length,
-                plate_id = plate_id
+                plate_id = plate_id,
+                docker_path = docker_prefix + snM3C_docker
         }
 
         call Hisat_3n_pair_end_mapping_dna_mode {
@@ -59,7 +79,8 @@ workflow snM3C {
                 tarred_index_files = tarred_index_files,
                 genome_fa = genome_fa,
                 chromosome_sizes = chromosome_sizes,
-                plate_id = plate_id
+                plate_id = plate_id,
+                docker_path = docker_prefix + snM3C_docker
         }
 
         call Separate_and_split_unmapped_reads {
@@ -67,6 +88,7 @@ workflow snM3C {
                 hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar,
                 min_read_length = min_read_length,
                 plate_id = plate_id,
+                docker_path = docker_prefix + snM3C_docker
         }
 
         call Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap {
@@ -74,20 +96,23 @@ workflow snM3C {
                 split_fq_tar = Separate_and_split_unmapped_reads.split_fq_tar,
                 tarred_index_files = tarred_index_files,
                 genome_fa = genome_fa,
-                plate_id = plate_id
+                plate_id = plate_id,
+                docker_path = docker_prefix + snM3C_docker
         }
 
         call merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate {
             input:
                 bam = Separate_and_split_unmapped_reads.unique_bam_tar,
                 split_bam = Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap.remove_overlaps_output_bam_tar,
-                plate_id = plate_id
+                plate_id = plate_id,
+                docker_path = docker_prefix + snM3C_docker
         }
 
         call call_chromatin_contacts {
             input:
                 name_sorted_bam = merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate.name_sorted_bam,
-                plate_id = plate_id
+                plate_id = plate_id,
+                docker_path = docker_prefix + snM3C_docker
         }
 
         call unique_reads_allc_and_cgn_extraction {
@@ -98,7 +123,8 @@ workflow snM3C {
                 num_downstr_bases = num_downstr_bases,
                 compress_level = compress_level,
                 plate_id = plate_id,
-                chromosome_sizes = chromosome_sizes
+                chromosome_sizes = chromosome_sizes,
+                docker_path = docker_prefix + snM3C_docker
         }
     }
 
@@ -112,7 +138,8 @@ workflow snM3C {
             chromatin_contact_stats = call_chromatin_contacts.chromatin_contact_stats,
             allc_uniq_reads_stats = unique_reads_allc_and_cgn_extraction.allc_uniq_reads_stats,
             unique_reads_cgn_extraction_tbi = unique_reads_allc_and_cgn_extraction.extract_allc_output_tbi_tar,
-            plate_id = plate_id
+            plate_id = plate_id,
+            docker_path = docker_prefix + snM3C_docker
     }
 
     output {
@@ -137,7 +164,7 @@ task Demultiplexing {
     String plate_id
     Int batch_number
 
-    String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+    String docker_path
     Int disk_size = 1000
     Int mem_size = 10
     Int preemptible_tries = 3
@@ -225,7 +252,7 @@ task Demultiplexing {
   >>>
 
   runtime {
-    docker: docker_image
+    docker: docker_path
     disks: "local-disk ${disk_size} HDD"
     cpu: cpu
     memory: "${mem_size} GiB"
@@ -252,7 +279,7 @@ task Sort_and_trim_r1_and_r2 {
 
         Int disk_size = 500
         Int mem_size = 16
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker_path
         Int preemptible_tries = 3
         Int cpu = 4
 
@@ -312,7 +339,7 @@ task Sort_and_trim_r1_and_r2 {
     mv ~{plate_id}.trimmed_stats_files.tar.gz ../~{plate_id}.trimmed_stats_files.tar.gz
     >>>
     runtime {
-        docker: docker
+        docker: docker_path
         disks: "local-disk ${disk_size} HDD"
         cpu: cpu
         memory: "${mem_size} GiB"
@@ -334,7 +361,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         File chromosome_sizes
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker_path
         Int disk_size = 1000
         Int mem_size = 64
         Int preemptible_tries = 3
@@ -396,7 +423,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
 
     >>>
     runtime {
-        docker: docker
+        docker: docker_path
         disks: "local-disk ${disk_size} HDD"
         cpu: cpu
         memory: "${mem_size} GiB"
@@ -415,7 +442,7 @@ task Separate_and_split_unmapped_reads {
         Int min_read_length
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker_path
         Int disk_size = 200
         Int mem_size = 10
         Int preemptible_tries = 3
@@ -500,7 +527,7 @@ task Separate_and_split_unmapped_reads {
 
     >>>
     runtime {
-        docker: docker
+        docker: docker_path
         disks: "local-disk ${disk_size} HDD"
         cpu: cpu
         memory: "${mem_size} GiB"
@@ -519,7 +546,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_
         File tarred_index_files
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker_path
         Int disk_size = 500
         Int mem_size = 64
         Int preemptible_tries = 3
@@ -628,7 +655,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_
 
     >>>
     runtime {
-        docker: docker
+        docker: docker_path
         disks: "local-disk ${disk_size} HDD"
         cpu: cpu
         memory: "${mem_size} GiB"
@@ -648,7 +675,7 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_de
         File split_bam
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker_path
         Int disk_size = 1000
         Int mem_size = 50
         Int preemptible_tries = 3
@@ -711,7 +738,7 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_de
 
     >>>
     runtime {
-        docker: docker
+        docker: docker_path
         disks: "local-disk ${disk_size} HDD"
         cpu: cpu
         memory: "${mem_size} GiB"
@@ -729,7 +756,7 @@ task call_chromatin_contacts {
         File name_sorted_bam
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker_path
         Int disk_size = 500
         Int mem_size = 32
         Int preemptible_tries = 3
@@ -774,7 +801,7 @@ task call_chromatin_contacts {
         tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.3C.contact.tar.gz *.hisat3n_dna.all_reads.3C.contact.tsv.gz
     >>>
     runtime {
-        docker: docker
+        docker: docker_path
         disks: "local-disk ${disk_size} HDD"
         cpu: cpu
         memory: "${mem_size} GiB"
@@ -800,7 +827,7 @@ task unique_reads_allc_and_cgn_extraction {
         Int disk_size = 200
         Int mem_size = 20
         String genome_base = basename(genome_fa)
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker_path
         Int preemptible_tries = 3
         Int cpu = 8
     }
@@ -874,7 +901,7 @@ task unique_reads_allc_and_cgn_extraction {
     >>>
 
     runtime {
-        docker: docker
+        docker: docker_path
         disks: "local-disk ${disk_size} HDD"
         cpu: cpu
         memory: "${mem_size} GiB"
@@ -901,7 +928,7 @@ task summary {
         Array[File] unique_reads_cgn_extraction_tbi
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker_path
         Int disk_size = 80
         Int mem_size = 5
         Int preemptible_tries = 3
@@ -952,7 +979,7 @@ task summary {
 
     >>>
     runtime {
-        docker: docker
+        docker: docker_path
         disks: "local-disk ${disk_size} HDD"
         cpu: cpu
         memory: "${mem_size} GiB"
