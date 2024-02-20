@@ -7,7 +7,7 @@ slug: /Pipelines/Imputation_Pipeline/README
  
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Imputation_v1.1.11](https://github.com/broadinstitute/warp/releases?q=Imputation_v1.0.0&expanded=true) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [Imputation_v1.1.12](https://github.com/broadinstitute/warp/releases?q=Imputation_v1.0.0&expanded=true) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
  
 ## Introduction to the Imputation pipeline
 The Imputation pipeline imputes missing genotypes from either a multi-sample VCF or an array of single sample VCFs using a large genomic reference panel. It is based on the [Michigan Imputation Server pipeline](https://imputationserver.readthedocs.io/en/latest/pipeline/). Overall, the pipeline filters, phases, and performs imputation on a multi-sample VCF. It outputs the imputed VCF along with key imputation metrics.

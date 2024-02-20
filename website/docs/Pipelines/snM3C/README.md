@@ -6,7 +6,7 @@ slug: /Pipelines/snM3C/README
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [snM3C_v2.0.0](https://github.com/broadinstitute/warp/releases) | February, 2024 | [Kaylee Mathews](mailto:warp-pipelines-help@broadinsitute.org) | Please file GitHub issues in the [WARP repository](https://github.com/broadinstitute/warp/issues) |
+| [snM3C_v2.0.1](https://github.com/broadinstitute/warp/releases) | February, 2024 | [Kaylee Mathews](mailto:warp-pipelines-help@broadinsitute.org) | Please file GitHub issues in the [WARP repository](https://github.com/broadinstitute/warp/issues) |
 
 
 ## Introduction to snM3C

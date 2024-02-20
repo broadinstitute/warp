@@ -7,7 +7,7 @@ slug: /Pipelines/Smart-seq2_Single_Sample_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [smartseq2_v5.1.1](https://github.com/broadinstitute/warp/releases) | December, 2020 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [smartseq2_v5.1.20](https://github.com/broadinstitute/warp/releases) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![](./smartseq_image.png)
 
@@ -33,7 +33,7 @@ Check out the [Smart-seq2 Publication Methods](../Smart-seq2_Multi_Sample_Pipeli
 | Genomic Reference Sequence (for validation)| GRCh38 human genome primary sequence and M21 (GRCm38.p6) mouse genome primary sequence | GENCODE [human reference files](https://www.gencodegenes.org/human/release_27.html) and [mouse reference files](https://www.gencodegenes.org/mouse/release_M21.html)
 | Transcriptomic Reference Annotation (for validation) | V27 GENCODE human transcriptome and M21 mouse transcriptome | GENCODE [human GTF](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_27/gencode.v27.annotation.gtf.gz) and [mouse GTF](ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M21/gencode.vM21.annotation.gff3.gz) |
 | Aligner  | HISAT2 (v.2.1.0) | [Kim, et al.,2019](https://www.nature.com/articles/s41587-019-0201-4) |
-| QC Metrics | Picard (v.2.10.10) | [Broad Institute](https://broadinstitute.github.io/picard/)   |
+| QC Metrics | Picard (v.2.26.10) | [Broad Institute](https://broadinstitute.github.io/picard/)   |
 | Transcript Quantification | Utilities for processing large-scale single cell datasets | [RSEM v.1.3.0](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-323)
 | Data Input File Format | File format in which sequencing data is provided | [FASTQ](https://academic.oup.com/nar/article/38/6/1767/3112533) |
 | Data Output File Formats | File formats in which Smart-seq2 output is provided | [BAM](http://samtools.github.io/hts-specs/), Loom (generated with [Loompy v.3.0.6)](http://loompy.org/), CSV (QC metrics and counts) |
@@ -99,7 +99,7 @@ Overall, the workflow is divided into two parts that are completed after an init
 
 **Part 1: Quality Control Tasks**
  1. Aligns reads to the genome with HISAT2 v.2.1.0
- 2. Calculates summary metrics from an aligned BAM using Picard v.2.10.10
+ 2. Calculates summary metrics from an aligned BAM using Picard v.2.26.10
 
 **Part 2: Transcriptome Quantification Tasks**
  1. Aligns reads to the transcriptome with HISAT v.2.1.0
@@ -133,11 +133,11 @@ HISAT2 is a fast, cost-efficient alignment tool that can determine the presence 
 
 The [Picard task](https://github.com/broadinstitute/warp/blob/master/tasks/skylab/Picard.wdl) generates QC metrics by using three sub-tasks:
 
-*  CollectMultipleMetrics: calls the  [CollectMultipleMetrics](https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.0.0/picard_analysis_CollectMultipleMetrics.php) tool which uses the aligned BAM file and reference genome fasta to collect metrics on [alignment](http://broadinstitute.github.io/picard/picard-metric-definitions.html#AlignmentSummaryMetrics), [insert size](http://broadinstitute.github.io/picard/picard-metric-definitions.html#InsertSizeMetrics), [GC bias](https://broadinstitute.github.io/picard/command-line-overview.html#CollectGcBiasMetrics), [base distribution by cycle](http://broadinstitute.github.io/picard/picard-metric-definitions.html#BaseDistributionByCycleMetrics), [quality score distribution](https://broadinstitute.github.io/picard/command-line-overview.html#QualityScoreDistribution), [quality distribution by cycle](https://broadinstitute.github.io/picard/command-line-overview.html#MeanQualityByCycle), [sequencing artifacts](http://broadinstitute.github.io/picard/picard-metric-definitions.html#ErrorSummaryMetrics), and [quality yield](http://broadinstitute.github.io/picard/picard-metric-definitions.html#CollectQualityYieldMetrics.QualityYieldMetrics).
+*  CollectMultipleMetrics: calls the  [CollectMultipleMetrics](https://software.broadinstitute.org/gatk/documentation/tooldocs/4.2.6.1/picard_analysis_CollectMultipleMetrics.php) tool which uses the aligned BAM file and reference genome fasta to collect metrics on [alignment](http://broadinstitute.github.io/picard/picard-metric-definitions.html#AlignmentSummaryMetrics), [insert size](http://broadinstitute.github.io/picard/picard-metric-definitions.html#InsertSizeMetrics), [GC bias](https://broadinstitute.github.io/picard/command-line-overview.html#CollectGcBiasMetrics), [base distribution by cycle](http://broadinstitute.github.io/picard/picard-metric-definitions.html#BaseDistributionByCycleMetrics), [quality score distribution](https://broadinstitute.github.io/picard/command-line-overview.html#QualityScoreDistribution), [quality distribution by cycle](https://broadinstitute.github.io/picard/command-line-overview.html#MeanQualityByCycle), [sequencing artifacts](http://broadinstitute.github.io/picard/picard-metric-definitions.html#ErrorSummaryMetrics), and [quality yield](http://broadinstitute.github.io/picard/picard-metric-definitions.html#CollectQualityYieldMetrics.QualityYieldMetrics).
 
-*  CollectRnaMetrics: calls the [CollectRnaSeqMetrics](https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.0.0/picard_analysis_CollectRnaSeqMetrics.php) tool which uses the aligned BAM, a RefFlat genome annotation file, and a ribosomal intervals file to produce RNA alignment metrics (metric descriptions are found in the [Picard Metrics Dictionary](http://broadinstitute.github.io/picard/picard-metric-definitions.html#RnaSeqMetrics)).
+*  CollectRnaMetrics: calls the [CollectRnaSeqMetrics](https://software.broadinstitute.org/gatk/documentation/tooldocs/4.2.6.1/picard_analysis_CollectRnaSeqMetrics.php) tool which uses the aligned BAM, a RefFlat genome annotation file, and a ribosomal intervals file to produce RNA alignment metrics (metric descriptions are found in the [Picard Metrics Dictionary](http://broadinstitute.github.io/picard/picard-metric-definitions.html#RnaSeqMetrics)).
 
-*  CollectDuplicationMetrics: calls the [MarkDuplicates](https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.4.0/picard_sam_markduplicates_MarkDuplicates.php) tool which uses the aligned BAM to identify duplicate reads (output metrics are listed in the [Picard Metrics Dictionary](http://broadinstitute.github.io/picard/picard-metric-definitions.html#DuplicationMetrics)).
+*  CollectDuplicationMetrics: calls the [MarkDuplicates](https://software.broadinstitute.org/gatk/documentation/tooldocs/4.2.6.1/picard_sam_markduplicates_MarkDuplicates.php) tool which uses the aligned BAM to identify duplicate reads (output metrics are listed in the [Picard Metrics Dictionary](http://broadinstitute.github.io/picard/picard-metric-definitions.html#DuplicationMetrics)).
 
 
 #### Part 2: Transcriptome Quantification Tasks

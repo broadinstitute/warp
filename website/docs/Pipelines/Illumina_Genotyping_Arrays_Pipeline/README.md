@@ -7,7 +7,7 @@ slug: /Pipelines/Illumina_Genotyping_Arrays_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Version 1.12.15](https://github.com/broadinstitute/warp/releases) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [Version 1.12.16](https://github.com/broadinstitute/warp/releases) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![The Illumina Genotyping Array Pipeline](./IlluminaGenotyping.png)
 

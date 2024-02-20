@@ -7,7 +7,7 @@ slug: /Pipelines/RNA_with_UMIs_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [RNAWithUMIsPipeline_v1.0.15](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | December, 2023 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [RNAWithUMIsPipeline_v1.0.16](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![RNAWithUMIs_diagram](rna-with-umis_diagram.png)
 
