@@ -2,12 +2,12 @@ version 1.0
 
 import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
-import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
+import "../../../tasks/broad/Utilities.wdl" as utils
+
 workflow PairedTag {
 
-String pipeline_version = "0.3.1"
-
+    String pipeline_version = "0.3.1"
 
     input {
         String input_id
@@ -44,7 +44,33 @@ String pipeline_version = "0.3.1"
 
         # PairedTag
         Boolean preindex
+
+        # Expected to be either 'gcp' or 'azure'
+        String cloud_provider
     }
+
+    String pipeline_version = "0.0.8"
+
+    # All docker images that are needed for tasks in this workflow
+    String upstools_docker = "upstools:1.2.0-2023.03.03-1704723060"
+    String snapatac_docker = "snapatac2:1.0.4-2.3.1-1700590229"
+
+    # Prefixes based on cloud env
+    String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
+    String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
+
+    # choose docker prefix based on cloud_provider input
+    String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
+
+    # Make sure either 'gcp' or 'azure' is supplied as cloud_provider input. If not, raise an error
+    if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+        call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+            input:
+                message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+        }
+    }
+
+
     # Call the Optimus workflow
     call optimus.Optimus as Optimus {
         input:
@@ -64,10 +90,9 @@ String pipeline_version = "0.3.1"
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
+            cloud_provider = cloud_provider,
     }
 
-    # Call the ATAC workflow
-        # Call the ATAC workflow
     scatter (idx in range(length(atac_r1_fastq))) {
         call Demultiplexing.PairedTagDemultiplex as demultiplex {
             input:
@@ -76,9 +101,12 @@ String pipeline_version = "0.3.1"
               barcodes_fastq = atac_r2_fastq[idx],
               input_id = input_id,
               whitelist = atac_whitelist,
-              preindex = preindex
+              preindex = preindex,
+              docker_path = docker_prefix + upstools_docker
         }
-    }      
+    }
+
+    # Call the ATAC workflow
     call atac.ATAC as Atac_preindex {
         input:
             read1_fastq_gzipped = demultiplex.fastq1,
@@ -91,14 +119,16 @@ String pipeline_version = "0.3.1"
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
             adapter_seq_read3 = adapter_seq_read3,
-            preindex = preindex
+            preindex = preindex,
+            cloud_provider = cloud_provider,
     }
 
     if (preindex) {
         call Demultiplexing.ParseBarcodes as ParseBarcodes {
             input:
               atac_h5ad = Atac_preindex.snap_metrics,
-              atac_fragment = Atac_preindex.fragment_file
+              atac_fragment = Atac_preindex.fragment_file,
+              docker_path = docker_prefix + snapatac_docker,
         }
     }      
 

@@ -7,7 +7,7 @@ task PairedTagDemultiplex {
         String input_id
         Boolean preindex
         File whitelist
-        String docker = "us.gcr.io/broad-gotc-prod/upstools:1.2.0-2023.03.03-1704723060"
+        String docker_path
         Int cpu = 1
         Int disk_size = ceil(2 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
         Int preemptible = 3
@@ -112,7 +112,7 @@ task PairedTagDemultiplex {
     >>>
     
     runtime {
-        docker: docker
+        docker: docker_path
         cpu: cpu
         memory: "${mem_size} GiB"
         disks: "local-disk ${disk_size} HDD"
@@ -185,6 +185,7 @@ task ParseBarcodes {
         File atac_fragment
         Int nthreads = 1
         String cpuPlatform = "Intel Cascade Lake"
+        String docker_path
     }
 
     String atac_base_name = basename(atac_h5ad, ".h5ad")
@@ -254,7 +255,7 @@ task ParseBarcodes {
   >>>
 
   runtime {
-      docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
+      docker: docker_path
       disks: "local-disk ~{disk} HDD"
       memory: "${machine_mem_mb} MiB"
       cpu: nthreads
