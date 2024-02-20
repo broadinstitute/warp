@@ -29,7 +29,7 @@ workflow snM3C {
     }
 
     # version of the pipeline
-    String pipeline_version = "2.0.1"
+    String pipeline_version = "2.0.2"
 
     String snM3C_docker = "m3c-yap-hisat:1.0.0-2.2.1"
 
