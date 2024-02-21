@@ -146,13 +146,13 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         echo "done hisat"
         date
 
-        #echo "tarring up the outputs"
-        #date
-        # tar up the bam files and stats files
-        #tar -zcvf ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz *.bam
-        #tar -zcvf ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
-        #echo "tarring up the outputs"
-        #date
+        echo "tarring up the outputs"
+        date
+        #tar up the bam files and stats files
+        tar -zcvf ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz *.bam
+        tar -zcvf ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
+        echo "tarring up the outputs"
+        date
 
     >>>
     runtime {
