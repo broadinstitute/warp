@@ -1,3 +1,8 @@
+# 0.1.0
+2024-02-21 (Date of Last Commit)
+
+* Remove ref_genome_fasta from Optimus input
+
 # 0.0.6
 2024-02-01 (Date of Last Commit)
 
