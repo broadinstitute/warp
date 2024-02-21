@@ -1,3 +1,7 @@
+# 6.4.0
+2024-02-21 (Date of Last Commit)
+* Updated StarAlign.MergeStarOutput to add a shard number to the metrics files
+
 # 6.3.6
 2024-02-07 (Date of Last Commit)
 * Updated the Metrics tasks to exclude mitochondrial genes from reads_mapped_uniquely, reads_mapped_multiple and reads_mapped_exonic, reads_mapped_exonic_as and reads_mapped_intergenic
