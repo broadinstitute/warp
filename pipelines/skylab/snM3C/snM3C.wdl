@@ -39,7 +39,7 @@ workflow snM3C {
     }
 
     output {
-        File hisat3n_paired_end_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
+        #File hisat3n_paired_end_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar
     }
 }
 
@@ -137,7 +137,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
             -t \
             --new-summary \
             --summary-file ${sample_id}.hisat3n_dna_summary.txt \
-            --threads 14 | samtools view -@ 14 -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
+            --threads 14 # removing this for now | samtools view -@ 14 -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
         done
 
         # Wait for all background jobs to finish before continuing
@@ -146,13 +146,13 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         echo "done hisat"
         date
 
-        echo "tarring up the outputs"
-        date
+        #echo "tarring up the outputs"
+        #date
         # tar up the bam files and stats files
-        tar -zcvf ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz *.bam
-        tar -zcvf ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
-        echo "tarring up the outputs"
-        date
+        #tar -zcvf ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz *.bam
+        #tar -zcvf ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
+        #echo "tarring up the outputs"
+        #date
 
     >>>
     runtime {
@@ -164,8 +164,8 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         #cpuPlatform: cpuPlatform
     }
     output {
-        File hisat3n_paired_end_bam_tar = "~{plate_id}.hisat3n_paired_end_bam_files.tar.gz"
-        File hisat3n_paired_end_stats_tar = "~{plate_id}.hisat3n_paired_end_stats_files.tar.gz"
+        #File hisat3n_paired_end_bam_tar = "~{plate_id}.hisat3n_paired_end_bam_files.tar.gz"
+        #File hisat3n_paired_end_stats_tar = "~{plate_id}.hisat3n_paired_end_stats_files.tar.gz"
         File reference_version = "~{plate_id}.reference_version.txt"
     }
 }
