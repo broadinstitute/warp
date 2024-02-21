@@ -137,7 +137,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
             -t \
             --new-summary \
             --summary-file ${sample_id}.hisat3n_dna_summary.txt \
-            --threads 14 | samtools view -@ 14 -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam" &
+            --threads 14 | samtools view -@ 14 -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
         done
 
         # Wait for all background jobs to finish before continuing
