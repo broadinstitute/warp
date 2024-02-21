@@ -380,7 +380,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
           -2 ${sample_id}-R2_trimmed.fq.gz \
           --directional-mapping-reverse \
           --base-change C,T \
-          --repeat-index \
+          --repeat \
           --no-spliced-alignment \
           --no-temp-splicesite \
           -t \
@@ -554,7 +554,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_
           -U ${sample_id}.hisat3n_dna.split_reads.R1.fastq \
           --directional-mapping-reverse \
           --base-change C,T \
-          --repeat-index \
+          --repeat \
           --no-spliced-alignment \
           --no-temp-splicesite \
           -t \
