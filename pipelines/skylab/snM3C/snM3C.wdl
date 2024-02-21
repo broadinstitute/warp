@@ -380,7 +380,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
           -2 ${sample_id}-R2_trimmed.fq.gz \
           --directional-mapping-reverse \
           --base-change C,T \
-          --no-repeat-index \
+          --repeat-index \
           --no-spliced-alignment \
           --no-temp-splicesite \
           -t \
@@ -416,7 +416,7 @@ task Separate_and_split_unmapped_reads {
         String plate_id
 
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 200
+        Int disk_size = 1000
         Int mem_size = 10
         Int preemptible_tries = 3
         Int cpu = 8
@@ -554,7 +554,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_
           -U ${sample_id}.hisat3n_dna.split_reads.R1.fastq \
           --directional-mapping-reverse \
           --base-change C,T \
-          --no-repeat-index \
+          --repeat-index \
           --no-spliced-alignment \
           --no-temp-splicesite \
           -t \
