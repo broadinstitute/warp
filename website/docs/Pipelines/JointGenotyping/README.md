@@ -7,7 +7,7 @@ slug: /Pipelines/JointGenotyping_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [JointGenotyping_v1.6.9](https://github.com/broadinstitute/warp/releases) | February, 2024 | Elizabeth Kiernan & Kaylee Mathews | Please file GitHub issues in WARP or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
+| [JointGenotyping_v1.6.10](https://github.com/broadinstitute/warp/releases) | February, 2024 | Elizabeth Kiernan & Kaylee Mathews | Please file GitHub issues in WARP or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ## Introduction to the JointGenotyping workflow
 
@@ -24,6 +24,8 @@ The pipeline can be configured to run using one of the following GATK variant fi
 * **Variant Extract-Train-Score (VETS)** uses the ExtractVariantAnnotations, TrainVariantAnnotationsModel, and ScoreVariantAnnotations tools called in the [VETS subworkflow](https://github.com/broadinstitute/gatk/blob/master/scripts/vcf_site_level_filtering_wdl/JointVcfFiltering.wdl) to score variant annotations.
 
 The pipeline takes in a sample map file listing GVCF files produced by HaplotypeCaller in GVCF mode and produces a filtered VCF file (with index) containing genotypes for all samples present in the input VCF files. All sites that are present in the input VCF file are retained. Filtered sites are annotated as such in the FILTER field. If you are new to VCF files, see the [file type specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf).
+
+The JointGenotyping pipeline can be adapted to run on Microsoft Azure instead of Google Cloud. For more information, see the [azure-warp-joint-calling GitHub repository](https://github.com/broadinstitute/azure-warp-joint-calling).
 
 ## Set-up
 

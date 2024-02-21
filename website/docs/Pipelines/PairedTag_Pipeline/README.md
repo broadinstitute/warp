@@ -9,6 +9,7 @@ slug: /Pipelines/PairedTag_Pipeline/README
 | :----: | :---: | :----: | :--------------: |
 | [PairedTag_v0.1.0](https://github.com/broadinstitute/warp/releases) | February, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
 
+
 ## Introduction to the Paired-Tag workflow
 
 The [Paired-Tag workflow](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/paired_tag/PairedTag.wdl) is an open-source, cloud-optimized pipeline developed in collaboration with the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN) and the BRAIN Initiative Cell Atlas Network (BICAN). It supports the processing of 3' single-nucleus histone modification data (generated with the [paired-tag protocol](https://www.nature.com/articles/s41594-023-01060-1)]) and 10x gene expression (GEX) data generated with the [10x Chromium Multiome assay](https://www.10xgenomics.com/products/single-cell-multiome-atac-plus-gene-expression).
