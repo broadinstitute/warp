@@ -1,3 +1,8 @@
+# 0.1.0
+2024-02-22 (Date of Last Commit)
+
+* Updated StarAlign output metrics to include shard ids, which is called by Optimus
+
 # 0.0.7
 2024-02-07 (Date of Last Commit)
 
