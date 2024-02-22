@@ -27,5 +27,5 @@
   "Optimus.tar_star_reference": "gs://gcp-public-data--broad-references/mm10/v0/star/star_2.7.9a_primary_gencode_mouse_vM21.tar",
   "Optimus.input_id": "neurons2k_mouse",
   "Optimus.chemistry": "tenX_v2",
-  "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.gtf",
+  "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/mm10/v0/gencode.vM21.primary_assembly.annotation.gtf"
 }

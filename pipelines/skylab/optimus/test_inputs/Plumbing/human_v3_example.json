@@ -15,5 +15,5 @@
   "Optimus.input_id": "pbmc_human_v3",
   "Optimus.tenx_chemistry_version": "3",
   "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf",
-  "Optimus.star_strand_mode": "Forward",
+  "Optimus.star_strand_mode": "Forward"
 }

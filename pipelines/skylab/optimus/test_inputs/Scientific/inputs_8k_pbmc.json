@@ -15,7 +15,7 @@
   "Optimus.input_id": "8k_pbmc",
   "Optimus.tenx_chemistry_version": "2",
   "Optimus.star_strand_mode": "Unstranded",
-  "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf",
+  "Optimus.annotations_gtf": "gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf"
 }
 
 
