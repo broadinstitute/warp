@@ -27,7 +27,6 @@ workflow Multiome {
         Boolean ignore_r1_read_length = false
         String star_strand_mode = "Forward"
         Boolean count_exons = false
-        File gex_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt"
         String? soloMultiMappers
 
         # ATAC inputs
@@ -42,8 +41,6 @@ workflow Multiome {
         # Trimadapters input
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
-        # Whitelist
-        File atac_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
 
         # CellBender
         Boolean run_cellbender = false
@@ -58,6 +55,15 @@ workflow Multiome {
     # Define docker images
     snap_atac_docker_image = "snapatac2:1.0.4-2.3.1-1700590229"
 
+    # Define all whitelist files
+    File gcp_gex_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt"
+    File gcp_atac_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
+    File azure_gex_whitelist = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_gex.txt"
+    File azure_atac_whitelist = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
+
+    Determine which whitelist files to use based on cloud provider
+    File gex_whitelist = if cloud_provider == "gcp" then gcp_gex_whitelist else azure_gex_whitelist
+    File atac_whitelist = if cloud_provider == "gcp" then gcp_atac_whitelist else azure_atac_whitelist
 
     # Call the Optimus workflow
     call optimus.Optimus as Optimus {
