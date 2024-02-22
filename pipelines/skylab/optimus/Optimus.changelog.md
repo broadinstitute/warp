@@ -1,3 +1,7 @@
+# 6.4.0
+2024-02-01 (Date of Last Commit)
+* Removed ref_genome_fasta input from Optimus WDL and JSON
+
 # 6.3.6
 2024-02-07 (Date of Last Commit)
 * Updated the Metrics tasks to exclude mitochondrial genes from reads_mapped_uniquely, reads_mapped_multiple and reads_mapped_exonic, reads_mapped_exonic_as and reads_mapped_intergenic
