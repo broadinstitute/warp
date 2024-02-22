@@ -1,3 +1,7 @@
+# 3.2.0
+2024-02-22 (Date of Last Commit)
+* Updated StarAlign.MergeStarOutput to add a shard number to the metrics files
+
 # 3.1.3
 2024-02-07 (Date of Last Commit)
 
