@@ -58,9 +58,11 @@ task BcftoolsExtractSamples {
     String docker = "shengqh/hail_gcp:20240213"
     Float disk_factor = 3.0
     Int preemptible = 1
+    Int cpu = 8
   }
 
   Int disk_size = ceil(size(input_vcf, "GB") * disk_factor) + 2
+  Int memory_gb = 2 * cpu
 
   String target_vcf = target_prefix + target_suffix
   String target_vcf_index = target_vcf + ".tbi"
@@ -81,10 +83,10 @@ if [[ ! -s keep.id.txt ]]; then
 fi
 
 echo bcftools view -S keep.id.txt -o ~{target_vcf} ~{input_vcf}
-bcftools view -S keep.id.txt -o ~{target_vcf} ~{input_vcf}
+bcftools view -S keep.id.txt --threads ~{cpu} -o ~{target_vcf} ~{input_vcf}
 
 echo "build index"
-bcftools index -t ~{target_vcf}
+bcftools index -t --threads ~{cpu} ~{target_vcf}
 
 bcftools query -l ~{target_vcf} > ~{target_sample_file}
 
@@ -98,7 +100,7 @@ bcftools index -n ~{target_vcf} > num_variants.txt
     docker: docker
     preemptible: preemptible
     disks: "local-disk " + disk_size + " HDD"
-    memory: "2 GiB"
+    memory: memory_gb + " GiB"
   }
   output {
     # The output has to be defined as File, otherwise the file would not be delocalized
@@ -125,9 +127,11 @@ task BcftoolsExtractSamplesGcp {
     String docker = "shengqh/hail_gcp:20240213"
     Float disk_factor = 3.0
     Int preemptible = 1
+    Int cpu = 8
   }
 
   Int disk_size = ceil(size(input_vcf, "GB") * disk_factor) + 2
+  Int memory_gb = 2 * cpu
 
   String target_vcf = target_prefix + target_suffix
   String target_vcf_index = target_vcf + ".tbi"
@@ -153,10 +157,10 @@ if [[ ! -s keep.id.txt ]]; then
 fi
 
 echo bcftools view -S keep.id.txt -o ~{target_vcf} ~{input_vcf}
-bcftools view -S keep.id.txt -o ~{target_vcf} ~{input_vcf}
+bcftools view -S keep.id.txt --threads ~{cpu} -o ~{target_vcf} ~{input_vcf}
 
 echo "build index"
-bcftools index -t ~{target_vcf}
+bcftools index -t --threads ~{cpu} ~{target_vcf}
 
 bcftools query -l ~{target_vcf} > ~{target_sample_file}
 
@@ -182,7 +186,7 @@ rm -f ~{target_sample_file}
     docker: docker
     preemptible: preemptible
     disks: "local-disk " + disk_size + " HDD"
-    memory: "2 GiB"
+    memory: memory_gb + " GiB"
   }
   output {
     # The output has to be defined as String, otherwise the file would be delocalized and failed.
