@@ -137,7 +137,7 @@ task Demultiplexing {
     String plate_id
     Int batch_number
 
-    String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+    String docker_image = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
     Int disk_size = 1000
     Int mem_size = 10
     Int preemptible_tries = 3
@@ -252,7 +252,7 @@ task Sort_and_trim_r1_and_r2 {
 
         Int disk_size = 500
         Int mem_size = 16
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
         Int preemptible_tries = 3
         Int cpu = 4
 
@@ -334,7 +334,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         File chromosome_sizes
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
         Int disk_size = 1000
         Int mem_size = 64
         Int preemptible_tries = 3
@@ -415,7 +415,7 @@ task Separate_and_split_unmapped_reads {
         Int min_read_length
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
         Int disk_size = 1000
         Int mem_size = 10
         Int preemptible_tries = 3
@@ -519,7 +519,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_
         File tarred_index_files
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
         Int disk_size = 500
         Int mem_size = 64
         Int preemptible_tries = 3
@@ -648,7 +648,7 @@ task merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_de
         File split_bam
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
         Int disk_size = 1000
         Int mem_size = 50
         Int preemptible_tries = 3
@@ -729,7 +729,7 @@ task call_chromatin_contacts {
         File name_sorted_bam
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
         Int disk_size = 500
         Int mem_size = 32
         Int preemptible_tries = 3
@@ -800,7 +800,7 @@ task unique_reads_allc_and_cgn_extraction {
         Int disk_size = 200
         Int mem_size = 20
         String genome_base = basename(genome_fa)
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
         Int preemptible_tries = 3
         Int cpu = 8
     }
@@ -901,7 +901,7 @@ task summary {
         Array[File] unique_reads_cgn_extraction_tbi
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
         Int disk_size = 80
         Int mem_size = 5
         Int preemptible_tries = 3
