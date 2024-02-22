@@ -132,7 +132,7 @@ task AddBBTag {
         String input_id
 
         # using the latest build of upstools docker in GCR
-        String docker = "us.gcr.io/broad-gotc-prod/upstools:1.0.0-2023.03.03-1704300311"
+        String docker_path
 
         # Runtime attributes
         Int mem_size = 8
@@ -169,7 +169,7 @@ task AddBBTag {
     >>>
 
     runtime {
-        docker: docker
+        docker: docker_path
         cpu: cpu
         memory: "${mem_size} GiB"
         disks: "local-disk ${disk_size} HDD"

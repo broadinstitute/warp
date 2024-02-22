@@ -245,8 +245,7 @@ task FastqProcessATAC {
         String barcode_index1 = basename(barcodes_fastq[0])
 
         # [?] copied from corresponding optimus wdl for fastqprocessing
-        # using the latest build of warp-tools in GCR
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.0"
+        String docker_path
 
         # Runtime attributes [?]
         Int mem_size = 5
@@ -361,7 +360,7 @@ task FastqProcessATAC {
     >>>
 
     runtime {
-        docker: docker
+        docker: docker_path
         cpu: cpu
         memory: "${mem_size} MiB"
         disks: "local-disk ${disk_size} HDD"

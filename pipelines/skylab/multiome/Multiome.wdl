@@ -9,6 +9,7 @@ workflow Multiome {
     String pipeline_version = "3.1.2"
 
     input {
+        String cloud_provider
         String input_id
 
         # Optimus Inputs
@@ -34,7 +35,6 @@ workflow Multiome {
         Array[File] atac_r1_fastq
         Array[File] atac_r2_fastq
         Array[File] atac_r3_fastq
-        
         # BWA tar reference
         File tar_bwa_reference
         # Chromosone sizes 
@@ -50,9 +50,19 @@ workflow Multiome {
 
     }
 
+    # Determine docker prefix based on cloud provider
+    String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
+    String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
+    String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
+
+    # Define docker images
+    snap_atac_docker_image = "snapatac2:1.0.4-2.3.1-1700590229"
+
+
     # Call the Optimus workflow
     call optimus.Optimus as Optimus {
         input:
+            cloud_provider = cloud_provider,
             counting_mode = counting_mode,
             r1_fastq = gex_r1_fastq,
             r2_fastq = gex_r2_fastq,
@@ -76,6 +86,7 @@ workflow Multiome {
     # Call the ATAC workflow
     call atac.ATAC as Atac {
         input:
+            cloud_provider = cloud_provider,
             read1_fastq_gzipped = atac_r1_fastq,
             read2_fastq_gzipped = atac_r2_fastq,
             read3_fastq_gzipped = atac_r3_fastq,
@@ -85,10 +96,12 @@ workflow Multiome {
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
-            adapter_seq_read3 = adapter_seq_read3
+            adapter_seq_read3 = adapter_seq_read3,
+            ubuntu_docker_path = ubuntu_docker_prefix + ubuntu_docker
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
+            docker_path = docker_prefix + snap_atac_docker_image,
             atac_h5ad = Atac.snap_metrics,
             gex_h5ad = Optimus.h5ad_output_file,
             gex_whitelist = gex_whitelist,
