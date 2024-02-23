@@ -122,8 +122,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
             #echo "$id"
         #done
 
-
-        for file in "${R1_files[@]}"; do
+        task() {
             sample_id=$(basename "$file" "-R1_trimmed.fq.gz")
             hisat-3n /cromwell_root/$genome_fa_basename \
             -q \
@@ -137,7 +136,19 @@ task Hisat_3n_pair_end_mapping_dna_mode{
             -t \
             --new-summary \
             --summary-file ${sample_id}.hisat3n_dna_summary.txt \
-            --threads 64 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
+            --threads 16 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
+        }
+
+        for file in "${R1_files[@]}"; do
+         (
+            echo "starting task $file.."
+            task "$file"
+            sleep $(( (RANDOM % 3) + 1))
+        ) &
+
+          if [[ $(jobs -r -p | wc -l) -ge 4 ]]; then
+            wait -n
+          fi
         done
 
         # Wait for all background jobs to finish before continuing
