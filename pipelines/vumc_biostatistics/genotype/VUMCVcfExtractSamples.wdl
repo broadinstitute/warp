@@ -82,7 +82,7 @@ if [[ ! -s keep.id.txt ]]; then
   exit 1
 fi
 
-echo bcftools view -S keep.id.txt -o ~{target_vcf} ~{input_vcf}
+echo bcftools view -S keep.id.txt --threads ~{cpu} -o ~{target_vcf} ~{input_vcf}
 bcftools view -S keep.id.txt --threads ~{cpu} -o ~{target_vcf} ~{input_vcf}
 
 echo "build index"
@@ -156,7 +156,7 @@ if [[ ! -s keep.id.txt ]]; then
   exit 1
 fi
 
-echo bcftools view -S keep.id.txt -o ~{target_vcf} ~{input_vcf}
+echo bcftools view -S keep.id.txt --threads ~{cpu} -o ~{target_vcf} ~{input_vcf}
 bcftools view -S keep.id.txt --threads ~{cpu} -o ~{target_vcf} ~{input_vcf}
 
 echo "build index"
