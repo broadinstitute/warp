@@ -146,7 +146,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
             sleep $(( (RANDOM % 3) + 1))
         ) &
 
-          if [[ $(jobs -r -p | wc -l) -ge 4 ]]; then
+          if [[ $(jobs -r -p | wc -l) -ge 8 ]]; then
             wait -n
           fi
         done
