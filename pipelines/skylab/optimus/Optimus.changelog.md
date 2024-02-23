@@ -1,6 +1,7 @@
 # 6.4.0
 2024-02-21 (Date of Last Commit)
 * Updated StarAlign.MergeStarOutput to add a shard number to the metrics files
+* Removed ref_genome_fasta input from Optimus WDL and JSON
 
 # 6.3.6
 2024-02-07 (Date of Last Commit)
