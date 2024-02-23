@@ -136,7 +136,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
             -t \
             --new-summary \
             --summary-file ${sample_id}.hisat3n_dna_summary.txt \
-            --threads 32 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
+            --threads 8 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
         }
 
         for file in "${R1_files[@]}"; do
