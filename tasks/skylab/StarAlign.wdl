@@ -475,11 +475,12 @@ task MergeStarOutput {
     Array[File]? summary
     Array[File]? align_features
     Array[File]? umipercell
+    String counting_mode
     
     String input_id
 
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:lk-PD-2518-shard-metrics"
     Int machine_mem_gb = 20
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
@@ -564,6 +565,10 @@ task MergeStarOutput {
       fi
     done
     
+    # Create a single metric file for library-level metrics
+    python3 /warptools/scripts/combine_shard_metrics.py ~{input_id}_summary.txt ~{input_id}_align_features.txt ~{input_id}_cell_reads.txt ~{counting_mode}
+
+
     # If text files are present, create a tar archive with them
     if ls *.txt 1> /dev/null 2>&1; then
       tar -zcvf ~{input_id}.star_metrics.tar *.txt
