@@ -165,7 +165,8 @@ workflow Optimus {
       summary = STARsoloFastq.summary,
       align_features = STARsoloFastq.align_features,
       umipercell = STARsoloFastq.umipercell,
-      input_id = input_id
+      input_id = input_id,
+      counting_mode = counting_mode
   }
   if (counting_mode == "sc_rna"){
     call RunEmptyDrops.RunEmptyDrops {
@@ -202,7 +203,8 @@ workflow Optimus {
         features = STARsoloFastq.features_sn_rna,
         matrix = STARsoloFastq.matrix_sn_rna,
         cell_reads = STARsoloFastq.cell_reads_sn_rna,
-        input_id = input_id
+        input_id = input_id,
+        counting_mode = counting_mode
     }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:
