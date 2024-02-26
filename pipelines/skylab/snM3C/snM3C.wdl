@@ -673,6 +673,7 @@ task hisat_single_end {
         cpu: cpu
         memory: "${mem_size} GiB"
         cpuPlatform: cpu_platform
+        preemptible: preemptible_tries
     }
 
     output {
@@ -702,6 +703,7 @@ task merge_sort_analyze {
         Int mem_size = 64
         Int cpu = 16 
         String docker 
+        Int preemptible_tries = 3
     }
 
     command <<<
@@ -870,6 +872,7 @@ task merge_sort_analyze {
         cpu: cpu
         memory: "${mem_size} GiB"
         cpuPlatform: cpu_platform
+        preemptible: preemptible_tries
     }
     
      output {
