@@ -692,7 +692,7 @@ task merge_sort_analyze {
 
         #input for allcools bam-to-allc
         File genome_fa
-        String genome_base
+        String genome_base = basename(genome_fa)
         Int num_upstr_bases
         Int num_downstr_bases
         Int compress_level
