@@ -504,11 +504,12 @@ task hisat_single_end {
 
         String cpu_platform = "Intel Ice Lake"
         Int disk_size = 1000 
-        Int mem_size = 64  
-        Int cpu = 16
+        Int mem_size = 128  
+        Int cpu = 32
         String docker
         Int preemptible_tries = 2
     }
+
     command <<<
         set -euo pipefail
         set -x
@@ -850,7 +851,7 @@ task merge_sort_analyze {
 
       wait
       echo "Tasks all done."
-      du -h*
+      du -h *
 
       echo "Tar files."
       tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz *.hisat3n_dna.all_reads.name_sort.bam
