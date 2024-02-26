@@ -1,6 +1,6 @@
 # 3.2.0
-2024-02-13 (Date of Last Commit)
-
+2024-02-22 (Date of Last Commit)
+* Updated StarAlign.MergeStarOutput to add a shard number to the metrics files
 * Removed ref_genome_fasta input from Multiome WDL and JSON
 
 # 3.1.3
