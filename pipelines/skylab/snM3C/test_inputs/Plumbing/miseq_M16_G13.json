@@ -16,5 +16,6 @@
   "snM3C.tarred_index_files":"gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38_index_files.tar.gz",
   "snM3C.chromosome_sizes": "gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38.chrom.sizes",
   "snM3C.genome_fa": "gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38.fa",
-  "snM3C.batch_number": 2
+  "snM3C.batch_number": 2,
+  "snM3C.cloud_provider": "gcp"
 }

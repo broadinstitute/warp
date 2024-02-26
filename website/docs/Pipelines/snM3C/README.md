@@ -6,7 +6,7 @@ slug: /Pipelines/snM3C/README
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [snM3C_v2.0.0](https://github.com/broadinstitute/warp/releases) | February, 2024 | [Kaylee Mathews](mailto:warp-pipelines-help@broadinsitute.org) | Please file GitHub issues in the [WARP repository](https://github.com/broadinstitute/warp/issues) |
+| [snM3C_v2.0.2](https://github.com/broadinstitute/warp/releases) | February, 2024 | [Kaylee Mathews](mailto:warp-pipelines-help@broadinsitute.org) | Please file GitHub issues in the [WARP repository](https://github.com/broadinstitute/warp/issues) |
 
 
 ## Introduction to snM3C
@@ -67,6 +67,7 @@ The snM3C workflow requires a JSON configuration file specifying the input files
 | num_upstr_bases | Optional integer describing the number of bases upstream of the C base to include in ALLC file context column created using ALLCools; default is 0. |
 | num_downstr_bases | Optional integer describing the number of bases downstream of the C base to include in ALLC file context column created using ALLCools; default is 2. |
 | compress_level | Optional integer describing the compression level for the output ALLC file; default is 5. |
+| cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". |
 
 
 ## snM3C tasks and tools
