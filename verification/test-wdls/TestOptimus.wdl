@@ -24,7 +24,6 @@ workflow TestOptimus {
     # organism reference parameters
     File tar_star_reference
     File annotations_gtf
-    File ref_genome_fasta
     File? mt_genes
     String? soloMultiMappers
 
@@ -79,7 +78,6 @@ workflow TestOptimus {
       input_name_metadata_field  = input_name_metadata_field,
       tar_star_reference         = tar_star_reference,
       annotations_gtf            = annotations_gtf,
-      ref_genome_fasta           = ref_genome_fasta,
       tenx_chemistry_version     = tenx_chemistry_version,
       emptydrops_lower           = emptydrops_lower,
       force_no_check             = force_no_check,
