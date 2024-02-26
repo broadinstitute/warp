@@ -570,7 +570,7 @@ task Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_
          -U ${sample_id}.hisat3n_dna.split_reads.R2.fastq \
          --directional-mapping \
          --base-change C,T \
-         --no-repeat-index \
+         --repeat \
          --no-spliced-alignment \
          --no-temp-splicesite \
          -t --new-summary \
