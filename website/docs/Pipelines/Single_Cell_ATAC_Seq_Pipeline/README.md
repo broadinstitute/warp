@@ -157,8 +157,14 @@ The following table details the metrics available in the output_snap_qc file.
 All scATAC workflow releases are documented in the [scATAC changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/scATAC/scATAC.changelog.md).
 
 ## Citing the scATAC Pipeline
-Please identify the pipeline in your methods section using the scATAC Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_018919/resolver?q=SCR_018919&l=SCR_018919).
+
+If you use the scATAC Pipeline in your research, please identify the pipeline in your methods section using the [scATAC SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_018919/resolver?q=SCR_018919&l=SCR_018919&i=rrid:scr_018919).
+
 * Ex: *scATAC Pipeline (RRID:SCR_018919)*
+
+Please also consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Consortia Support
 This pipeline is supported and used by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 
