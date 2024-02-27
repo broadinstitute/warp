@@ -767,7 +767,7 @@ task merge_sort_analyze {
 
       # define lists of r1 and r2 fq files
       UNIQUE_BAMS=($(ls | grep "\.hisat3n_dna.unique_aligned.bam"))
-      SPLIT_BAMS=($(ls | grep "\.hisat3n_dna.split_reads.read_overlap.bam"))
+      SPLIT_BAMS=($(ls | grep "\.read_overlap.bam"))
 
       # for allcools bam-to-allc
       if [ ~{num_upstr_bases} -eq 0 ]; then
@@ -788,7 +788,7 @@ task merge_sort_analyze {
 
         start=$(date +%s)  
         echo "Merge all unique_aligned and read_overlap"
-        samtools merge -f "${sample_id}.hisat3n_dna.all_reads.bam" "${sample_id}.hisat3n_dna.unique_aligned.bam" "${sample_id}.hisat3n_dna.split_reads.read_overlap.bam" -@4
+        samtools merge -f "${sample_id}.hisat3n_dna.all_reads.bam" "${sample_id}.hisat3n_dna.unique_aligned.bam" "${sample_id}.read_overlap.bam" -@4
         end=$(date +%s) 
         elapsed=$((end - start)) 
         echo "Elapsed time to run merge $elapsed seconds"
@@ -860,7 +860,7 @@ task merge_sort_analyze {
         echo "Remove some bams"
         rm ${sample_id}.hisat3n_dna.all_reads.bam
         rm ${sample_id}.hisat3n_dna.all_reads.pos_sort.bam
-        rm /cromwell_root/${sample_id}.hisat3n_dna.split_reads.read_overlap.bam
+        rm /cromwell_root/${sample_id}.read_overlap.bam
         rm /cromwell_root/${sample_id}.hisat3n_dna.unique_aligned.bam
       }
  
