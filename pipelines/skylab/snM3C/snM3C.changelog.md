@@ -1,3 +1,8 @@
+# 3.0.0
+2024-02-23 (Date of Last Commit)
+
+* Updated the snM3C docker to include the latest changes to the CEMBA repostiory; this impacts the scientific outputs
+
 # 2.0.1
 2024-2-15 (Date of Last Commit)
 
