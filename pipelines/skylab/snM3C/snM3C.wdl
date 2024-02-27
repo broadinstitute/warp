@@ -27,7 +27,7 @@ workflow snM3C {
     }
 
     # version of the pipeline
-    String pipeline_version = "2.0.1"
+    String pipeline_version = "3.0.0"
 
     call Demultiplexing {
         input:
@@ -120,7 +120,7 @@ task Demultiplexing {
     String plate_id
     Int batch_number
 
-    String docker_image = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+    String docker_image = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
     Int disk_size = 1000
     Int mem_size = 10
     Int preemptible_tries = 3
@@ -235,7 +235,7 @@ task Sort_and_trim_r1_and_r2 {
 
         Int disk_size = 500
         Int mem_size = 16
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
         Int preemptible_tries = 3
         Int cpu = 4
 
@@ -317,7 +317,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         File chromosome_sizes
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
         Int disk_size = 1000
         Int mem_size = 64
         Int preemptible_tries = 3
@@ -363,7 +363,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
           -2 ${sample_id}-R2_trimmed.fq.gz \
           --directional-mapping-reverse \
           --base-change C,T \
-          --no-repeat-index \
+          --repeat \
           --no-spliced-alignment \
           --no-temp-splicesite \
           -t \
@@ -398,8 +398,8 @@ task Separate_and_split_unmapped_reads {
         Int min_read_length
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        Int disk_size = 200
+        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
+        Int disk_size = 1000
         Int mem_size = 10
         Int preemptible_tries = 3
         Int cpu = 8
@@ -506,8 +506,8 @@ task hisat_single_end {
         Int disk_size = 1000 
         Int mem_size = 128  
         Int cpu = 32
-        String docker
         Int preemptible_tries = 2
+        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
     }
 
     command <<<
@@ -565,7 +565,7 @@ task hisat_single_end {
           -q \
           -U ${BASE}.hisat3n_dna.split_reads.R1.fastq \
           -S ${BASE}.hisat3n_dna.split_reads.R1.sam --directional-mapping-reverse --base-change C,T \
-          --no-repeat-index \
+          --repeat \
           --no-spliced-alignment \
           --no-temp-splicesite \
           -t \
@@ -587,7 +587,7 @@ task hisat_single_end {
          -q \
          -U ${BASE}.hisat3n_dna.split_reads.R2.fastq \
          -S ${BASE}.hisat3n_dna.split_reads.R2.sam --directional-mapping --base-change C,T \
-         --no-repeat-index \
+         --repeat \
          --no-spliced-alignment \
          --no-temp-splicesite \
          -t --new-summary \
@@ -699,10 +699,10 @@ task merge_sort_analyze {
         File chromosome_sizes
 
         String cpu_platform = "Intel Ice Lake"
+        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
         Int disk_size = 1000
         Int mem_size = 64
         Int cpu = 16 
-        String docker 
         Int preemptible_tries = 3
     }
 
@@ -895,7 +895,7 @@ task summary {
         Array[File] r2_hisat3n_stats
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
         Int disk_size = 80
         Int mem_size = 5
         Int preemptible_tries = 3
