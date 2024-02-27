@@ -98,6 +98,10 @@ workflow snM3C {
             hisat3n_stats = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_stats_tar,
             r1_hisat3n_stats = hisat_single_end.hisat3n_dna_split_reads_summary_R1_tar,
             r2_hisat3n_stats = hisat_single_end.hisat3n_dna_split_reads_summary_R2_tar,
+            dedup_stats = merge_sort_analyze.dedup_stats_tar,
+            chromatin_contact_stats = merge_sort_analyze.chromatin_contact_stats,
+            allc_uniq_reads_stats = merge_sort_analyze.allc_uniq_reads_stats,
+            unique_reads_cgn_extraction_tbi = merge_sort_analyze.extract_allc_output_tbi_tar,
             plate_id = plate_id
     }
 
@@ -321,7 +325,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         Int disk_size = 1000
         Int mem_size = 64
         Int preemptible_tries = 3
-        Int cpu = 16
+        Int cpu = 48
     }
     command <<<
         set -euo pipefail
@@ -355,27 +359,46 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         R1_files=($(ls | grep "\-R1_trimmed.fq.gz"))
         R2_files=($(ls | grep "\-R2_trimmed.fq.gz"))
 
+        echo "starting hisat"
+
+        task() {
+            sample_id=$(basename "$file" "-R1_trimmed.fq.gz")
+            hisat-3n /cromwell_root/$genome_fa_basename \
+            -q \
+            -1 ${sample_id}-R1_trimmed.fq.gz \
+            -2 ${sample_id}-R2_trimmed.fq.gz \
+            --directional-mapping-reverse \
+            --base-change C,T \
+            --no-repeat-index \
+            --no-spliced-alignment \
+            --no-temp-splicesite \
+            -t \
+            --new-summary \
+            --summary-file ${sample_id}.hisat3n_dna_summary.txt \
+            --threads 8 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
+        }
+
         for file in "${R1_files[@]}"; do
-          sample_id=$(basename "$file" "-R1_trimmed.fq.gz")
-          hisat-3n /cromwell_root/$genome_fa_basename \
-          -q \
-          -1 ${sample_id}-R1_trimmed.fq.gz \
-          -2 ${sample_id}-R2_trimmed.fq.gz \
-          --directional-mapping-reverse \
-          --base-change C,T \
-          --repeat \
-          --no-spliced-alignment \
-          --no-temp-splicesite \
-          -t \
-          --new-summary \
-          --summary-file ${sample_id}.hisat3n_dna_summary.txt \
-          --threads 11 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
+         (
+            echo "starting task $file.."
+            task "$file"
+            sleep $(( (RANDOM % 3) + 1))
+        ) &
+
+          if [[ $(jobs -r -p | wc -l) -ge 4 ]]; then
+            wait -n
+          fi
         done
 
+        # Wait for all background jobs to finish before continuing
+        wait
+
+        echo "done hisat"
+
+        echo "tarring up the outputs"
         # tar up the bam files and stats files
         tar -zcvf ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz *.bam
         tar -zcvf ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
-
 
     >>>
     runtime {
@@ -859,13 +882,20 @@ task merge_sort_analyze {
       du -h *
 
       echo "Tar files."
+      tar -zcvf ~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz output_bams/*.matrix.txt
       tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz *.hisat3n_dna.all_reads.name_sort.bam
       # tar outputs of call_chromatin_contacts
       tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.3C.contact.tar.gz *.hisat3n_dna.all_reads.3C.contact.tsv.gz
       tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.dedup_contacts.tar.gz *.hisat3n_dna.all_reads.dedup_contacts.tsv.gz
+      tar -zcvf ~{plate_id}.chromatin_contact_stats.tar.gz *.hisat3n_dna.all_reads.contact_stats.csv
       # tar outputs of allcools
       tar -zcvf ~{plate_id}.allc.tsv.tar.gz *.allc.tsv.gz
       tar -zcvf ~{plate_id}.allc.tbi.tar.gz *.allc.tsv.gz.tbi
+      tar -zcvf ~{plate_id}.allc.count.tar.gz *.allc.tsv.gz.count.csv
+
+      mv output_bams/~{plate_id}.allc.count.tar.gz /cromwell_root
+      cd /cromwell_root
+      tar -zcvf ~{plate_id}.extract-allc_tbi.tar.gz $outputdir/*.tbi
  
     >>>
 
@@ -884,6 +914,10 @@ task merge_sort_analyze {
         File all_reads_dedup_contacts = "~{plate_id}.hisat3n_dna.all_reads.dedup_contacts.tar.gz"
         File all_reads_3C_contacts = "~{plate_id}.hisat3n_dna.all_reads.3C.contact.tar.gz"
         File name_sorted_bam = "~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz"
+        File dedup_stats_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz"
+        File chromatin_contact_stats = "~{plate_id}.chromatin_contact_stats.tar.gz"
+        File allc_uniq_reads_stats = "~{plate_id}.allc.count.tar.gz"
+        File extract_allc_output_tbi_tar = "~{plate_id}.extract-allc_tbi.tar.gz"
     }
 }
 
@@ -893,9 +927,13 @@ task summary {
         Array[File] hisat3n_stats
         Array[File] r1_hisat3n_stats
         Array[File] r2_hisat3n_stats
+        Array[File] dedup_stats
+        Array[File] chromatin_contact_stats
+        Array[File] allc_uniq_reads_stats
+        Array[File] unique_reads_cgn_extraction_tbi
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
         Int disk_size = 80
         Int mem_size = 5
         Int preemptible_tries = 3
@@ -925,15 +963,23 @@ task summary {
         extract_and_remove ~{sep=' ' hisat3n_stats}
         extract_and_remove ~{sep=' ' r1_hisat3n_stats}
         extract_and_remove ~{sep=' ' r2_hisat3n_stats}
-     
+        extract_and_remove ~{sep=' ' dedup_stats}
+        extract_and_remove ~{sep=' ' chromatin_contact_stats}
+        extract_and_remove ~{sep=' ' allc_uniq_reads_stats}
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
+
         mv *.trimmed.stats.txt /cromwell_root/fastq
         mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt /cromwell_root/bam
-        ##mv output_bams/*.hisat3n_dna.all_reads.deduped.matrix.txt /cromwell_root/bam
+        mv output_bams/*.hisat3n_dna.all_reads.deduped.matrix.txt /cromwell_root/bam
         mv *.hisat3n_dna.all_reads.contact_stats.csv /cromwell_root/hic
-        ##mv *.allc.tsv.gz.count.csv /cromwell_root/allc
+        mv *.allc.tsv.gz.count.csv /cromwell_root/allc
         mv cromwell_root/allc-CGN/*.allc.tsv.gz.tbi /cromwell_root/allc
-        
-        python3 -c 'from cemba_data.hisat3n import *;snm3c_summary()'
+
+        python3 <<CODE
+        from cemba_data.hisat3n import *
+        snm3c_summary()
+        CODE
+
         mv MappingSummary.csv.gz ~{plate_id}_MappingSummary.csv.gz
 
     >>>
