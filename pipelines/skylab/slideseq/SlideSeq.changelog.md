@@ -1,3 +1,8 @@
+# 3.1.0
+2024-02-07 (Date of Last Commit)
+
+* Updated StarAlign output metrics to include shard ids
+
 # 3.0.1
 2024-02-13 (Date of Last Commit)
 
