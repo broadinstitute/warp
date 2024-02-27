@@ -738,7 +738,10 @@ task merge_sort_analyze {
       end=$(date +%s) 
       elapsed=$((end - start)) 
       echo "Elapsed time to index fasta $elapsed seconds"
-            
+
+      echo "ls everything in the directory"
+      ls -Rlh
+
       # define lists of r1 and r2 fq files
       UNIQUE_BAMS=($(ls | grep "\.hisat3n_dna.unique_aligned.bam"))
       SPLIT_BAMS=($(ls | grep "\.hisat3n_dna.split_reads.read_overlap.bam"))
