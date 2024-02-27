@@ -81,5 +81,6 @@
     "agg_preemptible_tries": 3
   },
 
-  "WholeGenomeGermlineSingleSample.dragen_functional_equivalence_mode": true
+  "WholeGenomeGermlineSingleSample.dragen_functional_equivalence_mode": true,
+  "WholeGenomeGermlineSingleSample.BamToGvcf.HaplotypeCallerGATK4.memory_multiplier":2
 }
