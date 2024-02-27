@@ -17,7 +17,7 @@ Read more about our pipelines and repository on the [WARP documentation site](ht
 
 To contribute to WARP, please read the [contribution guidelines](https://broadinstitute.github.io/warp/docs/contribution/README).
 
-## Citing WARP
+### Citing WARP
 
 When citing WARP, please use the following:
 
