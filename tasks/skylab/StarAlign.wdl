@@ -567,6 +567,8 @@ task MergeStarOutput {
     
     # If text files are present, create a tar archive with them and run python script to combine shard metrics
     if ls *.txt 1> /dev/null 2>&1; then
+      echo "listing files"
+      ls
       python3 /warptools/scripts/combine_shard_metrics.py ~{input_id}_summary.txt ~{input_id}_align_features.txt ~{input_id}_cell_reads.txt ~{counting_mode} ~{input_id}
       tar -zcvf ~{input_id}.star_metrics.tar *.txt
     else
