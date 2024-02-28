@@ -766,9 +766,6 @@ task merge_sort_analyze {
       elapsed=$((end - start)) 
       echo "Elapsed time to index fasta $elapsed seconds"
 
-      echo "ls everything in the directory"
-      ls -Rlh
-
       # define lists of r1 and r2 fq files
       UNIQUE_BAMS=($(ls | grep "\.hisat3n_dna.unique_aligned.bam"))
       SPLIT_BAMS=($(ls | grep "\.read_overlap.bam"))
@@ -885,11 +882,6 @@ task merge_sort_analyze {
       echo "Tasks all done."
       du -h *
 
-      echo "doing a pwd"
-      pwd
-      echo "list everything"
-      ls -lRh
-
       echo "Tar files."
       tar -zcvf ~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz output_bams/*.matrix.txt
       tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz *.hisat3n_dna.all_reads.name_sort.bam
@@ -904,8 +896,6 @@ task merge_sort_analyze {
       tar -zcvf ~{plate_id}.extract-allc_tbi.tar.gz *.tbi
       tar -zcvf ~{plate_id}.extract-allc.tar.gz /cromwell_root/allc-${mcg_context}/*.gz
       tar -zcvf ~{plate_id}.extract-allc_tbi.tar.gz /cromwell_root/allc-${mcg_context}/*.tbi
-
-
     >>>
 
     runtime {
@@ -929,7 +919,7 @@ task merge_sort_analyze {
         File extract_allc_output_tbi_tar = "~{plate_id}.extract-allc_tbi.tar.gz"
         File extract_allc_output_allc_tar  = "~{plate_id}.extract-allc.tar.gz"
         File extract_allc_output_tbi_tar = "~{plate_id}.extract-allc_tbi.tar.gz"
-                                                                           }
+     }
 }
 
 task summary {
@@ -979,20 +969,12 @@ task summary {
         extract_and_remove ~{sep=' ' allc_uniq_reads_stats}
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
 
-        echo "list everything before moving things"
-        ls -lRh
-        echo "doing pwd"
-        pwd
-
         mv *.trimmed.stats.txt /cromwell_root/fastq
         mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt /cromwell_root/bam
         mv output_bams/*.hisat3n_dna.all_reads.deduped.matrix.txt /cromwell_root/bam
         mv *.hisat3n_dna.all_reads.contact_stats.csv /cromwell_root/hic
         mv *.allc.tsv.gz.count.csv /cromwell_root/allc
         mv cromwell_root/allc-CGN/*.allc.tsv.gz.tbi /cromwell_root/allc
-
-        echo "list everything after moving things"
-        ls -lRh
 
         python3 <<CODE
         from cemba_data.hisat3n import *
