@@ -125,6 +125,6 @@ workflow PairedTag {
         File gene_metrics_gex = Optimus.gene_metrics
         File? cell_calls_gex = Optimus.cell_calls
         File h5ad_output_file_gex = Optimus.h5ad_output_file
-        File library_metrics = Optimus.library_metrics
+        File? library_metrics = Optimus.library_metrics
     }
 }
