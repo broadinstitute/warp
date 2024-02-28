@@ -71,6 +71,14 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/arrays/imputation/Imputation.wdl
 
+  - name: ImputationBeagle
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/ImputationBeagle.wdl
+
+  - name: CreateImputationRefPanelBeagle
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/arrays/imputation_beagle/CreateImputationRefPanelBeagle.wdl
+
   - name: RNAWithUMIsPipeline
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl
