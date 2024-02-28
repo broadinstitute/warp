@@ -979,6 +979,7 @@ task summary {
         extract_and_remove ~{sep=' ' allc_uniq_reads_stats}
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
 
+        echo "list everything before moving things"
         ls -lRh
 
         mv *.trimmed.stats.txt /cromwell_root/fastq
@@ -987,6 +988,9 @@ task summary {
         mv *.hisat3n_dna.all_reads.contact_stats.csv /cromwell_root/hic
         mv *.allc.tsv.gz.count.csv /cromwell_root/allc
         mv *.allc.tsv.gz.tbi /cromwell_root/allc
+
+        echo "list everything after moving things"
+        ls -lRh
 
         python3 <<CODE
         from cemba_data.hisat3n import *
