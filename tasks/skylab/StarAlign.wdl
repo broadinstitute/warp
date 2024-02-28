@@ -475,7 +475,7 @@ task MergeStarOutput {
     Array[File]? summary
     Array[File]? align_features
     Array[File]? umipercell
-    String counting_mode
+    String? counting_mode
     
     String input_id
 
