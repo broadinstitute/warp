@@ -33,7 +33,7 @@ task BuildBref3 {
     >>>
 
     runtime {
-        docker: "us-central1-docker.pkg.dev/morgan-fieldeng-gcp/imputation-beagle-development:0.0.1-22Jul22.46e-wip-temp-20240227"
+        docker: "us-central1-docker.pkg.dev/morgan-fieldeng-gcp/imputation-beagle-development/imputation-beagle:0.0.1-22Jul22.46e-wip-temp-20240227"
         memory: "256 GB"
         cpu: 4
         disks: "local-disk " + disk_size + " HDD"
