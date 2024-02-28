@@ -1,0 +1,8 @@
+{
+  "VUMCVcfExtractRegions.target_prefix": "chrM",
+  "VUMCVcfExtractRegions.include_region_bed": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/chrM.region.bed",
+  "VUMCVcfExtractRegions.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/agd_chrM.primary_grid.vcf.gz",
+  "VUMCVcfExtractRegions.input_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/agd_chrM.primary_grid.vcf.gz.tbi",
+  "VUMCVcfExtractRegions.target_suffix": ".1000-2000.vcf.gz"
+}
+
