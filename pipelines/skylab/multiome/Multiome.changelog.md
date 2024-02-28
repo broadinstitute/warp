@@ -1,7 +1,7 @@
 # 3.3.0
 2024-02-28 (Date of Last Commit)
 
-* Added the gene expression library-level metrics CSV as output of the Multiome pipeline; this produced by the Optimus subworkflow
+* Added the gene expression library-level metrics CSV as output of the Multiome pipeline; this is produced by the Optimus subworkflow
 
 # 3.2.0
 2024-02-22 (Date of Last Commit)
