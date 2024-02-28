@@ -369,7 +369,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
             -2 ${sample_id}-R2_trimmed.fq.gz \
             --directional-mapping-reverse \
             --base-change C,T \
-            --no-repeat-index \
+            --repeat \
             --no-spliced-alignment \
             --no-temp-splicesite \
             -t \
