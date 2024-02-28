@@ -893,8 +893,7 @@ task merge_sort_analyze {
       tar -zcvf ~{plate_id}.allc.tbi.tar.gz *.allc.tsv.gz.tbi
       tar -zcvf ~{plate_id}.allc.count.tar.gz *.allc.tsv.gz.count.csv
       tar -zcvf ~{plate_id}.extract-allc_tbi.tar.gz *.tbi
-      echo "Listing all ALLC tarred files"
-      ls
+
     >>>
 
     runtime {
@@ -966,12 +965,14 @@ task summary {
         extract_and_remove ~{sep=' ' allc_uniq_reads_stats}
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
 
+        ls -lRh
+
         mv *.trimmed.stats.txt /cromwell_root/fastq
         mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt /cromwell_root/bam
         mv output_bams/*.hisat3n_dna.all_reads.deduped.matrix.txt /cromwell_root/bam
         mv *.hisat3n_dna.all_reads.contact_stats.csv /cromwell_root/hic
         mv *.allc.tsv.gz.count.csv /cromwell_root/allc
-        mv cromwell_root/allc-CGN/*.allc.tsv.gz.tbi /cromwell_root/allc
+        mv allc-CGN/*.allc.tsv.gz.tbi /cromwell_root/allc
 
         python3 <<CODE
         from cemba_data.hisat3n import *
