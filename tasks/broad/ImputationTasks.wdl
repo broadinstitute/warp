@@ -313,7 +313,7 @@ task PhaseAndImputeBeagle {
   command <<<
     set -e -o pipefail
 
-    java -ea -jar -Xmx~{xmx_mb}m \
+    java -ea -jar -Xmx=~{xmx_mb}m \
     /usr/gitc/beagle.22Jul22.46e.jar \
     gt=~{dataset_vcf} \
     ref=~{ref_panel_bref3} \
