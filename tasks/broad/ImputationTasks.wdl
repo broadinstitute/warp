@@ -314,7 +314,7 @@ task PhaseAndImputeBeagle {
     set -e -o pipefail
 
     java -ea -jar -Xmx~{xmx_mb}m \
-    /usr/gitc/bref3.22Jul22.46e.jar \
+    /usr/gitc/beagle.22Jul22.46e.jar \
     gt=~{dataset_vcf} \
     ref=~{ref_panel_bref3} \
     map=~{genetic_map_file} \
