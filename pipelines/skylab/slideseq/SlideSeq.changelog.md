@@ -1,3 +1,8 @@
+# 3.1.1
+2024-02-28 (Date of Last Commit)
+
+* Updated the Optimus workflow to produce a library-level metrics CSV; this does not impact the slide-seq pipeline
+
 # 3.1.0
 2024-02-07 (Date of Last Commit)
 
