@@ -972,7 +972,7 @@ task summary {
         mv output_bams/*.hisat3n_dna.all_reads.deduped.matrix.txt /cromwell_root/bam
         mv *.hisat3n_dna.all_reads.contact_stats.csv /cromwell_root/hic
         mv *.allc.tsv.gz.count.csv /cromwell_root/allc
-        mv allc-CGN/*.allc.tsv.gz.tbi /cromwell_root/allc
+        mv *.allc.tsv.gz.tbi /cromwell_root/allc
 
         python3 <<CODE
         from cemba_data.hisat3n import *
