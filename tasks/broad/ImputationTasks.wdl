@@ -261,6 +261,82 @@ task Minimac4 {
   }
 }
 
+task CheckChunksBeagle {
+  input {
+    File vcf
+    File vcf_index
+    File panel_vcf
+    File panel_vcf_index
+    Int var_in_original
+    Int var_in_reference
+
+    Int disk_size_gb = ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
+    String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
+    Int cpu = 1
+    Int memory_mb = 4000
+  }
+  command <<<
+    set -e -o pipefail
+
+    if [ $(( ~{var_in_reference} * 2 - ~{var_in_original})) -gt 0 ] && [ ~{var_in_reference} -gt 3 ]; then
+      echo true > valid_file.txt
+    else
+      echo false > valid_file.txt
+    fi
+  >>>
+  output {
+    Boolean valid = read_boolean("valid_file.txt")
+  }
+  runtime {
+    docker: bcftools_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+  }
+}
+
+task PhaseAndImputeBeagle {
+  input {
+    File dataset_vcf
+    File ref_panel_bref3
+    File genetic_map_file
+    String chrom             # not needed if ref file has been chunked and you are using the entire chunk
+    Int start                # not needed if ref file has been chunked and you are using the entire chunk
+    Int end                  # not needed if ref file has been chunked and you are using the entire chunk
+
+    String beagle_docker = "us.gcr.io/broad-gotc-dev/imputation-beagle:0.0.1-22Jul22.46e-wip-temp-20240227"
+    Int cpu = 8                    # This parameter can be higher or lower
+    Int memory_mb = 32000          # value depends on chunk size, the number of samples in ref and target panel, and whether imputation is performed
+    Int xmx_mb = 29000             # I suggest setting this parameter to be 85-90% of the memory_mb parameter
+    Int disk_size_gb = ceil(3 * size([dataset_vcf, ref_panel_bref3], "GiB")) + 50         # value may need to be adjusted
+  }
+  command <<<
+    set -e -o pipefail
+
+    java -ea -jar -Xmx~{xmx_mb}m \
+    bref3.22Jul22.46e.jar \
+    gt=~{dataset_vcf} \
+    ref=~{ref_panel_bref3} \
+    map=~{genetic_map_file} \
+    out=imputed_~{chrom} \               # rename output file to "phased_{chrom}" if phasing without imputing
+    chrom=~{chrom}:~{start}-~{end} \     # not needed if ref and targ files have been chunked and you are using the entire chunk
+    impute=true \                        # set impute=false if you wish to phase without imputing ungenotyped markers
+    nthreads=~{cpu}
+
+    bcftools index -t imputed_~{chrom}.vcf.gz
+  >>>
+  output {
+    File vcf = "imputed_~{chrom}.vcf.gz"
+    File vcf_index = "imputed_~{chrom}.vcf.gz.tbi"
+  }
+  runtime {
+    docker: beagle_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+  }
+}
+
 task GatherVcfs {
   input {
     Array[File] input_vcfs
