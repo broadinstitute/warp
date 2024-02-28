@@ -113,6 +113,10 @@ workflow snM3C {
         Array[File] reference_version = Hisat_3n_pair_end_mapping_dna_mode.reference_version
         Array[File] all_reads_dedup_contacts = merge_sort_analyze.all_reads_dedup_contacts
         Array[File] all_reads_3C_contacts = merge_sort_analyze.all_reads_3C_contacts
+        Array[File] chromatin_contact_stats = merge_sort_analyze.chromatin_contact_stats
+        Array[File] unique_reads_cgn_extraction_allc_extract = merge_sort_analyze.extract_allc_output_allc_tar
+        Array[File] unique_reads_cgn_extraction_tbi_extract = merge_sort_analyze.extract_allc_output_tbi_tar
+
     }
 }
 
@@ -881,6 +885,11 @@ task merge_sort_analyze {
       echo "Tasks all done."
       du -h *
 
+      echo "doing a pwd"
+      pwd
+      echo "list everything"
+      ls -lRh
+
       echo "Tar files."
       tar -zcvf ~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz output_bams/*.matrix.txt
       tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz *.hisat3n_dna.all_reads.name_sort.bam
@@ -893,6 +902,9 @@ task merge_sort_analyze {
       tar -zcvf ~{plate_id}.allc.tbi.tar.gz *.allc.tsv.gz.tbi
       tar -zcvf ~{plate_id}.allc.count.tar.gz *.allc.tsv.gz.count.csv
       tar -zcvf ~{plate_id}.extract-allc_tbi.tar.gz *.tbi
+      tar -zcvf ~{plate_id}.extract-allc.tar.gz /cromwell_root/allc-${mcg_context}/*.gz
+      tar -zcvf ~{plate_id}.extract-allc_tbi.tar.gz /cromwell_root/allc-${mcg_context}/*.tbi
+
 
     >>>
 
@@ -915,7 +927,9 @@ task merge_sort_analyze {
         File chromatin_contact_stats = "~{plate_id}.chromatin_contact_stats.tar.gz"
         File allc_uniq_reads_stats = "~{plate_id}.allc.count.tar.gz"
         File extract_allc_output_tbi_tar = "~{plate_id}.extract-allc_tbi.tar.gz"
-    }
+        File extract_allc_output_allc_tar  = "~{plate_id}.extract-allc.tar.gz"
+        File extract_allc_output_tbi_tar = "~{plate_id}.extract-allc_tbi.tar.gz"
+                                                                           }
 }
 
 task summary {
