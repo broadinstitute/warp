@@ -894,9 +894,6 @@ task merge_sort_analyze {
       tar -zcvf ~{plate_id}.allc.count.tar.gz *.allc.tsv.gz.count.csv
       echo "Listing all ALLC tarred files"
       ls
-
-      mv ~{plate_id}.allc.count.tar.gz /cromwell_root
-      cd /cromwell_root
       tar -zcvf ~{plate_id}.extract-allc_tbi.tar.gz $outputdir/*.tbi
  
     >>>
