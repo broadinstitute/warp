@@ -29,7 +29,7 @@ task BuildBref3 {
     String name = basename(vcf, ".vcf.gz")
 
     command <<<
-        java -jar bref3.22Jul22.46e.jar ~{vcf} > ~{name}.bref3
+        java -jar /usr/gitc/bref3.22Jul22.46e.jar ~{vcf} > ~{name}.bref3
     >>>
 
     runtime {
