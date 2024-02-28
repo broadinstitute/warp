@@ -205,6 +205,11 @@ workflow Optimus {
         cell_reads = STARsoloFastq.cell_reads_sn_rna,
         input_id = input_id,
         counting_mode = counting_mode
+        summary = STARsoloFastq.summary_sn_rna,
+        align_features = STARsoloFastq.align_features_sn_rna,
+        umipercell = STARsoloFastq.umipercell_sn_rna,
+        input_id = input_id,
+        counting_mode = counting_mode        
     }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:
