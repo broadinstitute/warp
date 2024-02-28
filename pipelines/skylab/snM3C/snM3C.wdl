@@ -892,10 +892,9 @@ task merge_sort_analyze {
       tar -zcvf ~{plate_id}.allc.tsv.tar.gz *.allc.tsv.gz
       tar -zcvf ~{plate_id}.allc.tbi.tar.gz *.allc.tsv.gz.tbi
       tar -zcvf ~{plate_id}.allc.count.tar.gz *.allc.tsv.gz.count.csv
+      tar -zcvf ~{plate_id}.extract-allc_tbi.tar.gz *.tbi
       echo "Listing all ALLC tarred files"
       ls
-      tar -zcvf ~{plate_id}.extract-allc_tbi.tar.gz $outputdir/*.tbi
- 
     >>>
 
     runtime {
