@@ -56,6 +56,14 @@ workflow ATAC {
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
   String snap_atac_docker = "snapatac2:1.0.4-2.3.1"
 
+  # Make sure either 'gcp' or 'azure' is supplied as cloud_provider input. If not, raise an error
+  if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+    call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+        input:
+            message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+    }
+  }
+
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
     read2_fastq_gzipped: "read 2 FASTQ file as input for the pipeline, contains the cellular barcodes corresponding to the reads in the read1 FASTQ and read 3 FASTQ"
@@ -65,7 +73,6 @@ workflow ATAC {
     num_threads_bwa: "Number of threads for bwa-mem2 task (default: 128)"
     mem_size_bwa: "Memory size in GB for bwa-mem2 task (default: 512)"
     cpu_platform_bwa: "CPU platform for bwa-mem2 task (default: Intel Ice Lake)"
-  
  }
 
   call GetNumSplits {
