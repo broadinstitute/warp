@@ -300,6 +300,7 @@ task PhaseAndImputeBeagle {
     File dataset_vcf
     File ref_panel_bref3
     File genetic_map_file
+    String basename
     String chrom             # not needed if ref file has been chunked and you are using the entire chunk
     Int start                # not needed if ref file has been chunked and you are using the entire chunk
     Int end                  # not needed if ref file has been chunked and you are using the entire chunk
@@ -310,6 +311,7 @@ task PhaseAndImputeBeagle {
     Int xmx_mb = 29000             # I suggest setting this parameter to be 85-90% of the memory_mb parameter
     Int disk_size_gb = ceil(3 * size([dataset_vcf, ref_panel_bref3], "GiB")) + 50         # value may need to be adjusted
   }
+
   command <<<
     set -e -o pipefail
 
@@ -318,10 +320,15 @@ task PhaseAndImputeBeagle {
     gt=~{dataset_vcf} \
     ref=~{ref_panel_bref3} \
     map=~{genetic_map_file} \
-    out=imputed_~{chrom} \               # rename output file to "phased_{chrom}" if phasing without imputing
-    chrom=~{chrom}:~{start}-~{end} \     # not needed if ref and targ files have been chunked and you are using the entire chunk
-    impute=true \                        # set impute=false if you wish to phase without imputing ungenotyped markers
+    out=imputed_~{basename} \
+    chrom=~{chrom}:~{start}-~{end} \
+    impute=true \
     nthreads=~{cpu}
+
+    # notes: 
+    # rename output file to "phased_{chrom}" if phasing without imputing
+    # `chrom` not needed if ref and targ files have been chunked and you are using the entire chunk
+    # set impute=false if you wish to phase without imputing ungenotyped markers
 
     bcftools index -t imputed_~{chrom}.vcf.gz
   >>>

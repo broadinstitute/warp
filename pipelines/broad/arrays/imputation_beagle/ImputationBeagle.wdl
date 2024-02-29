@@ -103,6 +103,7 @@ workflow ImputationBeagle {
       Int startWithOverlaps = if (start - chunkOverlaps < 1) then 1 else start - chunkOverlaps
       Int end = if (CalculateChromosomeLength.chrom_length < ((i + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i + 1) * chunkLength)
       Int endWithOverlaps = if (CalculateChromosomeLength.chrom_length < end + chunkOverlaps) then CalculateChromosomeLength.chrom_length else end + chunkOverlaps
+      String chunk_basename = "chrom_" + referencePanelContig.contig + "_chunk_" + i
 
       call tasks.GenerateChunk {
         input:
@@ -111,7 +112,7 @@ workflow ImputationBeagle {
           start = startWithOverlaps,
           end = endWithOverlaps,
           chrom = referencePanelContig.contig,
-          basename = "chrom_" + referencePanelContig.contig + "_chunk_" + i
+          basename = chunk_basename
       }
 
       if (perform_extra_qc_steps) {
@@ -119,7 +120,7 @@ workflow ImputationBeagle {
           input:
             input_vcf = GenerateChunk.output_vcf,
             input_vcf_index = GenerateChunk.output_vcf_index,
-            output_vcf_basename =  "chrom_" + referencePanelContig.contig + "_chunk_" + i,
+            output_vcf_basename = chunk_basename,
             optional_qc_max_missing = optional_qc_max_missing,
             optional_qc_hwe = optional_qc_hwe
         }
@@ -170,6 +171,7 @@ workflow ImputationBeagle {
             dataset_vcf = select_first([OptionalQCSites.output_vcf,  GenerateChunk.output_vcf]),
             ref_panel_bref3 = referencePanelContig.bref3,
             chrom = referencePanelContig.contig,
+            basename = chunk_basename,
             genetic_map_file = referencePanelContig.genetic_map,
             start = startWithOverlaps,
             end = endWithOverlaps
@@ -180,27 +182,27 @@ workflow ImputationBeagle {
             vcf = PhaseAndImputeBeagle.vcf,
             vcf_index = PhaseAndImputeBeagle.vcf_index,
             ref_dict = ref_dict,
-            basename = "chrom_" + referencePanelContig.contig + "_chunk_" + i +"_imputed"
+            basename = chunk_basename + "_imputed"
         }
 
         call tasks.SeparateMultiallelics {
           input:
             original_vcf = UpdateHeader.output_vcf,
             original_vcf_index = UpdateHeader.output_vcf_index,
-            output_basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed"
+            output_basename = chunk_basename + "_imputed"
         }
 
         call tasks.RemoveSymbolicAlleles {
           input:
             original_vcf = SeparateMultiallelics.output_vcf,
             original_vcf_index = SeparateMultiallelics.output_vcf_index,
-            output_basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed"
+            output_basename = chunk_basename + "_imputed"
         }
 
         call tasks.SetIDs {
           input:
             vcf = RemoveSymbolicAlleles.output_vcf,
-            output_basename = "chrom" + referencePanelContig.contig + "_chunk_" + i +"_imputed"
+            output_basename = chunk_basename + "_imputed"
         }
 
         call tasks.ExtractIDs {
