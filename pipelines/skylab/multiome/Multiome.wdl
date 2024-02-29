@@ -61,7 +61,7 @@ workflow Multiome {
     File azure_gex_whitelist = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_gex.txt"
     File azure_atac_whitelist = "https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
 
-    Determine which whitelist files to use based on cloud provider
+    # Determine which whitelist files to use based on cloud provider
     File gex_whitelist = if cloud_provider == "gcp" then gcp_gex_whitelist else azure_gex_whitelist
     File atac_whitelist = if cloud_provider == "gcp" then gcp_atac_whitelist else azure_atac_whitelist
 
