@@ -7,7 +7,7 @@ slug: /Pipelines/Imputation_Pipeline/README
  
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Imputation_v1.0.0](https://github.com/broadinstitute/warp/releases?q=Imputation_v1.0.0&expanded=true) | August, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [Imputation_v1.1.11](https://github.com/broadinstitute/warp/releases?q=Imputation_v1.0.0&expanded=true) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
  
 ## Introduction to the Imputation pipeline
 The Imputation pipeline imputes missing genotypes from either a multi-sample VCF or an array of single sample VCFs using a large genomic reference panel. It is based on the [Michigan Imputation Server pipeline](https://imputationserver.readthedocs.io/en/latest/pipeline/). Overall, the pipeline filters, phases, and performs imputation on a multi-sample VCF. It outputs the imputed VCF along with key imputation metrics.
@@ -54,7 +54,7 @@ For examples of how to specify each input in a configuration file, as well as cl
 | genetics_maps_eagle | Genetic map file for phasing.| File |
 | output_callset_name | Output callset name. | String |
 | split_output_to_single_sample | Boolean to split out the final combined VCF to individual sample VCFs; set to false by default. | Boolean | 
-| merge_ssvcf_mem_gb | Memory allocation for MergeSingleSampleVcfs (in GB). | Int | 
+| merge_ssvcf_mem_mb | Optional integer specifying memory allocation for MergeSingleSampleVcfs (in MB); default is 3000. | Int | 
 | frac_well_imputed_threshold | Threshold for the fraction of well-imputed sites; default set to 0.9. | Float | 
 | chunks_fail_threshold | Maximum threshold for the number of chunks allowed to fail; default set to 1. | Float | 
 | vcf_suffix | File extension used for the VCF in the reference panel. | String |

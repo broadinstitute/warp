@@ -1,7 +1,18 @@
+# 3.2.0
+2024-02-22 (Date of Last Commit)
+* Updated StarAlign.MergeStarOutput to add a shard number to the metrics files
+* Removed ref_genome_fasta input from Multiome WDL and JSON
+
+# 3.1.3
+2024-02-07 (Date of Last Commit)
+
+* Updated the Metrics tasks to exclude mitochondrial genes from reads_mapped_uniquely, reads_mapped_multiple and reads_mapped_exonic, reads_mapped_exonic_as and reads_mapped_intergenic
+
 # 3.1.2
 2024-02-01 (Date of Last Commit)
 
 * Add new paired-tag task to parse sample barcodes from cell barcodes when preindexing is set to true; this does not affect the Multiome pipeline
+
 
 # 3.1.1 
 2024-01-30 (Date of Last Commit)

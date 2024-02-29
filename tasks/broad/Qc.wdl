@@ -621,7 +621,7 @@ task ValidateVCF {
     Int preemptible_tries = 3
     Boolean is_gvcf = true
     String? extra_args
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int machine_mem_mb = 7000
   }
 
@@ -629,7 +629,7 @@ task ValidateVCF {
   String calling_interval_list_basename = basename(calling_interval_list)
   String calling_interval_list_index_basename = if calling_intervals_is_vcf then basename(select_first([calling_interval_list_index])) else ""
 
-  Int command_mem_mb = machine_mem_mb - 1000
+  Int command_mem_mb = machine_mem_mb - 2000
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
   Int disk_size = ceil(size(input_vcf, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 20
 

@@ -2,13 +2,13 @@
 sidebar_position: 2
 ---
 
-# Whole Genome Germline Single Sample v3.1.17 Methods (Default workflow)
+# Whole Genome Germline Single Sample v3.1.19 Methods (Default workflow)
 
 The following contains a detailed methods description outlining the pipeline’s process, software, and tools that can be modified for a publication methods section.
 
 ## Detailed methods for the default Whole Genome Germline Single Sample workflow
 
-Preprocessing and variant calling was performed using the WholeGenomeGermlineSingleSample v3.1.17 pipeline using Picard v2.26.10, GATK v4.3.0.0, and Samtools v1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline follows GATK Best Practices as previously described ([Van der Auwera & O'Connor, 2020](https://www.oreilly.com/library/view/genomics-in-the/9781491975183/)) as well as the Functional Equivalence specification ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)).
+Preprocessing and variant calling was performed using the WholeGenomeGermlineSingleSample v3.1.19 pipeline using Picard v2.26.10, GATK v4.5.0.0, and Samtools v1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline follows GATK Best Practices as previously described ([Van der Auwera & O'Connor, 2020](https://www.oreilly.com/library/view/genomics-in-the/9781491975183/)) as well as the Functional Equivalence specification ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)).
 
 ### Pre-processing and quality control metrics
 
@@ -34,7 +34,7 @@ The pipeline’s final outputs included metrics, validation reports, an aligned 
 
 ## Detailed methods for the Functional Equivalence mode of the Whole Genome Germline Single Sample workflow
 
-Preprocessing and variant calling was performed using the WholeGenomeGermlineSingleSample v3.1.17 pipeline using v2.26.10, GATK v4.3.0.0, and Samtools v1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline is functionally equivalent (as described in GATK Support: https://gatk.broadinstitute.org/hc/en-us/articles/4410456501915) to DRAGEN v3.4.12. 
+Preprocessing and variant calling was performed using the WholeGenomeGermlineSingleSample v3.1.17 pipeline using v2.26.10, GATK v4.5.0.0, and Samtools v1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline is functionally equivalent (as described in GATK Support: https://gatk.broadinstitute.org/hc/en-us/articles/4410456501915) to DRAGEN v3.4.12. 
 
 ### Pre-processing and quality control metrics
 
