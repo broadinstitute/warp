@@ -25,6 +25,8 @@ The pipeline can be configured to run using one of the following GATK variant fi
 
 The pipeline takes in a sample map file listing GVCF files produced by HaplotypeCaller in GVCF mode and produces a filtered VCF file (with index) containing genotypes for all samples present in the input VCF files. All sites that are present in the input VCF file are retained. Filtered sites are annotated as such in the FILTER field. If you are new to VCF files, see the [file type specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf).
 
+The JointGenotyping pipeline can be adapted to run on Microsoft Azure instead of Google Cloud. For more information, see the [azure-warp-joint-calling GitHub repository](https://github.com/broadinstitute/azure-warp-joint-calling).
+
 ## Set-up
 
 ### JointGenotyping Installation and Requirements
