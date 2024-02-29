@@ -42,7 +42,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "1.1.7"
+  String pipeline_version = "1.1.8"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -51,8 +51,8 @@ workflow ATAC {
 
   # Docker image names
   String warp_tools_2_0_0 = "warp-tools:2.0.0"
-  String cutadapt_docker = "cutadapt:1.0.0-4.4-1686752919"
-  String sam_tools_docker = "samtools-dist-bwa:2.0.0"
+  String cutadapt_docker = "cutadapt:1.0.0-4.4-1709146458"
+  String sam_tools_docker = "samtools-dist-bwa:3.0.0"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
   String snap_atac_docker = "snapatac2:1.0.4-2.3.1"
 
@@ -261,7 +261,7 @@ task TrimAdapters {
     adapter_seq_read1: "cutadapt option for the sequence adapter for read 1 fastq"
     adapter_seq_read3: "cutadapt option for the sequence adapter for read 3 fastq"
     output_base_name: "base name to be used for the output of the task"
-    docker_image: "the docker image using cutadapt to be used (default:us.gcr.io/broad-gotc-prod/cutadapt:1.0.0-4.4-1686752919)"
+    docker_path: "The docker image path containing the runtime environment for this task"
     mem_size: "the size of memory used during trimming adapters"
     disk_size : "disk size used in trimming adapters step"
   }
@@ -328,7 +328,7 @@ task BWAPairedEndAlignment {
     mem_size: "the size of memory used during alignment"
     disk_size : "disk size used in bwa alignment step"
     output_base_name: "basename to be used for the output of the task"
-    docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504)"
+    docker_path: "The docker image path containing the runtime environment for this task"
   }
 
   String bam_aligned_output_name = output_base_name + ".bam"
@@ -472,6 +472,7 @@ task CreateFragmentFile {
     chrom_sizes: "Text file containing chrom_sizes for genome build (i.e. hg38)."
     disk_size: "Disk size used in create fragment file step."
     mem_size: "The size of memory used in create fragment file."
+    docker_path: "The docker image path containing the runtime environment for this task"
   }
 
   command <<<

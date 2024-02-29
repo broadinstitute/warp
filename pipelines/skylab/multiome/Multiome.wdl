@@ -65,6 +65,14 @@ workflow Multiome {
     File gex_whitelist = if cloud_provider == "gcp" then gcp_gex_whitelist else azure_gex_whitelist
     File atac_whitelist = if cloud_provider == "gcp" then gcp_atac_whitelist else azure_atac_whitelist
 
+    # Make sure either 'gcp' or 'azure' is supplied as cloud_provider input. If not, raise an error
+    if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+        call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+            input:
+                message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+        }
+    }
+
     # Call the Optimus workflow
     call optimus.Optimus as Optimus {
         input:
@@ -102,8 +110,7 @@ workflow Multiome {
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
-            adapter_seq_read3 = adapter_seq_read3,
-            ubuntu_docker_path = ubuntu_docker_prefix + ubuntu_docker
+            adapter_seq_read3 = adapter_seq_read3
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
@@ -129,7 +136,6 @@ workflow Multiome {
                 hardware_preemptible_tries = 2,
                 hardware_zones = "us-central1-a us-central1-c",
                 nvidia_driver_version = "470.82.01"
-
         }
     }
 
