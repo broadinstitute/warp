@@ -3,7 +3,7 @@ version 1.0
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/PairedTagUtils.wdl" as AddBB
-"../../../tasks/broad/Utilities.wdl" as utils
+import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow ATAC {
   meta {
