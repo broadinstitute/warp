@@ -26,7 +26,7 @@
     "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_atac_S1_L002_R3_001.fastq.gz"
   ],
   "Multiome.tar_bwa_reference":"gs://broad-gotc-test-storage/Multiome/npetrill/bwa-mem2-2.2.1-Human-GENCODE-build-GRCh38.tar",
-  "Multiome.tar_star_reference":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_star2.7.10a-Human-GENCODE-build-GRCh38-43.tar",
+  "Multiome.tar_star_reference":"gs://broad-gotc-test-storage/Multiome/npetrill/modified_star2.7.10a-Human-GENCODE-build-GRCh38-43.tar",
   "Multiome.chrom_sizes":"gs://broad-gotc-test-storage/Multiome/input/hg38.chrom.sizes",
   "Multiome.Atac.cpu_platform_bwa":"Intel Cascade Lake",
   "Multiome.Atac.num_threads_bwa":"24",
