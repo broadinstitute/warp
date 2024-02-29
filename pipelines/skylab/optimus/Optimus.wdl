@@ -204,7 +204,7 @@ workflow Optimus {
         matrix = STARsoloFastq.matrix_sn_rna,
         cell_reads = STARsoloFastq.cell_reads_sn_rna,
         input_id = input_id,
-        counting_mode = counting_mode,
+        counting_mode = "sc_rna",
         summary = STARsoloFastq.summary_sn_rna,
         align_features = STARsoloFastq.align_features_sn_rna,
         umipercell = STARsoloFastq.umipercell_sn_rna,
