@@ -131,7 +131,7 @@ task Demultiplexing {
     String docker_image = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
     Int disk_size = 1000
     Int mem_size = 10
-    Int preemptible_tries = 3
+    Int preemptible_tries = 0
     Int cpu = 8
   }
 
@@ -244,7 +244,7 @@ task Sort_and_trim_r1_and_r2 {
         Int disk_size = 500
         Int mem_size = 16
         String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
-        Int preemptible_tries = 3
+        Int preemptible_tries = 0
         Int cpu = 4
 
     }
@@ -328,7 +328,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
         Int disk_size = 1000
         Int mem_size = 64
-        Int preemptible_tries = 3
+        Int preemptible_tries = 0
         Int cpu = 48
     }
     command <<<
