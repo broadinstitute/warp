@@ -52,7 +52,7 @@ workflow ATAC {
   # Docker image names
   String warp_tools_2_0_0 = "warp-tools:2.0.0"
   String cutadapt_docker = "cutadapt:1.0.0-4.4-1709146458"
-  String sam_tools_docker = "samtools-dist-bwa:3.0.0"
+  String samtools_docker = "samtools-dist-bwa:3.0.0"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
   String snap_atac_docker = "snapatac2:1.0.4-2.3.1"
 
@@ -114,7 +114,7 @@ workflow ATAC {
         nthreads = num_threads_bwa, 
         mem_size = mem_size_bwa,
         cpu_platform = cpu_platform_bwa,
-        docker_path = docker_prefix + sam_tools_docker
+        docker_path = docker_prefix + samtools_docker
   }
 
   if (preindex) {
