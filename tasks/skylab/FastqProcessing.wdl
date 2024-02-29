@@ -11,7 +11,7 @@ task FastqProcessing {
     String read_struct
 
     #using the latest build of warp-tools in GCR
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.0"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
     #runtime values
     Int machine_mem_mb = 40000
     Int cpu = 16   
@@ -243,8 +243,6 @@ task FastqProcessATAC {
         String output_base_name
         File whitelist
         String barcode_index1 = basename(barcodes_fastq[0])
-
-        # [?] copied from corresponding optimus wdl for fastqprocessing
         String docker_path
 
         # Runtime attributes [?]

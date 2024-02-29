@@ -1,3 +1,14 @@
+# 0.1.0
+2024-02-22 (Date of Last Commit)
+
+* Updated StarAlign output metrics to include shard ids, which is called by Optimus
+* Remove ref_genome_fasta from Optimus input
+
+# 0.0.7
+2024-02-07 (Date of Last Commit)
+
+* Updated the Metrics tasks to exclude mitochondrial genes from reads_mapped_uniquely, reads_mapped_multiple and reads_mapped_exonic, reads_mapped_exonic_as and reads_mapped_intergenic
+
 # 0.0.6
 2024-02-01 (Date of Last Commit)
 
