@@ -62,60 +62,60 @@ workflow snM3C {
                 plate_id = plate_id
         }
 
-        call Separate_and_split_unmapped_reads {
-            input:
-                hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar,
-                min_read_length = min_read_length,
-                plate_id = plate_id,
-        }
+    #     call Separate_and_split_unmapped_reads {
+    #         input:
+    #             hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar,
+    #             min_read_length = min_read_length,
+    #             plate_id = plate_id,
+    #     }
 
-        call hisat_single_end {
-            input:
-                split_fq_tar = Separate_and_split_unmapped_reads.split_fq_tar,
-                tarred_index_files = tarred_index_files,
-                genome_fa = genome_fa,
-                plate_id = plate_id,
-                docker = docker
-        }
+    #     call hisat_single_end {
+    #         input:
+    #             split_fq_tar = Separate_and_split_unmapped_reads.split_fq_tar,
+    #             tarred_index_files = tarred_index_files,
+    #             genome_fa = genome_fa,
+    #             plate_id = plate_id,
+    #             docker = docker
+    #     }
 
-       call merge_sort_analyze {
-            input:
-               paired_end_unique_tar = Separate_and_split_unmapped_reads.unique_bam_tar,
-               read_overlap_tar = hisat_single_end.remove_overlaps_output_bam_tar,     
-               genome_fa = genome_fa, 
-               num_upstr_bases = num_upstr_bases,
-               num_downstr_bases = num_downstr_bases,
-               compress_level = compress_level,
-               chromosome_sizes = chromosome_sizes,
-               plate_id = plate_id,
-               docker = docker
-        }
+    #    call merge_sort_analyze {
+    #         input:
+    #            paired_end_unique_tar = Separate_and_split_unmapped_reads.unique_bam_tar,
+    #            read_overlap_tar = hisat_single_end.remove_overlaps_output_bam_tar,     
+    #            genome_fa = genome_fa, 
+    #            num_upstr_bases = num_upstr_bases,
+    #            num_downstr_bases = num_downstr_bases,
+    #            compress_level = compress_level,
+    #            chromosome_sizes = chromosome_sizes,
+    #            plate_id = plate_id,
+    #            docker = docker
+    #     }
     }
 
-    call summary {
-        input:
-            trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar,
-            hisat3n_stats = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_stats_tar,
-            r1_hisat3n_stats = hisat_single_end.hisat3n_dna_split_reads_summary_R1_tar,
-            r2_hisat3n_stats = hisat_single_end.hisat3n_dna_split_reads_summary_R2_tar,
-            dedup_stats = merge_sort_analyze.dedup_stats_tar,
-            chromatin_contact_stats = merge_sort_analyze.chromatin_contact_stats,
-            allc_uniq_reads_stats = merge_sort_analyze.allc_uniq_reads_stats,
-            unique_reads_cgn_extraction_tbi = merge_sort_analyze.extract_allc_output_tbi_tar,
-            plate_id = plate_id
-    }
+    # call summary {
+    #     input:
+    #         trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar,
+    #         hisat3n_stats = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_stats_tar,
+    #         r1_hisat3n_stats = hisat_single_end.hisat3n_dna_split_reads_summary_R1_tar,
+    #         r2_hisat3n_stats = hisat_single_end.hisat3n_dna_split_reads_summary_R2_tar,
+    #         dedup_stats = merge_sort_analyze.dedup_stats_tar,
+    #         chromatin_contact_stats = merge_sort_analyze.chromatin_contact_stats,
+    #         allc_uniq_reads_stats = merge_sort_analyze.allc_uniq_reads_stats,
+    #         unique_reads_cgn_extraction_tbi = merge_sort_analyze.extract_allc_output_tbi_tar,
+    #         plate_id = plate_id
+    # }
 
     output {
-        File MappingSummary = summary.mapping_summary
-        Array[File] name_sorted_bams = merge_sort_analyze.name_sorted_bam
-        Array[File] unique_reads_cgn_extraction_allc= merge_sort_analyze.allc
-        Array[File] unique_reads_cgn_extraction_tbi = merge_sort_analyze.tbi
+        # File MappingSummary = summary.mapping_summary
+        # Array[File] name_sorted_bams = merge_sort_analyze.name_sorted_bam
+        # Array[File] unique_reads_cgn_extraction_allc= merge_sort_analyze.allc
+        # Array[File] unique_reads_cgn_extraction_tbi = merge_sort_analyze.tbi
         Array[File] reference_version = Hisat_3n_pair_end_mapping_dna_mode.reference_version
-        Array[File] all_reads_dedup_contacts = merge_sort_analyze.all_reads_dedup_contacts
-        Array[File] all_reads_3C_contacts = merge_sort_analyze.all_reads_3C_contacts
-        Array[File] chromatin_contact_stats = merge_sort_analyze.chromatin_contact_stats
-        Array[File] unique_reads_cgn_extraction_allc_extract = merge_sort_analyze.extract_allc_output_allc_tar
-        Array[File] unique_reads_cgn_extraction_tbi_extract = merge_sort_analyze.extract_allc_output_tbi_tar
+        # Array[File] all_reads_dedup_contacts = merge_sort_analyze.all_reads_dedup_contacts
+        # Array[File] all_reads_3C_contacts = merge_sort_analyze.all_reads_3C_contacts
+        # Array[File] chromatin_contact_stats = merge_sort_analyze.chromatin_contact_stats
+        # Array[File] unique_reads_cgn_extraction_allc_extract = merge_sort_analyze.extract_allc_output_allc_tar
+        # Array[File] unique_reads_cgn_extraction_tbi_extract = merge_sort_analyze.extract_allc_output_tbi_tar
 
     }
 }
