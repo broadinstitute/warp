@@ -326,15 +326,15 @@ task PhaseAndImputeBeagle {
     nthreads=~{cpu}
 
     # notes: 
-    # rename output file to "phased_{chrom}" if phasing without imputing
+    # rename output file to "phased_{basename}" if phasing without imputing
     # `chrom` not needed if ref and targ files have been chunked and you are using the entire chunk
     # set impute=false if you wish to phase without imputing ungenotyped markers
 
-    bcftools index -t imputed_~{chrom}.vcf.gz
+    bcftools index -t imputed_~{basename}.vcf.gz
   >>>
   output {
-    File vcf = "imputed_~{chrom}.vcf.gz"
-    File vcf_index = "imputed_~{chrom}.vcf.gz.tbi"
+    File vcf = "imputed_~{basename}.vcf.gz"
+    File vcf_index = "imputed_~{basename}.vcf.gz.tbi"
   }
   runtime {
     docker: beagle_docker
