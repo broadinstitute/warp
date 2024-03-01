@@ -221,8 +221,14 @@ All Slide-seq pipeline releases are documented in the [Slide-seq changelog](http
 
 
 ## Citing the Slide-seq Pipeline
-Please identify the pipeline in your methods section using the Slide-seq Pipeline's [SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_023379/resolver?q=%22Slide-seq%22&l=%22Slide-seq%22&i=rrid:scr_023379).
+
+If you use the Slide-seq Pipeline in your research, please identify the pipeline in your methods section using the [Slide-seq SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_023379/resolver?q=%22Slide-seq%22&l=%22Slide-seq%22&i=rrid:scr_023379).
+
 * Ex: *Slide-seq Pipeline (RRID:SCR_023379)*
+
+Please also consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 
 ## Consortia support

@@ -1,7 +1,13 @@
-# 0.2.0
-2024-02-28 (Date of Last Commit)
+# 0.3.0
+
+2024-03-01 (Date of Last Commit)
 
 * Added the gene expression library-level metrics CSV as output of the Paired-tag pipeline; this is produced by the Optimus subworkflow
+
+# 0.2.0
+2024-02-29 (Date of Last Commit)
+* Added mem and disk to inputs of Join Barcodes task of Multiome workflow; does not impact the Paired-tag workflow
+
 
 # 0.1.0
 2024-02-22 (Date of Last Commit)
