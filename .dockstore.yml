@@ -280,3 +280,8 @@ workflows:
   - name: VUMCVcfExtractRegions
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfExtractRegions.wdl
+
+  - name: VUMCVcfMoveFiles
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfMoveFiles.wdl
+
