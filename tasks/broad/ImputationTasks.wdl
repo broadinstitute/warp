@@ -305,7 +305,7 @@ task PhaseAndImputeBeagle {
     Int start                # not needed if ref file has been chunked and you are using the entire chunk
     Int end                  # not needed if ref file has been chunked and you are using the entire chunk
 
-    String beagle_docker = "us-central1-docker.pkg.dev/morgan-fieldeng-gcp/imputation-beagle-development/imputation-beagle:0.0.1-22Jul22.46e-wip-temp-20240227"
+    String beagle_docker = "us-central1-docker.pkg.dev/morgan-fieldeng-gcp/imputation-beagle-development/imputation-beagle:0.0.1-01Mar24.d36-wip-temp-20240301"
     Int cpu = 8                    # This parameter can be higher or lower
     Int memory_mb = 32000          # value depends on chunk size, the number of samples in ref and target panel, and whether imputation is performed
     Int xmx_mb = 29000             # I suggest setting this parameter to be 85-90% of the memory_mb parameter
@@ -316,7 +316,7 @@ task PhaseAndImputeBeagle {
     set -e -o pipefail
 
     java -ea -Xmx~{xmx_mb}m \
-    -jar /usr/gitc/beagle.22Jul22.46e.jar \
+    -jar /usr/gitc/beagle.01Mar24.d36.jar \
     gt=~{dataset_vcf} \
     ref=~{ref_panel_bref3} \
     map=~{genetic_map_file} \
