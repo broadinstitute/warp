@@ -246,7 +246,6 @@ task Sort_and_trim_r1_and_r2 {
         String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
         Int preemptible_tries = 3
         Int cpu = 4
-
     }
     command <<<
     set -euo pipefail
