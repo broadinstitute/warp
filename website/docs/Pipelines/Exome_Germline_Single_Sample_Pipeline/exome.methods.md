@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Exome Germline Single Sample v3.1.17 Methods
+# Exome Germline Single Sample v3.1.18 Methods
 
 The following contains a detailed methods description outlining the pipeline’s process, software, and tools that can be modified for a publication methods section.
 
