@@ -3,9 +3,7 @@ version 1.0
 workflow snM3C {
 
     input {
-        Array[File] fastq_input_read1
-        Array[File] fastq_input_read2
-        File random_primer_indexes
+
         String plate_id
         # mapping inputs
         File tarred_index_files
