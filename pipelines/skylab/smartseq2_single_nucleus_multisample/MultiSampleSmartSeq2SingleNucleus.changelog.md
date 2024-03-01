@@ -1,4 +1,4 @@
-# 1.3.2
+# 1.3.1
 2024-03-01 (Date of Last Commit)
 
 * Updated the Optimus.wdl to run on Azure. This change does not affect the MultiSampleSmartSeq2SingleNucleus pipeline.
