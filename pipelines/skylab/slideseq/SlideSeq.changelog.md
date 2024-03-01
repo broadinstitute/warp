@@ -1,3 +1,8 @@
+# 3.1.2
+2024-03-01 (Date of Last Commit)
+* Updated the Optimus.wdl to run on Azure. This change does not affect the SlideSeq pipeline.
+
+
 # 3.1.1
 2024-02-29 (Date of Last Commit)
 * Added mem and disk to inputs of Join Barcodes task of Multiome workflow; does not impact the Slideseq workflow
