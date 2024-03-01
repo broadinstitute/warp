@@ -1,3 +1,7 @@
+# 6.4.1
+2024-02-29 (Date of Last Commit)
+* Added mem and disk to inputs of Join Barcodes task of Multiome workflow; does not impact the Optimus workflow
+
 # 6.4.0
 2024-02-21 (Date of Last Commit)
 * Updated StarAlign.MergeStarOutput to add a shard number to the metrics files

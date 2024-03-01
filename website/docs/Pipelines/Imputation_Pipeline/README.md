@@ -7,7 +7,7 @@ slug: /Pipelines/Imputation_Pipeline/README
  
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Imputation_v1.1.11](https://github.com/broadinstitute/warp/releases?q=Imputation_v1.0.0&expanded=true) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [Imputation_v1.1.12](https://github.com/broadinstitute/warp/releases?q=Imputation_v1.0.0&expanded=true) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
  
 ## Introduction to the Imputation pipeline
 The Imputation pipeline imputes missing genotypes from either a multi-sample VCF or an array of single sample VCFs using a large genomic reference panel. It is based on the [Michigan Imputation Server pipeline](https://imputationserver.readthedocs.io/en/latest/pipeline/). Overall, the pipeline filters, phases, and performs imputation on a multi-sample VCF. It outputs the imputed VCF along with key imputation metrics.
@@ -138,6 +138,12 @@ The pipeline is cost-optimized for between 100 and 1,000 samples, where the cost
 | 100 | 0.11 | 
 | 1000 | 0.024 |
 | 13.5 K | 0.025 |
+
+## Citing the Imputation Pipeline
+
+If you use the Imputation Pipeline in your research, please consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
  
 ## Contact us
 
