@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Documentation Style Guide
 
-This guide provides some examples about how to add new documentation that can be properly rendered on this website. Please note most of the Github flavored [Markdown](https://github.github.com/gfm/) syntax should work natrually, this guide just tries to elaboratethe extension syntax to it.
+This guide provides some examples about how to add new documentation that can be properly rendered on this website. Please note most of the Github flavored [Markdown](https://github.github.com/gfm/) syntax should work naturally, this guide just tries to elaborate the extension syntax to it.
 
 ## 1. Insert code blocks
 
@@ -124,7 +124,7 @@ It's worth mentioning that [Tables Generator](https://www.tablesgenerator.com/ma
 
 ## 3. Cross-reference and anchor
 
-To link to another section within the same article, you would use `[Return to ## 1. Insert code blocks](#_1-insert-code-blocks)`: [Return to ## 1. Insert code blocks](#_1-insert-code-blocks).
+To link to another section within the same article, you would use `[Return to ## 1. Insert code blocks](#1-insert-code-blocks)`: [Return to ## 1. Insert code blocks](#1-insert-code-blocks).
 
 To link to sections in other articles, use the following syntax (note the relative paths):
 

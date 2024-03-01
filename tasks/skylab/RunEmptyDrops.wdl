@@ -17,7 +17,7 @@ task RunEmptyDrops {
 
         # runtime values
         String empty_drops_docker_path
-        Int machine_mem_mb = 16000
+        Int machine_mem_mb = 32000
         Int cpu = 1
         Int disk = 20
         Int disk_size = disk + 20

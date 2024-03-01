@@ -13,7 +13,7 @@ task CalculateCellMetrics {
     Int machine_mem_mb = 8000
     Int cpu = 4
     Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
-    Int preemptible = 3
+    Int preemptible = 1
   }
 
   meta {
@@ -81,15 +81,16 @@ task CalculateCellMetrics {
 task CalculateGeneMetrics {
   input {
     File bam_input
+    File original_gtf
     File? mt_genes
     String input_id
     # runtime values
 
     String warp_tools_docker_path
-    Int machine_mem_mb = 8000
+    Int machine_mem_mb = 32000
     Int cpu = 4
-    Int disk = ceil(size(bam_input, "Gi") * 4) 
-    Int preemptible = 3
+    Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
+    Int preemptible = 1
   }
   
 
@@ -108,9 +109,21 @@ task CalculateGeneMetrics {
 
   command {
     set -e
-    mkdir temp
 
+     # create the tmp folder
+    mkdir temp
+    
+    # if GTF file in compressed then uncompress
+    if [[ ~{original_gtf} =~ \.gz$ ]]
+    then
+        gunzip -c ~{original_gtf} > annotation.gtf
+    else
+        mv  ~{original_gtf}  annotation.gtf
+    fi
+
+    # call TagSort with gene as metric type
     TagSort --bam-input ~{bam_input} \
+    --gtf-file annotation.gtf \
     --metric-output "~{input_id}.gene-metrics.csv" \
     --compute-metric \
     --metric-type gene \
@@ -148,10 +161,13 @@ task CalculateGeneMetrics {
 task CalculateUMIsMetrics {
   input {
     File bam_input
+    File original_gtf
     File? mt_genes
     String input_id
+    
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679490798"
+    # Did not update docker image as this task uses loom which does not play nice with the changes
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
     Int machine_mem_mb = 16000
     Int cpu = 8
     Int disk = ceil(size(bam_input, "Gi") * 4)
@@ -177,7 +193,16 @@ task CalculateUMIsMetrics {
     set -e
     mkdir temp
 
+    # if GTF file in compressed then uncompress
+    if [[ ~{original_gtf} =~ \.gz$ ]]
+    then
+        gunzip -c ~{original_gtf} > annotation.gtf
+    else
+        mv  ~{original_gtf}  annotation.gtf
+    fi
+
     TagSort --bam-input ~{bam_input} \
+    --gtf-file annotation.gtf \
     --metric-output "~{input_id}.umi-metrics.csv" \
     --compute-metric \
     --metric-type umi \
@@ -217,7 +242,7 @@ task FastqMetricsSlideSeq {
 
 
     # Runtime attributes
-    String docker =  "us.gcr.io/broad-gotc-prod/warp-tools:1.0.1-1679490798"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
     Int cpu = 16
     Int machine_mb = 40000
     Int disk = ceil(size(r1_fastq, "GiB")*3)  + 50

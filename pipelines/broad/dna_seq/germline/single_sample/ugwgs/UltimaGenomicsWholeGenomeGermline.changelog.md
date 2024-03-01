@@ -1,3 +1,30 @@
+# 1.0.15
+2023-12-18 (Date of Last Commit)
+
+* Updated to GATK version 4.5.0.0.
+
+# 1.0.14
+2023-12-14 (Date of Last Commit)
+
+* Updated GATK for Reblock task to version 4.5.0.0
+* Added options to Reblock task to remove annotations and move filters to genotype level
+
+# 1.0.13
+2023-12-08 (Date of Last Commit)
+
+* ValidateVcfs now has optional memory parameter; this does not affect this pipeline
+
+# 1.0.12
+2023-11-29 (Date of Last Commit)
+
+* ValidateVcfs can now take in VCF as calling_interval_list that is in a separate location from its index; this does not affect this pipeline
+
+# 1.0.11
+2023-11-21 (Date of Last Commit)
+
+* Fixed bug in ReblockGVCFs; this does not affect this pipeline.
+* Reverted the VerifyBamID docker image back to the 1.0.9 UltimaGenomicsWholeGenomeGermline pipeline version
+
 # 1.0.10
 2023-09-18 (Date of Last Commit)
 

@@ -1,12 +1,13 @@
 ---
 sidebar_position: 1
+slug: /Pipelines/Illumina_Genotyping_Arrays_Pipeline/README
 ---
 
 # Illumina Genotyping Array Overview
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Version 1.11.6](https://github.com/broadinstitute/warp/releases) | October, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [Version 1.12.16](https://github.com/broadinstitute/warp/releases) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![The Illumina Genotyping Array Pipeline](./IlluminaGenotyping.png)
 
@@ -120,7 +121,7 @@ The following table provides a summary of the WDL tasks and software tools calle
 | SubsetArrayVCF | [SubsetArrayVCF](https://gatk.broadinstitute.org/hc/en-us/articles/360036362532) | GATK |
 | CollectArraysVariantCallingMetrics | [CollectArraysVariantCallingMetrics](https://gatk.broadinstitute.org/hc/en-us/articles/360037593871) | Picard |
 | SelectVariants | [SelectVariants](https://gatk.broadinstitute.org/hc/en-us/articles/360036362532) | GATK |
-| CheckFingerprint | [CheckFingerprint](https://gatk.broadinstitute.org/hc/en-us/articles/360036358752) | Picard |
+| CheckFingerprintTask | [CheckFingerprint](https://gatk.broadinstitute.org/hc/en-us/articles/360036358752) | Picard |
 | VcfToIntervalList | [VcfToIntervalList](https://gatk.broadinstitute.org/hc/en-us/articles/360036897672) | Picard |
 | GenotypeConcordance | [GenotypeConcordance](https://gatk.broadinstitute.org/hc/en-us/articles/360036348932) | Picard |
 
@@ -175,7 +176,7 @@ DNA fingerprinting helps maintain sample identity and avoid sample swaps. The Il
 
 #### 6. Evaluating an existing fingerprint (optional)
 
-If the genotyping sample already has a corresponding fingerprint VCF file, the workflow can also optionally check the existing fingerprint to confirm sample identity. It uses the CheckFingerPrints task to calculate genotype concordance between the workflow’s genotyping output VCF (final_output_vcf) and the known genotype specified in a fingerprint_genotypes_vcf_file. The workflow returns a boolean for if the sample genotype failed concordance, as well as a Logarithm of Odds (LOD) score for concordance.
+If the genotyping sample already has a corresponding fingerprint VCF file, the workflow can also optionally check the existing fingerprint to confirm sample identity. It uses the CheckFingerprintTask task to calculate genotype concordance between the workflow’s genotyping output VCF (final_output_vcf) and the known genotype specified in a fingerprint_genotypes_vcf_file. The workflow returns a boolean for if the sample genotype failed concordance, as well as a Logarithm of Odds (LOD) score for concordance.
 
 #### 7. Genotype concordance (optional)
 
@@ -235,6 +236,12 @@ All Illumina Genotyping Array workflow releases are documented in the [workflow 
 ## Try the pipeline in Terra
 
 The Illumina Genotyping Array Pipeline is available on the cloud-based platform [Terra](https://app.terra.bio). If you have a Terra account, you can access the Featured Workspace using this address: `https://app.terra.bio/#workspaces/warp-pipelines/Illumina-Genotyping-Array`. The workspace is preloaded with instructions and sample data. For more information on using the Terra platform, please view the [Support Center](https://support.terra.bio/hc/en-us).
+
+## Citing the Illumina Genotyping Array Pipeline
+
+If you use the Illumina Genotyping Array Pipeline in your research, please consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Feedback and questions
 

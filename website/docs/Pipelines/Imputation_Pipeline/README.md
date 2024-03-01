@@ -7,7 +7,7 @@ slug: /Pipelines/Imputation_Pipeline/README
  
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [Imputation_v1.0.0](https://github.com/broadinstitute/warp/releases?q=Imputation_v1.0.0&expanded=true) | August, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [Imputation_v1.1.12](https://github.com/broadinstitute/warp/releases?q=Imputation_v1.0.0&expanded=true) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
  
 ## Introduction to the Imputation pipeline
 The Imputation pipeline imputes missing genotypes from either a multi-sample VCF or an array of single sample VCFs using a large genomic reference panel. It is based on the [Michigan Imputation Server pipeline](https://imputationserver.readthedocs.io/en/latest/pipeline/). Overall, the pipeline filters, phases, and performs imputation on a multi-sample VCF. It outputs the imputed VCF along with key imputation metrics.
@@ -54,7 +54,7 @@ For examples of how to specify each input in a configuration file, as well as cl
 | genetics_maps_eagle | Genetic map file for phasing.| File |
 | output_callset_name | Output callset name. | String |
 | split_output_to_single_sample | Boolean to split out the final combined VCF to individual sample VCFs; set to false by default. | Boolean | 
-| merge_ssvcf_mem_gb | Memory allocation for MergeSingleSampleVcfs (in GB). | Int | 
+| merge_ssvcf_mem_mb | Optional integer specifying memory allocation for MergeSingleSampleVcfs (in MB); default is 3000. | Int | 
 | frac_well_imputed_threshold | Threshold for the fraction of well-imputed sites; default set to 0.9. | Float | 
 | chunks_fail_threshold | Maximum threshold for the number of chunks allowed to fail; default set to 1. | Float | 
 | vcf_suffix | File extension used for the VCF in the reference panel. | String |
@@ -93,7 +93,7 @@ The [Imputation workflow](https://github.com/broadinstitute/warp/blob/develop/pi
 | CountVariantsInChunks | CountVariants | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Counts variants in the filtered VCF file; Returns the number of chunks in the array and in the reference file.  | 
 | CheckChunks | convert, index  | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Confirms that there are no chunks where less than 3 sites or less than 50% of the sites in the array are also in the reference panel; if valid, creates a new VCF output. |
 | PhaseVariantsEagle | eagle | [Eagle2](https://alkesgroup.broadinstitute.org/Eagle/Eagle_manual.html) | Performs phasing on the filtered, validated VCF using the phased reference panel; allows for REF/ALT swaps |
-| Minimac4 | Minimac4 | [minimac4](https://genome.sph.umich.edu/wiki/Minimac4_Documentation), [bcftools]([bcftools](http://samtools.github.io/bcftools/bcftools.html)) | Performs imputation on the prephased VCF; parameterized to include variants that were genotyped but NOT in the reference panel and to specify a minRatio of 0.00001. |
+| Minimac4 | Minimac4 | [minimac4](https://genome.sph.umich.edu/wiki/Minimac4_Documentation), [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Performs imputation on the prephased VCF; parameterized to include variants that were genotyped but NOT in the reference panel and to specify a minRatio of 0.00001. |
 | AggregateImputationQCMetrics | --- | R | Uses an R script to take calculate metrics from minimac4 output info file, including total sites, total sites with variants, and sites with an [R2 metric](https://genome.sph.umich.edu/wiki/Minimac3_Info_File) of 0.3 (total_sites_r2_gt_0.3); adds the metrics to a new TSV output. |
 | UpdateHeader | UpdateVCFSequenceDictionary | [GATK](https://gatk.broadinstitute.org/hc/en-us) | Updates the header of the imputed VCF; adds contig lengths |
 | SeparateMultiallelics | norm | [bcftools](http://samtools.github.io/bcftools/bcftools.html) | Splits multiallelic sites in the imputed VCF into biallelic records. |
@@ -138,6 +138,12 @@ The pipeline is cost-optimized for between 100 and 1,000 samples, where the cost
 | 100 | 0.11 | 
 | 1000 | 0.024 |
 | 13.5 K | 0.025 |
+
+## Citing the Imputation Pipeline
+
+If you use the Imputation Pipeline in your research, please consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
  
 ## Contact us
 

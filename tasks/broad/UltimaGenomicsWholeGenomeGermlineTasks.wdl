@@ -56,7 +56,7 @@ task SplitCram {
     String base_file_name
     Int reads_per_file
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int disk_size_gb = ceil(3 * size(input_cram_bam, "GiB") + 20)
     Int cpu = 1
     Int memory_gb = 10
@@ -269,7 +269,7 @@ task MarkDuplicatesSpark {
     Array[File] input_bams
     String output_bam_basename
     Boolean save_bam_file
-    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int disk_size_gb
     Int cpu = 32
     Int memory_mb = if 4 * ceil(size(input_bams, "MB")) / 4000 > 600000 then 300000 else 208000
@@ -319,7 +319,7 @@ task ExtractSampleNameFlowOrder{
     File input_bam
     References references
     
-    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int disk_size_gb = ceil(size(input_bam, "GB") + size(references.ref_fasta, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 2000
@@ -390,9 +390,8 @@ task CheckContamination {
     References references
     String output_prefix
 
-    # this docker image was built using the commit hash f6cb51761861e57c43879aa262df5cf8e670cf7c (v2.0.1) from the VerifyBamID repo
-    # https://github.com/Griffan/VerifyBamID/commit/f6cb51761861e57c43879aa262df5cf8e670cf7c
-    String docker = "us.gcr.io/broad-gotc-prod/verify-bam-id:1.0.1-f6cb51761861e57c43879aa262df5cf8e670cf7c-1692216226"
+
+    String docker = "us.gcr.io/broad-gotc-prod/verify-bam-id:f6cb51761861e57c43879aa262df5cf8e670cf7c-1606775309"
     Int disk_size_gb = ceil(if ceil((size(input_bam, "GB")) +
                             (size(references.ref_fasta, "GB") +
                             size(references.ref_fasta_index, "GB") +
@@ -481,7 +480,7 @@ task HaplotypeCaller {
     Boolean native_sw = false
     String? contamination_extra_args 
     
-    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int disk_size_gb = ceil((size(input_bam_list, "GB")) + size(references.ref_fasta, "GB") + size(references.ref_fasta_index, "GB") + size(references.ref_dict, "GB") + 60)
     Int cpu = 2
     Int memory_mb = 12000
@@ -592,7 +591,7 @@ task ConvertGVCFtoVCF {
     String output_vcf_name
     References references
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int disk_size_gb = ceil(2 * size(input_gvcf, "GB") + size(references.ref_fasta, "GB") + size(input_gvcf_index, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 12000
@@ -948,7 +947,7 @@ task AnnotateVCF {
     String flow_order
     String final_vcf_base_name
 
-    String docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int disk_size_gb = ceil(2 * size(input_vcf, "GB") + size(references.ref_fasta, "GB") + size(reference_dbsnp, "GB") + 20)
     Int cpu = 1
     Int memory_mb = 15000

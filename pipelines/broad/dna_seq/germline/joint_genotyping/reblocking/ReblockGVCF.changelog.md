@@ -1,3 +1,29 @@
+# 2.1.11
+2023-12-18 (Date of Last Commit)
+
+* Updated to GATK version 4.5.0.0. Header documentation change for RAW_GT_COUNT annotation.
+
+# 2.1.10
+2023-12-14 (Date of Last Commit)
+
+* Updated GATK for Reblock task to version 4.5.0.0
+* Added options to Reblock task to remove annotations and move filters to genotype level
+
+# 2.1.9
+2023-12-08 (Date of Last Commit)
+
+* ValidateVcfs now has optional memory parameter
+
+# 2.1.8
+2023-11-29 (Date of Last Commit)
+
+* ValidateVcfs can now take in VCF as calling_interval_list that is in a separate location from its index
+
+# 2.1.7
+2023-11-21 (Date of Last Commit)
+
+* Fixes bug so now ReblockGVCFs can take in GVCFs that are not in the same location as their index file
+
 # 2.1.6
 2023-09-18 (Date of Last Commit)
 

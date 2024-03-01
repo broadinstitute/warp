@@ -7,7 +7,7 @@ slug: /Pipelines/Ultima_Genomics_Whole_Genome_Germline_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [UltimaGenomicsWholeGenomeGermline_v1.0.0](https://github.com/broadinstitute/warp/releases) | June, 2022 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [the wARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [UltimaGenomicsWholeGenomeGermline_v1.0.15](https://github.com/broadinstitute/warp/releases) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [the wARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![UG_diagram](ug_diagram.png)
 
@@ -19,7 +19,7 @@ The [Ultima Genomics Whole Genome Germline (UG_WGS) workflow](https://github.com
 
 Ultima Genomics sequencing is a novel technology that produces single-read, flow-based data ([Almogy et al., 2022](https://www.biorxiv.org/content/10.1101/2022.05.29.493900v1)). The sequencing platform works by flowing one nucleotide at a time in order, iteratively. This is in contrast to traditional technologies that do all four nucleotides at once. This iterative approach ensures that only one dNTP is responsible for the signal and it does not require the blocking of dNTPs.  
 
-### What does the workflow do? 
+### What does the workflow do?
 
 The workflow requires either an aligned CRAM output of the sequencing platform or an unmapped BAM as input. Overall, it aligns reads to a reference genome, marks duplicate reads, calls variants, post-processes variants in the output VCF in preparation for joint calling, and calculates quality control metrics. The workflow outputs a (re)aligned CRAM, an annotated GVCF with index, and quality metrics. 
 
@@ -201,7 +201,7 @@ The workflow implements initial variant calling with a version of HaplotypeCalle
 | [Utilities.ScatterIntervalList](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/Utilities.wdl) | IntervalListTools | Picard | Splits the calling interval list into sub-intervals in order to perform variant calling on the sub-intervals. |
 | [Tasks.HaplotypeCaller](https://github.com/broadinstitute/warp/blob/develop/tasks/broad/UltimaGenomicsWholeGenomeGermlineTasks.wdl) | HaplotypeCaller | GATK | Performs initial variant calling on the aligned BAM file and outputs sub-interval GVCFs and a bamout file. |
 
-### 6. Merge VCFs and BAMs and convert GVCF to VCF 
+### 6. Merge VCFs and BAMs and convert GVCF to VCF
 The workflow performs multiple post-processing steps to prepare the VCF for downstream joint calling. The HaplotypeCaller GVCF outputs are merged into a single GVCF and then converted to VCF in preparation for this post-processing.
 
 | Task name and WDL link | Tool | Software | Description | 
@@ -272,7 +272,11 @@ The outputs of the UG_WGS workflow are not yet compatible with the WARP [Ultimat
 
 All UG_WGS pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.changelog.md).
 
-<!--- citing the pipeline will go here --->
+## Citing the UG_WGS Pipeline
+
+If you use the UG_WGS Pipeline in your research, please consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Feedback
 

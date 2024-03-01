@@ -32,8 +32,8 @@ workflow Optimus {
     # organism reference parameters
     File tar_star_reference
     File annotations_gtf
-    File ref_genome_fasta
     File? mt_genes
+    String? soloMultiMappers
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
@@ -67,7 +67,7 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "6.1.0"
+  String pipeline_version = "6.4.1"
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -124,7 +124,6 @@ workflow Optimus {
     input_name_metadata_field: "String that describes the metadata field containing the input_name"
     tar_star_reference: "star genome reference"
     annotations_gtf: "gtf containing annotations for gene tagging (must match star reference)"
-    ref_genome_fasta: "genome fasta file (must match star reference)"
     whitelist: "10x genomics cell barcode whitelist"
     tenx_chemistry_version: "10X Genomics v2 (10 bp UMI) or v3 chemistry (12bp UMI)"
     force_no_check: "Set to true to override input checks and allow pipeline to proceed with invalid input"
@@ -177,6 +176,7 @@ workflow Optimus {
         counting_mode = counting_mode,
         count_exons = count_exons,
         output_bam_basename = output_bam_basename + "_" + idx,
+        soloMultiMappers = soloMultiMappers,
         star_docker_path = docker_prefix + star_docker
     }
   }
@@ -192,6 +192,7 @@ workflow Optimus {
       bam_input = MergeBam.output_bam,
       mt_genes = mt_genes,
       input_id = input_id,
+      original_gtf = annotations_gtf,
       warp_tools_docker_path = docker_prefix + warp_tools_docker_1_0_5
   }
 
@@ -291,6 +292,11 @@ workflow Optimus {
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
     File? aligner_metrics = MergeStarOutputs.cell_reads_out
+    Array[File?] multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
+    Array[File?] multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
+    Array[File?] multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
+    Array[File?] multimappers_PropUnique_matrix = STARsoloFastq.multimappers_PropUnique_matrix
+
     # h5ad
     File h5ad_output_file = final_h5ad_output
   }

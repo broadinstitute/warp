@@ -2,9 +2,11 @@ version 1.0
 
 import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
+import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
+import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
 
 workflow Multiome {
-    String pipeline_version = "2.1.0"
+    String pipeline_version = "3.2.1"
 
     input {
         String input_id
@@ -16,7 +18,6 @@ workflow Multiome {
         Array[File]? gex_i1_fastq        
         File tar_star_reference
         File annotations_gtf
-        File ref_genome_fasta
         File? mt_genes
         Int tenx_chemistry_version = 3
         Int emptydrops_lower = 100
@@ -24,21 +25,27 @@ workflow Multiome {
         Boolean ignore_r1_read_length = false
         String star_strand_mode = "Forward"
         Boolean count_exons = false
-        File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt"
+        File gex_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt"
+        String? soloMultiMappers
 
         # ATAC inputs
         # Array of input fastq files
         Array[File] atac_r1_fastq
         Array[File] atac_r2_fastq
         Array[File] atac_r3_fastq
-        # BWA input
+        
+        # BWA tar reference
         File tar_bwa_reference
+        # Chromosone sizes 
         File chrom_sizes
         # Trimadapters input
         String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
         # Whitelist
-        File atac_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_atac.txt"
+        File atac_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt"
+
+        # CellBender
+        Boolean run_cellbender = false
 
     }
 
@@ -53,7 +60,6 @@ workflow Multiome {
             output_bam_basename = input_id + "_gex",
             tar_star_reference = tar_star_reference,
             annotations_gtf = annotations_gtf,
-            ref_genome_fasta = ref_genome_fasta,
             mt_genes = mt_genes,
             tenx_chemistry_version = tenx_chemistry_version,
             whitelist = gex_whitelist,
@@ -62,6 +68,7 @@ workflow Multiome {
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
+            soloMultiMappers = soloMultiMappers
     }
 
     # Call the ATAC workflow
@@ -78,6 +85,33 @@ workflow Multiome {
             adapter_seq_read1 = adapter_seq_read1,
             adapter_seq_read3 = adapter_seq_read3
     }
+    call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
+        input:
+            atac_h5ad = Atac.snap_metrics,
+            gex_h5ad = Optimus.h5ad_output_file,
+            gex_whitelist = gex_whitelist,
+            atac_whitelist = atac_whitelist,
+            atac_fragment = Atac.fragment_file
+    }
+
+    # Call CellBender
+    if (run_cellbender) {
+        call CellBender.run_cellbender_remove_background_gpu as CellBender {
+            input:
+                sample_name = input_id,
+                input_file_unfiltered = Optimus.h5ad_output_file,
+                hardware_boot_disk_size_GB = 20,
+                hardware_cpu_count = 4,
+                hardware_disk_size_GB = 50,
+                hardware_gpu_type = "nvidia-tesla-t4",
+                hardware_memory_GB = 32,
+                hardware_preemptible_tries = 2,
+                hardware_zones = "us-central1-a us-central1-c",
+                nvidia_driver_version = "470.82.01"
+
+        }
+    }
+
     meta {
         allowNestedInputs: true
     }
@@ -88,8 +122,9 @@ workflow Multiome {
 
         # atac outputs
         File bam_aligned_output_atac = Atac.bam_aligned_output
-        File fragment_file_atac = Atac.fragment_file
-        File snap_metrics_atac = Atac.snap_metrics
+        File fragment_file_atac = JoinBarcodes.atac_fragment_tsv
+        File fragment_file_index = JoinBarcodes.atac_fragment_tsv_tbi
+        File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
@@ -100,6 +135,21 @@ workflow Multiome {
         File cell_metrics_gex = Optimus.cell_metrics
         File gene_metrics_gex = Optimus.gene_metrics
         File? cell_calls_gex = Optimus.cell_calls
-        File h5ad_output_file_gex = Optimus.h5ad_output_file
+        File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
+        Array[File?] multimappers_EM_matrix = Optimus.multimappers_EM_matrix
+        Array[File?] multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
+        Array[File?] multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
+        Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
+        File? gex_aligner_metrics = Optimus.aligner_metrics
+
+        # cellbender outputs
+        File? cell_barcodes_csv = CellBender.cell_csv
+        File? checkpoint_file = CellBender.ckpt_file
+        Array[File]? h5_array = CellBender.h5_array
+        Array[File]? html_report_array = CellBender.report_array
+        File? log = CellBender.log
+        Array[File]? metrics_csv_array = CellBender.metrics_array
+        String? output_directory = CellBender.output_dir
+        File? summary_pdf = CellBender.pdf
     }
 }

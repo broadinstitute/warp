@@ -621,19 +621,33 @@ task ValidateVCF {
     Int preemptible_tries = 3
     Boolean is_gvcf = true
     String? extra_args
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    Int machine_mem_mb = 7000
   }
 
+  Boolean calling_intervals_is_vcf = defined(calling_interval_list_index)
+  String calling_interval_list_basename = basename(calling_interval_list)
+  String calling_interval_list_index_basename = if calling_intervals_is_vcf then basename(select_first([calling_interval_list_index])) else ""
+
+  Int command_mem_mb = machine_mem_mb - 2000
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
   Int disk_size = ceil(size(input_vcf, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 20
 
   command {
+    set -e
+    
+    # We can't always assume the index was located with the vcf, so make a link so that the paths look the same
+    ln -s ~{calling_interval_list} ~{calling_interval_list_basename}
+    if [ ~{calling_intervals_is_vcf} == "true" ]; then
+      ln -s ~{calling_interval_list_index} ~{calling_interval_list_index_basename}
+    fi
+    
     # Note that WGS needs a lot of memory to do the -L *.vcf if an interval file is not supplied
-    gatk --java-options "-Xms6000m -Xmx6500m" \
+    gatk --java-options "-Xms~{command_mem_mb}m -Xmx~{command_mem_mb}m" \
       ValidateVariants \
       -V ~{input_vcf} \
       -R ~{ref_fasta} \
-      -L ~{calling_interval_list} \
+      -L ~{calling_interval_list_basename} \
       ~{true="-gvcf" false="" is_gvcf} \
       --validation-type-to-exclude ALLELES \
       ~{"--dbsnp " + dbsnp_vcf} \
@@ -642,7 +656,7 @@ task ValidateVCF {
   runtime {
     docker: gatk_docker
     preemptible: preemptible_tries
-    memory: "7000 MiB"
+    memory: machine_mem_mb + " MiB"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
   }

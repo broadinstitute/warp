@@ -20,7 +20,7 @@ task CompareVcfs {
 
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 50 HDD"
+    disks: "local-disk 70 HDD"
     memory: "32 GiB"
     preemptible: 3
   }
@@ -104,6 +104,31 @@ task CompareGtcs {
     memory: "5000 MiB"
     preemptible: 3
   }
+}
+
+task CompareTabix {
+  input {
+    File test_fragment_file
+    File truth_fragment_file
+  }
+  command <<<
+    exit_code=0
+    a=$(md5sum "~{test_fragment_file}" | awk '{ print $1 }')
+    b=$(md5sum ~{truth_fragment_file} | awk '{ print $1 }')
+    if [[ $a = $b ]]; then
+      echo equal 
+    else 
+      echo different
+      exit_code=1
+    fi
+    exit $exit_code
+  >>>
+  runtime {
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
+    disks: "local-disk 100 HDD"
+    memory: "50 GiB"
+    preemptible: 3
+  }   
 }
 
 task CompareTextFiles {
@@ -217,7 +242,7 @@ task CompareBams {
 
   Float bam_size = size(test_bam, "GiB") + size(truth_bam, "GiB")
   Int disk_size = ceil(bam_size * 4) + 200
-  Int memory_mb = 500000
+  Int memory_mb = 600000
   Int java_memory_size = memory_mb - 1000
   Int max_heap = memory_mb - 500
 
@@ -225,13 +250,40 @@ task CompareBams {
     set -e
     set -o pipefail
 
-    java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
-    CompareSAMs \
-          ~{test_bam} \
-          ~{truth_bam} \
-          O=comparison.tsv \
-          LENIENT_HEADER=~{lenient_header} \
-          LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq}
+    truth_bam=~{truth_bam}
+    test_bam=~{test_bam}
+
+    # Get the sizes of the BAM files in bytes
+    truth_size=$(stat -c %s ~{truth_bam})
+    test_size=$(stat -c %s ~{test_bam})
+
+    # Convert sizes to megabytes
+    truth_size_mb=$((truth_size / (1024 * 1024)))
+    test_size_mb=$((test_size / (1024 * 1024)))
+
+    # Calculate the difference in megabytes
+    size_difference_mb=$((truth_size_mb - test_size_mb))
+
+    # Calculate the absolute value of the difference:
+    # First, check if the difference is negative. If negative, make it positive. If the differnce is positive, leave it as is.
+    abs_size_difference_mb=$((size_difference_mb < 0 ? -size_difference_mb : size_difference_mb))
+
+    # Compare the sizes and fail fast if the difference is greater than 200 MB
+    if [ "$abs_size_difference_mb" -gt 200 ]; then
+        echo "Skipping CompareSAMs as BAM file sizes differ by more than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Exiting."
+        exit 1
+    else
+        echo "WARNING: BAM file sizes differ by more than 0 MB but less than 200 MB. $truth_bam is $truth_size_mb MB and $test_bam is $test_size_mb MB. Proceeding to CompareSAMs:"
+
+        java -Xms~{java_memory_size}m -Xmx~{max_heap}m -jar /usr/picard/picard.jar \
+        CompareSAMs \
+            ~{test_bam} \
+            ~{truth_bam} \
+            O=comparison.tsv \
+            LENIENT_HEADER=~{lenient_header} \
+            LENIENT_LOW_MQ_ALIGNMENT=~{lenient_low_mq} \
+            MAX_RECORDS_IN_RAM=300000
+    fi
   }
 
   runtime {
@@ -254,13 +306,13 @@ task CompareCompressedTextFiles {
   Int disk_size = ceil(file_size * 4) + 20
 
   command {
-    diff <(gunzip -c -f ~{test_zip}) <(gunzip -c -f ~{truth_zip})
+    diff <(gunzip -c ~{test_zip} | sort) <(gunzip -c ~{truth_zip} | sort)
   }
 
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
     disks: "local-disk " + disk_size + " HDD"
-    memory: "3.5 GiB"
+    memory: "20 GiB"
     preemptible: 3
   }
 

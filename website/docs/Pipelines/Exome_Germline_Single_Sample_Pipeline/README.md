@@ -7,7 +7,7 @@ slug: /Pipelines/Exome_Germline_Single_Sample_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [ExomeGermlineSingleSample_v3.0.0](https://github.com/broadinstitute/warp/releases?q=ExomeGermlineSingleSample_v3.0.0&expanded=true) | November, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [ExomeGermlineSingleSample_v3.1.18](https://github.com/broadinstitute/warp/releases?q=ExomeGermlineSingleSample_v3.0.0&expanded=true) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 
 The Exome Germline Single Sample pipeline implements data pre-processing and initial variant calling according to the GATK Best Practices for germline SNP and Indel discovery in human exome sequencing data.
@@ -27,8 +27,8 @@ The Exome Germline Single Sample workflow is written in the Workflow Description
 
 ### Software Version Requirements
 
-* [GATK 4.1.8.0](https://github.com/broadinstitute/gatk/releases/tag/4.1.8.0)
-* Picard 2.23.8
+* [GATK 4.5.0.0](https://github.com/broadinstitute/gatk/releases/tag/4.5.0.0)
+* Picard 2.26.10
 * Samtools 1.11
 * Python 3.0
 * Cromwell version support
@@ -130,13 +130,19 @@ view the following tutorial [(How to) Execute Workflows from the gatk-workflows 
 - Please visit the [GATK Technical Documentation](https://gatk.broadinstitute.org/hc/en-us/categories/360002310591) site for further documentation on our workflows and tools.
 - You can access relevant reference and resource bundles in the [GATK Resource Bundle](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811).
 
+## Citing the Exome Germline Single Sample Pipeline
+
+If you use the Exome Germline Single Sample Pipeline in your research, please consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
+
 ## Contact Us
 
 This material is provided by the Data Science Platform group at the Broad Institute. Please direct any questions or concerns to one of our forum sites : [GATK](https://gatk.broadinstitute.org/hc/en-us/community/topics) or [Terra](https://support.terra.bio/hc/en-us/community/topics/360000500432).
 
 ## Licensing
 
-Copyright Broad Institute, 2020 | BSD-3
+Copyright Broad Institute, 2023 | BSD-3
 
 The workflow script is released under the **WDL open source code license (BSD-3)** (full license text at https://github.com/broadinstitute/warp/blob/master/LICENSE). However, please note that the programs it calls may be subject to different licenses. Users are responsible for checking that they are authorized to run all programs before running this script.
 
