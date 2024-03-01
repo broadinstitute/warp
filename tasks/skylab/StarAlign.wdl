@@ -480,7 +480,7 @@ task MergeStarOutput {
     String input_id
 
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.2-1709218388"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.2-1709308985"
     Int machine_mem_gb = 20
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
