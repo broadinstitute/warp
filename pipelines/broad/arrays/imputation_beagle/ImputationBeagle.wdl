@@ -351,7 +351,7 @@ workflow ImputationBeagle {
     Array[File]? imputed_single_sample_vcfs = SplitMultiSampleVcf.single_sample_vcfs
     Array[File]? imputed_single_sample_vcf_indices = SplitMultiSampleVcf.single_sample_vcf_indices
     File imputed_multisample_vcf = GatherVcfs.output_vcf
-    # File imputed_multisample_vcf_index = GatherVcfs.output_vcf_index
+    File imputed_multisample_vcf_index = select_first([GatherVcfs.output_vcf_index])
     # File aggregated_imputation_metrics = MergeImputationQCMetrics.aggregated_metrics
     File chunks_info = StoreChunksInfo.chunks_info
     File failed_chunks = StoreChunksInfo.failed_chunks
