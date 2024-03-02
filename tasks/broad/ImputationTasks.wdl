@@ -381,7 +381,7 @@ task GatherVcfs {
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
-    # File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
+    File? output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
   }
 }
 
