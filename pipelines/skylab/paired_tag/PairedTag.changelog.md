@@ -1,3 +1,13 @@
+# 0.2.0
+2024-02-29 (Date of Last Commit)
+* Added mem and disk to inputs of Join Barcodes task of Multiome workflow; does not impact the Paired-tag workflow
+
+# 0.1.0
+2024-02-22 (Date of Last Commit)
+
+* Updated StarAlign output metrics to include shard ids, which is called by Optimus
+* Remove ref_genome_fasta from Optimus input
+
 # 0.0.7
 2024-02-07 (Date of Last Commit)
 

@@ -16,7 +16,6 @@
   "Multiome.atac_r3_fastq":[
     "gs://broad-gotc-test-storage/Multiome/input/plumbing/fastq_R3_atac.fastq.gz"
   ],
-  "Multiome.ref_genome_fasta":"gs://gcp-public-data--broad-references/hg38/v0/GRCh38.primary_assembly.genome.fa",
   "Multiome.tar_bwa_reference":"gs://gcp-public-data--broad-references/hg38/v0/bwa/v2_2_1/bwa-mem2-2.2.1-Human-GENCODE-build-GRCh38.tar",
   "Multiome.tar_star_reference":"gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_star2.7.10a-Human-GENCODE-build-GRCh38-43.tar",
   "Multiome.chrom_sizes":"gs://broad-gotc-test-storage/Multiome/input/hg38.chrom.sizes",

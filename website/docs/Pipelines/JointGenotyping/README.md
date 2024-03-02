@@ -25,6 +25,8 @@ The pipeline can be configured to run using one of the following GATK variant fi
 
 The pipeline takes in a sample map file listing GVCF files produced by HaplotypeCaller in GVCF mode and produces a filtered VCF file (with index) containing genotypes for all samples present in the input VCF files. All sites that are present in the input VCF file are retained. Filtered sites are annotated as such in the FILTER field. If you are new to VCF files, see the [file type specification](https://samtools.github.io/hts-specs/VCFv4.2.pdf).
 
+The JointGenotyping pipeline can be adapted to run on Microsoft Azure instead of Google Cloud. For more information, see the [azure-warp-joint-calling GitHub repository](https://github.com/broadinstitute/azure-warp-joint-calling).
+
 ## Set-up
 
 ### JointGenotyping Installation and Requirements
@@ -235,6 +237,12 @@ The following table lists the output variables and files produced by the pipelin
 ## Versioning and testing
 
 All JointGenotyping pipeline releases are documented in the [JointGenotyping changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/joint_genotyping/JointGenotyping.changelog.md) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/dna_seq/germline/joint_genotyping/test_data_overview.md). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
+
+## Citing the JointGenotyping Pipeline
+
+If you use the JointGenotyping Pipeline in your research, please consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Feedback
 

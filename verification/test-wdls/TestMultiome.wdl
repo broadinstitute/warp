@@ -18,7 +18,6 @@ workflow TestMultiome {
       Array[File]? gex_i1_fastq
       File tar_star_reference
       File annotations_gtf
-      File ref_genome_fasta
       File? mt_genes
       Int tenx_chemistry_version = 3
       Int emptydrops_lower = 100
@@ -69,7 +68,6 @@ workflow TestMultiome {
         input_id = input_id,
         tar_star_reference = tar_star_reference,
         annotations_gtf = annotations_gtf,
-        ref_genome_fasta = ref_genome_fasta,
         mt_genes = mt_genes,
         tenx_chemistry_version = tenx_chemistry_version,
         emptydrops_lower = emptydrops_lower,

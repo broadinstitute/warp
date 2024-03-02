@@ -5,7 +5,7 @@ import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "../../../tasks/skylab/PairedTagUtils.wdl" as Demultiplexing
 workflow PairedTag {
-    String pipeline_version = "0.0.7"
+    String pipeline_version = "0.2.0"
 
     input {
         String input_id
@@ -17,7 +17,6 @@ workflow PairedTag {
         Array[File]? gex_i1_fastq        
         File tar_star_reference
         File annotations_gtf
-        File ref_genome_fasta
         File? mt_genes
         Int tenx_chemistry_version = 3
         Int emptydrops_lower = 100
@@ -55,7 +54,6 @@ workflow PairedTag {
             output_bam_basename = input_id + "_gex",
             tar_star_reference = tar_star_reference,
             annotations_gtf = annotations_gtf,
-            ref_genome_fasta = ref_genome_fasta,
             mt_genes = mt_genes,
             tenx_chemistry_version = tenx_chemistry_version,
             whitelist = gex_whitelist,
