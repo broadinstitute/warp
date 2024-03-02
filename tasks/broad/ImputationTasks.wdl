@@ -335,6 +335,7 @@ task PhaseAndImputeBeagle {
   output {
     File vcf = "imputed_~{basename}.vcf.gz"
     File vcf_index = "imputed_~{basename}.vcf.gz.tbi"
+    File log = "imputed_~{basename}.log"
   }
   runtime {
     docker: beagle_docker
@@ -366,8 +367,10 @@ task GatherVcfs {
     --REORDER_INPUT_BY_FIRST_VARIANT \
     -O ~{output_vcf_basename}.vcf.gz
 
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
-    IndexFeatureFile -I ~{output_vcf_basename}.vcf.gz
+    # gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    # IndexFeatureFile -I ~{output_vcf_basename}.vcf.gz
+
+    ls
 
   >>>
   runtime {
@@ -378,7 +381,7 @@ task GatherVcfs {
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
-    File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
+    # File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
   }
 }
 
