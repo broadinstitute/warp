@@ -288,3 +288,7 @@ workflows:
   - name: VUMCVcfNumVariants
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfNumVariants.wdl
+
+  - name: VUMCHailMatrixInfo
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCHailMatrixInfo.wdl
