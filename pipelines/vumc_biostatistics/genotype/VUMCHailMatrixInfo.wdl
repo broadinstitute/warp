@@ -44,7 +44,7 @@ python3 <<CODE
 
 import hail as hl
 
-if [ "~{project_id}" -eq "" ]
+if [ "~{project_id}" = "" ];
 then
   hl.init(spark_conf={
     "spark.driver.memory": "~{memory_gb}g",
