@@ -86,9 +86,8 @@ workflow Optimus {
   String pytools_docker = "pytools:1.0.0-1661263730"
   String empty_drops_docker = "empty-drops:1.0.1-4.2"
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
-  String warp_tools_docker_1_0_1 = "warp-tools:1.0.1-1686932671"
-  String warp_tools_docker_1_0_5 = "warp-tools:1.0.5-1692706846"
-  String warp_tools_docker_1_0_6 ="warp-tools:1.0.6-1692962087"
+  String warp_tools_docker_2_0_1 = "warp-tools:2.0.1"
+  String warp_tools_docker_2_0_2 = "warp-tools:2.0.2-1709308985"
   #TODO how do we handle these?
   String alpine_docker = "alpine-bash:latest"
   String gcp_alpine_docker_prefix = "bashell/"
@@ -161,7 +160,7 @@ workflow Optimus {
       chemistry = tenx_chemistry_version,
       sample_id = input_id,
       read_struct = read_struct,
-      warp_tools_docker_path = docker_prefix + warp_tools_docker_1_0_1
+      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
@@ -193,7 +192,7 @@ workflow Optimus {
       mt_genes = mt_genes,
       input_id = input_id,
       original_gtf = annotations_gtf,
-      warp_tools_docker_path = docker_prefix + warp_tools_docker_1_0_5
+      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
   }
 
   call Metrics.CalculateCellMetrics as CellMetrics {
@@ -202,7 +201,7 @@ workflow Optimus {
       mt_genes = mt_genes,
       original_gtf = annotations_gtf,
       input_id = input_id,
-      warp_tools_docker_path = docker_prefix + warp_tools_docker_1_0_6
+      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
   }
 
   call StarAlign.MergeStarOutput as MergeStarOutputs {
@@ -215,7 +214,7 @@ workflow Optimus {
       align_features = STARsoloFastq.align_features,
       umipercell = STARsoloFastq.umipercell,
       input_id = input_id,
-      pytools_docker_path = docker_prefix + pytools_docker
+      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_2
   }
   if (counting_mode == "sc_rna"){
     call RunEmptyDrops.RunEmptyDrops {
@@ -244,7 +243,7 @@ workflow Optimus {
         empty_drops_result = RunEmptyDrops.empty_drops_result,
         counting_mode = counting_mode,
         pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker_1_0_6
+        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
     }
   }
   if (count_exons  && counting_mode=="sn_rna") {
@@ -255,7 +254,7 @@ workflow Optimus {
         matrix = STARsoloFastq.matrix_sn_rna,
         cell_reads = STARsoloFastq.cell_reads_sn_rna,
         input_id = input_id,
-        pytools_docker_path = docker_prefix + pytools_docker
+        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_2
     }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:
@@ -273,7 +272,7 @@ workflow Optimus {
         cell_id_exon = MergeStarOutputsExons.row_index,
         gene_id_exon = MergeStarOutputsExons.col_index,
         pipeline_version = "Optimus_v~{pipeline_version}",
-        warp_tools_docker_path = docker_prefix + warp_tools_docker_1_0_6
+        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
     }
   }
 
