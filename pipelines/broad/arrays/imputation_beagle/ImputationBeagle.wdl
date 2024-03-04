@@ -173,8 +173,8 @@ workflow ImputationBeagle {
             chrom = referencePanelContig.contig,
             basename = chunk_basename,
             genetic_map_file = referencePanelContig.genetic_map,
-            start = startWithOverlaps,
-            end = endWithOverlaps
+            start = start, # was startWithOverlaps, same with end
+            end = end
         }
 
         call tasks.UpdateHeader {
@@ -302,7 +302,7 @@ workflow ImputationBeagle {
   call tasks.GatherVcfs {
     input:
       input_vcfs = unsorted_vcfs,
-      output_vcf_basename = output_callset_name
+      output_vcf_basename = output_callset_name + ".imputed"
   }
 
 #   call tasks.MergeImputationQCMetrics {
