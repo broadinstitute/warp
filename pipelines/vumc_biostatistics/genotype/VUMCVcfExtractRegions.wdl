@@ -37,12 +37,16 @@ workflow VUMCVcfExtractRegions {
     }
   }
 
+  File final_vcf = select_first([BcftoolsExtractRegions.output_vcf, BcftoolsExtractRegionsGcp.output_vcf])
+  Float final_vcf_size = size(final_vcf)
+
   output {
-    File output_vcf = select_first([BcftoolsExtractRegions.output_vcf, BcftoolsExtractRegionsGcp.output_vcf])
+    File output_vcf = final_vcf
     File output_vcf_index = select_first([BcftoolsExtractRegions.output_vcf_index, BcftoolsExtractRegionsGcp.output_vcf_index])
     File output_vcf_sample = select_first([BcftoolsExtractRegions.output_vcf_sample, BcftoolsExtractRegionsGcp.output_vcf_sample])
     Int output_vcf_num_samples = select_first([BcftoolsExtractRegions.output_vcf_num_samples, BcftoolsExtractRegionsGcp.output_vcf_num_samples])
     Int output_vcf_num_variants = select_first([BcftoolsExtractRegions.output_vcf_num_variants, BcftoolsExtractRegionsGcp.output_vcf_num_variants])
+    Float output_vcf_size = final_vcf_size
   }
 }
 
