@@ -1,25 +1,36 @@
 version 1.0
 
+import "./Utils.wdl" as Utils
+
 workflow VUMCHailMatrixInfo {
   input {
-    String prefix
     String input_hail_mt_path
 
     String reference_genome = "GRCh38"
 
     String? project_id
+    String? target_gcp_folder
   }
 
   call HailMatrixInfo {
     input:
-      prefix = prefix,
       input_hail_mt_path = input_hail_mt_path,
       reference_genome = reference_genome,
       project_id = project_id,
   }
 
+  if(defined(target_gcp_folder)){
+    call Utils.MoveOrCopyOneFile as CopyFile {
+      input:
+        source_file = HailMatrixInfo.sample_file,
+        is_move_file = false,
+        project_id = project_id,
+        target_gcp_folder = select_first([target_gcp_folder])
+    }
+  }
+
   output {
-    String sample_file = HailMatrixInfo.sample_file
+    String sample_file = select_first([CopyFile.output_file, HailMatrixInfo.sample_file])
     Int num_samples = HailMatrixInfo.num_samples
     Int num_variants = HailMatrixInfo.num_variants
   }
@@ -27,7 +38,6 @@ workflow VUMCHailMatrixInfo {
 
 task HailMatrixInfo {
   input {
-    String prefix
     String input_hail_mt_path
     String reference_genome
     String? project_id
@@ -37,7 +47,8 @@ task HailMatrixInfo {
     Int preemptible = 1
   }
 
-  String output_sample_file = "${prefix}.hail.samples"
+  String hail_dir = sub(input_hail_mt_path, "/+$", "")
+  String output_sample_file = basename(hail_dir) + ".samples.txt"
 
   command <<<
 
