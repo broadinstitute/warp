@@ -42,17 +42,17 @@ workflow VUMCPlink2FilterRegion {
     }
   }
 
-  File final_bed = select_first([CopyFile.output_bed, Plink2FilterRegion.output_bed])
-  File final_bim = select_first([CopyFile.output_bim, Plink2FilterRegion.output_bim])
-  File final_fam = select_first([CopyFile.output_fam, Plink2FilterRegion.output_fam])
+  String final_bed = select_first([CopyFile.output_bed, Plink2FilterRegion.output_bed])
+  String final_bim = select_first([CopyFile.output_bim, Plink2FilterRegion.output_bim])
+  String final_fam = select_first([CopyFile.output_fam, Plink2FilterRegion.output_fam])
   Float final_bed_size = size(final_bed)
   Float final_bim_size = size(final_bim)
   Float final_fam_size = size(final_fam)
 
   output {
-    File output_bed = select_first([CopyFile.output_bed, Plink2FilterRegion.output_bed])
-    File output_bim = select_first([CopyFile.output_bim, Plink2FilterRegion.output_bim])
-    File output_fam = select_first([CopyFile.output_fam, Plink2FilterRegion.output_fam])
+    String output_bed = final_bed
+    String output_bim = final_bim
+    String output_fam = final_fam
     Float output_bed_size = final_bed_size
     Float output_bim_size = final_bim_size
     Float output_fam_size = final_fam_size
