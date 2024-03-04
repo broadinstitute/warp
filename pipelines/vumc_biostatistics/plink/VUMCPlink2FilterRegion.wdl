@@ -56,6 +56,7 @@ workflow VUMCPlink2FilterRegion {
     Float output_bed_size = final_bed_size
     Float output_bim_size = final_bim_size
     Float output_fam_size = final_fam_size
+    Int output_num_variants = Plink2FilterRegion.num_variants
   }
 }
 
@@ -88,6 +89,8 @@ plink2 \
   --extract bed0 ~{region_bed} \
   --make-bed --out ~{target_prefix}
 
+wc -l ~{new_bim} | cut -d ' ' -f 1 > num_variants.txt
+
 >>>
 
   runtime {
@@ -100,5 +103,7 @@ plink2 \
     File output_bed = new_bed
     File output_bim = new_bim
     File output_fam = new_fam
+
+    Int num_variants = read_int("num_variants.txt")
   }
 }
