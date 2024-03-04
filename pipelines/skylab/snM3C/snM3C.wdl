@@ -23,6 +23,7 @@ workflow snM3C {
         Int num_downstr_bases = 2
         Int compress_level = 5
         Int batch_number
+
     }
 
     # version of the pipeline
