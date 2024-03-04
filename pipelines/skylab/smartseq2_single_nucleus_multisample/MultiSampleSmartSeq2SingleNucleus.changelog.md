@@ -1,3 +1,8 @@
+# 1.3.1
+2024-02-28 (Date of Last Commit)
+
+* Updated the Optimus workflow to produce a library-level metrics CSV; this does not impact the Single-nucleus Multi Sample Smart-seq2 pipeline
+
 # 1.3.0
 2024-01-22 (Date of Last Commit)
 
