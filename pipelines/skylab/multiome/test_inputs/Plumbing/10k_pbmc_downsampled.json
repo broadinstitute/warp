@@ -23,5 +23,6 @@
   "Multiome.Atac.cpu_platform_bwa":"Intel Cascade Lake",
   "Multiome.Atac.num_threads_bwa":"16",
   "Multiome.Atac.mem_size_bwa":"64", 
-  "Multiome.soloMultiMappers":"Uniform"
+  "Multiome.soloMultiMappers":"Uniform",
+  "Multiome.cloud_provider":"gcp"
 }

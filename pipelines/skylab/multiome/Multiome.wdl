@@ -10,6 +10,7 @@ workflow Multiome {
 
     input {
         String input_id
+        String cloud_provider
 
         # Optimus Inputs
         String counting_mode = "sn_rna"
@@ -68,7 +69,8 @@ workflow Multiome {
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
-            soloMultiMappers = soloMultiMappers
+            soloMultiMappers = soloMultiMappers,
+            cloud_provider = cloud_provider
     }
 
     # Call the ATAC workflow
