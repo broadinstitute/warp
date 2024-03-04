@@ -367,11 +367,8 @@ task GatherVcfs {
     --REORDER_INPUT_BY_FIRST_VARIANT \
     -O ~{output_vcf_basename}.vcf.gz
 
-    # gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
-    # IndexFeatureFile -I ~{output_vcf_basename}.vcf.gz
-
-    ls
-
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    IndexFeatureFile -I ~{output_vcf_basename}.vcf.gz
   >>>
   runtime {
     docker: gatk_docker
@@ -381,7 +378,7 @@ task GatherVcfs {
   }
   output {
     File output_vcf = "~{output_vcf_basename}.vcf.gz"
-    File? output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
+    File output_vcf_index = "~{output_vcf_basename}.vcf.gz.tbi"
   }
 }
 
