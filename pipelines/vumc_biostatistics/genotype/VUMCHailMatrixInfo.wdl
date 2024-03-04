@@ -37,7 +37,7 @@ task HailMatrixInfo {
     Int preemptible = 1
   }
 
-  String output_sample_file = "${prefix}.samples"
+  String output_sample_file = "${prefix}.hail.samples"
 
   command <<<
 
