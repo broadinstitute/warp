@@ -106,7 +106,7 @@ CODE
     memory: "~{memory_gb} GiB"
   }
   output {
-    String sample_file = "~{output_sample_file}"
+    File sample_file = "~{output_sample_file}"
     Int num_samples = read_int("num_samples.txt")
     Int num_variants = read_int("num_variants.txt")
   }
