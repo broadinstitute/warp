@@ -7,7 +7,7 @@ slug: /Pipelines/Optimus_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v6.4.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2024 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [optimus_v6.5.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2024 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 
 ![Optimus_diagram](Optimus_diagram.png)
@@ -255,6 +255,7 @@ The following table lists the output files produced from the pipeline. For sampl
 | cell_metrics | `<input_id>.cell-metrics.csv.gz` | Matrix of metrics by cells. | Compressed CSV |
 | gene_metrics | `<input_id>.gene-metrics.csv.gz` |  Matrix of metrics by genes. | Compressed CSV |
 | aligner_metrics | `<input_id>.star_metrics.tar` | Tarred metrics files produced by the STARsolo aligner; contains align features, cell reads, summary, and UMI per cell metrics files. | TXT |
+| library_metrics | `<input_id>_library_metrics.csv` | Optional CSV file containing all library-level metrics calculated with STARsolo for gene expression data. | CSV |
 | multimappers_EM_matrix | `UniqueAndMult-EM.mtx` | Optional output produced when `soloMultiMappers` is "EM"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information. | MTX |
 | multimappers_Uniform_matrix | `UniqueAndMult-Uniform.mtx` | Optional output produced when `soloMultiMappers` is "Uniform"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information. | MTX |
 | multimappers_Rescue_matrix | `UniqueAndMult-Rescue.mtx` | Optional output produced when `soloMultiMappers` is "Rescue"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information. | MTX |
@@ -284,10 +285,15 @@ Optimus has been validated for processing both human and mouse single-cell and s
 
 All Optimus pipeline releases are documented in the [Optimus changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.changelog.md).
 
+## Citing the Optimus Pipeline
 
-## Citing the Optimus pipeline
-Please identify the pipeline in your methods section using the Optimus Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_018908/resolver?q=SCR_018908&l=SCR_018908).
+If you use the Optimus Pipeline in your research, please identify the pipeline in your methods section using the [Optimus SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_018908/resolver?q=SCR_018908&l=SCR_018908&i=rrid:scr_018908).
+
 * Ex: *Optimus Pipeline (RRID:SCR_018908)*
+
+Please also consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Consortia support
 This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project and the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 

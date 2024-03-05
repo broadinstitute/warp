@@ -17,4 +17,10 @@ Read more about our pipelines and repository on the [WARP documentation site](ht
 
 To contribute to WARP, please read the [contribution guidelines](https://broadinstitute.github.io/warp/docs/contribution/README).
 
+### Citing WARP
+
+When citing WARP, please use the following:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
+
 [![Build Status](https://img.shields.io/github/workflow/status/broadinstitute/warp/Deploy%20WARP%20Website?label=Website&logo=github&style=flat-square)](https://github.com/broadinstitute/warp/actions?query=workflow%3A%22Deploy+WARP+Website%22)
