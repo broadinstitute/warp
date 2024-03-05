@@ -490,7 +490,7 @@ task MergeStarOutput {
   }
 
   parameter_meta {
-    pytools_docker_path: "(optional) the docker image containing the runtime environment for this task"
+    warp_tools_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_gb: "(optional) the amount of memory (GiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
