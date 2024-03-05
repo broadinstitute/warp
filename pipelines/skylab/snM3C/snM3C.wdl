@@ -24,6 +24,8 @@ workflow snM3C {
         Int compress_level = 5
         Int batch_number
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String single_end_hisat_cpu_platform
+        String merge_sort_analyze_cpu_platform
     }
 
     # version of the pipeline
@@ -529,7 +531,7 @@ task hisat_single_end {
         File tarred_index_files
         String plate_id
 
-        String cpu_platform = "Intel Cascade Lake"
+        String single_end_hisat_cpu_platform
         Int disk_size = 1000 
         Int mem_size = 128  
         Int cpu = 32
@@ -699,7 +701,7 @@ task hisat_single_end {
         disks: "local-disk ${disk_size} SSD"
         cpu: cpu
         memory: "${mem_size} GiB"
-        cpuPlatform: cpu_platform
+        cpuPlatform: single_end_hisat_cpu_platform
         preemptible: preemptible_tries
     }
 
@@ -725,7 +727,7 @@ task merge_sort_analyze {
         Int compress_level
         File chromosome_sizes
 
-        String cpu_platform = "Intel Ice Lake"
+        String merge_sort_analyze_cpu_platform
         String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.0.0-2.2.1-1708565445"
         Int disk_size = 1000
         Int mem_size = 64
@@ -903,7 +905,7 @@ task merge_sort_analyze {
         disks: "local-disk ${disk_size} SSD"
         cpu: cpu
         memory: "${mem_size} GiB"
-        cpuPlatform: cpu_platform
+        cpuPlatform: merge_sort_analyze_cpu_platform
         preemptible: preemptible_tries
     }
     
