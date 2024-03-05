@@ -479,7 +479,7 @@ task MergeStarOutput {
     String input_id
 
     #runtime values
-    String pytools_docker_path
+    String warp_tools_docker_path
     Int machine_mem_gb = 20
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
@@ -580,7 +580,7 @@ task MergeStarOutput {
   >>>
 
   runtime {
-    docker: pytools_docker_path
+    docker: warp_tools_docker_path
     memory: "${machine_mem_gb} GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
