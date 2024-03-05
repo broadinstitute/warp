@@ -24,8 +24,8 @@ workflow snM3C {
         Int compress_level = 5
         Int batch_number
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        String single_end_hisat_cpu_platform
-        String merge_sort_analyze_cpu_platform
+        String single_end_hisat_cpu_platform = "Intel Ice Lake"
+        String merge_sort_analyze_cpu_platform = "Intel Ice Lake"
     }
 
     # version of the pipeline
@@ -77,7 +77,8 @@ workflow snM3C {
                 tarred_index_files = tarred_index_files,
                 genome_fa = genome_fa,
                 plate_id = plate_id,
-                docker = docker
+                docker = docker,
+                single_end_hisat_cpu_platform = single_end_hisat_cpu_platform
         }
 
        call merge_sort_analyze {
@@ -90,7 +91,8 @@ workflow snM3C {
                compress_level = compress_level,
                chromosome_sizes = chromosome_sizes,
                plate_id = plate_id,
-               docker = docker
+               docker = docker,
+               merge_sort_analyze_cpu_platform = merge_sort_analyze_cpu_platform
         }
     }
 
