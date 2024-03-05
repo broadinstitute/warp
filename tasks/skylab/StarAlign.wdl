@@ -475,7 +475,8 @@ task MergeStarOutput {
     Array[File]? summary
     Array[File]? align_features
     Array[File]? umipercell
-    
+    String? counting_mode
+
     String input_id
 
     #runtime values
@@ -564,15 +565,18 @@ task MergeStarOutput {
       fi
     done
     
-    # If text files are present, create a tar archive with them
+    # If text files are present, create a tar archive with them and run python script to combine shard metrics
     if ls *.txt 1> /dev/null 2>&1; then
+      echo "listing files"
+      ls
+      python3 /warptools/scripts/combine_shard_metrics.py ~{input_id}_summary.txt ~{input_id}_align_features.txt ~{input_id}_cell_reads.txt ~{counting_mode} ~{input_id}
       tar -zcvf ~{input_id}.star_metrics.tar *.txt
     else
       echo "No text files found in the folder."
     fi
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
-    python3 /usr/gitc/create-merged-npz-output.py \
+    python3 /warptools/scripts/create-merged-npz-output.py \
         --barcodes ${barcodes_files[@]} \
         --features ${features_files[@]} \
         --matrix ${matrix_files[@]} \
@@ -593,6 +597,7 @@ task MergeStarOutput {
     File col_index = "~{input_id}_sparse_counts_col_index.npy"
     File sparse_counts = "~{input_id}_sparse_counts.npz"
     File? cell_reads_out = "~{input_id}.star_metrics.tar"
+    File? library_metrics="~{input_id}_library_metrics.csv"
   }
 }
 
