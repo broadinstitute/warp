@@ -6,7 +6,7 @@ task OptimusH5adGeneration {
 
   input {
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
+    String warp_tools_docker_path
     # name of the sample
     String input_id
     # user provided id
@@ -88,7 +88,7 @@ task OptimusH5adGeneration {
   >>>
 
   runtime {
-    docker: docker
+    docker: warp_tools_docker_path
     cpu: cpu  # note that only 1 thread is supported by pseudobam
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
@@ -105,7 +105,7 @@ task SingleNucleusOptimusH5adOutput {
 
     input {
         #runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
+        String warp_tools_docker_path
         # name of the sample
         String input_id
         # user provided id
@@ -170,7 +170,7 @@ task SingleNucleusOptimusH5adOutput {
     }
 
     runtime {
-        docker: docker
+        docker: warp_tools_docker_path
         cpu: cpu  # note that only 1 thread is supported by pseudobam
         memory: "~{machine_mem_mb} MiB"
         disks: "local-disk ~{disk} HDD"
