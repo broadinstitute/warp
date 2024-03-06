@@ -64,7 +64,9 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "6.4.1"
+
+  String pipeline_version = "6.5.0"
+
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -165,7 +167,8 @@ workflow Optimus {
       summary = STARsoloFastq.summary,
       align_features = STARsoloFastq.align_features,
       umipercell = STARsoloFastq.umipercell,
-      input_id = input_id
+      input_id = input_id,
+      counting_mode = counting_mode
   }
   if (counting_mode == "sc_rna"){
     call RunEmptyDrops.RunEmptyDrops {
@@ -202,7 +205,12 @@ workflow Optimus {
         features = STARsoloFastq.features_sn_rna,
         matrix = STARsoloFastq.matrix_sn_rna,
         cell_reads = STARsoloFastq.cell_reads_sn_rna,
-        input_id = input_id
+        input_id = input_id,
+        counting_mode = "sc_rna",
+        summary = STARsoloFastq.summary_sn_rna,
+        align_features = STARsoloFastq.align_features_sn_rna,
+        umipercell = STARsoloFastq.umipercell_sn_rna,
+        input_id = input_id     
     }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:
@@ -238,10 +246,12 @@ workflow Optimus {
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
     File? aligner_metrics = MergeStarOutputs.cell_reads_out
+    File? library_metrics = MergeStarOutputs.library_metrics
     Array[File?] multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
     Array[File?] multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
     Array[File?] multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
     Array[File?] multimappers_PropUnique_matrix = STARsoloFastq.multimappers_PropUnique_matrix
+    
 
     # h5ad
     File h5ad_output_file = final_h5ad_output
