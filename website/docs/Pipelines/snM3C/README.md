@@ -6,7 +6,7 @@ slug: /Pipelines/snM3C/README
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [snM3C_v2.0.1](https://github.com/broadinstitute/warp/releases) | February, 2024 | [Kaylee Mathews](mailto:warp-pipelines-help@broadinsitute.org) | Please file GitHub issues in the [WARP repository](https://github.com/broadinstitute/warp/issues) |
+| [snM3C_v3.0.0](https://github.com/broadinstitute/warp/releases) | March, 2024 | [Kaylee Mathews](mailto:warp-pipelines-help@broadinsitute.org) | Please file GitHub issues in the [WARP repository](https://github.com/broadinstitute/warp/issues) |
 
 
 ## Introduction to snM3C
@@ -78,10 +78,8 @@ Overall, the snM3C workflow:
 2. Aligns paired-end reads.
 3. Separates unmapped, uniquely aligned, multi-aligned reads and splits unmapped reads by enzyme cut site.
 4. Aligns unmapped, single-end reads and removes overlapping reads.
-5. Merges mapped reads from single- and paired-end alignments and removes duplicate reads.
-6. Calls chromatin contacts.
-7. Creates ALLC files.
-8. Creates summary output file.
+5. Merges mapped reads, calls chromatin contacts, and creates ALLC files.
+6. Creates summary output file.
 
 The tools each snM3C task employs are detailed in the table below. 
 
@@ -93,11 +91,10 @@ To see specific tool parameters, select the [workflow WDL link](https://github.c
 | Sort_and_trim_r1_and_r2 | Cutadapt | [Cutadapt](https://cutadapt.readthedocs.io/en/stable/) | Sorts, filters, and trims reads using the `r1_adapter`, `r2_adapter`, `r1_left_cut`, `r1_right_cut`, `r2_left_cut`, and `r2_right_cut` input parameters. |
 | Hisat_3n_pair_end_mapping_dna_mode | HISAT-3N | [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/) | Performs paired-end read alignment. |
 | Separate_and_split_unmapped_reads | [hisat3n_general.py](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/hisat3n_general.py), [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py) | python3 | Imports 2 custom python3 scripts developed by Hanqing Liu and calls the `separate_unique_and_multi_align_reads()` and `split_hisat3n_unmapped_reads()` functions to separate unmapped, uniquely aligned, multi-aligned reads from HISAT-3N BAM file, then splits the unmapped reads FASTQ file by all possible enzyme cut sites and output new R1 and R2 FASTQ files; unmapped reads are stored in unmapped FASTQ files and uniquely and multi-aligned reads are stored in separate BAM files. |
-| Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap | HISAT-3N, [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py) | [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/), python3 | Performs single-end alignment of unmapped reads to maximize read mapping, imports a custom python3 script developed by Hanqing Liu, and calls the `remove_overlap_read_parts()` function to remove overlapping reads from the split alignment BAM file produced during single-end alignment. |
-| merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate | merge, sort, MarkDuplicates | [samtools](https://www.htslib.org/), [Picard](https://broadinstitute.github.io/picard/) | Merges and sorts all mapped reads from the paired-end and single-end alignments; creates a position-sorted BAM file and a name-sorted BAM file; removes duplicate reads from the position-sorted, merged BAM file. |
-| call_chromatin_contacts | [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py) | python3 | Imports a custom python3 script developed by Hanqing Liu and calls the `call_chromatin_contacts()` function to call chromatin contacts from the name-sorted, merged BAM file; reads are considered chromatin contacts if they are greater than 2,500 base pairs apart. |
-| unique_reads_allc_and_cgn_extraction | bam-to-allc, extract-allc | [ALLCools](https://lhqing.github.io/ALLCools/intro.html) | Creates a first ALLC file with a list of methylation points and a second ALLC file containing methylation contexts. |
+| hisat_single_end | HISAT-3N, [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py) | [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/), python3 | Performs single-end alignment of unmapped reads to maximize read mapping, imports a custom python3 script developed by Hanqing Liu, and calls the `remove_overlap_read_parts()` function to remove overlapping reads from the split alignment BAM file produced during single-end alignment. |
+| merge_sort_analyze | merge, sort, MarkDuplicates, [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py), bam-to-allc, extract-allc | [samtools](https://www.htslib.org/), [Picard](https://broadinstitute.github.io/picard/), python3, [ALLCools](https://lhqing.github.io/ALLCools/intro.html) | Merges and sorts all mapped reads from the paired-end and single-end alignments; creates a position-sorted BAM file and a name-sorted BAM file; removes duplicate reads from the position-sorted, merged BAM file; imports a custom python3 script developed by Hanqing Liu and calls the `call_chromatin_contacts()` function to call chromatin contacts from the name-sorted, merged BAM file; reads are considered chromatin contacts if they are greater than 2,500 base pairs apart; creates a first ALLC file with a list of methylation points and a second ALLC file containing methylation contexts. |
 | summary | [summary.py](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/summary.py) | python3 | Imports a custom python3 script developed by Hanqing Liu and calls the `snm3c_summary()` function to generate a single, summary file for the pipeline in TSV format; contains trimming, mapping, deduplication, chromatin contact, and AllC site statistics. |
+
 
 #### 1. Demultiplexes, sorts, and trims reads
 In the first step of the pipeline (`Demultiplexing`), raw sequencing reads are demultiplexed by random primer index into cell-level FASTQ files using [Cutadapt](https://cutadapt.readthedocs.io/en/stable/). For more information on barcoding, see the [YAP documentation](https://hq-1.gitbook.io/mc/tech-background/barcoding#two-round-of-barcoding). 
@@ -118,24 +115,26 @@ After paired-end alignment, the pipeline calls the `Separate_and_split_unmapped_
 After separating reads, the task imports a custom python3 script ([hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py)) developed by Hanqing Liu and calls the script's `split_hisat3n_unmapped_reads()` function. This splits the FASTQ file containing the unmapped reads by all possible enzyme cut sites and outputs new R1 and R2 files. 
 
 #### 4. Aligns unmapped, single-end reads and removes overlapping reads
-In the next step of the pipeline, the `Hisat_single_end_r1_r2_mapping_dna_mode_and_merge_sort_split_reads_by_name_and_remove_overlap ` task uses [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/) to perform single-end read alignment of the previously unmapped reads to maximize read mapping and outputs a single, aligned BAM file.
+In the next step of the pipeline, the `hisat_single_end ` task uses [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/) to perform single-end read alignment of the previously unmapped reads to maximize read mapping and outputs a single, aligned BAM file.
 
 After the second alignment step, the task imports a custom python3 script ([hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py)) developed by Hanqing Liu. The task calls the script's `remove_overlap_read_parts()` function to remove overlapping reads from the BAM file produced during single-end alignment and output another BAM file.
 
-#### 5. Merges mapped reads from single- and paired-end alignments and removes duplicate reads
-The `merge_original_and_split_bam_and_sort_all_reads_by_name_and_position_and_deduplicate` task uses [samtools](https://www.htslib.org/) to merge and sort all of the mapped reads from the paired-end and single-end alignments into a single BAM file. The BAM file is output as both a position-sorted and a name-sorted BAM file.
+#### 5. Merges mapped reads, calls chromatin contacts, and creates ALLC files
 
-After calling chromatin contacts, the task uses Picard's MarkDuplicates tool to remove duplicate reads from the position-sorted, merged BAM file and output a deduplicated BAM file.
+**Merged mapped reads**
+The `merge_sort_analyze` task uses [samtools](https://www.htslib.org/) to merge and sort all of the mapped reads from the paired-end and single-end alignments into a single BAM file. The BAM file is output as both a position-sorted and a name-sorted BAM file.
 
-#### 6. Calls chromatin contacts
-In the `call_chromatin_contacts` task, the pipeline imports a custom python3 script ([hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py)) developed by Hanqing Liu. The task calls the script's `call_chromatin_contacts()` function to call chromatin contacts from the name-sorted, merged BAM file. If reads are greater than 2,500 base pairs apart, they are considered chromatin contacts. If reads are less than 2,500 base pairs apart, they are considered the same fragment. 
+After merging, the task uses Picard's MarkDuplicates tool to remove duplicate reads from the position-sorted, merged BAM file and output a deduplicated BAM file.
 
-#### 7. Creates ALLC files
-The `unique_reads_allc_and_cgn_extraction` task uses the [ALLCools](https://lhqing.github.io/ALLCools/intro.html) `bam-to-allc` function to create an ALLC file from the deduplicated BAM file that contains a list of methylation points. The `num_upstr_bases` and `num_downstr_bases` input parameters are used to define the number of bases upstream and downstream of the C base to include in the ALLC context column.
+**Calls chromatin contacts**
+Next, the pipeline imports a custom python3 script ([hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py)) developed by Hanqing Liu. The task calls the script's `call_chromatin_contacts()` function to call chromatin contacts from the name-sorted, merged BAM file. If reads are greater than 2,500 base pairs apart, they are considered chromatin contacts. If reads are less than 2,500 base pairs apart, they are considered the same fragment. 
 
-Next, the task uses the [ALLCools](https://lhqing.github.io/ALLCools/intro.html) `extract-allc` function to extract methylation contexts from the input ALLC file and output a second ALLC file that can be used to generate an [MCDS file](https://github.com/lhqing/allcools_doc/blob/master/tech-background/file-formats.md#mcds-file). 
+**Creates ALLC files**
+After calling chromatin contacts, the task uses the [ALLCools](https://lhqing.github.io/ALLCools/intro.html) `bam-to-allc` function to create an ALLC file from the deduplicated BAM file that contains a list of methylation points. The `num_upstr_bases` and `num_downstr_bases` input parameters are used to define the number of bases upstream and downstream of the C base to include in the ALLC context column.
 
-#### 8. Creates summary output file
+Next, the task uses the [ALLCools](https://lhqing.github.io/ALLCools/intro.html) `extract-allc` function to extract methylation contexts from the input ALLC file and output a second ALLC file that can be used to generate an [MCDS file](https://github.com/lhqing/allcools_doc/blob/master/tech-background/file-formats.md#mcds-file).
+
+#### 6. Creates summary output file
 In the last step of the pipeline, the `summary` task imports a custom python3 script ([summary.py](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/summary.py)) developed by Hanqing Liu. The task calls the script's `snm3c_summary()` function to generate a single, summary file for the pipeline in TSV format; contains trimming, mapping, deduplication, chromatin contact, and AllC site statistics. This is the main output of the pipeline.
 
 ## Outputs
@@ -148,12 +147,12 @@ The following table lists the output variables and files produced by the pipelin
 | name_sorted_bams | `<plate_id>.hisat3n_dna.all_reads.name_sort.tar.gz` | Array of tarred files containing name-sorted, merged BAM files. |
 | unique_reads_cgn_extraction_allc | `<plate_id>.allc.tsv.tar.gz` | Array of tarred files containing list of methylation points. |
 | unique_reads_cgn_extraction_tbi | `<plate_id>.allc.tbi.tar.gz` | Array of tarred files containing ALLC index files. |
-| unique_reads_cgn_extraction_allc_extract | `<plate_id>.extract-allc.tar.gz` | Array of tarred files containing CGN context-specific ALLC files that can be used to generate an [MCDS file](https://github.com/lhqing/allcools_doc/blob/master/tech-background/file-formats.md#mcds-file). |
-| unique_reads_cgn_extraction_tbi_extract | `<plate_id>.extract-allc_tbi.tar.gz` | Array of tarred files containing ALLC index files. |
 | reference_version | `<plate_id>.reference_version.txt` | Array of tarred files containing the genomic reference version used. |
-| chromatin_contact_stats | `<plate_id>.chromatin_contact_stats.tar.gz` | Array of tarred files containing chromatin contact statistics. |
 | all_reads_dedup_contacts | `<plate_id>.hisat3n_dna.all_reads.dedup_contacts.tar.gz` | Array of tarred TSV files containing deduplicated chromatin contacts. |
 | all_reads_3C_contacts | `<plate_id>.hisat3n_dna.all_reads.3C.contact.tar.gz` | Array of tarred TSV files containing chromatin contacts in Hi-C format. |
+| chromatin_contact_stats | `<plate_id>.chromatin_contact_stats.tar.gz` | Array of tarred files containing chromatin contact statistics. |
+| unique_reads_cgn_extraction_allc_extract | `<plate_id>.extract-allc.tar.gz` | Array of tarred files containing CGN context-specific ALLC files that can be used to generate an [MCDS file](https://github.com/lhqing/allcools_doc/blob/master/tech-background/file-formats.md#mcds-file). |
+| unique_reads_cgn_extraction_tbi_extract | `<plate_id>.extract-allc_tbi.tar.gz` | Array of tarred files containing ALLC index files. |
 
 
 ## Versioning
