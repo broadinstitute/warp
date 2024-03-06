@@ -55,7 +55,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         Int disk_size = 1000
         Int mem_size = 64
         Int preemptible_tries = 0
-        Int cpu = 64
+        Int cpu = 48
     }
     command <<<
         set -euo pipefail
@@ -105,7 +105,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
             -t \
             --new-summary \
             --summary-file ${sample_id}.hisat3n_dna_summary.txt \
-            --threads 8 | samtools view -@12 -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
+            --threads 8 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
         }
 
         for file in "${R1_files[@]}"; do
@@ -115,7 +115,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
             sleep $(( (RANDOM % 3) + 1))
         ) &
 
-          if [[ $(jobs -r -p | wc -l) -ge 4 ]]; then
+          if [[ $(jobs -r -p | wc -l) -ge 5 ]]; then
             wait -n
           fi
         done
