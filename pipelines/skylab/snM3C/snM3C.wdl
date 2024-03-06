@@ -56,7 +56,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         Int mem_size = 64
         Int preemptible_tries = 0
         Int cpu = 48
-        String cpu_platform = "Intel Ice Lake"
+        #String cpu_platform = "Intel Ice Lake"
     }
     command <<<
         set -euo pipefail
@@ -70,8 +70,8 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         # untar the index files
         echo "Untarring the index files"
         date
-        pigz -dc ~{tarred_index_files} | tar -xf -
-        #tar -zxvf ~{tarred_index_files}
+        #pigz -dc ~{tarred_index_files} | tar -xf -
+        tar -zxvf ~{tarred_index_files}
         rm ~{tarred_index_files}
         echo "Done Untarring the index files"
         date
@@ -86,8 +86,10 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         # untar the demultiplexed fastq files
         echo "Untarring the fastq files"
         date
-        pigz -dc ~{r1_trimmed_tar} | tar -xf -
-        pigz -dc ~{r2_trimmed_tar} | tar -xf -
+        tar -zxvf ~{r1_trimmed_tar}
+        tar -zxvf ~{r2_trimmed_tar}
+        #pigz -dc ~{r1_trimmed_tar} | tar -xf -
+        #pigz -dc ~{r2_trimmed_tar} | tar -xf -
         rm ~{r1_trimmed_tar}
         rm ~{r2_trimmed_tar}
         echo "Done Untarring the fastq files"
@@ -137,10 +139,10 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         echo "tarring up the outputs"
         date
         # tar up the bam files and stats files
-        tar -cf - *.bam | pigz > ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz
-        tar -cf - *.hisat3n_dna_summary.txt | pigz > ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz
-        #tar -zcvf ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz *.bam
-        #tar -zcvf ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
+        #tar -cf - *.bam | pigz > ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz
+        #tar -cf - *.hisat3n_dna_summary.txt | pigz > ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz
+        tar -zcvf ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz *.bam
+        tar -zcvf ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
         echo "done tarring up the outputs"
         date
 
@@ -151,7 +153,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         cpu: cpu
         memory: "${mem_size} GiB"
         preemptible: preemptible_tries
-        cpu_platform: cpu_platform
+        #cpu_platform: cpu_platform
     }
     output {
         File hisat3n_paired_end_bam_tar = "~{plate_id}.hisat3n_paired_end_bam_files.tar.gz"
