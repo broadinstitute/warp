@@ -162,7 +162,11 @@ All snM3C pipeline releases are documented in the [pipeline changelog](https://g
 
 ## Citing the snM3C Pipeline
 
-If you use the snM3C Pipeline in your research, please consider citing our preprint:
+If you use the snM3C Pipeline in your research, please identify the pipeline in your methods section using the [snM3C SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_025041/resolver?q=SCR_025041&l=SCR_025041&i=rrid:scr_025041).
+
+* Ex: *snM3C Pipeline (RRID:SCR_025041)*
+
+Please also consider citing our preprint:
 
 Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
