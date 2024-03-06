@@ -68,8 +68,12 @@ task Hisat_3n_pair_end_mapping_dna_mode{
 
         # untar the index files
         echo "Untarring the index files"
-        tar -zxvf ~{tarred_index_files}
+        date
+        pigz -dc ~{tarred_index_files} | tar -xf -
+        #tar -zxvf ~{tarred_index_files}
         rm ~{tarred_index_files}
+        echo "Done Untarring the index files"
+        date
 
         cp ~{genome_fa} .
 
@@ -80,10 +84,14 @@ task Hisat_3n_pair_end_mapping_dna_mode{
 
         # untar the demultiplexed fastq files
         echo "Untarring the fastq files"
-        tar -zxvf ~{r1_trimmed_tar}
-        tar -zxvf ~{r2_trimmed_tar}
+        date
+        pigz -dc ~{r1_trimmed_tar} | tar -xf -
+        pigz -dc ~{r2_trimmed_tar} | tar -xf -
         rm ~{r1_trimmed_tar}
         rm ~{r2_trimmed_tar}
+        echo "Done Untarring the fastq files"
+        date
+
 
         # define lists of r1 and r2 fq files
         R1_files=($(ls | grep "\-R1_trimmed.fq.gz"))
@@ -115,7 +123,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
             sleep $(( (RANDOM % 3) + 1))
         ) &
 
-          if [[ $(jobs -r -p | wc -l) -ge 5 ]]; then
+          if [[ $(jobs -r -p | wc -l) -ge 4 ]]; then
             wait -n
           fi
         done
@@ -126,9 +134,14 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         echo "done hisat"
 
         echo "tarring up the outputs"
+        date
         # tar up the bam files and stats files
-        tar -zcvf ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz *.bam
-        tar -zcvf ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
+        tar -cf - *.bam | pigz > ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz
+        tar -cf - *.hisat3n_dna_summary.txt | pigz > ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz
+        #tar -zcvf ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz *.bam
+        #tar -zcvf ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
+        echo "done tarring up the outputs"
+        date
 
     >>>
     runtime {
