@@ -56,7 +56,7 @@ workflow Optimus {
     # Set to Forward, Reverse, or Unstranded to account for stranded library preparations (per STARsolo documentation)
     String star_strand_mode = "Forward"
 
-    # Set to true to count reads aligned to exonic regions in sn_rna mode
+# Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
@@ -190,8 +190,8 @@ workflow Optimus {
     input:
       bam_input = MergeBam.output_bam,
       mt_genes = mt_genes,
-      input_id = input_id,
       original_gtf = annotations_gtf,
+      input_id = input_id,
       warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_1
   }
 
@@ -214,6 +214,7 @@ workflow Optimus {
       align_features = STARsoloFastq.align_features,
       umipercell = STARsoloFastq.umipercell,
       input_id = input_id,
+      counting_mode = counting_mode,
       warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_2
   }
   if (counting_mode == "sc_rna"){
@@ -254,6 +255,11 @@ workflow Optimus {
         matrix = STARsoloFastq.matrix_sn_rna,
         cell_reads = STARsoloFastq.cell_reads_sn_rna,
         input_id = input_id,
+        counting_mode = "sc_rna",
+        summary = STARsoloFastq.summary_sn_rna,
+        align_features = STARsoloFastq.align_features_sn_rna,
+        umipercell = STARsoloFastq.umipercell_sn_rna,
+        input_id = input_id,
         warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_2
     }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
@@ -291,10 +297,12 @@ workflow Optimus {
     File gene_metrics = GeneMetrics.gene_metrics
     File? cell_calls = RunEmptyDrops.empty_drops_result
     File? aligner_metrics = MergeStarOutputs.cell_reads_out
+    File? library_metrics = MergeStarOutputs.library_metrics
     Array[File?] multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
     Array[File?] multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
     Array[File?] multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
     Array[File?] multimappers_PropUnique_matrix = STARsoloFastq.multimappers_PropUnique_matrix
+
 
     # h5ad
     File h5ad_output_file = final_h5ad_output
