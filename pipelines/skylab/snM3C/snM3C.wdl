@@ -56,7 +56,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         Int mem_size = 64
         Int preemptible_tries = 0
         Int cpu = 48
-        String cpu_platform = "Intel Ice Lake"
+        #String cpu_platform = "Intel Ice Lake"
     }
     command <<<
         set -euo pipefail
@@ -153,7 +153,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         cpu: cpu
         memory: "${mem_size} GiB"
         preemptible: preemptible_tries
-        cpu_platform: cpu_platform
+        #cpu_platform: cpu_platform
     }
     output {
         File hisat3n_paired_end_bam_tar = "~{plate_id}.hisat3n_paired_end_bam_files.tar.gz"
