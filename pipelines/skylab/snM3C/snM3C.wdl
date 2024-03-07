@@ -222,11 +222,10 @@ task all_tasks{
         Int compress_level
 
         # run time variables
-        Int disk_size 
-        Int cpu
-        Int mem_size
-        String cpu_platform
-        File monitoring = "gs://broad-gotc-test-storage/cromwell_monitoring_script.sh"
+        Int disk_size = 2000
+        Int cpu = 64
+        Int mem_size = 128
+        String cpu_platform = "Intel Ice Lake"
         String docker
     }
 
