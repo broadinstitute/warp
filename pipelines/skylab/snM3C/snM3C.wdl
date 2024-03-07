@@ -121,7 +121,7 @@ task Demultiplexing {
     String docker_image = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
     Int disk_size = 1000
     Int mem_size = 10
-    Int preemptible_tries = 3
+    Int preemptible_tries = 2
     Int cpu = 8
   }
 
