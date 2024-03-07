@@ -305,7 +305,7 @@ task STARsoloFastq {
         --clipAdapterType CellRanger4 \
         --outFilterScoreMin 30  \
         --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
-        --soloUMIdedup 1MM_Directional_UMItools \
+        --soloUMIdedup 1MM_CR \
         --soloUMIfiltering MultiGeneUMI_CR \
         --outSAMtype BAM SortedByCoordinate \
         --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
@@ -332,7 +332,7 @@ task STARsoloFastq {
             --clipAdapterType CellRanger4 \
             --outFilterScoreMin 30  \
             --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
-            --soloUMIdedup 1MM_Directional_UMItools \
+            --soloUMIdedup 1MM_CR \
             --soloUMIfiltering MultiGeneUMI_CR \
             --outSAMtype BAM SortedByCoordinate \
             --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
@@ -355,7 +355,7 @@ task STARsoloFastq {
             --clipAdapterType CellRanger4 \
             --outFilterScoreMin 30  \
             --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
-            --soloUMIdedup 1MM_Directional_UMItools \
+            --soloUMIdedup 1MM_CR \
             --soloUMIfiltering MultiGeneUMI_CR \
             --outSAMtype BAM SortedByCoordinate \
             --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
