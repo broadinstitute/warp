@@ -651,7 +651,6 @@ task all_tasks{
         File allc_uniq_reads_stats = "~{plate_id}.allc.count.tar.gz"
         File extract_allc_output_tbi_tar = "~{plate_id}.extract-allc_tbi.tar.gz"
         File extract_allc_output_allc_tar  = "~{plate_id}.extract-allc.tar.gz"
-        # reference version
         File reference_version = "~{plate_id}.reference_version.txt"    
     }
 
