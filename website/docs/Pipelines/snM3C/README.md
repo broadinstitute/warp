@@ -13,7 +13,9 @@ slug: /Pipelines/snM3C/README
 
 The Single Nucleus Methly-Seq and Chromatin Capture (snM3C) workflow is an open-source, cloud-optimized computational workflow for processing single-nucleus methylome and chromatin contact (snM3C) sequencing data. The workflow is designed to demultiplex and align raw sequencing reads, call chromatin contacts, and generate summary metrics. 
 
-The workflow is developed in collaboration with Hanqing Liu and the laboratory of Joseph Ecker. For more information about the snM3C tools and analysis, please see the [YAP documentation](https://hq-1.gitbook.io/mc/) or the [cemba_data](https://github.com/lhqing/cemba_data) GitHub repository created by Hanqing Liu.
+The workflow is developed in collaboration with Hanqing Liu, Wei Tian, Wubin Ding, Huaming Chen, Chongyuan Luo, and the entire laboratory of Joseph Ecker. 
+
+For more information about the snM3C tools and analysis, please see the [YAP documentation](https://hq-1.gitbook.io/mc/) or the [cemba_data](https://github.com/lhqing/cemba_data) GitHub repository created by Hanqing Liu.
 
 ## Quickstart table
 The following table provides a quick glance at the Multiome pipeline features:
@@ -161,14 +163,26 @@ All snM3C pipeline releases are documented in the [pipeline changelog](https://g
 
 ## Citing the snM3C Pipeline
 
-If you use the snM3C Pipeline in your research, please consider citing our preprint:
+If you use the snM3C Pipeline in your research, please identify the pipeline in your methods section using the [snM3C SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_025041/resolver?q=SCR_025041&l=SCR_025041&i=rrid:scr_025041).
+
+* Ex: *snM3C Pipeline (RRID:SCR_025041)*
+
+Please cite the following publication the snM3C pipeline: 
+
+Lee, DS., Luo, C., Zhou, J. et al. Simultaneous profiling of 3D genome structure and DNA methylation in single human cells. Nat Methods 16, 999–1006 (2019). https://doi.org/10.1038/s41592-019-0547-z
+
+Please also consider citing our preprint:
 
 Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
+
 
 ## Consortia support
 This pipeline is supported by the [BRAIN Initiative](https://braininitiative.nih.gov/) (BICCN and BICAN). 
 
 If your organization also uses this pipeline, we would like to list you! Please reach out to us by contacting the [WARP Pipeline Development team](mailto:warp-pipelines-help@broadinstitute.org).
+
+## Acknowledgements
+We are immensely grateful to the members of the BRAIN Initiative ([BICAN](https://brainblog.nih.gov/brain-blog/brain-issues-suite-funding-opportunities-advance-brain-cell-atlases-through-centers) Sequencing Working Group) and [SCORCH](https://nida.nih.gov/about-nida/organization/divisions/division-neuroscience-behavior-dnb/basic-research-hiv-substance-use-disorder/scorch-program) for their invaluable and exceptional contributions to this pipeline. Our heartfelt appreciation goes to our collaborators and the developers of these tools, Hanqing Liu, Wei Tian, Wubin Ding, Huaming Chen, Chongyuan Luo, and the entire laboratory of Joseph Ecker. 
 
 ## Feedback
 
