@@ -41,85 +41,48 @@ workflow snM3C {
     }
 
     scatter(tar in Demultiplexing.tarred_demultiplexed_fastqs) {
-        call Sort_and_trim_r1_and_r2 {
+        call all_tasks {
             input:
-                tarred_demultiplexed_fastqs = tar,
+                tarred_demultiplexed_fastqs = tar, 
+                tarred_index_files = tarred_index_files,
+                genome_fa = genome_fa,
+                chromosome_sizes = chromosome_sizes,
+                min_read_length = min_read_length,
                 r1_adapter = r1_adapter,
                 r2_adapter = r2_adapter,
                 r1_left_cut = r1_left_cut,
                 r1_right_cut = r1_right_cut,
                 r2_left_cut = r2_left_cut,
                 r2_right_cut = r2_right_cut,
-                min_read_length = min_read_length,
-                plate_id = plate_id
-        }
-
-        call Hisat_3n_pair_end_mapping_dna_mode {
-            input:
-                r1_trimmed_tar = Sort_and_trim_r1_and_r2.r1_trimmed_fq_tar,
-                r2_trimmed_tar = Sort_and_trim_r1_and_r2.r2_trimmed_fq_tar,
-                tarred_index_files = tarred_index_files,
-                genome_fa = genome_fa,
-                chromosome_sizes = chromosome_sizes,
-                plate_id = plate_id
-        }
-
-        call Separate_and_split_unmapped_reads {
-            input:
-                hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar,
-                min_read_length = min_read_length,
+                num_upstr_bases = num_upstr_bases,
+                num_downstr_bases = num_downstr_bases,
+                compress_level = compress_level,
                 plate_id = plate_id,
-        }
-
-        call hisat_single_end {
-            input:
-                split_fq_tar = Separate_and_split_unmapped_reads.split_fq_tar,
-                tarred_index_files = tarred_index_files,
-                genome_fa = genome_fa,
-                plate_id = plate_id,
-                docker = docker,
-                single_end_hisat_cpu_platform = single_end_hisat_cpu_platform
-        }
-
-       call merge_sort_analyze {
-            input:
-               paired_end_unique_tar = Separate_and_split_unmapped_reads.unique_bam_tar,
-               read_overlap_tar = hisat_single_end.remove_overlaps_output_bam_tar,     
-               genome_fa = genome_fa, 
-               num_upstr_bases = num_upstr_bases,
-               num_downstr_bases = num_downstr_bases,
-               compress_level = compress_level,
-               chromosome_sizes = chromosome_sizes,
-               plate_id = plate_id,
-               docker = docker,
-               merge_sort_analyze_cpu_platform = merge_sort_analyze_cpu_platform
+                docker = docker
         }
     }
-
+   
     call summary {
         input:
-            trimmed_stats = Sort_and_trim_r1_and_r2.trim_stats_tar,
-            hisat3n_stats = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_stats_tar,
-            r1_hisat3n_stats = hisat_single_end.hisat3n_dna_split_reads_summary_R1_tar,
-            r2_hisat3n_stats = hisat_single_end.hisat3n_dna_split_reads_summary_R2_tar,
-            dedup_stats = merge_sort_analyze.dedup_stats_tar,
-            chromatin_contact_stats = merge_sort_analyze.chromatin_contact_stats,
-            allc_uniq_reads_stats = merge_sort_analyze.allc_uniq_reads_stats,
-            unique_reads_cgn_extraction_tbi = merge_sort_analyze.extract_allc_output_tbi_tar,
+            trimmed_stats = all_tasks.trim_stats_tar,
+            hisat3n_stats = all_tasks.hisat3n_paired_end_stats_tar,
+            r1_hisat3n_stats = all_tasks.hisat3n_dna_split_reads_summary_R1_tar,
+            r2_hisat3n_stats = all_tasks.hisat3n_dna_split_reads_summary_R2_tar,
             plate_id = plate_id
     }
 
+
     output {
         File MappingSummary = summary.mapping_summary
-        Array[File] name_sorted_bams = merge_sort_analyze.name_sorted_bam
-        Array[File] unique_reads_cgn_extraction_allc= merge_sort_analyze.allc
-        Array[File] unique_reads_cgn_extraction_tbi = merge_sort_analyze.tbi
-        Array[File] reference_version = Hisat_3n_pair_end_mapping_dna_mode.reference_version
-        Array[File] all_reads_dedup_contacts = merge_sort_analyze.all_reads_dedup_contacts
-        Array[File] all_reads_3C_contacts = merge_sort_analyze.all_reads_3C_contacts
-        Array[File] chromatin_contact_stats = merge_sort_analyze.chromatin_contact_stats
-        Array[File] unique_reads_cgn_extraction_allc_extract = merge_sort_analyze.extract_allc_output_allc_tar
-        Array[File] unique_reads_cgn_extraction_tbi_extract = merge_sort_analyze.extract_allc_output_tbi_tar
+        Array[File] name_sorted_bams = all_tasks.name_sorted_bam
+        Array[File] unique_reads_cgn_extraction_allc= all_tasks.allc
+        Array[File] unique_reads_cgn_extraction_tbi = all_tasks.tbi
+        Array[File] reference_version = all_tasks.reference_version
+        Array[File] all_reads_dedup_contacts = all_tasks.all_reads_dedup_contacts
+        Array[File] all_reads_3C_contacts = all_tasks.all_reads_3C_contacts
+        Array[File] chromatin_contact_stats = all_tasks.chromatin_contact_stats
+        Array[File] unique_reads_cgn_extraction_allc_extract = all_tasks.extract_allc_output_allc_tar
+        Array[File] unique_reads_cgn_extraction_tbi_extract = all_tasks.extract_allc_output_tbi_tar
 
     }
 }
@@ -233,10 +196,18 @@ task Demultiplexing {
     }
 }
 
-task Sort_and_trim_r1_and_r2 {
+
+task all_tasks{
     input {
         File tarred_demultiplexed_fastqs
+        File tarred_index_files
+       
+        File genome_fa
+        String genome_base = basename(genome_fa)
+        File chromosome_sizes
         String plate_id
+
+        # hisat paired task -- cutadapt 
         String r1_adapter
         String r2_adapter
         Int r1_left_cut
@@ -245,395 +216,220 @@ task Sort_and_trim_r1_and_r2 {
         Int r2_right_cut
         Int min_read_length
 
-        Int disk_size = 500
-        Int mem_size = 16
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
-        Int preemptible_tries = 3
-        Int cpu = 4
+        # merge, sort and analyze
+        Int num_upstr_bases
+        Int num_downstr_bases
+        Int compress_level
 
-    }
-    command <<<
-    set -euo pipefail
-
-    # untar the demultiplexed fastqs
-    tar -xf ~{tarred_demultiplexed_fastqs}
-
-    #change into batch subfolder
-    cd batch*
-    # define lists of r1 and r2 fq files
-    R1_files=($(ls | grep "\-R1.fq.gz"))
-    R2_files=($(ls | grep "\-R2.fq.gz"))
-
-    # loop over R1 and R2 files and sort them
-    for file in "${R1_files[@]}"; do
-      sample_id=$(basename "$file" "-R1.fq.gz")
-      r2_file="${sample_id}-R2.fq.gz"
-      zcat "$file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R1_sorted.fq"
-      zcat "$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R2_sorted.fq"
-    done
-
-
-    echo "Starting to trim with Cutadapt"
-    sorted_R1_files=($(ls | grep "\-R1_sorted.fq"))
-    for file in "${sorted_R1_files[@]}"; do
-      sample_id=$(basename "$file" "-R1_sorted.fq")
-        /opt/conda/bin/cutadapt \
-        -a R1Adapter=~{r1_adapter} \
-        -A R2Adapter=~{r2_adapter} \
-        --report=minimal \
-        -O 6 \
-        -q 20 \
-        -u ~{r1_left_cut} \
-        -u -~{r1_right_cut} \
-        -U ~{r2_left_cut} \
-        -U -~{r2_right_cut} \
-        -Z \
-        -m ~{min_read_length}:~{min_read_length} \
-        --pair-filter 'both' \
-        -o ${sample_id}-R1_trimmed.fq.gz \
-        -p ${sample_id}-R2_trimmed.fq.gz \
-        ${sample_id}-R1_sorted.fq ${sample_id}-R2_sorted.fq \
-        > ${sample_id}.trimmed.stats.txt
-    done
-
-    echo "Tarring up the trimmed files and stats files"
-
-    tar -zcvf ~{plate_id}.R1_trimmed_files.tar.gz *-R1_trimmed.fq.gz
-    tar -zcvf ~{plate_id}.R2_trimmed_files.tar.gz *-R2_trimmed.fq.gz
-    tar -zcvf ~{plate_id}.trimmed_stats_files.tar.gz *.trimmed.stats.txt
-    # move files back to root
-    mv ~{plate_id}.R1_trimmed_files.tar.gz ../~{plate_id}.R1_trimmed_files.tar.gz
-    mv ~{plate_id}.R2_trimmed_files.tar.gz ../~{plate_id}.R2_trimmed_files.tar.gz
-    mv ~{plate_id}.trimmed_stats_files.tar.gz ../~{plate_id}.trimmed_stats_files.tar.gz
-    >>>
-    runtime {
-        docker: docker
-        disks: "local-disk ${disk_size} HDD"
-        cpu: cpu
-        memory: "${mem_size} GiB"
-        preemptible: preemptible_tries
-    }
-    output {
-        File r1_trimmed_fq_tar = "~{plate_id}.R1_trimmed_files.tar.gz"
-        File r2_trimmed_fq_tar = "~{plate_id}.R2_trimmed_files.tar.gz"
-        File trim_stats_tar = "~{plate_id}.trimmed_stats_files.tar.gz"
-    }
-}
-
-task Hisat_3n_pair_end_mapping_dna_mode{
-    input {
-        File r1_trimmed_tar
-        File r2_trimmed_tar
-        File tarred_index_files
-        File genome_fa
-        File chromosome_sizes
-        String plate_id
-
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
-        Int disk_size = 1000
-        Int mem_size = 64
-        Int preemptible_tries = 3
-        Int cpu = 48
-    }
-    command <<<
-        set -euo pipefail
-
-        # check genomic reference version and print to output txt file
-        STRING=~{genome_fa}
-        BASE=$(basename $STRING .fa)
-
-        echo "The reference is $BASE" > ~{plate_id}.reference_version.txt
-
-        # untar the index files
-        echo "Untarring the index files"
-        tar -zxvf ~{tarred_index_files}
-        rm ~{tarred_index_files}
-
-        cp ~{genome_fa} .
-
-        #get the basename of the genome_fa file
-        genome_fa_basename=$(basename ~{genome_fa} .fa)
-        echo "samtools faidx $genome_fa_basename.fa"
-        samtools faidx $genome_fa_basename.fa
-
-        # untar the demultiplexed fastq files
-        echo "Untarring the fastq files"
-        tar -zxvf ~{r1_trimmed_tar}
-        tar -zxvf ~{r2_trimmed_tar}
-        rm ~{r1_trimmed_tar}
-        rm ~{r2_trimmed_tar}
-
-        # define lists of r1 and r2 fq files
-        R1_files=($(ls | grep "\-R1_trimmed.fq.gz"))
-        R2_files=($(ls | grep "\-R2_trimmed.fq.gz"))
-
-        echo "starting hisat"
-
-        task() {
-            sample_id=$(basename "$file" "-R1_trimmed.fq.gz")
-            hisat-3n /cromwell_root/$genome_fa_basename \
-            -q \
-            -1 ${sample_id}-R1_trimmed.fq.gz \
-            -2 ${sample_id}-R2_trimmed.fq.gz \
-            --directional-mapping-reverse \
-            --base-change C,T \
-            --no-repeat-index \
-            --no-spliced-alignment \
-            --no-temp-splicesite \
-            -t \
-            --new-summary \
-            --summary-file ${sample_id}.hisat3n_dna_summary.txt \
-            --threads 8 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
-        }
-
-        for file in "${R1_files[@]}"; do
-         (
-            echo "starting task $file.."
-            task "$file"
-            sleep $(( (RANDOM % 3) + 1))
-        ) &
-
-          if [[ $(jobs -r -p | wc -l) -ge 4 ]]; then
-            wait -n
-          fi
-        done
-
-        # Wait for all background jobs to finish before continuing
-        wait
-
-        echo "done hisat"
-
-        echo "tarring up the outputs"
-        # tar up the bam files and stats files
-        tar -zcvf ~{plate_id}.hisat3n_paired_end_bam_files.tar.gz *.bam
-        tar -zcvf ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz *.hisat3n_dna_summary.txt
-
-    >>>
-    runtime {
-        docker: docker
-        disks: "local-disk ${disk_size} HDD"
-        cpu: cpu
-        memory: "${mem_size} GiB"
-        preemptible: preemptible_tries
-    }
-    output {
-        File hisat3n_paired_end_bam_tar = "~{plate_id}.hisat3n_paired_end_bam_files.tar.gz"
-        File hisat3n_paired_end_stats_tar = "~{plate_id}.hisat3n_paired_end_stats_files.tar.gz"
-        File reference_version = "~{plate_id}.reference_version.txt"
-    }
-}
-
-task Separate_and_split_unmapped_reads {
-    input {
-        File hisat3n_bam_tar
-        Int min_read_length
-        String plate_id
-
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
-        Int disk_size = 1000
-        Int mem_size = 10
-        Int preemptible_tries = 3
-        Int cpu = 8
-
-    }
-    command <<<
-
-        set -euo pipefail
-
-        # untar the hisat3n bam files
-        tar -xf ~{hisat3n_bam_tar}
-        rm ~{hisat3n_bam_tar}
-
-        python3 <<CODE
-
-        from cemba_data.hisat3n import separate_unique_and_multi_align_reads
-        import os
-        import glob
-
-        pattern = "*.hisat3n_dna.unsort.bam"
-        bam_files = glob.glob(os.path.join('/cromwell_root/', pattern))
-      
-
-        for file in bam_files:
-            full_filename = os.path.basename(file)
-            sample_id = full_filename.replace(".hisat3n_dna.unsort.bam", "")
-            in_bam_path = f"{sample_id}.hisat3n_dna.unsort.bam"
-            out_unique_path = f"{sample_id}.hisat3n_dna.unique_aligned.bam"
-            out_multi_path = f"{sample_id}.hisat3n_dna.multi_aligned.bam"
-            out_unmappable_path = f"{sample_id}.hisat3n_dna.unmapped.fastq"
-
-            separate_unique_and_multi_align_reads(
-                in_bam_path=in_bam_path,
-                out_unique_path=out_unique_path,
-                out_multi_path=out_multi_path,
-                out_unmappable_path=out_unmappable_path,
-                unmappable_format='fastq',
-                mapq_cutoff=10,
-                qlen_cutoff=~{min_read_length}
-            )
-
-        CODE
-
-        # tar up the uniqe bams
-        tar -zcvf ~{plate_id}.hisat3n_paired_end_unique_bam_files.tar.gz *.hisat3n_dna.unique_aligned.bam
-
-        # tar up the unmapped fastq files
-        tar -zcvf ~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz *.hisat3n_dna.unmapped.fastq
-
-        # untar the unmapped fastq files
-        tar -xf ~{plate_id}.hisat3n_paired_end_unmapped_fastq_files.tar.gz
-
-        python3 <<CODE
-
-        from cemba_data.hisat3n import *
-        import os
-        import glob
-
-        pattern = "*.hisat3n_dna.unmapped.fastq"
-        fastq_files = glob.glob(os.path.join('/cromwell_root/', pattern))
-
-        for file in fastq_files:
-          full_filename = os.path.basename(file)
-          sample_id = full_filename.replace(".hisat3n_dna.unmapped.fastq", "")
-          fastq_path = f"{sample_id}.hisat3n_dna.unmapped.fastq"
-          output_prefix = f"{sample_id}.hisat3n_dna.split_reads"
-
-          split_hisat3n_unmapped_reads(
-            fastq_path=fastq_path,
-            output_prefix=output_prefix,
-            min_length=~{min_read_length}
-          )
-
-        CODE
-
-        # wait 15 seconds for the files to be written
-        sleep 15
-
-        # tar up the split fastq files
-        tar -zcvf ~{plate_id}.hisat3n_paired_end_split_fastq_files.tar.gz *.split_reads*.fastq
-
-    >>>
-    runtime {
-        docker: docker
-        disks: "local-disk ${disk_size} HDD"
-        cpu: cpu
-        memory: "${mem_size} GiB"
-        preemptible: preemptible_tries
-    }
-    output {
-        File unique_bam_tar = "~{plate_id}.hisat3n_paired_end_unique_bam_files.tar.gz"
-        File split_fq_tar = "~{plate_id}.hisat3n_paired_end_split_fastq_files.tar.gz"
-    }
-}
-
-task hisat_single_end {
-    input {
-        File split_fq_tar
-        File genome_fa
-        File tarred_index_files
-        String plate_id
-
-        String single_end_hisat_cpu_platform
-        Int disk_size = 1000 
-        Int mem_size = 128  
-        Int cpu = 32
-        Int preemptible_tries = 2
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+        # run time variables
+        Int disk_size 
+        Int cpu
+        Int mem_size
+        String cpu_platform
+        File monitoring = "gs://broad-gotc-test-storage/cromwell_monitoring_script.sh"
+        String docker
     }
 
     command <<<
         set -euo pipefail
         set -x
         lscpu
-        
-        # untar the tarred index files
-        echo "Untar tarred_index_files"
-        start=$(date +%s)  
-        pigz -dc ~{tarred_index_files} | tar -xf - 
+  
+        min_read_length=~{min_read_length}
+
+        # check genomic reference version and print to output txt file
+        STRING=~{genome_fa}
+        BASE=$(basename $STRING .fa)
+
+        # save reference version in seperate file 
+        echo "The reference is $BASE" > ~{plate_id}.reference_version.txt
+
+        # untar the index files for hisat task
+        start=$(date +%s)
+        echo "Untarring tarred_index_files"
+        tar -zxvf ~{tarred_index_files}
         rm ~{tarred_index_files}
         end=$(date +%s) 
         elapsed=$((end - start)) 
         echo "Elapsed time to untar tarred_index_files: $elapsed seconds"
-    
+
+        # reference and index 
+        start=$(date +%s)  
+        echo "Reference and index fasta"
         cp ~{genome_fa} .
-
-        #get the basename of the genome_fa file
-        echo "samtools faidx"
-        start=$(date +%s)  
-        genome_fa_basename=$(basename ~{genome_fa} .fa)
-        samtools faidx $genome_fa_basename.fa
+        samtools faidx $BASE.fa
+        ls
         end=$(date +%s) 
         elapsed=$((end - start)) 
-        echo "Elapsed time to samtools faidx: $elapsed seconds"
-    
-        # untar the unmapped fastq files
-        echo "Untar split_fq_tar"
+        echo "Elapsed time to index fasta $elapsed seconds"
+ 
+        # untar the demultiplexed fastqs for sort and trim task
         start=$(date +%s)  
-        pigz -dc ~{split_fq_tar} | tar -xf - 
-        rm ~{split_fq_tar}
+        echo "Reference and index fasta"
+        tar -xf ~{tarred_demultiplexed_fastqs}
         end=$(date +%s) 
         elapsed=$((end - start)) 
-        echo "Elapsed time to untar split_fq_tar: $elapsed seconds"
+        echo "Elapsed time to index fasta $elapsed seconds"
       
-        # make directories 
-        mkdir -p /cromwell_root/merged_sort_bams
-        mkdir -p /cromwell_root/read_overlap
-   
-        # define lists of r1 and r2 fq files
-        R1_files=($(ls | grep "\.hisat3n_dna.split_reads.R1.fastq"))
-        R2_files=($(ls | grep "\.hisat3n_dna.split_reads.R2.fastq"))
 
-        task() {
-          BASE=$(basename "$file" ".hisat3n_dna.split_reads.R1.fastq")
-          echo $BASE
-          echo "Running hisat on sample_id_R1" $BASE
+        # for allcools bam-to-allc
+        if [ ~{num_upstr_bases} -eq 0 ]; then
+          mcg_context=CGN
+        else
+          mcg_context=HCGN
+        fi
+        
+        # make directories 
+        mkdir /cromwell_root/output_bams
+        mkdir /cromwell_root/temp
+        mkdir /cromwell_root/allc-${mcg_context}
+        
+        paired_end_hisat() {
+          local sample_id=$1
+          echo $sample_id
           
-          echo "Hisat 3n R1" 
-          start=$(date +%s) 
-   
-          # hisat on R1 single end
-          hisat-3n /cromwell_root/$genome_fa_basename \
+          r2_file="${sample_id}-R2.fq.gz"
+          r1_file="${sample_id}-R1.fq.gz"
+          
+          # sort R1 
+          start=$(date +%s)
+          echo "Run sort r1"
+          zcat /cromwell_root/batch*/"$r1_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R1_sorted.fq"
+          end=$(date +%s) 
+          elapsed=$((end - start)) 
+          echo "Elapsed time to run sort r1: $elapsed seconds"
+    
+          # sort R2
+          start=$(date +%s)
+          echo "Run sort r1"
+          zcat /cromwell_root/batch*/"$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R2_sorted.fq"
+          end=$(date +%s) 
+          elapsed=$((end - start)) 
+          echo "Elapsed time to run sort r2: $elapsed seconds"
+    
+          # trim using cutadapt
+          start=$(date +%s)
+          echo "Run cutadapt"
+          /opt/conda/bin/cutadapt \
+          -a R1Adapter=~{r1_adapter} \
+          -A R2Adapter=~{r2_adapter} \
+          --report=minimal \
+          -O 6 \
+          -q 20 \
+          -u ~{r1_left_cut} \
+          -u -~{r1_right_cut} \
+          -U ~{r2_left_cut} \
+          -U -~{r2_right_cut} \
+          -Z \
+          -m ${min_read_length}:${min_read_length} \
+          --pair-filter 'both' \
+          -o ${sample_id}-R1_trimmed.fq.gz \
+          -p ${sample_id}-R2_trimmed.fq.gz \
+          ${sample_id}-R1_sorted.fq ${sample_id}-R2_sorted.fq \
+          > ${sample_id}.trimmed.stats.txt
+          end=$(date +%s) 
+          elapsed=$((end - start)) 
+          echo "Elapsed time to run cutadapt: $elapsed seconds"
+    
+          # hisat run 
+          start=$(date +%s)
+          echo "Run hisat"
+          hisat-3n /cromwell_root/$BASE \
           -q \
-          -U ${BASE}.hisat3n_dna.split_reads.R1.fastq \
-          -S ${BASE}.hisat3n_dna.split_reads.R1.sam --directional-mapping-reverse --base-change C,T \
-          --no-repeat-index \
+          -1 ${sample_id}-R1_trimmed.fq.gz \
+          -2 ${sample_id}-R2_trimmed.fq.gz \
+          --directional-mapping-reverse \
+          --base-change C,T \
+          --repeat \
           --no-spliced-alignment \
           --no-temp-splicesite \
           -t \
           --new-summary \
-          --summary-file ${BASE}.hisat3n_dna_split_reads_summary.R1.txt \
+          --summary-file ${sample_id}.hisat3n_dna_summary.txt \
+          --threads 8 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"        
+          end=$(date +%s) 
+          elapsed=$((end - start)) 
+          echo "Elapsed time to run hisat: $elapsed seconds"
+    
+          # call separate_unique_and_multi_align_reads
+          start=$(date +%s)
+          echo "Run separate_unique_and_multi_align_reads"
+          python3 -c 'from cemba_data.hisat3n import separate_unique_and_multi_align_reads;separate_unique_and_multi_align_reads(in_bam_path="'"$sample_id"'.hisat3n_dna.unsort.bam", out_unique_path="'"$sample_id"'.hisat3n_dna.unique_aligned.bam", out_multi_path="'"$sample_id"'.hisat3n_dna.multi_aligned.bam", out_unmappable_path="'"$sample_id"'.hisat3n_dna.unmapped.fastq", unmappable_format="fastq", mapq_cutoff=10, qlen_cutoff='"$min_read_length"')'
+          end=$(date +%s) 
+          elapsed=$((end - start)) 
+          echo "Elapsed time to run separate_unique_and_multi_align_reads: $elapsed seconds"
+    
+          # call split_hisat3n_unmapped_reads
+          start=$(date +%s)
+          echo "Run split_hisat3n_unmapped_reads"
+          python3 -c 'from cemba_data.hisat3n import *;split_hisat3n_unmapped_reads(fastq_path="'"$sample_id"'.hisat3n_dna.unmapped.fastq",output_prefix="'"$sample_id"'.hisat3n_dna.split_reads",min_length='"$min_read_length"')'
+          end=$(date +%s) 
+          elapsed=$((end - start)) 
+          echo "Elapsed time to run split_hisat3n_unmapped_reads: $elapsed seconds"
+    
+          # why? wait 15 seconds for the files to be written
+          # sleep 15
+
+          # remove files
+          rm /cromwell_root/batch*/${sample_id}-R1.fq.gz /cromwell_root/batch*/${sample_id}-R2.fq.gz
+          rm ${sample_id}-R1_sorted.fq ${sample_id}-R2_sorted.fq
+          rm ${sample_id}-R1_trimmed.fq.gz ${sample_id}-R2_trimmed.fq.gz
+          rm ${sample_id}.hisat3n_dna.unsort.bam ${sample_id}.hisat3n_dna.multi_aligned.bam
+          rm ${sample_id}.hisat3n_dna.unmapped.fastq
+
+        }        
+
+        single_end_hisat() {
+          local sample_id=$1
+          echo $sample_id
+          echo "Running hisat on sample_id_R1" $sample_id
+          
+          echo "Hisat single end R1" 
+          start=$(date +%s) 
+   
+          # hisat on R1 single end hisat3n_dna.split_reads.R1.fastq
+          hisat-3n /cromwell_root/$BASE \
+          -q \
+          -U ${sample_id}.hisat3n_dna.split_reads.R1.fastq \
+          -S ${sample_id}.hisat3n_dna.split_reads.R1.sam --directional-mapping-reverse --base-change C,T \
+          --repeat \
+          --no-spliced-alignment \
+          --no-temp-splicesite \
+          -t \
+          --new-summary \
+          --summary-file ${sample_id}.hisat3n_dna_split_reads_summary.R1.txt \
           --threads 8 
         
          end=$(date +%s) 
          elapsed=$((end - start))  
          echo "Elapsed time to run $elapsed seconds"
-         echo "Finish running hisat on sample_id_R1" $BASE
+         echo "Finish running hisat on sample_id_R1" $sample_id
          
-         echo "Hisat 3n R2" 
+         echo "Hisat single end R2" 
          start=$(date +%s)        
-         echo "Running hisat on sample_id_R2" $BASE
+         echo "Running hisat on sample_id_R2" $sample_id
 
          # hisat on R2 single end
-         hisat-3n /cromwell_root/$genome_fa_basename \
+         hisat-3n /cromwell_root/$BASE \
          -q \
-         -U ${BASE}.hisat3n_dna.split_reads.R2.fastq \
-         -S ${BASE}.hisat3n_dna.split_reads.R2.sam --directional-mapping --base-change C,T \
-         --no-repeat-index \
+         -U ${sample_id}.hisat3n_dna.split_reads.R2.fastq \
+         -S ${sample_id}.hisat3n_dna.split_reads.R2.sam --directional-mapping --base-change C,T \
+         --repeat \
          --no-spliced-alignment \
          --no-temp-splicesite \
          -t --new-summary \
-         --summary-file ${BASE}.hisat3n_dna_split_reads_summary.R2.txt \
+         --summary-file ${sample_id}.hisat3n_dna_split_reads_summary.R2.txt \
          --threads 8
 
          end=$(date +%s) 
          elapsed=$((end - start)) 
          echo "Elapsed time to run $elapsed seconds"
-         echo "Finish running hisat on sample_id_R2" $BASE
+         echo "Finish running hisat on sample_id_R2" $sample_id
         
          # samtools merge
          echo "samtools merge R1 and R2" 
          start=$(date +%s)        
-         samtools merge -o ${BASE}.name_merged.sam ${BASE}.hisat3n_dna.split_reads.R1.sam ${BASE}.hisat3n_dna.split_reads.R2.sam -@8
+         samtools merge -o ${sample_id}.name_merged.sam ${sample_id}.hisat3n_dna.split_reads.R1.sam ${sample_id}.hisat3n_dna.split_reads.R2.sam -@8
          end=$(date +%s) 
          elapsed=$((end - start))  
          echo "Elapsed time to run samtools merge $elapsed seconds"
@@ -641,7 +437,7 @@ task hisat_single_end {
          # samtools sort 
          echo "samtools sort R1 and R2" 
          start=$(date +%s)        
-         samtools sort -n -@8 -m1g ${BASE}.name_merged.sam -o ${BASE}.name_sorted.bam
+         samtools sort -n -@8 -m1g ${sample_id}.name_merged.sam -o ${sample_id}.name_sorted.bam
          end=$(date +%s) 
          elapsed=$((end - start)) 
          echo "Elapsed time to run samtools sort $elapsed seconds"
@@ -649,7 +445,7 @@ task hisat_single_end {
          # samtools filter bam
          echo "samtools -q 10" 
          start=$(date +%s)  
-         samtools view -q 10 ${BASE}.name_sorted.bam -o ${BASE}.name_sorted.filtered.bam
+         samtools view -q 10 ${sample_id}.name_sorted.bam -o ${sample_id}.name_sorted.filtered.bam
          end=$(date +%s) 
          elapsed=$((end - start)) 
          echo "Elapsed time to run samtools -q 10 $elapsed seconds"
@@ -657,45 +453,173 @@ task hisat_single_end {
          # remove_overlap_read_parts
          echo "call remove_overlap_read_parts" 
          start=$(date +%s) 
-         python3 -c 'from cemba_data.hisat3n import *;import os;remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep,"cromwell_root","'"$BASE"'.name_sorted.filtered.bam"),out_bam_path=os.path.join(os.path.sep,"cromwell_root","'"$BASE"'.read_overlap.bam"))'  
+         python3 -c 'from cemba_data.hisat3n import *;import os;remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep,"cromwell_root","'"$sample_id"'.name_sorted.filtered.bam"),out_bam_path=os.path.join(os.path.sep,"cromwell_root","'"$sample_id"'.hisat3n_dna.split_reads.read_overlap.bam"))'  
          end=$(date +%s) 
          elapsed=$((end - start))  
          echo "Elapsed time to run remove overlap $elapsed seconds"
-      
+
+         # remove files? what files?
+         rm ${sample_id}.name_sorted.bam
+         rm ${sample_id}.name_merged.sam
+         rm ${sample_id}.hisat3n_dna.split_reads.R1.sam
+         rm ${sample_id}.hisat3n_dna.split_reads.R2.sam
+         rm ${sample_id}.name_sorted.filtered.bam #needed? 
         }
+
+        merge_sort_analyze() {
+          local file=$1
+          echo $sample_id
+
+          start=$(date +%s)  
+          echo "Merge all unique_aligned and read_overlap"
+          samtools merge -f "${sample_id}.hisat3n_dna.all_reads.bam" "${sample_id}.hisat3n_dna.unique_aligned.bam" "${sample_id}.hisat3n_dna.split_reads.read_overlap.bam" -@4
+          end=$(date +%s) 
+          elapsed=$((end - start)) 
+          echo "Elapsed time to run merge $elapsed seconds"
+
+          start=$(date +%s)  
+          echo "Sort all reads by name"
+          samtools sort -n -@4 -m1g -o "${sample_id}.hisat3n_dna.all_reads.name_sort.bam" "${sample_id}.hisat3n_dna.all_reads.bam" 
+          end=$(date +%s) 
+          elapsed=$((end - start))  
+          echo "Elapsed time to run sort by name $elapsed seconds"
+        
+          start=$(date +%s)  
+          echo "Sort all reads by name"
+          samtools sort -O BAM -@4 -m1g -o "${sample_id}.hisat3n_dna.all_reads.pos_sort.bam" "${sample_id}.hisat3n_dna.all_reads.name_sort.bam" 
+          end=$(date +%s) 
+          elapsed=$((end - start))  
+          echo "Elapsed time to run sort by pos $elapsed seconds"
+        
+          start=$(date +%s)  
+          echo "Call Picard remove duplicates"
+          name=${sample_id}.hisat3n_dna.all_reads.deduped
+          picard MarkDuplicates I=${sample_id}.hisat3n_dna.all_reads.pos_sort.bam O=/cromwell_root/output_bams/${name}.bam \
+          M=/cromwell_root/output_bams/${name}.matrix.txt \
+          REMOVE_DUPLICATES=true TMP_DIR=/cromwell_root/temp
+          end=$(date +%s) 
+          elapsed=$((end - start))  
+          echo "Elapsed time to run picard $elapsed seconds"
+        
+          start=$(date +%s)  
+          echo "Call samtools index"
+          samtools index /cromwell_root/output_bams/${name}.bam
+          end=$(date +%s) 
+          elapsed=$((end - start)) 
+          echo "Elapsed time to samtools index $elapsed seconds" 
+        
+          start=$(date +%s)  
+          echo "Call chromatin contacts from name sorted bams" 
+          python3 -c 'from cemba_data.hisat3n import *;import os;import glob;call_chromatin_contacts(bam_path="'"$sample_id"'.hisat3n_dna.all_reads.name_sort.bam",contact_prefix="'"$sample_id"'.hisat3n_dna.all_reads",save_raw=False,save_hic_format=True)'
+          end=$(date +%s) 
+          elapsed=$((end - start)) 
+          echo "Elapsed time to chromatin contacts $elapsed seconds"
+
+          start=$(date +%s)  
+          echo "Call allcools bam-to-allc from deduped.bams" 
+          /opt/conda/bin/allcools bam-to-allc \
+          --bam_path /cromwell_root/output_bams/${name}.bam \
+          --reference_fasta /cromwell_root/~{genome_base} \
+          --output_path "${sample_id}.allc.tsv.gz" \
+          --num_upstr_bases ~{num_upstr_bases} \
+          --num_downstr_bases ~{num_downstr_bases} \
+          --compress_level ~{compress_level} \
+          --save_count_df \
+          --convert_bam_strandness
+          end=$(date +%s) 
+          elapsed=$((end - start)) 
+          echo "Elapsed time to allcools bam-to-allc $elapsed seconds"
+
+          start=$(date +%s)  
+          echo "Call allcools extract-all" 
+          allcools extract-allc --strandness merge \
+          --allc_path ${sample_id}.allc.tsv.gz \
+          --output_prefix /cromwell_root/allc-${mcg_context}/${sample_id} \
+          --mc_contexts ${mcg_context} \
+          --chrom_size_path ~{chromosome_sizes}
+          end=$(date +%s) 
+          elapsed=$((end - start)) 
+          echo "Elapsed time to allcools extract-all $elapsed seconds"
+        
+          echo "Remove some bams"
+          rm ${sample_id}.hisat3n_dna.all_reads.bam
+          rm ${sample_id}.hisat3n_dna.all_reads.pos_sort.bam
+          rm /cromwell_root/${sample_id}.hisat3n_dna.split_reads.read_overlap.bam
+          rm /cromwell_root/${sample_id}.hisat3n_dna.unique_aligned.bam
+        }
+        
+        # define lists of r1 and r2 fq files
+        R1_files=($(ls batch*/ | grep "\-R1.fq.gz"))
+        R2_files=($(ls batch*/ | grep "\-R2.fq.gz"))
 
         # run 4 instances in parallel each with 8 threads
         for file in "${R1_files[@]}"; do
           (
-            echo "starting task $file.."
-            task "$file"
+            echo "starting $file.."
+            # nova_seq_full-A1-R1.fq.gz
+            sample_id=$(basename "$file" "-R1.fq.gz")
+            echo $sample_id
+            paired_end_hisat "$sample_id"
+            single_end_hisat "$sample_id"
+            merge_sort_analyze "$sample_id"
             sleep $(( (RANDOM % 3) + 1))
           ) &
-          if [[ $(jobs -r -p | wc -l) -ge 4 ]]; then
+          if [[ $(jobs -r -p | wc -l) -ge 14 ]]; then
             wait -n
           fi
         done
 
         wait
         echo "All done running tasks."
-        ls 
-
-        echo "Tar up summary text files"
+        
+        echo "Tar up files"
+        echo "Tar up summary files for trimmming + paired end"
         start=$(date +%s)
-        # tar up the r1 and r2 stats files -p to set number of threads
+        tar -cf - *.trimmed.stats.txt | pigz > ~{plate_id}.trimmed_stats_files.tar.gz
+        tar -cf - *.hisat3n_dna_summary.txt | pigz > ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz
+        end=$(date +%s) 
+        elapsed=$((end - start))  
+        echo "Elapsed time to run tar summary files for trimming + paired end $elapsed seconds"
+
+        echo "Tar up summary files for single end"
+        start=$(date +%s)
         tar -cf - *.hisat3n_dna_split_reads_summary.R1.txt | pigz > ~{plate_id}.hisat3n_dna_split_reads_summary.R1.tar.gz
         tar -cf - *.hisat3n_dna_split_reads_summary.R2.txt | pigz > ~{plate_id}.hisat3n_dna_split_reads_summary.R2.tar.gz
         end=$(date +%s) 
         elapsed=$((end - start))  
-        echo "Elapsed time to run tar summary text files $elapsed seconds"
-     
-        # tar up read overlap files
-        echo "Tar up read_overlap bams"
+        echo "Elapsed time to run tar summary files for single end $elapsed seconds"
+        
+        echo "Tar up bams (*all_reads.name_sort.bam) files"
         start=$(date +%s)
-        tar -zcvf ~{plate_id}.remove_overlap_read_parts.tar.gz *read_overlap.bam
+        tar -cf - *.hisat3n_dna.all_reads.name_sort.bam | pigz > ~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz
         end=$(date +%s) 
         elapsed=$((end - start))  
-        echo "Elapsed time to tar read_overlap bams $elapsed seconds"
+        echo "Elapsed time to run tar name_sort.bam files $elapsed seconds"
+        
+        # tar outputs of call_chromatin_contacts
+        echo "Tar up 3C.contact.tsv.gz, dedup_contacts.tsv.gz and contact_stats.csv"
+        start=$(date +%s)
+        tar -cf - *.hisat3n_dna.all_reads.3C.contact.tsv.gz | pigz > ~{plate_id}.hisat3n_dna.all_reads.3C.contact.tar.gz
+        tar -cf - *.hisat3n_dna.all_reads.dedup_contacts.tsv.gz | pigz > ~{plate_id}.hisat3n_dna.all_reads.dedup_contacts.tar.gz
+        tar -cf - *.hisat3n_dna.all_reads.contact_stats.csv | pigz > ~{plate_id}.chromatin_contact_stats.tar.gz
+        end=$(date +%s) 
+        elapsed=$((end - start))  
+        echo "Elapsed time to run tar name_sort.bam files $elapsed seconds"
+        
+        # tar outputs of allcools
+        echo "Tar up allc.tsv, .allc.tbi, allc.count... "
+        start=$(date +%s)  
+        tar -cf - *.allc.tsv.gz | pigz > ~{plate_id}.allc.tsv.tar.gz
+        tar -cf - *.allc.tsv.gz.tbi | pigz > ~{plate_id}.allc.tbi.tar.gz
+        tar -cf - *.allc.tsv.gz.count.csv | pigz > ~{plate_id}.allc.count.tar.gz
+        #tar -cf - *.tbi | pigz > ~{plate_id}.extract-allc_tbi.tar.gz ? -- what is this -- same name as before
+        tar -cf - /cromwell_root/allc-${mcg_context}/*.gz | pigz > ~{plate_id}.extract-allc.tar.gz
+        tar -cf - /cromwell_root/allc-${mcg_context}/*.tbi | pigz > ~{plate_id}.extract-allc_tbi.tar.gz
+        end=$(date +%s) 
+        elapsed=$((end - start))  
+        echo "Elapsed time to run tar files $elapsed seconds"    
+
+        du -h *
     >>>
 
     runtime {
@@ -703,226 +627,31 @@ task hisat_single_end {
         disks: "local-disk ${disk_size} SSD"
         cpu: cpu
         memory: "${mem_size} GiB"
-        cpuPlatform: single_end_hisat_cpu_platform
-        preemptible: preemptible_tries
+        cpuPlatform: cpu_platform
     }
 
     output {
-         File hisat3n_dna_split_reads_summary_R1_tar = "~{plate_id}.hisat3n_dna_split_reads_summary.R1.tar.gz"
-         File hisat3n_dna_split_reads_summary_R2_tar = "~{plate_id}.hisat3n_dna_split_reads_summary.R2.tar.gz"
-         File remove_overlaps_output_bam_tar = "~{plate_id}.remove_overlap_read_parts.tar.gz"
-    
-    }
-}
-  
-task merge_sort_analyze {
-    input {
-        String plate_id
-        File paired_end_unique_tar
-        File read_overlap_tar
-
-        #input for allcools bam-to-allc
-        File genome_fa
-        String genome_base = basename(genome_fa)
-        Int num_upstr_bases
-        Int num_downstr_bases
-        Int compress_level
-        File chromosome_sizes
-
-        String merge_sort_analyze_cpu_platform
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
-        Int disk_size = 1000
-        Int mem_size = 64
-        Int cpu = 16 
-        Int preemptible_tries = 3
-    }
-
-    command <<<
-      set -euo pipefail
-      set -x
-      lscpu
-      
-      # unzip tars
-      echo "Untar paired_end_unique_tar"
-      start=$(date +%s)  
-      pigz -dc ~{paired_end_unique_tar} | tar -xf -  
-      rm ~{paired_end_unique_tar}
-      end=$(date +%s) 
-      elapsed=$((end - start)) 
-      echo "Elapsed time to untar paired_end_unique_tar: $elapsed seconds"
-
-      echo "Untar read_overlap_tar"
-      start=$(date +%s)  
-      pigz -dc ~{read_overlap_tar} | tar -xf -  
-      rm ~{read_overlap_tar}
-      end=$(date +%s) 
-      elapsed=$((end - start)) 
-      echo "Elapsed time to untar read_overlap_tar: $elapsed seconds"
-      
-      # reference and index 
-      start=$(date +%s)  
-      echo "Reference and index fasta"
-      mkdir reference
-      cp ~{genome_fa} reference
-      ls reference
-      samtools faidx reference/*.fa
-      end=$(date +%s) 
-      elapsed=$((end - start)) 
-      echo "Elapsed time to index fasta $elapsed seconds"
-
-      # define lists of r1 and r2 fq files
-      UNIQUE_BAMS=($(ls | grep "\.hisat3n_dna.unique_aligned.bam"))
-      SPLIT_BAMS=($(ls | grep "\.read_overlap.bam"))
-
-      # for allcools bam-to-allc
-      if [ ~{num_upstr_bases} -eq 0 ]; then
-         mcg_context=CGN
-      else
-         mcg_context=HCGN
-      fi
-
-      # make directories
-      mkdir /cromwell_root/output_bams
-      mkdir /cromwell_root/temp
-      mkdir /cromwell_root/allc-${mcg_context}
-      
-      task() {
-        local file=$1
-        sample_id=$(basename "$file" ".hisat3n_dna.unique_aligned.bam")
-        echo $sample_id
-
-        start=$(date +%s)  
-        echo "Merge all unique_aligned and read_overlap"
-        samtools merge -f "${sample_id}.hisat3n_dna.all_reads.bam" "${sample_id}.hisat3n_dna.unique_aligned.bam" "${sample_id}.read_overlap.bam" -@4
-        end=$(date +%s) 
-        elapsed=$((end - start)) 
-        echo "Elapsed time to run merge $elapsed seconds"
-
-        start=$(date +%s)  
-        echo "Sort all reads by name"
-        samtools sort -n -@4 -m1g -o "${sample_id}.hisat3n_dna.all_reads.name_sort.bam" "${sample_id}.hisat3n_dna.all_reads.bam" 
-        end=$(date +%s) 
-        elapsed=$((end - start))  
-        echo "Elapsed time to run sort by name $elapsed seconds"
-        
-        start=$(date +%s)  
-        echo "Sort all reads by name"
-        samtools sort -O BAM -@4 -m1g -o "${sample_id}.hisat3n_dna.all_reads.pos_sort.bam" "${sample_id}.hisat3n_dna.all_reads.name_sort.bam" 
-        end=$(date +%s) 
-        elapsed=$((end - start))  
-        echo "Elapsed time to run sort by pos $elapsed seconds"
-        
-        start=$(date +%s)  
-        echo "Call Picard remove duplicates"
-        name=${sample_id}.hisat3n_dna.all_reads.deduped
-        picard MarkDuplicates I=${sample_id}.hisat3n_dna.all_reads.pos_sort.bam O=/cromwell_root/output_bams/${name}.bam \
-        M=/cromwell_root/output_bams/${name}.matrix.txt \
-        REMOVE_DUPLICATES=true TMP_DIR=/cromwell_root/temp
-        end=$(date +%s) 
-        elapsed=$((end - start))  
-        echo "Elapsed time to run picard $elapsed seconds"
-        
-        start=$(date +%s)  
-        echo "Call samtools index"
-        samtools index /cromwell_root/output_bams/${name}.bam
-        end=$(date +%s) 
-        elapsed=$((end - start)) 
-        echo "Elapsed time to samtools index $elapsed seconds" 
-        
-        start=$(date +%s)  
-        echo "Call chromatin contacts from name sorted bams" 
-        python3 -c 'from cemba_data.hisat3n import *;import os;import glob;call_chromatin_contacts(bam_path="'"$sample_id"'.hisat3n_dna.all_reads.name_sort.bam",contact_prefix="'"$sample_id"'.hisat3n_dna.all_reads",save_raw=False,save_hic_format=True)'
-        end=$(date +%s) 
-        elapsed=$((end - start)) 
-        echo "Elapsed time to chromatin contacts $elapsed seconds"
-
-        start=$(date +%s)  
-        echo "Call allcools bam-to-allc from deduped.bams" 
-        /opt/conda/bin/allcools bam-to-allc \
-        --bam_path /cromwell_root/output_bams/${name}.bam \
-        --reference_fasta /cromwell_root/reference/~{genome_base} \
-        --output_path "${sample_id}.allc.tsv.gz" \
-        --num_upstr_bases ~{num_upstr_bases} \
-        --num_downstr_bases ~{num_downstr_bases} \
-        --compress_level ~{compress_level} \
-        --save_count_df \
-        --convert_bam_strandness
-        end=$(date +%s) 
-        elapsed=$((end - start)) 
-        echo "Elapsed time to allcools bam-to-allc $elapsed seconds"
-
-        start=$(date +%s)  
-        echo "Call allcools extract-all" 
-        allcools extract-allc --strandness merge \
-        --allc_path ${sample_id}.allc.tsv.gz \
-        --output_prefix /cromwell_root/allc-${mcg_context}/${sample_id} \
-        --mc_contexts ${mcg_context} \
-        --chrom_size_path ~{chromosome_sizes}
-        end=$(date +%s) 
-        elapsed=$((end - start)) 
-        echo "Elapsed time to allcools extract-all $elapsed seconds"
-        
-        echo "Remove some bams"
-        rm ${sample_id}.hisat3n_dna.all_reads.bam
-        rm ${sample_id}.hisat3n_dna.all_reads.pos_sort.bam
-        rm /cromwell_root/${sample_id}.read_overlap.bam
-        rm /cromwell_root/${sample_id}.hisat3n_dna.unique_aligned.bam
-      }
- 
-      # run 4 instances of task in parallel 
-      for file in "${UNIQUE_BAMS[@]}"; do
-        (
-          echo "starting task $file.."
-          task "$file"
-          sleep $(( (RANDOM % 3) + 1))
-        ) &
-        # allow to execute up to 4 jobs in parallel
-        if [[ $(jobs -r -p | wc -l) -ge 4 ]]; then
-          wait -n
-        fi
-      done
-
-      wait
-      echo "Tasks all done."
-      du -h *
-
-      echo "Tar files."
-      tar -zcvf ~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz output_bams/*.matrix.txt
-      tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz *.hisat3n_dna.all_reads.name_sort.bam
-      # tar outputs of call_chromatin_contacts
-      tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.3C.contact.tar.gz *.hisat3n_dna.all_reads.3C.contact.tsv.gz
-      tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.dedup_contacts.tar.gz *.hisat3n_dna.all_reads.dedup_contacts.tsv.gz
-      tar -zcvf ~{plate_id}.chromatin_contact_stats.tar.gz *.hisat3n_dna.all_reads.contact_stats.csv
-      # tar outputs of allcools
-      tar -zcvf ~{plate_id}.allc.tsv.tar.gz *.allc.tsv.gz
-      tar -zcvf ~{plate_id}.allc.tbi.tar.gz *.allc.tsv.gz.tbi
-      tar -zcvf ~{plate_id}.allc.count.tar.gz *.allc.tsv.gz.count.csv
-      tar -zcvf ~{plate_id}.extract-allc_tbi.tar.gz *.tbi
-      tar -zcvf ~{plate_id}.extract-allc.tar.gz /cromwell_root/allc-${mcg_context}/*.gz
-      tar -zcvf ~{plate_id}.extract-allc_tbi.tar.gz /cromwell_root/allc-${mcg_context}/*.tbi
-    >>>
-
-    runtime {
-        docker: docker
-        disks: "local-disk ${disk_size} SSD"
-        cpu: cpu
-        memory: "${mem_size} GiB"
-        cpuPlatform: merge_sort_analyze_cpu_platform
-        preemptible: preemptible_tries
-    }
-    
-     output {
-        File allc = "~{plate_id}.allc.tsv.tar.gz"
-        File tbi = "~{plate_id}.allc.tbi.tar.gz"
+        # bams
+        File name_sorted_bam = "~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz"
+        # summary outputs for paired/single end
+        File trim_stats_tar = "~{plate_id}.trimmed_stats_files.tar.gz"
+        File hisat3n_paired_end_stats_tar = "~{plate_id}.hisat3n_paired_end_stats_files.tar.gz"
+        File hisat3n_dna_split_reads_summary_R1_tar = "~{plate_id}.hisat3n_dna_split_reads_summary.R1.tar.gz"
+        File hisat3n_dna_split_reads_summary_R2_tar = "~{plate_id}.hisat3n_dna_split_reads_summary.R2.tar.gz"
+        # chromatin contacts
         File all_reads_dedup_contacts = "~{plate_id}.hisat3n_dna.all_reads.dedup_contacts.tar.gz"
         File all_reads_3C_contacts = "~{plate_id}.hisat3n_dna.all_reads.3C.contact.tar.gz"
-        File name_sorted_bam = "~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz"
-        File dedup_stats_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz"
         File chromatin_contact_stats = "~{plate_id}.chromatin_contact_stats.tar.gz"
+        # allc 
+        File allc = "~{plate_id}.allc.tsv.tar.gz"
+        File tbi = "~{plate_id}.allc.tbi.tar.gz"
         File allc_uniq_reads_stats = "~{plate_id}.allc.count.tar.gz"
         File extract_allc_output_tbi_tar = "~{plate_id}.extract-allc_tbi.tar.gz"
         File extract_allc_output_allc_tar  = "~{plate_id}.extract-allc.tar.gz"
-     }
+        # reference version
+        File reference_version = "~{plate_id}.reference_version.txt"    
+    }
+
 }
 
 task summary {
@@ -979,11 +708,7 @@ task summary {
         mv *.allc.tsv.gz.count.csv /cromwell_root/allc
         mv cromwell_root/allc-CGN/*.allc.tsv.gz.tbi /cromwell_root/allc
 
-        python3 <<CODE
-        from cemba_data.hisat3n import *
-        snm3c_summary()
-        CODE
-
+        python3 -c 'from cemba_data.hisat3n import *;snm3c_summary()'
         mv MappingSummary.csv.gz ~{plate_id}_MappingSummary.csv.gz
 
     >>>
