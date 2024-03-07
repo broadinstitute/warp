@@ -100,7 +100,7 @@ workflow snM3C {
         Array[File] name_sorted_bams = merge_sort_analyze.name_sorted_bam
         Array[File] unique_reads_cgn_extraction_allc= merge_sort_analyze.allc
         Array[File] unique_reads_cgn_extraction_tbi = merge_sort_analyze.tbi
-        Array[File] reference_version = Hisat_3n_pair_end_mapping_dna_mode.reference_version
+        Array[File] reference_version = hisat_paired_end.reference_version
         Array[File] all_reads_dedup_contacts = merge_sort_analyze.all_reads_dedup_contacts
         Array[File] all_reads_3C_contacts = merge_sort_analyze.all_reads_3C_contacts
         Array[File] chromatin_contact_stats = merge_sort_analyze.chromatin_contact_stats
