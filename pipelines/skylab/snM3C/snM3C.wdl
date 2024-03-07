@@ -564,7 +564,7 @@ task all_tasks{
             merge_sort_analyze "$sample_id"
             sleep $(( (RANDOM % 3) + 1))
           ) &
-          if [[ $(jobs -r -p | wc -l) -ge 14 ]]; then
+          if [[ $(jobs -r -p | wc -l) -ge 8 ]]; then
             wait -n
           fi
         done
