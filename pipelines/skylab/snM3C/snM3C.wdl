@@ -59,7 +59,7 @@ workflow snM3C {
 
         call hisat_single_end {
             input:
-                split_fq_tar = Separate_and_split_unmapped_reads.split_fq_tar,
+                split_fq_tar = hisat_paired_end.split_fq_tar,
                 tarred_index_files = tarred_index_files,
                 genome_fa = genome_fa,
                 plate_id = plate_id,
@@ -69,7 +69,7 @@ workflow snM3C {
 
         call merge_sort_analyze {
             input:
-               paired_end_unique_tar = Separate_and_split_unmapped_reads.unique_bam_tar,
+               paired_end_unique_tar = hisat_paired_end.unique_bam_tar,
                read_overlap_tar = hisat_single_end.remove_overlaps_output_bam_tar,     
                genome_fa = genome_fa, 
                num_upstr_bases = num_upstr_bases,
