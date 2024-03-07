@@ -68,6 +68,10 @@ workflow snM3C {
             hisat3n_stats = all_tasks.hisat3n_paired_end_stats_tar,
             r1_hisat3n_stats = all_tasks.hisat3n_dna_split_reads_summary_R1_tar,
             r2_hisat3n_stats = all_tasks.hisat3n_dna_split_reads_summary_R2_tar,
+            allc_uniq_reads_stats = all_tasks.allc_uniq_reads_stats,
+            chromatin_contact_stats = all_tasks.chromatin_contact_stats,
+            dedup_stats = all_tasks.
+            unique_reads_cgn_extraction_tbi = all_tasks.extract_allc_output_tbi_tar
             plate_id = plate_id
     }
 
