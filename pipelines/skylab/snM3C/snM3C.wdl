@@ -229,6 +229,7 @@ task all_tasks{
         Int disk_size = 2000
         Int cpu = 64
         Int mem_size = 128
+        Int preemptible_tries = 2
         String cpu_platform = "Intel Ice Lake"
         String docker
     }
@@ -631,6 +632,7 @@ task all_tasks{
         cpu: cpu
         memory: "${mem_size} GiB"
         cpuPlatform: cpu_platform
+        preemptible: preemptible_tries
     }
 
     output {
