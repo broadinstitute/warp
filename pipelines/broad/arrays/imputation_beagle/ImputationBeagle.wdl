@@ -27,8 +27,8 @@ workflow ImputationBeagle {
     Float? optional_qc_hwe
     File ref_dict # for reheadering / adding contig lengths in the header of the ouptut VCF, and calculating contig lengths
     Array[String] contigs
-    String reference_panel_path = "gs://morgan-imputation-development/1000G-ref-panel/hg19/" # path to the bucket where the reference panel files are stored for all contigs
-    String genetic_maps_path = "gs://morgan-imputation-development/plink-genetic-maps/GRCh37/" # path to the bucket where genetic maps are stored for all contigs
+    String reference_panel_path # path to the bucket where the reference panel files are stored for all contigs
+    String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
     String output_callset_name # the output callset name
     Boolean split_output_to_single_sample = false
     Int merge_ssvcf_mem_mb = 3000 # the memory allocation for MergeSingleSampleVcfs (in mb)
@@ -220,6 +220,7 @@ workflow ImputationBeagle {
       call tasks.SelectVariantsByIds {
         input:
           vcf = SetIdsVcfToImpute.output_vcf,
+          vcf_index = SetIdsVcfToImpute.output_vcf_index,
           ids = FindSitesUniqueToFileTwoOnly.missing_sites,
           basename = "imputed_sites_to_recover"
       }
