@@ -834,6 +834,7 @@ task ExtractIDs {
 task SelectVariantsByIds {
   input {
     File vcf
+    File vcf_index
     File ids
     String basename
 
@@ -844,6 +845,10 @@ task SelectVariantsByIds {
   }
   parameter_meta {
     vcf: {
+      description: "vcf",
+      localization_optional: true
+    }
+    vcf_index: {
       description: "vcf",
       localization_optional: true
     }
