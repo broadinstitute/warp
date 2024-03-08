@@ -569,7 +569,7 @@ task hisat_single_end {
          # remove_overlap_read_parts
          echo "call remove_overlap_read_parts" 
          start=$(date +%s) 
-         python3 -c 'from cemba_data.hisat3n import *;import os;remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep,"cromwell_root","'"$BASE"'.name_sorted.filtered.bam"),out_bam_path=os.path.join(os.path.sep,"cromwell_root","'"$BASE"'.read_overlap.bam"))'  
+         python3 -c 'from cemba_data.hisat3n import *;import os;remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep,"cromwell_root","'"$BASE"'.name_sorted.filtered.bam"),out_bam_path=os.path.join(os.path.sep,"cromwell_root","'"$BASE"'.hisat3n_dna.split_reads.read_overlap.bam"))'  
          end=$(date +%s) 
          elapsed=$((end - start))  
          echo "Elapsed time to run remove overlap $elapsed seconds"
@@ -684,7 +684,7 @@ task merge_sort_analyze {
 
       # define lists of r1 and r2 fq files
       UNIQUE_BAMS=($(ls | grep "\.hisat3n_dna.unique_aligned.bam"))
-      SPLIT_BAMS=($(ls | grep "\.read_overlap.bam"))
+      SPLIT_BAMS=($(ls | grep "\..hisat3n_dna.split_reads.read_overlap.bam"))
 
       # for allcools bam-to-allc
       if [ ~{num_upstr_bases} -eq 0 ]; then
@@ -705,7 +705,7 @@ task merge_sort_analyze {
 
         start=$(date +%s)  
         echo "Merge all unique_aligned and read_overlap"
-        samtools merge -f "${sample_id}.hisat3n_dna.all_reads.bam" "${sample_id}.hisat3n_dna.unique_aligned.bam" "${sample_id}.read_overlap.bam" -@2
+        samtools merge -f "${sample_id}.hisat3n_dna.all_reads.bam" "${sample_id}.hisat3n_dna.unique_aligned.bam" "${sample_id}.hisat3n_dna.split_reads.read_overlap.bam" -@2
         end=$(date +%s) 
         elapsed=$((end - start)) 
         echo "Elapsed time to run merge $elapsed seconds"
@@ -777,7 +777,7 @@ task merge_sort_analyze {
         echo "Remove some bams"
         rm ${sample_id}.hisat3n_dna.all_reads.bam
         rm ${sample_id}.hisat3n_dna.all_reads.pos_sort.bam
-        rm /cromwell_root/${sample_id}.read_overlap.bam
+        rm /cromwell_root/${sample_id}.hisat3n_dna.split_reads.read_overlap.bam
         rm /cromwell_root/${sample_id}.hisat3n_dna.unique_aligned.bam
       }
  
