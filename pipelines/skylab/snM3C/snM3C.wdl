@@ -716,7 +716,7 @@ task summary {
         ls
         mv *.trimmed.stats.txt /cromwell_root/fastq
         mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt /cromwell_root/bam
-        mv *.matrix.txt /cromwell_root/bam
+        mv output_bams/*matrix.txt /cromwell_root/bam
         mv *.hisat3n_dna.all_reads.contact_stats.csv /cromwell_root/hic
         mv *.allc.tsv.gz.count.csv /cromwell_root/allc
         mv cromwell_root/allc-CGN/*.allc.tsv.gz.tbi /cromwell_root/allc
