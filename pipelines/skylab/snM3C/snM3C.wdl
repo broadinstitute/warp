@@ -644,8 +644,8 @@ task merge_sort_analyze {
         String merge_sort_analyze_cpu_platform
         String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
         Int disk_size = 1000
-        Int mem_size = 64
-        Int cpu = 16 
+        Int mem_size = 80
+        Int cpu = 20 
         Int preemptible_tries = 2
     }
 
