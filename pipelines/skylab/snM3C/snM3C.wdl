@@ -68,9 +68,9 @@ workflow snM3C {
             hisat3n_stats = all_tasks.hisat3n_paired_end_stats_tar,
             r1_hisat3n_stats = all_tasks.hisat3n_dna_split_reads_summary_R1_tar,
             r2_hisat3n_stats = all_tasks.hisat3n_dna_split_reads_summary_R2_tar,
-            allc_uniq_reads_stats = all_tasks.allc_uniq_reads_stats,
+            dedup_stats = all_tasks.dedup_stats_tar,
             chromatin_contact_stats = all_tasks.chromatin_contact_stats,
-            dedup_stats = all_tasks.all_reads_dedup_contacts,
+            allc_uniq_reads_stats = all_tasks.allc_uniq_reads_stats,
             unique_reads_cgn_extraction_tbi = all_tasks.extract_allc_output_tbi_tar,
             plate_id = plate_id
     }
@@ -610,15 +610,23 @@ task all_tasks{
         elapsed=$((end - start))  
         echo "Elapsed time to run tar name_sort.bam files $elapsed seconds"
         
+        # tar matrix outputs 
+        echo "Tar up matrix.txt files"
+        start=$(date +%s)
+        tar -cf - /cromwell_root/output_bams/*.matrix.txt | pigz > ~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz
+        end=$(date +%s) 
+        elapsed=$((end - start))  
+        echo "Elapsed time to run tar matrix.txt files $elapsed seconds"
+        
         # tar outputs of allcools
         echo "Tar up allc.tsv, .allc.tbi, allc.count... "
         start=$(date +%s)  
         tar -cf - *.allc.tsv.gz | pigz > ~{plate_id}.allc.tsv.tar.gz
         tar -cf - *.allc.tsv.gz.tbi | pigz > ~{plate_id}.allc.tbi.tar.gz
-        tar -cf - *.allc.tsv.gz.count.csv | pigz > ~{plate_id}.allc.count.tar.gz
+        tar -cf - *.allc.tsv.gz.count.csv | pigz > ~{plate_id}.allc.count.tar.gz #*
         #tar -cf - *.tbi | pigz > ~{plate_id}.extract-allc_tbi.tar.gz ? -- what is this -- same name as before
         tar -cf - /cromwell_root/allc-${mcg_context}/*.gz | pigz > ~{plate_id}.extract-allc.tar.gz
-        tar -cf - /cromwell_root/allc-${mcg_context}/*.tbi | pigz > ~{plate_id}.extract-allc_tbi.tar.gz
+        tar -cf - /cromwell_root/allc-${mcg_context}/*.tbi | pigz > ~{plate_id}.extract-allc_tbi.tar.gz #*
         end=$(date +%s) 
         elapsed=$((end - start))  
         echo "Elapsed time to run tar files $elapsed seconds"    
@@ -644,6 +652,7 @@ task all_tasks{
         File hisat3n_dna_split_reads_summary_R1_tar = "~{plate_id}.hisat3n_dna_split_reads_summary.R1.tar.gz"
         File hisat3n_dna_split_reads_summary_R2_tar = "~{plate_id}.hisat3n_dna_split_reads_summary.R2.tar.gz"
         # chromatin contacts
+        File dedup_stats_tar = "~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz"
         File all_reads_dedup_contacts = "~{plate_id}.hisat3n_dna.all_reads.dedup_contacts.tar.gz"
         File all_reads_3C_contacts = "~{plate_id}.hisat3n_dna.all_reads.3C.contact.tar.gz"
         File chromatin_contact_stats = "~{plate_id}.chromatin_contact_stats.tar.gz"
