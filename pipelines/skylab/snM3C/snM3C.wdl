@@ -644,8 +644,8 @@ task merge_sort_analyze {
         String merge_sort_analyze_cpu_platform
         String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
         Int disk_size = 1000
-        Int mem_size = 80
-        Int cpu = 20 
+        Int mem_size = 64
+        Int cpu = 26 
         Int preemptible_tries = 2
     }
 
@@ -705,21 +705,21 @@ task merge_sort_analyze {
 
         start=$(date +%s)  
         echo "Merge all unique_aligned and read_overlap"
-        samtools merge -f "${sample_id}.hisat3n_dna.all_reads.bam" "${sample_id}.hisat3n_dna.unique_aligned.bam" "${sample_id}.hisat3n_dna.split_reads.read_overlap.bam" -@2
+        samtools merge -f "${sample_id}.hisat3n_dna.all_reads.bam" "${sample_id}.hisat3n_dna.unique_aligned.bam" "${sample_id}.hisat3n_dna.split_reads.read_overlap.bam" -@3
         end=$(date +%s) 
         elapsed=$((end - start)) 
         echo "Elapsed time to run merge $elapsed seconds"
 
         start=$(date +%s)  
         echo "Sort all reads by name"
-        samtools sort -n -@2 -m1g -o "${sample_id}.hisat3n_dna.all_reads.name_sort.bam" "${sample_id}.hisat3n_dna.all_reads.bam" 
+        samtools sort -n -@3 -m1g -o "${sample_id}.hisat3n_dna.all_reads.name_sort.bam" "${sample_id}.hisat3n_dna.all_reads.bam" 
         end=$(date +%s) 
         elapsed=$((end - start))  
         echo "Elapsed time to run sort by name $elapsed seconds"
         
         start=$(date +%s)  
         echo "Sort all reads by name"
-        samtools sort -O BAM -@2 -m1g -o "${sample_id}.hisat3n_dna.all_reads.pos_sort.bam" "${sample_id}.hisat3n_dna.all_reads.name_sort.bam" 
+        samtools sort -O BAM -@3 -m1g -o "${sample_id}.hisat3n_dna.all_reads.pos_sort.bam" "${sample_id}.hisat3n_dna.all_reads.name_sort.bam" 
         end=$(date +%s) 
         elapsed=$((end - start))  
         echo "Elapsed time to run sort by pos $elapsed seconds"
