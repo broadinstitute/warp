@@ -684,7 +684,7 @@ task merge_sort_analyze {
 
       # define lists of r1 and r2 fq files
       UNIQUE_BAMS=($(ls | grep "\.hisat3n_dna.unique_aligned.bam"))
-      SPLIT_BAMS=($(ls | grep "\..hisat3n_dna.split_reads.read_overlap.bam"))
+      SPLIT_BAMS=($(ls | grep "\.hisat3n_dna.split_reads.read_overlap.bam"))
 
       # for allcools bam-to-allc
       if [ ~{num_upstr_bases} -eq 0 ]; then
