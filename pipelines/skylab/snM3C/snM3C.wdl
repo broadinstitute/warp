@@ -688,12 +688,6 @@ task summary {
     command <<<
         set -euo pipefail
         
-        # make directories
-        mkdir /cromwell_root/fastq
-        mkdir /cromwell_root/bam
-        mkdir /cromwell_root/allc
-        mkdir /cromwell_root/hic
-        
         # extract tar files and remove zipped file
         extract_and_remove() {
             if [ $# -eq 0 ];
@@ -707,21 +701,24 @@ task summary {
             done
         }
 
+        extract_and_remove ~{sep=' ' dedup_stats}
+        extract_and_remove ~{sep=' ' chromatin_contact_stats}
+        extract_and_remove ~{sep=' ' allc_uniq_reads_stats}
+        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
         extract_and_remove ~{sep=' ' trimmed_stats}
         extract_and_remove ~{sep=' ' hisat3n_stats}
         extract_and_remove ~{sep=' ' r1_hisat3n_stats}
         extract_and_remove ~{sep=' ' r2_hisat3n_stats}
-        echo "Extract dedup stats"
-        extract_and_remove ~{sep=' ' dedup_stats}
-        echo "Done"
-        ls
-        extract_and_remove ~{sep=' ' chromatin_contact_stats}
-        extract_and_remove ~{sep=' ' allc_uniq_reads_stats}
-        extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
-        ls
+
+        # make directories
+        mkdir /cromwell_root/fastq
+        mkdir /cromwell_root/bam
+        mkdir /cromwell_root/allc
+        mkdir /cromwell_root/hic
+        
         mv *.trimmed.stats.txt /cromwell_root/fastq
         mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt /cromwell_root/bam
-        mv output_bams/*matrix.txt /cromwell_root/bam
+        mv cromwell_root/output_bams/*matrix.txt /cromwell_root/bam
         mv *.hisat3n_dna.all_reads.contact_stats.csv /cromwell_root/hic
         mv *.allc.tsv.gz.count.csv /cromwell_root/allc
         mv cromwell_root/allc-CGN/*.allc.tsv.gz.tbi /cromwell_root/allc
