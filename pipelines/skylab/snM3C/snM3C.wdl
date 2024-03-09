@@ -645,7 +645,7 @@ task merge_sort_analyze {
         String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
         Int disk_size = 1000
         Int mem_size = 64
-        Int cpu = 26 
+        Int cpu = 16
         Int preemptible_tries = 2
     }
 
@@ -705,21 +705,21 @@ task merge_sort_analyze {
 
         start=$(date +%s)  
         echo "Merge all unique_aligned and read_overlap"
-        samtools merge -f "${sample_id}.hisat3n_dna.all_reads.bam" "${sample_id}.hisat3n_dna.unique_aligned.bam" "${sample_id}.hisat3n_dna.split_reads.read_overlap.bam" -@3
+        samtools merge -f "${sample_id}.hisat3n_dna.all_reads.bam" "${sample_id}.hisat3n_dna.unique_aligned.bam" "${sample_id}.hisat3n_dna.split_reads.read_overlap.bam" -@4
         end=$(date +%s) 
         elapsed=$((end - start)) 
         echo "Elapsed time to run merge $elapsed seconds"
 
         start=$(date +%s)  
         echo "Sort all reads by name"
-        samtools sort -n -@3 -m1g -o "${sample_id}.hisat3n_dna.all_reads.name_sort.bam" "${sample_id}.hisat3n_dna.all_reads.bam" 
+        samtools sort -n -@4 -m1g -o "${sample_id}.hisat3n_dna.all_reads.name_sort.bam" "${sample_id}.hisat3n_dna.all_reads.bam" 
         end=$(date +%s) 
         elapsed=$((end - start))  
         echo "Elapsed time to run sort by name $elapsed seconds"
         
         start=$(date +%s)  
         echo "Sort all reads by name"
-        samtools sort -O BAM -@3 -m1g -o "${sample_id}.hisat3n_dna.all_reads.pos_sort.bam" "${sample_id}.hisat3n_dna.all_reads.name_sort.bam" 
+        samtools sort -O BAM -@4 -m1g -o "${sample_id}.hisat3n_dna.all_reads.pos_sort.bam" "${sample_id}.hisat3n_dna.all_reads.name_sort.bam" 
         end=$(date +%s) 
         elapsed=$((end - start))  
         echo "Elapsed time to run sort by pos $elapsed seconds"
@@ -789,7 +789,7 @@ task merge_sort_analyze {
           sleep $(( (RANDOM % 3) + 1))
         ) &
         # allow to execute up to 4 jobs in parallel
-        if [[ $(jobs -r -p | wc -l) -ge 8 ]]; then
+        if [[ $(jobs -r -p | wc -l) -ge 4 ]]; then
           wait -n
         fi
       done
