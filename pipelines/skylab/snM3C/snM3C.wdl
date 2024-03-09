@@ -687,12 +687,14 @@ task summary {
     }
     command <<<
         set -euo pipefail
-
+        
+        # make directories
         mkdir /cromwell_root/fastq
         mkdir /cromwell_root/bam
         mkdir /cromwell_root/allc
         mkdir /cromwell_root/hic
-
+        
+        # extract tar files and remove zipped file
         extract_and_remove() {
             if [ $# -eq 0 ];
                 then
@@ -709,7 +711,10 @@ task summary {
         extract_and_remove ~{sep=' ' hisat3n_stats}
         extract_and_remove ~{sep=' ' r1_hisat3n_stats}
         extract_and_remove ~{sep=' ' r2_hisat3n_stats}
+        echo "Extract dedup stats"
         extract_and_remove ~{sep=' ' dedup_stats}
+        echo "Done"
+        ls
         extract_and_remove ~{sep=' ' chromatin_contact_stats}
         extract_and_remove ~{sep=' ' allc_uniq_reads_stats}
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
