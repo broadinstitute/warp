@@ -376,14 +376,14 @@ task hisat_paired_end{
       R1_files=($(ls batch*/ | grep "\-R1.fq.gz"))
       R2_files=($(ls batch*/ | grep "\-R2.fq.gz"))
         
-      # run 4 instances of task in parallel 
+      # run 6 instances of task in parallel 
       for file in "${R1_files[@]}"; do
         (
           echo "starting task $file.."
           task "$file"
           sleep $(( (RANDOM % 3) + 1))
         ) &
-        # allow to execute up to 4 jobs in parallel
+        # allow to execute up to 6 jobs in parallel
         if [[ $(jobs -r -p | wc -l) -ge 6 ]]; then
           wait -n
         fi
