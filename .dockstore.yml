@@ -292,3 +292,7 @@ workflows:
   - name: VUMCHailMatrixInfo
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCHailMatrixInfo.wdl
+
+  - name: VUMC_vcftools828Filters
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMC_vcftools828Filters.wdl
