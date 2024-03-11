@@ -1,24 +1,28 @@
 version 1.0
 
 #WORKFLOW DEFINITION   
-workflow VUMCCramQC {
+workflow VUMCCramQCCombined {
   input {
     Array[File] input_crams
     String sample_name
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.4.0.0"
     String gatk_path = "/gatk/gatk"
     String samtools_docker = "staphb/samtools:latest"
+
+    String? ValidateSamFile_option
+    
     File? reference_file
     File? reference_file_dict
     File? reference_file_fai
   }
 
   scatter (input_cram in input_crams) {
-    call ValidateCRAM {
+    call ValidateSamFile {
       input:
         input_cram = input_cram,
         docker = gatk_docker,
         gatk_path = gatk_path,
+        option = ValidateSamFile_option,
         reference_file = reference_file,
         reference_file_dict = reference_file_dict,
         reference_file_fai = reference_file_fai
@@ -27,8 +31,8 @@ workflow VUMCCramQC {
 
   call SummerizeQC {
     input:
-      qc_reports = ValidateCRAM.validation_report,
-      qc_codes = ValidateCRAM.cram_qc_code,
+      qc_reports = ValidateSamFile.validation_report,
+      qc_codes = ValidateSamFile.qc_code,
       sample_name = sample_name,
   }
 
@@ -59,7 +63,7 @@ workflow VUMCCramQC {
 
 # TASK DEFINITIONS
 # Validate a cram using Picard ValidateSamFile
-task ValidateCRAM {
+task ValidateSamFile {
   input {
     File input_cram
     String validation_mode = "SUMMARY"
@@ -67,6 +71,8 @@ task ValidateCRAM {
     File? reference_file
     File? reference_file_dict
     File? reference_file_fai
+
+    String? option
   
     # Runtime parameters
     String docker
@@ -84,7 +90,7 @@ task ValidateCRAM {
       --INPUT ~{input_cram} \
       --OUTPUT validate.summary  ~{"--REFERENCE_SEQUENCE " + reference_file} \
       --MODE ~{validation_mode} \
-      --IGNORE MISSING_TAG_NM --IGNORE MATE_NOT_FOUND
+      --IGNORE INVALID_TAG_NM --IGNORE MISSING_TAG_NM --IGNORE MATE_NOT_FOUND ~{option}
 
     status=$?
     echo "$status" > ~{res_file}
@@ -108,7 +114,7 @@ task ValidateCRAM {
 
   output {
     File validation_report = "~{output_name}"
-    Int cram_qc_code = read_int("~{res_file}")
+    Int qc_code = read_int("~{res_file}")
   }
 }
 

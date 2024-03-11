@@ -1,0 +1,15 @@
+{
+  "CombineGvsChromosome.intervals_files": [
+    "/nobackup/h_cqs/shengq2/biovu/gvs/intervals/0000000000-gvs-beta-10NRQ.vcf.gz.interval_list",
+    "/nobackup/h_cqs/shengq2/biovu/gvs/intervals/0000000001-gvs-beta-10NRQ.vcf.gz.interval_list",
+    "/nobackup/h_cqs/shengq2/biovu/gvs/intervals/0000000110-gvs-beta-10NRQ.vcf.gz.interval_list",
+    "/nobackup/h_cqs/shengq2/biovu/gvs/intervals/0000000111-gvs-beta-10NRQ.vcf.gz.interval_list"
+  ],
+  "CombineGvsChromosome.vcf_files": [
+    "/nobackup/h_cqs/shengq2/biovu/gvs/intervals/0000000000-gvs-beta-10NRQ.vcf.gz",
+    "/nobackup/h_cqs/shengq2/biovu/gvs/intervals/0000000001-gvs-beta-10NRQ.vcf.gz",
+    "/nobackup/h_cqs/shengq2/biovu/gvs/intervals/0000000110-gvs-beta-10NRQ.vcf.gz",
+    "/nobackup/h_cqs/shengq2/biovu/gvs/intervals/0000000111-gvs-beta-10NRQ.vcf.gz"
+  ]
+}
+

@@ -54,7 +54,7 @@ workflows:
 
   - name: VUMCCramQCCombined
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCCramQC_combined.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCCramQCCombined.wdl
 
   - name: VUMCSamHeader
     subclass: WDL
@@ -80,10 +80,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCDeleteBam.wdl
 
-  # - name: VUMCHaplotypeCaller
-  #   subclass: WDL
-  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/haplotypecaller-gvcf-gatk4.wdl
-
   # - name: VUMCJointGenotyping
   #   subclass: WDL
   #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/joint_genotyping/JointGenotyping.wdl
@@ -96,13 +92,13 @@ workflows:
   #   subclass: WDL
   #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSampleFromCram.wdl
 
-  - name: VUMCWholeGenomeGermlineSingleSampleFromFastq
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCWholeGenomeGermlineSingleSampleFromFastq.wdl
+  # - name: VUMCWholeGenomeGermlineSingleSampleFromFastq
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCWholeGenomeGermlineSingleSampleFromFastq.wdl
 
-  - name: VUMCWholeGenomeGermlineSingleSampleFromMappedCram
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCWholeGenomeGermlineSingleSampleFromMappedCram.wdl
+  # - name: VUMCWholeGenomeGermlineSingleSampleFromMappedCram
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCWholeGenomeGermlineSingleSampleFromMappedCram.wdl
 
   - name: VUMCExomeGermlineSingleSampleFromFastq
     subclass: WDL
@@ -184,3 +180,115 @@ workflows:
   - name: VUMCVcfIncludeSamples
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfIncludeSamples.wdl
+
+  - name: CombineGvsChromosome
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/joint_genotyping/CombineGvsChromosome.wdl
+
+  # - name: VUMCHaplotypecallerReblock
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCHaplotypecallerReblock.wdl
+
+  # - name: VUMCHaplotypecallerReblockMoveResult
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCHaplotypecallerReblockMoveResult.wdl
+
+  - name: VUMCMappedCramQC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCMappedCramQC.wdl
+
+  - name: VUMCPlinkIncludeSamples
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCPlinkIncludeSamples.wdl
+
+  - name: VUMCContamination
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCContamination.wdl
+
+  - name: VUMCVariantCalling
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCVariantCalling.wdl
+
+  - name: VUMCVariantCallingMoveResult
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCVariantCallingMoveResult.wdl
+
+  - name: VUMCCollectWgsMetrics
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCCollectWgsMetrics.wdl
+
+  - name: VUMCIlluminaCoverage
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCIlluminaCoverage.wdl
+
+  - name: VUMCVcfInfo
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfInfo.wdl
+
+  - name: VUMCPlink2BedToPgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCPlink2BedToPgen.wdl
+
+  - name: VUMCPlink2BedToBgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCPlink2BedToBgen.wdl
+
+  - name: VUMCBed2HailMatrix
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCBed2HailMatrix.wdl
+
+  - name: VUMCPlink2FilterRegion
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2FilterRegion.wdl
+
+  - name: VUMCVcfRenameSamples
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfRenameSamples.wdl
+
+  - name: VUMCBed2GDS
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCBed2GDS.wdl
+
+  - name: VUMCPlink2Filter
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2Filter.wdl
+
+  - name: VUMCVcf2HailMatrix
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcf2HailMatrix.wdl
+
+  - name: VUMCHailMatrixExtractSamples
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCHailMatrixExtractSamples.wdl
+
+  - name: VUMCHailMatrix2Vcf
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCHailMatrix2Vcf.wdl
+
+  - name: VUMCVcfExtractSamples
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfExtractSamples.wdl
+
+  - name: VUMCVcf2GDS
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcf2GDS.wdl
+
+  - name: VUMCBedInfo
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCBedInfo.wdl
+
+  - name: VUMCVcfExtractRegions
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfExtractRegions.wdl
+
+  - name: VUMCVcfMoveFiles
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfMoveFiles.wdl
+
+  - name: VUMCVcfNumVariants
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfNumVariants.wdl
+
+  - name: VUMCHailMatrixInfo
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCHailMatrixInfo.wdl

@@ -27,8 +27,12 @@ version 1.0
 ## authorized to run all programs before running this script. Please see the dockers
 ## for detailed licensing information pertaining to the included programs.
 
+import "../../../../../tasks/broad/Utilities.wdl" as Utilities
+import "../../../../broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl" as Reblock
+import "./VUMCHaplotypecallerReblockMoveResult.wdl" as Utils
+
 # WORKFLOW DEFINITION 
-workflow HaplotypeCallerGvcf_GATK4 {
+workflow VUMCHaplotypecallerReblock {
   input {
     File input_bam
     File input_bam_index
@@ -36,13 +40,34 @@ workflow HaplotypeCallerGvcf_GATK4 {
     File ref_fasta
     File ref_fasta_index
     File scattered_calling_intervals_list
-  
+
+    String? project_id
+    String? target_bucket
+    String? genoset
+    String? GRID
+
     Boolean make_gvcf = true
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.2.4.0"
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
     String gatk_path = "/gatk/gatk"
-    String gitc_docker = "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.4.7-1603303710"
-    String samtools_path = "samtools"
   }  
+
+  # We don't need to check it. If GRID is not defined, it would failed directly at select_first([GRID]) of Utils.MoveVcf 
+  # before the workflow is executed.
+  #
+  # if(defined(target_bucket)){
+  #   if(!defined(genoset)){
+  #     call Utilities.ErrorWithMessage as NoGenosetError {
+  #       input:
+  #         message = "genoset is missing when target bucket is set."
+  #     }
+  #   }
+  #   if(!defined(GRID)){
+  #     call Utilities.ErrorWithMessage as GRIDError {
+  #       input:
+  #         message = "GRID is missing when target bucket is set."
+  #     }
+  #   }
+  # }
 
   Array[File] scattered_calling_intervals = read_lines(scattered_calling_intervals_list)
 
@@ -90,10 +115,31 @@ workflow HaplotypeCallerGvcf_GATK4 {
       gatk_path = gatk_path
   }
 
-  # Outputs that will be retained when execution is complete
+  call Reblock.ReblockGVCF as Reblock {
+    input:
+      gvcf = MergeGVCFs.output_vcf,
+      gvcf_index = MergeGVCFs.output_vcf_index,
+      ref_fasta = ref_fasta,
+      ref_fasta_index = ref_fasta_index,
+      ref_dict = ref_dict,
+      calling_interval_list = scattered_calling_intervals_list
+  }
+
+  if(defined(target_bucket)){
+    call Utils.MoveVcf {
+      input:
+        output_vcf = Reblock.output_vcf,
+        output_vcf_index = Reblock.output_vcf_index,
+        project_id = project_id,
+        target_bucket = select_first([target_bucket]),
+        genoset = select_first([genoset]),
+        GRID = select_first([GRID])
+    }
+  }
+
   output {
-    File output_vcf = MergeGVCFs.output_vcf
-    File output_vcf_index = MergeGVCFs.output_vcf_index
+    File output_vcf = select_first([MoveVcf.target_output_vcf, Reblock.output_vcf])
+    File output_vcf_index = select_first([MoveVcf.target_output_vcf_index, Reblock.output_vcf_index])
   }
 }
 

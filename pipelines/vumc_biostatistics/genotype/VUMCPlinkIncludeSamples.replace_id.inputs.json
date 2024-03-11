@@ -1,0 +1,8 @@
+{
+  "VUMCPlinkIncludeSamples.include_samples": "/nobackup/h_cqs/shengq2/biovu/data/elig_v1-1.1000.csv",
+  "VUMCPlinkIncludeSamples.target_prefix": "agd35k_chrM",
+  "VUMCPlinkIncludeSamples.source_bed": "/nobackup/h_cqs/shengq2/biovu/agd35k/chrM.bed",
+  "VUMCPlinkIncludeSamples.source_fam": "/nobackup/h_cqs/shengq2/biovu/agd35k/chrM.fam",
+  "VUMCPlinkIncludeSamples.source_bim": "/nobackup/h_cqs/shengq2/biovu/agd35k/chrM.bim",
+  "VUMCPlinkIncludeSamples.id_map_file": "/nobackup/h_cqs/shengq2/program/projects/biovu/agd_data/sample_ids_map_202309.tsv.gz"
+}

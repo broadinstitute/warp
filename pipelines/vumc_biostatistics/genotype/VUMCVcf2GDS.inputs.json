@@ -1,0 +1,8 @@
+{
+  "VUMCVcf2GDS.source_vcf": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/chrM.vcf.gz",
+  "VUMCVcf2GDS.source_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/chrM.vcf.gz.csi",
+  "VUMCVcf2GDS.replace_samples": "/nobackup/h_cqs/shengq2/biovu/20240202_agd35k_whitelist_v2/agd35k_ica_primary.txt",
+  "VUMCVcf2GDS.target_prefix": "chrM",
+  "VUMCVcf2GDS.target_suffix": ".primary_grid.gds"
+}
+

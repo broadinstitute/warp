@@ -1,0 +1,7 @@
+{
+  "VUMCVcfIncludeSamples.target_prefix": "WGS_chr22",
+  "VUMCVcfIncludeSamples.include_samples": "/nobackup/h_cqs/shengq2/biovu/data/elig_v1-1.csv",
+  "VUMCVcfIncludeSamples.input_vcf": "/data/cqs/shengq2/biovu/v1.1/wgs/chr22.5000.vcf.gz",
+  "VUMCVcfIncludeSamples.target_suffix": ".eligible1-1.primary_grid.vcf.gz"
+}
+

@@ -1,0 +1,7 @@
+{
+  "VUMCBed2HailMatrix.target_prefix": "agd35k_chrm_v1_2",
+  "VUMCBed2HailMatrix.source_bed": "/nobackup/h_cqs/shengq2/biovu/agd35k/ICA-AGD/chrM.bed",
+  "VUMCBed2HailMatrix.source_fam": "/nobackup/h_cqs/shengq2/biovu/agd35k/ICA-AGD/chrM.fam",
+  "VUMCBed2HailMatrix.source_bim": "/nobackup/h_cqs/shengq2/biovu/agd35k/ICA-AGD/chrM.bim"
+}
+

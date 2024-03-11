@@ -1,0 +1,7 @@
+{
+  "VUMCVcfExcludeSamples.target_prefix": "chrM",
+  "VUMCVcfExcludeSamples.exclude_samples": "/nobackup/h_cqs/shengq2/biovu/20240202_agd35k_whitelist_v2/agd35k_ineligible.v2.txt",
+  "VUMCVcfExcludeSamples.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/chrM.primary_grid_v2.vcf.gz",
+  "VUMCVcfExcludeSamples.target_suffix": ".eligible.vcf.gz"
+}
+

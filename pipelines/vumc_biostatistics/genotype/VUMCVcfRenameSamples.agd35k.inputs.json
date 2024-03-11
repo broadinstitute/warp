@@ -1,0 +1,7 @@
+{
+  "VUMCVcfRenameSamples.target_prefix": "agd_chrM",
+  "VUMCVcfRenameSamples.replace_samples": "/nobackup/h_cqs/shengq2/biovu/20240125_agd35k_whitelist_v2/primary_idmap.txt",
+  "VUMCVcfRenameSamples.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/chrM.vcf.gz",
+  "VUMCVcfRenameSamples.target_suffix": ".primary_grid.vcf.gz"
+}
+
