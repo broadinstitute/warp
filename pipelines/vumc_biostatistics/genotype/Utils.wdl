@@ -130,7 +130,9 @@ task MoveOrCopyVcfFile {
 
   String action = if (is_move_file) then "mv" else "cp"
 
-  String target_folder = if(defined(GRID)) then "~{target_bucket}/~{genoset}/~{GRID}" else "~{target_bucket}/~{genoset}"
+  String gcs_output_dir = sub(target_bucket, "/+$", "")
+
+  String target_folder = if(defined(GRID)) then "~{gcs_output_dir}/~{genoset}/~{GRID}" else "~{gcs_output_dir}/~{genoset}"
   String new_vcf = "~{target_folder}/~{basename(input_vcf)}"
   String new_vcf_index = "~{target_folder}/~{basename(input_vcf_index)}"
 
@@ -170,9 +172,11 @@ task MoveOrCopyPlinkFile {
 
   String action = if (is_move_file) then "mv" else "cp"
 
-  String new_bed = "~{target_bucket}/~{basename(source_bed)}"
-  String new_bim = "~{target_bucket}/~{basename(source_bim)}"
-  String new_fam = "~{target_bucket}/~{basename(source_fam)}"
+  String gcs_output_dir = sub(target_bucket, "/+$", "")
+
+  String new_bed = "~{gcs_output_dir}/~{basename(source_bed)}"
+  String new_bim = "~{gcs_output_dir}/~{basename(source_bim)}"
+  String new_fam = "~{gcs_output_dir}/~{basename(source_fam)}"
 
   command <<<
 
@@ -181,7 +185,7 @@ set -e
 gsutil -m ~{"-u " + project_id} ~{action} ~{source_bed} \
   ~{source_bim} \
   ~{source_fam} \
-  ~{target_bucket}/
+  ~{gcs_output_dir}/
 
 >>>
 

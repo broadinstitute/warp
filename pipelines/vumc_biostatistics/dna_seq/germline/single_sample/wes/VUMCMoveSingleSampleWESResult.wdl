@@ -58,101 +58,102 @@ workflow VUMCMoveSingleSampleWESResult {
     File output_vcf_index
   }
 
+  String gcs_output_dir = sub(target_bucket, "/+$", "")
+  String target_folder = "~{gcs_output_dir}/~{genoset}/~{GRID}"
+
   scatter(file in quality_yield_metrics){
-    String moved_quality_yield_metrics_file = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(file)}"
+    String moved_quality_yield_metrics_file = "~{target_folder}/~{basename(file)}"
   }
   Array[String] moved_quality_yield_metrics = moved_quality_yield_metrics_file
 
   scatter(file in unsorted_read_group_base_distribution_by_cycle_pdf){
-    String moved_unsorted_read_group_base_distribution_by_cycle_pdf_file = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(file)}"
+    String moved_unsorted_read_group_base_distribution_by_cycle_pdf_file = "~{target_folder}/~{basename(file)}"
   }
   Array[String] moved_unsorted_read_group_base_distribution_by_cycle_pdf = moved_unsorted_read_group_base_distribution_by_cycle_pdf_file
 
   scatter(file in unsorted_read_group_base_distribution_by_cycle_metrics){
-    String moved_unsorted_read_group_base_distribution_by_cycle_metrics_file = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(file)}"
+    String moved_unsorted_read_group_base_distribution_by_cycle_metrics_file = "~{target_folder}/~{basename(file)}"
   }
   Array[String] moved_unsorted_read_group_base_distribution_by_cycle_metrics = moved_unsorted_read_group_base_distribution_by_cycle_metrics_file
 
   scatter(file in unsorted_read_group_insert_size_histogram_pdf){
-    String moved_unsorted_read_group_insert_size_histogram_pdf_file = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(file)}"
+    String moved_unsorted_read_group_insert_size_histogram_pdf_file = "~{target_folder}/~{basename(file)}"
   }
   Array[String] moved_unsorted_read_group_insert_size_histogram_pdf = moved_unsorted_read_group_insert_size_histogram_pdf_file
 
   scatter(file in unsorted_read_group_insert_size_metrics){
-    String moved_unsorted_read_group_insert_size_metrics_file = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(file)}"
+    String moved_unsorted_read_group_insert_size_metrics_file = "~{target_folder}/~{basename(file)}"
   }
   Array[String] moved_unsorted_read_group_insert_size_metrics = moved_unsorted_read_group_insert_size_metrics_file
 
   scatter(file in unsorted_read_group_quality_by_cycle_pdf){
-    String moved_unsorted_read_group_quality_by_cycle_pdf_file = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(file)}"
+    String moved_unsorted_read_group_quality_by_cycle_pdf_file = "~{target_folder}/~{basename(file)}"
   }
   Array[String] moved_unsorted_read_group_quality_by_cycle_pdf = moved_unsorted_read_group_quality_by_cycle_pdf_file
 
   scatter(file in unsorted_read_group_quality_by_cycle_metrics){
-    String moved_unsorted_read_group_quality_by_cycle_metrics_file = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(file)}"
+    String moved_unsorted_read_group_quality_by_cycle_metrics_file = "~{target_folder}/~{basename(file)}"
   }
   Array[String] moved_unsorted_read_group_quality_by_cycle_metrics = moved_unsorted_read_group_quality_by_cycle_metrics_file
 
   scatter(file in unsorted_read_group_quality_distribution_pdf){
-    String moved_unsorted_read_group_quality_distribution_pdf_file = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(file)}"
+    String moved_unsorted_read_group_quality_distribution_pdf_file = "~{target_folder}/~{basename(file)}"
   }
   Array[String] moved_unsorted_read_group_quality_distribution_pdf = moved_unsorted_read_group_quality_distribution_pdf_file
 
   scatter(file in unsorted_read_group_quality_distribution_metrics){
-    String moved_unsorted_read_group_quality_distribution_metrics_file = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(file)}"
+    String moved_unsorted_read_group_quality_distribution_metrics_file = "~{target_folder}/~{basename(file)}"
   }
   Array[String] moved_unsorted_read_group_quality_distribution_metrics = moved_unsorted_read_group_quality_distribution_metrics_file
 
-  String moved_read_group_alignment_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(read_group_alignment_summary_metrics)}"
+  String moved_read_group_alignment_summary_metrics = "~{target_folder}/~{basename(read_group_alignment_summary_metrics)}"
 
   String old_cross_check_fingerprints_metrics = "~{cross_check_fingerprints_metrics}"
-  String moved_cross_check_fingerprints_metrics = if old_cross_check_fingerprints_metrics == "" then "" else "~{target_bucket}/~{genoset}/~{GRID}/~{basename(old_cross_check_fingerprints_metrics)}"
+  String moved_cross_check_fingerprints_metrics = if old_cross_check_fingerprints_metrics == "" then "" else "~{target_folder}/~{basename(old_cross_check_fingerprints_metrics)}"
 
-  String moved_selfSM = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(selfSM)}"
+  String moved_selfSM = "~{target_folder}/~{basename(selfSM)}"
 
-  String moved_calculate_read_group_checksum_md5 = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(calculate_read_group_checksum_md5)}"
+  String moved_calculate_read_group_checksum_md5 = "~{target_folder}/~{basename(calculate_read_group_checksum_md5)}"
   
-  String moved_agg_alignment_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_alignment_summary_metrics)}"
-  String moved_agg_bait_bias_detail_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_bait_bias_detail_metrics)}"
-  String moved_agg_bait_bias_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_bait_bias_summary_metrics)}"
-  String moved_agg_insert_size_histogram_pdf = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_insert_size_histogram_pdf)}"
-  String moved_agg_insert_size_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_insert_size_metrics)}"
-  String moved_agg_pre_adapter_detail_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_pre_adapter_detail_metrics)}"
-  String moved_agg_pre_adapter_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_pre_adapter_summary_metrics)}"
-  String moved_agg_quality_distribution_pdf = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_quality_distribution_pdf)}"
-  String moved_agg_quality_distribution_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_quality_distribution_metrics)}"
-  String moved_agg_error_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(agg_error_summary_metrics)}"
+  String moved_agg_alignment_summary_metrics = "~{target_folder}/~{basename(agg_alignment_summary_metrics)}"
+  String moved_agg_bait_bias_detail_metrics = "~{target_folder}/~{basename(agg_bait_bias_detail_metrics)}"
+  String moved_agg_bait_bias_summary_metrics = "~{target_folder}/~{basename(agg_bait_bias_summary_metrics)}"
+  String moved_agg_insert_size_histogram_pdf = "~{target_folder}/~{basename(agg_insert_size_histogram_pdf)}"
+  String moved_agg_insert_size_metrics = "~{target_folder}/~{basename(agg_insert_size_metrics)}"
+  String moved_agg_pre_adapter_detail_metrics = "~{target_folder}/~{basename(agg_pre_adapter_detail_metrics)}"
+  String moved_agg_pre_adapter_summary_metrics = "~{target_folder}/~{basename(agg_pre_adapter_summary_metrics)}"
+  String moved_agg_quality_distribution_pdf = "~{target_folder}/~{basename(agg_quality_distribution_pdf)}"
+  String moved_agg_quality_distribution_metrics = "~{target_folder}/~{basename(agg_quality_distribution_metrics)}"
+  String moved_agg_error_summary_metrics = "~{target_folder}/~{basename(agg_error_summary_metrics)}"
 
   String old_fingerprint_summary_metrics = "~{fingerprint_summary_metrics}"
-  String moved_fingerprint_summary_metrics = if old_fingerprint_summary_metrics == "" then "" else "~{target_bucket}/~{genoset}/~{GRID}/~{basename(old_fingerprint_summary_metrics)}"
+  String moved_fingerprint_summary_metrics = if old_fingerprint_summary_metrics == "" then "" else "~{target_folder}/~{basename(old_fingerprint_summary_metrics)}"
 
   String old_fingerprint_detail_metrics = "~{fingerprint_detail_metrics}"
-  String moved_fingerprint_detail_metrics = if old_fingerprint_detail_metrics == "" then "" else "~{target_bucket}/~{genoset}/~{GRID}/~{basename(old_fingerprint_detail_metrics)}"
+  String moved_fingerprint_detail_metrics = if old_fingerprint_detail_metrics == "" then "" else "~{target_folder}/~{basename(old_fingerprint_detail_metrics)}"
 
-  String moved_duplicate_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(duplicate_metrics)}"
+  String moved_duplicate_metrics = "~{target_folder}/~{basename(duplicate_metrics)}"
 
   String old_output_bqsr_reports = "~{output_bqsr_reports}"
-  String moved_output_bqsr_reports = if old_output_bqsr_reports == "" then "" else "~{target_bucket}/~{genoset}/~{GRID}/~{basename(old_output_bqsr_reports)}"
+  String moved_output_bqsr_reports = if old_output_bqsr_reports == "" then "" else "~{target_folder}/~{basename(old_output_bqsr_reports)}"
 
-  String moved_gvcf_summary_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(gvcf_summary_metrics)}"
-  String moved_gvcf_detail_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(gvcf_detail_metrics)}"
+  String moved_gvcf_summary_metrics = "~{target_folder}/~{basename(gvcf_summary_metrics)}"
+  String moved_gvcf_detail_metrics = "~{target_folder}/~{basename(gvcf_detail_metrics)}"
   
-  String moved_hybrid_selection_metrics = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(hybrid_selection_metrics)}"
+  String moved_hybrid_selection_metrics = "~{target_folder}/~{basename(hybrid_selection_metrics)}"
 
-  String moved_output_cram = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram)}"
-  String moved_output_cram_index = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram_index)}"
-  String moved_output_cram_md5 = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram_md5)}"
+  String moved_output_cram = "~{target_folder}/~{basename(output_cram)}"
+  String moved_output_cram_index = "~{target_folder}/~{basename(output_cram_index)}"
+  String moved_output_cram_md5 = "~{target_folder}/~{basename(output_cram_md5)}"
 
-  String moved_validate_cram_file_report = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(validate_cram_file_report)}"
+  String moved_validate_cram_file_report = "~{target_folder}/~{basename(validate_cram_file_report)}"
 
-  String moved_output_vcf = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_vcf)}"
-  String moved_output_vcf_index = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_vcf_index)}"
+  String moved_output_vcf = "~{target_folder}/~{basename(output_vcf)}"
+  String moved_output_vcf_index = "~{target_folder}/~{basename(output_vcf_index)}"
 
   call MoveResult as mf {
     input:
-      genoset = genoset,
-      GRID = GRID,
-      target_bucket = target_bucket,
+      target_folder = target_folder,
       project_id = project_id,
 
       quality_yield_metrics = quality_yield_metrics,
@@ -263,9 +264,7 @@ workflow VUMCMoveSingleSampleWESResult {
 
 task MoveResult {
   input {
-    String genoset
-    String GRID
-    String target_bucket
+    String target_folder
     String? project_id
 
     Array[String] quality_yield_metrics
@@ -358,7 +357,7 @@ gsutil -m ~{"-u " + project_id} mv ~{sep="" quality_yield_metrics} \
   ~{validate_cram_file_report} \
   ~{output_vcf} \
   ~{output_vcf_index} \
-  ~{target_bucket}/~{genoset}/~{GRID}/
+  ~{target_folder}/
 
 >>>
 

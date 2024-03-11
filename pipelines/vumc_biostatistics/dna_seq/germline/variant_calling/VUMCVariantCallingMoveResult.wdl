@@ -51,7 +51,8 @@ task CopyOrMoveResult {
 
   String action = if (is_move_file) then "mv" else "cp"
 
-  String target_folder = "~{target_bucket}/~{genoset}/~{GRID}"
+  String gcs_output_dir = sub(target_bucket, "/+$", "")
+  String target_folder = "~{gcs_output_dir}/~{genoset}/~{GRID}"
 
   String new_vcf_summary_metrics = "~{target_folder}/~{basename(input_vcf_summary_metrics)}"
   String new_vcf_detail_metrics = "~{target_folder}/~{basename(input_vcf_detail_metrics)}"

@@ -71,7 +71,8 @@ task CopyFileNoOverwrite {
     String target_bucket
   }
 
-  String new_file = "${target_bucket}/${genoset}/${GRID}/${basename(input_file)}"
+  String gcs_output_dir = sub(target_bucket, "/+$", "")
+  String new_file = "${gcs_output_dir}/${genoset}/${GRID}/${basename(input_file)}"
 
   command <<<
 set +e
@@ -89,7 +90,7 @@ if [[ $result != 1 ]]; then
     set -e
      
     gsutil -m ~{"-u " + project_id} cp ~{input_file} \
-      ~{target_bucket}/~{genoset}/~{GRID}/
+      ~{gcs_output_dir}/~{genoset}/~{GRID}/
 
   else
     echo "Both source file and target file does not exist, error ..."

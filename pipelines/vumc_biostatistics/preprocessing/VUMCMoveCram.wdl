@@ -13,13 +13,15 @@ workflow VUMCMoveCram {
     String output_cram_md5
   }
 
-  String moved_output_cram = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram)}"
-  String moved_output_cram_index = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram_index)}"
-  String moved_output_cram_md5 = "~{target_bucket}/~{genoset}/~{GRID}/~{basename(output_cram_md5)}"
+  String gcs_output_dir = sub(target_bucket, "/+$", "")
+
+  String moved_output_cram = "~{gcs_output_dir}/~{genoset}/~{GRID}/~{basename(output_cram)}"
+  String moved_output_cram_index = "~{gcs_output_dir}/~{genoset}/~{GRID}/~{basename(output_cram_index)}"
+  String moved_output_cram_md5 = "~{gcs_output_dir}/~{genoset}/~{GRID}/~{basename(output_cram_md5)}"
 
   call MoveCram as mf {
     input:
-      target_bucket = target_bucket,
+      target_bucket = gcs_output_dir,
       project_id = project_id,
 
       genoset = genoset,
