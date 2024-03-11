@@ -338,7 +338,7 @@ task hisat_paired_end{
           -1 ${sample_id}-R1_trimmed.fq.gz \
           -2 ${sample_id}-R2_trimmed.fq.gz \
           --directional-mapping-reverse --base-change C,T \
-          --no-repeat-index \
+          --repeat \
           --no-spliced-alignment \
           --no-temp-splicesite \
           -t \
@@ -508,7 +508,7 @@ task hisat_single_end {
           -q \
           -U ${BASE}.hisat3n_dna.split_reads.R1.fastq \
           -S ${BASE}.hisat3n_dna.split_reads.R1.sam --directional-mapping-reverse --base-change C,T \
-          --no-repeat-index \
+          --repeat \
           --no-spliced-alignment \
           --no-temp-splicesite \
           -t \
@@ -530,7 +530,7 @@ task hisat_single_end {
          -q \
          -U ${BASE}.hisat3n_dna.split_reads.R2.fastq \
          -S ${BASE}.hisat3n_dna.split_reads.R2.sam --directional-mapping --base-change C,T \
-         --no-repeat-index \
+         --repeat \
          --no-spliced-alignment \
          --no-temp-splicesite \
          -t --new-summary \
