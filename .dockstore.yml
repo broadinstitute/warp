@@ -126,3 +126,7 @@ workflows:
   - name: VariantCalling
     subclass: WDL
     primaryDescriptorPath: /pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl
+
+  - name: PCA
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/broad/internal/m42/PCA.wdl
