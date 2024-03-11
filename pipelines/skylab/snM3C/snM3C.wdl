@@ -344,7 +344,7 @@ task all_tasks{
           -2 ${sample_id}-R2_trimmed.fq.gz \
           --directional-mapping-reverse \
           --base-change C,T \
-          --repeat \
+          --no-repeat-index \
           --no-spliced-alignment \
           --no-temp-splicesite \
           -t \
@@ -396,7 +396,7 @@ task all_tasks{
           -q \
           -U ${sample_id}.hisat3n_dna.split_reads.R1.fastq \
           -S ${sample_id}.hisat3n_dna.split_reads.R1.sam --directional-mapping-reverse --base-change C,T \
-          --repeat \
+          --no-repeat-index \
           --no-spliced-alignment \
           --no-temp-splicesite \
           -t \
@@ -418,7 +418,7 @@ task all_tasks{
          -q \
          -U ${sample_id}.hisat3n_dna.split_reads.R2.fastq \
          -S ${sample_id}.hisat3n_dna.split_reads.R2.sam --directional-mapping --base-change C,T \
-         --repeat \
+         --no-repeat-index \
          --no-spliced-alignment \
          --no-temp-splicesite \
          -t --new-summary \
