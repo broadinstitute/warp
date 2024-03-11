@@ -556,7 +556,7 @@ task all_tasks{
         R1_files=($(ls batch*/ | grep "\-R1.fq.gz"))
         R2_files=($(ls batch*/ | grep "\-R2.fq.gz"))
 
-        # run 4 instances in parallel each with 8 threads
+        # run 8 instances in parallel each with 8 threads
         for file in "${R1_files[@]}"; do
           (
             echo "starting $file.."
