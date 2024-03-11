@@ -27,7 +27,7 @@ task RevertSamSingle {
 
   command <<<
  
-    gatk --java-options "-Xmx~{command_mem_gb}g" \
+  gatk --java-options "-Xmx~{command_mem_gb}g" \
     RevertSam \
     --INPUT ~{input_cram} \
     --REFERENCE_SEQUENCE ~{ref_fasta} \
@@ -76,7 +76,7 @@ task RevertSamByReadGroup {
 
   command <<<
  
-    gatk --java-options "-Xmx~{command_mem_gb}g" \
+  gatk --java-options "-Xmx~{command_mem_gb}g" \
     RevertSam \
     --INPUT ~{input_cram} \
     --REFERENCE_SEQUENCE ~{ref_fasta} \
@@ -118,12 +118,17 @@ task SortSam {
   Int command_mem_gb = machine_mem_gb - 1    ####Needs to occur after machine_mem_gb is set 
 
   command <<<
-    gatk --java-options "-Xmx~{command_mem_gb}g" \
+  
+  mkdir -p tmp
+
+  gatk --java-options "-Xmx~{command_mem_gb}g" \
     SortSam \
+    --TMP_DIR ./tmp \
     --INPUT ~{input_cram} \
     --OUTPUT ~{sorted_bam_name} \
     --SORT_ORDER queryname \
     --MAX_RECORDS_IN_RAM 1000000
+
   >>>
   runtime {
     docker: gatk_docker
