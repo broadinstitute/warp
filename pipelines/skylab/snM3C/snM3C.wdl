@@ -23,9 +23,7 @@ workflow snM3C {
         Int num_downstr_bases = 2
         Int compress_level = 5
         Int batch_number
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        String single_end_hisat_cpu_platform = "Intel Ice Lake"
-        String merge_sort_analyze_cpu_platform = "Intel Ice Lake"
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.3"
     }
 
     # version of the pipeline
@@ -37,7 +35,8 @@ workflow snM3C {
             fastq_input_read2 = fastq_input_read2,
             random_primer_indexes = random_primer_indexes,
             plate_id = plate_id,
-            batch_number = batch_number
+            batch_number = batch_number,
+            docker = docker
     }
 
     scatter(tar in Demultiplexing.tarred_demultiplexed_fastqs) {
@@ -72,7 +71,8 @@ workflow snM3C {
             chromatin_contact_stats = all_tasks.chromatin_contact_stats,
             allc_uniq_reads_stats = all_tasks.allc_uniq_reads_stats,
             unique_reads_cgn_extraction_tbi = all_tasks.extract_allc_output_tbi_tar,
-            plate_id = plate_id
+            plate_id = plate_id,
+            docker = docker
     }
 
 
@@ -99,7 +99,7 @@ task Demultiplexing {
     String plate_id
     Int batch_number
 
-    String docker_image = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+    String docker
     Int disk_size = 1000
     Int mem_size = 10
     Int preemptible_tries = 3
@@ -187,7 +187,7 @@ task Demultiplexing {
   >>>
 
   runtime {
-    docker: docker_image
+    docker: docker
     disks: "local-disk ${disk_size} HDD"
     cpu: cpu
     memory: "${mem_size} GiB"
@@ -679,7 +679,7 @@ task summary {
         Array[File] unique_reads_cgn_extraction_tbi
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+        String docker
         Int disk_size = 80
         Int mem_size = 5
         Int preemptible_tries = 3
