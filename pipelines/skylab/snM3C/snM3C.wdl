@@ -131,8 +131,9 @@ task Demultiplexing {
     File random_primer_indexes
     String plate_id
     Int batch_number
+    String docker
 
-    String docker_image = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+
     Int disk_size = 1000
     Int mem_size = 10
     Int preemptible_tries = 3
@@ -220,7 +221,7 @@ task Demultiplexing {
   >>>
 
   runtime {
-    docker: docker_image
+    docker: docker
     disks: "local-disk ${disk_size} HDD"
     cpu: cpu
     memory: "${mem_size} GiB"
@@ -247,7 +248,7 @@ task Sort_and_trim_r1_and_r2 {
 
         Int disk_size = 500
         Int mem_size = 16
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+        String docker 
         Int preemptible_tries = 3
         Int cpu = 4
 
