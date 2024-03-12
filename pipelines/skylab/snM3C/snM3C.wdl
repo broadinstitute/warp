@@ -23,9 +23,7 @@ workflow snM3C {
         Int num_downstr_bases = 2
         Int compress_level = 5
         Int batch_number
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
-        String single_end_hisat_cpu_platform = "Intel Ice Lake"
-        String merge_sort_analyze_cpu_platform = "Intel Ice Lake"
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.3"
     }
 
     # version of the pipeline
@@ -37,6 +35,7 @@ workflow snM3C {
             fastq_input_read2 = fastq_input_read2,
             random_primer_indexes = random_primer_indexes,
             plate_id = plate_id,
+            docker = docker,
             batch_number = batch_number
     }
 
@@ -54,7 +53,8 @@ workflow snM3C {
                 r1_right_cut = r1_right_cut,
                 r2_left_cut = r2_left_cut,
                 r2_right_cut = r2_right_cut,
-                plate_id = plate_id
+                plate_id = plate_id,
+                docker = docker
         }
 
         call hisat_single_end {
@@ -63,8 +63,7 @@ workflow snM3C {
                 tarred_index_files = tarred_index_files,
                 genome_fa = genome_fa,
                 plate_id = plate_id,
-                docker = docker,
-                single_end_hisat_cpu_platform = single_end_hisat_cpu_platform
+                docker = docker
         }
 
         call merge_sort_analyze {
@@ -77,8 +76,7 @@ workflow snM3C {
                compress_level = compress_level,
                chromosome_sizes = chromosome_sizes,
                plate_id = plate_id,
-               docker = docker,
-               merge_sort_analyze_cpu_platform = merge_sort_analyze_cpu_platform
+               docker = docker
         }
     }
 
@@ -118,7 +116,7 @@ task Demultiplexing {
     String plate_id
     Int batch_number
 
-    String docker_image = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+    String docker
     Int disk_size = 1000
     Int mem_size = 10
     Int preemptible_tries = 2
@@ -206,7 +204,7 @@ task Demultiplexing {
   >>>
 
   runtime {
-    docker: docker_image
+    docker: docker
     disks: "local-disk ${disk_size} HDD"
     cpu: cpu
     memory: "${mem_size} GiB"
@@ -226,6 +224,7 @@ task hisat_paired_end{
         File genome_fa
         File chromosome_sizes
         String plate_id
+        String docker
 
         String r1_adapter
         String r2_adapter
@@ -240,7 +239,6 @@ task hisat_paired_end{
         Int mem_size = 100
         Int preemptible_tries = 2
         String cpu_platform =  "Intel Ice Lake"
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
     }
 
     command <<<
@@ -444,13 +442,13 @@ task hisat_single_end {
         File genome_fa
         File tarred_index_files
         String plate_id
+        String docker
 
-        String single_end_hisat_cpu_platform
         Int disk_size = 1000 
         Int mem_size = 128  
         Int cpu = 32
         Int preemptible_tries = 2
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+        String cpu_platform =  "Intel Ice Lake"    
     }
 
     command <<<
@@ -615,7 +613,7 @@ task hisat_single_end {
         disks: "local-disk ${disk_size} SSD"
         cpu: cpu
         memory: "${mem_size} GiB"
-        cpuPlatform: single_end_hisat_cpu_platform
+        cpuPlatform: cpu_platform
         preemptible: preemptible_tries
     }
 
@@ -632,6 +630,7 @@ task merge_sort_analyze {
         String plate_id
         File paired_end_unique_tar
         File read_overlap_tar
+        String docker
 
         #input for allcools bam-to-allc
         File genome_fa
@@ -641,8 +640,7 @@ task merge_sort_analyze {
         Int compress_level
         File chromosome_sizes
 
-        String merge_sort_analyze_cpu_platform
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+        String cpu_platform = "Intel Ice Lake"
         Int disk_size = 1000
         Int mem_size = 64
         Int cpu = 16
@@ -819,7 +817,7 @@ task merge_sort_analyze {
         disks: "local-disk ${disk_size} SSD"
         cpu: cpu
         memory: "${mem_size} GiB"
-        cpuPlatform: merge_sort_analyze_cpu_platform
+        cpuPlatform: cpu_platform
         preemptible: preemptible_tries
     }
     
@@ -849,7 +847,7 @@ task summary {
         Array[File] unique_reads_cgn_extraction_tbi
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+        String docker
         Int disk_size = 80
         Int mem_size = 5
         Int preemptible_tries = 3
