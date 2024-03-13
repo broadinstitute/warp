@@ -643,7 +643,7 @@ task merge_sort_analyze {
 
         String cpu_platform = "Intel Ice Lake"
         Int disk_size = 1000
-        Int mem_size = 64
+        Int mem_size = 40
         Int cpu = 16
         Int preemptible_tries = 2
     }
