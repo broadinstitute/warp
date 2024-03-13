@@ -603,7 +603,7 @@ task hisat_single_end {
         # tar up read overlap files
         echo "Tar up read_overlap bams"
         start=$(date +%s)
-        tar -zcvf ~{plate_id}.remove_overlap_read_parts.tar.gz *read_overlap.bam
+        tar -cf - *read_overlap.bam | pigz > ~{plate_id}.remove_overlap_read_parts.tar.gz
         end=$(date +%s) 
         elapsed=$((end - start))  
         echo "Elapsed time to tar read_overlap bams $elapsed seconds"
@@ -798,19 +798,22 @@ task merge_sort_analyze {
       du -h *
 
       echo "Tar files."
-      tar -zcvf ~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz output_bams/*.matrix.txt
-      tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz *.hisat3n_dna.all_reads.name_sort.bam
+      
+      tar -cf - output_bams/*.matrix.txt | pigz > ~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz
+      tar -cf - *.hisat3n_dna.all_reads.name_sort.bam | pigz > ~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz
+    
       # tar outputs of call_chromatin_contacts
-      tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.3C.contact.tar.gz *.hisat3n_dna.all_reads.3C.contact.tsv.gz
-      tar -zcvf ~{plate_id}.hisat3n_dna.all_reads.dedup_contacts.tar.gz *.hisat3n_dna.all_reads.dedup_contacts.tsv.gz
-      tar -zcvf ~{plate_id}.chromatin_contact_stats.tar.gz *.hisat3n_dna.all_reads.contact_stats.csv
+      tar -cf - *.hisat3n_dna.all_reads.3C.contact.tsv.gz | pigz > ~{plate_id}.hisat3n_dna.all_reads.3C.contact.tar.gz
+      tar -cf - *.hisat3n_dna.all_reads.dedup_contacts.tsv.gz | pigz > ~{plate_id}.hisat3n_dna.all_reads.dedup_contacts.tar.gz
+      tar -cf - *.hisat3n_dna.all_reads.contact_stats.csv | pigz > ~{plate_id}.chromatin_contact_stats.tar.gz
+      
       # tar outputs of allcools
-      tar -zcvf ~{plate_id}.allc.tsv.tar.gz *.allc.tsv.gz
-      tar -zcvf ~{plate_id}.allc.tbi.tar.gz *.allc.tsv.gz.tbi
-      tar -zcvf ~{plate_id}.allc.count.tar.gz *.allc.tsv.gz.count.csv
-      tar -zcvf ~{plate_id}.extract-allc_tbi.tar.gz *.tbi
-      tar -zcvf ~{plate_id}.extract-allc.tar.gz /cromwell_root/allc-${mcg_context}/*.gz
-      tar -zcvf ~{plate_id}.extract-allc_tbi.tar.gz /cromwell_root/allc-${mcg_context}/*.tbi
+      tar -cf - *.allc.tsv.gz | pigz > ~{plate_id}.allc.tsv.tar.gz
+      tar -cf - *.allc.tsv.gz.tbi | pigz > ~{plate_id}.allc.tbi.tar.gz
+      tar -cf -  *.allc.tsv.gz.count.csv | pigz > ~{plate_id}.allc.count.tar.gz
+      tar -cf -  *.tbi | pigz > ~{plate_id}.extract-allc_tbi.tar.gz
+      tar -cf -  /cromwell_root/allc-${mcg_context}/*.gz | pigz > ~{plate_id}.extract-allc.tar.gz
+      tar -cf -  /cromwell_root/allc-${mcg_context}/*.tbi | pigz > ~{plate_id}.extract-allc_tbi.tar.gz
     >>>
 
     runtime {
