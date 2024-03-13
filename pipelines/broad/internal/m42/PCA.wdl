@@ -41,6 +41,7 @@ task create_hw_pca_training {
         String  final_output_prefix
         File    hgdp_metadata_file
         Int     num_pcs
+        Int     disk_size   =   500
         Int?    min_vcf_partitions_in
     }
 
@@ -98,8 +99,8 @@ task create_hw_pca_training {
         docker: "hailgenetics/hail:0.2.67"
         memory: "123 GB"
         cpu: "16"
-        disks: "local-disk 500 HDD"
-        disk: "500 GB"
+        disks: "local-disk" + disk_size+ " HDD"
+        disk: disk_size + " GB"
     }
 
     output {
@@ -111,6 +112,7 @@ task plot_pca {
     input {
         String  output_prefix
         File    training_pca_labels_ht_tsv
+        Int     disk_size   =   500
     }
 
     command <<<
@@ -160,8 +162,8 @@ task plot_pca {
         docker: "faizanbashir/python-datascience:3.6"
         memory: "16 GB"
         cpu: "2"
-        disks: "local-disk 500 HDD"
-        disk: "500 GB"
+        disks: "local-disk" + disk_size+ " HDD"
+        disk: disk_size + " GB"
     }
 
     output {
