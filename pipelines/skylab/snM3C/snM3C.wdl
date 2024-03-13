@@ -23,7 +23,7 @@ workflow snM3C {
         Int num_downstr_bases = 2
         Int compress_level = 5
         Int batch_number
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.3"
         String single_end_hisat_cpu_platform = "Intel Ice Lake"
         String merge_sort_analyze_cpu_platform = "Intel Ice Lake"
     }
@@ -37,6 +37,7 @@ workflow snM3C {
             fastq_input_read2 = fastq_input_read2,
             random_primer_indexes = random_primer_indexes,
             plate_id = plate_id,
+            docker = docker,
             batch_number = batch_number
     }
 
@@ -51,6 +52,7 @@ workflow snM3C {
                 r2_left_cut = r2_left_cut,
                 r2_right_cut = r2_right_cut,
                 min_read_length = min_read_length,
+                docker = docker,
                 plate_id = plate_id
         }
 
@@ -61,6 +63,7 @@ workflow snM3C {
                 tarred_index_files = tarred_index_files,
                 genome_fa = genome_fa,
                 chromosome_sizes = chromosome_sizes,
+                docker = docker,
                 plate_id = plate_id
         }
 
@@ -69,6 +72,7 @@ workflow snM3C {
                 hisat3n_bam_tar = Hisat_3n_pair_end_mapping_dna_mode.hisat3n_paired_end_bam_tar,
                 min_read_length = min_read_length,
                 plate_id = plate_id,
+                docker = docker
         }
 
         call hisat_single_end {
@@ -106,7 +110,8 @@ workflow snM3C {
             chromatin_contact_stats = merge_sort_analyze.chromatin_contact_stats,
             allc_uniq_reads_stats = merge_sort_analyze.allc_uniq_reads_stats,
             unique_reads_cgn_extraction_tbi = merge_sort_analyze.extract_allc_output_tbi_tar,
-            plate_id = plate_id
+            plate_id = plate_id,
+            docker = docker
     }
 
     output {
@@ -131,8 +136,9 @@ task Demultiplexing {
     File random_primer_indexes
     String plate_id
     Int batch_number
+    String docker
 
-    String docker_image = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+
     Int disk_size = 1000
     Int mem_size = 10
     Int preemptible_tries = 3
@@ -220,7 +226,7 @@ task Demultiplexing {
   >>>
 
   runtime {
-    docker: docker_image
+    docker: docker
     disks: "local-disk ${disk_size} HDD"
     cpu: cpu
     memory: "${mem_size} GiB"
@@ -247,7 +253,7 @@ task Sort_and_trim_r1_and_r2 {
 
         Int disk_size = 500
         Int mem_size = 16
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+        String docker 
         Int preemptible_tries = 3
         Int cpu = 4
 
@@ -329,7 +335,7 @@ task Hisat_3n_pair_end_mapping_dna_mode{
         File chromosome_sizes
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+        String docker
         Int disk_size = 1000
         Int mem_size = 64
         Int preemptible_tries = 3
@@ -429,7 +435,7 @@ task Separate_and_split_unmapped_reads {
         Int min_read_length
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+        String docker
         Int disk_size = 1000
         Int mem_size = 10
         Int preemptible_tries = 3
@@ -538,7 +544,7 @@ task hisat_single_end {
         Int mem_size = 128  
         Int cpu = 32
         Int preemptible_tries = 2
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+        String docker
     }
 
     command <<<
@@ -730,7 +736,7 @@ task merge_sort_analyze {
         File chromosome_sizes
 
         String merge_sort_analyze_cpu_platform
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+        String docker
         Int disk_size = 1000
         Int mem_size = 64
         Int cpu = 16 
@@ -938,7 +944,7 @@ task summary {
         Array[File] unique_reads_cgn_extraction_tbi
         String plate_id
 
-        String docker = "us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+        String docker
         Int disk_size = 80
         Int mem_size = 5
         Int preemptible_tries = 3
