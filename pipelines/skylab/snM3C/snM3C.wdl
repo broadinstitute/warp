@@ -629,6 +629,9 @@ task hisat_single_end {
          elapsed=$((end - start)) 
          echo "Elapsed time to run $elapsed seconds"
          echo "Finish running hisat on sample_id_R2" $BASE
+
+         echo "ls everything"
+         ls -lRh
         
          # samtools merge
          echo "samtools merge R1 and R2" 
