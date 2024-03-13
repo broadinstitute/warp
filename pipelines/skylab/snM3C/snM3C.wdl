@@ -446,7 +446,7 @@ task hisat_single_end {
         String docker
 
         Int disk_size = 1000 
-        Int mem_size = 128  
+        Int mem_size = 64  
         Int cpu = 32
         Int preemptible_tries = 2
         String cpu_platform =  "Intel Ice Lake"    
