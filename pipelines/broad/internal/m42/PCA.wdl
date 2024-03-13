@@ -99,7 +99,7 @@ task create_hw_pca_training {
         docker: "hailgenetics/hail:0.2.67"
         memory: "123 GB"
         cpu: "16"
-        disks: "local-disk" + disk_size+ " HDD"
+        disks: "local-disk" + disk_size + " HDD"
         disk: disk_size + " GB"
     }
 
@@ -162,7 +162,7 @@ task plot_pca {
         docker: "faizanbashir/python-datascience:3.6"
         memory: "16 GB"
         cpu: "2"
-        disks: "local-disk" + disk_size+ " HDD"
+        disks: "local-disk" + disk_size + " HDD"
         disk: disk_size + " GB"
     }
 
