@@ -90,7 +90,8 @@ workflow snM3C {
             chromatin_contact_stats = merge_sort_analyze.chromatin_contact_stats,
             allc_uniq_reads_stats = merge_sort_analyze.allc_uniq_reads_stats,
             unique_reads_cgn_extraction_tbi = merge_sort_analyze.extract_allc_output_tbi_tar,
-            plate_id = plate_id
+            plate_id = plate_id,
+            docker = docker
     }
 
     output {
