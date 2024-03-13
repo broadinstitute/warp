@@ -575,6 +575,7 @@ task MergeStarOutput {
       echo "No text files found in the folder."
     fi
 
+   # 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
     python3 /warptools/scripts/create-merged-npz-output.py \
         --barcodes ${barcodes_files[@]} \
