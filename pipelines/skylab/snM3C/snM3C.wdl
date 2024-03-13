@@ -131,7 +131,7 @@ task Demultiplexing {
     cat ~{sep=' ' fastq_input_read1} > r1.fastq.gz
     cat ~{sep=' ' fastq_input_read2} > r2.fastq.gz
 
-    /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels \
+    /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
     -g file:~{random_primer_indexes} \
     -o ~{plate_id}-{name}-R1.fq.gz \
     -p ~{plate_id}-{name}-R2.fq.gz \
@@ -206,7 +206,7 @@ task Demultiplexing {
 
   runtime {
     docker: docker
-    disks: "local-disk ${disk_size} HDD"
+    disks: "local-disk ${disk_size} SSD"
     cpu: cpu
     memory: "${mem_size} GiB"
     preemptible: preemptible_tries
