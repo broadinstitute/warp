@@ -237,7 +237,7 @@ task hisat_paired_end{
 
         Int disk_size = 1000
         Int cpu = 48
-        Int mem_size = 100
+        Int mem_size = 64
         Int preemptible_tries = 2
         String cpu_platform =  "Intel Ice Lake"
     }
