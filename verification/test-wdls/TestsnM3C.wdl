@@ -36,7 +36,7 @@ workflow TestsnM3C {
       String vault_token_path
       String google_account_vault_path
 
-      String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:1.0.0-2.2.1"
+      String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.3"
       String single_end_hisat_cpu_platform = "Intel Ice Lake"
       String merge_sort_analyze_cpu_platform = "Intel Ice Lake"
     }
