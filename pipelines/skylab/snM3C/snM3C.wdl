@@ -23,7 +23,7 @@ workflow snM3C {
         Int num_downstr_bases = 2
         Int compress_level = 5
         Int batch_number
-        String docker = "docker pull us.gcr.io/broad-gotc-prod/hisat3n:2.1.0-2.2.1-1709740155"
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.3"
         String single_end_hisat_cpu_platform = "Intel Ice Lake"
         String merge_sort_analyze_cpu_platform = "Intel Ice Lake"
     }
