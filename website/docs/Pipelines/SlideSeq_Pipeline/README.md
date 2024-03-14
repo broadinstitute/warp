@@ -7,7 +7,8 @@ slug: /Pipelines/SlideSeq_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [SlideSeq v3.1.2](https://github.com/broadinstitute/warp/releases) | March, 2024 | Elizabeth Kiernan & Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
+
+| [SlideSeq v3.1.2](https://github.com/broadinstitute/warp/releases) | February, 2024 | Elizabeth Kiernan & Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![SlideSeq_diagram](./slide-seq_diagram.png)
 

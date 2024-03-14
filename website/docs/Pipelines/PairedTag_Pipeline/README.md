@@ -7,7 +7,8 @@ slug: /Pipelines/PairedTag_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [PairedTag_v0.2.1](https://github.com/broadinstitute/warp/releases) | March, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
+
+| [PairedTag_v0.3.0](https://github.com/broadinstitute/warp/releases) | February, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
 
 
 ## Introduction to the Paired-Tag workflow
@@ -117,6 +118,7 @@ The Paired-Tag workflow calls two WARP subworkflows and an additional task which
 | gene_metrics_gex | `<input_id>_gex.gene_metrics.csv.gz` | CSV file containing the per-gene metrics. |
 | cell_calls_gex | `<input_id>_gex.emptyDrops` | TSV file containing the EmptyDrops results when the Optimus workflow is run in sc_rna mode. |
 | h5ad_output_file_gex | `<input_id>_gex.h5ad` | h5ad (Anndata) file containing the raw cell-by-gene count matrix, gene metrics, cell metrics, and global attributes. See the [Optimus Count Matrix Overview](../Optimus_Pipeline/Loom_schema.md) for more details. |
+| library_metrics | `<input_id>_library_metrics.csv` | Optional CSV file containing all library-level metrics calculated with STARsolo for gene expression data. |
 
 
 ## Versioning and testing
@@ -125,7 +127,11 @@ All Paired-Tag pipeline releases are documented in the [Paired-Tag changelog](ht
 
 ## Citing the Paired-Tag Pipeline
 
-If you use the Paired-Tag Pipeline in your research, please consider citing our preprint:
+If you use the Paired-Tag Pipeline in your research, please identify the pipeline in your methods section using the [Paired-Tag SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_025042/resolver?q=paired_tag&l=paired_tag&i=rrid:scr_025042).
+
+* Ex: *Paired-Tag Pipeline (RRID:SCR_025041)*
+
+Please also consider citing our preprint:
 
 Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 

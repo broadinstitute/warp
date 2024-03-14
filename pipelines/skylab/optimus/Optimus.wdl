@@ -67,7 +67,8 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "6.4.2"
+  String pipeline_version = "6.5.1"
+
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -216,6 +217,7 @@ workflow Optimus {
       input_id = input_id,
       counting_mode = counting_mode,
       warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_2
+
   }
   if (counting_mode == "sc_rna"){
     call RunEmptyDrops.RunEmptyDrops {
@@ -261,6 +263,7 @@ workflow Optimus {
         umipercell = STARsoloFastq.umipercell_sn_rna,
         input_id = input_id,
         warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_2
+
     }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
       input:
@@ -302,6 +305,7 @@ workflow Optimus {
     Array[File?] multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
     Array[File?] multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
     Array[File?] multimappers_PropUnique_matrix = STARsoloFastq.multimappers_PropUnique_matrix
+    
 
 
     # h5ad

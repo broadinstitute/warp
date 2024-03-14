@@ -1,15 +1,22 @@
-# 3.2.2
+# 3.3.1
 2024-03-01 (Date of Last Commit)
 
 * Updated the Optimus.wdl to run on Azure. This change does not affect the Multiome pipeline.
+
+# 3.3.0
+2024-02-28 (Date of Last Commit)
+
+* Added the gene expression library-level metrics CSV as output of the Multiome pipeline; this is produced by the Optimus subworkflow
 
 # 3.2.1
 2024-02-29 (Date of Last Commit)
 
 * Moved the disk and mem for the Multiome Join Barcodes task into the task inputs section
 
+
 # 3.2.0
 2024-02-22 (Date of Last Commit)
+
 * Updated StarAlign.MergeStarOutput to add a shard number to the metrics files
 * Removed ref_genome_fasta input from Multiome WDL and JSON
 

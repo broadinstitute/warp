@@ -7,7 +7,8 @@ import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/c
 import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
-    String pipeline_version = "3.2.2"
+    String pipeline_version = "3.3.1"
+
 
     input {
         String cloud_provider
@@ -169,6 +170,7 @@ workflow Multiome {
         Array[File?] multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
         Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
         File? gex_aligner_metrics = Optimus.aligner_metrics
+        File? library_metrics = Optimus.library_metrics
 
         # cellbender outputs
         File? cell_barcodes_csv = CellBender.cell_csv

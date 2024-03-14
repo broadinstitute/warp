@@ -1,11 +1,16 @@
-# 6.4.2
+# 6.5.1
 2024-03-01 (Date of Last Commit)
 * Updated the Optimus.wdl to run on Azure.
 
+# 6.5.0
+2024-02-28 (Date of Last Commit)
+
+* Added a library-level metrics CSV as output of the Optimus workflow; this iteration includes read-level metrics 
 
 # 6.4.1
 2024-02-29 (Date of Last Commit)
 * Added mem and disk to inputs of Join Barcodes task of Multiome workflow; does not impact the Optimus workflow
+
 
 # 6.4.0
 2024-02-21 (Date of Last Commit)

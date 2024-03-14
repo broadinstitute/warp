@@ -27,6 +27,7 @@ workflow SlideSeq {
 
     String pipeline_version = "3.1.3"
 
+
     input {
         Array[File] r1_fastq
         Array[File] r2_fastq

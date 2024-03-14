@@ -1,3 +1,10 @@
+# 3.0.0
+2024-02-23 (Date of Last Commit)
+
+* Updated the snM3C docker to include the latest changes to the CEMBA repository; this impacts the scientific outputs
+* Added docker as a workflow-level input
+* Reverted the Hisat alignments to use the --no-repeat-index parameter
+
 # 2.0.1
 2024-2-15 (Date of Last Commit)
 

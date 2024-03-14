@@ -481,6 +481,7 @@ task MergeStarOutput {
 
     #runtime values
     String warp_tools_docker_path
+
     Int machine_mem_gb = 20
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
