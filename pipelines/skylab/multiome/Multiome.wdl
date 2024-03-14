@@ -55,7 +55,7 @@ workflow Multiome {
     String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
     # Define docker images
-    String snap_atac_docker_image = "snapatac2:1.0.5-2.3.2-1709230223"
+    String snap_atac_docker_image = "snapatac2:1.0.4-2.3.1-1700590229"
 
     # Define all whitelist files
     File gcp_gex_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt"
