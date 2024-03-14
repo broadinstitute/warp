@@ -52,7 +52,7 @@ workflow ATAC {
 
   # Docker image names
   String warp_tools_2_0_0 = "warp-tools:2.0.0"
-  String cutadapt_docker = "cutadapt:1.0.0-4.4-1709146458"
+  String cutadapt_docker = "cutadapt:1.0.0-4.4-1686752919"
   String samtools_docker = "samtools-dist-bwa:3.0.0"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
   String snap_atac_docker = "snapatac2:1.0.4-2.3.1"
