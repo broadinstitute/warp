@@ -126,11 +126,27 @@ task Demultiplexing {
 
   command <<<
     set -euo pipefail
-
+    set -x 
+    
+    du -h /cromwell_root
+    
     # Cat files for each r1, r2
+    start=$(date +%s)
+    echo "Cat R1 files"
     cat ~{sep=' ' fastq_input_read1} > r1.fastq.gz
+    end=$(date +%s) 
+    elapsed=$((end - start)) 
+    echo "Elapsed time to cat R1 files: $elapsed seconds"
+    
+    start=$(date +%s)
+    echo "Cat R2 files"
     cat ~{sep=' ' fastq_input_read2} > r2.fastq.gz
-
+    end=$(date +%s) 
+    elapsed=$((end - start)) 
+    echo "Elapsed time to cat R2 files: $elapsed seconds"
+  
+    start=$(date +%s)
+    echo "Run cutadapt"
     /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
     -g file:~{random_primer_indexes} \
     -o ~{plate_id}-{name}-R1.fq.gz \
@@ -138,7 +154,10 @@ task Demultiplexing {
     r1.fastq.gz \
     r2.fastq.gz \
     > ~{plate_id}.stats.txt
-
+    end=$(date +%s) 
+    elapsed=$((end - start)) 
+    echo "Elapsed time to run cutadapt: $elapsed seconds"
+  
     # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
     rm *-unknown-R{1,2}.fq.gz
 
@@ -185,6 +204,10 @@ task Demultiplexing {
     # Define lists of r1 and r2 fq files
     R1_files=($(ls | grep "\-R1.fq.gz"))
     R2_files=($(ls | grep "\-R2.fq.gz"))
+    
+    start=$(date +%s)
+    echo "Distribute the FASTQ files and create TAR files"
+    echo "${#R1_files[@]}"
 
     # Distribute the FASTQ files and create TAR files
     for file in "${R1_files[@]}"; do
@@ -195,11 +218,18 @@ task Demultiplexing {
         # Increment the counter
         folder_index=$(( (folder_index % $batch_number) + 1 ))
     done
-    echo "TAR files"
-    for i in $(seq 1 "${batch_number}"); do
-        tar -zcvf "~{plate_id}.${i}.cutadapt_output_files.tar.gz" batch${i}/*.fq.gz
-    done
+    end=$(date +%s) 
+    elapsed=$((end - start)) 
+    echo "Elapsed time to move files: $elapsed seconds" 
 
+    start=$(date +%s)
+    echo "Tar files"
+    for i in $(seq 1 "${batch_number}"); do
+        tar -cf - batch${i}/*.fq.gz | pigz > ~{plate_id}.${i}.cutadapt_output_files.tar.gz
+    done
+    end=$(date +%s) 
+    elapsed=$((end - start)) 
+    echo "Elapsed time to tar files: $elapsed seconds" 
 
     echo "TAR files created successfully."
   >>>
