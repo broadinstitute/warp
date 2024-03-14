@@ -3,6 +3,7 @@ version 1.0
 import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/PairedTagUtils.wdl" as AddBB
+import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow ATAC {
   meta {
@@ -18,6 +19,7 @@ workflow ATAC {
 
     # Output prefix/base name for all intermediate files and pipeline outputs
     String input_id
+    String cloud_provider
 
     # Option for running files with preindex
     Boolean preindex = false
@@ -43,6 +45,26 @@ workflow ATAC {
 
   String pipeline_version = "1.1.9"
 
+  # Determine docker prefix based on cloud provider
+  String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
+  String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
+  String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
+
+  # Docker image names
+  String warp_tools_2_0_0 = "warp-tools:2.0.0"
+  String cutadapt_docker = "cutadapt:1.0.0-4.4-1709146458"
+  String samtools_docker = "samtools-dist-bwa:3.0.0"
+  String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
+  String snap_atac_docker = "snapatac2:1.0.4-2.3.1"
+
+  # Make sure either 'gcp' or 'azure' is supplied as cloud_provider input. If not, raise an error
+  if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+    call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+        input:
+            message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+    }
+  }
+
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
     read2_fastq_gzipped: "read 2 FASTQ file as input for the pipeline, contains the cellular barcodes corresponding to the reads in the read1 FASTQ and read 3 FASTQ"
@@ -52,7 +74,6 @@ workflow ATAC {
     num_threads_bwa: "Number of threads for bwa-mem2 task (default: 128)"
     mem_size_bwa: "Memory size in GB for bwa-mem2 task (default: 512)"
     cpu_platform_bwa: "CPU platform for bwa-mem2 task (default: Intel Ice Lake)"
-  
  }
 
   call GetNumSplits {
@@ -69,7 +90,8 @@ workflow ATAC {
       barcodes_fastq = read2_fastq_gzipped,
       output_base_name = input_id,
       num_output_files = GetNumSplits.ranks_per_node_out,
-      whitelist = whitelist
+      whitelist = whitelist,
+      docker_path = docker_prefix + warp_tools_2_0_0
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
@@ -79,7 +101,8 @@ workflow ATAC {
         read3_fastq = SplitFastq.fastq_R3_output_array[idx],
         output_base_name = input_id + "_" + idx,
         adapter_seq_read1 = adapter_seq_read1,
-        adapter_seq_read3 = adapter_seq_read3
+        adapter_seq_read3 = adapter_seq_read3,
+        docker_path = docker_prefix + cutadapt_docker
     }
   }
 
@@ -91,21 +114,24 @@ workflow ATAC {
         output_base_name = input_id,
         nthreads = num_threads_bwa, 
         mem_size = mem_size_bwa,
-        cpu_platform = cpu_platform_bwa
+        cpu_platform = cpu_platform_bwa,
+        docker_path = docker_prefix + samtools_docker
   }
 
   if (preindex) {
     call AddBB.AddBBTag as BBTag {
       input:
         bam = BWAPairedEndAlignment.bam_aligned_output,
-        input_id = input_id
+        input_id = input_id,
+        docker_path = docker_prefix + upstools_docker
     }
     call CreateFragmentFile as BB_fragment {
       input:
         bam = BBTag.bb_bam,
         chrom_sizes = chrom_sizes,
         annotations_gtf = annotations_gtf,
-        preindex = preindex
+        preindex = preindex,
+        docker_path = docker_prefix + snap_atac_docker
     }
   }
   if (!preindex) {
@@ -114,7 +140,8 @@ workflow ATAC {
         bam = BWAPairedEndAlignment.bam_aligned_output,
         chrom_sizes = chrom_sizes,
         annotations_gtf = annotations_gtf,
-        preindex = preindex
+        preindex = preindex,
+        docker_path = docker_prefix + snap_atac_docker
 
     }
   }
@@ -231,7 +258,7 @@ task TrimAdapters {
     # Runtime attributes/docker
     Int disk_size = ceil(2 * ( size(read1_fastq, "GiB") + size(read3_fastq, "GiB") )) + 200
     Int mem_size = 4
-    String docker_image = "us.gcr.io/broad-gotc-prod/cutadapt:1.0.0-4.4-1686752919"
+    String docker_path
   }
 
   parameter_meta {
@@ -242,7 +269,7 @@ task TrimAdapters {
     adapter_seq_read1: "cutadapt option for the sequence adapter for read 1 fastq"
     adapter_seq_read3: "cutadapt option for the sequence adapter for read 3 fastq"
     output_base_name: "base name to be used for the output of the task"
-    docker_image: "the docker image using cutadapt to be used (default:us.gcr.io/broad-gotc-prod/cutadapt:1.0.0-4.4-1686752919)"
+    docker_path: "The docker image path containing the runtime environment for this task"
     mem_size: "the size of memory used during trimming adapters"
     disk_size : "disk size used in trimming adapters step"
   }
@@ -269,7 +296,7 @@ task TrimAdapters {
 
   # use docker image for given tool cutadapat
   runtime {
-    docker: docker_image
+    docker: docker_path
     disks: "local-disk ${disk_size} HDD"
     memory: "${mem_size} GiB"
   }
@@ -290,7 +317,7 @@ task BWAPairedEndAlignment {
     String read_group_sample_name = "RGSN1"
     String suffix = "trimmed_adapters.fastq.gz"
     String output_base_name
-    String docker_image = "us.gcr.io/broad-gotc-prod/samtools-dist-bwa:2.0.0"
+    String docker_path
 
     # Runtime attributes
     Int disk_size = 2000
@@ -309,7 +336,7 @@ task BWAPairedEndAlignment {
     mem_size: "the size of memory used during alignment"
     disk_size : "disk size used in bwa alignment step"
     output_base_name: "basename to be used for the output of the task"
-    docker_image: "the docker image using BWA to be used (default: us.gcr.io/broad-gotc-prod/samtools-bwa-mem-2:1.0.0-2.2.1_x64-linux-1685469504)"
+    docker_path: "The docker image path containing the runtime environment for this task"
   }
 
   String bam_aligned_output_name = output_base_name + ".bam"
@@ -418,7 +445,7 @@ task BWAPairedEndAlignment {
   >>>
 
   runtime {
-    docker: docker_image
+    docker: docker_path
     disks: "local-disk ${disk_size} SSD"
     cpu: nthreads
     cpuPlatform: cpu_platform
@@ -442,6 +469,7 @@ task CreateFragmentFile {
     Int mem_size = 16
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
+    String docker_path
   }
 
   String bam_base_name = basename(bam, ".bam")
@@ -452,6 +480,7 @@ task CreateFragmentFile {
     chrom_sizes: "Text file containing chrom_sizes for genome build (i.e. hg38)."
     disk_size: "Disk size used in create fragment file step."
     mem_size: "The size of memory used in create fragment file."
+    docker_path: "The docker image path containing the runtime environment for this task"
   }
 
   command <<<
@@ -492,7 +521,7 @@ task CreateFragmentFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1"
+    docker: docker_path
     disks: "local-disk ${disk_size} SSD"
     memory: "${mem_size} GiB"
     cpu: nthreads

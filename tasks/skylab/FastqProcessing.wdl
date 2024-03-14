@@ -244,10 +244,7 @@ task FastqProcessATAC {
         String output_base_name
         File whitelist
         String barcode_index1 = basename(barcodes_fastq[0])
-
-        # [?] copied from corresponding optimus wdl for fastqprocessing
-        # using the latest build of warp-tools in GCR
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
+        String docker_path
 
         # Runtime attributes [?]
         Int mem_size = 5
@@ -273,7 +270,7 @@ task FastqProcessATAC {
         read_structure: "A string that specifies the barcode (C) positions in the Read 2 fastq"
         barcode_orientation: "A string that specifies the orientation of barcode needed for scATAC data. The default is FIRST_BP. Other options include LAST_BP, FIRST_BP_RC or LAST_BP_RC."
         whitelist: "10x genomics cell barcode whitelist for scATAC"
-        docker: "(optional) the docker image containing the runtime environment for this task"
+        docker_path: "The docker image path containing the runtime environment for this task"
         mem_size: "(optional) the amount of memory (MiB) to provision for this task"
         cpu: "(optional) the number of cpus to provision for this task"
         disk_size: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -362,7 +359,7 @@ task FastqProcessATAC {
     >>>
 
     runtime {
-        docker: docker
+        docker: docker_path
         cpu: cpu
         memory: "${mem_size} MiB"
         disks: "local-disk ${disk_size} HDD"
