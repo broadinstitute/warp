@@ -226,7 +226,7 @@ task STARsoloFastq {
     String? soloMultiMappers
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.1-2.7.11a-1692706072"
+    String star_docker_path
     Int machine_mem_mb = 64000
     Int cpu = 8
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -244,7 +244,7 @@ task STARsoloFastq {
     r2_fastq: "array of forward read FASTQ files"
     tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
     star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded'"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    star_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -432,7 +432,7 @@ task STARsoloFastq {
   >>>
 
   runtime {
-    docker: docker
+    docker: star_docker_path
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
     disk: disk + " GB" # TES
@@ -475,11 +475,12 @@ task MergeStarOutput {
     Array[File]? summary
     Array[File]? align_features
     Array[File]? umipercell
-    
+    String? counting_mode
+
     String input_id
 
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+    String warp_tools_docker_path
     Int machine_mem_gb = 20
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
@@ -490,7 +491,7 @@ task MergeStarOutput {
   }
 
   parameter_meta {
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    warp_tools_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_gb: "(optional) the amount of memory (GiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -564,15 +565,18 @@ task MergeStarOutput {
       fi
     done
     
-    # If text files are present, create a tar archive with them
+    # If text files are present, create a tar archive with them and run python script to combine shard metrics
     if ls *.txt 1> /dev/null 2>&1; then
+      echo "listing files"
+      ls
+      python3 /warptools/scripts/combine_shard_metrics.py ~{input_id}_summary.txt ~{input_id}_align_features.txt ~{input_id}_cell_reads.txt ~{counting_mode} ~{input_id}
       tar -zcvf ~{input_id}.star_metrics.tar *.txt
     else
       echo "No text files found in the folder."
     fi
 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
-    python3 /usr/gitc/create-merged-npz-output.py \
+    python3 /warptools/scripts/create-merged-npz-output.py \
         --barcodes ${barcodes_files[@]} \
         --features ${features_files[@]} \
         --matrix ${matrix_files[@]} \
@@ -580,7 +584,7 @@ task MergeStarOutput {
   >>>
 
   runtime {
-    docker: docker
+    docker: warp_tools_docker_path
     memory: "${machine_mem_gb} GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
@@ -593,6 +597,7 @@ task MergeStarOutput {
     File col_index = "~{input_id}_sparse_counts_col_index.npy"
     File sparse_counts = "~{input_id}_sparse_counts.npz"
     File? cell_reads_out = "~{input_id}.star_metrics.tar"
+    File? library_metrics="~{input_id}_library_metrics.csv"
   }
 }
 
@@ -717,6 +722,7 @@ task STARGenomeRefVersion {
   input {
     String tar_star_reference
     Int disk = 10
+    String ubuntu_docker_path
   }
 
   meta {
@@ -749,7 +755,7 @@ task STARGenomeRefVersion {
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: ubuntu_docker_path
     memory: "2 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES

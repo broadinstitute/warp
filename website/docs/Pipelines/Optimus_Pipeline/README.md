@@ -7,7 +7,7 @@ slug: /Pipelines/Optimus_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v6.4.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2024 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [optimus_v6.4.2](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | March, 2024 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 
 ![Optimus_diagram](Optimus_diagram.png)
@@ -85,6 +85,7 @@ The example configuration files also contain metadata for the reference files, d
 
 | Parameter name | Description | Optional attributes (when applicable) |
 | --- | --- | --- |
+| cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
 | whitelist |  List of known CBs; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) whitelist that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom whitelist can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom whitelist, set the input `ignore_r1_read_length` to "true". | N/A |
 | read_struct | String describing the structure of reads; the workflow automatically selects the [10x Genomics](https://www.10xgenomics.com/) read structure that corresponds to the v2 or v3 chemistry based on the input `tenx_chemistry_version`. A custom read structure can also be provided if the input data was generated with a chemistry different from 10x Genomics v2 or v3. To use a custom read structure, set the input `force_no_check` to "true". | N/A |
 | tar_star_reference | TAR file containing a species-specific reference genome and GTF; it is generated using the [BuildIndices workflow](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/build_indices/BuildIndices.wdl). | N/A |
@@ -284,10 +285,15 @@ Optimus has been validated for processing both human and mouse single-cell and s
 
 All Optimus pipeline releases are documented in the [Optimus changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/optimus/Optimus.changelog.md).
 
+## Citing the Optimus Pipeline
 
-## Citing the Optimus pipeline
-Please identify the pipeline in your methods section using the Optimus Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_018908/resolver?q=SCR_018908&l=SCR_018908).
+If you use the Optimus Pipeline in your research, please identify the pipeline in your methods section using the [Optimus SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_018908/resolver?q=SCR_018908&l=SCR_018908&i=rrid:scr_018908).
+
 * Ex: *Optimus Pipeline (RRID:SCR_018908)*
+
+Please also consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Consortia support
 This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project and the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 

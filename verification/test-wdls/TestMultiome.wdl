@@ -10,6 +10,7 @@ workflow TestMultiome {
 
     input {
       String input_id
+      String cloud_provider
 
       # Optimus Inputs
       String counting_mode = "sn_rna"
@@ -85,7 +86,8 @@ workflow TestMultiome {
         chrom_sizes = chrom_sizes,
         atac_whitelist = atac_whitelist,
         run_cellbender = run_cellbender,
-        soloMultiMappers = soloMultiMappers
+        soloMultiMappers = soloMultiMappers,
+        cloud_provider = cloud_provider
   
     }
 

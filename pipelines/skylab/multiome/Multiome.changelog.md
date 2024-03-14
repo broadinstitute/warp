@@ -1,3 +1,13 @@
+# 3.2.2
+2024-03-01 (Date of Last Commit)
+
+* Updated the Optimus.wdl to run on Azure. This change does not affect the Multiome pipeline.
+
+# 3.2.1
+2024-02-29 (Date of Last Commit)
+
+* Moved the disk and mem for the Multiome Join Barcodes task into the task inputs section
+
 # 3.2.0
 2024-02-22 (Date of Last Commit)
 * Updated StarAlign.MergeStarOutput to add a shard number to the metrics files

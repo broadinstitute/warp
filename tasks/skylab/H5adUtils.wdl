@@ -6,7 +6,7 @@ task OptimusH5adGeneration {
 
   input {
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
+    String warp_tools_docker_path
     # name of the sample
     String input_id
     # user provided id
@@ -88,7 +88,7 @@ task OptimusH5adGeneration {
   >>>
 
   runtime {
-    docker: docker
+    docker: warp_tools_docker_path
     cpu: cpu  # note that only 1 thread is supported by pseudobam
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
@@ -105,7 +105,7 @@ task SingleNucleusOptimusH5adOutput {
 
     input {
         #runtime values
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
+        String warp_tools_docker_path
         # name of the sample
         String input_id
         # user provided id
@@ -170,7 +170,7 @@ task SingleNucleusOptimusH5adOutput {
     }
 
     runtime {
-        docker: docker
+        docker: warp_tools_docker_path
         cpu: cpu  # note that only 1 thread is supported by pseudobam
         memory: "~{machine_mem_mb} MiB"
         disks: "local-disk ~{disk} HDD"
@@ -190,17 +190,15 @@ task JoinMultiomeBarcodes {
     File gex_h5ad
     File gex_whitelist
     File atac_whitelist
-    String docker_path
 
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
+    Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(gex_h5ad, "MiB") + size(atac_fragment, "MiB")) * 3) + 10000
+    Int disk =  ceil((size(atac_h5ad, "GiB") + size(gex_h5ad, "GiB") + size(atac_fragment, "GiB")) * 5) + 10
   }
   String gex_base_name = basename(gex_h5ad, ".h5ad")
   String atac_base_name = basename(atac_h5ad, ".h5ad")
   String atac_fragment_base = basename(atac_fragment, ".tsv")
-
-  Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(gex_h5ad, "MiB") + size(atac_fragment, "MiB")) * 3) + 10000
-  Int disk =  ceil((size(atac_h5ad, "GiB") + size(gex_h5ad, "GiB") + size(atac_fragment, "GiB")) * 5) + 10
 
   parameter_meta {
     atac_h5ad: "The resulting h5ad from the ATAC workflow."

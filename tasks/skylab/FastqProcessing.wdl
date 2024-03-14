@@ -11,7 +11,8 @@ task FastqProcessing {
     String read_struct
 
     #using the latest build of warp-tools in GCR
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
+    String warp_tools_docker_path
+
     #runtime values
     Int machine_mem_mb = 40000
     Int cpu = 16   
@@ -34,7 +35,7 @@ task FastqProcessing {
     whitelist: "10x genomics cell barcode whitelist"
     chemistry: "chemistry employed, currently can be tenX_v2 or tenX_v3, the latter implies NO feature barcodes"
     sample_id: "name of sample matching this file, inserted into read group header"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    warp_tools_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -111,7 +112,7 @@ task FastqProcessing {
   }
   
   runtime {
-    docker: docker
+    docker: warp_tools_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES

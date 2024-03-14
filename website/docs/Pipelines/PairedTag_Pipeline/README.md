@@ -7,7 +7,7 @@ slug: /Pipelines/PairedTag_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [PairedTag_v0.1.0](https://github.com/broadinstitute/warp/releases) | February, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
+| [PairedTag_v0.2.1](https://github.com/broadinstitute/warp/releases) | March, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
 
 
 ## Introduction to the Paired-Tag workflow
@@ -122,6 +122,12 @@ The Paired-Tag workflow calls two WARP subworkflows and an additional task which
 ## Versioning and testing
 
 All Paired-Tag pipeline releases are documented in the [Paired-Tag changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/paired_tag/PairedTag.wdl) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/paired_tag/test_inputs). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines). Note that paired-tag tests are still in development.
+
+## Citing the Paired-Tag Pipeline
+
+If you use the Paired-Tag Pipeline in your research, please consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 
 ## Consortia support

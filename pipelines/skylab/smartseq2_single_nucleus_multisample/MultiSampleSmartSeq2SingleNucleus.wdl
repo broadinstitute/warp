@@ -6,6 +6,7 @@ import "../../../tasks/skylab/StarAlign.wdl" as StarAlign
 import "../../../tasks/skylab/Picard.wdl" as Picard
 import "../../../tasks/skylab/FeatureCounts.wdl" as CountAlignments
 import "../../../tasks/skylab/LoomUtils.wdl" as LoomUtils
+import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow MultiSampleSmartSeq2SingleNucleus {
   meta {
@@ -38,9 +39,25 @@ workflow MultiSampleSmartSeq2SingleNucleus {
       Array[String]? organ
       String? input_name_metadata_field
       String? input_id_metadata_field
+
+      String cloud_provider
   }
+
+  String ubuntu_docker = "ubuntu_16_0_4:latest"
+  String gcp_ubuntu_docker_prefix = "gcr.io/gcp-runtimes/"
+  String acr_ubuntu_docker_prefix = "dsppipelinedev.azurecr.io/"
+  String ubuntu_docker_prefix = if cloud_provider == "gcp" then gcp_ubuntu_docker_prefix else acr_ubuntu_docker_prefix
+
+  # make sure either gcp or azr is supplied as cloud_provider input
+  if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+      call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+          input:
+              message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+      }
+  }
+
   # Version of this pipeline
-  String pipeline_version = "1.3.0"
+  String pipeline_version = "1.3.2"
 
   if (false) {
      String? none = "None"
@@ -72,7 +89,8 @@ workflow MultiSampleSmartSeq2SingleNucleus {
   
   call StarAlign.STARGenomeRefVersion as ReferenceCheck {
     input:
-      tar_star_reference = tar_star_reference
+      tar_star_reference = tar_star_reference,
+      ubuntu_docker_path = ubuntu_docker_prefix + ubuntu_docker
   }
 
   call TrimAdapters.TrimAdapters as TrimAdapters {

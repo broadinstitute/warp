@@ -7,7 +7,7 @@ slug: /Pipelines/Smart-seq2_Single_Nucleus_Multi_Sample_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [MultiSampleSmartSeq2SingleNuclei_v1.3.0](https://github.com/broadinstitute/warp/releases) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [MultiSampleSmartSeq2SingleNuclei_v1.3.1](https://github.com/broadinstitute/warp/releases) | March, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in WARP or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![](./snSS2.png)
 
@@ -82,6 +82,7 @@ The table below details the Multi-snSS2 inputs. The pipeline is designed to take
 | species | Optional description of the species from which the cells were derived. | Array of strings |
 | input_name_metadata_field | Optional input describing, when applicable, the metadata field containing the `input_names`. | String |
 | input_id_metadata_field | Optional string describing, when applicable, the metadata field containing the `input_ids`. | String |
+| cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
 
 ## Multi-snSS2 tasks and tools
 
@@ -177,10 +178,14 @@ The Multi-snSS2 pipeline was scientifically validated by the BRAIN Initiatives C
 All Multi-snSS2 release notes are documented in the [Multi-snSS2 changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_nucleus_multisample/MultiSampleSmartSeq2SingleNucleus.changelog.md).
 
 ## Citing the Multi-snSS2 Pipeline
-To cite the Multi-snSS2 pipeline, use the [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_021312/resolver).
+
+If you use the Multi-snSS2 Pipeline in your research, please identify the pipeline in your methods section using the [Multi-snSS2 SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_021312/resolver?q=SCR_021312&l=SCR_021312&i=rrid:scr_021312).
+
 * Ex: *Smart-seq2 Single Nucleus Multi-Sample Pipeline (RRID:SCR_021312)*
 
-To view an example of this citation as well as a publication-style methods section, see the Multi-snSS2 [Example Methods](./multi_snss2.methods.md). 
+Please also consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Consortia Support
 This pipeline is supported and used by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 

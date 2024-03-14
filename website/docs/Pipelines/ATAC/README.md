@@ -8,8 +8,7 @@ slug: /Pipelines/ATAC/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-
-| [1.1.8](https://github.com/broadinstitute/warp/releases) | January, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [1.1.9](https://github.com/broadinstitute/warp/releases) | March, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 
 ## Introduction to the ATAC workflow
@@ -97,8 +96,15 @@ To see specific tool parameters, select the task WDL link in the table; then vie
 All ATAC pipeline releases are documented in the [ATAC changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/multiome/atac.changelog.md) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/tree/master/pipelines/skylab/multiome/test_inputs). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines).
 
 ## Citing the ATAC Pipeline
-Please identify the pipeline in your methods section using the ATAC Pipeline's [SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_024656/resolver?q=SCR_024656%2A&l=SCR_024656%2A&i=rrid:scr_024656).
+
+If you use the ATAC Pipeline in your research, please identify the pipeline in your methods section using the [ATAC SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_024656/resolver?q=SCR_024656%2A&l=SCR_024656%2A&i=rrid:scr_024656).
+
 * Ex: *ATAC Pipeline (RRID:SCR_024656)*
+
+Please also consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
+
 
 ## Acknowledgements
 

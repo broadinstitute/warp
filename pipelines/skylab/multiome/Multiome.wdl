@@ -7,11 +7,12 @@ import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/c
 import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
-    String pipeline_version = "3.2.0"
+    String pipeline_version = "3.2.2"
 
     input {
         String cloud_provider
         String input_id
+        String cloud_provider
 
         # Optimus Inputs
         String counting_mode = "sn_rna"
@@ -93,7 +94,8 @@ workflow Multiome {
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
-            soloMultiMappers = soloMultiMappers
+            soloMultiMappers = soloMultiMappers,
+            cloud_provider = cloud_provider
     }
 
     # Call the ATAC workflow
