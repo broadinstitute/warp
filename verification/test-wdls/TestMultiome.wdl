@@ -26,7 +26,6 @@ workflow TestMultiome {
       Boolean ignore_r1_read_length = false
       String star_strand_mode = "Forward"
       Boolean count_exons = false
-      File gex_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_gex.txt"
       String? soloMultiMappers
 
       # ATAC inputs
@@ -43,8 +42,6 @@ workflow TestMultiome {
       # Trimadapters input
       String adapter_seq_read1 = "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG"
       String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
-      # Whitelist
-      File atac_whitelist = "gs://broad-gotc-test-storage/Multiome/input/737K-arc-v1_atac.txt"
 
       # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
@@ -76,7 +73,6 @@ workflow TestMultiome {
         ignore_r1_read_length = ignore_r1_read_length,
         star_strand_mode = star_strand_mode,
         count_exons = count_exons,
-        gex_whitelist = gex_whitelist,
         atac_r1_fastq = atac_r1_fastq,
         atac_r2_fastq = atac_r2_fastq,
         atac_r3_fastq = atac_r3_fastq,
@@ -84,7 +80,6 @@ workflow TestMultiome {
         adapter_seq_read1 = adapter_seq_read1,
         adapter_seq_read3 = adapter_seq_read3,
         chrom_sizes = chrom_sizes,
-        atac_whitelist = atac_whitelist,
         run_cellbender = run_cellbender,
         soloMultiMappers = soloMultiMappers,
         cloud_provider = cloud_provider
