@@ -18,6 +18,6 @@
   "snM3C.genome_fa": "gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38.fa",
   "snM3C.batch_number": 2,
   "snM3C.hisat_paired_end.cpu_platform": "Intel Cascade Lake",
-  "snM3C.hisat_single_end.cpu_platform": "Intel Cascade Lake",
-  "snM3C.merge_sort_analyze.cpu_platform": "Intel Cascade Lake"
+  "snM3C.snM3C.hisat_single_end.cpu_platform": "Intel Cascade Lake",
+  "snM3C.snM3C.merge_sort_analyze.cpu_platform": "Intel Cascade Lake"
 }
