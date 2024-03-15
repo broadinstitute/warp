@@ -242,6 +242,7 @@ workflow Imputation {
       call tasks.SelectVariantsByIds {
         input:
           vcf = SetIdsVcfToImpute.output_vcf,
+          vcf_index = SetIdsVcfToImpute.output_vcf_index,
           ids = FindSitesUniqueToFileTwoOnly.missing_sites,
           basename = "imputed_sites_to_recover"
       }
