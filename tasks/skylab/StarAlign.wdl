@@ -601,7 +601,7 @@ task MergeStarOutput {
       ~{counting_mode} \
       ~{input_id} \
       outputbarcodes.tsv \
-      outputmatrix.tsv 
+      outputmatrix.mtx 
       tar -zcvf ~{input_id}.star_metrics.tar *.txt
     else
       echo "No text files found in the folder."
