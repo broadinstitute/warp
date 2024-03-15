@@ -519,8 +519,8 @@ task MergeStarOutput {
     #Using cp because mv isn't moving
     pwd
     cp /cromwell_root/~{input_id}.uniform.mtx ./matrix/matrix.mtx
-    cp ~{barcodes_single} ./matrix
-    cp ~{features_single} ./matrix
+    cp ~{barcodes_single} ./matrix/barcodes.tsv
+    cp ~{features_single} ./matrix/features.tsv
 
 
     # Running star for combined cell matrix
