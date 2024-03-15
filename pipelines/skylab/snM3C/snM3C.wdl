@@ -29,7 +29,7 @@ workflow snM3C {
     # version of the pipeline
     String pipeline_version = "4.0.0"
 
-    call Demultiplexing {
+    call demultiplexing {
         input:
             fastq_input_read1 = fastq_input_read1,
             fastq_input_read2 = fastq_input_read2,
@@ -39,7 +39,7 @@ workflow snM3C {
             batch_number = batch_number
     }
 
-    scatter(tar in Demultiplexing.tarred_demultiplexed_fastqs) {
+    scatter(tar in demultiplexing.tarred_demultiplexed_fastqs) {
         call hisat_paired_end {
           input:
                 tarred_demultiplexed_fastqs = tar,
@@ -109,7 +109,7 @@ workflow snM3C {
     }
 }
 
-task Demultiplexing {
+task demultiplexing {
   input {
     Array[File] fastq_input_read1
     Array[File] fastq_input_read2
@@ -301,7 +301,7 @@ task hisat_paired_end{
     
           # sort 
           start=$(date +%s)
-          echo "Run sort r1"
+          echo "Run sort r2"
           zcat /cromwell_root/batch*/"$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R2_sorted.fq"
           end=$(date +%s) 
           elapsed=$((end - start)) 
@@ -620,7 +620,7 @@ task hisat_single_end {
 
         ####################################
         ## make sure that the number of output bams equals the length of R1_files
-        # Count the number of *.hisat3n_dna.unique_aligned.bam files
+        # Count the number of bam files
         bam_count=$(find . -maxdepth 1 -type f -name '*read_overlap.bam' | wc -l)
  
         # Get the length of the array ${R1_files[@]}
@@ -762,7 +762,7 @@ task merge_sort_analyze {
         echo "Elapsed time to run sort by name $elapsed seconds"
         
         start=$(date +%s)  
-        echo "Sort all reads by name"
+        echo "Sort all reads by position"
         samtools sort -O BAM -@4 -m1g -o "${sample_id}.hisat3n_dna.all_reads.pos_sort.bam" "${sample_id}.hisat3n_dna.all_reads.name_sort.bam" 
         end=$(date +%s) 
         elapsed=$((end - start))  
@@ -875,7 +875,6 @@ task merge_sort_analyze {
       tar -cf - *.allc.tsv.gz | pigz > ~{plate_id}.allc.tsv.tar.gz
       tar -cf - *.allc.tsv.gz.tbi | pigz > ~{plate_id}.allc.tbi.tar.gz
       tar -cf -  *.allc.tsv.gz.count.csv | pigz > ~{plate_id}.allc.count.tar.gz
-      tar -cf -  *.tbi | pigz > ~{plate_id}.extract-allc_tbi.tar.gz
       tar -cf -  /cromwell_root/allc-${mcg_context}/*.gz | pigz > ~{plate_id}.extract-allc.tar.gz
       tar -cf -  /cromwell_root/allc-${mcg_context}/*.tbi | pigz > ~{plate_id}.extract-allc_tbi.tar.gz
     >>>
