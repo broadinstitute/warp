@@ -600,6 +600,12 @@ task hisat_single_end {
          elapsed=$((end - start))  
          echo "Elapsed time to run remove overlap $elapsed seconds"
       
+         # remove files 
+         rm ${BASE}.hisat3n_dna.split_reads.R1.fastq ${BASE}.hisat3n_dna.split_reads.R2.fastq
+         rm ${BASE}.hisat3n_dna.split_reads.R1.sam ${BASE}.hisat3n_dna.split_reads.R2.sam
+         rm ${BASE}.name_merged.sam
+         rm ${BASE}.name_sorted.bam
+         rm ${BASE}.name_sorted.filtered.bam
         }
 
         # run 4 instances in parallel each with 8 threads
