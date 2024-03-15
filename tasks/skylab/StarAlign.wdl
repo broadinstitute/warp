@@ -482,7 +482,7 @@ task MergeStarOutput {
     File features_single = features[0]
 
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/star-merge-npz:1.0.0-2.7.11a-1710356494"
+    String docker = "us.gcr.io/broad-gotc-prod/star-merge-npz:1.0.0-2.7.11a-1710507262"
     Int machine_mem_gb = 20
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
@@ -598,7 +598,10 @@ task MergeStarOutput {
       ~{input_id}_summary.txt \
       ~{input_id}_align_features.txt \
       ~{input_id}_cell_reads.txt \
-      ~{counting_mode} ~{input_id}
+      ~{counting_mode} \
+      ~{input_id} \
+      outputbarcodes.tsv \
+      outputmatrix.tsv 
       tar -zcvf ~{input_id}.star_metrics.tar *.txt
     else
       echo "No text files found in the folder."
