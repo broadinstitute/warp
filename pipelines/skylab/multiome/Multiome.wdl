@@ -13,7 +13,6 @@ workflow Multiome {
     input {
         String cloud_provider
         String input_id
-        String cloud_provider
 
         # Optimus Inputs
         String counting_mode = "sn_rna"
