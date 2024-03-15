@@ -64,7 +64,6 @@ workflow TestsnM3C {
         compress_level = compress_level,
         batch_number = batch_number,
         docker = docker
-
     }
 
     

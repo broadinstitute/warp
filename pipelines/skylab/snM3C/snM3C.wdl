@@ -116,8 +116,8 @@ task Demultiplexing {
     File random_primer_indexes
     String plate_id
     Int batch_number
-
     String docker
+
     Int disk_size = 1000
     Int mem_size = 10
     Int preemptible_tries = 2
@@ -234,7 +234,6 @@ task hisat_paired_end{
         Int r2_left_cut
         Int r2_right_cut
         Int min_read_length
-
         Int disk_size = 1000
         Int cpu = 48
         Int mem_size = 64
