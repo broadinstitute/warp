@@ -131,6 +131,7 @@ task Demultiplexing {
     cat ~{sep=' ' fastq_input_read1} > r1.fastq.gz
     cat ~{sep=' ' fastq_input_read2} > r2.fastq.gz
 
+    # Run cutadapt
     /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
     -g file:~{random_primer_indexes} \
     -o ~{plate_id}-{name}-R1.fq.gz \
@@ -195,12 +196,12 @@ task Demultiplexing {
         # Increment the counter
         folder_index=$(( (folder_index % $batch_number) + 1 ))
     done
+
+    # Tar up files per batch
     echo "TAR files"
     for i in $(seq 1 "${batch_number}"); do
-        tar -zcvf "~{plate_id}.${i}.cutadapt_output_files.tar.gz" batch${i}/*.fq.gz
+        tar -cf - batch${i}/*.fq.gz | pigz > ~{plate_id}.${i}.cutadapt_output_files.tar.gz
     done
-
-
     echo "TAR files created successfully."
   >>>
 
@@ -391,6 +392,33 @@ task hisat_paired_end{
       echo "Tasks all done."
       du -h *
       
+      #################################### 
+      ## make sure that the number of output bams equals the length of R1_files
+      # Count the number of *.hisat3n_dna.unique_aligned.bam files
+      bam_count=$(find . -maxdepth 1 -type f -name '*.hisat3n_dna.unique_aligned.bam' | wc -l)
+      fastq_counts=$(find . -maxdepth 1 -type f -name '*.split_reads*.fastq' | wc -l)
+      
+      # Get the length of the array ${R1_files[@]}
+      array_length=${#R1_files[@]}
+      echo $bam_count
+      echo $fastq_counts
+      echo $array_length
+
+      # Check if the count of *.hisat3n_dna.unique_aligned.bam files matches the length of the array ${R1_files[@]}
+      if [ "$bam_count" -ne "$array_length" ]; then
+         echo "Error: Number of BAM files does not match the length of the array."
+         exit 1
+      fi
+      
+      # Check if the count of FASTQ files matches the length of the array ${R1_files[@]}
+      if [ "$fastq_counts" -ne  "$((2 * array_length))" ]; then
+         echo "Error: Number of FASTQ files ($fastq_count) does not match the 2 * length of the array (${#R1_files[@]})."
+         exit 1
+      fi
+
+      echo "Number of BAM and FASTQ files matches the length of the array."
+      #################################### 
+
       # tar up stats
       echo "Tar up stats"
       start=$(date +%s)
@@ -588,7 +616,25 @@ task hisat_single_end {
 
         wait
         echo "All done running tasks."
-        ls 
+        du -h *
+
+        ####################################
+        ## make sure that the number of output bams equals the length of R1_files
+        # Count the number of *.hisat3n_dna.unique_aligned.bam files
+        bam_count=$(find . -maxdepth 1 -type f -name '*read_overlap.bam' | wc -l)
+ 
+        # Get the length of the array ${R1_files[@]}
+        array_length=${#R1_files[@]}
+        echo $bam_count
+        echo $array_length
+
+        # Check if the count of bams matches the length of the array ${R1_files[@]}
+        if [ "$bam_count" -ne "$array_length" ]; then
+           echo "Error: Number of BAM files does not match the length of the array."
+           exit 1
+        fi
+        echo "Number of BAM files matches the length of the array."
+        ####################################
 
         echo "Tar up summary text files"
         start=$(date +%s)
@@ -796,8 +842,27 @@ task merge_sort_analyze {
       echo "Tasks all done."
       du -h *
 
-      echo "Tar files."
-      
+      ####################################
+      ## make sure that the number of output bams equals the length of UNIQUE_BAMS
+      # Count the number of *.hisat3n_dna.unique_aligned.bam files
+      bam_count=$(find . -maxdepth 1 -type f -name '*.hisat3n_dna.all_reads.name_sort.bam' | wc -l)
+      allc_count=$(find . -maxdepth 1 -type f -name '/cromwell_root/allc-${mcg_context}/*.gz' | wc -l)
+ 
+      # Get the length of the array ${UNIQUE_BAMS[@]}
+      array_length=${#UNIQUE_BAMS[@]}
+      echo $bam_count
+      echo $allc_count
+      echo $array_length
+
+      # Check if the count of bams matches the length of the array ${UNIQUE_BAMS[@]}
+      if [ "$bam_count" -ne "$array_length" ]; then
+          echo "Error: Number of BAM files does not match the length of the array."
+          exit 1
+      fi
+      echo "Number of BAM files matches the length of the array."
+      ####################################
+
+      echo "Tar files."      
       tar -cf - output_bams/*.matrix.txt | pigz > ~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz
       tar -cf - *.hisat3n_dna.all_reads.name_sort.bam | pigz > ~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz
     
