@@ -852,12 +852,12 @@ task merge_sort_analyze {
       ## make sure that the number of output bams equals the length of UNIQUE_BAMS
       # Count the number of *.hisat3n_dna.unique_aligned.bam files
       bam_count=$(find . -maxdepth 1 -type f -name '*.hisat3n_dna.all_reads.name_sort.bam' | wc -l)
-      allc_count=$(find . -maxdepth 1 -type f -name '/cromwell_root/allc-${mcg_context}/*.gz' | wc -l)
+      contact_count=$(find . -maxdepth 1 -type f -name '*.hisat3n_dna.all_reads.3C.contact.tsv.gz' | wc -l)
  
       # Get the length of the array ${UNIQUE_BAMS[@]}
       array_length=${#UNIQUE_BAMS[@]}
       echo $bam_count
-      echo $allc_count
+      echo $contact_count
       echo $array_length
 
       # Check if the count of bams matches the length of the array ${UNIQUE_BAMS[@]}
@@ -865,7 +865,12 @@ task merge_sort_analyze {
           echo "Error: Number of BAM files does not match the length of the array."
           exit 1
       fi
-      echo "Number of BAM files matches the length of the array."
+      # Check if the count of tsv files matches the length of the array ${UNIQUE_BAMS[@]}
+      if [ "$contact_count" -ne "$array_length" ]; then
+          echo "Error: Number of hisat3n_dna.all_reads.3C.contact.tsv.gz files does not match the length of the array."
+          exit 1
+      fi
+      echo "Number of output files matches the length of the array."
       ####################################
 
       echo "Tar files."      
