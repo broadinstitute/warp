@@ -256,7 +256,7 @@ task hisat_paired_end{
         # untar the index files for hisat task
         start=$(date +%s)
         echo "Untarring tarred_index_files"
-        tar -zxvf ~{tarred_index_files}
+        pigz -dc ~{tarred_index_files} | tar -xf -  
         rm ~{tarred_index_files}
         end=$(date +%s) 
         elapsed=$((end - start)) 
@@ -278,7 +278,7 @@ task hisat_paired_end{
         # untar the demultiplexed fastqs for sort and trim task
         start=$(date +%s)
         echo "Untar demultiplexed fastqs"
-        tar -xf ~{tarred_demultiplexed_fastqs}
+        pigz -dc ~{tarred_demultiplexed_fastqs} | tar -xf -  
         end=$(date +%s) 
         elapsed=$((end - start)) 
         echo "Elapsed time to untar: $elapsed seconds"
