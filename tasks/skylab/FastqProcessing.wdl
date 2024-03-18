@@ -102,7 +102,7 @@ task FastqProcessing {
     fi
 
     fastqprocess \
-        --bam-size 30.0 \
+        --num-output-files 1 \
         --sample-id "~{sample_id}" \
         $FASTQS \
         --white-list "~{whitelist}" \
