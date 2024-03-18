@@ -236,9 +236,9 @@ task FastqProcessingSlidSeq {
 task FastqProcessATAC {
 
     input {
-        Array[String] read1_fastq
-        Array[String] read3_fastq
-        Array[String] barcodes_fastq
+        Array[File] read1_fastq
+        Array[File] read3_fastq
+        Array[File] barcodes_fastq
         String read_structure = "16C"
         String barcode_orientation = "FIRST_BP_RC"
         String output_base_name
@@ -295,9 +295,18 @@ task FastqProcessATAC {
         echo $read1_fastq_files
         # Make downsample fq for barcode orientation check of R2 barcodes
         mkdir /cromwell_root/input_fastq
-        gcloud storage cp $read1_fastq_files /cromwell_root/input_fastq
-        gcloud storage cp $read2_fastq_files /cromwell_root/input_fastq
-        gcloud storage cp $read3_fastq_files /cromwell_root/input_fastq
+        mv $read1_fastq_files /cromwell_root/input_fastq
+        mv $read2_fastq_files /cromwell_root/input_fastq
+        mv $read3_fastq_files /cromwell_root/input_fastq
+
+        #gcloud storage cp $read1_fastq_files /cromwell_root/input_fastq
+        #gcloud storage cp $read2_fastq_files /cromwell_root/input_fastq
+        #gcloud storage cp $read3_fastq_files /cromwell_root/input_fastq
+
+        # Use azcopy to copy files from Azure Blob Storage
+        #azcopy copy $read1_fastq_files /cromwell_root/input_fastq #--recursive --from-to=BlobLocal --blob-type=BlockBlob --sas-token="~{azure_sas_token}"
+        #azcopy copy $read2_fastq_files /cromwell_root/input_fastq #--recursive --from-to=BlobLocal --blob-type=BlockBlob --sas-token="~{azure_sas_token}"
+        #azcopy copy $read3_fastq_files /cromwell_root/input_fastq #--recursive --from-to=BlobLocal --blob-type=BlockBlob --sas-token="~{azure_sas_token}"
 
         path="/cromwell_root/input_fastq/"
         barcode_index="~{barcode_index1}"
