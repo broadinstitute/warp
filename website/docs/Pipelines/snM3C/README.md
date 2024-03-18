@@ -6,7 +6,7 @@ slug: /Pipelines/snM3C/README
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [snM3C_v3.0.0](https://github.com/broadinstitute/warp/releases) | March, 2024 | [Kaylee Mathews](mailto:warp-pipelines-help@broadinsitute.org) | Please file GitHub issues in the [WARP repository](https://github.com/broadinstitute/warp/issues) |
+| [snM3C_v4.0.0](https://github.com/broadinstitute/warp/releases) | March, 2024 | [Kaylee Mathews](mailto:warp-pipelines-help@broadinsitute.org) | Please file GitHub issues in the [WARP repository](https://github.com/broadinstitute/warp/issues) |
 
 
 ## Introduction to snM3C
@@ -76,12 +76,11 @@ The workflow contains several tasks described below.
 
 Overall, the snM3C workflow:
 
-1. Demultiplexes, sorts, and trims reads.
-2. Aligns paired-end reads.
-3. Separates unmapped, uniquely aligned, multi-aligned reads and splits unmapped reads by enzyme cut site.
-4. Aligns unmapped, single-end reads and removes overlapping reads.
-5. Merges mapped reads, calls chromatin contacts, and creates ALLC files.
-6. Creates summary output file.
+1. Demultiplexes reads.
+2. Sorts, filters, trims, and aligns paired-end reads, and separates unmapped, uniquely aligned, and multi-aligned reads.
+3. Aligns unmapped, single-end reads and removes overlapping reads.
+4. Merges mapped reads, calls chromatin contacts, and creates ALLC files.
+5. Creates summary output file.
 
 The tools each snM3C task employs are detailed in the table below. 
 
@@ -90,25 +89,30 @@ To see specific tool parameters, select the [workflow WDL link](https://github.c
 | Task name | Tool | Software | Description |
 | --- | --- | --- | --- |
 | Demultiplexing | Cutadapt | [Cutadapt](https://cutadapt.readthedocs.io/en/stable/) | Performs demultiplexing to cell-level FASTQ files based on random primer indices. |
-| Sort_and_trim_r1_and_r2 | Cutadapt | [Cutadapt](https://cutadapt.readthedocs.io/en/stable/) | Sorts, filters, and trims reads using the `r1_adapter`, `r2_adapter`, `r1_left_cut`, `r1_right_cut`, `r2_left_cut`, and `r2_right_cut` input parameters. |
-| Hisat_3n_pair_end_mapping_dna_mode | HISAT-3N | [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/) | Performs paired-end read alignment. |
-| Separate_and_split_unmapped_reads | [hisat3n_general.py](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/hisat3n_general.py), [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py) | python3 | Imports 2 custom python3 scripts developed by Hanqing Liu and calls the `separate_unique_and_multi_align_reads()` and `split_hisat3n_unmapped_reads()` functions to separate unmapped, uniquely aligned, multi-aligned reads from HISAT-3N BAM file, then splits the unmapped reads FASTQ file by all possible enzyme cut sites and output new R1 and R2 FASTQ files; unmapped reads are stored in unmapped FASTQ files and uniquely and multi-aligned reads are stored in separate BAM files. |
+| hisat-paired-end | Cutadapt, HISAT-3N, [hisat3n_general.py](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/hisat3n_general.py), [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py) | [Cutadapt](https://cutadapt.readthedocs.io/en/stable/), [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/), python3 | Sorts, filters, and trims reads using the `r1_adapter`, `r2_adapter`, `r1_left_cut`, `r1_right_cut`, `r2_left_cut`, and `r2_right_cut` input parameters; performs paired-end read alignment; imports 2 custom python3 scripts developed by Hanqing Liu and calls the `separate_unique_and_multi_align_reads()` and `split_hisat3n_unmapped_reads()` functions to separate unmapped, uniquely aligned, multi-aligned reads from HISAT-3N BAM file, then splits the unmapped reads FASTQ file by all possible enzyme cut sites and output new R1 and R2 FASTQ files; unmapped reads are stored in unmapped FASTQ files and uniquely and multi-aligned reads are stored in separate BAM files. |
 | hisat_single_end | HISAT-3N, [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py) | [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/), python3 | Performs single-end alignment of unmapped reads to maximize read mapping, imports a custom python3 script developed by Hanqing Liu, and calls the `remove_overlap_read_parts()` function to remove overlapping reads from the split alignment BAM file produced during single-end alignment. |
 | merge_sort_analyze | merge, sort, MarkDuplicates, [hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py), bam-to-allc, extract-allc | [samtools](https://www.htslib.org/), [Picard](https://broadinstitute.github.io/picard/), python3, [ALLCools](https://lhqing.github.io/ALLCools/intro.html) | Merges and sorts all mapped reads from the paired-end and single-end alignments; creates a position-sorted BAM file and a name-sorted BAM file; removes duplicate reads from the position-sorted, merged BAM file; imports a custom python3 script developed by Hanqing Liu and calls the `call_chromatin_contacts()` function to call chromatin contacts from the name-sorted, merged BAM file; reads are considered chromatin contacts if they are greater than 2,500 base pairs apart; creates a first ALLC file with a list of methylation points and a second ALLC file containing methylation contexts. |
 | summary | [summary.py](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/summary.py) | python3 | Imports a custom python3 script developed by Hanqing Liu and calls the `snm3c_summary()` function to generate a single, summary file for the pipeline in TSV format; contains trimming, mapping, deduplication, chromatin contact, and AllC site statistics. |
 
 
-#### 1. Demultiplexes, sorts, and trims reads
+3. Aligns unmapped, single-end reads and removes overlapping reads.
+4. Merges mapped reads, calls chromatin contacts, and creates ALLC files.
+5. Creates summary output file.
+
+
+#### 1. Demultiplexes reads
 In the first step of the pipeline (`Demultiplexing`), raw sequencing reads are demultiplexed by random primer index into cell-level FASTQ files using [Cutadapt](https://cutadapt.readthedocs.io/en/stable/). For more information on barcoding, see the [YAP documentation](https://hq-1.gitbook.io/mc/tech-background/barcoding#two-round-of-barcoding). 
 
-After demultiplexing, the pipeline uses [Cutadapt](https://cutadapt.readthedocs.io/en/stable/) to sort, filter, and trim reads in the `Sort_and_trim_r1_and_r2` task. The R1 and R2 adapter sequences are removed, along with the number of bases specified by the `r1_left_cut`, `r1_right_cut`, `r2_left_cut`, and `r2_right_cut` input parameters. Any reads shorter than the specified `min_read_length` are filtered out in this step.
+#### 2. Sorts, filters, trims, and aligns paired-end reads, and separates unmapped, uniquely aligned, and multi-aligned reads
 
-#### 2. Aligns paired-end reads
-In the next step of the pipeline, the `Hisat_3n_pair_end_mapping_dna_mode` task uses [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/) to perform paired-end read alignment to a reference genome FASTA file (`genome_fa`) and outputs an aligned BAM file. Additionally, the task outputs a stats file and a text file containing the genomic reference version used.
+**Sorts, filters, and trims reads**
+After demultiplexing, the pipeline uses [Cutadapt](https://cutadapt.readthedocs.io/en/stable/) to sort, filter, and trim reads in the `hisat-paired-end` task. The R1 and R2 adapter sequences are removed, along with the number of bases specified by the `r1_left_cut`, `r1_right_cut`, `r2_left_cut`, and `r2_right_cut` input parameters. Any reads shorter than the specified `min_read_length` are filtered out in this step.
 
-#### 3. Separates unmapped, uniquely aligned, multi-aligned reads and splits unmapped reads by enzyme cut site
+**Aligns paired-end reads**
+Next, the task uses [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/) to perform paired-end read alignment to a reference genome FASTA file (`genome_fa`) and outputs an aligned BAM file. Additionally, the task outputs a stats file and a text file containing the genomic reference version used.
 
-After paired-end alignment, the pipeline calls the `Separate_and_split_unmapped_reads` task, which imports a custom python3 script ([hisat3n_general.py](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/hisat3n_general.py)) developed by Hanqing Liu. The task calls the script's `separate_unique_and_multi_align_reads()` function to separate unmapped, uniquely aligned, and multi-aligned reads from the HISAT-3N BAM file. Three new files are output from this step of the pipeline: 
+**Separates unmapped, uniquely aligned, and multi-aligned reads**
+After paired-end alignment, the task imports a custom python3 script ([hisat3n_general.py](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/hisat3n_general.py)) developed by Hanqing Liu. The task calls the script's `separate_unique_and_multi_align_reads()` function to separate unmapped, uniquely aligned, and multi-aligned reads from the HISAT-3N BAM file. Three new files are output from this step of the pipeline: 
 
 1. A FASTQ file that contains the unmapped reads (`unmapped_fastq_tar`)
 2. A BAM file that contains the uniquely aligned reads (`unique_bam_tar`)
@@ -116,12 +120,12 @@ After paired-end alignment, the pipeline calls the `Separate_and_split_unmapped_
 
 After separating reads, the task imports a custom python3 script ([hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py)) developed by Hanqing Liu and calls the script's `split_hisat3n_unmapped_reads()` function. This splits the FASTQ file containing the unmapped reads by all possible enzyme cut sites and outputs new R1 and R2 files. 
 
-#### 4. Aligns unmapped, single-end reads and removes overlapping reads
+#### 3. Aligns unmapped, single-end reads and removes overlapping reads
 In the next step of the pipeline, the `hisat_single_end ` task uses [HISAT-3N](https://daehwankimlab.github.io/hisat2/hisat-3n/) to perform single-end read alignment of the previously unmapped reads to maximize read mapping and outputs a single, aligned BAM file.
 
 After the second alignment step, the task imports a custom python3 script ([hisat3n_m3c.py](https://github.com/lhqing/cemba_data/blob/bf6248239074d0423d45a67d83da99250a43e50c/cemba_data/hisat3n/hisat3n_m3c.py)) developed by Hanqing Liu. The task calls the script's `remove_overlap_read_parts()` function to remove overlapping reads from the BAM file produced during single-end alignment and output another BAM file.
 
-#### 5. Merges mapped reads, calls chromatin contacts, and creates ALLC files
+#### 4. Merges mapped reads, calls chromatin contacts, and creates ALLC files
 
 **Merged mapped reads**
 The `merge_sort_analyze` task uses [samtools](https://www.htslib.org/) to merge and sort all of the mapped reads from the paired-end and single-end alignments into a single BAM file. The BAM file is output as both a position-sorted and a name-sorted BAM file.
@@ -136,7 +140,7 @@ After calling chromatin contacts, the task uses the [ALLCools](https://lhqing.gi
 
 Next, the task uses the [ALLCools](https://lhqing.github.io/ALLCools/intro.html) `extract-allc` function to extract methylation contexts from the input ALLC file and output a second ALLC file that can be used to generate an [MCDS file](https://github.com/lhqing/allcools_doc/blob/master/tech-background/file-formats.md#mcds-file).
 
-#### 6. Creates summary output file
+#### 5. Creates summary output file
 In the last step of the pipeline, the `summary` task imports a custom python3 script ([summary.py](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/summary.py)) developed by Hanqing Liu. The task calls the script's `snm3c_summary()` function to generate a single, summary file for the pipeline in TSV format; contains trimming, mapping, deduplication, chromatin contact, and AllC site statistics. This is the main output of the pipeline.
 
 ## Outputs
