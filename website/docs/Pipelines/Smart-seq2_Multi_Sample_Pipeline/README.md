@@ -98,8 +98,14 @@ The Multi-SS2 Pipeline has been validated for processing human and mouse, strand
 Release information for the Multi-SS2 Pipeline can be found in the [changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_multisample/MultiSampleSmartSeq2.changelog.md). Please note that any major changes to the Smart-seq2 pipeline will be documented in the [Smart-seq2 Single Sample changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/smartseq2_single_sample/SmartSeq2SingleSample.changelog.md).
 
 ## Citing the Smart-seq2 Multi-Sample Pipeline
-Please identify the pipeline in your methods section using the Smart-seq2 Multi-Sample Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_018920/resolver?q=Smart-seq2&l=Smart-seq2).
+
+If you use the Smart-seq2 Multi-Sample Pipeline in your research, please identify the pipeline in your methods section using the [Smart-seq2 Multi-Sample SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_018920/resolver?q=SCR_018920&l=SCR_018920&i=rrid:scr_018920).
+
 * Ex: *Smart-seq2 Multi-Sample Pipeline (RRID:SCR_018920)*
+
+Please also consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Consortia Support
 This pipeline is supported and used by the [Human Cell Atlas](https://www.humancellatlas.org/) (HCA) project. 

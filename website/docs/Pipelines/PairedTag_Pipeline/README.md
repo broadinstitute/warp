@@ -7,7 +7,8 @@ slug: /Pipelines/PairedTag_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [PairedTag_v0.0.5](https://github.com/broadinstitute/warp/releases) | January, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
+| [PairedTag_v0.3.0](https://github.com/broadinstitute/warp/releases) | February, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
+
 
 ## Introduction to the Paired-Tag workflow
 
@@ -68,7 +69,6 @@ The Paired-Tag workflow inputs are specified in JSON configuration files. Exampl
 | gex_i1_fastq | Optional array of index FASTQ files representing a single GEX 10x library; multiplexed samples are not currently supported, but the file may be passed to the pipeline. | Array[File] |
 | tar_star_reference | TAR file containing a species-specific reference genome and GTF for Optimus (GEX) pipeline. | File | 
 | annotations_gtf | GTF file containing gene annotations used for GEX cell metric calculation and ATAC fragment metrics; must match the GTF used to build the STAR aligner. | File |
-| ref_genome_fasta | Genome FASTA file used for building the indices. | File |
 | mt_genes | Optional file for the Optimus (GEX) pipeline containing mitochondrial gene names used for metric calculation; default assumes 'mt' prefix in GTF (case insensitive). | File |
 | tenx_chemistry_version | Optional integer for the Optimus (GEX) pipeline specifying the 10x version chemistry the data was generated with; validated by examination of the first read 1 FASTQ file read structure; default is "3". | Integer |
 | emptydrops_lower | **Not used for single-nucleus data.** Optional threshold for UMIs for the Optimus (GEX) pipeline that empty drops tool should consider for determining cell; data below threshold is not removed; default is "100". | Integer |
@@ -95,8 +95,9 @@ The Paired-Tag workflow calls two WARP subworkflows and an additional task which
 | Subworkflow/Task | Software | Description | 
 | ----------- | -------- | ----------- |
 | Optimus ([WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/optimus/Optimus.wdl) and [documentation](../Optimus_Pipeline/README)) | fastqprocess, STARsolo, Emptydrops | Workflow used to analyze 10x single-cell GEX data. |
-| ​​PairedTagDemultiplex as demultiplex ([WDL](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/PairedTagUtils.wdl)) | UPStools | Task used to check the length of the read2 FASTQ (should be either 27 or 24 bp). If `preindex` is set to true, the task will perform demultiplexing of the 3-bp sample barcode from the read2 ATAC fastq files and stores it in the readname. It will then perform barcode orientation checking. The ATAC workflow will then add a combined 3 bp sample barcode and cellular barcode to the BB tag of the BAM. If `preindex` is false and then length is 27 bp, the task will perform trimming and subsequent barcode orientation checking. |
-ATAC ([WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) and [documentation](../ATAC/README)) | fastqprocess, bwa-mem, SnapATAC2 | Workflow used to analyze single-nucleus paired-tag DNA (histone modifications) data. |
+| PairedTagDemultiplex as demultiplex ([WDL](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/PairedTagUtils.wdl)) | UPStools | Task used to check the length of the read2 FASTQ (should be either 27 or 24 bp). If `preindex` is set to true, the task will perform demultiplexing of the 3-bp sample barcode from the read2 ATAC fastq files and stores it in the readname. It will then perform barcode orientation checking. The ATAC workflow will then add a combined 3 bp sample barcode and cellular barcode to the BB tag of the BAM. If `preindex` is false and then length is 27 bp, the task will perform trimming and subsequent barcode orientation checking. |
+| ATAC ([WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/multiome/atac.wdl) and [documentation](../ATAC/README)) | fastqprocess, bwa-mem, SnapATAC2 | Workflow used to analyze single-nucleus paired-tag DNA (histone modifications) data. |
+| ParseBarcodes as ParseBarcodes ([WDL](https://github.com/broadinstitute/warp/blob/develop/tasks/skylab/PairedTagUtils.wdl)) | python3 | Task used to parse and split the cell barcodes and sample barcodes from the combined index in the h5ad and fragment files when `preindex` is set to true. |
 
 
 ## Outputs
@@ -105,8 +106,8 @@ ATAC ([WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab
 |--- | --- | --- | 
 | pairedtag_pipeline_version_out | N.A. | String describing the version of the Paired-Tag pipeline used. |
 | bam_aligned_output_atac | `<input_id>_atac.bam` | BAM file containing aligned reads from ATAC workflow; contains sample and cell barcodes stored in the BB tag if `preindex` is “true”. |
-| fragment_file_atac | `<input_id>_atac.fragments.tsv` or if preindexing = true, `<input_id>_atac.fragments.BB.tsv | TSV file containing fragment start and stop coordinates per barcode. The columns are "Chromosome", "Start", "Stop", "Barcode", and "Number of reads". | 
-| snap_metrics_atac | `<input_id>_atac.metrics.h5ad` | h5ad (Anndata) file containing per-barcode metrics from SnapATAC2. See the [ATAC Count Matrix Overview](../ATAC/count-matrix-overview.md) for more details. |
+| fragment_file_atac | `<input_id>_atac.fragments.tsv` or if preindexing = true, `<input_id>_atac.fragments.BB.tsv` | TSV file containing fragment start and stop coordinates per barcode. The columns are "Chromosome", "Start", "Stop", "Barcode", and "Number of reads". When preindexing is used, additional columns include "Sample Barcode", "Cell Barcode", and "Duplicates" (which indicates if a cell barcode matches more than one sample barcode).  |
+| snap_metrics_atac | `<input_id>_atac.metrics.h5ad` | h5ad (Anndata) file containing per-barcode metrics from SnapATAC2. See the [ATAC Count Matrix Overview](../ATAC/count-matrix-overview.md) for more details. If the preindex option is used, the h5ad.obs will contain 3 extra columns: preindex (the sample barcode), CB (cell barcodes), and duplicates (indicates with a 1 if the cell barcode matches more than preindex, otherwise it is 0).|
 | genomic_reference_version_gex | `<reference_version>.txt` | File containing the Genome build, source and GTF annotation version. |
 | bam_gex | `<input_id>_gex.bam` | BAM file containing aligned reads from Optimus workflow. |
 | matrix_gex | `<input_id>_gex_sparse_counts.npz` | NPZ file containing raw gene by cell counts. |
@@ -116,11 +117,22 @@ ATAC ([WDL](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab
 | gene_metrics_gex | `<input_id>_gex.gene_metrics.csv.gz` | CSV file containing the per-gene metrics. |
 | cell_calls_gex | `<input_id>_gex.emptyDrops` | TSV file containing the EmptyDrops results when the Optimus workflow is run in sc_rna mode. |
 | h5ad_output_file_gex | `<input_id>_gex.h5ad` | h5ad (Anndata) file containing the raw cell-by-gene count matrix, gene metrics, cell metrics, and global attributes. See the [Optimus Count Matrix Overview](../Optimus_Pipeline/Loom_schema.md) for more details. |
+| library_metrics | `<input_id>_library_metrics.csv` | Optional CSV file containing all library-level metrics calculated with STARsolo for gene expression data. |
 
 
 ## Versioning and testing
 
 All Paired-Tag pipeline releases are documented in the [Paired-Tag changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/paired_tag/PairedTag.wdl) and tested using [plumbing and scientific test data](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/paired_tag/test_inputs). To learn more about WARP pipeline testing, see [Testing Pipelines](https://broadinstitute.github.io/warp/docs/About_WARP/TestingPipelines). Note that paired-tag tests are still in development.
+
+## Citing the Paired-Tag Pipeline
+
+If you use the Paired-Tag Pipeline in your research, please identify the pipeline in your methods section using the [Paired-Tag SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_025042/resolver?q=paired_tag&l=paired_tag&i=rrid:scr_025042).
+
+* Ex: *Paired-Tag Pipeline (RRID:SCR_025041)*
+
+Please also consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 
 ## Consortia support

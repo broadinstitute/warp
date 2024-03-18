@@ -33,9 +33,8 @@ workflow TestUltimaGenomicsJointGenotyping {
       File runs_file
       Array[File] annotation_intervals
       String flow_order
-      String snp_annotations
-      String indel_annotations
-      Boolean use_allele_specific_annotations
+      Array[String] snp_annotations
+      Array[String] indel_annotations
       String model_backend
       Int? top_level_scatter_count
       Boolean? gather_vcfs
@@ -83,7 +82,6 @@ workflow TestUltimaGenomicsJointGenotyping {
         flow_order = flow_order,
         snp_annotations = snp_annotations,
         indel_annotations = indel_annotations,
-        use_allele_specific_annotations = use_allele_specific_annotations,
         model_backend = model_backend,
         top_level_scatter_count = top_level_scatter_count,
         gather_vcfs = gather_vcfs,

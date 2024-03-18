@@ -29,7 +29,6 @@ workflow Optimus {
     # organism reference parameters
     File tar_star_reference
     File annotations_gtf
-    File ref_genome_fasta
     File? mt_genes
     String? soloMultiMappers
 
@@ -65,7 +64,9 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "6.3.5"
+
+  String pipeline_version = "6.5.0"
+
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
@@ -86,7 +87,6 @@ workflow Optimus {
     input_name_metadata_field: "String that describes the metadata field containing the input_name"
     tar_star_reference: "star genome reference"
     annotations_gtf: "gtf containing annotations for gene tagging (must match star reference)"
-    ref_genome_fasta: "genome fasta file (must match star reference)"
     whitelist: "10x genomics cell barcode whitelist"
     tenx_chemistry_version: "10X Genomics v2 (10 bp UMI) or v3 chemistry (12bp UMI)"
     force_no_check: "Set to true to override input checks and allow pipeline to proceed with invalid input"
@@ -129,6 +129,7 @@ workflow Optimus {
     input:
       bam_input = STARsoloFastq.bam_output,
       mt_genes = mt_genes,
+      original_gtf = annotations_gtf,
       input_id = input_id
   }
 
@@ -225,6 +226,7 @@ workflow Optimus {
     File? multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
     File? multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
     File? multimappers_PropUnique_matrix = STARsoloFastq.multimappers_PropUnique_matrix
+    File? library_metrics = MergeStarOutputs.library_metrics
 
     # h5ad
     File h5ad_output_file = final_h5ad_output

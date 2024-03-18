@@ -20,7 +20,7 @@ task CompareVcfs {
 
   runtime {
     docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 50 HDD"
+    disks: "local-disk 70 HDD"
     memory: "32 GiB"
     preemptible: 3
   }
@@ -115,7 +115,7 @@ task CompareTabix {
     exit_code=0
     a=$(md5sum "~{test_fragment_file}" | awk '{ print $1 }')
     b=$(md5sum ~{truth_fragment_file} | awk '{ print $1 }')
-    if [[ $a = $b ]]; then 
+    if [[ $a = $b ]]; then
       echo equal 
     else 
       echo different

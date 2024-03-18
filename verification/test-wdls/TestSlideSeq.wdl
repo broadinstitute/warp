@@ -57,7 +57,7 @@ workflow TestSlideSeq {
                                     SlideSeq.bam,
                                     ],
                                     # File? outputs
-                                    select_all([SlideSeq.loom_output_file]),
+                                    select_all([SlideSeq.h5ad_output_file]),
                                     
     ])
 
@@ -94,9 +94,9 @@ workflow TestSlideSeq {
 
     # This is achieved by passing each desired file/array[files] to GetValidationInputs
     if (!update_truth){
-          call Utilities.GetValidationInputs as GetLoom {
+          call Utilities.GetValidationInputs as GetH5adInputs {
             input:
-              input_file = SlideSeq.loom_output_file,
+              input_file = SlideSeq.h5ad_output_file,
               results_path = results_path,
               truth_path = truth_path
         }
@@ -127,8 +127,8 @@ workflow TestSlideSeq {
 
       call VerifySlideSeq.VerifySlideSeq as Verify {
         input:
-          truth_loom = GetLoom.truth_file,
-          test_loom = GetLoom.results_file,
+          truth_h5ad = GetH5adInputs.truth_file,
+          test_h5ad = GetH5adInputs.results_file,
           truth_bam = GetBam.truth_file, 
           test_bam = GetBam.results_file,
           truth_gene_metrics = GetGeneMetrics.truth_file, 

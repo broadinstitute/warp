@@ -7,7 +7,7 @@ slug: /Pipelines/CEMBA_MethylC_Seq_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [CEMBA_v1.1.5](https://github.com/broadinstitute/warp/releases) | December, 2023 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [CEMBA_v1.1.6](https://github.com/broadinstitute/warp/releases) | December, 2023 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![CEMBA](./CEMBA.png)
 
@@ -28,7 +28,7 @@ Interested in using the pipeline for your publication? See the [“CEMBA publica
 | Workflow Language | WDL 1.0 | [openWDL](https://github.com/openwdl/wdl) |
 | Genomic Reference Sequence| GRCH38 and GRCM38  |  [GENCODE](https://www.gencodegenes.org/)  |
 | Aligner  | BISMARK v0.21.0 with  --bowtie2 | [Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/) |
-| Variant Caller | GATK 4.3.0.0 | [GATK 4.3.0.0](https://gatk.broadinstitute.org/hc/en-us)
+| Variant Caller | GATK 4.5.0.0 | [GATK 4.5.0.0](https://gatk.broadinstitute.org/hc/en-us)
 | Data Input File Format | File format in which sequencing data is provided | [Zipped FASTQs (.fastq.gz)](https://support.illumina.com/bulletins/2016/04/fastq-files-explained.html) |
 | Data Output File Format | File formats in which CEMBA output is provided | [BAM](http://samtools.github.io/hts-specs/), [VCF](https://samtools.github.io/hts-specs/VCFv4.2.pdf), [ALLC](https://github.com/yupenghe/methylpy#output-format) |
 
@@ -105,10 +105,10 @@ The table and summary sections below detail the tasks and tools of the CEMBA pip
 | GetMethylationReport | [Bismark v0.21.0](https://www.bioinformatics.babraham.ac.uk/projects/bismark/)  | Produce methylation report for reads above map quality and below map quality | quay.io/broadinstitute/bismark:0.21.0 |
 | AttachBarcodes |  [Picard v2.26.10](https://broadinstitute.github.io/picard/)  | Add barcodes from the tagged uBAM to the aligned BAM | us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10 |
 | MergeBams |  [Samtools v.19](http://www.htslib.org/)  | Merge R1 and R2 BAM files into single BAM | quay.io/broadinstitute/samtools:1.9 |
-| AddReadGroup |  [GATK v4.3.0.0](https://gatk.broadinstitute.org/hc/en-us)  | Add read groups to the merged BAM | us.gcr.io/broad-gatk/gatk:4.3.0.0 |
+| AddReadGroup |  [GATK v4.5.0.0](https://gatk.broadinstitute.org/hc/en-us)  | Add read groups to the merged BAM | us.gcr.io/broad-gatk/gatk:4.5.0.0 |
 | Sort | [Picard v2.26.10](https://broadinstitute.github.io/picard/) | Sort in coordinate order after adding read group | us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10 |
 | IndexBam |  [Samtools v1.9](http://www.htslib.org/)  | Index the output BAM | quay.io/broadinstitute/samtools:1.9 |
-| MethylationTypeCaller | [GATK v4.3.0.0](https://gatk.broadinstitute.org/hc/en-us)  | Produce a  VCF with locus-specific methylation information | us.gcr.io/broad-gatk/gatk:4.3.0.0 |
+| MethylationTypeCaller | [GATK v4.5.0.0](https://gatk.broadinstitute.org/hc/en-us)  | Produce a  VCF with locus-specific methylation information | us.gcr.io/broad-gatk/gatk:4.5.0.0 |
 | VCFtoALLC | Python | Creates an [ALLC](https://github.com/yupenghe/methylpy#output-format) file from the VCF produced with MethylationTypeCaller | quay.io/cemba/vcftoallc:v0.0.1 |
 | ComputeCoverageDepth | [Samtools v1.9](http://www.htslib.org/)  | Compute number of sites with coverage greater than 1 | quay.io/broadinstitute/samtools:1.9 |
 
@@ -178,8 +178,14 @@ The table below details the pipeline outputs. **If using multiplexed samples, th
 All CEMBA pipeline releases are documented in the [CEMBA changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.changelog.md).
 
 ## Citing the CEMBA Pipeline
-Please identify the pipeline in your methods section using the CEMBA Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_021219/resolver?q=CEMBA&l=CEMBA).
+
+If you use the CEMBA Pipeline in your research, please identify the pipeline in your methods section using the [CEMBA SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_021219/resolver?q=SCR_021219&l=SCR_021219&i=rrid:scr_021219).
+
 * Ex: *CEMBA MethylC Seq Pipeline (RRID:SCR_021219)*
+
+Please also consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Consortia Support
 This pipeline is supported and used by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 

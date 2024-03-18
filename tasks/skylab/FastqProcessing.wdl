@@ -11,7 +11,7 @@ task FastqProcessing {
     String read_struct
 
     #using the latest build of warp-tools in GCR
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.0"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
     #runtime values
     Int machine_mem_mb = 40000
     Int cpu = 16   
@@ -246,7 +246,7 @@ task FastqProcessATAC {
 
         # [?] copied from corresponding optimus wdl for fastqprocessing
         # using the latest build of warp-tools in GCR
-        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.0"
+        String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
 
         # Runtime attributes [?]
         Int mem_size = 5
