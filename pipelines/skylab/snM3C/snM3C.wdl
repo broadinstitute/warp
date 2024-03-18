@@ -400,9 +400,6 @@ task hisat_paired_end{
       
       # Get the length of the array ${R1_files[@]}
       array_length=${#R1_files[@]}
-      echo $bam_count
-      echo $fastq_counts
-      echo $array_length
 
       # Check if the count of *.hisat3n_dna.unique_aligned.bam files matches the length of the array ${R1_files[@]}
       if [ "$bam_count" -ne "$array_length" ]; then
@@ -631,9 +628,7 @@ task hisat_single_end {
  
         # Get the length of the array ${R1_files[@]}
         array_length=${#R1_files[@]}
-        echo $bam_count
-        echo $array_length
-
+        
         # Check if the count of bams matches the length of the array ${R1_files[@]}
         if [ "$bam_count" -ne "$array_length" ]; then
            echo "Error: Number of BAM files does not match the length of the array."
@@ -856,9 +851,6 @@ task merge_sort_analyze {
  
       # Get the length of the array ${UNIQUE_BAMS[@]}
       array_length=${#UNIQUE_BAMS[@]}
-      echo $bam_count
-      echo $contact_count
-      echo $array_length
 
       # Check if the count of bams matches the length of the array ${UNIQUE_BAMS[@]}
       if [ "$bam_count" -ne "$array_length" ]; then
