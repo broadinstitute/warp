@@ -94,6 +94,10 @@ workflow snM3C {
             docker = docker
     }
 
+    meta {
+        allowNestedInputs: true
+    }
+
     output {
         File MappingSummary = summary.mapping_summary
         Array[File] name_sorted_bams = merge_sort_analyze.name_sorted_bam
