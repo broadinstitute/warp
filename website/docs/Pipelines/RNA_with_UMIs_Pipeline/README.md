@@ -7,7 +7,7 @@ slug: /Pipelines/RNA_with_UMIs_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Authors | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [RNAWithUMIsPipeline_v1.0.15](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | December, 2023 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [RNAWithUMIsPipeline_v1.0.16](https://github.com/broadinstitute/warp/releases?q=RNAwithUMIs&expanded=true) | February, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) & [Kaylee Mathews](mailto:kmathews@broadinstitute.org)| Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ![RNAWithUMIs_diagram](rna-with-umis_diagram.png)
 
@@ -266,7 +266,11 @@ Workflow outputs are described in the table below.
 
 All RNA with UMIs pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/master/pipelines/broad/rna_seq/RNAWithUMIsPipeline.changelog.md).
 
-<!--- citing the pipeline will go here --->
+## Citing the RNA with UMIs Pipeline
+
+If you use the RNA with UMIs Pipeline in your research, please consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Feedback
 

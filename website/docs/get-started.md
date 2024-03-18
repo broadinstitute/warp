@@ -101,7 +101,7 @@ Our planned upcoming improvements include:
 ## Citing WARP
 When citing WARP, please use the following:
 
-Degatano K, Grant G, Khajouei F et al. Introducing WARP: A collection of cloud-optimized workflows for biological data processing and reproducible analysis [version 1; not peer reviewed]. F1000Research 2021, 10(ISCB Comm J):705 (slides) (doi: 10.7490/f1000research.1118678.1)
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Acknowledgements
 

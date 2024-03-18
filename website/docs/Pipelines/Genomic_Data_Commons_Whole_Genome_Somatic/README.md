@@ -7,7 +7,7 @@ slug: /Pipelines/Genomic_Data_Commons_Whole_Genome_Somatic/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [GDCWholeGenomeSomaticSingleSample_v1.0.1](https://github.com/broadinstitute/warp/releases) | January, 2021 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [GDCWholeGenomeSomaticSingleSample_v1.3.1](https://github.com/broadinstitute/warp/releases) | January, 2024 | [Elizabeth Kiernan](mailto:ekiernan@broadinstitute.org) | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 
 ## Introduction to the GDC Whole Genome Somatic Single Sample pipeline
@@ -29,8 +29,8 @@ For the latest workflow version and release notes, please see the [changelog](ht
 
 ### Software version requirements
 
-* GATK 4.0.7
-* Picard 2.18.11 (Custom Docker is used to run software on Cromwell 52)
+* GATK 4.5.0.0
+* Picard 2.26.10
 * Samtools 1.11
 * Python 3.0
 * Cromwell version support
@@ -113,6 +113,12 @@ Alternatively, Cromwell allows you to specify an output directory using an optio
 
 - Runtime parameters are optimized for Broad's Google Cloud Platform implementation.
 - Please visit the [GATK Technical Documentation](https://gatk.broadinstitute.org/hc/en-us/categories/360002310591) site for further documentation on GATK-related workflows and tools.
+
+## Citing the GDC Pipeline
+
+If you use the GDC Pipeline in your research, please consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Contact us
 Please help us make our tools better by contacting [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) for pipeline-related suggestions or questions.

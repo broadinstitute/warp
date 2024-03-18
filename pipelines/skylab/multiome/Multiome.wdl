@@ -6,7 +6,8 @@ import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
 import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
 
 workflow Multiome {
-    String pipeline_version = "3.1.2"
+
+    String pipeline_version = "3.3.0"
 
     input {
         String input_id
@@ -18,7 +19,6 @@ workflow Multiome {
         Array[File]? gex_i1_fastq        
         File tar_star_reference
         File annotations_gtf
-        File ref_genome_fasta
         File? mt_genes
         Int tenx_chemistry_version = 3
         Int emptydrops_lower = 100
@@ -61,7 +61,6 @@ workflow Multiome {
             output_bam_basename = input_id + "_gex",
             tar_star_reference = tar_star_reference,
             annotations_gtf = annotations_gtf,
-            ref_genome_fasta = ref_genome_fasta,
             mt_genes = mt_genes,
             tenx_chemistry_version = tenx_chemistry_version,
             whitelist = gex_whitelist,
@@ -143,6 +142,7 @@ workflow Multiome {
         Array[File?] multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
         Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
         File? gex_aligner_metrics = Optimus.aligner_metrics
+        File? library_metrics = Optimus.library_metrics
 
         # cellbender outputs
         File? cell_barcodes_csv = CellBender.cell_csv

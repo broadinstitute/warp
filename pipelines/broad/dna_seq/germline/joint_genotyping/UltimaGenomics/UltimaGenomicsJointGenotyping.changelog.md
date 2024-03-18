@@ -1,3 +1,13 @@
+# 1.1.7
+2023-12-18 (Date of Last Commit)
+
+* Updated to GATK version 4.5.0.0.
+
+# 1.1.6
+2023-02-06 (Date of Last Commit)
+
+* Updated VETS filtering pipeline to GATK version 4.5.0.0. Does not affect outputs.
+
 # 1.1.5
 2023-09-08 (Date of Last Commit)
 
