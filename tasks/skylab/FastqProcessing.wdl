@@ -303,11 +303,6 @@ task FastqProcessATAC {
         #gcloud storage cp $read2_fastq_files /cromwell_root/input_fastq
         #gcloud storage cp $read3_fastq_files /cromwell_root/input_fastq
 
-        # Use azcopy to copy files from Azure Blob Storage
-        #azcopy copy $read1_fastq_files /cromwell_root/input_fastq #--recursive --from-to=BlobLocal --blob-type=BlockBlob --sas-token="~{azure_sas_token}"
-        #azcopy copy $read2_fastq_files /cromwell_root/input_fastq #--recursive --from-to=BlobLocal --blob-type=BlockBlob --sas-token="~{azure_sas_token}"
-        #azcopy copy $read3_fastq_files /cromwell_root/input_fastq #--recursive --from-to=BlobLocal --blob-type=BlockBlob --sas-token="~{azure_sas_token}"
-
         path="/cromwell_root/input_fastq/"
         barcode_index="~{barcode_index1}"
         file="${path}${barcode_index}"
