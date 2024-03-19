@@ -323,7 +323,7 @@ task FastqProcessATAC {
         for fastq in "${FASTQ1_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R2 /input_fastq/$BASE`
+            BASE=`echo --R2 input_fastq/$BASE`
             R2_FILES_CONCAT+="$BASE "
         done
         echo $R2_FILES_CONCAT
@@ -333,7 +333,7 @@ task FastqProcessATAC {
         for fastq in "${FASTQ3_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R3 /input_fastq/$BASE`
+            BASE=`echo --R3 input_fastq/$BASE`
             R3_FILES_CONCAT+="$BASE "
         done
         echo $R3_FILES_CONCAT
@@ -371,8 +371,8 @@ task FastqProcessATAC {
     }
 
     output {
-        Array[File] fastq_R1_output_array = glob("/cromwell_root/output_fastq/fastq_R1_*")
-        Array[File] fastq_R3_output_array = glob("/cromwell_root/output_fastq/fastq_R3_*")
+        Array[File] fastq_R1_output_array = glob("output_fastq/fastq_R1_*")
+        Array[File] fastq_R3_output_array = glob("output_fastq/fastq_R3_*")
     }
 }
 
