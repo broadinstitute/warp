@@ -24,6 +24,11 @@ workflow snM3C {
         Int compress_level = 5
         Int batch_number
         String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.3"
+
+        String merge_sort_analyze_cpu_platform = "Intel Ice Lake"
+        String single_end_hisat_cpu_platform = "Intel Ice Lake"
+        String paired_end_hisat_cpu_platform = "Intel Ice Lake"
+
     }
 
     # version of the pipeline
@@ -54,7 +59,8 @@ workflow snM3C {
                 r2_left_cut = r2_left_cut,
                 r2_right_cut = r2_right_cut,
                 plate_id = plate_id,
-                docker = docker
+                docker = docker,
+                cpu_platform = paired_end_hisat_cpu_platform
         }
 
         call hisat_single_end {
@@ -63,7 +69,8 @@ workflow snM3C {
                 tarred_index_files = tarred_index_files,
                 genome_fa = genome_fa,
                 plate_id = plate_id,
-                docker = docker
+                docker = docker,
+                cpu_platform = single_end_hisat_cpu_platform
         }
 
         call merge_sort_analyze {
@@ -76,7 +83,8 @@ workflow snM3C {
                compress_level = compress_level,
                chromosome_sizes = chromosome_sizes,
                plate_id = plate_id,
-               docker = docker
+               docker = docker,
+               cpu_platform = merge_sort_analyze_cpu_platform
         }
     }
 
@@ -243,7 +251,7 @@ task hisat_paired_end{
         Int cpu = 48
         Int mem_size = 64
         Int preemptible_tries = 2
-        String cpu_platform =  "Intel Ice Lake"
+        String cpu_platform
     }
 
     command <<<
@@ -477,7 +485,7 @@ task hisat_single_end {
         Int mem_size = 64  
         Int cpu = 32
         Int preemptible_tries = 2
-        String cpu_platform =  "Intel Ice Lake"    
+        String cpu_platform
     }
 
     command <<<
@@ -691,7 +699,7 @@ task merge_sort_analyze {
         Int compress_level
         File chromosome_sizes
 
-        String cpu_platform = "Intel Ice Lake"
+        String cpu_platform
         Int disk_size = 1000
         Int mem_size = 40
         Int cpu = 16

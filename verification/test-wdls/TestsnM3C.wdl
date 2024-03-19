@@ -28,8 +28,11 @@ workflow TestsnM3C {
       Int num_downstr_bases = 2
       Int compress_level = 5
       Int batch_number
+      String merge_sort_analyze_cpu_platform
+      String single_end_hisat_cpu_platform
+      String paired_end_hisat_cpu_platform
 
-      # These values will be determined and injected into the inputs by the scala test framework
+    # These values will be determined and injected into the inputs by the scala test framework
       String truth_path
       String results_path
       Boolean update_truth
@@ -63,7 +66,10 @@ workflow TestsnM3C {
         num_downstr_bases = num_downstr_bases,
         compress_level = compress_level,
         batch_number = batch_number,
-        docker = docker
+        docker = docker,
+        merge_sort_analyze_cpu_platform = merge_sort_analyze_cpu_platform,
+        single_end_hisat_cpu_platform = single_end_hisat_cpu_platform,
+        paired_end_hisat_cpu_platform = paired_end_hisat_cpu_platform
     }
 
     
