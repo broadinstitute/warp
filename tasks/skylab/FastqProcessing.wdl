@@ -347,7 +347,7 @@ task FastqProcessATAC {
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
         mkdir output_fastq/
-        cd /output_fastq
+        cd output_fastq/
 
         fastqprocess \
         --num-output-files ~{num_output_files} \
