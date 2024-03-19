@@ -352,9 +352,9 @@ task FastqProcessATAC {
         fastqprocess \
         --num-output-files ~{num_output_files} \
         --sample-id "~{output_base_name}" \
-        $R1_FILES_CONCAT \
-        $R2_FILES_CONCAT \
-        $R3_FILES_CONCAT \
+        ../$R1_FILES_CONCAT \
+        ../$R2_FILES_CONCAT \
+        ../$R3_FILES_CONCAT \
         --white-list "~{whitelist}" \
         --output-format "FASTQ" \
         --barcode-orientation $barcode_choice \
