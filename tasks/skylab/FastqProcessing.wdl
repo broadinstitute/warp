@@ -346,15 +346,13 @@ task FastqProcessATAC {
 
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
-        mkdir output_fastq/
-        cd output_fastq/
 
         fastqprocess \
         --num-output-files ~{num_output_files} \
         --sample-id "~{output_base_name}" \
-        ../$R1_FILES_CONCAT \
-        ../$R2_FILES_CONCAT \
-        ../$R3_FILES_CONCAT \
+        $R1_FILES_CONCAT \
+        $R2_FILES_CONCAT \
+        $R3_FILES_CONCAT \
         --white-list "~{whitelist}" \
         --output-format "FASTQ" \
         --barcode-orientation $barcode_choice \
@@ -371,8 +369,8 @@ task FastqProcessATAC {
     }
 
     output {
-        Array[File] fastq_R1_output_array = glob("output_fastq/fastq_R1_*")
-        Array[File] fastq_R3_output_array = glob("output_fastq/fastq_R3_*")
+        Array[File] fastq_R1_output_array = glob("fastq_R1_*")
+        Array[File] fastq_R3_output_array = glob("fastq_R3_*")
     }
 }
 
