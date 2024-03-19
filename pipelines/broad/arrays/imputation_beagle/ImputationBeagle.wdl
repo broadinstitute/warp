@@ -77,9 +77,9 @@ workflow ImputationBeagle {
   Float chunkLengthFloat = chunkLength
 
   scatter (contig in contigs) {
-
-    String reference_filename = reference_panel_path + "ALL.chr" + contig + ".phase3_integrated.20130502.genotypes.cleaned"
-    String genetic_map_filename = genetic_maps_path + "plink.chr" + contig + ".GRCh37.map"
+    # these are specific to hg38
+    String reference_filename = reference_panel_path + "hgdp.tgp.gwaspy.merged.chr" + contig + ".merged.AN_added.bcf.ac2."
+    String genetic_map_filename = genetic_maps_path + "plink.chr" + contig + ".GRCh38.map"
 
     ReferencePanelContig referencePanelContig = {
       "vcf": reference_filename + vcf_suffix,
