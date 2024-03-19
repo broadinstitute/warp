@@ -15,7 +15,7 @@ workflow PCA {
     call create_hw_pca_training {
         input:
             full_bgz                =   full_bgz,
-            full_bgz_index          =   full_bgz,
+            full_bgz_index          =   full_bgz_index,
             hgdp_metadata_file      =   hgdp_metadata_file,
             final_output_prefix     =   final_output_prefix,
             num_pcs                 =   num_pcs,
