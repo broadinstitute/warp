@@ -243,7 +243,7 @@ task hisat_paired_end{
         Int cpu = 48
         Int mem_size = 64
         Int preemptible_tries = 2
-        String cpu_platform =  "Intel Ice Lake"
+        String cpu_platform =  "Intel Cascade Lake"
     }
 
     command <<<
@@ -477,7 +477,7 @@ task hisat_single_end {
         Int mem_size = 64  
         Int cpu = 32
         Int preemptible_tries = 2
-        String cpu_platform =  "Intel Ice Lake"    
+        String cpu_platform =  "Intel Cascade Lake"    
     }
 
     command <<<
@@ -691,7 +691,7 @@ task merge_sort_analyze {
         Int compress_level
         File chromosome_sizes
 
-        String cpu_platform = "Intel Ice Lake"
+        String cpu_platform = "Intel Cascade Lake"
         Int disk_size = 1000
         Int mem_size = 40
         Int cpu = 16
