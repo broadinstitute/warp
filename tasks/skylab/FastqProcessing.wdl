@@ -294,16 +294,16 @@ task FastqProcessATAC {
 
         echo $read1_fastq_files
         # Make downsample fq for barcode orientation check of R2 barcodes
-        mkdir /cromwell_root/input_fastq
-        mv $read1_fastq_files /cromwell_root/input_fastq
-        mv $read2_fastq_files /cromwell_root/input_fastq
-        mv $read3_fastq_files /cromwell_root/input_fastq
+        mkdir input_fastq
+        mv $read1_fastq_files input_fastq/
+        mv $read2_fastq_files input_fastq/
+        mv $read3_fastq_files input_fastq/
 
         #gcloud storage cp $read1_fastq_files /cromwell_root/input_fastq
         #gcloud storage cp $read2_fastq_files /cromwell_root/input_fastq
         #gcloud storage cp $read3_fastq_files /cromwell_root/input_fastq
 
-        path="/cromwell_root/input_fastq/"
+        path="input_fastq/"
         barcode_index="~{barcode_index1}"
         file="${path}${barcode_index}"
         zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
@@ -313,7 +313,7 @@ task FastqProcessATAC {
         for fastq in "${FASTQ2_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R1 /cromwell_root/input_fastq/$BASE`
+            BASE=`echo --R1 input_fastq/$BASE`
             R1_FILES_CONCAT+="$BASE "
         done
         echo $R1_FILES_CONCAT
@@ -323,7 +323,7 @@ task FastqProcessATAC {
         for fastq in "${FASTQ1_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R2 /cromwell_root/input_fastq/$BASE`
+            BASE=`echo --R2 /input_fastq/$BASE`
             R2_FILES_CONCAT+="$BASE "
         done
         echo $R2_FILES_CONCAT
@@ -333,7 +333,7 @@ task FastqProcessATAC {
         for fastq in "${FASTQ3_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R3 /cromwell_root/input_fastq/$BASE`
+            BASE=`echo --R3 /input_fastq/$BASE`
             R3_FILES_CONCAT+="$BASE "
         done
         echo $R3_FILES_CONCAT
@@ -346,8 +346,8 @@ task FastqProcessATAC {
 
         # Call fastq process
         # outputs fastq files where the corrected barcode is in the read name
-        mkdir /cromwell_root/output_fastq
-        cd /cromwell_root/output_fastq
+        mkdir output_fastq/
+        cd /output_fastq
 
         fastqprocess \
         --num-output-files ~{num_output_files} \
