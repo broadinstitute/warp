@@ -40,7 +40,7 @@ workflow snM3C {
     }
 
     scatter(tar in Demultiplexing.tarred_demultiplexed_fastqs) {
-        call Hisat_paired_end {
+        call Hisat_paired_end as Hisat_paired_end {
           input:
                 tarred_demultiplexed_fastqs = tar,
                 tarred_index_files = tarred_index_files,
@@ -57,7 +57,7 @@ workflow snM3C {
                 docker = docker
         }
 
-        call Hisat_single_end {
+        call Hisat_single_end as Hisat_single_end {
             input:
                 split_fq_tar = Hisat_paired_end.split_fq_tar,
                 tarred_index_files = tarred_index_files,
@@ -66,7 +66,7 @@ workflow snM3C {
                 docker = docker
         }
 
-        call Merge_sort_analyze {
+        call Merge_sort_analyze as Merge_sort_analyze {
             input:
                paired_end_unique_tar = Hisat_paired_end.unique_bam_tar,
                read_overlap_tar = Hisat_single_end.remove_overlaps_output_bam_tar,     
@@ -223,7 +223,7 @@ task Demultiplexing {
     }
 }
 
-task Hisat_paired_end{
+task Hisat_paired_end {
     input {
         File tarred_demultiplexed_fastqs
         File tarred_index_files
