@@ -1023,13 +1023,19 @@ task rename_outputs {
     }
     command <<<
         set -euo pipefail
-
         declare -a name_sorted_bams_array=(~{sep=' ' name_sorted_bams})
 
-        name_sorted_bams=`printf '%s ' "${name_sorted_bams_array[@]}"; echo`
-
-        echo $read1_fastq_files
-
+        for file in "${name_sorted_bams_array[@]}"; do
+            shard_number=$(echo "$file" | grep -oE 'shard-[0-9]+')
+            if [ -n "$shard_number" ]; then
+                shard_number=$(echo "$shard_number" | grep -oE '[0-9]+')
+                filename=$(basename "$file")
+                filename_without_extension="${filename%.*.*}"
+                mv "$file" "batch${shard_number}.${filename_without_extension}.tar.gz"
+            else
+                echo "Warning: Shard number not found in $file"
+            fi
+        done
     >>>
     runtime {
         docker: docker
@@ -1039,6 +1045,7 @@ task rename_outputs {
         preemptible: preemptible_tries
     }
     output {
+        Array[File] name_sorted_bam = glob("*.hisat3n_dna.all_reads.name_sort.tar.gz")
     }
 
 
