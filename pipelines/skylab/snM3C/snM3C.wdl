@@ -379,7 +379,7 @@ task Hisat_paired_end {
       R1_files=($(ls batch*/ | grep "\-R1.fq.gz"))
       R2_files=($(ls batch*/ | grep "\-R2.fq.gz"))
       
-      du -h *
+      du -h batch*/*
 
       for file in "${R1_files[@]}"; do
       (
