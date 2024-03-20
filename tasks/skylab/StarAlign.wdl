@@ -482,7 +482,7 @@ task MergeStarOutput {
     File features_single = features[0]
 
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/star-merge-npz:1.0.0-2.7.11a-1710507262"
+    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:lk-PD-2533-starsolo-warp-tools-docker"
     Int machine_mem_gb = 20
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
