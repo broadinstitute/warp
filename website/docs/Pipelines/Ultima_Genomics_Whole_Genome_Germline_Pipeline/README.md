@@ -272,7 +272,11 @@ The outputs of the UG_WGS workflow are not yet compatible with the WARP [Ultimat
 
 All UG_WGS pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/broad/dna_seq/germline/single_sample/ugwgs/UltimaGenomicsWholeGenomeGermline.changelog.md).
 
-<!--- citing the pipeline will go here --->
+## Citing the UG_WGS Pipeline
+
+If you use the UG_WGS Pipeline in your research, please consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Feedback
 

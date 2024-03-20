@@ -1,4 +1,14 @@
-# 1.2.28
+# 1.3.1
+2024-02-28 (Date of Last Commit)
+
+* Updated the Optimus workflow to produce a library-level metrics CSV; this does not impact the Single-nucleus Multi Sample Smart-seq2 pipeline
+
+# 1.3.0
+2024-01-22 (Date of Last Commit)
+
+* Updated StarAlign output metrics to include shard ids
+ 
+ # 1.2.28
 2024-01-11 (Date of Last Commit)
 
 * Increased memory for MergeStarOutputs in StarAlign.wdl, RunEmptyDrops in RunEmptyDrops.wdl, OptimusH5ad in H5adUtils.wdl and GeneMetrics in Metrics.wdl

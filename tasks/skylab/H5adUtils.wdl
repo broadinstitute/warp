@@ -193,13 +193,12 @@ task JoinMultiomeBarcodes {
 
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
+    Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(gex_h5ad, "MiB") + size(atac_fragment, "MiB")) * 3) + 10000
+    Int disk =  ceil((size(atac_h5ad, "GiB") + size(gex_h5ad, "GiB") + size(atac_fragment, "GiB")) * 5) + 10
   }
     String gex_base_name = basename(gex_h5ad, ".h5ad")
     String atac_base_name = basename(atac_h5ad, ".h5ad")
     String atac_fragment_base = basename(atac_fragment, ".tsv")
-
-    Int machine_mem_mb = ceil((size(atac_h5ad, "MiB") + size(gex_h5ad, "MiB") + size(atac_fragment, "MiB")) * 3) + 10000
-    Int disk =  ceil((size(atac_h5ad, "GiB") + size(gex_h5ad, "GiB") + size(atac_fragment, "GiB")) * 5) + 10
 
   parameter_meta {
     atac_h5ad: "The resulting h5ad from the ATAC workflow."
