@@ -1031,14 +1031,14 @@ task rename_outputs {
                 shard_number=$(echo "$shard_number" | grep -oE '[0-9]+')
                 filename=$(basename "$file")
                 filename_without_extension="${filename%.*.*}"
-                mv "$file" "batch${shard_number}.${filename_without_extension}.tar.gz"
+                gsutil cp "$file" "batch${shard_number}.${filename_without_extension}.tar.gz"
             else
                 echo "Warning: Shard number not found in $file"
             fi
         done
     >>>
     runtime {
-        docker: docker
+        docker: "gcr.io/google.com/cloudsdktool/cloud-sdk:305.0.0"
         disks: "local-disk ${disk_size} HDD"
         cpu: cpu
         memory: "${mem_size} GiB"
