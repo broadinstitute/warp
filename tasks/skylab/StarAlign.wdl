@@ -299,7 +299,7 @@ task STARsoloFastq {
         --genomeDir genome_reference \
         --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
         --readFilesCommand "gunzip -c" \
-        --soloCBwhitelist ~{white_list} \
+        --soloCBwhitelist "~{white_list}" \
         --soloUMIlen $UMILen --soloCBlen $CBLen \
         --soloFeatures $COUNTING_MODE \
         --clipAdapterType CellRanger4 \
@@ -325,7 +325,7 @@ task STARsoloFastq {
             --genomeDir genome_reference \
             --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
             --readFilesCommand "gunzip -c" \
-            --soloCBwhitelist ~{white_list} \
+            --soloCBwhitelist "~{white_list}" \
             --soloUMIlen $UMILen --soloCBlen $CBLen \
             --soloFeatures $COUNTING_MODE  \
             --clipAdapterType CellRanger4 \
@@ -347,7 +347,7 @@ task STARsoloFastq {
             --genomeDir genome_reference \
             --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
             --readFilesCommand "gunzip -c" \
-            --soloCBwhitelist ~{white_list} \
+            --soloCBwhitelist "~{white_list}" \
             --soloUMIlen $UMILen --soloCBlen $CBLen \
             --soloFeatures $COUNTING_MODE \
             --clipAdapterType CellRanger4 \
