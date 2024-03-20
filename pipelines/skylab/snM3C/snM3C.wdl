@@ -1019,23 +1019,61 @@ task rename_outputs {
         Int disk_size = 80
         Int mem_size = 5
         Int preemptible_tries = 3
-        Int cpu = 4
+        Int cpu = 1
     }
     command <<<
         set -euo pipefail
-        declare -a name_sorted_bams_array=(~{sep=' ' name_sorted_bams})
 
-        for file in "${name_sorted_bams_array[@]}"; do
-            shard_number=$(echo "$file" | grep -oE 'shard-[0-9]+')
-            if [ -n "$shard_number" ]; then
-                shard_number=$(echo "$shard_number" | grep -oE '[0-9]+')
-                filename=$(basename "$file")
-                filename_without_extension="${filename%.*.*}"
-                gsutil cp "$file" "batch${shard_number}.${filename_without_extension}.tar.gz"
-            else
-                echo "Warning: Shard number not found in $file"
-            fi
-        done
+        rename_and_copy_files() {
+            local input_files=("$@")
+            for file in "${name_sorted_bams_array[@]}"; do
+                shard_number=$(echo "$file" | grep -oE 'shard-[0-9]+')
+                if [ -n "$shard_number" ]; then
+                    shard_number=$(echo "$shard_number" | grep -oE '[0-9]+')
+                    filename=$(basename "$file")
+                    filename_without_extension="${filename%.*.*}"
+                    gsutil cp "$file" "batch${shard_number}.${filename_without_extension}.tar.gz"
+                else
+                    echo "Warning: Shard number not found in $file"
+                fi
+            done
+
+        #Rename and copy files for name_sorted_bams
+        declare -a name_sorted_bams_array=(~{sep=' ' name_sorted_bams})
+        rename_and_copy_files "${name_sorted_bams_array[@]}"
+
+        #Rename and copy files for unique_reads_cgn_extraction_allc
+        declare -a unique_reads_array=(~{sep=' ' unique_reads_cgn_extraction_allc})
+        rename_and_copy_files "${unique_reads_array[@]}"
+
+        #Rename and copy files for unique_reads_cgn_extraction_tbi
+        declare -a unique_reads_tbi_array=(~{sep=' ' unique_reads_cgn_extraction_tbi})
+        rename_and_copy_files "${unique_reads_tbi_array[@]}"
+
+        #Rename and copy files for reference_version
+        declare -a reference_version_array=(~{sep=' ' reference_version})
+        rename_and_copy_files "${reference_version_array[@]}"
+
+        #Rename and copy files for all_reads_dedup_contacts
+        declare -a all_reads_dedup_contacts_array=(~{sep=' ' all_reads_dedup_contacts})
+        rename_and_copy_files "${all_reads_dedup_contacts_array[@]}"
+
+        #Rename and copy files for all_reads_3C_contacts
+        declare -a all_reads_3C_contacts_array=(~{sep=' ' all_reads_3C_contacts})
+        rename_and_copy_files "${all_reads_3C_contacts_array[@]}"
+
+        #Rename and copy files for chromatin_contact_stats
+        declare -a chromatin_contact_stats_array=(~{sep=' ' chromatin_contact_stats})
+        rename_and_copy_files "${chromatin_contact_stats_array[@]}"
+
+        #Rename and copy files for unique_reads_cgn_extraction_allc_extract
+        declare -a unique_reads_cgn_extraction_allc_extract_array=(~{sep=' ' unique_reads_cgn_extraction_allc_extract})
+        rename_and_copy_files "${unique_reads_cgn_extraction_allc_extract_array[@]}"
+
+        #Rename and copy files for unique_reads_cgn_extraction_tbi_extract
+        declare -a unique_reads_cgn_extraction_tbi_extract_array=(~{sep=' ' unique_reads_cgn_extraction_tbi_extract})
+        rename_and_copy_files "${unique_reads_cgn_extraction_tbi_extract_array[@]}"
+
     >>>
     runtime {
         docker: "gcr.io/google.com/cloudsdktool/cloud-sdk:305.0.0"
@@ -1046,6 +1084,14 @@ task rename_outputs {
     }
     output {
         Array[File] name_sorted_bam = glob("*.hisat3n_dna.all_reads.name_sort.tar.gz")
+        Array[File] unique_reads_cgn_extraction_allc = glob("*.allc.tsv.tar.gz")
+        Array[File] unique_reads_cgn_extraction_tbi = glob("*.allc.tbi.tar.gz")
+        Array[File] reference_version = glob("*.reference_version.txt")
+        Array[File] all_reads_dedup_contacts = glob("*.hisat3n_dna.all_reads.dedup_contacts.tar.gz")
+        Array[File] all_reads_3C_contacts = glob("*.hisat3n_dna.all_reads.3C.contact.tar.gz")
+        Array[File] chromatin_contact_stats = glob("*.chromatin_contact_stats.tar.gz")
+        Array[File] unique_reads_cgn_extraction_allc_extract = glob("*.extract-allc.tar.gz")
+        Array[File] unique_reads_cgn_extraction_tbi_extract = glob("*.extract-allc_tbi.tar.gz")
     }
 
 
