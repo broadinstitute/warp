@@ -384,6 +384,7 @@ task Hisat_paired_end {
       for file in "${R1_files[@]}"; do
       (
         echo "starting task $file.."
+        du -h $file
         task "$file"
       ) 
       done
