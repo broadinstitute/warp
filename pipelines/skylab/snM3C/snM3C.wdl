@@ -378,13 +378,11 @@ task Hisat_paired_end {
       # define lists of r1 and r2 fq files
       R1_files=($(ls batch*/ | grep "\-R1.fq.gz"))
       R2_files=($(ls batch*/ | grep "\-R2.fq.gz"))
-      
-      du -h batch*/*
 
       for file in "${R1_files[@]}"; do
       (
         echo "starting task $file.."
-        du -h $file
+        du -h  batch*/$file
         task "$file"
       ) 
       done
