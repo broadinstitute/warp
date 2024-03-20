@@ -59,15 +59,11 @@ task LiftOverArrays {
   Int disk_size_from_file = (ceil(size(input_vcf, "GiB") + size(liftover_chain, "GiB") + size(reference_fasta, "GiB")) * 2) + 20
   Int disk_size = if ( disk_size_from_file > min_disk_size ) then disk_size_from_file else min_disk_size
 
+    
   command <<<
     set -euo pipefail
 
-    # assuming mem unit is GB, take 2 fewer GB than the max available memory
-    java_max_mem_size=$(($(printf "%.0f\n" ${MEM_SIZE}) - 2))
-    java_Xmx_str="-Xmx${java_max_mem_size}g"
-    echo "VM mem size is ${MEM_SIZE} ${MEM_UNIT}; will use java flag ${java_Xmx_str} for max memory"
-
-    java -Xms4g ${java_Xmx_str} -jar /usr/picard/picard.jar LiftoverVcf \
+    java -Xms4g -Xmx6500m -jar /usr/picard/picard.jar LiftoverVcf \
     INPUT=~{input_vcf} \
     OUTPUT=~{output_basename}.liftedover.vcf \
     CHAIN=~{liftover_chain} \
