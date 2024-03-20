@@ -29,7 +29,7 @@ workflow snM3C {
     # version of the pipeline
     String pipeline_version = "4.0.0"
 
-    call demultiplexing {
+    call Demultiplexing {
         input:
             fastq_input_read1 = fastq_input_read1,
             fastq_input_read2 = fastq_input_read2,
@@ -39,8 +39,8 @@ workflow snM3C {
             batch_number = batch_number
     }
 
-    scatter(tar in demultiplexing.tarred_demultiplexed_fastqs) {
-        call hisat_paired_end {
+    scatter(tar in Demultiplexing.tarred_demultiplexed_fastqs) {
+        call Hisat_paired_end {
           input:
                 tarred_demultiplexed_fastqs = tar,
                 tarred_index_files = tarred_index_files,
@@ -57,19 +57,19 @@ workflow snM3C {
                 docker = docker
         }
 
-        call hisat_single_end {
+        call Hisat_single_end {
             input:
-                split_fq_tar = hisat_paired_end.split_fq_tar,
+                split_fq_tar = Hisat_paired_end.split_fq_tar,
                 tarred_index_files = tarred_index_files,
                 genome_fa = genome_fa,
                 plate_id = plate_id,
                 docker = docker
         }
 
-        call merge_sort_analyze {
+        call Merge_sort_analyze {
             input:
-               paired_end_unique_tar = hisat_paired_end.unique_bam_tar,
-               read_overlap_tar = hisat_single_end.remove_overlaps_output_bam_tar,     
+               paired_end_unique_tar = Hisat_paired_end.unique_bam_tar,
+               read_overlap_tar = Hisat_single_end.remove_overlaps_output_bam_tar,     
                genome_fa = genome_fa, 
                num_upstr_bases = num_upstr_bases,
                num_downstr_bases = num_downstr_bases,
@@ -80,16 +80,16 @@ workflow snM3C {
         }
     }
 
-    call summary {
+    call Summary {
         input:
-            trimmed_stats = hisat_paired_end.trim_stats_tar,
-            hisat3n_stats = hisat_paired_end.hisat3n_paired_end_stats_tar,
-            r1_hisat3n_stats = hisat_single_end.hisat3n_dna_split_reads_summary_R1_tar,
-            r2_hisat3n_stats = hisat_single_end.hisat3n_dna_split_reads_summary_R2_tar,
-            dedup_stats = merge_sort_analyze.dedup_stats_tar,
-            chromatin_contact_stats = merge_sort_analyze.chromatin_contact_stats,
-            allc_uniq_reads_stats = merge_sort_analyze.allc_uniq_reads_stats,
-            unique_reads_cgn_extraction_tbi = merge_sort_analyze.extract_allc_output_tbi_tar,
+            trimmed_stats = Hisat_paired_end.trim_stats_tar,
+            hisat3n_stats = Hisat_paired_end.hisat3n_paired_end_stats_tar,
+            r1_hisat3n_stats = Hisat_single_end.hisat3n_dna_split_reads_summary_R1_tar,
+            r2_hisat3n_stats = Hisat_single_end.hisat3n_dna_split_reads_summary_R2_tar,
+            dedup_stats = Merge_sort_analyze.dedup_stats_tar,
+            chromatin_contact_stats = Merge_sort_analyze.chromatin_contact_stats,
+            allc_uniq_reads_stats = Merge_sort_analyze.allc_uniq_reads_stats,
+            unique_reads_cgn_extraction_tbi = Merge_sort_analyze.extract_allc_output_tbi_tar,
             plate_id = plate_id,
             docker = docker
     }
@@ -99,21 +99,21 @@ workflow snM3C {
     }
 
     output {
-        File MappingSummary = summary.mapping_summary
-        Array[File] name_sorted_bams = merge_sort_analyze.name_sorted_bam
-        Array[File] unique_reads_cgn_extraction_allc= merge_sort_analyze.allc
-        Array[File] unique_reads_cgn_extraction_tbi = merge_sort_analyze.tbi
-        Array[File] reference_version = hisat_paired_end.reference_version
-        Array[File] all_reads_dedup_contacts = merge_sort_analyze.all_reads_dedup_contacts
-        Array[File] all_reads_3C_contacts = merge_sort_analyze.all_reads_3C_contacts
-        Array[File] chromatin_contact_stats = merge_sort_analyze.chromatin_contact_stats
-        Array[File] unique_reads_cgn_extraction_allc_extract = merge_sort_analyze.extract_allc_output_allc_tar
-        Array[File] unique_reads_cgn_extraction_tbi_extract = merge_sort_analyze.extract_allc_output_tbi_tar
+        File MappingSummary = Summary.mapping_summary
+        Array[File] name_sorted_bams = Merge_sort_analyze.name_sorted_bam
+        Array[File] unique_reads_cgn_extraction_allc= Merge_sort_analyze.allc
+        Array[File] unique_reads_cgn_extraction_tbi = Merge_sort_analyze.tbi
+        Array[File] reference_version = Hisat_paired_end.reference_version
+        Array[File] all_reads_dedup_contacts = Merge_sort_analyze.all_reads_dedup_contacts
+        Array[File] all_reads_3C_contacts = Merge_sort_analyze.all_reads_3C_contacts
+        Array[File] chromatin_contact_stats = Merge_sort_analyze.chromatin_contact_stats
+        Array[File] unique_reads_cgn_extraction_allc_extract = Merge_sort_analyze.extract_allc_output_allc_tar
+        Array[File] unique_reads_cgn_extraction_tbi_extract = Merge_sort_analyze.extract_allc_output_tbi_tar
 
     }
 }
 
-task demultiplexing {
+task Demultiplexing {
   input {
     Array[File] fastq_input_read1
     Array[File] fastq_input_read2
@@ -223,7 +223,7 @@ task demultiplexing {
     }
 }
 
-task hisat_paired_end{
+task Hisat_paired_end{
     input {
         File tarred_demultiplexed_fastqs
         File tarred_index_files
@@ -243,7 +243,7 @@ task hisat_paired_end{
         Int cpu = 48
         Int mem_size = 64
         Int preemptible_tries = 2
-        String cpu_platform =  "Intel Cascade Lake"
+        String cpu_platform =  "Intel Ice Lake"
     }
 
     command <<<
@@ -465,7 +465,7 @@ task hisat_paired_end{
     }
 }
 
-task hisat_single_end {
+task Hisat_single_end {
     input {
         File split_fq_tar
         File genome_fa
@@ -477,7 +477,7 @@ task hisat_single_end {
         Int mem_size = 64  
         Int cpu = 32
         Int preemptible_tries = 2
-        String cpu_platform =  "Intel Cascade Lake"    
+        String cpu_platform =  "Intel Ice Lake"    
     }
 
     command <<<
@@ -676,7 +676,7 @@ task hisat_single_end {
     }
 }
   
-task merge_sort_analyze {
+task Merge_sort_analyze {
     input {
         String plate_id
         File paired_end_unique_tar
@@ -691,7 +691,7 @@ task merge_sort_analyze {
         Int compress_level
         File chromosome_sizes
 
-        String cpu_platform = "Intel Cascade Lake"
+        String cpu_platform = "Intel Ice Lake"
         Int disk_size = 1000
         Int mem_size = 40
         Int cpu = 16
@@ -909,7 +909,7 @@ task merge_sort_analyze {
      }
 }
 
-task summary {
+task Summary {
     input {
         Array[File] trimmed_stats
         Array[File] hisat3n_stats
