@@ -379,30 +379,31 @@ task Hisat_paired_end {
       R1_files=($(ls batch*/ | grep "\-R1.fq.gz"))
       R2_files=($(ls batch*/ | grep "\-R2.fq.gz"))
 
-      for file in "${R1_files[@]}"; do
-      (
-        echo "starting task $file.."
-        du -h  batch*/$file
-        task "$file"
-      ) 
-      done
-
-      # run 6 instances of task in parallel 
       # for file in "${R1_files[@]}"; do
-      #   (
-      #     echo "starting task $file.."
-      #     task "$file"
-      #     sleep $(( (RANDOM % 3) + 1))
-      #   ) &
-      #   # allow to execute up to 6 jobs in parallel
-      #   if [[ $(jobs -r -p | wc -l) -ge 6 ]]; then
-      #     wait -n
-      #   fi
+      # (
+      #   echo "starting task $file.."
+      #   du -h  batch*/$file
+      #   task "$file"
+      # ) 
       # done
 
-      # wait
-      # echo "Tasks all done."
-      # du -h *
+      # run 6 instances of task in parallel 
+      for file in "${R1_files[@]}"; do
+        (
+          echo "starting task $file.."
+          du -h  batch*/$file
+          task "$file"
+          sleep $(( (RANDOM % 3) + 1))
+        ) &
+        # allow to execute up to 6 jobs in parallel
+        if [[ $(jobs -r -p | wc -l) -ge 6 ]]; then
+          wait -n
+        fi
+      done
+
+      wait
+      echo "Tasks all done."
+      du -h *
       
       #################################### 
       ## make sure that the number of output bams equals the length of R1_files
