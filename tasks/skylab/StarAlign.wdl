@@ -482,7 +482,7 @@ task MergeStarOutput {
     File features_single = features[0]
 
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/star-merge-npz:lk-PD-2533-starsolo-warp-tools-docker"
+    String docker = "us.gcr.io/broad-gotc-prod/star-merge-npz:1.0"
     Int machine_mem_gb = 20
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
@@ -521,6 +521,8 @@ task MergeStarOutput {
     cp /cromwell_root/~{input_id}.uniform.mtx ./matrix/matrix.mtx
     cp ~{barcodes_single} ./matrix/barcodes.tsv
     cp ~{features_single} ./matrix/features.tsv
+
+    tar -zcvf ~{input_id}.mtx_files.tar ./matrix/* 
 
 
     # Running star for combined cell matrix
@@ -631,6 +633,7 @@ task MergeStarOutput {
     File sparse_counts = "~{input_id}_sparse_counts.npz"
     File? cell_reads_out = "~{input_id}.star_metrics.tar"
     File? library_metrics="~{input_id}_library_metrics.csv"
+    File? mtx_files ="~{input_id}.mtx_files.tar"
   }
 }
 

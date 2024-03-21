@@ -143,6 +143,7 @@ workflow Multiome {
         Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
         File? gex_aligner_metrics = Optimus.aligner_metrics
         File? library_metrics = Optimus.library_metrics
+        File? mtx_files = Optimus.mtx_files
 
         # cellbender outputs
         File? cell_barcodes_csv = CellBender.cell_csv

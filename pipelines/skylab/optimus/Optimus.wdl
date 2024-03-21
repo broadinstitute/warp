@@ -247,6 +247,7 @@ workflow Optimus {
     File? cell_calls = RunEmptyDrops.empty_drops_result
     File? aligner_metrics = MergeStarOutputs.cell_reads_out
     File? library_metrics = MergeStarOutputs.library_metrics
+    File? mtx_files = MergeStarOutputs.mtx_files
     Array[File?] multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
     Array[File?] multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
     Array[File?] multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
