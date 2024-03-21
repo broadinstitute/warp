@@ -130,9 +130,7 @@ task AddBBTag {
     input {
         File bam
         String input_id
-
-        # using the latest build of upstools docker in GCR
-        String docker = "us.gcr.io/broad-gotc-prod/upstools:1.0.0-2023.03.03-1704300311"
+        String docker_path
 
         # Runtime attributes
         Int mem_size = 8
@@ -150,7 +148,7 @@ task AddBBTag {
     parameter_meta {
         bam: "BAM with aligned reads and barcode in the CB tag"
         input_id: "input ID"
-        docker: "(optional) the docker image containing the runtime environment for this task"
+        docker_path: "The docker image path containing the runtime environment for this task"
         mem_size: "(optional) the amount of memory (MiB) to provision for this task"
         cpu: "(optional) the number of cpus to provision for this task"
         disk_size: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -169,7 +167,7 @@ task AddBBTag {
     >>>
 
     runtime {
-        docker: docker
+        docker: docker_path
         cpu: cpu
         memory: "${mem_size} GiB"
         disks: "local-disk ${disk_size} HDD"

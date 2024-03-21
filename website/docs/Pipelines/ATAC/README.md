@@ -8,7 +8,7 @@ slug: /Pipelines/ATAC/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [1.1.8](https://github.com/broadinstitute/warp/releases) | January, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [1.1.9](https://github.com/broadinstitute/warp/releases) | March, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 
 ## Introduction to the ATAC workflow
@@ -50,6 +50,7 @@ The following describes the inputs of the ATAC workflow. For more details on how
 | read2_fastq_gzipped | Fastq inputs (array of compressed read 2 FASTQ files containing cellular barcodes). |
 | read3_fastq_gzipped | Fastq inputs (array of compressed read 3 FASTQ files). |
 | input_id | Output prefix/base name for all intermediate files and pipeline outputs. |
+| cloud_provider | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String |
 | preindex | Boolean used for paired-tag data and not applicable to ATAC data types; default is set to false. | 
 | tar_bwa_reference | BWA reference (tar file containing reference fasta and corresponding files). |
 | num_threads_bwa | Optional integer defining the number of CPUs per node for the BWA-mem alignment task (default: 128). |

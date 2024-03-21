@@ -226,7 +226,7 @@ task STARsoloFastq {
     String? soloMultiMappers
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/star:1.0.1-2.7.11a-1692706072"
+    String star_docker_path
     Int machine_mem_mb = 64000
     Int cpu = 8
     # multiply input size by 2.2 to account for output bam file + 20% overhead, add size of reference.
@@ -244,7 +244,7 @@ task STARsoloFastq {
     r2_fastq: "array of forward read FASTQ files"
     tar_star_reference: "star reference tarball built against the species that the bam_input is derived from"
     star_strand_mode: "STAR mode for handling stranded reads. Options are 'Forward', 'Reverse, or 'Unstranded'"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    star_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -299,7 +299,7 @@ task STARsoloFastq {
         --genomeDir genome_reference \
         --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
         --readFilesCommand "gunzip -c" \
-        --soloCBwhitelist ~{white_list} \
+        --soloCBwhitelist "~{white_list}" \
         --soloUMIlen $UMILen --soloCBlen $CBLen \
         --soloFeatures $COUNTING_MODE \
         --clipAdapterType CellRanger4 \
@@ -325,7 +325,7 @@ task STARsoloFastq {
             --genomeDir genome_reference \
             --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
             --readFilesCommand "gunzip -c" \
-            --soloCBwhitelist ~{white_list} \
+            --soloCBwhitelist "~{white_list}" \
             --soloUMIlen $UMILen --soloCBlen $CBLen \
             --soloFeatures $COUNTING_MODE  \
             --clipAdapterType CellRanger4 \
@@ -347,7 +347,7 @@ task STARsoloFastq {
             --genomeDir genome_reference \
             --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
             --readFilesCommand "gunzip -c" \
-            --soloCBwhitelist ~{white_list} \
+            --soloCBwhitelist "~{white_list}" \
             --soloUMIlen $UMILen --soloCBlen $CBLen \
             --soloFeatures $COUNTING_MODE \
             --clipAdapterType CellRanger4 \
@@ -374,6 +374,8 @@ task STARsoloFastq {
     touch Features_sn_rna.stats
     touch Summary_sn_rna.csv
     touch UMIperCellSorted_sn_rna.txt
+
+    mkdir /cromwell_root
 
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
@@ -432,7 +434,7 @@ task STARsoloFastq {
   >>>
 
   runtime {
-    docker: docker
+    docker: star_docker_path
     memory: "~{machine_mem_mb} MiB"
     disks: "local-disk ~{disk} HDD"
     disk: disk + " GB" # TES
@@ -476,11 +478,12 @@ task MergeStarOutput {
     Array[File]? align_features
     Array[File]? umipercell
     String? counting_mode
-    
+
     String input_id
 
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.2-1709308985"
+    String warp_tools_docker_path
+
     Int machine_mem_gb = 20
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
@@ -491,7 +494,7 @@ task MergeStarOutput {
   }
 
   parameter_meta {
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    warp_tools_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_gb: "(optional) the amount of memory (GiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -584,7 +587,7 @@ task MergeStarOutput {
   >>>
 
   runtime {
-    docker: docker
+    docker: warp_tools_docker_path
     memory: "${machine_mem_gb} GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
@@ -722,6 +725,7 @@ task STARGenomeRefVersion {
   input {
     String tar_star_reference
     Int disk = 10
+    String ubuntu_docker_path
   }
 
   meta {
@@ -754,7 +758,7 @@ task STARGenomeRefVersion {
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
+    docker: ubuntu_docker_path
     memory: "2 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES

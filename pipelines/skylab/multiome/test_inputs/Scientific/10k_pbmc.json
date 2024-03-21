@@ -5,6 +5,7 @@
     "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L002_I1_001.fastq.gz"
   ],
   "Multiome.input_id":"10k_PBMC",
+  "Multiome.cloud_provider":"gcp",
   "Multiome.gex_r1_fastq":[
     "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L001_R1_001.fastq.gz",
     "gs://broad-gotc-test-storage/Multiome/input/scientific/10k_PBMC_Multiome/10k_PBMC_Multiome_nextgem_Chromium_Controller_gex_S1_L002_R1_001.fastq.gz"

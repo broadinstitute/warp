@@ -1,3 +1,8 @@
+# 0.3.1
+2024-03-02 (Date of Last Commit)
+
+* Updated the Optimus.wdl to run on Azure. This change does not affect the PairedTag pipeline.
+
 # 0.3.0
 
 2024-03-01 (Date of Last Commit)

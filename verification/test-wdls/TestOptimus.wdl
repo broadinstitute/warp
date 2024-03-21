@@ -59,6 +59,8 @@ workflow TestOptimus {
     String vault_token_path
     String google_account_vault_path
 
+    String cloud_provider
+
   }
 
   meta {
@@ -84,7 +86,8 @@ workflow TestOptimus {
       star_strand_mode           = star_strand_mode,
       count_exons                = count_exons,
       ignore_r1_read_length      = ignore_r1_read_length,
-      soloMultiMappers           = soloMultiMappers
+      soloMultiMappers           = soloMultiMappers,
+      cloud_provider             = cloud_provider
   }
 
   # Collect all of the pipeling output into single Array

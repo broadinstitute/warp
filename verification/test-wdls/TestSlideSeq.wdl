@@ -26,6 +26,7 @@ workflow TestSlideSeq {
       Boolean update_truth
       String vault_token_path
       String google_account_vault_path
+      String cloud_provider
     }
 
     meta {
@@ -43,7 +44,8 @@ workflow TestSlideSeq {
         annotations_gtf = annotations_gtf,
         output_bam_basename = output_bam_basename,
         count_exons = count_exons,
-        bead_locations = bead_locations
+        bead_locations = bead_locations,
+        cloud_provider = cloud_provider
   
     }
 
