@@ -5,9 +5,9 @@ slug: /Pipelines/PairedTag_Pipeline/README
 
 # Paired-Tag Overview
 
-| Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
-| :----: | :---: | :----: | :--------------: |
-| [PairedTag_v0.3.1](https://github.com/broadinstitute/warp/releases) | March, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
+|                          Pipeline Version                           | Date Updated | Documentation Author | Questions or Feedback |
+|:-------------------------------------------------------------------:| :---: | :----: | :--------------: |
+| [PairedTag_v0.3.2](https://github.com/broadinstitute/warp/releases) | March, 2024 | Kaylee Mathews | Please file GitHub issues in warp or contact [documentation authors](mailto:warp-pipelines-help@broadinstitute.org) |
 
 ## Introduction to the Paired-Tag workflow
 
