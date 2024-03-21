@@ -76,10 +76,10 @@ task LiftOverArrays {
     --MAX_RECORDS_IN_RAM 100000
 
     # compress vcf - this creates a file with .gz suffix
-    bgzip ~{output_basename}
+    bgzip ~{output_basename}.liftedover.vcf
 
     # generate new index - this creates a file with .tbi suffix
-    tabix ~{output_basename}.gz
+    tabix ~{output_basename}.liftedover.vcf.gz
   >>>
 
   runtime {
@@ -92,7 +92,7 @@ task LiftOverArrays {
   }
 
   output {
-    File lifted_over_vcf = "~{output_basename}.liftedover.vcf"
-    File lifted_over_vcf_index = "~{output_basename}.liftedover.vcf.tbi"
+    File lifted_over_vcf = "~{output_basename}.liftedover.vcf.gz"
+    File lifted_over_vcf_index = "~{output_basename}.liftedover.vcf.gz.tbi"
   }
 }
