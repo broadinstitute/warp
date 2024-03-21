@@ -11,13 +11,14 @@ workflow LiftoverVcfs {
 
     File liftover_chain
 
-    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10" # docker: "us.gcr.io/broad-gatk/gatk:4.2.6.1"
+    String docker = "us.gcr.io/broad-gatk/gatk:4.2.6.1"
     Int min_disk_size = 100
 
     File hg38_reference_fasta
     File hg38_reference_fasta_index
     File hg38_reference_dict
 
+    Int max_retries = 3
     Int preemptible_tries = 3
   }
 
@@ -33,6 +34,7 @@ workflow LiftoverVcfs {
       reference_dict = hg38_reference_dict,
       output_basename = vcf_basename,
       docker = docker,
+      max_retries = max_retries,
       preemptible_tries = preemptible_tries,
       min_disk_size = min_disk_size
   }
@@ -52,6 +54,7 @@ task LiftOverArrays {
     File reference_dict
     String output_basename
     String docker
+    Int max_retries
     Int preemptible_tries
     Int min_disk_size
   }
@@ -63,13 +66,14 @@ task LiftOverArrays {
   command <<<
     set -euo pipefail
 
-    java -Xms4g -Xmx6500m -jar /usr/picard/picard.jar LiftoverVcf \
-    INPUT=~{input_vcf} \
-    OUTPUT=~{output_basename}.liftedover.vcf \
-    CHAIN=~{liftover_chain} \
-    REJECT=~{output_basename}.rejected_variants.vcf \
-    REFERENCE_SEQUENCE=~{reference_fasta} \
-    MAX_RECORDS_IN_RAM=100000
+    gatk --java-options "-Xms4g -Xmx6500m" \
+    LiftoverVcf \
+    --INPUT ~{input_vcf} \
+    --OUTPUT ~{output_basename}.liftedover.vcf \
+    --CHAIN ~{liftover_chain} \
+    --REJECT ~{output_basename}.rejected_variants.vcf \
+    --REFERENCE_SEQUENCE ~{reference_fasta} \
+    --MAX_RECORDS_IN_RAM 100000
 
     # compress vcf - this creates a file with .gz suffix
     bgzip ~{output_basename}
@@ -83,7 +87,7 @@ task LiftOverArrays {
     memory: "7 GiB"
     cpu: "1"
     disks: "local-disk ~{disk_size} HDD"
-    maxRetries: 3
+    maxRetries: max_retries
     preemptible: preemptible_tries
   }
 
