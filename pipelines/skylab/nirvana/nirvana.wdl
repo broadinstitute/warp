@@ -8,8 +8,6 @@ task AnnotateVCF {
         # Mentioning this path in the inputs section of the task combined with checking the 'Use reference disks' option
         # in Terra UI tells Cromwell to arrange for the Nirvana reference disk to be attached to this VM.
 
-        String variants_nirvana_docker
-
         #File omim_annotations = "gs://broad-public-datasets/gvs/vat-annotations/Nirvana/3.18.1/SupplementaryAnnotation/GRCh38/OMIM_20220516.nga"
         Boolean use_reference_disk
     }
@@ -94,7 +92,7 @@ task AnnotateVCF {
     >>>
 
     runtime {
-        docker: variants_nirvana_docker
+        docker: "dsppipelinedev.azurecr.io/nirvana:np_add_nirvana_docker"
         memory: "64 GB"
         cpu: "4"
         preemptible: 3
@@ -112,7 +110,6 @@ workflow AnnotateVCFWorkflow {
     input {
         File input_vcf
         String output_annotated_file_name
-        String variants_nirvana_docker
         Boolean use_reference_disk
     }
 
@@ -120,7 +117,6 @@ workflow AnnotateVCFWorkflow {
         input:
             input_vcf = input_vcf,
             output_annotated_file_name = output_annotated_file_name,
-            variants_nirvana_docker = variants_nirvana_docker,
             use_reference_disk = use_reference_disk,
     }
 
