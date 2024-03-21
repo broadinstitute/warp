@@ -58,6 +58,7 @@ The Paired-Tag pipeline can be deployed using [Cromwell](https://cromwell.readth
 The Paired-Tag workflow inputs are specified in JSON configuration files. Example configuration files can be found in the [`test_inputs`](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/paired_tag/test_inputs) folder in the WARP repository.
 
 #### Input descriptions
+
 | Parameter name        | Description | Type        |
 |-----------------------| --- |-------------|
 | input_id              | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | String      |
