@@ -10,6 +10,8 @@ task AnnotateVCF {
 
         #File omim_annotations = "gs://broad-public-datasets/gvs/vat-annotations/Nirvana/3.18.1/SupplementaryAnnotation/GRCh38/OMIM_20220516.nga"
         Boolean use_reference_disk
+        File omim_annotations
+
     }
 
 
@@ -64,6 +66,7 @@ task AnnotateVCF {
             # As of 2024-01-24 OMIM is no longer included among the bundle of annotation resources pulled down by the
             # Nirvana downloader. As this annotation set is currently central for our VAT logic, special-case link in
             # the OMIM .nsa bundle we downloaded back when we made the Delta reference disk:
+            ln ~{omim_annotations} ${DATA_SOURCES_FOLDER}/SupplementaryAnnotation/GRCh38/
 
         fi
 
