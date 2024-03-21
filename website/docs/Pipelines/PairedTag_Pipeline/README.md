@@ -58,35 +58,6 @@ The Paired-Tag pipeline can be deployed using [Cromwell](https://cromwell.readth
 The Paired-Tag workflow inputs are specified in JSON configuration files. Example configuration files can be found in the [`test_inputs`](https://github.com/broadinstitute/warp/tree/develop/pipelines/skylab/paired_tag/test_inputs) folder in the WARP repository.
 
 #### Input descriptions
-
-<<<<<<< HEAD
-| Parameter name | Description | Type |
-| --- | --- | --- |
-| input_id | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | String |
-| counting_mode | Optional string that determines whether the Optimus (GEX) pipeline should be run in single-cell mode (sc_rna) or single-nucleus mode (sn_rna); default is "sn_rna". | String |
-| gex_r1_fastq | Array of read 1 FASTQ files representing a single GEX 10x library. | Array[File] |
-| gex_r2_fastq | Array of read 2 FASTQ files representing a single GEX 10x library.| Array[File] |
-| gex_i1_fastq | Optional array of index FASTQ files representing a single GEX 10x library; multiplexed samples are not currently supported, but the file may be passed to the pipeline. | Array[File] |
-| tar_star_reference | TAR file containing a species-specific reference genome and GTF for Optimus (GEX) pipeline. | File | 
-| annotations_gtf | GTF file containing gene annotations used for GEX cell metric calculation and ATAC fragment metrics; must match the GTF used to build the STAR aligner. | File |
-| mt_genes | Optional file for the Optimus (GEX) pipeline containing mitochondrial gene names used for metric calculation; default assumes 'mt' prefix in GTF (case insensitive). | File |
-| tenx_chemistry_version | Optional integer for the Optimus (GEX) pipeline specifying the 10x version chemistry the data was generated with; validated by examination of the first read 1 FASTQ file read structure; default is "3". | Integer |
-| emptydrops_lower | **Not used for single-nucleus data.** Optional threshold for UMIs for the Optimus (GEX) pipeline that empty drops tool should consider for determining cell; data below threshold is not removed; default is "100". | Integer |
-| force_no_check | Optional boolean for the Optimus (GEX) pipeline indicating if the pipeline should perform checks; default is "false". | Boolean |
-| ignore_r1_read_length | Optional boolean for the Optimus (GEX) pipeline indicating if the pipeline should ignore barcode chemistry check; if "true", the workflow will not ensure the `10x_chemistry_version` input matches the chemistry in the read 1 FASTQ; default is "false". | Boolean |
-| star_strand_mode | Optional string for the Optimus (GEX) pipeline for performing STARsolo alignment on forward stranded, reverse stranded, or unstranded data; default is "Forward". | String |
-| count_exons | Optional boolean for the Optimus (GEX) pipeline indicating if the workflow should calculate exon counts **when in single-nucleus (sn_rna) mode**; if "true" in sc_rna mode, the workflow will return an error; default is "false". | Boolean |
-| gex_whitelist | Optional file containing the list of valid barcodes for 10x multiome GEX data; default is `gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt` when run in GCP or `https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_gex.txt` when run in Azure. | File |
-| atac_r1_fastq | Array of read 1 paired-end FASTQ files representing a single paired-tag DNA library. | Array[File] |
-| atac_r2_fastq | Array of barcodes FASTQ files representing a single paired-tag DNA library. | Array[File] |
-| atac_r3_fastq | Array of read 2 paired-end FASTQ files representing a single paired-tag DNA library. | Array[File] |
-| tar_bwa_reference | TAR file containing the reference index files for BWA-mem alignment for the ATAC pipeline. | File | 
-| chrom_sizes | File containing the genome chromosome sizes; used to calculate ATAC fragment file metrics. | File |
-| adapter_seq_read1 | Optional string describing the adapter sequence for ATAC read 1 paired-end reads to be used during adapter trimming with Cutadapt; default is "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAG". | String |
-| adapter_seq_read3 | Optional string describing the adapter sequence for ATAC read 2 paired-end reads to be used during adapter trimming with Cutadapt; default is "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG". | String |
-| atac_whitelist | Optional file containing the list of valid barcodes for 10x multiome ATAC adata; default is `gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt` when run in GCP or `https://datasetpublicbroadref.blob.core.windows.net/dataset/RNA/resources/arc-v1/737K-arc-v1_atac.txt` when run in Azure. | File |
-| preindex | Optional boolean for the ATAC workflow; if “true”, the pipeline will run the ATAC workflow with a preindexing task necessary for processing of droplet-based Paired-Tag data where sample barcodes from read2 are combined with cell barcodes into the BB tag of the output BAM file; if “false”, the pipeline will run the ATAC workflow without preindexing and cell barcodes are stored in the CB tag of the output BAM file; default is “true”. | Boolean |
-=======
 | Parameter name        | Description | Type        |
 |-----------------------| --- |-------------|
 | input_id              | Unique identifier describing the biological sample or replicate that corresponds with the FASTQ files; can be a human-readable name or UUID. | String      |
@@ -115,7 +86,6 @@ The Paired-Tag workflow inputs are specified in JSON configuration files. Exampl
 | atac_whitelist        | Optional file containing the list of valid barcodes for 10x multiome ATAC adata; default is "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_atac.txt". | File        |
 | preindex              | Optional boolean for the ATAC workflow; if “true”, the pipeline will run the ATAC workflow with a preindexing task necessary for processing of droplet-based Paired-Tag data where sample barcodes from read2 are combined with cell barcodes into the BB tag of the output BAM file; if “false”, the pipeline will run the ATAC workflow without preindexing and cell barcodes are stored in the CB tag of the output BAM file; default is “true”. | Boolean     |
 | cloud_provider        | String describing the cloud provider that should be used to run the workflow; value should be "gcp" or "azure". | String      |
->>>>>>> 926f882ab (PD-2516: Update PairedTag to run in Azure and GCP)
 
 
 ## Paired-Tag tasks and tools
