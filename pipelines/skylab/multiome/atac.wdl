@@ -450,6 +450,7 @@ task BWAPairedEndAlignment {
     cpu: nthreads
     cpuPlatform: cpu_platform
     memory: "${mem_size} GiB"
+    vm_size: "Standard_E64ds_v4"
   }
 
   output {
