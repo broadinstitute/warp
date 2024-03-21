@@ -234,7 +234,7 @@ task GetNumSplits {
     cpu: nthreads
     cpuPlatform: cpu_platform
     memory: "${mem_size} GiB"
-    vm_size: "Standard_E64ds_v4"
+    vm_size: "Standard_M128s"
   }
 
   output {
@@ -451,7 +451,7 @@ task BWAPairedEndAlignment {
     cpu: nthreads
     cpuPlatform: cpu_platform
     memory: "${mem_size} GiB"
-    vm_size: "Standard_E64ds_v4"
+    vm_size: "Standard_M128s"
   }
 
   output {
