@@ -54,7 +54,7 @@ task AnnotateVCF {
                 exit 1
             fi
 
-            # Take the parent of the parent directory of this file as root of the locally mounted references:
+            # Take the parent of the parent directory of this file as root of the locally mounted  references:
             DATA_SOURCES_FOLDER="$(dirname $(dirname ${REFERENCE_PATH}))"
         else
             DATA_SOURCES_FOLDER=/cromwell-executions/nirvana_references
