@@ -243,62 +243,62 @@ workflow ImputationBeagle {
 
   Array[String] phased_vcfs = flatten(chromosome_vcfs)
 
-  call tasks.GetMissingContigList {
-    input:
-      ref_dict = ref_dict,
-      included_contigs = write_lines(contigs)
-  }
+#   call tasks.GetMissingContigList {
+#     input:
+#       ref_dict = ref_dict,
+#       included_contigs = write_lines(contigs)
+#   }
 
-  scatter (missing_contig in GetMissingContigList.missing_contigs) {
-    call tasks.CalculateChromosomeLength as CalculateMissingChromosomeLength {
-      input:
-        ref_dict = ref_dict,
-        chrom = missing_contig
-    }
+#   scatter (missing_contig in GetMissingContigList.missing_contigs) {
+#     call tasks.CalculateChromosomeLength as CalculateMissingChromosomeLength {
+#       input:
+#         ref_dict = ref_dict,
+#         chrom = missing_contig
+#     }
 
-    Int num_chunks_missing_contig = ceil(CalculateMissingChromosomeLength.chrom_length / chunkLengthFloat)
+#     Int num_chunks_missing_contig = ceil(CalculateMissingChromosomeLength.chrom_length / chunkLengthFloat)
 
-    scatter (i_missing_contig in range(num_chunks_missing_contig)) {
-      Int start_missing_contig = (i_missing_contig * chunkLength) + 1
-      Int end_missing_contig = if (CalculateMissingChromosomeLength.chrom_length < ((i_missing_contig + 1) * chunkLength)) then CalculateMissingChromosomeLength.chrom_length else ((i_missing_contig + 1) * chunkLength)
+#     scatter (i_missing_contig in range(num_chunks_missing_contig)) {
+#       Int start_missing_contig = (i_missing_contig * chunkLength) + 1
+#       Int end_missing_contig = if (CalculateMissingChromosomeLength.chrom_length < ((i_missing_contig + 1) * chunkLength)) then CalculateMissingChromosomeLength.chrom_length else ((i_missing_contig + 1) * chunkLength)
 
-      call tasks.SubsetVcfToRegion as SubsetVcfToRegionMissingContig{
-        input:
-          vcf = vcf_to_impute,
-          vcf_index = vcf_index_to_impute,
-          output_basename = "input_samples_subset_to_chunk",
-          contig = missing_contig,
-          start = start_missing_contig,
-          end = end_missing_contig,
-          exclude_filtered = true
-      }
+#       call tasks.SubsetVcfToRegion as SubsetVcfToRegionMissingContig{
+#         input:
+#           vcf = vcf_to_impute,
+#           vcf_index = vcf_index_to_impute,
+#           output_basename = "input_samples_subset_to_chunk",
+#           contig = missing_contig,
+#           start = start_missing_contig,
+#           end = end_missing_contig,
+#           exclude_filtered = true
+#       }
 
-      call tasks.SetIDs as SetIDsMissingContigs {
-        input:
-          vcf = SubsetVcfToRegionMissingContig.output_vcf,
-          output_basename = "unimputed_contigs_" + missing_contig +"_"+ i_missing_contig + "_with_ids"
-      }
+#       call tasks.SetIDs as SetIDsMissingContigs {
+#         input:
+#           vcf = SubsetVcfToRegionMissingContig.output_vcf,
+#           output_basename = "unimputed_contigs_" + missing_contig +"_"+ i_missing_contig + "_with_ids"
+#       }
 
-      call tasks.RemoveAnnotations as RemoveAnnotationsMissingContigs {
-        input:
-          vcf = SetIDsMissingContigs.output_vcf,
-          basename = "unimputed_contigs_" + missing_contig +"_"+ i_missing_contig + "_annotations_removed"
-      }
-    }
-  }
+#       call tasks.RemoveAnnotations as RemoveAnnotationsMissingContigs {
+#         input:
+#           vcf = SetIDsMissingContigs.output_vcf,
+#           basename = "unimputed_contigs_" + missing_contig +"_"+ i_missing_contig + "_annotations_removed"
+#       }
+#     }
+#   }
 
-  Array[String] missing_remove_annotation_vcfs = flatten(RemoveAnnotationsMissingContigs.output_vcf)
+#   Array[String] missing_remove_annotation_vcfs = flatten(RemoveAnnotationsMissingContigs.output_vcf)
 
-  scatter(missing_remove_annotation_vcf in missing_remove_annotation_vcfs){
-    call tasks.ReplaceHeader {
-      input:
-        vcf_to_replace_header = missing_remove_annotation_vcf,
-        vcf_with_new_header = phased_vcfs[0]
-    }
-  }
+#   scatter(missing_remove_annotation_vcf in missing_remove_annotation_vcfs){
+#     call tasks.ReplaceHeader {
+#       input:
+#         vcf_to_replace_header = missing_remove_annotation_vcf,
+#         vcf_with_new_header = phased_vcfs[0]
+#     }
+#   }
 
-  Array[String] missing_contig_vcfs = ReplaceHeader.output_vcf
-  Array[String] unsorted_vcfs = flatten([phased_vcfs, missing_contig_vcfs])
+#   Array[String] missing_contig_vcfs = ReplaceHeader.output_vcf
+  Array[String] unsorted_vcfs = phased_vcfs # flatten([phased_vcfs, missing_contig_vcfs])
 
   call tasks.GatherVcfs {
     input:
@@ -352,7 +352,7 @@ workflow ImputationBeagle {
     Array[File]? imputed_single_sample_vcfs = SplitMultiSampleVcf.single_sample_vcfs
     Array[File]? imputed_single_sample_vcf_indices = SplitMultiSampleVcf.single_sample_vcf_indices
     File imputed_multisample_vcf = GatherVcfs.output_vcf
-    File imputed_multisample_vcf_index = select_first([GatherVcfs.output_vcf_index])
+    File imputed_multisample_vcf_index = GatherVcfs.output_vcf_index
     # File aggregated_imputation_metrics = MergeImputationQCMetrics.aggregated_metrics
     File chunks_info = StoreChunksInfo.chunks_info
     File failed_chunks = StoreChunksInfo.failed_chunks
