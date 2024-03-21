@@ -527,7 +527,7 @@ task MergeStarOutput {
 
     # Running star for combined cell matrix
     # outputs will be called outputbarcodes.tsv. outputmatrix.mtx, and outputfeatures.tsv
-    STAR --runMode soloCellFiltering ./matrix ./output --soloCellFilter EmptyDrops_CR
+    STAR --runMode soloCellFiltering ./matrix ./output --soloCellFilter CellRanger2.2
     
     #list files
     echo "listing files"
