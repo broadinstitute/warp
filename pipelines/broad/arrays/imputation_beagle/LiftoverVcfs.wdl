@@ -22,7 +22,7 @@ workflow LiftoverVcfs {
     Int preemptible_tries = 3
   }
 
-  String vcf_basename = basename(vcf_path)
+  String vcf_basename = basename(vcf_path, ".vcf.gz")
 
   # Lift over the array to hg38.
   call LiftOverArrays {
@@ -93,6 +93,6 @@ task LiftOverArrays {
 
   output {
     File lifted_over_vcf = "~{output_basename}.liftedover.vcf"
-    File lifted_over_vcf_index = "~{output_basename}.liftedover.vcf.idx"
+    File lifted_over_vcf_index = "~{output_basename}.liftedover.vcf.tbi"
   }
 }
