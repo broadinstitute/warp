@@ -375,6 +375,8 @@ task STARsoloFastq {
     touch Summary_sn_rna.csv
     touch UMIperCellSorted_sn_rna.txt
 
+    mkdir /cromwell_root
+
 
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
