@@ -35,6 +35,10 @@ workflow TestsnM3C {
       Boolean update_truth
       String vault_token_path
       String google_account_vault_path
+
+      String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.3"
+      String single_end_hisat_cpu_platform = "Intel Ice Lake"
+      String merge_sort_analyze_cpu_platform = "Intel Ice Lake"
     }
 
     meta {
@@ -60,7 +64,10 @@ workflow TestsnM3C {
         num_upstr_bases = num_upstr_bases,
         num_downstr_bases = num_downstr_bases,
         compress_level = compress_level,
-        batch_number = batch_number
+        batch_number = batch_number,
+        docker = docker,
+        single_end_hisat_cpu_platform = single_end_hisat_cpu_platform,
+        merge_sort_analyze_cpu_platform = merge_sort_analyze_cpu_platform
 
     }
 
