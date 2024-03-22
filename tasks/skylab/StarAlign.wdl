@@ -304,7 +304,7 @@ task STARsoloFastq {
         --soloFeatures $COUNTING_MODE \
         --clipAdapterType CellRanger4 \
         --outFilterScoreMin 30  \
-        --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
+        --soloCBmatchWLtype 1MM_multi \
         --soloUMIdedup 1MM_Directional_UMItools \
         --outSAMtype BAM SortedByCoordinate \
         --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
@@ -330,7 +330,7 @@ task STARsoloFastq {
             --soloFeatures $COUNTING_MODE  \
             --clipAdapterType CellRanger4 \
             --outFilterScoreMin 30  \
-            --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
+            --soloCBmatchWLtype 1MM_multi \
             --soloUMIdedup 1MM_Directional_UMItools \
             --outSAMtype BAM SortedByCoordinate \
             --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
@@ -352,7 +352,7 @@ task STARsoloFastq {
             --soloFeatures $COUNTING_MODE \
             --clipAdapterType CellRanger4 \
             --outFilterScoreMin 30  \
-            --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
+            --soloCBmatchWLtype 1MM_multi \
             --soloUMIdedup 1MM_Directional_UMItools \
             --outSAMtype BAM SortedByCoordinate \
             --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
