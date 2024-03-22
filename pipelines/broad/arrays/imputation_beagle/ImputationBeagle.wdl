@@ -77,9 +77,9 @@ workflow ImputationBeagle {
   Float chunkLengthFloat = chunkLength
 
   scatter (contig in contigs) {
-    # these are specific to hg38
+    # these are specific to hg38 - contig is format 'chr1'
     String reference_filename = reference_panel_path + "hgdp.tgp.gwaspy.merged." + contig + ".merged.AN_added.bcf.ac2"
-    String genetic_map_filename = genetic_maps_path + "plink.chr" + contig + ".GRCh38.map"
+    String genetic_map_filename = genetic_maps_path + "plink." + contig + ".GRCh38.map"
 
     ReferencePanelContig referencePanelContig = {
       "vcf": reference_filename + vcf_suffix,
@@ -103,7 +103,7 @@ workflow ImputationBeagle {
       Int startWithOverlaps = if (start - chunkOverlaps < 1) then 1 else start - chunkOverlaps
       Int end = if (CalculateChromosomeLength.chrom_length < ((i + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i + 1) * chunkLength)
       Int endWithOverlaps = if (CalculateChromosomeLength.chrom_length < end + chunkOverlaps) then CalculateChromosomeLength.chrom_length else end + chunkOverlaps
-      String chunk_basename = "chrom_" + referencePanelContig.contig + "_chunk_" + i
+      String chunk_basename = referencePanelContig.contig + "_chunk_" + i
 
       call tasks.GenerateChunk {
         input:
