@@ -78,7 +78,7 @@ workflow ImputationBeagle {
 
   scatter (contig in contigs) {
     # these are specific to hg38
-    String reference_filename = reference_panel_path + "hgdp.tgp.gwaspy.merged.chr" + contig + ".merged.AN_added.bcf.ac2."
+    String reference_filename = reference_panel_path + "hgdp.tgp.gwaspy.merged." + contig + ".merged.AN_added.bcf.ac2"
     String genetic_map_filename = genetic_maps_path + "plink.chr" + contig + ".GRCh38.map"
 
     ReferencePanelContig referencePanelContig = {
