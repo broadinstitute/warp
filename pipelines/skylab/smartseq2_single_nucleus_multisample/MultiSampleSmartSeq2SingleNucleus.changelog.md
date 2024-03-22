@@ -1,3 +1,8 @@
+# 1.3.3
+20240322 (Date of Last Commit)
+
+* Changed the Optimus workflow STARsolo barcode correction method to 1MM_multi; this does not impact the Single-nucleus Multi Sample Smartseq Pipeline
+
 # 1.3.2
 20240315 (Date of Last Commit)
 

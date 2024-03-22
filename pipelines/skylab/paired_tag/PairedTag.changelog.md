@@ -1,3 +1,7 @@
+# 0.5.0
+20240322 (Date of Last Commit)
+* * Changed the Optimus workflow STARsolo barcode correction method to 1MM_multi; this impacts the scientific outputs
+
 # 0.4.0
 20240315 (Date of Last Commit)
 
