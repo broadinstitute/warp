@@ -177,7 +177,7 @@ Lee, DS., Luo, C., Zhou, J. et al. Simultaneous profiling of 3D genome structure
 
 Liu, H., Zhou, J., Tian, W. et al. DNA methylation atlas of the mouse brain at single-cell resolution. Nature 598, 120–128 (2021). https://doi.org/10.1038/s41586-020-03182-8
 
-Also cite our preprint:
+Please cite the following preprint for the WARP repository and website:
 
 Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
