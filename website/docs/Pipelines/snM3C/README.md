@@ -171,7 +171,7 @@ If you use the snm3C Pipeline in your research, please identify the pipeline in 
 
 * Ex: *snm3C Pipeline (RRID:SCR_025041)*
 
-Please cite the following publications the snm3C pipeline: 
+Please cite the following publications for the snm3C pipeline: 
 
 Lee, DS., Luo, C., Zhou, J. et al. Simultaneous profiling of 3D genome structure and DNA methylation in single human cells. Nat Methods 16, 999–1006 (2019). https://doi.org/10.1038/s41592-019-0547-z
 
