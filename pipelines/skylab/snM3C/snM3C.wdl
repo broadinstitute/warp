@@ -1,6 +1,6 @@
 version 1.0
 
-workflow snM3C {
+workflow snm3C {
 
     input {
         Array[File] fastq_input_read1
