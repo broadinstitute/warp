@@ -17,7 +17,7 @@
   "snM3C.chromosome_sizes": "gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38.chrom.sizes",
   "snM3C.genome_fa": "gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38.fa",
   "snM3C.batch_number": 6,
-  "snM3C.Hisat_paired_end.cpu_platform" : "Intel Cascade Lake",
-  "snM3C.Hisat_single_end.cpu_platform" : "Intel Cascade Lake",
-  "snM3C.Merge_sort_analyze.cpu_platform" : "Intel Cascade Lake"
+  "snM3C.Hisat_paired_end.cpu_platform": "Intel Cascade Lake",
+  "snM3C.Hisat_single_end.cpu_platform": "Intel Cascade Lake",
+  "snM3C.Merge_sort_analyze.cpu_platform": "Intel Cascade Lake"
 }
