@@ -161,7 +161,7 @@ The following table lists the output variables and files produced by the pipelin
 | unique_reads_cgn_extraction_tbi_extract | `<plate_id>.extract-allc_tbi.tar.gz` | Array of tarred files containing ALLC index files. |
 
 
-## Versioning
+## Versioning 
 
 All snm3C pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snm3C/snm3C.changelog.md).
 
