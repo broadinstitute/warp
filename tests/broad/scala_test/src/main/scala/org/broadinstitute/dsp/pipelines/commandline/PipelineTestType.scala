@@ -198,7 +198,7 @@ object PipelineTestType extends Enum[PipelineTestType] {
   case object snm3C
       extends PipelineTestType(
         "Testsnm3C",
-        "snm3C",
+        "snM3C",
         "/skylab/snm3C/"
       )
   // CEMBA Pipelines
