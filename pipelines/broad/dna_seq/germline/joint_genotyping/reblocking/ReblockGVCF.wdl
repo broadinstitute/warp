@@ -48,6 +48,7 @@ workflow ReblockGVCF {
         ref_dict = ref_dict,
         calling_interval_list = select_first([calling_interval_list, gvcf]), #nice trick so we don't have to pass around intervals; shouldn't be too much slower
         calling_interval_list_index = gvcf_index,
+        calling_intervals_defined = defined(calling_interval_list),
         is_gvcf = true,
         extra_args = "--no-overlaps",
         gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
