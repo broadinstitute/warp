@@ -36,7 +36,7 @@ workflow Testsnm3C {
       String vault_token_path
       String google_account_vault_path
 
-      String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.3"
+      String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.4"
     }
 
     meta {

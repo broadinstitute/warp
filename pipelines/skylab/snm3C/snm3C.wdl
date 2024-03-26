@@ -23,7 +23,7 @@ workflow snm3C {
         Int num_downstr_bases = 2
         Int compress_level = 5
         Int batch_number
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.3"
+        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.4"
     }
 
     # version of the pipeline
