@@ -73,8 +73,7 @@ task LiftOverArrays {
     --CHAIN ~{liftover_chain} \
     --REJECT ~{output_basename}.rejected_variants.vcf \
     --REFERENCE_SEQUENCE ~{reference_fasta} \
-    --MAX_RECORDS_IN_RAM 100000 \
-    --WARN_ON_MISSING_CONTIG true
+    --MAX_RECORDS_IN_RAM 100000
 
     # compress vcf - this creates a file with .gz suffix
     bgzip ~{output_basename}.liftedover.vcf
