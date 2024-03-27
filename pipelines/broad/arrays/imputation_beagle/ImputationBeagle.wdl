@@ -135,10 +135,6 @@ workflow ImputationBeagle {
       }
       call tasks.CheckChunksBeagle {
         input:
-          vcf = select_first([OptionalQCSites.output_vcf,  GenerateChunk.output_vcf]),
-          vcf_index = select_first([OptionalQCSites.output_vcf_index, GenerateChunk.output_vcf_index]),
-          panel_vcf = referencePanelContig.vcf,
-          panel_vcf_index = referencePanelContig.vcf_index,
           var_in_original = CountVariantsInChunks.var_in_original,
           var_in_reference = CountVariantsInChunks.var_in_reference
       }
