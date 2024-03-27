@@ -66,7 +66,7 @@ task LiftOverArrays {
   command <<<
     set -euo pipefail
 
-    gatk --java-options "-Xms4g -Xmx6500m" \
+    gatk --java-options "-Xms4g -Xmx15g" \
     LiftoverVcf \
     --INPUT ~{input_vcf} \
     --OUTPUT ~{output_basename}.liftedover.vcf \
@@ -84,7 +84,7 @@ task LiftOverArrays {
 
   runtime {
     docker: docker
-    memory: "7 GiB"
+    memory: "16 GiB"
     cpu: "1"
     disks: "local-disk ~{disk_size} HDD"
     maxRetries: max_retries
