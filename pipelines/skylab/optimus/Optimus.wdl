@@ -36,6 +36,11 @@ workflow Optimus {
     Int tenx_chemistry_version
     # Whitelist is selected based on the input tenx_chemistry_version
     File whitelist = checkOptimusInput.whitelist_out
+    
+    
+    # 10x parameters
+    File whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
+    File whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
 
     # read_structure is based on v2 or v3 chemistry
     String read_struct = checkOptimusInput.read_struct_out
@@ -71,9 +76,6 @@ workflow Optimus {
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
   Array[Int] indices = range(length(r1_fastq))
 
-  # 10x parameters
-  File whitelist_v2 = "gs://gcp-public-data--broad-references/RNA/resources/737k-august-2016.txt"
-  File whitelist_v3 = "gs://gcp-public-data--broad-references/RNA/resources/3M-febrary-2018.txt"
   # Takes the first read1 FASTQ from the inputs to check for chemistry match
   File r1_single_fastq = r1_fastq[0]
 
