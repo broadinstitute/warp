@@ -115,7 +115,8 @@ workflow ATAC {
         nthreads = num_threads_bwa, 
         mem_size = mem_size_bwa,
         cpu_platform = cpu_platform_bwa,
-        docker_path = docker_prefix + samtools_docker
+        docker_path = docker_prefix + samtools_docker,
+        cloud_provider = cloud_provider
   }
 
   if (preindex) {
@@ -319,6 +320,7 @@ task BWAPairedEndAlignment {
     String suffix = "trimmed_adapters.fastq.gz"
     String output_base_name
     String docker_path
+    String cloud_provider
 
     # Runtime attributes
     Int disk_size = 2000
@@ -338,6 +340,7 @@ task BWAPairedEndAlignment {
     disk_size : "disk size used in bwa alignment step"
     output_base_name: "basename to be used for the output of the task"
     docker_path: "The docker image path containing the runtime environment for this task"
+    cloud_provider: "The cloud provider for the pipeline."
   }
 
   String bam_aligned_output_name = output_base_name + ".bam"
@@ -436,13 +439,27 @@ task BWAPairedEndAlignment {
     # rename file to this
     mv final.sorted.bam ~{bam_aligned_output_name}
         
+    echo "the present working dir"
+    pwd
+
     # save output logs for bwa-mem2
     mkdir output_logs
     mv *txt output_logs
-    tar -zcvf /cromwell_root/output_distbwa_log.tar.gz output_logs  
-    
-    # move bam file to /cromwell_root
-    mv ~{bam_aligned_output_name} /cromwell_root
+
+    if [ "~{cloud_provider}" == "gcp" ]; then
+        tar -zcvf /cromwell_root/output_distbwa_log.tar.gz output_logs
+    else
+        tar -zcvf /cromwell-executions/output_distbwa_log.tar.gz output_logs
+    fi
+
+    # move bam file to the root of cromwell
+    # if the cloud provider is azure, move the file to /cromwell-executions
+    # if the cloud provider is gcp, move the file to /cromwell_root
+    if [ "~{cloud_provider}" == "gcp" ]; then
+      mv ~{bam_aligned_output_name} /cromwell_root
+    else
+      mv ~{bam_aligned_output_name} /cromwell-executions
+    fi
   >>>
 
   runtime {
