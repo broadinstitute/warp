@@ -263,14 +263,9 @@ task Minimac4 {
 
 task CheckChunksBeagle {
   input {
-    File vcf
-    File vcf_index
-    File panel_vcf
-    File panel_vcf_index
     Int var_in_original
     Int var_in_reference
 
-    Int disk_size_gb = ceil(2*size([vcf, vcf_index, panel_vcf, panel_vcf_index], "GiB"))
     String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
     Int cpu = 1
     Int memory_mb = 4000
@@ -289,7 +284,7 @@ task CheckChunksBeagle {
   }
   runtime {
     docker: bcftools_docker
-    disks: "local-disk ${disk_size_gb} HDD"
+    disks: "local-disk 10 HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
   }
