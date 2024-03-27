@@ -400,7 +400,7 @@ task STARsoloFastq {
         #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
         echo "list matrix files in $SoloDirectory"
         ls "$SoloDirectory"/*.mtx
-        mv "Solo.out/GeneFull_Ex50pAS/raw/*.mtx" matrix.mtx
+        mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx" matrix.mtx
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
