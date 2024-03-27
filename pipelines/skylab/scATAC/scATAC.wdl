@@ -38,6 +38,7 @@ workflow scATAC {
     call SnapPre {
         input:
             input_bam = AlignPairedEnd.aligned_bam,
+            input_bam_index = AlignPairedEnd.aligned_bam_index,
             output_snap_basename = input_id + '.snap',
             genome_name = genome_name,
             input_reference = input_reference,
@@ -129,6 +130,7 @@ task AlignPairedEnd {
 
     output {
         File aligned_bam = output_bam
+        File aligned_bam_index =  output_bam + ".bai"
     }
 
     runtime {
@@ -144,6 +146,7 @@ task AlignPairedEnd {
 task SnapPre {
     input {
         File input_bam
+        File input_bam_index
         String output_snap_basename
         String genome_name
         String genome_size_file = "genome/chrom.sizes"
@@ -157,6 +160,7 @@ task SnapPre {
 
     parameter_meta {
        input_bam: "input bam file"
+       input_bam_index: "input bam index file"
        output_snap_basename: "prefix name of the output bam file"
        genome_name: "name of the genome, currently not parsed but saved in output"
        genome_size_file: "name of the chrom.sizes file after unpacking of the genome reference"
