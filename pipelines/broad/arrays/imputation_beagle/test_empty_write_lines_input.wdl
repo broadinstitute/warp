@@ -25,6 +25,16 @@ workflow test_empty_write_lines_input {
     input:
       input_file = select_first([undefined_file, write_lines([])])
   }
+
+  # use file generated in an if block
+  Boolean run_block = false
+  if (run_block) {
+    File file_from_block = write_lines(["foo"])
+  }
+  call LocalizeFile as LocalizeEmptyFileWithIfBlock {
+    input:
+      input_file = select_first([file_from_block, write_lines(["foo"])])
+  }
 }
 
 task LocalizeFile {
