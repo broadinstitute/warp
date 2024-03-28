@@ -23,7 +23,7 @@ task PairedTagDemultiplex {
         preindex: "Boolean for whether data has a sample barcode that needs to be demultiplexed"
         whitelist: "Atac whitelist for 10x multiome data"
         input_id: "Input ID to demarcate sample"
-        docker: "(optional) the docker image containing the runtime environment for this task"
+        docker_path: "(optional) the docker image containing the runtime environment for this task"
         mem_size: "(optional) the amount of memory (MiB) to provision for this task"
         cpu: "(optional) the number of cpus to provision for this task"
         disk_size: "(optional) the amount of disk space (GiB) to provision for this task"
