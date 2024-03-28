@@ -7,7 +7,7 @@ workflows:
     testParameterFiles:
           -  /warp/pipelines/skylab/optimus/example_inputs/human_v3_example.json
 
-  - name: snm3C
+  - name: snm3C-seq
     subclass: WDL
     primaryDescriptorPath: /pipelines/skylab/snm3C/snm3C.wdl
 
