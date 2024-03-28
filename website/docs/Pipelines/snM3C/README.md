@@ -95,11 +95,6 @@ To see specific tool parameters, select the [workflow WDL link](https://github.c
 | Summary | [summary.py](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/summary.py) | python3 | Imports a custom python3 script developed by Hanqing Liu and calls the `snm3c_summary()` function to generate a single, summary file for the pipeline in CSV format; contains trimming, mapping, deduplication, chromatin contact, and AllC site statistics. |
 
 
-3. Aligns unmapped, single-end reads and removes overlapping reads.
-4. Merges mapped reads, calls chromatin contacts, and creates ALLC files.
-5. Creates summary output file.
-
-
 #### 1. Demultiplexes reads
 In the first step of the pipeline (`Demultiplexing`), raw sequencing reads are demultiplexed by random primer index into cell-level FASTQ files using [Cutadapt](https://cutadapt.readthedocs.io/en/stable/). For more information on barcoding, see the [YAP documentation](https://hq-1.gitbook.io/mc/tech-background/barcoding#two-round-of-barcoding). 
 
@@ -161,7 +156,7 @@ The following table lists the output variables and files produced by the pipelin
 | unique_reads_cgn_extraction_tbi_extract | `<plate_id>.extract-allc_tbi.tar.gz` | Array of tarred files containing ALLC index files. |
 
 
-## Versioning 
+## Versioning
 
 All snm3C pipeline releases are documented in the [pipeline changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/skylab/snm3C/snm3C.changelog.md).
 
