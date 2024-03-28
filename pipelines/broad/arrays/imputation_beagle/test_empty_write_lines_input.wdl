@@ -5,6 +5,7 @@ workflow test_empty_write_lines_input {
 
   input {
     File write_lines_at_wdl_input = write_lines([])
+    File? undefined_file
   }
 
   # use file defined at wdl input
@@ -17,6 +18,12 @@ workflow test_empty_write_lines_input {
   call LocalizeFile as LocalizeEmptyFileFromTaskInput {
     input:
       input_file = write_lines([])
+  }
+
+  # use file with select_first
+  call LocalizeFile as LocalizeEmptyFileWithSelectFirst {
+    input:
+      input_file = select_first([undefined_file, write_lines([])])
   }
 }
 
