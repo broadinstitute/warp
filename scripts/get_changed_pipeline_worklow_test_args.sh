@@ -95,8 +95,8 @@ function pipeline_to_args() {
       else
         echo SmartSeq2SingleSample ${common_args}
       fi;;
-    snM3C)
-      echo snM3C ${common_args};;
+    snm3C)
+      echo snm3C ${common_args};;
     TargetedSomaticSingleSample)ValidateChip
       continue;;
     ValidateChip)
