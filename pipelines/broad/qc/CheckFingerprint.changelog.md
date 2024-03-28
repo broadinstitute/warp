@@ -1,3 +1,8 @@
+# 1.0.16
+2024-03-26 (Date of Last Commit)
+
+* ValidateVcfs requires less memory when run without interval list; this does not affect this pipeline
+
 # 1.0.15
 2023-12-18 (Date of Last Commit)
 

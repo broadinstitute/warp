@@ -1,3 +1,8 @@
+# 2.1.12
+2024-03-26 (Date of Last Commit)
+
+* ValidateVcfs requires less memory when run without interval list. This is useful for WGS samples that were previously running out of memory.
+
 # 2.1.11
 2023-12-18 (Date of Last Commit)
 

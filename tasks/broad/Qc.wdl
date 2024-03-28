@@ -617,7 +617,8 @@ task ValidateVCF {
     File? dbsnp_vcf
     File? dbsnp_vcf_index
     File calling_interval_list
-    File? calling_interval_list_index  # if the interval list is a VCF, than an index file is also required
+    File? calling_interval_list_index  # if the interval list is a VCF, than an index file makes VcfToIntervalList run faster
+    Boolean calling_intervals_defined = true
     Int preemptible_tries = 3
     Boolean is_gvcf = true
     String? extra_args
@@ -625,9 +626,8 @@ task ValidateVCF {
     Int machine_mem_mb = 7000
   }
 
-  Boolean calling_intervals_is_vcf = defined(calling_interval_list_index)
   String calling_interval_list_basename = basename(calling_interval_list)
-  String calling_interval_list_index_basename = if calling_intervals_is_vcf then basename(select_first([calling_interval_list_index])) else ""
+  String calling_interval_list_index_basename = if calling_intervals_defined then "" else basename(select_first([calling_interval_list_index]))
 
   Int command_mem_mb = machine_mem_mb - 2000
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
@@ -636,18 +636,21 @@ task ValidateVCF {
   command {
     set -e
     
-    # We can't always assume the index was located with the vcf, so make a link so that the paths look the same
-    ln -s ~{calling_interval_list} ~{calling_interval_list_basename}
-    if [ ~{calling_intervals_is_vcf} == "true" ]; then
+    if [ ~{calling_intervals_defined} == "false" ]; then
+      # We can't always assume the index was located with the vcf, so make a link so that the paths look the same
+      ln -s ~{calling_interval_list} ~{calling_interval_list_basename}
       ln -s ~{calling_interval_list_index} ~{calling_interval_list_index_basename}
+      gatk VcfToIntervalList -I ~{calling_interval_list_basename} -O intervals_from_gvcf.interval_list
+      INTERVALS="intervals_from_gvcf.interval_list"
+    else
+      INTERVALS="~{calling_interval_list}"
     fi
     
-    # Note that WGS needs a lot of memory to do the -L *.vcf if an interval file is not supplied
     gatk --java-options "-Xms~{command_mem_mb}m -Xmx~{command_mem_mb}m" \
       ValidateVariants \
       -V ~{input_vcf} \
       -R ~{ref_fasta} \
-      -L ~{calling_interval_list_basename} \
+      -L $INTERVALS \
       ~{true="-gvcf" false="" is_gvcf} \
       --validation-type-to-exclude ALLELES \
       ~{"--dbsnp " + dbsnp_vcf} \
