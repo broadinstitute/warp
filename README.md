@@ -5,7 +5,7 @@ The WDL Analysis Research Pipelines (WARP) repository is a collection of cloud-o
 
 WARP provides robust, standardized data analysis for the Broad Institute Genomics Platform and large consortia like the Human Cell Atlas and the BRAIN Initiative. WARP pipelines are rigorously scientifically validated, high scale, reproducible and open source, released under the [BSD 3-Clause license](https://github.com/broadinstitute/warp/blob/master/LICENSE).
 
-### Pipeline releases
+### Pipeline releases 
 All pipeline releases are listed on the WARP [releases page](https://github.com/broadinstitute/warp/releases). To discover and search releases, use the WARP command-line tool [Wreleaser](https://github.com/broadinstitute/warp/tree/develop/wreleaser).
 
 ### WARP Dockers and custom tools in warp-tools repository
