@@ -79,7 +79,7 @@ workflow ImputationBeagle {
   scatter (contig in contigs) {
     # these are specific to hg38 - contig is format 'chr1'
     String reference_filename = reference_panel_path + "hgdp.tgp.gwaspy.merged." + contig + ".merged.AN_added.bcf.ac2"
-    String genetic_map_filename = genetic_maps_path + "plink." + contig + ".GRCh38.map"
+    String genetic_map_filename = genetic_maps_path + "plink." + contig + ".GRCh38.withchr.map"
 
     ReferencePanelContig referencePanelContig = {
       "vcf": reference_filename + vcf_suffix,
@@ -133,6 +133,7 @@ workflow ImputationBeagle {
           panel_vcf = referencePanelContig.vcf,
           panel_vcf_index = referencePanelContig.vcf_index
       }
+
       call tasks.CheckChunksBeagle {
         input:
           var_in_original = CountVariantsInChunks.var_in_original,
