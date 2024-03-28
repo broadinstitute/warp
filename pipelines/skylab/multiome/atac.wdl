@@ -444,21 +444,23 @@ task BWAPairedEndAlignment {
 
     # save output logs for bwa-mem2
     mkdir output_logs
-    mv *txt output_logs
+    mv *.txt output_logs
 
     if [ "~{cloud_provider}" == "gcp" ]; then
-        tar -zcvf /cromwell_root/output_distbwa_log.tar.gz output_logs
+        tar -zcvf output_distbwa_log.tar.gz output_logs
+        mv output_distbwa_log.tar.gz ../
     else
-        tar -zcvf /cromwell-executions/output_distbwa_log.tar.gz output_logs
+        tar -zcvf output_distbwa_log.tar.gz output_logs
+        mv output_distbwa_log.tar.gz ../
     fi
 
     # move bam file to the root of cromwell
     # if the cloud provider is azure, move the file to /cromwell-executions
     # if the cloud provider is gcp, move the file to /cromwell_root
     if [ "~{cloud_provider}" == "gcp" ]; then
-      mv ~{bam_aligned_output_name} /cromwell_root
+      mv ~{bam_aligned_output_name} ../
     else
-      mv ~{bam_aligned_output_name} /cromwell-executions
+      mv ~{bam_aligned_output_name} ../
     fi
   >>>
 
