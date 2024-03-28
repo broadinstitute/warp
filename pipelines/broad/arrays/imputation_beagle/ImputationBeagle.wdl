@@ -11,15 +11,8 @@ workflow ImputationBeagle {
     Int chunkLength = 25000000
     Int chunkOverlaps = 5000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
 
-    # You can either input a multisample VCF or an array of single sample VCFs
-    # The pipeline will just merge the single sample VCFs into one multisample VCF
-    # and then impute the multisample VCF
-    # If you want to run a single sample VCF, set the multi_sample_vcf input to the
-    # single sample VCF
-    File? multi_sample_vcf
-    File? multi_sample_vcf_index
-    Array[File]? single_sample_vcfs
-    Array[File]? single_sample_vcf_indices
+    File multi_sample_vcf
+    File multi_sample_vcf_index
 
     Boolean perform_extra_qc_steps = false # these are optional additional extra QC steps from Amit's group that should only be
     # run for large sample sets, especially a diverse set of samples (it's further limiting called at sites to 95% and by HWE)
@@ -42,36 +35,9 @@ workflow ImputationBeagle {
     String bref3_suffix = ".bref3"
   }
 
-  if (defined(single_sample_vcfs) && defined(multi_sample_vcf)) {
-    call utils.ErrorWithMessage as ErrorMessageDoubleInput{
-      input:
-        message = "single_sample_vcfs and multi_sample_vcf cannot both be defined as input"
-    }
-  }
-
-  if (!defined(single_sample_vcfs) && !defined(multi_sample_vcf)) {
-    call utils.ErrorWithMessage as ErrorMessageNoInput {
-      input:
-        message = "One (and only one) of single_sample_vcfs and multi_sample_vcf must be defined as input"
-    }
-  }
-
-  if (defined(single_sample_vcfs)) {
-    call tasks.MergeSingleSampleVcfs {
-      input:
-        input_vcfs = select_first([single_sample_vcfs]),
-        input_vcf_indices = select_first([single_sample_vcf_indices]),
-        output_vcf_basename = "merged_input_samples",
-        memory_mb = merge_ssvcf_mem_mb
-    }
-  }
-
-  File vcf_to_impute = select_first([multi_sample_vcf, MergeSingleSampleVcfs.output_vcf])
-  File vcf_index_to_impute = select_first([multi_sample_vcf_index, MergeSingleSampleVcfs.output_vcf_index])
-
   call tasks.CountSamples {
     input:
-      vcf = vcf_to_impute,
+      vcf = multi_sample_vcf,
   }
 
   Float chunkLengthFloat = chunkLength
@@ -107,8 +73,8 @@ workflow ImputationBeagle {
 
       call tasks.GenerateChunk {
         input:
-          vcf = vcf_to_impute,
-          vcf_index = vcf_index_to_impute,
+          vcf = multi_sample_vcf,
+          vcf_index = multi_sample_vcf_index,
           start = startWithOverlaps,
           end = endWithOverlaps,
           chrom = referencePanelContig.contig,
@@ -142,8 +108,8 @@ workflow ImputationBeagle {
 
       call tasks.SubsetVcfToRegion {
         input:
-          vcf = vcf_to_impute,
-          vcf_index = vcf_index_to_impute,
+          vcf = multi_sample_vcf,
+          vcf_index = multi_sample_vcf_index,
           output_basename = "input_samples_subset_to_chunk",
           contig = referencePanelContig.contig,
           start = start,
@@ -170,7 +136,7 @@ workflow ImputationBeagle {
             chrom = referencePanelContig.contig,
             basename = chunk_basename,
             genetic_map_file = referencePanelContig.genetic_map,
-            start = start, # was startWithOverlaps, same with end
+            start = start,
             end = end
         }
 
@@ -234,87 +200,15 @@ workflow ImputationBeagle {
           basename = output_callset_name
       }
     }
-    # Array[File] aggregatedImputationMetrics = select_all(AggregateImputationQCMetrics.aggregated_metrics)
+
     Array[File] chromosome_vcfs = select_all(InterleaveVariants.output_vcf)
   }
 
-  Array[String] phased_vcfs = flatten(chromosome_vcfs)
-
-#   call tasks.GetMissingContigList {
-#     input:
-#       ref_dict = ref_dict,
-#       included_contigs = write_lines(contigs)
-#   }
-
-#   scatter (missing_contig in GetMissingContigList.missing_contigs) {
-#     call tasks.CalculateChromosomeLength as CalculateMissingChromosomeLength {
-#       input:
-#         ref_dict = ref_dict,
-#         chrom = missing_contig
-#     }
-
-#     Int num_chunks_missing_contig = ceil(CalculateMissingChromosomeLength.chrom_length / chunkLengthFloat)
-
-#     scatter (i_missing_contig in range(num_chunks_missing_contig)) {
-#       Int start_missing_contig = (i_missing_contig * chunkLength) + 1
-#       Int end_missing_contig = if (CalculateMissingChromosomeLength.chrom_length < ((i_missing_contig + 1) * chunkLength)) then CalculateMissingChromosomeLength.chrom_length else ((i_missing_contig + 1) * chunkLength)
-
-#       call tasks.SubsetVcfToRegion as SubsetVcfToRegionMissingContig{
-#         input:
-#           vcf = vcf_to_impute,
-#           vcf_index = vcf_index_to_impute,
-#           output_basename = "input_samples_subset_to_chunk",
-#           contig = missing_contig,
-#           start = start_missing_contig,
-#           end = end_missing_contig,
-#           exclude_filtered = true
-#       }
-
-#       call tasks.SetIDs as SetIDsMissingContigs {
-#         input:
-#           vcf = SubsetVcfToRegionMissingContig.output_vcf,
-#           output_basename = "unimputed_contigs_" + missing_contig +"_"+ i_missing_contig + "_with_ids"
-#       }
-
-#       call tasks.RemoveAnnotations as RemoveAnnotationsMissingContigs {
-#         input:
-#           vcf = SetIDsMissingContigs.output_vcf,
-#           basename = "unimputed_contigs_" + missing_contig +"_"+ i_missing_contig + "_annotations_removed"
-#       }
-#     }
-#   }
-
-#   Array[String] missing_remove_annotation_vcfs = flatten(RemoveAnnotationsMissingContigs.output_vcf)
-
-#   scatter(missing_remove_annotation_vcf in missing_remove_annotation_vcfs){
-#     call tasks.ReplaceHeader {
-#       input:
-#         vcf_to_replace_header = missing_remove_annotation_vcf,
-#         vcf_with_new_header = phased_vcfs[0]
-#     }
-#   }
-
-#   Array[String] missing_contig_vcfs = ReplaceHeader.output_vcf
-  Array[String] unsorted_vcfs = phased_vcfs # flatten([phased_vcfs, missing_contig_vcfs])
-
   call tasks.GatherVcfs {
     input:
-      input_vcfs = unsorted_vcfs,
+      input_vcfs = flatten(chromosome_vcfs),
       output_vcf_basename = output_callset_name + ".imputed"
   }
-
-#   call tasks.MergeImputationQCMetrics {
-#     input:
-#       metrics = flatten(aggregatedImputationMetrics),
-#       basename = output_callset_name
-#   }
-
-#   if (MergeImputationQCMetrics.frac_above_maf_5_percent_well_imputed < frac_above_maf_5_percent_well_imputed_threshold) {
-#     call utils.ErrorWithMessage as FailQCWellImputedFrac {
-#       input:
-#         message = "Well imputed fraction was " + MergeImputationQCMetrics.frac_above_maf_5_percent_well_imputed + ", QC failure threshold was set at " + frac_above_maf_5_percent_well_imputed_threshold
-#     }
-#   }
 
   call tasks.StoreChunksInfo {
     input:
@@ -348,9 +242,8 @@ workflow ImputationBeagle {
   output {
     Array[File]? imputed_single_sample_vcfs = SplitMultiSampleVcf.single_sample_vcfs
     Array[File]? imputed_single_sample_vcf_indices = SplitMultiSampleVcf.single_sample_vcf_indices
-    File imputed_multisample_vcf = GatherVcfs.output_vcf
-    File imputed_multisample_vcf_index = GatherVcfs.output_vcf_index
-    # File aggregated_imputation_metrics = MergeImputationQCMetrics.aggregated_metrics
+    File imputed_multi_sample_vcf = GatherVcfs.output_vcf
+    File imputed_multi_sample_vcf_index = GatherVcfs.output_vcf_index
     File chunks_info = StoreChunksInfo.chunks_info
     File failed_chunks = StoreChunksInfo.failed_chunks
     File n_failed_chunks = StoreChunksInfo.n_failed_chunks
