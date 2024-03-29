@@ -7,7 +7,7 @@ slug: /Pipelines/Optimus_Pipeline/README
 
 | Pipeline Version | Date Updated | Documentation Author | Questions or Feedback |
 | :----: | :---: | :----: | :--------------: |
-| [optimus_v6.5.0](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | February, 2024 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
+| [optimus_v6.6.1](https://github.com/broadinstitute/warp/releases?q=optimus&expanded=true) | March, 2024 | Elizabeth Kiernan | Please file GitHub issues in warp or contact [the WARP team](mailto:warp-pipelines-help@broadinstitute.org) |
 
 
 ![Optimus_diagram](Optimus_diagram.png)
@@ -262,6 +262,7 @@ The following table lists the output files produced from the pipeline. For sampl
 | multimappers_PropUnique_matrix | `UniqueAndMult-PropUnique.mtx` | Optional output produced when `soloMultiMappers` is "PropUnique"; see STARsolo [documentation](https://github.com/alexdobin/STAR/blob/master/docs/STARsolo.md#multi-gene-reads) for more information.| MTX |
 | cell_calls | empty_drops_result.csv | emptyDrops results from the RunEmptyDrops task. | CSV |
 | h5ad_output_file | `<input_id>.h5ad` | h5ad file with count data (exonic or whole transcript depending on the counting_mode) and metadata. | H5AD |
+| mtx_files | `<input_id>.mtx_files.tar` | TAR file with STARsolo matrix market files (barcodes.tsv, features.tsv, and matrix.mtx) | TAR |
 
 The h5ad matrix is the default output. This matrix contains the unnormalized (unfiltered), UMI-corrected count matrices, as well as the gene and cell metrics detailed in the [Optimus Count Matrix Overview](./Loom_schema.md).
 
