@@ -1,0 +1,9 @@
+{
+  "VUMCPrepareGenotypeData.chromosomes": ["chrM", "chrY"],
+  "VUMCPrepareGenotypeData.source_pgen_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chrM.pgen", "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chrY.pgen"],
+  "VUMCPrepareGenotypeData.source_psam_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chrM.psam", "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chrY.psam"],
+  "VUMCPrepareGenotypeData.source_pvar_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chrM.pvar", "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/chrY.pvar"],
+  "VUMCPrepareGenotypeData.grid_file": "/nobackup/h_cqs/shengq2/biovu/demo/agd35k_grid_5.txt",
+  "VUMCPrepareGenotypeData.id_map_file": "/nobackup/h_cqs/shengq2/biovu/20240302_agd35k_one_ineligible/20240303_agd35k_ica_primary_eligible.txt",
+  "VUMCPrepareGenotypeData.target_prefix": "agd35k"
+}

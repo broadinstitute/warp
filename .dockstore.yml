@@ -296,3 +296,10 @@ workflows:
   - name: VUMC_vcftools828Filters
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMC_vcftools828Filters.wdl
+
+  - name: VUMCPrepareGenotypeData
+    subclass: WDL
+    primaryDescriptorPath: /nobackup/h_cqs/shengq2/program/warp/pipelines/vumc_biostatistics/agd/VUMCPrepareGenotypeData.wdl 
+
+
+   
