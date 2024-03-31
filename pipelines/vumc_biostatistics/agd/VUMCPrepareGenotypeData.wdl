@@ -16,7 +16,7 @@ workflow VUMCPrepareGenotypeData {
     File id_map_file
 
     String? project_id
-    String? target_bucket
+    String? target_gcp_folder
   }
 
   scatter (idx in range(length(chromosomes))) {
@@ -59,27 +59,22 @@ workflow VUMCPrepareGenotypeData {
       target_prefix = target_prefix
   }
 
-
-
-  # if(defined(target_bucket)){
-  #   call Utils.MoveOrCopyPlinkFile as CopyFile {
-  #     input:
-  #       source_bed = PlinkIncludeSamples.output_bed,
-  #       source_bim = PlinkIncludeSamples.output_bim,
-  #       source_sample = PlinkIncludeSamples.output_fam,
-  #       is_move_file = false,
-  #       project_id = project_id,
-  #       target_bucket = select_first([target_bucket])
-  #   }
-  # }
+  if(defined(target_gcp_folder)){
+    call Utils.MoveOrCopyThreeFiles as CopyFile {
+      input:
+        source_file1 = PlinkMergePgenFiles.output_pgen_file,
+        source_file2 = PlinkMergePgenFiles.output_pvar_file,
+        source_file3 = PlinkMergePgenFiles.output_psam_file,
+        is_move_file = false,
+        project_id = project_id,
+        target_gcp_folder = select_first([target_gcp_folder])
+    }
+  }
 
   output {
-    # Array[File] output_pgen_files = PlinkExtractSamples.output_pgen_file
-    # Array[File] output_psam_files = PlinkExtractSamples.output_psam_file
-    # Array[File] output_pvar_files = PlinkExtractSamples.output_pvar_file
-    File output_pgen_file = PlinkMergePgenFiles.output_pgen_file
-    File output_psam_file = PlinkMergePgenFiles.output_psam_file
-    File output_pvar_file = PlinkMergePgenFiles.output_pvar_file
+    File output_pgen_file = select_first([CopyFile.output_file1, PlinkMergePgenFiles.output_pgen_file])
+    File output_pvar_file = select_first([CopyFile.output_file2, PlinkMergePgenFiles.output_pvar_file])
+    File output_psam_file = select_first([CopyFile.output_file3, PlinkMergePgenFiles.output_psam_file])
   }
 }
 
