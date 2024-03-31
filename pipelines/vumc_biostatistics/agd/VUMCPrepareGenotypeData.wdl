@@ -10,6 +10,8 @@ workflow VUMCPrepareGenotypeData {
 
     Array[String] chromosomes
 
+    String plink2_filter_option
+
     File grid_file
     String target_prefix
 
@@ -47,6 +49,7 @@ workflow VUMCPrepareGenotypeData {
         source_psam = ReplaceIdSample.output_file,
         source_pvar = pvar_file,
         chromosome = chromosome,
+        plink2_filter_option = plink2_filter_option,
         extract_sample = CreateCohortSample.output_file
     }
   }
@@ -177,6 +180,8 @@ task PlinkExtractSamples {
     File extract_sample
     String chromosome
 
+    String plink2_filter_option
+
     Int memory_gb = 20
 
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
@@ -194,6 +199,7 @@ plink2 \
   --pgen ~{source_pgen} \
   --psam ~{source_psam} \
   --pvar ~{source_pvar} \
+  ~{plink2_filter_option} \
   --keep ~{extract_sample} \
   --make-pgen \
   --out ~{chromosome}
@@ -228,9 +234,13 @@ task PlinkMergePgenFiles {
 
   Int disk_size = ceil((size(pgen_files, "GB") + size(pvar_files, "GB") + size(psam_files, "GB"))  * 3) + 20
 
-  String new_pgen = target_prefix + "-merge.pgen"
-  String new_pvar = target_prefix + "-merge.pvar"
-  String new_psam = target_prefix + "-merge.psam"
+  String new_pgen = target_prefix + ".pgen"
+  String new_pvar = target_prefix + ".pvar"
+  String new_psam = target_prefix + ".psam"
+
+  String new_merged_pgen = target_prefix + "-merge.pgen"
+  String new_merged_pvar = target_prefix + "-merge.pvar"
+  String new_merged_psam = target_prefix + "-merge.psam"
 
   command <<<
 
@@ -241,6 +251,12 @@ cat ~{write_lines(psam_files)} > psam.list
 paste pgen.list pvar.list psam.list > merge.list
 
 plink2 --pmerge-list merge.list --make-pgen --out ~{target_prefix}
+
+rm -f ~{new_pgen} ~{new_pvar} ~{new_psam}
+
+mv ~{new_merged_pgen} ~{new_pgen}
+mv ~{new_merged_pvar} ~{new_pvar}
+mv ~{new_merged_psam} ~{new_psam}
 
 >>>
 
