@@ -228,9 +228,9 @@ task PlinkMergePgenFiles {
 
   Int disk_size = ceil((size(pgen_files, "GB") + size(pvar_files, "GB") + size(psam_files, "GB"))  * 3) + 20
 
-  String new_pgen = target_prefix + ".pgen"
-  String new_pvar = target_prefix + ".pvar"
-  String new_psam = target_prefix + ".psam"
+  String new_pgen = target_prefix + "-merge.pgen"
+  String new_pvar = target_prefix + "-merge.pvar"
+  String new_psam = target_prefix + "-merge.psam"
 
   command <<<
 
@@ -240,7 +240,7 @@ cat ~{write_lines(psam_files)} > psam.list
 
 paste pgen.list pvar.list psam.list > merge.list
 
-plink2 --pmerge-list merge.list --make-pgen --out ~{target_prefix} --delete-pmerge-result
+plink2 --pmerge-list merge.list --make-pgen --out ~{target_prefix}
 
 >>>
 
