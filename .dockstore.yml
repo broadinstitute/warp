@@ -299,7 +299,7 @@ workflows:
 
   - name: VUMCPrepareGenotypeData
     subclass: WDL
-    primaryDescriptorPath: /nobackup/h_cqs/shengq2/program/warp/pipelines/vumc_biostatistics/agd/VUMCPrepareGenotypeData.wdl 
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareGenotypeData.wdl 
 
 
    
