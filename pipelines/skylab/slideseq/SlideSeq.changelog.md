@@ -1,7 +1,12 @@
-# 3.1.4
-20240322 (Date of Last Commit)
+# 3.1.5
+20240401 (Date of Last Commit)
 
 * Changed the Optimus workflow STARsolo barcode correction method to 1MM_multi; this does not impact the Slideseq workflow
+
+# 3.1.4
+20240326 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
 
 # 3.1.3
 20240315 (Date of Last Commit)

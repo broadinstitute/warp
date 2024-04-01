@@ -2,13 +2,13 @@
 sidebar_position: 2
 ---
 
-# snM3C Mapping Summary Metrics Overview
+# snm3C Mapping Summary Metrics Overview
 
-The snM3C pipeline outputs a summary CSV file containing trimming, mapping, deduplication, chromatin contact, and ALLC site statistics. 
+The snm3C pipeline outputs a summary CSV file containing trimming, mapping, deduplication, chromatin contact, and ALLC site statistics. 
 
 The summary file is generated using the `smn3c_summary()` function of a [custom python3 script](https://github.com/lhqing/cemba_data/blob/788e83cd66f3b556bdfacf3485bed9500d381f23/cemba_data/hisat3n/summary.py).
 
-The snM3C pipeline was adapted from YAP (Yet Another Pipeline) in collaboration with Hanqing Liu, Wei Tian, Wubin Ding, Huaming Chen, Chongyuan Luo, and the entire laboratory of Joseph Ecker. For more information about the snM3C metrics, please see the [YAP documentation](https://hq-1.gitbook.io/mc/) created by Hanqing Liu.
+The snm3C pipeline was adapted from YAP (Yet Another Pipeline) in collaboration with Hanqing Liu, Wei Tian, Wubin Ding, Huaming Chen, Chongyuan Luo, Jingtian Zhou, and the entire laboratory of Joseph Ecker. For more information about the snm3C metrics, please see the [YAP documentation](https://hq-1.gitbook.io/mc/) created by Hanqing Liu.
 
 | Metric | Details |
 |:------ | :------ |

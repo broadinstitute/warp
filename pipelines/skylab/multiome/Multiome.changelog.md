@@ -1,8 +1,13 @@
-
 # 4.0.0
-20240322 (Date of Last Commit)
+20240401 (Date of Last Commit)
 
 * Changed the STARsolo barcode correction method to 1MM_multi, which only corrects to barcodes with read evidence; this change impacts the scientific outputs
+
+# 3.4.1
+20240326 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
+
 
 # 3.4.0 
 20240315 (Date of Last Commit)
