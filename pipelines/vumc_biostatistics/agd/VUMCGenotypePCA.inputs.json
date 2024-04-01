@@ -1,0 +1,7 @@
+{
+  "VUMCGenotypePCA.pgen_file": "/nobackup/h_cqs/shengq2/biovu/demo/agd35k_grid_1000.pgen",
+  "VUMCGenotypePCA.pvar_file": "/nobackup/h_cqs/shengq2/biovu/demo/agd35k_grid_1000.pvar",
+  "VUMCGenotypePCA.psam_file": "/nobackup/h_cqs/shengq2/biovu/demo/agd35k_grid_1000.psam",
+  "VUMCGenotypePCA.n_geno_pcs": "10",
+  "VUMCGenotypePCA.target_prefix": "agd35k_1000"
+}

@@ -301,5 +301,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareGenotypeData.wdl 
 
-
+  - name: VUMCGenotypePCA
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCGenotypePCA.wdl 
    
