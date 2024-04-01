@@ -51,6 +51,7 @@ task PlinkPCA {
     String target_prefix
 
     Int memory_gb = 20
+    Int cpu = 8
 
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
   }
@@ -93,6 +94,7 @@ cat ~{target_prefix}.pruned.eigenvec | sed '1s/IID/genotype_id/' | sed '1s/PC/ge
   runtime {
     docker: docker
     preemptible: 1
+    cpu: cpu
     disks: "local-disk " + disk_size + " HDD"
     memory: memory_gb + " GiB"
   }
