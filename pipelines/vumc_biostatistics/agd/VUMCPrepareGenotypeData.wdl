@@ -5,8 +5,8 @@ import "../genotype/Utils.wdl" as Utils
 workflow VUMCPrepareGenotypeData {
   input {
     Array[File] source_pgen_files
-    Array[File] source_psam_files
     Array[File] source_pvar_files
+    Array[File] source_psam_files
 
     Array[String] chromosomes
 
@@ -24,8 +24,8 @@ workflow VUMCPrepareGenotypeData {
   scatter (idx in range(length(chromosomes))) {
     String chromosome = chromosomes[idx]
     File pgen_file = source_pgen_files[idx]
-    File psam_file = source_psam_files[idx]
     File pvar_file = source_pvar_files[idx]
+    File psam_file = source_psam_files[idx]
     String replaced_sample_name = "~{chromosome}.psam"
 
     call ReplaceIdSample {
@@ -46,8 +46,8 @@ workflow VUMCPrepareGenotypeData {
     call PlinkExtractSamples {
       input:
         source_pgen = pgen_file,
-        source_psam = ReplaceIdSample.output_file,
         source_pvar = pvar_file,
+        source_psam = ReplaceIdSample.output_file,
         chromosome = chromosome,
         plink2_filter_option = plink2_filter_option,
         extract_sample = CreateCohortSample.output_file
@@ -175,8 +175,8 @@ wc -l "~{output_filename}"
 task PlinkExtractSamples {
   input {
     File source_pgen
-    File source_psam
     File source_pvar
+    File source_psam
     File extract_sample
     String chromosome
 
@@ -190,15 +190,15 @@ task PlinkExtractSamples {
   Int disk_size = ceil(size([source_pgen, source_psam, source_pvar], "GB")  * 2) + 20
 
   String new_pgen = chromosome + ".pgen"
-  String new_psam = chromosome + ".psam"
   String new_pvar = chromosome + ".pvar"
+  String new_psam = chromosome + ".psam"
 
   command <<<
 
 plink2 \
   --pgen ~{source_pgen} \
-  --psam ~{source_psam} \
   --pvar ~{source_pvar} \
+  --psam ~{source_psam} \
   ~{plink2_filter_option} \
   --keep ~{extract_sample} \
   --make-pgen \
@@ -214,8 +214,8 @@ plink2 \
   }
   output {
     File output_pgen_file = new_pgen
-    File output_psam_file = new_psam
     File output_pvar_file = new_pvar
+    File output_psam_file = new_psam
   }
 }
 
@@ -268,7 +268,7 @@ mv ~{new_merged_psam} ~{new_psam}
   }
   output {
     File output_pgen_file = new_pgen
-    File output_psam_file = new_psam
     File output_pvar_file = new_pvar
+    File output_psam_file = new_psam
   }
 }
