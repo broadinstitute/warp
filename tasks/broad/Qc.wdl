@@ -34,7 +34,7 @@ task CollectQualityYieldMetrics {
       OUTPUT=~{metrics_filename}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:3.1.1"
     disks: "local-disk " + disk_size + " HDD"
     memory: "3500 MiB"
     preemptible: preemptible_tries
@@ -72,7 +72,7 @@ task CollectUnsortedReadgroupBamQualityMetrics {
     touch ~{output_bam_prefix}.insert_size_histogram.pdf
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:3.1.1"
     memory: "7000 MiB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: preemptible_tries
@@ -124,7 +124,7 @@ task CollectReadgroupBamQualityMetrics {
       METRIC_ACCUMULATION_LEVEL=READ_GROUP
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:3.1.1"
     memory: "7000 MiB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: preemptible_tries
@@ -178,7 +178,7 @@ task CollectAggregationMetrics {
       METRIC_ACCUMULATION_LEVEL=LIBRARY
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:3.1.1"
     memory: "7000 MiB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: preemptible_tries
@@ -229,7 +229,7 @@ task ConvertSequencingArtifactToOxoG {
       --REFERENCE_SEQUENCE ~{ref_fasta}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:3.1.1"
     memory: "~{memory_size} MiB"
     disks: "local-disk " + disk_size + " HDD"
     preemptible: preemptible_tries
@@ -267,7 +267,7 @@ task CrossCheckFingerprints {
       CROSSCHECK_BY=~{cross_check_by}
   >>>
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:3.1.1"
     preemptible: preemptible_tries
     memory: "3500 MiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -337,7 +337,7 @@ task CheckFingerprintTask {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:3.1.1"
     disks: "local-disk " + disk_size + " HDD"
     memory: "~{memory_size} MiB"
     preemptible: preemptible_tries
@@ -437,7 +437,7 @@ task ValidateSamFile {
       IS_BISULFITE_SEQUENCED=false
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:3.1.1"
     preemptible: preemptible_tries
     memory: "~{memory_size} MiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -475,7 +475,7 @@ task CollectWgsMetrics {
       READ_LENGTH=~{read_length}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:3.1.1"
     preemptible: preemptible_tries
     memory: "3000 MiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -518,7 +518,7 @@ task CollectRawWgsMetrics {
       READ_LENGTH=~{read_length}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:3.1.1"
     preemptible: preemptible_tries
     memory: "~{memory_size} GiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -567,7 +567,7 @@ task CollectHsMetrics {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:3.1.1"
     preemptible: preemptible_tries
     memory: "~{memory_size} MiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -596,7 +596,7 @@ task CalculateReadGroupChecksum {
       OUTPUT=~{read_group_md5_filename}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:3.1.1"
     preemptible: preemptible_tries
     memory: "4000 MiB"
     disks: "local-disk " + disk_size + " HDD"
@@ -689,7 +689,7 @@ task CollectVariantCallingMetrics {
       ~{true="GVCF_INPUT=true" false="" is_gvcf}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:3.1.1"
     preemptible: preemptible_tries
     memory: "3000 MiB"
     disks: "local-disk " + disk_size + " HDD"
