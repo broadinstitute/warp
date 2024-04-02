@@ -1,6 +1,13 @@
-# 3.1.3
-2024-03-01 (Date of Last Commit)
+# 3.1.4
+2024-04-02 (Date of Last Commit)
 * Updated the Optimus.wdl to run on Azure. This change does not affect the SlideSeq pipeline.
+
+# 3.1.3
+2024-03-15 (Date of Last Commit)
+
+* Added cell metrics to the library-level metrics CSV; this does not impact the slide-seq pipeline
+* Updated the docker for the MergeStarOutput task to include STARsolo v2.7.11a and custom scripts to create a uniform matrix file and scripts to collect library-level metrics from STARsolo output
+* Modified the MergeStarOutput to call a custom script for creating a uniform matrix file (mtx) from individual shard mtx files and to create a filtered matrix from the uniform matrix with STARsolo
 
 # 3.1.2
 2024-02-28 (Date of Last Commit)

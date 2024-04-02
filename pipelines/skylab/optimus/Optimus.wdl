@@ -67,7 +67,8 @@ workflow Optimus {
 
   # version of this pipeline
 
-  String pipeline_version = "6.5.1"
+
+  String pipeline_version = "6.6.1"
 
 
   # this is used to scatter matched [r1_fastq, r2_fastq, i1_fastq] arrays
@@ -89,6 +90,8 @@ workflow Optimus {
   String star_docker = "star:1.0.1-2.7.11a-1692706072"
   String warp_tools_docker_2_0_1 = "warp-tools:2.0.1"
   String warp_tools_docker_2_0_2 = "warp-tools:2.0.2-1709308985"
+  String star_merge_docker = "star-merge-npz:1.1"
+
   #TODO how do we handle these?
   String alpine_docker = "alpine-bash:latest"
   String gcp_alpine_docker_prefix = "bashell/"
@@ -216,7 +219,7 @@ workflow Optimus {
       umipercell = STARsoloFastq.umipercell,
       input_id = input_id,
       counting_mode = counting_mode,
-      warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_2
+      star_merge_docker_path = docker_prefix + star_merge_docker
 
   }
   if (counting_mode == "sc_rna"){
@@ -262,7 +265,7 @@ workflow Optimus {
         align_features = STARsoloFastq.align_features_sn_rna,
         umipercell = STARsoloFastq.umipercell_sn_rna,
         input_id = input_id,
-        warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_2
+        star_merge_docker_path = docker_prefix + star_merge_docker
 
     }
     call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
@@ -301,12 +304,12 @@ workflow Optimus {
     File? cell_calls = RunEmptyDrops.empty_drops_result
     File? aligner_metrics = MergeStarOutputs.cell_reads_out
     File? library_metrics = MergeStarOutputs.library_metrics
+    File? mtx_files = MergeStarOutputs.mtx_files
     Array[File?] multimappers_EM_matrix = STARsoloFastq.multimappers_EM_matrix
     Array[File?] multimappers_Uniform_matrix = STARsoloFastq.multimappers_Uniform_matrix
     Array[File?] multimappers_Rescue_matrix = STARsoloFastq.multimappers_Rescue_matrix
     Array[File?] multimappers_PropUnique_matrix = STARsoloFastq.multimappers_PropUnique_matrix
     
-
 
     # h5ad
     File h5ad_output_file = final_h5ad_output

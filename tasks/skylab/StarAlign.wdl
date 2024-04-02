@@ -489,9 +489,11 @@ task MergeStarOutput {
     String? counting_mode
 
     String input_id
+    File barcodes_single = barcodes[0]
+    File features_single = features[0]
 
     #runtime values
-    String warp_tools_docker_path
+    String star_merge_docker_path
 
     Int machine_mem_gb = 20
     Int cpu = 1
@@ -519,6 +521,31 @@ task MergeStarOutput {
     declare -a summary_files=(~{sep=' ' summary})
     declare -a align_features_files=(~{sep=' ' align_features})
     declare -a umipercell_files=(~{sep=' ' umipercell})
+
+    # create the  compressed raw count matrix with the counts, gene names and the barcodes
+    python3 /scripts/scripts/combined_mtx.py \
+    ${matrix_files[@]} \
+    ~{input_id}.uniform.mtx
+
+    mkdir matrix
+    #Using cp because mv isn't moving
+    pwd
+    cp /cromwell_root/~{input_id}.uniform.mtx ./matrix/matrix.mtx
+    cp ~{barcodes_single} ./matrix/barcodes.tsv
+    cp ~{features_single} ./matrix/features.tsv
+
+    tar -zcvf ~{input_id}.mtx_files.tar ./matrix/*
+
+
+    # Running star for combined cell matrix
+    # outputs will be called outputbarcodes.tsv. outputmatrix.mtx, and outputfeatures.tsv
+    STAR --runMode soloCellFiltering ./matrix ./output --soloCellFilter CellRanger2.2
+
+    #list files
+    echo "listing files"
+    ls
+
+
 
     if [ -f "${cell_reads_files[0]}" ]; then
     
@@ -581,14 +608,22 @@ task MergeStarOutput {
     if ls *.txt 1> /dev/null 2>&1; then
       echo "listing files"
       ls
-      python3 /warptools/scripts/combine_shard_metrics.py ~{input_id}_summary.txt ~{input_id}_align_features.txt ~{input_id}_cell_reads.txt ~{counting_mode} ~{input_id}
+      python3 /scripts/scripts/combine_shard_metrics.py \
+      ~{input_id}_summary.txt \
+      ~{input_id}_align_features.txt \
+      ~{input_id}_cell_reads.txt \
+      ~{counting_mode} \
+      ~{input_id} \
+      outputbarcodes.tsv \
+      outputmatrix.mtx
       tar -zcvf ~{input_id}.star_metrics.tar *.txt
     else
       echo "No text files found in the folder."
     fi
 
+   #
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
-    python3 /warptools/scripts/create-merged-npz-output.py \
+    python3 /scripts/scripts/create-merged-npz-output.py \
         --barcodes ${barcodes_files[@]} \
         --features ${features_files[@]} \
         --matrix ${matrix_files[@]} \
@@ -596,7 +631,7 @@ task MergeStarOutput {
   >>>
 
   runtime {
-    docker: warp_tools_docker_path
+    docker: star_merge_docker_path
     memory: "${machine_mem_gb} GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
@@ -610,6 +645,7 @@ task MergeStarOutput {
     File sparse_counts = "~{input_id}_sparse_counts.npz"
     File? cell_reads_out = "~{input_id}.star_metrics.tar"
     File? library_metrics="~{input_id}_library_metrics.csv"
+    File? mtx_files ="~{input_id}.mtx_files.tar"
   }
 }
 
