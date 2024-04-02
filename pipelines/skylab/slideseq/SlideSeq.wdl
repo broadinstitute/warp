@@ -50,6 +50,7 @@ workflow SlideSeq {
     String picard_cloud_docker = "picard-cloud:2.26.10"
     String warp_tools_docker_2_0_1 = "warp-tools:2.0.1"
     String warp_tools_docker_2_0_2 = "warp-tools:2.0.2-1709308985"
+    String star_merge_docker = "star-merge-npz:1.1"
 
     String ubuntu_docker = "ubuntu_16_0_4:latest"
     String gcp_ubuntu_docker_prefix = "gcr.io/gcp-runtimes/"
@@ -148,7 +149,7 @@ workflow SlideSeq {
             features = STARsoloFastqSlideSeq.features,
             matrix = STARsoloFastqSlideSeq.matrix,
             input_id = input_id,
-            warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_2
+            star_merge_docker_path = docker_prefix + star_merge_docker
     }
     if ( !count_exons ) {
         call H5adUtils.OptimusH5adGeneration as SlideseqH5adGeneration{
@@ -173,7 +174,7 @@ workflow SlideSeq {
                 features = STARsoloFastqSlideSeq.features_sn_rna,
                 matrix = STARsoloFastqSlideSeq.matrix_sn_rna,
                 input_id = input_id,
-                warp_tools_docker_path = docker_prefix + warp_tools_docker_2_0_2
+                star_merge_docker_path = docker_prefix + star_merge_docker
         }
         call H5adUtils.SingleNucleusOptimusH5adOutput as OptimusH5adGenerationWithExons{
             input:
