@@ -1,4 +1,4 @@
-# 3.4.1
+# 3.4.2
 2024-04-01 (Date of Last Commit)
 
 * Updated the Optimus.wdl to run on Azure. This change does not affect the Multiome pipeline.

@@ -1,4 +1,4 @@
-# 6.6.1
+# 6.6.2
 2024-04-01 (Date of Last Commit)
 * Updated the Optimus.wdl to run on Azure.
 
