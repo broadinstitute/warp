@@ -1,6 +1,6 @@
 version 1.0
 
-import "./Utils.wdl" as Utils
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCBed2GDS {
   input {
@@ -31,7 +31,7 @@ workflow VUMCBed2GDS {
   }
 
   if(defined(target_gcp_folder)){
-    call Utils.MoveOrCopyOneFile as CopyFile {
+    call GcpUtils.MoveOrCopyOneFile as CopyFile {
       input:
         source_file = Bed2GDS.gds_file,
         is_move_file = false,

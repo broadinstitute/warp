@@ -1,6 +1,6 @@
 version 1.0
 
-import "./Utils.wdl" as Utils
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCVcfExcludeSamples {
   input {
@@ -24,7 +24,7 @@ workflow VUMCVcfExcludeSamples {
   }
 
   if(defined(target_gcp_folder)){
-    call Utils.MoveOrCopyTwoFiles as CopyVCF {
+    call GcpUtils.MoveOrCopyTwoFiles as CopyVCF {
       input:
         source_file1 = BcftoolsExcludeSamples.output_vcf,
         source_file2 = BcftoolsExcludeSamples.output_vcf_index,

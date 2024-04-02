@@ -1,6 +1,6 @@
 version 1.0
 
-import "./Utils.wdl" as Utils
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCVcfMoveFiles {
   input {
@@ -11,7 +11,7 @@ workflow VUMCVcfMoveFiles {
     String target_gcp_folder
   }
 
-  call Utils.MoveOrCopyTwoFiles as MoveFiles {
+  call GcpUtils.MoveOrCopyTwoFiles as MoveFiles {
     input:
       source_file1 = input_vcf,
       source_file2 = input_vcf_index,

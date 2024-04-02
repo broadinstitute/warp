@@ -1,6 +1,6 @@
 version 1.0
 
-import "./Utils.wdl" as Utils
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCPlink2BedToBgen {
   input {
@@ -28,7 +28,7 @@ workflow VUMCPlink2BedToBgen {
   }
 
   if(defined(target_bucket)){
-    call Utils.MoveOrCopyTwoFiles as CopyFile {
+    call GcpUtils.MoveOrCopyTwoFiles as CopyFile {
       input:
         source_file1 = Plink2BedToBgen.output_bgen,
         source_file2 = Plink2BedToBgen.output_sample,

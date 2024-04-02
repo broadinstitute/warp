@@ -1,6 +1,6 @@
 version 1.0
 
-import "../genotype/Utils.wdl" as Utils
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCGenotypePCA {
   input {
@@ -26,7 +26,7 @@ workflow VUMCGenotypePCA {
   }
 
   if(defined(target_gcp_folder)){
-    call Utils.MoveOrCopyOneFile as CopyFile {
+    call GcpUtils.MoveOrCopyOneFile as CopyFile {
       input:
         source_file = PlinkPCA.output_pca_file,
         is_move_file = false,
