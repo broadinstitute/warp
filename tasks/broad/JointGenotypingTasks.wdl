@@ -216,7 +216,7 @@ task GnarlyGenotyper {
     String dbsnp_vcf
     Boolean make_annotation_db = false
 
-    String gatk_docker = String gatk_docker = "us.gcr.io/broad-dsde-methods/test-no-call-fix@sha256:b0e592f1c33edda90255810f75d0672bb48464556c5e008c29a8050ed68b19c1"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/test-no-call-fix@sha256:b0e592f1c33edda90255810f75d0672bb48464556c5e008c29a8050ed68b19c1"
     Int machine_mem_mb = 26000
     Int disk_size_gb = ceil(size(workspace_tar, "GiB") + size(ref_fasta, "GiB") + size(dbsnp_vcf, "GiB") * 3)
   }
