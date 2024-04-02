@@ -1,3 +1,8 @@
+# 1.2.0
+2024-04-02 (Date of Last Commit)
+
+*  Updated the PairedTag.wdl to run on Azure. This change does not affect the ATAC pipeline.
+
 # 1.1.9
 2024-03-01 (Date of Last Commit)
 
