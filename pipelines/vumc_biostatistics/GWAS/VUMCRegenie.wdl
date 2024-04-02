@@ -8,11 +8,11 @@ workflow VUMCRegenie {
     File pvar_file
     File psam_file
 
-    File phenotype_file
-    String phenotype_column
+    File phenoFile
+    String phenoColList
 
-    File covariate_file
-    String covariate_columns
+    File covarFile
+    String covarColList
 
     String target_prefix
 
@@ -39,10 +39,10 @@ workflow VUMCRegenie {
       input_pgen = pgen_file,
       input_pvar = pvar_file,
       input_psam = psam_file,
-      phenotype_file = phenotype_file,
-      phenoCol = phenotype_column,
-      covariate_file = phenotype_file,
-      covarColList = covariate_columns,
+      phenoFile = phenoFile,
+      phenoColList = phenoColList,
+      covarFile = covarFile,
+      covarColList = covarColList,
       target_prefix = target_prefix
   }
 
@@ -111,10 +111,10 @@ task Regenie {
     File input_pvar
     File input_psam
 
-    File phenotype_file
-    String phenoCol
+    File phenoFile
+    String phenoColList
 
-    File covariate_file
+    File covarFile
     String covarColList
 
     String step1_option = "--loocv --bsize 1000 --lowmem"
@@ -138,9 +138,9 @@ task Regenie {
 regenie --step 1 \
   --qt \
   --pgen ~{qc_pgen_prefix} \
-  -c ~{phenotype_file} \
-  -p ~{covariate_file} \
-  --phenoCol ~{phenoCol} \
+  -p ~{phenoFile} \
+  --phenoColList ~{phenoColList} \
+  -c ~{covarFile} \
   --covarColList ~{covarColList} \
   ~{step1_option} \
   --threads ~{cpu} \
@@ -150,9 +150,9 @@ regenie --step 1 \
 regenie --step 2 \
   --qt \
   --pgen ~{pgen_prefix} \
-  -c ~{phenotype_file} \
-  -p ~{covariate_file} \
-  --phenoCol ~{phenoCol} \
+  -p ~{phenoFile} \
+  --phenoColList ~{phenoColList} \
+  -c ~{covarFile} \
   --covarColList ~{covarColList} \
   ~{step2_option} \
   --threads ~{cpu} \
