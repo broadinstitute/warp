@@ -46,10 +46,22 @@ workflow VUMCRegenie {
       target_prefix = target_prefix
   }
 
+  if(defined(target_gcp_folder)){
+    call GcpUtils.MoveOrCopyFileArray as CopyFile {
+      input:
+        source_files = Regenie.regenie_files,
+        is_move_file = false,
+        project_id = project_id,
+        target_gcp_folder = select_first([target_gcp_folder])
+    }
+    String gcs_output_dir = sub(select_first([target_gcp_folder]), "/+$", "")
+    scatter(regenie_file in Regenie.regenie_files) {
+      String target_file = gcs_output_dir + "/" + basename(regenie_file)
+    }
+  }
+
   output {
-    File pred_list = Regenie.pred_list
-    Array[File] loco_files = Regenie.loco_files
-    Array[File] regenie_files = Regenie.regenie_files
+    Array[File] regenie_files = select_first([target_file, Regenie.regenie_files])
   }
 }
 
@@ -157,7 +169,7 @@ regenie --step 2 \
   ~{step2_option} \
   --threads ~{cpu} \
   --pred "~{target_prefix}.step1_pred.list" \
-  --out ~{target_prefix}.step2
+  --out ~{target_prefix}
 
 >>>
 
@@ -169,8 +181,6 @@ regenie --step 2 \
     memory: memory_gb + " GiB"
   }
   output {
-    File pred_list = "~{target_prefix}.step1_pred.list"
-    Array[File] loco_files = glob("~{target_prefix}.step1*.loco")
-    Array[File] regenie_files = glob("~{target_prefix}.step2*.regenie")
+    Array[File] regenie_files = glob("~{target_prefix}*.regenie")
   }
 }

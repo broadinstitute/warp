@@ -73,7 +73,6 @@ gsutil -m ~{"-u " + project_id} ~{action} ~{source_file1} ~{source_file2} ~{gcs_
   }
 }
 
-
 task MoveOrCopyThreeFiles {
   input {
     String source_file1
@@ -115,3 +114,32 @@ gsutil -m ~{"-u " + project_id} ~{action} ~{source_file1} ~{source_file2} ~{sour
   }
 }
 
+task MoveOrCopyFileArray {
+  input {
+    Array[String] source_files
+
+    Boolean is_move_file = false
+
+    String? project_id
+    String target_gcp_folder
+  }
+
+  String action = if (is_move_file) then "mv" else "cp"
+
+  String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
+
+  command <<<
+
+set -e
+
+gsutil -m ~{"-u " + project_id} ~{action} '~{sep="' '" source_files}' ~{gcs_output_dir}/
+
+>>>
+
+  runtime {
+    docker: "google/cloud-sdk"
+    preemptible: 1
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+  }
+}
