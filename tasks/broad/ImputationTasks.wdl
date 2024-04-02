@@ -53,6 +53,41 @@ task GetMissingContigList {
   }
 }
 
+task CreateRefPanelIntervalLists {
+  input {
+    File ref_panel_vcf
+    File ref_panel_vcf_index
+
+    Int disk_size_gb = ceil(2*size(ref_panel_vcf, "GiB")) + 50 # not sure how big the disk size needs to be since we aren't downloading the entire VCF here
+    Int cpu = 1
+    Int memory_mb = 8000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+  }
+
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
+  String basename = basename(ref_panel_vcf, '.vcf.gz')
+
+  command {
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    VcfToIntervalList \
+    -I ~{ref_panel_vcf} \
+    -O ~{basename}.interval_list
+  }
+
+  output {
+    File interval_list = "~{basename}.interval_list"
+  }
+
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+  }
+}
+
 task GenerateChunk {
   input {
     Int start
@@ -255,6 +290,38 @@ task Minimac4 {
   }
   runtime {
     docker: minimac4_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+  }
+}
+
+task CountVariantsInChunksBeagle {
+  input {
+    File vcf
+    File vcf_index
+    File panel_interval_list
+
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    Int cpu = 1
+    Int memory_mb = 4000
+    Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_interval_list], "GiB")) + 20
+  }
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
+  command <<<
+    set -e -o pipefail
+
+    echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
+    echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_interval_list}  | sed 's/Tool returned://') > var_in_reference
+  >>>
+  output {
+    Int var_in_original = read_int("var_in_original")
+    Int var_in_reference = read_int("var_in_reference")
+  }
+  runtime {
+    docker: gatk_docker
     disks: "local-disk ${disk_size_gb} HDD"
     memory: "${memory_mb} MiB"
     cpu: cpu
