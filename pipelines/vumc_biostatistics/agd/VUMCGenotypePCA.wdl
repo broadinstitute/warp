@@ -87,7 +87,7 @@ plink2 \
   --pca ~{n_geno_pcs} \
   --out ~{target_prefix}.pruned
 
-cat ~{target_prefix}.pruned.eigenvec | sed '1s/IID/genotype_id/' | sed '1s/PC/geno_PC/g' | cut -f2-~{n_geno_pcs+2} > ~{pca_file}
+mv ~{target_prefix}.pruned.eigenvec ~{pca_file}
 
 >>>
 
