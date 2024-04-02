@@ -1,7 +1,12 @@
-# 0.4.1
+# 0.4.2
 2024-04-02 (Date of Last Commit)
 
 * Updated the Optimus.wdl to run on Azure. This change does not affect the PairedTag pipeline.
+
+# 0.4.1
+2024-03-26 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
 
 # 0.4.0
 2024-03-15 (Date of Last Commit)

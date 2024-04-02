@@ -2,6 +2,11 @@
 2024-04-01 (Date of Last Commit)
 * Updated the Optimus.wdl to run on Azure.
 
+# 6.6.1
+20240326 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
+
 # 6.6.0
 2024-03-15 (Date of Last Commit)
 

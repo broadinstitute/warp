@@ -1,6 +1,11 @@
-# 3.1.4
+# 3.1.5
 2024-04-02 (Date of Last Commit)
 * Updated the Optimus.wdl to run on Azure. This change does not affect the SlideSeq pipeline.
+
+# 3.1.4
+2024-03-26 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
 
 # 3.1.3
 2024-03-15 (Date of Last Commit)
