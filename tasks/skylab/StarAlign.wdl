@@ -379,8 +379,11 @@ task STARsoloFastq {
     then
       SoloDirectory="Solo.out/Gene/raw"
       echo "SoloDirectory is $SoloDirectory"
-      find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{}  echo mv {} /cromwell_root/
-      find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
+      #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{}  echo mv {} /cromwell_root/
+      #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
+      echo "list matrix files in $SoloDirectory"
+      ls "$SoloDirectory"/*.mtx
+      mv $SoloDirectory/matrix.mtx matrix.mtx
       mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
       mv "Solo.out/Gene/raw/features.tsv" features.tsv
       mv "Solo.out/Gene/CellReads.stats" CellReads.stats
@@ -397,7 +400,7 @@ task STARsoloFastq {
         #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
         echo "list matrix files in $SoloDirectory"
         ls "$SoloDirectory"/*.mtx
-        mv "Solo.out/GeneFull_Ex50pAS/raw/matrix.mtx" matrix.mtx
+        mv $SoloDirectory/matrix.mtx matrix.mtx
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
@@ -407,12 +410,18 @@ task STARsoloFastq {
       else
         SoloDirectory="Solo.out/GeneFull_Ex50pAS/raw"
         echo "SoloDirectory is $SoloDirectory"
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} echo mv {} /cromwell_root/
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
+        #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} echo mv {} /cromwell_root/
+        #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
+        echo "list matrix files in $SoloDirectory"
+        ls "$SoloDirectory"/*.mtx
+        mv $SoloDirectory/matrix.mtx matrix.mtx
         SoloDirectory="Solo.out/Gene/raw"
         echo "SoloDirectory is $SoloDirectory"
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx";  echo mv {} "/cromwell_root/$new_name"'
-        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; mv {} "/cromwell_root/$new_name"'
+        #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx";  echo mv {} "/cromwell_root/$new_name"'
+        #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; mv {} "/cromwell_root/$new_name"'
+        echo "list matrix files in $SoloDirectory"
+        ls "$SoloDirectory"/*.mtx
+        mv $SoloDirectory/matrix.mtx matrix_sn_rna.mtx
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
