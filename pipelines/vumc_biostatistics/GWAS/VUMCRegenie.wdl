@@ -142,14 +142,17 @@ task Regenie {
 
   Int disk_size = ceil(size([input_qc_pgen, input_qc_pvar, input_qc_psam, input_pgen, input_pvar, input_psam], "GB")) + 20
 
-  String qc_pgen_prefix = sub(input_qc_pgen, ".pgen$", "")
-  String pgen_prefix = sub(input_pgen, ".pgen$", "")
-
   command <<<
+
+qc_pgen='~{input_qc_pgen}'
+qc_pgen_prefix=${qc_pgen%.*}
+
+pgen='~{input_pgen}'
+pgen_prefix=${pgen%.*}
 
 regenie --step 1 \
   --qt \
-  --pgen ~{qc_pgen_prefix} \
+  --pgen ${qc_pgen_prefix} \
   -p ~{phenoFile} \
   --phenoColList ~{phenoColList} \
   -c ~{covarFile} \
@@ -161,7 +164,7 @@ regenie --step 1 \
   
 regenie --step 2 \
   --qt \
-  --pgen ~{pgen_prefix} \
+  --pgen ${pgen_prefix} \
   -p ~{phenoFile} \
   --phenoColList ~{phenoColList} \
   -c ~{covarFile} \
