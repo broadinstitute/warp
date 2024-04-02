@@ -49,7 +49,7 @@ task PairedTagDemultiplex {
           then
           echo "Preindex is false and length is 27 bp"
           echo "Trimming last 3 bp with UPStools"
-          upstools trimfq ~{input_id}_R2.fq.gz 1 23
+          upstools trimfq ~{input_id}_R2.fq.gz 1 24
           echo "Running orientation check"
           file="~{input_id}_R2_trim.fq.gz"
           zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
