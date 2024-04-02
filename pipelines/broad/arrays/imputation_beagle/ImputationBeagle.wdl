@@ -61,6 +61,12 @@ workflow ImputationBeagle {
         chrom = referencePanelContig.contig
     }
 
+    call tasks.CreateRefPanelIntervalLists {
+      input:
+        ref_panel_vcf = referencePanelContig.vcf,
+        ref_panel_vcf_index = referencePanelContig.vcf_index
+    }
+
     Int num_chunks = ceil(CalculateChromosomeLength.chrom_length / chunkLengthFloat)
 
     scatter (i in range(num_chunks)) {
@@ -92,18 +98,17 @@ workflow ImputationBeagle {
         }
       }
 
-      call tasks.CountVariantsInChunks {
+      call tasks.CountVariantsInChunksBeagle {
         input:
           vcf = select_first([OptionalQCSites.output_vcf,  GenerateChunk.output_vcf]),
           vcf_index = select_first([OptionalQCSites.output_vcf_index, GenerateChunk.output_vcf_index]),
-          panel_vcf = referencePanelContig.vcf,
-          panel_vcf_index = referencePanelContig.vcf_index
+          panel_interval_list = CreateRefPanelIntervalLists.interval_list
       }
 
       call tasks.CheckChunksBeagle {
         input:
-          var_in_original = CountVariantsInChunks.var_in_original,
-          var_in_reference = CountVariantsInChunks.var_in_reference
+          var_in_original = CountVariantsInChunksBeagle.var_in_original,
+          var_in_reference = CountVariantsInChunksBeagle.var_in_reference
       }
 
       call tasks.SubsetVcfToRegion {
@@ -215,8 +220,8 @@ workflow ImputationBeagle {
       chroms = flatten(chunk_contig),
       starts = flatten(start),
       ends = flatten(end),
-      vars_in_array = flatten(CountVariantsInChunks.var_in_original),
-      vars_in_panel = flatten(CountVariantsInChunks.var_in_reference),
+      vars_in_array = flatten(CountVariantsInChunksBeagle.var_in_original),
+      vars_in_panel = flatten(CountVariantsInChunksBeagle.var_in_reference),
       valids = flatten(CheckChunksBeagle.valid),
       basename = output_callset_name
   }
