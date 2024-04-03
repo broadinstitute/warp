@@ -98,7 +98,7 @@ workflow ImputationBeagle {
       call tasks.CheckChunksBeagle {
         input:
           var_in_original = CountVariantsInChunksBeagle.var_in_original,
-          var_in_reference = CountVariantsInChunksBeagle.var_in_reference
+          var_also_in_reference = CountVariantsInChunksBeagle.var_also_in_reference
       }
 
       call tasks.SubsetVcfToRegion {
@@ -211,7 +211,7 @@ workflow ImputationBeagle {
       starts = flatten(start),
       ends = flatten(end),
       vars_in_array = flatten(CountVariantsInChunksBeagle.var_in_original),
-      vars_in_panel = flatten(CountVariantsInChunksBeagle.var_in_reference),
+      vars_in_panel = flatten(CountVariantsInChunksBeagle.var_also_in_reference),
       valids = flatten(CheckChunksBeagle.valid),
       basename = output_callset_name
   }
@@ -232,7 +232,6 @@ workflow ImputationBeagle {
         nSamples = CountSamples.nSamples
     }
   }
-
 
   output {
     Array[File]? imputed_single_sample_vcfs = SplitMultiSampleVcf.single_sample_vcfs
