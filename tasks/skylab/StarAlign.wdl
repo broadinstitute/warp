@@ -530,9 +530,12 @@ task MergeStarOutput {
     mkdir matrix
     #Using cp because mv isn't moving
     pwd
-    cp /cromwell_root/~{input_id}.uniform.mtx ./matrix/matrix.mtx
+    ls -lR
+    cp ~{input_id}.uniform.mtx ./matrix/matrix.mtx
     cp ~{barcodes_single} ./matrix/barcodes.tsv
     cp ~{features_single} ./matrix/features.tsv
+    echo "doing another ls"
+    ls -lR
 
     tar -zcvf ~{input_id}.mtx_files.tar ./matrix/*
 
