@@ -1,4 +1,9 @@
 
+# 6.6.1
+20240326 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
+
 # 6.6.0
 20240315 (Date of Last Commit)
 
