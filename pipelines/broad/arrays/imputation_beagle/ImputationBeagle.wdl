@@ -24,14 +24,11 @@ workflow ImputationBeagle {
     String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
     String output_callset_name # the output callset name
     Boolean split_output_to_single_sample = false
-    Int merge_ssvcf_mem_mb = 3000 # the memory allocation for MergeSingleSampleVcfs (in mb)
-
-    Float frac_above_maf_5_percent_well_imputed_threshold = 0.9 # require fraction of maf > 0.05 sites well imputed to be greater than this to pass
+    
     Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
 
     # file extensions used to find reference panel files
-    String vcf_suffix = ".vcf.gz"
-    String vcf_index_suffix = ".vcf.gz.tbi"
+    String interval_list_suffix = ".interval_list"
     String bref3_suffix = ".bref3"
   }
 
@@ -48,8 +45,7 @@ workflow ImputationBeagle {
     String genetic_map_filename = genetic_maps_path + "plink." + contig + ".GRCh38.withchr.map"
 
     ReferencePanelContig referencePanelContig = {
-      "vcf": reference_filename + vcf_suffix,
-      "vcf_index": reference_filename + vcf_index_suffix,
+      "interval_list": reference_filename + interval_list_suffix,
       "bref3": reference_filename + bref3_suffix,
       "contig": contig,
       "genetic_map": genetic_map_filename
@@ -59,12 +55,6 @@ workflow ImputationBeagle {
       input:
         ref_dict = ref_dict,
         chrom = referencePanelContig.contig
-    }
-
-    call tasks.CreateRefPanelIntervalLists {
-      input:
-        ref_panel_vcf = referencePanelContig.vcf,
-        ref_panel_vcf_index = referencePanelContig.vcf_index
     }
 
     Int num_chunks = ceil(CalculateChromosomeLength.chrom_length / chunkLengthFloat)
@@ -102,7 +92,7 @@ workflow ImputationBeagle {
         input:
           vcf = select_first([OptionalQCSites.output_vcf,  GenerateChunk.output_vcf]),
           vcf_index = select_first([OptionalQCSites.output_vcf_index, GenerateChunk.output_vcf_index]),
-          panel_interval_list = CreateRefPanelIntervalLists.interval_list
+          panel_interval_list = referencePanelContig.interval_list
       }
 
       call tasks.CheckChunksBeagle {
@@ -261,8 +251,7 @@ workflow ImputationBeagle {
 }
 
 struct ReferencePanelContig {
-  File vcf
-  File vcf_index
+  File interval_list
   File bref3
   String contig
   File genetic_map
