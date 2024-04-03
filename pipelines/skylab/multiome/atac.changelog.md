@@ -1,3 +1,7 @@
+# 1.2.1
+20240403 (Date of Last Commit)
+* Modified adaptor trimming in Paired-tag WDL; this does not impact ATAC
+
 # 1.2.0
 20240315 (Date of Last Commit)
 
