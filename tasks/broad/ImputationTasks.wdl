@@ -589,7 +589,7 @@ task OptionalQCSites {
     set -e -o pipefail
 
     # site missing rate < 5% ; hwe p > 1e-6
-    vcftools --gzvcf ~{input_vcf}  --max-missing ~{max_missing} --hwe ~{hwe} --recode -c | bgzip -c > ~{output_vcf_basename}.vcf.gz
+    tools --gzvcf ~{input_vcf}  --max-missing ~{max_missing} --hwe ~{hwe} --recode -c | bgzip -c > ~{output_vcf_basename}.vcf.gz
     bcftools index -t ~{output_vcf_basename}.vcf.gz # Note: this is necessary because vcftools doesn't have a way to output a zipped vcf, nor a way to index one (hence needing to use bcf).
   >>>
   runtime {
