@@ -178,8 +178,14 @@ The table below details the pipeline outputs. **If using multiplexed samples, th
 All CEMBA pipeline releases are documented in the [CEMBA changelog](https://github.com/broadinstitute/warp/blob/develop/pipelines/cemba/cemba_methylcseq/CEMBA.changelog.md).
 
 ## Citing the CEMBA Pipeline
-Please identify the pipeline in your methods section using the CEMBA Pipeline's [SciCrunch resource identifier](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_021219/resolver?q=CEMBA&l=CEMBA).
+
+If you use the CEMBA Pipeline in your research, please identify the pipeline in your methods section using the [CEMBA SciCrunch resource identifier](https://scicrunch.org/resources/data/record/nlx_144509-1/SCR_021219/resolver?q=SCR_021219&l=SCR_021219&i=rrid:scr_021219).
+
 * Ex: *CEMBA MethylC Seq Pipeline (RRID:SCR_021219)*
+
+Please also consider citing our preprint:
+
+Degatano, K.; Awdeh, A.; Dingman, W.; Grant, G.; Khajouei, F.; Kiernan, E.; Konwar, K.; Mathews, K.; Palis, K.; Petrillo, N.; Van der Auwera, G.; Wang, C.; Way, J.; Pipelines, W. WDL Analysis Research Pipelines: Cloud-Optimized Workflows for Biological Data Processing and Reproducible Analysis. Preprints 2024, 2024012131. https://doi.org/10.20944/preprints202401.2131.v1
 
 ## Consortia Support
 This pipeline is supported and used by the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN). 

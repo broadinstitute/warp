@@ -1,3 +1,32 @@
+# 3.1.4
+20240326 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
+
+# 3.1.3
+20240315 (Date of Last Commit)
+
+* Added cell metrics to the library-level metrics CSV; this does not impact the slide-seq pipeline
+
+* Updated the docker for the MergeStarOutput task to include STARsolo v2.7.11a and custom scripts to create a uniform matrix file and scripts to collect library-level metrics from STARsolo output
+
+* Modified the MergeStarOutput to call a custom script for creating a uniform matrix file (mtx) from individual shard mtx files and to create a filtered matrix from the uniform matrix with STARsolo
+# 3.1.2
+
+2024-02-28 (Date of Last Commit)
+
+* Updated the Optimus workflow to produce a library-level metrics CSV; this does not impact the slide-seq pipeline
+
+# 3.1.1
+2024-02-29 (Date of Last Commit)
+* Added mem and disk to inputs of Join Barcodes task of Multiome workflow; does not impact the Slideseq workflow
+
+
+# 3.1.0
+2024-02-07 (Date of Last Commit)
+
+* Updated StarAlign output metrics to include shard ids
+
 # 3.0.1
 2024-02-13 (Date of Last Commit)
 

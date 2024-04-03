@@ -1,3 +1,33 @@
+
+# 6.6.1
+20240326 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
+
+# 6.6.0
+20240315 (Date of Last Commit)
+
+* Added cell metrics to the library-level metrics
+
+* Updated the docker for the MergeStarOutput task to include STARsolo v2.7.11a and custom scripts to create a uniform matrix file and scripts to collect library-level metrics from STARsolo output
+
+* Modified the MergeStarOutput to call a custom script for creating a uniform matrix file (mtx) from individual shard mtx files and to create a filtered matrix from the uniform matrix with STARsolo
+
+# 6.5.0
+2024-02-28 (Date of Last Commit)
+
+* Added a library-level metrics CSV as output of the Optimus workflow; this iteration includes read-level metrics 
+
+# 6.4.1
+2024-02-29 (Date of Last Commit)
+* Added mem and disk to inputs of Join Barcodes task of Multiome workflow; does not impact the Optimus workflow
+
+
+# 6.4.0
+2024-02-21 (Date of Last Commit)
+* Updated StarAlign.MergeStarOutput to add a shard number to the metrics files
+* Removed ref_genome_fasta input from Optimus WDL and JSON
+
 # 6.3.6
 2024-02-07 (Date of Last Commit)
 * Updated the Metrics tasks to exclude mitochondrial genes from reads_mapped_uniquely, reads_mapped_multiple and reads_mapped_exonic, reads_mapped_exonic_as and reads_mapped_intergenic

@@ -1,4 +1,27 @@
-# 1.2.28
+# 1.3.3
+20240326 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
+
+# 1.3.2
+20240315 (Date of Last Commit)
+
+* Added cell metrics to the library-level metrics CSV; this does not impact the Single-nucleus Multi Sample Smartseq pipeline
+
+* Updated the docker for the MergeStarOutput task to include STARsolo v2.7.11a and custom scripts to create a uniform matrix file and scripts to collect library-level metrics from STARsolo output
+
+* Modified the MergeStarOutput to call a custom script for creating a uniform matrix file (mtx) from individual shard mtx files and to create a filtered matrix from the uniform matrix with STARsolo
+# 1.3.1
+2024-02-28 (Date of Last Commit)
+
+* Updated the Optimus workflow to produce a library-level metrics CSV; this does not impact the Single-nucleus Multi Sample Smart-seq2 pipeline
+
+# 1.3.0
+2024-01-22 (Date of Last Commit)
+
+* Updated StarAlign output metrics to include shard ids
+ 
+ # 1.2.28
 2024-01-11 (Date of Last Commit)
 
 * Increased memory for MergeStarOutputs in StarAlign.wdl, RunEmptyDrops in RunEmptyDrops.wdl, OptimusH5ad in H5adUtils.wdl and GeneMetrics in Metrics.wdl

@@ -475,11 +475,14 @@ task MergeStarOutput {
     Array[File]? summary
     Array[File]? align_features
     Array[File]? umipercell
+    String? counting_mode
     
     String input_id
+    File barcodes_single = barcodes[0]
+    File features_single = features[0]
 
     #runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/pytools:1.0.0-1661263730"
+    String docker = "us.gcr.io/broad-gotc-prod/star-merge-npz:1.1"
     Int machine_mem_gb = 20
     Int cpu = 1
     Int disk = ceil(size(matrix, "Gi") * 2) + 10
@@ -507,45 +510,108 @@ task MergeStarOutput {
     declare -a align_features_files=(~{sep=' ' align_features})
     declare -a umipercell_files=(~{sep=' ' umipercell})
 
-    for cell_read in "${cell_reads_files[@]}"; do
-      if [ -f "$cell_read" ]; then
-        cat "$cell_read" >> "~{input_id}_cell_reads.txt"
-      fi
-    done
+    # create the  compressed raw count matrix with the counts, gene names and the barcodes
+    python3 /scripts/scripts/combined_mtx.py \
+    ${matrix_files[@]} \
+    ~{input_id}.uniform.mtx
+
+    mkdir matrix
+    #Using cp because mv isn't moving
+    pwd
+    cp /cromwell_root/~{input_id}.uniform.mtx ./matrix/matrix.mtx
+    cp ~{barcodes_single} ./matrix/barcodes.tsv
+    cp ~{features_single} ./matrix/features.tsv
+
+    tar -zcvf ~{input_id}.mtx_files.tar ./matrix/* 
+
+
+    # Running star for combined cell matrix
+    # outputs will be called outputbarcodes.tsv. outputmatrix.mtx, and outputfeatures.tsv
+    STAR --runMode soloCellFiltering ./matrix ./output --soloCellFilter CellRanger2.2
     
+    #list files
+    echo "listing files"
+    ls
+
+
+
+    if [ -f "${cell_reads_files[0]}" ]; then
+    
+      # Destination file for cell reads
+      dest="~{input_id}_cell_reads.txt"
+    
+      # first create the header from the first file in the list, and add a column header for the shard id
+      head -n 1 "${cell_reads_files[0]}" | awk '{print $0 "\tshard_number"}' > "$dest"
+    
+      # Loop through the array and add the second row with shard number to a temp file notinpasslist.txt
+      for index in "${!cell_reads_files[@]}"; do
+        secondLine=$(sed -n '2p' "${cell_reads_files[$index]}")
+        echo -e "$secondLine\t$index" >> "notinpasslist.txt"
+      done
+
+      # add notinpasslist.txt to the destination file and delete the notinpasslist.txt
+      cat "notinpasslist.txt" >> "$dest"
+      rm notinpasslist.txt
+
+      # now add the shard id to the matrix in a temporary matrix file, and skip the first two lines
+      counter=0
+      for cell_read in "${cell_reads_files[@]}"; do
+        if [ -f "$cell_read" ]; then
+          awk -v var="$counter" 'NR>2 {print $0 "\t" var}' "$cell_read" >> "matrix.txt" 
+          let counter=counter+1
+        fi
+      done
+
+      # add the matrix to the destination file, then delete the matrix file
+      cat "matrix.txt" >> "$dest"
+      rm "matrix.txt"
+    fi
+
+    counter=0
     for summary in "${summary_files[@]}"; do
       if [ -f "$summary" ]; then
-        cat "$summary" >> "~{input_id}_summary.txt"
+        awk -v var=",$counter" '{print $0 var}' "$summary" >> "~{input_id}_summary.txt"
+        let counter=counter+1
       fi
     done
     
+    counter=0
     for align_feature in "${align_features_files[@]}"; do
       if [ -f "$align_feature" ]; then
-        cat "$align_feature" >> "~{input_id}_align_features.txt"
-      fi
-    done
- 
-    for umipercell in "${umipercell_files[@]}"; do
-      if [ -f "$umipercell" ]; then
-        cat "$umipercell" >> "~{input_id}_umipercell.txt"
+        awk -v var="$counter" '{print $0 " " var}' "$align_feature" >> "~{input_id}_align_features.txt"
+        let counter=counter+1
       fi
     done
 
+    # note that the counter might not correspond to the shard number, it is just the order of files in bash (e.g. 10 before 2)
+    counter=0
     for umipercell in "${umipercell_files[@]}"; do
       if [ -f "$umipercell" ]; then
-        cat "$umipercell" >> "~{input_id}_umipercell.txt"
+        awk -v var="$counter" '{print $0, var}' "$umipercell" >> "~{input_id}_umipercell.txt"
+        let counter=counter+1
       fi
     done
     
-    # If text files are present, create a tar archive with them
+    # If text files are present, create a tar archive with them and run python script to combine shard metrics
     if ls *.txt 1> /dev/null 2>&1; then
+      echo "listing files"
+      ls
+      python3 /scripts/scripts/combine_shard_metrics.py \
+      ~{input_id}_summary.txt \
+      ~{input_id}_align_features.txt \
+      ~{input_id}_cell_reads.txt \
+      ~{counting_mode} \
+      ~{input_id} \
+      outputbarcodes.tsv \
+      outputmatrix.mtx 
       tar -zcvf ~{input_id}.star_metrics.tar *.txt
     else
       echo "No text files found in the folder."
     fi
 
+   # 
    # create the  compressed raw count matrix with the counts, gene names and the barcodes
-    python3 /usr/gitc/create-merged-npz-output.py \
+    python3 /scripts/scripts/create-merged-npz-output.py \
         --barcodes ${barcodes_files[@]} \
         --features ${features_files[@]} \
         --matrix ${matrix_files[@]} \
@@ -566,6 +632,8 @@ task MergeStarOutput {
     File col_index = "~{input_id}_sparse_counts_col_index.npy"
     File sparse_counts = "~{input_id}_sparse_counts.npz"
     File? cell_reads_out = "~{input_id}.star_metrics.tar"
+    File? library_metrics="~{input_id}_library_metrics.csv"
+    File? mtx_files ="~{input_id}.mtx_files.tar"
   }
 }
 

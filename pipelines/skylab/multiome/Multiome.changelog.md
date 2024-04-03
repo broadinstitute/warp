@@ -1,3 +1,35 @@
+
+# 3.4.1
+20240326 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
+
+# 3.4.0 
+20240315 (Date of Last Commit)
+
+* Added cell metrics to the library-level metrics
+
+* Updated the docker for the MergeStarOutput task to include STARsolo v2.7.11a and custom scripts to create a uniform matrix file and scripts to collect library-level metrics from STARsolo output
+
+* Modified the MergeStarOutput to call a custom script for creating a uniform matrix file (mtx) from individual shard mtx files and to create a filtered matrix from the uniform matrix with STARsolo
+
+# 3.3.0
+2024-02-28 (Date of Last Commit)
+
+* Added the gene expression library-level metrics CSV as output of the Multiome pipeline; this is produced by the Optimus subworkflow
+
+# 3.2.1
+2024-02-29 (Date of Last Commit)
+
+* Moved the disk and mem for the Multiome Join Barcodes task into the task inputs section
+
+
+# 3.2.0
+2024-02-22 (Date of Last Commit)
+
+* Updated StarAlign.MergeStarOutput to add a shard number to the metrics files
+* Removed ref_genome_fasta input from Multiome WDL and JSON
+
 # 3.1.3
 2024-02-07 (Date of Last Commit)
 
@@ -7,6 +39,7 @@
 2024-02-01 (Date of Last Commit)
 
 * Add new paired-tag task to parse sample barcodes from cell barcodes when preindexing is set to true; this does not affect the Multiome pipeline
+
 
 # 3.1.1 
 2024-01-30 (Date of Last Commit)

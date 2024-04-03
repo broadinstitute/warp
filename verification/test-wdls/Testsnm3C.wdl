@@ -1,12 +1,12 @@
 version 1.0
 
 
-import "../../pipelines/skylab/snM3C/snM3C.wdl" as snM3C
-import "../../verification/VerifysnM3C.wdl" as VerifysnM3C
+import "../../pipelines/skylab/snm3C/snm3C.wdl" as snm3C
+import "../../verification/Verifysnm3C.wdl" as Verifysnm3C
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
 
-workflow TestsnM3C {
+workflow Testsnm3C {
 
     input {
       Array[File] fastq_input_read1
@@ -35,13 +35,15 @@ workflow TestsnM3C {
       Boolean update_truth
       String vault_token_path
       String google_account_vault_path
+
+      String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.4"
     }
 
     meta {
       allowNestedInputs: true
     }
   
-    call snM3C.snM3C {
+    call snm3C.snm3C {
       input:
         fastq_input_read1 = fastq_input_read1,
         fastq_input_read2 = fastq_input_read2,
@@ -60,25 +62,25 @@ workflow TestsnM3C {
         num_upstr_bases = num_upstr_bases,
         num_downstr_bases = num_downstr_bases,
         compress_level = compress_level,
-        batch_number = batch_number
-
+        batch_number = batch_number,
+        docker = docker
     }
 
     
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
                                     [ # File outputs
-                                    snM3C.MappingSummary,
+                                    snm3C.MappingSummary,
                                     ],
                                     # Array[File] outputs
-                                    snM3C.reference_version,
-                                    snM3C.unique_reads_cgn_extraction_allc,
-                                    snM3C.unique_reads_cgn_extraction_tbi,
-                                    snM3C.unique_reads_cgn_extraction_allc_extract,
-                                    snM3C.unique_reads_cgn_extraction_tbi_extract,
-                                    snM3C.name_sorted_bams,
-                                    snM3C.all_reads_dedup_contacts,
-                                    snM3C.all_reads_3C_contacts,
+                                    snm3C.reference_version,
+                                    snm3C.unique_reads_cgn_extraction_allc,
+                                    snm3C.unique_reads_cgn_extraction_tbi,
+                                    snm3C.unique_reads_cgn_extraction_allc_extract,
+                                    snm3C.unique_reads_cgn_extraction_tbi_extract,
+                                    snm3C.name_sorted_bams,
+                                    snm3C.all_reads_dedup_contacts,
+                                    snm3C.all_reads_3C_contacts,
     ])
 
     
@@ -107,12 +109,12 @@ workflow TestsnM3C {
     if (!update_truth){
         call Utilities.GetValidationInputs as GetMappingSummary {
           input:
-            input_file = snM3C.MappingSummary,
+            input_file = snm3C.MappingSummary,
             results_path = results_path,
             truth_path = truth_path
         }
 
-      call VerifysnM3C.VerifysnM3C as Verify {
+      call Verifysnm3C.Verifysnm3C as Verify {
         input:
           truth_mapping_summary = GetMappingSummary.truth_file, 
           test_mapping_summary = GetMappingSummary.results_file,
