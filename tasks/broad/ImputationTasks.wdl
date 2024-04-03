@@ -304,7 +304,7 @@ task CountVariantsInChunksBeagle {
 
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int cpu = 1
-    Int memory_mb = 4000
+    Int memory_mb = 8000
     Int disk_size_gb = 2 * ceil(size([vcf, vcf_index, panel_interval_list], "GiB")) + 20
   }
   Int command_mem = memory_mb - 1000
@@ -313,12 +313,12 @@ task CountVariantsInChunksBeagle {
   command <<<
     set -e -o pipefail
 
-    echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf}  | sed 's/Tool returned://') > var_in_original
-    echo $(gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_interval_list}  | sed 's/Tool returned://') > var_in_reference
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} 2>&1 | tail -n 1 > var_in_original
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_interval_list} 2>&1 | tail -n 1 > var_also_in_reference
   >>>
   output {
     Int var_in_original = read_int("var_in_original")
-    Int var_in_reference = read_int("var_in_reference")
+    Int var_also_in_reference = read_int("var_also_in_reference")
   }
   runtime {
     docker: gatk_docker
@@ -331,7 +331,7 @@ task CountVariantsInChunksBeagle {
 task CheckChunksBeagle {
   input {
     Int var_in_original
-    Int var_in_reference
+    Int var_also_in_reference
 
     String bcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
     Int cpu = 1
@@ -340,7 +340,7 @@ task CheckChunksBeagle {
   command <<<
     set -e -o pipefail
 
-    if [ $(( ~{var_in_reference} * 2 - ~{var_in_original})) -gt 0 ] && [ ~{var_in_reference} -gt 3 ]; then
+    if [ $(( ~{var_also_in_reference} * 2 - ~{var_in_original})) -gt 0 ] && [ ~{var_also_in_reference} -gt 3 ]; then
       echo true > valid_file.txt
     else
       echo false > valid_file.txt
