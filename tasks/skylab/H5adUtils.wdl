@@ -2,7 +2,7 @@ version 1.0
 
 
 
-ttask OptimusH5adGeneration {
+task OptimusH5adGeneration {
 
   input {
     #runtime values
