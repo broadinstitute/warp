@@ -476,31 +476,6 @@ task STARsoloFastq {
   }
 }
 
-  output {
-    File bam_output = "~{output_bam_basename}.bam"
-    File alignment_log = "Log.final.out"
-    File general_log = "Log.out"
-    File barcodes = "barcodes.tsv"
-    File features = "features.tsv"
-    File matrix = "matrix.mtx"
-    File barcodes_sn_rna = "barcodes_sn_rna.tsv"
-    File features_sn_rna = "features_sn_rna.tsv"
-    File matrix_sn_rna = "matrix_sn_rna.mtx"
-    File cell_reads = "CellReads.stats"
-    File align_features = "Features.stats"
-    File summary = "Summary.csv"
-    File umipercell = "UMIperCellSorted.txt"
-    File cell_reads_sn_rna = "CellReads_sn_rna.stats"
-    File align_features_sn_rna = "Features_sn_rna.stats"
-    File summary_sn_rna = "Summary_sn_rna.csv"
-    File umipercell_sn_rna = "UMIperCellSorted_sn_rna.txt"
-    File? multimappers_EM_matrix = "UniqueAndMult-EM.mtx"
-    File? multimappers_Uniform_matrix = "UniqueAndMult-Uniform.mtx"
-    File? multimappers_Rescue_matrix = "UniqueAndMult-Rescue.mtx"
-    File? multimappers_PropUnique_matrix = "UniqueAndMult-PropUnique.mtx"
-  }
-}
-
 task MergeStarOutput {
 
   input {
