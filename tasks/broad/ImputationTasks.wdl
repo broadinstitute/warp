@@ -313,8 +313,8 @@ task CountVariantsInChunksBeagle {
   command <<<
     set -e -o pipefail
 
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} 2>&1 | tail -n 1 > var_in_original
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_interval_list} 2>&1 | tail -n 1 > var_also_in_reference
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} | tail -n 1 > var_in_original
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_interval_list} | tail -n 1 > var_also_in_reference
   >>>
   output {
     Int var_in_original = read_int("var_in_original")
