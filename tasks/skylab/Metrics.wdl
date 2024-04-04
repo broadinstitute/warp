@@ -8,10 +8,11 @@ task CalculateCellMetrics {
     String input_id
 
     # runtime values
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
+
+    String warp_tools_docker_path
     Int machine_mem_mb = 8000
     Int cpu = 4
-    Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
+    Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3))
     Int preemptible = 1
   }
 
@@ -21,16 +22,16 @@ task CalculateCellMetrics {
 
   parameter_meta {
     bam_input: "Input bam file containing reads marked with tags for cell barcodes (CB), molecule barcodes (UB) and gene ids (GX)"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    warp_tools_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
     preemptible: "(optional) if non-zero, request a pre-emptible instance and allow for this number of preemptions before running the task on a non preemptible machine"
   }
-  
+
   command {
     set -e
-    
+
     # create the tmp folder for disk sorting
     mkdir temp
 
@@ -64,14 +65,14 @@ task CalculateCellMetrics {
   }
 
   runtime {
-    docker: docker
+    docker: warp_tools_docker_path
     memory: "${machine_mem_mb} MiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
   }
-  
+
   output {
     File cell_metrics = "~{input_id}.cell-metrics.csv.gz"
   }
@@ -85,13 +86,13 @@ task CalculateGeneMetrics {
     String input_id
     # runtime values
 
-    String docker = "us.gcr.io/broad-gotc-prod/warp-tools:2.0.1"
+    String warp_tools_docker_path
     Int machine_mem_mb = 32000
     Int cpu = 4
-    Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3)) 
+    Int disk = ceil(size(bam_input, "Gi") * 4) + ceil((size(original_gtf, "Gi") * 3))
     Int preemptible = 1
   }
-  
+
 
   meta {
     description: "Sort bam_input by gene, then cell, then molecule."
@@ -99,7 +100,7 @@ task CalculateGeneMetrics {
 
   parameter_meta {
     bam_input: "Input bam file containing reads marked with tags for cell barcodes (CB), molecule barcodes (UB) and gene ids (GE)"
-    docker: "(optional) the docker image containing the runtime environment for this task"
+    warp_tools_docker_path: "(optional) the docker image containing the runtime environment for this task"
     machine_mem_mb: "(optional) the amount of memory (MiB) to provision for this task"
     cpu: "(optional) the number of cpus to provision for this task"
     disk: "(optional) the amount of disk space (GiB) to provision for this task"
@@ -111,7 +112,7 @@ task CalculateGeneMetrics {
 
      # create the tmp folder
     mkdir temp
-    
+
     # if GTF file in compressed then uncompress
     if [[ ~{original_gtf} =~ \.gz$ ]]
     then
@@ -144,9 +145,9 @@ task CalculateGeneMetrics {
   }
 
   runtime {
-    docker: docker
+    docker: warp_tools_docker_path
     memory: "${machine_mem_mb} MiB"
-    disks: "local-disk ${disk} HDD" 
+    disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
     cpu: cpu
     preemptible: preemptible
@@ -156,7 +157,6 @@ task CalculateGeneMetrics {
     File gene_metrics = "~{input_id}.gene-metrics.csv.gz"
   }
 }
-
 task CalculateUMIsMetrics {
   input {
     File bam_input
