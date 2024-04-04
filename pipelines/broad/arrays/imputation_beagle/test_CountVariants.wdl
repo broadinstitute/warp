@@ -17,6 +17,7 @@ workflow TestCountVariants {
   output {
     File test1 = CountVariantsTest.test1
     File test2 = CountVariantsTest.test2
+    File test3 = CountVariantsTest.test3
   }
 }
 
