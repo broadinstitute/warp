@@ -42,10 +42,10 @@ task CountVariantsTest {
     cat test_0.txt | tail -n 1 > test_1.txt
     echo "test_1:"
     cat test_1.txt
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} > | tail -n 1 > test_2.txt
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} | tail -n 1 > test_2.txt
     echo "test_2:"
     cat test_2.txt
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} 2>&1 > | tail -n 1 > test_3.txt
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} 2>&1 | tail -n 1 > test_3.txt
     echo "test_3:"
     cat test_3.txt
   >>>
