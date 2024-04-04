@@ -38,9 +38,9 @@ task CountVariantsTest {
   command <<<
     set -e -o pipefail
 
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} > test_1.txt
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} 2> test_2.txt
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} 2>&1 > test_3.txt
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} | tail -n 1 > test_1.txt
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} > | tail -n 1 > test_2.txt
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} 2>&1 > | tail -n 1 > test_3.txt
   >>>
   output {
     File test1 = "test_1.txt"
