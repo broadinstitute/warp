@@ -1,16 +1,22 @@
+# 1.3.4
+2024-04-05 (Date of Last Commit)
+
+* Updated the input parameters for STARsolo in STARsoloFastq task 
+
 # 1.3.3
-20240326 (Date of Last Commit)
+2024-03-26 (Date of Last Commit)
 
 * Updated the median umi per cell metric for STARsolo library-level metrics
 
 # 1.3.2
-20240315 (Date of Last Commit)
+2024-03-15 (Date of Last Commit)
 
 * Added cell metrics to the library-level metrics CSV; this does not impact the Single-nucleus Multi Sample Smartseq pipeline
 
 * Updated the docker for the MergeStarOutput task to include STARsolo v2.7.11a and custom scripts to create a uniform matrix file and scripts to collect library-level metrics from STARsolo output
 
 * Modified the MergeStarOutput to call a custom script for creating a uniform matrix file (mtx) from individual shard mtx files and to create a filtered matrix from the uniform matrix with STARsolo
+
 # 1.3.1
 2024-02-28 (Date of Last Commit)
 
