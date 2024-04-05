@@ -292,7 +292,23 @@ task STARsoloFastq {
         ## single cell or whole cell
         COUNTING_MODE="Gene"
         echo "Running in ~{counting_mode} mode. The Star parameter --soloFeatures will be set to $COUNTING_MODE"
-        STAR \
+    elif [[ "~{counting_mode}" == "sn_rna" ]]
+    then
+        ## single nuclei
+        if [[ ~{count_exons} == false ]]
+        then
+            COUNTING_MODE="GeneFull_Ex50pAS"
+            echo "Running in ~{counting_mode} mode. Count_exons is false and the Star parameter --soloFeatures will be set to $COUNTING_MODE"
+        else
+            COUNTING_MODE="GeneFull_Ex50pAS Gene"
+            echo "Running in ~{counting_mode} mode. Count_exons is true and the Star parameter --soloFeatures will be set to $COUNTING_MODE"     
+        fi
+    else
+        echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
+        exit 1;
+    fi
+
+    STAR \
         --soloType Droplet \
         --soloStrand ~{star_strand_mode} \
         --runThreadN ~{cpu} \
@@ -305,66 +321,15 @@ task STARsoloFastq {
         --clipAdapterType CellRanger4 \
         --outFilterScoreMin 30  \
         --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
-        --soloUMIdedup 1MM_Directional_UMItools \
+        --soloUMIdedup 1MM_CR \
+        --soloUMIfiltering MultiGeneUMI_CR \ 
         --outSAMtype BAM SortedByCoordinate \
         --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
         --soloBarcodeReadLength 0 \
         --soloCellReadStats Standard \
         ~{"--soloMultiMappers " + soloMultiMappers}
-    elif [[ "~{counting_mode}" == "sn_rna" ]]
-    then
-        ## single nuclei
-        if [[ ~{count_exons} == false ]]
-        then
-            COUNTING_MODE="GeneFull_Ex50pAS"
-            echo "Running in ~{counting_mode} mode. Count_exons is false and the Star parameter --soloFeatures will be set to $COUNTING_MODE"
-            STAR \
-            --soloType Droplet \
-            --soloStrand ~{star_strand_mode} \
-            --runThreadN ~{cpu} \
-            --genomeDir genome_reference \
-            --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
-            --readFilesCommand "gunzip -c" \
-            --soloCBwhitelist ~{white_list} \
-            --soloUMIlen $UMILen --soloCBlen $CBLen \
-            --soloFeatures $COUNTING_MODE  \
-            --clipAdapterType CellRanger4 \
-            --outFilterScoreMin 30  \
-            --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
-            --soloUMIdedup 1MM_Directional_UMItools \
-            --outSAMtype BAM SortedByCoordinate \
-            --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
-            --soloBarcodeReadLength 0 \
-            --soloCellReadStats Standard \
-            ~{"--soloMultiMappers " + soloMultiMappers}
-        else
-            COUNTING_MODE="GeneFull_Ex50pAS Gene"
-            echo "Running in ~{counting_mode} mode. Count_exons is true and the Star parameter --soloFeatures will be set to $COUNTING_MODE"
-            STAR \
-            --soloType Droplet \
-            --soloStrand ~{star_strand_mode} \
-            --runThreadN ~{cpu} \
-            --genomeDir genome_reference \
-            --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
-            --readFilesCommand "gunzip -c" \
-            --soloCBwhitelist ~{white_list} \
-            --soloUMIlen $UMILen --soloCBlen $CBLen \
-            --soloFeatures $COUNTING_MODE \
-            --clipAdapterType CellRanger4 \
-            --outFilterScoreMin 30  \
-            --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
-            --soloUMIdedup 1MM_Directional_UMItools \
-            --outSAMtype BAM SortedByCoordinate \
-            --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
-            --soloBarcodeReadLength 0 \
-            --soloCellReadStats Standard \
-            ~{"--soloMultiMappers " + soloMultiMappers}
-        fi
-    else
-        echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
-        exit 1;
-    fi
 
+       
     echo "UMI LEN " $UMILen
 
     touch barcodes_sn_rna.tsv
