@@ -3,7 +3,7 @@ version 1.0
 workflow Multiome {
 
     input {
-        Boolean run_cellbender = false
+        Boolean run_cellbender
     }
 
     # Call CellBender
