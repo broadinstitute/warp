@@ -159,7 +159,7 @@ task GenotypeGVCFs {
     Int machine_mem_mb = 26000
     # This is needed for gVCFs generated with GATK3 HaplotypeCaller
     Boolean allow_old_rms_mapping_quality_annotation_data = false
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/test-no-call-fix@sha256:7d5af01fb06244165383170072de550b52d4635a934317969a4980bb3ac6d641"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/test-no-call-fix@sha256:58d60abbbc54f5670ad88147ca369e82c46dd14f63d3ac0d1bec1d5e1db28451"
   }
 
   parameter_meta {
@@ -216,7 +216,7 @@ task GnarlyGenotyper {
     String dbsnp_vcf
     Boolean make_annotation_db = false
 
-    String gatk_docker = "us.gcr.io/broad-dsde-methods/test-no-call-fix@sha256:7d5af01fb06244165383170072de550b52d4635a934317969a4980bb3ac6d641"
+    String gatk_docker = "us.gcr.io/broad-dsde-methods/test-no-call-fix@sha256:58d60abbbc54f5670ad88147ca369e82c46dd14f63d3ac0d1bec1d5e1db28451"
     Int machine_mem_mb = 26000
     Int disk_size_gb = ceil(size(workspace_tar, "GiB") + size(ref_fasta, "GiB") + size(dbsnp_vcf, "GiB") * 3)
   }
