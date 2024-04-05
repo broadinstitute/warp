@@ -1,3 +1,7 @@
+# 3.4.3
+2024-04-05 (Date of Last Commit)
+
+* Updated the input parameters for STARsolo in STARsoloFastq task 
 
 # 3.4.2
 20240403 (Date of Last Commit)
