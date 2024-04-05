@@ -1,11 +1,15 @@
+# 6.6.2
+2024-04-05 (Date of Last Commit)
+
+* Updated the input parameters for STARsolo in STARsoloFastq task 
 
 # 6.6.1
-20240326 (Date of Last Commit)
+2024-03-26 (Date of Last Commit)
 
 * Updated the median umi per cell metric for STARsolo library-level metrics
 
 # 6.6.0
-20240315 (Date of Last Commit)
+2024-03-15 (Date of Last Commit)
 
 * Added cell metrics to the library-level metrics
 
