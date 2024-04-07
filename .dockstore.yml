@@ -311,4 +311,4 @@ workflows:
 
   - name: VUMCVcfIndex
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/Genotype/VUMCVcfIndex.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfIndex.wdl
