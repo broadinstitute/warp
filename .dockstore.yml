@@ -308,3 +308,7 @@ workflows:
   - name: VUMCRegenie
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCRegenie.wdl
+
+  - name: VUMCVcfIndex
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/Genotype/VUMCVcfIndex.wdl
