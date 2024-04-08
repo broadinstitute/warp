@@ -326,9 +326,9 @@ task STARsoloFastq {
         --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
         --soloBarcodeReadLength 0 \
         --soloCellReadStats Standard \
-        --soloUMIfiltering MultiGeneUMI_CR \ 
-        ~{"--soloMultiMappers " + soloMultiMappers}
-
+        ~{"--soloMultiMappers " + soloMultiMappers} \
+        --soloUMIfiltering MultiGeneUMI_CR
+      
     echo "UMI LEN " $UMILen
 
     touch barcodes_sn_rna.tsv
