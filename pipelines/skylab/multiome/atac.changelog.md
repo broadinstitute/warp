@@ -1,14 +1,27 @@
-# 1.2.0
-2024-04-02 (Date of Last Commit)
+# 1.2.3
+2024-04-08 (Date of Last Commit)
 
 *  Updated the PairedTag.wdl to run on Azure. This change does not affect the ATAC pipeline.
 
-# 1.1.9
-2024-03-01 (Date of Last Commit)
+# 1.2.2
+2024-04-02 (Date of Last Commit)
 
 *  Updated the Optimus.wdl to run on Azure. This change does not affect the ATAC pipeline.
 
-* # 1.1.8
+# 1.2.1
+2024-04-03 (Date of Last Commit)
+* Modified adaptor trimming in Paired-tag WDL; this does not impact ATAC
+
+# 1.2.0
+2024-03-15 (Date of Last Commit)
+
+* Added cell metrics to the library-level metrics
+
+* Updated the docker for the MergeStarOutput task to include STARsolo v2.7.11a and custom scripts to create a uniform matrix file and scripts to collect library-level metrics from STARsolo output
+
+* Modified the MergeStarOutput to call a custom script for creating a uniform matrix file (mtx) from individual shard mtx files and to create a filtered matrix from the uniform matrix with STARsolo
+
+# 1.1.8
 2024-02-07 (Date of Last Commit)
 
 * Updated the Metrics tasks to exclude mitochondrial genes from reads_mapped_uniquely, reads_mapped_multiple and reads_mapped_exonic, reads_mapped_exonic_as and reads_mapped_intergenic

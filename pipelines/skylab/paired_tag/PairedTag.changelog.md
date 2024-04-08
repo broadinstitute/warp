@@ -1,12 +1,29 @@
-# 0.3.2
-2024-03-21 (Date of Last Commit)
+# 0.5.2
+2024-04-08 (Date of Last Commit)
 
 * Updated the PairedTag.wdl to run in Azure 
 
-# 0.3.1
-2024-03-02 (Date of Last Commit)
+# 0.5.1
+2024-04-04 (Date of Last Commit)
 
 * Updated the Optimus.wdl to run on Azure. This change does not affect the PairedTag pipeline.
+
+# 0.5.0
+2024-04-03 (Date of Last Commit)
+
+* Modified adaptor trimming to trim last 3 bp (instead of first) in read2 length is 27 bp and preindex is false
+
+# 0.4.1
+2024-03-26 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
+
+# 0.4.0
+2024-03-15 (Date of Last Commit)
+
+* Added cell metrics to the library-level metrics
+* Updated the docker for the MergeStarOutput task to include STARsolo v2.7.11a and custom scripts to create a uniform matrix file and scripts to collect library-level metrics from STARsolo output
+* Modified the MergeStarOutput to call a custom script for creating a uniform matrix file (mtx) from individual shard mtx files and to create a filtered matrix from the uniform matrix with STARsolo
 
 # 0.3.0
 

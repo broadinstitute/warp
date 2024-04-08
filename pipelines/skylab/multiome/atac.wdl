@@ -43,7 +43,8 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "1.2.0"
+  String pipeline_version = "1.2.3"
+
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -55,7 +56,7 @@ workflow ATAC {
   String cutadapt_docker = "cutadapt:1.0.0-4.4-1686752919"
   String samtools_docker = "samtools-dist-bwa:3.0.0"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
-  String snap_atac_docker = "snapatac2:1.0.4-2.3.1"
+  String snap_atac_docker = "snapatac2:1.0.5-2.3.2-1709230223"
 
   # Make sure either 'gcp' or 'azure' is supplied as cloud_provider input. If not, raise an error
   if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
@@ -64,6 +65,7 @@ workflow ATAC {
             message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
     }
   }
+
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
@@ -115,7 +117,8 @@ workflow ATAC {
         nthreads = num_threads_bwa, 
         mem_size = mem_size_bwa,
         cpu_platform = cpu_platform_bwa,
-        docker_path = docker_prefix + samtools_docker
+        docker_path = docker_prefix + samtools_docker,
+        cloud_provider = cloud_provider
   }
 
   if (preindex) {
@@ -319,6 +322,7 @@ task BWAPairedEndAlignment {
     String suffix = "trimmed_adapters.fastq.gz"
     String output_base_name
     String docker_path
+    String cloud_provider
 
     # Runtime attributes
     Int disk_size = 2000
@@ -338,6 +342,7 @@ task BWAPairedEndAlignment {
     disk_size : "disk size used in bwa alignment step"
     output_base_name: "basename to be used for the output of the task"
     docker_path: "The docker image path containing the runtime environment for this task"
+    cloud_provider: "The cloud provider for the pipeline."
   }
 
   String bam_aligned_output_name = output_base_name + ".bam"
@@ -436,13 +441,29 @@ task BWAPairedEndAlignment {
     # rename file to this
     mv final.sorted.bam ~{bam_aligned_output_name}
         
+    echo "the present working dir"
+    pwd
+
     # save output logs for bwa-mem2
     mkdir output_logs
-    mv *txt output_logs
-    tar -zcvf /cromwell_root/output_distbwa_log.tar.gz output_logs  
-    
-    # move bam file to /cromwell_root
-    mv ~{bam_aligned_output_name} /cromwell_root
+    mv *.txt output_logs
+
+    if [ "~{cloud_provider}" == "gcp" ]; then
+        tar -zcvf output_distbwa_log.tar.gz output_logs
+        mv output_distbwa_log.tar.gz ../
+    else
+        tar -zcvf output_distbwa_log.tar.gz output_logs
+        mv output_distbwa_log.tar.gz ../
+    fi
+
+    # move bam file to the root of cromwell
+    # if the cloud provider is azure, move the file to /cromwell-executions
+    # if the cloud provider is gcp, move the file to /cromwell_root
+    if [ "~{cloud_provider}" == "gcp" ]; then
+      mv ~{bam_aligned_output_name} ../
+    else
+      mv ~{bam_aligned_output_name} ../
+    fi
   >>>
 
   runtime {

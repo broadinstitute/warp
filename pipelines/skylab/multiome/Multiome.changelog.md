@@ -1,12 +1,30 @@
-# 3.3.2
-2024-04-02 (Date of Last Commit)
+# 3.4.3
+2024-04-08 (Date of Last Commit)
 
 * Updated the PairedTag.wdl to run on Azure. This change does not affect the Multiome pipeline.
 
-# 3.3.1
-2024-03-01 (Date of Last Commit)
+# 3.4.2
+2024-04-01 (Date of Last Commit)
 
 * Updated the Optimus.wdl to run on Azure. This change does not affect the Multiome pipeline.
+
+# 3.4.2
+20240403 (Date of Last Commit)
+* Modified adaptor trimming in Paired-tag WDL; this does not impact Multiome
+
+# 3.4.1
+20240326 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
+
+# 3.4.0 
+20240315 (Date of Last Commit)
+
+* Added cell metrics to the library-level metrics
+
+* Updated the docker for the MergeStarOutput task to include STARsolo v2.7.11a and custom scripts to create a uniform matrix file and scripts to collect library-level metrics from STARsolo output
+
+* Modified the MergeStarOutput to call a custom script for creating a uniform matrix file (mtx) from individual shard mtx files and to create a filtered matrix from the uniform matrix with STARsolo
 
 # 3.3.0
 2024-02-28 (Date of Last Commit)

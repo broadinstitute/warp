@@ -119,10 +119,10 @@ task checkOptimusInput {
       then
       if [[ "~{cloud_provider}" == "gcp" ]]
       then
-        WHITELIST=~{gcp_whitelist_v2}
+        WHITELIST="~{gcp_whitelist_v2}"
       elif [[ "~{cloud_provider}" == "azure" ]]
       then
-        WHITELIST=~{azure_whitelist_v2}
+        WHITELIST="~{azure_whitelist_v2}"
       else
         pass="false"
         echo "ERROR: Cloud provider must be either gcp or azure"
@@ -134,10 +134,10 @@ task checkOptimusInput {
       then
       if [[ "~{cloud_provider}" == "gcp" ]]
       then
-        WHITELIST=~{gcp_whitelist_v3}
+        WHITELIST="~{gcp_whitelist_v3}"
       elif [[ "~{cloud_provider}" == "azure" ]]
       then
-        WHITELIST=~{azure_whitelist_v3}
+        WHITELIST="~{azure_whitelist_v3}"
       else
         pass="false"
         echo "ERROR: Cloud provider must be either gcp or azure"
