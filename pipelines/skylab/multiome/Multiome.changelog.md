@@ -3,6 +3,10 @@
 
 * Updated the Optimus.wdl to run on Azure. This change does not affect the Multiome pipeline.
 
+# 3.4.2
+20240403 (Date of Last Commit)
+* Modified adaptor trimming in Paired-tag WDL; this does not impact Multiome
+
 # 3.4.1
 20240326 (Date of Last Commit)
 

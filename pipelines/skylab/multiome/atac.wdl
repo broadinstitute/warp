@@ -43,7 +43,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "1.2.1"
+  String pipeline_version = "1.2.2"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -64,6 +64,7 @@ workflow ATAC {
             message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
     }
   }
+
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"

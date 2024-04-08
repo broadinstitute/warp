@@ -1,7 +1,11 @@
-# 1.2.1
+# 1.2.2
 2024-04-02 (Date of Last Commit)
 
 *  Updated the Optimus.wdl to run on Azure. This change does not affect the ATAC pipeline.
+
+# 1.2.1
+2024-04-03 (Date of Last Commit)
+* Modified adaptor trimming in Paired-tag WDL; this does not impact ATAC
 
 # 1.2.0
 2024-03-15 (Date of Last Commit)
