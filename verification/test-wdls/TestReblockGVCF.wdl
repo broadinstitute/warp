@@ -45,7 +45,8 @@ workflow TestReblockGVCF {
         annotations_to_keep_command = annotations_to_keep_command,
         annotations_to_remove_command = annotations_to_remove_command,
         move_filters_to_genotypes = move_filters_to_genotypes,
-        gvcf_file_extension = gvcf_file_extension
+        gvcf_file_extension = gvcf_file_extension,
+        cloud_provider = "gcp"
     }
 
     
