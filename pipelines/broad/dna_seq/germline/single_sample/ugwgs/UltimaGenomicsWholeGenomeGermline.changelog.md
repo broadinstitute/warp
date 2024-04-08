@@ -1,3 +1,8 @@
+# 1.0.17
+2024-04-08 (Date of Last Commit)
+
+* Changed ReblockGVCFs.wdl to be multicloud.
+
 # 1.0.16
 2024-03-26 (Date of Last Commit)
 
