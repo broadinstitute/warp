@@ -622,7 +622,7 @@ task ValidateVCF {
     Int preemptible_tries = 3
     Boolean is_gvcf = true
     String? extra_args
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    String docker_path
     Int machine_mem_mb = 7000
   }
 
@@ -657,7 +657,7 @@ task ValidateVCF {
       ~{extra_args}
   }
   runtime {
-    docker: gatk_docker
+    docker: docker_path
     preemptible: preemptible_tries
     memory: machine_mem_mb + " MiB"
     bootDiskSizeGb: 15

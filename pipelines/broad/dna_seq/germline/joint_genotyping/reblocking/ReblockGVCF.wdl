@@ -49,7 +49,8 @@ workflow ReblockGVCF {
       annotations_to_keep_command = annotations_to_keep_command,
       annotations_to_remove_command = annotations_to_remove_command,
       move_filters_to_genotypes = move_filters_to_genotypes,
-      output_vcf_filename = gvcf_basename + ".rb.g.vcf.gz"
+      output_vcf_filename = gvcf_basename + ".rb.g.vcf.gz",
+      docker_path = gatk_docker
   }
 
     # Validate the (g)VCF output of HaplotypeCaller
@@ -65,7 +66,7 @@ workflow ReblockGVCF {
         calling_intervals_defined = defined(calling_interval_list),
         is_gvcf = true,
         extra_args = "--no-overlaps",
-        gatk_docker = gatk_docker
+        docker_path = gatk_docker
     }
 
   output {
