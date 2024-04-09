@@ -38,11 +38,12 @@ task VcfIndex {
     
     String docker = "shengqh/hail_gcp:20240213"
 
+    Float disk_factor = 1.2
     Int preemptible = 1
-    Int cpu = 8
+    Int cpu = 1
   }
 
-  Int disk_size = ceil(size(input_vcf, "GB")) + 10
+  Int disk_size = ceil(size(input_vcf, "GB") * disk_factor) + 10
   Int memory_gb = 2 * cpu
 
   String target_vcf_index = basename(input_vcf) + ".tbi"
