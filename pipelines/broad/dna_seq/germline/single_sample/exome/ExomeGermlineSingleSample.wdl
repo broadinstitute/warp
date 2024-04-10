@@ -40,6 +40,7 @@ import "../../../../../../tasks/broad/BamProcessing.wdl" as Processing
 import "../../../../../../tasks/broad/BamToCram.wdl" as ToCram
 import "../../../../../../pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
 import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
+import "../../../../../../tasks/broad/Utilities.wdl" as utils
 
 # WORKFLOW DEFINITION
 workflow ExomeGermlineSingleSample {
@@ -62,6 +63,21 @@ workflow ExomeGermlineSingleSample {
 
     Boolean skip_reblocking = false
     Boolean provide_bam_output = false
+
+    String cloud_provider
+  }
+
+  # docker images
+  String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+  String gatk_docker_azure = "dsppipelinedev.azurecr.io/gatk_reduced_layers:latest"
+  String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
+
+  # make sure either gcp or azr is supplied as cloud_provider input
+  if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+    call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+      input:
+        message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+    }
   }
 
   # Not overridable:
@@ -141,7 +157,8 @@ workflow ExomeGermlineSingleSample {
       base_file_name = sample_and_unmapped_bams.base_file_name,
       final_vcf_base_name = final_gvcf_base_name,
       agg_preemptible_tries = papi_settings.agg_preemptible_tries,
-      skip_reblocking = skip_reblocking
+      skip_reblocking = skip_reblocking,
+      cloud_provider = cloud_provider
   }
 
   call QC.CollectHsMetrics as CollectHsMetrics {

@@ -32,6 +32,8 @@ workflow ExomeReprocessing {
     File target_interval_list
     File bait_interval_list
     String bait_set_name
+
+    String cloud_provider
   }
 
   call ToUbams.CramToUnmappedBams {
@@ -64,6 +66,7 @@ workflow ExomeReprocessing {
       target_interval_list = target_interval_list,
       bait_interval_list = bait_interval_list,
       bait_set_name = bait_set_name,
+      cloud_provider = cloud_provider
   }
 
   output {

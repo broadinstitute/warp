@@ -33,6 +33,8 @@ workflow ExternalWholeGenomeReprocessing {
     String destination_cloud_path
     String vault_token_path
     String google_account_vault_path
+
+    String cloud_provider
   }
 
   call WholeGenomeReprocessing.WholeGenomeReprocessing {
@@ -51,7 +53,8 @@ workflow ExternalWholeGenomeReprocessing {
     fingerprint_genotypes_index = fingerprint_genotypes_index,
     papi_settings = papi_settings,
     wgs_coverage_interval_list = wgs_coverage_interval_list,
-    scatter_settings = scatter_settings
+    scatter_settings = scatter_settings,
+    cloud_provider = cloud_provider
   }
 
   call Copy.CopyFilesFromCloudToCloud {

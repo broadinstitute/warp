@@ -36,6 +36,20 @@ workflow VariantCalling {
     Boolean use_gatk3_haplotype_caller = false
     Boolean skip_reblocking = false
     Boolean use_dragen_hard_filtering = false
+    String cloud_provider
+  }
+
+  # docker images
+  String gatk_docker_gcp = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+  String gatk_docker_azure = "dsppipelinedev.azurecr.io/gatk_reduced_layers:latest"
+  String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
+
+  # make sure either gcp or azr is supplied as cloud_provider input
+  if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+    call Utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+      input:
+        message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+    }
   }
 
   parameter_meta {
@@ -158,7 +172,8 @@ workflow VariantCalling {
         ref_fasta = ref_fasta,
         ref_fasta_index = ref_fasta_index,
         ref_dict = ref_dict,
-        output_vcf_filename = basename(MergeVCFs.output_vcf, ".g.vcf.gz") + ".rb.g.vcf.gz"
+        output_vcf_filename = basename(MergeVCFs.output_vcf, ".g.vcf.gz") + ".rb.g.vcf.gz",
+        docker_path = gatk_docker
     }
   }
 
@@ -183,7 +198,7 @@ workflow VariantCalling {
       calling_interval_list = calling_interval_list,
       is_gvcf = make_gvcf,
       extra_args = if (skip_reblocking == false) then "--no-overlaps" else "",
-      gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0",
+      docker_path = gatk_docker,
       preemptible_tries = agg_preemptible_tries
   }
 
