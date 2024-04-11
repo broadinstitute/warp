@@ -203,7 +203,7 @@ task Reblock {
     File ref_fasta
     File ref_fasta_index
     String output_vcf_filename
-    String docker_image = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    String docker_path
     Int additional_disk = 20
     String? annotations_to_keep_command
     String? annotations_to_remove_command
@@ -240,7 +240,7 @@ task Reblock {
     disks: "local-disk " + disk_size + " HDD"
     bootDiskSizeGb: 15
     preemptible: 3
-    docker: docker_image
+    docker: docker_path
   }
 
   output {
