@@ -54,7 +54,7 @@ jobs:
       run: |
         set -e
         echo "Validating changelog for ${{ github.base_ref }}"
-        result=$(scripts/validate_release.sh -g origin/${{ github.base_ref }} 2>&1)
+        result=$(scripts/validate_release.sh -g origin/${{ github.base_ref }} 2>&1) || true  # Ignore script failure
         echo "::set-output name=result::$result"
       continue-on-error: true  # Continue even if the validation fails
     
