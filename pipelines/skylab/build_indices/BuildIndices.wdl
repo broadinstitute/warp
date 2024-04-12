@@ -16,7 +16,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "3.0.1"
+  String pipeline_version = "3.0.0"
 
 
   parameter_meta {
@@ -65,7 +65,6 @@ task CalculateChromosomeSizes {
   command <<<
     samtools faidx ~{genome_fa}
     cut -f1,2 "~{genome_fa}.fai" > chrom.sizes
-    echo "Hello, World!" > hello.txt
   >>>
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/samtools:1.0.0-1.11-1624651616"
