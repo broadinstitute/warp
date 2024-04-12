@@ -54,7 +54,7 @@ jobs:
       run: |
         set -e
         echo "Validating changelog for ${{ github.base_ref }}"
-        result=$(scripts/validate_release.sh -g origin/${{ github.base_ref }} 2>&1) || true  # Ignore script failure
+        result=$(scripts/validate_release.sh -g origin/${{ github.base_ref }} 2>&1) || echo "validation_failed")  # don't exit on script failure
         # Escape newlines, carriage returns, and percent signs
         escaped_result=$(echo "$result" | sed ':a;N;$!ba;s/\r/\\r/g;s/\n/\\n/g;s/%/%%/g')
         echo "result=$escaped_result" >> $GITHUB_OUTPUT
@@ -78,5 +78,8 @@ jobs:
           } catch (error) {
             console.error('Failed to post comment:', error);
           }
+    - name: Fail if validation failed
+      if: contains(steps.validate_script.outputs.result, 'validation_failed')
+      run: exit 1
       
       
