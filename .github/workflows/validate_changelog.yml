@@ -39,20 +39,21 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v3
-    - name: Check working directory'
+      with:
+        fetch-depth: 0 # Fetch all history for all tags and branches
+    - name: Check working directory
       run: |
         echo "Current directory: "
         pwd
         ls -lht
-    - name: Validate changelog
+    - name: Set up Git
+      run: |
+        git fetch --all
+    - name: Validate changelogs
       run: |
         set -e
-        #!/bin/bash
-        # if [[ ${{github.base_ref}} != origin* ]]; then
-        #     ghprbTargetBranch="origin/${{github.base_ref}}"
-        # fi
-        echo "Validating changelog for ${{github.base_ref}}"
-        scripts/validate_release.sh -g origin/${{github.base_ref}} 
+        echo "Validating changelog for ${{ github.base_ref }}"
+        scripts/validate_release.sh -g origin/${{ github.base_ref }} 
 
   
   
