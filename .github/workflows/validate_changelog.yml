@@ -61,17 +61,22 @@ jobs:
 
     - name: Post validation results as a comment
       if: always()  # This ensures it runs regardless of previous step success/failure
-      uses: actions/github-script@v4
+      uses: actions/github-script@v7
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const output = "${{ steps.validate_script.outputs.result }}".replace(/\\n/g, '\n').replace(/\\r/g, '\r');
-          const issue_number = context.payload.pull_request.number;
-          const message = `### Validation Results:\n\`\`\`\n${output}\n\`\`\``;
-          github.rest.issues.createComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: issue_number,
-            body: message
-          });
+          try {
+            const output = "${{ steps.validate_script.outputs.result }}".replace(/\\n/g, '\n').replace(/\\r/g, '\r');
+            const issue_number = context.payload.pull_request.number;
+            const message = `### Validation Results:\n\`\`\`\n${output}\n\`\`\``;
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue_number,
+              body: message
+            });
+          } catch (error) {
+            console.error('Failed to post comment:', error);
+          }
+      
       
