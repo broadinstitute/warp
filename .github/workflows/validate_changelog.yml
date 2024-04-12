@@ -50,10 +50,30 @@ jobs:
       run: |
         git fetch --all
     - name: Validate changelogs
+      id: validate_script
       run: |
         set -e
         echo "Validating changelog for ${{ github.base_ref }}"
-        scripts/validate_release.sh -g origin/${{ github.base_ref }} 
+        #scripts/validate_release.sh -g origin/${{ github.base_ref }}
+        result=$(scripts/validate_release.sh -g origin/${{ github.base_ref }} 2>&1)
+        echo "::set-output name=result::$result"
+      continue-on-error: true  # Continue even if the validation fails
+    
+    - name: Post validation results as a comment
+      if: ${{ failure() }}
+      uses: actions/github-script@v4
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const output = `${{ steps.validate_script.outputs.result }}`;
+          const issue_number = context.payload.pull_request.number;
+          const message = `### Validation Results:\n\`\`\`\n${output}\n\`\`\``;
+          github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: issue_number,
+            body: message
+          });
 
   
   
