@@ -2,7 +2,7 @@ version 1.0
 
 import "../verification/VerifyTasks.wdl" as VerifyTasks
 
-workflow VerifysnM3C {
+workflow Verifysnm3C {
 
     input {
         File test_mapping_summary

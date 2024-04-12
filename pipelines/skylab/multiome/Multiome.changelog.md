@@ -1,4 +1,13 @@
 
+# 3.4.2
+20240403 (Date of Last Commit)
+* Modified adaptor trimming in Paired-tag WDL; this does not impact Multiome
+
+# 3.4.1
+20240326 (Date of Last Commit)
+
+* Updated the median umi per cell metric for STARsolo library-level metrics
+
 # 3.4.0 
 20240315 (Date of Last Commit)
 

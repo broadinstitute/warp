@@ -195,11 +195,11 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "SmartSeq2SingleSample",
         "/skylab/smartseq2_single_sample"
       )
-  case object snM3C
+  case object snm3C
       extends PipelineTestType(
-        "TestsnM3C",
-        "snM3C",
-        "/skylab/snM3C/"
+        "Testsnm3C",
+        "snm3C",
+        "/skylab/snm3C/"
       )
   // CEMBA Pipelines
   //case object CEMBA
