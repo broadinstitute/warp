@@ -1,0 +1,59 @@
+
+name: WARP Validate Changelog
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "develop" and "master" branch
+  # Uncomment this block and add your branch name to test without creating a PR
+  #push:
+    #branches: [ "kp_github_actions_pd-2113" ] 
+    #paths-ignore:
+    #  - '**/README.md'
+  pull_request:
+    branches: [ "develop", "master" ]
+    # paths:
+    #   - 'tools/**'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    # inputs:
+    #   image_tag:
+    #     description: 'Docker Image Tag (default: branch_name)' 
+env:
+  PROJECT_NAME: WARP
+  # Github repo name
+  REPOSITORY_NAME: ${{ github.event.repository.name }}
+
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # The job that builds our container
+  validate-changelog:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    # defaults:
+    #   run:
+    #     working-directory: tools
+    # Map a step output to a job output
+    # outputs:
+    #   imagePath: ${{ steps.saveImagePath.outputs.url }}
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v3
+    - name: Check working directory'
+      run: |
+        echo "Current directory: "
+        pwd
+        ls -lht
+    - name: Validate changelog
+      run: |
+        echo "Validating changelog"
+        #!/bin/bash
+        if [[ ${{github.base_ref}} != origin* ]]; then
+            ghprbTargetBranch="origin/${{github.base_ref}}"
+        fi
+        echo "Validating changelog for ${{github.base_ref}}"
+        scripts/validate_release.sh -g ${{github.base_ref}} 
+
+  
+  
+  
