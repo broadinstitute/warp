@@ -55,7 +55,9 @@ jobs:
         set -e
         echo "Validating changelog for ${{ github.base_ref }}"
         result=$(scripts/validate_release.sh -g origin/${{ github.base_ref }} 2>&1) || true  # Ignore script failure
-        echo "result=$result" >> $GITHUB_OUTPUT
+        # Escape newlines, carriage returns, and percent signs
+        escaped_result=$(echo "$result" | sed ':a;N;$!ba;s/\r/\\r/g;s/\n/\\n/g;s/%/%%/g')
+        echo "result=$escaped_result" >> $GITHUB_OUTPUT
 
     - name: Post validation results as a comment
       if: always()  # This ensures it runs regardless of previous step success/failure
@@ -63,7 +65,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const output = "${{ steps.validate_script.outputs.result }}";
+          const output = "${{ steps.validate_script.outputs.result }}".replace(/\\n/g, '\n').replace(/\\r/g, '\r');
           const issue_number = context.payload.pull_request.number;
           const message = `### Validation Results:\n\`\`\`\n${output}\n\`\`\``;
           github.rest.issues.createComment({
@@ -72,3 +74,4 @@ jobs:
             issue_number: issue_number,
             body: message
           });
+      
