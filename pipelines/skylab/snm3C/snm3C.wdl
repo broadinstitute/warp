@@ -9,11 +9,11 @@ workflow snm3C {
         Array[File] fastq_input_read2
         File random_primer_indexes
         String plate_id
+        String cloud_provider
         # mapping inputs
         File tarred_index_files
         File genome_fa
         File chromosome_sizes
-        String cloud_provider
 
         String r1_adapter = "AGATCGGAAGAGCACACGTCTGAAC"
         String r2_adapter = "AGATCGGAAGAGCGTCGTGTAGGGA"
@@ -50,7 +50,6 @@ workflow snm3C {
             fastq_input_read2 = fastq_input_read2,
             random_primer_indexes = random_primer_indexes,
             plate_id = plate_id,
-            docker = docker_prefix + snm3C_docker_image,
             batch_number = batch_number
     }
 
@@ -135,7 +134,7 @@ task Demultiplexing {
     File random_primer_indexes
     String plate_id
     Int batch_number
-    String docker
+    String docker = docker_prefix + snm3C_docker_image
 
     Int disk_size = 1000
     Int mem_size = 10
@@ -245,7 +244,7 @@ task Hisat_paired_end {
         File genome_fa
         File chromosome_sizes
         String plate_id
-        String docker
+        String docker = docker_prefix + snm3C_docker_image
 
         String r1_adapter
         String r2_adapter
