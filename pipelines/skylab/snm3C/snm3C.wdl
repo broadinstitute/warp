@@ -28,11 +28,10 @@ workflow snm3C {
         Int batch_number
     }
     # Determine docker prefix based on cloud provider
-    String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
-    String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
-    String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
+    String gcr_docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.4"
+    String acr_docker = "dsppipelinedev.azurecr.io/m3c-yap-hisat:2.4"
+    String snm3c_docker = if cloud_provider == "gcp" then gcr_docker else acr_docker
 
-    String snm3C_docker_image = "m3c-yap-hisat:2.4"
     # make sure either gcp or azr is supplied as cloud_provider input
     if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
         call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
@@ -51,7 +50,7 @@ workflow snm3C {
             random_primer_indexes = random_primer_indexes,
             plate_id = plate_id,
             batch_number = batch_number,
-            docker = docker_prefix + snm3C_docker_image
+            docker = snm3c_docker
 
     }
 
@@ -70,7 +69,7 @@ workflow snm3C {
                 r2_left_cut = r2_left_cut,
                 r2_right_cut = r2_right_cut,
                 plate_id = plate_id,
-                docker = docker_prefix + snm3C_docker_image
+                docker = snm3c_docker
         }
 
         call Hisat_single_end as Hisat_single_end {
@@ -79,7 +78,7 @@ workflow snm3C {
                 tarred_index_files = tarred_index_files,
                 genome_fa = genome_fa,
                 plate_id = plate_id,
-                docker = docker_prefix + snm3C_docker_image
+                docker = snm3c_docker
         }
 
         call Merge_sort_analyze as Merge_sort_analyze {
@@ -92,7 +91,7 @@ workflow snm3C {
                compress_level = compress_level,
                chromosome_sizes = chromosome_sizes,
                plate_id = plate_id,
-               docker = docker_prefix + snm3C_docker_image
+               docker = snm3c_docker
         }
     }
 
@@ -107,7 +106,7 @@ workflow snm3C {
             allc_uniq_reads_stats = Merge_sort_analyze.allc_uniq_reads_stats,
             unique_reads_cgn_extraction_tbi = Merge_sort_analyze.extract_allc_output_tbi_tar,
             plate_id = plate_id,
-            docker = docker_prefix + snm3C_docker_image
+            docker = snm3c_docker
     }
 
     meta {
