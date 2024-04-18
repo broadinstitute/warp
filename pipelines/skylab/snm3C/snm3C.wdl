@@ -1,4 +1,6 @@
 version 1.0
+import "../../../tasks/broad/Utilities.wdl" as utils
+
 
 workflow snm3C {
 
@@ -31,7 +33,13 @@ workflow snm3C {
     String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
     String snm3C_docker_image = "m3c-yap-hisat:2.4"
-
+    # make sure either gcp or azr is supplied as cloud_provider input
+    if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+        call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+        input:
+            message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+        }
+    }
 
     # version of the pipeline
     String pipeline_version = "4.0.1"
