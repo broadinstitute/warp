@@ -50,7 +50,9 @@ workflow snm3C {
             fastq_input_read2 = fastq_input_read2,
             random_primer_indexes = random_primer_indexes,
             plate_id = plate_id,
-            batch_number = batch_number
+            batch_number = batch_number,
+            docker = docker_prefix + snm3C_docker_image
+
     }
 
     scatter(tar in Demultiplexing.tarred_demultiplexed_fastqs) {
@@ -134,7 +136,7 @@ task Demultiplexing {
     File random_primer_indexes
     String plate_id
     Int batch_number
-    String docker = docker_prefix + snm3C_docker_image
+    String docker
 
     Int disk_size = 1000
     Int mem_size = 10
@@ -244,7 +246,7 @@ task Hisat_paired_end {
         File genome_fa
         File chromosome_sizes
         String plate_id
-        String docker = docker_prefix + snm3C_docker_image
+        String docker
 
         String r1_adapter
         String r2_adapter
