@@ -13,7 +13,7 @@
   ],
   "snm3C.random_primer_indexes": "gs://broad-gotc-test-storage/snM3C/inputs/plumbing/random_index_M16_G13.fa",
   "snm3C.plate_id": "230419-iN-hs-snm3C_seq-NovaSeq-pe-150-BW-iN230412_Entorhinal_Cortex_Adult_2115_R1_1-1-I3",
-  "snm3C.tarred_index_files":"gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38_index_files.tar.gz",
+  "snm3C.tarred_index_files":"gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38_index_files_modified.tar.gz",
   "snm3C.chromosome_sizes": "gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38.chrom.sizes",
   "snm3C.genome_fa": "gs://broad-gotc-test-storage/methylome/input/plumbing/index_files/hg38.fa",
   "snm3C.batch_number": 2,
