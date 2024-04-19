@@ -30,7 +30,7 @@ workflow snm3C {
     #docker images
     String m3c_yap_hisat_docker = "m3c-yap-hisat:2.4"
     # Determine docker prefix based on cloud provider
-    String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.4"
+    String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
     String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
     String snm3c_docker = if cloud_provider == "gcp" then gcr_docker else acr_docker
 
