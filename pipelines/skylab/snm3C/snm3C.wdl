@@ -80,7 +80,7 @@ workflow snm3C {
                 tarred_index_files = tarred_index_files,
                 genome_fa = genome_fa,
                 plate_id = plate_id,
-                docker = snm3c_docker + m3c_yap_hisat_docker
+                docker = docker_prefix + m3c_yap_hisat_docker
         }
 
         call Merge_sort_analyze as Merge_sort_analyze {
