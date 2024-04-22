@@ -1,4 +1,6 @@
 version 1.0
+import "../../../tasks/broad/Utilities.wdl" as utils
+
 
 workflow snm3C {
 
@@ -7,6 +9,7 @@ workflow snm3C {
         Array[File] fastq_input_read2
         File random_primer_indexes
         String plate_id
+        String cloud_provider
         # mapping inputs
         File tarred_index_files
         File genome_fa
@@ -23,11 +26,24 @@ workflow snm3C {
         Int num_downstr_bases = 2
         Int compress_level = 5
         Int batch_number
-        String docker = "us.gcr.io/broad-gotc-prod/m3c-yap-hisat:2.4"
+    }
+    #docker images
+    String m3c_yap_hisat_docker = "m3c-yap-hisat:2.4"
+    # Determine docker prefix based on cloud provider
+    String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
+    String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
+    String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
+
+    # make sure either gcp or azr is supplied as cloud_provider input
+    if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
+        call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
+        input:
+            message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
+        }
     }
 
     # version of the pipeline
-    String pipeline_version = "4.0.0"
+    String pipeline_version = "4.0.1"
 
     call Demultiplexing {
         input:
@@ -35,8 +51,9 @@ workflow snm3C {
             fastq_input_read2 = fastq_input_read2,
             random_primer_indexes = random_primer_indexes,
             plate_id = plate_id,
-            docker = docker,
-            batch_number = batch_number
+            batch_number = batch_number,
+            docker = docker_prefix + m3c_yap_hisat_docker
+
     }
 
     scatter(tar in Demultiplexing.tarred_demultiplexed_fastqs) {
@@ -54,7 +71,7 @@ workflow snm3C {
                 r2_left_cut = r2_left_cut,
                 r2_right_cut = r2_right_cut,
                 plate_id = plate_id,
-                docker = docker
+                docker = docker_prefix + m3c_yap_hisat_docker
         }
 
         call Hisat_single_end as Hisat_single_end {
@@ -63,7 +80,7 @@ workflow snm3C {
                 tarred_index_files = tarred_index_files,
                 genome_fa = genome_fa,
                 plate_id = plate_id,
-                docker = docker
+                docker = docker_prefix + m3c_yap_hisat_docker
         }
 
         call Merge_sort_analyze as Merge_sort_analyze {
@@ -76,7 +93,7 @@ workflow snm3C {
                compress_level = compress_level,
                chromosome_sizes = chromosome_sizes,
                plate_id = plate_id,
-               docker = docker
+               docker = docker_prefix + m3c_yap_hisat_docker
         }
     }
 
@@ -91,7 +108,7 @@ workflow snm3C {
             allc_uniq_reads_stats = Merge_sort_analyze.allc_uniq_reads_stats,
             unique_reads_cgn_extraction_tbi = Merge_sort_analyze.extract_allc_output_tbi_tar,
             plate_id = plate_id,
-            docker = docker
+            docker = docker_prefix + m3c_yap_hisat_docker
     }
 
     meta {

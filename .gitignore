@@ -13,3 +13,6 @@
 # python virtual environments
 venv/
 .flake8
+
+# Metals server logs and other files (for Scala)
+.metals
