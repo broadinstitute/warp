@@ -67,7 +67,7 @@ workflow ImputationBeaglePreChunk {
                 vcf_index = multi_sample_vcf_index
         }
 
-        scatter (i in range(PreChunkVcf.generate_chunk_vcfs)) {
+        scatter (i in range(length(PreChunkVcf.generate_chunk_vcfs))) {
             String chunk_contig = referencePanelContig.contig
             String chunk_basename = referencePanelContig.contig + "_chunk_" + i
 
