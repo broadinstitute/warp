@@ -3,7 +3,7 @@ version 1.0
 import "../../../../tasks/broad/ImputationTasks.wdl" as tasks
 import "../../../../tasks/broad/Utilities.wdl" as utils
 
-workflow ImputationBeagle {
+workflow ImputationBeaglePreChunk {
 
     String pipeline_version = "0.0.1"
 
