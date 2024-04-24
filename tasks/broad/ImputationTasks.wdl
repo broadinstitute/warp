@@ -1052,3 +1052,103 @@ task SplitMultiSampleVcf {
     Array[File] single_sample_vcf_indices = glob("out_dir/*.vcf.gz.tbi")
   }
 }
+
+
+task PreChunkVcf {
+  input {
+    Int chromosome_length
+    Int chunk_length
+    Int chunk_overlap
+    String chrom
+    File vcf
+    File vcf_index
+    Boolean exclude_filtered = false
+
+    Int disk_size_gb = ceil(4*size(vcf, "GiB")) + 50
+    Int cpu = 1
+    Int memory_mb = 8000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+  }
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
+  command {
+    set -e -o pipefail
+
+    mkdir generate_chunk
+    mkdir subset_vcf
+
+    CHROM_LENGTH=~{chromosome_length}
+    CHUNK_LENGTH=~{chunk_length}
+    CHUNK_OVERLAPS=~{chunk_overlap}
+    i=0
+    LOOP_DRIVER=$(( $i * $CHUNK_LENGTH + 1 ))
+
+    while [ $LOOP_DRIVER -lt $CHROM_LENGTH ]
+    do
+    START=$(( $i * $CHUNK_LENGTH + 1 ))
+    START_OVERLAP_CHECK=$(($START - $CHUNK_OVERLAPS))
+    if [ $START_OVERLAP_CHECK -lt 1 ]; then
+    START_WITH_OVERLAPS=$START
+    else
+    START_WITH_OVERLAPS=$(($START - $CHUNK_OVERLAPS))
+    fi
+    echo "START: $START"
+    echo "START WITH OVERLAPS: $START_WITH_OVERLAPS"
+
+    END_CHECK=$(( ($i + 1) * $CHUNK_LENGTH ))
+    if [ $END_CHECK -gt $CHROM_LENGTH ]; then
+    END=$CHROM_LENGTH
+    else
+    END=$(( ($i + 1) * $CHUNK_LENGTH ))
+    fi
+
+    END_OVERLAP_CHECK=$(( $END + $CHUNK_OVERLAPS ))
+    if [ $END_OVERLAP_CHECK -gt $CHROM_LENGTH ]; then
+    END_WITH_OVERLAPS=$CHROM_LENGTH
+    else
+    END_WITH_OVERLAPS=$(( $END + $CHUNK_OVERLAPS ))
+    fi
+    echo "END: $END"
+    echo "END WITH OVERLAPS: $END_WITH_OVERLAPS"
+
+    CHUNK=$(printf "%03d" 10)
+    echo "CHUNK: $CHUNK"
+
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    SelectVariants \
+    -V ~{vcf} \
+    --select-type-to-include SNP \
+    --max-nocall-fraction 0.1 \
+    -xl-select-type SYMBOLIC \
+    --select-type-to-exclude MIXED \
+    --restrict-alleles-to BIALLELIC \
+    -L ~{chrom}:$START_WITH_OVERLAPS-$END_WITH_OVERLAPS \
+    -O generate_chunk/~{chrom}_chunk_$CHUNK.vcf.gz \
+    --exclude-filtered true
+
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    SelectVariants \
+    -V ~{vcf} \
+    -L ~{chrom}:$START-$END \
+    -select 'POS >= $START' ~{if exclude_filtered then "--exclude-filtered" else ""} \
+    -O subset_vcf/~{chrom}_chunk_$CHUNK.vcf.gz
+
+
+    i=$(($i + 1))
+    LOOP_DRIVER=$(( $i * $CHUNK_LENGTH + 1 ))
+    done
+  }
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+  }
+  output {
+    Array[File] generate_chunk_vcfs = glob("generate_chunk/*.vcf.gz")
+    Array[File] generate_chunk_vcf_indices = glob("generate_chunk/*.vcf.gz.tbi")
+    Array[File] subset_vcfs = glob("subset_vcf/*.vcf.gz")
+    Array[File] subset_vcf_indices = glob("subset_vcf/*.vcf.gz.tbi")
+  }
+}
