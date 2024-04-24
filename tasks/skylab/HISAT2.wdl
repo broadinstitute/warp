@@ -43,6 +43,8 @@ task HISAT2PairedEnd {
 
     set -e
 
+    echo "Hello World! This is a test."
+
     if [[ ! -f "${fastq1}" || ! -f "${fastq2}" ]]
     then
       echo "ERROR: either fastq1 (${fastq1}) or fastq2 (${fastq2}) not provided"
