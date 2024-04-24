@@ -62,7 +62,7 @@ workflow ImputationBeaglePreChunk {
                 chromosome_length=CalculateChromosomeLength.chrom_length,
                 chunk_length = chunkLength,
                 chunk_overlap = chunkOverlaps,
-                chrome = contig,
+                chrom = contig,
                 vcf = multi_sample_vcf,
                 vcf_index = multi_sample_vcf_index
         }
