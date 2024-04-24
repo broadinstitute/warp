@@ -30,7 +30,7 @@ workflow Optimus {
     File tar_star_reference
     File annotations_gtf
     File? mt_genes
-    String? soloMultiMappers
+    String? soloMultiMappers = "Uniform"
 
     # Chemistry options include: 2 or 3
     Int tenx_chemistry_version
