@@ -71,8 +71,8 @@ workflow ImputationBeaglePreChunk {
             String chunk_contig = referencePanelContig.contig
             String chunk_basename = referencePanelContig.contig + "_chunk_" + i
 
-            Int start = (i * chunkLength) + 1
-            Int end = if (CalculateChromosomeLength.chrom_length < ((i + 1) * chunkLength)) then CalculateChromosomeLength.chrom_length else ((i + 1) * chunkLength)
+            Int start = PreChunkVcf.starts[i]
+            Int end = PreChunkVcf.ends[i]
 
             if (perform_extra_qc_steps) {
                 call tasks.OptionalQCSites {

@@ -1139,6 +1139,8 @@ task PreChunkVcf {
     -select "POS >= $START" ~{if exclude_filtered then "--exclude-filtered" else ""} \
     -O subset_vcf/~{chrom}_subset_chunk_$CHUNK.vcf.gz
 
+    echo $START >> start.txt
+    echo $END >> end.txt
 
     i=$(($i + 1))
     LOOP_DRIVER=$(( $i * $CHUNK_LENGTH + 1 ))
@@ -1155,5 +1157,7 @@ task PreChunkVcf {
     Array[File] generate_chunk_vcf_indices = glob("generate_chunk/*.vcf.gz.tbi")
     Array[File] subset_vcfs = glob("subset_vcf/*.vcf.gz")
     Array[File] subset_vcf_indices = glob("subset_vcf/*.vcf.gz.tbi")
+    Array[String] starts = read_lines("start.txt")
+    Array[String] ends = read_lines("end.txt")
   }
 }
