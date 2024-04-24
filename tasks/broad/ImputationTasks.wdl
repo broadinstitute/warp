@@ -1112,7 +1112,7 @@ task PreChunkVcf {
     echo "END: $END"
     echo "END WITH OVERLAPS: $END_WITH_OVERLAPS"
 
-    CHUNK=$(printf "%03d" 10)
+    CHUNK=$(printf "%03d" $i)
     echo "CHUNK: $CHUNK"
 
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
