@@ -313,8 +313,11 @@ task CountVariantsInChunksBeagle {
   command <<<
     set -e -o pipefail
 
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} | tail -n 1 > var_in_original
-    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V ~{vcf} -L ~{panel_interval_list} | tail -n 1 > var_also_in_reference
+    ln -sf ~{vcf} input.vcf.gz
+    ln -sf ~{vcf_index} input.vcf.gz.tbi
+
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V input.vcf.gz | tail -n 1 > var_in_original
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" CountVariants -V input.vcf.gz -L ~{panel_interval_list} | tail -n 1 > var_also_in_reference
   >>>
   output {
     Int var_in_original = read_int("var_in_original")
@@ -587,9 +590,11 @@ task OptionalQCSites {
   Float hwe = select_first([optional_qc_hwe, 0.000001])
   command <<<
     set -e -o pipefail
+    ln -sf ~{input_vcf} input.vcf.gz
+    ln -sf ~{input_vcf_index} input.vcf.gz.tbi
 
     # site missing rate < 5% ; hwe p > 1e-6
-    tools --gzvcf ~{input_vcf}  --max-missing ~{max_missing} --hwe ~{hwe} --recode -c | bgzip -c > ~{output_vcf_basename}.vcf.gz
+    tools --gzvcf input.vcf.gz --max-missing ~{max_missing} --hwe ~{hwe} --recode -c | bgzip -c > ~{output_vcf_basename}.vcf.gz
     bcftools index -t ~{output_vcf_basename}.vcf.gz # Note: this is necessary because vcftools doesn't have a way to output a zipped vcf, nor a way to index one (hence needing to use bcf).
   >>>
   runtime {
@@ -1124,15 +1129,15 @@ task PreChunkVcf {
     --select-type-to-exclude MIXED \
     --restrict-alleles-to BIALLELIC \
     -L ~{chrom}:$START_WITH_OVERLAPS-$END_WITH_OVERLAPS \
-    -O generate_chunk/~{chrom}_chunk_$CHUNK.vcf.gz \
+    -O generate_chunk/~{chrom}_generate_chunk_$CHUNK.vcf.gz \
     --exclude-filtered true
 
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants \
     -V ~{vcf} \
     -L ~{chrom}:$START-$END \
-    -select 'POS >= $START' ~{if exclude_filtered then "--exclude-filtered" else ""} \
-    -O subset_vcf/~{chrom}_chunk_$CHUNK.vcf.gz
+    -select "POS >= $START" ~{if exclude_filtered then "--exclude-filtered" else ""} \
+    -O subset_vcf/~{chrom}_subset_chunk_$CHUNK.vcf.gz
 
 
     i=$(($i + 1))
