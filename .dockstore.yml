@@ -296,3 +296,8 @@ workflows:
   - name: VUMC_vcftools828Filters
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMC_vcftools828Filters.wdl
+  
+  - name: VUMC_overlappingVariantList
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMC_overlapingVariantList.wdl
+
