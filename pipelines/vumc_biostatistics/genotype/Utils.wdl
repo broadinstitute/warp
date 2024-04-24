@@ -1,120 +1,5 @@
 version 1.0
 
-task MoveOrCopyOneFile {
-  input {
-    String source_file
-
-    Boolean is_move_file = false
-
-    String? project_id
-    String target_gcp_folder
-  }
-
-  String action = if (is_move_file) then "mv" else "cp"
-
-  String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
-
-  String new_file = "~{gcs_output_dir}/~{basename(source_file)}"
-
-  command <<<
-
-set -e
-
-gsutil -m ~{"-u " + project_id} ~{action} ~{source_file} ~{gcs_output_dir}/
-
->>>
-
-  runtime {
-    docker: "google/cloud-sdk"
-    preemptible: 1
-    disks: "local-disk 10 HDD"
-    memory: "2 GiB"
-  }
-  output {
-    String output_file = new_file
-  }
-}
-
-task MoveOrCopyTwoFiles {
-  input {
-    String source_file1
-    String source_file2
-
-    Boolean is_move_file = false
-
-    String? project_id
-    String target_gcp_folder
-  }
-
-  String action = if (is_move_file) then "mv" else "cp"
-
-  String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
-
-  String new_file1 = "~{gcs_output_dir}/~{basename(source_file1)}"
-  String new_file2 = "~{gcs_output_dir}/~{basename(source_file2)}"
-
-  command <<<
-
-set -e
-
-gsutil -m ~{"-u " + project_id} ~{action} ~{source_file1} ~{source_file2} ~{gcs_output_dir}/
-
->>>
-
-  runtime {
-    docker: "google/cloud-sdk"
-    preemptible: 1
-    disks: "local-disk 10 HDD"
-    memory: "2 GiB"
-  }
-  output {
-    String output_file1 = new_file1
-    String output_file2 = new_file2
-  }
-}
-
-
-task MoveOrCopyThreeFiles {
-  input {
-    String source_file1
-    String source_file2
-    String source_file3
-
-    Boolean is_move_file = false
-
-    String? project_id
-    String target_gcp_folder
-  }
-
-  String action = if (is_move_file) then "mv" else "cp"
-
-  String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
-
-  String new_file1 = "~{gcs_output_dir}/~{basename(source_file1)}"
-  String new_file2 = "~{gcs_output_dir}/~{basename(source_file2)}"
-  String new_file3 = "~{gcs_output_dir}/~{basename(source_file3)}"
-
-  command <<<
-
-set -e
-
-gsutil -m ~{"-u " + project_id} ~{action} ~{source_file1} ~{source_file2} ~{source_file3} ~{gcs_output_dir}/
-
->>>
-
-  runtime {
-    docker: "google/cloud-sdk"
-    preemptible: 1
-    disks: "local-disk 10 HDD"
-    memory: "2 GiB"
-  }
-  output {
-    String output_file1 = new_file1
-    String output_file2 = new_file2
-    String output_file3 = new_file3
-  }
-}
-
 task MoveOrCopyVcfFile {
   input {
     String input_vcf
@@ -199,5 +84,106 @@ gsutil -m ~{"-u " + project_id} ~{action} ~{source_bed} \
     String output_bed = new_bed
     String output_bim = new_bim
     String output_fam = new_fam
+  }
+}
+
+task ExtractPgenSamples {
+  input {
+    File source_pgen
+    File source_pvar
+    File source_psam
+    File extract_sample
+    String chromosome
+
+    String plink2_filter_option
+
+    Int memory_gb = 20
+
+    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+  }
+
+  Int disk_size = ceil(size([source_pgen, source_psam, source_pvar], "GB")  * 2) + 20
+
+  String new_pgen = chromosome + ".pgen"
+  String new_pvar = chromosome + ".pvar"
+  String new_psam = chromosome + ".psam"
+
+  command <<<
+
+plink2 \
+  --pgen ~{source_pgen} \
+  --pvar ~{source_pvar} \
+  --psam ~{source_psam} \
+  ~{plink2_filter_option} \
+  --keep ~{extract_sample} \
+  --make-pgen \
+  --out ~{chromosome}
+
+>>>
+
+  runtime {
+    docker: docker
+    preemptible: 1
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+  }
+  output {
+    File output_pgen_file = new_pgen
+    File output_pvar_file = new_pvar
+    File output_psam_file = new_psam
+  }
+}
+
+task MergePgenFiles {
+  input {
+    Array[File] pgen_files
+    Array[File] pvar_files
+    Array[File] psam_files
+
+    String target_prefix
+
+    Int memory_gb = 20
+
+    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+  }
+
+  Int disk_size = ceil((size(pgen_files, "GB") + size(pvar_files, "GB") + size(psam_files, "GB"))  * 3) + 20
+
+  String new_pgen = target_prefix + ".pgen"
+  String new_pvar = target_prefix + ".pvar"
+  String new_psam = target_prefix + ".psam"
+
+  String new_merged_pgen = target_prefix + "-merge.pgen"
+  String new_merged_pvar = target_prefix + "-merge.pvar"
+  String new_merged_psam = target_prefix + "-merge.psam"
+
+  command <<<
+
+cat ~{write_lines(pgen_files)} > pgen.list
+cat ~{write_lines(pvar_files)} > pvar.list
+cat ~{write_lines(psam_files)} > psam.list
+
+paste pgen.list pvar.list psam.list > merge.list
+
+plink2 --pmerge-list merge.list --make-pgen --out ~{target_prefix}
+
+rm -f ~{new_pgen} ~{new_pvar} ~{new_psam}
+
+mv ~{new_merged_pgen} ~{new_pgen}
+mv ~{new_merged_pvar} ~{new_pvar}
+mv ~{new_merged_psam} ~{new_psam}
+
+>>>
+
+  runtime {
+    docker: docker
+    preemptible: 1
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+  }
+  output {
+    File output_pgen_file = new_pgen
+    File output_pvar_file = new_pvar
+    File output_psam_file = new_psam
   }
 }

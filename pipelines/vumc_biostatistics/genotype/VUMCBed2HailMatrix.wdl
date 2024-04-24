@@ -1,7 +1,5 @@
 version 1.0
 
-import "./Utils.wdl" as Utils
-
 workflow VUMCBed2HailMatrix {
   input {
     File source_bed
@@ -12,12 +10,8 @@ workflow VUMCBed2HailMatrix {
 
     String target_prefix
 
-    String docker = "hailgenetics/hail:0.2.127-py3.11"
-
-    Int memory_gb = 20
-
     String? project_id
-    String? target_bucket
+    String target_gcp_folder
   }
 
   call Bed2HailMatrix {
@@ -25,24 +19,16 @@ workflow VUMCBed2HailMatrix {
       source_bed = source_bed,
       source_bim = source_bim,
       source_fam = source_fam,
+
       reference_genome = reference_genome,
       target_prefix = target_prefix,
-      docker = docker,
-      memory_gb = memory_gb
-  }
 
-  if(defined(target_bucket)){
-    call Utils.MoveOrCopyOneFile as CopyFile {
-      input:
-        source_file = Bed2HailMatrix.hail_matrix_tar,
-        is_move_file = false,
-        project_id = project_id,
-        target_bucket = select_first([target_bucket])
-    }
+      project_id = project_id,
+      target_gcp_folder = target_gcp_folder
   }
 
   output {
-    File hail_matrix_tar = select_first([CopyFile.output_file, Bed2HailMatrix.hail_matrix_tar])
+    String hail_gcs_path = Bed2HailMatrix.hail_gcs_path
   }
 }
 
@@ -51,14 +37,22 @@ task Bed2HailMatrix {
     File source_bed
     File source_bim
     File source_fam
+
     String reference_genome
     String target_prefix
-    String docker
-    Int memory_gb
+
+    String? project_id
+    String target_gcp_folder
+
+    String docker = "hailgenetics/hail:0.2.127-py3.11"
+    Int memory_gb = 20
   }
 
   Int disk_size = ceil(size([source_bed, source_bim, source_fam], "GB")  * 3) + 20
   Int total_memory_gb = memory_gb + 2
+
+  String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
+  String gcs_output_path = gcs_output_dir + "/" + target_prefix
 
   command <<<
 
@@ -108,7 +102,9 @@ dsplink.write("~{target_prefix}", overwrite=True)
 
 CODE
 
-tar czf ~{target_prefix}.tar.gz ~{target_prefix} 
+gsutil ~{"-u " + project_id} -m rsync -Cr ~{target_prefix} ~{gcs_output_path}
+
+#tar czf ~{target_prefix}.tar.gz ~{target_prefix} 
 
 >>>
 
@@ -119,6 +115,6 @@ tar czf ~{target_prefix}.tar.gz ~{target_prefix}
     memory: "~{total_memory_gb} GiB"
   }
   output {
-    File hail_matrix_tar = "~{target_prefix}.tar.gz"
+    String hail_gcs_path = "~{gcs_output_path}"
   }
 }

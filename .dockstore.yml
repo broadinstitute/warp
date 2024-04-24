@@ -301,3 +301,18 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMC_overlapingVariantList.wdl
 
+  - name: VUMCPrepareGenotypeData
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareGenotypeData.wdl 
+
+  - name: VUMCGenotypePCA
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCGenotypePCA.wdl 
+
+  - name: VUMCRegenie
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCRegenie.wdl
+
+  - name: VUMCVcfIndex
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfIndex.wdl

@@ -26,7 +26,7 @@ workflow VUMCVcf2HailMatrix {
   }
 
   output {
-    String gcs_path = Vcf2HailMatrix.gcs_path
+    String hail_gcs_path = Vcf2HailMatrix.hail_gcs_path
   }
 }
 
@@ -104,6 +104,6 @@ gsutil ~{"-u " + project_id} -m rsync -Cr ~{target_prefix} ~{gcs_output_path}
     bootDiskSizeGb: boot_disk_gb
   }
   output {
-    String gcs_path = "~{gcs_output_path}"
+    String hail_gcs_path = "~{gcs_output_path}"
   }
 }

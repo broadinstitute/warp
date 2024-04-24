@@ -1,6 +1,6 @@
 version 1.0
 
-import "./Utils.wdl" as Utils
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCVcf2GDS {
   input {
@@ -36,7 +36,7 @@ workflow VUMCVcf2GDS {
   }
 
   if(defined(target_gcp_folder)){
-    call Utils.MoveOrCopyTwoFiles as CopyFile {
+    call GcpUtils.MoveOrCopyTwoFiles as CopyFile {
       input:
         source_file1 = Vcf2GDS.gds_file,
         source_file2 = Vcf2GDS.gds_samples,

@@ -1,0 +1,18 @@
+{
+  "VUMCRegenie.target_prefix": "demo_bmi_953",
+  "VUMCRegenie.pgen_file": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.pgen",
+  "VUMCRegenie.pvar_file": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.pvar",
+  "VUMCRegenie.psam_file": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.psam",
+  "VUMCRegenie.phenoFile": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953_phenotype.final.txt",
+  "VUMCRegenie.phenoColList": "bmi",
+  "VUMCRegenie.covarFile": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953_phenotype.final.txt",
+  "VUMCRegenie.covarColList": "PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10",
+  "VUMCRegenie.qc_option": "--mac 100 --geno 0.1 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27",
+  "VUMCRegenie.PgenQCFilter.memory_gb": "20",
+  "VUMCRegenie.PgenQCFilter.cpu": "32",
+  "VUMCRegenie.Regenie.step1_option": "--loocv --bsize 1000 --lowmem",
+  "VUMCRegenie.Regenie.step2_option": "--minINFO 0.3 --minMAC 30 --bsize 1000",
+  "VUMCRegenie.Regenie.memory_gb": "20",
+  "VUMCRegenie.Regenie.cpu": "32"
+}
+

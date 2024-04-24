@@ -1,6 +1,6 @@
 version 1.0
 
-import "./Utils.wdl" as Utils
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCHailMatrixInfo {
   input {
@@ -20,7 +20,7 @@ workflow VUMCHailMatrixInfo {
   }
 
   if(defined(target_gcp_folder)){
-    call Utils.MoveOrCopyOneFile as CopyFile {
+    call GcpUtils.MoveOrCopyOneFile as CopyFile {
       input:
         source_file = HailMatrixInfo.sample_file,
         is_move_file = false,
