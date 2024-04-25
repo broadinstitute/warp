@@ -1058,6 +1058,55 @@ task SplitMultiSampleVcf {
   }
 }
 
+task PreSplitVcf {
+  input {
+    Array[String] contigs
+    File vcf
+    File vcf_index
+
+    Int disk_size_gb = ceil(3*size(vcf, "GiB")) + 50
+    Int cpu = 1
+    Int memory_mb = 8000
+    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+  }
+  Int command_mem = memory_mb - 1000
+  Int max_heap = memory_mb - 500
+
+  command {
+    set -e -o pipefail
+
+    mkdir split_vcfs
+
+    CONTIG_FILE=~{write_lines(contigs)}
+    i=0
+
+    while read -r line;
+    do
+
+    SPLIT=$(printf "%03d" $i)
+    echo "SPLIT: $SPLIT"
+
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    SelectVariants \
+    -V ~{vcf} \
+    -L $line \
+    -O split_vcfs/split_chr_$SPLIT.vcf.gz
+
+    i=$(($i + 1))
+
+    done < $CONTIG_FILE
+  }
+  runtime {
+    docker: gatk_docker
+    disks: "local-disk ${disk_size_gb} HDD"
+    memory: "${memory_mb} MiB"
+    cpu: cpu
+  }
+  output {
+    Array[File] chr_split_vcfs = glob("split_vcfs/*.vcf.gz")
+    Array[File] chr_split_vcf_indices = glob("split_vcfs/*.vcf.gz.tbi")
+  }
+}
 
 task PreChunkVcf {
   input {
@@ -1079,6 +1128,9 @@ task PreChunkVcf {
 
   command {
     set -e -o pipefail
+
+    ln -sf ~{vcf} input.vcf.gz
+    ln -sf ~{vcf_index} input.vcf.gz.tbi
 
     mkdir generate_chunk
     mkdir subset_vcf
@@ -1122,7 +1174,7 @@ task PreChunkVcf {
 
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants \
-    -V ~{vcf} \
+    -V input.vcf.gz \
     --select-type-to-include SNP \
     --max-nocall-fraction 0.1 \
     -xl-select-type SYMBOLIC \
@@ -1134,7 +1186,7 @@ task PreChunkVcf {
 
     gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
     SelectVariants \
-    -V ~{vcf} \
+    -V input.vcf.gz \
     -L ~{chrom}:$START-$END \
     -select "POS >= $START" ~{if exclude_filtered then "--exclude-filtered" else ""} \
     -O subset_vcf/~{chrom}_subset_chunk_$CHUNK.vcf.gz
@@ -1156,7 +1208,6 @@ task PreChunkVcf {
     Array[File] generate_chunk_vcfs = glob("generate_chunk/*.vcf.gz")
     Array[File] generate_chunk_vcf_indices = glob("generate_chunk/*.vcf.gz.tbi")
     Array[File] subset_vcfs = glob("subset_vcf/*.vcf.gz")
-    Array[File] subset_vcf_indices = glob("subset_vcf/*.vcf.gz.tbi")
     Array[String] starts = read_lines("start.txt")
     Array[String] ends = read_lines("end.txt")
   }

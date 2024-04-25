@@ -37,17 +37,22 @@ workflow ImputationBeaglePreChunk {
             vcf = multi_sample_vcf,
     }
 
-    Float chunkLengthFloat = chunkLength
+    call tasks.PreSplitVcf {
+        input:
+            contigs = contigs,
+            vcf = multi_sample_vcf,
+            vcf_index = multi_sample_vcf_index
+    }
 
-    scatter (contig in contigs) {
+    scatter (contig_index in range(length(contigs))) {
         # these are specific to hg38 - contig is format 'chr1'
-        String reference_filename = reference_panel_path + "hgdp.tgp.gwaspy.merged." + contig + ".merged.AN_added.bcf.ac2"
-        String genetic_map_filename = genetic_maps_path + "plink." + contig + ".GRCh38.withchr.map"
+        String reference_filename = reference_panel_path + "hgdp.tgp.gwaspy.merged." + contigs[contig_index] + ".merged.AN_added.bcf.ac2"
+        String genetic_map_filename = genetic_maps_path + "plink." + contigs[contig_index] + ".GRCh38.withchr.map"
 
         ReferencePanelContig referencePanelContig = {
                                                         "interval_list": reference_filename + interval_list_suffix,
                                                         "bref3": reference_filename + bref3_suffix,
-                                                        "contig": contig,
+                                                        "contig": contigs[contig_index],
                                                         "genetic_map": genetic_map_filename
                                                     }
 
@@ -62,9 +67,9 @@ workflow ImputationBeaglePreChunk {
                 chromosome_length=CalculateChromosomeLength.chrom_length,
                 chunk_length = chunkLength,
                 chunk_overlap = chunkOverlaps,
-                chrom = contig,
-                vcf = multi_sample_vcf,
-                vcf_index = multi_sample_vcf_index
+                chrom = contigs[contig_index],
+                vcf = PreSplitVcf.chr_split_vcfs[contig_index],
+                vcf_index = PreSplitVcf.chr_split_vcf_indices[contig_index]
         }
 
         scatter (i in range(length(PreChunkVcf.generate_chunk_vcfs))) {
