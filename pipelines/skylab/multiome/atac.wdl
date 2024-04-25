@@ -479,7 +479,7 @@ task CreateFragmentFile {
 
     # calculate quality metrics; note min_num_fragments and min_tsse are set to 0 instead of default
     # those settings allow us to retain all barcodes
-    pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_sizes=chrom_size_dict, min_num_fragments=0, min_tsse=0)
+    pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_sizes=chrom_size_dict, min_num_fragments=0)
 
     CODE
   >>>
