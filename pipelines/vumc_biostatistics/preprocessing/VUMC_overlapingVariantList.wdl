@@ -21,6 +21,10 @@ workflow VUMC_variantOverlaps {
 
   output {
     File shared_list = varOverlap.the_output_list
+    File output_vcf1 = varOverlap.first_output_vcf
+    File output_vcfIndex1 = varOverlap.first_output_vcfIndex
+    File output_vcf2 = varOverlap.second_output_vcf
+    File output_vcfIndex2 = varOverlap.second_output_vcfIndex
     
   }
 }
@@ -44,12 +48,21 @@ task varOverlap{
 
   Int disk_size = 50
   String output_list = "${first_sample_name}_v_${second_sample_name}_shared_variants.txt"
+  String output_first_vcf = "${first_sample_name}_shared_variants.vcf.gz"
+  String output_first_vcfIndex = "${first_sample_name}_shared_variants.vcf.gz.tbi"
+  String output_second_vcf = "${second_sample_name}_shared_variants.vcf.gz"
+  String output_second_vcfIndex = "${second_sample_name}_shared_variants.vcf.gz.tbi"
   
   command <<<
     # compare and print out intersected variants
     tabix ~{first_input_vcf}
     tabix ~{second_input_vcf}
-    bcftools isec -n +2 ~{first_input_vcf} ~{second_input_vcf} > ~{output_list}
+    bcftools isec -n =2 ~{first_input_vcf} ~{second_input_vcf} > ~{output_list}
+    cut -f1,2 ~{output_list}>tmp.txt
+    vcftools --gzvcf ~{first_input_vcf} --positions tmp.txt --recode --stdout |bgzip -c>~{output_first_vcf}
+    vcftools --gzvcf ~{second_input_vcf} --positions tmp.txt --recode --stdout |bgzip -c>~{output_second_vcf}
+    tabix ~{output_first_vcf}
+    tabix ~{output_second_vcf}
   >>>
 
   runtime{
@@ -60,5 +73,9 @@ task varOverlap{
 
   output{
     File the_output_list = "~{output_list}"
+    File first_output_vcf = "~{output_first_vcf}"
+    File first_output_vcfIndex = "~{output_first_vcf}.tbi"
+    File second_output_vcf = "~{output_second_vcf}"
+    File second_output_vcfIndex = "~{output_second_vcf}.tbi"
   }
 }
