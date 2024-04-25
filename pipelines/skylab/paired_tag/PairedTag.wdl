@@ -50,7 +50,7 @@ workflow PairedTag {
     }
 
     # All docker images that are needed for tasks in this workflow
-    String upstools_docker = "upstools:1.2.0-2023.03.03-1704723060"
+    String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
     String snapatac_docker = "snapatac2:1.0.4-2.3.1-1700590229"
 
     # Prefixes based on cloud env
