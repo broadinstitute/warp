@@ -80,7 +80,6 @@ workflow Multiome {
             read3_fastq_gzipped = atac_r3_fastq,
             input_id = input_id + "_atac",
             tar_bwa_reference = tar_bwa_reference,
-            annotations_gtf = annotations_gtf,
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
@@ -92,6 +91,7 @@ workflow Multiome {
             gex_h5ad = Optimus.h5ad_output_file,
             gex_whitelist = gex_whitelist,
             atac_whitelist = atac_whitelist,
+            annotations_gtf = annotations_gtf,
             atac_fragment = Atac.fragment_file
     }
 

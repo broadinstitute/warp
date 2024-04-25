@@ -84,7 +84,6 @@ workflow PairedTag {
             read3_fastq_gzipped = demultiplex.fastq3,
             input_id = input_id + "_atac",
             tar_bwa_reference = tar_bwa_reference,
-            annotations_gtf = annotations_gtf,
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
@@ -96,7 +95,8 @@ workflow PairedTag {
         call Demultiplexing.ParseBarcodes as ParseBarcodes {
             input:
               atac_h5ad = Atac_preindex.snap_metrics,
-              atac_fragment = Atac_preindex.fragment_file
+              atac_fragment = Atac_preindex.fragment_file,
+              annotations_gtf = annotations_gtf
         }
     }      
 

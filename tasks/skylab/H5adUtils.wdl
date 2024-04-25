@@ -190,6 +190,7 @@ task JoinMultiomeBarcodes {
     File gex_h5ad
     File gex_whitelist
     File atac_whitelist
+    File annotations_gtf
 
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
@@ -214,6 +215,7 @@ task JoinMultiomeBarcodes {
     python3 <<CODE
 
     # set parameters
+    atac_gtf = "~{annotations_gtf}"
     atac_h5ad = "~{atac_h5ad}"
     atac_fragment = "~{atac_fragment}"
     gex_h5ad = "~{gex_h5ad}"
@@ -223,6 +225,7 @@ task JoinMultiomeBarcodes {
     # import anndata to manipulate h5ad files
     import anndata as ad
     import pandas as pd
+    import snapatac2 as snap
     print("Reading ATAC h5ad:")
     print("~{atac_h5ad}")
     print("Read ATAC fragment file:")
@@ -261,6 +264,8 @@ task JoinMultiomeBarcodes {
     # set gene_data.obs to new dataframe
     print("Setting Optimus obs to new dataframe")
     gex_data.obs = df_gex
+    # calculate tsse metrics
+    snap.metrics.tsse(atac_data, atac_gtf)
     # write out the files
     gex_data.write("~{gex_base_name}.h5ad")
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
@@ -277,7 +282,7 @@ task JoinMultiomeBarcodes {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.6.0-1714058747"
     disks: "local-disk ~{disk} HDD"
     memory: "${machine_mem_mb} MiB"
     cpu: nthreads

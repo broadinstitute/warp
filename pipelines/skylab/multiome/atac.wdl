@@ -29,8 +29,6 @@ workflow ATAC {
     Int mem_size_bwa = 512
     String cpu_platform_bwa = "Intel Ice Lake"
 
-    # GTF for SnapATAC2 to calculate TSS sites of fragment file
-    File annotations_gtf
     # Text file containing chrom_sizes for genome build (i.e. hg38)
     File chrom_sizes
     # Whitelist
@@ -104,7 +102,6 @@ workflow ATAC {
       input:
         bam = BBTag.bb_bam,
         chrom_sizes = chrom_sizes,
-        annotations_gtf = annotations_gtf,
         preindex = preindex
     }
   }
@@ -113,7 +110,6 @@ workflow ATAC {
       input:
         bam = BWAPairedEndAlignment.bam_aligned_output,
         chrom_sizes = chrom_sizes,
-        annotations_gtf = annotations_gtf,
         preindex = preindex
 
     }
@@ -435,7 +431,6 @@ task BWAPairedEndAlignment {
 task CreateFragmentFile {
   input {
     File bam
-    File annotations_gtf
     File chrom_sizes
     Boolean preindex
     Int disk_size = 500
@@ -448,7 +443,6 @@ task CreateFragmentFile {
 
   parameter_meta {
     bam: "Aligned bam with CB in CB tag. This is the output of the BWAPairedEndAlignment task."
-    annotations_gtf: "GTF for SnapATAC2 to calculate TSS sites of fragment file."
     chrom_sizes: "Text file containing chrom_sizes for genome build (i.e. hg38)."
     disk_size: "Disk size used in create fragment file step."
     mem_size: "The size of memory used in create fragment file."
@@ -460,7 +454,6 @@ task CreateFragmentFile {
     python3 <<CODE
 
     # set parameters
-    atac_gtf = "~{annotations_gtf}"
     bam = "~{bam}"
     bam_base_name = "~{bam_base_name}"
     chrom_sizes = "~{chrom_sizes}"
@@ -486,13 +479,13 @@ task CreateFragmentFile {
 
     # calculate quality metrics; note min_num_fragments and min_tsse are set to 0 instead of default
     # those settings allow us to retain all barcodes
-    pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_size=chrom_size_dict, gene_anno="~{annotations_gtf}", min_num_fragments=0, min_tsse=0)
+    pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_sizes=chrom_size_dict, min_num_fragments=0, min_tsse=0)
 
     CODE
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1"
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.6.0-1714058747"
     disks: "local-disk ${disk_size} SSD"
     memory: "${mem_size} GiB"
     cpu: nthreads

@@ -185,6 +185,7 @@ task ParseBarcodes {
     input {
         File atac_h5ad
         File atac_fragment
+        File annotations_gtf
         Int nthreads = 1
         String cpuPlatform = "Intel Cascade Lake"
     }
@@ -206,12 +207,14 @@ task ParseBarcodes {
     python3 <<CODE
 
     # set parameters
+    atac_gtf = "~{annotations_gtf}"
     atac_h5ad = "~{atac_h5ad}"
     atac_fragment = "~{atac_fragment}"
 
     # import anndata to manipulate h5ad files
     import anndata as ad
     import pandas as pd
+    import snapatac2 as snap    
     print("Reading ATAC h5ad:")
     atac_data = ad.read_h5ad("~{atac_h5ad}")
     print("Reading ATAC fragment file:")
@@ -240,6 +243,8 @@ task ParseBarcodes {
     # Update the 'duplicates' column for rows with more than one unique 'preindex' for a 'CB'
     test_fragment.loc[test_fragment['CB'].isin(preindex_counts[preindex_counts > 1].index), 'duplicates'] = 1
       
+        # calculate tsse metrics
+    snap.metrics.tsse(atac_data, atac_gtf)
     # Idenitfy the barcodes in the whitelist that match barcodes in datasets
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
     test_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)
@@ -256,7 +261,7 @@ task ParseBarcodes {
   >>>
 
   runtime {
-      docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.3.1-1700590229"
+      docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.4-2.6.0-1714058747"
       disks: "local-disk ~{disk} HDD"
       memory: "${machine_mem_mb} MiB"
       cpu: nthreads
