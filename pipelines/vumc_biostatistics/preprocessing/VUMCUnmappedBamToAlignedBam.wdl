@@ -85,7 +85,7 @@ workflow VUMCUnmappedBamToAlignedBam {
   #read group information has been put into the unmapped bam file, we should not add RG in bwa, 
   #otherwise merging unmapped bam with mapped bam will throw error.
   #remember to use -p option
-  String bwa_commandline = "bwa mem -K 100000000 -v 3 -t 16 -p -Y $bash_ref_fasta"
+  String bwa_commandline = "bwa mem -K 100000000 -p -v 3 -t 16 -Y $bash_ref_fasta"
 
   Int compression_level = 2
 
