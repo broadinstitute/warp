@@ -46,7 +46,7 @@ task varOverlap{
 
   }
 
-  Int disk_size = 50
+  Int disk_size = ceil(size(first_input_vcf, "GB")) + ceil(size(second_input_vcf, "GB")) + addtional_disk_space_gb
   String output_list = "${first_sample_name}_v_${second_sample_name}_shared_variants.txt"
   String output_first_vcf = "${first_sample_name}_shared_variants.vcf.gz"
   String output_first_vcfIndex = "${first_sample_name}_shared_variants.vcf.gz.tbi"
