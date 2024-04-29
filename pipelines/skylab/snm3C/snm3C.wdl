@@ -165,8 +165,8 @@ task Demultiplexing {
     -p ~{plate_id}-{name}-R2.fq.gz \
     r1.fastq.gz \
     r2.fastq.gz \
-    > ~{cromwell_root_dir}/~{plate_id}.stats.txt
-
+    > ~{plate_id}.stats.txt
+    ls -lh
     # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
     rm *-unknown-R{1,2}.fq.gz
 
