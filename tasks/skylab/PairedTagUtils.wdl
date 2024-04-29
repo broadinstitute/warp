@@ -220,6 +220,9 @@ task ParseBarcodes {
     print("Reading ATAC fragment file:")
     test_fragment = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
       
+    # calculate tsse metrics
+    snap.metrics.tsse(atac_data, atac_gtf)
+
     # Separate out CB and preindex in the h5ad and identify sample barcodes assigned to more than one cell barcode
     print("Setting preindex and CB columns in h5ad")
     df_h5ad = atac_data.obs
@@ -243,8 +246,6 @@ task ParseBarcodes {
     # Update the 'duplicates' column for rows with more than one unique 'preindex' for a 'CB'
     test_fragment.loc[test_fragment['CB'].isin(preindex_counts[preindex_counts > 1].index), 'duplicates'] = 1
       
-        # calculate tsse metrics
-    snap.metrics.tsse(atac_data, atac_gtf)
     # Idenitfy the barcodes in the whitelist that match barcodes in datasets
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
     test_fragment.to_csv("~{atac_fragment_base}.tsv", sep='\t', index=False, header = False)

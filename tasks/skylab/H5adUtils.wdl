@@ -238,6 +238,9 @@ task JoinMultiomeBarcodes {
     whitelist_gex = pd.read_csv("~{gex_whitelist}", header=None, names=["gex_barcodes"])
     whitelist_atac = pd.read_csv("~{atac_whitelist}", header=None, names=["atac_barcodes"])
 
+    # calculate tsse metrics
+    snap.metrics.tsse(atac_data, atac_gtf)
+    
     # get dataframes
     df_atac = atac_data.obs
     df_gex = gex_data.obs
@@ -264,8 +267,7 @@ task JoinMultiomeBarcodes {
     # set gene_data.obs to new dataframe
     print("Setting Optimus obs to new dataframe")
     gex_data.obs = df_gex
-    # calculate tsse metrics
-    snap.metrics.tsse(atac_data, atac_gtf)
+
     # write out the files
     gex_data.write("~{gex_base_name}.h5ad")
     atac_data.write_h5ad("~{atac_base_name}.h5ad")
