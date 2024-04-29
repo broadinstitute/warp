@@ -8,6 +8,8 @@ workflow VUMC_variantOverlaps {
     String first_sample_name
     String second_sample_name
     String vcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
+    Int addtional_disk_space_gb = 50
+    Int machine_mem_gb = 4
   }
   
   call varOverlap {
@@ -41,8 +43,8 @@ task varOverlap{
     
     # Runtime parameters
     String vcftools_docker
-    Int machine_mem_gb = 4
-    Int addtional_disk_space_gb = 50
+    Int machine_mem_gb
+    Int addtional_disk_space_gb
 
   }
 
