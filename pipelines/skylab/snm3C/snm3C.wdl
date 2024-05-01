@@ -159,8 +159,8 @@ task Demultiplexing {
 
 
     # Cat files for each r1, r2
-    cat ~{sep=' ' fastq_input_read1} > r1.fastq.gz
-    cat ~{sep=' ' fastq_input_read2} > r2.fastq.gz
+    cat ~{sep=' ' fastq_input_read1} > ~{cromwell_root_dir}/r1.fastq.gz
+    cat ~{sep=' ' fastq_input_read2} > ~{cromwell_root_dir}/r2.fastq.gz
 
     # Run cutadapt
     /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
@@ -169,10 +169,10 @@ task Demultiplexing {
     -p ~{plate_id}-{name}-R2.fq.gz \
     r1.fastq.gz \
     r2.fastq.gz \
-    > ~{plate_id}.stats.txt
+    > ~{cromwell_root_dir}/~{plate_id}.stats.txt
 
     # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
-    rm *-unknown-R{1,2}.fq.gz
+    rm ~{cromwell_root_dir}/*-unknown-R{1,2}.fq.gz
 
     python3 <<CODE
     import re
@@ -215,15 +215,15 @@ task Demultiplexing {
     folder_index=1
 
     # Define lists of r1 and r2 fq files
-    R1_files=($(ls | grep "\-R1.fq.gz"))
-    R2_files=($(ls | grep "\-R2.fq.gz"))
+    R1_files=($(ls ~{cromwell_root_dir} | grep "\-R1.fq.gz"))
+    R2_files=($(ls ~{cromwell_root_dir} | grep "\-R2.fq.gz"))
 
     # Distribute the FASTQ files and create TAR files
     for file in "${R1_files[@]}"; do
         sample_id=$(basename "$file" "-R1.fq.gz")
         r2_file="${sample_id}-R2.fq.gz"
-        mv $file batch$((folder_index))/$file
-        mv $r2_file batch$((folder_index))/$r2_file
+        mv ~{cromwell_root_dir}/$file batch$((folder_index))/$file
+        mv ~{cromwell_root_dir}/$r2_file batch$((folder_index))/$r2_file
         # Increment the counter
         folder_index=$(( (folder_index % $batch_number) + 1 ))
     done
@@ -231,7 +231,7 @@ task Demultiplexing {
     # Tar up files per batch
     echo "TAR files"
     for i in $(seq 1 "${batch_number}"); do
-        tar -cf - batch${i}/*.fq.gz | pigz > ~{plate_id}.${i}.cutadapt_output_files.tar.gz
+        tar -cf - ~{cromwell_root_dir}/batch${i}/*.fq.gz | pigz > ~{cromwell_root_dir}/~{plate_id}.${i}.cutadapt_output_files.tar.gz
     done
     echo "TAR files created successfully."
   >>>
