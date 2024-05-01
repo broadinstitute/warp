@@ -3,7 +3,7 @@ version 1.0
 import "../../../pipelines/skylab/multiome/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
-import "https://github.com/aawdeh/CellBender/blob/aa-cbwithoutcuda/wdl/cellbender_remove_background_azure.wdl" as CellBender
+import "https://raw.githubusercontent.com/aawdeh/CellBender/aa-cbwithoutcuda/wdl/cellbender_remove_background_azure.wdl" as CellBender
 import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
