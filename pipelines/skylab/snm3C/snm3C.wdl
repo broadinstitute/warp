@@ -154,6 +154,10 @@ task Demultiplexing {
   command <<<
     set -euo pipefail
 
+    ls -lR
+    pwd
+
+
     # Cat files for each r1, r2
     cat ~{sep=' ' fastq_input_read1} > r1.fastq.gz
     cat ~{sep=' ' fastq_input_read2} > r2.fastq.gz
@@ -166,7 +170,7 @@ task Demultiplexing {
     r1.fastq.gz \
     r2.fastq.gz \
     > ~{plate_id}.stats.txt
-    ls -lh
+
     # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
     rm *-unknown-R{1,2}.fq.gz
 
