@@ -156,7 +156,7 @@ task Demultiplexing {
 
 
     set -euo pipefail
-
+    touch test.txt
     ls -lR
     pwd
 
@@ -249,8 +249,9 @@ task Demultiplexing {
   }
 
   output {
-    Array[File] tarred_demultiplexed_fastqs = glob("*.tar.gz")
-    File stats = "~{plate_id}.stats.txt"
+    #Array[File] tarred_demultiplexed_fastqs = glob("*.tar.gz")
+    #File stats = "~{plate_id}.stats.txt"
+    File test = "test.txt"
     }
 }
 
