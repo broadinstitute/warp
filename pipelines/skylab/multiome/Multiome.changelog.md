@@ -1,11 +1,20 @@
+# 3.4.3
+2024-04-24 (Date of Last Commit)
+
+* Updated the input parameters for STARsolo in STARsoloFastq task. These include the parameters: soloCBmatchWLtype, soloUMIdedup and soloUMIfiltering
+* Added "Uniform" as the default string for STARsolo multimapping parameters
+
+# 3.4.2
+2024-04-03 (Date of Last Commit)
+* Modified adaptor trimming in Paired-tag WDL; this does not impact Multiome
 
 # 3.4.1
-20240326 (Date of Last Commit)
+2024-03-26 (Date of Last Commit)
 
 * Updated the median umi per cell metric for STARsolo library-level metrics
 
 # 3.4.0 
-20240315 (Date of Last Commit)
+2024-03-15 (Date of Last Commit)
 
 * Added cell metrics to the library-level metrics
 

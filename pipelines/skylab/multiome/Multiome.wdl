@@ -7,7 +7,7 @@ import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/c
 
 workflow Multiome {
 
-    String pipeline_version = "3.4.1"
+    String pipeline_version = "3.4.3"
 
     input {
         String input_id

@@ -2,13 +2,13 @@
 sidebar_position: 2
 ---
 
-# Exome Germline Single Sample v3.1.18 Methods
+# Exome Germline Single Sample v3.1.19 Methods
 
 The following contains a detailed methods description outlining the pipeline’s process, software, and tools that can be modified for a publication methods section.
 
 ## Detailed Methods
 
-Preprocessing and variant calling was performed using the ExomeGermlineSingleSample 3.1.17 pipeline using Picard 2.26.10, GATK 4.5.0.0, and Samtools 1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline follows GATK Best Practices as previously described ([Van der Auwera & O'Connor, 2020](https://www.oreilly.com/library/view/genomics-in-the/9781491975183/)) as well as the Functional Equivalence specification ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)).
+Preprocessing and variant calling was performed using the ExomeGermlineSingleSample 3.1.19 pipeline using Picard 2.26.10, GATK 4.5.0.0, and Samtools 1.11 with default tool parameters unless otherwise specified. All reference files are available in the public [Broad References Google Bucket](https://console.cloud.google.com/storage/browser/gcp-public-data--broad-references/hg38/v0). The pipeline follows GATK Best Practices as previously described ([Van der Auwera & O'Connor, 2020](https://www.oreilly.com/library/view/genomics-in-the/9781491975183/)) as well as the Functional Equivalence specification ([Regier et al., 2018](https://www.nature.com/articles/s41467-018-06159-4)).
 
 ### Pre-processing and QC
 

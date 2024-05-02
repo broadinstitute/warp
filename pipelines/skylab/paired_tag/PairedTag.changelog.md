@@ -1,3 +1,14 @@
+# 0.5.1
+2024-04-12 (Date of Last Commit)
+
+* Updated the input parameters for STARsolo in STARsoloFastq task. These include the parameters: soloCBmatchWLtype, soloUMIdedup and soloUMIfiltering
+* Added "Uniform" as the default string for STARsolo multimapping parameters
+
+# 0.5.0
+20240403 (Date of Last Commit)
+
+* Modified adaptor trimming to trim last 3 bp (instead of first) in read2 length is 27 bp and preindex is false
+
 # 0.4.1
 20240326 (Date of Last Commit)
 

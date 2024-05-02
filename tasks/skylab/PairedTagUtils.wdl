@@ -44,12 +44,12 @@ task PairedTagDemultiplex {
         mv ~{read1_fastq} "~{input_id}_R1.fq.gz"
         mv ~{barcodes_fastq} "~{input_id}_R2.fq.gz"
         mv ~{read3_fastq} "~{input_id}_R3.fq.gz"
-        echo performing read2 length and orientation checks 
+        echo "performing read2 length, trimming, and orientation checks" 
         if [[ $COUNT == 27 && ~{preindex} == "false" ]]
           then
           echo "Preindex is false and length is 27 bp"
-          echo "Trimming first 3 bp with UPStools"
-          upstools trimfq ~{input_id}_R2.fq.gz 4 26
+          echo "Trimming last 3 bp with UPStools"
+          upstools trimfq ~{input_id}_R2.fq.gz 1 24
           echo "Running orientation check"
           file="~{input_id}_R2_trim.fq.gz"
           zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
