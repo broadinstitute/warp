@@ -57,13 +57,80 @@ workflow snm3C {
             cromwell_root_dir = cromwell_root_dir
     }
 
+    scatter(tar in Demultiplexing.tarred_demultiplexed_fastqs) {
+        call Hisat_paired_end as Hisat_paired_end {
+          input:
+                tarred_demultiplexed_fastqs = tar,
+                tarred_index_files = tarred_index_files,
+                genome_fa = genome_fa,
+                chromosome_sizes = chromosome_sizes,
+                min_read_length = min_read_length,
+                r1_adapter = r1_adapter,
+                r2_adapter = r2_adapter,
+                r1_left_cut = r1_left_cut,
+                r1_right_cut = r1_right_cut,
+                r2_left_cut = r2_left_cut,
+                r2_right_cut = r2_right_cut,
+                plate_id = plate_id,
+                docker = docker_prefix + m3c_yap_hisat_docker,
+                cromwell_root_dir = cromwell_root_dir
+        }
 
+        call Hisat_single_end as Hisat_single_end {
+            input:
+                split_fq_tar = Hisat_paired_end.split_fq_tar,
+                tarred_index_files = tarred_index_files,
+                genome_fa = genome_fa,
+                plate_id = plate_id,
+                docker = docker_prefix + m3c_yap_hisat_docker,
+                cromwell_root_dir = cromwell_root_dir
+        }
+
+        call Merge_sort_analyze as Merge_sort_analyze {
+            input:
+               paired_end_unique_tar = Hisat_paired_end.unique_bam_tar,
+               read_overlap_tar = Hisat_single_end.remove_overlaps_output_bam_tar,
+               genome_fa = genome_fa,
+               num_upstr_bases = num_upstr_bases,
+               num_downstr_bases = num_downstr_bases,
+               compress_level = compress_level,
+               chromosome_sizes = chromosome_sizes,
+               plate_id = plate_id,
+               docker = docker_prefix + m3c_yap_hisat_docker,
+               cromwell_root_dir = cromwell_root_dir
+        }
+    }
+
+    call Summary {
+        input:
+            trimmed_stats = Hisat_paired_end.trim_stats_tar,
+            hisat3n_stats = Hisat_paired_end.hisat3n_paired_end_stats_tar,
+            r1_hisat3n_stats = Hisat_single_end.hisat3n_dna_split_reads_summary_R1_tar,
+            r2_hisat3n_stats = Hisat_single_end.hisat3n_dna_split_reads_summary_R2_tar,
+            dedup_stats = Merge_sort_analyze.dedup_stats_tar,
+            chromatin_contact_stats = Merge_sort_analyze.chromatin_contact_stats,
+            allc_uniq_reads_stats = Merge_sort_analyze.allc_uniq_reads_stats,
+            unique_reads_cgn_extraction_tbi = Merge_sort_analyze.extract_allc_output_tbi_tar,
+            plate_id = plate_id,
+            docker = docker_prefix + m3c_yap_hisat_docker,
+            cromwell_root_dir = cromwell_root_dir
+    }
 
     meta {
         allowNestedInputs: true
     }
 
     output {
+        File MappingSummary = Summary.mapping_summary
+        Array[File] name_sorted_bams = Merge_sort_analyze.name_sorted_bam
+        Array[File] unique_reads_cgn_extraction_allc= Merge_sort_analyze.allc
+        Array[File] unique_reads_cgn_extraction_tbi = Merge_sort_analyze.tbi
+        Array[File] reference_version = Hisat_paired_end.reference_version
+        Array[File] all_reads_dedup_contacts = Merge_sort_analyze.all_reads_dedup_contacts
+        Array[File] all_reads_3C_contacts = Merge_sort_analyze.all_reads_3C_contacts
+        Array[File] chromatin_contact_stats = Merge_sort_analyze.chromatin_contact_stats
+        Array[File] unique_reads_cgn_extraction_allc_extract = Merge_sort_analyze.extract_allc_output_allc_tar
+        Array[File] unique_reads_cgn_extraction_tbi_extract = Merge_sort_analyze.extract_allc_output_tbi_tar
 
     }
 }
@@ -86,90 +153,88 @@ task Demultiplexing {
 
   command <<<
     echo "TEST"
-
-
     set -euo pipefail
-    touch test.txt
+
     ls -lR
     pwd
 
 
-#    # Cat files for each r1, r2
-#    cat ~{sep=' ' fastq_input_read1} > ~{cromwell_root_dir}/r1.fastq.gz
-#    cat ~{sep=' ' fastq_input_read2} > ~{cromwell_root_dir}/r2.fastq.gz
-#
-#    # Run cutadapt
-#    /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
-#    -g file:~{random_primer_indexes} \
-#    -o ~{plate_id}-{name}-R1.fq.gz \
-#    -p ~{plate_id}-{name}-R2.fq.gz \
-#    r1.fastq.gz \
-#    r2.fastq.gz \
-#    > ~{cromwell_root_dir}/~{plate_id}.stats.txt
-#
-#    # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
-#    rm ~{cromwell_root_dir}/*-unknown-R{1,2}.fq.gz
-#
-#    python3 <<CODE
-#    import re
-#    import os
-#
-#    # Parsing stats.txt file
-#    stats_file_path = '~{cromwell_root_dir}/~{plate_id}.stats.txt'
-#    adapter_counts = {}
-#    with open(stats_file_path, 'r') as file:
-#        content = file.read()
-#
-#    adapter_matches = re.findall(r'=== First read: Adapter (\w+) ===\n\nSequence: .+; Type: .+; Length: \d+; Trimmed: (\d+) times', content)
-#    for adapter_match in adapter_matches:
-#        adapter_name = adapter_match[0]
-#        trimmed_count = int(adapter_match[1])
-#        adapter_counts[adapter_name] = trimmed_count
-#
-#    # Removing fastq files with trimmed reads greater than 30
-#    directory_path = '~{cromwell_root_dir}'
-#    threshold = 10000000
-#
-#    for filename in os.listdir(directory_path):
-#        if filename.endswith('.fq.gz'):
-#            file_path = os.path.join(directory_path, filename)
-#            adapter_name = re.search(r'A(\d+)-R', filename)
-#            if adapter_name:
-#                adapter_name = 'A' + adapter_name.group(1)
-#                if adapter_name in adapter_counts and adapter_counts[adapter_name] > threshold:
-#                    os.remove(file_path)
-#                    print(f'Removed file: {filename}')
-#    CODE
-#
-#    # Batch the fastq files into folders of batch_number size
-#    batch_number=~{batch_number}
-#    for i in $(seq 1 "${batch_number}"); do  # Use seq for reliable brace expansion
-#        mkdir -p "batch${i}"  # Combine batch and i, use -p to create parent dirs
-#    done
-#
-#    # Counter for the folder index
-#    folder_index=1
-#
-#    # Define lists of r1 and r2 fq files
-#    R1_files=($(ls ~{cromwell_root_dir} | grep "\-R1.fq.gz"))
-#    R2_files=($(ls ~{cromwell_root_dir} | grep "\-R2.fq.gz"))
-#
-#    # Distribute the FASTQ files and create TAR files
-#    for file in "${R1_files[@]}"; do
-#        sample_id=$(basename "$file" "-R1.fq.gz")
-#        r2_file="${sample_id}-R2.fq.gz"
-#        mv ~{cromwell_root_dir}/$file batch$((folder_index))/$file
-#        mv ~{cromwell_root_dir}/$r2_file batch$((folder_index))/$r2_file
-#        # Increment the counter
-#        folder_index=$(( (folder_index % $batch_number) + 1 ))
-#    done
-#
-#    # Tar up files per batch
-#    echo "TAR files"
-#    for i in $(seq 1 "${batch_number}"); do
-#        tar -cf - ~{cromwell_root_dir}/batch${i}/*.fq.gz | pigz > ~{cromwell_root_dir}/~{plate_id}.${i}.cutadapt_output_files.tar.gz
-#    done
-#    echo "TAR files created successfully."
+    # Cat files for each r1, r2
+    cat ~{sep=' ' fastq_input_read1} > ~{cromwell_root_dir}/r1.fastq.gz
+    cat ~{sep=' ' fastq_input_read2} > ~{cromwell_root_dir}/r2.fastq.gz
+
+    # Run cutadapt
+    /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
+    -g file:~{random_primer_indexes} \
+    -o ~{plate_id}-{name}-R1.fq.gz \
+    -p ~{plate_id}-{name}-R2.fq.gz \
+    r1.fastq.gz \
+    r2.fastq.gz \
+    > ~{cromwell_root_dir}/~{plate_id}.stats.txt
+
+    # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
+    rm ~{cromwell_root_dir}/*-unknown-R{1,2}.fq.gz
+
+    python3 <<CODE
+    import re
+    import os
+
+    # Parsing stats.txt file
+    stats_file_path = '~{cromwell_root_dir}/~{plate_id}.stats.txt'
+    adapter_counts = {}
+    with open(stats_file_path, 'r') as file:
+        content = file.read()
+
+    adapter_matches = re.findall(r'=== First read: Adapter (\w+) ===\n\nSequence: .+; Type: .+; Length: \d+; Trimmed: (\d+) times', content)
+    for adapter_match in adapter_matches:
+        adapter_name = adapter_match[0]
+        trimmed_count = int(adapter_match[1])
+        adapter_counts[adapter_name] = trimmed_count
+
+    # Removing fastq files with trimmed reads greater than 30
+    directory_path = '~{cromwell_root_dir}'
+    threshold = 10000000
+
+    for filename in os.listdir(directory_path):
+        if filename.endswith('.fq.gz'):
+            file_path = os.path.join(directory_path, filename)
+            adapter_name = re.search(r'A(\d+)-R', filename)
+            if adapter_name:
+                adapter_name = 'A' + adapter_name.group(1)
+                if adapter_name in adapter_counts and adapter_counts[adapter_name] > threshold:
+                    os.remove(file_path)
+                    print(f'Removed file: {filename}')
+    CODE
+
+    # Batch the fastq files into folders of batch_number size
+    batch_number=~{batch_number}
+    for i in $(seq 1 "${batch_number}"); do  # Use seq for reliable brace expansion
+        mkdir -p "batch${i}"  # Combine batch and i, use -p to create parent dirs
+    done
+
+    # Counter for the folder index
+    folder_index=1
+
+    # Define lists of r1 and r2 fq files
+    R1_files=($(ls ~{cromwell_root_dir} | grep "\-R1.fq.gz"))
+    R2_files=($(ls ~{cromwell_root_dir} | grep "\-R2.fq.gz"))
+
+    # Distribute the FASTQ files and create TAR files
+    for file in "${R1_files[@]}"; do
+        sample_id=$(basename "$file" "-R1.fq.gz")
+        r2_file="${sample_id}-R2.fq.gz"
+        mv ~{cromwell_root_dir}/$file batch$((folder_index))/$file
+        mv ~{cromwell_root_dir}/$r2_file batch$((folder_index))/$r2_file
+        # Increment the counter
+        folder_index=$(( (folder_index % $batch_number) + 1 ))
+    done
+
+    # Tar up files per batch
+    echo "TAR files"
+    for i in $(seq 1 "${batch_number}"); do
+        tar -cf - ~{cromwell_root_dir}/batch${i}/*.fq.gz | pigz > ~{cromwell_root_dir}/~{plate_id}.${i}.cutadapt_output_files.tar.gz
+    done
+    echo "TAR files created successfully."
 
   >>>
 
@@ -182,9 +247,8 @@ task Demultiplexing {
   }
 
   output {
-    #Array[File] tarred_demultiplexed_fastqs = glob("*.tar.gz")
-    #File stats = "~{plate_id}.stats.txt"
-    File test = "test.txt"
+    Array[File] tarred_demultiplexed_fastqs = glob("*.tar.gz")
+    File stats = "~{plate_id}.stats.txt"
     }
 }
 
