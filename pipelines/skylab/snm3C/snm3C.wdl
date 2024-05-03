@@ -172,8 +172,12 @@ task Demultiplexing {
     r2.fastq.gz \
     > ~{cromwell_root_dir}/~{plate_id}.stats.txt
 
+    echo "RAN CUT ADAPT"
+
     # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
     rm ~{cromwell_root_dir}/*-unknown-R{1,2}.fq.gz
+
+    echo "REMOVED FILES"
 
     python3 <<CODE
     import re
@@ -206,11 +210,15 @@ task Demultiplexing {
                     print(f'Removed file: {filename}')
     CODE
 
+    echo "RAN PYTHON SNIPPET"
+
     # Batch the fastq files into folders of batch_number size
     batch_number=~{batch_number}
     for i in $(seq 1 "${batch_number}"); do  # Use seq for reliable brace expansion
         mkdir -p "batch${i}"  # Combine batch and i, use -p to create parent dirs
     done
+
+    echo "BATCHED FASTQ FILES INTO FOLDERS"
 
     # Counter for the folder index
     folder_index=1
@@ -218,6 +226,8 @@ task Demultiplexing {
     # Define lists of r1 and r2 fq files
     R1_files=($(ls ~{cromwell_root_dir} | grep "\-R1.fq.gz"))
     R2_files=($(ls ~{cromwell_root_dir} | grep "\-R2.fq.gz"))
+
+    echo "STARTING TAR JOB"
 
     # Distribute the FASTQ files and create TAR files
     for file in "${R1_files[@]}"; do
