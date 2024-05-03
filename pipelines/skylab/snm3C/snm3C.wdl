@@ -90,6 +90,15 @@ task Demultiplexing {
     cat ~{sep=' ' fastq_input_read1} > ~{cromwell_root_dir}/r1.fastq.gz
     cat ~{sep=' ' fastq_input_read2} > ~{cromwell_root_dir}/r2.fastq.gz
 
+    # Run cutadapt
+    /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
+    -g file:~{random_primer_indexes} \
+    -o ~{plate_id}-{name}-R1.fq.gz \
+    -p ~{plate_id}-{name}-R2.fq.gz \
+    r1.fastq.gz \
+    r2.fastq.gz \
+    > ~{cromwell_root_dir}/~{plate_id}.stats.txt
+
     touch test.txt
 
   >>>
