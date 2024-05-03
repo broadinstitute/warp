@@ -179,72 +179,72 @@ task Demultiplexing {
 
     echo "REMOVED FILES"
 
-    python3 <<CODE
-    import re
-    import os
+    #python3 <<CODE
+    #import re
+    #import os
 
     # Parsing stats.txt file
-    stats_file_path = '~{cromwell_root_dir}/~{plate_id}.stats.txt'
-    adapter_counts = {}
-    with open(stats_file_path, 'r') as file:
-        content = file.read()
+    #stats_file_path = '~{cromwell_root_dir}/~{plate_id}.stats.txt'
+    #adapter_counts = {}
+    #with open(stats_file_path, 'r') as file:
+    #    content = file.read()
 
-    adapter_matches = re.findall(r'=== First read: Adapter (\w+) ===\n\nSequence: .+; Type: .+; Length: \d+; Trimmed: (\d+) times', content)
-    for adapter_match in adapter_matches:
-        adapter_name = adapter_match[0]
-        trimmed_count = int(adapter_match[1])
-        adapter_counts[adapter_name] = trimmed_count
+    #adapter_matches = re.findall(r'=== First read: Adapter (\w+) ===\n\nSequence: .+; Type: .+; Length: \d+; Trimmed: (\d+) times', content)
+    #for adapter_match in adapter_matches:
+    #    adapter_name = adapter_match[0]
+    #    trimmed_count = int(adapter_match[1])
+    #    adapter_counts[adapter_name] = trimmed_count
 
     # Removing fastq files with trimmed reads greater than 30
-    directory_path = '~{cromwell_root_dir}'
-    threshold = 10000000
+    #directory_path = '~{cromwell_root_dir}'
+    #threshold = 10000000
 
-    for filename in os.listdir(directory_path):
-        if filename.endswith('.fq.gz'):
-            file_path = os.path.join(directory_path, filename)
-            adapter_name = re.search(r'A(\d+)-R', filename)
-            if adapter_name:
-                adapter_name = 'A' + adapter_name.group(1)
-                if adapter_name in adapter_counts and adapter_counts[adapter_name] > threshold:
-                    os.remove(file_path)
-                    print(f'Removed file: {filename}')
-    CODE
+    #for filename in os.listdir(directory_path):
+    #    if filename.endswith('.fq.gz'):
+    #        file_path = os.path.join(directory_path, filename)
+    #        adapter_name = re.search(r'A(\d+)-R', filename)
+    #        if adapter_name:
+    #            adapter_name = 'A' + adapter_name.group(1)
+    #            if adapter_name in adapter_counts and adapter_counts[adapter_name] > threshold:
+    #                os.remove(file_path)
+    #                print(f'Removed file: {filename}')
+    #CODE
 
-    echo "RAN PYTHON SNIPPET"
+    #echo "RAN PYTHON SNIPPET"
 
     # Batch the fastq files into folders of batch_number size
-    batch_number=~{batch_number}
-    for i in $(seq 1 "${batch_number}"); do  # Use seq for reliable brace expansion
-        mkdir -p "batch${i}"  # Combine batch and i, use -p to create parent dirs
-    done
+    #batch_number=~{batch_number}
+    #for i in $(seq 1 "${batch_number}"); do  # Use seq for reliable brace expansion
+    #    mkdir -p "batch${i}"  # Combine batch and i, use -p to create parent dirs
+    #done
 
-    echo "BATCHED FASTQ FILES INTO FOLDERS"
+    #echo "BATCHED FASTQ FILES INTO FOLDERS"
 
     # Counter for the folder index
-    folder_index=1
+    #folder_index=1
 
     # Define lists of r1 and r2 fq files
-    R1_files=($(ls ~{cromwell_root_dir} | grep "\-R1.fq.gz"))
-    R2_files=($(ls ~{cromwell_root_dir} | grep "\-R2.fq.gz"))
+    #R1_files=($(ls ~{cromwell_root_dir} | grep "\-R1.fq.gz"))
+    #R2_files=($(ls ~{cromwell_root_dir} | grep "\-R2.fq.gz"))
 
-    echo "STARTING TAR JOB"
+    #echo "STARTING TAR JOB"
 
     # Distribute the FASTQ files and create TAR files
-    for file in "${R1_files[@]}"; do
-        sample_id=$(basename "$file" "-R1.fq.gz")
-        r2_file="${sample_id}-R2.fq.gz"
-        mv ~{cromwell_root_dir}/$file batch$((folder_index))/$file
-        mv ~{cromwell_root_dir}/$r2_file batch$((folder_index))/$r2_file
+    #for file in "${R1_files[@]}"; do
+    #    sample_id=$(basename "$file" "-R1.fq.gz")
+    #    r2_file="${sample_id}-R2.fq.gz"
+    #    mv ~{cromwell_root_dir}/$file batch$((folder_index))/$file
+    #    mv ~{cromwell_root_dir}/$r2_file batch$((folder_index))/$r2_file
         # Increment the counter
-        folder_index=$(( (folder_index % $batch_number) + 1 ))
-    done
+    #    folder_index=$(( (folder_index % $batch_number) + 1 ))
+    #done
 
     # Tar up files per batch
-    echo "TAR files"
-    for i in $(seq 1 "${batch_number}"); do
-        tar -cf - ~{cromwell_root_dir}/batch${i}/*.fq.gz | pigz > ~{cromwell_root_dir}/~{plate_id}.${i}.cutadapt_output_files.tar.gz
-    done
-    echo "TAR files created successfully."
+    #echo "TAR files"
+    #for i in $(seq 1 "${batch_number}"); do
+    #    tar -cf - ~{cromwell_root_dir}/batch${i}/*.fq.gz | pigz > ~{cromwell_root_dir}/~{plate_id}.${i}.cutadapt_output_files.tar.gz
+    #done
+    #echo "TAR files created successfully."
 
   >>>
 
@@ -257,7 +257,7 @@ task Demultiplexing {
   }
 
   output {
-    Array[File] tarred_demultiplexed_fastqs = glob("*.tar.gz")
+    #Array[File] tarred_demultiplexed_fastqs = glob("*.tar.gz")
     File stats = "~{plate_id}.stats.txt"
     }
 }
