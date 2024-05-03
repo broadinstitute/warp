@@ -92,6 +92,7 @@ task Demultiplexing {
 
     ls -lRh
 
+      echo "running cutadapt"
     # Run cutadapt
     /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
     -g file:~{random_primer_indexes} \
@@ -100,6 +101,12 @@ task Demultiplexing {
     r1.fastq.gz \
     r2.fastq.gz \
     > ~{cromwell_root_dir}/~{plate_id}.stats.txt
+
+    echo "done running cutadapt"
+     echo "lsing the files in cromwell root dir ~{cromwell_root_dir}"
+     ls -lR ~{cromwell_root_dir}
+      echo "lsing the files "
+      ls -lR
 
 
 
