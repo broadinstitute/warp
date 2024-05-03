@@ -57,82 +57,82 @@ workflow snm3C {
             cromwell_root_dir = cromwell_root_dir
     }
 
-    scatter(tar in Demultiplexing.tarred_demultiplexed_fastqs) {
-        call Hisat_paired_end as Hisat_paired_end {
-          input:
-                tarred_demultiplexed_fastqs = tar,
-                tarred_index_files = tarred_index_files,
-                genome_fa = genome_fa,
-                chromosome_sizes = chromosome_sizes,
-                min_read_length = min_read_length,
-                r1_adapter = r1_adapter,
-                r2_adapter = r2_adapter,
-                r1_left_cut = r1_left_cut,
-                r1_right_cut = r1_right_cut,
-                r2_left_cut = r2_left_cut,
-                r2_right_cut = r2_right_cut,
-                plate_id = plate_id,
-                docker = docker_prefix + m3c_yap_hisat_docker,
-                cromwell_root_dir = cromwell_root_dir
-        }
+    #scatter(tar in Demultiplexing.tarred_demultiplexed_fastqs) {
+    #    call Hisat_paired_end as Hisat_paired_end {
+    #      input:
+    #            tarred_demultiplexed_fastqs = tar,
+    #            tarred_index_files = tarred_index_files,
+    #            genome_fa = genome_fa,
+    #            chromosome_sizes = chromosome_sizes,
+    #            min_read_length = min_read_length,
+    #            r1_adapter = r1_adapter,
+    #            r2_adapter = r2_adapter,
+     #           r1_left_cut = r1_left_cut,
+     #           r1_right_cut = r1_right_cut,
+     #           r2_left_cut = r2_left_cut,
+     #           r2_right_cut = r2_right_cut,
+     #           plate_id = plate_id,
+     #           docker = docker_prefix + m3c_yap_hisat_docker,
+     #           cromwell_root_dir = cromwell_root_dir
+     #   }
 
-        call Hisat_single_end as Hisat_single_end {
-            input:
-                split_fq_tar = Hisat_paired_end.split_fq_tar,
-                tarred_index_files = tarred_index_files,
-                genome_fa = genome_fa,
-                plate_id = plate_id,
-                docker = docker_prefix + m3c_yap_hisat_docker,
-                cromwell_root_dir = cromwell_root_dir
-        }
+      #  call Hisat_single_end as Hisat_single_end {
+      #      input:
+      #          split_fq_tar = Hisat_paired_end.split_fq_tar,
+      #          tarred_index_files = tarred_index_files,
+      #          genome_fa = genome_fa,
+      #          plate_id = plate_id,
+      #          docker = docker_prefix + m3c_yap_hisat_docker,
+      #          cromwell_root_dir = cromwell_root_dir
+      #  }
 
-        call Merge_sort_analyze as Merge_sort_analyze {
-            input:
-               paired_end_unique_tar = Hisat_paired_end.unique_bam_tar,
-               read_overlap_tar = Hisat_single_end.remove_overlaps_output_bam_tar,
-               genome_fa = genome_fa,
-               num_upstr_bases = num_upstr_bases,
-               num_downstr_bases = num_downstr_bases,
-               compress_level = compress_level,
-               chromosome_sizes = chromosome_sizes,
-               plate_id = plate_id,
-               docker = docker_prefix + m3c_yap_hisat_docker,
-               cromwell_root_dir = cromwell_root_dir
-        }
-    }
+       # call Merge_sort_analyze as Merge_sort_analyze {
+       #     input:
+       #        paired_end_unique_tar = Hisat_paired_end.unique_bam_tar,
+       #        read_overlap_tar = Hisat_single_end.remove_overlaps_output_bam_tar,
+       #        genome_fa = genome_fa,
+       #        num_upstr_bases = num_upstr_bases,
+       #        num_downstr_bases = num_downstr_bases,
+       #        compress_level = compress_level,
+        #       chromosome_sizes = chromosome_sizes,
+        #       plate_id = plate_id,
+        #       docker = docker_prefix + m3c_yap_hisat_docker,
+        #       cromwell_root_dir = cromwell_root_dir
+        #}
+    #}
 
-    call Summary {
-        input:
-            trimmed_stats = Hisat_paired_end.trim_stats_tar,
-            hisat3n_stats = Hisat_paired_end.hisat3n_paired_end_stats_tar,
-            r1_hisat3n_stats = Hisat_single_end.hisat3n_dna_split_reads_summary_R1_tar,
-            r2_hisat3n_stats = Hisat_single_end.hisat3n_dna_split_reads_summary_R2_tar,
-            dedup_stats = Merge_sort_analyze.dedup_stats_tar,
-            chromatin_contact_stats = Merge_sort_analyze.chromatin_contact_stats,
-            allc_uniq_reads_stats = Merge_sort_analyze.allc_uniq_reads_stats,
-            unique_reads_cgn_extraction_tbi = Merge_sort_analyze.extract_allc_output_tbi_tar,
-            plate_id = plate_id,
-            docker = docker_prefix + m3c_yap_hisat_docker,
-            cromwell_root_dir = cromwell_root_dir
-    }
+    #call Summary {
+    #    input:
+    #        trimmed_stats = Hisat_paired_end.trim_stats_tar,
+    #        hisat3n_stats = Hisat_paired_end.hisat3n_paired_end_stats_tar,
+    #        r1_hisat3n_stats = Hisat_single_end.hisat3n_dna_split_reads_summary_R1_tar,
+    #        r2_hisat3n_stats = Hisat_single_end.hisat3n_dna_split_reads_summary_R2_tar,
+    #        dedup_stats = Merge_sort_analyze.dedup_stats_tar,
+    #        chromatin_contact_stats = Merge_sort_analyze.chromatin_contact_stats,
+    #        allc_uniq_reads_stats = Merge_sort_analyze.allc_uniq_reads_stats,
+    #        unique_reads_cgn_extraction_tbi = Merge_sort_analyze.extract_allc_output_tbi_tar,
+    #        plate_id = plate_id,
+    #        docker = docker_prefix + m3c_yap_hisat_docker,
+    #        cromwell_root_dir = cromwell_root_dir
+    #}
 
-    meta {
-        allowNestedInputs: true
-    }
+    #meta {
+    #    allowNestedInputs: true
+    #}
 
-    output {
-        File MappingSummary = Summary.mapping_summary
-        Array[File] name_sorted_bams = Merge_sort_analyze.name_sorted_bam
-        Array[File] unique_reads_cgn_extraction_allc= Merge_sort_analyze.allc
-        Array[File] unique_reads_cgn_extraction_tbi = Merge_sort_analyze.tbi
-        Array[File] reference_version = Hisat_paired_end.reference_version
-        Array[File] all_reads_dedup_contacts = Merge_sort_analyze.all_reads_dedup_contacts
-        Array[File] all_reads_3C_contacts = Merge_sort_analyze.all_reads_3C_contacts
-        Array[File] chromatin_contact_stats = Merge_sort_analyze.chromatin_contact_stats
-        Array[File] unique_reads_cgn_extraction_allc_extract = Merge_sort_analyze.extract_allc_output_allc_tar
-        Array[File] unique_reads_cgn_extraction_tbi_extract = Merge_sort_analyze.extract_allc_output_tbi_tar
+    #output {
+    #    File MappingSummary = Summary.mapping_summary
+    ##    Array[File] name_sorted_bams = Merge_sort_analyze.name_sorted_bam
+     #   Array[File] unique_reads_cgn_extraction_allc= Merge_sort_analyze.allc
+     #   Array[File] unique_reads_cgn_extraction_tbi = Merge_sort_analyze.tbi
+     #   Array[File] reference_version = Hisat_paired_end.reference_version
+     #   Array[File] all_reads_dedup_contacts = Merge_sort_analyze.all_reads_dedup_contacts
+     #   Array[File] all_reads_3C_contacts = Merge_sort_analyze.all_reads_3C_contacts
+     #   Array[File] chromatin_contact_stats = Merge_sort_analyze.chromatin_contact_stats
+     #   Array[File] unique_reads_cgn_extraction_allc_extract = Merge_sort_analyze.extract_allc_output_allc_tar
+     #   Array[File] unique_reads_cgn_extraction_tbi_extract = Merge_sort_analyze.extract_allc_output_tbi_tar
 
-    }
+    #}
 }
 
 task Demultiplexing {
