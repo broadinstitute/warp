@@ -31,6 +31,8 @@ workflow ATAC {
 
     # Text file containing chrom_sizes for genome build (i.e. hg38)
     File chrom_sizes
+    #File for annotations for calculating ATAC TSSE 
+    File annotations_gtf
     # Whitelist
     File whitelist
 
@@ -102,6 +104,7 @@ workflow ATAC {
       input:
         bam = BBTag.bb_bam,
         chrom_sizes = chrom_sizes,
+        annotations_gtf = annotations_gtf,
         preindex = preindex
     }
   }
@@ -110,6 +113,7 @@ workflow ATAC {
       input:
         bam = BWAPairedEndAlignment.bam_aligned_output,
         chrom_sizes = chrom_sizes,
+        annotations_gtf = annotations_gtf,
         preindex = preindex
 
     }
@@ -432,6 +436,7 @@ task CreateFragmentFile {
   input {
     File bam
     File chrom_sizes
+    File annotations_gtf
     Boolean preindex
     Int disk_size = 500
     Int mem_size = 16
@@ -444,6 +449,7 @@ task CreateFragmentFile {
   parameter_meta {
     bam: "Aligned bam with CB in CB tag. This is the output of the BWAPairedEndAlignment task."
     chrom_sizes: "Text file containing chrom_sizes for genome build (i.e. hg38)."
+    annotations_gtf: "GTF for SnapATAC2 to calculate TSS sites of fragment file."
     disk_size: "Disk size used in create fragment file step."
     mem_size: "The size of memory used in create fragment file."
   }
@@ -457,6 +463,7 @@ task CreateFragmentFile {
     bam = "~{bam}"
     bam_base_name = "~{bam_base_name}"
     chrom_sizes = "~{chrom_sizes}"
+    atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
 
     # calculate chrom size dictionary based on text file
@@ -479,13 +486,18 @@ task CreateFragmentFile {
 
     # calculate quality metrics; note min_num_fragments and min_tsse are set to 0 instead of default
     # those settings allow us to retain all barcodes
-    pp.import_data("~{bam_base_name}.fragments.tsv", file="~{bam_base_name}.metrics.h5ad", chrom_sizes=chrom_size_dict, min_num_fragments=0)
+    pp.import_data("~{bam_base_name}.fragments.tsv", file="temp_metrics.h5ad", chrom_sizes=chrom_size_dict, min_num_fragments=0)
+    atac_data = ad.read_h5ad("temp_metrics.h5ad")
+    # calculate tsse metrics
+    snap.metrics.tsse(atac_data, atac_gtf)
+    # Write new atac file
+    atac_data.write_h5ad("~{bam_base_name}.metrics.h5ad")
 
     CODE
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.5-2.6.0-1714070943"
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.6-2.6.1-1714757147"
     disks: "local-disk ${disk_size} SSD"
     memory: "${mem_size} GiB"
     cpu: nthreads

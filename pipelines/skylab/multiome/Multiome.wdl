@@ -83,6 +83,7 @@ workflow Multiome {
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
+            annotations_gtf = annotations_gtf,
             adapter_seq_read3 = adapter_seq_read3
     }
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
@@ -91,7 +92,6 @@ workflow Multiome {
             gex_h5ad = Optimus.h5ad_output_file,
             gex_whitelist = gex_whitelist,
             atac_whitelist = atac_whitelist,
-            annotations_gtf = annotations_gtf,
             atac_fragment = Atac.fragment_file
     }
 

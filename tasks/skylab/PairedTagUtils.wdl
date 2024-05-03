@@ -185,7 +185,6 @@ task ParseBarcodes {
     input {
         File atac_h5ad
         File atac_fragment
-        File annotations_gtf
         Int nthreads = 1
         String cpuPlatform = "Intel Cascade Lake"
     }
@@ -207,7 +206,6 @@ task ParseBarcodes {
     python3 <<CODE
 
     # set parameters
-    atac_gtf = "~{annotations_gtf}"
     atac_h5ad = "~{atac_h5ad}"
     atac_fragment = "~{atac_fragment}"
 
@@ -219,9 +217,7 @@ task ParseBarcodes {
     atac_data = ad.read_h5ad("~{atac_h5ad}")
     print("Reading ATAC fragment file:")
     test_fragment = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
-      
-    # calculate tsse metrics
-    snap.metrics.tsse(atac_data, atac_gtf)
+
 
     # Separate out CB and preindex in the h5ad and identify sample barcodes assigned to more than one cell barcode
     print("Setting preindex and CB columns in h5ad")

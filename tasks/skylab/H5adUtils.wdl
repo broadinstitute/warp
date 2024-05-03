@@ -190,7 +190,6 @@ task JoinMultiomeBarcodes {
     File gex_h5ad
     File gex_whitelist
     File atac_whitelist
-    File annotations_gtf
 
     Int nthreads = 1
     String cpuPlatform = "Intel Cascade Lake"
@@ -215,7 +214,6 @@ task JoinMultiomeBarcodes {
     python3 <<CODE
 
     # set parameters
-    atac_gtf = "~{annotations_gtf}"
     atac_h5ad = "~{atac_h5ad}"
     atac_fragment = "~{atac_fragment}"
     gex_h5ad = "~{gex_h5ad}"
@@ -237,9 +235,6 @@ task JoinMultiomeBarcodes {
     atac_tsv = pd.read_csv("~{atac_fragment}", sep="\t", names=['chr','start', 'stop', 'barcode','n_reads'])
     whitelist_gex = pd.read_csv("~{gex_whitelist}", header=None, names=["gex_barcodes"])
     whitelist_atac = pd.read_csv("~{atac_whitelist}", header=None, names=["atac_barcodes"])
-
-    # calculate tsse metrics
-    snap.metrics.tsse(atac_data, atac_gtf)
     
     # get dataframes
     df_atac = atac_data.obs
