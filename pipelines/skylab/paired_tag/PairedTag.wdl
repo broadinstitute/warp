@@ -95,8 +95,7 @@ workflow PairedTag {
         call Demultiplexing.ParseBarcodes as ParseBarcodes {
             input:
               atac_h5ad = Atac_preindex.snap_metrics,
-              atac_fragment = Atac_preindex.fragment_file,
-              annotations_gtf = annotations_gtf
+              atac_fragment = Atac_preindex.fragment_file
         }
     }      
 
