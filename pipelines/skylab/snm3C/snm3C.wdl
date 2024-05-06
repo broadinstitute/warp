@@ -158,12 +158,12 @@ task Demultiplexing {
     ls -lR
     pwd
     echo "setting directory"
-    working_directory=`pwd`
-    echo $working_directory
+    WORKING_DIR=`pwd`
+    echo $WORKING_DIR
 
     # Cat files for each r1, r2
-    cat ~{sep=' ' fastq_input_read1} > $working_directory/r1.fastq.gz
-    cat ~{sep=' ' fastq_input_read2} > $working_directory/r2.fastq.gz
+    cat ~{sep=' ' fastq_input_read1} > $WORKING_DIR/r1.fastq.gz
+    cat ~{sep=' ' fastq_input_read2} > $WORKING_DIR/r2.fastq.gz
 
     echo "successfully catted files"
     pwd
@@ -174,14 +174,14 @@ task Demultiplexing {
     -g file:~{random_primer_indexes} \
     -o ~{plate_id}-{name}-R1.fq.gz \
     -p ~{plate_id}-{name}-R2.fq.gz \
-    r1.fastq.gz \
-    r2.fastq.gz \
-    > $working_directory/~{plate_id}.stats.txt
+    $WORKING_DIR/r1.fastq.gz \
+    $WORKING_DIR/r2.fastq.gz \
+    > $WORKING_DIR/~{plate_id}.stats.txt
 
     echo "RAN CUT ADAPT"
 
     # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
-    rm ~{cromwell_root_dir}/*-unknown-R{1,2}.fq.gz
+    rm $WORKING_DIR/*-unknown-R{1,2}.fq.gz
 
     echo "REMOVED FILES"
 
