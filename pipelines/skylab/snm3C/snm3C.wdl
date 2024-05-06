@@ -195,7 +195,7 @@ task Demultiplexing {
     adapter_counts = {}
     with open(stats_file_path, 'r') as file:
         content = file.read()
-    print("opened stats file)
+    print("opened stats file")
     adapter_matches = re.findall(r'=== First read: Adapter (\w+) ===\n\nSequence: .+; Type: .+; Length: \d+; Trimmed: (\d+) times', content)
     for adapter_match in adapter_matches:
         adapter_name = adapter_match[0]
