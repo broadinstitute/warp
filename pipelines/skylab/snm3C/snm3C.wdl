@@ -157,7 +157,8 @@ task Demultiplexing {
 
     ls -lR
     pwd
-    working_directory = `pwd`
+    echo "setting directory"
+    working_directory=`pwd`
     echo $working_directory
 
     # Cat files for each r1, r2
