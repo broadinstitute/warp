@@ -191,7 +191,7 @@ task Demultiplexing {
 
     # Parsing stats.txt file
     working_dir = os.getcwd()
-    stats_file_path = os.path.join(working_dir, ~{plate_id}.stats.txt')
+    stats_file_path = os.path.join(working_dir, '~{plate_id}.stats.txt')
     adapter_counts = {}
     with open(stats_file_path, 'r') as file:
         content = file.read()
