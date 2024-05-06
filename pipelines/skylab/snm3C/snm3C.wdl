@@ -157,11 +157,16 @@ task Demultiplexing {
 
     ls -lR
     pwd
-
+    working_directory = `pwd`
+    echo $working_directory
 
     # Cat files for each r1, r2
-    cat ~{sep=' ' fastq_input_read1} > ~{cromwell_root_dir}/r1.fastq.gz
-    cat ~{sep=' ' fastq_input_read2} > ~{cromwell_root_dir}/r2.fastq.gz
+    cat ~{sep=' ' fastq_input_read1} > $working_directory/r1.fastq.gz
+    cat ~{sep=' ' fastq_input_read2} > $working_directory/r2.fastq.gz
+
+    echo "successfully catted files"
+    pwd
+    ls
 
     # Run cutadapt
     /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
@@ -170,7 +175,7 @@ task Demultiplexing {
     -p ~{plate_id}-{name}-R2.fq.gz \
     r1.fastq.gz \
     r2.fastq.gz \
-    > ~{cromwell_root_dir}/~{plate_id}.stats.txt
+    > $working_directory/~{plate_id}.stats.txt
 
     echo "RAN CUT ADAPT"
 
