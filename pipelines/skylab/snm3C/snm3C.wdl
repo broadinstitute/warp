@@ -207,7 +207,7 @@ task Demultiplexing {
 
     # TODO remove these prints:
     all_fastqs = os.listdir(working_dir)
-    print(f"all fastq files: {all_fastqs}"
+    print(f"all fastq files: {all_fastqs}")
 
     for filename in os.listdir(working_dir):
         if filename.endswith('.fq.gz'):
