@@ -476,6 +476,7 @@ task CreateFragmentFile {
     # use snap atac2
     import snapatac2.preprocessing as pp
     import snapatac2 as snap
+    import anndata as ad
 
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
     if preindex == "true":
