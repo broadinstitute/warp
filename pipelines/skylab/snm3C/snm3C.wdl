@@ -391,7 +391,7 @@ task Hisat_paired_end {
           elapsed=$((end - start)) 
           echo "Elapsed time to run split_hisat3n_unmapped_reads: $elapsed seconds"
           
-          rm ~{cromwell_root_dir}/batch*/${sample_id}-R1.fq.gz ~{cromwell_root_dir}/batch*/${sample_id}-R2.fq.gz
+          rm $WORKING_DIR/batch*/${sample_id}-R1.fq.gz $WORKING_DIR/batch*/${sample_id}-R2.fq.gz
           rm ${sample_id}-R1_sorted.fq ${sample_id}-R2_sorted.fq
           rm ${sample_id}-R1_trimmed.fq.gz ${sample_id}-R2_trimmed.fq.gz
           rm ${sample_id}.hisat3n_dna.unsort.bam ${sample_id}.hisat3n_dna.multi_aligned.bam
@@ -399,8 +399,8 @@ task Hisat_paired_end {
        }
 
       # define lists of r1 and r2 fq files
-      R1_files=($(ls batch*/ | grep "\-R1.fq.gz"))
-      R2_files=($(ls batch*/ | grep "\-R2.fq.gz"))
+      R1_files=($(ls $WORKING_DIR/batch*/ | grep "\-R1.fq.gz"))
+      R2_files=($(ls $WORKING_DIR/batch*/ | grep "\-R2.fq.gz"))
 
       # for file in "${R1_files[@]}"; do
       # (
