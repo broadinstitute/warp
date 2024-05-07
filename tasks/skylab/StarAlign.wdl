@@ -252,7 +252,7 @@ task STARsoloFastq {
   }
 
   command <<<
-    set -e
+       set -e
 
     UMILen=10
     CBLen=16
@@ -292,25 +292,6 @@ task STARsoloFastq {
         ## single cell or whole cell
         COUNTING_MODE="Gene"
         echo "Running in ~{counting_mode} mode. The Star parameter --soloFeatures will be set to $COUNTING_MODE"
-        STAR \
-        --soloType Droplet \
-        --soloStrand ~{star_strand_mode} \
-        --runThreadN ~{cpu} \
-        --genomeDir genome_reference \
-        --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
-        --readFilesCommand "gunzip -c" \
-        --soloCBwhitelist "~{white_list}" \
-        --soloUMIlen $UMILen --soloCBlen $CBLen \
-        --soloFeatures $COUNTING_MODE \
-        --clipAdapterType CellRanger4 \
-        --outFilterScoreMin 30  \
-        --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
-        --soloUMIdedup 1MM_Directional_UMItools \
-        --outSAMtype BAM SortedByCoordinate \
-        --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
-        --soloBarcodeReadLength 0 \
-        --soloCellReadStats Standard \
-        ~{"--soloMultiMappers " + soloMultiMappers}
     elif [[ "~{counting_mode}" == "sn_rna" ]]
     then
         ## single nuclei
@@ -318,53 +299,36 @@ task STARsoloFastq {
         then
             COUNTING_MODE="GeneFull_Ex50pAS"
             echo "Running in ~{counting_mode} mode. Count_exons is false and the Star parameter --soloFeatures will be set to $COUNTING_MODE"
-            STAR \
-            --soloType Droplet \
-            --soloStrand ~{star_strand_mode} \
-            --runThreadN ~{cpu} \
-            --genomeDir genome_reference \
-            --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
-            --readFilesCommand "gunzip -c" \
-            --soloCBwhitelist "~{white_list}" \
-            --soloUMIlen $UMILen --soloCBlen $CBLen \
-            --soloFeatures $COUNTING_MODE  \
-            --clipAdapterType CellRanger4 \
-            --outFilterScoreMin 30  \
-            --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
-            --soloUMIdedup 1MM_Directional_UMItools \
-            --outSAMtype BAM SortedByCoordinate \
-            --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
-            --soloBarcodeReadLength 0 \
-            --soloCellReadStats Standard \
-            ~{"--soloMultiMappers " + soloMultiMappers}
         else
             COUNTING_MODE="GeneFull_Ex50pAS Gene"
-            echo "Running in ~{counting_mode} mode. Count_exons is true and the Star parameter --soloFeatures will be set to $COUNTING_MODE"
-            STAR \
-            --soloType Droplet \
-            --soloStrand ~{star_strand_mode} \
-            --runThreadN ~{cpu} \
-            --genomeDir genome_reference \
-            --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
-            --readFilesCommand "gunzip -c" \
-            --soloCBwhitelist "~{white_list}" \
-            --soloUMIlen $UMILen --soloCBlen $CBLen \
-            --soloFeatures $COUNTING_MODE \
-            --clipAdapterType CellRanger4 \
-            --outFilterScoreMin 30  \
-            --soloCBmatchWLtype 1MM_multi_Nbase_pseudocounts \
-            --soloUMIdedup 1MM_Directional_UMItools \
-            --outSAMtype BAM SortedByCoordinate \
-            --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
-            --soloBarcodeReadLength 0 \
-            --soloCellReadStats Standard \
-            ~{"--soloMultiMappers " + soloMultiMappers}
+            echo "Running in ~{counting_mode} mode. Count_exons is true and the Star parameter --soloFeatures will be set to $COUNTING_MODE"     
         fi
     else
         echo Error: unknown counting mode: "$counting_mode". Should be either sn_rna or sc_rna.
         exit 1;
     fi
 
+    STAR \
+        --soloType Droplet \
+        --soloStrand ~{star_strand_mode} \
+        --runThreadN ~{cpu} \
+        --genomeDir genome_reference \
+        --readFilesIn "~{sep=',' r2_fastq}" "~{sep=',' r1_fastq}" \
+        --readFilesCommand "gunzip -c" \
+        --soloCBwhitelist ~{white_list} \
+        --soloUMIlen $UMILen --soloCBlen $CBLen \
+        --soloFeatures $COUNTING_MODE \
+        --clipAdapterType CellRanger4 \
+        --outFilterScoreMin 30  \
+        --soloCBmatchWLtype 1MM_multi \
+        --soloUMIdedup 1MM_CR \
+        --outSAMtype BAM SortedByCoordinate \
+        --outSAMattributes UB UR UY CR CB CY NH GX GN sF \
+        --soloBarcodeReadLength 0 \
+        --soloCellReadStats Standard \
+        ~{"--soloMultiMappers " + soloMultiMappers} \
+        --soloUMIfiltering MultiGeneUMI_CR
+      
     echo "UMI LEN " $UMILen
 
     touch barcodes_sn_rna.tsv
@@ -375,15 +339,13 @@ task STARsoloFastq {
     touch Summary_sn_rna.csv
     touch UMIperCellSorted_sn_rna.txt
 
+
     if [[ "~{counting_mode}" == "sc_rna" ]]
     then
       SoloDirectory="Solo.out/Gene/raw"
       echo "SoloDirectory is $SoloDirectory"
-      #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{}  echo mv {} /cromwell_root/
-      #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
-      echo "list matrix files in $SoloDirectory"
-      ls "$SoloDirectory"/*.mtx
-      mv $SoloDirectory/matrix.mtx matrix.mtx
+      find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{}  echo mv {} /cromwell_root/
+      find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
       mv "Solo.out/Gene/raw/barcodes.tsv" barcodes.tsv
       mv "Solo.out/Gene/raw/features.tsv" features.tsv
       mv "Solo.out/Gene/CellReads.stats" CellReads.stats
@@ -396,11 +358,8 @@ task STARsoloFastq {
       then
         SoloDirectory="Solo.out/GeneFull_Ex50pAS/raw"
         echo "SoloDirectory is $SoloDirectory"
-        #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{}  echo mv {} /cromwell_root/
-        #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
-        echo "list matrix files in $SoloDirectory"
-        ls "$SoloDirectory"/*.mtx
-        mv $SoloDirectory/matrix.mtx matrix.mtx
+        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{}  echo mv {} /cromwell_root/
+        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats
@@ -410,18 +369,12 @@ task STARsoloFastq {
       else
         SoloDirectory="Solo.out/GeneFull_Ex50pAS/raw"
         echo "SoloDirectory is $SoloDirectory"
-        #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} echo mv {} /cromwell_root/
-        #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
-        echo "list matrix files in $SoloDirectory"
-        ls "$SoloDirectory"/*.mtx
-        mv $SoloDirectory/matrix.mtx matrix.mtx
+        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} echo mv {} /cromwell_root/
+        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} mv {} /cromwell_root/
         SoloDirectory="Solo.out/Gene/raw"
         echo "SoloDirectory is $SoloDirectory"
-        #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx";  echo mv {} "/cromwell_root/$new_name"'
-        #find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; mv {} "/cromwell_root/$new_name"'
-        echo "list matrix files in $SoloDirectory"
-        ls "$SoloDirectory"/*.mtx
-        mv $SoloDirectory/matrix.mtx matrix_sn_rna.mtx
+        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx";  echo mv {} "/cromwell_root/$new_name"'
+        find "$SoloDirectory" -maxdepth 1 -type f -name "*.mtx" -print0 | xargs -0 -I{} sh -c 'new_name="$(basename {} .mtx)_sn_rna.mtx"; mv {} "/cromwell_root/$new_name"'
         mv "Solo.out/GeneFull_Ex50pAS/raw/barcodes.tsv" barcodes.tsv
         mv "Solo.out/GeneFull_Ex50pAS/raw/features.tsv" features.tsv
         mv "Solo.out/GeneFull_Ex50pAS/CellReads.stats" CellReads.stats

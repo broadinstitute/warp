@@ -1,9 +1,16 @@
+# 6.6.3
+2024-05-08 (Date of Last Commit)
+
+* Updated the Optimus.wdl to run on Azure
+
 # 6.6.2
-2024-04-01 (Date of Last Commit)
-* Updated the Optimus.wdl to run on Azure.
+2024-04-24 (Date of Last Commit)
+
+* Updated the input parameters for STARsolo in STARsoloFastq task. These include the parameters: soloCBmatchWLtype, soloUMIdedup and soloUMIfiltering
+* Added "Uniform" as the default string for STARsolo multimapping parameters
 
 # 6.6.1
-20240326 (Date of Last Commit)
+2024-03-26 (Date of Last Commit)
 
 * Updated the median umi per cell metric for STARsolo library-level metrics
 

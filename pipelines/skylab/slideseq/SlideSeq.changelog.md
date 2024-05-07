@@ -1,6 +1,12 @@
-# 3.1.5
-2024-04-02 (Date of Last Commit)
+# 3.1.6
+2024-05-07 (Date of Last Commit)
+
 * Updated the Optimus.wdl to run on Azure. This change does not affect the SlideSeq pipeline.
+
+# 3.1.5
+2024-04-12 (Date of Last Commit)
+
+* Updated the input parameters for STARsolo in STARsoloFastq task. These include the parameters: soloCBmatchWLtype, soloUMIdedup and soloUMIfiltering
 
 # 3.1.4
 2024-03-26 (Date of Last Commit)

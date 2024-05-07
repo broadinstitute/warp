@@ -1,12 +1,13 @@
 # 0.5.2
-2024-04-08 (Date of Last Commit)
+2024-05-07 (Date of Last Commit)
 
 * Updated the PairedTag.wdl to run in Azure 
 
 # 0.5.1
-2024-04-04 (Date of Last Commit)
+2024-04-12 (Date of Last Commit)
 
-* Updated the Optimus.wdl to run on Azure. This change does not affect the PairedTag pipeline.
+* Updated the input parameters for STARsolo in STARsoloFastq task. These include the parameters: soloCBmatchWLtype, soloUMIdedup and soloUMIfiltering
+* Added "Uniform" as the default string for STARsolo multimapping parameters
 
 # 0.5.0
 2024-04-03 (Date of Last Commit)

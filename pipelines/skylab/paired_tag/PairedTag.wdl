@@ -9,6 +9,7 @@ workflow PairedTag {
 
     String pipeline_version = "0.5.2"
 
+
     input {
         String input_id
 
