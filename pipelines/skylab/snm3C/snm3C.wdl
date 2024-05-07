@@ -309,6 +309,11 @@ task Hisat_paired_end {
         end=$(date +%s) 
         elapsed=$((end - start)) 
         echo "Elapsed time to untar: $elapsed seconds"
+
+        echo "lsing current dir:"
+        ls -lR
+        echo "lsing cromwell root:"
+        ls -lR ~{cromwell_root_dir}
     
         task() {
           local file=$1
