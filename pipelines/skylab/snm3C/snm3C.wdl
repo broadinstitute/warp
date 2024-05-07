@@ -399,8 +399,8 @@ task Hisat_paired_end {
        }
 
       # define lists of r1 and r2 fq files
-      R1_files=($(ls $WORKING_DIR/batch*/ | grep "\-R1.fq.gz"))
-      R2_files=($(ls $WORKING_DIR/batch*/ | grep "\-R2.fq.gz"))
+      R1_files=($(ls ~{cromwell_root_dir}/batch*/ | grep "\-R1.fq.gz"))
+      R2_files=($(ls ~{cromwell_root_dir}/batch*/ | grep "\-R2.fq.gz"))
 
       # for file in "${R1_files[@]}"; do
       # (
