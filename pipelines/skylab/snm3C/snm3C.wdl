@@ -314,7 +314,16 @@ task Hisat_paired_end {
         ls -lR
         echo "lsing cromwell root:"
         ls -lR ~{cromwell_root_dir}
-    
+
+        # define lists of r1 and r2 fq files
+        if [ ~{cromwell_root_dir} = "gcp" ]; then
+            batch_dir="batch*/"
+        else
+            batch_dir="/~{cromwell_root_dir}/*/*/call-Demultiplexing/execution/batch*/"
+        fi
+        echo "batchdirectory: $batch_dir"
+
+
         task() {
           local file=$1
           sample_id=$(basename "$file" "-R1.fq.gz")
@@ -326,7 +335,7 @@ task Hisat_paired_end {
           # sort 
           start=$(date +%s)
           echo "Run sort r1"
-          zcat $WORKING_DIR/batch*/"$r1_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R1_sorted.fq"
+          zcat $batch_dir/"$r1_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R1_sorted.fq"
           end=$(date +%s) 
           elapsed=$((end - start)) 
           echo "Elapsed time to run sort r1: $elapsed seconds"
@@ -334,7 +343,7 @@ task Hisat_paired_end {
           # sort 
           start=$(date +%s)
           echo "Run sort r2"
-          zcat $WORKING_DIR/batch*/"$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R2_sorted.fq"
+          zcat $batch_dir/batch*/"$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R2_sorted.fq"
           end=$(date +%s) 
           elapsed=$((end - start)) 
           echo "Elapsed time to run sort r2: $elapsed seconds"
@@ -396,30 +405,33 @@ task Hisat_paired_end {
           elapsed=$((end - start)) 
           echo "Elapsed time to run split_hisat3n_unmapped_reads: $elapsed seconds"
           
-          rm $WORKING_DIR/batch*/${sample_id}-R1.fq.gz $WORKING_DIR/batch*/${sample_id}-R2.fq.gz
+          rm $batch_dir/${sample_id}-R1.fq.gz $batch_dir/batch*/${sample_id}-R2.fq.gz
           rm ${sample_id}-R1_sorted.fq ${sample_id}-R2_sorted.fq
           rm ${sample_id}-R1_trimmed.fq.gz ${sample_id}-R2_trimmed.fq.gz
           rm ${sample_id}.hisat3n_dna.unsort.bam ${sample_id}.hisat3n_dna.multi_aligned.bam
           rm ${sample_id}.hisat3n_dna.unmapped.fastq
        }
 
-      # define lists of r1 and r2 fq files
-      R1_files=($(ls ~{cromwell_root_dir}/batch*/ | grep "\-R1.fq.gz"))
-      R2_files=($(ls ~{cromwell_root_dir}/batch*/ | grep "\-R2.fq.gz"))
+
+      R1_files=($(ls $batch_dir | grep "\-R1.fq.gz"))
+      R2_files=($(ls $batch_dir | grep "\-R2.fq.gz"))
+
+      echo "r1 files: $R1_files"
+      echo "r2 files: $R2_files"
 
       # for file in "${R1_files[@]}"; do
       # (
       #   echo "starting task $file.."
       #   du -h  batch*/$file
       #   task "$file"
-      # ) 
+      # )
       # done
 
       # run 6 instances of task in parallel 
       for file in "${R1_files[@]}"; do
         (
           echo "starting task $file.."
-          du -h  batch*/$file
+          du -h  $batch_dir/$file
           task "$file"
           sleep $(( (RANDOM % 3) + 1))
         ) &
