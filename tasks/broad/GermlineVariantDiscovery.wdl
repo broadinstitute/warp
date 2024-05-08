@@ -27,6 +27,7 @@ task HaplotypeCaller_GATK35_GVCF {
     Float? contamination
     Int preemptible_tries
     Int hc_scatter
+    String docker
   }
 
   parameter_meta {
@@ -170,6 +171,7 @@ task MergeVCFs {
     Array[File] input_vcfs_indexes
     String output_vcf_name
     Int preemptible_tries = 3
+    String docker
   }
 
   Int disk_size = ceil(size(input_vcfs, "GiB") * 2.5) + 10
@@ -183,7 +185,7 @@ task MergeVCFs {
       OUTPUT=~{output_vcf_name}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: docker
     preemptible: preemptible_tries
     memory: "3000 MiB"
     disks: "local-disk ~{disk_size} HDD"
@@ -203,7 +205,7 @@ task Reblock {
     File ref_fasta
     File ref_fasta_index
     String output_vcf_filename
-    String docker_image = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    String docker_image 
     Int additional_disk = 20
     String? annotations_to_keep_command
     String? annotations_to_remove_command
@@ -292,7 +294,7 @@ task DragenHardFilterVcf {
     Boolean make_gvcf
     String vcf_basename
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    String gatk_docker
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20
