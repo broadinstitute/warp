@@ -9,7 +9,7 @@ import "../../../../../tasks/broad/DragenTasks.wdl" as DragenTasks
 workflow VariantCalling {
 
 
-  String pipeline_version = "2.1.18"
+  String pipeline_version = "2.1.19"
 
 
   input {
@@ -36,7 +36,19 @@ workflow VariantCalling {
     Boolean use_gatk3_haplotype_caller = false
     Boolean skip_reblocking = false
     Boolean use_dragen_hard_filtering = false
+    String cloud_provider
   }
+# Determine docker prefix based on cloud provider
+  String gcr_docker_prefix = "us.gcr.io/broad-gatk/"
+  String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
+  String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
+
+  #gatk docker images
+  String gatk_docker_gcp = "gatk:4.5.0.0"
+  String gatk_docker_azure = "gatk_reduced_layers:latest"
+  String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
+
+  
 
   parameter_meta {
     make_bamout: "For CNNScoreVariants to run with a 2D model, a bamout must be created by HaplotypeCaller. The bamout is a bam containing information on how HaplotypeCaller remapped reads while it was calling variants. See https://gatkforums.broadinstitute.org/gatk/discussion/5484/howto-generate-a-bamout-file-showing-how-haplotypecaller-has-remapped-sequence-reads for more details."
@@ -109,7 +121,8 @@ workflow VariantCalling {
           use_dragen_hard_filtering = use_dragen_hard_filtering,
           use_spanning_event_genotyping = use_spanning_event_genotyping,
           dragstr_model = DragstrAutoCalibration.dragstr_model,
-          preemptible_tries = agg_preemptible_tries
+          preemptible_tries = agg_preemptible_tries,
+          gatk_docker = docker_prefix + gatk_docker
        }
 
       if (use_dragen_hard_filtering) {
@@ -183,7 +196,7 @@ workflow VariantCalling {
       calling_interval_list = calling_interval_list,
       is_gvcf = make_gvcf,
       extra_args = if (skip_reblocking == false) then "--no-overlaps" else "",
-      gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0",
+      gatk_docker = docker_prefix + gatk_docker, 
       preemptible_tries = agg_preemptible_tries
   }
 
