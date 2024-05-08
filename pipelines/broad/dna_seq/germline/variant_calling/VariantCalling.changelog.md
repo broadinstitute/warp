@@ -1,3 +1,8 @@
+# 2.1.19
+2024-05-08 (Date of Last Commit)
+
+* Updated tasks to allow multi-cloud dockers; this does not affect this pipeline. 
+
 # 2.1.18
 2024-03-26 (Date of Last Commit)
 
