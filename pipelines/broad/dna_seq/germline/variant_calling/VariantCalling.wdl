@@ -48,7 +48,10 @@ workflow VariantCalling {
   String gatk_docker_azure = "gatk_reduced_layers:latest"
   String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
 
-  
+  #picard-python docker images
+  String picard-python_docker_gcp = "picard-python:1.0.0-2.26.10-1663951039"
+  String picard-python_docker_azure = "picard-python:1.0.0-2.26.10-1663951039"
+  String picard-python_docker = if cloud_provider == "gcp" then picard-python_docker_gcp else picard-python_docker_azure
 
   parameter_meta {
     make_bamout: "For CNNScoreVariants to run with a 2D model, a bamout must be created by HaplotypeCaller. The bamout is a bam containing information on how HaplotypeCaller remapped reads while it was calling variants. See https://gatkforums.broadinstitute.org/gatk/discussion/5484/howto-generate-a-bamout-file-showing-how-haplotypecaller-has-remapped-sequence-reads for more details."
@@ -63,7 +66,8 @@ workflow VariantCalling {
         ref_dict = ref_dict,
         alignment = input_bam,
         alignment_index = input_bam_index,
-        str_table_file = select_first([ref_str])
+        str_table_file = select_first([ref_str]), 
+        docker = docker_prefix + gatk_docker
     }
   }
 
@@ -74,7 +78,8 @@ workflow VariantCalling {
     input:
       interval_list = calling_interval_list,
       scatter_count = haplotype_scatter_count,
-      break_bands_at_multiples_of = break_bands_at_multiples_of
+      break_bands_at_multiples_of = break_bands_at_multiples_of,
+      docker = 
   }
 
   # We need disk to localize the sharded input and output due to the scatter for HaplotypeCaller.
