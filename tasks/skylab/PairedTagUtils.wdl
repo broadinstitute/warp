@@ -13,6 +13,9 @@ task PairedTagDemultiplex {
         Int preemptible = 3
         Int mem_size = 8
     }
+    String r1_base = basename(read1_fastq)
+    String r2_base = basename(barcodes_fastq)
+    String r3_base = basename(read3_fastq)
     meta {
         description: "Checks read2 FASTQ length and orientation and performs trimming."
     }
@@ -41,9 +44,9 @@ task PairedTagDemultiplex {
         echo 'this is the read:' $R2
         echo 'this is the barcode count:' $COUNT
         echo "Renaming files for UPS tools"
-        mv ~{read1_fastq} "~{input_id}_R1.fq.gz"
-        mv ~{barcodes_fastq} "~{input_id}_R2.fq.gz"
-        mv ~{read3_fastq} "~{input_id}_R3.fq.gz"
+        mv ~{read1_fastq} "~{r1_base}.fq.gz"
+        mv ~{barcodes_fastq} "~{r2_base}.fq.gz"
+        mv ~{read3_fastq} "~{r3_base}.fq.gz"
         echo "performing read2 length, trimming, and orientation checks" 
         if [[ $COUNT == 27 && ~{preindex} == "false" ]]
           then
@@ -65,7 +68,7 @@ task PairedTagDemultiplex {
             pass="false"
             echo "Incorrect barcode orientation"
           fi
-          mv "~{input_id}_R2_trim.fq.gz" "~{input_id}_R2.fq.gz"
+          mv "~{input_id}_R2_trim.fq.gz" "~{r2_base}.fq.gz"
 
         elif [[ $COUNT == 27 && ~{preindex} == "true" ]]
           then
@@ -88,9 +91,9 @@ task PairedTagDemultiplex {
             echo "Incorrect barcode orientation"
           fi
           # rename files to original name
-          mv "~{input_id}_R2_prefix.fq.gz" "~{input_id}_R2.fq.gz"
-          mv "~{input_id}_R1_prefix.fq.gz" "~{input_id}_R1.fq.gz"
-          mv "~{input_id}_R3_prefix.fq.gz" "~{input_id}_R3.fq.gz"
+          mv "~{input_id}_R2_prefix.fq.gz" "~{r2_base}.fq.gz"
+          mv "~{input_id}_R1_prefix.fq.gz" "~{r1_base}.fq.gz"
+          mv "~{input_id}_R3_prefix.fq.gz" "~{r3_base}.fq.gz"
         elif [[ $COUNT == 24 && ~{preindex} == "false" ]]
           then
           echo "FASTQ has correct index length, no modification necessary"
@@ -120,9 +123,9 @@ task PairedTagDemultiplex {
     }
 
     output {
-        File fastq1 = "~{input_id}_R1.fq.gz"
-        File barcodes = "~{input_id}_R2.fq.gz"
-        File fastq3 = "~{input_id}_R3.fq.gz"
+        File fastq1 = "~{r1_base}.fq.gz"
+        File barcodes = "~{r2_base}.fq.gz"
+        File fastq3 = "~{r3_base}.fq.gz"
     }
 }
 
