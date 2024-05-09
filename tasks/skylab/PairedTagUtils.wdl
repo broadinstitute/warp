@@ -13,9 +13,9 @@ task PairedTagDemultiplex {
         Int preemptible = 3
         Int mem_size = 8
     }
-    String r1_base = basename(read1_fastq, "fastq.gz")
-    String r2_base = basename(barcodes_fastq, "fastq.gz")
-    String r3_base = basename(read3_fastq, "fastq.gz")
+    String r1_base = basename(read1_fastq, ".fastq.gz")
+    String r2_base = basename(barcodes_fastq, ".fastq.gz")
+    String r3_base = basename(read3_fastq, ".fastq.gz")
     meta {
         description: "Checks read2 FASTQ length and orientation and performs trimming."
     }
