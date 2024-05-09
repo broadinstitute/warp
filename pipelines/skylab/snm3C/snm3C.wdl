@@ -404,7 +404,7 @@ task Hisat_paired_end {
           # call separate_unique_and_multi_align_reads
           start=$(date +%s)
           echo "Run separate_unique_and_multi_align_reads"
-          python3 -c 'from cemba_data.hisat3n import separate_unique_and_multi_align_reads;separate_unique_and_multi_align_reads(in_bam_path="'"$sample_id"'.hisat3n_dna.unsort.bam", out_unique_path="'"$WORKING_DIR"'/"'"$sample_id"'.hisat3n_dna.unique_aligned.bam", out_multi_path="'"$WORKING_DIR"'/"'"$sample_id"'.hisat3n_dna.multi_aligned.bam", out_unmappable_path="'"$WORKING_DIR"'/"'"$sample_id"'.hisat3n_dna.unmapped.fastq", unmappable_format="fastq", mapq_cutoff=10, qlen_cutoff='"$min_read_length"')'
+          python3 -c 'from cemba_data.hisat3n import separate_unique_and_multi_align_reads;separate_unique_and_multi_align_reads(in_bam_path="'"$sample_id"'.hisat3n_dna.unsort.bam", out_unique_path="'"$sample_id"'.hisat3n_dna.unique_aligned.bam", out_multi_path="'"$sample_id"'.hisat3n_dna.multi_aligned.bam", out_unmappable_path="'"$sample_id"'.hisat3n_dna.unmapped.fastq", unmappable_format="fastq", mapq_cutoff=10, qlen_cutoff='"$min_read_length"')'
           end=$(date +%s) 
           elapsed=$((end - start)) 
           echo "Elapsed time to run separate_unique_and_multi_align_reads: $elapsed seconds"
@@ -412,7 +412,7 @@ task Hisat_paired_end {
           # call split_hisat3n_unmapped_reads
           start=$(date +%s)
           echo "Run split_hisat3n_unmapped_reads"
-          python3 -c 'from cemba_data.hisat3n import *;split_hisat3n_unmapped_reads(fastq_path="'"$sample_id"'.hisat3n_dna.unmapped.fastq",output_prefix="'"$WORKING_DIR"'/"'"$sample_id"'.hisat3n_dna.split_reads",min_length='"$min_read_length"')'
+          python3 -c 'from cemba_data.hisat3n import *;split_hisat3n_unmapped_reads(fastq_path="'"$sample_id"'.hisat3n_dna.unmapped.fastq",output_prefix="'"$sample_id"'.hisat3n_dna.split_reads",min_length='"$min_read_length"')'
           end=$(date +%s) 
           elapsed=$((end - start)) 
           echo "Elapsed time to run split_hisat3n_unmapped_reads: $elapsed seconds"
