@@ -236,6 +236,7 @@ task Demultiplexing {
 
     # Tar up files per batch
     for i in $(seq 1 "${batch_number}"); do
+        echo " working on batch: batch${i}"
         echo "tarring $WORKING_DIR/batch${i}/*.fq.gz and outputting:  $WORKING_DIR/~{plate_id}.${i}.cutadapt_output_files.tar.gz"
         tar -cf - $WORKING_DIR/batch${i}/*.fq.gz | pigz > $WORKING_DIR/~{plate_id}.${i}.cutadapt_output_files.tar.gz
     done
