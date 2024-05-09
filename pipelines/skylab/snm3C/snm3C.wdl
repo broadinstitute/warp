@@ -429,8 +429,8 @@ task Hisat_paired_end {
       R1_files=($(ls $batch_dir | grep "\-R1.fq.gz"))
       R2_files=($(ls $batch_dir | grep "\-R2.fq.gz"))
 
-      echo "r1 files: $R1_files"
-      echo "r2 files: $R2_files"
+      echo "Found r1 files: $R1_files"
+      echo "Found r2 files: $R2_files"
 
       # for file in "${R1_files[@]}"; do
       # (
