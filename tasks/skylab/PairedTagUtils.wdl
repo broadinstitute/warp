@@ -77,9 +77,10 @@ task PairedTagDemultiplex {
             pass="false"
             echo "Incorrect barcode orientation"
           fi
+          echo renaming files
           mv "~{input_id}_R2_trim.fq.gz" "~{r2_base}.fq.gz"
           mv "~{input_id}_R1.fq.gz" "~{r1_base}.fq.gz"
-          mv "~{input_id}_R3.fq.gz" "{r3_base}.fq.gz"
+          mv "~{input_id}_R3.fq.gz" "~{r3_base}.fq.gz"
 
         elif [[ $COUNT == 27 && ~{preindex} == "true" ]]
           then
