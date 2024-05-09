@@ -355,7 +355,7 @@ task Hisat_paired_end {
           # sort 
           start=$(date +%s)
           echo "Run sort r2"
-          zcat $batch_dir/batch*/"$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R2_sorted.fq"
+          zcat $batch_dir/$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R2_sorted.fq"
           end=$(date +%s) 
           elapsed=$((end - start)) 
           echo "Elapsed time to run sort r2: $elapsed seconds"
