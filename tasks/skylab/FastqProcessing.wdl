@@ -294,16 +294,39 @@ task FastqProcessATAC {
 
         echo $read1_fastq_files
         # Make downsample fq for barcode orientation check of R2 barcodes
-        mkdir input_fastq
-        mv $read1_fastq_files input_fastq/
-        mv $read2_fastq_files input_fastq/
-        mv $read3_fastq_files input_fastq/
+        mkdir -p input_fastqs
 
-        #gcloud storage cp $read1_fastq_files /cromwell_root/input_fastq
-        #gcloud storage cp $read2_fastq_files /cromwell_root/input_fastq
-        #gcloud storage cp $read3_fastq_files /cromwell_root/input_fastq
+        # Function to move files into the input_fastqs directory
+        move_files_to_input_dir() {
+            local -n array=$1  # Reference to the array passed as argument
+            local destination_dir=$2
 
-        path="input_fastq/"
+            for file in "${array[@]}"; do
+                if [ -f "$file" ]; then  # Check if file exists
+                    echo "Moving $file to $destination_dir"
+                    mv "$file" "$destination_dir"
+                else
+                    echo "File $file not found"
+                fi
+            done
+        }
+
+        # Move files from FASTQ1_ARRAY to input_fastqs directory
+        move_files_to_input_dir FASTQ1_ARRAY input_fastqs
+
+        # Move files from FASTQ2_ARRAY to input_fastqs directory
+        move_files_to_input_dir FASTQ2_ARRAY input_fastqs
+
+        # Move files from FASTQ3_ARRAY to input_fastqs directory
+        move_files_to_input_dir FASTQ3_ARRAY input_fastqs
+
+        echo "All files moved to input_fastqs directory"
+
+        #gcloud storage cp $read1_fastq_files /cromwell_root/input_fastqs
+        #gcloud storage cp $read2_fastq_files /cromwell_root/input_fastqs
+        #gcloud storage cp $read3_fastq_files /cromwell_root/input_fastqs
+
+        path="input_fastqs/"
         barcode_index="~{barcode_index1}"
         file="${path}${barcode_index}"
         zcat "$file" | sed -n '2~4p' | shuf -n 1000 > downsample.fq
@@ -313,7 +336,7 @@ task FastqProcessATAC {
         for fastq in "${FASTQ2_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R1 input_fastq/$BASE`
+            BASE=`echo --R1 input_fastqs/$BASE`
             R1_FILES_CONCAT+="$BASE "
         done
         echo $R1_FILES_CONCAT
@@ -323,7 +346,7 @@ task FastqProcessATAC {
         for fastq in "${FASTQ1_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R2 input_fastq/$BASE`
+            BASE=`echo --R2 input_fastqs/$BASE`
             R2_FILES_CONCAT+="$BASE "
         done
         echo $R2_FILES_CONCAT
@@ -333,7 +356,7 @@ task FastqProcessATAC {
         for fastq in "${FASTQ3_ARRAY[@]}"
         do
             BASE=`basename $fastq`
-            BASE=`echo --R3 input_fastq/$BASE`
+            BASE=`echo --R3 input_fastqs/$BASE`
             R3_FILES_CONCAT+="$BASE "
         done
         echo $R3_FILES_CONCAT
