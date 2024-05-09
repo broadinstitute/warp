@@ -202,7 +202,9 @@ task Demultiplexing {
 
     # Batch the fastq files into folders of batch_number size
     batch_number=~{batch_number}
+    echo "batch number: $batch_number"
     for i in $(seq 1 "${batch_number}"); do  # Use seq for reliable brace expansion
+        echo "making batch directory: batch${i}"
         mkdir -p "batch${i}"  # Combine batch and i, use -p to create parent dirs
     done
 
@@ -213,19 +215,28 @@ task Demultiplexing {
     # Define lists of r1 and r2 fq files
     R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
     R2_files=($(ls $WORKING_DIR | grep "\-R2.fq.gz"))
+    echo "R1 files: $R1_files"
+    echo "R2 files: $R2_files"
 
     # Distribute the FASTQ files and create TAR files
+    echo "starting loop of files"
     for file in "${R1_files[@]}"; do
         sample_id=$(basename "$file" "-R1.fq.gz")
+        echo "sampleId: $sample_id"
         r2_file="${sample_id}-R2.fq.gz"
+        echo "r2 file: $r2_file"
         mv $WORKING_DIR/$file batch$((folder_index))/$file
+        echo "moved $WORKING_DIR/$file to: batch$((folder_index))/$file"
         mv $WORKING_DIR/$r2_file batch$((folder_index))/$r2_file
+        echo "moved $WORKING_DIR/$r2_file to: batch$((folder_index))/$r2_file"
         # Increment the counter
         folder_index=$(( (folder_index % $batch_number) + 1 ))
+        echo "folder index is now: $folder_index"
     done
 
     # Tar up files per batch
     for i in $(seq 1 "${batch_number}"); do
+        echo "tarring $WORKING_DIR/batch${i}/*.fq.gz and outputting:  $WORKING_DIR/~{plate_id}.${i}.cutadapt_output_files.tar.gz"
         tar -cf - $WORKING_DIR/batch${i}/*.fq.gz | pigz > $WORKING_DIR/~{plate_id}.${i}.cutadapt_output_files.tar.gz
     done
   >>>
