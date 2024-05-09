@@ -53,9 +53,9 @@ task PairedTagDemultiplex {
         echo 'this is the read:' $R2
         echo 'this is the barcode count:' $COUNT
         echo "Renaming files for UPS tools"
-        mv ~{read1_fastq} "~{r1_base}.fq.gz"
-        mv ~{barcodes_fastq} "~{r2_base}.fq.gz"
-        mv ~{read3_fastq} "~{r3_base}.fq.gz"
+        mv ~{read1_fastq} "~{input_id}_R1.fq.gz"
+        mv ~{barcodes_fastq} "~{input_id}_R2.fq.gz"
+        mv ~{read3_fastq} "~{input_id}_R3.fq.gz"
         echo "performing read2 length, trimming, and orientation checks" 
         if [[ $COUNT == 27 && ~{preindex} == "false" ]]
           then
