@@ -7,7 +7,7 @@ task PairedTagDemultiplex {
         String input_id
         Boolean preindex
         File whitelist
-        String docker = "us.gcr.io/broad-gotc-prod/upstools:1.2.0-2023.03.03-1704723060"
+        String docker = "us.gcr.io/broad-gotc-prod/upstools:2.0.0"
         Int cpu = 1
         Int disk_size = ceil(2 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
         Int preemptible = 3
