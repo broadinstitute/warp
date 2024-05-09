@@ -279,7 +279,7 @@ task JoinMultiomeBarcodes {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.5-2.6.0-1714070943"
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.7-2.6.2-1715265458"
     disks: "local-disk ~{disk} HDD"
     memory: "${machine_mem_mb} MiB"
     cpu: nthreads

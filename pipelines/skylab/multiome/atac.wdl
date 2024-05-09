@@ -498,7 +498,7 @@ task CreateFragmentFile {
   >>>
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.6-2.6.1-1714757147"
+    docker: "us.gcr.io/broad-gotc-prod/snapatac2:1.0.7-2.6.2-1715265458"
     disks: "local-disk ${disk_size} SSD"
     memory: "${mem_size} GiB"
     cpu: nthreads
