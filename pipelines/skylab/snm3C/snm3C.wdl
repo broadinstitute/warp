@@ -416,7 +416,9 @@ task Hisat_paired_end {
           end=$(date +%s) 
           elapsed=$((end - start)) 
           echo "Elapsed time to run split_hisat3n_unmapped_reads: $elapsed seconds"
-          
+
+
+          echo "removing files now!"
           rm $batch_dir/${sample_id}-R1.fq.gz $batch_dir/${sample_id}-R2.fq.gz
           rm ${sample_id}-R1_sorted.fq ${sample_id}-R2_sorted.fq
           rm ${sample_id}-R1_trimmed.fq.gz ${sample_id}-R2_trimmed.fq.gz
