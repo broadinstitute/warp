@@ -40,9 +40,6 @@ task PairedTagDemultiplex {
         echo "r2_base is: ~{r2_base}"
         echo "r3_base is: ~{r3_base}"
 
-        # do an ls
-        ls -lh
-
         ## Need to gunzip the r1_fastq
         pass="true"
         zcat ~{barcodes_fastq} | head -n2 > r2.fastq
