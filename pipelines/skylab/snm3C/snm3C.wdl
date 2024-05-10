@@ -281,10 +281,10 @@ task Hisat_paired_end {
     }
 
     command <<<
-              echo "Tar up stats"
-      start=$(date +%s)
-      tar -cf - *.trimmed.stats.txt | pigz > ~{plate_id}.trimmed_stats_files.tar.gz
-      tar -cf - *.hisat3n_set -euo pipefail
+        echo "Tar up stats"
+        start=$(date +%s)
+        tar -cf - *.trimmed.stats.txt | pigz > ~{plate_id}.trimmed_stats_files.tar.gz
+        tar -cf - *.hisat3n_set -euo pipefail
         set -x
         lscpu
         WORKING_DIR=`pwd`
@@ -350,7 +350,7 @@ task Hisat_paired_end {
           # sort
           start=$(date +%s)
           echo "Run sort r1"
-          zcat $batch_dir/"$r1_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "$batch_dir/${sample_id}-R1_sorted.fq"
+          zcat $batch_dir/"$r1_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R1_sorted.fq"
           end=$(date +%s)
           elapsed=$((end - start))
           echo "Elapsed time to run sort r1: $elapsed seconds"
@@ -358,7 +358,7 @@ task Hisat_paired_end {
           # sort
           start=$(date +%s)
           echo "Run sort r2"
-          zcat $batch_dir/"$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "$batch_dir/${sample_id}-R2_sorted.fq"
+          zcat $batch_dir/"$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R2_sorted.fq"
           end=$(date +%s)
           elapsed=$((end - start))
           echo "Elapsed time to run sort r2: $elapsed seconds"
@@ -377,10 +377,10 @@ task Hisat_paired_end {
           -Z \
           -m ${min_read_length}:${min_read_length} \
           --pair-filter 'both' \
-          -o $batch_dir/${sample_id}-R1_trimmed.fq.gz \
-          -p $batch_dir/${sample_id}-R2_trimmed.fq.gz \
-          $batch_dir/${sample_id}-R1_sorted.fq ${sample_id}-R2_sorted.fq \
-          > $batch_dir/${sample_id}.trimmed.stats.txt
+          -o $batch_dir${sample_id}-R1_trimmed.fq.gz \
+          -p $batch_dir${sample_id}-R2_trimmed.fq.gz \
+          $batch_dir${sample_id}-R1_sorted.fq $batch_dir${sample_id}-R2_sorted.fq \
+          > $batch_dir${sample_id}.trimmed.stats.txt
           end=$(date +%s)
           elapsed=$((end - start))
           echo "Elapsed time to run cutadapt: $elapsed seconds"
@@ -390,16 +390,16 @@ task Hisat_paired_end {
           echo "Run hisat"
           hisat-3n ~{cromwell_root_dir}/$genome_fa_basename \
           -q \
-          -1 $batch_dir/${sample_id}-R1_trimmed.fq.gz \
-          -2 $batch_dir/${sample_id}-R2_trimmed.fq.gz \
+          -1 $batch_dir${sample_id}-R1_trimmed.fq.gz \
+          -2 $batch_dir${sample_id}-R2_trimmed.fq.gz \
           --directional-mapping-reverse --base-change C,T \
           --no-repeat-index \
           --no-spliced-alignment \
           --no-temp-splicesite \
           -t \
           --new-summary \
-          --summary-file $batch_dir/${sample_id}.hisat3n_dna_summary.txt \
-          --threads 8 | samtools view -b -q 0 -o $batch_dir/"${sample_id}.hisat3n_dna.unsort.bam"
+          --summary-file $batch_dir${sample_id}.hisat3n_dna_summary.txt \
+          --threads 8 | samtools view -b -q 0 -o $batch_dir"${sample_id}.hisat3n_dna.unsort.bam"
           end=$(date +%s)
           elapsed=$((end - start))
           echo "Elapsed time to run hisat: $elapsed seconds"
@@ -407,7 +407,7 @@ task Hisat_paired_end {
           # call separate_unique_and_multi_align_reads
           start=$(date +%s)
           echo "Run separate_unique_and_multi_align_reads"
-          python3 -c 'from cemba_data.hisat3n import separate_unique_and_multi_align_reads;separate_unique_and_multi_align_reads(in_bam_path="'"$batch_dir/$sample_id"'.hisat3n_dna.unsort.bam", out_unique_path="'"$batch_dir/$sample_id"'.hisat3n_dna.unique_aligned.bam", out_multi_path="'"$batch_dir/$sample_id"'.hisat3n_dna.multi_aligned.bam", out_unmappable_path="'"$batch_dir/$sample_id"'.hisat3n_dna.unmapped.fastq", unmappable_format="fastq", mapq_cutoff=10, qlen_cutoff='"$min_read_length"')'
+          python3 -c 'from cemba_data.hisat3n import separate_unique_and_multi_align_reads;separate_unique_and_multi_align_reads(in_bam_path="'"$batch_dir$sample_id"'.hisat3n_dna.unsort.bam", out_unique_path="'"$batch_dir$sample_id"'.hisat3n_dna.unique_aligned.bam", out_multi_path="'"$batch_dir$sample_id"'.hisat3n_dna.multi_aligned.bam", out_unmappable_path="'"$batch_dir$sample_id"'.hisat3n_dna.unmapped.fastq", unmappable_format="fastq", mapq_cutoff=10, qlen_cutoff='"$min_read_length"')'
           end=$(date +%s)
           elapsed=$((end - start))
           echo "Elapsed time to run separate_unique_and_multi_align_reads: $elapsed seconds"
@@ -415,16 +415,16 @@ task Hisat_paired_end {
           # call split_hisat3n_unmapped_reads
           start=$(date +%s)
           echo "Run split_hisat3n_unmapped_reads"
-          python3 -c 'from cemba_data.hisat3n import *;split_hisat3n_unmapped_reads(fastq_path="'"$batch_dir/$sample_id"'.hisat3n_dna.unmapped.fastq",output_prefix="'"$sample_id"'.hisat3n_dna.split_reads",min_length='"$min_read_length"')'
+          python3 -c 'from cemba_data.hisat3n import *;split_hisat3n_unmapped_reads(fastq_path="'"$batch_dir$sample_id"'.hisat3n_dna.unmapped.fastq",output_prefix="'"$sample_id"'.hisat3n_dna.split_reads",min_length='"$min_read_length"')'
           end=$(date +%s)
           elapsed=$((end - start))
           echo "Elapsed time to run split_hisat3n_unmapped_reads: $elapsed seconds"
 
           rm $batch_dir/${sample_id}-R1.fq.gz $batch_dir/${sample_id}-R2.fq.gz
-          rm $batch_dir${sample_id}-R1_sorted.fq $batch_dir${sample_id}-R2_sorted.fq
-          rm $batch_dir${sample_id}-R1_trimmed.fq.gz $batch_dir${sample_id}-R2_trimmed.fq.gz
-          rm $batch_dir${sample_id}.hisat3n_dna.unsort.bam $batch_dir${sample_id}.hisat3n_dna.multi_aligned.bam
-          rm $batch_dir${sample_id}.hisat3n_dna.unmapped.fastq
+          rm $batch_dir/${sample_id}-R1_sorted.fq $batch_dir/${sample_id}-R2_sorted.fq
+          rm $batch_dir/${sample_id}-R1_trimmed.fq.gz $batch_dir/${sample_id}-R2_trimmed.fq.gz
+          rm $batch_dir/${sample_id}.hisat3n_dna.unsort.bam $batch_dir/${sample_id}.hisat3n_dna.multi_aligned.bam
+          rm $batch_dir/${sample_id}.hisat3n_dna.unmapped.fastq
        }
 
 
@@ -463,6 +463,13 @@ task Hisat_paired_end {
       ####################################
       ## make sure that the number of output bams equals the length of R1_files
       # Count the number of *.hisat3n_dna.unique_aligned.bam files
+      echo "lsing batch dir"
+      ls $batch_dir
+      echo "ls current dir"
+      ls
+      echo "lsing working dir"
+      echo $WORKING_DIR
+
       bam_count=$(find $batch_dir -maxdepth 1 -type f -name '*.hisat3n_dna.unique_aligned.bam' | wc -l)
       fastq_counts=$(find $batch_dir -maxdepth 1 -type f -name '*.split_reads*.fastq' | wc -l)
 
