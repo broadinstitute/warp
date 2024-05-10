@@ -474,7 +474,7 @@ task Hisat_paired_end {
       
       # Check if the count of FASTQ files matches the length of the array ${R1_files[@]}
       if [ "$fastq_counts" -ne  "$((2 * array_length))" ]; then
-         echo "Error: Number of FASTQ files ($fastq_count) does not match the 2 * length of the array (${#R1_files[@]})."
+         echo "Error: Number of FASTQ files: $fastq_count does not match the 2 * length of the array: ${#R1_files[@]}."
          exit 1
       fi
 
