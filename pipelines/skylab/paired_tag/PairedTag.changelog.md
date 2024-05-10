@@ -1,7 +1,13 @@
-# 0.5.2
-2024-05-07 (Date of Last Commit)
+# 0.6.1
+2024-05-12 (Date of Last Commit)
 
 * Updated the PairedTag.wdl to run in Azure 
+
+# 0.6.0
+2024-05-10 (Date)
+
+* Updated the UPStools docker to version 2.0.0 which reinstates a barcode orientation check script
+* Updated the demultiplex task so that output FASTQ files are renamed according to the original input file name, avoiding naming collisions in downstream tasks
 
 # 0.5.1
 2024-04-12 (Date of Last Commit)

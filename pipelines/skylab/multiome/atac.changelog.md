@@ -1,12 +1,13 @@
 # 1.2.3
-2024-04-08 (Date of Last Commit)
+2024-05-12 (Date of Last Commit)
 
+*  Updated the Optimus.wdl to run on Azure. This change does not affect the ATAC pipeline.
 *  Updated the PairedTag.wdl to run on Azure. This change does not affect the ATAC pipeline.
 
 # 1.2.2
-2024-04-02 (Date of Last Commit)
+2024-05-10 (Date of Last Commit)
 
-*  Updated the Optimus.wdl to run on Azure. This change does not affect the ATAC pipeline.
+* Updated the Paired-tag Demultiplex task; this does not impact the ATAC workflow
 
 # 1.2.1
 2024-04-03 (Date of Last Commit)

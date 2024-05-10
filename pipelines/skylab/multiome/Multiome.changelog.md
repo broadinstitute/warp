@@ -1,7 +1,12 @@
-# 3.4.4
-2024-05-07 (Date of Last Commit)
+# 3.4.5
+2024-05-11 (Date of Last Commit)
 
 * Updated the PairedTag.wdl to run on Azure. This change does not affect the Multiome pipeline.
+
+# 3.4.4
+2024-05-10 (Date of Last Commit)
+
+* Updated the Paired-tag Demultiplex task; this change does not impact the Multiome workflow
 
 # 3.4.3
 2024-04-24 (Date of Last Commit)
