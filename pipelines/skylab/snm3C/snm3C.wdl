@@ -346,6 +346,9 @@ task Hisat_paired_end {
 
           r2_file="${sample_id}-R2.fq.gz"
           r1_file="${sample_id}-R1.fq.gz"
+          echo "r1 file: $r1_file"
+          echo "r2 file: $r2_file"
+          echo "batch dir: $batch_dir"
 
           # sort
           start=$(date +%s)
