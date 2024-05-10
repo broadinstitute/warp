@@ -7,12 +7,15 @@ task PairedTagDemultiplex {
         String input_id
         Boolean preindex
         File whitelist
-        String docker = "us.gcr.io/broad-gotc-prod/upstools:1.2.0-2023.03.03-1704723060"
+        String docker = "us.gcr.io/broad-gotc-prod/upstools:2.0.0"
         Int cpu = 1
         Int disk_size = ceil(2 * (size(read1_fastq, "GiB") + size(read3_fastq, "GiB") + size(barcodes_fastq, "GiB") )) + 400
         Int preemptible = 3
         Int mem_size = 8
     }
+    String r1_base = basename(read1_fastq, ".fastq.gz")
+    String r2_base = basename(barcodes_fastq, ".fastq.gz")
+    String r3_base = basename(read3_fastq, ".fastq.gz")
     meta {
         description: "Checks read2 FASTQ length and orientation and performs trimming."
     }
@@ -31,6 +34,12 @@ task PairedTagDemultiplex {
     }
     command <<<
         set -e
+
+        # echo the basenames
+        echo "r1_base is: ~{r1_base}"
+        echo "r2_base is: ~{r2_base}"
+        echo "r3_base is: ~{r3_base}"
+
         ## Need to gunzip the r1_fastq
         pass="true"
         zcat ~{barcodes_fastq} | head -n2 > r2.fastq
@@ -65,7 +74,10 @@ task PairedTagDemultiplex {
             pass="false"
             echo "Incorrect barcode orientation"
           fi
-          mv "~{input_id}_R2_trim.fq.gz" "~{input_id}_R2.fq.gz"
+          echo renaming files
+          mv "~{input_id}_R2_trim.fq.gz" "~{r2_base}.fq.gz"
+          mv "~{input_id}_R1.fq.gz" "~{r1_base}.fq.gz"
+          mv "~{input_id}_R3.fq.gz" "~{r3_base}.fq.gz"
 
         elif [[ $COUNT == 27 && ~{preindex} == "true" ]]
           then
@@ -88,12 +100,15 @@ task PairedTagDemultiplex {
             echo "Incorrect barcode orientation"
           fi
           # rename files to original name
-          mv "~{input_id}_R2_prefix.fq.gz" "~{input_id}_R2.fq.gz"
-          mv "~{input_id}_R1_prefix.fq.gz" "~{input_id}_R1.fq.gz"
-          mv "~{input_id}_R3_prefix.fq.gz" "~{input_id}_R3.fq.gz"
+          mv "~{input_id}_R2_prefix.fq.gz" "~{r2_base}.fq.gz"
+          mv "~{input_id}_R1_prefix.fq.gz" "~{r1_base}.fq.gz"
+          mv "~{input_id}_R3_prefix.fq.gz" "~{r3_base}.fq.gz"
         elif [[ $COUNT == 24 && ~{preindex} == "false" ]]
           then
           echo "FASTQ has correct index length, no modification necessary"
+          mv "~{input_id}_R2_prefix.fq.gz" "~{r2_base}.fq.gz"
+          mv "~{input_id}_R1_prefix.fq.gz" "~{r1_base}.fq.gz"
+          mv "~{input_id}_R3_prefix.fq.gz" "~{r3_base}.fq.gz"
         elif [[ $COUNT == 24 && ~{preindex} == "true" ]]
           then
           pass="false"
@@ -120,9 +135,9 @@ task PairedTagDemultiplex {
     }
 
     output {
-        File fastq1 = "~{input_id}_R1.fq.gz"
-        File barcodes = "~{input_id}_R2.fq.gz"
-        File fastq3 = "~{input_id}_R3.fq.gz"
+        File fastq1 = "~{r1_base}.fq.gz"
+        File barcodes = "~{r2_base}.fq.gz"
+        File fastq3 = "~{r3_base}.fq.gz"
     }
 }
 

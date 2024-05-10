@@ -1,3 +1,9 @@
+# 0.6.0
+2024-05-10 (Date)
+
+* Updated the UPStools docker to version 2.0.0 which reinstates a barcode orientation check script
+* Updated the demultiplex task so that output FASTQ files are renamed according to the original input file name, avoiding naming collisions in downstream tasks
+
 # 0.5.1
 2024-04-12 (Date of Last Commit)
 
@@ -5,17 +11,17 @@
 * Added "Uniform" as the default string for STARsolo multimapping parameters
 
 # 0.5.0
-20240403 (Date of Last Commit)
+2024-04-03 (Date of Last Commit)
 
 * Modified adaptor trimming to trim last 3 bp (instead of first) in read2 length is 27 bp and preindex is false
 
 # 0.4.1
-20240326 (Date of Last Commit)
+2024-03-26 (Date of Last Commit)
 
 * Updated the median umi per cell metric for STARsolo library-level metrics
 
 # 0.4.0
-20240315 (Date of Last Commit)
+2024-03-15 (Date of Last Commit)
 
 * Added cell metrics to the library-level metrics
 
