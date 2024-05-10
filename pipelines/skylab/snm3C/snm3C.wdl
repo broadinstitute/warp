@@ -281,11 +281,14 @@ task Hisat_paired_end {
     }
 
     command <<<
-        set -euo pipefail
+              echo "Tar up stats"
+      start=$(date +%s)
+      tar -cf - *.trimmed.stats.txt | pigz > ~{plate_id}.trimmed_stats_files.tar.gz
+      tar -cf - *.hisat3n_set -euo pipefail
         set -x
         lscpu
         WORKING_DIR=`pwd`
-  
+
         # check genomic reference version and print to output txt file
         STRING=~{genome_fa}
         BASE=$(basename $STRING .fa)
@@ -295,31 +298,31 @@ task Hisat_paired_end {
         # untar the index files for hisat task
         start=$(date +%s)
         echo "Untarring tarred_index_files"
-        pigz -dc ~{tarred_index_files} | tar -xf -  
+        pigz -dc ~{tarred_index_files} | tar -xf -
         rm ~{tarred_index_files}
-        end=$(date +%s) 
-        elapsed=$((end - start)) 
+        end=$(date +%s)
+        elapsed=$((end - start))
         echo "Elapsed time to untar tarred_index_files: $elapsed seconds"
-    
+
         # get the basename of the genome_fa file
         cp ~{genome_fa} .
         genome_fa_basename=$(basename ~{genome_fa} .fa)
-       
+
         start=$(date +%s)
         echo "samtools faidx $genome_fa_basename.fa"
         samtools faidx $genome_fa_basename.fa
-        end=$(date +%s) 
-        elapsed=$((end - start)) 
+        end=$(date +%s)
+        elapsed=$((end - start))
         echo "Elapsed time to samtools faidx: $elapsed seconds"
 
         min_read_length=~{min_read_length}
-  
+
         # untar the demultiplexed fastqs for sort and trim task
         start=$(date +%s)
         echo "Untar demultiplexed fastqs"
-        pigz -dc ~{tarred_demultiplexed_fastqs} | tar -xf -  
-        end=$(date +%s) 
-        elapsed=$((end - start)) 
+        pigz -dc ~{tarred_demultiplexed_fastqs} | tar -xf -
+        end=$(date +%s)
+        elapsed=$((end - start))
         echo "Elapsed time to untar: $elapsed seconds"
 
         echo "lsing current dir:"
@@ -343,23 +346,23 @@ task Hisat_paired_end {
 
           r2_file="${sample_id}-R2.fq.gz"
           r1_file="${sample_id}-R1.fq.gz"
-          
-          # sort 
+
+          # sort
           start=$(date +%s)
           echo "Run sort r1"
           zcat $batch_dir/"$r1_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R1_sorted.fq"
-          end=$(date +%s) 
-          elapsed=$((end - start)) 
+          end=$(date +%s)
+          elapsed=$((end - start))
           echo "Elapsed time to run sort r1: $elapsed seconds"
-    
-          # sort 
+
+          # sort
           start=$(date +%s)
           echo "Run sort r2"
-          zcat $batch_dir/$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R2_sorted.fq"
-          end=$(date +%s) 
-          elapsed=$((end - start)) 
+          zcat $batch_dir/"$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R2_sorted.fq"
+          end=$(date +%s)
+          elapsed=$((end - start))
           echo "Elapsed time to run sort r2: $elapsed seconds"
-    
+
           # trim using cutadapt
           start=$(date +%s)
           echo "Run cutadapt"
@@ -378,10 +381,10 @@ task Hisat_paired_end {
           -p $WORKING_DIR/${sample_id}-R2_trimmed.fq.gz \
           $WORKING_DIR/${sample_id}-R1_sorted.fq ${sample_id}-R2_sorted.fq \
           > $WORKING_DIR/${sample_id}.trimmed.stats.txt
-          end=$(date +%s) 
-          elapsed=$((end - start)) 
+          end=$(date +%s)
+          elapsed=$((end - start))
           echo "Elapsed time to run cutadapt: $elapsed seconds"
-    
+
           # hisat run
           start=$(date +%s)
           echo "Run hisat"
@@ -396,25 +399,25 @@ task Hisat_paired_end {
           -t \
           --new-summary \
           --summary-file ${sample_id}.hisat3n_dna_summary.txt \
-          --threads 8 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"       
-          end=$(date +%s) 
-          elapsed=$((end - start)) 
+          --threads 8 | samtools view -b -q 0 -o "${sample_id}.hisat3n_dna.unsort.bam"
+          end=$(date +%s)
+          elapsed=$((end - start))
           echo "Elapsed time to run hisat: $elapsed seconds"
-       
+
           # call separate_unique_and_multi_align_reads
           start=$(date +%s)
           echo "Run separate_unique_and_multi_align_reads"
           python3 -c 'from cemba_data.hisat3n import separate_unique_and_multi_align_reads;separate_unique_and_multi_align_reads(in_bam_path="'"$sample_id"'.hisat3n_dna.unsort.bam", out_unique_path="'"$sample_id"'.hisat3n_dna.unique_aligned.bam", out_multi_path="'"$sample_id"'.hisat3n_dna.multi_aligned.bam", out_unmappable_path="'"$sample_id"'.hisat3n_dna.unmapped.fastq", unmappable_format="fastq", mapq_cutoff=10, qlen_cutoff='"$min_read_length"')'
-          end=$(date +%s) 
-          elapsed=$((end - start)) 
+          end=$(date +%s)
+          elapsed=$((end - start))
           echo "Elapsed time to run separate_unique_and_multi_align_reads: $elapsed seconds"
-    
+
           # call split_hisat3n_unmapped_reads
           start=$(date +%s)
           echo "Run split_hisat3n_unmapped_reads"
           python3 -c 'from cemba_data.hisat3n import *;split_hisat3n_unmapped_reads(fastq_path="'"$sample_id"'.hisat3n_dna.unmapped.fastq",output_prefix="'"$sample_id"'.hisat3n_dna.split_reads",min_length='"$min_read_length"')'
-          end=$(date +%s) 
-          elapsed=$((end - start)) 
+          end=$(date +%s)
+          elapsed=$((end - start))
           echo "Elapsed time to run split_hisat3n_unmapped_reads: $elapsed seconds"
 
           rm $batch_dir/${sample_id}-R1.fq.gz $batch_dir/${sample_id}-R2.fq.gz
@@ -439,7 +442,7 @@ task Hisat_paired_end {
       # )
       # done
 
-      # run 6 instances of task in parallel 
+      # run 6 instances of task in parallel
       for file in "${R1_files[@]}"; do
         (
           echo "starting task $file.."
@@ -456,13 +459,13 @@ task Hisat_paired_end {
       wait
       echo "Tasks all done."
       du -h *
-      
-      #################################### 
+
+      ####################################
       ## make sure that the number of output bams equals the length of R1_files
       # Count the number of *.hisat3n_dna.unique_aligned.bam files
       bam_count=$(find . -maxdepth 1 -type f -name '*.hisat3n_dna.unique_aligned.bam' | wc -l)
       fastq_counts=$(find . -maxdepth 1 -type f -name '*.split_reads*.fastq' | wc -l)
-      
+
       # Get the length of the array ${R1_files[@]}
       array_length=${#R1_files[@]}
 
@@ -471,7 +474,7 @@ task Hisat_paired_end {
          echo "Error: Number of BAM files does not match the length of the array."
          exit 1
       fi
-      
+
       # Check if the count of FASTQ files matches the length of the array ${R1_files[@]}
       if [ "$fastq_counts" -ne  "$((2 * array_length))" ]; then
          echo "Error: Number of FASTQ files: $fastq_count does not match the 2 * length of the array: ${#R1_files[@]}."
@@ -479,13 +482,10 @@ task Hisat_paired_end {
       fi
 
       echo "Number of BAM and FASTQ files matches the length of the array."
-      #################################### 
+      ####################################
 
       # tar up stats
-      echo "Tar up stats"
-      start=$(date +%s)
-      tar -cf - *.trimmed.stats.txt | pigz > ~{plate_id}.trimmed_stats_files.tar.gz
-      tar -cf - *.hisat3n_dna_summary.txt | pigz > ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz
+dna_summary.txt | pigz > ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz
       end=$(date +%s) 
       elapsed=$((end - start))  
       echo "Elapsed time to run tar stats $elapsed seconds"
@@ -505,7 +505,6 @@ task Hisat_paired_end {
       end=$(date +%s) 
       elapsed=$((end - start))  
       echo "Elapsed time to run tar fastqs $elapsed seconds"
-
     >>>
 
     runtime {
