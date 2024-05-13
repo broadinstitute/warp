@@ -140,16 +140,19 @@ task Demultiplexing {
 
     working_directory=`pwd`
     echo "Working directory: $working_directory"
+    echo "mv ~{random_primer_indexes} $working_directory"
     mv ~{random_primer_indexes} $working_directory
 
     #for every file in fastq_input_read1 move to working directory
     for file in ~{sep=',' fastq_input_read1}; do
       mv $file $working_directory
+      echo "Moved $file to working directory"
     done
 
     #for every file in fastq_input_read3 move to working directory
     for file in ~{sep=',' fastq_input_read2}; do
       mv $file $working_directory
+      echo "Moved $file to working directory"
     done
 
     echo "Moved files to working directory"
