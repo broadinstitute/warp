@@ -171,6 +171,7 @@ task MergeVCFs {
     Array[File] input_vcfs_indexes
     String output_vcf_name
     Int preemptible_tries = 3
+    String docker
   }
 
   Int disk_size = ceil(size(input_vcfs, "GiB") * 2.5) + 10
@@ -184,7 +185,7 @@ task MergeVCFs {
       OUTPUT=~{output_vcf_name}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: docker
     preemptible: preemptible_tries
     memory: "3000 MiB"
     disks: "local-disk ~{disk_size} HDD"
@@ -293,7 +294,7 @@ task DragenHardFilterVcf {
     Boolean make_gvcf
     String vcf_basename
     Int preemptible_tries
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
+    String gatk_docker 
   }
 
   Int disk_size = ceil(2 * size(input_vcf, "GiB")) + 20

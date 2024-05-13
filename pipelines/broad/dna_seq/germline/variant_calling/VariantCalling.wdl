@@ -142,7 +142,8 @@ workflow VariantCalling {
             input_vcf_index = HaplotypeCallerGATK4.output_vcf_index,
             make_gvcf = make_gvcf,
             vcf_basename = base_file_name,
-            preemptible_tries = agg_preemptible_tries
+            preemptible_tries = agg_preemptible_tries,
+            gatk_docker = gatk_docker
         }
       }
 
@@ -153,7 +154,8 @@ workflow VariantCalling {
             input_bam = HaplotypeCallerGATK4.bamout,
             output_bam_basename = final_vcf_base_name,
             preemptible_tries = agg_preemptible_tries,
-            compression_level = 2
+            compression_level = 2,
+            docker = picard_cloud_docker
         }
       }
     }
@@ -170,7 +172,8 @@ workflow VariantCalling {
       input_vcfs = vcfs_to_merge,
       input_vcfs_indexes = vcf_indices_to_merge,
       output_vcf_name = final_vcf_base_name + hard_filter_suffix + merge_suffix,
-      preemptible_tries = agg_preemptible_tries
+      preemptible_tries = agg_preemptible_tries,
+      docker = picard_cloud_docker
   }
 
   if (make_gvcf && !skip_reblocking) {
@@ -222,7 +225,8 @@ workflow VariantCalling {
       ref_dict = ref_dict,
       evaluation_interval_list = evaluation_interval_list,
       is_gvcf = make_gvcf,
-      preemptible_tries = agg_preemptible_tries
+      preemptible_tries = agg_preemptible_tries,
+      docker = picard_cloud_docker
   }
 
   output {

@@ -677,6 +677,7 @@ task CollectVariantCallingMetrics {
     File evaluation_interval_list
     Boolean is_gvcf = true
     Int preemptible_tries
+    String docker
   }
 
   Int disk_size = ceil(size(input_vcf, "GiB") + size(dbsnp_vcf, "GiB")) + 20
@@ -692,7 +693,7 @@ task CollectVariantCallingMetrics {
       ~{true="GVCF_INPUT=true" false="" is_gvcf}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: docker
     preemptible: preemptible_tries
     memory: "3000 MiB"
     disks: "local-disk " + disk_size + " HDD"
