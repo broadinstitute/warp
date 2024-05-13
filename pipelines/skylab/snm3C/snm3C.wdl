@@ -131,6 +131,9 @@ task Demultiplexing {
   command <<<
     set -euo pipefail
 
+    echo "this is the working dir"
+    pwd
+
     # Cat files for each r1, r2
     cat ~{sep=' ' fastq_input_read1} > r1.fastq.gz
     cat ~{sep=' ' fastq_input_read2} > r2.fastq.gz
@@ -250,6 +253,9 @@ task Hisat_paired_end {
         set -euo pipefail
         set -x
         lscpu
+
+        echo "this is the working dir"
+        pwd
   
         # check genomic reference version and print to output txt file
         STRING=~{genome_fa}
