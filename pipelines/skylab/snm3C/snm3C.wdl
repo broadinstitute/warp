@@ -144,13 +144,17 @@ task Demultiplexing {
     mv ~{random_primer_indexes} $working_directory
 
     #for every file in fastq_input_read1 move to working directory
-    for file in ~{sep=',' fastq_input_read1}; do
+    declare -a r1_files=(~{sep=' ' fastq_input_read1})
+    declare -a r2_files=(~{sep=' ' fastq_input_read2})
+
+    #for every file in the array r1_files, move to working dir
+    for file in "${r1_files[@]}"; do
       mv $file $working_directory
       echo "Moved $file to working directory"
     done
 
-    #for every file in fastq_input_read3 move to working directory
-    for file in ~{sep=',' fastq_input_read2}; do
+    #for every file inarray r2_files move to working directory
+    for file in "${r2_files[@]}"; do
       mv $file $working_directory
       echo "Moved $file to working directory"
     done
@@ -160,8 +164,8 @@ task Demultiplexing {
     cd $working_directory
 
     # Cat files for each r1, r2
-    cat ~{sep=',' fastq_input_read1} > r1.fastq.gz
-    cat ~{sep=',' fastq_input_read2} > r2.fastq.gz
+    cat ~{sep=' ' fastq_input_read1} > r1.fastq.gz
+    cat ~{sep=' ' fastq_input_read2} > r2.fastq.gz
 
     # Run cutadapt
     /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
