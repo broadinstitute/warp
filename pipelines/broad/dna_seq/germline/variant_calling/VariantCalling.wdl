@@ -130,7 +130,9 @@ workflow VariantCalling {
           use_dragen_hard_filtering = use_dragen_hard_filtering,
           use_spanning_event_genotyping = use_spanning_event_genotyping,
           dragstr_model = DragstrAutoCalibration.dragstr_model,
-          preemptible_tries = agg_preemptible_tries
+          preemptible_tries = agg_preemptible_tries,
+          gatk_docker = gatk_docker
+
        }
 
       if (use_dragen_hard_filtering) {
