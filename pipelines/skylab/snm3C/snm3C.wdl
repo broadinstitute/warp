@@ -301,20 +301,20 @@ task Hisat_paired_end {
 
         echo "The reference is $BASE" > ~{plate_id}.reference_version.txt
 
-        echo "the path to tarred_index_files is:"
-        echo ~{tarred_index_files}
-
         # untar the index files for hisat task
         start=$(date +%s)
         echo "Untarring tarred_index_files"
-        pigz -dc ~{tarred_index_files} | tar -xf -
-        rm ~{tarred_index_files}
+
+        #take the basename of the demultiplexed fastq tar file
+        index_basename=$(basename ~{tarred_index_files})
+        pigz -dc $index_basename | tar -xf -
+        rm $index_basename
+
         end=$(date +%s)
         elapsed=$((end - start))
         echo "Elapsed time to untar tarred_index_files: $elapsed seconds"
 
         # get the basename of the genome_fa file
-        cp ~{genome_fa} .
         genome_fa_basename=$(basename ~{genome_fa} .fa)
 
         start=$(date +%s)
@@ -329,21 +329,22 @@ task Hisat_paired_end {
         # untar the demultiplexed fastqs for sort and trim task
         start=$(date +%s)
         echo "Untar demultiplexed fastqs"
-        pigz -dc ~{tarred_demultiplexed_fastqs} | tar -xf -
+        #take the basename of the demultiplexed fastq tar file
+        demultiplexed_basename=$(basename ~{tarred_demultiplexed_fastqs})
+
+        pigz -dc $demultiplexed_basename | tar -xf -
         end=$(date +%s)
         elapsed=$((end - start))
         echo "Elapsed time to untar: $elapsed seconds"
 
         echo "lsing current dir:"
         ls -lR
-        echo "lsing cromwell root:"
-        ls -lR ~{cromwell_root_dir}
 
         # define lists of r1 and r2 fq files
         if [ ~{cromwell_root_dir} = "gcp" ]; then
             batch_dir="batch*/"
         else
-            batch_dir="~{cromwell_root_dir}/*/*/*/*/*~{cromwell_root_dir}/*/*/*/*/batch*/"
+            batch_dir="~{cromwell_root_dir}/*/*/*/*/batch*/"
         fi
         echo "batchdirectory: $batch_dir"
 
