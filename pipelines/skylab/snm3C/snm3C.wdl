@@ -281,21 +281,28 @@ task Hisat_paired_end {
     }
 
     command <<<
-        WORKING_DIR=`pwd`
-        echo "Tar up stats"
-        ls -lR
-        start=$(date +%s)
-        tar -cf - $WORKING_DIR/*.trimmed.stats.txt | pigz > ~{plate_id}.trimmed_stats_files.tar.gz
-        tar -cf - $WORKING_DIR/*.hisat3n_set -euo pipefail
-        set -x
-        lscpu
 
+
+        WORKING_DIR=`pwd`
+        mkdir -p $WORKING_DIR/pipeline_inputs/
+
+        mv ~{tarred_demultiplexed_fastqs} $WORKING_DIR/pipeline_inputs/
+        mv ~{tarred_index_files} $WORKING_DIR/pipeline_inputs/
+        mv ~{genome_fa} $WORKING_DIR/pipeline_inputs/
+        mv ~{chromosome_sizes} $WORKING_DIR/pipeline_inputs/
+
+        cd $WORKING_DIR/pipeline_inputs/
+
+        ls -l
 
         # check genomic reference version and print to output txt file
         STRING=~{genome_fa}
         BASE=$(basename $STRING .fa)
 
         echo "The reference is $BASE" > ~{plate_id}.reference_version.txt
+
+        echo "the path to tarred_index_files is:"
+        echo ~{tarred_index_files}
 
         # untar the index files for hisat task
         start=$(date +%s)
