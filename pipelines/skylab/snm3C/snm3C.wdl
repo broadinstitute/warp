@@ -352,8 +352,7 @@ task Hisat_paired_end {
         if [ ~{cromwell_root_dir} = "gcp" ]; then
             batch_dir="batch*/"
         else
-            batch_dir="~{cromwell_root_dir}/*/*/*/*/batch*/"
-
+            batch_dir="~{cromwell_root_dir}/*/*/*/*/*/*/*/*/*/*/*/batch*/"
         fi
         echo "batchdirectory: $batch_dir"
 
