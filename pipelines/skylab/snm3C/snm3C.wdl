@@ -353,6 +353,7 @@ task Hisat_paired_end {
             batch_dir="batch*/"
         else
             batch_dir="~{cromwell_root_dir}/*/*/*/*/batch*/"
+
         fi
         echo "batchdirectory: $batch_dir"
 
