@@ -328,7 +328,9 @@ task Hisat_paired_end {
         start=$(date +%s)
         echo "Untar demultiplexed fastqs"
         #take the basename of the demultiplexed fastq tar file
+
         demultiplexed_basename=$(basename ~{tarred_demultiplexed_fastqs})
+        echo "the basename of the tarred_demultiplexed_fastqs is"
 
         pigz -dc $demultiplexed_basename | tar -xf -
         end=$(date +%s)
