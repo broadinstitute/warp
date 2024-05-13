@@ -44,6 +44,10 @@ workflow VariantCalling {
   String gatk_docker_azure = "dsppipelinedev.azurecr.io/gatk_reduced_layers:latest"
   String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
 
+  String picard_cloud_docker_gcp = "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.26.10-1663951039"
+  String picard_cloud_docker_azure = "dsppipelinedev.azurecr.io/picard-python:1.0.0-2.26.10-1663951039"
+  String picard_cloud_docker = if cloud_provider == "gcp" then picard_cloud_docker_gcp else picard_cloud_docker_azure
+
   # make sure either gcp or azr is supplied as cloud_provider input
   if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
     call Utils.ErrorWithMessage as ErrorMessageIncorrectInput {
@@ -77,7 +81,8 @@ workflow VariantCalling {
     input:
       interval_list = calling_interval_list,
       scatter_count = haplotype_scatter_count,
-      break_bands_at_multiples_of = break_bands_at_multiples_of
+      break_bands_at_multiples_of = break_bands_at_multiples_of,
+      docker = picard_cloud_docker
   }
 
   # We need disk to localize the sharded input and output due to the scatter for HaplotypeCaller.
