@@ -162,6 +162,7 @@ task Demultiplexing {
     echo "Moved files to working directory"
 
     cd $working_directory
+    ls -l
 
     # Cat files for each r1, r2
     cat ~{sep=' ' fastq_input_read1} > r1.fastq.gz
