@@ -33,7 +33,6 @@ workflow snm3C {
     String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
     String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
     String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
-    String cromwell_root_dir = if cloud_provider == "gcp" then "/cromwell_root" else "/cromwell-executions"
 
     # make sure either gcp or azr is supplied as cloud_provider input
     if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
@@ -71,8 +70,7 @@ workflow snm3C {
                 r2_left_cut = r2_left_cut,
                 r2_right_cut = r2_right_cut,
                 plate_id = plate_id,
-                docker = docker_prefix + m3c_yap_hisat_docker,
-                cromwell_root_dir = cromwell_root_dir
+                docker = docker_prefix + m3c_yap_hisat_docker
         }
 
         call Hisat_single_end as Hisat_single_end {
@@ -81,8 +79,7 @@ workflow snm3C {
                 tarred_index_files = tarred_index_files,
                 genome_fa = genome_fa,
                 plate_id = plate_id,
-                docker = docker_prefix + m3c_yap_hisat_docker,
-                cromwell_root_dir = cromwell_root_dir
+                docker = docker_prefix + m3c_yap_hisat_docker
         }
 
         call Merge_sort_analyze as Merge_sort_analyze {
@@ -95,8 +92,7 @@ workflow snm3C {
                compress_level = compress_level,
                chromosome_sizes = chromosome_sizes,
                plate_id = plate_id,
-               docker = docker_prefix + m3c_yap_hisat_docker,
-               cromwell_root_dir = cromwell_root_dir
+               docker = docker_prefix + m3c_yap_hisat_docker
         }
     }
 
@@ -111,8 +107,7 @@ workflow snm3C {
             allc_uniq_reads_stats = Merge_sort_analyze.allc_uniq_reads_stats,
             unique_reads_cgn_extraction_tbi = Merge_sort_analyze.extract_allc_output_tbi_tar,
             plate_id = plate_id,
-            docker = docker_prefix + m3c_yap_hisat_docker,
-            cromwell_root_dir = cromwell_root_dir
+            docker = docker_prefix + m3c_yap_hisat_docker
     }
 
     meta {
@@ -151,31 +146,38 @@ task Demultiplexing {
 
   command <<<
     set -euo pipefail
-    WORKING_DIR=`pwd`
+
+    working_directory=`pwd`
+    echo "Working directory: $working_directory"
+    mv ~{random_primer_indexes} $working_directory
+    mv ~{fastq_input_read1} $working_directory
+    mv ~{fastq_input_read2} $working_directory
+    echo "Moved files to working directory"
+
+    cd $working_directory
 
     # Cat files for each r1, r2
-    cat ~{sep=' ' fastq_input_read1} > $WORKING_DIR/r1.fastq.gz
-    cat ~{sep=' ' fastq_input_read2} > $WORKING_DIR/r2.fastq.gz
+    cat ~{sep=' ' fastq_input_read1} > r1.fastq.gz
+    cat ~{sep=' ' fastq_input_read2} > r2.fastq.gz
 
     # Run cutadapt
     /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
     -g file:~{random_primer_indexes} \
     -o ~{plate_id}-{name}-R1.fq.gz \
     -p ~{plate_id}-{name}-R2.fq.gz \
-    $WORKING_DIR/r1.fastq.gz \
-    $WORKING_DIR/r2.fastq.gz \
-    > $WORKING_DIR/~{plate_id}.stats.txt
+    r1.fastq.gz \
+    r2.fastq.gz \
+    > ~{plate_id}.stats.txt
 
     # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
-    rm $WORKING_DIR/*-unknown-R{1,2}.fq.gz
+    rm *-unknown-R{1,2}.fq.gz
 
     python3 <<CODE
     import re
     import os
 
     # Parsing stats.txt file
-    working_dir = os.getcwd()
-    stats_file_path = os.path.join(working_dir, '~{plate_id}.stats.txt')
+    stats_file_path = '~{plate_id}.stats.txt'
     adapter_counts = {}
     with open(stats_file_path, 'r') as file:
         content = file.read()
@@ -187,11 +189,12 @@ task Demultiplexing {
         adapter_counts[adapter_name] = trimmed_count
 
     # Removing fastq files with trimmed reads greater than 30
+    directory_path = '$working_directory'
     threshold = 10000000
 
-    for filename in os.listdir(working_dir):
+    for filename in os.listdir(directory_path):
         if filename.endswith('.fq.gz'):
-            file_path = os.path.join(working_dir, filename)
+            file_path = os.path.join(directory_path, filename)
             adapter_name = re.search(r'A(\d+)-R', filename)
             if adapter_name:
                 adapter_name = 'A' + adapter_name.group(1)
@@ -202,44 +205,33 @@ task Demultiplexing {
 
     # Batch the fastq files into folders of batch_number size
     batch_number=~{batch_number}
-    echo "batch number: $batch_number"
     for i in $(seq 1 "${batch_number}"); do  # Use seq for reliable brace expansion
-        echo "making batch directory: batch${i}"
         mkdir -p "batch${i}"  # Combine batch and i, use -p to create parent dirs
     done
 
     # Counter for the folder index
     folder_index=1
-    WORKING_DIR=`pwd`
 
     # Define lists of r1 and r2 fq files
-    R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
-    R2_files=($(ls $WORKING_DIR | grep "\-R2.fq.gz"))
-    echo "R1 files: $R1_files"
-    echo "R2 files: $R2_files"
+    R1_files=($(ls | grep "\-R1.fq.gz"))
+    R2_files=($(ls | grep "\-R2.fq.gz"))
 
     # Distribute the FASTQ files and create TAR files
-    echo "starting loop of files"
     for file in "${R1_files[@]}"; do
         sample_id=$(basename "$file" "-R1.fq.gz")
-        echo "sampleId: $sample_id"
         r2_file="${sample_id}-R2.fq.gz"
-        echo "r2 file: $r2_file"
-        mv $WORKING_DIR/$file batch$((folder_index))/$file
-        echo "moved $WORKING_DIR/$file to: batch$((folder_index))/$file"
-        mv $WORKING_DIR/$r2_file batch$((folder_index))/$r2_file
-        echo "moved $WORKING_DIR/$r2_file to: batch$((folder_index))/$r2_file"
+        mv $file batch$((folder_index))/$file
+        mv $r2_file batch$((folder_index))/$r2_file
         # Increment the counter
         folder_index=$(( (folder_index % $batch_number) + 1 ))
-        echo "folder index is now: $folder_index"
     done
 
     # Tar up files per batch
+    echo "TAR files"
     for i in $(seq 1 "${batch_number}"); do
-        echo " working on batch: batch${i}"
-        echo "tarring $WORKING_DIR/batch${i}/*.fq.gz and outputting:  ~{plate_id}.${i}.cutadapt_output_files.tar.gz"
-        tar -cf - $WORKING_DIR/batch${i}/*.fq.gz | pigz > ~{plate_id}.${i}.cutadapt_output_files.tar.gz
+        tar -cf - batch${i}/*.fq.gz | pigz > ~{plate_id}.${i}.cutadapt_output_files.tar.gz
     done
+    echo "TAR files created successfully."
   >>>
 
   runtime {
@@ -264,7 +256,6 @@ task Hisat_paired_end {
         File chromosome_sizes
         String plate_id
         String docker
-        String cromwell_root_dir
 
         String r1_adapter
         String r2_adapter
@@ -282,18 +273,8 @@ task Hisat_paired_end {
 
     command <<<
         set -euo pipefail
-
-        WORKING_DIR=`pwd`
-        mkdir -p $WORKING_DIR/pipeline_inputs/
-
-        mv ~{tarred_demultiplexed_fastqs} $WORKING_DIR/pipeline_inputs/
-        mv ~{tarred_index_files} $WORKING_DIR/pipeline_inputs/
-        mv ~{genome_fa} $WORKING_DIR/pipeline_inputs/
-        mv ~{chromosome_sizes} $WORKING_DIR/pipeline_inputs/
-
-        cd $WORKING_DIR/pipeline_inputs/
-
-        ls -l
+        set -x
+        lscpu
 
         # check genomic reference version and print to output txt file
         STRING=~{genome_fa}
@@ -304,17 +285,14 @@ task Hisat_paired_end {
         # untar the index files for hisat task
         start=$(date +%s)
         echo "Untarring tarred_index_files"
-
-        #take the basename of the demultiplexed fastq tar file
-        index_basename=$(basename ~{tarred_index_files})
-        pigz -dc $index_basename | tar -xf -
-        rm $index_basename
-
+        pigz -dc ~{tarred_index_files} | tar -xf -
+        rm ~{tarred_index_files}
         end=$(date +%s)
         elapsed=$((end - start))
         echo "Elapsed time to untar tarred_index_files: $elapsed seconds"
 
         # get the basename of the genome_fa file
+        cp ~{genome_fa} .
         genome_fa_basename=$(basename ~{genome_fa} .fa)
 
         start=$(date +%s)
@@ -329,33 +307,10 @@ task Hisat_paired_end {
         # untar the demultiplexed fastqs for sort and trim task
         start=$(date +%s)
         echo "Untar demultiplexed fastqs"
-        #take the basename of the demultiplexed fastq tar file
-
-        demultiplexed_basename=$(basename ~{tarred_demultiplexed_fastqs})
-        echo "the basename of the tarred_demultiplexed_fastqs is"
-        echo $demultiplexed_basename
-        echo "this is the wdl variable path:"
-        echo ~{tarred_demultiplexed_fastqs}
-
-        pigz -dc $demultiplexed_basename | tar -xf -
+        pigz -dc ~{tarred_demultiplexed_fastqs} | tar -xf -
         end=$(date +%s)
         elapsed=$((end - start))
         echo "Elapsed time to untar: $elapsed seconds"
-
-        echo "lsing current dir:"
-        ls -lR
-
-        echo "lsing root dir:"
-        ls -lR ~{cromwell_root_dir}
-
-        # define lists of r1 and r2 fq files
-        if [ ~{cromwell_root_dir} = "gcp" ]; then
-            batch_dir="batch*/"
-        else
-            batch_dir="~{cromwell_root_dir}/*/*/*/*/batch*/"
-        fi
-        echo "batchdirectory: $batch_dir"
-
 
         task() {
           local file=$1
@@ -364,16 +319,11 @@ task Hisat_paired_end {
 
           r2_file="${sample_id}-R2.fq.gz"
           r1_file="${sample_id}-R1.fq.gz"
-          echo "r1 file: $r1_file"
-          echo "r2 file: $r2_file"
-          echo "batch dir: $batch_dir"
-          cp $batch_dir/"$r1_file" .
-          cp $batch_dir/"$r2_file" .
 
           # sort
           start=$(date +%s)
           echo "Run sort r1"
-          zcat "$r1_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R1_sorted.fq"
+          zcat $working_directory/batch*/"$r1_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R1_sorted.fq"
           end=$(date +%s)
           elapsed=$((end - start))
           echo "Elapsed time to run sort r1: $elapsed seconds"
@@ -381,7 +331,7 @@ task Hisat_paired_end {
           # sort
           start=$(date +%s)
           echo "Run sort r2"
-          zcat "$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R2_sorted.fq"
+          zcat $working_directory/batch*/"$r2_file" | paste - - - - | sort -k1,1 -t " " | tr "\t" "\n" > "${sample_id}-R2_sorted.fq"
           end=$(date +%s)
           elapsed=$((end - start))
           echo "Elapsed time to run sort r2: $elapsed seconds"
@@ -411,7 +361,7 @@ task Hisat_paired_end {
           # hisat run
           start=$(date +%s)
           echo "Run hisat"
-          hisat-3n ~{cromwell_root_dir}/$genome_fa_basename \
+          hisat-3n $working_directory/$genome_fa_basename \
           -q \
           -1 ${sample_id}-R1_trimmed.fq.gz \
           -2 ${sample_id}-R2_trimmed.fq.gz \
@@ -443,33 +393,23 @@ task Hisat_paired_end {
           elapsed=$((end - start))
           echo "Elapsed time to run split_hisat3n_unmapped_reads: $elapsed seconds"
 
-          rm ${sample_id}-R1.fq.gz ${sample_id}-R2.fq.gz
+          rm $working_directory/batch*/${sample_id}-R1.fq.gz $working_directory/batch*/${sample_id}-R2.fq.gz
           rm ${sample_id}-R1_sorted.fq ${sample_id}-R2_sorted.fq
           rm ${sample_id}-R1_trimmed.fq.gz ${sample_id}-R2_trimmed.fq.gz
           rm ${sample_id}.hisat3n_dna.unsort.bam ${sample_id}.hisat3n_dna.multi_aligned.bam
           rm ${sample_id}.hisat3n_dna.unmapped.fastq
        }
 
+      # define lists of r1 and r2 fq files
+      R1_files=($(ls $working_directory/batch*/ | grep "\-R1.fq.gz"))
+      R2_files=($(ls $working_directory/batch*/ | grep "\-R2.fq.gz"))
 
-      R1_files=($(ls $batch_dir | grep "\-R1.fq.gz"))
-      R2_files=($(ls $batch_dir | grep "\-R2.fq.gz"))
-
-      echo "Found r1 files: $R1_files"
-      echo "Found r2 files: $R2_files"
-
-      # for file in "${R1_files[@]}"; do
-      # (
-      #   echo "starting task $file.."
-      #   du -h  batch*/$file
-      #   task "$file"
-      # )
-      # done
 
       # run 6 instances of task in parallel
       for file in "${R1_files[@]}"; do
         (
           echo "starting task $file.."
-          du -h  $batch_dir/$file
+          du -h  batch*/$file
           task "$file"
           sleep $(( (RANDOM % 3) + 1))
         ) &
@@ -486,13 +426,6 @@ task Hisat_paired_end {
       ####################################
       ## make sure that the number of output bams equals the length of R1_files
       # Count the number of *.hisat3n_dna.unique_aligned.bam files
-      echo "lsing batch dir"
-      ls $batch_dir
-      echo "ls current dir"
-      ls
-      echo "lsing working dir"
-      echo $WORKING_DIR
-
       bam_count=$(find . -maxdepth 1 -type f -name '*.hisat3n_dna.unique_aligned.bam' | wc -l)
       fastq_counts=$(find . -maxdepth 1 -type f -name '*.split_reads*.fastq' | wc -l)
 
@@ -507,7 +440,7 @@ task Hisat_paired_end {
 
       # Check if the count of FASTQ files matches the length of the array ${R1_files[@]}
       if [ "$fastq_counts" -ne  "$((2 * array_length))" ]; then
-         echo "Error: Number of FASTQ files: $fastq_count does not match the 2 * length of the array: ${#R1_files[@]}."
+         echo "Error: Number of FASTQ files ($fastq_count) does not match the 2 * length of the array (${#R1_files[@]})."
          exit 1
       fi
 
@@ -515,7 +448,10 @@ task Hisat_paired_end {
       ####################################
 
       # tar up stats
-      dna_summary.txt | pigz > ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz
+      echo "Tar up stats"
+      start=$(date +%s)
+      tar -cf - *.trimmed.stats.txt | pigz > ~{plate_id}.trimmed_stats_files.tar.gz
+      tar -cf - *.hisat3n_dna_summary.txt | pigz > ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz
       end=$(date +%s) 
       elapsed=$((end - start))  
       echo "Elapsed time to run tar stats $elapsed seconds"
@@ -535,6 +471,11 @@ task Hisat_paired_end {
       end=$(date +%s) 
       elapsed=$((end - start))  
       echo "Elapsed time to run tar fastqs $elapsed seconds"
+
+      # move the outputs back up a directory
+        mv *.tar.gz ../
+        mv *.reference_version.txt ../
+
     >>>
 
     runtime {
@@ -562,7 +503,6 @@ task Hisat_single_end {
         File tarred_index_files
         String plate_id
         String docker
-        String cromwell_root_dir
 
         Int disk_size = 1000 
         Int mem_size = 64  
@@ -606,8 +546,8 @@ task Hisat_single_end {
         echo "Elapsed time to untar split_fq_tar: $elapsed seconds"
 
         # make directories 
-        mkdir -p ~{cromwell_root_dir}/merged_sort_bams
-        mkdir -p ~{cromwell_root_dir}/read_overlap
+        mkdir -p /cromwell_root/merged_sort_bams
+        mkdir -p /cromwell_root/read_overlap
    
         # define lists of r1 and r2 fq files
         R1_files=($(ls | grep "\.hisat3n_dna.split_reads.R1.fastq"))
@@ -622,7 +562,7 @@ task Hisat_single_end {
           start=$(date +%s) 
    
           # hisat on R1 single end
-          hisat-3n ~{cromwell_root_dir}/$genome_fa_basename \
+          hisat-3n /cromwell_root/$genome_fa_basename \
           -q \
           -U ${BASE}.hisat3n_dna.split_reads.R1.fastq \
           -S ${BASE}.hisat3n_dna.split_reads.R1.sam --directional-mapping-reverse --base-change C,T \
@@ -644,7 +584,7 @@ task Hisat_single_end {
          echo "Running hisat on sample_id_R2" $BASE
 
          # hisat on R2 single end
-         hisat-3n ~{cromwell_root_dir}/$genome_fa_basename \
+         hisat-3n /cromwell_root/$genome_fa_basename \
          -q \
          -U ${BASE}.hisat3n_dna.split_reads.R2.fastq \
          -S ${BASE}.hisat3n_dna.split_reads.R2.sam --directional-mapping --base-change C,T \
@@ -687,7 +627,7 @@ task Hisat_single_end {
          # remove_overlap_read_parts
          echo "call remove_overlap_read_parts" 
          start=$(date +%s) 
-         python3 -c 'from cemba_data.hisat3n import *;import os;remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep,~{cromwell_root_dir},"'"$BASE"'.name_sorted.filtered.bam"),out_bam_path=os.path.join(os.path.sep,~{cromwell_root_dir},"'"$BASE"'.hisat3n_dna.split_reads.read_overlap.bam"))'
+         python3 -c 'from cemba_data.hisat3n import *;import os;remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep,"cromwell_root","'"$BASE"'.name_sorted.filtered.bam"),out_bam_path=os.path.join(os.path.sep,"cromwell_root","'"$BASE"'.hisat3n_dna.split_reads.read_overlap.bam"))'
          end=$(date +%s) 
          elapsed=$((end - start))  
          echo "Elapsed time to run remove overlap $elapsed seconds"
@@ -773,7 +713,6 @@ task Merge_sort_analyze {
         File paired_end_unique_tar
         File read_overlap_tar
         String docker
-        String cromwell_root_dir
 
         #input for allcools bam-to-allc
         File genome_fa
@@ -835,9 +774,9 @@ task Merge_sort_analyze {
       fi
 
       # make directories
-      mkdir ~{cromwell_root_dir}/output_bams
-      mkdir ~{cromwell_root_dir}temp
-      mkdir ~{cromwell_root_dir}allc-${mcg_context}
+      mkdir /cromwell_root/output_bams
+      mkdir /cromwell_root/temp
+      mkdir /cromwell_root/allc-${mcg_context}
       
       task() {
         local file=$1
@@ -868,16 +807,16 @@ task Merge_sort_analyze {
         start=$(date +%s)  
         echo "Call Picard remove duplicates"
         name=${sample_id}.hisat3n_dna.all_reads.deduped
-        picard MarkDuplicates I=${sample_id}.hisat3n_dna.all_reads.pos_sort.bam O=~{cromwell_root_dir}/output_bams/${name}.bam \
-        M=~{cromwell_root_dir}/output_bams/${name}.matrix.txt \
-        REMOVE_DUPLICATES=true TMP_DIR=~{cromwell_root_dir}/temp
+        picard MarkDuplicates I=${sample_id}.hisat3n_dna.all_reads.pos_sort.bam O=/cromwell_root/output_bams/${name}.bam \
+        M=/cromwell_root/output_bams/${name}.matrix.txt \
+        REMOVE_DUPLICATES=true TMP_DIR=/cromwell_root/temp
         end=$(date +%s) 
         elapsed=$((end - start))  
         echo "Elapsed time to run picard $elapsed seconds"
         
         start=$(date +%s)  
         echo "Call samtools index"
-        samtools index ~{cromwell_root_dir}/output_bams/${name}.bam
+        samtools index /cromwell_root/output_bams/${name}.bam
         end=$(date +%s) 
         elapsed=$((end - start)) 
         echo "Elapsed time to samtools index $elapsed seconds" 
@@ -892,8 +831,8 @@ task Merge_sort_analyze {
         start=$(date +%s)  
         echo "Call allcools bam-to-allc from deduped.bams" 
         /opt/conda/bin/allcools bam-to-allc \
-        --bam_path ~{cromwell_root_dir}/output_bams/${name}.bam \
-        --reference_fasta ~{cromwell_root_dir}/reference/~{genome_base} \
+        --bam_path /cromwell_root/output_bams/${name}.bam \
+        --reference_fasta /cromwell_root/reference/~{genome_base} \
         --output_path "${sample_id}.allc.tsv.gz" \
         --num_upstr_bases ~{num_upstr_bases} \
         --num_downstr_bases ~{num_downstr_bases} \
@@ -908,7 +847,7 @@ task Merge_sort_analyze {
         echo "Call allcools extract-all" 
         allcools extract-allc --strandness merge \
         --allc_path ${sample_id}.allc.tsv.gz \
-        --output_prefix ~{cromwell_root_dir}/allc-${mcg_context}/${sample_id} \
+        --output_prefix /cromwell_root/allc-${mcg_context}/${sample_id} \
         --mc_contexts ${mcg_context} \
         --chrom_size_path ~{chromosome_sizes}
         end=$(date +%s) 
@@ -918,8 +857,8 @@ task Merge_sort_analyze {
         echo "Remove some bams"
         rm ${sample_id}.hisat3n_dna.all_reads.bam
         rm ${sample_id}.hisat3n_dna.all_reads.pos_sort.bam
-        rm ~{cromwell_root_dir}/${sample_id}.hisat3n_dna.split_reads.read_overlap.bam
-        rm ~{cromwell_root_dir}/${sample_id}.hisat3n_dna.unique_aligned.bam
+        rm /cromwell_root/${sample_id}.hisat3n_dna.split_reads.read_overlap.bam
+        rm /cromwell_root/${sample_id}.hisat3n_dna.unique_aligned.bam
       }
  
       # run 4 instances of task in parallel 
@@ -974,8 +913,8 @@ task Merge_sort_analyze {
       tar -cf - *.allc.tsv.gz | pigz > ~{plate_id}.allc.tsv.tar.gz
       tar -cf - *.allc.tsv.gz.tbi | pigz > ~{plate_id}.allc.tbi.tar.gz
       tar -cf -  *.allc.tsv.gz.count.csv | pigz > ~{plate_id}.allc.count.tar.gz
-      tar -cf -  ~{cromwell_root_dir}allc-${mcg_context}/*.gz | pigz > ~{plate_id}.extract-allc.tar.gz
-      tar -cf -  ~{cromwell_root_dir}/allc-${mcg_context}/*.tbi | pigz > ~{plate_id}.extract-allc_tbi.tar.gz
+      tar -cf -  /cromwell_root/allc-${mcg_context}/*.gz | pigz > ~{plate_id}.extract-allc.tar.gz
+      tar -cf -  /cromwell_root/allc-${mcg_context}/*.tbi | pigz > ~{plate_id}.extract-allc_tbi.tar.gz
     >>>
 
     runtime {
@@ -1012,7 +951,6 @@ task Summary {
         Array[File] allc_uniq_reads_stats
         Array[File] unique_reads_cgn_extraction_tbi
         String plate_id
-        String cromwell_root_dir
 
         String docker
         Int disk_size = 80
@@ -1023,10 +961,10 @@ task Summary {
     command <<<
         set -euo pipefail
 
-        mkdir ~{cromwell_root_dir}/fastq
-        mkdir ~{cromwell_root_dir}/bam
-        mkdir ~{cromwell_root_dir}/allc
-        mkdir ~{cromwell_root_dir}/hic
+        mkdir /cromwell_root/fastq
+        mkdir /cromwell_root/bam
+        mkdir /cromwell_root/allc
+        mkdir /cromwell_root/hic
 
         extract_and_remove() {
             if [ $# -eq 0 ];
@@ -1049,12 +987,12 @@ task Summary {
         extract_and_remove ~{sep=' ' allc_uniq_reads_stats}
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
 
-        mv *.trimmed.stats.txt ~{cromwell_root_dir}/fastq
-        mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt ~{cromwell_root_dir}/bam
-        mv output_bams/*.hisat3n_dna.all_reads.deduped.matrix.txt ~{cromwell_root_dir}/bam
-        mv *.hisat3n_dna.all_reads.contact_stats.csv ~{cromwell_root_dir}/hic
-        mv *.allc.tsv.gz.count.csv ~{cromwell_root_dir}/allc
-        mv ~{cromwell_root_dir}/allc-CGN/*.allc.tsv.gz.tbi ~{cromwell_root_dir}/allc
+        mv *.trimmed.stats.txt /cromwell_root/fastq
+        mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt /cromwell_root/bam
+        mv output_bams/*.hisat3n_dna.all_reads.deduped.matrix.txt /cromwell_root/bam
+        mv *.hisat3n_dna.all_reads.contact_stats.csv /cromwell_root/hic
+        mv *.allc.tsv.gz.count.csv /cromwell_root/allc
+        mv cromwell_root/allc-CGN/*.allc.tsv.gz.tbi /cromwell_root/allc
 
         python3 -c 'from cemba_data.hisat3n import *;snm3c_summary()'
         mv MappingSummary.csv.gz ~{plate_id}_MappingSummary.csv.gz
