@@ -281,6 +281,8 @@ task Hisat_paired_end {
     }
 
     command <<<
+        set -euo pipefail
+
         WORKING_DIR=`pwd`
         mkdir -p $WORKING_DIR/pipeline_inputs/
 
@@ -331,6 +333,9 @@ task Hisat_paired_end {
 
         demultiplexed_basename=$(basename ~{tarred_demultiplexed_fastqs})
         echo "the basename of the tarred_demultiplexed_fastqs is"
+        echo $demultiplexed_basename
+        echo "this is the wdl variable path:"
+        echo ~{tarred_demultiplexed_fastqs}
 
         pigz -dc $demultiplexed_basename | tar -xf -
         end=$(date +%s)
