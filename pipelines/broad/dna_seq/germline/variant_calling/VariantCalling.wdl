@@ -106,7 +106,8 @@ workflow VariantCalling {
           ref_fasta_index = ref_fasta_index,
           contamination = contamination,
           preemptible_tries = agg_preemptible_tries,
-          hc_scatter = hc_divisor
+          hc_scatter = hc_divisor,
+          docker = gatk_docker
       }
     }
 

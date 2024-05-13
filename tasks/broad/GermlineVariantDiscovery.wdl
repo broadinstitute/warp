@@ -27,6 +27,7 @@ task HaplotypeCaller_GATK35_GVCF {
     Float? contamination
     Int preemptible_tries
     Int hc_scatter
+    String docker
   }
 
   parameter_meta {
@@ -66,7 +67,7 @@ task HaplotypeCaller_GATK35_GVCF {
       --read_filter OverclippedRead
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
+    docker: docker
     preemptible: preemptible_tries
     memory: "10000 MiB"
     cpu: "1"
