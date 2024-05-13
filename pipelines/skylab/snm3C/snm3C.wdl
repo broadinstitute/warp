@@ -281,8 +281,6 @@ task Hisat_paired_end {
     }
 
     command <<<
-
-
         WORKING_DIR=`pwd`
         mkdir -p $WORKING_DIR/pipeline_inputs/
 
@@ -339,6 +337,9 @@ task Hisat_paired_end {
 
         echo "lsing current dir:"
         ls -lR
+
+        echo "lsing root dir:"
+        ls -lR ~{cromwell_root_dir}
 
         # define lists of r1 and r2 fq files
         if [ ~{cromwell_root_dir} = "gcp" ]; then
