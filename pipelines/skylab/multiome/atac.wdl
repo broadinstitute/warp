@@ -440,7 +440,7 @@ task CreateFragmentFile {
     Boolean preindex
     Int disk_size = 500
     Int mem_size = 16
-    Int nthreads = 1
+    Int nthreads = 4
     String cpuPlatform = "Intel Cascade Lake"
   }
 
