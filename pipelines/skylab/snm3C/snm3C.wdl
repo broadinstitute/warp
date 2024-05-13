@@ -411,7 +411,14 @@ task Hisat_paired_end {
           # hisat run
           start=$(date +%s)
           echo "Run hisat"
-          hisat-3n ~{cromwell_root_dir}/$genome_fa_basename \
+          if [ ~{cromwell_root_dir} = "gcp" ]; then
+            hisat_index_file_dir="~{cromwell_root_dir}/$genome_fa_basename"
+          else
+            hisat_index_file_dir="$WORKING_DIR/$genome_fa_basename"
+          fi
+          echo "hisat_index_file_dir: $hisat_index_file_dir"
+
+          hisat-3n $hisat_index_file_dir \
           -q \
           -1 ${sample_id}-R1_trimmed.fq.gz \
           -2 ${sample_id}-R2_trimmed.fq.gz \
