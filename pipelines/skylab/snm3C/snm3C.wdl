@@ -1,6 +1,4 @@
 version 1.0
-import "../../../tasks/broad/Utilities.wdl" as utils
-
 
 workflow snm3C {
 
@@ -34,13 +32,6 @@ workflow snm3C {
     String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
     String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
-    # make sure either gcp or azr is supplied as cloud_provider input
-    if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
-        call utils.ErrorWithMessage as ErrorMessageIncorrectInput {
-        input:
-            message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
-        }
-    }
 
     # version of the pipeline
     String pipeline_version = "4.0.1"
@@ -151,16 +142,6 @@ task Demultiplexing {
     echo "Working directory: $working_directory"
     mv ~{random_primer_indexes} $working_directory
 
-    #for every file in fastq_input_read1 move to working directory
-    for file in ~{sep=' ' fastq_input_read1}; do
-      mv $file $working_directory
-    done
-
-    #for every file in fastq_input_read3 move to working directory
-    for file in ~{sep=' ' fastq_input_read1}; do
-      mv $file $working_directory
-    done
-
     echo "Moved files to working directory"
 
     cd $working_directory
@@ -241,6 +222,10 @@ task Demultiplexing {
         tar -cf - batch${i}/*.fq.gz | pigz > ~{plate_id}.${i}.cutadapt_output_files.tar.gz
     done
     echo "TAR files created successfully."
+
+    # move the outputs back up a directory
+    mv *.tar.gz ../
+    mv *.stats.txt ../
   >>>
 
   runtime {
