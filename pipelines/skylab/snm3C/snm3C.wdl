@@ -165,8 +165,8 @@ task Demultiplexing {
     ls -l
 
     # Cat files for each r1, r2
-    cat ~{sep=' ' fastq_input_read1} > r1.fastq.gz
-    cat ~{sep=' ' fastq_input_read2} > r2.fastq.gz
+    cat *R1*.fastq.gz > r1.fastq.gz
+    cat *R2*.fastq.gz > r2.fastq.gz
 
     # Run cutadapt
     /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
