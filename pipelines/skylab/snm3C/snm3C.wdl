@@ -167,11 +167,14 @@ task Demultiplexing {
     # Cat files for each r1, r2
     cat *R1*.fastq.gz > r1.fastq.gz
     cat *R2*.fastq.gz > r2.fastq.gz
+    #take the basenmae of the random primer indexes
+    random_primer_indexes_basename=$(basename ~{random_primer_indexes} .fa)
+    echo "random_primer_indexes_basename: $random_primer_indexes_basename"
 
     # Run cutadapt
     echo "running cutaadapt"
     /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
-    -g file:*.fa} \
+    -g file:$random_primer_indexes} \
     -o ~{plate_id}-{name}-R1.fq.gz \
     -p ~{plate_id}-{name}-R2.fq.gz \
     r1.fastq.gz \
@@ -180,6 +183,7 @@ task Demultiplexing {
 
     # remove the fastq files that end in unknown-R1.fq.gz and unknown-R2.fq.gz
     rm *-unknown-R{1,2}.fq.gz
+
     echo "done cutadapt"
 
     python3 <<CODE
