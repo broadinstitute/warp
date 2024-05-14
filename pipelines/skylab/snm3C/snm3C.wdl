@@ -282,12 +282,12 @@ task Hisat_paired_end {
         echo "Untarring tarred_index_files"
         pigz -dc ~{tarred_index_files} | tar -xf -
         rm ~{tarred_index_files}
-
         end=$(date +%s)
         elapsed=$((end - start))
         echo "Elapsed time to untar tarred_index_files: $elapsed seconds"
 
         # get the basename of the genome_fa file
+        cp ~{genome_fa} .
         genome_fa_basename=$(basename ~{genome_fa} .fa)
 
         start=$(date +%s)
