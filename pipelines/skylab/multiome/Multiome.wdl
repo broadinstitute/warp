@@ -47,7 +47,6 @@ workflow Multiome {
 
         # CellBender
         Boolean run_cellbender = false
-
     }
 
     # Call the Optimus workflow
