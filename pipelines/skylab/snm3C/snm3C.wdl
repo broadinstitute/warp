@@ -168,7 +168,7 @@ task Demultiplexing {
     cat *R1*.fastq.gz > r1.fastq.gz
     cat *R2*.fastq.gz > r2.fastq.gz
     #take the basenmae of the random primer indexes
-    random_primer_indexes_basename=$(basename ~{random_primer_indexes} .fa)
+    random_primer_indexes_basename=$(basename ~{random_primer_indexes})
     echo "random_primer_indexes_basename: $random_primer_indexes_basename"
 
     # Run cutadapt
