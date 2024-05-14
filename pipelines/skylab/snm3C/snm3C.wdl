@@ -197,14 +197,11 @@ task Demultiplexing {
                 adapter_name = 'A' + adapter_name.group(1)
                 if adapter_name in adapter_counts and adapter_counts[adapter_name] > threshold:
                     os.remove(file_path)
-                    print(f'Removed file: {filename}')
     CODE
 
     # Batch the fastq files into folders of batch_number size
     batch_number=~{batch_number}
-    echo "batch number: $batch_number"
     for i in $(seq 1 "${batch_number}"); do  # Use seq for reliable brace expansion
-        echo "making batch directory: batch${i}"
         mkdir -p "batch${i}"  # Combine batch and i, use -p to create parent dirs
     done
 
@@ -215,29 +212,19 @@ task Demultiplexing {
     # Define lists of r1 and r2 fq files
     R1_files=($(ls $WORKING_DIR | grep "\-R1.fq.gz"))
     R2_files=($(ls $WORKING_DIR | grep "\-R2.fq.gz"))
-    echo "R1 files: $R1_files"
-    echo "R2 files: $R2_files"
 
     # Distribute the FASTQ files and create TAR files
-    echo "starting loop of files"
     for file in "${R1_files[@]}"; do
         sample_id=$(basename "$file" "-R1.fq.gz")
-        echo "sampleId: $sample_id"
         r2_file="${sample_id}-R2.fq.gz"
-        echo "r2 file: $r2_file"
         mv $WORKING_DIR/$file batch$((folder_index))/$file
-        echo "moved $WORKING_DIR/$file to: batch$((folder_index))/$file"
         mv $WORKING_DIR/$r2_file batch$((folder_index))/$r2_file
-        echo "moved $WORKING_DIR/$r2_file to: batch$((folder_index))/$r2_file"
         # Increment the counter
         folder_index=$(( (folder_index % $batch_number) + 1 ))
-        echo "folder index is now: $folder_index"
     done
 
     # Tar up files per batch
     for i in $(seq 1 "${batch_number}"); do
-        echo " working on batch: batch${i}"
-        echo "tarring $WORKING_DIR/batch${i}/*.fq.gz and outputting:  ~{plate_id}.${i}.cutadapt_output_files.tar.gz"
         tar -cf - $WORKING_DIR/batch${i}/*.fq.gz | pigz > ~{plate_id}.${i}.cutadapt_output_files.tar.gz
     done
   >>>
@@ -282,18 +269,7 @@ task Hisat_paired_end {
 
     command <<<
         set -euo pipefail
-
         WORKING_DIR=`pwd`
-        mkdir -p $WORKING_DIR/pipeline_inputs/
-
-        mv ~{tarred_demultiplexed_fastqs} $WORKING_DIR/pipeline_inputs/
-        mv ~{tarred_index_files} $WORKING_DIR/pipeline_inputs/
-        mv ~{genome_fa} $WORKING_DIR/pipeline_inputs/
-        mv ~{chromosome_sizes} $WORKING_DIR/pipeline_inputs/
-
-        cd $WORKING_DIR/pipeline_inputs/
-
-        ls -l
 
         # check genomic reference version and print to output txt file
         STRING=~{genome_fa}
@@ -304,17 +280,14 @@ task Hisat_paired_end {
         # untar the index files for hisat task
         start=$(date +%s)
         echo "Untarring tarred_index_files"
-
-        #take the basename of the demultiplexed fastq tar file
-        index_basename=$(basename ~{tarred_index_files})
-        pigz -dc $index_basename | tar -xf -
-        rm $index_basename
-
+        pigz -dc ~{tarred_index_files} | tar -xf -
+        rm ~{tarred_index_files}
         end=$(date +%s)
         elapsed=$((end - start))
         echo "Elapsed time to untar tarred_index_files: $elapsed seconds"
 
         # get the basename of the genome_fa file
+        cp ~{genome_fa} .
         genome_fa_basename=$(basename ~{genome_fa} .fa)
 
         start=$(date +%s)
@@ -329,24 +302,10 @@ task Hisat_paired_end {
         # untar the demultiplexed fastqs for sort and trim task
         start=$(date +%s)
         echo "Untar demultiplexed fastqs"
-        #take the basename of the demultiplexed fastq tar file
-
-        demultiplexed_basename=$(basename ~{tarred_demultiplexed_fastqs})
-        echo "the basename of the tarred_demultiplexed_fastqs is"
-        echo $demultiplexed_basename
-        echo "this is the wdl variable path:"
-        echo ~{tarred_demultiplexed_fastqs}
-
-        pigz -dc $demultiplexed_basename | tar -xf -
+        pigz -dc ~{tarred_demultiplexed_fastqs} | tar -xf -
         end=$(date +%s)
         elapsed=$((end - start))
         echo "Elapsed time to untar: $elapsed seconds"
-
-        echo "lsing current dir:"
-        ls -lR
-
-        echo "lsing root dir:"
-        ls -lR ~{cromwell_root_dir}
 
         # define lists of r1 and r2 fq files
         if [ ~{cromwell_root_dir} = "gcp" ]; then
@@ -354,8 +313,6 @@ task Hisat_paired_end {
         else
             batch_dir="~{cromwell_root_dir}/*/*/*/*/*/*/*/*/*/*/*/batch*/"
         fi
-        echo "batchdirectory: $batch_dir"
-
 
         task() {
           local file=$1
@@ -364,9 +321,6 @@ task Hisat_paired_end {
 
           r2_file="${sample_id}-R2.fq.gz"
           r1_file="${sample_id}-R1.fq.gz"
-          echo "r1 file: $r1_file"
-          echo "r2 file: $r2_file"
-          echo "batch dir: $batch_dir"
           cp $batch_dir/"$r1_file" .
           cp $batch_dir/"$r2_file" .
 
@@ -414,9 +368,8 @@ task Hisat_paired_end {
           if [ ~{cromwell_root_dir} = "gcp" ]; then
             hisat_index_file_dir="~{cromwell_root_dir}/$genome_fa_basename"
           else
-            hisat_index_file_dir="$WORKING_DIR/pipeline_inputs/$genome_fa_basename"
+            hisat_index_file_dir="$WORKING_DIR/$genome_fa_basename"
           fi
-          echo "hisat_index_file_dir: $hisat_index_file_dir"
 
           hisat-3n $hisat_index_file_dir \
           -q \
@@ -461,17 +414,6 @@ task Hisat_paired_end {
       R1_files=($(ls $batch_dir | grep "\-R1.fq.gz"))
       R2_files=($(ls $batch_dir | grep "\-R2.fq.gz"))
 
-      echo "Found r1 files: $R1_files"
-      echo "Found r2 files: $R2_files"
-
-      # for file in "${R1_files[@]}"; do
-      # (
-      #   echo "starting task $file.."
-      #   du -h  batch*/$file
-      #   task "$file"
-      # )
-      # done
-
       # run 6 instances of task in parallel
       for file in "${R1_files[@]}"; do
         (
@@ -493,13 +435,6 @@ task Hisat_paired_end {
       ####################################
       ## make sure that the number of output bams equals the length of R1_files
       # Count the number of *.hisat3n_dna.unique_aligned.bam files
-      echo "lsing batch dir"
-      ls $batch_dir
-      echo "ls current dir"
-      ls
-      echo "lsing working dir"
-      echo $WORKING_DIR
-
       bam_count=$(find . -maxdepth 1 -type f -name '*.hisat3n_dna.unique_aligned.bam' | wc -l)
       fastq_counts=$(find . -maxdepth 1 -type f -name '*.split_reads*.fastq' | wc -l)
 
@@ -585,6 +520,7 @@ task Hisat_single_end {
         set -euo pipefail
         set -x
         lscpu
+        WORKING_DIR=`pwd`
         
         # untar the tarred index files
         echo "Untar tarred_index_files"
@@ -623,16 +559,27 @@ task Hisat_single_end {
         R1_files=($(ls | grep "\.hisat3n_dna.split_reads.R1.fastq"))
         R2_files=($(ls | grep "\.hisat3n_dna.split_reads.R2.fastq"))
 
+        echo "Found R1 files: $R1_files"
+        echo "Found R2 files: $R2_files"
+
+
         task() {
           BASE=$(basename "$file" ".hisat3n_dna.split_reads.R1.fastq")
           echo $BASE
           echo "Running hisat on sample_id_R1" $BASE
           
           echo "Hisat 3n R1" 
-          start=$(date +%s) 
+          start=$(date +%s)
+
+          if [ ~{cromwell_root_dir} = "gcp" ]; then
+            hisat_index_file_dir="~{cromwell_root_dir}/$genome_fa_basename"
+          else
+            hisat_index_file_dir="$WORKING_DIR/$genome_fa_basename"
+          fi
+
    
           # hisat on R1 single end
-          hisat-3n ~{cromwell_root_dir}/$genome_fa_basename \
+          hisat-3n $hisat_index_file_dir \
           -q \
           -U ${BASE}.hisat3n_dna.split_reads.R1.fastq \
           -S ${BASE}.hisat3n_dna.split_reads.R1.sam --directional-mapping-reverse --base-change C,T \
@@ -654,7 +601,7 @@ task Hisat_single_end {
          echo "Running hisat on sample_id_R2" $BASE
 
          # hisat on R2 single end
-         hisat-3n ~{cromwell_root_dir}/$genome_fa_basename \
+         hisat-3n $hisat_index_file_dir \
          -q \
          -U ${BASE}.hisat3n_dna.split_reads.R2.fastq \
          -S ${BASE}.hisat3n_dna.split_reads.R2.sam --directional-mapping --base-change C,T \
@@ -695,6 +642,8 @@ task Hisat_single_end {
          echo "Elapsed time to run samtools -q 10 $elapsed seconds"
 
          # remove_overlap_read_parts
+         echo "recusively ls cromwell root"
+         ls -lR ~{cromwell_root_dir}
          echo "call remove_overlap_read_parts" 
          start=$(date +%s) 
          python3 -c 'from cemba_data.hisat3n import *;import os;remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep,~{cromwell_root_dir},"'"$BASE"'.name_sorted.filtered.bam"),out_bam_path=os.path.join(os.path.sep,~{cromwell_root_dir},"'"$BASE"'.hisat3n_dna.split_reads.read_overlap.bam"))'
