@@ -522,7 +522,10 @@ task Hisat_paired_end {
       ####################################
 
       # tar up stats
-      dna_summary.txt | pigz > ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz
+      echo "Tar up stats"
+      start=$(date +%s)
+      tar -cf - *.trimmed.stats.txt | pigz > ~{plate_id}.trimmed_stats_files.tar.gz
+      tar -cf - *.hisat3n_dna_summary.txt | pigz > ~{plate_id}.hisat3n_paired_end_stats_files.tar.gz
       end=$(date +%s) 
       elapsed=$((end - start))  
       echo "Elapsed time to run tar stats $elapsed seconds"
