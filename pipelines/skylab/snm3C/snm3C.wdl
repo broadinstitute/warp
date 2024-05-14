@@ -658,8 +658,7 @@ task Hisat_single_end {
             bam_path_prefix=$WORKING_DIR
          fi
 
-         echo "filtered bam path: $filtered_bam_path"
-         echo "read overlap bam path: $read_overlap_bam_path"
+         echo "bam_path_prefix $bam_path_prefix"
 
          echo "call remove_overlap_read_parts" 
          start=$(date +%s) 
