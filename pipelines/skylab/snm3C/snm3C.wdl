@@ -72,7 +72,8 @@ workflow snm3C {
                 r2_right_cut = r2_right_cut,
                 plate_id = plate_id,
                 docker = docker_prefix + m3c_yap_hisat_docker,
-                cromwell_root_dir = cromwell_root_dir
+                cromwell_root_dir = cromwell_root_dir,
+                cloud_provider = cloud_provider,
         }
 
         call Hisat_single_end as Hisat_single_end {
@@ -82,7 +83,8 @@ workflow snm3C {
                 genome_fa = genome_fa,
                 plate_id = plate_id,
                 docker = docker_prefix + m3c_yap_hisat_docker,
-                cromwell_root_dir = cromwell_root_dir
+                cromwell_root_dir = cromwell_root_dir,
+                cloud_provider = cloud_provider
         }
 
         call Merge_sort_analyze as Merge_sort_analyze {
@@ -252,6 +254,7 @@ task Hisat_paired_end {
         String plate_id
         String docker
         String cromwell_root_dir
+        String cloud_provider
 
         String r1_adapter
         String r2_adapter
@@ -308,7 +311,7 @@ task Hisat_paired_end {
         echo "Elapsed time to untar: $elapsed seconds"
 
         # define lists of r1 and r2 fq files
-        if [ ~{cromwell_root_dir} = "gcp" ]; then
+        if [ ~{cloud_provider} = "gcp" ]; then
             batch_dir="batch*/"
         else
             batch_dir="~{cromwell_root_dir}/*/*/*/*/*~{cromwell_root_dir}/*/*/*/*/batch*/"
@@ -365,7 +368,7 @@ task Hisat_paired_end {
           # hisat run
           start=$(date +%s)
           echo "Run hisat"
-          if [ ~{cromwell_root_dir} = "gcp" ]; then
+          if [ ~{cloud_provider} = "gcp" ]; then
             hisat_index_file_dir="~{cromwell_root_dir}/$genome_fa_basename"
           else
             hisat_index_file_dir="$WORKING_DIR/$genome_fa_basename"
@@ -508,6 +511,7 @@ task Hisat_single_end {
         String plate_id
         String docker
         String cromwell_root_dir
+        String cloud_provider
 
         Int disk_size = 1000 
         Int mem_size = 64  
@@ -571,7 +575,7 @@ task Hisat_single_end {
           echo "Hisat 3n R1" 
           start=$(date +%s)
 
-          if [ ~{cromwell_root_dir} = "gcp" ]; then
+          if [ ~{cloud_provider} = "gcp" ]; then
             hisat_index_file_dir="~{cromwell_root_dir}/$genome_fa_basename"
           else
             hisat_index_file_dir="$WORKING_DIR/$genome_fa_basename"
@@ -645,7 +649,7 @@ task Hisat_single_end {
          echo "recusively ls cromwell root"
          ls -lR ~{cromwell_root_dir}
 
-         if [ ~{cromwell_root_dir} = "gcp" ]; then
+         if [ ~{cloud_provider} = "gcp" ]; then
             filtered_bam_path="~{cromwell_root_dir}/$BASE.name_sorted.filtered.bam"
             read_overlap_bam_path="~{cromwell_root_dir}/$BASE.hisat3n_dna.split_reads.read_overlap.bam"
          else
