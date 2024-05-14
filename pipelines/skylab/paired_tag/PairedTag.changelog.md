@@ -3,6 +3,7 @@
 
 * Updated the UPStools docker to version 2.0.0 which reinstates a barcode orientation check script
 * Updated the demultiplex task so that output FASTQ files are renamed according to the original input file name, avoiding naming collisions in downstream tasks
+* Updated the demultiplex task so that some intermediate input names have been renamed. There is no change to the outputs. 
 
 # 0.5.1
 2024-04-12 (Date of Last Commit)
