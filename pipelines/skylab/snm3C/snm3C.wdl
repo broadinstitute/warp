@@ -812,7 +812,7 @@ task Merge_sort_analyze {
       # make directories
       mkdir ~{cromwell_root_dir}/output_bams
       mkdir ~{cromwell_root_dir}temp
-      mkdir ~{cromwell_root_dir}allc-${mcg_context}
+      mkdir ~{cromwell_root_dir}/allc-${mcg_context}
       
       task() {
         local file=$1
