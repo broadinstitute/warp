@@ -174,7 +174,7 @@ task Demultiplexing {
     # Run cutadapt
     echo "running cutaadapt"
     /opt/conda/bin/cutadapt -Z -e 0.01 --no-indels -j 8 \
-    -g file:$random_primer_indexes} \
+    -g file:$random_primer_indexes_basename} \
     -o ~{plate_id}-{name}-R1.fq.gz \
     -p ~{plate_id}-{name}-R2.fq.gz \
     r1.fastq.gz \
