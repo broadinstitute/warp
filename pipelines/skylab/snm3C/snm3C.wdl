@@ -315,7 +315,7 @@ task Hisat_paired_end {
 
         # define lists of r1 and r2 fq files
         if [ ~{cloud_provider} = "gcp" ]; then
-            batch_dir="~{cromwell_root_dir}/batch*/"
+            batch_dir="~{cromwell_root_dir}~{cromwell_root_dir}/batch*/"
         else
             batch_dir="~{cromwell_root_dir}/*/*/*/*/*~{cromwell_root_dir}/*/*/*/*/batch*/"
         fi
