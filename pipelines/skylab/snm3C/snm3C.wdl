@@ -307,6 +307,9 @@ task Hisat_paired_end {
         elapsed=$((end - start))
         echo "Elapsed time to untar: $elapsed seconds"
 
+        echo "recursively list cromwell roo"
+        ls -lR ~{cromwell_root_dir}
+
         # define lists of r1 and r2 fq files
         if [ ~{cromwell_root_dir} = "gcp" ]; then
             batch_dir="batch*/"
