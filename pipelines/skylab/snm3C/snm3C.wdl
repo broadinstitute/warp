@@ -412,9 +412,9 @@ task Hisat_paired_end {
           start=$(date +%s)
           echo "Run hisat"
           if [ ~{cromwell_root_dir} = "gcp" ]; then
-            hisat_index_file_dir="~{cromwell_root_dir}/pipeline_inputs/$genome_fa_basename"
+            hisat_index_file_dir="~{cromwell_root_dir}/$genome_fa_basename"
           else
-            hisat_index_file_dir="$WORKING_DIR/$genome_fa_basename"
+            hisat_index_file_dir="$WORKING_DIR/pipeline_inputs/$genome_fa_basename"
           fi
           echo "hisat_index_file_dir: $hisat_index_file_dir"
 
