@@ -310,9 +310,12 @@ task Hisat_paired_end {
         elapsed=$((end - start))
         echo "Elapsed time to untar: $elapsed seconds"
 
+        echo "lsing cromwell root dir"
+        ls -lR ~{cromwell_root_dir}
+
         # define lists of r1 and r2 fq files
         if [ ~{cloud_provider} = "gcp" ]; then
-            batch_dir="batch*/"
+            batch_dir="~{cromwell_root_dir}/batch*/"
         else
             batch_dir="~{cromwell_root_dir}/*/*/*/*/*~{cromwell_root_dir}/*/*/*/*/batch*/"
         fi
