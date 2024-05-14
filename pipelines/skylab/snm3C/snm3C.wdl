@@ -307,15 +307,11 @@ task Hisat_paired_end {
         elapsed=$((end - start))
         echo "Elapsed time to untar: $elapsed seconds"
 
-        echo "recursively list cromwell roo"
-        ls -lR ~{cromwell_root_dir}
-
         # define lists of r1 and r2 fq files
         if [ ~{cromwell_root_dir} = "gcp" ]; then
             batch_dir="batch*/"
         else
             batch_dir="~{cromwell_root_dir}/*/*/*/*/*~{cromwell_root_dir}/*/*/*/*/batch*/"
-
         fi
 
         task() {
@@ -648,9 +644,21 @@ task Hisat_single_end {
          # remove_overlap_read_parts
          echo "recusively ls cromwell root"
          ls -lR ~{cromwell_root_dir}
+
+         if [ ~{cromwell_root_dir} = "gcp" ]; then
+            filtered_bam_path="~{cromwell_root_dir}/$BASE.name_sorted.filtered.bam"
+            read_overlap_bam_path="~{cromwell_root_dir}/$BASE.hisat3n_dna.split_reads.read_overlap.bam"
+         else
+            filtered_bam_path="$WORKING_DIR/$BASE.name_sorted.filtered.bam"
+            read_overlap_bam_path="$WORKING_DIR/$BASE.hisat3n_dna.split_reads.read_overlap.bam"
+         fi
+
+         echo "filtered bam path: $filtered_bam_path"
+         echo "read overlap bam path: $read_overlap_bam_path"
+
          echo "call remove_overlap_read_parts" 
          start=$(date +%s) 
-         python3 -c 'from cemba_data.hisat3n import *;import os;remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep,~{cromwell_root_dir},"'"$BASE"'.name_sorted.filtered.bam"),out_bam_path=os.path.join(os.path.sep,~{cromwell_root_dir},"'"$BASE"'.hisat3n_dna.split_reads.read_overlap.bam"))'
+         python3 -c 'from cemba_data.hisat3n import *;import os;remove_overlap_read_parts(in_bam_path=$filtered_bam_path,out_bam_path=$read_overlap_bam_path)'
          end=$(date +%s) 
          elapsed=$((end - start))  
          echo "Elapsed time to run remove overlap $elapsed seconds"
@@ -846,7 +854,7 @@ task Merge_sort_analyze {
         echo "Elapsed time to samtools index $elapsed seconds" 
         
         start=$(date +%s)  
-        echo "Call chromatin contacts from name sorted bams" 
+        echo "Call chromatin contacts from name sorted bams"
         python3 -c 'from cemba_data.hisat3n import *;import os;import glob;call_chromatin_contacts(bam_path="'"$sample_id"'.hisat3n_dna.all_reads.name_sort.bam",contact_prefix="'"$sample_id"'.hisat3n_dna.all_reads",save_raw=False,save_hic_format=True)'
         end=$(date +%s) 
         elapsed=$((end - start)) 
