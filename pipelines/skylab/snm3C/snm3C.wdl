@@ -653,11 +653,9 @@ task Hisat_single_end {
          ls -lR ~{cromwell_root_dir}
 
          if [ ~{cloud_provider} = "gcp" ]; then
-            filtered_bam_path="~{cromwell_root_dir}/$BASE.name_sorted.filtered.bam"
-            read_overlap_bam_path="~{cromwell_root_dir}/$BASE.hisat3n_dna.split_reads.read_overlap.bam"
+            bam_path_prefix="~{cromwell_root_dir}"
          else
-            filtered_bam_path="$WORKING_DIR/$BASE.name_sorted.filtered.bam"
-            read_overlap_bam_path="$WORKING_DIR/$BASE.hisat3n_dna.split_reads.read_overlap.bam"
+            bam_path_prefix=$WORKING_DIR
          fi
 
          echo "filtered bam path: $filtered_bam_path"
@@ -665,7 +663,7 @@ task Hisat_single_end {
 
          echo "call remove_overlap_read_parts" 
          start=$(date +%s) 
-         python3 -c 'from cemba_data.hisat3n import *;import os;remove_overlap_read_parts(in_bam_path=$filtered_bam_path,out_bam_path=$read_overlap_bam_path)'
+         python3 -c 'from cemba_data.hisat3n import *;import os;remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep,'"$bam_path_prefix"',"'"$BASE"'.name_sorted.filtered.bam"),out_bam_path=os.path.join(os.path.sep,"$bam_path_prefix","'"$BASE"'.hisat3n_dna.split_reads.read_overlap.bam"))'
          end=$(date +%s) 
          elapsed=$((end - start))  
          echo "Elapsed time to run remove overlap $elapsed seconds"
