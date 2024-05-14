@@ -662,7 +662,7 @@ task Hisat_single_end {
 
          echo "call remove_overlap_read_parts" 
          start=$(date +%s) 
-         python3 -c 'from cemba_data.hisat3n import *;import os;remove_overlap_read_parts(in_bam_path=os.path.join(os.path.sep,'"$bam_path_prefix"',"'"$BASE"'.name_sorted.filtered.bam"),out_bam_path=os.path.join(os.path.sep,"$bam_path_prefix","'"$BASE"'.hisat3n_dna.split_reads.read_overlap.bam"))'
+         python3 -c 'from cemba_data.hisat3n import *;import os;remove_overlap_read_parts(in_bam_path="'"$BASE"'.name_sorted.filtered.bam",out_bam_path="'"$BASE"'.hisat3n_dna.split_reads.read_overlap.bam")'
          end=$(date +%s) 
          elapsed=$((end - start))  
          echo "Elapsed time to run remove overlap $elapsed seconds"
