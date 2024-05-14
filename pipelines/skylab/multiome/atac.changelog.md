@@ -1,5 +1,5 @@
 # 1.2.2
-2024-05-10 (Date of Last Commit)
+2024-05-14 (Date of Last Commit)
 
 * Updated the Paired-tag Demultiplex task; this does not impact the ATAC workflow
 
