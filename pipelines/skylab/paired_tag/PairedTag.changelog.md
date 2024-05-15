@@ -1,3 +1,8 @@
+# 0.6.1
+2024-05-14 (Date)
+
+* Updated the demultiplex task so that some intermediate input names have been renamed. There is no change to the outputs.
+
 # 0.6.0
 2024-05-10 (Date)
 
