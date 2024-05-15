@@ -1004,6 +1004,9 @@ task Summary {
     command <<<
         set -euo pipefail
 
+        echo "recursively ls'sing cromwell root in summary task"
+        ls -lR ~{cromwell_root_dir}
+
         mkdir ~{cromwell_root_dir}/fastq
         mkdir ~{cromwell_root_dir}/bam
         mkdir ~{cromwell_root_dir}/allc
