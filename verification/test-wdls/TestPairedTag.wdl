@@ -76,6 +76,7 @@ workflow TestPairedTag {
         star_strand_mode = star_strand_mode,
         count_exons = count_exons,
         gex_whitelist = gex_whitelist,
+        preindex = preindex,
         atac_r1_fastq = atac_r1_fastq,
         atac_r2_fastq = atac_r2_fastq,
         atac_r3_fastq = atac_r3_fastq,
