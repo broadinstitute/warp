@@ -811,7 +811,7 @@ task Merge_sort_analyze {
 
       # make directories
       mkdir ~{cromwell_root_dir}/output_bams
-      mkdir ~{cromwell_root_dir}temp
+      mkdir ~{cromwell_root_dir}/temp
       mkdir ~{cromwell_root_dir}/allc-${mcg_context}
       
       task() {
@@ -863,6 +863,9 @@ task Merge_sort_analyze {
         end=$(date +%s) 
         elapsed=$((end - start)) 
         echo "Elapsed time to chromatin contacts $elapsed seconds"
+
+        echo "recursively ls cromwell root"
+        ls -lR ~{cromwell_root_dir}
 
         start=$(date +%s)  
         echo "Call allcools bam-to-allc from deduped.bams" 
@@ -936,8 +939,11 @@ task Merge_sort_analyze {
       echo "Number of output files matches the length of the array."
       ####################################
 
+      echo "recursively ls'sing cromwell root again"
+      ls -lR ~{cromwell_root_dir}
+
       echo "Tar files."      
-      tar -cf - output_bams/*.matrix.txt | pigz > ~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz
+      tar -cf - ~{cromwell_root_dir}/output_bams/*.matrix.txt | pigz > ~{plate_id}.dedup_unique_bam_and_index_unique_bam_stats.tar.gz
       tar -cf - *.hisat3n_dna.all_reads.name_sort.bam | pigz > ~{plate_id}.hisat3n_dna.all_reads.name_sort.tar.gz
     
       # tar outputs of call_chromatin_contacts
@@ -949,7 +955,7 @@ task Merge_sort_analyze {
       tar -cf - *.allc.tsv.gz | pigz > ~{plate_id}.allc.tsv.tar.gz
       tar -cf - *.allc.tsv.gz.tbi | pigz > ~{plate_id}.allc.tbi.tar.gz
       tar -cf -  *.allc.tsv.gz.count.csv | pigz > ~{plate_id}.allc.count.tar.gz
-      tar -cf -  ~{cromwell_root_dir}allc-${mcg_context}/*.gz | pigz > ~{plate_id}.extract-allc.tar.gz
+      tar -cf -  ~{cromwell_root_dir}/allc-${mcg_context}/*.gz | pigz > ~{plate_id}.extract-allc.tar.gz
       tar -cf -  ~{cromwell_root_dir}/allc-${mcg_context}/*.tbi | pigz > ~{plate_id}.extract-allc_tbi.tar.gz
     >>>
 
