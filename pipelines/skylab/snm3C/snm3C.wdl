@@ -1016,8 +1016,11 @@ task Summary {
     command <<<
         set -euo pipefail
 
-        echo "recursively ls'sing cromwell root in summary task"
+        echo "recursively lsing cromwell root in summary task"
         ls -lR ~{cromwell_root_dir}
+        echo "lsing current dir"
+        ls -lrt
+
 
         mkdir ~{cromwell_root_dir}/fastq
         mkdir ~{cromwell_root_dir}/bam
@@ -1045,9 +1048,12 @@ task Summary {
         extract_and_remove ~{sep=' ' allc_uniq_reads_stats}
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
 
+        echo "lsing cromwell root again"
+        ls -lrt ~{cromwell_root_dir}
+
         mv *.trimmed.stats.txt ~{cromwell_root_dir}/fastq
         mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt ~{cromwell_root_dir}/bam
-        mv output_bams/*.hisat3n_dna.all_reads.deduped.matrix.txt ~{cromwell_root_dir}/bam
+        mv ~{cromwell_root_dir}/output_bams/*.hisat3n_dna.all_reads.deduped.matrix.txt ~{cromwell_root_dir}/bam
         mv *.hisat3n_dna.all_reads.contact_stats.csv ~{cromwell_root_dir}/hic
         mv *.allc.tsv.gz.count.csv ~{cromwell_root_dir}/allc
         mv ~{cromwell_root_dir}/allc-CGN/*.allc.tsv.gz.tbi ~{cromwell_root_dir}/allc
