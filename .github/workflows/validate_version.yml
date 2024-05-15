@@ -19,9 +19,7 @@ env:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # The job that builds our container
   validate-changelog:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -40,8 +38,7 @@ jobs:
       id: validate_script
       run: |
         set -e
-        echo "Validating changelog for ${{ github.base_ref }}"
-        #scripts/validate_release.sh -g origin/staging
+        echo "Validating versions..."
         result=$(scripts/validate_release.sh -g origin/staging 2>&1 || echo "validation_failed")  # don't exit on script failure
         # Escape newlines, carriage returns, and percent signs
         escaped_result=$(echo "$result" | sed ':a;N;$!ba;s/\r/\\r/g;s/\n/\\n/g;s/%/%%/g')
