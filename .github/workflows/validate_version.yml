@@ -38,7 +38,7 @@ jobs:
       id: validate_script
       run: |
         set -e
-        echo "Validating versions..."
+        echo "Validating all versions for all pipelines..."
         result=$(scripts/validate_release.sh -g origin/staging 2>&1 || echo "validation_failed")  # don't exit on script failure
         # Escape newlines, carriage returns, and percent signs
         escaped_result=$(echo "$result" | sed ':a;N;$!ba;s/\r/\\r/g;s/\n/\\n/g;s/%/%%/g')
