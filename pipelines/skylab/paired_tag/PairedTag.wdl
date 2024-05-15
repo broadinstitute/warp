@@ -26,6 +26,7 @@ workflow PairedTag {
         Boolean count_exons = false
         File gex_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt"
 
+        String? soloMultiMappers = "Uniform"
         # ATAC inputs
         # Array of input fastq files
         Array[File] atac_r1_fastq
@@ -62,6 +63,7 @@ workflow PairedTag {
             ignore_r1_read_length = ignore_r1_read_length,
             star_strand_mode = star_strand_mode,
             count_exons = count_exons,
+            soloMultiMappers = soloMultiMappers
     }
 
     # Call the ATAC workflow
@@ -126,5 +128,9 @@ workflow PairedTag {
         File? cell_calls_gex = Optimus.cell_calls
         File h5ad_output_file_gex = Optimus.h5ad_output_file
         File? library_metrics = Optimus.library_metrics
+        Array[File?] multimappers_EM_matrix = Optimus.multimappers_EM_matrix
+        Array[File?] multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
+        Array[File?] multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
+        Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
     }
 }
