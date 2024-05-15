@@ -34,6 +34,7 @@ workflow TestPairedTag {
       Array[File] atac_r2_fastq
       Array[File] atac_r3_fastq
 
+      Boolean preindex
       # BWA input
       File tar_bwa_reference
 
