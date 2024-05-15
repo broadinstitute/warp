@@ -24,7 +24,8 @@ task SortSam {
     Int compression_level
     Int additional_disk = 20
     Int memory_multiplier = 1
-    String docker
+    #Setting default docker value for workflows that haven't yet been azurized. 
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
   }
   # SortSam spills to disk a lot more because we are only store 300000 records in RAM now because its faster for our data so it needs
   # more disk space.  Also it spills to disk in an uncompressed format so we need to account for that with a larger multiplier
