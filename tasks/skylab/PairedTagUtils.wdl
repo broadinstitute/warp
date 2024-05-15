@@ -107,7 +107,6 @@ task PairedTagDemultiplex {
         elif [[ $COUNT == 24 && ~{preindex} == "false" ]]
           then
           echo "FASTQ has correct index length, no modification necessary"
-          ls -lh
           mv "~{input_id}_R2.fq.gz" "~{r2_base}.fq.gz"
           mv "~{input_id}_R1.fq.gz" "~{r1_base}.fq.gz"
           mv "~{input_id}_R3.fq.gz" "~{r3_base}.fq.gz"

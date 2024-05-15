@@ -1,7 +1,8 @@
 # 0.6.1
-2024-05-12 (Date of Last Commit)
+2024-05-14 (Date of Last Commit)
 
 * Updated the PairedTag.wdl to run in Azure 
+* Updated the demultiplex task so that some intermediate input names have been renamed. There is no change to the outputs.
 
 # 0.6.0
 2024-05-10 (Date)
