@@ -5,9 +5,8 @@ name: WARP Validate Version
 on:
   # Triggers the workflow on push or pull request events but only for the "staging" and "master" branch
   pull_request:
-    #only for develop branch
-    #note: remove branch protection on master and staging
-    branches: [ "develop"]
+    #runs on PRs to develop, staging, and master
+    branches: [ "develop", "staging", "master"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -34,7 +33,7 @@ jobs:
     - name: Set up Git
       run: |
         git fetch --all
-    - name: Validate release
+    - name: Validate versions
       id: validate_script
       run: |
         set -e
@@ -53,7 +52,7 @@ jobs:
           try {
             const output = "${{ steps.validate_script.outputs.result }}".replace(/\\n/g, '\n').replace(/\\r/g, '\r');
             const issue_number = context.payload.pull_request.number;
-            const message = `### Validation Results:\n\`\`\`\n${output}\n\`\`\``;
+            const message = `### 🔍Version Validation Results:\n\`\`\`\n${output}\n\`\`\``;
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,

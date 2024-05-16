@@ -3,17 +3,9 @@ name: WARP Validate Changelog
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "develop" and "master" branch
-  # Uncomment this block and add your branch name to test without creating a PR
-  #push:
-    #branches: [ "kp_github_actions_pd-2113" ] 
-    #paths-ignore:
-    #  - '**/README.md'
+  #Changing trigger to all PRs for all branches
   pull_request:
-    #Changing trigger to all PRs for all branches
     #branches: [ "develop" ]
-    # paths:
-    #   - 'tools/**'
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     # inputs:
@@ -69,7 +61,7 @@ jobs:
           try {
             const output = "${{ steps.validate_script.outputs.result }}".replace(/\\n/g, '\n').replace(/\\r/g, '\r');
             const issue_number = context.payload.pull_request.number;
-            const message = `### Validation Results:\n\`\`\`\n${output}\n\`\`\``;
+            const message = `### 🔍Changelog Validation Results:\n\`\`\`\n${output}\n\`\`\``;
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
