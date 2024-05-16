@@ -1,7 +1,11 @@
-# 0.6.0
-2024-05-16 (Date)
+# 0.7.0
+2024-05-16
 
 * Added testing infrastructure for paired-tag plumbing data
+
+# 0.6.0
+2024-05-10 (Date)
+
 * Updated the UPStools docker to version 2.0.0 which reinstates a barcode orientation check script
 * Updated the demultiplex task so that output FASTQ files are renamed according to the original input file name, avoiding naming collisions in downstream tasks
 
