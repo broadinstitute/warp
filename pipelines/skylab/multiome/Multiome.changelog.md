@@ -1,3 +1,8 @@
+# 3.4.5
+2024-05-14 (Date of Last Commit)
+
+* Updated the Paired-tag Demultiplex task so that some intermediate input names have been renamed; this change does not impact the Multiome workflow
+
 # 3.4.4
 2024-05-10 (Date of Last Commit)
 
