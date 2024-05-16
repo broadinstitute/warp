@@ -388,7 +388,8 @@ task PhaseAndImputeBeagle {
     out=imputed_~{basename} \
     chrom=~{chrom}:~{start}-~{end} \
     impute=true \
-    nthreads=~{cpu}
+    nthreads=~{cpu} \
+    seed=-99999
 
     # notes: 
     # rename output file to "phased_{basename}" if phasing without imputing
@@ -1062,7 +1063,6 @@ task PreSplitVcf {
   input {
     Array[String] contigs
     File vcf
-    File vcf_index
 
     Int disk_size_gb = ceil(3*size(vcf, "GiB")) + 50
     Int cpu = 1
@@ -1074,6 +1074,9 @@ task PreSplitVcf {
 
   command {
     set -e -o pipefail
+
+    gatk --java-options "-Xms~{command_mem}m -Xmx~{max_heap}m" \
+    IndexFeatureFile -I ~{vcf}
 
     mkdir split_vcfs
 

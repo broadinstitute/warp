@@ -12,7 +12,6 @@ workflow ImputationBeaglePreChunk {
         Int chunkOverlaps = 5000000 # this is the padding that will be added to the beginning and end of each chunk to reduce edge effects
 
         File multi_sample_vcf
-        File multi_sample_vcf_index
 
         Boolean perform_extra_qc_steps = false # these are optional additional extra QC steps from Amit's group that should only be
         # run for large sample sets, especially a diverse set of samples (it's further limiting called at sites to 95% and by HWE)
@@ -40,8 +39,7 @@ workflow ImputationBeaglePreChunk {
     call tasks.PreSplitVcf {
         input:
             contigs = contigs,
-            vcf = multi_sample_vcf,
-            vcf_index = multi_sample_vcf_index
+            vcf = multi_sample_vcf
     }
 
     scatter (contig_index in range(length(contigs))) {
