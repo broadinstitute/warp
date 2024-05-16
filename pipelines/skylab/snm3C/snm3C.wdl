@@ -1034,7 +1034,9 @@ task Summary {
                     return
             fi
             for tar in "${@}"; do
-                tar -xf "$tar"
+                echo "unstarring this file now: $tar"
+                tar -xfv "$tar"
+                echo "removing this tar file now: $tar"
                 rm "$tar"
             done
         }
@@ -1049,14 +1051,17 @@ task Summary {
         extract_and_remove ~{sep=' ' unique_reads_cgn_extraction_tbi}
 
         echo "lsing cromwell root again"
-        ls -lrt ~{cromwell_root_dir}
+        ls -lRt ~{cromwell_root_dir}
+
+        echo "lsing current directory again"
+        ls -lRt
 
         mv *.trimmed.stats.txt ~{cromwell_root_dir}/fastq
         mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt ~{cromwell_root_dir}/bam
-        mv ~{cromwell_root_dir}/output_bams/*.hisat3n_dna.all_reads.deduped.matrix.txt ~{cromwell_root_dir}/bam
+        mv *.hisat3n_dna.all_reads.deduped.matrix.txt ~{cromwell_root_dir}/bam
         mv *.hisat3n_dna.all_reads.contact_stats.csv ~{cromwell_root_dir}/hic
         mv *.allc.tsv.gz.count.csv ~{cromwell_root_dir}/allc
-        mv ~{cromwell_root_dir}/allc-CGN/*.allc.tsv.gz.tbi ~{cromwell_root_dir}/allc
+        mv *.allc.tsv.gz.tbi ~{cromwell_root_dir}/allc
 
         python3 -c 'from cemba_data.hisat3n import *;snm3c_summary()'
         mv MappingSummary.csv.gz ~{plate_id}_MappingSummary.csv.gz
