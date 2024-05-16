@@ -1,4 +1,4 @@
-# 0.7.1 
+# 0.7.0 
 2024-05016 (Date of Last Commit)
 
 * Added Paired-tag testing infrastructure and example test inputs
