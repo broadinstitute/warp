@@ -1035,7 +1035,7 @@ task Summary {
             fi
             for tar in "${@}"; do
                 echo "unstarring this file now: $tar"
-                tar -xfv "$tar"
+                tar -xvf "$tar"
                 echo "removing this tar file now: $tar"
                 rm "$tar"
             done
