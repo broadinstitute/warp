@@ -7,7 +7,7 @@ import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/c
 
 workflow Multiome {
 
-    String pipeline_version = "3.4.4"
+    String pipeline_version = "3.4.5"
 
     input {
         String input_id
@@ -47,7 +47,6 @@ workflow Multiome {
 
         # CellBender
         Boolean run_cellbender = false
-
     }
 
     # Call the Optimus workflow
