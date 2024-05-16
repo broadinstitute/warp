@@ -1,3 +1,8 @@
+# 1.2.3
+2024-05-14 (Date of Last Commit)
+
+* Updated the demultiplex task so that some intermediate input names have been renamed, this does not impact the ATAC workflow
+
 # 1.2.2
 2024-05-10 (Date of Last Commit)
 
