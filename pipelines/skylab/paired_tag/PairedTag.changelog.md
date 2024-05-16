@@ -1,5 +1,10 @@
+# 0.7.1 
+2024-05016 (Date of Last Commit)
+
+* Added Paired-tag testing infrastructure and example test inputs
+
 # 0.6.1
-2024-05-14 (Date)
+2024-05-14 (Date of Last Commit)
 
 * Updated the demultiplex task so that some intermediate input names have been renamed. There is no change to the outputs.
 
