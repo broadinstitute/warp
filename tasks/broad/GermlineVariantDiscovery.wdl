@@ -98,6 +98,7 @@ task HaplotypeCaller_GATK4_VCF {
     Boolean use_dragen_hard_filtering = false
     Boolean use_spanning_event_genotyping = true
     File? dragstr_model
+    #Setting default docker value for workflows that haven't yet been azurized. 
     String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int memory_multiplier = 1
   }
@@ -172,7 +173,8 @@ task MergeVCFs {
     Array[File] input_vcfs_indexes
     String output_vcf_name
     Int preemptible_tries = 3
-    String docker
+    #Setting default docker value for workflows that haven't yet been azurized. 
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
   }
 
   Int disk_size = ceil(size(input_vcfs, "GiB") * 2.5) + 10
