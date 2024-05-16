@@ -215,7 +215,7 @@ workflow VariantCalling {
       calling_interval_list = calling_interval_list,
       is_gvcf = make_gvcf,
       extra_args = if (skip_reblocking == false) then "--no-overlaps" else "",
-      docker_path = picard_cloud_docker,
+      docker_path = gatk_docker,
       preemptible_tries = agg_preemptible_tries
   }
 

@@ -623,7 +623,7 @@ task ValidateVCF {
     Boolean is_gvcf = true
     String? extra_args
     #Setting default docker value for workflows that haven't yet been azurized. 
-    String docker_path = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    String docker_path = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
     Int machine_mem_mb = 7000
   }
 
