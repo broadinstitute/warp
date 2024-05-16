@@ -115,7 +115,8 @@ workflow snm3C {
             unique_reads_cgn_extraction_tbi = Merge_sort_analyze.extract_allc_output_tbi_tar,
             plate_id = plate_id,
             docker = docker_prefix + m3c_yap_hisat_docker,
-            cromwell_root_dir = cromwell_root_dir
+            cromwell_root_dir = cromwell_root_dir,
+            cloud_provider = cloud_provider
     }
 
     meta {
@@ -1006,6 +1007,7 @@ task Summary {
         Array[File] unique_reads_cgn_extraction_tbi
         String plate_id
         String cromwell_root_dir
+        String cloud_provider
 
         String docker
         Int disk_size = 80
@@ -1056,12 +1058,24 @@ task Summary {
         echo "lsing current directory again"
         ls -lRt
 
+        WORKING_DIR=`pwd`
+
+        if [ ~{cloud_provider} = "gcp" ]; then
+            matrix_files_dir="~{cromwell_root_dir}~{cromwell_root_dir}/output_bams"
+            allc_index_dir="~{cromwell_root_dir}~{cromwell_root_dir}/allc-*"
+        else
+            matrix_files_dir="$WORKING_DIR~{cromwell_root_dir}/output_bams"
+            allc_index_dir="$WORKING_DIR~{cromwell_root_dir}/allc-*"
+        fi
+        echo "matrix files dir: $matrix_files_dir"
+        echo "allc_index_dir: $allc_index_dir"
+
         mv *.trimmed.stats.txt ~{cromwell_root_dir}/fastq
         mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt ~{cromwell_root_dir}/bam
-        mv *.hisat3n_dna.all_reads.deduped.matrix.txt ~{cromwell_root_dir}/bam
+        mv $matrix_files_dir/*.hisat3n_dna.all_reads.deduped.matrix.txt ~{cromwell_root_dir}/bam
         mv *.hisat3n_dna.all_reads.contact_stats.csv ~{cromwell_root_dir}/hic
         mv *.allc.tsv.gz.count.csv ~{cromwell_root_dir}/allc
-        mv *.allc.tsv.gz.tbi ~{cromwell_root_dir}/allc
+        mv $allc_index_dir/*.allc.tsv.gz.tbi ~{cromwell_root_dir}/allc
 
         python3 -c 'from cemba_data.hisat3n import *;snm3c_summary()'
         mv MappingSummary.csv.gz ~{plate_id}_MappingSummary.csv.gz
