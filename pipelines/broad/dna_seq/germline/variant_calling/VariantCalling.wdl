@@ -44,9 +44,9 @@ workflow VariantCalling {
   String gatk_docker_azure = "dsppipelinedev.azurecr.io/gatk_reduced_layers:latest"
   String gatk_docker = if cloud_provider == "gcp" then gatk_docker_gcp else gatk_docker_azure
   
-  String gatk_1_3_docker_gcp = us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384
-  String gatk_1_3_docker_azure = us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384
-  String gatk_1_3_docker if cloud_provider == "gcp" then gatk_1_3_docker_gcp else gatk_1_3_docker_azure
+  String gatk_1_3_docker_gcp = "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
+  String gatk_1_3_docker_azure = "us.gcr.io/broad-gotc-prod/gatk:1.3.0-4.2.6.1-1649964384"
+  String gatk_1_3_docker = if cloud_provider == "gcp" then gatk_1_3_docker_gcp else gatk_1_3_docker_azure
 
   String picard_python_docker_gcp = "us.gcr.io/broad-gotc-prod/picard-python:1.0.0-2.26.10-1663951039"
   String picard_python_docker_azure = "dsppipelinedev.azurecr.io/picard-python:1.0.0-2.26.10-1663951039"
