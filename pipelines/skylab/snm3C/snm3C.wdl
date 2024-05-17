@@ -72,7 +72,6 @@ workflow snm3C {
                 r2_right_cut = r2_right_cut,
                 plate_id = plate_id,
                 docker = docker_prefix + m3c_yap_hisat_docker,
-                cromwell_root_dir = cromwell_root_dir
         }
 
         call Hisat_single_end as Hisat_single_end {
@@ -82,7 +81,6 @@ workflow snm3C {
                 genome_fa = genome_fa,
                 plate_id = plate_id,
                 docker = docker_prefix + m3c_yap_hisat_docker,
-                cromwell_root_dir = cromwell_root_dir
         }
 
         call Merge_sort_analyze as Merge_sort_analyze {
@@ -252,7 +250,6 @@ task Hisat_paired_end {
         File chromosome_sizes
         String plate_id
         String docker
-        String cromwell_root_dir
 
         String r1_adapter
         String r2_adapter
@@ -267,7 +264,10 @@ task Hisat_paired_end {
         Int preemptible_tries = 2
         String cpu_platform =  "Intel Ice Lake"
     }
-
+    
+    cromwell_root_dir=$(pwd)
+    batch_dir=$cromwell_root_dir/batch*
+    
     command <<<
         set -euo pipefail
         set -x
@@ -315,13 +315,6 @@ task Hisat_paired_end {
         echo "lsing cromwell root:"
         ls -lR ~{cromwell_root_dir}
 
-        # define lists of r1 and r2 fq files
-        if [ ~{cromwell_root_dir} = "gcp" ]; then
-            batch_dir="batch*/"
-        else
-            batch_dir="~{cromwell_root_dir}/*/*/*/*/*/~{cromwell_root_dir}/*/*/*/*/batch*/"
-        fi
-        echo "batchdirectory: $batch_dir"
 
 
         task() {
