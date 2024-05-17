@@ -21,7 +21,7 @@ workflow ImputationBeaglePreChunk {
         Array[String] contigs
         String reference_panel_path # path to the bucket where the reference panel files are stored for all contigs
         String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
-        String output_callset_name # the output callset name
+        String output_basename # the basename for intermediate and output files
         Boolean split_output_to_single_sample = false
 
         Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
@@ -182,7 +182,7 @@ workflow ImputationBeaglePreChunk {
             call tasks.InterleaveVariants {
                 input:
                     vcfs = select_all([RemoveAnnotations.output_vcf, SetIDs.output_vcf]),
-                    basename = output_callset_name
+                    basename = output_basename
             }
         }
 
@@ -192,7 +192,7 @@ workflow ImputationBeaglePreChunk {
     call tasks.GatherVcfs {
         input:
             input_vcfs = flatten(chromosome_vcfs),
-            output_vcf_basename = output_callset_name + ".imputed"
+            output_vcf_basename = output_basename + ".imputed"
     }
 
     call tasks.StoreChunksInfo {
@@ -203,7 +203,7 @@ workflow ImputationBeaglePreChunk {
             vars_in_array = flatten(CountVariantsInChunksBeagle.var_in_original),
             vars_in_panel = flatten(CountVariantsInChunksBeagle.var_also_in_reference),
             valids = flatten(CheckChunksBeagle.valid),
-            basename = output_callset_name
+            basename = output_basename
     }
 
     Int n_failed_chunks_int = read_int(StoreChunksInfo.n_failed_chunks)
@@ -224,8 +224,6 @@ workflow ImputationBeaglePreChunk {
     }
 
     output {
-        Array[File]? imputed_single_sample_vcfs = SplitMultiSampleVcf.single_sample_vcfs
-        Array[File]? imputed_single_sample_vcf_indices = SplitMultiSampleVcf.single_sample_vcf_indices
         File imputed_multi_sample_vcf = GatherVcfs.output_vcf
         File imputed_multi_sample_vcf_index = GatherVcfs.output_vcf_index
         File chunks_info = StoreChunksInfo.chunks_info
