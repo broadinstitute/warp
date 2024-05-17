@@ -77,6 +77,8 @@ function pipeline_to_args() {
       fi;;
     Optimus)
       echo Optimus ${common_args};;
+    PairedTag)
+      echo PairedTag ${common_args};;
     ReblockGVCF)
       echo ReblockGvcf  ${common_args};;
     RNAWithUMIsPipeline)
