@@ -1023,11 +1023,26 @@ task Summary {
         echo "lsing current dir"
         ls -lrt
 
+        WORKING_DIR=`pwd`
 
-        mkdir ~{cromwell_root_dir}/fastq
-        mkdir ~{cromwell_root_dir}/bam
-        mkdir ~{cromwell_root_dir}/allc
-        mkdir ~{cromwell_root_dir}/hic
+        if [ ~{cloud_provider} = "gcp" ]; then
+            base_directory=~{cromwell_root_dir}
+            matrix_files_dir="~{cromwell_root_dir}~{cromwell_root_dir}/output_bams"
+            allc_index_dir="~{cromwell_root_dir}~{cromwell_root_dir}/allc-*"
+        else
+            base_directory=$WORKING_DIR
+            matrix_files_dir="$WORKING_DIR~{cromwell_root_dir}/output_bams"
+            allc_index_dir="$WORKING_DIR~{cromwell_root_dir}/allc-*"
+        fi
+        echo "matrix files dir: $matrix_files_dir"
+        echo "allc_index_dir: $allc_index_dir"
+        echo "base directory is: $base_directory"
+
+
+        mkdir $base_directory/fastq
+        mkdir $base_directory/bam
+        mkdir $base_directory/allc
+        mkdir $base_directory/hic
 
         extract_and_remove() {
             if [ $# -eq 0 ];
@@ -1058,24 +1073,12 @@ task Summary {
         echo "lsing current directory again"
         ls -lRt
 
-        WORKING_DIR=`pwd`
-
-        if [ ~{cloud_provider} = "gcp" ]; then
-            matrix_files_dir="~{cromwell_root_dir}~{cromwell_root_dir}/output_bams"
-            allc_index_dir="~{cromwell_root_dir}~{cromwell_root_dir}/allc-*"
-        else
-            matrix_files_dir="$WORKING_DIR~{cromwell_root_dir}/output_bams"
-            allc_index_dir="$WORKING_DIR~{cromwell_root_dir}/allc-*"
-        fi
-        echo "matrix files dir: $matrix_files_dir"
-        echo "allc_index_dir: $allc_index_dir"
-
-        mv *.trimmed.stats.txt ~{cromwell_root_dir}/fastq
-        mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt ~{cromwell_root_dir}/bam
-        mv $matrix_files_dir/*.hisat3n_dna.all_reads.deduped.matrix.txt ~{cromwell_root_dir}/bam
-        mv *.hisat3n_dna.all_reads.contact_stats.csv ~{cromwell_root_dir}/hic
-        mv *.allc.tsv.gz.count.csv ~{cromwell_root_dir}/allc
-        mv $allc_index_dir/*.allc.tsv.gz.tbi ~{cromwell_root_dir}/allc
+        mv *.trimmed.stats.txt $base_directory/fastq
+        mv *.hisat3n_dna_summary.txt *.hisat3n_dna_split_reads_summary.R1.txt *.hisat3n_dna_split_reads_summary.R2.txt $base_directory/bam
+        mv $matrix_files_dir/*.hisat3n_dna.all_reads.deduped.matrix.txt $base_directory/bam
+        mv *.hisat3n_dna.all_reads.contact_stats.csv $base_directory/hic
+        mv *.allc.tsv.gz.count.csv $base_directory/allc
+        mv $allc_index_dir/*.allc.tsv.gz.tbi $base_directory/allc
 
         cwd=`pwd`
         echo "current working dir is: $cwd"
@@ -1090,12 +1093,13 @@ task Summary {
         print("Calling summary function")
         snm3c_summary()
 
-        print("Called summry function")
+        print("Called summary function")
 
         working_dir = os.getcwd()
         print(f"Current working direcetory is: {working_dir}")
         print("These are the files located here:")
-        os.listdir()
+        files = os.listdir()
+        print(files)
 
         CODE
 
