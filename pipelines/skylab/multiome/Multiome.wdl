@@ -44,7 +44,7 @@ workflow Multiome {
         String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
 
         # CellBender
-        Boolean run_cellbender = false
+        Boolean run_cellbender = true
 
     }
 
