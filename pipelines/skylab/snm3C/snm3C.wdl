@@ -1077,7 +1077,33 @@ task Summary {
         mv *.allc.tsv.gz.count.csv ~{cromwell_root_dir}/allc
         mv $allc_index_dir/*.allc.tsv.gz.tbi ~{cromwell_root_dir}/allc
 
-        python3 -c 'from cemba_data.hisat3n import *;snm3c_summary()'
+        cwd=`pwd`
+        echo "current working dir is: $cwd"
+
+
+        python3 <<CODE
+        from cemba_data.hisat3n import *
+        import os
+        working_dir = os.getcwd()
+        print(f"Current working direcetory is: {working_dir}")
+
+        print("Calling summary function")
+        snm3c_summary()
+
+        print("Called summry function")
+
+        working_dir = os.getcwd()
+        print(f"Current working direcetory is: {working_dir}")
+        print("These are the files located here:")
+        os.listdir()
+
+        CODE
+
+        cwd=`pwd`
+        echo "current working dir is: $cwd"
+        echo "recursively lsing cromwell root"
+        ls -lRt ~{cromwell_root_dir}
+
         mv MappingSummary.csv.gz ~{plate_id}_MappingSummary.csv.gz
 
     >>>
