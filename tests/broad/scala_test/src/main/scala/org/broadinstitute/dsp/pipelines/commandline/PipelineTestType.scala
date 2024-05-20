@@ -183,6 +183,12 @@ object PipelineTestType extends Enum[PipelineTestType] {
         "Optimus",
         "/skylab/optimus/"
       )
+  case object PairedTag
+      extends PipelineTestType(
+        "TestPairedTag",
+        "PairedTag",
+        "/skylab/paired_tag/"
+      )
   case object scATAC
       extends PipelineTestType(
         "TestscATAC",
