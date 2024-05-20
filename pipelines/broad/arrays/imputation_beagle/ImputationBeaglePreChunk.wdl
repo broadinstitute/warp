@@ -228,7 +228,7 @@ workflow ImputationBeaglePreChunk {
         File imputed_multi_sample_vcf_index = GatherVcfs.output_vcf_index
         File chunks_info = StoreChunksInfo.chunks_info
         File failed_chunks = StoreChunksInfo.failed_chunks
-        File n_failed_chunks = StoreChunksInfo.n_failed_chunks
+        Int n_failed_chunks = n_failed_chunks_int
     }
 
     meta {
