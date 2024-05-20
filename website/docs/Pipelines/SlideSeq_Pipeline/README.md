@@ -13,7 +13,7 @@ slug: /Pipelines/SlideSeq_Pipeline/README
 
 ## Introduction to the Slide-seq workflow
 
-The [Slide-seq workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/slideseq/SlideSeq.wdl) is an open-source, cloud-optimized pipeline developed in collaboration with the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN) and the BRAIN Initiative Cell Atlas Network (BICAN). It supports the processing of spatial transcriptomic data generated with the [Slide-seq](https://www.science.org/doi/10.1126/science.aaw1219) (commercialized as [Curio Seeker](https://curiobioscience.com/product/)) assay.
+The [Slide-seq workflow](https://github.com/broadinstitute/warp/blob/master/pipelines/skylab/slideseq/SlideSeq.wdl) is an open-source, cloud-optimized pipeline developed in collaboration with the [BRAIN Initiative Cell Census Network](https://biccn.org/) (BICCN) and the BRAIN Initiative Cell Atlas Network (BICAN). It supports the processing of spatial transcriptomic data generated with the [Slide-seq](https://www.science.org/doi/10.1126/science.aaw1219) (commercialized as [Curio Seeker](https://curiobioscience.com/seeker/)) assay.
 
 Overall, the workflow corrects bead barcodes, aligns reads to the genome, generates a count matrix, calculates summary metrics for genes, barcodes, and UMIs, returns read outputs in BAM format, and returns counts in numpy matrix and h5ad file formats.
 
