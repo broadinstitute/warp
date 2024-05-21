@@ -91,7 +91,6 @@ task SplitFoFnToListFoFn {
   }
 }
 
-
 task CombineVCFs {
   input {
     Array[File]+ vcfs
