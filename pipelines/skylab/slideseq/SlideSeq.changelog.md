@@ -1,3 +1,8 @@
+# 3.1.6
+2024-05-20 (Date of Last Commit)
+
+* Updated SnapATAC2 docker to SnapATAC2 v2.6.3; this does not impact the SlideSeq workflow
+
 # 3.1.5
 2024-04-12 (Date of Last Commit)
 

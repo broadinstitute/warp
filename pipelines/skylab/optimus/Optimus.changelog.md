@@ -1,3 +1,8 @@
+# 6.6.3
+2024-05-20 (Date of Last Commit)
+
+* Updated SnapATAC2 docker to SnapATAC2 v2.6.3; this does not impact the Optimus workflow
+
 # 6.6.2
 2024-04-24 (Date of Last Commit)
 
