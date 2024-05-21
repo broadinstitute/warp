@@ -68,7 +68,6 @@ workflow MultiSampleArrays {
   }
 }
 
-
 task SplitFoFnToListFoFn {
   input {
     File fofn
