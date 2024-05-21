@@ -2,7 +2,7 @@
 2024-05-20
 
 * Updated SnapATAC2 docker and tasks to run SnapATAC v2.6.3 
-* Added testing infrastructure for paired-tag plumbing data and example data sts
+* Added testing infrastructure for paired-tag plumbing data and example data sets
 
 
 # 0.6.1
