@@ -45,7 +45,6 @@ workflow ATAC {
 
   String pipeline_version = "1.2.3"
 
-
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
   String acr_docker_prefix = "dsppipelinedev.azurecr.io/"
@@ -65,7 +64,6 @@ workflow ATAC {
             message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
     }
   }
-
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
@@ -148,6 +146,7 @@ workflow ATAC {
 
     }
   }
+
   File bam_aligned_output_atac = select_first([BBTag.bb_bam, BWAPairedEndAlignment.bam_aligned_output])
   File fragment_file_atac = select_first([BB_fragment.fragment_file, CreateFragmentFile.fragment_file])
   File snap_metrics_atac = select_first([BB_fragment.Snap_metrics,CreateFragmentFile.Snap_metrics])

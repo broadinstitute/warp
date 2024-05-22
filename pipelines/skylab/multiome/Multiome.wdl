@@ -8,7 +8,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "3.4.4"
+    String pipeline_version = "3.4.5"
 
     input {
         String cloud_provider
@@ -45,7 +45,6 @@ workflow Multiome {
 
         # CellBender
         Boolean run_cellbender = false
-
     }
 
     # Determine docker prefix based on cloud provider
