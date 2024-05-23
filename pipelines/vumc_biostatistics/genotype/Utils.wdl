@@ -134,6 +134,53 @@ plink2 \
   }
 }
 
+
+task ExtractPgenRegions {
+  input {
+    File source_pgen
+    File source_pvar
+    File source_psam
+    File region_bed
+    String chromosome
+
+    String plink2_filter_option
+
+    Int memory_gb = 20
+
+    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+  }
+
+  Int disk_size = ceil(size([source_pgen, source_psam, source_pvar], "GB")  * 2) + 20
+
+  String new_pgen = chromosome + ".pgen"
+  String new_pvar = chromosome + ".pvar"
+  String new_psam = chromosome + ".psam"
+
+  command <<<
+
+plink2 ~{plink2_filter_option} \
+  --pgen ~{source_pgen} \
+  --pvar ~{source_pvar} \
+  --psam ~{source_psam} \
+  --extract bed0 ~{region_bed}
+  --make-pgen \
+  --out ~{chromosome}
+
+>>>
+
+  runtime {
+    docker: docker
+    preemptible: 1
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+  }
+  output {
+    File output_pgen_file = new_pgen
+    File output_pvar_file = new_pvar
+    File output_psam_file = new_psam
+  }
+}
+
 task MergePgenFiles {
   input {
     Array[File] pgen_files

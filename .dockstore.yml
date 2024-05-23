@@ -316,3 +316,8 @@ workflows:
   - name: VUMCVcfIndex
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfIndex.wdl
+
+  - name: VUMCExtractRegionAGD
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractRegionAGD.wdl
+
