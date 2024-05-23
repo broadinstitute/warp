@@ -162,7 +162,7 @@ plink2 ~{plink2_filter_option} \
   --pgen ~{source_pgen} \
   --pvar ~{source_pvar} \
   --psam ~{source_psam} \
-  --extract bed0 ~{region_bed}
+  --extract bed0 ~{region_bed} \
   --make-pgen \
   --out ~{chromosome}
 
