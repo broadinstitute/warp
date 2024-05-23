@@ -86,11 +86,11 @@ workflow PairedTag {
             read3_fastq_gzipped = demultiplex.fastq3,
             input_id = input_id + "_atac",
             tar_bwa_reference = tar_bwa_reference,
-            annotations_gtf = annotations_gtf,
             chrom_sizes = chrom_sizes,
             whitelist = atac_whitelist,
             adapter_seq_read1 = adapter_seq_read1,
             adapter_seq_read3 = adapter_seq_read3,
+            annotations_gtf = annotations_gtf,
             preindex = preindex
     }
 
