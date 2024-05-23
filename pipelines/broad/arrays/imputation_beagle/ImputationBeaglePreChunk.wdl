@@ -19,8 +19,6 @@ workflow ImputationBeagle {
         String genetic_maps_path # path to the bucket where genetic maps are stored for all contigs
         String output_basename # the basename for intermediate and output files
 
-        Int chunks_fail_threshold = 1 # require fewer than this many chunks to fail in order to pass
-
         # file extensions used to find reference panel files
         String interval_list_suffix = ".interval_list"
         String bref3_suffix = ".bref3"
