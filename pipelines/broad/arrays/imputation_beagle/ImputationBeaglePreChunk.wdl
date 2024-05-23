@@ -103,6 +103,7 @@ workflow ImputationBeagle {
                         message = chunk_basename + " was not a valid chunk"
                 }
             }
+
             call tasks.PhaseAndImputeBeagle {
                 input:
                     dataset_vcf = PreChunkVcf.generate_chunk_vcfs[i],
